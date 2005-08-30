@@ -1,60 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932216AbVH3QnH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932219AbVH3Qr3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932216AbVH3QnH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 12:43:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbVH3QnH
+	id S932219AbVH3Qr3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 12:47:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbVH3Qr3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 12:43:07 -0400
-Received: from postfix3-2.free.fr ([213.228.0.169]:10944 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S932219AbVH3QnG
+	Tue, 30 Aug 2005 12:47:29 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:51094 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932219AbVH3Qr2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 12:43:06 -0400
-Date: Tue, 30 Aug 2005 18:29:18 +0200 (CEST)
-From: =?ISO-8859-15?Q?Peter_M=FCnster?= <pmrb@free.fr>
-To: Chris Wright <chrisw@osdl.org>
+	Tue, 30 Aug 2005 12:47:28 -0400
+Subject: Re: OOPS in 2.6.13: jfsCommit
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: "SR, ESC" <simon@nuit.ca>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel freezes with 2.6.12.5 and 2.6.13
-In-Reply-To: <20050829215238.GF7762@shell0.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.58.0508301746440.18770@gaston.free.fr>
-References: <Pine.LNX.4.58.0508292050180.28621@gaston.free.fr>
- <20050829191754.GW7991@shell0.pdx.osdl.net> <Pine.LNX.4.58.0508292253590.32579@gaston.free.fr>
- <20050829215238.GF7762@shell0.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20050830115950.GA8764@pylon>
+References: <20050830115950.GA8764@pylon>
+Content-Type: text/plain
+Date: Tue, 30 Aug 2005 11:47:11 -0500
+Message-Id: <1125420432.9223.3.camel@kleikamp.austin.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Aug 2005, Chris Wright wrote:
-
-> * Peter Münster (pmlists@free.fr) wrote:
-> > On Mon, 29 Aug 2005, Chris Wright wrote:
-> > 
-> > > * Peter Münster (pmlists@free.fr) wrote:
-> > > > with 2.6.12.4 no problem. But with a newer version, I get a black screen
-> > > > and no more network access, when trying to print (lpr some-file.ps).
-> > > > Everything else seems to work ok.
-> > > > Printer is a network-printer managed by cups.
-> > > > I suppose, it's a smp-problem, so here is my /proc/cpuinfo:
-> > > 
-> > > Is this 100% reproducible?  Do you get any kernel oops messages on
-> > > the console?  There are very few patches between 2.6.12.4 and 2.6.12.5,
-> > > so if the problem is reproducible can you narrow to the specific patch?
-> > 
-> > Yes, it's 100% reproducible. But I do not get any message. Display is
-> > shutting down, and no more access with ssh. Ctrl-Alt-Del does not work
-> > neither. Nothing in /var/log/messages.
+On Tue, 2005-08-30 at 07:59 -0400, SR, ESC wrote:
+> hi,
 > 
-> Are you running X?  Can you reproduce running lpr from console command line?
+> i encountered an OOPS during boot here. dropped the machine into xmon
+> even. during boot, i got what's in the attached file
+> (kernel_bug_2.6.13_jfsCommit).
 
-Yes, I'm running XFree86. Thank you for the patches.
-I'm going to try without X and the different patches Friday.
+I think the problem may be a recent change to jfs_delete_inode.  Does
+this patch fix the problem?
+---------------------------------------------------------------------
+JFS: jfs_delete_inode should always call clear_inode.
 
-Unfortunately, my system froze today with the 2.6.12.4 kernel in the same
-manner (black screen), and it's *not* reproducible: I've just read a pdf
-with gv...
+Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
 
-Thanks for your efforts, Peter
+diff --git a/fs/jfs/inode.c b/fs/jfs/inode.c
+--- a/fs/jfs/inode.c
++++ b/fs/jfs/inode.c
+@@ -128,21 +128,21 @@ void jfs_delete_inode(struct inode *inod
+ {
+ 	jfs_info("In jfs_delete_inode, inode = 0x%p", inode);
+ 
+-	if (is_bad_inode(inode) ||
+-	    (JFS_IP(inode)->fileset != cpu_to_le32(FILESYSTEM_I)))
+-			return;
++	if (!is_bad_inode(inode) &&
++	    (JFS_IP(inode)->fileset == cpu_to_le32(FILESYSTEM_I))) {
+ 
+-	if (test_cflag(COMMIT_Freewmap, inode))
+-		jfs_free_zero_link(inode);
++		if (test_cflag(COMMIT_Freewmap, inode))
++			jfs_free_zero_link(inode);
+ 
+-	diFree(inode);
++		diFree(inode);
+ 
+-	/*
+-	 * Free the inode from the quota allocation.
+-	 */
+-	DQUOT_INIT(inode);
+-	DQUOT_FREE_INODE(inode);
+-	DQUOT_DROP(inode);
++		/*
++		 * Free the inode from the quota allocation.
++		 */
++		DQUOT_INIT(inode);
++		DQUOT_FREE_INODE(inode);
++		DQUOT_DROP(inode);
++	}
+ 
+ 	clear_inode(inode);
+ }
 
 -- 
-http://pmrb.free.fr/contact/
+David Kleikamp
+IBM Linux Technology Center
+

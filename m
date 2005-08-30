@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750829AbVH3Jyy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750880AbVH3J4f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750829AbVH3Jyy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 05:54:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750830AbVH3Jyy
+	id S1750880AbVH3J4f (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 05:56:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750868AbVH3J4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 05:54:54 -0400
-Received: from ns.firmix.at ([62.141.48.66]:34002 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S1750829AbVH3Jyx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 05:54:53 -0400
-Subject: Re: KLive: Linux Kernel Live Usage Monitor
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-Cc: Sven Ladegast <sven@linux4geeks.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050830094058.GA29214@bitwizard.nl>
-References: <20050830030959.GC8515@g5.random>
-	 <Pine.LNX.4.63.0508300954190.1984@cassini.linux4geeks.de>
-	 <20050830082901.GA25438@bitwizard.nl>
-	 <Pine.LNX.4.63.0508301044150.1984@cassini.linux4geeks.de>
-	 <20050830094058.GA29214@bitwizard.nl>
-Content-Type: text/plain
-Organization: Firmix Software GmbH
-Date: Tue, 30 Aug 2005 11:54:42 +0200
-Message-Id: <1125395682.4882.53.camel@tara.firmix.at>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 30 Aug 2005 05:56:35 -0400
+Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:31199 "EHLO
+	mta07-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S1750830AbVH3J4e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 05:56:34 -0400
+Message-ID: <43142D4C.6030804@gentoo.org>
+Date: Tue, 30 Aug 2005 10:56:28 +0100
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050820)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Steve Kieu <haiquy@yahoo.com>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: Very strange Marvell/Yukon Gigabit NIC networking problems
+References: <20050830083512.39846.qmail@web53603.mail.yahoo.com>
+In-Reply-To: <20050830083512.39846.qmail@web53603.mail.yahoo.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-08-30 at 11:40 +0200, Rogier Wolff wrote:
-[...]
-> would IMHO work better. (A userspace program is technically a better
-> solution, the social aspect of getting a bigger user-base is the main
-> reason for me to suggest the in-kernel approach).
+Steve Kieu wrote:
+> Ok it sound wierd enough to assume that the latest
+> kernel 2.6.13 ethernet driver has done something wrong
+> with the NIC and sustain the condition after reboot or
+> turn off the machine.
+> 
+> Here is my configuration.
+> 
+> Laptop Asus A4500d. dmesg shows:
+> 
+> eth0: Yukon Gigabit Ethernet 10/100/1000Base-T Adapter
 
-So *if* a user wants to participate, he/she also installs and configures
-some daemon for this (which is also easier to look into if one is
-curious) and there is no "Linux kernel phones home" stories.
-And if not, he/she can easily remove it (again).
+Are you using skge or sk98lin?
 
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
-
+> It is working as normal with 2.6.12 and winXP before.
+> Today I did upgrade the kernel to 2.6.13 and it still
+> works. The problem is now I switch to the older kernel
+> that is 2.6.12.5 and .6  it no longer works. dmesg
+> shows like this:
+>      
+> eth0: Yukon Gigabit Ethernet 10/100/1000Base-T Adapter
+>       PrefPort:A  RlmtMode:Check Link State
+> 
+> 
+> Boot window XP now, and the link always shows that
+> media disconnected. So the NIC is unuseable with
+> WinXP, 2.6.12  __but__ still works with 2.6.13. and
+> power off the machine does not restore the NIC. 

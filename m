@@ -1,94 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932224AbVH3TO1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932391AbVH3TQK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932224AbVH3TO1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 15:14:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932390AbVH3TO1
+	id S932391AbVH3TQK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 15:16:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932392AbVH3TQK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 15:14:27 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:57573 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932224AbVH3TOZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 15:14:25 -0400
-Date: Tue, 30 Aug 2005 21:13:43 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Knut Petersen <Knut_Petersen@t-online.de>
-cc: linux-fbdev-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
-       "Antonino A. Daplas" <adaplas@gmail.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Jochen Hein <jochen@jochen.org>
-Subject: Re: [Linux-fbdev-devel] [PATCH 1/1 2.6.13] framebuffer: bit_putcs()
- optimization for 8x* fonts
-In-Reply-To: <43149E5B.7040006@t-online.de>
-Message-ID: <Pine.LNX.4.61.0508302039160.3743@scrub.home>
-References: <43148610.70406@t-online.de> <Pine.LNX.4.62.0508301814470.6045@numbat.sonytel.be>
- <43149E5B.7040006@t-online.de>
+	Tue, 30 Aug 2005 15:16:10 -0400
+Received: from claven.physics.ucsb.edu ([128.111.16.29]:49612 "EHLO
+	claven.physics.ucsb.edu") by vger.kernel.org with ESMTP
+	id S932391AbVH3TQJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 15:16:09 -0400
+Date: Tue, 30 Aug 2005 12:16:04 -0700 (PDT)
+From: Nathan Becker <nbecker@physics.ucsb.edu>
+To: linux-kernel@vger.kernel.org
+Subject: strange CPU speedups with SMP on Athlon 64 X2
+Message-ID: <Pine.LNX.4.63.0508301153340.10786@claven.physics.ucsb.edu>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811837-1053673453-1125429223=:3743"
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-
----1463811837-1053673453-1125429223=:3743
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-
 Hi,
 
-On Tue, 30 Aug 2005, Knut Petersen wrote:
+I'm having a strange problem when I benchmark some of my physics 
+simulation code on my new Athlon 64 X2 4800 machine.  It occurs on all 
+current kernels that I have tested including 2.6.12.5 and 2.6.13.
 
-> > Probably you can make it even faster by avoiding the multiplication, li=
-ke
-> >=20
-> >    unsigned int offset =3D 0;
-> >    for (i =3D 0; i < image.height; i++) {
-> > =09dst[offset] =3D src[i];
-> > =09offset +=3D pitch;
-> >    }
-> >=20
->=20
-> More than two decades ago I learned to avoid mul and imul. Use shifts, ad=
-d and
-> lea instead,
-> that was the credo those days. The name of the game was CP/M 80/86, a86, =
-d86
-> and ddt ;-)
->=20
-> But let=B4s get serious again.
->=20
-> Your proposed change of the patch results in a 21 ms performance decrease=
- on
-> my system.
-> Yes, I do know that this is hard to believe. I tested a similar variation
-> before, and the results
-> were even worse.
+If I run my benchmark single threaded, so that one of the two CPU cores is 
+just idling then the calculation goes pretty fast.  But if I load both CPU 
+cores simultaneously but with INDEPENDENT calculations, then each 
+calculation runs about 12-15% faster than when running alone.  I have 
+found this to be always reproducible.  There is no disk access involved in 
+the calculation and RAM usage is fairly minimal so this is not caused by 
+caching. Also, if I compile the kernel to disable SMP then the machine 
+runs a single calculation at the same speed as when running alone when SMP 
+is enabled.
 
-Could you try the patch below, for a few extra cycles you might want to=20
-make it an inline function.
+I am aware of the timing issues on these machines (especially since I 
+reported the bug http://bugzilla.kernel.org/show_bug.cgi?id=5105 ). 
+However, I double-checked my benchmark with a stop-watch, so this is 
+independent of something strange happening in the timer.
 
-bye, Roman
+I also checked the cpufreq governor and according to the logs, my CPU is 
+holding steady at the maximum setting of 2.4GHz.  I set the governor to 
+"performance" mode which should prevent unintended downclocking.
 
-Index: linux-2.6/drivers/video/fbmem.c
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- linux-2.6.orig/drivers/video/fbmem.c=092005-08-30 01:55:18.000000000 +0=
-200
-+++ linux-2.6/drivers/video/fbmem.c=092005-08-30 21:10:25.705462837 +0200
-@@ -82,11 +82,11 @@ void fb_pad_aligned_buffer(u8 *dst, u32=20
- {
- =09int i, j;
-=20
-+=09d_pitch -=3D s_pitch;
- =09for (i =3D height; i--; ) {
- =09=09/* s_pitch is a few bytes at the most, memcpy is suboptimal */
- =09=09for (j =3D 0; j < s_pitch; j++)
--=09=09=09dst[j] =3D src[j];
--=09=09src +=3D s_pitch;
-+=09=09=09*dst++ =3D *src++;
- =09=09dst +=3D d_pitch;
- =09}
- }
----1463811837-1053673453-1125429223=:3743--
+I would be happy to post my exact C source that I use to do the benchmark, 
+but I wanted to get some feedback first in case I'm just doing something 
+stupid.  Also, since I'm not subscribed to this list, please cc me 
+directly regarding this topic.
+
+Thanks very much,
+
+Nathan

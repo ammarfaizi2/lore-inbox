@@ -1,137 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751391AbVH3MAN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751393AbVH3MAs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751391AbVH3MAN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 08:00:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbVH3MAM
+	id S1751393AbVH3MAs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 08:00:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751399AbVH3MAr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 08:00:12 -0400
-Received: from www.nuit.ca ([66.11.160.83]:43465 "EHLO smtp.nuit.ca")
-	by vger.kernel.org with ESMTP id S1751391AbVH3MAL (ORCPT
+	Tue, 30 Aug 2005 08:00:47 -0400
+Received: from spirit.analogic.com ([208.224.221.4]:26887 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP
+	id S1751393AbVH3MAr convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 08:00:11 -0400
-Date: Tue, 30 Aug 2005 07:59:51 -0400
-From: "SR, ESC" <simon@nuit.ca>
-To: linux-kernel@vger.kernel.org
-Subject: OOPS in 2.6.13: jfsCommit
-Message-ID: <20050830115950.GA8764@pylon>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="eJnRUKwClWJh1Khz"
-Content-Disposition: inline
-X-GPG-KeyServer: hkp://subkeys.pgp.net
-X-Operating-System: Debian GNU/Linux
-User-Agent: mutt-ng devel-r316 (Debian)
+	Tue, 30 Aug 2005 08:00:47 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-OriginalArrivalTime: 30 Aug 2005 12:00:46.0100 (UTC) FILETIME=[745F6D40:01C5AD5A]
+Content-class: urn:content-classes:message
+Subject: Linux-2.6.13 __request_region buggered
+Date: Tue, 30 Aug 2005 07:59:49 -0400
+Message-ID: <Pine.LNX.4.61.0508300757070.7559@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Linux-2.6.13 __request_region buggered
+Thread-Index: AcWtWnRwOYdOSo6ET2edxVXoOk3UzA==
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Linux kernel" <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---eJnRUKwClWJh1Khz
-Content-Type: multipart/mixed; boundary="opJtzjQTFsWo+cga"
-Content-Disposition: inline
 
+Changes in "request_mem_region()"  ("__request_region()")
+now seem to force PCI/Bus alignment upon the requested region.
+It appears as though somebody thought this would only used
+to reserve address-space on a PCI/Bus.
 
---opJtzjQTFsWo+cga
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Linux-2.6.12.5 and all known previous versions back to
+linux-2.4.26 worked fine.
 
+This breaks several high-speed data-acquisition boards and
+it isn't easy to fix. Since I allocate 16 megabytes of address-
+space, aligned on a PAGE boundary, I would have to allocate
+4096 blocks of PAGE_SIZE and keep track of them for module
+unload.
 
-hi,
+This is an egregious mistake. One can't make such arbitrary
+rules when interfacing to an operating system. The only reason
+for the alignment issues on a PCI/Bus was to save the cost
+of decode. Since, at least the ix86, can access a single
+bit anywhere in memory, one should not create such constraints
+out of thin air.
 
-i encountered an OOPS during boot here. dropped the machine into xmon
-even. during boot, i got what's in the attached file
-(kernel_bug_2.6.13_jfsCommit).
+Maybe this is just a coding error and not a deliberate
+constraint? Please fix.
 
-the machine is:
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.13 on an i686 machine (5589.55 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+.
+I apologize for the following. I tried to kill it with the above dot :
 
-cat /proc/cpuinfo
-processor       : 0
-cpu             : 740/750
-temperature     : 33-37 C (uncalibrated)
-clock           : 195MHz
-revision        : 2.2 (pvr 0008 0202)
-bogomips        : 602.11
-machine         : Power Macintosh
-motherboard     : AAPL,9500 MacRISC
-detected as     : 16 (PowerMac 9500/9600)
-pmac flags      : 00000000
-memory          : 512MB
-pmac-generation : OldWorld
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
 
-
-0000:00:0b.0 Host bridge: Apple Computer Inc. Bandit PowerPC host bridge (r=
-ev 03)
-0000:00:0e.0 PCI bridge: Digital Equipment Corporation DECchip 21152 (rev 0=
-3)
-0000:00:0f.0 VGA compatible controller: ATI Technologies Inc 3D Rage LT Pro=
- (rev dc)
-0000:00:10.0 ff00: Apple Computer Inc. Grand Central I/O (rev 02)
-0000:01:00.0 Memory controller: Adaptec AIC-7815 RAID+Memory Controller IC =
-(rev 02)
-0000:01:04.0 SCSI storage controller: Adaptec 78902
-0001:02:0b.0 Host bridge: Apple Computer Inc. Bandit PowerPC host bridge (r=
-ev 03)
-0001:02:0e.0 Ethernet controller: Lite-On Communications Inc LNE100TX (rev =
-20)
-
-
-PLEASE CC: ME, thanks.
-
---=20
- http://www.nuit.ca/ http://home.earthlink.net/~wodensharrow/hah.html   ,''=
-`.   http://www.debian.org/
- http://simonraven.nuit.ca/ http://www.antiracistaction.ca/             : :=
-' :  Debian GNU/Linux
- http://pentangle.nuit.ca/ezine/vol_x/x0305.html                        '
-                                                                          `-
-
---opJtzjQTFsWo+cga
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: attachment; filename="kernel_bug_2.6.13_jfsCommit"
-Content-Transfer-Encoding: quoted-printable
-
-kernel BUG in generic_delete_inode at fs/inode.c:1055!
-Oops: Exception in kernel mode, sig: 5 [#1]
-NIP: C008A6C4 LR: C008A6B8 SP: DFFD3F20 REGS: dffd3e70 TRAP: 0700    Not ta=
-inted
-MSR: 00029032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
-TASK =3D c0bbe070[60] 'jfsCommit' THREAD: dffd2000
-Last syscall: -1=20
-GPR00: 00000010 DFFD3F20 C0BBE070 C0517438 00000003 00000001 DFFD3EF8 DF5DA=
-200=20
-GPR08: C0700000 C0517000 9E370001 C03FF43C 39AD3E35 DEADBEEF 003F0000 DEADB=
-EEF=20
-GPR16: 00000000 DEADBEEF DEADBEEF 007A94B8 007A94B8 C03B0000 C03B0000 C04D0=
-000=20
-GPR24: 00000010 00000000 00000001 DEA41C88 E1000EC4 CA12B360 C00FC520 CA12B=
-360=20
-NIP [c008a6c4] generic_delete_inode+0x114/0x1b0
-LR [c008a6b8] generic_delete_inode+0x108/0x1b0
-Call trace:
- [c0089998] iput+0x98/0xc0
- [c011ffc4] txUpdateMap+0x254/0x320
- [c01205b8] jfs_lazycommit+0x178/0x280
- [c0007224] kernel_thread+0x44/0x60
-
---opJtzjQTFsWo+cga--
-
---eJnRUKwClWJh1Khz
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iQGVAwUBQxRKNWqIeuJxHfCXAQLyfwv7Bm5cCkBXsr1xIhxOBfX/3mdDdk5QYCaP
-aqPTng10YE1zqT2nQao+NkuNIy9+hjejNhp0lAesSLvpKW5Oqfn7uMaMNXpfNO/Z
-qMaEmgYKw60nBFe4zV3cnWG0iMTmnd1SWeiMEbslLBv4TA4+q05NKY5/i6Y7i+t3
-wjqUwFNeweH460Emk02rJ9AAhkltVVPzFo+Sy6UIKOHzOgnDbRxxz+ow62vF/rUZ
-1SZOaz3i1R1TYuUU0yXE9qNJnMxapN6eiBkDH7vl3+/NpxfEKgImcIYq/3AanSNg
-WU+6T9LoXq+Py78ibYdhx8bC6biajNbRAgt12Bj/B4HfWVuJxI2Q9FYEhd5aqbPt
-4lz96Np3hkvcmUb/7D+4jJrSQnll5xQPwXKLRt6dyyL3emPX3N/mv21dmsopSDfR
-S+XKmYl9TlRgnj5EzDfAWFH3ifCfIh+Ae/YZyqds6hgoouTYLrPSwGQw1qW3UtXz
-L0sBZfe4AhA1kwNpHVSaQlzEGiCwGoi5
-=gyWa
------END PGP SIGNATURE-----
-
---eJnRUKwClWJh1Khz--
+Thank you.

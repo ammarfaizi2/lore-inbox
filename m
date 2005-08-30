@@ -1,71 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932243AbVH3Rz6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932244AbVH3R6Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932243AbVH3Rz6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 13:55:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932242AbVH3Rz6
+	id S932244AbVH3R6Y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 13:58:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932242AbVH3R6Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 13:55:58 -0400
-Received: from mailout10.sul.t-online.com ([194.25.134.21]:22701 "EHLO
-	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S932241AbVH3Rz5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 13:55:57 -0400
-Message-ID: <43149E5B.7040006@t-online.de>
-Date: Tue, 30 Aug 2005 19:58:51 +0200
-From: Knut Petersen <Knut_Petersen@t-online.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.7) Gecko/20050414
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: linux-fbdev-devel@lists.sourceforge.net
-CC: Andrew Morton <akpm@osdl.org>, "Antonino A. Daplas" <adaplas@gmail.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Jochen Hein <jochen@jochen.org>
-Subject: Re: [Linux-fbdev-devel] [PATCH 1/1 2.6.13] framebuffer: bit_putcs()
- optimization for 8x* fonts
-References: <43148610.70406@t-online.de> <Pine.LNX.4.62.0508301814470.6045@numbat.sonytel.be>
-In-Reply-To: <Pine.LNX.4.62.0508301814470.6045@numbat.sonytel.be>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ID: GuloccZVYewomlYkw15S2lI-FDg-3vcfL8NY55dHpjpGzrpDChij4+@t-dialin.net
-X-TOI-MSGID: 2d4c02bb-d883-4929-b55e-4ebabc35657d
+	Tue, 30 Aug 2005 13:58:24 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:3083 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S932240AbVH3R6X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 13:58:23 -0400
+Date: Tue, 30 Aug 2005 13:58:03 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: linux-kernel@vger.kernel.org
+Cc: Andi Kleen <ak@suse.de>, discuss@x86-64.org, tony.luck@intel.com,
+       linux-ia64@vger.kernel.org
+Subject: [patch 2.6.13] swiotlb: add swiotlb_sync_single_range_for_{cpu,device}
+Message-ID: <20050830175803.GC18998@tuxdriver.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>,
+	discuss@x86-64.org, tony.luck@intel.com, linux-ia64@vger.kernel.org
+References: <20050829200916.GI3716@tuxdriver.com> <200508292254.53476.ak@suse.de> <20050829214828.GA6314@tuxdriver.com> <200508300314.35177.ak@suse.de> <20050830175436.GB18998@tuxdriver.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050830175436.GB18998@tuxdriver.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Add swiotlb_sync_single_range_for_{cpu,device} implementations.  This is
+used to support implementation of dma_sync_single_range_for_{cpu,device}
+on x86_64.
 
->Probably you can make it even faster by avoiding the multiplication, like
->
->    unsigned int offset = 0;
->    for (i = 0; i < image.height; i++) {
->	dst[offset] = src[i];
->	offset += pitch;
->    }
->
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
 
-More than two decades ago I learned to avoid mul and imul. Use shifts, 
-add and lea instead,
-that was the credo those days. The name of the game was CP/M 80/86, a86, 
-d86 and ddt ;-)
+ arch/ia64/lib/swiotlb.c      |   33 +++++++++++++++++++++++++++++++++
+ include/asm-x86_64/swiotlb.h |    8 ++++++++
+ 2 files changed, 41 insertions(+)
 
-But let´s get serious again.
-
-Your proposed change of the patch results in a 21 ms performance 
-decrease on my system.
-Yes, I do know that this is hard to believe. I tested a similar 
-variation before, and the results
-were even worse.
-
-Avoiding mul is a good idea in assembly language today, but often it is 
-better to write a
-multiplication  with the loop counter in C and not to introduce an extra 
-variable instead. The
-compiler will optimize the code and it´s easier for gcc without that 
-extra variable.
-
-More interesting would be the question what should be done for idx==2 or 
-idx==3. Probably
-fb_pad_aligned_buffer() is also slower for those cases. But does anybody 
-use such fonts?
-
-cu,
- knut
+diff --git a/arch/ia64/lib/swiotlb.c b/arch/ia64/lib/swiotlb.c
+--- a/arch/ia64/lib/swiotlb.c
++++ b/arch/ia64/lib/swiotlb.c
+@@ -522,6 +522,37 @@ swiotlb_sync_single_for_device(struct de
+ }
+ 
+ /*
++ * Same as above, but for a sub-range of the mapping.
++ */
++void
++swiotlb_sync_single_range_for_cpu(struct device *hwdev, dma_addr_t dev_addr,
++				  unsigned long offset, size_t size, int dir)
++{
++	char *dma_addr = phys_to_virt(dev_addr) + offset;
++
++	if (dir == DMA_NONE)
++		BUG();
++	if (dma_addr >= io_tlb_start && dma_addr < io_tlb_end)
++		sync_single(hwdev, dma_addr, size, dir);
++	else if (dir == DMA_FROM_DEVICE)
++		mark_clean(dma_addr, size);
++}
++
++void
++swiotlb_sync_single_range_for_device(struct device *hwdev, dma_addr_t dev_addr,
++				     unsigned long offset, size_t size, int dir)
++{
++	char *dma_addr = phys_to_virt(dev_addr) + offset;
++
++	if (dir == DMA_NONE)
++		BUG();
++	if (dma_addr >= io_tlb_start && dma_addr < io_tlb_end)
++		sync_single(hwdev, dma_addr, size, dir);
++	else if (dir == DMA_FROM_DEVICE)
++		mark_clean(dma_addr, size);
++}
++
++/*
+  * Map a set of buffers described by scatterlist in streaming mode for DMA.
+  * This is the scatter-gather version of the above swiotlb_map_single
+  * interface.  Here the scatter gather list elements are each tagged with the
+@@ -650,6 +681,8 @@ EXPORT_SYMBOL(swiotlb_map_sg);
+ EXPORT_SYMBOL(swiotlb_unmap_sg);
+ EXPORT_SYMBOL(swiotlb_sync_single_for_cpu);
+ EXPORT_SYMBOL(swiotlb_sync_single_for_device);
++EXPORT_SYMBOL_GPL(swiotlb_sync_single_range_for_cpu);
++EXPORT_SYMBOL_GPL(swiotlb_sync_single_range_for_device);
+ EXPORT_SYMBOL(swiotlb_sync_sg_for_cpu);
+ EXPORT_SYMBOL(swiotlb_sync_sg_for_device);
+ EXPORT_SYMBOL(swiotlb_dma_mapping_error);
+diff --git a/include/asm-x86_64/swiotlb.h b/include/asm-x86_64/swiotlb.h
+--- a/include/asm-x86_64/swiotlb.h
++++ b/include/asm-x86_64/swiotlb.h
+@@ -15,6 +15,14 @@ extern void swiotlb_sync_single_for_cpu(
+ extern void swiotlb_sync_single_for_device(struct device *hwdev,
+ 					    dma_addr_t dev_addr,
+ 					    size_t size, int dir);
++extern void swiotlb_sync_single_range_for_cpu(struct device *hwdev,
++					      dma_addr_t dev_addr,
++					      unsigned long offset,
++					      size_t size, int dir);
++extern void swiotlb_sync_single_range_for_device(struct device *hwdev,
++						 dma_addr_t dev_addr,
++						 unsigned long offset,
++						 size_t size, int dir);
+ extern void swiotlb_sync_sg_for_cpu(struct device *hwdev,
+ 				     struct scatterlist *sg, int nelems,
+ 				     int dir);
+-- 
+John W. Linville
+linville@tuxdriver.com

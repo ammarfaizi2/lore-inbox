@@ -1,96 +1,187 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751137AbVH3AMr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751381AbVH3ATX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751137AbVH3AMr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 20:12:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751381AbVH3AMr
+	id S1751381AbVH3ATX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 20:19:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbVH3ATX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 20:12:47 -0400
-Received: from smtp1.brturbo.com.br ([200.199.201.163]:61846 "EHLO
-	smtp1.brturbo.com.br") by vger.kernel.org with ESMTP
-	id S1751137AbVH3AMq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 20:12:46 -0400
-Subject: Re: [PATCH 2.6] I2C: Drop I2C_DEVNAME and i2c_clientname
-From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, video4linux-list@redhat.com,
-       Greg KH <greg@kroah.com>
-In-Reply-To: <20050825001958.63b2525c.khali@linux-fr.org>
-References: <20050815195704.7b61206e.khali@linux-fr.org>
-	 <1124741348.4516.51.camel@localhost>
-	 <20050825001958.63b2525c.khali@linux-fr.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Mon, 29 Aug 2005 21:12:42 -0300
-Message-Id: <1125360762.6186.29.camel@localhost>
+	Mon, 29 Aug 2005 20:19:23 -0400
+Received: from fmr17.intel.com ([134.134.136.16]:3036 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751381AbVH3ATW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 20:19:22 -0400
+Date: Mon, 29 Aug 2005 17:19:05 -0700
+From: Rusty Lynch <rusty@linux.intel.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Christoph Lameter <clameter@engr.sgi.com>,
+       Rusty Lynch <rusty.lynch@intel.com>, linux-mm@kvack.org,
+       prasanna@in.ibm.com, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, anil.s.keshavamurthy@intel.com
+Subject: Re: [PATCH] Only process_die notifier in ia64_do_page_fault if KPROBES is configured.
+Message-ID: <20050830001905.GA18279@linux.jf.intel.com>
+References: <200508262246.j7QMkEoT013490@linux.jf.intel.com> <Pine.LNX.4.62.0508261559450.17433@schroedinger.engr.sgi.com> <200508270224.26423.ak@suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3-6mdk 
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200508270224.26423.ak@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Jean,
-Em Qui, 2005-08-25 às 00:19 +0200, Jean Delvare escreveu:
-> Hi Mauro,
+On Sat, Aug 27, 2005 at 02:24:25AM +0200, Andi Kleen wrote:
+> On Saturday 27 August 2005 01:05, Christoph Lameter wrote:
+> > On Fri, 26 Aug 2005, Rusty Lynch wrote:
+> > > Just to be sure everyone understands the overhead involved, kprobes only
+> > > registers a single notifier.  If kprobes is disabled (CONFIG_KPROBES is
+> > > off) then the overhead on a page fault is the overhead to execute an
+> > > empty notifier chain.
+> >
+> > Its the overhead of using registers to pass parameters, performing a
+> > function call that does nothing etc. A waste of computing resources. All
+> > of that unconditionally in a performance critical execution path that
+> > is executed a gazillion times for an optional feature that I frankly
+> > find not useful at all and that is disabled by default.
 > 
-
-> > That's not true. We keep V4L tree compatible with older kernel
-> > releases. Each change like this does generate a lot of work at V4L
-> > side to provide #ifdefs to check for linux version and provide a
-> > compatible way to compile with older versions.
+> In the old days notifier_call_chain used to be inline. Then someone looking
+> at code size out of lined it. Perhaps it should be inlined again or notifier.h
+> could supply a special faster inline version for time critical code.
 > 
-> I'm sorry but we will not stop updating the various Linux 2.6 subsystems
-> to keep them compatible with 2.4 - else one would wonder why there is a
-> 2.6 kernel tree at all. 
-	I don't expect so, but it would be nice not to have a different I2C API
-for every single 2.6 version :-) It would be nice to change I2C API once
-and keep it stable for a while.
-
-> As time goes, the differences bwteen 2.4 and 2.6
-> will only increase. You seem to be trying to keep common driver code
-> across incompatible trees. I'm not surprised that it is a lot of work.
-> That's your choice, live with it.
-	It is not just a matter of choice. V4L stuff is mostly used by end
-users. There are a few professional users, like those working on CATV
-and video broadcasting. They don't have much knowledge and generally
-uses distro-provided kernels. It is not like I2C or PCI that most boards
-has something inside.
-	Also: boards are country-specific. There are dozens of different analog
-standards. So, the same brand name (even the same model on some cases)
-have different tuners for different video standards.
-	For us to have people to test all variations, we need to provide
-backward support. Otherwise, we'll suffer a lot to test our patches,
-since nobody on V4L devel is currently payed for doing his job and don't
-have a lab with a bunch of cards and models.
+> Then it would be simple if (global_var != NULL) { ... } in the fast path.
+> In addition the call chain could be declared __read_mostly.
 > 
-> > I don't see any sense on applying this patch, since it will not reduce
-> > code size or increase execution time.
+> I suspect with these changes Christoph's concerns would go away, right?
 > 
-> Code size and execution time are not the only factors to take into
-> account. Code readability and compilation time are two other ones that I
-> mentioned already.
-Agreed.
-> 
-> Anyway, it doesn't look like you actually read what I wrote in the first
-> place. My comment about common driver code was really only by the way.
-> The reason why I have been proposing this patch is that I2C_DEVNAME and
-> i2c_clientname were only needed between Linux 2.5.68 and 2.6.0-test3,
-> which are unsupported by now, as they were development releases. As far
-> as i2c_client.name is concerned, 2.4 and 2.6.0+ trees are compatible.
-> 
-	Ok. I didn't understood this from your previous email. So, for me, it
-is perfect to apply it. We do want to keep V4L tree compatibility with
-2.6.x and with the latest 2.4 version. Currently, we lost compat with
-2.4, but I plan to provide a backport soon to the latest 2.4 release.
+> -Andi
 
-	I have a question for you about I2C: why i2c_driver doesn't have a
-generic pointer to keep priv data (like i2c_adapter) ? 
+So, assuming inlining the notifier_call_chain would address Christoph's
+conserns, is the following patch something like what you are sugesting?  
+This would make all the kdebug.h::notify_die() calls use the inline version. 
 
-	It would be nice to have such pointer (like have on other I2C
-structures), in order to support multiple tuners for each function. This
-is required for modern boards that have a TV analog tuner, a digital one
-and a radio chip, it would be nice to have such structure to keep a
-tuner table on it, and make easier to detect this.
+(WARNING:  The following has only been tested on ia64.)
 
-> Thanks,
-Thanks,
-Mauro.
+ include/asm-i386/kdebug.h    |    2 +-
+ include/asm-ia64/kdebug.h    |    2 +-
+ include/asm-ppc64/kdebug.h   |    2 +-
+ include/asm-sparc64/kdebug.h |    2 +-
+ include/asm-x86_64/kdebug.h  |    2 +-
+ include/linux/notifier.h     |   18 ++++++++++++++++++
+ kernel/sys.c                 |   14 +-------------
+ 7 files changed, 24 insertions(+), 18 deletions(-)
 
+Index: linux-2.6.13/include/linux/notifier.h
+===================================================================
+--- linux-2.6.13.orig/include/linux/notifier.h
++++ linux-2.6.13/include/linux/notifier.h
+@@ -72,5 +72,23 @@ extern int notifier_call_chain(struct no
+ #define CPU_DOWN_FAILED		0x0006 /* CPU (unsigned)v NOT going down */
+ #define CPU_DEAD		0x0007 /* CPU (unsigned)v dead */
+ 
++static inline int fast_notifier_call_chain(struct notifier_block **n,
++					   unsigned long val, void *v)
++{
++	int ret=NOTIFY_DONE;
++	struct notifier_block *nb = *n;
++
++	while(nb)
++	{
++		ret=nb->notifier_call(nb,val,v);
++		if(ret&NOTIFY_STOP_MASK)
++		{
++			return ret;
++		}
++		nb=nb->next;
++	}
++	return ret;
++}
++
+ #endif /* __KERNEL__ */
+ #endif /* _LINUX_NOTIFIER_H */
+Index: linux-2.6.13/kernel/sys.c
+===================================================================
+--- linux-2.6.13.orig/kernel/sys.c
++++ linux-2.6.13/kernel/sys.c
+@@ -169,19 +169,7 @@ EXPORT_SYMBOL(notifier_chain_unregister)
+  
+ int notifier_call_chain(struct notifier_block **n, unsigned long val, void *v)
+ {
+-	int ret=NOTIFY_DONE;
+-	struct notifier_block *nb = *n;
+-
+-	while(nb)
+-	{
+-		ret=nb->notifier_call(nb,val,v);
+-		if(ret&NOTIFY_STOP_MASK)
+-		{
+-			return ret;
+-		}
+-		nb=nb->next;
+-	}
+-	return ret;
++	return fast_notifier_call_chain(n, val, v);
+ }
+ 
+ EXPORT_SYMBOL(notifier_call_chain);
+Index: linux-2.6.13/include/asm-ia64/kdebug.h
+===================================================================
+--- linux-2.6.13.orig/include/asm-ia64/kdebug.h
++++ linux-2.6.13/include/asm-ia64/kdebug.h
+@@ -55,7 +55,7 @@ static inline int notify_die(enum die_va
+ 		.signr  = sig
+ 	};
+ 
+-	return notifier_call_chain(&ia64die_chain, val, &args);
++	return fast_notifier_call_chain(&ia64die_chain, val, &args);
+ }
+ 
+ #endif
+Index: linux-2.6.13/include/asm-i386/kdebug.h
+===================================================================
+--- linux-2.6.13.orig/include/asm-i386/kdebug.h
++++ linux-2.6.13/include/asm-i386/kdebug.h
+@@ -44,7 +44,7 @@ enum die_val {
+ static inline int notify_die(enum die_val val,char *str,struct pt_regs *regs,long err,int trap, int sig)
+ {
+ 	struct die_args args = { .regs=regs, .str=str, .err=err, .trapnr=trap,.signr=sig };
+-	return notifier_call_chain(&i386die_chain, val, &args);
++	return fast_notifier_call_chain(&i386die_chain, val, &args);
+ }
+ 
+ #endif
+Index: linux-2.6.13/include/asm-ppc64/kdebug.h
+===================================================================
+--- linux-2.6.13.orig/include/asm-ppc64/kdebug.h
++++ linux-2.6.13/include/asm-ppc64/kdebug.h
+@@ -37,7 +37,7 @@ enum die_val {
+ static inline int notify_die(enum die_val val,char *str,struct pt_regs *regs,long err,int trap, int sig)
+ {
+ 	struct die_args args = { .regs=regs, .str=str, .err=err, .trapnr=trap,.signr=sig };
+-	return notifier_call_chain(&ppc64_die_chain, val, &args);
++	return fast_notifier_call_chain(&ppc64_die_chain, val, &args);
+ }
+ 
+ #endif
+Index: linux-2.6.13/include/asm-sparc64/kdebug.h
+===================================================================
+--- linux-2.6.13.orig/include/asm-sparc64/kdebug.h
++++ linux-2.6.13/include/asm-sparc64/kdebug.h
+@@ -46,7 +46,7 @@ static inline int notify_die(enum die_va
+ 				 .trapnr	= trap,
+ 				 .signr		= sig };
+ 
+-	return notifier_call_chain(&sparc64die_chain, val, &args);
++	return fast_notifier_call_chain(&sparc64die_chain, val, &args);
+ }
+ 
+ #endif
+Index: linux-2.6.13/include/asm-x86_64/kdebug.h
+===================================================================
+--- linux-2.6.13.orig/include/asm-x86_64/kdebug.h
++++ linux-2.6.13/include/asm-x86_64/kdebug.h
+@@ -38,7 +38,7 @@ enum die_val { 
+ static inline int notify_die(enum die_val val,char *str,struct pt_regs *regs,long err,int trap, int sig)
+ { 
+ 	struct die_args args = { .regs=regs, .str=str, .err=err, .trapnr=trap,.signr=sig }; 
+-	return notifier_call_chain(&die_chain, val, &args); 
++	return fast_notifier_call_chain(&die_chain, val, &args);
+ } 
+ 
+ extern int printk_address(unsigned long address);

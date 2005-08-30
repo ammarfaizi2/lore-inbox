@@ -1,76 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750855AbVH3Btv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750811AbVH3BpZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750855AbVH3Btv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 21:49:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750885AbVH3Btv
+	id S1750811AbVH3BpZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 21:45:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750822AbVH3BpZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 21:49:51 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:52120 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750855AbVH3Btu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 21:49:50 -0400
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i386, x86_64 Initial PAT implementation
-References: <m1psrwmg10.fsf@ebiederm.dsl.xmission.com>
-	<200508300230.39844.ak@suse.de>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Mon, 29 Aug 2005 19:49:18 -0600
-In-Reply-To: <200508300230.39844.ak@suse.de> (Andi Kleen's message of "Tue,
- 30 Aug 2005 02:30:39 +0200")
-Message-ID: <m1ll2kmbxd.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 29 Aug 2005 21:45:25 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:42715 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1750811AbVH3BpZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 21:45:25 -0400
+Subject: Re: 2.6.13-rc7-rt4, fails to build
+From: Lee Revell <rlrevell@joe-job.com>
+To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <1125364522.7630.108.camel@cmn37.stanford.edu>
+References: <1125277360.2678.159.camel@cmn37.stanford.edu>
+	 <20050829083541.GA21756@elte.hu>
+	 <1125364522.7630.108.camel@cmn37.stanford.edu>
+Content-Type: text/plain
+Date: Mon, 29 Aug 2005 21:45:22 -0400
+Message-Id: <1125366322.4598.101.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.3.8 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> writes:
+On Mon, 2005-08-29 at 18:15 -0700, Fernando Lopez-Lezcano wrote:
+> On Mon, 2005-08-29 at 01:35, Ingo Molnar wrote: 
+> > * Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
+> > 
+> > > I'm getting a build error for 2.6.13-rc7-rt4 with PREEMPT_DESKTOP for 
+> > > i386:
+> > 
+> > hm, cannot reproduce this build problem on my current tree - could you 
+> > try 2.6.13-rt1? (and please send the 2.6.13-rt1 .config if it still 
+> > occurs)
+> 
+> I still get the error, it is happening in the _smp_ build, I don't know
+> what's wrong...
+> 
+> arch/i386/mach-generic/built-in.o(.text+0x1183): In function
+> `es7000_rename_gsi':
 
-> On Tuesday 30 August 2005 02:20, Eric W. Biederman wrote:
->> PAT (or setting caching policy in the page table entries) has been a
->> long desired feature in the kernel and as large memory sizes become
->> more prevalent it becomes increasingly hard to specify all of the
->> regions that need write-back caching with just 8 MTRRs much less add
->> in the write-combining regions.
->
-> [...]
->
-> I don't think it's a good idea to provide the APIs for write combing
-> to drivers without offering the facilities to avoid aliasing.  Because 
-> otherwise we will need to change the API later anyways and there
-> might be code creep with driver source using old unsafe accesses.
-> So I would not merge it right now until it is more fully developed.
+Well you could certainly work around it by using CONFIG_X86_PC rather
+than CONFIG_X86_GENERICARCH unless you really needs to support the IBM
+x440, Unisys ES7000, or something with more than 8 CPUs...
 
-Everything I have provided is already there on some other architecture.
-Even the possibility for aliasing is already there on x86.
-How does my patch make anything worse?
+Lee
 
-Andy what do you expect to see as a solution to the aliasing problem?
-Andy do you have any problem with my patch besides it does not
-solve a theoretical problem it does not even introduce?
-
-We need to get this at least into something like -mm where the community
-can review the code and do development.  Denying the code access to more
-eyes sounds does not look like a way to solve the problem.  
-
-As best I can tell guaranteeing that we do not do aliasing is a totally separate 
-problem from PAT and it should be solved that way.  
-
-This is a practical problem for me.  I have hardware where mtrrs
-cannot be used to both map memory and setup all of the WC memory
-regions I need.  So this patch solves a real problem at a very minimal
-impact to the kernel. 
-
-The only way I can imagine the infrastructure working with the drivers in
-control (without rewriting all of the existing drivers) is to have
-ioremap and io_remap_pfn_range fail when presented with an attempt
-to map the same physical memory with different attributes.  So from
-that perspective we already have enough infrastructure to do
-something.  
-
-The only real problems exist when you mix WB and (UC or WC) and I have only
-made access to WC easier.  Who is going to call ioremap or
-io_remap_pfn_range on ram?  
-
-Eric

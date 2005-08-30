@@ -1,42 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbVH3XKk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932275AbVH3XLX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932283AbVH3XKk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 19:10:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbVH3XKj
+	id S932275AbVH3XLX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 19:11:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbVH3XLX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 19:10:39 -0400
-Received: from smtp.istop.com ([66.11.167.126]:18630 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S932283AbVH3XKj (ORCPT
+	Tue, 30 Aug 2005 19:11:23 -0400
+Received: from xenotime.net ([66.160.160.81]:41618 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932275AbVH3XLW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 19:10:39 -0400
-From: Daniel Phillips <phillips@istop.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 3 of 4] Configfs is really sysfs
-Date: Wed, 31 Aug 2005 09:10:35 +1000
-User-Agent: KMail/1.7.2
-Cc: Andrew Morton <akpm@osdl.org>
-References: <200508310854.40482.phillips@istop.com> <200508310857.57617.phillips@istop.com> <200508310859.55746.phillips@istop.com>
-In-Reply-To: <200508310859.55746.phillips@istop.com>
+	Tue, 30 Aug 2005 19:11:22 -0400
+Date: Tue, 30 Aug 2005 16:11:17 -0700 (PDT)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Chris Wright <chrisw@osdl.org>
+cc: Pritesh Shah <pritesh.myphotos@gmail.com>,
+       "" <linux-kernel@vger.kernel.org>
+Subject: Re: GDT initialization and location question.
+In-Reply-To: <20050830230311.GW7762@shell0.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.50.0508301609460.19488-100000@shark.he.net>
+References: <6967c2bf0508301351584d6f10@mail.gmail.com>
+ <20050830230311.GW7762@shell0.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508310910.35719.phillips@istop.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 31 August 2005 08:59, Daniel Phillips wrote:
-> -obj-$(CONFIG_CONFIGFS_FS) += configfs.o
-> +obj-$(CONFIG_CONFIGFS_FS) += configfs.o ddbond.config.o
+On Tue, 30 Aug 2005, Chris Wright wrote:
 
-This should just be:
+> * Pritesh Shah (pritesh.myphotos@gmail.com) wrote:
+> > I was wondering as to where is the GDT initialized during the boot
+> > sequence? I will need the filename and the name of the routine that
+> > does this. Any help would be greatly appreciated.
+>
+> Search for cpu_gdt_table (one is literal, the other is per_cpu).  You
+> should be able to work it out from there.
+> -
 
-+obj-$(CONFIG_CONFIGFS_FS) += configfs.o
+I would have said search for /gdt/ in arch/i386/boot/setup.S .
+Maybe both are helpful.
 
-However, the wrong version does provide a convenient way of compiling the
-example, I just... have... to... remember to delete it next time.
-
-Regards,
-
-Daniel
+-- 
+~Randy

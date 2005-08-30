@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751450AbVH3XhR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751454AbVH3XiT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751450AbVH3XhR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 19:37:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751451AbVH3XhR
+	id S1751454AbVH3XiT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 19:38:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751453AbVH3XiT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 19:37:17 -0400
-Received: from smtp.istop.com ([66.11.167.126]:49094 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S1751450AbVH3XhQ (ORCPT
+	Tue, 30 Aug 2005 19:38:19 -0400
+Received: from cantor.suse.de ([195.135.220.2]:21471 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751451AbVH3XiS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 19:37:16 -0400
-From: Daniel Phillips <phillips@istop.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC][PATCH 1 of 4] Configfs is really sysfs
-Date: Wed, 31 Aug 2005 09:37:15 +1000
-User-Agent: KMail/1.7.2
-Cc: Joel Becker <Joel.Becker@oracle.com>, linux-kernel@vger.kernel.org,
-       greg@kroah.com
-References: <200508310854.40482.phillips@istop.com> <20050830231307.GE22068@insight.us.oracle.com> <20050830162846.5f6d0a53.akpm@osdl.org>
-In-Reply-To: <20050830162846.5f6d0a53.akpm@osdl.org>
+	Tue, 30 Aug 2005 19:38:18 -0400
+From: Andi Kleen <ak@suse.de>
+To: "Luck, Tony" <tony.luck@intel.com>
+Subject: Re: [PATCH] Only process_die notifier in ia64_do_page_fault if KPROBES is configured.
+Date: Wed, 31 Aug 2005 01:38:08 +0200
+User-Agent: KMail/1.8
+Cc: "Christoph Lameter" <clameter@engr.sgi.com>,
+       "Rusty Lynch" <rusty@linux.intel.com>,
+       "Lynch, Rusty" <rusty.lynch@intel.com>, linux-mm@kvack.org,
+       prasanna@in.ibm.com, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org,
+       "Keshavamurthy, Anil S" <anil.s.keshavamurthy@intel.com>
+References: <B8E391BBE9FE384DAA4C5C003888BE6F0443A9A1@scsmsx401.amr.corp.intel.com>
+In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F0443A9A1@scsmsx401.amr.corp.intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200508310937.15344.phillips@istop.com>
+Message-Id: <200508310138.09841.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 31 August 2005 09:28, Andrew Morton wrote:
-> Joel Becker <Joel.Becker@oracle.com> wrote:
-> > On Wed, Aug 31, 2005 at 08:54:39AM +1000, Daniel Phillips wrote:
-> > > But it would be stupid to forbid users from creating directories in
-> > > sysfs or to forbid kernel modules from directly tweaking a configfs
-> > > namespace.  Why should the kernel not be able to add objects to a
-> > > directory a user created? It should be up to the module author to
-> > > decide these things.
-> >
-> > 	This is precisely why configfs is separate from sysfs.  If both
-> > user and kernel can create objects, the lifetime of the object and its
-> > filesystem representation is very complex.  Sysfs already has problems
-> > with people getting this wrong.  configfs does not.
-> > 	The fact that sysfs and configfs have similar backing stores
-> > does not make them the same thing.
+On Wednesday 31 August 2005 01:05, Luck, Tony wrote:
+> >Please do not generate any code if the feature cannot ever be
+> >used (CONFIG_KPROBES off). With this patch we still have lots of
+> >unnecessary code being executed on each page fault.
 >
-> Sure, but all that copying-and-pasting really sucks.  I'm sure there's some
-> way of providing the slightly different semantics from the same codebase?
+> I can (eventually) wrap this call inside the #ifdef CONFIG_KPROBES.
 
-I will have that patch ready later this week.
+At least the original die notifiers were designed as a generic debugger
+interface, not a kprobes specific thing. So I don't think it's a good idea.
+Given most debuggers don't need the early page fault hook and it's
+mostly needed for a special case in kprobes, but it doesn't seem nice to only 
+offer a subset of the hooks with specific config options.
 
-Regards,
+Also with the inline the test should be essentially a single test of 
+a global variable and jump. Hardly a big performance issue, no? 
 
-Daniel
+-Andi

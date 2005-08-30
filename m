@@ -1,93 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750958AbVH3GVm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750959AbVH3G1i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750958AbVH3GVm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 02:21:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750949AbVH3GVm
+	id S1750959AbVH3G1i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 02:27:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750961AbVH3G1i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 02:21:42 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:44955 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750777AbVH3GVl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 02:21:41 -0400
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: solving page table access attribute aliasing.
-References: <m1psrwmg10.fsf@ebiederm.dsl.xmission.com>
-	<200508300230.39844.ak@suse.de>
-	<m1ll2kmbxd.fsf@ebiederm.dsl.xmission.com>
-	<200508300412.55027.ak@suse.de>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Tue, 30 Aug 2005 00:21:09 -0600
-In-Reply-To: <200508300412.55027.ak@suse.de> (Andi Kleen's message of "Tue,
- 30 Aug 2005 04:12:54 +0200")
-Message-ID: <m1br3gq71m.fsf_-_@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Tue, 30 Aug 2005 02:27:38 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:33000 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750949AbVH3G1i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 02:27:38 -0400
+Date: Tue, 30 Aug 2005 08:28:11 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+Cc: linux-kernel@vger.kernel.org, Karsten Wiese <annabellesgarden@yahoo.de>
+Subject: Re: 2.6.13-rc7-rt4, fails to build
+Message-ID: <20050830062811.GA6516@elte.hu>
+References: <1125277360.2678.159.camel@cmn37.stanford.edu> <20050829083541.GA21756@elte.hu> <1125364522.7630.108.camel@cmn37.stanford.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1125364522.7630.108.camel@cmn37.stanford.edu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I agree that it is a good thing to solve the aliasing problem,
-so we don't fight..
+* Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
 
-There are three cases we need to worry about physical addresses.
-1) Physical addresses that we use as RAM that have a struct page.
-2) Physical addresses without a struct page we map into kernel space.
-3) Physical addresses without a struct page we map into user space.
+> I still get the error, it is happening in the _smp_ build, I don't 
+> know what's wrong...
+> 
+> arch/i386/mach-generic/built-in.o(.text+0x1183): In function
+> `es7000_rename_gsi':
+> arch/i386/mach-generic/../mach-es7000/es7000plat.c:68: undefined
+> reference to `nr_ioapic_registers'
+> make: *** [.tmp_vmlinux1] Error 1
+> 
+> I'm attaching the .config I'm using for the smp build. 
 
-There are two perspectives for solving this.
-- phys_mem_access_prot/ia64_mem_attribute style.  Where we know
-  at bootup what access attributes everything should have, and
-  on every mmap simply force the attribute to the correct thing.
+ok, managed to reproduce it with this .config. It's an effect of the 
+IOAPIC_CACHE code. I have fixed it with the patch below (which is also 
+in 2.6.13-rt2), and the resulting kernel builds & boots fine. Karsten, 
+does it look sane to you?
 
-- We concede that we only know about ram with a struct page,
-  and we let drivers do whatever they want so long as they don't
-  use aliases.
+	Ingo
 
-Letting drivers/users decide is the interface we have now so
-unless we wish to change the linux driver model we need to support
-it.
-
->From this perspective I think the change should be quite simple.
-We need a function: 
-verify_pfn_mapping(unsigned long pfn, unsigned long size, pgprot_t prot);
-That performs the following checks, on every page:
-
- - Is the page RAM with a struct page.  If so it must be mapped write
-   back.  If we want anything else fail.
-
- - If the pfn is not RAM and already mapped and do the caching
-   attributes in pgprot_t match.  If we want anything else fail.
-
- - If the pfn is not mapped, allow anything that is possible.
-
-In addition we need a clean way of saying I don't care just
-give me a mapping with the caching attributes that are already
-being used, and if it is not in use give me a reasonable default.
-Which is what ioremap seems to do today.
-
-For the case where the physical address has a struct page we just need
-to detect that.  
-
-For the case where we are dealing with physical addresses without a
-struct page we need a space efficient way to get this information.
-For each user mapping we already have a vm_area_struct so it makes
-sense to keep all of them on a linked list so we can walk through them
-and find any user space mappings for a pfn.  For the kernel mapping
-with ioremap we need an architecture specific implementation because
-the mappings are handled in an architecture specific way.
-
-Perversely mapping physical pages with ioremap or io_remap_pfn_range
-may be the one case where huge pages are easy to allocate.  I believe
-this is the primary reason why sparc64 does not use remap_pfn_range
-in implementing io_remap_pfn_range.  So it may be worth looking
-at using huge mappings remap_pfn_range as part of implementing alias
-checking for all architectures.  
-
-Unless I am hugely mistake every architecture that can set caching
-attributes on the page tables needs this.
-
-I am going to sleep now and work on implementing this in the morning.
-
-Eric
+Index: linux/arch/i386/kernel/io_apic.c
+===================================================================
+--- linux.orig/arch/i386/kernel/io_apic.c
++++ linux/arch/i386/kernel/io_apic.c
+@@ -143,6 +141,10 @@ struct ioapic_data_struct {
+ 
+ static struct ioapic_data_struct *ioapic_data[MAX_IO_APICS];
+ 
++int nr_ioapic_registers(int apic)
++{
++	return ioapic_data[apic]->nr_registers;
++}
+ 
+ static inline unsigned int __raw_io_apic_read(struct ioapic_data_struct *ioapic, unsigned int reg)
+ {
+Index: linux/arch/i386/mach-es7000/es7000plat.c
+===================================================================
+--- linux.orig/arch/i386/mach-es7000/es7000plat.c
++++ linux/arch/i386/mach-es7000/es7000plat.c
+@@ -65,7 +65,7 @@ es7000_rename_gsi(int ioapic, int gsi)
+ 	if (!base) {
+ 		int i;
+ 		for (i = 0; i < nr_ioapics; i++)
+-			base += nr_ioapic_registers[i];
++			base += nr_ioapic_registers(i);
+ 	}
+ 
+ 	if (!ioapic && (gsi < 16)) 
+Index: linux/include/asm-i386/io_apic.h
+===================================================================
+--- linux.orig/include/asm-i386/io_apic.h
++++ linux/include/asm-i386/io_apic.h
+@@ -101,7 +101,7 @@ union IO_APIC_reg_03 {
+  * # of IO-APICs and # of IRQ routing registers
+  */
+ extern int nr_ioapics;
+-extern int nr_ioapic_registers[MAX_IO_APICS];
++extern int nr_ioapic_registers(int apic);
+ 
+ enum ioapic_irq_destination_types {
+ 	dest_Fixed = 0,
+ 

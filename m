@@ -1,57 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932386AbVH3TJR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932224AbVH3TO1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932386AbVH3TJR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 15:09:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932387AbVH3TJR
+	id S932224AbVH3TO1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 15:14:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932390AbVH3TO1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 15:09:17 -0400
-Received: from dwdmx4.dwd.de ([141.38.3.230]:55007 "EHLO dwdmx4.dwd.de")
-	by vger.kernel.org with ESMTP id S932386AbVH3TJQ (ORCPT
+	Tue, 30 Aug 2005 15:14:27 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:57573 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932224AbVH3TOZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 15:09:16 -0400
-Date: Tue, 30 Aug 2005 19:08:55 +0000 (GMT)
-From: Holger Kiehl <Holger.Kiehl@dwd.de>
-X-X-Sender: kiehl@diagnostix.dwd.de
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-Cc: linux-raid <linux-raid@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Where is the performance bottleneck?
-In-Reply-To: <Pine.LNX.4.44.0508291530310.14200-100000@coffee.psychology.mcmaster.ca>
-Message-ID: <Pine.LNX.4.61.0508301859500.25574@diagnostix.dwd.de>
-References: <Pine.LNX.4.44.0508291530310.14200-100000@coffee.psychology.mcmaster.ca>
+	Tue, 30 Aug 2005 15:14:25 -0400
+Date: Tue, 30 Aug 2005 21:13:43 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Knut Petersen <Knut_Petersen@t-online.de>
+cc: linux-fbdev-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
+       "Antonino A. Daplas" <adaplas@gmail.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Jochen Hein <jochen@jochen.org>
+Subject: Re: [Linux-fbdev-devel] [PATCH 1/1 2.6.13] framebuffer: bit_putcs()
+ optimization for 8x* fonts
+In-Reply-To: <43149E5B.7040006@t-online.de>
+Message-ID: <Pine.LNX.4.61.0508302039160.3743@scrub.home>
+References: <43148610.70406@t-online.de> <Pine.LNX.4.62.0508301814470.6045@numbat.sonytel.be>
+ <43149E5B.7040006@t-online.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811837-1053673453-1125429223=:3743"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Aug 2005, Mark Hahn wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
->> The U320 SCSI controller has a 64 bit PCI-X bus for itself, there is no other
->> device on that bus. Unfortunatly I was unable to determine at what speed
->> it is running, here the output from lspci -vv:
-> ...
->>                  Status: Bus=2 Dev=4 Func=0 64bit+ 133MHz+ SCD- USC-, DC=simple,
->
-> the "133MHz+" is a good sign.  OTOH the latency (72) seems rather low - my
-> understanding is that that would noticably limit the size of burst transfers.
->
-I have tried with 128 and 144, but the transfer rate is only a little
-bit higher barely measurable. Or what values should I try?
+---1463811837-1053673453-1125429223=:3743
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
->
->> Version  1.03        ------Sequential Output------ --Sequential Input- --Random-
->>                       -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- --Seeks--
->> Machine         Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
->> Raid0 (8 disk)15744M 54406  96 247419 90 100752 25 60266  98 226651 29 830.2   1
->> Raid0s(4 disk)15744M 54915  97 253642 89 73976  18 59445  97 198372 24 659.8   1
->> Raid0s(4 disk)15744M 54866  97 268361 95 72852  17 59165  97 187183 22 666.3   1
->
-> you're obviously saturating something already with 2 disks.  did you play
-> with "blockdev --setra" setings?
->
-Yes, I did play a little bit with it but this only changed read performance,
-it made no measurable difference when writting.
+Hi,
 
-Thanks,
-Holger
+On Tue, 30 Aug 2005, Knut Petersen wrote:
 
+> > Probably you can make it even faster by avoiding the multiplication, li=
+ke
+> >=20
+> >    unsigned int offset =3D 0;
+> >    for (i =3D 0; i < image.height; i++) {
+> > =09dst[offset] =3D src[i];
+> > =09offset +=3D pitch;
+> >    }
+> >=20
+>=20
+> More than two decades ago I learned to avoid mul and imul. Use shifts, ad=
+d and
+> lea instead,
+> that was the credo those days. The name of the game was CP/M 80/86, a86, =
+d86
+> and ddt ;-)
+>=20
+> But let=B4s get serious again.
+>=20
+> Your proposed change of the patch results in a 21 ms performance decrease=
+ on
+> my system.
+> Yes, I do know that this is hard to believe. I tested a similar variation
+> before, and the results
+> were even worse.
+
+Could you try the patch below, for a few extra cycles you might want to=20
+make it an inline function.
+
+bye, Roman
+
+Index: linux-2.6/drivers/video/fbmem.c
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- linux-2.6.orig/drivers/video/fbmem.c=092005-08-30 01:55:18.000000000 +0=
+200
++++ linux-2.6/drivers/video/fbmem.c=092005-08-30 21:10:25.705462837 +0200
+@@ -82,11 +82,11 @@ void fb_pad_aligned_buffer(u8 *dst, u32=20
+ {
+ =09int i, j;
+=20
++=09d_pitch -=3D s_pitch;
+ =09for (i =3D height; i--; ) {
+ =09=09/* s_pitch is a few bytes at the most, memcpy is suboptimal */
+ =09=09for (j =3D 0; j < s_pitch; j++)
+-=09=09=09dst[j] =3D src[j];
+-=09=09src +=3D s_pitch;
++=09=09=09*dst++ =3D *src++;
+ =09=09dst +=3D d_pitch;
+ =09}
+ }
+---1463811837-1053673453-1125429223=:3743--

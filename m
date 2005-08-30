@@ -1,62 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932126AbVH3Epv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932124AbVH3Eqi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932126AbVH3Epv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 00:45:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932128AbVH3Epv
+	id S932124AbVH3Eqi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 00:46:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932129AbVH3Eqh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 00:45:51 -0400
-Received: from ozlabs.org ([203.10.76.45]:44505 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S932126AbVH3Epu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 00:45:50 -0400
+	Tue, 30 Aug 2005 00:46:37 -0400
+Received: from mail2.mx.voyager.net ([216.93.66.206]:32526 "EHLO
+	mail2.mx.voyager.net") by vger.kernel.org with ESMTP
+	id S932124AbVH3Eqh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 00:46:37 -0400
+Message-ID: <4313E4ED.BED1BFE6@megsinet.net>
+Date: Mon, 29 Aug 2005 23:47:41 -0500
+From: "M.H.VanLeeuwen" <vanl@megsinet.net>
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.6.12 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.13 kernel OOPS
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <17171.58403.920889.62559@cargo.ozlabs.ibm.com>
-Date: Tue, 30 Aug 2005 14:44:19 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: Linas Vepstas <linas@austin.ibm.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>,
-       linuxppc64-dev@ozlabs.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [patch 8/8] PCI Error Recovery: PPC64 core recovery routines
-In-Reply-To: <20050829160915.GD12618@austin.ibm.com>
-References: <20050823231817.829359000@bilge>
-	<20050823232143.003048000@bilge>
-	<20050823234747.GI18113@austin.ibm.com>
-	<1124898331.24668.33.camel@sinatra.austin.ibm.com>
-	<20050824162959.GC25174@austin.ibm.com>
-	<17165.3205.505386.187453@cargo.ozlabs.ibm.com>
-	<20050825161325.GG25174@austin.ibm.com>
-	<17170.44500.848623.139474@cargo.ozlabs.ibm.com>
-	<20050829160915.GD12618@austin.ibm.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linas Vepstas writes:
+Hi,
 
-> > One way to clean this up would be to make rpaphp the driver for the
-> > EADS bridges (from the pci code's point of view).  
-> 
-> I guess I don't understand what that means. Are you suggesting moving 
-> pSeries_pci.c into the rpaphp code directory?
+Is this a known problem?
 
-No, not at all. :)
+Thanks,
+Martin
 
-I'm suggesting that the rpaphp code has a struct pci_driver whose
-id_table and probe function are such that it will claim the EADS
-bridges.  (It would probably be best to match on vendor=IBM and
-class=PCI-PCI bridge and let the probe function figure out which of
-the bridges it gets asked about are actually EADS bridges.)
 
-> I would prefer to deprecate the hot-plug based recovery scheme.  This
-> is for many reasons, including the fact that some devices that can get
-> pci errors are soldered onto the planar, and are not hot-pluggable.
+cat /proc/sys/net/ipv4/conf/lo/rp_filter
 
-Those devices can still be isolated and reset, can they not?  And they
-still have an EADS bridge above them, don't they?  Are there any that
-can't be dynamically reassigned from one partition to another?  I.e.,
-they may not be physically hotpluggable but they are still virtually
-hotpluggable as far as the partition is concerned, IIUC.
+ <1>Unable to handle kernel paging request at virtual address 419a91d8
+ printing eip:
+c0116644
+*pde = 00000000
+Oops: 0000 [#6]
+Modules linked in:
+CPU:    0
+EIP:    0060:[<c0116644>]    Not tainted VLI
+EFLAGS: 00010246   (2.6.13)
+EIP is at do_proc_dointvec_conv+0x14/0x40
+eax: c1b40f28   ebx: 00000000   ecx: 419a91d8   edx: c1b40f24
+esi: 00001000   edi: 00000001   ebp: 0804d008   esp: c1b40eec
+ds: 007b   es: 007b   ss: 0068
+Process cat (pid: 503, threadinfo=c1b40000 task=c22245d0)
+Stack: c0116731 00000000 00000000 00000000 419a91d8 00000001 00000000 c1b40fbc
+       c22245d0 c1b656a4 00000000 00000000 00030002 c1b40f0b c2242b84 c1b656a4
+       c1e12420 0804d008 00000000 c12910e0 c01169a5 0804d008 c1b40f64 c1b40fa4
+Call Trace:
+ [<c0116731>] do_proc_dointvec+0xc1/0x320
+ [<c01169a5>] proc_dointvec+0x15/0x20
+ [<c0116630>] do_proc_dointvec_conv+0x0/0x40
+ [<c011637e>] do_rw_proc+0x6e/0x80
+ [<c01163b0>] proc_readsys+0x0/0x20
+ [<c01163c0>] proc_readsys+0x10/0x20
+ [<c014415e>] vfs_read+0x7e/0x140
+ [<c01444ac>] sys_read+0x3c/0x70
+ [<c0102539>] syscall_call+0x7/0xb
+Code: 00 00 83 c4 0c 89 c8 5b 5e 5f 5d c3 8d 74 26 00 8d bc 27 00 00 00 00 83 7c 24 04 00 74 0d 8b 00 85 c0 75 18 8b 02 89 01 31 c0 c3 <8b> 09 85 c9 78 16 c7 00 00 00 00 00 31 c0 89 0a c3 8b 02 f7 d8
 
-Paul.
+
+bash-2.05$ /bld/linux-2.6.13/scripts/ver_linux
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
+
+Linux shadow 2.6.12 #1 SMP Sat Jun 18 09:36:33 CDT 2005 i686 unknown unknown GNU/Linux
+
+Gnu C                  4.0.0
+Gnu make               3.80
+binutils               2.15
+util-linux             2.12q
+mount                  2.12q
+module-init-tools      3.0-pre2
+e2fsprogs              1.35
+reiserfsprogs          reiserfsck:
+reiser4progs           fsck.reiser4:
+pcmcia-cs              3.2.8
+nfs-utils              0.1.5
+Linux C Library        2.3.4
+Dynamic linker (ldd)   2.3.4
+Linux C++ Library      6.0.4
+Procps                 3.2.5
+Net-tools              1.60
+Kbd                    1.12
+Sh-utils               5.2.1
+udev                   048
+Modules Loaded
+bash-2.05$

@@ -1,96 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750959AbVH3G1i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750995AbVH3Gph@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750959AbVH3G1i (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 02:27:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750961AbVH3G1i
+	id S1750995AbVH3Gph (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 02:45:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750998AbVH3Gph
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 02:27:38 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:33000 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750949AbVH3G1i (ORCPT
+	Tue, 30 Aug 2005 02:45:37 -0400
+Received: from gate.crashing.org ([63.228.1.57]:29911 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1750961AbVH3Gpg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 02:27:38 -0400
-Date: Tue, 30 Aug 2005 08:28:11 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-Cc: linux-kernel@vger.kernel.org, Karsten Wiese <annabellesgarden@yahoo.de>
-Subject: Re: 2.6.13-rc7-rt4, fails to build
-Message-ID: <20050830062811.GA6516@elte.hu>
-References: <1125277360.2678.159.camel@cmn37.stanford.edu> <20050829083541.GA21756@elte.hu> <1125364522.7630.108.camel@cmn37.stanford.edu>
+	Tue, 30 Aug 2005 02:45:36 -0400
+Subject: Re: Ignore disabled ROM resources at setup
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>, helgehaf@aitel.hist.no
+In-Reply-To: <Pine.LNX.4.58.0508292149260.3243@g5.osdl.org>
+References: <200508261859.j7QIxT0I016917@hera.kernel.org>
+	 <1125369485.11949.27.camel@gaston> <1125371996.11963.37.camel@gaston>
+	 <Pine.LNX.4.58.0508292045590.3243@g5.osdl.org>
+	 <1125376431.11949.47.camel@gaston>
+	 <Pine.LNX.4.58.0508292149260.3243@g5.osdl.org>
+Content-Type: text/plain
+Date: Tue, 30 Aug 2005 16:40:48 +1000
+Message-Id: <1125384049.11948.66.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1125364522.7630.108.camel@cmn37.stanford.edu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
-
-> I still get the error, it is happening in the _smp_ build, I don't 
-> know what's wrong...
+On Mon, 2005-08-29 at 22:03 -0700, Linus Torvalds wrote:
 > 
-> arch/i386/mach-generic/built-in.o(.text+0x1183): In function
-> `es7000_rename_gsi':
-> arch/i386/mach-generic/../mach-es7000/es7000plat.c:68: undefined
-> reference to `nr_ioapic_registers'
-> make: *** [.tmp_vmlinux1] Error 1
+> On Tue, 30 Aug 2005, Benjamin Herrenschmidt wrote:
+> > 
+> > So what about fixing pci_map_rom() to call pcibios_resource_to_bus() and
+> > then write the resource back to the BAR ? I'm still a bit annoyed that
+> > we re-allocate the address while the original one was perfectly good
+> > (though not enabled) but the above would work.
 > 
-> I'm attaching the .config I'm using for the smp build. 
+> I just sent you a patch to try.
+> 
+> Btw, as to the re-allocation of an existing address: most of the PCI layer
+> really does try to avoid re-allocating known good addresses. In fact, I 
+> thought we did so for ROM resources too: at least pci_read_bases() does 
+> read the ROM base, and saves it off into the resource structure.
+> 
+> We'll end up re-assigning that saved-off-address if there were resource
+> clashes, though. And bugs always happen, especially since that code
+> doesn't get much testing on x86 (there are almost never any interesting
+> rom resources for _any_ device, and apparently the video device which is
+> one of the few interesting ones always ends up using the shadow rom thing
+> on x86 for the primary card).
 
-ok, managed to reproduce it with this .config. It's an effect of the 
-IOAPIC_CACHE code. I have fixed it with the patch below (which is also 
-in 2.6.13-rt2), and the resulting kernel builds & boots fine. Karsten, 
-does it look sane to you?
+>From my experience, we tend to re-allocate a lot more than necessary.
+afaik, as soon as we hit a p2p bridge, we just blindly re-allocate
+everything in my experience.
 
-	Ingo
+I have a lot of cases on ppc64 where calling
+pci_assign_unassigned_resources() will simply screw everything up and
+lead with a bus in a completely unuseable state, with things half
+relocated, conflicting bits, etc... Ok, that was about 2.6.12 timeframe,
+I never had time to fully debug that. Part of the problem was some
+assumptions about the existence of a prefetchable range in a given
+position in the resource array, or the kernel having a different idea
+than the firmware on where such things should go.
 
-Index: linux/arch/i386/kernel/io_apic.c
-===================================================================
---- linux.orig/arch/i386/kernel/io_apic.c
-+++ linux/arch/i386/kernel/io_apic.c
-@@ -143,6 +141,10 @@ struct ioapic_data_struct {
- 
- static struct ioapic_data_struct *ioapic_data[MAX_IO_APICS];
- 
-+int nr_ioapic_registers(int apic)
-+{
-+	return ioapic_data[apic]->nr_registers;
-+}
- 
- static inline unsigned int __raw_io_apic_read(struct ioapic_data_struct *ioapic, unsigned int reg)
- {
-Index: linux/arch/i386/mach-es7000/es7000plat.c
-===================================================================
---- linux.orig/arch/i386/mach-es7000/es7000plat.c
-+++ linux/arch/i386/mach-es7000/es7000plat.c
-@@ -65,7 +65,7 @@ es7000_rename_gsi(int ioapic, int gsi)
- 	if (!base) {
- 		int i;
- 		for (i = 0; i < nr_ioapics; i++)
--			base += nr_ioapic_registers[i];
-+			base += nr_ioapic_registers(i);
- 	}
- 
- 	if (!ioapic && (gsi < 16)) 
-Index: linux/include/asm-i386/io_apic.h
-===================================================================
---- linux.orig/include/asm-i386/io_apic.h
-+++ linux/include/asm-i386/io_apic.h
-@@ -101,7 +101,7 @@ union IO_APIC_reg_03 {
-  * # of IO-APICs and # of IRQ routing registers
-  */
- extern int nr_ioapics;
--extern int nr_ioapic_registers[MAX_IO_APICS];
-+extern int nr_ioapic_registers(int apic);
- 
- enum ioapic_irq_destination_types {
- 	dest_Fixed = 0,
- 
+I'll try to go back to it sooner or later. The problem on macs for
+example is that we can't afford to have some devices moved at all (like
+the Apple ASIC that contains the interrupt controller etc...). Those
+bits are probed & the drivers are setup before we touch the PCI bus,
+based on the open firmware device-tree. If we move them around, we are
+screwed. There are other issues with the fact that the PCI probe will
+temporarily cut access to thsoe devices during BAR sizing or bus
+numbering, thus if you take an interrupt at the wrong time, you are
+toast.
+
+Finally, on ppc64, we also have the case of partitioned machines where
+we aren't allowed to touch some busses at all (and the kernel really
+tries to reconfigure p2p bridges all the time).
+
+> If you find the thing that causes us to re-assign the address, holler.
+
+I'll try to find out.
+
+> (See drivers/pci/probe.c: pci_read_bases() for the code that probes the
+> old address and saves it into the resource struct. It's called by
+> pci_setup_device() from the device scanning routines).
+
+Yes I know that part, I'm not sure yet why it gets reallocated.
+
+I suppose paulus and I need to spend again some serious time on the PCI
+code. We have to anyway with the pending merge of ppc32 and ppc64 so it
+might be a good opportunity to try again getting the common code in
+drivers/pci/setup-* working for us.
+
+Ben.
+
+

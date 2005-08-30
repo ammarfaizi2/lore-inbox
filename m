@@ -1,37 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbVH3Opp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932163AbVH3OuZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932147AbVH3Opp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 10:45:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbVH3Opo
+	id S932163AbVH3OuZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 10:50:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932165AbVH3OuZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 10:45:44 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:22320
-	"EHLO g5.random") by vger.kernel.org with ESMTP id S932147AbVH3Opo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 10:45:44 -0400
-Date: Tue, 30 Aug 2005 16:45:40 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-Cc: Sven Ladegast <sven@linux4geeks.de>, linux-kernel@vger.kernel.org
-Subject: Re: KLive: Linux Kernel Live Usage Monitor
-Message-ID: <20050830144540.GM8515@g5.random>
-References: <20050830030959.GC8515@g5.random> <Pine.LNX.4.63.0508300954190.1984@cassini.linux4geeks.de> <20050830082901.GA25438@bitwizard.nl>
+	Tue, 30 Aug 2005 10:50:25 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:58378 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932163AbVH3OuY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 10:50:24 -0400
+Date: Tue, 30 Aug 2005 16:50:22 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: David Hollis <dhollis@davehollis.com>
+Cc: Diego Calleja <diegocg@gmail.com>, Jesper Juhl <jesper.juhl@gmail.com>,
+       stephane.wirtel@belgacom.net, linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.6.13 : __check_region is deprecated
+Message-ID: <20050830145022.GA3708@stusta.de>
+References: <20050829231417.GB2736@localhost.localdomain> <20050830012813.7737f6f6.diegocg@gmail.com> <9a8748490508291634416a18bc@mail.gmail.com> <20050830015513.62ee2c0c.diegocg@gmail.com> <1125412117.4801.18.camel@dhollis-lnx.sunera.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20050830082901.GA25438@bitwizard.nl>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1125412117.4801.18.camel@dhollis-lnx.sunera.com>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 30, 2005 at 10:29:01AM +0200, Rogier Wolff wrote:
-> sending a packet on the first day) The number of these random packets
-> recieved is a measure of the number of CPU-months that the kernel
-> runs. 
+On Tue, Aug 30, 2005 at 10:28:37AM -0400, David Hollis wrote:
+> On Tue, 2005-08-30 at 01:55 +0200, Diego Calleja wrote:
+> > El Tue, 30 Aug 2005 01:34:25 +0200,
+> > Jesper Juhl <jesper.juhl@gmail.com> escribió:
+> > 
+> > > I don't see why we should break a bunch of drivers by doing that.
+> > > Much better, in my oppinion, to fix the few remaining drivers still
+> > > using check_region and *then* kill it. Even unmaintained drivers may
+> > 
+> > I'd usually agree with you, but check_region has been deprecated for so many
+> > time; I was just wondering myself if people will bother to fix the remaining
+> > drivers without some "incentive" 
+> 
+> Shouldn't it be (or have been) added to the
+> Documentation/feature-removal-schedule.txt then so it could be
+> deprecated and removed through the proper mechanisms.
 
-This is more or less what klive currently does, except it's a bit more
-sophisticated than that, so you don't risk to lose uptime if a udp
-packet is lost (or if the server goes down, or if dns resolution fails),
-and secondly currently klive gets right suspend to disk. But it still
-gets right suspend to disk, when system is suspended that's not
-accounted as "uptime".
+Why?
+
+Although there is a possible (but not very likely) race condition the 
+drivers usually work fine (they shouldn't work worse than at the time 
+when they were added).
+
+> David Hollis <dhollis@davehollis.com>
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

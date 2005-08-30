@@ -1,62 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbVH3GKM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750958AbVH3GVm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750810AbVH3GKM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 02:10:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750938AbVH3GKM
+	id S1750958AbVH3GVm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 02:21:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750949AbVH3GVm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 02:10:12 -0400
-Received: from mirapoint5.brutele.be ([212.68.199.150]:28993 "EHLO
-	mirapoint5.brutele.be") by vger.kernel.org with ESMTP
-	id S1750810AbVH3GKL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 02:10:11 -0400
-Date: Tue, 30 Aug 2005 08:10:03 +0200
-From: Stephane Wirtel <stephane.wirtel@belgacom.net>
-To: Stephane Wirtel <stephane.wirtel@belgacom.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.6.13 : __check_region is deprecated
-Message-ID: <20050830061003.GA18507@localhost.localdomain>
-References: <20050829231417.GB2736@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20050829231417.GB2736@localhost.localdomain>
-X-Operating-System: Linux debian 2.6.12-1-k7
-User-Agent: Mutt/1.5.10i
-X-Junkmail-Status: score=10/50, host=mirapoint5.brutele.be
-X-Junkmail-SD-Raw: score=unknown, refid=0001.0A090201.4313F562.0004-F-L0BeBC04zsV01UPbcJcIKw==,  =?ISO-8859-1?Q?=20i?=
-	=?ISO-8859-1?Q?p=3D=80=A1=0B=08?=
+	Tue, 30 Aug 2005 02:21:42 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:44955 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750777AbVH3GVl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 02:21:41 -0400
+To: Andi Kleen <ak@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: solving page table access attribute aliasing.
+References: <m1psrwmg10.fsf@ebiederm.dsl.xmission.com>
+	<200508300230.39844.ak@suse.de>
+	<m1ll2kmbxd.fsf@ebiederm.dsl.xmission.com>
+	<200508300412.55027.ak@suse.de>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Tue, 30 Aug 2005 00:21:09 -0600
+In-Reply-To: <200508300412.55027.ak@suse.de> (Andi Kleen's message of "Tue,
+ 30 Aug 2005 04:12:54 +0200")
+Message-ID: <m1br3gq71m.fsf_-_@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le Tuesday 30 August 2005 a 01:08, Stephane Wirtel ecrivait: 
-> Hi, 
-> 
-> By compiling my kernel, I can see that the __check_region function (in
-> kernel/resource.c) is deprecated.
-> 
-> With a grep on the source code of the last release, I get this result.
-> 
-> drivers/pnp/resource.c:255:             if (__check_region(&ioport_resource, *port, length(port,end))) 
-> include/linux/ioport.h:117:#define check_mem_region(start,n) __check_region(&iomem_resource, (start), (n))
-> include/linux/ioport.h:120:extern int __check_region(struct resource *, unsigned long, unsigned long);
-> include/linux/ioport.h:125:     return __check_region(&ioport_resource, s, n);
-> kernel/resource.c:468:int __deprecated __check_region(struct resource *parent, unsigned long start, unsigned long n)
-> kernel/resource.c:481:EXPORT_SYMBOL(__check_region);
 
+I agree that it is a good thing to solve the aliasing problem,
+so we don't fight..
 
-This morning, I worked on a patch to remove this deprecated function,
-there are three patchs, 
-patch for kernel/resource.c
-patch for include/linux/ioport.h
-patch for drivers/pnp/resource.c
+There are three cases we need to worry about physical addresses.
+1) Physical addresses that we use as RAM that have a struct page.
+2) Physical addresses without a struct page we map into kernel space.
+3) Physical addresses without a struct page we map into user space.
 
-I go to my job, but after, I will check my patches.
+There are two perspectives for solving this.
+- phys_mem_access_prot/ia64_mem_attribute style.  Where we know
+  at bootup what access attributes everything should have, and
+  on every mmap simply force the attribute to the correct thing.
 
-Best Regards, 
+- We concede that we only know about ram with a struct page,
+  and we let drivers do whatever they want so long as they don't
+  use aliases.
 
-Stephane
--- 
-Stephane Wirtel <stephane.wirtel@belgacom.net>
-                <stephane.wirtel@gmail.com>
+Letting drivers/users decide is the interface we have now so
+unless we wish to change the linux driver model we need to support
+it.
 
+>From this perspective I think the change should be quite simple.
+We need a function: 
+verify_pfn_mapping(unsigned long pfn, unsigned long size, pgprot_t prot);
+That performs the following checks, on every page:
 
+ - Is the page RAM with a struct page.  If so it must be mapped write
+   back.  If we want anything else fail.
+
+ - If the pfn is not RAM and already mapped and do the caching
+   attributes in pgprot_t match.  If we want anything else fail.
+
+ - If the pfn is not mapped, allow anything that is possible.
+
+In addition we need a clean way of saying I don't care just
+give me a mapping with the caching attributes that are already
+being used, and if it is not in use give me a reasonable default.
+Which is what ioremap seems to do today.
+
+For the case where the physical address has a struct page we just need
+to detect that.  
+
+For the case where we are dealing with physical addresses without a
+struct page we need a space efficient way to get this information.
+For each user mapping we already have a vm_area_struct so it makes
+sense to keep all of them on a linked list so we can walk through them
+and find any user space mappings for a pfn.  For the kernel mapping
+with ioremap we need an architecture specific implementation because
+the mappings are handled in an architecture specific way.
+
+Perversely mapping physical pages with ioremap or io_remap_pfn_range
+may be the one case where huge pages are easy to allocate.  I believe
+this is the primary reason why sparc64 does not use remap_pfn_range
+in implementing io_remap_pfn_range.  So it may be worth looking
+at using huge mappings remap_pfn_range as part of implementing alias
+checking for all architectures.  
+
+Unless I am hugely mistake every architecture that can set caching
+attributes on the page tables needs this.
+
+I am going to sleep now and work on implementing this in the morning.
+
+Eric

@@ -1,525 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932346AbVH3VRM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932475AbVH3VT6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932346AbVH3VRM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 17:17:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932473AbVH3VRM
+	id S932475AbVH3VT6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 17:19:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932477AbVH3VT6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 17:17:12 -0400
-Received: from guru.webcon.ca ([216.194.67.26]:32439 "EHLO guru.webcon.ca")
-	by vger.kernel.org with ESMTP id S932346AbVH3VRL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 17:17:11 -0400
-Date: Tue, 30 Aug 2005 17:16:37 -0400 (EDT)
-From: "Ian E. Morgan" <imorgan@webcon.ca>
-X-X-Sender: imorgan@light.int.webcon.net
-To: akpm@osdl.org
-cc: wim@iguana.be, linux-kernel@vger.kernel.org,
-       Webcon Technical Support <tech@webcon.ca>
-Subject: [PATCH] New SBC8360 watchdog driver (revised)
-In-Reply-To: <200508292313.j7TNDf8j030454@shell0.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.63.0508301657260.7557@light.int.webcon.net>
-References: <200508292313.j7TNDf8j030454@shell0.pdx.osdl.net>
-Organization: "Webcon, Inc"
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-Assp-Spam-Prob: 0.00000
-X-Assp-Envelope-From: imorgan@webcon.ca
+	Tue, 30 Aug 2005 17:19:58 -0400
+Received: from smtp-102-tuesday.nerim.net ([62.4.16.102]:6673 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S932475AbVH3VT5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 17:19:57 -0400
+Date: Tue, 30 Aug 2005 23:20:08 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+Cc: LKML <linux-kernel@vger.kernel.org>, video4linux-list@redhat.com,
+       Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 2.6] I2C: Drop I2C_DEVNAME and i2c_clientname
+Message-Id: <20050830232008.3420f0f1.khali@linux-fr.org>
+In-Reply-To: <1125360762.6186.29.camel@localhost>
+References: <20050815195704.7b61206e.khali@linux-fr.org>
+	<1124741348.4516.51.camel@localhost>
+	<20050825001958.63b2525c.khali@linux-fr.org>
+	<1125360762.6186.29.camel@localhost>
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Aug 2005, akpm@osdl.org wrote:
+Hi Mauro,
 
-> The patch titled
->     watchdog: new SBC8360 driver
-> has been added to the -mm tree.  Its filename is
->     watchdog-new-sbc8360-driver.patch
+> (...) it would be nice not to have a different I2C
+> API for every single 2.6 version :-) It would be nice to change I2C
+> API once and keep it stable for a while.
 
-On Mon, 29 Aug 2005, akpm@osdl.org wrote:
+As nice as you seem to think it would be, I don't think it's not
+realistic. For one thing, we don't necessarily know in advance what
+changes will be needed. One month ago, I didn't even know that
+I2C_DEVNAME and i2c_clientname were existing. For another, changes take
+time to be dicussed, implemented and tested. Some changes depend on
+others. We just can't buffer everything for a year and push everything
+to Linus at once. Some of the changes, such as the i2c-isa killing or
+the asynchronous i2c interface, are things some people really need, and
+we can't ask them to wait for months or years.
 
-> The patch titled
->     watchdog-new-sbc8360-driver-tidy
-> has been added to the -mm tree.  Its filename is
->     watchdog-new-sbc8360-driver-tidy.patch
+The Linux 2.6 development model is designed around a relatively fast
+move from -mm to Linus' tree, which implies incremental changes all the
+time. I'm only doing that.
 
+> > As time goes, the differences bwteen 2.4 and 2.6
+> > will only increase. You seem to be trying to keep common driver code
+> > across incompatible trees. I'm not surprised that it is a lot of
+> > work. That's your choice, live with it.
+>
+> It is not just a matter of choice.
 
-Andrew,
+To me, it seems to be. No other part of the kernel does it as far as I
+know. Or can you point me to other drivers that are part of the Linux
+2.6 tree and include compatibility code for Linux 2.4? I am even
+surprised that you are allowed to do it.
 
-Please find below a revised version of the SBC8360 watchdog driver patch
-which incorporates a few cleanups (no code changes):
+> (...) V4L stuff is mostly used by end
+> users. There are a few professional users, like those working on CATV
+> and video broadcasting. They don't have much knowledge and generally
+> uses distro-provided kernels. It is not like I2C or PCI that most
+> boards has something inside.
+> Also: boards are country-specific. There are dozens of different analog
+> standards. So, the same brand name (even the same model on some cases)
+> have different tuners for different video standards.
 
- 	- integrates your above 'tidy' patch
- 	- fixes typos in the documentation related to the ioports used
- 	- removes some end-of-line trailing spaces
- 	- run through scripts/Lindent
+I don't know what you are trying to demonstrate here, but all this is
+completely unrelated with the decision of maintaining common driver code
+rather than separate driver code. V4L is not different from other areas.
+See how hard the framebuffer folks are struggling with the high number
+of different graphics adapter setups for example. Same goes for SMBus
+and hardware monitoring chips as far as I am concerned. Every mainboard
+is different to some extent. And the list certainly doesn't stop there.
+The difficulty to test the code on every existing piece of hardware
+affects all driver authors and maintainers.
 
-You may replace the above two patches with the one below. It patches cleanly
-on 2.6.13.
+> For us to have people to test all variations, we need to provide
+> backward support. Otherwise, we'll suffer a lot to test our patches,
+> since nobody on V4L devel is currently payed for doing his job and
+> don't have a lab with a bunch of cards and models.
 
-Regards,
-Ian Morgan
+Again, this ain't related with your decision to maintain a single set of
+drivers for Linux 2.4 and Linux 2.6 rather than having different
+drivers.
+
+An example I know well is the lm_sensors project. As you may now, no
+SMBus nor hardware monitoring driver is part of Linux 2.4. We are
+maintaining drivers in a separate CVS repository. They are different
+code from what we have in Linux 2.6. Still, we port the relevant changes
+from one set of drivers to the other. Frankly, this ain't that
+difficult, and works fine for over two years now. Maybe you should try.
+
+I don't want to frighten you or anything, but there are changes to the
+i2c subsystem which will affect compatibility in -mm, and these will hit
+Linus' tree quite soon now. And I heard there are much much more in the
+works, not even by me, that might go in 2.6.15.
+
+> I have a question for you about I2C: why i2c_driver doesn't have a
+> generic pointer to keep priv data (like i2c_adapter) ? 
+
+It wouldn't make sense in the current i2c driver model (which is
+probably broken, no need to argue.) i2c_driver holds the code (or
+pointers to code) that is common to all chips using this driver. That
+is, mostly administrative stuff. The instance-specific structure is
+i2c_client. The common practice is to encapsulate the i2c_client
+structure into a dedicated structure, and put all your private data in
+this structure. See how this is done in drivers/hwmon/*.c.
+
+Maybe it sounds strange to you because (I heard) the i2c subsystem
+doesn't follow the usual driver model. But rest assured, I also heard
+that some people wanted to fix that soon. I guess you (or others) can't
+complain that the i2c subsystem is broken, and at the same time ask that
+it be kept compatible with its current or even previous state.
+
+> It would be nice to have such pointer (like have on other I2C
+> structures), in order to support multiple tuners for each function.
+> This is required for modern boards that have a TV analog tuner, a
+> digital one and a radio chip, it would be nice to have such structure
+> to keep a tuner table on it, and make easier to detect this.
+
+I am most certainly wrong, but it looks to me like you are wanting to
+store this data in the wrong place. I can't see how i2c_driver would be
+relevant for that. Multiple tuners is a property of the board itself,
+not a property of an individual chip, be it an I2C chip or not.
 
 -- 
--------------------------------------------------------------------
-  Ian E. Morgan          Vice President & C.O.O.       Webcon, Inc.
-  imorgan at webcon dot ca       PGP: #2DA40D07       www.webcon.ca
-     *  Customized Linux Network Solutions for your Business  *
--------------------------------------------------------------------
-
-
-diff -urN linux/drivers/char/watchdog/Kconfig~ linux/drivers/char/watchdog/Kconfig
---- linux/drivers/char/watchdog/Kconfig~	2005-02-15 18:19:22.000000000 -0500
-+++ linux/drivers/char/watchdog/Kconfig	2005-02-15 18:19:22.000000000 -0500
-@@ -224,6 +224,19 @@
-
-  	  Most people will say N.
-
-+config SBC8360_WDT
-+	tristate "SBC8360 Watchdog Timer"
-+	depends on WATCHDOG && X86
-+	---help---
-+
-+	  This is the driver for the hardware watchdog on the SBC8360 Single
-+	  Board Computer produced by Axiomtek Co., Ltd. (www.axiomtek.com).
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called sbc8360.ko.
-+
-+	  Most people will say N.
-+
-  config WAFER_WDT
-  	tristate "ICP Wafer 5823 Single Board Computer Watchdog"
-  	depends on WATCHDOG && X86
-diff -urN linux/drivers/char/watchdog/Makefile~ linux/drivers/char/watchdog/Makefile
---- linux/drivers/char/watchdog/Makefile~	2005-02-15 18:20:03.000000000 -0500
-+++ linux/drivers/char/watchdog/Makefile	2005-02-15 18:20:03.000000000 -0500
-@@ -6,6 +6,7 @@
-  obj-$(CONFIG_ACQUIRE_WDT) += acquirewdt.o
-  obj-$(CONFIG_ADVANTECH_WDT) += advantechwdt.o
-  obj-$(CONFIG_IB700_WDT) += ib700wdt.o
-+obj-$(CONFIG_SBC8360_WDT) += sbc8360.o
-  obj-$(CONFIG_MIXCOMWD) += mixcomwd.o
-  obj-$(CONFIG_SCx200_WDT) += scx200_wdt.o
-  obj-$(CONFIG_60XX_WDT) += sbc60xxwdt.o
-diff -urN /dev/null linux/drivers/char/watchdog/sbc8360.c
---- /dev/null	2004-02-23 16:02:56.000000000 -0500
-+++ linux/drivers/char/watchdog/sbc8360.c	2005-08-30 17:08:35.000000000 -0400
-@@ -0,0 +1,419 @@
-+/*
-+ *	SBC8360 Watchdog driver
-+ *
-+ *	(c) Copyright 2005 Webcon, Inc.
-+ *
-+ *	Based on ib700wdt.c, which is based on advantechwdt.c which is based
-+ *      on acquirewdt.c which is based on wdt.c.
-+ *
-+ *	(c) Copyright 2001 Charles Howes <chowes@vsol.net>
-+ *
-+ *      Based on advantechwdt.c which is based on acquirewdt.c which
-+ *       is based on wdt.c.
-+ *
-+ *	(c) Copyright 2000-2001 Marek Michalkiewicz <marekm@linux.org.pl>
-+ *
-+ *	Based on acquirewdt.c which is based on wdt.c.
-+ *	Original copyright messages:
-+ *
-+ *	(c) Copyright 1996 Alan Cox <alan@redhat.com>, All Rights Reserved.
-+ *				http://www.redhat.com
-+ *
-+ *	This program is free software; you can redistribute it and/or
-+ *	modify it under the terms of the GNU General Public License
-+ *	as published by the Free Software Foundation; either version
-+ *	2 of the License, or (at your option) any later version.
-+ *
-+ *	Neither Alan Cox nor CymruNet Ltd. admit liability nor provide
-+ *	warranty for any of this software. This material is provided
-+ *	"AS-IS" and at no charge.
-+ *
-+ *	(c) Copyright 1995    Alan Cox <alan@redhat.com>
-+ *
-+ *      14-Dec-2001 Matt Domsch <Matt_Domsch@dell.com>
-+ *           Added nowayout module option to override CONFIG_WATCHDOG_NOWAYOUT
-+ *           Added timeout module option to override default
-+ *
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/module.h>
-+#include <linux/types.h>
-+#include <linux/miscdevice.h>
-+#include <linux/watchdog.h>
-+#include <linux/ioport.h>
-+#include <linux/delay.h>
-+#include <linux/notifier.h>
-+#include <linux/fs.h>
-+#include <linux/reboot.h>
-+#include <linux/init.h>
-+#include <linux/spinlock.h>
-+#include <linux/moduleparam.h>
-+
-+#include <asm/io.h>
-+#include <asm/uaccess.h>
-+#include <asm/system.h>
-+
-+static unsigned long sbc8360_is_open;
-+static spinlock_t sbc8360_lock;
-+static char expect_close;
-+
-+#define PFX "sbc8360: "
-+
-+/*
-+ *
-+ * Watchdog Timer Configuration
-+ *
-+ * The function of the watchdog timer is to reset the system automatically
-+ * and is defined at I/O port 0120H and 0121H.  To enable the watchdog timer
-+ * and allow the system to reset, write appropriate values from the table
-+ * below to I/O port 0120H and 0121H.  To disable the timer, write a zero
-+ * value to I/O port 0121H for the system to stop the watchdog function.
-+ *
-+ * The following describes how the timer should be programmed (according to
-+ * the vendor documentation)
-+ *
-+ * Enabling Watchdog:
-+ * MOV AX,000AH (enable, phase I)
-+ * MOV DX,0120H
-+ * OUT DX,AX
-+ * MOV AX,000BH (enable, phase II)
-+ * MOV DX,0120H
-+ * OUT DX,AX
-+ * MOV AX,000nH (set multiplier n, from 1-4)
-+ * MOV DX,0120H
-+ * OUT DX,AX
-+ * MOV AX,000mH (set base timer m, from 0-F)
-+ * MOV DX,0121H
-+ * OUT DX,AX
-+ *
-+ * Reset timer:
-+ * MOV AX,000mH (same as set base timer, above)
-+ * MOV DX,0121H
-+ * OUT DX,AX
-+ *
-+ * Disabling Watchdog:
-+ * MOV AX,0000H (a zero value)
-+ * MOV DX,0120H
-+ * OUT DX,AX
-+ *
-+ * Watchdog timeout configuration values:
-+ *		N
-+ *	M |	1	2	3	4
-+ *	--|----------------------------------
-+ *	0 |	0.5s	5s	50s	100s
-+ *	1 |	1s	10s	100s	200s
-+ *	2 |	1.5s	15s	150s	300s
-+ *	3 |	2s	20s	200s	400s
-+ *	4 |	2.5s	25s	250s	500s
-+ *	5 |	3s	30s	300s	600s
-+ *	6 |	3.5s	35s	350s	700s
-+ *	7 |	4s	40s	400s	800s
-+ *	8 |	4.5s	45s	450s	900s
-+ *	9 |	5s	50s	500s	1000s
-+ *	A |	5.5s	55s	550s	1100s
-+ *	B |	6s	60s	600s	1200s
-+ *	C |	6.5s	65s	650s	1300s
-+ *	D |	7s	70s	700s	1400s
-+ *	E |	7.5s	75s	750s	1500s
-+ *	F |	8s	80s 	800s 	1600s
-+ *
-+ * Another way to say the same things is:
-+ *  For N=1, Timeout = (M+1) * 0.5s
-+ *  For N=2, Timeout = (M+1) * 5s
-+ *  For N=3, Timeout = (M+1) * 50s
-+ *  For N=4, Timeout = (M+1) * 100s
-+ *
-+ */
-+
-+static int wd_times[64][2] = {
-+	{0, 1},			/* 0  = 0.5s */
-+	{1, 1},			/* 1  = 1s   */
-+	{2, 1},			/* 2  = 1.5s */
-+	{3, 1},			/* 3  = 2s   */
-+	{4, 1},			/* 4  = 2.5s */
-+	{5, 1},			/* 5  = 3s   */
-+	{6, 1},			/* 6  = 3.5s */
-+	{7, 1},			/* 7  = 4s   */
-+	{8, 1},			/* 8  = 4.5s */
-+	{9, 1},			/* 9  = 5s   */
-+	{0xA, 1},		/* 10 = 5.5s */
-+	{0xB, 1},		/* 11 = 6s   */
-+	{0xC, 1},		/* 12 = 6.5s */
-+	{0xD, 1},		/* 13 = 7s   */
-+	{0xE, 1},		/* 14 = 7.5s */
-+	{0xF, 1},		/* 15 = 8s   */
-+	{0, 2},			/* 16 = 5s  */
-+	{1, 2},			/* 17 = 10s */
-+	{2, 2},			/* 18 = 15s */
-+	{3, 2},			/* 19 = 20s */
-+	{4, 2},			/* 20 = 25s */
-+	{5, 2},			/* 21 = 30s */
-+	{6, 2},			/* 22 = 35s */
-+	{7, 2},			/* 23 = 40s */
-+	{8, 2},			/* 24 = 45s */
-+	{9, 2},			/* 25 = 50s */
-+	{0xA, 2},		/* 26 = 55s */
-+	{0xB, 2},		/* 27 = 60s */
-+	{0xC, 2},		/* 28 = 65s */
-+	{0xD, 2},		/* 29 = 70s */
-+	{0xE, 2},		/* 30 = 75s */
-+	{0xF, 2},		/* 31 = 80s */
-+	{0, 3},			/* 32 = 50s  */
-+	{1, 3},			/* 33 = 100s */
-+	{2, 3},			/* 34 = 150s */
-+	{3, 3},			/* 35 = 200s */
-+	{4, 3},			/* 36 = 250s */
-+	{5, 3},			/* 37 = 300s */
-+	{6, 3},			/* 38 = 350s */
-+	{7, 3},			/* 39 = 400s */
-+	{8, 3},			/* 40 = 450s */
-+	{9, 3},			/* 41 = 500s */
-+	{0xA, 3},		/* 42 = 550s */
-+	{0xB, 3},		/* 43 = 600s */
-+	{0xC, 3},		/* 44 = 650s */
-+	{0xD, 3},		/* 45 = 700s */
-+	{0xE, 3},		/* 46 = 750s */
-+	{0xF, 3},		/* 47 = 800s */
-+	{0, 4},			/* 48 = 100s */
-+	{1, 4},			/* 49 = 200s */
-+	{2, 4},			/* 50 = 300s */
-+	{3, 4},			/* 51 = 400s */
-+	{4, 4},			/* 52 = 500s */
-+	{5, 4},			/* 53 = 600s */
-+	{6, 4},			/* 54 = 700s */
-+	{7, 4},			/* 55 = 800s */
-+	{8, 4},			/* 56 = 900s */
-+	{9, 4},			/* 57 = 1000s */
-+	{0xA, 4},		/* 58 = 1100s */
-+	{0xB, 4},		/* 59 = 1200s */
-+	{0xC, 4},		/* 60 = 1300s */
-+	{0xD, 4},		/* 61 = 1400s */
-+	{0xE, 4},		/* 62 = 1500s */
-+	{0xF, 4}		/* 63 = 1600s */
-+};
-+
-+#define SBC8360_ENABLE 0x120
-+#define SBC8360_BASETIME 0x121
-+
-+static int timeout = 27;
-+static int wd_margin = 0xB;
-+static int wd_multiplier = 2;
-+
-+#ifdef CONFIG_WATCHDOG_NOWAYOUT
-+static int nowayout = 1;
-+#else
-+static int nowayout = 0;
-+#endif
-+
-+module_param(timeout, int, 27);
-+MODULE_PARM_DESC(timeout, "Index into timeout table (0-63) (default=27 (60s))");
-+module_param(nowayout, int, 0);
-+MODULE_PARM_DESC(nowayout,
-+		 "Watchdog cannot be stopped once started (default=CONFIG_WATCHDOG_NOWAYOUT)");
-+
-+/*
-+ *	Kernel methods.
-+ */
-+
-+/* Activate and pre-configure watchdog */
-+static void sbc8360_activate(void)
-+{
-+	/* Enable the watchdog */
-+	outb(0x0A, SBC8360_ENABLE);
-+	msleep_interruptible(100);
-+	outb(0x0B, SBC8360_ENABLE);
-+	msleep_interruptible(100);
-+	/* Set timeout multiplier */
-+	outb(wd_multiplier, SBC8360_ENABLE);
-+	msleep_interruptible(100);
-+	/* Nothing happens until first sbc8360_ping() */
-+}
-+
-+/* Kernel pings watchdog */
-+static void sbc8360_ping(void)
-+{
-+	/* Write the base timer register */
-+	outb(wd_margin, SBC8360_BASETIME);
-+}
-+
-+/* Userspace pings kernel driver, or requests clean close */
-+static ssize_t sbc8360_write(struct file *file, const char __user * buf,
-+			     size_t count, loff_t * ppos)
-+{
-+	if (count) {
-+		if (!nowayout) {
-+			size_t i;
-+
-+			/* In case it was set long ago */
-+			expect_close = 0;
-+
-+			for (i = 0; i != count; i++) {
-+				char c;
-+				if (get_user(c, buf + i))
-+					return -EFAULT;
-+				if (c == 'V')
-+					expect_close = 42;
-+			}
-+		}
-+		sbc8360_ping();
-+	}
-+	return count;
-+}
-+
-+static int sbc8360_open(struct inode *inode, struct file *file)
-+{
-+	spin_lock(&sbc8360_lock);
-+	if (test_and_set_bit(0, &sbc8360_is_open)) {
-+		spin_unlock(&sbc8360_lock);
-+		return -EBUSY;
-+	}
-+	if (nowayout)
-+		__module_get(THIS_MODULE);
-+
-+	/* Activate and ping once to start the countdown */
-+	spin_unlock(&sbc8360_lock);
-+	sbc8360_activate();
-+	sbc8360_ping();
-+	return nonseekable_open(inode, file);
-+}
-+
-+static int sbc8360_close(struct inode *inode, struct file *file)
-+{
-+	spin_lock(&sbc8360_lock);
-+	if (expect_close == 42)
-+		outb(0, SBC8360_ENABLE);
-+	else
-+		printk(KERN_CRIT PFX
-+		       "SBC8360 device closed unexpectedly.  SBC8360 will not stop!\n");
-+
-+	clear_bit(0, &sbc8360_is_open);
-+	expect_close = 0;
-+	spin_unlock(&sbc8360_lock);
-+	return 0;
-+}
-+
-+/*
-+ *	Notifier for system down
-+ */
-+
-+static int sbc8360_notify_sys(struct notifier_block *this, unsigned long code,
-+			      void *unused)
-+{
-+	if (code == SYS_DOWN || code == SYS_HALT) {
-+		/* Disable the SBC8360 Watchdog */
-+		outb(0, SBC8360_ENABLE);
-+	}
-+	return NOTIFY_DONE;
-+}
-+
-+/*
-+ *	Kernel Interfaces
-+ */
-+
-+static struct file_operations sbc8360_fops = {
-+	.owner = THIS_MODULE,
-+	.llseek = no_llseek,
-+	.write = sbc8360_write,
-+	.open = sbc8360_open,
-+	.release = sbc8360_close,
-+};
-+
-+static struct miscdevice sbc8360_miscdev = {
-+	.minor = WATCHDOG_MINOR,
-+	.name = "watchdog",
-+	.fops = &sbc8360_fops,
-+};
-+
-+/*
-+ *	The SBC8360 needs to learn about soft shutdowns in order to
-+ *	turn the timebomb registers off.
-+ */
-+
-+static struct notifier_block sbc8360_notifier = {
-+	.notifier_call = sbc8360_notify_sys,
-+};
-+
-+static int __init sbc8360_init(void)
-+{
-+	int res;
-+	unsigned long int mseconds = 60000;
-+
-+	spin_lock_init(&sbc8360_lock);
-+	res = misc_register(&sbc8360_miscdev);
-+	if (res) {
-+		printk(KERN_ERR PFX "failed to register misc device\n");
-+		goto out_nomisc;
-+	}
-+
-+	if (!request_region(SBC8360_ENABLE, 1, "SBC8360")) {
-+		printk(KERN_ERR PFX "ENABLE method I/O %X is not available.\n",
-+		       SBC8360_ENABLE);
-+		res = -EIO;
-+		goto out_noenablereg;
-+	}
-+	if (!request_region(SBC8360_BASETIME, 1, "SBC8360")) {
-+		printk(KERN_ERR PFX
-+		       "BASETIME method I/O %X is not available.\n",
-+		       SBC8360_BASETIME);
-+		res = -EIO;
-+		goto out_nobasetimereg;
-+	}
-+
-+	res = register_reboot_notifier(&sbc8360_notifier);
-+	if (res) {
-+		printk(KERN_ERR PFX "Failed to register reboot notifier.\n");
-+		goto out_noreboot;
-+	}
-+
-+	if (timeout < 0 || timeout > 63) {
-+		printk(KERN_ERR PFX "Invalid timeout index (must be 0-63).\n");
-+		res = -EINVAL;
-+		goto out_noreboot;
-+	}
-+
-+	wd_margin = wd_times[timeout][0];
-+	wd_multiplier = wd_times[timeout][1];
-+
-+	if (wd_multiplier == 1)
-+		mseconds = (wd_margin + 1) * 500;
-+	else if (wd_multiplier == 2)
-+		mseconds = (wd_margin + 1) * 5000;
-+	else if (wd_multiplier == 3)
-+		mseconds = (wd_margin + 1) * 50000;
-+	else if (wd_multiplier == 4)
-+		mseconds = (wd_margin + 1) * 100000;
-+
-+	/* My kingdom for the ability to print "0.5 seconds" in the kernel! */
-+	printk(KERN_INFO PFX "Timeout set at %ld ms.\n", mseconds);
-+
-+	return 0;
-+
-+      out_noreboot:
-+	release_region(SBC8360_ENABLE, 1);
-+	release_region(SBC8360_BASETIME, 1);
-+      out_noenablereg:
-+      out_nobasetimereg:
-+	misc_deregister(&sbc8360_miscdev);
-+      out_nomisc:
-+	return res;
-+}
-+
-+static void __exit sbc8360_exit(void)
-+{
-+	misc_deregister(&sbc8360_miscdev);
-+	unregister_reboot_notifier(&sbc8360_notifier);
-+	release_region(SBC8360_ENABLE, 1);
-+	release_region(SBC8360_BASETIME, 1);
-+}
-+
-+module_init(sbc8360_init);
-+module_exit(sbc8360_exit);
-+
-+MODULE_AUTHOR("Ian E. Morgan <imorgan@webcon.ca>");
-+MODULE_DESCRIPTION("SBC8360 watchdog driver");
-+MODULE_LICENSE("GPL");
-+MODULE_VERSION("1.0");
-+MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
-+
-+/* end of sbc8360.c */
+Jean Delvare

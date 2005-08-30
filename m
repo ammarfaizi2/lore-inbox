@@ -1,74 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932173AbVH3SJd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932251AbVH3SNh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932173AbVH3SJd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 14:09:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932248AbVH3SJd
+	id S932251AbVH3SNh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 14:13:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932252AbVH3SNh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 14:09:33 -0400
-Received: from smtp.nuit.ca ([66.11.160.83]:2170 "EHLO smtp.nuit.ca")
-	by vger.kernel.org with ESMTP id S932173AbVH3SJc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 14:09:32 -0400
-Date: Thu, 22 Sep 2005 03:15:25 -0400
-From: "SR, ESC" <simon@nuit.ca>
-To: Dave Kleikamp <shaggy@austin.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: OOPS in 2.6.13: jfsCommit
-Message-ID: <20050922071522.GA5915@pylon>
-References: <20050830115950.GA8764@pylon> <1125420432.9223.3.camel@kleikamp.austin.ibm.com>
+	Tue, 30 Aug 2005 14:13:37 -0400
+Received: from wproxy.gmail.com ([64.233.184.196]:20301 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932251AbVH3SNg convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 14:13:36 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Wlv3vSQ+S7pjoUdyZBkG9BNyonhw6A8D4pyhuVNhU9YH4cxCBmUXfkWUwOSjBLFJPXlpqGLUe7l1mCT0LZ2s01n3PqGAz3zqilloPVM3AAX3OQvM4F3EJ3V272fD/D1XkxVP+ljiSYrWMMexLPKKpS4MM+QqYJL/Mmg0k65DFyU=
+Message-ID: <9e4733910508301113593e56e5@mail.gmail.com>
+Date: Tue, 30 Aug 2005 14:13:35 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+To: David Reveman <davidr@novell.com>
+Subject: Re: State of Linux graphics
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Discuss issues related to the xorg tree 
+	<xorg@lists.freedesktop.org>
+In-Reply-To: <1125422813.20488.43.camel@localhost>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="rwEMma7ioTxnRzrJ"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1125420432.9223.3.camel@kleikamp.austin.ibm.com>
-X-GPG-KeyServer: hkp://subkeys.pgp.net
-X-Operating-System: Debian GNU/Linux
-User-Agent: mutt-ng devel-r316 (Debian)
+References: <9e47339105083009037c24f6de@mail.gmail.com>
+	 <1125422813.20488.43.camel@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 8/30/05, David Reveman <davidr@novell.com> wrote:
+> > Xgl was designed as a near term transition solution. The Xgl model
+> > was to transparently replace the drawing system of the existing
+> > X server with a compatible one based on using OpenGL as a device
+> > driver. Xgl maintained all of the existing X APIs as primary APIs.
+> > No new X APIs were offered and none were deprecated.
+> ..
+> > But Xgl was a near term, transition design, by delaying demand for
+> > Xgl the EXA bandaid removes much of the need for it.
+> 
+> I've always designed Xgl to be a long term solution. I'd like if
+> whatever you or anyone else see as not long term with the design of Xgl
+> could be clarified.
 
---rwEMma7ioTxnRzrJ
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Xgl doesn't run standalone, it needs either Xegl or Xglx. Xglx isn't
+really interesting since you're running an X server inside of another
+one. It's a good environment for software developers but I don't think
+you would want to base a desktop distribution on it.
 
-Le mar 2005-08-30 a 12:48:17 -0400, Dave Kleikamp <shaggy@austin.ibm.com> a=
- dit:
-> On Tue, 2005-08-30 at 07:59 -0400, SR, ESC wrote:
-> > hi,
-> >=20
-> > i encountered an OOPS during boot here. dropped the machine into xmon
-> > even. during boot, i got what's in the attached file
-> > (kernel_bug_2.6.13_jfsCommit).
->=20
-> I think the problem may be a recent change to jfs_delete_inode.  Does
-> this patch fix the problem?
+The leaves Xegl. If Xegl were to enter widespread use by the end of
+2006 it would be the right solution. But I don't think it is going to
+make it anywhere close to the end of 2006 since X11R7 and EXA are
+going to be released in front of it. I suspect those two releases will
+just be getting widespread by the end of 2006.
 
-so far so good. box seems "happy". no Oopses. thank you very much :).
+So we are looking at 2007. That means two more year's advances in
+hardware and things like a NV 6800GT will be $40. In that timeframe
+programmable hardware will be mainstream. We also have time to fix
+some of the problem in the current server. As described at the end of
+the paper a new server design would feature OpenGL as it's primary
+API, xlib would still be supported but at a secondary status.
 
-simon
+> We already had a new drawing API for X, the X Render extension. Xgl is
+> the first server to fully accelerate X Render.
 
---=20
-make zImage, not war.
+I think the EXA people will say they have the first server in
+distribution that fully accelerates X Render.
 
---rwEMma7ioTxnRzrJ
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+> 
+> > Linux is now guaranteed to be the last major desktop to implement a
+> > desktop GUI that takes full advantage of the GPU.
+> 
+> I'm not certain of that.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+I can't see any scenario where Linux can put together a full GPU based
+desktop before MS/Apple. We aren't even going to be close, we are at
+least a year behind. Even if we fix the server all of the desktop
+components need time to adjust too.
 
-iQGVAwUBQzJaCGqIeuJxHfCXAQKdtgv9GsM+r/EbPvtAUe1kuRSyw72WTR6vRI+n
-mqIDPEV2HTnYnAICMWPiRcZoRdMoNV/8K2KAcpkWt/m3Ml59HBXRGATancyx9Zv1
-7cjBp25Gm4OpPO0uTLNTeiMKtpMU0R8Wy5N7FLkUUBjj1zNB9JmgFTqyNrawmrit
-v0h9dUMRSeuNlSBGhlYYBLJnQBlajf+1jjx6BaVx9YfMd4/GvImhdjHt+IKbd25t
-cQ+b9LeIU/LMPKMukI2ltbdZIqFDtmPt2h620QXydCi7hdaUXq9jhOj6Jk9I0EEG
-KyUVvCYiqBS+71DIHbupqGyna4mWaq3ntqIZfA0OzIJWez/T0YCIBqGwh1g99b9G
-ONorxaPkG1KnMswvnbMIXtKCdZKsakJJwXmgU/fgh+1xQSkLQHM0FNmLD+2qqOuS
-62aV7iTp47dh2f7cEPBB1LNs1ZoH6bOjlMlRPnvaT+pPIoZzaw/E1G8oR4Polmo9
-rFaGPPUnlcPrlAiEWX146eOhbO5+2sF9
-=Mq9R
------END PGP SIGNATURE-----
+> 
+> > In general, the whole concept of programmable graphics hardware is
+> > not addressed in APIs like xlib and Cairo. This is a very important
+> > point. A major new GPU feature, programmability is simply not
+> > accessible from the current X APIs. OpenGL exposes this
+> > programmability via its shader language.
+> 
+> That's just because we haven't had the need to expose it yet. I don't
+> see why this can't be exposed through the Render extension. The trickier
+> part is to figure out how we should expose it through the cairo API but
+> that's not an X server design problem.
 
---rwEMma7ioTxnRzrJ--
+It will be interesting to read other X developer's comments on
+exposing programmable graphics via render.
+
+-- 
+Jon Smirl
+jonsmirl@gmail.com

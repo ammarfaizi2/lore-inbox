@@ -1,74 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932189AbVH3QBQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751447AbVH3QCW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932189AbVH3QBQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 12:01:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751450AbVH3QBQ
+	id S1751447AbVH3QCW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 12:02:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751446AbVH3QCW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 12:01:16 -0400
-Received: from styx.suse.cz ([82.119.242.94]:62436 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S1751447AbVH3QBP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 12:01:15 -0400
-Date: Tue, 30 Aug 2005 18:01:25 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Michael Tokarev <mjt@tls.msk.ru>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: APs from the Kernel Summit run Linux
-Message-ID: <20050830160125.GA15126@midnight.suse.cz>
-References: <20050830093715.GA9781@midnight.suse.cz> <43147FF1.60707@tls.msk.ru>
-Mime-Version: 1.0
+	Tue, 30 Aug 2005 12:02:22 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:24994 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751447AbVH3QCV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 12:02:21 -0400
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: Andi Kleen <ak@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386, x86_64 Initial PAT implementation
+References: <m1psrwmg10.fsf@ebiederm.dsl.xmission.com>
+	<1125413136.8276.14.camel@localhost.localdomain>
+	<200508301650.23149.ak@suse.de>
+	<17172.31726.480750.90360@alkaid.it.uu.se>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Tue, 30 Aug 2005 10:01:40 -0600
+In-Reply-To: <17172.31726.480750.90360@alkaid.it.uu.se> (Mikael Pettersson's
+ message of "Tue, 30 Aug 2005 17:31:58 +0200")
+Message-ID: <m1vf1npg63.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43147FF1.60707@tls.msk.ru>
-User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 30, 2005 at 07:49:05PM +0400, Michael Tokarev wrote:
-> Vojtech Pavlik wrote:
-> > Hi!
-> > 
-> > The D-Link DWL-G730AP devices from the Kernel Summit run Linux, And it's
-> > likely a GPL violation, too, since sources are nowhere to be found.
-> > 
-> > They're based on a Marvell Libertas AP-32 (ARM9) design, similar
-> > to the ASUS WL-530g. A bootlog from the ASUS (which has telnet enabled
-> > for some reason, and thus can be logged in) is at the end of the mail.
-> > 
-> > A firmware image is available from D-Link ([URL removed]) and it seems
-> > to be composed of compressed blocks padded by zeroes. I haven't verified
-> > yet that it's indeed a compressed kernel, cramfs, etc, but it seems
-> > quite likely.
-> 
-> Why [URL removed] ? ;)
+Mikael Pettersson <mikpe@csd.uu.se> writes:
 
-See the comment at the end of the mail. I tried to send the mail twice
-already, and with the URLs in, it wasn't delivered. Probably some spam
-filter at kernel.org ate it.
+> Andi Kleen writes:
+>  > On Tuesday 30 August 2005 16:45, Alan Cox wrote:
+>  > > On Llu, 2005-08-29 at 18:20 -0600, Eric W. Biederman wrote:
+>  > > > ways.  Currently this code only allows for an additional flavor
+>  > > > of uncached access to physical memory addresses which should be hard
+>  > > > to abuse, and should raise no additional aliasing problems.  No
+>  > > > attempt has been made to fix theoretical aliasing problems.
+>  > >
+>  > > Even an uncached/cached alias causes random memory corruption or an MCE
+>  > > on x86 systems. In fact it can occur even for an alias not in theory
+>  > > touched by the CPU if it happens to prefetch into or speculate the
+>  > > address.
+>  > >
+>  > > Also be sure to read the PII Xeon errata - early PAT has a bug or two.
+>  > 
+>  > 
+>  > We can always force cpu_has_pat == 0 on these machines.
+>  > I don't think it is worth it to add any more complicated workarounds 
+>  > for old broken systems.
+>
+> I don't have the spec updates in front of me, but I believe the PAT
+> bug existed well into the P4 line. The workaround is simply to make
+> the high 4 PAT entries identical to the low 4 entries. (But I confess
+> to not having a clue as to whether it's still useful then or not.)
 
-> There's an ongoing project to "bring some power" into other D-Link
-> devices (from DSL series; one of them, DSL-G604T (which I own) has
-> an access point too) at http://mcmcc.bat.ru/dlinkt/ .  This stuff is
-> also based on the same design, it seems (but I know right to nothing
-> about all this arm stuff - wasn't even able to compile a cross-gcc
-> for it yet).  McMCC (the author of this whole work) figured out the
-> layout of the firmware images and mtd devices, and got D-Link stuff
-> (out of http://ftp.dlink.ru/pub/ADSL/GPL_source_code/ ) to build and
-> run on those boards...
+It is still useful even if that is the case.  Unless we need something
+more than WC we don't have a need for anything else.  
 
-These seem to have an entirely different architecture. The DSL's are
-Texas Instrument MIPS, while the Libertas is an Marvell ARM.
+If you could track down the reference you are thinking of I would
+appreciate it.  According to the errata I can find simply not using
+the high 4 entries is sufficient, to avoid the problem.
 
-> BTW, DSL series has telnet by default (user root, password is the
-> one set in the admin interface, default is 'admin').  And the whole
-> webinterface looks very similar (but this DWL-G730AP device has some
-> "advanced" controls for the wireless component which are absent in
-> my DSL-G604T).
- 
-The web interface is likely the only part done by D-Link. In the
-DWL-G730AP, the rest (board design, etc) was done by Marvell and Global
-Sun Technology. The PCB name is "WL AP 2454 NM1 VER:1.1".
+Eric
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+

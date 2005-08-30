@@ -1,53 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbVH3LNx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751365AbVH3LZg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932082AbVH3LNx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 07:13:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751376AbVH3LNx
+	id S1751365AbVH3LZg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 07:25:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751369AbVH3LZg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 07:13:53 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:18140 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751373AbVH3LNx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 07:13:53 -0400
-Date: Tue, 30 Aug 2005 13:14:28 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.13-rc4-V0.7.52-01
-Message-ID: <20050830111428.GA14363@elte.hu>
-References: <1123035909.11101.1.camel@c-67-188-6-232.hsd1.ca.comcast.net> <1123036936.1590.69.camel@localhost.localdomain> <1123037933.11101.11.camel@c-67-188-6-232.hsd1.ca.comcast.net> <1123080606.1590.119.camel@localhost.localdomain> <1123087447.1590.136.camel@localhost.localdomain> <20050812125844.GA13357@elte.hu> <1125030249.5365.23.camel@localhost.localdomain> <20050826060815.GB17783@elte.hu> <1125055250.5365.33.camel@localhost.localdomain> <1125399509.1910.6.camel@sisko.sctweedie.blueyonder.co.uk>
+	Tue, 30 Aug 2005 07:25:36 -0400
+Received: from zproxy.gmail.com ([64.233.162.197]:1259 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751365AbVH3LZf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 07:25:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=mFGEycKzj8pgeVO3QNCDyK7NYEeYgNlaHx4MmvQykLDmn19ZLKHPucWkjcsgo2sufIZwCAJSkziJ1N8vz/qD6XWVa7+giJV8dxpjN55G6Ucq3wz6NtRvcPNgybUls93UtYf/qIinsaRZ12YVsvAhrmPmiek8nnq7gdrAzON5xlw=
+Message-ID: <9a8748490508300425442b84e8@mail.gmail.com>
+Date: Tue, 30 Aug 2005 13:25:29 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Subject: Re: [PATCH] isdn_v110 warning fix
+Cc: linux-kernel@vger.kernel.org, Thomas Pfeiffer <pfeiffer@pds.de>,
+       isdn4linux@listserv.isdn4linux.de, Karsten Keil <kkeil@suse.de>,
+       Kai Germaschewski <kai.germaschewski@gmx.de>
+In-Reply-To: <20050830082033.GB12449@mipter.zuzino.mipt.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1125399509.1910.6.camel@sisko.sctweedie.blueyonder.co.uk>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+References: <200508300105.44247.jesper.juhl@gmail.com>
+	 <20050830082033.GB12449@mipter.zuzino.mipt.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Stephen C. Tweedie <sct@redhat.com> wrote:
-
-> On Fri, 2005-08-26 at 12:20, Steven Rostedt wrote:
+On 8/30/05, Alexey Dobriyan <adobriyan@gmail.com> wrote:
+> On Tue, Aug 30, 2005 at 01:05:43AM +0200, Jesper Juhl wrote:
+> > drivers/isdn/i4l/isdn_v110.c:523: warning: `ret' might be used uninitialized in this function
 > 
-> > > could you try a), how clean does it get? Personally i'm much more in 
-> > > favor of cleanliness. On the vanilla kernel a spinlock is zero bytes on 
-> > > UP [the most RAM-sensitive platform], and it's a word on typical SMP.
+> > --- linux-2.6.13-orig/drivers/isdn/i4l/isdn_v110.c
+> > +++ linux-2.6.13/drivers/isdn/i4l/isdn_v110.c
+> > @@ -516,11 +516,11 @@
 > 
-> It's a word, maybe; but it's a word used only by ext3 afaik, and it's 
-> getting added to the core buffer_head.  Not very nice.  It certainly 
-> looks like the easiest short-term way out for a development patch 
-> series, though.
+> > -isdn_v110_stat_callback(int idx, isdn_ctrl * c)
+> > +isdn_v110_stat_callback(int idx, isdn_ctrl *c)
+> >  {
+> >       isdn_v110_stream *v = NULL;
+> >       int i;
+> > -     int ret;
+> > +     int ret = 0;
+> 
+> ret is used only in isdn_v110_stat_callback()::case ISDN_STAT_BSENT.
+> It's possible for it to be unused only if passed c->parm.length is 0.
+> Do you see codepaths that can do it?
+> 
+No, I don't see any codepaths that could lead to it being used uninitialized. 
+I made the patch for two reasons;  1) To silence the warning, and I
+guess it's simply the right thing to do.   2) To make sure the code
+behaves in a resonably sane way in case the situation
+c->parm.length==0 should somehow happen in the future.
 
-but ext3 is pretty much the only mainstream FS that still makes use of 
-buffer_heads, so it should be fine. Any other solution looks _way_ too 
-hacky - and the current bit-spin-lock solution is less than charming 
-too.
-
-	Ingo
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

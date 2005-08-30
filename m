@@ -1,54 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932166AbVH3Oyq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932170AbVH3O4N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932166AbVH3Oyq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 10:54:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932170AbVH3Oyq
+	id S932170AbVH3O4N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 10:56:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbVH3O4N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 10:54:46 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:62986 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932166AbVH3Oyp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 10:54:45 -0400
-Date: Tue, 30 Aug 2005 16:54:44 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
+	Tue, 30 Aug 2005 10:56:13 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:1861
+	"EHLO g5.random") by vger.kernel.org with ESMTP id S932170AbVH3O4M
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 10:56:12 -0400
+Date: Tue, 30 Aug 2005 16:56:02 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Sven Ladegast <sven@linux4geeks.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] add -Werror-implicit-function-declaration to CFLAGS
-Message-ID: <20050830145444.GC3708@stusta.de>
+Subject: Re: KLive: Linux Kernel Live Usage Monitor
+Message-ID: <20050830145602.GN8515@g5.random>
+References: <20050830030959.GC8515@g5.random> <Pine.LNX.4.63.0508300954190.1984@cassini.linux4geeks.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.63.0508300954190.1984@cassini.linux4geeks.de>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently, using an undeclared function gives a compile warning, but it 
-can lead to a link or even a runtime error.
+On Tue, Aug 30, 2005 at 10:01:21AM +0200, Sven Ladegast wrote:
+> [..] combined 
+> with an automatic oops/panic/bug-report this would be _very_ useful I think.
 
-With -Werror-implicit-function-declaration, we are getting an immediate 
-compile error instead.
-
-This patch also removes some unneeded spaces between two tabs in the 
-following line.
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
----
-
-This patch was already sent on:
-- 30 Jul 2005
-
---- linux-2.6.13-rc3-mm3-full/Makefile.old	2005-07-30 13:55:32.000000000 +0200
-+++ linux-2.6.13-rc3-mm3-full/Makefile	2005-07-30 13:55:56.000000000 +0200
-@@ -351,7 +351,8 @@
- CPPFLAGS        := -D__KERNEL__ $(LINUXINCLUDE)
- 
- CFLAGS 		:= -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
--	  	   -fno-strict-aliasing -fno-common \
-+		   -Werror-implicit-function-declaration \
-+		   -fno-strict-aliasing -fno-common \
- 		   -ffreestanding
- AFLAGS		:= -D__ASSEMBLY__
- 
-
+That would be nice addition IMHO. It'll be more complex since it'll
+involve netconsole dumping and passing the klive session to the kernel
+somehow (userland would be too unreliable to push the oops to the
+server). The worst part is that oops dumping might expose random kernel
+data (it could contain ssh keys as well), so I would either need to
+purify the stack/code/register lines making the oops quite useless, or
+not to show it at all (and only to show the count of the oopses
+publically). A parameter could be used to tell the kernel if the whole
+oops should be sent to the klive server or if only the notification an
+oops should be sent (without sending the payload with potentially
+sensitive data inside).

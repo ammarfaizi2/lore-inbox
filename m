@@ -1,48 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932383AbVH3T2L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932424AbVH3Tpx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932383AbVH3T2L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 15:28:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbVH3T2L
+	id S932424AbVH3Tpx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 15:45:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932425AbVH3Tpx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 15:28:11 -0400
-Received: from mail.parknet.co.jp ([210.171.160.6]:54283 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S932383AbVH3T2J
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 15:28:09 -0400
-To: "Machida, Hiroyuki" <machida@sm.sony.co.jp>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][FAT] FAT dirent scan with hin take #2
-References: <4313CBEF.9020505@sm.sony.co.jp> <4313E578.8070100@sm.sony.co.jp>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Wed, 31 Aug 2005 04:27:52 +0900
-In-Reply-To: <4313E578.8070100@sm.sony.co.jp> (Hiroyuki Machida's message of "Tue, 30 Aug 2005 13:50:00 +0900")
-Message-ID: <874q979qdj.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
+	Tue, 30 Aug 2005 15:45:53 -0400
+Received: from mail.kroah.org ([69.55.234.183]:9425 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932424AbVH3Tpw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 15:45:52 -0400
+Date: Tue, 30 Aug 2005 12:44:35 -0700
+From: Greg KH <greg@kroah.com>
+To: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+Cc: Jean Delvare <khali@linux-fr.org>, LKML <linux-kernel@vger.kernel.org>,
+       video4linux-list@redhat.com
+Subject: Re: [PATCH 2.6] I2C: Drop I2C_DEVNAME and i2c_clientname
+Message-ID: <20050830194435.GF12171@kroah.com>
+References: <20050815195704.7b61206e.khali@linux-fr.org> <1124741348.4516.51.camel@localhost> <20050825001958.63b2525c.khali@linux-fr.org> <1125360762.6186.29.camel@localhost>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1125360762.6186.29.camel@localhost>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Machida, Hiroyuki" <machida@sm.sony.co.jp> writes:
+On Mon, Aug 29, 2005 at 09:12:42PM -0300, Mauro Carvalho Chehab wrote:
+> 
+> 	I have a question for you about I2C: why i2c_driver doesn't have a
+> generic pointer to keep priv data (like i2c_adapter) ? 
 
-> Here is a revised version of dirent scan patch,  mentioned at
-> following E-mail.
->
-> This patch addresses performance damages on "ls | xargs xxx" and
-> reverse order scan which are reported to the previous patch.
->
-> With this patch, fat_search_long() and fat_scan() use hint value
-> as start of scan. For each directory holds multiple hint value entries.
-> The entry would be selected by hash value based on scan target name and
-> PID. Hint value would be calculated based on the entry previously found
-> entry, so that the hint can cover backward neighborhood.
+Because no one has sent in a patch to add it :)
 
-This patch couldn't compile. I assume you post a wrong patch...?
+thanks,
 
-The code is strange... Is the hint value related to the previously
-accessed entry?
-
-This seems to be randomly cacheing the recent access position...  Is
-it your intention of this patch?
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+greg k-h

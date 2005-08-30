@@ -1,140 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbVH3OtO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbVH3Opp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932162AbVH3OtO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 10:49:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932163AbVH3OtO
+	id S932147AbVH3Opp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 10:45:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbVH3Opo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 10:49:14 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:65482 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S932162AbVH3OtO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 10:49:14 -0400
-Date: Tue, 30 Aug 2005 18:48:52 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
-       Tero Roponen <teanropo@cc.jyu.fi>, linux-kernel@vger.kernel.org
-Subject: [patch] x86: pci_assign_unassigned_resources() update
-Message-ID: <20050830184852.A25380@jurassic.park.msu.ru>
+	Tue, 30 Aug 2005 10:45:44 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:22320
+	"EHLO g5.random") by vger.kernel.org with ESMTP id S932147AbVH3Opo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 10:45:44 -0400
+Date: Tue, 30 Aug 2005 16:45:40 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+Cc: Sven Ladegast <sven@linux4geeks.de>, linux-kernel@vger.kernel.org
+Subject: Re: KLive: Linux Kernel Live Usage Monitor
+Message-ID: <20050830144540.GM8515@g5.random>
+References: <20050830030959.GC8515@g5.random> <Pine.LNX.4.63.0508300954190.1984@cassini.linux4geeks.de> <20050830082901.GA25438@bitwizard.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+In-Reply-To: <20050830082901.GA25438@bitwizard.nl>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, I've been on vacation, so I missed quite a few interesting
-things that went into 2.6.13 (particularly the change for ROM resource
-assignment, which looks excellent).
-On the other hand, I had some time to think about PCI assign issues
-in 2.6.13-rc series.
+On Tue, Aug 30, 2005 at 10:29:01AM +0200, Rogier Wolff wrote:
+> sending a packet on the first day) The number of these random packets
+> recieved is a measure of the number of CPU-months that the kernel
+> runs. 
 
-The major problem here is that we call pci_assign_unassigned_resources()
-way too early - at subsys_initcall level. Therefore we give no chances
-to ACPI and PnP routines (called at fs_initcall level) to reserve their
-respective resources properly, as the comments in drivers/pnp/system.c
-and drivers/acpi/motherboard.c suggest:
- /**
-  * Reserve motherboard resources after PCI claim BARs,
-  * but before PCI assign resources for uninitialized PCI devices
-  */
-
-So I moved pci_assign_unassigned_resources() call to pcibios_assign_resources()
-(fs_initcall), which should hopefully fix a lot of problems and make
-PCIBIOS_MIN_IO tweaks unnecessary.
-Other changes:
-- remove resource assignment code from pcibios_assign_resources(), since
-  it duplicates pci_assign_unassigned_resources() functionality and
-  actually does nothing in 2.6.13;
-- modify ROM assignment code as per Ben's suggestion: try to use firmware
-  settings by default (if PCI_ASSIGN_ROMS is not set);
-- set CARDBUS_IO_SIZE back to 4K as it's a wonderful stress test for
-  various setups.
-
-Tero, can you confirm that 2.6.13 with this patch works for you?
-
-Ivan.
-
---- 2.6.13/arch/i386/pci/common.c	2005-08-29 03:41:01.000000000 +0400
-+++ linux/arch/i386/pci/common.c	2005-08-30 13:44:24.000000000 +0400
-@@ -165,7 +165,6 @@ static int __init pcibios_init(void)
- 	if ((pci_probe & PCI_BIOS_SORT) && !(pci_probe & PCI_NO_SORT))
- 		pcibios_sort();
- #endif
--	pci_assign_unassigned_resources();
- 	return 0;
- }
- 
---- 2.6.13/arch/i386/pci/i386.c	2005-08-29 03:41:01.000000000 +0400
-+++ linux/arch/i386/pci/i386.c	2005-08-30 17:35:03.000000000 +0400
-@@ -170,43 +170,26 @@ static void __init pcibios_allocate_reso
- static int __init pcibios_assign_resources(void)
- {
- 	struct pci_dev *dev = NULL;
--	int idx;
--	struct resource *r;
-+	struct resource *r, *pr;
- 
--	for_each_pci_dev(dev) {
--		int class = dev->class >> 8;
--
--		/* Don't touch classless devices and host bridges */
--		if (!class || class == PCI_CLASS_BRIDGE_HOST)
--			continue;
--
--		for(idx=0; idx<6; idx++) {
--			r = &dev->resource[idx];
--
--			/*
--			 *  Don't touch IDE controllers and I/O ports of video cards!
--			 */
--			if ((class == PCI_CLASS_STORAGE_IDE && idx < 4) ||
--			    (class == PCI_CLASS_DISPLAY_VGA && (r->flags & IORESOURCE_IO)))
--				continue;
--
--			/*
--			 *  We shall assign a new address to this resource, either because
--			 *  the BIOS forgot to do so or because we have decided the old
--			 *  address was unusable for some reason.
--			 */
--			if (!r->start && r->end)
--				pci_assign_resource(dev, idx);
--		}
--
--		if (pci_probe & PCI_ASSIGN_ROMS) {
-+	if (!(pci_probe & PCI_ASSIGN_ROMS)) {
-+		/* Try to use BIOS settings for ROMs, otherwise let
-+		   pci_assign_unassigned_resources() allocate the new
-+		   addresses. */
-+		for_each_pci_dev(dev) {
- 			r = &dev->resource[PCI_ROM_RESOURCE];
--			r->end -= r->start;
--			r->start = 0;
--			if (r->end)
--				pci_assign_resource(dev, PCI_ROM_RESOURCE);
-+			if (!r->flags || !r->start)
-+				continue;
-+			pr = pci_find_parent_resource(dev, r);
-+			if (!pr || request_resource(pr, r) < 0) {
-+				r->end -= r->start;
-+				r->start = 0;
-+			}
- 		}
- 	}
-+
-+	pci_assign_unassigned_resources();
-+
- 	return 0;
- }
- 
---- 2.6.13/drivers/pci/setup-bus.c	2005-08-29 03:41:01.000000000 +0400
-+++ linux/drivers/pci/setup-bus.c	2005-08-30 13:44:24.000000000 +0400
-@@ -40,7 +40,7 @@
-  * FIXME: IO should be max 256 bytes.  However, since we may
-  * have a P2P bridge below a cardbus bridge, we need 4K.
-  */
--#define CARDBUS_IO_SIZE		(256)
-+#define CARDBUS_IO_SIZE		(4*1024)
- #define CARDBUS_MEM_SIZE	(32*1024*1024)
- 
- static void __devinit
+This is more or less what klive currently does, except it's a bit more
+sophisticated than that, so you don't risk to lose uptime if a udp
+packet is lost (or if the server goes down, or if dns resolution fails),
+and secondly currently klive gets right suspend to disk. But it still
+gets right suspend to disk, when system is suspended that's not
+accounted as "uptime".

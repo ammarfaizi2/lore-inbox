@@ -1,63 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbVH3DSc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932111AbVH3DXh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932106AbVH3DSc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 23:18:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932111AbVH3DSc
+	id S932111AbVH3DXh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 23:23:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932112AbVH3DXg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 23:18:32 -0400
-Received: from ausc60ps301.us.dell.com ([143.166.148.206]:65413 "EHLO
-	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
-	id S932106AbVH3DSb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 23:18:31 -0400
-X-IronPort-AV: i="3.96,152,1122872400"; 
-   d="scan'208"; a="286436784:sNHT24676220"
-Date: Mon, 29 Aug 2005 22:18:30 -0500
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: akpm@osdl.org
-Cc: fcusack@fcusack.org, linux-kernel@vger.kernel.org,
-       pptpclient-devel@lists.sourceforge.net
-Subject: [PATCH 2.6.13-rc6-mm2] ppp_mppe: author email change
-Message-ID: <20050830031830.GA12041@lists.us.dell.com>
+	Mon, 29 Aug 2005 23:23:36 -0400
+Received: from wproxy.gmail.com ([64.233.184.203]:9713 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932111AbVH3DXg convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 23:23:36 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=cJGKWNOgIGq+y2qEgyJbT29+z2S1phhrBjROPl+1gq8rC3YlTRV5G1y1AmneX6JuHm736q1K9v49Qb9EhttbSZ1sNN2l/1z/oMbURG3LFQDquAOazcjT6ithtIaS+biPaL052x9W2kSDoeo1oTcETrAJa6gKXWzoR8iWLvf4f9c=
+Message-ID: <21c563b6050829202372189527@mail.gmail.com>
+Date: Tue, 30 Aug 2005 11:23:35 +0800
+From: zhang yuanyi <zhangyuanyi@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: What about adding range support for u32 classifier?
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Frank Cusack, primary author of the ppp_mppe kernel module, is no
-longer at Google.  This updates his email address in the module, as
-agreed to by Frank privately.
+Hello, everyone!
 
- ppp_mppe.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+The "range support" may be puzzled, but I don't know how to express my
+problem exactly because of my poor english.
 
-Signed-off-by: Matt Domsch <Matt_Domsch@dell.com>
+Just take an example, I may need all udp packets received on eth0
+which source port is greater than 53 going into flow 10:1,  and I only
+wanna to type one tc command like this(In fact, I communicated with
+kernel directly):
 
--- 
-Matt Domsch
-Software Architect
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+    tc filter add dev eth0 parent ffff: protocol ip prio 20 \
+                                  u32 match udp sport gt 53 0xffff \
+                                        match ip protocol 17 0xff\
+                                   flowid 10:1
 
-diff -urNp --exclude-from=/home/mdomsch/excludes --minimal linux-2.6.13-rc6-mm2.orig/drivers/net/ppp_mppe.c linux-2.6.13-rc6-mm2/drivers/net/ppp_mppe.c
---- linux-2.6.13-rc6-mm2.orig/drivers/net/ppp_mppe.c	Mon Aug 29 22:08:58 2005
-+++ linux-2.6.13-rc6-mm2/drivers/net/ppp_mppe.c	Mon Aug 29 22:10:23 2005
-@@ -2,7 +2,7 @@
-  * ppp_mppe.c - interface MPPE to the PPP code.
-  * This version is for use with Linux kernel 2.6.14+
-  *
-- * By Frank Cusack <frank@google.com>.
-+ * By Frank Cusack <fcusack@fcusack.com>.
-  * Copyright (c) 2002,2003,2004 Google, Inc.
-  * All rights reserved.
-  *
-@@ -59,7 +59,7 @@
- 
- #include "ppp_mppe.h"
- 
--MODULE_AUTHOR("Frank Cusack <frank@google.com>");
-+MODULE_AUTHOR("Frank Cusack <fcusack@fcusack.com>");
- MODULE_DESCRIPTION("Point-to-Point Protocol Microsoft Point-to-Point Encryption support");
- MODULE_LICENSE("Dual BSD/GPL");
- MODULE_ALIAS("ppp-compress-" __stringify(CI_MPPE));
+But I found I can't, because u32 classifier doesn't support matching
+multi-value in one key.So I need to add (65535-53) keys to a u32
+filter to implement this.
+
+I intend to solve this problem by modifying u32 filter to match
+multi-value in one key, but I am worrying the preformance.
+
+Can someone give me some suggestions?
+
+Sincerely.
+Yuanyi Zhang

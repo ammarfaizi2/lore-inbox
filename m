@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932122AbVH3OHx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbVH3OIn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932122AbVH3OHx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 10:07:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbVH3OHx
+	id S932123AbVH3OIn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 10:08:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932141AbVH3OIn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 10:07:53 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:40090 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932122AbVH3OHx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 10:07:53 -0400
-Subject: Re: KLive: Linux Kernel Live Usage Monitor
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Sven Ladegast <sven@linux4geeks.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.63.0508300954190.1984@cassini.linux4geeks.de>
-References: <20050830030959.GC8515@g5.random>
-	 <Pine.LNX.4.63.0508300954190.1984@cassini.linux4geeks.de>
+	Tue, 30 Aug 2005 10:08:43 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:20149 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932123AbVH3OIm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 10:08:42 -0400
+Subject: Re: [PATCH] Ext3 online resizing locking issue
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Glauber de Oliveira Costa <gocosta@br.ibm.com>
+Cc: "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       ext2resize-devel@lists.sourceforge.net,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-fsdevel@vger.kernel.org, Andreas Dilger <adilger@clusterfs.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <20050825204335.GA1674@br.ibm.com>
+References: <20050824210325.GK23782@br.ibm.com>
+	 <1124996561.1884.212.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <20050825204335.GA1674@br.ibm.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Tue, 30 Aug 2005 15:36:50 +0100
-Message-Id: <1125412611.8276.9.camel@localhost.localdomain>
+Message-Id: <1125410818.1910.52.camel@sisko.sctweedie.blueyonder.co.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Tue, 30 Aug 2005 15:06:59 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2005-08-30 at 10:01 +0200, Sven Ladegast wrote:
-> The idea isn't bad but lots of people could think that this is some kind 
-> of home-phoning or spy software. I guess lots of people would turn this 
-> feature off...and of course you can't enable it by default. But combined 
-> with an automatic oops/panic/bug-report this would be _very_ useful I think.
+Hi,
 
-Wrong way around - you need to let people turn it on. Perhaps distribute
-it with the kernel so you can 
+On Thu, 2005-08-25 at 21:43, Glauber de Oliveira Costa wrote:
 
-		make register
-		[Reports hardware, stashed a unique sha-1 hashed cookie]
-		[Asks for permission, installs UDP ping daemon]
-		
+> Just a question here. With s_lock held by the remount code, we're
+> altering the struct super_block, and believing we're safe. We try to
+> acquire it inside the resize functions, because we're trying to modify 
+> this same data. Thus, if we rely on another lock, aren't we probably 
+> messing  up something ?
 
-		make unregister
+The two different uses of the superblock lock are really quite
+different; I don't see any particular problem with using two different
+locks for the two different things.  Mount and the namespace code are
+not locking the same thing --- the fact that the resize code uses the
+superblock lock is really a historical side-effect of the fact that we
+used to use the same overloaded superblock lock in the ext2/ext3 block
+allocation layers to guard bitmap access.
 
-
-but it would have to be opt in. That might lower coverage but should
-increase quality, especially id the id in the cookie can be put into
-bugzilla reports, and the hardware reporting is done so it can be
-machine processed (ie so you can ask stuff like 'reliability with Nvidia
-IDE')
-
-Alan
+--Stephen
 

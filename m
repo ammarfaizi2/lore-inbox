@@ -1,77 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932085AbVH3ClI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932093AbVH3Cqt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932085AbVH3ClI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 22:41:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932091AbVH3ClI
+	id S932093AbVH3Cqt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 22:46:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932094AbVH3Cqt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 22:41:08 -0400
-Received: from gate.crashing.org ([63.228.1.57]:24789 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932085AbVH3ClH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 22:41:07 -0400
-Subject: Re: Ignore disabled ROM resources at setup
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Greg KH <greg@kroah.com>, helgehaf@aitel.hist.no,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <200508261859.j7QIxT0I016917@hera.kernel.org>
-References: <200508261859.j7QIxT0I016917@hera.kernel.org>
+	Mon, 29 Aug 2005 22:46:49 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:59802 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S932093AbVH3Cqs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 22:46:48 -0400
+Subject: Re: [PATCH] make radix tree gang lookup faster by using a bitmap
+	search
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Sonny Rao <sonnyrao@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <4313AEC9.3050406@yahoo.com.au>
+References: <1125159996.5159.8.camel@mulgrave>
+	 <20050827105355.360bd26a.akpm@osdl.org> <1125276312.5048.22.camel@mulgrave>
+	 <20050828175233.61cada23.akpm@osdl.org> <1125278389.5048.30.camel@mulgrave>
+	 <20050828183531.0b4d6f2d.akpm@osdl.org> <1125285994.5048.40.camel@mulgrave>
+	 <4312830C.8000308@yahoo.com.au>
+	 <20050829164144.GC9508@localhost.localdomain>
+	 <4313AEC9.3050406@yahoo.com.au>
 Content-Type: text/plain
-Date: Tue, 30 Aug 2005 12:38:04 +1000
-Message-Id: <1125369485.11949.27.camel@gaston>
+Date: Mon, 29 Aug 2005 21:46:19 -0500
+Message-Id: <1125369981.5089.106.camel@mulgrave>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+X-Mailer: Evolution 2.0.4 (2.0.4-6) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-08-26 at 11:59 -0700, Linux Kernel Mailing List wrote:
-> tree d8b7aaaec93de93841b46e8e05a3b454d05bd357
-> parent 26aad69e3dd854abe9028ca873fb40b410a39dd7
-> author Linus Torvalds <torvalds@g5.osdl.org> Sat, 27 Aug 2005 00:49:22 -0700
-> committer Linus Torvalds <torvalds@g5.osdl.org> Sat, 27 Aug 2005 00:49:22 -0700
+On Tue, 2005-08-30 at 10:56 +1000, Nick Piggin wrote:
+> Sonny Rao wrote:
 > 
-> Ignore disabled ROM resources at setup
+> >On Mon, Aug 29, 2005 at 01:37:48PM +1000, Nick Piggin wrote:
+> >
+> >>s/common/only ?
+> >>
+> >>But the page tree is indexed by file offset rather than virtual
+> >>address, and we try to span the file's pagecache with the smallest
+> >>possible tree. So it will tend to make the trees taller.
+> >>
+> >>
+> >
+> >I did some experiments with different map-shift values,
+> >interestingly overall read throughput didn't change much but the
+> >cpu-utilization of radix_tree_lookup (from oprofile) changed quite a
+> >bit, especially in the case of MAP_SHIFT == 4 :  
+> >
+> >http://www.linuxsymposium.org/2005/linuxsymposium_procv2.pdf 
+> >
+> >Look on page 80, where I have the table.
+> >
+> Nice. So we can see that 6 is a pretty good choice of shift,
+> 4 is too low. That doesn't tell us much about 5, but if you
+> fit the curve, 5 should be between 14 and 15 ... so getting
+> expensive.
+
+Actually, several crucial pieces of data are missing.  It's not hard to
+imagine that the results for 8, 10 and 12 are all equal to within the
+error bars.  The missing piece of data, of course, is how big the file
+was, which would tell us how deep the tree was.
+
+> Of course, different systems and different workloads will
+> be different. But I'd be wary of going below 6 unless there
+> is a good reason.
 > 
-> Writing even a disabled value seems to mess up some matrox graphics
-> cards.  It may be a card-related issue, but we may also be writing
-> reserved low bits in the result.
+> >>I'm curious: what do the benchmarks say about your gang lookup?
+> >>
+> >
+> >Gang-lookup isn't used in the page-cache lookups presently, so I'm
+> >not sure why optimizing it is very important -- unless someone is
+> >planning on implementing gang-lookups for page-cache reads. This would
+> >also cut down on number times a lock is taken and released (expensive,
+> >in the case of rwlock).  Perhaps there is another reason?
+> >
+> >
 > 
-> This was a fall-out of switching x86 over to the generic PCI resource
-> allocation code, and needs more debugging.  In particular, the old x86
-> code defaulted to not doing any resource allocations at all for ROM
-> resources.
-> 
-> In the meantime, this has been reported to make X happier by Helge
-> Hafting <helgehaf@aitel.hist.no>.
+> Gang lookup is mainly used on IO paths but also on truncate,
+> which is a reasonably fast path on some workloads (James,
+> this is my suggestion for what you should test - truncate).
 
-This "fix" also seems to break all powermac laptops around :( In fact,
-it might break any user of pci_map_rom() as it exposes a bug in that
-function.
+Actually, I don't think I can test this.  In order to show a difference
+between index 5 and index 6 on 32 bit, I'd have to deal with files > 4GB
+in size.  My 32 bit machines are the voyagers and only have 4GB discs.
 
-The problem is that their firmware doesn't assign a ROM resource as they
-have no ROM on the video chip (like most laptops). radeonfb and aty128fb
-among others will call pci_map_rom() to try to find an x86 BIOS ROM with
-some config tables in it.
+The machine with all the huge discs, is, naturally, ia64.
 
-pci_map_rom "sees" that the resource is unassigned by testing the parent
-pointer, and calls pci_assign_resource() which, with this new patch,
-will do nothing.
-
-Unfortunately, pci_map_rom will not notice this failure, and will
-happily ioremap & access the bogus resource, thus causing the crash.
-I'll come up with a fix for pci_map_rom later today.
-
-While looking there, I also noticed pci_map_rom_copy() stuff and I'm
-surprised it was ever accepted in the tree. While I can understand that
-we might need to keep a cached copy of the ROM content (due to cards
-like matrox who can't enable both the ROM and the BARs among other
-issues), the whole idea of whacking a kernel virtual pointer in the
-struct resource->start of the ROM bar is just too disgusting for words
-and will probably cause "intersting" side effects in /proc, sysfs and
-others... Shouldn't we just have a pointer in pci_dev for the optional
-"ROM cache" instead ?
-
-Ben.
+James
 
 

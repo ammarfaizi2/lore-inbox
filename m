@@ -1,70 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751220AbVH3Hg3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751073AbVH3Hdr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751220AbVH3Hg3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 03:36:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbVH3Hg3
+	id S1751073AbVH3Hdr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 03:33:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751214AbVH3Hdr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 03:36:29 -0400
-Received: from gromit.tds.de ([193.28.97.130]:42690 "EHLO gromit.tds.de")
-	by vger.kernel.org with ESMTP id S1751220AbVH3Hg2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 03:36:28 -0400
-Date: Tue, 30 Aug 2005 09:36:18 +0200
-From: Tim Weippert <weiti@security.tds.de>
-To: Bongani Hlope <bonganilinux@mweb.co.za>
-Cc: Tim Weippert <weiti@security.tds.de>, linux-kernel@vger.kernel.org
-Subject: Re: Bad page state on AMD Opteron Dual System with kernel 2.6.13-rc6-git13
-Message-ID: <20050830073617.GB4150@pbkg4>
-Reply-To: Tim Weippert <weiti@security.tds.de>
-References: <20050826165342.GA11796@pbkg4> <20050829052454.GA8172@pbkg4> <20050829102830.GA7604@pbkg4> <200508292204.06032.bonganilinux@mweb.co.za>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200508292204.06032.bonganilinux@mweb.co.za>
-Organization: TDS Informationstechnologie AG
-User-Agent: Mutt/1.5.10i
+	Tue, 30 Aug 2005 03:33:47 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:23036 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S1751073AbVH3Hdr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 03:33:47 -0400
+Message-ID: <43140BC5.1090804@mvista.com>
+Date: Tue, 30 Aug 2005 00:33:25 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Tom Rini <trini@kernel.crashing.org>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Re: [patch 1/3] x86_64: Add a notify_die() call to the "no context"
+ part of do_page_fault()
+References: <resend.1.2982005.trini@kernel.crashing.org>
+In-Reply-To: <resend.1.2982005.trini@kernel.crashing.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 29, 2005 at 10:04:05PM +0200, Bongani Hlope wrote:
-> On Monday 29 August 2005 12:28 pm, you wrote:
-> > Hi,
-> >
+Tom Rini wrote:
+> CC: Andi Kleen <ak@suse.de>
+> This adds a call to notify_die() in the "no context" portion of
+> do_page_fault() as someone on the chain might care and want to do a fixup.
 > 
-> 8<
+> ---
 > 
-> >
-> > Update, with stable 2.6.13. I get nearly the same behavior.
-> >
+>  linux-2.6.13-trini/arch/x86_64/mm/fault.c |    4 ++++
+>  1 files changed, 4 insertions(+)
 > 
-> I haven't tried 2.6.13 yet (still downloading), could you first try this (with 
-> yor last working kernel, since you seem to have a problem with 2.6.13)
+> diff -puN arch/x86_64/mm/fault.c~x86_64-no_context_hook arch/x86_64/mm/fault.c
+> --- linux-2.6.13/arch/x86_64/mm/fault.c~x86_64-no_context_hook	2005-08-29 11:09:13.000000000 -0700
+> +++ linux-2.6.13-trini/arch/x86_64/mm/fault.c	2005-08-29 11:09:13.000000000 -0700
+> @@ -514,6 +514,10 @@ no_context:
+>  	if (is_errata93(regs, address))
+>  		return; 
+>  
+> +	if (notify_die(DIE_PAGE_FAULT, "no context", regs, error_code, 14,
+> +				SIGSEGV) == NOTIFY_STOP)
+> +		return;
+> +
+>  /*
+>   * Oops. The kernel tried to access some bad page. We'll have to
+>   * terminate things with extreme prejudice.
 
-It's not only with 2.6.13, i think it is with all kernels > 2.6.9 or
-.10.
-
-> echo 0 > /proc/sys/kernel/randomize_va_space
-
-Ok, i have set this within my 2.6.13 kernel and will look what happens.
-
-> If this "hides" the problems for you, please take a look at this bug report, 
-> and add your details:
+Please use a more descriptive text than "no context".  This bit of info 
+SHOULD be available to the gdb/kgdb user and should indicate why kgdb 
+was entered.  It thus should be something like "bad kernel address" or 
+"illegal kernel address".
 > 
-> http://bugzilla.kernel.org/show_bug.cgi?id=4851
-
-Ok, i will add my details within the next days after examine if this
-helps.
-
-bye, 
-
-    tim
-
 -- 
-
-Interpunktion und Orthographie dieser Email ist frei erfunden.
-Eine Übereinstimmung mit aktuellen oder ehemaligen Regeln
-wäre rein zufällig und ist nicht beabsichtigt.
-
-Tim Weippert <weiti@topf-sicret.org>
-http://www.topf-sicret.org/
+George Anzinger   george@mvista.com
+HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/

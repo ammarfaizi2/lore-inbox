@@ -1,68 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbVH3OGF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932122AbVH3OHx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932092AbVH3OGF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 10:06:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbVH3OGF
+	id S932122AbVH3OHx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 10:07:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbVH3OHx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 10:06:05 -0400
-Received: from fed1rmmtao02.cox.net ([68.230.241.37]:28342 "EHLO
-	fed1rmmtao02.cox.net") by vger.kernel.org with ESMTP
-	id S932092AbVH3OGE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 10:06:04 -0400
-Date: Tue, 30 Aug 2005 07:06:03 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: George Anzinger <george@mvista.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: [patch 1/3] x86_64: Add a notify_die() call to the "no context" part of do_page_fault()
-Message-ID: <20050830140603.GB3966@smtp.west.cox.net>
-References: <resend.1.2982005.trini@kernel.crashing.org> <43140BC5.1090804@mvista.com>
+	Tue, 30 Aug 2005 10:07:53 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:40090 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932122AbVH3OHx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 10:07:53 -0400
+Subject: Re: KLive: Linux Kernel Live Usage Monitor
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Sven Ladegast <sven@linux4geeks.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.63.0508300954190.1984@cassini.linux4geeks.de>
+References: <20050830030959.GC8515@g5.random>
+	 <Pine.LNX.4.63.0508300954190.1984@cassini.linux4geeks.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 30 Aug 2005 15:36:50 +0100
+Message-Id: <1125412611.8276.9.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43140BC5.1090804@mvista.com>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 30, 2005 at 12:33:25AM -0700, George Anzinger wrote:
-> Tom Rini wrote:
-> >CC: Andi Kleen <ak@suse.de>
-> >This adds a call to notify_die() in the "no context" portion of
-> >do_page_fault() as someone on the chain might care and want to do a fixup.
-> >
-> >---
-> >
-> > linux-2.6.13-trini/arch/x86_64/mm/fault.c |    4 ++++
-> > 1 files changed, 4 insertions(+)
-> >
-> >diff -puN arch/x86_64/mm/fault.c~x86_64-no_context_hook 
-> >arch/x86_64/mm/fault.c
-> >--- linux-2.6.13/arch/x86_64/mm/fault.c~x86_64-no_context_hook 2005-08-29 
-> >11:09:13.000000000 -0700
-> >+++ linux-2.6.13-trini/arch/x86_64/mm/fault.c	2005-08-29 
-> >11:09:13.000000000 -0700
-> >@@ -514,6 +514,10 @@ no_context:
-> > 	if (is_errata93(regs, address))
-> > 		return; 
-> > 
-> >+	if (notify_die(DIE_PAGE_FAULT, "no context", regs, error_code, 14,
-> >+				SIGSEGV) == NOTIFY_STOP)
-> >+		return;
-> >+
-> > /*
-> >  * Oops. The kernel tried to access some bad page. We'll have to
-> >  * terminate things with extreme prejudice.
-> 
-> Please use a more descriptive text than "no context".  This bit of info 
-> SHOULD be available to the gdb/kgdb user and should indicate why kgdb 
-> was entered.  It thus should be something like "bad kernel address" or 
-> "illegal kernel address".
+On Maw, 2005-08-30 at 10:01 +0200, Sven Ladegast wrote:
+> The idea isn't bad but lots of people could think that this is some kind 
+> of home-phoning or spy software. I guess lots of people would turn this 
+> feature off...and of course you can't enable it by default. But combined 
+> with an automatic oops/panic/bug-report this would be _very_ useful I think.
 
-"no context" is the label we're in, in the code.  What it's actually
-used for is "hey, we (== kgdb) tried to read/write a very very bogus
-addr, time to longjmp".  If it's not true that kgdb is at fault then we
-drop to the debugger anyhow, and the user can see where they came from.
+Wrong way around - you need to let people turn it on. Perhaps distribute
+it with the kernel so you can 
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+		make register
+		[Reports hardware, stashed a unique sha-1 hashed cookie]
+		[Asks for permission, installs UDP ping daemon]
+		
+
+		make unregister
+
+
+but it would have to be opt in. That might lower coverage but should
+increase quality, especially id the id in the cookie can be put into
+bugzilla reports, and the hardware reporting is done so it can be
+machine processed (ie so you can ask stuff like 'reliability with Nvidia
+IDE')
+
+Alan
+

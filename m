@@ -1,72 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbVH3Rpl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932237AbVH3RqP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932233AbVH3Rpl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 13:45:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbVH3Rpl
+	id S932237AbVH3RqP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 13:46:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbVH3RqP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 13:45:41 -0400
-Received: from zproxy.gmail.com ([64.233.162.207]:64877 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932233AbVH3Rpj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 13:45:39 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:content-disposition:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:message-id;
-        b=DAN1azNTw2lVTaISaoXdeKwApsV9/q/5QfTBskSK0jFrcTE+W0U8sJvknpsoRNdL1RWmQHl1Er5eBDJjHMlPqHQqmETVGniUO+EPfKyeuRh9CAyOM8469awNM6KYPvx58U+QcncQNDkV7rvmEUIUs57noS5DwVJOmlV6T/x8qoQ=
-Content-Disposition: inline
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Fwd: [PATCH] isdn_v110 warning fix
-Date: Tue, 30 Aug 2005 19:46:33 +0200
-User-Agent: KMail/1.8.2
-Cc: Thomas Pfeiffer <pfeiffer@pds.de>, isdn4linux@listserv.isdn4linux.de,
-       Karsten Keil <kkeil@suse.de>,
-       Kai Germaschewski <kai.germaschewski@gmx.de>,
-       Alexey Dobriyan <adobriyan@gmail.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+	Tue, 30 Aug 2005 13:46:15 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:34247 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932237AbVH3RqN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 13:46:13 -0400
+Date: Tue, 30 Aug 2005 10:46:09 -0700 (PDT)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Mateusz Berezecki <mateuszb@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6 context switching and posix threads performance question
+In-Reply-To: <20050827121158.GA18406@oepkgtn.mshome.net>
+Message-ID: <Pine.LNX.4.62.0508301044400.15675@schroedinger.engr.sgi.com>
+References: <20050827121158.GA18406@oepkgtn.mshome.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200508301946.34405.jesper.juhl@gmail.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+On Sat, 27 Aug 2005, Mateusz Berezecki wrote:
 
-Here's a small warning fix for drivers/isdn/i4l/isdn_v110.c
- drivers/isdn/i4l/isdn_v110.c:523: warning: `ret' might be used uninitialized in this function
+> I would really appreciate any comment on the overall performance of task
+> switching with 25 000 threads running on the Linux system. I was asked to work
+> on some software which spawns 25 000 threads and I am really worried if
+> it will ever work on 2 CPU HP Blade. The kernel was modified to support
+> bigger threads amount running (I have no idea how it was done, probably
+> just changing hardcoded limits) What is the performance impact of
+> so much threads on the overall system performance? Is there any ?
+> Wouldn't it be that such application would spend all of its time
+> switching contexts ? I'm asking for some kind of an authoritative answer
+> quite urgently. What is the optimum thread amount on 2 CPU SMP system
+> running Linux ?
 
-
-In addition to Karsten Keil signing off on the patch, Thomas Pfeiffer also 
-commented on the patch, saying 
-"initializing ret with the value zero is correct and should be done."
-
-Please apply.
-
-
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
-Signed-off-by: Karsten Keil <kkeil@suse.de>
----
-
- drivers/isdn/i4l/isdn_v110.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
---- linux-2.6.13-orig/drivers/isdn/i4l/isdn_v110.c	2005-08-29 01:41:01.000000000 +0200
-+++ linux-2.6.13/drivers/isdn/i4l/isdn_v110.c	2005-08-30 00:59:34.000000000 +0200
-@@ -516,11 +516,11 @@
- }
- 
- int
--isdn_v110_stat_callback(int idx, isdn_ctrl * c)
-+isdn_v110_stat_callback(int idx, isdn_ctrl *c)
- {
- 	isdn_v110_stream *v = NULL;
- 	int i;
--	int ret;
-+	int ret = 0;
- 
- 	if (idx < 0)
- 		return 0;
-
+At 32k threads you run into the limit of waiters for RW semaphores. So 
+make sure that the number stays lower than that or use a 64 bit platform 
+that supports more threads.
 

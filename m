@@ -1,62 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751362AbVH3LBR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751202AbVH3LH5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751362AbVH3LBR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 07:01:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbVH3LBR
+	id S1751202AbVH3LH5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 07:07:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbVH3LH4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 07:01:17 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:21421 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751362AbVH3LBQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 07:01:16 -0400
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.13-rc4-V0.7.52-01
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <1125030249.5365.23.camel@localhost.localdomain>
-References: <1122944010.6759.64.camel@localhost.localdomain>
-	 <20050802101920.GA25759@elte.hu>
-	 <1123011928.1590.43.camel@localhost.localdomain>
-	 <1123025895.25712.7.camel@dhcp153.mvista.com>
-	 <1123027226.1590.59.camel@localhost.localdomain>
-	 <1123035909.11101.1.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-	 <1123036936.1590.69.camel@localhost.localdomain>
-	 <1123037933.11101.11.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-	 <1123080606.1590.119.camel@localhost.localdomain>
-	 <1123087447.1590.136.camel@localhost.localdomain>
-	 <20050812125844.GA13357@elte.hu>
-	 <1125030249.5365.23.camel@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1125399648.1910.9.camel@sisko.sctweedie.blueyonder.co.uk>
+	Tue, 30 Aug 2005 07:07:56 -0400
+Received: from zproxy.gmail.com ([64.233.162.200]:55708 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751202AbVH3LH4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 07:07:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=aNkfkjpoyt9DS7z3cb9xZHdgR11oqsMMvgxdXero9MZJjqnKCF7BEswa6mD6471OLLqowy4uDfxgIllCLaSBYTW243coIlJZMvOBl3hw6zmgBChSojA77pVMG1GLj1r5Icc2X/DSe70J6IPxc9JR5r9OFy5Eq66KGhH/vkyyezE=
+Message-ID: <7cd5d4b405083004072c30dffd@mail.gmail.com>
+Date: Tue, 30 Aug 2005 19:07:55 +0800
+From: jeff shia <tshxiayu@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: sr device can be written?
+In-Reply-To: <20050830095359.GA15431@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Tue, 30 Aug 2005 12:00:48 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <c3c37c55050829215355bb85f4@mail.gmail.com>
+	 <20050830080812.GA13394@localhost.localdomain>
+	 <7cd5d4b40508300111260d6b9a@mail.gmail.com>
+	 <20050830095359.GA15431@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+but It seems that I can not open sr0 with openflags O_RDWR,why?
+open("/dev/sr0",O_RDWR);
 
-On Fri, 2005-08-26 at 05:24, Steven Rostedt wrote:
+It says:sr0 is a read only file sytem.
+why?
 
-> Well, I just spent several hours trying to use the b_update_lock in
-> implementing something to replace the bit spinlocks for RT.  It's
-> getting really ugly and I just hit a stone wall.
+On 8/30/05, Tino Keitel <tino.keitel@gmx.de> wrote:
+> On Tue, Aug 30, 2005 at 16:11:58 +0800, jeff shia wrote:
+> > YOu mean the device file can be written?
 > 
-> The problem is that I have two locks to work with. A
-> jbd_lock_bh_journal_head and a jbd_lock_bh_state.  ...
-
-For now, yes.
-
-> So, the only other solutions that I can think of is:
+> Yes, like an ordinary block device.
 > 
-> a) add yet another (bloat) lock to the buffer head.
-
-This one looks like the right answer for now, just to get the patch
-series running.  I've got a WIP patch under development which removes
-the bh_journal_head lock entirely; if that works out, you may find
-things get a bit easier.
-
---Stephen
-
+> >
+> >
+> > On 8/30/05, Tino Keitel <tino.keitel@gmx.de> wrote:
+> > > On Tue, Aug 30, 2005 at 12:53:51 +0800, jeff shia wrote:
+> > > > Hello,
+> > > >  Sr is the Scsi-cdrom device?so it can be read only?but look at the source=
+> > > > =20
+> > > > code I notice that
+> > > > sr can be written also!Is it right?
+> > >
+> > > Just imagine a DVD-RAM drive.
+> > >
+> > > Regards,
+> > > Tino
+> > > -
+> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > > the body of a message to majordomo@vger.kernel.org
+> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > Please read the FAQ at  http://www.tux.org/lkml/
+> > >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

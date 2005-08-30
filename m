@@ -1,93 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932099AbVH3Lye@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751391AbVH3MAN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932099AbVH3Lye (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 07:54:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbVH3Lye
+	id S1751391AbVH3MAN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 08:00:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbVH3MAM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 07:54:34 -0400
-Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:21455 "EHLO
-	mta09-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S1751391AbVH3Lyd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 07:54:33 -0400
-Message-ID: <431448F7.2020506@gentoo.org>
-Date: Tue, 30 Aug 2005 12:54:31 +0100
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050820)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-Cc: Steve Kieu <haiquy@yahoo.com>, linux-kernel@vger.kernel.org,
-       Netdev List <netdev@vger.kernel.org>,
-       Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: Very strange Marvell/Yukon Gigabit NIC networking problems
-References: <20050830105210.11849.qmail@web53602.mail.yahoo.com>
-In-Reply-To: <20050830105210.11849.qmail@web53602.mail.yahoo.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+	Tue, 30 Aug 2005 08:00:12 -0400
+Received: from www.nuit.ca ([66.11.160.83]:43465 "EHLO smtp.nuit.ca")
+	by vger.kernel.org with ESMTP id S1751391AbVH3MAL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 08:00:11 -0400
+Date: Tue, 30 Aug 2005 07:59:51 -0400
+From: "SR, ESC" <simon@nuit.ca>
+To: linux-kernel@vger.kernel.org
+Subject: OOPS in 2.6.13: jfsCommit
+Message-ID: <20050830115950.GA8764@pylon>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="eJnRUKwClWJh1Khz"
+Content-Disposition: inline
+X-GPG-KeyServer: hkp://subkeys.pgp.net
+X-Operating-System: Debian GNU/Linux
+User-Agent: mutt-ng devel-r316 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Stephen,
 
-This looks like an issue I reported previously. After you use a recent skge, 
-you can't use any older drivers or the windows driver, but skge still works 
-fine every time.
+--eJnRUKwClWJh1Khz
+Content-Type: multipart/mixed; boundary="opJtzjQTFsWo+cga"
+Content-Disposition: inline
 
-	http://marc.theaimsgroup.com/?l=linux-netdev&m=112268414417743&w=2
 
-The Gentoo bug report is here:
+--opJtzjQTFsWo+cga
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-	http://bugs.gentoo.org/show_bug.cgi?id=100258
 
-I closed the Gentoo bug as I hoped this patch would solve it:
+hi,
 
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff_plain;h=0eedf4ac5b536c7922263adf1b1d991d2e2397b9;hp=acdd80d514a08800380c9f92b1bf4d4c9e818125
+i encountered an OOPS during boot here. dropped the machine into xmon
+even. during boot, i got what's in the attached file
+(kernel_bug_2.6.13_jfsCommit).
 
-But according to Steve Kieu, the problem is still there in 2.6.13. It's 
-slightly odd as Steve was previously a sk98lin user and initially reported 
-this problem for sk98lin in 2.6.13 whereas it did not happen with sk98lin in 
-2.6.12.
+the machine is:
 
-Any ideas?
+cat /proc/cpuinfo
+processor       : 0
+cpu             : 740/750
+temperature     : 33-37 C (uncalibrated)
+clock           : 195MHz
+revision        : 2.2 (pvr 0008 0202)
+bogomips        : 602.11
+machine         : Power Macintosh
+motherboard     : AAPL,9500 MacRISC
+detected as     : 16 (PowerMac 9500/9600)
+pmac flags      : 00000000
+memory          : 512MB
+pmac-generation : OldWorld
 
-Thanks.
 
-Steve Kieu wrote:
-> Tested , not broken, working now but the same problem,
-> that is if I reboot to winXP or 2.6.12, 2.6.11, the
-> NIC is unusaeble. In XP it always says link is down,
-> or media disconnected (from ipconfig command output in
-> XP)
-> is it because the firmware of NIC has changed or any
-> reason?
-> 
-> 
-> I noticed  warning messages only with 2.6.13 
-> 
-> PCI: Failed to allocate mem resource #10:2000000@0 for
-> 0000:02:01.0
-> 
-> and modem device in 2.6.13 IRQ is disabled.
-> 
-> ACPI: PCI Interrupt Link [LKMO] enabled at IRQ 20
-> ACPI: PCI Interrupt 0000:00:06.1[B] -> Link [LKMO] ->
-> GSI 20 (level, low) -> IRQ
->  17
-> ACPI: PCI interrupt for device 0000:00:06.1 disabled
-> 
-> not sure if it gives more information.
-> 
-> skge addr 0xfeaf8000 irq 19 chip Yukon-Lite rev 9
-> skge eth0: addr 00:11:d8:f2:1f:18
-> ACPI: PCI Interrupt 0000:02:01.0[A] -> Link [LNKB] ->
-> GSI 18 (level, low) -> IRQ
->  16
-> Yenta: CardBus bridge found at 0000:02:01.0
-> [1043:1987]
-> skge eth0: enabling interface
-> 
-> skge eth0: Link is up at 10 Mbps, half duplex, flow
-> control none
-> 
-> Not sure how can I restore this thing back to normal
-> (sigh)
+0000:00:0b.0 Host bridge: Apple Computer Inc. Bandit PowerPC host bridge (r=
+ev 03)
+0000:00:0e.0 PCI bridge: Digital Equipment Corporation DECchip 21152 (rev 0=
+3)
+0000:00:0f.0 VGA compatible controller: ATI Technologies Inc 3D Rage LT Pro=
+ (rev dc)
+0000:00:10.0 ff00: Apple Computer Inc. Grand Central I/O (rev 02)
+0000:01:00.0 Memory controller: Adaptec AIC-7815 RAID+Memory Controller IC =
+(rev 02)
+0000:01:04.0 SCSI storage controller: Adaptec 78902
+0001:02:0b.0 Host bridge: Apple Computer Inc. Bandit PowerPC host bridge (r=
+ev 03)
+0001:02:0e.0 Ethernet controller: Lite-On Communications Inc LNE100TX (rev =
+20)
+
+
+PLEASE CC: ME, thanks.
+
+--=20
+ http://www.nuit.ca/ http://home.earthlink.net/~wodensharrow/hah.html   ,''=
+`.   http://www.debian.org/
+ http://simonraven.nuit.ca/ http://www.antiracistaction.ca/             : :=
+' :  Debian GNU/Linux
+ http://pentangle.nuit.ca/ezine/vol_x/x0305.html                        '
+                                                                          `-
+
+--opJtzjQTFsWo+cga
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: attachment; filename="kernel_bug_2.6.13_jfsCommit"
+Content-Transfer-Encoding: quoted-printable
+
+kernel BUG in generic_delete_inode at fs/inode.c:1055!
+Oops: Exception in kernel mode, sig: 5 [#1]
+NIP: C008A6C4 LR: C008A6B8 SP: DFFD3F20 REGS: dffd3e70 TRAP: 0700    Not ta=
+inted
+MSR: 00029032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
+TASK =3D c0bbe070[60] 'jfsCommit' THREAD: dffd2000
+Last syscall: -1=20
+GPR00: 00000010 DFFD3F20 C0BBE070 C0517438 00000003 00000001 DFFD3EF8 DF5DA=
+200=20
+GPR08: C0700000 C0517000 9E370001 C03FF43C 39AD3E35 DEADBEEF 003F0000 DEADB=
+EEF=20
+GPR16: 00000000 DEADBEEF DEADBEEF 007A94B8 007A94B8 C03B0000 C03B0000 C04D0=
+000=20
+GPR24: 00000010 00000000 00000001 DEA41C88 E1000EC4 CA12B360 C00FC520 CA12B=
+360=20
+NIP [c008a6c4] generic_delete_inode+0x114/0x1b0
+LR [c008a6b8] generic_delete_inode+0x108/0x1b0
+Call trace:
+ [c0089998] iput+0x98/0xc0
+ [c011ffc4] txUpdateMap+0x254/0x320
+ [c01205b8] jfs_lazycommit+0x178/0x280
+ [c0007224] kernel_thread+0x44/0x60
+
+--opJtzjQTFsWo+cga--
+
+--eJnRUKwClWJh1Khz
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iQGVAwUBQxRKNWqIeuJxHfCXAQLyfwv7Bm5cCkBXsr1xIhxOBfX/3mdDdk5QYCaP
+aqPTng10YE1zqT2nQao+NkuNIy9+hjejNhp0lAesSLvpKW5Oqfn7uMaMNXpfNO/Z
+qMaEmgYKw60nBFe4zV3cnWG0iMTmnd1SWeiMEbslLBv4TA4+q05NKY5/i6Y7i+t3
+wjqUwFNeweH460Emk02rJ9AAhkltVVPzFo+Sy6UIKOHzOgnDbRxxz+ow62vF/rUZ
+1SZOaz3i1R1TYuUU0yXE9qNJnMxapN6eiBkDH7vl3+/NpxfEKgImcIYq/3AanSNg
+WU+6T9LoXq+Py78ibYdhx8bC6biajNbRAgt12Bj/B4HfWVuJxI2Q9FYEhd5aqbPt
+4lz96Np3hkvcmUb/7D+4jJrSQnll5xQPwXKLRt6dyyL3emPX3N/mv21dmsopSDfR
+S+XKmYl9TlRgnj5EzDfAWFH3ifCfIh+Ae/YZyqds6hgoouTYLrPSwGQw1qW3UtXz
+L0sBZfe4AhA1kwNpHVSaQlzEGiCwGoi5
+=gyWa
+-----END PGP SIGNATURE-----
+
+--eJnRUKwClWJh1Khz--

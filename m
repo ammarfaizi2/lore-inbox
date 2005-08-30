@@ -1,99 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932212AbVH3RJz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932213AbVH3RMa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932212AbVH3RJz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 13:09:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932225AbVH3RJz
+	id S932213AbVH3RMa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 13:12:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932225AbVH3RMa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 13:09:55 -0400
-Received: from hera.kernel.org ([209.128.68.125]:55195 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S932212AbVH3RJy (ORCPT
+	Tue, 30 Aug 2005 13:12:30 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:9612 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S932213AbVH3RM3 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 13:09:54 -0400
-Date: Tue, 30 Aug 2005 12:07:05 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Paul Mackerras <paulus@samba.org>, Dan Malek <dan@embeddededge.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       linux-ppc-embedded <linuxppc-embedded@ozlabs.org>,
-       linux-kernel@vger.kernel.org, Pantelis Antoniou <panto@intracom.gr>
-Subject: Re: [PATCH] MPC8xx PCMCIA driver
-Message-ID: <20050830150705.GA6140@dmt.cnet>
-References: <20050830024840.GA5381@dmt.cnet> <4313D4D6.7080108@pobox.com> <20050830035338.GA5755@dmt.cnet> <17171.57693.981385.165290@cargo.ozlabs.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17171.57693.981385.165290@cargo.ozlabs.ibm.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 30 Aug 2005 13:12:29 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: KLive: Linux Kernel Live Usage Monitor
+Date: Tue, 30 Aug 2005 10:08:38 -0700
+Message-ID: <194B303F2F7B534594F2AB2D87269D9F06EFAE48@orsmsx408>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: KLive: Linux Kernel Live Usage Monitor
+Thread-Index: AcWtfn2YvGZltHF2S9egjSlByW0jRAABE3OA
+From: "Wilkerson, Bryan P" <Bryan.P.Wilkerson@intel.com>
+To: "Andrea Arcangeli" <andrea@suse.de>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 30 Aug 2005 17:08:39.0894 (UTC) FILETIME=[779CAF60:01C5AD85]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Paul, Jeff,
 
-On Tue, Aug 30, 2005 at 02:32:29PM +1000, Paul Mackerras wrote:
-> Marcelo Tosatti writes:
-> 
-> > The memory map structure which contains device configuration/registers
-> > is _always_ directly mapped with pte's (the 8xx is a chip with builtin
-> > UART/network/etc functionality).
-> > 
-> > I don't think there is a need to use read/write acessors.
 
-Bullshit, yep :) 
+On Tue, Aug 30, 2005 at 10:01:21AM +0200, Sven Ladegast wrote:
+> The idea isn't bad but lots of people could think that this is some
+kind 
+> of home-phoning or spy software. I guess lots of people would turn
+this 
+> feature off...and of course you can't enable it by default. But
+combined 
+> with an automatic oops/panic/bug-report this would be _very_ useful I 
+> think.
 
-> Generally on PowerPC you need to use at least the eieio instruction to
-> prevent reordering of the loads and stores to the device.  It's
-> possible that 8xx is sufficiently in-order that you get away without
-> putting in barrier instructions (eieio or sync), but it's not good
-> practice to omit them.
+I think this is useful and would personally participate if it were a
+config tweak.  There are a couple of issues that come to mind.  
 
-On 8xx, guarded mappings seem to ensure synchronous operation of
-load/store instructions.
+1. Possibly paranoia, but given the apparent numbers of people with
+malicious intent on the Internet and knowing that there are some
+financially motivated to make Linux kernel developers over confident in
+they're work, I'm not sure I'd trust or use the data unless it was
+somehow authenticated.  
 
-Since the internal memory map is guarded, eieio is redudant (ie thats
-why it gets away without explicit barriers now).
+2. Some of us sit behind corporate firewalls and proxies that have
+oppressive rules that would have made Stalin proud.  The solution must
+be proxy aware and if it used HTTP, even better because it's more likely
+to work anywhere.  The proxy settings could also be a .config thing.  
 
->From MPC860UM.pdf: 5.2.5.2.1 eieio Behavior
+3. Again security; I haven't cleared this with my corporate superiors
+but I'm not sure they'll like the fact that anyone could intercept the
+data and compute how many people in the company are running Linux test
+kernels.  I know this almost sounds anti-open but we're breaking them in
+slowly to the model and I don't think they are ready for this one just
+yet. :)
 
-The purpose of eieio is to prevent loads and stores from executing
-speculatively when appropriate. This might be desirable for a FIFO,
-where performing a read or write changes the FIFO's data. This should
-not be done unless it is certain that the instruction will be completed
-and not cancelled. The same function as eieio can be accomplished by
-defining a memory space as having the guarded attribute in the MMU, in
-which case, the eieio instruction is redundant. However, eieio could be
-useful in the rare event that a region where speculative accesses are
-not allowed lies in the middle of a non-guarded page.
-
-There is nothing which prevents compiler reordering though, as Jeff
-notes.
-
-> You can use accessors such as in_be32 and in_le32 in this situation,
-> when you have a kernel virtual address that is already mapped to the
-> device.
-
-Do you think it would be worth to have lighterweight versions of
-in_be32/in_le32 functions (without eieio and isync) ? Would avoid the
-increase in code size and consequently cache footprint.
-
-The IMMAP is referenced directly _all over_ the 8xx core code, must be
-fixed.
-
-> There are multiple reasons:
->
-> * Easier reviewing.  One cannot easily distinguish between writing to
-> normal kernel virtual memory and "magic" memory that produces magicaly
-> side effects such as initiating DMA of a net packet.
-> 
-> * Compiler safety.  As the code is written now, you have no guarantees
-> that the compiler won't combine two stores to the same location, etc.
-> Accessor macros are a convenient place to add compiler barriers or
-> 'volatile' notations that the MPC8xx code lacks.
->
-> * Maintainable.  foo_read[bwl] or foo_read{8,16,32} are preferred
-> because that's the way other bus accessors look like -- yes even
-> embedded SoC buses benefit from these code patterns.  You want your
-> driver to look like other drivers as much as possible.
->
-> * Convenience.  The accessors can be a zero overhead memory read/write
-> at a minimum.  But they can also be convenient places to use special
-> memory read/write instructions that specify uncached memop, compiler
-> barriers, memory barriers, etc.
+-bryan

@@ -1,89 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbVH3QM2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932198AbVH3QQl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932195AbVH3QM2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 12:12:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932196AbVH3QM2
+	id S932198AbVH3QQl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 12:16:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932199AbVH3QQl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 12:12:28 -0400
-Received: from mailout11.sul.t-online.com ([194.25.134.85]:64689 "EHLO
-	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S932195AbVH3QM2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 12:12:28 -0400
-Message-ID: <43148610.70406@t-online.de>
-Date: Tue, 30 Aug 2005 18:15:12 +0200
-From: Knut Petersen <Knut_Petersen@t-online.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.7) Gecko/20050414
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: "Antonino A. Daplas" <adaplas@gmail.com>,
-       linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Jochen Hein <jochen@jochen.org>
-Subject: [PATCH 1/1 2.6.13] framebuffer: bit_putcs() optimization for 8x*
- fonts
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ID: JbQYSsZFYeDUcTmcVNMRCcSUcYTQoZh4ml8Pm40yD+79s3xqe25-sG@t-dialin.net
-X-TOI-MSGID: 9256a54a-3c6e-441d-815c-c45815219b3f
+	Tue, 30 Aug 2005 12:16:41 -0400
+Received: from nproxy.gmail.com ([64.233.182.203]:45983 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932198AbVH3QQk convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 12:16:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=N+pAkXfu3rkXM9cTeWJJwQIIZ9zBctfTtHHPgMf/hPJ63sbyl6NZz2pYFuG1U+DGs4D64vz7K8YbRWuj2possQVzM2rg1/v/moT7jMUCnn872nr8WwI7nRgomN8KvEECsTbDd3Qf6wpjbnbqBTtTScd2h2KW56QVfz+FCetYcNk=
+Message-ID: <58cb370e0508300916432fc003@mail.gmail.com>
+Date: Tue, 30 Aug 2005 18:16:36 +0200
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Greg Felix <greg.felix@gmail.com>
+Subject: Re: IDE HPA
+Cc: Oliver Tennert <O.Tennert@science-computing.de>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <87941b4c05083008523cddbb2a@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <87941b4c05082913101e15ddda@mail.gmail.com>
+	 <200508300859.19701.tennert@science-computing.de>
+	 <87941b4c05083008523cddbb2a@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This trivial patch gives a performance boost to the framebuffer console
+Hi,
 
-Constructing the bitmaps that are given to the bitblit functions of the 
-framebuffer
-drivers is time consuming. Here we avoide a call to the slow 
-fb_pad_aligned_buffer().
-The patch replaces that call with a simple but much more efficient 
-bytewise copy.
+OK, it seems, there is enough need for bringing back more control over HPA.
 
-The kernel spends a significant time at this place if you use 8x* fonts. 
-Every
-pixel displayed on your screen is prepared here.
+HPA shouldn't be disabled by default and new kernel parameter ("hdx=hpa")
+should be added for disabling HPA (yep, people with buggy BIOS-es will
+have to add this parameter to their kernel command line, sorry).
 
-Some benchmark results:
+If somebody wants to go ahead and submit actual patches...
+[s]he is welcomed to.
 
-Displaying a file of 2000 lines with 160 characters each takes 889 ms 
-system
-time using  cyblafb on my system  (I´m using a 1280x1024 video mode,
-resulting in a 160x64 character console)
+Thanks,
+Bartlomiej
 
-Displaying the same file with the enclosed patch applied to 2.6.13 only 
-takes
-760 ms system time, saving 129 ms or 14.5%.
-
-Font widths other than 8 are not affected.
-
-The advantage and correctness of this patch should be obvious.
-
-Signed-off-by: Knut Petersen <Knut_Petersen@t-online.de>
-
-diff -uprN -X linux/Documentation/dontdiff -x '*.bak' -x '*.ctx' linuxorig/drivers/video/console/bitblit.c linux/drivers/video/console/bitblit.c
---- linuxorig/drivers/video/console/bitblit.c	2005-08-29 01:41:01.000000000 +0200
-+++ linux/drivers/video/console/bitblit.c	2005-08-30 17:19:57.000000000 +0200
-@@ -114,7 +114,7 @@ static void bit_putcs(struct vc_data *vc
- 	unsigned int scan_align = info->pixmap.scan_align - 1;
- 	unsigned int buf_align = info->pixmap.buf_align - 1;
- 	unsigned int shift_low = 0, mod = vc->vc_font.width % 8;
--	unsigned int shift_high = 8, pitch, cnt, size, k;
-+	unsigned int shift_high = 8, pitch, cnt, size, i, k;
- 	unsigned int idx = vc->vc_font.width >> 3;
- 	unsigned int attribute = get_attribute(info, scr_readw(s));
- 	struct fb_image image;
-@@ -175,7 +175,11 @@ static void bit_putcs(struct vc_data *vc
- 					src = buf;
- 				}
- 
--				fb_pad_aligned_buffer(dst, pitch, src, idx, image.height);
-+				if (idx == 1)
-+					for(i=0; i < image.height; i++)
-+						dst[pitch*i] = src[i];
-+				else
-+					fb_pad_aligned_buffer(dst, pitch, src, idx, image.height);
- 				dst += width;
- 			}
- 		}
-
-
+On 8/30/05, Greg Felix <greg.felix@gmail.com> wrote:
+> Kernel list,
+> 
+> A while ago there was some discussion on the list regarding the
+> behavior of the kernel in regards to its unconditional disabling of
+> host protected areas of hard drives.  I ran into a problem this causes
+> with some RAID controllers.  I've been discussing the problem with
+> both the ata-raid mailing list and Oliver.  I feel we should copy the
+> kernel list because we don't think the current behavior is the
+> desirable one.
+> 
+> Below is some discussion Oliver and I have had about it.
+> 
+> > > Sorry for taking up your time. I saw your emails recently to the Linux
+> > > kernel mailing list concerning IDE host protected areas.  You were
+> > > asking why they are unconditionally disabled.  Did anyone ever give
+> > > you a good response to your question?
+> > >
+> >
+> > Hi Greg,
+> >
+> > Alan Cox answered, but he focussed entirely on the point that in his opinion,
+> > the main reason for using HPAs is something like backward-compatibility of
+> > the drive with old BIOSses that have problems with large disks.
+> >
+> > But to be honest, I have never ever heard about that being a motivation to use
+> > an HPA. And as far as I know, that was not the reason for introducing an HPA
+> > anyway.
+> >
+> > As far as I know, some HW vendors store some diagnostic tools in an HPA.
+> >
+> > > I have found a bug where my BIOS is storing some RAID metadata near
+> > > the end of a disk.  The problem i run into is that the end of the disk
+> > > is 20MB off when Linux counts the HPA.
+> > >
+> >
+> > So you are sure that your RAID controller uses an HPA to store the metadata? I
+> > am asking because some RAID controllers simply cut away a moderate region
+> > from the end of the disks and present the OS with a smaller disk, which is
+> > but a virtual one. In that case, no HPA is used. It is rather like the MD
+> > driver works.
+> 
+> My RAID controller isn't using an HPA to store metadata.  It's simply
+> recognizing that there is an HPA and reading its 63 sector backwards
+> offset starting at totalSectors-sizeOfHPA.
+> 
+> > But of course, the Linux kernel simply shows whether an HPA is used or not.
+> 
+> Right.  I get the output at bootup time.  It reads that the HPA is
+> 20MB.  Which is exactly the size of how far off the metadata is in
+> Linux (once the HPA is disabled).
+> 
+> > > Have you heard of any kernel parameters that disable the HPA disabling?
+> > >
+> >
+> > There is no runtime variable, the code is run unconditionally, unfortunately.
+> 
+> I've found where the code is and it'd be a simple hack to fix it and
+> recompile, but I'm concerned that other people will run into this at
+> some point.  I think we or the people who make decisions ought to
+> revisit the disabling of HPAs idea.
+> 
+> > > Thanks for your time,
+> > > Greg Felix
+> >
+> > Not at all! Should we CC the mail the kernel mailing list?
+> 
+> I think we should.  In fact, I will with this email.
+> 
+> > Best regards
+> >
+> > Oliver

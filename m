@@ -1,52 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932120AbVH3Eie@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932125AbVH3EmW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932120AbVH3Eie (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 00:38:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932121AbVH3Eie
+	id S932125AbVH3EmW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 00:42:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbVH3EmV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 00:38:34 -0400
-Received: from gate.crashing.org ([63.228.1.57]:25558 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932120AbVH3Eid (ORCPT
+	Tue, 30 Aug 2005 00:42:21 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:2983 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932124AbVH3EmU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 00:38:33 -0400
+	Tue, 30 Aug 2005 00:42:20 -0400
+Date: Mon, 29 Aug 2005 21:40:10 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "David S. Miller" <davem@davemloft.net>
+cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org, greg@kroah.com,
+       helgehaf@aitel.hist.no
 Subject: Re: Ignore disabled ROM resources at setup
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>, helgehaf@aitel.hist.no
-In-Reply-To: <Pine.LNX.4.58.0508292045590.3243@g5.osdl.org>
-References: <200508261859.j7QIxT0I016917@hera.kernel.org>
-	 <1125369485.11949.27.camel@gaston> <1125371996.11963.37.camel@gaston>
-	 <Pine.LNX.4.58.0508292045590.3243@g5.osdl.org>
-Content-Type: text/plain
-Date: Tue, 30 Aug 2005 14:33:51 +1000
-Message-Id: <1125376431.11949.47.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20050829.212021.43291105.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.58.0508292125571.3243@g5.osdl.org>
+References: <1125371996.11963.37.camel@gaston> <Pine.LNX.4.58.0508292045590.3243@g5.osdl.org>
+ <Pine.LNX.4.58.0508292056530.3243@g5.osdl.org> <20050829.212021.43291105.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> What you want is a "zombie state", where we write the partial information 
-> to hardware. It's what we used to do, but it's certainly no more logical 
-> than what it does now, and it led to problem reports.
+
+On Mon, 29 Aug 2005, David S. Miller wrote:
 > 
-> Btw, why does this happen on powerpc, but not x86? I'm running a radeon 
-> laptop right now myself. Hmm..
+> So I think the kernel, by not enabling the ROM, is doing the
+> right thing here.
 
-It's using the RAM shadow at c0000 on these ...
+Notice that on ppc even older versions didn't actually _enable_ the rom,
+but they would write the non-enabled address to the PCI_ROM_ADDRESS
+register, so that anybody who read that register would see _where_ the ROM
+would be enabled if it was enabled.
 
-I'm still not convinced that having the struct resource allocated and
-mismatched with the BAR value is a good thing... But anyway, so the bug
-would then be pci_map_rom who is writing the enable bit without fixing
-the rest of the BAR...
+That's the thing that changed in the commit Ben dislikes. Now, if the ROM
+is disabled, we won't even write the disabled address to the PCI register,
+because it led to trouble on some strange Matrox card. Probably a card
+that nobody has ever used on PPC, and certainly not on a Powerbook, so in
+that sense the apparent breakage on ppc is arguably "unnecessary" as far
+as Ben is concerned.
 
-So what about fixing pci_map_rom() to call pcibios_resource_to_bus() and
-then write the resource back to the BAR ? I'm still a bit annoyed that
-we re-allocate the address while the original one was perfectly good
-(though not enabled) but the above would work.
+But I notice the problem: pci_enable_rom() is indeed broken with the 
+change.
 
-Ben.
+Ben, does this (totally untested) patch fix it for you?
 
+			Linus
 
+----
+diff --git a/drivers/pci/rom.c b/drivers/pci/rom.c
+--- a/drivers/pci/rom.c
++++ b/drivers/pci/rom.c
+@@ -23,11 +23,14 @@
+  */
+ static void pci_enable_rom(struct pci_dev *pdev)
+ {
+-	u32 rom_addr;
++	struct resource *res = pdev->resource + PCI_ROM_RESOURCE;
++	struct pci_bus_region region;
+ 
+-	pci_read_config_dword(pdev, pdev->rom_base_reg, &rom_addr);
+-	rom_addr |= PCI_ROM_ADDRESS_ENABLE;
+-	pci_write_config_dword(pdev, pdev->rom_base_reg, rom_addr);
++	if (!res->flags)
++		return;
++
++	pcibios_resource_to_bus(pdev, &region, res);
++	pci_write_config_dword(pdev, pdev->rom_base_reg, region.start | PCI_ROM_ADDRESS_ENABLE);
+ }
+ 
+ /**

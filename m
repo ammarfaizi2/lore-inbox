@@ -1,53 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932111AbVH3DXh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932112AbVH3DYe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932111AbVH3DXh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 23:23:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932112AbVH3DXg
+	id S932112AbVH3DYe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 23:24:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932113AbVH3DYd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 23:23:36 -0400
-Received: from wproxy.gmail.com ([64.233.184.203]:9713 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932111AbVH3DXg convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 23:23:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=cJGKWNOgIGq+y2qEgyJbT29+z2S1phhrBjROPl+1gq8rC3YlTRV5G1y1AmneX6JuHm736q1K9v49Qb9EhttbSZ1sNN2l/1z/oMbURG3LFQDquAOazcjT6ithtIaS+biPaL052x9W2kSDoeo1oTcETrAJa6gKXWzoR8iWLvf4f9c=
-Message-ID: <21c563b6050829202372189527@mail.gmail.com>
-Date: Tue, 30 Aug 2005 11:23:35 +0800
-From: zhang yuanyi <zhangyuanyi@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: What about adding range support for u32 classifier?
+	Mon, 29 Aug 2005 23:24:33 -0400
+Received: from gate.crashing.org ([63.228.1.57]:54229 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S932112AbVH3DYd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 23:24:33 -0400
+Subject: Re: Ignore disabled ROM resources at setup
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Greg KH <greg@kroah.com>, helgehaf@aitel.hist.no,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <1125369485.11949.27.camel@gaston>
+References: <200508261859.j7QIxT0I016917@hera.kernel.org>
+	 <1125369485.11949.27.camel@gaston>
+Content-Type: text/plain
+Date: Tue, 30 Aug 2005 13:19:56 +1000
+Message-Id: <1125371996.11963.37.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, everyone!
 
-The "range support" may be puzzled, but I don't know how to express my
-problem exactly because of my poor english.
+> pci_map_rom "sees" that the resource is unassigned by testing the parent
+> pointer, and calls pci_assign_resource() which, with this new patch,
+> will do nothing.
 
-Just take an example, I may need all udp packets received on eth0
-which source port is greater than 53 going into flow 10:1,  and I only
-wanna to type one tc command like this(In fact, I communicated with
-kernel directly):
+Ok, it won't do nothing in fact. It's worse. It will return 0 (success),
+will actually assign a completely new address to the resource, will
+update the resource structure ... and will _not_ update the PCI resource
+BAR for the ROM.
 
-    tc filter add dev eth0 parent ffff: protocol ip prio 20 \
-                                  u32 match udp sport gt 53 0xffff \
-                                        match ip protocol 17 0xff\
-                                   flowid 10:1
+That is very bad and definitely not what you want, wether it's ppc, x86
+or anything else. Either fail (don't assign the resource at all) or if
+you assign it, keep the BAR in sync with the struct resource.
 
-But I found I can't, because u32 classifier doesn't support matching
-multi-value in one key.So I need to add (65535-53) keys to a u32
-filter to implement this.
+Also, why do we re-allocate a new address for it ? It's been properly
+allocated a non-conflicting address by the firmware ... That's a big
+problem I have with our common code as well.
+pci_assign_unassigned_resource() doesn't do what it claims: it will
+re-assign all resources, not only the unassigned ones, at least as soon
+as it spots a brige, and pci_assign_resource() here called by
+pci_map_rom() will re-assign even if the address there was already
+correct.
 
-I intend to solve this problem by modifying u32 filter to match
-multi-value in one key, but I am worrying the preformance.
+At this point, i'm not sure what the proper fix it.
 
-Can someone give me some suggestions?
+Ben.
 
-Sincerely.
-Yuanyi Zhang
+

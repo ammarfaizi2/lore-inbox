@@ -1,40 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932481AbVH3Vb0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932485AbVH3Vtq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932481AbVH3Vb0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 17:31:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932482AbVH3VbZ
+	id S932485AbVH3Vtq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 17:49:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932487AbVH3Vtq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 17:31:25 -0400
-Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:23771 "EHLO
-	palpatine.hardeman.nu") by vger.kernel.org with ESMTP
-	id S932481AbVH3VbZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 17:31:25 -0400
-Date: Tue, 30 Aug 2005 23:31:13 +0200
-From: David =?iso-8859-1?Q?H=E4rdeman?= <david@2gen.com>
-To: linux-kernel@vger.kernel.org
-Subject: LSM root_plug module questions
-Message-ID: <20050830213112.GA28997@hardeman.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Tue, 30 Aug 2005 17:49:46 -0400
+Received: from web53604.mail.yahoo.com ([206.190.37.37]:10399 "HELO
+	web53604.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S932485AbVH3Vtp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 17:49:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=FAgLE/jvOr47DSGJ8GgqZ55abzBGOej1nbJ5TfSM9FSdKWjLRtuCKONsbsiMa8ulTCuncAJ0NTSP6+UY6QAeKv0lBKRJ05z6QC0dX66Z/5LVD02JZwkMbaGRRbOGS9LBduzF1trUN2FnMWkskB6vkS6/UMbX75q88lXIt8p23jw=  ;
+Message-ID: <20050830214937.22956.qmail@web53604.mail.yahoo.com>
+Date: Wed, 31 Aug 2005 07:49:37 +1000 (EST)
+From: Steve Kieu <haiquy@yahoo.com>
+Subject: Re: Very strange Marvell/Yukon Gigabit NIC networking problems
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Jesse Brandeburg <jesse.brandeburg@gmail.com>,
+       Daniel Drake <dsd@gentoo.org>, Steve Kieu <haiquy@yahoo.com>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+In-Reply-To: <20050830140516.316e9695@dxpl.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I'm currently playing around with the security/root_plug.c LSM module 
-and I have two questions:
+--- Stephen Hemminger <shemminger@osdl.org> wrote:
 
-1) What's the recommended way of telling that someone is logging in to 
-the computer (via ssh, virtual console, serial console, X, whatever) 
-with LSM? Look for open() on /dev/pts?
+> You have a version of the Marvell Yukon that was
+> affected
+> by a fix in 2.6.13.
+> 	skge addr 0xfeaf8000 irq 19 chip Yukon-Lite rev 9
+> 
+> Both the skge and sk98lin driver were fixed to check
+> for this.
+> Without the fix, the chip will be in the wrong power
+> mode.
+> 
+> The version of sk98lin driver from SysKonnect
+> already had the
+> fix, so if your distro used that one, it would have
+> the reset
+> the power mode as needed.
 
-2) root_plug currently scans the usb device tree looking for the 
-appropriate device each time it's needed. In the interest of making the 
-result of the lookup cached, it is possible for a module to register so 
-that it is notified when a usb device is added/removed?
+I am afraid not. The last time, I reproduced the
+problem using the latest sk98lin driver from
+SysKonnect  (run create patch and patch the kernel
+2.6.13). Problem still there. The file I got from
+sysconnect is:
 
-Regards,
-David
+install-8_23.tar.bz2
 
+> 
+
+
+S.KIEU
+
+
+	
+
+	
+		
+____________________________________________________ 
+Do you Yahoo!? 
+The New Yahoo! Movies: Check out the Latest Trailers, Premiere Photos and full Actor Database. 
+http://au.movies.yahoo.com

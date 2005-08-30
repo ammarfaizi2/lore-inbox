@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750818AbVH3JyE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750829AbVH3Jyy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750818AbVH3JyE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 05:54:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750829AbVH3JyE
+	id S1750829AbVH3Jyy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 05:54:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750830AbVH3Jyy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 05:54:04 -0400
-Received: from postman2.arcor-online.net ([151.189.20.157]:3528 "EHLO
-	postman.arcor.de") by vger.kernel.org with ESMTP id S1750818AbVH3JyD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 05:54:03 -0400
-Date: Tue, 30 Aug 2005 11:53:59 +0200
-From: Tino Keitel <tino.keitel@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: sr device can be written?
-Message-ID: <20050830095359.GA15431@localhost.localdomain>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <c3c37c55050829215355bb85f4@mail.gmail.com> <20050830080812.GA13394@localhost.localdomain> <7cd5d4b40508300111260d6b9a@mail.gmail.com>
+	Tue, 30 Aug 2005 05:54:54 -0400
+Received: from ns.firmix.at ([62.141.48.66]:34002 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S1750829AbVH3Jyx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 05:54:53 -0400
+Subject: Re: KLive: Linux Kernel Live Usage Monitor
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+Cc: Sven Ladegast <sven@linux4geeks.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050830094058.GA29214@bitwizard.nl>
+References: <20050830030959.GC8515@g5.random>
+	 <Pine.LNX.4.63.0508300954190.1984@cassini.linux4geeks.de>
+	 <20050830082901.GA25438@bitwizard.nl>
+	 <Pine.LNX.4.63.0508301044150.1984@cassini.linux4geeks.de>
+	 <20050830094058.GA29214@bitwizard.nl>
+Content-Type: text/plain
+Organization: Firmix Software GmbH
+Date: Tue, 30 Aug 2005 11:54:42 +0200
+Message-Id: <1125395682.4882.53.camel@tara.firmix.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7cd5d4b40508300111260d6b9a@mail.gmail.com>
-User-Agent: Mutt/1.5.10i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 30, 2005 at 16:11:58 +0800, jeff shia wrote:
-> YOu mean the device file can be written?
+On Tue, 2005-08-30 at 11:40 +0200, Rogier Wolff wrote:
+[...]
+> would IMHO work better. (A userspace program is technically a better
+> solution, the social aspect of getting a bigger user-base is the main
+> reason for me to suggest the in-kernel approach).
 
-Yes, like an ordinary block device.
+So *if* a user wants to participate, he/she also installs and configures
+some daemon for this (which is also easier to look into if one is
+curious) and there is no "Linux kernel phones home" stories.
+And if not, he/she can easily remove it (again).
 
-> 
-> 
-> On 8/30/05, Tino Keitel <tino.keitel@gmx.de> wrote:
-> > On Tue, Aug 30, 2005 at 12:53:51 +0800, jeff shia wrote:
-> > > Hello,
-> > >  Sr is the Scsi-cdrom device?so it can be read only?but look at the source=
-> > > =20
-> > > code I notice that
-> > > sr can be written also!Is it right?
-> > 
-> > Just imagine a DVD-RAM drive.
-> > 
-> > Regards,
-> > Tino
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
+

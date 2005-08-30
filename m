@@ -1,132 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932475AbVH3VT6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932473AbVH3VTr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932475AbVH3VT6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 17:19:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932477AbVH3VT6
+	id S932473AbVH3VTr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 17:19:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932475AbVH3VTr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 17:19:58 -0400
-Received: from smtp-102-tuesday.nerim.net ([62.4.16.102]:6673 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S932475AbVH3VT5
+	Tue, 30 Aug 2005 17:19:47 -0400
+Received: from zproxy.gmail.com ([64.233.162.194]:53818 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932473AbVH3VTq convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 17:19:57 -0400
-Date: Tue, 30 Aug 2005 23:20:08 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-Cc: LKML <linux-kernel@vger.kernel.org>, video4linux-list@redhat.com,
-       Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 2.6] I2C: Drop I2C_DEVNAME and i2c_clientname
-Message-Id: <20050830232008.3420f0f1.khali@linux-fr.org>
-In-Reply-To: <1125360762.6186.29.camel@localhost>
-References: <20050815195704.7b61206e.khali@linux-fr.org>
-	<1124741348.4516.51.camel@localhost>
-	<20050825001958.63b2525c.khali@linux-fr.org>
-	<1125360762.6186.29.camel@localhost>
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 30 Aug 2005 17:19:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=NIqk4+j5FU5tIMa4JZLXo1meeOD6jhing2FoHC7H10IZ+0j0LHSsj6hktPV3rLVwVgDIogXclnLzobPR2X3p+EAN8PrglfMkD2JtPuz1n2o/axA0Rp9hhusfRU6+yKU8pGycPl1ghHFeGpl+7BRw2JBMSnJco85NOq9ANNPVMvU=
+Message-ID: <9a87484905083014197ecb835a@mail.gmail.com>
+Date: Tue, 30 Aug 2005 23:19:43 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Mark Gross <mgross@linux.intel.com>
+Subject: Re: Telecom Clock driver for MPCBL0010 ATCA compute blade.
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <200508301336.16112.mgross@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200508301159.34053.mgross@linux.intel.com>
+	 <20050830191611.GA8328@dmt.cnet>
+	 <200508301331.27322.mgross@linux.intel.com>
+	 <200508301336.16112.mgross@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mauro,
+On 8/30/05, Mark Gross <mgross@linux.intel.com> wrote:
+> On Tuesday 30 August 2005 13:31, Mark Gross wrote:
+> > On Tuesday 30 August 2005 12:16, Marcelo Tosatti wrote:
+> > >
+> > > Mark,
+> > >
+> > > Please fix identation accordingly to CodingStyle and repost, it
+> > > looks quite ugly at the moment.
+> > >
+> > Sorry about that.
+> >
+> 
+> My email client is f-ing with me.  See attached.
+> 
 
-> (...) it would be nice not to have a different I2C
-> API for every single 2.6 version :-) It would be nice to change I2C
-> API once and keep it stable for a while.
+ok, a few small comments  : 
 
-As nice as you seem to think it would be, I don't think it's not
-realistic. For one thing, we don't necessarily know in advance what
-changes will be needed. One month ago, I didn't even know that
-I2C_DEVNAME and i2c_clientname were existing. For another, changes take
-time to be dicussed, implemented and tested. Some changes depend on
-others. We just can't buffer everything for a year and push everything
-to Linus at once. Some of the changes, such as the i2c-isa killing or
-the asynchronous i2c interface, are things some people really need, and
-we can't ask them to wait for months or years.
 
-The Linux 2.6 development model is designed around a relatively fast
-move from -mm to Linus' tree, which implies incremental changes all the
-time. I'm only doing that.
++/* sysFS interface definition:
 
-> > As time goes, the differences bwteen 2.4 and 2.6
-> > will only increase. You seem to be trying to keep common driver code
-> > across incompatible trees. I'm not surprised that it is a lot of
-> > work. That's your choice, live with it.
->
-> It is not just a matter of choice.
+Isn't it just called "sysfs" without the caps?
 
-To me, it seems to be. No other part of the kernel does it as far as I
-know. Or can you point me to other drivers that are part of the Linux
-2.6 tree and include compatibility code for Linux 2.4? I am even
-surprised that you are allowed to do it.
++Uppon loading the driver will create a sysfs directory under class/misc/tlclk.
 
-> (...) V4L stuff is mostly used by end
-> users. There are a few professional users, like those working on CATV
-> and video broadcasting. They don't have much knowledge and generally
-> uses distro-provided kernels. It is not like I2C or PCI that most
-> boards has something inside.
-> Also: boards are country-specific. There are dozens of different analog
-> standards. So, the same brand name (even the same model on some cases)
-> have different tuners for different video standards.
+s/Uppon/Upon/
 
-I don't know what you are trying to demonstrate here, but all this is
-completely unrelated with the decision of maintaining common driver code
-rather than separate driver code. V4L is not different from other areas.
-See how hard the framebuffer folks are struggling with the high number
-of different graphics adapter setups for example. Same goes for SMBus
-and hardware monitoring chips as far as I am concerned. Every mainboard
-is different to some extent. And the list certainly doesn't stop there.
-The difficulty to test the code on every existing piece of hardware
-affects all driver authors and maintainers.
++This directory exports the following interfaces.  There opperation is
+documented
 
-> For us to have people to test all variations, we need to provide
-> backward support. Otherwise, we'll suffer a lot to test our patches,
-> since nobody on V4L devel is currently payed for doing his job and
-> don't have a lab with a bunch of cards and models.
+Line is longer than 80 chars - there are a few more such long lines,
+not going to point them all out, just one example. Ohh, and
+"opperation" should be "operation".
 
-Again, this ain't related with your decision to maintain a single set of
-drivers for Linux 2.4 and Linux 2.6 rather than having different
-drivers.
++All sysfs interaces are integers in hex format, i.e echo 99 > refalign
 
-An example I know well is the lm_sensors project. As you may now, no
-SMBus nor hardware monitoring driver is part of Linux 2.4. We are
-maintaining drivers in a separate CVS repository. They are different
-code from what we have in Linux 2.6. Still, we port the relevant changes
-from one set of drivers to the other. Frankly, this ain't that
-difficult, and works fine for over two years now. Maybe you should try.
+s/interaces/interfaces/
 
-I don't want to frighten you or anything, but there are changes to the
-i2c subsystem which will affect compatibility in -mm, and these will hit
-Linus' tree quite soon now. And I heard there are much much more in the
-works, not even by me, that might go in 2.6.15.
++#if CONFIG_DEBUG_KERNEL
 
-> I have a question for you about I2C: why i2c_driver doesn't have a
-> generic pointer to keep priv data (like i2c_adapter) ? 
+I believe this should be "#ifdef CONFIG_DEBUG_KERNEL" or "#if
+defined(CONFIG_DEBUG_KERNEL)" or you'll run afoul of the -Wundef
+crowd.
 
-It wouldn't make sense in the current i2c driver model (which is
-probably broken, no need to argue.) i2c_driver holds the code (or
-pointers to code) that is common to all chips using this driver. That
-is, mostly administrative stuff. The instance-specific structure is
-i2c_client. The common practice is to encapsulate the i2c_client
-structure into a dedicated structure, and put all your private data in
-this structure. See how this is done in drivers/hwmon/*.c.
++	int ret_val = 0;
 
-Maybe it sounds strange to you because (I heard) the i2c subsystem
-doesn't follow the usual driver model. But rest assured, I also heard
-that some people wanted to fix that soon. I guess you (or others) can't
-complain that the i2c subsystem is broken, and at the same time ask that
-it be kept compatible with its current or even previous state.
+There seems to be a preference for the name "retval" in the kernel source.
 
-> It would be nice to have such pointer (like have on other I2C
-> structures), in order to support multiple tuners for each function.
-> This is required for modern boards that have a TV analog tuner, a
-> digital one and a radio chip, it would be nice to have such structure
-> to keep a tuner table on it, and make easier to detect this.
++	val = (unsigned char)arg;
 
-I am most certainly wrong, but it looks to me like you are wanting to
-store this data in the wrong place. I can't see how i2c_driver would be
-relevant for that. Multiple tuners is a property of the board itself,
-not a property of an individual chip, be it an I2C chip or not.
+
+That cast looks pointless.
+
++tlclk_read(struct file * filp, char __user * buf, size_t count, loff_t * f_pos)
+
+
+tlclk_read(struct file *filp, char __user *buf, size_t count, loff_t *f_pos)
+"*" next to the variable name is generally the preffered coding style
+(several cases of this, only pointing out one).
+
++	val = (unsigned char)tmp;
+
+pointless cast. Do take a look at all your casts and check if they are
+really needed and remove them if not.
+
++ * This is also the probe opperation to avoid driver use on 
+
+s/opperation/operation/
+
++/*	switchover_timer.function = switchover_timeout; */
+
++/*	switchover_timer.data = 0; */
+
+Why submit a driver with commented out code? If this is not supposed
+to be there, then just remove it. If it needs to be added later, then
+submit a patch later to add it.
+Some people may disagree with me here, but that's my oppinion.
+
++      out3:
+
+
+labels belong at column 0 (zero).
+
 
 -- 
-Jean Delvare
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

@@ -1,50 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbVH3RHG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932209AbVH3RHd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932214AbVH3RHG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 13:07:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932225AbVH3RHF
+	id S932209AbVH3RHd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 13:07:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932225AbVH3RHc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 13:07:05 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:31941 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932214AbVH3RHE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 13:07:04 -0400
-Date: Tue, 30 Aug 2005 13:06:00 -0400
-From: Dave Jones <davej@redhat.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH] i386, x86_64 Initial PAT implementation
-Message-ID: <20050830170600.GA10042@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	"Eric W. Biederman" <ebiederm@xmission.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Andi Kleen <ak@suse.de>
-References: <m1psrwmg10.fsf@ebiederm.dsl.xmission.com> <1125413136.8276.14.camel@localhost.localdomain>
+	Tue, 30 Aug 2005 13:07:32 -0400
+Received: from mirapoint5.brutele.be ([212.68.199.150]:40006 "EHLO
+	mirapoint5.brutele.be") by vger.kernel.org with ESMTP
+	id S932227AbVH3RHb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 13:07:31 -0400
+Date: Tue, 30 Aug 2005 19:07:25 +0200
+From: Stephane Wirtel <stephane.wirtel@belgacom.net>
+To: Stephane Wirtel <stephane.wirtel@belgacom.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.6.13 - 2/3 - Remove the deprecated function __check_region
+Message-ID: <20050830170725.GA11011@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="jRHKVT23PllUwdXP"
 Content-Disposition: inline
-In-Reply-To: <1125413136.8276.14.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
+X-Operating-System: Linux debian 2.6.12-1-k7
+User-Agent: Mutt/1.5.10i
+X-Junkmail-Status: score=10/50, host=mirapoint5.brutele.be
+X-Junkmail-SD-Raw: score=unknown, refid=0001.0A090205.43148FD4.005E-F-L0BeBC04zsV01UPbcJcIKw==,  =?ISO-8859-1?Q?=20i?=
+	=?ISO-8859-1?Q?p=3D=C0=F5=08=08?=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 30, 2005 at 03:45:36PM +0100, Alan Cox wrote:
- > On Llu, 2005-08-29 at 18:20 -0600, Eric W. Biederman wrote:
- > > ways.  Currently this code only allows for an additional flavor
- > > of uncached access to physical memory addresses which should be hard
- > > to abuse, and should raise no additional aliasing problems.  No
- > > attempt has been made to fix theoretical aliasing problems.
- > 
- > Even an uncached/cached alias causes random memory corruption or an MCE
- > on x86 systems. In fact it can occur even for an alias not in theory
- > touched by the CPU if it happens to prefetch into or speculate the
- > address.
- > 
- > Also be sure to read the PII Xeon errata - early PAT has a bug or two.
 
-There are various PAT errata all the way through to Pentium-M iirc.
+--jRHKVT23PllUwdXP
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 
-		Dave
+Hi all, 
+ 
+Here is the second patch for kernel 2.6.13 from Linus tree.
+
+-- 
+Stephane Wirtel <stephane.wirtel@belgacom.net>
+                <stephane.wirtel@gmail.com>
+
+
+
+--jRHKVT23PllUwdXP
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: attachment; filename="patch_remove_check_mem_region_in_include_linux_ioportH.diff"
+
+diff --git a/include/linux/ioport.h b/include/linux/ioport.h
+--- a/include/linux/ioport.h
++++ b/include/linux/ioport.h
+@@ -114,7 +114,6 @@ extern struct resource * __request_regio
+ 
+ /* Compatibility cruft */
+ #define release_region(start,n)	__release_region(&ioport_resource, (start), (n))
+-#define check_mem_region(start,n)	__check_region(&iomem_resource, (start), (n))
+ #define release_mem_region(start,n)	__release_region(&iomem_resource, (start), (n))
+ 
+ extern int __check_region(struct resource *, unsigned long, unsigned long);
+
+--jRHKVT23PllUwdXP--
 

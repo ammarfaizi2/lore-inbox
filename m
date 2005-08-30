@@ -1,54 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750928AbVH3Nrr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750927AbVH3Nrh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750928AbVH3Nrr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 09:47:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751283AbVH3Nrr
+	id S1750927AbVH3Nrh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 09:47:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750928AbVH3Nrh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 09:47:47 -0400
-Received: from frankvm.xs4all.nl ([80.126.170.174]:55176 "EHLO
-	janus.localdomain") by vger.kernel.org with ESMTP id S1750926AbVH3Nrq
+	Tue, 30 Aug 2005 09:47:37 -0400
+Received: from zproxy.gmail.com ([64.233.162.192]:40947 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750926AbVH3Nrg convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 09:47:46 -0400
-Date: Tue, 30 Aug 2005 15:47:43 +0200
-From: Frank van Maarseveen <frankvm@frankvm.com>
-To: Nathan Becker <nbecker@physics.ucsb.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: lost ticks and Hangcheck
-Message-ID: <20050830134743.GA26890@janus>
-References: <Pine.LNX.4.63.0508182351460.6338@claven.physics.ucsb.edu>
+	Tue, 30 Aug 2005 09:47:36 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=aypye9fDtkfp09WWCFz0UNzzKdXmESIyVGF7pA/p4P7ej9KangjB9Tor9UahSaaIZjRTTmT2o3weUeAuesVDZcqsBAt7MTdryAmMXKkWxmaTyvNFzQ9D0CSpQ311HFgsdhG2FhDUvThu1Jjw89ZcNanoM/NhPxTz0l2y0Dc8v+w=
+Message-ID: <9a87484905083006474f58c7c2@mail.gmail.com>
+Date: Tue, 30 Aug 2005 15:47:32 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Karsten Keil <kkeil@suse.de>
+Subject: Re: [PATCH] isdn_v110 warning fix
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Thomas Pfeiffer <pfeiffer@pds.de>, isdn4linux@listserv.isdn4linux.de,
+       Kai Germaschewski <kai.germaschewski@gmx.de>
+In-Reply-To: <20050830105104.GA6918@pingi3.kke.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.63.0508182351460.6338@claven.physics.ucsb.edu>
-User-Agent: Mutt/1.4.1i
-X-Subliminal-Message: Use Linux!
+References: <200508300105.44247.jesper.juhl@gmail.com>
+	 <20050830105104.GA6918@pingi3.kke.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 19, 2005 at 12:41:07AM -0700, Nathan Becker wrote:
-> Hi,
+On 8/30/05, Karsten Keil <kkeil@suse.de> wrote:
+> On Tue, Aug 30, 2005 at 01:05:43AM +0200, Jesper Juhl wrote:
+> >
 > 
-> I'm running kernel 2.6.12.5 with x86_64 target on an AMD X2 4800+ and 
-> Gigabyte GA-K8NXP-SLI motherboard (bios version F8).  I'm having a problem 
-> with lost clock ticks.  The dmesg says
+> This is OK. Even if the codepath is never executed in a way that ret might
+> be used uninitialized it does not harm to set ret = 0.
 > 
-> warning: many lost ticks.
-> Your time source seems to be instable or some driver is hogging interupts
 > 
-> Also if I enable hangcheck, then I get a huge number of Hangcheck messages 
-> in dmesg.
+> Warning fix :
+>  drivers/isdn/i4l/isdn_v110.c:523: warning: `ret' might be used uninitialized in this function
+> 
+> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+> Signed-off-by: Karsten Keil <kkeil@suse.de>
+> 
 
-I get a lot of "kernel: Hangcheck: hangcheck value past margin!" messages
-from 2.6.13-rc7 on AMD64 X2 3800+ and Asus A8V deluxe motherboard. No lost
-ticks messages however.
-
-> 
-> The main other symptom is that the system clock runs fast and 
-> inaccurately.  It seems to run more inaccurately when I'm using the CPU, 
-> and be basically OK when idling.
-
-That seems to be the case here too: clock runs too fast under heavy load
-(burn-in tests involving kernel builds and large disk copies).
+Thank you for your feedback and for signing off on the patch. I'll
+forward it to Andrew for inclusion in -mm.
 
 -- 
-Frank
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

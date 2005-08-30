@@ -1,79 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932156AbVH3SAn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932247AbVH3SDy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932156AbVH3SAn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 14:00:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932242AbVH3SAn
+	id S932247AbVH3SDy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 14:03:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751450AbVH3SDy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 14:00:43 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:6411 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S932156AbVH3SAm (ORCPT
+	Tue, 30 Aug 2005 14:03:54 -0400
+Received: from fmr13.intel.com ([192.55.52.67]:14061 "EHLO
+	fmsfmr001.fm.intel.com") by vger.kernel.org with ESMTP
+	id S932247AbVH3SDx convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 14:00:42 -0400
-Date: Tue, 30 Aug 2005 14:00:31 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: linux-kernel@vger.kernel.org
-Cc: Andi Kleen <ak@suse.de>, discuss@x86-64.org
-Subject: [patch 2.6.13] x86_64: implement dma_sync_single_range_for_{cpu,device}
-Message-ID: <20050830180031.GD18998@tuxdriver.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>,
-	discuss@x86-64.org
-References: <20050829200916.GI3716@tuxdriver.com> <200508292254.53476.ak@suse.de> <20050829214828.GA6314@tuxdriver.com> <200508300314.35177.ak@suse.de> <20050830175436.GB18998@tuxdriver.com> <20050830175803.GC18998@tuxdriver.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050830175803.GC18998@tuxdriver.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 30 Aug 2005 14:03:53 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [patch 2.6.13] swiotlb: add swiotlb_sync_single_range_for_{cpu,device}
+Date: Tue, 30 Aug 2005 11:03:35 -0700
+Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F0443A4B5@scsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch 2.6.13] swiotlb: add swiotlb_sync_single_range_for_{cpu,device}
+Thread-Index: AcWtjGewmI6SZeDtQzm5Up2Hu3KK2wAAHEww
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "John W. Linville" <linville@tuxdriver.com>,
+       <linux-kernel@vger.kernel.org>
+Cc: "Andi Kleen" <ak@suse.de>, <discuss@x86-64.org>,
+       <linux-ia64@vger.kernel.org>
+X-OriginalArrivalTime: 30 Aug 2005 18:03:39.0168 (UTC) FILETIME=[2621F200:01C5AD8D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Implement dma_sync_single_range_for_{cpu,device} on x86_64.
 
-Signed-off-by: John W. Linville <linville@tuxdriver.com>
----
-Makes use of swiotlb_sync_single_range_for_{cpu,device} implemented
-in preceding patch.
+>+swiotlb_sync_single_range_for_cpu(struct device *hwdev, 
+>+swiotlb_sync_single_range_for_device(struct device *hwdev, 
 
- include/asm-x86_64/dma-mapping.h |   28 ++++++++++++++++++++++++++++
- 1 files changed, 28 insertions(+)
+Huh?  These look identical ... same args, same code, just a
+different name.
 
-diff --git a/include/asm-x86_64/dma-mapping.h b/include/asm-x86_64/dma-mapping.h
---- a/include/asm-x86_64/dma-mapping.h
-+++ b/include/asm-x86_64/dma-mapping.h
-@@ -85,6 +85,34 @@ static inline void dma_sync_single_for_d
- 	flush_write_buffers();
- }
- 
-+static inline void dma_sync_single_range_for_cpu(struct device *hwdev,
-+						 dma_addr_t dma_handle,
-+						 unsigned long offset,
-+						 size_t size, int direction)
-+{
-+	if (direction == DMA_NONE)
-+		out_of_line_bug();
-+
-+	if (swiotlb)
-+		return swiotlb_sync_single_range_for_cpu(hwdev,dma_handle,offset,size,direction);
-+
-+	flush_write_buffers();
-+}
-+
-+static inline void dma_sync_single_range_for_device(struct device *hwdev,
-+						    dma_addr_t dma_handle,
-+						    unsigned long offset,
-+						    size_t size, int direction)
-+{
-+        if (direction == DMA_NONE)
-+		out_of_line_bug();
-+
-+	if (swiotlb)
-+		return swiotlb_sync_single_range_for_device(hwdev,dma_handle,offset,size,direction);
-+
-+	flush_write_buffers();
-+}
-+
- static inline void dma_sync_sg_for_cpu(struct device *hwdev,
- 				       struct scatterlist *sg,
- 				       int nelems, int direction)
--- 
-John W. Linville
-linville@tuxdriver.com
+-Tony

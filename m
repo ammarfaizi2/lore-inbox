@@ -1,55 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751413AbVH3MUa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932108AbVH3M0T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751413AbVH3MUa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 08:20:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751419AbVH3MUa
+	id S932108AbVH3M0T (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 08:26:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbVH3M0T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 08:20:30 -0400
-Received: from smtp4.wanadoo.fr ([193.252.22.27]:42578 "EHLO smtp4.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S1751413AbVH3MU3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 08:20:29 -0400
-X-ME-UUID: 20050830122026309.4B9DD1C0017F@mwinf0408.wanadoo.fr
-Date: Tue, 30 Aug 2005 14:24:16 +0200
-From: Philippe Elie <phil.el@wanadoo.fr>
-To: Chase Venters <chase.venters@clientec.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Second "CPU" of 1-core HyperThreading CPU not found in 2.6.13
-Message-ID: <20050830122416.GD848@zaniah>
-References: <200508292303.52735.chase.venters@clientec.com>
+	Tue, 30 Aug 2005 08:26:19 -0400
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:56247 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S932108AbVH3M0T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 08:26:19 -0400
+Date: Tue, 30 Aug 2005 14:26:15 +0200
+From: Christoph Pleger <Christoph.Pleger@uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Subject: Swap areas lose their signatures after reboot
+Message-Id: <20050830142615.12910b57.Christoph.Pleger@uni-dortmund.de>
+Organization: Universitaet Dortmund
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; sparc-sun-solaris2.7)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200508292303.52735.chase.venters@clientec.com>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Aug 2005 at 23:03 +0000, Chase Venters wrote:
+Hello,
 
-> Greetings kind hackers...
-> 	I recently switched to 2.6.13 on my desktop. I noticed that the second 
-> "CPU" (is there a better term to use in this HyperThreading scenario?) that 
-> used to be listed in /proc/cpuinfo is no longer present. Browsing over the 
-> archives, it appears as if someone else had this problem... their solution 
-> was to enable CONFIG_PM, but I already have CONFIG_PM enabled.
-> 	I have to boot with 'noapic' because I have my CD-Writer hanging off an 
-> aic7xxx, and that driver goes into a nice error loop if I boot without it. 
-> 	I'll include some lspci output below in case it is useful. There's one more 
-> thing I noticed in the transition to 2.6.13, but I'm really not sure where I 
-> could start diagnosing it, and so any suggestions would be marvelous. 
-> 	As I mentioned, this machine is my desktop. In the past, I've been able to 
-> run compilers / other intensive tasks while listening to music in XMMS - the 
-> playback is never disrupted (indeed, on this P4 3.2ghz XMMS takes virtually 
-> none of the processor). Yet I've noticed enough momentary stops in sound 
-> output now to begin to suspect I've got some kind of problem. 
-> 	Last kernels that were functional in both regards were 2.6.12.4 and 2.6.11.7. 
-> Please note that I have not compiled with the new default tick rate of 250Hz 
-> - I'm running 1000Hz, and I have also enabled the Preemptible kernel and BKL 
-> Preemption as I have in earlier kernels.
+We have a machine with much RAM and 4 SCSI disks. We want to have 8 GB
+of Swap space. So I partitioned the hard disks with one swap partition
+of 2GB on every disk. But only the swap partition of the first disk can
+be used after a reboot; the other three swap partitions lose their swap
+signature.
 
-I needed CONFIG_PM=y and CONFIG_ACPI=y to get ht working on 2.6.13.
+When I call "swapon -a" manually, it says "Invalid argument" for these
+three partitions. After executing "mkswap" on them, "swapon -a" works
+fine. But I have to call "mkswap" after every reboot.
 
-regards,
-Philippe Elie
+What happens with the swap signatures during reboot?
 
+Regards
+  Christoph

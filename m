@@ -1,48 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932274AbVH3XFX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932281AbVH3XGb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932274AbVH3XFX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 19:05:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbVH3XFX
+	id S932281AbVH3XGb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 19:06:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbVH3XGb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 19:05:23 -0400
-Received: from fmr14.intel.com ([192.55.52.68]:30668 "EHLO
-	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
-	id S932270AbVH3XFW convert rfc822-to-8bit (ORCPT
+	Tue, 30 Aug 2005 19:06:31 -0400
+Received: from hera.kernel.org ([209.128.68.125]:51180 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S932281AbVH3XGa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 19:05:22 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
+	Tue, 30 Aug 2005 19:06:30 -0400
+To: linux-kernel@vger.kernel.org
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [RFC][PATCH 3 of 4] Configfs is really sysfs
+Date: Tue, 30 Aug 2005 16:06:43 -0700
+Organization: OSDL
+Message-ID: <20050830160643.65111ad0@dxpl.pdx.osdl.net>
+References: <200508310854.40482.phillips@istop.com>
+	<200508310857.57617.phillips@istop.com>
+	<200508310859.55746.phillips@istop.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [PATCH] Only process_die notifier in ia64_do_page_fault if KPROBES is configured.
-Date: Tue, 30 Aug 2005 16:05:04 -0700
-Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F0443A9A1@scsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] Only process_die notifier in ia64_do_page_fault if KPROBES is configured.
-Thread-Index: AcWtFfSdDDh9ZVbYSUWGXEC/+e3vqgAoNSQQ
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "Christoph Lameter" <clameter@engr.sgi.com>,
-       "Rusty Lynch" <rusty@linux.intel.com>
-Cc: "Andi Kleen" <ak@suse.de>, "Lynch, Rusty" <rusty.lynch@intel.com>,
-       <linux-mm@kvack.org>, <prasanna@in.ibm.com>,
-       <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-       "Keshavamurthy, Anil S" <anil.s.keshavamurthy@intel.com>
-X-OriginalArrivalTime: 30 Aug 2005 23:05:06.0000 (UTC) FILETIME=[42B97D00:01C5ADB7]
+Content-Transfer-Encoding: 7bit
+X-Trace: build.pdx.osdl.net 1125443184 31810 10.8.0.74 (30 Aug 2005 23:06:24 GMT)
+X-Complaints-To: abuse@osdl.org
+NNTP-Posting-Date: Tue, 30 Aug 2005 23:06:24 +0000 (UTC)
+X-Newsreader: Sylpheed-Claws 1.9.13 (GTK+ 2.6.7; x86_64-redhat-linux-gnu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 31 Aug 2005 08:59:55 +1000
+Daniel Phillips <phillips@istop.com> wrote:
 
->Please do not generate any code if the feature cannot ever be 
->used (CONFIG_KPROBES off). With this patch we still have lots of 
->unnecessary code being executed on each page fault.
+> Configfs rewritten as a single file and updated to use kobjects instead of its
+> own clone of kobjects (config_items).
+> 
 
-I can (eventually) wrap this call inside the #ifdef CONFIG_KPROBES.
+Some style issues:
+	Mixed case in labels
+	Bad identation
 
-But I'd like to keep following leads on making the overhead as
-low as possible for those people that do have KPROBES configured
-(which may be most people if OS distributors ship kernels with
-this enabled).
+> +static int sysfs_create(struct dentry *dentry, int mode, int (*init) (struct inode *))
+> +{
+> +	int error = 0;
+> +	struct inode *inode = NULL;
+> +	if (dentry) {
+> +		if (!dentry->d_inode) {
+> +			if ((inode = sysfs_new_inode(mode))) {
+> +				if (dentry->d_parent
+> +				    && dentry->d_parent->d_inode) {
+> +					struct inode *p_inode =
+> +					    dentry->d_parent->d_inode;
+> +					p_inode->i_mtime = p_inode->i_ctime =
+> +					    CURRENT_TIME;
+> +				}
+> +				goto Proceed;
+> +			} else
+> +				error = -ENOMEM;
+> +		} else
+> +			error = -EEXIST;
+> +	} else
+> +		error = -ENOENT;
+> +	goto Done;
+> +
+> +      Proceed:
+> +	if (init)
+> +		error = init(inode);
+> +	if (!error) {
+> +		d_instantiate(dentry, inode);
+> +		if (S_ISDIR(mode) || S_ISLNK(mode)) /* pin link and directory dentries */
+> +			dget(dentry);
+> +	} else
+> +		iput(inode);
+> +      Done:
 
--Tony
+Why the mixed case label?
+
+> +	return error;
+> +}
+
+
+> +/* 
+> + * configfs client helpers
+> + */
+> +
+> +void config_group_init_type_name(struct kset *group, const char *name, struct kobj_type *type)
+> +{
+> + kobject_set_name(&group->kobj, name);
+> + group->kobj.ktype = type;
+> + config_group_init(group);
+> +}
+
+Use tabs not one space for indent.
+
+> +void config_group_init(struct kset *group)
+> +{
+> + kobject_init(&group->kobj);
+> + INIT_LIST_HEAD(&group->cg_children);
+> +}
+> +
+> +void kobject_init_type_name(struct kobject *kobj, const char *name, struct kobj_type *type)
+> +{
+> + kobject_set_name(kobj, name);
+> + kobj->ktype = type;
+> + kobject_init(kobj);
+> +}
+> +
+> +EXPORT_SYMBOL(configfs_register_subsystem);
+> +EXPORT_SYMBOL(configfs_unregister_subsystem);
+> +EXPORT_SYMBOL(config_group_init_type_name);
+> +EXPORT_SYMBOL(config_group_init);
+> +EXPORT_SYMBOL(kobject_init_type_name);
+>

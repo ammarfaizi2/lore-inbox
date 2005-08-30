@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932280AbVH3FFe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbVH3FQx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932280AbVH3FFe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 01:05:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbVH3FFe
+	id S1750717AbVH3FQx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 01:16:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750718AbVH3FQx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 01:05:34 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:58798 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932280AbVH3FFd (ORCPT
+	Tue, 30 Aug 2005 01:16:53 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:61619 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750717AbVH3FQw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 01:05:33 -0400
-Date: Mon, 29 Aug 2005 22:03:49 -0700 (PDT)
+	Tue, 30 Aug 2005 01:16:52 -0400
+Date: Mon, 29 Aug 2005 22:15:07 -0700 (PDT)
 From: Linus Torvalds <torvalds@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>, helgehaf@aitel.hist.no
+To: Jon Smirl <jonsmirl@gmail.com>
+cc: "David S. Miller" <davem@davemloft.net>, benh@kernel.crashing.org,
+       linux-kernel@vger.kernel.org, greg@kroah.com, helgehaf@aitel.hist.no
 Subject: Re: Ignore disabled ROM resources at setup
-In-Reply-To: <1125376431.11949.47.camel@gaston>
-Message-ID: <Pine.LNX.4.58.0508292149260.3243@g5.osdl.org>
-References: <200508261859.j7QIxT0I016917@hera.kernel.org> 
- <1125369485.11949.27.camel@gaston> <1125371996.11963.37.camel@gaston> 
- <Pine.LNX.4.58.0508292045590.3243@g5.osdl.org> <1125376431.11949.47.camel@gaston>
+In-Reply-To: <9e473391050829215148807c49@mail.gmail.com>
+Message-ID: <Pine.LNX.4.58.0508292207330.3243@g5.osdl.org>
+References: <1125371996.11963.37.camel@gaston>  <Pine.LNX.4.58.0508292045590.3243@g5.osdl.org>
+  <Pine.LNX.4.58.0508292056530.3243@g5.osdl.org>  <20050829.212021.43291105.davem@davemloft.net>
+  <Pine.LNX.4.58.0508292125571.3243@g5.osdl.org> <9e473391050829215148807c49@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -27,31 +27,21 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Tue, 30 Aug 2005, Benjamin Herrenschmidt wrote:
+On Tue, 30 Aug 2005, Jon Smirl wrote:
 > 
-> So what about fixing pci_map_rom() to call pcibios_resource_to_bus() and
-> then write the resource back to the BAR ? I'm still a bit annoyed that
-> we re-allocate the address while the original one was perfectly good
-> (though not enabled) but the above would work.
+> I was reading the status out of the PCI config space to account for
+> our friend X which enables ROMs without informing the OS. With X
+> around PCI config space can get out of sync with the kernel
+> structures.
 
-I just sent you a patch to try.
+Well, yes, except that we use the in-kernel resource address for the
+actual ioremap() _anyway_ in the routine that calls this, so if X has
+remapped the ROM somewhere else, that wouldn't work in the first place.
 
-Btw, as to the re-allocation of an existing address: most of the PCI layer
-really does try to avoid re-allocating known good addresses. In fact, I 
-thought we did so for ROM resources too: at least pci_read_bases() does 
-read the ROM base, and saves it off into the resource structure.
+I'm sure X plays games with this register (I suspect that's why the Matrox 
+thing broke in the first place), but I don't think it should do so while 
+the kernel uses it. 
 
-We'll end up re-assigning that saved-off-address if there were resource
-clashes, though. And bugs always happen, especially since that code
-doesn't get much testing on x86 (there are almost never any interesting
-rom resources for _any_ device, and apparently the video device which is
-one of the few interesting ones always ends up using the shadow rom thing
-on x86 for the primary card).
+I don't think we have much choice anyway. See above.
 
-If you find the thing that causes us to re-assign the address, holler.
-
-(See drivers/pci/probe.c: pci_read_bases() for the code that probes the
-old address and saves it into the resource struct. It's called by
-pci_setup_device() from the device scanning routines).
-
-			Linus
+		Linus

@@ -1,37 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751222AbVH3IDm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751207AbVH3IBg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751222AbVH3IDm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 04:03:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751223AbVH3IDm
+	id S1751207AbVH3IBg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 04:01:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751214AbVH3IBg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 04:03:42 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:34984 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751222AbVH3IDl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 04:03:41 -0400
-Date: Tue, 30 Aug 2005 01:03:34 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Trailing comments in broken-out series file break quilt
-Message-Id: <20050830010334.0799d380.pj@sgi.com>
-In-Reply-To: <20050829200304.33067ab5.akpm@osdl.org>
-References: <20050829191516.4e5d9e0b.pj@sgi.com>
-	<20050829200304.33067ab5.akpm@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 30 Aug 2005 04:01:36 -0400
+Received: from newton.linux4geeks.de ([193.30.1.1]:52101 "EHLO
+	newton.linux4geeks.de") by vger.kernel.org with ESMTP
+	id S1751207AbVH3IBg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 04:01:36 -0400
+Date: Tue, 30 Aug 2005 10:01:21 +0200 (CEST)
+From: Sven Ladegast <sven@linux4geeks.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: KLive: Linux Kernel Live Usage Monitor
+In-Reply-To: <20050830030959.GC8515@g5.random>
+Message-ID: <Pine.LNX.4.63.0508300954190.1984@cassini.linux4geeks.de>
+References: <20050830030959.GC8515@g5.random>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew wrote:
-> I'll just stop using them.
+On Tue, 30 Aug 2005, Andrea Arcangeli wrote:
 
-That works - thanks.
+> During the Kernel Summit somebody raised the point that it's not clear
+> how much testing each rc/pre/git kernel gets before the final release.
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Generally this is a good idea to track the usage/testing time of different 
+versions.
+
+> In theory we could get rid of the client entirely and make it a kernel
+> config option, but I've no idea if this project is useful, so I don't
+> want to spend too much time on it at this point.
+
+The idea isn't bad but lots of people could think that this is some kind 
+of home-phoning or spy software. I guess lots of people would turn this 
+feature off...and of course you can't enable it by default. But combined 
+with an automatic oops/panic/bug-report this would be _very_ useful I think.
+
+Let's see what others say about it.
+
+Sven
+

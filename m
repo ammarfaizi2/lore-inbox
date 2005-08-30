@@ -1,52 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932192AbVH3QGh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932193AbVH3QJo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932192AbVH3QGh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 12:06:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932193AbVH3QGh
+	id S932193AbVH3QJo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 12:09:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932195AbVH3QJo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 12:06:37 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:29090 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932192AbVH3QGg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 12:06:36 -0400
-To: Andi Kleen <ak@suse.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+	Tue, 30 Aug 2005 12:09:44 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:3251 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932193AbVH3QJo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 12:09:44 -0400
+Subject: Re: IDE HPA
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Greg Felix <greg.felix@gmail.com>
+Cc: Oliver Tennert <O.Tennert@science-computing.de>,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i386, x86_64 Initial PAT implementation
-References: <m1psrwmg10.fsf@ebiederm.dsl.xmission.com>
-	<1125413136.8276.14.camel@localhost.localdomain>
-	<m14q97qwng.fsf@ebiederm.dsl.xmission.com>
-	<200508301748.50941.ak@suse.de>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Tue, 30 Aug 2005 10:06:07 -0600
-In-Reply-To: <200508301748.50941.ak@suse.de> (Andi Kleen's message of "Tue,
- 30 Aug 2005 17:48:50 +0200")
-Message-ID: <m1r7cbpfyo.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <87941b4c05083008523cddbb2a@mail.gmail.com>
+References: <87941b4c05082913101e15ddda@mail.gmail.com>
+	 <200508300859.19701.tennert@science-computing.de>
+	 <87941b4c05083008523cddbb2a@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 30 Aug 2005 17:38:47 +0100
+Message-Id: <1125419927.8276.32.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> writes:
+On Maw, 2005-08-30 at 09:52 -0600, Greg Felix wrote:
+> Right.  I get the output at bootup time.  It reads that the HPA is
+> 20MB.  Which is exactly the size of how far off the metadata is in
+> Linux (once the HPA is disabled).
 
-> On Tuesday 30 August 2005 17:20, Eric W. Biederman wrote:
->
->> Right.  To the best of my understanding problem aliases are either
->> uncached/write-back or write-combine/write-back.  I don't think
->> uncached/write-combine can cause problems.  My basic reason for
->
-> Well it can if one driver expects the mapping to be uncached and the
-> other to be WC. The WC one might blast over the other one badly.
->
-> Also the architecture defines all attribute conflicts to be undefined
-> and it's better to not rely on undefined behaviour because that could
-> break quite badly on a future microarchitecture.
+So your actual problem is nothing to do with the kernel or with the HPA
+behaviour ? Whatever tool you are using for raid set up isn't reading
+and processing the right fields. 
 
-Agreed.  It is better.  
-
-My assessment was only to show that the immediate danger of data
-corruption or problems isn't very high, even if someone does goof.
-
-Eric
+It isnt the kernels fault if you compute from of end of disk rather than
+from end of non reserved area is it ?
 

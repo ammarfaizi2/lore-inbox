@@ -1,55 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751359AbVH3KwB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932072AbVH3KwQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751359AbVH3KwB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 06:52:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbVH3KwB
+	id S932072AbVH3KwQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 06:52:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbVH3KwQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 06:52:01 -0400
-Received: from rproxy.gmail.com ([64.233.170.204]:12189 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751359AbVH3KwA convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 06:52:00 -0400
+	Tue, 30 Aug 2005 06:52:16 -0400
+Received: from web53602.mail.yahoo.com ([206.190.37.35]:55700 "HELO
+	web53602.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S1751361AbVH3KwO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 06:52:14 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=NNigmbxE/ZnndathJL9m1xIUib4ZSZnBlSDJrXjcy17ZO+2vOXBA9OWig3LxscE0Sy8whD5OI+jgo1+oMRKrwgoErab9oOvpHuU2SBB3gzAI/V3IZxF2DjI66/3FirxY+fSjM02VUvrmuELLTZozQqxcE8duZ+tFxFMaLGbXg3o=
-Message-ID: <21d7e997050830035154ea2f88@mail.gmail.com>
-Date: Tue, 30 Aug 2005 20:51:57 +1000
-From: Dave Airlie <airlied@gmail.com>
-To: Michael Marineau <marineam@engr.orst.edu>
-Subject: Re: [PATCH 1/3] Generic acpi vgapost
-Cc: Andrew Morton <akpm@osdl.org>, benh@kernel.crashing.org,
-       Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-In-Reply-To: <43111313.8000800@engr.orst.edu>
-Mime-Version: 1.0
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=mdBenx1cuCFV8wHz18eKmiaKLSTESG9hCC1rLVnZfh2jqfoPRB6fwyAPPpp453vnuqb/oBHNw9fsWF89nh5CS9dN7xEpmv/GALY3zqXcHwJKU/LSH9xMZFpKeQOzR3hQ+3eolbYWvJbvlBRm6LrrYliiD0B54rnT2SmqJONSygg=  ;
+Message-ID: <20050830105210.11849.qmail@web53602.mail.yahoo.com>
+Date: Tue, 30 Aug 2005 20:52:09 +1000 (EST)
+From: Steve Kieu <haiquy@yahoo.com>
+Subject: Re: Very strange Marvell/Yukon Gigabit NIC networking problems
+To: Daniel Drake <dsd@gentoo.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <43143258.5080208@gentoo.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <43111298.80507@engr.orst.edu> <43111313.8000800@engr.orst.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/28/05, Michael Marineau <marineam@engr.orst.edu> wrote:
-> Generic function to post the video bios.
+
+> Can you test the new skge driver instead? If that
+> one is broken then we 
+
+Tested , not broken, working now but the same problem,
+that is if I reboot to winXP or 2.6.12, 2.6.11, the
+NIC is unusaeble. In XP it always says link is down,
+or media disconnected (from ipconfig command output in
+XP)
+is it because the firmware of NIC has changed or any
+reason?
+
+
+I noticed  warning messages only with 2.6.13 
+
+PCI: Failed to allocate mem resource #10:2000000@0 for
+0000:02:01.0
+
+and modem device in 2.6.13 IRQ is disabled.
+
+ACPI: PCI Interrupt Link [LKMO] enabled at IRQ 20
+ACPI: PCI Interrupt 0000:00:06.1[B] -> Link [LKMO] ->
+GSI 20 (level, low) -> IRQ
+ 17
+ACPI: PCI interrupt for device 0000:00:06.1 disabled
+
+not sure if it gives more information.
+
+skge addr 0xfeaf8000 irq 19 chip Yukon-Lite rev 9
+skge eth0: addr 00:11:d8:f2:1f:18
+ACPI: PCI Interrupt 0000:02:01.0[A] -> Link [LNKB] ->
+GSI 18 (level, low) -> IRQ
+ 16
+Yenta: CardBus bridge found at 0000:02:01.0
+[1043:1987]
+skge eth0: enabling interface
+
+skge eth0: Link is up at 10 Mbps, half duplex, flow
+control none
+
+Not sure how can I restore this thing back to normal
+(sigh)
+
+Thanks
+
+> probably have more chance of getting it fixed :)
 > 
-> Based directly on the original patch by Ole Rohne.
+> Thanks,
+> Daniel
 > 
-> Signed-off-by: Michael Marineau <marineam@engr.orst.edu>
 
-The wakeup.S code is missing a small piece of code.
 
-For a  lot of BIOSes you need to set ax to a PCI ID, I have code in my
-tree at the moment that does this:
+S.KIEU
 
-in do_vgapost_lowlevel:
-acpi_video_devnum = (pci_dev->bus->number<<8) | (pci_dev->devfn);
-
-and then in the wakeup code
-movl video_devnum-wakeup_code, %eax
-
-The code is all in the patch at
-http://www.skynet.ie/~airlied/patches/lk/my_pm_diffs
-This is just a drop of my current tree from when I was hacking on
-suspend/resume at OLS.
-
-Dave.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

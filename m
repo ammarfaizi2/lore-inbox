@@ -1,56 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932112AbVH3DYe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932114AbVH3DeX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932112AbVH3DYe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 23:24:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932113AbVH3DYd
+	id S932114AbVH3DeX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 23:34:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932116AbVH3DeX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 23:24:33 -0400
-Received: from gate.crashing.org ([63.228.1.57]:54229 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932112AbVH3DYd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 23:24:33 -0400
-Subject: Re: Ignore disabled ROM resources at setup
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Greg KH <greg@kroah.com>, helgehaf@aitel.hist.no,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <1125369485.11949.27.camel@gaston>
-References: <200508261859.j7QIxT0I016917@hera.kernel.org>
-	 <1125369485.11949.27.camel@gaston>
+	Mon, 29 Aug 2005 23:34:23 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:60051 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932114AbVH3DeX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Aug 2005 23:34:23 -0400
+Subject: Re: 2.6.13-rt1
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: dwalker@mvista.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20050829084829.GA23176@elte.hu>
+References: <20050829084829.GA23176@elte.hu>
 Content-Type: text/plain
-Date: Tue, 30 Aug 2005 13:19:56 +1000
-Message-Id: <1125371996.11963.37.camel@gaston>
+Organization: Kihon Technologies
+Date: Mon, 29 Aug 2005 23:33:50 -0400
+Message-Id: <1125372830.6096.7.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo,
 
-> pci_map_rom "sees" that the resource is unassigned by testing the parent
-> pointer, and calls pci_assign_resource() which, with this new patch,
-> will do nothing.
+I just found another deadlock in the pi_lock logic.  The PI logic is
+very dependent on the P1->L1->P2->L2->P3 order.  But our good old friend
+is back, the BKL.
 
-Ok, it won't do nothing in fact. It's worse. It will return 0 (success),
-will actually assign a completely new address to the resource, will
-update the resource structure ... and will _not_ update the PCI resource
-BAR for the ROM.
+Since the BKL is let go and regrabbed even if a task is grabbing another
+lock, it messes up the order.  For example, it can do the following:
+L1->P1->L2->P2->L1 if L1 is the BKL.  Luckly, (and I guess there's
+really no other way) the BKL is only held by those that are currently
+running, or at least not blocked on anyone.  So I added code in the
+pi_setprio code to test if the next lock in the loop is the BKL and if
+so, if its owner is the current task.  If so, the loop is broken.
 
-That is very bad and definitely not what you want, wether it's ppc, x86
-or anything else. Either fail (don't assign the resource at all) or if
-you assign it, keep the BAR in sync with the struct resource.
+Without this patch, I would constantly get lock ups on shutdown where it
+sends SIGTERM to all the processes.  It usually would lock up on the
+killing of udev.  But with the patch, I've shutdown a few times already
+and no lockups so far.
 
-Also, why do we re-allocate a new address for it ? It's been properly
-allocated a non-conflicting address by the firmware ... That's a big
-problem I have with our common code as well.
-pci_assign_unassigned_resource() doesn't do what it claims: it will
-re-assign all resources, not only the unassigned ones, at least as soon
-as it spots a brige, and pci_assign_resource() here called by
-pci_map_rom() will re-assign even if the address there was already
-correct.
+-- Steve
 
-At this point, i'm not sure what the proper fix it.
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 
-Ben.
+Index: linux_realtime_goliath/kernel/rt.c
+===================================================================
+--- linux_realtime_goliath/kernel/rt.c	(revision 308)
++++ linux_realtime_goliath/kernel/rt.c	(working copy)
+@@ -816,6 +816,21 @@
+ 		l = w->lock;
+ 		TRACE_BUG_ON_LOCKED(!lock);
+ 
++		/*
++		 * The BKL can really be a pain.  It can happen that the lock
++		 * we are blocked on is owned by a task that is waiting for
++		 * the BKL, and we own it.  So, if this is the BKL and we own
++		 * it, then end the loop here.
++		 */
++		if (unlikely(l == &kernel_sem.lock) && lock_owner(l) == current_thread_info()) {
++			/*
++			 * No locks are held for locks, so fool the unlocking code
++			 * by thinking the last lock was the original.
++			 */
++			l = lock;
++			break;
++		}
++
+ 		if (l != lock)
+ 			__raw_spin_lock(&l->wait_lock);
+ 
 
 

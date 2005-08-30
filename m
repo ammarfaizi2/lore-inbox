@@ -1,92 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751411AbVH3MR6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751413AbVH3MUa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751411AbVH3MR6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 08:17:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751413AbVH3MR6
+	id S1751413AbVH3MUa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 08:20:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751419AbVH3MUa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 08:17:58 -0400
-Received: from styx.suse.cz ([82.119.242.94]:9689 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S1751411AbVH3MR5 (ORCPT
+	Tue, 30 Aug 2005 08:20:30 -0400
+Received: from smtp4.wanadoo.fr ([193.252.22.27]:42578 "EHLO smtp4.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S1751413AbVH3MU3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 08:17:57 -0400
-Date: Tue, 30 Aug 2005 14:18:10 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Harald Welte <laforge@gpl-violations.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: APs from the Kernel Summit run Linux
-Message-ID: <20050830121810.GA11582@midnight.suse.cz>
-References: <20050830085522.GA8820@midnight.suse.cz> <20050830101958.GJ4202@rama.de.gnumonks.org>
+	Tue, 30 Aug 2005 08:20:29 -0400
+X-ME-UUID: 20050830122026309.4B9DD1C0017F@mwinf0408.wanadoo.fr
+Date: Tue, 30 Aug 2005 14:24:16 +0200
+From: Philippe Elie <phil.el@wanadoo.fr>
+To: Chase Venters <chase.venters@clientec.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Second "CPU" of 1-core HyperThreading CPU not found in 2.6.13
+Message-ID: <20050830122416.GD848@zaniah>
+References: <200508292303.52735.chase.venters@clientec.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050830101958.GJ4202@rama.de.gnumonks.org>
-User-Agent: Mutt/1.5.10i
+In-Reply-To: <200508292303.52735.chase.venters@clientec.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 30, 2005 at 12:19:59PM +0200, Harald Welte wrote:
+On Mon, 29 Aug 2005 at 23:03 +0000, Chase Venters wrote:
 
-> > The D-Link DWL-G730AP devices from the Kernel Summit run Linux, And it's
-> > likely a GPL violation, too, since sources are nowhere to be found.
-> 
-> *lol*. Interestingly they must have twiddled the IP stack since when I
-> tried an "nmap" on the device, it didn't recognize it as a Linux TCP/IP
-> stack.
+> Greetings kind hackers...
+> 	I recently switched to 2.6.13 on my desktop. I noticed that the second 
+> "CPU" (is there a better term to use in this HyperThreading scenario?) that 
+> used to be listed in /proc/cpuinfo is no longer present. Browsing over the 
+> archives, it appears as if someone else had this problem... their solution 
+> was to enable CONFIG_PM, but I already have CONFIG_PM enabled.
+> 	I have to boot with 'noapic' because I have my CD-Writer hanging off an 
+> aic7xxx, and that driver goes into a nice error loop if I boot without it. 
+> 	I'll include some lspci output below in case it is useful. There's one more 
+> thing I noticed in the transition to 2.6.13, but I'm really not sure where I 
+> could start diagnosing it, and so any suggestions would be marvelous. 
+> 	As I mentioned, this machine is my desktop. In the past, I've been able to 
+> run compilers / other intensive tasks while listening to music in XMMS - the 
+> playback is never disrupted (indeed, on this P4 3.2ghz XMMS takes virtually 
+> none of the processor). Yet I've noticed enough momentary stops in sound 
+> output now to begin to suspect I've got some kind of problem. 
+> 	Last kernels that were functional in both regards were 2.6.12.4 and 2.6.11.7. 
+> Please note that I have not compiled with the new default tick rate of 250Hz 
+> - I'm running 1000Hz, and I have also enabled the Preemptible kernel and BKL 
+> Preemption as I have in earlier kernels.
 
-> > They're based on a Marvell Libertas AP-32 (ARM9) design, similar
-> > to the ASUS WL-530g. A bootlog from the ASUS (which has telnet enabled
-> > for some reason, and thus can be logged in) is at the end of the mail.
-> 
-> So you grabbed that bootlog from the ASUS device, or from the D-Link?
+I needed CONFIG_PM=y and CONFIG_ACPI=y to get ht working on 2.6.13.
 
-This is from the ASUS. 
+regards,
+Philippe Elie
 
-> If it is from the ASUS, what makes you think that the D-Link runs the
-> same OS?  It is quite often the case that one chipset design has
-> multiple operating systems ported to it (you see systems with the same
-> broadcom or Intersil chipset, one running Linux, the other VxWorks).
-
-> Please indicate how you came to the conclusion that the D-Link really
-> runs Linux.
-
-The device's ESSID during boot is 'Marvell AP-32', and the Libertas
-AP-32 and AP-52 design toolkits contain only ports of Linux and eCos to
-the device, according to Marvell. Considering the device's routing
-capabilities I'm believe it's running Linux, but I don't have a solid
-proof yet, unfortunately. The eCos port is intended for the non-router
-variety of the design.
-
-On the other hand, eCos seems to be GPL, too, although it's possible
-that the owner dual-licenses it.
-
-> > A firmware image is available from D-Link
-> > and it seems to be composed of compressed blocks padded by zeroes. I haven't
-> > verified yet that it's indeed a compressed kernel, cramfs, etc, but it seems
-> > quite likely.
-> 
-> I'm downloading it right now, and I'll see whether I can find any Linux
-> in there.
-
-Good luck. I'll try to take a look, too.
-
-> > Anyone interested in dissecting it, and pushing D-Link/Marvell to release
-> > the kernel sources? 
-> 
-> Sure, it's (unfortunately) not the first time I'm dealing with D-Link on
-> their GPL [in]compliance :((
-
-Rather unrelated, I'm trying to figure out what to do with Elo
-Touchsystems, they used my HID driver as a base of their own binary-only
-driver and don't answer to e-mail.
-
-> > I'd love to get more out of this cute device ...
-> 
-> If the design really is identical enough to the ASUS device, then I
-> suggest looking into
-> http://dlsvr02.asus.com/pub/ASUS/wireless/WL-530g/GPL_1825.zip
-
-I'll take a look, thanks!
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR

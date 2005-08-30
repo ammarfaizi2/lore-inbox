@@ -1,78 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932250AbVH3SNR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932254AbVH3SQA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932250AbVH3SNR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 14:13:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932251AbVH3SNR
+	id S932254AbVH3SQA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 14:16:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932253AbVH3SQA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 14:13:17 -0400
-Received: from rproxy.gmail.com ([64.233.170.196]:10095 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932250AbVH3SNR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 14:13:17 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=L3FdLoOKPY6RUoroDyj6k69fR6ZEYbiMi0QbgUT/OekSPeui+xMQUEQh7U4qkUvV8hNOyGCzrcDdPjqpq8kdxKoJYAiAW9b5GSkQ1ALXkPzFEoMZ+38gA7q9S4YacBapTsk/DnRIvFmhfmBeZeagoz7DKQKkD+K20/m99EQpjhU=
-Message-ID: <25381867050830111345e27945@mail.gmail.com>
-Date: Tue, 30 Aug 2005 14:13:13 -0400
-From: Yani Ioannou <yani.ioannou@gmail.com>
-To: Corey Minyard <minyard@acm.org>
-Subject: Re: [PATCH] IPMI: driver model and sysfs support
-Cc: Martin Drab <drab@kepler.fjfi.cvut.cz>,
-       openipmi-developer@lists.sourceforge.net,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <43145D95.8060006@acm.org>
+	Tue, 30 Aug 2005 14:16:00 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:18443 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S932242AbVH3SP7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 14:15:59 -0400
+Date: Tue, 30 Aug 2005 14:09:14 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: "Luck, Tony" <tony.luck@intel.com>
+Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>, discuss@x86-64.org,
+       linux-ia64@vger.kernel.org, Asit.K.Mallick@intel.com,
+       goutham.rao@intel.com, davidm@hpl.hp.com
+Subject: Re: [patch 2.6.13] swiotlb: add swiotlb_sync_single_range_for_{cpu,device}
+Message-ID: <20050830180912.GE18998@tuxdriver.com>
+Mail-Followup-To: "Luck, Tony" <tony.luck@intel.com>,
+	linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>,
+	discuss@x86-64.org, linux-ia64@vger.kernel.org,
+	Asit.K.Mallick@intel.com, goutham.rao@intel.com, davidm@hpl.hp.com
+References: <B8E391BBE9FE384DAA4C5C003888BE6F0443A4B5@scsmsx401.amr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <2538186705083003561f5f97e0@mail.gmail.com>
-	 <43145D95.8060006@acm.org>
+In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F0443A4B5@scsmsx401.amr.corp.intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/30/05, Corey Minyard <minyard@acm.org> wrote:
-> This is very good.  I believe the structure is correct, but I'm not a
-> sysfs expert.
+On Tue, Aug 30, 2005 at 11:03:35AM -0700, Luck, Tony wrote:
 > 
-> There are a few things we need to deal with, though.
+> >+swiotlb_sync_single_range_for_cpu(struct device *hwdev, 
+> >+swiotlb_sync_single_range_for_device(struct device *hwdev, 
 > 
-> * There are some significant changes to versioning in the
->   driver that are in the mm tree right now (you can pull them from
-> 
-> http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13-rc6/2.6.13-rc6-mm2/broken-out)
+> Huh?  These look identical ... same args, same code, just a
+> different name.
 
-Gah, ok :), I'll try to apply with the -mm changes.
+Have you looked at the implementations for swiotlb_sync_single_for_cpu
+and swiotlb_sync_single_for_device?  Those are already identical.
 
-> * There are some coding style problems.  You have places like:
->   +static void ipmi_bmc_unregister(struct ipmi_si_device *si,
->   + struct ipmi_bmc_device *bmc){
->   The '{' for functions and structures needs to be on it's own line.
->   Also, several:
->   + if(bmc->guid_present){
->   that need spaces after the 'if' and before the '{'.
->   The patch also adds some trailing spaces to empty lines, the
->   following is a telltale sign:
->   -
->   +
->   There was also one place where you added unneeded braces to
->   a single statement and another where you deleted the empty line
->   between two functions.
->   These are all standard kernel coding style rules.
+I'm just following the existing style/practice in that file.  I could
+do an additional patch to rectify the replication in those functions
+if you'd like?
 
-Yes, I should have caught those, thanks.
+Who is responsible for the swiotlb code?
 
-> * I'd prefer to store the product id, device id, and manufacturer id
->   decoded.  This makes it easier to handle (no need to use "memcmp"
->   to compare) and print.  The printing of the product id, for instance,
->   will be rather unnatural in product_id_show().
-
-I was under the impression that they were just OEM strings, and not
-necessarily ASCII strings? I'll have a look at the specs again.
-
-> * guids are not printable strings (see guid_show()).
-
-guid_show, sounds useful!
-
-Thanks,
-Yani
+John
+-- 
+John W. Linville
+linville@tuxdriver.com

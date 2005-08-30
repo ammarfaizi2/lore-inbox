@@ -1,49 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbVH3Oua@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932159AbVH3Oux@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932164AbVH3Oua (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 10:50:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbVH3Ou3
+	id S932159AbVH3Oux (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 10:50:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbVH3Oux
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 10:50:29 -0400
-Received: from ns2.suse.de ([195.135.220.15]:24271 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932164AbVH3Ou2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 10:50:28 -0400
-From: Andi Kleen <ak@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] i386, x86_64 Initial PAT implementation
-Date: Tue, 30 Aug 2005 16:50:22 +0200
-User-Agent: KMail/1.8
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-References: <m1psrwmg10.fsf@ebiederm.dsl.xmission.com> <1125413136.8276.14.camel@localhost.localdomain>
-In-Reply-To: <1125413136.8276.14.camel@localhost.localdomain>
+	Tue, 30 Aug 2005 10:50:53 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:16626 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S932159AbVH3Ouw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 10:50:52 -0400
+Message-ID: <43147237.5030108@mvista.com>
+Date: Tue, 30 Aug 2005 07:50:31 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: Tom Rini <trini@kernel.crashing.org>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Re: [patch 1/3] x86_64: Add a notify_die() call to the "no context"
+ part of do_page_fault()
+References: <resend.1.2982005.trini@kernel.crashing.org> <43140BC5.1090804@mvista.com> <20050830140603.GB3966@smtp.west.cox.net>
+In-Reply-To: <20050830140603.GB3966@smtp.west.cox.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508301650.23149.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 30 August 2005 16:45, Alan Cox wrote:
-> On Llu, 2005-08-29 at 18:20 -0600, Eric W. Biederman wrote:
-> > ways.  Currently this code only allows for an additional flavor
-> > of uncached access to physical memory addresses which should be hard
-> > to abuse, and should raise no additional aliasing problems.  No
-> > attempt has been made to fix theoretical aliasing problems.
->
-> Even an uncached/cached alias causes random memory corruption or an MCE
-> on x86 systems. In fact it can occur even for an alias not in theory
-> touched by the CPU if it happens to prefetch into or speculate the
-> address.
->
-> Also be sure to read the PII Xeon errata - early PAT has a bug or two.
+Tom Rini wrote:
+> On Tue, Aug 30, 2005 at 12:33:25AM -0700, George Anzinger wrote:
+> 
+>>Tom Rini wrote:
+>>
+>>>CC: Andi Kleen <ak@suse.de>
+>>>This adds a call to notify_die() in the "no context" portion of
+>>>do_page_fault() as someone on the chain might care and want to do a fixup.
+>>>
+>>>---
+>>>
+>>>linux-2.6.13-trini/arch/x86_64/mm/fault.c |    4 ++++
+>>>1 files changed, 4 insertions(+)
+>>>
+>>>diff -puN arch/x86_64/mm/fault.c~x86_64-no_context_hook 
+>>>arch/x86_64/mm/fault.c
+>>>--- linux-2.6.13/arch/x86_64/mm/fault.c~x86_64-no_context_hook 2005-08-29 
+>>>11:09:13.000000000 -0700
+>>>+++ linux-2.6.13-trini/arch/x86_64/mm/fault.c	2005-08-29 
+>>>11:09:13.000000000 -0700
+>>>@@ -514,6 +514,10 @@ no_context:
+>>>	if (is_errata93(regs, address))
+>>>		return; 
+>>>
+>>>+	if (notify_die(DIE_PAGE_FAULT, "no context", regs, error_code, 14,
+>>>+				SIGSEGV) == NOTIFY_STOP)
+>>>+		return;
+>>>+
+>>>/*
+>>> * Oops. The kernel tried to access some bad page. We'll have to
+>>> * terminate things with extreme prejudice.
+>>
+>>Please use a more descriptive text than "no context".  This bit of info 
+>>SHOULD be available to the gdb/kgdb user and should indicate why kgdb 
+>>was entered.  It thus should be something like "bad kernel address" or 
+>>"illegal kernel address".
+> 
+> 
+> "no context" is the label we're in, in the code.  What it's actually
+> used for is "hey, we (== kgdb) tried to read/write a very very bogus
+> addr, time to longjmp".  If it's not true that kgdb is at fault then we
+> drop to the debugger anyhow, and the user can see where they came from.
+> 
+No.  What the user sees is the offending code (i.e. prior to the trap to 
+page_fault), NOT how kgdb happend to be called.  The "no_context" is IN 
+the _context_ of page_fault, but that is lost by the time you get to 
+kgdb and ask to see _why_ (via, hint, hint: "p kgdb_info").
 
-
-We can always force cpu_has_pat == 0 on these machines.
-I don't think it is worth it to add any more complicated workarounds 
-for old broken systems.
-
--Andi
+-- 
+George Anzinger   george@mvista.com
+HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/

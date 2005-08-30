@@ -1,45 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932132AbVH3E7d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932280AbVH3FFe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932132AbVH3E7d (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 00:59:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932141AbVH3E7d
+	id S932280AbVH3FFe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 01:05:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbVH3FFe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 00:59:33 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:15890 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S932132AbVH3E7c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 00:59:32 -0400
-Date: Tue, 30 Aug 2005 06:54:16 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Ake <Ake.Sandgren@hpc2n.umu.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops in 2.4.30-hf2
-Message-ID: <20050830045416.GF10110@alpha.home.local>
-References: <20050829082900.GB11312@hpc2n.umu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050829082900.GB11312@hpc2n.umu.se>
-User-Agent: Mutt/1.5.10i
+	Tue, 30 Aug 2005 01:05:34 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:58798 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932280AbVH3FFd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 01:05:33 -0400
+Date: Mon, 29 Aug 2005 22:03:49 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>, helgehaf@aitel.hist.no
+Subject: Re: Ignore disabled ROM resources at setup
+In-Reply-To: <1125376431.11949.47.camel@gaston>
+Message-ID: <Pine.LNX.4.58.0508292149260.3243@g5.osdl.org>
+References: <200508261859.j7QIxT0I016917@hera.kernel.org> 
+ <1125369485.11949.27.camel@gaston> <1125371996.11963.37.camel@gaston> 
+ <Pine.LNX.4.58.0508292045590.3243@g5.osdl.org> <1125376431.11949.47.camel@gaston>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 29, 2005 at 10:29:00AM +0200, Ake wrote:
-> I got the following Oops.
-> Known problem? Fix?
 
-Nothing known here. You can retry with -hf7 if you want, which fixes other
-bugs, but I guess it will not change anything.
 
-> The kernel is a plain 2.4.30-hf2
+On Tue, 30 Aug 2005, Benjamin Herrenschmidt wrote:
+> 
+> So what about fixing pci_map_rom() to call pcibios_resource_to_bus() and
+> then write the resource back to the BAR ? I'm still a bit annoyed that
+> we re-allocate the address while the original one was perfectly good
+> (though not enabled) but the above would work.
 
-I have some question : what is /usr/opt/scali/kernel/scip/scip.o ? Isn't
-it a binary module ? It does not seem to belong to the plain 2.4.30-hf2.
+I just sent you a patch to try.
 
-> EIP:    0010:[<f890e708>]    Tainted: PF
-> Warning (expand_objects): object /usr/opt/scali/kernel/scip/scip.o for module scip has changed since load
+Btw, as to the re-allocation of an existing address: most of the PCI layer
+really does try to avoid re-allocating known good addresses. In fact, I 
+thought we did so for ROM resources too: at least pci_read_bases() does 
+read the ROM base, and saves it off into the resource structure.
 
-Is this oops reproducible ? is it reproducible without any binary module ?
+We'll end up re-assigning that saved-off-address if there were resource
+clashes, though. And bugs always happen, especially since that code
+doesn't get much testing on x86 (there are almost never any interesting
+rom resources for _any_ device, and apparently the video device which is
+one of the few interesting ones always ends up using the shadow rom thing
+on x86 for the primary card).
 
-Willy
- 
+If you find the thing that causes us to re-assign the address, holler.
+
+(See drivers/pci/probe.c: pci_read_bases() for the code that probes the
+old address and saves it into the resource struct. It's called by
+pci_setup_device() from the device scanning routines).
+
+			Linus

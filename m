@@ -1,59 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750794AbVH3Fwi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbVH3GKM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750794AbVH3Fwi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 01:52:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750796AbVH3Fwi
+	id S1750810AbVH3GKM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 02:10:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750938AbVH3GKM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 01:52:38 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:46288 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750794AbVH3Fwh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 01:52:37 -0400
-Date: Tue, 30 Aug 2005 07:53:21 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
+	Tue, 30 Aug 2005 02:10:12 -0400
+Received: from mirapoint5.brutele.be ([212.68.199.150]:28993 "EHLO
+	mirapoint5.brutele.be") by vger.kernel.org with ESMTP
+	id S1750810AbVH3GKL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 02:10:11 -0400
+Date: Tue, 30 Aug 2005 08:10:03 +0200
+From: Stephane Wirtel <stephane.wirtel@belgacom.net>
+To: Stephane Wirtel <stephane.wirtel@belgacom.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-rt1
-Message-ID: <20050830055321.GB5743@elte.hu>
-References: <20050829084829.GA23176@elte.hu> <1125372830.6096.7.camel@localhost.localdomain>
+Subject: Re: Linux-2.6.13 : __check_region is deprecated
+Message-ID: <20050830061003.GA18507@localhost.localdomain>
+References: <20050829231417.GB2736@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <1125372830.6096.7.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <20050829231417.GB2736@localhost.localdomain>
+X-Operating-System: Linux debian 2.6.12-1-k7
+User-Agent: Mutt/1.5.10i
+X-Junkmail-Status: score=10/50, host=mirapoint5.brutele.be
+X-Junkmail-SD-Raw: score=unknown, refid=0001.0A090201.4313F562.0004-F-L0BeBC04zsV01UPbcJcIKw==,  =?ISO-8859-1?Q?=20i?=
+	=?ISO-8859-1?Q?p=3D=80=A1=0B=08?=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Steven Rostedt <rostedt@goodmis.org> wrote:
-
-> Ingo,
+Le Tuesday 30 August 2005 a 01:08, Stephane Wirtel ecrivait: 
+> Hi, 
 > 
-> I just found another deadlock in the pi_lock logic.  The PI logic is 
-> very dependent on the P1->L1->P2->L2->P3 order.  But our good old 
-> friend is back, the BKL.
+> By compiling my kernel, I can see that the __check_region function (in
+> kernel/resource.c) is deprecated.
 > 
-> Since the BKL is let go and regrabbed even if a task is grabbing 
-> another lock, it messes up the order.  For example, it can do the 
-> following: L1->P1->L2->P2->L1 if L1 is the BKL.  Luckly, (and I guess 
-> there's really no other way) the BKL is only held by those that are 
-> currently running, or at least not blocked on anyone.  So I added code 
-> in the pi_setprio code to test if the next lock in the loop is the BKL 
-> and if so, if its owner is the current task.  If so, the loop is 
-> broken.
+> With a grep on the source code of the last release, I get this result.
 > 
-> Without this patch, I would constantly get lock ups on shutdown where 
-> it sends SIGTERM to all the processes.  It usually would lock up on 
-> the killing of udev.  But with the patch, I've shutdown a few times 
-> already and no lockups so far.
+> drivers/pnp/resource.c:255:             if (__check_region(&ioport_resource, *port, length(port,end))) 
+> include/linux/ioport.h:117:#define check_mem_region(start,n) __check_region(&iomem_resource, (start), (n))
+> include/linux/ioport.h:120:extern int __check_region(struct resource *, unsigned long, unsigned long);
+> include/linux/ioport.h:125:     return __check_region(&ioport_resource, s, n);
+> kernel/resource.c:468:int __deprecated __check_region(struct resource *parent, unsigned long start, unsigned long n)
+> kernel/resource.c:481:EXPORT_SYMBOL(__check_region);
 
-thanks, applied.
 
-	Ingo
+This morning, I worked on a patch to remove this deprecated function,
+there are three patchs, 
+patch for kernel/resource.c
+patch for include/linux/ioport.h
+patch for drivers/pnp/resource.c
+
+I go to my job, but after, I will check my patches.
+
+Best Regards, 
+
+Stephane
+-- 
+Stephane Wirtel <stephane.wirtel@belgacom.net>
+                <stephane.wirtel@gmail.com>
+
+

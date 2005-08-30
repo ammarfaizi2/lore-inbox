@@ -1,102 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932184AbVH3Pwj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932188AbVH3Pxc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932184AbVH3Pwj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 11:52:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbVH3Pwj
+	id S932188AbVH3Pxc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 11:53:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932194AbVH3Pxb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 11:52:39 -0400
-Received: from rproxy.gmail.com ([64.233.170.193]:15383 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932184AbVH3Pwj convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 11:52:39 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=lQgyCKahxJFUVg88g4le918WnWWEfxlqnRaYu1BiMa6cQB2FcEYOY6akuPFc20TrYHAx7wUtvBycqQ7csG5I1lPxrVB/vFFB5OVlKAZebJWKUZm42dCZP4Ksw8fGt6tZidYfMQPB8HbrWAjvBzWQ0izzyE6xmeg1loJj2g6w43I=
-Message-ID: <87941b4c05083008523cddbb2a@mail.gmail.com>
-Date: Tue, 30 Aug 2005 09:52:36 -0600
-From: Greg Felix <greg.felix@gmail.com>
-To: Oliver Tennert <O.Tennert@science-computing.de>
-Subject: Re: IDE HPA
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200508300859.19701.tennert@science-computing.de>
+	Tue, 30 Aug 2005 11:53:31 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:32657 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932193AbVH3Pxa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 11:53:30 -0400
+Subject: Re: [RFC] RT-patch update to remove the global pi_lock
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>,
+       Sven-Thorsten Dietrich <sven@mvista.com>, Adrian Bunk <bunk@stusta.de>,
+       george anzinger <george@mvista.com>, dwalker@mvista.com,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>
+In-Reply-To: <1125414039.5675.42.camel@localhost.localdomain>
+References: <1124704837.5208.22.camel@localhost.localdomain>
+	 <20050822101632.GA28803@elte.hu>
+	 <1124710309.5208.30.camel@localhost.localdomain>
+	 <20050822113858.GA1160@elte.hu>
+	 <1124715755.5647.4.camel@localhost.localdomain>
+	 <20050822183355.GB13888@elte.hu>
+	 <1124739657.5809.6.camel@localhost.localdomain>
+	 <1124739895.5809.11.camel@localhost.localdomain>
+	 <1124981238.5350.6.camel@localhost.localdomain>
+	 <1124982413.5350.19.camel@localhost.localdomain>
+	 <20050825174732.GA23774@elte.hu>
+	 <1125000563.6264.10.camel@localhost.localdomain>
+	 <1125023010.5365.4.camel@localhost.localdomain>
+	 <1125064334.5365.39.camel@localhost.localdomain>
+	 <1125414039.5675.42.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Tue, 30 Aug 2005 11:52:36 -0400
+Message-Id: <1125417156.6355.13.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <87941b4c05082913101e15ddda@mail.gmail.com>
-	 <200508300859.19701.tennert@science-computing.de>
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kernel list,
+On Tue, 2005-08-30 at 11:00 -0400, Steven Rostedt wrote:
+> OK, I'm looking for a second set of eyes (or third or more :-) to see if
+> there's a danger of a deadlock here.
 
-A while ago there was some discussion on the list regarding the
-behavior of the kernel in regards to its unconditional disabling of
-host protected areas of hard drives.  I ran into a problem this causes
-with some RAID controllers.  I've been discussing the problem with
-both the ata-raid mailing list and Oliver.  I feel we should copy the
-kernel list because we don't think the current behavior is the
-desirable one.
+Unless someone sees a problem with the patch, here it is.  I noticed
+that I unlocked the lock->wait_lock when I should not have.  (scares me
+since I'm currently running the kernel with that bug!)
 
-Below is some discussion Oliver and I have had about it.
+Ingo,  in the pi_setprio, I can stop the loop if the owner of the BKL
+has a task lock_depth >= 0 correct?  This means that the owner is either
+running, or is going to go to sleep.  If it was blocked on another task,
+via a mutex, then this count would be -1.  Correct?  I may need to move
+the setting of lock_depth = -1 to inside the protection of the task
+pi_lock.
 
-> > Sorry for taking up your time. I saw your emails recently to the Linux
-> > kernel mailing list concerning IDE host protected areas.  You were
-> > asking why they are unconditionally disabled.  Did anyone ever give
-> > you a good response to your question?
-> >
-> 
-> Hi Greg,
-> 
-> Alan Cox answered, but he focussed entirely on the point that in his opinion,
-> the main reason for using HPAs is something like backward-compatibility of
-> the drive with old BIOSses that have problems with large disks.
-> 
-> But to be honest, I have never ever heard about that being a motivation to use
-> an HPA. And as far as I know, that was not the reason for introducing an HPA
-> anyway.
-> 
-> As far as I know, some HW vendors store some diagnostic tools in an HPA.
-> 
-> > I have found a bug where my BIOS is storing some RAID metadata near
-> > the end of a disk.  The problem i run into is that the end of the disk
-> > is 20MB off when Linux counts the HPA.
-> >
-> 
-> So you are sure that your RAID controller uses an HPA to store the metadata? I
-> am asking because some RAID controllers simply cut away a moderate region
-> from the end of the disks and present the OS with a smaller disk, which is
-> but a virtual one. In that case, no HPA is used. It is rather like the MD
-> driver works.
+-- Steve
 
-My RAID controller isn't using an HPA to store metadata.  It's simply
-recognizing that there is an HPA and reading its 63 sector backwards
-offset starting at totalSectors-sizeOfHPA.
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 
-> But of course, the Linux kernel simply shows whether an HPA is used or not.
+Index: linux_realtime_goliath/kernel/rt.c
+===================================================================
+--- linux_realtime_goliath/kernel/rt.c	(revision 310)
++++ linux_realtime_goliath/kernel/rt.c	(working copy)
+@@ -1089,11 +1089,21 @@
+ 		__raw_spin_unlock(&new_owner->task->pi_lock);
+ 		goto try_again;
+ 	}
++	/*
++	 * Once again the BKL comes to play.  Since the BKL can be grabbed and released
++	 * out of the normal P1->L1->P2 order, there's a chance that someone has the
++	 * BKL owner's lock and is waiting on the new owner lock.
++	 */
++	if (unlikely(lock == &kernel_sem.lock)) {
++		if (!__raw_spin_trylock(&old_owner->task->pi_lock)) {
++			__raw_spin_unlock(&new_owner->task->pi_lock);
++			goto try_again;
++		}
++	} else
+ #endif
++		__raw_spin_lock(&old_owner->task->pi_lock);
++
+ 	plist_del_init(&waiter->list, &lock->wait_list);
+-
+-	__raw_spin_lock(&old_owner->task->pi_lock);
+-
+ 	plist_del(&waiter->pi_list, &old_owner->task->pi_waiters);
+ 	plist_init(&waiter->pi_list, waiter->ti->task->prio);
+ 
 
-Right.  I get the output at bootup time.  It reads that the HPA is
-20MB.  Which is exactly the size of how far off the metadata is in
-Linux (once the HPA is disabled).
 
-> > Have you heard of any kernel parameters that disable the HPA disabling?
-> >
-> 
-> There is no runtime variable, the code is run unconditionally, unfortunately.
-
-I've found where the code is and it'd be a simple hack to fix it and
-recompile, but I'm concerned that other people will run into this at
-some point.  I think we or the people who make decisions ought to
-revisit the disabling of HPAs idea.
-
-> > Thanks for your time,
-> > Greg Felix
-> 
-> Not at all! Should we CC the mail the kernel mailing list?
-
-I think we should.  In fact, I will with this email.
-
-> Best regards
-> 
-> Oliver

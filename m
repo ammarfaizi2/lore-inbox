@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932544AbVISSOk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932546AbVISSOm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932544AbVISSOk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 14:14:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932547AbVISSOj
+	id S932546AbVISSOm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 14:14:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932547AbVISSOm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 14:14:39 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14465 "EHLO
+	Mon, 19 Sep 2005 14:14:42 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14977 "EHLO
 	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S932544AbVISSOj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 14:14:39 -0400
-Date: Tue, 30 Aug 2005 17:32:04 +0100
+	id S932546AbVISSOl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 14:14:41 -0400
+Date: Tue, 30 Aug 2005 17:44:20 +0100
 From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, davem@davemloft.net
-Subject: [PATCH] dereference of uninitialized pointer in zatm
-Message-ID: <20050830163204.GJ9322@parcelfarce.linux.theplanet.co.uk>
+Cc: linux-kernel@vger.kernel.org, Andy Fleming <afleming@freescale.com>
+Subject: [PATCH] Kconfig fix (PHYLIB vs s390)
+Message-ID: <20050830164420.GM9322@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,21 +22,20 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Breakage from [NET]: Kill skb->list
+	drivers/net/phy/phy.c is broken on s390; it uses enable_irq()
+and friends and these do not exist on s390.  Marked as broken for now.
+
 Signed-off-by: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
 ----
-diff -urN RC13-base/drivers/atm/zatm.c current/drivers/atm/zatm.c
---- RC13-base/drivers/atm/zatm.c	2005-08-30 03:24:42.000000000 -0400
-+++ current/drivers/atm/zatm.c	2005-08-30 03:25:18.000000000 -0400
-@@ -417,9 +417,9 @@
- 		chan = (here[3] & uPD98401_AAL5_CHAN) >>
- 		    uPD98401_AAL5_CHAN_SHIFT;
- 		if (chan < zatm_dev->chans && zatm_dev->rx_map[chan]) {
--			int pos = ZATM_VCC(vcc)->pool;
--
-+			int pos;
- 			vcc = zatm_dev->rx_map[chan];
-+			pos = ZATM_VCC(vcc)->pool;
- 			if (skb == zatm_dev->last_free[pos])
- 				zatm_dev->last_free[pos] = NULL;
- 			skb_unlink(skb, zatm_dev->pool + pos);
+diff -urN RC13-base/drivers/net/phy/Kconfig current/drivers/net/phy/Kconfig
+--- RC13-base/drivers/net/phy/Kconfig	2005-08-30 03:24:42.000000000 -0400
++++ current/drivers/net/phy/Kconfig	2005-08-30 03:25:18.000000000 -0400
+@@ -6,7 +6,7 @@
+ 
+ config PHYLIB
+ 	tristate "PHY Device support and infrastructure"
+-	depends on NET_ETHERNET
++	depends on NET_ETHERNET && (BROKEN || !ARCH_S390)
+ 	help
+ 	  Ethernet controllers are usually attached to PHY
+ 	  devices.  This option provides infrastructure for

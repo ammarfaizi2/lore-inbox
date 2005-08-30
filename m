@@ -1,97 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932265AbVH3SkZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932262AbVH3Sum@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932265AbVH3SkZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 14:40:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932262AbVH3SkZ
+	id S932262AbVH3Sum (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 14:50:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932264AbVH3Sum
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 14:40:25 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:32267 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S932256AbVH3SkY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 14:40:24 -0400
-Date: Tue, 30 Aug 2005 14:40:06 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: linux-kernel@vger.kernel.org
-Cc: Andi Kleen <ak@suse.de>, discuss@x86-64.org, tony.luck@intel.com,
-       linux-ia64@vger.kernel.org, Asit.K.Mallick@intel.com
-Subject: [rfc patch] swiotlb: consolidate swiotlb_sync_sg_* implementations
-Message-ID: <20050830184006.GG18998@tuxdriver.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>,
-	discuss@x86-64.org, tony.luck@intel.com, linux-ia64@vger.kernel.org,
-	Asit.K.Mallick@intel.com
-References: <B8E391BBE9FE384DAA4C5C003888BE6F0443A4B5@scsmsx401.amr.corp.intel.com> <20050830180912.GE18998@tuxdriver.com> <20050830183337.GF18998@tuxdriver.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050830183337.GF18998@tuxdriver.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 30 Aug 2005 14:50:42 -0400
+Received: from nijmegen.renzel.net ([195.243.213.130]:32188 "EHLO
+	mx1.renzel.net") by vger.kernel.org with ESMTP id S932262AbVH3Sul
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 14:50:41 -0400
+Message-ID: <4314AA1A.4030707@twisted-brains.org>
+Date: Tue, 30 Aug 2005 20:48:58 +0200
+From: Mws <mws@twisted-brains.org>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+CC: Chase Venters <chase.venters@clientec.com>, linux-kernel@vger.kernel.org
+Subject: Re: Second "CPU" of 1-core HyperThreading CPU not found in 2.6.13
+References: <88056F38E9E48644A0F562A38C64FB6005950A6F@scsmsx403.amr.corp.intel.com>
+In-Reply-To: <88056F38E9E48644A0F562A38C64FB6005950A6F@scsmsx403.amr.corp.intel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 30, 2005 at 02:33:39PM -0400, John W. Linville wrote:
-> On Tue, Aug 30, 2005 at 02:09:14PM -0400, John W. Linville wrote:
-> > On Tue, Aug 30, 2005 at 11:03:35AM -0700, Luck, Tony wrote:
-> > > 
-> > > >+swiotlb_sync_single_range_for_cpu(struct device *hwdev, 
-> > > >+swiotlb_sync_single_range_for_device(struct device *hwdev, 
-> > > 
-> > > Huh?  These look identical ... same args, same code, just a
-> > > different name.
-> > 
-> > Have you looked at the implementations for swiotlb_sync_single_for_cpu
-> > and swiotlb_sync_single_for_device?  Those are already identical.
+Pallipadi, Venkatesh wrote:
+>>-----Original Message-----
+>>From: linux-kernel-owner@vger.kernel.org 
+>>[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Chase Venters
+>>Sent: Monday, August 29, 2005 9:04 PM
+>>To: linux-kernel@vger.kernel.org
+>>Subject: Second "CPU" of 1-core HyperThreading CPU not found in 2.6.13
+>>
+>>Greetings kind hackers...
+>>	I recently switched to 2.6.13 on my desktop. I noticed 
+>>that the second 
+>>"CPU" (is there a better term to use in this HyperThreading 
+>>scenario?) that 
+>>used to be listed in /proc/cpuinfo is no longer present. 
 > 
-> How about a patch like this?  Just for comment...I'll repost if people
-> want it...
+> 
+> Complete 'dmesg' please.
+> 
+> Thanks,
+> Venki
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Probably should include the swiotlb_sync_sg_* variations too...
+just verified.
+i have got the same problem here.
+p4 asus mainboard most recent bios
+prescott cpu
+everything is fine for detecting cpu with 2.6.13-rc1
+i just tested 2.6.13-rc7 and release today only 1 cpu is shown
 
-Whaddya think?  Again, I'll repost if this is viewed favorably.
+regards
+marcel
 
-John
-
---- linux-8_29_2005/arch/ia64/lib/swiotlb.c.orig	2005-08-30 14:35:35.000000000 -0400
-+++ linux-8_29_2005/arch/ia64/lib/swiotlb.c	2005-08-30 14:37:05.000000000 -0400
-@@ -612,9 +612,9 @@ swiotlb_unmap_sg(struct device *hwdev, s
-  * The same as swiotlb_sync_single_* but for a scatter-gather list, same rules
-  * and usage.
-  */
--void
--swiotlb_sync_sg_for_cpu(struct device *hwdev, struct scatterlist *sg,
--			int nelems, int dir)
-+static inline void
-+swiotlb_sync_sg(struct device *hwdev, struct scatterlist *sg,
-+		int nelems, int dir)
- {
- 	int i;
- 
-@@ -628,18 +628,17 @@ swiotlb_sync_sg_for_cpu(struct device *h
- }
- 
- void
-+swiotlb_sync_sg_for_cpu(struct device *hwdev, struct scatterlist *sg,
-+			int nelems, int dir)
-+{
-+	swiotlb_sync_sg(hwdev, sg, nelems, dir);
-+}
-+
-+void
- swiotlb_sync_sg_for_device(struct device *hwdev, struct scatterlist *sg,
- 			   int nelems, int dir)
- {
--	int i;
--
--	if (dir == DMA_NONE)
--		BUG();
--
--	for (i = 0; i < nelems; i++, sg++)
--		if (sg->dma_address != SG_ENT_PHYS_ADDRESS(sg))
--			sync_single(hwdev, (void *) sg->dma_address,
--				    sg->dma_length, dir);
-+	swiotlb_sync_sg(hwdev, sg, nelems, dir);
- }
- 
- int
--- 
-John W. Linville
-linville@tuxdriver.com
+ps. dmesg will follow tomorrow if nothin has reached the ml then.
+(i need the machine now compiling some stuff)

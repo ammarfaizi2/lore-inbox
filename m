@@ -1,46 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751435AbVH3BDX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751433AbVH3BGS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751435AbVH3BDX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Aug 2005 21:03:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751433AbVH3BDX
+	id S1751433AbVH3BGS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Aug 2005 21:06:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751436AbVH3BGS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Aug 2005 21:03:23 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:40675 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751435AbVH3BDW (ORCPT
+	Mon, 29 Aug 2005 21:06:18 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:13767 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S1751433AbVH3BGS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Aug 2005 21:03:22 -0400
-Date: Mon, 29 Aug 2005 18:03:01 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Ray Fucillo <fucillo@intersystems.com>, Hugh Dickins <hugh@veritas.com>,
-       Rik van Riel <riel@redhat.com>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: process creation time increases linearly with shmem
-In-Reply-To: <4313A85E.4000502@yahoo.com.au>
-Message-ID: <Pine.LNX.4.58.0508291802220.3243@g5.osdl.org>
-References: <430CBFD1.7020101@intersystems.com> <430D0D6B.100@yahoo.com.au>
- <Pine.LNX.4.63.0508251331040.25774@cuia.boston.redhat.com>
- <430E6FD4.9060102@yahoo.com.au> <Pine.LNX.4.58.0508252055370.3317@g5.osdl.org>
- <Pine.LNX.4.61.0508261220230.4697@goblin.wat.veritas.com>
- <Pine.LNX.4.58.0508261052330.3317@g5.osdl.org>
- <Pine.LNX.4.61.0508261917360.8477@goblin.wat.veritas.com>
- <Pine.LNX.4.63.0508261910080.8057@cuia.boston.redhat.com>
- <Pine.LNX.4.58.0508261621410.3317@g5.osdl.org> <43108136.1000102@yahoo.com.au>
- <Pine.LNX.4.61.0508280500450.3323@goblin.wat.veritas.com> <43115E67.1050305@yahoo.com.au>
- <43139B62.7010502@intersystems.com> <4313A85E.4000502@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 29 Aug 2005 21:06:18 -0400
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
+From: Keith Owens <kaos@sgi.com>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch 16/16] Add hardware breakpoint support for i386 
+In-reply-to: Your message of "Mon, 29 Aug 2005 09:12:08 MST."
+             <resend.16.2982005.trini@kernel.crashing.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 30 Aug 2005 11:06:04 +1000
+Message-ID: <17337.1125363964@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 29 Aug 2005 09:12:08 -0700, 
+Tom Rini <trini@kernel.crashing.org> wrote:
+>
+>This adds hardware breakpoint support for i386.  This is not as well tested as
+>software breakpoints, but in some minimal testing appears to be functional.
 
+Hardware breakpoints must be per cpu, not global.  Also you will fall
+over applications that are using gdb, because gdb uses the same
+registers.  KDB has never really supported kernel hardware breakpoints,
+they are hard to do without stamping on user space.
 
-On Tue, 30 Aug 2005, Nick Piggin wrote:
-> 
-> Andrew, did you pick up the patch or should I resend to someone?
-
-I picked it up. If it causes performance regressions, we can fix them, and
-if it causes other problems then that will be interesting in itself.
-
-		Linus

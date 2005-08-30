@@ -1,42 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbVH3RzN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932243AbVH3Rz6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932239AbVH3RzN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 13:55:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbVH3RzN
+	id S932243AbVH3Rz6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 13:55:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932242AbVH3Rz6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 13:55:13 -0400
-Received: from mx3.actcom.co.il ([192.114.47.65]:47769 "EHLO
-	smtp3.actcom.co.il") by vger.kernel.org with ESMTP id S932239AbVH3RzL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 13:55:11 -0400
-Date: Tue, 30 Aug 2005 20:54:59 +0300
-From: Muli Ben-Yehuda <mulix@mulix.org>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Stephane Wirtel <stephane.wirtel@belgacom.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.6.13 - 1/3 - Remove the deprecated function __check_region
-Message-ID: <20050830175459.GG10045@granada.merseine.nu>
-References: <20050830170502.GA10694@localhost.localdomain> <9a874849050830101743c421db@mail.gmail.com> <20050830172115.GA11784@localhost.localdomain> <200508301938.00044.jesper.juhl@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200508301938.00044.jesper.juhl@gmail.com>
-User-Agent: Mutt/1.5.10i
+	Tue, 30 Aug 2005 13:55:58 -0400
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:22701 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S932241AbVH3Rz5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 13:55:57 -0400
+Message-ID: <43149E5B.7040006@t-online.de>
+Date: Tue, 30 Aug 2005 19:58:51 +0200
+From: Knut Petersen <Knut_Petersen@t-online.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.7) Gecko/20050414
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: linux-fbdev-devel@lists.sourceforge.net
+CC: Andrew Morton <akpm@osdl.org>, "Antonino A. Daplas" <adaplas@gmail.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Jochen Hein <jochen@jochen.org>
+Subject: Re: [Linux-fbdev-devel] [PATCH 1/1 2.6.13] framebuffer: bit_putcs()
+ optimization for 8x* fonts
+References: <43148610.70406@t-online.de> <Pine.LNX.4.62.0508301814470.6045@numbat.sonytel.be>
+In-Reply-To: <Pine.LNX.4.62.0508301814470.6045@numbat.sonytel.be>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-ID: GuloccZVYewomlYkw15S2lI-FDg-3vcfL8NY55dHpjpGzrpDChij4+@t-dialin.net
+X-TOI-MSGID: 2d4c02bb-d883-4929-b55e-4ebabc35657d
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 30, 2005 at 07:37:59PM +0200, Jesper Juhl wrote:
-> Here's a quick list of suspects for you :
 
-[snip]
+>Probably you can make it even faster by avoiding the multiplication, like
+>
+>    unsigned int offset = 0;
+>    for (i = 0; i < image.height; i++) {
+>	dst[offset] = src[i];
+>	offset += pitch;
+>    }
+>
 
-> ./sound/oss/trident.c
+More than two decades ago I learned to avoid mul and imul. Use shifts, 
+add and lea instead,
+that was the credo those days. The name of the game was CP/M 80/86, a86, 
+d86 and ddt ;-)
 
-I'll take care of this one.
+But let´s get serious again.
 
-Cheers,
-Muli
--- 
-Muli Ben-Yehuda
-http://www.mulix.org | http://mulix.livejournal.com/
+Your proposed change of the patch results in a 21 ms performance 
+decrease on my system.
+Yes, I do know that this is hard to believe. I tested a similar 
+variation before, and the results
+were even worse.
 
+Avoiding mul is a good idea in assembly language today, but often it is 
+better to write a
+multiplication  with the loop counter in C and not to introduce an extra 
+variable instead. The
+compiler will optimize the code and it´s easier for gcc without that 
+extra variable.
+
+More interesting would be the question what should be done for idx==2 or 
+idx==3. Probably
+fb_pad_aligned_buffer() is also slower for those cases. But does anybody 
+use such fonts?
+
+cu,
+ knut

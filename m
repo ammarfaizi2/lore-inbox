@@ -1,77 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbVH3M2Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932121AbVH3MaD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932119AbVH3M2Z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 08:28:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751423AbVH3M2Z
+	id S932121AbVH3MaD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 08:30:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751423AbVH3MaD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 08:28:25 -0400
-Received: from spirit.analogic.com ([208.224.221.4]:2060 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP
-	id S1751419AbVH3M2Z convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 08:28:25 -0400
+	Tue, 30 Aug 2005 08:30:03 -0400
+Received: from web53605.mail.yahoo.com ([206.190.37.38]:10662 "HELO
+	web53605.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S1751419AbVH3MaA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 08:30:00 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=acX3IsF/Ila72uZ2FlOLmxFdGC21+ei/eXY9w2HCLTYIfLLDcFeGVD1owLZouSFmUuB3ZuybARV3kMtkG8pgsQxHI0w7vJ86iWSLm34/cUqRN7Jtpf0HXkWxlY7aE8v96aAy060+tvWyVlw5iwnuiuusxPccdL1qIrVkDPOyLeY=  ;
+Message-ID: <20050830122937.79855.qmail@web53605.mail.yahoo.com>
+Date: Tue, 30 Aug 2005 22:29:37 +1000 (EST)
+From: Steve Kieu <haiquy@yahoo.com>
+Subject: Re: Very strange Marvell/Yukon Gigabit NIC networking problems
+To: Daniel Drake <dsd@gentoo.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <431448F7.2020506@gentoo.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <9a87484905083005064cf4e6d0@mail.gmail.com>
-References: <200508292303.52735.chase.venters@clientec.com> <9a87484905083005064cf4e6d0@mail.gmail.com>
-X-OriginalArrivalTime: 30 Aug 2005 12:28:23.0768 (UTC) FILETIME=[506B7D80:01C5AD5E]
-Content-class: urn:content-classes:message
-Subject: Re: Second "CPU" of 1-core HyperThreading CPU not found in 2.6.13
-Date: Tue, 30 Aug 2005 08:27:27 -0400
-Message-ID: <Pine.LNX.4.61.0508300818420.4191@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Second "CPU" of 1-core HyperThreading CPU not found in 2.6.13
-Thread-Index: AcWtXlCUOzT3+yo0TP29PYPKfj1zUQ==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Jesper Juhl" <jesper.juhl@gmail.com>
-Cc: "Chase Venters" <chase.venters@clientec.com>,
-       <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
-On Tue, 30 Aug 2005, Jesper Juhl wrote:
+I have "fixed" the problem in a very wierd way.Reading
+your post I thought maybe when removing the driver
+itself it set some bit incorrectly. Then I decided to
+do:
 
-> On 8/30/05, Chase Venters <chase.venters@clientec.com> wrote:
->> Greetings kind hackers...
->>         I recently switched to 2.6.13 on my desktop. I noticed that the second
->> "CPU" (is there a better term to use in this HyperThreading scenario?) that
->> used to be listed in /proc/cpuinfo is no longer present. Browsing over the
-> [snip]
->
-> CONFIG_MPENTIUM4, CONFIG_SMP and CONFIG_SCHED_SMT enabled?
->
+Boot with init=/bin/bash  so bypass all other things.
+modprobe skge
 
-I have the same problem since linux-2.6.x  Linux-2.4.20 and on
-had no problem with Hyper-Threading. My startup says:
+run ifconfig eth0 ip_num  up
 
-CPU: Hyper-Threading is disabled.  There is no enable/disable
-in the BIOS so I don't know what to do. It's an Intel D865PERL
-Motherboard so certainly Intel should know how to enable their CPUs.
 
-> --
-> Jesper Juhl <jesper.juhl@gmail.com>
-> Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-> Plain text mails only, please      http://www.expita.com/nomime.html
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+ping  a host
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13 on an i686 machine (5589.42 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
-I apologize for the following. I tried to kill it with the above dot :
+then while pinging hit Ctrl+Alt+Del key to hot reboot
+the system.
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+I still see the light at the hub lits. Now I boot to
+winXP and as I expected , it worked!
 
-Thank you.
+No I boot 2.6.11 and it worked, so the problem resolve
+but I am tooooo scared to run 2613 now :-)
+
+Hope this information helps debuging the driver.
+
+Thanks.
+
+S.KIEU
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

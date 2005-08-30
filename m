@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932273AbVH3WmE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbVH3WoU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932273AbVH3WmE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 18:42:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbVH3WmE
+	id S932279AbVH3WoU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 18:44:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932278AbVH3WoT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 18:42:04 -0400
-Received: from [62.206.217.67] ([62.206.217.67]:25239 "EHLO kaber.coreworks.de")
-	by vger.kernel.org with ESMTP id S932273AbVH3WmB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 18:42:01 -0400
-Message-ID: <4314E0BE.1050206@trash.net>
-Date: Wed, 31 Aug 2005 00:42:06 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.10) Gecko/20050803 Debian/1.7.10-1
-X-Accept-Language: en
+	Tue, 30 Aug 2005 18:44:19 -0400
+Received: from newton.linux4geeks.de ([193.30.1.1]:61831 "EHLO
+	newton.linux4geeks.de") by vger.kernel.org with ESMTP
+	id S932279AbVH3WoS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 18:44:18 -0400
+Date: Wed, 31 Aug 2005 00:43:59 +0200 (CEST)
+From: Sven Ladegast <sven@linux4geeks.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: KLive: Linux Kernel Live Usage Monitor
+In-Reply-To: <1125412611.8276.9.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.63.0508310033400.1930@cassini.linux4geeks.de>
+References: <20050830030959.GC8515@g5.random> 
+ <Pine.LNX.4.63.0508300954190.1984@cassini.linux4geeks.de>
+ <1125412611.8276.9.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: mrash@enterasys.com
-CC: linux-kernel@vger.kernel.org, Harald Welte <laforge@netfilter.org>
-Subject: Re: ip_queue.c and TCP resets
-References: <1125435703.7024.24.camel@isengard.cipherdyne.org>
-In-Reply-To: <1125435703.7024.24.camel@isengard.cipherdyne.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Rash wrote:
-> Attached is a patch against
-> linux-2.6.11.12/net/ipv4/netfilter/ip_queue.c to put Ethernet MAC
-> addresses directly into the indev_name and outdev_name portions of the
-> ipq_packet_msg struct.  This is a total kludge and I doubt anyone else
-> will find this useful, but for libipq IPS applications it allows TCP
-> resets and other response traffic to be sent out of the appropriate
-> physical ports when running as an Ethernet bridge.  I'm sure there are
-> better ways to do this, but it seems to work.
+On Tue, 30 Aug 2005, Alan Cox wrote:
 
-ip_queue messages already include the source mac address in the hw_addr
-field. The destination isn't included because except with bridge
-netfilter it is always the local mac address. If you also need the
-destination MAC we could consider including it in nfnetlink_queue
-since its new and we don't have to worry about userspace compatibility
-at this time.
+> but it would have to be opt in. That might lower coverage but should
+> increase quality, especially id the id in the cookie can be put into
+> bugzilla reports, and the hardware reporting is done so it can be
+> machine processed (ie so you can ask stuff like 'reliability with Nvidia
+> IDE')
+
+Maybe I used the wrong words... But you are right: It has to be opt-in! A 
+change in the kernel sources which automagically sends data, regardless 
+what kind of data, to somewhere in the net must not be enabled by default.
+
+But until klive is implemented one day it is interesting thinking about 
+what possibilities (and maybe even possible misuse) such a data 
+collection has. What data does klive send? Is the data just a hash of
+different system variables or is it also possible to identify one single 
+computer (or person)? Data protection...laws etc. are things that must be 
+considered too maybe.
+
+I think the problem is not the technical implementation. The bigger 
+problem is the data, where it comes from and the most interesting point 
+what to do with it at the end.
+
+Sven

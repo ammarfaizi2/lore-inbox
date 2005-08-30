@@ -1,45 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932530AbVISR5B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932533AbVISR7v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932530AbVISR5B (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 13:57:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932527AbVISR5B
+	id S932533AbVISR7v (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 13:59:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932532AbVISR7v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 13:57:01 -0400
-Received: from ms-smtp-01.texas.rr.com ([24.93.47.40]:2238 "EHLO
-	ms-smtp-01-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S932526AbVISR5A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 13:57:00 -0400
-Message-ID: <432EFAB1.4080406@austin.rr.com>
-Date: Mon, 19 Sep 2005 12:51:45 -0500
-From: Steve French <smfrench@austin.rr.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: linux-fsdevel@vger.kernel.org
-Subject: ctime set by truncate even if NOCMTIME requested
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 19 Sep 2005 13:59:51 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2432 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S932527AbVISR7u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 13:59:50 -0400
+Date: Tue, 30 Aug 2005 12:18:30 +0100
+From: Matthew Wilcox <matthew@wil.cx>
+To: Rusty Lynch <rusty@linux.intel.com>
+Cc: Andi Kleen <ak@suse.de>, Christoph Lameter <clameter@engr.sgi.com>,
+       Rusty Lynch <rusty.lynch@intel.com>, linux-mm@kvack.org,
+       prasanna@in.ibm.com, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, anil.s.keshavamurthy@intel.com
+Subject: Re: [PATCH] Only process_die notifier in ia64_do_page_fault if KPROBES is configured.
+Message-ID: <20050830111830.GI26314@parcelfarce.linux.theplanet.co.uk>
+References: <200508262246.j7QMkEoT013490@linux.jf.intel.com> <Pine.LNX.4.62.0508261559450.17433@schroedinger.engr.sgi.com> <200508270224.26423.ak@suse.de> <20050830001905.GA18279@linux.jf.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050830001905.GA18279@linux.jf.intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am seeing requests to set ctime on truncate which does not make any 
-sense to me as I was testing with the flag that should have turned that 
-off.  ie my inodes having S_NOCMTIME set, as NFS does.
+On Mon, Aug 29, 2005 at 05:19:05PM -0700, Rusty Lynch wrote:
+> So, assuming inlining the notifier_call_chain would address Christoph's
+> conserns, is the following patch something like what you are sugesting?  
+> This would make all the kdebug.h::notify_die() calls use the inline version. 
 
-do_truncate (line 206 of open.c) sets
-      newattrs.ia_valid = ATTR_SIZE | ATTR_CTIME
-instead of
-       newattrs.ia_valid = ATTR_SIZE;
-      if(!IS_NOCMTIME(inode))
-           newattrs.ia_valid |= ATTR_CTIME;
+I think we need something more like this ...
 
-I thought that the correct way to handle this for network filesystems, 
-is to let the server set the mtime and ctime unless the application 
-explicitly sets the attributes (in the case of the sys call truncate or 
-ftruncate the application is not explicitly setting the ctime/mtime as 
-it would on a backup/restore so they should be ignored for the network 
-fs so the server will set it correctl to its time, reducing traffic and 
-more accurately representing the time it got updated).
+include/linux/notifier.h:
++static inline int notifier_call_chain(struct notifier_block **n,
++					unsigned long val, void *v)
++{
++	if (n)
++		return __notifier_call_chain(n, val, v);
++	return NOTIFY_DONE;
++}
+kernel/sys.c:
+-int notifier_call_chain(struct notifier_block **n, unsigned long val, void *v)
++int __notifier_call_chain(struct notifier_block **n, unsigned long val, void *v)
+-EXPORT_SYMBOL(notifier_call_chain);
++EXPORT_SYMBOL(__notifier_call_chain);
 
-Shouldn't there be a IS_NOCMTIME check in the truncate path in fs/open.c?
+That way everyone gets both the quick test and the global size reduction.
+
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

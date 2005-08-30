@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbVH3QEk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932192AbVH3QGh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932190AbVH3QEk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 12:04:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932192AbVH3QEk
+	id S932192AbVH3QGh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 12:06:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932193AbVH3QGh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 12:04:40 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:11735 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932190AbVH3QEj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 12:04:39 -0400
-Subject: Re: KLive: Linux Kernel Live Usage Monitor
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>, Sven Ladegast <sven@linux4geeks.de>,
+	Tue, 30 Aug 2005 12:06:37 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:29090 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932192AbVH3QGg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 12:06:36 -0400
+To: Andi Kleen <ak@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org
-In-Reply-To: <20050830151035.GO8515@g5.random>
-References: <20050830030959.GC8515@g5.random>
-	 <Pine.LNX.4.63.0508300954190.1984@cassini.linux4geeks.de>
-	 <20050830082901.GA25438@bitwizard.nl>
-	 <Pine.LNX.4.63.0508301044150.1984@cassini.linux4geeks.de>
-	 <20050830094058.GA29214@bitwizard.nl>  <20050830151035.GO8515@g5.random>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 30 Aug 2005 17:33:38 +0100
-Message-Id: <1125419618.8276.30.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Subject: Re: [PATCH] i386, x86_64 Initial PAT implementation
+References: <m1psrwmg10.fsf@ebiederm.dsl.xmission.com>
+	<1125413136.8276.14.camel@localhost.localdomain>
+	<m14q97qwng.fsf@ebiederm.dsl.xmission.com>
+	<200508301748.50941.ak@suse.de>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Tue, 30 Aug 2005 10:06:07 -0600
+In-Reply-To: <200508301748.50941.ak@suse.de> (Andi Kleen's message of "Tue,
+ 30 Aug 2005 17:48:50 +0200")
+Message-ID: <m1r7cbpfyo.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2005-08-30 at 17:10 +0200, Andrea Arcangeli wrote:
-> It's certainly much easier to tweak the kernel config before compiling
-> the kernel than to edit the mess in /etc/init.d/* with all the
-> gratuitous differences of the userland flavours.
+Andi Kleen <ak@suse.de> writes:
 
-Just follow the LSB specification and about the only thing thats totally
-out of field is Slackware.
+> On Tuesday 30 August 2005 17:20, Eric W. Biederman wrote:
+>
+>> Right.  To the best of my understanding problem aliases are either
+>> uncached/write-back or write-combine/write-back.  I don't think
+>> uncached/write-combine can cause problems.  My basic reason for
+>
+> Well it can if one driver expects the mapping to be uncached and the
+> other to be WC. The WC one might blast over the other one badly.
+>
+> Also the architecture defines all attribute conflicts to be undefined
+> and it's better to not rely on undefined behaviour because that could
+> break quite badly on a future microarchitecture.
 
-> easy to setup. It'll be a bit lighter too, twisted currently takes 6m of
-> RSS on a x86.
+Agreed.  It is better.  
 
-Right thats my first reaction, 6Mbytes of unauditable weirdness versus a
-tiny C program or a shell script using netcat.
+My assessment was only to show that the immediate danger of data
+corruption or problems isn't very high, even if someone does goof.
 
-echo "Reporting boot: "
-(echo "BOOT:"$(cat /etc/lum-serial)":"$(uname -a)"::") | nc -u -w 10
-testhost.example.com 7658
-
-> I could perhaps write an auto-installer script, that fetches the tac
-> file with wget and adds a line to /etc/init.d/boot.local to make life
-> easier.
-
-For one distro perhaps. Using a proper init service script makes it work
-for pretty much everyone. 
-
+Eric
 

@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbVH3WoU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932234AbVH3WuS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932279AbVH3WoU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 18:44:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932278AbVH3WoT
+	id S932234AbVH3WuS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 18:50:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932245AbVH3WuS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 18:44:19 -0400
-Received: from newton.linux4geeks.de ([193.30.1.1]:61831 "EHLO
-	newton.linux4geeks.de") by vger.kernel.org with ESMTP
-	id S932279AbVH3WoS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 18:44:18 -0400
-Date: Wed, 31 Aug 2005 00:43:59 +0200 (CEST)
-From: Sven Ladegast <sven@linux4geeks.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: KLive: Linux Kernel Live Usage Monitor
-In-Reply-To: <1125412611.8276.9.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.63.0508310033400.1930@cassini.linux4geeks.de>
-References: <20050830030959.GC8515@g5.random> 
- <Pine.LNX.4.63.0508300954190.1984@cassini.linux4geeks.de>
- <1125412611.8276.9.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 30 Aug 2005 18:50:18 -0400
+Received: from zproxy.gmail.com ([64.233.162.194]:19551 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932234AbVH3WuQ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 18:50:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=WsRCSdrtX2hp7hoi/6gL+znfbJ9p+fD6OSgGXxT56yudl9l6GMoyaE8oQALD5uGuGnx50Tp4pGYHI8J2zRbETQvr5eBo1zXrDJ1dpsgFmHb3u0Gn4RzL4dnfj3TBO0TY1WCm87ciBFeBkT+mOpc8JA9r9uXb71UeXJlqAWDKQ0Q=
+Message-ID: <9a87484905083015503cdbdea1@mail.gmail.com>
+Date: Wed, 31 Aug 2005 00:50:13 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Stephan Grein <stephan.grein@gmail.com>
+Subject: Re: 2.6.13 and the IRQs
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <4314E0AA.5070809@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <4314E0AA.5070809@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Aug 2005, Alan Cox wrote:
+On 8/31/05, Stephan Grein <stephan.grein@gmail.com> wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Hi, i updated my laptop to 2.6.13 vanilla kernel.
+> When i booted up it gave me some strange irq messages (debug) which
+> showed not up on 2.6.12.2 vanilla. I added irqpoll to lilo.conf, and
+> it removed some output. However before i did add irqpoll to lilo my
+> pcmcia cards worked also, after adding also.
+> Here is the output, maybe you can help me. (I did not change .config
+> from 2.6.12.2 to 2.6.13, just did a make oldconfig.)
+> cheers.
+> 
+It seems you forgot to include the output.
 
-> but it would have to be opt in. That might lower coverage but should
-> increase quality, especially id the id in the cookie can be put into
-> bugzilla reports, and the hardware reporting is done so it can be
-> machine processed (ie so you can ask stuff like 'reliability with Nvidia
-> IDE')
+full dmesg output and also a  diff -u  of  lspci -vvx  output from
+2.6.12 and 2.6.13 would most likely be useful.
 
-Maybe I used the wrong words... But you are right: It has to be opt-in! A 
-change in the kernel sources which automagically sends data, regardless 
-what kind of data, to somewhere in the net must not be enabled by default.
-
-But until klive is implemented one day it is interesting thinking about 
-what possibilities (and maybe even possible misuse) such a data 
-collection has. What data does klive send? Is the data just a hash of
-different system variables or is it also possible to identify one single 
-computer (or person)? Data protection...laws etc. are things that must be 
-considered too maybe.
-
-I think the problem is not the technical implementation. The bigger 
-problem is the data, where it comes from and the most interesting point 
-what to do with it at the end.
-
-Sven
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

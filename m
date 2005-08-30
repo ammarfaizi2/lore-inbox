@@ -1,113 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932281AbVH3XGb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932271AbVH3XFn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932281AbVH3XGb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 19:06:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbVH3XGb
+	id S932271AbVH3XFn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 19:05:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbVH3XFn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 19:06:31 -0400
-Received: from hera.kernel.org ([209.128.68.125]:51180 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S932281AbVH3XGa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 19:06:30 -0400
-To: linux-kernel@vger.kernel.org
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [RFC][PATCH 3 of 4] Configfs is really sysfs
-Date: Tue, 30 Aug 2005 16:06:43 -0700
-Organization: OSDL
-Message-ID: <20050830160643.65111ad0@dxpl.pdx.osdl.net>
-References: <200508310854.40482.phillips@istop.com>
-	<200508310857.57617.phillips@istop.com>
-	<200508310859.55746.phillips@istop.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 30 Aug 2005 19:05:43 -0400
+Received: from sccrmhc11.comcast.net ([63.240.76.21]:37813 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S932271AbVH3XFl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 19:05:41 -0400
+Message-Id: <200508302305.j7UN5bE23350@www.watkins-home.com>
+From: "Guy" <bugzilla@watkins-home.com>
+To: "'Holger Kiehl'" <Holger.Kiehl@dwd.de>,
+       "'Mark Hahn'" <hahn@physics.mcmaster.ca>
+Cc: "'linux-raid'" <linux-raid@vger.kernel.org>,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: RE: Where is the performance bottleneck?
+Date: Tue, 30 Aug 2005 19:05:32 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Trace: build.pdx.osdl.net 1125443184 31810 10.8.0.74 (30 Aug 2005 23:06:24 GMT)
-X-Complaints-To: abuse@osdl.org
-NNTP-Posting-Date: Tue, 30 Aug 2005 23:06:24 +0000 (UTC)
-X-Newsreader: Sylpheed-Claws 1.9.13 (GTK+ 2.6.7; x86_64-redhat-linux-gnu)
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+In-Reply-To: <Pine.LNX.4.61.0508301859500.25574@diagnostix.dwd.de>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
+Thread-Index: AcWtlonjkvFfKGGER/ubxh8p98JoggAH+GZg
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Aug 2005 08:59:55 +1000
-Daniel Phillips <phillips@istop.com> wrote:
+In most of your results, your CPU usage is very high.  Once you get to about
+90% usage, you really can't do much else, unless you can improve the CPU
+usage.
 
-> Configfs rewritten as a single file and updated to use kobjects instead of its
-> own clone of kobjects (config_items).
+Guy
+
+> -----Original Message-----
+> From: linux-raid-owner@vger.kernel.org [mailto:linux-raid-
+> owner@vger.kernel.org] On Behalf Of Holger Kiehl
+> Sent: Tuesday, August 30, 2005 3:09 PM
+> To: Mark Hahn
+> Cc: linux-raid; linux-kernel
+> Subject: Re: Where is the performance bottleneck?
 > 
+> On Mon, 29 Aug 2005, Mark Hahn wrote:
+> 
+> >> The U320 SCSI controller has a 64 bit PCI-X bus for itself, there is no
+> other
+> >> device on that bus. Unfortunatly I was unable to determine at what
+> speed
+> >> it is running, here the output from lspci -vv:
+> > ...
+> >>                  Status: Bus=2 Dev=4 Func=0 64bit+ 133MHz+ SCD- USC-,
+> DC=simple,
+> >
+> > the "133MHz+" is a good sign.  OTOH the latency (72) seems rather low -
+> my
+> > understanding is that that would noticably limit the size of burst
+> transfers.
+> >
+> I have tried with 128 and 144, but the transfer rate is only a little
+> bit higher barely measurable. Or what values should I try?
+> 
+> >
+> >> Version  1.03        ------Sequential Output------ --Sequential Input-
+> --Random-
+> >>                       -Per Chr- --Block-- -Rewrite- -Per Chr- --Block--
+> --Seeks--
+> >> Machine         Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP
+> /sec %CP
+> >> Raid0 (8 disk)15744M 54406  96 247419 90 100752 25 60266  98 226651 29
+> 830.2   1
+> >> Raid0s(4 disk)15744M 54915  97 253642 89 73976  18 59445  97 198372 24
+> 659.8   1
+> >> Raid0s(4 disk)15744M 54866  97 268361 95 72852  17 59165  97 187183 22
+> 666.3   1
+> >
+> > you're obviously saturating something already with 2 disks.  did you
+> play
+> > with "blockdev --setra" setings?
+> >
+> Yes, I did play a little bit with it but this only changed read
+> performance,
+> it made no measurable difference when writting.
+> 
+> Thanks,
+> Holger
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-raid" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-Some style issues:
-	Mixed case in labels
-	Bad identation
-
-> +static int sysfs_create(struct dentry *dentry, int mode, int (*init) (struct inode *))
-> +{
-> +	int error = 0;
-> +	struct inode *inode = NULL;
-> +	if (dentry) {
-> +		if (!dentry->d_inode) {
-> +			if ((inode = sysfs_new_inode(mode))) {
-> +				if (dentry->d_parent
-> +				    && dentry->d_parent->d_inode) {
-> +					struct inode *p_inode =
-> +					    dentry->d_parent->d_inode;
-> +					p_inode->i_mtime = p_inode->i_ctime =
-> +					    CURRENT_TIME;
-> +				}
-> +				goto Proceed;
-> +			} else
-> +				error = -ENOMEM;
-> +		} else
-> +			error = -EEXIST;
-> +	} else
-> +		error = -ENOENT;
-> +	goto Done;
-> +
-> +      Proceed:
-> +	if (init)
-> +		error = init(inode);
-> +	if (!error) {
-> +		d_instantiate(dentry, inode);
-> +		if (S_ISDIR(mode) || S_ISLNK(mode)) /* pin link and directory dentries */
-> +			dget(dentry);
-> +	} else
-> +		iput(inode);
-> +      Done:
-
-Why the mixed case label?
-
-> +	return error;
-> +}
-
-
-> +/* 
-> + * configfs client helpers
-> + */
-> +
-> +void config_group_init_type_name(struct kset *group, const char *name, struct kobj_type *type)
-> +{
-> + kobject_set_name(&group->kobj, name);
-> + group->kobj.ktype = type;
-> + config_group_init(group);
-> +}
-
-Use tabs not one space for indent.
-
-> +void config_group_init(struct kset *group)
-> +{
-> + kobject_init(&group->kobj);
-> + INIT_LIST_HEAD(&group->cg_children);
-> +}
-> +
-> +void kobject_init_type_name(struct kobject *kobj, const char *name, struct kobj_type *type)
-> +{
-> + kobject_set_name(kobj, name);
-> + kobj->ktype = type;
-> + kobject_init(kobj);
-> +}
-> +
-> +EXPORT_SYMBOL(configfs_register_subsystem);
-> +EXPORT_SYMBOL(configfs_unregister_subsystem);
-> +EXPORT_SYMBOL(config_group_init_type_name);
-> +EXPORT_SYMBOL(config_group_init);
-> +EXPORT_SYMBOL(kobject_init_type_name);
->

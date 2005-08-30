@@ -1,39 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751436AbVH3OBG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751426AbVH3OAz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751436AbVH3OBG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 10:01:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751437AbVH3OBF
+	id S1751426AbVH3OAz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 10:00:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751436AbVH3OAz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 10:01:05 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:48363 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751436AbVH3OBE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 10:01:04 -0400
-Subject: Re: APs from the Kernel Summit run Linux
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Harald Welte <laforge@gpl-violations.org>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050830131256.GA12381@midnight.suse.cz>
-References: <20050830085522.GA8820@midnight.suse.cz>
-	 <20050830101958.GJ4202@rama.de.gnumonks.org>
-	 <20050830121810.GA11582@midnight.suse.cz>
-	 <20050830125648.GG4295@rama.de.gnumonks.org>
-	 <20050830131256.GA12381@midnight.suse.cz>
-Content-Type: text/plain
+	Tue, 30 Aug 2005 10:00:55 -0400
+Received: from relay01.pair.com ([209.68.5.15]:55826 "HELO relay01.pair.com")
+	by vger.kernel.org with SMTP id S1751426AbVH3OAy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 10:00:54 -0400
+X-pair-Authenticated: 67.187.99.138
+From: Chase Venters <chase.venters@clientec.com>
+Organization: Clientec, Inc.
+To: Philippe Elie <phil.el@wanadoo.fr>
+Subject: Re: Second "CPU" of 1-core HyperThreading CPU not found in 2.6.13
+Date: Tue, 30 Aug 2005 09:01:15 -0500
+User-Agent: KMail/1.8.1
+References: <200508292303.52735.chase.venters@clientec.com> <20050830122416.GD848@zaniah>
+In-Reply-To: <20050830122416.GD848@zaniah>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Tue, 30 Aug 2005 15:30:06 +0100
-Message-Id: <1125412206.8276.4.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Disposition: inline
+Message-Id: <200508300901.15112.chase.venters@clientec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > According to http://sources.redhat.com/ecos/, it is either still RedHat
-> > or already transferred to the FSF.  That doesn't sound like dual
-> > licensing, I don't think the FSF would do that...
-> 
-> That was my thinking, too.
+> I needed CONFIG_PM=y and CONFIG_ACPI=y to get ht working on 2.6.13.
 
-eCos at least historically had other licensing options too.
+CONFIG_ACPI and CONFIG_PM are enabled here.
 
+Thanks,
+Chase Venters

@@ -1,37 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964978AbVHaVaY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964981AbVHaVfW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964978AbVHaVaY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 17:30:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964979AbVHaVaY
+	id S964981AbVHaVfW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 17:35:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964983AbVHaVfW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 17:30:24 -0400
-Received: from wproxy.gmail.com ([64.233.184.207]:55307 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964978AbVHaVaX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 17:30:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=HHOWR+t2PG+mP4eXf8MOP8eV6xLYv9Svc9JjbjvbsMZVpTx7gkoCG3YI/Zz0T/8eJtfaGedXMIOrnqhZHRTAfsIQQrECGqn8wwK2QDgdUWNOYuN80xlg3dW+GdoynL/3EdZnp5JYB7PdjBpsMeDCghVgcaofFEgSnctUobd5E+0=
-Message-ID: <fb3f6bf105083114301bb8b604@mail.gmail.com>
-Date: Wed, 31 Aug 2005 17:30:22 -0400
-From: Larry Lindsey <larry.the.pirate@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.27 and the ata_piix (Intel SATA) driver
+	Wed, 31 Aug 2005 17:35:22 -0400
+Received: from users.ccur.com ([208.248.32.211]:56297 "EHLO gamx.iccur.com")
+	by vger.kernel.org with ESMTP id S964981AbVHaVfW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 17:35:22 -0400
+Date: Wed, 31 Aug 2005 17:34:30 -0400
+From: Joe Korty <joe.korty@ccur.com>
+To: Christopher Friesen <cfriesen@nortel.com>
+Cc: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>, akpm@osdl.org,
+       george@mvista.com, johnstul@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: FW: [RFC] A more general timeout specification
+Message-ID: <20050831213430.GA11858@tsunami.ccur.com>
+Reply-To: joe.korty@ccur.com
+References: <F989B1573A3A644BAB3920FBECA4D25A042B0053@orsmsx407> <43161F03.5090604@nortel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <43161F03.5090604@nortel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to backport ata_piix SATA support to the 2.4.27 kernel.  I
-found some patches at the jgarzik people page, but they didn't work. 
-I'm building a 2.4.27 kernel with the drivers/scsi from 2.4.29.  Is
-there anything else that I should do?  Should I be worried about any
-issues?
+On Wed, Aug 31, 2005 at 03:20:03PM -0600, Christopher Friesen wrote:
+> Perez-Gonzalez, Inaky wrote:
+> >In this structure,
+> >the user specifies:
+> >    whether the time is absolute, or relative to 'now'.
+> 
+> 
+> >Timeout_sleep has a return argument, endtime, which is also in
+> >'struct timeout' format.  If the input time was relative, then
+> >it is converted to absolute and returned through this argument.
+> 
+> Wouldn't it make more sense for the endtime to be returned in the same 
+> format (relative/absolute) as the original timer was specified?  That 
+> way an application can set a new timer for "timeout + SLEEPTIME" and on 
+> average it will be reasonably accurate.
+> 
+> In the proposed method, for endtime to be useful the app needs to check 
+> the current time, compare with the endtime, and figure out the delta. 
+> If you're going to force the app to do all that work anyway, the app may 
+> as well use absolute times.
+> 
+> Chris
 
-Thanks,
-Larry
+The returned timeout struct has a bit used to mark the value as absolute.  Thus
+the caller treats the returned timeout as a opaque cookie that can be
+reapplied to the next (or more likely, the to-be restarted) timeout.
 
-PS. Please CC responses to larry.the.pirate@gmail.com
+A general principle is, once a time has been converted to absolute, it
+should never be converted back to relative time.  To do so means the
+end-time starts to drift from the original end-time.
+
+Regards,
+Joe
+--
+"Money can buy bandwidth, but latency is forever" -- John Mashey

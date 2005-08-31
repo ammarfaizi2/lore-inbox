@@ -1,55 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932518AbVHaTAf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932523AbVHaTDx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932518AbVHaTAf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 15:00:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932523AbVHaTAe
+	id S932523AbVHaTDx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 15:03:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932522AbVHaTDx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 15:00:34 -0400
-Received: from asia.telenet-ops.be ([195.130.132.59]:19688 "EHLO
-	asia.telenet-ops.be") by vger.kernel.org with ESMTP id S932518AbVHaTAd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 15:00:33 -0400
-Date: Wed, 31 Aug 2005 21:00:23 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Fw: suspicious behaviour in pcwd driver.
-Message-ID: <20050831190023.GM19487@infomag.infomag.iguana.be>
-References: <20050822143228.7bc145f0.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050822143228.7bc145f0.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 31 Aug 2005 15:03:53 -0400
+Received: from ms-smtp-01.texas.rr.com ([24.93.47.40]:31362 "EHLO
+	ms-smtp-01-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S932519AbVHaTDw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 15:03:52 -0400
+Message-ID: <4315FF08.5020500@austin.rr.com>
+Date: Wed, 31 Aug 2005 14:03:36 -0500
+From: Steve French <smfrench@austin.rr.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: linux-fsdevel@vger.kernel.org, penberg@cs.Helsinki.FI, hch@infradead.org
+Subject: Re: [PATCH] mm: return ENOBUFS instead of ENOMEM in generic_file_buffered_write
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dave,
+ > As noticed by Dmitry Torokhov, write() can not return ENOMEM
+It turns out that Linux is ok here returning ENOMEM (even from a strict 
+POSIX perspective) so the patch is not needed.
 
-> drivers/char/watchdog/pcwd.c does this if it detects
-> a temperature out of range..
-> 
->             if (temp_panic) {
->                 printk (KERN_INFO PFX "Temperature overheat trip!\n");
->                 machine_power_off();
->             }
-> 
-> Two problems here are..
-> 
-> 1. machine_power_off() isn't exported on ppc64. (patch below)
-> 2. that printk will never hit the logs, so the admin will just find
-> a powered off box with no idea what happened.
-> Should we at least sync block devices before doing the power off ?
+I consulted our longstanding POSIX workgroup representative to see what 
+he could find out about this topic, and this particular one has some 
+history (and it turns out ENOMEM is ok).   Also note that you can return 
+more return codes as long as they do not conflict with meanings 
+assignmed to others, and ENOBUFS was added not to exclude ENOMEM but to 
+match some out of network buffer cases coming back from the 
+corresponding socket case.   That the listed return codes for the read 
+case and write cases were not symmetric (in listing return codes) was 
+noticed as something needing fixing even by the guy who added ENOBUFS in 
+the first place and is something that should be fixed up in future POSIX 
+specs.
 
-First you need to enable the "temp_panic" by setting the WDIOS_TEMPPANIC 
-option flag. (I'm curious who actually uses this and when they use this, but 
-that is something totally different). And then you need to read the card's
-status before this piece of code will be triggered.
-So in my opinion this isn't used a lott and is simply an option to protect 
-your hardware. But your comment is valid: chances that the warning is written 
-to the log files is very small.
-So I think that it might indeed be better to sync most devices if that can be 
-done in a few seconds...
+ > We've always been returning more errnos than SuS mentioned and Linus 
+declared it's fine.
+Christoph (see above line) is correct not just from a Linus perspective 
+- it can be legal from a posix perspective to return other error codes 
+(there are some exceptions e.g. when the case the new return code covers 
+is the same as a listed return code creating obvious duplication)
 
-Greetings,
-Wim.
+See below:
+          -------------------------------------------
+<via Mark Brown, member of the POSIX 1003.1/1003.2 WG and its
+Interpretions list>
 
+First off, just because a specific errno is not listed in the ERRORS section
+of a given API, doesn't mean that that errno can not be returned by an
+implementation (1003.1-2001 Base Definitions Sec 2.3). The ERRORS section
+describes errnos that must be used for a given condition, but other
+conditions not explicitly listed may be reported. There are some APIs that
+disallow reporting of additional error conditions, but they explicitly say
+so in their entry.
+
+Sec 2.3 does state that one cannot return a different errno than the one 
+that
+is listed for a given condition - You can't return EACCES when you mean 
+ENOENT
+and ENOENT is on the API's list. Does this mean that you can't return
+ENOMEM (when getting space for a datastruct) if ENOBUFS is present?
+
+My answer is that ENOMEM is conforming behavior. ENOBUFS has a different
+meaning than ENOMEM. The complete descriptions of ENOBUFS and ENOMEM, taken
+from the same Section 2.3:
+
+ENOBUFS
+No buffer space available. Insufficient buffer resources were available in
+the system to perform the socket operation.
+
+ENOMEM
+Not enough space. The new process image requires more memory than is allowed
+by the hardware or system-imposed memory management constraints.
+
+Also, the history these errnos in both read() and write() shows that 
+they were
+not present in versions of 1003.1 before the 2001 version. These errnos were
+added to the spec for the 2001 version in an attempt to rationalize their
+behavior with recv() and send(), which can operate like read() or write()
+under certain circumstances. recv() had both ENOBUFS and ENOMEM, so they
+went into read(), send() only had ENOBUFS. However, it was conforming 
+behavior
+to return ENOMEM before the 2001 specification, and no specific intent
+was offered to break existing conforming implementations by this change.
+
+
+-------------------
+Mark Brown/Austin/IBM
+STSM, UNIX/Linux OS Standards

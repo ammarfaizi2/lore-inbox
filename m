@@ -1,66 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932511AbVHaMYK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932416AbVHaMbf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932511AbVHaMYK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 08:24:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932514AbVHaMYK
+	id S932416AbVHaMbf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 08:31:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932514AbVHaMbf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 08:24:10 -0400
-Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:15247 "HELO
-	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932511AbVHaMYI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 08:24:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=zd+uoFbGj2xkJeVYVgV4KNpO4tYWJkxRO3qK7GPkhs28hu8SpFUEUQX8FK/w5UyFzEnT+tZpJ5tzDgEEONxZIYY7ghsOVRWFx/JVDnQwzjBdA2nRBZjK5rQvkv22Ye/8PYsxRhTALWcVzhhtmi1n9vpiErcLiubL7Fgxc1MhbcM=  ;
-Message-ID: <4315A179.8070102@yahoo.com.au>
-Date: Wed, 31 Aug 2005 22:24:25 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Holger Kiehl <Holger.Kiehl@dwd.de>
-CC: Jens Axboe <axboe@suse.de>, Vojtech Pavlik <vojtech@suse.cz>,
-       linux-raid <linux-raid@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Where is the performance bottleneck?
-References: <Pine.LNX.4.61.0508291811480.24072@diagnostix.dwd.de> <20050829202529.GA32214@midnight.suse.cz> <Pine.LNX.4.61.0508301919250.25574@diagnostix.dwd.de> <20050831071126.GA7502@midnight.ucw.cz> <20050831072644.GF4018@suse.de> <Pine.LNX.4.61.0508311029170.16574@diagnostix.dwd.de>
-In-Reply-To: <Pine.LNX.4.61.0508311029170.16574@diagnostix.dwd.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 31 Aug 2005 08:31:35 -0400
+Received: from allen.werkleitz.de ([80.190.251.108]:58541 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S932416AbVHaMbe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 08:31:34 -0400
+Date: Wed, 31 Aug 2005 14:31:13 +0200
+From: Johannes Stezenbach <js@linuxtv.org>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Message-ID: <20050831123113.GB17473@linuxtv.org>
+Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
+	Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+	Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+References: <20050828024750.GF9322@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050828024750.GF9322@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.5.10i
+X-SA-Exim-Connect-IP: 84.189.244.102
+Subject: Re: [PATCH] missing include in tda80xx
+X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
+X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Holger Kiehl wrote:
+On Sun, Aug 28, 2005 Al Viro wrote:
+> Signed-off-by: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
 
-> 3236497 total                                      1.4547
-> 2507913 default_idle                             52248.1875
-> 158752 shrink_zone                               43.3275
-> 121584 copy_user_generic_c                      3199.5789
->  34271 __wake_up_bit                            713.9792
->  31131 __make_request                            23.1629
->  22096 scsi_request_fn                           18.4133
->  21915 rotate_reclaimable_page                   80.5699
-            ^^^^^^^^^
-
-I don't think this function should be here. This indicates that
-lots of writeout is happening due to pages falling off the end
-of the LRU.
-
-There was a bug recently causing memory estimates to be wrong
-on Opterons that could cause this I think.
-
-Can you send in 2 dumps of /proc/vmstat taken 10 seconds apart
-while you're writing at full speed (with 2.6.13 or the latest
--git tree).
-
-A dump of /proc/zoneinfo and /proc/meminfo while the write is
-going on would be helpful too.
+I added this patch to linuxtv.org CVS.
 
 Thanks,
-Nick
+Johannes
 
--- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+> diff -urN RC13-rc7-base/drivers/media/dvb/frontends/tda80xx.c current/drivers/media/dvb/frontends/tda80xx.c
+> --- RC13-rc7-base/drivers/media/dvb/frontends/tda80xx.c	2005-08-24 01:56:38.000000000 -0400
+> +++ current/drivers/media/dvb/frontends/tda80xx.c	2005-08-27 22:36:10.000000000 -0400
+> @@ -30,6 +30,7 @@
+>  #include <linux/kernel.h>
+>  #include <linux/module.h>
+>  #include <linux/slab.h>
+> +#include <asm/irq.h>
+>  #include <asm/div64.h>
+>  
+>  #include "dvb_frontend.h"

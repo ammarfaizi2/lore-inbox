@@ -1,111 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932308AbVHaAv0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbVHaBKh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932308AbVHaAv0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 20:51:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbVHaAv0
+	id S932317AbVHaBKh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 21:10:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932319AbVHaBKh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 20:51:26 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:57319 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932308AbVHaAvZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 20:51:25 -0400
-Date: Wed, 31 Aug 2005 02:51:07 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Knut Petersen <Knut_Petersen@t-online.de>
-cc: linux-fbdev-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
-       "Antonino A. Daplas" <adaplas@gmail.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Jochen Hein <jochen@jochen.org>
-Subject: Re: [Linux-fbdev-devel] [PATCH 1/1 2.6.13] framebuffer: bit_putcs()
- optimization for 8x* fonts
-In-Reply-To: <4314DD2E.7060901@t-online.de>
-Message-ID: <Pine.LNX.4.61.0508310159290.3728@scrub.home>
-References: <43148610.70406@t-online.de> <Pine.LNX.4.62.0508301814470.6045@numbat.sonytel.be>
- <43149E5B.7040006@t-online.de> <Pine.LNX.4.61.0508302039160.3743@scrub.home>
- <4314DD2E.7060901@t-online.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 30 Aug 2005 21:10:37 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:23954 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932317AbVHaBKg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 21:10:36 -0400
+Subject: Re: 2.6.13-rt1
+From: Steven Rostedt <rostedt@goodmis.org>
+To: dwalker@mvista.com
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <1125441274.18150.39.camel@dhcp153.mvista.com>
+References: <20050829084829.GA23176@elte.hu>
+	 <1125372830.6096.7.camel@localhost.localdomain>
+	 <20050830055321.GB5743@elte.hu>
+	 <1125407163.5675.16.camel@localhost.localdomain>
+	 <1125441274.18150.39.camel@dhcp153.mvista.com>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Tue, 30 Aug 2005 21:10:07 -0400
+Message-Id: <1125450607.5614.4.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 2005-08-30 at 15:34 -0700, Daniel Walker wrote:
+> Have you tried turning on 
+> "Non-preemptible critical section latency timing" or "Latency tracing"
 
-On Wed, 31 Aug 2005, Knut Petersen wrote:
+I just turned on the following:
 
-> How could I make it an inline function? It is used in console/bitblit.c,
-> nvidia/nvidia.c,
-> riva/fbdev.c and softcursor.c.
+  CONFIG_CRITICAL_PREEMPT_TIMING
+  CONFIG_CRITICAL_IRQSOFF_TIMING
+  CONFIG_LATENCY_TRACE
 
-Something like below, which has the advantange that there is still only 
-one implementation of the function and if it's still slower, we really 
-need to check the compiler.
+recompiled and booted.  No problem here.
 
-bye, Roman
+> 
+> I don't know if it's related to the PI changes, but I'm getting a crash
+> with those on em64t .
+> 
+> With both above options I get
+> 
+> <0>init[1]: segfault at ffffffff8010ef44 rip ffffffff8010ef44 rsp 00007fffferror 5
+> <0>init[1]: segfault at ffffffff8010ef44 rip ffffffff8010ef44 rsp 00007ffffffe8de8 error 5
+> 
+> printed never ending right after init starts.
+> 
+> If I only turn on "Non-preemptible critical section latency timing",
+> then when I enter the command,
+> "echo 0 > /proc/sys/kernel/preempt_max_latency"
+> 
+> The kernel will spit out a couple of max critical section updates , then
+> it will hang silently.
+> 
+> This is all new in 2.6.13-rtX . It could have just come in with 2.6.13 ,
+> but I thought I'd mention it.
 
- drivers/video/console/bitblit.c |    5 ++++-
- drivers/video/fbmem.c           |   10 +---------
- include/linux/fb.h              |   13 +++++++++++++
- 3 files changed, 18 insertions(+), 10 deletions(-)
+Did you try the latest patches I just sent. Mainly this last one on
+-rt2?  There is a deadlock that is fixed wrt the BKL.
 
-Index: linux-2.6/drivers/video/fbmem.c
-===================================================================
---- linux-2.6.orig/drivers/video/fbmem.c	2005-08-30 21:17:44.000000000 +0200
-+++ linux-2.6/drivers/video/fbmem.c	2005-08-31 01:20:37.000000000 +0200
-@@ -80,15 +80,7 @@ EXPORT_SYMBOL(fb_get_color_depth);
-  */
- void fb_pad_aligned_buffer(u8 *dst, u32 d_pitch, u8 *src, u32 s_pitch, u32 height)
- {
--	int i, j;
--
--	for (i = height; i--; ) {
--		/* s_pitch is a few bytes at the most, memcpy is suboptimal */
--		for (j = 0; j < s_pitch; j++)
--			dst[j] = src[j];
--		src += s_pitch;
--		dst += d_pitch;
--	}
-+	__fb_pad_aligned_buffer(dst, d_pitch, src, s_pitch, height);
- }
- EXPORT_SYMBOL(fb_pad_aligned_buffer);
- 
-Index: linux-2.6/drivers/video/console/bitblit.c
-===================================================================
---- linux-2.6.orig/drivers/video/console/bitblit.c	2005-08-30 01:55:20.000000000 +0200
-+++ linux-2.6/drivers/video/console/bitblit.c	2005-08-31 01:25:30.000000000 +0200
-@@ -175,7 +175,10 @@ static void bit_putcs(struct vc_data *vc
- 					src = buf;
- 				}
- 
--				fb_pad_aligned_buffer(dst, pitch, src, idx, image.height);
-+				if (likely(idx == 1))
-+					__fb_pad_aligned_buffer(dst, pitch, src, 1, image.height);
-+				else
-+					fb_pad_aligned_buffer(dst, pitch, src, idx, image.height);
- 				dst += width;
- 			}
- 		}
-Index: linux-2.6/include/linux/fb.h
-===================================================================
---- linux-2.6.orig/include/linux/fb.h	2005-08-30 01:56:29.000000000 +0200
-+++ linux-2.6/include/linux/fb.h	2005-08-31 01:21:04.000000000 +0200
-@@ -824,6 +824,19 @@ extern int fb_get_color_depth(struct fb_
- extern int fb_get_options(char *name, char **option);
- extern int fb_new_modelist(struct fb_info *info);
- 
-+static inline void __fb_pad_aligned_buffer(u8 *dst, u32 d_pitch, u8 *src, u32 s_pitch, u32 height)
-+{
-+	int i, j;
-+
-+	d_pitch -= s_pitch;
-+	for (i = height; i--; ) {
-+		/* s_pitch is a few bytes at the most, memcpy is suboptimal */
-+		for (j = 0; j < s_pitch; j++)
-+			*dst++ = *src++;
-+		dst += d_pitch;
-+	}
-+}
-+
- extern struct fb_info *registered_fb[FB_MAX];
- extern int num_registered_fb;
- 
+-- Steve
+
+

@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932533AbVHaVux@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932530AbVHaVvv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932533AbVHaVux (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 17:50:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932535AbVHaVux
+	id S932530AbVHaVvv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 17:51:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932534AbVHaVvv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 17:50:53 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:39177 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932533AbVHaVuw
+	Wed, 31 Aug 2005 17:51:51 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:46089 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932530AbVHaVvu
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 17:50:52 -0400
-Date: Wed, 31 Aug 2005 14:50:51 -0700
-Message-Id: <200508312150.j7VLopvd003138@zach-dev.vmware.com>
-Subject: [PATCH 1/2] Whitespace cleanup in pageattr.c
+	Wed, 31 Aug 2005 17:51:50 -0400
+Date: Wed, 31 Aug 2005 14:51:48 -0700
+Message-Id: <200508312151.j7VLpmu8003144@zach-dev.vmware.com>
+Subject: [PATCH 2/2] Use page present for pae pdpes
 From: Zachary Amsden <zach@vmware.com>
 To: Andrew Morton <akpm@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
@@ -22,38 +22,56 @@ To: Andrew Morton <akpm@osdl.org>,
        Pratap Subrahmanyam <pratap@vmware.com>,
        Christopher Li <chrisl@vmware.com>, Zachary Amsden <zach@vmware.com>,
        Zachary Amsden <zach@vmware.com>
-X-OriginalArrivalTime: 31 Aug 2005 21:50:57.0515 (UTC) FILETIME=[11A24BB0:01C5AE76]
+X-OriginalArrivalTime: 31 Aug 2005 21:51:54.0593 (UTC) FILETIME=[33A7B510:01C5AE76]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This highly technical change allows the kernel to jump atop the Eiffel Tower,
-fly with acceleration fifty times that of a space shuttle, and ingest 15 times
-its own weight.
+Ok, the use of "1 + " and subtraction of one for PAE PDPEs has confused
+many people now.  Make it explicit what is going on and why anding with
+PAGE_MASK is a better idea to strip these bits.
 
-Patch-subject: Whitespace cleanup in pageattr.c
-Depends-on: add-pgtable-allocation-notifiers
 Signed-off-by: Zachary Amsden <zach@vmware.com>
-Index: linux-2.6.13/arch/i386/mm/pageattr.c
+Depends-on: add-pgtable-allocation-notifiers
+Index: linux-2.6.13/arch/i386/mm/pgtable.c
 ===================================================================
---- linux-2.6.13.orig/arch/i386/mm/pageattr.c	2005-08-31 14:41:45.000000000 -0700
-+++ linux-2.6.13/arch/i386/mm/pageattr.c	2005-08-31 14:41:49.000000000 -0700
-@@ -33,7 +33,7 @@ pte_t *lookup_address(unsigned long addr
- 		return NULL;
- 	if (pmd_large(*pmd))
- 		return (pte_t *)pmd;
--        return pte_offset_kernel(pmd, address);
-+	return pte_offset_kernel(pmd, address);
- } 
- 
- static struct page *split_large_page(unsigned long address, pgprot_t prot)
-@@ -54,8 +54,8 @@ static struct page *split_large_page(uns
- 	pbase = (pte_t *)page_address(base);
- 	SetPagePTE(virt_to_page(pbase));
- 	for (i = 0; i < PTRS_PER_PTE; i++, addr += PAGE_SIZE) {
--               set_pte(&pbase[i], pfn_pte(addr >> PAGE_SHIFT,
--                                          addr == address ? prot : PAGE_KERNEL));
-+		set_pte(&pbase[i], pfn_pte(addr >> PAGE_SHIFT,
-+			addr == address ? prot : PAGE_KERNEL));
+--- linux-2.6.13.orig/arch/i386/mm/pgtable.c	2005-08-31 14:48:17.000000000 -0700
++++ linux-2.6.13/arch/i386/mm/pgtable.c	2005-08-31 14:48:53.000000000 -0700
+@@ -247,14 +247,14 @@ pgd_t *pgd_alloc(struct mm_struct *mm)
+ 		if (!pmd)
+ 			goto out_oom;
+ 		SetPagePDE(virt_to_page(pmd));
+-		set_pgd(&pgd[i], __pgd(1 + __pa(pmd)));
++		set_pgd(&pgd[i], __pgd(_PAGE_PRESENT | __pa(pmd)));
  	}
- 	return base;
- } 
+ 	return pgd;
+ 
+ out_oom:
+ 	for (i--; i >= 0; i--) {
+ 		ClearPagePDE(pfn_to_page(pgd_val(pgd[i]) >> PAGE_SHIFT));
+-		kmem_cache_free(pmd_cache, (void *)__va(pgd_val(pgd[i])-1));
++		kmem_cache_free(pmd_cache, (void *)__va(pgd_val(pgd[i]) & PAGE_MASK));
+ 	}
+ 	kmem_cache_free(pgd_cache, pgd);
+ 	return NULL;
+@@ -268,7 +268,7 @@ void pgd_free(pgd_t *pgd)
+ 	if (PTRS_PER_PMD > 1)
+ 		for (i = 0; i < USER_PTRS_PER_PGD; ++i) {
+ 			ClearPagePDE(pfn_to_page(pgd_val(pgd[i]) >> PAGE_SHIFT));
+-			kmem_cache_free(pmd_cache, (void *)__va(pgd_val(pgd[i])-1));
++			kmem_cache_free(pmd_cache, (void *)__va(pgd_val(pgd[i]) & PAGE_MASK));
+ 		}
+ 	/* in the non-PAE case, free_pgtables() clears user pgd entries */
+ 	kmem_cache_free(pgd_cache, pgd);
+Index: linux-2.6.13/arch/i386/mm/init.c
+===================================================================
+--- linux-2.6.13.orig/arch/i386/mm/init.c	2005-08-31 14:48:17.000000000 -0700
++++ linux-2.6.13/arch/i386/mm/init.c	2005-08-31 14:48:53.000000000 -0700
+@@ -387,7 +387,7 @@ void zap_low_mappings (void)
+ 	 */
+ 	for (i = 0; i < USER_PTRS_PER_PGD; i++)
+ #ifdef CONFIG_X86_PAE
+-		set_pgd(swapper_pg_dir+i, __pgd(1 + __pa(empty_zero_page)));
++		set_pgd(swapper_pg_dir+i, __pgd(_PAGE_PRESENT | __pa(empty_zero_page)));
+ #else
+ 		set_pgd(swapper_pg_dir+i, __pgd(0));
+ #endif

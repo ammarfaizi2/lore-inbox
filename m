@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964894AbVHaR0h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964901AbVHaR1b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964894AbVHaR0h (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 13:26:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964895AbVHaR0h
+	id S964901AbVHaR1b (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 13:27:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964902AbVHaR1b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 13:26:37 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:40594 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964897AbVHaR0g (ORCPT
+	Wed, 31 Aug 2005 13:27:31 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:18398 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964901AbVHaR1a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 13:26:36 -0400
-Date: Wed, 31 Aug 2005 22:42:11 +0530
+	Wed, 31 Aug 2005 13:27:30 -0400
+Date: Wed, 31 Aug 2005 22:57:04 +0530
 From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
 To: linux-kernel@vger.kernel.org
 Cc: arjan@infradead.org, s0348365@sms.ed.ac.uk, kernel@kolivas.org,
        tytso@mit.edu, cfriesen@nortel.com, rlrevell@joe-job.com, trenn@suse.de,
        george@mvista.com, johnstul@us.ibm.com, akpm@osdl.org
-Subject: [PATCH 1/3] Updated dynamic tick patches - Fix lost tick calculation in timer_pm.c
-Message-ID: <20050831171211.GB4974@in.ibm.com>
+Subject: [PATCH 3/3] Updated dynamic tick patches - Recover walltime upon wakeup
+Message-ID: <20050831172704.GD4974@in.ibm.com>
 Reply-To: vatsa@in.ibm.com
 References: <20050831165843.GA4974@in.ibm.com>
 Mime-Version: 1.0
@@ -32,158 +32,261 @@ On Wed, Aug 31, 2005 at 10:28:43PM +0530, Srivatsa Vaddagiri wrote:
 > for convenience of review. The first patch probably applies w/o dynamic
 > tick consideration also.
 > 
-> Patch 1/3  -> Fixup lost tick calculation in timer_pm.c
+> Patch 3/3  -> Use lost tick information in dyn-tick time recovery 
 
-Currently, lost tick calculation in timer_pm.c is based on number
-of microseconds that has elapsed since the last tick. Calculating
-the number of microseconds is approximated by cyc2us, which
-basically does :
+This patch uses the lost tick information returned by mark_offset()
+function in dyn-tick, to recover time.
 
-	microsec = (cycles * 286) / 1024
-
-Consider 10 ticks lost. This amounts to 14319*10 = 143190 cycles 
-(14319 = PMTMR_EXPECTED_RATE/(CALIBRATE_LATCH/LATCH)).
-This amount to 39992 microseconds as per the above equation 
-or 39992 / 4000 = 9 lost ticks, which is incorrect.
-
-I feel lost ticks can be based on cycles difference directly
-rather than being based on microseconds that has elapsed.
-
-Following patch is in that direction. 
-
-With this patch, time had kept up really well on one particular
-machine (Intel 4way Pentium 3 box) overnight, while
-on another newer machine (Intel 4way Xeon with HT) it didnt do so
-well (time sped up after 3 or 4 hours). Hence I consider this
-particular patch will need more review/work.
-
-Patch is against 2.6.13-rc6-mm2.
-
-
-
-Fix lost tick calculation in timer_pm.c
 
 ---
 
- linux-2.6.13-rc6-mm2-root/arch/i386/kernel/timers/timer_pm.c |   44 +++++------
- 1 files changed, 20 insertions(+), 24 deletions(-)
+ arch/i386/Kconfig                                                 |    0 
+ linux-2.6.13-rc6-mm2-root/arch/i386/kernel/dyn-tick.c             |   11 ++++++--
+ linux-2.6.13-rc6-mm2-root/arch/i386/kernel/time.c                 |   13 ++++++----
+ linux-2.6.13-rc6-mm2-root/arch/i386/kernel/timers/timer_cyclone.c |    4 ++-
+ linux-2.6.13-rc6-mm2-root/arch/i386/kernel/timers/timer_hpet.c    |    4 ++-
+ linux-2.6.13-rc6-mm2-root/arch/i386/kernel/timers/timer_none.c    |    3 +-
+ linux-2.6.13-rc6-mm2-root/arch/i386/kernel/timers/timer_pit.c     |    3 +-
+ linux-2.6.13-rc6-mm2-root/arch/i386/kernel/timers/timer_pm.c      |    6 +++-
+ linux-2.6.13-rc6-mm2-root/arch/i386/kernel/timers/timer_tsc.c     |   12 ++++++---
+ linux-2.6.13-rc6-mm2-root/include/asm-i386/timer.h                |    2 -
+ 10 files changed, 40 insertions(+), 18 deletions(-)
 
-diff -puN arch/i386/kernel/timers/timer_pm.c~pm_timer_fix arch/i386/kernel/timers/timer_pm.c
---- linux-2.6.13-rc6-mm2/arch/i386/kernel/timers/timer_pm.c~pm_timer_fix	2005-08-31 16:31:52.000000000 +0530
-+++ linux-2.6.13-rc6-mm2-root/arch/i386/kernel/timers/timer_pm.c	2005-08-31 16:32:51.000000000 +0530
-@@ -30,6 +30,8 @@
-   ((CALIBRATE_LATCH * (PMTMR_TICKS_PER_SEC >> 10)) / (CLOCK_TICK_RATE>>10))
+diff -puN include/asm-i386/timer.h~drift_fix include/asm-i386/timer.h
+--- linux-2.6.13-rc6-mm2/include/asm-i386/timer.h~drift_fix	2005-08-31 16:36:17.000000000 +0530
++++ linux-2.6.13-rc6-mm2-root/include/asm-i386/timer.h	2005-08-31 16:36:30.000000000 +0530
+@@ -19,7 +19,7 @@
+  */
+ struct timer_opts {
+ 	char* name;
+-	void (*mark_offset)(void);
++	int (*mark_offset)(void);
+ 	unsigned long (*get_offset)(void);
+ 	unsigned long long (*monotonic_clock)(void);
+ 	void (*delay)(unsigned long);
+diff -puN arch/i386/kernel/time.c~drift_fix arch/i386/kernel/time.c
+--- linux-2.6.13-rc6-mm2/arch/i386/kernel/time.c~drift_fix	2005-08-31 16:36:17.000000000 +0530
++++ linux-2.6.13-rc6-mm2-root/arch/i386/kernel/time.c	2005-08-31 16:36:30.000000000 +0530
+@@ -253,7 +253,7 @@ EXPORT_SYMBOL(profile_pc);
+  * timer_interrupt() needs to keep up the real-time clock,
+  * as well as call the "do_timer()" routine every clocktick
+  */
+-static inline void do_timer_interrupt(int irq, struct pt_regs *regs)
++static inline void do_timer_interrupt(int irq, struct pt_regs *regs, int lost)
+ {
+ #ifdef CONFIG_X86_IO_APIC
+ 	if (timer_ack) {
+@@ -271,7 +271,8 @@ static inline void do_timer_interrupt(in
+ 	}
+ #endif
+ 
+-	do_timer_interrupt_hook(regs);
++	if (!dyn_tick_enabled() || lost)
++		do_timer_interrupt_hook(regs);
  
  
-+static int pm_ticks_per_jiffy = PMTMR_EXPECTED_RATE / (CALIBRATE_LATCH/LATCH);
+ 	if (MCA_bus) {
+@@ -296,6 +297,8 @@ static inline void do_timer_interrupt(in
+  */
+ irqreturn_t timer_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+ {
++	int lost;
 +
- /* The I/O port the PMTMR resides at.
-  * The location is detected during setup_arch(),
-  * in arch/i386/acpi/boot.c */
-@@ -37,8 +39,7 @@ u32 pmtmr_ioport = 0;
+ 	/*
+ 	 * Here we are in the timer irq handler. We just have irqs locally
+ 	 * disabled but we don't know if the timer_bh is running on the other
+@@ -305,9 +308,9 @@ irqreturn_t timer_interrupt(int irq, voi
+ 	 */
+ 	write_seqlock(&xtime_lock);
  
- 
- /* value of the Power timer at last timer interrupt */
--static u32 offset_tick;
--static u32 offset_delay;
-+static u32 offset_last;
- 
- static unsigned long long monotonic_base;
- static seqlock_t monotonic_lock = SEQLOCK_UNLOCKED;
-@@ -127,6 +128,11 @@ pm_good:
- 	if (verify_pmtmr_rate() != 0)
- 		return -ENODEV;
- 
-+	printk ("Using %u PM timer ticks per jiffy \n", pm_ticks_per_jiffy);
+-	cur_timer->mark_offset();
+- 
+-	do_timer_interrupt(irq, regs);
++	lost = cur_timer->mark_offset();
 +
-+	offset_last = read_pmtmr();
-+	setup_pit_timer();
++	do_timer_interrupt(irq, regs, lost);
+ 
+ 	write_sequnlock(&xtime_lock);
+ 	return IRQ_HANDLED;
+diff -puN arch/i386/kernel/dyn-tick.c~drift_fix arch/i386/kernel/dyn-tick.c
+--- linux-2.6.13-rc6-mm2/arch/i386/kernel/dyn-tick.c~drift_fix	2005-08-31 16:36:17.000000000 +0530
++++ linux-2.6.13-rc6-mm2-root/arch/i386/kernel/dyn-tick.c	2005-08-31 16:36:30.000000000 +0530
+@@ -92,7 +92,13 @@ void dyn_tick_interrupt(int irq, struct 
+ 
+ 	if (all_were_sleeping) {
+ 		/* Recover jiffies */
+-		cur_timer->mark_offset();
++		if (irq) {
++			int lost;
 +
- 	init_cpu_khz();
++			lost = cur_timer->mark_offset();
++			if (lost)
++				do_timer(regs);
++		}
+ 		if (cpu_has_local_apic())
+ 			enable_pit_timer();
+ 	}
+@@ -116,8 +122,7 @@ void dyn_tick_time_init(struct timer_opt
+ {
+ 	spin_lock_init(&dyn_tick_lock);
+ 
+-	if (strncmp(cur_timer->name, "tsc", 3) == 0 ||
+-	    strncmp(cur_timer->name, "pmtmr", 3) == 0) {
++	if (strncmp(cur_timer->name, "pmtmr", 3) == 0) {
+ 		dyn_tick->state |= DYN_TICK_SUITABLE;
+ 		printk(KERN_INFO "dyn-tick: Found suitable timer: %s\n",
+ 		       cur_timer->name);
+diff -puN arch/i386/kernel/timers/timer_cyclone.c~drift_fix arch/i386/kernel/timers/timer_cyclone.c
+--- linux-2.6.13-rc6-mm2/arch/i386/kernel/timers/timer_cyclone.c~drift_fix	2005-08-31 16:36:17.000000000 +0530
++++ linux-2.6.13-rc6-mm2-root/arch/i386/kernel/timers/timer_cyclone.c	2005-08-31 16:36:30.000000000 +0530
+@@ -45,7 +45,7 @@ static seqlock_t monotonic_lock = SEQLOC
+ 	} while (high != cyclone_timer[1]);
+ 
+ 
+-static void mark_offset_cyclone(void)
++static int mark_offset_cyclone(void)
+ {
+ 	unsigned long lost, delay;
+ 	unsigned long delta = last_cyclone_low;
+@@ -101,6 +101,8 @@ static void mark_offset_cyclone(void)
+ 	 */
+ 	if (lost && abs(delay - delay_at_last_interrupt) > (900000/HZ))
+ 		jiffies_64++;
++
++	return 1;
+ }
+ 
+ static unsigned long get_offset_cyclone(void)
+diff -puN arch/i386/kernel/timers/timer_hpet.c~drift_fix arch/i386/kernel/timers/timer_hpet.c
+--- linux-2.6.13-rc6-mm2/arch/i386/kernel/timers/timer_hpet.c~drift_fix	2005-08-31 16:36:17.000000000 +0530
++++ linux-2.6.13-rc6-mm2-root/arch/i386/kernel/timers/timer_hpet.c	2005-08-31 16:36:30.000000000 +0530
+@@ -96,7 +96,7 @@ static unsigned long get_offset_hpet(voi
+ 	return edx;
+ }
+ 
+-static void mark_offset_hpet(void)
++static int mark_offset_hpet(void)
+ {
+ 	unsigned long long this_offset, last_offset;
+ 	unsigned long offset;
+@@ -119,6 +119,8 @@ static void mark_offset_hpet(void)
+ 	this_offset = ((unsigned long long)last_tsc_high<<32)|last_tsc_low;
+ 	monotonic_base += cycles_2_ns(this_offset - last_offset);
+ 	write_sequnlock(&monotonic_lock);
++
++	return 1;
+ }
+ 
+ static void delay_hpet(unsigned long loops)
+diff -puN arch/i386/kernel/timers/timer_none.c~drift_fix arch/i386/kernel/timers/timer_none.c
+--- linux-2.6.13-rc6-mm2/arch/i386/kernel/timers/timer_none.c~drift_fix	2005-08-31 16:36:17.000000000 +0530
++++ linux-2.6.13-rc6-mm2-root/arch/i386/kernel/timers/timer_none.c	2005-08-31 16:36:30.000000000 +0530
+@@ -1,9 +1,10 @@
+ #include <linux/init.h>
+ #include <asm/timer.h>
+ 
+-static void mark_offset_none(void)
++static int mark_offset_none(void)
+ {
+ 	/* nothing needed */
++	return 1;
+ }
+ 
+ static unsigned long get_offset_none(void)
+diff -puN arch/i386/kernel/timers/timer_pit.c~drift_fix arch/i386/kernel/timers/timer_pit.c
+--- linux-2.6.13-rc6-mm2/arch/i386/kernel/timers/timer_pit.c~drift_fix	2005-08-31 16:36:17.000000000 +0530
++++ linux-2.6.13-rc6-mm2-root/arch/i386/kernel/timers/timer_pit.c	2005-08-31 16:36:30.000000000 +0530
+@@ -32,9 +32,10 @@ static int __init init_pit(char* overrid
  	return 0;
  }
-@@ -150,47 +156,37 @@ static inline u32 cyc2us(u32 cycles)
-  */
- static void mark_offset_pmtmr(void)
+ 
+-static void mark_offset_pit(void)
++static int mark_offset_pit(void)
  {
--	u32 lost, delta, last_offset;
--	static int first_run = 1;
--	last_offset = offset_tick;
-+	u32 lost, delta, deltaus, offset_now;
+ 	/* nothing needed */
++	return 1;
+ }
  
- 	write_seqlock(&monotonic_lock);
+ static unsigned long long monotonic_clock_pit(void)
+diff -puN arch/i386/kernel/timers/timer_pm.c~drift_fix arch/i386/kernel/timers/timer_pm.c
+--- linux-2.6.13-rc6-mm2/arch/i386/kernel/timers/timer_pm.c~drift_fix	2005-08-31 16:36:17.000000000 +0530
++++ linux-2.6.13-rc6-mm2-root/arch/i386/kernel/timers/timer_pm.c	2005-08-31 16:36:30.000000000 +0530
+@@ -135,7 +135,7 @@ pm_good:
+ 	setup_pit_timer();
  
--	offset_tick = read_pmtmr();
-+	offset_now = read_pmtmr();
+ 	init_cpu_khz();
+-	set_dyn_tick_max_skip( (0xFFFFFF / (286 * 1000000)) * 1024 * HZ );
++	set_dyn_tick_max_skip(((0xFFFFFF / 1000000) * 286 * HZ) >> 10);
+ 	return 0;
+ }
  
- 	/* calculate tick interval */
--	delta = (offset_tick - last_offset) & ACPI_PM_MASK;
-+	delta = (offset_now - offset_last) & ACPI_PM_MASK;
+@@ -156,7 +156,7 @@ static inline u32 cyc2us(u32 cycles)
+  * this gets called during each timer interrupt
+  *   - Called while holding the writer xtime_lock
+  */
+-static void mark_offset_pmtmr(void)
++static int mark_offset_pmtmr(void)
+ {
+ 	u32 lost, delta, deltaus, offset_now;
  
- 	/* convert to usecs */
--	delta = cyc2us(delta);
-+	deltaus = cyc2us(delta);
- 
- 	/* update the monotonic base value */
--	monotonic_base += delta * NSEC_PER_USEC;
-+	monotonic_base += deltaus * NSEC_PER_USEC;
- 	write_sequnlock(&monotonic_lock);
- 
- 	/* convert to ticks */
--	delta += offset_delay;
--	lost = delta / (USEC_PER_SEC / HZ);
--	offset_delay = delta % (USEC_PER_SEC / HZ);
--
-+	lost = delta / pm_ticks_per_jiffy;
-+	offset_last += lost * pm_ticks_per_jiffy;
-+	offset_last &= ACPI_PM_MASK;
- 
+@@ -182,6 +182,8 @@ static void mark_offset_pmtmr(void)
  	/* compensate for lost ticks */
  	if (lost >= 2)
  		jiffies_64 += lost - 1;
--
--	/* don't calculate delay for first run,
--	   or if we've got less then a tick */
--	if (first_run || (lost < 1)) {
--		first_run = 0;
--		offset_delay = 0;
--	}
++
++	return lost;
  }
  
  static int pmtmr_resume(void)
- {
- 	write_seqlock(&monotonic_lock);
- 	/* Assume this is the last mark offset time */
--	offset_tick = read_pmtmr();
-+	offset_last = read_pmtmr();
- 	write_sequnlock(&monotonic_lock);
- 	return 0;
- }
-@@ -205,7 +201,7 @@ static unsigned long long monotonic_cloc
- 	/* atomically read monotonic base & last_offset */
- 	do {
- 		seq = read_seqbegin(&monotonic_lock);
--		last_offset = offset_tick;
-+		last_offset = offset_last;
- 		base = monotonic_base;
- 	} while (read_seqretry(&monotonic_lock, seq));
- 
-@@ -239,11 +235,11 @@ static unsigned long get_offset_pmtmr(vo
- {
- 	u32 now, offset, delta = 0;
- 
--	offset = offset_tick;
-+	offset = offset_last;
- 	now = read_pmtmr();
- 	delta = (now - offset)&ACPI_PM_MASK;
- 
--	return (unsigned long) offset_delay + cyc2us(delta);
-+	return (unsigned long) cyc2us(delta);
+diff -puN arch/i386/kernel/timers/timer_tsc.c~drift_fix arch/i386/kernel/timers/timer_tsc.c
+--- linux-2.6.13-rc6-mm2/arch/i386/kernel/timers/timer_tsc.c~drift_fix	2005-08-31 16:36:17.000000000 +0530
++++ linux-2.6.13-rc6-mm2-root/arch/i386/kernel/timers/timer_tsc.c	2005-08-31 16:36:30.000000000 +0530
+@@ -177,7 +177,7 @@ static inline void update_monotonic_base
  }
  
+ #ifdef CONFIG_HPET_TIMER
+-static void mark_offset_tsc_hpet(void)
++static int mark_offset_tsc_hpet(void)
+ {
+ 	unsigned long long last_offset;
+  	unsigned long offset, temp, hpet_current;
+@@ -221,6 +221,8 @@ static void mark_offset_tsc_hpet(void)
+ 	delay_at_last_interrupt = hpet_current - offset;
+ 	ASM_MUL64_REG(temp, delay_at_last_interrupt,
+ 			hpet_usec_quotient, delay_at_last_interrupt);
++
++	return 1;
+ }
+ #endif
  
+@@ -347,7 +349,7 @@ int recalibrate_cpu_khz(void)
+ }
+ EXPORT_SYMBOL(recalibrate_cpu_khz);
+ 
+-static void mark_offset_tsc(void)
++static int mark_offset_tsc(void)
+ {
+ 	unsigned long lost,delay;
+ 	unsigned long delta = last_tsc_low;
+@@ -456,8 +458,12 @@ static void mark_offset_tsc(void)
+ 	 * between tsc and pit reads (as noted when
+ 	 * usec delta is > 90% # of usecs/tick)
+ 	 */
+-	if (lost && abs(delay - delay_at_last_interrupt) > (900000/HZ))
++	if (lost && abs(delay - delay_at_last_interrupt) > (900000/HZ)) {
+ 		jiffies_64++;
++		lost++;
++	}
++
++	return 1;
+ }
+ 
+ static int __init init_tsc(char* override)
+diff -puN arch/i386/Kconfig~drift_fix arch/i386/Kconfig
 
 _
+
+
 
 -- 
 

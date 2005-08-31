@@ -1,51 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932416AbVHaMbf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932514AbVHaMhF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932416AbVHaMbf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 08:31:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932514AbVHaMbf
+	id S932514AbVHaMhF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 08:37:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932517AbVHaMhF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 08:31:35 -0400
-Received: from allen.werkleitz.de ([80.190.251.108]:58541 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S932416AbVHaMbe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 08:31:34 -0400
-Date: Wed, 31 Aug 2005 14:31:13 +0200
-From: Johannes Stezenbach <js@linuxtv.org>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Message-ID: <20050831123113.GB17473@linuxtv.org>
-Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
-	Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-	Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-References: <20050828024750.GF9322@parcelfarce.linux.theplanet.co.uk>
+	Wed, 31 Aug 2005 08:37:05 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:54400 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S932514AbVHaMhE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 08:37:04 -0400
+Subject: Re: [FINAL WARNING] Removal of deprecated serial functions -
+	please update your drivers NOW
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>, amax@us.ibm.com,
+       ralf@linux-mips.org, starvik@axis.com
+In-Reply-To: <20050831103352.A26480@flint.arm.linux.org.uk>
+References: <20050831103352.A26480@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 31 Aug 2005 14:00:24 +0100
+Message-Id: <1125493224.3355.1.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050828024750.GF9322@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.5.10i
-X-SA-Exim-Connect-IP: 84.189.244.102
-Subject: Re: [PATCH] missing include in tda80xx
-X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
-X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 28, 2005 Al Viro wrote:
-> Signed-off-by: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+On Mer, 2005-08-31 at 10:33 +0100, Russell King wrote:
+> Unfortunately, it appears that some of these drivers do not contain
+> email addresses for their maintainers, neither are they listed in
+> the MAINTAINERS file.  (mwavedd and serial_txx9).
 
-I added this patch to linuxtv.org CVS.
+I'll have a quick look at mwave. If I remember rightly it just needs to
+tell someone that an "ISA" 16450 serial port materialised by magic at
+the addresses it selected.
 
-Thanks,
-Johannes
+The mwave firmware is loaded into a DSP and until its loaded there isn't
+a serial port.
 
-> diff -urN RC13-rc7-base/drivers/media/dvb/frontends/tda80xx.c current/drivers/media/dvb/frontends/tda80xx.c
-> --- RC13-rc7-base/drivers/media/dvb/frontends/tda80xx.c	2005-08-24 01:56:38.000000000 -0400
-> +++ current/drivers/media/dvb/frontends/tda80xx.c	2005-08-27 22:36:10.000000000 -0400
-> @@ -30,6 +30,7 @@
->  #include <linux/kernel.h>
->  #include <linux/module.h>
->  #include <linux/slab.h>
-> +#include <asm/irq.h>
->  #include <asm/div64.h>
->  
->  #include "dvb_frontend.h"

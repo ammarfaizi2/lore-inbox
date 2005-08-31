@@ -1,53 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932319AbVHaKuh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932223AbVHaK4f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932319AbVHaKuh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 06:50:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932322AbVHaKuh
+	id S932223AbVHaK4f (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 06:56:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932322AbVHaK4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 06:50:37 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:61654 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932319AbVHaKuh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 06:50:37 -0400
-Date: Wed, 31 Aug 2005 16:20:00 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Tony Lindgren <tony@atomide.com>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       Con Kolivas <kernel@kolivas.org>, "Theodore Ts'o" <tytso@mit.edu>,
-       Christopher Friesen <cfriesen@nortel.com>,
-       Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Thomas Renninger <trenn@suse.de>
-Subject: Re: Dynamic tick for 2.6.14 - what's the plan?
-Message-ID: <20050831105000.GB10307@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <1125354385.4598.79.camel@mindpipe> <200508301348.59357.kernel@kolivas.org> <20050830123132.GH6055@atomide.com> <200508301701.49228.s0348365@sms.ed.ac.uk> <20050831074419.GA1029@atomide.com> <1125477566.3213.6.camel@laptopd505.fenrus.org> <20050831103402.GA6496@atomide.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050831103402.GA6496@atomide.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 31 Aug 2005 06:56:35 -0400
+Received: from RT-soft-2.Moscow.itn.ru ([80.240.96.70]:30133 "HELO
+	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S932223AbVHaK4e
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 06:56:34 -0400
+Message-ID: <43158D03.6040004@rbcmail.ru>
+Date: Wed, 31 Aug 2005 14:57:07 +0400
+From: Vitaly Wool <vitalhome@rbcmail.ru>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Grigory Tolstolytkin <gtolstolytkin@dev.rtsoft.ru>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 8250 serial driver and PM
+References: <43134BF8.1090706@dev.rtsoft.ru>
+In-Reply-To: <43134BF8.1090706@dev.rtsoft.ru>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 31, 2005 at 01:34:03PM +0300, Tony Lindgren wrote:
-> Well it seems like the next_timer_interrupt is something like 400
-> jiffies away and RCU code waits for completion for example in the
-> network code.
+Hi Grigory,
+it's unclear from your letter where you take pnx4008_uart_pm from. Can 
+you please elaborate?
 
-I had a patch to fix the problem of "RCU grace period extended 
-because of sleeping idle CPUs". I had posted the patch here:
+What I would think of if I were you is adding a field 'pm' to struct 
+plat_serial8250_port which is filled in in the architecture-specific 
+part and setting up->pm accrodingly.
+I'll send a patch that may be of a help for you shortly.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=111556608901657&w=2
-
-Will send out this patch against latest tree for Andrew to pick it.
-
--- 
+Best regards,
+   Vitaly
 
 
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560017
+Grigory Tolstolytkin wrote:
+
+> Hi,
+>
+> I'm working on power management support for a particular ARM based 
+> board and I've got a question:
+> I want to add a board specific power management for standard uart 
+> driver (serial8250). For this purpose there is a special hook defined 
+> in uart_8250_port structure (drivers/serial/8250.c):
+> ...
+> >        /*
+> >        * We provide a per-port pm hook.
+> >         */
+> >        void                    (*pm)(struct uart_port *port,
+> >                                      unsigned int state, unsigned 
+> int old);
+> ...
+>
+> When driver goes into suspend/resume, serial8250_pm() function is 
+> called and it checks for the hook and executes it if it exists. But I 
+> didn't find a proper way to assign my own function to this hook.
+> How this hook is supposed to be changed? Is there a way to correctly 
+> initialize it and how it should be done?
+> Whether it's a good way to initialize it, for example, in 
+> serial8250_isa_init_ports():
+> ...
+>                up->mcr_mask = ~ALPHA_KLUDGE_MCR;
+>                up->mcr_force = ALPHA_KLUDGE_MCR;
+>
+>                up->port.ops = &serial8250_pops;
+>
+> #ifdef CONFIG_ARCH_XXX
+>                up->pm = pnx4008_uart_pm;
+> #endif
+>       }
+> ...
+>
+> Or it's a bad manner?
+>
+> Any help appreciated,
+>
+> Thanks,
+> Grigory.
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+

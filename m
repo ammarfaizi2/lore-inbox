@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932370AbVHaFRI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932371AbVHaFXg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932370AbVHaFRI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 01:17:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbVHaFRI
+	id S932371AbVHaFXg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 01:23:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932372AbVHaFXg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 01:17:08 -0400
-Received: from wproxy.gmail.com ([64.233.184.200]:6483 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932370AbVHaFRH convert rfc822-to-8bit
+	Wed, 31 Aug 2005 01:23:36 -0400
+Received: from wproxy.gmail.com ([64.233.184.194]:11996 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932371AbVHaFXg convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 01:17:07 -0400
+	Wed, 31 Aug 2005 01:23:36 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=i6Cfho1HL4QKXfubZTkEnKNesykMEp714jTRPHkjI5SF3U8kObrPyUeddCI9ovmdnaS5EG4fLsoSP0EXrUazFKY/FGlKGkc+mZjcbnTGt6lr4xVNySrlQN8Z/5R9YcAHByLWbVlU8LKfujEInLDdMv5ECNMG9LBcHaUwlkroL5I=
-Message-ID: <9e4733910508302217667f2fd@mail.gmail.com>
-Date: Wed, 31 Aug 2005 01:17:03 -0400
+        b=VW5PTELVuA1mHj5IPl5YHCRjsa33FS4IBDsfBZbMPd11OK9SxJeZ6G3p/8hQrdOTr+iW+gw5u7Gyp6Qsdno4Nm01RzmdSL2PY3CipT8o1GtLi0PT7sHeHiXVj/Tenaky9aC4wbYw3bqwR995nPm/zs6M1ZY8IjpsOo1ck/5XpQ8=
+Message-ID: <9e473391050830222371dd4f10@mail.gmail.com>
+Date: Wed, 31 Aug 2005 01:23:35 -0400
 From: Jon Smirl <jonsmirl@gmail.com>
 To: Daniel Stone <daniel@fooishbar.org>, lkml <linux-kernel@vger.kernel.org>,
        Keith Packard <keithp@keithp.com>
@@ -31,6 +31,16 @@ References: <9e47339105083009037c24f6de@mail.gmail.com>
 	 <1125464500.8730.68.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+Before you shut my account off I made you this offer:
+
+On 8/31/05, Jon Smirl <jonsmirl@gmail.com> wrote:
+> Quit being a pain and write a response to the article if you don't
+> like it. Censorship is not the answer. Open debate in a public format
+> is the correct response. If you want me to I'll add your reponse to
+> the end of the article.
+
+I will still include your response if you want to write one.
 
 On 8/31/05, Daniel Stone <daniel@fooishbar.org> wrote:
 > On Wed, 2005-08-31 at 00:50 -0400, Jon Smirl wrote:
@@ -66,26 +76,6 @@ On 8/31/05, Daniel Stone <daniel@fooishbar.org> wrote:
 > And, as I explained, a simple statement of intent from you that you
 > intend to resume active development will be enough to justify your
 > account being renewed.
-
-I told you multiple times that I am doing bug fixes and maintenance on
-1,000s of lines of contributed code. Is that not a valid reason to
-have an account? So only people writing new code can have accounts? I
-guess you will have to disable half of all the accounts on fd.o to
-enforce that policy.
-
-You censored the article. 
-
->From the fd.o account policy page:
-http://www.freedesktop.org/wiki/AccountRequests
-
-What the Project Leader does
-      Review and approve the request for an account & access to your project.
-
-I believe I am a member of five projects on fd.o and you are not the
-Project Leader of any of them. I would like to see the request from
-the Project Leaders for my account removal.
-
-
 > 
 > (Alternately, if another administrator re-enables your account, I will
 > not stop this.  I'm not the sole admin, not by far ...)

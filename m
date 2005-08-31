@@ -1,47 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964999AbVIAAZe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965005AbVIAA0X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964999AbVIAAZe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 20:25:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965002AbVIAAZe
+	id S965005AbVIAA0X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 20:26:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965004AbVIAA0X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 20:25:34 -0400
-Received: from mail.kroah.org ([69.55.234.183]:19611 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S964999AbVIAAZd (ORCPT
+	Wed, 31 Aug 2005 20:26:23 -0400
+Received: from mail.kroah.org ([69.55.234.183]:39323 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S965002AbVIAA0W (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 20:25:33 -0400
-Date: Wed, 31 Aug 2005 13:56:04 -0700
+	Wed, 31 Aug 2005 20:26:22 -0400
+Date: Wed, 31 Aug 2005 14:43:07 -0700
 From: Greg KH <greg@kroah.com>
-To: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-Cc: Jean Delvare <khali@linux-fr.org>, LKML <linux-kernel@vger.kernel.org>,
-       video4linux-list@redhat.com
-Subject: Re: [PATCH 2.6] I2C: Drop I2C_DEVNAME and i2c_clientname
-Message-ID: <20050831205604.GJ19361@kroah.com>
-References: <20050815195704.7b61206e.khali@linux-fr.org> <1124741348.4516.51.camel@localhost> <20050825001958.63b2525c.khali@linux-fr.org> <1125360762.6186.29.camel@localhost> <20050830232008.3420f0f1.khali@linux-fr.org> <1125502498.9401.99.camel@localhost>
+To: dtor_core@ameritech.net
+Cc: James Bottomley <James.Bottomley@steeleye.com>,
+       Matthew Wilcox <matthew@wil.cx>, James.Smart@emulex.com,
+       Andrew Morton <akpm@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Russell King <rmk@arm.linux.org.uk>, Dmitry Torokhov <dtor@mail.ru>
+Subject: Re: [PATCH] add transport class symlink to device object
+Message-ID: <20050831214307.GE20443@kroah.com>
+References: <9BB4DECD4CFE6D43AA8EA8D768ED51C201AD35@xbl3.ma.emulex.com> <20050813213955.GB19235@kroah.com> <20050814150231.GA9466@parcelfarce.linux.theplanet.co.uk> <1124145677.5089.68.camel@mulgrave> <20050818052311.GD29301@kroah.com> <20050818063712.GA25321@kroah.com> <d120d500050818125031d1bc98@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1125502498.9401.99.camel@localhost>
+In-Reply-To: <d120d500050818125031d1bc98@mail.gmail.com>
 User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 31, 2005 at 12:34:58PM -0300, Mauro Carvalho Chehab wrote:
-> Em Ter, 2005-08-30 ?s 23:20 +0200, Jean Delvare escreveu:
-> > Hi Mauro,
+On Thu, Aug 18, 2005 at 02:50:19PM -0500, Dmitry Torokhov wrote:
+> On 8/18/05, Greg KH <greg@kroah.com> wrote:
+> > @@ -500,9 +519,13 @@ int class_device_add(struct class_device
+> >        }
 > > 
-> > > (...) it would be nice not to have a different I2C
-> > > API for every single 2.6 version :-) It would be nice to change I2C
-> > > API once and keep it stable for a while.
+> >        class_device_add_attrs(class_dev);
+> > -       if (class_dev->dev)
+> > +       if (class_dev->dev) {
+> > +               class_name = make_class_name(class_dev);
+> >                sysfs_create_link(&class_dev->kobj,
+> >                                  &class_dev->dev->kobj, "device");
+> > +               sysfs_create_link(&class_dev->dev->kobj, &class_dev->kobj,
+> > +                                 class_name);
+> > +       }
+> > 
 > 
-> > The Linux 2.6 development model is designed around a relatively fast
-> > move from -mm to Linus' tree, which implies incremental changes all the
-> > time. I'm only doing that.
-> 	It is ok to change code, but, IMHO, API should be more stable.
+> I wonder if we need to grab a reference to class_dev->dev here:
+> 
+>         dev = device_get(class_dev->dev);
+>         if (dev) {
+>              ....
+>         }
+> 
+> Otherwise, if device gets unregistered/deleted before class device is
+> deleted we'll get into trouble when removing the link since
+> class_dev->dev will be garbage.
+> 
+> .. But grabbing that reference will cause pains in SCSI system which,
+> when I looked, removed class devices from device's release function.
 
-I take it you have not read Documentation/stable_api_nonsense.txt yet?
-If not, please do, it shows that what you are asking for will not
-happen.
+No the sysfs_create_link() call increments the kobject reference on the
+target of the symlink.  See sysfs_add_link() for details.  So this
+should be just fine, right?
 
-good luck,
+thanks,
 
 greg k-h

@@ -1,76 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964812AbVHaRJm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964855AbVHaRLX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964812AbVHaRJm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 13:09:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964853AbVHaRJm
+	id S964855AbVHaRLX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 13:11:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964886AbVHaRLX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 13:09:42 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:40973 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S964812AbVHaRJl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 13:09:41 -0400
-Date: Wed, 31 Aug 2005 19:09:40 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Johannes Stezenbach <js@linuxtv.org>, Michael Krufky <mkrufky@m1k.net>,
-       Andrew Morton <akpm@osdl.org>,
-       Mauro Carvalho Chehab <mchehab@brturbo.com.br>,
-       linux-kernel <linux-kernel@vger.kernel.org>, torvalds@osdl.org,
-       linux-dvb-maintainer@linuxtv.org, stable@kernel.org
-Subject: Re: [linux-dvb-maintainer] [2.6 patch] add missing select's to DVB_BUDGET_AV
-Message-ID: <20050831170940.GA3766@stusta.de>
-References: <4314B7C2.2080705@m1k.net> <20050831154350.GB8638@stusta.de> <20050831165907.GC21194@linuxtv.org>
+	Wed, 31 Aug 2005 13:11:23 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:61872 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S964853AbVHaRLW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 13:11:22 -0400
+Date: Wed, 31 Aug 2005 19:11:25 +0200
+From: Jens Axboe <axboe@suse.de>
+To: jmerkey <jmerkey@utah-nac.org>
+Cc: Holger Kiehl <Holger.Kiehl@dwd.de>, Vojtech Pavlik <vojtech@suse.cz>,
+       linux-raid <linux-raid@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Where is the performance bottleneck?
+Message-ID: <20050831171124.GH4018@suse.de>
+References: <Pine.LNX.4.61.0508291811480.24072@diagnostix.dwd.de> <20050829202529.GA32214@midnight.suse.cz> <Pine.LNX.4.61.0508301919250.25574@diagnostix.dwd.de> <20050831071126.GA7502@midnight.ucw.cz> <20050831072644.GF4018@suse.de> <Pine.LNX.4.61.0508311029170.16574@diagnostix.dwd.de> <20050831120714.GT4018@suse.de> <Pine.LNX.4.61.0508311339140.16574@diagnostix.dwd.de> <20050831162053.GG4018@suse.de> <4315C9EB.2030506@utah-nac.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050831165907.GC21194@linuxtv.org>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <4315C9EB.2030506@utah-nac.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 31, 2005 at 06:59:07PM +0200, Johannes Stezenbach wrote:
-> On Wed, Aug 31, 2005 Adrian Bunk wrote:
-> > 
-> > Add missing select's to DVB_BUDGET_AV fixing the following compile 
-> > error:
-> > 
-> > <--  snip  -->
-> > 
-> > ...
-> >   LD      .tmp_vmlinux1
-> > drivers/built-in.o: In function `frontend_init':
-> > budget-av.c:(.text+0xb9448): undefined reference to `tda10046_attach'
-> > budget-av.c:(.text+0xb9518): undefined reference to `tda10021_attach'
-> > drivers/built-in.o: In function `philips_tu1216_request_firmware':
-> > budget-av.c:(.text+0xb937b): undefined reference to `request_firmware'
-> > make: *** [.tmp_vmlinux1] Error 1
-> > 
-> > <--  snip  -->
-> > 
-> > 
-> > Signed-off-by: Adrian Bunk <bunk@stusta.de>
+On Wed, Aug 31 2005, jmerkey wrote:
 > 
-> Acked-by: Johannes Stezenbach <js@linuxtv.org>
 > 
-> I also added this to linuxtv.org CVS. But I'm not sure it
-> is critical enough to put it in stable.
+> I have seen an 80GB/sec limitation in the kernel unless this value is 
+> changed in the SCSI I/O layer
+> for 3Ware and other controllers during testing of 2.6.X series kernels.
+> 
+> Change these values in include/linux/blkdev.h and performance goes from 
+> 80MB/S to over 670MB/S on the 3Ware controller.
+> 
+> 
+> //#define BLKDEV_MIN_RQ    4
+> //#define BLKDEV_MAX_RQ    128    /* Default maximum */
+> #define BLKDEV_MIN_RQ    4096
+> #define BLKDEV_MAX_RQ    8192    /* Default maximum */
 
-If I were a -stable maintainer, I'd include both patches after they were 
-included in Linus' tree and shipped with one -rc or -mm kernel.
+That's insane, you just wasted 1MiB of preallocated requests on each
+queue in the system!
 
-But that's not a strong opinion, it's also OK for me if the patches 
-don't get included in 2.6.13.x .
+Please just do
 
-> Thanks,
-> Johannes
->...
+# echo 512 > /sys/block/dev/queue/nr_requests
 
-cu
-Adrian
+after boot for each device you want to increase the queue size too. 512
+should be enough with the 3ware.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Jens Axboe
 

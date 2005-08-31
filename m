@@ -1,96 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932445AbVHaHdE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932454AbVHaHes@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932445AbVHaHdE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 03:33:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932454AbVHaHdD
+	id S932454AbVHaHes (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 03:34:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932462AbVHaHes
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 03:33:03 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:60346 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932445AbVHaHdC (ORCPT
+	Wed, 31 Aug 2005 03:34:48 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:37608 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932454AbVHaHer (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 03:33:02 -0400
-Date: Wed, 31 Aug 2005 09:33:08 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Nathan Scott <nathans@sgi.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] blk queue io tracing support
-Message-ID: <20050831073307.GI4018@suse.de>
-References: <20050823123235.GG16461@suse.de> <20050824010346.GA1021@frodo> <20050824070809.GA27956@suse.de> <20050824171931.H4209301@wobbly.melbourne.sgi.com> <20050824072501.GA27992@suse.de> <20050824092838.GB28272@suse.de> <20050830234823.GF780@frodo>
+	Wed, 31 Aug 2005 03:34:47 -0400
+Date: Wed, 31 Aug 2005 09:35:18 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+Cc: jackit-devel@lists.sourceforge.net, Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel@vger.kernel.org, cc@ccrma.Stanford.EDU,
+       Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: jack, PREEMPT_DESKTOP, delayed interrupts?
+Message-ID: <20050831073518.GA7582@elte.hu>
+References: <1125453795.25823.121.camel@cmn37.stanford.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050830234823.GF780@frodo>
+In-Reply-To: <1125453795.25823.121.camel@cmn37.stanford.edu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 31 2005, Nathan Scott wrote:
-> Hi Jens,
-> 
-> On Wed, Aug 24, 2005 at 11:28:39AM +0200, Jens Axboe wrote:
-> > Ok, updated version.
-> 
-> One thing I found a bit awkward was the way its putting all inodes
-> in the root of the relayfs namespace, with the cpuid tacked on the
-> end of the bdevname - I was a bit confused at first when a trace of
-> sdd on my 4P box spontaneously created files for "partitions" sdd0,
-> sdd1, sdd2, and sdd3 ;).
 
-Yeah I agree, it's not very logical.
+* Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
 
+> Do a "tar cvf usr.tar /usr" just to read/write a lot to disk (this 
+> within the same SATA disk). Watch memory being used in a system 
+> monitor applet up to 100%. After a while, hard to say how long (maybe 
+> 10/15 minutes?) the system eventually can get into a state where Jack 
+> starts printing messages of the type "delay of 3856.000 usecs exceeds 
+> estimated spare time of 2653.000; restart ..." (if I understand 
+> correctly this means interrupts are being delayed on their way to 
+> Jack, or at least Jack thinks they are arriving too late), along with 
+> some less frequent xun notices.
 > 
-> I suppose if many more users of relayfs spring into existance, this
-> is going to get quite ugly.  Below is a patch that aligns the names
-> to the conventions used in sysfs; so, for example, when running two
-> traces simultaneously on /dev/sdd and /dev/sdb, instead of this:
-> 
-> # find /relay
-> /relay
-> /relay/sdd3
-> /relay/sdd2
-> /relay/sdd1
-> /relay/sdd0
-> /relay/sdb3
-> /relay/sdb2
-> /relay/sdb1
-> /relay/sdb0
-> 
-> it now uses this...
-> 
-> # find /relay
-> /relay
-> /relay/block
-> /relay/block/sdd
-> /relay/block/sdd/trace3
-> /relay/block/sdd/trace2
-> /relay/block/sdd/trace1
-> /relay/block/sdd/trace0
-> /relay/block/sdb
-> /relay/block/sdb/trace3
-> /relay/block/sdb/trace2
-> /relay/block/sdb/trace1
-> /relay/block/sdb/trace0
-> 
-> and does the correct dynamic setup and teardown of the hierarchy
-> as the userspace tool starts and stops tracing.  I had to modify
-> the relayfs rmdir code a bit to make this work properly, I'll
-> send a separate patch for that shortly.
+> Now the strange thing is that this condition seems to be persistent.  
+> Nothing I do after it starts to happen seems to halt those messages.  
+> Including stopping Jack and starting it again, and even (tried it 
+> once) stopping the alsa sound driver and loading it again. Nothing out 
+> of the ordinary in dmesg or /var/log/messages. I would guess that 
+> something "breaks" inside the kernel with regards to interrupt 
+> handling and/or whatever Jack uses to measure time inside the kernel?  
+> Interrupts are prioritized correctly (rtc, then audio and jack runs at 
+> lower realtime priority than the audio interrupts), everything else 
+> looks fine.
 
-It makes sense to me, please work with the relayfs people to get this
-integrated. I really don't want to carry any extra stuff for relayfs
-around.
+are the messages unstoppable, even if the system is completely idle? And 
+you get this only with the SMP kernel, correct?
 
-> > http://www.kernel.org/pub/linux/kernel/people/axboe/tools/blktrace.c
-> > 
-> > has been updated as well, the protocol version was increased to
-> > accomodate the trace structure changes.
-> 
-> I have the associated userspace change for this, as well as several
-> other fixes and tweaks for your tool - if you could slap a copyright
-> and license notice onto that source (pretty please? :) I'll send 'em
-> right along.
+i dont know what's going on, but here are a couple of ideas to debug 
+this further:
 
-You bet, I'll add it right away.
+- could you check whether there are any SCHED_FIFO tasks that shouldnt 
+  be there:
 
--- 
-Jens Axboe
+    ps -meo pid,tid,class,rtprio,ni,pri,psr,pcpu,stat,wchan:14,comm | grep FF
 
+  we had bugs in the past that caused RT priorities to 'leak' on SMP 
+  systems.
+
+- please enable all latency tracing options like Lee suggested, and do 
+  "echo 0 > /proc/sys/kernel/preempt_max_latency" to get some traces. 
+
+- if everything fails and automatic latency tracing does not show 
+  anything out of ordinary, then you could try to do "user-triggered 
+  tracing" of jackd's critical path. This is more laborous to do, but
+  should pinpoint the latency reason in a pretty sure way.
+
+  user-triggered tracing is done via adding those special gettimeofday 
+  calls to jackd and recompiling jackd. I've attached an older hack
+  against jackd below, you might need to merge it to recent jackd. NOTE: 
+  this patch will only work if you are getting xrun messages from ALSA.  
+  It has to be reworked if your latencies are not actual xruns.
+
+  then, once the patched jackd is running, you can enable user-triggered
+  tracing via:
+
+	echo 1 > /proc/sys/kernel/trace_user_triggered
+
+  then you should start seeing jackd's latency path measured, not the
+  kernel's internal critical sections. [ Tracing overhead tip: for
+  user-triggered tracing it is enough to have CONFIG_WAKEUP_TIMING and 
+  CONFIG_LATENCY_TRACE enabled, the other debugging options can be 
+  turned off, to minimize overhead. ]
+
+	Ingo
+
+diff -dupPNr jackit.0/drivers/alsa/alsa_driver.c jackit.1/drivers/alsa/alsa_driver.c
+--- jackit.0/drivers/alsa/alsa_driver.c	2004-11-26 17:24:24.000000000 +0000
++++ jackit.1/drivers/alsa/alsa_driver.c	2004-11-30 13:41:24.521791456 +0000
+@@ -1077,13 +1077,16 @@ alsa_driver_xrun_recovery (alsa_driver_t
+ 	    && driver->process_count > XRUN_REPORT_DELAY) {
+ 		struct timeval now, diff, tstamp;
+ 		driver->xrun_count++;
++		gettimeofday(0,0);
+ 		gettimeofday(&now, 0);
+ 		snd_pcm_status_get_trigger_tstamp(status, &tstamp);
+ 		timersub(&now, &tstamp, &diff);
+ 		*delayed_usecs = diff.tv_sec * 1000000.0 + diff.tv_usec;
++#if 0
+ 		fprintf(stderr, "\n\n**** alsa_pcm: xrun of at least %.3f "
+ 			"msecs\n\n",
+ 			*delayed_usecs / 1000.0);
++#endif
+ 	}
+ 
+ 	if (alsa_driver_stop (driver) ||
+@@ -1185,6 +1188,12 @@ alsa_driver_wait (alsa_driver_t *driver,
+ 			nfds++;
+ 		}
+ 
++		{	// Trigger off trace every other poll...
++			static unsigned int xruntrace_count = 0;
++			if ((xruntrace_count++ % 1) == 0)
++				gettimeofday(0,1);
++		}
++  
+ 		poll_enter = jack_get_microseconds ();
+ 
+ 		if (poll_enter > driver->poll_next) {

@@ -1,68 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbVHaNN6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964789AbVHaNOb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964791AbVHaNN6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 09:13:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964789AbVHaNN6
+	id S964789AbVHaNOb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 09:14:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964792AbVHaNOb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 09:13:58 -0400
-Received: from dgate2.fujitsu-siemens.com ([217.115.66.36]:44411 "EHLO
-	dgate2.fujitsu-siemens.com") by vger.kernel.org with ESMTP
-	id S964791AbVHaNN5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 09:13:57 -0400
-X-SBRSScore: None
-Message-ID: <4315AD07.2020500@fujitsu-siemens.com>
-Date: Wed, 31 Aug 2005 15:13:43 +0200
-From: Martin Wilck <martin.wilck@fujitsu-siemens.com>
-Organization: Fujitsu Siemens Computers
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: de, en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org,
-       "Wichert, Gerhard" <Gerhard.Wichert@fujitsu-siemens.com>
-Subject: Re: APIC version and 8-bit APIC IDs
-References: <42FC8461.2040102@fujitsu-siemens.com.suse.lists.linux.kernel> <p73pssj2xdz.fsf@verdi.suse.de>
-In-Reply-To: <p73pssj2xdz.fsf@verdi.suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 31 Aug 2005 09:14:31 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:39596 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964789AbVHaNOa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 09:14:30 -0400
+Subject: Re: [FINAL WARNING] Removal of deprecated serial functions -
+	please update your drivers NOW
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>, amax@us.ibm.com,
+       ralf@linux-mips.org, starvik@axis.com
+In-Reply-To: <20050831135258.D1118@flint.arm.linux.org.uk>
+References: <20050831103352.A26480@flint.arm.linux.org.uk>
+	 <1125493224.3355.1.camel@localhost.localdomain>
+	 <20050831135258.D1118@flint.arm.linux.org.uk>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Wed, 31 Aug 2005 14:38:10 +0100
+Message-Id: <1125495490.3355.27.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andi, hi everyone,
+On Mer, 2005-08-31 at 13:52 +0100, Russell King wrote:
+> The key thing is that port.dev should be set appropriately and the
+> relevant calls to serial8250_suspend_port/serial8250_resume_port
+> be made (or port.dev should be NULL if no power management is
+> expected - in which case it may be managed as a generic platform
+> port.)
 
->>The MP_valid_apicid() function [arch/i386/kernel/mpparse.c] checks
->>whether the APIC version field is >=20 in order to determine whether
->>the CPU supports 8-bit physical APIC ids.
-> 
-> Yes, it's broken. ... . Also it's only
-> a sanity check for broken BIOS, and in this case it causes more problems
-> than it solves.
+Thanks. Thats all I needed to know to whack that into shape once I've
+put a legacy 32bit build environment back together for this and for
+something akpm wants me to fix in another diff.
 
-We have another issue with the APIC IDs: the GET_APIC_ID and 
-APIC_ID_MASK macros from the subarch code. In all subarchs except summit 
-and es7000, these macros use a hard-coded mask 0x0F for the APIC ID. 
-Thus, any APIC ID >15 will be truncated, leading to obscure errors.
+Power management is umm special. The port will die on suspend/resume via
+Linux (via APM seems to be ok) and need a userspace firmware reload to
+come back.
 
-We are wondering why these masks are there in the subarch code at all. 
-After all, whether or not 8-bit APIC IDs are supported depends mainly on 
-the CPU type used. Why wouldn't it possible to have a "default" 
-architecture with APIC IDs > 15, if the CPUs allow it?
-
-In other words: What would be broken if we just used an APIC ID mask of 
-0xFF everywhere?
-
-The current situation with MP_valid_apicid() on the one hand (masking 
-the APIC ID as a function of local APIC version) and APIC_ID_MASK 
-(masking the APIC as a function of subarch) on the other hand is 
-inconsistent. A correct approach must take both CPU and architecture 
-constraints into account, and use a CPU-type-dependent variable mask in 
-the subarch code.
-
-Regards
-Martin
-
--- 
-Martin Wilck                Phone: +49 5251 8 15113
-Fujitsu Siemens Computers   Fax:   +49 5251 8 20409
-Heinz-Nixdorf-Ring 1        mailto:Martin.Wilck@Fujitsu-Siemens.com
-D-33106 Paderborn           http://www.fujitsu-siemens.com/primergy

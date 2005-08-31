@@ -1,44 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964859AbVHaQUh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964863AbVHaQ0U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964859AbVHaQUh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 12:20:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964860AbVHaQUh
+	id S964863AbVHaQ0U (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 12:26:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964864AbVHaQ0U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 12:20:37 -0400
-Received: from office.servervault.com ([216.12.128.136]:4914 "EHLO
-	mail1.dulles.sv.int") by vger.kernel.org with ESMTP id S964859AbVHaQUg convert rfc822-to-8bit
+	Wed, 31 Aug 2005 12:26:20 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:17856 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964863AbVHaQ0T
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 12:20:36 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Subject: Ran 2.6.13-rc7 for a few days, upgraded to 2.6.13, box crashed in less than 6 hours.
-Date: Wed, 31 Aug 2005 12:20:33 -0400
-Message-ID: <F8B974E70BDE1745ABB27AF04788FA00BDCD91@mail1.dulles.sv.int>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Ran 2.6.13-rc7 for a few days, upgraded to 2.6.13, box crashed in less than 6 hours.
-Thread-Index: AcWuR+mDb7QEA7toQeOn/8ptxFBVxQ==
-From: "Piszcz, Justin" <jpiszcz@servervault.com>
-To: <linux-kernel@vger.kernel.org>
+	Wed, 31 Aug 2005 12:26:19 -0400
+Subject: Re: tty problem
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Nilesh Agrawal <nilesh.agrawal@gmail.com>
+Cc: "Antonino A. Daplas" <adaplas@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <9a9e5ab905083108503285865b@mail.gmail.com>
+References: <9a9e5ab90508310806114ab96b@mail.gmail.com>
+	 <4315CA02.4000802@gmail.com>  <9a9e5ab905083108503285865b@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 31 Aug 2005 17:50:10 +0100
+Message-Id: <1125507010.3355.67.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Did anything critical change from -rc7 to 2.6.13?
-I had -rc7 running on three machines for:
-> 1 week 
-> 3 days
-> 2 days
-Respectively...
+On Mer, 2005-08-31 at 21:20 +0530, Nilesh Agrawal wrote:
+> mdacon: MDA with 8K of memory detected.
+> Console: switching consoles 1-16 to mono MDA-2 80x25
 
-I upgraded to 2.6.13 this morning and only in less than 6 hours the machine locked up, I am not home at the moment so I cannot verify what happened; but nobody was doing anything when the crash occurred.
-
-I will mention that in 2.6.12 the box would lock (and another as well) if you put a 400GB Seagate HDD on a Promise ATA/133 controller; however, 2.6.13-rc7 seemed to have the fix and I have not experienced any problems with it.  However, was some cold reverted back to an earlier version from -rc7 -> 2.6.13, or?
-
-Any comments?
-
-Thanks.
+You've compiled in the MDA driver, probably not what you want to load on
+that hardware
 

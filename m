@@ -1,61 +1,179 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932311AbVHaLDe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932322AbVHaLJg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932311AbVHaLDe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 07:03:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932364AbVHaLDe
+	id S932322AbVHaLJg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 07:09:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932336AbVHaLJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 07:03:34 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:50106 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932311AbVHaLDd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 07:03:33 -0400
-Subject: Re: Dynamic tick for 2.6.14 - what's the plan?
-From: Arjan van de Ven <arjan@infradead.org>
-To: Tony Lindgren <tony@atomide.com>
-Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       Con Kolivas <kernel@kolivas.org>, "Theodore Ts'o" <tytso@mit.edu>,
-       Christopher Friesen <cfriesen@nortel.com>,
-       Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Srivatsa Vaddagiri <vatsa@in.ibm.com>, Thomas Renninger <trenn@suse.de>
-In-Reply-To: <20050831103402.GA6496@atomide.com>
-References: <1125354385.4598.79.camel@mindpipe>
-	 <200508301348.59357.kernel@kolivas.org> <20050830123132.GH6055@atomide.com>
-	 <200508301701.49228.s0348365@sms.ed.ac.uk>
-	 <20050831074419.GA1029@atomide.com>
-	 <1125477566.3213.6.camel@laptopd505.fenrus.org>
-	 <20050831103402.GA6496@atomide.com>
-Content-Type: text/plain
-Date: Wed, 31 Aug 2005 13:03:05 +0200
-Message-Id: <1125486186.3213.8.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 31 Aug 2005 07:09:36 -0400
+Received: from RT-soft-2.Moscow.itn.ru ([80.240.96.70]:17339 "HELO
+	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S932322AbVHaLJf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 07:09:35 -0400
+Message-ID: <43159011.3060206@rbcmail.ru>
+Date: Wed, 31 Aug 2005 15:10:09 +0400
+From: Vitaly Wool <vitalhome@rbcmail.ru>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Grigory Tolstolytkin <gtolstolytkin@dev.rtsoft.ru>
+Subject: [PATCH] custom PM support for 8250
+Content-Type: multipart/mixed;
+ boundary="------------070907010802060304020800"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------070907010802060304020800
+Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> > ehh
-> > why does it cause slow boots?
-> > if that kind of behavior changes... isn't that a sign there is a
-> > fundamental bug still ?
->  
-> Well it seems like the next_timer_interrupt is something like 400
-> jiffies away and RCU code waits for completion for example in the
-> network code.
+Greetings,
+please find the patch that allows passing the pointer to custom power 
+management routine (via platform_device) to 8250 serial driver.
+Please note that the interface to the outer world (i. e. exported 
+functions) remained the same.
 
-that sounds like a fundamental issue that really needs to be fixed
-first!
+Best regards,
+   Vitaly
 
+--------------070907010802060304020800
+Content-Type: text/x-patch;
+ name="8250.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="8250.diff"
 
+Currently 8250 serial driver doesn't have means to register custom
+(i. e. board-specific) power management functions.
+This patch modifies the driver to provide such facility.
+
+ drivers/serial/8250.c       |   47 +++++++++++++++++++++++++++++++++++++------- include/linux/serial_8250.h |    4 +++
+ 2 files changed, 44 insertions(+), 7 deletions(-)
+ 
+Signed-off-by: Vitaly Wool <vitalhome@rbcmail.ru>
+
+Index: linux-2.6.10/drivers/serial/8250.c
+===================================================================
+--- linux-2.6.10.orig/drivers/serial/8250.c
++++ linux-2.6.10/drivers/serial/8250.c
+@@ -2360,6 +2360,8 @@
+ 	uart_resume_port(&serial8250_reg, &serial8250_ports[line].port);
+ }
+ 
++static struct uart_8250_port *uart_8250_register_port(struct uart_port *port, int *line);
++
+ /*
+  * Register a set of serial devices attached to a platform device.  The
+  * list is terminated with a zero flags entry, which means we expect
+@@ -2369,6 +2371,8 @@
+ {
+ 	struct plat_serial8250_port *p = dev->platform_data;
+ 	struct uart_port port;
++	struct uart_8250_port *uart;
++	int line;
+ 
+ 	memset(&port, 0, sizeof(struct uart_port));
+ 
+@@ -2386,7 +2390,9 @@
+ 		if (share_irqs)
+ 			port.flags |= UPF_SHARE_IRQ;
+ 
+-		serial8250_register_port(&port);
++		uart = uart_8250_register_port(&port, &line);
++		if (!IS_ERR(uart))
++			uart->pm = p->pm;
+ 	}
+ 	return 0;
+ }
+@@ -2516,8 +2522,9 @@
+ }
+ 
+ /**
+- *	serial8250_register_port - register a serial port
++ *	uart_8250_register_port - register a serial port
+  *	@port: serial port template
++ *	@line: returned (on success) value of the line number
+  *
+  *	Configure the serial port specified by the request. If the
+  *	port exists and is in use, it is hung up and unregistered
+@@ -2526,19 +2533,20 @@
+  *	The port is then probed and if necessary the IRQ is autodetected
+  *	If this fails an error is returned.
+  *
+- *	On success the port is ready to use and the line number is returned.
++ *	On success the port is ready to use and the pointer to the 
++ *	corresponding struct uart_8250_port is returned.
+  */
+-int serial8250_register_port(struct uart_port *port)
++static struct uart_8250_port *uart_8250_register_port(struct uart_port *port, int *line)
+ {
+ 	struct uart_8250_port *uart;
+ 	int ret = -ENOSPC;
+ 
+ 	if (port->uartclk == 0)
+-		return -EINVAL;
++		return ERR_PTR(-EINVAL);
+ 
+ 	/* Avoid re-registering platform based ports if KGDB active */
+ 	if (port->line == kgdb8250_ttyS)
+-		return -EBUSY;
++		return ERR_PTR(-EBUSY);
+ 
+ 	down(&serial_sem);
+ 
+@@ -2560,10 +2568,35 @@
+ 
+ 		ret = uart_add_one_port(&serial8250_reg, &uart->port);
+ 		if (ret == 0)
+-			ret = uart->port.line;
++			*line = uart->port.line;
+ 	}
+ 	up(&serial_sem);
+ 
++	return ret == 0 ? uart : ERR_PTR(ret);
++
++}
++
++/**
++ *	serial8250_register_port - register a serial port
++ *	@port: serial port template
++ *
++ *	Configure the serial port specified by the request. If the
++ *	port exists and is in use, it is hung up and unregistered
++ *	first.
++ *
++ *	The port is then probed and if necessary the IRQ is autodetected
++ *	If this fails an error is returned.
++ *
++ *	On success the port is ready to use and the line number is returned.
++ */
++int serial8250_register_port(struct uart_port *port)
++{
++	int ret = 0;
++	struct uart_8250_port *uart = uart_8250_register_port(port, &ret);
++
++	if (IS_ERR(uart))
++		ret = PTR_ERR(uart);
++
+ 	return ret;
+ }
+ EXPORT_SYMBOL(serial8250_register_port);
+Index: linux-2.6.10/include/linux/serial_8250.h
+===================================================================
+--- linux-2.6.10.orig/include/linux/serial_8250.h
++++ linux-2.6.10/include/linux/serial_8250.h
+@@ -24,6 +24,10 @@
+ 	unsigned char	iotype;		/* UPIO_* */
+ 	unsigned int	flags;		/* UPF_* flags */
+ 	unsigned int	line;		/* uart # */
++
++	/* per-port pm hook */
++	void			(*pm)(struct uart_port *port,
++				      unsigned int state, unsigned int old);
+ };
+ 
+ #endif
+
+--------------070907010802060304020800--

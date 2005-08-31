@@ -1,233 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964784AbVHaMwf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964786AbVHaM57@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964784AbVHaMwf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 08:52:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964785AbVHaMwf
+	id S964786AbVHaM57 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 08:57:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964788AbVHaM57
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 08:52:35 -0400
-Received: from chello062178225197.14.15.tuwien.teleweb.at ([62.178.225.197]:12285
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id S964784AbVHaMwe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 08:52:34 -0400
-Subject: Re: [PATCH 2.6.13 2/2] New Syscall: get/set rlimits of any process
-	(udate)
-From: Wieland Gmeiner <e8607062@student.tuwien.ac.at>
-Reply-To: e8607062@student.tuwien.ac.at
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Elliot Lee <sopwith@redhat.com>
-In-Reply-To: <1125492405.5810.5.camel@w2>
-References: <1125027277.6394.8.camel@w2>  <1125492405.5810.5.camel@w2>
-Content-Type: text/plain
+	Wed, 31 Aug 2005 08:57:59 -0400
+Received: from NS8.Sony.CO.JP ([137.153.0.33]:56047 "EHLO ns8.sony.co.jp")
+	by vger.kernel.org with ESMTP id S964786AbVHaM56 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 08:57:58 -0400
+Message-ID: <4315A94E.3030901@sm.sony.co.jp>
+Date: Wed, 31 Aug 2005 21:57:50 +0900
+From: "Machida, Hiroyuki" <machida@sm.sony.co.jp>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: ja, en-us, en
+MIME-Version: 1.0
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+CC: linux-kernel@vger.kernel.org, hirofumi@mail.parknet.co.jp
+Subject: Re: [PATCH][FAT] FAT dirent scan with hin take #3
+References: <4313CBEF.9020505@sm.sony.co.jp> <4313E578.8070100@sm.sony.co.jp>	 <874q979qdj.fsf@devron.myhome.or.jp> <43156963.8020203@sm.sony.co.jp> <84144f0205083103005b791f4d@mail.gmail.com>
+In-Reply-To: <84144f0205083103005b791f4d@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Wed, 31 Aug 2005 14:52:25 +0200
-Message-Id: <1125492745.5810.10.camel@w2>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-6) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch for the setprlimit() syscall:
+Hi,
+
+Pekka Enberg wrote:
+> Hi,
+> 
+> On 8/31/05, Machida, Hiroyuki <machida@sm.sony.co.jp> wrote:
+> 
+>>+inline
+>>+static int hint_allocate(struct inode *dir)
+>>+{
+>>+       loff_t *hints;
+>>+       int err = 0;
+>>+
+>>+       if (!MSDOS_I(dir)->scan_hints) {
+>>+               hints = kcalloc(FAT_SCAN_NWAY, sizeof(loff_t), GFP_KERNEL);
+>>+               if (!hints)
+>>+                       err = -ENOMEM;
+> 
+> 
+> Better to bail out here as...
+> 
+> 
+>>+
+>>+               down(&MSDOS_I(dir)->scan_lock);
+>>+               if (MSDOS_I(dir)->scan_hints)
+>>+                       err = -EINVAL;
+> 
+> 
+> ...you might overwrite -ENOMEM here masking the real problem.
+> 
+
+It's ok. If MSDOS_I(dir)->scan_hints isn't NULL, it's not error case.
+We need just kfree(hints) and return 0.(Assuming  kfree() accepts NULL)
+I think EINVAL confuse you.
+> 
+>>+               if (!err)
+>>+                       MSDOS_I(dir)->scan_hints = hints;
+>>+               up(&MSDOS_I(dir)->scan_lock);
+>>+               if (err == -EINVAL) {
+> 
+> 
+> Gotos would make error handling much cleaner.
+> 
+How about this ?
+
+	if (!MSDOS_I(dir)->scan_hints) {
+		hints  = kcalllo(....);
+
+		down
+		if (MSDOS_I(dir)->scan_hints) {
+			up
+			goto already_allocated;
+		}
+		if (hints)
+			MSDOS_I(dir)->scan_hints = hints;
+		up
+	}
+	return (hints == 0) ? -ENOMEM : 0;
+
+already_allocated:
+	kfree(hints); /* kfree accepts NULL */
+	return 0;
+		
 
 
-Signed-off-by: Wieland Gmeiner <e8607062@student.tuwien.ac.at>
+> 
+>>+inline
+>>+static int hint_index_body(const unsigned char *name, int name_len, int check_null)
+> 
+> 
+> Please consider calling this __hint_index() instead as per normal
+> naming conventions.
+
+Agree.
+
+> 
+>>+{
+>>+       int i;
+>>+       int val = 0;
+>>+       unsigned char *p = (unsigned char *) name;
+>>+       int id = current->pid;
+>>+
+>>+       for (i=0; i<name_len; i++) {
+>>+               if (check_null && !*p) break;
+> 
+> 
+> Please put break on separate line. You still have quite a few of these.
+
+Agree
+
+> 
+> 
+>>+               val = ((val << 1) & 0xfe) | ((val & 0x80) ? 1 : 0);
+>>+               val ^= *p;
+>>+               p ++;
+>>+       }
+>>+       id = ((id >> 8) & 0xf) ^ (id & 0xf);
+>>+       val = (val << 1) | (id & 1);
+>>+       return val & (FAT_SCAN_NWAY-1);
+>>+}
+> 
+> 
+>                               Pekka
 
 
-
----
-
- arch/i386/kernel/syscall_table.S |    1 
- include/asm-i386/unistd.h        |    3 -
- kernel/sys.c                     |  114 ++++++++++++++++++++++++---------------
- security/selinux/hooks.c         |   14 +++-
- 4 files changed, 85 insertions(+), 47 deletions(-)
-
-diff -puN arch/i386/kernel/syscall_table.S~setprlimit arch/i386/kernel/syscall_table.S
---- linux-2.6.13/arch/i386/kernel/syscall_table.S~setprlimit	2005-08-31 02:56:22.000000000 +0200
-+++ linux-2.6.13-wieland/arch/i386/kernel/syscall_table.S	2005-08-31 02:58:31.000000000 +0200
-@@ -295,3 +295,4 @@ ENTRY(sys_call_table)
- 	.long sys_inotify_add_watch
- 	.long sys_inotify_rm_watch
- 	.long sys_getprlimit
-+	.long sys_setprlimit		/* 295 */
-diff -puN include/asm-i386/unistd.h~setprlimit include/asm-i386/unistd.h
---- linux-2.6.13/include/asm-i386/unistd.h~setprlimit	2005-08-31 02:56:22.000000000 +0200
-+++ linux-2.6.13-wieland/include/asm-i386/unistd.h	2005-08-31 02:59:16.000000000 +0200
-@@ -300,8 +300,9 @@
- #define __NR_inotify_add_watch	292
- #define __NR_inotify_rm_watch	293
- #define __NR_getprlimit		294
-+#define __NR_setprlimit		295
- 
--#define NR_syscalls 295
-+#define NR_syscalls 296
- 
- /*
-  * user-visible error numbers are in the range -1 - -128: see
-diff -puN kernel/sys.c~setprlimit kernel/sys.c
---- linux-2.6.13/kernel/sys.c~setprlimit	2005-08-31 02:56:22.000000000 +0200
-+++ linux-2.6.13-wieland/kernel/sys.c	2005-08-31 03:02:47.000000000 +0200
-@@ -1600,6 +1600,78 @@ asmlinkage long sys_getrlimit(unsigned i
- 	return rlim_do_getprlimit(0, resource, rlim);
- }
- 
-+static inline long rlim_do_setprlimit(pid_t pid, unsigned int resource,
-+				      struct rlimit __user *rlim)
-+{
-+	struct rlimit new_rlim, *old_rlim;
-+	int retval;
-+	task_t *p;
-+
-+	if (resource >= RLIM_NLIMITS)
-+		return -EINVAL;
-+	if (pid < 0)
-+		return -EINVAL;
-+	if(copy_from_user(&new_rlim, rlim, sizeof(*rlim)))
-+		return -EFAULT;
-+	if (new_rlim.rlim_cur > new_rlim.rlim_max)
-+		return -EINVAL;
-+
-+	retval = -ESRCH;
-+	read_lock(&tasklist_lock);
-+	if (pid == 0) {
-+		p = current;
-+	} else {
-+		p = find_task_by_pid(pid);
-+	}
-+	if (p) {
-+		retval = -EPERM;
-+		if (pid && !prlim_check_perm(p))
-+			goto out;
-+
-+		old_rlim = p->signal->rlim + resource;
-+		if ((new_rlim.rlim_max > old_rlim->rlim_max) &&
-+		    !capable(CAP_SYS_RESOURCE))
-+			goto out;
-+		if (resource == RLIMIT_NOFILE && new_rlim.rlim_max > NR_OPEN)
-+			goto out;
-+
-+		retval = security_task_rlimit(p, resource, &new_rlim);
-+		if (retval)
-+			goto out;
-+
-+		task_lock(p->group_leader);
-+		*old_rlim = new_rlim;
-+		task_unlock(p->group_leader);
-+
-+		if (resource == RLIMIT_CPU &&
-+		    new_rlim.rlim_cur != RLIM_INFINITY &&
-+		    (cputime_eq(p->signal->it_prof_expires, cputime_zero) ||
-+		     new_rlim.rlim_cur <= cputime_to_secs(
-+			     p->signal->it_prof_expires))) {
-+			cputime_t cputime = secs_to_cputime(new_rlim.rlim_cur);
-+			spin_lock_irq(&p->sighand->siglock);
-+			set_process_cpu_timer(p, CPUCLOCK_PROF,
-+					      &cputime, NULL);
-+			spin_unlock_irq(&p->sighand->siglock);
-+		}
-+	}
-+
-+out:
-+	read_unlock(&tasklist_lock);
-+	return retval;
-+}
-+
-+asmlinkage long sys_setprlimit(pid_t pid, unsigned int resource,
-+			       struct rlimit __user *rlim)
-+{
-+	return rlim_do_setprlimit(pid, resource, rlim);
-+}
-+
-+asmlinkage long sys_setrlimit(unsigned int resource, struct rlimit __user *rlim)
-+{
-+	return rlim_do_setprlimit(0, resource, rlim);
-+}
-+
- #ifdef __ARCH_WANT_SYS_OLD_GETRLIMIT
- 
- /*
-@@ -1624,48 +1696,6 @@ asmlinkage long sys_old_getrlimit(unsign
- 
- #endif
- 
--asmlinkage long sys_setrlimit(unsigned int resource, struct rlimit __user *rlim)
--{
--	struct rlimit new_rlim, *old_rlim;
--	int retval;
--
--	if (resource >= RLIM_NLIMITS)
--		return -EINVAL;
--	if(copy_from_user(&new_rlim, rlim, sizeof(*rlim)))
--		return -EFAULT;
--       if (new_rlim.rlim_cur > new_rlim.rlim_max)
--               return -EINVAL;
--	old_rlim = current->signal->rlim + resource;
--	if ((new_rlim.rlim_max > old_rlim->rlim_max) &&
--	    !capable(CAP_SYS_RESOURCE))
--		return -EPERM;
--	if (resource == RLIMIT_NOFILE && new_rlim.rlim_max > NR_OPEN)
--			return -EPERM;
--
--	retval = security_task_rlimit(0, resource, &new_rlim);
--	if (retval)
--		return retval;
--
--	task_lock(current->group_leader);
--	*old_rlim = new_rlim;
--	task_unlock(current->group_leader);
--
--	if (resource == RLIMIT_CPU && new_rlim.rlim_cur != RLIM_INFINITY &&
--	    (cputime_eq(current->signal->it_prof_expires, cputime_zero) ||
--	     new_rlim.rlim_cur <= cputime_to_secs(
--		     current->signal->it_prof_expires))) {
--		cputime_t cputime = secs_to_cputime(new_rlim.rlim_cur);
--		read_lock(&tasklist_lock);
--		spin_lock_irq(&current->sighand->siglock);
--		set_process_cpu_timer(current, CPUCLOCK_PROF,
--				      &cputime, NULL);
--		spin_unlock_irq(&current->sighand->siglock);
--		read_unlock(&tasklist_lock);
--	}
--
--	return 0;
--}
--
- /*
-  * It would make sense to put struct rusage in the task_struct,
-  * except that would make the task_struct be *really big*.  After
-diff -puN security/selinux/hooks.c~setprlimit security/selinux/hooks.c
---- linux-2.6.13/security/selinux/hooks.c~setprlimit	2005-08-31 02:56:22.000000000 +0200
-+++ linux-2.6.13-wieland/security/selinux/hooks.c	2005-08-31 03:07:22.000000000 +0200
-@@ -2710,21 +2710,27 @@ static int selinux_task_rlimit(struct ta
- 	struct rlimit *old_rlim = p->signal->rlim + resource;
- 	int rc;
- 
-+	/* getprlimit */
- 	if (!new_rlim)
- 		rc = secondary_ops->task_rlimit(p, resource, 0);
--	else
-+	/* setrlimit */
-+	else if (p == current)
- 		rc = secondary_ops->task_rlimit(0, resource, new_rlim);
-+	/* setprlimit */
-+	else
-+		rc = secondary_ops->task_rlimit(p, resource, new_rlim);
- 	if (rc)
- 		return rc;
- 
--	if (!new_rlim)
--		return task_has_perm(current, p, PROCESS__PTRACE);
- 	/* Control the ability to change the hard limit (whether
- 	   lowering or raising it), so that the hard limit can
- 	   later be used as a safe reset point for the soft limit
- 	   upon context transitions. See selinux_bprm_apply_creds. */
--	else if (p == current && old_rlim->rlim_max != new_rlim->rlim_max)
-+	if (p == current && new_rlim &&
-+	    old_rlim->rlim_max != new_rlim->rlim_max)
- 		return task_has_perm(current, current, PROCESS__SETRLIMIT);
-+	else
-+		return task_has_perm(current, p, PROCESS__PTRACE);
- 
- 	return 0;
- }
-_
-
+-- 
+Hiroyuki Machida		machida@sm.sony.co.jp		
+SSW Dept. HENC, Sony Corp.

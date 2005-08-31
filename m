@@ -1,45 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964789AbVHaNOb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964790AbVHaNVZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964789AbVHaNOb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 09:14:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964792AbVHaNOb
+	id S964790AbVHaNVZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 09:21:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964794AbVHaNVZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 09:14:31 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:39596 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964789AbVHaNOa
+	Wed, 31 Aug 2005 09:21:25 -0400
+Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:33472 "EHLO
+	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S964790AbVHaNVY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 09:14:30 -0400
-Subject: Re: [FINAL WARNING] Removal of deprecated serial functions -
-	please update your drivers NOW
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>, amax@us.ibm.com,
-       ralf@linux-mips.org, starvik@axis.com
-In-Reply-To: <20050831135258.D1118@flint.arm.linux.org.uk>
-References: <20050831103352.A26480@flint.arm.linux.org.uk>
-	 <1125493224.3355.1.camel@localhost.localdomain>
-	 <20050831135258.D1118@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 31 Aug 2005 14:38:10 +0100
-Message-Id: <1125495490.3355.27.camel@localhost.localdomain>
+	Wed, 31 Aug 2005 09:21:24 -0400
+X-ORBL: [67.117.73.34]
+Date: Wed, 31 Aug 2005 16:21:09 +0300
+From: Tony Lindgren <tony@atomide.com>
+To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Con Kolivas <kernel@kolivas.org>, "Theodore Ts'o" <tytso@mit.edu>,
+       Christopher Friesen <cfriesen@nortel.com>,
+       Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Thomas Renninger <trenn@suse.de>
+Subject: Re: Dynamic tick for 2.6.14 - what's the plan?
+Message-ID: <20050831132109.GD6496@atomide.com>
+References: <1125354385.4598.79.camel@mindpipe> <200508301348.59357.kernel@kolivas.org> <20050830123132.GH6055@atomide.com> <200508301701.49228.s0348365@sms.ed.ac.uk> <20050831074419.GA1029@atomide.com> <1125477566.3213.6.camel@laptopd505.fenrus.org> <20050831103402.GA6496@atomide.com> <1125486186.3213.8.camel@laptopd505.fenrus.org> <20050831111705.GC10307@in.ibm.com> <20050831112017.GD10307@in.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050831112017.GD10307@in.ibm.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2005-08-31 at 13:52 +0100, Russell King wrote:
-> The key thing is that port.dev should be set appropriately and the
-> relevant calls to serial8250_suspend_port/serial8250_resume_port
-> be made (or port.dev should be NULL if no power management is
-> expected - in which case it may be managed as a generic platform
-> port.)
+* Srivatsa Vaddagiri <vatsa@in.ibm.com> [050831 14:20]:
+> On Wed, Aug 31, 2005 at 04:47:05PM +0530, Srivatsa Vaddagiri wrote:
+> > On Wed, Aug 31, 2005 at 01:03:05PM +0200, Arjan van de Ven wrote:
+> > > that sounds like a fundamental issue that really needs to be fixed
+> > > first!
+> > 
+> > It should be fixed by the patch here:
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=111556608901657&w=2
+> 
+> Actually, a solution to take care of sleeping CPUs was there quite some 
+> time back. The above patch only fixes a race in that solution.
+> 
+> Tony,
+> 	Which kernel version did you see the slow bootup? 
 
-Thanks. Thats all I needed to know to whack that into shape once I've
-put a legacy 32bit build environment back together for this and for
-something akpm wants me to fix in another diff.
+I'll try it out, but sounds like it won't help then.
 
-Power management is umm special. The port will die on suspend/resume via
-Linux (via APM seems to be ok) and need a userspace firmware reload to
-come back.
+This is on ARM OMAP and 2.6.12. I haven't been able to play with the
+x86 stuff lately, hopefully will have a chance soonish...
 
+Tony

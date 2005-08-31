@@ -1,95 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964992AbVIAACG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964994AbVIAAFU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964992AbVIAACG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 20:02:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932468AbVIAACG
+	id S964994AbVIAAFU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 20:05:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964995AbVIAAFU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 20:02:06 -0400
-Received: from fmr18.intel.com ([134.134.136.17]:159 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932145AbVIAACF convert rfc822-to-8bit (ORCPT
+	Wed, 31 Aug 2005 20:05:20 -0400
+Received: from [67.137.28.189] ([67.137.28.189]:65459 "EHLO vger")
+	by vger.kernel.org with ESMTP id S964994AbVIAAFU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 20:02:05 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Wed, 31 Aug 2005 20:05:20 -0400
+Message-ID: <43163430.7010107@utah-nac.org>
+Date: Wed, 31 Aug 2005 16:50:24 -0600
+From: jmerkey <jmerkey@utah-nac.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: FW: [RFC] A more general timeout specification
-Date: Wed, 31 Aug 2005 17:00:41 -0700
-Message-ID: <F989B1573A3A644BAB3920FBECA4D25A042B03A8@orsmsx407>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: FW: [RFC] A more general timeout specification
-Thread-Index: AcWuhs0562DcN/ivSu2/U4mAT8JC0gAAChXQ
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "Roman Zippel" <zippel@linux-m68k.org>
-Cc: <akpm@osdl.org>, <joe.korty@ccur.com>, <george@mvista.com>,
-       <johnstul@us.ibm.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 01 Sep 2005 00:01:34.0024 (UTC) FILETIME=[508EAC80:01C5AE88]
+To: Diego Calleja <diegocg@gmail.com>
+Cc: "Jeff V. Merkey" <jmerkey@soleranetworks.com>, Valdis.Kletnieks@vt.edu,
+       arjan@infradead.org, riel@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] DSFS Network Forensic File System for Linux Patches
+References: <4315DBE7.7080002@soleranetworks.com>	<Pine.LNX.4.63.0508311432270.16968@cuia.boston.redhat.com>	<4315E88D.9020603@soleranetworks.com>	<1125514716.3213.24.camel@laptopd505.fenrus.org>	<4315F04D.5050705@soleranetworks.com>	<200508312128.j7VLST47010653@turing-police.cc.vt.edu>	<431611B7.6000103@soleranetworks.com>	<431612C3.7020903@soleranetworks.com> <20050901012218.02c79560.diegocg@gmail.com>
+In-Reply-To: <20050901012218.02c79560.diegocg@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Roman Zippel [mailto:zippel@linux-m68k.org]
->On Wed, 31 Aug 2005, Perez-Gonzalez, Inaky wrote:
+Diego Calleja wrote:
+
+>El Wed, 31 Aug 2005 14:27:47 -0600,
+>"Jeff V. Merkey" <jmerkey@soleranetworks.com> escribió:
 >
->> I cannot produce (top of my head) any other POSIX API calls that
->> allow you to specify another clock source, but they are there,
->> somewhere. If I am to introduce a new API, I better make it
->> flexible enough so that other subsystems can use it for more stuff
->> other than...
+>  
 >
->So we have to deal at kernel level with every broken timeout
-specification
->that comes along?
-
-Hmm, I cannot think of more ways to specify a timeout than how
-long I want to wait (relative) or until when (absolute) and which
-is the reference clock. And they don't seem broken to me, common
-sense, in any case. Do you have any examples?
-
-In any case, like it or not, POSIX is what almost every application
-uses to talk to the kernel.
-
->> ...adding more versions that add complexity and duplicate
->> code in many different places (user-to-kernel copy, syscall entry
->> points, timespec validation). And the minute you add a clock_id
->> you can steal some bits for specifying absolute/relative (or vice
->> versa), so it is almost a win-win situarion.
+>> 
+>>NOTE! This copyright does *not* cover user programs that use kernel
+>> services by normal system calls - this is merely considered normal use
+>> of the kernel, and does *not* fall under the heading of "derived work".
+>> Also note that the GPL below is copyrighted by the Free Software
+>> Foundation, but the instance of code that it refers to (the linux
+>> kernel) is copyrighted by me and others who actually wrote it.
+>>    
+>>
 >
->What "more versions" are you talking about? When you convert a user
-time
->to kernel time you can automatically validate it and later you can use
->standard kernel APIs, so you don't have to add even more API bloat.
+>So, that means that DSFS runs on userspace? (We can't see the source
+>so it'd be nice to know how DSFS works)
+>
+>Also, I'm curious about this piece of code on your patch:
+>ftp://ftp.soleranetworks.com/pub/dsfs/datascout-only-2.6.9-06-28-05.patch
+>
+>-		printk(KERN_WARNING "%s: module license '%s' taints kernel.\n",
+>-		       mod->name, license);
+>+//		printk(KERN_WARNING "%s: module license '%s' taints kernel.\n",
+>+//		       mod->name, license);
+>
+>I mean, nvidia people also use propietary code in the kernel (probably
+>violating the GPL anyway) and don't do such things.
+>
+>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+I disagree with the language and the characterization that our 
+proprietary user application code is "tainted."
 
-The versions you were talking about:
-
->From: Roman Zippel [mailto:zippel@linux-m68k.org]
->...
->Why is not sufficient to just add a relative/absolute version,
->which convert the time at entry to kernel time?
-
-Different versions of the same function that do relative, absolute.
-If I keep going that way, the reason becomes:
-
-sys_mutex_lock
-sys_mutex_lock_timed_relative_clock_realtime
-sys_mutex_lock_timed_absolute_clock_realtime
-sys_mutex_lock_timed_relative_clock_monotonic
-sys_mutex_lock_timed_absolute_clock_monotonic
-sys_mutex_lock_timed_relative_clock_monotonic_highres
-sys_mutex_lock_timed_absolute_clock_monotonic_highres
-
-s/mutex_lock/ with whatever system call that takes a timeout you want
-and
-keep adding combinations. On each of those check for validity of the
-__user pointer, copy it, validate the timespec.
-
-[admitedly I am stretching the point with the different clock types].
-
-So where is the problem on unifying all that handling? You are still 
-not offering any constructive criticism to solve the issue that now
-the syscalls take relative timeouts vs the absolutes we need.
-
--- Inaky
+Jeff

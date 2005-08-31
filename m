@@ -1,68 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbVHaJeH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbVHaJ7X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750726AbVHaJeH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 05:34:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbVHaJeH
+	id S1750731AbVHaJ7X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 05:59:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbVHaJ7X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 05:34:07 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:37647 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1750726AbVHaJeG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 05:34:06 -0400
-Date: Wed, 31 Aug 2005 10:33:52 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>, amax@us.ibm.com,
-       ralf@linux-mips.org, starvik@axis.com
-Subject: [FINAL WARNING] Removal of deprecated serial functions - please update your drivers NOW
-Message-ID: <20050831103352.A26480@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	amax@us.ibm.com, ralf@linux-mips.org, starvik@axis.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	Wed, 31 Aug 2005 05:59:23 -0400
+Received: from [210.76.114.20] ([210.76.114.20]:19622 "EHLO ccoss.com.cn")
+	by vger.kernel.org with ESMTP id S1750731AbVHaJ7X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 05:59:23 -0400
+Message-ID: <43157F88.60900@ccoss.com.cn>
+Date: Wed, 31 Aug 2005 17:59:36 +0800
+From: "liyu@WAN" <liyu@ccoss.com.cn>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [Question] How get instruction pointer of user space ???
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As per the feature-removal.txt file, I will be removing the following
-functions shortly:
+Hi everyone:
 
-	* register_serial
-	* unregister_serial
-	* uart_register_port
-	* uart_unregister_port
+    I am implemnting one ioctl() in one character device.
 
-However, there are still some drivers which use these functions:
+    That need know instruction pointer of user space. I am on i386 
+platform.
+I can sure I am in process context. and enter kernel by system call way.
 
-drivers/char/mwave/mwavedd.c:   return register_serial(&serial);
-drivers/char/mwave/mwavedd.c:           unregister_serial(pDrvData->sLine);
-drivers/misc/ibmasm/uart.c:     sp->serial_line = register_serial(&serial);
-drivers/misc/ibmasm/uart.c:     unregister_serial(sp->serial_line);
-drivers/net/ioc3-eth.c: register_serial(&req);
-drivers/net/ioc3-eth.c: register_serial(&req);
-drivers/serial/serial_txx9.c:   line = uart_register_port(&serial_txx9_reg, &port);
-drivers/serial/serial_txx9.c:           uart_unregister_port(&serial_txx9_reg, line);
+    As I known, in default case, each task have one kernel stack, its length
+is THREAD_SIZE(2 pages),  and current_thread_info() is at its top. the
+struct pt_regs is at bottom of this stack.
 
-These drivers really really really need fixing in the next few days
-if they aren't going to break.  I hereby ask that the maintainers of
-the above drivers show some willingness to update their drivers.
+    so I write the code like here:
 
-Unfortunately, it appears that some of these drivers do not contain
-email addresses for their maintainers, neither are they listed in
-the MAINTAINERS file.  (mwavedd and serial_txx9).
+    pt_regs = ((struct pt_regs *)(THREAD_SIZE + current_thread_info()))+1;
+    return pt_regs->eip;
 
-Please note that this is the last warning folk will have before the
-functions are removed.
+    but it do not work! even, I get segment fault and kernel Oops at 
+sometime.
+   
+    Also, I am sure current_thread_info() return right value of current 
+user task.
+
+    Any idea on here?
+
+    thanks
 
 
-In addition, the following drivers declare functions of the same name.
-The maintainers of these need to look to see why, and eliminate them
-where possible.
+                                                                   sailor.
 
-drivers/serial/crisv10.c:register_serial(struct serial_struct *req)
-drivers/serial/crisv10.c:void unregister_serial(int line)
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+
+
+
+
+   
+
+
+
+

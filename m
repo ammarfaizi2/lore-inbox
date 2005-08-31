@@ -1,70 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbVHaBKh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932321AbVHaBPQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932317AbVHaBKh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 21:10:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932319AbVHaBKh
+	id S932321AbVHaBPQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 21:15:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932322AbVHaBPP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 21:10:37 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:23954 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932317AbVHaBKg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 21:10:36 -0400
-Subject: Re: 2.6.13-rt1
-From: Steven Rostedt <rostedt@goodmis.org>
-To: dwalker@mvista.com
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-In-Reply-To: <1125441274.18150.39.camel@dhcp153.mvista.com>
-References: <20050829084829.GA23176@elte.hu>
-	 <1125372830.6096.7.camel@localhost.localdomain>
-	 <20050830055321.GB5743@elte.hu>
-	 <1125407163.5675.16.camel@localhost.localdomain>
-	 <1125441274.18150.39.camel@dhcp153.mvista.com>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Tue, 30 Aug 2005 21:10:07 -0400
-Message-Id: <1125450607.5614.4.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Tue, 30 Aug 2005 21:15:15 -0400
+Received: from wproxy.gmail.com ([64.233.184.192]:9240 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932321AbVHaBPO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 21:15:14 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=HW1OfZhWWWYRVoG6o0VwiU+Ck/uBGxsIs8XBS/Lsv3NkCOCG2RBonvhislD6EASAyzoAa/OlGNzoCfkx1EhrYw4k77946Uf6oqANkESP3+BjiDod+flDS4cQZbqUKatyXnZdWPfWEiefpulILVBn8sKfOvcENStqvZzSUKtsIzM=
+Message-ID: <4315048A.1020907@gmail.com>
+Date: Wed, 31 Aug 2005 09:14:50 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-fbdev-devel@lists.sourceforge.net
+CC: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Jochen Hein <jochen@jochen.org>,
+       Knut Petersen <Knut_Petersen@t-online.de>
+Subject: Re: [Linux-fbdev-devel] [PATCH 1/1 2.6.13] framebuffer: bit_putcs()
+ optimization for 8x* fonts
+References: <43148610.70406@t-online.de> <Pine.LNX.4.62.0508301814470.6045@numbat.sonytel.be> <43149E5B.7040006@t-online.de>
+In-Reply-To: <43149E5B.7040006@t-online.de>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-08-30 at 15:34 -0700, Daniel Walker wrote:
-> Have you tried turning on 
-> "Non-preemptible critical section latency timing" or "Latency tracing"
+Knut Petersen wrote:
+> fb_pad_aligned_buffer() is also slower for those cases. But does anybody
+> use such fonts?
 
-I just turned on the following:
+Yes, there are 16x30 fonts out there in the wild. 
 
-  CONFIG_CRITICAL_PREEMPT_TIMING
-  CONFIG_CRITICAL_IRQSOFF_TIMING
-  CONFIG_LATENCY_TRACE
-
-recompiled and booted.  No problem here.
-
-> 
-> I don't know if it's related to the PI changes, but I'm getting a crash
-> with those on em64t .
-> 
-> With both above options I get
-> 
-> <0>init[1]: segfault at ffffffff8010ef44 rip ffffffff8010ef44 rsp 00007fffferror 5
-> <0>init[1]: segfault at ffffffff8010ef44 rip ffffffff8010ef44 rsp 00007ffffffe8de8 error 5
-> 
-> printed never ending right after init starts.
-> 
-> If I only turn on "Non-preemptible critical section latency timing",
-> then when I enter the command,
-> "echo 0 > /proc/sys/kernel/preempt_max_latency"
-> 
-> The kernel will spit out a couple of max critical section updates , then
-> it will hang silently.
-> 
-> This is all new in 2.6.13-rtX . It could have just come in with 2.6.13 ,
-> but I thought I'd mention it.
-
-Did you try the latest patches I just sent. Mainly this last one on
--rt2?  There is a deadlock that is fixed wrt the BKL.
-
--- Steve
-
-
+Tony

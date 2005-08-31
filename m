@@ -1,91 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964857AbVHaTxe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751047AbVHaUBX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964857AbVHaTxe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 15:53:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932529AbVHaTxe
+	id S1751047AbVHaUBX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 16:01:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751074AbVHaUBX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 15:53:34 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:27089 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S932528AbVHaTxd (ORCPT
+	Wed, 31 Aug 2005 16:01:23 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:9949 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751046AbVHaUBW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 15:53:33 -0400
-Date: Wed, 31 Aug 2005 12:53:18 -0700 (PDT)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Andi Kleen <ak@suse.de>
-cc: "Lynch, Rusty" <rusty.lynch@intel.com>, linux-mm@kvack.org,
-       prasanna@in.ibm.com, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org,
-       "Keshavamurthy, Anil S" <anil.s.keshavamurthy@intel.com>,
-       "Luck, Tony" <tony.luck@intel.com>
-Subject: [PATCH] remove die_notifiers if CONFIG_DEBUG_KERNEL not set
-Message-ID: <Pine.LNX.4.62.0508311247130.28674@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 31 Aug 2005 16:01:22 -0400
+Date: Wed, 31 Aug 2005 13:01:09 -0700
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: akpm@osdl.org
+Cc: dwmw2@infradead.org, bunk@stusta.de, johnstul@us.ibm.com,
+       drepper@redhat.com, Franz.Fischer@goyellow.de,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH][Bug 5132] fix sys_poll() large timeout handling
+Message-ID: <20050831200109.GB3017@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Use of die_notifiers is a debugging feature that is only used if 
-CONFIG_DEBUG_KERNEL is set. For a kernel without debugging there is no 
-need of die notifiers. This will generate no code for notify_die if 
-debugging is not on. Seems that there is an expectation that future distro 
-releases will have CONFIG_KPROBES on. They will therefore also have 
-CONFIG_DEBUG_KERNEL set and thus the die notifiers will work and the 
-notifier will be enabled in do_ia64_page_fault.
+Sorry everybody, forgot the most important Cc: :)
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
+-Nish
 
-Index: linux-2.6.13/include/asm-ia64/kdebug.h
-===================================================================
---- linux-2.6.13.orig/include/asm-ia64/kdebug.h	2005-08-28 16:41:01.000000000 -0700
-+++ linux-2.6.13/include/asm-ia64/kdebug.h	2005-08-31 12:35:17.000000000 -0700
-@@ -35,14 +35,15 @@ struct die_args {
- 	int signr;
- };
+Hi Andrew,
+
+In looking at Bug 5132 and sys_poll(), I think there is a flaw in the
+current code.
+
+The @timeout parameter to sys_poll() is in milliseconds but we compare
+it to (MAX_SCHEDULE_TIMEOUT / HZ), which is jiffies/jiffies-per-sec or
+seconds. That seems blatantly broken. Also, I think we are better served
+by converting to jiffies first then comparing, as opposed to converting
+our maximum to milliseconds (or seconds, incorrectly) and comparing.
+
+Comments, suggestions for improvement?
+
+Description: The current sys_poll() implementation does not seem to
+handle large timeouts correctly. Any value in milliseconds (@timeout)
+which exceeds the maximum representable jiffy value
+(MAX_SCHEDULE_TIMEOUT) should result in a MAX_SCHEDULE_TIMEOUT
+schedule_timeout() call. To achieve this, convert @timeout to jiffies
+first, then compare to MAX_SCHEDULE_TIMEOUT.
+
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+
+---
+
+ fs/select.c |   14 +++++++++-----
+ 1 files changed, 9 insertions(+), 5 deletions(-)
+
+diff -urpN 2.6.13/fs/select.c 2.6.13-dev/fs/select.c
+--- 2.6.13/fs/select.c	2005-08-28 17:46:14.000000000 -0700
++++ 2.6.13-dev/fs/select.c	2005-08-31 12:43:52.000000000 -0700
+@@ -470,12 +470,16 @@ asmlinkage long sys_poll(struct pollfd _
+ 		return -EINVAL;
  
--int register_die_notifier(struct notifier_block *nb);
--extern struct notifier_block *ia64die_chain;
--
- enum die_val {
- 	DIE_BREAK = 1,
- 	DIE_SS,
- 	DIE_PAGE_FAULT,
- };
-+#ifdef CONFIG_DEBUG_KERNEL
-+extern struct notifier_block *ia64die_chain;
-+
-+int register_die_notifier(struct notifier_block *nb);
+ 	if (timeout) {
+-		/* Careful about overflow in the intermediate values */
+-		if ((unsigned long) timeout < MAX_SCHEDULE_TIMEOUT / HZ)
+-			timeout = (unsigned long)(timeout*HZ+999)/1000+1;
+-		else /* Negative or overflow */
+-			timeout = MAX_SCHEDULE_TIMEOUT;
++		/*
++		 * Convert the value from msecs to jiffies - if overflow
++		 * occurs we get a negative value, which gets handled by
++		 * the next block
++		 */
++		timeout = msecs_to_jiffies(timeout) + 1;
+ 	}
++	if (timeout < 0) /* Negative requests result in infinite timeouts */
++		timeout = MAX_SCHEDULE_TIMEOUT;
++	/* 0 case falls through */
  
- static inline int notify_die(enum die_val val, char *str, struct pt_regs *regs,
- 			     long err, int trap, int sig)
-@@ -57,5 +58,11 @@ static inline int notify_die(enum die_va
+ 	poll_initwait(&table);
  
- 	return notifier_call_chain(&ia64die_chain, val, &args);
- }
-+#else
-+
-+#define notify_die(val, str, regs, err, trap, sig) 0
-+#define register_die_notifier(nb) do { } while (0)
-+
-+#endif
- 
- #endif
-Index: linux-2.6.13/arch/ia64/kernel/traps.c
-===================================================================
---- linux-2.6.13.orig/arch/ia64/kernel/traps.c	2005-08-28 16:41:01.000000000 -0700
-+++ linux-2.6.13/arch/ia64/kernel/traps.c	2005-08-31 12:35:17.000000000 -0700
-@@ -28,6 +28,7 @@ extern spinlock_t timerlist_lock;
- fpswa_interface_t *fpswa_interface;
- EXPORT_SYMBOL(fpswa_interface);
- 
-+#ifdef CONFIG_DEBUG_KERNEL
- struct notifier_block *ia64die_chain;
- static DEFINE_SPINLOCK(die_notifier_lock);
- 
-@@ -40,6 +41,7 @@ int register_die_notifier(struct notifie
- 	spin_unlock_irqrestore(&die_notifier_lock, flags);
- 	return err;
- }
-+#endif
- 
- void __init
- trap_init (void)

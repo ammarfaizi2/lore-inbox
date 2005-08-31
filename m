@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964996AbVIAAIY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964999AbVIAAZe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964996AbVIAAIY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 20:08:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964997AbVIAAIY
+	id S964999AbVIAAZe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 20:25:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965002AbVIAAZe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 20:08:24 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:48118 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S964996AbVIAAIX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 20:08:23 -0400
-Subject: RE: FW: [RFC] A more general timeout specification
-From: Daniel Walker <dwalker@mvista.com>
-Reply-To: dwalker@mvista.com
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>, akpm@osdl.org,
-       joe.korty@ccur.com, george@mvista.com, johnstul@us.ibm.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0509010136350.3743@scrub.home>
-References: <F989B1573A3A644BAB3920FBECA4D25A042B030A@orsmsx407>
-	 <Pine.LNX.4.61.0509010136350.3743@scrub.home>
-Content-Type: text/plain
-Organization: MontaVista
-Date: Wed, 31 Aug 2005 17:08:09 -0700
-Message-Id: <1125533289.15034.64.camel@dhcp153.mvista.com>
+	Wed, 31 Aug 2005 20:25:34 -0400
+Received: from mail.kroah.org ([69.55.234.183]:19611 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S964999AbVIAAZd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 20:25:33 -0400
+Date: Wed, 31 Aug 2005 13:56:04 -0700
+From: Greg KH <greg@kroah.com>
+To: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+Cc: Jean Delvare <khali@linux-fr.org>, LKML <linux-kernel@vger.kernel.org>,
+       video4linux-list@redhat.com
+Subject: Re: [PATCH 2.6] I2C: Drop I2C_DEVNAME and i2c_clientname
+Message-ID: <20050831205604.GJ19361@kroah.com>
+References: <20050815195704.7b61206e.khali@linux-fr.org> <1124741348.4516.51.camel@localhost> <20050825001958.63b2525c.khali@linux-fr.org> <1125360762.6186.29.camel@localhost> <20050830232008.3420f0f1.khali@linux-fr.org> <1125502498.9401.99.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1125502498.9401.99.camel@localhost>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-09-01 at 01:50 +0200, Roman Zippel wrote:
+On Wed, Aug 31, 2005 at 12:34:58PM -0300, Mauro Carvalho Chehab wrote:
+> Em Ter, 2005-08-30 ?s 23:20 +0200, Jean Delvare escreveu:
+> > Hi Mauro,
+> > 
+> > > (...) it would be nice not to have a different I2C
+> > > API for every single 2.6 version :-) It would be nice to change I2C
+> > > API once and keep it stable for a while.
+> 
+> > The Linux 2.6 development model is designed around a relatively fast
+> > move from -mm to Linus' tree, which implies incremental changes all the
+> > time. I'm only doing that.
+> 	It is ok to change code, but, IMHO, API should be more stable.
 
-> What "more versions" are you talking about? When you convert a user time 
-> to kernel time you can automatically validate it and later you can use 
-> standard kernel APIs, so you don't have to add even more API bloat.
+I take it you have not read Documentation/stable_api_nonsense.txt yet?
+If not, please do, it shows that what you are asking for will not
+happen.
 
-What's kernel time? Are you talking about jiffies? The whole point of
-multiple clocks is to allow for different degrees of precision. 
+good luck,
 
-Daniel
-
+greg k-h

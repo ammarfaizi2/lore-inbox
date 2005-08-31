@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932497AbVHaL6K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932500AbVHaL7c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932497AbVHaL6K (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 07:58:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932506AbVHaL6K
+	id S932500AbVHaL7c (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 07:59:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932504AbVHaL7c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 07:58:10 -0400
-Received: from jay.exetel.com.au ([220.233.0.8]:39045 "EHLO jay.exetel.com.au")
-	by vger.kernel.org with ESMTP id S932497AbVHaL6I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 07:58:08 -0400
-Date: Wed, 31 Aug 2005 21:57:55 +1000
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexey Dobriyan <adobriyan@mail.ru>,
-       YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>,
-       "David S. Miller" <davem@davemloft.net>,
-       Benjamin Reed <breed@users.sourceforge.net>,
-       Andy Adamson <andros@citi.umich.edu>, netdev@vger.kernel.org,
-       lksctp developers <lksctp-developers@lists.sourceforge.net>,
-       Bruce Fields <bfields@umich.edu>, Andy Adamson <andros@umich.edu>,
-       linux-net@vger.kernel.org, linux-crypto@vger.kernel.org
-Subject: Re: [PATCH] crypto_free_tfm callers do not need to check for NULL
-Message-ID: <20050831115755.GA3699@gondor.apana.org.au>
-References: <200508302245.55392.jesper.juhl@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200508302245.55392.jesper.juhl@gmail.com>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	Wed, 31 Aug 2005 07:59:32 -0400
+Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:13658 "HELO
+	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S932500AbVHaL7b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 07:59:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=LVgOQLoVuMUb8LkRfNRxO6xTjMPkKYIerqu3zycpsrCByuCQglUdQ+Aa5Hzvt7IBqwaZU65ffkqccLkoHmvc4BUuTimK5qg2n1G5g3/9kBZ4zcSVZS+k5UucXDTb2eGKjOSocGpU9yZ70g4aVZ4wLkXxWbDIz2qZjr9Mla4GVLU=  ;
+Message-ID: <43159BAC.2080205@yahoo.com.au>
+Date: Wed, 31 Aug 2005 21:59:40 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Nathan Becker <nbecker@physics.ucsb.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: strange CPU speedups with SMP on Athlon 64 X2
+References: <Pine.LNX.4.63.0508301153340.10786@claven.physics.ucsb.edu>
+In-Reply-To: <Pine.LNX.4.63.0508301153340.10786@claven.physics.ucsb.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 30, 2005 at 10:45:54PM +0200, Jesper Juhl wrote:
+Nathan Becker wrote:
 > 
-> I've posted similar patches in the past, but was asked to first until the
-> short-circuit patch moved from -mm to mainline - and since it is now 
-> firmly there in 2.6.13 I assume there's no problem there anymore.
-> I was also asked previously to make the patch against mainline and not -mm,
-> so this patch is against 2.6.13.
+> I would be happy to post my exact C source that I use to do the 
+> benchmark, but I wanted to get some feedback first in case I'm just 
+> doing something stupid.  Also, since I'm not subscribed to this list, 
+> please cc me directly regarding this topic.
+> 
 
-Thanks for you work and patience Jesper, this patch looks good to me.
+Hi Nathan,
 
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Cache issues may explain this. When 2 processes are allocating
+memory in parallel they'll be given different interleavings of
+pages which could explain the speedup.
+
+Start one process, get it to memset all its memory, then pause
+it and do the same thing. Then set them both running at the same
+time (ie. after they've each touched their memory in turn), what
+do you see?
+
+(By memset()ing the memory, you'll cause the kernel to actually
+allocate a physical page. By doing that one after the other, we
+hope to eliminate interleaving issues.)
+
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

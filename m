@@ -1,73 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932422AbVHaH0t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932423AbVHaHbW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932422AbVHaH0t (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 03:26:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbVHaH0t
+	id S932423AbVHaHbW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 03:31:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932454AbVHaHbW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 03:26:49 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:28853 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932419AbVHaH0s (ORCPT
+	Wed, 31 Aug 2005 03:31:22 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:61880 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932423AbVHaHbV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 03:26:48 -0400
-Date: Wed, 31 Aug 2005 09:26:45 +0200
+	Wed, 31 Aug 2005 03:31:21 -0400
+Date: Wed, 31 Aug 2005 09:31:27 +0200
 From: Jens Axboe <axboe@suse.de>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Holger Kiehl <Holger.Kiehl@dwd.de>,
-       linux-raid <linux-raid@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Where is the performance bottleneck?
-Message-ID: <20050831072644.GF4018@suse.de>
-References: <Pine.LNX.4.61.0508291811480.24072@diagnostix.dwd.de> <20050829202529.GA32214@midnight.suse.cz> <Pine.LNX.4.61.0508301919250.25574@diagnostix.dwd.de> <20050831071126.GA7502@midnight.ucw.cz>
+To: Nathan Scott <nathans@sgi.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] blk queue io tracing support
+Message-ID: <20050831073126.GH4018@suse.de>
+References: <20050823123235.GG16461@suse.de> <20050824010346.GA1021@frodo> <20050824070809.GA27956@suse.de> <20050824171931.H4209301@wobbly.melbourne.sgi.com> <20050824072501.GA27992@suse.de> <20050824092838.GB28272@suse.de> <20050830234359.GE780@frodo>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050831071126.GA7502@midnight.ucw.cz>
+In-Reply-To: <20050830234359.GE780@frodo>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 31 2005, Vojtech Pavlik wrote:
-> On Tue, Aug 30, 2005 at 08:06:21PM +0000, Holger Kiehl wrote:
-> > >>How does one determine the PCI-X bus speed?
-> > >
-> > >Usually only the card (in your case the Symbios SCSI controller) can
-> > >tell. If it does, it'll be most likely in 'dmesg'.
-> > >
-> > There is nothing in dmesg:
-> > 
-> >    Fusion MPT base driver 3.01.20
-> >    Copyright (c) 1999-2004 LSI Logic Corporation
-> >    ACPI: PCI Interrupt 0000:02:04.0[A] -> GSI 24 (level, low) -> IRQ 217
-> >    mptbase: Initiating ioc0 bringup
-> >    ioc0: 53C1030: Capabilities={Initiator,Target}
-> >    ACPI: PCI Interrupt 0000:02:04.1[B] -> GSI 25 (level, low) -> IRQ 225
-> >    mptbase: Initiating ioc1 bringup
-> >    ioc1: 53C1030: Capabilities={Initiator,Target}
-> >    Fusion MPT SCSI Host driver 3.01.20
-> > 
-> > >To find where the bottleneck is, I'd suggest trying without the
-> > >filesystem at all, and just filling a large part of the block device
-> > >using the 'dd' command.
-> > >
-> > >Also, trying without the RAID, and just running 4 (and 8) concurrent
-> > >dd's to the separate drives could show whether it's the RAID that's
-> > >slowing things down.
-> > >
-> > Ok, I did run the following dd command in different combinations:
-> > 
-> >    dd if=/dev/zero of=/dev/sd?1 bs=4k count=5000000
+On Wed, Aug 31 2005, Nathan Scott wrote:
+> Hi Jens,
 > 
-> I think a bs of 4k is way too small and will cause huge CPU overhead.
-> Can you try with something like 4M? Also, you can use /dev/full to avoid
-> the pre-zeroing.
+> On Wed, Aug 24, 2005 at 11:28:39AM +0200, Jens Axboe wrote:
+> > Patch attached is against 2.6.13-rc6-mm2. Still a good idea to apply the
+> > relayfs read update from the previous mail [*] as well.
+> 
+> There's a small memory leak there on one of the start-tracing
+> error paths (relay_open failure)... this should plug it up.
+> 
+> cheers.
+> 
+> -- 
+> Nathan
+> 
+> 
+> Index: 2.6.x-xfs/drivers/block/blktrace.c
+> ===================================================================
+> --- 2.6.x-xfs.orig/drivers/block/blktrace.c
+> +++ 2.6.x-xfs/drivers/block/blktrace.c
+> @@ -73,9 +73,9 @@ int blk_start_trace(struct block_device 
+>  {
+>  	request_queue_t *q = bdev_get_queue(bdev);
+>  	struct blk_user_trace_setup buts;
+> -	struct blk_trace *bt;
+> +	struct blk_trace *bt = NULL;
+>  	char b[BDEVNAME_SIZE];
+> -	int ret = 0;
+> +	int ret;
+>  
+>  	if (!q)
+>  		return -ENXIO;
+> @@ -116,9 +116,14 @@ int blk_start_trace(struct block_device 
+>  	spin_lock_irq(q->queue_lock);
+>  	q->blk_trace = bt;
+>  	spin_unlock_irq(q->queue_lock);
+> -	ret = 0;
+> +
+> +	up(&bdev->bd_sem);
+> +	return 0;
+> +
+>  err:
+>  	up(&bdev->bd_sem);
+> +	if (bt)
+> +		kfree(bt);
+>  	return ret;
+>  }
 
-That was my initial thought as well, but since he's writing the io side
-should look correct. I doubt 8 dd's writing 4k chunks will gobble that
-much CPU as to make this much difference.
+Indeed, thanks! I've applied the patch, I'll do a new release against
+2.6.14-pre/rc/git as soon as relayfs gets merged. Or 2.6.13-mm1, if that
+comes first.
 
-Holger, we need vmstat 1 info while the dd's are running. A simple
-profile would be nice as well, boot with profile=2 and do a readprofile
--r; run tests; readprofile > foo and send the first 50 lines of foo to
-this list.
+BTW, the trace tools now live in a git repo here:
+
+rsync://rsync.kernel.org/pub/scm/linux/kernel/git/axboe/blktrace.git
 
 -- 
 Jens Axboe

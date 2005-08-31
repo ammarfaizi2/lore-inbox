@@ -1,67 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964929AbVHaWQb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964932AbVHaWR7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964929AbVHaWQb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 18:16:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964938AbVHaWQb
+	id S964932AbVHaWR7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 18:17:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964938AbVHaWR7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 18:16:31 -0400
-Received: from fmr20.intel.com ([134.134.136.19]:7056 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S964932AbVHaWQ3 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 18:16:29 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Wed, 31 Aug 2005 18:17:59 -0400
+Received: from terminus.zytor.com ([209.128.68.124]:44765 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S964932AbVHaWR6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 18:17:58 -0400
+Message-ID: <43162C7C.8040202@zytor.com>
+Date: Wed, 31 Aug 2005 15:17:32 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: FW: [RFC] A more general timeout specification
-Date: Wed, 31 Aug 2005 15:15:12 -0700
-Message-ID: <F989B1573A3A644BAB3920FBECA4D25A042B0192@orsmsx407>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: FW: [RFC] A more general timeout specification
-Thread-Index: AcWueNkkAo57MBRtQT2PlWHMlHBaLAAAB5ow
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "Roman Zippel" <zippel@linux-m68k.org>
-Cc: <akpm@osdl.org>, <joe.korty@ccur.com>, <george@mvista.com>,
-       <johnstul@us.ibm.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 31 Aug 2005 22:15:34.0054 (UTC) FILETIME=[81B84460:01C5AE79]
+To: Chris Wedgwood <cw@f00f.org>
+CC: Jesper Juhl <jesper.juhl@gmail.com>, Alon Bar-Lev <alon.barlev@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, SYSLINUX@zytor.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: THE LINUX/I386 BOOT PROTOCOL - Breaking the 256 limit
+References: <4315B668.6030603@gmail.com> <43162148.9040604@zytor.com> <20050831215757.GA10804@taniwha.stupidest.org> <431628D5.1040709@zytor.com> <20050831220717.GA14625@taniwha.stupidest.org> <9a874849050831151230d68d64@mail.gmail.com> <20050831221424.GA14806@taniwha.stupidest.org>
+In-Reply-To: <20050831221424.GA14806@taniwha.stupidest.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Roman Zippel [mailto:zippel@linux-m68k.org]
->On Wed, 31 Aug 2005, Perez-Gonzalez, Inaky wrote:
->
->> +	flags = tp->clock_id & TIMEOUT_FLAGS_MASK;
->> +	clock_id = tp->clock_id & TIMEOUT_CLOCK_MASK;
->> +
->> +	result = -EINVAL;
->> +	if (flags & ~TIMEOUT_RELATIVE)
->> +	    goto out;
->> +
->> +	/* someday, we should support *all* clocks available to us */
->> +	if (clock_id != CLOCK_REALTIME && clock_id != CLOCK_MONOTONIC)
->> +		goto out;
->> +	if ((unsigned long)tp->ts.tv_nsec >= NSEC_PER_SEC)
->> +		goto out;
->
->Why is that needed in a _general_ timeout API? What exactly makes it so
->useful for everyone and not just more complex for everyone?
+Chris Wedgwood wrote:
+> On Thu, Sep 01, 2005 at 12:12:00AM +0200, Jesper Juhl wrote:
+> 
+>>b) add a new boot option telling the kernel the name of some file in
+>>initrd or similar from which to load additional options.
+> 
+> a file in initrd isn't a good choice; as the initrd is generally a fix
+> image
+> 
+> the point is some bootloaders might want to pass quite a bit of state
+> to the kernel at times (i actually have this for a mip32 target where
+> i construct a table and pass a pointer to that in, a tad icky but for
+> lack of options)
 
-Because if a system call gets a timeout specification it needs to
-verify its correctness first. Instead of doing that at the point
-where it goes to sleep, that could be deep in an atomic section,
-we provide a separate function [timeout_validate()] which is the
-one you mention, to do that.
+initrd is a fixed image, but initramfs can be synthesized.
 
-Usefulness: (see the rationale in the patch), but in a nutshell;
-most POSIX timeout specs have to be absolute in CLOCK_REALTIME
-(eg: pthread_mutex_timed_lock()). Current kernel needs the timeout
-relative, so glibc calls the kernel/however gets the time, computes
-relative times and syscalls. Race conditions, overhead...etc. 
-
-This mechanism supports both. That's why it is more general.
-
--- Inaky
+	-hpa

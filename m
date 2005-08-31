@@ -1,70 +1,62 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932226AbVH3Q50 (ORCPT <rfc822;ralf@linux-mips.org>);
-	Tue, 30 Aug 2005 12:57:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932230AbVH3Q50
+	id S1750966AbVHaTip (ORCPT <rfc822;ralf@linux-mips.org>);
+	Wed, 31 Aug 2005 15:38:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750978AbVHaTip
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 12:57:26 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:25815 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S932226AbVH3Q5Z (ORCPT
+	Wed, 31 Aug 2005 15:38:45 -0400
+Received: from rs25s12.datacenter.cha.cantv.net ([200.44.33.100]:26535 "EHLO
+	rs25s12.datacenter.cha.cantv.net") by vger.kernel.org with ESMTP
+	id S1750966AbVHaTip convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 12:57:25 -0400
-Message-Id: <200508301657.j7UGvM8e008117@zeus1.kernel.org>
-From: "e-BookServices, India" <data@e-bookservices.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Document Migration and e-Book Development
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Date: Tue, 30 Aug 2005 22:27:18 +0530
+	Wed, 31 Aug 2005 15:38:45 -0400
+X-Matched-Lists: []
+Message-ID: <380-220058331194336568@a-9424i9xejgog5>
+From: "" <najun@telcel.net.ve>
+To: linux-kernel@vger.kernel.org
+Subject: BUSCAMOS A LOS NUEVOS PROFESIONALES
+Date: Wed, 31 Aug 2005 15:43:36 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932226AbVH3Q50@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1750966AbVHaTip@vger.kernel.org>
 
-Hi,
+         Nuestra compa=F1=EDa se encuentra en la busqueda de personas c=
+omo USTED, Emprendedoras y  Exitosas, que no  se  conforman con  poco s=
+ino que cada d=EDa deseas superar los l=EDmites de la vida cotidiana.
 
-I apologize for intruding into your busy schedule. Please allow me to introduce ourselves to you.
+          Sabemos que te encuentras en la b=FAsqueda de una opci=F3n qu=
+e te permita generar Ingresos Adicionales, trabajar a tiempo parcial mi=
+entras estudias o desarrollas otras actividades o solo por tener mas ti=
+empo libre para t=ED o tu familia, o lo mas importante... dedicarle tu =
+tiempo completo a desarrollar tu Independencia Financiera.
 
-We are engaged in providing book-related services to international clientele (http://www.e-BookServices.com). Located in
-India, we cater to both organizations as well as individuals. 
+          Nuestra oprotunidad se te presenta a trav=E9s de un sistema C=
+omprobado que tiene 50 a=F1os de desarrollo mundial.=20
 
-Our range of services include, but are not limited to:
-- Typesetting (QuarkXPress, InDesign, FrameMaker etc) 
-- Formatting of manuscripts (MS-Word, WordPerfect etc) 
-- Graphic Design and Pre-Press jobs (including logo/book cover design) 
-- Desktop Publishing (DTP) 
-- Keying-in, scanning and OCR (for re-prints, archives, web publishing etc) 
-- Translation (from and to all major languages) 
-- e-Books Creation (PDFs, MobiPocket etc) 
-- XML Conversion 
+          Solo visita nuestra p=E1gina www.losnuevosprofesionales.com =20
 
-Many companies are now outsourcing their work to India. Not only do they achieve substantial cost savings, but the
-availability of a large number of professionally trained personnel also ensures a high quality of work. We can serve you
-efficiently and cost effectively, and deliver as per your customized needs. 
+          Esperamos contar con Usted.
 
-We are one of the leading Indian organizations in our field, and serve many international organizations. For accomplishing
-jobs with us, a team of highly trained and dedicated professionals work at our state-of-the-art facilities located in New
-Delhi, India.
+          Atentamente,
 
-We understand the basic international business processes and ensure that all projects undertaken by us are completed within
-the stipulated time period with complete confidentiality, accuracy, and quality.
 
-For your first project you do not need to pay us a deposit. You can make the entire payment after receiving satisfactory
-delivery of service. 
+        NAJUN GUILLEN =20
+     najun@telcel.net.ve
+ Telf. (058) 414  261.24.10=20
 
-If you are interested in cutting your current costs to at least half, increasing your profit margins without compromising
-on the quality and turn-around time, then please do get back to us. We will be glad to send you a most competitive business
-proposal. 
 
-I shall be at the FRANKFURT BOOK FAIR (19th-23rd October, 2005) and would be most happy to meet you there and personally
-discuss your requirements. If so, I would be obliged if you can kindly grant me a prior appointment at the fair.
+Najun I. Guillen Teran
+Supervisor
+58-414-2612410
 
-Sincerely,
- 
-Dhiraj Aggarwal
-Mobile: +(91) 98100 50809
-E-mail: info@e-BookServices.net , info@e-BookServices.com
-URL: http://www.e-BookServices.net , http://www.e-BookServices.com
+VISITE. www.portalnbc.com/reclut/hom.htm
 
-This email has been sent expecting the information to be of use and benefit to you. In case you do not wish to receive
-further emails from us, please send us an email with `REMOVE + your email address' in the subject line and we will remove
-your email address from our database. We apologize for the inconvenience caused to you.
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,70 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964892AbVHaRZR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964896AbVHaR0O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964892AbVHaRZR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 13:25:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964894AbVHaRZR
+	id S964896AbVHaR0O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 13:26:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964894AbVHaR0O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 13:25:17 -0400
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:4793 "HELO
-	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S964892AbVHaRZP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 13:25:15 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=DJ/Havw+xwAgryzwptlcj70A43Jawrhk+rlitVqKFfTmI7jEX3PXhUjpFP5nkSMlW4/jTZscshzRW2uaiFkgwFaSa5nCuaptFv0vtiVvjZArANVLGQwb4aS25mAEgiTrkAmjxavWwSOE9DPoyvWTPBTSsL56NsK8PcwxkrHoRnc=  ;
-Message-ID: <4315E810.4030305@yahoo.com.au>
-Date: Thu, 01 Sep 2005 03:25:36 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Holger Kiehl <Holger.Kiehl@dwd.de>
-CC: Jens Axboe <axboe@suse.de>, Vojtech Pavlik <vojtech@suse.cz>,
-       linux-raid <linux-raid@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Where is the performance bottleneck?
-References: <Pine.LNX.4.61.0508291811480.24072@diagnostix.dwd.de> <20050829202529.GA32214@midnight.suse.cz> <Pine.LNX.4.61.0508301919250.25574@diagnostix.dwd.de> <20050831071126.GA7502@midnight.ucw.cz> <20050831072644.GF4018@suse.de> <Pine.LNX.4.61.0508311029170.16574@diagnostix.dwd.de> <4315A179.8070102@yahoo.com.au> <Pine.LNX.4.61.0508311524190.16574@diagnostix.dwd.de>
-In-Reply-To: <Pine.LNX.4.61.0508311524190.16574@diagnostix.dwd.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 31 Aug 2005 13:26:14 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:61340 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964896AbVHaR0N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 13:26:13 -0400
+Date: Wed, 31 Aug 2005 22:28:43 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: arjan@infradead.org, s0348365@sms.ed.ac.uk, kernel@kolivas.org,
+       tytso@mit.edu, cfriesen@nortel.com, rlrevell@joe-job.com, trenn@suse.de,
+       george@mvista.com, johnstul@us.ibm.com, akpm@osdl.org
+Subject: Updated dynamic tick patches
+Message-ID: <20050831165843.GA4974@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Holger Kiehl wrote:
+I have cleaned up dynamic tick patch that Con last posted. One issue
+that is still to be addressed precisely is recovering lost ticks.
 
-> meminfo.dump:
-> 
->    MemTotal:      8124172 kB
->    MemFree:         23564 kB
->    Buffers:       7825944 kB
->    Cached:          19216 kB
->    SwapCached:          0 kB
->    Active:          25708 kB
->    Inactive:      7835548 kB
->    HighTotal:           0 kB
->    HighFree:            0 kB
->    LowTotal:      8124172 kB
->    LowFree:         23564 kB
->    SwapTotal:    15631160 kB
->    SwapFree:     15631160 kB
->    Dirty:         3145604 kB
+This is supposedly much easier with something like ACPI PM timer, but
+I found that the code which calculates lost ticks in timer_pm.c is
+not accurate. I have attempted to fix it (in the patch that follows).
+With the fix, time has remained stable for ~36 hrs on one machine,
+but the same fix does not help in another machine (time speeds up
+by couple of seconds after 4-6 hrs). Hence I consider that it needs 
+some more rework. Suggestion on accurate lost-tick recovery are wellcome.
 
-Hmm OK, dirty memory is pinned pretty much exactly on dirty_ratio
-so maybe I've just led you on a goose chase.
+Using TSC to recover ticks also is more tricky and hence I have not
+enabled TSC support in these patches.
 
-You could
-     echo 5 > /proc/sys/vm/dirty_background_ratio
-     echo 10 > /proc/sys/vm/dirty_ratio
+This patch does not address those machines where all CPUs have to
+be put to sleep simulaneously (otherwise they dont work well
+or something like that), as pointed out by Tony. We could
+add support for such machines in another release if they
+are common enough to come by.
 
-To further reduce dirty memory in the system, however this is
-a long shot, so please continue your interaction with the
-other people in the thread first.
 
-Thanks,
-Nick
+Following patches related to dynamic tick are posted in separate mails,
+for convenience of review. The first patch probably applies w/o dynamic
+tick consideration also.
+
+Patch 1/3  -> Fixup lost tick calculation in timer_pm.c
+Patch 2/3  -> Dyn-tick cleanups
+Patch 3/3  -> Use lost tick information in dyn-tick time recovery 
+
+These patches are against 2.6.13-rc6-mm2.
+
+Con, would be great if you can upload a consolidated new version of
+dyn-tick patch on your website!
+
 
 -- 
-SUSE Labs, Novell Inc.
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

@@ -1,63 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964800AbVHaNeV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964809AbVHaNi7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964800AbVHaNeV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 09:34:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964805AbVHaNeV
+	id S964809AbVHaNi7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 09:38:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964808AbVHaNi7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 09:34:21 -0400
-Received: from rudy.mif.pg.gda.pl ([153.19.42.16]:19345 "EHLO
-	rudy.mif.pg.gda.pl") by vger.kernel.org with ESMTP id S964800AbVHaNeU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 09:34:20 -0400
-Date: Wed, 31 Aug 2005 15:34:18 +0200 (CEST)
-From: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
-To: linux-kernel@vger.kernel.org
-cc: Linus Torvalds <torvalds@osdl.org>
-Subject: empty patch-2.6.13-git? patches on ftp.kernel.org
-Message-ID: <Pine.BSO.4.62.0508311527340.10416@rudy.mif.pg.gda.pl>
+	Wed, 31 Aug 2005 09:38:59 -0400
+Received: from dwdmx4.dwd.de ([141.38.3.230]:19345 "EHLO dwdmx4.dwd.de")
+	by vger.kernel.org with ESMTP id S964807AbVHaNi5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 09:38:57 -0400
+Date: Wed, 31 Aug 2005 13:38:46 +0000 (GMT)
+From: Holger Kiehl <Holger.Kiehl@dwd.de>
+X-X-Sender: kiehl@diagnostix.dwd.de
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-raid <linux-raid@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Where is the performance bottleneck?
+In-Reply-To: <20050831071126.GA7502@midnight.ucw.cz>
+Message-ID: <Pine.LNX.4.61.0508311334090.16574@diagnostix.dwd.de>
+References: <Pine.LNX.4.61.0508291811480.24072@diagnostix.dwd.de>
+ <20050829202529.GA32214@midnight.suse.cz> <Pine.LNX.4.61.0508301919250.25574@diagnostix.dwd.de>
+ <20050831071126.GA7502@midnight.ucw.cz>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="0-1127851226-1125494876=:10416"
-Content-ID: <Pine.BSO.4.62.0508311528150.10416@rudy.mif.pg.gda.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Wed, 31 Aug 2005, Vojtech Pavlik wrote:
 
---0-1127851226-1125494876=:10416
-Content-Type: TEXT/PLAIN; CHARSET=ISO-8859-2; FORMAT=flowed
-Content-Transfer-Encoding: 8BIT
-Content-ID: <Pine.BSO.4.62.0508311528151.10416@rudy.mif.pg.gda.pl>
+> On Tue, Aug 30, 2005 at 08:06:21PM +0000, Holger Kiehl wrote:
+>>>> How does one determine the PCI-X bus speed?
+>>>
+>>> Usually only the card (in your case the Symbios SCSI controller) can
+>>> tell. If it does, it'll be most likely in 'dmesg'.
+>>>
+>> There is nothing in dmesg:
+>>
+>>    Fusion MPT base driver 3.01.20
+>>    Copyright (c) 1999-2004 LSI Logic Corporation
+>>    ACPI: PCI Interrupt 0000:02:04.0[A] -> GSI 24 (level, low) -> IRQ 217
+>>    mptbase: Initiating ioc0 bringup
+>>    ioc0: 53C1030: Capabilities={Initiator,Target}
+>>    ACPI: PCI Interrupt 0000:02:04.1[B] -> GSI 25 (level, low) -> IRQ 225
+>>    mptbase: Initiating ioc1 bringup
+>>    ioc1: 53C1030: Capabilities={Initiator,Target}
+>>    Fusion MPT SCSI Host driver 3.01.20
+>>
+>>> To find where the bottleneck is, I'd suggest trying without the
+>>> filesystem at all, and just filling a large part of the block device
+>>> using the 'dd' command.
+>>>
+>>> Also, trying without the RAID, and just running 4 (and 8) concurrent
+>>> dd's to the separate drives could show whether it's the RAID that's
+>>> slowing things down.
+>>>
+>> Ok, I did run the following dd command in different combinations:
+>>
+>>    dd if=/dev/zero of=/dev/sd?1 bs=4k count=5000000
+>
+> I think a bs of 4k is way too small and will cause huge CPU overhead.
+> Can you try with something like 4M? Also, you can use /dev/full to avoid
+> the pre-zeroing.
+>
+Ok, I now use the following command:
 
+       dd if=/dev/full of=/dev/sd?1 bs=4M count=4883
 
-Seems patches stored on ftp://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots
-are empty (only logs are correct):
+Here the results for all 8 disks in parallel:
 
-$ lftp ftp://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots
-cd ok, cwd=/pub/linux/kernel/v2.6/snapshots
-lftp ftp.kernel.org:/pub/linux/kernel/v2.6/snapshots> ls patch-2.6.13-git*
--rw-r--r--    1 536      536            14 Aug 30 09:01 patch-2.6.13-git1.bz2
--rw-r--r--    1 536      536           248 Aug 30 09:01 patch-2.6.13-git1.bz2.sign
--rw-r--r--    1 536      536            20 Aug 30 09:01 patch-2.6.13-git1.gz
--rw-r--r--    1 536      536           248 Aug 30 09:01 patch-2.6.13-git1.gz.sign
--rw-r--r--    1 536      536            41 Aug 30 09:01 patch-2.6.13-git1.id
--rw-r--r--    1 536      536        302049 Aug 30 09:01 patch-2.6.13-git1.log
--rw-r--r--    1 536      536           248 Aug 30 09:01 patch-2.6.13-git1.sign
--rw-r--r--    1 536      536            14 Aug 31 09:01 patch-2.6.13-git2.bz2
--rw-r--r--    1 536      536           248 Aug 31 09:01 patch-2.6.13-git2.bz2.sign
--rw-r--r--    1 536      536            20 Aug 31 09:01 patch-2.6.13-git2.gz
--rw-r--r--    1 536      536           248 Aug 31 09:01 patch-2.6.13-git2.gz.sign
--rw-r--r--    1 536      536            41 Aug 31 09:01 patch-2.6.13-git2.id
--rw-r--r--    1 536      536        395585 Aug 31 09:01 patch-2.6.13-git2.log
--rw-r--r--    1 536      536           248 Aug 31 09:01 patch-2.6.13-git2.sign
+       /dev/sdc1 24.957257 MB/s
+       /dev/sdd1 25.290177 MB/s
+       /dev/sde1 25.046711 MB/s
+       /dev/sdf1 26.369777 MB/s
+       /dev/sdg1 24.080695 MB/s
+       /dev/sdh1 25.008803 MB/s
+       /dev/sdi1 24.202202 MB/s
+       /dev/sdj1 24.712840 MB/s
 
-Also it will be good move all patch-2.6.12* and patch-2.6.13-rc* files 
-from this directory to old subdirectory.
+A little bit faster but not much.
 
-kloczek
--- 
------------------------------------------------------------
-*Ludzie nie maj± problemów, tylko sobie sami je stwarzaj±*
------------------------------------------------------------
-Tomasz K³oczko, sys adm @zie.pg.gda.pl|*e-mail: kloczek@rudy.mif.pg.gda.pl*
---0-1127851226-1125494876=:10416--
+Holger
+

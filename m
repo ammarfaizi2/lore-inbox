@@ -1,67 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964935AbVHaUWe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964939AbVHaUb7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964935AbVHaUWe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 16:22:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964936AbVHaUWe
+	id S964939AbVHaUb7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 16:31:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964940AbVHaUb7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 16:22:34 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:11962 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964935AbVHaUWd (ORCPT
+	Wed, 31 Aug 2005 16:31:59 -0400
+Received: from styx.suse.cz ([82.119.242.94]:22952 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S964939AbVHaUb7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 16:22:33 -0400
-Message-ID: <43161126.3020700@us.ibm.com>
-Date: Wed, 31 Aug 2005 13:20:54 -0700
-From: Ian Romanick <idr@us.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc3 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Discuss issues related to the xorg tree 
-	<xorg@lists.freedesktop.org>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: State of Linux graphics
-References: <9e47339105083009037c24f6de@mail.gmail.com>	<1125422813.20488.43.camel@localhost>	<20050831063355.GE27940@tuolumne.arden.org>	<1125512970.4798.180.camel@evo.keithp.com> <20050831200641.GH27940@tuolumne.arden.org>
-In-Reply-To: <20050831200641.GH27940@tuolumne.arden.org>
-X-Enigmail-Version: 0.92.0.0
-OpenPGP: id=AC84030F
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Wed, 31 Aug 2005 16:31:59 -0400
+Date: Wed, 31 Aug 2005 22:32:11 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Mark Lord <mlord@pobox.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: APs from the Kernel Summit run Linux
+Message-ID: <20050831203211.GA13752@midnight.suse.cz>
+References: <20050830093715.GA9781@midnight.suse.cz> <4315E0F0.6060209@pobox.com> <20050831205319.A6385@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050831205319.A6385@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, Aug 31, 2005 at 08:53:19PM +0100, Russell King wrote:
+> On Wed, Aug 31, 2005 at 12:55:12PM -0400, Mark Lord wrote:
+> > I'll try loading the works into another ARM
+> > system I have here, and see (1) if it runs as-is,
+> > and (2) what the disassembly shows.
+> 
+> You can identify ARM code quite readily - look for a large number of
+> 32-bit words naturally aligned and grouped together whose top nibble
+> is 14 - ie 0xE.......
+> 
+> The top nibble is the conditional execution field, and 14 is "always".
+ 
+Didn't find that. Anyway:
 
-Allen Akin wrote:
+The firmware has four parts. Each starts at a nice round number and is 
+padded to the next one with zeros.
 
-> I believe we're doing well with layered implementation strategies like
-> Xgl and Glitz.  Where we might do better is in (1) extending OpenGL to
-> provide missing functionality, rather than creating peer low-level APIs;
-> (2) expressing the output of higher-level services in terms of OpenGL
-> entities (vertex buffer objects, framebuffer objects including textures,
-> shader programs, etc.) so that apps can mix-and-match them and
-> scene-graph libraries can optimize their use; (3) finishing decent
-> OpenGL drivers for small and old hardware to address people's concerns
-> about running modern apps on those systems.
+        0x000000-0x0fffff 560 kB
+        0x100000-0x15ffff 316 kB
+        0x160000-0x1bffbf 331 kB
+        0x1bffc0-0x1bffff  64 bytes ASCII identificatoin
 
-I think that you and I are in total agreement.  I think #1 is the first
-big barrier.  The problem is that I haven't seen a concrete list of the
-deficiencies in OpenGL.  Before we can even consider how to extend the
-API, we need to know where it needs to be extended.
+Each of the first three large parts starts with this sequence of bytes:
 
-I'd really like to see a list of areas where OpenGL isn't up to snuff
-for 2D operations.  Ideally, items on this list would be put in one (or
-more) of four categories:  missing (support for the required operation
-is flat out missing from OpenGL), cumbersome (OpenGL can do it, but it
-requires API acrobatics), ill defined (OpenGL can do it, but the spec
-gives implementation enough leeway to make it useless for us), or slow
-(OpenGL can do it, but the API overhead kills performance).
+        00 10 00 00 03 00 00 00 ED
 
-Having such a list would give us direction for both #1 and #3 in Alan's
-list.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
+The first and third parts contain a repeating 7-byte sequence
 
-iD8DBQFDFhEmX1gOwKyEAw8RAiypAJwL/3RpnF10NwGX/hMyumPtMwAbcQCeIXWN
-QUzBkYEbSXOKrI0MXIO84Pg=
-=tPYg
------END PGP SIGNATURE-----
+        81 40 20 10 08 04 02
+
+near the beginning, while part 2 is padded with zeroes in the same
+place.
+
+There are no strings except in the last part. Most likely it's
+some kind of compressed data, although the repeating parts would appear
+in regular compressed blobs.
+
+Anyone, does this ring a bell?
+
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

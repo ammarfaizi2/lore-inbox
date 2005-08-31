@@ -1,56 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751018AbVHaTrJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751015AbVHaTtY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751018AbVHaTrJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 15:47:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751012AbVHaTrI
+	id S1751015AbVHaTtY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 15:49:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751020AbVHaTtW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 15:47:08 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:45680
-	"EHLO g5.random") by vger.kernel.org with ESMTP id S1751023AbVHaTrI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 15:47:08 -0400
-Date: Wed, 31 Aug 2005 21:47:01 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: tony.luck@intel.com
-Cc: Bill Davidsen <davidsen@tmr.com>, Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-       linux-kernel@vger.kernel.org
-Subject: Re: KLive: Linux Kernel Live Usage Monitor
-Message-ID: <20050831194701.GP1614@g5.random>
-References: <20050830030959.GC8515@g5.random> <Pine.LNX.4.63.0508300954190.1984@cassini.linux4geeks.de> <20050830082901.GA25438@bitwizard.nl> <Pine.LNX.4.63.0508301044150.1984@cassini.linux4geeks.de> <20050830094058.GA29214@bitwizard.nl> <4314D98E.2030801@tmr.com> <200508311914.j7VJEN7M009450@agluck-lia64.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200508311914.j7VJEN7M009450@agluck-lia64.sc.intel.com>
-User-Agent: Mutt/1.5.9i
+	Wed, 31 Aug 2005 15:49:22 -0400
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:35485 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S1751015AbVHaTtW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 15:49:22 -0400
+Message-ID: <43160A70.8020701@t-online.de>
+Date: Wed, 31 Aug 2005 21:52:16 +0200
+From: Knut Petersen <Knut_Petersen@t-online.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.7) Gecko/20050414
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Roman Zippel <zippel@linux-m68k.org>
+CC: Andrew Morton <akpm@osdl.org>, linux-fbdev-devel@lists.sourceforge.net,
+       "Antonino A. Daplas" <adaplas@gmail.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Jochen Hein <jochen@jochen.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [Linux-fbdev-devel] [PATCH 1/1 2.6.13] framebuffer: bit_putcs()
+ optimization for 8x* fonts
+References: <43148610.70406@t-online.de> <Pine.LNX.4.62.0508301814470.6045@numbat.sonytel.be> <43149E5B.7040006@t-online.de> <Pine.LNX.4.61.0508302039160.3743@scrub.home> <4314DD2E.7060901@t-online.de> <Pine.LNX.4.61.0508310159290.3728@scrub.home> <4315A6AB.5090108@t-online.de> <Pine.LNX.4.61.0508311750140.3728@scrub.home> <431602CC.1030008@t-online.de> <Pine.LNX.4.61.0508312125360.3743@scrub.home>
+In-Reply-To: <Pine.LNX.4.61.0508312125360.3743@scrub.home>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ID: Z1ZwVYZJ8eWv6zHkSENtUrIX1ol5vdLWWxgXXYLXCcUIVfUFpea+Qm@t-dialin.net
+X-TOI-MSGID: 8981dd6d-9463-43df-80ab-62834d3ffaf6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 31, 2005 at 12:14:23PM -0700, tony.luck@intel.com wrote:
-> Do you want to try to handle version skew ?  All kernels built
-> from GIT trees look like 2.6.13 until Linus releases 2.6.14-rc1.
-> Possible approaches (requiring changes to the kernel Makefile).
-> 1) Use the SHA1 of HEAD to provide a precise identification.
-> 2) Use $(git-rev-tree linus ^v${VERSION}.${PATCHLEVEL}.${SUBLEVEL}${EXTRAVERSION} | wc -l)
-> to get an approximate distance from the base version
-> 
-> Another version issue is use of "localversion" ... I use it to tag
-> kernels with a summary of the config file I used during build (e.g.
-> -tiger-smp, or -generic-up).  Looking at the results you've collected
-> so far, there appear to be a variety of other conventions in use
-> that prevent aggregation of results.
 
-Aggregation of results seems the biggest problem right now. If we add
-the git tag we really have to aggregate the git revisions before showing
-the main page (or there would be too many of them). So we need at least
-a standard way to do that. Perhaps it's simpler to export it via
-readonly sysctl or with /proc and passed separately to the server (not
-mixed in the uname strings)? I can extend the protocol without
-invalidating the old clients and old data.
+>>The special case for s_pitch == 2 saves about 270 ms system time (2120 ->
+>>1850ms)
+>>with a 16x30 font.
+>>    
+>>
+>Compared to what? How much is the function call overhead?
+>
+>  
+>
+Your version of the inline code inserted after an if (idx==2) in 
+bit_putcs against my version of the
+inline code.
 
-I'm thinking to add optional aggregations for (\d+)\.(\d+)\.(\d+)\D and
-for different archs. So you can watch ia64 only or 2.6.13 only etc...
+cu,
+ knut
 
-The "-tiger-smp/-generic-up" makes life harder indeed ;).
-
-If there was a more standard way to add extraversions and localversions
-aggregation would be easier and more reliable.

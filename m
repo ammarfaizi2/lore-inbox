@@ -1,65 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964940AbVHaXW2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964972AbVHaXZo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964940AbVHaXW2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 19:22:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbVHaXW2
+	id S964972AbVHaXZo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 19:25:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbVHaXZo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 19:22:28 -0400
-Received: from wproxy.gmail.com ([64.233.184.207]:20125 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964940AbVHaXW1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 19:22:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=Y6hAqLJHbWUEXtqqvsuLDPha9Aepe4r54/066zi1iV5dqOmaJX0C/hma0//lMkDS43jreowq88Ch/Yndfi/rUPQXmO+5JRpv3e2EkXQVo9gOtmPepRL+0APX3EBA0PbfjEEkFnB+zDl3XThL6ZZdASZXb+vF7oWtTH9iQApcsuo=
-Date: Thu, 1 Sep 2005 01:22:18 +0200
-From: Diego Calleja <diegocg@gmail.com>
-To: "Jeff V. Merkey" <jmerkey@soleranetworks.com>
-Cc: jmerkey@soleranetworks.com, Valdis.Kletnieks@vt.edu, arjan@infradead.org,
-       riel@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] DSFS Network Forensic File System for Linux Patches
-Message-Id: <20050901012218.02c79560.diegocg@gmail.com>
-In-Reply-To: <431612C3.7020903@soleranetworks.com>
-References: <4315DBE7.7080002@soleranetworks.com>
-	<Pine.LNX.4.63.0508311432270.16968@cuia.boston.redhat.com>
-	<4315E88D.9020603@soleranetworks.com>
-	<1125514716.3213.24.camel@laptopd505.fenrus.org>
-	<4315F04D.5050705@soleranetworks.com>
-	<200508312128.j7VLST47010653@turing-police.cc.vt.edu>
-	<431611B7.6000103@soleranetworks.com>
-	<431612C3.7020903@soleranetworks.com>
-X-Mailer: Sylpheed version 2.1.1+svn (GTK+ 2.8.2; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
+	Wed, 31 Aug 2005 19:25:44 -0400
+Received: from fmr17.intel.com ([134.134.136.16]:64143 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S964972AbVHaXZo convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 19:25:44 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
+Subject: RE: FW: [RFC] A more general timeout specification
+Date: Wed, 31 Aug 2005 16:24:18 -0700
+Message-ID: <F989B1573A3A644BAB3920FBECA4D25A042B030A@orsmsx407>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: FW: [RFC] A more general timeout specification
+Thread-Index: AcWugBA7rOaff85SR8G1FhC8KGDBBwAAiN0g
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "Roman Zippel" <zippel@linux-m68k.org>
+Cc: <akpm@osdl.org>, <joe.korty@ccur.com>, <george@mvista.com>,
+       <johnstul@us.ibm.com>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 31 Aug 2005 23:25:12.0288 (UTC) FILETIME=[3C242E00:01C5AE83]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Wed, 31 Aug 2005 14:27:47 -0600,
-"Jeff V. Merkey" <jmerkey@soleranetworks.com> escribió:
+>From: Roman Zippel [mailto:zippel@linux-m68k.org]
+>On Wed, 31 Aug 2005, Perez-Gonzalez, Inaky wrote:
+>
+>> Usefulness: (see the rationale in the patch), but in a nutshell;
+>> most POSIX timeout specs have to be absolute in CLOCK_REALTIME
+>> (eg: pthread_mutex_timed_lock()). Current kernel needs the timeout
+>> relative, so glibc calls the kernel/however gets the time, computes
+>> relative times and syscalls. Race conditions, overhead...etc.
+>>
+>> This mechanism supports both. That's why it is more general.
+>
+>Your patch basically only mentions fusyn, why does it need multiple
+clock
+>sources?
 
->  
-> NOTE! This copyright does *not* cover user programs that use kernel
->  services by normal system calls - this is merely considered normal use
->  of the kernel, and does *not* fall under the heading of "derived work".
->  Also note that the GPL below is copyrighted by the Free Software
->  Foundation, but the instance of code that it refers to (the linux
->  kernel) is copyrighted by me and others who actually wrote it.
+I cannot produce (top of my head) any other POSIX API calls that
+allow you to specify another clock source, but they are there,
+somewhere. If I am to introduce a new API, I better make it 
+flexible enough so that other subsystems can use it for more stuff
+other than...
 
-So, that means that DSFS runs on userspace? (We can't see the source
-so it'd be nice to know how DSFS works)
+>Why is not sufficient to just add a relative/absolute version,
+>which convert the time at entry to kernel time?
 
-Also, I'm curious about this piece of code on your patch:
-ftp://ftp.soleranetworks.com/pub/dsfs/datascout-only-2.6.9-06-28-05.patch
+...adding more versions that add complexity and duplicate
+code in many different places (user-to-kernel copy, syscall entry 
+points, timespec validation). And the minute you add a clock_id
+you can steal some bits for specifying absolute/relative (or vice
+versa), so it is almost a win-win situarion.
 
--		printk(KERN_WARNING "%s: module license '%s' taints kernel.\n",
--		       mod->name, license);
-+//		printk(KERN_WARNING "%s: module license '%s' taints kernel.\n",
-+//		       mod->name, license);
-
-I mean, nvidia people also use propietary code in the kernel (probably
-violating the GPL anyway) and don't do such things.
+To summarize: thought about that, but it is fugly and not too practical.
 
 
+Consider also his allows you to write extensions to POSIX or your
+own user-level APIs that could allow (following the fusyn example) 
+you to wait on a mutex with a timeout based off a monotonic clock, 
+if you need it (or something that makes more sense than this--highres 
+comes to mind). 
 
+-- Inaky

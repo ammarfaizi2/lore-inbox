@@ -1,56 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbVHaL03@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932491AbVHaLbO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750727AbVHaL03 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 07:26:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbVHaL03
+	id S932491AbVHaLbO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 07:31:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932428AbVHaLbO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 07:26:29 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:34063 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1750727AbVHaL02 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 07:26:28 -0400
-Date: Wed, 31 Aug 2005 12:26:22 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Vitaly Wool <vitalhome@rbcmail.ru>
-Cc: linux-kernel@vger.kernel.org,
-       Grigory Tolstolytkin <gtolstolytkin@dev.rtsoft.ru>
-Subject: Re: [PATCH] custom PM support for 8250
-Message-ID: <20050831122622.B1118@flint.arm.linux.org.uk>
-Mail-Followup-To: Vitaly Wool <vitalhome@rbcmail.ru>,
-	linux-kernel@vger.kernel.org,
-	Grigory Tolstolytkin <gtolstolytkin@dev.rtsoft.ru>
-References: <43159011.3060206@rbcmail.ru>
+	Wed, 31 Aug 2005 07:31:14 -0400
+Received: from tux06.ltc.ic.unicamp.br ([143.106.24.50]:49597 "EHLO
+	tux06.ltc.ic.unicamp.br") by vger.kernel.org with ESMTP
+	id S932415AbVHaLbN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 07:31:13 -0400
+Date: Wed, 31 Aug 2005 08:35:06 -0300
+From: Glauber de Oliveira Costa <gocosta@br.ibm.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Glauber de Oliveira Costa <gocosta@br.ibm.com>,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       ext2resize-devel@lists.sourceforge.net,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-fsdevel@vger.kernel.org, Andreas Dilger <adilger@clusterfs.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: [PATCH] Ext3 online resizing locking issue
+Message-ID: <20050831113506.GM23782@br.ibm.com>
+References: <20050824210325.GK23782@br.ibm.com> <1124996561.1884.212.camel@sisko.sctweedie.blueyonder.co.uk> <20050825204335.GA1674@br.ibm.com> <1125410818.1910.52.camel@sisko.sctweedie.blueyonder.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <43159011.3060206@rbcmail.ru>; from vitalhome@rbcmail.ru on Wed, Aug 31, 2005 at 03:10:09PM +0400
+In-Reply-To: <1125410818.1910.52.camel@sisko.sctweedie.blueyonder.co.uk>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 31, 2005 at 03:10:09PM +0400, Vitaly Wool wrote:
-> please find the patch that allows passing the pointer to custom power 
-> management routine (via platform_device) to 8250 serial driver.
-> Please note that the interface to the outer world (i. e. exported 
-> functions) remained the same.
+> 
+> The two different uses of the superblock lock are really quite
+> different; I don't see any particular problem with using two different
+> locks for the two different things.  Mount and the namespace code are
+> not locking the same thing --- the fact that the resize code uses the
+> superblock lock is really a historical side-effect of the fact that we
+> used to use the same overloaded superblock lock in the ext2/ext3 block
+> allocation layers to guard bitmap access.
+> 
+> 
+At a first look, i thought about locking gdt-related data. But in a
+closer one, it seemed to me that we're in fact modifying a little bit
+more than that in the resize code. But all these modifications seem to
+be somehow related to the ext3 super block specific data in
+ext3_sb_info. My first naive approach would be adding a lock to that
+struct
 
-I'd rather change the structure passed via the platform device to
-something like:
+Besides that, by doing that, we become pretty much independent of vfs
+locking decisions to handle ext3 data. Do you think it all make sense?
 
-struct platform_serial_data {
-	void	(*pm)(struct uart_port *port, unsigned int state, unsigned int old);
-	int	nr_ports;
-	struct plat_serial8250_port *ports;
-};
 
-which also eliminates the empty plat_serial8250_port terminator from
-all the serial8250 platform devices (which appears to have caused some
-folk problems.)
-
-It does mean that a set of 8250 ports (grouped by each platform device)
-have a common power management method - which seems a logical restriction.
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+=====================================
+Glauber de Oliveira Costa
+IBM Linux Technology Center - Brazil
+gocosta@br.ibm.com
+=====================================

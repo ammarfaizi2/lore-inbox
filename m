@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932417AbVHaHTn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932421AbVHaH20@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932417AbVHaHTn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 03:19:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbVHaHTn
+	id S932421AbVHaH20 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 03:28:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932423AbVHaH20
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 03:19:43 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:46738 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932417AbVHaHTm (ORCPT
+	Wed, 31 Aug 2005 03:28:26 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:31670 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932421AbVHaH2Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 03:19:42 -0400
-Date: Wed, 31 Aug 2005 09:20:17 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: linux-kernel@vger.kernel.org, trini@kernel.crashing.org
-Subject: Re: [PATCH] PREEMPT_RT vermagic
-Message-ID: <20050831072017.GA7125@elte.hu>
-References: <20050829084829.GA23176@elte.hu> <1125441737.18150.43.camel@dhcp153.mvista.com>
+	Wed, 31 Aug 2005 03:28:25 -0400
+Date: Wed, 31 Aug 2005 09:28:31 +0200
+From: Jens Axboe <axboe@suse.de>
+To: brking@us.ibm.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/1] block: CFQ refcounting fix
+Message-ID: <20050831072830.GG4018@suse.de>
+References: <200508302241.j7UMf8ag018433@d01av03.pok.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1125441737.18150.43.camel@dhcp153.mvista.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <200508302241.j7UMf8ag018433@d01av03.pok.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Aug 30 2005, brking@us.ibm.com wrote:
+> 
+> I ran across a memory leak related to the cfq scheduler. The cfq
+> init function increments the refcnt of the associated request_queue.
+> This refcount gets decremented in cfq's exit function. Since blk_cleanup_queue
+> only calls the elevator exit function when its refcnt goes to zero, the
+> request_q never gets cleaned up. It didn't look like other io schedulers were
+> incrementing this refcnt, so I removed the refcnt increment and it fixed the
+> memory leak for me.
+> 
+> To reproduce the problem, simply use cfq and use the scsi_host scan sysfs
+> attribute to scan "- - -" repeatedly on a scsi host and watch the memory
+> vanish.
 
-* Daniel Walker <dwalker@mvista.com> wrote:
+Yeah, that actually looks like a dangling reference. I assume you tested
+this properly?
 
-> Ingo,
-> 	This patch adds a vermagic hook so PREEMPT_RT modules can be
-> distinguished from PREEMPT_DESKTOP modules.
+-- 
+Jens Axboe
 
-vermagic is very crude and there are zillions of other details and 
-.config flags that might make a module incompatible. You can use 
-CONFIG_MODVERSIONS to get a stronger protection that vermagic, but 
-that's far from perfect too. The right solution is the module signing 
-framework in Fedora. Until that gets merged upstream just dont mix 
-incompatible modules, and keep things tightly packaged.
-
-	Ingo

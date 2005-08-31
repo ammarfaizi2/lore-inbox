@@ -1,57 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932297AbVHaAHF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932300AbVHaAKF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932297AbVHaAHF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 20:07:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbVHaAHE
+	id S932300AbVHaAKF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 20:10:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbVHaAKF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 20:07:04 -0400
-Received: from cantor.suse.de ([195.135.220.2]:41958 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932296AbVHaAHB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 20:07:01 -0400
-From: Andi Kleen <ak@suse.de>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Subject: Re: [PATCH] Only process_die notifier in ia64_do_page_fault if KPROBES is configured.
-Date: Wed, 31 Aug 2005 02:05:00 +0200
-User-Agent: KMail/1.8
-Cc: "Luck, Tony" <tony.luck@intel.com>, Rusty Lynch <rusty@linux.intel.com>,
-       "Lynch, Rusty" <rusty.lynch@intel.com>, linux-mm@kvack.org,
-       prasanna@in.ibm.com, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org,
-       "Keshavamurthy, Anil S" <anil.s.keshavamurthy@intel.com>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F0443A9A1@scsmsx401.amr.corp.intel.com> <200508310138.09841.ak@suse.de> <Pine.LNX.4.62.0508301642570.20548@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.62.0508301642570.20548@schroedinger.engr.sgi.com>
+	Tue, 30 Aug 2005 20:10:05 -0400
+Received: from web53607.mail.yahoo.com ([206.190.37.40]:51132 "HELO
+	web53607.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S932298AbVHaAKE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 20:10:04 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=cWavHbz4Xi1DrHTVF2i+79MaldMf2t6Y2yHFghj9adVdXvj+7z34MkFAvBL69F5FJ8f3MwHY2OAldD9wUjFrPOWS4a7M+PW+lvtB9Hb4TjGDLpTGowFLj4dNJrGWvX+EEMyx8fPLUUBGTvDwM4TvyZFd7nCL9WEhZ3orsqkT+gQ=  ;
+Message-ID: <20050831000948.40799.qmail@web53607.mail.yahoo.com>
+Date: Wed, 31 Aug 2005 10:09:48 +1000 (EST)
+From: Steve Kieu <haiquy@yahoo.com>
+Subject: Re: Very strange Marvell/Yukon Gigabit NIC networking problems
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Jesse Brandeburg <jesse.brandeburg@gmail.com>,
+       Daniel Drake <dsd@gentoo.org>, Steve Kieu <haiquy@yahoo.com>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+In-Reply-To: <20050830152908.1dc24339@dxpl.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200508310205.00965.ak@suse.de>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 31 August 2005 01:54, Christoph Lameter wrote:
 
-> Certainly not a big effect (if we make sure the compiler knows that
-> this test mostly fails and insure that the variable is in
-> __mostly_read) 
+--- Stephen Hemminger <shemminger@osdl.org> wrote:
 
-Currently neither, but that could be easily fixed.
+> On Wed, 31 Aug 2005 07:49:37 +1000 (EST)
 
-> but this is a frequently executed code path and the code 
-> is there without purpose if CONFIG_KPROBES is off.
+> > 
+> > install-8_23.tar.bz2
+> 
+> Just look for references to CHIP_REV_YU_LITE_A3 in
+> the driver
+> 	sk98lin/skgeinit.c and sk98lin/skxmac2.c
+> The comparison should always be:
 
-Well if you really worry about it then it might be better to do some dynamic
-code patching to make generic and distribution kernels too.
+Have a look but no clue to patch it, there are one
+instance of comparing
 
-> It wont get too bad unless lots of other people have similar ideas about
-> fixing their race conditions using similar methods. But we will be setting
-> a bad precedent if we allow this.
+> 	pAC->GIni.GIChipRev >= CHIP_REV_YU_LITE_A3
+> otherwise it will not correctly take chip out of
+> powerdown (coma) mode.
 
-Agreed on the general direction, but I didn't see an alternative
-for kprobes for this. Well actually the hook could be maybe
-right now moved into the part before kernel oops which is much less
-frequently executed, but then it'll likely move up again once
-kprobes support user space probes.
+please send me a patch to the install-8_23.tar.bz2
+then I can test. Or intruct more details, which line
+and what should change then I can do manually.
 
--Andi
+I have nerver done device driver programming in my
+life!
+
+
+
+> 
+
+
+S.KIEU
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

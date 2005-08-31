@@ -1,43 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932529AbVHaWCS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964861AbVHaWGd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932529AbVHaWCS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 18:02:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932539AbVHaWCS
+	id S964861AbVHaWGd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 18:06:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964864AbVHaWGd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 18:02:18 -0400
-Received: from terminus.zytor.com ([209.128.68.124]:36056 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S932529AbVHaWCR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 18:02:17 -0400
-Message-ID: <431628D5.1040709@zytor.com>
-Date: Wed, 31 Aug 2005 15:01:57 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+	Wed, 31 Aug 2005 18:06:33 -0400
+Received: from zctfs063.nortelnetworks.com ([47.164.128.120]:438 "EHLO
+	zctfs063.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S964861AbVHaWGc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 18:06:32 -0400
+Message-ID: <431629C8.8030201@nortel.com>
+Date: Wed, 31 Aug 2005 16:06:00 -0600
+From: "Christopher Friesen" <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Chris Wedgwood <cw@f00f.org>
-CC: Alon Bar-Lev <alon.barlev@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       SYSLINUX@zytor.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: THE LINUX/I386 BOOT PROTOCOL - Breaking the 256 limit
-References: <4315B668.6030603@gmail.com> <43162148.9040604@zytor.com> <20050831215757.GA10804@taniwha.stupidest.org>
-In-Reply-To: <20050831215757.GA10804@taniwha.stupidest.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: joe.korty@ccur.com
+CC: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>, akpm@osdl.org,
+       george@mvista.com, johnstul@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: FW: [RFC] A more general timeout specification
+References: <F989B1573A3A644BAB3920FBECA4D25A042B0053@orsmsx407> <43161F03.5090604@nortel.com> <20050831213430.GA11858@tsunami.ccur.com>
+In-Reply-To: <20050831213430.GA11858@tsunami.ccur.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 31 Aug 2005 22:06:03.0098 (UTC) FILETIME=[2D674BA0:01C5AE78]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood wrote:
-> On Wed, Aug 31, 2005 at 02:29:44PM -0700, H. Peter Anvin wrote:
-> 
->>I think someone on the SYSLINUX mailing list already sent a patch to
->>akpm to make 512 the default; making it configurable would be a
->>better idea.  Feel free to send your patch through me.
-> 
-> So we really need this to be a configuration option?  We have too many
-> of those already.
+Joe Korty wrote:
 
-Maybe not.  Another option would simply be to bump it up significantly 
-(2x isn't really that much.)   4096, maybe.
+> The returned timeout struct has a bit used to mark the value as absolute.  Thus
+> the caller treats the returned timeout as a opaque cookie that can be
+> reapplied to the next (or more likely, the to-be restarted) timeout.
 
-	-hpa
+Okay, endtime is always absolute value of when it should have expired. 
+But I think I see a problem with the opaque cookie scheme and repeating 
+timeouts.
+
+Suppose I want to wake my application at INTERVAL nanoseconds from now 
+on the MONOTONIC clock, then again every INTERVAL nanoseconds after that.
+
+How do I do that with this API?
+
+I can get the first sleep.  Suppose I oversleep by X nanoseconds.  I 
+wake, and get an opaque timeout back.  How do I ask for the new wake 
+time to be "endtime + INTERVAL"?
+
+Chris

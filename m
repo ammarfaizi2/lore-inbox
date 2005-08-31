@@ -1,53 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964798AbVHaNal@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964802AbVHaNc7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964798AbVHaNal (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 09:30:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964803AbVHaNal
+	id S964802AbVHaNc7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 09:32:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964800AbVHaNc7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 09:30:41 -0400
-Received: from zproxy.gmail.com ([64.233.162.207]:39043 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964798AbVHaNal convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 09:30:41 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=SSKD78xawAXIc52jtGSHovjatvf5BlcUi/R3AHb5h09UC5p93kicH7V5bc35AXMzgHMcK4s6MLmOjcSG/3ikP8d7DYpxPogUUTdHTJ2lMRQeCYCMOUGRAYr7OHHZJO9jlpoZ/9lci3KTbH8UVT3CQI4uD0241YT7/VNJYydtceA=
-Message-ID: <3afbacad0508310630797f397d@mail.gmail.com>
-Date: Wed, 31 Aug 2005 15:30:37 +0200
-From: Jim MacBaine <jmacbaine@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: aoe fails on sparc64
-Cc: ecashin@coraid.com
+	Wed, 31 Aug 2005 09:32:59 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:60070 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964799AbVHaNc6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 09:32:58 -0400
+Subject: Re: [PATCH] Ext3 online resizing locking issue
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Glauber de Oliveira Costa <gocosta@br.ibm.com>
+Cc: "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       ext2resize-devel@lists.sourceforge.net,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-fsdevel@vger.kernel.org, Andreas Dilger <adilger@clusterfs.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <20050831113506.GM23782@br.ibm.com>
+References: <20050824210325.GK23782@br.ibm.com>
+	 <1124996561.1884.212.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <20050825204335.GA1674@br.ibm.com>
+	 <1125410818.1910.52.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <20050831113506.GM23782@br.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1125495031.1900.60.camel@sisko.sctweedie.blueyonder.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Wed, 31 Aug 2005 14:30:32 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
 
-Using aoe on a sparc64 system gives strange results:
+On Wed, 2005-08-31 at 12:35, Glauber de Oliveira Costa wrote:
 
-sunny:/dev/etherd# echo >discover
-sunny:/dev/etherd# mke2fs e0.0
-mke2fs 1.37 (21-Mar-2005)
-mke2fs: File too large while trying to determine filesystem size
-sunny:/dev/etherd# blockdev --getsz e0.0
--4503599627370496
+> At a first look, i thought about locking gdt-related data. But in a
+> closer one, it seemed to me that we're in fact modifying a little bit
+> more than that in the resize code. But all these modifications seem to
+> be somehow related to the ext3 super block specific data in
+> ext3_sb_info. My first naive approach would be adding a lock to that
+> struct
 
-The log says:
+I took great care when making that code SMP-safe to avoid such locks,
+for performance reasons.  See the comments at
 
-Aug 31 15:18:49 sunny kernel: devfs_mk_dir: invalid argument.<6>
-etherd/e0.0: unknown partition table
-Aug 31 15:18:49 sunny kernel: aoe: 0011d8xxxxxx e0.0 v4000 has
-67553994410557440
-sectors
+	 * We need to protect s_groups_count against other CPUs seeing
+	 * inconsistent state in the superblock.
 
-The system is an Sun Ultra 5, running 2.6.12.5/sparc64 compiled with
-gcc-3.4.2.  e0.0 is exported on a x86 system using vblade-5, and has a
-size of 30 MB.
+in fs/ext3/resize.c for the rules.  But basically the way it works is
+that we only usually modify data that cannot be in use by other parts of
+the kernel --- and that's fairly easy to guarantee, since by definition
+extending the fs is something that is touching bits that aren't already
+in use.  Only once all the new data is safely installed do we atomically
+update the s_groups_count field, which instantly makes the new data
+visible.  We enforce this ordering via smp read barriers before reading
+s_groups_count and write barriers after modifying it, but we don't
+actually have locks as such.
 
-Regards,
-Jim
+The only use of locking in the resize is hence the superblock lock,
+which is not really there to protect the resize from the rest of the fs
+--- the s_groups_count barriers do that.  All the sb lock is needed for
+is to prevent two resizes from progressing at the same time; and that
+could easily be abstracted into a separate resize lock.
+
+Cheers,
+ Stephen
+

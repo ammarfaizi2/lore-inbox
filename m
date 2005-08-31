@@ -1,41 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932345AbVHaOjU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932348AbVHaOke@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932345AbVHaOjU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 10:39:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932348AbVHaOjU
+	id S932348AbVHaOke (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 10:40:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932380AbVHaOke
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 10:39:20 -0400
-Received: from fed1rmmtao09.cox.net ([68.230.241.30]:35513 "EHLO
-	fed1rmmtao09.cox.net") by vger.kernel.org with ESMTP
-	id S932345AbVHaOjT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 10:39:19 -0400
-Date: Wed, 31 Aug 2005 07:39:18 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch 16/16] Add hardware breakpoint support for i386
-Message-ID: <20050831143918.GG3966@smtp.west.cox.net>
-References: <resend.15.2982005.trini@kernel.crashing.org> <1.2982005.trini@kernel.crashing.org> <resend.16.2982005.trini@kernel.crashing.org> <p73wtm4fndw.fsf@verdi.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 31 Aug 2005 10:40:34 -0400
+Received: from mail.suse.de ([195.135.220.2]:60130 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932348AbVHaOkd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 10:40:33 -0400
+From: Andi Kleen <ak@suse.de>
+To: Martin Wilck <martin.wilck@fujitsu-siemens.com>
+Subject: Re: APIC version and 8-bit APIC IDs
+Date: Wed, 31 Aug 2005 16:40:27 +0200
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org,
+       "Wichert, Gerhard" <Gerhard.Wichert@fujitsu-siemens.com>
+References: <42FC8461.2040102@fujitsu-siemens.com.suse.lists.linux.kernel> <p73pssj2xdz.fsf@verdi.suse.de> <4315AD07.2020500@fujitsu-siemens.com>
+In-Reply-To: <4315AD07.2020500@fujitsu-siemens.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <p73wtm4fndw.fsf@verdi.suse.de>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200508311640.27795.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 29, 2005 at 11:23:39PM +0200, Andi Kleen wrote:
-> Tom Rini <trini@kernel.crashing.org> writes:
-> 
-> > This adds hardware breakpoint support for i386.  This is not as well tested as
-> > software breakpoints, but in some minimal testing appears to be functional.
-> 
-> This really would need so coordination with user space using 
-> them. Otherwise it'll be quite unreliable because any user program
-> can break it.
+On Wednesday 31 August 2005 15:13, Martin Wilck wrote:
 
-Probably easiest to just drop this for now then, thanks.
+> In other words: What would be broken if we just used an APIC ID mask of
+> 0xFF everywhere?
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Nothing I think. It's more historical reasons. The physflat subarchitecture 
+patch essentially removed it, but it needs some rework and merging
+with bigsmp now.
+
+> The current situation with MP_valid_apicid() on the one hand (masking
+> the APIC ID as a function of local APIC version) and APIC_ID_MASK
+> (masking the APIC as a function of subarch) on the other hand is
+> inconsistent. A correct approach must take both CPU and architecture
+> constraints into account, and use a CPU-type-dependent variable mask in
+> the subarch code.
+
+Yes, it's broken right now.
+
+-Andi

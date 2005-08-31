@@ -1,48 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932290AbVH3X4r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932292AbVHaADD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932290AbVH3X4r (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 19:56:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932291AbVH3X4r
+	id S932292AbVHaADD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 20:03:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932294AbVHaADD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 19:56:47 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:56786
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932290AbVH3X4p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 19:56:45 -0400
-Date: Tue, 30 Aug 2005 16:56:31 -0700 (PDT)
-Message-Id: <20050830.165631.122559296.davem@davemloft.net>
-To: ak@suse.de
-Cc: tony.luck@intel.com, clameter@engr.sgi.com, rusty@linux.intel.com,
-       rusty.lynch@intel.com, linux-mm@kvack.org, prasanna@in.ibm.com,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       anil.s.keshavamurthy@intel.com
-Subject: Re: [PATCH] Only process_die notifier in ia64_do_page_fault if
- KPROBES is configured.
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <200508310138.09841.ak@suse.de>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F0443A9A1@scsmsx401.amr.corp.intel.com>
-	<200508310138.09841.ak@suse.de>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Tue, 30 Aug 2005 20:03:03 -0400
+Received: from agminet04.oracle.com ([141.146.126.231]:28382 "EHLO
+	agminet04.oracle.com") by vger.kernel.org with ESMTP
+	id S932292AbVHaADC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 20:03:02 -0400
+Date: Tue, 30 Aug 2005 17:03:16 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: phillips@istop.com, linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: Re: [RFC][PATCH 1 of 4] Configfs is really sysfs
+Message-ID: <20050831000316.GF22068@insight.us.oracle.com>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>, phillips@istop.com,
+	linux-kernel@vger.kernel.org, greg@kroah.com
+References: <200508310854.40482.phillips@istop.com> <20050830231307.GE22068@insight.us.oracle.com> <20050830162846.5f6d0a53.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="HKEL+t8MFpg/ASTE"
+Content-Disposition: inline
+In-Reply-To: <20050830162846.5f6d0a53.akpm@osdl.org>
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.10i
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH] Only process_die notifier in ia64_do_page_fault if KPROBES is configured.
-Date: Wed, 31 Aug 2005 01:38:08 +0200
 
-> On Wednesday 31 August 2005 01:05, Luck, Tony wrote:
-> > >Please do not generate any code if the feature cannot ever be
-> > >used (CONFIG_KPROBES off). With this patch we still have lots of
-> > >unnecessary code being executed on each page fault.
-> >
-> > I can (eventually) wrap this call inside the #ifdef CONFIG_KPROBES.
-> 
-> At least the original die notifiers were designed as a generic debugger
-> interface, not a kprobes specific thing. So I don't think it's a good idea.
+--HKEL+t8MFpg/ASTE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Me neither, I think a way too big deal is being made about
-about this by the ia64 folks.  Just put the dang hook in
-there unconditionally already :-)
+On Tue, Aug 30, 2005 at 04:28:46PM -0700, Andrew Morton wrote:
+> Joel Becker <Joel.Becker@oracle.com> wrote:
+> > 	The fact that sysfs and configfs have similar backing stores
+> > does not make them the same thing.
+> >=20
+>=20
+> Sure, but all that copying-and-pasting really sucks.  I'm sure there's so=
+me
+> way of providing the slightly different semantics from the same codebase?
+
+	The way that configfs and sysfs create/destroy dentries and
+their associated inodes is very different from the top, yet similar from
+the bottom.  I suspect that some of it could be libraryized.  When I
+first looked started configfs, I was starting from an "add on to sysfs"
+perspective, after all.  The sysfs maintainers and I agreed, after much
+discussion, that we should go to a separate tree.
+
+Joel
+
+--=20
+
+"Here's a nickle -- get yourself a better X server."
+	- Keith Packard
+
+			http://www.jlbec.org/
+			jlbec@evilplan.org
+
+--HKEL+t8MFpg/ASTE
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFDFPPEiHQK5rbv+hERAgndAJ90kjtDndxAiytCsab0Q4ygh2UhGQCfUe8w
+TE0wtlMOozibaTNCgswPOeU=
+=JOEg
+-----END PGP SIGNATURE-----
+
+--HKEL+t8MFpg/ASTE--

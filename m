@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964903AbVHaRcQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964898AbVHaRfV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964903AbVHaRcQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 13:32:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964899AbVHaRcQ
+	id S964898AbVHaRfV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 13:35:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964902AbVHaRfU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 13:32:16 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:45245 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S964897AbVHaRcP (ORCPT
+	Wed, 31 Aug 2005 13:35:20 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:40127 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S964898AbVHaRfT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 13:32:15 -0400
-Date: Wed, 31 Aug 2005 19:32:21 +0200
+	Wed, 31 Aug 2005 13:35:19 -0400
+Date: Wed, 31 Aug 2005 19:35:26 +0200
 From: Jens Axboe <axboe@suse.de>
-To: jmerkey <jmerkey@utah-nac.org>
-Cc: Holger Kiehl <Holger.Kiehl@dwd.de>, Vojtech Pavlik <vojtech@suse.cz>,
-       linux-raid <linux-raid@vger.kernel.org>,
+To: Holger Kiehl <Holger.Kiehl@dwd.de>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-raid <linux-raid@vger.kernel.org>,
        linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: Where is the performance bottleneck?
-Message-ID: <20050831173219.GI4018@suse.de>
-References: <Pine.LNX.4.61.0508301919250.25574@diagnostix.dwd.de> <20050831071126.GA7502@midnight.ucw.cz> <20050831072644.GF4018@suse.de> <Pine.LNX.4.61.0508311029170.16574@diagnostix.dwd.de> <20050831120714.GT4018@suse.de> <Pine.LNX.4.61.0508311339140.16574@diagnostix.dwd.de> <20050831162053.GG4018@suse.de> <4315C9EB.2030506@utah-nac.org> <20050831171124.GH4018@suse.de> <4315D3EB.4000601@utah-nac.org>
+Message-ID: <20050831173525.GJ4018@suse.de>
+References: <Pine.LNX.4.61.0508291811480.24072@diagnostix.dwd.de> <20050829202529.GA32214@midnight.suse.cz> <Pine.LNX.4.61.0508301919250.25574@diagnostix.dwd.de> <20050831071126.GA7502@midnight.ucw.cz> <20050831072644.GF4018@suse.de> <Pine.LNX.4.61.0508311029170.16574@diagnostix.dwd.de> <20050831120714.GT4018@suse.de> <Pine.LNX.4.61.0508311339140.16574@diagnostix.dwd.de> <20050831162053.GG4018@suse.de> <Pine.LNX.4.61.0508311648390.16574@diagnostix.dwd.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4315D3EB.4000601@utah-nac.org>
+In-Reply-To: <Pine.LNX.4.61.0508311648390.16574@diagnostix.dwd.de>
+X-IMAPbase: 1124875140 17
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 31 2005, jmerkey wrote:
-> 
-> 512 is not enough. It has to be larger. I just tried 512 and it still 
-> limits the data rates.
+On Wed, Aug 31 2005, Holger Kiehl wrote:
+> ># ./oread /dev/sdX
+> >
+> >and it will read 128k chunks direct from that device. Run on the same
+> >drives as above, reply with the vmstat info again.
+> >
+> Using kernel 2.6.12.5 again, here the results:
 
-Please don't top post.
+[snip]
 
-512 wasn't the point, setting it properly is the point. If you need more
-than 512, go ahead. This isn't Holger's problem, though, the reading
-would be much faster if it was. If the fusion is using a large queue
-depth, increasing nr_requests would likely help the writes (but not to
-the extent of where it would suddenly be as fast as it should).
+Ok, reads as expected, like the buffered io but using less system time.
+And you are still 1/3 off the target data rate, hmmm...
+
+With the reads, how does the aggregate bandwidth look when you add
+'clients'? Same as with writes, gradually decreasing per-device
+throughput?
 
 -- 
 Jens Axboe

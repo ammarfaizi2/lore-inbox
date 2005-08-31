@@ -1,67 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932541AbVHaWo1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932542AbVHaWsl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932541AbVHaWo1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 18:44:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932542AbVHaWo1
+	id S932542AbVHaWsl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 18:48:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932543AbVHaWsl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 18:44:27 -0400
-Received: from mail01.syd.optusnet.com.au ([211.29.132.182]:27300 "EHLO
-	mail01.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932541AbVHaWo0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 18:44:26 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: daniel mclellan <daniel.mclellan@gmail.com>
-Subject: Re: [ck] 2.6.13-ck1
-Date: Thu, 1 Sep 2005 08:47:36 +1000
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org, ck list <ck@vds.kolivas.org>
-References: <200508291703.26529.kernel@kolivas.org> <20050831194958.GA7021@spherenet.spherevision.org> <200508311507.10801.daniel.mclellan@gmail.com>
-In-Reply-To: <200508311507.10801.daniel.mclellan@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 31 Aug 2005 18:48:41 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:17850 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932542AbVHaWsk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 18:48:40 -0400
+Subject: Re: [PATCH 1/3] Updated dynamic tick patches - Fix lost tick
+	calculation in timer_pm.c
+From: john stultz <johnstul@us.ibm.com>
+To: Zachary Amsden <zach@vmware.com>
+Cc: vatsa@in.ibm.com, linux-kernel@vger.kernel.org, arjan@infradead.org,
+       s0348365@sms.ed.ac.uk, kernel@kolivas.org, tytso@mit.edu,
+       cfriesen@nortel.com, rlrevell@joe-job.com, trenn@suse.de,
+       george@mvista.com, akpm@osdl.org, Tim Mann <mann@vmware.com>
+In-Reply-To: <431630EE.2050809@vmware.com>
+References: <20050831165843.GA4974@in.ibm.com>
+	 <20050831171211.GB4974@in.ibm.com>  <431630EE.2050809@vmware.com>
+Content-Type: text/plain
+Date: Wed, 31 Aug 2005 15:47:48 -0700
+Message-Id: <1125528468.20820.255.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509010847.36930.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Sep 2005 06:07 am, daniel mclellan wrote:
-> Yes.
->
->
-> Linux yavanna 2.6.13-ckx1 #1 Tue Aug 30 04:03:25 EST 2005 x86_64 AMD
-> Athlon(tm) 64 FX-53 Processor AuthenticAMD GNU/Linux
->
-> On Wednesday 31 August 2005 14:49, Rodney Gordon II wrote:
-> > On Mon, Aug 29, 2005 at 05:03:24PM +1000, Con Kolivas wrote:
-> > > These are patches designed to improve system responsiveness and
-> > > interactivity. It is configurable to any workload but the default ck*
-> > > patch is aimed at the desktop and ck*-server is available with more
-> > > emphasis on serverspace.
-> > >
-> > >
-> > > Apply to 2.6.13
-> > > http://ck.kolivas.org/patches/2.6/2.6.13/2.6.13-ck1/patch-2.6.13-ck1.bz
-> > >2 or development version:
-> > > http://ck.kolivas.org/patches/2.6/2.6.13/2.6.13-ck1/patch-2.6.13-ck1+.b
-> > >z2
-> > >
-> > > or server version:
-> > > http://ck.kolivas.org/patches/2.6/2.6.13/2.6.13-ck1/patch-2.6.13-ck1-se
-> > >rv er.bz2
+On Wed, 2005-08-31 at 15:36 -0700, Zachary Amsden wrote:
+> >I feel lost ticks can be based on cycles difference directly
+> >rather than being based on microseconds that has elapsed.
 > >
-> > I am having odd lockup problems with just the non-+ 'stable' ck lately..
-> > Trying a large copy will often lock my disk I/O up and I have to do a
-> > hard reboot. Nothing shows in logs..
+> >Following patch is in that direction. 
 > >
-> > Is anyone having similar problems?
+> >With this patch, time had kept up really well on one particular
+> >machine (Intel 4way Pentium 3 box) overnight, while
+> >on another newer machine (Intel 4way Xeon with HT) it didnt do so
+> >well (time sped up after 3 or 4 hours). Hence I consider this
+> >particular patch will need more review/work.
+> >
+> >  
+> >
+> 
+> Does this patch help address the issues pointed out here?
+> 
+> http://bugzilla.kernel.org/show_bug.cgi?id=5127
 
-2 things:
+Unfortunately no. The issue there is that once the lost tick
+compensation code has fired, should those "lost" ticks appear later we
+end up over-compensating.
 
-What HZ are you running?
-Can you set up netconsole or serial console as these will capture something 
-that won't be seen in your logs.
+This patch however does help to make sure that when the lost tick code
+fires, the error from converting to usecs doesn't bite us. And could
+probably go into mainline independent of the dynamic ticks patch (with
+further testing, of course).
 
-Cheers,
-Con
+thanks
+-john
+

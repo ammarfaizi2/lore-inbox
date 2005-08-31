@@ -1,41 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964794AbVHaNZn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964796AbVHaN1X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964794AbVHaNZn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 09:25:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964795AbVHaNZn
+	id S964796AbVHaN1X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 09:27:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964795AbVHaN1X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 09:25:43 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:2055 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S964794AbVHaNZm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 09:25:42 -0400
-Date: Wed, 31 Aug 2005 14:25:47 +0100 (BST)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: Martin Wilck <martin.wilck@fujitsu-siemens.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       "Wichert, Gerhard" <Gerhard.Wichert@fujitsu-siemens.com>
-Subject: Re: APIC version and 8-bit APIC IDs
-In-Reply-To: <4315AD07.2020500@fujitsu-siemens.com>
-Message-ID: <Pine.LNX.4.61L.0508311417110.10940@blysk.ds.pg.gda.pl>
-References: <42FC8461.2040102@fujitsu-siemens.com.suse.lists.linux.kernel>
- <p73pssj2xdz.fsf@verdi.suse.de> <4315AD07.2020500@fujitsu-siemens.com>
+	Wed, 31 Aug 2005 09:27:23 -0400
+Received: from NS8.Sony.CO.JP ([137.153.0.33]:3215 "EHLO ns8.sony.co.jp")
+	by vger.kernel.org with ESMTP id S964796AbVHaN1W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 09:27:22 -0400
+Message-ID: <4315B032.2090502@sm.sony.co.jp>
+Date: Wed, 31 Aug 2005 22:27:14 +0900
+From: "Machida, Hiroyuki" <machida@sm.sony.co.jp>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: ja, en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+CC: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][FAT] FAT dirent scan with hin take #3
+References: <4313CBEF.9020505@sm.sony.co.jp> <4313E578.8070100@sm.sony.co.jp>	 <874q979qdj.fsf@devron.myhome.or.jp> <43156963.8020203@sm.sony.co.jp> <84144f0205083103031a858c15@mail.gmail.com>
+In-Reply-To: <84144f0205083103031a858c15@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Aug 2005, Martin Wilck wrote:
+Pekka Enberg wrote:
+> On 8/31/05, Machida, Hiroyuki <machida@sm.sony.co.jp> wrote:
+> 
+>>+inline
+>>+static int hint_index_body(const unsigned char *name, int name_len, int check_null)
+>>+{
+>>+       int i;
+>>+       int val = 0;
+>>+       unsigned char *p = (unsigned char *) name;
+>>+       int id = current->pid;
+>>+
+>>+       for (i=0; i<name_len; i++) {
+>>+               if (check_null && !*p) break;
+>>+               val = ((val << 1) & 0xfe) | ((val & 0x80) ? 1 : 0);
+>>+               val ^= *p;
+>>+               p ++;
+>>+       }
+>>+       id = ((id >> 8) & 0xf) ^ (id & 0xf);
+>>+       val = (val << 1) | (id & 1);
+>>+       return val & (FAT_SCAN_NWAY-1);
+> 
+> 
+> Couldn't you use jhash() from <linux/jhash.h> here?
+> 
+>                                  Pekka
+Thanks, I'll replace it with functions in jhash.h, then
+check performance again.
 
-> We are wondering why these masks are there in the subarch code at all. After
-> all, whether or not 8-bit APIC IDs are supported depends mainly on the CPU
-> type used. Why wouldn't it possible to have a "default" architecture with APIC
-> IDs > 15, if the CPUs allow it?
+-- 
+Hiroyuki Machida		machida@sm.sony.co.jp		
 
- It actually depends on the APIC type, rather than the CPU.  E.g. with 
-Pentium systems the width of the ID is either 4 bits or 8 bits, depending 
-on whether the integrated or an external 82489DX APIC is used.  This 
-should be able to be determined by the APIC version; for v <= 0xf the ID 
-is 8-bit and for v >= 0x10 it used to be 4-bit.  Now you only need to 
-determine what is the value of v above 0x10 that makes the ID 8-bit again.
-
-  Maciej

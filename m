@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964832AbVHaPUd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964837AbVHaPT5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964832AbVHaPUd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 11:20:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964836AbVHaPUd
+	id S964837AbVHaPT5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 11:19:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964839AbVHaPT5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 11:20:33 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:24306 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S964832AbVHaPUb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 11:20:31 -0400
-Subject: Re: [FYI] 2.6.13-rt3  and a nanosleep jitter test.
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       george anzinger <george@mvista.com>, Adrian Bunk <bunk@stusta.de>,
-       Sven-Thorsten Dietrich <sven@mvista.com>,
-       LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1125501220.28697.7.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-References: <1124704837.5208.22.camel@localhost.localdomain>
-	 <20050822101632.GA28803@elte.hu>
-	 <1124710309.5208.30.camel@localhost.localdomain>
-	 <20050822113858.GA1160@elte.hu>
-	 <1124715755.5647.4.camel@localhost.localdomain>
-	 <20050822183355.GB13888@elte.hu>
-	 <1124739657.5809.6.camel@localhost.localdomain>
-	 <1124739895.5809.11.camel@localhost.localdomain>
-	 <1124981238.5350.6.camel@localhost.localdomain>
-	 <1124982413.5350.19.camel@localhost.localdomain>
-	 <20050825174732.GA23774@elte.hu>
-	 <1125000563.6264.10.camel@localhost.localdomain>
-	 <1125023010.5365.4.camel@localhost.localdomain>
-	 <1125064334.5365.39.camel@localhost.localdomain>
-	 <1125414039.5675.42.camel@localhost.localdomain>
-	 <1125417156.6355.13.camel@localhost.localdomain>
-	 <1125500514.5714.12.camel@localhost.localdomain>
-	 <1125501220.28697.7.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Wed, 31 Aug 2005 11:19:12 -0400
-Message-Id: <1125501552.5714.14.camel@localhost.localdomain>
+	Wed, 31 Aug 2005 11:19:57 -0400
+Received: from fed1rmmtao12.cox.net ([68.230.241.27]:7907 "EHLO
+	fed1rmmtao12.cox.net") by vger.kernel.org with ESMTP
+	id S964837AbVHaPT4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 11:19:56 -0400
+Date: Wed, 31 Aug 2005 08:19:55 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PREEMPT_RT vermagic
+Message-ID: <20050831151955.GH3966@smtp.west.cox.net>
+References: <20050829084829.GA23176@elte.hu> <1125441737.18150.43.camel@dhcp153.mvista.com> <20050831072017.GA7125@elte.hu> <20050831142944.GF3966@smtp.west.cox.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050831142944.GF3966@smtp.west.cox.net>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-08-31 at 08:13 -0700, Daniel Walker wrote:
-> Sorry, that's http://high-res-timers.sf.net/
+On Wed, Aug 31, 2005 at 07:29:44AM -0700, Tom Rini wrote:
+> On Wed, Aug 31, 2005 at 09:20:17AM +0200, Ingo Molnar wrote:
+> > 
+> > * Daniel Walker <dwalker@mvista.com> wrote:
+> > 
+> > > Ingo,
+> > > 	This patch adds a vermagic hook so PREEMPT_RT modules can be
+> > > distinguished from PREEMPT_DESKTOP modules.
+> > 
+> > vermagic is very crude and there are zillions of other details and 
+> > .config flags that might make a module incompatible. You can use 
+> > CONFIG_MODVERSIONS to get a stronger protection that vermagic, but 
+> > that's far from perfect too. The right solution is the module signing 
+> > framework in Fedora. Until that gets merged upstream just dont mix 
+> > incompatible modules, and keep things tightly packaged.
+> 
+> MODVERSIONS won't get the PREEMPT_RT vs PREEMPT_DESKTOP case right
+> without this, unless I'm missing something.
 
-Thanks,
+I'm missing something I see.
 
-But I always seem to prefer to rewrite the wheel than to use one that
-already exists. ;-)  Probably explains why my cars are always in the
-shop!
-
--- Steve
-
-
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

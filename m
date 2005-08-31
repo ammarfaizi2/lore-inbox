@@ -1,47 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964887AbVHaWLb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964909AbVHaWMG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964887AbVHaWLb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 18:11:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964909AbVHaWLb
+	id S964909AbVHaWMG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 18:12:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964911AbVHaWMF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 18:11:31 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:29056 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S964887AbVHaWLa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 18:11:30 -0400
-Date: Thu, 1 Sep 2005 00:10:31 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-cc: akpm@osdl.org, joe.korty@ccur.com, george@mvista.com, johnstul@us.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: FW: [RFC] A more general timeout specification
-In-Reply-To: <F989B1573A3A644BAB3920FBECA4D25A042B0053@orsmsx407>
-Message-ID: <Pine.LNX.4.61.0509010000390.3743@scrub.home>
-References: <F989B1573A3A644BAB3920FBECA4D25A042B0053@orsmsx407>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 31 Aug 2005 18:12:05 -0400
+Received: from zproxy.gmail.com ([64.233.162.204]:64357 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964909AbVHaWMC convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 18:12:02 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=NqDXFTo7ksvr1w1RVNb0UrOdMJB3HVVyTZ54QwvjJDMQVl0ukms3r8CYlPCtp58R2PtVSfmh5AHZHZX7sJs0GlRXxdZqk4bgYtMsQIcqf6dU/Qd04eaFROHtsBC9DoYTS9jYORt9ECTsFXV5KlPbEaXugADYv9zaXWMZQZdWB2M=
+Message-ID: <9a874849050831151230d68d64@mail.gmail.com>
+Date: Thu, 1 Sep 2005 00:12:00 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Chris Wedgwood <cw@f00f.org>
+Subject: Re: THE LINUX/I386 BOOT PROTOCOL - Breaking the 256 limit
+Cc: "H. Peter Anvin" <hpa@zytor.com>, Alon Bar-Lev <alon.barlev@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, SYSLINUX@zytor.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050831220717.GA14625@taniwha.stupidest.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <4315B668.6030603@gmail.com> <43162148.9040604@zytor.com>
+	 <20050831215757.GA10804@taniwha.stupidest.org>
+	 <431628D5.1040709@zytor.com>
+	 <20050831220717.GA14625@taniwha.stupidest.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 9/1/05, Chris Wedgwood <cw@f00f.org> wrote:
+> On Wed, Aug 31, 2005 at 03:01:57PM -0700, H. Peter Anvin wrote:
+> 
+> > Maybe not.  Another option would simply be to bump it up
+> > significantly (2x isn't really that much.)  4096, maybe.
+> 
+> I wonder if we're not at the point where we need something different
+> to what we have now.  The concept of a command-line works for passing
+> simple state but for more complex things it's too cumbersome.
 
-On Wed, 31 Aug 2005, Perez-Gonzalez, Inaky wrote:
+How about
 
-> +	flags = tp->clock_id & TIMEOUT_FLAGS_MASK;
-> +	clock_id = tp->clock_id & TIMEOUT_CLOCK_MASK;
-> +
-> +	result = -EINVAL;
-> +	if (flags & ~TIMEOUT_RELATIVE)
-> +	    goto out;
-> +
-> +	/* someday, we should support *all* clocks available to us */
-> +	if (clock_id != CLOCK_REALTIME && clock_id != CLOCK_MONOTONIC)
-> +		goto out;
-> +	if ((unsigned long)tp->ts.tv_nsec >= NSEC_PER_SEC)
-> +		goto out;
+a) bump the limit on the cmd line - it's still useful, and 256 really
+is quite small for some things.
 
-Why is that needed in a _general_ timeout API? What exactly makes it so 
-useful for everyone and not just more complex for everyone?
+b) add a new boot option telling the kernel the name of some file in
+initrd or similar from which to load additional options.
 
-bye, Roman
+I don't know if b is feasible at all. It would mean that the kernel
+would need to get a hold of the initrd or whatever quite early to be
+able to process options from it, but if it's doable somehow it would
+be a really neat thing.
+
+
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

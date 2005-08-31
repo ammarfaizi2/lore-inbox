@@ -1,50 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751074AbVHaUDm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751077AbVHaUEb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751074AbVHaUDm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 16:03:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751078AbVHaUDm
+	id S1751077AbVHaUEb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 16:04:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751078AbVHaUEb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 16:03:42 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:19709 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S1751074AbVHaUDl
+	Wed, 31 Aug 2005 16:04:31 -0400
+Received: from digitalimplant.org ([64.62.235.95]:19356 "HELO
+	digitalimplant.org") by vger.kernel.org with SMTP id S1751089AbVHaUEa
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 16:03:41 -0400
-Subject: PREEMPT_RT with e1000
-From: Daniel Walker <dwalker@mvista.com>
-Reply-To: dwalker@mvista.com
-To: mingo@elte.hu
-Cc: rostedt@goodmis.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: MontaVista
-Date: Wed, 31 Aug 2005 13:03:22 -0700
-Message-Id: <1125518602.15034.3.camel@dhcp153.mvista.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+	Wed, 31 Aug 2005 16:04:30 -0400
+Date: Wed, 31 Aug 2005 13:04:18 -0700 (PDT)
+From: Patrick Mochel <mochel@digitalimplant.org>
+X-X-Sender: mochel@monsoon.he.net
+To: Todd Poynor <tpoynor@mvista.com>
+cc: Jordan Crouse <jordan.crouse@amd.com>, "" <linux-pm@lists.osdl.org>,
+       "" <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-pm] Re: PowerOP Take 2 0/3 Intro
+In-Reply-To: <430E4177.10600@mvista.com>
+Message-ID: <Pine.LNX.4.50.0508311256150.23387-100000@monsoon.he.net>
+References: <20050825025158.GA28662@slurryseal.ddns.mvista.com>
+ <20050825210940.GX31472@cosmic.amd.com> <430E4177.10600@mvista.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-It looks like Gigabit Ethernet is still having some problems. This is
-with the e1000 driver. If I remove all the qdisc_restart changes it
-starts to work the warning below goes away, but it has smp_processor_id
-warnings.
+On Thu, 25 Aug 2005, Todd Poynor wrote:
 
-Daniel
+> In case it's getting lost in all these details, the main point of all
+> this is to pose the question: "are arbitrary power parameters arranged
+> into a set with mutually consistent values (called here an operating
+> point) a good low-level abstraction for system power management of a
+> wide variety of platforms?"  Thanks,
+
+Yes, I think so. This seems to be one of the main concerns of the embedded
+platform developers, especially e.g. the OMAP people.
+
+The thing I'm most concerned about is integration with other mainstream
+platforms. cpufreq works reasonably well for desktop and laptop system,
+for CPU frequency. But, I expect to see more flexibility in the power
+management parameters in other aspects of the system in the near future.
+
+How do we deal with that? If it's PowerOP, then how does it interact with
+cpufreq and its user space tools? If it's used in conjunction (using
+cpufreq for the CPUs and PowerOP for everything else), what can we do to
+integrate the UI?
+
+Personally I think that they are fine sitting side by side for now, but we
+need to do some work on the low-level tools. For one, setting 8 values in
+sysfs to effect a change is not very friendly. For another, it took a long
+time to get the cpufreq stuff right. How do we learn from that and avoid
+that?
+
+Thanks,
 
 
-BUG: softirq-net-tx/:5, possible softlockup detected on CPU#0!
-
-Call Trace: <IRQ> <ffffffff8015b92a>{softlockup_detected+56} <ffffffff8015b9d7>{softlockup_tick+164}
-       <ffffffff80119a4b>{smp_apic_timer_interrupt+55} <ffffffff8010e6a4>{apic_timer_interrupt+132}
-        <EOI> <ffffffff80516f9b>{__down_mutex+694} <ffffffff80482e4d>{qdisc_restart+369}
-       <ffffffff80476198>{net_tx_action+200} <ffffffff8013a802>{ksoftirqd+231}
-       <ffffffff8013a71b>{ksoftirqd+0} <ffffffff8014a769>{kthread+218}
-       <ffffffff8010e9f6>{child_rip+8} <ffffffff8014a68f>{kthread+0}
-       <ffffffff8010e9ee>{child_rip+0}
----------------------------
-| preempt count: 00010000 ]
-| 0-level deep critical section nesting:
-----------------------------------------
-
-
+	Pat

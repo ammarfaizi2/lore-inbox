@@ -1,72 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964802AbVHaNc7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964800AbVHaNeV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964802AbVHaNc7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 09:32:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964800AbVHaNc7
+	id S964800AbVHaNeV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 09:34:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964805AbVHaNeV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 09:32:59 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:60070 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964799AbVHaNc6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 09:32:58 -0400
-Subject: Re: [PATCH] Ext3 online resizing locking issue
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Glauber de Oliveira Costa <gocosta@br.ibm.com>
-Cc: "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       ext2resize-devel@lists.sourceforge.net,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-fsdevel@vger.kernel.org, Andreas Dilger <adilger@clusterfs.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <20050831113506.GM23782@br.ibm.com>
-References: <20050824210325.GK23782@br.ibm.com>
-	 <1124996561.1884.212.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <20050825204335.GA1674@br.ibm.com>
-	 <1125410818.1910.52.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <20050831113506.GM23782@br.ibm.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1125495031.1900.60.camel@sisko.sctweedie.blueyonder.co.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Wed, 31 Aug 2005 14:30:32 +0100
+	Wed, 31 Aug 2005 09:34:21 -0400
+Received: from rudy.mif.pg.gda.pl ([153.19.42.16]:19345 "EHLO
+	rudy.mif.pg.gda.pl") by vger.kernel.org with ESMTP id S964800AbVHaNeU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 09:34:20 -0400
+Date: Wed, 31 Aug 2005 15:34:18 +0200 (CEST)
+From: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
+To: linux-kernel@vger.kernel.org
+cc: Linus Torvalds <torvalds@osdl.org>
+Subject: empty patch-2.6.13-git? patches on ftp.kernel.org
+Message-ID: <Pine.BSO.4.62.0508311527340.10416@rudy.mif.pg.gda.pl>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="0-1127851226-1125494876=:10416"
+Content-ID: <Pine.BSO.4.62.0508311528150.10416@rudy.mif.pg.gda.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-On Wed, 2005-08-31 at 12:35, Glauber de Oliveira Costa wrote:
+--0-1127851226-1125494876=:10416
+Content-Type: TEXT/PLAIN; CHARSET=ISO-8859-2; FORMAT=flowed
+Content-Transfer-Encoding: 8BIT
+Content-ID: <Pine.BSO.4.62.0508311528151.10416@rudy.mif.pg.gda.pl>
 
-> At a first look, i thought about locking gdt-related data. But in a
-> closer one, it seemed to me that we're in fact modifying a little bit
-> more than that in the resize code. But all these modifications seem to
-> be somehow related to the ext3 super block specific data in
-> ext3_sb_info. My first naive approach would be adding a lock to that
-> struct
 
-I took great care when making that code SMP-safe to avoid such locks,
-for performance reasons.  See the comments at
+Seems patches stored on ftp://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots
+are empty (only logs are correct):
 
-	 * We need to protect s_groups_count against other CPUs seeing
-	 * inconsistent state in the superblock.
+$ lftp ftp://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots
+cd ok, cwd=/pub/linux/kernel/v2.6/snapshots
+lftp ftp.kernel.org:/pub/linux/kernel/v2.6/snapshots> ls patch-2.6.13-git*
+-rw-r--r--    1 536      536            14 Aug 30 09:01 patch-2.6.13-git1.bz2
+-rw-r--r--    1 536      536           248 Aug 30 09:01 patch-2.6.13-git1.bz2.sign
+-rw-r--r--    1 536      536            20 Aug 30 09:01 patch-2.6.13-git1.gz
+-rw-r--r--    1 536      536           248 Aug 30 09:01 patch-2.6.13-git1.gz.sign
+-rw-r--r--    1 536      536            41 Aug 30 09:01 patch-2.6.13-git1.id
+-rw-r--r--    1 536      536        302049 Aug 30 09:01 patch-2.6.13-git1.log
+-rw-r--r--    1 536      536           248 Aug 30 09:01 patch-2.6.13-git1.sign
+-rw-r--r--    1 536      536            14 Aug 31 09:01 patch-2.6.13-git2.bz2
+-rw-r--r--    1 536      536           248 Aug 31 09:01 patch-2.6.13-git2.bz2.sign
+-rw-r--r--    1 536      536            20 Aug 31 09:01 patch-2.6.13-git2.gz
+-rw-r--r--    1 536      536           248 Aug 31 09:01 patch-2.6.13-git2.gz.sign
+-rw-r--r--    1 536      536            41 Aug 31 09:01 patch-2.6.13-git2.id
+-rw-r--r--    1 536      536        395585 Aug 31 09:01 patch-2.6.13-git2.log
+-rw-r--r--    1 536      536           248 Aug 31 09:01 patch-2.6.13-git2.sign
 
-in fs/ext3/resize.c for the rules.  But basically the way it works is
-that we only usually modify data that cannot be in use by other parts of
-the kernel --- and that's fairly easy to guarantee, since by definition
-extending the fs is something that is touching bits that aren't already
-in use.  Only once all the new data is safely installed do we atomically
-update the s_groups_count field, which instantly makes the new data
-visible.  We enforce this ordering via smp read barriers before reading
-s_groups_count and write barriers after modifying it, but we don't
-actually have locks as such.
+Also it will be good move all patch-2.6.12* and patch-2.6.13-rc* files 
+from this directory to old subdirectory.
 
-The only use of locking in the resize is hence the superblock lock,
-which is not really there to protect the resize from the rest of the fs
---- the s_groups_count barriers do that.  All the sb lock is needed for
-is to prevent two resizes from progressing at the same time; and that
-could easily be abstracted into a separate resize lock.
-
-Cheers,
- Stephen
-
+kloczek
+-- 
+-----------------------------------------------------------
+*Ludzie nie maj± problemów, tylko sobie sami je stwarzaj±*
+-----------------------------------------------------------
+Tomasz K³oczko, sys adm @zie.pg.gda.pl|*e-mail: kloczek@rudy.mif.pg.gda.pl*
+--0-1127851226-1125494876=:10416--

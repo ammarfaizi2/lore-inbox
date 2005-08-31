@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964898AbVHaRfV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964899AbVHaRgI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964898AbVHaRfV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 13:35:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964902AbVHaRfU
+	id S964899AbVHaRgI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 13:36:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964902AbVHaRgI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 13:35:20 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:40127 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S964898AbVHaRfT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 13:35:19 -0400
-Date: Wed, 31 Aug 2005 19:35:26 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Holger Kiehl <Holger.Kiehl@dwd.de>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-raid <linux-raid@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Where is the performance bottleneck?
-Message-ID: <20050831173525.GJ4018@suse.de>
-References: <Pine.LNX.4.61.0508291811480.24072@diagnostix.dwd.de> <20050829202529.GA32214@midnight.suse.cz> <Pine.LNX.4.61.0508301919250.25574@diagnostix.dwd.de> <20050831071126.GA7502@midnight.ucw.cz> <20050831072644.GF4018@suse.de> <Pine.LNX.4.61.0508311029170.16574@diagnostix.dwd.de> <20050831120714.GT4018@suse.de> <Pine.LNX.4.61.0508311339140.16574@diagnostix.dwd.de> <20050831162053.GG4018@suse.de> <Pine.LNX.4.61.0508311648390.16574@diagnostix.dwd.de>
+	Wed, 31 Aug 2005 13:36:08 -0400
+Received: from zproxy.gmail.com ([64.233.162.203]:20536 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964899AbVHaRgG convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 13:36:06 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=SCPhDgr1qHF7o4QLVx3sktaqEqZWy5I08p0VP5UW7QpWJSy/00qOjicJ3oU0ekuvmkRojhbBBuz5FAXlIGMEetngQ7wQi2msA9P5GRw3gmFn4eYW05BulEzX+LQ9ZO3NLQRXjUpi8IArp5Ei5GPPYZSFXnQVfPJyFlfdQ0KoHMo=
+Message-ID: <9a9e5ab90508311036386e88f4@mail.gmail.com>
+Date: Wed, 31 Aug 2005 23:06:05 +0530
+From: Nilesh Agrawal <nilesh.agrawal@gmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: tty problem
+Cc: "Antonino A. Daplas" <adaplas@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1125507010.3355.67.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0508311648390.16574@diagnostix.dwd.de>
-X-IMAPbase: 1124875140 17
+References: <9a9e5ab90508310806114ab96b@mail.gmail.com>
+	 <4315CA02.4000802@gmail.com>
+	 <9a9e5ab905083108503285865b@mail.gmail.com>
+	 <1125507010.3355.67.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 31 2005, Holger Kiehl wrote:
-> ># ./oread /dev/sdX
-> >
-> >and it will read 128k chunks direct from that device. Run on the same
-> >drives as above, reply with the vmstat info again.
-> >
-> Using kernel 2.6.12.5 again, here the results:
+On 8/31/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> On Mer, 2005-08-31 at 21:20 +0530, Nilesh Agrawal wrote:
+> > mdacon: MDA with 8K of memory detected.
+> > Console: switching consoles 1-16 to mono MDA-2 80x25
+> 
+> You've compiled in the MDA driver, probably not what you want to load on
+> that hardware
 
-[snip]
-
-Ok, reads as expected, like the buffered io but using less system time.
-And you are still 1/3 off the target data rate, hmmm...
-
-With the reads, how does the aggregate bandwidth look when you add
-'clients'? Same as with writes, gradually decreasing per-device
-throughput?
+I removed the MDA driver and it worked perfectly.
+Thanks a lot.
 
 -- 
-Jens Axboe
-
+And ye shall know the truth (source) and the truth shall set you free.

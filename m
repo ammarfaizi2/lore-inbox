@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932300AbVHaAKF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932299AbVHaAMW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932300AbVHaAKF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 20:10:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbVHaAKF
+	id S932299AbVHaAMW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 20:12:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932301AbVHaAMW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 20:10:05 -0400
-Received: from web53607.mail.yahoo.com ([206.190.37.40]:51132 "HELO
-	web53607.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S932298AbVHaAKE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 20:10:04 -0400
+	Tue, 30 Aug 2005 20:12:22 -0400
+Received: from rproxy.gmail.com ([64.233.170.207]:10467 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932299AbVHaAMW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 20:12:22 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=cWavHbz4Xi1DrHTVF2i+79MaldMf2t6Y2yHFghj9adVdXvj+7z34MkFAvBL69F5FJ8f3MwHY2OAldD9wUjFrPOWS4a7M+PW+lvtB9Hb4TjGDLpTGowFLj4dNJrGWvX+EEMyx8fPLUUBGTvDwM4TvyZFd7nCL9WEhZ3orsqkT+gQ=  ;
-Message-ID: <20050831000948.40799.qmail@web53607.mail.yahoo.com>
-Date: Wed, 31 Aug 2005 10:09:48 +1000 (EST)
-From: Steve Kieu <haiquy@yahoo.com>
-Subject: Re: Very strange Marvell/Yukon Gigabit NIC networking problems
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Jesse Brandeburg <jesse.brandeburg@gmail.com>,
-       Daniel Drake <dsd@gentoo.org>, Steve Kieu <haiquy@yahoo.com>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-In-Reply-To: <20050830152908.1dc24339@dxpl.pdx.osdl.net>
-MIME-Version: 1.0
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=GXruYW6tipd+V58DUj30dd23evjR7Fmn6GcSvG/nmBGAmFaXwYgDUeRYD7h0RpEPyG64s/M3BpCyzETAUVRTx71Wkdk3+YzN9ufu0dWrQ5A8qUJQvWmYgi1beTTGieMd4fu2YA/l/bI7X4fBtnkHvCXTGxyY5pYSK+dticHjnp8=
+Message-ID: <2538186705083017121bf2d3d4@mail.gmail.com>
+Date: Tue, 30 Aug 2005 20:12:19 -0400
+From: Yani Ioannou <yani.ioannou@gmail.com>
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+Subject: Re: [patch] IBM HDAPS accelerometer driver.
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Oliver Neukum <neukum@fachschaft.cup.uni-muenchen.de>,
+       Robert Love <rml@novell.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.62.0508301928260.17275@artax.karlin.mff.cuni.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1125069494.18155.27.camel@betsy>
+	 <20050827124148.GE1109@openzaurus.ucw.cz>
+	 <Pine.LNX.4.62.0508280453320.13233@artax.karlin.mff.cuni.cz>
+	 <20050828080959.GB2039@elf.ucw.cz>
+	 <Pine.LNX.4.62.0508282109040.1489@artax.karlin.mff.cuni.cz>
+	 <20050829083552.GD28077@elf.ucw.cz>
+	 <Pine.LNX.4.58.0508291057400.27754@fachschaft.cup.uni-muenchen.de>
+	 <20050829091038.GA30073@elf.ucw.cz>
+	 <Pine.LNX.4.62.0508301928260.17275@artax.karlin.mff.cuni.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Please refer to my IDE freeze patch last week:
 
---- Stephen Hemminger <shemminger@osdl.org> wrote:
+http://lkml.org/lkml/2005/8/25/140
 
-> On Wed, 31 Aug 2005 07:49:37 +1000 (EST)
+It provides userspace with a method to freeze the queue and park the
+head (through sysfs), along with a timeout to unfreeze, and works
+quite well. It is in the process of being moved to the block layer
+however so that implementation for libata will be simpler.
 
-> > 
-> > install-8_23.tar.bz2
-> 
-> Just look for references to CHIP_REV_YU_LITE_A3 in
-> the driver
-> 	sk98lin/skgeinit.c and sk98lin/skxmac2.c
-> The comparison should always be:
-
-Have a look but no clue to patch it, there are one
-instance of comparing
-
-> 	pAC->GIni.GIChipRev >= CHIP_REV_YU_LITE_A3
-> otherwise it will not correctly take chip out of
-> powerdown (coma) mode.
-
-please send me a patch to the install-8_23.tar.bz2
-then I can test. Or intruct more details, which line
-and what should change then I can do manually.
-
-I have nerver done device driver programming in my
-life!
-
-
-
-> 
-
-
-S.KIEU
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Yani

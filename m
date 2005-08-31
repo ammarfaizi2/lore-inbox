@@ -1,80 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932464AbVHaHsD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932467AbVHaHx3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932464AbVHaHsD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 03:48:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbVHaHsD
+	id S932467AbVHaHx3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 03:53:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932472AbVHaHx3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 03:48:03 -0400
-Received: from postfix4-1.free.fr ([213.228.0.62]:48865 "EHLO
-	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S932464AbVHaHsC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 03:48:02 -0400
-Mime-Version: 1.0 (Apple Message framework v622)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <1bfdf760c6246233502b9d91661972b7@helenandmark.org>
-Content-Transfer-Encoding: 8BIT
-Cc: Asterisk Developers Mailing List <asterisk-dev@lists.digium.com>
-From: Mark Burton <mark@helenandmark.org>
-Subject: PCI Master Aborts effect multiple subsystems?
-Date: Wed, 31 Aug 2005 09:47:53 +0200
-To: linux-kernel@vger.kernel.org
-X-Mailer: Apple Mail (2.622)
-X-Spam-Virus: No
+	Wed, 31 Aug 2005 03:53:29 -0400
+Received: from [218.25.172.144] ([218.25.172.144]:26898 "HELO mail.fc-cn.com")
+	by vger.kernel.org with SMTP id S932467AbVHaHx2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 03:53:28 -0400
+Message-ID: <431561EE.8000909@fc-cn.com>
+Date: Wed, 31 Aug 2005 15:53:18 +0800
+From: Qi Yong <qiyong@fc-cn.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ulrich Drepper <drepper@gmail.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       dhommel@gmail.com
+Subject: Re: syscall: sys_promote
+References: <20050826092537.GA3416@localhost.localdomain>	 <20050826110226.GA5184@localhost.localdomain>	 <1125069558.4958.83.camel@localhost.localdomain>	 <4312870E.9000708@fc-cn.com>	 <1125318568.23946.15.camel@localhost.localdomain> <a36005b505082908415d9202d5@mail.gmail.com>
+In-Reply-To: <a36005b505082908415d9202d5@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, I am trying to do a small amount of work on the wcfxo device driver 
-(or an fxo card), which is part of zapatel, which is used by asterisk, 
-the linux open source PBX (hence cross post).
+Ulrich Drepper wrote:
 
-question 1: Are PCI Master Aborts delivered to all subsystems, if they 
-are, do I need to "fix" ALL the drivers in my system to handle them?
+>On 8/29/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+>  
+>
+>>Fixing it might be useful in some obscure cases anyway - POSIX threads
+>>might benefit from it too, providing the functionality of changing all
+>>thread uids at once isnt triggered for sensible threaded app behaviour.
+>>    
+>>
+>
+>I would very much like to see that fixed.  Currently we have to change
+>the UIDs/GIDs at userlevel with cross-thread calls implemented via
+>signals.  This is user observable which is not correct.  This is
+>probably the last area where we're not 100% POSIX compliant.
+>
+>As for adding this proposed syscall: it can only lead to chaos.  All
+>kinds of user code correctly so assumes the IDs don't change over the
+>lifetime of a process.  The solution for the problem has been
+>  
+>
+After a user shell is promoted to root, its prompt is still $ instead of 
+#. But why do we care?
 
-Here's more detail on my problem:
+>mentioned as well: re-exec.  This will require some code rewrite on
+>the side of the applications but any decent daemon is hopefully soon
+>  
+>
 
-My problem is that my (2) machines both deliver interrupts from the fxo 
-card to both the cards driver and to a.n.other sub system. In one case, 
-the scsi driver, in the other the eth0 driver. In both cases, of 
-course, the drivers get a little upset.
+OK, so any decent processes should not break into other processes' 
+address space.
+And let us use non-preemptive multitasking?
 
-I can not find out why my machines delivers these interrupts (they are 
-PCI Master Aborts). I would be VERY grateful for any help in tracking 
-that problem. Some information on what could cause a PCI Master Abort 
-would be helpful!
-
-My approach has been to fix the driver to do the right thing in the 
-case of a PCI Master Abort. I believe I now have a patch that does 
-indeed fix the wcfxo driver (it picks the card up again, and continues 
-working). However, meanwhile the other subsystem has crashed and burnt.
-
-So, at the same time that the wcfxo driver receives an IRQ 
-(reportedly because of a master abort),
-e.g. the eth0 driver (3c59x) gives:
-Aug 30 22:46:04 localhost kernel: eth0: Too much work in interrupt, 
-status e003.
-Aug 30 22:46:05 localhost kernel: ACPI: PCI interrupt 0000:02:08.0[A] 
--> GSI 18 (level, low) -> IRQ 185
-Aug 30 22:46:05 localhost last message repeated 32 times
-(repeated over and over)
-
-I have tried on several kernel versions, but this is Linux version 
-2.6.11-1-386 (dannf@firetheft) (gcc version 3.3.6 (Debian 1:3.3.6-6)) 
-#1 Mon Jun 20 20:53:17 MDT 2005
-
-I'm afraid I dont have a record of the /proc/interrupts from this run, 
-but I did look at them, and the wcfxo driver was on a different IRQ 
-than the 3c59x...
-
-
-I have tried with, and without APIC (noapic on the boot line), I've 
-tried playing with bios options, I've even tried, with noapic (when the 
-eth0 card is on IRQ 3) reserving IRQ 3, forcing the eth0 card onto irq 
-7. But it still received the IRQ :-(((((((((
-
-Can anybody help?
-Has anybody seen similar effects before?
-
-Cheers
-
-Mark.
+>support re-exec anyway for another reason: re-randomization of the
+>address space.  What good does address space randomization do if the
+>machines and programs are so damn stable that they keep running for
+>months at a time?  nscd supports this now and I think openssh as well.
+>  
+>
 

@@ -1,62 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932542AbVHaWsl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932549AbVHaXCR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932542AbVHaWsl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 18:48:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932543AbVHaWsl
+	id S932549AbVHaXCR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 19:02:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932550AbVHaXCR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 18:48:41 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:17850 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932542AbVHaWsk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 18:48:40 -0400
-Subject: Re: [PATCH 1/3] Updated dynamic tick patches - Fix lost tick
-	calculation in timer_pm.c
-From: john stultz <johnstul@us.ibm.com>
-To: Zachary Amsden <zach@vmware.com>
-Cc: vatsa@in.ibm.com, linux-kernel@vger.kernel.org, arjan@infradead.org,
-       s0348365@sms.ed.ac.uk, kernel@kolivas.org, tytso@mit.edu,
-       cfriesen@nortel.com, rlrevell@joe-job.com, trenn@suse.de,
-       george@mvista.com, akpm@osdl.org, Tim Mann <mann@vmware.com>
-In-Reply-To: <431630EE.2050809@vmware.com>
-References: <20050831165843.GA4974@in.ibm.com>
-	 <20050831171211.GB4974@in.ibm.com>  <431630EE.2050809@vmware.com>
-Content-Type: text/plain
-Date: Wed, 31 Aug 2005 15:47:48 -0700
-Message-Id: <1125528468.20820.255.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Wed, 31 Aug 2005 19:02:17 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:45440 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932549AbVHaXCQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 19:02:16 -0400
+Date: Thu, 1 Sep 2005 01:01:47 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+cc: akpm@osdl.org, joe.korty@ccur.com, george@mvista.com, johnstul@us.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: RE: FW: [RFC] A more general timeout specification
+In-Reply-To: <F989B1573A3A644BAB3920FBECA4D25A042B0192@orsmsx407>
+Message-ID: <Pine.LNX.4.61.0509010041020.3728@scrub.home>
+References: <F989B1573A3A644BAB3920FBECA4D25A042B0192@orsmsx407>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-08-31 at 15:36 -0700, Zachary Amsden wrote:
-> >I feel lost ticks can be based on cycles difference directly
-> >rather than being based on microseconds that has elapsed.
-> >
-> >Following patch is in that direction. 
-> >
-> >With this patch, time had kept up really well on one particular
-> >machine (Intel 4way Pentium 3 box) overnight, while
-> >on another newer machine (Intel 4way Xeon with HT) it didnt do so
-> >well (time sped up after 3 or 4 hours). Hence I consider this
-> >particular patch will need more review/work.
-> >
-> >  
-> >
+Hi,
+
+On Wed, 31 Aug 2005, Perez-Gonzalez, Inaky wrote:
+
+> >Why is that needed in a _general_ timeout API? What exactly makes it so
+> >useful for everyone and not just more complex for everyone?
 > 
-> Does this patch help address the issues pointed out here?
+> Because if a system call gets a timeout specification it needs to
+> verify its correctness first. Instead of doing that at the point
+> where it goes to sleep, that could be deep in an atomic section,
+> we provide a separate function [timeout_validate()] which is the
+> one you mention, to do that.
 > 
-> http://bugzilla.kernel.org/show_bug.cgi?id=5127
+> Usefulness: (see the rationale in the patch), but in a nutshell;
+> most POSIX timeout specs have to be absolute in CLOCK_REALTIME
+> (eg: pthread_mutex_timed_lock()). Current kernel needs the timeout
+> relative, so glibc calls the kernel/however gets the time, computes
+> relative times and syscalls. Race conditions, overhead...etc. 
+> 
+> This mechanism supports both. That's why it is more general.
 
-Unfortunately no. The issue there is that once the lost tick
-compensation code has fired, should those "lost" ticks appear later we
-end up over-compensating.
+Your patch basically only mentions fusyn, why does it need multiple clock 
+sources? Why is not sufficient to just add a relative/absolute version, 
+which convert the time at entry to kernel time?
 
-This patch however does help to make sure that when the lost tick code
-fires, the error from converting to usecs doesn't bite us. And could
-probably go into mainline independent of the dynamic ticks patch (with
-further testing, of course).
-
-thanks
--john
-
+bye, Roman

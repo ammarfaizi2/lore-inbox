@@ -1,58 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932420AbVHaNqL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964811AbVHaNvO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932420AbVHaNqL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 09:46:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932515AbVHaNqL
+	id S964811AbVHaNvO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 09:51:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932516AbVHaNvO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 09:46:11 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:29330 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932420AbVHaNqK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 09:46:10 -0400
-Date: Wed, 31 Aug 2005 15:43:02 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Brian King <brking@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/1] block: CFQ refcounting fix
-Message-ID: <20050831134259.GW4018@suse.de>
-References: <200508302241.j7UMf8ag018433@d01av03.pok.ibm.com> <20050831072830.GG4018@suse.de> <4315B366.5040906@us.ibm.com>
+	Wed, 31 Aug 2005 09:51:14 -0400
+Received: from nproxy.gmail.com ([64.233.182.200]:25691 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932515AbVHaNvN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 09:51:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=VfKoW5pu1M8kTiPoSAzH3ZI0OZlbIvCKShgUgi8kMeJD54Ee5vq1NOQCjMJVScGjBjiUI511tVBX4NeRiAbvtYJYQRz8iAI6PQO8wSofAfY7ZhDmq1zBZz9Xt2L4hNiMgtgg7rNDJ1ZMa0twHvt2xKloT4vOCBMryGJsAUvOrEM=
+Message-ID: <84144f0205083106517f67d057@mail.gmail.com>
+Date: Wed, 31 Aug 2005 16:51:08 +0300
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: "Machida, Hiroyuki" <machida@sm.sony.co.jp>
+Subject: Re: [PATCH][FAT] FAT dirent scan with hin take #3
+Cc: linux-kernel@vger.kernel.org, hirofumi@mail.parknet.co.jp
+In-Reply-To: <4315A94E.3030901@sm.sony.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <4315B366.5040906@us.ibm.com>
+References: <4313CBEF.9020505@sm.sony.co.jp> <4313E578.8070100@sm.sony.co.jp>
+	 <874q979qdj.fsf@devron.myhome.or.jp> <43156963.8020203@sm.sony.co.jp>
+	 <84144f0205083103005b791f4d@mail.gmail.com>
+	 <4315A94E.3030901@sm.sony.co.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 31 2005, Brian King wrote:
-> Jens Axboe wrote:
-> > On Tue, Aug 30 2005, brking@us.ibm.com wrote:
-> > 
-> >>I ran across a memory leak related to the cfq scheduler. The cfq
-> >>init function increments the refcnt of the associated request_queue.
-> >>This refcount gets decremented in cfq's exit function. Since blk_cleanup_queue
-> >>only calls the elevator exit function when its refcnt goes to zero, the
-> >>request_q never gets cleaned up. It didn't look like other io schedulers were
-> >>incrementing this refcnt, so I removed the refcnt increment and it fixed the
-> >>memory leak for me.
-> >>
-> >>To reproduce the problem, simply use cfq and use the scsi_host scan sysfs
-> >>attribute to scan "- - -" repeatedly on a scsi host and watch the memory
-> >>vanish.
-> > 
-> > 
-> > Yeah, that actually looks like a dangling reference. I assume you tested
-> > this properly?
+On 8/31/05, Machida, Hiroyuki <machida@sm.sony.co.jp> wrote:
+> How about this ?
 > 
-> Yes. I applied the patch, booted my system (which was crashing on
-> bootup before due to out of memory errors due to the leak) ran the
-> scan a few times and verified /proc/meminfo didn't continually
-> decrease like without it, and rebooted again.  If there is anything
-> else you would like me to do, I would be happy to do so.
+>         if (!MSDOS_I(dir)->scan_hints) {
+>                 hints  = kcalllo(....);
+> 
+>                 down
+>                 if (MSDOS_I(dir)->scan_hints) {
+>                         up
+>                         goto already_allocated;
+>                 }
+>                 if (hints)
+>                         MSDOS_I(dir)->scan_hints = hints;
+>                 up
+>         }
+>         return (hints == 0) ? -ENOMEM : 0;
+> 
+> already_allocated:
+>         kfree(hints); /* kfree accepts NULL */
+>         return 0;
 
-I think you need to remove the blk_put_queue() in cfq_put_cfqd() as
-well, otherwise I don't see how this can work without looking at freed
-memory. I'll audit the other paths as well.
+After finally understanding what you're doing, how about:
 
--- 
-Jens Axboe
+static inline int hint_allocate(struct inode *dir)
+{
+        loff_t *hints;
+        int err = 0;
 
+        if (!MSDOS_I(dir)->scan_hints)
+                return 0;
+
+        hints = kcalloc(FAT_SCAN_NWAY, sizeof(loff_t), GFP_KERNEL);
+        if (!hints)
+                err = -ENOMEM;
+
+        down(&MSDOS_I(dir)->scan_lock);
+        /*
+         * We allocated memory without scan_lock so lets make sure
+         * no other thread completed hint_allocate() before us.
+         */
+        if (!MSDOS_I(dir)->scan_hints) {
+                MSDOS_I(dir)->scan_hints = hints;
+                hints = NULL;
+        }
+        up(&MSDOS_I(dir)->scan_lock);
+
+        kfree(hints);
+        return err;
+}
+
+                                    Pekka

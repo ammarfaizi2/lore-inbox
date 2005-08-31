@@ -1,74 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964962AbVHaWgg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932541AbVHaWo1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964962AbVHaWgg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 18:36:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbVHaWgg
+	id S932541AbVHaWo1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 18:44:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932542AbVHaWo1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 18:36:36 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:62477 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S964962AbVHaWgg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 18:36:36 -0400
-Message-ID: <431630EE.2050809@vmware.com>
-Date: Wed, 31 Aug 2005 15:36:30 -0700
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
+	Wed, 31 Aug 2005 18:44:27 -0400
+Received: from mail01.syd.optusnet.com.au ([211.29.132.182]:27300 "EHLO
+	mail01.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932541AbVHaWo0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 18:44:26 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: daniel mclellan <daniel.mclellan@gmail.com>
+Subject: Re: [ck] 2.6.13-ck1
+Date: Thu, 1 Sep 2005 08:47:36 +1000
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org, ck list <ck@vds.kolivas.org>
+References: <200508291703.26529.kernel@kolivas.org> <20050831194958.GA7021@spherenet.spherevision.org> <200508311507.10801.daniel.mclellan@gmail.com>
+In-Reply-To: <200508311507.10801.daniel.mclellan@gmail.com>
 MIME-Version: 1.0
-To: vatsa@in.ibm.com
-Cc: linux-kernel@vger.kernel.org, arjan@infradead.org, s0348365@sms.ed.ac.uk,
-       kernel@kolivas.org, tytso@mit.edu, cfriesen@nortel.com,
-       rlrevell@joe-job.com, trenn@suse.de, george@mvista.com,
-       johnstul@us.ibm.com, akpm@osdl.org, Tim Mann <mann@vmware.com>
-Subject: Re: [PATCH 1/3] Updated dynamic tick patches - Fix lost tick calculation
- in timer_pm.c
-References: <20050831165843.GA4974@in.ibm.com> <20050831171211.GB4974@in.ibm.com>
-In-Reply-To: <20050831171211.GB4974@in.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 31 Aug 2005 22:36:37.0218 (UTC) FILETIME=[729FCC20:01C5AE7C]
+Content-Disposition: inline
+Message-Id: <200509010847.36930.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Srivatsa Vaddagiri wrote:
+On Thu, 1 Sep 2005 06:07 am, daniel mclellan wrote:
+> Yes.
+>
+>
+> Linux yavanna 2.6.13-ckx1 #1 Tue Aug 30 04:03:25 EST 2005 x86_64 AMD
+> Athlon(tm) 64 FX-53 Processor AuthenticAMD GNU/Linux
+>
+> On Wednesday 31 August 2005 14:49, Rodney Gordon II wrote:
+> > On Mon, Aug 29, 2005 at 05:03:24PM +1000, Con Kolivas wrote:
+> > > These are patches designed to improve system responsiveness and
+> > > interactivity. It is configurable to any workload but the default ck*
+> > > patch is aimed at the desktop and ck*-server is available with more
+> > > emphasis on serverspace.
+> > >
+> > >
+> > > Apply to 2.6.13
+> > > http://ck.kolivas.org/patches/2.6/2.6.13/2.6.13-ck1/patch-2.6.13-ck1.bz
+> > >2 or development version:
+> > > http://ck.kolivas.org/patches/2.6/2.6.13/2.6.13-ck1/patch-2.6.13-ck1+.b
+> > >z2
+> > >
+> > > or server version:
+> > > http://ck.kolivas.org/patches/2.6/2.6.13/2.6.13-ck1/patch-2.6.13-ck1-se
+> > >rv er.bz2
+> >
+> > I am having odd lockup problems with just the non-+ 'stable' ck lately..
+> > Trying a large copy will often lock my disk I/O up and I have to do a
+> > hard reboot. Nothing shows in logs..
+> >
+> > Is anyone having similar problems?
 
->On Wed, Aug 31, 2005 at 10:28:43PM +0530, Srivatsa Vaddagiri wrote:
->  
->
->>Following patches related to dynamic tick are posted in separate mails,
->>for convenience of review. The first patch probably applies w/o dynamic
->>tick consideration also.
->>
->>Patch 1/3  -> Fixup lost tick calculation in timer_pm.c
->>    
->>
->
->Currently, lost tick calculation in timer_pm.c is based on number
->of microseconds that has elapsed since the last tick. Calculating
->the number of microseconds is approximated by cyc2us, which
->basically does :
->
->	microsec = (cycles * 286) / 1024
->
->Consider 10 ticks lost. This amounts to 14319*10 = 143190 cycles 
->(14319 = PMTMR_EXPECTED_RATE/(CALIBRATE_LATCH/LATCH)).
->This amount to 39992 microseconds as per the above equation 
->or 39992 / 4000 = 9 lost ticks, which is incorrect.
->
->I feel lost ticks can be based on cycles difference directly
->rather than being based on microseconds that has elapsed.
->
->Following patch is in that direction. 
->
->With this patch, time had kept up really well on one particular
->machine (Intel 4way Pentium 3 box) overnight, while
->on another newer machine (Intel 4way Xeon with HT) it didnt do so
->well (time sped up after 3 or 4 hours). Hence I consider this
->particular patch will need more review/work.
->
->  
->
+2 things:
 
-Does this patch help address the issues pointed out here?
+What HZ are you running?
+Can you set up netconsole or serial console as these will capture something 
+that won't be seen in your logs.
 
-http://bugzilla.kernel.org/show_bug.cgi?id=5127
+Cheers,
+Con

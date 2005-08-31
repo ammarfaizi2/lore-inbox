@@ -1,43 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbVHaDJ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932342AbVHaDdd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932337AbVHaDJ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 23:09:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbVHaDJ5
+	id S932342AbVHaDdd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 23:33:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932343AbVHaDdd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 23:09:57 -0400
-Received: from visp.inabox.net ([203.49.196.168]:64189 "EHLO
-	ephemera.fooishbar.org") by vger.kernel.org with ESMTP
-	id S932337AbVHaDJ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 23:09:57 -0400
-Subject: Re: State of Linux graphics
-From: Daniel Stone <daniel@fooishbar.org>
-To: Discuss issues related to the xorg tree 
-	<xorg@lists.freedesktop.org>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       Xserver development <xorg@freedesktop.org>
-In-Reply-To: <9e47339105083009037c24f6de@mail.gmail.com>
-References: <9e47339105083009037c24f6de@mail.gmail.com>
+	Tue, 30 Aug 2005 23:33:33 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:9416 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S932342AbVHaDdd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 23:33:33 -0400
+Subject: Re: inotify and IN_UNMOUNT-events
+From: Robert Love <rml@novell.com>
+To: Juergen Quade <quade@hsnr.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050830194632.GA13346@hsnr.de>
+References: <20050830194632.GA13346@hsnr.de>
 Content-Type: text/plain
-Date: Wed, 31 Aug 2005 13:11:00 +1000
-Message-Id: <1125457860.8730.42.camel@localhost.localdomain>
+Date: Tue, 30 Aug 2005 23:33:27 -0400
+Message-Id: <1125459207.32272.114.camel@phantasy>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.3.7 
+X-Mailer: Evolution 2.2.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-08-30 at 12:03 -0400, Jon Smirl wrote:
-> The article has been reviewed but if it still contains technical
-> errors please let me know. Opinions on the content are also
-> appreciated.
+On Tue, 2005-08-30 at 21:46 +0200, Juergen Quade wrote:
+> Playing around with inotify I have some problems
+> to generate/receive IN_UNMOUNT-events (using
+> a self written application and inotify_utils-0.25;
+> kernel 2.6.13).
+> 
+> Doing:
+> - mount /dev/hda1 /mnt
+> - add a watch to the path /mnt/ ("./inotify_test /mnt")
+> - umount /mnt
+> 
+> results in two events:
+> 1. IN_DELETE_SELF (mask=0x0400)
+> 2. IN_IGNORED     (mask=0x8000)
+> 
+> Any ideas?
 
-'As a whole, the X.org community barely has enough resources to build a
-single server. Splitting these resources over many paths only results in
-piles of half finished projects. I know developers prefer working on
-whatever interests them, but given the resources available to X.org,
-this approach will not yield a new server or even a fully-competitive
-desktop based on the old server in the near term. Maybe it is time for
-X.org to work out a roadmap for all to follow.'
+"/mnt" is not unmounted, stuff inside of it is.
 
-You lose.
+Watch, say, "/mnt/foo/bar" and when /dev/hda1 is unmounted, you will get
+an IN_UNMOUNT on the watch.
+
+	Robert Love
+
 

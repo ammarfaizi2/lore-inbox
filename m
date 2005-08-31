@@ -1,69 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964919AbVHaSmg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964856AbVHaSuF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964919AbVHaSmg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 14:42:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964920AbVHaSmg
+	id S964856AbVHaSuF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 14:50:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964857AbVHaSuF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 14:42:36 -0400
-Received: from [67.137.28.189] ([67.137.28.189]:50611 "EHLO vger")
-	by vger.kernel.org with ESMTP id S964919AbVHaSmg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 14:42:36 -0400
-Message-ID: <4315E88D.9020603@soleranetworks.com>
-Date: Wed, 31 Aug 2005 11:27:41 -0600
-From: "Jeff V. Merkey" <jmerkey@soleranetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+	Wed, 31 Aug 2005 14:50:05 -0400
+Received: from pne-smtpout2-sn2.hy.skanova.net ([81.228.8.164]:1277 "EHLO
+	pne-smtpout2-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S964856AbVHaSuE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 14:50:04 -0400
+Message-ID: <4315FBC7.50805@gmail.com>
+Date: Wed, 31 Aug 2005 20:49:43 +0200
+From: =?ISO-8859-1?Q?Erik_Andr=E9n?= <erik.andren@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Rik van Riel <riel@redhat.com>
-Cc: linux <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] DSFS Network Forensic File System for Linux Patches
-References: <4315DBE7.7080002@soleranetworks.com> <Pine.LNX.4.63.0508311432270.16968@cuia.boston.redhat.com>
-In-Reply-To: <Pine.LNX.4.63.0508311432270.16968@cuia.boston.redhat.com>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+Subject: Re: Updated dynamic tick patches
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
+Great job Srivatsa,
+Does these patches compile nicely against 2.6.13?
+Otherwise would it be possible for you to repost patches made against 
+2.6.13 instead for more public testing?
 
->On Wed, 31 Aug 2005, Jeff V. Merkey wrote:
->
->  
->
->>The Core File System code is a separate proprietary module and is not 
->>released under the GPL
->>    
->>
->
->Are you going to post an analysis on the legality of this
->on merkeylaw.com ? ;)
->
->  
->
-I am very open to discussions of this. Please go ahead and argue the 
-merits of GPL vs. proprietary code. DSFS is platform
-neutral and will also run on Windows XP/2000/2003/Longhorn and Free BSD. 
-It uses no kernel headers or kernel
-files.
-
-I have always taken the position that the GPL does not convert IP 
-ownership. Since DSFS is hardware specific to
-our platforms, I do not believe it entails any issues with the GPL, and 
-it uses published exports from the Linux kernel.
-The GPL also confers right to copy == copyright under US copyright laws. 
-I don't believe that app vendors infringe
-the GPL on Linux. This is just another app, and I have disclosed and 
-published all GPL code affected.
-
-The GPL terms that require GPL conversion of any code that runs on Linux 
-is not supported by US Law. Many would
-disagree, but that's OK. In short, it's just like any other proprietary 
-app running on Linux. If it uses no Linux code (which
-it does not), then the GPL does not apply to it .
-
-Jeff
-
-
-
-
+With best regards
+Erik Andrén

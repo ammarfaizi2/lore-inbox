@@ -1,62 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751054AbVHaJY2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbVHaJeH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751054AbVHaJY2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 05:24:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751385AbVHaJY2
+	id S1750726AbVHaJeH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 05:34:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbVHaJeH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 05:24:28 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:18127 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S1751054AbVHaJY1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 05:24:27 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Mateusz Berezecki <mateuszb@gmail.com>
-Subject: Re: Atheros and rt2x00 driver
-Date: Wed, 31 Aug 2005 12:23:35 +0300
-User-Agent: KMail/1.8.2
-Cc: Florian Weimer <fw@deneb.enyo.de>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, "David S. Miller" <davem@davemloft.net>
-References: <6278d22205081711115b404a9b@mail.gmail.com> <87ll2ibkuk.fsf@mid.deneb.enyo.de> <20050831081636.GA28280@oepkgtn.mshome.net>
-In-Reply-To: <20050831081636.GA28280@oepkgtn.mshome.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
+	Wed, 31 Aug 2005 05:34:07 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:37647 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1750726AbVHaJeG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 05:34:06 -0400
+Date: Wed, 31 Aug 2005 10:33:52 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>, amax@us.ibm.com,
+       ralf@linux-mips.org, starvik@axis.com
+Subject: [FINAL WARNING] Removal of deprecated serial functions - please update your drivers NOW
+Message-ID: <20050831103352.A26480@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+	amax@us.ibm.com, ralf@linux-mips.org, starvik@axis.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200508311223.35304.vda@ilport.com.ua>
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 31 August 2005 11:16, Mateusz Berezecki wrote:
-> Florian Weimer <fw@deneb.enyo.de> wrote:
-> -> The FTC issues are shared by many (most?) wireless drivers.  The
-> -> copyright/trade secret issues might be worked around by basing the
-> -> work on the OpenBSD version of that driver (and someone is actually
-> -> working on that).
-> 
->  the problem with openbsd version of the hal is that it is - sorry to
->  say that - fundamentally broken, at least it was last time I was
->  checking. It misses just too much functionality. Apart from that, the
+As per the feature-removal.txt file, I will be removing the following
+functions shortly:
 
-What it can do? In particular, can it:
-* send packets with arbitrary contents? In particular, packets
-  shorter than 3-address 802.11 header? packets with WEP bit set?
-  Does it allow to do WEP encoding by host instead of hal?
-  Any weird limitations?
-* receive packets?
-* tune to the given channel (or freq)?
+	* register_serial
+	* unregister_serial
+	* uart_register_port
+	* uart_unregister_port
 
-If it can do that, everything else IIRC can be done in software.
-Really, what prevents us from, say, beacons every 1/10s?
+However, there are still some drivers which use these functions:
 
->  work I'm doing is partially based on that openbsd stuff :)
->  (no, this doesn't contradict what I wrote above)
+drivers/char/mwave/mwavedd.c:   return register_serial(&serial);
+drivers/char/mwave/mwavedd.c:           unregister_serial(pDrvData->sLine);
+drivers/misc/ibmasm/uart.c:     sp->serial_line = register_serial(&serial);
+drivers/misc/ibmasm/uart.c:     unregister_serial(sp->serial_line);
+drivers/net/ioc3-eth.c: register_serial(&req);
+drivers/net/ioc3-eth.c: register_serial(&req);
+drivers/serial/serial_txx9.c:   line = uart_register_port(&serial_txx9_reg, &port);
+drivers/serial/serial_txx9.c:           uart_unregister_port(&serial_txx9_reg, line);
 
-Nice to see you are in "release early" crowd.
+These drivers really really really need fixing in the next few days
+if they aren't going to break.  I hereby ask that the maintainers of
+the above drivers show some willingness to update their drivers.
 
-http://mateusz.agrest.org/atheros/:
-may I suggest using atheros-20050805 instead of atheros-08052005
-(will maintain correct sorting order in 2006,2007...)
---
-vda
+Unfortunately, it appears that some of these drivers do not contain
+email addresses for their maintainers, neither are they listed in
+the MAINTAINERS file.  (mwavedd and serial_txx9).
+
+Please note that this is the last warning folk will have before the
+functions are removed.
+
+
+In addition, the following drivers declare functions of the same name.
+The maintainers of these need to look to see why, and eliminate them
+where possible.
+
+drivers/serial/crisv10.c:register_serial(struct serial_struct *req)
+drivers/serial/crisv10.c:void unregister_serial(int line)
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,100 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964906AbVHaRso@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964891AbVHaRsO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964906AbVHaRso (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 13:48:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964908AbVHaRso
+	id S964891AbVHaRsO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 13:48:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964906AbVHaRsO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 13:48:44 -0400
-Received: from [67.137.28.189] ([67.137.28.189]:40883 "EHLO vger")
-	by vger.kernel.org with ESMTP id S964906AbVHaRsn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 13:48:43 -0400
-Message-ID: <4315DBE7.7080002@soleranetworks.com>
-Date: Wed, 31 Aug 2005 10:33:43 -0600
-From: "Jeff V. Merkey" <jmerkey@soleranetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux <linux-kernel@vger.kernel.org>
-Subject: [ANNOUNCE] DSFS Network Forensic File System for Linux Patches
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 31 Aug 2005 13:48:14 -0400
+Received: from sccrmhc14.comcast.net ([204.127.202.59]:39884 "EHLO
+	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S964891AbVHaRsN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 13:48:13 -0400
+Subject: Re: State of Linux graphics
+From: Jim Gettys <jg@freedesktop.org>
+Reply-To: jg@freedesktop.org
+To: Discuss issues related to the xorg tree 
+	<xorg@lists.freedesktop.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050831063355.GE27940@tuolumne.arden.org>
+References: <9e47339105083009037c24f6de@mail.gmail.com>
+	 <1125422813.20488.43.camel@localhost>
+	 <20050831063355.GE27940@tuolumne.arden.org>
+Content-Type: text/plain
+Date: Wed, 31 Aug 2005 13:48:11 -0400
+Message-Id: <1125510491.12626.8.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Certainly replicating OpenGL 2.0's programmability through Render makes
+no sense at all to me (or most others, I believe/hope).  If you want to
+use full use of the GPU, I'm happy to say you should be using OpenGL.
+				- Jim
 
 
-The Solera Networks DS File System kernel patches have been posted at 
-ftp.soleranetworks.com
-and can be downloaded via anonymous ftp access.
-
-These patches are for the 2.4.29, and 2.6.9 kernels.  These patches 
-includes all kernel changes
-made to the Linux kernel and GPL code that allows multiple gigabit 
-capture and stream to disk capability
-These patches are being provided as required by the terms of the GNU 
-Public License.  Also included
-with this announcement are white papers which can be located at 
-www.soleranetworks.com describing the
-appliance features and characteristics of the DSFS file system.
-
-The Core File System code is a separate proprietary module and is not 
-released under the GPL and is
-shipped on the Solera Networks DS 1U, 2U, and 3U appliances.  DS 
-Appliances support gigabit ethernet
-and 10Ge Ethernet via the Intel e1000/ixgb adapter drivers.
-
-Current Capture rates sustained with a 2U appliance with DSFS on Linux 
-2.6.X and 2.4.X kernels are:
-
-975,000 pps @ 72     byte packets x 2 interfaces  = 120 MB/S stream to disk
-445,000 pps @ 256   byte packets x 2 interfaces  = 226 MB/S stream to disk
-208,000 pps @ 576   byte packets x 2 interfaces  = 240 MB/S stream to disk
-119,000 pps @ 1024 byte packets x 2 interfaces  = 245 MB/S stream to disk
-82,000   pps @ 1500 byte packets x 2 interfaces  = 247 MB/S stream to disk
-
-Current Capture rates sustained with a 1U appliance with DSFS on Linux 
-2.6.X and 2.4.X kernels are:
-
-975,000 pps @ 72     byte packets x 1 interfaces  = 60 MB/S stream to disk
-445,000 pps @ 256   byte packets x 1 interfaces  = 113 MB/S stream to disk
-208,000 pps @ 576   byte packets x 1 interfaces  = 119 MB/S stream to disk
-119,000 pps @ 1024 byte packets x 1 interfaces  = 122 MB/S stream to disk
-82,000   pps @ 1500 byte packets x 1 interfaces  = 123 MB/S stream to disk
-
-Current Capture rates sustained with a 3U appliance with dual disk 
-controllers with DSFS on Linux 2.6.X and 2.4.X kernels are:
-
-975,000 pps @ 72     byte packets x 3 interfaces  = 180 MB/S stream to disk
-445,000 pps @ 256   byte packets x 3 interfaces  = 339 MB/S stream to disk
-208,000 pps @ 576   byte packets x 3 interfaces  = 360 MB/S stream to disk
-119,000 pps @ 1024 byte packets x 3 interfaces  = 365 MB/S stream to disk
-82,000   pps @ 1500 byte packets x 3 interfaces  = 370 MB/S stream to disk
-
-The DSFS file system supports over 300 open source applications with 
-high peformance stream to disk network forensic
-storage capability and also supports SPAN,  Optical Splitter, and 
-Asymmetric Routed configurations.  DSFS performs
-stream merging and also exposes the captured data as native LIBPCAP 
-files and virtual network interfaces which
-allow seamless integration with Snort, tEthereal, and hundreds of open 
-source Network Forsensic and Network Management
-tools on Linux and Windows.    DSFS is the culmination of 2 years of 
-intense development efforts by Solera Networks to create a
-powerful platform infrastructure for the development of high performance 
-network forensic open source applications on the Linux
-Operating System.
-
-DSFS is fully SMP enabled and supports Hyperthreaded architectures as 
-well as native SMP.  
-
-Jeff V. Merkey
-Solera Networks
-www.soleranetworks.com
-
-
-
-
-
-
+On Tue, 2005-08-30 at 23:33 -0700, Allen Akin wrote:
+> On Tue, Aug 30, 2005 at 01:26:53PM -0400, David Reveman wrote:
+> | On Tue, 2005-08-30 at 12:03 -0400, Jon Smirl wrote:
+> | > In general, the whole concept of programmable graphics hardware is
+> | > not addressed in APIs like xlib and Cairo. This is a very important
+> | > point. A major new GPU feature, programmability is simply not
+> | > accessible from the current X APIs. OpenGL exposes this
+> | > programmability via its shader language.
+> | 
+> |                                                           ... I don't
+> | see why this can't be exposed through the Render extension. ...
+> 
+> What has always concerned me about this approach is that when you add
+> enough functionality to Render or some new X extensions to fully exploit
+> previous (much less current and in-development!) generations of GPUs,
+> you've essentially duplicated OpenGL 2.0.  You need to identify the
+> resources to be managed (framebuffer objects, vertex objects, textures,
+> programs of several kinds, etc.); explain how they're specified and how
+> they interact and how they're owned/shared; define a vocabulary of
+> commands that operate upon them; think about how those commands are
+> translated and executed on various pieces of hardware; examine the
+> impact of things like graphics context switching on the system
+> architecture; and deal with a dozen other matters that have already been
+> addressed fully or partly in the OpenGL world.
+> 
+> I think it makes a lot of sense to leverage the work that's already been
+> done:  Take OpenGL as a given, and add extensions for what's missing.
+> Don't create a parallel API that in the long run must develop into
+> something at least as rich as OpenGL was to start with.  That costs time
+> and effort, and likely won't be supported by the hardware vendors to the
+> same extent that OpenGL is (thanks to the commercial forces already at
+> work).  Let OpenGL do 80% of the job, then work to provide the last 20%,
+> rather than trying to do 100% from scratch.
+> 
+> Allen
+> _______________________________________________
+> xorg mailing list
+> xorg@lists.freedesktop.org
+> http://lists.freedesktop.org/mailman/listinfo/xorg
 

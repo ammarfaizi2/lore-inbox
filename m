@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964819AbVHaO3K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964822AbVHaO3q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964819AbVHaO3K (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 10:29:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964822AbVHaO3J
+	id S964822AbVHaO3q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 10:29:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964823AbVHaO3q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 10:29:09 -0400
-Received: from newton.linux4geeks.de ([193.30.1.1]:20874 "EHLO
-	newton.linux4geeks.de") by vger.kernel.org with ESMTP
-	id S964819AbVHaO3I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 10:29:08 -0400
-Date: Wed, 31 Aug 2005 16:28:59 +0200 (CEST)
-From: Sven Ladegast <sven@linux4geeks.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: KLive: Linux Kernel Live Usage Monitor
-In-Reply-To: <1125495297.3355.24.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.63.0508311623540.2012@cassini.linux4geeks.de>
-References: <20050830030959.GC8515@g5.random> 
- <Pine.LNX.4.63.0508300954190.1984@cassini.linux4geeks.de> 
- <1125412611.8276.9.camel@localhost.localdomain> 
- <Pine.LNX.4.63.0508310033400.1930@cassini.linux4geeks.de> 
- <1125444317.13646.6.camel@localhost.localdomain> 
- <Pine.LNX.4.63.0508310117230.1930@cassini.linux4geeks.de>
- <1125495297.3355.24.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 31 Aug 2005 10:29:46 -0400
+Received: from fed1rmmtao12.cox.net ([68.230.241.27]:59564 "EHLO
+	fed1rmmtao12.cox.net") by vger.kernel.org with ESMTP
+	id S964822AbVHaO3p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 10:29:45 -0400
+Date: Wed, 31 Aug 2005 07:29:44 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PREEMPT_RT vermagic
+Message-ID: <20050831142944.GF3966@smtp.west.cox.net>
+References: <20050829084829.GA23176@elte.hu> <1125441737.18150.43.camel@dhcp153.mvista.com> <20050831072017.GA7125@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050831072017.GA7125@elte.hu>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Aug 2005, Alan Cox wrote:
+On Wed, Aug 31, 2005 at 09:20:17AM +0200, Ingo Molnar wrote:
+> 
+> * Daniel Walker <dwalker@mvista.com> wrote:
+> 
+> > Ingo,
+> > 	This patch adds a vermagic hook so PREEMPT_RT modules can be
+> > distinguished from PREEMPT_DESKTOP modules.
+> 
+> vermagic is very crude and there are zillions of other details and 
+> .config flags that might make a module incompatible. You can use 
+> CONFIG_MODVERSIONS to get a stronger protection that vermagic, but 
+> that's far from perfect too. The right solution is the module signing 
+> framework in Fedora. Until that gets merged upstream just dont mix 
+> incompatible modules, and keep things tightly packaged.
 
->> Registering means to create an ID for the system? Something out of
->> timestamp plus your PCI IDs and CPU info and so on?
->
-> Or have the other end issue you some kind of secure cookie, which was my
-> thought. Generating it locally as you suggest would be even better as a
-> hardware change would make a box change identity automatically
+MODVERSIONS won't get the PREEMPT_RT vs PREEMPT_DESKTOP case right
+without this, unless I'm missing something.
 
-Reading twice is sometimes better. :) It must have been late yesterday...
-
-Well changing ID automagically can be okay because a system changes its ID 
-from time to time and so you cannot track a certain system/person easily.
-
-Why not generating a unique system ID at compilation stage of the kernel 
-if the apopriate kernel option is enabled? This needn't have something to 
-do with klive...just a unique kernel-ID or something like that.
-
-klive, if userspace or not, finally makes use of this ID to generate live 
-stats of kernel usage. PCI-IDs, CPU and whatever else could be used as a 
-salt to generate a really UNIQE ID...
-
-Sven
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

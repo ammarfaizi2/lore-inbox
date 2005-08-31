@@ -1,41 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932478AbVHaH5S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932471AbVHaH6v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932478AbVHaH5S (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 03:57:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932483AbVHaH5S
+	id S932471AbVHaH6v (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 03:58:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932483AbVHaH6u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 03:57:18 -0400
-Received: from mail.enyo.de ([212.9.189.167]:10957 "EHLO mail.enyo.de")
-	by vger.kernel.org with ESMTP id S932478AbVHaH5R (ORCPT
+	Wed, 31 Aug 2005 03:58:50 -0400
+Received: from [218.25.172.144] ([218.25.172.144]:47366 "HELO mail.fc-cn.com")
+	by vger.kernel.org with SMTP id S932471AbVHaH6u (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 03:57:17 -0400
-From: Florian Weimer <fw@deneb.enyo.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Mateusz Berezecki <mateuszb@gmail.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, "David S. Miller" <davem@davemloft.net>
-Subject: Re: Atheros and rt2x00 driver
-References: <6278d22205081711115b404a9b@mail.gmail.com>
-	<20050818205821.GA30510@localhost.localdomain>
-	<4304F80F.10302@pobox.com>
-Date: Wed, 31 Aug 2005 09:56:35 +0200
-In-Reply-To: <4304F80F.10302@pobox.com> (Jeff Garzik's message of "Thu, 18 Aug
-	2005 17:05:19 -0400")
-Message-ID: <87ll2ibkuk.fsf@mid.deneb.enyo.de>
+	Wed, 31 Aug 2005 03:58:50 -0400
+Message-ID: <43156337.9090406@fc-cn.com>
+Date: Wed, 31 Aug 2005 15:58:47 +0800
+From: Qi Yong <qiyong@fc-cn.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org, dhommel@gmail.com
+Subject: Re: syscall: sys_promote
+References: <20050826092537.GA3416@localhost.localdomain>	 <20050826110226.GA5184@localhost.localdomain>	 <1125069558.4958.83.camel@localhost.localdomain>	 <4312870E.9000708@fc-cn.com> <1125318568.23946.15.camel@localhost.localdomain>
+In-Reply-To: <1125318568.23946.15.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Jeff Garzik:
+Alan Cox wrote:
 
-> There is still the open question of whether this is legal enough to 
-> include in the kernel :(
+>On Llu, 2005-08-29 at 11:54 +0800, qiyong wrote:
+>  
+>
+>>We can ignore it safely.  sys_promote is a different approach from 
+>>selinux.  sys_promote is to let sysadmin manually manipulate a running 
+>>process,
+>>    
+>>
+>
+>You can ignore the patch easily enough. Ignoring the locking doesn't
+>work because functionality like fork process counting, exec, and setuid
+>all make definite assumptions that are not safe to tamper without unless
+>you fix the uid locking.
+>  
+>
 
-Are you referring to FTC issues, or potential copyright/trade secret
-issues?
+Will this be helpful?
 
-The FTC issues are shared by many (most?) wireless drivers.  The
-copyright/trade secret issues might be worked around by basing the
-work on the OpenBSD version of that driver (and someone is actually
-working on that).
+kill -STOP $pid
+promote $pid
+kill -CONT $pid
+
+>Fixing it might be useful in some obscure cases anyway - POSIX threads
+>might benefit from it too, providing the functionality of changing all
+>thread uids at once isnt triggered for sensible threaded app behaviour.
+>
+>
+>  
+>
+

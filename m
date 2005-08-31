@@ -1,57 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932333AbVHaBww@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932331AbVHaCEa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932333AbVHaBww (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 21:52:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbVHaBww
+	id S932331AbVHaCEa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 22:04:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932332AbVHaCE3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 21:52:52 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:41676 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932330AbVHaBwv (ORCPT
+	Tue, 30 Aug 2005 22:04:29 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:15315 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932331AbVHaCE2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 21:52:51 -0400
-Message-ID: <43150D64.1060208@pobox.com>
-Date: Tue, 30 Aug 2005 21:52:36 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mark Lord <liml@rtr.ca>
-CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] libata: add ATAPI module option
-References: <20050830215234.GA6991@havoc.gtf.org> <4314F1C8.8040706@rtr.ca>
-In-Reply-To: <4314F1C8.8040706@rtr.ca>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 30 Aug 2005 22:04:28 -0400
+Date: Tue, 30 Aug 2005 19:02:19 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: blaisorblade@yahoo.it
+Cc: linux-kernel@vger.kernel.org, blaisorblade@yahoo.it,
+       bstroesser@fujitsu-siemens.com, roland@redhat.com
+Subject: Re: [patch 1/1] Ptrace - i386: fix "syscall audit" interaction with
+ singlestep
+Message-Id: <20050830190219.56473766.akpm@osdl.org>
+In-Reply-To: <20050726184306.A104421DC16@zion.home.lan>
+References: <20050726184306.A104421DC16@zion.home.lan>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Lord wrote:
-> Jeff Garzik wrote:
+blaisorblade@yahoo.it wrote:
+>
 > 
->>
->> -#ifndef ATA_ENABLE_ATAPI
->> -    if (unlikely(dev->class == ATA_DEV_ATAPI))
->> -        return NULL;
->> -#endif
->> +    if (atapi_enabled) {
->> +        if (unlikely(dev->class == ATA_DEV_ATAPI))
->> +            return NULL;
->> +    }
+> From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>, Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+> CC: Roland McGrath <roland@redhat.com>
 > 
-> ..
+> Avoid giving two traps for singlestep instead of one, when syscall auditing is
+> enabled.
 > 
-> Is that if-stmt the right way around?
-> At first glance, I'd expect it to read:
+> In fact no singlestep trap is sent on syscall entry, only on syscall exit, as
+> can be seen in entry.S:
 > 
->      if (!atapi_enabled) {
->      ...
+> # Note that in this mask _TIF_SINGLESTEP is not tested !!! <<<<<<<<<<<<<<
+>         testb $(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT|_TIF_SECCOMP),TI_flags(%ebp)
+>         jnz syscall_trace_entry
+> 	...
+> syscall_trace_entry:
+> 	...
+> 	call do_syscall_trace
 > 
-> Cheers!
+> But auditing a SINGLESTEP'ed process causes do_syscall_trace to be called, so
+> the tracer will get one more trap on the syscall entry path, which it
+> shouldn't.
+> 
+> This does not affect (to my knowledge) UML, nor is critical, so this shouldn't
+> IMHO go in 2.6.13.
+> 
+> Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+> ---
+> 
+>  linux-2.6.git-paolo/arch/i386/kernel/ptrace.c |   15 +++++++++++++--
+>  1 files changed, 13 insertions(+), 2 deletions(-)
+> 
+> diff -puN arch/i386/kernel/ptrace.c~sysaudit-singlestep-non-umlhost arch/i386/kernel/ptrace.c
+> --- linux-2.6.git/arch/i386/kernel/ptrace.c~sysaudit-singlestep-non-umlhost	2005-07-26 20:22:40.000000000 +0200
+> +++ linux-2.6.git-paolo/arch/i386/kernel/ptrace.c	2005-07-26 20:23:44.000000000 +0200
+> @@ -683,8 +683,19 @@ void do_syscall_trace(struct pt_regs *re
+>  	/* do the secure computing check first */
+>  	secure_computing(regs->orig_eax);
+>  
+> -	if (unlikely(current->audit_context) && entryexit)
+> -		audit_syscall_exit(current, AUDITSC_RESULT(regs->eax), regs->eax);
+> +	if (unlikely(current->audit_context)) {
+> +		if (entryexit)
+> +			audit_syscall_exit(current, AUDITSC_RESULT(regs->eax), regs->eax);
+> +
+> +		/* Debug traps, when using PTRACE_SINGLESTEP, must be sent only
+> +		 * on the syscall exit path. Normally, when TIF_SYSCALL_AUDIT is
+> +		 * not used, entry.S will call us only on syscall exit, not
+> +		 * entry ; so when TIF_SYSCALL_AUDIT is used we must avoid
+> +		 * calling send_sigtrap() on syscall entry.
+> +		 */
+> +		else if (is_singlestep)
+> +			goto out;
+> +	}
+>  
 
-Indeed, thanks, fixed.
-
-	Jeff
-
-
-
+This appears to be a UML patch, applied to x86, which has no `is_singlestep'.

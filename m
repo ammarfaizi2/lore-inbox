@@ -1,49 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964835AbVHaPRr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964832AbVHaPUd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964835AbVHaPRr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 11:17:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964837AbVHaPRr
+	id S964832AbVHaPUd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 11:20:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964836AbVHaPUd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 11:17:47 -0400
-Received: from wproxy.gmail.com ([64.233.184.196]:40834 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964835AbVHaPRq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 11:17:46 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=qoYFXbG41P1fP7NIEOA829BEOTViOSlc6RZtgEc7Q7G+03bCtHG0WK6GOUULZyF5mrFaYFflLsvWXTkA/hlyxwz5jHdxcdrNc/NYyJyLvKD7gsh/96VU9W6LG9ucCJPicJL2exGBxYSKb3i7CDV081MnqXeR4Wpw1vyunhHdp/k=
-Message-ID: <4315CA02.4000802@gmail.com>
-Date: Wed, 31 Aug 2005 23:17:22 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nilesh Agrawal <nilesh.agrawal@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: tty problem
-References: <9a9e5ab90508310806114ab96b@mail.gmail.com>
-In-Reply-To: <9a9e5ab90508310806114ab96b@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 31 Aug 2005 11:20:33 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:24306 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S964832AbVHaPUb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 11:20:31 -0400
+Subject: Re: [FYI] 2.6.13-rt3  and a nanosleep jitter test.
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       george anzinger <george@mvista.com>, Adrian Bunk <bunk@stusta.de>,
+       Sven-Thorsten Dietrich <sven@mvista.com>,
+       LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <1125501220.28697.7.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+References: <1124704837.5208.22.camel@localhost.localdomain>
+	 <20050822101632.GA28803@elte.hu>
+	 <1124710309.5208.30.camel@localhost.localdomain>
+	 <20050822113858.GA1160@elte.hu>
+	 <1124715755.5647.4.camel@localhost.localdomain>
+	 <20050822183355.GB13888@elte.hu>
+	 <1124739657.5809.6.camel@localhost.localdomain>
+	 <1124739895.5809.11.camel@localhost.localdomain>
+	 <1124981238.5350.6.camel@localhost.localdomain>
+	 <1124982413.5350.19.camel@localhost.localdomain>
+	 <20050825174732.GA23774@elte.hu>
+	 <1125000563.6264.10.camel@localhost.localdomain>
+	 <1125023010.5365.4.camel@localhost.localdomain>
+	 <1125064334.5365.39.camel@localhost.localdomain>
+	 <1125414039.5675.42.camel@localhost.localdomain>
+	 <1125417156.6355.13.camel@localhost.localdomain>
+	 <1125500514.5714.12.camel@localhost.localdomain>
+	 <1125501220.28697.7.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Wed, 31 Aug 2005 11:19:12 -0400
+Message-Id: <1125501552.5714.14.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nilesh Agrawal wrote:
-> Hi all,
-> 
-> I have a peculiar problem with the kernel messages being printed during startup.
-> During startup the messages are printed only uptill the monitor
-> (screen) gets filled, the screen doesnt scroll down and no further
-> messages are printed. However the computer boots normally, and I get my
-> graphical desktop when X starts.
-> Moreover  moving to tty1 (CTRL-ALT-F1)  doesnt give me anything, but
-> mingetty program is running on tty1.
-> Booting in single user mode, the same problem persists. I cant see
-> anything after the screen gets filled.
-> Does anyone  know where is the problem??
-> Thanks in advance.
+On Wed, 2005-08-31 at 08:13 -0700, Daniel Walker wrote:
+> Sorry, that's http://high-res-timers.sf.net/
 
-Please send more info --- output of dmesg, kernel config, hardware desription.
+Thanks,
 
-Tony
+But I always seem to prefer to rewrite the wheel than to use one that
+already exists. ;-)  Probably explains why my cars are always in the
+shop!
+
+-- Steve
+
+

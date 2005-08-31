@@ -1,69 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964889AbVHaROh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964888AbVHaRPm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964889AbVHaROh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 13:14:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964888AbVHaROh
+	id S964888AbVHaRPm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 13:15:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964890AbVHaRPm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 13:14:37 -0400
-Received: from [67.137.28.189] ([67.137.28.189]:40371 "EHLO vger")
-	by vger.kernel.org with ESMTP id S964886AbVHaROg (ORCPT
+	Wed, 31 Aug 2005 13:15:42 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:6893 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S964888AbVHaRPl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 13:14:36 -0400
-Message-ID: <4315D3EB.4000601@utah-nac.org>
-Date: Wed, 31 Aug 2005 09:59:39 -0600
-From: jmerkey <jmerkey@utah-nac.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Wed, 31 Aug 2005 13:15:41 -0400
+Date: Wed, 31 Aug 2005 19:15:24 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Knut Petersen <Knut_Petersen@t-online.de>
+cc: Andrew Morton <akpm@osdl.org>, linux-fbdev-devel@lists.sourceforge.net,
+       "Antonino A. Daplas" <adaplas@gmail.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Jochen Hein <jochen@jochen.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [Linux-fbdev-devel] [PATCH 1/1 2.6.13] framebuffer: bit_putcs()
+ optimization for 8x* fonts
+In-Reply-To: <4315A6AB.5090108@t-online.de>
+Message-ID: <Pine.LNX.4.61.0508311750140.3728@scrub.home>
+References: <43148610.70406@t-online.de> <Pine.LNX.4.62.0508301814470.6045@numbat.sonytel.be>
+ <43149E5B.7040006@t-online.de> <Pine.LNX.4.61.0508302039160.3743@scrub.home>
+ <4314DD2E.7060901@t-online.de> <Pine.LNX.4.61.0508310159290.3728@scrub.home>
+ <4315A6AB.5090108@t-online.de>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-Cc: Holger Kiehl <Holger.Kiehl@dwd.de>, Vojtech Pavlik <vojtech@suse.cz>,
-       linux-raid <linux-raid@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Where is the performance bottleneck?
-References: <Pine.LNX.4.61.0508291811480.24072@diagnostix.dwd.de> <20050829202529.GA32214@midnight.suse.cz> <Pine.LNX.4.61.0508301919250.25574@diagnostix.dwd.de> <20050831071126.GA7502@midnight.ucw.cz> <20050831072644.GF4018@suse.de> <Pine.LNX.4.61.0508311029170.16574@diagnostix.dwd.de> <20050831120714.GT4018@suse.de> <Pine.LNX.4.61.0508311339140.16574@diagnostix.dwd.de> <20050831162053.GG4018@suse.de> <4315C9EB.2030506@utah-nac.org> <20050831171124.GH4018@suse.de>
-In-Reply-To: <20050831171124.GH4018@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-512 is not enough. It has to be larger. I just tried 512 and it still 
-limits the data rates.
+On Wed, 31 Aug 2005, Knut Petersen wrote:
 
-Jeff
+> +static inline void __fb_pad_aligned_buffer(u8 *dst, u32 d_pitch, u8 *src, +
+> u32 s_pitch, u32 height)
+> +{
+> +	int i, j;
+> +
+> +	if (likely(s_pitch==1))
+> +		for(i=0; i < height; i++)
+> +			dst[d_pitch*i] = src[i];
+> +	else if (s_pitch==2)
+> +		for(i=0; i < height; i++) {
+> +			*(u16 *)dst = ((u16 *)src)[i];
+> +			dst += d_pitch;
+> +		}
+> +	else {
+> +		d_pitch -= s_pitch;
+> +		for (i = height; i--; ) {
+> +			for (j = 0; j < s_pitch; j++)
+> +				*dst++ = *src++;
+> +			dst += d_pitch;
+> +		}
+> +	}
+> +}
 
+Why did you add the multiply back?
+You have now 3 slightly different variants of the same, which isn't really 
+an improvement. In my example I showed you how to generate the first and 
+last version from the same source.
+If you also want to optimize for other sizes, you might want to always 
+inline the function, if the function call overhead is the largest part 
+anyway, the special case for 2 bytes might not be needed anymore.
 
-Jens Axboe wrote:
+BTW this version saves another condition:
 
->On Wed, Aug 31 2005, jmerkey wrote:
->  
->
->>I have seen an 80GB/sec limitation in the kernel unless this value is 
->>changed in the SCSI I/O layer
->>for 3Ware and other controllers during testing of 2.6.X series kernels.
->>
->>Change these values in include/linux/blkdev.h and performance goes from 
->>80MB/S to over 670MB/S on the 3Ware controller.
->>
->>
->>//#define BLKDEV_MIN_RQ    4
->>//#define BLKDEV_MAX_RQ    128    /* Default maximum */
->>#define BLKDEV_MIN_RQ    4096
->>#define BLKDEV_MAX_RQ    8192    /* Default maximum */
->>    
->>
->
->That's insane, you just wasted 1MiB of preallocated requests on each
->queue in the system!
->
->Please just do
->
-># echo 512 > /sys/block/dev/queue/nr_requests
->
->after boot for each device you want to increase the queue size too. 512
->should be enough with the 3ware.
->
->  
->
+static inline void __fb_pad_aligned_buffer(u8 *dst, u32 d_pitch, u8 *src, u32 s_pitch, u32 height)
+{
+	int i, j;
+
+	d_pitch -= s_pitch;
+	i = height;
+	do {
+		/* s_pitch is a few bytes at the most, memcpy is suboptimal */
+		j = s_pitch;
+		do
+			*dst++ = *src++;
+		while (--j > 0);
+		dst += d_pitch;
+	} while (--i > 0);
+}
+
+bye, Roman
 

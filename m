@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964831AbVHaPPJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964826AbVHaPO5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964831AbVHaPPJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 11:15:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964834AbVHaPPJ
+	id S964826AbVHaPO5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 11:14:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964827AbVHaPO5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 11:15:09 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:14587 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S964831AbVHaPPF
+	Wed, 31 Aug 2005 11:14:57 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:9467 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S964826AbVHaPO4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 11:15:05 -0400
+	Wed, 31 Aug 2005 11:14:56 -0400
 Subject: Re: [FYI] 2.6.13-rt3  and a nanosleep jitter test.
 From: Daniel Walker <dwalker@mvista.com>
 To: Steven Rostedt <rostedt@goodmis.org>
@@ -37,8 +37,8 @@ References: <1124704837.5208.22.camel@localhost.localdomain>
 	 <1125417156.6355.13.camel@localhost.localdomain>
 	 <1125500514.5714.12.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Wed, 31 Aug 2005 08:13:40 -0700
-Message-Id: <1125501220.28697.7.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+Date: Wed, 31 Aug 2005 08:12:08 -0700
+Message-Id: <1125501128.28697.5.camel@c-67-188-6-232.hsd1.ca.comcast.net>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-6) 
 Content-Transfer-Encoding: 7bit
@@ -46,7 +46,10 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Sorry, that's http://high-res-timers.sf.net/
+There is already a suite HRT of tests they include a nanosleep jitter
+test with 8 or 9 other tests..
+
+find them inside the hrt-support patch at http://high-res-timer.sf.net
 
 Daniel
 

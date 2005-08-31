@@ -1,47 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964822AbVHaO3q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964823AbVHaOcE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964822AbVHaO3q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 10:29:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964823AbVHaO3q
+	id S964823AbVHaOcE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 10:32:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964825AbVHaOcE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 10:29:46 -0400
-Received: from fed1rmmtao12.cox.net ([68.230.241.27]:59564 "EHLO
-	fed1rmmtao12.cox.net") by vger.kernel.org with ESMTP
-	id S964822AbVHaO3p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 10:29:45 -0400
-Date: Wed, 31 Aug 2005 07:29:44 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PREEMPT_RT vermagic
-Message-ID: <20050831142944.GF3966@smtp.west.cox.net>
-References: <20050829084829.GA23176@elte.hu> <1125441737.18150.43.camel@dhcp153.mvista.com> <20050831072017.GA7125@elte.hu>
-Mime-Version: 1.0
+	Wed, 31 Aug 2005 10:32:04 -0400
+Received: from dvhart.com ([64.146.134.43]:59782 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S964823AbVHaOcC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 10:32:02 -0400
+Date: Wed, 31 Aug 2005 07:31:52 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Hugh Dickins <hugh@veritas.com>, Arjan van de Ven <arjan@infradead.org>
+Cc: Dave McCracken <dmccr@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [PATCH 1/1] Implement shared page tables
+Message-ID: <16640000.1125498711@[10.10.2.4]>
+In-Reply-To: <Pine.LNX.4.61.0508311437070.16834@goblin.wat.veritas.com>
+References: <7C49DFF721CB4E671DB260F9@[10.1.1.4]> <Pine.LNX.4.61.0508311143340.15467@goblin.wat.veritas.com><1125489077.3213.12.camel@laptopd505.fenrus.org> <Pine.LNX.4.61.0508311437070.16834@goblin.wat.veritas.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050831072017.GA7125@elte.hu>
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 31, 2005 at 09:20:17AM +0200, Ingo Molnar wrote:
-> 
-> * Daniel Walker <dwalker@mvista.com> wrote:
-> 
-> > Ingo,
-> > 	This patch adds a vermagic hook so PREEMPT_RT modules can be
-> > distinguished from PREEMPT_DESKTOP modules.
-> 
-> vermagic is very crude and there are zillions of other details and 
-> .config flags that might make a module incompatible. You can use 
-> CONFIG_MODVERSIONS to get a stronger protection that vermagic, but 
-> that's far from perfect too. The right solution is the module signing 
-> framework in Fedora. Until that gets merged upstream just dont mix 
-> incompatible modules, and keep things tightly packaged.
+--Hugh Dickins <hugh@veritas.com> wrote (on Wednesday, August 31, 2005 14:42:38 +0100):
 
-MODVERSIONS won't get the PREEMPT_RT vs PREEMPT_DESKTOP case right
-without this, unless I'm missing something.
+> On Wed, 31 Aug 2005, Arjan van de Ven wrote:
+>> On Wed, 2005-08-31 at 12:44 +0100, Hugh Dickins wrote:
+>> > I was going to say, doesn't randomize_va_space take away the rest of
+>> > the point?  But no, it appears "randomize_va_space", as it currently
+>> > appears in mainline anyway, is somewhat an exaggeration: it just shifts
+>> > the stack a little, with no effect on the rest of the va space.
+>> 
+>> it also randomizes mmaps
+> 
+> Ah, via PF_RANDOMIZE, yes, thanks: so long as certain conditions are
+> fulfilled - and my RLIM_INFINITY RLIMIT_STACK has been preventing it.
+> 
+> And mmaps include shmats: so unless the process specifies non-NULL
+> shmaddr to attach at, it'll choose a randomized address for that too
+> (subject to those various conditions).
+> 
+> Which is indeed a further disincentive against shared page tables.
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Or shared pagetables a disincentive to randomizing the mmap space ;-)
+They're incompatible, but you could be left to choose one or the other
+via config option.
+
+3% on "a certain industry-standard database benchmark" (cough) is huge,
+and we expect the benefit for PPC64 will be larger as we can share the
+underlying hardware PTEs without TLB flushing as well.
+
+M.
+

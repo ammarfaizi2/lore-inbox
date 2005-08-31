@@ -1,69 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932347AbVHaDpT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932351AbVHaETQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932347AbVHaDpT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 23:45:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932348AbVHaDpT
+	id S932351AbVHaETQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 00:19:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932352AbVHaETP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 23:45:19 -0400
-Received: from smtpout.mac.com ([17.250.248.86]:7618 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S932347AbVHaDpS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 23:45:18 -0400
-In-Reply-To: <1125459207.32272.114.camel@phantasy>
-References: <20050830194632.GA13346@hsnr.de> <1125459207.32272.114.camel@phantasy>
-Mime-Version: 1.0 (Apple Message framework v734)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <8683E96C-A236-481D-8512-3B7728BDD955@mac.com>
-Cc: Juergen Quade <quade@hsnr.de>, linux-kernel@vger.kernel.org
+	Wed, 31 Aug 2005 00:19:15 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:22526 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932351AbVHaETP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 00:19:15 -0400
+From: Tom Zanussi <zanussi@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: inotify and IN_UNMOUNT-events
-Date: Tue, 30 Aug 2005 23:44:54 -0400
-To: Robert Love <rml@novell.com>
-X-Mailer: Apple Mail (2.734)
+Message-ID: <17173.12216.263860.76176@tut.ibm.com>
+Date: Tue, 30 Aug 2005 23:19:04 -0500
+To: Nathan Scott <nathans@sgi.com>
+Cc: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] blk queue io tracing support
+In-Reply-To: <20050830235824.GG780@frodo>
+References: <20050823123235.GG16461@suse.de>
+	<20050824010346.GA1021@frodo>
+	<20050824070809.GA27956@suse.de>
+	<20050824171931.H4209301@wobbly.melbourne.sgi.com>
+	<20050824072501.GA27992@suse.de>
+	<20050824092838.GB28272@suse.de>
+	<20050830234823.GF780@frodo>
+	<20050830235824.GG780@frodo>
+X-Mailer: VM 7.19 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Aug 30, 2005, at 23:33:27, Robert Love wrote:
-> On Tue, 2005-08-30 at 21:46 +0200, Juergen Quade wrote:
->
->> Playing around with inotify I have some problems
->> to generate/receive IN_UNMOUNT-events (using
->> a self written application and inotify_utils-0.25;
->> kernel 2.6.13).
->>
->> Doing:
->> - mount /dev/hda1 /mnt
->> - add a watch to the path /mnt/ ("./inotify_test /mnt")
->> - umount /mnt
->>
->> results in two events:
->> 1. IN_DELETE_SELF (mask=0x0400)
->> 2. IN_IGNORED     (mask=0x8000)
->>
->> Any ideas?
->
-> "/mnt" is not unmounted, stuff inside of it is.
->
-> Watch, say, "/mnt/foo/bar" and when /dev/hda1 is unmounted, you  
-> will get
-> an IN_UNMOUNT on the watch.
+Nathan Scott writes:
+ > Hi there,
+ > 
+ > On Wed, Aug 31, 2005 at 09:48:23AM +1000, Nathan Scott wrote:
+ > > ...
+ > > # find /relay
+ > > /relay
+ > > /relay/block
+ > > /relay/block/sdd
+ > > /relay/block/sdd/trace3
+ > > /relay/block/sdd/trace2
+ > > /relay/block/sdd/trace1
+ > > /relay/block/sdd/trace0
+ > > /relay/block/sdb
+ > > /relay/block/sdb/trace3
+ > > /relay/block/sdb/trace2
+ > > /relay/block/sdb/trace1
+ > > /relay/block/sdb/trace0
+ > > 
+ > > and does the correct dynamic setup and teardown of the hierarchy
+ > > as the userspace tool starts and stops tracing.  I had to modify
+ > > the relayfs rmdir code a bit to make this work properly, I'll
+ > > send a separate patch for that shortly.
+ > 
+ > Here it is.  The problem was that relayfs is allowing a directory
+ > with children to be removed rather than returning -ENOTEMPTY.  It
+ > looks like this can be resolved by splitting the shared relayfs
+ > unlink code (which is using simple_unlink) into separate file/dir
+ > variants, one using simple_unlink, the other using simple_rmdir.
+ > 
 
-I think this might work as well:
-# mount /dev/hda1 /mnt
-# ./inotify_test /mnt/. &
-# umount /mnt
+Hi,
 
-That should get the effect you are looking for
+You're right, it should be using simple_rmdir rather than
+simple_unlink for removing directories.  Thanks for sending the patch,
+which I've modified a bit to avoid splitting the rmdir/unlink cases
+into separate functions, since they're almost the same except for what
+they end up calling.  relayfs_remove_dir now doesn't do anything but
+call relayfs_remove (it didn't do much more than that before anyway),
+but it makes sense to me to keep it, as the counterpart to
+relayfs_create_dir.  Let me know if you see any problems with it.
 
-Cheers,
-Kyle Moffett
+Thanks,
 
---
-I have yet to see any problem, however complicated, which, when you  
-looked at
-it in the right way, did not become still more complicated.
-   -- Poul Anderson
+Tom
 
+--- inode.c~	2005-08-31 04:08:07.000000000 -0500
++++ inode.c	2005-08-31 03:44:40.000000000 -0500
+@@ -189,26 +189,39 @@ struct dentry *relayfs_create_dir(const 
+ /**
+  *	relayfs_remove - remove a file or directory in the relay filesystem
+  *	@dentry: file or directory dentry
++ *
++ *	Returns 0 if successful, negative otherwise.
+  */
+ int relayfs_remove(struct dentry *dentry)
+ {
+-	struct dentry *parent = dentry->d_parent;
++	struct dentry *parent;
++	int error = 0;
++
++	if (!dentry)
++		return -EINVAL;
++	parent = dentry->d_parent;
+ 	if (!parent)
+ 		return -EINVAL;
+ 
+ 	parent = dget(parent);
+ 	down(&parent->d_inode->i_sem);
+ 	if (dentry->d_inode) {
+-		simple_unlink(parent->d_inode, dentry);
+-		d_delete(dentry);
++		if (S_ISDIR(dentry->d_inode->i_mode))
++			error = simple_rmdir(parent->d_inode, dentry);
++		else
++			error = simple_unlink(parent->d_inode, dentry);
++		if (!error)
++			d_delete(dentry);
+ 	}
+-	dput(dentry);
++	if (!error)
++		dput(dentry);
+ 	up(&parent->d_inode->i_sem);
+ 	dput(parent);
+ 
+-	simple_release_fs(&relayfs_mount, &relayfs_mount_count);
++	if (!error)
++		simple_release_fs(&relayfs_mount, &relayfs_mount_count);
+ 
+-	return 0;
++	return error;
+ }
+ 
+ /**
+@@ -219,9 +232,6 @@ int relayfs_remove(struct dentry *dentry
+  */
+ int relayfs_remove_dir(struct dentry *dentry)
+ {
+-	if (!dentry)
+-		return -EINVAL;
+-
+ 	return relayfs_remove(dentry);
+ }
+ 
 
 

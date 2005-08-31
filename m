@@ -1,69 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932296AbVHaAbK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbVHaAqK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932296AbVHaAbK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 20:31:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbVHaAbJ
+	id S932307AbVHaAqK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 20:46:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbVHaAqK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 20:31:09 -0400
-Received: from nproxy.gmail.com ([64.233.182.204]:55824 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932296AbVHaAbJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 20:31:09 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=AnlOhasRQtOJB5S/6P2hUkVWuOwAjPKWH8BC4sg9an/zsLjPQ8ubmqpD5EwDlmwFueKv4l0kylODY/m3voG4iCj8HTU9CFna+mnVc7w57526Ld3wjN/VFjvklEP7dNyfceR0AKnwhNgmok0xvWA2Or4KelLN/8snTanOYSBLh2s=
-Message-ID: <58cb370e050830173044b86233@mail.gmail.com>
-Date: Wed, 31 Aug 2005 02:30:55 +0200
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: IDE HPA
-Cc: Greg Felix <greg.felix@gmail.com>,
-       Oliver Tennert <O.Tennert@science-computing.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1125421518.8276.45.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <87941b4c05082913101e15ddda@mail.gmail.com>
-	 <200508300859.19701.tennert@science-computing.de>
-	 <87941b4c05083008523cddbb2a@mail.gmail.com>
-	 <58cb370e0508300916432fc003@mail.gmail.com>
-	 <1125421518.8276.45.camel@localhost.localdomain>
+	Tue, 30 Aug 2005 20:46:10 -0400
+Received: from omta03ps.mx.bigpond.com ([144.140.82.155]:53961 "EHLO
+	omta03ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S932307AbVHaAqJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 20:46:09 -0400
+Message-ID: <4314FDCF.3050502@bigpond.net.au>
+Date: Wed, 31 Aug 2005 10:46:07 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Jake Moilanen <moilanen@austin.ibm.com>
+Subject: [ANNOUNCE][RFC] PlugSched-6.1 for 2.6.13
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta03ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Wed, 31 Aug 2005 00:46:07 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/30/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> On Maw, 2005-08-30 at 18:16 +0200, Bartlomiej Zolnierkiewicz wrote:
-> > HPA shouldn't be disabled by default and new kernel parameter ("hdx=hpa")
-> > should be added for disabling HPA (yep, people with buggy BIOS-es will
-> > have to add this parameter to their kernel command line, sorry).
-> 
-> Thats large numbers of systems. Large numbers of disks as strapped for
-> 32GB and other clipping arrangements. With a vendor hat on thats
-> unworkable because
-> 
-> a) It will stop thousands of people installing their systems
-> b) Many users will get horrible corruption when they update the kernel
-> and their box explodes as the fs tries to write to areas of disk that
-> have vanished mysteriously.
-> 
-> (and we know all about this because ancient kernels had options for
-> doing this in the compile that burned people)
-> 
-> So its a very bad idea indeed. A boot option for not disabling the hpa
-> is possibly sensible for a few users who want that, or simply getting
-> them to fix their buggy user space app would be even simpler.
+This version contains a modified spa_ws scheduler with a more persistent 
+bonus mechanism. Although the "bonus only at wake up" mechanism of the 
+original worked well on the first systems it was tested on (an old SMP 
+system and a 3GHz SMT system) subsequent tests on a 2GHz single 
+processor system were disappointing.  (Apart from a bug in the original 
+implementation) the primary reason for this was that the X server was 
+not always able to complete its work in the first time slice after 
+waking and had to try and complete it without the benefit of the bonus 
+which causes obvious delays when the system is loaded.  The new 
+mechanism is a simplification of the persistent interactive bonus 
+mechanism in zaphod.
 
-OK, boot option for disabling HPA for users that want it is a indeed most
-sensible approach.
+A patch for 2.6.13 is available at:
 
-> The only way I can see to truely automate it for most cases would be to
-> snoop the partition table if its MSDOS format and see if the table
-> matches the HPA clipped disk or the non-HPA clipped disk. If it matches
-> the HPA clipped disk then you know not to fiddle. Otherwise its either a
-> new disk, clipped by the 32GB jumper, non-x86 disk etc in which case you
-> might as well disable any HPA.
-> 
-> Alan
+<http://prdownloads.sourceforge.net/cpuse/plugsched-6.1-for-2.6.13.patch?download>
+
+Very Brief Documentation:
+
+You can select a default scheduler at kernel build time.  If you wish to
+boot with a scheduler other than the default it can be selected at boot
+time by adding:
+
+cpusched=<scheduler>
+
+to the boot command line where <scheduler> is one of: ingosched,
+nicksched, staircase, spa_no_frills, spa_ws or zaphod.  If you don't
+change the default when you build the kernel the default scheduler will
+be ingosched (which is the normal scheduler).
+
+The scheduler in force on a running system can be determined by the
+contents of:
+
+/proc/scheduler
+
+Control parameters for the scheduler can be read/set via files in:
+
+/sys/cpusched/<scheduler>/
+
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

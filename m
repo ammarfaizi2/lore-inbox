@@ -1,86 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932331AbVHaCEa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932330AbVHaCEB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932331AbVHaCEa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Aug 2005 22:04:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932332AbVHaCE3
+	id S932330AbVHaCEB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Aug 2005 22:04:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbVHaCEB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Aug 2005 22:04:29 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:15315 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932331AbVHaCE2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Aug 2005 22:04:28 -0400
-Date: Tue, 30 Aug 2005 19:02:19 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: blaisorblade@yahoo.it
-Cc: linux-kernel@vger.kernel.org, blaisorblade@yahoo.it,
-       bstroesser@fujitsu-siemens.com, roland@redhat.com
-Subject: Re: [patch 1/1] Ptrace - i386: fix "syscall audit" interaction with
- singlestep
-Message-Id: <20050830190219.56473766.akpm@osdl.org>
-In-Reply-To: <20050726184306.A104421DC16@zion.home.lan>
-References: <20050726184306.A104421DC16@zion.home.lan>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 30 Aug 2005 22:04:01 -0400
+Received: from smtp2.Stanford.EDU ([171.67.16.125]:36247 "EHLO
+	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S932330AbVHaCEA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Aug 2005 22:04:00 -0400
+Subject: jack, PREEMPT_DESKTOP, delayed interrupts?
+From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+To: jackit-devel@lists.sourceforge.net, Ingo Molnar <mingo@elte.hu>,
+       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
+Cc: Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       cc@ccrma.Stanford.EDU
+Content-Type: text/plain
+Organization: 
+Message-Id: <1125453795.25823.121.camel@cmn37.stanford.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 30 Aug 2005 19:03:15 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-blaisorblade@yahoo.it wrote:
->
-> 
-> From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>, Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-> CC: Roland McGrath <roland@redhat.com>
-> 
-> Avoid giving two traps for singlestep instead of one, when syscall auditing is
-> enabled.
-> 
-> In fact no singlestep trap is sent on syscall entry, only on syscall exit, as
-> can be seen in entry.S:
-> 
-> # Note that in this mask _TIF_SINGLESTEP is not tested !!! <<<<<<<<<<<<<<
->         testb $(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT|_TIF_SECCOMP),TI_flags(%ebp)
->         jnz syscall_trace_entry
-> 	...
-> syscall_trace_entry:
-> 	...
-> 	call do_syscall_trace
-> 
-> But auditing a SINGLESTEP'ed process causes do_syscall_trace to be called, so
-> the tracer will get one more trap on the syscall entry path, which it
-> shouldn't.
-> 
-> This does not affect (to my knowledge) UML, nor is critical, so this shouldn't
-> IMHO go in 2.6.13.
-> 
-> Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-> ---
-> 
->  linux-2.6.git-paolo/arch/i386/kernel/ptrace.c |   15 +++++++++++++--
->  1 files changed, 13 insertions(+), 2 deletions(-)
-> 
-> diff -puN arch/i386/kernel/ptrace.c~sysaudit-singlestep-non-umlhost arch/i386/kernel/ptrace.c
-> --- linux-2.6.git/arch/i386/kernel/ptrace.c~sysaudit-singlestep-non-umlhost	2005-07-26 20:22:40.000000000 +0200
-> +++ linux-2.6.git-paolo/arch/i386/kernel/ptrace.c	2005-07-26 20:23:44.000000000 +0200
-> @@ -683,8 +683,19 @@ void do_syscall_trace(struct pt_regs *re
->  	/* do the secure computing check first */
->  	secure_computing(regs->orig_eax);
->  
-> -	if (unlikely(current->audit_context) && entryexit)
-> -		audit_syscall_exit(current, AUDITSC_RESULT(regs->eax), regs->eax);
-> +	if (unlikely(current->audit_context)) {
-> +		if (entryexit)
-> +			audit_syscall_exit(current, AUDITSC_RESULT(regs->eax), regs->eax);
-> +
-> +		/* Debug traps, when using PTRACE_SINGLESTEP, must be sent only
-> +		 * on the syscall exit path. Normally, when TIF_SYSCALL_AUDIT is
-> +		 * not used, entry.S will call us only on syscall exit, not
-> +		 * entry ; so when TIF_SYSCALL_AUDIT is used we must avoid
-> +		 * calling send_sigtrap() on syscall entry.
-> +		 */
-> +		else if (is_singlestep)
-> +			goto out;
-> +	}
->  
+Hi, I'm starting to look at a strange problem. The configuration is:
+hardware: AMD X2 4400+ dual core, NForce3 chipset, Midiman 66 soundcard
+software: 2.6.13 smp + patch-2.6.13-rt1, PREEMPT_DESKTOP
+          jack 0.100.4, current cvs
+          alsa 1.0.10rc1
 
-This appears to be a UML patch, applied to x86, which has no `is_singlestep'.
+This is the sequence of events. Start Jack inside Qjackctl (a Jack Audio
+Connection Kit GUI front end) with 2 x 128 frames, start Ardour (a
+digital audio workstation) - load a very simple recording session, start
+Hydrogen (a drum machine). Play around with them, everything seems to
+work fine. No glitches, very solid performance. 
+
+Do a "tar cvf usr.tar /usr" just to read/write a lot to disk (this
+within the same SATA disk). Watch memory being used in a system monitor
+applet up to 100%. After a while, hard to say how long (maybe 10/15
+minutes?) the system eventually can get into a state where Jack starts
+printing messages of the type "delay of 3856.000 usecs exceeds estimated
+spare time of 2653.000; restart ..." (if I understand correctly this
+means interrupts are being delayed on their way to Jack, or at least
+Jack thinks they are arriving too late), along with some less frequent
+xun notices. 
+
+Now the strange thing is that this condition seems to be persistent.
+Nothing I do after it starts to happen seems to halt those messages.
+Including stopping Jack and starting it again, and even (tried it once)
+stopping the alsa sound driver and loading it again. Nothing out of the
+ordinary in dmesg or /var/log/messages. I would guess that something
+"breaks" inside the kernel with regards to interrupt handling and/or
+whatever Jack uses to measure time inside the kernel? Interrupts are
+prioritized correctly (rtc, then audio and jack runs at lower realtime
+priority than the audio interrupts), everything else looks fine. 
+
+I could not get this to happen while running a uniprocessor kernel on
+the same machine but I may not have tried long enough. I do see a "delay
+exceeds" or "xun" message every once in a while but not a steady,
+unstoppable stream of them. 
+
+This seemed to be much worse, or easier to trigger, when running an
+older realtime-preempt-2.6.12-final-V0.7.51-27 smp kernel. 
+
+I don't know what information may be useful to even start making some
+sense out of this. 
+
+-- Fernando
+
+

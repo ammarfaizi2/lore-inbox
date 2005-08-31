@@ -1,44 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932338AbVHaIL5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932488AbVHaI2f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932338AbVHaIL5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 04:11:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932484AbVHaIL5
+	id S932488AbVHaI2f (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 04:28:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932489AbVHaI2f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 04:11:57 -0400
-Received: from xproxy.gmail.com ([66.249.82.197]:2640 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932356AbVHaILz convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 04:11:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Jgw5XD6OazkkImb2IVb6xu31YEcDlhFvv5B0rYhKJ+o1Iit7pNG//yqgua841TNl0QkOE6B2v/R4vti2P2/RxgojLi0LEY7B1532PBfZZv7A0wr5LEl1trn9d9TnOJ3FjWK3XulljLuIF+We8DO1GgbL+AEeTfBDXje7a8Nx0Hs=
-Message-ID: <ec92bc305083101111841f7c4@mail.gmail.com>
-Date: Wed, 31 Aug 2005 13:41:55 +0530
-From: Anshuman Gholap <anshu.pg@gmail.com>
-To: Discuss issues related to the xorg tree 
-	<xorg@lists.freedesktop.org>,
-       Jon Smirl <jonsmirl@gmail.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: State of Linux graphics
-In-Reply-To: <20050831063355.GE27940@tuolumne.arden.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <9e47339105083009037c24f6de@mail.gmail.com>
-	 <1125422813.20488.43.camel@localhost>
-	 <20050831063355.GE27940@tuolumne.arden.org>
+	Wed, 31 Aug 2005 04:28:35 -0400
+Received: from mail.enyo.de ([212.9.189.167]:54733 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id S932488AbVHaI2e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 04:28:34 -0400
+From: Florian Weimer <fw@deneb.enyo.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       "David S. Miller" <davem@davemloft.net>
+Subject: Re: Atheros and rt2x00 driver
+References: <6278d22205081711115b404a9b@mail.gmail.com>
+	<20050818205821.GA30510@localhost.localdomain>
+	<4304F80F.10302@pobox.com> <87ll2ibkuk.fsf@mid.deneb.enyo.de>
+	<20050831081636.GA28280@oepkgtn.mshome.net>
+Date: Wed, 31 Aug 2005 10:28:02 +0200
+In-Reply-To: <20050831081636.GA28280@oepkgtn.mshome.net> (Mateusz Berezecki's
+	message of "Wed, 31 Aug 2005 10:16:36 +0200")
+Message-ID: <87hdd6a4tp.fsf@mid.deneb.enyo.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i have no freaking idea of coding. but going throught this "Discuss
-issues related to the xorg tree" talk, made me feel and say "mommy
-(coder), daddy (admin), .... please dont fight.... you tearing
-us(users) apart."
+* Mateusz Berezecki:
 
-glad its worked out.. all i hope is we(users) , now , get some nice
-fast xorg :D.
+> Florian Weimer <fw@deneb.enyo.de> wrote:
+> -> The FTC issues are shared by many (most?) wireless drivers.  The
+> -> copyright/trade secret issues might be worked around by basing the
+> -> work on the OpenBSD version of that driver (and someone is actually
+> -> working on that).
+>
+>  the problem with openbsd version of the hal is that it is - sorry to
+>  say that - fundamentally broken, at least it was last time I was
+>  checking.
 
-Regards,
-Anshuman.
-Host server admin.
+It's better than nothing, that is, it worked for us when we gave it a
+try.  And it seems to be relatively unencumbered.

@@ -1,67 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965118AbVIAOHs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965132AbVIAOMc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965118AbVIAOHs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 10:07:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965121AbVIAOHs
+	id S965132AbVIAOMc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 10:12:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965136AbVIAOMc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 10:07:48 -0400
-Received: from smtp007.mail.ukl.yahoo.com ([217.12.11.96]:24669 "HELO
-	smtp007.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S965118AbVIAOHr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 10:07:47 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=Yy4CjeYK1OyjpWaYrb5KVTPJPD6V0zzqbdSe8M/ZV0dg0TsUFikX+dNlGAhS+4RjZXUOtSPScLI6WBCNJZsjCdWw36zaCaqKUYGypICggf9kSnSBs32I+rT0Vh0fbMRRcMfyLmB1aX0hE8cdynxU+X3p+zDHodt17C1tIK5p9iU=  ;
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       "Martin J. Bligh" <mbligh@mbligh.org>
-Subject: Memory reclaim: permanently pinned dentries (aka libfs/sysfs) and the blunderbuss effect
-Date: Thu, 1 Sep 2005 15:23:22 +0200
-User-Agent: KMail/1.8.1
-Cc: LKML <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Thu, 1 Sep 2005 10:12:32 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:3473 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965132AbVIAOMb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 10:12:31 -0400
+Date: Thu, 1 Sep 2005 19:41:32 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Tony Lindgren <tony@atomide.com>
+Cc: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org,
+       arjan@infradead.org, s0348365@sms.ed.ac.uk, tytso@mit.edu,
+       cfriesen@nortel.com, rlrevell@joe-job.com, trenn@suse.de,
+       george@mvista.com, johnstul@us.ibm.com, akpm@osdl.org
+Subject: Re: Updated dynamic tick patches
+Message-ID: <20050901141132.GB11355@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20050831165843.GA4974@in.ibm.com> <200509011523.13994.kernel@kolivas.org> <20050901130721.GB10677@atomide.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200509011523.23168.blaisorblade@yahoo.it>
+In-Reply-To: <20050901130721.GB10677@atomide.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh described at OLS the "blunderbuss effect", i.e. the 
-inefficiency of the dentry cache shrinker at freeing whole pages, since we 
-could leave (worst-case) one dentry per page because it's at the end of the 
-LRU list.
+On Thu, Sep 01, 2005 at 04:07:22PM +0300, Tony Lindgren wrote:
+> I tried this quickly on a loaner ThinkPad T30, and needed the following
+> patch to compile. The patch does work with PIT, but with lapic the
+> system does not wake to timer interrupts :(
 
-Pinned dentries (in first place libfs ones, but he also includes directories 
-one - I think they are just hard to free, not really pinned) are allocated 
-from the common dentry_cache, i.e. mixed with normal ones - why don't we fix 
-that?
+Even I have found that enabling lapic breaks it on my T30! I think
+that is a T30 issue, as I dont see any other reason why it should not 
+work (note that I have it tested on some other SMP P4 servers where
+it works well).
 
-It seems that adding an (optional) flag to a new __d_alloc (with d_alloc 
-becoming its wrapper) would be enough, since dentries are always allocated 
-directly by filesystems (either on lookup or on creation of the pinned 
-dentry). Or call it d_alloc_lively().
+> I also hacked together a little timer test utility that should go trough
+> on a completely idle system with no errors. Also posted it to:
+> 
+> http://www.muru.com/linux/dyntick/tools/dyntick-test.c
+> 
+> Srivatsa, could you try the dyntick-test.c on your system after booting
+> to init=/bin/sh to make the system as idle as possible?
 
-Also, it seems that the slab allocator willl allocate objects at fixed 
-locations inside a page (even with page colouring, colour_offset is fixed 
-per-slab and saved)*, once that slab has been allocated... so if we add a 
-"DCACHE_FREED" flag and zero slabs content on alloc (at least for this slab), 
-we could maybe enumerate all dentries in a page and try to free them, to 
-finally free the whole slab.
+Thanks for this test. Will test and let you know how it goes on x86.
+ATM I am trying to corner the lost-tick-calculation problem with ACPI 
+PM timer.
 
-* Otherwise this problem could probably be fixed some way.
+> Unfortunately I cannot debug the APIC issue right now, but I seem to
+> have an issue on ARM OMAP where the timer test occasionally fails on
+> some longer values, for example 3 second sleep can take 4 seconds.
+> 
+> I don't know yet if this is the problem George Anzinger mentioned with
+> next_timer_interrupt(), or if this is OMAP specific. But it only seems
+
+Will let you know if I see it on x86 too.
+
+
+
 -- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
-http://www.user-mode-linux.org/~blaisorblade
 
 
-	
-
-	
-		
-___________________________________ 
-Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
-http://mail.yahoo.it
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

@@ -1,42 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965161AbVIAOdW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965164AbVIAOlc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965161AbVIAOdW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 10:33:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965148AbVIAOdW
+	id S965164AbVIAOlc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 10:41:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965160AbVIAOlc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 10:33:22 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:42373 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S965161AbVIAOdV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 10:33:21 -0400
-Date: Thu, 1 Sep 2005 16:32:49 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Joe Korty <joe.korty@ccur.com>
-cc: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>, akpm@osdl.org,
-       george@mvista.com, johnstul@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: FW: [RFC] A more general timeout specification
-In-Reply-To: <20050901135049.GB1753@tsunami.ccur.com>
-Message-ID: <Pine.LNX.4.61.0509011610570.3743@scrub.home>
-References: <F989B1573A3A644BAB3920FBECA4D25A042B030A@orsmsx407>
- <Pine.LNX.4.61.0509010136350.3743@scrub.home> <20050901135049.GB1753@tsunami.ccur.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 1 Sep 2005 10:41:32 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:5301 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S965148AbVIAOlb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 10:41:31 -0400
+Date: Thu, 1 Sep 2005 15:40:38 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Brett Russ <russb@emc.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.13] libata: Marvell SATA support (PIO mode)
+Message-ID: <20050901144038.GA25830@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Brett Russ <russb@emc.com>, Jeff Garzik <jgarzik@pobox.com>,
+	linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20050830183625.BEE1520F4C@lns1058.lss.emc.com> <4314C604.4030208@pobox.com> <20050901142754.B93BF27137@lns1058.lss.emc.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050901142754.B93BF27137@lns1058.lss.emc.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/pci.h>
+> +#include <linux/init.h>
+> +#include <linux/blkdev.h>
+> +#include <linux/delay.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/sched.h>
+> +#include <linux/dma-mapping.h>
+> +#include "scsi.h"
 
-On Thu, 1 Sep 2005, Joe Korty wrote:
+pleaese don't include "scsi.h" in new drivers.  It will go away soon.
+Use the <scsi/*.h> headers and get rid of usage of obsolete constucts
+in your driver.
 
-> > When you convert a user time to kernel time you can
-> > automatically validate
-> 
-> Kernel time sucks.  It is just a single clock, it may not have
-> the attributes of the clock that the user really wished to use.
+> +static inline void writelfl(unsigned long data, void __iomem *addr)
+> +{
+> +	writel(data, addr);
+> +	(void) readl(addr);	/* flush */
 
-Wrong. The kernel time is simple and effective for almost all users.
-We are talking about _timeouts_ here, what fancy "attributes" does that 
-need that are just not overkill?
+no need for the (void) case.
 
-bye, Roman
+> +static void mv_irq_clear(struct ata_port *ap)
+> +{
+> +	return;
+> +}
+
+no need for the return
+
+> +	return (ofs);
+
+please remove the braces around the return value
+
+> +		if (ap && 
+> +		    (NULL != (qc = ata_qc_from_tag(ap, ap->active_tag)))) {
+> +			VPRINTK("port %u IRQ found for qc, ata_status 0x%x\n",
+> +				port,ata_status);
+> +			BUG_ON(0xffU == ata_status);
+> +			/* mark qc status appropriately */
+> +			ata_qc_complete(qc, ata_status);
+> +		}
+
+the formatting looks rather odd.  What about;
+
+		if (ap) {
+			qc = ata_qc_from_tag(ap, ap->active_tag);
+			if (qc) {
+				VPRINTK("port %u IRQ found for qc, "
+					"ata_status 0x%x\n",
+					port, ata_status);
+				BUG_ON(0xffU == ata_status);
+				/* mark qc status appropriately */
+				ata_qc_complete(qc, ata_status);
+			}
+		}
+
+> +      err_out_hpriv:
+
+rather odd placement of the goto labels.  If you look at kernel code it's
+always either not indented at all, or indented a single space.
+

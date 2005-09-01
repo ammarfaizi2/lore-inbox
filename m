@@ -1,53 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030358AbVIAUGU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030356AbVIAUMD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030358AbVIAUGU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 16:06:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030354AbVIAUGU
+	id S1030356AbVIAUMD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 16:12:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030357AbVIAUMB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 16:06:20 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:37125 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP
-	id S1030357AbVIAUGS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 16:06:18 -0400
-Message-ID: <43176095.1000805@tmr.com>
-Date: Thu, 01 Sep 2005 16:12:05 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: DervishD <lkml@dervishd.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: USB Storage speed regression since 2.6.12
-References: <20050901113614.GA63@DervishD>
-In-Reply-To: <20050901113614.GA63@DervishD>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 1 Sep 2005 16:12:01 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:58588 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030356AbVIAUMA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 16:12:00 -0400
+Date: Thu, 1 Sep 2005 13:10:17 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+Cc: greg@kroah.com, shaohua.li@intel.com, linux-kernel@vger.kernel.org
+Subject: Re: [RFC/PATCH]reconfigure MSI registers after resume
+Message-Id: <20050901131017.67c66f23.akpm@osdl.org>
+In-Reply-To: <C7AB9DA4D0B1F344BF2489FA165E502409A459F1@orsmsx404.amr.corp.intel.com>
+References: <C7AB9DA4D0B1F344BF2489FA165E502409A459F1@orsmsx404.amr.corp.intel.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-DervishD wrote:
->     Hi all :)
+"Nguyen, Tom L" <tom.l.nguyen@intel.com> wrote:
+>
+> On Thursday, September 01, 2005 12:32 PM Andrew Morton wrote:
+> > So what is the alternative to Shaohua's fix?  Restore all the msi 
+> > registers on resume?
 > 
->     I don't know if this is a known issue, but usb-storage speed for
-> 'Full speed' devices dropped from 2.6.11.12 (more than 800Kb/s) to
-> 2.6.12 (less than 250Kb/s). The problem still exists in 2.6.13.
+> Yes, the PCIe port bus driver, for example, did that.
 > 
->     The lack of speed seems to affect only the OHCI driver. My test
-> was done over a PCI USB 2.0 card, ALi chipset, OHCI driver (well
-> EHCI+OHCI) and using a full speed device capable of 12MBps. The
-> average measured speeds are:
-> 
->     - 2.4.31:           about 450Kb/seg
->     - 2.6.11-Debian:    about 800Kb/seg
->     - 2.6.11.12:        about 820Kb/seg
->     - 2.6.12.x:         about 200Kb/seg
->     - 2.6.13:           about 200Kb/seg
-> 
->     The .config is more or less the same in all kernels. I've took a
-> look at the ChangeLog for 2.6.12 and there are lots of changes in the
-> USB subsystem but I cannot identify which one could be the culprit.
-> 
-I see a worse problem, I load the driver, mount the filesystems on the 
-USB 160GB disk, and the disk just "goes away." I see the devices in 
-/proc/scsi/scsi but I can't access the devices any more. Definitely time 
-for a fallback to a more stable kernel!
+
+So you're saying that each individual driver which uses MSI is responsible
+for the restore?  Is it not possible to do this in some single centralised
+place?

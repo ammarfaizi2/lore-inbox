@@ -1,487 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030501AbVIAWxp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030441AbVIAWxT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030501AbVIAWxp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 18:53:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030499AbVIAWxa
+	id S1030441AbVIAWxT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 18:53:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030475AbVIAWxT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 18:53:30 -0400
-Received: from lakshmi.addtoit.com ([198.99.130.6]:36624 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S1030496AbVIAWxX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 18:53:23 -0400
-Message-Id: <200509012216.j81MGxtG011530@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: [PATCH 3/12] UML - System call path cleanup
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 01 Sep 2005 18:16:59 -0400
-From: Jeff Dike <jdike@addtoit.com>
+	Thu, 1 Sep 2005 18:53:19 -0400
+Received: from ns1.limegroup.com ([64.48.93.2]:28676 "EHLO ns1.limegroup.com")
+	by vger.kernel.org with ESMTP id S1030441AbVIAWxS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 18:53:18 -0400
+Date: Thu, 1 Sep 2005 18:53:15 -0400 (EDT)
+From: Ion Badulescu <lists@limebrokerage.com>
+X-X-Sender: ion@guppy.limebrokerage.com
+To: "David S. Miller" <davem@davemloft.net>
+cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: Possible BUG in IPv4 TCP window handling, all recent 2.4.x/2.6.x
+ kernels
+In-Reply-To: <20050901.154300.118239765.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.61.0509011845040.6083@guppy.limebrokerage.com>
+References: <Pine.LNX.4.61.0509011713240.6083@guppy.limebrokerage.com>
+ <20050901.154300.118239765.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This merges two sets of files which had no business being split apart in the
-first place.
+Hi David,
 
-Signed-off-by: Jeff Dike <jdike@addtoit.com>
+On Thu, 1 Sep 2005, David S. Miller wrote:
 
-Index: linux-2.6.13/arch/um/include/syscall.h
-===================================================================
---- linux-2.6.13.orig/arch/um/include/syscall.h	2005-08-31 04:29:26.191951656 -0400
-+++ linux-2.6.13/arch/um/include/syscall.h	2005-08-30 19:36:48.000000000 -0400
-@@ -0,0 +1,12 @@
-+/* 
-+ * Copyright (C) 2002 Jeff Dike (jdike@karaya.com)
-+ * Licensed under the GPL
-+ */
-+
-+#ifndef __SYSCALL_USER_H
-+#define __SYSCALL_USER_H
-+
-+extern int record_syscall_start(int syscall);
-+extern void record_syscall_end(int index, long result);
-+
-+#endif
-Index: linux-2.6.13/arch/um/include/syscall_user.h
-===================================================================
---- linux-2.6.13.orig/arch/um/include/syscall_user.h	2005-08-30 19:35:44.000000000 -0400
-+++ linux-2.6.13/arch/um/include/syscall_user.h	2005-08-31 04:29:26.191951656 -0400
-@@ -1,23 +0,0 @@
--/* 
-- * Copyright (C) 2002 Jeff Dike (jdike@karaya.com)
-- * Licensed under the GPL
-- */
--
--#ifndef __SYSCALL_USER_H
--#define __SYSCALL_USER_H
--
--extern int record_syscall_start(int syscall);
--extern void record_syscall_end(int index, long result);
--
--#endif
--
--/*
-- * Overrides for Emacs so that we follow Linus's tabbing style.
-- * Emacs will notice this stuff at the end of the file and automatically
-- * adjust the settings for this buffer only.  This must remain at the end
-- * of the file.
-- * ---------------------------------------------------------------------------
-- * Local variables:
-- * c-file-style: "linux"
-- * End:
-- */
-Index: linux-2.6.13/arch/um/include/sysdep-i386/syscalls.h
-===================================================================
---- linux-2.6.13.orig/arch/um/include/sysdep-i386/syscalls.h	2005-08-30 19:35:44.000000000 -0400
-+++ linux-2.6.13/arch/um/include/sysdep-i386/syscalls.h	2005-08-30 19:36:27.000000000 -0400
-@@ -16,6 +16,8 @@
- 
- extern syscall_handler_t old_mmap_i386;
- 
-+extern syscall_handler_t *sys_call_table[];
-+
- #define EXECUTE_SYSCALL(syscall, regs) \
- 	((long (*)(struct syscall_args)) (*sys_call_table[syscall]))(SYSCALL_ARGS(&regs->regs))
- 
-Index: linux-2.6.13/arch/um/include/sysdep-x86_64/syscalls.h
-===================================================================
---- linux-2.6.13.orig/arch/um/include/sysdep-x86_64/syscalls.h	2005-08-30 19:35:44.000000000 -0400
-+++ linux-2.6.13/arch/um/include/sysdep-x86_64/syscalls.h	2005-08-30 19:36:27.000000000 -0400
-@@ -14,6 +14,8 @@
- 
- extern syscall_handler_t *ia32_sys_call_table[];
- 
-+extern syscall_handler_t *sys_call_table[];
-+
- #define EXECUTE_SYSCALL(syscall, regs) \
- 	(((long (*)(long, long, long, long, long, long)) \
- 	  (*sys_call_table[syscall]))(UPT_SYSCALL_ARG1(&regs->regs), \
-Index: linux-2.6.13/arch/um/kernel/Makefile
-===================================================================
---- linux-2.6.13.orig/arch/um/kernel/Makefile	2005-08-30 19:35:44.000000000 -0400
-+++ linux-2.6.13/arch/um/kernel/Makefile	2005-08-30 20:08:47.000000000 -0400
-@@ -18,7 +18,7 @@
- obj-$(CONFIG_GPROF)	+= gprof_syms.o
- obj-$(CONFIG_GCOV)	+= gmon_syms.o
- obj-$(CONFIG_TTY_LOG)	+= tty_log.o
--obj-$(CONFIG_SYSCALL_DEBUG) += syscall_user.o
-+obj-$(CONFIG_SYSCALL_DEBUG) += syscall.o
- 
- obj-$(CONFIG_MODE_TT) += tt/
- obj-$(CONFIG_MODE_SKAS) += skas/
-Index: linux-2.6.13/arch/um/kernel/skas/Makefile
-===================================================================
---- linux-2.6.13.orig/arch/um/kernel/skas/Makefile	2005-08-30 19:35:44.000000000 -0400
-+++ linux-2.6.13/arch/um/kernel/skas/Makefile	2005-08-30 20:39:46.000000000 -0400
-@@ -4,7 +4,7 @@
- #
- 
- obj-y := clone.o exec_kern.o mem.o mem_user.o mmu.o process.o process_kern.o \
--	syscall_kern.o syscall_user.o tlb.o trap_user.o uaccess.o \
-+	syscall.o tlb.o trap_user.o uaccess.o
- 
- subdir- := util
- 
-Index: linux-2.6.13/arch/um/kernel/skas/syscall.c
-===================================================================
---- linux-2.6.13.orig/arch/um/kernel/skas/syscall.c	2005-08-31 04:29:26.191951656 -0400
-+++ linux-2.6.13/arch/um/kernel/skas/syscall.c	2005-08-31 15:33:26.000000000 -0400
-@@ -0,0 +1,50 @@
-+/* 
-+ * Copyright (C) 2002 Jeff Dike (jdike@karaya.com)
-+ * Licensed under the GPL
-+ */
-+
-+#include "linux/sys.h"
-+#include "linux/ptrace.h"
-+#include "asm/errno.h"
-+#include "asm/unistd.h"
-+#include "asm/ptrace.h"
-+#include "asm/current.h"
-+#include "sysdep/syscalls.h"
-+#include "kern_util.h"
-+#include "syscall.h"
-+
-+void handle_syscall(union uml_pt_regs *r)
-+{
-+	struct pt_regs *regs = container_of(r, struct pt_regs, regs);
-+	long result;
-+	int syscall;
-+#ifdef UML_CONFIG_SYSCALL_DEBUG
-+  	int index;
-+
-+  	index = record_syscall_start(UPT_SYSCALL_NR(r));
-+#endif
-+	syscall_trace(r, 0);
-+
-+	current->thread.nsyscalls++;
-+	nsyscalls++;
-+
-+	/* This should go in the declaration of syscall, but when I do that,
-+	 * strace -f -c bash -c 'ls ; ls' breaks, sometimes not tracing 
-+	 * children at all, sometimes hanging when bash doesn't see the first
-+	 * ls exit.
-+	 * The assembly looks functionally the same to me.  This is 
-+	 *     gcc version 4.0.1 20050727 (Red Hat 4.0.1-5)
-+	 * in case it's a compiler bug.
-+	 */
-+	syscall = UPT_SYSCALL_NR(r);
-+	if((syscall >= NR_syscalls) || (syscall < 0))
-+		result = -ENOSYS;
-+	else result = EXECUTE_SYSCALL(syscall, regs);
-+
-+	REGS_SET_SYSCALL_RETURN(r->skas.regs, result);
-+
-+	syscall_trace(r, 1);
-+#ifdef UML_CONFIG_SYSCALL_DEBUG
-+  	record_syscall_end(index, result);
-+#endif
-+}
-Index: linux-2.6.13/arch/um/kernel/skas/syscall_kern.c
-===================================================================
---- linux-2.6.13.orig/arch/um/kernel/skas/syscall_kern.c	2005-08-30 19:35:44.000000000 -0400
-+++ linux-2.6.13/arch/um/kernel/skas/syscall_kern.c	2005-08-31 04:29:26.191951656 -0400
-@@ -1,43 +0,0 @@
--/* 
-- * Copyright (C) 2002 - 2003 Jeff Dike (jdike@addtoit.com)
-- * Licensed under the GPL
-- */
--
--#include "linux/sys.h"
--#include "linux/ptrace.h"
--#include "asm/errno.h"
--#include "asm/unistd.h"
--#include "asm/ptrace.h"
--#include "asm/current.h"
--#include "sysdep/syscalls.h"
--#include "kern_util.h"
--
--extern syscall_handler_t *sys_call_table[];
--
--long execute_syscall_skas(void *r)
--{
--	struct pt_regs *regs = r;
--	long res;
--	int syscall;
--
--	current->thread.nsyscalls++;
--	nsyscalls++;
--	syscall = UPT_SYSCALL_NR(&regs->regs);
--
--	if((syscall >= NR_syscalls) || (syscall < 0))
--		res = -ENOSYS;
--	else res = EXECUTE_SYSCALL(syscall, regs);
--
--	return(res);
--}
--
--/*
-- * Overrides for Emacs so that we follow Linus's tabbing style.
-- * Emacs will notice this stuff at the end of the file and automatically
-- * adjust the settings for this buffer only.  This must remain at the end
-- * of the file.
-- * ---------------------------------------------------------------------------
-- * Local variables:
-- * c-file-style: "linux"
-- * End:
-- */
-Index: linux-2.6.13/arch/um/kernel/skas/syscall_user.c
-===================================================================
---- linux-2.6.13.orig/arch/um/kernel/skas/syscall_user.c	2005-08-30 19:35:44.000000000 -0400
-+++ linux-2.6.13/arch/um/kernel/skas/syscall_user.c	2005-08-31 04:29:26.191951656 -0400
-@@ -1,44 +0,0 @@
--/* 
-- * Copyright (C) 2002 Jeff Dike (jdike@karaya.com)
-- * Licensed under the GPL
-- */
--
--#include <stdlib.h>
--#include <signal.h>
--#include "kern_util.h"
--#include "uml-config.h"
--#include "syscall_user.h"
--#include "sysdep/ptrace.h"
--#include "sysdep/sigcontext.h"
--#include "skas.h"
--
--void handle_syscall(union uml_pt_regs *regs)
--{
--	long result;
--#ifdef UML_CONFIG_SYSCALL_DEBUG
--  	int index;
--
--  	index = record_syscall_start(UPT_SYSCALL_NR(regs));
--#endif
--
--	syscall_trace(regs, 0);
--	result = execute_syscall_skas(regs);
--
--	REGS_SET_SYSCALL_RETURN(regs->skas.regs, result);
--
--	syscall_trace(regs, 1);
--#ifdef UML_CONFIG_SYSCALL_DEBUG
--  	record_syscall_end(index, result);
--#endif
--}
--
--/*
-- * Overrides for Emacs so that we follow Linus's tabbing style.
-- * Emacs will notice this stuff at the end of the file and automatically
-- * adjust the settings for this buffer only.  This must remain at the end
-- * of the file.
-- * ---------------------------------------------------------------------------
-- * Local variables:
-- * c-file-style: "linux"
-- * End:
-- */
-Index: linux-2.6.13/arch/um/kernel/syscall.c
-===================================================================
---- linux-2.6.13.orig/arch/um/kernel/syscall.c	2005-08-31 04:29:26.191951656 -0400
-+++ linux-2.6.13/arch/um/kernel/syscall.c	2005-08-30 20:10:07.000000000 -0400
-@@ -0,0 +1,36 @@
-+/* 
-+ * Copyright (C) 2002 Jeff Dike (jdike@karaya.com)
-+ * Licensed under the GPL
-+ */
-+
-+#include "kern_util.h"
-+#include "syscall.h"
-+#include "os.h"
-+
-+struct {
-+	int syscall;
-+	int pid;
-+	long result;
-+	unsigned long long start;
-+	unsigned long long end;
-+} syscall_record[1024];
-+
-+int record_syscall_start(int syscall)
-+{
-+	int max, index;
-+
-+	max = sizeof(syscall_record)/sizeof(syscall_record[0]);
-+	index = next_syscall_index(max);
-+
-+	syscall_record[index].syscall = syscall;
-+	syscall_record[index].pid = current_pid();
-+	syscall_record[index].result = 0xdeadbeef;
-+	syscall_record[index].start = os_usecs();
-+	return(index);
-+}
-+
-+void record_syscall_end(int index, long result)
-+{
-+	syscall_record[index].result = result;
-+	syscall_record[index].end = os_usecs();
-+}
-Index: linux-2.6.13/arch/um/kernel/syscall_user.c
-===================================================================
---- linux-2.6.13.orig/arch/um/kernel/syscall_user.c	2005-08-30 19:35:44.000000000 -0400
-+++ linux-2.6.13/arch/um/kernel/syscall_user.c	2005-08-31 04:29:26.191951656 -0400
-@@ -1,48 +0,0 @@
--/* 
-- * Copyright (C) 2002 Jeff Dike (jdike@karaya.com)
-- * Licensed under the GPL
-- */
--
--#include <stdlib.h>
--#include <sys/time.h>
--#include "kern_util.h"
--#include "syscall_user.h"
--
--struct {
--	int syscall;
--	int pid;
--	long result;
--	struct timeval start;
--	struct timeval end;
--} syscall_record[1024];
--
--int record_syscall_start(int syscall)
--{
--	int max, index;
--
--	max = sizeof(syscall_record)/sizeof(syscall_record[0]);
--	index = next_syscall_index(max);
--
--	syscall_record[index].syscall = syscall;
--	syscall_record[index].pid = current_pid();
--	syscall_record[index].result = 0xdeadbeef;
--	gettimeofday(&syscall_record[index].start, NULL);
--	return(index);
--}
--
--void record_syscall_end(int index, long result)
--{
--	syscall_record[index].result = result;
--	gettimeofday(&syscall_record[index].end, NULL);
--}
--
--/*
-- * Overrides for Emacs so that we follow Linus's tabbing style.
-- * Emacs will notice this stuff at the end of the file and automatically
-- * adjust the settings for this buffer only.  This must remain at the end
-- * of the file.
-- * ---------------------------------------------------------------------------
-- * Local variables:
-- * c-file-style: "linux"
-- * End:
-- */
-Index: linux-2.6.13/arch/um/kernel/tt/syscall_kern.c
-===================================================================
---- linux-2.6.13.orig/arch/um/kernel/tt/syscall_kern.c	2005-08-31 15:49:21.000000000 -0400
-+++ linux-2.6.13/arch/um/kernel/tt/syscall_kern.c	2005-08-31 15:50:01.000000000 -0400
-@@ -12,36 +12,41 @@
- #include "asm/uaccess.h"
- #include "asm/stat.h"
- #include "sysdep/syscalls.h"
-+#include "sysdep/sigcontext.h"
- #include "kern_util.h"
-+#include "syscall.h"
- 
--extern syscall_handler_t *sys_call_table[];
--
--long execute_syscall_tt(void *r)
-+void syscall_handler_tt(int sig, struct pt_regs *regs)
- {
--	struct pt_regs *regs = r;
--	long res;
-+	void *sc;
-+	long result;
- 	int syscall;
--
- #ifdef CONFIG_SYSCALL_DEBUG
-+	int index;
-+  	index = record_syscall_start(syscall);
-+#endif
-+	sc = UPT_SC(&regs->regs);
-+	SC_START_SYSCALL(sc);
-+
-+	syscall_trace(&regs->regs, 0);
-+
- 	current->thread.nsyscalls++;
- 	nsyscalls++;
--#endif
- 	syscall = UPT_SYSCALL_NR(&regs->regs);
- 
- 	if((syscall >= NR_syscalls) || (syscall < 0))
--		res = -ENOSYS;
--	else res = EXECUTE_SYSCALL(syscall, regs);
-+		result = -ENOSYS;
-+	else result = EXECUTE_SYSCALL(syscall, regs);
- 
--	return(res);
--}
-+	/* regs->sc may have changed while the system call ran (there may
-+	 * have been an interrupt or segfault), so it needs to be refreshed.
-+	 */
-+	UPT_SC(&regs->regs) = sc;
-+
-+	SC_SET_SYSCALL_RETURN(sc, result);
- 
--/*
-- * Overrides for Emacs so that we follow Linus's tabbing style.
-- * Emacs will notice this stuff at the end of the file and automatically
-- * adjust the settings for this buffer only.  This must remain at the end
-- * of the file.
-- * ---------------------------------------------------------------------------
-- * Local variables:
-- * c-file-style: "linux"
-- * End:
-- */
-+	syscall_trace(&regs->regs, 1);
-+#ifdef CONFIG_SYSCALL_DEBUG
-+  	record_syscall_end(index, result);
-+#endif
-+}
-Index: linux-2.6.13/arch/um/kernel/tt/syscall_user.c
-===================================================================
---- linux-2.6.13.orig/arch/um/kernel/tt/syscall_user.c	2005-08-30 19:35:44.000000000 -0400
-+++ linux-2.6.13/arch/um/kernel/tt/syscall_user.c	2005-08-31 15:50:33.000000000 -0400
-@@ -13,42 +13,9 @@
- #include "task.h"
- #include "user_util.h"
- #include "kern_util.h"
--#include "syscall_user.h"
-+#include "syscall.h"
- #include "tt.h"
- 
--
--void syscall_handler_tt(int sig, union uml_pt_regs *regs)
--{
--	void *sc;
--	long result;
--	int syscall;
--#ifdef UML_CONFIG_DEBUG_SYSCALL
--	int index;
--#endif
--
--	syscall = UPT_SYSCALL_NR(regs);
--	sc = UPT_SC(regs);
--	SC_START_SYSCALL(sc);
--
--#ifdef UML_CONFIG_DEBUG_SYSCALL
--  	index = record_syscall_start(syscall);
--#endif
--	syscall_trace(regs, 0);
--	result = execute_syscall_tt(regs);
--
--	/* regs->sc may have changed while the system call ran (there may
--	 * have been an interrupt or segfault), so it needs to be refreshed.
--	 */
--	UPT_SC(regs) = sc;
--
--	SC_SET_SYSCALL_RETURN(sc, result);
--
--	syscall_trace(regs, 1);
--#ifdef UML_CONFIG_DEBUG_SYSCALL
--  	record_syscall_end(index, result);
--#endif
--}
--
- void do_sigtrap(void *task)
- {
- 	UPT_SYSCALL_NR(TASK_REGS(task)) = -1;
+> Thanks for the empty posting.  Please provide the content you
+> intended to post, and furthermore please post it to the network
+> developer mailing list, netdev@vger.kernel.org
 
+First of all, thanks for the reply (even to an empty posting :).
+
+The posting wasn't actually empty, it was probably too long (94K according 
+to my sent-mail folder) and majordomo truncated it to zero. It has some 
+tcpdump snippets, that's what made it so long... unfortunately, they're 
+all necessary to understand the nature of the bug. I wasn't sure about 
+netdev, that's why I posted it only to linux-kernel and linux-net.
+
+I can provide the full tcpdump out-of-band to interested people, since I 
+don't think I can get it past majordomo.
+
+Here is the text of the message without the tcpdump inserts:
+
+---------------------------------------------------------------------------
+Hello,
+
+I've been tracking down this bug for some time, and I'm fairly convinced 
+at this point that it's a kernel bug.
+
+Under certain conditions, the TCP stack starts shrinking the TCP window 
+down to some ridiculously low values (hundreds of bytes, as low as 181) 
+and never recovers. The certain conditions I mentioned are not well 
+understood at this point, but they include a long-lived connection with a 
+very one-sided, fluctuating traffic flowing through it.
+
+So far I've been able to reproduce it on plain-vanilla 2.4.9, 2.4.11.9, 
+and 2.4.12.2, as well as on the RHEL3 kernels 2.4.21-20 and 2.4.21-31. The 
+hardware is dual Opteron 250, running both 32- and 64-bit SMP kernels 
+(seems to make no difference). I've also seen the bug occur on a single 
+Athlon XP running 2.6.11.9 UP.
+
+The bug occurs with all sysctl settings at their default values. I've 
+tried enabling and disabling pretty much all the tcp-related sysctl's in 
+/proc/sys/net/ipv4, to no visible improvement.
+
+Here are a few tcpdump snippets of a TCP connection exhibiting the bug 
+(the complete tcpdump is available upon request, but it's very large). 
+10.2.20.246 is the data receiver and is the box exhibiting the bug (I'm 
+not sure what 10.2.224.182 is running, I don't have access to it). The 
+data being sent through is real-time financial data; the session begins by 
+catching up (at line speed) to present time, then continues to receive 
+real-time data as it is being generated. For what it's worth, we've never 
+been seen the bug occur while the session is still catching up (and 
+receiving a few large packets at a time); it always seems to happen while 
+receiving real-time data (many small packets, variably interspaced).
+
+[I apologize for the amount of tcpdump data, but it's the only way to show 
+the bug in action.]
+
+[tcpdump output removed]
+
+The connection is established and the receiver's TCP window quickly ramps 
+up to 8192.
+
+[tcpdump output removed]
+
+Shortly thereafter the TCP window increases further to 16534. It remains 
+around 16534 for the next 5 minutes or so.
+
+[tcpdump output removed]
+
+A few minutes later it has finally caught up to present time and it starts 
+receiving smaller packets containing real-time data. The TCP window is 
+still 16534 at this point.
+
+[tcpdump output removed]
+
+This is where things start going bad. The window starts shrinking from 
+15340 all the way down to 2355 over the course of 0.3 seconds. Notice the 
+many duplicate acks that serve no purpose (there are no lost packets and 
+the tcpdump is taken on the receiver so there is no packets/acks crossed 
+in flight).
+
+[tcpdump output removed]
+
+Five minutes later the TCP window is still at 2355, having never 
+recovered. The window is so small that the available bandwidth for this 
+connection is too small to keep up with the real-time data so it is 
+falling behind, hence large packets are again being used. The application 
+processing the data (Java-based) is mostly idle at this point, and netstat 
+shows its recv queue to be empty. There is no apparent reason why the 
+kernel shouldn't enlarge the window.
+
+In fact, if I let it continue, it eventually shrinks the window even 
+further (by 18:19:29, the time I'm writing this email, it's gone all the 
+way down to 1373). As I mentioned earlier, I've seen it go as low as 181.
+
+We are kind of stumped at this point, and it's proving to be a 
+show-stopping bug for our purposes, especially over WAN links that have 
+higher latency (for obvious reasons). Any kind of assistance would be 
+greatly appreciated.
+
+Thanks,
+-Ion

@@ -1,127 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030538AbVIAXib@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030542AbVIAXoj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030538AbVIAXib (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 19:38:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030541AbVIAXib
+	id S1030542AbVIAXoj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 19:44:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030543AbVIAXoj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 19:38:31 -0400
-Received: from pat.uio.no ([129.240.130.16]:48085 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1030538AbVIAXia (ORCPT
+	Thu, 1 Sep 2005 19:44:39 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:8112 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030542AbVIAXoi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 19:38:30 -0400
-Subject: Re: Change in NFS client behavior
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Andrew Morton <akpm@osdl.org>, Rob Sims <lkml-z@robsims.com>
+	Thu, 1 Sep 2005 19:44:38 -0400
+Date: Thu, 1 Sep 2005 16:47:03 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Corey Minyard <minyard@acm.org>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050831145545.GA8426@robsims.com>
-References: <20050831145545.GA8426@robsims.com>
-Content-Type: multipart/mixed; boundary="=-x60yO91/HTrJDwu/dQ1/"
-Date: Thu, 01 Sep 2005 19:38:17 -0400
-Message-Id: <1125617897.7627.14.camel@lade.trondhjem.org>
+Subject: Re: [PATCH] part 3 - Convert IPMI driver over to use refcounts
+Message-Id: <20050901164703.6a21f8e3.akpm@osdl.org>
+In-Reply-To: <1125602042.4403.7.camel@i2.minyard.local>
+References: <1125602042.4403.7.camel@i2.minyard.local>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.917, required 12,
-	autolearn=disabled, AWL 1.08, UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-x60yO91/HTrJDwu/dQ1/
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-on den 31.08.2005 Klokka 08:55 (-0600) skreiv Rob Sims:
-> We have noticed when changing from kernel 2.4.23 to 2.6.8 that
-> timestamps of files are not changed if opened for a write and nothing is
-> written.  When using 2.4.23 timestamps are changed.  When using a local
-> filesystem (reiserfs) with either kernel, timestamps are changed.
-> Symptoms vary with the client, not the server.  See the script below.
+> The IPMI driver uses read/write locks to ensure that things
+> exist while they are in use.  This is bad from a number of
+> points of view.  This patch removes the rwlocks and uses
+> refcounts and a special synced list (the entries can be
+> refcounted and removal is blocked while an entry is in
+> use).
 > 
-> When run on a 2.4.23 machine in an NFS mounted directory, output is
-> "Good."  When run on a 2.6.8 or 2.6.12-rc4 machine in an NFS directory,
-> output is "Error."
-> 
-> Is this a bug?  How do we revert to the 2.4/local fs behavior?  
 
-This is a consequence of 2.6 NFS clients optimising away unnecessary
-truncate calls. Whereas this is correct behaviour for truncate(), it
-appears to be incorrect for open(O_TRUNC).
+This:
 
-In fact, local filesystems like xfs and ext3 appear to have the opposite
-problem: they change ctime if you call ftruncate(0) on the zero-length
-file, as the attached test shows.
+> +
+> +struct synced_list_entry_task_q
+>  {
+>  	struct list_head link;
+> +	task_t           *process;
+> +};
+> +
 
-Cheers,
-  Trond
+> +#define synced_list_for_each_entry(pos, l, entry, flags)		\
+> +	for ((spin_lock_irqsave(&(l)->lock, flags),			      \
+> +	      pos = container_of((l)->head.next, typeof(*(pos)),entry.link)); \
+> +	     (prefetch((pos)->entry.link.next),				      \
+> +	      &(pos)->entry.link != (&(l)->head)			      \
+> +	        ? (atomic_inc(&(pos)->entry.usecount),			      \
+> +                   spin_unlock_irqrestore(&(l)->lock, flags), 1)	      \
+> +	        : (spin_unlock_irqrestore(&(l)->lock, flags), 0));	      \
+> +	     (spin_lock_irqsave(&(l)->lock, flags),			      \
+> +	      synced_list_wake(&(pos)->entry),				      \
+> +              pos = container_of((pos)->entry.link.next, typeof(*(pos)),      \
+> +				 entry.link)))
+
+(gad)
 
 
+And this:
 
---=-x60yO91/HTrJDwu/dQ1/
-Content-Disposition: inline; filename=test.c
-Content-Type: text/x-csrc; name=test.c; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+> +static int synced_list_clear(struct synced_list *head,
+> +			     int (*match)(struct synced_list_entry *,
+> +					  void *),
+> +			     void (*free)(struct synced_list_entry *),
+> +			     void *match_data)
+> +{
+> +	struct synced_list_entry *ent, *ent2;
+> +	int                      rv = -ENODEV;
+> +	int                      mrv = SYNCED_LIST_MATCH_CONTINUE;
+> +
+> +	spin_lock_irq(&head->lock);
+> + restart:
+> +	list_for_each_entry_safe(ent, ent2, &head->head, link) {
+> +		if (match) {
+> +			mrv = match(ent, match_data);
+> +			if (mrv == SYNCED_LIST_NO_MATCH)
+> +				continue;
+> +		}
+> +		if (atomic_read(&ent->usecount)) {
+> +			struct synced_list_entry_task_q e;
+> +			e.process = current;
+> +			list_add(&e.link, &ent->task_list);
+> +			__set_current_state(TASK_UNINTERRUPTIBLE);
+> +			spin_unlock_irq(&head->lock);
+> +			schedule();
+> +			spin_lock_irq(&head->lock);
+> +			list_del(&e.link);
+> +			goto restart;
+> +		}
+> +		list_del(&ent->link);
+> +		rv = 0;
+> +		if (free)
+> +			free(ent);
+> +		if (mrv == SYNCED_LIST_MATCH_STOP)
+> +			break;
+> +	}
+> +	spin_unlock_irq(&head->lock);
+> +	return rv;
+> +}
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <time.h>
-#include <unistd.h>
+Look awfully similar to wait_queue_head_t.  Are you sure existing
+infrastructure cannot be used?
 
-int main(int argc, char *argv[])
-{
-	struct stat buf1, buf2, buf3;
-	int fd;
+> 1 files changed, 692 insertions(+), 461 deletions(-)
 
-	if (argc != 2) {
-		printf("syntax: %s filename\n", argv[0]);
-		exit(1);
-	}
-	fd = open(argv[1], O_CREAT|O_EXCL|O_WRONLY, 0644);
-	if (fd == -1) {
-		perror("open(%s, O_CREAT|O_EXCL|O_WRONLY) failed\n", argv[1]);
-		exit(1);
-	}
-	if (fstat(fd, &buf1) == -1) {
-		perror("fstat() failed\n");
-		exit(1);
-	}
-	printf("File: %s, st_size = %lu, st_ctime = %s\n", argv[1],
-			buf1.st_size,
-			asctime(localtime(&buf1.st_ctime)));
-	close(fd);
-	sleep(2);
-	fd = open(argv[1], O_TRUNC|O_WRONLY);
-	if (fd == -1) {
-		perror("open(%s, O_TRUNC|O_WRONLY) failed\n", argv[1]);
-		exit(1);
-	}
-	if (fstat(fd, &buf2) == -1) {
-		perror("fstat() failed\n");
-		exit(1);
-	}
-	printf("File: %s, st_size = %lu, st_ctime = %s\n", argv[1],
-			buf2.st_size,
-			asctime(localtime(&buf2.st_ctime)));
-	if (buf1.st_ctime == buf2.st_ctime)
-		printf("Bad behaviour in open(%s, O_TRUNC)!\n", argv[1]);
-	sleep(2);
-	if (ftruncate(fd, 0) == -1) {
-		perror("ftruncate(0) failed\n");
-		exit(1);
-	}
-	if (fstat(fd, &buf3) == -1) {
-		perror("fstat() failed\n");
-		exit(1);
-	}
-	printf("File: %s, st_size = %lu, st_ctime = %s\n", argv[1],
-			buf3.st_size,
-			asctime(localtime(&buf3.st_ctime)));
-	if (buf2.st_ctime != buf3.st_ctime)
-		printf("Bad behaviour in ftruncate(0)!\n");
-	close(fd);
-	exit(0);
-}
-
---=-x60yO91/HTrJDwu/dQ1/--
-
+Ow.  Why is it worthwhile?

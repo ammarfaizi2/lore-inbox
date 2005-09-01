@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932463AbVIAPVV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030193AbVIAPWg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932463AbVIAPVV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 11:21:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932323AbVIAPVV
+	id S1030193AbVIAPWg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 11:22:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030199AbVIAPWg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 11:21:21 -0400
-Received: from fmr18.intel.com ([134.134.136.17]:30660 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932249AbVIAPVU convert rfc822-to-8bit (ORCPT
+	Thu, 1 Sep 2005 11:22:36 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:36481 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030193AbVIAPWf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 11:21:20 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [RFC/PATCH]reconfigure MSI registers after resume
-Date: Thu, 1 Sep 2005 08:20:50 -0700
-Message-ID: <C7AB9DA4D0B1F344BF2489FA165E502409A1201A@orsmsx404.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [RFC/PATCH]reconfigure MSI registers after resume
-thread-index: AcWui6U/IkAGxTgySmius/YA36ZZAwAeqAEQ
-From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-To: "Greg KH" <greg@kroah.com>, "Li, Shaohua" <shaohua.li@intel.com>
-Cc: "lkml" <linux-kernel@vger.kernel.org>, "akpm" <akpm@osdl.org>
-X-OriginalArrivalTime: 01 Sep 2005 15:20:51.0794 (UTC) FILETIME=[BD267320:01C5AF08]
+	Thu, 1 Sep 2005 11:22:35 -0400
+Subject: [PATCH] aacraid:  2.6.13 aacraid bad BUG_ON fix
+From: Mark Haverkamp <markh@osdl.org>
+To: James Bottomley <James.Bottomley@steeleye.com>,
+       Andrew Morton <akpm@osdl.org>
+Cc: linux-scsi <linux-scsi@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Mark Salyzyn <mark_salyzyn@adaptec.com>
+Content-Type: text/plain
+Date: Thu, 01 Sep 2005 08:19:23 -0700
+Message-Id: <1125587963.21124.9.camel@markh1.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-6) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, August 31, 2005 2:44 PM Greg KH wrote:
->>On Thu, Aug 18, 2005 at 01:35:46PM +0800, Shaohua Li wrote:
->> Hi,
->> It appears pci_enable_msi doesn't reconfigure msi registers if it
->> successfully look up a msi for a device. It assumes the data and
-address
->> registers unchanged after calling pci_disable_msi. But this isn't
-always
->> true, such as in a suspend/resume circle. In my test system, the
->> registers unsurprised become zero after a S3 resume. This patch fixes
-my
->> problem, please look at it. MSIX might have the same issue, but I
->> haven't taken a close look.
+This was noticed by Doug Bazamic and the fix found by Mark Salyzyn at
+Adaptec.
 
-> Tom, any comments on this?
+There was an error in the BUG_ON() statement that validated the
+calculated fib size which can cause the driver to panic.
 
-In the cases of suspend/resume, a device driver needs to restore its PCI
-configuration space registers, which include the MSI/MSI-X capability
-structures if a device uses MSI/MSI-X. I think reconfiguring MSI
-data/address each time a driver calls pci_enable_msi may not be
-necessary.
+Signed-off-by: Mark Haverkamp <markh@osdl.org>
 
-Thanks,
-Tom
+--- a/drivers/scsi/aacraid/aachba.c	2005-08-28 19:41:01.000000000 -0400
++++ b/drivers/scsi/aacraid/aachba.c	2005-09-01 08:05:29.118304656 -0400
+@@ -968,7 +968,7 @@
+ 		fibsize = sizeof(struct aac_read64) + 
+ 			((le32_to_cpu(readcmd->sg.count) - 1) * 
+ 			 sizeof (struct sgentry64));
+-		BUG_ON (fibsize > (sizeof(struct hw_fib) - 
++		BUG_ON (fibsize > (dev->max_fib_size - 
+ 					sizeof(struct aac_fibhdr)));
+ 		/*
+ 		 *	Now send the Fib to the adapter
+
+-- 
+Mark Haverkamp <markh@osdl.org>
+

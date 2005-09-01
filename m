@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030378AbVIAU3I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030375AbVIAUaM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030378AbVIAU3I (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 16:29:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030374AbVIAU3I
+	id S1030375AbVIAUaM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 16:30:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030377AbVIAUaL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 16:29:08 -0400
-Received: from smtp.dkm.cz ([62.24.64.34]:50446 "HELO smtp.dkm.cz")
-	by vger.kernel.org with SMTP id S1030375AbVIAU3H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 16:29:07 -0400
-Message-ID: <43176488.2080608@rulez.cz>
-Date: Thu, 01 Sep 2005 22:28:56 +0200
-From: iSteve <isteve@rulez.cz>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Thu, 1 Sep 2005 16:30:11 -0400
+Received: from host-84-9-201-83.bulldogdsl.com ([84.9.201.83]:11401 "EHLO
+	aeryn.fluff.org.uk") by vger.kernel.org with ESMTP id S1030375AbVIAUaK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 16:30:10 -0400
+Date: Thu, 1 Sep 2005 21:30:06 +0100
+From: Ben Dooks <ben-lkinux@fluff.org>
 To: linux-kernel@vger.kernel.org
-Subject: SysFS, module names and .name
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH] Documentation/sparse snapshot URL
+Message-ID: <20050901203006.GA17740@home.fluff.org>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="RnlQjJ0d97Da+TV1"
+Content-Disposition: inline
+X-Disclaimer: I speak for me, myself, and the other one of me.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
-in sysfs, /sys/bus/*/drivers lists the driver names, with their exported 
-.name (eg. '.name = "EMU10K1_Audigy"' in the module code, from now on 
-'driver name'). In /sys/modules, the kernel modules are listed with 
-their module name, eg. snd_emu10k1. However, it seems to me that in 
-sysfs, there is no way in particular to tell, which module has which 
-.name. That is, that snd_emu10k1 is EMU10K1_Audigy and vice versa.
 
-I wonder whether it wouldn't be possible to add a symlink to the 
-particular module from the driver, and/or from the module to the driver, 
-so the list of devices handled by the module and the module name would 
-be accessible. This way, I would know which driver name corresponds to 
-which module name and vice versa.
+--RnlQjJ0d97Da+TV1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Or am I just boldly missing something, and there is a way how to do this 
-from userspace, preferably without reading /proc/kcore?
+The URL for Documentation/sparse is wrong now that it is
+in git.
 
-Thanks in advance for reply.
+Signed-off-by: Ben Dooks <ben-linux@fluff.org>
 
-  - iSteve
+--RnlQjJ0d97Da+TV1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="sparse-git-place.patch"
+
+diff -urN -X ../dontdiff linux-2.6.13/Documentation/sparse.txt linux-2.6.13-bjd1/Documentation/sparse.txt
+--- linux-2.6.13/Documentation/sparse.txt	2005-06-17 20:48:29.000000000 +0100
++++ linux-2.6.13-bjd1/Documentation/sparse.txt	2005-09-01 21:28:27.000000000 +0100
+@@ -57,7 +57,7 @@
+ 
+ and DaveJ has tar-balls at
+ 
+-	http://www.codemonkey.org.uk/projects/bitkeeper/sparse/
++	http://www.codemonkey.org.uk/projects/git-snapshots/sparse/
+ 
+ 
+ Once you have it, just do
+
+--RnlQjJ0d97Da+TV1--

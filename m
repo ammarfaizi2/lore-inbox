@@ -1,53 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965173AbVIAOyS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965172AbVIAO6K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965173AbVIAOyS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 10:54:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965175AbVIAOyS
+	id S965172AbVIAO6K (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 10:58:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965175AbVIAO6K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 10:54:18 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:33515 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965173AbVIAOyR (ORCPT
+	Thu, 1 Sep 2005 10:58:10 -0400
+Received: from hera.kernel.org ([209.128.68.125]:62660 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S965172AbVIAO6I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 10:54:17 -0400
-Date: Thu, 1 Sep 2005 22:59:48 +0800
-From: David Teigland <teigland@redhat.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 01/14] GFS: headers
-Message-ID: <20050901145948.GS25581@redhat.com>
-References: <20050901135442.GA25581@redhat.com> <1125584374.5025.18.camel@laptopd505.fenrus.org>
+	Thu, 1 Sep 2005 10:58:08 -0400
+Date: Thu, 1 Sep 2005 11:51:56 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Dominik Brodowski <linux@dominikbrodowski.net>,
+       linux-ppc-embedded <linuxppc-embedded@ozlabs.org>,
+       linux-kernel@vger.kernel.org, Russell King <rmk+lkml@arm.linux.org.uk>,
+       Dan Malek <dan@embeddededge.com>, Pantelis Antoniou <panto@intracom.gr>
+Subject: Re: [PATCH] MPC8xx PCMCIA driver
+Message-ID: <20050901145156.GC15489@dmt.cnet>
+References: <20050830024840.GA5381@dmt.cnet> <20050901085319.GB6285@isilmar.linta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1125584374.5025.18.camel@laptopd505.fenrus.org>
+In-Reply-To: <20050901085319.GB6285@isilmar.linta.de>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 01, 2005 at 04:19:34PM +0200, Arjan van de Ven wrote:
 
-> > +/* Endian functions */
+Thu, Sep 01, 2005 at 10:53:19AM +0200, Dominik Brodowski wrote:
+> Hi,
 > 
-> ehhhh again why?? 
-> Why is this a compiletime hack?
-> Either you care about either-endian on disk, at which point it has to be
-> a runtime thing, or you make the on disk layout fixed endian, at which
-> point you really shouldn't abstract be16_to_cpu etc any further!
+> On Mon, Aug 29, 2005 at 11:48:40PM -0300, Marcelo Tosatti wrote:
+> > Russell: The driver is using pccard_nonstatic_ops for card window
+> > management, even though the driver its marked SS_STATIC_MAP (using
+> > mem->static_map).
+> 
+> This is obviously broken. Where does it fail if pccard_static_ops is used?
 
-Again, on-disk is fixed little endian, so we have for example:
+IIRC pcmcia_request_io() fails to dynamically allocate IO windows for PCMCIA 
+cards because find_io_region returns NULL. 
 
-#define gfs2_32_to_cpu le32_to_cpu
-#define cpu_to_gfs2_32 cpu_to_le32
+OTOH, as Magnus noted, the memory windows are static:
 
-To _test_ and _verify_ the endian-handling of the code we can
-#define GFS2_ENDIAN_BIG which switches the above to:
+ * Because of the lacking offset register we must map the whole card.
+ * We assign each memory window PCMCIA_MEM_WIN_SIZE address space.
+ * Make sure there is (PCMCIA_MEM_WIN_SIZE * PCMCIA_MEM_WIN_NO
+ * * PCMCIA_SOCKETS_NO) bytes at PCMCIA_MEM_WIN_BASE.
+ * The i/o windows are dynamically allocated at PCMCIA_IO_WIN_BASE.
+ * They are maximum 64KByte each...
 
-#define gfs2_32_to_cpu to be32_to_cpu
-#define cpu_to_gfs2_32 to cpu_to_be32
+socket[i].socket.features = SS_CAP_PCCARD | SS_CAP_MEM_ALIGN | SS_CAP_STATIC_MAP;
+socket[i].socket.io_offset = 0;
 
-We offered to removed this when I explained it before.  It sounds like it
-would give you some comfort so I'll just go ahead and do it barring any
-pleas otherwise.
+> > +typedef struct  {
+> > +	u_int regbit;
+> > +	u_int eventbit;
+> > +} event_table_t;
+> 
+> No typedefs, please.
 
-Dave
-
+OK, will fix.

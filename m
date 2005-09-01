@@ -1,99 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030222AbVIAQFr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030221AbVIAQKF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030222AbVIAQFr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 12:05:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030223AbVIAQFq
+	id S1030221AbVIAQKF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 12:10:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030223AbVIAQKF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 12:05:46 -0400
-Received: from admin.zirkelwireless.com ([209.216.203.65]:43150 "EHLO
-	admin.zirkelwireless.com") by vger.kernel.org with ESMTP
-	id S1030222AbVIAQFq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 12:05:46 -0400
-Message-ID: <4317268B.20306@tungstengraphics.com>
-Date: Thu, 01 Sep 2005 10:04:27 -0600
-From: Brian Paul <brian.paul@tungstengraphics.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en-us, en
+	Thu, 1 Sep 2005 12:10:05 -0400
+Received: from mxsf35.cluster1.charter.net ([209.225.28.160]:28561 "EHLO
+	mxsf35.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S1030221AbVIAQKE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 12:10:04 -0400
+X-IronPort-AV: i="3.96,161,1122868800"; 
+   d="scan'208"; a="1477301554:sNHT481399202"
 MIME-Version: 1.0
-To: Discuss issues related to the xorg tree 
-	<xorg@lists.freedesktop.org>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: State of Linux graphics
-References: <9e47339105083009037c24f6de@mail.gmail.com>	<1125422813.20488.43.camel@localhost>	<20050831063355.GE27940@tuolumne.arden.org>	<1125512970.4798.180.camel@evo.keithp.com>	<20050831200641.GH27940@tuolumne.arden.org>	<1125522414.4798.222.camel@evo.keithp.com>	<20050901015859.GA11367@tuolumne.arden.org>	<1125547173.4798.289.camel@evo.keithp.com>	<43171D33.9020802@tungstengraphics.com> <1125590991.15768.55.camel@localhost.localdomain>
-In-Reply-To: <1125590991.15768.55.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17175.10191.634957.119742@smtp.charter.net>
+Date: Thu, 1 Sep 2005 12:09:51 -0400
+From: "John Stoffel" <john@stoffel.org>
+To: Dominik Karall <dominik.karall@gmx.net>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-mm1
+In-Reply-To: <200509011738.45821.dominik.karall@gmx.net>
+References: <20050901035542.1c621af6.akpm@osdl.org>
+	<200509011738.45821.dominik.karall@gmx.net>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Iau, 2005-09-01 at 09:24 -0600, Brian Paul wrote:
-> 
->>If the blending is for screen-aligned rects, glDrawPixels would be a 
->>far easier path to optimize than texturing.  The number of state 
->>combinations related to texturing is pretty overwhelming.
-> 
-> 
-> As doom showed however once you can cut down some of the combinations
-> particularly if you know the texture orientation is limited you can
-> really speed it up.
-> 
-> Blending is going to end up using textures onto flat surfaces facing the
-> viewer which are not rotated or skewed.
+>>>>> "Dominik" == Dominik Karall <dominik.karall@gmx.net> writes:
 
-Hi Alan,
+Dominik> When I switch on my external harddisk, which is connected
+Dominik> through usb, the kernel hangs. First time I did that at
+Dominik> bootup there were a lot of backtraces printed on the screen
+Dominik> but they did not find the way in the logfile :/ Now I
+Dominik> switched the drive on while running and everything freezes
+Dominik> after those messages:
 
-It's other (non-orientation) texture state I had in mind:
+Dominik> usb 1-2.2: new high speed USB device using ehci_hcd and address 3
+Dominik> scsi2 : SCSI emulation for USB Mass Storage devices
+Dominik> usb-storage: device found at 3
+Dominik> usb-storage: waiting for device to settle before scanning
+Dominik>   Vendor: ST325082  Model: 3A                Rev: 3.02
+Dominik>   Type:   Direct-Access                      ANSI SCSI revision: 00
+Dominik> SCSI device sda: 488397168 512-byte hdwr sectors (250059 MB)
+Dominik> sda: assuming drive cache: write through
+Dominik> SCSI device sda: 488397168 512-byte hdwr sectors (250059 MB)
+Dominik> sda: assuming drive cache: write through
 
-- the texel format (OpenGL has over 30 possible texture formats).
-- texture size and borders
-- the filtering mode (linear, nearest, etc)
-- coordinate wrap mode (clamp, repeat, etc)
-- env/combine mode
-- multi-texture state
+Have you updated the firmware on the USB enclosure?  I have one using
+the Prolific chipset for both USB/Firewire and it was crappy until I
+upgraded the firmware on there.  It made all the difference.  
 
-It basically means that the driver may have to do state checks similar 
-to this to determine if it can use optimized code.  An excerpt from Mesa:
+Also, can you use this USB enclosure on Windows or another computer?
+And which kernel version are you running?  It's not clear if your on
+2.6.13-mm1 or some other version.  
 
-          if (ctx->Texture._EnabledCoordUnits == 0x1
-              && !ctx->FragmentProgram._Active
-              && ctx->Texture.Unit[0]._ReallyEnabled == TEXTURE_2D_BIT
-              && texObj2D->WrapS == GL_REPEAT
-	     && texObj2D->WrapT == GL_REPEAT
-              && texObj2D->_IsPowerOfTwo
-              && texImg->Border == 0
-              && texImg->Width == texImg->RowStride
-              && (format == MESA_FORMAT_RGB || format == MESA_FORMAT_RGBA)
-	     && minFilter == magFilter
-	     && ctx->Light.Model.ColorControl == GL_SINGLE_COLOR
-	     && ctx->Texture.Unit[0].EnvMode != GL_COMBINE_EXT) {
-	    if (ctx->Hint.PerspectiveCorrection==GL_FASTEST) {
-	       if (minFilter == GL_NEAREST
-		   && format == MESA_FORMAT_RGB
-		   && (envMode == GL_REPLACE || envMode == GL_DECAL)
-		   && ((swrast->_RasterMask == (DEPTH_BIT | TEXTURE_BIT)
-			&& ctx->Depth.Func == GL_LESS
-			&& ctx->Depth.Mask == GL_TRUE)
-		       || swrast->_RasterMask == TEXTURE_BIT)
-		   && ctx->Polygon.StippleFlag == GL_FALSE
-                    && ctx->Visual.depthBits <= 16) {
-		  if (swrast->_RasterMask == (DEPTH_BIT | TEXTURE_BIT)) {
-		     USE(simple_z_textured_triangle);
-		  }
-		  else {
-		     USE(simple_textured_triangle);
-		  }
-	       }
-          [...]
+More details would be good too, such as:
 
-That's pretty ugly.  Plus the rasterization code for textured 
-triangles is fairly complicated.
+	lsusb
+	cat /proc/version
+	
 
-But the other significant problem is the application has to be sure it 
-has set all the GL state correctly so that the fast path is really 
-used.  If it gets one thing wrong, you may be screwed.  If different 
-drivers optimize slightly different paths, that's another problem.
+What happens if you unplug the drive when the system hangs?  Does it
+recover?  And try powering up the enclosure without it being hooked to
+anything, then once 30 seconds have passed, hook it upto the Linux box
+and see what happens then.  Maybe the power on stuff is doing strange
+things.
 
-glDrawPixels would be simpler for both the implementor and user.
-
--Brian
+John

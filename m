@@ -1,78 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030206AbVIAPep@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030205AbVIAPdr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030206AbVIAPep (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 11:34:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030207AbVIAPep
+	id S1030205AbVIAPdr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 11:33:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030206AbVIAPdr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 11:34:45 -0400
-Received: from mail.gmx.net ([213.165.64.20]:56535 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1030206AbVIAPeo (ORCPT
+	Thu, 1 Sep 2005 11:33:47 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:61354 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030205AbVIAPdp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 11:34:44 -0400
-X-Authenticated: #8834078
-From: Dominik Karall <dominik.karall@gmx.net>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.13-mm1
-Date: Thu, 1 Sep 2005 17:38:38 +0200
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org
-References: <20050901035542.1c621af6.akpm@osdl.org>
-In-Reply-To: <20050901035542.1c621af6.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1538208.Zr0KNTN1S5";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200509011738.45821.dominik.karall@gmx.net>
-X-Y-GMX-Trusted: 0
+	Thu, 1 Sep 2005 11:33:45 -0400
+Date: Thu, 1 Sep 2005 10:30:38 -0500
+From: Nathan Lynch <nathanl@austin.ibm.com>
+To: Natalie.Protasevich@unisys.com
+Cc: shaohua.li@intel.com, akpm@osdl.org, zwane@arm.linux.org.uk,
+       hotplug_sig@lists.osdl.org, linux-kernel@vger.kernel.org,
+       lhcs-devel@lists.sourceforge.net, ak@suse.de
+Subject: Re: [Hotplug_sig] [patch 1/1] Hot plug CPU to support physical add of new processors (i386)
+Message-ID: <20050901153038.GR23400@localhost.localdomain>
+References: <20050831121311.5FC7C57D99@linux.site>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050831121311.5FC7C57D99@linux.site>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1538208.Zr0KNTN1S5
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Natalie.Protasevich@unisys.com wrote:
 
-On Thursday 01 September 2005 12:55, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13/2.6.=
-13
->-mm1/
+> +#ifdef CONFIG_HOTPLUG_CPU
+> +	if (cpu_online(cpu)) {
+> +#else
+>  	if (cpu_online(cpu) || !cpu_present(cpu)) {
+> +#endif
+>  		ret = -EINVAL;
+>  		goto out;
+>  	}
 
-When I switch on my external harddisk, which is connected through usb, the=
-=20
-kernel hangs. First time I did that at bootup there were a lot of backtrace=
-s=20
-printed on the screen but they did not find the way in the logfile :/
-Now I switched the drive on while running and everything freezes after thos=
-e=20
-messages:
+Why this change?  I think the cpu_present check is needed for ppc64
+since it has non-present cpus in sysfs.
 
-usb 1-2.2: new high speed USB device using ehci_hcd and address 3
-scsi2 : SCSI emulation for USB Mass Storage devices
-usb-storage: device found at 3
-usb-storage: waiting for device to settle before scanning
-  Vendor: ST325082  Model: 3A                Rev: 3.02
-  Type:   Direct-Access                      ANSI SCSI revision: 00
-SCSI device sda: 488397168 512-byte hdwr sectors (250059 MB)
-sda: assuming drive cache: write through
-SCSI device sda: 488397168 512-byte hdwr sectors (250059 MB)
-sda: assuming drive cache: write through
-
-dominik
-
---nextPart1538208.Zr0KNTN1S5
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2-ecc0.1.6 (GNU/Linux)
-
-iQCVAwUAQxcghQvcoSHvsHMnAQI5ygQAh0wYbI7cjT6VbrJ8ajuCR7xT19aUHD9/
-dHT81Pf94zVMas8/sVPn6GXobUfI+T63nHef7kA6lR2bgJYo2EWudvSV9ScLUf2G
-6s27MB5Znrt/GIPqThJJmSQ5LhWplNY8k2rRk25Q1TklUEgU79OUWGaNVfoUhzyO
-v/Nb339Rh6k=
-=q1Aa
------END PGP SIGNATURE-----
-
---nextPart1538208.Zr0KNTN1S5--

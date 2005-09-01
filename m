@@ -1,93 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965164AbVIAOlc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965147AbVIAOqL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965164AbVIAOlc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 10:41:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965160AbVIAOlc
+	id S965147AbVIAOqL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 10:46:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965162AbVIAOqL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 10:41:32 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:5301 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965148AbVIAOlb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 10:41:31 -0400
-Date: Thu, 1 Sep 2005 15:40:38 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Brett Russ <russb@emc.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.13] libata: Marvell SATA support (PIO mode)
-Message-ID: <20050901144038.GA25830@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Brett Russ <russb@emc.com>, Jeff Garzik <jgarzik@pobox.com>,
-	linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20050830183625.BEE1520F4C@lns1058.lss.emc.com> <4314C604.4030208@pobox.com> <20050901142754.B93BF27137@lns1058.lss.emc.com>
+	Thu, 1 Sep 2005 10:46:11 -0400
+Received: from ns9.hostinglmi.net ([213.194.149.146]:24499 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S965147AbVIAOqK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 10:46:10 -0400
+Date: Thu, 1 Sep 2005 16:49:56 +0200
+From: DervishD <lkml@dervishd.net>
+To: Brice Goglin <Brice.Goglin@ens-lyon.org>
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: USB Storage speed regression since 2.6.12
+Message-ID: <20050901144956.GB83@DervishD>
+Mail-Followup-To: Brice Goglin <Brice.Goglin@ens-lyon.org>,
+	Linux-kernel <linux-kernel@vger.kernel.org>
+References: <20050901113614.GA63@DervishD> <4316EAD1.70300@ens-lyon.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20050901142754.B93BF27137@lns1058.lss.emc.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <4316EAD1.70300@ens-lyon.org>
 User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Organization: DervishD
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/pci.h>
-> +#include <linux/init.h>
-> +#include <linux/blkdev.h>
-> +#include <linux/delay.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/sched.h>
-> +#include <linux/dma-mapping.h>
-> +#include "scsi.h"
+    Salut Brice :)
 
-pleaese don't include "scsi.h" in new drivers.  It will go away soon.
-Use the <scsi/*.h> headers and get rid of usage of obsolete constucts
-in your driver.
+ * Brice Goglin <Brice.Goglin@ens-lyon.org> dixit:
+> Le 01.09.2005 13:36, DervishD a écrit :
+> >     The lack of speed seems to affect only the OHCI driver. My test
+> > was done over a PCI USB 2.0 card, ALi chipset, OHCI driver (well
+> > EHCI+OHCI) and using a full speed device capable of 12MBps. The
+> > average measured speeds are:
+> > 
+> >     - 2.4.31:           about 450Kb/seg
+> >     - 2.6.11-Debian:    about 800Kb/seg
+> >     - 2.6.11.12:        about 820Kb/seg
+> >     - 2.6.12.x:         about 200Kb/seg
+> >     - 2.6.13:           about 200Kb/seg
+> Are you mounting this storage with vfat and 'sync' option ?
 
-> +static inline void writelfl(unsigned long data, void __iomem *addr)
-> +{
-> +	writel(data, addr);
-> +	(void) readl(addr);	/* flush */
+    Yes, that may be the problem, but I think that is not the only
+problem, see below.
 
-no need for the (void) case.
+> IIRC, sync support for vfat was added around 2.6.12, making
+> write way slower since it's now really synchron.
 
-> +static void mv_irq_clear(struct ata_port *ap)
-> +{
-> +	return;
-> +}
+    The fact is that if I mount the device under 2.4.31 using the
+'sync' option, the speed are the ones shown above, but if I mount
+them with 'async', the speed is that of the light ;) I mean, the
+'sync' option is doing something even in 2.4.31. The same applies to
+2.6.11, but I have to test in 2.6.12 & 13.
 
-no need for the return
+    Thanks for your help. If the problem is just that, the sync
+option, I'll drop a note to the mailing list. Merci mille fois ;)
 
-> +	return (ofs);
+    Raúl Núñez de Arenas Coronado
 
-please remove the braces around the return value
-
-> +		if (ap && 
-> +		    (NULL != (qc = ata_qc_from_tag(ap, ap->active_tag)))) {
-> +			VPRINTK("port %u IRQ found for qc, ata_status 0x%x\n",
-> +				port,ata_status);
-> +			BUG_ON(0xffU == ata_status);
-> +			/* mark qc status appropriately */
-> +			ata_qc_complete(qc, ata_status);
-> +		}
-
-the formatting looks rather odd.  What about;
-
-		if (ap) {
-			qc = ata_qc_from_tag(ap, ap->active_tag);
-			if (qc) {
-				VPRINTK("port %u IRQ found for qc, "
-					"ata_status 0x%x\n",
-					port, ata_status);
-				BUG_ON(0xffU == ata_status);
-				/* mark qc status appropriately */
-				ata_qc_complete(qc, ata_status);
-			}
-		}
-
-> +      err_out_hpriv:
-
-rather odd placement of the goto labels.  If you look at kernel code it's
-always either not indented at all, or indented a single space.
-
+-- 
+Linux Registered User 88736 | http://www.dervishd.net
+http://www.pleyades.net & http://www.gotesdelluna.net
+It's my PC and I'll cry if I want to...

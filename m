@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030375AbVIAUaM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030369AbVIAUiz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030375AbVIAUaM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 16:30:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030377AbVIAUaL
+	id S1030369AbVIAUiz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 16:38:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030370AbVIAUiz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 16:30:11 -0400
-Received: from host-84-9-201-83.bulldogdsl.com ([84.9.201.83]:11401 "EHLO
-	aeryn.fluff.org.uk") by vger.kernel.org with ESMTP id S1030375AbVIAUaK
+	Thu, 1 Sep 2005 16:38:55 -0400
+Received: from wproxy.gmail.com ([64.233.184.195]:60 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030369AbVIAUiz convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 16:30:10 -0400
-Date: Thu, 1 Sep 2005 21:30:06 +0100
-From: Ben Dooks <ben-lkinux@fluff.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Documentation/sparse snapshot URL
-Message-ID: <20050901203006.GA17740@home.fluff.org>
+	Thu, 1 Sep 2005 16:38:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=qqCqLqYqaXzyD9MPn4DF6NFxJz492OlwEHY046dY7pYBDWZ4L66rt40WRflIT1xWrbzXTWbWOH+QKRAA+pJivsnP07WT99eHw38IdQRSmwWQ+iqF43feNYehYvVvhLfZ6G111QgSZGqIWLrXtM1T8Qoh3mc0br4BkFcz0qFlWC4=
+Message-ID: <9e47339105090113381222c9d0@mail.gmail.com>
+Date: Thu, 1 Sep 2005 16:38:54 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+To: jg@freedesktop.org,
+       Discuss issues related to the xorg tree 
+	<xorg@lists.freedesktop.org>
+Subject: Re: State of Linux graphics
+Cc: Andreas Hauser <andy@splashground.de>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1125605907.10488.4.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="RnlQjJ0d97Da+TV1"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-X-Disclaimer: I speak for me, myself, and the other one of me.
-User-Agent: Mutt/1.5.9i
+References: <43171D33.9020802@tungstengraphics.com>
+	 <1125590374.9419.35.camel@localhost.localdomain>
+	 <20050901163958.9589.qmail@paladin.fortunaty.net>
+	 <1125605907.10488.4.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 9/1/05, Jim Gettys <jg@freedesktop.org> wrote:
+> Not at all.
+> 
+> We're pursuing two courses of action right now, that are not mutually
+> exclusive.
+> 
+> Jon Smirl's argument is that we can satisfy both needs simultaneously
+> with a GL only strategy, and that doing two is counter productive,
+> primarily on available resource grounds.
+> 
+> My point is that I don't think the case has (yet) been made to put all
+> eggs into that one basket, and that some of the arguments presented for
+> that course of action don't hold together.
 
---RnlQjJ0d97Da+TV1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+We're not putting all of our eggs in one basket, you keep forgetting
+that we already have a server that supports all of the currently
+existing hardware. The question is where do we want to put our future
+eggs.
 
-The URL for Documentation/sparse is wrong now that it is
-in git.
-
-Signed-off-by: Ben Dooks <ben-linux@fluff.org>
-
---RnlQjJ0d97Da+TV1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="sparse-git-place.patch"
-
-diff -urN -X ../dontdiff linux-2.6.13/Documentation/sparse.txt linux-2.6.13-bjd1/Documentation/sparse.txt
---- linux-2.6.13/Documentation/sparse.txt	2005-06-17 20:48:29.000000000 +0100
-+++ linux-2.6.13-bjd1/Documentation/sparse.txt	2005-09-01 21:28:27.000000000 +0100
-@@ -57,7 +57,7 @@
- 
- and DaveJ has tar-balls at
- 
--	http://www.codemonkey.org.uk/projects/bitkeeper/sparse/
-+	http://www.codemonkey.org.uk/projects/git-snapshots/sparse/
- 
- 
- Once you have it, just do
-
---RnlQjJ0d97Da+TV1--
+-- 
+Jon Smirl
+jonsmirl@gmail.com

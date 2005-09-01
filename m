@@ -1,80 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965109AbVIAN5Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965121AbVIAOIs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965109AbVIAN5Z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 09:57:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965118AbVIAN5Z
+	id S965121AbVIAOIs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 10:08:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965125AbVIAOIs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 09:57:25 -0400
-Received: from nproxy.gmail.com ([64.233.182.204]:24639 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965109AbVIAN5Y convert rfc822-to-8bit
+	Thu, 1 Sep 2005 10:08:48 -0400
+Received: from ctb-mesg9.saix.net ([196.25.240.89]:48838 "EHLO
+	ctb-mesg9.saix.net") by vger.kernel.org with ESMTP id S965121AbVIAOIr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 09:57:24 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=AS/b8TDlP+bEU9+FDMENuwie5B58Nr815oEQ5az+1yAZjgczL+GwiMKPrTkWa7xQYNYZ1pBlpIVz6gSnPgXov4TZZjSFps0jqCNtFqPGUZPRTX+pXYJzPwayolMfO/c7F9dMWhxYl7LYgvfGmrXRIK3llAyIZ7/r2pIA81gYGkw=
-Message-ID: <69304d110509010657d397a6f@mail.gmail.com>
-Date: Thu, 1 Sep 2005 15:57:22 +0200
-From: Antonio Vargas <windenntw@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: State of Linux graphics
-Cc: Ian Romanick <idr@us.ibm.com>, Allen Akin <akin@pobox.com>,
-       Discuss issues related to the xorg tree 
-	<xorg@lists.freedesktop.org>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1125570042.15768.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <9e47339105083009037c24f6de@mail.gmail.com>
-	 <1125422813.20488.43.camel@localhost>
-	 <20050831063355.GE27940@tuolumne.arden.org>
-	 <1125512970.4798.180.camel@evo.keithp.com>
-	 <20050831200641.GH27940@tuolumne.arden.org>
-	 <1125522414.4798.222.camel@evo.keithp.com>
-	 <20050901015859.GA11367@tuolumne.arden.org>
-	 <43167150.1040808@us.ibm.com>
-	 <69304d1105083123007c00f9e0@mail.gmail.com>
-	 <1125570042.15768.3.camel@localhost.localdomain>
+	Thu, 1 Sep 2005 10:08:47 -0400
+Message-ID: <43170AF0.7060703@geograph.co.za>
+Date: Thu, 01 Sep 2005 16:06:40 +0200
+From: Zoltan Szecsei <zoltans@geograph.co.za>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Svetoslav Slavtchev <svetljo@gmx.de>
+CC: lkml <linux-kernel@vger.kernel.org>,
+       Aivils Stoss <aivils@users.sourceforge.net>
+Subject: Re: multiple independent keyboard kernel support
+References: <3531.1125581750@www27.gmx.net>
+In-Reply-To: <3531.1125581750@www27.gmx.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/1/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> On Iau, 2005-09-01 at 08:00 +0200, Antonio Vargas wrote:
-> > 2. whole screen z-buffer, for depth comparison between the pixels
-> > generated from each window.
-> 
-> That one I question in part - if the rectangles are (as is typically the
-> case) large then the Z buffer just ups the memory accesses. I guess for
-> round windows it might be handy.
-> 
+Svetoslav Slavtchev wrote:
 
-There are multiple ways to enhance the speed for zbuffer:
+>Hi,
+>sorry for replying in this way, but i'm not subscribed
+>to lkml, and please do CC me
+>
+>ruby is still maintained and the list is pretty active
+>although that is mostly volunteer work from Aivils
+>  
+>
+Thats good. Googling for it I found too many hits, and the ones I looked 
+at were all older than Dec 2003.
 
-1. Use an hierarchical z-buffer
+>it's running pretty stable on x86 and x86_64
+>and there are patches almost all recent 2.6 kernels (upto 2.6.12)
+>  
+>
+excellent - I'm running 2.6.11-21.8 (SuSE 9.3)
 
-Divide the screen in 16x16 pixel tiles, and then a per-tile minimum
-value. When rendering a poly, you first check the tile-z against the
-poly-z and if it fails you can skip 256 pixels in one go.
+>and IIRC another person is maintaing the backport to linux-2.4
+>
+>please check out this site : http://www.ltn.lv/~aivils/
+>  
+>
+Have bookmarked it - thanks.
 
-2. Use scanline-major rendering:
+>best,
+>
+>svetljo
+>
+>PS.
+>from user experiances, i doubt you'll be able to get it
+>running with onboard graphic or with "fake" multihead card
+>  
+>
+Not an issue - I intend to use onboard and 2 PCI (nvidia FX5200 based) 
+cards. (or maybe even 2 PCIExpress in discreet mode on a mobo with 2 
+slots. - dont know yet....)
 
-for_each_scanline{
-  clear_z_for_scanline();
-  for_each_polygon{
-    draw_pixels_for_current_polygon_and scanline();
-  }
-}
+>/* under "fake" i do understand almost all cards on the market
+> that are dualhead, and under "real" Matrox's G200/G450 MMS
+> which do have 4 real chips on it */
+>  
+>
+Yes - I understand this too and I have also noted that this doesn't 
+work. ie: you *need* seperate graphics controllers.
 
-This is easily done by modeling the scanliner with a coroutine for each polygon
-to be painted. The zbuffer is reduced to a scanline and is reused for
-all scanlines,
-so it's rather fast :)
+Cheers & many thanks for the pointers,
+Zoltan
+
 
 -- 
-Greetz, Antonio Vargas aka winden of network
 
-http://wind.codepixel.com/
+==================================
+Geograph (Pty) Ltd
+P.O. Box 31255
+Tokai
+7966
+Tel:    +27-21-7018492
+Fax:	+27-86-6115323
+Mobile: +27-83-6004028
+==================================
 
-Las cosas no son lo que parecen, excepto cuando parecen lo que si son.
+

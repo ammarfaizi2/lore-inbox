@@ -1,94 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbVIAMCt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750867AbVIAMT3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750741AbVIAMCt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 08:02:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750744AbVIAMCt
+	id S1750867AbVIAMT3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 08:19:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750887AbVIAMT3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 08:02:49 -0400
-Received: from fmr18.intel.com ([134.134.136.17]:27623 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1750741AbVIAMCs convert rfc822-to-8bit (ORCPT
+	Thu, 1 Sep 2005 08:19:29 -0400
+Received: from zproxy.gmail.com ([64.233.162.196]:55281 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750842AbVIAMT2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 08:02:48 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: FW: [RFC] A more general timeout specification
-Date: Thu, 1 Sep 2005 04:59:37 -0700
-Message-ID: <F989B1573A3A644BAB3920FBECA4D25A042B057C@orsmsx407>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: FW: [RFC] A more general timeout specification
-Thread-Index: AcWu1lS+ehYdILyLQwyYRfTV88K0sAAE8c3A
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "Roman Zippel" <zippel@linux-m68k.org>
-Cc: <akpm@osdl.org>, <joe.korty@ccur.com>, <george@mvista.com>,
-       <johnstul@us.ibm.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 01 Sep 2005 12:01:39.0242 (UTC) FILETIME=[E8DFC0A0:01C5AEEC]
+	Thu, 1 Sep 2005 08:19:28 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=pt4emMjZq0f5ijq1Js+4jPjEhreoVKGO9OkNbbZM5bbx2Cr6wrpv+F/UN9VPJ0ebElnCamG8hqAmu4gsV4TmMeotWgCkeJJHB8vp1KH4XuMJO//r99KmFg9NKnGrZuGU0Mq1xwCELBDyjHPx2AiZlKmilwTrXeEDWS740qkuQkE=
+Date: Thu, 1 Sep 2005 16:28:50 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Denis Vlasenko <vda@ilport.com.ua>
+Cc: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH] "space before \n" removal
+Message-ID: <20050901122850.GA12870@mipter.zuzino.mipt.ru>
+References: <200509011400.25793.vda@ilport.com.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200509011400.25793.vda@ilport.com.ua>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Roman Zippel [mailto:zippel@linux-m68k.org]
->On Wed, 31 Aug 2005, Perez-Gonzalez, Inaky wrote:
->
->> Hmm, I cannot think of more ways to specify a timeout than how
->> long I want to wait (relative) or until when (absolute) and which
->> is the reference clock. And they don't seem broken to me, common
->> sense, in any case. Do you have any examples?
->
->You still didn't explain what's the point in choosing different clock
->sources for a _timeout_.
+On Thu, Sep 01, 2005 at 02:00:25PM +0300, Denis Vlasenko wrote:
+> There are 290 patches like this:
+> 
+> -       printk ("scsi%d : not initializing, no I/O or memory mapping known \n",
+> +       printk ("scsi%d : not initializing, no I/O or memory mapping known\n",
 
-The same reasons that compel to have CLOCK_REALTIME or 
-CLOCK_MONOTONIC, for example. Or the need to time out on a
-high resolution clock. 
+> Feel free to download and apply to your driver.
 
-A certain application might have a need for a 10ms timeout, 
-but another one might have it on 100us--modern CPUs make that
-more than possible. The precission of your time source permeates
-to the precission of your timeout.
+Megapatch was added to -kj. Minor rejects fixed.
 
-[of course, now at the end it is still kernel time, but the 
-ongoing revamp work on timers will change some of that, one
-way or another].
+289 files changed, 998 insertions(+), 998 deletions(-)
+------------------------------------------------------
+[PATCH] "space before \n" removal
 
->> Different versions of the same function that do relative, absolute.
->> If I keep going that way, the reason becomes:
->>
->> sys_mutex_lock
->> sys_mutex_lock_timed_relative_clock_realtime
->> sys_mutex_lock_timed_absolute_clock_realtime
->> sys_mutex_lock_timed_relative_clock_monotonic
->> sys_mutex_lock_timed_absolute_clock_monotonic
->> sys_mutex_lock_timed_relative_clock_monotonic_highres
->> sys_mutex_lock_timed_absolute_clock_monotonic_highres
->
->Hiding it behind an API makes it better?
+Signed-off-by: Denis Vlasenko <vda@ilport.com.ua>
 
-It certainly cuts out cruft and to my not-so-trained eye, makes it
-cleaner and easier to maintain.
-
->You didn't answer my other question, let's assume we add such a timeout
->structure, what's wrong with converting it to kernel time (which would
->automatically validate it).
-
-And again, that's what at the end this API is doing, convering it to 
-kernel time. 
-
-Give it a more "human" specification (timespec) and gets the job done.
-No need to care on how long a jiffy is today in this system, no need
-to replicate endlessly the conversion code, which happens to be
-non-trivial (for the absolute time case--but still way more trivial 
-than userspace asking the kernel for the time, computing a relative 
-shift and dealing with the skews that preemption at a Murphy moment 
-could cause). 
-
-It is mostly the same as schedule_timeout(), but it takes the sleep
-time in a more general format. As every other API, it is designed so 
-that the caller doesn't need to care or know about the gory details 
-on how it has to be converted.
-
--- Inaky

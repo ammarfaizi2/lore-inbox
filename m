@@ -1,118 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030363AbVIAURB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030360AbVIAUS0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030363AbVIAURB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 16:17:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030360AbVIAURB
+	id S1030360AbVIAUS0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 16:18:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030362AbVIAUS0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 16:17:01 -0400
-Received: from [85.8.12.41] ([85.8.12.41]:48537 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S1030359AbVIAUQ7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 16:16:59 -0400
-Message-ID: <431761BA.5080007@drzeus.cx>
-Date: Thu, 01 Sep 2005 22:16:58 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 1.0.6-5 (X11/20050818)
-X-Accept-Language: en-us, en
+	Thu, 1 Sep 2005 16:18:26 -0400
+Received: from sccrmhc14.comcast.net ([63.240.76.49]:50646 "EHLO
+	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S1030361AbVIAUSZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 16:18:25 -0400
+Subject: Re: State of Linux graphics
+From: Jim Gettys <jg@freedesktop.org>
+Reply-To: jg@freedesktop.org
+To: Andreas Hauser <andy@splashground.de>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Discuss issues related to the xorg tree 
+	<xorg@lists.freedesktop.org>
+In-Reply-To: <20050901163958.9589.qmail@paladin.fortunaty.net>
+References: <43171D33.9020802@tungstengraphics.com>
+	 <1125590374.9419.35.camel@localhost.localdomain>
+	 <20050901163958.9589.qmail@paladin.fortunaty.net>
+Content-Type: text/plain
+Date: Thu, 01 Sep 2005 16:18:27 -0400
+Message-Id: <1125605907.10488.4.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_hermes.drzeus.cx-5029-1125605817-0001-2"
-To: Jeff Garzik <jgarzik@pobox.com>, LKML <linux-kernel@vger.kernel.org>,
-       netdev@vger.kernel.org, Felipe Damasio <felipewd@terra.com.br>
-Subject: [PATCH] 8139cp: Catch all interrupts
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
+Not at all.
 
---=_hermes.drzeus.cx-5029-1125605817-0001-2
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+We're pursuing two courses of action right now, that are not mutually
+exclusive.
 
-Register interrupt handler when net device is registered. Avoids missing
-interrupts if the interrupt mask gets out of sync.
+Jon Smirl's argument is that we can satisfy both needs simultaneously
+with a GL only strategy, and that doing two is counter productive,
+primarily on available resource grounds.
 
-Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
+My point is that I don't think the case has (yet) been made to put all
+eggs into that one basket, and that some of the arguments presented for
+that course of action don't hold together.
 
----
+			- Jim
 
-The reason this patch is needed for me is that the resume function is
-broken. It enables interrupts unconditionally, but the interrupt handler
-is only registered when the device is up.
+On Thu, 2005-09-01 at 16:39 +0000, Andreas Hauser wrote:
+> jg wrote @ Thu, 01 Sep 2005 11:59:33 -0400:
+> 
+> > Legacy hardware and that being proposed/built for the developing world
+> > is tougher; we have code in hand for existing chips, and the price point
+> > is even well below cell phones on those devices. They don't have
+> > anything beyond basic blit and, miracles of miracles, alpha blending.
+> > These are built on one or two generation back fabs, again for cost.
+> > And as there are no carriers subsidizing the hardware cost, the real
+> > hardware cost has to be met, at very low price points.  They don't come
+> > with the features Allen admires in the latest cell phone chips.
+> 
+> So you suggest, that we, that have capable cards, which can be had for
+> < 50 Euro here, see that we find something better than X.org to run
+> on them because X.org is concentrating on < 10 Euro chips?
+> Somehow i always thought that older xfree86 trees were just fine for them.
+> 
+> Andy
 
-I don't have enough knowledge about the driver to fix the resume
-function so this patch will instead make sure that the interrupt handler
-is registered at all times (which can be a nice safeguard even when the
-resume function gets fixed).
-
---=_hermes.drzeus.cx-5029-1125605817-0001-2
-Content-Type: text/x-patch; name="8139cp-catch-irq.patch"; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="8139cp-catch-irq.patch"
-
-Index: linux-wbsd/drivers/net/8139cp.c
-===================================================================
---- linux-wbsd/drivers/net/8139cp.c	(revision 165)
-+++ linux-wbsd/drivers/net/8139cp.c	(working copy)
-@@ -1204,20 +1204,11 @@
- 
- 	cp_init_hw(cp);
- 
--	rc = request_irq(dev->irq, cp_interrupt, SA_SHIRQ, dev->name, dev);
--	if (rc)
--		goto err_out_hw;
--
- 	netif_carrier_off(dev);
- 	mii_check_media(&cp->mii_if, netif_msg_link(cp), TRUE);
- 	netif_start_queue(dev);
- 
- 	return 0;
--
--err_out_hw:
--	cp_stop_hw(cp);
--	cp_free_rings(cp);
--	return rc;
- }
- 
- static int cp_close (struct net_device *dev)
-@@ -1238,7 +1229,6 @@
- 	spin_unlock_irqrestore(&cp->lock, flags);
- 
- 	synchronize_irq(dev->irq);
--	free_irq(dev->irq, dev);
- 
- 	cp_free_rings(cp);
- 	return 0;
-@@ -1813,6 +1803,10 @@
- 	if (rc)
- 		goto err_out_iomap;
- 
-+	rc = request_irq(dev->irq, cp_interrupt, SA_SHIRQ, dev->name, dev);
-+	if (rc)
-+		goto err_out_unreg;
-+
- 	printk (KERN_INFO "%s: RTL-8139C+ at 0x%lx, "
- 		"%02x:%02x:%02x:%02x:%02x:%02x, "
- 		"IRQ %d\n",
-@@ -1832,6 +1826,8 @@
- 
- 	return 0;
- 
-+err_out_unreg:
-+	unregister_netdev(dev);
- err_out_iomap:
- 	iounmap(regs);
- err_out_res:
-@@ -1852,6 +1848,7 @@
- 
- 	if (!dev)
- 		BUG();
-+	free_irq(dev->irq, dev);
- 	unregister_netdev(dev);
- 	iounmap(cp->regs);
- 	if (cp->wol_enabled) pci_set_power_state (pdev, PCI_D0);
-
---=_hermes.drzeus.cx-5029-1125605817-0001-2--

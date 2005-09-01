@@ -1,96 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964947AbVIAFnB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964850AbVIAFvD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964947AbVIAFnB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 01:43:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964966AbVIAFnA
+	id S964850AbVIAFvD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 01:51:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964912AbVIAFvD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 01:43:00 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:21726 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S964850AbVIAFm7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 01:42:59 -0400
-Message-ID: <431694B2.4040800@jp.fujitsu.com>
-Date: Thu, 01 Sep 2005 14:42:10 +0900
-From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
+	Thu, 1 Sep 2005 01:51:03 -0400
+Received: from NS4.Sony.CO.JP ([137.153.0.44]:34744 "EHLO ns4.sony.co.jp")
+	by vger.kernel.org with ESMTP id S964850AbVIAFvB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 01:51:01 -0400
+Message-ID: <431696BB.8050104@sm.sony.co.jp>
+Date: Thu, 01 Sep 2005 14:50:51 +0900
+From: "Machida, Hiroyuki" <machida@sm.sony.co.jp>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: ja, en-us, en
 MIME-Version: 1.0
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-CC: linux-ia64@vger.kernel.org
-Subject: [PATCH 2.6.13] IOCHK interface for I/O error handling/detecting
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][FAT] FAT dirent scan with hin take #3
+References: <4313CBEF.9020505@sm.sony.co.jp> <4313E578.8070100@sm.sony.co.jp>	<874q979qdj.fsf@devron.myhome.or.jp> <43156963.8020203@sm.sony.co.jp> <87irxm83eq.fsf@devron.myhome.or.jp>
+In-Reply-To: <87irxm83eq.fsf@devron.myhome.or.jp>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch implements IOCHK interfaces that enable PCI drivers to
-detect error and make their error handling easier.
+OGAWA Hirofumi wrote:
+> "Machida, Hiroyuki" <machida@sm.sony.co.jp> writes:
+> 
+> 
+>>Right, it looks like TLB, which holds cache "Physical addres"
+>>correponding to "Logical address". In this case, PID and file name
+>>to be looked up, perform role of "Logical address".
+> 
+> 
+> But, there is the big difference between hint table and TLB. TLB is
+> just the cache, and TLB hit is perfectly good, because kernel is
+> flushing the wrong values.
+> 
+> But this hint table is just collecting the recent access, it's not
+> cache, and it's not tracking the process's access at all.  So, since
+> the hint value is really random, the hint value may be bad.
+> 
+> I worry bad cases of this.
+> 
+> 
+> Umm... How about tracking the access pattern of process?  If that
+> seems randomly access, just give up tracking and return no hint.  And,
+> probably, I think it would be easy to improve the behavior later.
+> 
+> What do you think?
 
-Please refer archives if you need, e.g. http://lwn.net/Articles/139240/
+Sounds interesting...
 
-Thanks,
-H.Seto
+Once concern about global URL in general, it tends to be occupied
+by specific pattern, like accesses from one process or to on dir.
+It prevents to realize locality.
 
-Signed-off-by: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
-
----
-
-  drivers/pci/pci.c           |    2 ++
-  include/asm-generic/iomap.h |   32 ++++++++++++++++++++++++++++++++
-  2 files changed, 34 insertions(+)
-
-Index: linux-2.6.13/include/asm-generic/iomap.h
-===================================================================
---- linux-2.6.13.orig/include/asm-generic/iomap.h
-+++ linux-2.6.13/include/asm-generic/iomap.h
-@@ -65,4 +65,36 @@ struct pci_dev;
-  extern void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long max);
-  extern void pci_iounmap(struct pci_dev *dev, void __iomem *);
-
-+/*
-+ * IOMAP_CHECK provides additional interfaces for drivers to detect
-+ * some IO errors, supports drivers having ability to recover errors.
-+ *
-+ * All works around iomap-check depends on the design of "iocookie"
-+ * structure. Every architecture owning its iomap-check is free to
-+ * define the actual design of iocookie to fit its special style.
-+ */
-+#ifndef HAVE_ARCH_IOMAP_CHECK
-+/* Dummy definition of default iocookie */
-+typedef int iocookie;
-+#endif
-+
-+/*
-+ * Clear/Read iocookie to check IO error while using iomap.
-+ *
-+ * Note that default iochk_clear-read pair interfaces don't have
-+ * any effective error check, but some high-reliable platforms
-+ * would provide useful information to you.
-+ * And note that some action may be limited (ex. irq-unsafe)
-+ * between the pair depend on the facility of the platform.
-+ */
-+#ifdef HAVE_ARCH_IOMAP_CHECK
-+extern void iochk_init(void);
-+extern void iochk_clear(iocookie *cookie, struct pci_dev *dev);
-+extern int iochk_read(iocookie *cookie);
-+#else
-+static inline void iochk_init(void) {}
-+static inline void iochk_clear(iocookie *cookie, struct pci_dev *dev) {}
-+static inline int iochk_read(iocookie *cookie) { return 0; }
-+#endif
-+
-  #endif
-Index: linux-2.6.13/drivers/pci/pci.c
-===================================================================
---- linux-2.6.13.orig/drivers/pci/pci.c
-+++ linux-2.6.13/drivers/pci/pci.c
-@@ -777,6 +777,8 @@ static int __devinit pci_init(void)
-  	while ((dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
-  		pci_fixup_device(pci_fixup_final, dev);
-  	}
-+
-+	iochk_init();
-  	return 0;
-  }
+I think it's better to have limitations like;
+	entries for same process would be limited to 2/3
+	entries for same dir would be limited to 1/3
 
 
+> e.g.
+> 
+> #define FAT_LOOKUP_HINT_MAX	16
+> 
+> /* this data per task */
+> struct fat_lookup_hint {
+> 	struct list_head lru;
+> 	pid_t pid;
+> 	struct super_block *sb;
+> 	struct inode *dir;
+> 	loff_t last_pos;
+> /*	int state;*/
+> };
+
+Does this mean for each process recording last recent 16
+accesses to FAT file system ? If true, pid would be eliminated.
+
+I guess it's better to record nr_slots for this entry.
+
+As implementation issue, if number of entires is small enough,
+we can use an array, not a list.
+
+
+> static void fat_lkup_hint_inval(struct super_block *, struct inode *);
+> static loff_t fat_lkup_hint_get(struct super_block *, struct inode *);
+> static void fat_lkup_hint_add(struct super_block *, struct inode *, loff_t);
+> static int fat_lkup_hint_init(void);
+
+I think super_block can be retrieved from inode, any other intention do
+you have?
+
+
+In addtion, we can do follwoing to check the exact match case;
+
+	0. Record hash value of file name in struct fat_lookup_hint
+
+	1. Check hash value to find exact match case,
+	1-1. If matched entry is found, check if file name and
+	     file name retieved from dirent corresponding
+	1-2. We found the entry
+
+	2. Get hint value, if there seem to have locality
+	2-1. Check locality of access pattern for this PID and this
+	     DIR.
+	2-2. If we relize access locality, return hit value so that
+	     it covers a potential working set.
+	2-3. Use hint value as start position of dirscan.
+
+-- 
+Hiroyuki Machida

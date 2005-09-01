@@ -1,67 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964982AbVIAGLo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964966AbVIAGMC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964982AbVIAGLo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 02:11:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965029AbVIAGLo
+	id S964966AbVIAGMC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 02:12:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965032AbVIAGMC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 02:11:44 -0400
-Received: from mail28.sea5.speakeasy.net ([69.17.117.30]:50336 "EHLO
-	mail28.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S964982AbVIAGLn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 02:11:43 -0400
-Date: Wed, 31 Aug 2005 23:11:39 -0700
-From: Allen Akin <akin@pobox.com>
-To: Discuss issues related to the xorg tree 
-	<xorg@lists.freedesktop.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: State of Linux graphics
-Message-ID: <20050901061139.GD11367@tuolumne.arden.org>
-Mail-Followup-To: Discuss issues related to the xorg tree <xorg@lists.freedesktop.org>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <9e47339105083009037c24f6de@mail.gmail.com> <1125422813.20488.43.camel@localhost> <20050831063355.GE27940@tuolumne.arden.org> <1125512970.4798.180.camel@evo.keithp.com> <20050831200641.GH27940@tuolumne.arden.org> <1125522414.4798.222.camel@evo.keithp.com> <20050901015859.GA11367@tuolumne.arden.org> <43167150.1040808@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43167150.1040808@us.ibm.com>
+	Thu, 1 Sep 2005 02:12:02 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:53196 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S964966AbVIAGMA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 02:12:00 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: greg@kroah.com
+Subject: i2c via686a.c: save at least 0.5k of space by long v[256] -> u16 v[256]
+Date: Thu, 1 Sep 2005 09:10:14 +0300
+User-Agent: KMail/1.8.2
+Cc: khali@linux-fr.org, lm-sensors@lm-sensors.org,
+       linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_GtpFDFWwuowhVlY"
+Message-Id: <200509010910.14824.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 31, 2005 at 08:11:12PM -0700, Ian Romanick wrote:
-| Allen Akin wrote:
-| > Jon's right about this:  If you can accelerate a given simple function
-| > (blending, say) for a 2D driver, you can accelerate that same function
-| > in a Mesa driver for a comparable amount of effort, and deliver a
-| > similar benefit to apps.  (More apps, in fact, since it helps
-| > OpenGL-based apps as well as Cairo-based apps.)
-| 
-| The difference is that there is a much larger number of state
-| combinations possible in OpenGL than in something stripped down for
-| "just 2D".  That can make it more difficult to know where to spend the
-| time tuning.  ...
+--Boundary-00=_GtpFDFWwuowhVlY
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-I'd try solving the problem by copying what Render+EXA does, because we
-already have some evidence that's sufficient.  We know what situations
-Render+EXA accelerates, so in Mesa we accelerate just the OpenGL state
-vectors that correspond to those situations.  The state analysis code
-could be written once and shared.  You know more about that part of Mesa
-than I do; do you think writing and documenting the analysis code would
-be significantly more time-consuming than what's already gone into
-defining and documenting the corresponding components for EXA?  The rest
-is device setup, and likely to be roughly equivalent for the two
-interfaces.
+Not tested, but it's rather obvious.
+--
+vda
 
-| The real route forward is to dig deeper into run-time code generation.
+--Boundary-00=_GtpFDFWwuowhVlY
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="via686a.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="via686a.patch"
 
-In theory, I agree (and I think it would be a really fun project).  In
-practice, I've always turned away from it when tempted, because the
-progress of the hardware folks is so overwhelming.  Have you seen what's
-possible on cell phones that have been shipping since the beginning of
-2005?  Amazing.  On low-cost power-constrained devices, a market where
-it was sometimes claimed that acceleration wouldn't be practical.
+--- linux-2.6.12.src/drivers/i2c/chips/via686a.c.orig	Sun Jun 19 16:10:10 2005
++++ linux-2.6.12.src/drivers/i2c/chips/via686a.c	Tue Aug 30 00:21:39 2005
+@@ -205,7 +205,7 @@ static inline u8 FAN_TO_REG(long rpm, in
+  but the function is very linear in the useful range (0-80 deg C), so 
+  we'll just use linear interpolation for 10-bit readings.)  So, tempLUT 
+  is the temp at via register values 0-255: */
+-static const long tempLUT[] =
++static const int16_t tempLUT[] =
+     { -709, -688, -667, -646, -627, -607, -589, -570, -553, -536, -519,
+ 	    -503, -487, -471, -456, -442, -428, -414, -400, -387, -375,
+ 	    -362, -350, -339, -327, -316, -305, -295, -285, -275, -265,
 
-| BTW, Alan, when are you going to start writing code again? >:)
-
-Yeah, certain other IBM people have been on my case, too.  They're
-largely to blame for the fact that I'm in this discussion at all.  :-)
-
-Allen
+--Boundary-00=_GtpFDFWwuowhVlY--

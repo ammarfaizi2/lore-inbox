@@ -1,39 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030361AbVIAUTo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030362AbVIAUVS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030361AbVIAUTo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 16:19:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030362AbVIAUTo
+	id S1030362AbVIAUVS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 16:21:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030364AbVIAUVS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 16:19:44 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:18683 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S1030361AbVIAUTn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 16:19:43 -0400
-Subject: Re: [PATCH 2.6.13] Unhandled error condition in aic79xx
-From: Daniel Walker <dwalker@mvista.com>
-Reply-To: dwalker@mvista.com
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20050901201029.GA10893@mipter.zuzino.mipt.ru>
-References: <1125603501.4867.21.camel@dhcp153.mvista.com>
-	 <20050901201029.GA10893@mipter.zuzino.mipt.ru>
-Content-Type: text/plain
-Organization: MontaVista
-Date: Thu, 01 Sep 2005 13:19:38 -0700
-Message-Id: <1125605978.4867.30.camel@dhcp153.mvista.com>
+	Thu, 1 Sep 2005 16:21:18 -0400
+Received: from wproxy.gmail.com ([64.233.184.196]:41931 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030362AbVIAUVQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 16:21:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=PCei4IwjebRESQ5UEkPJbLLMsHEBZztEZ87OEQjH1bAkrayV9o8CDINwE6X2r4tDuG7asIHTdPptQ49aD1ab4D4bqjR3WS7AoDm7hGQfFPG9+8YP7ZaMT7SqXPSpsi2OSznf4p0yM2nsscsAel23mper8ELifUkW5gb0DkwhODA=
+Date: Fri, 2 Sep 2005 00:30:44 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Corey Minyard <minyard@acm.org>
+Cc: viro@ZenIV.linux.org.uk, Matt_Domsch@Dell.com,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][CFLART] ipmi procfs bogosity
+Message-ID: <20050901203043.GB10893@mipter.zuzino.mipt.ru>
+References: <20050901064313.GB26264@ZenIV.linux.org.uk> <1125592902.27283.5.camel@i2.minyard.local> <20050901193201.GD26264@ZenIV.linux.org.uk> <43175DEC.4000600@acm.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43175DEC.4000600@acm.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-09-02 at 00:10 +0400, Alexey Dobriyan wrote:
-
-> I see malloc(), kernel_thread() and multiple ahd_linux_alloc_target()
-> above. Ditto for 7xxx patch.
+On Thu, Sep 01, 2005 at 03:00:44PM -0500, Corey Minyard wrote:
+> To me, It's a lot nicer to do:
 > 
+>    rv = user_strtoul(....);
+>    if (rv < 0)
+>        return rv;
+> 
+> Plus the scanning function I wrote handles arbitrary leading and 
+> trailing space, etc.  Not a big deal, but a little nicer.
 
-True, no wonder this condition hasn't been handled yet..
+You can say from the beggining that
 
-Daniel
+	echo -n "    2   " >/proc/FUBAR
+	
+is illegal and don't add bloat to kernel.
 

@@ -1,127 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932437AbVIALf2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965031AbVIALjX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932437AbVIALf2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 07:35:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932463AbVIALf2
+	id S965031AbVIALjX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 07:39:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965041AbVIALjW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 07:35:28 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:37820 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932437AbVIALf1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 07:35:27 -0400
-Subject: Re: GFS, what's remaining
-From: Arjan van de Ven <arjan@infradead.org>
-To: David Teigland <teigland@redhat.com>
-Cc: linux-fsdevel@vger.kernel.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       linux-cluster@redhat.com
-In-Reply-To: <20050901104620.GA22482@redhat.com>
-References: <20050901104620.GA22482@redhat.com>
-Content-Type: text/plain
-Date: Thu, 01 Sep 2005 13:35:23 +0200
-Message-Id: <1125574523.5025.10.camel@laptopd505.fenrus.org>
+	Thu, 1 Sep 2005 07:39:22 -0400
+Received: from zproxy.gmail.com ([64.233.162.197]:61103 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965031AbVIALjW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 07:39:22 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=GIzLE838KD4Wn+JdSfJxc3URIvHfy9rkbKe6HvFwiMf1UxkKtm0bzt/eu6pMB+REzd+wVQUchMa1IE71zuaNyLZpnw+JYCQ780r2NLR3tt9kyEdXKo3ne5+bOMaWukR0BHRCvvGDV8Ji7zFXTUcb8T63sLPIs5LRgYKLEPCbUHU=
+Message-ID: <cda58cb8050901043967808e00@mail.gmail.com>
+Date: Thu, 1 Sep 2005 13:39:19 +0200
+From: Franck xyz <vagabon.xyz@gmail.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Help on HCD developpement
+In-Reply-To: <cda58cb8050901025311665d7@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <cda58cb8050901025311665d7@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-09-01 at 18:46 +0800, David Teigland wrote:
-> Hi, this is the latest set of gfs patches, it includes some minor munging
-> since the previous set.  Andrew, could this be added to -mm? there's not
-> much in the way of pending changes.
-> 
-> http://redhat.com/~teigland/gfs2/20050901/gfs2-full.patch
-> http://redhat.com/~teigland/gfs2/20050901/broken-out/
+Hi,
 
-+static inline void glock_put(struct gfs2_glock *gl)
-+{
-+	if (atomic_read(&gl->gl_count) == 1)
-+		gfs2_glock_schedule_for_reclaim(gl);
-+	gfs2_assert(gl->gl_sbd, atomic_read(&gl->gl_count) > 0,);
-+	atomic_dec(&gl->gl_count);
-+}
+I'm trying to write a host controller driver for a Arc hardware. I
+need to know how nak
+pid should be handled ? Hardware can automatically manage them, that means it
+automatically retry the naked transaction. But since setup packet must
+not be "NAKed" or hub
+endpoint #1 returns nak pid when no events happen on its port, I don't
+think I can use this
+feature. But if I do it manually, what should I do when receiving a
+NAK ? Should I retry the
+transaction forever ? What status should I return to usb core (through
+urb->status) when hub
+endpoint #1 returns nak ?
 
-this code has a race
-
-what is gfs2_assert() about anyway? please just use BUG_ON directly everywhere
-
-+static inline int queue_empty(struct gfs2_glock *gl, struct list_head *head)
-+{
-+	int empty;
-+	spin_lock(&gl->gl_spin);
-+	empty = list_empty(head);
-+	spin_unlock(&gl->gl_spin);
-+	return empty;
-+}
-
-that looks like a racey interface to me... if so.. why bother locking at all?
-+void gfs2_glock_hold(struct gfs2_glock *gl)
-+{
-+	glock_hold(gl);
-+}
-
-eh why?
-
-+struct gfs2_holder *gfs2_holder_get(struct gfs2_glock *gl, unsigned int state,
-+				    int flags, int gfp_flags)
-+{
-+	struct gfs2_holder *gh;
-+
-+	gh = kmalloc(sizeof(struct gfs2_holder), GFP_KERNEL | gfp_flags);
-
-this looks odd. Either you take flags or you don't.. this looks really half arsed and thus is really surprising 
-to all callers
-
-
-static int gi_skeleton(struct gfs2_inode *ip, struct gfs2_ioctl *gi,
-+		       gi_filler_t filler)
-+{
-+	unsigned int size = gfs2_tune_get(ip->i_sbd, gt_lockdump_size);
-+	char *buf;
-+	unsigned int count = 0;
-+	int error;
-+
-+	if (size > gi->gi_size)
-+		size = gi->gi_size;
-+
-+	buf = kmalloc(size, GFP_KERNEL);
-+	if (!buf)
-+		return -ENOMEM;
-+
-+	error = filler(ip, gi, buf, size, &count);
-+	if (error)
-+		goto out;
-+
-+	if (copy_to_user(gi->gi_data, buf, count + 1))
-+		error = -EFAULT;
-
-where does count get a sensible value?
-
-+static unsigned int handle_roll(atomic_t *a)
-+{
-+	int x = atomic_read(a);
-+	if (x < 0) {
-+		atomic_set(a, 0);
-+		return 0;
-+	}
-+	return (unsigned int)x;
-+}
-
-this is just plain scary.
-
-
-you'll have to post the rest of your patches if you want anyone to look at them...
-
-
-
+Thanks.
+               Franck

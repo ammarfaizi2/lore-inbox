@@ -1,68 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932387AbVIALcJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932431AbVIALfN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932387AbVIALcJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 07:32:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932431AbVIALcJ
+	id S932431AbVIALfN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 07:35:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932437AbVIALfN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 07:32:09 -0400
-Received: from ns9.hostinglmi.net ([213.194.149.146]:52205 "EHLO
-	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S932387AbVIALcI
+	Thu, 1 Sep 2005 07:35:13 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:18882 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932431AbVIALfL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 07:32:08 -0400
-Date: Thu, 1 Sep 2005 13:36:14 +0200
-From: DervishD <lkml@dervishd.net>
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: USB Storage speed regression since 2.6.12
-Message-ID: <20050901113614.GA63@DervishD>
-Mail-Followup-To: Linux-kernel <linux-kernel@vger.kernel.org>
+	Thu, 1 Sep 2005 07:35:11 -0400
+Date: Thu, 1 Sep 2005 17:03:30 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Thomas Schlichter <thomas.schlichter@web.de>
+Cc: john stultz <johnstul@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] Updated dynamic tick patches - Fix lost tick
+Message-ID: <20050901113330.GB11145@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <200509010829.35958.thomas.schlichter@web.de> <200509010942.24026.thomas.schlichter@web.de> <20050901102839.GB9936@in.ibm.com> <200509011305.24038.thomas.schlichter@web.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4.2.1i
-Organization: DervishD
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - dervishd.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+In-Reply-To: <200509011305.24038.thomas.schlichter@web.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi all :)
+On Thu, Sep 01, 2005 at 01:05:23PM +0200, Thomas Schlichter wrote:
+> Yes, the only real differences are the two points mentioned in my first 
+> mail... I only wanted to help you fixing these.
 
-    I don't know if this is a known issue, but usb-storage speed for
-'Full speed' devices dropped from 2.6.11.12 (more than 800Kb/s) to
-2.6.12 (less than 250Kb/s). The problem still exists in 2.6.13.
+Thanks for pointing them out. I have fixed it in the experimental version
+that I have now.
 
-    The lack of speed seems to affect only the OHCI driver. My test
-was done over a PCI USB 2.0 card, ALi chipset, OHCI driver (well
-EHCI+OHCI) and using a full speed device capable of 12MBps. The
-average measured speeds are:
+> Well, that seems to be fine. If you want somebody to have a look over your 
+> final patch, feel free to mail me...
 
-    - 2.4.31:           about 450Kb/seg
-    - 2.6.11-Debian:    about 800Kb/seg
-    - 2.6.11.12:        about 820Kb/seg
-    - 2.6.12.x:         about 200Kb/seg
-    - 2.6.13:           about 200Kb/seg
+sure!
 
-    The .config is more or less the same in all kernels. I've took a
-look at the ChangeLog for 2.6.12 and there are lots of changes in the
-USB subsystem but I cannot identify which one could be the culprit.
+> I should have defined PMTMR_TICKS_PER_JIFFY like you assigned 
+> pm_ticks_per_jiffy (why did you use a static and constant variable and not a 
+> macro?):
 
-    If anyone needs more information (for example, device
-identification in all kernels) just tell. I don't provide much more
-information since this can be a known issue and so there is no need
-to pollute the list with a long .config and dmesg output...
+I actually started with using the calibrated value of PMTMR_TICKS_PER_JIFFY 
+rather than compile time constant (as found in verify_pmtmr), but later dropped
+the idea since I didnt get good results with it. After that didnt revert
+back pm_ticks_per_jiffy to be a macro. But good point, will include
+this in the next patch that I am trying out. Will post it if I happen
+to have success :)
 
-    Thanks in advance :)
 
-    Raúl Núñez de Arenas Coronado
 
 -- 
-Linux Registered User 88736 | http://www.dervishd.net
-http://www.pleyades.net & http://www.gotesdelluna.net
-It's my PC and I'll cry if I want to...
+
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

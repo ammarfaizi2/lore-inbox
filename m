@@ -1,33 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbVIAKLb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964778AbVIAKSN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932309AbVIAKLb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 06:11:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932323AbVIAKLb
+	id S964778AbVIAKSN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 06:18:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964780AbVIAKSN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 06:11:31 -0400
-Received: from fep01-0.kolumbus.fi ([193.229.0.41]:21938 "EHLO
-	fep01-app.kolumbus.fi") by vger.kernel.org with ESMTP
-	id S932309AbVIAKLb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 06:11:31 -0400
-X-Mailer: Openwave WebEngine, version 2.8.12 (webedge20-101-197-20030912)
-X-Originating-IP: [62.236.163.2]
-From: <mika.penttila@kolumbus.fi>
-To: Andi Kleen <ak@suse.de>, <Natalie.Protasevich@unisys.com>
-CC: <shaohua.li@intel.com>, <zwane@arm.linux.org.uk>, <ashok.raj@intel.com>,
-       <akpm@osdl.org>, <lhcs-devel@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>, <hotplug_sig@lists.osdl.org>
-Subject: Re: Re: [patch 1/1] Hot plug CPU to support physical add of new processors (i386)
-Date: Thu, 1 Sep 2005 12:35:05 +0300
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 1 Sep 2005 06:18:13 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:36529 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964778AbVIAKSN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 06:18:13 -0400
+Subject: Re: [patch] drivers/ide/pci/alim15x3.c SMP fix
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Rui Nuno Capela <rncbc@rncbc.org>
+In-Reply-To: <20050901072430.GA6213@elte.hu>
+References: <20050901072430.GA6213@elte.hu>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <20050901093505.JFOP23558.fep01-app.kolumbus.fi@mta.imail.kolumbus.fi>
+Date: Thu, 01 Sep 2005 11:42:15 +0100
+Message-Id: <1125571335.15768.21.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Iau, 2005-09-01 at 09:24 +0200, Ingo Molnar wrote:
+> is this the right way to fix the UP assumption below?
 
-We should probably also not to try to boot disabled cpus in smp_boot_cpus()...
+Probably not. The ide_lock may already be held (randomly depending on
+the code path) at the point we retune a drive on error. Actually you
+probably crash before this anyway.
 
---Mika
+The ALi code in question was written knowing the system would be
+uniprocessor and making various related assumptions. You also have to
+get this locking right just to make it more fun - loading the timings
+for one channel while another is doing I/O corrupts your data silently
+in some cases. Fixing the ide_lock to be consistent in usage when the
+tuning calls are made (ie fix the reset path and other offenders) might
+be possible and would make using ide_lock ok, but it would still be
+wrong with pre-emption and/or SMP.
 
+There is currently no sane locking mechanism to enforce or implement
+this in the IDE layer.  Welcome to hell, please leave your brain at the
+door.
+
+Alan
 

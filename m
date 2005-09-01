@@ -1,81 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030300AbVIAXM3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030463AbVIAXNB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030300AbVIAXM3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 19:12:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030463AbVIAXM3
+	id S1030463AbVIAXNB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 19:13:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030517AbVIAXNB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 19:12:29 -0400
-Received: from fmr22.intel.com ([143.183.121.14]:55460 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1030300AbVIAXM2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 19:12:28 -0400
-Date: Thu, 1 Sep 2005 16:12:18 -0700
-From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>,
-       linux-kernel@vger.kernel.org, systemtap@sources.redhat.com,
-       ananth@in.ibm.com, prasanna@in.ibm.com
-Subject: [PATCH]kprobes comment patch around kprobes lock functions
-Message-ID: <20050901161216.A31007@unix-os.sc.intel.com>
-Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-References: <20050901134937.A29041@unix-os.sc.intel.com> <20050901140938.69909683.akpm@osdl.org>
+	Thu, 1 Sep 2005 19:13:01 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:29711 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1030463AbVIAXNA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 19:13:00 -0400
+Date: Fri, 2 Sep 2005 01:12:58 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>, amax@us.ibm.com,
+       ralf@linux-mips.org, starvik@axis.com
+Cc: dev-etrax@axis.com
+Subject: [2.6 patch] drivers/serial/crisv10.c: remove {,un}register_serial dummies
+Message-ID: <20050901231258.GD3657@stusta.de>
+References: <20050831103352.A26480@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050901140938.69909683.akpm@osdl.org>; from akpm@osdl.org on Thu, Sep 01, 2005 at 02:09:38PM -0700
+In-Reply-To: <20050831103352.A26480@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 01, 2005 at 02:09:38PM -0700, Andrew Morton wrote:
-> Now, probably there's deep magic happening here and I'm wrong.  If so then
-> please explain the code's magic via a comment patch so the question doesn't
-> arise again, thanks.
+On Wed, Aug 31, 2005 at 10:33:52AM +0100, Russell King wrote:
+>...
+> In addition, the following drivers declare functions of the same name.
+> The maintainers of these need to look to see why, and eliminate them
+> where possible.
 > 
+> drivers/serial/crisv10.c:register_serial(struct serial_struct *req)
+> drivers/serial/crisv10.c:void unregister_serial(int line)
 
-This is a comment patch around lock_kprobes() and unlock_kprobes() functions.
 
-Signed-off-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
+It seems we can simply kill these dummies with this patch.
 
-===================================================================
- kernel/kprobes.c |   14 ++++++++++++++
- 1 files changed, 14 insertions(+)
 
-Index: linux-2.6.13-mm1/kernel/kprobes.c
-===================================================================
---- linux-2.6.13-mm1.orig/kernel/kprobes.c
-+++ linux-2.6.13-mm1/kernel/kprobes.c
-@@ -157,9 +157,16 @@ void __kprobes lock_kprobes(void)
- {
- 	unsigned long flags = 0;
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.13-mm1-full/drivers/serial/crisv10.c.old	2005-09-02 01:10:07.000000000 +0200
++++ linux-2.6.13-mm1-full/drivers/serial/crisv10.c	2005-09-02 01:10:27.000000000 +0200
+@@ -5038,17 +5038,3 @@
+ /* this makes sure that rs_init is called during kernel boot */
  
-+	/* Avoiding local interrupts to happen right after we take the kprobe_lock
-+	 * and before we get a chance to update kprobe_cpu, this to prevent
-+	 * deadlock when we have a kprobe on ISR routine and a kprobe on task
-+	 * routine
-+	 */
- 	local_irq_save(flags);
-+
- 	spin_lock(&kprobe_lock);
- 	kprobe_cpu = smp_processor_id();
-+
-  	local_irq_restore(flags);
- }
- 
-@@ -167,9 +174,16 @@ void __kprobes unlock_kprobes(void)
- {
- 	unsigned long flags = 0;
- 
-+	/* Avoiding local interrupts to happen right after we update
-+	 * kprobe_cpu and before we get a a chance to release kprobe_lock,
-+	 * this to prevent deadlock when we have a kprobe on ISR routine and
-+	 * a kprobe on task routine
-+	 */
- 	local_irq_save(flags);
-+
- 	kprobe_cpu = NR_CPUS;
- 	spin_unlock(&kprobe_lock);
-+
-  	local_irq_restore(flags);
- }
- 
+ module_init(rs_init);
+-
+-/*
+- * register_serial and unregister_serial allows for serial ports to be
+- * configured at run-time, to support PCMCIA modems.
+- */
+-int
+-register_serial(struct serial_struct *req)
+-{
+-	return -1;
+-}
+-
+-void unregister_serial(int line)
+-{
+-}
+

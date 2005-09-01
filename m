@@ -1,74 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932544AbVIAG43@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932546AbVIAHD2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932544AbVIAG43 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 02:56:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932545AbVIAG43
+	id S932546AbVIAHD2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 03:03:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932547AbVIAHD2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 02:56:29 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:33187 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932544AbVIAG43 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 02:56:29 -0400
-Date: Thu, 1 Sep 2005 08:57:10 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: MAX_ARG_PAGES has no effect?
-Message-ID: <20050901065710.GB5179@elte.hu>
-References: <4314F761.2050908@kundor.org> <20050831121144.GA13578@elte.hu> <p73psrtr8ho.fsf@verdi.suse.de>
+	Thu, 1 Sep 2005 03:03:28 -0400
+Received: from smtp-104-thursday.nerim.net ([62.4.16.104]:6151 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S932546AbVIAHD2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 03:03:28 -0400
+Date: Thu, 1 Sep 2005 09:03:38 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Grant.Coady@gmail.com
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.13-rc6-mm2
+Message-Id: <20050901090338.4b0d72b3.khali@linux-fr.org>
+In-Reply-To: <nnolg1tusrn3q5p8qeorks8vhc3cromj8l@4ax.com>
+References: <20050822213021.1beda4d5.akpm@osdl.org>
+	<nnolg1tusrn3q5p8qeorks8vhc3cromj8l@4ax.com>
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <p73psrtr8ho.fsf@verdi.suse.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Grant,
 
-* Andi Kleen <ak@suse.de> wrote:
+> adm9240 i2c still broken, spamming debug with:
+> (...)
+> Aug 23 18:48:40 peetoo kernel: [ 1591.151834] i2c_adapter i2c-0: Transaction (pre): CNT=08, CMD=2c, ADD=5a, DAT0=00, DAT1=00
+> Aug 23 18:48:40 peetoo kernel: [ 1591.170515] i2c_adapter i2c-0: Transaction (post): CNT=08, CMD=2c, ADD=5a, DAT0=00, DAT1=00
+> (...)
+> As soon as write sysfs.
 
-> Ingo Molnar <mingo@elte.hu> writes:
-> > 
-> > MAX_ARG_PAGES should work just fine. I think the 'getconf ARG_MAX' 
-> > output is hardcoded. (because the kernel does not provide the 
-> > information dynamically)
-> 
-> Perhaps it would be a good idea to make it a sysctl. Is there any 
-> reason it should be hardcoded?  I cannot think of any.
-> 
-> Ok if someone lowers the sysctl then execve has to handle the case of 
-> the args/environment possibly not fitting anymore, but that should be 
-> easy.
+This is not the adm9240 driver writing this, but the smbus driver for
+the SMBus chip your ADM9240 chip is connected to. Which driver is it for
+you? lsmod should tell (if not, modprobe i2c-dev && i2cdetect -l
+should.)
 
-the whole thing should be reworked, so that there is no artificial limit 
-like MAX_ARG_PAGES. (it is after all just another piece of memory, in 
-theory)
+I suspect that you simply have CONFIG_I2C_DEBUG_BUS enabled. Please
+check your .config.
 
-I have tried this a couple of times but failed - it's a hard problem. 
-Linus had the idea years ago to page-flip the argument data into the new 
-process's address space, but that doesnt work out in practice due to the 
-way glibc has to extend the environment space. (glibc extends it by 
-modifying the environment array, or relocating it if it has to be grown.  
-execve() currently automatically 'linearizes' the environment by copying 
-both the array and the old and new environment strings to a linear piece 
-of memory.)
-
-If we do unconditional page-flipping then we fragment the argument 
-space, if we do both page-flipping if things are unfragmented and 
-well-aligned, and 'compact' the layout otherwise, we havent solved the 
-problem and have introduced a significant extra layer of complexity to 
-an already security-sensitive and fragile piece of code.
-
-The best method i found was to get rid of bprm->pages[] and to directly 
-copy strings into the new mm via kmap (and to follow whatever RAM 
-allocation policies/limits there are for the new mm), but that's quite 
-ugly.
-
-	Ingo
+-- 
+Jean Delvare

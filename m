@@ -1,142 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750814AbVIAJNN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750908AbVIAJQn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750814AbVIAJNN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 05:13:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750825AbVIAJNN
+	id S1750908AbVIAJQn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 05:16:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750907AbVIAJQn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 05:13:13 -0400
-Received: from dwdmx4.dwd.de ([141.38.3.230]:39047 "EHLO dwdmx4.dwd.de")
-	by vger.kernel.org with ESMTP id S1750814AbVIAJNL (ORCPT
+	Thu, 1 Sep 2005 05:16:43 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:52374 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750784AbVIAJQm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 05:13:11 -0400
-Date: Thu, 1 Sep 2005 09:12:30 +0000 (GMT)
-From: Holger Kiehl <Holger.Kiehl@dwd.de>
-X-X-Sender: kiehl@diagnostix.dwd.de
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Jens Axboe <axboe@suse.de>, Vojtech Pavlik <vojtech@suse.cz>,
-       linux-raid <linux-raid@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Where is the performance bottleneck?
-In-Reply-To: <Pine.LNX.4.61.0508312148040.1081@diagnostix.dwd.de>
-Message-ID: <Pine.LNX.4.61.0509010852040.17882@diagnostix.dwd.de>
-References: <Pine.LNX.4.61.0508291811480.24072@diagnostix.dwd.de>
- <20050829202529.GA32214@midnight.suse.cz> <Pine.LNX.4.61.0508301919250.25574@diagnostix.dwd.de>
- <20050831071126.GA7502@midnight.ucw.cz> <20050831072644.GF4018@suse.de>
- <Pine.LNX.4.61.0508311029170.16574@diagnostix.dwd.de> <4315A179.8070102@yahoo.com.au>
- <Pine.LNX.4.61.0508311524190.16574@diagnostix.dwd.de> <4315E810.4030305@yahoo.com.au>
- <Pine.LNX.4.61.0508312148040.1081@diagnostix.dwd.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 1 Sep 2005 05:16:42 -0400
+Date: Thu, 1 Sep 2005 02:08:53 -0700 (PDT)
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Mel Gorman <mel@csn.ul.ie>, linux-kernel@vger.kernel.org,
+       Dinakar Guniguntala <dino@in.ibm.com>,
+       Joel Schopp <jschopp@austin.ibm.com>, Simon Derr <Simon.Derr@bull.net>,
+       Linus Torvalds <torvalds@osdl.org>, Paul Jackson <pj@sgi.com>,
+       Dave Hansen <haveblue@us.ibm.com>
+Message-Id: <20050901090853.18441.24035.sendpatchset@jackhammer.engr.sgi.com>
+Subject: [PATCH 0/4] cpusets mems_allowed constrain GFP_KERNEL, oom killer
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Aug 2005, Holger Kiehl wrote:
+The following patch is proposed for inclusion in 2.6.14.
 
-> On Thu, 1 Sep 2005, Nick Piggin wrote:
->
->> Holger Kiehl wrote:
->> 
->>> meminfo.dump:
->>> 
->>>    MemTotal:      8124172 kB
->>>    MemFree:         23564 kB
->>>    Buffers:       7825944 kB
->>>    Cached:          19216 kB
->>>    SwapCached:          0 kB
->>>    Active:          25708 kB
->>>    Inactive:      7835548 kB
->>>    HighTotal:           0 kB
->>>    HighFree:            0 kB
->>>    LowTotal:      8124172 kB
->>>    LowFree:         23564 kB
->>>    SwapTotal:    15631160 kB
->>>    SwapFree:     15631160 kB
->>>    Dirty:         3145604 kB
->> 
->> Hmm OK, dirty memory is pinned pretty much exactly on dirty_ratio
->> so maybe I've just led you on a goose chase.
->> 
->> You could
->>    echo 5 > /proc/sys/vm/dirty_background_ratio
->>    echo 10 > /proc/sys/vm/dirty_ratio
->> 
->> To further reduce dirty memory in the system, however this is
->> a long shot, so please continue your interaction with the
->> other people in the thread first.
->> 
-> Yes, this does make a difference, here the results of running
->
->  dd if=/dev/full of=/dev/sd?1 bs=4M count=4883
->
-> on 8 disks at the same time:
->
->  34.273340
->  33.938829
->  33.598469
->  32.970575
->  32.841351
->  32.723988
->  31.559880
->  29.778112
->
-> That's 32.710568 MB/s on average per disk with your change and without
-> it it was 24.958557 MB/s on average per disk.
->
-> I will do more tests tomorrow.
->
-Just rechecked those numbers. Did a fresh boot and run the test several
-times. With defaults (dirty_background_ratio=10, dirty_ratio=40) I get
-for the dd write tests an average of 24.559491 MB/s (8 disks in parallel)
-per disk. With the suggested values (dirty_background_ratio=5, dirty_ratio=10)
-32.390659 MB/s per disk.
+This patch extends the use of the cpuset attribute 'mem_exclusive'
+to support cpuset configurations that:
+ 1) allow GFP_KERNEL allocations to come from a potentially larger
+    set of memory nodes than GFP_USER allocations, and
+ 2) can constrain the oom killer to tasks running in cpusets in
+    a specified subtree of the cpuset hierarchy.
 
-I then did a SW raid0 over all disks with the following command:
+Here's an example usage scenario.  For a few hours or more, a large
+NUMA system at a University is to be divided in two halves, with a
+bunch of student jobs running in half the system under some form
+of batch manager, and with a big research project running in the
+other half.  Each of the student jobs is placed in a small cpuset, but
+should share the classic Unix time share facilities, such as buffered
+pages of files in /bin and /usr/lib.  The big research project wants no
+interference whatsoever from the student jobs, and has highly tuned,
+unusual memory and i/o patterns that intend to make full use of all
+the main memory on the nodes available to it.
 
-   mdadm -C /dev/md3 -l0 -n8 /dev/sd[cdefghij]1
+In this example, we have two big sibling cpusets, one of which is
+further divided into a more dynamic set of child cpusets.
 
-   (dirty_background_ratio=10, dirty_ratio=40) 223.955995 MB/s
-   (dirty_background_ratio=5, dirty_ratio=10)  234.318936 MB/s
+We want kernel memory allocations constrained by the two big cpusets,
+and user allocations constrained by the smaller child cpusets where
+present.  And we require that the oom killer not operate across the two
+halves of this system, or else the first time a student job runs amuck,
+the big research project will likely be first inline to get shot.
 
-So the differnece is not so big anymore.
+Tweaking /proc/<pid>/oom_adj is not ideal -- if the big research
+project really does run amuck allocating memory, it should be shot,
+not some other task outside the research projects mem_exclusive cpuset.
 
-Something else I notice while doing the dd over 8 disks is the following
-(top just before they are finished):
+I propose to extend the use of the 'mem_exclusive' flag of cpusets
+to manage such scenarios.  Let memory allocations for user space
+(GFP_USER) be constrained by a tasks current cpuset, but memory
+allocations for kernel space (GFP_KERNEL) by constrained by the
+nearest mem_exclusive ancestor of the current cpuset, even though
+kernel space allocations will still _prefer_ to remain within the
+current tasks cpuset, if memory is easily available.
 
-top - 08:39:11 up  2:03,  2 users,  load average: 23.01, 21.48, 15.64
-Tasks: 102 total,   2 running, 100 sleeping,   0 stopped,   0 zombie
-Cpu(s):  0.0% us, 17.7% sy,  0.0% ni,  0.0% id, 78.9% wa,  0.2% hi,  3.1% si
-Mem:   8124184k total,  8093068k used,    31116k free,  7831348k buffers
-Swap: 15631160k total,    13352k used, 15617808k free,     5524k cached
+Let the oom killer be constrained to consider only tasks that are in
+overlapping mem_exclusive cpusets (it won't help much to kill a task
+that normally cannot allocate memory on any of the same nodes as the
+ones on which the current task can allocate.)
 
-   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
-  3423 root      18   0 55204  460  392 R 12.0  0.0   1:15.55 dd
-  3421 root      18   0 55204  464  392 D 11.3  0.0   1:17.36 dd
-  3418 root      18   0 55204  464  392 D 10.3  0.0   1:10.92 dd
-  3416 root      18   0 55200  464  392 D 10.0  0.0   1:09.20 dd
-  3420 root      18   0 55204  464  392 D 10.0  0.0   1:10.49 dd
-  3422 root      18   0 55200  460  392 D  9.3  0.0   1:13.58 dd
-  3417 root      18   0 55204  460  392 D  7.6  0.0   1:13.11 dd
-   158 root      15   0     0    0    0 D  1.3  0.0   1:12.61 kswapd3
-   159 root      15   0     0    0    0 D  1.3  0.0   1:08.75 kswapd2
-   160 root      15   0     0    0    0 D  1.0  0.0   1:07.11 kswapd1
-  3419 root      18   0 51096  552  476 D  1.0  0.0   1:17.15 dd
-   161 root      15   0     0    0    0 D  0.7  0.0   0:54.46 kswapd0
-     1 root      16   0  4876  372  332 S  0.0  0.0   0:01.15 init
-     2 root      RT   0     0    0    0 S  0.0  0.0   0:00.00 migration/0
-     3 root      34  19     0    0    0 S  0.0  0.0   0:00.00 ksoftirqd/0
-     4 root      RT   0     0    0    0 S  0.0  0.0   0:00.00 migration/1
-     5 root      34  19     0    0    0 S  0.0  0.0   0:00.00 ksoftirqd/1
-     6 root      RT   0     0    0    0 S  0.0  0.0   0:00.00 migration/2
-     7 root      34  19     0    0    0 S  0.0  0.0   0:00.00 ksoftirqd/2
-     8 root      RT   0     0    0    0 S  0.0  0.0   0:00.00 migration/3
-     9 root      34  19     0    0    0 S  0.0  0.0   0:00.00 ksoftirqd/3
+The current constraints imposed on setting mem_exclusive are unchanged.
+A cpuset may only be mem_exclusive if its parent is also mem_exclusive,
+and a mem_exclusive cpuset may not overlap any of its siblings
+memory nodes.
 
-A loadaverage of 23 for 8 dd's seems a bit high. Also why is kswapd working
-so hard? Is that correct.
+This patch was presented on linux-mm in early July 2005, though did not
+generate much feedback at that time.  It has been built for a variety of
+arch's using cross tools, and built, booted and tested for function
+on SN2 (ia64).
 
-Please just tell me if there is anything else I can test or dumps that
-could be useful.
+There are 4 patches in this set:
+  1) Some minor cleanup, and some improvements to the code layout
+     of one routine to make subsequent patches cleaner.
+  2) Add another GFP flag - __GFP_HARDWALL.  It marks memory
+     requests for USER space, which are tightly confined by the
+     current tasks cpuset.
+  3) Now memory requests (such as KERNEL) that not marked HARDWALL can
+     if short on memory, look in the potentially larger pool of memory
+     defined by the nearest mem_exclusive ancestor cpuset of the current
+     tasks cpuset.
+  4) Finally, modify the oom killer to skip any task whose mem_exclusive
+     cpuset doesn't overlap ours.
 
-Thanks,
-Holger
+Patch (1), the one time I looked on an SN2 (ia64) build, actually saved
+32 bytes of kernel text space.  Patch (2) has no affect on the size
+of kernel text space (it just adds a preprocessor flag).  Patches (3)
+and (4) added about 600 bytes each of kernel text space, mostly in
+kernel/cpuset.c, which matters only if CONFIG_CPUSET is enabled.
 
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

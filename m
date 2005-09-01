@@ -1,83 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030379AbVIAUsd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030382AbVIAUs7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030379AbVIAUsd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 16:48:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030380AbVIAUsd
+	id S1030382AbVIAUs7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 16:48:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030380AbVIAUs7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 16:48:33 -0400
-Received: from rproxy.gmail.com ([64.233.170.200]:31057 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030379AbVIAUsc (ORCPT
+	Thu, 1 Sep 2005 16:48:59 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:42454 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030382AbVIAUs6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 16:48:32 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:disposition-notification-to:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=l7EnFtsDcTsbXwO8NkZ03XFT/gcnPsRUHcyOXGPb9cz1GtRD4Srf5tsqUVOefH6xi0k2LUWabD8RGy0kA9sVnoCiEfxUy1731JMpEi6YyhHRcAOzYHfaqhnkuEj9XtaCs2aSL6VID+AczVJA/nRgeRu/0Bo1nabXHmYRUD5V9ww=
-Message-ID: <4317777D.7020301@gmail.com>
-Date: Fri, 02 Sep 2005 00:49:49 +0300
-From: Alon Bar-Lev <alon.barlev@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050727)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jiri Slaby <jirislaby@gmail.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Serial driver (serial_core.c) status messages should be set to
- KERN_INFO
-References: <43177223.8030403@gmail.com> <431766C2.2020604@gmail.com>
-In-Reply-To: <431766C2.2020604@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Thu, 1 Sep 2005 16:48:58 -0400
+Subject: Re: [syslinux] Re: THE LINUX/I386 BOOT PROTOCOL - Breaking the 256
+	limit
+From: Peter Jones <pjones@redhat.com>
+Reply-To: pjones@redhat.com
+To: Chris Wedgwood <cw@f00f.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, Alon Bar-Lev <alon.barlev@gmail.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SYSLINUX@zytor.com
+In-Reply-To: <20050831220717.GA14625@taniwha.stupidest.org>
+References: <4315B668.6030603@gmail.com> <43162148.9040604@zytor.com>
+	 <20050831215757.GA10804@taniwha.stupidest.org> <431628D5.1040709@zytor.com>
+	 <20050831220717.GA14625@taniwha.stupidest.org>
+Content-Type: text/plain
+Organization: Red Hat, Inc.
+Date: Thu, 01 Sep 2005 16:48:42 -0400
+Message-Id: <1125607722.27195.23.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.3.8 (2.3.8-2) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, 2005-08-31 at 15:07 -0700, Chris Wedgwood wrote:
+> On Wed, Aug 31, 2005 at 03:01:57PM -0700, H. Peter Anvin wrote:
+> 
+> > Maybe not.  Another option would simply be to bump it up
+> > significantly (2x isn't really that much.)  4096, maybe.
+> 
+> I wonder if we're not at the point where we need something different
+> to what we have now.  The concept of a command-line works for passing
+> simple state but for more complex things it's too cumbersome.
 
-Jiri Slaby wrote:
+Well, for things that don't have to be done while the kernel is loading,
+it's entirely possible to do more complex things in initramfs.  Form a
+second image that's got a config file in it, and make the initramfs's
+init set things up based on that.
 
-> Alon Bar-Lev napsal(a):
->
->> Hello,
->>
->>
->> When upgrading to 2.6.13 I've noticed that serial driver reports it 
->> status with unknown severity, causing the boot-splash to be overridden.
->>
->>
->> Please consider this modification.
->>
->>
->> Best Regards,
->>
->> Alon Bar-Lev.
->>
->>
->> At drivers/serial/serial_core.c
->>
->>
->> static inline void
->>
->> uart_report_port(struct uart_driver *drv, struct uart_port *port)
->> {
->> -        printk("%s%d", drv->dev_name, port->line);
->> +      printk(KERN_INFO + "%s%d", drv->dev_name, port->line);
->
->
-> plus sign between that?
-
-You are right!!! the + is mistake.
-The KERN_INFO is the main fix.
-
->
->>
->>         printk(" at ");
->
->
-> why the fellows didn't put this to the line above?
-
-Regarding the other comments... I really don't know... this is how the 
-driver is written....
-I would have constructed a string and only then printk it...
-
-Regards,
-Alon Bar-Lev.
+But obviously that only works for things that are tweakable from
+userland.
+-- 
+  Peter
 

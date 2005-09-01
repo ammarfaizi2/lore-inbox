@@ -1,116 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030229AbVIAQZF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030232AbVIAQ1V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030229AbVIAQZF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 12:25:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030228AbVIAQZE
+	id S1030232AbVIAQ1V (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 12:27:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030233AbVIAQ1V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 12:25:04 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:15060 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1030226AbVIAQZD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 12:25:03 -0400
-Subject: Re: 2.6.13-rt3
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Thu, 01 Sep 2005 12:24:53 -0400
-Message-Id: <1125591893.7842.7.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Thu, 1 Sep 2005 12:27:21 -0400
+Received: from mx2.suse.de ([195.135.220.15]:58851 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030232AbVIAQ1U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 12:27:20 -0400
+From: Andreas Gruenbacher <agruen@suse.de>
+Organization: SUSE LINUX Products GMBH
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: [patch] nfsacl: Solaris VxFS compatibility fix
+Date: Thu, 1 Sep 2005 18:27:17 +0200
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, okir@suse.de,
+       Neil Brown <neilb@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509011827.18437.agruen@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo,
+Trond,
 
-Here's a patch to fix some of the problems when defining ALL_TASKS_PI.
-The pi_setprio logic is currently incorrect.  This should fix that. I
-converted ALL_TASKS_PI to a constant number, so that it can be used in
-if statements.
+here is a compatibility fix between Linux and Solaris when used with VxFS filesystems: Solaris
+usually accepts acl entries in any order, but with VxFS it replies with NFSERR_INVAL when it
+sees a four-entry acl that is not in canonical form. It may also fail with other non-canonical
+acls -- I can't tell, because that case never triggers: We only send non-canonical acls
+when we fake up an ACL_MASK entry.
 
--- Steve
+Instead of adding fake ACL_MASK entries at the end, inserting them in the correct position makes
+Solaris+VxFS happy. The Linux client and server sides don't care about entry order. The three-entry-acl
+special case in which we need a fake ACL_MASK entry was handled in xdr_nfsace_encode. The patch
+moves this into nfsacl_encode.
 
-Note: I compiled this, but I haven't run it yet. I'll run it right after
-I send this note and respond how it worked.
+Signed-off-by: Andreas Gruenbacher <agruen@suse.de>
 
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
-
-Index: linux_realtime_goliath/kernel/rt.c
+Index: linux-2.6.13-nfsacl-fix/fs/nfs_common/nfsacl.c
 ===================================================================
---- linux_realtime_goliath/kernel/rt.c	(revision 314)
-+++ linux_realtime_goliath/kernel/rt.c	(working copy)
-@@ -104,7 +104,7 @@
-  * in the system fall under PI handling. Normally only SCHED_FIFO/RR
-  * tasks are PI-handled:
-  */
--#define ALL_TASKS_PI
-+#define ALL_TASKS_PI 1
+--- linux-2.6.13-nfsacl-fix.orig/fs/nfs_common/nfsacl.c
++++ linux-2.6.13-nfsacl-fix/fs/nfs_common/nfsacl.c
+@@ -48,43 +48,26 @@ xdr_nfsace_encode(struct xdr_array2_desc
+ 		(struct nfsacl_encode_desc *) desc;
+ 	u32 *p = (u32 *) elem;
  
- #ifdef CONFIG_RT_DEADLOCK_DETECT
- # define __EIP_DECL__ , unsigned long eip
-@@ -663,7 +663,7 @@
+-	if (nfsacl_desc->count < nfsacl_desc->acl->a_count) {
+-		struct posix_acl_entry *entry =
+-			&nfsacl_desc->acl->a_entries[nfsacl_desc->count++];
++	struct posix_acl_entry *entry =
++		&nfsacl_desc->acl->a_entries[nfsacl_desc->count++];
  
- #endif
+-		*p++ = htonl(entry->e_tag | nfsacl_desc->typeflag);
+-		switch(entry->e_tag) {
+-			case ACL_USER_OBJ:
+-				*p++ = htonl(nfsacl_desc->uid);
+-				break;
+-			case ACL_GROUP_OBJ:
+-				*p++ = htonl(nfsacl_desc->gid);
+-				break;
+-			case ACL_USER:
+-			case ACL_GROUP:
+-				*p++ = htonl(entry->e_id);
+-				break;
+-			default:  /* Solaris depends on that! */
+-				*p++ = 0;
+-				break;
+-		}
+-		*p++ = htonl(entry->e_perm & S_IRWXO);
+-	} else {
+-		const struct posix_acl_entry *pa, *pe;
+-		int group_obj_perm = ACL_READ|ACL_WRITE|ACL_EXECUTE;
+-
+-		FOREACH_ACL_ENTRY(pa, nfsacl_desc->acl, pe) {
+-			if (pa->e_tag == ACL_GROUP_OBJ) {
+-				group_obj_perm = pa->e_perm & S_IRWXO;
+-				break;
+-			}
+-		}
+-		/* fake up ACL_MASK entry */
+-		*p++ = htonl(ACL_MASK | nfsacl_desc->typeflag);
+-		*p++ = htonl(0);
+-		*p++ = htonl(group_obj_perm);
++	*p++ = htonl(entry->e_tag | nfsacl_desc->typeflag);
++	switch(entry->e_tag) {
++		case ACL_USER_OBJ:
++			*p++ = htonl(nfsacl_desc->uid);
++			break;
++		case ACL_GROUP_OBJ:
++			*p++ = htonl(nfsacl_desc->gid);
++			break;
++		case ACL_USER:
++		case ACL_GROUP:
++			*p++ = htonl(entry->e_id);
++			break;
++		default:  /* Solaris depends on that! */
++			*p++ = 0;
++			break;
+ 	}
+-
++	*p++ = htonl(entry->e_perm & S_IRWXO);
+ 	return 0;
+ }
  
--#if defined(ALL_TASKS_PI) && defined(CONFIG_RT_DEADLOCK_DETECT)
-+#if ALL_TASKS_PI && defined(CONFIG_RT_DEADLOCK_DETECT)
+@@ -105,11 +88,28 @@ nfsacl_encode(struct xdr_buf *buf, unsig
+ 		.gid = inode->i_gid,
+ 	};
+ 	int err;
++	struct posix_acl *acl2 = NULL;
  
- static void
- check_pi_list_present(struct rt_mutex *lock, struct rt_mutex_waiter *waiter,
-@@ -674,7 +674,6 @@
- 
- 	__raw_spin_lock(&old_owner->task->pi_lock);
- 	TRACE_WARN_ON_LOCKED(plist_empty(&waiter->pi_list));
--	TRACE_WARN_ON_LOCKED(lock_owner(lock));
- 
- 	plist_for_each(curr1, &old_owner->task->pi_waiters) {
- 		w = plist_entry(curr1, struct rt_mutex_waiter, pi_list);
-@@ -851,7 +850,7 @@
- 			__raw_spin_lock(&l->wait_lock);
- 
- 		TRACE_BUG_ON_LOCKED(!lock_owner(l));
--		if (rt_task(p) && plist_empty(&w->pi_list)) {
-+		if ((ALL_TASKS_PI || rt_task(p)) && plist_empty(&w->pi_list)) {
- 			TRACE_BUG_ON_LOCKED(was_rt);
- 			plist_init(&w->pi_list, prio);
- 			plist_add(&w->pi_list, &lock_owner(l)->task->pi_waiters);
-@@ -868,7 +867,7 @@
- 		 * (TODO: this can be unfair to SCHED_NORMAL tasks if they
- 		 *        get PI handled.)
- 		 */
--		if (!rt_task(p) && !plist_empty(&w->pi_list)) {
-+		if (!ALL_TASKS_PI && !rt_task(p) && !plist_empty(&w->pi_list)) {
- 			TRACE_BUG_ON_LOCKED(!was_rt);
- 			plist_del(&w->pi_list, &lock_owner(l)->task->pi_waiters);
- 			plist_del(&w->list, &l->wait_list);
-@@ -970,7 +969,7 @@
- 	 */
- 	TRACE_BUG_ON_LOCKED(!spin_is_locked(&task->pi_lock));
- 	TRACE_BUG_ON_LOCKED(!spin_is_locked(&lock->wait_lock));
--#ifndef ALL_TASKS_PI
-+#if !ALL_TASKS_PI
- 	if (!rt_task(task)) {
- 		plist_add(&waiter->list, &lock->wait_list);
- 		set_lock_owner_pending(lock);
-@@ -1083,7 +1082,7 @@
- #endif
- 	trace_special_pid(waiter->ti->task->pid, waiter->ti->task->prio, 0);
- 
--#ifdef ALL_TASKS_PI
-+#if ALL_TASKS_PI
- 	check_pi_list_present(lock, waiter, old_owner);
- #endif
- 	new_owner = waiter->ti;
-@@ -1543,7 +1542,7 @@
- 	list_del_init(&lock->held_list);
- #endif
- 
--#ifdef ALL_TASKS_PI
-+#if ALL_TASKS_PI
- 	if (plist_empty(&lock->wait_list))
- 		check_pi_list_empty(lock, lock_owner(lock));
- #endif
-
-
+ 	if (entries > NFS_ACL_MAX_ENTRIES ||
+ 	    xdr_encode_word(buf, base, entries))
+ 		return -EINVAL;
++	if (encode_entries && acl && acl->a_count == 3) {
++		/* Fake up an ACL_MASK entry. */
++		acl2 = posix_acl_alloc(4, GFP_KERNEL);
++		if (!acl2)
++			return -ENOMEM;
++		/* Insert entries in canonical order: other orders seem
++		 to confuse Solaris VxFS. */
++		acl2->a_entries[0] = acl->a_entries[0];  /* ACL_USER_OBJ */
++		acl2->a_entries[1] = acl->a_entries[1];  /* ACL_GROUP_OBJ */
++		acl2->a_entries[2] = acl->a_entries[1];  /* ACL_MASK */
++		acl2->a_entries[2].e_tag = ACL_MASK;
++		acl2->a_entries[3] = acl->a_entries[2];  /* ACL_OTHER */
++		nfsacl_desc.acl = acl2;
++	}
+ 	err = xdr_encode_array2(buf, base + 4, &nfsacl_desc.desc);
++	if (acl2)
++		posix_acl_release(acl2);
+ 	if (!err)
+ 		err = 8 + nfsacl_desc.desc.elem_size *
+ 			  nfsacl_desc.desc.array_len;

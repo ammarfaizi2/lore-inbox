@@ -1,232 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030348AbVIAUEq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030355AbVIAUFk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030348AbVIAUEq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 16:04:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030349AbVIAUEq
+	id S1030355AbVIAUFk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 16:05:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030354AbVIAUFj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 16:04:46 -0400
-Received: from az33egw01.freescale.net ([192.88.158.102]:13267 "EHLO
-	az33egw01.freescale.net") by vger.kernel.org with ESMTP
-	id S1030348AbVIAUEo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 16:04:44 -0400
-Date: Thu, 1 Sep 2005 15:04:21 -0500 (CDT)
-From: Kumar Gala <galak@freescale.com>
-X-X-Sender: galak@nylon.am.freescale.net
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-cc: linux-kernel@vger.kernel.org, davem@davemloft.net
-Subject: [PATCH][RESEND] Remove non-arch consumers of asm/segment.h
-Message-ID: <Pine.LNX.4.61.0509011503440.8891@nylon.am.freescale.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 1 Sep 2005 16:05:39 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:54192 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030353AbVIAUFi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 16:05:38 -0400
+Date: Thu, 1 Sep 2005 21:05:32 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Brett Russ <russb@emc.com>,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.13] libata: Marvell SATA support (PIO mode)
+Message-ID: <20050901200532.GA14650@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jeff Garzik <jgarzik@pobox.com>, Brett Russ <russb@emc.com>,
+	linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20050830183625.BEE1520F4C@lns1058.lss.emc.com> <4314C604.4030208@pobox.com> <20050901142754.B93BF27137@lns1058.lss.emc.com> <20050901144038.GA25830@infradead.org> <43175B23.8040803@pobox.com> <20050901195832.GA14602@infradead.org> <43175E8F.7080700@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43175E8F.7080700@pobox.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-asm/segment.h varies greatly on different architectures but is clearly
-deprecated.  Removing all non-architecture consumers will make it easier
-for us to get ride of asm/segment.h all together.
+On Thu, Sep 01, 2005 at 04:03:27PM -0400, Jeff Garzik wrote:
+> Christoph Hellwig wrote:
+> >On Thu, Sep 01, 2005 at 03:48:51PM -0400, Jeff Garzik wrote:
+> >
+> >>Christoph Hellwig wrote:
+> >>
+> >>>>+#include <linux/kernel.h>
+> >>>>+#include <linux/module.h>
+> >>>>+#include <linux/pci.h>
+> >>>>+#include <linux/init.h>
+> >>>>+#include <linux/blkdev.h>
+> >>>>+#include <linux/delay.h>
+> >>>>+#include <linux/interrupt.h>
+> >>>>+#include <linux/sched.h>
+> >>>>+#include <linux/dma-mapping.h>
+> >>>>+#include "scsi.h"
+> >>>
+> >>>
+> >>>pleaese don't include "scsi.h" in new drivers.  It will go away soon.
+> >>>Use the <scsi/*.h> headers and get rid of usage of obsolete constucts
+> >>>in your driver.
+> >>
+> >>
+> >>It stays until the rest of the libata drivers lose the include.
+> >>
+> >>After ATAPI support is done, I can stop 2.4.x support, and this and 
+> >>several other compat-isms will go away.
+> >
+> >
+> >NACK.  Jeff, I accept that you don't want to convert old drivers yet,
+> >but this is not acceptable for new drivers.  We don't allow it for any
+> >new scsi LLDDs, and that includes libata drivers.
+> 
+> Sorry, you don't get to NAK that change, since it affects 2.4.x 
+> maintenance of this new driver.
 
-Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
+Stop that crap now please.  Adding "scsi.h" includes is _not_ allowed
+for new drivers, period.  There's no exceptions, not even for
+Jeff "I'm part of the calal" Garzik.
 
----
-commit 2ce31e41967fc58548561a601ffa671c0864d3b8
-tree dc693869ee136e6fd06ca4792991d1e0984ec8dd
-parent 58d478e75ac5d6cb3a1f738a22555c3841445264
-author Kumar K. Gala <kumar.gala@freescale.com> Wed, 24 Aug 2005 10:15:41 -0500
-committer Kumar K. Gala <kumar.gala@freescale.com> Wed, 24 Aug 2005 10:15:41 -0500
-
- drivers/char/mxser.c          |    1 -
- drivers/isdn/hisax/hisax.h    |    1 -
- drivers/media/video/adv7170.c |    1 -
- drivers/media/video/adv7175.c |    1 -
- drivers/media/video/bt819.c   |    1 -
- drivers/media/video/bt856.c   |    1 -
- drivers/media/video/saa7111.c |    1 -
- drivers/media/video/saa7114.c |    1 -
- drivers/media/video/saa7185.c |    1 -
- drivers/serial/68328serial.c  |    1 -
- drivers/serial/crisv10.c      |    1 -
- drivers/serial/icom.c         |    1 -
- drivers/serial/mcfserial.c    |    1 -
- drivers/video/q40fb.c         |    1 -
- include/linux/isdn.h          |    1 -
- sound/oss/os.h                |    3 ---
- 16 files changed, 0 insertions(+), 18 deletions(-)
-
-diff --git a/drivers/char/mxser.c b/drivers/char/mxser.c
---- a/drivers/char/mxser.c
-+++ b/drivers/char/mxser.c
-@@ -63,7 +63,6 @@
- #include <asm/system.h>
- #include <asm/io.h>
- #include <asm/irq.h>
--#include <asm/segment.h>
- #include <asm/bitops.h>
- #include <asm/uaccess.h>
- 
-diff --git a/drivers/isdn/hisax/hisax.h b/drivers/isdn/hisax/hisax.h
---- a/drivers/isdn/hisax/hisax.h
-+++ b/drivers/isdn/hisax/hisax.h
-@@ -10,7 +10,6 @@
- #include <linux/errno.h>
- #include <linux/fs.h>
- #include <linux/major.h>
--#include <asm/segment.h>
- #include <asm/io.h>
- #include <linux/delay.h>
- #include <linux/kernel.h>
-diff --git a/drivers/media/video/adv7170.c b/drivers/media/video/adv7170.c
---- a/drivers/media/video/adv7170.c
-+++ b/drivers/media/video/adv7170.c
-@@ -43,7 +43,6 @@
- #include <asm/pgtable.h>
- #include <asm/page.h>
- #include <linux/sched.h>
--#include <asm/segment.h>
- #include <linux/types.h>
- 
- #include <linux/videodev.h>
-diff --git a/drivers/media/video/adv7175.c b/drivers/media/video/adv7175.c
---- a/drivers/media/video/adv7175.c
-+++ b/drivers/media/video/adv7175.c
-@@ -39,7 +39,6 @@
- #include <asm/pgtable.h>
- #include <asm/page.h>
- #include <linux/sched.h>
--#include <asm/segment.h>
- #include <linux/types.h>
- 
- #include <linux/videodev.h>
-diff --git a/drivers/media/video/bt819.c b/drivers/media/video/bt819.c
---- a/drivers/media/video/bt819.c
-+++ b/drivers/media/video/bt819.c
-@@ -43,7 +43,6 @@
- #include <asm/pgtable.h>
- #include <asm/page.h>
- #include <linux/sched.h>
--#include <asm/segment.h>
- #include <linux/types.h>
- 
- #include <linux/videodev.h>
-diff --git a/drivers/media/video/bt856.c b/drivers/media/video/bt856.c
---- a/drivers/media/video/bt856.c
-+++ b/drivers/media/video/bt856.c
-@@ -43,7 +43,6 @@
- #include <asm/pgtable.h>
- #include <asm/page.h>
- #include <linux/sched.h>
--#include <asm/segment.h>
- #include <linux/types.h>
- 
- #include <linux/videodev.h>
-diff --git a/drivers/media/video/saa7111.c b/drivers/media/video/saa7111.c
---- a/drivers/media/video/saa7111.c
-+++ b/drivers/media/video/saa7111.c
-@@ -42,7 +42,6 @@
- #include <asm/pgtable.h>
- #include <asm/page.h>
- #include <linux/sched.h>
--#include <asm/segment.h>
- #include <linux/types.h>
- 
- #include <linux/videodev.h>
-diff --git a/drivers/media/video/saa7114.c b/drivers/media/video/saa7114.c
---- a/drivers/media/video/saa7114.c
-+++ b/drivers/media/video/saa7114.c
-@@ -45,7 +45,6 @@
- #include <asm/pgtable.h>
- #include <asm/page.h>
- #include <linux/sched.h>
--#include <asm/segment.h>
- #include <linux/types.h>
- 
- #include <linux/videodev.h>
-diff --git a/drivers/media/video/saa7185.c b/drivers/media/video/saa7185.c
---- a/drivers/media/video/saa7185.c
-+++ b/drivers/media/video/saa7185.c
-@@ -39,7 +39,6 @@
- #include <asm/pgtable.h>
- #include <asm/page.h>
- #include <linux/sched.h>
--#include <asm/segment.h>
- #include <linux/types.h>
- 
- #include <linux/videodev.h>
-diff --git a/drivers/serial/68328serial.c b/drivers/serial/68328serial.c
---- a/drivers/serial/68328serial.c
-+++ b/drivers/serial/68328serial.c
-@@ -40,7 +40,6 @@
- #include <asm/io.h>
- #include <asm/irq.h>
- #include <asm/system.h>
--#include <asm/segment.h>
- #include <asm/delay.h>
- #include <asm/uaccess.h>
- 
-diff --git a/drivers/serial/crisv10.c b/drivers/serial/crisv10.c
---- a/drivers/serial/crisv10.c
-+++ b/drivers/serial/crisv10.c
-@@ -446,7 +446,6 @@ static char *serial_version = "$Revision
- #include <asm/io.h>
- #include <asm/irq.h>
- #include <asm/system.h>
--#include <asm/segment.h>
- #include <asm/bitops.h>
- #include <linux/delay.h>
- 
-diff --git a/drivers/serial/icom.c b/drivers/serial/icom.c
---- a/drivers/serial/icom.c
-+++ b/drivers/serial/icom.c
-@@ -56,7 +56,6 @@
- #include <linux/bitops.h>
- 
- #include <asm/system.h>
--#include <asm/segment.h>
- #include <asm/io.h>
- #include <asm/irq.h>
- #include <asm/uaccess.h>
-diff --git a/drivers/serial/mcfserial.c b/drivers/serial/mcfserial.c
---- a/drivers/serial/mcfserial.c
-+++ b/drivers/serial/mcfserial.c
-@@ -40,7 +40,6 @@
- #include <asm/io.h>
- #include <asm/irq.h>
- #include <asm/system.h>
--#include <asm/segment.h>
- #include <asm/semaphore.h>
- #include <asm/delay.h>
- #include <asm/coldfire.h>
-diff --git a/drivers/video/q40fb.c b/drivers/video/q40fb.c
---- a/drivers/video/q40fb.c
-+++ b/drivers/video/q40fb.c
-@@ -21,7 +21,6 @@
- 
- #include <asm/uaccess.h>
- #include <asm/setup.h>
--#include <asm/segment.h>
- #include <asm/system.h>
- #include <asm/q40_master.h>
- #include <linux/fb.h>
-diff --git a/include/linux/isdn.h b/include/linux/isdn.h
---- a/include/linux/isdn.h
-+++ b/include/linux/isdn.h
-@@ -150,7 +150,6 @@ typedef struct {
- #include <linux/errno.h>
- #include <linux/fs.h>
- #include <linux/major.h>
--#include <asm/segment.h>
- #include <asm/io.h>
- #include <linux/kernel.h>
- #include <linux/signal.h>
-diff --git a/sound/oss/os.h b/sound/oss/os.h
---- a/sound/oss/os.h
-+++ b/sound/oss/os.h
-@@ -19,9 +19,6 @@
- #include <linux/ioport.h>
- #include <asm/page.h>
- #include <asm/system.h>
--#ifdef __alpha__
--#include <asm/segment.h>
--#endif
- #include <linux/vmalloc.h>
- #include <asm/uaccess.h>
- #include <linux/poll.h>

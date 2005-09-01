@@ -1,49 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030252AbVIARVG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030250AbVIARWQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030252AbVIARVG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 13:21:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030250AbVIARVF
+	id S1030250AbVIARWQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 13:22:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030251AbVIARWQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 13:21:05 -0400
-Received: from smtp.istop.com ([66.11.167.126]:47754 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S1030249AbVIARVE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 13:21:04 -0400
-From: Daniel Phillips <phillips@istop.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: GFS, what's remaining
-Date: Thu, 1 Sep 2005 13:23:07 -0400
-User-Agent: KMail/1.8
-Cc: Andrew Morton <akpm@osdl.org>, David Teigland <teigland@redhat.com>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       linux-cluster@redhat.com
-References: <20050901104620.GA22482@redhat.com> <20050901035939.435768f3.akpm@osdl.org> <1125586158.15768.42.camel@localhost.localdomain>
-In-Reply-To: <1125586158.15768.42.camel@localhost.localdomain>
+	Thu, 1 Sep 2005 13:22:16 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:51886 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030250AbVIARWP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 13:22:15 -0400
+Message-ID: <43173894.7040304@us.ibm.com>
+Date: Thu, 01 Sep 2005 10:21:24 -0700
+From: Ian Romanick <idr@us.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc3 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: Brian Paul <brian.paul@tungstengraphics.com>
+CC: Discuss issues related to the xorg tree 
+	<xorg@lists.freedesktop.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: State of Linux graphics
+References: <9e47339105083009037c24f6de@mail.gmail.com>	<1125422813.20488.43.camel@localhost>	<20050831063355.GE27940@tuolumne.arden.org>	<1125512970.4798.180.camel@evo.keithp.com>	<20050831200641.GH27940@tuolumne.arden.org>	<1125522414.4798.222.camel@evo.keithp.com>	<20050901015859.GA11367@tuolumne.arden.org>	<1125547173.4798.289.camel@evo.keithp.com>	<43171D33.9020802@tungstengraphics.com> <1125590991.15768.55.camel@localhost.localdomain> <4317268B.20306@tungstengraphics.com>
+In-Reply-To: <4317268B.20306@tungstengraphics.com>
+X-Enigmail-Version: 0.92.0.0
+OpenPGP: id=AC84030F
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509011323.08217.phillips@istop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 01 September 2005 10:49, Alan Cox wrote:
-> On Iau, 2005-09-01 at 03:59 -0700, Andrew Morton wrote:
-> > - Why GFS is better than OCFS2, or has functionality which OCFS2 cannot
-> >   possibly gain (or vice versa)
-> >
-> > - Relative merits of the two offerings
->
-> You missed the important one - people actively use it and have been for
-> some years. Same reason with have NTFS, HPFS, and all the others. On
-> that alone it makes sense to include.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I thought that gfs2 just appeared last month.  Or is it really still just gfs?  
-If there are substantive changes from gfs to gfs2 then obviously they have 
-had practically zero testing, let alone posted benchmarks, testimonials, etc.  
-If it is really still just gfs then the silly-rename should be undone.
+Brian Paul wrote:
 
-Regards,
+> It's other (non-orientation) texture state I had in mind:
+> 
+> - the texel format (OpenGL has over 30 possible texture formats).
+> - texture size and borders
+> - the filtering mode (linear, nearest, etc)
+> - coordinate wrap mode (clamp, repeat, etc)
+> - env/combine mode
+> - multi-texture state
 
-Daniel
+Which is why it's such a good target for code generation.  You'd
+generate the texel fetch routine, use that to generate the wraped texel
+fetch routine, use that to generate the filtered texel fetch routine,
+use that to generate the env/combine routines.
+
+Once-upon-a-time I had the first part and some of the second part
+written.  Doing just that little bit was slightly faster on a Pentium 3
+and slightly slower on a Pentium 4.  I suspect the problem was that I
+wasn't caching the generated code smart enough, so it was it trashing
+the CPU cache.  The other problem is that, in the absence of an
+assembler in Mesa, it was really painful to change the code stubs.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQFDFziUX1gOwKyEAw8RAhmFAJ9QJ7RTrB2dHV/hwb8ktwLyqKSM4wCdGtbS
+b0A2N2jFcLeg8HRm53jMyrI=
+=Ygkd
+-----END PGP SIGNATURE-----

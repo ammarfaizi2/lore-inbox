@@ -1,44 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030197AbVIAPUH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030198AbVIAPUR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030197AbVIAPUH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 11:20:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030198AbVIAPUH
+	id S1030198AbVIAPUR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 11:20:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030199AbVIAPUR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 11:20:07 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:23624
-	"EHLO g5.random") by vger.kernel.org with ESMTP id S1030197AbVIAPUF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 11:20:05 -0400
-Date: Thu, 1 Sep 2005 17:19:58 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-       Sven Ladegast <sven@linux4geeks.de>, linux-kernel@vger.kernel.org
-Subject: Re: KLive: Linux Kernel Live Usage Monitor
-Message-ID: <20050901151958.GG1614@g5.random>
-References: <20050830030959.GC8515@g5.random> <Pine.LNX.4.63.0508300954190.1984@cassini.linux4geeks.de> <20050830082901.GA25438@bitwizard.nl> <Pine.LNX.4.63.0508301044150.1984@cassini.linux4geeks.de> <20050830094058.GA29214@bitwizard.nl> <20050830151035.GO8515@g5.random> <1125419618.8276.30.camel@localhost.localdomain> <20050830161634.GR8515@g5.random> <20050831183159.GD703@openzaurus.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050831183159.GD703@openzaurus.ucw.cz>
-User-Agent: Mutt/1.5.9i
+	Thu, 1 Sep 2005 11:20:17 -0400
+Received: from [85.8.12.41] ([85.8.12.41]:40857 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S1030198AbVIAPUP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 11:20:15 -0400
+Message-ID: <43171C02.30402@drzeus.cx>
+Date: Thu, 01 Sep 2005 17:19:30 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 1.0.6-5 (X11/20050818)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: ncunningham@cyclades.com, Pavel Machek <pavel@ucw.cz>,
+       Meelis Roos <mroos@linux.ee>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Len Brown <len.brown@intel.com>
+Subject: Re: reboot vs poweroff
+References: <20050901062406.EBA5613D5B@rhn.tartu-labor>	<1125557333.12996.76.camel@localhost>	<Pine.SOC.4.61.0509011030430.3232@math.ut.ee>	<4316F4E3.4030302@drzeus.cx> <1125578897.4785.23.camel@localhost> <m1fysoq0p7.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1fysoq0p7.fsf@ebiederm.dsl.xmission.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 31, 2005 at 08:32:00PM +0200, Pavel Machek wrote:
-> I'd say "ignore suspend". Machines using it are probably not connected
-> to network, anyway, and it stresses system quite a lot.
+Eric W. Biederman wrote:
 
-Currently even if you're not connected to the network it's fine. As long
-as you connect sometime. If a packet manages to get sent to the sever in
-a window when you're connected your stats will be fine and the seconds
-of uptime will be checked against the time it passed on the server.
+>Hmm.  Looking at that bug report it specifies 2.6.11.  Does this
+>problem really happen in 2.6.13?
+>
+>  
+>
 
-> I'm afraid that if you compared completely idle system and system running
-> one hour a day, suspended for the rest, the first system would likely reach better
-> uptime.
+I first noticed it in 2.6.11. It was fixed sometime during 2.6.13-rc
+only to be killed of again in 2.6.13-rc7. The bugzilla now has a patch
+for 2.6.13 which fixes the problem again.
 
-That shouldn't be the case. Anyway I can trivially detect the suspended
-systems, so if you want I can add a tag like "suspended" on the right of
-the table (in the future we can add filters in the main page so you can
-filter out the archs you don't want, smp etc..).
+Rgds
+Pierre
+

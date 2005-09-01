@@ -1,297 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965045AbVIABbd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965027AbVIABdJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965045AbVIABbd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 21:31:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965053AbVIABbH
+	id S965027AbVIABdJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 21:33:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965056AbVIABct
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 21:31:07 -0400
-Received: from ozlabs.org ([203.10.76.45]:24720 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S965045AbVIAB3a (ORCPT
+	Wed, 31 Aug 2005 21:32:49 -0400
+Received: from ozlabs.org ([203.10.76.45]:12432 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S965027AbVIAB3Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 21:29:30 -0400
+	Wed, 31 Aug 2005 21:29:25 -0400
 To: <jgarzik@pobox.com>
 CC: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
        <linuxppc64-dev@ozlabs.org>
 From: Michael Ellerman <michael@ellerman.id.au>
-Subject: [PATCH 17/18] iseries_veth: Remove studly caps from iseries_veth.c
+Subject: [PATCH 14/18] iseries_veth: Add sysfs support for connection structs
 In-Reply-To: <1125538127.859382.875909607846.qpush@concordia>
-Message-Id: <20050901012927.35CE7681A0@ozlabs.org>
-Date: Thu,  1 Sep 2005 11:29:27 +1000 (EST)
+Message-Id: <20050901012920.5D74D68231@ozlabs.org>
+Date: Thu,  1 Sep 2005 11:29:20 +1000 (EST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Having merged iseries_veth.h, let's remove some of the studly caps that came
-with it.
+To aid in field debugging, add sysfs support for iseries_veth's connection
+structures. At the moment this is all read-only, however we could think about
+adding write support for some attributes in future.
 
 Signed-off-by: Michael Ellerman <michael@ellerman.id.au>
 ---
 
- drivers/net/iseries_veth.c |   74 ++++++++++++++++++++++-----------------------
- 1 files changed, 37 insertions(+), 37 deletions(-)
+ drivers/net/iseries_veth.c |   94 +++++++++++++++++++++++++++++++++++++++++++--
+ 1 files changed, 90 insertions(+), 4 deletions(-)
 
 Index: veth-dev2/drivers/net/iseries_veth.c
 ===================================================================
 --- veth-dev2.orig/drivers/net/iseries_veth.c
 +++ veth-dev2/drivers/net/iseries_veth.c
-@@ -85,26 +85,26 @@ MODULE_AUTHOR("Kyle Lucke <klucke@us.ibm
- MODULE_DESCRIPTION("iSeries Virtual ethernet driver");
- MODULE_LICENSE("GPL");
- 
--#define VethEventTypeCap	(0)
--#define VethEventTypeFrames	(1)
--#define VethEventTypeMonitor	(2)
--#define VethEventTypeFramesAck	(3)
-+#define VETH_EVENT_CAP	(0)
-+#define VETH_EVENT_FRAMES	(1)
-+#define VETH_EVENT_MONITOR	(2)
-+#define VETH_EVENT_FRAMES_ACK	(3)
- 
- #define VETH_MAX_ACKS_PER_MSG	(20)
- #define VETH_MAX_FRAMES_PER_MSG	(6)
- 
--struct VethFramesData {
-+struct veth_frames_data {
- 	u32 addr[VETH_MAX_FRAMES_PER_MSG];
- 	u16 len[VETH_MAX_FRAMES_PER_MSG];
- 	u32 eofmask;
- };
- #define VETH_EOF_SHIFT		(32-VETH_MAX_FRAMES_PER_MSG)
- 
--struct VethFramesAckData {
-+struct veth_frames_ack_data {
- 	u16 token[VETH_MAX_ACKS_PER_MSG];
- };
- 
--struct VethCapData {
-+struct veth_cap_data {
- 	u8 caps_version;
- 	u8 rsvd1;
- 	u16 num_buffers;
-@@ -115,12 +115,12 @@ struct VethCapData {
- 	u64 rsvd4[3];
- };
- 
--struct VethLpEvent {
-+struct veth_lpevent {
- 	struct HvLpEvent base_event;
- 	union {
--		struct VethCapData caps_data;
--		struct VethFramesData frames_data;
--		struct VethFramesAckData frames_ack_data;
-+		struct veth_cap_data caps_data;
-+		struct veth_frames_data frames_data;
-+		struct veth_frames_ack_data frames_ack_data;
- 	} u;
- 
- };
-@@ -153,7 +153,7 @@ struct VethLpEvent {
- 
- struct veth_msg {
- 	struct veth_msg *next;
--	struct VethFramesData data;
-+	struct veth_frames_data data;
- 	int token;
- 	int in_use;
- 	struct sk_buff *skb;
-@@ -165,7 +165,7 @@ struct veth_lpar_connection {
- 	struct work_struct statemachine_wq;
- 	struct veth_msg *msgs;
- 	int num_events;
--	struct VethCapData local_caps;
-+	struct veth_cap_data local_caps;
- 
- 	struct kobject kobject;
- 	struct timer_list ack_timer;
-@@ -179,12 +179,12 @@ struct veth_lpar_connection {
- 	unsigned long state;
- 	HvLpInstanceId src_inst;
- 	HvLpInstanceId dst_inst;
--	struct VethLpEvent cap_event, cap_ack_event;
-+	struct veth_lpevent cap_event, cap_ack_event;
- 	u16 pending_acks[VETH_MAX_ACKS_PER_MSG];
- 	u32 num_pending_acks;
- 
- 	int num_ack_events;
--	struct VethCapData remote_caps;
-+	struct veth_cap_data remote_caps;
- 	u32 ack_timeout;
- 
- 	struct veth_msg *msg_stack_head;
-@@ -217,7 +217,7 @@ static int veth_start_xmit(struct sk_buf
- static void veth_recycle_msg(struct veth_lpar_connection *, struct veth_msg *);
- static void veth_wake_queues(struct veth_lpar_connection *cnx);
- static void veth_stop_queues(struct veth_lpar_connection *cnx);
--static void veth_receive(struct veth_lpar_connection *, struct VethLpEvent *);
-+static void veth_receive(struct veth_lpar_connection *, struct veth_lpevent *);
- static void veth_release_connection(struct kobject *kobject);
+@@ -182,10 +182,6 @@ static void veth_release_connection(stru
  static void veth_timed_ack(unsigned long ptr);
  static void veth_timed_reset(unsigned long ptr);
-@@ -308,7 +308,7 @@ static int veth_allocate_events(HvLpInde
- 	struct veth_allocation vc = { COMPLETION_INITIALIZER(vc.c), 0 };
  
- 	mf_allocate_lp_events(rlp, HvLpEvent_Type_VirtualLan,
--			    sizeof(struct VethLpEvent), number,
-+			    sizeof(struct veth_lpevent), number,
- 			    &veth_complete_allocation, &vc);
- 	wait_for_completion(&vc.c);
- 
-@@ -456,7 +456,7 @@ static inline void veth_kick_statemachin
+-static struct kobj_type veth_lpar_connection_ktype = {
+-	.release	= veth_release_connection
+-};
+-
+ /*
+  * Utility functions
+  */
+@@ -280,6 +276,81 @@ static int veth_allocate_events(HvLpInde
  }
  
- static void veth_take_cap(struct veth_lpar_connection *cnx,
--			  struct VethLpEvent *event)
-+			  struct veth_lpevent *event)
- {
- 	unsigned long flags;
+ /*
++ * sysfs support
++ */
++
++struct veth_cnx_attribute {
++	struct attribute attr;
++	ssize_t (*show)(struct veth_lpar_connection *, char *buf);
++	ssize_t (*store)(struct veth_lpar_connection *, const char *buf);
++};
++
++static ssize_t veth_cnx_attribute_show(struct kobject *kobj,
++		struct attribute *attr, char *buf)
++{
++	struct veth_cnx_attribute *cnx_attr;
++	struct veth_lpar_connection *cnx;
++
++	cnx_attr = container_of(attr, struct veth_cnx_attribute, attr);
++	cnx = container_of(kobj, struct veth_lpar_connection, kobject);
++
++	if (!cnx_attr->show)
++		return -EIO;
++
++	return cnx_attr->show(cnx, buf);
++}
++
++#define CUSTOM_CNX_ATTR(_name, _format, _expression)			\
++static ssize_t _name##_show(struct veth_lpar_connection *cnx, char *buf)\
++{									\
++	return sprintf(buf, _format, _expression);			\
++}									\
++struct veth_cnx_attribute veth_cnx_attr_##_name = __ATTR_RO(_name)
++
++#define SIMPLE_CNX_ATTR(_name)	\
++	CUSTOM_CNX_ATTR(_name, "%lu\n", (unsigned long)cnx->_name)
++
++SIMPLE_CNX_ATTR(outstanding_tx);
++SIMPLE_CNX_ATTR(remote_lp);
++SIMPLE_CNX_ATTR(num_events);
++SIMPLE_CNX_ATTR(src_inst);
++SIMPLE_CNX_ATTR(dst_inst);
++SIMPLE_CNX_ATTR(num_pending_acks);
++SIMPLE_CNX_ATTR(num_ack_events);
++CUSTOM_CNX_ATTR(ack_timeout, "%d\n", jiffies_to_msecs(cnx->ack_timeout));
++CUSTOM_CNX_ATTR(reset_timeout, "%d\n", jiffies_to_msecs(cnx->reset_timeout));
++CUSTOM_CNX_ATTR(state, "0x%.4lX\n", cnx->state);
++CUSTOM_CNX_ATTR(last_contact, "%d\n", cnx->last_contact ?
++		jiffies_to_msecs(jiffies - cnx->last_contact) : 0);
++
++#define GET_CNX_ATTR(_name)	(&veth_cnx_attr_##_name.attr)
++
++static struct attribute *veth_cnx_default_attrs[] = {
++	GET_CNX_ATTR(outstanding_tx),
++	GET_CNX_ATTR(remote_lp),
++	GET_CNX_ATTR(num_events),
++	GET_CNX_ATTR(reset_timeout),
++	GET_CNX_ATTR(last_contact),
++	GET_CNX_ATTR(state),
++	GET_CNX_ATTR(src_inst),
++	GET_CNX_ATTR(dst_inst),
++	GET_CNX_ATTR(num_pending_acks),
++	GET_CNX_ATTR(num_ack_events),
++	GET_CNX_ATTR(ack_timeout),
++	NULL
++};
++
++static struct sysfs_ops veth_cnx_sysfs_ops = {
++		.show = veth_cnx_attribute_show
++};
++
++static struct kobj_type veth_lpar_connection_ktype = {
++	.release	= veth_release_connection,
++	.sysfs_ops	= &veth_cnx_sysfs_ops,
++	.default_attrs	= veth_cnx_default_attrs
++};
++
++/*
+  * LPAR connection code
+  */
  
-@@ -481,7 +481,7 @@ static void veth_take_cap(struct veth_lp
- }
+@@ -1493,6 +1564,8 @@ void __exit veth_module_cleanup(void)
+ 		if (!cnx)
+ 			continue;
  
- static void veth_take_cap_ack(struct veth_lpar_connection *cnx,
--			      struct VethLpEvent *event)
-+			      struct veth_lpevent *event)
- {
- 	unsigned long flags;
++		/* Remove the connection from sysfs */
++		kobject_del(&cnx->kobject);
+ 		/* Drop the driver's reference to the connection */
+ 		kobject_put(&cnx->kobject);
+ 	}
+@@ -1523,6 +1596,19 @@ int __init veth_module_init(void)
+ 	if (rc != 0)
+ 		goto error;
  
-@@ -499,7 +499,7 @@ static void veth_take_cap_ack(struct vet
- }
++	for (i = 0; i < HVMAXARCHITECTEDLPS; ++i) {
++		struct kobject *kobj;
++
++		if (!veth_cnx[i])
++			continue;
++
++		kobj = &veth_cnx[i]->kobject;
++		kobj->parent = &veth_driver.driver.kobj;
++		/* If the add failes, complain but otherwise continue */
++		if (0 != kobject_add(kobj))
++			veth_error("cnx %d: Failed adding to sysfs.\n", i);
++	}
++
+ 	return 0;
  
- static void veth_take_monitor_ack(struct veth_lpar_connection *cnx,
--				  struct VethLpEvent *event)
-+				  struct veth_lpevent *event)
- {
- 	unsigned long flags;
- 
-@@ -516,7 +516,7 @@ static void veth_take_monitor_ack(struct
- 	spin_unlock_irqrestore(&cnx->lock, flags);
- }
- 
--static void veth_handle_ack(struct VethLpEvent *event)
-+static void veth_handle_ack(struct veth_lpevent *event)
- {
- 	HvLpIndex rlp = event->base_event.xTargetLp;
- 	struct veth_lpar_connection *cnx = veth_cnx[rlp];
-@@ -524,10 +524,10 @@ static void veth_handle_ack(struct VethL
- 	BUG_ON(! cnx);
- 
- 	switch (event->base_event.xSubtype) {
--	case VethEventTypeCap:
-+	case VETH_EVENT_CAP:
- 		veth_take_cap_ack(cnx, event);
- 		break;
--	case VethEventTypeMonitor:
-+	case VETH_EVENT_MONITOR:
- 		veth_take_monitor_ack(cnx, event);
- 		break;
- 	default:
-@@ -536,7 +536,7 @@ static void veth_handle_ack(struct VethL
- 	};
- }
- 
--static void veth_handle_int(struct VethLpEvent *event)
-+static void veth_handle_int(struct veth_lpevent *event)
- {
- 	HvLpIndex rlp = event->base_event.xSourceLp;
- 	struct veth_lpar_connection *cnx = veth_cnx[rlp];
-@@ -546,14 +546,14 @@ static void veth_handle_int(struct VethL
- 	BUG_ON(! cnx);
- 
- 	switch (event->base_event.xSubtype) {
--	case VethEventTypeCap:
-+	case VETH_EVENT_CAP:
- 		veth_take_cap(cnx, event);
- 		break;
--	case VethEventTypeMonitor:
-+	case VETH_EVENT_MONITOR:
- 		/* do nothing... this'll hang out here til we're dead,
- 		 * and the hypervisor will return it for us. */
- 		break;
--	case VethEventTypeFramesAck:
-+	case VETH_EVENT_FRAMES_ACK:
- 		spin_lock_irqsave(&cnx->lock, flags);
- 
- 		for (i = 0; i < VETH_MAX_ACKS_PER_MSG; ++i) {
-@@ -573,7 +573,7 @@ static void veth_handle_int(struct VethL
- 
- 		spin_unlock_irqrestore(&cnx->lock, flags);
- 		break;
--	case VethEventTypeFrames:
-+	case VETH_EVENT_FRAMES:
- 		veth_receive(cnx, event);
- 		break;
- 	default:
-@@ -584,7 +584,7 @@ static void veth_handle_int(struct VethL
- 
- static void veth_handle_event(struct HvLpEvent *event, struct pt_regs *regs)
- {
--	struct VethLpEvent *veth_event = (struct VethLpEvent *)event;
-+	struct veth_lpevent *veth_event = (struct veth_lpevent *)event;
- 
- 	if (event->xFlags.xFunction == HvLpEvent_Function_Ack)
- 		veth_handle_ack(veth_event);
-@@ -594,7 +594,7 @@ static void veth_handle_event(struct HvL
- 
- static int veth_process_caps(struct veth_lpar_connection *cnx)
- {
--	struct VethCapData *remote_caps = &cnx->remote_caps;
-+	struct veth_cap_data *remote_caps = &cnx->remote_caps;
- 	int num_acks_needed;
- 
- 	/* Convert timer to jiffies */
-@@ -710,7 +710,7 @@ static void veth_statemachine(void *p)
- 
- 	if ( (cnx->state & VETH_STATE_OPEN)
- 	     && !(cnx->state & VETH_STATE_SENTMON) ) {
--		rc = veth_signalevent(cnx, VethEventTypeMonitor,
-+		rc = veth_signalevent(cnx, VETH_EVENT_MONITOR,
- 				      HvLpEvent_AckInd_DoAck,
- 				      HvLpEvent_AckType_DeferredAck,
- 				      0, 0, 0, 0, 0, 0);
-@@ -733,7 +733,7 @@ static void veth_statemachine(void *p)
- 	     && !(cnx->state & VETH_STATE_SENTCAPS)) {
- 		u64 *rawcap = (u64 *)&cnx->local_caps;
- 
--		rc = veth_signalevent(cnx, VethEventTypeCap,
-+		rc = veth_signalevent(cnx, VETH_EVENT_CAP,
- 				      HvLpEvent_AckInd_DoAck,
- 				      HvLpEvent_AckType_ImmediateAck,
- 				      0, rawcap[0], rawcap[1], rawcap[2],
-@@ -755,7 +755,7 @@ static void veth_statemachine(void *p)
- 
- 	if ((cnx->state & VETH_STATE_GOTCAPS)
- 	    && !(cnx->state & VETH_STATE_SENTCAPACK)) {
--		struct VethCapData *remote_caps = &cnx->remote_caps;
-+		struct veth_cap_data *remote_caps = &cnx->remote_caps;
- 
- 		memcpy(remote_caps, &cnx->cap_event.u.caps_data,
- 		       sizeof(*remote_caps));
-@@ -1142,7 +1142,7 @@ static int veth_transmit_to_one(struct s
- 	msg->data.len[0] = skb->len;
- 	msg->data.eofmask = 1 << VETH_EOF_SHIFT;
- 
--	rc = veth_signaldata(cnx, VethEventTypeFrames, msg->token, &msg->data);
-+	rc = veth_signaldata(cnx, VETH_EVENT_FRAMES, msg->token, &msg->data);
- 
- 	if (rc != HvLpEvent_Rc_Good)
- 		goto recycle_and_drop;
-@@ -1409,7 +1409,7 @@ static void veth_flush_acks(struct veth_
- {
- 	HvLpEvent_Rc rc;
- 
--	rc = veth_signaldata(cnx, VethEventTypeFramesAck,
-+	rc = veth_signaldata(cnx, VETH_EVENT_FRAMES_ACK,
- 			     0, &cnx->pending_acks);
- 
- 	if (rc != HvLpEvent_Rc_Good)
-@@ -1421,9 +1421,9 @@ static void veth_flush_acks(struct veth_
- }
- 
- static void veth_receive(struct veth_lpar_connection *cnx,
--			 struct VethLpEvent *event)
-+			 struct veth_lpevent *event)
- {
--	struct VethFramesData *senddata = &event->u.frames_data;
-+	struct veth_frames_data *senddata = &event->u.frames_data;
- 	int startchunk = 0;
- 	int nchunks;
- 	unsigned long flags;
+ error:

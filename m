@@ -1,47 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965151AbVIAOaH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965161AbVIAOdW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965151AbVIAOaH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 10:30:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965161AbVIAOaG
+	id S965161AbVIAOdW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 10:33:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965148AbVIAOdW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 10:30:06 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:48295 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965158AbVIAO3e
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 10:29:34 -0400
-Date: Thu, 1 Sep 2005 15:29:37 +0100
-From: viro@ZenIV.linux.org.uk
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: David Teigland <teigland@redhat.com>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 01/14] GFS: headers
-Message-ID: <20050901142937.GC26264@ZenIV.linux.org.uk>
-References: <20050901135442.GA25581@redhat.com> <1125584374.5025.18.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1125584374.5025.18.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.1i
+	Thu, 1 Sep 2005 10:33:22 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:42373 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S965161AbVIAOdV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 10:33:21 -0400
+Date: Thu, 1 Sep 2005 16:32:49 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Joe Korty <joe.korty@ccur.com>
+cc: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>, akpm@osdl.org,
+       george@mvista.com, johnstul@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: FW: [RFC] A more general timeout specification
+In-Reply-To: <20050901135049.GB1753@tsunami.ccur.com>
+Message-ID: <Pine.LNX.4.61.0509011610570.3743@scrub.home>
+References: <F989B1573A3A644BAB3920FBECA4D25A042B030A@orsmsx407>
+ <Pine.LNX.4.61.0509010136350.3743@scrub.home> <20050901135049.GB1753@tsunami.ccur.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 01, 2005 at 04:19:34PM +0200, Arjan van de Ven wrote:
-> > +/* Endian functions */
+Hi,
+
+On Thu, 1 Sep 2005, Joe Korty wrote:
+
+> > When you convert a user time to kernel time you can
+> > automatically validate
 > 
-> ehhhh again why?? 
-> Why is this a compiletime hack?
-> Either you care about either-endian on disk, at which point it has to be
-> a runtime thing, or you make the on disk layout fixed endian, at which
-> point you really shouldn't abstract be16_to_cpu etc any further!
+> Kernel time sucks.  It is just a single clock, it may not have
+> the attributes of the clock that the user really wished to use.
 
-Well...  I would disagree with the very end of it (e.g. having on-disk
-block number representation declared as __bitwise, so that it wouldn't be
-mixed with __be<n> + having coversion helpers consisting of
-static inline u32 foo_to_cpu(foo n)
-{
-	return be32_to_cpu((__force __be32)n);
-}
-etc. may be valid technics, assuming that these objects were passed around
-enough to deserve it.
+Wrong. The kernel time is simple and effective for almost all users.
+We are talking about _timeouts_ here, what fancy "attributes" does that 
+need that are just not overkill?
 
-Blanket "let's rename for the sake of renaming" is a BS, of course...
+bye, Roman

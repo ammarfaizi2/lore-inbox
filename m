@@ -1,72 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030355AbVIAUFk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030358AbVIAUGU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030355AbVIAUFk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 16:05:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030354AbVIAUFj
+	id S1030358AbVIAUGU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 16:06:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030354AbVIAUGU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 16:05:39 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:54192 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030353AbVIAUFi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 16:05:38 -0400
-Date: Thu, 1 Sep 2005 21:05:32 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Brett Russ <russb@emc.com>,
-       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.13] libata: Marvell SATA support (PIO mode)
-Message-ID: <20050901200532.GA14650@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jeff Garzik <jgarzik@pobox.com>, Brett Russ <russb@emc.com>,
-	linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20050830183625.BEE1520F4C@lns1058.lss.emc.com> <4314C604.4030208@pobox.com> <20050901142754.B93BF27137@lns1058.lss.emc.com> <20050901144038.GA25830@infradead.org> <43175B23.8040803@pobox.com> <20050901195832.GA14602@infradead.org> <43175E8F.7080700@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43175E8F.7080700@pobox.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 1 Sep 2005 16:06:20 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:37125 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id S1030357AbVIAUGS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 16:06:18 -0400
+Message-ID: <43176095.1000805@tmr.com>
+Date: Thu, 01 Sep 2005 16:12:05 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: DervishD <lkml@dervishd.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: USB Storage speed regression since 2.6.12
+References: <20050901113614.GA63@DervishD>
+In-Reply-To: <20050901113614.GA63@DervishD>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 01, 2005 at 04:03:27PM -0400, Jeff Garzik wrote:
-> Christoph Hellwig wrote:
-> >On Thu, Sep 01, 2005 at 03:48:51PM -0400, Jeff Garzik wrote:
-> >
-> >>Christoph Hellwig wrote:
-> >>
-> >>>>+#include <linux/kernel.h>
-> >>>>+#include <linux/module.h>
-> >>>>+#include <linux/pci.h>
-> >>>>+#include <linux/init.h>
-> >>>>+#include <linux/blkdev.h>
-> >>>>+#include <linux/delay.h>
-> >>>>+#include <linux/interrupt.h>
-> >>>>+#include <linux/sched.h>
-> >>>>+#include <linux/dma-mapping.h>
-> >>>>+#include "scsi.h"
-> >>>
-> >>>
-> >>>pleaese don't include "scsi.h" in new drivers.  It will go away soon.
-> >>>Use the <scsi/*.h> headers and get rid of usage of obsolete constucts
-> >>>in your driver.
-> >>
-> >>
-> >>It stays until the rest of the libata drivers lose the include.
-> >>
-> >>After ATAPI support is done, I can stop 2.4.x support, and this and 
-> >>several other compat-isms will go away.
-> >
-> >
-> >NACK.  Jeff, I accept that you don't want to convert old drivers yet,
-> >but this is not acceptable for new drivers.  We don't allow it for any
-> >new scsi LLDDs, and that includes libata drivers.
+DervishD wrote:
+>     Hi all :)
 > 
-> Sorry, you don't get to NAK that change, since it affects 2.4.x 
-> maintenance of this new driver.
-
-Stop that crap now please.  Adding "scsi.h" includes is _not_ allowed
-for new drivers, period.  There's no exceptions, not even for
-Jeff "I'm part of the calal" Garzik.
-
+>     I don't know if this is a known issue, but usb-storage speed for
+> 'Full speed' devices dropped from 2.6.11.12 (more than 800Kb/s) to
+> 2.6.12 (less than 250Kb/s). The problem still exists in 2.6.13.
+> 
+>     The lack of speed seems to affect only the OHCI driver. My test
+> was done over a PCI USB 2.0 card, ALi chipset, OHCI driver (well
+> EHCI+OHCI) and using a full speed device capable of 12MBps. The
+> average measured speeds are:
+> 
+>     - 2.4.31:           about 450Kb/seg
+>     - 2.6.11-Debian:    about 800Kb/seg
+>     - 2.6.11.12:        about 820Kb/seg
+>     - 2.6.12.x:         about 200Kb/seg
+>     - 2.6.13:           about 200Kb/seg
+> 
+>     The .config is more or less the same in all kernels. I've took a
+> look at the ChangeLog for 2.6.12 and there are lots of changes in the
+> USB subsystem but I cannot identify which one could be the culprit.
+> 
+I see a worse problem, I load the driver, mount the filesystems on the 
+USB 160GB disk, and the disk just "goes away." I see the devices in 
+/proc/scsi/scsi but I can't access the devices any more. Definitely time 
+for a fallback to a more stable kernel!

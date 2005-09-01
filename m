@@ -1,40 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932552AbVIAHMm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932553AbVIAHND@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932552AbVIAHMm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 03:12:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932554AbVIAHMm
+	id S932553AbVIAHND (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 03:13:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932554AbVIAHNB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 03:12:42 -0400
-Received: from web60525.mail.yahoo.com ([209.73.178.173]:36963 "HELO
-	web60525.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S932551AbVIAHMl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 03:12:41 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=1mCOp+kqvViOBRTzSENq7JyZUHFAHf8fkhA3/mLvinF1sPShBPOdH4gaZTs6V1gotiwv+Yy/9oOMM2+gSwIEvDAwkLmHQmtOIN6ykEP4+Cnyp4Ga+wKQ8c/kSiUV/i8uquxjz8hgjSRJJBzRFxFHny5EHmqia1Siu2nhPRx4gTc=  ;
-Message-ID: <20050901071236.31523.qmail@web60525.mail.yahoo.com>
-Date: Thu, 1 Sep 2005 00:12:36 -0700 (PDT)
-From: mhb <badrpayam@yahoo.com>
-Subject: where can I get ext3 patch for linux-2.4.1
-To: linux-newbie@vger.kernel.org, linux-kernel@vger.kernel.org
+	Thu, 1 Sep 2005 03:13:01 -0400
+Received: from sj-iport-4.cisco.com ([171.68.10.86]:54324 "EHLO
+	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
+	id S932553AbVIAHNA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 03:13:00 -0400
+Message-ID: <4316A9C0.9090509@cisco.com>
+Date: Thu, 01 Sep 2005 17:12:00 +1000
+From: Lincoln Dale <ltd@cisco.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: jmerkey <jmerkey@utah-nac.org>
+CC: Bernd Eckenfels <ecki@lina.inka.de>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] DSFS Network Forensic File System for Linux Patches
+References: <E1EAd1J-0007Cw-00@calista.eckenfels.6bone.ka-ip.net> <431651BC.9020108@utah-nac.org> <43165CE3.9080704@utah-nac.org>
+In-Reply-To: <43165CE3.9080704@utah-nac.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+jmerkey wrote:
 
-Most of the related sites has ext3 patches for 2.4
-kernels but I could not found any for 2.4.1.
-where can I find It?
+> It might be helpful for someone to look at these sections of code I 
+> had to patch in 2.6.9.
+> I discovered a case where the kernel scheduler will pass NULL for the 
+> array argument
+> when I started hitting the extreme upper range > 200MB/S combined disk 
+> and lan
+> throughput.  This was running with preemptible kernel and 
+> hyperthreading enabled.
 
-thanks
+Jeff,
+
+you are running a tainted kernel since you're loading proprietary modules.
+you'd better go back to your vendor for support.
+haha.
 
 
-		
-____________________________________________________
-Start your day with Yahoo! - make it your home page 
-http://www.yahoo.com/r/hs 
- 
+cheers,
+
+lincoln.
+
+>

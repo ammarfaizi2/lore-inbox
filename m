@@ -1,46 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965031AbVIALjX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965039AbVIALow@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965031AbVIALjX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 07:39:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965041AbVIALjW
+	id S965039AbVIALow (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 07:44:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965083AbVIALow
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 07:39:22 -0400
-Received: from zproxy.gmail.com ([64.233.162.197]:61103 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965031AbVIALjW convert rfc822-to-8bit
+	Thu, 1 Sep 2005 07:44:52 -0400
+Received: from zproxy.gmail.com ([64.233.162.206]:30648 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965039AbVIALow convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 07:39:22 -0400
+	Thu, 1 Sep 2005 07:44:52 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=GIzLE838KD4Wn+JdSfJxc3URIvHfy9rkbKe6HvFwiMf1UxkKtm0bzt/eu6pMB+REzd+wVQUchMa1IE71zuaNyLZpnw+JYCQ780r2NLR3tt9kyEdXKo3ne5+bOMaWukR0BHRCvvGDV8Ji7zFXTUcb8T63sLPIs5LRgYKLEPCbUHU=
-Message-ID: <cda58cb8050901043967808e00@mail.gmail.com>
-Date: Thu, 1 Sep 2005 13:39:19 +0200
-From: Franck xyz <vagabon.xyz@gmail.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Help on HCD developpement
-In-Reply-To: <cda58cb8050901025311665d7@mail.gmail.com>
+        b=ro1ptzw9aI643zBu2pxBcysidCR1sMmPjHdhe5yKMp191GLURgrqCgEb0i7ASBf3q/HQrPin+E+A15eHPFisGCZAg6pWJHdhNfG77dMMSoqkQucPEVu/XrE72ESQws/2H4FB8W2P9WW2tcVLK1h4i1BZLW9SOmuLWFA5B3p8r3Q=
+Message-ID: <aec7e5c305090104449079fc3@mail.gmail.com>
+Date: Thu, 1 Sep 2005 20:44:47 +0900
+From: Magnus Damm <magnus.damm@gmail.com>
+To: Dominik Brodowski <linux@dominikbrodowski.net>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-ppc-embedded <linuxppc-embedded@ozlabs.org>,
+       linux-kernel@vger.kernel.org, Russell King <rmk+lkml@arm.linux.org.uk>,
+       Dan Malek <dan@embeddededge.com>, Pantelis Antoniou <panto@intracom.gr>
+Subject: Re: [PATCH] MPC8xx PCMCIA driver
+In-Reply-To: <20050901085319.GB6285@isilmar.linta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <cda58cb8050901025311665d7@mail.gmail.com>
+References: <20050830024840.GA5381@dmt.cnet>
+	 <20050901085319.GB6285@isilmar.linta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello all,
 
-I'm trying to write a host controller driver for a Arc hardware. I
-need to know how nak
-pid should be handled ? Hardware can automatically manage them, that means it
-automatically retry the naked transaction. But since setup packet must
-not be "NAKed" or hub
-endpoint #1 returns nak pid when no events happen on its port, I don't
-think I can use this
-feature. But if I do it manually, what should I do when receiving a
-NAK ? Should I retry the
-transaction forever ? What status should I return to usb core (through
-urb->status) when hub
-endpoint #1 returns nak ?
+Nice to see that this driver gets forward ported to 2.6. I originally
+wrote it for pcmcia-cs, but it made its way into 2.4 after a while.
+Thanks to all the people who added code and fixes.
 
-Thanks.
-               Franck
+I'm not sure how the current Linux pcmcia layer works, and I am not
+involved in powerpc land anymore so I have no comments on the porting
+work or the driver itself.
+
+On 9/1/05, Dominik Brodowski <linux@dominikbrodowski.net> wrote:
+> On Mon, Aug 29, 2005 at 11:48:40PM -0300, Marcelo Tosatti wrote:
+> > Russell: The driver is using pccard_nonstatic_ops for card window
+> > management, even though the driver its marked SS_STATIC_MAP (using
+> > mem->static_map).
+> 
+> This is obviously broken. Where does it fail if pccard_static_ops is used?
+
+I remember it was interesting to write the driver for pcmcia-cs. This
+was because the mpc8xx socket hardware did not implement per-window
+offsets, and pcmcia-cs required that. So a wild guess is that this
+static/notstatic thing is related to that.
+
+/ magnus

@@ -1,40 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030503AbVIAWxZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030505AbVIAWxp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030503AbVIAWxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 18:53:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030475AbVIAWxV
+	id S1030505AbVIAWxp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 18:53:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030501AbVIAWxb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 18:53:21 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:13772
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1030466AbVIAWxS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 18:53:18 -0400
-Date: Thu, 01 Sep 2005 15:53:15 -0700 (PDT)
-Message-Id: <20050901.155315.132002497.davem@davemloft.net>
-To: jesper.juhl@gmail.com
-Cc: lists@limebrokerage.com, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org
-Subject: Re: Possible BUG in IPv4 TCP window handling, all recent
- 2.4.x/2.6.x kernels
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <9a874849050901154913356df0@mail.gmail.com>
-References: <Pine.LNX.4.61.0509011713240.6083@guppy.limebrokerage.com>
-	<20050901.154300.118239765.davem@davemloft.net>
-	<9a874849050901154913356df0@mail.gmail.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Thu, 1 Sep 2005 18:53:31 -0400
+Received: from lakshmi.addtoit.com ([198.99.130.6]:37648 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S1030466AbVIAWxW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 18:53:22 -0400
+Message-Id: <200509012217.j81MHKE7011567@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
+       Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+Subject: [PATCH 10/12] UML - Allow host capability usage to be disabled
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 01 Sep 2005 18:17:20 -0400
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Date: Fri, 2 Sep 2005 00:49:20 +0200
+From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
 
-> Hmm, I see plenty of content in the post. Want me to farward you a
-> copy off list ?
+Add new cmdline setups:
+  - noprocmm
+  - noptracefaultinfo
+In case of testing, they can be used to switch off usage of
+/proc/mm and PTRACE_FAULTINFO independently.
 
-Please do, I didn't see anything.
+Signed-off-by: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-It still needs to be reposted to netdev@vger.kernel.org
-anyways :)
+Index: test/arch/um/os-Linux/start_up.c
+===================================================================
+--- test.orig/arch/um/os-Linux/start_up.c	2005-09-01 16:42:42.000000000 -0400
++++ test/arch/um/os-Linux/start_up.c	2005-09-01 16:51:23.000000000 -0400
+@@ -275,6 +275,30 @@
+ 	check_ptrace();
+ }
+ 
++static int __init noprocmm_cmd_param(char *str, int* add)
++{
++	proc_mm = 0;
++	return 0;
++}
++
++__uml_setup("noprocmm", noprocmm_cmd_param,
++"noprocmm\n"
++"    Turns off usage of /proc/mm, even if host supports it.\n"
++"    To support /proc/mm, the host needs to be patched using\n"
++"    the current skas3 patch.\n\n");
++
++static int __init noptracefaultinfo_cmd_param(char *str, int* add)
++{
++	ptrace_faultinfo = 0;
++	return 0;
++}
++
++__uml_setup("noptracefaultinfo", noptracefaultinfo_cmd_param,
++"noptracefaultinfo\n"
++"    Turns off usage of PTRACE_FAULTINFO, even if host supports\n"
++"    it. To support PTRACE_FAULTINFO, the host needs to be patched\n"
++"    using the current skas3 patch.\n\n");
++
+ #ifdef UML_CONFIG_MODE_SKAS
+ static inline void check_skas3_ptrace_support(void)
+ {
+

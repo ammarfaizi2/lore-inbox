@@ -1,56 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030377AbVIAVL0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030381AbVIAVM7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030377AbVIAVL0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 17:11:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030381AbVIAVL0
+	id S1030381AbVIAVM7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 17:12:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030383AbVIAVM7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 17:11:26 -0400
-Received: from mail.metronet.co.uk ([213.162.97.75]:37773 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP
-	id S1030377AbVIAVLZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 17:11:25 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
-Subject: Re: [ANNOUNCE] DSFS Network Forensic File System for Linux Patches
-Date: Thu, 1 Sep 2005 22:11:27 +0100
-User-Agent: KMail/1.8.90
-Cc: linux <linux-kernel@vger.kernel.org>
-References: <4315DBE7.7080002@soleranetworks.com> <4315E88D.9020603@soleranetworks.com> <20050831214935.GA3563@localhost>
-In-Reply-To: <20050831214935.GA3563@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+	Thu, 1 Sep 2005 17:12:59 -0400
+Received: from [203.171.93.254] ([203.171.93.254]:33196 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S1030381AbVIAVM6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 17:12:58 -0400
+Subject: Re: reboot vs poweroff
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Pierre Ossman <drzeus-list@drzeus.cx>, Pavel Machek <pavel@ucw.cz>,
+       Meelis Roos <mroos@linux.ee>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Len Brown <len.brown@intel.com>
+In-Reply-To: <m164tkpryx.fsf@ebiederm.dsl.xmission.com>
+References: <20050901062406.EBA5613D5B@rhn.tartu-labor>
+	 <1125557333.12996.76.camel@localhost>
+	 <Pine.SOC.4.61.0509011030430.3232@math.ut.ee> <4316F4E3.4030302@drzeus.cx>
+	 <1125578897.4785.23.camel@localhost>
+	 <m1fysoq0p7.fsf@ebiederm.dsl.xmission.com> <43171C02.30402@drzeus.cx>
+	 <m1aciwpvsz.fsf@ebiederm.dsl.xmission.com> <43174643.7040007@drzeus.cx>
+	 <m164tkpryx.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain
+Organization: Cyclades
+Message-Id: <1125609100.4785.30.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 02 Sep 2005 07:11:40 +1000
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509012211.27155.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 31 August 2005 22:49, Jose Luis Domingo Lopez wrote:
-> On Wednesday, 31 August 2005, at 11:27:41 -0600,
->
-> Jeff V. Merkey wrote:
-> > I am very open to discussions of this. Please go ahead and argue the
-> > merits of GPL vs. proprietary code. DSFS is platform
-> > neutral and will also run on Windows XP/2000/2003/Longhorn and Free BSD.
-> > It uses no kernel headers or kernel files.
->
-> So then, does it have _anything_ to do with linux kernel development? It
-> doesn't seem so. Is this "product" an attempt to raise some money, and
-> make your former "linux kernel buyout" offer, but now giving a higher
-> amount of money?
->
-> Damnit, hope I am not feeding some troll out there...
+Hi.
 
-I think Jeff was making available changes he'd made to the Linux kernel, under 
-the terms of the GPL, to allow this proprietary software to work (properly?).
+On Fri, 2005-09-02 at 04:23, Eric W. Biederman wrote:
+> Pierre Ossman <drzeus-list@drzeus.cx> writes:
+> >
+> > Patch tested and works fine here. You should probably make a note in the
+> > bugzilla so we don't get a conflicting merge from the ACPI folks.
+> 
+> Thanks.
+> 
+> If I can figure out bugzilla...
+> 
+> > I suppose Nigel should use this function in swsusp2 aswell?
 
-The patches contain nothing that would be of general use to anybody.
+All I did was start calling pm_ops->prepare, ->enter and ->finish
+regardless of the powerdown method, instead of only for S3 or S4. It
+seems to be working fine. If, however, we should be doing things
+differently, I'm happy to comply. What's the authoritative word?
 
+Regards,
+
+Nigel
+
+> If he is doing the same thing yes.
+> 
+> Eric
 -- 
-Cheers,
-Alistair.
+Evolution.
+Enumerate the requirements.
+Consider the interdependencies.
+Calculate the probabilities.
 
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.

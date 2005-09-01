@@ -1,57 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030191AbVIAPPm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030192AbVIAPQW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030191AbVIAPPm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 11:15:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030192AbVIAPPm
+	id S1030192AbVIAPQW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 11:16:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030194AbVIAPQW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 11:15:42 -0400
-Received: from smtp05.web.de ([217.72.192.209]:26292 "EHLO smtp05.web.de")
-	by vger.kernel.org with ESMTP id S1030191AbVIAPPl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 11:15:41 -0400
-From: Thomas Schlichter <thomas.schlichter@web.de>
-To: Con Kolivas <kernel@kolivas.org>
-Subject: Re: [PATCH][RFC] vm: swap prefetch
-Date: Thu, 1 Sep 2005 17:15:36 +0200
-User-Agent: KMail/1.6.2
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       ck list <ck@vds.kolivas.org>
-References: <200509012346.33020.kernel@kolivas.org>
-In-Reply-To: <200509012346.33020.kernel@kolivas.org>
+	Thu, 1 Sep 2005 11:16:22 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:56511 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1030192AbVIAPQV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 11:16:21 -0400
+To: ncunningham@cyclades.com
+Cc: Pierre Ossman <drzeus-list@drzeus.cx>, Pavel Machek <pavel@ucw.cz>,
+       Meelis Roos <mroos@linux.ee>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Len Brown <len.brown@intel.com>
+Subject: Re: reboot vs poweroff (was: Linux 2.6.13)
+References: <20050901062406.EBA5613D5B@rhn.tartu-labor>
+	<1125557333.12996.76.camel@localhost>
+	<Pine.SOC.4.61.0509011030430.3232@math.ut.ee>
+	<4316F4E3.4030302@drzeus.cx> <1125578897.4785.23.camel@localhost>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Thu, 01 Sep 2005 09:15:00 -0600
+In-Reply-To: <1125578897.4785.23.camel@localhost> (Nigel Cunningham's
+ message of "Thu, 01 Sep 2005 22:48:17 +1000")
+Message-ID: <m1fysoq0p7.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200509011715.36430.thomas.schlichter@web.de>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Con!
+Nigel Cunningham <ncunningham@cyclades.com> writes:
 
-Am Donnerstag, 1. September 2005 15:46 schrieb Con Kolivas:
-> Here is a working swap prefetching patch for 2.6.13. I have resuscitated
-> and rewritten some early prefetch code Thomas Schlichter did in late 2.5 to
-> create a configurable kernel thread that reads in swap from ram in reverse
-> order it was written out. It does this once kswapd has been idle for a
-> minute (implying no current vm stress). This patch attached below is a
-> rollup of two patches the current versions of which are here:
+> On Thu, 2005-09-01 at 22:32, Pierre Ossman wrote:
+>> Meelis Roos wrote:
+>> > 
+>> > It's OK then - I'm not using any suspend and I had a problem that my
+>> > machine powered down instead of reboot. The patch that went into 2.6.13
+>> > after rc7 fixed it for me. So the current tree is OK for me and if it's
+>> > OK for you too after suspend2 changes then this case can probably be
+>> > closed.
+>> > 
+>> 
+>> I'm still having problems with this patch. Both swsusp and swsusp2 are
+>> affected. Perhaps the fix Nigel did needs to be done to swsusp aswell?
 >
-> http://ck.kolivas.org/patches/swap-prefetch/
->
-> These add an exclusive_timer function, and the patch that does the swap
-> prefetching. I'm posting this rollup to lkml to see what the interest is in
-> this feature, and for people to test it if they desire. I'm planning on
-> including it in the next -ck but wanted to gauge general user opinion for
-> mainline. Note that swapped in pages are kept on backing store (swap),
-> meaning no further I/O is required if the page needs to swap back out.
+> Yes, it does need modifying. I'll leave it to Pavel to do that though as
+> he's more familiar with the intricacies of that code than I am.
 
-I am (and some of my friends are) still interested in this functionality, so 
-I'm definitly going to test your improved patch, of course. By the way, I'm 
-quite happy that you came up with this new version of swap-prefetching, 
-because I didn't and still don't have the time to develop or maintain it 
-more...
+Are suspend and suspend2 not calling kernel_power_off()?
 
-So thanks for your good work, and keep on helping Linux-Desktop-Users! :-)
+I am not certain about that code path but I worked hard in the lead
+up to 2.6.13 to get everyone on the same page so we did not have
+strange reboot issues on one code path and not on another.
 
-  Thomas
+It is possible that the code path in suspend is so strange I did not
+recognize it.  How do you initiate a S4 power off?
+
+I can understand suspend2 having problems as it isn't merged but suspend
+is merged isn't it?
+
+Hmm.  Looking at that bug report it specifies 2.6.11.  Does this
+problem really happen in 2.6.13?
+
+Eric

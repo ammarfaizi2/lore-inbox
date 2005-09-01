@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbVIAJJQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbVIAJJR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750746AbVIAJJQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 05:09:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbVIAJJQ
+	id S1750747AbVIAJJR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 05:09:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbVIAJJR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 05:09:16 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:31676 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S1750746AbVIAJJQ (ORCPT
+	Thu, 1 Sep 2005 05:09:17 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:35004 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1750747AbVIAJJQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 1 Sep 2005 05:09:16 -0400
-Date: Thu, 1 Sep 2005 02:08:59 -0700 (PDT)
+Date: Thu, 1 Sep 2005 02:09:05 -0700 (PDT)
 From: Paul Jackson <pj@sgi.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: Mel Gorman <mel@csn.ul.ie>, linux-kernel@vger.kernel.org,
@@ -17,127 +17,62 @@ Cc: Mel Gorman <mel@csn.ul.ie>, linux-kernel@vger.kernel.org,
        Joel Schopp <jschopp@austin.ibm.com>, Simon Derr <Simon.Derr@bull.net>,
        Linus Torvalds <torvalds@osdl.org>, Paul Jackson <pj@sgi.com>,
        Dave Hansen <haveblue@us.ibm.com>
-Message-Id: <20050901090859.18441.67380.sendpatchset@jackhammer.engr.sgi.com>
+Message-Id: <20050901090905.18441.86997.sendpatchset@jackhammer.engr.sgi.com>
 In-Reply-To: <20050901090853.18441.24035.sendpatchset@jackhammer.engr.sgi.com>
 References: <20050901090853.18441.24035.sendpatchset@jackhammer.engr.sgi.com>
-Subject: [PATCH 1/4] cpusets oom_kill tweaks
+Subject: [PATCH 2/4] cpusets new __GFP_HARDWALL flag
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch applies a few comment and code cleanups to mm/oom_kill.c
-prior to applying a few small patches to improve cpuset management of
-memory placement.
+Add another GFP flag: __GFP_HARDWALL.
 
-The comment changed in oom_kill.c was seriously misleading.  The code
-layout change in select_bad_process() makes room for adding another
-condition on which a process can be spared the oom killer (see the
-subsequent cpuset_nodes_overlap patch for this addition).
+A subsequent "cpuset_zone_allowed" patch will use this flag to mark
+GFP_USER allocations, and distinguish them from GFP_KERNEL allocations.
 
-Also a couple typos and spellos that bugged me, while I was here.
+Allocations (such as GFP_USER) marked GFP_HARDWALL are constrainted to
+the current tasks cpuset.  Other allocations (such as GFP_KERNEL) can
+steal from the possibly larger nearest mem_exclusive cpuset ancestor,
+if memory is tight on every node in the current cpuset.
 
-This patch should have no material affect.
+This patch collides with Mel Gorman's patch to reduce fragmentation
+in the standard buddy allocator, which adds two GFP flags.  This was
+discussed on linux-mm in July.  Most likely, one of his flags for
+user reclaimable memory can be the same as my __GFP_HARDWALL flag,
+under some generic name meaning its user address space memory.
 
 Signed-off-by: Paul Jackson <pj@sgi.com>
 
-Index: linux-2.6.13-mem_exclusive_oom/mm/oom_kill.c
+Index: linux-2.6.13-mem_exclusive_oom/include/linux/gfp.h
 ===================================================================
---- linux-2.6.13-mem_exclusive_oom.orig/mm/oom_kill.c
-+++ linux-2.6.13-mem_exclusive_oom/mm/oom_kill.c
-@@ -6,8 +6,8 @@
-  *	for goading me into coding this file...
-  *
-  *  The routines in this file are used to kill a process when
-- *  we're seriously out of memory. This gets called from kswapd()
-- *  in linux/mm/vmscan.c when we really run out of memory.
-+ *  we're seriously out of memory. This gets called from __alloc_pages()
-+ *  in mm/page_alloc.c when we really run out of memory.
-  *
-  *  Since we won't call these routines often (on a well-configured
-  *  machine) this file will double as a 'coding guide' and a signpost
-@@ -26,7 +26,7 @@
- /**
-  * oom_badness - calculate a numeric value for how bad this task has been
-  * @p: task struct of which task we should calculate
-- * @p: current uptime in seconds
-+ * @uptime: current uptime in seconds
-  *
-  * The formula used is relatively simple and documented inline in the
-  * function. The main rationale is that we want to select a good task
-@@ -57,9 +57,9 @@ unsigned long badness(struct task_struct
+--- linux-2.6.13-mem_exclusive_oom.orig/include/linux/gfp.h
++++ linux-2.6.13-mem_exclusive_oom/include/linux/gfp.h
+@@ -40,6 +40,7 @@ struct vm_area_struct;
+ #define __GFP_ZERO	0x8000u	/* Return zeroed page on success */
+ #define __GFP_NOMEMALLOC 0x10000u /* Don't use emergency reserves */
+ #define __GFP_NORECLAIM  0x20000u /* No realy zone reclaim during allocation */
++#define __GFP_HARDWALL   0x40000u /* Enforce hardwall cpuset memory allocs */
  
- 	/*
- 	 * Processes which fork a lot of child processes are likely
--	 * a good choice. We add the vmsize of the childs if they
-+	 * a good choice. We add the vmsize of the children if they
- 	 * have an own mm. This prevents forking servers to flood the
--	 * machine with an endless amount of childs
-+	 * machine with an endless amount of children
- 	 */
- 	list_for_each(tsk, &p->children) {
- 		struct task_struct *chld;
-@@ -143,28 +143,32 @@ static struct task_struct * select_bad_p
- 	struct timespec uptime;
+ #define __GFP_BITS_SHIFT 20	/* Room for 20 __GFP_FOO bits */
+ #define __GFP_BITS_MASK ((1 << __GFP_BITS_SHIFT) - 1)
+@@ -48,14 +49,15 @@ struct vm_area_struct;
+ #define GFP_LEVEL_MASK (__GFP_WAIT|__GFP_HIGH|__GFP_IO|__GFP_FS| \
+ 			__GFP_COLD|__GFP_NOWARN|__GFP_REPEAT| \
+ 			__GFP_NOFAIL|__GFP_NORETRY|__GFP_NO_GROW|__GFP_COMP| \
+-			__GFP_NOMEMALLOC|__GFP_NORECLAIM)
++			__GFP_NOMEMALLOC|__GFP_NORECLAIM|__GFP_HARDWALL)
  
- 	do_posix_clock_monotonic_gettime(&uptime);
--	do_each_thread(g, p)
--		/* skip the init task with pid == 1 */
--		if (p->pid > 1 && p->oomkilladj != OOM_DISABLE) {
--			unsigned long points;
-+	do_each_thread(g, p) {
-+		unsigned long points;
-+		int releasing;
+ #define GFP_ATOMIC	(__GFP_HIGH)
+ #define GFP_NOIO	(__GFP_WAIT)
+ #define GFP_NOFS	(__GFP_WAIT | __GFP_IO)
+ #define GFP_KERNEL	(__GFP_WAIT | __GFP_IO | __GFP_FS)
+-#define GFP_USER	(__GFP_WAIT | __GFP_IO | __GFP_FS)
+-#define GFP_HIGHUSER	(__GFP_WAIT | __GFP_IO | __GFP_FS | __GFP_HIGHMEM)
++#define GFP_USER	(__GFP_WAIT | __GFP_IO | __GFP_FS | __GFP_HARDWALL)
++#define GFP_HIGHUSER	(__GFP_WAIT | __GFP_IO | __GFP_FS | __GFP_HARDWALL | \
++			 __GFP_HIGHMEM)
  
--			/*
--			 * This is in the process of releasing memory so wait it
--			 * to finish before killing some other task by mistake.
--			 */
--			if ((unlikely(test_tsk_thread_flag(p, TIF_MEMDIE)) || (p->flags & PF_EXITING)) &&
--			    !(p->flags & PF_DEAD))
--				return ERR_PTR(-1UL);
--			if (p->flags & PF_SWAPOFF)
--				return p;
--
--			points = badness(p, uptime.tv_sec);
--			if (points > maxpoints || !chosen) {
--				chosen = p;
--				maxpoints = points;
--			}
-+		/* skip the init task with pid == 1 */
-+		if (p->pid == 1)
-+			continue;
-+		if (p->oomkilladj == OOM_DISABLE)
-+			continue;
-+		/*
-+		 * This is in the process of releasing memory so for wait it
-+		 * to finish before killing some other task by mistake.
-+		 */
-+		releasing = test_tsk_thread_flag(p, TIF_MEMDIE) ||
-+						p->flags & PF_EXITING;
-+		if (releasing && !(p->flags & PF_DEAD))
-+			return ERR_PTR(-1UL);
-+		if (p->flags & PF_SWAPOFF)
-+			return p;
-+
-+		points = badness(p, uptime.tv_sec);
-+		if (points > maxpoints || !chosen) {
-+			chosen = p;
-+			maxpoints = points;
- 		}
--	while_each_thread(g, p);
-+	} while_each_thread(g, p);
- 	return chosen;
- }
- 
-@@ -189,7 +193,8 @@ static void __oom_kill_task(task_t *p)
- 		return;
- 	}
- 	task_unlock(p);
--	printk(KERN_ERR "Out of Memory: Killed process %d (%s).\n", p->pid, p->comm);
-+	printk(KERN_ERR "Out of Memory: Killed process %d (%s).\n",
-+							p->pid, p->comm);
- 
- 	/*
- 	 * We give our sacrificial lamb high priority and access to
+ /* Flag - indicates that the buffer will be suitable for DMA.  Ignored on some
+    platforms, used as appropriate on others */
 
 -- 
                           I won't rest till it's the best ...

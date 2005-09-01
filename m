@@ -1,39 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751085AbVIAIa0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751089AbVIAIku@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751085AbVIAIa0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 04:30:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751095AbVIAIaZ
+	id S1751089AbVIAIku (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 04:40:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbVIAIku
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 04:30:25 -0400
-Received: from zproxy.gmail.com ([64.233.162.197]:27040 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751085AbVIAIaY convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 04:30:24 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=HOaMJC6T92pfc1sH7wDXRVUk1btH5angXKdLC8YFN3jAyHK7bHWkH5G0tiLYd25gkc0MvPJF4ZmyRdUEVMczjnCOv7mBxHCpzmnW1oITfSK7ctyuSy3gkIZFPmPk/UM6adaHIT136vT+qyiBnxgTDX5/NC2pehQQVM/HI1Lcw/U=
-Message-ID: <4a618d0805090101301d19c27d@mail.gmail.com>
-Date: Thu, 1 Sep 2005 11:30:17 +0300
-From: Arturas Moskvinas <arturas.moskvinas@gmail.com>
-To: mhb <badrpayam@yahoo.com>
-Subject: Re: where can I get ext3 patch for linux-2.4.1
-Cc: linux-newbie@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20050901071236.31523.qmail@web60525.mail.yahoo.com>
+	Thu, 1 Sep 2005 04:40:50 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:21476 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751089AbVIAIkt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 04:40:49 -0400
+Date: Thu, 1 Sep 2005 01:38:36 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH] replace hack with dget/mntget usage in fs/dcookies.c
+Message-Id: <20050901013836.731e63e1.akpm@osdl.org>
+In-Reply-To: <4316B61B.9070305@sw.ru>
+References: <4316B61B.9070305@sw.ru>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050901071236.31523.qmail@web60525.mail.yahoo.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi
-> 
-> Most of the related sites has ext3 patches for 2.4
-> kernels but I could not found any for 2.4.1.
-> where can I find It?
+Kirill Korotaev <dev@sw.ru> wrote:
+>
+> This patch replaces manual incrementing of refcounters on dentry/mnt in 
+>  fs/dcookie.c with calls to dget()/mntget().
+>
+> ...
+>
+>  --- linux-2.6.8.1-t032/fs/dcookies.c.dget	2004-08-14 14:54:46.000000000 +0400
+>  +++ linux-2.6.8.1-t032/fs/dcookies.c	2005-08-23 14:09:00.000000000 +0400
 
-I think you are using way too old kernel, consider an upgrade...
+Whoa.  Medieval kernel.
 
-Arturas M.
+>  @@ -93,12 +93,10 @@ static struct dcookie_struct * alloc_dco
+>   	if (!dcs)
+>   		return NULL;
+>   
+>  -	atomic_inc(&dentry->d_count);
+>  -	atomic_inc(&vfsmnt->mnt_count);
+>   	dentry->d_cookie = dcs;
+>   
+>  -	dcs->dentry = dentry;
+>  -	dcs->vfsmnt = vfsmnt;
+>  +	dcs->dentry = dget(dentry);
+>  +	dcs->vfsmnt = mntget(vfsmnt);
+>   	hash_dcookie(dcs);
+>   
+>   	return dcs;
+
+That's already there.

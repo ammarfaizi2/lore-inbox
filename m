@@ -1,47 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030198AbVIAPUR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932463AbVIAPVV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030198AbVIAPUR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 11:20:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030199AbVIAPUR
+	id S932463AbVIAPVV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 11:21:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932323AbVIAPVV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 11:20:17 -0400
-Received: from [85.8.12.41] ([85.8.12.41]:40857 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S1030198AbVIAPUP (ORCPT
+	Thu, 1 Sep 2005 11:21:21 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:30660 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S932249AbVIAPVU convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 11:20:15 -0400
-Message-ID: <43171C02.30402@drzeus.cx>
-Date: Thu, 01 Sep 2005 17:19:30 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 1.0.6-5 (X11/20050818)
-X-Accept-Language: en-us, en
+	Thu, 1 Sep 2005 11:21:20 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: ncunningham@cyclades.com, Pavel Machek <pavel@ucw.cz>,
-       Meelis Roos <mroos@linux.ee>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Len Brown <len.brown@intel.com>
-Subject: Re: reboot vs poweroff
-References: <20050901062406.EBA5613D5B@rhn.tartu-labor>	<1125557333.12996.76.camel@localhost>	<Pine.SOC.4.61.0509011030430.3232@math.ut.ee>	<4316F4E3.4030302@drzeus.cx> <1125578897.4785.23.camel@localhost> <m1fysoq0p7.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1fysoq0p7.fsf@ebiederm.dsl.xmission.com>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [RFC/PATCH]reconfigure MSI registers after resume
+Date: Thu, 1 Sep 2005 08:20:50 -0700
+Message-ID: <C7AB9DA4D0B1F344BF2489FA165E502409A1201A@orsmsx404.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [RFC/PATCH]reconfigure MSI registers after resume
+thread-index: AcWui6U/IkAGxTgySmius/YA36ZZAwAeqAEQ
+From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+To: "Greg KH" <greg@kroah.com>, "Li, Shaohua" <shaohua.li@intel.com>
+Cc: "lkml" <linux-kernel@vger.kernel.org>, "akpm" <akpm@osdl.org>
+X-OriginalArrivalTime: 01 Sep 2005 15:20:51.0794 (UTC) FILETIME=[BD267320:01C5AF08]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
+On Wednesday, August 31, 2005 2:44 PM Greg KH wrote:
+>>On Thu, Aug 18, 2005 at 01:35:46PM +0800, Shaohua Li wrote:
+>> Hi,
+>> It appears pci_enable_msi doesn't reconfigure msi registers if it
+>> successfully look up a msi for a device. It assumes the data and
+address
+>> registers unchanged after calling pci_disable_msi. But this isn't
+always
+>> true, such as in a suspend/resume circle. In my test system, the
+>> registers unsurprised become zero after a S3 resume. This patch fixes
+my
+>> problem, please look at it. MSIX might have the same issue, but I
+>> haven't taken a close look.
 
->Hmm.  Looking at that bug report it specifies 2.6.11.  Does this
->problem really happen in 2.6.13?
->
->  
->
+> Tom, any comments on this?
 
-I first noticed it in 2.6.11. It was fixed sometime during 2.6.13-rc
-only to be killed of again in 2.6.13-rc7. The bugzilla now has a patch
-for 2.6.13 which fixes the problem again.
+In the cases of suspend/resume, a device driver needs to restore its PCI
+configuration space registers, which include the MSI/MSI-X capability
+structures if a device uses MSI/MSI-X. I think reconfiguring MSI
+data/address each time a driver calls pci_enable_msi may not be
+necessary.
 
-Rgds
-Pierre
-
+Thanks,
+Tom

@@ -1,37 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030324AbVIATpu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030327AbVIATtT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030324AbVIATpu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 15:45:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030327AbVIATpu
+	id S1030327AbVIATtT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 15:49:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030328AbVIATtT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 15:45:50 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:8935
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1030324AbVIATpt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 15:45:49 -0400
-Date: Thu, 01 Sep 2005 12:45:52 -0700 (PDT)
-Message-Id: <20050901.124552.132066739.davem@davemloft.net>
-To: ecashin@coraid.com
-Cc: linux-kernel@vger.kernel.org, jmacbaine@gmail.com
-Subject: Re: aoe fails on sparc64
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <87k6i0bnyn.fsf@coraid.com>
-References: <87vf1mm7fk.fsf@coraid.com>
-	<20050831.232430.50551657.davem@davemloft.net>
-	<87k6i0bnyn.fsf@coraid.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Thu, 1 Sep 2005 15:49:19 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:3284 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1030327AbVIATtS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 15:49:18 -0400
+Message-ID: <43175B23.8040803@pobox.com>
+Date: Thu, 01 Sep 2005 15:48:51 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: Brett Russ <russb@emc.com>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.13] libata: Marvell SATA support (PIO mode)
+References: <20050830183625.BEE1520F4C@lns1058.lss.emc.com> <4314C604.4030208@pobox.com> <20050901142754.B93BF27137@lns1058.lss.emc.com> <20050901144038.GA25830@infradead.org>
+In-Reply-To: <20050901144038.GA25830@infradead.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ed L Cashin <ecashin@coraid.com>
-Date: Thu, 01 Sep 2005 15:13:52 -0400
+Christoph Hellwig wrote:
+>>+#include <linux/kernel.h>
+>>+#include <linux/module.h>
+>>+#include <linux/pci.h>
+>>+#include <linux/init.h>
+>>+#include <linux/blkdev.h>
+>>+#include <linux/delay.h>
+>>+#include <linux/interrupt.h>
+>>+#include <linux/sched.h>
+>>+#include <linux/dma-mapping.h>
+>>+#include "scsi.h"
+> 
+> 
+> pleaese don't include "scsi.h" in new drivers.  It will go away soon.
+> Use the <scsi/*.h> headers and get rid of usage of obsolete constucts
+> in your driver.
 
-> The aoe driver looks OK, but it turns out there's a byte swapping bug
-> in the vblade that could be related if he's running the vblade on a
-> big endian host (even though he said it was an x86 host), but I
-> haven't heard back from the original poster yet.
 
-I see, thanks for looking into this.
+It stays until the rest of the libata drivers lose the include.
+
+After ATAPI support is done, I can stop 2.4.x support, and this and 
+several other compat-isms will go away.
+
+	Jeff
+
+

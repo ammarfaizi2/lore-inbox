@@ -1,64 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965041AbVIAMWk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965089AbVIAM1E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965041AbVIAMWk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 08:22:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965089AbVIAMWj
+	id S965089AbVIAM1E (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 08:27:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965090AbVIAM1E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 08:22:39 -0400
-Received: from styx.suse.cz ([82.119.242.94]:32963 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S965041AbVIAMWj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 08:22:39 -0400
-Date: Thu, 1 Sep 2005 14:22:53 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Zoltan Szecsei <zoltans@geograph.co.za>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: multiple independent keyboard kernel support
-Message-ID: <20050901122253.GA11787@midnight.suse.cz>
-References: <4316E5D9.8050107@geograph.co.za>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4316E5D9.8050107@geograph.co.za>
-User-Agent: Mutt/1.5.10i
+	Thu, 1 Sep 2005 08:27:04 -0400
+Received: from newton.linux4geeks.de ([193.30.1.1]:20109 "EHLO
+	newton.linux4geeks.de") by vger.kernel.org with ESMTP
+	id S965089AbVIAM1D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 08:27:03 -0400
+Date: Thu, 1 Sep 2005 14:26:33 +0200 (CEST)
+From: Sven Ladegast <sven@linux4geeks.de>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: KLive: Linux Kernel Live Usage Monitor
+In-Reply-To: <20050830145602.GN8515@g5.random>
+Message-ID: <Pine.LNX.4.63.0509011424320.3422@cassini.linux4geeks.de>
+References: <20050830030959.GC8515@g5.random> <Pine.LNX.4.63.0508300954190.1984@cassini.linux4geeks.de>
+ <20050830145602.GN8515@g5.random>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 01, 2005 at 01:28:25PM +0200, Zoltan Szecsei wrote:
+On Tue, 30 Aug 2005, Andrea Arcangeli wrote:
 
-> Hi All,
-> The archives & FAQs on this subject stop at December 2003. Google not 
-> much help either (prob. due to my keyword choices)
-> 
-> I gather the only way to do this is via the ruby patch.
-> 
-> (When) Will there ever be native kernel (and maybe XFree) support for 
-> multiple independent keyboards?
+> That would be nice addition IMHO. It'll be more complex since it'll
+> involve netconsole dumping and passing the klive session to the kernel
+> somehow (userland would be too unreliable to push the oops to the
+> server). The worst part is that oops dumping might expose random kernel
+> data (it could contain ssh keys as well), so I would either need to
+> purify the stack/code/register lines making the oops quite useless, or
+> not to show it at all (and only to show the count of the oopses
+> publically). A parameter could be used to tell the kernel if the whole
+> oops should be sent to the klive server or if only the notification an
+> oops should be sent (without sending the payload with potentially
+> sensitive data inside).
 
-The kernel console is unlikely to ever going to have that - noone is
-interested in changing the console subsystem.
+This could be a config option too: Whether sending payload data or not. 
+And people should see a notification that they may expose sensitive data 
+when using the report-function.
 
-The current state of input device support in the kernel, however, allows
-any userspace program to access them independently, including keyboards.
-
-That means multi-user X and possibly a userspace console implementation
-(Jon Smirl is planning one) has no barriers in the kernel input device
-implementation keeping it from proceeding.
-
-The problems with multiple VGA cards, etc, are much harder to solve,
-though.
-
-> The ruby patch seems to also only have discussions older than 18 months.
-> 
-> Has there really been no progress in the last 18 months?
-> 
-> I would prefer to see "official and permanent" support for this as then 
-> when HW & drivers & kernels develop in the future, this capability will 
-> always be (immediately) available - and not have to wait for patches.
-
-Many people would like that. But not many enough to make it happen, at
-least not until now.
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Sven

@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030398AbVIAV3b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030393AbVIAVcL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030398AbVIAV3b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 17:29:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030400AbVIAV3a
+	id S1030393AbVIAVcL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 17:32:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030407AbVIAVcL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 17:29:30 -0400
-Received: from simmts7.bellnexxia.net ([206.47.199.165]:20473 "EHLO
-	simmts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S1030398AbVIAV33 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 17:29:29 -0400
-Message-ID: <39084.10.10.10.10.1125610166.squirrel@linux1>
-In-Reply-To: <9e47339105090113381222c9d0@mail.gmail.com>
-References: <43171D33.9020802@tungstengraphics.com>
-    <1125590374.9419.35.camel@localhost.localdomain>
-    <20050901163958.9589.qmail@paladin.fortunaty.net>
-    <1125605907.10488.4.camel@localhost.localdomain>
-    <9e47339105090113381222c9d0@mail.gmail.com>
-Date: Thu, 1 Sep 2005 17:29:26 -0400 (EDT)
-Subject: Re: State of Linux graphics
-From: "Sean" <seanlkml@sympatico.ca>
-To: "Discuss issues related to the xorg tree" 
-	<xorg@lists.freedesktop.org>
-Cc: jg@freedesktop.org,
-       "Discuss issues related to the xorg tree" 
-	<xorg@lists.freedesktop.org>,
-       "Andreas Hauser" <andy@splashground.de>,
-       "lkml" <linux-kernel@vger.kernel.org>
-User-Agent: SquirrelMail/1.4.4-2
+	Thu, 1 Sep 2005 17:32:11 -0400
+Received: from mail.microway.com ([64.80.227.22]:53393 "EHLO mail.microway.com")
+	by vger.kernel.org with ESMTP id S1030393AbVIAVcK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 17:32:10 -0400
+From: Rick Warner <rick@microway.com>
+Organization: Microway, Inc.
+To: linux-kernel@vger.kernel.org
+Subject: latency doubled on tg3 device from 2.6.11 to 2.6.12
+Date: Thu, 1 Sep 2005 17:30:51 -0400
+User-Agent: KMail/1.7.2
+Cc: eliot@microway.com
+Message-Id: <200509011730.51990.rick@microway.com>
+X-Sanitizer: Advosys mail filter
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, September 1, 2005 4:38 pm, Jon Smirl said:
+Hello,
+ We have been testing latency and bandwidth using our proprietary MPI link 
+checker tool (http://www.microway.com/mpilinkchecker.html) and have found 
+that the latency increased from ~25ms to ~45ms going from 2.6.11 to 2.6.12.  
+2.6.13 has the same result.  We also tried the latest bcm5700 from broadcom 
+(8.2.18) and got the same ~45ms latencies.  This was tried on several 
+different opteron and em64t motherboards.
 
-> We're not putting all of our eggs in one basket, you keep forgetting
-> that we already have a server that supports all of the currently
-> existing hardware. The question is where do we want to put our future
-> eggs.
+ We see 20-25ms latencies with the e1000 driver (with some module options) on 
+all 3 kernel versions.  For those interested, the e1000 options used are:
 
-Amen!   All these arguments that we can't support an advanced future
-design unless the new design also supports $10 third world video cards too
-is a complete red herring.
+ InterruptThrottleRate=0 RxIntDelay=0 TxIntDelay=0 RxAbsIntDelay=0 
+TxAbsIntDelay=0
 
-Sean
-
+ Digging through source, it seems that a new locking mechanism for tg3 was put 
+in place in 2.6.12.  Is this the likely cause?  What can we do to restore our 
+lower latency?
 
 
+-- 
+Richard Warner
+Lead Systems Integrator
+Microway, Inc
+(508)732-5517

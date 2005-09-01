@@ -1,50 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030376AbVIAU2Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030372AbVIAU1t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030376AbVIAU2Z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 16:28:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030375AbVIAU2Z
+	id S1030372AbVIAU1t (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 16:27:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030367AbVIAU1t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 16:28:25 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:22996 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1030373AbVIAU2Y (ORCPT
+	Thu, 1 Sep 2005 16:27:49 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:47782 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1030372AbVIAU1s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 16:28:24 -0400
-Message-ID: <4317645B.4080004@pobox.com>
-Date: Thu, 01 Sep 2005 16:28:11 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: Brett Russ <russb@emc.com>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.13] libata: Marvell SATA support (PIO mode)
-References: <20050830183625.BEE1520F4C@lns1058.lss.emc.com> <4314C604.4030208@pobox.com> <20050901142754.B93BF27137@lns1058.lss.emc.com> <20050901144038.GA25830@infradead.org> <43175B23.8040803@pobox.com> <20050901195832.GA14602@infradead.org> <43175E8F.7080700@pobox.com> <20050901200532.GA14650@infradead.org>
-In-Reply-To: <20050901200532.GA14650@infradead.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Thu, 1 Sep 2005 16:27:48 -0400
+Date: Thu, 1 Sep 2005 22:28:30 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.13-rt3
+Message-ID: <20050901202830.GB27229@elte.hu>
+References: <1125591893.7842.7.camel@localhost.localdomain> <1125593160.5761.3.camel@localhost.localdomain> <1125603507.5810.6.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1125603507.5810.6.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> Stop that crap now please.  Adding "scsi.h" includes is _not_ allowed
-> for new drivers, period.  There's no exceptions, not even for
-> Jeff "I'm part of the calal" Garzik.
 
-There are solid technical reasons (a) why libata drivers include scsi.h, 
-and (b) why all libata drivers look similar.  It -impedes- maintenance 
-to have one libata driver different from all the others, and this is 
-what you are suggesting.
+* Steven Rostedt <rostedt@goodmis.org> wrote:
 
-Your suggestion causes nothing but additional work, for zero gain:  as I 
-have explained, all the scsi.h includes will go away at the same time. 
-Such as sweep would catch all libata drivers, including sata_mv.
+> Ingo,
+> 
+> I just found a __MAJOR__ bug in my code.  Below is the patch that 
+> fixes this bug, zaps the WARN_ON in check_pi_list_present, and changes 
+> ALL_TASKS_PI to a booleon instead of just a define.
+> 
+> The major bug was in __down_trylock.  See anything wrong with this 
+> code :-) I'm surprised that this worked as well as it did!
 
-Until you're willing to step up and help with 2.4.x maintenance, you're 
-just being an impediment for non-technical reasons.  If you want to do 
-that, join politics and become a politician.  I have real work to do.
+ok, i've released -rt4 with this fix included. The 8-way box boots fine 
+now.
 
-	Jeff
-
-
+	Ingo

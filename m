@@ -1,50 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932074AbVIAJ6p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbVIAKAN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932074AbVIAJ6p (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 05:58:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932149AbVIAJ6o
+	id S932095AbVIAKAN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 06:00:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932149AbVIAKAN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 05:58:44 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:53979 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S932074AbVIAJ6o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 05:58:44 -0400
-Date: Thu, 1 Sep 2005 02:58:27 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Coywolf Qi Hunt <coywolf@gmail.com>
-Cc: akpm@osdl.org, mel@csn.ul.ie, linux-kernel@vger.kernel.org,
-       dino@in.ibm.com, jschopp@austin.ibm.com, Simon.Derr@bull.net,
-       torvalds@osdl.org, haveblue@us.ibm.com
-Subject: Re: [PATCH 1/4] cpusets oom_kill tweaks
-Message-Id: <20050901025827.0e620dd9.pj@sgi.com>
-In-Reply-To: <2cd57c900509010239670c07a2@mail.gmail.com>
-References: <20050901090853.18441.24035.sendpatchset@jackhammer.engr.sgi.com>
-	<20050901090859.18441.67380.sendpatchset@jackhammer.engr.sgi.com>
-	<2cd57c900509010239670c07a2@mail.gmail.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 1 Sep 2005 06:00:13 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:52397 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932095AbVIAKAL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 06:00:11 -0400
+Subject: Re: [ANNOUNCE] DSFS Network Forensic File System for Linux Patches
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: jmerkey <jmerkey@utah-nac.org>, Bernd Eckenfels <ecki@lina.inka.de>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050901074556.GA8143@midnight.suse.cz>
+References: <E1EAd1J-0007Cw-00@calista.eckenfels.6bone.ka-ip.net>
+	 <431651BC.9020108@utah-nac.org>  <20050901074556.GA8143@midnight.suse.cz>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Thu, 01 Sep 2005 11:23:59 +0100
+Message-Id: <1125570239.15768.6.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Coywolf wrote:
-> Why bother ...
+On Iau, 2005-09-01 at 09:45 +0200, Vojtech Pavlik wrote:
+> I believe the use of the word is quite correct. 
 
-The line length in characters was getting too long, the logic was
-getting too convoluted, and the comment only applied to an unobvious
-portion of the line.
+Ditto. The term is used for all kinds of marking in software and in the
+kernel case comes well after its use for things like perl unsafe
+variables. It is also used for far more than just non-free binaries but
+also to indicate things like pre-empt, use of insmod -f etc that may be
+significant for debugging work.
 
-Providing a name for the logical condition that a complicated
-expression computes is one of the ways I find useful to make
-code easier to read, and to resolve problems such as those above.
-
-My primary goal in writing code is to minimize the time and effort
-it will take a typical reader to properly understand the code.
-I write first and foremost for humans.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401

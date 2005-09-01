@@ -1,63 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030208AbVIAPoz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030211AbVIAPpw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030208AbVIAPoz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 11:44:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030211AbVIAPoz
+	id S1030211AbVIAPpw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 11:45:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030212AbVIAPpw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 11:44:55 -0400
-Received: from gw1.cosmosbay.com ([62.23.185.226]:4286 "EHLO gw1.cosmosbay.com")
-	by vger.kernel.org with ESMTP id S1030208AbVIAPoy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 11:44:54 -0400
-Message-ID: <431721F0.6090402@cosmosbay.com>
-Date: Thu, 01 Sep 2005 17:44:48 +0200
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] : struct dentry : place d_hash close to d_parent and d_name
- to speedup lookups
-References: <20050901035542.1c621af6.akpm@osdl.org>
-In-Reply-To: <20050901035542.1c621af6.akpm@osdl.org>
-Content-Type: multipart/mixed;
- boundary="------------050405060203050402010402"
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Thu, 01 Sep 2005 17:44:48 +0200 (CEST)
+	Thu, 1 Sep 2005 11:45:52 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:59570 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1030211AbVIAPpv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 11:45:51 -0400
+Subject: Re: State of Linux graphics
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Discuss issues related to the xorg tree 
+	<xorg@lists.freedesktop.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <43171D33.9020802@tungstengraphics.com>
+References: <9e47339105083009037c24f6de@mail.gmail.com>
+	 <1125422813.20488.43.camel@localhost>
+	 <20050831063355.GE27940@tuolumne.arden.org>
+	 <1125512970.4798.180.camel@evo.keithp.com>
+	 <20050831200641.GH27940@tuolumne.arden.org>
+	 <1125522414.4798.222.camel@evo.keithp.com>
+	 <20050901015859.GA11367@tuolumne.arden.org>
+	 <1125547173.4798.289.camel@evo.keithp.com>
+	 <43171D33.9020802@tungstengraphics.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 01 Sep 2005 17:09:51 +0100
+Message-Id: <1125590991.15768.55.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050405060203050402010402
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Iau, 2005-09-01 at 09:24 -0600, Brian Paul wrote:
+> If the blending is for screen-aligned rects, glDrawPixels would be a 
+> far easier path to optimize than texturing.  The number of state 
+> combinations related to texturing is pretty overwhelming.
 
+As doom showed however once you can cut down some of the combinations
+particularly if you know the texture orientation is limited you can
+really speed it up.
 
-dentry cache uses sophisticated RCU technology (and prefetching if available) 
-but touches 2 cache lines per dentry during hlist lookup.
+Blending is going to end up using textures onto flat surfaces facing the
+viewer which are not rotated or skewed.
 
-This patch moves d_hash in the same cache line than d_parent and d_name fields 
-so that :
-
-1) One cache line is needed instead of two.
-2) the hlist_for_each_rcu() prefetching has a chance to bring all the needed 
-data in advance, not only the part that includes d_hash.next.
-
-I also changed one old comment that was wrong for 64bits.
-
-A further optimisation would be to separate dentry in two parts, one that is 
-mostly read, and one writen (d_count/d_lock) to avoid false sharing on 
-SMP/NUMA but this would need different field placement depending on 32bits or 
-64bits platform.
-
-Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
-
-
---------------050405060203050402010402
-Content-Type: text/plain;
- name="dentry.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="dentry.patch"
-
-
---------------050405060203050402010402--

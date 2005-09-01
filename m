@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbVIAIuL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbVIAIxV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750745AbVIAIuL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 04:50:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbVIAIuL
+	id S1750742AbVIAIxV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 04:53:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750746AbVIAIxV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 04:50:11 -0400
-Received: from smtpa3.netcabo.pt ([212.113.174.18]:8629 "EHLO
-	exch01smtp02.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S1750745AbVIAIuK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 04:50:10 -0400
-Message-ID: <4316C0FB.3050004@rncbc.org>
-Date: Thu, 01 Sep 2005 09:51:07 +0100
-From: Rui Nuno Capela <rncbc@rncbc.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [patch] drivers/ide/pci/alim15x3.c SMP fix
-References: <20050901072430.GA6213@elte.hu> <4316B82B.2060306@rncbc.org> <20050901081753.GA7952@elte.hu>
-In-Reply-To: <20050901081753.GA7952@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 01 Sep 2005 08:50:09.0153 (UTC) FILETIME=[283F4F10:01C5AED2]
+	Thu, 1 Sep 2005 04:53:21 -0400
+Received: from isilmar.linta.de ([213.239.214.66]:42894 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S1750742AbVIAIxV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 04:53:21 -0400
+Date: Thu, 1 Sep 2005 10:53:19 +0200
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-ppc-embedded <linuxppc-embedded@ozlabs.org>,
+       linux-kernel@vger.kernel.org, Russell King <rmk+lkml@arm.linux.org.uk>,
+       Dan Malek <dan@embeddededge.com>, Pantelis Antoniou <panto@intracom.gr>
+Subject: Re: [PATCH] MPC8xx PCMCIA driver
+Message-ID: <20050901085319.GB6285@isilmar.linta.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	linux-ppc-embedded <linuxppc-embedded@ozlabs.org>,
+	linux-kernel@vger.kernel.org,
+	Russell King <rmk+lkml@arm.linux.org.uk>,
+	Dan Malek <dan@embeddededge.com>,
+	Pantelis Antoniou <panto@intracom.gr>
+References: <20050830024840.GA5381@dmt.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050830024840.GA5381@dmt.cnet>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
->Rui Nuno Capela wrote:
->>OK. The reported boot WARNING seems to be over now. Tested on the 
->>offended laptop (P4@2.53Ghz/UP, PCI chipset: ALi M1533) with 
->>2.6.13-rt3, where the suggested patch on drivers/ide/pci/alim15x3.c 
->>seems to fix the burp. All seems to be working fine, still ;)
->  
-> just to make sure the original point gets across: the warning is only in 
-> the -rt tree, and it pinpoints potential SMP bugs. Does your box do 
-> hyperthreading?
+Hi,
 
-Nope. The P4@2.53Ghz is from pre-HT age, and the kernel is being built 
-for UP.
+On Mon, Aug 29, 2005 at 11:48:40PM -0300, Marcelo Tosatti wrote:
+> Russell: The driver is using pccard_nonstatic_ops for card window
+> management, even though the driver its marked SS_STATIC_MAP (using
+> mem->static_map).
 
-Bye now.
--- 
-rncbc aka Rui Nuno Capela
-rncbc@rncbc.org
+This is obviously broken. Where does it fail if pccard_static_ops is used?
 
+> +typedef struct  {
+> +	u_int regbit;
+> +	u_int eventbit;
+> +} event_table_t;
 
+No typedefs, please.
+
+	Dominik

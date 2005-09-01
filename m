@@ -1,129 +1,262 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965025AbVIAB3l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965038AbVIAB31@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965025AbVIAB3l (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 21:29:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965018AbVIAB3g
+	id S965038AbVIAB31 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 21:29:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965037AbVIAB30
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 21:29:36 -0400
-Received: from ozlabs.org ([203.10.76.45]:15504 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S965025AbVIAB33 (ORCPT
+	Wed, 31 Aug 2005 21:29:26 -0400
+Received: from ozlabs.org ([203.10.76.45]:59534 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S965026AbVIAB3L (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 21:29:29 -0400
+	Wed, 31 Aug 2005 21:29:11 -0400
 To: <jgarzik@pobox.com>
 CC: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
        <linuxppc64-dev@ozlabs.org>
 From: Michael Ellerman <michael@ellerman.id.au>
-Subject: [PATCH 15/18] iseries_veth: Add sysfs support for port structs
+Subject: [PATCH 9/18] iseries_veth: Use kobjects to track lifecycle of connection structs
 In-Reply-To: <1125538127.859382.875909607846.qpush@concordia>
-Message-Id: <20050901012921.7BA6B68235@ozlabs.org>
-Date: Thu,  1 Sep 2005 11:29:21 +1000 (EST)
+Message-Id: <20050901012909.C98036820F@ozlabs.org>
+Date: Thu,  1 Sep 2005 11:29:09 +1000 (EST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Also to aid debugging, add sysfs support for iseries_veth's port structures.
+The iseries_veth driver can attach to multiple vlans, which correspond to
+multiple net devices. However there is only 1 connection between each LPAR,
+so the connection structure may be shared by multiple net devices.
+
+This makes module removal messy, because we can't deallocate the connections
+until we know there are no net devices still using them. The solution is to
+use ref counts on the connections, so we can delete them (actually stop) as
+soon as the ref count hits zero.
+
+This patch fixes (part of) a bug we were seeing with IPv6 sending probes to
+a dead LPAR, which would then hang us forever due to leftover skbs.
 
 Signed-off-by: Michael Ellerman <michael@ellerman.id.au>
 ---
 
- drivers/net/iseries_veth.c |   67 +++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 67 insertions(+)
+ drivers/net/iseries_veth.c |  121 ++++++++++++++++++++++++++++++---------------
+ 1 files changed, 83 insertions(+), 38 deletions(-)
 
 Index: veth-dev2/drivers/net/iseries_veth.c
 ===================================================================
 --- veth-dev2.orig/drivers/net/iseries_veth.c
 +++ veth-dev2/drivers/net/iseries_veth.c
-@@ -167,6 +167,8 @@ struct veth_port {
- 	int promiscuous;
- 	int num_mcast;
- 	u64 mcast_addr[VETH_MAX_MCAST];
-+
+@@ -129,6 +129,7 @@ struct veth_lpar_connection {
+ 	int num_events;
+ 	struct VethCapData local_caps;
+ 
 +	struct kobject kobject;
- };
+ 	struct timer_list ack_timer;
  
- static HvLpIndex this_lp;
-@@ -350,6 +352,62 @@ static struct kobj_type veth_lpar_connec
- 	.default_attrs	= veth_cnx_default_attrs
- };
- 
-+struct veth_port_attribute {
-+	struct attribute attr;
-+	ssize_t (*show)(struct veth_port *, char *buf);
-+	ssize_t (*store)(struct veth_port *, const char *buf);
+ 	spinlock_t lock;
+@@ -171,6 +172,11 @@ static void veth_recycle_msg(struct veth
+ static void veth_flush_pending(struct veth_lpar_connection *cnx);
+ static void veth_receive(struct veth_lpar_connection *, struct VethLpEvent *);
+ static void veth_timed_ack(unsigned long connectionPtr);
++static void veth_release_connection(struct kobject *kobject);
++
++static struct kobj_type veth_lpar_connection_ktype = {
++	.release	= veth_release_connection
 +};
+ 
+ /*
+  * Utility functions
+@@ -611,7 +617,7 @@ static int veth_init_connection(u8 rlp)
+ {
+ 	struct veth_lpar_connection *cnx;
+ 	struct veth_msg *msgs;
+-	int i;
++	int i, rc;
+ 
+ 	if ( (rlp == this_lp)
+ 	     || ! HvLpConfig_doLpsCommunicateOnVirtualLan(this_lp, rlp) )
+@@ -632,6 +638,14 @@ static int veth_init_connection(u8 rlp)
+ 
+ 	veth_cnx[rlp] = cnx;
+ 
++	/* This gets us 1 reference, which is held on behalf of the driver
++	 * infrastructure. It's released at module unload. */
++	kobject_init(&cnx->kobject);
++	cnx->kobject.ktype = &veth_lpar_connection_ktype;
++	rc = kobject_set_name(&cnx->kobject, "cnx%.2d", rlp);
++	if (rc != 0)
++		return rc;
 +
-+static ssize_t veth_port_attribute_show(struct kobject *kobj,
-+		struct attribute *attr, char *buf)
-+{
-+	struct veth_port_attribute *port_attr;
-+	struct veth_port *port;
-+
-+	port_attr = container_of(attr, struct veth_port_attribute, attr);
-+	port = container_of(kobj, struct veth_port, kobject);
-+
-+	if (!port_attr->show)
-+		return -EIO;
-+
-+	return port_attr->show(port, buf);
+ 	msgs = kmalloc(VETH_NUMBUFFERS * sizeof(struct veth_msg), GFP_KERNEL);
+ 	if (! msgs) {
+ 		veth_error("Can't allocate buffers for LPAR %d.\n", rlp);
+@@ -660,11 +674,9 @@ static int veth_init_connection(u8 rlp)
+ 	return 0;
+ }
+ 
+-static void veth_stop_connection(u8 rlp)
++static void veth_stop_connection(struct veth_lpar_connection *cnx)
+ {
+-	struct veth_lpar_connection *cnx = veth_cnx[rlp];
+-
+-	if (! cnx)
++	if (!cnx)
+ 		return;
+ 
+ 	spin_lock_irq(&cnx->lock);
+@@ -685,11 +697,9 @@ static void veth_stop_connection(u8 rlp)
+ 	flush_scheduled_work();
+ }
+ 
+-static void veth_destroy_connection(u8 rlp)
++static void veth_destroy_connection(struct veth_lpar_connection *cnx)
+ {
+-	struct veth_lpar_connection *cnx = veth_cnx[rlp];
+-
+-	if (! cnx)
++	if (!cnx)
+ 		return;
+ 
+ 	if (cnx->num_events > 0)
+@@ -704,8 +714,16 @@ static void veth_destroy_connection(u8 r
+ 				      NULL, NULL);
+ 
+ 	kfree(cnx->msgs);
++	veth_cnx[cnx->remote_lp] = NULL;
+ 	kfree(cnx);
+-	veth_cnx[rlp] = NULL;
 +}
 +
-+#define CUSTOM_PORT_ATTR(_name, _format, _expression)			\
-+static ssize_t _name##_show(struct veth_port *port, char *buf)		\
-+{									\
-+	return sprintf(buf, _format, _expression);			\
-+}									\
-+struct veth_port_attribute veth_port_attr_##_name = __ATTR_RO(_name)
-+
-+#define SIMPLE_PORT_ATTR(_name)	\
-+	CUSTOM_PORT_ATTR(_name, "%lu\n", (unsigned long)port->_name)
-+
-+SIMPLE_PORT_ATTR(promiscuous);
-+SIMPLE_PORT_ATTR(num_mcast);
-+CUSTOM_PORT_ATTR(lpar_map, "0x%X\n", port->lpar_map);
-+CUSTOM_PORT_ATTR(stopped_map, "0x%X\n", port->stopped_map);
-+CUSTOM_PORT_ATTR(mac_addr, "0x%lX\n", port->mac_addr);
-+
-+#define GET_PORT_ATTR(_name)	(&veth_port_attr_##_name.attr)
-+static struct attribute *veth_port_default_attrs[] = {
-+	GET_PORT_ATTR(mac_addr),
-+	GET_PORT_ATTR(lpar_map),
-+	GET_PORT_ATTR(stopped_map),
-+	GET_PORT_ATTR(promiscuous),
-+	GET_PORT_ATTR(num_mcast),
-+	NULL
-+};
-+
-+static struct sysfs_ops veth_port_sysfs_ops = {
-+	.show = veth_port_attribute_show
-+};
-+
-+static struct kobj_type veth_port_ktype = {
-+	.sysfs_ops	= &veth_port_sysfs_ops,
-+	.default_attrs	= veth_port_default_attrs
-+};
-+
++static void veth_release_connection(struct kobject *kobj)
++{
++	struct veth_lpar_connection *cnx;
++	cnx = container_of(kobj, struct veth_lpar_connection, kobject);
++	veth_stop_connection(cnx);
++	veth_destroy_connection(cnx);
+ }
+ 
  /*
-  * LPAR connection code
-  */
-@@ -992,6 +1050,13 @@ static struct net_device * __init veth_p
- 		return NULL;
- 	}
+@@ -1349,15 +1367,31 @@ static void veth_timed_ack(unsigned long
  
-+	kobject_init(&port->kobject);
-+	port->kobject.parent = &dev->class_dev.kobj;
-+	port->kobject.ktype  = &veth_port_ktype;
-+	kobject_set_name(&port->kobject, "veth_port");
-+	if (0 != kobject_add(&port->kobject))
-+		veth_error("Failed adding port for %s to sysfs.\n", dev->name);
+ static int veth_remove(struct vio_dev *vdev)
+ {
+-	int i = vdev->unit_address;
++	struct veth_lpar_connection *cnx;
+ 	struct net_device *dev;
++	struct veth_port *port;
++	int i;
+ 
+-	dev = veth_dev[i];
+-	if (dev != NULL) {
+-		veth_dev[i] = NULL;
+-		unregister_netdev(dev);
+-		free_netdev(dev);
++	dev = veth_dev[vdev->unit_address];
 +
- 	veth_info("%s attached to iSeries vlan %d (LPAR map = 0x%.4X)\n",
- 			dev->name, vlan, port->lpar_map);
++	if (! dev)
++		return 0;
++
++	port = netdev_priv(dev);
++
++	for (i = 0; i < HVMAXARCHITECTEDLPS; i++) {
++		cnx = veth_cnx[i];
++
++		if (cnx && (port->lpar_map & (1 << i))) {
++			/* Drop our reference to connections on our VLAN */
++			kobject_put(&cnx->kobject);
++		}
+ 	}
++
++	veth_dev[vdev->unit_address] = NULL;
++	unregister_netdev(dev);
++	free_netdev(dev);
++
+ 	return 0;
+ }
  
-@@ -1486,6 +1551,8 @@ static int veth_remove(struct vio_dev *v
+@@ -1365,6 +1399,7 @@ static int veth_probe(struct vio_dev *vd
+ {
+ 	int i = vdev->unit_address;
+ 	struct net_device *dev;
++	struct veth_port *port;
+ 
+ 	dev = veth_probe_one(i, &vdev->dev);
+ 	if (dev == NULL) {
+@@ -1373,11 +1408,23 @@ static int veth_probe(struct vio_dev *vd
+ 	}
+ 	veth_dev[i] = dev;
+ 
+-	/* Start the state machine on each connection, to commence
+-	 * link negotiation */
+-	for (i = 0; i < HVMAXARCHITECTEDLPS; i++)
+-		if (veth_cnx[i])
+-			veth_kick_statemachine(veth_cnx[i]);
++	port = (struct veth_port*)netdev_priv(dev);
++
++	/* Start the state machine on each connection on this vlan. If we're
++	 * the first dev to do so this will commence link negotiation */
++	for (i = 0; i < HVMAXARCHITECTEDLPS; i++) {
++		struct veth_lpar_connection *cnx;
++
++		if (! (port->lpar_map & (1 << i)))
++			continue;
++
++		cnx = veth_cnx[i];
++		if (!cnx)
++			continue;
++
++		kobject_get(&cnx->kobject);
++		veth_kick_statemachine(cnx);
++	}
+ 
+ 	return 0;
+ }
+@@ -1406,29 +1453,27 @@ static struct vio_driver veth_driver = {
+ void __exit veth_module_cleanup(void)
+ {
+ 	int i;
++	struct veth_lpar_connection *cnx;
+ 
+-	/* Stop the queues first to stop any new packets being sent. */
+-	for (i = 0; i < HVMAXARCHITECTEDVIRTUALLANS; i++)
+-		if (veth_dev[i])
+-			netif_stop_queue(veth_dev[i]);
+-
+-	/* Stop the connections before we unregister the driver. This
+-	 * ensures there's no skbs lying around holding the device open. */
+-	for (i = 0; i < HVMAXARCHITECTEDLPS; ++i)
+-		veth_stop_connection(i);
+-
++	/* Disconnect our "irq" to stop events coming from the Hypervisor. */
+ 	HvLpEvent_unregisterHandler(HvLpEvent_Type_VirtualLan);
+ 
+-	/* Hypervisor callbacks may have scheduled more work while we
+-	 * were stoping connections. Now that we've disconnected from
+-	 * the hypervisor make sure everything's finished. */
++	/* Make sure any work queued from Hypervisor callbacks is finished. */
+ 	flush_scheduled_work();
+ 
+-	vio_unregister_driver(&veth_driver);
++	for (i = 0; i < HVMAXARCHITECTEDLPS; ++i) {
++		cnx = veth_cnx[i];
++
++		if (!cnx)
++			continue;
+ 
+-	for (i = 0; i < HVMAXARCHITECTEDLPS; ++i)
+-		veth_destroy_connection(i);
++		/* Drop the driver's reference to the connection */
++		kobject_put(&cnx->kobject);
++	}
+ 
++	/* Unregister the driver, which will close all the netdevs and stop
++	 * the connections when they're no longer referenced. */
++	vio_unregister_driver(&veth_driver);
+ }
+ module_exit(veth_module_cleanup);
+ 
+@@ -1456,7 +1501,7 @@ int __init veth_module_init(void)
+ 
+ error:
+ 	for (i = 0; i < HVMAXARCHITECTEDLPS; ++i) {
+-		veth_destroy_connection(i);
++		veth_destroy_connection(veth_cnx[i]);
  	}
  
- 	veth_dev[vdev->unit_address] = NULL;
-+	kobject_del(&port->kobject);
-+	kobject_put(&port->kobject);
- 	unregister_netdev(dev);
- 	free_netdev(dev);
- 
+ 	return rc;

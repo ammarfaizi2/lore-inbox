@@ -1,43 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030335AbVIATzQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030332AbVIATy7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030335AbVIATzQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 15:55:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030336AbVIATzQ
+	id S1030332AbVIATy7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 15:54:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030333AbVIATy6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 15:55:16 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:2500 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1030335AbVIATzO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 15:55:14 -0400
-Date: Thu, 1 Sep 2005 17:39:15 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, Vojtech Pavlik <vojtech@suse.cz>,
-       Mark Lord <mlord@pobox.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: APs from the Kernel Summit run Linux
-Message-ID: <20050901153915.GB1561@openzaurus.ucw.cz>
-References: <20050830093715.GA9781@midnight.suse.cz> <4315E0F0.6060209@pobox.com> <20050831205319.A6385@flint.arm.linux.org.uk> <20050831203211.GA13752@midnight.suse.cz> <94E48213-4A1A-4979-B3A7-05E7BBE19AD3@mac.com> <1125545767.12996.21.camel@localhost>
+	Thu, 1 Sep 2005 15:54:58 -0400
+Received: from sd291.sivit.org ([194.146.225.122]:526 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S1030332AbVIATy6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 15:54:58 -0400
+Subject: Re: 2.6.13-rc7-git2 crashes on iBook
+From: Stelian Pop <stelian@popies.net>
+To: Daniel Drake <dsd@gentoo.org>
+Cc: Alex Williamson <alex.williamson@hp.com>, Andreas Schwab <schwab@suse.de>,
+       linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <431755E4.70703@gentoo.org>
+References: <jehdda2tqt.fsf@sykes.suse.de>
+	 <1125288175.5595.3.camel@localhost.localdomain>
+	 <1125311951.4662.3.camel@localhost.localdomain> <431755E4.70703@gentoo.org>
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Thu, 01 Sep 2005 21:54:54 +0200
+Message-Id: <1125604494.3999.7.camel@deep-space-9.dsnet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1125545767.12996.21.camel@localhost>
-User-Agent: Mutt/1.3.27i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > The 4020 and 0402 look oddly symmetrical to me, but that could just
-> > be my imagination.
+Le jeudi 01 septembre 2005 à 20:26 +0100, Daniel Drake a écrit :
+> Hi,
 > 
-> All I saw in it was byte n+1 = byte n >> 1. Can't see any use to that
-> either, though. Maybe it's just there to torment reverse engineerers, or
-> trap memory corruption?
+> Stelian Pop wrote:
+> > Confirmed on an Apple Powerbook too.
+> > 
+> > For reference, the (already reverted) patch which needs to be applied is
+> > below.
+> > 
+> > Signed-off-by: Stelian Pop <stelian@popies.net>
+> > 
+> > Index: linux-2.6.git/drivers/pci/setup-res.c
+[...]
 
-I had seen something like that before -- it was image compression
-and they were using 9bit "bytes"... which worked like obfuscation, too.
+> Sorry for my ignorance. Which tree was this reverted in? You are probably 
+> aware that this bug made it into 2.6.13 (patch was not reverted there).
 
-				Pavel
+It must be my bad english but I wasn't implying that the patch was
+reverted in 2.6.13 but that one should apply it (just apply, without -R,
+because I didn't attach the original patch but a reversed version of it)
+on a clean 2.6.13 tree in order to make it work. :)
+
+However, a different fix (a real fix, not the workaround proposed above)
+was discussed on lkml this week and BenH proposed a patch I haven't had
+the chance to test yet (see http://lkml.org/lkml/2005/8/31/1 ).
+
+Stelian.
 -- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+Stelian Pop <stelian@popies.net>
 

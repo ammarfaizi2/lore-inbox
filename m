@@ -1,53 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030340AbVIAUBG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030346AbVIAUBo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030340AbVIAUBG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 16:01:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030345AbVIAUBG
+	id S1030346AbVIAUBo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 16:01:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030345AbVIAUBa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 16:01:06 -0400
-Received: from wproxy.gmail.com ([64.233.184.192]:56071 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030340AbVIAUBB (ORCPT
+	Thu, 1 Sep 2005 16:01:30 -0400
+Received: from fmr19.intel.com ([134.134.136.18]:62404 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1030343AbVIAUBM convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 16:01:01 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=g4JWOzhgqrQLnmvSqJUTVSCRuayceK7Wwg8xzdc1oJ1Mxp4vno1OJzTWJCiApB8XzPZmaM7bVLz5GkAqvvO5+9He+7iCtUDz5wPKgOcCXsPUYZ5h5hGjdfJhkpXFEMP+ExYvD1LmvbWIVjRflK3mxSbSc1WDkBKqlOC9qJ/hxEg=
-Date: Fri, 2 Sep 2005 00:10:29 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.13] Unhandled error condition in aic79xx
-Message-ID: <20050901201029.GA10893@mipter.zuzino.mipt.ru>
-References: <1125603501.4867.21.camel@dhcp153.mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1125603501.4867.21.camel@dhcp153.mvista.com>
-User-Agent: Mutt/1.5.8i
+	Thu, 1 Sep 2005 16:01:12 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [RFC/PATCH]reconfigure MSI registers after resume
+Date: Thu, 1 Sep 2005 13:01:03 -0700
+Message-ID: <C7AB9DA4D0B1F344BF2489FA165E502409A459F1@orsmsx404.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [RFC/PATCH]reconfigure MSI registers after resume
+thread-index: AcWvLADh80n0gxQtRDuhx+1TJ/p5KQAA1SNg
+From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Cc: <greg@kroah.com>, "Li, Shaohua" <shaohua.li@intel.com>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 01 Sep 2005 20:01:04.0698 (UTC) FILETIME=[E26C01A0:01C5AF2F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 01, 2005 at 12:38:21PM -0700, Daniel Walker wrote:
-> This patch should handle the case when scsi_add_host() fails.
+On Thursday, September 01, 2005 12:32 PM Andrew Morton wrote:
+> So what is the alternative to Shaohua's fix?  Restore all the msi 
+> registers on resume?
 
-> --- linux-2.6.13.orig/drivers/scsi/aic7xxx/aic79xx_osm.c
-> +++ linux-2.6.13/drivers/scsi/aic7xxx/aic79xx_osm.c
+Yes, the PCIe port bus driver, for example, did that.
 
-> @@ -2065,7 +2066,11 @@ ahd_linux_register_host(struct ahd_softc
->  	ahd_unlock(ahd, &s);
->  
->  #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
-> -	scsi_add_host(host, &ahd->dev_softc->dev); /* XXX handle failure */
-> +	error = scsi_add_host(host, &ahd->dev_softc->dev); 
-> +	if (error) {
-> +		scsi_host_put(host);
-> +		return(error);
-> +	}
->  	scsi_scan_host(host);
->  #endif
->  	return (0);
-
-I see malloc(), kernel_thread() and multiple ahd_linux_alloc_target()
-above. Ditto for 7xxx patch.
-
+Thanks,
+Tom

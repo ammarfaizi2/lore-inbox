@@ -1,63 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030250AbVIARWQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030251AbVIARXc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030250AbVIARWQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 13:22:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030251AbVIARWQ
+	id S1030251AbVIARXc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 13:23:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030254AbVIARXc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 13:22:16 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:51886 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030250AbVIARWP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 13:22:15 -0400
-Message-ID: <43173894.7040304@us.ibm.com>
-Date: Thu, 01 Sep 2005 10:21:24 -0700
-From: Ian Romanick <idr@us.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc3 (X11/20050720)
-X-Accept-Language: en-us, en
+	Thu, 1 Sep 2005 13:23:32 -0400
+Received: from mail.joq.us ([67.65.12.105]:54190 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S1030253AbVIARXb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 13:23:31 -0400
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       jackit-devel@lists.sourceforge.net, Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel@vger.kernel.org, cc@ccrma.Stanford.EDU,
+       Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [Jackit-devel] Re: jack, PREEMPT_DESKTOP, delayed interrupts?
+References: <1125453795.25823.121.camel@cmn37.stanford.edu>
+	<20050831073518.GA7582@elte.hu> <7q64tmnwbb.fsf@io.com>
+	<20050831175036.5640e221@mango.fruits.de>
+	<20050901073241.GA6641@elte.hu>
+From: "Jack O'Quin" <joq@io.com>
+Date: Thu, 01 Sep 2005 12:28:20 -0500
+In-Reply-To: <20050901073241.GA6641@elte.hu> (Ingo Molnar's message of "Thu,
+ 1 Sep 2005 09:32:41 +0200")
+Message-ID: <7q4q94lmtn.fsf@io.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
 MIME-Version: 1.0
-To: Brian Paul <brian.paul@tungstengraphics.com>
-CC: Discuss issues related to the xorg tree 
-	<xorg@lists.freedesktop.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: State of Linux graphics
-References: <9e47339105083009037c24f6de@mail.gmail.com>	<1125422813.20488.43.camel@localhost>	<20050831063355.GE27940@tuolumne.arden.org>	<1125512970.4798.180.camel@evo.keithp.com>	<20050831200641.GH27940@tuolumne.arden.org>	<1125522414.4798.222.camel@evo.keithp.com>	<20050901015859.GA11367@tuolumne.arden.org>	<1125547173.4798.289.camel@evo.keithp.com>	<43171D33.9020802@tungstengraphics.com> <1125590991.15768.55.camel@localhost.localdomain> <4317268B.20306@tungstengraphics.com>
-In-Reply-To: <4317268B.20306@tungstengraphics.com>
-X-Enigmail-Version: 0.92.0.0
-OpenPGP: id=AC84030F
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Ingo Molnar <mingo@elte.hu> writes:
 
-Brian Paul wrote:
+> i suspect the confusion comes from the API hacks i'm using: user-space 
+> tracing is started/stopped via:
+>
+> 	gettimeofday(0,1);
+> 	gettimeofday(0,0);
+>
+> while 'jackd does not want to be scheduled' flag is switched on/off via:
+>
+> 	gettimeofday(1,1);
+> 	gettimeofday(1,0);
 
-> It's other (non-orientation) texture state I had in mind:
-> 
-> - the texel format (OpenGL has over 30 possible texture formats).
-> - texture size and borders
-> - the filtering mode (linear, nearest, etc)
-> - coordinate wrap mode (clamp, repeat, etc)
-> - env/combine mode
-> - multi-texture state
+D'oh!  No wonder I was confused.
 
-Which is why it's such a good target for code generation.  You'd
-generate the texel fetch routine, use that to generate the wraped texel
-fetch routine, use that to generate the filtered texel fetch routine,
-use that to generate the env/combine routines.
-
-Once-upon-a-time I had the first part and some of the second part
-written.  Doing just that little bit was slightly faster on a Pentium 3
-and slightly slower on a Pentium 4.  I suspect the problem was that I
-wasn't caching the generated code smart enough, so it was it trashing
-the CPU cache.  The other problem is that, in the absence of an
-assembler in Mesa, it was really painful to change the code stubs.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQFDFziUX1gOwKyEAw8RAhmFAJ9QJ7RTrB2dHV/hwb8ktwLyqKSM4wCdGtbS
-b0A2N2jFcLeg8HRm53jMyrI=
-=Ygkd
------END PGP SIGNATURE-----
+Sorry to have mixed up the conversation with erroneous information,
+but glad to have the gettimeofday() API clarified.
+-- 
+  joq

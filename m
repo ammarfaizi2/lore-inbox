@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030251AbVIARXc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030254AbVIARZi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030251AbVIARXc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 13:23:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030254AbVIARXc
+	id S1030254AbVIARZi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 13:25:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030256AbVIARZh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 13:23:32 -0400
-Received: from mail.joq.us ([67.65.12.105]:54190 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S1030253AbVIARXb (ORCPT
+	Thu, 1 Sep 2005 13:25:37 -0400
+Received: from smtp.istop.com ([66.11.167.126]:53642 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S1030254AbVIARZg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 13:23:31 -0400
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       jackit-devel@lists.sourceforge.net, Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel@vger.kernel.org, cc@ccrma.Stanford.EDU,
-       Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [Jackit-devel] Re: jack, PREEMPT_DESKTOP, delayed interrupts?
-References: <1125453795.25823.121.camel@cmn37.stanford.edu>
-	<20050831073518.GA7582@elte.hu> <7q64tmnwbb.fsf@io.com>
-	<20050831175036.5640e221@mango.fruits.de>
-	<20050901073241.GA6641@elte.hu>
-From: "Jack O'Quin" <joq@io.com>
-Date: Thu, 01 Sep 2005 12:28:20 -0500
-In-Reply-To: <20050901073241.GA6641@elte.hu> (Ingo Molnar's message of "Thu,
- 1 Sep 2005 09:32:41 +0200")
-Message-ID: <7q4q94lmtn.fsf@io.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
+	Thu, 1 Sep 2005 13:25:36 -0400
+From: Daniel Phillips <phillips@istop.com>
+To: David Teigland <teigland@redhat.com>
+Subject: Re: GFS, what's remaining
+Date: Thu, 1 Sep 2005 13:27:42 -0400
+User-Agent: KMail/1.8
+Cc: linux-fsdevel@vger.kernel.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       linux-cluster@redhat.com
+References: <20050901104620.GA22482@redhat.com>
+In-Reply-To: <20050901104620.GA22482@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509011327.42660.phillips@istop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> writes:
+On Thursday 01 September 2005 06:46, David Teigland wrote:
+> I'd like to get a list of specific things remaining for merging.
 
-> i suspect the confusion comes from the API hacks i'm using: user-space 
-> tracing is started/stopped via:
->
-> 	gettimeofday(0,1);
-> 	gettimeofday(0,0);
->
-> while 'jackd does not want to be scheduled' flag is switched on/off via:
->
-> 	gettimeofday(1,1);
-> 	gettimeofday(1,0);
+Where are the benchmarks and stability analysis?  How many hours does it 
+survive cerberos running on all nodes simultaneously?  Where are the 
+testimonials from users?  How long has there been a gfs2 filesystem?  Note 
+that Reiser4 is still not in mainline a year after it was first offered, why 
+do you think gfs2 should be in mainline after one month?
 
-D'oh!  No wonder I was confused.
+So far, all catches are surface things like bogus spinlocks.  Substantive 
+issues have not even begun to be addressed.  Patience please, this is going 
+to take a while.
 
-Sorry to have mixed up the conversation with erroneous information,
-but glad to have the gettimeofday() API clarified.
--- 
-  joq
+Regards,
+
+Daniel

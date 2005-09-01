@@ -1,114 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964850AbVIAFvD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964993AbVIAF5X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964850AbVIAFvD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 01:51:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964912AbVIAFvD
+	id S964993AbVIAF5X (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 01:57:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965029AbVIAF5X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 01:51:03 -0400
-Received: from NS4.Sony.CO.JP ([137.153.0.44]:34744 "EHLO ns4.sony.co.jp")
-	by vger.kernel.org with ESMTP id S964850AbVIAFvB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 01:51:01 -0400
-Message-ID: <431696BB.8050104@sm.sony.co.jp>
-Date: Thu, 01 Sep 2005 14:50:51 +0900
-From: "Machida, Hiroyuki" <machida@sm.sony.co.jp>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
-X-Accept-Language: ja, en-us, en
+	Thu, 1 Sep 2005 01:57:23 -0400
+Received: from smtp113.sbc.mail.re2.yahoo.com ([68.142.229.92]:37789 "HELO
+	smtp113.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S964993AbVIAF5W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 01:57:22 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] add transport class symlink to device object
+Date: Thu, 1 Sep 2005 00:57:04 -0500
+User-Agent: KMail/1.8.2
+Cc: James Bottomley <James.Bottomley@steeleye.com>,
+       Matthew Wilcox <matthew@wil.cx>, James.Smart@emulex.com,
+       Andrew Morton <akpm@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Russell King <rmk@arm.linux.org.uk>, Dmitry Torokhov <dtor@mail.ru>
+References: <9BB4DECD4CFE6D43AA8EA8D768ED51C201AD35@xbl3.ma.emulex.com> <d120d500050818125031d1bc98@mail.gmail.com> <20050831214307.GE20443@kroah.com>
+In-Reply-To: <20050831214307.GE20443@kroah.com>
 MIME-Version: 1.0
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][FAT] FAT dirent scan with hin take #3
-References: <4313CBEF.9020505@sm.sony.co.jp> <4313E578.8070100@sm.sony.co.jp>	<874q979qdj.fsf@devron.myhome.or.jp> <43156963.8020203@sm.sony.co.jp> <87irxm83eq.fsf@devron.myhome.or.jp>
-In-Reply-To: <87irxm83eq.fsf@devron.myhome.or.jp>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509010057.06479.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OGAWA Hirofumi wrote:
-> "Machida, Hiroyuki" <machida@sm.sony.co.jp> writes:
+On Wednesday 31 August 2005 16:43, Greg KH wrote:
+> On Thu, Aug 18, 2005 at 02:50:19PM -0500, Dmitry Torokhov wrote:
+> > On 8/18/05, Greg KH <greg@kroah.com> wrote:
+> > > @@ -500,9 +519,13 @@ int class_device_add(struct class_device
+> > >        }
+> > > 
+> > >        class_device_add_attrs(class_dev);
+> > > -       if (class_dev->dev)
+> > > +       if (class_dev->dev) {
+> > > +               class_name = make_class_name(class_dev);
+> > >                sysfs_create_link(&class_dev->kobj,
+> > >                                  &class_dev->dev->kobj, "device");
+> > > +               sysfs_create_link(&class_dev->dev->kobj, &class_dev->kobj,
+> > > +                                 class_name);
+> > > +       }
+> > > 
+> > 
+> > I wonder if we need to grab a reference to class_dev->dev here:
+> > 
+> >         dev = device_get(class_dev->dev);
+> >         if (dev) {
+> >              ....
+> >         }
+> > 
+> > Otherwise, if device gets unregistered/deleted before class device is
+> > deleted we'll get into trouble when removing the link since
+> > class_dev->dev will be garbage.
+> > 
+> > .. But grabbing that reference will cause pains in SCSI system which,
+> > when I looked, removed class devices from device's release function.
 > 
-> 
->>Right, it looks like TLB, which holds cache "Physical addres"
->>correponding to "Logical address". In this case, PID and file name
->>to be looked up, perform role of "Logical address".
-> 
-> 
-> But, there is the big difference between hint table and TLB. TLB is
-> just the cache, and TLB hit is perfectly good, because kernel is
-> flushing the wrong values.
-> 
-> But this hint table is just collecting the recent access, it's not
-> cache, and it's not tracking the process's access at all.  So, since
-> the hint value is really random, the hint value may be bad.
-> 
-> I worry bad cases of this.
-> 
-> 
-> Umm... How about tracking the access pattern of process?  If that
-> seems randomly access, just give up tracking and return no hint.  And,
-> probably, I think it would be easy to improve the behavior later.
-> 
-> What do you think?
+> No the sysfs_create_link() call increments the kobject reference on the
+> target of the symlink.  See sysfs_add_link() for details.  So this
+> should be just fine, right?
+>
 
-Sounds interesting...
-
-Once concern about global URL in general, it tends to be occupied
-by specific pattern, like accesses from one process or to on dir.
-It prevents to realize locality.
-
-I think it's better to have limitations like;
-	entries for same process would be limited to 2/3
-	entries for same dir would be limited to 1/3
-
-
-> e.g.
-> 
-> #define FAT_LOOKUP_HINT_MAX	16
-> 
-> /* this data per task */
-> struct fat_lookup_hint {
-> 	struct list_head lru;
-> 	pid_t pid;
-> 	struct super_block *sb;
-> 	struct inode *dir;
-> 	loff_t last_pos;
-> /*	int state;*/
-> };
-
-Does this mean for each process recording last recent 16
-accesses to FAT file system ? If true, pid would be eliminated.
-
-I guess it's better to record nr_slots for this entry.
-
-As implementation issue, if number of entires is small enough,
-we can use an array, not a list.
-
-
-> static void fat_lkup_hint_inval(struct super_block *, struct inode *);
-> static loff_t fat_lkup_hint_get(struct super_block *, struct inode *);
-> static void fat_lkup_hint_add(struct super_block *, struct inode *, loff_t);
-> static int fat_lkup_hint_init(void);
-
-I think super_block can be retrieved from inode, any other intention do
-you have?
-
-
-In addtion, we can do follwoing to check the exact match case;
-
-	0. Record hash value of file name in struct fat_lookup_hint
-
-	1. Check hash value to find exact match case,
-	1-1. If matched entry is found, check if file name and
-	     file name retieved from dirent corresponding
-	1-2. We found the entry
-
-	2. Get hint value, if there seem to have locality
-	2-1. Check locality of access pattern for this PID and this
-	     DIR.
-	2-2. If we relize access locality, return hit value so that
-	     it covers a potential working set.
-	2-3. Use hint value as start position of dirscan.
+Yes, you are right. Sorry for the moise.
 
 -- 
-Hiroyuki Machida
+Dmitry

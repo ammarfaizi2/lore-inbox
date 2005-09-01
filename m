@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030182AbVIAPFb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030189AbVIAPGD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030182AbVIAPFb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 11:05:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030181AbVIAPE5
+	id S1030189AbVIAPGD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 11:06:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030186AbVIAPFd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 11:04:57 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:47029 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S965181AbVIAPEz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 11:04:55 -0400
-Date: Wed, 31 Aug 2005 20:32:00 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-       Sven Ladegast <sven@linux4geeks.de>, linux-kernel@vger.kernel.org
-Subject: Re: KLive: Linux Kernel Live Usage Monitor
-Message-ID: <20050831183159.GD703@openzaurus.ucw.cz>
-References: <20050830030959.GC8515@g5.random> <Pine.LNX.4.63.0508300954190.1984@cassini.linux4geeks.de> <20050830082901.GA25438@bitwizard.nl> <Pine.LNX.4.63.0508301044150.1984@cassini.linux4geeks.de> <20050830094058.GA29214@bitwizard.nl> <20050830151035.GO8515@g5.random> <1125419618.8276.30.camel@localhost.localdomain> <20050830161634.GR8515@g5.random>
+	Thu, 1 Sep 2005 11:05:33 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:19607 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S1030184AbVIAPFE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 11:05:04 -0400
+Subject: Re: GFS, what's remaining
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Andrew Morton <akpm@osdl.org>, David Teigland <teigland@redhat.com>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       linux-cluster@redhat.com
+In-Reply-To: <20050901142708.GA24933@infradead.org>
+References: <20050901104620.GA22482@redhat.com>
+	 <20050901035939.435768f3.akpm@osdl.org>
+	 <1125586158.15768.42.camel@localhost.localdomain>
+	 <20050901142708.GA24933@infradead.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 01 Sep 2005 16:28:30 +0100
+Message-Id: <1125588511.15768.52.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050830161634.GR8515@g5.random>
-User-Agent: Mutt/1.3.27i
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> That's GFS.  The submission is about a GFS2 that's on-disk incompatible
+> to GFS.
 
-> > tiny C program or a shell script using netcat.
-> > 
-> > echo "Reporting boot: "
-> > (echo "BOOT:"_(cat /etc/lum-serial)":"_(uname -a)"::") | nc -u -w 10
-> > testhost.example.com 7658
-> 
-> Client completely stateless couldn't get right suspend to disk as far as
-> I can tell.
+Just like say reiserfs3 and reiserfs4 or ext and ext2 or ext2 and ext3
+then. I think the main point still stands - we have always taken
+multiple file systems on board and we have benefitted enormously from
+having the competition between them instead of a dictat from the kernel
+kremlin that 'foofs is the one true way'
 
-I'd say "ignore suspend". Machines using it are probably not connected
-to network, anyway, and it stresses system quite a lot.
+Competition will decide if OCFS or GFS is better, or indeed if someone
+comes along with another contender that is better still. And competition
+will probably get the answer right.
 
-I'm afraid that if you compared completely idle system and system running
-one hour a day, suspended for the rest, the first system would likely reach better
-uptime.
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+The only thing that is important is we don't end up with each cluster fs
+wanting different core VFS interfaces added.
+
+Alan
 

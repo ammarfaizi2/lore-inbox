@@ -1,43 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030437AbVIAWHD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030447AbVIAWJ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030437AbVIAWHD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 18:07:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030439AbVIAWHD
+	id S1030447AbVIAWJ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 18:09:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030446AbVIAWJ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 18:07:03 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:34963 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030437AbVIAWHB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 18:07:01 -0400
-Date: Thu, 1 Sep 2005 15:09:25 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: tshb@cs.umass.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13 freezes during acpi wakup with wake-on-lan
-Message-Id: <20050901150925.0d8c53c8.akpm@osdl.org>
-In-Reply-To: <43174438.5040704@cs.umass.edu>
-References: <43174438.5040704@cs.umass.edu>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Thu, 1 Sep 2005 18:09:58 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:18898
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1030442AbVIAWJ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 18:09:57 -0400
+Date: Thu, 01 Sep 2005 15:09:48 -0700 (PDT)
+Message-Id: <20050901.150948.105511552.davem@davemloft.net>
+To: bunk@stusta.de
+Cc: wensong@linux-vs.org, ja@ssi.bg, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] include/net/ip_vs.h: "extern inline" -> "static
+ inline"
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20050824155806.GF4851@stusta.de>
+References: <20050824155806.GF4851@stusta.de>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Thomas S. Heydt-Benjamin" <tshb@cs.umass.edu> wrote:
->
-> I am working with an IBM X31 laptop running Redhat FC5 with 2.6.13
-> kernel.  I need to get wake-on-lan working for mobile systems power
-> management experiments that we are performing in my lab.
-> 
-> The kernel is configured to use ACPI (pertinent kernel configuration
-> excerpt follows message).
-> 
-> When I put the laptop into "mem" suspend state (exact procedure follows
-> message), and then wake it up with a magic packet to it's NIC, I get an
-> infinite number of error messages and a frozen computer.
+From: Adrian Bunk <bunk@stusta.de>
+Date: Wed, 24 Aug 2005 17:58:06 +0200
 
-The ACPI guys have rather a backlog, I'm afraid.  It'd be best if you could
-raise a report against ACPI at bugzilla.kernel.org, please.
+> "extern inline" doesn't make much sense.
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-I don't think you identified the type of NIC, btw.
+Applied, thanks Adrian.

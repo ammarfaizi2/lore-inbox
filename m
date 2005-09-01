@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030187AbVIAPLZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030184AbVIAPLE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030187AbVIAPLZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 11:11:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030191AbVIAPLZ
+	id S1030184AbVIAPLE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 11:11:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030187AbVIAPLE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 11:11:25 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:23537 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S932249AbVIAPLV
+	Thu, 1 Sep 2005 11:11:04 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:10481 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S1030184AbVIAPLC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 11:11:21 -0400
+	Thu, 1 Sep 2005 11:11:02 -0400
 Subject: Re: FW: [RFC] A more general timeout specification
 From: Daniel Walker <dwalker@mvista.com>
 To: Roman Zippel <zippel@linux-m68k.org>
@@ -21,8 +21,8 @@ References: <F989B1573A3A644BAB3920FBECA4D25A042B030A@orsmsx407>
 	 <20050901135049.GB1753@tsunami.ccur.com>
 	 <Pine.LNX.4.61.0509011610570.3743@scrub.home>
 Content-Type: text/plain
-Date: Thu, 01 Sep 2005 08:11:08 -0700
-Message-Id: <1125587468.32005.12.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+Date: Thu, 01 Sep 2005 08:10:37 -0700
+Message-Id: <1125587442.32005.10.camel@c-67-188-6-232.hsd1.ca.comcast.net>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-6) 
 Content-Transfer-Encoding: 7bit
@@ -44,7 +44,8 @@ On Thu, 2005-09-01 at 16:32 +0200, Roman Zippel wrote:
 > We are talking about _timeouts_ here, what fancy "attributes" does that 
 > need that are just not overkill?
 
-Or rather, posix timers ?
+
+How do you feel about posix clocks ?
 
 Daniel
 

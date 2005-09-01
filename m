@@ -1,48 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932543AbVIAGsb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932495AbVIAGuH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932543AbVIAGsb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 02:48:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932544AbVIAGsb
+	id S932495AbVIAGuH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 02:50:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932544AbVIAGuH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 02:48:31 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:47308 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932543AbVIAGsa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 02:48:30 -0400
-Date: Thu, 1 Sep 2005 08:49:03 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: rostedt@goodmis.org, linux-kernel@vger.kernel.org
-Subject: Re: PREEMPT_RT with e1000
-Message-ID: <20050901064902.GA5179@elte.hu>
-References: <1125518602.15034.3.camel@dhcp153.mvista.com>
+	Thu, 1 Sep 2005 02:50:07 -0400
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:49110 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S932495AbVIAGuF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 02:50:05 -0400
+Subject: Re: reboot vs poweroff (was: Linux 2.6.13)
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Meelis Roos <mroos@linux.ee>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Eric W.Biederman" <ebiederm@xmission.com>,
+       Len Brown <len.brown@intel.com>
+In-Reply-To: <20050901062406.EBA5613D5B@rhn.tartu-labor>
+References: <20050901062406.EBA5613D5B@rhn.tartu-labor>
+Content-Type: text/plain
+Organization: Cyclades
+Message-Id: <1125557333.12996.76.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1125518602.15034.3.camel@dhcp153.mvista.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 01 Sep 2005 16:48:53 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
-* Daniel Walker <dwalker@mvista.com> wrote:
+On Thu, 2005-09-01 at 16:24, Meelis Roos wrote:
+> RD> Well, there aren't many differences between 2.6.13-rc7 and 2.6.13.  If
+> RD> I had to guess, I would bet the commit below is what broke you.  I'm
+> RD> including a patch that reverts it at the end of this email
+> 
+> Nigel, have you tried reverting the patch Roland pointed out? It
+> probably helps you.
+> 
+> I am also interested in this but in another way - the fix fixed reboot
+> for me (and at least one more person) and just plain reverting it will
+> break it again. Some better fix will probably be needed.
 
-> It looks like Gigabit Ethernet is still having some problems. This is 
-> with the e1000 driver. If I remove all the qdisc_restart changes it 
-> starts to work the warning below goes away, but it has 
-> smp_processor_id warnings.
+I've since found that in the suspend2 code, I was working around this
+problem before by not calling the prepare method. I've just today
+modified the Suspend code so that it calls prepare for all of the
+powerdown methods and everything is working fine without reverting the
+patch. I guess this is your better fix if you're a suspend2 user. If
+not, are there other circumstances in which you're seeing the computer
+fail to powerdown?
 
-hmmm. The thing to watch out for there is dev->xmit_lock_owner - it's a 
-"spin lock does not preempt" assumption that is open-coded. What the 
-qdisc_restart changes do is to remove this assumption. Perhaps it would 
-be enough to just keep the trylock logic, and to mute the 
-xmit_lock_owner logic.
+Regards,
 
-	Ingo
+Nigel
+-- 
+Evolution.
+Enumerate the requirements.
+Consider the interdependencies.
+Calculate the probabilities.
+

@@ -1,85 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030413AbVIAVoq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030392AbVIAVp5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030413AbVIAVoq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 17:44:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030414AbVIAVoq
+	id S1030392AbVIAVp5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 17:45:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030414AbVIAVp5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 17:44:46 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:17029 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030413AbVIAVop (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 17:44:45 -0400
-Date: Thu, 1 Sep 2005 17:44:11 -0400
-From: Alan Cox <alan@redhat.com>
-To: Joel Schopp <jschopp@austin.ibm.com>
-Cc: Alan Cox <alan@redhat.com>, "Martin J. Bligh" <mbligh@mbligh.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-mm1
-Message-ID: <20050901214411.GD25405@devserv.devel.redhat.com>
-References: <20050901035542.1c621af6.akpm@osdl.org> <6970000.1125584568@[10.10.2.4]> <20050901145006.GF5427@devserv.devel.redhat.com> <43176AE8.8060105@austin.ibm.com> <20050901211647.GC25405@devserv.devel.redhat.com> <431771EA.4030809@austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <431771EA.4030809@austin.ibm.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 1 Sep 2005 17:45:57 -0400
+Received: from highlandsun.propagation.net ([66.221.212.168]:27664 "EHLO
+	highlandsun.propagation.net") by vger.kernel.org with ESMTP
+	id S1030392AbVIAVp4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 17:45:56 -0400
+Message-ID: <43177681.5040507@symas.com>
+Date: Thu, 01 Sep 2005 14:45:37 -0700
+From: Howard Chu <hyc@symas.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8b4) Gecko/20050829 SeaMonkey/1.1a
+MIME-Version: 1.0
+To: Steve Kieu <haiquy@yahoo.com>
+CC: Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: Very strange Marvell/Yukon Gigabit NIC networking problems
+References: <20050901212110.19192.qmail@web53605.mail.yahoo.com>
+In-Reply-To: <20050901212110.19192.qmail@web53605.mail.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 01, 2005 at 04:26:02PM -0500, Joel Schopp wrote:
-> It's like whack a mole.  30 more now in drivers/serial/jsm/jsm_tty.c and 
->  drivers/serial/icom.c
 
-I've been whacking moles for some time doing all those I can. the jsm_tty
-code needs major surgery and its bad it ever got into the kernel as most of
-the code is duplicating chunks of the tty layer and working around it. The
-jsm stuff is unintelligible and the docs dont appear to be public.
+Steve Kieu wrote:
+>> Is this the correct summary of the problem
+>> scenarios.
+>> Assume each one starts from cold boot (power off).
+>>
+>> * 2.6.13(skge) boot                    => Good
+>> * 2.6.13(sk98lin) boot                 => Good
+>> * 2.6.13 + SK version of sk98lin       => Good
+>> * XP boot                              => Good 
+>>     
+> XP boot: No good if before 2.6.13 runs on the hardware
+> and do the normal shuttdown or reboot or power off.
+>
+> The same for all linux kernel before 2.6.13 (tested
+> 2.6.12, 2.6.11)
+>   
+It's worth noting that most PCs today with ATX power supplies really 
+only go into a "Soft Off" state, which is probably why the anomaly 
+persists across a power off. You should also test if powering off and 
+removing the power plug will allow booting to XP to work.
 
-I'll take a look at icom.c now. I notice at least one bug already that
-should be dealt with - the existing code assumes that tty->flip.char_buf_ptr[0]
-is the first it inserted this time which may not be true as far as I can see.
-And it looks there if count was 0 so its undefined.. 
-
-Assuming it means the first char this block then the following should do
-the trick, but really someone who knows wtf that code is trying to do needs
-to fix it - please review/test/let me know.
-
-
---- drivers/serial/icom.c~	2005-09-01 22:37:16.986829264 +0100
-+++ drivers/serial/icom.c	2005-09-01 22:37:16.986829264 +0100
-@@ -737,6 +737,7 @@
- 
- 	status = cpu_to_le16(icom_port->statStg->rcv[rcv_buff].flags);
- 	while (status & SA_FL_RCV_DONE) {
-+		int first = -1;
- 
- 		trace(icom_port, "FID_STATUS", status);
- 		count = cpu_to_le16(icom_port->statStg->rcv[rcv_buff].leLength);
-@@ -751,15 +752,17 @@
- 			icom_port->recv_buf_pci;
- 
- 		/* Block copy all but the last byte as this may have status */
--		if(count > 0)
-+		if(count > 0) {
-+			first = icon->recv_buf[offset];
- 			tty_insert_flip_string(tty, icon_port->recv_buf + offset, count - 1);
-+		}
- 
- 		icount = &icom_port->uart_port.icount;
- 		icount->rx += count;
- 
- 		/* Break detect logic */
- 		if ((status & SA_FLAGS_FRAME_ERROR)
--		    && (tty->flip.char_buf_ptr[0] == 0x00)) {
-+		    && first == 0) {
- 			status &= ~SA_FLAGS_FRAME_ERROR;
- 			status |= SA_FLAGS_BREAK_DET;
- 			trace(icom_port, "BREAK_DET", 0);
-
-
-
-Keep whacking - obviously I don't have a PPC64 (*and please don't send me one*)
-
-
-
-Alan
+-- 
+  -- Howard Chu
+  Chief Architect, Symas Corp.  http://www.symas.com
+  Director, Highland Sun        http://highlandsun.com/hyc
+  OpenLDAP Core Team            http://www.openldap.org/project/
 

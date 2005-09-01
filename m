@@ -1,81 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030239AbVIAVD4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030353AbVIAVEp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030239AbVIAVD4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 17:03:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030373AbVIAVD4
+	id S1030353AbVIAVEp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 17:04:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030354AbVIAVEo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 17:03:56 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:18873 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030239AbVIAVDz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 17:03:55 -0400
-Subject: [RFC][PATCH] Use proper casting with signed timespec.tv_nsec values
-From: john stultz <johnstul@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Thu, 01 Sep 2005 14:03:47 -0700
-Message-Id: <1125608627.22448.4.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Thu, 1 Sep 2005 17:04:44 -0400
+Received: from wscnet.wsc.cz ([212.80.64.118]:49032 "EHLO wscnet.wsc.cz")
+	by vger.kernel.org with ESMTP id S1030353AbVIAVEo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 17:04:44 -0400
+Message-ID: <43176CC4.7040105@gmail.com>
+Date: Thu, 01 Sep 2005 23:04:04 +0200
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: cs, en-us, en
+MIME-Version: 1.0
+To: Ben Dooks <ben@fluff.org.uk>
+CC: Alon Bar-Lev <alon.barlev@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Serial driver (serial_core.c) status messages should be set to
+ KERN_INFO
+References: <43177223.8030403@gmail.com> <431766C2.2020604@gmail.com> <20050901204610.GA1816@home.fluff.org>
+In-Reply-To: <20050901204610.GA1816@home.fluff.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
-	I recently ran into a bug with an older kernel where xtime's tv_nsec
-field had accumulated more then 2 seconds worth of time. The timespec's
-tv_nsec is a signed long, however gettimeofday() treats it as an
-unsigned long. Thus when the failure occured, very strange and difficult
-to debug time problems occurred.
+Ben Dooks napsal(a):
 
-The main cause of the problem I was seeing is already fixed in mainline,
-however just to be safe, I figured the following patch would be wise.
+>On Thu, Sep 01, 2005 at 10:38:26PM +0200, Jiri Slaby wrote:
+>  
+>
+>>Alon Bar-Lev napsal(a):
+>>    
+>>
+>>>static inline void
+>>>
+>>>uart_report_port(struct uart_driver *drv, struct uart_port *port)
+>>>{
+>>>-        printk("%s%d", drv->dev_name, port->line);
+>>>+      printk(KERN_INFO + "%s%d", drv->dev_name, port->line);
+>>>      
+>>>
+>>plus sign between that?
+>>
+>>    
+>>
+>>>       printk(" at ");
+>>>      
+>>>
+>>why the fellows didn't put this to the line above?
+>>    
+>>
+>>>       switch (port->iotype) {
+>>>       case UPIO_PORT:
+>>>               printk("I/O 0x%x", port->iobase);
+>>>      
+>>>
+>>And what about these?
+>>    
+>>
+>
+>looks like they're not on a newline, so need no severity.
+>  
+>
+ok, ok, but isn't this a little bit racy (so you can see dev_name and 
+line, then another driver's info and then " at ", then something else...)
 
-I only audited i386 and x86_64, however other arches probably could have
-similar signed problems as well.
+regards,
 
-Please let me know if you have any further comments or feedback.
-
-thanks
--john
-
-linux-2.6.13_signed-tv_nsec_A0.patch
-====================================
-diff --git a/arch/i386/kernel/time.c b/arch/i386/kernel/time.c
---- a/arch/i386/kernel/time.c
-+++ b/arch/i386/kernel/time.c
-@@ -156,7 +156,7 @@ void do_gettimeofday(struct timeval *tv)
- 			usec += lost * (USEC_PER_SEC / HZ);
- 
- 		sec = xtime.tv_sec;
--		usec += (xtime.tv_nsec / 1000);
-+		usec += (unsigned long)xtime.tv_nsec / 1000;
- 	} while (read_seqretry(&xtime_lock, seq));
- 
- 	while (usec >= 1000000) {
-diff --git a/arch/x86_64/kernel/time.c b/arch/x86_64/kernel/time.c
---- a/arch/x86_64/kernel/time.c
-+++ b/arch/x86_64/kernel/time.c
-@@ -128,7 +128,7 @@ void do_gettimeofday(struct timeval *tv)
- 		seq = read_seqbegin(&xtime_lock);
- 
- 		sec = xtime.tv_sec;
--		usec = xtime.tv_nsec / 1000;
-+		usec = (unsigned long)xtime.tv_nsec / 1000;
- 
- 		/* i386 does some correction here to keep the clock 
- 		   monotonous even when ntpd is fixing drift.
-diff --git a/kernel/timer.c b/kernel/timer.c
---- a/kernel/timer.c
-+++ b/kernel/timer.c
-@@ -824,7 +824,7 @@ static void update_wall_time(unsigned lo
- 	do {
- 		ticks--;
- 		update_wall_time_one_tick();
--		if (xtime.tv_nsec >= 1000000000) {
-+		if ((unsigned long)xtime.tv_nsec >= 1000000000) {
- 			xtime.tv_nsec -= 1000000000;
- 			xtime.tv_sec++;
- 			second_overflow();
-
+-- 
+Jiri Slaby         www.fi.muni.cz/~xslaby
+~\-/~      jirislaby@gmail.com      ~\-/~
+241B347EC88228DE51EE A49C4A73A25004CB2A10
 

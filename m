@@ -1,107 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030203AbVIAP0E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030206AbVIAPep@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030203AbVIAP0E (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 11:26:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030204AbVIAP0E
+	id S1030206AbVIAPep (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 11:34:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030207AbVIAPep
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 11:26:04 -0400
-Received: from admin.zirkelwireless.com ([209.216.203.65]:6797 "EHLO
-	admin.zirkelwireless.com") by vger.kernel.org with ESMTP
-	id S1030203AbVIAP0C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 11:26:02 -0400
-Message-ID: <43171D33.9020802@tungstengraphics.com>
-Date: Thu, 01 Sep 2005 09:24:35 -0600
-From: Brian Paul <brian.paul@tungstengraphics.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en-us, en
+	Thu, 1 Sep 2005 11:34:45 -0400
+Received: from mail.gmx.net ([213.165.64.20]:56535 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1030206AbVIAPeo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 11:34:44 -0400
+X-Authenticated: #8834078
+From: Dominik Karall <dominik.karall@gmx.net>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.13-mm1
+Date: Thu, 1 Sep 2005 17:38:38 +0200
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org
+References: <20050901035542.1c621af6.akpm@osdl.org>
+In-Reply-To: <20050901035542.1c621af6.akpm@osdl.org>
 MIME-Version: 1.0
-To: Discuss issues related to the xorg tree 
-	<xorg@lists.freedesktop.org>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: State of Linux graphics
-References: <9e47339105083009037c24f6de@mail.gmail.com>	<1125422813.20488.43.camel@localhost>	<20050831063355.GE27940@tuolumne.arden.org>	<1125512970.4798.180.camel@evo.keithp.com>	<20050831200641.GH27940@tuolumne.arden.org>	<1125522414.4798.222.camel@evo.keithp.com>	<20050901015859.GA11367@tuolumne.arden.org> <1125547173.4798.289.camel@evo.keithp.com>
-In-Reply-To: <1125547173.4798.289.camel@evo.keithp.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart1538208.Zr0KNTN1S5";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200509011738.45821.dominik.karall@gmx.net>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just a few comments...
+--nextPart1538208.Zr0KNTN1S5
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Keith Packard wrote:
+On Thursday 01 September 2005 12:55, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13/2.6.=
+13
+>-mm1/
 
-> Again, the question is whether a mostly-software OpenGL implementation
-> can effectively compete against the simple X+Render graphics model for
-> basic 2D application operations, and whether there are people interested
-> in even trying to make this happen.
+When I switch on my external harddisk, which is connected through usb, the=
+=20
+kernel hangs. First time I did that at bootup there were a lot of backtrace=
+s=20
+printed on the screen but they did not find the way in the logfile :/
+Now I switched the drive on while running and everything freezes after thos=
+e=20
+messages:
 
-I don't know of anyone who's writen a "2D-centric" Mesa driver, but 
-it's feasible.  The basic idea would be to simply fast-path a handful 
-of basic OpenGL paths that correspond to the basic X operations:
+usb 1-2.2: new high speed USB device using ehci_hcd and address 3
+scsi2 : SCSI emulation for USB Mass Storage devices
+usb-storage: device found at 3
+usb-storage: waiting for device to settle before scanning
+  Vendor: ST325082  Model: 3A                Rev: 3.02
+  Type:   Direct-Access                      ANSI SCSI revision: 00
+SCSI device sda: 488397168 512-byte hdwr sectors (250059 MB)
+sda: assuming drive cache: write through
+SCSI device sda: 488397168 512-byte hdwr sectors (250059 MB)
+sda: assuming drive cache: write through
 
-1. Solid rect fill: glScissor + glClear
-2. Blit/copy: glCopyPixels
-3. Monochrome glyphs: glBitmap
-4. PutImage: glDrawPixels
+dominik
 
-Those OpenGL commands could be directly implemented with whatever 
-mechanism is used in conventional X drivers.  I don't think the 
-overhead of going through the OpenGL/Mesa API would be significant.
+--nextPart1538208.Zr0KNTN1S5
+Content-Type: application/pgp-signature
 
-If Xgl used those commands and you didn't turn on fancy blending, etc. 
-the performance should be fine.  If the hardware supported blending, 
-that could be easily exposed too.  The rest of OpenGL would go through 
-the usual software paths (slow, but better than nothing).
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2-ecc0.1.6 (GNU/Linux)
 
-It might be an interesting project for someone.  After one driver was 
-done subsequent ones should be fairly easy.
+iQCVAwUAQxcghQvcoSHvsHMnAQI5ygQAh0wYbI7cjT6VbrJ8ajuCR7xT19aUHD9/
+dHT81Pf94zVMas8/sVPn6GXobUfI+T63nHef7kA6lR2bgJYo2EWudvSV9ScLUf2G
+6s27MB5Znrt/GIPqThJJmSQ5LhWplNY8k2rRk25Q1TklUEgU79OUWGaNVfoUhzyO
+v/Nb339Rh6k=
+=q1Aa
+-----END PGP SIGNATURE-----
 
-
->>|                                            ... However, at the
->>| application level, GL is not a very friendly 2D application-level API.
->>
->>The point of OpenGL is to expose what the vast majority of current
->>display hardware does well, and not a lot more.  So if a class of apps
->>isn't "happy" with the functionality that OpenGL provides, it won't be
->>happy with the functionality that any other low-level API provides.  The
->>problem lies with the hardware.
-> 
-> 
-> Not currently; the OpenGL we have today doesn't provide for
-> component-level compositing or off-screen drawable objects. The former
-> is possible in much modern hardware, and may be exposed in GL through
-> pixel shaders, while the latter spent far too long mired in the ARB and
-> is only now on the radar for implementation in our environment.
-> 
-> Off-screen drawing is the dominant application paradigm in the 2D world,
-> so we can't function without it while component-level compositing
-> provides superior text presentation on LCD screens, which is an
-> obviously increasing segment of the market.
-
-Yeah, we really need to make some progress with off-screen rendering 
-in our drivers (either Pbuffers or renderbuffers).  I've been working 
-on renderbuffers but we really need that overdue memory manager.
-
-
->>Jon's right about this:  If you can accelerate a given simple function
->>(blending, say) for a 2D driver, you can accelerate that same function
->>in a Mesa driver for a comparable amount of effort, and deliver a
->>similar benefit to apps.  (More apps, in fact, since it helps
->>OpenGL-based apps as well as Cairo-based apps.)
-> 
-> Yes, you *can*, but the amount of code needed to perform simple
-> pixel-aligned upright blends is a tiny fraction of that needed to deal
-> with filtering textures and *then* blending. All of the compositing code
-> needed for the Render extension, including accelerated (MMX) is
-> implemented in 10K LOC. Optimizing a new case generally involves writing
-> about 50 lines of code or so.
-
-If the blending is for screen-aligned rects, glDrawPixels would be a 
-far easier path to optimize than texturing.  The number of state 
-combinations related to texturing is pretty overwhelming.
-
-
-Anyway, I think we're all in agreement about the desirability of 
-having a single, unified driver in the future.
-
--Brian
+--nextPart1538208.Zr0KNTN1S5--

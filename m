@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030393AbVIAVcL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030404AbVIAVec@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030393AbVIAVcL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 17:32:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030407AbVIAVcL
+	id S1030404AbVIAVec (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 17:34:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030407AbVIAVeb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 17:32:11 -0400
-Received: from mail.microway.com ([64.80.227.22]:53393 "EHLO mail.microway.com")
-	by vger.kernel.org with ESMTP id S1030393AbVIAVcK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 17:32:10 -0400
-From: Rick Warner <rick@microway.com>
-Organization: Microway, Inc.
-To: linux-kernel@vger.kernel.org
-Subject: latency doubled on tg3 device from 2.6.11 to 2.6.12
-Date: Thu, 1 Sep 2005 17:30:51 -0400
-User-Agent: KMail/1.7.2
-Cc: eliot@microway.com
-Message-Id: <200509011730.51990.rick@microway.com>
-X-Sanitizer: Advosys mail filter
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Thu, 1 Sep 2005 17:34:31 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:19153 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1030404AbVIAVeb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 17:34:31 -0400
+Subject: Re: [PATCH 1/1] 8250_kgdb driver reworked
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Russell King <rmk@arm.linux.org.uk>,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>
+In-Reply-To: <20050901190251.GS3966@smtp.west.cox.net>
+References: <20050901190251.GS3966@smtp.west.cox.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Date: Thu, 01 Sep 2005 22:57:54 +0100
+Message-Id: <1125611874.15768.79.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
- We have been testing latency and bandwidth using our proprietary MPI link 
-checker tool (http://www.microway.com/mpilinkchecker.html) and have found 
-that the latency increased from ~25ms to ~45ms going from 2.6.11 to 2.6.12.  
-2.6.13 has the same result.  We also tried the latest bcm5700 from broadcom 
-(8.2.18) and got the same ~45ms latencies.  This was tried on several 
-different opteron and em64t motherboards.
+> +static irqreturn_t
+> +kgdb8250_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+> +{
+> +	char iir;
+> +
+> +	if (irq != KGDB8250_IRQ)
+> +		return IRQ_NONE;
 
- We see 20-25ms latencies with the e1000 driver (with some module options) on 
-all 3 kernel versions.  For those interested, the e1000 options used are:
+How can this occur - you gave the IRQ number in the register_irq. WHy
+test for it, and if it occurs why not BUG()
 
- InterruptThrottleRate=0 RxIntDelay=0 TxIntDelay=0 RxAbsIntDelay=0 
-TxAbsIntDelay=0
+> +	/*
+> +	 * If  there is some other CPU in KGDB then this is a
+> +	 * spurious interrupt. so return without even checking a byte
+> +	 */
+> +	if (atomic_read(&debugger_active))
+> +		return IRQ_NONE;
+> +
 
- Digging through source, it seems that a new locking mechanism for tg3 was put 
-in place in 2.6.12.  Is this the likely cause?  What can we do to restore our 
-lower latency?
+Shared IRQ -> hung box. 
 
+Also lose the ugly confusing macros like CURRENTPORT please to follow
+kernel style better. In fact why not keep a pointer to the 'current'
+uart to get tighter code too ?
 
--- 
-Richard Warner
-Lead Systems Integrator
-Microway, Inc
-(508)732-5517

@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030193AbVIAPWg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030199AbVIAPXv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030193AbVIAPWg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 11:22:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030199AbVIAPWg
+	id S1030199AbVIAPXv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 11:23:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030200AbVIAPXv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 11:22:36 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:36481 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030193AbVIAPWf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 11:22:35 -0400
-Subject: [PATCH] aacraid:  2.6.13 aacraid bad BUG_ON fix
-From: Mark Haverkamp <markh@osdl.org>
-To: James Bottomley <James.Bottomley@steeleye.com>,
-       Andrew Morton <akpm@osdl.org>
-Cc: linux-scsi <linux-scsi@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Mark Salyzyn <mark_salyzyn@adaptec.com>
-Content-Type: text/plain
-Date: Thu, 01 Sep 2005 08:19:23 -0700
-Message-Id: <1125587963.21124.9.camel@markh1.pdx.osdl.net>
+	Thu, 1 Sep 2005 11:23:51 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:63507
+	"EHLO g5.random") by vger.kernel.org with ESMTP id S1030199AbVIAPXv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 11:23:51 -0400
+Date: Thu, 1 Sep 2005 17:23:44 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Sven Ladegast <sven@linux4geeks.de>, linux-kernel@vger.kernel.org
+Subject: Re: KLive: Linux Kernel Live Usage Monitor
+Message-ID: <20050901152344.GH1614@g5.random>
+References: <20050830030959.GC8515@g5.random> <Pine.LNX.4.63.0508300954190.1984@cassini.linux4geeks.de> <20050830145602.GN8515@g5.random> <20050831182050.GC703@openzaurus.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-6) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050831182050.GC703@openzaurus.ucw.cz>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This was noticed by Doug Bazamic and the fix found by Mark Salyzyn at
-Adaptec.
+On Wed, Aug 31, 2005 at 08:20:51PM +0200, Pavel Machek wrote:
+> Well, you could remove everything that is not valid kernel text from backtrace.
 
-There was an error in the BUG_ON() statement that validated the
-calculated fib size which can cause the driver to panic.
+What if the corruption wrote the ssh key inside a the kernel text?
 
-Signed-off-by: Mark Haverkamp <markh@osdl.org>
+As suggested before, I suspect the only way would be to make it
+optional.
 
---- a/drivers/scsi/aacraid/aachba.c	2005-08-28 19:41:01.000000000 -0400
-+++ b/drivers/scsi/aacraid/aachba.c	2005-09-01 08:05:29.118304656 -0400
-@@ -968,7 +968,7 @@
- 		fibsize = sizeof(struct aac_read64) + 
- 			((le32_to_cpu(readcmd->sg.count) - 1) * 
- 			 sizeof (struct sgentry64));
--		BUG_ON (fibsize > (sizeof(struct hw_fib) - 
-+		BUG_ON (fibsize > (dev->max_fib_size - 
- 					sizeof(struct aac_fibhdr)));
- 		/*
- 		 *	Now send the Fib to the adapter
+> Oh and you probably want to somehow identify modified kernels.
+> Otherwise if I do some development on 2.3.4-foo5, you'll get many oopsen
+> caused by my development code... it is getting complex.
 
--- 
-Mark Haverkamp <markh@osdl.org>
+Agreed, however there's no way to do it reliably, since if you apply a
+patch before compiling the kernel, there's no way to know it unless we
+do a md5sum of the whole source at every compilation and that would be
+too slow ;)
 
+Thanks.

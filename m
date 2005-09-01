@@ -1,84 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751005AbVIAIp2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750740AbVIAIsj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751005AbVIAIp2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 04:45:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750907AbVIAIp2
+	id S1750740AbVIAIsj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 04:48:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750745AbVIAIsj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 04:45:28 -0400
-Received: from mx1.suse.de ([195.135.220.2]:30345 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751005AbVIAIp2 (ORCPT
+	Thu, 1 Sep 2005 04:48:39 -0400
+Received: from isilmar.linta.de ([213.239.214.66]:15286 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S1750740AbVIAIsi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 04:45:28 -0400
-From: Andi Kleen <ak@suse.de>
-To: Natalie.Protasevich@unisys.com
-Subject: Re: [patch 1/1] Hot plug CPU to support physical add of new processors (i386)
-Date: Thu, 1 Sep 2005 10:45:10 +0200
-User-Agent: KMail/1.8
-Cc: shaohua.li@intel.com, zwane@arm.linux.org.uk, ashok.raj@intel.com,
-       akpm@osdl.org, lhcs-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, hotplug_sig@lists.osdl.org
-References: <20050831121311.5FC7C57D99@linux.site>
-In-Reply-To: <20050831121311.5FC7C57D99@linux.site>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Thu, 1 Sep 2005 04:48:38 -0400
+Date: Thu, 1 Sep 2005 10:48:31 +0200
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Len Brown <len.brown@intel.com>
+Subject: Re: [PATCH] acpi-cpufreq: Remove P-state read after a P-state write in normal path
+Message-ID: <20050901084831.GA6285@isilmar.linta.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
+	Andrew Morton <akpm@osdl.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	Len Brown <len.brown@intel.com>
+References: <20050826171052.B27226@unix-os.sc.intel.com> <20050828180941.GB28994@isilmar.linta.de> <20050829110357.A14724@unix-os.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200509011045.11142.ak@suse.de>
+In-Reply-To: <20050829110357.A14724@unix-os.sc.intel.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo Natalie,
+Hi,
 
-On Wednesday 31 August 2005 14:13, Natalie.Protasevich@unisys.com wrote:
-> Current IA32 CPU hotplug code doesn't allow bringing up processors that
-> were not present in the boot configuration. To make existing hot plug
-> facility more practical for physical hot plug, possible processors should
-> be encountered during boot for potentual hot add/replace/remove. On ES7000,
-> ACPI marks all the sockets that are empty or not assigned to the
-> partitionas as "disabled". 
+On Mon, Aug 29, 2005 at 11:03:57AM -0700, Venkatesh Pallipadi wrote:
+> Yes. ACPI spec says transitions can fail. But, it doesn't fail often in 
+> practise. And even if it fails, I think, we should handle it without this 
+> read os STATUS register.
 
-Good idea. In fact I always hated the behaviour of the existing
-hotplug code that assumes all possible CPUs can be hotplugged.
-It would be much nicer to be told be the firmware what CPUs
-are hotpluggable. It would be great if all ia32/x86-64 hotplug capable 
-BIOS behaved like your.
+How can we handle it, if we do not even know that it failed? How should the
+user recognize something is broken?
 
+> The speedstep-centrino driver, which does similar
+> thing as acpi-cpufreq, does not do this status check after control MSR write.
+> We can skip the read of STATUS in cpi-cpufreq in a similar way. No?
 
->  	struct warm_boot_cpu_info info;
->  	struct work_struct task;
->  	int	apicid, ret;
-> +	extern u8 bios_cpu_apicid[NR_CPUS];
+Well, regarding speedstep-centrino, it is news to me that the MSR write can
+fail... if it can fail, we should check for it.
 
-This should be in some header.
+> And reading the STATUS in a loop should go away. I don't see that it being 
+> mentioned in ACPI spec. The 1mS loop seems totally redundant.
 
->
->  	lock_cpu_hotplug();
-> -	apicid = x86_cpu_to_apicid[cpu];
-> +	apicid = bios_cpu_apicid[cpu];
+It looks to me as somebody had experienced that the transition only
+succeeded after waiting for some time.
 
-Why this change? It seems unrelated.
+But well, as you do know the ACPI spec better than I do, I'll accept your
+evaluation that this patch won't cause any trouble.
 
->  	if (apicid == BAD_APICID) {
->  		ret = -ENODEV;
->  		goto exit;
-> diff -puN arch/i386/mach-default/topology.c~hotcpu-i386
-> arch/i386/mach-default/topology.c ---
-> linux-2.6.13-rc6-mm2/arch/i386/mach-default/topology.c~hotcpu-i386	2005-08-
->31 04:17:20.957019600 -0700 +++
-> linux-2.6.13-rc6-mm2-root/arch/i386/mach-default/topology.c	2005-08-31
-> 04:22:13.020619184 -0700 @@ -76,7 +76,7 @@ static int __init
-> topology_init(void)
->  	for_each_online_node(i)
->  		arch_register_node(i);
->
-> -	for_each_present_cpu(i)
-> +	for_each_cpu(i)
-
-This looks wrong. The CPUs should be in the present mask
-if it's present. Followup code similar.
-
-BTW shouldn't there be some attribute in sysfs that says
-"CPU disabled"?
-
--Andi
+	Dominik

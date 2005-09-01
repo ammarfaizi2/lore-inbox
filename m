@@ -1,59 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965175AbVIAO7I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965179AbVIAO7r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965175AbVIAO7I (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 10:59:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965176AbVIAO7I
+	id S965179AbVIAO7r (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 10:59:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965176AbVIAO7r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 10:59:08 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:51721 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S965175AbVIAO7G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 10:59:06 -0400
-Date: Thu, 1 Sep 2005 16:59:02 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       alan@redhat.com
-Subject: Re: 2.6.13-mm1
-Message-ID: <20050901145902.GB3745@stusta.de>
-References: <20050901035542.1c621af6.akpm@osdl.org> <6970000.1125584568@[10.10.2.4]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 1 Sep 2005 10:59:47 -0400
+Received: from moutng.kundenserver.de ([212.227.126.188]:62172 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S965179AbVIAO7q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 10:59:46 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Murali N Iyer <mniyer@us.ibm.com>
+Subject: Re: [PATCH,RFC] Move Cell platform code to arch/powerpc
+Date: Thu, 1 Sep 2005 17:00:17 +0200
+User-Agent: KMail/1.7.2
+Cc: akpm@osdl.org, linux-kernel <linux-kernel@vger.kernel.org>,
+       linuxppc64-dev@ozlabs.org, linuxppc64-dev-bounces@ozlabs.org,
+       Paul Mackerras <paulus@samba.org>,
+       Stephen Rothwell <sfr@canb.auug.org.au>
+References: <OF16E84E87.433792E2-ON8625706F.001777A1-8625706F.00180C3A@us.ibm.com>
+In-Reply-To: <OF16E84E87.433792E2-ON8625706F.001777A1-8625706F.00180C3A@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Content-Disposition: inline
-In-Reply-To: <6970000.1125584568@[10.10.2.4]>
-User-Agent: Mutt/1.5.10i
+Message-Id: <200509011700.20759.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 01, 2005 at 07:22:53AM -0700, Martin J. Bligh wrote:
->...
-> Lots of this:
-> 
-> In file included from fs/xfs/linux-2.6/xfs_linux.h:57,
->                  from fs/xfs/xfs.h:35,
->                  from fs/xfs/xfs_rtalloc.c:37:
-> fs/xfs/xfs_arch.h:55:21: warning: "__LITTLE_ENDIAN" is not defined
-> In file included from fs/xfs/xfs_rtalloc.c:50:
-> fs/xfs/xfs_bmap_btree.h:65:21: warning: "__LITTLE_ENDIAN" is not defined
->   CC      fs/xfs/xfs_acl.o
-> In file included from fs/xfs/linux-2.6/xfs_linux.h:57,
->                  from fs/xfs/xfs.h:35,
->                  from fs/xfs/xfs_acl.c:33:
-> fs/xfs/xfs_arch.h:55:21: warning: "__LITTLE_ENDIAN" is not defined
-> 
-> Can't see anything obvious to cause that.
->...
+On Dunnersdag 01 September 2005 06:22, Murali N Iyer wrote:
+> Architecture "cell" seems to be fine. What is your thought on supporting
+> multiple different hardware configurations under cell. I think this patch
+> has been tested only in CPBW hardware.  For example "+++
 
-They are there since we added -Wundef to the CFLAGS several -mm kernels 
-ago.
+My general idea about future Cell based products is that we make the
+changes to the platform code at the time we add new code. Of course,
+a number of companies are working on designs that I have no insight in,
+so I'll just wait what comes, but at least I've tried to make it
+easy to add the stuff that I know about.
 
-cu
-Adrian
+> linux-cg/arch/ppc64/kernel/bpa_nvram.c" assumes one particular hardware
+> which may not be true for different hardware configurations.
 
--- 
+Yes, this one is a bit odd. On the one hand, it is very generic and could
+be used for any future open firmware or flat device tree based system
+(even non-PowerPC). On the other hand, it works only on one particular
+board design currently.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+I don't really care about where this is put, ranging from:
 
+arch/{ppc64,powerpc}/kernel/of_nvram.c, meaning that everyone using the
+	flat device tree can just add an "nvram" node that will work with
+	this driver.
+
+arch/powerpc/platforms/cell/cellblade_nvram.c, to keep it specific to
+	the one design that we have, assuming that future Cell based
+	designs will use something else.
+
+	Arnd <><

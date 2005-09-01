@@ -1,69 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030381AbVIAVM7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030383AbVIAVOf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030381AbVIAVM7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 17:12:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030383AbVIAVM7
+	id S1030383AbVIAVOf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 17:14:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030384AbVIAVOf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 17:12:59 -0400
-Received: from [203.171.93.254] ([203.171.93.254]:33196 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S1030381AbVIAVM6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 17:12:58 -0400
-Subject: Re: reboot vs poweroff
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Pierre Ossman <drzeus-list@drzeus.cx>, Pavel Machek <pavel@ucw.cz>,
-       Meelis Roos <mroos@linux.ee>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Len Brown <len.brown@intel.com>
-In-Reply-To: <m164tkpryx.fsf@ebiederm.dsl.xmission.com>
-References: <20050901062406.EBA5613D5B@rhn.tartu-labor>
-	 <1125557333.12996.76.camel@localhost>
-	 <Pine.SOC.4.61.0509011030430.3232@math.ut.ee> <4316F4E3.4030302@drzeus.cx>
-	 <1125578897.4785.23.camel@localhost>
-	 <m1fysoq0p7.fsf@ebiederm.dsl.xmission.com> <43171C02.30402@drzeus.cx>
-	 <m1aciwpvsz.fsf@ebiederm.dsl.xmission.com> <43174643.7040007@drzeus.cx>
-	 <m164tkpryx.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain
-Organization: Cyclades
-Message-Id: <1125609100.4785.30.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 02 Sep 2005 07:11:40 +1000
+	Thu, 1 Sep 2005 17:14:35 -0400
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:50348 "EHLO
+	ogre.sisk.pl") by vger.kernel.org with ESMTP id S1030383AbVIAVOf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 17:14:35 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.13-mm1: PCMCIA problem
+Date: Thu, 1 Sep 2005 23:14:48 +0200
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org
+References: <20050901035542.1c621af6.akpm@osdl.org>
+In-Reply-To: <20050901035542.1c621af6.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509012314.48434.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-On Fri, 2005-09-02 at 04:23, Eric W. Biederman wrote:
-> Pierre Ossman <drzeus-list@drzeus.cx> writes:
-> >
-> > Patch tested and works fine here. You should probably make a note in the
-> > bugzilla so we don't get a conflicting merge from the ACPI folks.
+On Thursday, 1 of September 2005 12:55, Andrew Morton wrote:
 > 
-> Thanks.
-> 
-> If I can figure out bugzilla...
-> 
-> > I suppose Nigel should use this function in swsusp2 aswell?
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13/2.6.13-mm1/
 
-All I did was start calling pm_ops->prepare, ->enter and ->finish
-regardless of the powerdown method, instead of only for S3 or S4. It
-seems to be working fine. If, however, we should be doing things
-differently, I'm happy to comply. What's the authoritative word?
+I cannot start PCMCIA on x86-64 SuSE 9.3 on Asus L5D.  Apparently, the following
+command:
 
-Regards,
+sh -c modprobe --ignore-install firmware_class; echo 30 > /sys/class/firmware/timeout
 
-Nigel
+loops forever with almost 100% of the time spent in the kernel.
 
-> If he is doing the same thing yes.
-> 
-> Eric
+AFAICS, 2.6.13-rc6-mm2 is also affected, but the mainline kernels are not.
+
+Greetings,
+Rafael
+
+
 -- 
-Evolution.
-Enumerate the requirements.
-Consider the interdependencies.
-Calculate the probabilities.
-
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

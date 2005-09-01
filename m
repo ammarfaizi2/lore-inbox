@@ -1,157 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965062AbVIABeL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965061AbVIABey@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965062AbVIABeL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 21:34:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965061AbVIABeJ
+	id S965061AbVIABey (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 21:34:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965031AbVIABex
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 21:34:09 -0400
-Received: from ozlabs.org ([203.10.76.45]:5776 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S965028AbVIAB3Y (ORCPT
+	Wed, 31 Aug 2005 21:34:53 -0400
+Received: from ozlabs.org ([203.10.76.45]:11918 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S965021AbVIAB3A (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 21:29:24 -0400
+	Wed, 31 Aug 2005 21:29:00 -0400
 To: <jgarzik@pobox.com>
 CC: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
        <linuxppc64-dev@ozlabs.org>
 From: Michael Ellerman <michael@ellerman.id.au>
-Subject: [PATCH 13/18] iseries_veth: Fix bogus counting of TX errors
+Subject: [PATCH 2/18] iseries_veth: Remove a FIXME WRT deletion of the ack_timer
 In-Reply-To: <1125538127.859382.875909607846.qpush@concordia>
-Message-Id: <20050901012919.7A19868232@ozlabs.org>
-Date: Thu,  1 Sep 2005 11:29:19 +1000 (EST)
+Message-Id: <20050901012859.BDDC3681F5@ozlabs.org>
+Date: Thu,  1 Sep 2005 11:28:59 +1000 (EST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There's a number of problems with the way iseries_veth counts TX errors.
+The iseries_veth driver has a timer which we use to send acks. When the
+connection is reset or stopped we need to delete the timer.
 
-Firstly it counts conditions which aren't really errors as TX errors. This
-includes if we don't have a connection struct for the other LPAR, or if the
-other LPAR is currently down (or just doesn't want to talk to us). Neither
-of these should count as TX errors.
+Currently we only call del_timer() when resetting a connection, which means
+the timer might run again while the connection is being re-setup. As it turns
+out that's ok, because the flags the timer consults have been reset.
 
-Secondly, it counts one TX error for each LPAR that fails to accept the packet.
-This can lead to TX error counts higher than the total number of packets sent
-through the interface. This is confusing for users.
-
-This patch fixes that behaviour. The non-error conditions are no longer
-counted, and we introduce a new and I think saner meaning to the TX counts.
-
-If a packet is successfully transmitted to any LPAR then it is transmitted
-and tx_packets is incremented by 1.
-
-If there is an error transmitting a packet to any LPAR then that is counted
-as one error, ie. tx_errors is incremented by 1.
+It's cleaner though to call del_timer_sync() once we've dropped the lock,
+although the timer may still run between us dropping the lock and calling
+del_timer_sync(), but as above that's ok.
 
 Signed-off-by: Michael Ellerman <michael@ellerman.id.au>
 ---
 
- drivers/net/iseries_veth.c |   47 ++++++++++++++++++---------------------------
- 1 files changed, 19 insertions(+), 28 deletions(-)
+ drivers/net/iseries_veth.c |   21 +++++++++++++--------
+ 1 files changed, 13 insertions(+), 8 deletions(-)
 
 Index: veth-dev2/drivers/net/iseries_veth.c
 ===================================================================
 --- veth-dev2.orig/drivers/net/iseries_veth.c
 +++ veth-dev2/drivers/net/iseries_veth.c
-@@ -938,31 +938,25 @@ static int veth_transmit_to_one(struct s
- 	struct veth_port *port = (struct veth_port *) dev->priv;
- 	HvLpEvent_Rc rc;
- 	struct veth_msg *msg = NULL;
--	int err = 0;
- 	unsigned long flags;
+@@ -450,13 +450,15 @@ static void veth_statemachine(void *p)
+ 	if (cnx->state & VETH_STATE_RESET) {
+ 		int i;
  
--	if (! cnx) {
--		port->stats.tx_errors++;
--		dev_kfree_skb(skb);
-+	if (! cnx)
- 		return 0;
--	}
- 
- 	spin_lock_irqsave(&cnx->lock, flags);
- 
- 	if (! (cnx->state & VETH_STATE_READY))
--		goto drop;
-+		goto no_error;
- 
--	if ((skb->len - 14) > VETH_MAX_MTU)
-+	if ((skb->len - ETH_HLEN) > VETH_MAX_MTU)
- 		goto drop;
- 
- 	msg = veth_stack_pop(cnx);
+-		del_timer(&cnx->ack_timer);
 -
--	if (! msg) {
--		err = 1;
-+	if (! msg)
- 		goto drop;
--	}
+ 		if (cnx->state & VETH_STATE_OPEN)
+ 			HvCallEvent_closeLpEventPath(cnx->remote_lp,
+ 						     HvLpEvent_Type_VirtualLan);
  
- 	msg->in_use = 1;
-+	msg->skb = skb_get(skb);
+-		/* reset ack data */
++		/*
++		 * Reset ack data. This prevents the ack_timer actually
++		 * doing anything, even if it runs one more time when
++		 * we drop the lock below.
++		 */
+ 		memset(&cnx->pending_acks, 0xff, sizeof (cnx->pending_acks));
+ 		cnx->num_pending_acks = 0;
  
- 	msg->data.addr[0] = dma_map_single(port->dev, skb->data,
- 				skb->len, DMA_TO_DEVICE);
-@@ -970,9 +964,6 @@ static int veth_transmit_to_one(struct s
- 	if (dma_mapping_error(msg->data.addr[0]))
- 		goto recycle_and_drop;
- 
--	/* Is it really necessary to check the length and address
--	 * fields of the first entry here? */
--	msg->skb = skb;
- 	msg->dev = port->dev;
- 	msg->data.len[0] = skb->len;
- 	msg->data.eofmask = 1 << VETH_EOF_SHIFT;
-@@ -992,43 +983,43 @@ static int veth_transmit_to_one(struct s
- 	if (veth_stack_is_empty(cnx))
- 		veth_stop_queues(cnx);
- 
-+ no_error:
- 	spin_unlock_irqrestore(&cnx->lock, flags);
- 	return 0;
- 
-  recycle_and_drop:
--	/* we free the skb below, so tell veth_recycle_msg() not to. */
--	msg->skb = NULL;
- 	veth_recycle_msg(cnx, msg);
-  drop:
--	port->stats.tx_errors++;
--	dev_kfree_skb(skb);
- 	spin_unlock_irqrestore(&cnx->lock, flags);
--	return err;
-+	return 1;
- }
- 
--static HvLpIndexMap veth_transmit_to_many(struct sk_buff *skb,
-+static void veth_transmit_to_many(struct sk_buff *skb,
- 					  HvLpIndexMap lpmask,
- 					  struct net_device *dev)
- {
- 	struct veth_port *port = (struct veth_port *) dev->priv;
--	int i;
--	int rc;
-+	int i, success, error;
+@@ -469,9 +471,16 @@ static void veth_statemachine(void *p)
+ 		if (cnx->msgs)
+ 			for (i = 0; i < VETH_NUMBUFFERS; ++i)
+ 				veth_recycle_msg(cnx, cnx->msgs + i);
 +
-+	success = error = 0;
- 
- 	for (i = 0; i < HVMAXARCHITECTEDLPS; i++) {
- 		if ((lpmask & (1 << i)) == 0)
- 			continue;
- 
--		rc = veth_transmit_to_one(skb_get(skb), i, dev);
--		if (! rc)
--			lpmask &= ~(1<<i);
-+		if (veth_transmit_to_one(skb, i, dev))
-+			error = 1;
-+		else
-+			success = 1;
- 	}
- 
--	if (! lpmask) {
-+	if (error)
-+		port->stats.tx_errors++;
++		/* Drop the lock so we can do stuff that might sleep or
++		 * take other locks. */
+ 		spin_unlock_irq(&cnx->lock);
 +
-+	if (success) {
- 		port->stats.tx_packets++;
- 		port->stats.tx_bytes += skb->len;
++		del_timer_sync(&cnx->ack_timer);
+ 		veth_flush_pending(cnx);
++
+ 		spin_lock_irq(&cnx->lock);
++
+ 		if (cnx->state & VETH_STATE_RESET)
+ 			goto restart;
  	}
+@@ -658,13 +667,9 @@ static void veth_stop_connection(u8 rlp)
+ 	veth_kick_statemachine(cnx);
+ 	spin_unlock_irq(&cnx->lock);
+ 
++	/* Wait for the state machine to run. */
+ 	flush_scheduled_work();
+ 
+-	/* FIXME: not sure if this is necessary - will already have
+-	 * been deleted by the state machine, just want to make sure
+-	 * its not running any more */
+-	del_timer_sync(&cnx->ack_timer);
 -
--	return lpmask;
- }
- 
- static int veth_start_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	if (cnx->num_events > 0)
+ 		mf_deallocate_lp_events(cnx->remote_lp,
+ 				      HvLpEvent_Type_VirtualLan,

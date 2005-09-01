@@ -1,43 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030395AbVIAV0W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030397AbVIAV1r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030395AbVIAV0W (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 17:26:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030397AbVIAV0W
+	id S1030397AbVIAV1r (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 17:27:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030398AbVIAV1r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 17:26:22 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:62689 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030395AbVIAV0V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 17:26:21 -0400
-Message-ID: <431771EA.4030809@austin.ibm.com>
-Date: Thu, 01 Sep 2005 16:26:02 -0500
-From: Joel Schopp <jschopp@austin.ibm.com>
-Reply-To: jschopp@austin.ibm.com
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@redhat.com>
-CC: "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-mm1
-References: <20050901035542.1c621af6.akpm@osdl.org> <6970000.1125584568@[10.10.2.4]> <20050901145006.GF5427@devserv.devel.redhat.com> <43176AE8.8060105@austin.ibm.com> <20050901211647.GC25405@devserv.devel.redhat.com>
-In-Reply-To: <20050901211647.GC25405@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 1 Sep 2005 17:27:47 -0400
+Received: from fmr22.intel.com ([143.183.121.14]:62086 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1030397AbVIAV1q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 17:27:46 -0400
+Date: Thu, 1 Sep 2005 14:27:35 -0700
+From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>,
+       linux-kernel@vger.kernel.org, systemtap@sources.redhat.com,
+       ananth@in.ibm.com, prasanna@in.ibm.com
+Subject: Re: [PATCH]kprobes fix bug when probed on task and isr functions
+Message-ID: <20050901142734.A29448@unix-os.sc.intel.com>
+Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+References: <20050901134937.A29041@unix-os.sc.intel.com> <20050901140938.69909683.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050901140938.69909683.akpm@osdl.org>; from akpm@osdl.org on Thu, Sep 01, 2005 at 02:09:38PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Try the diff below although I suspect much of the extra logic can go
-> away and something like
+On Thu, Sep 01, 2005 at 02:09:38PM -0700, Andrew Morton wrote:
+> Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com> wrote:
+> >
+> > 	This patch fixes a race condition where in system used to hang
+> > or sometime crash within minutes when kprobes are inserted on 
+> > ISR routine and a task routine.
 > 
-> 	len = tty_buffer_request_root(tty, HVCS_BUFF_LEN);
-> 	if(len) {
-> 		len = hvc_get_chars(...., len);
-> 		tty_insert_flip_string(tty, buf, len);
-> 	}
+> It's desirable that the patch descriptions tell us _how_ a bug was fixed,
+> as well as what the bug was.  It means that people don't have to ask
+> questions like:
+Sure, our current kprobes model is very serialized where in we serve only
+one kprobe in the exception handler by holding this lock_kprobes() and
+release this lock i.e unlock_kprobes() when we are done with single stepping
+
 > 
-> is better.
+> >  void __kprobes lock_kprobes(void)
+> >  {
+> > +	unsigned long flags = 0;
+> > +
+> > +	local_irq_save(flags);
+> >  	spin_lock(&kprobe_lock);
+> >  	kprobe_cpu = smp_processor_id();
+> > + 	local_irq_restore(flags);
+> >  }
+> 
+> what is this change trying to do?  If a lock is taken from both process and
+> irq contexts then local IRQs must be disabled for the entire period when the
+> lock is held, not just for a little blip like this.  If IRQ-context code is
+> running this function then the code is deadlockable.
 
-It's like whack a mole.  30 more now in drivers/serial/jsm/jsm_tty.c and 
-  drivers/serial/icom.c
+In the kprobe exception handling we relay on kprobe_cpu = smp_processor_id() to determine
+whether we are inside the kprobe or not. It was so happeing that when we
+take the lock and before kprobe_cpu gets updated if an H/W interrupt happens
+and if kprobe is enabled on ISR routine, then in the kprobe execption handler
+for isr, we miss the indication that we are already in kprobes(since interrupt
+happened before we get to update kprobe_cpu) and we were trying to 
+take the lock again and there by causing the deadlock. This deadlock is avoided
+by disabling the ISR for a short period while we take the spin_lock() and update
+the kprobe_cpu.
 
+> 
+> Now, probably there's deep magic happening here and I'm wrong.  If so then
+> please explain the code's magic via a comment patch so the question doesn't
+> arise again, thanks.
+> 
+
+This whole serialization will go away when we introduce the scalability patch.
+
+-Anil

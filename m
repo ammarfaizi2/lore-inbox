@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964966AbVIAGMC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965029AbVIAGY2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964966AbVIAGMC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 02:12:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965032AbVIAGMC
+	id S965029AbVIAGY2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 02:24:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965058AbVIAGY2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 02:12:02 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:53196 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S964966AbVIAGMA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 02:12:00 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: greg@kroah.com
-Subject: i2c via686a.c: save at least 0.5k of space by long v[256] -> u16 v[256]
-Date: Thu, 1 Sep 2005 09:10:14 +0300
-User-Agent: KMail/1.8.2
-Cc: khali@linux-fr.org, lm-sensors@lm-sensors.org,
-       linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_GtpFDFWwuowhVlY"
-Message-Id: <200509010910.14824.vda@ilport.com.ua>
+	Thu, 1 Sep 2005 02:24:28 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:28102
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S965029AbVIAGY2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 02:24:28 -0400
+Date: Wed, 31 Aug 2005 23:24:30 -0700 (PDT)
+Message-Id: <20050831.232430.50551657.davem@davemloft.net>
+To: ecashin@coraid.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: aoe fails on sparc64
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <87vf1mm7fk.fsf@coraid.com>
+References: <3afbacad0508310630797f397d@mail.gmail.com>
+	<87vf1mm7fk.fsf@coraid.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_GtpFDFWwuowhVlY
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+From: Ed L Cashin <ecashin@coraid.com>
+Date: Wed, 31 Aug 2005 11:50:55 -0400
 
-Not tested, but it's rather obvious.
---
-vda
+> Jim MacBaine <jmacbaine@gmail.com> writes:
+> 
+> > Aug 31 15:18:49 sunny kernel: devfs_mk_dir: invalid argument.<6>
+> > etherd/e0.0: unknown partition table
+> > Aug 31 15:18:49 sunny kernel: aoe: 0011d8xxxxxx e0.0 v4000 has
+> > 67553994410557440
+> > sectors
+> 
+> OK.  67553994410557440 is 61440 byte swapped in 64 bits, and 30MB is
+> 61440 sectors, so this should be a simple byte order fix.
 
---Boundary-00=_GtpFDFWwuowhVlY
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="via686a.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="via686a.patch"
+More strangely, the upper and lower 32-bit words are swapped.
+The bytes within each 32-bit word are swapped correctly.
 
---- linux-2.6.12.src/drivers/i2c/chips/via686a.c.orig	Sun Jun 19 16:10:10 2005
-+++ linux-2.6.12.src/drivers/i2c/chips/via686a.c	Tue Aug 30 00:21:39 2005
-@@ -205,7 +205,7 @@ static inline u8 FAN_TO_REG(long rpm, in
-  but the function is very linear in the useful range (0-80 deg C), so 
-  we'll just use linear interpolation for 10-bit readings.)  So, tempLUT 
-  is the temp at via register values 0-255: */
--static const long tempLUT[] =
-+static const int16_t tempLUT[] =
-     { -709, -688, -667, -646, -627, -607, -589, -570, -553, -536, -519,
- 	    -503, -487, -471, -456, -442, -428, -414, -400, -387, -375,
- 	    -362, -350, -339, -327, -316, -305, -295, -285, -275, -265,
+So the calculation maybe should be something like:
 
---Boundary-00=_GtpFDFWwuowhVlY--
+	__le32 *p = (__le32 *) &id[100 << 1];
+	u32 high32 = le32_to_cpup(p);
+	u32 low32 = le32_to_cpup(p + 1);
+
+	ssize = (((u64)high32 << 32) | (u64) low32);
+
+But that doesn't make any sense, and even ide_fix_driveid() in
+drivers/ide/ide-iops.c does a le64_to_cpu() for this value:
+
+	id->lba_capacity_2 = __le64_to_cpu(id->lba_capacity_2);
+
+I wonder if this is some artifact of how AOE devices encode
+this field when sending it to the client.

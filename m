@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030428AbVIAV7Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030420AbVIAV7m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030428AbVIAV7Y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 17:59:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030429AbVIAV7Y
+	id S1030420AbVIAV7m (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 17:59:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030430AbVIAV7m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 17:59:24 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:59271 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1030428AbVIAV7W (ORCPT
+	Thu, 1 Sep 2005 17:59:42 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:60295 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1030420AbVIAV7l (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 17:59:22 -0400
-Date: Thu, 1 Sep 2005 23:59:18 +0200 (CEST)
+	Thu, 1 Sep 2005 17:59:41 -0400
+Date: Thu, 1 Sep 2005 23:59:38 +0200 (CEST)
 From: Roman Zippel <zippel@linux-m68k.org>
 X-X-Sender: roman@scrub.home
 To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
        Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Subject: [PATCH 3/10] m68k: thread_info header cleanup
-Message-ID: <Pine.LNX.4.61.0509012359040.9708@scrub.home>
+Subject: [PATCH 4/10] m68k: m68k specific thread_info changes
+Message-ID: <Pine.LNX.4.61.0509012359210.9712@scrub.home>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -24,115 +24,99 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
 
-a) in smp_lock.h #include of sched.h and spinlock.h moved under
-#ifdef CONFIG_LOCK_KERNEL.
-b) interrupt.h now explicitly pulls sched.h (not via smp_lock.h from
-hardirq.h as it used to)
-c) in three more places we need changes to compensate for (a) - one
-place in arch/sparc needs string.h now, hardirq.h needs forward
-declaration of task_struct and preempt.h needs direct include of
-thread_info.h.
-d) thread_info-related helpers in sched.h and thread_info.h put under
-ifndef __HAVE_THREAD_FUNCTIONS.  Obviously safe.
+a) added embedded thread_info [m68k processor.h]
+b) added missing symbols in asm-offsets.c
+c) task_thread_info() and friends in asm-m68k/thread_info.h
+d) made m68k thread_info.h included by m68k processor.h, not the other
+way round.
 
 Signed-off-by: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
 Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
 
 ---
 
- arch/sparc/lib/bitext.c   |    1 +
- include/linux/hardirq.h   |    2 ++
- include/linux/interrupt.h |    1 +
- include/linux/preempt.h   |    1 +
- include/linux/sched.h     |    4 ++++
- include/linux/smp_lock.h  |    3 +--
- 6 files changed, 10 insertions(+), 2 deletions(-)
+ arch/m68k/kernel/asm-offsets.c |    5 +++++
+ include/asm-m68k/processor.h   |    2 ++
+ include/asm-m68k/thread_info.h |   14 ++++++++++----
+ 3 files changed, 17 insertions(+), 4 deletions(-)
 
-Index: linux-2.6-mm/arch/sparc/lib/bitext.c
+Index: linux-2.6-mm/arch/m68k/kernel/asm-offsets.c
 ===================================================================
---- linux-2.6-mm.orig/arch/sparc/lib/bitext.c	2005-09-01 13:21:50.000000000 +0200
-+++ linux-2.6-mm/arch/sparc/lib/bitext.c	2005-09-01 21:04:33.219211431 +0200
-@@ -10,6 +10,7 @@
-  */
+--- linux-2.6-mm.orig/arch/m68k/kernel/asm-offsets.c	2005-09-01 13:21:50.000000000 +0200
++++ linux-2.6-mm/arch/m68k/kernel/asm-offsets.c	2005-09-01 21:04:36.173703799 +0200
+@@ -31,6 +31,7 @@ int main(void)
+ 	DEFINE(TASK_SIGPENDING, offsetof(struct task_struct, thread.work.sigpending));
+ 	DEFINE(TASK_NOTIFY_RESUME, offsetof(struct task_struct, thread.work.notify_resume));
+ 	DEFINE(TASK_THREAD, offsetof(struct task_struct, thread));
++	DEFINE(TASK_INFO, offsetof(struct task_struct, thread.info));
+ 	DEFINE(TASK_MM, offsetof(struct task_struct, mm));
+ 	DEFINE(TASK_ACTIVE_MM, offsetof(struct task_struct, active_mm));
  
- #include <linux/smp_lock.h>
-+#include <linux/string.h>
- #include <linux/bitops.h>
+@@ -45,6 +46,10 @@ int main(void)
+ 	DEFINE(THREAD_FPCNTL, offsetof(struct thread_struct, fpcntl));
+ 	DEFINE(THREAD_FPSTATE, offsetof(struct thread_struct, fpstate));
  
- #include <asm/bitext.h>
-Index: linux-2.6-mm/include/linux/hardirq.h
-===================================================================
---- linux-2.6-mm.orig/include/linux/hardirq.h	2005-09-01 13:21:50.000000000 +0200
-+++ linux-2.6-mm/include/linux/hardirq.h	2005-09-01 21:04:33.240207823 +0200
-@@ -90,6 +90,8 @@ extern void synchronize_irq(unsigned int
- #define nmi_enter()		irq_enter()
- #define nmi_exit()		sub_preempt_count(HARDIRQ_OFFSET)
- 
-+struct task_struct;
++	/* offsets into the thread_info struct */
++	DEFINE(TINFO_PREEMPT, offsetof(struct thread_info, preempt_count));
++	DEFINE(TINFO_FLAGS, offsetof(struct thread_info, flags));
 +
- #ifndef CONFIG_VIRT_CPU_ACCOUNTING
- static inline void account_user_vtime(struct task_struct *tsk)
- {
-Index: linux-2.6-mm/include/linux/interrupt.h
+ 	/* offsets into the pt_regs */
+ 	DEFINE(PT_D0, offsetof(struct pt_regs, d0));
+ 	DEFINE(PT_ORIG_D0, offsetof(struct pt_regs, orig_d0));
+Index: linux-2.6-mm/include/asm-m68k/processor.h
 ===================================================================
---- linux-2.6-mm.orig/include/linux/interrupt.h	2005-09-01 13:21:50.000000000 +0200
-+++ linux-2.6-mm/include/linux/interrupt.h	2005-09-01 21:04:33.241207651 +0200
-@@ -9,6 +9,7 @@
- #include <linux/preempt.h>
- #include <linux/cpumask.h>
- #include <linux/hardirq.h>
-+#include <linux/sched.h>
- #include <asm/atomic.h>
- #include <asm/ptrace.h>
- #include <asm/system.h>
-Index: linux-2.6-mm/include/linux/sched.h
-===================================================================
---- linux-2.6-mm.orig/include/linux/sched.h	2005-09-01 21:04:28.637998577 +0200
-+++ linux-2.6-mm/include/linux/sched.h	2005-09-01 21:04:33.241207651 +0200
-@@ -1209,6 +1209,8 @@ static inline void task_unlock(struct ta
- 	spin_unlock(&p->alloc_lock);
- }
- 
-+#ifndef __HAVE_THREAD_FUNCTIONS
-+
- #define task_thread_info(task) (task)->thread_info
- 
- static inline void setup_thread_stack(struct task_struct *p, struct task_struct *org)
-@@ -1222,6 +1224,8 @@ static inline unsigned long *end_of_stac
- 	return (unsigned long *)(p->thread_info + 1);
- }
- 
-+#endif
-+
- /* set thread flags in other task's structures
-  * - see asm/thread_info.h for TIF_xxxx flags available
-  */
-Index: linux-2.6-mm/include/linux/smp_lock.h
-===================================================================
---- linux-2.6-mm.orig/include/linux/smp_lock.h	2005-09-01 13:21:50.000000000 +0200
-+++ linux-2.6-mm/include/linux/smp_lock.h	2005-09-01 21:04:33.247206621 +0200
-@@ -2,11 +2,10 @@
- #define __LINUX_SMPLOCK_H
- 
- #include <linux/config.h>
-+#ifdef CONFIG_LOCK_KERNEL
- #include <linux/sched.h>
- #include <linux/spinlock.h>
- 
--#ifdef CONFIG_LOCK_KERNEL
--
- #define kernel_locked()		(current->lock_depth >= 0)
- 
- extern int __lockfunc __reacquire_kernel_lock(void);
-Index: linux-2.6-mm/include/linux/preempt.h
-===================================================================
---- linux-2.6-mm.orig/include/linux/preempt.h	2005-09-01 13:21:50.000000000 +0200
-+++ linux-2.6-mm/include/linux/preempt.h	2005-09-01 21:04:33.252205762 +0200
-@@ -7,6 +7,7 @@
-  */
+--- linux-2.6-mm.orig/include/asm-m68k/processor.h	2005-09-01 13:21:50.000000000 +0200
++++ linux-2.6-mm/include/asm-m68k/processor.h	2005-09-01 21:04:36.184701909 +0200
+@@ -14,6 +14,7 @@
+ #define current_text_addr() ({ __label__ _l; _l: &&_l;})
  
  #include <linux/config.h>
 +#include <linux/thread_info.h>
- #include <linux/linkage.h>
+ #include <asm/segment.h>
+ #include <asm/fpu.h>
+ #include <asm/ptrace.h>
+@@ -79,6 +80,7 @@ struct thread_struct {
+ 	unsigned long  fpcntl[3];	/* fp control regs */
+ 	unsigned char  fpstate[FPSTATESIZE];  /* floating point state */
+ 	struct task_work work;
++	struct thread_info info;
+ };
  
- #ifdef CONFIG_DEBUG_PREEMPT
+ #define INIT_THREAD  {							\
+Index: linux-2.6-mm/include/asm-m68k/thread_info.h
+===================================================================
+--- linux-2.6-mm.orig/include/asm-m68k/thread_info.h	2005-09-01 13:21:50.000000000 +0200
++++ linux-2.6-mm/include/asm-m68k/thread_info.h	2005-09-01 21:04:36.216696412 +0200
+@@ -2,7 +2,6 @@
+ #define _ASM_M68K_THREAD_INFO_H
+ 
+ #include <asm/types.h>
+-#include <asm/processor.h>
+ #include <asm/page.h>
+ 
+ struct thread_info {
+@@ -35,14 +34,21 @@ struct thread_info {
+ #define free_thread_info(ti)  free_pages((unsigned long)(ti),1)
+ #endif /* PAGE_SHIFT == 13 */
+ 
+-//#define init_thread_info	(init_task.thread.info)
++#define init_thread_info	(init_task.thread.info)
+ #define init_stack		(init_thread_union.stack)
+ 
+-#define current_thread_info()	(current->thread_info)
+-
++#define task_thread_info(tsk)	(&(tsk)->thread.info)
++#define current_thread_info()	task_thread_info(current)
+ 
+ #define __HAVE_THREAD_FUNCTIONS
+ 
++#define setup_thread_stack(p, org) ({			\
++	*(struct task_struct **)(p)->thread_info = (p);	\
++	task_thread_info(p)->task = (p);		\
++})
++
++#define end_of_stack(p) ((unsigned long *)(p)->thread_info + 1)
++
+ #define TIF_SYSCALL_TRACE	0	/* syscall trace active */
+ #define TIF_DELAYED_TRACE	1	/* single step a syscall */
+ #define TIF_NOTIFY_RESUME	2	/* resumption notification requested */

@@ -1,60 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030332AbVIATy7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030339AbVIATzY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030332AbVIATy7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 15:54:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030333AbVIATy6
+	id S1030339AbVIATzY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 15:55:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030336AbVIATzR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 15:54:58 -0400
-Received: from sd291.sivit.org ([194.146.225.122]:526 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S1030332AbVIATy6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 15:54:58 -0400
-Subject: Re: 2.6.13-rc7-git2 crashes on iBook
-From: Stelian Pop <stelian@popies.net>
-To: Daniel Drake <dsd@gentoo.org>
-Cc: Alex Williamson <alex.williamson@hp.com>, Andreas Schwab <schwab@suse.de>,
-       linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <431755E4.70703@gentoo.org>
-References: <jehdda2tqt.fsf@sykes.suse.de>
-	 <1125288175.5595.3.camel@localhost.localdomain>
-	 <1125311951.4662.3.camel@localhost.localdomain> <431755E4.70703@gentoo.org>
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Thu, 01 Sep 2005 21:54:54 +0200
-Message-Id: <1125604494.3999.7.camel@deep-space-9.dsnet>
+	Thu, 1 Sep 2005 15:55:17 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:2756 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1030333AbVIATzO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 15:55:14 -0400
+Date: Thu, 1 Sep 2005 18:16:10 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Vitaly Wool <vitalhome@rbcmail.ru>
+Cc: linux-kernel@vger.kernel.org, Russell King <rmk+lkml@arm.linux.org.uk>,
+       Grigory Tolstolytkin <gtolstolytkin@dev.rtsoft.ru>
+Subject: Re: [PATCH] custom PM support for 8250
+Message-ID: <20050901161610.GC1561@openzaurus.ucw.cz>
+References: <43159011.3060206@rbcmail.ru>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43159011.3060206@rbcmail.ru>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le jeudi 01 septembre 2005 à 20:26 +0100, Daniel Drake a écrit :
-> Hi,
-> 
-> Stelian Pop wrote:
-> > Confirmed on an Apple Powerbook too.
-> > 
-> > For reference, the (already reverted) patch which needs to be applied is
-> > below.
-> > 
-> > Signed-off-by: Stelian Pop <stelian@popies.net>
-> > 
-> > Index: linux-2.6.git/drivers/pci/setup-res.c
-[...]
+Hi!
 
-> Sorry for my ignorance. Which tree was this reverted in? You are probably 
-> aware that this bug made it into 2.6.13 (patch was not reverted there).
+> Greetings,
+> please find the patch that allows passing the pointer to custom power 
+> management routine (via platform_device) to 8250 serial driver.
+> Please note that the interface to the outer world (i. e. exported 
+> functions) remained the same.
 
-It must be my bad english but I wasn't implying that the patch was
-reverted in 2.6.13 but that one should apply it (just apply, without -R,
-because I didn't attach the original patch but a reversed version of it)
-on a clean 2.6.13 tree in order to make it work. :)
+No. Current state needs to be pm_message_t, not int.
+				Pavel
 
-However, a different fix (a real fix, not the workaround proposed above)
-was discussed on lkml this week and BenH proposed a patch I haven't had
-the chance to test yet (see http://lkml.org/lkml/2005/8/31/1 ).
 
-Stelian.
 -- 
-Stelian Pop <stelian@popies.net>
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

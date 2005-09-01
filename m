@@ -1,49 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030452AbVIAWTD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030453AbVIAWUZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030452AbVIAWTD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 18:19:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030454AbVIAWTB
+	id S1030453AbVIAWUZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 18:20:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030455AbVIAWUZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 18:19:01 -0400
-Received: from fmr24.intel.com ([143.183.121.16]:38574 "EHLO
-	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1030452AbVIAWTA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 18:19:00 -0400
-Date: Thu, 1 Sep 2005 15:18:49 -0700
-From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>,
-       linux-kernel@vger.kernel.org, systemtap@sources.redhat.com,
-       ananth@in.ibm.com, prasanna@in.ibm.com
-Subject: Re: [PATCH]kprobes fix bug when probed on task and isr functions
-Message-ID: <20050901151848.A29863@unix-os.sc.intel.com>
-Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-References: <20050901134937.A29041@unix-os.sc.intel.com> <20050901140938.69909683.akpm@osdl.org> <20050901142734.A29448@unix-os.sc.intel.com> <20050901144211.5bf5ded6.akpm@osdl.org>
+	Thu, 1 Sep 2005 18:20:25 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:58006 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030453AbVIAWUX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 18:20:23 -0400
+Date: Thu, 1 Sep 2005 15:22:37 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Marco Perosa <marco.perosa@poste.it>
+Cc: linux-kernel@vger.kernel.org, Neil Horman <nhorman@redhat.com>
+Subject: Re: 2.6.13-mm1 - MAKEDEV - /proc/devices
+Message-Id: <20050901152237.23f62e71.akpm@osdl.org>
+In-Reply-To: <20050901204555.10b32a42.marco.perosa@poste.it>
+References: <20050901204555.10b32a42.marco.perosa@poste.it>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050901144211.5bf5ded6.akpm@osdl.org>; from akpm@osdl.org on Thu, Sep 01, 2005 at 02:42:11PM -0700
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 01, 2005 at 02:42:11PM -0700, Andrew Morton wrote:
-> Are you sure that other CPUs can safely read kprobe_cpu without taking the
-> lock?  I don't see any memory barriers in there...
+Marco Perosa <marco.perosa@poste.it> wrote:
+>
+> Hi there,
+> I've just tried the 2.6.13-mm1 kernel,
 
-I see your point, in the current code we read kprobe_cpu and compare it with
-ones own smp_processor_id() and if it *does* not match, then this cpu is allowed to
-take the kprobe_lock(). So in this context, if one CPU is trying to read(kprobe_cpu)
-the value while other is updating its own smp_processor_id() value,
-then this cpu can either get NR_CPU(stale data) or the correct CPU_ID 
-of the other processor, which in any case does not match with its 
-own smp_processor_id() and we are allowed to take the lock(where in we might have to
-wait spinning since we are any way serializing handling of probes).
+Thanks for doing that.
 
-So to answer your question, for our current desing, we are safe to read
-kprobe_cpu outside of the lock.
+> and at the new boot i've noticed a strange stop in the init sequence.
+> Not a freeze, the system will shutdown with ctrl+alt+canc (even though it give a timeout on /dev/initctl).
+> After some tests i've figured out that the problem is in the init script /etc/init.d/makedev.
+> In fact if i run a "MAKEDEV something" in the /dev directory, i obtain the same problem.
+> When this happens, /proc/devices becomes also inacessible, and it's impossible to exec any other program that requires a new shell.
+> ps shows them ('MAKEDEV something' and 'cat /proc/devices') as D+.
+> 
+> It all works fine removing the makedev script from the init sequence, i use udev so it's not a problem at all.
+> Anyway, it should be good to figure out where's the problem, so, in the hoping that it will be useful, I enclose the config of my kernel and the kernel trace (the process is #2786).
+> 
 
-Here is the link which gives the status of testing this patch on
-various platforms.
-http://sourceware.org/bugzilla/show_bug.cgi?id=1229
+This:
 
+Sep  1 20:14:30 localhost kernel: MAKEDEV       D F56A0000     0  2786   2758                     (NOTLB)
+Sep  1 20:14:30 localhost kernel: f5553ea8 f54f8c50 c0671a20 f56a0000 c18dfa80 00000000 f5553ea4 c014cc2e 
+Sep  1 20:14:30 localhost kernel:        c18df080 f56a0000 0000006b 0003d741 62301160 00000078 f54f8c50 f54f8d78 
+Sep  1 20:14:30 localhost kernel:        f5552000 c0566020 00000246 f5553ee4 c04dc9d4 c0566028 f54f8c50 00000001 
+Sep  1 20:14:30 localhost kernel: Call Trace:
+Sep  1 20:14:30 localhost kernel:  [__down+132/320] __down+0x84/0x140
+Sep  1 20:14:30 localhost kernel:  [__sched_text_start+10/16] __down_failed+0xa/0x10
+Sep  1 20:14:30 localhost kernel:  [.text.lock.char_dev+11/121] .text.lock.char_dev+0xb/0x79
+Sep  1 20:14:30 localhost kernel:  [devinfo_start+103/176] devinfo_start+0x67/0xb0
+Sep  1 20:14:30 localhost kernel:  [traverse+112/432] traverse+0x70/0x1b0
+Sep  1 20:14:30 localhost kernel:  [seq_lseek+168/288] seq_lseek+0xa8/0x120
+Sep  1 20:14:30 localhost kernel:  [vfs_llseek+74/80] vfs_llseek+0x4a/0x50
+Sep  1 20:14:30 localhost kernel:  [sys_llseek+83/176] sys_llseek+0x53/0xb0
+Sep  1 20:14:30 localhost kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+Sep  1 20:14:30 localhost kernel: ---------------------------
+Sep  1 20:14:30 localhost kernel: | preempt count: 00000002 ]
+Sep  1 20:14:30 localhost kernel: | 2 level deep critical section nesting:
+Sep  1 20:14:30 localhost kernel: ----------------------------------------
+
+I'd assume that convert-proc-devices-to-use-seq_file-interface.patch got
+confused and failed to release chrdevs_lock.  That
+
+	(info->cur_record >= info->num_records)
+
+in devinfo_stop() looks fishy.
+
+Over to you, Neil...

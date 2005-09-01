@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964876AbVIAKmy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964872AbVIAKtU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964876AbVIAKmy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 06:42:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964874AbVIAKmy
+	id S964872AbVIAKtU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 06:49:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964874AbVIAKtU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 06:42:54 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:50620 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964797AbVIAKmx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 06:42:53 -0400
-Subject: Re: GFS, what's remaining
-From: Arjan van de Ven <arjan@infradead.org>
-To: David Teigland <teigland@redhat.com>
-Cc: linux-fsdevel@vger.kernel.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       linux-cluster@redhat.com
-In-Reply-To: <20050901104620.GA22482@redhat.com>
-References: <20050901104620.GA22482@redhat.com>
-Content-Type: text/plain
-Date: Thu, 01 Sep 2005 12:42:49 +0200
-Message-Id: <1125571369.5025.0.camel@laptopd505.fenrus.org>
+	Thu, 1 Sep 2005 06:49:20 -0400
+Received: from nproxy.gmail.com ([64.233.182.203]:17740 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964872AbVIAKtU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 06:49:20 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ED7v4XXlwl6LTIdZIFuFO6Ae/svhzceRo8O6YhqDGkuskqiPYWvhdOVXIzg6/VRrIRmQDFQE3qgfmjhMXb6B4DkY5TB8npMaIont3wYD4wiOHsr4Sd9d85Jst0+6D3N03QZlfolY5tL9h0MwZNepdZX1hhNS/oroURVfXfDcBPM=
+Message-ID: <2cd57c900509010349d2477b1@mail.gmail.com>
+Date: Thu, 1 Sep 2005 18:49:11 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+To: Paul Jackson <pj@sgi.com>
+Subject: Re: [PATCH 1/4] cpusets oom_kill tweaks
+Cc: akpm@osdl.org, mel@csn.ul.ie, linux-kernel@vger.kernel.org,
+       dino@in.ibm.com, jschopp@austin.ibm.com, Simon.Derr@bull.net,
+       torvalds@osdl.org, haveblue@us.ibm.com
+In-Reply-To: <20050901025827.0e620dd9.pj@sgi.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050901090853.18441.24035.sendpatchset@jackhammer.engr.sgi.com>
+	 <20050901090859.18441.67380.sendpatchset@jackhammer.engr.sgi.com>
+	 <2cd57c900509010239670c07a2@mail.gmail.com>
+	 <20050901025827.0e620dd9.pj@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-09-01 at 18:46 +0800, David Teigland wrote:
-> Hi, this is the latest set of gfs patches, it includes some minor munging
-> since the previous set.  Andrew, could this be added to -mm? there's not
-> much in the way of pending changes.
+On 9/1/05, Paul Jackson <pj@sgi.com> wrote:
+> Coywolf wrote:
+> > Why bother ...
+> 
+> The line length in characters was getting too long, the logic was
 
-can you post them here instead so that they can be actually reviewed?
+Yeah.  That long line bugged me too when I was writing my lca oom-killer patch.
 
+> getting too convoluted, and the comment only applied to an unobvious
+> portion of the line.
+> 
+> Providing a name for the logical condition that a complicated
+> expression computes is one of the ways I find useful to make
+> code easier to read, and to resolve problems such as those above.
 
+Maybe. 
 
+> 
+> My primary goal in writing code is to minimize the time and effort
+> it will take a typical reader to properly understand the code.
+> I write first and foremost for humans.
+
+Hmm, I really wish xfs guys follow that too.
+-- 
+Coywolf Qi Hunt
+http://sosdg.org/~coywolf/

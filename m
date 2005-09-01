@@ -1,94 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030190AbVIAPLQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030191AbVIAPPm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030190AbVIAPLQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 11:11:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030187AbVIAPLQ
+	id S1030191AbVIAPPm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 11:15:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030192AbVIAPPm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 11:11:16 -0400
-Received: from vsmtp14.tin.it ([212.216.176.118]:15585 "EHLO vsmtp14.tin.it")
-	by vger.kernel.org with ESMTP id S1030190AbVIAPLO (ORCPT
+	Thu, 1 Sep 2005 11:15:42 -0400
+Received: from smtp05.web.de ([217.72.192.209]:26292 "EHLO smtp05.web.de")
+	by vger.kernel.org with ESMTP id S1030191AbVIAPPl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 11:11:14 -0400
-Date: Thu, 1 Sep 2005 17:10:58 +0200 (CEST)
-From: genoni@darkstar.linuxpratico.net
-X-X-Sender: venom@Phoenix.oltrelinux.com
-To: linux-kernel@vger.kernel.org
-Subject: HELP: unable to use I-MATE SP3 as USB (HTC) gprs modem 
-Message-ID: <Pine.LNX.4.63.0509011710430.27194@Phoenix.oltrelinux.com>
+	Thu, 1 Sep 2005 11:15:41 -0400
+From: Thomas Schlichter <thomas.schlichter@web.de>
+To: Con Kolivas <kernel@kolivas.org>
+Subject: Re: [PATCH][RFC] vm: swap prefetch
+Date: Thu, 1 Sep 2005 17:15:36 +0200
+User-Agent: KMail/1.6.2
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       ck list <ck@vds.kolivas.org>
+References: <200509012346.33020.kernel@kolivas.org>
+In-Reply-To: <200509012346.33020.kernel@kolivas.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200509011715.36430.thomas.schlichter@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Con!
 
+Am Donnerstag, 1. September 2005 15:46 schrieb Con Kolivas:
+> Here is a working swap prefetching patch for 2.6.13. I have resuscitated
+> and rewritten some early prefetch code Thomas Schlichter did in late 2.5 to
+> create a configurable kernel thread that reads in swap from ram in reverse
+> order it was written out. It does this once kswapd has been idle for a
+> minute (implying no current vm stress). This patch attached below is a
+> rollup of two patches the current versions of which are here:
+>
+> http://ck.kolivas.org/patches/swap-prefetch/
+>
+> These add an exclusive_timer function, and the patch that does the swap
+> prefetching. I'm posting this rollup to lkml to see what the interest is in
+> this feature, and for people to test it if they desire. I'm planning on
+> including it in the next -ck but wanted to gauge general user opinion for
+> mainline. Note that swapped in pages are kept on backing store (swap),
+> meaning no further I/O is required if the page needs to swap back out.
 
-Hi,
+I am (and some of my friends are) still interested in this functionality, so 
+I'm definitly going to test your improved patch, of course. By the way, I'm 
+quite happy that you came up with this new version of swap-prefetching, 
+because I didn't and still don't have the time to develop or maintain it 
+more...
 
-I've got am I-mate SP3, running wince.
+So thanks for your good work, and keep on helping Linux-Desktop-Users! :-)
 
-It works very well with every linux 2.6 kernel I tried (actually  2.6.13,
-using the ipaq driver and synce. The phone is accessed trought ttyUSB0.
-
-dmesg shows:
-
-ipaq 1-1:1.0: PocketPC PDA converter detected
-usb 1-1: PocketPC PDA converter now attached to ttyUSB0
-
-
-in /proc/bus/usb/devices I read:
-
-T:  Bus=04 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 24 Spd=12  MxCh= 0
-D:  Ver= 1.00 Cls=ff(vend.) Sub=ff Prot=ff MxPS=64 #Cfgs=  3
-P:  Vendor=0bb4 ProdID=0a51 Rev= 0.00
-C:* #Ifs= 1 Cfg#= 1 Atr=80 MxPwr=500mA
-I:  If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=ipaq
-E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=03(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-C:  #Ifs= 1 Cfg#= 2 Atr=80 MxPwr=100mA
-I:  If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=
-E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=03(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-C:  #Ifs= 1 Cfg#= 3 Atr=c0 MxPwr=  2mA
-I:  If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=
-E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=03(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-
-
-But I have a big problem.
-
-I should use as an USB gprs modem.
-
-Since it is possible to configure it to be a (HTC) modem, using it's menu,
-when I enable it to act as a modem on the usb port the content of
-/proc/bus/usb/devices who refers to the phone changes to: I
-
-
-T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 37 Spd=12  MxCh= 0
-D:  Ver= 1.00 Cls=02(comm.) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=0bb4 ProdID=00cf Rev= 0.90
-C:* #Ifs= 1 Cfg#= 1 Atr=c0 MxPwr=100mA
-I:  If#= 0 Alt= 0 #EPs= 3 Cls=02(comm.) Sub=ff Prot=ff Driver=(none)
-E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=03(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=86(I) Atr=03(Int.) MxPS=  16 Ivl=80ms
-
-The hotplug does not work anymore using the ipaq driver (as I exspected),
-and the device is not attacched to ttyUSB0.
-
-I read Cls=02(comm.). I suppose there should be a way to use something
-like cdc-acm driver. Unfortunatelly this driver does not seem to like my
-phone.
-All I get is a sad:
-
-usb 1-1: new full speed USB device using uhci_hcd and address 39
-
-
-Is there a way to solve this problem and to use I-mate SP3 smartphone as
-gprs modem for linux or should I surrender?
-
-Thanx in advance
-
-Luigi Genoni
-
-
-
+  Thomas

@@ -1,78 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030397AbVIAV1r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030349AbVIAV1n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030397AbVIAV1r (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 17:27:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030398AbVIAV1r
+	id S1030349AbVIAV1n (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 17:27:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030397AbVIAV1n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 17:27:47 -0400
-Received: from fmr22.intel.com ([143.183.121.14]:62086 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1030397AbVIAV1q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 17:27:46 -0400
-Date: Thu, 1 Sep 2005 14:27:35 -0700
-From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>,
-       linux-kernel@vger.kernel.org, systemtap@sources.redhat.com,
-       ananth@in.ibm.com, prasanna@in.ibm.com
-Subject: Re: [PATCH]kprobes fix bug when probed on task and isr functions
-Message-ID: <20050901142734.A29448@unix-os.sc.intel.com>
-Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-References: <20050901134937.A29041@unix-os.sc.intel.com> <20050901140938.69909683.akpm@osdl.org>
+	Thu, 1 Sep 2005 17:27:43 -0400
+Received: from fmr23.intel.com ([143.183.121.15]:40423 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1030349AbVIAV1m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 17:27:42 -0400
+Date: Thu, 1 Sep 2005 14:26:59 -0700
+From: Ashok Raj <ashok.raj@intel.com>
+To: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+Cc: Ashok Raj <ashok.raj@intel.com>, shaohua.li@intel.com,
+       zwane@arm.linux.org.uk, akpm@osdl.org, ak@suse.de,
+       lhcs-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       hotplug_sig@lists.osdl.org
+Subject: Re: [patch 1/1] Hot plug CPU to support physical add of new processors (i386)
+Message-ID: <20050901142659.A29600@unix-os.sc.intel.com>
+References: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04D14@USRV-EXCH4.na.uis.unisys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050901140938.69909683.akpm@osdl.org>; from akpm@osdl.org on Thu, Sep 01, 2005 at 02:09:38PM -0700
+In-Reply-To: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04D14@USRV-EXCH4.na.uis.unisys.com>; from Natalie.Protasevich@UNISYS.com on Thu, Sep 01, 2005 at 04:09:09PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 01, 2005 at 02:09:38PM -0700, Andrew Morton wrote:
-> Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com> wrote:
-> >
-> > 	This patch fixes a race condition where in system used to hang
-> > or sometime crash within minutes when kprobes are inserted on 
-> > ISR routine and a task routine.
+On Thu, Sep 01, 2005 at 04:09:09PM -0500, Protasevich, Natalie wrote:
+> > 
+> > > Current IA32 CPU hotplug code doesn't allow bringing up 
+> > processors that were not present in the boot configuration. 
+> > > To make existing hot plug facility more practical for physical hot 
+> > > plug, possible processors should be encountered during boot for 
+> > > potentual hot add/replace/remove. On ES7000, ACPI marks all the 
+> > > sockets that are empty or not assigned to the partitionas as 
+> > > "disabled". The patch allows arrays/masks with APIC info 
+> > for disabled 
+> > > processors to be
+> > 
+> > This sounds like a cluge to me. The correct implementation 
+> > would be you would need some sysmgmt deamon or something that 
+> > works with the kernel to notify of new cpus and populate 
+> > apicid and grow cpu_present_map. Making an assumption that 
+> > disabled APICID are valid for ES7000 sake is not a safe assumption.
 > 
-> It's desirable that the patch descriptions tell us _how_ a bug was fixed,
-> as well as what the bug was.  It means that people don't have to ask
-> questions like:
-Sure, our current kprobes model is very serialized where in we serve only
-one kprobe in the exception handler by holding this lock_kprobes() and
-release this lock i.e unlock_kprobes() when we are done with single stepping
+> Yes, this is a kludge, I realize that. The AML code was not there so far
+> (it will be in the next one). I have a point here though that if the
+> processor is there, but is unusable (what "disabled" means as the ACPI
+> spec says), meaning bad maybe, then with physical hot plug it can
+> certainly be made usable and I think it should be taken into
+> consideration (and into configuration). It should be counted as possible
+> at least, with hot plug, because it represent existing socket. 
 
-> 
-> >  void __kprobes lock_kprobes(void)
-> >  {
-> > +	unsigned long flags = 0;
-> > +
-> > +	local_irq_save(flags);
-> >  	spin_lock(&kprobe_lock);
-> >  	kprobe_cpu = smp_processor_id();
-> > + 	local_irq_restore(flags);
-> >  }
-> 
-> what is this change trying to do?  If a lock is taken from both process and
-> irq contexts then local IRQs must be disabled for the entire period when the
-> lock is held, not just for a little blip like this.  If IRQ-context code is
-> running this function then the code is deadlockable.
 
-In the kprobe exception handling we relay on kprobe_cpu = smp_processor_id() to determine
-whether we are inside the kprobe or not. It was so happeing that when we
-take the lock and before kprobe_cpu gets updated if an H/W interrupt happens
-and if kprobe is enabled on ISR routine, then in the kprobe execption handler
-for isr, we miss the indication that we are already in kprobes(since interrupt
-happened before we get to update kprobe_cpu) and we were trying to 
-take the lock again and there by causing the deadlock. This deadlock is avoided
-by disabling the ISR for a short period while we take the spin_lock() and update
-the kprobe_cpu.
+I think marking it as present, and considering in cpu_possible_map is perfectly
+ok. But we would need more glue logic, that is if firmware marked it as 
+disabled, then one would expect you then run _STA and find that the CPU
+is now present and functional as reported by _STA, then the CPU is onlinable.
 
-> 
-> Now, probably there's deep magic happening here and I'm wrong.  If so then
-> please explain the code's magic via a comment patch so the question doesn't
-> arise again, thanks.
+So if _STA can work favorably in your case you can use it to override the 
+disabled setting at boot time which would be prefectly fine.
 > 
 
-This whole serialization will go away when we introduce the scalability patch.
-
--Anil
+-- 
+Cheers,
+Ashok Raj
+- Open Source Technology Center

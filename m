@@ -1,73 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030453AbVIAWUZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030456AbVIAWVh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030453AbVIAWUZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 18:20:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030455AbVIAWUZ
+	id S1030456AbVIAWVh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 18:21:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030461AbVIAWVh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 18:20:25 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:58006 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030453AbVIAWUX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 18:20:23 -0400
-Date: Thu, 1 Sep 2005 15:22:37 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Marco Perosa <marco.perosa@poste.it>
-Cc: linux-kernel@vger.kernel.org, Neil Horman <nhorman@redhat.com>
-Subject: Re: 2.6.13-mm1 - MAKEDEV - /proc/devices
-Message-Id: <20050901152237.23f62e71.akpm@osdl.org>
-In-Reply-To: <20050901204555.10b32a42.marco.perosa@poste.it>
-References: <20050901204555.10b32a42.marco.perosa@poste.it>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Thu, 1 Sep 2005 18:21:37 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:51448 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S1030456AbVIAWVg convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 18:21:36 -0400
+Subject: Re: [PATCH 2.6.13] Unhandled error condition in aic79xx
+From: Daniel Walker <dwalker@mvista.com>
+Reply-To: dwalker@mvista.com
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, jirislaby@gmail.com
+In-Reply-To: <20050901201029.GA10893@mipter.zuzino.mipt.ru>
+References: <1125603501.4867.21.camel@dhcp153.mvista.com>
+	 <20050901201029.GA10893@mipter.zuzino.mipt.ru>
+Content-Type: text/plain
+Organization: MontaVista
+Date: Thu, 01 Sep 2005 15:21:29 -0700
+Message-Id: <1125613289.16067.4.camel@dhcp153.mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marco Perosa <marco.perosa@poste.it> wrote:
->
-> Hi there,
-> I've just tried the 2.6.13-mm1 kernel,
+On Fri, 2005-09-02 at 00:10 +0400, Alexey Dobriyan wrote:
 
-Thanks for doing that.
+> I see malloc(), kernel_thread() and multiple ahd_linux_alloc_target()
+> above. Ditto for 7xxx patch.
 
-> and at the new boot i've noticed a strange stop in the init sequence.
-> Not a freeze, the system will shutdown with ctrl+alt+canc (even though it give a timeout on /dev/initctl).
-> After some tests i've figured out that the problem is in the init script /etc/init.d/makedev.
-> In fact if i run a "MAKEDEV something" in the /dev directory, i obtain the same problem.
-> When this happens, /proc/devices becomes also inacessible, and it's impossible to exec any other program that requires a new shell.
-> ps shows them ('MAKEDEV something' and 'cat /proc/devices') as D+.
-> 
-> It all works fine removing the makedev script from the init sequence, i use udev so it's not a problem at all.
-> Anyway, it should be good to figure out where's the problem, so, in the hoping that it will be useful, I enclose the config of my kernel and the kernel trace (the process is #2786).
-> 
+It looks like it's all handled inside ahd_free() . Here's the updated
+patch. Any concerns? 
 
-This:
+Signed-Off-By: Daniel Walker <dwalker@mvista.com>
 
-Sep  1 20:14:30 localhost kernel: MAKEDEV       D F56A0000     0  2786   2758                     (NOTLB)
-Sep  1 20:14:30 localhost kernel: f5553ea8 f54f8c50 c0671a20 f56a0000 c18dfa80 00000000 f5553ea4 c014cc2e 
-Sep  1 20:14:30 localhost kernel:        c18df080 f56a0000 0000006b 0003d741 62301160 00000078 f54f8c50 f54f8d78 
-Sep  1 20:14:30 localhost kernel:        f5552000 c0566020 00000246 f5553ee4 c04dc9d4 c0566028 f54f8c50 00000001 
-Sep  1 20:14:30 localhost kernel: Call Trace:
-Sep  1 20:14:30 localhost kernel:  [__down+132/320] __down+0x84/0x140
-Sep  1 20:14:30 localhost kernel:  [__sched_text_start+10/16] __down_failed+0xa/0x10
-Sep  1 20:14:30 localhost kernel:  [.text.lock.char_dev+11/121] .text.lock.char_dev+0xb/0x79
-Sep  1 20:14:30 localhost kernel:  [devinfo_start+103/176] devinfo_start+0x67/0xb0
-Sep  1 20:14:30 localhost kernel:  [traverse+112/432] traverse+0x70/0x1b0
-Sep  1 20:14:30 localhost kernel:  [seq_lseek+168/288] seq_lseek+0xa8/0x120
-Sep  1 20:14:30 localhost kernel:  [vfs_llseek+74/80] vfs_llseek+0x4a/0x50
-Sep  1 20:14:30 localhost kernel:  [sys_llseek+83/176] sys_llseek+0x53/0xb0
-Sep  1 20:14:30 localhost kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-Sep  1 20:14:30 localhost kernel: ---------------------------
-Sep  1 20:14:30 localhost kernel: | preempt count: 00000002 ]
-Sep  1 20:14:30 localhost kernel: | 2 level deep critical section nesting:
-Sep  1 20:14:30 localhost kernel: ----------------------------------------
+Index: linux-2.6.13/drivers/scsi/aic7xxx/aic79xx_osm.c
+===================================================================
+--- linux-2.6.13.orig/drivers/scsi/aic7xxx/aic79xx_osm.c	2005-08-28 23:41:01.000000000 +0000
++++ linux-2.6.13/drivers/scsi/aic7xxx/aic79xx_osm.c	2005-09-01 22:16:10.000000000 +0000
+@@ -1989,6 +1989,7 @@ ahd_linux_register_host(struct ahd_softc
+ 	char	*new_name;
+ 	u_long	s;
+ 	u_long	target;
++	int error = 0;
+ 
+ 	template->name = ahd->description;
+ 	host = scsi_host_alloc(template, sizeof(struct ahd_softc *));
+@@ -2064,10 +2065,14 @@ ahd_linux_register_host(struct ahd_softc
+ 	ahd_linux_start_dv(ahd);
+ 	ahd_unlock(ahd, &s);
+ 
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
+-	scsi_add_host(host, &ahd->dev_softc->dev); /* XXX handle failure */
++	error = scsi_add_host(host, &ahd->dev_softc->dev); 
++	if (error) {
++		ahd_free(ahd);
++		scsi_host_put(host);
++		return error;
++	}
+ 	scsi_scan_host(host);
+-#endif
++
+ 	return (0);
+ }
+ 
+c link
+
+aph
+
+ÐhÝ)
 
-I'd assume that convert-proc-devices-to-use-seq_file-interface.patch got
-confused and failed to release chrdevs_lock.  That
 
-	(info->cur_record >= info->num_records)
 
-in devinfo_stop() looks fishy.
 
-Over to you, Neil...
+
+ph
+
+D
+ 
+Öc link
+
+
+ë
+;
+
+h@ 
+c link
+
+
+
+dw
+
+Èë
+===h
+
+h@ 
+

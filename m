@@ -1,2772 +1,2951 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965009AbVIAAq6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965011AbVIABAn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965009AbVIAAq6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 20:46:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965011AbVIAAq5
+	id S965011AbVIABAn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 21:00:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965012AbVIABAm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 20:46:57 -0400
-Received: from moutng.kundenserver.de ([212.227.126.188]:2518 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S965009AbVIAAq4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 20:46:56 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: linuxppc64-dev@ozlabs.org
-Subject: [PATCH,RFC] Move Cell platform code to arch/powerpc
-Date: Thu, 1 Sep 2005 02:47:06 +0200
-User-Agent: KMail/1.7.2
-Cc: Paul Mackerras <paulus@samba.org>, Stephen Rothwell <sfr@canb.auug.org.au>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>,
-       Kumar Gala <kumar.gala@freescale.com>, akpm@osdl.org
+	Wed, 31 Aug 2005 21:00:42 -0400
+Received: from mail0.lsil.com ([147.145.40.20]:24248 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S965010AbVIABAk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Aug 2005 21:00:40 -0400
+Message-ID: <0E3FA95632D6D047BA649F95DAB60E57060CD127@exa-atlanta>
+From: "Bagalkote, Sreenivas" <sreenib@lsil.com>
+To: "'Christoph Hellwig'" <hch@lst.de>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
+       "'James Bottomley'" <James.Bottomley@SteelEye.com>,
+       Andrew Morton <akpm@osdl.org>,
+       "'Matt_Domsch@Dell.com'" <Matt_Domsch@Dell.com>,
+       "Patro, Sumant" <sumantp@COS1.co.lsil.com>,
+       "Kolli, Neela Syam" <knsyam@lsil.com>
+Subject: FW: [Fwd: Re: [PATCH scsi-misc 2/2] megaraid_sas: LSI Logic MegaR
+	AID SAS RA ID D river]
+Date: Wed, 31 Aug 2005 21:00:06 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509010247.07399.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
+X-Mailer: Internet Mail Service (5.5.2658.27)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Move all files from arch/ppc64/kernel/bpa_* to arch/powerpc/platforms/cell,
+> Looks pretty good to me.  Small issues I've identified:
+> 
+>  - what do you need the hba_count attribute for?  This should be
+>    implementable in userspace pretty easily by iterating of all
+>    devices of the scsi_host class that are attached to the driver
+>  - the ->queuecommand cleanup patch I sent you a awhile ago doesn't
+>    seem to be applied
+>  - there's quite a lot of slightly odd formating, it would be nice
+>    if you could run the code through scripts/Lindent.
+> 
+> If you could sent out an unmangled patch (even as attachment or on
+> LSI's ftp side) I'd like to take another, closer look.
 
-I would like to see a patch like this go into 2.6.14, for multiple reasons:
+Contd. from prev mail
 
-- The marketing folks have changed the names and we are no longer supposed
-  to refer to Cell as 'BPA' or 'Broadband Processor Architecture'.
-  The platform is officially known as 'Cell Broadband Engine Architecture',
-  while the CPU is the 'Cell Broadband Engine'.
+Patch 2 of 2
+Signed-off-by: Sreenivas Bagalkote <Sreenivas.Bagalkote@lsil.com>
+-----------------------
 
-- We are now moving all platforms into arch/powerpc/platforms and someone
-  has to start so we get a template for the other architectures to follow.
-
-- It would be a big mess for me to maintain my own patches on top of file
-  names that are different from mainline during the 2.6.14 freeze.
-
-My impression is that Cell is a good target for moving first, because I
-have to move it anyway and the number of users is extremely low, so it
-doesn't cause too much harm if we screw up. What thing that makes moving
-Cell relatively easy is that it only supports 64 bit and only a single
-hardware configuration so far.
-
-I have tested this a bit on Cell and also done compile-only test for the
-other platforms, but it doesn't really make any changes to the code itself.
-
-Please comment on wether this is what everybody like the merge process
-be like.
-
-Signed-off-by: Arnd Bergmann <arndb@de.ibm.com>
-
---
- arch/powerpc/platforms/cell/Makefile     |    1
- arch/ppc64/kernel/Makefile               |    5
- arch/powerpc/platforms/cell/pic.c        |  269 ++++++++++++++++++++++
- arch/ppc64/kernel/bpa_iic.c              |  270 ----------------------
- include/asm-powerpc/cell-pic.h           |   62 +++++
- arch/ppc64/kernel/bpa_iic.h              |   62 -----
- arch/powerpc/platforms/cell/iommu.c      |  377 +++++++++++++++++++++++++++++++
- arch/ppc64/kernel/bpa_iommu.c            |  377 -------------------------------
- arch/powerpc/platforms/cell/iommu.h      |   65 +++++
- arch/ppc64/kernel/bpa_iommu.h            |   65 -----
- arch/powerpc/platforms/cell/nvram.c      |  118 +++++++++
- arch/ppc64/kernel/bpa_nvram.c            |  118 ---------
- arch/powerpc/platforms/cell/setup.c      |  138 +++++++++++
- arch/ppc64/kernel/bpa_setup.c            |  140 -----------
- arch/powerpc/platforms/cell/spider-pic.c |  190 +++++++++++++++
- arch/ppc64/kernel/spider-pic.c           |  191 ---------------
- arch/ppc64/Kconfig                       |   10
- arch/ppc64/kernel/cpu_setup_power4.S     |    2
- arch/ppc64/kernel/cputable.c             |    6
- arch/ppc64/kernel/irq.c                  |    2
- arch/ppc64/kernel/pSeries_smp.c          |    4
- arch/ppc64/kernel/setup.c                |    8
- arch/ppc64/kernel/traps.c                |    4
- include/asm-ppc64/nvram.h                |    2
- include/asm-ppc64/processor.h            |    7
- 25 files changed, 1248 insertions(+), 1245 deletions(-)
-
---- linux-cg.orig/arch/powerpc/platforms/cell/Makefile	1969-12-31 19:00:00.000000000 -0500
-+++ linux-cg/arch/powerpc/platforms/cell/Makefile	2005-09-01 02:37:46.074992344 -0400
-@@ -0,0 +1 @@
-+obj-y += iommu.o nvram.o setup.o pic.o spider-pic.o
---- linux-cg.orig/arch/powerpc/platforms/cell/iommu.c	1969-12-31 19:00:00.000000000 -0500
-+++ linux-cg/arch/powerpc/platforms/cell/iommu.c	2005-09-01 02:37:46.076992040 -0400
-@@ -0,0 +1,377 @@
+diff -Naur scsi_misc-b/drivers/scsi/megaraid/megaraid_sas.c
+scsi_misc-c/drivers/scsi/megaraid/megaraid_sas.c
+--- scsi_misc-b/drivers/scsi/megaraid/megaraid_sas.c	1969-12-31
+19:00:00.000000000 -0500
++++ scsi_misc-c/drivers/scsi/megaraid/megaraid_sas.c	2005-08-31
+19:39:55.001126424 -0400
+@@ -0,0 +1,2800 @@
 +/*
-+ * IOMMU implementation for Cell Broadband Engine
 + *
-+ * We just establish a linear mapping at boot by setting all the
-+ * IOPT cache entries in the CPU.
-+ * The mapping functions should be identical to pci_direct_iommu, 
-+ * except for the handling of the high order bit that is required
-+ * by the Spider bridge. These should be split into a separate
-+ * file at the point where we get a different bridge chip.
++ *		Linux MegaRAID driver for SAS based RAID controllers
 + *
-+ * Copyright (C) 2005 IBM Deutschland Entwicklung GmbH,
-+ *			 Arnd Bergmann <arndb@de.ibm.com>
++ * Copyright (c) 2003-2005  LSI Logic Corporation.
 + *
-+ * Based on linear mapping
-+ * Copyright (C) 2003 Benjamin Herrenschmidt (benh@kernel.crashing.org)
++ *	   This program is free software; you can redistribute it and/or
++ *	   modify it under the terms of the GNU General Public License
++ *	   as published by the Free Software Foundation; either version
++ *	   2 of the License, or (at your option) any later version.
 + *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the License, or (at your option) any later version.
++ * FILE		: megaraid_sas.c
++ * Version	: v00.00.02.00-rc1
++ *
++ * Authors:
++ * 	Sreenivas Bagalkote	<Sreenivas.Bagalkote@lsil.com>
++ * 	Sumant Patro		<Sumant.Patro@lsil.com>
++ *
++ * List of supported controllers
++ *
++ * OEM	Product Name			VID	DID	SSVID	SSID
++ * ---	------------			---	---	----	----
 + */
 +
-+#undef DEBUG
-+
 +#include <linux/kernel.h>
++#include <linux/types.h>
 +#include <linux/pci.h>
++#include <linux/list.h>
++#include <linux/version.h>
++#include <linux/moduleparam.h>
++#include <linux/module.h>
++#include <linux/spinlock.h>
++#include <linux/interrupt.h>
 +#include <linux/delay.h>
-+#include <linux/string.h>
-+#include <linux/init.h>
-+#include <linux/bootmem.h>
-+#include <linux/mm.h>
-+#include <linux/dma-mapping.h>
++#include <linux/uio.h>
++#include <asm/uaccess.h>
 +
-+#include <asm/sections.h>
-+#include <asm/iommu.h>
-+#include <asm/io.h>
-+#include <asm/prom.h>
-+#include <asm/pci-bridge.h>
-+#include <asm/machdep.h>
-+#include <asm/pmac_feature.h>
-+#include <asm/abs_addr.h>
-+#include <asm/system.h>
++#include <scsi/scsi.h>
++#include <scsi/scsi_cmnd.h>
++#include <scsi/scsi_device.h>
++#include <scsi/scsi_host.h>
++#include "megaraid_sas.h"
 +
-+#include "iommu.h"
++MODULE_LICENSE("GPL");
++MODULE_VERSION(MEGASAS_VERSION);
++MODULE_AUTHOR("sreenivas.bagalkote@lsil.com");
++MODULE_DESCRIPTION("LSI Logic MegaRAID SAS Driver");
 +
-+static inline unsigned long 
-+get_iopt_entry(unsigned long real_address, unsigned long ioid,
-+			 unsigned long prot)
++/*
++ * PCI ID table for all supported controllers
++ */
++static struct pci_device_id megasas_pci_table[] = {
++
++	{
++	 PCI_VENDOR_ID_LSI_LOGIC,
++	 PCI_DEVICE_ID_LSI_SAS1064R,
++	 PCI_ANY_ID,
++	 PCI_ANY_ID,
++	 },
++	{
++	 PCI_VENDOR_ID_DELL,
++	 PCI_DEVICE_ID_DELL_PERC5,
++	 PCI_ANY_ID,
++	 PCI_ANY_ID,
++	 },
++	{0}			/* Terminating entry */
++};
++
++MODULE_DEVICE_TABLE(pci, megasas_pci_table);
++
++static int megasas_mgmt_majorno;
++static struct megasas_mgmt_info megasas_mgmt_info;
++static struct fasync_struct *megasas_async_queue;
++static DECLARE_MUTEX(megasas_async_queue_mutex);
++
++/**
++ * megasas_get_cmd -	Get a command from the free pool
++ * @instance:		Adapter soft state
++ *
++ * Returns a free command from the pool
++ */
++static inline struct megasas_cmd *megasas_get_cmd(struct megasas_instance
++						  *instance)
 +{
-+	return (prot & IOPT_PROT_MASK)
-+	     | (IOPT_COHERENT)
-+	     | (IOPT_ORDER_VC)
-+	     | (real_address & IOPT_RPN_MASK)
-+	     | (ioid & IOPT_IOID_MASK);
-+}
++	unsigned long flags;
++	struct megasas_cmd *cmd = NULL;
 +
-+typedef struct {
-+	unsigned long val;
-+} ioste;
++	spin_lock_irqsave(&instance->cmd_pool_lock, flags);
 +
-+static inline ioste
-+mk_ioste(unsigned long val)
-+{
-+	ioste ioste = { .val = val, };
-+	return ioste;
-+}
-+
-+static inline ioste
-+get_iost_entry(unsigned long iopt_base, unsigned long io_address, unsigned page_size)
-+{
-+	unsigned long ps;
-+	unsigned long iostep;
-+	unsigned long nnpt;
-+	unsigned long shift;
-+
-+	switch (page_size) {
-+	case 0x1000000:
-+		ps = IOST_PS_16M;
-+		nnpt = 0;  /* one page per segment */
-+		shift = 5; /* segment has 16 iopt entries */
-+		break;
-+
-+	case 0x100000:
-+		ps = IOST_PS_1M;
-+		nnpt = 0;  /* one page per segment */
-+		shift = 1; /* segment has 256 iopt entries */
-+		break;
-+
-+	case 0x10000:
-+		ps = IOST_PS_64K;
-+		nnpt = 0x07; /* 8 pages per io page table */
-+		shift = 0;   /* all entries are used */
-+		break;
-+
-+	case 0x1000:
-+		ps = IOST_PS_4K;
-+		nnpt = 0x7f; /* 128 pages per io page table */
-+		shift = 0;   /* all entries are used */
-+		break;
-+
-+	default: /* not a known compile time constant */
-+		BUILD_BUG_ON(1);
-+		break;
++	if (!list_empty(&instance->cmd_pool)) {
++		cmd = list_entry((&instance->cmd_pool)->next,
++				 struct megasas_cmd, list);
++		list_del_init(&cmd->list);
++	} else {
++		printk(KERN_ERR "megasas: Command pool empty!\n");
 +	}
 +
-+	iostep = iopt_base +
-+			 /* need 8 bytes per iopte */
-+			(((io_address / page_size * 8)
-+			 /* align io page tables on 4k page boundaries */
-+				 << shift) 
-+			 /* nnpt+1 pages go into each iopt */
-+				 & ~(nnpt << 12));
-+
-+	nnpt++; /* this seems to work, but the documentation is not clear
-+		   about wether we put nnpt or nnpt-1 into the ioste bits.
-+		   In theory, this can't work for 4k pages. */
-+	return mk_ioste(IOST_VALID_MASK
-+			| (iostep & IOST_PT_BASE_MASK)
-+			| ((nnpt << 5) & IOST_NNPT_MASK)
-+			| (ps & IOST_PS_MASK));
++	spin_unlock_irqrestore(&instance->cmd_pool_lock, flags);
++	return cmd;
 +}
 +
-+/* compute the address of an io pte */
-+static inline unsigned long
-+get_ioptep(ioste iost_entry, unsigned long io_address)
-+{
-+	unsigned long iopt_base;
-+	unsigned long page_size;
-+	unsigned long page_number;
-+	unsigned long iopt_offset;
-+
-+	iopt_base = iost_entry.val & IOST_PT_BASE_MASK;
-+	page_size = iost_entry.val & IOST_PS_MASK;
-+
-+	/* decode page size to compute page number */
-+	page_number = (io_address & 0x0fffffff) >> (10 + 2 * page_size);
-+	/* page number is an offset into the io page table */
-+	iopt_offset = (page_number << 3) & 0x7fff8ul;
-+	return iopt_base + iopt_offset;
-+}
-+
-+/* compute the tag field of the iopt cache entry */
-+static inline unsigned long
-+get_ioc_tag(ioste iost_entry, unsigned long io_address)
-+{
-+	unsigned long iopte = get_ioptep(iost_entry, io_address);
-+
-+	return IOPT_VALID_MASK
-+	     | ((iopte & 0x00000000000000ff8ul) >> 3)
-+	     | ((iopte & 0x0000003fffffc0000ul) >> 9);
-+}
-+
-+/* compute the hashed 6 bit index for the 4-way associative pte cache */
-+static inline unsigned long
-+get_ioc_hash(ioste iost_entry, unsigned long io_address)
-+{
-+	unsigned long iopte = get_ioptep(iost_entry, io_address);
-+
-+	return ((iopte & 0x000000000000001f8ul) >> 3)
-+	     ^ ((iopte & 0x00000000000020000ul) >> 17)
-+	     ^ ((iopte & 0x00000000000010000ul) >> 15)
-+	     ^ ((iopte & 0x00000000000008000ul) >> 13)
-+	     ^ ((iopte & 0x00000000000004000ul) >> 11)
-+	     ^ ((iopte & 0x00000000000002000ul) >> 9)
-+	     ^ ((iopte & 0x00000000000001000ul) >> 7);
-+}
-+
-+/* same as above, but pretend that we have a simpler 1-way associative
-+   pte cache with an 8 bit index */
-+static inline unsigned long
-+get_ioc_hash_1way(ioste iost_entry, unsigned long io_address)
-+{
-+	unsigned long iopte = get_ioptep(iost_entry, io_address);
-+
-+	return ((iopte & 0x000000000000001f8ul) >> 3)
-+	     ^ ((iopte & 0x00000000000020000ul) >> 17)
-+	     ^ ((iopte & 0x00000000000010000ul) >> 15)
-+	     ^ ((iopte & 0x00000000000008000ul) >> 13)
-+	     ^ ((iopte & 0x00000000000004000ul) >> 11)
-+	     ^ ((iopte & 0x00000000000002000ul) >> 9)
-+	     ^ ((iopte & 0x00000000000001000ul) >> 7)
-+	     ^ ((iopte & 0x0000000000000c000ul) >> 8);
-+}
-+
-+static inline ioste
-+get_iost_cache(void __iomem *base, unsigned long index)
-+{
-+	unsigned long __iomem *p = (base + IOC_ST_CACHE_DIR);
-+	return mk_ioste(in_be64(&p[index]));
-+}
-+
++/**
++ * megasas_return_cmd -	Return a cmd to free command pool
++ * @instance:		Adapter soft state
++ * @cmd:		Command packet to be returned to free command pool
++ */
 +static inline void
-+set_iost_cache(void __iomem *base, unsigned long index, ioste ste)
++megasas_return_cmd(struct megasas_instance *instance, struct megasas_cmd
+*cmd)
 +{
-+	unsigned long __iomem *p = (base + IOC_ST_CACHE_DIR);
-+	pr_debug("ioste %02lx was %016lx, store %016lx", index,
-+			get_iost_cache(base, index).val, ste.val);
-+	out_be64(&p[index], ste.val);
-+	pr_debug(" now %016lx\n", get_iost_cache(base, index).val);
++	unsigned long flags;
++
++	spin_lock_irqsave(&instance->cmd_pool_lock, flags);
++
++	cmd->scmd = NULL;
++	list_add_tail(&cmd->list, &instance->cmd_pool);
++
++	spin_unlock_irqrestore(&instance->cmd_pool_lock, flags);
 +}
 +
-+static inline unsigned long
-+get_iopt_cache(void __iomem *base, unsigned long index, unsigned long *tag)
-+{
-+	unsigned long __iomem *tags = (void *)(base + IOC_PT_CACHE_DIR);
-+	unsigned long __iomem *p = (void *)(base + IOC_PT_CACHE_REG);	
-+
-+	*tag = tags[index];
-+	rmb();
-+	return *p;
-+}
-+
++/**
++ * megasas_enable_intr -	Enables interrupts
++ * @regs:			MFI register set
++ */
 +static inline void
-+set_iopt_cache(void __iomem *base, unsigned long index,
-+		 unsigned long tag, unsigned long val)
++megasas_enable_intr(struct megasas_register_set __iomem * regs)
 +{
-+	unsigned long __iomem *tags = base + IOC_PT_CACHE_DIR;
-+	unsigned long __iomem *p = base + IOC_PT_CACHE_REG;
-+	pr_debug("iopt %02lx was v%016lx/t%016lx, store v%016lx/t%016lx\n",
-+		index, get_iopt_cache(base, index, &oldtag), oldtag, val, tag);
++	writel(1, &(regs)->outbound_intr_mask);
 +
-+	out_be64(p, val);
-+	out_be64(&tags[index], tag);
++	/* Dummy readl to force pci flush */
++	readl(&regs->outbound_intr_mask);
 +}
 +
++/**
++ * megasas_disable_intr -	Disables interrupts
++ * @regs:			MFI register set
++ */
 +static inline void
-+set_iost_origin(void __iomem *base)
++megasas_disable_intr(struct megasas_register_set __iomem * regs)
 +{
-+	unsigned long __iomem *p = base + IOC_ST_ORIGIN;
-+	unsigned long origin = IOSTO_ENABLE | IOSTO_SW;
++	u32 mask = readl(&regs->outbound_intr_mask) & (~0x00000001);
++	writel(mask, &regs->outbound_intr_mask);
 +
-+	pr_debug("iost_origin %016lx, now %016lx\n", in_be64(p), origin);
-+	out_be64(p, origin);
++	/* Dummy readl to force pci flush */
++	readl(&regs->outbound_intr_mask);
 +}
 +
-+static inline void
-+set_iocmd_config(void __iomem *base)
-+{
-+	unsigned long __iomem *p = base + 0xc00;
-+	unsigned long conf;
-+
-+	conf = in_be64(p);
-+	pr_debug("iost_conf %016lx, now %016lx\n", conf, conf | IOCMD_CONF_TE);
-+	out_be64(p, conf | IOCMD_CONF_TE);
-+}
-+
-+/* FIXME: get these from the device tree */
-+#define ioc_base	0x20000511000ull
-+#define ioc_mmio_base	0x20000510000ull
-+#define ioid		0x48a
-+#define iopt_phys_offset (- 0x20000000) /* We have a 512MB offset from the SB */
-+#define io_page_size	0x1000000
-+
-+static unsigned long map_iopt_entry(unsigned long address)
-+{
-+	switch (address >> 20) {
-+	case 0x600:
-+		address = 0x24020000000ull; /* spider i/o */
-+		break;
-+	default:
-+		address += iopt_phys_offset;
-+		break;
-+	}
-+
-+	return get_iopt_entry(address, ioid, IOPT_PROT_RW);
-+}
-+
-+static void iommu_bus_setup_null(struct pci_bus *b) { }
-+static void iommu_dev_setup_null(struct pci_dev *d) { }
-+
-+/* initialize the iommu to support a simple linear mapping
-+ * for each DMA window used by any device. For now, we
-+ * happen to know that there is only one DMA window in use,
-+ * starting at iopt_phys_offset. */
-+static void cell_map_iommu(void)
-+{
-+	unsigned long address;
-+	void __iomem *base;
-+	ioste ioste;
-+	unsigned long index;
-+
-+	base = __ioremap(ioc_base, 0x1000, _PAGE_NO_CACHE);
-+	pr_debug("%lx mapped to %p\n", ioc_base, base);
-+	set_iocmd_config(base);
-+	iounmap(base);
-+
-+	base = __ioremap(ioc_mmio_base, 0x1000, _PAGE_NO_CACHE);
-+	pr_debug("%lx mapped to %p\n", ioc_mmio_base, base);
-+
-+	set_iost_origin(base);
-+
-+	for (address = 0; address < 0x100000000ul; address += io_page_size) {
-+		ioste = get_iost_entry(0x10000000000ul, address, io_page_size);
-+		if ((address & 0xfffffff) == 0) /* segment start */
-+			set_iost_cache(base, address >> 28, ioste);
-+		index = get_ioc_hash_1way(ioste, address);
-+		pr_debug("addr %08lx, index %02lx, ioste %016lx\n",
-+					 address, index, ioste.val);
-+		set_iopt_cache(base,
-+			get_ioc_hash_1way(ioste, address),
-+			get_ioc_tag(ioste, address),
-+			map_iopt_entry(address));
-+	}
-+	iounmap(base);
-+}
-+
-+
-+static void *cell_alloc_coherent(struct device *hwdev, size_t size,
-+			   dma_addr_t *dma_handle, unsigned int __nocast flag)
-+{
-+	void *ret;
-+
-+	ret = (void *)__get_free_pages(flag, get_order(size));
-+	if (ret != NULL) {
-+		memset(ret, 0, size);
-+		*dma_handle = virt_to_abs(ret) | CELL_DMA_VALID;
-+	}
-+	return ret;
-+}
-+
-+static void cell_free_coherent(struct device *hwdev, size_t size,
-+				 void *vaddr, dma_addr_t dma_handle)
-+{
-+	free_pages((unsigned long)vaddr, get_order(size));
-+}
-+
-+static dma_addr_t cell_map_single(struct device *hwdev, void *ptr,
-+		size_t size, enum dma_data_direction direction)
-+{
-+	return virt_to_abs(ptr) | CELL_DMA_VALID;
-+}
-+
-+static void cell_unmap_single(struct device *hwdev, dma_addr_t dma_addr,
-+		size_t size, enum dma_data_direction direction)
-+{
-+}
-+
-+static int cell_map_sg(struct device *hwdev, struct scatterlist *sg,
-+		int nents, enum dma_data_direction direction)
++/**
++ * megasas_issue_polled -	Issues a polling command
++ * @instance:			Adapter soft state
++ * @cmd:			Command packet to be issued 
++ *
++ * For polling, MFI requires the cmd_status to be set to 0xFF before
+posting.
++ */
++static int
++megasas_issue_polled(struct megasas_instance *instance, struct megasas_cmd
+*cmd)
 +{
 +	int i;
++	u32 msecs = MFI_POLL_TIMEOUT_SECS * 1000;
 +
-+	for (i = 0; i < nents; i++, sg++) {
-+		sg->dma_address = (page_to_phys(sg->page) + sg->offset)
-+					| CELL_DMA_VALID;
-+		sg->dma_length = sg->length;
++	struct megasas_header *frame_hdr = &cmd->frame->hdr;
++
++	frame_hdr->cmd_status = 0xFF;
++	frame_hdr->flags |= MFI_FRAME_DONT_POST_IN_REPLY_QUEUE;
++
++	/*
++	 * Issue the frame using inbound queue port
++	 */
++	writel(cmd->frame_phys_addr >> 3,
++	       &instance->reg_set->inbound_queue_port);
++
++	/*
++	 * Wait for cmd_status to change
++	 */
++	for (i = 0; (i < msecs) && (frame_hdr->cmd_status == 0xff); i++) {
++		rmb();
++		msleep(1);
 +	}
 +
-+	return nents;
-+}
++	if (frame_hdr->cmd_status == 0xff)
++		return -ETIME;
 +
-+static void cell_unmap_sg(struct device *hwdev, struct scatterlist *sg,
-+		int nents, enum dma_data_direction direction)
-+{
-+}
-+
-+static int cell_dma_supported(struct device *dev, u64 mask)
-+{
-+	return mask < 0x100000000ull;
-+}
-+
-+void cell_init_iommu(void)
-+{
-+	cell_map_iommu();
-+
-+	/* Direct I/O, IOMMU off */
-+	ppc_md.iommu_dev_setup = iommu_dev_setup_null;
-+	ppc_md.iommu_bus_setup = iommu_bus_setup_null;
-+
-+	pci_dma_ops.alloc_coherent = cell_alloc_coherent;
-+	pci_dma_ops.free_coherent = cell_free_coherent;
-+	pci_dma_ops.map_single = cell_map_single;
-+	pci_dma_ops.unmap_single = cell_unmap_single;
-+	pci_dma_ops.map_sg = cell_map_sg;
-+	pci_dma_ops.unmap_sg = cell_unmap_sg;
-+	pci_dma_ops.dma_supported = cell_dma_supported;
-+}
---- linux-cg.orig/arch/powerpc/platforms/cell/iommu.h	1969-12-31 19:00:00.000000000 -0500
-+++ linux-cg/arch/powerpc/platforms/cell/iommu.h	2005-09-01 02:37:46.077991888 -0400
-@@ -0,0 +1,65 @@
-+#ifndef CELL_IOMMU_H
-+#define CELL_IOMMU_H
-+
-+/* some constants */
-+enum {
-+	/* segment table entries */
-+	IOST_VALID_MASK	  = 0x8000000000000000ul,
-+	IOST_TAG_MASK     = 0x3000000000000000ul,
-+	IOST_PT_BASE_MASK = 0x000003fffffff000ul,
-+	IOST_NNPT_MASK	  = 0x0000000000000fe0ul,
-+	IOST_PS_MASK	  = 0x000000000000000ful,
-+
-+	IOST_PS_4K	  = 0x1,
-+	IOST_PS_64K	  = 0x3,
-+	IOST_PS_1M	  = 0x5,
-+	IOST_PS_16M	  = 0x7,
-+
-+	/* iopt tag register */
-+	IOPT_VALID_MASK   = 0x0000000200000000ul,
-+	IOPT_TAG_MASK	  = 0x00000001fffffffful,
-+
-+	/* iopt cache register */
-+	IOPT_PROT_MASK	  = 0xc000000000000000ul,
-+	IOPT_PROT_NONE	  = 0x0000000000000000ul,
-+	IOPT_PROT_READ	  = 0x4000000000000000ul,
-+	IOPT_PROT_WRITE	  = 0x8000000000000000ul,
-+	IOPT_PROT_RW	  = 0xc000000000000000ul,
-+	IOPT_COHERENT	  = 0x2000000000000000ul,
-+	
-+	IOPT_ORDER_MASK	  = 0x1800000000000000ul,
-+	/* order access to same IOID/VC on same address */
-+	IOPT_ORDER_ADDR	  = 0x0800000000000000ul,
-+	/* similar, but only after a write access */
-+	IOPT_ORDER_WRITES = 0x1000000000000000ul,
-+	/* Order all accesses to same IOID/VC */
-+	IOPT_ORDER_VC	  = 0x1800000000000000ul,
-+	
-+	IOPT_RPN_MASK	  = 0x000003fffffff000ul,
-+	IOPT_HINT_MASK	  = 0x0000000000000800ul,
-+	IOPT_IOID_MASK	  = 0x00000000000007fful,
-+
-+	IOSTO_ENABLE	  = 0x8000000000000000ul,
-+	IOSTO_ORIGIN	  = 0x000003fffffff000ul,
-+	IOSTO_HW	  = 0x0000000000000800ul,
-+	IOSTO_SW	  = 0x0000000000000400ul,
-+
-+	IOCMD_CONF_TE	  = 0x0000800000000000ul,
-+
-+	/* memory mapped registers */
-+	IOC_PT_CACHE_DIR  = 0x000,
-+	IOC_ST_CACHE_DIR  = 0x800,
-+	IOC_PT_CACHE_REG  = 0x910,
-+	IOC_ST_ORIGIN     = 0x918,
-+	IOC_CONF	  = 0x930,
-+
-+	/* The high bit needs to be set on every DMA address,
-+	   only 2GB are addressable */
-+	CELL_DMA_VALID	  = 0x80000000,
-+	CELL_DMA_MASK	  = 0x7fffffff,
-+};
-+
-+
-+void cell_init_iommu(void);
-+
-+#endif
---- linux-cg.orig/arch/powerpc/platforms/cell/nvram.c	1969-12-31 19:00:00.000000000 -0500
-+++ linux-cg/arch/powerpc/platforms/cell/nvram.c	2005-09-01 02:37:46.077991888 -0400
-@@ -0,0 +1,118 @@
-+/*
-+ * NVRAM for Cell Blade
-+ *
-+ * (C) Copyright IBM Corp. 2005
-+ *
-+ * Authors : Utz Bacher <utz.bacher@de.ibm.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2, or (at your option)
-+ * any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ */
-+
-+#include <linux/fs.h>
-+#include <linux/init.h>
-+#include <linux/kernel.h>
-+#include <linux/spinlock.h>
-+#include <linux/types.h>
-+
-+#include <asm/machdep.h>
-+#include <asm/nvram.h>
-+#include <asm/prom.h>
-+
-+static void __iomem *cell_nvram_start;
-+static long cell_nvram_len;
-+static spinlock_t cell_nvram_lock = SPIN_LOCK_UNLOCKED;
-+
-+static ssize_t cell_nvram_read(char *buf, size_t count, loff_t *index)
-+{
-+	unsigned long flags;
-+
-+	if (*index >= cell_nvram_len)
-+		return 0;
-+	if (*index + count > cell_nvram_len)
-+		count = cell_nvram_len - *index;
-+
-+	spin_lock_irqsave(&cell_nvram_lock, flags);
-+
-+	memcpy_fromio(buf, cell_nvram_start + *index, count);
-+
-+	spin_unlock_irqrestore(&cell_nvram_lock, flags);
-+	
-+	*index += count;
-+	return count;
-+}
-+
-+static ssize_t cell_nvram_write(char *buf, size_t count, loff_t *index)
-+{
-+	unsigned long flags;
-+
-+	if (*index >= cell_nvram_len)
-+		return 0;
-+	if (*index + count > cell_nvram_len)
-+		count = cell_nvram_len - *index;
-+
-+	spin_lock_irqsave(&cell_nvram_lock, flags);
-+
-+	memcpy_toio(cell_nvram_start + *index, buf, count);
-+
-+	spin_unlock_irqrestore(&cell_nvram_lock, flags);
-+	
-+	*index += count;
-+	return count;
-+}
-+
-+static ssize_t cell_nvram_get_size(void)
-+{
-+	return cell_nvram_len;
-+}
-+
-+int __init cell_nvram_init(void)
-+{
-+	struct device_node *nvram_node;
-+	unsigned long *buffer;
-+	int proplen;
-+	unsigned long nvram_addr;
-+	int ret;
-+
-+	ret = -ENODEV;
-+	nvram_node = of_find_node_by_type(NULL, "nvram");
-+	if (!nvram_node)
-+		goto out;
-+
-+	ret = -EIO;
-+	buffer = (unsigned long *)get_property(nvram_node, "reg", &proplen);
-+	if (proplen != 2*sizeof(unsigned long))
-+		goto out;
-+
-+	ret = -ENODEV;
-+	nvram_addr = buffer[0];
-+	cell_nvram_len = buffer[1];
-+	if ( (!cell_nvram_len) || (!nvram_addr) )
-+		goto out;
-+
-+	cell_nvram_start = ioremap(nvram_addr, cell_nvram_len);
-+	if (!cell_nvram_start)
-+		goto out;
-+
-+	printk(KERN_INFO "CBEA NVRAM, %luk mapped to %p\n",
-+	       cell_nvram_len >> 10, cell_nvram_start);
-+
-+	ppc_md.nvram_read	= cell_nvram_read;
-+	ppc_md.nvram_write	= cell_nvram_write;
-+	ppc_md.nvram_size	= cell_nvram_get_size;
-+
-+out:
-+	of_node_put(nvram_node);
-+	return ret;
-+}
---- linux-cg.orig/arch/powerpc/platforms/cell/pic.c	1969-12-31 19:00:00.000000000 -0500
-+++ linux-cg/arch/powerpc/platforms/cell/pic.c	2005-09-01 02:37:46.079991584 -0400
-@@ -0,0 +1,269 @@
-+/*
-+ * Cell Internal Interrupt Controller
-+ *
-+ * (C) Copyright IBM Deutschland Entwicklung GmbH 2005
-+ *
-+ * Author: Arnd Bergmann <arndb@de.ibm.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2, or (at your option)
-+ * any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/interrupt.h>
-+#include <linux/irq.h>
-+#include <linux/percpu.h>
-+#include <linux/types.h>
-+
-+#include <asm/cell-pic.h>
-+#include <asm/io.h>
-+#include <asm/pgtable.h>
-+#include <asm/prom.h>
-+#include <asm/ptrace.h>
-+
-+struct iic_pending_bits {
-+	u32 data;
-+	u8 flags;
-+	u8 class;
-+	u8 source;
-+	u8 prio;
-+};
-+
-+enum iic_pending_flags {
-+	IIC_VALID = 0x80,
-+	IIC_IPI   = 0x40,
-+};
-+
-+struct iic_regs {
-+	struct iic_pending_bits pending;
-+	struct iic_pending_bits pending_destr;
-+	u64 generate;
-+	u64 prio;
-+};
-+
-+struct iic {
-+	struct iic_regs __iomem *regs;
-+};
-+
-+static DEFINE_PER_CPU(struct iic, iic);
-+
-+void iic_local_enable(void)
-+{
-+	out_be64(&__get_cpu_var(iic).regs->prio, 0xff);
-+}
-+
-+void iic_local_disable(void)
-+{
-+	out_be64(&__get_cpu_var(iic).regs->prio, 0x0);
-+}
-+
-+static unsigned int iic_startup(unsigned int irq)
-+{
 +	return 0;
 +}
 +
-+static void iic_enable(unsigned int irq)
++/**
++ * megasas_issue_blocked_cmd -	Synchronous wrapper around regular FW cmds
++ * @instance:			Adapter soft state
++ * @cmd:			Command to be issued
++ *
++ * This function waits on an event for the command to be returned from ISR.
++ * Used to issue ioctl commands.
++ */
++static int
++megasas_issue_blocked_cmd(struct megasas_instance *instance,
++			  struct megasas_cmd *cmd)
 +{
-+	iic_local_enable();
++	cmd->cmd_status = ENODATA;
++
++	writel(cmd->frame_phys_addr >> 3,
++	       &instance->reg_set->inbound_queue_port);
++
++	wait_event(instance->int_cmd_wait_q, (cmd->cmd_status != ENODATA));
++
++	return 0;
 +}
 +
-+static void iic_disable(unsigned int irq)
++/**
++ * megasas_issue_blocked_abort_cmd -	Aborts previously issued cmd
++ * @instance:				Adapter soft state
++ * @cmd_to_abort:			Previously issued cmd to be aborted
++ *
++ * MFI firmware can abort previously issued AEN comamnd (automatic event
++ * notification). The megasas_issue_blocked_abort_cmd() issues such abort
++ * cmd and blocks till it is completed.
++ */
++static int
++megasas_issue_blocked_abort_cmd(struct megasas_instance *instance,
++				struct megasas_cmd *cmd_to_abort)
 +{
-+}
++	struct megasas_cmd *cmd;
++	struct megasas_abort_frame *abort_fr;
 +
-+static void iic_end(unsigned int irq)
-+{
-+	iic_local_enable();
-+}
++	cmd = megasas_get_cmd(instance);
 +
-+static struct hw_interrupt_type iic_pic = {
-+	.typename = " CELLPIC  ",
-+	.startup = iic_startup,
-+	.enable = iic_enable,
-+	.disable = iic_disable,
-+	.end = iic_end,
-+};
++	if (!cmd)
++		return -1;
 +
-+static int iic_external_get_irq(struct iic_pending_bits pending)
-+{
-+	int irq;
-+	unsigned char node, unit;
-+
-+	node = pending.source >> 4;
-+	unit = pending.source & 0xf;
-+	irq = -1;
++	abort_fr = &cmd->frame->abort;
 +
 +	/*
-+	 * This mapping is specific to the Broadband
-+	 * Engine. We might need to get the numbers
-+	 * from the device tree to support future CPUs.
++	 * Prepare and issue the abort frame
 +	 */
-+	switch (unit) {
-+	case 0x00:
-+	case 0x0b:
-+		/*
-+		 * One of these units can be connected
-+		 * to an external interrupt controller.
-+		 */
-+		if (pending.prio > 0x3f ||
-+		    pending.class != 2)
-+			break;
-+		irq = IIC_EXT_OFFSET
-+			+ spider_get_irq(pending.prio + node * IIC_NODE_STRIDE)
-+			+ node * IIC_NODE_STRIDE;
-+		break;
-+	case 0x01 ... 0x04:
-+	case 0x07 ... 0x0a:
-+		/*
-+		 * These units are connected to the SPEs
-+		 */
-+		if (pending.class > 2)
-+			break;
-+		irq = IIC_SPE_OFFSET
-+			+ pending.class * IIC_CLASS_STRIDE
-+			+ node * IIC_NODE_STRIDE
-+			+ unit;
-+		break;
-+	}
-+	if (irq == -1)
-+		printk(KERN_WARNING "Unexpected interrupt class %02x, "
-+			"source %02x, prio %02x, cpu %02x\n", pending.class,
-+			pending.source, pending.prio, smp_processor_id());
-+	return irq;
++	abort_fr->cmd = MFI_CMD_ABORT;
++	abort_fr->cmd_status = 0xFF;
++	abort_fr->flags = 0;
++	abort_fr->abort_context = cmd_to_abort->index;
++	abort_fr->abort_mfi_phys_addr_lo = cmd_to_abort->frame_phys_addr;
++	abort_fr->abort_mfi_phys_addr_hi = 0;
++
++	cmd->sync_cmd = 1;
++	cmd->cmd_status = 0xFF;
++
++	writel(cmd->frame_phys_addr >> 3,
++	       &instance->reg_set->inbound_queue_port);
++
++	/*
++	 * Wait for this cmd to complete
++	 */
++	wait_event(instance->abort_cmd_wait_q, (cmd->cmd_status != 0xFF));
++
++	megasas_return_cmd(instance, cmd);
++	return 0;
 +}
 +
-+/* Get an IRQ number from the pending state register of the IIC */
-+int iic_get_irq(struct pt_regs *regs)
-+{
-+	struct iic *iic;
-+	int irq;
-+	struct iic_pending_bits pending;
-+
-+	iic = &__get_cpu_var(iic);
-+	*(unsigned long *) &pending = 
-+		in_be64((unsigned long __iomem *) &iic->regs->pending_destr);
-+
-+	irq = -1;
-+	if (pending.flags & IIC_VALID) {
-+		if (pending.flags & IIC_IPI) {
-+			irq = IIC_IPI_OFFSET + (pending.prio >> 4);
-+/*
-+			if (irq > 0x80)
-+				printk(KERN_WARNING "Unexpected IPI prio %02x"
-+					"on CPU %02x\n", pending.prio,
-+							smp_processor_id());
-+*/
-+		} else {
-+			irq = iic_external_get_irq(pending);
-+		}
-+	}
-+	return irq;
-+}
-+
-+static struct iic_regs __iomem *find_iic(int cpu)
-+{
-+	struct device_node *np;
-+	int nodeid = cpu / 2;
-+	unsigned long regs;
-+	struct iic_regs __iomem *iic_regs;
-+
-+	for (np = of_find_node_by_type(NULL, "cpu");
-+	     np;
-+	     np = of_find_node_by_type(np, "cpu")) {
-+		if (nodeid == *(int *)get_property(np, "node-id", NULL))
-+			break;
-+	}
-+
-+	if (!np) {
-+		printk(KERN_WARNING "IIC: CPU %d not found\n", cpu);
-+		iic_regs = NULL;
-+	} else {
-+		regs = *(long *)get_property(np, "iic", NULL);
-+
-+		/* hack until we have decided on the devtree info */
-+		regs += 0x400;
-+		if (cpu & 1)
-+			regs += 0x20;
-+
-+		printk(KERN_DEBUG "IIC for CPU %d at %lx\n", cpu, regs);
-+		iic_regs = __ioremap(regs, sizeof(struct iic_regs),
-+						 _PAGE_NO_CACHE);
-+	}
-+	return iic_regs;
-+}
-+
-+#ifdef CONFIG_SMP
-+void iic_setup_cpu(void)
-+{
-+	out_be64(&__get_cpu_var(iic).regs->prio, 0xff);
-+}
-+
-+void iic_cause_IPI(int cpu, int mesg)
-+{
-+	out_be64(&per_cpu(iic, cpu).regs->generate, mesg);
-+}
-+
-+static irqreturn_t iic_ipi_action(int irq, void *dev_id, struct pt_regs *regs)
-+{
-+
-+	smp_message_recv(irq - IIC_IPI_OFFSET, regs);
-+	return IRQ_HANDLED;
-+}
-+
-+static void iic_request_ipi(int irq, const char *name)
-+{
-+	/* IPIs are marked SA_INTERRUPT as they must run with irqs
-+	 * disabled */
-+	get_irq_desc(irq)->handler = &iic_pic;
-+	get_irq_desc(irq)->status |= IRQ_PER_CPU;
-+	request_irq(irq, iic_ipi_action, SA_INTERRUPT, name, NULL);
-+}
-+
-+void iic_request_IPIs(void)
-+{
-+	iic_request_ipi(IIC_IPI_OFFSET + PPC_MSG_CALL_FUNCTION, "IPI-call");
-+	iic_request_ipi(IIC_IPI_OFFSET + PPC_MSG_RESCHEDULE, "IPI-resched");
-+#ifdef CONFIG_DEBUGGER
-+	iic_request_ipi(IIC_IPI_OFFSET + PPC_MSG_DEBUGGER_BREAK, "IPI-debug");
-+#endif /* CONFIG_DEBUGGER */
-+}
-+#endif /* CONFIG_SMP */
-+
-+static void iic_setup_spe_handlers(void)
-+{
-+	int be, isrc;
-+
-+	/* Assume two threads per BE are present */
-+	for (be=0; be < num_present_cpus() / 2; be++) {
-+		for (isrc = 0; isrc < IIC_CLASS_STRIDE * 3; isrc++) {
-+			int irq = IIC_NODE_STRIDE * be + IIC_SPE_OFFSET + isrc;
-+			get_irq_desc(irq)->handler = &iic_pic;
-+		}
-+	}
-+}
-+
-+void iic_init_IRQ(void)
-+{
-+	int cpu, irq_offset;
-+	struct iic *iic;
-+
-+	irq_offset = 0;
-+	for_each_cpu(cpu) {
-+		iic = &per_cpu(iic, cpu);
-+		iic->regs = find_iic(cpu);
-+		if (iic->regs)
-+			out_be64(&iic->regs->prio, 0xff);
-+	}
-+	iic_setup_spe_handlers();
-+}
---- linux-cg.orig/arch/powerpc/platforms/cell/setup.c	1969-12-31 19:00:00.000000000 -0500
-+++ linux-cg/arch/powerpc/platforms/cell/setup.c	2005-09-01 02:37:46.079991584 -0400
-@@ -0,0 +1,138 @@
-+/*
-+ *  Copyright (C) 1995  Linus Torvalds
-+ *  Adapted from 'alpha' version by Gary Thomas
-+ *  Modified by Cort Dougan (cort@cs.nmt.edu)
-+ *  Modified by PPC64 Team, IBM Corp
-+ *  Modified by Cell Team, IBM Deutschland Entwicklung GmbH
++/**
++ * megasas_make_sgl32 -	Prepares 32-bit SGL
++ * @instance:		Adapter soft state
++ * @scp:		SCSI command from the mid-layer
++ * @mfi_sgl:		SGL to be filled in
 + *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the License, or (at your option) any later version.
++ * If successful, this function returns the number of SG elements.
+Otherwise,
++ * it returnes -1.
 + */
-+#undef DEBUG
-+
-+#include <linux/config.h>
-+#include <linux/sched.h>
-+#include <linux/kernel.h>
-+#include <linux/mm.h>
-+#include <linux/stddef.h>
-+#include <linux/unistd.h>
-+#include <linux/slab.h>
-+#include <linux/user.h>
-+#include <linux/reboot.h>
-+#include <linux/init.h>
-+#include <linux/delay.h>
-+#include <linux/irq.h>
-+#include <linux/seq_file.h>
-+#include <linux/root_dev.h>
-+#include <linux/console.h>
-+
-+#include <asm/cell-pic.h>
-+#include <asm/mmu.h>
-+#include <asm/processor.h>
-+#include <asm/io.h>
-+#include <asm/pgtable.h>
-+#include <asm/prom.h>
-+#include <asm/rtas.h>
-+#include <asm/pci-bridge.h>
-+#include <asm/iommu.h>
-+#include <asm/dma.h>
-+#include <asm/machdep.h>
-+#include <asm/time.h>
-+#include <asm/nvram.h>
-+#include <asm/cputable.h>
-+
-+#include "../../../ppc64/kernel/pci.h"
-+#include "iommu.h"
-+
-+#ifdef DEBUG
-+#define DBG(fmt...) udbg_printf(fmt)
-+#else
-+#define DBG(fmt...)
-+#endif
-+
-+void cell_get_cpuinfo(struct seq_file *m)
++static inline int
++megasas_make_sgl32(struct megasas_instance *instance, struct scsi_cmnd
+*scp,
++		   union megasas_sgl *mfi_sgl)
 +{
-+	struct device_node *root;
-+	const char *model = "";
++	int i;
++	int sge_count;
++	struct scatterlist *os_sgl;
 +
-+	root = of_find_node_by_path("/");
-+	if (root)
-+		model = get_property(root, "model", NULL);
-+	seq_printf(m, "machine\t\t: Cell %s\n", model);
-+	of_node_put(root);
-+}
-+
-+static void cell_progress(char *s, unsigned short hex)
-+{
-+	printk("*** %04x : %s\n", hex, s ? s : "");
-+}
-+
-+static void __init cell_setup_arch(void)
-+{
-+	ppc_md.init_IRQ       = iic_init_IRQ;
-+	ppc_md.get_irq        = iic_get_irq;
-+
-+#ifdef CONFIG_SMP
-+	smp_init_pSeries();
-+#endif
-+
-+	/* init to some ~sane value until calibrate_delay() runs */
-+	loops_per_jiffy = 50000000;
-+
-+	if (ROOT_DEV == 0) {
-+		printk("No ramdisk, default root is /dev/hda2\n");
-+		ROOT_DEV = Root_HDA2;
-+	}
-+
-+	/* Find and initialize PCI host bridges */
-+	init_pci_config_tokens();
-+	find_and_init_phbs();
-+	spider_init_IRQ();
-+#ifdef CONFIG_DUMMY_CONSOLE
-+	conswitchp = &dummy_con;
-+#endif
-+
-+	cell_nvram_init();
-+}
-+
-+/*
-+ * Early initialization.  Relocation is on but do not reference unbolted pages
-+ */
-+static void __init cell_init_early(void)
-+{
-+	DBG(" -> cell_init_early()\n");
-+
-+	hpte_init_native();
-+
-+	cell_init_iommu();
-+
-+	ppc64_interrupt_controller = IC_CELL_PIC;
-+
-+	DBG(" <- cell_init_early()\n");
-+}
-+
-+
-+static int __init cell_probe(int platform)
-+{
-+	if (platform != PLATFORM_CELL)
++	/*
++	 * Return 0 if there is no data transfer
++	 */
++	if (!scp->request_buffer || !scp->request_bufflen)
 +		return 0;
 +
-+	return 1;
++	if (!scp->use_sg) {
++		mfi_sgl->sge32[0].phys_addr = pci_map_single(instance->pdev,
++							     scp->
++							     request_buffer,
++							     scp->
++
+request_bufflen,
++							     scp->
++
+sc_data_direction);
++		mfi_sgl->sge32[0].length = scp->request_bufflen;
++
++		return 1;
++	}
++
++	os_sgl = (struct scatterlist *)scp->request_buffer;
++	sge_count = pci_map_sg(instance->pdev, os_sgl, scp->use_sg,
++			       scp->sc_data_direction);
++
++	for (i = 0; i < sge_count; i++, os_sgl++) {
++		mfi_sgl->sge32[i].length = sg_dma_len(os_sgl);
++		mfi_sgl->sge32[i].phys_addr = sg_dma_address(os_sgl);
++	}
++
++	return sge_count;
 +}
 +
-+struct machdep_calls __initdata cell_md = {
-+	.probe			= cell_probe,
-+	.setup_arch		= cell_setup_arch,
-+	.init_early		= cell_init_early,
-+	.get_cpuinfo		= cell_get_cpuinfo,
-+	.restart		= rtas_restart,
-+	.power_off		= rtas_power_off,
-+	.halt			= rtas_halt,
-+	.get_boot_time		= rtas_get_boot_time,
-+	.get_rtc_time		= rtas_get_rtc_time,
-+	.set_rtc_time		= rtas_set_rtc_time,
-+	.calibrate_decr		= generic_calibrate_decr,
-+	.progress		= cell_progress,
-+};
---- linux-cg.orig/arch/powerpc/platforms/cell/spider-pic.c	1969-12-31 19:00:00.000000000 -0500
-+++ linux-cg/arch/powerpc/platforms/cell/spider-pic.c	2005-09-01 02:37:46.081991280 -0400
-@@ -0,0 +1,190 @@
-+/*
-+ * External Interrupt Controller on Spider South Bridge
++/**
++ * megasas_make_sgl64 -	Prepares 64-bit SGL
++ * @instance:		Adapter soft state
++ * @scp:		SCSI command from the mid-layer
++ * @mfi_sgl:		SGL to be filled in
 + *
-+ * (C) Copyright IBM Deutschland Entwicklung GmbH 2005
-+ *
-+ * Author: Arnd Bergmann <arndb@de.ibm.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2, or (at your option)
-+ * any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ * If successful, this function returns the number of SG elements.
+Otherwise,
++ * it returnes -1.
 + */
-+
-+#include <linux/interrupt.h>
-+#include <linux/irq.h>
-+
-+#include <asm/cell-pic.h>
-+#include <asm/pgtable.h>
-+#include <asm/prom.h>
-+#include <asm/io.h>
-+
-+/* register layout taken from Spider spec, table 7.4-4 */
-+enum {
-+	TIR_DEN		= 0x004, /* Detection Enable Register */
-+	TIR_MSK		= 0x084, /* Mask Level Register */
-+	TIR_EDC		= 0x0c0, /* Edge Detection Clear Register */
-+	TIR_PNDA	= 0x100, /* Pending Register A */
-+	TIR_PNDB	= 0x104, /* Pending Register B */
-+	TIR_CS		= 0x144, /* Current Status Register */
-+	TIR_LCSA	= 0x150, /* Level Current Status Register A */
-+	TIR_LCSB	= 0x154, /* Level Current Status Register B */
-+	TIR_LCSC	= 0x158, /* Level Current Status Register C */
-+	TIR_LCSD	= 0x15c, /* Level Current Status Register D */
-+	TIR_CFGA	= 0x200, /* Setting Register A0 */
-+	TIR_CFGB	= 0x204, /* Setting Register B0 */
-+			/* 0x208 ... 0x3ff Setting Register An/Bn */
-+	TIR_PPNDA	= 0x400, /* Packet Pending Register A */
-+	TIR_PPNDB	= 0x404, /* Packet Pending Register B */
-+	TIR_PIERA	= 0x408, /* Packet Output Error Register A */
-+	TIR_PIERB	= 0x40c, /* Packet Output Error Register B */
-+	TIR_PIEN	= 0x444, /* Packet Output Enable Register */
-+	TIR_PIPND	= 0x454, /* Packet Output Pending Register */
-+	TIRDID		= 0x484, /* Spider Device ID Register */
-+	REISTIM		= 0x500, /* Reissue Command Timeout Time Setting */
-+	REISTIMEN	= 0x504, /* Reissue Command Timeout Setting */
-+	REISWAITEN	= 0x508, /* Reissue Wait Control*/
-+};
-+
-+static void __iomem *spider_pics[4];
-+
-+static void __iomem *spider_get_pic(int irq)
++static inline int
++megasas_make_sgl64(struct megasas_instance *instance, struct scsi_cmnd
+*scp,
++		   union megasas_sgl *mfi_sgl)
 +{
-+	int node = irq / IIC_NODE_STRIDE;
-+	irq %= IIC_NODE_STRIDE;
++	int i;
++	int sge_count;
++	struct scatterlist *os_sgl;
 +
-+	if (irq >= IIC_EXT_OFFSET &&
-+	    irq < IIC_EXT_OFFSET + IIC_NUM_EXT &&
-+	    spider_pics)
-+		return spider_pics[node];
++	/*
++	 * Return 0 if there is no data transfer
++	 */
++	if (!scp->request_buffer || !scp->request_bufflen)
++		return 0;
++
++	if (!scp->use_sg) {
++		mfi_sgl->sge64[0].phys_addr = pci_map_single(instance->pdev,
++							     scp->
++							     request_buffer,
++							     scp->
++
+request_bufflen,
++							     scp->
++
+sc_data_direction);
++
++		mfi_sgl->sge64[0].length = scp->request_bufflen;
++
++		return 1;
++	}
++
++	os_sgl = (struct scatterlist *)scp->request_buffer;
++	sge_count = pci_map_sg(instance->pdev, os_sgl, scp->use_sg,
++			       scp->sc_data_direction);
++
++	for (i = 0; i < sge_count; i++, os_sgl++) {
++		mfi_sgl->sge64[i].length = sg_dma_len(os_sgl);
++		mfi_sgl->sge64[i].phys_addr = sg_dma_address(os_sgl);
++	}
++
++	return sge_count;
++}
++
++/**
++ * megasas_build_dcdb -	Prepares a direct cdb (DCDB) command
++ * @instance:		Adapter soft state
++ * @scp:		SCSI command
++ * @cmd:		Command to be prepared in
++ *
++ * This function prepares CDB commands. These are typcially pass-through
++ * commands to the devices.
++ */
++static inline int
++megasas_build_dcdb(struct megasas_instance *instance, struct scsi_cmnd
+*scp,
++		   struct megasas_cmd *cmd)
++{
++	u32 sge_sz;
++	int sge_bytes;
++	u32 is_logical;
++	u32 device_id;
++	u16 flags = 0;
++	struct megasas_pthru_frame *pthru;
++
++	is_logical = MEGASAS_IS_LOGICAL(scp);
++	device_id = MEGASAS_DEV_INDEX(instance, scp);
++	pthru = (struct megasas_pthru_frame *)cmd->frame;
++
++	if (scp->sc_data_direction == PCI_DMA_TODEVICE)
++		flags = MFI_FRAME_DIR_WRITE;
++	else if (scp->sc_data_direction == PCI_DMA_FROMDEVICE)
++		flags = MFI_FRAME_DIR_READ;
++	else if (scp->sc_data_direction == PCI_DMA_NONE)
++		flags = MFI_FRAME_DIR_NONE;
++
++	/*
++	 * Prepare the DCDB frame
++	 */
++	pthru->cmd = (is_logical) ? MFI_CMD_LD_SCSI_IO : MFI_CMD_PD_SCSI_IO;
++	pthru->cmd_status = 0x0;
++	pthru->scsi_status = 0x0;
++	pthru->target_id = device_id;
++	pthru->lun = scp->device->lun;
++	pthru->cdb_len = scp->cmd_len;
++	pthru->timeout = 0;
++	pthru->flags = flags;
++	pthru->data_xfer_len = scp->request_bufflen;
++
++	memcpy(pthru->cdb, scp->cmnd, scp->cmd_len);
++
++	/*
++	 * Construct SGL
++	 */
++	sge_sz = (IS_DMA64) ? sizeof(struct megasas_sge64) :
++	    sizeof(struct megasas_sge32);
++
++	if (IS_DMA64) {
++		pthru->flags |= MFI_FRAME_SGL64;
++		pthru->sge_count = megasas_make_sgl64(instance, scp,
++						      &pthru->sgl);
++	} else
++		pthru->sge_count = megasas_make_sgl32(instance, scp,
++						      &pthru->sgl);
++
++	/*
++	 * Sense info specific
++	 */
++	pthru->sense_len = SCSI_SENSE_BUFFERSIZE;
++	pthru->sense_buf_phys_addr_hi = 0;
++	pthru->sense_buf_phys_addr_lo = cmd->sense_phys_addr;
++
++	sge_bytes = sge_sz * pthru->sge_count;
++
++	/*
++	 * Compute the total number of frames this command consumes. FW uses
++	 * this number to pull sufficient number of frames from host memory.
++	 */
++	cmd->frame_count = (sge_bytes / MEGAMFI_FRAME_SIZE) +
++	    ((sge_bytes % MEGAMFI_FRAME_SIZE) ? 1 : 0) + 1;
++
++	if (cmd->frame_count > 7)
++		cmd->frame_count = 8;
++
++	return cmd->frame_count;
++}
++
++/**
++ * megasas_build_ldio -	Prepares IOs to logical devices
++ * @instance:		Adapter soft state
++ * @scp:		SCSI command
++ * @cmd:		Command to to be prepared
++ *
++ * Frames (and accompanying SGLs) for regular SCSI IOs use this function.
++ */
++static inline int
++megasas_build_ldio(struct megasas_instance *instance, struct scsi_cmnd
+*scp,
++		   struct megasas_cmd *cmd)
++{
++	u32 sge_sz;
++	int sge_bytes;
++	u32 device_id;
++	u8 sc = scp->cmnd[0];
++	u16 flags = 0;
++	struct megasas_io_frame *ldio;
++
++	device_id = MEGASAS_DEV_INDEX(instance, scp);
++	ldio = (struct megasas_io_frame *)cmd->frame;
++
++	if (scp->sc_data_direction == PCI_DMA_TODEVICE)
++		flags = MFI_FRAME_DIR_WRITE;
++	else if (scp->sc_data_direction == PCI_DMA_FROMDEVICE)
++		flags = MFI_FRAME_DIR_READ;
++
++	/*
++	 * Preare the Logical IO frame: 2nd bit is zero for all read cmds
++	 */
++	ldio->cmd = (sc & 0x02) ? MFI_CMD_LD_WRITE : MFI_CMD_LD_READ;
++	ldio->cmd_status = 0x0;
++	ldio->scsi_status = 0x0;
++	ldio->target_id = device_id;
++	ldio->timeout = 0;
++	ldio->reserved_0 = 0;
++	ldio->pad_0 = 0;
++	ldio->flags = flags;
++	ldio->start_lba_hi = 0;
++	ldio->access_byte = (scp->cmd_len != 6) ? scp->cmnd[1] : 0;
++
++	/*
++	 * 6-byte READ(0x08) or WRITE(0x0A) cdb
++	 */
++	if (scp->cmd_len == 6) {
++		ldio->lba_count = (u32) scp->cmnd[4];
++		ldio->start_lba_lo = ((u32) scp->cmnd[1] << 16) |
++		    ((u32) scp->cmnd[2] << 8) | (u32) scp->cmnd[3];
++
++		ldio->start_lba_lo &= 0x1FFFFF;
++	}
++
++	/*
++	 * 10-byte READ(0x28) or WRITE(0x2A) cdb
++	 */
++	else if (scp->cmd_len == 10) {
++		ldio->lba_count = (u32) scp->cmnd[8] |
++		    ((u32) scp->cmnd[7] << 8);
++		ldio->start_lba_lo = ((u32) scp->cmnd[2] << 24) |
++		    ((u32) scp->cmnd[3] << 16) |
++		    ((u32) scp->cmnd[4] << 8) | (u32) scp->cmnd[5];
++	}
++
++	/*
++	 * 12-byte READ(0xA8) or WRITE(0xAA) cdb
++	 */
++	else if (scp->cmd_len == 12) {
++		ldio->lba_count = ((u32) scp->cmnd[6] << 24) |
++		    ((u32) scp->cmnd[7] << 16) |
++		    ((u32) scp->cmnd[8] << 8) | (u32) scp->cmnd[9];
++
++		ldio->start_lba_lo = ((u32) scp->cmnd[2] << 24) |
++		    ((u32) scp->cmnd[3] << 16) |
++		    ((u32) scp->cmnd[4] << 8) | (u32) scp->cmnd[5];
++	}
++
++	/*
++	 * 16-byte READ(0x88) or WRITE(0x8A) cdb
++	 */
++	else if (scp->cmd_len == 16) {
++		ldio->lba_count = ((u32) scp->cmnd[10] << 24) |
++		    ((u32) scp->cmnd[11] << 16) |
++		    ((u32) scp->cmnd[12] << 8) | (u32) scp->cmnd[13];
++
++		ldio->start_lba_lo = ((u32) scp->cmnd[6] << 24) |
++		    ((u32) scp->cmnd[7] << 16) |
++		    ((u32) scp->cmnd[8] << 8) | (u32) scp->cmnd[9];
++
++		ldio->start_lba_hi = ((u32) scp->cmnd[2] << 24) |
++		    ((u32) scp->cmnd[3] << 16) |
++		    ((u32) scp->cmnd[4] << 8) | (u32) scp->cmnd[5];
++
++	}
++
++	/*
++	 * Construct SGL
++	 */
++	sge_sz = (IS_DMA64) ? sizeof(struct megasas_sge64) :
++	    sizeof(struct megasas_sge32);
++
++	if (IS_DMA64) {
++		ldio->flags |= MFI_FRAME_SGL64;
++		ldio->sge_count = megasas_make_sgl64(instance, scp,
+&ldio->sgl);
++	} else
++		ldio->sge_count = megasas_make_sgl32(instance, scp,
+&ldio->sgl);
++
++	/*
++	 * Sense info specific
++	 */
++	ldio->sense_len = SCSI_SENSE_BUFFERSIZE;
++	ldio->sense_buf_phys_addr_hi = 0;
++	ldio->sense_buf_phys_addr_lo = cmd->sense_phys_addr;
++
++	sge_bytes = sge_sz * ldio->sge_count;
++
++	cmd->frame_count = (sge_bytes / MEGAMFI_FRAME_SIZE) +
++	    ((sge_bytes % MEGAMFI_FRAME_SIZE) ? 1 : 0) + 1;
++
++	if (cmd->frame_count > 7)
++		cmd->frame_count = 8;
++
++	return cmd->frame_count;
++}
++
++/**
++ * megasas_build_cmd -	Prepares a command packet
++ * @instance:		Adapter soft state
++ * @scp:		SCSI command
++ * @frame_count:	[OUT] Number of frames used to prepare this command
++ */
++static inline struct megasas_cmd *megasas_build_cmd(struct megasas_instance
++						    *instance,
++						    struct scsi_cmnd *scp,
++						    int *frame_count)
++{
++	u32 logical_cmd;
++	struct megasas_cmd *cmd;
++
++	/*
++	 * Find out if this is logical or physical drive command.
++	 */
++	logical_cmd = MEGASAS_IS_LOGICAL(scp);
++
++	/*
++	 * Logical drive command
++	 */
++	if (logical_cmd) {
++
++		if (scp->device->id >= MEGASAS_MAX_LD) {
++			scp->result = DID_BAD_TARGET << 16;
++			return NULL;
++		}
++
++		switch (scp->cmnd[0]) {
++
++		case READ_10:
++		case WRITE_10:
++		case READ_12:
++		case WRITE_12:
++		case READ_6:
++		case WRITE_6:
++		case READ_16:
++		case WRITE_16:
++			/*
++			 * Fail for LUN > 0
++			 */
++			if (scp->device->lun) {
++				scp->result = DID_BAD_TARGET << 16;
++				return NULL;
++			}
++
++			cmd = megasas_get_cmd(instance);
++
++			if (!cmd) {
++				scp->result = DID_IMM_RETRY << 16;
++				return NULL;
++			}
++
++			*frame_count = megasas_build_ldio(instance, scp,
+cmd);
++
++			if (!(*frame_count)) {
++				megasas_return_cmd(instance, cmd);
++				return NULL;
++			}
++
++			return cmd;
++
++		default:
++			/*
++			 * Fail for LUN > 0
++			 */
++			if (scp->device->lun) {
++				scp->result = DID_BAD_TARGET << 16;
++				return NULL;
++			}
++
++			cmd = megasas_get_cmd(instance);
++
++			if (!cmd) {
++				scp->result = DID_IMM_RETRY << 16;
++				return NULL;
++			}
++
++			*frame_count = megasas_build_dcdb(instance, scp,
+cmd);
++
++			if (!(*frame_count)) {
++				megasas_return_cmd(instance, cmd);
++				return NULL;
++			}
++
++			return cmd;
++		}
++	} else {
++		cmd = megasas_get_cmd(instance);
++
++		if (!cmd) {
++			scp->result = DID_IMM_RETRY << 16;
++			return NULL;
++		}
++
++		*frame_count = megasas_build_dcdb(instance, scp, cmd);
++
++		if (!(*frame_count)) {
++			megasas_return_cmd(instance, cmd);
++			return NULL;
++		}
++
++		return cmd;
++	}
++
 +	return NULL;
 +}
 +
-+static int spider_get_nr(unsigned int irq)
++/**
++ * megasas_queue_command -	Queue entry point
++ * @scmd:			SCSI command to be queued
++ * @done:			Callback entry point
++ */
++static int
++megasas_queue_command(struct scsi_cmnd *scmd, void (*done) (struct
+scsi_cmnd *))
 +{
-+	return (irq % IIC_NODE_STRIDE) - IIC_EXT_OFFSET;
-+}
++	u32 frame_count;
++	unsigned long flags;
++	struct megasas_cmd *cmd;
++	struct megasas_instance *instance;
 +
-+static void __iomem *spider_get_irq_config(int irq)
-+{
-+	void __iomem *pic;
-+	pic = spider_get_pic(irq);
-+	return pic + TIR_CFGA + 8 * spider_get_nr(irq);
-+}
++	instance = (struct megasas_instance *)
++	    scmd->device->host->hostdata;
++	scmd->scsi_done = done;
++	scmd->result = 0;
 +
-+static void spider_enable_irq(unsigned int irq)
-+{
-+	void __iomem *cfg = spider_get_irq_config(irq);
-+	irq = spider_get_nr(irq);
++	cmd = megasas_build_cmd(instance, scmd, &frame_count);
 +
-+	out_be32(cfg, in_be32(cfg) | 0x3107000eu);
-+	out_be32(cfg + 4, in_be32(cfg + 4) | 0x00020000u | irq);
-+}
++	if (!cmd) {
++		done(scmd);
++		return 0;
++	}
 +
-+static void spider_disable_irq(unsigned int irq)
-+{
-+	void __iomem *cfg = spider_get_irq_config(irq);
-+	irq = spider_get_nr(irq);
++	cmd->scmd = scmd;
++	scmd->SCp.ptr = (char *)cmd;
++	scmd->SCp.sent_command = jiffies;
 +
-+	out_be32(cfg, in_be32(cfg) & ~0x30000000u);
-+}
++	/*
++	 * Issue the command to the FW
++	 */
++	spin_lock_irqsave(&instance->instance_lock, flags);
++	instance->fw_outstanding++;
++	spin_unlock_irqrestore(&instance->instance_lock, flags);
 +
-+static unsigned int spider_startup_irq(unsigned int irq)
-+{
-+	spider_enable_irq(irq);
++	writel(((cmd->frame_phys_addr >> 3) | (cmd->frame_count - 1)),
++	       &instance->reg_set->inbound_queue_port);
++
 +	return 0;
 +}
 +
-+static void spider_shutdown_irq(unsigned int irq)
++/**
++ * megasas_wait_for_outstanding -	Wait for all outstanding cmds
++ * @instance:				Adapter soft state
++ *
++ * This function waits for upto MEGASAS_RESET_WAIT_TIME seconds for FW to
++ * complete all its outstanding commands. Returns error if one or more IOs
++ * are pending after this time period. It also marks the controller dead.
++ */
++static int megasas_wait_for_outstanding(struct megasas_instance *instance)
 +{
-+	spider_disable_irq(irq);
++	int i;
++	u32 wait_time = MEGASAS_RESET_WAIT_TIME;
++
++	for (i = 0; i < wait_time; i++) {
++
++		if (!instance->fw_outstanding)
++			break;
++
++		if (!(i % MEGASAS_RESET_NOTICE_INTERVAL)) {
++			printk(KERN_NOTICE "megasas: [%2d]waiting for %d "
++			       "commands to complete\n", i,
++			       instance->fw_outstanding);
++		}
++
++		msleep(1000);
++	}
++
++	if (instance->fw_outstanding) {
++		instance->hw_crit_error = 1;
++		return FAILED;
++	}
++
++	return SUCCESS;
 +}
 +
-+static void spider_end_irq(unsigned int irq)
++/**
++ * megasas_generic_reset -	Generic reset routine
++ * @scmd:			Mid-layer SCSI command
++ *
++ * This routine implements a generic reset handler for device, bus and host
++ * reset requests. Device, bus and host specific reset handlers can use
+this
++ * function after they do their specific tasks.
++ */
++static int megasas_generic_reset(struct scsi_cmnd *scmd)
 +{
-+	spider_enable_irq(irq);
++	int ret_val;
++	struct megasas_instance *instance;
++
++	instance = (struct megasas_instance *)scmd->device->host->hostdata;
++
++	printk(KERN_NOTICE "megasas: RESET -%ld cmd=%x <c=%d t=%d l=%d>\n",
++	       scmd->serial_number, scmd->cmnd[0], scmd->device->channel,
++	       scmd->device->id, scmd->device->lun);
++
++	if (instance->hw_crit_error) {
++		printk(KERN_ERR "megasas: cannot recover from previous reset
+"
++		       "failures\n");
++		return FAILED;
++	}
++
++	spin_unlock(scmd->device->host->host_lock);
++
++	ret_val = megasas_wait_for_outstanding(instance);
++
++	if (ret_val == SUCCESS)
++		printk(KERN_NOTICE "megasas: reset successful \n");
++	else
++		printk(KERN_ERR "megasas: failed to do reset\n");
++
++	spin_lock(scmd->device->host->host_lock);
++
++	return ret_val;
 +}
 +
-+static void spider_ack_irq(unsigned int irq)
++static enum scsi_eh_timer_return megasas_reset_timer(struct scsi_cmnd
+*scmd)
 +{
-+	spider_disable_irq(irq);
-+	iic_local_enable();
-+}
++	unsigned long seconds;
 +
-+static struct hw_interrupt_type spider_pic = {
-+	.typename = " SPIDER   ",
-+	.startup = spider_startup_irq,
-+	.shutdown = spider_shutdown_irq,
-+	.enable = spider_enable_irq,
-+	.disable = spider_disable_irq,
-+	.ack = spider_ack_irq,
-+	.end = spider_end_irq,
-+};
++	if (scmd->SCp.ptr) {
++		seconds = (jiffies - scmd->SCp.sent_command) / HZ;
 +
-+
-+int spider_get_irq(unsigned long int_pending)
-+{
-+	void __iomem *regs = spider_get_pic(int_pending);
-+	unsigned long cs;
-+	int irq;
-+
-+	cs = in_be32(regs + TIR_CS);
-+
-+	irq = cs >> 24;
-+	if (irq != 63)
-+		return irq;
-+
-+	return -1;
-+}
-+ 
-+void spider_init_IRQ(void)
-+{
-+	int node;
-+	struct device_node *dn;
-+	unsigned int *property;
-+	long spiderpic;
-+	int n;
-+
-+/* FIXME: detect multiple PICs as soon as the device tree has them */
-+	for (node = 0; node < 1; node++) {
-+		dn = of_find_node_by_path("/");
-+		n = prom_n_addr_cells(dn);
-+		property = (unsigned int *) get_property(dn,
-+				"platform-spider-pic", NULL);
-+
-+		if (!property)
-+			continue;
-+		for (spiderpic = 0; n > 0; --n)
-+			spiderpic = (spiderpic << 32) + *property++;
-+		printk(KERN_DEBUG "SPIDER addr: %lx\n", spiderpic);
-+		spider_pics[node] = __ioremap(spiderpic, 0x800, _PAGE_NO_CACHE);
-+		for (n = 0; n < IIC_NUM_EXT; n++) {
-+			int irq = n + IIC_EXT_OFFSET + node * IIC_NODE_STRIDE;
-+			get_irq_desc(irq)->handler = &spider_pic;
-+
-+ 		/* do not mask any interrupts because of level */
-+ 		out_be32(spider_pics[node] + TIR_MSK, 0x0);
-+ 		
-+ 		/* disable edge detection clear */
-+ 		/* out_be32(spider_pics[node] + TIR_EDC, 0x0); */
-+ 		
-+ 		/* enable interrupt packets to be output */
-+ 		out_be32(spider_pics[node] + TIR_PIEN,
-+			in_be32(spider_pics[node] + TIR_PIEN) | 0x1);
-+ 		
-+ 		/* Enable the interrupt detection enable bit. Do this last! */
-+ 		out_be32(spider_pics[node] + TIR_DEN,
-+			in_be32(spider_pics[node] +TIR_DEN) | 0x1);
-+
++		if (seconds < 90) {
++			return EH_RESET_TIMER;
++		} else {
++			return EH_NOT_HANDLED;
 +		}
 +	}
++
++	return EH_HANDLED;
 +}
---- linux-cg.orig/arch/ppc64/Kconfig	2005-09-01 02:37:40.900980184 -0400
-+++ linux-cg/arch/ppc64/Kconfig	2005-09-01 02:37:46.081991280 -0400
-@@ -77,10 +77,16 @@ config PPC_PSERIES
- 	bool "  IBM pSeries & new iSeries"
- 	default y
- 
--config PPC_BPA
--	bool "  Broadband Processor Architecture"
-+config PPC_CELL
-+	bool "  Cell Broadband Engine Architecture"
- 	depends on PPC_MULTIPLATFORM
- 
-+# This is being phased out in the move to arch/powerpc
-+config PPC_BPA
-+	bool
-+	default y
-+	depends on PPC_CELL
 +
- config PPC_PMAC
- 	depends on PPC_MULTIPLATFORM
- 	bool "  Apple G5 based machines"
---- linux-cg.orig/arch/ppc64/kernel/Makefile	2005-09-01 02:37:40.903979728 -0400
-+++ linux-cg/arch/ppc64/kernel/Makefile	2005-09-01 02:37:46.082991128 -0400
-@@ -33,8 +33,7 @@ obj-$(CONFIG_PPC_PSERIES) += pSeries_pci
- 			     pSeries_nvram.o rtasd.o ras.o pSeries_reconfig.o \
- 			     pSeries_setup.o pSeries_iommu.o
- 
--obj-$(CONFIG_PPC_BPA) += bpa_setup.o bpa_iommu.o bpa_nvram.o \
--			 bpa_iic.o spider-pic.o
-+obj-$(CONFIG_PPC_CELL) += ../../powerpc/platforms/cell/
- 
- obj-$(CONFIG_KEXEC)		+= machine_kexec.o
- obj-$(CONFIG_EEH)		+= eeh.o
-@@ -68,7 +67,7 @@ ifdef CONFIG_SMP
- obj-$(CONFIG_PPC_PMAC)		+= pmac_smp.o smp-tbsync.o
- obj-$(CONFIG_PPC_ISERIES)	+= iSeries_smp.o
- obj-$(CONFIG_PPC_PSERIES)	+= pSeries_smp.o
--obj-$(CONFIG_PPC_BPA)		+= pSeries_smp.o
-+obj-$(CONFIG_PPC_CELL)		+= pSeries_smp.o
- obj-$(CONFIG_PPC_MAPLE)		+= smp-tbsync.o
- endif
- 
---- linux-cg.orig/arch/ppc64/kernel/bpa_iic.c	2005-09-01 02:37:40.905979424 -0400
-+++ linux-cg/arch/ppc64/kernel/bpa_iic.c	1969-12-31 19:00:00.000000000 -0500
-@@ -1,270 +0,0 @@
--/*
-- * BPA Internal Interrupt Controller
-- *
-- * (C) Copyright IBM Deutschland Entwicklung GmbH 2005
-- *
-- * Author: Arnd Bergmann <arndb@de.ibm.com>
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License as published by
-- * the Free Software Foundation; either version 2, or (at your option)
-- * any later version.
-- *
-- * This program is distributed in the hope that it will be useful,
-- * but WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-- * GNU General Public License for more details.
-- *
-- * You should have received a copy of the GNU General Public License
-- * along with this program; if not, write to the Free Software
-- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-- */
--
--#include <linux/config.h>
--#include <linux/interrupt.h>
--#include <linux/irq.h>
--#include <linux/percpu.h>
--#include <linux/types.h>
--
--#include <asm/io.h>
--#include <asm/pgtable.h>
--#include <asm/prom.h>
--#include <asm/ptrace.h>
--
--#include "bpa_iic.h"
--
--struct iic_pending_bits {
--	u32 data;
--	u8 flags;
--	u8 class;
--	u8 source;
--	u8 prio;
--};
--
--enum iic_pending_flags {
--	IIC_VALID = 0x80,
--	IIC_IPI   = 0x40,
--};
--
--struct iic_regs {
--	struct iic_pending_bits pending;
--	struct iic_pending_bits pending_destr;
--	u64 generate;
--	u64 prio;
--};
--
--struct iic {
--	struct iic_regs __iomem *regs;
--};
--
--static DEFINE_PER_CPU(struct iic, iic);
--
--void iic_local_enable(void)
--{
--	out_be64(&__get_cpu_var(iic).regs->prio, 0xff);
--}
--
--void iic_local_disable(void)
--{
--	out_be64(&__get_cpu_var(iic).regs->prio, 0x0);
--}
--
--static unsigned int iic_startup(unsigned int irq)
--{
--	return 0;
--}
--
--static void iic_enable(unsigned int irq)
--{
--	iic_local_enable();
--}
--
--static void iic_disable(unsigned int irq)
--{
--}
--
--static void iic_end(unsigned int irq)
--{
--	iic_local_enable();
--}
--
--static struct hw_interrupt_type iic_pic = {
--	.typename = " BPA-IIC  ",
--	.startup = iic_startup,
--	.enable = iic_enable,
--	.disable = iic_disable,
--	.end = iic_end,
--};
--
--static int iic_external_get_irq(struct iic_pending_bits pending)
--{
--	int irq;
--	unsigned char node, unit;
--
--	node = pending.source >> 4;
--	unit = pending.source & 0xf;
--	irq = -1;
--
--	/*
--	 * This mapping is specific to the Broadband
--	 * Engine. We might need to get the numbers
--	 * from the device tree to support future CPUs.
--	 */
--	switch (unit) {
--	case 0x00:
--	case 0x0b:
--		/*
--		 * One of these units can be connected
--		 * to an external interrupt controller.
--		 */
--		if (pending.prio > 0x3f ||
--		    pending.class != 2)
--			break;
--		irq = IIC_EXT_OFFSET
--			+ spider_get_irq(pending.prio + node * IIC_NODE_STRIDE)
--			+ node * IIC_NODE_STRIDE;
--		break;
--	case 0x01 ... 0x04:
--	case 0x07 ... 0x0a:
--		/*
--		 * These units are connected to the SPEs
--		 */
--		if (pending.class > 2)
--			break;
--		irq = IIC_SPE_OFFSET
--			+ pending.class * IIC_CLASS_STRIDE
--			+ node * IIC_NODE_STRIDE
--			+ unit;
--		break;
--	}
--	if (irq == -1)
--		printk(KERN_WARNING "Unexpected interrupt class %02x, "
--			"source %02x, prio %02x, cpu %02x\n", pending.class,
--			pending.source, pending.prio, smp_processor_id());
--	return irq;
--}
--
--/* Get an IRQ number from the pending state register of the IIC */
--int iic_get_irq(struct pt_regs *regs)
--{
--	struct iic *iic;
--	int irq;
--	struct iic_pending_bits pending;
--
--	iic = &__get_cpu_var(iic);
--	*(unsigned long *) &pending = 
--		in_be64((unsigned long __iomem *) &iic->regs->pending_destr);
--
--	irq = -1;
--	if (pending.flags & IIC_VALID) {
--		if (pending.flags & IIC_IPI) {
--			irq = IIC_IPI_OFFSET + (pending.prio >> 4);
--/*
--			if (irq > 0x80)
--				printk(KERN_WARNING "Unexpected IPI prio %02x"
--					"on CPU %02x\n", pending.prio,
--							smp_processor_id());
--*/
--		} else {
--			irq = iic_external_get_irq(pending);
--		}
--	}
--	return irq;
--}
--
--static struct iic_regs __iomem *find_iic(int cpu)
--{
--	struct device_node *np;
--	int nodeid = cpu / 2;
--	unsigned long regs;
--	struct iic_regs __iomem *iic_regs;
--
--	for (np = of_find_node_by_type(NULL, "cpu");
--	     np;
--	     np = of_find_node_by_type(np, "cpu")) {
--		if (nodeid == *(int *)get_property(np, "node-id", NULL))
--			break;
--	}
--
--	if (!np) {
--		printk(KERN_WARNING "IIC: CPU %d not found\n", cpu);
--		iic_regs = NULL;
--	} else {
--		regs = *(long *)get_property(np, "iic", NULL);
--
--		/* hack until we have decided on the devtree info */
--		regs += 0x400;
--		if (cpu & 1)
--			regs += 0x20;
--
--		printk(KERN_DEBUG "IIC for CPU %d at %lx\n", cpu, regs);
--		iic_regs = __ioremap(regs, sizeof(struct iic_regs),
--						 _PAGE_NO_CACHE);
--	}
--	return iic_regs;
--}
--
--#ifdef CONFIG_SMP
--void iic_setup_cpu(void)
--{
--	out_be64(&__get_cpu_var(iic).regs->prio, 0xff);
--}
--
--void iic_cause_IPI(int cpu, int mesg)
--{
--	out_be64(&per_cpu(iic, cpu).regs->generate, mesg);
--}
--
--static irqreturn_t iic_ipi_action(int irq, void *dev_id, struct pt_regs *regs)
--{
--
--	smp_message_recv(irq - IIC_IPI_OFFSET, regs);
--	return IRQ_HANDLED;
--}
--
--static void iic_request_ipi(int irq, const char *name)
--{
--	/* IPIs are marked SA_INTERRUPT as they must run with irqs
--	 * disabled */
--	get_irq_desc(irq)->handler = &iic_pic;
--	get_irq_desc(irq)->status |= IRQ_PER_CPU;
--	request_irq(irq, iic_ipi_action, SA_INTERRUPT, name, NULL);
--}
--
--void iic_request_IPIs(void)
--{
--	iic_request_ipi(IIC_IPI_OFFSET + PPC_MSG_CALL_FUNCTION, "IPI-call");
--	iic_request_ipi(IIC_IPI_OFFSET + PPC_MSG_RESCHEDULE, "IPI-resched");
--#ifdef CONFIG_DEBUGGER
--	iic_request_ipi(IIC_IPI_OFFSET + PPC_MSG_DEBUGGER_BREAK, "IPI-debug");
--#endif /* CONFIG_DEBUGGER */
--}
--#endif /* CONFIG_SMP */
--
--static void iic_setup_spe_handlers(void)
--{
--	int be, isrc;
--
--	/* Assume two threads per BE are present */
--	for (be=0; be < num_present_cpus() / 2; be++) {
--		for (isrc = 0; isrc < IIC_CLASS_STRIDE * 3; isrc++) {
--			int irq = IIC_NODE_STRIDE * be + IIC_SPE_OFFSET + isrc;
--			get_irq_desc(irq)->handler = &iic_pic;
--		}
--	}
--}
--
--void iic_init_IRQ(void)
--{
--	int cpu, irq_offset;
--	struct iic *iic;
--
--	irq_offset = 0;
--	for_each_cpu(cpu) {
--		iic = &per_cpu(iic, cpu);
--		iic->regs = find_iic(cpu);
--		if (iic->regs)
--			out_be64(&iic->regs->prio, 0xff);
--	}
--	iic_setup_spe_handlers();
--}
---- linux-cg.orig/arch/ppc64/kernel/bpa_iic.h	2005-09-01 02:37:40.908978968 -0400
-+++ linux-cg/arch/ppc64/kernel/bpa_iic.h	1969-12-31 19:00:00.000000000 -0500
-@@ -1,62 +0,0 @@
--#ifndef ASM_BPA_IIC_H
--#define ASM_BPA_IIC_H
--#ifdef __KERNEL__
--/*
-- * Mapping of IIC pending bits into per-node
-- * interrupt numbers.
-- *
-- * IRQ     FF CC SS PP   FF CC SS PP	Description
-- *
-- * 00-3f   80 02 +0 00 - 80 02 +0 3f	South Bridge
-- * 00-3f   80 02 +b 00 - 80 02 +b 3f	South Bridge
-- * 41-4a   80 00 +1 ** - 80 00 +a **	SPU Class 0
-- * 51-5a   80 01 +1 ** - 80 01 +a **	SPU Class 1
-- * 61-6a   80 02 +1 ** - 80 02 +a **	SPU Class 2
-- * 70-7f   C0 ** ** 00 - C0 ** ** 0f	IPI
-- *
-- *    F flags
-- *    C class
-- *    S source
-- *    P Priority
-- *    + node number
-- *    * don't care
-- *
-- * A node consists of a Broadband Engine and an optional
-- * south bridge device providing a maximum of 64 IRQs.
-- * The south bridge may be connected to either IOIF0
-- * or IOIF1.
-- * Each SPE is represented as three IRQ lines, one per
-- * interrupt class.
-- * 16 IRQ numbers are reserved for inter processor
-- * interruptions, although these are only used in the
-- * range of the first node.
-- *
-- * This scheme needs 128 IRQ numbers per BIF node ID,
-- * which means that with the total of 512 lines
-- * available, we can have a maximum of four nodes.
-- */
--
--enum {
--	IIC_EXT_OFFSET   = 0x00, /* Start of south bridge IRQs */
--	IIC_NUM_EXT      = 0x40, /* Number of south bridge IRQs */
--	IIC_SPE_OFFSET   = 0x40, /* Start of SPE interrupts */
--	IIC_CLASS_STRIDE = 0x10, /* SPE IRQs per class    */
--	IIC_IPI_OFFSET   = 0x70, /* Start of IPI IRQs */
--	IIC_NUM_IPIS     = 0x10, /* IRQs reserved for IPI */
--	IIC_NODE_STRIDE  = 0x80, /* Total IRQs per node   */
--};
--
--extern void iic_init_IRQ(void);
--extern int  iic_get_irq(struct pt_regs *regs);
--extern void iic_cause_IPI(int cpu, int mesg);
--extern void iic_request_IPIs(void);
--extern void iic_setup_cpu(void);
--extern void iic_local_enable(void);
--extern void iic_local_disable(void);
--
--
--extern void spider_init_IRQ(void);
--extern int spider_get_irq(unsigned long int_pending);
--
--#endif
--#endif /* ASM_BPA_IIC_H */
---- linux-cg.orig/arch/ppc64/kernel/bpa_iommu.c	2005-09-01 02:37:40.910978664 -0400
-+++ linux-cg/arch/ppc64/kernel/bpa_iommu.c	1969-12-31 19:00:00.000000000 -0500
-@@ -1,377 +0,0 @@
--/*
-- * IOMMU implementation for Broadband Processor Architecture
-- * We just establish a linear mapping at boot by setting all the
-- * IOPT cache entries in the CPU.
-- * The mapping functions should be identical to pci_direct_iommu, 
-- * except for the handling of the high order bit that is required
-- * by the Spider bridge. These should be split into a separate
-- * file at the point where we get a different bridge chip.
-- *
-- * Copyright (C) 2005 IBM Deutschland Entwicklung GmbH,
-- *			 Arnd Bergmann <arndb@de.ibm.com>
-- *
-- * Based on linear mapping
-- * Copyright (C) 2003 Benjamin Herrenschmidt (benh@kernel.crashing.org)
-- *
-- * This program is free software; you can redistribute it and/or
-- * modify it under the terms of the GNU General Public License
-- * as published by the Free Software Foundation; either version
-- * 2 of the License, or (at your option) any later version.
-- */
--
--#undef DEBUG
--
--#include <linux/kernel.h>
--#include <linux/pci.h>
--#include <linux/delay.h>
--#include <linux/string.h>
--#include <linux/init.h>
--#include <linux/bootmem.h>
--#include <linux/mm.h>
--#include <linux/dma-mapping.h>
--
--#include <asm/sections.h>
--#include <asm/iommu.h>
--#include <asm/io.h>
--#include <asm/prom.h>
--#include <asm/pci-bridge.h>
--#include <asm/machdep.h>
--#include <asm/pmac_feature.h>
--#include <asm/abs_addr.h>
--#include <asm/system.h>
--
--#include "pci.h"
--#include "bpa_iommu.h"
--
--static inline unsigned long 
--get_iopt_entry(unsigned long real_address, unsigned long ioid,
--			 unsigned long prot)
--{
--	return (prot & IOPT_PROT_MASK)
--	     | (IOPT_COHERENT)
--	     | (IOPT_ORDER_VC)
--	     | (real_address & IOPT_RPN_MASK)
--	     | (ioid & IOPT_IOID_MASK);
--}
--
--typedef struct {
--	unsigned long val;
--} ioste;
--
--static inline ioste
--mk_ioste(unsigned long val)
--{
--	ioste ioste = { .val = val, };
--	return ioste;
--}
--
--static inline ioste
--get_iost_entry(unsigned long iopt_base, unsigned long io_address, unsigned page_size)
--{
--	unsigned long ps;
--	unsigned long iostep;
--	unsigned long nnpt;
--	unsigned long shift;
--
--	switch (page_size) {
--	case 0x1000000:
--		ps = IOST_PS_16M;
--		nnpt = 0;  /* one page per segment */
--		shift = 5; /* segment has 16 iopt entries */
--		break;
--
--	case 0x100000:
--		ps = IOST_PS_1M;
--		nnpt = 0;  /* one page per segment */
--		shift = 1; /* segment has 256 iopt entries */
--		break;
--
--	case 0x10000:
--		ps = IOST_PS_64K;
--		nnpt = 0x07; /* 8 pages per io page table */
--		shift = 0;   /* all entries are used */
--		break;
--
--	case 0x1000:
--		ps = IOST_PS_4K;
--		nnpt = 0x7f; /* 128 pages per io page table */
--		shift = 0;   /* all entries are used */
--		break;
--
--	default: /* not a known compile time constant */
--		BUILD_BUG_ON(1);
--		break;
--	}
--
--	iostep = iopt_base +
--			 /* need 8 bytes per iopte */
--			(((io_address / page_size * 8)
--			 /* align io page tables on 4k page boundaries */
--				 << shift) 
--			 /* nnpt+1 pages go into each iopt */
--				 & ~(nnpt << 12));
--
--	nnpt++; /* this seems to work, but the documentation is not clear
--		   about wether we put nnpt or nnpt-1 into the ioste bits.
--		   In theory, this can't work for 4k pages. */
--	return mk_ioste(IOST_VALID_MASK
--			| (iostep & IOST_PT_BASE_MASK)
--			| ((nnpt << 5) & IOST_NNPT_MASK)
--			| (ps & IOST_PS_MASK));
--}
--
--/* compute the address of an io pte */
--static inline unsigned long
--get_ioptep(ioste iost_entry, unsigned long io_address)
--{
--	unsigned long iopt_base;
--	unsigned long page_size;
--	unsigned long page_number;
--	unsigned long iopt_offset;
--
--	iopt_base = iost_entry.val & IOST_PT_BASE_MASK;
--	page_size = iost_entry.val & IOST_PS_MASK;
--
--	/* decode page size to compute page number */
--	page_number = (io_address & 0x0fffffff) >> (10 + 2 * page_size);
--	/* page number is an offset into the io page table */
--	iopt_offset = (page_number << 3) & 0x7fff8ul;
--	return iopt_base + iopt_offset;
--}
--
--/* compute the tag field of the iopt cache entry */
--static inline unsigned long
--get_ioc_tag(ioste iost_entry, unsigned long io_address)
--{
--	unsigned long iopte = get_ioptep(iost_entry, io_address);
--
--	return IOPT_VALID_MASK
--	     | ((iopte & 0x00000000000000ff8ul) >> 3)
--	     | ((iopte & 0x0000003fffffc0000ul) >> 9);
--}
--
--/* compute the hashed 6 bit index for the 4-way associative pte cache */
--static inline unsigned long
--get_ioc_hash(ioste iost_entry, unsigned long io_address)
--{
--	unsigned long iopte = get_ioptep(iost_entry, io_address);
--
--	return ((iopte & 0x000000000000001f8ul) >> 3)
--	     ^ ((iopte & 0x00000000000020000ul) >> 17)
--	     ^ ((iopte & 0x00000000000010000ul) >> 15)
--	     ^ ((iopte & 0x00000000000008000ul) >> 13)
--	     ^ ((iopte & 0x00000000000004000ul) >> 11)
--	     ^ ((iopte & 0x00000000000002000ul) >> 9)
--	     ^ ((iopte & 0x00000000000001000ul) >> 7);
--}
--
--/* same as above, but pretend that we have a simpler 1-way associative
--   pte cache with an 8 bit index */
--static inline unsigned long
--get_ioc_hash_1way(ioste iost_entry, unsigned long io_address)
--{
--	unsigned long iopte = get_ioptep(iost_entry, io_address);
--
--	return ((iopte & 0x000000000000001f8ul) >> 3)
--	     ^ ((iopte & 0x00000000000020000ul) >> 17)
--	     ^ ((iopte & 0x00000000000010000ul) >> 15)
--	     ^ ((iopte & 0x00000000000008000ul) >> 13)
--	     ^ ((iopte & 0x00000000000004000ul) >> 11)
--	     ^ ((iopte & 0x00000000000002000ul) >> 9)
--	     ^ ((iopte & 0x00000000000001000ul) >> 7)
--	     ^ ((iopte & 0x0000000000000c000ul) >> 8);
--}
--
--static inline ioste
--get_iost_cache(void __iomem *base, unsigned long index)
--{
--	unsigned long __iomem *p = (base + IOC_ST_CACHE_DIR);
--	return mk_ioste(in_be64(&p[index]));
--}
--
--static inline void
--set_iost_cache(void __iomem *base, unsigned long index, ioste ste)
--{
--	unsigned long __iomem *p = (base + IOC_ST_CACHE_DIR);
--	pr_debug("ioste %02lx was %016lx, store %016lx", index,
--			get_iost_cache(base, index).val, ste.val);
--	out_be64(&p[index], ste.val);
--	pr_debug(" now %016lx\n", get_iost_cache(base, index).val);
--}
--
--static inline unsigned long
--get_iopt_cache(void __iomem *base, unsigned long index, unsigned long *tag)
--{
--	unsigned long __iomem *tags = (void *)(base + IOC_PT_CACHE_DIR);
--	unsigned long __iomem *p = (void *)(base + IOC_PT_CACHE_REG);	
--
--	*tag = tags[index];
--	rmb();
--	return *p;
--}
--
--static inline void
--set_iopt_cache(void __iomem *base, unsigned long index,
--		 unsigned long tag, unsigned long val)
--{
--	unsigned long __iomem *tags = base + IOC_PT_CACHE_DIR;
--	unsigned long __iomem *p = base + IOC_PT_CACHE_REG;
--	pr_debug("iopt %02lx was v%016lx/t%016lx, store v%016lx/t%016lx\n",
--		index, get_iopt_cache(base, index, &oldtag), oldtag, val, tag);
--
--	out_be64(p, val);
--	out_be64(&tags[index], tag);
--}
--
--static inline void
--set_iost_origin(void __iomem *base)
--{
--	unsigned long __iomem *p = base + IOC_ST_ORIGIN;
--	unsigned long origin = IOSTO_ENABLE | IOSTO_SW;
--
--	pr_debug("iost_origin %016lx, now %016lx\n", in_be64(p), origin);
--	out_be64(p, origin);
--}
--
--static inline void
--set_iocmd_config(void __iomem *base)
--{
--	unsigned long __iomem *p = base + 0xc00;
--	unsigned long conf;
--
--	conf = in_be64(p);
--	pr_debug("iost_conf %016lx, now %016lx\n", conf, conf | IOCMD_CONF_TE);
--	out_be64(p, conf | IOCMD_CONF_TE);
--}
--
--/* FIXME: get these from the device tree */
--#define ioc_base	0x20000511000ull
--#define ioc_mmio_base	0x20000510000ull
--#define ioid		0x48a
--#define iopt_phys_offset (- 0x20000000) /* We have a 512MB offset from the SB */
--#define io_page_size	0x1000000
--
--static unsigned long map_iopt_entry(unsigned long address)
--{
--	switch (address >> 20) {
--	case 0x600:
--		address = 0x24020000000ull; /* spider i/o */
--		break;
--	default:
--		address += iopt_phys_offset;
--		break;
--	}
--
--	return get_iopt_entry(address, ioid, IOPT_PROT_RW);
--}
--
--static void iommu_bus_setup_null(struct pci_bus *b) { }
--static void iommu_dev_setup_null(struct pci_dev *d) { }
--
--/* initialize the iommu to support a simple linear mapping
-- * for each DMA window used by any device. For now, we
-- * happen to know that there is only one DMA window in use,
-- * starting at iopt_phys_offset. */
--static void bpa_map_iommu(void)
--{
--	unsigned long address;
--	void __iomem *base;
--	ioste ioste;
--	unsigned long index;
--
--	base = __ioremap(ioc_base, 0x1000, _PAGE_NO_CACHE);
--	pr_debug("%lx mapped to %p\n", ioc_base, base);
--	set_iocmd_config(base);
--	iounmap(base);
--
--	base = __ioremap(ioc_mmio_base, 0x1000, _PAGE_NO_CACHE);
--	pr_debug("%lx mapped to %p\n", ioc_mmio_base, base);
--
--	set_iost_origin(base);
--
--	for (address = 0; address < 0x100000000ul; address += io_page_size) {
--		ioste = get_iost_entry(0x10000000000ul, address, io_page_size);
--		if ((address & 0xfffffff) == 0) /* segment start */
--			set_iost_cache(base, address >> 28, ioste);
--		index = get_ioc_hash_1way(ioste, address);
--		pr_debug("addr %08lx, index %02lx, ioste %016lx\n",
--					 address, index, ioste.val);
--		set_iopt_cache(base,
--			get_ioc_hash_1way(ioste, address),
--			get_ioc_tag(ioste, address),
--			map_iopt_entry(address));
--	}
--	iounmap(base);
--}
--
--
--static void *bpa_alloc_coherent(struct device *hwdev, size_t size,
--			   dma_addr_t *dma_handle, unsigned int __nocast flag)
--{
--	void *ret;
--
--	ret = (void *)__get_free_pages(flag, get_order(size));
--	if (ret != NULL) {
--		memset(ret, 0, size);
--		*dma_handle = virt_to_abs(ret) | BPA_DMA_VALID;
--	}
--	return ret;
--}
--
--static void bpa_free_coherent(struct device *hwdev, size_t size,
--				 void *vaddr, dma_addr_t dma_handle)
--{
--	free_pages((unsigned long)vaddr, get_order(size));
--}
--
--static dma_addr_t bpa_map_single(struct device *hwdev, void *ptr,
--		size_t size, enum dma_data_direction direction)
--{
--	return virt_to_abs(ptr) | BPA_DMA_VALID;
--}
--
--static void bpa_unmap_single(struct device *hwdev, dma_addr_t dma_addr,
--		size_t size, enum dma_data_direction direction)
--{
--}
--
--static int bpa_map_sg(struct device *hwdev, struct scatterlist *sg,
--		int nents, enum dma_data_direction direction)
--{
--	int i;
--
--	for (i = 0; i < nents; i++, sg++) {
--		sg->dma_address = (page_to_phys(sg->page) + sg->offset)
--					| BPA_DMA_VALID;
--		sg->dma_length = sg->length;
--	}
--
--	return nents;
--}
--
--static void bpa_unmap_sg(struct device *hwdev, struct scatterlist *sg,
--		int nents, enum dma_data_direction direction)
--{
--}
--
--static int bpa_dma_supported(struct device *dev, u64 mask)
--{
--	return mask < 0x100000000ull;
--}
--
--void bpa_init_iommu(void)
--{
--	bpa_map_iommu();
--
--	/* Direct I/O, IOMMU off */
--	ppc_md.iommu_dev_setup = iommu_dev_setup_null;
--	ppc_md.iommu_bus_setup = iommu_bus_setup_null;
--
--	pci_dma_ops.alloc_coherent = bpa_alloc_coherent;
--	pci_dma_ops.free_coherent = bpa_free_coherent;
--	pci_dma_ops.map_single = bpa_map_single;
--	pci_dma_ops.unmap_single = bpa_unmap_single;
--	pci_dma_ops.map_sg = bpa_map_sg;
--	pci_dma_ops.unmap_sg = bpa_unmap_sg;
--	pci_dma_ops.dma_supported = bpa_dma_supported;
--}
---- linux-cg.orig/arch/ppc64/kernel/bpa_iommu.h	2005-09-01 02:37:40.912978360 -0400
-+++ linux-cg/arch/ppc64/kernel/bpa_iommu.h	1969-12-31 19:00:00.000000000 -0500
-@@ -1,65 +0,0 @@
--#ifndef BPA_IOMMU_H
--#define BPA_IOMMU_H
--
--/* some constants */
--enum {
--	/* segment table entries */
--	IOST_VALID_MASK	  = 0x8000000000000000ul,
--	IOST_TAG_MASK     = 0x3000000000000000ul,
--	IOST_PT_BASE_MASK = 0x000003fffffff000ul,
--	IOST_NNPT_MASK	  = 0x0000000000000fe0ul,
--	IOST_PS_MASK	  = 0x000000000000000ful,
--
--	IOST_PS_4K	  = 0x1,
--	IOST_PS_64K	  = 0x3,
--	IOST_PS_1M	  = 0x5,
--	IOST_PS_16M	  = 0x7,
--
--	/* iopt tag register */
--	IOPT_VALID_MASK   = 0x0000000200000000ul,
--	IOPT_TAG_MASK	  = 0x00000001fffffffful,
--
--	/* iopt cache register */
--	IOPT_PROT_MASK	  = 0xc000000000000000ul,
--	IOPT_PROT_NONE	  = 0x0000000000000000ul,
--	IOPT_PROT_READ	  = 0x4000000000000000ul,
--	IOPT_PROT_WRITE	  = 0x8000000000000000ul,
--	IOPT_PROT_RW	  = 0xc000000000000000ul,
--	IOPT_COHERENT	  = 0x2000000000000000ul,
--	
--	IOPT_ORDER_MASK	  = 0x1800000000000000ul,
--	/* order access to same IOID/VC on same address */
--	IOPT_ORDER_ADDR	  = 0x0800000000000000ul,
--	/* similar, but only after a write access */
--	IOPT_ORDER_WRITES = 0x1000000000000000ul,
--	/* Order all accesses to same IOID/VC */
--	IOPT_ORDER_VC	  = 0x1800000000000000ul,
--	
--	IOPT_RPN_MASK	  = 0x000003fffffff000ul,
--	IOPT_HINT_MASK	  = 0x0000000000000800ul,
--	IOPT_IOID_MASK	  = 0x00000000000007fful,
--
--	IOSTO_ENABLE	  = 0x8000000000000000ul,
--	IOSTO_ORIGIN	  = 0x000003fffffff000ul,
--	IOSTO_HW	  = 0x0000000000000800ul,
--	IOSTO_SW	  = 0x0000000000000400ul,
--
--	IOCMD_CONF_TE	  = 0x0000800000000000ul,
--
--	/* memory mapped registers */
--	IOC_PT_CACHE_DIR  = 0x000,
--	IOC_ST_CACHE_DIR  = 0x800,
--	IOC_PT_CACHE_REG  = 0x910,
--	IOC_ST_ORIGIN     = 0x918,
--	IOC_CONF	  = 0x930,
--
--	/* The high bit needs to be set on every DMA address,
--	   only 2GB are addressable */
--	BPA_DMA_VALID	  = 0x80000000,
--	BPA_DMA_MASK	  = 0x7fffffff,
--};
--
--
--void bpa_init_iommu(void);
--
--#endif
---- linux-cg.orig/arch/ppc64/kernel/bpa_nvram.c	2005-09-01 02:37:40.914978056 -0400
-+++ linux-cg/arch/ppc64/kernel/bpa_nvram.c	1969-12-31 19:00:00.000000000 -0500
-@@ -1,118 +0,0 @@
--/*
-- * NVRAM for CPBW
-- *
-- * (C) Copyright IBM Corp. 2005
-- *
-- * Authors : Utz Bacher <utz.bacher@de.ibm.com>
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License as published by
-- * the Free Software Foundation; either version 2, or (at your option)
-- * any later version.
-- *
-- * This program is distributed in the hope that it will be useful,
-- * but WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-- * GNU General Public License for more details.
-- *
-- * You should have received a copy of the GNU General Public License
-- * along with this program; if not, write to the Free Software
-- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-- */
--
--#include <linux/fs.h>
--#include <linux/init.h>
--#include <linux/kernel.h>
--#include <linux/spinlock.h>
--#include <linux/types.h>
--
--#include <asm/machdep.h>
--#include <asm/nvram.h>
--#include <asm/prom.h>
--
--static void __iomem *bpa_nvram_start;
--static long bpa_nvram_len;
--static spinlock_t bpa_nvram_lock = SPIN_LOCK_UNLOCKED;
--
--static ssize_t bpa_nvram_read(char *buf, size_t count, loff_t *index)
--{
--	unsigned long flags;
--
--	if (*index >= bpa_nvram_len)
--		return 0;
--	if (*index + count > bpa_nvram_len)
--		count = bpa_nvram_len - *index;
--
--	spin_lock_irqsave(&bpa_nvram_lock, flags);
--
--	memcpy_fromio(buf, bpa_nvram_start + *index, count);
--
--	spin_unlock_irqrestore(&bpa_nvram_lock, flags);
--	
--	*index += count;
--	return count;
--}
--
--static ssize_t bpa_nvram_write(char *buf, size_t count, loff_t *index)
--{
--	unsigned long flags;
--
--	if (*index >= bpa_nvram_len)
--		return 0;
--	if (*index + count > bpa_nvram_len)
--		count = bpa_nvram_len - *index;
--
--	spin_lock_irqsave(&bpa_nvram_lock, flags);
--
--	memcpy_toio(bpa_nvram_start + *index, buf, count);
--
--	spin_unlock_irqrestore(&bpa_nvram_lock, flags);
--	
--	*index += count;
--	return count;
--}
--
--static ssize_t bpa_nvram_get_size(void)
--{
--	return bpa_nvram_len;
--}
--
--int __init bpa_nvram_init(void)
--{
--	struct device_node *nvram_node;
--	unsigned long *buffer;
--	int proplen;
--	unsigned long nvram_addr;
--	int ret;
--
--	ret = -ENODEV;
--	nvram_node = of_find_node_by_type(NULL, "nvram");
--	if (!nvram_node)
--		goto out;
--
--	ret = -EIO;
--	buffer = (unsigned long *)get_property(nvram_node, "reg", &proplen);
--	if (proplen != 2*sizeof(unsigned long))
--		goto out;
--
--	ret = -ENODEV;
--	nvram_addr = buffer[0];
--	bpa_nvram_len = buffer[1];
--	if ( (!bpa_nvram_len) || (!nvram_addr) )
--		goto out;
--
--	bpa_nvram_start = ioremap(nvram_addr, bpa_nvram_len);
--	if (!bpa_nvram_start)
--		goto out;
--
--	printk(KERN_INFO "BPA NVRAM, %luk mapped to %p\n",
--	       bpa_nvram_len >> 10, bpa_nvram_start);
--
--	ppc_md.nvram_read	= bpa_nvram_read;
--	ppc_md.nvram_write	= bpa_nvram_write;
--	ppc_md.nvram_size	= bpa_nvram_get_size;
--
--out:
--	of_node_put(nvram_node);
--	return ret;
--}
---- linux-cg.orig/arch/ppc64/kernel/bpa_setup.c	2005-09-01 02:37:40.917977600 -0400
-+++ linux-cg/arch/ppc64/kernel/bpa_setup.c	1969-12-31 19:00:00.000000000 -0500
-@@ -1,140 +0,0 @@
--/*
-- *  linux/arch/ppc/kernel/bpa_setup.c
-- *
-- *  Copyright (C) 1995  Linus Torvalds
-- *  Adapted from 'alpha' version by Gary Thomas
-- *  Modified by Cort Dougan (cort@cs.nmt.edu)
-- *  Modified by PPC64 Team, IBM Corp
-- *  Modified by BPA Team, IBM Deutschland Entwicklung GmbH
-- *
-- * This program is free software; you can redistribute it and/or
-- * modify it under the terms of the GNU General Public License
-- * as published by the Free Software Foundation; either version
-- * 2 of the License, or (at your option) any later version.
-- */
--#undef DEBUG
--
--#include <linux/config.h>
--#include <linux/sched.h>
--#include <linux/kernel.h>
--#include <linux/mm.h>
--#include <linux/stddef.h>
--#include <linux/unistd.h>
--#include <linux/slab.h>
--#include <linux/user.h>
--#include <linux/reboot.h>
--#include <linux/init.h>
--#include <linux/delay.h>
--#include <linux/irq.h>
--#include <linux/seq_file.h>
--#include <linux/root_dev.h>
--#include <linux/console.h>
--
--#include <asm/mmu.h>
--#include <asm/processor.h>
--#include <asm/io.h>
--#include <asm/pgtable.h>
--#include <asm/prom.h>
--#include <asm/rtas.h>
--#include <asm/pci-bridge.h>
--#include <asm/iommu.h>
--#include <asm/dma.h>
--#include <asm/machdep.h>
--#include <asm/time.h>
--#include <asm/nvram.h>
--#include <asm/cputable.h>
--
--#include "pci.h"
--#include "bpa_iic.h"
--#include "bpa_iommu.h"
--
--#ifdef DEBUG
--#define DBG(fmt...) udbg_printf(fmt)
--#else
--#define DBG(fmt...)
--#endif
--
--void bpa_get_cpuinfo(struct seq_file *m)
--{
--	struct device_node *root;
--	const char *model = "";
--
--	root = of_find_node_by_path("/");
--	if (root)
--		model = get_property(root, "model", NULL);
--	seq_printf(m, "machine\t\t: BPA %s\n", model);
--	of_node_put(root);
--}
--
--static void bpa_progress(char *s, unsigned short hex)
--{
--	printk("*** %04x : %s\n", hex, s ? s : "");
--}
--
--static void __init bpa_setup_arch(void)
--{
--	ppc_md.init_IRQ       = iic_init_IRQ;
--	ppc_md.get_irq        = iic_get_irq;
--
--#ifdef CONFIG_SMP
--	smp_init_pSeries();
--#endif
--
--	/* init to some ~sane value until calibrate_delay() runs */
--	loops_per_jiffy = 50000000;
--
--	if (ROOT_DEV == 0) {
--		printk("No ramdisk, default root is /dev/hda2\n");
--		ROOT_DEV = Root_HDA2;
--	}
--
--	/* Find and initialize PCI host bridges */
--	init_pci_config_tokens();
--	find_and_init_phbs();
--	spider_init_IRQ();
--#ifdef CONFIG_DUMMY_CONSOLE
--	conswitchp = &dummy_con;
--#endif
--
--	bpa_nvram_init();
--}
--
--/*
-- * Early initialization.  Relocation is on but do not reference unbolted pages
-- */
--static void __init bpa_init_early(void)
--{
--	DBG(" -> bpa_init_early()\n");
--
--	hpte_init_native();
--
--	bpa_init_iommu();
--
--	ppc64_interrupt_controller = IC_BPA_IIC;
--
--	DBG(" <- bpa_init_early()\n");
--}
--
--
--static int __init bpa_probe(int platform)
--{
--	if (platform != PLATFORM_BPA)
--		return 0;
--
--	return 1;
--}
--
--struct machdep_calls __initdata bpa_md = {
--	.probe			= bpa_probe,
--	.setup_arch		= bpa_setup_arch,
--	.init_early		= bpa_init_early,
--	.get_cpuinfo		= bpa_get_cpuinfo,
--	.restart		= rtas_restart,
--	.power_off		= rtas_power_off,
--	.halt			= rtas_halt,
--	.get_boot_time		= rtas_get_boot_time,
--	.get_rtc_time		= rtas_get_rtc_time,
--	.set_rtc_time		= rtas_set_rtc_time,
--	.calibrate_decr		= generic_calibrate_decr,
--	.progress		= bpa_progress,
--};
---- linux-cg.orig/arch/ppc64/kernel/cpu_setup_power4.S	2005-09-01 02:37:44.101892936 -0400
-+++ linux-cg/arch/ppc64/kernel/cpu_setup_power4.S	2005-09-01 02:37:49.128927440 -0400
-@@ -77,7 +77,7 @@ _GLOBAL(__970_cpu_preinit)
- _GLOBAL(__setup_cpu_power4)
- 	blr
- 
--_GLOBAL(__setup_cpu_be)
-+_GLOBAL(__setup_cpu_cbe)
-         /* Set large page sizes LP=0: 16MB, LP=1: 64KB */
-         addi    r3, 0,  0
-         ori     r3, r3, HID6_LB
---- linux-cg.orig/arch/ppc64/kernel/cputable.c	2005-09-01 02:37:40.919977296 -0400
-+++ linux-cg/arch/ppc64/kernel/cputable.c	2005-09-01 02:37:46.088990216 -0400
-@@ -34,7 +34,7 @@ EXPORT_SYMBOL(cur_cpu_spec);
- extern void __setup_cpu_power3(unsigned long offset, struct cpu_spec* spec);
- extern void __setup_cpu_power4(unsigned long offset, struct cpu_spec* spec);
- extern void __setup_cpu_ppc970(unsigned long offset, struct cpu_spec* spec);
--extern void __setup_cpu_be(unsigned long offset, struct cpu_spec* spec);
-+extern void __setup_cpu_cbe(unsigned long offset, struct cpu_spec* spec);
- 
- 
- /* We only set the altivec features if the kernel was compiled with altivec
-@@ -218,7 +218,7 @@ struct cpu_spec	cpu_specs[] = {
- 	{	/* BE DD1.x */
- 		.pvr_mask		= 0xffff0000,
- 		.pvr_value		= 0x00700000,
--		.cpu_name		= "Broadband Engine",
-+		.cpu_name		= "Cell Broadband Engine",
- 		.cpu_features		= CPU_FTR_SPLIT_ID_CACHE |
- 			CPU_FTR_USE_TB | CPU_FTR_HPTE_TABLE |
- 			CPU_FTR_PPCAS_ARCH_V2 | CPU_FTR_ALTIVEC_COMP |
-@@ -227,7 +227,7 @@ struct cpu_spec	cpu_specs[] = {
- 			PPC_FEATURE_HAS_ALTIVEC_COMP,
- 		.icache_bsize		= 128,
- 		.dcache_bsize		= 128,
--		.cpu_setup		= __setup_cpu_be,
-+		.cpu_setup		= __setup_cpu_cbe,
- 	},
- 	{	/* default match */
- 		.pvr_mask		= 0x00000000,
---- linux-cg.orig/arch/ppc64/kernel/irq.c	2005-09-01 02:37:40.921976992 -0400
-+++ linux-cg/arch/ppc64/kernel/irq.c	2005-09-01 02:37:46.089990064 -0400
-@@ -392,7 +392,7 @@ int virt_irq_create_mapping(unsigned int
- 	if (ppc64_interrupt_controller == IC_OPEN_PIC)
- 		return real_irq;	/* no mapping for openpic (for now) */
- 
--	if (ppc64_interrupt_controller == IC_BPA_IIC)
-+	if (ppc64_interrupt_controller == IC_CELL_PIC)
- 		return real_irq;	/* no mapping for iic either */
- 
- 	/* don't map interrupts < MIN_VIRT_IRQ */
---- linux-cg.orig/arch/ppc64/kernel/pSeries_smp.c	2005-09-01 02:37:40.924976536 -0400
-+++ linux-cg/arch/ppc64/kernel/pSeries_smp.c	2005-09-01 02:37:46.089990064 -0400
-@@ -40,6 +40,7 @@
- #include <asm/time.h>
- #include <asm/machdep.h>
- #include <asm/xics.h>
-+#include <asm/cell-pic.h>
- #include <asm/cputable.h>
- #include <asm/firmware.h>
- #include <asm/system.h>
-@@ -48,7 +49,6 @@
- #include <asm/pSeries_reconfig.h>
- 
- #include "mpic.h"
--#include "bpa_iic.h"
- 
- #ifdef DEBUG
- #define DBG(fmt...) udbg_printf(fmt)
-@@ -464,7 +464,7 @@ void __init smp_init_pSeries(void)
- 		break;
- #endif
- #ifdef CONFIG_BPA_IIC
--	case IC_BPA_IIC:
-+	case IC_CELL_PIC:
- 		smp_ops = &bpa_iic_smp_ops;
- 		break;
- #endif
---- linux-cg.orig/arch/ppc64/kernel/setup.c	2005-09-01 02:37:40.926976232 -0400
-+++ linux-cg/arch/ppc64/kernel/setup.c	2005-09-01 02:37:46.091989760 -0400
-@@ -343,7 +343,7 @@ static void __init setup_cpu_maps(void)
- extern struct machdep_calls pSeries_md;
- extern struct machdep_calls pmac_md;
- extern struct machdep_calls maple_md;
--extern struct machdep_calls bpa_md;
-+extern struct machdep_calls cell_md;
- 
- /* Ultimately, stuff them in an elf section like initcalls... */
- static struct machdep_calls __initdata *machines[] = {
-@@ -356,9 +356,9 @@ static struct machdep_calls __initdata *
- #ifdef CONFIG_PPC_MAPLE
- 	&maple_md,
- #endif /* CONFIG_PPC_MAPLE */
--#ifdef CONFIG_PPC_BPA
--	&bpa_md,
--#endif
-+#ifdef CONFIG_PPC_CELL
-+	&cell_md,
-+#endif /* CONFIG_PPC_CELL */
- 	NULL
- };
- 
---- linux-cg.orig/arch/ppc64/kernel/spider-pic.c	2005-09-01 02:37:40.928975928 -0400
-+++ linux-cg/arch/ppc64/kernel/spider-pic.c	1969-12-31 19:00:00.000000000 -0500
-@@ -1,191 +0,0 @@
--/*
-- * External Interrupt Controller on Spider South Bridge
-- *
-- * (C) Copyright IBM Deutschland Entwicklung GmbH 2005
-- *
-- * Author: Arnd Bergmann <arndb@de.ibm.com>
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License as published by
-- * the Free Software Foundation; either version 2, or (at your option)
-- * any later version.
-- *
-- * This program is distributed in the hope that it will be useful,
-- * but WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-- * GNU General Public License for more details.
-- *
-- * You should have received a copy of the GNU General Public License
-- * along with this program; if not, write to the Free Software
-- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-- */
--
--#include <linux/interrupt.h>
--#include <linux/irq.h>
--
--#include <asm/pgtable.h>
--#include <asm/prom.h>
--#include <asm/io.h>
--
--#include "bpa_iic.h"
--
--/* register layout taken from Spider spec, table 7.4-4 */
--enum {
--	TIR_DEN		= 0x004, /* Detection Enable Register */
--	TIR_MSK		= 0x084, /* Mask Level Register */
--	TIR_EDC		= 0x0c0, /* Edge Detection Clear Register */
--	TIR_PNDA	= 0x100, /* Pending Register A */
--	TIR_PNDB	= 0x104, /* Pending Register B */
--	TIR_CS		= 0x144, /* Current Status Register */
--	TIR_LCSA	= 0x150, /* Level Current Status Register A */
--	TIR_LCSB	= 0x154, /* Level Current Status Register B */
--	TIR_LCSC	= 0x158, /* Level Current Status Register C */
--	TIR_LCSD	= 0x15c, /* Level Current Status Register D */
--	TIR_CFGA	= 0x200, /* Setting Register A0 */
--	TIR_CFGB	= 0x204, /* Setting Register B0 */
--			/* 0x208 ... 0x3ff Setting Register An/Bn */
--	TIR_PPNDA	= 0x400, /* Packet Pending Register A */
--	TIR_PPNDB	= 0x404, /* Packet Pending Register B */
--	TIR_PIERA	= 0x408, /* Packet Output Error Register A */
--	TIR_PIERB	= 0x40c, /* Packet Output Error Register B */
--	TIR_PIEN	= 0x444, /* Packet Output Enable Register */
--	TIR_PIPND	= 0x454, /* Packet Output Pending Register */
--	TIRDID		= 0x484, /* Spider Device ID Register */
--	REISTIM		= 0x500, /* Reissue Command Timeout Time Setting */
--	REISTIMEN	= 0x504, /* Reissue Command Timeout Setting */
--	REISWAITEN	= 0x508, /* Reissue Wait Control*/
--};
--
--static void __iomem *spider_pics[4];
--
--static void __iomem *spider_get_pic(int irq)
--{
--	int node = irq / IIC_NODE_STRIDE;
--	irq %= IIC_NODE_STRIDE;
--
--	if (irq >= IIC_EXT_OFFSET &&
--	    irq < IIC_EXT_OFFSET + IIC_NUM_EXT &&
--	    spider_pics)
--		return spider_pics[node];
--	return NULL;
--}
--
--static int spider_get_nr(unsigned int irq)
--{
--	return (irq % IIC_NODE_STRIDE) - IIC_EXT_OFFSET;
--}
--
--static void __iomem *spider_get_irq_config(int irq)
--{
--	void __iomem *pic;
--	pic = spider_get_pic(irq);
--	return pic + TIR_CFGA + 8 * spider_get_nr(irq);
--}
--
--static void spider_enable_irq(unsigned int irq)
--{
--	void __iomem *cfg = spider_get_irq_config(irq);
--	irq = spider_get_nr(irq);
--
--	out_be32(cfg, in_be32(cfg) | 0x3107000eu);
--	out_be32(cfg + 4, in_be32(cfg + 4) | 0x00020000u | irq);
--}
--
--static void spider_disable_irq(unsigned int irq)
--{
--	void __iomem *cfg = spider_get_irq_config(irq);
--	irq = spider_get_nr(irq);
--
--	out_be32(cfg, in_be32(cfg) & ~0x30000000u);
--}
--
--static unsigned int spider_startup_irq(unsigned int irq)
--{
--	spider_enable_irq(irq);
--	return 0;
--}
--
--static void spider_shutdown_irq(unsigned int irq)
--{
--	spider_disable_irq(irq);
--}
--
--static void spider_end_irq(unsigned int irq)
--{
--	spider_enable_irq(irq);
--}
--
--static void spider_ack_irq(unsigned int irq)
--{
--	spider_disable_irq(irq);
--	iic_local_enable();
--}
--
--static struct hw_interrupt_type spider_pic = {
--	.typename = " SPIDER   ",
--	.startup = spider_startup_irq,
--	.shutdown = spider_shutdown_irq,
--	.enable = spider_enable_irq,
--	.disable = spider_disable_irq,
--	.ack = spider_ack_irq,
--	.end = spider_end_irq,
--};
--
--
--int spider_get_irq(unsigned long int_pending)
--{
--	void __iomem *regs = spider_get_pic(int_pending);
--	unsigned long cs;
--	int irq;
--
--	cs = in_be32(regs + TIR_CS);
--
--	irq = cs >> 24;
--	if (irq != 63)
--		return irq;
--
--	return -1;
--}
-- 
--void spider_init_IRQ(void)
--{
--	int node;
--	struct device_node *dn;
--	unsigned int *property;
--	long spiderpic;
--	int n;
--
--/* FIXME: detect multiple PICs as soon as the device tree has them */
--	for (node = 0; node < 1; node++) {
--		dn = of_find_node_by_path("/");
--		n = prom_n_addr_cells(dn);
--		property = (unsigned int *) get_property(dn,
--				"platform-spider-pic", NULL);
--
--		if (!property)
--			continue;
--		for (spiderpic = 0; n > 0; --n)
--			spiderpic = (spiderpic << 32) + *property++;
--		printk(KERN_DEBUG "SPIDER addr: %lx\n", spiderpic);
--		spider_pics[node] = __ioremap(spiderpic, 0x800, _PAGE_NO_CACHE);
--		for (n = 0; n < IIC_NUM_EXT; n++) {
--			int irq = n + IIC_EXT_OFFSET + node * IIC_NODE_STRIDE;
--			get_irq_desc(irq)->handler = &spider_pic;
--
-- 		/* do not mask any interrupts because of level */
-- 		out_be32(spider_pics[node] + TIR_MSK, 0x0);
-- 		
-- 		/* disable edge detection clear */
-- 		/* out_be32(spider_pics[node] + TIR_EDC, 0x0); */
-- 		
-- 		/* enable interrupt packets to be output */
-- 		out_be32(spider_pics[node] + TIR_PIEN,
--			in_be32(spider_pics[node] + TIR_PIEN) | 0x1);
-- 		
-- 		/* Enable the interrupt detection enable bit. Do this last! */
-- 		out_be32(spider_pics[node] + TIR_DEN,
--			in_be32(spider_pics[node] +TIR_DEN) | 0x1);
--
--		}
--	}
--}
---- linux-cg.orig/arch/ppc64/kernel/traps.c	2005-09-01 02:37:40.931975472 -0400
-+++ linux-cg/arch/ppc64/kernel/traps.c	2005-09-01 02:37:46.093989456 -0400
-@@ -126,8 +126,8 @@ int die(const char *str, struct pt_regs 
- 			printk("POWERMAC ");
- 			nl = 1;
- 			break;
--		case PLATFORM_BPA:
--			printk("BPA ");
-+		case PLATFORM_CELL:
-+			printk("CBEA ");
- 			nl = 1;
- 			break;
- 	}
---- linux-cg.orig/include/asm-powerpc/cell-pic.h	1969-12-31 19:00:00.000000000 -0500
-+++ linux-cg/include/asm-powerpc/cell-pic.h	2005-09-01 02:37:46.093989456 -0400
-@@ -0,0 +1,62 @@
-+#ifndef __ASM_CELL_PIC_H
-+#define __ASM_CELL_PIC_H
-+#ifdef __KERNEL__
-+/*
-+ * Mapping of IIC pending bits into per-node
-+ * interrupt numbers.
-+ *
-+ * IRQ     FF CC SS PP   FF CC SS PP	Description
-+ *
-+ * 00-3f   80 02 +0 00 - 80 02 +0 3f	South Bridge
-+ * 00-3f   80 02 +b 00 - 80 02 +b 3f	South Bridge
-+ * 41-4a   80 00 +1 ** - 80 00 +a **	SPU Class 0
-+ * 51-5a   80 01 +1 ** - 80 01 +a **	SPU Class 1
-+ * 61-6a   80 02 +1 ** - 80 02 +a **	SPU Class 2
-+ * 70-7f   C0 ** ** 00 - C0 ** ** 0f	IPI
-+ *
-+ *    F flags
-+ *    C class
-+ *    S source
-+ *    P Priority
-+ *    + node number
-+ *    * don't care
-+ *
-+ * A node consists of a Cell Processor and an optional
-+ * south bridge device providing a maximum of 64 IRQs.
-+ * The south bridge may be connected to either IOIF0
-+ * or IOIF1.
-+ * Each SPE is represented as three IRQ lines, one per
-+ * interrupt class.
-+ * 16 IRQ numbers are reserved for inter processor
-+ * interruptions, although these are only used in the
-+ * range of the first node.
-+ *
-+ * This scheme needs 128 IRQ numbers per BIF node ID,
-+ * which means that with the total of 512 lines
-+ * available, we can have a maximum of four nodes.
++/**
++ * megasas_reset_device -	Device reset handler entry point
 + */
++static int megasas_reset_device(struct scsi_cmnd *scmd)
++{
++	int ret;
 +
-+enum {
-+	IIC_EXT_OFFSET   = 0x00, /* Start of south bridge IRQs */
-+	IIC_NUM_EXT      = 0x40, /* Number of south bridge IRQs */
-+	IIC_SPE_OFFSET   = 0x40, /* Start of SPE interrupts */
-+	IIC_CLASS_STRIDE = 0x10, /* SPE IRQs per class    */
-+	IIC_IPI_OFFSET   = 0x70, /* Start of IPI IRQs */
-+	IIC_NUM_IPIS     = 0x10, /* IRQs reserved for IPI */
-+	IIC_NODE_STRIDE  = 0x80, /* Total IRQs per node   */
++	/*
++	 * First wait for all commands to complete
++	 */
++	ret = megasas_generic_reset(scmd);
++
++	return ret;
++}
++
++/**
++ * megasas_reset_bus_host -	Bus & host reset handler entry point
++ */
++static int megasas_reset_bus_host(struct scsi_cmnd *scmd)
++{
++	int ret;
++
++	/*
++	 * Frist wait for all commands to complete
++	 */
++	ret = megasas_generic_reset(scmd);
++
++	return ret;
++}
++
++/**
++ * megasas_service_aen -	Processes an event notification
++ * @instance:			Adapter soft state
++ * @cmd:			AEN command completed by the ISR
++ *
++ * For AEN, driver sends a command down to FW that is held by the FW till
+an
++ * event occurs. When an event of interest occurs, FW completes the command
++ * that it was previously holding.
++ *
++ * This routines sends SIGIO signal to processes that have registered with
+the
++ * driver for AEN.
++ */
++static void
++megasas_service_aen(struct megasas_instance *instance, struct megasas_cmd
+*cmd)
++{
++	/*
++	 * Don't signal app if it is just an aborted previously registered
+aen
++	 */
++	if (!cmd->abort_aen)
++		kill_fasync(&megasas_async_queue, SIGIO, POLL_IN);
++	else
++		cmd->abort_aen = 0;
++
++	instance->aen_cmd = NULL;
++	megasas_return_cmd(instance, cmd);
++}
++
++/*
++ * Scsi host template for megaraid_sas driver
++ */
++static struct scsi_host_template megasas_template = {
++
++	.module = THIS_MODULE,
++	.name = "LSI Logic SAS based MegaRAID driver",
++	.proc_name = "megaraid_sas",
++	.queuecommand = megasas_queue_command,
++	.eh_device_reset_handler = megasas_reset_device,
++	.eh_bus_reset_handler = megasas_reset_bus_host,
++	.eh_host_reset_handler = megasas_reset_bus_host,
++	.eh_timed_out = megasas_reset_timer,
++	.use_clustering = ENABLE_CLUSTERING,
 +};
 +
-+extern void iic_init_IRQ(void);
-+extern int  iic_get_irq(struct pt_regs *regs);
-+extern void iic_cause_IPI(int cpu, int mesg);
-+extern void iic_request_IPIs(void);
-+extern void iic_setup_cpu(void);
-+extern void iic_local_enable(void);
-+extern void iic_local_disable(void);
++/**
++ * megasas_complete_int_cmd -	Completes an internal command
++ * @instance:			Adapter soft state
++ * @cmd:			Command to be completed
++ *
++ * The megasas_issue_blocked_cmd() function waits for a command to complete
++ * after it issues a command. This function wakes up that waiting routine
+by
++ * calling wake_up() on the wait queue.
++ */
++static void
++megasas_complete_int_cmd(struct megasas_instance *instance,
++			 struct megasas_cmd *cmd)
++{
++	cmd->cmd_status = cmd->frame->io.cmd_status;
 +
++	if (cmd->cmd_status == ENODATA) {
++		cmd->cmd_status = 0;
++	}
++	wake_up(&instance->int_cmd_wait_q);
++}
 +
-+extern void spider_init_IRQ(void);
-+extern int spider_get_irq(unsigned long int_pending);
++/**
++ * megasas_complete_abort -	Completes aborting a command
++ * @instance:			Adapter soft state
++ * @cmd:			Cmd that was issued to abort another cmd
++ *
++ * The megasas_issue_blocked_abort_cmd() function waits on abort_cmd_wait_q
+
++ * after it issues an abort on a previously issued command. This function 
++ * wakes up all functions waiting on the same wait queue.
++ */
++static void
++megasas_complete_abort(struct megasas_instance *instance,
++		       struct megasas_cmd *cmd)
++{
++	if (cmd->sync_cmd) {
++		cmd->sync_cmd = 0;
++		cmd->cmd_status = 0;
++		wake_up(&instance->abort_cmd_wait_q);
++	}
 +
-+#endif /* __KERNEL__ */
-+#endif /* __ASM_CELL_PIC_H */
---- linux-cg.orig/include/asm-ppc64/nvram.h	2005-09-01 02:37:40.935974864 -0400
-+++ linux-cg/include/asm-ppc64/nvram.h	2005-09-01 02:37:46.094989304 -0400
-@@ -70,7 +70,7 @@ extern struct nvram_partition *nvram_fin
- 
- extern int pSeries_nvram_init(void);
- extern int pmac_nvram_init(void);
--extern int bpa_nvram_init(void);
-+extern int cell_nvram_init(void);
- 
- /* PowerMac specific nvram stuffs */
- 
---- linux-cg.orig/include/asm-ppc64/processor.h	2005-09-01 02:37:40.938974408 -0400
-+++ linux-cg/include/asm-ppc64/processor.h	2005-09-01 02:37:46.095989152 -0400
-@@ -269,7 +269,7 @@
- #define	PV_630        	0x0040
- #define	PV_630p	        0x0041
- #define	PV_970MP	0x0044
--#define	PV_BE		0x0070
-+#define	PV_CBE		0x0070
- 
- /* Platforms supported by PPC64 */
- #define PLATFORM_PSERIES      0x0100
-@@ -278,7 +278,8 @@
- #define PLATFORM_LPAR         0x0001
- #define PLATFORM_POWERMAC     0x0400
- #define PLATFORM_MAPLE        0x0500
--#define PLATFORM_BPA          0x1000
-+#define PLATFORM_CELL         0x1000
-+#define PLATFORM_BPA          PLATFORM_CELL
- 
- /* Compatibility with drivers coming from PPC32 world */
- #define _machine	(systemcfg->platform)
-@@ -290,7 +291,7 @@
- #define IC_INVALID    0
- #define IC_OPEN_PIC   1
- #define IC_PPC_XIC    2
--#define IC_BPA_IIC    3
-+#define IC_CELL_PIC   3
- 
- #define XGLUE(a,b) a##b
- #define GLUE(a,b) XGLUE(a,b)
++	return;
++}
++
++/**
++ * megasas_unmap_sgbuf -	Unmap SG buffers
++ * @instance:			Adapter soft state
++ * @cmd:			Completed command
++ */
++static inline void
++megasas_unmap_sgbuf(struct megasas_instance *instance, struct megasas_cmd
+*cmd)
++{
++	dma_addr_t buf_h;
++	u8 opcode;
++
++	if (cmd->scmd->use_sg) {
++		pci_unmap_sg(instance->pdev, cmd->scmd->request_buffer,
++			     cmd->scmd->use_sg,
+cmd->scmd->sc_data_direction);
++		return;
++	}
++
++	if (!cmd->scmd->request_bufflen)
++		return;
++
++	opcode = cmd->frame->hdr.cmd;
++
++	if ((opcode == MFI_CMD_LD_READ) || (opcode == MFI_CMD_LD_WRITE)) {
++		if (IS_DMA64)
++			buf_h = cmd->frame->io.sgl.sge64[0].phys_addr;
++		else
++			buf_h = cmd->frame->io.sgl.sge32[0].phys_addr;
++	} else {
++		if (IS_DMA64)
++			buf_h = cmd->frame->pthru.sgl.sge64[0].phys_addr;
++		else
++			buf_h = cmd->frame->pthru.sgl.sge32[0].phys_addr;
++	}
++
++	pci_unmap_single(instance->pdev, buf_h, cmd->scmd->request_bufflen,
++			 cmd->scmd->sc_data_direction);
++	return;
++}
++
++/**
++ * megasas_complete_cmd -	Completes a command
++ * @instance:			Adapter soft state
++ * @cmd:			Command to be completed
++ * @alt_status:			If non-zero, use this value as
+status to 
++ * 				SCSI mid-layer instead of the value returned
++ * 				by the FW. This should be used if caller
+wants
++ * 				an alternate status (as in the case of
+aborted
++ * 				commands)
++ */
++static inline void
++megasas_complete_cmd(struct megasas_instance *instance, struct megasas_cmd
+*cmd,
++		     u8 alt_status)
++{
++	int exception = 0;
++	struct megasas_header *hdr = &cmd->frame->hdr;
++	unsigned long flags;
++
++	if (cmd->scmd) {
++		cmd->scmd->SCp.ptr = (char *)0;
++	}
++
++	switch (hdr->cmd) {
++
++	case MFI_CMD_PD_SCSI_IO:
++	case MFI_CMD_LD_SCSI_IO:
++
++		/*
++		 * MFI_CMD_PD_SCSI_IO and MFI_CMD_LD_SCSI_IO could have been
++		 * issued either through an IO path or an IOCTL path. If it
++		 * was via IOCTL, we will send it to internal completion.
++		 */
++		if (cmd->sync_cmd) {
++			cmd->sync_cmd = 0;
++			megasas_complete_int_cmd(instance, cmd);
++			break;
++		}
++
++		/*
++		 * Don't export physical disk devices to mid-layer.
++		 */
++		if (!MEGASAS_IS_LOGICAL(cmd->scmd) &&
++		    (hdr->cmd_status == MFI_STAT_OK) &&
++		    (cmd->scmd->cmnd[0] == INQUIRY)) {
++
++			if (((*(u8 *) cmd->scmd->request_buffer) & 0x1F) ==
++			    TYPE_DISK) {
++				cmd->scmd->result = DID_BAD_TARGET << 16;
++				exception = 1;
++			}
++		}
++
++	case MFI_CMD_LD_READ:
++	case MFI_CMD_LD_WRITE:
++
++		if (alt_status) {
++			cmd->scmd->result = alt_status << 16;
++			exception = 1;
++		}
++
++		if (exception) {
++
++			spin_lock_irqsave(&instance->instance_lock, flags);
++			instance->fw_outstanding--;
++			spin_unlock_irqrestore(&instance->instance_lock,
+flags);
++
++			megasas_unmap_sgbuf(instance, cmd);
++			cmd->scmd->scsi_done(cmd->scmd);
++			megasas_return_cmd(instance, cmd);
++
++			break;
++		}
++
++		switch (hdr->cmd_status) {
++
++		case MFI_STAT_OK:
++			cmd->scmd->result = DID_OK << 16;
++			break;
++
++		case MFI_STAT_SCSI_IO_FAILED:
++		case MFI_STAT_LD_INIT_IN_PROGRESS:
++			cmd->scmd->result =
++			    (DID_ERROR << 16) | hdr->scsi_status;
++			break;
++
++		case MFI_STAT_SCSI_DONE_WITH_ERROR:
++
++			cmd->scmd->result = (DID_OK << 16) |
+hdr->scsi_status;
++
++			if (hdr->scsi_status == SAM_STAT_CHECK_CONDITION) {
++				memset(cmd->scmd->sense_buffer, 0,
++				       SCSI_SENSE_BUFFERSIZE);
++				memcpy(cmd->scmd->sense_buffer, cmd->sense,
++				       hdr->sense_len);
++
++				cmd->scmd->result |= DRIVER_SENSE << 24;
++			}
++
++			break;
++
++		case MFI_STAT_LD_OFFLINE:
++		case MFI_STAT_DEVICE_NOT_FOUND:
++			cmd->scmd->result = DID_BAD_TARGET << 16;
++			break;
++
++		default:
++			printk(KERN_DEBUG "megasas: MFI FW status %#x\n",
++			       hdr->cmd_status);
++			cmd->scmd->result = DID_ERROR << 16;
++			break;
++		}
++
++		spin_lock_irqsave(&instance->instance_lock, flags);
++		instance->fw_outstanding--;
++		spin_unlock_irqrestore(&instance->instance_lock, flags);
++
++		megasas_unmap_sgbuf(instance, cmd);
++		cmd->scmd->scsi_done(cmd->scmd);
++		megasas_return_cmd(instance, cmd);
++
++		break;
++
++	case MFI_CMD_SMP:
++	case MFI_CMD_STP:
++	case MFI_CMD_DCMD:
++
++		/*
++		 * See if got an event notification
++		 */
++		if (cmd->frame->dcmd.opcode == MR_DCMD_CTRL_EVENT_WAIT)
++			megasas_service_aen(instance, cmd);
++		else
++			megasas_complete_int_cmd(instance, cmd);
++
++		break;
++
++	case MFI_CMD_ABORT:
++		/*
++		 * Cmd issued to abort another cmd returned
++		 */
++		megasas_complete_abort(instance, cmd);
++		break;
++
++	default:
++		printk("megasas: Unknown command completed! [0x%X]\n",
++		       hdr->cmd);
++		break;
++	}
++}
++
++/**
++ * megasas_deplete_reply_queue -	Processes all completed commands
++ * @instance:				Adapter soft state
++ * @alt_status:				Alternate status to be
+returned to
++ * 					SCSI mid-layer instead of the status
++ * 					returned by the FW
++ */
++static inline int
++megasas_deplete_reply_queue(struct megasas_instance *instance, u8
+alt_status)
++{
++	u32 status;
++	u32 producer;
++	u32 consumer;
++	u32 context;
++	struct megasas_cmd *cmd;
++
++	/*
++	 * Check if it is our interrupt
++	 */
++	status = readl(&instance->reg_set->outbound_intr_status);
++
++	if (!(status & MFI_OB_INTR_STATUS_MASK)) {
++		return IRQ_NONE;
++	}
++
++	/*
++	 * Clear the interrupt by writing back the same value
++	 */
++	writel(status, &instance->reg_set->outbound_intr_status);
++
++	producer = *instance->producer;
++	consumer = *instance->consumer;
++
++	while (consumer != producer) {
++		context = instance->reply_queue[consumer];
++
++		cmd = instance->cmd_list[context];
++
++		megasas_complete_cmd(instance, cmd, alt_status);
++
++		consumer++;
++		if (consumer == (instance->max_fw_cmds + 1)) {
++			consumer = 0;
++		}
++	}
++
++	*instance->consumer = producer;
++
++	return IRQ_HANDLED;
++}
++
++/**
++ * megasas_isr - isr entry point
++ */
++static irqreturn_t megasas_isr(int irq, void *devp, struct pt_regs *regs)
++{
++	return megasas_deplete_reply_queue((struct megasas_instance *)devp,
++					   DID_OK);
++}
++
++/**
++ * megasas_transition_to_ready -	Move the FW to READY state
++ * @reg_set:				MFI register set
++ *
++ * During the initialization, FW passes can potentially be in any one of
++ * several possible states. If the FW in operational, waiting-for-handshake
++ * states, driver must take steps to bring it to ready state. Otherwise, it
++ * has to wait for the ready state.
++ */
++static int
++megasas_transition_to_ready(struct megasas_register_set __iomem * reg_set)
++{
++	int i;
++	u8 max_wait;
++	u32 fw_state;
++	u32 cur_state;
++
++	fw_state = readl(&reg_set->outbound_msg_0) & MFI_STATE_MASK;
++
++	while (fw_state != MFI_STATE_READY) {
++
++		printk(KERN_INFO "megasas: Waiting for FW to come to ready"
++		       " state\n");
++		switch (fw_state) {
++
++		case MFI_STATE_FAULT:
++
++			printk(KERN_DEBUG "megasas: FW in FAULT state!!\n");
++			return -ENODEV;
++
++		case MFI_STATE_WAIT_HANDSHAKE:
++			/*
++			 * Set the CLR bit in inbound doorbell
++			 */
++			writel(MFI_INIT_CLEAR_HANDSHAKE,
++			       &reg_set->inbound_doorbell);
++
++			max_wait = 2;
++			cur_state = MFI_STATE_WAIT_HANDSHAKE;
++			break;
++
++		case MFI_STATE_OPERATIONAL:
++			/*
++			 * Bring it to READY state; assuming max wait 2 secs
++			 */
++			megasas_disable_intr(reg_set);
++			writel(MFI_INIT_READY, &reg_set->inbound_doorbell);
++
++			max_wait = 10;
++			cur_state = MFI_STATE_OPERATIONAL;
++			break;
++
++		case MFI_STATE_UNDEFINED:
++			/*
++			 * This state should not last for more than 2
+seconds
++			 */
++			max_wait = 2;
++			cur_state = MFI_STATE_UNDEFINED;
++			break;
++
++		case MFI_STATE_BB_INIT:
++			max_wait = 2;
++			cur_state = MFI_STATE_BB_INIT;
++			break;
++
++		case MFI_STATE_FW_INIT:
++			max_wait = 20;
++			cur_state = MFI_STATE_FW_INIT;
++			break;
++
++		case MFI_STATE_FW_INIT_2:
++			max_wait = 20;
++			cur_state = MFI_STATE_FW_INIT_2;
++			break;
++
++		case MFI_STATE_DEVICE_SCAN:
++			max_wait = 20;
++			cur_state = MFI_STATE_DEVICE_SCAN;
++			break;
++
++		case MFI_STATE_FLUSH_CACHE:
++			max_wait = 20;
++			cur_state = MFI_STATE_FLUSH_CACHE;
++			break;
++
++		default:
++			printk(KERN_DEBUG "megasas: Unknown state 0x%x\n",
++			       fw_state);
++			return -ENODEV;
++		}
++
++		/*
++		 * The cur_state should not last for more than max_wait secs
++		 */
++		for (i = 0; i < (max_wait * 1000); i++) {
++			fw_state = MFI_STATE_MASK &
++			    readl(&reg_set->outbound_msg_0);
++
++			if (fw_state == cur_state) {
++				msleep(1);
++			} else
++				break;
++		}
++
++		/*
++		 * Return error if fw_state hasn't changed after max_wait
++		 */
++		if (fw_state == cur_state) {
++			printk(KERN_DEBUG "FW state [%d] hasn't changed "
++			       "in %d secs\n", fw_state, max_wait);
++			return -ENODEV;
++		}
++	};
++
++	return 0;
++}
++
++/**
++ * megasas_teardown_frame_pool -	Destroy the cmd frame DMA pool
++ * @instance:				Adapter soft state
++ */
++static void megasas_teardown_frame_pool(struct megasas_instance *instance)
++{
++	int i;
++	u32 max_cmd = instance->max_fw_cmds;
++	struct megasas_cmd *cmd;
++
++	if (!instance->frame_dma_pool)
++		return;
++
++	/*
++	 * Return all frames to pool
++	 */
++	for (i = 0; i < max_cmd; i++) {
++
++		cmd = instance->cmd_list[i];
++
++		if (cmd->frame)
++			pci_pool_free(instance->frame_dma_pool, cmd->frame,
++				      cmd->frame_phys_addr);
++
++		if (cmd->sense)
++			pci_pool_free(instance->sense_dma_pool, cmd->frame,
++				      cmd->sense_phys_addr);
++	}
++
++	/*
++	 * Now destroy the pool itself
++	 */
++	pci_pool_destroy(instance->frame_dma_pool);
++	pci_pool_destroy(instance->sense_dma_pool);
++
++	instance->frame_dma_pool = NULL;
++	instance->sense_dma_pool = NULL;
++}
++
++/**
++ * megasas_create_frame_pool -	Creates DMA pool for cmd frames
++ * @instance:			Adapter soft state
++ *
++ * Each command packet has an embedded DMA memory buffer that is used for
++ * filling MFI frame and the SG list that immediately follows the frame.
+This
++ * function creates those DMA memory buffers for each command packet by
+using
++ * PCI pool facility.
++ */
++static int megasas_create_frame_pool(struct megasas_instance *instance)
++{
++	int i;
++	u32 max_cmd;
++	u32 sge_sz;
++	u32 sgl_sz;
++	u32 total_sz;
++	u32 frame_count;
++	struct megasas_cmd *cmd;
++
++	max_cmd = instance->max_fw_cmds;
++
++	/*
++	 * Size of our frame is 64 bytes for MFI frame, followed by max SG
++	 * elements and finally SCSI_SENSE_BUFFERSIZE bytes for sense buffer
++	 */
++	sge_sz = (IS_DMA64) ? sizeof(struct megasas_sge64) :
++	    sizeof(struct megasas_sge32);
++
++	/*
++	 * Calculated the number of 64byte frames required for SGL
++	 */
++	sgl_sz = sge_sz * instance->max_num_sge;
++	frame_count = (sgl_sz + MEGAMFI_FRAME_SIZE - 1) /
+MEGAMFI_FRAME_SIZE;
++
++	/*
++	 * We need one extra frame for the MFI command
++	 */
++	frame_count++;
++
++	total_sz = MEGAMFI_FRAME_SIZE * frame_count;
++	/*
++	 * Use DMA pool facility provided by PCI layer
++	 */
++	instance->frame_dma_pool = pci_pool_create("megasas frame pool",
++						   instance->pdev, total_sz,
+64,
++						   0);
++
++	if (!instance->frame_dma_pool) {
++		printk(KERN_DEBUG "megasas: failed to setup frame pool\n");
++		return -ENOMEM;
++	}
++
++	instance->sense_dma_pool = pci_pool_create("megasas sense pool",
++						   instance->pdev, 128, 4,
+0);
++
++	if (!instance->sense_dma_pool) {
++		printk(KERN_DEBUG "megasas: failed to setup sense pool\n");
++
++		pci_pool_destroy(instance->frame_dma_pool);
++		instance->frame_dma_pool = NULL;
++
++		return -ENOMEM;
++	}
++
++	/*
++	 * Allocate and attach a frame to each of the commands in cmd_list.
++	 * By making cmd->index as the context instead of the &cmd, we can
++	 * always use 32bit context regardless of the architecture
++	 */
++	for (i = 0; i < max_cmd; i++) {
++
++		cmd = instance->cmd_list[i];
++
++		cmd->frame = pci_pool_alloc(instance->frame_dma_pool,
++					    GFP_KERNEL,
+&cmd->frame_phys_addr);
++
++		cmd->sense = pci_pool_alloc(instance->sense_dma_pool,
++					    GFP_KERNEL,
+&cmd->sense_phys_addr);
++
++		/*
++		 * megasas_teardown_frame_pool() takes care of freeing
++		 * whatever has been allocated
++		 */
++		if (!cmd->frame || !cmd->sense) {
++			printk(KERN_DEBUG "megasas: pci_pool_alloc failed
+\n");
++			megasas_teardown_frame_pool(instance);
++			return -ENOMEM;
++		}
++
++		cmd->frame->io.context = cmd->index;
++	}
++
++	return 0;
++}
++
++/**
++ * megasas_free_cmds -	Free all the cmds in the free cmd pool
++ * @instance:		Adapter soft state
++ */
++static void megasas_free_cmds(struct megasas_instance *instance)
++{
++	int i;
++	/* First free the MFI frame pool */
++	megasas_teardown_frame_pool(instance);
++
++	/* Free all the commands in the cmd_list */
++	for (i = 0; i < instance->max_fw_cmds; i++)
++		kfree(instance->cmd_list[i]);
++
++	/* Free the cmd_list buffer itself */
++	kfree(instance->cmd_list);
++	instance->cmd_list = NULL;
++
++	INIT_LIST_HEAD(&instance->cmd_pool);
++}
++
++/**
++ * megasas_alloc_cmds -	Allocates the command packets
++ * @instance:		Adapter soft state
++ *
++ * Each command that is issued to the FW, whether IO commands from the OS
+or
++ * internal commands like IOCTLs, are wrapped in local data structure
+called
++ * megasas_cmd. The frame embedded in this megasas_cmd is actually issued
+to
++ * the FW.
++ *
++ * Each frame has a 32-bit field called context (tag). This context is used
++ * to get back the megasas_cmd from the frame when a frame gets completed
+in
++ * the ISR. Typically the address of the megasas_cmd itself would be used
+as
++ * the context. But we wanted to keep the differences between 32 and 64 bit
++ * systems to the mininum. We always use 32 bit integers for the context.
+In
++ * this driver, the 32 bit values are the indices into an array cmd_list.
++ * This array is used only to look up the megasas_cmd given the context.
+The
++ * free commands themselves are maintained in a linked list called
+cmd_pool.
++ */
++static int megasas_alloc_cmds(struct megasas_instance *instance)
++{
++	int i;
++	int j;
++	u32 max_cmd;
++	struct megasas_cmd *cmd;
++
++	max_cmd = instance->max_fw_cmds;
++
++	/*
++	 * instance->cmd_list is an array of struct megasas_cmd pointers.
++	 * Allocate the dynamic array first and then allocate individual
++	 * commands.
++	 */
++	instance->cmd_list = kmalloc(sizeof(struct megasas_cmd *) * max_cmd,
++				     GFP_KERNEL);
++
++	if (!instance->cmd_list) {
++		printk(KERN_DEBUG "megasas: out of memory\n");
++		return -ENOMEM;
++	}
++
++	memset(instance->cmd_list, 0, sizeof(struct megasas_cmd *) *
+max_cmd);
++
++	for (i = 0; i < max_cmd; i++) {
++		instance->cmd_list[i] = kmalloc(sizeof(struct megasas_cmd),
++						GFP_KERNEL);
++
++		if (!instance->cmd_list[i]) {
++
++			for (j = 0; j < i; j++)
++				kfree(instance->cmd_list[j]);
++
++			kfree(instance->cmd_list);
++			instance->cmd_list = NULL;
++
++			return -ENOMEM;
++		}
++	}
++
++	/*
++	 * Add all the commands to command pool (instance->cmd_pool)
++	 */
++	for (i = 0; i < max_cmd; i++) {
++		cmd = instance->cmd_list[i];
++		memset(cmd, 0, sizeof(struct megasas_cmd));
++		cmd->index = i;
++		cmd->instance = instance;
++
++		list_add_tail(&cmd->list, &instance->cmd_pool);
++	}
++
++	/*
++	 * Create a frame pool and assign one frame to each cmd
++	 */
++	if (megasas_create_frame_pool(instance)) {
++		printk(KERN_DEBUG "megasas: Error creating frame DMA
+pool\n");
++		megasas_free_cmds(instance);
++	}
++
++	return 0;
++}
++
++/**
++ * megasas_get_controller_info -	Returns FW's controller structure
++ * @instance:				Adapter soft state
++ * @ctrl_info:				Controller information structure
++ *
++ * Issues an internal command (DCMD) to get the FW's controller structure.
++ * This information is mainly used to find out the maximum IO transfer per
++ * command supported by the FW.
++ */
++static int
++megasas_get_ctrl_info(struct megasas_instance *instance,
++		      struct megasas_ctrl_info *ctrl_info)
++{
++	int ret = 0;
++	struct megasas_cmd *cmd;
++	struct megasas_dcmd_frame *dcmd;
++	struct megasas_ctrl_info *ci;
++	dma_addr_t ci_h = 0;
++
++	cmd = megasas_get_cmd(instance);
++
++	if (!cmd) {
++		printk(KERN_DEBUG "megasas: Failed to get a free cmd\n");
++		return -ENOMEM;
++	}
++
++	dcmd = &cmd->frame->dcmd;
++
++	ci = pci_alloc_consistent(instance->pdev,
++				  sizeof(struct megasas_ctrl_info), &ci_h);
++
++	if (!ci) {
++		printk(KERN_DEBUG "Failed to alloc mem for ctrl info\n");
++		megasas_return_cmd(instance, cmd);
++		return -ENOMEM;
++	}
++
++	memset(ci, 0, sizeof(*ci));
++	memset(dcmd->mbox.b, 0, MFI_MBOX_SIZE);
++
++	dcmd->cmd = MFI_CMD_DCMD;
++	dcmd->cmd_status = 0xFF;
++	dcmd->sge_count = 1;
++	dcmd->flags = MFI_FRAME_DIR_READ;
++	dcmd->timeout = 0;
++	dcmd->data_xfer_len = sizeof(struct megasas_ctrl_info);
++	dcmd->opcode = MR_DCMD_CTRL_GET_INFO;
++	dcmd->sgl.sge32[0].phys_addr = ci_h;
++	dcmd->sgl.sge32[0].length = sizeof(struct megasas_ctrl_info);
++
++	if (!megasas_issue_polled(instance, cmd)) {
++		ret = 0;
++		memcpy(ctrl_info, ci, sizeof(struct megasas_ctrl_info));
++	} else {
++		ret = -1;
++	}
++
++	pci_free_consistent(instance->pdev, sizeof(struct
+megasas_ctrl_info),
++			    ci, ci_h);
++
++	megasas_return_cmd(instance, cmd);
++	return ret;
++}
++
++/**
++ * megasas_init_mfi -	Initializes the FW
++ * @instance:		Adapter soft state
++ *
++ * This is the main function for initializing MFI firmware.
++ */
++static int megasas_init_mfi(struct megasas_instance *instance)
++{
++	u32 context_sz;
++	u32 reply_q_sz;
++	u32 max_sectors_1;
++	u32 max_sectors_2;
++	struct megasas_register_set __iomem *reg_set;
++
++	struct megasas_cmd *cmd;
++	struct megasas_ctrl_info *ctrl_info;
++
++	struct megasas_init_frame *init_frame;
++	struct megasas_init_queue_info *initq_info;
++	dma_addr_t init_frame_h;
++	dma_addr_t initq_info_h;
++
++	/*
++	 * Map the message registers
++	 */
++	instance->base_addr = pci_resource_start(instance->pdev, 0);
++
++	if (pci_request_regions(instance->pdev, "megasas: LSI Logic")) {
++		printk(KERN_DEBUG "megasas: IO memory region busy!\n");
++		return -EBUSY;
++	}
++
++	instance->reg_set = ioremap_nocache(instance->base_addr, 8192);
++
++	if (!instance->reg_set) {
++		printk(KERN_DEBUG "megasas: Failed to map IO mem\n");
++		goto fail_ioremap;
++	}
++
++	reg_set = instance->reg_set;
++
++	/*
++	 * We expect the FW state to be READY
++	 */
++	if (megasas_transition_to_ready(instance->reg_set))
++		goto fail_ready_state;
++
++	/*
++	 * Get various operational parameters from status register
++	 */
++	instance->max_fw_cmds = readl(&reg_set->outbound_msg_0) & 0x00FFFF;
++	instance->max_num_sge = (readl(&reg_set->outbound_msg_0) & 0xFF0000)
+>>
++	    0x10;
++	/*
++	 * Create a pool of commands
++	 */
++	if (megasas_alloc_cmds(instance))
++		goto fail_alloc_cmds;
++
++	/*
++	 * Allocate memory for reply queue. Length of reply queue should
++	 * be _one_ more than the maximum commands handled by the firmware.
++	 *
++	 * Note: When FW completes commands, it places corresponding contex
++	 * values in this circular reply queue. This circular queue is a
+fairly
++	 * typical producer-consumer queue. FW is the producer (of completed
++	 * commands) and the driver is the consumer.
++	 */
++	context_sz = sizeof(u32);
++	reply_q_sz = context_sz * (instance->max_fw_cmds + 1);
++
++	instance->reply_queue = pci_alloc_consistent(instance->pdev,
++						     reply_q_sz,
++
+&instance->reply_queue_h);
++
++	if (!instance->reply_queue) {
++		printk(KERN_DEBUG "megasas: Out of DMA mem for reply
+queue\n");
++		goto fail_reply_queue;
++	}
++
++	/*
++	 * Prepare a init frame. Note the init frame points to queue info
++	 * structure. Each frame has SGL allocated after first 64 bytes. For
++	 * this frame - since we don't need any SGL - we use SGL's space as
++	 * queue info structure
++	 *
++	 * We will not get a NULL command below. We just created the pool.
++	 */
++	cmd = megasas_get_cmd(instance);
++
++	init_frame = (struct megasas_init_frame *)cmd->frame;
++	initq_info = (struct megasas_init_queue_info *)
++	    ((unsigned long)init_frame + 64);
++
++	init_frame_h = cmd->frame_phys_addr;
++	initq_info_h = init_frame_h + 64;
++
++	memset(init_frame, 0, MEGAMFI_FRAME_SIZE);
++	memset(initq_info, 0, sizeof(struct megasas_init_queue_info));
++
++	initq_info->reply_queue_entries = instance->max_fw_cmds + 1;
++	initq_info->reply_queue_start_phys_addr_lo =
+instance->reply_queue_h;
++
++	initq_info->producer_index_phys_addr_lo = instance->producer_h;
++	initq_info->consumer_index_phys_addr_lo = instance->consumer_h;
++
++	init_frame->cmd = MFI_CMD_INIT;
++	init_frame->cmd_status = 0xFF;
++	init_frame->queue_info_new_phys_addr_lo = initq_info_h;
++
++	init_frame->data_xfer_len = sizeof(struct megasas_init_queue_info);
++
++	/*
++	 * Issue the init frame in polled mode
++	 */
++	if (megasas_issue_polled(instance, cmd)) {
++		printk(KERN_DEBUG "megasas: Failed to init firmware\n");
++		goto fail_fw_init;
++	}
++
++	megasas_return_cmd(instance, cmd);
++
++	ctrl_info = kmalloc(sizeof(struct megasas_ctrl_info), GFP_KERNEL);
++
++	/*
++	 * Compute the max allowed sectors per IO: The controller info has
+two
++	 * limits on max sectors. Driver should use the minimum of these
+two.
++	 *
++	 * 1 << stripe_sz_ops.min = max sectors per strip
++	 *
++	 * Note that older firmwares ( < FW ver 30) didn't report
+information
++	 * to calculate max_sectors_1. So the number ended up as zero
+always.
++	 */
++	if (ctrl_info && !megasas_get_ctrl_info(instance, ctrl_info)) {
++
++		max_sectors_1 = (1 << ctrl_info->stripe_sz_ops.min) *
++		    ctrl_info->max_strips_per_io;
++		max_sectors_2 = ctrl_info->max_request_size;
++
++		instance->max_sectors_per_req = (max_sectors_1 <
+max_sectors_2)
++		    ? max_sectors_1 : max_sectors_2;
++	} else
++		instance->max_sectors_per_req = instance->max_num_sge *
++		    PAGE_SIZE / 512;
++
++	kfree(ctrl_info);
++
++	return 0;
++
++      fail_fw_init:
++	megasas_return_cmd(instance, cmd);
++
++	pci_free_consistent(instance->pdev, reply_q_sz,
++			    instance->reply_queue, instance->reply_queue_h);
++      fail_reply_queue:
++	megasas_free_cmds(instance);
++
++      fail_alloc_cmds:
++      fail_ready_state:
++	iounmap(instance->reg_set);
++
++      fail_ioremap:
++	pci_release_regions(instance->pdev);
++
++	return -EINVAL;
++}
++
++/**
++ * megasas_release_mfi -	Reverses the FW initialization
++ * @intance:			Adapter soft state
++ */
++static void megasas_release_mfi(struct megasas_instance *instance)
++{
++	u32 reply_q_sz = sizeof(u32) * (instance->max_fw_cmds + 1);
++
++	pci_free_consistent(instance->pdev, reply_q_sz,
++			    instance->reply_queue, instance->reply_queue_h);
++
++	megasas_free_cmds(instance);
++
++	iounmap(instance->reg_set);
++
++	pci_release_regions(instance->pdev);
++}
++
++/**
++ * megasas_get_seq_num -	Gets latest event sequence numbers
++ * @instance:			Adapter soft state
++ * @eli:			FW event log sequence numbers information
++ *
++ * FW maintains a log of all events in a non-volatile area. Upper layers
+would
++ * usually find out the latest sequence number of the events, the seq
+number at
++ * the boot etc. They would "read" all the events below the latest seq
+number
++ * by issuing a direct fw cmd (DCMD). For the future events (beyond latest
+seq
++ * number), they would subsribe to AEN (asynchronous event notification)
+and
++ * wait for the events to happen.
++ */
++static int
++megasas_get_seq_num(struct megasas_instance *instance,
++		    struct megasas_evt_log_info *eli)
++{
++	struct megasas_cmd *cmd;
++	struct megasas_dcmd_frame *dcmd;
++	struct megasas_evt_log_info *el_info;
++	dma_addr_t el_info_h = 0;
++
++	cmd = megasas_get_cmd(instance);
++
++	if (!cmd) {
++		return -ENOMEM;
++	}
++
++	dcmd = &cmd->frame->dcmd;
++	el_info = pci_alloc_consistent(instance->pdev,
++				       sizeof(struct megasas_evt_log_info),
++				       &el_info_h);
++
++	if (!el_info) {
++		megasas_return_cmd(instance, cmd);
++		return -ENOMEM;
++	}
++
++	memset(el_info, 0, sizeof(*el_info));
++	memset(dcmd->mbox.b, 0, MFI_MBOX_SIZE);
++
++	dcmd->cmd = MFI_CMD_DCMD;
++	dcmd->cmd_status = 0x0;
++	dcmd->sge_count = 1;
++	dcmd->flags = MFI_FRAME_DIR_READ;
++	dcmd->timeout = 0;
++	dcmd->data_xfer_len = sizeof(struct megasas_evt_log_info);
++	dcmd->opcode = MR_DCMD_CTRL_EVENT_GET_INFO;
++	dcmd->sgl.sge32[0].phys_addr = el_info_h;
++	dcmd->sgl.sge32[0].length = sizeof(struct megasas_evt_log_info);
++
++	megasas_issue_blocked_cmd(instance, cmd);
++
++	/*
++	 * Copy the data back into callers buffer
++	 */
++	memcpy(eli, el_info, sizeof(struct megasas_evt_log_info));
++
++	pci_free_consistent(instance->pdev, sizeof(struct
+megasas_evt_log_info),
++			    el_info, el_info_h);
++
++	megasas_return_cmd(instance, cmd);
++
++	return 0;
++}
++
++/**
++ * megasas_register_aen -	Registers for asynchronous event
+notification
++ * @instance:			Adapter soft state
++ * @seq_num:			The starting sequence number
++ * @class_locale:		Class of the event
++ *
++ * This function subscribes for AEN for events beyond the @seq_num. It
+requests
++ * to be notified if and only if the event is of type @class_locale
++ */
++static int
++megasas_register_aen(struct megasas_instance *instance, u32 seq_num,
++		     u32 class_locale_word)
++{
++	int ret_val;
++	struct megasas_cmd *cmd;
++	struct megasas_dcmd_frame *dcmd;
++	union megasas_evt_class_locale curr_aen;
++	union megasas_evt_class_locale prev_aen;
++
++	/*
++	 * If there an AEN pending already (aen_cmd), check if the
++	 * class_locale of that pending AEN is inclusive of the new
++	 * AEN request we currently have. If it is, then we don't have
++	 * to do anything. In other words, whichever events the current
++	 * AEN request is subscribing to, have already been subscribed
++	 * to.
++	 *
++	 * If the old_cmd is _not_ inclusive, then we have to abort
++	 * that command, form a class_locale that is superset of both
++	 * old and current and re-issue to the FW
++	 */
++
++	curr_aen.word = class_locale_word;
++
++	if (instance->aen_cmd) {
++
++		prev_aen.word = instance->aen_cmd->frame->dcmd.mbox.w[1];
++
++		/*
++		 * A class whose enum value is smaller is inclusive of all
++		 * higher values. If a PROGRESS (= -1) was previously
++		 * registered, then a new registration requests for higher
++		 * classes need not be sent to FW. They are automatically
++		 * included.
++		 *
++		 * Locale numbers don't have such hierarchy. They are bitmap
++		 * values
++		 */
++		if ((prev_aen.members.class <= curr_aen.members.class) &&
++		    !((prev_aen.members.locale & curr_aen.members.locale) ^
++		      curr_aen.members.locale)) {
++			/*
++			 * Previously issued event registration includes
++			 * current request. Nothing to do.
++			 */
++			return 0;
++		} else {
++			curr_aen.members.locale |= prev_aen.members.locale;
++
++			if (prev_aen.members.class < curr_aen.members.class)
++				curr_aen.members.class =
+prev_aen.members.class;
++
++			instance->aen_cmd->abort_aen = 1;
++			ret_val = megasas_issue_blocked_abort_cmd(instance,
++								  instance->
++								  aen_cmd);
++
++			if (ret_val) {
++				printk(KERN_DEBUG "megasas: Failed to abort
+"
++				       "previous AEN command\n");
++				return ret_val;
++			}
++		}
++	}
++
++	cmd = megasas_get_cmd(instance);
++
++	if (!cmd)
++		return -ENOMEM;
++
++	dcmd = &cmd->frame->dcmd;
++
++	memset(instance->evt_detail, 0, sizeof(struct megasas_evt_detail));
++
++	/*
++	 * Prepare DCMD for aen registration
++	 */
++	memset(dcmd->mbox.b, 0, MFI_MBOX_SIZE);
++
++	dcmd->cmd = MFI_CMD_DCMD;
++	dcmd->cmd_status = 0x0;
++	dcmd->sge_count = 1;
++	dcmd->flags = MFI_FRAME_DIR_READ;
++	dcmd->timeout = 0;
++	dcmd->data_xfer_len = sizeof(struct megasas_evt_detail);
++	dcmd->opcode = MR_DCMD_CTRL_EVENT_WAIT;
++	dcmd->mbox.w[0] = seq_num;
++	dcmd->mbox.w[1] = curr_aen.word;
++	dcmd->sgl.sge32[0].phys_addr = (u32) instance->evt_detail_h;
++	dcmd->sgl.sge32[0].length = sizeof(struct megasas_evt_detail);
++
++	/*
++	 * Store reference to the cmd used to register for AEN. When an
++	 * application wants us to register for AEN, we have to abort this
++	 * cmd and re-register with a new EVENT LOCALE supplied by that app
++	 */
++	instance->aen_cmd = cmd;
++
++	/*
++	 * Issue the aen registration frame
++	 */
++	writel(cmd->frame_phys_addr >> 3,
++	       &instance->reg_set->inbound_queue_port);
++
++	return 0;
++}
++
++/**
++ * megasas_start_aen -	Subscribes to AEN during driver load time
++ * @instance:		Adapter soft state
++ */
++static int megasas_start_aen(struct megasas_instance *instance)
++{
++	struct megasas_evt_log_info eli;
++	union megasas_evt_class_locale class_locale;
++
++	/*
++	 * Get the latest sequence number from FW
++	 */
++	memset(&eli, 0, sizeof(eli));
++
++	if (megasas_get_seq_num(instance, &eli))
++		return -1;
++
++	/*
++	 * Register AEN with FW for latest sequence number plus 1
++	 */
++	class_locale.members.reserved = 0;
++	class_locale.members.locale = MR_EVT_LOCALE_ALL;
++	class_locale.members.class = MR_EVT_CLASS_DEBUG;
++
++	return megasas_register_aen(instance, eli.newest_seq_num + 1,
++				    class_locale.word);
++}
++
++/**
++ * megasas_io_attach -	Attaches this driver to SCSI mid-layer
++ * @instance:		Adapter soft state
++ */
++static int megasas_io_attach(struct megasas_instance *instance)
++{
++	struct Scsi_Host *host = instance->host;
++
++	/*
++	 * Export parameters required by SCSI mid-layer
++	 */
++	host->irq = instance->pdev->irq;
++	host->unique_id = instance->unique_id;
++	host->can_queue = instance->max_fw_cmds - MEGASAS_INT_CMDS;
++	host->this_id = instance->init_id;
++	host->sg_tablesize = instance->max_num_sge;
++	host->max_sectors = instance->max_sectors_per_req;
++	host->cmd_per_lun = 128;
++	host->max_channel = MEGASAS_MAX_CHANNELS - 1;
++	host->max_id = MEGASAS_MAX_DEV_PER_CHANNEL;
++	host->max_lun = MEGASAS_MAX_LUN;
++
++	/*
++	 * Notify the mid-layer about the new controller
++	 */
++	if (scsi_add_host(host, &instance->pdev->dev)) {
++		printk(KERN_DEBUG "megasas: scsi_add_host failed\n");
++		return -ENODEV;
++	}
++
++	/*
++	 * Trigger SCSI to scan our drives
++	 */
++	scsi_scan_host(host);
++	return 0;
++}
++
++/**
++ * megasas_probe_one -	PCI hotplug entry point
++ * @pdev:		PCI device structure
++ * @id:			PCI ids of supported hotplugged adapter	
++ */
++static int __devinit
++megasas_probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
++{
++	int rval;
++	struct Scsi_Host *host;
++	struct megasas_instance *instance;
++
++	/*
++	 * Announce PCI information
++	 */
++	printk(KERN_INFO "megasas: %#4.04x:%#4.04x:%#4.04x:%#4.04x: ",
++	       pdev->vendor, pdev->device, pdev->subsystem_vendor,
++	       pdev->subsystem_device);
++
++	printk(KERN_INFO "megasas: bus %d:slot %d:func %d\n",
++	       pdev->bus->number, PCI_SLOT(pdev->devfn),
+PCI_FUNC(pdev->devfn));
++
++	/*
++	 * PCI prepping: enable device set bus mastering and dma mask
++	 */
++	rval = pci_enable_device(pdev);
++
++	if (rval) {
++		return rval;
++	}
++
++	pci_set_master(pdev);
++
++	/*
++	 * All our contollers are capable of performing 64-bit DMA
++	 */
++	if (IS_DMA64) {
++		if (pci_set_dma_mask(pdev, DMA_64BIT_MASK) != 0) {
++
++			if (pci_set_dma_mask(pdev, DMA_32BIT_MASK) != 0)
++				goto fail_set_dma_mask;
++		}
++	} else {
++		if (pci_set_dma_mask(pdev, DMA_32BIT_MASK) != 0)
++			goto fail_set_dma_mask;
++	}
++
++	host = scsi_host_alloc(&megasas_template,
++			       sizeof(struct megasas_instance));
++
++	if (!host) {
++		printk(KERN_DEBUG "megasas: scsi_host_alloc failed\n");
++		goto fail_alloc_instance;
++	}
++
++	instance = (struct megasas_instance *)host->hostdata;
++	memset(instance, 0, sizeof(*instance));
++
++	instance->producer = pci_alloc_consistent(pdev, sizeof(u32),
++						  &instance->producer_h);
++	instance->consumer = pci_alloc_consistent(pdev, sizeof(u32),
++						  &instance->consumer_h);
++
++	if (!instance->producer || !instance->consumer) {
++		printk(KERN_DEBUG "megasas: Failed to allocate memory for "
++		       "producer, consumer\n");
++		goto fail_alloc_dma_buf;
++	}
++
++	*instance->producer = 0;
++	*instance->consumer = 0;
++
++	instance->evt_detail = pci_alloc_consistent(pdev,
++						    sizeof(struct
++
+megasas_evt_detail),
++
+&instance->evt_detail_h);
++
++	if (!instance->evt_detail) {
++		printk(KERN_DEBUG "megasas: Failed to allocate memory for "
++		       "event detail structure\n");
++		goto fail_alloc_dma_buf;
++	}
++
++	/*
++	 * Initialize locks and queues
++	 */
++	INIT_LIST_HEAD(&instance->cmd_pool);
++
++	init_waitqueue_head(&instance->int_cmd_wait_q);
++	init_waitqueue_head(&instance->abort_cmd_wait_q);
++
++	spin_lock_init(&instance->cmd_pool_lock);
++	spin_lock_init(&instance->instance_lock);
++
++	sema_init(&instance->aen_mutex, 1);
++	sema_init(&instance->ioctl_sem, MEGASAS_INT_CMDS);
++
++	/*
++	 * Initialize PCI related and misc parameters
++	 */
++	instance->pdev = pdev;
++	instance->host = host;
++	instance->unique_id = pdev->bus->number << 8 | pdev->devfn;
++	instance->init_id = MEGASAS_DEFAULT_INIT_ID;
++
++	/*
++	 * Initialize MFI Firmware
++	 */
++	if (megasas_init_mfi(instance))
++		goto fail_init_mfi;
++
++	/*
++	 * Register IRQ
++	 */
++	if (request_irq(pdev->irq, megasas_isr, SA_SHIRQ, "megasas",
+instance)) {
++		printk(KERN_DEBUG "megasas: Failed to register IRQ\n");
++		goto fail_irq;
++	}
++
++	megasas_enable_intr(instance->reg_set);
++
++	/*
++	 * Store instance in PCI softstate
++	 */
++	pci_set_drvdata(pdev, instance);
++
++	/*
++	 * Add this controller to megasas_mgmt_info structure so that it
++	 * can be exported to management applications
++	 */
++	megasas_mgmt_info.count++;
++	megasas_mgmt_info.instance[megasas_mgmt_info.max_index] = instance;
++	megasas_mgmt_info.max_index++;
++
++	/*
++	 * Initiate AEN (Asynchronous Event Notification)
++	 */
++	if (megasas_start_aen(instance)) {
++		printk(KERN_DEBUG "megasas: start aen failed\n");
++		goto fail_start_aen;
++	}
++
++	/*
++	 * Register with SCSI mid-layer
++	 */
++	if (megasas_io_attach(instance))
++		goto fail_io_attach;
++
++	return 0;
++
++      fail_start_aen:
++      fail_io_attach:
++	megasas_mgmt_info.count--;
++	megasas_mgmt_info.instance[megasas_mgmt_info.max_index] = NULL;
++	megasas_mgmt_info.max_index--;
++
++	pci_set_drvdata(pdev, NULL);
++	megasas_disable_intr(instance->reg_set);
++	free_irq(instance->pdev->irq, instance);
++
++	megasas_release_mfi(instance);
++
++      fail_irq:
++      fail_init_mfi:
++      fail_alloc_dma_buf:
++	if (instance->evt_detail)
++		pci_free_consistent(pdev, sizeof(struct megasas_evt_detail),
++				    instance->evt_detail,
++				    instance->evt_detail_h);
++
++	if (instance->producer)
++		pci_free_consistent(pdev, sizeof(u32), instance->producer,
++				    instance->producer_h);
++	if (instance->consumer)
++		pci_free_consistent(pdev, sizeof(u32), instance->consumer,
++				    instance->consumer_h);
++	scsi_host_put(host);
++
++      fail_alloc_instance:
++      fail_set_dma_mask:
++	pci_disable_device(pdev);
++
++	return -ENODEV;
++}
++
++/**
++ * megasas_flush_cache -	Requests FW to flush all its caches
++ * @instance:			Adapter soft state
++ */
++static void megasas_flush_cache(struct megasas_instance *instance)
++{
++	struct megasas_cmd *cmd;
++	struct megasas_dcmd_frame *dcmd;
++
++	cmd = megasas_get_cmd(instance);
++
++	if (!cmd)
++		return;
++
++	dcmd = &cmd->frame->dcmd;
++
++	memset(dcmd->mbox.b, 0, MFI_MBOX_SIZE);
++
++	dcmd->cmd = MFI_CMD_DCMD;
++	dcmd->cmd_status = 0x0;
++	dcmd->sge_count = 0;
++	dcmd->flags = MFI_FRAME_DIR_NONE;
++	dcmd->timeout = 0;
++	dcmd->data_xfer_len = 0;
++	dcmd->opcode = MR_DCMD_CTRL_CACHE_FLUSH;
++	dcmd->mbox.b[0] = MR_FLUSH_CTRL_CACHE | MR_FLUSH_DISK_CACHE;
++
++	megasas_issue_blocked_cmd(instance, cmd);
++
++	megasas_return_cmd(instance, cmd);
++
++	return;
++}
++
++/**
++ * megasas_shutdown_controller -	Instructs FW to shutdown the
+controller
++ * @instance:				Adapter soft state
++ */
++static void megasas_shutdown_controller(struct megasas_instance *instance)
++{
++	struct megasas_cmd *cmd;
++	struct megasas_dcmd_frame *dcmd;
++
++	cmd = megasas_get_cmd(instance);
++
++	if (!cmd) ;
++	return;
++
++	if (instance->aen_cmd)
++		megasas_issue_blocked_abort_cmd(instance,
+instance->aen_cmd);
++
++	dcmd = &cmd->frame->dcmd;
++
++	memset(dcmd->mbox.b, 0, MFI_MBOX_SIZE);
++
++	dcmd->cmd = MFI_CMD_DCMD;
++	dcmd->cmd_status = 0x0;
++	dcmd->sge_count = 0;
++	dcmd->flags = MFI_FRAME_DIR_NONE;
++	dcmd->timeout = 0;
++	dcmd->data_xfer_len = 0;
++	dcmd->opcode = MR_DCMD_CTRL_SHUTDOWN;
++
++	megasas_issue_blocked_cmd(instance, cmd);
++
++	megasas_return_cmd(instance, cmd);
++
++	return;
++}
++
++/**
++ * megasas_detach_one -	PCI hot"un"plug entry point
++ * @pdev:		PCI device structure
++ */
++static void megasas_detach_one(struct pci_dev *pdev)
++{
++	int i;
++	struct Scsi_Host *host;
++	struct megasas_instance *instance;
++
++	instance = pci_get_drvdata(pdev);
++	host = instance->host;
++
++	scsi_remove_host(instance->host);
++	megasas_flush_cache(instance);
++	megasas_shutdown_controller(instance);
++
++	/*
++	 * Take the instance off the instance array. Note that we will not
++	 * decrement the max_index. We let this array be sparse array
++	 */
++	for (i = 0; i < megasas_mgmt_info.max_index; i++) {
++		if (megasas_mgmt_info.instance[i] == instance) {
++			megasas_mgmt_info.count--;
++			megasas_mgmt_info.instance[i] = NULL;
++
++			break;
++		}
++	}
++
++	pci_set_drvdata(instance->pdev, NULL);
++
++	megasas_disable_intr(instance->reg_set);
++
++	free_irq(instance->pdev->irq, instance);
++
++	megasas_release_mfi(instance);
++
++	pci_free_consistent(pdev, sizeof(struct megasas_evt_detail),
++			    instance->evt_detail, instance->evt_detail_h);
++
++	pci_free_consistent(pdev, sizeof(u32), instance->producer,
++			    instance->producer_h);
++
++	pci_free_consistent(pdev, sizeof(u32), instance->consumer,
++			    instance->consumer_h);
++
++	scsi_host_put(host);
++
++	pci_set_drvdata(pdev, NULL);
++
++	pci_disable_device(pdev);
++
++	return;
++}
++
++/**
++ * megasas_shutdown -	Shutdown entry point
++ * @device:		Generic device structure
++ */
++static void megasas_shutdown(struct pci_dev *pdev)
++{
++	struct megasas_instance *instance = pci_get_drvdata(pdev);
++	megasas_flush_cache(instance);
++}
++
++/**
++ * megasas_mgmt_open -	char node "open" entry point
++ */
++static int megasas_mgmt_open(struct inode *inode, struct file *filep)
++{
++	/*
++	 * Allow only those users with admin rights
++	 */
++	if (!capable(CAP_SYS_ADMIN))
++		return -EACCES;
++
++	return 0;
++}
++
++/**
++ * megasas_mgmt_release - char node "release" entry point
++ */
++static int megasas_mgmt_release(struct inode *inode, struct file *filep)
++{
++	filep->private_data = NULL;
++	fasync_helper(-1, filep, 0, &megasas_async_queue);
++
++	return 0;
++}
++
++/**
++ * megasas_mgmt_fasync -	Async notifier registration from
+applications
++ *
++ * This function adds the calling process to a driver global queue. When an
++ * event occurs, SIGIO will be sent to all processes in this queue.
++ */
++static int megasas_mgmt_fasync(int fd, struct file *filep, int mode)
++{
++	int rc;
++
++	down(&megasas_async_queue_mutex);
++
++	rc = fasync_helper(fd, filep, mode, &megasas_async_queue);
++
++	up(&megasas_async_queue_mutex);
++
++	if (rc >= 0) {
++		/* For sanity check when we get ioctl */
++		filep->private_data = filep;
++		return 0;
++	}
++
++	printk(KERN_DEBUG "megasas: fasync_helper failed [%d]\n", rc);
++
++	return rc;
++}
++
++/**
++ * megasas_mgmt_fw_ioctl -	Issues management ioctls to FW
++ * @instance:			Adapter soft state
++ * @argp:			User's ioctl packet
++ */
++static int
++megasas_mgmt_fw_ioctl(struct megasas_instance *instance,
++		      struct megasas_iocpacket __user * user_ioc,
++		      struct megasas_iocpacket *ioc)
++{
++	struct megasas_sge32 *kern_sge32;
++	struct megasas_cmd *cmd;
++	void *kbuff_arr[MAX_IOCTL_SGE];
++	dma_addr_t buf_handle = 0;
++	int error = 0, i;
++	void *sense = NULL;
++	dma_addr_t sense_handle;
++	u32 *sense_ptr;
++
++	memset(kbuff_arr, 0, sizeof(kbuff_arr));
++
++	if (ioc->sge_count > MAX_IOCTL_SGE) {
++		printk(KERN_DEBUG "megasas: SGE count [%d] >  max limit
+[%d]\n",
++		       ioc->sge_count, MAX_IOCTL_SGE);
++		return -EINVAL;
++	}
++
++	cmd = megasas_get_cmd(instance);
++	if (!cmd) {
++		printk(KERN_DEBUG "megasas: Failed to get a cmd packet\n");
++		return -ENOMEM;
++	}
++
++	/*
++	 * User's IOCTL packet has 2 frames (maximum). Copy those two
++	 * frames into our cmd's frames. cmd->frame's context will get
++	 * overwritten when we copy from user's frames. So set that value
++	 * alone separately
++	 */
++	memcpy(cmd->frame, ioc->frame.raw, 2 * MEGAMFI_FRAME_SIZE);
++	cmd->frame->hdr.context = cmd->index;
++
++	/*
++	 * The management interface between applications and the fw uses
++	 * MFI frames. E.g, RAID configuration changes, LD property changes
++	 * etc are accomplishes through different kinds of MFI frames. The
++	 * driver needs to care only about substituting user buffers with
++	 * kernel buffers in SGLs. The location of SGL is embedded in the
++	 * struct iocpacket itself.
++	 */
++	kern_sge32 = (struct megasas_sge32 *)
++	    ((unsigned long)cmd->frame + ioc->sgl_off);
++
++	/*
++	 * For each user buffer, create a mirror buffer and copy in
++	 */
++	for (i = 0; i < ioc->sge_count; i++) {
++		kbuff_arr[i] = pci_alloc_consistent(instance->pdev,
++						    ioc->sgl[i].iov_len,
++						    &buf_handle);
++		if (!kbuff_arr[i]) {
++			printk(KERN_DEBUG "megasas: Failed to alloc "
++			       "kernel SGL buffer for IOCTL \n");
++			error = -ENOMEM;
++			goto out;
++		}
++
++		/*
++		 * We don't change the dma_coherent_mask, so
++		 * pci_alloc_consistent only returns 32bit addresses
++		 */
++		kern_sge32[i].phys_addr = (u32) buf_handle;
++		kern_sge32[i].length = ioc->sgl[i].iov_len;
++
++		/*
++		 * We created a kernel buffer corresponding to the
++		 * user buffer. Now copy in from the user buffer
++		 */
++		if (copy_from_user(kbuff_arr[i], ioc->sgl[i].iov_base,
++				   ioc->sgl[i].iov_len)) {
++			error = -EFAULT;
++			goto out;
++		}
++	}
++
++	if (ioc->sense_len) {
++		sense = pci_alloc_consistent(instance->pdev, ioc->sense_len,
++					     &sense_handle);
++		if (!sense) {
++			error = -ENOMEM;
++			goto out;
++		}
++
++		sense_ptr =
++		    (u32 *) ((unsigned long)cmd->frame + ioc->sense_off);
++		*sense_ptr = sense_handle;
++	}
++
++	/*
++	 * Set the sync_cmd flag so that the ISR knows not to complete this
++	 * cmd to the SCSI mid-layer
++	 */
++	cmd->sync_cmd = 1;
++	megasas_issue_blocked_cmd(instance, cmd);
++
++	/*
++	 * copy out the kernel buffers user buffers
++	 */
++	for (i = 0; i < ioc->sge_count; i++) {
++		if (copy_to_user(ioc->sgl[i].iov_base, kbuff_arr[i],
++				 ioc->sgl[i].iov_len)) {
++			error = -EFAULT;
++			goto out;
++		}
++	}
++
++	/*
++	 * copy out the sense
++	 */
++	if (ioc->sense_len) {
++		/*
++		 * sense_ptr points to the location that has the user
++		 * sense buffer address
++		 */
++		sense_ptr = (u32 *) ((unsigned long)ioc->frame.raw +
++				     ioc->sense_off);
++
++		if (copy_to_user((void __user *)((unsigned
+long)(*sense_ptr)),
++				 sense, ioc->sense_len)) {
++			error = -EFAULT;
++			goto out;
++		}
++	}
++
++	/*
++	 * copy the status codes returned by the fw
++	 */
++	if (put_user(cmd->frame->hdr.cmd_status,
++		     &user_ioc->frame.hdr.cmd_status))
++		error = -EFAULT;
++
++      out:
++	if (sense) {
++		pci_free_consistent(instance->pdev, ioc->sense_len,
++				    sense, sense_handle);
++	}
++
++	for (i = 0; i < ioc->sge_count && kbuff_arr[i]; i++) {
++		pci_free_consistent(instance->pdev,
++				    kern_sge32[i].length,
++				    kbuff_arr[i], kern_sge32[i].phys_addr);
++	}
++
++	megasas_return_cmd(instance, cmd);
++	return error;
++}
++
++static struct megasas_instance *megasas_lookup_instance(u16 host_no)
++{
++	int i;
++
++	for (i = 0; i < megasas_mgmt_info.max_index; i++) {
++
++		if ((megasas_mgmt_info.instance[i]) &&
++		    (megasas_mgmt_info.instance[i]->host->host_no ==
+host_no))
++			return megasas_mgmt_info.instance[i];
++	}
++
++	return NULL;
++}
++
++static int megasas_mgmt_ioctl_fw(struct file *file, unsigned long arg)
++{
++	struct megasas_iocpacket __user *user_ioc =
++	    (struct megasas_iocpacket __user *)arg;
++	struct megasas_iocpacket *ioc;
++	struct megasas_instance *instance;
++	int error;
++
++	ioc = kmalloc(sizeof(*ioc), GFP_KERNEL);
++	if (!ioc)
++		return -ENOMEM;
++
++	if (copy_from_user(ioc, user_ioc, sizeof(*ioc))) {
++		error = -EFAULT;
++		goto out_kfree_ioc;
++	}
++
++	instance = megasas_lookup_instance(ioc->host_no);
++	if (!instance) {
++		error = -ENODEV;
++		goto out_kfree_ioc;
++	}
++
++	/*
++	 * We will allow only MEGASAS_INT_CMDS number of parallel ioctl cmds
++	 */
++	if (down_interruptible(&instance->ioctl_sem)) {
++		error = -ERESTARTSYS;
++		goto out_kfree_ioc;
++	}
++	error = megasas_mgmt_fw_ioctl(instance, user_ioc, ioc);
++	up(&instance->ioctl_sem);
++
++      out_kfree_ioc:
++	kfree(ioc);
++	return error;
++}
++
++static int megasas_mgmt_ioctl_aen(struct file *file, unsigned long arg)
++{
++	struct megasas_instance *instance;
++	struct megasas_aen aen;
++	int error;
++
++	if (file->private_data != file) {
++		printk(KERN_DEBUG "megasas: fasync_helper was not "
++		       "called first\n");
++		return -EINVAL;
++	}
++
++	if (copy_from_user(&aen, (void __user *)arg, sizeof(aen)))
++		return -EFAULT;
++
++	instance = megasas_lookup_instance(aen.host_no);
++
++	if (!instance)
++		return -ENODEV;
++
++	down(&instance->aen_mutex);
++	error = megasas_register_aen(instance, aen.seq_num,
++				     aen.class_locale_word);
++	up(&instance->aen_mutex);
++	return error;
++}
++
++/**
++ * megasas_mgmt_ioctl -	char node ioctl entry point
++ */
++static long
++megasas_mgmt_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
++{
++	switch (cmd) {
++	case MEGASAS_IOC_FIRMWARE:
++		return megasas_mgmt_ioctl_fw(file, arg);
++
++	case MEGASAS_IOC_GET_AEN:
++		return megasas_mgmt_ioctl_aen(file, arg);
++	}
++
++	return -ENOTTY;
++}
++
++#ifdef CONFIG_COMPAT
++struct compat_megasas_iocpacket {
++	u16 host_no;
++	u16 __pad1;
++	u32 sgl_off;
++	u32 sge_count;
++	union {
++		u8 raw[128];
++		struct megasas_header hdr;
++	} frame;
++	struct compat_iovec sgl[MAX_IOCTL_SGE];
++} __attribute__ ((packed));
++
++static int megasas_mgmt_compat_ioctl_fw(struct file *file, unsigned long
+arg)
++{
++	struct megasas_iocpacket __user *ioc =
++	    (struct megasas_iocpacket __user *)arg;
++	struct compat_megasas_iocpacket __user *cioc =
++	    compat_alloc_user_space(sizeof(*cioc));
++	int i;
++
++	if (copy_in_user(&cioc->host_no, &ioc->host_no, sizeof(u16)) ||
++	    copy_in_user(&cioc->sgl_off, &ioc->sgl_off, sizeof(u32)) ||
++	    copy_in_user(&cioc->sge_count, &ioc->sge_count, sizeof(u32)))
++		return -EFAULT;
++
++	for (i = 0; i < MAX_IOCTL_SGE; i++) {
++		compat_uptr_t ptr;
++
++		if (get_user(ptr, &cioc->sgl[i].iov_base) ||
++		    put_user(compat_ptr(ptr), &ioc->sgl[i].iov_base) ||
++		    copy_in_user(&cioc->sgl[i].iov_len,
++				 &ioc->sgl[i].iov_len,
+sizeof(compat_size_t)))
++			return -EFAULT;
++	}
++
++	return megasas_mgmt_ioctl_fw(file, (unsigned long)cioc);
++}
++
++static long
++megasas_mgmt_compat_ioctl(struct file *file, unsigned int cmd,
++			  unsigned long arg)
++{
++	switch (cmd) {
++	case MEGASAS_IOC_FIRMWARE:{
++			return megasas_mgmt_compat_ioctl_fw(file, arg);
++		}
++	case MEGASAS_IOC_GET_AEN:
++		return megasas_mgmt_ioctl_aen(file, arg);
++	}
++
++	return -ENOTTY;
++}
++#endif
++
++/*
++ * File operations structure for management interface
++ */
++static struct file_operations megasas_mgmt_fops = {
++	.owner = THIS_MODULE,
++	.open = megasas_mgmt_open,
++	.release = megasas_mgmt_release,
++	.fasync = megasas_mgmt_fasync,
++	.unlocked_ioctl = megasas_mgmt_ioctl,
++#ifdef CONFIG_COMPAT
++	.compat_ioctl = megasas_mgmt_compat_ioctl,
++#endif
++};
++
++/*
++ * PCI hotplug support registration structure
++ */
++static struct pci_driver megasas_pci_driver = {
++
++	.name = "megaraid_sas",
++	.id_table = megasas_pci_table,
++	.probe = megasas_probe_one,
++	.remove = __devexit_p(megasas_detach_one),
++	.shutdown = megasas_shutdown,
++};
++
++/*
++ * Sysfs driver attributes
++ */
++static ssize_t megasas_sysfs_show_version(struct device_driver *dd, char
+*buf)
++{
++	return snprintf(buf, strlen(MEGASAS_VERSION) + 2, "%s\n",
++			MEGASAS_VERSION);
++}
++
++static DRIVER_ATTR(version, S_IRUGO, megasas_sysfs_show_version, NULL);
++
++static ssize_t
++megasas_sysfs_show_release_date(struct device_driver *dd, char *buf)
++{
++	return snprintf(buf, strlen(MEGASAS_RELDATE) + 2, "%s\n",
++			MEGASAS_RELDATE);
++}
++
++static DRIVER_ATTR(release_date, S_IRUGO, megasas_sysfs_show_release_date,
++		   NULL);
++
++/**
++ * megasas_init - Driver load entry point
++ */
++static int __init megasas_init(void)
++{
++	int rval;
++
++	/*
++	 * Announce driver version and other information
++	 */
++	printk(KERN_INFO "megasas: %s %s\n", MEGASAS_VERSION,
++	       MEGASAS_EXT_VERSION);
++
++	memset(&megasas_mgmt_info, 0, sizeof(megasas_mgmt_info));
++
++	/*
++	 * Register character device node
++	 */
++	rval = register_chrdev(0, "megaraid_sas_ioctl", &megasas_mgmt_fops);
++
++	if (rval < 0) {
++		printk(KERN_DEBUG "megasas: failed to open device node\n");
++		return rval;
++	}
++
++	megasas_mgmt_majorno = rval;
++
++	/*
++	 * Register ourselves as PCI hotplug module
++	 */
++	rval = pci_module_init(&megasas_pci_driver);
++
++	if (rval) {
++		printk(KERN_DEBUG "megasas: PCI hotplug regisration failed
+\n");
++		unregister_chrdev(megasas_mgmt_majorno,
+"megaraid_sas_ioctl");
++	}
++
++	driver_create_file(&megasas_pci_driver.driver,
+&driver_attr_version);
++	driver_create_file(&megasas_pci_driver.driver,
++			   &driver_attr_release_date);
++
++	return rval;
++}
++
++/**
++ * megasas_exit - Driver unload entry point
++ */
++static void __exit megasas_exit(void)
++{
++	driver_remove_file(&megasas_pci_driver.driver,
+&driver_attr_version);
++	driver_remove_file(&megasas_pci_driver.driver,
++			   &driver_attr_release_date);
++
++	pci_unregister_driver(&megasas_pci_driver);
++	unregister_chrdev(megasas_mgmt_majorno, "megaraid_sas_ioctl");
++}
++
++module_init(megasas_init);
++module_exit(megasas_exit);
+

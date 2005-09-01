@@ -1,70 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750918AbVIAMth@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965095AbVIAM4H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750918AbVIAMth (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 08:49:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750901AbVIAMth
+	id S965095AbVIAM4H (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 08:56:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965097AbVIAM4H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 08:49:37 -0400
-Received: from [203.171.93.254] ([203.171.93.254]:39905 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S1750744AbVIAMth (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 08:49:37 -0400
-Subject: Re: reboot vs poweroff (was: Linux 2.6.13)
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Pierre Ossman <drzeus-list@drzeus.cx>, Pavel Machek <pavel@ucw.cz>
-Cc: Meelis Roos <mroos@linux.ee>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Eric W.Biederman" <ebiederm@xmission.com>,
-       Len Brown <len.brown@intel.com>
-In-Reply-To: <4316F4E3.4030302@drzeus.cx>
-References: <20050901062406.EBA5613D5B@rhn.tartu-labor>
-	 <1125557333.12996.76.camel@localhost>
-	 <Pine.SOC.4.61.0509011030430.3232@math.ut.ee>  <4316F4E3.4030302@drzeus.cx>
-Content-Type: text/plain
-Organization: Cyclades
-Message-Id: <1125578897.4785.23.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 01 Sep 2005 22:48:17 +1000
-Content-Transfer-Encoding: 7bit
+	Thu, 1 Sep 2005 08:56:07 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:43140 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S965095AbVIAM4G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 08:56:06 -0400
+Date: Thu, 1 Sep 2005 14:55:34 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+cc: akpm@osdl.org, joe.korty@ccur.com, george@mvista.com, johnstul@us.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: RE: FW: [RFC] A more general timeout specification
+In-Reply-To: <F989B1573A3A644BAB3920FBECA4D25A042B057C@orsmsx407>
+Message-ID: <Pine.LNX.4.61.0509011410490.3728@scrub.home>
+References: <F989B1573A3A644BAB3920FBECA4D25A042B057C@orsmsx407>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-09-01 at 22:32, Pierre Ossman wrote:
-> Meelis Roos wrote:
-> > 
-> > It's OK then - I'm not using any suspend and I had a problem that my
-> > machine powered down instead of reboot. The patch that went into 2.6.13
-> > after rc7 fixed it for me. So the current tree is OK for me and if it's
-> > OK for you too after suspend2 changes then this case can probably be
-> > closed.
-> > 
+Hi,
+
+On Thu, 1 Sep 2005, Perez-Gonzalez, Inaky wrote:
+
+> >You still didn't explain what's the point in choosing different clock
+> >sources for a _timeout_.
 > 
-> I'm still having problems with this patch. Both swsusp and swsusp2 are
-> affected. Perhaps the fix Nigel did needs to be done to swsusp aswell?
-
-Yes, it does need modifying. I'll leave it to Pavel to do that though as
-he's more familiar with the intricacies of that code than I am.
-
-Regards,
-
-Nigel
-
-> Bugzilla entry:
+> The same reasons that compel to have CLOCK_REALTIME or 
+> CLOCK_MONOTONIC, for example. Or the need to time out on a
+> high resolution clock. 
 > 
-> http://bugme.osdl.org/show_bug.cgi?id=4320
-> 
-> Rgds
-> Pierre
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-Evolution.
-Enumerate the requirements.
-Consider the interdependencies.
-Calculate the probabilities.
+> A certain application might have a need for a 10ms timeout, 
+> but another one might have it on 100us--modern CPUs make that
+> more than possible. The precission of your time source permeates
+> to the precission of your timeout.
 
+Please give me a realistic and non-broken example.
+We can add lots of stuff to the kernel, because it _might_ be needed, but 
+we (usually) don't if it hurts the general case, just adds bloat and 
+userspace can achieve the same thing via different means.
+
+> [of course, now at the end it is still kernel time, but the 
+> ongoing revamp work on timers will change some of that, one
+> way or another].
+
+That doesn't mean it has to be exported via every single kernel API, which 
+allows to specify a time.
+
+> >You didn't answer my other question, let's assume we add such a timeout
+> >structure, what's wrong with converting it to kernel time (which would
+> >automatically validate it).
+> 
+> And again, that's what at the end this API is doing, convering it to 
+> kernel time. 
+
+No, it's not doing this at the validation point.
+
+> Give it a more "human" specification (timespec) and gets the job done.
+> No need to care on how long a jiffy is today in this system, no need
+> to replicate endlessly the conversion code, which happens to be
+> non-trivial (for the absolute time case--but still way more trivial 
+> than userspace asking the kernel for the time, computing a relative 
+> shift and dealing with the skews that preemption at a Murphy moment 
+> could cause). 
+> 
+> It is mostly the same as schedule_timeout(), but it takes the sleep
+> time in a more general format. As every other API, it is designed so 
+> that the caller doesn't need to care or know about the gory details 
+> on how it has to be converted.
+
+Sorry, but I don't get what you're talking about. What has the user space 
+concept of time to do with how the kernel finally handles a timeout?
+More specifically why does the first require a new API in the kernel to 
+deal with all kinds of timeouts?
+
+bye, Roman

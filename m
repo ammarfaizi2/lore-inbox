@@ -1,74 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751000AbVIAH0f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965074AbVIAHcL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751000AbVIAH0f (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 03:26:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751020AbVIAH0f
+	id S965074AbVIAHcL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 03:32:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965076AbVIAHcL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 03:26:35 -0400
-Received: from wproxy.gmail.com ([64.233.184.203]:37767 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750992AbVIAH0e convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 03:26:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=mh89E+qjR6mUSXhdvpj6xcxedPkQ5Jb2aaKknsjFeIB/pgTJi8nhulWOwVcvfNxM2cZDchnW+uZyI3PClfzdQWQQbknJsAz0zD7lhHHvz1WAz8dxVftnbCNGEvX4KOq86IOzj7ojzZUv2Tj2bpERMZYM6XpOnHcQFVH4NrWBRvs=
-Message-ID: <21c563b60509010026ed7265b@mail.gmail.com>
-Date: Thu, 1 Sep 2005 15:26:33 +0800
-From: zhang yuanyi <zhangyuanyi@gmail.com>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Subject: Re: What about adding range support for u32 classifier?
-Cc: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, linux-kernel@vger.kernel.org
-In-Reply-To: <9a8748490508300514414410b5@mail.gmail.com>
+	Thu, 1 Sep 2005 03:32:11 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:61643 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965074AbVIAHcK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 03:32:10 -0400
+Date: Thu, 1 Sep 2005 09:32:41 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Florian Schmidt <mista.tapas@gmx.net>
+Cc: "Jack O'Quin" <joq@io.com>,
+       Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       jackit-devel@lists.sourceforge.net, Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel@vger.kernel.org, cc@ccrma.Stanford.EDU,
+       Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [Jackit-devel] Re: jack, PREEMPT_DESKTOP, delayed interrupts?
+Message-ID: <20050901073241.GA6641@elte.hu>
+References: <1125453795.25823.121.camel@cmn37.stanford.edu> <20050831073518.GA7582@elte.hu> <7q64tmnwbb.fsf@io.com> <20050831175036.5640e221@mango.fruits.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <21c563b6050829202372189527@mail.gmail.com>
-	 <9a8748490508300514414410b5@mail.gmail.com>
+In-Reply-To: <20050831175036.5640e221@mango.fruits.de>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2005/8/30, Jesper Juhl <jesper.juhl@gmail.com>:
-> On 8/30/05, zhang yuanyi <zhangyuanyi@gmail.com> wrote:
-> > Hello, everyone!
-> >
-> > The "range support" may be puzzled, but I don't know how to express my
-> > problem exactly because of my poor english.
-> >
-> > Just take an example, I may need all udp packets received on eth0
-> > which source port is greater than 53 going into flow 10:1,  and I only
-> > wanna to type one tc command like this(In fact, I communicated with
-> > kernel directly):
-> >
-> >     tc filter add dev eth0 parent ffff: protocol ip prio 20 \
-> >                                   u32 match udp sport gt 53 0xffff \
-> >                                         match ip protocol 17 0xff\
-> >                                    flowid 10:1
-> >
-> > But I found I can't, because u32 classifier doesn't support matching
-> > multi-value in one key.So I need to add (65535-53) keys to a u32
-> > filter to implement this.
-> >
-> > I intend to solve this problem by modifying u32 filter to match
-> > multi-value in one key, but I am worrying the preformance.
-> >
-> > Can someone give me some suggestions?
-> >
-> How is this a kernel problem?
-> "tc" is a userspace app. I think you'd be better off talking to Alexey
-> Kuznetsov (added to Cc), who wrote tc, about this.
+
+* Florian Schmidt <mista.tapas@gmx.net> wrote:
+
+> > JACK sources already include a CHECK_PREEMPTION() macro which expands
+> > to Ingo's special gettimeofday() calls.  The trace is turned on and
+> > then off automatically before and after the realtime critical section
+> > in the process thread (see libjack/client.c).  
 > 
-Actually, I communicated with kernel directly in my app and don't use tc at all.
+> Just for completeness sake:
+> 
+> you need to build jackd with --enable-preemption-check
 
-That tc command is used just for expressing my problem conveniently.
+this is another feature, unrelated to latency tracing. So (an adapted 
+version of) the latency-tracing patch i sent should still be tried.
 
-My problem is that I need to match udp/tcp packets with different s/d
-port(f.e., all udp packets which source port is greater than 53 and
-less than 5069) on ingress, but u32 classifier in kernel(not the tc
-app) doesn't support matching value in a range.
+--enable-preemption-check does the 'send SIGUSR2 if jackd gets scheduled 
+unexpectedly'. That might unearth latencies, but it does not by itself 
+measure latencies. Right now we are more interested in the latencies 
+themselves.
 
-So I think I may need to modify the kernel to add range support for
-u32 classifier. But I am worrying its performance will be down.
+i suspect the confusion comes from the API hacks i'm using: user-space 
+tracing is started/stopped via:
 
-Does anyone have a more clever solution?
+	gettimeofday(0,1);
+	gettimeofday(0,0);
+
+while 'jackd does not want to be scheduled' flag is switched on/off via:
+
+	gettimeofday(1,1);
+	gettimeofday(1,0);
+
+(introducing extra syscalls for this is an overkill.)
+
+	Ingo

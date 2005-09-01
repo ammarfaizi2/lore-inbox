@@ -1,103 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030278AbVIASRi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030280AbVIASTu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030278AbVIASRi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 14:17:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030280AbVIASRh
+	id S1030280AbVIASTu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 14:19:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030282AbVIASTt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 14:17:37 -0400
-Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:48848 "EHLO
-	palpatine.hardeman.nu") by vger.kernel.org with ESMTP
-	id S1030278AbVIASRh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 14:17:37 -0400
-Date: Thu, 1 Sep 2005 20:17:23 +0200
-From: David =?iso-8859-1?Q?H=E4rdeman?= <david@2gen.com>
-To: linux-kernel@vger.kernel.org
-Subject: Consolidate dprintk and friends?
-Message-ID: <20050901181722.GA4604@hansolo>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-User-Agent: Mutt/1.5.10i
+	Thu, 1 Sep 2005 14:19:49 -0400
+Received: from [85.8.12.41] ([85.8.12.41]:45209 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S1030280AbVIASTt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 14:19:49 -0400
+Message-ID: <43174643.7040007@drzeus.cx>
+Date: Thu, 01 Sep 2005 20:19:47 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: ncunningham@cyclades.com, Pavel Machek <pavel@ucw.cz>,
+       Meelis Roos <mroos@linux.ee>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Len Brown <len.brown@intel.com>
+Subject: Re: reboot vs poweroff
+References: <20050901062406.EBA5613D5B@rhn.tartu-labor>	<1125557333.12996.76.camel@localhost>	<Pine.SOC.4.61.0509011030430.3232@math.ut.ee>	<4316F4E3.4030302@drzeus.cx> <1125578897.4785.23.camel@localhost>	<m1fysoq0p7.fsf@ebiederm.dsl.xmission.com> <43171C02.30402@drzeus.cx> <m1aciwpvsz.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1aciwpvsz.fsf@ebiederm.dsl.xmission.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A case-insensitive grep through the 2.6.13 tree for "define printk" 
-yields 378 hits ("define dbg": 736, "define warn": 50, "define info": 
-65).
+Eric W. Biederman wrote:
 
-Maybe it would be a good idea to create include/linux/debug.h as 
-included inline below (or to add the content in include/linux/kernel.h 
-where pr_debug is already located)? 
+>Thanks.
+>
+>This is clearly a code path I missed when I was fixing things.
+>
+>When I made the final acpi change I checked for any other users
+>of device_suspend and it seems I was blind and missed this one.
+>Looking again...
+>
+>The patch in the bug report looks correct.  However it is still
+>a little incomplete.  In particular the reboot notifier is not
+>being called, and since not everything has been converted into
+>using shutdown methods that could lead to some other inconsistent
+>behavior.
+>
+>Does anyone have any problems with the patch below?
+>If not I will send this off to Linus..
+>
+>  
+>
 
-Then a module could simply do:
+Patch tested and works fine here. You should probably make a note in the
+bugzilla so we don't get a conflicting merge from the ACPI folks.
 
-#include <linux/debug.h>
-MODULE_DEBUG;
+I suppose Nigel should use this function in swsusp2 aswell?
 
-and then sprinkle debug() statements where appropriate.
+Rgds
+Pierre
 
-It would also make the name and description of the debug variable in 
-sysfs more consistent. 
-
-I tried searching the lkml archives, but couldn't find any discussion on 
-the topic...so is it a good idea?
-
-Re,
-David
-
-
---- /dev/null	2005-09-01 20:05:20.395616648 +0200
-+++ linux-2.6.13/include/linux/debug.h	2005-09-01 20:01:56.000000000 +0200
-@@ -0,0 +1,52 @@
-+#ifndef _LINUX_DEBUG_H
-+#define _LINUX_DEBUG_H
-+
-+/*
-+ * unconditional messages 
-+ */
-+
-+/* unc(onditional)_debug should not be used, but rather debug or pr_debug */
-+#define unc_debug(fmt,arg...) printk(KERN_DEBUG fmt, ##arg)
-+
-+/* convenience macros */
-+#define info(fmt,arg...) printk(KERN_INFO fmt, ##arg)
-+#define warn(fmt,arg...) printk(KERN_WARN fmt, ##arg)
-+#define err(fmt,arg...) printk(KERN_EMERG fmt, ##arg)
-+
-+
-+
-+/*
-+ * debug messages (de)activated at runtime 
-+ */
-+
-+/* the variable which (de)activates debugging messages */
-+#ifndef DEBUG_VARIABLE
-+#define DEBUG_VARIABLE debug
-+#endif
-+
-+/* quick macro to add a debug parameter to a module */
-+#define MODULE_DEBUG \
-+do { \
-+	static unsigned int DEBUG_VARIABLE = 0; \
-+	module_param(DEBUG_VARIABLE, uint, 0644); \
-+	MODULE_PARM_DESC(DEBUG_VARIABLE, "Enable debug messages"); \
-+} while(0)
-+
-+/* regular debug messages */
-+#define debug(fmt,arg...) do { if (DEBUG_VARIABLE) unc_debug(fmt, ##arg); } while (0)
-+
-+/* different levels of debug messages (only output if DEBUG_VARIABLE is large enough) */
-+#define ldebug(level,fmt,arg...) do { if (DEBUG_VARIABLE >= level) unc_debug(fmt, ##arg); } while (0)
-+
-+
-+
-+/* 
-+ * debug messages (de)activated by the preprocessor 
-+ */
-+#ifdef DEBUG
-+#define pr_debug(fmt,arg...) unc_debug(fmt, ##arg)
-+#else
-+#define pr_debug(fmt,arg...) do { } while (0)
-+#endif
-+
-+#endif /* _LINUX_DEBUG_H */

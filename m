@@ -1,58 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030500AbVIAWyy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030496AbVIAW6S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030500AbVIAWyy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 18:54:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030474AbVIAWx0
+	id S1030496AbVIAW6S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 18:58:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030502AbVIAW6S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 18:53:26 -0400
-Received: from lakshmi.addtoit.com ([198.99.130.6]:35856 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S1030500AbVIAWxX
+	Thu, 1 Sep 2005 18:58:18 -0400
+Received: from lakshmi.addtoit.com ([198.99.130.6]:41744 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S1030496AbVIAW6R
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 18:53:23 -0400
-Message-Id: <200509012216.j81MGvcQ011525@ccure.user-mode-linux.org>
+	Thu, 1 Sep 2005 18:58:17 -0400
+Message-Id: <200509012217.j81MHOUf011578@ccure.user-mode-linux.org>
 X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
 To: akpm@osdl.org
 cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: [PATCH 2/12] UML - x86_64 build fix
+Subject: [PATCH 12/12] UML - Fix x86_64 page leak
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 01 Sep 2005 18:16:57 -0400
+Date: Thu, 01 Sep 2005 18:17:24 -0400
 From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-semaphore.c is no longer available from arch/x86_64, so we just pick up the
-generic version instead.
+We were leaking pmd pages when 3_LEVEL_PGTABLES was enabled.  This fixes that.
 
 Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-Index: linux-2.6.13-mm1/arch/um/sys-x86_64/Makefile
+Index: test/arch/um/kernel/skas/include/mmu-skas.h
 ===================================================================
---- linux-2.6.13-mm1.orig/arch/um/sys-x86_64/Makefile	2005-09-01 15:52:25.000000000 -0400
-+++ linux-2.6.13-mm1/arch/um/sys-x86_64/Makefile	2005-09-01 15:53:04.000000000 -0400
-@@ -6,7 +6,7 @@
+--- test.orig/arch/um/kernel/skas/include/mmu-skas.h	2005-09-01 16:54:41.000000000 -0400
++++ test/arch/um/kernel/skas/include/mmu-skas.h	2005-09-01 16:54:59.000000000 -0400
+@@ -6,11 +6,15 @@
+ #ifndef __SKAS_MMU_H
+ #define __SKAS_MMU_H
  
- #XXX: why into lib-y?
- lib-y = bitops.o bugs.o csum-partial.o delay.o fault.o mem.o memcpy.o \
--	ptrace.o ptrace_user.o semaphore.o sigcontext.o signal.o stub.o \
-+	ptrace.o ptrace_user.o sigcontext.o signal.o stub.o \
- 	stub_segv.o syscalls.o syscall_table.o sysrq.o thunk.o
++#include "linux/config.h"
+ #include "mm_id.h"
  
- obj-y := ksyms.o
-@@ -15,7 +15,7 @@
- USER_OBJS := ptrace_user.o sigcontext.o
+ struct mmu_context_skas {
+ 	struct mm_id id;
+         unsigned long last_page_table;
++#ifdef CONFIG_3_LEVEL_PGTABLES
++        unsigned long last_pmd;
++#endif
+ };
  
- SYMLINKS = bitops.c csum-copy.S csum-partial.c csum-wrappers.c memcpy.S \
--	semaphore.c thunk.S module.c
-+	thunk.S module.c
+ extern void switch_mm_skas(struct mm_id * mm_idp);
+Index: test/arch/um/kernel/skas/mmu.c
+===================================================================
+--- test.orig/arch/um/kernel/skas/mmu.c	2005-09-01 16:51:15.000000000 -0400
++++ test/arch/um/kernel/skas/mmu.c	2005-09-01 16:57:00.000000000 -0400
+@@ -56,6 +56,9 @@
+ 	 */
  
- include arch/um/scripts/Makefile.rules
+         mm->context.skas.last_page_table = pmd_page_kernel(*pmd);
++#ifdef CONFIG_3_LEVEL_PGTABLES
++        mm->context.skas.last_pmd = (unsigned long) __va(pud_val(*pud));
++#endif
  
-@@ -24,7 +24,6 @@
- csum-partial.c-dir = lib
- csum-wrappers.c-dir = lib
- memcpy.S-dir = lib
--semaphore.c-dir = kernel
- thunk.S-dir = lib
- module.c-dir = kernel
+ 	*pte = mk_pte(virt_to_page(kernel), __pgprot(_PAGE_PRESENT));
+ 	*pte = pte_mkexec(*pte);
+@@ -144,6 +147,10 @@
+ 
+ 	if(!proc_mm || !ptrace_faultinfo){
+ 		free_page(mmu->id.stack);
+-		free_page(mmu->last_page_table);
++		pte_free_kernel((pte_t *) mmu->last_page_table);
++                dec_page_state(nr_page_table_pages);
++#ifdef CONFIG_3_LEVEL_PGTABLES
++		pmd_free((pmd_t *) mmu->last_pmd);
++#endif
+ 	}
+ }
+Index: test/include/asm-um/pgalloc.h
+===================================================================
+--- test.orig/include/asm-um/pgalloc.h	2005-09-01 16:51:15.000000000 -0400
++++ test/include/asm-um/pgalloc.h	2005-09-01 16:51:36.000000000 -0400
+@@ -42,11 +42,13 @@
+ #define __pte_free_tlb(tlb,pte) tlb_remove_page((tlb),(pte))
+ 
+ #ifdef CONFIG_3_LEVEL_PGTABLES
+-/*
+- * In the 3-level case we free the pmds as part of the pgd.
+- */
+-#define pmd_free(x)			do { } while (0)
+-#define __pmd_free_tlb(tlb,x)		do { } while (0)
++
++extern __inline__ void pmd_free(pmd_t *pmd)
++{
++	free_page((unsigned long)pmd);
++}
++
++#define __pmd_free_tlb(tlb,x)   tlb_remove_page((tlb),virt_to_page(x))
+ #endif
+ 
+ #define check_pgt_cache()	do { } while (0)
+Index: test/include/asm-um/pgtable-3level.h
+===================================================================
+--- test.orig/include/asm-um/pgtable-3level.h	2005-09-01 16:51:15.000000000 -0400
++++ test/include/asm-um/pgtable-3level.h	2005-09-01 16:51:36.000000000 -0400
+@@ -69,14 +69,11 @@
+         return pmd;
+ }
+ 
+-static inline void pmd_free(pmd_t *pmd){
+-	free_page((unsigned long) pmd);
++extern inline void pud_clear (pud_t *pud)
++{
++        set_pud(pud, __pud(0));
+ }
+ 
+-#define __pmd_free_tlb(tlb,x)   do { } while (0)
+-
+-static inline void pud_clear (pud_t * pud) { }
+-
+ #define pud_page(pud) \
+ 	((struct page *) __va(pud_val(pud) & PAGE_MASK))
+ 
 

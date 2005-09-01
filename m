@@ -1,83 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965136AbVIAOXE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965140AbVIAOYU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965136AbVIAOXE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 10:23:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965140AbVIAOXE
+	id S965140AbVIAOYU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 10:24:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965141AbVIAOYU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 10:23:04 -0400
-Received: from dvhart.com ([64.146.134.43]:29319 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S965136AbVIAOXD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 10:23:03 -0400
-Date: Thu, 01 Sep 2005 07:22:53 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Cc: alan@redhat.com
-Subject: Re: 2.6.13-mm1
-Message-ID: <6970000.1125584568@[10.10.2.4]>
-In-Reply-To: <20050901035542.1c621af6.akpm@osdl.org>
-References: <20050901035542.1c621af6.akpm@osdl.org>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Thu, 1 Sep 2005 10:24:20 -0400
+Received: from mail24.syd.optusnet.com.au ([211.29.133.165]:9652 "EHLO
+	mail24.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S965140AbVIAOYT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 10:24:19 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Anupama Chandwani <anupama.chandwani@gmail.com>
+Subject: Re: swappable scheduler in linux kernel
+Date: Fri, 2 Sep 2005 00:23:21 +1000
+User-Agent: KMail/1.8.2
+Cc: Ingo Molnar <mingo@elte.hu>, Pavel Machek <pavel@ucw.cz>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Peter Williams <pwil3058@bigpond.net.au>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Alexander Nyberg <alexn@dsv.su.se>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Linus Torvalds <torvalds@osdl.org>
+References: <689eb34705090107196f3ef558@mail.gmail.com>
+In-Reply-To: <689eb34705090107196f3ef558@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200509020023.22485.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2 Sep 2005 00:19, Anupama Chandwani wrote:
+> Hello,
+>  I am a final year coputre enginering student from Pune university,India.
+> Im interested in linux kernel & saw the plugsched echanism, how its been
+> made possible to change schedler policy at compile time.
+>
+> However, Im thinking of a scheduler that can dynamically change its policy
+> or soe part of code for that matter hot swap with a copletely different
+> scheduler at RUNTIME. something like IBM's K42. We can have scheduler modes
+> like realtime or interactive which can be changed at runtime.
+>   Though its a pretty much completed problem to solve, there seem to be
+> little commertial need of it.. can you suggest of its application or maybe
+> your comments on this idea.
 
-Breaks build on PPC64
+Runtime modification has possible uses in the form of hot scheduler upgrades 
+for systems in production for security upgrades or performance enhancements, 
+with virtually nil downtime. This was one of my ultimate aims when pushing 
+the original plugsched infrastructure. However both Linus and Ingo did not 
+like the plugsched idea at all thinking it would fragment work effort put 
+into the mainline scheduler and have lots of less good schedulers instead of 
+one scheduler to rule them all.
 
-Lots of this:
-
-In file included from fs/xfs/linux-2.6/xfs_linux.h:57,
-                 from fs/xfs/xfs.h:35,
-                 from fs/xfs/xfs_rtalloc.c:37:
-fs/xfs/xfs_arch.h:55:21: warning: "__LITTLE_ENDIAN" is not defined
-In file included from fs/xfs/xfs_rtalloc.c:50:
-fs/xfs/xfs_bmap_btree.h:65:21: warning: "__LITTLE_ENDIAN" is not defined
-  CC      fs/xfs/xfs_acl.o
-In file included from fs/xfs/linux-2.6/xfs_linux.h:57,
-                 from fs/xfs/xfs.h:35,
-                 from fs/xfs/xfs_acl.c:33:
-fs/xfs/xfs_arch.h:55:21: warning: "__LITTLE_ENDIAN" is not defined
-
-Can't see anything obvious to cause that.
-Then this:
-
-CC      drivers/char/hvc_console.o
-drivers/char/hvc_console.c: In function `hvc_poll':
-drivers/char/hvc_console.c:600: error: `count' undeclared (first use in this function)
-drivers/char/hvc_console.c:600: error: (Each undeclared identifier is reported only once
-drivers/char/hvc_console.c:600: error: for each function it appears in.)
-drivers/char/hvc_console.c:636: error: structure has no member named `flip'
-make[2]: *** [drivers/char/hvc_console.o] Error 1
-make[1]: *** [drivers/char] Error 2
-make: *** [drivers] Error 2
-
-Presumably this:
-
-diff -puN drivers/char/hvc_console.c~tty-layer-buffering-revamp drivers/char/hvc
-_console.c
---- 25/drivers/char/hvc_console.c~tty-layer-buffering-revamp    Wed Aug 31 12:50
-:55 2005
-+++ 25-akpm/drivers/char/hvc_console.c  Wed Aug 31 12:50:56 2005
-@@ -597,10 +597,8 @@ static int hvc_poll(struct hvc_struct *h
- 
-        /* Read data if any */
-        for (;;) {
--               int count = N_INBUF;
--               if (count > (TTY_FLIPBUF_SIZE - tty->flip.count))
--                       count = TTY_FLIPBUF_SIZE - tty->flip.count;
--
-+               count = tty_buffer_request_room(tty, N_INBUF);
-+               
-                /* If flip is full, just reschedule a later read */
-                if (count == 0) {
-                        poll_mask |= HVC_POLL_READ;
-
-shouldn't be deleting the declaration of count. 
-
-and possibly the "flip removal" was incomplete (line 636) ???
-
+Cheers,
+Con

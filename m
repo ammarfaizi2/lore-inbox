@@ -1,96 +1,217 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965057AbVIAD3v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965066AbVIADd3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965057AbVIAD3v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 23:29:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965059AbVIAD3v
+	id S965066AbVIADd3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 23:33:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965068AbVIADd2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 23:29:51 -0400
-Received: from smtpout.mac.com ([17.250.248.97]:54780 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S965057AbVIAD3u (ORCPT
+	Wed, 31 Aug 2005 23:33:28 -0400
+Received: from [210.76.114.20] ([210.76.114.20]:55216 "EHLO ccoss.com.cn")
+	by vger.kernel.org with ESMTP id S965066AbVIADd1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 23:29:50 -0400
-In-Reply-To: <20050831203211.GA13752@midnight.suse.cz>
-References: <20050830093715.GA9781@midnight.suse.cz> <4315E0F0.6060209@pobox.com> <20050831205319.A6385@flint.arm.linux.org.uk> <20050831203211.GA13752@midnight.suse.cz>
-Mime-Version: 1.0 (Apple Message framework v734)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <94E48213-4A1A-4979-B3A7-05E7BBE19AD3@mac.com>
-Cc: Mark Lord <mlord@pobox.com>, LKML <linux-kernel@vger.kernel.org>
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: APs from the Kernel Summit run Linux
-Date: Wed, 31 Aug 2005 23:29:22 -0400
-To: Vojtech Pavlik <vojtech@suse.cz>
-X-Mailer: Apple Mail (2.734)
+	Wed, 31 Aug 2005 23:33:27 -0400
+Message-ID: <4316769C.5090303@ccoss.com.cn>
+Date: Thu, 01 Sep 2005 11:33:48 +0800
+From: "liyu@WAN" <liyu@ccoss.com.cn>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [Question] [Patch] How get instruction pointer of user space ???
+References: <20050831124318.98086.qmail@web15008.mail.cnb.yahoo.com>
+In-Reply-To: <20050831124318.98086.qmail@web15008.mail.cnb.yahoo.com>
+Content-Type: multipart/mixed;
+ boundary="------------080601030203060202060404"
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Aug 31, 2005, at 16:32:11, Vojtech Pavlik wrote:
-> On Wed, Aug 31, 2005 at 08:53:19PM +0100, Russell King wrote:
->
->> On Wed, Aug 31, 2005 at 12:55:12PM -0400, Mark Lord wrote:
->>
->>> I'll try loading the works into another ARM
->>> system I have here, and see (1) if it runs as-is,
->>> and (2) what the disassembly shows.
->>>
->>
->> You can identify ARM code quite readily - look for a large number of
->> 32-bit words naturally aligned and grouped together whose top nibble
->> is 14 - ie 0xE.......
->>
->> The top nibble is the conditional execution field, and 14 is  
->> "always".
->
-> Didn't find that. Anyway:
->
-> The first and third parts contain a repeating 7-byte sequence
->
->         81 40 20 10 08 04 02
->
-> near the beginning, while part 2 is padded with zeroes in the same
-> place.
+This is a multi-part message in MIME format.
+--------------080601030203060202060404
+Content-Type: text/plain; charset=GB2312
+Content-Transfer-Encoding: 7bit
 
-That sequence is altered in the first and last repetitions, like this:
+Hi:
 
-88 4020 1008 0402
-81 4020 1008 0402
-[...]
-81 4020 1008 0402
-81 4020 1008 04c2
+Thanks to Yingchao Zhou and Gaurav Dhiman first, for your answers.
 
-The 4020 and 0402 look oddly symmetrical to me, but that could just
-be my imagination.
+I get it now! but it look we must update knownledge about this.
 
-I wrote a quick perl script to find the number of occurrences of 8-bit
-aligned sequences of 16-bits, for all 16-bit values.  It has some
-interesting (and potentially useful) results.
-
-The script:
-http://zeus.moffetthome.net/~kyle/hexfreq
-
-The output:
-http://zeus.moffetthome.net/~kyle/dwl.hexmult
-
-Reprocessed output by frequency:
-http://zeus.moffetthome.net/~kyle/dwl.hexfreq
-
-Reprocessing command:
-<dwl.hexmult sed -re 's/^(.*): (.*)$/\2: \1/g' | sort -gr >dwl.hexfreq
+I read copy_thread() in arch/i386/kernel/process.c, the code piece of
+this function are:
 
 
-Cheers,
-Kyle Moffett
+/* childregs = ((struct pt_regs *) (THREAD_SIZE + (unsigned long)
+p->thread_info)) - 1;
+** /*
+* The below -8 is to reserve 8 bytes on top of the ring0 stack.
+* This is necessary to guarantee that the entire "struct pt_regs"
+* is accessable even if the CPU haven't stored the SS/ESP registers
+* on the stack (interrupt gate does not save these registers
+* when switching to the same priv ring).
+* Therefore beware: accessing the xss/esp fields of the
+* "struct pt_regs" is possible, but they may contain the
+* completely wrong values.
+*/
+childregs = (struct pt_regs *) ((unsigned long) childregs - 8);
+*childregs = *regs;
+*/
 
---
-Somone asked me why I work on this free (http://www.fsf.org/philosophy/)
-software stuff and not get a real job. Charles Shultz had the best  
-answer:
+Oh, clear all secrets on it now! that comment is very readable.
 
-"Why do musicians compose symphonies and poets write poems? They do  
-it because
-life wouldn't have any meaning for them if they didn't. That's why I  
-draw
-cartoons. It's my life."
-   -- Charles Shultz
+OK, see my code to do experiement in do_fork() :
+
+/*
+static void
+my_check_regs_with_offset(struct pt_regs *orig_regs)
+{
+struct thread_info *thread_info;
+struct pt_regs *pt_regs;
+unsigned long *stack_bottom;
+
+thread_info = current_thread_info();
+pt_regs = (struct pt_regs*)((unsigned long)thread_info+THREAD_SIZE-8);
+pt_regs--;
+stack_bottom = 8+(unsigned long)(pt_regs+1),
+printk("\tbottom=%p, pt_regs = %p eip=%p\n",
+stack_bottom,
+pt_regs,
+pt_regs->eip);
+
+}
+
+static void
+my_check_regs_without_offset(struct pt_regs *orig_regs)
+{
+struct thread_info *thread_info;
+struct pt_regs *pt_regs;
+unsigned long *stack_bottom;
+
+thread_info = current_thread_info();
+pt_regs = (struct pt_regs*)((unsigned long)thread_info+THREAD_SIZE);
+pt_regs--;
+stack_bottom = (unsigned long)(pt_regs+1),
+printk("\tbottom=%p, pt_regs = %p eip=%p\n",
+stack_bottom,
+pt_regs,
+pt_regs->eip);
+}*/
+
+in do_fork() function, I insert code:
+
+/* if (current->tgid && (current->tgid % 10 == 0) && get_task_mm(current)) {
+unsigned long stack_bottom;
+struct thread_info *thread_info;
+struct mm_struct *mm;
+
+printk("withOUT offset: ");
+my_check_regs_without_offset(regs);
+
+printk("with offset: ");
+my_check_regs_with_offset(regs);
+
+printk("sizeof(struct pt_regs) = %d THREAD_SIZE=%x ",
+sizeof(struct pt_regs),
+THREAD_SIZE);
+thread_info = current_thread_info();
+printk("thread_info=%p\n", thread_info);
+
+printk("In kernel words:");
+printk(" KSTK_TOP(task)=%x\n", KSTK_TOP(current));
+printk(" task_pt_regs(task)=%x\n", task_pt_regs(current));
+printk(" KSTK_EIP(task)=%x\n", KSTK_EIP(current));
+
+printk("In fact:\n");
+stack_bottom = 8+(unsigned long)(regs+1);
+printk(" bottom=%p, pt_regs=%p, eip=%p\n",stack_bottom,regs,regs->eip);
+mm = get_task_mm(current);
+printk(" code address range: [%x-%x]\n", mm->start_code, mm->end_code);
+printk("\n");
+
+}
+*/
+the printk() output:
 
 
+*withOUT offset: bottom=dac16000, pt_regs = dac15fc4 eip=00000282
+with offset: bottom=dac16000, pt_regs = dac15fbc eip=0012d402
+sizeof(struct pt_regs) = 60 THREAD_SIZE=2000 thread_info=dac14000
+In kernel words: KSTK_TOP(task)=deebb020
+task_pt_regs(task)=dac15fc4
+KSTK_EIP(task)=282
+In fact:
+bottom=dac16000, pt_regs=dac15fbc, eip=0012d402
+code address range: [8047000-80d1b80]
+
+withOUT offset: bottom=dac16000, pt_regs = dac15fc4 eip=00000282
+with offset: bottom=dac16000, pt_regs = dac15fbc eip=00c1f402
+sizeof(struct pt_regs) = 60 THREAD_SIZE=2000 thread_info=dac14000
+In kernel words: KSTK_TOP(task)=deebb020
+task_pt_regs(task)=dac15fc4
+KSTK_EIP(task)=282
+In fact:
+bottom=dac16000, pt_regs=dac15fbc, eip=00c1f402
+code address range: [8047000-80d1b80]
+
+withOUT offset: bottom=dac16000, pt_regs = dac15fc4 eip=00000282
+with offset: bottom=dac16000, pt_regs = dac15fbc eip=00c1f402
+sizeof(struct pt_regs) = 60 THREAD_SIZE=2000 thread_info=dac14000
+In kernel words: KSTK_TOP(task)=deebb020
+task_pt_regs(task)=dac15fc4
+KSTK_EIP(task)=282
+In fact:
+bottom=dac16000, pt_regs=dac15fbc, eip=00c1f402
+code address range: [8047000-80d1b80]
+
+* It's look there have one anonymous hero update copy_thread(), but
+he/she forget to update
+macro task_pt_regs(task). After browse LXR, I found 2.6.11 have not this
+change yet.
+
+the copy_thread() in 2.6.12.3 and 2.6.13 include this "dummy" offset, at
+least.
+the attachment is a patch for that.
+
+Is right my words?
+
+thanks again.
+
+sailor
+
+
+
+
+
+
+
+
+
+
+
+
+--------------080601030203060202060404
+Content-Type: text/x-patch;
+ name="2.6.13.dummy_offset.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="2.6.13.dummy_offset.patch"
+
+--- linux-2.6.13/include/asm-i386/processor.h.orig	2005-09-01 11:19:22.000000000 +0800
++++ linux-2.6.13/include/asm-i386/processor.h	2005-09-01 11:26:04.000000000 +0800
+@@ -538,11 +538,13 @@
+        unsigned long *__ptr = (unsigned long *)(info);                 \
+        (unsigned long)(&__ptr[THREAD_SIZE_LONGS]);                     \
+ })
+-
++/*
++ * subtract 8 here, to skip dummy offset, see copy_thread() for detailed comment.
++ */
+ #define task_pt_regs(task)                                             \
+ ({                                                                     \
+        struct pt_regs *__regs__;                                       \
+-       __regs__ = (struct pt_regs *)KSTK_TOP((task)->thread_info);     \
++       __regs__ = (struct pt_regs *)(KSTK_TOP((task)->thread_info)-8); \
+        __regs__ - 1;                                                   \
+ })
+ 
+
+--------------080601030203060202060404--

@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030183AbVIAPFb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030186AbVIAPHY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030183AbVIAPFb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 11:05:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030182AbVIAPE5
+	id S1030186AbVIAPHY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 11:07:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030192AbVIAPHY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 11:04:57 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:47285 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S965182AbVIAPEz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 11:04:55 -0400
-Date: Wed, 31 Aug 2005 20:53:58 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Dave Airlie <airlied@linux.ie>, seife@use.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [git tree] DRM tree for 2.6.14 (fwd)
-Message-ID: <20050831185358.GE703@openzaurus.ucw.cz>
-References: <Pine.LNX.4.58.0508301018330.1102@skynet>
+	Thu, 1 Sep 2005 11:07:24 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:52207 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S1030186AbVIAPHW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 11:07:22 -0400
+Subject: Re: PREEMPT_RT with e1000
+From: Daniel Walker <dwalker@mvista.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: rostedt@goodmis.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1125585819.32005.2.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+References: <1125518602.15034.3.camel@dhcp153.mvista.com>
+	 <20050901071008.GD5179@elte.hu>
+	 <1125585819.32005.2.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+Content-Type: text/plain
+Date: Thu, 01 Sep 2005 08:07:07 -0700
+Message-Id: <1125587227.32005.8.camel@c-67-188-6-232.hsd1.ca.comcast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0508301018330.1102@skynet>
-User-Agent: Mutt/1.3.27i
+X-Mailer: Evolution 2.0.4 (2.0.4-6) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> commit 282a16749ba63256bcdce2766817f46aaac4dc20
-> Author: Dave Airlie <airlied@starflyer.(none)>
-> Date:   Sun Aug 7 15:43:54 2005 +1000
+On Thu, 2005-09-01 at 07:43 -0700, Daniel Walker wrote:
+> On Thu, 2005-09-01 at 09:10 +0200, Ingo Molnar wrote:
+> > * Daniel Walker <dwalker@mvista.com> wrote:
+> > 
+> > > It looks like Gigabit Ethernet is still having some problems. This is 
+> > > with the e1000 driver. If I remove all the qdisc_restart changes it 
+> > > starts to work the warning below goes away, but it has 
+> > > smp_processor_id warnings.
+> > 
+> > btw., what does "problems" mean, precisely - does it not work at all, or 
+> > does it produce the lockup under certain loads?
 > 
->     drm: add savage driver
-> 
->     Add driver for savage chipsets.
-> 
->     From: Felix Kuehling
->     Signed-off-by: Dave Airlie <airlied@linux.ie>
+> It hangs when I un'tar a big archive over NFS, but otherwise it works
+> slowly . The "possible softlockup" must mean it's doing some major
+> looping in/around qdisc_restart() . 
 
+Another note, the possible softlockup warning is disconnected from the
+actual lockup . I get several possible softlockup warnings then nothing,
+then a hang with no warning. 
 
-Is it the one that breaks suspend in suse kernels? It tends to load
-okay even on machines without savage hw, and then explodes on suspend...
-
-				Pavel
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+Daniel
 

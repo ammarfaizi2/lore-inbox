@@ -1,66 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030192AbVIAPQW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030194AbVIAPTd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030192AbVIAPQW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 11:16:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030194AbVIAPQW
+	id S1030194AbVIAPTd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 11:19:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030197AbVIAPTd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 11:16:22 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:56511 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1030192AbVIAPQV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 11:16:21 -0400
-To: ncunningham@cyclades.com
-Cc: Pierre Ossman <drzeus-list@drzeus.cx>, Pavel Machek <pavel@ucw.cz>,
-       Meelis Roos <mroos@linux.ee>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Len Brown <len.brown@intel.com>
-Subject: Re: reboot vs poweroff (was: Linux 2.6.13)
-References: <20050901062406.EBA5613D5B@rhn.tartu-labor>
-	<1125557333.12996.76.camel@localhost>
-	<Pine.SOC.4.61.0509011030430.3232@math.ut.ee>
-	<4316F4E3.4030302@drzeus.cx> <1125578897.4785.23.camel@localhost>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Thu, 01 Sep 2005 09:15:00 -0600
-In-Reply-To: <1125578897.4785.23.camel@localhost> (Nigel Cunningham's
- message of "Thu, 01 Sep 2005 22:48:17 +1000")
-Message-ID: <m1fysoq0p7.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Thu, 1 Sep 2005 11:19:33 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:57477 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1030194AbVIAPTc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 11:19:32 -0400
+Date: Thu, 1 Sep 2005 17:18:52 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Joe Korty <joe.korty@ccur.com>
+cc: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>, akpm@osdl.org,
+       george@mvista.com, johnstul@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: FW: [RFC] A more general timeout specification
+In-Reply-To: <20050901134802.GA1753@tsunami.ccur.com>
+Message-ID: <Pine.LNX.4.61.0509011634200.3728@scrub.home>
+References: <F989B1573A3A644BAB3920FBECA4D25A042B03A8@orsmsx407>
+ <Pine.LNX.4.61.0509011104160.3728@scrub.home> <20050901134802.GA1753@tsunami.ccur.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Cunningham <ncunningham@cyclades.com> writes:
+Hi,
 
-> On Thu, 2005-09-01 at 22:32, Pierre Ossman wrote:
->> Meelis Roos wrote:
->> > 
->> > It's OK then - I'm not using any suspend and I had a problem that my
->> > machine powered down instead of reboot. The patch that went into 2.6.13
->> > after rc7 fixed it for me. So the current tree is OK for me and if it's
->> > OK for you too after suspend2 changes then this case can probably be
->> > closed.
->> > 
->> 
->> I'm still having problems with this patch. Both swsusp and swsusp2 are
->> affected. Perhaps the fix Nigel did needs to be done to swsusp aswell?
->
-> Yes, it does need modifying. I'll leave it to Pavel to do that though as
-> he's more familiar with the intricacies of that code than I am.
+On Thu, 1 Sep 2005, Joe Korty wrote:
 
-Are suspend and suspend2 not calling kernel_power_off()?
+> On Thu, Sep 01, 2005 at 11:19:51AM +0200, Roman Zippel wrote:
+> 
+> > You still didn't explain what's the point in choosing
+> > different clock sources for a _timeout_.
+> 
+> Well, if CLOCK_REALTIME is set forward by a minute,
+> timers & timeout specified against that clock will expire
+> a minute earlier than expected.
 
-I am not certain about that code path but I worked hard in the lead
-up to 2.6.13 to get everyone on the same page so we did not have
-strange reboot issues on one code path and not on another.
+That just rather suggests that the pthread API is broken as usual.
+(No other possible user was mentioned so far.)
 
-It is possible that the code path in suspend is so strange I did not
-recognize it.  How do you initiate a S4 power off?
+>  That doesn't happen with
+> CLOCK_MONOTONIC.  Applications should have the ability
+> to select what they want to happen in this case (ie,
+> whether the timeout/timer has to happen at a particular
+> wall-clock time, say 2pm, or if the interval aspects of
+> the timer/timeout are more important).  Applications
+> get this if they have the ability to specify the clock
+> their timer or timeout is specified against.
 
-I can understand suspend2 having problems as it isn't merged but suspend
-is merged isn't it?
+So setup a timer that goes off at that time and interrupts the operation. 
+There is no need to overload the operation itself with an overly complex 
+timeout specification.
 
-Hmm.  Looking at that bug report it specifies 2.6.11.  Does this
-problem really happen in 2.6.13?
+> The purpose of CLOCK_MONOTONIC is to provide an even,
+> unchanging progression of advancing time. That is, any two
+> intervals on this time-line of the same measured length
+> actually represent, as close as possible, the same length
+> of time.
+> 
+> CLOCK_MONOTONIC should get adjustments only to bring its
+> frequency back into line (but currently gets more than this
+> in Linux).  CLOCK_REALTIME should and does get adjustments
+> for frequency and then gets further, temporary speedups
+> or slowdown to bring its absolute value back into line.
 
-Eric
+That would make a rather useless CLOCK_MONOTONIC. The basic problem is 
+that it would be very hard to specify the time without exactly knowing 
+it's frequency, the larger the time difference the larger the time skew 
+would be compared to CLOCK_REALTIME and without an atomic clock in your 
+computer you have no way of knowing which one is "real".
+So in practice it's easier to advance CLOCK_MONOTONIC/CLOCK_REALTIME 
+equally and only apply time jumps to CLOCK_REALTIME.
+
+bye, Roman

@@ -1,61 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932495AbVIAGuH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932544AbVIAG43@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932495AbVIAGuH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 02:50:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932544AbVIAGuH
+	id S932544AbVIAG43 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 02:56:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932545AbVIAG43
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 02:50:07 -0400
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:49110 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S932495AbVIAGuF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 02:50:05 -0400
-Subject: Re: reboot vs poweroff (was: Linux 2.6.13)
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Meelis Roos <mroos@linux.ee>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Eric W.Biederman" <ebiederm@xmission.com>,
-       Len Brown <len.brown@intel.com>
-In-Reply-To: <20050901062406.EBA5613D5B@rhn.tartu-labor>
-References: <20050901062406.EBA5613D5B@rhn.tartu-labor>
-Content-Type: text/plain
-Organization: Cyclades
-Message-Id: <1125557333.12996.76.camel@localhost>
+	Thu, 1 Sep 2005 02:56:29 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:33187 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932544AbVIAG43 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 02:56:29 -0400
+Date: Thu, 1 Sep 2005 08:57:10 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: MAX_ARG_PAGES has no effect?
+Message-ID: <20050901065710.GB5179@elte.hu>
+References: <4314F761.2050908@kundor.org> <20050831121144.GA13578@elte.hu> <p73psrtr8ho.fsf@verdi.suse.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 01 Sep 2005 16:48:53 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p73psrtr8ho.fsf@verdi.suse.de>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
 
-On Thu, 2005-09-01 at 16:24, Meelis Roos wrote:
-> RD> Well, there aren't many differences between 2.6.13-rc7 and 2.6.13.  If
-> RD> I had to guess, I would bet the commit below is what broke you.  I'm
-> RD> including a patch that reverts it at the end of this email
+* Andi Kleen <ak@suse.de> wrote:
+
+> Ingo Molnar <mingo@elte.hu> writes:
+> > 
+> > MAX_ARG_PAGES should work just fine. I think the 'getconf ARG_MAX' 
+> > output is hardcoded. (because the kernel does not provide the 
+> > information dynamically)
 > 
-> Nigel, have you tried reverting the patch Roland pointed out? It
-> probably helps you.
+> Perhaps it would be a good idea to make it a sysctl. Is there any 
+> reason it should be hardcoded?  I cannot think of any.
 > 
-> I am also interested in this but in another way - the fix fixed reboot
-> for me (and at least one more person) and just plain reverting it will
-> break it again. Some better fix will probably be needed.
+> Ok if someone lowers the sysctl then execve has to handle the case of 
+> the args/environment possibly not fitting anymore, but that should be 
+> easy.
 
-I've since found that in the suspend2 code, I was working around this
-problem before by not calling the prepare method. I've just today
-modified the Suspend code so that it calls prepare for all of the
-powerdown methods and everything is working fine without reverting the
-patch. I guess this is your better fix if you're a suspend2 user. If
-not, are there other circumstances in which you're seeing the computer
-fail to powerdown?
+the whole thing should be reworked, so that there is no artificial limit 
+like MAX_ARG_PAGES. (it is after all just another piece of memory, in 
+theory)
 
-Regards,
+I have tried this a couple of times but failed - it's a hard problem. 
+Linus had the idea years ago to page-flip the argument data into the new 
+process's address space, but that doesnt work out in practice due to the 
+way glibc has to extend the environment space. (glibc extends it by 
+modifying the environment array, or relocating it if it has to be grown.  
+execve() currently automatically 'linearizes' the environment by copying 
+both the array and the old and new environment strings to a linear piece 
+of memory.)
 
-Nigel
--- 
-Evolution.
-Enumerate the requirements.
-Consider the interdependencies.
-Calculate the probabilities.
+If we do unconditional page-flipping then we fragment the argument 
+space, if we do both page-flipping if things are unfragmented and 
+well-aligned, and 'compact' the layout otherwise, we havent solved the 
+problem and have introduced a significant extra layer of complexity to 
+an already security-sensitive and fragile piece of code.
 
+The best method i found was to get rid of bprm->pages[] and to directly 
+copy strings into the new mm via kmap (and to follow whatever RAM 
+allocation policies/limits there are for the new mm), but that's quite 
+ugly.
+
+	Ingo

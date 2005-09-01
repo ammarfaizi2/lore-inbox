@@ -1,38 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030423AbVIAVuf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030424AbVIAV45@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030423AbVIAVuf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 17:50:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030419AbVIAVuf
+	id S1030424AbVIAV45 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 17:56:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030426AbVIAV45
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 17:50:35 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:61838 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030423AbVIAVud (ORCPT
+	Thu, 1 Sep 2005 17:56:57 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:56967 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1030425AbVIAV45 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 17:50:33 -0400
-Date: Thu, 1 Sep 2005 14:52:48 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: lkml@dervishd.net, linux-kernel@vger.kernel.org
-Subject: Re: USB Storage speed regression since 2.6.12
-Message-Id: <20050901145248.2356f03f.akpm@osdl.org>
-In-Reply-To: <43176095.1000805@tmr.com>
-References: <20050901113614.GA63@DervishD>
-	<43176095.1000805@tmr.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 1 Sep 2005 17:56:57 -0400
+Date: Thu, 1 Sep 2005 23:56:49 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Subject: [PATCH 0/10] m68k/thread_info merge
+Message-ID: <Pine.LNX.4.61.0509012211010.8099@scrub.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen <davidsen@tmr.com> wrote:
->
-> I see a worse problem, I load the driver, mount the filesystems on the 
-> USB 160GB disk, and the disk just "goes away." I see the devices in 
-> /proc/scsi/scsi but I can't access the devices any more. Definitely time 
-> for a fallback to a more stable kernel!
+Hi,
 
-Please us get 2.6.13 fixed first.  Can you generate the dmesg output for
-good and bad kernels, diff them and see if there's anything useful there?
+This patch series brings the m68k closer to a working state. It consists 
+of two basic parts, the first five patches do the minimal changes to get 
+m68k compiling in mainline, the last five patches do a cleanup of the 
+kernel API.
 
-What does "can't access" mean?  -EIO?
+The patches are against -mm, but the only conflict for the second patch to 
+mainline is caused by this change in sched-cleanups.patch:
+
+-		unsigned long * n = (unsigned long *) (p->thread_info+1);
++		unsigned long *n = (unsigned long *) (p->thread_info+1);
+
+so either way it's easy to deal with.
+
+The first four patches were done by Al and I mostly fixed the m68k 
+specific parts, the other changes are:
+patch 2: Rename setup_thread_info into setup_thread_stack to better 
+reflect what it really does and adjust the arguments to reduce ordering 
+requirements.
+patch 3: move the thread_info.h include to preempt.h as this is the one 
+that needs current_thread_info().
+
+The second part reduces the role of thread_info and makes the thread stack 
+more visible. The main change of these patches is the change from the 
+thread_info to the stack field in task_struct to abstract away the direct 
+access to the thread_info. I have been very careful with these changes 
+(e.g. I manually reverted the patches and compared the result to prevent 
+typos), so I'm quite sure these patches don't introduce any new problems.
+
+There is one final patch pending to remove the thread_info field (and fix 
+the users only in -mm), I'll send it when the other patches have been 
+merged with an extra warning to linux-arch, so archs can catch up with the 
+changes, if they should have larger unmerged patches. This is the only 
+patch which could produce compile problem in case I might have missed 
+something, but these will be easy to deal with.
+
+bye, Roman

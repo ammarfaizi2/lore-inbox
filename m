@@ -1,60 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932431AbVIALfN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932437AbVIALf2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932431AbVIALfN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 07:35:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932437AbVIALfN
+	id S932437AbVIALf2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 07:35:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932463AbVIALf2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 07:35:13 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:18882 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932431AbVIALfL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 07:35:11 -0400
-Date: Thu, 1 Sep 2005 17:03:30 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Thomas Schlichter <thomas.schlichter@web.de>
-Cc: john stultz <johnstul@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/3] Updated dynamic tick patches - Fix lost tick
-Message-ID: <20050901113330.GB11145@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <200509010829.35958.thomas.schlichter@web.de> <200509010942.24026.thomas.schlichter@web.de> <20050901102839.GB9936@in.ibm.com> <200509011305.24038.thomas.schlichter@web.de>
+	Thu, 1 Sep 2005 07:35:28 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:37820 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932437AbVIALf1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 07:35:27 -0400
+Subject: Re: GFS, what's remaining
+From: Arjan van de Ven <arjan@infradead.org>
+To: David Teigland <teigland@redhat.com>
+Cc: linux-fsdevel@vger.kernel.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       linux-cluster@redhat.com
+In-Reply-To: <20050901104620.GA22482@redhat.com>
+References: <20050901104620.GA22482@redhat.com>
+Content-Type: text/plain
+Date: Thu, 01 Sep 2005 13:35:23 +0200
+Message-Id: <1125574523.5025.10.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200509011305.24038.thomas.schlichter@web.de>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 01, 2005 at 01:05:23PM +0200, Thomas Schlichter wrote:
-> Yes, the only real differences are the two points mentioned in my first 
-> mail... I only wanted to help you fixing these.
+On Thu, 2005-09-01 at 18:46 +0800, David Teigland wrote:
+> Hi, this is the latest set of gfs patches, it includes some minor munging
+> since the previous set.  Andrew, could this be added to -mm? there's not
+> much in the way of pending changes.
+> 
+> http://redhat.com/~teigland/gfs2/20050901/gfs2-full.patch
+> http://redhat.com/~teigland/gfs2/20050901/broken-out/
 
-Thanks for pointing them out. I have fixed it in the experimental version
-that I have now.
++static inline void glock_put(struct gfs2_glock *gl)
++{
++	if (atomic_read(&gl->gl_count) == 1)
++		gfs2_glock_schedule_for_reclaim(gl);
++	gfs2_assert(gl->gl_sbd, atomic_read(&gl->gl_count) > 0,);
++	atomic_dec(&gl->gl_count);
++}
 
-> Well, that seems to be fine. If you want somebody to have a look over your 
-> final patch, feel free to mail me...
+this code has a race
 
-sure!
+what is gfs2_assert() about anyway? please just use BUG_ON directly everywhere
 
-> I should have defined PMTMR_TICKS_PER_JIFFY like you assigned 
-> pm_ticks_per_jiffy (why did you use a static and constant variable and not a 
-> macro?):
++static inline int queue_empty(struct gfs2_glock *gl, struct list_head *head)
++{
++	int empty;
++	spin_lock(&gl->gl_spin);
++	empty = list_empty(head);
++	spin_unlock(&gl->gl_spin);
++	return empty;
++}
 
-I actually started with using the calibrated value of PMTMR_TICKS_PER_JIFFY 
-rather than compile time constant (as found in verify_pmtmr), but later dropped
-the idea since I didnt get good results with it. After that didnt revert
-back pm_ticks_per_jiffy to be a macro. But good point, will include
-this in the next patch that I am trying out. Will post it if I happen
-to have success :)
+that looks like a racey interface to me... if so.. why bother locking at all?
++void gfs2_glock_hold(struct gfs2_glock *gl)
++{
++	glock_hold(gl);
++}
+
+eh why?
+
++struct gfs2_holder *gfs2_holder_get(struct gfs2_glock *gl, unsigned int state,
++				    int flags, int gfp_flags)
++{
++	struct gfs2_holder *gh;
++
++	gh = kmalloc(sizeof(struct gfs2_holder), GFP_KERNEL | gfp_flags);
+
+this looks odd. Either you take flags or you don't.. this looks really half arsed and thus is really surprising 
+to all callers
+
+
+static int gi_skeleton(struct gfs2_inode *ip, struct gfs2_ioctl *gi,
++		       gi_filler_t filler)
++{
++	unsigned int size = gfs2_tune_get(ip->i_sbd, gt_lockdump_size);
++	char *buf;
++	unsigned int count = 0;
++	int error;
++
++	if (size > gi->gi_size)
++		size = gi->gi_size;
++
++	buf = kmalloc(size, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
++	error = filler(ip, gi, buf, size, &count);
++	if (error)
++		goto out;
++
++	if (copy_to_user(gi->gi_data, buf, count + 1))
++		error = -EFAULT;
+
+where does count get a sensible value?
+
++static unsigned int handle_roll(atomic_t *a)
++{
++	int x = atomic_read(a);
++	if (x < 0) {
++		atomic_set(a, 0);
++		return 0;
++	}
++	return (unsigned int)x;
++}
+
+this is just plain scary.
+
+
+you'll have to post the rest of your patches if you want anyone to look at them...
 
 
 
--- 
-
-
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560017

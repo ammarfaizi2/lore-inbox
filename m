@@ -1,120 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030317AbVIATRE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965148AbVIATVN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030317AbVIATRE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 15:17:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030318AbVIATRE
+	id S965148AbVIATVN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 15:21:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965174AbVIATVN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 15:17:04 -0400
-Received: from main.gmane.org ([80.91.229.2]:10966 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1030317AbVIATRC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 15:17:02 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Ed L Cashin <ecashin@coraid.com>
-Subject: Re: aoe fails on sparc64
-Date: Thu, 01 Sep 2005 15:13:52 -0400
-Message-ID: <87k6i0bnyn.fsf@coraid.com>
-References: <3afbacad0508310630797f397d@mail.gmail.com>
-	<87vf1mm7fk.fsf@coraid.com>
-	<20050831.232430.50551657.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-Cc: "David S. Miller" <davem@davemloft.net>,
-       Jim MacBaine <jmacbaine@gmail.com>
-X-Gmane-NNTP-Posting-Host: adsl-19-26-204.asm.bellsouth.net
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-Cancel-Lock: sha1:irS6qUZA7jvPaY/8qOtYauikOsA=
+	Thu, 1 Sep 2005 15:21:13 -0400
+Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:62990 "EHLO
+	mta07-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S965148AbVIATVM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 15:21:12 -0400
+Message-ID: <431755E4.70703@gentoo.org>
+Date: Thu, 01 Sep 2005 20:26:28 +0100
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050820)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Stelian Pop <stelian@popies.net>
+Cc: Alex Williamson <alex.williamson@hp.com>, Andreas Schwab <schwab@suse.de>,
+       linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: 2.6.13-rc7-git2 crashes on iBook
+References: <jehdda2tqt.fsf@sykes.suse.de>	 <1125288175.5595.3.camel@localhost.localdomain> <1125311951.4662.3.camel@localhost.localdomain>
+In-Reply-To: <1125311951.4662.3.camel@localhost.localdomain>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@davemloft.net> writes:
+Hi,
 
-> From: Ed L Cashin <ecashin@coraid.com>
-...
->> OK.  67553994410557440 is 61440 byte swapped in 64 bits, and 30MB is
->> 61440 sectors, so this should be a simple byte order fix.
->
-> More strangely, the upper and lower 32-bit words are swapped.
-> The bytes within each 32-bit word are swapped correctly.
->
-> So the calculation maybe should be something like:
->
-> 	__le32 *p = (__le32 *) &id[100 << 1];
-> 	u32 high32 = le32_to_cpup(p);
-> 	u32 low32 = le32_to_cpup(p + 1);
->
-> 	ssize = (((u64)high32 << 32) | (u64) low32);
->
-> But that doesn't make any sense, and even ide_fix_driveid() in
-> drivers/ide/ide-iops.c does a le64_to_cpu() for this value:
->
-> 	id->lba_capacity_2 = __le64_to_cpu(id->lba_capacity_2);
->
-> I wonder if this is some artifact of how AOE devices encode
-> this field when sending it to the client.
+Stelian Pop wrote:
+> Confirmed on an Apple Powerbook too.
+> 
+> For reference, the (already reverted) patch which needs to be applied is
+> below.
+> 
+> Signed-off-by: Stelian Pop <stelian@popies.net>
+> 
+> Index: linux-2.6.git/drivers/pci/setup-res.c
+> ===================================================================
+> --- linux-2.6.git.orig/drivers/pci/setup-res.c	2005-08-29 10:03:00.000000000 +0200
+> +++ linux-2.6.git/drivers/pci/setup-res.c	2005-08-29 12:23:20.980716336 +0200
+> @@ -53,9 +53,7 @@
+>  	if (resno < 6) {
+>  		reg = PCI_BASE_ADDRESS_0 + 4 * resno;
+>  	} else if (resno == PCI_ROM_RESOURCE) {
+> -		if (!(res->flags & IORESOURCE_ROM_ENABLE))
+> -			return;
+> -		new |= PCI_ROM_ADDRESS_ENABLE;
+> +		new |= res->flags & IORESOURCE_ROM_ENABLE;
+>  		reg = dev->rom_base_reg;
+>  	} else {
+>  		/* Hmm, non-standard resource. */
+> 
 
-Well, an EtherDrive blade just copies the ATA identify response data
-into a network packet without looking at it.  The vblade, though, has
-to set the lba_capacity and lba_capacity_2 fields itself.
+Sorry for my ignorance. Which tree was this reverted in? You are probably 
+aware that this bug made it into 2.6.13 (patch was not reverted there).
 
-The aoe driver looks OK, but it turns out there's a byte swapping bug
-in the vblade that could be related if he's running the vblade on a
-big endian host (even though he said it was an x86 host), but I
-haven't heard back from the original poster yet.
-
-The vblade bug was the omission of swapping the bytes in each short.
-The fix below shows what I mean:
-
-diff -urNp a-exp/ata.c b-exp/ata.c
---- a-exp/ata.c	2005-09-01 10:19:11.000000000 -0400
-+++ b-exp/ata.c	2005-09-01 10:19:12.000000000 -0400
-@@ -55,24 +55,29 @@ setfld(ushort *a, int idx, int len, char
- }
- 
- static void
--setlba28(ushort *p, vlong lba)
-+setlba28(ushort *ident, vlong lba)
- {
--	p += 60;
--	*p++ = lba & 0xffff;
--	*p = lba >> 16 & 0x0fffffff;
-+	uchar *cp;
-+
-+	cp = (uchar *) &ident[60];
-+	*cp++ = lba;
-+	*cp++ = lba >>= 8;
-+	*cp++ = lba >>= 8;
-+	*cp++ = (lba >>= 8) & 0xf;
- }
- 
- static void
--setlba48(ushort *p, vlong lba)
-+setlba48(ushort *ident, vlong lba)
- {
--	p += 100;
--	*p++ = lba;
--	lba >>= 16;
--	*p++ = lba;
--	lba >>= 16;
--	*p++ = lba;
--	lba >>= 16;
--	*p = lba;
-+	uchar *cp;
-+
-+	cp = (uchar *) &ident[100];
-+	*cp++ = lba;
-+	*cp++ = lba >>= 8;
-+	*cp++ = lba >>= 8;
-+	*cp++ = lba >>= 8;
-+	*cp++ = lba >>= 8;
-+	*cp++ = lba >>= 8;
- }
- 		
- void
-
-
--- 
-  Ed L Cashin <ecashin@coraid.com>
-
+Daniel

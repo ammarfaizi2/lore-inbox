@@ -1,50 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965092AbVIAMdL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965094AbVIAMdb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965092AbVIAMdL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 08:33:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965093AbVIAMdL
+	id S965094AbVIAMdb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 08:33:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965093AbVIAMdb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 08:33:11 -0400
-Received: from [85.8.12.41] ([85.8.12.41]:36505 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S965092AbVIAMdK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 08:33:10 -0400
-Message-ID: <4316F4E3.4030302@drzeus.cx>
-Date: Thu, 01 Sep 2005 14:32:35 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 1.0.6-5 (X11/20050818)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Meelis Roos <mroos@linux.ee>
-CC: Nigel Cunningham <ncunningham@cyclades.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Eric W.Biederman" <ebiederm@xmission.com>,
-       Len Brown <len.brown@intel.com>
-Subject: Re: reboot vs poweroff (was: Linux 2.6.13)
-References: <20050901062406.EBA5613D5B@rhn.tartu-labor> <1125557333.12996.76.camel@localhost> <Pine.SOC.4.61.0509011030430.3232@math.ut.ee>
-In-Reply-To: <Pine.SOC.4.61.0509011030430.3232@math.ut.ee>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 1 Sep 2005 08:33:31 -0400
+Received: from nproxy.gmail.com ([64.233.182.201]:3877 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965097AbVIAMda convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 08:33:30 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=IhVyyq/6+hNa/+aa0YsvICJ2UvRux7ves5UHtrCj2pl7vfe8HaryR8I/KPXCSZbfy40abU4uAPWYkhP08xBiQaf2GyyM6Ib6WATUUpDw8tpnKkh6fK3Z3vLXMrSDyIqo7/U+t4QmOYuPKbu44dCt3O2apsTxDjRuuTtyR5rA2Ko=
+Message-ID: <84144f020509010533f5f2440@mail.gmail.com>
+Date: Thu, 1 Sep 2005 15:33:24 +0300
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: David Teigland <teigland@redhat.com>
+Subject: Re: GFS, what's remaining
+Cc: linux-fsdevel@vger.kernel.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       linux-cluster@redhat.com
+In-Reply-To: <20050901104620.GA22482@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050901104620.GA22482@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Meelis Roos wrote:
-> 
-> It's OK then - I'm not using any suspend and I had a problem that my
-> machine powered down instead of reboot. The patch that went into 2.6.13
-> after rc7 fixed it for me. So the current tree is OK for me and if it's
-> OK for you too after suspend2 changes then this case can probably be
-> closed.
-> 
+On 9/1/05, David Teigland <teigland@redhat.com> wrote:
+> - Adapt the vfs so gfs (and other cfs's) don't need to walk vma lists.
+>   [cf. ops_file.c:walk_vm(), gfs works fine as is, but some don't like it.]
 
-I'm still having problems with this patch. Both swsusp and swsusp2 are
-affected. Perhaps the fix Nigel did needs to be done to swsusp aswell?
+It works fine only if you don't care about playing well with other
+clustered filesystems.
 
-Bugzilla entry:
-
-http://bugme.osdl.org/show_bug.cgi?id=4320
-
-Rgds
-Pierre
+                                  Pekka

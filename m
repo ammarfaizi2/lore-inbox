@@ -1,37 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbVIAKAN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbVIAKLb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932095AbVIAKAN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 06:00:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932149AbVIAKAN
+	id S932309AbVIAKLb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 06:11:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932323AbVIAKLb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 06:00:13 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:52397 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932095AbVIAKAL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 06:00:11 -0400
-Subject: Re: [ANNOUNCE] DSFS Network Forensic File System for Linux Patches
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: jmerkey <jmerkey@utah-nac.org>, Bernd Eckenfels <ecki@lina.inka.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050901074556.GA8143@midnight.suse.cz>
-References: <E1EAd1J-0007Cw-00@calista.eckenfels.6bone.ka-ip.net>
-	 <431651BC.9020108@utah-nac.org>  <20050901074556.GA8143@midnight.suse.cz>
-Content-Type: text/plain
+	Thu, 1 Sep 2005 06:11:31 -0400
+Received: from fep01-0.kolumbus.fi ([193.229.0.41]:21938 "EHLO
+	fep01-app.kolumbus.fi") by vger.kernel.org with ESMTP
+	id S932309AbVIAKLb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 06:11:31 -0400
+X-Mailer: Openwave WebEngine, version 2.8.12 (webedge20-101-197-20030912)
+X-Originating-IP: [62.236.163.2]
+From: <mika.penttila@kolumbus.fi>
+To: Andi Kleen <ak@suse.de>, <Natalie.Protasevich@unisys.com>
+CC: <shaohua.li@intel.com>, <zwane@arm.linux.org.uk>, <ashok.raj@intel.com>,
+       <akpm@osdl.org>, <lhcs-devel@lists.sourceforge.net>,
+       <linux-kernel@vger.kernel.org>, <hotplug_sig@lists.osdl.org>
+Subject: Re: Re: [patch 1/1] Hot plug CPU to support physical add of new processors (i386)
+Date: Thu, 1 Sep 2005 12:35:05 +0300
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Date: Thu, 01 Sep 2005 11:23:59 +0100
-Message-Id: <1125570239.15768.6.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Message-Id: <20050901093505.JFOP23558.fep01-app.kolumbus.fi@mta.imail.kolumbus.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2005-09-01 at 09:45 +0200, Vojtech Pavlik wrote:
-> I believe the use of the word is quite correct. 
 
-Ditto. The term is used for all kinds of marking in software and in the
-kernel case comes well after its use for things like perl unsafe
-variables. It is also used for far more than just non-free binaries but
-also to indicate things like pre-empt, use of insmod -f etc that may be
-significant for debugging work.
+We should probably also not to try to boot disabled cpus in smp_boot_cpus()...
+
+--Mika
+
 

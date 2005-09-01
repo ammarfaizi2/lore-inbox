@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965112AbVIANwQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965133AbVIANvf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965112AbVIANwQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 09:52:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965125AbVIANwK
+	id S965133AbVIANvf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 09:51:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965128AbVIANvL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 09:52:10 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:36805 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965127AbVIANvF (ORCPT
+	Thu, 1 Sep 2005 09:51:11 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:4293 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965112AbVIANuR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 09:51:05 -0400
-Date: Thu, 1 Sep 2005 21:56:46 +0800
+	Thu, 1 Sep 2005 09:50:17 -0400
+Date: Thu, 1 Sep 2005 21:56:03 +0800
 From: David Teigland <teigland@redhat.com>
 To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 13/13] GFS: lock_dlm module
-Message-ID: <20050901135646.GP25581@redhat.com>
+Subject: [PATCH 08/13] GFS: mount and tuning options
+Message-ID: <20050901135603.GK25581@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,36 +21,27 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The lock_dlm module uses the DLM in linux/drivers/dlm/ for inter-node
-locking.
+There are a variety of mount options, tunable parameters, internal
+statistics, and methods of online file system manipulation.
 
 Signed-off-by: Ken Preslan <ken@preslan.org>
 Signed-off-by: David Teigland <teigland@redhat.com>
 
 ---
 
- fs/gfs2/locking/dlm/Makefile   |    3 
- fs/gfs2/locking/dlm/lock.c     |  533 +++++++++++++++++++++++++++++++++++++++++
- fs/gfs2/locking/dlm/lock_dlm.h |  200 +++++++++++++++
- fs/gfs2/locking/dlm/main.c     |   62 ++++
- fs/gfs2/locking/dlm/mount.c    |  218 ++++++++++++++++
- fs/gfs2/locking/dlm/plock.c    |  274 +++++++++++++++++++++
- fs/gfs2/locking/dlm/sysfs.c    |  283 +++++++++++++++++++++
- fs/gfs2/locking/dlm/thread.c   |  355 +++++++++++++++++++++++++++
- include/linux/lock_dlm_plock.h |   40 +++
- 9 files changed, 1968 insertions(+)
+ fs/gfs2/ioctl.c  | 1485 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ fs/gfs2/ioctl.h  |   15 
+ fs/gfs2/mount.c  |  209 +++++++
+ fs/gfs2/mount.h  |   15 
+ fs/gfs2/resize.c |  285 ++++++++++
+ fs/gfs2/resize.h |   19 
+ fs/gfs2/sys.c    |  201 +++++++
+ fs/gfs2/sys.h    |   24 
+ 8 files changed, 2253 insertions(+)
 
-diff -urpN a/fs/gfs2/locking/dlm/Makefile b/fs/gfs2/locking/dlm/Makefile
---- a/fs/gfs2/locking/dlm/Makefile	1970-01-01 07:30:00.000000000 +0730
-+++ b/fs/gfs2/locking/dlm/Makefile	2005-09-01 17:48:48.143749048 +0800
-@@ -0,0 +1,3 @@
-+obj-$(CONFIG_GFS2_FS) += lock_dlm.o
-+lock_dlm-y := lock.o main.o mount.o sysfs.o thread.o plock.o
-+
-diff -urpN a/fs/gfs2/locking/dlm/lock.c b/fs/gfs2/locking/dlm/lock.c
---- a/fs/gfs2/locking/dlm/lock.c	1970-01-01 07:30:00.000000000 +0730
-+++ b/fs/gfs2/locking/dlm/lock.c	2005-09-01 17:48:48.139749656 +0800
-@@ -0,0 +1,533 @@
+--- a/fs/gfs2/ioctl.c	1970-01-01 07:30:00.000000000 +0730
++++ b/fs/gfs2/ioctl.c	2005-09-01 17:36:55.321114560 +0800
+@@ -0,0 +1,1485 @@
 +/*
 + * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
 + * Copyright (C) 2004-2005 Red Hat, Inc.  All rights reserved.
@@ -60,1304 +51,1485 @@ diff -urpN a/fs/gfs2/locking/dlm/lock.c b/fs/gfs2/locking/dlm/lock.c
 + * of the GNU General Public License v.2.
 + */
 +
-+#include "lock_dlm.h"
-+
-+static char junk_lvb[GDLM_LVB_SIZE];
-+
-+static void queue_complete(struct gdlm_lock *lp)
-+{
-+	struct gdlm_ls *ls = lp->ls;
-+
-+	clear_bit(LFL_ACTIVE, &lp->flags);
-+
-+	spin_lock(&ls->async_lock);
-+	list_add_tail(&lp->clist, &ls->complete);
-+	spin_unlock(&ls->async_lock);
-+	wake_up(&ls->thread_wait);
-+}
-+
-+static inline void gdlm_ast(void *astarg)
-+{
-+	queue_complete((struct gdlm_lock *) astarg);
-+}
-+
-+static inline void gdlm_bast(void *astarg, int mode)
-+{
-+	struct gdlm_lock *lp = astarg;
-+	struct gdlm_ls *ls = lp->ls;
-+
-+	if (!mode) {
-+		printk("lock_dlm: bast mode zero %x,%"PRIx64"\n",
-+			lp->lockname.ln_type, lp->lockname.ln_number);
-+		return;
-+	}
-+
-+	spin_lock(&ls->async_lock);
-+	if (!lp->bast_mode) {
-+		list_add_tail(&lp->blist, &ls->blocking);
-+		lp->bast_mode = mode;
-+	} else if (lp->bast_mode < mode)
-+		lp->bast_mode = mode;
-+	spin_unlock(&ls->async_lock);
-+	wake_up(&ls->thread_wait);
-+}
-+
-+void gdlm_queue_delayed(struct gdlm_lock *lp)
-+{
-+	struct gdlm_ls *ls = lp->ls;
-+
-+	spin_lock(&ls->async_lock);
-+	list_add_tail(&lp->delay_list, &ls->delayed);
-+	spin_unlock(&ls->async_lock);
-+}
-+
-+/* convert gfs lock-state to dlm lock-mode */
-+
-+static int16_t make_mode(int16_t lmstate)
-+{
-+	switch (lmstate) {
-+	case LM_ST_UNLOCKED:
-+		return DLM_LOCK_NL;
-+	case LM_ST_EXCLUSIVE:
-+		return DLM_LOCK_EX;
-+	case LM_ST_DEFERRED:
-+		return DLM_LOCK_CW;
-+	case LM_ST_SHARED:
-+		return DLM_LOCK_PR;
-+	default:
-+		GDLM_ASSERT(0, printk("unknown LM state %d\n", lmstate););
-+	}
-+}
-+
-+/* convert dlm lock-mode to gfs lock-state */
-+
-+int16_t gdlm_make_lmstate(int16_t dlmmode)
-+{
-+	switch (dlmmode) {
-+	case DLM_LOCK_IV:
-+	case DLM_LOCK_NL:
-+		return LM_ST_UNLOCKED;
-+	case DLM_LOCK_EX:
-+		return LM_ST_EXCLUSIVE;
-+	case DLM_LOCK_CW:
-+		return LM_ST_DEFERRED;
-+	case DLM_LOCK_PR:
-+		return LM_ST_SHARED;
-+	default:
-+		GDLM_ASSERT(0, printk("unknown DLM mode %d\n", dlmmode););
-+	}
-+}
-+
-+/* verify agreement with GFS on the current lock state, NB: DLM_LOCK_NL and
-+   DLM_LOCK_IV are both considered LM_ST_UNLOCKED by GFS. */
-+
-+static void check_cur_state(struct gdlm_lock *lp, unsigned int cur_state)
-+{
-+	int16_t cur = make_mode(cur_state);
-+	if (lp->cur != DLM_LOCK_IV)
-+		GDLM_ASSERT(lp->cur == cur, printk("%d, %d\n", lp->cur, cur););
-+}
-+
-+static inline unsigned int make_flags(struct gdlm_lock *lp,
-+				      unsigned int gfs_flags,
-+				      int16_t cur, int16_t req)
-+{
-+	unsigned int lkf = 0;
-+
-+	if (gfs_flags & LM_FLAG_TRY)
-+		lkf |= DLM_LKF_NOQUEUE;
-+
-+	if (gfs_flags & LM_FLAG_TRY_1CB) {
-+		lkf |= DLM_LKF_NOQUEUE;
-+		lkf |= DLM_LKF_NOQUEUEBAST;
-+	}
-+
-+	if (gfs_flags & LM_FLAG_PRIORITY) {
-+		lkf |= DLM_LKF_NOORDER;
-+		lkf |= DLM_LKF_HEADQUE;
-+	}
-+
-+	if (gfs_flags & LM_FLAG_ANY) {
-+		if (req == DLM_LOCK_PR)
-+			lkf |= DLM_LKF_ALTCW;
-+		else if (req == DLM_LOCK_CW)
-+			lkf |= DLM_LKF_ALTPR;
-+	}
-+
-+	if (lp->lksb.sb_lkid != 0) {
-+		lkf |= DLM_LKF_CONVERT;
-+
-+		/* Conversion deadlock avoidance by DLM */
-+
-+		if (!test_bit(LFL_FORCE_PROMOTE, &lp->flags) &&
-+		    !(lkf & DLM_LKF_NOQUEUE) &&
-+		    cur > DLM_LOCK_NL && req > DLM_LOCK_NL && cur != req)
-+			lkf |= DLM_LKF_CONVDEADLK;
-+	}
-+
-+	if (lp->lvb)
-+		lkf |= DLM_LKF_VALBLK;
-+
-+	return lkf;
-+}
-+
-+/* make_strname - convert GFS lock numbers to a string */
-+
-+static inline void make_strname(struct lm_lockname *lockname,
-+				struct gdlm_strname *str)
-+{
-+	sprintf(str->name, "%8x%16"PRIx64, lockname->ln_type,
-+		lockname->ln_number);
-+	str->namelen = GDLM_STRNAME_BYTES;
-+}
-+
-+int gdlm_create_lp(struct gdlm_ls *ls, struct lm_lockname *name,
-+		   struct gdlm_lock **lpp)
-+{
-+	struct gdlm_lock *lp;
-+
-+	lp = kmalloc(sizeof(struct gdlm_lock), GFP_KERNEL);
-+	if (!lp)
-+		return -ENOMEM;
-+
-+	memset(lp, 0, sizeof(struct gdlm_lock));
-+	lp->lockname = *name;
-+	lp->ls = ls;
-+	lp->cur = DLM_LOCK_IV;
-+	lp->lvb = NULL;
-+	lp->hold_null = NULL;
-+	init_completion(&lp->ast_wait);
-+	INIT_LIST_HEAD(&lp->clist);
-+	INIT_LIST_HEAD(&lp->blist);
-+	INIT_LIST_HEAD(&lp->delay_list);
-+
-+	spin_lock(&ls->async_lock);
-+	list_add(&lp->all_list, &ls->all_locks);
-+	ls->all_locks_count++;
-+	spin_unlock(&ls->async_lock);
-+
-+	*lpp = lp;
-+	return 0;
-+}
-+
-+void gdlm_delete_lp(struct gdlm_lock *lp)
-+{
-+	struct gdlm_ls *ls = lp->ls;
-+
-+	spin_lock(&ls->async_lock);
-+	if (!list_empty(&lp->clist))
-+		list_del_init(&lp->clist);
-+	if (!list_empty(&lp->blist))
-+		list_del_init(&lp->blist);
-+	if (!list_empty(&lp->delay_list))
-+		list_del_init(&lp->delay_list);
-+	GDLM_ASSERT(!list_empty(&lp->all_list),);
-+	list_del_init(&lp->all_list);
-+	ls->all_locks_count--;
-+	spin_unlock(&ls->async_lock);
-+
-+	kfree(lp);
-+}
-+
-+int gdlm_get_lock(lm_lockspace_t *lockspace, struct lm_lockname *name,
-+		  lm_lock_t **lockp)
-+{
-+	struct gdlm_lock *lp;
-+	int error;
-+
-+	error = gdlm_create_lp((struct gdlm_ls *) lockspace, name, &lp);
-+
-+	*lockp = (lm_lock_t *) lp;
-+	return error;
-+}
-+
-+void gdlm_put_lock(lm_lock_t *lock)
-+{
-+	gdlm_delete_lp((struct gdlm_lock *) lock);
-+}
-+
-+void gdlm_do_lock(struct gdlm_lock *lp, struct dlm_range *range)
-+{
-+	struct gdlm_ls *ls = lp->ls;
-+	struct gdlm_strname str;
-+	int error, bast = 1;
-+
-+	/*
-+	 * When recovery is in progress, delay lock requests for submission
-+	 * once recovery is done.  Requests for recovery (NOEXP) and unlocks
-+	 * can pass.
-+	 */
-+
-+	if (test_bit(DFL_BLOCK_LOCKS, &ls->flags) &&
-+	    !test_bit(LFL_NOBLOCK, &lp->flags) && lp->req != DLM_LOCK_NL) {
-+		gdlm_queue_delayed(lp);
-+		return;
-+	}
-+
-+	/*
-+	 * Submit the actual lock request.
-+	 */
-+
-+	if (test_bit(LFL_NOBAST, &lp->flags))
-+		bast = 0;
-+
-+	make_strname(&lp->lockname, &str);
-+
-+	set_bit(LFL_ACTIVE, &lp->flags);
-+
-+	log_debug("lk %x,%"PRIx64" id %x %d,%d %x", lp->lockname.ln_type,
-+		  lp->lockname.ln_number, lp->lksb.sb_lkid,
-+		  lp->cur, lp->req, lp->lkf);
-+
-+	error = dlm_lock(ls->dlm_lockspace, lp->req, &lp->lksb, lp->lkf,
-+			 str.name, str.namelen, 0, gdlm_ast, (void *) lp,
-+			 bast ? gdlm_bast : NULL, range);
-+
-+	if ((error == -EAGAIN) && (lp->lkf & DLM_LKF_NOQUEUE)) {
-+		lp->lksb.sb_status = -EAGAIN;
-+		queue_complete(lp);
-+		error = 0;
-+	}
-+
-+	GDLM_ASSERT(!error,
-+		   printk("%s: num=%x,%"PRIx64" err=%d cur=%d req=%d lkf=%x\n",
-+			  ls->fsname, lp->lockname.ln_type,
-+			  lp->lockname.ln_number, error, lp->cur, lp->req,
-+			  lp->lkf););
-+}
-+
-+void gdlm_do_unlock(struct gdlm_lock *lp)
-+{
-+	unsigned int lkf = 0;
-+	int error;
-+
-+	set_bit(LFL_DLM_UNLOCK, &lp->flags);
-+	set_bit(LFL_ACTIVE, &lp->flags);
-+
-+	if (lp->lvb)
-+		lkf = DLM_LKF_VALBLK;
-+
-+	log_debug("un %x,%"PRIx64" %x %d %x", lp->lockname.ln_type,
-+		  lp->lockname.ln_number, lp->lksb.sb_lkid, lp->cur, lkf);
-+
-+	error = dlm_unlock(lp->ls->dlm_lockspace, lp->lksb.sb_lkid, lkf,
-+			   NULL, lp);
-+
-+	GDLM_ASSERT(!error,
-+		   printk("%s: error=%d num=%x,%"PRIx64" lkf=%x flags=%lx\n",
-+			  lp->ls->fsname, error, lp->lockname.ln_type,
-+			  lp->lockname.ln_number, lkf, lp->flags););
-+}
-+
-+unsigned int gdlm_lock(lm_lock_t *lock, unsigned int cur_state,
-+		       unsigned int req_state, unsigned int flags)
-+{
-+	struct gdlm_lock *lp = (struct gdlm_lock *) lock;
-+
-+	clear_bit(LFL_DLM_CANCEL, &lp->flags);
-+	if (flags & LM_FLAG_NOEXP)
-+		set_bit(LFL_NOBLOCK, &lp->flags);
-+
-+	check_cur_state(lp, cur_state);
-+	lp->req = make_mode(req_state);
-+	lp->lkf = make_flags(lp, flags, lp->cur, lp->req);
-+
-+	gdlm_do_lock(lp, NULL);
-+	return LM_OUT_ASYNC;
-+}
-+
-+unsigned int gdlm_unlock(lm_lock_t *lock, unsigned int cur_state)
-+{
-+	struct gdlm_lock *lp = (struct gdlm_lock *) lock;
-+
-+	clear_bit(LFL_DLM_CANCEL, &lp->flags);
-+	if (lp->cur == DLM_LOCK_IV)
-+		return 0;
-+	gdlm_do_unlock(lp);
-+	return LM_OUT_ASYNC;
-+}
-+
-+void gdlm_cancel(lm_lock_t *lock)
-+{
-+	struct gdlm_lock *lp = (struct gdlm_lock *) lock;
-+	struct gdlm_ls *ls = lp->ls;
-+	int error, delay_list = 0;
-+
-+	if (test_bit(LFL_DLM_CANCEL, &lp->flags))
-+		return;
-+
-+	log_info("gdlm_cancel %x,%"PRIx64" flags %lx",
-+		 lp->lockname.ln_type, lp->lockname.ln_number, lp->flags);
-+
-+	spin_lock(&ls->async_lock);
-+	if (!list_empty(&lp->delay_list)) {
-+		list_del_init(&lp->delay_list);
-+		delay_list = 1;
-+	}
-+	spin_unlock(&ls->async_lock);
-+
-+	if (delay_list) {
-+		set_bit(LFL_CANCEL, &lp->flags);
-+		set_bit(LFL_ACTIVE, &lp->flags);
-+		queue_complete(lp);
-+		return;
-+	}
-+
-+	if (!test_bit(LFL_ACTIVE, &lp->flags) ||
-+	    test_bit(LFL_DLM_UNLOCK, &lp->flags))	{
-+		log_info("gdlm_cancel skip %x,%"PRIx64" flags %lx",
-+		 	 lp->lockname.ln_type, lp->lockname.ln_number,
-+			 lp->flags);
-+		return;
-+	}
-+
-+	/* the lock is blocked in the dlm */
-+
-+	set_bit(LFL_DLM_CANCEL, &lp->flags);
-+	set_bit(LFL_ACTIVE, &lp->flags);
-+
-+	error = dlm_unlock(ls->dlm_lockspace, lp->lksb.sb_lkid, DLM_LKF_CANCEL,
-+			   NULL, lp);
-+
-+	log_info("gdlm_cancel rv %d %x,%"PRIx64" flags %lx", error,
-+		 lp->lockname.ln_type, lp->lockname.ln_number, lp->flags);
-+
-+	if (error == -EBUSY)
-+		clear_bit(LFL_DLM_CANCEL, &lp->flags);
-+}
-+
-+int gdlm_add_lvb(struct gdlm_lock *lp)
-+{
-+	char *lvb;
-+
-+	lvb = kmalloc(GDLM_LVB_SIZE, GFP_KERNEL);
-+	if (!lvb)
-+		return -ENOMEM;
-+
-+	memset(lvb, 0, GDLM_LVB_SIZE);
-+
-+	lp->lksb.sb_lvbptr = lvb;
-+	lp->lvb = lvb;
-+	return 0;
-+}
-+
-+void gdlm_del_lvb(struct gdlm_lock *lp)
-+{
-+	kfree(lp->lvb);
-+	lp->lvb = NULL;
-+	lp->lksb.sb_lvbptr = NULL;
-+}
-+
-+/* This can do a synchronous dlm request (requiring a lock_dlm thread to get
-+   the completion) because gfs won't call hold_lvb() during a callback (from
-+   the context of a lock_dlm thread). */
-+
-+static int hold_null_lock(struct gdlm_lock *lp)
-+{
-+	struct gdlm_lock *lpn = NULL;
-+	int error;
-+
-+	if (lp->hold_null) {
-+		printk("lock_dlm: lvb already held\n");
-+		return 0;
-+	}
-+
-+	error = gdlm_create_lp(lp->ls, &lp->lockname, &lpn);
-+	if (error)
-+		goto out;
-+
-+	lpn->lksb.sb_lvbptr = junk_lvb;
-+	lpn->lvb = junk_lvb;
-+
-+	lpn->req = DLM_LOCK_NL;
-+	lpn->lkf = DLM_LKF_VALBLK | DLM_LKF_EXPEDITE;
-+	set_bit(LFL_NOBAST, &lpn->flags);
-+	set_bit(LFL_INLOCK, &lpn->flags);
-+
-+	init_completion(&lpn->ast_wait);
-+	gdlm_do_lock(lpn, NULL);
-+	wait_for_completion(&lpn->ast_wait);
-+	error = lp->lksb.sb_status;
-+	if (error) {
-+		printk("lock_dlm: hold_null_lock dlm error %d\n", error);
-+		gdlm_delete_lp(lpn);
-+		lpn = NULL;
-+	}
-+ out:
-+	lp->hold_null = lpn;
-+	return error;
-+}
-+
-+/* This cannot do a synchronous dlm request (requiring a lock_dlm thread to get
-+   the completion) because gfs may call unhold_lvb() during a callback (from
-+   the context of a lock_dlm thread) which could cause a deadlock since the
-+   other lock_dlm thread could be engaged in recovery. */
-+
-+static void unhold_null_lock(struct gdlm_lock *lp)
-+{
-+	struct gdlm_lock *lpn = lp->hold_null;
-+
-+	GDLM_ASSERT(lpn,);
-+	lpn->lksb.sb_lvbptr = NULL;
-+	lpn->lvb = NULL;
-+	set_bit(LFL_UNLOCK_DELETE, &lpn->flags);
-+	gdlm_do_unlock(lpn);
-+	lp->hold_null = NULL;
-+}
-+
-+/* Acquire a NL lock because gfs requires the value block to remain
-+   intact on the resource while the lvb is "held" even if it's holding no locks
-+   on the resource. */
-+
-+int gdlm_hold_lvb(lm_lock_t *lock, char **lvbp)
-+{
-+	struct gdlm_lock *lp = (struct gdlm_lock *) lock;
-+	int error;
-+
-+	error = gdlm_add_lvb(lp);
-+	if (error)
-+		return error;
-+
-+	*lvbp = lp->lvb;
-+
-+	error = hold_null_lock(lp);
-+	if (error)
-+		gdlm_del_lvb(lp);
-+
-+	return error;
-+}
-+
-+void gdlm_unhold_lvb(lm_lock_t *lock, char *lvb)
-+{
-+	struct gdlm_lock *lp = (struct gdlm_lock *) lock;
-+
-+	unhold_null_lock(lp);
-+	gdlm_del_lvb(lp);
-+}
-+
-+void gdlm_sync_lvb(lm_lock_t *lock, char *lvb)
-+{
-+	struct gdlm_lock *lp = (struct gdlm_lock *) lock;
-+
-+	if (lp->cur != DLM_LOCK_EX)
-+		return;
-+
-+	init_completion(&lp->ast_wait);
-+	set_bit(LFL_SYNC_LVB, &lp->flags);
-+
-+	lp->req = DLM_LOCK_EX;
-+	lp->lkf = make_flags(lp, 0, lp->cur, lp->req);
-+
-+	gdlm_do_lock(lp, NULL);
-+	wait_for_completion(&lp->ast_wait);
-+}
-+
-+void gdlm_submit_delayed(struct gdlm_ls *ls)
-+{
-+	struct gdlm_lock *lp, *safe;
-+
-+	spin_lock(&ls->async_lock);
-+	list_for_each_entry_safe(lp, safe, &ls->delayed, delay_list) {
-+		list_del_init(&lp->delay_list);
-+		list_add_tail(&lp->delay_list, &ls->submit);
-+	}
-+	spin_unlock(&ls->async_lock);
-+	wake_up(&ls->thread_wait);
-+}
-+
-+int gdlm_release_all_locks(struct gdlm_ls *ls)
-+{
-+	struct gdlm_lock *lp, *safe;
-+	int count = 0;
-+
-+	spin_lock(&ls->async_lock);
-+	list_for_each_entry_safe(lp, safe, &ls->all_locks, all_list) {
-+		list_del_init(&lp->all_list);
-+
-+		if (lp->lvb && lp->lvb != junk_lvb)
-+			kfree(lp->lvb);
-+		kfree(lp);
-+		count++;
-+	}
-+	spin_unlock(&ls->async_lock);
-+
-+	return count;
-+}
-+
-diff -urpN a/fs/gfs2/locking/dlm/lock_dlm.h b/fs/gfs2/locking/dlm/lock_dlm.h
---- a/fs/gfs2/locking/dlm/lock_dlm.h	1970-01-01 07:30:00.000000000 +0730
-+++ b/fs/gfs2/locking/dlm/lock_dlm.h	2005-09-01 17:48:48.147748440 +0800
-@@ -0,0 +1,200 @@
-+/*
-+ * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
-+ * Copyright (C) 2004-2005 Red Hat, Inc.  All rights reserved.
-+ *
-+ * This copyrighted material is made available to anyone wishing to use,
-+ * modify, copy, or redistribute it subject to the terms and conditions
-+ * of the GNU General Public License v.2.
-+ */
-+
-+#ifndef LOCK_DLM_DOT_H
-+#define LOCK_DLM_DOT_H
-+
-+#include <linux/module.h>
++#include <linux/sched.h>
 +#include <linux/slab.h>
++#include <linux/smp_lock.h>
 +#include <linux/spinlock.h>
-+#include <linux/module.h>
-+#include <linux/types.h>
-+#include <linux/string.h>
-+#include <linux/list.h>
-+#include <linux/socket.h>
-+#include <linux/delay.h>
-+#include <linux/kthread.h>
-+#include <linux/kobject.h>
-+#include <linux/fcntl.h>
-+#include <linux/wait.h>
-+#include <net/sock.h>
++#include <linux/completion.h>
++#include <linux/buffer_head.h>
++#include <linux/gfs2_ioctl.h>
++#include <asm/semaphore.h>
++#include <asm/uaccess.h>
 +
-+#include <linux/dlm.h>
-+#include "../harness/lm_interface.h"
++#include "gfs2.h"
++#include "bmap.h"
++#include "dir.h"
++#include "eattr.h"
++#include "glock.h"
++#include "glops.h"
++#include "inode.h"
++#include "ioctl.h"
++#include "jdata.h"
++#include "log.h"
++#include "meta_io.h"
++#include "quota.h"
++#include "resize.h"
++#include "rgrp.h"
++#include "super.h"
++#include "trans.h"
 +
-+/*
-+ * Internally, we prefix things with gdlm_ and GDLM_ (for gfs-dlm) since a
-+ * prefix of lock_dlm_ gets awkward.  Externally, GFS refers to this module
-+ * as "lock_dlm".
-+ */
++typedef int (*gi_filler_t) (struct gfs2_inode *ip,
++			    struct gfs2_ioctl *gi,
++			    char *buf,
++			    unsigned int size,
++			    unsigned int *count);
 +
-+#define GDLM_STRNAME_BYTES	24
-+#define GDLM_LVB_SIZE		32
-+#define GDLM_DROP_COUNT		50000
-+#define GDLM_DROP_PERIOD	60
++#define ARG_SIZE 32
 +
-+/* GFS uses 12 bytes to identify a resource (32 bit type + 64 bit number).
-+   We sprintf these numbers into a 24 byte string of hex values to make them
-+   human-readable (to make debugging simpler.) */
-+
-+struct gdlm_strname {
-+	unsigned char		name[GDLM_STRNAME_BYTES];
-+	unsigned short		namelen;
-+};
-+
-+#define DFL_BLOCK_LOCKS		0
-+#define DFL_JOIN_DONE		1
-+#define DFL_LEAVE_DONE		2
-+#define DFL_TERMINATE		3
-+#define DFL_SPECTATOR		4
-+#define DFL_WITHDRAW		5
-+
-+struct gdlm_ls {
-+	uint32_t		id;
-+	int			jid;
-+	int			first;
-+	int			first_done;
-+	unsigned long		flags;
-+	struct kobject		kobj;
-+	char			clustername[128];
-+	char			fsname[128];
-+	int			fsflags;
-+	dlm_lockspace_t		*dlm_lockspace;
-+	lm_callback_t		fscb;
-+	lm_fsdata_t		*fsdata;
-+	int			recover_jid;
-+	int			recover_done;
-+	spinlock_t		async_lock;
-+	struct list_head	complete;
-+	struct list_head	blocking;
-+	struct list_head	delayed;
-+	struct list_head	submit;
-+	struct list_head	all_locks;
-+	uint32_t		all_locks_count;
-+	wait_queue_head_t	wait_control;
-+	struct task_struct	*thread1;
-+	struct task_struct	*thread2;
-+	wait_queue_head_t	thread_wait;
-+	unsigned long		drop_time;
-+	int			drop_locks_count;
-+	int			drop_locks_period;
-+};
-+
-+#define LFL_NOBLOCK		0
-+#define LFL_NOCACHE		1
-+#define LFL_DLM_UNLOCK		2
-+#define LFL_DLM_CANCEL		3
-+#define LFL_SYNC_LVB		4
-+#define LFL_FORCE_PROMOTE	5
-+#define LFL_REREQUEST		6
-+#define LFL_ACTIVE		7
-+#define LFL_INLOCK		8
-+#define LFL_CANCEL		9
-+#define LFL_NOBAST		10
-+#define LFL_HEADQUE		11
-+#define LFL_UNLOCK_DELETE	12
-+
-+struct gdlm_lock {
-+	struct gdlm_ls		*ls;
-+	struct lm_lockname	lockname;
-+	char			*lvb;
-+	struct dlm_lksb		lksb;
-+
-+	int16_t			cur;
-+	int16_t			req;
-+	int16_t			prev_req;
-+	uint32_t		lkf;		/* dlm flags DLM_LKF_ */
-+	unsigned long		flags;		/* lock_dlm flags LFL_ */
-+
-+	int			bast_mode;	/* protected by async_lock */
-+	struct completion	ast_wait;
-+
-+	struct list_head	clist;		/* complete */
-+	struct list_head	blist;		/* blocking */
-+	struct list_head	delay_list;	/* delayed */
-+	struct list_head	all_list;	/* all locks for the fs */
-+	struct gdlm_lock	*hold_null;	/* NL lock for hold_lvb */
-+};
-+
-+#if (BITS_PER_LONG == 64)
-+#define PRIx64 "lx"
-+#else
-+#define PRIx64 "Lx"
-+#endif
-+
-+#define GDLM_ASSERT(x, do) \
-+{ \
-+  if (!(x)) \
-+  { \
-+    printk("\nlock_dlm:  Assertion failed on line %d of file %s\n" \
-+           "lock_dlm:  assertion:  \"%s\"\n" \
-+           "lock_dlm:  time = %lu\n", \
-+           __LINE__, __FILE__, #x, jiffies); \
-+    {do} \
-+    printk("\n"); \
-+    BUG(); \
-+    panic("lock_dlm:  Record message above and reboot.\n"); \
-+  } \
-+}
-+
-+#define log_print(lev, fmt, arg...) printk(lev "lock_dlm: " fmt "\n" , ## arg)
-+#define log_info(fmt, arg...)  log_print(KERN_INFO , fmt , ## arg)
-+#define log_error(fmt, arg...) log_print(KERN_ERR , fmt , ## arg)
-+#ifdef LOCK_DLM_LOG_DEBUG
-+#define log_debug(fmt, arg...) log_print(KERN_DEBUG , fmt , ## arg)
-+#else
-+#define log_debug(fmt, arg...)
-+#endif
-+
-+/* sysfs.c */
-+
-+int gdlm_sysfs_init(void);
-+void gdlm_sysfs_exit(void);
-+int gdlm_kobject_setup(struct gdlm_ls *);
-+void gdlm_kobject_release(struct gdlm_ls *);
-+
-+/* thread.c */
-+
-+int gdlm_init_threads(struct gdlm_ls *);
-+void gdlm_release_threads(struct gdlm_ls *);
-+
-+/* lock.c */
-+
-+int16_t gdlm_make_lmstate(int16_t);
-+void gdlm_queue_delayed(struct gdlm_lock *);
-+void gdlm_submit_delayed(struct gdlm_ls *);
-+int gdlm_release_all_locks(struct gdlm_ls *);
-+int gdlm_create_lp(struct gdlm_ls *, struct lm_lockname *, struct gdlm_lock **);
-+void gdlm_delete_lp(struct gdlm_lock *);
-+int gdlm_add_lvb(struct gdlm_lock *);
-+void gdlm_del_lvb(struct gdlm_lock *);
-+void gdlm_do_lock(struct gdlm_lock *, struct dlm_range *);
-+void gdlm_do_unlock(struct gdlm_lock *);
-+
-+int gdlm_get_lock(lm_lockspace_t *, struct lm_lockname *, lm_lock_t **);
-+void gdlm_put_lock(lm_lock_t *);
-+unsigned int gdlm_lock(lm_lock_t *, unsigned int, unsigned int, unsigned int);
-+unsigned int gdlm_unlock(lm_lock_t *, unsigned int);
-+void gdlm_cancel(lm_lock_t *);
-+int gdlm_hold_lvb(lm_lock_t *, char **);
-+void gdlm_unhold_lvb(lm_lock_t *, char *);
-+void gdlm_sync_lvb(lm_lock_t *, char *);
-+
-+/* plock.c */
-+
-+int gdlm_plock_init(void);
-+void gdlm_plock_exit(void);
-+int gdlm_plock(lm_lockspace_t *, struct lm_lockname *, struct file *, int,
-+		struct file_lock *);
-+int gdlm_plock_get(lm_lockspace_t *, struct lm_lockname *, struct file *,
-+		struct file_lock *);
-+int gdlm_punlock(lm_lockspace_t *, struct lm_lockname *, struct file *,
-+		struct file_lock *);
-+#endif
-+
-diff -urpN a/fs/gfs2/locking/dlm/main.c b/fs/gfs2/locking/dlm/main.c
---- a/fs/gfs2/locking/dlm/main.c	1970-01-01 07:30:00.000000000 +0730
-+++ b/fs/gfs2/locking/dlm/main.c	2005-09-01 17:48:48.140749504 +0800
-@@ -0,0 +1,62 @@
-+/*
-+ * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
-+ * Copyright (C) 2004-2005 Red Hat, Inc.  All rights reserved.
++/**
++ * gi_skeleton - Setup a buffer that functions can print into
++ * @ip:
++ * @gi:
++ * @filler:
 + *
-+ * This copyrighted material is made available to anyone wishing to use,
-+ * modify, copy, or redistribute it subject to the terms and conditions
-+ * of the GNU General Public License v.2.
++ * Returns: -errno or count of bytes copied to userspace
 + */
 +
-+#include <linux/init.h>
-+
-+#include "lock_dlm.h"
-+
-+extern int gdlm_drop_count;
-+extern int gdlm_drop_period;
-+
-+extern struct lm_lockops gdlm_ops;
-+
-+int __init init_lock_dlm(void)
++static int gi_skeleton(struct gfs2_inode *ip, struct gfs2_ioctl *gi,
++		       gi_filler_t filler)
 +{
++	unsigned int size = gfs2_tune_get(ip->i_sbd, gt_lockdump_size);
++	char *buf;
++	unsigned int count = 0;
 +	int error;
 +
-+	error = lm_register_proto(&gdlm_ops);
-+	if (error) {
-+		printk("lock_dlm:  can't register protocol: %d\n", error);
-+		return error;
-+	}
++	if (size > gi->gi_size)
++		size = gi->gi_size;
 +
-+	error = gdlm_sysfs_init();
-+	if (error) {
-+		lm_unregister_proto(&gdlm_ops);
-+		return error;
-+	}
++	buf = kmalloc(size, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
 +
-+	error = gdlm_plock_init();
-+	if (error) {
-+		gdlm_sysfs_exit();
-+		lm_unregister_proto(&gdlm_ops);
-+		return error;
-+	}
++	error = filler(ip, gi, buf, size, &count);
++	if (error)
++		goto out;
 +
-+	gdlm_drop_count = GDLM_DROP_COUNT;
-+	gdlm_drop_period = GDLM_DROP_PERIOD;
++	if (copy_to_user(gi->gi_data, buf, count + 1))
++		error = -EFAULT;
++	else
++		error = count + 1;
 +
-+	printk("Lock_DLM (built %s %s) installed\n", __DATE__, __TIME__);
-+	return 0;
++ out:
++	kfree(buf);
++
++	return error;
 +}
 +
-+void __exit exit_lock_dlm(void)
-+{
-+	gdlm_plock_exit();
-+	gdlm_sysfs_exit();
-+	lm_unregister_proto(&gdlm_ops);
-+}
-+
-+module_init(init_lock_dlm);
-+module_exit(exit_lock_dlm);
-+
-+MODULE_DESCRIPTION("GFS DLM Locking Module");
-+MODULE_AUTHOR("Red Hat, Inc.");
-+MODULE_LICENSE("GPL");
-+
-diff -urpN a/fs/gfs2/locking/dlm/mount.c b/fs/gfs2/locking/dlm/mount.c
---- a/fs/gfs2/locking/dlm/mount.c	1970-01-01 07:30:00.000000000 +0730
-+++ b/fs/gfs2/locking/dlm/mount.c	2005-09-01 17:48:48.140749504 +0800
-@@ -0,0 +1,218 @@
-+/*
-+ * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
-+ * Copyright (C) 2004-2005 Red Hat, Inc.  All rights reserved.
++/**
++ * gi_get_cookie - Return the "cookie" (identifying string) for a
++ *		 filesystem mount
++ * @ip:
++ * @gi:
++ * @buf:
++ * @size:
++ * @count:
 + *
-+ * This copyrighted material is made available to anyone wishing to use,
-+ * modify, copy, or redistribute it subject to the terms and conditions
-+ * of the GNU General Public License v.2.
++ * Returns: errno
 + */
 +
-+#include "lock_dlm.h"
-+
-+int gdlm_drop_count;
-+int gdlm_drop_period;
-+struct lm_lockops gdlm_ops;
-+
-+
-+static struct gdlm_ls *init_gdlm(lm_callback_t cb, lm_fsdata_t *fsdata,
-+				 int flags, char *table_name)
++static int gi_get_cookie(struct gfs2_inode *ip, struct gfs2_ioctl *gi,
++			 char *buf, unsigned int size, unsigned int *count)
 +{
-+	struct gdlm_ls *ls;
-+	char buf[256], *p;
++	int error = -ENOBUFS;
 +
-+	ls = kmalloc(sizeof(struct gdlm_ls), GFP_KERNEL);
-+	if (!ls)
-+		return NULL;
++	if (gi->gi_argc != 1)
++		return -EINVAL;
 +
-+	memset(ls, 0, sizeof(struct gdlm_ls));
++	gfs2_printf("version 0\n");
++	gfs2_printf("%lu", (unsigned long)ip->i_sbd);
 +
-+	ls->drop_locks_count = gdlm_drop_count;
-+	ls->drop_locks_period = gdlm_drop_period;
++	error = 0;
 +
-+	ls->fscb = cb;
-+	ls->fsdata = fsdata;
-+	ls->fsflags = flags;
-+
-+	spin_lock_init(&ls->async_lock);
-+
-+	INIT_LIST_HEAD(&ls->complete);
-+	INIT_LIST_HEAD(&ls->blocking);
-+	INIT_LIST_HEAD(&ls->delayed);
-+	INIT_LIST_HEAD(&ls->submit);
-+	INIT_LIST_HEAD(&ls->all_locks);
-+
-+	init_waitqueue_head(&ls->thread_wait);
-+	init_waitqueue_head(&ls->wait_control);
-+	ls->thread1 = NULL;
-+	ls->thread2 = NULL;
-+	ls->drop_time = jiffies;
-+	ls->jid = -1;
-+
-+	strncpy(buf, table_name, 256);
-+	buf[255] = '\0';
-+
-+	p = strstr(buf, ":");
-+	if (!p) {
-+		printk("lock_dlm: invalid table_name \"%s\"\n", table_name);
-+		kfree(ls);
-+		return NULL;
-+	}
-+	*p = '\0';
-+	p++;
-+
-+	strncpy(ls->clustername, buf, 128);
-+	strncpy(ls->fsname, p, 128);
-+
-+	return ls;
-+}
-+
-+static int gdlm_mount(char *table_name, char *host_data,
-+			lm_callback_t cb, lm_fsdata_t *fsdata,
-+			unsigned int min_lvb_size, int flags,
-+			struct lm_lockstruct *lockstruct)
-+{
-+	struct gdlm_ls *ls;
-+	int error = -ENOMEM;
-+
-+	if (min_lvb_size > GDLM_LVB_SIZE)
-+		goto out;
-+
-+	ls = init_gdlm(cb, fsdata, flags, table_name);
-+	if (!ls)
-+		goto out;
-+
-+	error = gdlm_init_threads(ls);
-+	if (error)
-+		goto out_free;
-+
-+	error = dlm_new_lockspace(ls->fsname, strlen(ls->fsname),
-+				  &ls->dlm_lockspace, 0, GDLM_LVB_SIZE);
-+	if (error) {
-+		printk("lock_dlm: dlm_new_lockspace error %d\n", error);
-+		goto out_thread;
-+	}
-+
-+	error = gdlm_kobject_setup(ls);
-+	if (error)
-+		goto out_dlm;
-+	kobject_uevent(&ls->kobj, KOBJ_MOUNT, NULL);
-+
-+	/* Now we depend on userspace to notice the new mount,
-+	   join the appropriate group, and do a write to our sysfs
-+	   "mounted" or "terminate" file.  Before the start, userspace
-+	   must set "jid" and "first". */
-+
-+	error = wait_event_interruptible(ls->wait_control,
-+			test_bit(DFL_JOIN_DONE, &ls->flags));
-+	if (error)
-+		goto out_sysfs;
-+
-+	if (test_bit(DFL_TERMINATE, &ls->flags)) {
-+		error = -ERESTARTSYS;
-+		goto out_sysfs;
-+	}
-+
-+	lockstruct->ls_jid = ls->jid;
-+	lockstruct->ls_first = ls->first;
-+	lockstruct->ls_lockspace = ls;
-+	lockstruct->ls_ops = &gdlm_ops;
-+	lockstruct->ls_flags = 0;
-+	lockstruct->ls_lvb_size = GDLM_LVB_SIZE;
-+	return 0;
-+
-+ out_sysfs:
-+	gdlm_kobject_release(ls);
-+ out_dlm:
-+	dlm_release_lockspace(ls->dlm_lockspace, 2);
-+ out_thread:
-+	gdlm_release_threads(ls);
-+ out_free:
-+	kfree(ls);
 + out:
 +	return error;
 +}
 +
-+static void gdlm_unmount(lm_lockspace_t *lockspace)
++/**
++ * gi_get_super - Return the "struct gfs2_sb" for a filesystem
++ * @sdp:
++ * @gi:
++ *
++ * Returns: errno
++ */
++
++static int gi_get_super(struct gfs2_sbd *sdp, struct gfs2_ioctl *gi)
 +{
-+	struct gdlm_ls *ls = (struct gdlm_ls *) lockspace;
-+	int rv;
++	struct gfs2_holder sb_gh;
++	struct buffer_head *bh;
++	struct gfs2_sb *sb;
++	int error;
 +
-+	log_debug("unmount flags %lx", ls->flags);
++	if (gi->gi_argc != 1)
++		return -EINVAL;
++	if (gi->gi_size != sizeof(struct gfs2_sb))
++		return -EINVAL;
 +
-+	if (test_bit(DFL_WITHDRAW, &ls->flags)) {
-+		gdlm_kobject_release(ls);
++	sb = kmalloc(sizeof(struct gfs2_sb), GFP_KERNEL);
++	if (!sb)
++		return -ENOMEM;
++
++	error = gfs2_glock_nq_num(sdp,
++				 GFS2_SB_LOCK, &gfs2_meta_glops,
++				 LM_ST_SHARED, 0, &sb_gh);
++	if (error)
++		goto out;
++
++	error = gfs2_meta_read(sb_gh.gh_gl,
++			       GFS2_SB_ADDR >> sdp->sd_fsb2bb_shift,
++			       DIO_START | DIO_WAIT,
++			       &bh);
++	if (error) {
++		gfs2_glock_dq_uninit(&sb_gh);
++		goto out;
++	}
++	gfs2_sb_in(sb, bh->b_data);
++	brelse(bh);
++
++	gfs2_glock_dq_uninit(&sb_gh);
++
++	if (copy_to_user(gi->gi_data, sb,
++			 sizeof(struct gfs2_sb)))
++		error = -EFAULT;
++	else
++		error = sizeof(struct gfs2_sb);
++
++ out:
++	kfree(sb);
++
++	return error;
++}
++
++/**
++ * gi_get_args - Return the mount arguments
++ * @ip:
++ * @gi:
++ * @buf:
++ * @size:
++ * @count:
++ *
++ * Returns: errno
++ */
++
++static int gi_get_args(struct gfs2_inode *ip, struct gfs2_ioctl *gi,
++		       char *buf, unsigned int size, unsigned int *count)
++{
++	struct gfs2_sbd *sdp = ip->i_sbd;
++	struct gfs2_args *args = &sdp->sd_args;
++	int error = -ENOBUFS;
++
++	if (gi->gi_argc != 1)
++		return -EINVAL;
++
++	gfs2_printf("version 0\n");
++	gfs2_printf("lockproto %s\n", args->ar_lockproto);
++	gfs2_printf("locktable %s\n", args->ar_locktable);
++	gfs2_printf("hostdata %s\n", args->ar_hostdata);
++	gfs2_printf("spectator %d\n", args->ar_spectator);
++	gfs2_printf("ignore_local_fs %d\n", args->ar_ignore_local_fs);
++	gfs2_printf("localcaching %d\n", args->ar_localcaching);
++	gfs2_printf("localflocks %d\n", args->ar_localflocks);
++	gfs2_printf("oopses_ok %d\n", args->ar_oopses_ok);
++	gfs2_printf("debug %d\n", args->ar_debug);
++	gfs2_printf("upgrade %d\n", args->ar_upgrade);
++	gfs2_printf("num_glockd %u\n", args->ar_num_glockd);
++	gfs2_printf("posix_acl %d\n", args->ar_posix_acl);
++	gfs2_printf("quota %u\n", args->ar_quota);
++	gfs2_printf("suiddir %d\n", args->ar_suiddir);
++	gfs2_printf("data %d\n", args->ar_data);
++	gfs2_printf("noatime %d\n", !!test_bit(SDF_NOATIME, &sdp->sd_flags));
++
++	error = 0;
++	
++ out:
++	return error;
++}
++
++/**
++ * gi_get_lockstruct - Return the information in the FS' lockstruct
++ * @ip:
++ * @gi:
++ * @buf:
++ * @size:
++ * @count:
++ *
++ * Returns: errno
++ */
++
++static int gi_get_lockstruct(struct gfs2_inode *ip, struct gfs2_ioctl *gi,
++			     char *buf, unsigned int size, unsigned int *count)
++{
++	struct lm_lockstruct *ls = &ip->i_sbd->sd_lockstruct;
++	int error = -ENOBUFS;
++
++	if (gi->gi_argc != 1)
++		return -EINVAL;
++
++	gfs2_printf("version 0\n");
++	gfs2_printf("jid %u\n", ls->ls_jid);
++	gfs2_printf("first %u\n", ls->ls_first);
++	gfs2_printf("lvb_size %u\n", ls->ls_lvb_size);
++	gfs2_printf("flags %d\n", ls->ls_flags);
++
++	error = 0;
++
++ out:
++	return error;
++}
++
++/**
++ * gi_get_statfs - Return a filesystem's space usage information
++ * @ip:
++ * @gi:
++ * @buf:
++ * @size:
++ * @count:
++ *
++ * Returns: errno
++ */
++
++static int gi_get_statfs(struct gfs2_inode *ip, struct gfs2_ioctl *gi,
++			 char *buf, unsigned int size, unsigned int *count)
++{
++	struct gfs2_sbd *sdp = ip->i_sbd;
++	struct gfs2_statfs_change sc;
++	int error;
++
++	if (gi->gi_argc != 1)
++		return -EINVAL;
++
++	if (gfs2_tune_get(sdp, gt_statfs_slow))
++		error = gfs2_statfs_slow(sdp, &sc);
++	else
++		error = gfs2_statfs_i(sdp, &sc);
++
++	if (error)
++		return error;
++
++	error = -ENOBUFS;
++
++	gfs2_printf("version 0\n");
++	gfs2_printf("bsize %u\n", sdp->sd_sb.sb_bsize);
++	gfs2_printf("total %"PRIu64"\n", sc.sc_total);
++	gfs2_printf("free %"PRIu64"\n", sc.sc_free);
++	gfs2_printf("dinodes %"PRIu64"\n", sc.sc_dinodes);
++
++	error = 0;
++
++ out:
++	return error;
++}
++
++/**
++ * handle_roll - Read a atomic_t as an unsigned int
++ * @a: a counter
++ *
++ * if @a is negative, reset it to zero
++ *
++ * Returns: the value of the counter
++ */
++
++static unsigned int handle_roll(atomic_t *a)
++{
++	int x = atomic_read(a);
++	if (x < 0) {
++		atomic_set(a, 0);
++		return 0;
++	}
++	return (unsigned int)x;
++}
++
++/**
++ * gi_get_counters - Return usage counters
++ * @ip:
++ * @gi:
++ * @buf:
++ * @size:
++ * @count:
++ *
++ * Returns: errno
++ */
++
++static int gi_get_counters(struct gfs2_inode *ip, struct gfs2_ioctl *gi,
++			   char *buf, unsigned int size, unsigned int *count)
++{
++	struct gfs2_sbd *sdp = ip->i_sbd;
++	int error = -ENOBUFS;
++
++	if (gi->gi_argc != 1)
++		return -EINVAL;
++
++	gfs2_printf("version 0\n");
++	gfs2_printf("sd_glock_count:locks::%d\n",
++		    atomic_read(&sdp->sd_glock_count));
++	gfs2_printf("sd_glock_held_count:locks held::%d\n",
++		    atomic_read(&sdp->sd_glock_held_count));
++	gfs2_printf("sd_inode_count:incore inodes::%d\n",
++		    atomic_read(&sdp->sd_inode_count));
++	gfs2_printf("sd_bufdata_count:metadata buffers::%d\n",
++		    atomic_read(&sdp->sd_bufdata_count));
++	gfs2_printf("sd_unlinked_count:unlinked inodes::%d\n",
++		    atomic_read(&sdp->sd_unlinked_count));
++	gfs2_printf("sd_quota_count:quota IDs::%d\n",
++		    atomic_read(&sdp->sd_quota_count));
++	gfs2_printf("sd_log_num_gl:Glocks in current transaction::%u\n",
++		    sdp->sd_log_num_gl);
++	gfs2_printf("sd_log_num_buf:Blocks in current transaction::%u\n",
++		    sdp->sd_log_num_buf);
++	gfs2_printf("sd_log_num_revoke:Revokes in current transaction::%u\n",
++		    sdp->sd_log_num_revoke);
++	gfs2_printf("sd_log_num_rg:RGs in current transaction::%u\n",
++		    sdp->sd_log_num_rg);
++	gfs2_printf("sd_log_num_databuf:Databufs in current transaction::%u\n",
++		    sdp->sd_log_num_databuf);
++	gfs2_printf("sd_log_blks_free:log blks free::%u\n",
++		    sdp->sd_log_blks_free);
++	gfs2_printf("jd_blocks:log blocks total::%u\n",
++		    sdp->sd_jdesc->jd_blocks);
++	gfs2_printf("sd_reclaim_count:glocks on reclaim list::%d\n",
++		    atomic_read(&sdp->sd_reclaim_count));
++	gfs2_printf("sd_log_wraps:log wraps::%"PRIu64"\n",
++		    sdp->sd_log_wraps);
++	gfs2_printf("sd_bio_outstanding:outstanding BIO calls::%u\n",
++		    atomic_read(&sdp->sd_bio_outstanding));
++	gfs2_printf("sd_fh2dentry_misses:fh2dentry misses:diff:%u\n",
++		    handle_roll(&sdp->sd_fh2dentry_misses));
++	gfs2_printf("sd_reclaimed:glocks reclaimed:diff:%u\n",
++		    handle_roll(&sdp->sd_reclaimed));
++	gfs2_printf("sd_log_flush_incore:log incore flushes:diff:%u\n",
++		    handle_roll(&sdp->sd_log_flush_incore));
++	gfs2_printf("sd_log_flush_ondisk:log ondisk flushes:diff:%u\n",
++		    handle_roll(&sdp->sd_log_flush_ondisk));
++	gfs2_printf("sd_glock_nq_calls:glock nq calls:diff:%u\n",
++		    handle_roll(&sdp->sd_glock_nq_calls));
++	gfs2_printf("sd_glock_dq_calls:glock dq calls:diff:%u\n",
++		    handle_roll(&sdp->sd_glock_dq_calls));
++	gfs2_printf("sd_glock_prefetch_calls:glock prefetch calls:diff:%u\n",
++		    handle_roll(&sdp->sd_glock_prefetch_calls));
++	gfs2_printf("sd_lm_lock_calls:lm_lock calls:diff:%u\n",
++		    handle_roll(&sdp->sd_lm_lock_calls));
++	gfs2_printf("sd_lm_unlock_calls:lm_unlock calls:diff:%u\n",
++		    handle_roll(&sdp->sd_lm_unlock_calls));
++	gfs2_printf("sd_lm_callbacks:lm callbacks:diff:%u\n",
++		    handle_roll(&sdp->sd_lm_callbacks));
++	gfs2_printf("sd_ops_address:address operations:diff:%u\n",
++		    handle_roll(&sdp->sd_ops_address));
++	gfs2_printf("sd_ops_dentry:dentry operations:diff:%u\n",
++		    handle_roll(&sdp->sd_ops_dentry));
++	gfs2_printf("sd_ops_export:export operations:diff:%u\n",
++		    handle_roll(&sdp->sd_ops_export));
++	gfs2_printf("sd_ops_file:file operations:diff:%u\n",
++		    handle_roll(&sdp->sd_ops_file));
++	gfs2_printf("sd_ops_inode:inode operations:diff:%u\n",
++		    handle_roll(&sdp->sd_ops_inode));
++	gfs2_printf("sd_ops_super:super operations:diff:%u\n",
++		    handle_roll(&sdp->sd_ops_super));
++	gfs2_printf("sd_ops_vm:vm operations:diff:%u\n",
++		    handle_roll(&sdp->sd_ops_vm));
++	gfs2_printf("sd_bio_reads:block I/O reads:diff:%u\n",
++		    handle_roll(&sdp->sd_bio_reads) >>
++		    (sdp->sd_sb.sb_bsize_shift - 9));
++	gfs2_printf("sd_bio_writes:block I/O writes:diff:%u\n",
++		    handle_roll(&sdp->sd_bio_writes) >>
++		    (sdp->sd_sb.sb_bsize_shift - 9));
++
++	error = 0;
++
++ out:
++	return error;
++}
++
++/**
++ * gi_get_tune - Return current values of the tuneable parameters
++ * @ip:
++ * @gi:
++ * @buf:
++ * @size:
++ * @count:
++ *
++ * Returns: errno
++ */
++
++static int gi_get_tune(struct gfs2_inode *ip, struct gfs2_ioctl *gi,
++		       char *buf, unsigned int size, unsigned int *count)
++{
++	struct gfs2_tune *gt = &ip->i_sbd->sd_tune;
++	int error = -ENOBUFS;
++
++	if (gi->gi_argc != 1)
++		return -EINVAL;
++
++	spin_lock(&gt->gt_spin);
++
++	gfs2_printf("version 0\n");
++	gfs2_printf("ilimit %u\n", gt->gt_ilimit);
++	gfs2_printf("ilimit_tries %u\n", gt->gt_ilimit_tries);
++	gfs2_printf("ilimit_min %u\n", gt->gt_ilimit_min);
++	gfs2_printf("demote_secs %u\n", gt->gt_demote_secs);
++	gfs2_printf("incore_log_blocks %u\n", gt->gt_incore_log_blocks);
++	gfs2_printf("log_flush_secs %u\n", gt->gt_log_flush_secs);
++	gfs2_printf("jindex_refresh_secs %u\n", gt->gt_jindex_refresh_secs);
++	gfs2_printf("scand_secs %u\n", gt->gt_scand_secs);
++	gfs2_printf("recoverd_secs %u\n", gt->gt_recoverd_secs);
++	gfs2_printf("logd_secs %u\n", gt->gt_logd_secs);
++	gfs2_printf("quotad_secs %u\n", gt->gt_quotad_secs);
++	gfs2_printf("inoded_secs %u\n", gt->gt_inoded_secs);
++	gfs2_printf("quota_simul_sync %u\n", gt->gt_quota_simul_sync);
++	gfs2_printf("quota_warn_period %u\n", gt->gt_quota_warn_period);
++	gfs2_printf("quota_scale_num %u\n", gt->gt_quota_scale_num);
++	gfs2_printf("quota_scale_den %u\n", gt->gt_quota_scale_den);
++	gfs2_printf("quota_cache_secs %u\n", gt->gt_quota_cache_secs);
++	gfs2_printf("quota_quantum %u\n", gt->gt_quota_quantum);
++	gfs2_printf("atime_quantum %u\n", gt->gt_atime_quantum);
++	gfs2_printf("new_files_jdata %u\n", gt->gt_new_files_jdata);
++	gfs2_printf("new_files_directio %u\n", gt->gt_new_files_directio);
++	gfs2_printf("max_atomic_write %u\n", gt->gt_max_atomic_write);
++	gfs2_printf("max_readahead %u\n", gt->gt_max_readahead);
++	gfs2_printf("lockdump_size %u\n", gt->gt_lockdump_size);
++	gfs2_printf("stall_secs %u\n", gt->gt_stall_secs);
++	gfs2_printf("complain_secs %u\n", gt->gt_complain_secs);
++	gfs2_printf("reclaim_limit %u\n", gt->gt_reclaim_limit);
++	gfs2_printf("entries_per_readdir %u\n", gt->gt_entries_per_readdir);
++	gfs2_printf("prefetch_secs %u\n", gt->gt_prefetch_secs);
++	gfs2_printf("greedy_default %u\n", gt->gt_greedy_default);
++	gfs2_printf("greedy_quantum %u\n", gt->gt_greedy_quantum);
++	gfs2_printf("greedy_max %u\n", gt->gt_greedy_max);
++	gfs2_printf("statfs_quantum %u\n", gt->gt_statfs_quantum);
++	gfs2_printf("statfs_slow %u\n", gt->gt_statfs_slow);
++
++	error = 0;
++
++ out:
++	spin_unlock(&gt->gt_spin);
++
++	return error;
++}
++
++#define tune_set(f, v) \
++do { \
++	spin_lock(&gt->gt_spin); \
++	gt->f = (v); \
++	spin_unlock(&gt->gt_spin); \
++} while (0)
++
++/**
++ * gi_set_tune - Set a tuneable parameter
++ * @sdp:
++ * @gi:
++ *
++ * Returns: errno
++ */
++
++static int gi_set_tune(struct gfs2_sbd *sdp, struct gfs2_ioctl *gi)
++{
++	struct gfs2_tune *gt = &sdp->sd_tune;
++	char param[ARG_SIZE], value[ARG_SIZE];
++	unsigned int x;
++
++	if (!capable(CAP_SYS_ADMIN))
++		return -EACCES;
++	if (gi->gi_argc != 3)
++		return -EINVAL;
++
++	if (strncpy_from_user(param, gi->gi_argv[1], ARG_SIZE) < 0)
++		return -EFAULT;
++	param[ARG_SIZE - 1] = 0;
++
++	if (strncpy_from_user(value, gi->gi_argv[2], ARG_SIZE) < 0)
++		return -EFAULT;
++	value[ARG_SIZE - 1] = 0;
++
++	if (strcmp(param, "ilimit") == 0) {
++		if (sscanf(value, "%u", &x) != 1)
++			return -EINVAL;
++		tune_set(gt_ilimit, x);
++
++	} else if (strcmp(param, "ilimit_tries") == 0) {
++		if (sscanf(value, "%u", &x) != 1)
++			return -EINVAL;
++		tune_set(gt_ilimit_tries, x);
++
++	} else if (strcmp(param, "ilimit_min") == 0) {
++		if (sscanf(value, "%u", &x) != 1)
++			return -EINVAL;
++		tune_set(gt_ilimit_min, x);
++
++	} else if (strcmp(param, "demote_secs") == 0) {
++		if (sscanf(value, "%u", &x) != 1)
++			return -EINVAL;
++		tune_set(gt_demote_secs, x);
++
++	} else if (strcmp(param, "incore_log_blocks") == 0) {
++		if (sscanf(value, "%u", &x) != 1)
++			return -EINVAL;
++		tune_set(gt_incore_log_blocks, x);
++
++	} else if (strcmp(param, "log_flush_secs") == 0) {
++		if (sscanf(value, "%u", &x) != 1)
++			return -EINVAL;
++		tune_set(gt_log_flush_secs, x);
++
++	} else if (strcmp(param, "jindex_refresh_secs") == 0) {
++		if (sscanf(value, "%u", &x) != 1)
++			return -EINVAL;
++		tune_set(gt_jindex_refresh_secs, x);
++
++	} else if (strcmp(param, "scand_secs") == 0) {
++		if (sscanf(value, "%u", &x) != 1 || !x)
++			return -EINVAL;
++		tune_set(gt_scand_secs, x);
++		wake_up_process(sdp->sd_scand_process);
++
++	} else if (strcmp(param, "recoverd_secs") == 0) {
++		if (sscanf(value, "%u", &x) != 1 || !x)
++			return -EINVAL;
++		tune_set(gt_recoverd_secs, x);
++		wake_up_process(sdp->sd_recoverd_process);
++
++	} else if (strcmp(param, "logd_secs") == 0) {
++		if (sscanf(value, "%u", &x) != 1 || !x)
++			return -EINVAL;
++		tune_set(gt_logd_secs, x);
++		wake_up_process(sdp->sd_logd_process);
++
++	} else if (strcmp(param, "quotad_secs") == 0) {
++		if (sscanf(value, "%u", &x) != 1 || !x)
++			return -EINVAL;
++		tune_set(gt_quotad_secs, x);
++		wake_up_process(sdp->sd_quotad_process);
++
++	} else if (strcmp(param, "inoded_secs") == 0) {
++		if (sscanf(value, "%u", &x) != 1 || !x)
++			return -EINVAL;
++		tune_set(gt_inoded_secs, x);
++		wake_up_process(sdp->sd_inoded_process);
++
++	} else if (strcmp(param, "quota_simul_sync") == 0) {
++		if (sscanf(value, "%u", &x) != 1 || !x)
++			return -EINVAL;
++		tune_set(gt_quota_simul_sync, x);
++
++	} else if (strcmp(param, "quota_warn_period") == 0) {
++		if (sscanf(value, "%u", &x) != 1)
++			return -EINVAL;
++		tune_set(gt_quota_warn_period, x);
++
++	} else if (strcmp(param, "quota_scale") == 0) {
++		unsigned int y;
++		if (sscanf(value, "%u %u", &x, &y) != 2 || !y)
++			return -EINVAL;
++		spin_lock(&gt->gt_spin);
++		gt->gt_quota_scale_num = x;
++		gt->gt_quota_scale_den = y;
++		spin_unlock(&gt->gt_spin);
++
++	} else if (strcmp(param, "quota_cache_secs") == 0) {
++		if (sscanf(value, "%u", &x) != 1 || !x)
++			return -EINVAL;
++		tune_set(gt_quota_cache_secs, x);
++
++	} else if (strcmp(param, "quota_quantum") == 0) {
++		if (sscanf(value, "%u", &x) != 1)
++			return -EINVAL;
++		tune_set(gt_quota_quantum, x);
++
++	} else if (strcmp(param, "atime_quantum") == 0) {
++		if (sscanf(value, "%u", &x) != 1)
++			return -EINVAL;
++		tune_set(gt_atime_quantum, x);
++
++	} else if (strcmp(param, "new_files_jdata") == 0) {
++		if (sscanf(value, "%u", &x) != 1)
++			return -EINVAL;
++		x = !!x;
++		tune_set(gt_new_files_jdata, x);
++
++	} else if (strcmp(param, "new_files_directio") == 0) {
++		if (sscanf(value, "%u", &x) != 1)
++			return -EINVAL;
++		x = !!x;
++		tune_set(gt_new_files_directio, x);
++
++	} else if (strcmp(param, "max_atomic_write") == 0) {
++		if (sscanf(value, "%u", &x) != 1 || !x)
++			return -EINVAL;
++		tune_set(gt_max_atomic_write, x);
++
++	} else if (strcmp(param, "max_readahead") == 0) {
++		if (sscanf(value, "%u", &x) != 1)
++			return -EINVAL;
++		tune_set(gt_max_readahead, x);
++
++	} else if (strcmp(param, "lockdump_size") == 0) {
++		if (sscanf(value, "%u", &x) != 1 || !x)
++			return -EINVAL;
++		tune_set(gt_lockdump_size, x);
++
++	} else if (strcmp(param, "stall_secs") == 0) {
++		if (sscanf(value, "%u", &x) != 1 || !x)
++			return -EINVAL;
++		tune_set(gt_stall_secs, x);
++
++	} else if (strcmp(param, "complain_secs") == 0) {
++		if (sscanf(value, "%u", &x) != 1)
++			return -EINVAL;
++		tune_set(gt_complain_secs, x);
++
++	} else if (strcmp(param, "reclaim_limit") == 0) {
++		if (sscanf(value, "%u", &x) != 1)
++			return -EINVAL;
++		tune_set(gt_reclaim_limit, x);
++
++	} else if (strcmp(param, "entries_per_readdir") == 0) {
++		if (sscanf(value, "%u", &x) != 1 || !x)
++			return -EINVAL;
++		tune_set(gt_entries_per_readdir, x);
++
++	} else if (strcmp(param, "prefetch_secs") == 0) {
++		if (sscanf(value, "%u", &x) != 1)
++			return -EINVAL;
++		tune_set(gt_prefetch_secs, x);
++
++	} else if (strcmp(param, "greedy_default") == 0) {
++		if (sscanf(value, "%u", &x) != 1 || !x)
++			return -EINVAL;
++		tune_set(gt_greedy_default, x);
++
++	} else if (strcmp(param, "greedy_quantum") == 0) {
++		if (sscanf(value, "%u", &x) != 1 || !x)
++			return -EINVAL;
++		tune_set(gt_greedy_quantum, x);
++
++	} else if (strcmp(param, "greedy_max") == 0) {
++		if (sscanf(value, "%u", &x) != 1 || !x)
++			return -EINVAL;
++		tune_set(gt_greedy_max, x);
++
++	} else if (strcmp(param, "statfs_quantum") == 0) {
++		if (sscanf(value, "%u", &x) != 1 || !x)
++			return -EINVAL;
++		tune_set(gt_statfs_quantum, x);
++
++	} else if (strcmp(param, "statfs_slow") == 0) {
++		if (sscanf(value, "%u", &x) != 1)
++			return -EINVAL;
++		tune_set(gt_statfs_slow, x);
++
++	} else
++		return -EINVAL;
++
++	return 0;
++}
++
++/**
++ * gi_do_shrink - throw out unused glocks
++ * @sdp:
++ * @gi:
++ *
++ * Returns: 0
++ */
++
++static int gi_do_shrink(struct gfs2_sbd *sdp, struct gfs2_ioctl *gi)
++{
++	if (!capable(CAP_SYS_ADMIN))
++		return -EACCES;
++	if (gi->gi_argc != 1)
++		return -EINVAL;
++	gfs2_gl_hash_clear(sdp, NO_WAIT);
++	return 0;
++}
++
++/**
++ * gi_get_file_stat -
++ * @ip:
++ * @gi:
++ *
++ * Returns: the number of bytes copied, or -errno
++ */
++
++static int gi_get_file_stat(struct gfs2_inode *ip, struct gfs2_ioctl *gi)
++{
++	struct gfs2_holder i_gh;
++	struct gfs2_dinode *di;
++	int error;
++
++	if (gi->gi_argc != 1)
++		return -EINVAL;
++	if (gi->gi_size != sizeof(struct gfs2_dinode))
++		return -EINVAL;
++
++	di = kmalloc(sizeof(struct gfs2_dinode), GFP_KERNEL);
++	if (!di)
++		return -ENOMEM;
++
++	error = gfs2_glock_nq_init(ip->i_gl, LM_ST_SHARED, LM_FLAG_ANY, &i_gh);
++	if (error)
++		goto out;
++	memcpy(di, &ip->i_di, sizeof(struct gfs2_dinode));
++	gfs2_glock_dq_uninit(&i_gh);
++
++	if (copy_to_user(gi->gi_data, di,
++			 sizeof(struct gfs2_dinode)))
++		error = -EFAULT;
++	else
++		error = sizeof(struct gfs2_dinode);
++
++ out:
++	kfree(di);
++
++	return error;
++}
++
++/**
++ * gi_set_file_flag - set or clear a flag on a file
++ * @ip:
++ * @gi:
++ *
++ * Returns: errno
++ */
++
++static int gi_set_file_flag(struct gfs2_inode *ip, struct gfs2_ioctl *gi)
++{
++	char buf[ARG_SIZE];
++	int set;
++	uint32_t flag;
++	struct gfs2_holder i_gh;
++	struct buffer_head *dibh;
++	int error;
++
++	if (gi->gi_argc != 3)
++		return -EINVAL;
++
++	if (strncpy_from_user(buf, gi->gi_argv[1], ARG_SIZE) < 0)
++		return -EFAULT;
++	buf[ARG_SIZE - 1] = 0;
++
++	if (strcmp(buf, "set") == 0)
++		set = TRUE;
++	else if (strcmp(buf, "clear") == 0)
++		set = FALSE;
++	else
++		return -EINVAL;
++
++	if (strncpy_from_user(buf, gi->gi_argv[2], ARG_SIZE) < 0)
++		return -EFAULT;
++	buf[ARG_SIZE - 1] = 0;
++
++	error = gfs2_glock_nq_init(ip->i_gl, LM_ST_EXCLUSIVE, 0, &i_gh);
++	if (error)
++		return error;
++
++	error = -EACCES;
++	if (ip->i_di.di_uid != current->fsuid && !capable(CAP_FOWNER))
++		goto out;
++
++	error = -EINVAL;
++
++	if (strcmp(buf, "jdata") == 0) {
++		if (!S_ISREG(ip->i_di.di_mode) || ip->i_di.di_size)
++			goto out;
++		flag = GFS2_DIF_JDATA;
++	} else if (strcmp(buf, "directio") == 0) {
++		if (!S_ISREG(ip->i_di.di_mode))
++			goto out;
++		flag = GFS2_DIF_DIRECTIO;
++	} else if (strcmp(buf, "immutable") == 0) {
++		/* The IMMUTABLE flag can only be changed by
++		   the relevant capability. */
++		error = -EPERM;
++		if (!capable(CAP_LINUX_IMMUTABLE))
++			goto out;
++		flag = GFS2_DIF_IMMUTABLE;
++	} else if (strcmp(buf, "appendonly") == 0) {
++		/* The APPENDONLY flag can only be changed by
++		   the relevant capability. */
++		error = -EPERM;
++		if (!capable(CAP_LINUX_IMMUTABLE))
++			goto out;
++		flag = GFS2_DIF_APPENDONLY;
++	} else if (strcmp(buf, "inherit_jdata") == 0) {
++		if (!S_ISDIR(ip->i_di.di_mode))
++			goto out;
++		flag = GFS2_DIF_INHERIT_JDATA;
++	} else if (strcmp(buf, "inherit_directio") == 0) {
++		if (S_ISDIR(ip->i_di.di_mode))
++			goto out;
++		flag = GFS2_DIF_INHERIT_DIRECTIO;
++	} else
++		goto out;
++
++	error = gfs2_trans_begin(ip->i_sbd, RES_DINODE, 0);
++	if (error)
++		goto out;
++
++	error = gfs2_meta_inode_buffer(ip, &dibh);
++	if (error)
++		goto out_trans_end;
++
++	if (set)
++		ip->i_di.di_flags |= flag;
++	else
++		ip->i_di.di_flags &= ~flag;
++
++	gfs2_trans_add_bh(ip->i_gl, dibh);
++	gfs2_dinode_out(&ip->i_di, dibh->b_data);
++
++	brelse(dibh);
++
++ out_trans_end:
++	gfs2_trans_end(ip->i_sbd);
++
++ out:
++	gfs2_glock_dq_uninit(&i_gh);
++
++	return error;
++
++}
++
++static int gi_get_bmap(struct gfs2_inode *ip, struct gfs2_ioctl *gi)
++{
++	struct gfs2_holder gh;
++	uint64_t lblock, dblock = 0;
++	int new = FALSE;
++	int error;
++
++	if (gi->gi_argc != 1)
++		return -EINVAL;
++	if (gi->gi_size != sizeof(uint64_t))
++		return -EINVAL;
++
++	error = copy_from_user(&lblock, gi->gi_data, sizeof(uint64_t));
++	if (error)
++		return -EFAULT;
++
++	error = gfs2_glock_nq_init(ip->i_gl, LM_ST_SHARED, LM_FLAG_ANY, &gh);
++	if (error)
++		return error;
++
++	error = -EACCES;
++	if (ip->i_di.di_uid == current->fsuid || capable(CAP_FOWNER)) {
++		error = 0;
++		if (!gfs2_is_stuffed(ip))
++			error = gfs2_block_map(ip, lblock, &new, &dblock, NULL);
++	}
++
++	gfs2_glock_dq_uninit(&gh);
++
++	if (!error) {
++		error = copy_to_user(gi->gi_data, &dblock, sizeof(uint64_t));
++		if (error)
++			error = -EFAULT;
++	}
++
++	return error;
++}
++
++/**
++ * gi_get_file_meta - Return all the metadata for a file
++ * @ip:
++ * @gi:
++ *
++ * Returns: the number of bytes copied, or -errno
++ */
++
++static int gi_get_file_meta(struct gfs2_inode *ip, struct gfs2_ioctl *gi)
++{
++	struct gfs2_holder i_gh;
++	struct gfs2_user_buffer ub;
++	int error;
++
++	if (gi->gi_argc != 1)
++		return -EINVAL;
++
++	ub.ub_data = gi->gi_data;
++	ub.ub_size = gi->gi_size;
++	ub.ub_count = 0;
++
++	error = gfs2_glock_nq_init(ip->i_gl, LM_ST_SHARED, LM_FLAG_ANY, &i_gh);
++	if (error)
++		return error;
++
++	error = -EACCES;
++	if (ip->i_di.di_uid != current->fsuid && !capable(CAP_FOWNER))
++		goto out;
++
++	error = gfs2_get_file_meta(ip, &ub);
++	if (error)
++		goto out;
++
++	if (S_ISDIR(ip->i_di.di_mode) &&
++	    (ip->i_di.di_flags & GFS2_DIF_EXHASH)) {
++		error = gfs2_get_dir_meta(ip, &ub);
++		if (error)
++			goto out;
++	}
++
++	if (ip->i_di.di_eattr) {
++		error = gfs2_get_eattr_meta(ip, &ub);
++		if (error)
++			goto out;
++	}
++
++	error = ub.ub_count;
++
++ out:
++	gfs2_glock_dq_uninit(&i_gh);
++
++	return error;
++}
++
++/**
++ * gi_do_file_flush - sync out all dirty data and
++ *		    drop the cache (and lock) for a file.
++ * @ip:
++ * @gi:
++ *
++ * Returns: errno
++ */
++
++static int gi_do_file_flush(struct gfs2_inode *ip, struct gfs2_ioctl *gi)
++{
++	if (gi->gi_argc != 1)
++		return -EINVAL;
++	gfs2_glock_force_drop(ip->i_gl);
++	return 0;
++}
++
++/**
++ * gi2hip - return the "struct gfs2_inode" for a hidden file
++ * @sdp:
++ * @gi:
++ *
++ * Returns: the "struct gfs2_inode"
++ */
++
++static struct gfs2_inode *gi2hip(struct gfs2_sbd *sdp, struct gfs2_ioctl *gi)
++{
++	char buf[ARG_SIZE];
++
++	if (gi->gi_argc != 2)
++		return ERR_PTR(-EINVAL);
++
++	if (strncpy_from_user(buf, gi->gi_argv[1], ARG_SIZE) < 0)
++		return ERR_PTR(-EFAULT);
++	buf[ARG_SIZE - 1] = 0;
++
++	if (strcmp(buf, "jindex") == 0)
++		return sdp->sd_jindex;
++	if (strcmp(buf, "rindex") == 0)
++		return sdp->sd_rindex;
++	if (strcmp(buf, "quota") == 0)
++		return sdp->sd_quota_inode;
++
++	return ERR_PTR(-EINVAL);
++}
++
++/**
++ * gi_get_hfile_stat - get stat info on a hidden file
++ * @sdp:
++ * @gi:
++ *
++ * Returns: the number of bytes copied, or -errno
++ */
++
++static int gi_get_hfile_stat(struct gfs2_sbd *sdp, struct gfs2_ioctl *gi)
++{
++	struct gfs2_inode *ip;
++	struct gfs2_dinode *di;
++	struct gfs2_holder i_gh;
++	int error;
++
++	ip = gi2hip(sdp, gi);
++	if (IS_ERR(ip))
++		return PTR_ERR(ip);
++
++	if (gi->gi_size != sizeof(struct gfs2_dinode))
++		return -EINVAL;
++
++	di = kmalloc(sizeof(struct gfs2_dinode), GFP_KERNEL);
++	if (!di)
++		return -ENOMEM;
++
++	error = gfs2_glock_nq_init(ip->i_gl, LM_ST_SHARED, LM_FLAG_ANY, &i_gh);
++	if (error)
++		goto out;
++	memcpy(di, &ip->i_di, sizeof(struct gfs2_dinode));
++	gfs2_glock_dq_uninit(&i_gh);
++
++	if (copy_to_user(gi->gi_data, di,
++			 sizeof(struct gfs2_dinode)))
++		error = -EFAULT;
++	else
++		error = sizeof(struct gfs2_dinode);
++
++ out:
++	kfree(di);
++
++	return error;
++}
++
++/**
++ * gi_do_hfile_read - Read data from a hidden file
++ * @sdp:
++ * @gi:
++ *
++ * Returns: the number of bytes read, or -errno
++ */
++
++static int gi_do_hfile_read(struct gfs2_sbd *sdp, struct gfs2_ioctl *gi)
++{
++	struct gfs2_inode *ip;
++	struct gfs2_holder i_gh;
++	int error;
++
++	if (!capable(CAP_SYS_ADMIN))
++		return -EACCES;
++
++	ip = gi2hip(sdp, gi);
++	if (IS_ERR(ip))
++		return PTR_ERR(ip);
++
++	if (!S_ISREG(ip->i_di.di_mode))
++		return -EINVAL;
++
++	if (!access_ok(VERIFY_WRITE, gi->gi_data, gi->gi_size))
++		return -EFAULT;
++
++	error = gfs2_glock_nq_init(ip->i_gl, LM_ST_SHARED, 0, &i_gh);
++	if (error)
++		return error;
++
++	error = gfs2_jdata_read(ip, gi->gi_data, gi->gi_offset, gi->gi_size,
++				gfs2_copy2user);
++
++	gfs2_glock_dq_uninit(&i_gh);
++
++	return error;
++}
++
++/**
++ * gi_do_hfile_write - Write data to a hidden file
++ * @sdp:
++ * @gi:
++ *
++ * Returns: the number of bytes written, or -errno
++ */
++
++static int gi_do_hfile_write(struct gfs2_sbd *sdp, struct gfs2_ioctl *gi)
++{
++	struct gfs2_inode *ip;
++	struct gfs2_alloc *al = NULL;
++	struct gfs2_holder i_gh;
++	unsigned int data_blocks, ind_blocks;
++	int alloc_required;
++	int error;
++
++	if (!capable(CAP_SYS_ADMIN))
++		return -EACCES;
++
++	ip = gi2hip(sdp, gi);
++	if (IS_ERR(ip))
++		return PTR_ERR(ip);
++
++	if (!S_ISREG(ip->i_di.di_mode))
++		return -EINVAL;
++
++	if (!access_ok(VERIFY_READ, gi->gi_data, gi->gi_size))
++		return -EFAULT;
++
++	gfs2_write_calc_reserv(ip, gi->gi_size, &data_blocks, &ind_blocks);
++
++	error = gfs2_glock_nq_init(ip->i_gl, LM_ST_EXCLUSIVE,
++				   LM_FLAG_PRIORITY, &i_gh);
++	if (error)
++		return error;
++
++	if (!gfs2_is_jdata(ip)) {
++		gfs2_consist_inode(ip);
++		error = -EIO;
 +		goto out;
 +	}
 +
-+	kobject_uevent(&ls->kobj, KOBJ_UMOUNT, NULL);
++	error = gfs2_write_alloc_required(ip, gi->gi_offset, gi->gi_size,
++					  &alloc_required);
++	if (error)
++		goto out;
 +
-+	wait_event_interruptible(ls->wait_control,
-+				 test_bit(DFL_LEAVE_DONE, &ls->flags));
++	if (alloc_required) {
++		al = gfs2_alloc_get(ip);
 +
-+	gdlm_kobject_release(ls);
-+	dlm_release_lockspace(ls->dlm_lockspace, 2);
-+	gdlm_release_threads(ls);
-+	rv = gdlm_release_all_locks(ls);
-+	if (rv)
-+		log_info("lm_dlm_unmount: %d stray locks freed", rv);
++		al->al_requested = data_blocks + ind_blocks;
++
++		error = gfs2_inplace_reserve(ip);
++		if (error)
++			goto out_alloc;
++
++		error = gfs2_trans_begin(sdp,
++					 al->al_rgd->rd_ri.ri_length +
++					 data_blocks + ind_blocks +
++					 RES_DINODE + RES_STATFS, 0);
++		if (error)
++			goto out_relse;
++	} else {
++		error = gfs2_trans_begin(sdp, data_blocks + RES_DINODE, 0);
++		if (error)
++			goto out;
++	}
++
++	error = gfs2_jdata_write(ip, gi->gi_data, gi->gi_offset, gi->gi_size,
++				 gfs2_copy_from_user);
++
++	gfs2_trans_end(sdp);
++
++ out_relse:
++	if (alloc_required)
++		gfs2_inplace_release(ip);
++
++ out_alloc:
++	if (alloc_required)
++		gfs2_alloc_put(ip);
++
 + out:
-+	kfree(ls);
++	gfs2_glock_dq_uninit(&i_gh);
++
++	return error;
 +}
 +
-+static void gdlm_recovery_done(lm_lockspace_t *lockspace, unsigned int jid,
-+                               unsigned int message)
-+{
-+	struct gdlm_ls *ls = (struct gdlm_ls *) lockspace;
-+	ls->recover_done = jid;
-+	kobject_uevent(&ls->kobj, KOBJ_CHANGE, NULL);
-+}
-+
-+static void gdlm_others_may_mount(lm_lockspace_t *lockspace)
-+{
-+	struct gdlm_ls *ls = (struct gdlm_ls *) lockspace;
-+	ls->first_done = 1;
-+	kobject_uevent(&ls->kobj, KOBJ_CHANGE, NULL);
-+}
-+
-+static void gdlm_withdraw(lm_lockspace_t *lockspace)
-+{
-+	struct gdlm_ls *ls = (struct gdlm_ls *) lockspace;
-+
-+	/* userspace suspends locking on all other members */
-+
-+	kobject_uevent(&ls->kobj, KOBJ_OFFLINE, NULL);
-+
-+	wait_event_interruptible(ls->wait_control,
-+				 test_bit(DFL_WITHDRAW, &ls->flags));
-+
-+	dlm_release_lockspace(ls->dlm_lockspace, 2);
-+	gdlm_release_threads(ls);
-+	gdlm_release_all_locks(ls);
-+
-+	kobject_uevent(&ls->kobj, KOBJ_UMOUNT, NULL);
-+
-+	/* userspace leaves the mount group, we don't need to wait for
-+	   that to complete */
-+}
-+
-+struct lm_lockops gdlm_ops = {
-+	.lm_proto_name = "lock_dlm",
-+	.lm_mount = gdlm_mount,
-+	.lm_others_may_mount = gdlm_others_may_mount,
-+	.lm_unmount = gdlm_unmount,
-+	.lm_withdraw = gdlm_withdraw,
-+	.lm_get_lock = gdlm_get_lock,
-+	.lm_put_lock = gdlm_put_lock,
-+	.lm_lock = gdlm_lock,
-+	.lm_unlock = gdlm_unlock,
-+	.lm_plock = gdlm_plock,
-+	.lm_punlock = gdlm_punlock,
-+	.lm_plock_get = gdlm_plock_get,
-+	.lm_cancel = gdlm_cancel,
-+	.lm_hold_lvb = gdlm_hold_lvb,
-+	.lm_unhold_lvb = gdlm_unhold_lvb,
-+	.lm_sync_lvb = gdlm_sync_lvb,
-+	.lm_recovery_done = gdlm_recovery_done,
-+	.lm_owner = THIS_MODULE,
-+};
-+
-diff -urpN a/fs/gfs2/locking/dlm/plock.c b/fs/gfs2/locking/dlm/plock.c
---- a/fs/gfs2/locking/dlm/plock.c	1970-01-01 07:30:00.000000000 +0730
-+++ b/fs/gfs2/locking/dlm/plock.c	2005-09-01 17:48:48.148748288 +0800
-@@ -0,0 +1,274 @@
-+/*
-+ * Copyright (C) 2005 Red Hat, Inc.  All rights reserved.
++/**
++ * gi_do_hfile_trunc - truncate a hidden file
++ * @sdp:
++ * @gi:
 + *
-+ * This copyrighted material is made available to anyone wishing to use,
-+ * modify, copy, or redistribute it subject to the terms and conditions
-+ * of the GNU General Public License v.2.
++ * Returns: the number of bytes copied, or -errno
 + */
 +
-+#include "lock_dlm.h"
-+#include <linux/lock_dlm_plock.h>
-+
-+#include <linux/miscdevice.h>
-+
-+static spinlock_t ops_lock;
-+static struct list_head send_list;
-+static struct list_head recv_list;
-+static wait_queue_head_t send_wq;
-+static wait_queue_head_t recv_wq;
-+
-+struct plock_op {
-+	struct list_head list;
-+	int done;
-+	struct gdlm_plock_info info;
-+};
-+
-+static inline void set_version(struct gdlm_plock_info *info)
++static int gi_do_hfile_trunc(struct gfs2_sbd *sdp, struct gfs2_ioctl *gi)
 +{
-+	info->version[0] = GDLM_PLOCK_VERSION_MAJOR;
-+	info->version[1] = GDLM_PLOCK_VERSION_MINOR;
-+	info->version[2] = GDLM_PLOCK_VERSION_PATCH;
++	struct gfs2_inode *ip;
++	struct gfs2_holder i_gh;
++	int error;
++
++	if (!capable(CAP_SYS_ADMIN))
++		return -EACCES;
++
++	ip = gi2hip(sdp, gi);
++	if (IS_ERR(ip))
++		return PTR_ERR(ip);
++
++	if (!S_ISREG(ip->i_di.di_mode))
++		return -EINVAL;
++
++	error = gfs2_glock_nq_init(ip->i_gl, LM_ST_EXCLUSIVE, 0, &i_gh);
++	if (error)
++		return error;
++
++	error = gfs2_truncatei(ip, gi->gi_offset, NULL);
++
++	gfs2_glock_dq_uninit(&i_gh);
++
++	return error;
 +}
 +
-+static int check_version(struct gdlm_plock_info *info)
++/**
++ * gi_do_quota_sync - sync the outstanding quota changes for a FS
++ * @sdp:
++ * @gi:
++ *
++ * Returns: errno
++ */
++
++static int gi_do_quota_sync(struct gfs2_sbd *sdp, struct gfs2_ioctl *gi)
 +{
-+	if ((GDLM_PLOCK_VERSION_MAJOR != info->version[0]) ||
-+	    (GDLM_PLOCK_VERSION_MINOR < info->version[1])) {
-+		log_error("plock device version mismatch: "
-+			  "kernel (%u.%u.%u), user (%u.%u.%u)",
-+			  GDLM_PLOCK_VERSION_MAJOR,
-+			  GDLM_PLOCK_VERSION_MINOR,
-+			  GDLM_PLOCK_VERSION_PATCH,
-+			  info->version[0],
-+			  info->version[1],
-+			  info->version[2]);
++	if (!capable(CAP_SYS_ADMIN))
++		return -EACCES;
++	if (gi->gi_argc != 1)
++		return -EINVAL;
++	return gfs2_quota_sync(sdp);
++}
++
++/**
++ * gi_do_quota_refresh - Refresh the a quota LVB from the quota file
++ * @sdp:
++ * @gi:
++ *
++ * Returns: errno
++ */
++
++static int gi_do_quota_refresh(struct gfs2_sbd *sdp, struct gfs2_ioctl *gi)
++{
++	char buf[ARG_SIZE];
++	int user;
++	uint32_t id;
++
++	if (!capable(CAP_SYS_ADMIN))
++		return -EACCES;
++	if (gi->gi_argc != 2)
++		return -EINVAL;
++
++	if (strncpy_from_user(buf, gi->gi_argv[1], ARG_SIZE) < 0)
++		return -EFAULT;
++	buf[ARG_SIZE - 1] = 0;
++
++	switch (buf[0]) {
++	case 'u':
++		user = TRUE;
++		break;
++	case 'g':
++		user = FALSE;
++		break;
++	default:
 +		return -EINVAL;
 +	}
++
++	if (buf[1] != ':')
++		return -EINVAL;
++
++	if (sscanf(buf + 2, "%u", &id) != 1)
++		return -EINVAL;
++
++	return gfs2_quota_refresh(sdp, user, id);
++}
++
++/**
++ * gi_do_quota_read - read quota values from the quota file
++ * @sdp:
++ * @gi:
++ *
++ * Returns: errno
++ */
++
++static int gi_do_quota_read(struct gfs2_sbd *sdp, struct gfs2_ioctl *gi)
++{
++	char buf[ARG_SIZE];
++	int user;
++	uint32_t id;
++	struct gfs2_quota q;
++	int error;
++
++	if (gi->gi_argc != 2)
++		return -EINVAL;
++	if (gi->gi_size != sizeof(struct gfs2_quota))
++		return -EINVAL;
++
++	if (strncpy_from_user(buf, gi->gi_argv[1], ARG_SIZE) < 0)
++		return -EFAULT;
++	buf[ARG_SIZE - 1] = 0;
++
++	switch (buf[0]) {
++	case 'u':
++		user = TRUE;
++		break;
++	case 'g':
++		user = FALSE;
++		break;
++	default:
++		return -EINVAL;
++	}
++
++	if (buf[1] != ':')
++		return -EINVAL;
++
++	if (sscanf(buf + 2, "%u", &id) != 1)
++		return -EINVAL;
++
++	error = gfs2_quota_read(sdp, user, id, &q);
++	if (error)
++		return error;
++
++	if (copy_to_user(gi->gi_data, &q, sizeof(struct gfs2_quota)))
++		return -EFAULT;
++
 +	return 0;
 +}
 +
-+int gdlm_plock(lm_lockspace_t *lockspace, struct lm_lockname *name,
-+	       struct file *file, int cmd, struct file_lock *fl)
++/**
++ * gi_do_statfs_sync - sync the outstanding statfs changes for a FS
++ * @sdp:
++ * @gi:
++ *
++ * Returns: errno
++ */
++
++static int gi_do_statfs_sync(struct gfs2_sbd *sdp, struct gfs2_ioctl *gi)
 +{
-+	struct gdlm_ls *ls = (struct gdlm_ls *) lockspace;
-+	struct plock_op *op;
-+	int rv;
-+
-+	op = kzalloc(sizeof(*op), GFP_KERNEL);
-+	if (!op)
-+		return -ENOMEM;
-+
-+	log_debug("en plock %x,%"PRIx64"", name->ln_type, name->ln_number);
-+
-+	set_version(&op->info);
-+	op->info.optype		= GDLM_PLOCK_OP_LOCK;
-+	op->info.pid		= (uint32_t) fl->fl_owner;
-+	op->info.ex		= (fl->fl_type == F_WRLCK);
-+	op->info.wait		= IS_SETLKW(cmd);
-+	op->info.fsid		= ls->id;
-+	op->info.number		= name->ln_number;
-+	op->info.start		= fl->fl_start;
-+	op->info.end		= fl->fl_end;
-+
-+	INIT_LIST_HEAD(&op->list);
-+	spin_lock(&ops_lock);
-+	list_add_tail(&op->list, &send_list);
-+	spin_unlock(&ops_lock);
-+	wake_up(&send_wq);
-+
-+	wait_event(recv_wq, (op->done != 0));
-+
-+	spin_lock(&ops_lock);
-+	if (!list_empty(&op->list)) {
-+		printk("plock op on list\n");
-+		list_del(&op->list);
-+	}
-+	spin_unlock(&ops_lock);
-+
-+	log_debug("ex plock done %d rv %d", op->done, op->info.rv);
-+
-+	rv = op->info.rv;
-+
-+	if (!rv) {
-+		if (posix_lock_file_wait(file, fl) < 0)
-+			log_error("gdlm_plock: vfs lock error %x,%"PRIx64"",
-+				  name->ln_type, name->ln_number);
-+	}
-+
-+	kfree(op);
-+	return rv;
++	if (!capable(CAP_SYS_ADMIN))
++		return -EACCES;
++	if (gi->gi_argc != 1)
++		return -EINVAL;
++	return gfs2_statfs_sync(sdp);
 +}
 +
-+int gdlm_punlock(lm_lockspace_t *lockspace, struct lm_lockname *name,
-+		 struct file *file, struct file_lock *fl)
++static int gi_resize_add_rgrps(struct gfs2_sbd *sdp, struct gfs2_ioctl *gi)
 +{
-+	struct gdlm_ls *ls = (struct gdlm_ls *) lockspace;
-+	struct plock_op *op;
-+	int rv;
-+
-+	op = kzalloc(sizeof(*op), GFP_KERNEL);
-+	if (!op)
-+		return -ENOMEM;
-+
-+	log_debug("en punlock %x,%"PRIx64"", name->ln_type, name->ln_number);
-+
-+	if (posix_lock_file_wait(file, fl) < 0)
-+		log_error("gdlm_punlock: vfs unlock error %x,%"PRIx64"",
-+			  name->ln_type, name->ln_number);
-+
-+	set_version(&op->info);
-+	op->info.optype		= GDLM_PLOCK_OP_UNLOCK;
-+	op->info.pid		= (uint32_t) fl->fl_owner;
-+	op->info.fsid		= ls->id;
-+	op->info.number		= name->ln_number;
-+	op->info.start		= fl->fl_start;
-+	op->info.end		= fl->fl_end;
-+
-+	INIT_LIST_HEAD(&op->list);
-+	spin_lock(&ops_lock);
-+	list_add_tail(&op->list, &send_list);
-+	spin_unlock(&ops_lock);
-+	wake_up(&send_wq);
-+
-+	wait_event(recv_wq, (op->done != 0));
-+
-+	spin_lock(&ops_lock);
-+	if (!list_empty(&op->list)) {
-+		printk("plock op on list\n");
-+		list_del(&op->list);
-+	}
-+	spin_unlock(&ops_lock);
-+
-+	log_debug("ex punlock done %d rv %d", op->done, op->info.rv);
-+
-+	rv = op->info.rv;
-+
-+	kfree(op);
-+	return rv;
-+}
-+
-+int gdlm_plock_get(lm_lockspace_t *lockspace, struct lm_lockname *name,
-+		   struct file *file, struct file_lock *fl)
-+{
-+	return -ENOSYS;
-+}
-+
-+/* a read copies out one plock request from the send list */
-+static ssize_t dev_read(struct file *file, char __user *u, size_t count,
-+			loff_t *ppos)
-+{
-+	struct gdlm_plock_info info;
-+	struct plock_op *op = NULL;
-+
-+	if (count < sizeof(info))
++	if (!capable(CAP_SYS_ADMIN))
++		return -EACCES;
++	if (gi->gi_argc != 1)
++		return -EINVAL;
++	if (gi->gi_size % sizeof(struct gfs2_rindex))
 +		return -EINVAL;
 +
-+	spin_lock(&ops_lock);
-+	if (!list_empty(&send_list)) {
-+		op = list_entry(send_list.next, struct plock_op, list);
-+		list_move(&op->list, &recv_list);
-+		memcpy(&info, &op->info, sizeof(info));
-+	}
-+	spin_unlock(&ops_lock);
++	return gfs2_resize_add_rgrps(sdp, gi->gi_data, gi->gi_size);
++}
 +
-+	if (!op)
-+		return -EAGAIN;
++static int gi_rename2system(struct gfs2_sbd *sdp, struct gfs2_ioctl *gi)
++{
++	char new_dir[ARG_SIZE], new_name[ARG_SIZE];
++	struct gfs2_inode *old_dip, *ip, *new_dip;
++	int put_new_dip = FALSE;
++	int error;
 +
-+	log_debug("send %"PRIx64" op %d ex %d wait %d", info.number,
-+		  info.optype, info.ex, info.wait);
++	if (!capable(CAP_SYS_ADMIN))
++		return -EACCES;
++	if (gi->gi_argc != 3)
++		return -EINVAL;
 +
-+	if (copy_to_user(u, &info, sizeof(info)))
++	if (strncpy_from_user(new_dir, gi->gi_argv[1], ARG_SIZE) < 0)
 +		return -EFAULT;
-+	return sizeof(info);
++	new_dir[ARG_SIZE - 1] = 0;
++	if (strncpy_from_user(new_name, gi->gi_argv[2], ARG_SIZE) < 0)
++		return -EFAULT;
++	new_name[ARG_SIZE - 1] = 0;
++
++	error = gfs2_lookup_simple(sdp->sd_root_dir, ".gfs2_admin", &old_dip);
++	if (error)
++		return error;
++
++	error = -ENOTDIR;
++	if (!S_ISDIR(old_dip->i_di.di_mode))
++		goto out;
++
++	error = gfs2_lookup_simple(old_dip, "new_inode", &ip);
++	if (error)
++		goto out;
++
++	if (!strcmp(new_dir, "per_node")) {
++		error = gfs2_lookup_simple(sdp->sd_master_dir, "per_node",
++					   &new_dip);
++		if (error)
++			goto out2;
++		put_new_dip = TRUE;
++	} else if (!strcmp(new_dir, "jindex"))
++		new_dip = sdp->sd_jindex;
++	else {
++		error = -EINVAL;
++		goto out2;
++	}
++
++	error = gfs2_rename2system(ip, old_dip, "new_inode", new_dip, new_name);
++
++	if (put_new_dip)
++		gfs2_inode_put(new_dip);
++
++ out2:
++	gfs2_inode_put(ip);
++	
++ out:
++	gfs2_inode_put(old_dip);
++
++	return error;
 +}
 +
-+/* a write copies in one plock result that should match a plock_op
-+   on the recv list */
-+static ssize_t dev_write(struct file *file, const char __user *u, size_t count,
-+			 loff_t *ppos)
++/**
++ * gfs2_ioctl_i -
++ * @ip:
++ * @arg:
++ *
++ * Returns: -errno or positive byte count
++ */
++
++int gfs2_ioctl_i(struct gfs2_inode *ip, void *arg)
 +{
-+	struct gdlm_plock_info info;
-+	struct plock_op *op;
-+	int found = 0;
++	struct gfs2_ioctl *gi_user = (struct gfs2_ioctl *)arg;
++	struct gfs2_ioctl gi;
++	char **argv;
++	char arg0[ARG_SIZE];
++	int error = -EFAULT;
 +
-+	if (count != sizeof(info))
-+		return -EINVAL;
-+
-+	if (copy_from_user(&info, u, sizeof(info)))
++	if (copy_from_user(&gi, gi_user, sizeof(struct gfs2_ioctl)))
 +		return -EFAULT;
-+
-+	if (check_version(&info))
++	if (!gi.gi_argc)
 +		return -EINVAL;
++	argv = kcalloc(gi.gi_argc, sizeof(char *), GFP_KERNEL);
++	if (!argv)
++		return -ENOMEM;
++	if (copy_from_user(argv, gi.gi_argv,
++			   gi.gi_argc * sizeof(char *)))
++		goto out;
++	gi.gi_argv = argv;
 +
-+	log_debug("recv %"PRIx64" op %d ex %d wait %d", info.number,
-+		  info.optype, info.ex, info.wait);
++	if (strncpy_from_user(arg0, argv[0], ARG_SIZE) < 0)
++		goto out;
++	arg0[ARG_SIZE - 1] = 0;
 +
-+	spin_lock(&ops_lock);
-+	list_for_each_entry(op, &recv_list, list) {
-+		if (op->info.fsid == info.fsid &&
-+		    op->info.number == info.number) {
-+			list_del_init(&op->list);
-+			found = 1;
-+			op->done = 1;
-+			memcpy(&op->info, &info, sizeof(info));
-+			break;
-+		}
-+	}
-+	spin_unlock(&ops_lock);
-+
-+	if (found)
-+		wake_up(&recv_wq);
++	if (strcmp(arg0, "get_cookie") == 0)
++		error = gi_skeleton(ip, &gi, gi_get_cookie);
++	else if (strcmp(arg0, "get_super") == 0)
++		error = gi_get_super(ip->i_sbd, &gi);
++	else if (strcmp(arg0, "get_args") == 0)
++		error = gi_skeleton(ip, &gi, gi_get_args);
++	else if (strcmp(arg0, "get_lockstruct") == 0)
++		error = gi_skeleton(ip, &gi, gi_get_lockstruct);
++	else if (strcmp(arg0, "get_statfs") == 0)
++		error = gi_skeleton(ip, &gi, gi_get_statfs);
++	else if (strcmp(arg0, "get_counters") == 0)
++		error = gi_skeleton(ip, &gi, gi_get_counters);
++	else if (strcmp(arg0, "get_tune") == 0)
++		error = gi_skeleton(ip, &gi, gi_get_tune);
++	else if (strcmp(arg0, "set_tune") == 0)
++		error = gi_set_tune(ip->i_sbd, &gi);
++	else if (strcmp(arg0, "do_shrink") == 0)
++		error = gi_do_shrink(ip->i_sbd, &gi);
++	else if (strcmp(arg0, "get_file_stat") == 0)
++		error = gi_get_file_stat(ip, &gi);
++	else if (strcmp(arg0, "set_file_flag") == 0)
++		error = gi_set_file_flag(ip, &gi);
++	else if (strcmp(arg0, "get_bmap") == 0)
++		error = gi_get_bmap(ip, &gi);
++	else if (strcmp(arg0, "get_file_meta") == 0)
++		error = gi_get_file_meta(ip, &gi);
++	else if (strcmp(arg0, "do_file_flush") == 0)
++		error = gi_do_file_flush(ip, &gi);
++	else if (strcmp(arg0, "get_hfile_stat") == 0)
++		error = gi_get_hfile_stat(ip->i_sbd, &gi);
++	else if (strcmp(arg0, "do_hfile_read") == 0)
++		error = gi_do_hfile_read(ip->i_sbd, &gi);
++	else if (strcmp(arg0, "do_hfile_write") == 0)
++		error = gi_do_hfile_write(ip->i_sbd, &gi);
++	else if (strcmp(arg0, "do_hfile_trunc") == 0)
++		error = gi_do_hfile_trunc(ip->i_sbd, &gi);
++	else if (strcmp(arg0, "do_quota_sync") == 0)
++		error = gi_do_quota_sync(ip->i_sbd, &gi);
++	else if (strcmp(arg0, "do_quota_refresh") == 0)
++		error = gi_do_quota_refresh(ip->i_sbd, &gi);
++	else if (strcmp(arg0, "do_quota_read") == 0)
++		error = gi_do_quota_read(ip->i_sbd, &gi);
++	else if (strcmp(arg0, "do_statfs_sync") == 0)
++		error = gi_do_statfs_sync(ip->i_sbd, &gi);
++	else if (strcmp(arg0, "resize_add_rgrps") == 0)
++		error = gi_resize_add_rgrps(ip->i_sbd, &gi);
++	else if (strcmp(arg0, "rename2system") == 0)
++		error = gi_rename2system(ip->i_sbd, &gi);
 +	else
-+		printk("gdlm dev_write no op %x %"PRIx64"\n", info.fsid,
-+			info.number);
-+	return count;
++		error = -ENOTTY;
++
++ out:
++	kfree(argv);
++
++	return error;
 +}
 +
-+static unsigned int dev_poll(struct file *file, poll_table *wait)
-+{
-+	poll_wait(file, &send_wq, wait);
-+
-+	spin_lock(&ops_lock);
-+	if (!list_empty(&send_list)) {
-+		spin_unlock(&ops_lock);
-+		return POLLIN | POLLRDNORM;
-+	}
-+	spin_unlock(&ops_lock);
-+	return 0;
-+}
-+
-+static struct file_operations dev_fops = {
-+	.read    = dev_read,
-+	.write   = dev_write,
-+	.poll    = dev_poll,
-+	.owner   = THIS_MODULE
-+};
-+
-+static struct miscdevice plock_dev_misc = {
-+	.minor = MISC_DYNAMIC_MINOR,
-+	.name = GDLM_PLOCK_MISC_NAME,
-+	.fops = &dev_fops
-+};
-+
-+int gdlm_plock_init(void)
-+{
-+	int rv;
-+
-+	spin_lock_init(&ops_lock);
-+	INIT_LIST_HEAD(&send_list);
-+	INIT_LIST_HEAD(&recv_list);
-+	init_waitqueue_head(&send_wq);
-+	init_waitqueue_head(&recv_wq);
-+
-+	rv = misc_register(&plock_dev_misc);
-+	if (rv)
-+		printk("gdlm_plock_init: misc_register failed %d", rv);
-+	return rv;
-+}
-+
-+void gdlm_plock_exit(void)
-+{
-+	if (misc_deregister(&plock_dev_misc) < 0)
-+		printk("gdlm_plock_exit: misc_deregister failed");
-+}
-+
-diff -urpN a/fs/gfs2/locking/dlm/sysfs.c b/fs/gfs2/locking/dlm/sysfs.c
---- a/fs/gfs2/locking/dlm/sysfs.c	1970-01-01 07:30:00.000000000 +0730
-+++ b/fs/gfs2/locking/dlm/sysfs.c	2005-09-01 17:48:48.140749504 +0800
-@@ -0,0 +1,283 @@
+--- a/fs/gfs2/ioctl.h	1970-01-01 07:30:00.000000000 +0730
++++ b/fs/gfs2/ioctl.h	2005-09-01 17:36:55.324114104 +0800
+@@ -0,0 +1,15 @@
 +/*
 + * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
 + * Copyright (C) 2004-2005 Red Hat, Inc.  All rights reserved.
@@ -1367,284 +1539,219 @@ diff -urpN a/fs/gfs2/locking/dlm/sysfs.c b/fs/gfs2/locking/dlm/sysfs.c
 + * of the GNU General Public License v.2.
 + */
 +
-+#include <linux/ctype.h>
-+#include <linux/stat.h>
++#ifndef __IOCTL_DOT_H__
++#define __IOCTL_DOT_H__
 +
-+#include "lock_dlm.h"
++int gfs2_ioctl_i(struct gfs2_inode *ip, void *arg);
 +
-+static ssize_t gdlm_block_show(struct gdlm_ls *ls, char *buf)
++#endif /* __IOCTL_DOT_H__ */
+--- a/fs/gfs2/sys.c	1970-01-01 07:30:00.000000000 +0730
++++ b/fs/gfs2/sys.c	2005-09-01 17:36:55.507086288 +0800
+@@ -0,0 +1,201 @@
++/*
++ * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
++ * Copyright (C) 2004-2005 Red Hat, Inc.  All rights reserved.
++ *
++ * This copyrighted material is made available to anyone wishing to use,
++ * modify, copy, or redistribute it subject to the terms and conditions
++ * of the GNU General Public License v.2.
++ */
++
++#include <linux/sched.h>
++#include <linux/slab.h>
++#include <linux/smp_lock.h>
++#include <linux/spinlock.h>
++#include <linux/completion.h>
++#include <linux/buffer_head.h>
++#include <linux/module.h>
++#include <linux/kobject.h>
++#include <asm/semaphore.h>
++#include <asm/uaccess.h>
++
++#include "gfs2.h"
++#include "lm.h"
++#include "sys.h"
++#include "super.h"
++
++char *gfs2_sys_margs;
++spinlock_t gfs2_sys_margs_lock;
++
++static ssize_t gfs2_id_show(struct gfs2_sbd *sdp, char *buf)
 +{
-+	ssize_t ret;
-+	int val = 0;
-+
-+	if (test_bit(DFL_BLOCK_LOCKS, &ls->flags))
-+		val = 1;
-+	ret = sprintf(buf, "%d\n", val);
-+	return ret;
++	return sprintf(buf, "%s\n", sdp->sd_vfs->s_id);
 +}
 +
-+static ssize_t gdlm_block_store(struct gdlm_ls *ls, const char *buf, size_t len)
++static ssize_t gfs2_fsname_show(struct gfs2_sbd *sdp, char *buf)
 +{
-+	ssize_t ret = len;
-+	int val;
-+
-+	val = simple_strtol(buf, NULL, 0);
-+
-+	if (val == 1)
-+		set_bit(DFL_BLOCK_LOCKS, &ls->flags);
-+	else if (val == 0) {
-+		clear_bit(DFL_BLOCK_LOCKS, &ls->flags);
-+		gdlm_submit_delayed(ls);
-+	} else
-+		ret = -EINVAL;
-+	return ret;
++	return sprintf(buf, "%s\n", sdp->sd_fsname);
 +}
 +
-+static ssize_t gdlm_mounted_show(struct gdlm_ls *ls, char *buf)
++static ssize_t gfs2_freeze_show(struct gfs2_sbd *sdp, char *buf)
 +{
-+	ssize_t ret;
-+	int val = -2;
++	unsigned int count;
 +
-+	if (test_bit(DFL_TERMINATE, &ls->flags))
-+		val = -1;
-+	else if (test_bit(DFL_LEAVE_DONE, &ls->flags))
-+		val = 0;
-+	else if (test_bit(DFL_JOIN_DONE, &ls->flags))
-+		val = 1;
-+	ret = sprintf(buf, "%d\n", val);
-+	return ret;
++	down(&sdp->sd_freeze_lock);
++	count = sdp->sd_freeze_count;
++	up(&sdp->sd_freeze_lock);
++
++	return sprintf(buf, "%u\n", count);
 +}
 +
-+static ssize_t gdlm_mounted_store(struct gdlm_ls *ls, const char *buf, size_t len)
-+{
-+	ssize_t ret = len;
-+	int val;
-+
-+	val = simple_strtol(buf, NULL, 0);
-+
-+	if (val == 1)
-+		set_bit(DFL_JOIN_DONE, &ls->flags);
-+	else if (val == 0)
-+		set_bit(DFL_LEAVE_DONE, &ls->flags);
-+	else if (val == -1) {
-+		set_bit(DFL_TERMINATE, &ls->flags);
-+		set_bit(DFL_JOIN_DONE, &ls->flags);
-+		set_bit(DFL_LEAVE_DONE, &ls->flags);
-+	} else
-+		ret = -EINVAL;
-+	wake_up(&ls->wait_control);
-+	return ret;
-+}
-+
-+static ssize_t gdlm_withdraw_show(struct gdlm_ls *ls, char *buf)
-+{
-+	ssize_t ret;
-+	int val = 0;
-+
-+	if (test_bit(DFL_WITHDRAW, &ls->flags))
-+		val = 1;
-+	ret = sprintf(buf, "%d\n", val);
-+	return ret;
-+}
-+
-+static ssize_t gdlm_withdraw_store(struct gdlm_ls *ls, const char *buf, size_t len)
++static ssize_t gfs2_freeze_store(struct gfs2_sbd *sdp, const char *buf,
++				 size_t len)
 +{
 +	ssize_t ret = len;
-+	int val;
++	int error = 0;
++	int n = simple_strtol(buf, NULL, 0);
 +
-+	val = simple_strtol(buf, NULL, 0);
-+
-+	if (val == 1)
-+		set_bit(DFL_WITHDRAW, &ls->flags);
-+	else
++	switch (n) {
++	case 0:
++		gfs2_unfreeze_fs(sdp);
++		break;
++	case 1:
++		error = gfs2_freeze_fs(sdp);
++		break;
++	default:
 +		ret = -EINVAL;
-+	wake_up(&ls->wait_control);
-+	return ret;
-+}
++	}
 +
-+static ssize_t gdlm_id_show(struct gdlm_ls *ls, char *buf)
-+{
-+	return sprintf(buf, "%u\n", ls->id);
-+}
-+
-+static ssize_t gdlm_id_store(struct gdlm_ls *ls, const char *buf, size_t len)
-+{
-+	ls->id = simple_strtoul(buf, NULL, 0);
-+	return len;
-+}
-+
-+static ssize_t gdlm_jid_show(struct gdlm_ls *ls, char *buf)
-+{
-+	return sprintf(buf, "%d\n", ls->jid);
-+}
-+
-+static ssize_t gdlm_jid_store(struct gdlm_ls *ls, const char *buf, size_t len)
-+{
-+	ls->jid = simple_strtol(buf, NULL, 0);
-+	return len;
-+}
-+
-+static ssize_t gdlm_first_show(struct gdlm_ls *ls, char *buf)
-+{
-+	return sprintf(buf, "%d\n", ls->first);
-+}
-+
-+static ssize_t gdlm_first_store(struct gdlm_ls *ls, const char *buf, size_t len)
-+{
-+	ls->first = simple_strtol(buf, NULL, 0);
-+	return len;
-+}
-+
-+static ssize_t gdlm_first_done_show(struct gdlm_ls *ls, char *buf)
-+{
-+	return sprintf(buf, "%d\n", ls->first_done);
-+}
-+
-+static ssize_t gdlm_recover_show(struct gdlm_ls *ls, char *buf)
-+{
-+	return sprintf(buf, "%d\n", ls->recover_jid);
-+}
-+
-+static ssize_t gdlm_recover_store(struct gdlm_ls *ls, const char *buf, size_t len)
-+{
-+	ls->recover_jid = simple_strtol(buf, NULL, 0);
-+	ls->fscb(ls->fsdata, LM_CB_NEED_RECOVERY, &ls->recover_jid);
-+	return len;
-+}
-+
-+static ssize_t gdlm_recover_done_show(struct gdlm_ls *ls, char *buf)
-+{
-+	ssize_t ret;
-+	ret = sprintf(buf, "%d\n", ls->recover_done);
-+	return ret;
-+}
-+
-+static ssize_t gdlm_cluster_show(struct gdlm_ls *ls, char *buf)
-+{
-+	ssize_t ret;
-+	ret = sprintf(buf, "%s\n", ls->clustername);
-+	return ret;
-+}
-+
-+static ssize_t gdlm_options_show(struct gdlm_ls *ls, char *buf)
-+{
-+	ssize_t ret = 0;
-+
-+	if (ls->fsflags & LM_MFLAG_SPECTATOR)
-+		ret += sprintf(buf, "spectator ");
++	if (error)
++		fs_warn(sdp, "freeze %d error %d", n, error);
 +
 +	return ret;
 +}
 +
-+struct gdlm_attr {
++static ssize_t gfs2_withdraw_show(struct gfs2_sbd *sdp, char *buf)
++{
++	unsigned int b = test_bit(SDF_SHUTDOWN, &sdp->sd_flags);
++	return sprintf(buf, "%u\n", b);
++}
++
++static ssize_t gfs2_withdraw_store(struct gfs2_sbd *sdp, const char *buf,
++				   size_t len)
++{
++	ssize_t ret = len;
++	int n = simple_strtol(buf, NULL, 0);
++
++	if (n != 1) {
++		ret = -EINVAL;
++		goto out;
++	}
++
++	gfs2_lm_withdraw(sdp,
++		"GFS2: fsid=%s: withdrawing from cluster at user's request\n",
++		sdp->sd_fsname);
++ out:
++	return ret;
++}
++
++struct gfs2_attr {
 +	struct attribute attr;
-+	ssize_t (*show)(struct gdlm_ls *, char *);
-+	ssize_t (*store)(struct gdlm_ls *, const char *, size_t);
++	ssize_t (*show)(struct gfs2_sbd*, char *);
++	ssize_t (*store)(struct gfs2_sbd*, const char *, size_t);
 +};
 +
-+#define GDLM_ATTR(_name,_mode,_show,_store) \
-+static struct gdlm_attr gdlm_attr_##_name = __ATTR(_name,_mode,_show,_store)
++static struct gfs2_attr gfs2_attr_id = {
++	.attr = {.name = "id", .mode = S_IRUSR},
++	.show = gfs2_id_show
++};
 +
-+GDLM_ATTR(block, S_IRUGO | S_IWUSR, gdlm_block_show, gdlm_block_store);
-+GDLM_ATTR(mounted, S_IRUGO | S_IWUSR, gdlm_mounted_show, gdlm_mounted_store);
-+GDLM_ATTR(withdraw, S_IRUGO | S_IWUSR, gdlm_withdraw_show, gdlm_withdraw_store);
-+GDLM_ATTR(id, S_IRUGO | S_IWUSR, gdlm_id_show, gdlm_id_store);
-+GDLM_ATTR(jid, S_IRUGO | S_IWUSR, gdlm_jid_show, gdlm_jid_store);
-+GDLM_ATTR(first, S_IRUGO | S_IWUSR, gdlm_first_show, gdlm_first_store);
-+GDLM_ATTR(first_done, S_IRUGO, gdlm_first_done_show, NULL);
-+GDLM_ATTR(recover, S_IRUGO | S_IWUSR, gdlm_recover_show, gdlm_recover_store);
-+GDLM_ATTR(recover_done, S_IRUGO, gdlm_recover_done_show, NULL);
-+GDLM_ATTR(cluster, S_IRUGO, gdlm_cluster_show, NULL);
-+GDLM_ATTR(options, S_IRUGO, gdlm_options_show, NULL);
++static struct gfs2_attr gfs2_attr_fsname = {
++	.attr = {.name = "fsname", .mode = S_IRUSR},
++	.show = gfs2_fsname_show
++};
 +
-+static struct attribute *gdlm_attrs[] = {
-+	&gdlm_attr_block.attr,
-+	&gdlm_attr_mounted.attr,
-+	&gdlm_attr_withdraw.attr,
-+	&gdlm_attr_id.attr,
-+	&gdlm_attr_jid.attr,
-+	&gdlm_attr_first.attr,
-+	&gdlm_attr_first_done.attr,
-+	&gdlm_attr_recover.attr,
-+	&gdlm_attr_recover_done.attr,
-+	&gdlm_attr_cluster.attr,
-+	&gdlm_attr_options.attr,
++static struct gfs2_attr gfs2_attr_freeze = {
++	.attr  = {.name = "freeze", .mode = S_IRUSR | S_IWUSR},
++	.show  = gfs2_freeze_show,
++	.store = gfs2_freeze_store
++};
++
++static struct gfs2_attr gfs2_attr_withdraw = {
++	.attr  = {.name = "withdraw", .mode = S_IRUSR | S_IWUSR},
++	.show  = gfs2_withdraw_show,
++	.store = gfs2_withdraw_store
++};
++
++static struct attribute *gfs2_attrs[] = {
++	&gfs2_attr_id.attr,
++	&gfs2_attr_fsname.attr,
++	&gfs2_attr_freeze.attr,
++	&gfs2_attr_withdraw.attr,
 +	NULL,
 +};
 +
-+static ssize_t gdlm_attr_show(struct kobject *kobj, struct attribute *attr,
++static ssize_t gfs2_attr_show(struct kobject *kobj, struct attribute *attr,
 +			      char *buf)
 +{
-+	struct gdlm_ls *ls = container_of(kobj, struct gdlm_ls, kobj);
-+	struct gdlm_attr *a = container_of(attr, struct gdlm_attr, attr);
-+	return a->show ? a->show(ls, buf) : 0;
++	struct gfs2_sbd *sdp = container_of(kobj, struct gfs2_sbd, sd_kobj);
++	struct gfs2_attr *a = container_of(attr, struct gfs2_attr, attr);
++	return a->show ? a->show(sdp, buf) : 0;
 +}
 +
-+static ssize_t gdlm_attr_store(struct kobject *kobj, struct attribute *attr,
++static ssize_t gfs2_attr_store(struct kobject *kobj, struct attribute *attr,
 +			       const char *buf, size_t len)
 +{
-+	struct gdlm_ls *ls = container_of(kobj, struct gdlm_ls, kobj);
-+	struct gdlm_attr *a = container_of(attr, struct gdlm_attr, attr);
-+	return a->store ? a->store(ls, buf, len) : len;
++	struct gfs2_sbd *sdp = container_of(kobj, struct gfs2_sbd, sd_kobj);
++	struct gfs2_attr *a = container_of(attr, struct gfs2_attr, attr);
++	return a->store ? a->store(sdp, buf, len) : len;
 +}
 +
-+static struct sysfs_ops gdlm_attr_ops = {
-+	.show  = gdlm_attr_show,
-+	.store = gdlm_attr_store,
++static struct sysfs_ops gfs2_attr_ops = {
++	.show  = gfs2_attr_show,
++	.store = gfs2_attr_store,
 +};
 +
-+static struct kobj_type gdlm_ktype = {
-+	.default_attrs = gdlm_attrs,
-+	.sysfs_ops     = &gdlm_attr_ops,
++static struct kobj_type gfs2_ktype = {
++	.default_attrs = gfs2_attrs,
++	.sysfs_ops     = &gfs2_attr_ops,
 +};
 +
-+static struct kset gdlm_kset = {
++/* FIXME: should this go under /sys/fs/ ? */
++
++static struct kset gfs2_kset = {
 +	.subsys = &kernel_subsys,
-+	.kobj   = {.name = "lock_dlm",},
-+	.ktype  = &gdlm_ktype,
++	.kobj   = {.name = "gfs2",},
++	.ktype  = &gfs2_ktype,
 +};
 +
-+int gdlm_kobject_setup(struct gdlm_ls *ls)
++int gfs2_sys_fs_add(struct gfs2_sbd *sdp)
 +{
 +	int error;
 +
-+	error = kobject_set_name(&ls->kobj, "%s", ls->fsname);
++	error = kobject_set_name(&sdp->sd_kobj, "%s", sdp->sd_fsname);
 +	if (error)
-+		return error;
++		goto out;
 +
-+	ls->kobj.kset = &gdlm_kset;
-+	ls->kobj.ktype = &gdlm_ktype;
++	sdp->sd_kobj.kset = &gfs2_kset;
++	sdp->sd_kobj.ktype = &gfs2_ktype;
 +
-+	error = kobject_register(&ls->kobj);
-+
-+	return 0;
-+}
-+
-+void gdlm_kobject_release(struct gdlm_ls *ls)
-+{
-+	kobject_unregister(&ls->kobj);
-+}
-+
-+int gdlm_sysfs_init(void)
-+{
-+	int error;
-+
-+	error = kset_register(&gdlm_kset);
-+	if (error)
-+		printk("lock_dlm: cannot register kset %d\n", error);
-+
++	error = kobject_register(&sdp->sd_kobj);
++ out:
 +	return error;
 +}
 +
-+void gdlm_sysfs_exit(void)
++void gfs2_sys_fs_del(struct gfs2_sbd *sdp)
 +{
-+	kset_unregister(&gdlm_kset);
++	kobject_unregister(&sdp->sd_kobj);
 +}
 +
-diff -urpN a/fs/gfs2/locking/dlm/thread.c b/fs/gfs2/locking/dlm/thread.c
---- a/fs/gfs2/locking/dlm/thread.c	1970-01-01 07:30:00.000000000 +0730
-+++ b/fs/gfs2/locking/dlm/thread.c	2005-09-01 17:48:48.140749504 +0800
-@@ -0,0 +1,355 @@
++int gfs2_sys_init(void)
++{
++	gfs2_sys_margs = NULL;
++	spin_lock_init(&gfs2_sys_margs_lock);
++	return kset_register(&gfs2_kset);
++}
++
++void gfs2_sys_uninit(void)
++{
++	kfree(gfs2_sys_margs);
++	kset_unregister(&gfs2_kset);
++}
++
+--- a/fs/gfs2/sys.h	1970-01-01 07:30:00.000000000 +0730
++++ b/fs/gfs2/sys.h	2005-09-01 17:36:55.517084768 +0800
+@@ -0,0 +1,24 @@
 +/*
 + * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
 + * Copyright (C) 2004-2005 Red Hat, Inc.  All rights reserved.
@@ -1654,393 +1761,558 @@ diff -urpN a/fs/gfs2/locking/dlm/thread.c b/fs/gfs2/locking/dlm/thread.c
 + * of the GNU General Public License v.2.
 + */
 +
-+#include "lock_dlm.h"
++#ifndef __SYS_DOT_H__
++#define __SYS_DOT_H__
 +
-+/* A lock placed on this queue is re-submitted to DLM as soon as the lock_dlm
-+   thread gets to it. */
++/* Allow args to be passed to GFS2 when using an initial ram disk */
++extern char *gfs2_sys_margs;
++extern spinlock_t gfs2_sys_margs_lock;
 +
-+static void queue_submit(struct gdlm_lock *lp)
-+{
-+	struct gdlm_ls *ls = lp->ls;
++int gfs2_sys_fs_add(struct gfs2_sbd *sdp);
++void gfs2_sys_fs_del(struct gfs2_sbd *sdp);
 +
-+	spin_lock(&ls->async_lock);
-+	list_add_tail(&lp->delay_list, &ls->submit);
-+	spin_unlock(&ls->async_lock);
-+	wake_up(&ls->thread_wait);
-+}
++int gfs2_sys_init(void);
++void gfs2_sys_uninit(void);
 +
-+static void process_submit(struct gdlm_lock *lp)
-+{
-+	gdlm_do_lock(lp, NULL);
-+}
++#endif /* __SYS_DOT_H__ */
 +
-+static void process_blocking(struct gdlm_lock *lp, int bast_mode)
-+{
-+	struct gdlm_ls *ls = lp->ls;
-+	unsigned int cb;
-+
-+	switch (gdlm_make_lmstate(bast_mode)) {
-+	case LM_ST_EXCLUSIVE:
-+		cb = LM_CB_NEED_E;
-+		break;
-+	case LM_ST_DEFERRED:
-+		cb = LM_CB_NEED_D;
-+		break;
-+	case LM_ST_SHARED:
-+		cb = LM_CB_NEED_S;
-+		break;
-+	default:
-+		GDLM_ASSERT(0, printk("unknown bast mode %u\n",lp->bast_mode););
-+	}
-+
-+	ls->fscb(ls->fsdata, cb, &lp->lockname);
-+}
-+
-+static void process_complete(struct gdlm_lock *lp)
-+{
-+	struct gdlm_ls *ls = lp->ls;
-+	struct lm_async_cb acb;
-+	int16_t prev_mode = lp->cur;
-+
-+	memset(&acb, 0, sizeof(acb));
-+
-+	if (lp->lksb.sb_status == -DLM_ECANCEL) {
-+		log_info("complete dlm cancel %x,%"PRIx64" flags %lx",
-+		 	 lp->lockname.ln_type, lp->lockname.ln_number,
-+			 lp->flags);
-+
-+		lp->req = lp->cur;
-+		acb.lc_ret |= LM_OUT_CANCELED;
-+		if (lp->cur == DLM_LOCK_IV)
-+			lp->lksb.sb_lkid = 0;
-+		goto out;
-+	}
-+
-+	if (test_and_clear_bit(LFL_DLM_UNLOCK, &lp->flags)) {
-+		if (lp->lksb.sb_status != -DLM_EUNLOCK) {
-+			log_info("unlock sb_status %d %x,%"PRIx64" flags %lx",
-+				 lp->lksb.sb_status, lp->lockname.ln_type,
-+				 lp->lockname.ln_number, lp->flags);
-+			return;
-+		}
-+
-+		lp->cur = DLM_LOCK_IV;
-+		lp->req = DLM_LOCK_IV;
-+		lp->lksb.sb_lkid = 0;
-+
-+		if (test_and_clear_bit(LFL_UNLOCK_DELETE, &lp->flags)) {
-+			gdlm_delete_lp(lp);
-+			return;
-+		}
-+		goto out;
-+	}
-+
-+	if (lp->lksb.sb_flags & DLM_SBF_VALNOTVALID)
-+		memset(lp->lksb.sb_lvbptr, 0, GDLM_LVB_SIZE);
-+
-+	if (lp->lksb.sb_flags & DLM_SBF_ALTMODE) {
-+		if (lp->req == DLM_LOCK_PR)
-+			lp->req = DLM_LOCK_CW;
-+		else if (lp->req == DLM_LOCK_CW)
-+			lp->req = DLM_LOCK_PR;
-+	}
-+
-+	/*
-+	 * A canceled lock request.  The lock was just taken off the delayed
-+	 * list and was never even submitted to dlm.
-+	 */
-+
-+	if (test_and_clear_bit(LFL_CANCEL, &lp->flags)) {
-+		log_info("complete internal cancel %x,%"PRIx64"",
-+		 	 lp->lockname.ln_type, lp->lockname.ln_number);
-+		lp->req = lp->cur;
-+		acb.lc_ret |= LM_OUT_CANCELED;
-+		goto out;
-+	}
-+
-+	/*
-+	 * An error occured.
-+	 */
-+
-+	if (lp->lksb.sb_status) {
-+		/* a "normal" error */
-+		if ((lp->lksb.sb_status == -EAGAIN) &&
-+		    (lp->lkf & DLM_LKF_NOQUEUE)) {
-+			lp->req = lp->cur;
-+			if (lp->cur == DLM_LOCK_IV)
-+				lp->lksb.sb_lkid = 0;
-+			goto out;
-+		}
-+
-+		/* this could only happen with cancels I think */
-+		log_info("ast sb_status %d %x,%"PRIx64" flags %lx",
-+			 lp->lksb.sb_status, lp->lockname.ln_type,
-+			 lp->lockname.ln_number, lp->flags);
-+		return;
-+	}
-+
-+	/*
-+	 * This is an AST for an EX->EX conversion for sync_lvb from GFS.
-+	 */
-+
-+	if (test_and_clear_bit(LFL_SYNC_LVB, &lp->flags)) {
-+		complete(&lp->ast_wait);
-+		return;
-+	}
-+
-+	/*
-+	 * A lock has been demoted to NL because it initially completed during
-+	 * BLOCK_LOCKS.  Now it must be requested in the originally requested
-+	 * mode.
-+	 */
-+
-+	if (test_and_clear_bit(LFL_REREQUEST, &lp->flags)) {
-+		GDLM_ASSERT(lp->req == DLM_LOCK_NL,);
-+		GDLM_ASSERT(lp->prev_req > DLM_LOCK_NL,);
-+
-+		lp->cur = DLM_LOCK_NL;
-+		lp->req = lp->prev_req;
-+		lp->prev_req = DLM_LOCK_IV;
-+		lp->lkf &= ~DLM_LKF_CONVDEADLK;
-+
-+		set_bit(LFL_NOCACHE, &lp->flags);
-+
-+		if (test_bit(DFL_BLOCK_LOCKS, &ls->flags) &&
-+		    !test_bit(LFL_NOBLOCK, &lp->flags))
-+			gdlm_queue_delayed(lp);
-+		else
-+			queue_submit(lp);
-+		return;
-+	}
-+
-+	/*
-+	 * A request is granted during dlm recovery.  It may be granted
-+	 * because the locks of a failed node were cleared.  In that case,
-+	 * there may be inconsistent data beneath this lock and we must wait
-+	 * for recovery to complete to use it.  When gfs recovery is done this
-+	 * granted lock will be converted to NL and then reacquired in this
-+	 * granted state.
-+	 */
-+
-+	if (test_bit(DFL_BLOCK_LOCKS, &ls->flags) &&
-+	    !test_bit(LFL_NOBLOCK, &lp->flags) &&
-+	    lp->req != DLM_LOCK_NL) {
-+
-+		lp->cur = lp->req;
-+		lp->prev_req = lp->req;
-+		lp->req = DLM_LOCK_NL;
-+		lp->lkf |= DLM_LKF_CONVERT;
-+		lp->lkf &= ~DLM_LKF_CONVDEADLK;
-+
-+		log_debug("rereq %x,%"PRIx64" id %x %d,%d",
-+			  lp->lockname.ln_type, lp->lockname.ln_number,
-+			  lp->lksb.sb_lkid, lp->cur, lp->req);
-+
-+		set_bit(LFL_REREQUEST, &lp->flags);
-+		queue_submit(lp);
-+		return;
-+	}
-+
-+	/*
-+	 * DLM demoted the lock to NL before it was granted so GFS must be
-+	 * told it cannot cache data for this lock.
-+	 */
-+
-+	if (lp->lksb.sb_flags & DLM_SBF_DEMOTED)
-+		set_bit(LFL_NOCACHE, &lp->flags);
-+
-+ out:
-+	/*
-+	 * This is an internal lock_dlm lock
-+	 */
-+
-+	if (test_bit(LFL_INLOCK, &lp->flags)) {
-+		clear_bit(LFL_NOBLOCK, &lp->flags);
-+		lp->cur = lp->req;
-+		complete(&lp->ast_wait);
-+		return;
-+	}
-+
-+	/*
-+	 * Normal completion of a lock request.  Tell GFS it now has the lock.
-+	 */
-+
-+	clear_bit(LFL_NOBLOCK, &lp->flags);
-+	lp->cur = lp->req;
-+
-+	acb.lc_name = lp->lockname;
-+	acb.lc_ret |= gdlm_make_lmstate(lp->cur);
-+
-+	if (!test_and_clear_bit(LFL_NOCACHE, &lp->flags) &&
-+	    (lp->cur > DLM_LOCK_NL) && (prev_mode > DLM_LOCK_NL))
-+		acb.lc_ret |= LM_OUT_CACHEABLE;
-+
-+	ls->fscb(ls->fsdata, LM_CB_ASYNC, &acb);
-+}
-+
-+static inline int no_work(struct gdlm_ls *ls, int blocking)
-+{
-+	int ret;
-+
-+	spin_lock(&ls->async_lock);
-+	ret = list_empty(&ls->complete) && list_empty(&ls->submit);
-+	if (ret && blocking)
-+		ret = list_empty(&ls->blocking);
-+	spin_unlock(&ls->async_lock);
-+
-+	return ret;
-+}
-+
-+static inline int check_drop(struct gdlm_ls *ls)
-+{
-+	if (!ls->drop_locks_count)
-+		return 0;
-+
-+	if (time_after(jiffies, ls->drop_time + ls->drop_locks_period * HZ)) {
-+		ls->drop_time = jiffies;
-+		if (ls->all_locks_count >= ls->drop_locks_count)
-+			return 1;
-+	}
-+	return 0;
-+}
-+
-+static int gdlm_thread(void *data)
-+{
-+	struct gdlm_ls *ls = (struct gdlm_ls *) data;
-+	struct gdlm_lock *lp = NULL;
-+	int blist = 0;
-+	uint8_t complete, blocking, submit, drop;
-+	DECLARE_WAITQUEUE(wait, current);
-+
-+	/* Only thread1 is allowed to do blocking callbacks since gfs
-+	   may wait for a completion callback within a blocking cb. */
-+
-+	if (current == ls->thread1)
-+		blist = 1;
-+
-+	while (!kthread_should_stop()) {
-+		set_current_state(TASK_INTERRUPTIBLE);
-+		add_wait_queue(&ls->thread_wait, &wait);
-+		if (no_work(ls, blist))
-+			schedule();
-+		remove_wait_queue(&ls->thread_wait, &wait);
-+		set_current_state(TASK_RUNNING);
-+
-+		complete = blocking = submit = drop = 0;
-+
-+		spin_lock(&ls->async_lock);
-+
-+		if (blist && !list_empty(&ls->blocking)) {
-+			lp = list_entry(ls->blocking.next, struct gdlm_lock,
-+					blist);
-+			list_del_init(&lp->blist);
-+			blocking = lp->bast_mode;
-+			lp->bast_mode = 0;
-+		} else if (!list_empty(&ls->complete)) {
-+			lp = list_entry(ls->complete.next, struct gdlm_lock,
-+					clist);
-+			list_del_init(&lp->clist);
-+			complete = 1;
-+		} else if (!list_empty(&ls->submit)) {
-+			lp = list_entry(ls->submit.next, struct gdlm_lock,
-+					delay_list);
-+			list_del_init(&lp->delay_list);
-+			submit = 1;
-+		}
-+
-+		drop = check_drop(ls);
-+		spin_unlock(&ls->async_lock);
-+
-+		if (complete)
-+			process_complete(lp);
-+
-+		else if (blocking)
-+			process_blocking(lp, blocking);
-+
-+		else if (submit)
-+			process_submit(lp);
-+
-+		if (drop)
-+			ls->fscb(ls->fsdata, LM_CB_DROPLOCKS, NULL);
-+
-+		schedule();
-+	}
-+
-+	return 0;
-+}
-+
-+int gdlm_init_threads(struct gdlm_ls *ls)
-+{
-+	struct task_struct *p;
-+	int error;
-+
-+	p = kthread_run(gdlm_thread, ls, "lock_dlm1");
-+	error = IS_ERR(p);
-+	if (error) {
-+		log_error("can't start lock_dlm1 thread %d", error);
-+		return error;
-+	}
-+	ls->thread1 = p;
-+
-+	p = kthread_run(gdlm_thread, ls, "lock_dlm2");
-+	error = IS_ERR(p);
-+	if (error) {
-+		log_error("can't start lock_dlm2 thread %d", error);
-+		kthread_stop(ls->thread1);
-+		return error;
-+	}
-+	ls->thread2 = p;
-+
-+	return 0;
-+}
-+
-+void gdlm_release_threads(struct gdlm_ls *ls)
-+{
-+	kthread_stop(ls->thread1);
-+	kthread_stop(ls->thread2);
-+}
-+
-diff -urpN a/include/linux/lock_dlm_plock.h b/include/linux/lock_dlm_plock.h
---- a/include/linux/lock_dlm_plock.h	1970-01-01 07:30:00.000000000 +0730
-+++ b/include/linux/lock_dlm_plock.h	2005-09-01 17:48:48.142749200 +0800
-@@ -0,0 +1,40 @@
+--- a/fs/gfs2/resize.c	1970-01-01 07:30:00.000000000 +0730
++++ b/fs/gfs2/resize.c	2005-09-01 17:36:55.452094648 +0800
+@@ -0,0 +1,285 @@
 +/*
-+ * Copyright (C) 2005 Red Hat, Inc.  All rights reserved.
++ * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
++ * Copyright (C) 2004-2005 Red Hat, Inc.  All rights reserved.
 + *
 + * This copyrighted material is made available to anyone wishing to use,
 + * modify, copy, or redistribute it subject to the terms and conditions
 + * of the GNU General Public License v.2.
 + */
 +
-+#ifndef __LOCK_DLM_PLOCK_DOT_H__
-+#define __LOCK_DLM_PLOCK_DOT_H__
++#include <linux/sched.h>
++#include <linux/slab.h>
++#include <linux/smp_lock.h>
++#include <linux/spinlock.h>
++#include <linux/completion.h>
++#include <linux/buffer_head.h>
++#include <asm/semaphore.h>
 +
-+#define GDLM_PLOCK_MISC_NAME		"lock_dlm_plock"
++#include "gfs2.h"
++#include "bmap.h"
++#include "dir.h"
++#include "glock.h"
++#include "inode.h"
++#include "jdata.h"
++#include "meta_io.h"
++#include "quota.h"
++#include "resize.h"
++#include "rgrp.h"
++#include "super.h"
++#include "trans.h"
 +
-+#define GDLM_PLOCK_VERSION_MAJOR	1
-+#define GDLM_PLOCK_VERSION_MINOR	0
-+#define GDLM_PLOCK_VERSION_PATCH	0
++int gfs2_resize_add_rgrps(struct gfs2_sbd *sdp, char __user *buf,
++			  unsigned int size)
++{
++	unsigned int num = size / sizeof(struct gfs2_rindex);
++	struct gfs2_inode *ip = sdp->sd_rindex;
++	struct gfs2_alloc *al = NULL;
++	struct gfs2_holder i_gh;
++	unsigned int data_blocks, ind_blocks;
++	int alloc_required;
++	unsigned int x;
++	int error;
 +
-+enum {
-+	GDLM_PLOCK_OP_LOCK = 1,
-+	GDLM_PLOCK_OP_UNLOCK,
-+	GDLM_PLOCK_OP_GET,
-+};
++	gfs2_write_calc_reserv(ip, size, &data_blocks, &ind_blocks);
 +
-+struct gdlm_plock_info {
-+	__u32 version[3];
-+	__u8 optype;
-+	__u8 ex;
-+	__u8 wait;
-+	__u8 pad;
-+	__u32 pid;
-+	__s32 nodeid;
-+	__s32 rv;
-+	__u32 fsid;
-+	__u64 number;
-+	__u64 start;
-+	__u64 end;
-+};
++	error = gfs2_glock_nq_init(ip->i_gl, LM_ST_EXCLUSIVE,
++				   LM_FLAG_PRIORITY | GL_SYNC, &i_gh);
++	if (error)
++		return error;
 +
-+#endif
++	if (!gfs2_is_jdata(ip)) {
++		gfs2_consist_inode(ip);
++		error = -EIO;
++		goto out;
++	}
 +
++	error = gfs2_write_alloc_required(ip, ip->i_di.di_size, size,
++					  &alloc_required);
++	if (error)
++		goto out;
++
++	if (alloc_required) {
++		al = gfs2_alloc_get(ip);
++
++		al->al_requested = data_blocks + ind_blocks;
++
++		error = gfs2_inplace_reserve(ip);
++		if (error)
++			goto out_alloc;
++
++		error = gfs2_trans_begin(sdp,
++					 al->al_rgd->rd_ri.ri_length +
++					 data_blocks + ind_blocks +
++					 RES_DINODE + RES_STATFS, 0);
++		if (error)
++			goto out_relse;
++	} else {
++		error = gfs2_trans_begin(sdp, data_blocks +
++					 RES_DINODE + RES_STATFS, 0);
++		if (error)
++			goto out;
++	}
++
++	for (x = 0; x < num; x++) {
++		struct gfs2_rindex ri;
++		char ri_buf[sizeof(struct gfs2_rindex)];
++
++		error = copy_from_user(&ri, buf, sizeof(struct gfs2_rindex));
++		if (error) {
++			error = -EFAULT;
++			goto out_trans;
++		}
++		gfs2_rindex_out(&ri, ri_buf);
++
++		error = gfs2_jdata_write_mem(ip, ri_buf, ip->i_di.di_size,
++					     sizeof(struct gfs2_rindex));
++		if (error < 0)
++			goto out_trans;
++		gfs2_assert_withdraw(sdp, error == sizeof(struct gfs2_rindex));
++		error = 0;
++
++		gfs2_statfs_change(sdp, ri.ri_data, ri.ri_data, 0);
++
++		buf += sizeof(struct gfs2_rindex);
++	}
++
++ out_trans:
++	gfs2_trans_end(sdp);
++
++ out_relse:
++	if (alloc_required)
++		gfs2_inplace_release(ip);
++
++ out_alloc:
++	if (alloc_required)
++		gfs2_alloc_put(ip);
++
++ out:
++	ip->i_gl->gl_vn++;
++	gfs2_glock_dq_uninit(&i_gh);
++
++	return error;
++}
++
++static void drop_dentries(struct gfs2_inode *ip)
++{
++	struct inode *inode;
++	struct dentry *d;
++
++	inode = gfs2_ip2v_lookup(ip);
++	if (!inode)
++		return;
++
++ restart:
++	spin_lock(&dcache_lock);
++	list_for_each_entry(d, &inode->i_dentry, d_alias) {
++		if (d_unhashed(d))
++			continue;
++		dget_locked(d);
++		__d_drop(d);
++		spin_unlock(&dcache_lock);
++		dput(d);
++		goto restart;
++	}
++	spin_unlock(&dcache_lock);
++
++	iput(inode);
++}
++
++int gfs2_rename2system(struct gfs2_inode *ip,
++		       struct gfs2_inode *old_dip, char *old_name,
++		       struct gfs2_inode *new_dip, char *new_name)
++{
++	struct gfs2_sbd *sdp = ip->i_sbd;
++	struct gfs2_holder ghs[3];
++	struct qstr old_qstr, new_qstr;
++	struct gfs2_inum inum;
++	int alloc_required;
++	struct buffer_head *dibh;
++	int error;
++
++	gfs2_holder_init(ip->i_gl, LM_ST_EXCLUSIVE, GL_NOCACHE, ghs);
++	gfs2_holder_init(old_dip->i_gl, LM_ST_EXCLUSIVE, 0, ghs + 1);
++	gfs2_holder_init(new_dip->i_gl, LM_ST_EXCLUSIVE, GL_SYNC, ghs + 2);
++
++	error = gfs2_glock_nq_m(3, ghs);
++	if (error)
++		goto out;	
++
++	error = -EMLINK;
++	if (ip->i_di.di_nlink != 1)
++		goto out_gunlock;
++	error = -EINVAL;
++	if (!S_ISREG(ip->i_di.di_mode))
++		goto out_gunlock;
++
++	old_qstr.name = old_name;
++	old_qstr.len = strlen(old_name);
++	error = gfs2_dir_search(old_dip, &old_qstr, &inum, NULL);
++	switch (error) {
++	case 0:
++		break;
++	default:
++		goto out_gunlock;
++	}
++
++	error = -EINVAL;
++	if (!gfs2_inum_equal(&inum, &ip->i_num))
++		goto out_gunlock;
++
++	new_qstr.name = new_name;
++	new_qstr.len = strlen(new_name);
++	error = gfs2_dir_search(new_dip, &new_qstr, NULL, NULL);
++	switch (error) {
++	case -ENOENT:
++		break;
++	case 0:
++		error = -EEXIST;
++	default:
++		goto out_gunlock;
++	}
++
++	gfs2_alloc_get(ip);
++
++	error = gfs2_quota_hold(ip, NO_QUOTA_CHANGE, NO_QUOTA_CHANGE);
++	if (error)
++		goto out_alloc;
++
++	error = gfs2_diradd_alloc_required(new_dip, &new_qstr, &alloc_required);
++	if (error)
++		goto out_unhold;
++
++	if (alloc_required) {
++		struct gfs2_alloc *al = gfs2_alloc_get(new_dip);
++
++		al->al_requested = sdp->sd_max_dirres;
++
++		error = gfs2_inplace_reserve(new_dip);
++		if (error)
++			goto out_alloc2;
++
++		error = gfs2_trans_begin(sdp,
++					 sdp->sd_max_dirres +
++					 al->al_rgd->rd_ri.ri_length +
++					 3 * RES_DINODE + RES_LEAF +
++					 RES_STATFS + RES_QUOTA, 0);
++		if (error)
++			goto out_ipreserv;
++	} else {
++		error = gfs2_trans_begin(sdp,
++					 3 * RES_DINODE + 2 * RES_LEAF +
++					 RES_QUOTA, 0);
++		if (error)
++			goto out_unhold;
++	}
++	
++	error = gfs2_dir_del(old_dip, &old_qstr);
++	if (error)
++		goto out_trans;
++
++	error = gfs2_dir_add(new_dip, &new_qstr, &ip->i_num,
++			     IF2DT(ip->i_di.di_mode));
++	if (error)
++		goto out_trans;
++
++	gfs2_quota_change(ip, -ip->i_di.di_blocks, ip->i_di.di_uid,
++			  ip->i_di.di_gid);
++
++	error = gfs2_meta_inode_buffer(ip, &dibh);
++	if (error)
++		goto out_trans;
++	ip->i_di.di_flags |= GFS2_DIF_SYSTEM;
++	gfs2_trans_add_bh(ip->i_gl, dibh);
++	gfs2_dinode_out(&ip->i_di, dibh->b_data);
++	brelse(dibh);
++
++	drop_dentries(ip);
++
++ out_trans:
++	gfs2_trans_end(sdp);
++
++ out_ipreserv:
++	if (alloc_required)
++		gfs2_inplace_release(new_dip);
++
++ out_alloc2:
++	if (alloc_required)
++		gfs2_alloc_put(new_dip);
++
++ out_unhold:
++	gfs2_quota_unhold(ip);
++
++ out_alloc:
++	gfs2_alloc_put(ip);
++
++ out_gunlock:
++	gfs2_glock_dq_m(3, ghs);
++
++ out:
++	gfs2_holder_uninit(ghs);
++	gfs2_holder_uninit(ghs + 1);
++	gfs2_holder_uninit(ghs + 2);
++
++	return error;
++}
++
+--- a/fs/gfs2/resize.h	1970-01-01 07:30:00.000000000 +0730
++++ b/fs/gfs2/resize.h	2005-09-01 17:36:55.461093280 +0800
+@@ -0,0 +1,19 @@
++/*
++ * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
++ * Copyright (C) 2004-2005 Red Hat, Inc.  All rights reserved.
++ *
++ * This copyrighted material is made available to anyone wishing to use,
++ * modify, copy, or redistribute it subject to the terms and conditions
++ * of the GNU General Public License v.2.
++ */
++
++#ifndef __RESIZE_DOT_H__
++#define __RESIZE_DOT_H__
++
++int gfs2_resize_add_rgrps(struct gfs2_sbd *sdp, char __user *buf,
++			  unsigned int size);
++int gfs2_rename2system(struct gfs2_inode *ip,
++		       struct gfs2_inode *old_dip, char *old_name,
++		       struct gfs2_inode *new_dip, char *new_name);
++
++#endif /* __RESIZE_DOT_H__ */
+--- a/fs/gfs2/mount.c	1970-01-01 07:30:00.000000000 +0730
++++ b/fs/gfs2/mount.c	2005-09-01 17:36:55.391103920 +0800
+@@ -0,0 +1,209 @@
++/*
++ * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
++ * Copyright (C) 2004-2005 Red Hat, Inc.  All rights reserved.
++ *
++ * This copyrighted material is made available to anyone wishing to use,
++ * modify, copy, or redistribute it subject to the terms and conditions
++ * of the GNU General Public License v.2.
++ */
++
++#include <linux/sched.h>
++#include <linux/slab.h>
++#include <linux/smp_lock.h>
++#include <linux/spinlock.h>
++#include <linux/completion.h>
++#include <linux/buffer_head.h>
++#include <asm/semaphore.h>
++
++#include "gfs2.h"
++#include "mount.h"
++#include "sys.h"
++
++/**
++ * gfs2_mount_args - Parse mount options
++ * @sdp:
++ * @data:
++ *
++ * Return: errno
++ */
++
++int gfs2_mount_args(struct gfs2_sbd *sdp, char *data_arg, int remount)
++{
++	struct gfs2_args *args = &sdp->sd_args;
++	char *data = data_arg;
++	char *options, *o, *v;
++	int error = 0;
++
++	if (!remount) {
++		/*  If someone preloaded options, use those instead  */
++		spin_lock(&gfs2_sys_margs_lock);
++		if (gfs2_sys_margs) {
++			data = gfs2_sys_margs;
++			gfs2_sys_margs = NULL;
++		}
++		spin_unlock(&gfs2_sys_margs_lock);
++
++		/*  Set some defaults  */
++		args->ar_num_glockd = GFS2_GLOCKD_DEFAULT;
++		args->ar_quota = GFS2_QUOTA_DEFAULT;
++		args->ar_data = GFS2_DATA_DEFAULT;
++	}
++
++	/* Split the options into tokens with the "," character and
++	   process them */
++
++	for (options = data; (o = strsep(&options, ",")); ) {
++		if (!*o)
++			continue;
++
++		v = strchr(o, '=');
++		if (v)
++			*v++ = 0;
++
++		if (!strcmp(o, "lockproto")) {
++			if (!v)
++				goto need_value;
++			if (remount && strcmp(v, args->ar_lockproto))
++				goto cant_remount;
++			strncpy(args->ar_lockproto, v, GFS2_LOCKNAME_LEN);
++			args->ar_lockproto[GFS2_LOCKNAME_LEN - 1] = 0;
++		}
++
++		else if (!strcmp(o, "locktable")) {
++			if (!v)
++				goto need_value;
++			if (remount && strcmp(v, args->ar_locktable))
++				goto cant_remount;
++			strncpy(args->ar_locktable, v, GFS2_LOCKNAME_LEN);
++			args->ar_locktable[GFS2_LOCKNAME_LEN - 1] = 0;
++		}
++
++		else if (!strcmp(o, "hostdata")) {
++			if (!v)
++				goto need_value;
++			if (remount && strcmp(v, args->ar_hostdata))
++				goto cant_remount;
++			strncpy(args->ar_hostdata, v, GFS2_LOCKNAME_LEN);
++			args->ar_hostdata[GFS2_LOCKNAME_LEN - 1] = 0;
++		}
++
++		else if (!strcmp(o, "spectator")) {
++			if (remount && !args->ar_spectator)
++				goto cant_remount;
++			args->ar_spectator = TRUE;
++			sdp->sd_vfs->s_flags |= MS_RDONLY;
++
++		} else if (!strcmp(o, "ignore_local_fs")) {
++			if (remount && !args->ar_ignore_local_fs)
++				goto cant_remount;
++			args->ar_ignore_local_fs = TRUE;
++
++		} else if (!strcmp(o, "localflocks")) {
++			if (remount && !args->ar_localflocks)
++				goto cant_remount;
++			args->ar_localflocks = TRUE;
++
++		} else if (!strcmp(o, "localcaching")) {
++			if (remount && !args->ar_localcaching)
++				goto cant_remount;
++			args->ar_localcaching = TRUE;
++
++		} else if (!strcmp(o, "oopses_ok"))
++			args->ar_oopses_ok = TRUE;
++
++		else if (!strcmp(o, "nooopses_ok"))
++			args->ar_oopses_ok = FALSE;
++
++		else if (!strcmp(o, "debug")) {
++			args->ar_debug = TRUE;
++
++		} else if (!strcmp(o, "nodebug"))
++			args->ar_debug = FALSE;
++
++		else if (!strcmp(o, "upgrade")) {
++			if (remount && !args->ar_upgrade)
++				goto cant_remount;
++			args->ar_upgrade = TRUE;
++
++		} else if (!strcmp(o, "num_glockd")) {
++			unsigned int x;
++			if (!v)
++				goto need_value;
++			sscanf(v, "%u", &x);
++			if (remount && x != args->ar_num_glockd)
++				goto cant_remount;
++			if (!x || x > GFS2_GLOCKD_MAX) {
++				fs_info(sdp, "0 < num_glockd <= %u  (not %u)\n",
++				        GFS2_GLOCKD_MAX, x);
++				error = -EINVAL;
++				break;
++			}
++			args->ar_num_glockd = x;
++		}
++
++		else if (!strcmp(o, "acl")) {
++			args->ar_posix_acl = TRUE;
++			sdp->sd_vfs->s_flags |= MS_POSIXACL;
++
++		} else if (!strcmp(o, "noacl")) {
++			args->ar_posix_acl = FALSE;
++			sdp->sd_vfs->s_flags &= ~MS_POSIXACL;
++
++		} else if (!strcmp(o, "quota")) {
++			if (!v)
++				goto need_value;
++			if (!strcmp(v, "off"))
++				args->ar_quota = GFS2_QUOTA_OFF;
++			else if (!strcmp(v, "account"))
++				args->ar_quota = GFS2_QUOTA_ACCOUNT;
++			else if (!strcmp(v, "on"))
++				args->ar_quota = GFS2_QUOTA_ON;
++			else {
++				fs_info(sdp, "invalid value for quota\n");
++				error = -EINVAL;
++				break;
++			}
++
++		} else if (!strcmp(o, "suiddir"))
++			args->ar_suiddir = TRUE;
++
++		else if (!strcmp(o, "nosuiddir"))
++			args->ar_suiddir = FALSE;
++
++		else if (!strcmp(o, "data")) {
++			if (!v)
++				goto need_value;
++			if (!strcmp(v, "writeback"))
++				args->ar_data = GFS2_DATA_WRITEBACK;
++			else if (!strcmp(v, "ordered"))
++				args->ar_data = GFS2_DATA_ORDERED;
++			else {
++				fs_info(sdp, "invalid value for data\n");
++				error = -EINVAL;
++				break;
++			}
++
++		} else {
++			fs_info(sdp, "unknown option: %s\n", o);
++			error = -EINVAL;
++			break;
++		}
++	}
++
++	if (error)
++		fs_info(sdp, "invalid mount option(s)\n");
++
++	if (data != data_arg)
++		kfree(data);
++
++	return error;
++
++ need_value:
++	fs_info(sdp, "need value for option %s\n", o);
++	return -EINVAL;
++
++ cant_remount:
++	fs_info(sdp, "can't remount with option %s\n", o);
++	return -EINVAL;
++}
++
+--- a/fs/gfs2/mount.h	1970-01-01 07:30:00.000000000 +0730
++++ b/fs/gfs2/mount.h	2005-09-01 17:36:55.391103920 +0800
+@@ -0,0 +1,15 @@
++/*
++ * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
++ * Copyright (C) 2004-2005 Red Hat, Inc.  All rights reserved.
++ *
++ * This copyrighted material is made available to anyone wishing to use,
++ * modify, copy, or redistribute it subject to the terms and conditions
++ * of the GNU General Public License v.2.
++ */
++
++#ifndef __MOUNT_DOT_H__
++#define __MOUNT_DOT_H__
++
++int gfs2_mount_args(struct gfs2_sbd *sdp, char *data_arg, int remount);
++
++#endif /* __MOUNT_DOT_H__ */

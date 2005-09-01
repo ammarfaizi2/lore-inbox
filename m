@@ -1,131 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965171AbVIAOwc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965173AbVIAOyS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965171AbVIAOwc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 10:52:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965173AbVIAOwc
+	id S965173AbVIAOyS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 10:54:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965175AbVIAOyS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 10:52:32 -0400
-Received: from smtp004.mail.ukl.yahoo.com ([217.12.11.35]:51632 "HELO
-	smtp004.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S965171AbVIAOwb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 10:52:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=Lnj0lyNQwDctWR9gcPaST/aj159idYYCqPcbndqQLn8IQOYf8LGtQGHxqrtgoA7BaKB1res324NMKtfgUlDMcv4dPdCDbiCJJNt8w4k5KMoXDqjufHdDN6dp88T8A3YAkGQQ87w2UlH/ZENd9M+O6mV39F6ITqlaglDb5AeryRs=  ;
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch 1/1] Ptrace - i386: fix "syscall audit" interaction with singlestep
-Date: Thu, 1 Sep 2005 16:49:12 +0200
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org, bstroesser@fujitsu-siemens.com,
-       roland@redhat.com
-References: <20050726184306.A104421DC16@zion.home.lan> <20050830190219.56473766.akpm@osdl.org>
-In-Reply-To: <20050830190219.56473766.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 1 Sep 2005 10:54:18 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:33515 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965173AbVIAOyR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 10:54:17 -0400
+Date: Thu, 1 Sep 2005 22:59:48 +0800
+From: David Teigland <teigland@redhat.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 01/14] GFS: headers
+Message-ID: <20050901145948.GS25581@redhat.com>
+References: <20050901135442.GA25581@redhat.com> <1125584374.5025.18.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200509011649.12983.blaisorblade@yahoo.it>
+In-Reply-To: <1125584374.5025.18.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 31 August 2005 04:02, Andrew Morton wrote:
-> blaisorblade@yahoo.it wrote:
-> > From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>, Paolo
-> > 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it> CC: Roland McGrath
-> > <roland@redhat.com>
-> >
-> > Avoid giving two traps for singlestep instead of one, when syscall
-> > auditing is enabled.
-> >
-> > In fact no singlestep trap is sent on syscall entry, only on syscall
-> > exit, as can be seen in entry.S:
-> >
-> > # Note that in this mask _TIF_SINGLESTEP is not tested !!! <<<<<<<<<<<<<<
-> >         testb
-> > $(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT|_TIF_SECCOMP),TI_flags(%ebp) jnz
-> > syscall_trace_entry
-> > 	...
-> > syscall_trace_entry:
-> > 	...
-> > 	call do_syscall_trace
-> >
-> > But auditing a SINGLESTEP'ed process causes do_syscall_trace to be
-> > called, so the tracer will get one more trap on the syscall entry path,
-> > which it shouldn't.
-> >
-> > This does not affect (to my knowledge) UML, nor is critical, so this
-> > shouldn't IMHO go in 2.6.13.
-> >
-> > Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-> > ---
-> >
-> >  linux-2.6.git-paolo/arch/i386/kernel/ptrace.c |   15 +++++++++++++--
-> >  1 files changed, 13 insertions(+), 2 deletions(-)
-> >
-> > diff -puN arch/i386/kernel/ptrace.c~sysaudit-singlestep-non-umlhost
-> > arch/i386/kernel/ptrace.c ---
-> > linux-2.6.git/arch/i386/kernel/ptrace.c~sysaudit-singlestep-non-umlhost	2
-> >005-07-26 20:22:40.000000000 +0200 +++
-> > linux-2.6.git-paolo/arch/i386/kernel/ptrace.c	2005-07-26
-> > 20:23:44.000000000 +0200 @@ -683,8 +683,19 @@ void
-> > do_syscall_trace(struct pt_regs *re
-> >  	/* do the secure computing check first */
-> >  	secure_computing(regs->orig_eax);
-> >
-> > -	if (unlikely(current->audit_context) && entryexit)
-> > -		audit_syscall_exit(current, AUDITSC_RESULT(regs->eax), regs->eax);
-> > +	if (unlikely(current->audit_context)) {
-> > +		if (entryexit)
-> > +			audit_syscall_exit(current, AUDITSC_RESULT(regs->eax), regs->eax);
-> > +
-> > +		/* Debug traps, when using PTRACE_SINGLESTEP, must be sent only
-> > +		 * on the syscall exit path. Normally, when TIF_SYSCALL_AUDIT is
-> > +		 * not used, entry.S will call us only on syscall exit, not
-> > +		 * entry ; so when TIF_SYSCALL_AUDIT is used we must avoid
-> > +		 * calling send_sigtrap() on syscall entry.
-> > +		 */
-> > +		else if (is_singlestep)
-> > +			goto out;
-> > +	}
+On Thu, Sep 01, 2005 at 04:19:34PM +0200, Arjan van de Ven wrote:
 
-> This appears to be a UML patch,
-No, absolutely.
-> applied to x86, which has no 
-> `is_singlestep'.
+> > +/* Endian functions */
+> 
+> ehhhh again why?? 
+> Why is this a compiletime hack?
+> Either you care about either-endian on disk, at which point it has to be
+> a runtime thing, or you make the on disk layout fixed endian, at which
+> point you really shouldn't abstract be16_to_cpu etc any further!
 
-It is a x86 patch, is_singlestep just comes from later patches (in fact -mm 
-has built because that var is created in later patches (about SYSEMU) from 
-me).
+Again, on-disk is fixed little endian, so we have for example:
 
-I took this from one of your mail notices:
+#define gfs2_32_to_cpu le32_to_cpu
+#define cpu_to_gfs2_32 cpu_to_le32
 
-ptrace-i386-fix-syscall-audit-interaction-with-singlestep.patch
-uml-support-ptrace-adds-the-host-sysemu-support-for-uml-and-general-usage.patch
-uml-support-reorganize-ptrace_sysemu-support.patch
-uml-support-add-ptrace_sysemu_singlestep-option-to-i386.patch
-sysemu-fix-sysaudit--singlestep-interaction.patch
+To _test_ and _verify_ the endian-handling of the code we can
+#define GFS2_ENDIAN_BIG which switches the above to:
 
-Note in particular the last 
-(sysemu-fix-sysaudit--singlestep-interaction.patch) is the original version 
-of the patch you're talking about (i.e. this fix was first made again the 
-SYSEMU patch, even if it's of general interest).
+#define gfs2_32_to_cpu to be32_to_cpu
+#define cpu_to_gfs2_32 to cpu_to_be32
 
-Just use test_thread_flag(TIF_SINGLESTEP), but leave later patches as-is, they 
-need the current 
-       int is_singlestep = !is_sysemu && test_thread_flag(TIF_SINGLESTEP);
-to be left there, and is_singlestpe to be used in that check.
--- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
-http://www.user-mode-linux.org/~blaisorblade
+We offered to removed this when I explained it before.  It sounds like it
+would give you some comfort so I'll just go ahead and do it barring any
+pleas otherwise.
 
-	
+Dave
 
-	
-		
-___________________________________ 
-Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
-http://mail.yahoo.it

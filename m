@@ -1,288 +1,331 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030504AbVIAXCC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030512AbVIAXEA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030504AbVIAXCC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 19:02:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030508AbVIAXCB
+	id S1030512AbVIAXEA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 19:04:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030514AbVIAXD7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 19:02:01 -0400
-Received: from tux06.ltc.ic.unicamp.br ([143.106.24.50]:9409 "EHLO
-	tux06.ltc.ic.unicamp.br") by vger.kernel.org with ESMTP
-	id S1030504AbVIAXCA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 19:02:00 -0400
-Date: Thu, 1 Sep 2005 20:04:52 -0300
-From: Glauber de Oliveira Costa <gocosta@br.ibm.com>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Glauber de Oliveira Costa <gocosta@br.ibm.com>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       ext2resize-devel@lists.sourceforge.net,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-fsdevel@vger.kernel.org, Andreas Dilger <adilger@clusterfs.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Subject: [PATCH][RFC] Ext3 online resizing locking issue (Again)
-Message-ID: <20050901230452.GA14526@br.ibm.com>
-References: <20050824210325.GK23782@br.ibm.com> <1124996561.1884.212.camel@sisko.sctweedie.blueyonder.co.uk> <20050825204335.GA1674@br.ibm.com> <1125410818.1910.52.camel@sisko.sctweedie.blueyonder.co.uk> <20050831113506.GM23782@br.ibm.com> <1125495031.1900.60.camel@sisko.sctweedie.blueyonder.co.uk>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="fdj2RfSjLxBAspz7"
-Content-Disposition: inline
-In-Reply-To: <1125495031.1900.60.camel@sisko.sctweedie.blueyonder.co.uk>
-User-Agent: Mutt/1.5.8i
+	Thu, 1 Sep 2005 19:03:59 -0400
+Received: from rwcrmhc12.comcast.net ([204.127.198.43]:40839 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1030512AbVIAXD6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 19:03:58 -0400
+Message-ID: <431788DA.3010801@acm.org>
+Date: Thu, 01 Sep 2005 18:03:54 -0500
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: viro@ZenIV.linux.org.uk, Matt_Domsch@Dell.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC][CFLART] ipmi procfs bogosity
+References: <20050901064313.GB26264@ZenIV.linux.org.uk>	<1125592902.27283.5.camel@i2.minyard.local> <20050901124114.7af633b1.akpm@osdl.org>
+In-Reply-To: <20050901124114.7af633b1.akpm@osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------040502010509030304010201"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------040502010509030304010201
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
---fdj2RfSjLxBAspz7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Andrew Morton wrote:
 
-Hi.
+>Corey Minyard <minyard@acm.org> wrote:
+>  
+>
+>>Indeed, this function is badly written.  In rewriting, I couldn't find a
+>> nice function for reading integers from userspace, and the proc_dointvec
+>> stuff didn't seem terribly suitable.
+>>    
+>>
+>
+>We write numbers into profs files all the time.  Is there something
+>different about the IPMI requirement which makes the approach used by, say,
+>dirty_writeback_centisecs_handler() inappropriate?
+>  
+>
+Ok, that's probably better, and this probably belongs in 
+/proc/sys/dev/ipmi.  This is new enough that it doesn't matter, I don't 
+think any one is using it yet.
 
-Here is my new trial for the resize lock issue. 
-Basically, it goes as follows: 
+Patch is attached.
 
-To ensure that only one resizer is running at a time, I added a global
-lock that is acquired in the very beginning of ext3_group_add and
-ext3_group_extend. 
+-Corey
 
-lock_super is now only used in ext3_group_add in the moment we alter
-s_groups_count, and released after the super block is marked dirty.
+--------------040502010509030304010201
+Content-Type: unknown/unknown;
+ name="ipmi-poweroff-fix-chassis-ctrl.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ipmi-poweroff-fix-chassis-ctrl.patch"
 
-In ext3_group_extend, this is done outside the main function, so we can
-do it trusting the lock to be already held while in remount, or
-acquiring it explicitly while in ioctl. 
+The IPMI power control function proc_write_chassctrl was badly
+written, it directly used userspace pointers, it assumed that
+strings were NULL terminated, and it used the evil sscanf function.
+This converts over to using the sysctl interface for this data and
+changes the semantics to be a little more logical.
 
-The lock in ext3_setup_new_group_blocks was simply wiped out, since this
-is always called from one of the functions that already holds the lock
-(and thus, in a safe environment)
+Signed-off-by: Corey Minyard <minyard@acm.org>
 
-Signed-off-by: Glauber de Oliveira Costa <gocosta@br.ibm.com>
+ Documentation/IPMI.txt            |   13 +--
+ drivers/char/ipmi/ipmi_poweroff.c |  136 ++++++++++++++++----------------------
+ include/linux/sysctl.h            |    6 +
+ 3 files changed, 73 insertions(+), 82 deletions(-)
 
-
--- 
-=====================================
-Glauber de Oliveira Costa
-IBM Linux Technology Center - Brazil
-gocosta@br.ibm.com
-=====================================
-
---fdj2RfSjLxBAspz7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch-resize_lock
-
-Only in linux/fs/ext3/: .tmp_versions
-Only in linux/fs/ext3/: fileidx
-diff -bup linux-2.6.13-orig/fs/ext3/ioctl.c linux/fs/ext3/ioctl.c
---- linux-2.6.13-orig/fs/ext3/ioctl.c	2005-09-01 12:44:31.000000000 -0300
-+++ linux/fs/ext3/ioctl.c	2005-09-01 11:42:22.000000000 -0300
-@@ -207,6 +207,12 @@ flags_err:
- 			return -EFAULT;
+Index: linux-2.6.13/drivers/char/ipmi/ipmi_poweroff.c
+===================================================================
+--- linux-2.6.13.orig/drivers/char/ipmi/ipmi_poweroff.c
++++ linux-2.6.13/drivers/char/ipmi/ipmi_poweroff.c
+@@ -52,11 +52,11 @@ extern void (*pm_power_off)(void);
+ #define IPMI_CHASSIS_POWER_CYCLE	0x02	/* power cycle */
  
- 		err = ext3_group_extend(sb, EXT3_SB(sb)->s_es, n_blocks_count);
-+		if (!err){
-+			lock_super(sb);
-+			sb->s_dirt = 1;
-+			unlock_super(sb);
-+		}
-+		
- 		journal_lock_updates(EXT3_SB(sb)->s_journal);
- 		journal_flush(EXT3_SB(sb)->s_journal);
- 		journal_unlock_updates(EXT3_SB(sb)->s_journal);
-Only in linux/fs/ext3/: patch
-diff -bup linux-2.6.13-orig/fs/ext3/resize.c linux/fs/ext3/resize.c
---- linux-2.6.13-orig/fs/ext3/resize.c	2005-09-01 12:44:31.000000000 -0300
-+++ linux/fs/ext3/resize.c	2005-09-01 19:30:40.000000000 -0300
-@@ -23,6 +23,8 @@
- #define outside(b, first, last)	((b) < (first) || (b) >= (last))
- #define inside(b, first, last)	((b) >= (first) && (b) < (last))
+ /* the IPMI data command */
+-static int poweroff_control = IPMI_CHASSIS_POWER_DOWN;
++static int poweroff_powercycle = 0;
  
-+DECLARE_MUTEX(resize_lock);
-+
- static int verify_group_input(struct super_block *sb,
- 			      struct ext3_new_group_data *input)
- {
-@@ -178,7 +180,6 @@ static int setup_new_group_blocks(struct
- 	if (IS_ERR(handle))
- 		return PTR_ERR(handle);
+ /* parameter definition to allow user to flag power cycle */
+-module_param(poweroff_control, int, IPMI_CHASSIS_POWER_DOWN);
+-MODULE_PARM_DESC(poweroff_control, " Set to 2 to enable power cycle instead of power down. Power cycle is contingent on hardware support, otherwise it defaults back to power down.");
++module_param(poweroff_powercycle, int, 0);
++MODULE_PARM_DESC(poweroff_powercycles, " Set to non-zero to enable power cycle instead of power down. Power cycle is contingent on hardware support, otherwise it defaults back to power down.");
  
--	lock_super(sb);
- 	if (input->group != sbi->s_groups_count) {
- 		err = -EBUSY;
- 		goto exit_journal;
-@@ -194,6 +195,7 @@ static int setup_new_group_blocks(struct
- 		ext3_set_bit(0, bh->b_data);
- 	}
+ /* Stuff from the get device id command. */
+ static unsigned int mfg_id;
+@@ -365,37 +365,34 @@ static void ipmi_poweroff_chassis (ipmi_
  
-+	smp_rmb();
- 	/* Copy all of the GDT blocks into the backup in this group */
- 	for (i = 0, bit = 1, block = start + 1;
- 	     i < gdblocks; i++, block++, bit++) {
-@@ -271,7 +273,6 @@ exit_bh:
- 	brelse(bh);
+  powercyclefailed:
+ 	printk(KERN_INFO PFX "Powering %s via IPMI chassis control command\n",
+-		((poweroff_control != IPMI_CHASSIS_POWER_CYCLE) ? "down" : "cycle"));
++		(poweroff_powercycle ? "cycle" : "down"));
  
- exit_journal:
--	unlock_super(sb);
- 	if ((err2 = ext3_journal_stop(handle)) && !err)
- 		err = err2;
- 
-@@ -706,6 +707,11 @@ int ext3_group_add(struct super_block *s
- 	int gdb_off, gdb_num;
- 	int err, err2;
- 
-+	if (unlikely(down_trylock(&resize_lock))){
-+		ext3_warning(sb,__FUNCTION__,"multiple resizers run on filesystem. Aborting\n");
-+		return -EBUSY;
-+	}
-+
- 	gdb_num = input->group / EXT3_DESC_PER_BLOCK(sb);
- 	gdb_off = input->group % EXT3_DESC_PER_BLOCK(sb);
- 
-@@ -753,12 +759,6 @@ int ext3_group_add(struct super_block *s
- 		goto exit_put;
- 	}
- 
--	lock_super(sb);
--	if (input->group != EXT3_SB(sb)->s_groups_count) {
--		ext3_warning(sb, __FUNCTION__,
--			     "multiple resizers run on filesystem!\n");
--		goto exit_journal;
--	}
- 
- 	if ((err = ext3_journal_get_write_access(handle, sbi->s_sbh)))
- 		goto exit_journal;
-@@ -847,6 +847,7 @@ int ext3_group_add(struct super_block *s
+ 	/*
+ 	 * Power down
  	 */
- 	smp_wmb();
- 
-+	lock_super(sb);
- 	/* Update the global fs size fields */
- 	EXT3_SB(sb)->s_groups_count++;
- 
-@@ -865,9 +866,9 @@ int ext3_group_add(struct super_block *s
- 
- 	ext3_journal_dirty_metadata(handle, EXT3_SB(sb)->s_sbh);
- 	sb->s_dirt = 1;
-+	unlock_super(sb);
- 
- exit_journal:
--	unlock_super(sb);
- 	if ((err2 = ext3_journal_stop(handle)) && !err)
- 		err = err2;
- 	if (!err) {
-@@ -877,6 +878,7 @@ exit_journal:
- 			       primary->b_size);
- 	}
- exit_put:
-+	up(&resize_lock);
- 	iput(inode);
- 	return err;
- } /* ext3_group_add */
-@@ -901,6 +903,12 @@ int ext3_group_extend(struct super_block
- 	handle_t *handle;
- 	int err, freed_blocks;
- 
-+
-+	if (unlikely(down_trylock(&resize_lock))){ 
-+		ext3_warning(sb,__FUNCTION__,"multiple resizers run on filesystem. Aborting\n");
-+		return -EBUSY;
-+	}
-+
- 	/* We don't need to worry about locking wrt other resizers just
- 	 * yet: we're going to revalidate es->s_blocks_count after
- 	 * taking lock_super() below. */
-@@ -911,13 +919,15 @@ int ext3_group_extend(struct super_block
- 		printk(KERN_DEBUG "EXT3-fs: extending last group from %lu to %lu blocks\n",
- 		       o_blocks_count, n_blocks_count);
- 
-+	err = 0;
- 	if (n_blocks_count == 0 || n_blocks_count == o_blocks_count)
--		return 0;
-+		goto exit_put;
- 
- 	if (n_blocks_count < o_blocks_count) {
- 		ext3_warning(sb, __FUNCTION__,
- 			     "can't shrink FS - resize aborted");
--		return -EBUSY;
-+		err = -EBUSY;
-+		goto exit_put;
- 	}
- 
- 	/* Handle the remaining blocks in the last group only. */
-@@ -927,7 +937,8 @@ int ext3_group_extend(struct super_block
- 	if (last == 0) {
- 		ext3_warning(sb, __FUNCTION__,
- 			     "need to use ext2online to resize further\n");
--		return -EPERM;
-+		err = -EPERM;
-+		goto exit_put;
- 	}
- 
- 	add = EXT3_BLOCKS_PER_GROUP(sb) - last;
-@@ -945,7 +956,8 @@ int ext3_group_extend(struct super_block
- 	if (!bh) {
- 		ext3_warning(sb, __FUNCTION__,
- 			     "can't read last block, resize aborted");
--		return -ENOSPC;
-+		err = -ENOSPC;
-+		goto exit_put;
- 	}
- 	brelse(bh);
- 
-@@ -959,26 +971,15 @@ int ext3_group_extend(struct super_block
- 		goto exit_put;
- 	}
- 
--	lock_super(sb);
--	if (o_blocks_count != le32_to_cpu(es->s_blocks_count)) {
--		ext3_warning(sb, __FUNCTION__,
--			     "multiple resizers run on filesystem!\n");
--		err = -EBUSY;
--		goto exit_put;
--	}
+ 	send_msg.netfn = IPMI_NETFN_CHASSIS_REQUEST;
+ 	send_msg.cmd = IPMI_CHASSIS_CONTROL_CMD;
+-	data[0] = poweroff_control;
++	if (poweroff_powercycle)
++		data[0] = IPMI_CHASSIS_POWER_CYCLE;
++	else
++		data[0] = IPMI_CHASSIS_POWER_DOWN;
+ 	send_msg.data = data;
+ 	send_msg.data_len = sizeof(data);
+ 	rv = ipmi_request_in_rc_mode(user,
+ 				     (struct ipmi_addr *) &smi_addr,
+ 				     &send_msg);
+ 	if (rv) {
+-		switch (poweroff_control) {
+-			case IPMI_CHASSIS_POWER_CYCLE:
+-				/* power cycle failed, default to power down */
+-				printk(KERN_ERR PFX "Unable to send chassis power " \
+-					"cycle message, IPMI error 0x%x\n", rv);
+-				poweroff_control = IPMI_CHASSIS_POWER_DOWN;
+-				goto powercyclefailed;
 -
- 	if ((err = ext3_journal_get_write_access(handle,
- 						 EXT3_SB(sb)->s_sbh))) {
- 		ext3_warning(sb, __FUNCTION__,
- 			     "error %d on journal write access", err);
--		unlock_super(sb);
- 		ext3_journal_stop(handle);
- 		goto exit_put;
+-			case IPMI_CHASSIS_POWER_DOWN:
+-			default:
+-				printk(KERN_ERR PFX "Unable to send chassis power " \
+-					"down message, IPMI error 0x%x\n", rv);
+-				break;
++		if (poweroff_powercycle) {
++			/* power cycle failed, default to power down */
++			printk(KERN_ERR PFX "Unable to send chassis power " \
++			       "cycle message, IPMI error 0x%x\n", rv);
++			poweroff_powercycle = 0;
++			goto powercyclefailed;
+ 		}
+-	}
+ 
+-	return;
++		printk(KERN_ERR PFX "Unable to send chassis power " \
++		       "down message, IPMI error 0x%x\n", rv);
++	}
+ }
+ 
+ 
+@@ -537,39 +534,35 @@ static struct ipmi_smi_watcher smi_watch
+ 
+ 
+ #ifdef CONFIG_PROC_FS
+-/* displays properties to proc */
+-static int proc_read_chassctrl(char *page, char **start, off_t off, int count,
+-			       int *eof, void *data)
+-{
+-	return sprintf(page, "%d\t[ 0=powerdown 2=powercycle ]\n",
+-			poweroff_control);
+-}
+-
+-/* process property writes from proc */
+-static int proc_write_chassctrl(struct file *file, const char *buffer,
+-			        unsigned long count, void *data)
+-{
+-	int          rv = count;
+-	unsigned int newval = 0;
+-
+-	sscanf(buffer, "%d", &newval);
+-	switch (newval) {
+-		case IPMI_CHASSIS_POWER_CYCLE:
+-			printk(KERN_INFO PFX "power cycle is now enabled\n");
+-			poweroff_control = newval;
+-			break;
+-
+-		case IPMI_CHASSIS_POWER_DOWN:
+-			poweroff_control = IPMI_CHASSIS_POWER_DOWN;
+-			break;
+-
+-		default:
+-			rv = -EINVAL;
+-			break;
+-	}
++#include <linux/sysctl.h>
+ 
+-	return rv;
+-}
++static ctl_table ipmi_table[] = {
++	{ .ctl_name	= DEV_IPMI_POWEROFF_POWERCYCLE,
++	  .procname	= "poweroff_powercycle",
++	  .data		= &poweroff_powercycle,
++	  .maxlen	= sizeof(poweroff_powercycle),
++	  .mode		= 0644,
++	  .proc_handler	= &proc_dointvec },
++	{ }
++};
++
++static ctl_table ipmi_dir_table[] = {
++	{ .ctl_name	= DEV_IPMI,
++	  .procname	= "ipmi",
++	  .mode		= 0555,
++	  .child	= ipmi_table },
++	{ }
++};
++
++static ctl_table ipmi_root_table[] = {
++	{ .ctl_name	= CTL_DEV,
++	  .procname	= "dev",
++	  .mode		= 0555,
++	  .child	= ipmi_dir_table },
++	{ }
++};
++
++static struct ctl_table_header *ipmi_table_header;
+ #endif /* CONFIG_PROC_FS */
+ 
+ /*
+@@ -577,41 +570,32 @@ static int proc_write_chassctrl(struct f
+  */
+ static int ipmi_poweroff_init (void)
+ {
+-	int                   rv;
+-	struct proc_dir_entry *file;
++	int rv;
+ 
+ 	printk ("Copyright (C) 2004 MontaVista Software -"
+ 		" IPMI Powerdown via sys_reboot.\n");
+ 
+-	switch (poweroff_control) {
+-		case IPMI_CHASSIS_POWER_CYCLE:
+-			printk(KERN_INFO PFX "Power cycle is enabled.\n");
+-			break;
+-
+-		case IPMI_CHASSIS_POWER_DOWN:
+-		default:
+-			poweroff_control = IPMI_CHASSIS_POWER_DOWN;
+-			break;
++	if (poweroff_powercycle)
++		printk(KERN_INFO PFX "Power cycle is enabled.\n");
++
++#ifdef CONFIG_PROC_FS
++	ipmi_table_header = register_sysctl_table(ipmi_root_table, 1);
++	if (!ipmi_table_header) {
++		printk(KERN_ERR PFX "Unable to register powercycle sysctl\n");
++		rv = -ENOMEM;
++		goto out_err;
  	}
- 	es->s_blocks_count = cpu_to_le32(o_blocks_count + add);
- 	ext3_journal_dirty_metadata(handle, EXT3_SB(sb)->s_sbh);
--	sb->s_dirt = 1;
--	unlock_super(sb);
- 	ext3_debug("freeing blocks %ld through %ld\n", o_blocks_count,
- 		   o_blocks_count + add);
- 	ext3_free_blocks_sb(handle, sb, o_blocks_count, add, &freed_blocks);
-@@ -992,5 +993,6 @@ int ext3_group_extend(struct super_block
- 	update_backups(sb, EXT3_SB(sb)->s_sbh->b_blocknr, (char *)es,
- 		       sizeof(struct ext3_super_block));
- exit_put:
-+	up(&resize_lock);
- 	return err;
- } /* ext3_group_extend */
-diff -bup linux-2.6.13-orig/fs/ext3/super.c linux/fs/ext3/super.c
---- linux-2.6.13-orig/fs/ext3/super.c	2005-09-01 12:44:31.000000000 -0300
-+++ linux/fs/ext3/super.c	2005-09-01 12:02:09.000000000 -0300
-@@ -639,8 +639,8 @@ static match_table_t tokens = {
- 	{Opt_quota, "quota"},
- 	{Opt_quota, "usrquota"},
- 	{Opt_barrier, "barrier=%u"},
-+	{Opt_resize, "resize=%u"},
- 	{Opt_err, NULL},
--	{Opt_resize, "resize"},
++#endif
+ 
++#ifdef CONFIG_PROC_FS
+ 	rv = ipmi_smi_watcher_register(&smi_watcher);
++#endif
+ 	if (rv) {
++		unregister_sysctl_table(ipmi_table_header);
+ 		printk(KERN_ERR PFX "Unable to register SMI watcher: %d\n", rv);
+ 		goto out_err;
+ 	}
+ 
+-#ifdef CONFIG_PROC_FS
+-	file = create_proc_entry("poweroff_control", 0, proc_ipmi_root);
+-	if (!file) {
+-		printk(KERN_ERR PFX "Unable to create proc power control\n");
+-	} else {
+-		file->nlink = 1;
+-		file->read_proc = proc_read_chassctrl;
+-		file->write_proc = proc_write_chassctrl;
+-		file->owner = THIS_MODULE;
+-	}
+-#endif
+-
+  out_err:
+ 	return rv;
+ }
+@@ -622,7 +606,7 @@ static __exit void ipmi_poweroff_cleanup
+ 	int rv;
+ 
+ #ifdef CONFIG_PROC_FS
+-	remove_proc_entry("poweroff_control", proc_ipmi_root);
++	unregister_sysctl_table(ipmi_table_header);
+ #endif
+ 
+ 	ipmi_smi_watcher_unregister(&smi_watcher);
+Index: linux-2.6.13/Documentation/IPMI.txt
+===================================================================
+--- linux-2.6.13.orig/Documentation/IPMI.txt
++++ linux-2.6.13/Documentation/IPMI.txt
+@@ -605,12 +605,13 @@ is in the ipmi_poweroff module.  When th
+ it will send the proper IPMI commands to do this.  This is supported on
+ several platforms.
+ 
+-There is a module parameter named "poweroff_control" that may either be zero
+-(do a power down) or 2 (do a power cycle, power the system off, then power
+-it on in a few seconds).  Setting ipmi_poweroff.poweroff_control=x will do
+-the same thing on the kernel command line.  The parameter is also available
+-via the proc filesystem in /proc/ipmi/poweroff_control.  Note that if the
+-system does not support power cycling, it will always to the power off.
++There is a module parameter named "poweroff_powercycle" that may
++either be zero (do a power down) or non-zero (do a power cycle, power
++the system off, then power it on in a few seconds).  Setting
++ipmi_poweroff.poweroff_control=x will do the same thing on the kernel
++command line.  The parameter is also available via the proc filesystem
++in /proc/sys/dev/ipmi/poweroff_powercycle.  Note that if the system
++does not support power cycling, it will always do the power off.
+ 
+ Note that if you have ACPI enabled, the system will prefer using ACPI to
+ power off.
+Index: linux-2.6.13/include/linux/sysctl.h
+===================================================================
+--- linux-2.6.13.orig/include/linux/sysctl.h
++++ linux-2.6.13/include/linux/sysctl.h
+@@ -711,6 +711,7 @@ enum {
+ 	DEV_RAID=4,
+ 	DEV_MAC_HID=5,
+ 	DEV_SCSI=6,
++	DEV_IPMI=7,
  };
  
- static unsigned long get_sb_block(void **data)
-@@ -2195,6 +2195,8 @@ static int ext3_remount (struct super_bl
- 			sbi->s_mount_state = le16_to_cpu(es->s_state);
- 			if ((ret = ext3_group_extend(sb, es, n_blocks_count))) {
- 				err = ret;
-+				if (!err)
-+					sb->s_dirt = 1;
- 				goto restore_opts;
- 			}
- 			if (!ext3_setup_super (sb, es, 0))
-Only in linux/fs/ext3/: xref
+ /* /proc/sys/dev/cdrom */
+@@ -776,6 +777,11 @@ enum {
+ 	DEV_SCSI_LOGGING_LEVEL=1,
+ };
+ 
++/* /proc/sys/dev/ipmi */
++enum {
++	DEV_IPMI_POWEROFF_POWERCYCLE=1,
++};
++
+ /* /proc/sys/abi */
+ enum
+ {
 
---fdj2RfSjLxBAspz7--
+--------------040502010509030304010201--

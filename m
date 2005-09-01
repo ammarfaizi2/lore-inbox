@@ -1,775 +1,978 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030476AbVIAWaM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030482AbVIAW3G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030476AbVIAWaM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 18:30:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030479AbVIAWaL
+	id S1030482AbVIAW3G (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 18:29:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030476AbVIAW3G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 18:30:11 -0400
-Received: from ns1.limegroup.com ([64.48.93.2]:50698 "EHLO ns1.limegroup.com")
-	by vger.kernel.org with ESMTP id S1030476AbVIAWaG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 18:30:06 -0400
-Date: Thu, 1 Sep 2005 18:30:04 -0400 (EDT)
-From: Ion Badulescu <lists@limebrokerage.com>
-X-X-Sender: ion@guppy.limebrokerage.com
-To: linux-kernel@vger.kernel.org
-cc: linux-net@vger.kernel.org
-Subject: Possible BUG in IPv4 TCP window handling, all recent 2.4.x/2.6.x
- kernels
-Message-ID: <Pine.LNX.4.61.0509011713240.6083@guppy.limebrokerage.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 1 Sep 2005 18:29:06 -0400
+Received: from lakshmi.addtoit.com ([198.99.130.6]:32784 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S1030303AbVIAW3B
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 18:29:01 -0400
+Message-Id: <200509012217.j81MHHj6011562@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
+       Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+Subject: [PATCH 9/12] UML - skas0 stubs now check system call return values
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 01 Sep 2005 18:17:17 -0400
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
 
-I've been tracking down this bug for some time, and I'm fairly convinced 
-at this point that it's a kernel bug.
+Change syscall-stub's data to include a "expected retval".
+Stub now checks syscalls retval and aborts execution of
+syscall list, if retval != expected retval.
+run_syscall_stub prints the data of the failed syscall,
+using the data pointer and retval written by the stub
+to the beginning of the stack.
+one_syscall_stub is removed, to simplify code, because
+only some instructions are saved by one_syscall_stub, no
+host-syscall.
+Using the stub with additional data (modify_ldt via stub)
+is prepared also.
 
-Under certain conditions, the TCP stack starts shrinking the TCP window 
-down to some ridiculously low values (hundreds of bytes, as low as 181) 
-and never recovers. The certain conditions I mentioned are not well 
-understood at this point, but they include a long-lived connection with a 
-very one-sided, fluctuating traffic flowing through it.
+Signed-off-by: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-So far I've been able to reproduce it on plain-vanilla 2.4.9, 2.4.11.9, 
-and 2.4.12.2, as well as on the RHEL3 kernels 2.4.21-20 and 2.4.21-31. The 
-hardware is dual Opteron 250, running both 32- and 64-bit SMP kernels 
-(seems to make no difference). I've also seen the bug occur on a single 
-Athlon XP running 2.6.11.9 UP.
+Index: test/arch/um/include/tlb.h
+===================================================================
+--- test.orig/arch/um/include/tlb.h	2005-09-01 16:32:51.000000000 -0400
++++ test/arch/um/include/tlb.h	2005-09-01 16:33:07.000000000 -0400
+@@ -38,9 +38,9 @@
+ extern void force_flush_all(void);
+ extern void fix_range_common(struct mm_struct *mm, unsigned long start_addr,
+                              unsigned long end_addr, int force,
+-			     void *(*do_ops)(union mm_context *,
+-					     struct host_vm_op *, int, int,
+-					     void *));
++			     int (*do_ops)(union mm_context *, 
++					   struct host_vm_op *, int, int,
++					   void **));
+ extern int flush_tlb_kernel_range_common(unsigned long start,
+ 					 unsigned long end);
+ 
+Index: test/arch/um/kernel/skas/include/skas.h
+===================================================================
+--- test.orig/arch/um/kernel/skas/include/skas.h	2005-09-01 16:33:07.000000000 -0400
++++ test/arch/um/kernel/skas/include/skas.h	2005-09-01 16:33:07.000000000 -0400
+@@ -24,14 +24,14 @@
+ extern void remove_sigstack(void);
+ extern void new_thread_handler(int sig);
+ extern void handle_syscall(union uml_pt_regs *regs);
+-extern void *map(struct mm_id * mm_idp, unsigned long virt,
+-		 unsigned long len, int r, int w, int x, int phys_fd,
+-		 unsigned long long offset, int done, void *data);
+-extern void *unmap(struct mm_id * mm_idp, void *addr,
+-		   unsigned long len, int done, void *data);
+-extern void *protect(struct mm_id * mm_idp, unsigned long addr,
+-		     unsigned long len, int r, int w, int x, int done,
+-		     void *data);
++extern int map(struct mm_id * mm_idp, unsigned long virt,
++	       unsigned long len, int r, int w, int x, int phys_fd, 
++	       unsigned long long offset, int done, void **data);
++extern int unmap(struct mm_id * mm_idp, void *addr, unsigned long len,
++		 int done, void **data);
++extern int protect(struct mm_id * mm_idp, unsigned long addr,
++		   unsigned long len, int r, int w, int x, int done, 
++		   void **data);
+ extern void user_signal(int sig, union uml_pt_regs *regs, int pid);
+ extern int new_mm(int from, unsigned long stack);
+ extern int start_userspace(unsigned long stub_stack);
+@@ -39,16 +39,11 @@
+ extern void get_skas_faultinfo(int pid, struct faultinfo * fi);
+ extern long execute_syscall_skas(void *r);
+ extern unsigned long current_stub_stack(void);
++extern long run_syscall_stub(struct mm_id * mm_idp,
++                             int syscall, unsigned long *args, long expected,
++                             void **addr, int done);
++extern long syscall_stub_data(struct mm_id * mm_idp,
++                              unsigned long *data, int data_count,
++                              void **addr, void **stub_addr);
+ 
+ #endif
+-
+-/*
+- * Overrides for Emacs so that we follow Linus's tabbing style.
+- * Emacs will notice this stuff at the end of the file and automatically
+- * adjust the settings for this buffer only.  This must remain at the end
+- * of the file.
+- * ---------------------------------------------------------------------------
+- * Local variables:
+- * c-file-style: "linux"
+- * End:
+- */
+Index: test/arch/um/kernel/skas/mem_user.c
+===================================================================
+--- test.orig/arch/um/kernel/skas/mem_user.c	2005-09-01 16:32:51.000000000 -0400
++++ test/arch/um/kernel/skas/mem_user.c	2005-09-01 16:43:18.000000000 -0400
+@@ -5,13 +5,14 @@
+ 
+ #include <signal.h>
+ #include <errno.h>
++#include <string.h>
+ #include <sys/mman.h>
+ #include <sys/wait.h>
+ #include <asm/page.h>
+ #include <asm/unistd.h>
+ #include "mem_user.h"
+ #include "mem.h"
+-#include "mm_id.h"
++#include "skas.h"
+ #include "user.h"
+ #include "os.h"
+ #include "proc_mm.h"
+@@ -23,56 +24,99 @@
+ #include "uml-config.h"
+ #include "sysdep/ptrace.h"
+ #include "sysdep/stub.h"
+-#include "skas.h"
+ 
+-extern unsigned long syscall_stub, batch_syscall_stub, __syscall_stub_start;
++extern unsigned long batch_syscall_stub, __syscall_stub_start;
+ 
+ extern void wait_stub_done(int pid, int sig, char * fname);
+ 
+-int single_count = 0;
++static inline unsigned long *check_init_stack(struct mm_id * mm_idp,
++					      unsigned long *stack)
++{
++	if(stack == NULL){
++		stack = (unsigned long *) mm_idp->stack + 2;
++		*stack = 0;
++	}
++	return stack;
++}
++
++extern int proc_mm;
+ 
+-static long one_syscall_stub(struct mm_id * mm_idp, int syscall,
+-			     unsigned long *args)
++int single_count = 0;
++int multi_count = 0;
++int multi_op_count = 0;
++  
++static long do_syscall_stub(struct mm_id *mm_idp, void **addr)
+ {
++	unsigned long regs[MAX_REG_NR];
++	unsigned long *data;
++	unsigned long *syscall;
++	long ret, offset;
+         int n, pid = mm_idp->u.pid;
+-        unsigned long regs[MAX_REG_NR];
+ 
++	if(proc_mm)
++#warning Need to look up userspace_pid by cpu
++		pid = userspace_pid[0];
++
++	multi_count++;
++  
+         get_safe_registers(regs);
+         regs[REGS_IP_INDEX] = UML_CONFIG_STUB_CODE +
+-                ((unsigned long) &syscall_stub -
++		((unsigned long) &batch_syscall_stub - 
+                  (unsigned long) &__syscall_stub_start);
+-        /* XXX Don't have a define for starting a syscall */
+-        regs[REGS_SYSCALL_NR] = syscall;
+-        regs[REGS_SYSCALL_ARG1] = args[0];
+-        regs[REGS_SYSCALL_ARG2] = args[1];
+-        regs[REGS_SYSCALL_ARG3] = args[2];
+-        regs[REGS_SYSCALL_ARG4] = args[3];
+-        regs[REGS_SYSCALL_ARG5] = args[4];
+-        regs[REGS_SYSCALL_ARG6] = args[5];
+-        n = ptrace_setregs(pid, regs);
+-        if(n < 0){
+-		printk("one_syscall_stub : PTRACE_SETREGS failed, "
+-		       "errno = %d\n", n);
+-		return(n);
++	n = ptrace_setregs(pid, regs);
++	if(n < 0)
++		panic("do_syscall_stub : PTRACE_SETREGS failed, errno = %d\n",
++		      n);
++
++	wait_stub_done(pid, 0, "do_syscall_stub");
++
++	/* When the stub stops, we find the following values on the
++	 * beginning of the stack:
++	 * (long )return_value
++	 * (long )offset to failed sycall-data (0, if no error)
++	 */
++	ret = *((unsigned long *) mm_idp->stack);
++	offset = *((unsigned long *) mm_idp->stack + 1);
++	if (offset) {
++		data = (unsigned long *)(mm_idp->stack +
++					 offset - UML_CONFIG_STUB_DATA);
++		syscall = (unsigned long *)((unsigned long)data + data[0]);
++		printk("do_syscall_stub: syscall %ld failed, return value = "
++		       "0x%lx, expected return value = 0x%lx\n",
++		       syscall[0], ret, syscall[7]);
++		printk("    syscall parameters: "
++		       "0x%lx 0x%lx 0x%lx 0x%lx 0x%lx 0x%lx\n",
++		       syscall[1], syscall[2], syscall[3],
++		       syscall[4], syscall[5], syscall[6]);
++		for(n = 1; n < data[0]/sizeof(long); n++) {
++			if(n == 1)
++				printk("    additional syscall data:");
++			if(n % 4 == 1)
++				printk("\n      ");
++			printk("  0x%lx", data[n]);
++		}
++		if(n > 1)
++			printk("\n");
+ 	}
++	else ret = 0;
+ 
+-	wait_stub_done(pid, 0, "one_syscall_stub");
+-
+-	return(*((unsigned long *) mm_idp->stack));
++	*addr = check_init_stack(mm_idp, NULL);
++ 
++	return ret;
+ }
+ 
+-int multi_count = 0;
+-int multi_op_count = 0;
+-
+-static long many_syscall_stub(struct mm_id * mm_idp, int syscall,
+-			      unsigned long *args, int done, void **addr_out)
++long run_syscall_stub(struct mm_id * mm_idp, int syscall, 
++		      unsigned long *args, long expected, void **addr, 
++ 		      int done)
+ {
+-        unsigned long regs[MAX_REG_NR], *stack;
+-        int n, pid = mm_idp->u.pid;
++ 	unsigned long *stack = check_init_stack(mm_idp, *addr);
++
++	if(done && *addr == NULL)
++		single_count++;
++
++ 	*stack += sizeof(long);
++	stack += *stack / sizeof(long);
+ 
+-        stack = *addr_out;
+-        if(stack == NULL)
+-                stack = (unsigned long *) current_stub_stack();
+         *stack++ = syscall;
+         *stack++ = args[0];
+         *stack++ = args[1];
+@@ -80,53 +124,55 @@
+         *stack++ = args[3];
+         *stack++ = args[4];
+         *stack++ = args[5];
++	*stack++ = expected;
+         *stack = 0;
+         multi_op_count++;
+ 
+         if(!done && ((((unsigned long) stack) & ~PAGE_MASK) <
+-                     PAGE_SIZE - 8 * sizeof(long))){
+-                *addr_out = stack;
++		     PAGE_SIZE - 10 * sizeof(long))){
++		*addr = stack;
+                 return 0;
+         }
+ 
+-        multi_count++;
+-        get_safe_registers(regs);
+-        regs[REGS_IP_INDEX] = UML_CONFIG_STUB_CODE +
+-                ((unsigned long) &batch_syscall_stub -
+-                 (unsigned long) &__syscall_stub_start);
+-        regs[REGS_SP_INDEX] = UML_CONFIG_STUB_DATA;
++	return do_syscall_stub(mm_idp, addr);
++}
++ 
++long syscall_stub_data(struct mm_id * mm_idp,
++		       unsigned long *data, int data_count,
++		       void **addr, void **stub_addr)
++{
++	unsigned long *stack;
++	int ret = 0;
+ 
+-        n = ptrace_setregs(pid, regs);
+-        if(n < 0){
+-                printk("many_syscall_stub : PTRACE_SETREGS failed, "
+-                       "errno = %d\n", n);
+-                return(n);
+-        }
++	/* If *addr still is uninitialized, it *must* contain NULL.
++	 * Thus in this case do_syscall_stub correctly won't be called.
++	 */
++	if((((unsigned long) *addr) & ~PAGE_MASK) >=
++	   PAGE_SIZE - (10 + data_count) * sizeof(long)) {
++		ret = do_syscall_stub(mm_idp, addr);
++ 		/* in case of error, don't overwrite data on stack */
++		if(ret)
++			return ret;
++	}
+ 
+-        wait_stub_done(pid, 0, "many_syscall_stub");
+-        stack = (unsigned long *) mm_idp->stack;
++	stack = check_init_stack(mm_idp, *addr);
++	*addr = stack;
+ 
+-        *addr_out = stack;
+-        return(*stack);
+-}
++	*stack = data_count * sizeof(long);
+ 
+-static long run_syscall_stub(struct mm_id * mm_idp, int syscall,
+-                             unsigned long *args, void **addr, int done)
+-{
+-        long res;
++	memcpy(stack + 1, data, data_count * sizeof(long));
+ 
+-        if((*addr == NULL) && done)
+-                res = one_syscall_stub(mm_idp, syscall, args);
+-        else res = many_syscall_stub(mm_idp, syscall, args, done, addr);
++	*stub_addr = (void *)(((unsigned long)(stack + 1) & ~PAGE_MASK) +
++			      UML_CONFIG_STUB_DATA);
+ 
+-        return res;
++	return 0;
+ }
+-
+-void *map(struct mm_id * mm_idp, unsigned long virt, unsigned long len,
+-          int r, int w, int x, int phys_fd, unsigned long long offset,
+-          int done, void *data)
++ 
++int map(struct mm_id * mm_idp, unsigned long virt, unsigned long len,
++	int r, int w, int x, int phys_fd, unsigned long long offset, 
++	int done, void **data)
+ {
+-        int prot, n;
++        int prot, ret;
+ 
+         prot = (r ? PROT_READ : 0) | (w ? PROT_WRITE : 0) |
+                 (x ? PROT_EXEC : 0);
+@@ -146,29 +192,27 @@
+                                                  .fd	= phys_fd,
+                                                  .offset= offset
+                                                } } } );
+-                n = os_write_file(fd, &map, sizeof(map));
+-                if(n != sizeof(map))
+-                        printk("map : /proc/mm map failed, err = %d\n", -n);
++		ret = os_write_file(fd, &map, sizeof(map));
++		if(ret != sizeof(map)) 
++			printk("map : /proc/mm map failed, err = %d\n", -ret);
++		else ret = 0;
+         }
+         else {
+-                long res;
+                 unsigned long args[] = { virt, len, prot,
+                                          MAP_SHARED | MAP_FIXED, phys_fd,
+                                          MMAP_OFFSET(offset) };
+ 
+-		res = run_syscall_stub(mm_idp, STUB_MMAP_NR, args,
+-				       &data, done);
+-                if((void *) res == MAP_FAILED)
+-                        printk("mmap stub failed, errno = %d\n", res);
++		ret = run_syscall_stub(mm_idp, STUB_MMAP_NR, args, virt,
++				       data, done);
+         }
+ 
+-	return data;
++	return ret;
+ }
+ 
+-void *unmap(struct mm_id * mm_idp, void *addr, unsigned long len, int done,
+-            void *data)
++int unmap(struct mm_id * mm_idp, void *addr, unsigned long len, int done,
++	  void **data)
+ {
+-        int n;
++        int ret;
+ 
+         if(proc_mm){
+                 struct proc_mm_op unmap;
+@@ -180,29 +224,29 @@
+                                                  { .addr	=
+                                                    (unsigned long) addr,
+                                                    .len		= len } } } );
+-                n = os_write_file(fd, &unmap, sizeof(unmap));
+-		if(n != sizeof(unmap))
+-		  printk("unmap - proc_mm write returned %d\n", n);
++		ret = os_write_file(fd, &unmap, sizeof(unmap));
++		if(ret != sizeof(unmap))
++			printk("unmap - proc_mm write returned %d\n", ret);
++		else ret = 0;
+         }
+         else {
+-                int res;
+                 unsigned long args[] = { (unsigned long) addr, len, 0, 0, 0,
+                                          0 };
+ 
+-		res = run_syscall_stub(mm_idp, __NR_munmap, args,
+-				       &data, done);
+-                if(res < 0)
+-                        printk("munmap stub failed, errno = %d\n", res);
++		ret = run_syscall_stub(mm_idp, __NR_munmap, args, 0,
++				       data, done);
++                if(ret < 0)
++                        printk("munmap stub failed, errno = %d\n", ret);
+         }
+ 
+-        return data;
++        return ret;
+ }
+ 
+-void *protect(struct mm_id * mm_idp, unsigned long addr, unsigned long len,
+-              int r, int w, int x, int done, void *data)
++int protect(struct mm_id * mm_idp, unsigned long addr, unsigned long len,
++	    int r, int w, int x, int done, void **data)
+ {
+         struct proc_mm_op protect;
+-        int prot, n;
++        int prot, ret;
+ 
+         prot = (r ? PROT_READ : 0) | (w ? PROT_WRITE : 0) |
+                 (x ? PROT_EXEC : 0);
+@@ -217,21 +261,19 @@
+                                                      .len	= len,
+                                                      .prot	= prot } } } );
+ 
+-                n = os_write_file(fd, &protect, sizeof(protect));
+-                if(n != sizeof(protect))
+-                        panic("protect failed, err = %d", -n);
++                ret = os_write_file(fd, &protect, sizeof(protect));
++                if(ret != sizeof(protect))
++                        printk("protect failed, err = %d", -ret);
++                else ret = 0;
+         }
+         else {
+-                int res;
+                 unsigned long args[] = { addr, len, prot, 0, 0, 0 };
+ 
+-                res = run_syscall_stub(mm_idp, __NR_mprotect, args,
+-                                       &data, done);
+-                if(res < 0)
+-                        panic("mprotect stub failed, errno = %d\n", res);
++                ret = run_syscall_stub(mm_idp, __NR_mprotect, args, 0,
++                                       data, done);
+         }
+ 
+-        return data;
++        return ret;
+ }
+ 
+ void before_mem_skas(unsigned long unused)
+Index: test/arch/um/kernel/skas/tlb.c
+===================================================================
+--- test.orig/arch/um/kernel/skas/tlb.c	2005-09-01 16:32:51.000000000 -0400
++++ test/arch/um/kernel/skas/tlb.c	2005-09-01 16:33:07.000000000 -0400
+@@ -18,30 +18,31 @@
+ #include "os.h"
+ #include "tlb.h"
+ 
+-static void *do_ops(union mm_context *mmu, struct host_vm_op *ops, int last,
+-		    int finished, void *flush)
++static int do_ops(union mm_context *mmu, struct host_vm_op *ops, int last,
++		  int finished, void **flush)
+ {
+ 	struct host_vm_op *op;
+-	int i;
++        int i, ret = 0;
+ 
+-	for(i = 0; i <= last; i++){
++        for(i = 0; i <= last && !ret; i++){
+ 		op = &ops[i];
+ 		switch(op->type){
+ 		case MMAP:
+-			flush = map(&mmu->skas.id, op->u.mmap.addr,
+-				    op->u.mmap.len, op->u.mmap.r, op->u.mmap.w,
+-				    op->u.mmap.x, op->u.mmap.fd,
+-				    op->u.mmap.offset, finished, flush);
++			ret = map(&mmu->skas.id, op->u.mmap.addr, 
++				  op->u.mmap.len, op->u.mmap.r, op->u.mmap.w,
++				  op->u.mmap.x, op->u.mmap.fd,
++				  op->u.mmap.offset, finished, flush);
+ 			break;
+ 		case MUNMAP:
+-			flush = unmap(&mmu->skas.id, (void *) op->u.munmap.addr,
+-				      op->u.munmap.len, finished, flush);
++			ret = unmap(&mmu->skas.id, 
++				    (void *) op->u.munmap.addr,
++				    op->u.munmap.len, finished, flush);
+ 			break;
+ 		case MPROTECT:
+-			flush = protect(&mmu->skas.id, op->u.mprotect.addr,
+-					op->u.mprotect.len, op->u.mprotect.r,
+-					op->u.mprotect.w, op->u.mprotect.x,
+-					finished, flush);
++			ret = protect(&mmu->skas.id, op->u.mprotect.addr,
++				      op->u.mprotect.len, op->u.mprotect.r, 
++				      op->u.mprotect.w, op->u.mprotect.x, 
++				      finished, flush);
+ 			break;
+ 		default:
+ 			printk("Unknown op type %d in do_ops\n", op->type);
+@@ -49,7 +50,7 @@
+ 		}
+ 	}
+ 
+-	return flush;
++	return ret;
+ }
+ 
+ extern int proc_mm;
+Index: test/arch/um/kernel/tlb.c
+===================================================================
+--- test.orig/arch/um/kernel/tlb.c	2005-09-01 16:32:51.000000000 -0400
++++ test/arch/um/kernel/tlb.c	2005-09-01 16:33:07.000000000 -0400
+@@ -16,115 +16,117 @@
+ #include "os.h"
+ 
+ static int add_mmap(unsigned long virt, unsigned long phys, unsigned long len,
+-		    int r, int w, int x, struct host_vm_op *ops, int index,
++ 		    int r, int w, int x, struct host_vm_op *ops, int *index, 
+ 		    int last_filled, union mm_context *mmu, void **flush,
+-		    void *(*do_ops)(union mm_context *, struct host_vm_op *,
+-				    int, int, void *))
++		    int (*do_ops)(union mm_context *, struct host_vm_op *, 
++				  int, int, void **))
+ {
+         __u64 offset;
+ 	struct host_vm_op *last;
+-	int fd;
++	int fd, ret = 0;
+ 
+ 	fd = phys_mapping(phys, &offset);
+-	if(index != -1){
+-		last = &ops[index];
++	if(*index != -1){
++		last = &ops[*index];
+ 		if((last->type == MMAP) &&
+ 		   (last->u.mmap.addr + last->u.mmap.len == virt) &&
+ 		   (last->u.mmap.r == r) && (last->u.mmap.w == w) &&
+ 		   (last->u.mmap.x == x) && (last->u.mmap.fd == fd) &&
+ 		   (last->u.mmap.offset + last->u.mmap.len == offset)){
+ 			last->u.mmap.len += len;
+-			return index;
++			return 0;
+ 		}
+ 	}
+ 
+-	if(index == last_filled){
+-		*flush = (*do_ops)(mmu, ops, last_filled, 0, *flush);
+-		index = -1;
++	if(*index == last_filled){
++		ret = (*do_ops)(mmu, ops, last_filled, 0, flush);
++		*index = -1;
+ 	}
+ 
+-	ops[++index] = ((struct host_vm_op) { .type	= MMAP,
+-					      .u = { .mmap = {
+-						      .addr	= virt,
+-						      .len	= len,
+-						      .r	= r,
+-						      .w	= w,
+-						      .x	= x,
+-						      .fd	= fd,
+-						      .offset	= offset }
+-					      } });
+-	return index;
++	ops[++*index] = ((struct host_vm_op) { .type	= MMAP,
++			     			.u = { .mmap = {
++						       .addr	= virt,
++						       .len	= len,
++						       .r	= r,
++						       .w	= w,
++						       .x	= x,
++						       .fd	= fd,
++						       .offset	= offset }
++			   } });
++	return ret;
+ }
+ 
+ static int add_munmap(unsigned long addr, unsigned long len,
+-		      struct host_vm_op *ops, int index, int last_filled,
++		      struct host_vm_op *ops, int *index, int last_filled,
+ 		      union mm_context *mmu, void **flush,
+-		      void *(*do_ops)(union mm_context *, struct host_vm_op *,
+-				      int, int, void *))
++		      int (*do_ops)(union mm_context *, struct host_vm_op *, 
++				    int, int, void **))
+ {
+ 	struct host_vm_op *last;
+-
+-	if(index != -1){
+-		last = &ops[index];
++	int ret = 0;
++  
++	if(*index != -1){
++		last = &ops[*index];
+ 		if((last->type == MUNMAP) &&
+ 		   (last->u.munmap.addr + last->u.mmap.len == addr)){
+ 			last->u.munmap.len += len;
+-			return index;
++			return 0;
+ 		}
+ 	}
+ 
+-	if(index == last_filled){
+-		*flush = (*do_ops)(mmu, ops, last_filled, 0, *flush);
+-		index = -1;
++	if(*index == last_filled){
++		ret = (*do_ops)(mmu, ops, last_filled, 0, flush);
++		*index = -1;
+ 	}
+ 
+-	ops[++index] = ((struct host_vm_op) { .type	= MUNMAP,
+-					      .u = { .munmap = {
+-						      .addr	= addr,
+-						      .len	= len } } });
+-	return index;
++	ops[++*index] = ((struct host_vm_op) { .type	= MUNMAP,
++			     		       .u = { .munmap = {
++						        .addr	= addr,
++							.len	= len } } });
++	return ret;
+ }
+ 
+ static int add_mprotect(unsigned long addr, unsigned long len, int r, int w,
+-			int x, struct host_vm_op *ops, int index,
++			int x, struct host_vm_op *ops, int *index, 
+ 			int last_filled, union mm_context *mmu, void **flush,
+-			void *(*do_ops)(union mm_context *,
+-				       struct host_vm_op *, int, int, void *))
++ 			int (*do_ops)(union mm_context *, struct host_vm_op *,
++				      int, int, void **))
+ {
+ 	struct host_vm_op *last;
++	int ret = 0;
+ 
+-	if(index != -1){
+-		last = &ops[index];
++	if(*index != -1){
++		last = &ops[*index];
+ 		if((last->type == MPROTECT) &&
+ 		   (last->u.mprotect.addr + last->u.mprotect.len == addr) &&
+ 		   (last->u.mprotect.r == r) && (last->u.mprotect.w == w) &&
+ 		   (last->u.mprotect.x == x)){
+ 			last->u.mprotect.len += len;
+-			return index;
++			return 0;
+ 		}
+ 	}
+ 
+-	if(index == last_filled){
+-		*flush = (*do_ops)(mmu, ops, last_filled, 0, *flush);
+-		index = -1;
++	if(*index == last_filled){
++		ret = (*do_ops)(mmu, ops, last_filled, 0, flush);
++		*index = -1;
+ 	}
+ 
+-	ops[++index] = ((struct host_vm_op) { .type	= MPROTECT,
+-					      .u = { .mprotect = {
+-						      .addr	= addr,
+-						      .len	= len,
+-						      .r	= r,
+-						      .w	= w,
+-						      .x	= x } } });
+-	return index;
++	ops[++*index] = ((struct host_vm_op) { .type	= MPROTECT,
++			     		       .u = { .mprotect = {
++						       .addr	= addr,
++						       .len	= len,
++						       .r	= r,
++						       .w	= w,
++						       .x	= x } } });
++	return ret;
+ }
+ 
+ #define ADD_ROUND(n, inc) (((n) + (inc)) & ~((inc) - 1))
+ 
+ void fix_range_common(struct mm_struct *mm, unsigned long start_addr,
+                       unsigned long end_addr, int force,
+-		      void *(*do_ops)(union mm_context *, struct host_vm_op *,
+-				      int, int, void *))
++		      int (*do_ops)(union mm_context *, struct host_vm_op *, 
++				    int, int, void **))
+ {
+         pgd_t *npgd;
+         pud_t *npud;
+@@ -136,20 +138,21 @@
+         struct host_vm_op ops[1];
+         void *flush = NULL;
+         int op_index = -1, last_op = sizeof(ops) / sizeof(ops[0]) - 1;
++        int ret = 0;
+ 
+         if(mm == NULL) return;
+ 
+         ops[0].type = NONE;
+-        for(addr = start_addr; addr < end_addr;){
++        for(addr = start_addr; addr < end_addr && !ret;){
+                 npgd = pgd_offset(mm, addr);
+                 if(!pgd_present(*npgd)){
+                         end = ADD_ROUND(addr, PGDIR_SIZE);
+                         if(end > end_addr)
+                                 end = end_addr;
+                         if(force || pgd_newpage(*npgd)){
+-                                op_index = add_munmap(addr, end - addr, ops,
+-                                                      op_index, last_op, mmu,
+-                                                      &flush, do_ops);
++                                ret = add_munmap(addr, end - addr, ops, 
++                                                 &op_index, last_op, mmu,
++                                                 &flush, do_ops);
+                                 pgd_mkuptodate(*npgd);
+                         }
+                         addr = end;
+@@ -162,9 +165,9 @@
+                         if(end > end_addr)
+                                 end = end_addr;
+                         if(force || pud_newpage(*npud)){
+-                                op_index = add_munmap(addr, end - addr, ops,
+-                                                      op_index, last_op, mmu,
+-                                                      &flush, do_ops);
++                                ret = add_munmap(addr, end - addr, ops, 
++                                                 &op_index, last_op, mmu,
++                                                 &flush, do_ops);
+                                 pud_mkuptodate(*npud);
+                         }
+                         addr = end;
+@@ -177,9 +180,9 @@
+                         if(end > end_addr)
+                                 end = end_addr;
+                         if(force || pmd_newpage(*npmd)){
+-                                op_index = add_munmap(addr, end - addr, ops,
+-                                                      op_index, last_op, mmu,
+-                                                      &flush, do_ops);
++                                ret = add_munmap(addr, end - addr, ops, 
++                                                 &op_index, last_op, mmu,
++                                                 &flush, do_ops);
+                                 pmd_mkuptodate(*npmd);
+                         }
+                         addr = end;
+@@ -198,24 +201,32 @@
+                 }
+                 if(force || pte_newpage(*npte)){
+                         if(pte_present(*npte))
+-                                op_index = add_mmap(addr,
+-                                                    pte_val(*npte) & PAGE_MASK,
+-                                                    PAGE_SIZE, r, w, x, ops,
+-                                                    op_index, last_op, mmu,
+-                                                    &flush, do_ops);
+-                        else op_index = add_munmap(addr, PAGE_SIZE, ops,
+-                                                   op_index, last_op, mmu,
+-                                                   &flush, do_ops);
++			  ret = add_mmap(addr, 
++					 pte_val(*npte) & PAGE_MASK,
++					 PAGE_SIZE, r, w, x, ops, 
++					 &op_index, last_op, mmu,
++					 &flush, do_ops);
++			else ret = add_munmap(addr, PAGE_SIZE, ops, 
++					      &op_index, last_op, mmu, 
++					      &flush, do_ops);
+                 }
+                 else if(pte_newprot(*npte))
+-                        op_index = add_mprotect(addr, PAGE_SIZE, r, w, x, ops,
+-                                                op_index, last_op, mmu,
+-                                                &flush, do_ops);
++			ret = add_mprotect(addr, PAGE_SIZE, r, w, x, ops, 
++					   &op_index, last_op, mmu,
++					   &flush, do_ops);
+ 
+                 *npte = pte_mkuptodate(*npte);
+                 addr += PAGE_SIZE;
+         }
+-	flush = (*do_ops)(mmu, ops, op_index, 1, flush);
++ 
++	if(!ret)
++		ret = (*do_ops)(mmu, ops, op_index, 1, &flush);
++
++	/* This is not an else because ret is modified above */
++	if(ret) {
++		printk("fix_range_common: failed, killing current process\n");
++		force_sig(SIGKILL, current);
++	}
+ }
+ 
+ int flush_tlb_kernel_range_common(unsigned long start, unsigned long end)
+Index: test/arch/um/kernel/tt/tlb.c
+===================================================================
+--- test.orig/arch/um/kernel/tt/tlb.c	2005-09-01 16:32:51.000000000 -0400
++++ test/arch/um/kernel/tt/tlb.c	2005-09-01 16:33:07.000000000 -0400
+@@ -17,26 +17,31 @@
+ #include "os.h"
+ #include "tlb.h"
+ 
+-static void *do_ops(union mm_context *mmu, struct host_vm_op *ops, int last,
+-		    int finished, void *flush)
++static int do_ops(union mm_context *mmu, struct host_vm_op *ops, int last,
++		    int finished, void **flush)
+ {
+ 	struct host_vm_op *op;
+-	int i;
++        int i, ret=0;
+ 
+-	for(i = 0; i <= last; i++){
++        for(i = 0; i <= last && !ret; i++){
+ 		op = &ops[i];
+ 		switch(op->type){
+ 		case MMAP:
+-                        os_map_memory((void *) op->u.mmap.addr, op->u.mmap.fd,
+-				      op->u.mmap.offset, op->u.mmap.len,
+-				      op->u.mmap.r, op->u.mmap.w,
+-				      op->u.mmap.x);
++                        ret = os_map_memory((void *) op->u.mmap.addr,
++                                            op->u.mmap.fd, op->u.mmap.offset,
++                                            op->u.mmap.len, op->u.mmap.r,
++                                            op->u.mmap.w, op->u.mmap.x);
+ 			break;
+ 		case MUNMAP:
+-			os_unmap_memory((void *) op->u.munmap.addr,
+-					op->u.munmap.len);
++                        ret = os_unmap_memory((void *) op->u.munmap.addr, 
++                                              op->u.munmap.len);
+ 			break;
+ 		case MPROTECT:
++                        ret = protect_memory(op->u.mprotect.addr,
++                                             op->u.munmap.len, 
++                                             op->u.mprotect.r,
++                                             op->u.mprotect.w, 
++                                             op->u.mprotect.x, 1);
+ 			protect_memory(op->u.mprotect.addr, op->u.munmap.len,
+ 				       op->u.mprotect.r, op->u.mprotect.w,
+ 				       op->u.mprotect.x, 1);
+@@ -47,7 +52,7 @@
+ 		}
+ 	}
+ 
+-	return NULL;
++	return ret;
+ }
+ 
+ static void fix_range(struct mm_struct *mm, unsigned long start_addr, 
+Index: test/arch/um/sys-i386/stub.S
+===================================================================
+--- test.orig/arch/um/sys-i386/stub.S	2005-09-01 16:32:51.000000000 -0400
++++ test/arch/um/sys-i386/stub.S	2005-09-01 16:33:07.000000000 -0400
+@@ -2,24 +2,50 @@
+ 
+ 	.globl syscall_stub
+ .section .__syscall_stub, "x"
+-syscall_stub:
+-	int 	$0x80
+-	mov	%eax, UML_CONFIG_STUB_DATA
+-	int3
+ 
+ 	.globl batch_syscall_stub
+ batch_syscall_stub:
+-	mov	$UML_CONFIG_STUB_DATA, %esp
+-again:	pop	%eax
++	/* load pointer to first operation */
++	mov	$(UML_CONFIG_STUB_DATA+8), %esp
++
++again:
++	/* load length of additional data */
++	mov	0x0(%esp), %eax
++
++	/* if(length == 0) : end of list */
++	/* write possible 0 to header */
++	mov	%eax, UML_CONFIG_STUB_DATA+4
+ 	cmpl	$0, %eax
+ 	jz	done
++
++	/* save current pointer */
++	mov	%esp, UML_CONFIG_STUB_DATA+4
++
++	/* skip additional data */
++	add	%eax, %esp
++
++	/* load syscall-# */
++	pop	%eax
++
++	/* load syscall params */
+ 	pop	%ebx
+ 	pop	%ecx
+ 	pop	%edx
+ 	pop	%esi
+  	pop	%edi
+ 	pop	%ebp
++
++	/* execute syscall */
+ 	int	$0x80
++
++	/* check return value */
++	pop	%ebx
++	cmp	%ebx, %eax
++	je	again
++
++done:
++	/* save return value */
+ 	mov	%eax, UML_CONFIG_STUB_DATA
+-	jmp	again
+-done:	int3
++
++	/* stop */
++	int3
+Index: test/arch/um/sys-x86_64/stub.S
+===================================================================
+--- test.orig/arch/um/sys-x86_64/stub.S	2005-09-01 16:32:51.000000000 -0400
++++ test/arch/um/sys-x86_64/stub.S	2005-09-01 16:33:07.000000000 -0400
+@@ -16,21 +16,51 @@
+ 
+ 	.globl batch_syscall_stub
+ batch_syscall_stub:
+-	movq	$(UML_CONFIG_STUB_DATA >> 32), %rbx
+-	salq	$32, %rbx
+-	movq	$(UML_CONFIG_STUB_DATA & 0xffffffff), %rcx
+-	or	%rcx, %rbx
+-	movq	%rbx, %rsp
+-again:	pop	%rax
+-	cmpq	$0, %rax
+-jz	done
++	mov	$(UML_CONFIG_STUB_DATA >> 32), %rbx
++	sal	$32, %rbx
++	mov	$(UML_CONFIG_STUB_DATA & 0xffffffff), %rax
++	or	%rax, %rbx
++	/* load pointer to first operation */
++	mov	%rbx, %rsp
++	add	$0x10, %rsp
++again:
++	/* load length of additional data */
++	mov	0x0(%rsp), %rax
++	
++	/* if(length == 0) : end of list */
++	/* write possible 0 to header */
++	mov	%rax, 8(%rbx)
++	cmp	$0, %rax
++	jz	done
++
++	/* save current pointer */
++	mov	%rsp, 8(%rbx)
++
++	/* skip additional data */
++	add	%rax, %rsp
++
++	/* load syscall-# */
++	pop	%rax
++
++	/* load syscall params */
+ 	pop	%rdi
+ 	pop	%rsi
+ 	pop	%rdx
+ 	pop	%r10
+  	pop	%r8
+ 	pop	%r9
++
++	/* execute syscall */
+ 	syscall
++
++	/* check return value */
++	pop	%rcx
++	cmp	%rcx, %rax
++	je	again
++
++done:
++	/* save return value */
+ 	mov	%rax, (%rbx)
+-	jmp	again
+-done:	int3
++
++	/* stop */
++	int3
 
-The bug occurs with all sysctl settings at their default values. I've 
-tried enabling and disabling pretty much all the tcp-related sysctl's in 
-/proc/sys/net/ipv4, to no visible improvement.
-
-Here are a few tcpdump snippets of a TCP connection exhibiting the bug 
-(the complete tcpdump is available upon request, but it's very large). 
-10.2.20.246 is the data receiver and is the box exhibiting the bug (I'm 
-not sure what 10.2.224.182 is running, I don't have access to it). The 
-data being sent through is real-time financial data; the session begins by 
-catching up (at line speed) to present time, then continues to receive 
-real-time data as it is being generated. For what it's worth, we've never 
-been seen the bug occur while the session is still catching up (and 
-receiving a few large packets at a time); it always seems to happen while 
-receiving real-time data (many small packets, variably interspaced).
-
-[I apologize for the amount of tcpdump data, but it's the only way to show 
-the bug in action.]
-
-11:29:54.961998 10.2.20.246.33060 > 10.2.224.182.8700: S 1972343059:1972343059(0) win 5840 <mss 1460,sackOK,timestamp 225781001 0,nop,wscale 2> (DF)
-11:29:54.983334 10.2.224.182.8700 > 10.2.20.246.33060: S 2770690746:2770690746(0) ack 1972343060 win 33304 <nop,nop,timestamp 99687881 225781001,mss 1460,nop,wscale 1,nop,nop,sackOK> (DF)
-11:29:54.983377 10.2.20.246.33060 > 10.2.224.182.8700: . ack 1 win 1460 <nop,nop,timestamp 225781022 99687881> (DF)
-11:29:54.988541 10.2.20.246.33060 > 10.2.224.182.8700: P 1:36(35) ack 1 win 1460 <nop,nop,timestamp 225781027 99687881> (DF)
-11:29:55.009013 10.2.224.182.8700 > 10.2.20.246.33060: . ack 36 win 33304 <nop,nop,timestamp 99687884 225781027> (DF)
-11:29:55.009014 10.2.224.182.8700 > 10.2.20.246.33060: P 1:11(10) ack 36 win 33304 <nop,nop,timestamp 99687884 225781027> (DF)
-11:29:55.009035 10.2.20.246.33060 > 10.2.224.182.8700: . ack 11 win 1460 <nop,nop,timestamp 225781048 99687884> (DF)
-11:29:55.177838 10.2.224.182.8700 > 10.2.20.246.33060: P 11:1087(1076) ack 36 win 33304 <nop,nop,timestamp 99687900 225781048> (DF)
-11:29:55.177869 10.2.20.246.33060 > 10.2.224.182.8700: . ack 1087 win 1998 <nop,nop,timestamp 225781217 99687900> (DF)
-11:29:55.180946 10.2.224.182.8700 > 10.2.20.246.33060: P 1087:2195(1108) ack 36 win 33304 <nop,nop,timestamp 99687900 225781048> (DF)
-11:29:55.180972 10.2.20.246.33060 > 10.2.224.182.8700: . ack 2195 win 2552 <nop,nop,timestamp 225781220 99687900> (DF)
-11:29:55.181214 10.2.224.182.8700 > 10.2.20.246.33060: P 2195:3299(1104) ack 36 win 33304 <nop,nop,timestamp 99687900 225781048> (DF)
-11:29:55.181224 10.2.20.246.33060 > 10.2.224.182.8700: . ack 3299 win 3106 <nop,nop,timestamp 225781220 99687900> (DF)
-11:29:55.184055 10.2.224.182.8700 > 10.2.20.246.33060: P 3299:4395(1096) ack 36 win 33304 <nop,nop,timestamp 99687900 225781048> (DF)
-11:29:55.184077 10.2.20.246.33060 > 10.2.224.182.8700: . ack 4395 win 3660 <nop,nop,timestamp 225781223 99687900> (DF)
-11:29:55.187027 10.2.224.182.8700 > 10.2.20.246.33060: P 4395:5475(1080) ack 36 win 33304 <nop,nop,timestamp 99687900 225781048> (DF)
-11:29:55.187041 10.2.20.246.33060 > 10.2.224.182.8700: . ack 5475 win 4214 <nop,nop,timestamp 225781226 99687900> (DF)
-11:29:55.201220 10.2.224.182.8700 > 10.2.20.246.33060: . 5475:6567(1092) ack 36 win 33304 <nop,nop,timestamp 99687902 225781217> (DF)
-11:29:55.201241 10.2.20.246.33060 > 10.2.224.182.8700: . ack 6567 win 4768 <nop,nop,timestamp 225781240 99687902> (DF)
-11:29:55.204192 10.2.224.182.8700 > 10.2.20.246.33060: . 6567:7679(1112) ack 36 win 33304 <nop,nop,timestamp 99687902 225781217> (DF)
-11:29:55.204199 10.2.20.246.33060 > 10.2.224.182.8700: . ack 7679 win 5324 <nop,nop,timestamp 225781243 99687902> (DF)
-11:29:55.204597 10.2.224.182.8700 > 10.2.20.246.33060: . 7679:8795(1116) ack 36 win 33304 <nop,nop,timestamp 99687903 225781220> (DF)
-11:29:55.204603 10.2.20.246.33060 > 10.2.224.182.8700: . ack 8795 win 5882 <nop,nop,timestamp 225781243 99687903> (DF)
-11:29:55.207570 10.2.224.182.8700 > 10.2.20.246.33060: . 8795:9903(1108) ack 36 win 33304 <nop,nop,timestamp 99687903 225781220> (DF)
-11:29:55.207576 10.2.20.246.33060 > 10.2.224.182.8700: . ack 9903 win 6440 <nop,nop,timestamp 225781246 99687903> (DF)
-11:29:55.210409 10.2.224.182.8700 > 10.2.20.246.33060: . 9903:11007(1104) ack 36 win 33304 <nop,nop,timestamp 99687903 225781220> (DF)
-11:29:55.210416 10.2.20.246.33060 > 10.2.224.182.8700: . ack 11007 win 6998 <nop,nop,timestamp 225781249 99687903> (DF)
-11:29:55.210814 10.2.224.182.8700 > 10.2.20.246.33060: . 11007:12107(1100) ack 36 win 33304 <nop,nop,timestamp 99687903 225781220> (DF)
-11:29:55.210820 10.2.20.246.33060 > 10.2.224.182.8700: . ack 12107 win 7556 <nop,nop,timestamp 225781250 99687903> (DF)
-11:29:55.213653 10.2.224.182.8700 > 10.2.20.246.33060: . 12107:13195(1088) ack 36 win 33304 <nop,nop,timestamp 99687903 225781223> (DF)
-11:29:55.213661 10.2.20.246.33060 > 10.2.224.182.8700: . ack 13195 win 8114 <nop,nop,timestamp 225781252 99687903> (DF)
-11:29:55.216627 10.2.224.182.8700 > 10.2.20.246.33060: . 13195:14307(1112) ack 36 win 33304 <nop,nop,timestamp 99687903 225781223> (DF)
-11:29:55.216634 10.2.20.246.33060 > 10.2.224.182.8700: . ack 14307 win 8192 <nop,nop,timestamp 225781255 99687903> (DF)
-
-The connection is established and the receiver's TCP window quickly ramps 
-up to 8192.
-
-11:29:55.670998 10.2.20.246.33060 > 10.2.224.182.8700: . ack 254767 win 9862 <nop,nop,timestamp 225781710 99687945> (DF)
-11:29:55.674027 10.2.224.182.8700 > 10.2.20.246.33060: . 254767:255867(1100) ack 36 win 33304 <nop,nop,timestamp 99687945 225781645> (DF)
-11:29:55.674027 10.2.224.182.8700 > 10.2.20.246.33060: . 255867:256943(1076) ack 36 win 33304 <nop,nop,timestamp 99687945 225781645> (DF)
-11:29:55.674035 10.2.20.246.33060 > 10.2.224.182.8700: . ack 256943 win 9862 <nop,nop,timestamp 225781713 99687945> (DF)
-11:29:55.677000 10.2.224.182.8700 > 10.2.20.246.33060: . 256943:258039(1096) ack 36 win 33304 <nop,nop,timestamp 99687945 225781645> (DF)
-11:29:55.677005 10.2.20.246.33060 > 10.2.224.182.8700: . ack 258039 win 10416 <nop,nop,timestamp 225781716 99687945> (DF)
-11:29:55.680109 10.2.224.182.8700 > 10.2.20.246.33060: . 258039:259143(1104) ack 36 win 33304 <nop,nop,timestamp 99687945 225781647> (DF)
-11:29:55.680114 10.2.20.246.33060 > 10.2.224.182.8700: . ack 259143 win 10970 <nop,nop,timestamp 225781719 99687945> (DF)
-11:29:55.680244 10.2.224.182.8700 > 10.2.20.246.33060: . 259143:260251(1108) ack 36 win 33304 <nop,nop,timestamp 99687946 225781648> (DF)
-11:29:55.680249 10.2.20.246.33060 > 10.2.224.182.8700: . ack 260251 win 11524 <nop,nop,timestamp 225781719 99687946> (DF)
-11:29:55.683218 10.2.224.182.8700 > 10.2.20.246.33060: . 260251:261339(1088) ack 36 win 33304 <nop,nop,timestamp 99687946 225781651> (DF)
-11:29:55.683223 10.2.20.246.33060 > 10.2.224.182.8700: . ack 261339 win 12078 <nop,nop,timestamp 225781722 99687946> (DF)
-11:29:55.686192 10.2.224.182.8700 > 10.2.20.246.33060: . 261339:262423(1084) ack 36 win 33304 <nop,nop,timestamp 99687946 225781651> (DF)
-11:29:55.686196 10.2.20.246.33060 > 10.2.224.182.8700: . ack 262423 win 12632 <nop,nop,timestamp 225781725 99687946> (DF)
-11:29:55.686327 10.2.224.182.8700 > 10.2.20.246.33060: . 262423:263527(1104) ack 36 win 33304 <nop,nop,timestamp 99687946 225781654> (DF)
-11:29:55.686332 10.2.20.246.33060 > 10.2.224.182.8700: . ack 263527 win 13186 <nop,nop,timestamp 225781725 99687946> (DF)
-11:29:55.689300 10.2.224.182.8700 > 10.2.20.246.33060: . 263527:264643(1116) ack 36 win 33304 <nop,nop,timestamp 99687947 225781657> (DF)
-11:29:55.689305 10.2.20.246.33060 > 10.2.224.182.8700: . ack 264643 win 13744 <nop,nop,timestamp 225781728 99687947> (DF)
-11:29:55.692409 10.2.224.182.8700 > 10.2.20.246.33060: . 264643:265723(1080) ack 36 win 33304 <nop,nop,timestamp 99687947 225781661> (DF)
-11:29:55.692414 10.2.20.246.33060 > 10.2.224.182.8700: . ack 265723 win 14302 <nop,nop,timestamp 225781731 99687947> (DF)
-11:29:55.692544 10.2.224.182.8700 > 10.2.20.246.33060: . 265723:266827(1104) ack 36 win 33304 <nop,nop,timestamp 99687947 225781661> (DF)
-11:29:55.692550 10.2.20.246.33060 > 10.2.224.182.8700: . ack 266827 win 14860 <nop,nop,timestamp 225781731 99687947> (DF)
-11:29:55.695518 10.2.224.182.8700 > 10.2.20.246.33060: . 266827:267919(1092) ack 36 win 33304 <nop,nop,timestamp 99687947 225781664> (DF)
-11:29:55.695523 10.2.20.246.33060 > 10.2.224.182.8700: . ack 267919 win 15418 <nop,nop,timestamp 225781734 99687947> (DF)
-11:29:55.698627 10.2.224.182.8700 > 10.2.20.246.33060: . 267919:269031(1112) ack 36 win 33304 <nop,nop,timestamp 99687947 225781664> (DF)
-11:29:55.698632 10.2.20.246.33060 > 10.2.224.182.8700: . ack 269031 win 15976 <nop,nop,timestamp 225781738 99687947> (DF)
-11:29:55.698627 10.2.224.182.8700 > 10.2.20.246.33060: . 269031:270135(1104) ack 36 win 33304 <nop,nop,timestamp 99687947 225781667> (DF)
-11:29:55.698637 10.2.20.246.33060 > 10.2.224.182.8700: . ack 270135 win 16534 <nop,nop,timestamp 225781738 99687947> (DF)
-11:29:55.701736 10.2.224.182.8700 > 10.2.20.246.33060: . 270135:271239(1104) ack 36 win 33304 <nop,nop,timestamp 99687948 225781670> (DF)
-11:29:55.704709 10.2.224.182.8700 > 10.2.20.246.33060: . 271239:272339(1100) ack 36 win 33304 <nop,nop,timestamp 99687948 225781670> (DF)
-11:29:55.704715 10.2.20.246.33060 > 10.2.224.182.8700: . ack 272339 win 16534 <nop,nop,timestamp 225781744 99687948> (DF)
-11:29:55.704845 10.2.224.182.8700 > 10.2.20.246.33060: . 272339:273439(1100) ack 36 win 33304 <nop,nop,timestamp 99687948 225781673> (DF)
-11:29:55.707818 10.2.224.182.8700 > 10.2.20.246.33060: . 273439:274527(1088) ack 36 win 33304 <nop,nop,timestamp 99687948 225781676> (DF)
-11:29:55.707823 10.2.20.246.33060 > 10.2.224.182.8700: . ack 274527 win 16534 <nop,nop,timestamp 225781747 99687948> (DF)
-
-Shortly thereafter the TCP window increases further to 16534. It remains 
-around 16534 for the next 5 minutes or so.
-
-11:31:09.326407 10.2.224.182.8700 > 10.2.20.246.33060: . 38665207:38666651(1444) ack 38 win 33304 <nop,nop,timestamp 99695306 225855269> (DF)
-11:31:09.330332 10.2.224.182.8700 > 10.2.20.246.33060: . 38666651:38668063(1412) ack 38 win 33304 <nop,nop,timestamp 99695306 225855272> (DF)
-11:31:09.330348 10.2.20.246.33060 > 10.2.224.182.8700: . ack 38668063 win 16534 <nop,nop,timestamp 225855393 99695306> (DF)
-11:31:09.330461 10.2.224.182.8700 > 10.2.20.246.33060: . 38668063:38669295(1232) ack 38 win 33304 <nop,nop,timestamp 99695306 225855272> (DF)
-11:31:09.333340 10.2.224.182.8700 > 10.2.20.246.33060: . 38669295:38670375(1080) ack 38 win 33304 <nop,nop,timestamp 99695306 225855275> (DF)
-11:31:09.333351 10.2.20.246.33060 > 10.2.224.182.8700: . ack 38670375 win 16534 <nop,nop,timestamp 225855396 99695306> (DF)
-11:31:09.337265 10.2.224.182.8700 > 10.2.20.246.33060: . 38670375:38671807(1432) ack 38 win 33304 <nop,nop,timestamp 99695306 225855275> (DF)
-11:31:09.337395 10.2.224.182.8700 > 10.2.20.246.33060: . 38671807:38672659(852) ack 38 win 33304 <nop,nop,timestamp 99695307 225855281> (DF)
-11:31:09.337401 10.2.20.246.33060 > 10.2.224.182.8700: . ack 38672659 win 16534 <nop,nop,timestamp 225855400 99695306> (DF)
-11:31:09.340011 10.2.224.182.8700 > 10.2.20.246.33060: P 38672659:38673643(984) ack 38 win 33304 <nop,nop,timestamp 99695307 225855281> (DF)
-11:31:09.340796 10.2.224.182.8700 > 10.2.20.246.33060: P 38673643:38673963(320) ack 38 win 33304 <nop,nop,timestamp 99695308 225855287> (DF)
-11:31:09.340925 10.2.224.182.8700 > 10.2.20.246.33060: P 38673963:38674051(88) ack 38 win 33304 <nop,nop,timestamp 99695308 225855287> (DF)
-11:31:09.341056 10.2.224.182.8700 > 10.2.20.246.33060: P 38674051:38674083(32) ack 38 win 33304 <nop,nop,timestamp 99695308 225855287> (DF)
-11:31:09.341318 10.2.224.182.8700 > 10.2.20.246.33060: P 38674083:38674115(32) ack 38 win 33304 <nop,nop,timestamp 99695308 225855287> (DF)
-11:31:09.341324 10.2.20.246.33060 > 10.2.224.182.8700: . ack 38674115 win 16534 <nop,nop,timestamp 225855404 99695307> (DF)
-11:31:09.341449 10.2.224.182.8700 > 10.2.20.246.33060: P 38674115:38674419(304) ack 38 win 33304 <nop,nop,timestamp 99695308 225855287> (DF)
-11:31:09.344196 10.2.224.182.8700 > 10.2.20.246.33060: P 38674419:38675375(956) ack 38 win 33304 <nop,nop,timestamp 99695308 225855287> (DF)
-11:31:09.344327 10.2.224.182.8700 > 10.2.20.246.33060: P 38675375:38675407(32) ack 38 win 33304 <nop,nop,timestamp 99695308 225855287> (DF)
-11:31:09.344328 10.2.224.182.8700 > 10.2.20.246.33060: P 38675407:38675439(32) ack 38 win 33304 <nop,nop,timestamp 99695308 225855287> (DF)
-11:31:09.344719 10.2.224.182.8700 > 10.2.20.246.33060: P 38675439:38675483(44) ack 38 win 33304 <nop,nop,timestamp 99695308 225855287> (DF)
-11:31:09.344981 10.2.224.182.8700 > 10.2.20.246.33060: P 38675483:38675527(44) ack 38 win 33304 <nop,nop,timestamp 99695308 225855287> (DF)
-11:31:09.345243 10.2.224.182.8700 > 10.2.20.246.33060: P 38675527:38676603(1076) ack 38 win 33304 <nop,nop,timestamp 99695308 225855287> (DF)
-11:31:09.345250 10.2.20.246.33060 > 10.2.224.182.8700: . ack 38676603 win 16534 <nop,nop,timestamp 225855408 99695308> (DF)
-
-A few minutes later it has finally caught up to present time and it starts 
-receiving smaller packets containing real-time data. The TCP window is 
-still 16534 at this point.
-
-11:34:54.337155 10.2.224.182.8700 > 10.2.20.246.33060: P 84402363:84402527(164) ack 44 win 33304 <nop,nop,timestamp 99717815 226080422> (DF)
-11:34:54.337167 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84402527 win 15340 <nop,nop,timestamp 226080473 99717814> (DF)
-11:34:54.337485 10.2.224.182.8700 > 10.2.20.246.33060: P 84402527:84402615(88) ack 44 win 33304 <nop,nop,timestamp 99717815 226080422> (DF)
-11:34:54.337982 10.2.224.182.8700 > 10.2.20.246.33060: P 84402615:84402703(88) ack 44 win 33304 <nop,nop,timestamp 99717815 226080422> (DF)
-11:34:54.337983 10.2.224.182.8700 > 10.2.20.246.33060: P 84402703:84402747(44) ack 44 win 33304 <nop,nop,timestamp 99717816 226080422> (DF)
-11:34:54.339639 10.2.224.182.8700 > 10.2.20.246.33060: P 84402747:84403279(532) ack 44 win 33304 <nop,nop,timestamp 99717816 226080422> (DF)
-11:34:54.339645 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84403279 win 15152 <nop,nop,timestamp 226080475 99717815> (DF)
-11:34:54.339804 10.2.224.182.8700 > 10.2.20.246.33060: P 84403279:84403323(44) ack 44 win 33304 <nop,nop,timestamp 99717816 226080422> (DF)
-11:34:54.339969 10.2.224.182.8700 > 10.2.20.246.33060: P 84403323:84403903(580) ack 44 win 33304 <nop,nop,timestamp 99717816 226080422> (DF)
-11:34:54.339974 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84403903 win 14996 <nop,nop,timestamp 226080475 99717816> (DF)
-11:34:54.340798 10.2.224.182.8700 > 10.2.20.246.33060: P 84403903:84404175(272) ack 44 win 33304 <nop,nop,timestamp 99717816 226080422> (DF)
-11:34:54.348421 10.2.224.182.8700 > 10.2.20.246.33060: P 84404175:84404951(776) ack 44 win 33304 <nop,nop,timestamp 99717817 226080422> (DF)
-11:34:54.348900 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84404951 win 14734 <nop,nop,timestamp 226080484 99717816> (DF)
-11:34:54.349743 10.2.224.182.8700 > 10.2.20.246.33060: P 84404951:84405435(484) ack 44 win 33304 <nop,nop,timestamp 99717817 226080422> (DF)
-11:34:54.349744 10.2.224.182.8700 > 10.2.20.246.33060: P 84405435:84405523(88) ack 44 win 33304 <nop,nop,timestamp 99717817 226080422> (DF)
-11:34:54.349908 10.2.224.182.8700 > 10.2.20.246.33060: P 84405523:84405599(76) ack 44 win 33304 <nop,nop,timestamp 99717817 226080422> (DF)
-11:34:54.350240 10.2.224.182.8700 > 10.2.20.246.33060: P 84405599:84405643(44) ack 44 win 33304 <nop,nop,timestamp 99717817 226080422> (DF)
-11:34:54.350405 10.2.224.182.8700 > 10.2.20.246.33060: P 84405643:84405995(352) ack 44 win 33304 <nop,nop,timestamp 99717817 226080422> (DF)
-11:34:54.351324 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84405995 win 14473 <nop,nop,timestamp 226080487 99717817> (DF)
-11:34:54.357033 10.2.224.182.8700 > 10.2.20.246.33060: P 84405995:84406471(476) ack 44 win 33304 <nop,nop,timestamp 99717817 226080439> (DF)
-11:34:54.357727 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84406471 win 14354 <nop,nop,timestamp 226080493 99717817> (DF)
-11:34:54.359183 10.2.224.182.8700 > 10.2.20.246.33060: P 84406471:84406911(440) ack 44 win 33304 <nop,nop,timestamp 99717817 226080439> (DF)
-11:34:54.359349 10.2.224.182.8700 > 10.2.20.246.33060: P 84406911:84406955(44) ack 44 win 33304 <nop,nop,timestamp 99717817 226080439> (DF)
-11:34:54.359514 10.2.224.182.8700 > 10.2.20.246.33060: P 84406955:84407043(88) ack 44 win 33304 <nop,nop,timestamp 99717818 226080439> (DF)
-11:34:54.359846 10.2.224.182.8700 > 10.2.20.246.33060: P 84407043:84407087(44) ack 44 win 33304 <nop,nop,timestamp 99717818 226080439> (DF)
-11:34:54.360343 10.2.224.182.8700 > 10.2.20.246.33060: P 84407087:84407263(176) ack 44 win 33304 <nop,nop,timestamp 99717818 226080439> (DF)
-11:34:54.360344 10.2.224.182.8700 > 10.2.20.246.33060: P 84407263:84407307(44) ack 44 win 33304 <nop,nop,timestamp 99717818 226080439> (DF)
-11:34:54.360509 10.2.224.182.8700 > 10.2.20.246.33060: P 84407307:84407351(44) ack 44 win 33304 <nop,nop,timestamp 99717818 226080439> (DF)
-11:34:54.360840 10.2.224.182.8700 > 10.2.20.246.33060: P 84407351:84407395(44) ack 44 win 33304 <nop,nop,timestamp 99717818 226080439> (DF)
-11:34:54.364983 10.2.224.182.8700 > 10.2.20.246.33060: P 84407395:84407603(208) ack 44 win 33304 <nop,nop,timestamp 99717818 226080439> (DF)
-11:34:54.367898 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84407603 win 14071 <nop,nop,timestamp 226080503 99717817> (DF)
-11:34:54.367962 10.2.224.182.8700 > 10.2.20.246.33060: P 84407603:84408091(488) ack 44 win 33304 <nop,nop,timestamp 99717818 226080446> (DF)
-11:34:54.368046 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84408091 win 13949 <nop,nop,timestamp 226080503 99717818> (DF)
-11:34:54.369453 10.2.224.182.8700 > 10.2.20.246.33060: P 84408091:84408607(516) ack 44 win 33304 <nop,nop,timestamp 99717818 226080446> (DF)
-11:34:54.369454 10.2.224.182.8700 > 10.2.20.246.33060: P 84408607:84408651(44) ack 44 win 33304 <nop,nop,timestamp 99717818 226080446> (DF)
-11:34:54.369504 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84408651 win 13809 <nop,nop,timestamp 226080505 99717818> (DF)
-11:34:54.371275 10.2.224.182.8700 > 10.2.20.246.33060: P 84408651:84409223(572) ack 44 win 33304 <nop,nop,timestamp 99717819 226080446> (DF)
-11:34:54.371295 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84409223 win 13666 <nop,nop,timestamp 226080507 99717819> (DF)
-11:34:54.371771 10.2.224.182.8700 > 10.2.20.246.33060: P 84409223:84409375(152) ack 44 win 33304 <nop,nop,timestamp 99717819 226080454> (DF)
-11:34:54.371772 10.2.224.182.8700 > 10.2.20.246.33060: P 84409375:84409439(64) ack 44 win 33304 <nop,nop,timestamp 99717819 226080454> (DF)
-11:34:54.371790 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84409439 win 13612 <nop,nop,timestamp 226080507 99717819> (DF)
-11:34:54.372268 10.2.224.182.8700 > 10.2.20.246.33060: P 84409439:84409471(32) ack 44 win 33304 <nop,nop,timestamp 99717819 226080454> (DF)
-11:34:54.372282 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84409471 win 13604 <nop,nop,timestamp 226080508 99717819> (DF)
-11:34:54.374090 10.2.224.182.8700 > 10.2.20.246.33060: P 84409471:84409515(44) ack 44 win 33304 <nop,nop,timestamp 99717819 226080454> (DF)
-11:34:54.374108 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84409515 win 13593 <nop,nop,timestamp 226080510 99717819> (DF)
-11:34:54.378071 10.2.224.182.8700 > 10.2.20.246.33060: P 84409515:84409967(452) ack 44 win 33304 <nop,nop,timestamp 99717819 226080454> (DF)
-11:34:54.378124 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84409967 win 13480 <nop,nop,timestamp 226080514 99717819> (DF)
-11:34:54.378231 10.2.224.182.8700 > 10.2.20.246.33060: P 84409967:84410011(44) ack 44 win 33304 <nop,nop,timestamp 99717819 226080454> (DF)
-11:34:54.378382 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84410011 win 13469 <nop,nop,timestamp 226080514 99717819> (DF)
-11:34:54.380218 10.2.224.182.8700 > 10.2.20.246.33060: P 84410011:84410379(368) ack 44 win 33304 <nop,nop,timestamp 99717819 226080454> (DF)
-11:34:54.380256 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84410379 win 13377 <nop,nop,timestamp 226080516 99717819> (DF)
-11:34:54.384362 10.2.224.182.8700 > 10.2.20.246.33060: P 84410379:84411175(796) ack 44 win 33304 <nop,nop,timestamp 99717819 226080454> (DF)
-11:34:54.384364 10.2.224.182.8700 > 10.2.20.246.33060: P 84411175:84411207(32) ack 44 win 33304 <nop,nop,timestamp 99717819 226080454> (DF)
-11:34:54.384419 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84411207 win 13170 <nop,nop,timestamp 226080520 99717819> (DF)
-11:34:54.385353 10.2.224.182.8700 > 10.2.20.246.33060: P 84411207:84411519(312) ack 44 win 33304 <nop,nop,timestamp 99717819 226080454> (DF)
-11:34:54.385368 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84411519 win 13092 <nop,nop,timestamp 226080521 99717819> (DF)
-11:34:54.387341 10.2.224.182.8700 > 10.2.20.246.33060: P 84411519:84412191(672) ack 44 win 33304 <nop,nop,timestamp 99717819 226080456> (DF)
-11:34:54.387342 10.2.224.182.8700 > 10.2.20.246.33060: P 84412191:84412483(292) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.387422 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84412483 win 12851 <nop,nop,timestamp 226080523 99717819> (DF)
-11:34:54.387671 10.2.224.182.8700 > 10.2.20.246.33060: P 84412483:84412591(108) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.387690 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84412591 win 12824 <nop,nop,timestamp 226080523 99717820> (DF)
-11:34:54.388168 10.2.224.182.8700 > 10.2.20.246.33060: P 84412591:84412679(88) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.388169 10.2.224.182.8700 > 10.2.20.246.33060: P 84412679:84412711(32) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.388186 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84412711 win 12794 <nop,nop,timestamp 226080524 99717820> (DF)
-11:34:54.388831 10.2.224.182.8700 > 10.2.20.246.33060: P 84412711:84412883(172) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.388847 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84412883 win 12751 <nop,nop,timestamp 226080524 99717820> (DF)
-11:34:54.389990 10.2.224.182.8700 > 10.2.20.246.33060: P 84412883:84413271(388) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.389991 10.2.224.182.8700 > 10.2.20.246.33060: P 84413271:84413303(32) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.390010 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84413303 win 12646 <nop,nop,timestamp 226080525 99717820> (DF)
-11:34:54.390819 10.2.224.182.8700 > 10.2.20.246.33060: P 84413303:84413527(224) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.390834 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84413527 win 12590 <nop,nop,timestamp 226080526 99717820> (DF)
-11:34:54.391150 10.2.224.182.8700 > 10.2.20.246.33060: P 84413527:84413559(32) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.391151 10.2.224.182.8700 > 10.2.20.246.33060: P 84413559:84413591(32) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.391169 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84413591 win 12574 <nop,nop,timestamp 226080527 99717820> (DF)
-11:34:54.391647 10.2.224.182.8700 > 10.2.20.246.33060: P 84413591:84413719(128) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.391660 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84413719 win 12542 <nop,nop,timestamp 226080527 99717820> (DF)
-11:34:54.391978 10.2.224.182.8700 > 10.2.20.246.33060: P 84413719:84413783(64) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.391979 10.2.224.182.8700 > 10.2.20.246.33060: P 84413783:84413815(32) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.391997 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84413815 win 12518 <nop,nop,timestamp 226080527 99717820> (DF)
-11:34:54.392309 10.2.224.182.8700 > 10.2.20.246.33060: P 84413815:84413847(32) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.392322 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84413847 win 12510 <nop,nop,timestamp 226080528 99717820> (DF)
-11:34:54.392475 10.2.224.182.8700 > 10.2.20.246.33060: P 84413847:84413879(32) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.392488 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84413879 win 12502 <nop,nop,timestamp 226080528 99717820> (DF)
-11:34:54.394795 10.2.224.182.8700 > 10.2.20.246.33060: P 84413879:84414331(452) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.394829 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84414331 win 12389 <nop,nop,timestamp 226080530 99717820> (DF)
-11:34:54.395456 10.2.224.182.8700 > 10.2.20.246.33060: P 84414331:84414547(216) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.395457 10.2.224.182.8700 > 10.2.20.246.33060: P 84414547:84414591(44) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.395475 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84414591 win 12324 <nop,nop,timestamp 226080531 99717820> (DF)
-11:34:54.395953 10.2.224.182.8700 > 10.2.20.246.33060: P 84414591:84414711(120) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.395966 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84414711 win 12294 <nop,nop,timestamp 226080531 99717820> (DF)
-11:34:54.396284 10.2.224.182.8700 > 10.2.20.246.33060: P 84414711:84414755(44) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.396285 10.2.224.182.8700 > 10.2.20.246.33060: P 84414755:84414787(32) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.396302 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84414787 win 12275 <nop,nop,timestamp 226080532 99717820> (DF)
-11:34:54.396615 10.2.224.182.8700 > 10.2.20.246.33060: P 84414787:84414831(44) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.396628 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84414831 win 12264 <nop,nop,timestamp 226080532 99717820> (DF)
-11:34:54.396947 10.2.224.182.8700 > 10.2.20.246.33060: P 84414831:84414907(76) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.396948 10.2.224.182.8700 > 10.2.20.246.33060: P 84414907:84414951(44) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.396965 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84414951 win 12234 <nop,nop,timestamp 226080532 99717820> (DF)
-11:34:54.397278 10.2.224.182.8700 > 10.2.20.246.33060: P 84414951:84414983(32) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.397292 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84414983 win 12226 <nop,nop,timestamp 226080533 99717820> (DF)
-11:34:54.397609 10.2.224.182.8700 > 10.2.20.246.33060: P 84414983:84415015(32) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.397610 10.2.224.182.8700 > 10.2.20.246.33060: P 84415015:84415059(44) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.397626 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84415059 win 12207 <nop,nop,timestamp 226080533 99717820> (DF)
-11:34:54.397941 10.2.224.182.8700 > 10.2.20.246.33060: P 84415059:84415103(44) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.397953 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84415103 win 12196 <nop,nop,timestamp 226080533 99717820> (DF)
-11:34:54.398271 10.2.224.182.8700 > 10.2.20.246.33060: P 84415103:84415167(64) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.398272 10.2.224.182.8700 > 10.2.20.246.33060: P 84415167:84415427(260) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.398289 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84415427 win 12115 <nop,nop,timestamp 226080534 99717820> (DF)
-11:34:54.398768 10.2.224.182.8700 > 10.2.20.246.33060: P 84415427:84415535(108) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.398782 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84415535 win 12088 <nop,nop,timestamp 226080534 99717820> (DF)
-11:34:54.398934 10.2.224.182.8700 > 10.2.20.246.33060: P 84415535:84415567(32) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.398947 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84415567 win 12080 <nop,nop,timestamp 226080534 99717820> (DF)
-11:34:54.399100 10.2.224.182.8700 > 10.2.20.246.33060: P 84415567:84415599(32) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.399113 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84415599 win 12072 <nop,nop,timestamp 226080535 99717820> (DF)
-11:34:54.399265 10.2.224.182.8700 > 10.2.20.246.33060: P 84415599:84415631(32) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.399279 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84415631 win 12064 <nop,nop,timestamp 226080535 99717820> (DF)
-11:34:54.399597 10.2.224.182.8700 > 10.2.20.246.33060: P 84415631:84415695(64) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.399610 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84415695 win 12048 <nop,nop,timestamp 226080535 99717820> (DF)
-11:34:54.399762 10.2.224.182.8700 > 10.2.20.246.33060: P 84415695:84415727(32) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.399775 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84415727 win 12040 <nop,nop,timestamp 226080535 99717820> (DF)
-11:34:54.400425 10.2.224.182.8700 > 10.2.20.246.33060: P 84415727:84415935(208) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.400446 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84415935 win 11988 <nop,nop,timestamp 226080536 99717820> (DF)
-11:34:54.400757 10.2.224.182.8700 > 10.2.20.246.33060: P 84415935:84415979(44) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.401418 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84415979 win 11977 <nop,nop,timestamp 226080537 99717820> (DF)
-11:34:54.403574 10.2.224.182.8700 > 10.2.20.246.33060: P 84415979:84416107(128) ack 44 win 33304 <nop,nop,timestamp 99717820 226080456> (DF)
-11:34:54.403604 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84416107 win 11945 <nop,nop,timestamp 226080539 99717820> (DF)
-11:34:54.404401 10.2.224.182.8700 > 10.2.20.246.33060: P 84416107:84416267(160) ack 44 win 33304 <nop,nop,timestamp 99717821 226080456> (DF)
-11:34:54.404415 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84416267 win 11905 <nop,nop,timestamp 226080540 99717821> (DF)
-11:34:54.404732 10.2.224.182.8700 > 10.2.20.246.33060: P 84416267:84416311(44) ack 44 win 33304 <nop,nop,timestamp 99717821 226080456> (DF)
-11:34:54.404732 10.2.224.182.8700 > 10.2.20.246.33060: P 84416311:84416343(32) ack 44 win 33304 <nop,nop,timestamp 99717821 226080456> (DF)
-11:34:54.404750 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84416343 win 11886 <nop,nop,timestamp 226080540 99717821> (DF)
-11:34:54.405228 10.2.224.182.8700 > 10.2.20.246.33060: P 84416343:84416439(96) ack 44 win 33304 <nop,nop,timestamp 99717821 226080456> (DF)
-11:34:54.405244 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84416439 win 11862 <nop,nop,timestamp 226080541 99717821> (DF)
-11:34:54.405394 10.2.224.182.8700 > 10.2.20.246.33060: P 84416439:84416471(32) ack 44 win 33304 <nop,nop,timestamp 99717821 226080456> (DF)
-11:34:54.405407 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84416471 win 11854 <nop,nop,timestamp 226080541 99717821> (DF)
-11:34:54.405891 10.2.224.182.8700 > 10.2.20.246.33060: P 84416471:84416643(172) ack 44 win 33304 <nop,nop,timestamp 99717821 226080456> (DF)
-11:34:54.405904 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84416643 win 11811 <nop,nop,timestamp 226080541 99717821> (DF)
-11:34:54.406222 10.2.224.182.8700 > 10.2.20.246.33060: P 84416643:84416707(64) ack 44 win 33304 <nop,nop,timestamp 99717821 226080456> (DF)
-11:34:54.406223 10.2.224.182.8700 > 10.2.20.246.33060: P 84416707:84416739(32) ack 44 win 33304 <nop,nop,timestamp 99717821 226080456> (DF)
-11:34:54.406240 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84416739 win 11787 <nop,nop,timestamp 226080542 99717821> (DF)
-11:34:54.406553 10.2.224.182.8700 > 10.2.20.246.33060: P 84416739:84416771(32) ack 44 win 33304 <nop,nop,timestamp 99717821 226080456> (DF)
-11:34:54.406568 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84416771 win 11779 <nop,nop,timestamp 226080542 99717821> (DF)
-11:34:54.406719 10.2.224.182.8700 > 10.2.20.246.33060: P 84416771:84416803(32) ack 44 win 33304 <nop,nop,timestamp 99717821 226080456> (DF)
-11:34:54.406732 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84416803 win 11771 <nop,nop,timestamp 226080542 99717821> (DF)
-11:34:54.406884 10.2.224.182.8700 > 10.2.20.246.33060: P 84416803:84416835(32) ack 44 win 33304 <nop,nop,timestamp 99717821 226080456> (DF)
-11:34:54.406898 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84416835 win 11763 <nop,nop,timestamp 226080542 99717821> (DF)
-11:34:54.407050 10.2.224.182.8700 > 10.2.20.246.33060: P 84416835:84416867(32) ack 44 win 33304 <nop,nop,timestamp 99717821 226080456> (DF)
-11:34:54.407062 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84416867 win 11755 <nop,nop,timestamp 226080543 99717821> (DF)
-11:34:54.407381 10.2.224.182.8700 > 10.2.20.246.33060: P 84416867:84416931(64) ack 44 win 33304 <nop,nop,timestamp 99717821 226080456> (DF)
-11:34:54.407394 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84416931 win 11739 <nop,nop,timestamp 226080543 99717821> (DF)
-11:34:54.407547 10.2.224.182.8700 > 10.2.20.246.33060: P 84416931:84416995(64) ack 44 win 33304 <nop,nop,timestamp 99717821 226080456> (DF)
-11:34:54.407560 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84416995 win 11723 <nop,nop,timestamp 226080543 99717821> (DF)
-11:34:54.407878 10.2.224.182.8700 > 10.2.20.246.33060: P 84416995:84417071(76) ack 44 win 33304 <nop,nop,timestamp 99717821 226080456> (DF)
-11:34:54.407891 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84417071 win 11704 <nop,nop,timestamp 226080543 99717821> (DF)
-11:34:54.408209 10.2.224.182.8700 > 10.2.20.246.33060: P 84417071:84417147(76) ack 44 win 33304 <nop,nop,timestamp 99717821 226080456> (DF)
-11:34:54.408223 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84417147 win 11685 <nop,nop,timestamp 226080544 99717821> (DF)
-11:34:54.408375 10.2.224.182.8700 > 10.2.20.246.33060: P 84417147:84417255(108) ack 44 win 33304 <nop,nop,timestamp 99717821 226080456> (DF)
-11:34:54.408388 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84417255 win 11658 <nop,nop,timestamp 226080544 99717821> (DF)
-11:34:54.408706 10.2.224.182.8700 > 10.2.20.246.33060: P 84417255:84417331(76) ack 44 win 33304 <nop,nop,timestamp 99717821 226080456> (DF)
-11:34:54.408719 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84417331 win 11639 <nop,nop,timestamp 226080544 99717821> (DF)
-11:34:54.408872 10.2.224.182.8700 > 10.2.20.246.33060: P 84417331:84417363(32) ack 44 win 33304 <nop,nop,timestamp 99717821 226080456> (DF)
-11:34:54.408885 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84417363 win 11631 <nop,nop,timestamp 226080544 99717821> (DF)
-11:34:54.409369 10.2.224.182.8700 > 10.2.20.246.33060: P 84417363:84417439(76) ack 44 win 33304 <nop,nop,timestamp 99717821 226080456> (DF)
-11:34:54.409383 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84417439 win 11612 <nop,nop,timestamp 226080545 99717821> (DF)
-11:34:54.411192 10.2.224.182.8700 > 10.2.20.246.33060: P 84417439:84417515(76) ack 44 win 33304 <nop,nop,timestamp 99717821 226080456> (DF)
-11:34:54.411210 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84417515 win 11593 <nop,nop,timestamp 226080547 99717821> (DF)
-11:34:54.411357 10.2.224.182.8700 > 10.2.20.246.33060: P 84417515:84417591(76) ack 44 win 33304 <nop,nop,timestamp 99717821 226080456> (DF)
-11:34:54.411371 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84417591 win 11574 <nop,nop,timestamp 226080547 99717821> (DF)
-11:34:54.416661 10.2.224.182.8700 > 10.2.20.246.33060: P 84417591:84418059(468) ack 44 win 33304 <nop,nop,timestamp 99717821 226080456> (DF)
-11:34:54.416754 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84418059 win 11457 <nop,nop,timestamp 226080552 99717821> (DF)
-11:34:54.416987 10.2.224.182.8700 > 10.2.20.246.33060: P 84418059:84418167(108) ack 44 win 33304 <nop,nop,timestamp 99717821 226080456> (DF)
-11:34:54.417018 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84418167 win 11430 <nop,nop,timestamp 226080552 99717821> (DF)
-11:34:54.418148 10.2.224.182.8700 > 10.2.20.246.33060: P 84418167:84418439(272) ack 44 win 33304 <nop,nop,timestamp 99717821 226080456> (DF)
-11:34:54.418187 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84418439 win 11362 <nop,nop,timestamp 226080554 99717821> (DF)
-11:34:54.425439 10.2.224.182.8700 > 10.2.20.246.33060: P 84418439:84419327(888) ack 44 win 33304 <nop,nop,timestamp 99717822 226080456> (DF)
-11:34:54.425503 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84419327 win 11140 <nop,nop,timestamp 226080561 99717822> (DF)
-11:34:54.425601 10.2.224.182.8700 > 10.2.20.246.33060: P 84419327:84419391(64) ack 44 win 33304 <nop,nop,timestamp 99717822 226080456> (DF)
-11:34:54.425642 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84419391 win 11124 <nop,nop,timestamp 226080561 99717822> (DF)
-11:34:54.425932 10.2.224.182.8700 > 10.2.20.246.33060: P 84419391:84419575(184) ack 44 win 33304 <nop,nop,timestamp 99717822 226080456> (DF)
-11:34:54.425946 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84419575 win 11078 <nop,nop,timestamp 226080561 99717822> (DF)
-11:34:54.426263 10.2.224.182.8700 > 10.2.20.246.33060: P 84419575:84419639(64) ack 44 win 33304 <nop,nop,timestamp 99717822 226080456> (DF)
-11:34:54.426264 10.2.224.182.8700 > 10.2.20.246.33060: P 84419639:84419671(32) ack 44 win 33304 <nop,nop,timestamp 99717822 226080456> (DF)
-11:34:54.426287 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84419671 win 11054 <nop,nop,timestamp 226080562 99717822> (DF)
-11:34:54.426594 10.2.224.182.8700 > 10.2.20.246.33060: P 84419671:84419715(44) ack 44 win 33304 <nop,nop,timestamp 99717822 226080456> (DF)
-11:34:54.426607 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84419715 win 11043 <nop,nop,timestamp 226080562 99717822> (DF)
-11:34:54.426926 10.2.224.182.8700 > 10.2.20.246.33060: P 84419715:84419759(44) ack 44 win 33304 <nop,nop,timestamp 99717822 226080456> (DF)
-11:34:54.426938 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84419759 win 11032 <nop,nop,timestamp 226080562 99717822> (DF)
-11:34:54.427257 10.2.224.182.8700 > 10.2.20.246.33060: P 84419759:84419923(164) ack 44 win 33304 <nop,nop,timestamp 99717822 226080456> (DF)
-11:34:54.427258 10.2.224.182.8700 > 10.2.20.246.33060: P 84419923:84419955(32) ack 44 win 33304 <nop,nop,timestamp 99717822 226080456> (DF)
-11:34:54.427274 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84419955 win 10983 <nop,nop,timestamp 226080563 99717822> (DF)
-11:34:54.429742 10.2.224.182.8700 > 10.2.20.246.33060: P 84419955:84420627(672) ack 44 win 33304 <nop,nop,timestamp 99717822 226080456> (DF)
-11:34:54.429782 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84420627 win 10815 <nop,nop,timestamp 226080565 99717822> (DF)
-11:34:54.430238 10.2.224.182.8700 > 10.2.20.246.33060: P 84420627:84420735(108) ack 44 win 33304 <nop,nop,timestamp 99717822 226080475> (DF)
-11:34:54.430253 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84420735 win 10788 <nop,nop,timestamp 226080566 99717822> (DF)
-11:34:54.434216 10.2.224.182.8700 > 10.2.20.246.33060: P 84420735:84421487(752) ack 44 win 33304 <nop,nop,timestamp 99717822 226080475> (DF)
-11:34:54.434266 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84421487 win 10600 <nop,nop,timestamp 226080570 99717822> (DF)
-11:34:54.434876 10.2.224.182.8700 > 10.2.20.246.33060: P 84421487:84421755(268) ack 44 win 33304 <nop,nop,timestamp 99717823 226080475> (DF)
-11:34:54.434877 10.2.224.182.8700 > 10.2.20.246.33060: P 84421755:84421939(184) ack 44 win 33304 <nop,nop,timestamp 99717823 226080475> (DF)
-11:34:54.434903 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84421939 win 10487 <nop,nop,timestamp 226080570 99717823> (DF)
-11:34:54.435042 10.2.224.182.8700 > 10.2.20.246.33060: P 84421939:84421971(32) ack 44 win 33304 <nop,nop,timestamp 99717823 226080475> (DF)
-11:34:54.435071 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84421971 win 10479 <nop,nop,timestamp 226080571 99717823> (DF)
-11:34:54.435372 10.2.224.182.8700 > 10.2.20.246.33060: P 84421971:84422015(44) ack 44 win 33304 <nop,nop,timestamp 99717823 226080475> (DF)
-11:34:54.435386 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84422015 win 10468 <nop,nop,timestamp 226080571 99717823> (DF)
-11:34:54.438356 10.2.224.182.8700 > 10.2.20.246.33060: P 84422015:84422555(540) ack 44 win 33304 <nop,nop,timestamp 99717823 226080475> (DF)
-11:34:54.438392 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84422555 win 10333 <nop,nop,timestamp 226080574 99717823> (DF)
-11:34:54.438520 10.2.224.182.8700 > 10.2.20.246.33060: P 84422555:84422631(76) ack 44 win 33304 <nop,nop,timestamp 99717823 226080475> (DF)
-11:34:54.438623 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84422631 win 10314 <nop,nop,timestamp 226080574 99717823> (DF)
-11:34:54.438851 10.2.224.182.8700 > 10.2.20.246.33060: P 84422631:84422771(140) ack 44 win 33304 <nop,nop,timestamp 99717823 226080493> (DF)
-11:34:54.438865 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84422771 win 10279 <nop,nop,timestamp 226080574 99717823> (DF)
-11:34:54.441170 10.2.224.182.8700 > 10.2.20.246.33060: P 84422771:84423063(292) ack 44 win 33304 <nop,nop,timestamp 99717824 226080493> (DF)
-11:34:54.441197 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84423063 win 10206 <nop,nop,timestamp 226080577 99717824> (DF)
-11:34:54.441335 10.2.224.182.8700 > 10.2.20.246.33060: P 84423063:84423127(64) ack 44 win 33304 <nop,nop,timestamp 99717824 226080493> (DF)
-11:34:54.441348 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84423127 win 10190 <nop,nop,timestamp 226080577 99717824> (DF)
-11:34:54.441998 10.2.224.182.8700 > 10.2.20.246.33060: P 84423127:84423323(196) ack 44 win 33304 <nop,nop,timestamp 99717824 226080493> (DF)
-11:34:54.442012 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84423323 win 10141 <nop,nop,timestamp 226080577 99717824> (DF)
-11:34:54.442494 10.2.224.182.8700 > 10.2.20.246.33060: P 84423323:84423399(76) ack 44 win 33304 <nop,nop,timestamp 99717824 226080493> (DF)
-11:34:54.442508 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84423399 win 10122 <nop,nop,timestamp 226080578 99717824> (DF)
-11:34:54.442826 10.2.224.182.8700 > 10.2.20.246.33060: P 84423399:84423487(88) ack 44 win 33304 <nop,nop,timestamp 99717824 226080493> (DF)
-11:34:54.442827 10.2.224.182.8700 > 10.2.20.246.33060: P 84423487:84423519(32) ack 44 win 33304 <nop,nop,timestamp 99717824 226080493> (DF)
-11:34:54.442844 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84423519 win 10092 <nop,nop,timestamp 226080578 99717824> (DF)
-11:34:54.443324 10.2.224.182.8700 > 10.2.20.246.33060: P 84423519:84423615(96) ack 44 win 33304 <nop,nop,timestamp 99717824 226080493> (DF)
-11:34:54.443346 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84423615 win 10068 <nop,nop,timestamp 226080579 99717824> (DF)
-11:34:54.443655 10.2.224.182.8700 > 10.2.20.246.33060: P 84423615:84423659(44) ack 44 win 33304 <nop,nop,timestamp 99717824 226080493> (DF)
-11:34:54.443668 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84423659 win 10057 <nop,nop,timestamp 226080579 99717824> (DF)
-11:34:54.443821 10.2.224.182.8700 > 10.2.20.246.33060: P 84423659:84423767(108) ack 44 win 33304 <nop,nop,timestamp 99717824 226080493> (DF)
-11:34:54.443834 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84423767 win 10030 <nop,nop,timestamp 226080579 99717824> (DF)
-11:34:54.444316 10.2.224.182.8700 > 10.2.20.246.33060: P 84423767:84423887(120) ack 44 win 33304 <nop,nop,timestamp 99717824 226080493> (DF)
-11:34:54.444331 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84423887 win 10000 <nop,nop,timestamp 226080580 99717824> (DF)
-11:34:54.444482 10.2.224.182.8700 > 10.2.20.246.33060: P 84423887:84423963(76) ack 44 win 33304 <nop,nop,timestamp 99717824 226080493> (DF)
-11:34:54.444495 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84423963 win 9981 <nop,nop,timestamp 226080580 99717824> (DF)
-11:34:54.444813 10.2.224.182.8700 > 10.2.20.246.33060: P 84423963:84424071(108) ack 44 win 33304 <nop,nop,timestamp 99717824 226080493> (DF)
-11:34:54.444827 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84424071 win 9954 <nop,nop,timestamp 226080580 99717824> (DF)
-11:34:54.444979 10.2.224.182.8700 > 10.2.20.246.33060: P 84424071:84424103(32) ack 44 win 33304 <nop,nop,timestamp 99717824 226080493> (DF)
-11:34:54.444992 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84424103 win 9946 <nop,nop,timestamp 226080580 99717824> (DF)
-11:34:54.445973 10.2.224.182.8700 > 10.2.20.246.33060: P 84424103:84424387(284) ack 44 win 33304 <nop,nop,timestamp 99717824 226080510> (DF)
-11:34:54.445987 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84424387 win 9875 <nop,nop,timestamp 226080581 99717824> (DF)
-11:34:54.457736 10.2.224.182.8700 > 10.2.20.246.33060: P 84424387:84425471(1084) ack 44 win 33304 <nop,nop,timestamp 99717825 226080514> (DF)
-11:34:54.457799 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84425471 win 9604 <nop,nop,timestamp 226080593 99717825> (DF)
-11:34:54.458063 10.2.224.182.8700 > 10.2.20.246.33060: P 84425471:84425667(196) ack 44 win 33304 <nop,nop,timestamp 99717825 226080514> (DF)
-11:34:54.458064 10.2.224.182.8700 > 10.2.20.246.33060: P 84425667:84425699(32) ack 44 win 33304 <nop,nop,timestamp 99717825 226080514> (DF)
-11:34:54.458088 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84425699 win 9547 <nop,nop,timestamp 226080594 99717825> (DF)
-11:34:54.458561 10.2.224.182.8700 > 10.2.20.246.33060: P 84425699:84425807(108) ack 44 win 33304 <nop,nop,timestamp 99717825 226080514> (DF)
-11:34:54.458575 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84425807 win 9520 <nop,nop,timestamp 226080594 99717825> (DF)
-11:34:54.458892 10.2.224.182.8700 > 10.2.20.246.33060: P 84425807:84425895(88) ack 44 win 33304 <nop,nop,timestamp 99717825 226080514> (DF)
-11:34:54.458892 10.2.224.182.8700 > 10.2.20.246.33060: P 84425895:84425939(44) ack 44 win 33304 <nop,nop,timestamp 99717825 226080514> (DF)
-11:34:54.458909 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84425939 win 9487 <nop,nop,timestamp 226080594 99717825> (DF)
-11:34:54.459224 10.2.224.182.8700 > 10.2.20.246.33060: P 84425939:84425971(32) ack 44 win 33304 <nop,nop,timestamp 99717825 226080514> (DF)
-11:34:54.459555 10.2.224.182.8700 > 10.2.20.246.33060: P 84425971:84426003(32) ack 44 win 33304 <nop,nop,timestamp 99717825 226080514> (DF)
-11:34:54.459556 10.2.224.182.8700 > 10.2.20.246.33060: P 84426003:84426079(76) ack 44 win 33304 <nop,nop,timestamp 99717825 226080514> (DF)
-11:34:54.459587 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84426079 win 9452 <nop,nop,timestamp 226080595 99717825> (DF)
-11:34:54.459886 10.2.224.182.8700 > 10.2.20.246.33060: P 84426079:84426143(64) ack 44 win 33304 <nop,nop,timestamp 99717825 226080514> (DF)
-11:34:54.459900 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84426143 win 9436 <nop,nop,timestamp 226080595 99717825> (DF)
-11:34:54.460217 10.2.224.182.8700 > 10.2.20.246.33060: P 84426143:84426175(32) ack 44 win 33304 <nop,nop,timestamp 99717825 226080514> (DF)
-11:34:54.460218 10.2.224.182.8700 > 10.2.20.246.33060: P 84426175:84426251(76) ack 44 win 33304 <nop,nop,timestamp 99717825 226080514> (DF)
-11:34:54.460714 10.2.224.182.8700 > 10.2.20.246.33060: P 84426251:84426359(108) ack 44 win 33304 <nop,nop,timestamp 99717825 226080514> (DF)
-11:34:54.460879 10.2.224.182.8700 > 10.2.20.246.33060: P 84426359:84426403(44) ack 44 win 33304 <nop,nop,timestamp 99717825 226080514> (DF)
-11:34:54.461045 10.2.224.182.8700 > 10.2.20.246.33060: P 84426403:84426435(32) ack 44 win 33304 <nop,nop,timestamp 99717825 226080514> (DF)
-11:34:54.461211 10.2.224.182.8700 > 10.2.20.246.33060: P 84426435:84426479(44) ack 44 win 33304 <nop,nop,timestamp 99717825 226080514> (DF)
-11:34:54.461542 10.2.224.182.8700 > 10.2.20.246.33060: P 84426479:84426523(44) ack 44 win 33304 <nop,nop,timestamp 99717825 226080514> (DF)
-11:34:54.461542 10.2.224.182.8700 > 10.2.20.246.33060: P 84426523:84426555(32) ack 44 win 33304 <nop,nop,timestamp 99717825 226080514> (DF)
-11:34:54.461873 10.2.224.182.8700 > 10.2.20.246.33060: P 84426555:84426599(44) ack 44 win 33304 <nop,nop,timestamp 99717825 226080514> (DF)
-11:34:54.462204 10.2.224.182.8700 > 10.2.20.246.33060: P 84426599:84426631(32) ack 44 win 33304 <nop,nop,timestamp 99717825 226080514> (DF)
-11:34:54.462205 10.2.224.182.8700 > 10.2.20.246.33060: P 84426631:84426707(76) ack 44 win 33304 <nop,nop,timestamp 99717825 226080514> (DF)
-11:34:54.462535 10.2.224.182.8700 > 10.2.20.246.33060: P 84426707:84426751(44) ack 44 win 33304 <nop,nop,timestamp 99717825 226080514> (DF)
-11:34:54.462867 10.2.224.182.8700 > 10.2.20.246.33060: P 84426751:84426827(76) ack 44 win 33304 <nop,nop,timestamp 99717825 226080514> (DF)
-11:34:54.463032 10.2.224.182.8700 > 10.2.20.246.33060: P 84426827:84426967(140) ack 44 win 33304 <nop,nop,timestamp 99717825 226080521> (DF)
-11:34:54.463695 10.2.224.182.8700 > 10.2.20.246.33060: P 84426967:84427163(196) ack 44 win 33304 <nop,nop,timestamp 99717826 226080524> (DF)
-11:34:54.466676 10.2.224.182.8700 > 10.2.20.246.33060: P 84427163:84427731(568) ack 44 win 33304 <nop,nop,timestamp 99717826 226080524> (DF)
-11:34:54.467173 10.2.224.182.8700 > 10.2.20.246.33060: P 84427731:84427883(152) ack 44 win 33304 <nop,nop,timestamp 99717826 226080524> (DF)
-11:34:54.467174 10.2.224.182.8700 > 10.2.20.246.33060: P 84427883:84427947(64) ack 44 win 33304 <nop,nop,timestamp 99717826 226080524> (DF)
-11:34:54.467339 10.2.224.182.8700 > 10.2.20.246.33060: P 84427947:84427991(44) ack 44 win 33304 <nop,nop,timestamp 99717826 226080524> (DF)
-11:34:54.468001 10.2.224.182.8700 > 10.2.20.246.33060: P 84427991:84428123(132) ack 44 win 33304 <nop,nop,timestamp 99717826 226080524> (DF)
-11:34:54.468002 10.2.224.182.8700 > 10.2.20.246.33060: P 84428123:84428199(76) ack 44 win 33304 <nop,nop,timestamp 99717826 226080524> (DF)
-11:34:54.468333 10.2.224.182.8700 > 10.2.20.246.33060: P 84428199:84428243(44) ack 44 win 33304 <nop,nop,timestamp 99717826 226080524> (DF)
-11:34:54.468665 10.2.224.182.8700 > 10.2.20.246.33060: P 84428243:84428287(44) ack 44 win 33304 <nop,nop,timestamp 99717826 226080524> (DF)
-11:34:54.468666 10.2.224.182.8700 > 10.2.20.246.33060: P 84428287:84428471(184) ack 44 win 33304 <nop,nop,timestamp 99717826 226080524> (DF)
-11:34:54.468995 10.2.224.182.8700 > 10.2.20.246.33060: P 84428471:84428515(44) ack 44 win 33304 <nop,nop,timestamp 99717826 226080524> (DF)
-11:34:54.469160 10.2.224.182.8700 > 10.2.20.246.33060: P 84428515:84428559(44) ack 44 win 33304 <nop,nop,timestamp 99717826 226080524> (DF)
-11:34:54.469326 10.2.224.182.8700 > 10.2.20.246.33060: P 84428559:84428603(44) ack 44 win 33304 <nop,nop,timestamp 99717826 226080524> (DF)
-11:34:54.469657 10.2.224.182.8700 > 10.2.20.246.33060: P 84428603:84428647(44) ack 44 win 33304 <nop,nop,timestamp 99717826 226080524> (DF)
-11:34:54.469988 10.2.224.182.8700 > 10.2.20.246.33060: P 84428647:84428723(76) ack 44 win 33304 <nop,nop,timestamp 99717826 226080524> (DF)
-11:34:54.469989 10.2.224.182.8700 > 10.2.20.246.33060: P 84428723:84428799(76) ack 44 win 33304 <nop,nop,timestamp 99717826 226080524> (DF)
-11:34:54.470320 10.2.224.182.8700 > 10.2.20.246.33060: P 84428799:84428843(44) ack 44 win 33304 <nop,nop,timestamp 99717826 226080524> (DF)
-11:34:54.474626 10.2.224.182.8700 > 10.2.20.246.33060: P 84428843:84429847(1004) ack 44 win 33304 <nop,nop,timestamp 99717826 226080524> (DF)
-11:34:54.475123 10.2.224.182.8700 > 10.2.20.246.33060: P 84429847:84430031(184) ack 44 win 33304 <nop,nop,timestamp 99717826 226080527> (DF)
-11:34:54.475124 10.2.224.182.8700 > 10.2.20.246.33060: P 84430031:84430163(132) ack 44 win 33304 <nop,nop,timestamp 99717826 226080527> (DF)
-11:34:54.475951 10.2.224.182.8700 > 10.2.20.246.33060: P 84430163:84430359(196) ack 44 win 33304 <nop,nop,timestamp 99717826 226080527> (DF)
-11:34:54.476448 10.2.224.182.8700 > 10.2.20.246.33060: P 84430359:84430499(140) ack 44 win 33304 <nop,nop,timestamp 99717826 226080527> (DF)
-11:34:54.476449 10.2.224.182.8700 > 10.2.20.246.33060: P 84430499:84430543(44) ack 44 win 33304 <nop,nop,timestamp 99717826 226080527> (DF)
-11:34:54.476614 10.2.224.182.8700 > 10.2.20.246.33060: P 84430543:84430575(32) ack 44 win 33304 <nop,nop,timestamp 99717826 226080527> (DF)
-11:34:54.476945 10.2.224.182.8700 > 10.2.20.246.33060: P 84430575:84430619(44) ack 44 win 33304 <nop,nop,timestamp 99717826 226080527> (DF)
-11:34:54.477111 10.2.224.182.8700 > 10.2.20.246.33060: P 84430619:84430695(76) ack 44 win 33304 <nop,nop,timestamp 99717826 226080527> (DF)
-11:34:54.477277 10.2.224.182.8700 > 10.2.20.246.33060: P 84430695:84430727(32) ack 44 win 33304 <nop,nop,timestamp 99717826 226080527> (DF)
-11:34:54.478601 10.2.224.182.8700 > 10.2.20.246.33060: P 84430727:84431119(392) ack 44 win 33304 <nop,nop,timestamp 99717827 226080527> (DF)
-11:34:54.478601 10.2.224.182.8700 > 10.2.20.246.33060: P 84431119:84431151(32) ack 44 win 33304 <nop,nop,timestamp 99717827 226080527> (DF)
-11:34:54.478767 10.2.224.182.8700 > 10.2.20.246.33060: P 84431151:84431183(32) ack 44 win 33304 <nop,nop,timestamp 99717827 226080527> (DF)
-11:34:54.479099 10.2.224.182.8700 > 10.2.20.246.33060: P 84431183:84431227(44) ack 44 win 33304 <nop,nop,timestamp 99717827 226080527> (DF)
-11:34:54.479099 10.2.224.182.8700 > 10.2.20.246.33060: P 84431227:84431303(76) ack 44 win 33304 <nop,nop,timestamp 99717827 226080527> (DF)
-11:34:54.480092 10.2.224.182.8700 > 10.2.20.246.33060: P 84431303:84431587(284) ack 44 win 33304 <nop,nop,timestamp 99717827 226080527> (DF)
-11:34:54.480755 10.2.224.182.8700 > 10.2.20.246.33060: P 84431587:84431739(152) ack 44 win 33304 <nop,nop,timestamp 99717827 226080527> (DF)
-11:34:54.480756 10.2.224.182.8700 > 10.2.20.246.33060: P 84431739:84431815(76) ack 44 win 33304 <nop,nop,timestamp 99717827 226080527> (DF)
-11:34:54.480921 10.2.224.182.8700 > 10.2.20.246.33060: P 84431815:84431859(44) ack 44 win 33304 <nop,nop,timestamp 99717827 226080527> (DF)
-11:34:54.481251 10.2.224.182.8700 > 10.2.20.246.33060: P 84431859:84431891(32) ack 44 win 33304 <nop,nop,timestamp 99717827 226080527> (DF)
-11:34:54.481417 10.2.224.182.8700 > 10.2.20.246.33060: P 84431891:84432163(272) ack 44 win 33304 <nop,nop,timestamp 99717827 226080527> (DF)
-11:34:54.482576 10.2.224.182.8700 > 10.2.20.246.33060: P 84432163:84432531(368) ack 44 win 33304 <nop,nop,timestamp 99717827 226080537> (DF)
-11:34:54.484398 10.2.224.182.8700 > 10.2.20.246.33060: P 84432531:84433183(652) ack 44 win 33304 <nop,nop,timestamp 99717828 226080540> (DF)
-11:34:54.484564 10.2.224.182.8700 > 10.2.20.246.33060: P 84433183:84433271(88) ack 44 win 33304 <nop,nop,timestamp 99717828 226080540> (DF)
-11:34:54.484564 10.2.224.182.8700 > 10.2.20.246.33060: P 84433271:84433303(32) ack 44 win 33304 <nop,nop,timestamp 99717828 226080540> (DF)
-11:34:54.484895 10.2.224.182.8700 > 10.2.20.246.33060: P 84433303:84433335(32) ack 44 win 33304 <nop,nop,timestamp 99717828 226080540> (DF)
-11:34:54.485061 10.2.224.182.8700 > 10.2.20.246.33060: P 84433335:84433739(404) ack 44 win 33304 <nop,nop,timestamp 99717828 226080540> (DF)
-11:34:54.485392 10.2.224.182.8700 > 10.2.20.246.33060: P 84433739:84433815(76) ack 44 win 33304 <nop,nop,timestamp 99717828 226080540> (DF)
-11:34:54.485723 10.2.224.182.8700 > 10.2.20.246.33060: P 84433815:84433859(44) ack 44 win 33304 <nop,nop,timestamp 99717828 226080540> (DF)
-11:34:54.486718 10.2.224.182.8700 > 10.2.20.246.33060: P 84433859:84434695(836) ack 44 win 33304 <nop,nop,timestamp 99717828 226080540> (DF)
-11:34:54.487214 10.2.224.182.8700 > 10.2.20.246.33060: P 84434695:84434899(204) ack 44 win 33304 <nop,nop,timestamp 99717828 226080554> (DF)
-11:34:54.490198 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84426555 win 9333 <nop,nop,timestamp 226080597 99717825> (DF)
-11:34:54.490200 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84426599 win 9322 <nop,nop,timestamp 226080597 99717825> (DF)
-11:34:54.490202 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84426707 win 9295 <nop,nop,timestamp 226080598 99717825> (DF)
-11:34:54.490203 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84426751 win 9284 <nop,nop,timestamp 226080598 99717825> (DF)
-11:34:54.490362 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84426751 win 9284 <nop,nop,timestamp 226080598 99717825> (DF)
-11:34:54.490363 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84426827 win 9265 <nop,nop,timestamp 226080598 99717825> (DF)
-11:34:54.490365 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84426967 win 9230 <nop,nop,timestamp 226080599 99717825> (DF)
-11:34:54.490527 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84426967 win 9230 <nop,nop,timestamp 226080599 99717825> (DF)
-11:34:54.490529 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84427163 win 9181 <nop,nop,timestamp 226080599 99717826> (DF)
-11:34:54.490692 10.2.224.182.8700 > 10.2.20.246.33060: P 84434899:84435515(616) ack 44 win 33304 <nop,nop,timestamp 99717829 226080554> (DF)
-11:34:54.490858 10.2.224.182.8700 > 10.2.20.246.33060: P 84435515:84435603(88) ack 44 win 33304 <nop,nop,timestamp 99717829 226080554> (DF)
-11:34:54.491354 10.2.224.182.8700 > 10.2.20.246.33060: P 84435603:84435831(228) ack 44 win 33304 <nop,nop,timestamp 99717829 226080554> (DF)
-11:34:54.491686 10.2.224.182.8700 > 10.2.20.246.33060: P 84435831:84435875(44) ack 44 win 33304 <nop,nop,timestamp 99717829 226080554> (DF)
-11:34:54.491852 10.2.224.182.8700 > 10.2.20.246.33060: P 84435875:84436027(152) ack 44 win 33304 <nop,nop,timestamp 99717829 226080554> (DF)
-11:34:54.493181 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84427731 win 9039 <nop,nop,timestamp 226080602 99717826> (DF)
-11:34:54.494833 10.2.224.182.8700 > 10.2.20.246.33060: P 84436027:84436547(520) ack 44 win 33304 <nop,nop,timestamp 99717829 226080563> (DF)
-11:34:54.494999 10.2.224.182.8700 > 10.2.20.246.33060: P 84436547:84436591(44) ack 44 win 33304 <nop,nop,timestamp 99717829 226080563> (DF)
-11:34:54.495996 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84427947 win 8985 <nop,nop,timestamp 226080603 99717826> (DF)
-11:34:54.496159 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84427947 win 8985 <nop,nop,timestamp 226080603 99717826> (DF)
-11:34:54.496161 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84427991 win 8974 <nop,nop,timestamp 226080603 99717826> (DF)
-11:34:54.496163 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84428199 win 8922 <nop,nop,timestamp 226080603 99717826> (DF)
-11:34:54.496325 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84428199 win 8922 <nop,nop,timestamp 226080603 99717826> (DF)
-11:34:54.496327 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84428243 win 8911 <nop,nop,timestamp 226080604 99717826> (DF)
-11:34:54.496329 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84428471 win 8854 <nop,nop,timestamp 226080604 99717826> (DF)
-11:34:54.496330 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84428515 win 8843 <nop,nop,timestamp 226080604 99717826> (DF)
-11:34:54.496332 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84428559 win 8832 <nop,nop,timestamp 226080605 99717826> (DF)
-11:34:54.496334 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84428603 win 8821 <nop,nop,timestamp 226080605 99717826> (DF)
-11:34:54.496490 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84428603 win 8821 <nop,nop,timestamp 226080605 99717826> (DF)
-11:34:54.497317 10.2.224.182.8700 > 10.2.20.246.33060: P 84436591:84437347(756) ack 44 win 33304 <nop,nop,timestamp 99717830 226080563> (DF)
-11:34:54.498974 10.2.224.182.8700 > 10.2.20.246.33060: P 84437347:84437927(580) ack 44 win 33304 <nop,nop,timestamp 99717830 226080563> (DF)
-11:34:54.499308 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84428647 win 8810 <nop,nop,timestamp 226080605 99717826> (DF)
-11:34:54.499310 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84428799 win 8772 <nop,nop,timestamp 226080605 99717826> (DF)
-11:34:54.499312 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84428843 win 8761 <nop,nop,timestamp 226080606 99717826> (DF)
-11:34:54.500630 10.2.224.182.8700 > 10.2.20.246.33060: P 84437927:84438639(712) ack 44 win 33304 <nop,nop,timestamp 99717831 226080574> (DF)
-11:34:54.500631 10.2.224.182.8700 > 10.2.20.246.33060: P 84438639:84438683(44) ack 44 win 33304 <nop,nop,timestamp 99717831 226080574> (DF)
-11:34:54.500796 10.2.224.182.8700 > 10.2.20.246.33060: P 84438683:84438727(44) ack 44 win 33304 <nop,nop,timestamp 99717831 226080574> (DF)
-11:34:54.501458 10.2.224.182.8700 > 10.2.20.246.33060: P 84438727:84438847(120) ack 44 win 33304 <nop,nop,timestamp 99717831 226080574> (DF)
-11:34:54.501790 10.2.224.182.8700 > 10.2.20.246.33060: P 84438847:84438955(108) ack 44 win 33304 <nop,nop,timestamp 99717831 226080574> (DF)
-11:34:54.501955 10.2.224.182.8700 > 10.2.20.246.33060: P 84438955:84439063(108) ack 44 win 33304 <nop,nop,timestamp 99717831 226080574> (DF)
-11:34:54.502124 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84429847 win 8510 <nop,nop,timestamp 226080610 99717826> (DF)
-11:34:54.502618 10.2.224.182.8700 > 10.2.20.246.33060: P 84439063:84439247(184) ack 44 win 33304 <nop,nop,timestamp 99717832 226080581> (DF)
-11:34:54.502784 10.2.224.182.8700 > 10.2.20.246.33060: P 84439247:84439343(96) ack 44 win 33304 <nop,nop,timestamp 99717832 226080581> (DF)
-11:34:54.502949 10.2.224.182.8700 > 10.2.20.246.33060: P 84439343:84439419(76) ack 44 win 33304 <nop,nop,timestamp 99717832 226080581> (DF)
-11:34:54.503445 10.2.224.182.8700 > 10.2.20.246.33060: P 84439419:84439527(108) ack 44 win 33304 <nop,nop,timestamp 99717832 226080581> (DF)
-11:34:54.503611 10.2.224.182.8700 > 10.2.20.246.33060: P 84439527:84439591(64) ack 44 win 33304 <nop,nop,timestamp 99717832 226080581> (DF)
-11:34:54.504609 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84430163 win 8431 <nop,nop,timestamp 226080611 99717826> (DF)
-11:34:54.504611 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84430359 win 8382 <nop,nop,timestamp 226080611 99717826> (DF)
-11:34:54.504613 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84430543 win 8336 <nop,nop,timestamp 226080612 99717826> (DF)
-11:34:54.504772 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84430543 win 8336 <nop,nop,timestamp 226080612 99717826> (DF)
-11:34:54.504774 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84430575 win 8328 <nop,nop,timestamp 226080612 99717826> (DF)
-11:34:54.504776 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84430619 win 8317 <nop,nop,timestamp 226080612 99717826> (DF)
-11:34:54.504771 10.2.224.182.8700 > 10.2.20.246.33060: P 84439591:84439903(312) ack 44 win 33304 <nop,nop,timestamp 99717832 226080581> (DF)
-11:34:54.504938 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84430619 win 8317 <nop,nop,timestamp 226080612 99717826> (DF)
-11:34:54.504940 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84430695 win 8298 <nop,nop,timestamp 226080613 99717826> (DF)
-11:34:54.504942 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84430727 win 8290 <nop,nop,timestamp 226080613 99717826> (DF)
-11:34:54.506592 10.2.224.182.8700 > 10.2.20.246.33060: P 84439903:84440295(392) ack 44 win 33304 <nop,nop,timestamp 99717833 226080581> (DF)
-11:34:54.506758 10.2.224.182.8700 > 10.2.20.246.33060: P 84440295:84440371(76) ack 44 win 33304 <nop,nop,timestamp 99717833 226080581> (DF)
-11:34:54.506759 10.2.224.182.8700 > 10.2.20.246.33060: P 84440371:84440403(32) ack 44 win 33304 <nop,nop,timestamp 99717833 226080581> (DF)
-11:34:54.507090 10.2.224.182.8700 > 10.2.20.246.33060: P 84440403:84440447(44) ack 44 win 33304 <nop,nop,timestamp 99717833 226080581> (DF)
-11:34:54.507421 10.2.224.182.8700 > 10.2.20.246.33060: P 84440447:84440479(32) ack 44 win 33304 <nop,nop,timestamp 99717833 226080581> (DF)
-11:34:54.507591 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84431151 win 8184 <nop,nop,timestamp 226080614 99717827> (DF)
-11:34:54.507594 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84431183 win 8176 <nop,nop,timestamp 226080614 99717827> (DF)
-11:34:54.507753 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84431183 win 8176 <nop,nop,timestamp 226080614 99717827> (DF)
-11:34:54.507754 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84431303 win 8146 <nop,nop,timestamp 226080615 99717827> (DF)
-11:34:54.507756 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84431587 win 8075 <nop,nop,timestamp 226080616 99717827> (DF)
-11:34:54.507921 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84431587 win 8075 <nop,nop,timestamp 226080616 99717827> (DF)
-11:34:54.507918 10.2.224.182.8700 > 10.2.20.246.33060: P 84440479:84440719(240) ack 44 win 33304 <nop,nop,timestamp 99717833 226080581> (DF)
-11:34:54.508249 10.2.224.182.8700 > 10.2.20.246.33060: P 84440719:84440763(44) ack 44 win 33304 <nop,nop,timestamp 99717833 226080581> (DF)
-11:34:54.508250 10.2.224.182.8700 > 10.2.20.246.33060: P 84440763:84440839(76) ack 44 win 33304 <nop,nop,timestamp 99717833 226080581> (DF)
-11:34:54.508580 10.2.224.182.8700 > 10.2.20.246.33060: P 84440839:84440883(44) ack 44 win 33304 <nop,nop,timestamp 99717833 226080581> (DF)
-11:34:54.509077 10.2.224.182.8700 > 10.2.20.246.33060: P 84440883:84440971(88) ack 44 win 33304 <nop,nop,timestamp 99717833 226080581> (DF)
-11:34:54.509077 10.2.224.182.8700 > 10.2.20.246.33060: P 84440971:84441059(88) ack 44 win 33304 <nop,nop,timestamp 99717833 226080581> (DF)
-11:34:54.509739 10.2.224.182.8700 > 10.2.20.246.33060: P 84441059:84441267(208) ack 44 win 33304 <nop,nop,timestamp 99717834 226080595> (DF)
-11:34:54.510242 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84431815 win 8018 <nop,nop,timestamp 226080616 99717827> (DF)
-11:34:54.510237 10.2.224.182.8700 > 10.2.20.246.33060: P 84441267:84441387(120) ack 44 win 33304 <nop,nop,timestamp 99717834 226080595> (DF)
-11:34:54.510404 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84431815 win 8018 <nop,nop,timestamp 226080616 99717827> (DF)
-11:34:54.510406 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84431859 win 8007 <nop,nop,timestamp 226080616 99717827> (DF)
-11:34:54.510408 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84431891 win 7999 <nop,nop,timestamp 226080617 99717827> (DF)
-11:34:54.510409 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84432163 win 7931 <nop,nop,timestamp 226080617 99717827> (DF)
-11:34:54.510411 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84432531 win 7839 <nop,nop,timestamp 226080618 99717827> (DF)
-11:34:54.511230 10.2.224.182.8700 > 10.2.20.246.33060: P 84441387:84441615(228) ack 44 win 33304 <nop,nop,timestamp 99717834 226080595> (DF)
-11:34:54.512389 10.2.224.182.8700 > 10.2.20.246.33060: P 84441615:84441659(44) ack 44 win 33304 <nop,nop,timestamp 99717834 226080595> (DF)
-11:34:54.512886 10.2.224.182.8700 > 10.2.20.246.33060: P 84441659:84441791(132) ack 44 win 33304 <nop,nop,timestamp 99717834 226080595> (DF)
-11:34:54.513059 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84433183 win 7676 <nop,nop,timestamp 226080620 99717828> (DF)
-11:34:54.513218 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84433183 win 7676 <nop,nop,timestamp 226080620 99717828> (DF)
-11:34:54.513220 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84433303 win 7646 <nop,nop,timestamp 226080620 99717828> (DF)
-11:34:54.513222 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84433335 win 7638 <nop,nop,timestamp 226080620 99717828> (DF)
-11:34:54.513224 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84433739 win 7537 <nop,nop,timestamp 226080621 99717828> (DF)
-11:34:54.513385 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84433739 win 7537 <nop,nop,timestamp 226080621 99717828> (DF)
-11:34:54.513387 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84433815 win 7518 <nop,nop,timestamp 226080621 99717828> (DF)
-11:34:54.513388 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84433859 win 7507 <nop,nop,timestamp 226080621 99717828> (DF)
-11:34:54.513551 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84433859 win 7507 <nop,nop,timestamp 226080621 99717828> (DF)
-11:34:54.515205 10.2.224.182.8700 > 10.2.20.246.33060: P 84441791:84442039(248) ack 44 win 33304 <nop,nop,timestamp 99717834 226080595> (DF)
-11:34:54.516039 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84434695 win 7298 <nop,nop,timestamp 226080622 99717828> (DF)11:34:54.516201 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84434695 win 7298 <nop,nop,timestamp 226080622 99717828> (DF)
-11:34:54.516202 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84434899 win 7247 <nop,nop,timestamp 226080623 99717828> (DF)
-11:34:54.517027 10.2.224.182.8700 > 10.2.20.246.33060: P 84442039:84442459(420) ack 44 win 33304 <nop,nop,timestamp 99717835 226080595> (DF)
-11:34:54.517193 10.2.224.182.8700 > 10.2.20.246.33060: P 84442459:84442491(32) ack 44 win 33304 <nop,nop,timestamp 99717835 226080595> (DF)
-11:34:54.517359 10.2.224.182.8700 > 10.2.20.246.33060: P 84442491:84442555(64) ack 44 win 33304 <nop,nop,timestamp 99717835 226080595> (DF)
-11:34:54.517524 10.2.224.182.8700 > 10.2.20.246.33060: P 84442555:84442587(32) ack 44 win 33304 <nop,nop,timestamp 99717835 226080595> (DF)
-11:34:54.517856 10.2.224.182.8700 > 10.2.20.246.33060: P 84442587:84442619(32) ack 44 win 33304 <nop,nop,timestamp 99717835 226080595> (DF)
-11:34:54.518686 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84435515 win 7093 <nop,nop,timestamp 226080626 99717829> (DF)
-11:34:54.518689 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84435603 win 7071 <nop,nop,timestamp 226080626 99717829> (DF)
-11:34:54.518690 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84435831 win 7014 <nop,nop,timestamp 226080627 99717829> (DF)
-11:34:54.518683 10.2.224.182.8700 > 10.2.20.246.33060: P 84442619:84442867(248) ack 44 win 33304 <nop,nop,timestamp 99717835 226080595> (DF)
-11:34:54.521338 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84435875 win 7003 <nop,nop,timestamp 226080627 99717829> (DF)
-11:34:54.521340 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84436027 win 6965 <nop,nop,timestamp 226080627 99717829> (DF)
-11:34:54.521333 10.2.224.182.8700 > 10.2.20.246.33060: P 84442867:84443051(184) ack 44 win 33304 <nop,nop,timestamp 99717835 226080595> (DF)
-11:34:54.521500 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84436027 win 6965 <nop,nop,timestamp 226080627 99717829> (DF)
-11:34:54.523988 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84436547 win 6835 <nop,nop,timestamp 226080630 99717829> (DF)
-11:34:54.523990 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84436591 win 6824 <nop,nop,timestamp 226080631 99717829> (DF)
-11:34:54.526636 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84437347 win 6635 <nop,nop,timestamp 226080633 99717830> (DF)
-11:34:54.526638 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84437927 win 6490 <nop,nop,timestamp 226080634 99717830> (DF)
-11:34:54.526801 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84437927 win 6490 <nop,nop,timestamp 226080634 99717830> (DF)
-11:34:54.527628 10.2.224.182.8700 > 10.2.20.246.33060: P 84443051:84444167(1116) ack 44 win 33304 <nop,nop,timestamp 99717835 226080595> (DF)
-11:34:54.528952 10.2.224.182.8700 > 10.2.20.246.33060: P 84444167:84444655(488) ack 44 win 33304 <nop,nop,timestamp 99717835 226080595> (DF)
-11:34:54.529286 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84438683 win 6301 <nop,nop,timestamp 226080636 99717831> (DF)
-11:34:54.529288 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84438727 win 6290 <nop,nop,timestamp 226080636 99717831> (DF)
-11:34:54.529450 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84438727 win 6290 <nop,nop,timestamp 226080636 99717831> (DF)
-11:34:54.529452 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84438847 win 6260 <nop,nop,timestamp 226080637 99717831> (DF)
-11:34:54.529454 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84438955 win 6233 <nop,nop,timestamp 226080637 99717831> (DF)
-11:34:54.529616 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84438955 win 6233 <nop,nop,timestamp 226080637 99717831> (DF)
-11:34:54.529618 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84439063 win 6206 <nop,nop,timestamp 226080637 99717831> (DF)
-11:34:54.531934 10.2.224.182.8700 > 10.2.20.246.33060: P 84444655:84445703(1048) ack 44 win 33304 <nop,nop,timestamp 99717836 226080595> (DF)
-11:34:54.532268 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84439247 win 6160 <nop,nop,timestamp 226080638 99717832> (DF)
-11:34:54.532271 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84439343 win 6136 <nop,nop,timestamp 226080638 99717832> (DF)
-11:34:54.532432 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84439343 win 6136 <nop,nop,timestamp 226080638 99717832> (DF)
-11:34:54.532434 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84439419 win 6117 <nop,nop,timestamp 226080638 99717832> (DF)
-11:34:54.532435 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84439527 win 6090 <nop,nop,timestamp 226080639 99717832> (DF)
-11:34:54.532437 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84439591 win 6074 <nop,nop,timestamp 226080639 99717832> (DF)
-11:34:54.532439 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84439903 win 5996 <nop,nop,timestamp 226080640 99717832> (DF)
-11:34:54.535087 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84440295 win 5898 <nop,nop,timestamp 226080642 99717833> (DF)
-11:34:54.535248 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84440295 win 5898 <nop,nop,timestamp 226080642 99717833> (DF)
-11:34:54.535249 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84440403 win 5871 <nop,nop,timestamp 226080642 99717833> (DF)
-11:34:54.535251 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84440447 win 5860 <nop,nop,timestamp 226080643 99717833> (DF)
-11:34:54.535414 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84440447 win 5860 <nop,nop,timestamp 226080643 99717833> (DF)
-11:34:54.535415 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84440479 win 5852 <nop,nop,timestamp 226080643 99717833> (DF)
-11:34:54.535579 10.2.224.182.8700 > 10.2.20.246.33060: P 84445703:84446239(536) ack 44 win 33304 <nop,nop,timestamp 99717836 226080595> (DF)
-11:34:54.537896 10.2.224.182.8700 > 10.2.20.246.33060: P 84446239:84447019(780) ack 44 win 33304 <nop,nop,timestamp 99717837 226080595> (DF)
-11:34:54.537897 10.2.224.182.8700 > 10.2.20.246.33060: P 84447019:84447063(44) ack 44 win 33304 <nop,nop,timestamp 99717837 226080595> (DF)
-11:34:54.538066 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84440719 win 5792 <nop,nop,timestamp 226080643 99717833> (DF)
-11:34:54.538068 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84440839 win 5762 <nop,nop,timestamp 226080644 99717833> (DF)
-11:34:54.538070 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84440883 win 5751 <nop,nop,timestamp 226080644 99717833> (DF)
-11:34:54.538072 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84441059 win 5707 <nop,nop,timestamp 226080645 99717833> (DF)
-11:34:54.538230 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84441059 win 5707 <nop,nop,timestamp 226080645 99717833> (DF)
-11:34:54.538232 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84441267 win 5655 <nop,nop,timestamp 226080645 99717834> (DF)
-11:34:54.538233 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84441387 win 5625 <nop,nop,timestamp 226080646 99717834> (DF)
-11:34:54.538228 10.2.224.182.8700 > 10.2.20.246.33060: P 84447063:84447151(88) ack 44 win 33304 <nop,nop,timestamp 99717837 226080595> (DF)
-11:34:54.538396 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84441387 win 5625 <nop,nop,timestamp 226080646 99717834> (DF)
-11:34:54.538394 10.2.224.182.8700 > 10.2.20.246.33060: P 84447151:84447195(44) ack 44 win 33304 <nop,nop,timestamp 99717837 226080595> (DF)
-11:34:54.538725 10.2.224.182.8700 > 10.2.20.246.33060: P 84447195:84447359(164) ack 44 win 33304 <nop,nop,timestamp 99717837 226080595> (DF)
-11:34:54.541047 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84441615 win 5568 <nop,nop,timestamp 226080647 99717834> (DF)
-11:34:54.541049 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84441659 win 5557 <nop,nop,timestamp 226080648 99717834> (DF)
-11:34:54.541051 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84441791 win 5524 <nop,nop,timestamp 226080648 99717834> (DF)
-11:34:54.543696 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84442039 win 5462 <nop,nop,timestamp 226080651 99717834> (DF)
-11:34:54.543693 10.2.224.182.8700 > 10.2.20.246.33060: P 84447359:84447543(184) ack 44 win 33304 <nop,nop,timestamp 99717837 226080595> (DF)
-11:34:54.544356 10.2.224.182.8700 > 10.2.20.246.33060: P 84447543:84447719(176) ack 44 win 33304 <nop,nop,timestamp 99717837 226080595> (DF)
-11:34:54.546179 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84442459 win 5357 <nop,nop,timestamp 226080653 99717835> (DF)
-11:34:54.546181 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84442491 win 5349 <nop,nop,timestamp 226080653 99717835> (DF)
-11:34:54.546343 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84442491 win 5349 <nop,nop,timestamp 226080653 99717835> (DF)
-11:34:54.546345 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84442555 win 5333 <nop,nop,timestamp 226080653 99717835> (DF)
-11:34:54.546347 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84442587 win 5325 <nop,nop,timestamp 226080653 99717835> (DF)
-11:34:54.546510 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84442587 win 5325 <nop,nop,timestamp 226080653 99717835> (DF)
-11:34:54.546511 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84442619 win 5317 <nop,nop,timestamp 226080653 99717835> (DF)
-11:34:54.546513 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84442867 win 5255 <nop,nop,timestamp 226080654 99717835> (DF)
-11:34:54.548000 10.2.224.182.8700 > 10.2.20.246.33060: P 84447719:84448371(652) ack 44 win 33304 <nop,nop,timestamp 99717838 226080599> (DF)
-11:34:54.548166 10.2.224.182.8700 > 10.2.20.246.33060: P 84448371:84448459(88) ack 44 win 33304 <nop,nop,timestamp 99717838 226080599> (DF)
-11:34:54.548167 10.2.224.182.8700 > 10.2.20.246.33060: P 84448459:84448503(44) ack 44 win 33304 <nop,nop,timestamp 99717838 226080599> (DF)
-11:34:54.548663 10.2.224.182.8700 > 10.2.20.246.33060: P 84448503:84448591(88) ack 44 win 33304 <nop,nop,timestamp 99717838 226080599> (DF)
-11:34:54.548994 10.2.224.182.8700 > 10.2.20.246.33060: P 84448591:84448623(32) ack 44 win 33304 <nop,nop,timestamp 99717838 226080599> (DF)
-11:34:54.549162 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84443051 win 5209 <nop,nop,timestamp 226080657 99717835> (DF)
-11:34:54.549325 10.2.224.182.8700 > 10.2.20.246.33060: P 84448623:84448667(44) ack 44 win 33304 <nop,nop,timestamp 99717838 226080599> (DF)
-11:34:54.549821 10.2.224.182.8700 > 10.2.20.246.33060: P 84448667:84448711(44) ack 44 win 33304 <nop,nop,timestamp 99717838 226080599> (DF)
-11:34:54.549988 10.2.224.182.8700 > 10.2.20.246.33060: P 84448711:84448787(76) ack 44 win 33304 <nop,nop,timestamp 99717838 226080599> (DF)
-11:34:54.550319 10.2.224.182.8700 > 10.2.20.246.33060: P 84448787:84448895(108) ack 44 win 33304 <nop,nop,timestamp 99717838 226080599> (DF)
-11:34:54.553962 10.2.224.182.8700 > 10.2.20.246.33060: P 84448895:84449111(216) ack 44 win 33304 <nop,nop,timestamp 99717838 226080605> (DF)
-11:34:54.554294 10.2.224.182.8700 > 10.2.20.246.33060: P 84449111:84449207(96) ack 44 win 33304 <nop,nop,timestamp 99717838 226080605> (DF)
-11:34:54.554460 10.2.224.182.8700 > 10.2.20.246.33060: P 84449207:84449283(76) ack 44 win 33304 <nop,nop,timestamp 99717838 226080605> (DF)
-11:34:54.554957 10.2.224.182.8700 > 10.2.20.246.33060: P 84449283:84449415(132) ack 44 win 33304 <nop,nop,timestamp 99717838 226080605> (DF)
-11:34:54.556782 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84444655 win 4808 <nop,nop,timestamp 226080664 99717835> (DF)
-11:34:54.557275 10.2.224.182.8700 > 10.2.20.246.33060: P 84449415:84449783(368) ack 44 win 33304 <nop,nop,timestamp 99717838 226080605> (DF)
-11:34:54.557607 10.2.224.182.8700 > 10.2.20.246.33060: P 84449783:84449847(64) ack 44 win 33304 <nop,nop,timestamp 99717838 226080605> (DF)
-11:34:54.557607 10.2.224.182.8700 > 10.2.20.246.33060: P 84449847:84449891(44) ack 44 win 33304 <nop,nop,timestamp 99717838 226080605> (DF)
-11:34:54.557938 10.2.224.182.8700 > 10.2.20.246.33060: P 84449891:84449935(44) ack 44 win 33304 <nop,nop,timestamp 99717838 226080605> (DF)
-11:34:54.558104 10.2.224.182.8700 > 10.2.20.246.33060: P 84449935:84449967(32) ack 44 win 33304 <nop,nop,timestamp 99717838 226080605> (DF)
-11:34:54.558435 10.2.224.182.8700 > 10.2.20.246.33060: P 84449967:84450087(120) ack 44 win 33304 <nop,nop,timestamp 99717838 226080605> (DF)
-11:34:54.558766 10.2.224.182.8700 > 10.2.20.246.33060: P 84450087:84450131(44) ack 44 win 33304 <nop,nop,timestamp 99717838 226080605> (DF)
-11:34:54.558767 10.2.224.182.8700 > 10.2.20.246.33060: P 84450131:84450195(64) ack 44 win 33304 <nop,nop,timestamp 99717838 226080605> (DF)
-11:34:54.558932 10.2.224.182.8700 > 10.2.20.246.33060: P 84450195:84450227(32) ack 44 win 33304 <nop,nop,timestamp 99717838 226080605> (DF)
-11:34:54.559432 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84445703 win 4546 <nop,nop,timestamp 226080667 99717836> (DF)
-11:34:54.560256 10.2.224.182.8700 > 10.2.20.246.33060: P 84450227:84450467(240) ack 44 win 33304 <nop,nop,timestamp 99717839 226080605> (DF)
-11:34:54.560588 10.2.224.182.8700 > 10.2.20.246.33060: P 84450467:84450543(76) ack 44 win 33304 <nop,nop,timestamp 99717839 226080605> (DF)
-11:34:54.564896 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84446239 win 4412 <nop,nop,timestamp 226080671 99717836> (DF)
-11:34:54.564898 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84447063 win 4206 <nop,nop,timestamp 226080673 99717837> (DF)
-11:34:54.565060 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84447063 win 4206 <nop,nop,timestamp 226080673 99717837> (DF)
-11:34:54.565062 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84447151 win 4184 <nop,nop,timestamp 226080674 99717837> (DF)
-11:34:54.567714 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84447195 win 4173 <nop,nop,timestamp 226080674 99717837> (DF)
-11:34:54.567877 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84447195 win 4173 <nop,nop,timestamp 226080674 99717837> (DF)
-11:34:54.567878 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84447359 win 4132 <nop,nop,timestamp 226080674 99717837> (DF)
-11:34:54.568703 10.2.224.182.8700 > 10.2.20.246.33060: P 84450543:84451319(776) ack 44 win 33304 <nop,nop,timestamp 99717839 226080605> (DF)
-11:34:54.570695 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84447543 win 4086 <nop,nop,timestamp 226080679 99717837> (DF)
-11:34:54.570692 10.2.224.182.8700 > 10.2.20.246.33060: P 84451319:84451731(412) ack 44 win 33304 <nop,nop,timestamp 99717839 226080613> (DF)
-11:34:54.573343 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84447719 win 4042 <nop,nop,timestamp 226080680 99717837> (DF)
-11:34:54.576159 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84448371 win 3879 <nop,nop,timestamp 226080684 99717838> (DF)
-11:34:54.576161 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84448503 win 3846 <nop,nop,timestamp 226080684 99717838> (DF)
-11:34:54.576163 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84448591 win 3824 <nop,nop,timestamp 226080684 99717838> (DF)
-11:34:54.576165 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84448623 win 3816 <nop,nop,timestamp 226080684 99717838> (DF)
-11:34:54.576323 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84448623 win 3816 <nop,nop,timestamp 226080684 99717838> (DF)
-11:34:54.576325 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84448667 win 3805 <nop,nop,timestamp 226080685 99717838> (DF)
-11:34:54.576820 10.2.224.182.8700 > 10.2.20.246.33060: P 84451731:84452815(1084) ack 44 win 33304 <nop,nop,timestamp 99717840 226080613> (DF)
-11:34:54.577150 10.2.224.182.8700 > 10.2.20.246.33060: P 84452815:84452991(176) ack 44 win 33304 <nop,nop,timestamp 99717840 226080613> (DF)
-11:34:54.577978 10.2.224.182.8700 > 10.2.20.246.33060: P 84452991:84453383(392) ack 44 win 33304 <nop,nop,timestamp 99717840 226080627> (DF)
-11:34:54.578975 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84448711 win 3794 <nop,nop,timestamp 226080685 99717838> (DF)
-11:34:54.578977 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84448787 win 3775 <nop,nop,timestamp 226080685 99717838> (DF)
-11:34:54.579306 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84448787 win 3775 <nop,nop,timestamp 226080685 99717838> (DF)
-11:34:54.579307 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84448895 win 3748 <nop,nop,timestamp 226080686 99717838> (DF)
-11:34:54.581790 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84449111 win 3694 <nop,nop,timestamp 226080689 99717838> (DF)
-11:34:54.581955 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84449111 win 3694 <nop,nop,timestamp 226080689 99717838> (DF)
-11:34:54.581956 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84449207 win 3670 <nop,nop,timestamp 226080690 99717838> (DF)
-11:34:54.581958 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84449283 win 3651 <nop,nop,timestamp 226080690 99717838> (DF)
-11:34:54.581960 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84449415 win 3618 <nop,nop,timestamp 226080690 99717838> (DF)
-11:34:54.584771 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84449783 win 3526 <nop,nop,timestamp 226080693 99717838> (DF)
-11:34:54.584773 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84449891 win 3499 <nop,nop,timestamp 226080693 99717838> (DF)
-11:34:54.584935 10.2.224.182.8700 > 10.2.20.246.33060: P 84453383:84454467(1084) ack 44 win 33304 <nop,nop,timestamp 99717841 226080627> (DF)
-11:34:54.587587 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84449935 win 3488 <nop,nop,timestamp 226080693 99717838> (DF)
-11:34:54.587590 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84449967 win 3480 <nop,nop,timestamp 226080694 99717838> (DF)
-11:34:54.587591 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84450087 win 3450 <nop,nop,timestamp 226080694 99717838> (DF)
-11:34:54.587593 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84450195 win 3423 <nop,nop,timestamp 226080694 99717838> (DF)
-11:34:54.587753 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84450195 win 3423 <nop,nop,timestamp 226080694 99717838> (DF)
-11:34:54.587755 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84450227 win 3415 <nop,nop,timestamp 226080694 99717838> (DF)
-11:34:54.587757 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84450467 win 3355 <nop,nop,timestamp 226080696 99717839> (DF)
-11:34:54.587751 10.2.224.182.8700 > 10.2.20.246.33060: P 84454467:84455575(1108) ack 44 win 33304 <nop,nop,timestamp 99717841 226080627> (DF)
-11:34:54.587752 10.2.224.182.8700 > 10.2.20.246.33060: P 84455575:84455695(120) ack 44 win 33304 <nop,nop,timestamp 99717841 226080627> (DF)
-11:34:54.590070 10.2.224.182.8700 > 10.2.20.246.33060: P 84455695:84456523(828) ack 44 win 33304 <nop,nop,timestamp 99717841 226080627> (DF)
-11:34:54.590242 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84450543 win 3336 <nop,nop,timestamp 226080696 99717839> (DF)
-11:34:54.590402 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84450543 win 3336 <nop,nop,timestamp 226080696 99717839> (DF)
-11:34:54.590567 10.2.224.182.8700 > 10.2.20.246.33060: P 84456523:84456675(152) ack 44 win 33304 <nop,nop,timestamp 99717841 226080627> (DF)
-11:34:54.590732 10.2.224.182.8700 > 10.2.20.246.33060: P 84456675:84457195(520) ack 44 win 33304 <nop,nop,timestamp 99717841 226080627> (DF)
-11:34:54.593216 10.2.224.182.8700 > 10.2.20.246.33060: P 84457195:84458031(836) ack 44 win 33304 <nop,nop,timestamp 99717842 226080643> (DF)
-11:34:54.593217 10.2.224.182.8700 > 10.2.20.246.33060: P 84458031:84458195(164) ack 44 win 33304 <nop,nop,timestamp 99717843 226080657> (DF)
-11:34:54.595537 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84451319 win 3142 <nop,nop,timestamp 226080704 99717839> (DF)
-11:34:54.598189 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84451731 win 3039 <nop,nop,timestamp 226080706 99717839> (DF)
-11:34:54.598352 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84451731 win 3039 <nop,nop,timestamp 226080706 99717839> (DF)
-11:34:54.601168 10.2.224.182.8700 > 10.2.20.246.33060: P 84458195:84458575(380) ack 44 win 33304 <nop,nop,timestamp 99717844 226080667> (DF)
-11:34:54.601498 10.2.224.182.8700 > 10.2.20.246.33060: P 84458575:84458619(44) ack 44 win 33304 <nop,nop,timestamp 99717845 226080674> (DF)
-11:34:54.603487 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84452815 win 2768 <nop,nop,timestamp 226080712 99717840> (DF)
-11:34:54.606303 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84452991 win 2724 <nop,nop,timestamp 226080713 99717840> (DF)
-11:34:54.606306 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84453383 win 2626 <nop,nop,timestamp 226080713 99717840> (DF)
-11:34:54.609945 10.2.224.182.8700 > 10.2.20.246.33060: P 84458619:84458739(120) ack 44 win 33304 <nop,nop,timestamp 99717845 226080680> (DF)
-11:34:54.611769 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84454467 win 2355 <nop,nop,timestamp 226080721 99717841> (DF)
-11:34:54.614584 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84455695 win 2355 <nop,nop,timestamp 226080723 99717841> (DF)
-11:34:54.617400 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84456523 win 2355 <nop,nop,timestamp 226080726 99717841> (DF)
-11:34:54.617402 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84456675 win 2355 <nop,nop,timestamp 226080726 99717841> (DF)
-11:34:54.617404 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84457195 win 2355 <nop,nop,timestamp 226080726 99717841> (DF)
-11:34:54.620051 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84458195 win 2355 <nop,nop,timestamp 226080729 99717842> (DF)
-11:34:54.620215 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84458195 win 2355 <nop,nop,timestamp 226080729 99717842> (DF)
-11:34:54.624355 10.2.224.182.8700 > 10.2.20.246.33060: P 84458739:84459023(284) ack 44 win 33304 <nop,nop,timestamp 99717846 226080693> (DF)
-11:34:54.628332 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84458575 win 2355 <nop,nop,timestamp 226080737 99717844> (DF)
-11:34:54.628334 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84458619 win 2355 <nop,nop,timestamp 226080737 99717845> (DF)
-11:34:54.628497 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84458619 win 2355 <nop,nop,timestamp 226080737 99717845> (DF)
-
-This is where things start going bad. The window starts shrinking from 
-15340 all the way down to 2355 over the course of 0.3 seconds. Notice the 
-many duplicate acks that serve no purpose (there are no lost packets and 
-the tcpdump is taken on the receiver so there is no packets/acks crossed 
-in flight).
-
-11:40:08.256368 10.2.224.182.8700 > 10.2.20.246.33060: . 134964459:134965575(1116) ack 56 win 33304 <nop,nop,timestamp 99749211 226394467> (DF)
-11:40:08.265606 10.2.224.182.8700 > 10.2.20.246.33060: . 134965575:134966691(1116) ack 56 win 33304 <nop,nop,timestamp 99749213 226394478> (DF)
-11:40:08.265611 10.2.20.246.33060 > 10.2.224.182.8700: . ack 134966691 win 2355 <nop,nop,timestamp 226394503 99749211> (DF)
-11:40:08.268555 10.2.224.182.8700 > 10.2.20.246.33060: . 134966691:134967795(1104) ack 56 win 33304 <nop,nop,timestamp 99749213 226394478> (DF)
-11:40:08.268569 10.2.20.246.33060 > 10.2.224.182.8700: . ack 134967795 win 2355 <nop,nop,timestamp 226394506 99749213> (DF)
-11:40:08.270158 10.2.224.182.8700 > 10.2.20.246.33060: . 134967795:134968911(1116) ack 56 win 33304 <nop,nop,timestamp 99749213 226394481> (DF)
-11:40:08.273104 10.2.224.182.8700 > 10.2.20.246.33060: . 134968911:134970007(1096) ack 56 win 33304 <nop,nop,timestamp 99749213 226394484> (DF)
-11:40:08.273109 10.2.20.246.33060 > 10.2.224.182.8700: . ack 134970007 win 2355 <nop,nop,timestamp 226394510 99749213> (DF)
-11:40:08.275514 10.2.224.182.8700 > 10.2.20.246.33060: . 134970007:134971103(1096) ack 56 win 33304 <nop,nop,timestamp 99749214 226394487> (DF)
-11:40:08.277522 10.2.224.182.8700 > 10.2.20.246.33060: . 134971103:134972187(1084) ack 56 win 33304 <nop,nop,timestamp 99749214 226394490> (DF)
-11:40:08.277527 10.2.20.246.33060 > 10.2.224.182.8700: . ack 134972187 win 2355 <nop,nop,timestamp 226394514 99749214> (DF)
-11:40:08.279664 10.2.224.182.8700 > 10.2.20.246.33060: . 134972187:134973263(1076) ack 56 win 33304 <nop,nop,timestamp 99749214 226394492> (DF)
-11:40:08.279678 10.2.20.246.33060 > 10.2.224.182.8700: . ack 134973263 win 2355 <nop,nop,timestamp 226394517 99749214> (DF)
-
-Five minutes later the TCP window is still at 2355, having never 
-recovered. The window is so small that the available bandwidth for this 
-connection is too small to keep up with the real-time data so it is 
-falling behind, hence large packets are again being used. The application 
-processing the data (Java-based) is mostly idle at this point, and netstat 
-shows its recv queue to be empty. There is no apparent reason why the 
-kernel shouldn't enlarge the window.
-
-In fact, if I let it continue, it eventually shrinks the window even 
-further (by 18:19:29, the time I'm writing this email, it's gone all the 
-way down to 1373). As I mentioned earlier, I've seen it go as low as 181.
-
-We are kind of stumped at this point, and it's proving to be a 
-show-stopping bug for our purposes, especially over WAN links that have 
-higher latency (for obvious reasons). Any kind of assistance would be 
-greatly appreciated.
-
-Thanks,
--Ion

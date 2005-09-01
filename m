@@ -1,105 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965026AbVIABcp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965062AbVIABeL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965026AbVIABcp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 21:32:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965036AbVIAB3Y
+	id S965062AbVIABeL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 21:34:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965061AbVIABeJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 21:29:24 -0400
-Received: from ozlabs.org ([203.10.76.45]:1167 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S965027AbVIAB3L (ORCPT
+	Wed, 31 Aug 2005 21:34:09 -0400
+Received: from ozlabs.org ([203.10.76.45]:5776 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S965028AbVIAB3Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 21:29:11 -0400
+	Wed, 31 Aug 2005 21:29:24 -0400
 To: <jgarzik@pobox.com>
 CC: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
        <linuxppc64-dev@ozlabs.org>
 From: Michael Ellerman <michael@ellerman.id.au>
-Subject: [PATCH 8/18] iseries_veth: Make init_connection() & destroy_connection() symmetrical
+Subject: [PATCH 13/18] iseries_veth: Fix bogus counting of TX errors
 In-Reply-To: <1125538127.859382.875909607846.qpush@concordia>
-Message-Id: <20050901012908.E24DF68212@ozlabs.org>
-Date: Thu,  1 Sep 2005 11:29:08 +1000 (EST)
+Message-Id: <20050901012919.7A19868232@ozlabs.org>
+Date: Thu,  1 Sep 2005 11:29:19 +1000 (EST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes veth_init_connection() and veth_destroy_connection()
-symmetrical in that they allocate/deallocate the same data.
+There's a number of problems with the way iseries_veth counts TX errors.
 
-Currently if there's an error while initialising connections (ie. ENOMEM)
-we call veth_module_cleanup(), however this will oops because we call
-driver_unregister() before we've called driver_register(). I've never seen
-this actually happen though.
+Firstly it counts conditions which aren't really errors as TX errors. This
+includes if we don't have a connection struct for the other LPAR, or if the
+other LPAR is currently down (or just doesn't want to talk to us). Neither
+of these should count as TX errors.
 
-So instead we explicitly call veth_destroy_connection() for each connection,
-any that have been set up will be deallocated.
+Secondly, it counts one TX error for each LPAR that fails to accept the packet.
+This can lead to TX error counts higher than the total number of packets sent
+through the interface. This is confusing for users.
 
-We also fix a potential leak if vio_register_driver() fails.
+This patch fixes that behaviour. The non-error conditions are no longer
+counted, and we introduce a new and I think saner meaning to the TX counts.
+
+If a packet is successfully transmitted to any LPAR then it is transmitted
+and tx_packets is incremented by 1.
+
+If there is an error transmitting a packet to any LPAR then that is counted
+as one error, ie. tx_errors is incremented by 1.
 
 Signed-off-by: Michael Ellerman <michael@ellerman.id.au>
 ---
 
- drivers/net/iseries_veth.c |   35 ++++++++++++++++++++++-------------
- 1 files changed, 22 insertions(+), 13 deletions(-)
+ drivers/net/iseries_veth.c |   47 ++++++++++++++++++---------------------------
+ 1 files changed, 19 insertions(+), 28 deletions(-)
 
 Index: veth-dev2/drivers/net/iseries_veth.c
 ===================================================================
 --- veth-dev2.orig/drivers/net/iseries_veth.c
 +++ veth-dev2/drivers/net/iseries_veth.c
-@@ -683,6 +683,14 @@ static void veth_stop_connection(u8 rlp)
+@@ -938,31 +938,25 @@ static int veth_transmit_to_one(struct s
+ 	struct veth_port *port = (struct veth_port *) dev->priv;
+ 	HvLpEvent_Rc rc;
+ 	struct veth_msg *msg = NULL;
+-	int err = 0;
+ 	unsigned long flags;
  
- 	/* Wait for the state machine to run. */
- 	flush_scheduled_work();
-+}
-+
-+static void veth_destroy_connection(u8 rlp)
-+{
-+	struct veth_lpar_connection *cnx = veth_cnx[rlp];
-+
+-	if (! cnx) {
+-		port->stats.tx_errors++;
+-		dev_kfree_skb(skb);
 +	if (! cnx)
-+		return;
+ 		return 0;
+-	}
  
- 	if (cnx->num_events > 0)
- 		mf_deallocate_lp_events(cnx->remote_lp,
-@@ -694,14 +702,6 @@ static void veth_stop_connection(u8 rlp)
- 				      HvLpEvent_Type_VirtualLan,
- 				      cnx->num_ack_events,
- 				      NULL, NULL);
--}
+ 	spin_lock_irqsave(&cnx->lock, flags);
+ 
+ 	if (! (cnx->state & VETH_STATE_READY))
+-		goto drop;
++		goto no_error;
+ 
+-	if ((skb->len - 14) > VETH_MAX_MTU)
++	if ((skb->len - ETH_HLEN) > VETH_MAX_MTU)
+ 		goto drop;
+ 
+ 	msg = veth_stack_pop(cnx);
 -
--static void veth_destroy_connection(u8 rlp)
--{
--	struct veth_lpar_connection *cnx = veth_cnx[rlp];
--
--	if (! cnx)
--		return;
+-	if (! msg) {
+-		err = 1;
++	if (! msg)
+ 		goto drop;
+-	}
  
- 	kfree(cnx->msgs);
- 	kfree(cnx);
-@@ -1441,15 +1441,24 @@ int __init veth_module_init(void)
+ 	msg->in_use = 1;
++	msg->skb = skb_get(skb);
  
- 	for (i = 0; i < HVMAXARCHITECTEDLPS; ++i) {
- 		rc = veth_init_connection(i);
--		if (rc != 0) {
--			veth_module_cleanup();
--			return rc;
--		}
-+		if (rc != 0)
-+			goto error;
+ 	msg->data.addr[0] = dma_map_single(port->dev, skb->data,
+ 				skb->len, DMA_TO_DEVICE);
+@@ -970,9 +964,6 @@ static int veth_transmit_to_one(struct s
+ 	if (dma_mapping_error(msg->data.addr[0]))
+ 		goto recycle_and_drop;
+ 
+-	/* Is it really necessary to check the length and address
+-	 * fields of the first entry here? */
+-	msg->skb = skb;
+ 	msg->dev = port->dev;
+ 	msg->data.len[0] = skb->len;
+ 	msg->data.eofmask = 1 << VETH_EOF_SHIFT;
+@@ -992,43 +983,43 @@ static int veth_transmit_to_one(struct s
+ 	if (veth_stack_is_empty(cnx))
+ 		veth_stop_queues(cnx);
+ 
++ no_error:
+ 	spin_unlock_irqrestore(&cnx->lock, flags);
+ 	return 0;
+ 
+  recycle_and_drop:
+-	/* we free the skb below, so tell veth_recycle_msg() not to. */
+-	msg->skb = NULL;
+ 	veth_recycle_msg(cnx, msg);
+  drop:
+-	port->stats.tx_errors++;
+-	dev_kfree_skb(skb);
+ 	spin_unlock_irqrestore(&cnx->lock, flags);
+-	return err;
++	return 1;
+ }
+ 
+-static HvLpIndexMap veth_transmit_to_many(struct sk_buff *skb,
++static void veth_transmit_to_many(struct sk_buff *skb,
+ 					  HvLpIndexMap lpmask,
+ 					  struct net_device *dev)
+ {
+ 	struct veth_port *port = (struct veth_port *) dev->priv;
+-	int i;
+-	int rc;
++	int i, success, error;
++
++	success = error = 0;
+ 
+ 	for (i = 0; i < HVMAXARCHITECTEDLPS; i++) {
+ 		if ((lpmask & (1 << i)) == 0)
+ 			continue;
+ 
+-		rc = veth_transmit_to_one(skb_get(skb), i, dev);
+-		if (! rc)
+-			lpmask &= ~(1<<i);
++		if (veth_transmit_to_one(skb, i, dev))
++			error = 1;
++		else
++			success = 1;
  	}
  
- 	HvLpEvent_registerHandler(HvLpEvent_Type_VirtualLan,
- 				  &veth_handle_event);
- 
--	return vio_register_driver(&veth_driver);
-+	rc = vio_register_driver(&veth_driver);
-+	if (rc != 0)
-+		goto error;
+-	if (! lpmask) {
++	if (error)
++		port->stats.tx_errors++;
 +
-+	return 0;
-+
-+error:
-+	for (i = 0; i < HVMAXARCHITECTEDLPS; ++i) {
-+		veth_destroy_connection(i);
-+	}
-+
-+	return rc;
++	if (success) {
+ 		port->stats.tx_packets++;
+ 		port->stats.tx_bytes += skb->len;
+ 	}
+-
+-	return lpmask;
  }
- module_init(veth_module_init);
+ 
+ static int veth_start_xmit(struct sk_buff *skb, struct net_device *dev)

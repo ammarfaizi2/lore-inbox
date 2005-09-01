@@ -1,50 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030517AbVIAXPB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030525AbVIAXZm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030517AbVIAXPB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 19:15:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030518AbVIAXPB
+	id S1030525AbVIAXZm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 19:25:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030526AbVIAXZm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 19:15:01 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:31759 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030517AbVIAXPA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 19:15:00 -0400
-Date: Fri, 2 Sep 2005 01:14:59 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] feature-removal-schedule.txt: remove {,un}register_serial entry
-Message-ID: <20050901231459.GE3657@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.10i
+	Thu, 1 Sep 2005 19:25:42 -0400
+Received: from 213-229-38-18.static.adsl-line.inode.at ([213.229.38.18]:20887
+	"HELO home.winischhofer.net") by vger.kernel.org with SMTP
+	id S1030525AbVIAXZl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 19:25:41 -0400
+Message-ID: <43178DC5.1030405@winischhofer.net>
+Date: Fri, 02 Sep 2005 01:24:53 +0200
+From: Thomas Winischhofer <thomas@winischhofer.net>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@stusta.de>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "Antonino A. Daplas" <adaplas@pol.net>
+Subject: Re: 2.6.13-mm1: broken drivers/video/sis/Makefile
+References: <20050901035542.1c621af6.akpm@osdl.org> <20050901221959.GB3657@stusta.de>
+In-Reply-To: <20050901221959.GB3657@stusta.de>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: multipart/mixed;
+ boundary="------------000408030309030601020408"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If the feature is removed, there's no need to keep the entry in 
-feature-removal-schedule.txt.
+This is a multi-part message in MIME format.
+--------------000408030309030601020408
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Adrian Bunk wrote:
+> On Thu, Sep 01, 2005 at 03:55:42AM -0700, Andrew Morton wrote:
+> 
+>>...
+>>Changes since 2.6.13-rc6-mm2:
+>>...
+>>+sisfb-update.patch
+>>...
+>> fbdev updates
+>>...
+> 
+> 
+> This patch accidentally replaces drivers/video/sis/Makefile with a 
+> toplevel Makefile.
 
---- linux-2.6.13-mm1-full/Documentation/feature-removal-schedule.txt.old	2005-09-02 01:13:12.000000000 +0200
-+++ linux-2.6.13-mm1-full/Documentation/feature-removal-schedule.txt	2005-09-02 01:13:29.000000000 +0200
-@@ -77,16 +77,6 @@
+ARGH..... that happens if you work with four trees at the same time...
+
+My appologies. Correct Makefile-patch attached.
+
+Thomas
+
+- --
+Thomas Winischhofer
+Vienna/Austria
+thomas AT winischhofer DOT net	       *** http://www.winischhofer.net
+twini AT xfree86 DOT org
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFDF43FzydIRAktyUcRAptjAKDPQeYc3v5Ulu+HKnbRINsCNcfwwgCgkWnD
+sJnT86TfSyX45JIW2KKRLog=
+=TDOr
+-----END PGP SIGNATURE-----
+
+--------------000408030309030601020408
+Content-Type: text/plain;
+ name="sisfb_mf_patch.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sisfb_mf_patch.diff"
+
+--- linux-2.6.13-orig/drivers/video/sis/Makefile	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.13-sisfb/drivers/video/sis/Makefile	2005-09-02 01:22:29.247255624 +0200
+@@ -4,4 +4,4 @@
  
- ---------------------------
+ obj-$(CONFIG_FB_SIS) += sisfb.o
  
--What:	register_serial/unregister_serial
--When:	September 2005
--Why:	This interface does not allow serial ports to be registered against
--	a struct device, and as such does not allow correct power management
--	of such ports.  8250-based ports should use serial8250_register_port
--	and serial8250_unregister_port, or platform devices instead.
--Who:	Russell King <rmk@arm.linux.org.uk>
--
-----------------------------
--
- What:	i2c sysfs name change: in1_ref, vid deprecated in favour of cpu0_vid
- When:	November 2005
- Files:	drivers/i2c/chips/adm1025.c, drivers/i2c/chips/adm1026.c
+-sisfb-objs := sis_main.o sis_accel.o init.o init301.o
++sisfb-objs := sis_main.o sis_accel.o init.o init301.o initextlfb.o
 
+--------------000408030309030601020408--

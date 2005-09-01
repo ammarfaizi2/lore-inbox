@@ -1,59 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965086AbVIAIRP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750850AbVIAIYs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965086AbVIAIRP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 04:17:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965087AbVIAIRO
+	id S1750850AbVIAIYs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 04:24:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751020AbVIAIYs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 04:17:14 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:5022 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S965086AbVIAIRM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 04:17:12 -0400
-Date: Thu, 1 Sep 2005 10:17:53 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [patch] drivers/ide/pci/alim15x3.c SMP fix
-Message-ID: <20050901081753.GA7952@elte.hu>
-References: <20050901072430.GA6213@elte.hu> <4316B82B.2060306@rncbc.org>
-Mime-Version: 1.0
+	Thu, 1 Sep 2005 04:24:48 -0400
+Received: from r3az252.chello.upc.cz ([213.220.243.252]:10182 "EHLO
+	vrapenec.doma") by vger.kernel.org with ESMTP id S1750847AbVIAIYs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 04:24:48 -0400
+Message-ID: <4316BAC3.5010109@ribosome.natur.cuni.cz>
+Date: Thu, 01 Sep 2005 10:24:35 +0200
+From: =?ISO-8859-2?Q?Martin_MOKREJ=A9?= <mmokrejs@ribosome.natur.cuni.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050531
+X-Accept-Language: cs, en-us, en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: patch-2.6.13-git2.* empty
+X-Enigmail-Version: 0.91.0.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4316B82B.2060306@rncbc.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+  did someone realize that the file is empty? I'd like to check the
+new pcmcia stuff. ;)
 
-* Rui Nuno Capela <rncbc@rncbc.org> wrote:
+ftp://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots/ contains
 
-> Ingo Molnar wrote:
-> >is this the right way to fix the UP assumption below?
-> >
-> >	Ingo
-> >
-> >Signed-off-by: Ingo Molnar <mingo@elte.hu>
-> >
-> >Index: linux/drivers/ide/pci/alim15x3.c
-> > [snip]
-> 
-> OK. The reported boot WARNING seems to be over now. Tested on the 
-> offended laptop (P4@2.53Ghz/UP, PCI chipset: ALi M1533) with 
-> 2.6.13-rt3, where the suggested patch on drivers/ide/pci/alim15x3.c 
-> seems to fix the burp. All seems to be working fine, still ;)
-
-just to make sure the original point gets across: the warning is only in 
-the -rt tree, and it pinpoints potential SMP bugs. Does your box do 
-hyperthreading? If yes then this could be a live (but probably mostly 
-harmless) SMP bug. Maybe the whole IRQ disabling is unnecessary?  
-__devinit is mostly serialized, so i'm not sure there's any protection 
-needed against parallel IRQs?
-
-	Ingo
+Aug 30 09:01  bzip2            patch-2.6.13-git1.bz2  14 bytes
+Aug 30 09:01  text/plain       patch-2.6.13-git1.bz2.sign  248 bytes
+Aug 30 09:01  GNU Compressed   patch-2.6.13-git1.gz  20 bytes
+Aug 30 09:01  text/plain       patch-2.6.13-git1.gz.sign  248 bytes
+Aug 30 09:01  text/plain       patch-2.6.13-git1.id  41 bytes
+Aug 30 09:01  text/plain       patch-2.6.13-git1.log  294Kb
+Aug 30 09:01  text/plain       patch-2.6.13-git1.sign  248 bytes
+Aug 31 09:01  bzip2            patch-2.6.13-git2.bz2  14 bytes
+Aug 31 09:01  text/plain       patch-2.6.13-git2.bz2.sign  248 bytes
+Aug 31 09:01  GNU Compressed   patch-2.6.13-git2.gz  20 bytes
+Aug 31 09:01  text/plain       patch-2.6.13-git2.gz.sign  248 bytes
+Aug 31 09:01  text/plain       patch-2.6.13-git2.id  41 bytes
+Aug 31 09:01  text/plain       patch-2.6.13-git2.log  386Kb
+Aug 31 09:01  text/plain       patch-2.6.13-git2.sign  248 bytes

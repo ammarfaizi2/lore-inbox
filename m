@@ -1,85 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965053AbVIABbw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965037AbVIABc0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965053AbVIABbw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Aug 2005 21:31:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965043AbVIAB32
+	id S965037AbVIABc0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Aug 2005 21:32:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965054AbVIABcH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Aug 2005 21:29:28 -0400
-Received: from ozlabs.org ([203.10.76.45]:63374 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S965025AbVIAB3J (ORCPT
+	Wed, 31 Aug 2005 21:32:07 -0400
+Received: from ozlabs.org ([203.10.76.45]:24720 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S965041AbVIAB31 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Aug 2005 21:29:09 -0400
+	Wed, 31 Aug 2005 21:29:27 -0400
 To: <jgarzik@pobox.com>
 CC: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
        <linuxppc64-dev@ozlabs.org>
 From: Michael Ellerman <michael@ellerman.id.au>
-Subject: [PATCH 7/18] iseries_veth: Only call dma_unmap_single() if dma_map_single() succeeded
+Subject: [PATCH 16/18] iseries_veth: Incorporate iseries_veth.h in iseries_veth.c
 In-Reply-To: <1125538127.859382.875909607846.qpush@concordia>
-Message-Id: <20050901012907.A531B681F5@ozlabs.org>
-Date: Thu,  1 Sep 2005 11:29:07 +1000 (EST)
+Message-Id: <20050901012925.4CAC368247@ozlabs.org>
+Date: Thu,  1 Sep 2005 11:29:25 +1000 (EST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The iseries_veth driver unconditionally calls dma_unmap_single() even
-when the corresponding dma_map_single() may have failed.
-
-Rework the code a bit to keep the return value from dma_unmap_single()
-around, and then check if it's a dma_mapping_error() before we do
-the dma_unmap_single().
+iseries_veth.h is only used by iseries_veth.c, so merge the former into
+the latter.
 
 Signed-off-by: Michael Ellerman <michael@ellerman.id.au>
 ---
 
- drivers/net/iseries_veth.c |   17 ++++++++---------
- 1 files changed, 8 insertions(+), 9 deletions(-)
+ drivers/net/iseries_veth.h |   46 ---------------------------------------------
+ drivers/net/iseries_veth.c |   42 +++++++++++++++++++++++++++++++++++++++--
+ 2 files changed, 40 insertions(+), 48 deletions(-)
 
 Index: veth-dev2/drivers/net/iseries_veth.c
 ===================================================================
 --- veth-dev2.orig/drivers/net/iseries_veth.c
 +++ veth-dev2/drivers/net/iseries_veth.c
-@@ -931,7 +931,6 @@ static int veth_transmit_to_one(struct s
- 	struct veth_lpar_connection *cnx = veth_cnx[rlp];
- 	struct veth_port *port = (struct veth_port *) dev->priv;
- 	HvLpEvent_Rc rc;
--	u32 dma_address, dma_length;
- 	struct veth_msg *msg = NULL;
- 	int err = 0;
- 	unsigned long flags;
-@@ -959,20 +958,19 @@ static int veth_transmit_to_one(struct s
+@@ -81,12 +81,50 @@
  
- 	msg->in_use = 1;
+ #undef DEBUG
  
--	dma_length = skb->len;
--	dma_address = dma_map_single(port->dev, skb->data,
--				     dma_length, DMA_TO_DEVICE);
-+	msg->data.addr[0] = dma_map_single(port->dev, skb->data,
-+				skb->len, DMA_TO_DEVICE);
+-#include "iseries_veth.h"
+-
+ MODULE_AUTHOR("Kyle Lucke <klucke@us.ibm.com>");
+ MODULE_DESCRIPTION("iSeries Virtual ethernet driver");
+ MODULE_LICENSE("GPL");
  
--	if (dma_mapping_error(dma_address))
-+	if (dma_mapping_error(msg->data.addr[0]))
- 		goto recycle_and_drop;
- 
- 	/* Is it really necessary to check the length and address
- 	 * fields of the first entry here? */
- 	msg->skb = skb;
- 	msg->dev = port->dev;
--	msg->data.addr[0] = dma_address;
--	msg->data.len[0] = dma_length;
-+	msg->data.len[0] = skb->len;
- 	msg->data.eofmask = 1 << VETH_EOF_SHIFT;
++#define VethEventTypeCap	(0)
++#define VethEventTypeFrames	(1)
++#define VethEventTypeMonitor	(2)
++#define VethEventTypeFramesAck	(3)
 +
- 	rc = veth_signaldata(cnx, VethEventTypeFrames, msg->token, &msg->data);
- 
- 	if (rc != HvLpEvent_Rc_Good)
-@@ -1076,8 +1074,9 @@ static void veth_recycle_msg(struct veth
- 		dma_address = msg->data.addr[0];
- 		dma_length = msg->data.len[0];
- 
--		dma_unmap_single(msg->dev, dma_address, dma_length,
--				 DMA_TO_DEVICE);
-+		if (!dma_mapping_error(dma_address))
-+			dma_unmap_single(msg->dev, dma_address, dma_length,
-+					DMA_TO_DEVICE);
- 
- 		if (msg->skb) {
- 			dev_kfree_skb_any(msg->skb);
++#define VETH_MAX_ACKS_PER_MSG	(20)
++#define VETH_MAX_FRAMES_PER_MSG	(6)
++
++struct VethFramesData {
++	u32 addr[VETH_MAX_FRAMES_PER_MSG];
++	u16 len[VETH_MAX_FRAMES_PER_MSG];
++	u32 eofmask;
++};
++#define VETH_EOF_SHIFT		(32-VETH_MAX_FRAMES_PER_MSG)
++
++struct VethFramesAckData {
++	u16 token[VETH_MAX_ACKS_PER_MSG];
++};
++
++struct VethCapData {
++	u8 caps_version;
++	u8 rsvd1;
++	u16 num_buffers;
++	u16 ack_threshold;
++	u16 rsvd2;
++	u32 ack_timeout;
++	u32 rsvd3;
++	u64 rsvd4[3];
++};
++
++struct VethLpEvent {
++	struct HvLpEvent base_event;
++	union {
++		struct VethCapData caps_data;
++		struct VethFramesData frames_data;
++		struct VethFramesAckData frames_ack_data;
++	} u;
++
++};
++
+ #define VETH_NUMBUFFERS		(120)
+ #define VETH_ACKTIMEOUT 	(1000000) /* microseconds */
+ #define VETH_MAX_MCAST		(12)
+Index: veth-dev2/drivers/net/iseries_veth.h
+===================================================================
+--- veth-dev2.orig/drivers/net/iseries_veth.h
++++ /dev/null
+@@ -1,46 +0,0 @@
+-/* File veth.h created by Kyle A. Lucke on Mon Aug  7 2000. */
+-
+-#ifndef _ISERIES_VETH_H
+-#define _ISERIES_VETH_H
+-
+-#define VethEventTypeCap	(0)
+-#define VethEventTypeFrames	(1)
+-#define VethEventTypeMonitor	(2)
+-#define VethEventTypeFramesAck	(3)
+-
+-#define VETH_MAX_ACKS_PER_MSG	(20)
+-#define VETH_MAX_FRAMES_PER_MSG	(6)
+-
+-struct VethFramesData {
+-	u32 addr[VETH_MAX_FRAMES_PER_MSG];
+-	u16 len[VETH_MAX_FRAMES_PER_MSG];
+-	u32 eofmask;
+-};
+-#define VETH_EOF_SHIFT		(32-VETH_MAX_FRAMES_PER_MSG)
+-
+-struct VethFramesAckData {
+-	u16 token[VETH_MAX_ACKS_PER_MSG];
+-};
+-
+-struct VethCapData {
+-	u8 caps_version;
+-	u8 rsvd1;
+-	u16 num_buffers;
+-	u16 ack_threshold;
+-	u16 rsvd2;
+-	u32 ack_timeout;
+-	u32 rsvd3;
+-	u64 rsvd4[3];
+-};
+-
+-struct VethLpEvent {
+-	struct HvLpEvent base_event;
+-	union {
+-		struct VethCapData caps_data;
+-		struct VethFramesData frames_data;
+-		struct VethFramesAckData frames_ack_data;
+-	} u;
+-
+-};
+-
+-#endif	/* _ISERIES_VETH_H */

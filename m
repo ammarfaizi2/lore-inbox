@@ -1,73 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750847AbVIAI2M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750857AbVIAI3w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750847AbVIAI2M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 04:28:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750857AbVIAI2M
+	id S1750857AbVIAI3w (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 04:29:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751023AbVIAI3w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 04:28:12 -0400
-Received: from ns.firmix.at ([62.141.48.66]:60629 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S1750847AbVIAI2L (ORCPT
+	Thu, 1 Sep 2005 04:29:52 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:31132 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750857AbVIAI3v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 04:28:11 -0400
-Subject: Re: [ANNOUNCE] DSFS Network Forensic File System for Linux Patches
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: jmerkey <jmerkey@utah-nac.org>
-Cc: Bernd Eckenfels <ecki@lina.inka.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <431651BC.9020108@utah-nac.org>
-References: <E1EAd1J-0007Cw-00@calista.eckenfels.6bone.ka-ip.net>
-	 <431651BC.9020108@utah-nac.org>
-Content-Type: text/plain
-Organization: Firmix Software GmbH
-Date: Thu, 01 Sep 2005 10:28:06 +0200
-Message-Id: <1125563286.28749.22.camel@tara.firmix.at>
+	Thu, 1 Sep 2005 04:29:51 -0400
+Date: Thu, 1 Sep 2005 10:30:33 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: MAX_ARG_PAGES has no effect?
+Message-ID: <20050901083033.GA8190@elte.hu>
+References: <4314F761.2050908@kundor.org> <p73psrtr8ho.fsf@verdi.suse.de> <20050901065710.GB5179@elte.hu> <200509010926.51749.ak@suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200509010926.51749.ak@suse.de>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-08-31 at 18:56 -0600, jmerkey wrote:
-> Bernd Eckenfels wrote:
-> >In article <20050901012218.02c79560.diegocg@gmail.com> you wrote:
-> >>I mean, nvidia people also use propietary code in the kernel (probably
-> >>violating the GPL anyway) and don't do such things.
-> >
-> >The Linux kernel allows binary drivers, you just have to live with a limited
-> >number of exported symbols and that the kernel is tainted. Which basically
-> >means nobody sane can help you with corrupted kernel data structures.
-[...]
-> Thanks for the accurate and reasonable response.  I object to the use of 
-> the word "tainted".  This implies the
-> binary code is somehow infringing.  I would suggest changing the word to 
 
-It is infringing the debuggability seriously outside the exclusive club
-of people with access to the secret source of these drivers.
-So "tainted" pretty much explains quite well the situation as seen from
-the kernel side.
+* Andi Kleen <ak@suse.de> wrote:
 
-> "non-GPL" or "Vendor Supported" since
-> this is more accurate.   Just a suggestion.
+> On Thursday 01 September 2005 08:57, Ingo Molnar wrote:
+> 
+> > the whole thing should be reworked, so that there is no artificial limit
+> > like MAX_ARG_PAGES. (it is after all just another piece of memory, in
+> > theory)
+> 
+> Yes, a sysctl would probably lead to fragmentation problems and then 
+> people would do ugly linked lists of buffers like poll.
 
-"non-GPL" is clearly wrong. First the kernel source it self stays GPL
-independent for whatever legal people write into othre license
-agreements, second the license of your source *could be* (in theory) GPL
-if the authors wanted it and - in some cases - the source *is* actually
-GPL even if the authors doesn't want it.
-And "Vendor supported" must be (if you really want to be accurate) "At
-best it is vendor supported if the vendor exists at the moment and for
-whatever said vendor thinks support is. The contact address for said
-vendor is <name>, <street>, <phnoe>, <mobile>, <email>, <homepage>.
-Please do not ask the free software community if you have any problem
-with the Linux kernel."
-So please put this in your proprietory module and print it whenever it
-makes sense since the necessary contact data is only known by you.
-The point is: There is no such concept as "vendor" as it would or could
-be seen in the commercial and/or legal world if you download the kernel
-source from kernel.org.
+not really fragmentation problems (the unit of allocation of argument 
+pages is already a single page, and we do an array of pages), the real 
+problem is the DoS - right now the array pages are unswappable while an 
+exec() is ongoing.
 
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
+> > If we do unconditional page-flipping then we fragment the argument
+> > space, if we do both page-flipping if things are unfragmented and
+> > well-aligned, and 'compact' the layout otherwise, we havent solved the
+> > problem and have introduced a significant extra layer of complexity to
+> > an already security-sensitive and fragile piece of code.
+> 
+> Page flipping = COW like fork would do?
 
+i dont think we need COW. During execve() we are destroying the old 
+context and are creating a completely new context, so in theory we could 
+just 'flip over' the argument/environment pages (which are a parameter 
+to sys_execve()) from the old mm into the newly created mm, without 
+caring about the old mm.
+
+> Not sure how this would work - the arguments of execve can be anywhere 
+> in the address space and would presumably be often be in a 
+> inconvenient place like in the middle of the stack of the new 
+> executable.
+
+yes, that's one of the issues. I've done some instrumentation some time 
+ago and it seemed that the arguments are typically page-aligned, so the 
+only issue would be to clear the partial page at the end of the 
+arguments. But i still think the concept is volatile.
+
+> > The best method i found was to get rid of bprm->pages[] and to directly
+> > copy strings into the new mm via kmap (and to follow whatever RAM
+> > allocation policies/limits there are for the new mm), but that's quite
+> > ugly.
+> 
+> That sounds better.
+
+yeah. It's also pretty laborous though.
+
+	Ingo

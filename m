@@ -1,92 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965121AbVIAOIs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965118AbVIAOHs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965121AbVIAOIs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 10:08:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965125AbVIAOIs
+	id S965118AbVIAOHs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 10:07:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965121AbVIAOHs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 10:08:48 -0400
-Received: from ctb-mesg9.saix.net ([196.25.240.89]:48838 "EHLO
-	ctb-mesg9.saix.net") by vger.kernel.org with ESMTP id S965121AbVIAOIr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 10:08:47 -0400
-Message-ID: <43170AF0.7060703@geograph.co.za>
-Date: Thu, 01 Sep 2005 16:06:40 +0200
-From: Zoltan Szecsei <zoltans@geograph.co.za>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
-X-Accept-Language: en-us, en
+	Thu, 1 Sep 2005 10:07:48 -0400
+Received: from smtp007.mail.ukl.yahoo.com ([217.12.11.96]:24669 "HELO
+	smtp007.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S965118AbVIAOHr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 10:07:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=Yy4CjeYK1OyjpWaYrb5KVTPJPD6V0zzqbdSe8M/ZV0dg0TsUFikX+dNlGAhS+4RjZXUOtSPScLI6WBCNJZsjCdWw36zaCaqKUYGypICggf9kSnSBs32I+rT0Vh0fbMRRcMfyLmB1aX0hE8cdynxU+X3p+zDHodt17C1tIK5p9iU=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       "Martin J. Bligh" <mbligh@mbligh.org>
+Subject: Memory reclaim: permanently pinned dentries (aka libfs/sysfs) and the blunderbuss effect
+Date: Thu, 1 Sep 2005 15:23:22 +0200
+User-Agent: KMail/1.8.1
+Cc: LKML <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: Svetoslav Slavtchev <svetljo@gmx.de>
-CC: lkml <linux-kernel@vger.kernel.org>,
-       Aivils Stoss <aivils@users.sourceforge.net>
-Subject: Re: multiple independent keyboard kernel support
-References: <3531.1125581750@www27.gmx.net>
-In-Reply-To: <3531.1125581750@www27.gmx.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509011523.23168.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Svetoslav Slavtchev wrote:
+Martin J. Bligh described at OLS the "blunderbuss effect", i.e. the 
+inefficiency of the dentry cache shrinker at freeing whole pages, since we 
+could leave (worst-case) one dentry per page because it's at the end of the 
+LRU list.
 
->Hi,
->sorry for replying in this way, but i'm not subscribed
->to lkml, and please do CC me
->
->ruby is still maintained and the list is pretty active
->although that is mostly volunteer work from Aivils
->  
->
-Thats good. Googling for it I found too many hits, and the ones I looked 
-at were all older than Dec 2003.
+Pinned dentries (in first place libfs ones, but he also includes directories 
+one - I think they are just hard to free, not really pinned) are allocated 
+from the common dentry_cache, i.e. mixed with normal ones - why don't we fix 
+that?
 
->it's running pretty stable on x86 and x86_64
->and there are patches almost all recent 2.6 kernels (upto 2.6.12)
->  
->
-excellent - I'm running 2.6.11-21.8 (SuSE 9.3)
+It seems that adding an (optional) flag to a new __d_alloc (with d_alloc 
+becoming its wrapper) would be enough, since dentries are always allocated 
+directly by filesystems (either on lookup or on creation of the pinned 
+dentry). Or call it d_alloc_lively().
 
->and IIRC another person is maintaing the backport to linux-2.4
->
->please check out this site : http://www.ltn.lv/~aivils/
->  
->
-Have bookmarked it - thanks.
+Also, it seems that the slab allocator willl allocate objects at fixed 
+locations inside a page (even with page colouring, colour_offset is fixed 
+per-slab and saved)*, once that slab has been allocated... so if we add a 
+"DCACHE_FREED" flag and zero slabs content on alloc (at least for this slab), 
+we could maybe enumerate all dentries in a page and try to free them, to 
+finally free the whole slab.
 
->best,
->
->svetljo
->
->PS.
->from user experiances, i doubt you'll be able to get it
->running with onboard graphic or with "fake" multihead card
->  
->
-Not an issue - I intend to use onboard and 2 PCI (nvidia FX5200 based) 
-cards. (or maybe even 2 PCIExpress in discreet mode on a mobo with 2 
-slots. - dont know yet....)
-
->/* under "fake" i do understand almost all cards on the market
-> that are dualhead, and under "real" Matrox's G200/G450 MMS
-> which do have 4 real chips on it */
->  
->
-Yes - I understand this too and I have also noted that this doesn't 
-work. ie: you *need* seperate graphics controllers.
-
-Cheers & many thanks for the pointers,
-Zoltan
-
-
+* Otherwise this problem could probably be fixed some way.
 -- 
-
-==================================
-Geograph (Pty) Ltd
-P.O. Box 31255
-Tokai
-7966
-Tel:    +27-21-7018492
-Fax:	+27-86-6115323
-Mobile: +27-83-6004028
-==================================
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
+http://www.user-mode-linux.org/~blaisorblade
 
 
+	
+
+	
+		
+___________________________________ 
+Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
+http://mail.yahoo.it

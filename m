@@ -1,165 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750772AbVIBTAF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbVIBTGH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750772AbVIBTAF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 15:00:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750889AbVIBTAF
+	id S1750733AbVIBTGH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 15:06:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750889AbVIBTGH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 15:00:05 -0400
-Received: from sccrmhc14.comcast.net ([63.240.76.49]:59281 "EHLO
-	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S1750772AbVIBTAC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 15:00:02 -0400
-Message-ID: <4318A12A.4070909@acm.org>
-Date: Fri, 02 Sep 2005 13:59:54 -0500
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] part 3 - Convert IPMI driver over to use refcounts
-References: <1125602042.4403.7.camel@i2.minyard.local> <20050901164703.6a21f8e3.akpm@osdl.org>
-In-Reply-To: <20050901164703.6a21f8e3.akpm@osdl.org>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+	Fri, 2 Sep 2005 15:06:07 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:6583 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750733AbVIBTGE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 15:06:04 -0400
+Subject: [PATCH] document mark_inode_dirty & mark_inode_dirty_sync in fs.h
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Andreas Dilger <adilger@clusterfs.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       fsdevel <linux-fsdevel@vger.kernel.org>
+In-Reply-To: <20050902164649.GW7054@schatzie.adilger.int>
+References: <17AB476A04B7C842887E0EB1F268111E026F3E@xpserver.intra.lexbox.org>
+	 <1125664959.9401.15.camel@kleikamp.austin.ibm.com>
+	 <20050902164649.GW7054@schatzie.adilger.int>
+Content-Type: text/plain
+Date: Fri, 02 Sep 2005 14:05:48 -0500
+Message-Id: <1125687948.9402.53.camel@kleikamp.austin.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+On Fri, 2005-09-02 at 10:46 -0600, Andreas Dilger wrote:
+> On Sep 02, 2005  07:42 -0500, Dave Kleikamp wrote:
+> > They put the inode on the superblock's dirty list and make the inode as
+> > dirty in the i_state field.  This makes sure that the inode will
+> > eventually be written to disk.
+> > 
+> > mark_inode_dirty_sync only sets the I_DIRTY_SYNC flag, which does not
+> > imply that any file data was changed.  It is called when a minor change
+> > is made to an inode, such as a timestamp is changed.  Some sync
+> > operations will only write the inode if data was written, so can avoid
+> > writing the an inode that is only dirtied by I_DIRTY_SYNC.
+> > 
+> > mark_inode_dirty sets I_DIRTY which is I_DIRTY_SYNC | I_DIRTY_DATASYNC |
+> > I_DIRTY_PAGES.  This indicates that the in-memory inode has changes to
+> > the data that have not yet been written to disk.
+> 
+> Dave, could you consider submitting a patch to add the above as comments
+> to fs.h for future reference?
+> 
+> Cheers, Andreas
 
->>The IPMI driver uses read/write locks to ensure that things
->>exist while they are in use.  This is bad from a number of
->>points of view.  This patch removes the rwlocks and uses
->>refcounts and a special synced list (the entries can be
->>refcounted and removal is blocked while an entry is in
->>use).
->>
->>    
->>
->
->This:
->
->  
->
->>+
->>+struct synced_list_entry_task_q
->> {
->> 	struct list_head link;
->>+	task_t           *process;
->>+};
->>+
->>    
->>
->
->  
->
->>+#define synced_list_for_each_entry(pos, l, entry, flags)		\
->>+	for ((spin_lock_irqsave(&(l)->lock, flags),			      \
->>+	      pos = container_of((l)->head.next, typeof(*(pos)),entry.link)); \
->>+	     (prefetch((pos)->entry.link.next),				      \
->>+	      &(pos)->entry.link != (&(l)->head)			      \
->>+	        ? (atomic_inc(&(pos)->entry.usecount),			      \
->>+                   spin_unlock_irqrestore(&(l)->lock, flags), 1)	      \
->>+	        : (spin_unlock_irqrestore(&(l)->lock, flags), 0));	      \
->>+	     (spin_lock_irqsave(&(l)->lock, flags),			      \
->>+	      synced_list_wake(&(pos)->entry),				      \
->>+              pos = container_of((pos)->entry.link.next, typeof(*(pos)),      \
->>+				 entry.link)))
->>    
->>
->
->(gad)
->  
->
-Yes, I was trying to preserve list semantics and it got out of hand. It 
-is pretty ugly.
+How about this?
+=================
+Document mark_inode_dirty and mark_inode_dirty_sync in fs.h
 
->
->And this:
->
->  
->
->>+static int synced_list_clear(struct synced_list *head,
->>+			     int (*match)(struct synced_list_entry *,
->>+					  void *),
->>+			     void (*free)(struct synced_list_entry *),
->>+			     void *match_data)
->>+{
->>+	struct synced_list_entry *ent, *ent2;
->>+	int                      rv = -ENODEV;
->>+	int                      mrv = SYNCED_LIST_MATCH_CONTINUE;
->>+
->>+	spin_lock_irq(&head->lock);
->>+ restart:
->>+	list_for_each_entry_safe(ent, ent2, &head->head, link) {
->>+		if (match) {
->>+			mrv = match(ent, match_data);
->>+			if (mrv == SYNCED_LIST_NO_MATCH)
->>+				continue;
->>+		}
->>+		if (atomic_read(&ent->usecount)) {
->>+			struct synced_list_entry_task_q e;
->>+			e.process = current;
->>+			list_add(&e.link, &ent->task_list);
->>+			__set_current_state(TASK_UNINTERRUPTIBLE);
->>+			spin_unlock_irq(&head->lock);
->>+			schedule();
->>+			spin_lock_irq(&head->lock);
->>+			list_del(&e.link);
->>+			goto restart;
->>+		}
->>+		list_del(&ent->link);
->>+		rv = 0;
->>+		if (free)
->>+			free(ent);
->>+		if (mrv == SYNCED_LIST_MATCH_STOP)
->>+			break;
->>+	}
->>+	spin_unlock_irq(&head->lock);
->>+	return rv;
->>+}
->>    
->>
->
->Look awfully similar to wait_queue_head_t.  Are you sure existing
->infrastructure cannot be used?
->  
->
-I already had a lock and it seemed wasteful to have two locks. And it 
-didn't really save much code and it didn't quite fit.
+Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
 
-Basically, I need a notifier list that avoids traversal/removal race 
-conditions. An asynchronous event or command comes in and you need to 
-inform all the users who are waiting for events or commands. I don't 
-think anything like that exists currently (the current notifier list has 
-no lock on traversal). I don't want a lock around the whole traversal 
-because doing callbacks with locks held is not a good idea.
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -1048,7 +1048,7 @@ struct super_operations {
+ /* Inode state bits.  Protected by inode_lock. */
+ #define I_DIRTY_SYNC		1 /* Not dirty enough for O_DATASYNC */
+ #define I_DIRTY_DATASYNC	2 /* Data-related inode changes pending */
+-#define I_DIRTY_PAGES		4 /* Data-related inode changes pending */
++#define I_DIRTY_PAGES		4 /* Data changes pending */
+ #define __I_LOCK		3
+ #define I_LOCK			(1 << __I_LOCK)
+ #define I_FREEING		16
+@@ -1059,11 +1059,19 @@ struct super_operations {
+ #define I_DIRTY (I_DIRTY_SYNC | I_DIRTY_DATASYNC | I_DIRTY_PAGES)
+ 
+ extern void __mark_inode_dirty(struct inode *, int);
++/*
++ * mark_inode_dirty indicates pending changes to the inode's data.
++ * Puts inode on superblock's dirty list.
++ */
+ static inline void mark_inode_dirty(struct inode *inode)
+ {
+ 	__mark_inode_dirty(inode, I_DIRTY);
+ }
+ 
++/*
++ * mark_inode_dirty_sync indicates non-data related changes to the inode,
++ * such as a change to a timestamp.  Puts inode on superblock's dirty list.
++ */
+ static inline void mark_inode_dirty_sync(struct inode *inode)
+ {
+ 	__mark_inode_dirty(inode, I_DIRTY_SYNC);
 
-The list I created simply blocks a deleter while the item is in use. 
-There may be a better way to handle this, I'll think about it (and take 
-any suggestions :). I read some stuff about RCU when looking at this, 
-and it didn't seem suitable at the time, but I just reread it and it 
-seems like it would be fine. I'll remove all this garbage and replace it 
-with an RCU list.
+-- 
+David Kleikamp
+IBM Linux Technology Center
 
->  
->
->>1 files changed, 692 insertions(+), 461 deletions(-)
->>    
->>
->
->Ow.  Why is it worthwhile?
->  
->
-The change is definately needed. The driver, as it currently is, holds 
-read locks for very long periods of time. It does this to make sure 
-various objects don't get deleted. Holding read locks for this long is 
-bad, and this is the job of refcounts. It's hard to break up changing 
-fundamental underpinnings like this.
-
-The patch is big, and from the above it looks like it is not quite 
-ready. I'll continue to look at it.
-
-Thank you,
-
--Corey

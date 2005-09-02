@@ -1,24 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030641AbVIBCIg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030646AbVIBCK2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030641AbVIBCIg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 22:08:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030648AbVIBCIf
+	id S1030646AbVIBCK2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 22:10:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030648AbVIBCK2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 22:08:35 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:57038 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030641AbVIBCIf (ORCPT
+	Thu, 1 Sep 2005 22:10:28 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:37839 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030646AbVIBCK2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 22:08:35 -0400
-Date: Thu, 1 Sep 2005 19:06:55 -0700
+	Thu, 1 Sep 2005 22:10:28 -0400
+Date: Thu, 1 Sep 2005 19:08:46 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-mm1
-Message-Id: <20050901190655.345914ba.akpm@osdl.org>
-In-Reply-To: <1125626219l.6072l.0l@werewolf.able.es>
-References: <fa.hqupr0d.1u3af35@ifi.uio.no>
-	<4317AD4D.6030001@reub.net>
-	<1125626219l.6072l.0l@werewolf.able.es>
+To: Hiro Yoshioka <hyoshiok@miraclelinux.com>
+Cc: ak@suse.de, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       hyoshiok@miraclelinux.com
+Subject: Re: [RFC] [PATCH] cache pollution aware __copy_from_user_ll()
+Message-Id: <20050901190846.479229cf.akpm@osdl.org>
+In-Reply-To: <20050902.104359.26944961.hyoshiok@miraclelinux.com>
+References: <20050825.135420.640917643.hyoshiok@miraclelinux.com>
+	<20050901.180723.982928921.hyoshiok@miraclelinux.com>
+	<200509011136.38057.ak@suse.de>
+	<20050902.104359.26944961.hyoshiok@miraclelinux.com>
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -26,28 +28,23 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"J.A. Magallon" <jamagallon@able.es> wrote:
+Hiro Yoshioka <hyoshiok@miraclelinux.com> wrote:
 >
-> 
-> On 1/09/2005 10:58 a.m., Andrew Morton wrote:
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13/2.6.13-mm1/
+> From: Andi Kleen <ak@suse.de>
+> > On Thursday 01 September 2005 11:07, Hiro Yoshioka wrote:
 > > 
-> > - Included Alan's big tty layer buffering rewrite.  This breaks the build on
-> >   lots of more obscure character device drivers.  Patches welcome (please cc
-> >   Alan).
+> > > The following is the almost final version of the
+> > > cache pollution aware __copy_from_user_ll() patch.
 > > 
+> > Looks good to me.
+> > 
+> > Once the filemap.c hunk is in I'll probably do something
+> > similar for x86-64.
 > 
-> I have problems with udev and latest -mm.
-> 2.6.13 boots fine, but 2.6.13-mm1 blocks when starting udev.
-> System is Mandriva Cooker. As cooker, things are changing fast (initscripts,
-> udev, etc), but the fact is that with the same setup, plain .13 boots
-> and -mm1 blocks. Udev is 068 version.
-> 
-> Any idea about what can be the reason ?
+> Thank you very much. What else should I do? Shall I just
+> be waiting to check in the patch?
 > 
 
-There's some suspect locking in the /proc/devices seq_file conversion code.
-
-Could you revert convert-proc-devices-to-use-seq_file-interface-fix.patch
-then convert-proc-devices-to-use-seq_file-interface.patch?
-
+I suppose I'll queue it up in -mm for a while, although I'm a bit dubious
+about the whole idea...  We'll gain some and we'll lose some - how do we
+know it's a net gain?

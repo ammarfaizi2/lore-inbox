@@ -1,72 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030673AbVIBE1S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030677AbVIBEbM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030673AbVIBE1S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 00:27:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030674AbVIBE1S
+	id S1030677AbVIBEbM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 00:31:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030678AbVIBEbM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 00:27:18 -0400
-Received: from fmr23.intel.com ([143.183.121.15]:14555 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1030673AbVIBE1R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 00:27:17 -0400
-Message-Id: <200509020427.j824R0g01601@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Dave McCracken'" <dmccr@us.ibm.com>, "Andrew Morton" <akpm@osdl.org>
-Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>,
-       "Linux Memory Management" <linux-mm@kvack.org>
-Subject: RE: [PATCH 1/1] Implement shared page tables
-Date: Thu, 1 Sep 2005 21:26:27 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Fri, 2 Sep 2005 00:31:12 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:28648 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030677AbVIBEbL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 00:31:11 -0400
+Date: Thu, 1 Sep 2005 21:29:29 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Hiro Yoshioka <hyoshiok@miraclelinux.com>
+Cc: ak@suse.de, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       hyoshiok@miraclelinux.com
+Subject: Re: [RFC] [PATCH] cache pollution aware __copy_from_user_ll()
+Message-Id: <20050901212929.52e2d2d6.akpm@osdl.org>
+In-Reply-To: <20050901.180723.982928921.hyoshiok@miraclelinux.com>
+References: <20050824.231156.278740508.hyoshiok@miraclelinux.com.suse.lists.linux.kernel>
+	<p73ll2rfgv7.fsf@verdi.suse.de>
+	<20050825.135420.640917643.hyoshiok@miraclelinux.com>
+	<20050901.180723.982928921.hyoshiok@miraclelinux.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcWtsDj7hT33i8q8RK6wi49tnEe7OABxRgLw
-In-Reply-To: <7C49DFF721CB4E671DB260F9@[10.1.1.4]>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave McCracken wrote on Tuesday, August 30, 2005 3:13 PM
-> This patch implements page table sharing for all shared memory regions that
-> span an entire page table page.  It supports sharing at multiple page
-> levels, depending on the architecture.
+Hiro Yoshioka <hyoshiok@miraclelinux.com> wrote:
+>
+> --- linux-2.6.12.4.orig/arch/i386/lib/usercopy.c	2005-08-05 16:04:37.000000000 +0900
+>  +++ linux-2.6.12.4.nt/arch/i386/lib/usercopy.c	2005-09-01 17:09:41.000000000 +0900
 
-In function pt_share_pte():
-
-> +		while ((svma = next_shareable_vma(vma, svma, &iter))) {
-> +			spgd = pgd_offset(svma->vm_mm, address);
-> +			if (pgd_none(*spgd))
-> +				continue;
-> +
-> +			spud = pud_offset(spgd, address);
-> +			if (pud_none(*spud))
-> +				continue;
-> +
-> +			spmd = pmd_offset(spud, address);
-> +			if (pmd_none(*spmd))
-> +				continue;
-....
-> +			page = pmd_page(*spmd);
-> +			pt_increment_share(page);
-> +			pmd_populate(vma->vm_mm, pmd, page);
-> +		}
-
-
-Do you really have to iterate through all the vma?  Can't you just break
-out of the while loop on first successful match and populating the pmd?
-I would think you will find them to be the same pte page. Or did I miss
-some thing?
-
-
---- ./mm/ptshare.c.orig	2005-09-01 21:16:35.311915518 -0700
-+++ ./mm/ptshare.c	2005-09-01 21:18:24.629296992 -0700
-@@ -200,6 +200,7 @@ pt_share_pte(struct vm_area_struct *vma,
- 			page = pmd_page(*spmd);
- 			pt_increment_share(page);
- 			pmd_populate(vma->vm_mm, pmd, page);
-+			break;
- 		}
- 	}
- 	pte = pte_alloc_map(vma->vm_mm, pmd, address);
-
+Really.  Please redo and retest the patch against a current kernel.

@@ -1,77 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030642AbVIBB7L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030643AbVIBCDV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030642AbVIBB7L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 21:59:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030643AbVIBB7L
+	id S1030643AbVIBCDV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 22:03:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030645AbVIBCDV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 21:59:11 -0400
-Received: from fmr22.intel.com ([143.183.121.14]:30154 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1030642AbVIBB7K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 21:59:10 -0400
-Message-Id: <200509020158.j821wtg00465@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Dave McCracken'" <dmccr@us.ibm.com>, "Andrew Morton" <akpm@osdl.org>
-Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>,
-       "Linux Memory Management" <linux-mm@kvack.org>
-Subject: RE: [PATCH 1/1] Implement shared page tables
-Date: Thu, 1 Sep 2005 18:58:23 -0700
+	Thu, 1 Sep 2005 22:03:21 -0400
+Received: from [210.76.114.20] ([210.76.114.20]:47298 "EHLO ccoss.com.cn")
+	by vger.kernel.org with ESMTP id S1030643AbVIBCDV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 22:03:21 -0400
+Message-ID: <4317B309.3000404@ccoss.com.cn>
+Date: Fri, 02 Sep 2005 10:03:53 +0800
+From: "liyu@WAN" <liyu@ccoss.com.cn>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [Q] how to use syslogd to debug kernel ?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcWtsDj7hT33i8q8RK6wi49tnEe7OABr/mLA
-In-Reply-To: <7C49DFF721CB4E671DB260F9@[10.1.1.4]>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave McCracken wrote on Tuesday, August 30, 2005 3:13 PM
-> This patch implements page table sharing for all shared memory regions that
-> span an entire page table page.  It supports sharing at multiple page
-> levels, depending on the architecture.
-> 
-> 
-> This version of the patch supports i386 and x86_64.  I have additional
-> patches to support ppc64, but they are not quite ready for public
-> consumption.
-> 
->  ....
-> +		prio_tree_iter_init(&iter, &mapping->i_mmap,
-> +				    vma->vm_start, vma->vm_end);
+Hi, everyone.
+
+    I know kernel oops can be seen by run 'dmesg', but if
+kernel crashed, we can not run it.   so I reconfigure syslogd
+to support remote forward, the debug machine content of
+syslogd.conf is:
+
+##################
+    kern.*             @192.168.28.137
+    (more lines after it are ignored)
+##################
+
+    and run syslogd with '-m 0 -h' option.
+
+    the macheine have IP 192.168.28.137, its syslogd.conf:
+
+##################
+    #kern.*            /var/messages
+    (more lines after it are ignored)  
+##################
+
+    and I run syslogd on this machine with '-r' option.
+
+    After all, I run "tail -f /var/messages" on 192.168.28.137,
+I can see boot log and normal printk() result. Well! however,
+the most importantest message, crash Oops is lost.
+
+    Any suggest on it?
+
+    Wait for any reply. thanks in advanced.
 
 
-I think this is a bug.  The radix priority tree for address_space->
-i_mmap is keyed on vma->vm_pgoff.  Your patch uses the vma virtual
-address to find a shareable range, Which will always fail a match
-even though there is one.  The following is a quick hack I did to
-make it work.
+sailor
 
-- Ken
 
---- linux-2.6.13/mm/ptshare.c.orig	2005-09-01 18:58:12.299321918 -0700
-+++ linux-2.6.13/mm/ptshare.c	2005-09-01 18:58:39.846196580 -0700
-@@ -26,6 +26,11 @@
- #include <asm/pgtable.h>
- #include <asm/pgalloc.h>
- 
-+#define RADIX_INDEX(vma)  ((vma)->vm_pgoff)
-+#define VMA_SIZE(vma)	  (((vma)->vm_end - (vma)->vm_start) >> PAGE_SHIFT)
-+/* avoid overflow */
-+#define HEAP_INDEX(vma)	  ((vma)->vm_pgoff + (VMA_SIZE(vma) - 1))
-+
- #undef	PT_DEBUG
- 
- #ifndef __PAGETABLE_PMD_FOLDED
-@@ -173,7 +178,7 @@ pt_share_pte(struct vm_area_struct *vma,
- 		       address);
- #endif
- 		prio_tree_iter_init(&iter, &mapping->i_mmap,
--				    vma->vm_start, vma->vm_end);
-+				    RADIX_INDEX(vma), HEAP_INDEX(vma));
- 
- 		while ((svma = next_shareable_vma(vma, svma, &iter))) {
- 			spgd = pgd_offset(svma->vm_mm, address);
+
+
+
+
+
 
 

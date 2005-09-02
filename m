@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161007AbVIBGpH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030426AbVIBGwW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161007AbVIBGpH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 02:45:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161008AbVIBGpG
+	id S1030426AbVIBGwW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 02:52:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030446AbVIBGwW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 02:45:06 -0400
-Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:48530 "HELO
-	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1161007AbVIBGpF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 02:45:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=VlAe7IydsPwAYM/Trle8AJ/m5C1Xd7i4qrPjBHZWu0HN0mVlX6v6aBHeawhTYfV99aHf/NDabxLGviMTjPNGOy8WF4lZKAkcnCUYBiXPiCFrSliZk5Zd+4O6RHm7fM03wR2JHrXGRdpXKsznEuZzlUybaMJg3jkrkNU4Co0WXoY=  ;
-Message-ID: <4317F50B.6080005@yahoo.com.au>
-Date: Fri, 02 Sep 2005 16:45:31 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Memory Management <linux-mm@kvack.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: New lockless pagecache
-References: <4317F071.1070403@yahoo.com.au>
-In-Reply-To: <4317F071.1070403@yahoo.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 2 Sep 2005 02:52:22 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:20633 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030426AbVIBGwV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 02:52:21 -0400
+Date: Thu, 1 Sep 2005 23:50:40 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Miles Bader <miles@gnu.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] v850: Round up length passed to slram driver to a
+ multiple of SLRAM_BLK_SZ
+Message-Id: <20050901235040.4ecc8bbf.akpm@osdl.org>
+In-Reply-To: <20050902061330.BEF2B4DC@dhapc248.dev.necel.com>
+References: <20050902061330.BEF2B4DC@dhapc248.dev.necel.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
+Miles Bader <miles@gnu.org> wrote:
+>
+>  +
+>  +/* From drivers/mtd/devices/slram.c */
+>  +#define SLRAM_BLK_SZ 0x4000
+>  +
+>   /* Set the root filesystem to be the given memory region.
+>      Some parameter may be appended to CMD_LINE.  */
+>   void set_mem_root (void *addr, size_t len, char *cmd_line)
+>   {
+>  +	/* Some sort of idiocy in MTD means we must supply a length that's
+>  +	   a multiple of SLRAM_BLK_SZ.  We just round up the real length,
+>  +	   as the file system shouldn't attempt to access anything beyond
+>  +	   the end of the image anyway.  */
+>  +	len = (((len - 1) + SLRAM_BLK_SZ) / SLRAM_BLK_SZ) * SLRAM_BLK_SZ;
 
-> I think this is getting pretty stable. No guarantees of course,
-> but it would be great if anyone gave it a test.
-> 
-
-Or review, I might add. While I understand such a review is
-still quite difficult, this code really is far less complex
-than the previous lockless pagecache patches.
-
-(Ignore 1/7 though, which is a rollup - a broken out patchset
-can be provided on request)
-
-Nick
-
--- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+If SLRAM_BLK_SZ will always be a power of two, there's kernel.h:ALIGN()..

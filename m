@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751319AbVIBNxT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751325AbVIBNxq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751319AbVIBNxT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 09:53:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751322AbVIBNxT
+	id S1751325AbVIBNxq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 09:53:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751322AbVIBNxq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 09:53:19 -0400
-Received: from yakov.inr.ac.ru ([194.67.69.111]:63668 "HELO yakov.inr.ac.ru")
-	by vger.kernel.org with SMTP id S1751319AbVIBNxR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 09:53:17 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=ms2.inr.ac.ru;
-  b=o9nz6pI30hanKd0PVBYUn88GOzn5CTcVhZoncBH8o1H0TybKmCsFCtZgJ24Vai9BGCSRxdoA/82aycqvWi3FfOYBD43MyT8D7aImEazAd+YDGFml2amyVHzYMXmVs7y7QZq3Mvph4wEAhORjSC/oeVE9LjjXLehawflFKMokprY=;
-Date: Fri, 2 Sep 2005 17:52:56 +0400
-From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-To: Guillaume Autran <gautran@mrv.com>
-Cc: John Heffner <jheffner@psc.edu>, Ion Badulescu <lists@limebrokerage.com>,
-       "David S. Miller" <davem@davemloft.net>, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: Possible BUG in IPv4 TCP window handling, all recent 2.4.x/2.6.x kernels
-Message-ID: <20050902135256.GC12617@yakov.inr.ac.ru>
-References: <Pine.LNX.4.61.0509011713240.6083@guppy.limebrokerage.com> <20050901.154300.118239765.davem@davemloft.net> <Pine.LNX.4.61.0509011845040.6083@guppy.limebrokerage.com> <2d02c76a84655d212634a91002b3eccd@psc.edu> <43184D79.6040009@mrv.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43184D79.6040009@mrv.com>
-User-Agent: Mutt/1.5.6i
+	Fri, 2 Sep 2005 09:53:46 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:27908 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id S1751331AbVIBNxp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 09:53:45 -0400
+Message-ID: <43185ACF.5060401@tmr.com>
+Date: Fri, 02 Sep 2005 09:59:43 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13 git snapshot patches still empty
+References: <4317A8B7.508@blueyonder.co.uk> <20050901225956.185572ae.akpm@osdl.org>
+In-Reply-To: <20050901225956.185572ae.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Andrew Morton wrote:
+> Sid Boyce <sboyce@blueyonder.co.uk> wrote:
+> 
+>>For both -git1.gz/.bz2 and -git2.gz/.bz2.
+> 
+> 
+> http://www.zip.com.au/~akpm/linux/patches/stuff/linus.patch.gz is updated
+> once or twice daily.  It's Linus's latest tip-of-tree.
 
-> I experienced the very same problem but with window size going all the 
-> way down to just a few bytes (14 bytes). dump files available upon 
-> requests :)
+That's nice, but consider trying to find bugs when someone reports a 
+problem and there's no ggod way to tell exactly what patches are 
+present. At least with git patches, anyone can **easily** replicate the 
+source tree for debugging.
 
-I do request.
-
-TCP is not allowed to reduce window to a value less than 2*MSS no matter
-how hard network device or peer try to confuse it. :-)
-
-Alexey
+Is it really that hard to fix the process?
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

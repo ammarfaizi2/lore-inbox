@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161089AbVIBWld@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161092AbVIBWoh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161089AbVIBWld (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 18:41:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161091AbVIBWld
+	id S1161092AbVIBWoh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 18:44:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161091AbVIBWoh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 18:41:33 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:42962 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1161089AbVIBWlc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 18:41:32 -0400
-Subject: Re: [PATCH] RT: Invert some TRACE_BUG_ON_LOCKED tests
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org, dwalker@mvista.com, mingo@elte.hu
-In-Reply-To: <20050902200856.GY3966@smtp.west.cox.net>
-References: <1125691250.2709.2.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-	 <20050902200856.GY3966@smtp.west.cox.net>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Fri, 02 Sep 2005 18:40:52 -0400
-Message-Id: <1125700852.5601.16.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Fri, 2 Sep 2005 18:44:37 -0400
+Received: from web32512.mail.mud.yahoo.com ([68.142.207.222]:8553 "HELO
+	web32512.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1161092AbVIBWog (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 18:44:36 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=R7yEFhEa14ISbLq2FOhpkiu7/YKuS358cyIDDP6t95099Yuo2OUZEaAi0uLNxbXsStYEmziJzW5AaeW7oBnhqpK/9egIVE2IDcw4OQouEfFxOYAVb2J7C8j3drILIQy0JTwxcKy6XprkA13S/FAVnhO8R0LnRuR5AWDUUKn/gko=  ;
+Message-ID: <20050902224418.78897.qmail@web32512.mail.mud.yahoo.com>
+Date: Fri, 2 Sep 2005 15:44:18 -0700 (PDT)
+From: Ravi Wijayaratne <ravi_wija@yahoo.com>
+Subject: Hotswap support for libata
+To: lkosewsk@nit.ca, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-09-02 at 13:08 -0700, Tom Rini wrote:
-> With 2.6.13-rt4 I had to do the following in order to get my paired down
-> config booting on my x86 whitebox (defconfig works fine, after I enable
-> enet/8250_console/nfsroot).  Daniel Walker helped me trace this down.
+Hi Luke
+
+I was wandering whether you could direct me to
+a place where I could find the most up to date
+patches for libata hotplug support you authored.
+
+Has Jeff Garzik decided to integrate this code
+to 2.6 libata ?
+
+Thanks 
+Ravi  
+
+------------------------------
+Ravi Wijayaratne
 
 
-Tom,
-
-TRACE_BUG_ON_LOCKED(!spin_is_locked(&lock->wait_lock));
-
-_is_ correct.  Those locks must be locked at those cases.  If it isn't
-then we wan't to trigger a bug.  Hence the "BUG_ON" part.  You can never
-guarantee that a lock will be unlock since another process on another
-CPU might have it.
-
-Now if you are getting a BUG, where as one of these places the lock is
-_not_ held, then that's a bug.
-
-Hmm, I wonder if these should be switched to __raw_spin_is_locked.
-
-Oh wait, is this a UP system?  Shoot, spin_is_locked on UP is defined as
-zero so this _would_ trigger. Ouch!
-
-Ingo, I guess we need a TRACE_BUG_ON_LOCKED_SMP() macro.
-
--- Steve
-
-
-
+		
+____________________________________________________
+Start your day with Yahoo! - make it your home page 
+http://www.yahoo.com/r/hs 
+ 

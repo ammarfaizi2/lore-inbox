@@ -1,123 +1,295 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161009AbVIBU64@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751190AbVIBU53@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161009AbVIBU64 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 16:58:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbVIBU5F
+	id S1751190AbVIBU53 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 16:57:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbVIBU5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 16:57:05 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:21662 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751336AbVIBU45 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 16:56:57 -0400
-Subject: [PATCH 11/11] memory hotplug: ppc64 specific hot-add functions
+	Fri, 2 Sep 2005 16:57:12 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:51949 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751190AbVIBU4u
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 16:56:50 -0400
+Subject: [PATCH 05/11] memory hotplug locking: node_size_lock
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, Dave Hansen <haveblue@us.ibm.com>
 From: Dave Hansen <haveblue@us.ibm.com>
-Date: Fri, 02 Sep 2005 13:56:52 -0700
+Date: Fri, 02 Sep 2005 13:56:47 -0700
 References: <20050902205643.9A4EC17A@kernel.beaverton.ibm.com>
 In-Reply-To: <20050902205643.9A4EC17A@kernel.beaverton.ibm.com>
-Message-Id: <20050902205652.59260842@kernel.beaverton.ibm.com>
+Message-Id: <20050902205647.216D902B@kernel.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Here is a set of ppc64 specific patches that at least allow
-compilation/booting with the following configurations:
+pgdat->node_size_lock is basically only neeeded in one place in the
+normal code: show_mem(), which is the arch-specific sysrq-m printing
+function.
 
-FLATMEM
-SPARSEMEN
-SPARSEMEM + MEMORY_HOTPLUG
+Strictly speaking, the architectures not doing memory hotplug do
+no need this locking in show_mem().  However, they are all included
+for completeness.  This should also make any future consolidation
+of all of the implementations a little more straightforward.
 
-Signed-off-by: Mike Kravetz <kravetz@us.ibm.com>
+This lock is also held in the sparsemem code during a memory removal,
+as sections are invalidated.  This is the place there pfn_valid() is
+made false for a memory area that's being removed.  The lock is
+only required when doing pfn_valid() operations on memory which the
+user does not already have a reference on the page, such as in
+show_mem().
+
 Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
-
 ---
 
- memhotplug-dave/arch/ppc64/mm/init.c         |   77 +++++++++++++++++++++++++++
- memhotplug-dave/include/asm-ppc64/abs_addr.h |    2 
- 2 files changed, 79 insertions(+)
+ memhotplug-dave/arch/alpha/mm/numa.c           |    3 ++
+ memhotplug-dave/arch/i386/mm/pgtable.c         |    3 ++
+ memhotplug-dave/arch/ia64/mm/discontig.c       |    7 ++++-
+ memhotplug-dave/arch/m32r/mm/init.c            |    9 +++++-
+ memhotplug-dave/arch/parisc/mm/init.c          |    3 ++
+ memhotplug-dave/arch/ppc64/mm/init.c           |    6 ++++
+ memhotplug-dave/include/linux/memory_hotplug.h |   34 +++++++++++++++++++++++++
+ memhotplug-dave/include/linux/mmzone.h         |   12 ++++++++
+ memhotplug-dave/mm/page_alloc.c                |    1 
+ 9 files changed, 76 insertions(+), 2 deletions(-)
 
-diff -puN arch/ppc64/mm/init.c~D2-ppc64-hotplug-functions arch/ppc64/mm/init.c
---- memhotplug/arch/ppc64/mm/init.c~D2-ppc64-hotplug-functions	2005-08-18 14:59:50.000000000 -0700
-+++ memhotplug-dave/arch/ppc64/mm/init.c	2005-08-18 14:59:50.000000000 -0700
-@@ -870,3 +870,80 @@ pgprot_t phys_mem_access_prot(struct fil
- 	return vma_prot;
+diff -puN arch/alpha/mm/numa.c~C5.2-pgdat_size_lock arch/alpha/mm/numa.c
+--- memhotplug/arch/alpha/mm/numa.c~C5.2-pgdat_size_lock	2005-09-02 12:42:10.000000000 -0700
++++ memhotplug-dave/arch/alpha/mm/numa.c	2005-09-02 12:42:10.000000000 -0700
+@@ -371,6 +371,8 @@ show_mem(void)
+ 	show_free_areas();
+ 	printk("Free swap:       %6ldkB\n", nr_swap_pages<<(PAGE_SHIFT-10));
+ 	for_each_online_node(nid) {
++		unsigned long flags;
++		pgdat_resize_lock(NODE_DATA(nid), &flags);
+ 		i = node_spanned_pages(nid);
+ 		while (i-- > 0) {
+ 			struct page *page = nid_page_nr(nid, i);
+@@ -384,6 +386,7 @@ show_mem(void)
+ 			else
+ 				shared += page_count(page) - 1;
+ 		}
++		pgdat_resize_unlock(NODE_DATA(nid), &flags);
+ 	}
+ 	printk("%ld pages of RAM\n",total);
+ 	printk("%ld free pages\n",free);
+diff -puN arch/i386/mm/pgtable.c~C5.2-pgdat_size_lock arch/i386/mm/pgtable.c
+--- memhotplug/arch/i386/mm/pgtable.c~C5.2-pgdat_size_lock	2005-09-02 12:42:10.000000000 -0700
++++ memhotplug-dave/arch/i386/mm/pgtable.c	2005-09-02 12:42:10.000000000 -0700
+@@ -31,11 +31,13 @@ void show_mem(void)
+ 	pg_data_t *pgdat;
+ 	unsigned long i;
+ 	struct page_state ps;
++	unsigned long flags;
+ 
+ 	printk(KERN_INFO "Mem-info:\n");
+ 	show_free_areas();
+ 	printk(KERN_INFO "Free swap:       %6ldkB\n", nr_swap_pages<<(PAGE_SHIFT-10));
+ 	for_each_pgdat(pgdat) {
++		pgdat_resize_lock(pgdat, &flags);
+ 		for (i = 0; i < pgdat->node_spanned_pages; ++i) {
+ 			page = pgdat_page_nr(pgdat, i);
+ 			total++;
+@@ -48,6 +50,7 @@ void show_mem(void)
+ 			else if (page_count(page))
+ 				shared += page_count(page) - 1;
+ 		}
++		pgdat_resize_unlock(pgdat, &flags);
+ 	}
+ 	printk(KERN_INFO "%d pages of RAM\n", total);
+ 	printk(KERN_INFO "%d pages of HIGHMEM\n", highmem);
+diff -puN arch/ia64/mm/discontig.c~C5.2-pgdat_size_lock arch/ia64/mm/discontig.c
+--- memhotplug/arch/ia64/mm/discontig.c~C5.2-pgdat_size_lock	2005-09-02 12:42:10.000000000 -0700
++++ memhotplug-dave/arch/ia64/mm/discontig.c	2005-09-02 13:43:06.000000000 -0700
+@@ -524,9 +524,13 @@ void show_mem(void)
+ 	show_free_areas();
+ 	printk("Free swap:       %6ldkB\n", nr_swap_pages<<(PAGE_SHIFT-10));
+ 	for_each_pgdat(pgdat) {
+-		unsigned long present = pgdat->node_present_pages;
++		unsigned long present;
++		unsigned long flags;
+ 		int shared = 0, cached = 0, reserved = 0;
++
+ 		printk("Node ID: %d\n", pgdat->node_id);
++		pgdat_resize_lock(pgdat, &flags);
++		present = pgdat->node_present_pages;
+ 		for(i = 0; i < pgdat->node_spanned_pages; i++) {
+ 			struct page *page = pgdat_page_nr(pgdat, i);
+ 			if (!ia64_pfn_valid(pgdat->node_start_pfn+i))
+@@ -538,6 +542,7 @@ void show_mem(void)
+ 			else if (page_count(page))
+ 				shared += page_count(page)-1;
+ 		}
++		pgdat_resize_unlock(pgdat, &flags);
+ 		total_present += present;
+ 		total_reserved += reserved;
+ 		total_cached += cached;
+diff -puN arch/m32r/mm/init.c~C5.2-pgdat_size_lock arch/m32r/mm/init.c
+--- memhotplug/arch/m32r/mm/init.c~C5.2-pgdat_size_lock	2005-09-02 12:42:10.000000000 -0700
++++ memhotplug-dave/arch/m32r/mm/init.c	2005-09-02 12:42:10.000000000 -0700
+@@ -48,6 +48,8 @@ void show_mem(void)
+ 	show_free_areas();
+ 	printk("Free swap:       %6ldkB\n",nr_swap_pages<<(PAGE_SHIFT-10));
+ 	for_each_pgdat(pgdat) {
++		unsigned long flags;
++		pgdat_resize_lock(pgdat, &flags);
+ 		for (i = 0; i < pgdat->node_spanned_pages; ++i) {
+ 			page = pgdat_page_nr(pgdat, i);
+ 			total++;
+@@ -60,6 +62,7 @@ void show_mem(void)
+ 			else if (page_count(page))
+ 				shared += page_count(page) - 1;
+ 		}
++		pgdat_resize_unlock(pgdat, &flags);
+ 	}
+ 	printk("%d pages of RAM\n", total);
+ 	printk("%d pages of HIGHMEM\n",highmem);
+@@ -150,10 +153,14 @@ int __init reservedpages_count(void)
+ 	int reservedpages, nid, i;
+ 
+ 	reservedpages = 0;
+-	for_each_online_node(nid)
++	for_each_online_node(nid) {
++		unsigned long flags;
++		pgdat_resize_lock(NODE_DATA(nid), &flags);
+ 		for (i = 0 ; i < MAX_LOW_PFN(nid) - START_PFN(nid) ; i++)
+ 			if (PageReserved(nid_page_nr(nid, i)))
+ 				reservedpages++;
++		pgdat_resize_unlock(NODE_DATA(nid), &flags);
++	}
+ 
+ 	return reservedpages;
  }
- EXPORT_SYMBOL(phys_mem_access_prot);
+diff -puN arch/parisc/mm/init.c~C5.2-pgdat_size_lock arch/parisc/mm/init.c
+--- memhotplug/arch/parisc/mm/init.c~C5.2-pgdat_size_lock	2005-09-02 12:42:10.000000000 -0700
++++ memhotplug-dave/arch/parisc/mm/init.c	2005-09-02 12:42:10.000000000 -0700
+@@ -505,7 +505,9 @@ void show_mem(void)
+ 
+ 		for (j = node_start_pfn(i); j < node_end_pfn(i); j++) {
+ 			struct page *p;
++			unsigned long flags;
+ 
++			pgdat_resize_lock(NODE_DATA(i), &flags);
+ 			p = nid_page_nr(i, j) - node_start_pfn(i);
+ 
+ 			total++;
+@@ -517,6 +519,7 @@ void show_mem(void)
+ 				free++;
+ 			else
+ 				shared += page_count(p) - 1;
++			pgdat_resize_unlock(NODE_DATA(i), &flags);
+         	}
+ 	}
+ #endif
+diff -puN arch/ppc64/mm/init.c~C5.2-pgdat_size_lock arch/ppc64/mm/init.c
+--- memhotplug/arch/ppc64/mm/init.c~C5.2-pgdat_size_lock	2005-09-02 12:42:10.000000000 -0700
++++ memhotplug-dave/arch/ppc64/mm/init.c	2005-09-02 13:43:08.000000000 -0700
+@@ -104,6 +104,8 @@ void show_mem(void)
+ 	show_free_areas();
+ 	printk("Free swap:       %6ldkB\n", nr_swap_pages<<(PAGE_SHIFT-10));
+ 	for_each_pgdat(pgdat) {
++		unsigned long flags;
++		pgdat_resize_lock(pgdat, &flags);
+ 		for (i = 0; i < pgdat->node_spanned_pages; i++) {
+ 			page = pgdat_page_nr(pgdat, i);
+ 			total++;
+@@ -114,6 +116,7 @@ void show_mem(void)
+ 			else if (page_count(page))
+ 				shared += page_count(page) - 1;
+ 		}
++		pgdat_resize_unlock(pgdat, &flags);
+ 	}
+ 	printk("%ld pages of RAM\n", total);
+ 	printk("%ld reserved pages\n", reserved);
+@@ -648,11 +651,14 @@ void __init mem_init(void)
+ #endif
+ 
+ 	for_each_pgdat(pgdat) {
++		unsigned long flags;
++		pgdat_resize_lock(pgdat, &flags);
+ 		for (i = 0; i < pgdat->node_spanned_pages; i++) {
+ 			page = pgdat_page_nr(pgdat, i);
+ 			if (PageReserved(page))
+ 				reservedpages++;
+ 		}
++		pgdat_resize_unlock(pgdat, &flags);
+ 	}
+ 
+ 	codesize = (unsigned long)&_etext - (unsigned long)&_stext;
+diff -puN /dev/null include/linux/memory_hotplug.h
+--- /dev/null	2005-03-30 22:36:15.000000000 -0800
++++ memhotplug-dave/include/linux/memory_hotplug.h	2005-09-02 13:43:13.000000000 -0700
+@@ -0,0 +1,34 @@
++#ifndef __LINUX_MEMORY_HOTPLUG_H
++#define __LINUX_MEMORY_HOTPLUG_H
++
++#include <linux/mmzone.h>
++#include <linux/spinlock.h>
 +
 +#ifdef CONFIG_MEMORY_HOTPLUG
-+
-+void online_page(struct page *page)
-+{
-+	ClearPageReserved(page);
-+	free_cold_page(page);
-+	totalram_pages++;
-+	num_physpages++;
-+}
-+
 +/*
-+ * This works only for the non-NUMA case.  Later, we'll need a lookup
-+ * to convert from real physical addresses to nid, that doesn't use
-+ * pfn_to_nid().
++ * pgdat resizing functions
 + */
-+int __devinit add_memory(u64 start, u64 size)
++static inline
++void pgdat_resize_lock(struct pglist_data *pgdat, unsigned long *flags)
 +{
-+	struct pglist_data *pgdata = NODE_DATA(0);
-+	struct zone *zone;
-+	unsigned long start_pfn = start >> PAGE_SHIFT;
-+	unsigned long nr_pages = size >> PAGE_SHIFT;
-+
-+	/* this should work for most non-highmem platforms */
-+	zone = pgdata->node_zones;
-+
-+	return __add_pages(zone, start_pfn, nr_pages);
-+
-+	return 0;
++	spin_lock_irqsave(&pgdat->node_size_lock, *flags);
 +}
-+
++static inline
++void pgdat_resize_unlock(struct pglist_data *pgdat, unsigned long *flags)
++{
++	spin_lock_irqrestore(&pgdat->node_size_lock, *flags);
++}
++static inline
++void pgdat_resize_init(struct pglist_data *pgdat)
++{
++	spin_lock_init(&pgdat->node_size_lock);
++}
++#else /* ! CONFIG_MEMORY_HOTPLUG */
 +/*
-+ * First pass at this code will check to determine if the remove
-+ * request is within the RMO.  Do not allow removal within the RMO.
++ * Stub functions for when hotplug is off
 + */
-+int __devinit remove_memory(u64 start, u64 size)
-+{
-+	struct zone *zone;
-+	unsigned long start_pfn, end_pfn, nr_pages;
-+
-+	start_pfn = start >> PAGE_SHIFT;
-+	nr_pages = size >> PAGE_SHIFT;
-+	end_pfn = start_pfn + nr_pages;
-+
-+	printk("%s(): Attempting to remove memoy in range "
-+			"%lx to %lx\n", __func__, start, start+size);
++static inline void pgdat_resize_lock(struct pglist_data *p, unsigned long *f) {}
++static inline void pgdat_resize_unlock(struct pglist_data *p, unsigned long *f) {}
++static inline void pgdat_resize_init(struct pglist_data *pgdat) {}
++#endif
++#endif /* __LINUX_MEMORY_HOTPLUG_H */
+diff -puN include/linux/mmzone.h~C5.2-pgdat_size_lock include/linux/mmzone.h
+--- memhotplug/include/linux/mmzone.h~C5.2-pgdat_size_lock	2005-09-02 12:42:10.000000000 -0700
++++ memhotplug-dave/include/linux/mmzone.h	2005-09-02 13:43:13.000000000 -0700
+@@ -273,6 +273,16 @@ typedef struct pglist_data {
+ 	struct page *node_mem_map;
+ #endif
+ 	struct bootmem_data *bdata;
++#ifdef CONFIG_MEMORY_HOTPLUG
 +	/*
-+	 * check for range within RMO
++	 * Must be held any time you expect node_start_pfn, node_present_pages
++	 * or node_spanned_pages stay constant.  Holding this will also
++	 * guarantee that any pfn_valid() stays that way.
++	 *
++	 * Nests above zone->lock and zone->size_seqlock.
 +	 */
-+	zone = page_zone(pfn_to_page(start_pfn));
++	spinlock_t node_size_lock;
++#endif
+ 	unsigned long node_start_pfn;
+ 	unsigned long node_present_pages; /* total number of physical pages */
+ 	unsigned long node_spanned_pages; /* total size of physical page
+@@ -293,6 +303,8 @@ typedef struct pglist_data {
+ #endif
+ #define nid_page_nr(nid, pagenr) 	pgdat_page_nr(NODE_DATA(nid),(pagenr))
+ 
++#include <linux/memory_hotplug.h>
 +
-+	printk("%s(): memory will be removed from "
-+			"the %s zone\n", __func__, zone->name);
-+
-+	/*
-+	 * not handling removing memory ranges that
-+	 * overlap multiple zones yet
-+	 */
-+	if (end_pfn > (zone->zone_start_pfn + zone->spanned_pages))
-+		goto overlap;
-+
-+	/* make sure it is NOT in RMO */
-+	if ((start < lmb.rmo_size) || ((start+size) < lmb.rmo_size)) {
-+		printk("%s(): range to be removed must NOT be in RMO!\n",
-+			__func__);
-+		goto in_rmo;
-+	}
-+
-+	return __remove_pages(zone, start_pfn, nr_pages);
-+
-+overlap:
-+	printk("%s(): memory range to be removed overlaps "
-+		"multiple zones!!!\n", __func__);
-+in_rmo:
-+	return -1;
-+}
-+#endif /* CONFIG_MEMORY_HOTPLUG */
+ extern struct pglist_data *pgdat_list;
+ 
+ void __get_zone_counts(unsigned long *active, unsigned long *inactive,
+diff -puN mm/page_alloc.c~C5.2-pgdat_size_lock mm/page_alloc.c
+--- memhotplug/mm/page_alloc.c~C5.2-pgdat_size_lock	2005-09-02 12:42:10.000000000 -0700
++++ memhotplug-dave/mm/page_alloc.c	2005-09-02 13:43:13.000000000 -0700
+@@ -1948,6 +1948,7 @@ static void __init free_area_init_core(s
+ 	int nid = pgdat->node_id;
+ 	unsigned long zone_start_pfn = pgdat->node_start_pfn;
+ 
++	pgdat_resize_init(pgdat);
+ 	pgdat->nr_zones = 0;
+ 	init_waitqueue_head(&pgdat->kswapd_wait);
+ 	pgdat->kswapd_max_order = 0;
+_

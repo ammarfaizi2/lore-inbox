@@ -1,54 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751382AbVIBXxb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751383AbVIBX6f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751382AbVIBXxb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 19:53:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbVIBXxa
+	id S1751383AbVIBX6f (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 19:58:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751385AbVIBX6e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 19:53:30 -0400
-Received: from hera.kernel.org ([209.128.68.125]:59570 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1751382AbVIBXxa (ORCPT
+	Fri, 2 Sep 2005 19:58:34 -0400
+Received: from codepoet.org ([166.70.99.138]:20901 "EHLO codepoet.org")
+	by vger.kernel.org with ESMTP id S1751383AbVIBX6e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 19:53:30 -0400
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
+	Fri, 2 Sep 2005 19:58:34 -0400
+Date: Fri, 2 Sep 2005 17:58:33 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: LKML Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Subject: Re: [RFC] Splitting out kernel<=>userspace ABI headers
-Date: Fri, 2 Sep 2005 23:53:09 +0000 (UTC)
-Organization: Mostly alphabetical, except Q, which We do not fancy
-Message-ID: <dfaol5$da0$1@terminus.zytor.com>
-References: <C670AD22-97CF-46AA-A527-965036D78667@mac.com> <9F74838E-651D-4952-BD7C-63B09D76F743@mac.com> <4318DF26.5060707@zytor.com> <76E84FF2-A76E-4114-8E80-E07E6A497C7D@mac.com>
+Message-ID: <20050902235833.GA28238@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: andersen@codepoet.org,
+	Kyle Moffett <mrmacman_g4@mac.com>,
+	LKML Kernel <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+References: <C670AD22-97CF-46AA-A527-965036D78667@mac.com> <20050902134108.GA16374@codepoet.org> <22D79100-00B5-44F6-992C-FFFEACA49E66@mac.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1125705189 13633 127.0.0.1 (2 Sep 2005 23:53:09 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Fri, 2 Sep 2005 23:53:09 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <22D79100-00B5-44F6-992C-FFFEACA49E66@mac.com>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <76E84FF2-A76E-4114-8E80-E07E6A497C7D@mac.com>
-By author:    Kyle Moffett <mrmacman_g4@mac.com>
-In newsgroup: linux.dev.kernel
+On Fri Sep 02, 2005 at 04:51:49PM -0400, Kyle Moffett wrote:
+> On Sep 2, 2005, at 09:41:09, Erik Andersen wrote:
+> >Have you seen the linux-libc-headers:
+> >    http://ep09.pld-linux.org/~mmazur/linux-libc-headers/
+> >which, while not an official part of the kernel, do a pretty
+> >good job...
 > 
-> The kernel already needs those same optimized routines for its own
-> operation (EX: all the ASM alternative() statements).  Since userspace
-> wants some of those as well, it would make sense to share them between
-> kernel and userspace and reduce the number of libraries you would need
-> to optimize when adding a new arch.  I don't think that we should add
-> optimized assembly for things that _aren't_ needed in the kernel, but
-> it should share what code it does have.
-> 
-> A side benefit of the vDSO method is that you would be able to take a
-> standard distro install and have the kernel automatically select the
-> correct vDSO image at runtime, simultaneously optimizing itself and
-> chunks of userspace.
-> 
+> Well, the eventual goal of this project would be to eliminate the
+> need for linux-libc-headers by making that task trivial (IE: Just copy
+> the kcore/ and kabi/ (or whatever they get called) directories into
+> /usr/include.
 
-First of all, a lot of these are inlines, and they derive a chunk of
-their benefit from being inline.  Second, even if bundled with the
-kernel, which I'm not sure is wise, there is no reason they can't just
-be turned into libraries.  *Some functions* you're right, can be
-optimized this way, but I'm not sure if that justifies compiling them
-into the kernel that way.
+<uClibc maintainer hat on>
+That would be wonderful.
+</off>
 
-	-hpa
+It would be especially nice if everything targeting user space
+were to use only all the nice standard ISO C99 types as defined
+in include/stdint.h such as uint32_t and friends...
+
+ -Erik
+
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

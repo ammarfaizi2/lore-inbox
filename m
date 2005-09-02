@@ -1,76 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbVIBPDj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbVIBPGX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750702AbVIBPDj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 11:03:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750703AbVIBPDj
+	id S1750703AbVIBPGX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 11:06:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750705AbVIBPGW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 11:03:39 -0400
-Received: from fmr18.intel.com ([134.134.136.17]:61077 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1750702AbVIBPDi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 11:03:38 -0400
-From: Mark Gross <mgross@linux.intel.com>
-Organization: Intel
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: Telecom Clock driver for MPCBL0010 ATCA compute blade.
-Date: Fri, 2 Sep 2005 08:01:40 -0700
-User-Agent: KMail/1.7.1
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-References: <200508301159.34053.mgross@linux.intel.com> <20050831191155.GH703@openzaurus.ucw.cz>
-In-Reply-To: <20050831191155.GH703@openzaurus.ucw.cz>
+	Fri, 2 Sep 2005 11:06:22 -0400
+Received: from rudy.mif.pg.gda.pl ([153.19.42.16]:36656 "EHLO
+	rudy.mif.pg.gda.pl") by vger.kernel.org with ESMTP id S1750703AbVIBPGW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 11:06:22 -0400
+Date: Fri, 2 Sep 2005 17:06:20 +0200 (CEST)
+From: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
+To: Rob Sims <lkml-z@robsims.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Drop NFS speed on move from kernel 2.4 to 2.6 (was: Change in NFS
+ client behavior)
+In-Reply-To: <20050831145545.GA8426@robsims.com>
+Message-ID: <Pine.BSO.4.62.0509021645280.10416@rudy.mif.pg.gda.pl>
+References: <20050831145545.GA8426@robsims.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200509020801.40699.mgross@linux.intel.com>
+Content-Type: MULTIPART/MIXED; BOUNDARY="0-1982245477-1125673580=:10416"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 31 August 2005 12:11, Pavel Machek wrote:
-> Hi!
-> 
-> > The following is a driver I would like to see included in the base kernel.
-> > 
-> > It allows OS controll of a device that synchronizes signaling hardware 
-across a ATCA chassis.
-> > 
-> > The telecom clock hardware doesn't interact much with the operating 
-system, and is controlled 
-> > via registers in the FPGA on the hardware.  It is hardware that is unique 
-to this computer.
-> 
-> Now... it is probably not feasible, but: why does it need special interface 
-to userland?
-> Could not it simply act as yet another timesource, and be controlled via 
-get/settimeofday?
-> 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-The telcom clock is a special circuit, line card PLL, that provids a mechanism 
-for synchronization of hardware across the backplane of a chassis of multiple 
-computers with similar specail curcits.  In this case the synchronization 
-signals get routed to multiple places, typically to pins on expansion slots 
-for hardware that knows what to do with this signal.  (SONET, G.813, stratum 
-3...) and similar signaling applications found in telcom sites can use this 
-type of thing.
+--0-1982245477-1125673580=:10416
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8BIT
 
-The actual device is hidden behind the FPGA on the motherboar, and is 
-connected to the FPGA via I2C.  This driver only talks to the FPGA registers.
+On Wed, 31 Aug 2005, Rob Sims wrote:
 
-I suppose it could be configured to have the FPGA fire an interrupt ever ytime 
-some count of clocks come in off the back plane.  The hardware really wasn't 
-designed to do this and I would worry that as the interrupt source is really 
-the FPGA getting I2C / traffic from the actual telcom clock hardware that 
-there would be some latencies and funny business that would make it less than 
-good for hard core applications.
+> We have noticed when changing from kernel 2.4.23 to 2.6.8 that
+> timestamps of files are not changed if opened for a write and nothing is
+> written.  When using 2.4.23 timestamps are changed.  When using a local
+> filesystem (reiserfs) with either kernel, timestamps are changed.
+> Symptoms vary with the client, not the server.  See the script below.
+>
+> When run on a 2.4.23 machine in an NFS mounted directory, output is
+> "Good."  When run on a 2.6.8 or 2.6.12-rc4 machine in an NFS directory,
+> output is "Error."
+>
+> Is this a bug?  How do we revert to the 2.4/local fs behavior?
 
-I really don't know but, it might be possible to make it "short of work" as a 
-time source to the OS.   I'm not going to bother trying. ;)
+I have another (IMO strange) observation on move NFS client from kernel 
+2.4. to 2.6: drop NFS speed by *~1/3*.
 
---mgross
+In attachemt is small giff generated by mrtg from data sucked from 
+switch SNMP agent. Each day (at night) I perform dayly backups (via NFS) 
+and on this plots it visable by dayly high network activity.
+Aprox four weeks ago I'm switch on host connected to monitored switch port 
+from kernel 2.4 to 2.6. Result can be observer on attached picture by 
+reduce maximum bandwitch data transferred on this port by ~1/3 (?!?).
 
->     Pavel
+Next smaller drob down (~two weeks ago) which can be observed on this plot 
+it is result switchung from UDP to TCP (performed specialy for produce 
+some visable data for compare).
 
+~30% drob down NFS client speed on this host isn't critical but probably 
+this is kind of top iceberg with some other problems which now exist in 
+kernel 2.6. I'm not expert in this area but my frient (Marcin Dalecki) 
+says this drop down may have some roots in worse memory management in 
+kernel 2.6. Is it can be true or not ?
+
+kloczek
 -- 
---mgross
-BTW: This may or may not be the opinion of my employer, more likely not.  
+-----------------------------------------------------------
+*Ludzie nie maj± problemów, tylko sobie sami je stwarzaj±*
+-----------------------------------------------------------
+Tomasz K³oczko, sys adm @zie.pg.gda.pl|*e-mail: kloczek@rudy.mif.pg.gda.pl*
+--0-1982245477-1125673580=:10416
+Content-Type: APPLICATION/octet-stream; name=sunset163_2-month.png
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.BSO.4.62.0509021706200.10416@rudy.mif.pg.gda.pl>
+Content-Description: 
+Content-Disposition: attachment; filename=sunset163_2-month.png
+
+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
+RK5CYII=
+
+--0-1982245477-1125673580=:10416--

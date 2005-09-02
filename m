@@ -1,46 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751152AbVIBIye@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750901AbVIBJAL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751152AbVIBIye (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 04:54:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbVIBIye
+	id S1750901AbVIBJAL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 05:00:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751144AbVIBJAK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 04:54:34 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:37828 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751152AbVIBIyd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 04:54:33 -0400
-Date: Fri, 2 Sep 2005 14:22:45 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Erik =?iso-8859-1?Q?Andr=E9n?= <erik.andren@gmail.com>
-Cc: linux-kernel@vger.kernel.org, ck@vds.kolivas.org
-Subject: Re: Updated dynamic tick patches
-Message-ID: <20050902085245.GA5153@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <4315FBC7.50805@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4315FBC7.50805@gmail.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 2 Sep 2005 05:00:10 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:32440 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750901AbVIBJAI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 05:00:08 -0400
+Date: Fri, 2 Sep 2005 02:00:03 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: =?ISO-8859-1?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>,
+       git@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: empty patch-2.6.13-git? patches on ftp.kernel.org
+In-Reply-To: <1125649389.6928.19.camel@baythorne.infradead.org>
+Message-ID: <Pine.LNX.4.58.0509020159110.3613@evo.osdl.org>
+References: <Pine.BSO.4.62.0508311527340.10416@rudy.mif.pg.gda.pl>
+ <1125649389.6928.19.camel@baythorne.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ Sorry didnt see this mail earlier ]
-
-On Wed, Aug 31, 2005 at 06:53:12PM +0000, Erik Andrén wrote:
-> Does these patches compile nicely against 2.6.13?
-> Otherwise would it be possible for you to repost patches made against 
-> 2.6.13 instead for more public testing?
-
-Con should be posting a consolidated version on his site against 2.6.13-mm1 
-pretty soon I hope.
-
--- 
 
 
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560017
+On Fri, 2 Sep 2005, David Woodhouse wrote:
+> 
+> 	rm -rf tmp-empty-tree
+> 	mkdir -p tmp-empty-tree/.git
+> 	cd tmp-empty-tree
+
+Ahh. Please change that to
+
+	rm -rf tmp-empty-tree
+	mkdir tmp-empty-tree
+	cd tmp-empty-tree
+	git-init-db
+
+because otherwise you'll almost certainly hit something else later on..
+
+		Linus

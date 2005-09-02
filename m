@@ -1,154 +1,176 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751324AbVIBU46@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751172AbVIBU4s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751324AbVIBU46 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 16:56:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbVIBU45
+	id S1751172AbVIBU4s (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 16:56:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751190AbVIBU4s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 16:56:57 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:51360 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751324AbVIBU4y
+	Fri, 2 Sep 2005 16:56:48 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:36256 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751172AbVIBU4r
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 16:56:54 -0400
-Subject: [PATCH 10/11] memory hotplug: i386 addition functions
+	Fri, 2 Sep 2005 16:56:47 -0400
+Subject: [PATCH 02/11] memory hotplug prep: break out zone initialization
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, Dave Hansen <haveblue@us.ibm.com>
 From: Dave Hansen <haveblue@us.ibm.com>
-Date: Fri, 02 Sep 2005 13:56:51 -0700
+Date: Fri, 02 Sep 2005 13:56:44 -0700
 References: <20050902205643.9A4EC17A@kernel.beaverton.ibm.com>
 In-Reply-To: <20050902205643.9A4EC17A@kernel.beaverton.ibm.com>
-Message-Id: <20050902205651.6A83A1D5@kernel.beaverton.ibm.com>
+Message-Id: <20050902205644.5D7D58B2@kernel.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Adds the necessary for non-NUMA hot-add of highmem
-to an existing zone on i386.
+If a zone is empty at boot-time and then hot-added to later,
+it needs to run the same init code that would have been run
+on it at boot.
+
+This patch breaks out zone table and per-cpu-pages functions
+for use by the hotplug code.  You can almost see all of the
+free_area_init_core() function on one page now. :)
 
 Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
 ---
 
- memhotplug-dave/arch/i386/mm/discontig.c |    4 +-
- memhotplug-dave/arch/i386/mm/init.c      |   61 ++++++++++++++++++++++++++++---
- 2 files changed, 58 insertions(+), 7 deletions(-)
+ memhotplug-dave/mm/page_alloc.c |   98 +++++++++++++++++++++++-----------------
+ 1 files changed, 58 insertions(+), 40 deletions(-)
 
-diff -puN arch/i386/mm/discontig.c~D1-i386-hotplug-functions arch/i386/mm/discontig.c
---- memhotplug/arch/i386/mm/discontig.c~D1-i386-hotplug-functions	2005-08-18 14:59:50.000000000 -0700
-+++ memhotplug-dave/arch/i386/mm/discontig.c	2005-08-18 14:59:50.000000000 -0700
-@@ -98,7 +98,7 @@ unsigned long node_memmap_size_bytes(int
+diff -puN mm/page_alloc.c~C1-pcp_zone_init mm/page_alloc.c
+--- memhotplug/mm/page_alloc.c~C1-pcp_zone_init	2005-09-02 12:12:32.000000000 -0700
++++ memhotplug-dave/mm/page_alloc.c	2005-09-02 12:17:34.000000000 -0700
+@@ -1865,6 +1865,60 @@ void __init setup_per_cpu_pageset()
  
- extern unsigned long find_max_low_pfn(void);
- extern void find_max_pfn(void);
--extern void one_highpage_init(struct page *, int, int);
-+extern void add_one_highpage_init(struct page *, int, int);
- 
- extern struct e820map e820;
- extern unsigned long init_pg_tables_end;
-@@ -427,7 +427,7 @@ void __init set_highmem_pages_init(int b
- 			if (!pfn_valid(node_pfn))
- 				continue;
- 			page = pfn_to_page(node_pfn);
--			one_highpage_init(page, node_pfn, bad_ppro);
-+			add_one_highpage_init(page, node_pfn, bad_ppro);
- 		}
- 	}
- 	totalram_pages += totalhigh_pages;
-diff -puN arch/i386/mm/init.c~D1-i386-hotplug-functions arch/i386/mm/init.c
---- memhotplug/arch/i386/mm/init.c~D1-i386-hotplug-functions	2005-08-18 14:59:50.000000000 -0700
-+++ memhotplug-dave/arch/i386/mm/init.c	2005-08-18 14:59:50.000000000 -0700
-@@ -27,6 +27,7 @@
- #include <linux/slab.h>
- #include <linux/proc_fs.h>
- #include <linux/efi.h>
-+#include <linux/memory_hotplug.h>
- 
- #include <asm/processor.h>
- #include <asm/system.h>
-@@ -265,17 +266,45 @@ static void __init permanent_kmaps_init(
- 	pkmap_page_table = pte;	
- }
- 
--void __init one_highpage_init(struct page *page, int pfn, int bad_ppro)
-+void __devinit free_new_highpage(struct page *page)
-+{
-+	set_page_count(page, 1);
-+	__free_page(page);
-+	totalhigh_pages++;
-+}
-+
-+void __init add_one_highpage_init(struct page *page, int pfn, int bad_ppro)
- {
- 	if (page_is_ram(pfn) && !(bad_ppro && page_kills_ppro(pfn))) {
- 		ClearPageReserved(page);
--		set_page_count(page, 1);
--		__free_page(page);
--		totalhigh_pages++;
- 	} else
- 		SetPageReserved(page);
- }
- 
-+int add_one_highpage_hotplug(struct page *page, int pfn)
-+{
-+	free_new_highpage(page);
-+	totalram_pages++;
-+#ifdef CONFIG_FLATMEM
-+	max_mapnr = max(pfn, max_mapnr);
-+#endif
-+	num_physpages++;
-+	return 0;
-+}
-+
-+/*
-+ * Not currently handling the NUMA case.
-+ * Assuming single node and all memory that
-+ * has been added dynamically that would be
-+ * onlined here is in HIGHMEM
-+ */
-+void online_page(struct page *page)
-+{
-+	ClearPageReserved(page);
-+	add_one_highpage_hotplug(page, page_to_pfn(page));
-+}
-+
-+
- #ifdef CONFIG_NUMA
- extern void set_highmem_pages_init(int);
- #else
-@@ -283,7 +312,7 @@ static void __init set_highmem_pages_ini
- {
- 	int pfn;
- 	for (pfn = highstart_pfn; pfn < highend_pfn; pfn++)
--		one_highpage_init(pfn_to_page(pfn), pfn, bad_ppro);
-+		add_one_highpage_init(pfn_to_page(pfn), pfn, bad_ppro);
- 	totalram_pages += totalhigh_pages;
- }
- #endif /* CONFIG_FLATMEM */
-@@ -614,6 +643,28 @@ void __init mem_init(void)
  #endif
- }
  
-+/*
-+ * this is for the non-NUMA, single node SMP system case.
-+ * Specifically, in the case of x86, we will always add
-+ * memory to the highmem for now.
-+ */
-+#ifndef CONFIG_NEED_MULTIPLE_NODES
-+int add_memory(u64 start, u64 size)
++static __devinit
++void zone_wait_table_init(struct zone *zone, unsigned long zone_size_pages)
 +{
-+	struct pglist_data *pgdata = &contig_page_data;
-+	struct zone *zone = pgdata->node_zones + MAX_NR_ZONES-1;
-+	unsigned long start_pfn = start >> PAGE_SHIFT;
-+	unsigned long nr_pages = size >> PAGE_SHIFT;
++	int i;
++	struct pglist_data *pgdat = zone->zone_pgdat;
 +
-+	return __add_pages(zone, start_pfn, nr_pages);
++	/*
++	 * The per-page waitqueue mechanism uses hashed waitqueues
++	 * per zone.
++	 */
++	zone->wait_table_size = wait_table_size(zone_size_pages);
++	zone->wait_table_bits =	wait_table_bits(zone->wait_table_size);
++	zone->wait_table = (wait_queue_head_t *)
++		alloc_bootmem_node(pgdat, zone->wait_table_size
++					* sizeof(wait_queue_head_t));
++
++	for(i = 0; i < zone->wait_table_size; ++i)
++		init_waitqueue_head(zone->wait_table + i);
 +}
 +
-+int remove_memory(u64 start, u64 size)
++static __devinit void zone_pcp_init(struct zone *zone)
 +{
-+	return -EINVAL;
-+}
++	int cpu;
++	unsigned long batch = zone_batchsize(zone);
++
++	for (cpu = 0; cpu < NR_CPUS; cpu++) {
++#ifdef CONFIG_NUMA
++		/* Early boot. Slab allocator not functional yet */
++		zone->pageset[cpu] = &boot_pageset[cpu];
++		setup_pageset(&boot_pageset[cpu],0);
++#else
++		setup_pageset(zone_pcp(zone,cpu), batch);
 +#endif
++	}
++	printk(KERN_DEBUG "  %s zone: %lu pages, LIFO batch:%lu\n",
++		zone->name, zone->present_pages, batch);
++}
 +
- kmem_cache_t *pgd_cache;
- kmem_cache_t *pmd_cache;
++static void init_currently_empty_zone(struct zone *zone,
++		unsigned long zone_start_pfn, unsigned long size)
++{
++	struct pglist_data *pgdat = zone->zone_pgdat;
++
++	zone_wait_table_init(zone, size);
++	pgdat->nr_zones = zone_idx(zone) + 1;
++
++	zone->zone_mem_map = pfn_to_page(zone_start_pfn);
++	zone->zone_start_pfn = zone_start_pfn;
++
++	memmap_init(size, pgdat->node_id, zone_idx(zone), zone_start_pfn);
++
++	zone_init_free_lists(pgdat, zone, zone->spanned_pages);
++}
++
+ /*
+  * Set up the zone data structures:
+  *   - mark all pages reserved
+@@ -1874,8 +1928,8 @@ void __init setup_per_cpu_pageset()
+ static void __init free_area_init_core(struct pglist_data *pgdat,
+ 		unsigned long *zones_size, unsigned long *zholes_size)
+ {
+-	unsigned long i, j;
+-	int cpu, nid = pgdat->node_id;
++	unsigned long j;
++	int nid = pgdat->node_id;
+ 	unsigned long zone_start_pfn = pgdat->node_start_pfn;
+ 
+ 	pgdat->nr_zones = 0;
+@@ -1885,7 +1939,6 @@ static void __init free_area_init_core(s
+ 	for (j = 0; j < MAX_NR_ZONES; j++) {
+ 		struct zone *zone = pgdat->node_zones + j;
+ 		unsigned long size, realsize;
+-		unsigned long batch;
+ 
+ 		realsize = size = zones_size[j];
+ 		if (zholes_size)
+@@ -1905,19 +1958,7 @@ static void __init free_area_init_core(s
+ 
+ 		zone->temp_priority = zone->prev_priority = DEF_PRIORITY;
+ 
+-		batch = zone_batchsize(zone);
+-
+-		for (cpu = 0; cpu < NR_CPUS; cpu++) {
+-#ifdef CONFIG_NUMA
+-			/* Early boot. Slab allocator not functional yet */
+-			zone->pageset[cpu] = &boot_pageset[cpu];
+-			setup_pageset(&boot_pageset[cpu],0);
+-#else
+-			setup_pageset(zone_pcp(zone,cpu), batch);
+-#endif
+-		}
+-		printk(KERN_DEBUG "  %s zone: %lu pages, LIFO batch:%lu\n",
+-				zone_names[j], realsize, batch);
++		zone_pcp_init(zone);
+ 		INIT_LIST_HEAD(&zone->active_list);
+ 		INIT_LIST_HEAD(&zone->inactive_list);
+ 		zone->nr_scan_active = 0;
+@@ -1928,32 +1969,9 @@ static void __init free_area_init_core(s
+ 		if (!size)
+ 			continue;
+ 
+-		/*
+-		 * The per-page waitqueue mechanism uses hashed waitqueues
+-		 * per zone.
+-		 */
+-		zone->wait_table_size = wait_table_size(size);
+-		zone->wait_table_bits =
+-			wait_table_bits(zone->wait_table_size);
+-		zone->wait_table = (wait_queue_head_t *)
+-			alloc_bootmem_node(pgdat, zone->wait_table_size
+-						* sizeof(wait_queue_head_t));
+-
+-		for(i = 0; i < zone->wait_table_size; ++i)
+-			init_waitqueue_head(zone->wait_table + i);
+-
+-		pgdat->nr_zones = j+1;
+-
+-		zone->zone_mem_map = pfn_to_page(zone_start_pfn);
+-		zone->zone_start_pfn = zone_start_pfn;
+-
+-		memmap_init(size, nid, j, zone_start_pfn);
+-
+ 		zonetable_add(zone, nid, j, zone_start_pfn, size);
+-
++		init_currently_empty_zone(zone, zone_start_pfn, size);
+ 		zone_start_pfn += size;
+-
+-		zone_init_free_lists(pgdat, zone, zone->spanned_pages);
+ 	}
+ }
  
 _

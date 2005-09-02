@@ -1,136 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030622AbVIBBF5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030624AbVIBBO5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030622AbVIBBF5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 21:05:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030623AbVIBBF5
+	id S1030624AbVIBBO5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 21:14:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030625AbVIBBO4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 21:05:57 -0400
-Received: from mail01.solnet.ch ([212.101.4.135]:30728 "EHLO mail01.solnet.ch")
-	by vger.kernel.org with ESMTP id S1030622AbVIBBF5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 21:05:57 -0400
-From: Damir Perisa <damir.perisa@solnet.ch>
-To: Alan Cox <alan@redhat.com>, Andrew Morton <akpm@osdl.org>
-Subject: 2.6.13-mm1 - drivers/serial/jsm/jsm_tty broken too
-Date: Fri, 2 Sep 2005 03:05:42 +0200
-User-Agent: KMail/1.8.2
-References: <20050901035542.1c621af6.akpm@osdl.org> <200509011941.07104.damir.perisa@solnet.ch>
-In-Reply-To: <200509011941.07104.damir.perisa@solnet.ch>
-X-Face: +)fhYFmn|<pyRIlgch_);krg#jn!^z'?xy(Ur#Z6rZi)KD+_-V<Y@i>0pOVfJ4<=?utf-8?q?Q1/=26/=26z=0A=093cxqRa=3B7O=5C4g=5C=7C=5DF-!H0!ew9kx1LqK/iP?=
- =?utf-8?q?Ov8eXi=26I7=60Pez0V0VNMAxnqRL8-30qqKK=3DxGM=0A=09pExQc=5B2=7C?=
- =?utf-8?q?l6v=23?=<iwBvEO9+h|_YS[48z%/kuD2*aT*S/$0323VCL3V9?@}jq<
- =?utf-8?q?Ns6V=3A0m=27Qia=0A=09?="[#oJg[RVe}Sy/lP95E@pa[vdKzqLqn&M`exb91"`,<k`3;Vt97cLjhub0.v+]m`%|>@Z(
- =?utf-8?q?=0A=09EeC/zU7=25?=@"L6mi#..8Q^M
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Alanine: true
-Glycine: true
+	Thu, 1 Sep 2005 21:14:56 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:28923 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S1030624AbVIBBO4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 21:14:56 -0400
+Message-ID: <4317A779.7090400@mvista.com>
+Date: Thu, 01 Sep 2005 18:14:33 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2778784.vLgtkrm9QS";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: john stultz <johnstul@us.ibm.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] Use proper casting with signed timespec.tv_nsec
+ values
+References: <1125608627.22448.4.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1125608627.22448.4.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200509020305.45894.damir.perisa@solnet.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2778784.vLgtkrm9QS
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+john stultz wrote:
+> All,
+> 	I recently ran into a bug with an older kernel where xtime's tv_nsec
+> field had accumulated more then 2 seconds worth of time. The timespec's
+> tv_nsec is a signed long, however gettimeofday() treats it as an
+> unsigned long. Thus when the failure occured, very strange and difficult
+> to debug time problems occurred.
+> 
+> The main cause of the problem I was seeing is already fixed in mainline,
+> however just to be safe, I figured the following patch would be wise.
+> 
+> I only audited i386 and x86_64, however other arches probably could have
+> similar signed problems as well.
+> 
+> Please let me know if you have any further comments or feedback.
 
-i disabled the isdn subsystem temporarely and tried to recompile=20
-finding out that jsm-tty is affected too:
+John,
 
- CC [M]  drivers/serial/jsm/jsm_tty.o
-drivers/serial/jsm/jsm_tty.c: In function 'jsm_input':
-drivers/serial/jsm/jsm_tty.c:592: error: 'struct tty_struct' has no member =
-named 'flip'
-drivers/serial/jsm/jsm_tty.c:619: error: 'struct tty_struct' has no member =
-named 'flip'
-drivers/serial/jsm/jsm_tty.c:620: error: 'struct tty_struct' has no member =
-named 'flip'
-drivers/serial/jsm/jsm_tty.c:623: error: 'struct tty_struct' has no member =
-named 'flip'
-drivers/serial/jsm/jsm_tty.c:624: error: 'struct tty_struct' has no member =
-named 'flip'
-drivers/serial/jsm/jsm_tty.c:667: error: 'struct tty_struct' has no member =
-named 'flip'
-drivers/serial/jsm/jsm_tty.c:668: error: 'struct tty_struct' has no member =
-named 'flip'
-drivers/serial/jsm/jsm_tty.c:669: error: 'struct tty_struct' has no member =
-named 'flip'
-drivers/serial/jsm/jsm_tty.c:670: error: 'struct tty_struct' has no member =
-named 'flip'
-drivers/serial/jsm/jsm_tty.c:671: error: 'struct tty_struct' has no member =
-named 'flip'
-drivers/serial/jsm/jsm_tty.c:672: error: 'struct tty_struct' has no member =
-named 'flip'
-drivers/serial/jsm/jsm_tty.c:674: error: 'struct tty_struct' has no member =
-named 'flip'
-drivers/serial/jsm/jsm_tty.c:677: error: 'struct tty_struct' has no member =
-named 'flip'
-drivers/serial/jsm/jsm_tty.c:677: error: 'struct tty_struct' has no member =
-named 'flip'
-drivers/serial/jsm/jsm_tty.c:677: error: 'struct tty_struct' has no member =
-named 'flip'
-drivers/serial/jsm/jsm_tty.c:677: error: 'struct tty_struct' has no member =
-named 'flip'
-drivers/serial/jsm/jsm_tty.c:680: error: 'struct tty_struct' has no member =
-named 'flip'
-drivers/serial/jsm/jsm_tty.c:681: error: 'struct tty_struct' has no member =
-named 'flip'
-drivers/serial/jsm/jsm_tty.c:682: error: 'struct tty_struct' has no member =
-named 'flip'
-drivers/serial/jsm/jsm_tty.c:691: error: 'struct tty_struct' has no member =
-named 'flip'
-drivers/serial/jsm/jsm_tty.c:692: error: 'struct tty_struct' has no member =
-named 'flip'
-drivers/serial/jsm/jsm_tty.c:693: error: 'struct tty_struct' has no member =
-named 'flip'
-drivers/serial/jsm/jsm_tty.c:694: error: 'struct tty_struct' has no member =
-named 'flip'
-drivers/serial/jsm/jsm_tty.c:695: error: 'struct tty_struct' has no member =
-named 'flip'
-drivers/serial/jsm/jsm_tty.c:696: error: 'struct tty_struct' has no member =
-named 'flip'
-drivers/serial/jsm/jsm_tty.c:698: error: 'struct tty_struct' has no member =
-named 'flip'
-drivers/serial/jsm/jsm_tty.c:701: error: 'struct tty_struct' has no member =
-named 'flip'
-drivers/serial/jsm/jsm_tty.c:701: error: 'struct tty_struct' has no member =
-named 'flip'
-drivers/serial/jsm/jsm_tty.c:701: error: 'struct tty_struct' has no member =
-named 'flip'
-drivers/serial/jsm/jsm_tty.c:701: error: 'struct tty_struct' has no member =
-named 'flip'
-drivers/serial/jsm/jsm_tty.c:742: error: 'struct tty_struct' has no member =
-named 'flip'
-drivers/serial/jsm/jsm_tty.c:742: error: 'struct tty_struct' has no member =
-named 'flip'
-make[3]: *** [drivers/serial/jsm/jsm_tty.o] Error 1
-make[2]: *** [drivers/serial/jsm] Error 2
-make[1]: *** [drivers/serial] Error 2
-make: *** [drivers] Error 2
+There is a problem in the way this code handles the conversion to usec. 
+  There is a conversion here and also in the get_offset code.  If the 
+nanoseconds are carrier until after the addition of the two about 25% of 
+the time you will end up with an additional usec in time.  I strongly 
+suggest changing to convert to usec after the addition of xtime and 
+get_offset time to avoid this.  If the "correct" thing is done in 
+clock_gettime() (i.e. get_offset is in nanoseconds) this actually turns 
+up as a back step in time WRT gettimeofday and clock_gettime().
 
-hope that this tty breaks will be fixed in mm2
+George
+-- 
+> 
+> thanks
+> -john
+> 
+> linux-2.6.13_signed-tv_nsec_A0.patch
+> ====================================
+> diff --git a/arch/i386/kernel/time.c b/arch/i386/kernel/time.c
+> --- a/arch/i386/kernel/time.c
+> +++ b/arch/i386/kernel/time.c
+> @@ -156,7 +156,7 @@ void do_gettimeofday(struct timeval *tv)
+>  			usec += lost * (USEC_PER_SEC / HZ);
+>  
+>  		sec = xtime.tv_sec;
+> -		usec += (xtime.tv_nsec / 1000);
+> +		usec += (unsigned long)xtime.tv_nsec / 1000;
+>  	} while (read_seqretry(&xtime_lock, seq));
+>  
+>  	while (usec >= 1000000) {
+> diff --git a/arch/x86_64/kernel/time.c b/arch/x86_64/kernel/time.c
+> --- a/arch/x86_64/kernel/time.c
+> +++ b/arch/x86_64/kernel/time.c
+> @@ -128,7 +128,7 @@ void do_gettimeofday(struct timeval *tv)
+>  		seq = read_seqbegin(&xtime_lock);
+>  
+>  		sec = xtime.tv_sec;
+> -		usec = xtime.tv_nsec / 1000;
+> +		usec = (unsigned long)xtime.tv_nsec / 1000;
+>  
+>  		/* i386 does some correction here to keep the clock 
+>  		   monotonous even when ntpd is fixing drift.
+> diff --git a/kernel/timer.c b/kernel/timer.c
+> --- a/kernel/timer.c
+> +++ b/kernel/timer.c
+> @@ -824,7 +824,7 @@ static void update_wall_time(unsigned lo
+>  	do {
+>  		ticks--;
+>  		update_wall_time_one_tick();
+> -		if (xtime.tv_nsec >= 1000000000) {
+> +		if ((unsigned long)xtime.tv_nsec >= 1000000000) {
+>  			xtime.tv_nsec -= 1000000000;
+>  			xtime.tv_sec++;
+>  			second_overflow();
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-greetings,
-Damir
-
-=2D-=20
-It would save me a lot of time if you just gave up and went mad now.
-
---nextPart2778784.vLgtkrm9QS
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBDF6VpPABWKV6NProRAhv6AJ9X3v1StppaC3rPhmSu4TU42+toIQCfTRVM
-nAr/gnTAFFst4z1nlm54Z1s=
-=CNKn
------END PGP SIGNATURE-----
-
---nextPart2778784.vLgtkrm9QS--
+-- 
+George Anzinger   george@mvista.com
+HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/

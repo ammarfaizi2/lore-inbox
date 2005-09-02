@@ -1,429 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751234AbVIBVAy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161029AbVIBVAu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751234AbVIBVAy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 17:00:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbVIBVAx
+	id S1161029AbVIBVAu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 17:00:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbVIBU47
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 17:00:53 -0400
-Received: from gold.veritas.com ([143.127.12.110]:62487 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1161025AbVIBVAO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 17:00:14 -0400
-Date: Fri, 2 Sep 2005 22:02:13 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Blaisorblade <blaisorblade@yahoo.it>
-cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Andi Kleen <ak@suse.de>, LKML <linux-kernel@vger.kernel.org>,
-       Jeff Dike <jdike@addtoit.com>,
-       Bodo Stroesser <bstroesser@fujitsu-siemens.com>,
-       user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [RFC] [patch 0/18] remap_file_pages protection support (for
- UML), try 3
-In-Reply-To: <200508262023.29170.blaisorblade@yahoo.it>
-Message-ID: <Pine.LNX.4.61.0509022201020.11937@goblin.wat.veritas.com>
-References: <200508262023.29170.blaisorblade@yahoo.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 02 Sep 2005 21:00:14.0028 (UTC) FILETIME=[506688C0:01C5B001]
+	Fri, 2 Sep 2005 16:56:59 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:57325 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751258AbVIBU4x
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 16:56:53 -0400
+Subject: [PATCH 09/11] memory hotplug: call setup_per_zone_pages_min after hotplug
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, Dave Hansen <haveblue@us.ibm.com>
+From: Dave Hansen <haveblue@us.ibm.com>
+Date: Fri, 02 Sep 2005 13:56:50 -0700
+References: <20050902205643.9A4EC17A@kernel.beaverton.ibm.com>
+In-Reply-To: <20050902205643.9A4EC17A@kernel.beaverton.ibm.com>
+Message-Id: <20050902205650.C36ECCC6@kernel.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Aug 2005, Blaisorblade wrote:
+
+From: IWAMOTO Toshihiro <iwamoto@valinux.co.jp>
+> I found the tests does not work well with Dave's patchset.
+> I've found the followings:
 > 
-> * The first 2 patches modify the PTE encoding macros and start preparing the 
-> VM for the new situation (i.e. VMA which have variable protections, which are 
-> called VM_NONUNIFORM. I dropped the early VM_MANYPROTS name).
-
-What a pity: please revert.  VM_NONUNIFORM sounds impressive, but might
-mean all kinds of things, maybe to do with NUMA.  VM_MANYPROTS is good,
-it says what it means.
-
-> * Patch 11 is a big simplification. Since we must encode the PTE's on swapout 
-> like in VM_NONLINEAR vmas, the simplest way to reuse the existing code is to 
-> make sure that VM_NONUNIFORM vmas are also marked as VM_NONLINEAR.
-
-In some places you seem to say that you (UML) only need VM_MANYPROTS vmas
-linear, in other places you seem to say that your VM_MANYPROTS vmas will
-be nonlinear.  I've no idea which way round it is.  Perhaps the "non"
-sometimes goes missing (another reason to avoid NONUNIFORM).
-
-I wrote that yesterday.  Thanks, you've cleared it up in private mail:
-the VM_MANYPROTS vmas that UML wants are VM_NONLINEAR anyway.
-
-Yes, I see your dilemma there: you rightly want to avoid adding bloat
-by distinguishing cases that you don't need distinguished; but equally
-rightly fear that someone somewhere will start using the VM_MANYPROTS
-for other reasons, and hit the inefficiencies of VM_NONLINEAR
-unnecessarily.  I share your uncertainty, I don't have an immediate
-feel for the right direction on that.
-
-> *) No more usage of a new syscall slot: to use the new interface, application 
-> will use the new MAP_NOINHERIT flag I've added. I've still the patches to use 
-> the old -mm ABI, if there's any reason they're needed.
-
-I'm glad you've scrapped the new syscall slot, that really put me off
-the old patch (though I was probably being silly about it).  This way
-is much better, but again I quarrel with your naming.
-
-"Inherit" is about parents and children, this is not; and furthermore,
-some UNIXes had a MAP_INHERIT (see asm-alpha/mman.h) which was about
-passing an mmap across exec.  Your MAP_NOINHERIT has nothing to do
-with that.  MAP_MANYPROTS would help us to follow the trail more
-easily (though it's true that you can't actually pass many prots
-in to a single remap_file_pages call).
-
-> Subject: [patch 01/18] remap_file_pages protection support: uml, i386, x64 bits
-> 
-> Update pte encoding macros for UML, i386 and x86-64.
-> Also, add the MAP_NOINHERIT flag to arch headers.
-
-Well, I don't find your patch division very helpful, since you introduce
-these without us seeing what use is made of them.  And the MAP_NOINHERIT
-additions cover a different subset of arches (ppc, ppc64, s390 in there):
-those should be in some other patch.
-
-Usually we just do the i386 arch first, and supply some other patch(es)
-for all the others.  But you've good reason to start with UML too, and
-it makes sense to include x86_64 along too if you're happy to do so.
-
-But it'll probably waste your time and mine to go on discussng patch
-division, let's leave it at that.
-
-> *** remap_file_pages protection support: improvement for UML bits
-> 
-> Recover one bit by additionally using _PAGE_NEWPROT. Since I wasn't sure this
-> would work, I've split this out, but it has worked well. We rely on the fact
-> that pte_newprot always checks first if the PTE is marked present.
-
-And we never hear of _PAGE_NEWPROT or pte_newprot again.  Ah, they're
-already defined in and peculiar to UML, I see.  Well, if this some
-UML improvement change, please put that in a separate UML patch.
-
-> -#define pte_to_pgoff(pte) (pte_val(pte) >> 4)
-> +#define pte_to_pgoff(pte) (((pte_val(pte) >> 6) << 1) | ((pte_val(pte) >> 2) & 0x1))
-> +#define pte_to_pgprot(pte) \
-> +	__pgprot((pte_val(pte) & (_PAGE_RW | _PAGE_PROTNONE)) \
-> +		| ((pte_val(pte) & _PAGE_PROTNONE) ? 0 : \
-> +			(_PAGE_USER | _PAGE_PRESENT)) | _PAGE_ACCESSED)
-
-It took me a long time to get past this!  But it's not your fault
-at all, you are just tweaking what's there.  In the end I decided
-I'd do better to take it on trust and move along.
-
-(I realize that PROTNONE is a specially awkward case, but I keep
-feeling that we make it even more awkward than it need be.  But
-again, if so, that's not your fault.  And I've never been forced
-to think it through here, as you have.)
-
-> -#define PTE_FILE_MAX_BITS	29
-> +#define PTE_FILE_MAX_BITS	28
-
-That being the i386 2-level case.  I think that one less bit there is
-probably okay, since wli changed the 3-level case to use all 32 bits
-of the high word.  The people needing 29 file offset bits are probably
-already using PAE, and can be directed to it if not.
-
-But there may be other 32-bit arches, without a 3-level alternative,
-which are impacted.  (I don't think I'm telling you anything you
-don't already know, just highlighting a point for others to comment.)
-
-> +#define MAP_NOINHERIT	0x20000		/* don't inherit the protection bits of the underlying vma*/
-
-As above, MAP_MANYPROTS or something better please.  And please make it
-clear in the comment that it's a flag to remap_file_pages and nothing else.
-
-> Subject: [patch 02/18] remap_file_pages protection support: handle nonuniform VMAs
-> 
-> * (TODO?) avoid regression in max file offset with r_f_p() for older mappings;
->   we could use either the old offset encoding or the new offset-prot encoding
->   depending on this flag.
->   It's trivial to do, just I don't know whether existing apps will overflow
->   the new limits. They go down from 2Tb to 1Tb on i386 and 512G on PPC, and
->   from 256G to 128G on S390/31 bits. Give me a call in case.
-
-Spare me!  That would make those macros even worse.
-I hope noone will demand it.
-
-> mprotect alters the VMA prots and walks each present PTE, ignoring installed
-> ones; their saved prots will be restored on faults, ignoring VMA ones and
-> losing the mprotect() on them. So, we must restore VMA prots when the VMA is
-> uniform, as we used to do.
-
-If I understand it, you're here commenting on the history of these
-remap_file_pages patches.  That's okay in the 0/18 introducing
-a new version, but please, in the comment on the patch itself,
-explain what it's doing, not how you've been changing it around.
-Oh, mm/mprotect.c doesn't even come in this patch, you're writing
-about the next one.
-
-> +	pgprot = vma->vm_flags & VM_NONUNIFORM ? pte_to_pgprot(*pte): vma->vm_page_prot;
-
-Personally I find "(vma->vm_flags & VM_NONUNIFORM)" more reassuring there.
-
-> Subject: [patch 03/18] remap_file_pages protection support: make mprotect skip pagetables on nonuniform
-> 
-> There is IMHO no reason to support using mprotect on non-uniform VMAs. The
-> only exception is to change the VMA's default protection (which is used for
-> non-individually remapped pages), but it must still ignore the page tables, as
-> done in this patch.
-> 
-> The only unsatisfied need is if I want to change protections without changing
-> the indexes, which with remap_file_pages you must do one page at a time and
-> re-specifying the indexes.
-> 
-> It is more reasonable to allow remap_file_pages to change protections on a PTE
-> range without changing the offsets. I've not implemented this, but if wanted I
-> can. For sure, UML doesn't currently need this interface.
-> 
-> However, for now I've implemented only this change to mprotect(), I'd like to
-> get some feedback about this choice.
-
-No, I think I disagree with your choice here.  A reasonable person,
-doing a successful, prohibitive (e.g. remove write access) mprotect
-on a range, would expect those prohibitions then to be enforced across
-the range.  Whereas you're letting existing entries (whether present
-or paged out) retain the permissions they were given earlier with
-remap_file_pages.
-
-I think mprotect should remove the VM_MANYPROTS attribute of each
-vma in the range, and give all the present entries the new pgprot
-(in the same way that it normally does).
-
-Or, if that would really bloat the implementation (I don't see why,
-but perhaps the encoding of absent entries, maybe manyprots, maybe
-nonlinear, might do so), just fail with -EACCES when sys_mprotect
-meets a manyprots vma, until someone asks for better.
-
-As to letting remap_file_pages change permissions without changing
-file offsets somehow (another MAP_ flag I suppose), yes, it could
-be done but don't bother until/unless there is such need.
-
-> [PATCH] remove implied vm_ops check
-
-This one was missing from the sequence, and you supplied privately.
-Remove implied vm_ops check??  No, that belongs to something else.
-
-> Even now, we'll sometimes take the write lock, and maybe go to sleep with it
-> for I/O.
-
-You're writing about sys_remap_file_pages.
-
-> So, in that case, we could downgrade it; after a tiny bit of thought, I've
-> choosen doing that when we'll either do any I/O or we'll alter a lot of PTEs.
-> About how much "a lot" is, I've copied the values from this code in
-> mm/memory.c, but note they're about mm->page_table_lock, a spinlock, not a
-> semaphore:
-> 
-> #ifdef CONFIG_PREEMPT
-> # define ZAP_BLOCK_SIZE	(8 * PAGE_SIZE)
-> #else
-> /* No preempt: go for improved straight-line efficiency */
-> # define ZAP_BLOCK_SIZE	(1024 * PAGE_SIZE)
-> #endif
-> 
-> I'm not sure about the trade-offs - we used to have a down_write, now we have
-> a down_read() and a possible up_read()-down_write(), and with this patch, the
-> fast-path still takes only down_read, but the slow path will do down_read(),
-> up_read(), down_write(), downgrade_write(). This will increase by one the
-> number of atomic operation but increase concurrency wrt mmap and similar
-> operations - I don't know how much contention there is on that lock.
-
-Please drop all this, it's overengineered.  A semaphore is not a spinlock,
-it's not adding to the latency of the system as a whole, just preventing
-concurrent page faults on that mm (if you downgrade_write, you're still
-excluding concurrent mmaps, mprotects etc., and necessarily so).
-
-Originally every sys_remap_file_pages did down_write, and there was a
-downgrade_write before the populate.  Doing down_write every time did
-hurt, so it was changed only to do that when first going nonlinear
-(to respect the locking on vm_flags), and we didn't bother to downgrade
-in that one instance.
-
-I don't mind you just adding a simple
-		if (has_write_lock)
-			downgrade_write(&mm->mmap_sem);
-before the populate (and getting rid of the has_write_lock condition
-further down), but anything more seems overkill to me.
-
-> Also, drop a bust comment: we cannot clear VM_NONLINEAR simply because code
-> elsewhere is going to use it. At the very least, madvise_dontneed() relies on
-> that flag being set (remaining non-linear truncation read the mapping
-> list), but the list is probably longer, and going to increase.
-
-You misunderstand the comment (it could indeed be clearer), but you're
-right that the bit about downgrading the lock is out-of-date.
-I suggest you insert this comment instead.
-		/*
-		 * We would like to clear VM_NONLINEAR, in the case when
-		 * sys_remap_file_pages covers the whole vma, so making
-		 * it linear again.  But cannot do so until after a
-		 * successful populate, and have no way to upgrade sem.
-		 */
-
-> Subject: [patch 04/18] remap_file_pages protection support: cleanup syscall checks
-> 
-> This patch reorganizes the code only, without differences in behaviour. It
-> makes the code more readable on its own, and is needed for next patches. I've
-> split this out to avoid cluttering real patches.
-
-Okay, you're breaking up conditions nicely, but please break this one up too
->  
-> +	if (!vma->vm_ops || !vma->vm_ops->populate || end <= start || start <
-> +			vma->vm_start || end > vma->vm_end)
-> +		goto out_unlock;
-
-into a vm_ops part and a start/end part.
-
-> Subject: [patch 05/18] remap_file_pages protection support: enhance syscall interface
-> 
-> @@ -203,7 +203,7 @@ asmlinkage long sys_remap_file_pages(uns
->  	/* Can we represent this offset inside this architecture's pte's? */
->  #if PTE_FILE_MAX_BITS < BITS_PER_LONG
->  	if (pgoff + (size >> PAGE_SHIFT) >= (1UL << PTE_FILE_MAX_BITS))
-> -		return err;
-> +		return -EOVERFLOW;
->  #endif
-
-In the last patch you replaced all(?) the early returns by gotos;
-now in this one you reintroduce an early return.  Better be consistent
-and make this one a goto too.
-
-> +	if (flags & MAP_NOINHERIT) {
-> +		err = -EPERM;
-> +		if (((prot & PROT_READ) && !(vma->vm_flags & VM_MAYREAD)))
-> +			goto out_unlock;
-> +		if (((prot & PROT_WRITE) && !(vma->vm_flags & VM_MAYWRITE)))
-> +			goto out_unlock;
-> +		if (((prot & PROT_EXEC) && !(vma->vm_flags & VM_MAYEXEC)))
-> +			goto out_unlock;
-> +		err = -EINVAL;
-> +		pgprot = protection_map[calc_vm_prot_bits(prot) | VM_SHARED];
-
-Please follow mprotect's way of doing this, calc_vm_prot_bits first then
-		if ((newflags & ~(newflags >> 4)) & 0xf) {
-Except please do NOT say 0xf!  Use VM_READ|VM_WRITE|VM_EXEC instead
-(yeah, yeah, I know that only comes to 7).
-
-> Subject: [patch 06/18] remap_file_pages protection support: support private vma for MAP_POPULATE
-> 
-> Fix MAP_POPULATE | MAP_PRIVATE. We don't need the VMA to be shared if we don't
-> rearrange pages around. And it's trivial to do.
-
-This seems reasonable to me.  I was afraid you were going to extend
-VM_NONLINEAR to private maps, but no, you're just letting private maps
-be populated linearly, that's fine.  (Really we ought then also to
-allow anonymous maps be pre-populated also, but that's a different
-patch, which wouldn't touch sys_remap_file_pages at all: forget it.)
-
-> --- linux-2.6.git/mm/mmap.c~rfp-private-vma-2	2005-08-24 20:57:13.000000000 +0200
-> +++ linux-2.6.git-paolo/mm/mmap.c	2005-08-24 20:57:13.000000000 +0200
-> @@ -1124,6 +1124,10 @@ out:	
->  	}
->  	if (flags & MAP_POPULATE) {
->  		up_write(&mm->mmap_sem);
-> +		/*
-> +		 * remap_file_pages() works even if the mapping is private,
-> +		 * in the linearly-mapped case:
-> +		 */
-
-But that's one of your historical comments.  The point of the patch is
-that it's peculiar not to populate the private mappings, so why comment
-when we're no longer doing something peculiar?  Please leave it out.
-
->  		sys_remap_file_pages(addr, len, 0,
->  					pgoff, flags & MAP_NONBLOCK);
->  		down_write(&mm->mmap_sem);
-
-> Subject: [patch 07/18] remap_file_pages protection support: safety net for lazy arches
-> 
-> Since proper support requires that the arch at the very least handles
-> VM_FAULT_SIGSEGV, as in next patch (otherwise the arch may BUG), and things
-> are even more complex (see next patches), and it's triggerable only with
-> VM_NONUNIFORM vma's, simply refuse creating them if the arch doesn't declare
-> itself ready.
-> 
-> This is a very temporary hack, so I've clearly marked it as such. And, with
-> current rythms, I've given about 6 months for arches to get ready. Reducing
-> this time is perfectly ok for me.
-> 
-> +#ifndef __ARCH_SUPPORTS_VM_NONUNIFORM
-> +	if (flags & MAP_NOINHERIT)
-> +		goto out;
-> +#endif
-
-Any arch that doesn't have a definition of MAP_MANYPROTS in its asm/mman.h
-has its build broken anyways.  While you're giving them all MAP_MANYPROTS
-definitions, please just modify their fault handlers, as simply as possible.
-So skip the __ARCH_SUPPORTS_VM_NONUNIFORM business.
-
->  
-> +++ linux-2.6.git-paolo/Documentation/feature-removal-schedule.txt	2005-08-24 20:57:18.000000000 +0200
-> +
-> +---------------------------
-> +
-> +What:	__ARCH_SUPPORTS_VM_NONUNIFORM
-> +When:	December 2005
-> +Files:	mm/fremap.c, include/asm-*/pgtable.h
-> +Why:	It's just there to allow arches to update their page fault handlers to
-> +	support VM_FAULT_SIGSEGV, for remap_file_pages protection support.
-> +	Since they may BUG if this support is not added, the syscall code
-> +	refuses this new operation mode unless the arch declares itself as
-> +	"VM_FAULT_SIGSEGV-aware" with this macro.
-> +Who:	Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-
-This is very thorough and well-intentioned, but skip it - we do that
-for old features from which many drivers need converting, but it's
-not like that with the architectures.  Just supply the simple patches.
-
-> Subject: [patch 08/18] remap file pages protection support: use FAULT_SIGSEGV for protection checking
-
-Ah ha, now we get to the heart of it.  (And nothing wrong with such a lead
-up, I too like a number of patches to set the stage before the big one.)
-
-Well, this is two patches.  First there's handling VM_FAULT_SIGSEGV in
-various arches.  Please minimize those patches for now: VM_FAULT_SIGSEGV
-is very sensible in itself, and with its help we might be able to move
-more code from arches to common in future; but for now, try to keep it
-to adding the 
-		case VM_FAULT_SIGSEGV:
-			goto bad_area;
-in each arch fault handler.  Resist changing "survive" to "handle_fault".
-Resist adding "access_mask" and passing it in place of "write": that may
-be necessary later to handle VM_EXEC properly on a few architectures,
-but I suggest (particularly given the subset of arches of interest)
-that you start with just the read/write distinction, and if exec needs
-more add it later (even if it's just a later patch of the same series).
-
-And resist adding a preliminary VM_MANYPROTS check to each fault
-handler.  Let's say instead that the mmap/mprotect permissions are the
-maximum that the area can take (and therefore modify the check done on
-prots in sys_remap_file_pages, to make sure they do not exceed "default").
-
-Would that work out?
-
-And then there's the core patch, to mm/memory.c.  But I'm afraid at this
-point, just when it gets interesting, my time and my patience run out.
-
-I still haven't come to a conclusion on the most interesting lines of
-all, do_no_page's
-		if (write_access || unlikely(vma->vm_flags & VM_NONUNIFORM))
-			entry = maybe_mkwrite(pte_mkdirty(entry), vma);
-but I suspect you're wrong to be avoiding do_wp_page at all costs,
-should instead be adapting do_wp_page to do the right thing with the
-faults which arrive there.
-
-And I think there's a serious flaw in handle_pte_fault, where it says
-> +	/* VM_NONUNIFORM vma's have PTE's always installed with the correct
-> +	 * protection. So, generate a SIGSEGV if a fault is caught there. */
-> +	if (unlikely(vma->vm_flags & VM_NONUNIFORM))
-> +		goto out_segv;
-
-Consider two threads faulting on the same pte on different cpus.
-One of them fixes it up, you're giving the other SIGSEGV?
-I think this runs quite deep and will need a rework.
-
-Sorry, I do not know when I can next face going over this,
-it's a hard task for me: perhaps someone else can take over.
-
-Hugh
+> 	- setup_per_zone_pages_min() calls should be added in
+> 	   capture_page_range() and online_pages()
+> 	- lru_add_drain() should be called before try_to_migrate_pages()
+
+The following patch deals with the first item.
+
+Signed-off-by: IWAMOTO Toshihiro <iwamoto@valinux.co.jp>
+Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
+---
+
+ memhotplug-dave/mm/memory_hotplug.c |    2 ++
+ 1 files changed, 2 insertions(+)
+
+diff -puN mm/memory_hotplug.c~D0.7-call_setup_per_zone_pages_min_after_memory_size_change mm/memory_hotplug.c
+--- memhotplug/mm/memory_hotplug.c~D0.7-call_setup_per_zone_pages_min_after_memory_size_change	2005-08-18 14:59:49.000000000 -0700
++++ memhotplug-dave/mm/memory_hotplug.c	2005-08-18 14:59:49.000000000 -0700
+@@ -133,5 +133,7 @@ int online_pages(unsigned long pfn, unsi
+ 	}
+ 	zone->present_pages += onlined_pages;
+ 
++	setup_per_zone_pages_min();
++
+ 	return 0;
+ }
+_

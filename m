@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030272AbVIBGLp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030301AbVIBGNz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030272AbVIBGLp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 02:11:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030266AbVIBGLp
+	id S1030301AbVIBGNz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 02:13:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030298AbVIBGNz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 02:11:45 -0400
-Received: from r-dd.iij4u.or.jp ([210.130.0.70]:12505 "EHLO r-dd.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id S1030248AbVIBGLo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 02:11:44 -0400
-Date: Fri, 02 Sep 2005 15:11:32 +0900 (JST)
-Message-Id: <20050902.151132.15273184.Noritoshi@Demizu.ORG>
-From: Noritoshi Demizu <demizu@dd.iij4u.or.jp>
-To: Stephen Hemminger <shemminger@osdl.org>,
-       Ion Badulescu <lists@limebrokerage.com>, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org
-Subject: Re: Possible BUG in IPv4 TCP window handling, all recent
- 2.4.x/2.6.x kernels
-In-Reply-To: <20050902.144537.35010282.Noritoshi@Demizu.ORG>
-References: <20050902.135138.38716488.Noritoshi@Demizu.ORG>
-	<20050901222032.5cc649c0@localhost.localdomain>
-	<20050902.144537.35010282.Noritoshi@Demizu.ORG>
-X-Mailer: Mew version 4.1 on Emacs 21 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Fri, 2 Sep 2005 02:13:55 -0400
+Received: from mgate03.necel.com ([203.180.232.83]:26047 "EHLO
+	mgate03.necel.com") by vger.kernel.org with ESMTP id S1030326AbVIBGNy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 02:13:54 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH] v850: Round up length passed to slram driver to a multiple of SLRAM_BLK_SZ
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+From: Miles Bader <miles@gnu.org>
+Message-Id: <20050902061330.BEF2B4DC@dhapc248.dev.necel.com>
+Date: Fri,  2 Sep 2005 15:13:30 +0900 (JST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> By the way, if tcpdump does not track the window scale option, the right
-> edge (ack + real win) does not change between the following two ACKs.
->
-> > 11:34:54.337167 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84402527 win 15340 <nop,nop,timestamp 226080473 99717814> (DF)
->   (259 ACKs are omitted here)
-> > 11:34:54.611769 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84454467 win 2355 <nop,nop,timestamp 226080721 99717841> (DF)
->
-> The first line is the 37th ACK and the second line is the 295th ACK.
->
->   ACK#37:  ack=84402527 win=15340 right_edge=84463887 (= ack + win * 4)
->   ACK#295: ack=84454467 win=2355  right_edge=84463887 (= ack + win * 4)
->
-> And all ACKs later than ACK#295 has win=2355 (2355*4=9420).
->
-> This may be a hint.  But, sorry, I do not know the internal of Linux TCP.
+Signed-off-by: Miles Bader <miles@gnu.org>
 
-I think there is a possibility that some middle-box does something,
-for example, some middle-box between the two machines does kinda
-traffic-shaping by tweaking the TCP window size field.
+ arch/v850/kernel/setup.c |   14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-Regards,
-Noritoshi Demizu
+diff -ruN -X../cludes linux-2.6.13-uc0/arch/v850/kernel/setup.c linux-2.6.13-uc0-v850-20050902/arch/v850/kernel/setup.c
+--- linux-2.6.13-uc0/arch/v850/kernel/setup.c	2005-06-21 16:07:27.095352000 +0900
++++ linux-2.6.13-uc0-v850-20050902/arch/v850/kernel/setup.c	2005-09-02 11:10:57.162581000 +0900
+@@ -1,8 +1,8 @@
+ /*
+  * arch/v850/kernel/setup.c -- Arch-dependent initialization functions
+  *
+- *  Copyright (C) 2001,02,03  NEC Electronics Corporation
+- *  Copyright (C) 2001,02,03  Miles Bader <miles@gnu.org>
++ *  Copyright (C) 2001,02,03,05  NEC Electronics Corporation
++ *  Copyright (C) 2001,02,03,05  Miles Bader <miles@gnu.org>
+  *
+  * This file is subject to the terms and conditions of the GNU General
+  * Public License.  See the file COPYING in the main directory of this
+@@ -98,10 +98,20 @@
+ }
+ 
+ #ifdef CONFIG_MTD
++
++/* From drivers/mtd/devices/slram.c */
++#define SLRAM_BLK_SZ 0x4000
++
+ /* Set the root filesystem to be the given memory region.
+    Some parameter may be appended to CMD_LINE.  */
+ void set_mem_root (void *addr, size_t len, char *cmd_line)
+ {
++	/* Some sort of idiocy in MTD means we must supply a length that's
++	   a multiple of SLRAM_BLK_SZ.  We just round up the real length,
++	   as the file system shouldn't attempt to access anything beyond
++	   the end of the image anyway.  */
++	len = (((len - 1) + SLRAM_BLK_SZ) / SLRAM_BLK_SZ) * SLRAM_BLK_SZ;
++
+ 	/* The only way to pass info to the MTD slram driver is via
+ 	   the command line.  */
+ 	if (*cmd_line) {

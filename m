@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161029AbVIBVAu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161013AbVIBU75@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161029AbVIBVAu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 17:00:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbVIBU47
+	id S1161013AbVIBU75 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 16:59:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161025AbVIBU7i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 16:56:59 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:57325 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751258AbVIBU4x
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 16:56:53 -0400
-Subject: [PATCH 09/11] memory hotplug: call setup_per_zone_pages_min after hotplug
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, Dave Hansen <haveblue@us.ibm.com>
-From: Dave Hansen <haveblue@us.ibm.com>
-Date: Fri, 02 Sep 2005 13:56:50 -0700
-References: <20050902205643.9A4EC17A@kernel.beaverton.ibm.com>
-In-Reply-To: <20050902205643.9A4EC17A@kernel.beaverton.ibm.com>
-Message-Id: <20050902205650.C36ECCC6@kernel.beaverton.ibm.com>
+	Fri, 2 Sep 2005 16:59:38 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:15276 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161013AbVIBU7P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 16:59:15 -0400
+Date: Fri, 2 Sep 2005 13:57:35 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Benjamin LaHaise <bcrl@linux.intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-mm1
+Message-Id: <20050902135735.5862e97b.akpm@osdl.org>
+In-Reply-To: <20050902135701.GA4470@linux.intel.com>
+References: <20050901035542.1c621af6.akpm@osdl.org>
+	<20050902135701.GA4470@linux.intel.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-From: IWAMOTO Toshihiro <iwamoto@valinux.co.jp>
-> I found the tests does not work well with Dave's patchset.
-> I've found the followings:
+Benjamin LaHaise <bcrl@linux.intel.com> wrote:
+>
+> On Thu, Sep 01, 2005 at 03:55:42AM -0700, Andrew Morton wrote:
+> >  Dropped (I have it in a new AIO patch series but I took yet another look at
+> >  all the AIO stuff and felt queasy)
 > 
-> 	- setup_per_zone_pages_min() calls should be added in
-> 	   capture_page_range() and online_pages()
-> 	- lru_add_drain() should be called before try_to_migrate_pages()
+> What's the nature of the queasiness?  Is it something that can be addressed 
+> by rewriting the patches, or just general worries about adding another 
+> feature?  The status quo is not acceptable.
+> 
 
-The following patch deals with the first item.
+Cons:
 
-Signed-off-by: IWAMOTO Toshihiro <iwamoto@valinux.co.jp>
-Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
----
+- Additional arguments to various fastpath functions
 
- memhotplug-dave/mm/memory_hotplug.c |    2 ++
- 1 files changed, 2 insertions(+)
+- Additional code size
 
-diff -puN mm/memory_hotplug.c~D0.7-call_setup_per_zone_pages_min_after_memory_size_change mm/memory_hotplug.c
---- memhotplug/mm/memory_hotplug.c~D0.7-call_setup_per_zone_pages_min_after_memory_size_change	2005-08-18 14:59:49.000000000 -0700
-+++ memhotplug-dave/mm/memory_hotplug.c	2005-08-18 14:59:49.000000000 -0700
-@@ -133,5 +133,7 @@ int online_pages(unsigned long pfn, unsi
- 	}
- 	zone->present_pages += onlined_pages;
- 
-+	setup_per_zone_pages_min();
-+
- 	return 0;
- }
-_
+- Additional code complexity
+
+- Significantly degrades collective understanding of how the VFS works.
+
+Pros:
+
+- Unclear.
+

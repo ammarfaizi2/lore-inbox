@@ -1,66 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161086AbVIBWer@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161090AbVIBWh0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161086AbVIBWer (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 18:34:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161088AbVIBWer
+	id S1161090AbVIBWh0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 18:37:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161091AbVIBWh0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 18:34:47 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:48065 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161086AbVIBWeq (ORCPT
+	Fri, 2 Sep 2005 18:37:26 -0400
+Received: from colo.lackof.org ([198.49.126.79]:35295 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S1161090AbVIBWhZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 18:34:46 -0400
-Date: Fri, 2 Sep 2005 15:34:40 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: linux-kernel@vger.kernel.org, fuse-devel@lists.sourceforge.net,
-       torvalds@osdl.org
-Subject: Re: FUSE merging?
-Message-Id: <20050902153440.309d41a5.akpm@osdl.org>
-In-Reply-To: <E1EBJc2-0006J0-00@dorka.pomaz.szeredi.hu>
-References: <E1EBJc2-0006J0-00@dorka.pomaz.szeredi.hu>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Fri, 2 Sep 2005 18:37:25 -0400
+Date: Fri, 2 Sep 2005 16:43:14 -0600
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Brian King <brking@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, greg@kroah.com, matthew@wil.cx,
+       benh@kernel.crashing.org, ak@muc.de, paulus@samba.org,
+       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH 1/2] pci: Block config access during BIST (resend)
+Message-ID: <20050902224314.GB8463@colo.lackof.org>
+References: <41FF9C78.2040100@us.ibm.com> <20050201154400.GC10088@parcelfarce.linux.theplanet.co.uk> <41FFBDC9.2010206@us.ibm.com> <20050201174758.GE10088@parcelfarce.linux.theplanet.co.uk> <4200F2B2.3080306@us.ibm.com> <20050208200816.GA25292@kroah.com> <42B83B8D.9030901@us.ibm.com> <430B3CB4.1050105@us.ibm.com> <20050901160356.2a584975.akpm@osdl.org> <4318E6B3.7010901@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4318E6B3.7010901@us.ibm.com>
+X-Home-Page: http://www.parisc-linux.org/
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miklos Szeredi <miklos@szeredi.hu> wrote:
->
-> Hi Andrew!
+On Fri, Sep 02, 2005 at 06:56:35PM -0500, Brian King wrote:
+> Andrew Morton wrote:
+> >Brian King <brking@us.ibm.com> wrote:
+> >
+> >>+void pci_block_user_cfg_access(struct pci_dev *dev)
+> >>+{
+> >>+	unsigned long flags;
+> >>+
+> >>+	pci_save_state(dev);
+> >>+	spin_lock_irqsave(&pci_lock, flags);
+> >>+	dev->block_ucfg_access = 1;
+> >>+	spin_unlock_irqrestore(&pci_lock, flags);
+> >
+> >
+> >Are you sure the locking in here is meaningful?  All it will really do is
+> >give you a couple of barriers.
 > 
-> Do you plan to send FUSE to Linus for 2.6.14?
+> Actually, it is meaningful. It synchronizes the blocking of pci config 
+> accesses with other pci config accesses that may be going on when this 
+> function is called. Without the locking, the API cannot guarantee that 
+> no further user initiated PCI config accesses will be initiated after 
+> this function is called.
 
-Haven't thought about it all much.  Have spent most of my time in the last
-month admiring the contents of kernel bugzilla, and the ongoing attempts to
-increase them.
+I don't have the impression you understood what Andrew wrote.
+dev->block_ucfg_access = 1 is essentially an atomic operation.
+AFAIK, Use of the pci_lock doesn't solve any race conditions that mb()
+wouldn't solve.
 
-> I know you have some doubts about usefulness, etc.  Here are a couple
-> of facts, that I hope show that Linux should benefit from having FUSE:
-> 
->  - total number of downloads from SF: ~25000
-> 
->  - number of downloads of last release (during 3 months): ~7000
-> 
->  - number of distros carrying official packages: 2 (debian, gentoo)
-> 
->  - number of publicly available filesystems known: 27
-> 
->  - of which at least 2 are carried by debian (and maybe others)
-> 
->  - number of language bindings: 7 (native: C, java, python, perl, C#, sh, TCL)
-> 
->  - biggest known commercial user: ~110TB exported, total bandwidth: 1.5TB/s
-> 
->  - mailing list traffic 100-200 messages/month
-> 
->  - have been in -mm since 2005 january
-> 
+If you had:
+	spin_lock_irqsave(&pci_lock, flags);
+	pci_save_state(dev);
+	dev->block_ucfg_access = 1;
+	spin_unlock_irqrestore(&pci_lock, flags);
 
-I agree that lots of people would like the functionality.  I regret that
-although it appears that v9fs could provide it, there seems to be no
-interest in working on that.
+Then I could buy your arguement since the flag now implies
+we need to atomically save state and set the flag.
 
-The main sticking point with FUSE remains the permission tricks around
-fuse_allow_task().  AFAIK it remains the case that nobody has come up with
-any better idea, so I'm inclined to merge the thing.
+grant

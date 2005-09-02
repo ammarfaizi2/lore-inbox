@@ -1,76 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030634AbVIBBYM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030638AbVIBBae@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030634AbVIBBYM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 21:24:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030635AbVIBBYL
+	id S1030638AbVIBBae (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 21:30:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030639AbVIBBae
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 21:24:11 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:33808 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030633AbVIBBYD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 21:24:03 -0400
-Date: Fri, 2 Sep 2005 03:24:02 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: airlied@linux.ie, dri-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/char/drm/: small cleanups
-Message-ID: <20050902012402.GQ3657@stusta.de>
+	Thu, 1 Sep 2005 21:30:34 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:27114 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1030638AbVIBBad convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 21:30:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Ah9eldlFIF3fNHRrDyPk01hkMd70BApdhJ4zpmNnoNhNJVU4uH9Xmx2rPCHma2m6MJrZVJ218UI/Oin/a8bg/pxK3/GQezYScJdwu0U8vz69lcTVIcXu+4D2XKNi9cxFJOXR29tMzmEhpFMpFKDpewaN3mDgQkN90AhDRCHelWU=
+Message-ID: <67029b17050901182964c80289@mail.gmail.com>
+Date: Fri, 2 Sep 2005 09:29:25 +0800
+From: Zhou Yingchao <yingchao.zhou@gmail.com>
+Reply-To: yingchao.zhou@gmail.com
+To: Richard Hayden <rahaydenuk@yahoo.co.uk>
+Subject: Re: A couple of OOM killer races
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <43176820.5060609@yahoo.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.5.10i
+References: <43176820.5060609@yahoo.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following small cleanups:
-- make two needlessly global functions static
-- drm_sysfs.c: every file should #include the header with the prototypes 
-               of the global functions it is offering
+On 9/2/05, Richard Hayden <rahaydenuk@yahoo.co.uk> wrote:
+> Hi all,
+> 
+> It appears there is no protection in badness() (called by
+> out_of_memory() for each process) when it reads p->mm->total_vm. Another
+> processor (or a kernel preemption) could presumably run do_exit and then
+> exit_mm, freeing the process in question's reference to its mm just
+> after the (!p->mm) check but before it reads p->mm->total_vm, making the
+> latter reference a null pointer reference.
 
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
----
-
-This patch was already sent on:
-- 24 Aug 2005
-
- drivers/char/drm/drm_bufs.c    |    2 +-
- drivers/char/drm/drm_context.c |    2 +-
- drivers/char/drm/drm_sysfs.c   |    1 +
- 3 files changed, 3 insertions(+), 2 deletions(-)
-
---- linux-2.6.13-rc6-mm2-full/drivers/char/drm/drm_bufs.c.old	2005-08-24 16:55:50.000000000 +0200
-+++ linux-2.6.13-rc6-mm2-full/drivers/char/drm/drm_bufs.c	2005-08-24 16:56:06.000000000 +0200
-@@ -1041,7 +1041,7 @@
- 	return 0;
- }
- 
--int drm_addbufs_fb(drm_device_t *dev, drm_buf_desc_t *request)
-+static int drm_addbufs_fb(drm_device_t *dev, drm_buf_desc_t *request)
- {
- 	drm_device_dma_t *dma = dev->dma;
- 	drm_buf_entry_t *entry;
---- linux-2.6.13-rc6-mm2-full/drivers/char/drm/drm_context.c.old	2005-08-24 16:56:29.000000000 +0200
-+++ linux-2.6.13-rc6-mm2-full/drivers/char/drm/drm_context.c	2005-08-24 16:56:42.000000000 +0200
-@@ -308,7 +308,7 @@
-  *
-  * Attempt to set drm_device::context_flag.
-  */
--int drm_context_switch( drm_device_t *dev, int old, int new )
-+static int drm_context_switch( drm_device_t *dev, int old, int new )
- {
-         if ( test_and_set_bit( 0, &dev->context_flag ) ) {
-                 DRM_ERROR( "Reentering -- FIXME\n" );
---- linux-2.6.13-rc6-mm2-full/drivers/char/drm/drm_sysfs.c.old	2005-08-24 16:57:02.000000000 +0200
-+++ linux-2.6.13-rc6-mm2-full/drivers/char/drm/drm_sysfs.c	2005-08-24 16:57:20.000000000 +0200
-@@ -17,6 +17,7 @@
- #include <linux/err.h>
- 
- #include "drm_core.h"
-+#include "drmP.h"
- 
- struct drm_sysfs_class {
- 	struct class_device_attribute attr;
-
+ In badness, the tasklist_lock has been hold. And when an exit signal
+delived to it because other thread call do_group_exit, it need to hold
+the tasklist_lock first, so we are protected.
+  
+-- 
+Yingchao Zhou

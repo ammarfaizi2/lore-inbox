@@ -1,41 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbVIBRwp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750755AbVIBRzE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750700AbVIBRwp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 13:52:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750714AbVIBRwp
+	id S1750755AbVIBRzE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 13:55:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750758AbVIBRzE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 13:52:45 -0400
-Received: from nproxy.gmail.com ([64.233.182.200]:30195 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750700AbVIBRwp convert rfc822-to-8bit
+	Fri, 2 Sep 2005 13:55:04 -0400
+Received: from xproxy.gmail.com ([66.249.82.192]:38948 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750730AbVIBRzC convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 13:52:45 -0400
+	Fri, 2 Sep 2005 13:55:02 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=M8eviBcf3uPpfQhyDq8g1dvlYyXvPNeMyofhfN+D5G38zuX4Rm8CJDyL2+mCpcPnVCwI9cUTFkv1vhYs7i3mzWiLumR36dVRsy+0ZuHx+Qu+wZfsIfdFKrXSZOpHGG33MMghPR5C2piEYYfkrZFhTL4m3rkCcCMFhwVlUTbMHAo=
-Message-ID: <81b0412b0509021052458970b2@mail.gmail.com>
-Date: Fri, 2 Sep 2005 19:52:43 +0200
-From: Alex Riesen <raa.lkml@gmail.com>
-To: Phy Prabab <phyprabab@yahoo.com>
-Subject: Re: odd socket behavior
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050830065344.86508.qmail@web51807.mail.yahoo.com>
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Zr9uQXurW9obj04B48EAbbpbSuWEK8oYPDpaDmo4gqYknsOInEVi4m28yH58pUnCPjK65APKkYSUHwf4a5Gahf/GUBup2J1LtownQ00Mo4n9kwDEFzvDZ09Zxt3HCVnKGd3DKRM1gKrGFhAxQDS8t0puaYkb/8FI2tEnaztCeMg=
+Message-ID: <2c0942db05090210556ad0a7d@mail.gmail.com>
+Date: Fri, 2 Sep 2005 10:55:00 -0700
+From: Ray Lee <madrabbit@gmail.com>
+Reply-To: ray@madrabbit.org
+To: Brett Russ <russb@emc.com>
+Subject: Re: [PATCH 2.6.13] libata: Marvell SATA support (PIO mode)
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>
+In-Reply-To: <20050901222617.2455520F96@lns1058.lss.emc.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <20050830065344.86508.qmail@web51807.mail.yahoo.com>
+References: <20050830183625.BEE1520F4C@lns1058.lss.emc.com>
+	 <4314C604.4030208@pobox.com>
+	 <20050901142754.B93BF27137@lns1058.lss.emc.com>
+	 <20050901144038.GA25830@infradead.org>
+	 <20050901222617.2455520F96@lns1058.lss.emc.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/30/05, Phy Prabab <phyprabab@yahoo.com> wrote:
-> Hello all,
-> 
-> I am seeing something odd w/sockets.  I have an app
-> that opens and closes network sockets.  When the app
-> terminates it releases all fd (sockets) and exists,
-> yet running netstat after the app terminates still
-> shows the sockets as open!  Am I doing something wrong
-> or is this something that is normal?
+On 9/1/05, Brett Russ <russb@emc.com> wrote:
+> More (non-functional) style modifications since the version 0.11
+> driver I sent out earlier today.  Removed most parens around return
+> value, 
 
-Do you shutdown(2) them? Are these listening sockets?
+return is not a function call; you can safely remove them all.
+
+> +       return ((void __iomem *)((unsigned long)port_mmio &
+> +                                (unsigned long)SATAHC_MASK));
+> +       return (base + MV_SATAHC0_REG_BASE + (hc * MV_SATAHC_REG_SZ));
+> +       return (mv_hc_base(base, port >> MV_PORT_HC_SHIFT) +
+> +               MV_SATAHC_ARBTR_REG_SZ +
+> +               ((port & MV_PORT_MASK) * MV_PORT_REG_SZ));
+> +       return ((flags & MV_FLAG_DUAL_HC) ? 2 : 1);
+> +       return (EDMA_EN & readl(port_mmio + EDMA_CMD_OFS));
+> +       return (ap->flags & MV_FLAG_BDMA);
+
+Ray

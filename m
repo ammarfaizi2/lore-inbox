@@ -1,87 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751348AbVIBU6A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161009AbVIBU64@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751348AbVIBU6A (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 16:58:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751234AbVIBU5K
+	id S1161009AbVIBU64 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 16:58:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbVIBU5F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 16:57:10 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:63619 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751225AbVIBU4v (ORCPT
+	Fri, 2 Sep 2005 16:57:05 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:21662 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751336AbVIBU45 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 16:56:51 -0400
-Subject: [PATCH 04/11] memory hotplug prep: fixup bad_range()
+	Fri, 2 Sep 2005 16:56:57 -0400
+Subject: [PATCH 11/11] memory hotplug: ppc64 specific hot-add functions
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, Dave Hansen <haveblue@us.ibm.com>
 From: Dave Hansen <haveblue@us.ibm.com>
-Date: Fri, 02 Sep 2005 13:56:46 -0700
+Date: Fri, 02 Sep 2005 13:56:52 -0700
 References: <20050902205643.9A4EC17A@kernel.beaverton.ibm.com>
 In-Reply-To: <20050902205643.9A4EC17A@kernel.beaverton.ibm.com>
-Message-Id: <20050902205646.1D7619DA@kernel.beaverton.ibm.com>
+Message-Id: <20050902205652.59260842@kernel.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-When doing memory hotplug operations, the size of existing zones can
-obviously change.  This means that zone->zone_{start_pfn,spanned_pages}
-can change.
+Here is a set of ppc64 specific patches that at least allow
+compilation/booting with the following configurations:
 
-There are currently no locks that protect these structure members.
-However, they are rarely accessed at runtime.  Outside of swsusp, the
-only place that I can find is bad_range().
+FLATMEM
+SPARSEMEN
+SPARSEMEM + MEMORY_HOTPLUG
 
-So, split bad_range() up into two pieces: one that needs to be locked
-and anther that doesn't.
-
+Signed-off-by: Mike Kravetz <kravetz@us.ibm.com>
 Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
+
 ---
 
- memhotplug-dave/mm/page_alloc.c |   26 +++++++++++++++++++++-----
- 1 files changed, 21 insertions(+), 5 deletions(-)
+ memhotplug-dave/arch/ppc64/mm/init.c         |   77 +++++++++++++++++++++++++++
+ memhotplug-dave/include/asm-ppc64/abs_addr.h |    2 
+ 2 files changed, 79 insertions(+)
 
-diff -puN mm/page_alloc.c~C5.1-bad_range-rework mm/page_alloc.c
---- memhotplug/mm/page_alloc.c~C5.1-bad_range-rework	2005-08-18 14:59:45.000000000 -0700
-+++ memhotplug-dave/mm/page_alloc.c	2005-08-18 14:59:45.000000000 -0700
-@@ -77,21 +77,37 @@ int min_free_kbytes = 1024;
- unsigned long __initdata nr_kernel_pages;
- unsigned long __initdata nr_all_pages;
- 
--/*
-- * Temporary debugging check for pages not lying within a given zone.
-- */
--static int bad_range(struct zone *zone, struct page *page)
-+static int page_outside_zone_boundaries(struct zone *zone, struct page *page)
- {
- 	if (page_to_pfn(page) >= zone->zone_start_pfn + zone->spanned_pages)
- 		return 1;
- 	if (page_to_pfn(page) < zone->zone_start_pfn)
- 		return 1;
+diff -puN arch/ppc64/mm/init.c~D2-ppc64-hotplug-functions arch/ppc64/mm/init.c
+--- memhotplug/arch/ppc64/mm/init.c~D2-ppc64-hotplug-functions	2005-08-18 14:59:50.000000000 -0700
++++ memhotplug-dave/arch/ppc64/mm/init.c	2005-08-18 14:59:50.000000000 -0700
+@@ -870,3 +870,80 @@ pgprot_t phys_mem_access_prot(struct fil
+ 	return vma_prot;
+ }
+ EXPORT_SYMBOL(phys_mem_access_prot);
++
++#ifdef CONFIG_MEMORY_HOTPLUG
++
++void online_page(struct page *page)
++{
++	ClearPageReserved(page);
++	free_cold_page(page);
++	totalram_pages++;
++	num_physpages++;
++}
++
++/*
++ * This works only for the non-NUMA case.  Later, we'll need a lookup
++ * to convert from real physical addresses to nid, that doesn't use
++ * pfn_to_nid().
++ */
++int __devinit add_memory(u64 start, u64 size)
++{
++	struct pglist_data *pgdata = NODE_DATA(0);
++	struct zone *zone;
++	unsigned long start_pfn = start >> PAGE_SHIFT;
++	unsigned long nr_pages = size >> PAGE_SHIFT;
++
++	/* this should work for most non-highmem platforms */
++	zone = pgdata->node_zones;
++
++	return __add_pages(zone, start_pfn, nr_pages);
 +
 +	return 0;
 +}
 +
-+static int page_is_consistent(struct zone *zone, struct page *page)
-+{
- #ifdef CONFIG_HOLES_IN_ZONE
- 	if (!pfn_valid(page_to_pfn(page)))
--		return 1;
-+		return 0;
- #endif
- 	if (zone != page_zone(page))
-+		return 0;
-+
-+	return 1;
-+}
 +/*
-+ * Temporary debugging check for pages not lying within a given zone.
++ * First pass at this code will check to determine if the remove
++ * request is within the RMO.  Do not allow removal within the RMO.
 + */
-+static int bad_range(struct zone *zone, struct page *page)
++int __devinit remove_memory(u64 start, u64 size)
 +{
-+	if (page_outside_zone_boundaries(zone, page))
- 		return 1;
-+	if (!page_is_consistent(zone, page))
-+		return 1;
++	struct zone *zone;
++	unsigned long start_pfn, end_pfn, nr_pages;
 +
- 	return 0;
- }
- 
-_
++	start_pfn = start >> PAGE_SHIFT;
++	nr_pages = size >> PAGE_SHIFT;
++	end_pfn = start_pfn + nr_pages;
++
++	printk("%s(): Attempting to remove memoy in range "
++			"%lx to %lx\n", __func__, start, start+size);
++	/*
++	 * check for range within RMO
++	 */
++	zone = page_zone(pfn_to_page(start_pfn));
++
++	printk("%s(): memory will be removed from "
++			"the %s zone\n", __func__, zone->name);
++
++	/*
++	 * not handling removing memory ranges that
++	 * overlap multiple zones yet
++	 */
++	if (end_pfn > (zone->zone_start_pfn + zone->spanned_pages))
++		goto overlap;
++
++	/* make sure it is NOT in RMO */
++	if ((start < lmb.rmo_size) || ((start+size) < lmb.rmo_size)) {
++		printk("%s(): range to be removed must NOT be in RMO!\n",
++			__func__);
++		goto in_rmo;
++	}
++
++	return __remove_pages(zone, start_pfn, nr_pages);
++
++overlap:
++	printk("%s(): memory range to be removed overlaps "
++		"multiple zones!!!\n", __func__);
++in_rmo:
++	return -1;
++}
++#endif /* CONFIG_MEMORY_HOTPLUG */

@@ -1,41 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750873AbVIBUwQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751051AbVIBU4j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750873AbVIBUwQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 16:52:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750994AbVIBUwQ
+	id S1751051AbVIBU4j (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 16:56:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751172AbVIBU4j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 16:52:16 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:5643 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750873AbVIBUwO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 16:52:14 -0400
-Date: Fri, 2 Sep 2005 22:52:04 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Patrick Mochel <mochel@digitalimplant.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.6: is include/linux/platform.h a dead header?
-Message-ID: <20050902205204.GU3657@stusta.de>
+	Fri, 2 Sep 2005 16:56:39 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:60356 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751051AbVIBU4j
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 16:56:39 -0400
+Subject: [PATCH 00/11] memory hotplug
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Fri, 02 Sep 2005 13:56:05 -0700
+Message-Id: <1125694565.26605.18.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.10i
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Patrick,
+I made sure these apply to 2.6.13-mm1, just after 
 
-it seems that exept for the default_idle() prototype, the complete 
-include/linux/platform.h is obsolete.
+	vm-add-page_state-info-to-per-node-meminfo.patch
 
-Is there a reason to keep it, or should we delete this header?
+But, they should apply anywhere after the ppc64 sparsemem extreme fixes
+that went into 2.6.13-mm1.
 
-cu
-Adrian
+--
 
--- 
+The following series implements memory hot-add for ppc64 and i386.
+There are x86_64 and ia64 implementations that will be submitted shortly
+as well, through the normal maintainers.  
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+-- Dave
 

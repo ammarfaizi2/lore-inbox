@@ -1,61 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbVIBIXd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751121AbVIBIYN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751114AbVIBIXd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 04:23:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751118AbVIBIXd
+	id S1751121AbVIBIYN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 04:24:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751120AbVIBIYN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 04:23:33 -0400
-Received: from baythorne.infradead.org ([81.187.2.161]:50060 "EHLO
-	baythorne.infradead.org") by vger.kernel.org with ESMTP
-	id S1750851AbVIBIXc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 04:23:32 -0400
-Subject: Re: empty patch-2.6.13-git? patches on ftp.kernel.org
-From: David Woodhouse <dwmw2@infradead.org>
-To: Tomasz =?ISO-8859-1?Q?K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
-Cc: git@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <Pine.BSO.4.62.0508311527340.10416@rudy.mif.pg.gda.pl>
-References: <Pine.BSO.4.62.0508311527340.10416@rudy.mif.pg.gda.pl>
-Content-Type: text/plain; charset=UTF-8
-Date: Fri, 02 Sep 2005 09:23:09 +0100
-Message-Id: <1125649389.6928.19.camel@baythorne.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 2 Sep 2005 04:24:13 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:35723 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751121AbVIBIYM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 04:24:12 -0400
+Date: Fri, 2 Sep 2005 10:24:04 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [PATCH 0/10] m68k/thread_info merge
+In-Reply-To: <20050901171738.49d8893d.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0509021018300.3728@scrub.home>
+References: <Pine.LNX.4.61.0509012211010.8099@scrub.home>
+ <20050901171621.33d41b3c.akpm@osdl.org> <20050901171738.49d8893d.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-08-31 at 15:34 +0200, Tomasz K³oczko wrote:
-> Seems patches stored on ftp://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots
-> are empty (only logs are correct):
+Hi,
 
-> -rw-r--r--    1 536      536            20 Aug 30 09:01 patch-2.6.13-git1.gz
-> -rw-r--r--    1 536      536            20 Aug 31 09:01 patch-2.6.13-git2.gz
+On Thu, 1 Sep 2005, Andrew Morton wrote:
 
-Hm. git-diff-cache now refuses to operate unless there's a local
-'.git/refs' directory, even when working with a separate object
-directory. So this doesn't work any more...
+> Andrew Morton <akpm@osdl.org> wrote:
+> >
+> > Can I assume that the five m68k patches can be split apart from the five
+> > patches which dink with task_struct?  ie: if the task_struct patches go in
+> > later, does anything bad happen?
+> 
+> eh, forget I asked that.  They're interdependent.
 
-	rm -rf tmp-empty-tree
-	mkdir -p tmp-empty-tree/.git
-	cd tmp-empty-tree
+Actually they shouldn't be, unless I missed something.
+Especially if there should be a conflict in the last three patches with 
+some other patch, you can drop the conflicting part in my patch and I'll 
+fix it up later.
 
-	git-read-tree $CURCOMM
-	git-checkout-cache Makefile
-	perl -pi -e "s/EXTRAVERSION =.*/EXTRAVERSION = $EXTRAVERSION/" Makefile
-	git-diff-cache -m -p $RELTREE | gzip -9 > $STAGE/patch-$CURNAME.gz
-
-I've changed the script to create 'tmp-empty-tree/.git/refs' and
-replaced 2.6.13-git[12] with real patches.
-
-> Also it will be good move all patch-2.6.12* and patch-2.6.13-rc* files 
-> from this directory to old subdirectory.
-
-Done.
-
--- 
-dwmw2
-
-
+bye, Roman

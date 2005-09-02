@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161016AbVIBOPs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161022AbVIBORL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161016AbVIBOPs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 10:15:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161021AbVIBOPr
+	id S1161022AbVIBORL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 10:17:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161028AbVIBORL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 10:15:47 -0400
-Received: from mo01.iij4u.or.jp ([210.130.0.20]:24303 "EHLO mo01.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id S1161016AbVIBOPr (ORCPT
+	Fri, 2 Sep 2005 10:17:11 -0400
+Received: from mailer1.psc.edu ([128.182.58.100]:14305 "EHLO mailer1.psc.edu")
+	by vger.kernel.org with ESMTP id S1161022AbVIBORI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 10:15:47 -0400
-Date: Fri, 2 Sep 2005 23:15:41 +0900
-From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-To: Andrew Morton <akpm@osdl.org>
-Cc: yuasa@hh.iij4u.or.jp, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] mips: remove the unused variable about futex
-Message-Id: <20050902231541.3e057cf5.yuasa@hh.iij4u.or.jp>
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 2 Sep 2005 10:17:08 -0400
+In-Reply-To: <20050902134807.GB12617@yakov.inr.ac.ru>
+References: <Pine.LNX.4.61.0509011713240.6083@guppy.limebrokerage.com> <20050901.154300.118239765.davem@davemloft.net> <Pine.LNX.4.61.0509011845040.6083@guppy.limebrokerage.com> <2d02c76a84655d212634a91002b3eccd@psc.edu> <20050902134807.GB12617@yakov.inr.ac.ru>
+Mime-Version: 1.0 (Apple Message framework v622)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <4629cfbdf1af310d5c6cffd7178cff5b@psc.edu>
 Content-Transfer-Encoding: 7bit
+Cc: Ion Badulescu <lists@limebrokerage.com>, linux-kernel@vger.kernel.org,
+       "David S. Miller" <davem@davemloft.net>, linux-net@vger.kernel.org,
+       netdev@vger.kernel.org
+From: John Heffner <jheffner@psc.edu>
+Subject: Re: Possible BUG in IPv4 TCP window handling, all recent 2.4.x/2.6.x kernels
+Date: Fri, 2 Sep 2005 10:16:57 -0400
+To: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+X-Mailer: Apple Mail (2.622)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sep 2, 2005, at 9:48 AM, Alexey Kuznetsov wrote:
 
-This patch has removed the unused variable about futex.
-Please apply.
+> Hello!
+>
+>> If you overflow the socket's memory bound, it ends up calling
+>> tcp_clamp_window().  (I'm not sure this is really the right thing to 
+>> do
+>> here before trying to collapse the queue.)
+>
+> Collapsing is too expensive procedure, it is rather an emergency 
+> measure.
+> So, tcp collapses queue, when it is necessary, but it must reduce 
+> window
+> as well.
 
-Yoichi
+Right.
 
-  CC      kernel/futex.o
-In file included from kernel/futex.c:43:
-include/asm/futex.h: In function `futex_atomic_op_inuser':
-include/asm/futex.h:17: warning: unused variable `tem'
+I wonder if clamping the window though is too harsh.  Maybe just 
+setting the rcv_ssthresh down is better?  Why the distinction between 
+in-order and out-of-order data?  Because you expect in-order data to be 
+a persistent case?
 
+   -John
 
-Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-
-diff -urN -X dontdiff mm1-orig/include/asm-mips/futex.h mm1/include/asm-mips/futex.h
---- mm1-orig/include/asm-mips/futex.h	2005-09-01 21:58:47.000000000 +0900
-+++ mm1/include/asm-mips/futex.h	2005-09-02 23:04:03.000000000 +0900
-@@ -14,7 +14,7 @@
- 	int cmp = (encoded_op >> 24) & 15;
- 	int oparg = (encoded_op << 8) >> 20;
- 	int cmparg = (encoded_op << 20) >> 20;
--	int oldval = 0, ret, tem;
-+	int oldval = 0, ret;
- 	if (encoded_op & (FUTEX_OP_OPARG_SHIFT << 28))
- 		oparg = 1 << oparg;
- 

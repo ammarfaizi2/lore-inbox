@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030243AbVIBKdN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbVIBKcY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030243AbVIBKdN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 06:33:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030240AbVIBKdN
+	id S1751163AbVIBKcY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 06:32:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbVIBKcY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 06:33:13 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:57290 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1030243AbVIBKdK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 06:33:10 -0400
-Message-ID: <43182A55.1000702@jp.fujitsu.com>
-Date: Fri, 02 Sep 2005 19:32:53 +0900
+	Fri, 2 Sep 2005 06:32:24 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:21655 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751130AbVIBKcX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 06:32:23 -0400
+Message-ID: <43182A2D.9010105@jp.fujitsu.com>
+Date: Fri, 02 Sep 2005 19:32:13 +0900
 From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
 User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-ia64@vger.kernel.org
-CC: Brent Casavant <bcasavan@sgi.com>,
+To: Brent Casavant <bcasavan@sgi.com>
+CC: linux-ia64@vger.kernel.org,
        Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6.13 2/2] IOCHK interface for I/O error handling/detecting
+Subject: Re: [PATCH 2.6.13] IOCHK interface for I/O error handling/detecting
  (for ia64)
 References: <431694DB.90400@jp.fujitsu.com> <20050901172917.I10072@chenjesu.americas.sgi.com>
 In-Reply-To: <20050901172917.I10072@chenjesu.americas.sgi.com>
@@ -27,273 +27,96 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch implements ia64-specific IOCHK interfaces that enable
-PCI drivers to detect error and make their error handling easier.
+Thank you for your comment, Brent.
 
-Please refer archives if you need, e.g. http://lwn.net/Articles/139240/
+Brent Casavant wrote:
+> On Thu, 1 Sep 2005, Hidetoshi Seto wrote:
+>> static inline unsigned int
+>> ___ia64_inb (unsigned long port)
+>> {
+>> 	volatile unsigned char *addr = __ia64_mk_io_addr(port);
+>> 	unsigned char ret;
+>>+	unsigned long flags;
+>>
+>>+	read_lock_irqsave(&iochk_lock,flags);
+>> 	ret = *addr;
+>> 	__ia64_mf_a();
+>>+	ia64_mca_barrier(ret);
+>>+	read_unlock_irqrestore(&iochk_lock,flags);
+>>+
+>> 	return ret;
+>> }
+> 
+> I am extremely concerned about the performance implications of this
+> implementation.  These changes have several deleterious effects on I/O
+> performance.
 
-This is the latter part of original patch, CPE and SAL call related
-codes which prevents host bridge status from unexpected clear.
-Because SAL_GET_STATE_INFO for CPE might clear bridge states in
-process of gathering error information from the system, we should
-check the states before clearing it.
-While OS and SAL are handling bridge status, we have to protect
-the states from changing by any other I/Os running simultaneously.
-In the opposite sight, we have to protect the status from cleaning
-by such SAL call before it be checked.
+Always there is a trade-off between security and performance.
+However, I know these are kinds of interfaces for paranoia.
 
-As pointed by Brent, the implementation of this latter half wouldn't
-be enough to use in huge boxes.  Even though this code still have
-some benefit depends on the situation.
+It would help us if I divide this patch into 2 parts, MCA related part
+and CPE related part.  I'd appreciate it if you could find why I wrote
+such crazy rwlock in the latter part and if you could help me with your
+good sight.  I'll divide them, please wait my next mails.
 
-Comments, to this paranoia part, are welcomed.
+> The first is serialization of all I/O reads and writes.  This will
+> be a severe problem on systems with large numbers of PCI buses, the
+> very type of system that stands the most to gain in reliability from
+> these efforts.  At a minimum any locking should be done on a per-bus
+> basis.
+
+Yes, there is a room for improvement about the lock granularity.
+Maybe it should be done not on a per-bus but per-host, I think.
+
+> The second is the raw performance penalty from acquiring and dropping
+> a lock with every read and write.  This will be a substantial amount
+> of activity for any I/O-intensive system, heck even for moderate I/O
+> levels.
+
+Yes, but improbably some of paranoias accepts such unpleasant without
+complaining...  We could complain about the performance of RAID-5 disks.
+
+> The third is lock contention for this single lock -- I would fully expect
+> many dozens of processors to be performing I/O at any given time on
+> systems of interest, causing this to be a heavily contended lock.
+> This will be even more severe on NUMA systems, as the lock cacheline
+> bounces across the memory fabric.  A per-bus lock would again be much
+> more appropriate.
+
+Yes.  This implementation (at least the rwlock) wouldn't fit to such
+monster boxes.  However the goal of this interface is definitely in
+such hi-end world, so possible improvement should be taken in near
+future.
+
+> The final problem is that these performance penalties are paid even
+> by drivers which are not IOCHK aware, which for the time being is
+> all of them.  A reasonable solution must pay these penalties only
+> for drivers which are IOCHK aware.  Reinstating the readX_check()
+> interface is the obvious solution here.  It's simply too heavy a
+> performance burden to pay when almost no drivers currently benefit
+> from it.
+
+Mixing aware and non-aware would make both unhappy.
+At least we need to make efforts to separate them and locate them under
+different host.
+* readX_check(): That was kicked out by Linus.
+
+> Otherwise, I also wonder if you have any plans to handle similar
+> errors experienced under device-initiated DMA, or asynchronous I/O.
+> It's not clear that there's sufficient infrastructure in the current
+> patches to adequately handle those situations.
+> 
+> Thank you,
+> Brent Casavant
+
+Every improvements could be.
+
+Requiring data integrity on device-initiated DMA or asynchronous I/O
+isn't wrong thing.  But I don't think that all errors should be handled
+in one infrastructure.  There is an another approach to PCI error
+handling, asynchronous recovery which Linas Vepstas (IBM) working on,
+so maybe both would be required to handle various situation.
 
 Thanks,
 H.Seto
-
-Signed-off-by: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
-
----
-
-  arch/ia64/kernel/mca.c      |   21 +++++++++++++++++++++
-  arch/ia64/lib/iomap_check.c |   28 +++++++++++++++++++++++-----
-  include/asm-ia64/io.h       |   24 ++++++++++++++++++++++++
-  3 files changed, 68 insertions(+), 5 deletions(-)
-
-Index: linux-2.6.13/arch/ia64/lib/iomap_check.c
-===================================================================
---- linux-2.6.13.orig/arch/ia64/lib/iomap_check.c
-+++ linux-2.6.13/arch/ia64/lib/iomap_check.c
-@@ -12,13 +12,14 @@ void iochk_clear(iocookie *cookie, struc
-  int  iochk_read(iocookie *cookie);
-
-  struct list_head iochk_devices;
--DEFINE_SPINLOCK(iochk_lock);	/* all works are excluded on this lock */
-+DEFINE_RWLOCK(iochk_lock);	/* all works are excluded on this lock */
-
-  static struct pci_dev *search_host_bridge(struct pci_dev *dev);
-  static int have_error(struct pci_dev *dev);
-
-  void notify_bridge_error(struct pci_dev *bridge);
-  void clear_bridge_error(struct pci_dev *bridge);
-+void save_bridge_error(void);
-
-  void iochk_init(void)
-  {
-@@ -35,14 +36,14 @@ void iochk_clear(iocookie *cookie, struc
-  	cookie->dev = dev;
-  	cookie->host = search_host_bridge(dev);
-
--	spin_lock_irqsave(&iochk_lock, flag);
-+	write_lock_irqsave(&iochk_lock, flag);
-  	if (cookie->host && have_error(cookie->host)) {
-  		/* someone under my bridge causes error... */
-  		notify_bridge_error(cookie->host);
-  		clear_bridge_error(cookie->host);
-  	}
-  	list_add(&cookie->list, &iochk_devices);
--	spin_unlock_irqrestore(&iochk_lock, flag);
-+	write_unlock_irqrestore(&iochk_lock, flag);
-
-  	cookie->error = 0;
-  }
-@@ -52,12 +53,12 @@ int iochk_read(iocookie *cookie)
-  	unsigned long flag;
-  	int ret = 0;
-
--	spin_lock_irqsave(&iochk_lock, flag);
-+	write_lock_irqsave(&iochk_lock, flag);
-  	if ( cookie->error || have_error(cookie->dev)
-  		|| (cookie->host && have_error(cookie->host)) )
-  		ret = 1;
-  	list_del(&cookie->list);
--	spin_unlock_irqrestore(&iochk_lock, flag);
-+	write_unlock_irqrestore(&iochk_lock, flag);
-
-  	return ret;
-  }
-@@ -145,6 +146,23 @@ void clear_bridge_error(struct pci_dev *
-  	}
-  }
-
-+void save_bridge_error(void)
-+{
-+	iocookie *cookie;
-+
-+	if (list_empty(&iochk_devices))
-+		return;
-+
-+	/* mark devices if its root bus bridge have errors */
-+	list_for_each_entry(cookie, &iochk_devices, list) {
-+		if (cookie->error)
-+			continue;
-+		if (have_error(cookie->host))
-+			notify_bridge_error(cookie->host);
-+	}
-+}
-+
-+EXPORT_SYMBOL(iochk_lock);
-  EXPORT_SYMBOL(iochk_read);
-  EXPORT_SYMBOL(iochk_clear);
-  EXPORT_SYMBOL(iochk_devices);	/* for MCA driver */
-Index: linux-2.6.13/arch/ia64/kernel/mca.c
-===================================================================
---- linux-2.6.13.orig/arch/ia64/kernel/mca.c
-+++ linux-2.6.13/arch/ia64/kernel/mca.c
-@@ -80,6 +80,8 @@
-  #ifdef CONFIG_IOMAP_CHECK
-  #include <linux/pci.h>
-  extern void notify_bridge_error(struct pci_dev *bridge);
-+extern void save_bridge_error(void);
-+extern rwlock_t iochk_lock;
-  #endif
-
-  #if defined(IA64_MCA_DEBUG_INFO)
-@@ -288,11 +290,30 @@ ia64_mca_cpe_int_handler (int cpe_irq, v
-  	IA64_MCA_DEBUG("%s: received interrupt vector = %#x on CPU %d\n",
-  		       __FUNCTION__, cpe_irq, smp_processor_id());
-
-+#ifndef CONFIG_IOMAP_CHECK
-+
-  	/* SAL spec states this should run w/ interrupts enabled */
-  	local_irq_enable();
-
-  	/* Get the CPE error record and log it */
-  	ia64_mca_log_sal_error_record(SAL_INFO_TYPE_CPE);
-+#else
-+	/*
-+	 * Because SAL_GET_STATE_INFO for CPE might clear bridge states
-+	 * in process of gathering error information from the system,
-+	 * we should check the states before clearing it.
-+	 * While OS and SAL are handling bridge status, we have to protect
-+	 * the states from changing by any other I/Os running simultaneously,
-+	 * so this should be handled w/ lock and interrupts disabled.
-+	 */
-+	write_lock(&iochk_lock);
-+	save_bridge_error();
-+	ia64_mca_log_sal_error_record(SAL_INFO_TYPE_CPE);
-+	write_unlock(&iochk_lock);
-+
-+	/* Rests can go w/ interrupt enabled as usual */
-+	local_irq_enable();
-+#endif
-
-  	spin_lock(&cpe_history_lock);
-  	if (!cpe_poll_enabled && cpe_vector >= 0) {
-Index: linux-2.6.13/include/asm-ia64/io.h
-===================================================================
---- linux-2.6.13.orig/include/asm-ia64/io.h
-+++ linux-2.6.13/include/asm-ia64/io.h
-@@ -73,6 +73,7 @@ extern unsigned int num_io_spaces;
-
-  #ifdef CONFIG_IOMAP_CHECK
-  #include <linux/list.h>
-+#include <linux/spinlock.h>
-
-  /* ia64 iocookie */
-  typedef struct {
-@@ -82,6 +83,8 @@ typedef struct {
-  	unsigned long		error;	/* error flag */
-  } iocookie;
-
-+extern rwlock_t iochk_lock;  /* see arch/ia64/lib/iomap_check.c */
-+
-  /* Enable ia64 iochk - See arch/ia64/lib/iomap_check.c */
-  #define HAVE_ARCH_IOMAP_CHECK
-
-@@ -190,10 +193,13 @@ ___ia64_inb (unsigned long port)
-  {
-  	volatile unsigned char *addr = __ia64_mk_io_addr(port);
-  	unsigned char ret;
-+	unsigned long flags;
-
-+	read_lock_irqsave(&iochk_lock,flags);
-  	ret = *addr;
-  	__ia64_mf_a();
-  	ia64_mca_barrier(ret);
-+	read_unlock_irqrestore(&iochk_lock,flags);
-
-  	return ret;
-  }
-@@ -203,10 +209,13 @@ ___ia64_inw (unsigned long port)
-  {
-  	volatile unsigned short *addr = __ia64_mk_io_addr(port);
-  	unsigned short ret;
-+	unsigned long flags;
-
-+	read_lock_irqsave(&iochk_lock,flags);
-  	ret = *addr;
-  	__ia64_mf_a();
-  	ia64_mca_barrier(ret);
-+	read_unlock_irqrestore(&iochk_lock,flags);
-
-  	return ret;
-  }
-@@ -216,10 +225,13 @@ ___ia64_inl (unsigned long port)
-  {
-  	volatile unsigned int *addr = __ia64_mk_io_addr(port);
-  	unsigned int ret;
-+	unsigned long flags;
-
-+	read_lock_irqsave(&iochk_lock,flags);
-  	ret = *addr;
-  	__ia64_mf_a();
-  	ia64_mca_barrier(ret);
-+	read_unlock_irqrestore(&iochk_lock,flags);
-
-  	return ret;
-  }
-@@ -384,9 +396,12 @@ static inline unsigned char
-  ___ia64_readb (const volatile void __iomem *addr)
-  {
-  	unsigned char val;
-+	unsigned long flags;
-
-+	read_lock_irqsave(&iochk_lock,flags);
-  	val = *(volatile unsigned char __force *)addr;
-  	ia64_mca_barrier(val);
-+	read_unlock_irqrestore(&iochk_lock,flags);
-
-  	return val;
-  }
-@@ -395,9 +410,12 @@ static inline unsigned short
-  ___ia64_readw (const volatile void __iomem *addr)
-  {
-  	unsigned short val;
-+	unsigned long flags;
-
-+	read_lock_irqsave(&iochk_lock,flags);
-  	val = *(volatile unsigned short __force *)addr;
-  	ia64_mca_barrier(val);
-+	read_unlock_irqrestore(&iochk_lock,flags);
-
-  	return val;
-  }
-@@ -406,9 +424,12 @@ static inline unsigned int
-  ___ia64_readl (const volatile void __iomem *addr)
-  {
-  	unsigned int val;
-+	unsigned long flags;
-
-+	read_lock_irqsave(&iochk_lock,flags);
-  	val = *(volatile unsigned int __force *) addr;
-  	ia64_mca_barrier(val);
-+	read_unlock_irqrestore(&iochk_lock,flags);
-
-  	return val;
-  }
-@@ -417,9 +438,12 @@ static inline unsigned long
-  ___ia64_readq (const volatile void __iomem *addr)
-  {
-  	unsigned long val;
-+	unsigned long flags;
-
-+	read_lock_irqsave(&iochk_lock,flags);
-  	val = *(volatile unsigned long __force *) addr;
-  	ia64_mca_barrier(val);
-+	read_unlock_irqrestore(&iochk_lock,flags);
-
-  	return val;
-  }
-
 

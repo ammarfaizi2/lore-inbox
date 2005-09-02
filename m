@@ -1,63 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751256AbVIBMLZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751219AbVIBMOi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751256AbVIBMLZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 08:11:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751219AbVIBMLZ
+	id S1751219AbVIBMOi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 08:14:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751245AbVIBMOh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 08:11:25 -0400
-Received: from chicken.cs.columbia.edu ([128.59.21.28]:62149 "EHLO
-	chicken.cs.columbia.edu") by vger.kernel.org with ESMTP
-	id S1751173AbVIBMLY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 08:11:24 -0400
-Date: Fri, 2 Sep 2005 08:11:12 -0400 (EDT)
-From: Ion Badulescu <lists@limebrokerage.com>
-X-X-Sender: ionut@moisil.badula.org
-To: Noritoshi Demizu <demizu@dd.iij4u.or.jp>
-cc: Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org
-Subject: Re: Possible BUG in IPv4 TCP window handling, all recent 2.4.x/2.6.x
- kernels
-In-Reply-To: <20050902.151132.15273184.Noritoshi@Demizu.ORG>
-Message-ID: <Pine.LNX.4.62.0509020801380.10545@moisil.badula.org>
-References: <20050902.135138.38716488.Noritoshi@Demizu.ORG>
- <20050901222032.5cc649c0@localhost.localdomain> <20050902.144537.35010282.Noritoshi@Demizu.ORG>
- <20050902.151132.15273184.Noritoshi@Demizu.ORG>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-Content-Disposition: inline
+	Fri, 2 Sep 2005 08:14:37 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:61145 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751219AbVIBMOh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 08:14:37 -0400
+Subject: Re: 2.6.13-mm1: misc mwave issues
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, Russell King <rmk+lkml@arm.linux.org.uk>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050901232526.GF3657@stusta.de>
+References: <20050901035542.1c621af6.akpm@osdl.org>
+	 <20050901232526.GF3657@stusta.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 02 Sep 2005 13:36:31 +0100
+Message-Id: <1125664591.30867.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Sep 2005, Noritoshi Demizu wrote:
+On Gwe, 2005-09-02 at 01:25 +0200, Adrian Bunk wrote:
+> The MWAVE also got a comment
+>   # PLEASE DO NOT DO THIS - move this driver to drivers/serial
 
->> By the way, if tcpdump does not track the window scale option, the right
->> edge (ack + real win) does not change between the following two ACKs.
->>
->>> 11:34:54.337167 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84402527 win 15340 <nop,nop,timestamp 226080473 99717814> (DF)
->>   (259 ACKs are omitted here)
->>> 11:34:54.611769 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84454467 win 2355 <nop,nop,timestamp 226080721 99717841> (DF)
->>
->> The first line is the 37th ACK and the second line is the 295th ACK.
->>
->>   ACK#37:  ack=84402527 win=15340 right_edge=84463887 (= ack + win * 4)
->>   ACK#295: ack=84454467 win=2355  right_edge=84463887 (= ack + win * 4)
->>
->> And all ACKs later than ACK#295 has win=2355 (2355*4=9420).
->>
->> This may be a hint.  But, sorry, I do not know the internal of Linux TCP.
+Mwave is an interested toy - its mostly an enabled for the hardware and
+the services provided are not just serial but also audio etc
 
-Oh, it's absolutely possible (even likely) that the application was slow 
-between 11:34:54.337167 and 11:34:54.611769 and data kept accumulating in 
-the socket buffer. The real problem is not the shrinking of the window, 
-but the fact that it never increases back to normal once the socket buffer 
-is emptied.
-
-> I think there is a possibility that some middle-box does something,
-> for example, some middle-box between the two machines does kinda
-> traffic-shaping by tweaking the TCP window size field.
-
-Not really: the tcpdump is taken on the very box that generates the acks 
-with the shrinking window, so it can't possibly be affected by any shaper. 
-Unless the shaper is the Linux kernel itself...
-
--Ion

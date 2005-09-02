@@ -1,60 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161054AbVIBV0P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161053AbVIBV2w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161054AbVIBV0P (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 17:26:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161053AbVIBV0P
+	id S1161053AbVIBV2w (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 17:28:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161059AbVIBV2v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 17:26:15 -0400
-Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:63054 "HELO
-	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1161054AbVIBV0N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 17:26:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=5foVIg+WQzS/ktGU70KaGqtVRIzeoGcWdh0e3bCBjFs6skdCF3Nvs1kz7KCqQXvPOkIdzkU0MnYjcz9vAMhFg+YeUvFRqJiBZ3a8x5Bfm+UniV1RYhJlfw5qubSIj60h9Gic8sZhl5Ie+l9/kH2E9Irqh8YCL9lJc2LGvVO8NxI=  ;
-Message-ID: <4318C395.1080203@yahoo.com.au>
-Date: Sat, 03 Sep 2005 07:26:45 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Christoph Lameter <clameter@engr.sgi.com>
-CC: Linux Memory Management <linux-mm@kvack.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6.13] lockless pagecache 2/7
-References: <4317F071.1070403@yahoo.com.au> <4317F0F9.1080602@yahoo.com.au> <4317F136.4040601@yahoo.com.au> <Pine.LNX.4.62.0509021123290.15836@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.62.0509021123290.15836@schroedinger.engr.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 2 Sep 2005 17:28:51 -0400
+Received: from dsl3-63-249-67-204.cruzio.com ([63.249.67.204]:25218 "EHLO
+	cichlid.com") by vger.kernel.org with ESMTP id S1161053AbVIBV2u
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 17:28:50 -0400
+Date: Fri, 2 Sep 2005 14:28:20 -0700
+From: Andrew Burgess <aab@cichlid.com>
+Message-Id: <200509022128.j82LSKUv006992@cichlid.com>
+To: linux-kernel@vger.kernel.org
+Cc: fxjrlists@yahoo.com.br
+Subject: Re: Kernel 2.6.12 and 2.6.13 hangs for a while on boot
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-> On Fri, 2 Sep 2005, Nick Piggin wrote:
-> 
-> 
->>Implement atomic_cmpxchg for i386 and ppc64. Is there any
->>architecture that won't be able to implement such an operation?
-> 
-> 
-> Something like that used to be part of the page fault scalability 
-> patchset. You contributed to it last year. Here is the latest version of 
-> that. May need some work though.
-> 
+>I'm having little hangs while booting with kernels 2.6.12 and 2.6.13-rc1, rc2
+>and rc3.
 
-Thanks Christoph, I think this will be required to support 386.
-In the worst case, we could provide a fallback path and take
-->tree_lock in pagecache lookups if there is no atomic_cmpxchg,
-however I would much prefer all architectures get an atomic_cmpxchg,
-and I think it should turn out to be a generally useful primitive.
+>It is strange that 2.6.12-rc1 booted ok without hangs.
 
-I may trim this down to only provide what is needed for atomic_cmpxchg
-if that is OK?
+>Hangs appears just before mounting filesystems message and before configuring
+>system to use udev.
 
-Nick
+I had a similar problem (intermittant) and narrowed it down to mod loading of
+uhci-hcd so I blacklisted the module and loaded it later in rc.local where it
+didn't hang.
 
--- 
-SUSE Labs, Novell Inc.
+Recently I tried unblacklisting it to see if it still hung and it did
+not so you might try 2.6.13 final.
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+To narrow it down, edit rc.sysinit (depending on distribution) and make the
+modprobes into modprobe -v
+
+>I'm using 2.6.13 on a Gateway laptop.
+
+Hmm, above you say 2.6.13-rc[1-3]
+???
+
+HTH
+

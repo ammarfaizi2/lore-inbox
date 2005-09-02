@@ -1,58 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030234AbVIBFpk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030202AbVIBFz5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030234AbVIBFpk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 01:45:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030202AbVIBFpj
+	id S1030202AbVIBFz5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 01:55:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030242AbVIBFz5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 01:45:39 -0400
-Received: from r-dd.iij4u.or.jp ([210.130.0.70]:5326 "EHLO r-dd.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id S1751105AbVIBFpj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 01:45:39 -0400
-Date: Fri, 02 Sep 2005 14:45:37 +0900 (JST)
-Message-Id: <20050902.144537.35010282.Noritoshi@Demizu.ORG>
-From: Noritoshi Demizu <demizu@dd.iij4u.or.jp>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Ion Badulescu <lists@limebrokerage.com>, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org
-Subject: Re: Possible BUG in IPv4 TCP window handling, all recent
- 2.4.x/2.6.x kernels
-In-Reply-To: <20050901222032.5cc649c0@localhost.localdomain>
-References: <Pine.LNX.4.61.0509011713240.6083@guppy.limebrokerage.com>
-	<20050902.135138.38716488.Noritoshi@Demizu.ORG>
-	<20050901222032.5cc649c0@localhost.localdomain>
-X-Mailer: Mew version 4.1 on Emacs 21 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Fri, 2 Sep 2005 01:55:57 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:20099 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S1030202AbVIBFz4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 01:55:56 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Greg KH <greg@kroah.com>
+Subject: Re: i2c via686a.c: save at least 0.5k of space by long v[256] -> u16 v[256]
+Date: Fri, 2 Sep 2005 08:54:37 +0300
+User-Agent: KMail/1.8.2
+Cc: khali@linux-fr.org, lm-sensors@lm-sensors.org,
+       linux-kernel@vger.kernel.org
+References: <200509010910.14824.vda@ilport.com.ua> <20050901155915.GB1235@kroah.com>
+In-Reply-To: <20050901155915.GB1235@kroah.com>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_dk+FDMtE/upEjWK"
+Message-Id: <200509020854.37192.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Since the TCP Window Scale options are exchanged,
-> > the window size field contains shifted value except SYNs.
->
-> Be careful, tcpdump may be tracking the window scale and reporting
-> scaled values.  Seems unlikely since with a window scale of 2, and odd
-> window size would be impossible.
+--Boundary-00=_dk+FDMtE/upEjWK
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-I am sorry if tcpdump tracks the window scale option.  But I think it
-is unlikely, because there are odd window sizes, as you pointed out.
+On Thursday 01 September 2005 18:59, Greg KH wrote:
+> On Thu, Sep 01, 2005 at 09:10:14AM +0300, Denis Vlasenko wrote:
+> > Not tested, but it's rather obvious.
+> 
+> Except you forgot a "Signed-off-by:" line...
+> 
+> > --- linux-2.6.12.src/drivers/i2c/chips/via686a.c.orig	Sun Jun 19 16:10:10 2005
+> > +++ linux-2.6.12.src/drivers/i2c/chips/via686a.c	Tue Aug 30 00:21:39 2005
+> > @@ -205,7 +205,7 @@ static inline u8 FAN_TO_REG(long rpm, in
+> >   but the function is very linear in the useful range (0-80 deg C), so 
+> >   we'll just use linear interpolation for 10-bit readings.)  So, tempLUT 
+> >   is the temp at via register values 0-255: */
+> > -static const long tempLUT[] =
+> > +static const int16_t tempLUT[] =
+> 
+> int16_t is not a proper kernel type.  Do you really mean s16 instead?
 
-By the way, if tcpdump does not track the window scale option, the right
-edge (ack + real win) does not change between the following two ACKs.
+Ok. Please be informed that there are lots of intNN_t's in i2c dir tho...
 
-> 11:34:54.337167 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84402527 win 15340 <nop,nop,timestamp 226080473 99717814> (DF)
-  (259 ACKs are omitted here)
-> 11:34:54.611769 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84454467 win 2355 <nop,nop,timestamp 226080721 99717841> (DF)
+> Care to redo this?
 
-The first line is the 37th ACK and the second line is the 295th ACK.
+Signed-off-by: Denis Vlasenko <vda@ilport.com.ua>
+--
+vda
 
-  ACK#37:  ack=84402527 win=15340 right_edge=84463887 (= ack + win * 4)
-  ACK#295: ack=84454467 win=2355  right_edge=84463887 (= ack + win * 4)
+--Boundary-00=_dk+FDMtE/upEjWK
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="via686a.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="via686a.patch"
 
-And all ACKs later than ACK#295 has win=2355 (2355*4=9420).
+--- linux-2.6.12.src/drivers/i2c/chips/via686a.c.orig	Sun Jun 19 16:10:10 2005
++++ linux-2.6.12.src/drivers/i2c/chips/via686a.c	Tue Aug 30 00:21:39 2005
+@@ -205,7 +205,7 @@ static inline u8 FAN_TO_REG(long rpm, in
+  but the function is very linear in the useful range (0-80 deg C), so 
+  we'll just use linear interpolation for 10-bit readings.)  So, tempLUT 
+  is the temp at via register values 0-255: */
+-static const long tempLUT[] =
++static const s16 tempLUT[] =
+     { -709, -688, -667, -646, -627, -607, -589, -570, -553, -536, -519,
+ 	    -503, -487, -471, -456, -442, -428, -414, -400, -387, -375,
+ 	    -362, -350, -339, -327, -316, -305, -295, -285, -275, -265,
 
-This may be a hint.  But, sorry, I do not know the internal of Linux TCP.
-
-Regards,
-Noritoshi Demizu
+--Boundary-00=_dk+FDMtE/upEjWK--

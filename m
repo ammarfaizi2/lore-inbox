@@ -1,57 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161115AbVIBXOf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161109AbVIBXR3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161115AbVIBXOf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 19:14:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161121AbVIBXOf
+	id S1161109AbVIBXR3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 19:17:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161123AbVIBXR3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 19:14:35 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:15233 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161115AbVIBXOe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 19:14:34 -0400
-Date: Fri, 2 Sep 2005 19:14:23 -0400
-From: Dave Jones <davej@redhat.com>
-To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: agp_backend_initialize() failed on ServerWorks CNB20LE
-Message-ID: <20050902231423.GD24062@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
-	linux-kernel@vger.kernel.org
-References: <1957123248.20050902232139@dns.toxicfilms.tv>
+	Fri, 2 Sep 2005 19:17:29 -0400
+Received: from wproxy.gmail.com ([64.233.184.205]:63135 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161109AbVIBXR3 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 19:17:29 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Oz46xucjja4dY1nZsNK4f6WDBjt2EA4LlpCxI1nDZoZv9eT/ngJ3W1BApFwqXUxs9rldXZXoOaF6zNeSiMFMJH5VTs4fwnwgA//VS9GXWKEHmBiX1hkBdhcZqRKE1LqO1DnQpDfVAu96Q86h4ia72PbKdeTaUGPtDd4+eyfNAqQ=
+Message-ID: <e646715805090216174859f95d@mail.gmail.com>
+Date: Fri, 2 Sep 2005 18:17:24 -0500
+From: Sabuj Pattanayek <sabujp@gmail.com>
+Reply-To: sabujp@gmail.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: Inconsistent kallsyms data error near the end of make in the linux kernel-2.6.13
+In-Reply-To: <1125619916.431798cced77b@webmail.grupopie.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1957123248.20050902232139@dns.toxicfilms.tv>
-User-Agent: Mutt/1.4.2.1i
+References: <e6467158050901170059d5c53c@mail.gmail.com>
+	 <1125619916.431798cced77b@webmail.grupopie.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 02, 2005 at 11:21:39PM +0200, Maciej Soltysiak wrote:
- > Hello,
- > 
- > On a server with ServerWorks CNB20LE and CONFIG_AGP_SWORKS enabled
- > I get these upon bootup:
- > Linux agpgart interface v0.101 (c) Dave Jones
- > agpgart: unable to determine aperture size.
- > agpgart: agp_backend_initialize() failed.
- > agpgart-serverworks: probe of 0000:00:00.0 failed with error -22
- > agpgart: unable to determine aperture size.
- > agpgart: agp_backend_initialize() failed.
- > agpgart-serverworks: probe of 0000:00:00.1 failed with error -22
+Thanks, that worked for this system.
 
-Every time I've seen this reported so far, its turned out that the board
-doesn't actually have an AGP slot. Is this case here too ?
-
-Documentation on serverworks chipsets is as good as non-existant,
-so there's not a great deal we can do here.
-
- > The only problems I have that *may* be related to these messages is the
- > fact that when I boot into X and try to switch to a text console, the
- > screen gets garbled and freezes, the server works fine besides the
- > screen throwing trash at me.
-
-Likely completely unrelated. agpgart is used only for accelerated 3d.
-
-		Dave
-
+On 9/1/05, pmarques@grupopie.com <pmarques@grupopie.com> wrote:
+> Quoting Sabuj Pattanayek <sabujp@gmail.com>:
+> 
+> > Hi all,
+> 
+> Hi, Sabuj
+> 
+> > I'm posting a bug as directed by REPORTING-BUGS in the kernel sources.
+> >
+> > PROBLEM: Inconsistent kallsyms data error near the end of make in the linux
+> > kernel-2.6.13 .
+> 
+> This is probably a known problem.
+> 
+> Please check this thread:
+> 
+> http://lkml.org/lkml/2005/8/31/129
+> 
+> and use the patch I posted there.
+> 
+> I hope this helps,
+> 
+> --
+> Paulo Marques

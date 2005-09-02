@@ -1,68 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751509AbVIBPxa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751512AbVIBP7B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751509AbVIBPxa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 11:53:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751510AbVIBPxa
+	id S1751512AbVIBP7B (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 11:59:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751513AbVIBP7B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 11:53:30 -0400
-Received: from smtp06.auna.com ([62.81.186.16]:62636 "EHLO smtp06.retemail.es")
-	by vger.kernel.org with ESMTP id S1751509AbVIBPx3 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 11:53:29 -0400
-Date: Fri, 02 Sep 2005 15:53:27 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: 2.6.13-mm1
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-References: <fa.hqupr0d.1u3af35@ifi.uio.no> <4317AD4D.6030001@reub.net>
-	<1125626219l.6072l.0l@werewolf.able.es>
-	<20050901190655.345914ba.akpm@osdl.org>
-In-Reply-To: <20050901190655.345914ba.akpm@osdl.org> (from akpm@osdl.org on
-	Fri Sep  2 04:06:55 2005)
-X-Mailer: Balsa 2.3.4
-Message-Id: <1125676407l.6262l.0l@werewolf.able.es>
-MIME-Version: 1.0
+	Fri, 2 Sep 2005 11:59:01 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:53768 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751512AbVIBP7A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 11:59:00 -0400
+Date: Fri, 2 Sep 2005 16:58:50 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>, amax@us.ibm.com,
+       ralf@linux-mips.org, starvik@axis.com, dev-etrax@axis.com
+Subject: Re: [2.6 patch] drivers/serial/crisv10.c: remove {,un}register_serial dummies
+Message-ID: <20050902165850.C6546@flint.arm.linux.org.uk>
+Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>, amax@us.ibm.com,
+	ralf@linux-mips.org, starvik@axis.com, dev-etrax@axis.com
+References: <20050831103352.A26480@flint.arm.linux.org.uk> <20050901231258.GD3657@stusta.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-X-Auth-Info: Auth:LOGIN IP:[83.138.208.222] Login:jamagallon@able.es Fecha:Fri, 2 Sep 2005 17:53:28 +0200
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050901231258.GD3657@stusta.de>; from bunk@stusta.de on Fri, Sep 02, 2005 at 01:12:58AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 09.02, Andrew Morton wrote:
-> "J.A. Magallon" <jamagallon@able.es> wrote:
-> >
+On Fri, Sep 02, 2005 at 01:12:58AM +0200, Adrian Bunk wrote:
+> On Wed, Aug 31, 2005 at 10:33:52AM +0100, Russell King wrote:
+> >...
+> > In addition, the following drivers declare functions of the same name.
+> > The maintainers of these need to look to see why, and eliminate them
+> > where possible.
 > > 
-> > On 1/09/2005 10:58 a.m., Andrew Morton wrote:
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13/2.6.13-mm1/
-> > > 
-> > > - Included Alan's big tty layer buffering rewrite.  This breaks the build on
-> > >   lots of more obscure character device drivers.  Patches welcome (please cc
-> > >   Alan).
-> > > 
-> > 
-> > I have problems with udev and latest -mm.
-> > 2.6.13 boots fine, but 2.6.13-mm1 blocks when starting udev.
-> > System is Mandriva Cooker. As cooker, things are changing fast (initscripts,
-> > udev, etc), but the fact is that with the same setup, plain .13 boots
-> > and -mm1 blocks. Udev is 068 version.
-> > 
-> > Any idea about what can be the reason ?
-> > 
+> > drivers/serial/crisv10.c:register_serial(struct serial_struct *req)
+> > drivers/serial/crisv10.c:void unregister_serial(int line)
 > 
-> There's some suspect locking in the /proc/devices seq_file conversion code.
-> 
-> Could you revert convert-proc-devices-to-use-seq_file-interface-fix.patch
-> then convert-proc-devices-to-use-seq_file-interface.patch?
-> 
+> It seems we can simply kill these dummies with this patch.
 
-Still the same result, system bocks starting udev...
+Thanks, applied.
 
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandriva Linux release 2006.0 (Cooker) for i586
-Linux 2.6.13 (gcc 4.0.1 (4.0.1-5mdk for Mandriva Linux release 2006.0))
-
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

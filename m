@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030670AbVIBEPp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030671AbVIBET1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030670AbVIBEPp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 00:15:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030671AbVIBEPo
+	id S1030671AbVIBET1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 00:19:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030673AbVIBET1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 00:15:44 -0400
-Received: from pat.uio.no ([129.240.130.16]:20162 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1030670AbVIBEPo (ORCPT
+	Fri, 2 Sep 2005 00:19:27 -0400
+Received: from pat.uio.no ([129.240.130.16]:32965 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1030671AbVIBET1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 00:15:44 -0400
+	Fri, 2 Sep 2005 00:19:27 -0400
 Subject: Re: Change in NFS client behavior
 From: Trond Myklebust <trond.myklebust@fys.uio.no>
 To: Andrew Morton <akpm@osdl.org>
 Cc: lkml-z@robsims.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20050901210755.607f3e4d.akpm@osdl.org>
+In-Reply-To: <1125634523.8635.16.camel@lade.trondhjem.org>
 References: <20050831145545.GA8426@robsims.com>
 	 <1125617897.7627.14.camel@lade.trondhjem.org>
 	 <1125632597.8635.9.camel@lade.trondhjem.org>
 	 <20050901204520.58f07230.akpm@osdl.org>
 	 <1125633145.8635.11.camel@lade.trondhjem.org>
 	 <20050901210755.607f3e4d.akpm@osdl.org>
-Content-Type: multipart/mixed; boundary="=-xO6PgZ2TJPm9R3B7F8+I"
-Date: Fri, 02 Sep 2005 00:15:23 -0400
-Message-Id: <1125634523.8635.16.camel@lade.trondhjem.org>
+	 <1125634523.8635.16.camel@lade.trondhjem.org>
+Content-Type: multipart/mixed; boundary="=-DP1cUQ8V9FhW+0yiWTA1"
+Date: Fri, 02 Sep 2005 00:19:07 -0400
+Message-Id: <1125634747.8635.17.camel@lade.trondhjem.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.1.1 
-X-UiO-Spam-info: not spam, SpamAssassin (score=-2.682, required 12,
-	autolearn=disabled, AWL 2.13, FORGED_RCVD_HELO 0.05,
+X-UiO-Spam-info: not spam, SpamAssassin (score=-2.644, required 12,
+	autolearn=disabled, AWL 2.17, FORGED_RCVD_HELO 0.05,
 	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-xO6PgZ2TJPm9R3B7F8+I
+--=-DP1cUQ8V9FhW+0yiWTA1
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-to den 01.09.2005 Klokka 21:07 (-0700) skreiv Andrew Morton:
+fr den 02.09.2005 Klokka 00:15 (-0400) skreiv Trond Myklebust:
 
-> Of course.  But with your patch, the optimisation in inode_setattr() is
-> redundant (except for O_TRUNC, perhaps).
+> Sure. The other problem is that the test is made before the i_sem is
+> grabbed. OK, so how about the appended patch instead?
 
-Sure. The other problem is that the test is made before the i_sem is
-grabbed. OK, so how about the appended patch instead?
+Doh!
 
-Cheers,
-  Trond
+Trond
 
-
---=-xO6PgZ2TJPm9R3B7F8+I
+--=-DP1cUQ8V9FhW+0yiWTA1
 Content-Disposition: inline; filename=linux-2.6.13-37-fix_create_truncate.dif
 Content-Type: text/plain; name=linux-2.6.13-37-fix_create_truncate.dif; charset=UTF-8
 Content-Transfer-Encoding: 7bit
@@ -113,7 +111,7 @@ Index: linux-2.6.13/fs/open.c
 +	down(&dentry->d_inode->i_sem);
 +	/* In SuS/Posix lore, truncate to the current file size is a no-op */
 +	if (length != i_size_read(dentry->d_inode))
-+		err = do_truncate(dentry, length);
++		err = notify_change(dentry, &newattrs);
 +	up(&dentry->d_inode->i_sem);
 +	return err;
 +}
@@ -165,5 +163,5 @@ Index: linux-2.6.13/fs/attr.c
  
  	if (ia_valid & ATTR_UID)
 
---=-xO6PgZ2TJPm9R3B7F8+I--
+--=-DP1cUQ8V9FhW+0yiWTA1--
 

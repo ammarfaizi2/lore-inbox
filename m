@@ -1,122 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbVIBKcY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030240AbVIBKmg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751163AbVIBKcY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 06:32:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbVIBKcY
+	id S1030240AbVIBKmg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 06:42:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030396AbVIBKmg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 06:32:24 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:21655 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751130AbVIBKcX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 06:32:23 -0400
-Message-ID: <43182A2D.9010105@jp.fujitsu.com>
-Date: Fri, 02 Sep 2005 19:32:13 +0900
-From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
+	Fri, 2 Sep 2005 06:42:36 -0400
+Received: from smtp004.mail.ukl.yahoo.com ([217.12.11.35]:37537 "HELO
+	smtp004.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1030240AbVIBKmf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 06:42:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=P7VR8aAIuOom75aTDEXDvtP9eUZk2CEOYkF9If0roOu5184Qpz01ThWJLduFf+T9MTUEI5Aw+JqD/3YBG9HsqAtIwnAx6C2YjRJxOPK783yH0COSI/7K/52OXDtUiaZVF1UevTMOuLREw4J4zC5molmZSJHQcCSuSjOCP6HDTmU=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] [PATCH 10/12] UML - Allow host capability usage to be disabled
+Date: Fri, 2 Sep 2005 12:39:23 +0200
+User-Agent: KMail/1.8.1
+Cc: Jeff Dike <jdike@addtoit.com>, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+References: <200509012217.j81MHKE7011567@ccure.user-mode-linux.org>
+In-Reply-To: <200509012217.j81MHKE7011567@ccure.user-mode-linux.org>
 MIME-Version: 1.0
-To: Brent Casavant <bcasavan@sgi.com>
-CC: linux-ia64@vger.kernel.org,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6.13] IOCHK interface for I/O error handling/detecting
- (for ia64)
-References: <431694DB.90400@jp.fujitsu.com> <20050901172917.I10072@chenjesu.americas.sgi.com>
-In-Reply-To: <20050901172917.I10072@chenjesu.americas.sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509021239.23859.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you for your comment, Brent.
+On Friday 02 September 2005 00:17, Jeff Dike wrote:
+> From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+>
+> Add new cmdline setups:
+>   - noprocmm
+>   - noptracefaultinfo
+> In case of testing, they can be used to switch off usage of
+> /proc/mm and PTRACE_FAULTINFO independently.
+Is "skas0" cmd line option preserved?
+> Signed-off-by: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+> Signed-off-by: Jeff Dike <jdike@addtoit.com>
+>
+> Index: test/arch/um/os-Linux/start_up.c
+> ===================================================================
+> --- test.orig/arch/um/os-Linux/start_up.c	2005-09-01 16:42:42.000000000
+> -0400 +++ test/arch/um/os-Linux/start_up.c	2005-09-01 16:51:23.000000000
+> -0400 @@ -275,6 +275,30 @@
+>  	check_ptrace();
+>  }
+>
+> +static int __init noprocmm_cmd_param(char *str, int* add)
+> +{
+> +	proc_mm = 0;
+> +	return 0;
+> +}
+> +
+> +__uml_setup("noprocmm", noprocmm_cmd_param,
+> +"noprocmm\n"
+> +"    Turns off usage of /proc/mm, even if host supports it.\n"
+> +"    To support /proc/mm, the host needs to be patched using\n"
+> +"    the current skas3 patch.\n\n");
+> +
+> +static int __init noptracefaultinfo_cmd_param(char *str, int* add)
+> +{
+> +	ptrace_faultinfo = 0;
+> +	return 0;
+> +}
+> +
+> +__uml_setup("noptracefaultinfo", noptracefaultinfo_cmd_param,
+> +"noptracefaultinfo\n"
+> +"    Turns off usage of PTRACE_FAULTINFO, even if host supports\n"
+> +"    it. To support PTRACE_FAULTINFO, the host needs to be patched\n"
+> +"    using the current skas3 patch.\n\n");
+> +
+>  #ifdef UML_CONFIG_MODE_SKAS
+>  static inline void check_skas3_ptrace_support(void)
+>  {
+>
+>
+>
+> -------------------------------------------------------
+> SF.Net email is Sponsored by the Better Software Conference & EXPO
+> September 19-22, 2005 * San Francisco, CA * Development Lifecycle Practices
+> Agile & Plan-Driven Development * Managing Projects & Teams * Testing & QA
+> Security * Process Improvement & Measurement * http://www.sqe.com/bsce5sf
+> _______________________________________________
+> User-mode-linux-devel mailing list
+> User-mode-linux-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/user-mode-linux-devel
 
-Brent Casavant wrote:
-> On Thu, 1 Sep 2005, Hidetoshi Seto wrote:
->> static inline unsigned int
->> ___ia64_inb (unsigned long port)
->> {
->> 	volatile unsigned char *addr = __ia64_mk_io_addr(port);
->> 	unsigned char ret;
->>+	unsigned long flags;
->>
->>+	read_lock_irqsave(&iochk_lock,flags);
->> 	ret = *addr;
->> 	__ia64_mf_a();
->>+	ia64_mca_barrier(ret);
->>+	read_unlock_irqrestore(&iochk_lock,flags);
->>+
->> 	return ret;
->> }
-> 
-> I am extremely concerned about the performance implications of this
-> implementation.  These changes have several deleterious effects on I/O
-> performance.
+-- 
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
+http://www.user-mode-linux.org/~blaisorblade
 
-Always there is a trade-off between security and performance.
-However, I know these are kinds of interfaces for paranoia.
+	
 
-It would help us if I divide this patch into 2 parts, MCA related part
-and CPE related part.  I'd appreciate it if you could find why I wrote
-such crazy rwlock in the latter part and if you could help me with your
-good sight.  I'll divide them, please wait my next mails.
-
-> The first is serialization of all I/O reads and writes.  This will
-> be a severe problem on systems with large numbers of PCI buses, the
-> very type of system that stands the most to gain in reliability from
-> these efforts.  At a minimum any locking should be done on a per-bus
-> basis.
-
-Yes, there is a room for improvement about the lock granularity.
-Maybe it should be done not on a per-bus but per-host, I think.
-
-> The second is the raw performance penalty from acquiring and dropping
-> a lock with every read and write.  This will be a substantial amount
-> of activity for any I/O-intensive system, heck even for moderate I/O
-> levels.
-
-Yes, but improbably some of paranoias accepts such unpleasant without
-complaining...  We could complain about the performance of RAID-5 disks.
-
-> The third is lock contention for this single lock -- I would fully expect
-> many dozens of processors to be performing I/O at any given time on
-> systems of interest, causing this to be a heavily contended lock.
-> This will be even more severe on NUMA systems, as the lock cacheline
-> bounces across the memory fabric.  A per-bus lock would again be much
-> more appropriate.
-
-Yes.  This implementation (at least the rwlock) wouldn't fit to such
-monster boxes.  However the goal of this interface is definitely in
-such hi-end world, so possible improvement should be taken in near
-future.
-
-> The final problem is that these performance penalties are paid even
-> by drivers which are not IOCHK aware, which for the time being is
-> all of them.  A reasonable solution must pay these penalties only
-> for drivers which are IOCHK aware.  Reinstating the readX_check()
-> interface is the obvious solution here.  It's simply too heavy a
-> performance burden to pay when almost no drivers currently benefit
-> from it.
-
-Mixing aware and non-aware would make both unhappy.
-At least we need to make efforts to separate them and locate them under
-different host.
-* readX_check(): That was kicked out by Linus.
-
-> Otherwise, I also wonder if you have any plans to handle similar
-> errors experienced under device-initiated DMA, or asynchronous I/O.
-> It's not clear that there's sufficient infrastructure in the current
-> patches to adequately handle those situations.
-> 
-> Thank you,
-> Brent Casavant
-
-Every improvements could be.
-
-Requiring data integrity on device-initiated DMA or asynchronous I/O
-isn't wrong thing.  But I don't think that all errors should be handled
-in one infrastructure.  There is an another approach to PCI error
-handling, asynchronous recovery which Linas Vepstas (IBM) working on,
-so maybe both would be required to handle various situation.
-
-Thanks,
-H.Seto
-
+	
+		
+___________________________________ 
+Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
+http://mail.yahoo.it

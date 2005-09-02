@@ -1,78 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161059AbVIBVni@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161064AbVIBVpm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161059AbVIBVni (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 17:43:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161060AbVIBVnh
+	id S1161064AbVIBVpm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 17:45:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161068AbVIBVpm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 17:43:37 -0400
-Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:28802 "HELO
-	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1161059AbVIBVnh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 17:43:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=Bh8+IEoJIQLQ/kG0RiPmr1VPosTBGQuScKTDjp7hZBOtXxinzHCSPJASOA9WV//e/q6TcMH7hG/PNHNv0bJfFNauBs7+/CEljtK2U4RRTPC5zY4Xo1+XPsmrN6zfgY3B4NtgtWEtyEGD8Ba2WwCrxEcaNgbvjOm00zZTQ+cuntQ=  ;
-Message-ID: <4318C79D.1050000@yahoo.com.au>
-Date: Sat, 03 Sep 2005 07:43:57 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@davemloft.net>
-CC: Andi Kleen <ak@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.13] lockless pagecache 2/7
-References: <4317F136.4040601@yahoo.com.au>	<1125666486.30867.11.camel@localhost.localdomain>	<p73k6hzqk1w.fsf@verdi.suse.de> <20050902.141255.50099210.davem@davemloft.net>
-In-Reply-To: <20050902.141255.50099210.davem@davemloft.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 2 Sep 2005 17:45:42 -0400
+Received: from wscnet.wsc.cz ([212.80.64.118]:16518 "EHLO wscnet.wsc.cz")
+	by vger.kernel.org with ESMTP id S1161063AbVIBVpH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 17:45:07 -0400
+Date: Fri, 2 Sep 2005 23:44:55 +0200
+Message-Id: <200509022144.j82LitTO031347@wscnet.wsc.cz>
+In-reply-to: <200509022122.j82LMMwV030426@wscnet.wsc.cz>
+Subject: [PATCH 5/6] include, sound: pci_find_device remove (s/pci/cs46xx/cs46xx_lib.c)
+From: Jiri Slaby <jirislaby@gmail.com>
+To: Greg KH <gregkh@suse.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, alsa-devel@alsa-project.org,
+       perex@suse.cz
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bear with me Dave, I'll repeat myself a bit, for the benefit of lkml.
 
 
-Andi Kleen wrote:
->>>Yeah quite a few. I suspect most MIPS also would have a problem in this
->>>area.
->>
->>cmpxchg can be done with LL/SC can't it? Any MIPS should have that.
-> 
-> 
-> Right.
-> 
-> On PARISC, I don't see where they are emulating compare and swap
-> as indicated.  They are doing the funny hashed spinlocks for the
-> atomic_t operations and bitops, but that is entirely different.
-> 
+Generated in 2.6.13-mm1 kernel version.
 
-Yep, same as SPARC (at least, SPARC's 32-bit atomic_t).
+Signed-off-by: Jiri Slaby <xslaby@fi.muni.cz>
 
-> cmpxchg() has to operate in an environment where, unlike the atomic_t
-> and bitops, you cannot control the accessors to the object at all.
-> 
-> The DRM is the only place in the kernel that requires cmpxchg()
-> and you can thus make a list of what platform can provide cmpxchg()
-> by which ones support DRM and thus provide the cmpxchg() macro already
-> in asm/system.h
-> 
-> We really can't require support for this primitive kernel wide, it's
-> simply not possible on a couple chips.
+ include/sound/cs46xx.h        |    1 -
+ sound/pci/cs46xx/cs46xx_lib.c |   13 +++++++++----
+ 2 files changed, 9 insertions(+), 5 deletions(-)
 
-Not a generic cmpxchg, no. However, I _believe_ that those
-architectures that are missing something like ll/sc or real
-atomic cmpxchg should still be able to implement an
-"atomic_cmpxchg" on their atomic type.
-
-Sorry if I wasn't at all clear initially. What I'd be interested
-in is an architecture that doesn't support ll/sc or real cmpxchg
-*and* does not implement atomic_t operations with locks.
-
-Thanks,
-Nick
-
--- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+diff --git a/include/sound/cs46xx.h b/include/sound/cs46xx.h
+--- a/include/sound/cs46xx.h
++++ b/include/sound/cs46xx.h
+@@ -1715,7 +1715,6 @@ struct _snd_cs46xx {
+ 	void (*active_ctrl)(cs46xx_t *, int);
+   	void (*mixer_init)(cs46xx_t *);
+ 
+-	struct pci_dev *acpi_dev;
+ 	int acpi_port;
+ 	snd_kcontrol_t *eapd_switch; /* for amplifier hack */
+ 	int accept_valid;	/* accept mmap valid (for OSS) */
+diff --git a/sound/pci/cs46xx/cs46xx_lib.c b/sound/pci/cs46xx/cs46xx_lib.c
+--- a/sound/pci/cs46xx/cs46xx_lib.c
++++ b/sound/pci/cs46xx/cs46xx_lib.c
+@@ -3548,7 +3548,7 @@ static void clkrun_hack(cs46xx_t *chip, 
+ {
+ 	u16 control, nval;
+ 	
+-	if (chip->acpi_dev == NULL)
++	if (!chip->acpi_port)
+ 		return;
+ 
+ 	chip->amplifier += change;
+@@ -3571,15 +3571,20 @@ static void clkrun_hack(cs46xx_t *chip, 
+  */
+ static void clkrun_init(cs46xx_t *chip)
+ {
++	struct pci_dev *pdev;
+ 	u8 pp;
+ 
+-	chip->acpi_dev = pci_find_device(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82371AB_3, NULL);
+-	if (chip->acpi_dev == NULL)
++	chip->acpi_port = 0;
++	
++	pdev = pci_get_device(PCI_VENDOR_ID_INTEL,
++		PCI_DEVICE_ID_INTEL_82371AB_3, NULL);
++	if (pdev == NULL)
+ 		return;		/* Not a thinkpad thats for sure */
+ 
+ 	/* Find the control port */		
+-	pci_read_config_byte(chip->acpi_dev, 0x41, &pp);
++	pci_read_config_byte(pdev, 0x41, &pp);
+ 	chip->acpi_port = pp << 8;
++	pci_dev_put(pdev);
+ }
+ 
+ 

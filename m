@@ -1,451 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161006AbVIBGcP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030388AbVIBGlF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161006AbVIBGcP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 02:32:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161004AbVIBGcO
+	id S1030388AbVIBGlF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 02:41:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030426AbVIBGlF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 02:32:14 -0400
-Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:44158 "HELO
-	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1161006AbVIBGcN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 02:32:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:Subject:References:In-Reply-To:Content-Type;
-  b=1zg0cUr0zIyEv57uovhLjkGkU8p+88c8u2M4fiVyLN56njfmrjoW267yNHS4SJcfS04c995EEZKjsDuXtYkcsceMRALTieY3APHnA9gAiH431hc3sbUxwrG565fESZPL/THsZB1PfLeiCzKMFoYkg7aY4HW8hCJp0A9Igpq5jus=  ;
-Message-ID: <4317F203.7060109@yahoo.com.au>
-Date: Fri, 02 Sep 2005 16:32:35 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
-X-Accept-Language: en
+	Fri, 2 Sep 2005 02:41:05 -0400
+Received: from ns.suse.de ([195.135.220.2]:50142 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1030388AbVIBGlE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 02:41:04 -0400
+From: Neil Brown <neilb@suse.de>
+To: Nathan Scott <nathans@sgi.com>
+Date: Fri, 2 Sep 2005 16:40:54 +1000
 MIME-Version: 1.0
-To: Linux Memory Management <linux-mm@kvack.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6.13] lockless pagecache 7/7
-References: <4317F071.1070403@yahoo.com.au> <4317F0F9.1080602@yahoo.com.au> <4317F136.4040601@yahoo.com.au> <4317F17F.5050306@yahoo.com.au> <4317F1A2.8030605@yahoo.com.au> <4317F1BD.8060808@yahoo.com.au> <4317F1E2.7030608@yahoo.com.au>
-In-Reply-To: <4317F1E2.7030608@yahoo.com.au>
-Content-Type: multipart/mixed;
- boundary="------------020705070504090306030804"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17175.62454.623678.209697@cse.unsw.edu.au>
+Cc: Chris Wedgwood <cw@f00f.org>, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
+Subject: Re: RFC: i386: kill !4KSTACKS
+In-Reply-To: message from Nathan Scott on Friday September 2
+References: <20050902003915.GI3657@stusta.de>
+	<20050902053356.GA20603@taniwha.stupidest.org>
+	<20050902162931.A4496772@wobbly.melbourne.sgi.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020705070504090306030804
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Friday September 2, nathans@sgi.com wrote:
+> On Thu, Sep 01, 2005 at 10:33:56PM -0700, Chris Wedgwood wrote:
+> > On Fri, Sep 02, 2005 at 02:39:15AM +0200, Adrian Bunk wrote:
+> > 
+> > > 4Kb kernel stacks are the future on i386, and it seems the problems
+> > > it initially caused are now sorted out.
+> > 
+> > Not entirely.
+> > 
+> > XFS when mixed with raid/lvm/nfs still blows up.  It's probably not
+> > alone in this respect but worse than ext2/3.
+> 
+> To clarify, you mean AND not OR (/) there -- in other words,
+> raid[+raid]+dm[+dm]+xfs+nfs can be fatal, yes.
 
-7/7
+It should be reasonably simple to remove this problem of stacked
+drivers.
+There really isn't any need for md and dm (or md and md or ..) to use
+the stack and the same time.
 
--- 
-SUSE Labs, Novell Inc.
+The following patch, which I posted in November last year, arranges
+that if generic_make_request is called recursively, then the instead
+of doing anything, it just takes a copy of the 'bio', and deals with
+it when the parent request finishes.
 
+So it effectively converts the 'and' back to an 'or'.
 
---------------020705070504090306030804
-Content-Type: text/plain;
- name="mm-spinlock-tree_lock.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="mm-spinlock-tree_lock.patch"
+It didn't get much of an enthusiastic response then.  Maybe it is time
+to try again.  Anyone interested?
+(I don't know if the patch still applies, but it should come close).
 
-With practially all the read locks gone from mapping->tree_lock,
-convert the lock from an rwlock back to a spinlock.
+NeilBrown
 
-The remaining locks including the read locks mainly deal with IO
-submission and not the lookup fastpaths.
+==============================================
+Signed-off-by: Neil Brown <neilb@cse.unsw.edu.au>
 
-Index: linux-2.6/fs/buffer.c
-===================================================================
---- linux-2.6.orig/fs/buffer.c
-+++ linux-2.6/fs/buffer.c
-@@ -859,7 +859,7 @@ int __set_page_dirty_buffers(struct page
- 	spin_unlock(&mapping->private_lock);
- 
- 	if (!TestSetPageDirty(page)) {
--		write_lock_irq(&mapping->tree_lock);
-+		spin_lock_irq(&mapping->tree_lock);
- 		if (page->mapping) {	/* Race with truncate? */
- 			if (mapping_cap_account_dirty(mapping))
- 				inc_page_state(nr_dirty);
-@@ -867,7 +867,7 @@ int __set_page_dirty_buffers(struct page
- 						page_index(page),
- 						PAGECACHE_TAG_DIRTY);
- 		}
--		write_unlock_irq(&mapping->tree_lock);
-+		spin_unlock_irq(&mapping->tree_lock);
- 		__mark_inode_dirty(mapping->host, I_DIRTY_PAGES);
- 	}
- 	
-Index: linux-2.6/fs/inode.c
-===================================================================
---- linux-2.6.orig/fs/inode.c
-+++ linux-2.6/fs/inode.c
-@@ -195,7 +195,7 @@ void inode_init_once(struct inode *inode
- 	sema_init(&inode->i_sem, 1);
- 	init_rwsem(&inode->i_alloc_sem);
- 	INIT_RADIX_TREE(&inode->i_data.page_tree, GFP_ATOMIC);
--	rwlock_init(&inode->i_data.tree_lock);
-+	spin_lock_init(&inode->i_data.tree_lock);
- 	spin_lock_init(&inode->i_data.i_mmap_lock);
- 	INIT_LIST_HEAD(&inode->i_data.private_list);
- 	spin_lock_init(&inode->i_data.private_lock);
-Index: linux-2.6/include/linux/fs.h
-===================================================================
---- linux-2.6.orig/include/linux/fs.h
-+++ linux-2.6/include/linux/fs.h
-@@ -339,7 +339,7 @@ struct backing_dev_info;
- struct address_space {
- 	struct inode		*host;		/* owner: inode, block_device */
- 	struct radix_tree_root	page_tree;	/* radix tree of all pages */
--	rwlock_t		tree_lock;	/* and rwlock protecting it */
-+	spinlock_t		tree_lock;	/* and lock protecting it */
- 	unsigned int		i_mmap_writable;/* count VM_SHARED mappings */
- 	struct prio_tree_root	i_mmap;		/* tree of private and shared mappings */
- 	struct list_head	i_mmap_nonlinear;/*list VM_NONLINEAR mappings */
-Index: linux-2.6/mm/filemap.c
-===================================================================
---- linux-2.6.orig/mm/filemap.c
-+++ linux-2.6/mm/filemap.c
-@@ -121,9 +121,9 @@ void remove_from_page_cache(struct page 
- 
- 	BUG_ON(!PageLocked(page));
- 
--	write_lock_irq(&mapping->tree_lock);
-+	spin_lock_irq(&mapping->tree_lock);
- 	__remove_from_page_cache(page);
--	write_unlock_irq(&mapping->tree_lock);
-+	spin_unlock_irq(&mapping->tree_lock);
+### Diffstat output
+ ./drivers/block/ll_rw_blk.c |   38 +++++++++++++++++++++++++++++++++++++-
+ ./include/linux/sched.h     |    3 +++
+ 2 files changed, 40 insertions(+), 1 deletion(-)
+
+diff ./drivers/block/ll_rw_blk.c~current~ ./drivers/block/ll_rw_blk.c
+--- ./drivers/block/ll_rw_blk.c~current~	2004-11-16 15:55:55.000000000 +1100
++++ ./drivers/block/ll_rw_blk.c	2004-11-25 10:05:14.000000000 +1100
+@@ -2609,7 +2609,7 @@ static inline void block_wait_queue_runn
+  * bi_sector for remaps as it sees fit.  So the values of these fields
+  * should NOT be depended on after the call to generic_make_request.
+  */
+-void generic_make_request(struct bio *bio)
++static inline void __generic_make_request(struct bio *bio)
+ {
+ 	request_queue_t *q;
+ 	sector_t maxsector;
+@@ -2686,6 +2686,42 @@ end_io:
+ 	} while (ret);
  }
  
- static int sync_page(void *word)
-@@ -384,13 +384,13 @@ int add_to_page_cache(struct page *page,
- 		page->mapping = mapping;
- 		page->index = offset;
++/*
++ * We only want one ->make_request_fn to be active at a time, 
++ * else stack usage with stacked devices could be a problem.
++ * So use current->bio_{list,tail} to keep a list of requests
++ * submited by a make_request_fn function.
++ * current->bio_tail is also used as a flag to say if 
++ * generic_make_request is currently activce in this task or not.
++ * If it is NULL, then no make_request is active.  If it is non-NULL,
++ * then a make_request is active, and new requests should be added
++ * at the tail
++ */
++void generic_make_request(struct bio *bio)
++{
++	if (current->bio_tail) {
++		/* make_request is active */
++		*(current->bio_tail) = bio;
++		bio->bi_next = NULL;
++		current->bio_tail = &bio->bi_next;
++		return;
++	}
++	/* not active yet, make it active */
++	current->bio_list = NULL;
++	current->bio_tail = & current->bio_list;
++	__generic_make_request(bio);
++	while (current->bio_list) {
++		bio = current->bio_list;
++		current->bio_list = bio->bi_next;
++		if (bio->bi_next == NULL)
++			current->bio_tail = &current->bio_list;
++		else
++			bio->bi_next = NULL;
++		__generic_make_request(bio);
++	}
++	current->bio_tail = NULL; /* deactivate */
++}
++	
+ EXPORT_SYMBOL(generic_make_request);
  
--		write_lock_irq(&mapping->tree_lock);
-+		spin_lock_irq(&mapping->tree_lock);
- 		error = radix_tree_insert(&mapping->page_tree, offset, page);
- 		if (!error) {
- 			mapping->nrpages++;
- 			pagecache_acct(1);
- 		}
--		write_unlock_irq(&mapping->tree_lock);
-+		spin_unlock_irq(&mapping->tree_lock);
- 		radix_tree_preload_end();
- 
- 		if (error) {
-@@ -650,12 +650,12 @@ unsigned find_get_pages(struct address_s
- 	unsigned int i;
- 	unsigned int ret;
- 
--	read_lock_irq(&mapping->tree_lock);
-+	spin_lock_irq(&mapping->tree_lock);
- 	ret = radix_tree_gang_lookup(&mapping->page_tree,
- 				(void **)pages, start, nr_pages);
- 	for (i = 0; i < ret; i++)
- 		page_cache_get(pages[i]);
--	read_unlock_irq(&mapping->tree_lock);
-+	spin_unlock_irq(&mapping->tree_lock);
- 	return ret;
- }
- 
-@@ -695,14 +695,14 @@ unsigned find_get_pages_tag(struct addre
- 	unsigned int i;
- 	unsigned int ret;
- 
--	read_lock_irq(&mapping->tree_lock);
-+	spin_lock_irq(&mapping->tree_lock);
- 	ret = radix_tree_gang_lookup_tag(&mapping->page_tree,
- 				(void **)pages, *index, nr_pages, tag);
- 	for (i = 0; i < ret; i++)
- 		page_cache_get(pages[i]);
- 	if (ret)
- 		*index = pages[ret - 1]->index + 1;
--	read_unlock_irq(&mapping->tree_lock);
-+	spin_unlock_irq(&mapping->tree_lock);
- 	return ret;
- }
- 
-Index: linux-2.6/mm/swap_state.c
-===================================================================
---- linux-2.6.orig/mm/swap_state.c
-+++ linux-2.6/mm/swap_state.c
-@@ -35,7 +35,7 @@ static struct backing_dev_info swap_back
- 
- struct address_space swapper_space = {
- 	.page_tree	= RADIX_TREE_INIT(GFP_ATOMIC|__GFP_NOWARN),
--	.tree_lock	= RW_LOCK_UNLOCKED,
-+	.tree_lock	= SPIN_LOCK_UNLOCKED,
- 	.a_ops		= &swap_aops,
- 	.i_mmap_nonlinear = LIST_HEAD_INIT(swapper_space.i_mmap_nonlinear),
- 	.backing_dev_info = &swap_backing_dev_info,
-@@ -81,14 +81,14 @@ static int __add_to_swap_cache(struct pa
- 		SetPageSwapCache(page);
- 		page->private = entry.val;
- 
--		write_lock_irq(&swapper_space.tree_lock);
-+		spin_lock_irq(&swapper_space.tree_lock);
- 		error = radix_tree_insert(&swapper_space.page_tree,
- 						entry.val, page);
- 		if (!error) {
- 			total_swapcache_pages++;
- 			pagecache_acct(1);
- 		}
--		write_unlock_irq(&swapper_space.tree_lock);
-+		spin_unlock_irq(&swapper_space.tree_lock);
- 		radix_tree_preload_end();
- 
- 		if (error) {
-@@ -210,9 +210,9 @@ void delete_from_swap_cache(struct page 
-   
- 	entry.val = page->private;
- 
--	write_lock_irq(&swapper_space.tree_lock);
-+	spin_lock_irq(&swapper_space.tree_lock);
- 	__delete_from_swap_cache(page);
--	write_unlock_irq(&swapper_space.tree_lock);
-+	spin_unlock_irq(&swapper_space.tree_lock);
- 
- 	swap_free(entry);
- 	page_cache_release(page);
-Index: linux-2.6/mm/swapfile.c
-===================================================================
---- linux-2.6.orig/mm/swapfile.c
-+++ linux-2.6/mm/swapfile.c
-@@ -339,13 +339,13 @@ int remove_exclusive_swap_page(struct pa
- 	if (p->swap_map[swp_offset(entry)] == 1) {
- 		/* Recheck the page count with the swapcache lock held.. */
- 		SetPageFreeing(page);
--		write_lock_irq(&swapper_space.tree_lock);
-+		spin_lock_irq(&swapper_space.tree_lock);
- 		if ((page_count(page) == 2) && !PageWriteback(page)) {
- 			__delete_from_swap_cache(page);
- 			SetPageDirty(page);
- 			retval = 1;
- 		}
--		write_unlock_irq(&swapper_space.tree_lock);
-+		spin_unlock_irq(&swapper_space.tree_lock);
- 		ClearPageFreeing(page);
- 	}
- 	swap_info_put(p);
-Index: linux-2.6/mm/truncate.c
-===================================================================
---- linux-2.6.orig/mm/truncate.c
-+++ linux-2.6/mm/truncate.c
-@@ -76,15 +76,15 @@ invalidate_complete_page(struct address_
- 	if (PagePrivate(page) && !try_to_release_page(page, 0))
- 		return 0;
- 
--	write_lock_irq(&mapping->tree_lock);
-+	spin_lock_irq(&mapping->tree_lock);
- 	if (PageDirty(page)) {
--		write_unlock_irq(&mapping->tree_lock);
-+		spin_unlock_irq(&mapping->tree_lock);
- 		return 0;
- 	}
- 
- 	BUG_ON(PagePrivate(page));
- 	__remove_from_page_cache(page);
--	write_unlock_irq(&mapping->tree_lock);
-+	spin_unlock_irq(&mapping->tree_lock);
- 	ClearPageUptodate(page);
- 	page_cache_release(page);	/* pagecache ref */
- 	return 1;
-Index: linux-2.6/mm/vmscan.c
-===================================================================
---- linux-2.6.orig/mm/vmscan.c
-+++ linux-2.6/mm/vmscan.c
-@@ -505,7 +505,7 @@ static int shrink_list(struct list_head 
- 			goto keep_locked;	/* truncate got there first */
- 
- 		SetPageFreeing(page);
--		write_lock_irq(&mapping->tree_lock);
-+		spin_lock_irq(&mapping->tree_lock);
- 
- 		/*
- 		 * The non-racy check for busy page.  It is critical to check
-@@ -513,7 +513,7 @@ static int shrink_list(struct list_head 
- 		 * not in use by anybody. 	(pagecache + us == 2)
- 		 */
- 		if (page_count(page) != 2 || PageDirty(page)) {
--			write_unlock_irq(&mapping->tree_lock);
-+			spin_unlock_irq(&mapping->tree_lock);
- 			ClearPageFreeing(page);
- 			goto keep_locked;
- 		}
-@@ -522,7 +522,7 @@ static int shrink_list(struct list_head 
- 		if (PageSwapCache(page)) {
- 			swp_entry_t swap = { .val = page->private };
- 			__delete_from_swap_cache(page);
--			write_unlock_irq(&mapping->tree_lock);
-+			spin_unlock_irq(&mapping->tree_lock);
- 			swap_free(swap);
- 			__put_page(page);	/* The pagecache ref */
- 			goto free_it;
-@@ -530,7 +530,7 @@ static int shrink_list(struct list_head 
- #endif /* CONFIG_SWAP */
- 
- 		__remove_from_page_cache(page);
--		write_unlock_irq(&mapping->tree_lock);
-+		spin_unlock_irq(&mapping->tree_lock);
- 		__put_page(page);
- 
- free_it:
-Index: linux-2.6/mm/page-writeback.c
-===================================================================
---- linux-2.6.orig/mm/page-writeback.c
-+++ linux-2.6/mm/page-writeback.c
-@@ -623,7 +623,7 @@ int __set_page_dirty_nobuffers(struct pa
- 		struct address_space *mapping2;
- 
- 		if (mapping) {
--			write_lock_irq(&mapping->tree_lock);
-+			spin_lock_irq(&mapping->tree_lock);
- 			mapping2 = page_mapping(page);
- 			if (mapping2) { /* Race with truncate? */
- 				BUG_ON(mapping2 != mapping);
-@@ -632,7 +632,7 @@ int __set_page_dirty_nobuffers(struct pa
- 				radix_tree_tag_set(&mapping->page_tree,
- 					page_index(page), PAGECACHE_TAG_DIRTY);
- 			}
--			write_unlock_irq(&mapping->tree_lock);
-+			spin_unlock_irq(&mapping->tree_lock);
- 			if (mapping->host) {
- 				/* !PageAnon && !swapper_space */
- 				__mark_inode_dirty(mapping->host,
-@@ -707,17 +707,17 @@ int test_clear_page_dirty(struct page *p
- 	unsigned long flags;
- 
- 	if (mapping) {
--		write_lock_irqsave(&mapping->tree_lock, flags);
-+		spin_lock_irqsave(&mapping->tree_lock, flags);
- 		if (TestClearPageDirty(page)) {
- 			radix_tree_tag_clear(&mapping->page_tree,
- 						page_index(page),
- 						PAGECACHE_TAG_DIRTY);
--			write_unlock_irqrestore(&mapping->tree_lock, flags);
-+			spin_unlock_irqrestore(&mapping->tree_lock, flags);
- 			if (mapping_cap_account_dirty(mapping))
- 				dec_page_state(nr_dirty);
- 			return 1;
- 		}
--		write_unlock_irqrestore(&mapping->tree_lock, flags);
-+		spin_unlock_irqrestore(&mapping->tree_lock, flags);
- 		return 0;
- 	}
- 	return TestClearPageDirty(page);
-@@ -762,13 +762,13 @@ int test_clear_page_writeback(struct pag
- 	if (mapping) {
- 		unsigned long flags;
- 
--		write_lock_irqsave(&mapping->tree_lock, flags);
-+		spin_lock_irqsave(&mapping->tree_lock, flags);
- 		ret = TestClearPageWriteback(page);
- 		if (ret)
- 			radix_tree_tag_clear(&mapping->page_tree,
- 						page_index(page),
- 						PAGECACHE_TAG_WRITEBACK);
--		write_unlock_irqrestore(&mapping->tree_lock, flags);
-+		spin_unlock_irqrestore(&mapping->tree_lock, flags);
- 	} else {
- 		ret = TestClearPageWriteback(page);
- 	}
-@@ -783,7 +783,7 @@ int test_set_page_writeback(struct page 
- 	if (mapping) {
- 		unsigned long flags;
- 
--		write_lock_irqsave(&mapping->tree_lock, flags);
-+		spin_lock_irqsave(&mapping->tree_lock, flags);
- 		ret = TestSetPageWriteback(page);
- 		if (!ret)
- 			radix_tree_tag_set(&mapping->page_tree,
-@@ -793,7 +793,7 @@ int test_set_page_writeback(struct page 
- 			radix_tree_tag_clear(&mapping->page_tree,
- 						page_index(page),
- 						PAGECACHE_TAG_DIRTY);
--		write_unlock_irqrestore(&mapping->tree_lock, flags);
-+		spin_unlock_irqrestore(&mapping->tree_lock, flags);
- 	} else {
- 		ret = TestSetPageWriteback(page);
- 	}
-@@ -811,10 +811,10 @@ int mapping_tagged(struct address_space 
- 	unsigned long flags;
- 	int ret;
- 
--	/* XXX: radix_tree_tagged is safe to run without the lock? */
--	read_lock_irqsave(&mapping->tree_lock, flags);
-+	/* XXX: radix_tree_tagged is safe to run without the lock */
-+	spin_lock_irqsave(&mapping->tree_lock, flags);
- 	ret = radix_tree_tagged(&mapping->page_tree, tag);
--	read_unlock_irqrestore(&mapping->tree_lock, flags);
-+	spin_unlock_irqrestore(&mapping->tree_lock, flags);
- 	return ret;
- }
- EXPORT_SYMBOL(mapping_tagged);
-Index: linux-2.6/drivers/mtd/devices/block2mtd.c
-===================================================================
---- linux-2.6.orig/drivers/mtd/devices/block2mtd.c
-+++ linux-2.6/drivers/mtd/devices/block2mtd.c
-@@ -58,7 +58,7 @@ void cache_readahead(struct address_spac
- 
- 	end_index = ((isize - 1) >> PAGE_CACHE_SHIFT);
- 
--	read_lock_irq(&mapping->tree_lock);
-+	spin_lock_irq(&mapping->tree_lock);
- 	for (i = 0; i < PAGE_READAHEAD; i++) {
- 		pagei = index + i;
- 		if (pagei > end_index) {
-@@ -70,16 +70,16 @@ void cache_readahead(struct address_spac
- 			break;
- 		if (page)
- 			continue;
--		read_unlock_irq(&mapping->tree_lock);
-+		spin_unlock_irq(&mapping->tree_lock);
- 		page = page_cache_alloc_cold(mapping);
--		read_lock_irq(&mapping->tree_lock);
-+		spin_lock_irq(&mapping->tree_lock);
- 		if (!page)
- 			break;
- 		page->index = pagei;
- 		list_add(&page->lru, &page_pool);
- 		ret++;
- 	}
--	read_unlock_irq(&mapping->tree_lock);
-+	spin_unlock_irq(&mapping->tree_lock);
- 	if (ret)
- 		read_cache_pages(mapping, &page_pool, filler, NULL);
- }
-Index: linux-2.6/include/asm-arm/cacheflush.h
-===================================================================
---- linux-2.6.orig/include/asm-arm/cacheflush.h
-+++ linux-2.6/include/asm-arm/cacheflush.h
-@@ -315,9 +315,9 @@ flush_cache_page(struct vm_area_struct *
- extern void flush_dcache_page(struct page *);
- 
- #define flush_dcache_mmap_lock(mapping) \
--	write_lock_irq(&(mapping)->tree_lock)
-+	spin_lock_irq(&(mapping)->tree_lock)
- #define flush_dcache_mmap_unlock(mapping) \
--	write_unlock_irq(&(mapping)->tree_lock)
-+	spin_unlock_irq(&(mapping)->tree_lock)
- 
- #define flush_icache_user_range(vma,page,addr,len) \
- 	flush_dcache_page(page)
-Index: linux-2.6/include/asm-parisc/cacheflush.h
-===================================================================
---- linux-2.6.orig/include/asm-parisc/cacheflush.h
-+++ linux-2.6/include/asm-parisc/cacheflush.h
-@@ -57,9 +57,9 @@ flush_user_icache_range(unsigned long st
- extern void flush_dcache_page(struct page *page);
- 
- #define flush_dcache_mmap_lock(mapping) \
--	write_lock_irq(&(mapping)->tree_lock)
-+	spin_lock_irq(&(mapping)->tree_lock)
- #define flush_dcache_mmap_unlock(mapping) \
--	write_unlock_irq(&(mapping)->tree_lock)
-+	spin_unlock_irq(&(mapping)->tree_lock)
- 
- #define flush_icache_page(vma,page)	do { flush_kernel_dcache_page(page_address(page)); flush_kernel_icache_page(page_address(page)); } while (0)
- 
+ /**
 
---------------020705070504090306030804--
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+diff ./include/linux/sched.h~current~ ./include/linux/sched.h
+--- ./include/linux/sched.h~current~	2004-11-25 09:57:07.000000000 +1100
++++ ./include/linux/sched.h	2004-11-25 09:57:34.000000000 +1100
+@@ -649,6 +649,9 @@ struct task_struct {
+ 
+ /* journalling filesystem info */
+ 	void *journal_info;
++	
++/* stacked block device info */
++	struct bio *bio_list, **bio_tail;
+ 
+ /* VM state */
+ 	struct reclaim_state *reclaim_state;

@@ -1,35 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030625AbVIBBT7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030628AbVIBBYQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030625AbVIBBT7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 21:19:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030626AbVIBBT7
+	id S1030628AbVIBBYQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 21:24:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030632AbVIBBYN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 21:19:59 -0400
-Received: from smtp-out6.blueyonder.co.uk ([195.188.213.9]:29406 "EHLO
-	smtp-out6.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S1030625AbVIBBT7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 21:19:59 -0400
-Message-ID: <4317A8B7.508@blueyonder.co.uk>
-Date: Fri, 02 Sep 2005 02:19:51 +0100
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-Reply-To: sboyce@blueyonder.co.uk
-Organization: blueyonder.co.uk
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.13 git snapshot patches still empty
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 Sep 2005 01:20:40.0303 (UTC) FILETIME=[87F91FF0:01C5AF5C]
+	Thu, 1 Sep 2005 21:24:13 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:32016 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1030305AbVIBBX4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 21:23:56 -0400
+Date: Fri, 2 Sep 2005 03:23:55 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] fs/cramfs/uncompress.c should #include <linux/cramfs_fs.h> (fwd)
+Message-ID: <20050902012355.GO3657@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For both -git1.gz/.bz2 and -git2.gz/.bz2.
-Regards
-Sid.
--- 
-Sid Boyce ... Hamradio License G3VBV, Keen licensed Private Pilot
-Retired IBM/Amdahl Mainframes and Sun/Fujitsu Servers Tech Support 
-Specialist
-Microsoft Windows Free Zone - Linux used for all Computing Tasks
+Every file should #include the header with the prototypes of the global 
+functions it is offering.
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+This patch was already sent on:
+- 24 Aug 2005
+
+--- linux-2.6.13-rc6-mm1-full/fs/cramfs/uncompress.c.old	2005-08-23 01:56:47.000000000 +0200
++++ linux-2.6.13-rc6-mm1-full/fs/cramfs/uncompress.c	2005-08-23 01:57:09.000000000 +0200
+@@ -19,6 +19,7 @@
+ #include <linux/errno.h>
+ #include <linux/vmalloc.h>
+ #include <linux/zlib.h>
++#include <linux/cramfs_fs.h>
+ 
+ static z_stream stream;
+ static int initialized;
+

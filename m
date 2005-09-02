@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbVIBJV5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751162AbVIBJV6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751161AbVIBJV5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 05:21:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbVIBJV5
+	id S1751162AbVIBJV6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 05:21:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbVIBJV6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 2 Sep 2005 05:21:58 -0400
+Received: from baythorne.infradead.org ([81.187.2.161]:15247 "EHLO
+	baythorne.infradead.org") by vger.kernel.org with ESMTP
+	id S1751162AbVIBJV5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 2 Sep 2005 05:21:57 -0400
-Received: from zproxy.gmail.com ([64.233.162.205]:6122 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751161AbVIBJV5 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 05:21:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=oPXuUnE+LPHikJpDIphl6TPZhAPeL3mmAebFGkf16YiPzmdZCYf3D1/mPBTdAx/ou0wsqQMT4J1Q546kJBr2W6KbB/FKiWSiCrcW33k4mbuqul4bLOcB+bF7EZ5FAgzew9xMcN3z/zLPJ0Z4N3TQ9hoXgRMKfWl5jdNqbIWwa1A=
-Message-ID: <9a87484905090202214bc5bcbe@mail.gmail.com>
-Date: Fri, 2 Sep 2005 11:21:51 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: "liyu@WAN" <liyu@ccoss.com.cn>
-Subject: Re: [Q] how to use syslogd to debug kernel ?
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <4317B309.3000404@ccoss.com.cn>
+Subject: Re: empty patch-2.6.13-git? patches on ftp.kernel.org
+From: David Woodhouse <dwmw2@infradead.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Tomasz =?ISO-8859-1?Q?K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>,
+       git@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0509020159110.3613@evo.osdl.org>
+References: <Pine.BSO.4.62.0508311527340.10416@rudy.mif.pg.gda.pl>
+	 <1125649389.6928.19.camel@baythorne.infradead.org>
+	 <Pine.LNX.4.58.0509020159110.3613@evo.osdl.org>
+Content-Type: text/plain
+Date: Fri, 02 Sep 2005 10:21:54 +0100
+Message-Id: <1125652914.6928.27.camel@baythorne.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <4317B309.3000404@ccoss.com.cn>
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/2/05, liyu@WAN <liyu@ccoss.com.cn> wrote:
-> Hi, everyone.
+On Fri, 2005-09-02 at 02:00 -0700, Linus Torvalds wrote:
+> Ahh. Please change that to
 > 
->     I know kernel oops can be seen by run 'dmesg', but if
-> kernel crashed, we can not run it.   so I reconfigure syslogd
-> to support remote forward, the debug machine content of
+>         rm -rf tmp-empty-tree
+>         mkdir tmp-empty-tree
+>         cd tmp-empty-tree
+>         git-init-db
+> 
+> because otherwise you'll almost certainly hit something else later
+> on..
 
-When the kernel crashes there's no guarantee that messages will reach
-syslog. Actually there's no guarantee of anything - the kernel is
-dead.
-If you want to capture Oops messages in a more reliable fashion, then
-use a serial console, netconsole or console on line-printer.
+OK, done. 
 
 -- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+dwmw2
+
+

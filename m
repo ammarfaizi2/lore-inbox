@@ -1,70 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161062AbVIBVqL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161068AbVIBVrW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161062AbVIBVqL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 17:46:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161068AbVIBVpn
+	id S1161068AbVIBVrW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 17:47:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161072AbVIBVrW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 17:45:43 -0400
-Received: from wscnet.wsc.cz ([212.80.64.118]:17798 "EHLO wscnet.wsc.cz")
-	by vger.kernel.org with ESMTP id S1161062AbVIBVpC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 17:45:02 -0400
-Date: Fri, 2 Sep 2005 23:44:55 +0200
-Message-Id: <200509022144.j82LitUL031342@wscnet.wsc.cz>
-In-reply-to: <200509022122.j82LMMwV030426@wscnet.wsc.cz>
-Subject: [PATCH 2/6] include, sound: pci_find_device remove (s/core/memalloc.c)
-From: Jiri Slaby <jirislaby@gmail.com>
-To: Greg KH <gregkh@suse.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, alsa-devel@alsa-project.org,
-       perex@suse.cz
+	Fri, 2 Sep 2005 17:47:22 -0400
+Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:40634 "HELO
+	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1161068AbVIBVrV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 17:47:21 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=JDpz2Nc5WSsVeJTaZ/epY+6SS+W2XXMwCoyueIwQ7l4jwxegqBh8kTjAkO1NFcGYC2RM1SrPQUOINcL/+bMqdd1QH8UjgAAhI9hJ2VWUwXTvPmbKKKcEPDyOhap1WHtyofj7PLQrIV4Y66zzsSchKz3+GLcX1c9nvlHo3xhgKi0=  ;
+Message-ID: <4318C884.3050607@yahoo.com.au>
+Date: Sat, 03 Sep 2005 07:47:48 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@davemloft.net>
+CC: ak@suse.de, alan@lxorguk.ukuu.org.uk, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.13] lockless pagecache 2/7
+References: <1125666486.30867.11.camel@localhost.localdomain>	<p73k6hzqk1w.fsf@verdi.suse.de>	<4318C28A.5010000@yahoo.com.au> <20050902.143149.08652495.davem@davemloft.net>
+In-Reply-To: <20050902.143149.08652495.davem@davemloft.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David S. Miller wrote:
+> From: Nick Piggin <nickpiggin@yahoo.com.au>
+> Date: Sat, 03 Sep 2005 07:22:18 +1000
+> 
+> 
+>>This atomic_cmpxchg, unlike a "regular" cmpxchg, has the advantage
+>>that the memory altered should always be going through the atomic_
+>>accessors, and thus should be implementable with spinlocks.
+>>
+>>See for example, arch/sparc/lib/atomic32.c
+>>
+>>At least, that's what I'm hoping for.
+> 
+> 
+> Ok, as long as the rule is that all accesses have to go
+> through accessor macros, it would work.  This is not true
+> for existing uses of cmpxchg() btw, userland accesses shared
+> locks with the kernel would using any kind of accessors we
+> can control.
+> 
+> This means that your atomic_cmpxchg() cannot be used for locking
+> objects shared with userland, as DRM wants, since the hashed spinlock
+> trick does not work in such a case.
+> 
 
+So neither could currently supported atomic_t ops be shared with
+userland accesses?
 
-Generated in 2.6.13-mm1 kernel version.
+Then I think it would not be breaking any interface rule to do an
+atomic_t atomic_cmpxchg either. Definitely for my usage it will
+not be shared with userland.
 
-Signed-off-by: Jiri Slaby <xslaby@fi.muni.cz>
+Thanks,
+Nick
 
- memalloc.c |   10 +++++-----
- 1 files changed, 5 insertions(+), 5 deletions(-)
+-- 
+SUSE Labs, Novell Inc.
 
-diff --git a/sound/core/memalloc.c b/sound/core/memalloc.c
---- a/sound/core/memalloc.c
-+++ b/sound/core/memalloc.c
-@@ -567,8 +567,8 @@ static int snd_mem_proc_write(struct fil
- 		char *endp;
- 		int vendor, device, size, buffers;
- 		long mask;
--		int i, alloced;
--		struct pci_dev *pci;
-+		int i, alloced = 0;
-+		struct pci_dev *pci = NULL;
- 
- 		if ((token = gettoken(&p)) == NULL ||
- 		    (vendor = simple_strtol(token, NULL, 0)) <= 0 ||
-@@ -588,13 +588,12 @@ static int snd_mem_proc_write(struct fil
- 		vendor &= 0xffff;
- 		device &= 0xffff;
- 
--		alloced = 0;
--		pci = NULL;
--		while ((pci = pci_find_device(vendor, device, pci)) != NULL) {
-+		while ((pci = pci_get_device(vendor, device, pci)) != NULL) {
- 			if (mask > 0 && mask < 0xffffffff) {
- 				if (pci_set_dma_mask(pci, mask) < 0 ||
- 				    pci_set_consistent_dma_mask(pci, mask) < 0) {
- 					printk(KERN_ERR "snd-page-alloc: cannot set DMA mask %lx for pci %04x:%04x\n", mask, vendor, device);
-+					pci_dev_put(pci);
- 					return (int)count;
- 				}
- 			}
-@@ -604,6 +603,7 @@ static int snd_mem_proc_write(struct fil
- 				if (snd_dma_alloc_pages(SNDRV_DMA_TYPE_DEV, snd_dma_pci_data(pci),
- 							size, &dmab) < 0) {
- 					printk(KERN_ERR "snd-page-alloc: cannot allocate buffer pages (size = %d)\n", size);
-+					pci_dev_put(pci);
- 					return (int)count;
- 				}
- 				snd_dma_reserve_buf(&dmab, snd_dma_pci_buf_id(pci));
+Send instant messages to your online friends http://au.messenger.yahoo.com 

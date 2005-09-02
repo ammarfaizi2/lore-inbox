@@ -1,47 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030655AbVIBC31@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030406AbVIBCos@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030655AbVIBC31 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 22:29:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030657AbVIBC31
+	id S1030406AbVIBCos (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 22:44:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030415AbVIBCos
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 22:29:27 -0400
-Received: from wproxy.gmail.com ([64.233.184.200]:12168 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030655AbVIBC30 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 22:29:26 -0400
+	Thu, 1 Sep 2005 22:44:48 -0400
+Received: from web33211.mail.mud.yahoo.com ([68.142.206.109]:54390 "HELO
+	web33211.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1030406AbVIBCor (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 22:44:47 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=AXn/FRqBm1r/ErMsN9bS+dWh2syQvMqH6IHLosyWZPwm7qtT53kLcfgjVxJlq0c3UHMSDOgCMH+XgzBnDgRJdcEv9ARwXBpji9dI6w9/26mFi1qs0LYlbCk9vp3RQ3jf1juavmM/uAA4eVNfbaZ+A/IU+0HOGNqby4nZzXJsNbc=
-Message-ID: <67029b17050901192933f9618@mail.gmail.com>
-Date: Fri, 2 Sep 2005 10:29:12 +0800
-From: Zhou Yingchao <yingchao.zhou@gmail.com>
-Reply-To: yingchao.zhou@gmail.com
-To: "liyu@WAN" <liyu@ccoss.com.cn>
-Subject: Re: [Q] how to use syslogd to debug kernel ?
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <4317B309.3000404@ccoss.com.cn>
-Mime-Version: 1.0
+  s=s1024; d=yahoo.ca;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=iEHOk9t6KhhkJAG8Ss+6SF287sQCemA/jU832522tk8+hkG0YxF+9b+WFG7KA3SyF4wcaY94UR5sIjd+TTov94tzbNreV+uPpL6h4tkslKUDMKl1Fr4l4qwk3jlYmEm4GM5/AMEHu6Ah3cdjvrr0yMSI5zCL/PlaIiI5nuG3oYw=  ;
+Message-ID: <20050902024432.72159.qmail@web33211.mail.mud.yahoo.com>
+Date: Thu, 1 Sep 2005 22:44:32 -0400 (EDT)
+From: rep stsb <repstsb@yahoo.ca>
+Subject: Re: State of Linux graphics
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <4317B309.3000404@ccoss.com.cn>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/2/05, liyu@WAN <liyu@ccoss.com.cn> wrote:
-> Hi, everyone.
-> 
->    I know kernel oops can be seen by run 'dmesg', but if
-> kernel crashed, we can not run it.   so I reconfigure syslogd
-> to support remote forward, the debug machine content of
-> syslogd.conf is:
+svgalib is spelled "svgalib"
 
-When the panic is called, the network system cannt working, no
-message will be sent. The panic is only designed to print at least
- oops message on the screen. 
-For debug through ethernet, I suggest you to try KGDB, which consist
-a patch to debug over ethernet. 
+I have started writing a windowing program which
+uses svgalib. The source code is available at,
 
--- 
-Yingchao Zhou
+http://sourceforge.net/projects/svgalib-windows
+ 
+select "browse cvs". SourceForge is rebuilding their
+site, so some things don't work.
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

@@ -1,111 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751134AbVIBLUd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751141AbVIBLid@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751134AbVIBLUd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 07:20:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbVIBLUd
+	id S1751141AbVIBLid (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 07:38:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbVIBLid
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 07:20:33 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:25474 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751134AbVIBLUd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 07:20:33 -0400
-Date: Fri, 2 Sep 2005 13:20:38 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Nathan Scott <nathans@sgi.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] blk queue io tracing support
-Message-ID: <20050902112034.GK4018@suse.de>
-References: <20050823123235.GG16461@suse.de> <20050824010346.GA1021@frodo> <20050824070809.GA27956@suse.de> <20050824171931.H4209301@wobbly.melbourne.sgi.com> <20050824072501.GA27992@suse.de> <20050824092838.GB28272@suse.de> <20050830234823.GF780@frodo>
+	Fri, 2 Sep 2005 07:38:33 -0400
+Received: from zproxy.gmail.com ([64.233.162.193]:52819 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751141AbVIBLic convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 07:38:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=CYQMXMPLnSTEExQ41lRRfGLVDQVsXhdAqeT9mTmxYD1ze6zyIcaxzCZhS3gjP4Y9NzAwaKqFCkbon2TACKHjnq+f9Gx8uciFDvHSlbOTWByGlKUPWRd0SFLvTPQ61RNSnxdZIRLt3cN6LHP0ftgGf56My2e1jkk5lAO+9v80kfI=
+Message-ID: <e8ac1af10509020438c71133d@mail.gmail.com>
+Date: Fri, 2 Sep 2005 17:08:26 +0530
+From: Tushar Adeshara <adesharatushar@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Potential concurrency bug in ide-disk.c ?
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050830234823.GF780@frodo>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 31 2005, Nathan Scott wrote:
-> Hi Jens,
-> 
-> On Wed, Aug 24, 2005 at 11:28:39AM +0200, Jens Axboe wrote:
-> > Ok, updated version.
-> 
-> One thing I found a bit awkward was the way its putting all inodes
-> in the root of the relayfs namespace, with the cpuid tacked on the
-> end of the bdevname - I was a bit confused at first when a trace of
-> sdd on my 4P box spontaneously created files for "partitions" sdd0,
-> sdd1, sdd2, and sdd3 ;).
-> 
-> I suppose if many more users of relayfs spring into existance, this
-> is going to get quite ugly.  Below is a patch that aligns the names
-> to the conventions used in sysfs; so, for example, when running two
-> traces simultaneously on /dev/sdd and /dev/sdb, instead of this:
-> 
-> # find /relay
-> /relay
-> /relay/sdd3
-> /relay/sdd2
-> /relay/sdd1
-> /relay/sdd0
-> /relay/sdb3
-> /relay/sdb2
-> /relay/sdb1
-> /relay/sdb0
-> 
-> it now uses this...
-> 
-> # find /relay
-> /relay
-> /relay/block
-> /relay/block/sdd
-> /relay/block/sdd/trace3
-> /relay/block/sdd/trace2
-> /relay/block/sdd/trace1
-> /relay/block/sdd/trace0
-> /relay/block/sdb
-> /relay/block/sdb/trace3
-> /relay/block/sdb/trace2
-> /relay/block/sdb/trace1
-> /relay/block/sdb/trace0
-> 
-> and does the correct dynamic setup and teardown of the hierarchy
-> as the userspace tool starts and stops tracing.  I had to modify
-> the relayfs rmdir code a bit to make this work properly, I'll
-> send a separate patch for that shortly.
-> 
-> > http://www.kernel.org/pub/linux/kernel/people/axboe/tools/blktrace.c
-> > 
-> > has been updated as well, the protocol version was increased to
-> > accomodate the trace structure changes.
-> 
-> I have the associated userspace change for this, as well as several
-> other fixes and tweaks for your tool - if you could slap a copyright
-> and license notice onto that source (pretty please? :) I'll send 'em
-> right along.
-
-I've committed this patch. However, there's an issue with it:
+Hi,
+The way file ide-disk.c handles usage count, it seems to me that its
+concurrency bug.
+In open method and release, it uses code as follows
 
 
-> +static struct dentry *blk_create_tree(const char *blk_name)
-> +{
-> +	struct dentry *dir;
-> +
-> +	spin_lock(&blk_tree_lock);
-> +	if (!blk_tree_root) {
-> +		blk_tree_root = relayfs_create_dir("block", NULL);
-> +		if (!blk_tree_root) {
-> +			spin_unlock(&blk_tree_lock);
-> +			return NULL;
-> +		}
-> +	}
-> +	dir = relayfs_create_dir(blk_name, blk_tree_root);
-> +	if (!dir)
-> +		blk_remove_root();
-> +	spin_unlock(&blk_tree_lock);
+static int idedisk_open(struct inode *inode, struct file *filp)
+{
+	ide_drive_t *drive = inode->i_bdev->bd_disk->private_data;
+	drive->usage++;
+	if (drive->removable && drive->usage == 1) {
+		ide_task_t args;
+		memset(&args, 0, sizeof(ide_task_t));
+		args.tfRegister[IDE_COMMAND_OFFSET] = WIN_DOORLOCK;
+		args.command_type = IDE_DRIVE_TASK_NO_DATA;
+		args.handler	  = &task_no_data_intr;
+		check_disk_change(inode->i_bdev);
+		/*
+		 * Ignore the return code from door_lock,
+		 * since the open() has already succeeded,
+		 * and the door_lock is irrelevant at this point.
+		 */
+		if (drive->doorlocking && ide_raw_taskfile(drive, &args, NULL))
+			drive->doorlocking = 0;
+	}
+	return 0;
+}
 
-That doesn't look very safe, relayfs_create_dir() could block. I've
-changed the blk_tree_lock to be a simple mutex instead. The patch is
-committed to the git repo.
+
+Here, if drive->usage=0 initially and two process concurrently executes 
+drive->usage++, then drive->usage will become 2.  Both of them will
+think that drive is already initialized. Something similar can happen
+in case of release.
+                      I think a semaphore need to be added in
+ide_drive_t structure and method should be modified as
+
+static int idedisk_open(struct inode *inode, struct file *filp)
+{
+	ide_drive_t *drive = inode->i_bdev->bd_disk->private_data;
+        if(down_interruptible(&drive->sem)){
+                    /*error handling code*/
+        } 
+	drive->usage++;
+	if (drive->removable && drive->usage == 1) {
+		ide_task_t args;
+		memset(&args, 0, sizeof(ide_task_t));
+		args.tfRegister[IDE_COMMAND_OFFSET] = WIN_DOORLOCK;
+		args.command_type = IDE_DRIVE_TASK_NO_DATA;
+		args.handler	  = &task_no_data_intr;
+		check_disk_change(inode->i_bdev);
+		/*
+		 * Ignore the return code from door_lock,
+		 * since the open() has already succeeded,
+		 * and the door_lock is irrelevant at this point.
+		 */
+		if (drive->doorlocking && ide_raw_taskfile(drive, &args, NULL))
+			drive->doorlocking = 0;
+	}
+         up(&drive->sem);
+	return 0;
+}
+Similar modifications are also required in release.
+
+Please let me know if there is anything wrong in above code. Also let
+me know to whom I should offer patches for this.
 
 -- 
-Jens Axboe
-
+Regards,
+Tushar
+--------------------
+It's not a problem, it's an opportunity for improvement. Lets improve.

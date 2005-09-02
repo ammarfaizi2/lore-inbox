@@ -1,40 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030516AbVIBG7Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030489AbVIBHDa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030516AbVIBG7Q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 02:59:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030510AbVIBG7Q
+	id S1030489AbVIBHDa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 03:03:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030497AbVIBHDa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 02:59:16 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:45709 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030479AbVIBG7O (ORCPT
+	Fri, 2 Sep 2005 03:03:30 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:18863 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S1030489AbVIBHD3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 02:59:14 -0400
-Date: Fri, 2 Sep 2005 15:04:49 +0800
-From: David Teigland <teigland@redhat.com>
-To: Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, linux-cluster@redhat.com
-Subject: Re: GFS, what's remaining
-Message-ID: <20050902070449.GA16595@redhat.com>
-References: <20050901104620.GA22482@redhat.com> <20050901035939.435768f3.akpm@osdl.org> <1125586158.15768.42.camel@localhost.localdomain> <20050901142708.GA24933@infradead.org> <1125588511.15768.52.camel@localhost.localdomain> <20050901175603.GA6218@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 2 Sep 2005 03:03:29 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH 1/2] remove driverfs references from include/linux/cpu.h and net/sunrpc/rpc_pipe.c
+Date: Fri, 2 Sep 2005 08:59:25 +0200
+User-Agent: KMail/1.8.2
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+References: <200509020856.33213@bilbo.math.uni-mannheim.de>
+In-Reply-To: <200509020856.33213@bilbo.math.uni-mannheim.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-6"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050901175603.GA6218@infradead.org>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200509020859.25973@bilbo.math.uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 01, 2005 at 06:56:03PM +0100, Christoph Hellwig wrote:
+This patch is against 2.6.10, but still applies cleanly. It's just 
+s/driverfs/sysfs/ in these two files.
 
-> Whether the gfs2 code is mergeable is a completely different question,
-> and it seems at least debatable to submit a filesystem for inclusion
+Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
 
-I actually asked what needs to be done for merging.  We appreciate the
-feedback and are carefully studying and working on all of it as usual.
-We'd also appreciate help, of course, if that sounds interesting to
-anyone.
-
-Thanks
-Dave
-
+--- linux-2.6.10/include/linux/cpu.h	2005-01-01 17:55:38.000000000 +0100
++++ linux-2.6.10/include/linux/cpu.h.fixed	2005-01-07 13:55:36.167681848 +0100
+@@ -8,7 +8,7 @@
+  * Basic handling of the devices is done in drivers/base/cpu.c
+  * and system devices are handled in drivers/base/sys.c. 
+  *
+- * CPUs are exported via driverfs in the class/cpu/devices/
++ * CPUs are exported via sysfs in the class/cpu/devices/
+  * directory. 
+  *
+  * Per-cpu interfaces can be implemented using a struct device_interface. 
+--- linux-2.6.10/net/sunrpc/rpc_pipe.c	2005-01-01 17:55:50.000000000 +0100
++++ linux-2.6.10/net/sunrpc/rpc_pipe.c.fixed	2005-01-07 14:01:05.373634936 +0100
+@@ -3,7 +3,7 @@
+  *
+  * Userland/kernel interface for rpcauth_gss.
+  * Code shamelessly plagiarized from fs/nfsd/nfsctl.c
+- * and fs/driverfs/inode.c
++ * and fs/sysfs/inode.c
+  *
+  * Copyright (c) 2002, Trond Myklebust <trond.myklebust@fys.uio.no>
+  *

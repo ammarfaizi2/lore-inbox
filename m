@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750721AbVIBQ4d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750719AbVIBQzg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750721AbVIBQ4d (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 12:56:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750723AbVIBQ4d
+	id S1750719AbVIBQzg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 12:55:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbVIBQzg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 12:56:33 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:54793 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1750721AbVIBQ4c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 12:56:32 -0400
-Date: Fri, 2 Sep 2005 17:56:23 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: vatsa@in.ibm.com, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       ck list <ck@vds.kolivas.org>
-Subject: Re: [PATCH 1/3] dynticks - implement no idle hz for x86
-Message-ID: <20050902175623.D6546@flint.arm.linux.org.uk>
-Mail-Followup-To: Con Kolivas <kernel@kolivas.org>, vatsa@in.ibm.com,
-	linux-kernel@vger.kernel.org, akpm@osdl.org,
-	ck list <ck@vds.kolivas.org>
-References: <20050831165843.GA4974@in.ibm.com> <20050831171211.GB4974@in.ibm.com> <200509030143.57782.kernel@kolivas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200509030143.57782.kernel@kolivas.org>; from kernel@kolivas.org on Sat, Sep 03, 2005 at 01:43:57AM +1000
+	Fri, 2 Sep 2005 12:55:36 -0400
+Received: from rproxy.gmail.com ([64.233.170.192]:60202 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750719AbVIBQzf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 12:55:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:content-type:content-transfer-encoding;
+        b=JCutFxHCzg8vA2ANP9GY35PbxEyiH/jVvSxpeIlJjpgdfAoTKjh9UKpdThDq3qWDIwbKRbnPJsowIgH1s9NttThE/bhiXtAKVj5cqVsjUzB53HZCrKmC7qXCw57ye04m5Zy6E6BKfP+z6CZo8DponSnC9HKTgltTdblnTompdXs=
+Message-ID: <43188402.40508@gmail.com>
+Date: Fri, 02 Sep 2005 10:55:30 -0600
+From: Jim Cromie <jim.cromie@gmail.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 13-mm1: firmware_loading_store goes berserk on boot.
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 03, 2005 at 01:43:57AM +1000, Con Kolivas wrote:
-> Ok I've resynced all the patches with 2.6.13-mm1, made some cleanups and minor 
-> modifications. As pm timer is the only supported timer for dynticks I've also 
-> made it depend on it.
-> 
-> A rollup patch against 2.6.13-mm1 is here:
-> 
-> http://ck.kolivas.org/patches/dyn-ticks/2.6.13-mm1-dtck1.patch
-> 
-> also available in the dyn-ticks directory are the older patches and these 
-> split out patches posted here.
 
-Are you guys going to sync your interfaces with what ARM has, or are
-we going to have two differing dyntick interfaces in the kernel, one
-for ARM and one for x86?
+during boot, kernel get caught in a hi-speed loop, issuing these msgs.
+from the logs, it appears that the 'repeated' catcher is getting 
+overwhelmed,
+perhaps by message trucation which breaks the pattern.
+Ive edited large chunks of repeats that made it into the log.
 
-I mentioned this before.  I seem to be ignored.
+Sep  2 07:59:36 harpo kernel: firmware_loading_store: unexpected value (0)
+Sep  2 07:59:37 harpo last message repeated 83 times
+Sep  2 08:01:41 harpo kernel: firmware_loading_store: unexpected value 
+(0)ected value (0)
+Sep  2 08:01:41 harpo kernel: firmware_loading_store: unexpected value (0)
+Sep  2 08:01:45 harpo last message repeated 174017 times
+Sep  2 08:05:01 harpo last message repeated 36471 times
+Sep  2 08:05:01 harpo crond(pam_unix)[13845]: session opened for user 
+root by (uid=0)
+Sep  2 08:05:01 harpo kernel: firmware_loading_store: unexpected value (0)
+Sep  2 08:05:01 harpo last message repeated 94 times
+Sep  2 08:05:12 harpo last message repeated 420578 times
+Sep  2 08:05:17 harpo last message repeated 175067 times
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Ill send .config etc to anyone interested.
+
+thx

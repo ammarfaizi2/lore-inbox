@@ -1,43 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751117AbVIBINa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbVIBIXd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751117AbVIBINa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 04:13:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751116AbVIBINa
+	id S1751114AbVIBIXd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 04:23:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751118AbVIBIXd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 04:13:30 -0400
-Received: from mail.kroah.org ([69.55.234.183]:29586 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751109AbVIBIN3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 04:13:29 -0400
-Date: Fri, 2 Sep 2005 01:12:52 -0700
-From: Greg KH <greg@kroah.com>
-To: Rajat Jain <rajat.noida.india@gmail.com>
-Cc: Linux-newbie@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net,
-       acpi-devel@lists.sourceforge.net, pcihpd-discuss@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org,
-       dkumar@noida.hcltech.com, sanjayku@noida.hcltech.com
-Subject: Re: ACPI problem with PCI Express Native Hot-plug driver
-Message-ID: <20050902081252.GA11567@kroah.com>
-References: <b115cb5f0509020057741365dc@mail.gmail.com>
+	Fri, 2 Sep 2005 04:23:33 -0400
+Received: from baythorne.infradead.org ([81.187.2.161]:50060 "EHLO
+	baythorne.infradead.org") by vger.kernel.org with ESMTP
+	id S1750851AbVIBIXc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 04:23:32 -0400
+Subject: Re: empty patch-2.6.13-git? patches on ftp.kernel.org
+From: David Woodhouse <dwmw2@infradead.org>
+To: Tomasz =?ISO-8859-1?Q?K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
+Cc: git@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <Pine.BSO.4.62.0508311527340.10416@rudy.mif.pg.gda.pl>
+References: <Pine.BSO.4.62.0508311527340.10416@rudy.mif.pg.gda.pl>
+Content-Type: text/plain; charset=UTF-8
+Date: Fri, 02 Sep 2005 09:23:09 +0100
+Message-Id: <1125649389.6928.19.camel@baythorne.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b115cb5f0509020057741365dc@mail.gmail.com>
-User-Agent: Mutt/1.5.10i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 02, 2005 at 04:57:33PM +0900, Rajat Jain wrote:
-> Hi,
-> 
-> I'm using RHEL4 kernel (2.6.9), and am trying to make PCI Express
-> Native Hot-plug driver (pciehp) work on my system (My system has two
-> hot-pluggable PCI Express slots). I am facing following problem, and
-> would really appreciate if any one can provide any info regarding this
-> problem.
+On Wed, 2005-08-31 at 15:34 +0200, Tomasz K³oczko wrote:
+> Seems patches stored on ftp://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots
+> are empty (only logs are correct):
 
-Can you try 2.6.13?  It is much improved in the pciehp area than 2.6.9.
+> -rw-r--r--    1 536      536            20 Aug 30 09:01 patch-2.6.13-git1.gz
+> -rw-r--r--    1 536      536            20 Aug 31 09:01 patch-2.6.13-git2.gz
 
-thanks,
+Hm. git-diff-cache now refuses to operate unless there's a local
+'.git/refs' directory, even when working with a separate object
+directory. So this doesn't work any more...
 
-greg k-h
+	rm -rf tmp-empty-tree
+	mkdir -p tmp-empty-tree/.git
+	cd tmp-empty-tree
+
+	git-read-tree $CURCOMM
+	git-checkout-cache Makefile
+	perl -pi -e "s/EXTRAVERSION =.*/EXTRAVERSION = $EXTRAVERSION/" Makefile
+	git-diff-cache -m -p $RELTREE | gzip -9 > $STAGE/patch-$CURNAME.gz
+
+I've changed the script to create 'tmp-empty-tree/.git/refs' and
+replaced 2.6.13-git[12] with real patches.
+
+> Also it will be good move all patch-2.6.12* and patch-2.6.13-rc* files 
+> from this directory to old subdirectory.
+
+Done.
+
+-- 
+dwmw2
+
+

@@ -1,55 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750823AbVIBSfQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750841AbVIBSha@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750823AbVIBSfQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 14:35:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750831AbVIBSfQ
+	id S1750841AbVIBSha (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 14:37:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750781AbVIBSha
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 14:35:16 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:25047 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750823AbVIBSfO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 14:35:14 -0400
-Subject: Re: IDE HPA
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: pjones@redhat.com
-Cc: "ATARAID (eg, Promise Fasttrak, Highpoint 370) related discussions" 
-	<ataraid-list@redhat.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1125684567.31292.2.camel@localhost.localdomain>
-References: <87941b4c05082913101e15ddda@mail.gmail.com>
-	 <87941b4c05083008523cddbb2a@mail.gmail.com>
-	 <1125419927.8276.32.camel@localhost.localdomain>
-	 <87941b4c050830095111bf484e@mail.gmail.com>
-	 <62b0912f0509020027212e6c42@mail.gmail.com>
-	 <1125666332.30867.10.camel@localhost.localdomain>
-	 <62b0912f05090206331d04afd3@mail.gmail.com>
-	 <E1EBCdS-00064p-00@chiark.greenend.org.uk>
-	 <62b0912f05090209242ad72321@mail.gmail.com>
-	 <1125680712.30867.20.camel@localhost.localdomain>
-	 <62b0912f05090210441d3fa248@mail.gmail.com>
-	 <1125684567.31292.2.camel@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 02 Sep 2005 19:59:17 +0100
-Message-Id: <1125687557.30867.26.camel@localhost.localdomain>
+	Fri, 2 Sep 2005 14:37:30 -0400
+Received: from yakov.inr.ac.ru ([194.67.69.111]:51896 "HELO yakov.inr.ac.ru")
+	by vger.kernel.org with SMTP id S1750778AbVIBSh3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 14:37:29 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=ms2.inr.ac.ru;
+  b=XSSaaPEn4u7qwRTqhmMgfImx1Wk04sUJp/Y4hon+lwKRHqUs8TPxv5J3BBN9kd1ahSVyzmecyBk2KwDJuGM/2W0tyL7lmVSkDd6w4isu9H6te44oWpi/lZA4mUIQPObyxF9SYQHj4XyAnQsgmFDHkvKy6TmMgVUkeCl053fEgQY=;
+Date: Fri, 2 Sep 2005 22:36:56 +0400
+From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+To: Ion Badulescu <lists@limebrokerage.com>
+Cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: Possible BUG in IPv4 TCP window handling, all recent 2.4.x/2.6.x kernels
+Message-ID: <20050902183656.GA16537@yakov.inr.ac.ru>
+References: <Pine.LNX.4.61.0509011713240.6083@guppy.limebrokerage.com> <20050901.154300.118239765.davem@davemloft.net> <Pine.LNX.4.61.0509011845040.6083@guppy.limebrokerage.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0509011845040.6083@guppy.limebrokerage.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2005-09-02 at 14:09 -0400, Peter Jones wrote:
-> (if there's already a straightforward way, feel free to clue me in --
-> but the default should almost certainly be to assume the HPA is set up
-> correctly, shouldn't it?)
+Hello!
 
-The normal use of HPA is to clip drives to get them past BIOS boot
-checks. The thinkpads come with a pre-installed partition table which
-will protect the HPA unless the user goes to town removing it.
+> This is where things start going bad. The window starts shrinking from 
+> 15340 all the way down to 2355 over the course of 0.3 seconds. Notice the 
+> many duplicate acks that serve no purpose
 
-The ideal case would be that the partition table is considered at boot
-to see if the HPA matches the partitiont table or not. You'd also then
-need dynamic HPA enable/disable for installers and other tools to go
-with that.
+These are not duplicate, TCP_NODELAY sender just starts flooding
+tiny segments, and those are normal ACKs acking those segments, note
+ACK field is not the same.
 
-Send patches.
+> Five minutes later the TCP window is still at 2355,
+....
+> We are kind of stumped at this point, and it's proving to be a 
+> show-stopping bug for our purposes, especially over WAN links that have 
+> higher latency (for obvious reasons). Any kind of assistance would be 
+> greatly appreciated.
+
+I still do not know how the value of 184 is possible in your case,
+I would expect 730 as an absolute possible minumum. I see 9420 (2355*4).
+Anyway, ignoring this puzzle, the following patch for 2.4 should help.
+
+
+--- net/ipv4/tcp_input.c.orig	2003-02-20 20:38:39.000000000 +0300
++++ net/ipv4/tcp_input.c	2005-09-02 22:28:00.845952888 +0400
+@@ -343,8 +343,6 @@
+ 			app_win -= tp->ack.rcv_mss;
+ 		app_win = max(app_win, 2U*tp->advmss);
+ 
+-		if (!ofo_win)
+-			tp->window_clamp = min(tp->window_clamp, app_win);
+ 		tp->rcv_ssthresh = min(tp->window_clamp, 2U*tp->advmss);
+ 	}
+ }
 

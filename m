@@ -1,57 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161109AbVIBXR3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751127AbVIBXYg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161109AbVIBXR3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 19:17:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161123AbVIBXR3
+	id S1751127AbVIBXYg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 19:24:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751037AbVIBXYg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 19:17:29 -0400
-Received: from wproxy.gmail.com ([64.233.184.205]:63135 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161109AbVIBXR3 convert rfc822-to-8bit
+	Fri, 2 Sep 2005 19:24:36 -0400
+Received: from terminus.zytor.com ([209.128.68.124]:3278 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751127AbVIBXYf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 19:17:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Oz46xucjja4dY1nZsNK4f6WDBjt2EA4LlpCxI1nDZoZv9eT/ngJ3W1BApFwqXUxs9rldXZXoOaF6zNeSiMFMJH5VTs4fwnwgA//VS9GXWKEHmBiX1hkBdhcZqRKE1LqO1DnQpDfVAu96Q86h4ia72PbKdeTaUGPtDd4+eyfNAqQ=
-Message-ID: <e646715805090216174859f95d@mail.gmail.com>
-Date: Fri, 2 Sep 2005 18:17:24 -0500
-From: Sabuj Pattanayek <sabujp@gmail.com>
-Reply-To: sabujp@gmail.com
-To: linux-kernel@vger.kernel.org
-Subject: Re: Inconsistent kallsyms data error near the end of make in the linux kernel-2.6.13
-In-Reply-To: <1125619916.431798cced77b@webmail.grupopie.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <e6467158050901170059d5c53c@mail.gmail.com>
-	 <1125619916.431798cced77b@webmail.grupopie.com>
+	Fri, 2 Sep 2005 19:24:35 -0400
+Message-ID: <4318DF26.5060707@zytor.com>
+Date: Fri, 02 Sep 2005 16:24:22 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kyle Moffett <mrmacman_g4@mac.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Splitting out kernel<=>userspace ABI headers
+References: <C670AD22-97CF-46AA-A527-965036D78667@mac.com> <20050902214231.GA10230@ccure.user-mode-linux.org> <dfahpa$an2$1@terminus.zytor.com> <9F74838E-651D-4952-BD7C-63B09D76F743@mac.com>
+In-Reply-To: <9F74838E-651D-4952-BD7C-63B09D76F743@mac.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks, that worked for this system.
+Kyle Moffett wrote:
+> 
+> My far-into-the-future ideal for this is to have a generic vDSO-type
+> library that is compiled into the kernel that provides a collection of
+> architecture-optimized routines available in both kernelspace and
+> userspace by mapping it into each process' address space.  Such a
+> library could effectively automatically provide correct and optimized
+> assembly routines for the currently booted CPU/arch/subarch/etc, so
+> that userspace tools could be compiled once and run on an entire
+> family of CPUs without modification.  On the other hand, for those
+> applications that need every last ounce of speed (Including parts of
+> the kernel), you could pass appropriate options to the compiler to
+> tell it to inline the assembly routines (alternative) for a single
+> CPU make/model.
+> 
 
-On 9/1/05, pmarques@grupopie.com <pmarques@grupopie.com> wrote:
-> Quoting Sabuj Pattanayek <sabujp@gmail.com>:
-> 
-> > Hi all,
-> 
-> Hi, Sabuj
-> 
-> > I'm posting a bug as directed by REPORTING-BUGS in the kernel sources.
-> >
-> > PROBLEM: Inconsistent kallsyms data error near the end of make in the linux
-> > kernel-2.6.13 .
-> 
-> This is probably a known problem.
-> 
-> Please check this thread:
-> 
-> http://lkml.org/lkml/2005/8/31/129
-> 
-> and use the patch I posted there.
-> 
-> I hope this helps,
-> 
-> --
-> Paulo Marques
+I don't see why this should be compiled into the kernel.
+
+	-hpa

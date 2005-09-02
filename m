@@ -1,49 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161052AbVIBVZs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161054AbVIBV0P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161052AbVIBVZs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 17:25:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161054AbVIBVZs
+	id S1161054AbVIBV0P (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 17:26:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161053AbVIBV0P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 17:25:48 -0400
-Received: from mail.kroah.org ([69.55.234.183]:51085 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1161053AbVIBVZr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 17:25:47 -0400
-Date: Fri, 2 Sep 2005 08:53:39 -0700
-From: Greg KH <greg@kroah.com>
-To: iSteve <isteve@rulez.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SysFS, module names and .name
-Message-ID: <20050902155338.GA13648@kroah.com>
-References: <43176488.2080608@rulez.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43176488.2080608@rulez.cz>
-User-Agent: Mutt/1.5.10i
+	Fri, 2 Sep 2005 17:26:15 -0400
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:63054 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1161054AbVIBV0N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 17:26:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=5foVIg+WQzS/ktGU70KaGqtVRIzeoGcWdh0e3bCBjFs6skdCF3Nvs1kz7KCqQXvPOkIdzkU0MnYjcz9vAMhFg+YeUvFRqJiBZ3a8x5Bfm+UniV1RYhJlfw5qubSIj60h9Gic8sZhl5Ie+l9/kH2E9Irqh8YCL9lJc2LGvVO8NxI=  ;
+Message-ID: <4318C395.1080203@yahoo.com.au>
+Date: Sat, 03 Sep 2005 07:26:45 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Christoph Lameter <clameter@engr.sgi.com>
+CC: Linux Memory Management <linux-mm@kvack.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6.13] lockless pagecache 2/7
+References: <4317F071.1070403@yahoo.com.au> <4317F0F9.1080602@yahoo.com.au> <4317F136.4040601@yahoo.com.au> <Pine.LNX.4.62.0509021123290.15836@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.62.0509021123290.15836@schroedinger.engr.sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 01, 2005 at 10:28:56PM +0200, iSteve wrote:
-> Greetings,
-> in sysfs, /sys/bus/*/drivers lists the driver names, with their exported 
-> .name (eg. '.name = "EMU10K1_Audigy"' in the module code, from now on 
-> 'driver name'). In /sys/modules, the kernel modules are listed with 
-> their module name, eg. snd_emu10k1. However, it seems to me that in 
-> sysfs, there is no way in particular to tell, which module has which 
-> .name. That is, that snd_emu10k1 is EMU10K1_Audigy and vice versa.
+Christoph Lameter wrote:
+> On Fri, 2 Sep 2005, Nick Piggin wrote:
 > 
-> I wonder whether it wouldn't be possible to add a symlink to the 
-> particular module from the driver, and/or from the module to the driver, 
-> so the list of devices handled by the module and the module name would 
-> be accessible. This way, I would know which driver name corresponds to 
-> which module name and vice versa.
+> 
+>>Implement atomic_cmpxchg for i386 and ppc64. Is there any
+>>architecture that won't be able to implement such an operation?
+> 
+> 
+> Something like that used to be part of the page fault scalability 
+> patchset. You contributed to it last year. Here is the latest version of 
+> that. May need some work though.
+> 
 
-It's already automatically created for some bus drivers (like USB).  I
-had a simple patch to enable this for PCI, but haven't gotten around to
-changing every single pci driver to enable it.  If you want to do so,
-it isn't tough at all.
+Thanks Christoph, I think this will be required to support 386.
+In the worst case, we could provide a fallback path and take
+->tree_lock in pagecache lookups if there is no atomic_cmpxchg,
+however I would much prefer all architectures get an atomic_cmpxchg,
+and I think it should turn out to be a generally useful primitive.
 
-thanks,
+I may trim this down to only provide what is needed for atomic_cmpxchg
+if that is OK?
 
-greg k-h
+Nick
+
+-- 
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

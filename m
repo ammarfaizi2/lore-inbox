@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030658AbVIBCae@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030655AbVIBC31@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030658AbVIBCae (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 22:30:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030659AbVIBCae
+	id S1030655AbVIBC31 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 22:29:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030657AbVIBC31
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 22:30:34 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:64979 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030658AbVIBCad (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 22:30:33 -0400
-Date: Thu, 1 Sep 2005 19:28:40 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: hyoshiok@miraclelinux.com, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH] cache pollution aware __copy_from_user_ll()
-Message-Id: <20050901192840.0406862e.akpm@osdl.org>
-In-Reply-To: <200509020417.10574.ak@suse.de>
-References: <20050825.135420.640917643.hyoshiok@miraclelinux.com>
-	<20050902.104359.26944961.hyoshiok@miraclelinux.com>
-	<20050901190846.479229cf.akpm@osdl.org>
-	<200509020417.10574.ak@suse.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 1 Sep 2005 22:29:27 -0400
+Received: from wproxy.gmail.com ([64.233.184.200]:12168 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030655AbVIBC30 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 22:29:26 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=AXn/FRqBm1r/ErMsN9bS+dWh2syQvMqH6IHLosyWZPwm7qtT53kLcfgjVxJlq0c3UHMSDOgCMH+XgzBnDgRJdcEv9ARwXBpji9dI6w9/26mFi1qs0LYlbCk9vp3RQ3jf1juavmM/uAA4eVNfbaZ+A/IU+0HOGNqby4nZzXJsNbc=
+Message-ID: <67029b17050901192933f9618@mail.gmail.com>
+Date: Fri, 2 Sep 2005 10:29:12 +0800
+From: Zhou Yingchao <yingchao.zhou@gmail.com>
+Reply-To: yingchao.zhou@gmail.com
+To: "liyu@WAN" <liyu@ccoss.com.cn>
+Subject: Re: [Q] how to use syslogd to debug kernel ?
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <4317B309.3000404@ccoss.com.cn>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <4317B309.3000404@ccoss.com.cn>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> wrote:
->
-> On Friday 02 September 2005 04:08, Andrew Morton wrote:
+On 9/2/05, liyu@WAN <liyu@ccoss.com.cn> wrote:
+> Hi, everyone.
 > 
-> > I suppose I'll queue it up in -mm for a while, although I'm a bit dubious
-> > about the whole idea...  We'll gain some and we'll lose some - how do we
-> > know it's a net gain?
-> 
-> I suspect it'll gain more than it loses. The only case where it might 
-> not gain is immediately someone reading the data from the page cache again
-> after the write.
+>    I know kernel oops can be seen by run 'dmesg', but if
+> kernel crashed, we can not run it.   so I reconfigure syslogd
+> to support remote forward, the debug machine content of
+> syslogd.conf is:
 
-That's a pretty common case - temporary files.
+When the panic is called, the network system cannt working, no
+message will be sent. The panic is only designed to print at least
+ oops message on the screen. 
+For debug through ethernet, I suggest you to try KGDB, which consist
+a patch to debug over ethernet. 
 
-> But I suppose that's far less frequent than writing the data.
-
-yup.
-
-Hiro, could you please send through a summary of the performance testing
-results sometime?  Runtimes rather than oprofile output?
+-- 
+Yingchao Zhou

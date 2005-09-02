@@ -1,57 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030619AbVIBA6s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030622AbVIBBF5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030619AbVIBA6s (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 20:58:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030620AbVIBA6r
+	id S1030622AbVIBBF5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 21:05:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030623AbVIBBF5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 20:58:47 -0400
-Received: from fmr18.intel.com ([134.134.136.17]:10222 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1030619AbVIBA6r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 20:58:47 -0400
-Subject: RE: [RFC/PATCH]reconfigure MSI registers after resume
-From: Shaohua Li <shaohua.li@intel.com>
-To: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-Cc: Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>,
-       akpm <akpm@osdl.org>
-In-Reply-To: <C7AB9DA4D0B1F344BF2489FA165E502409A1201A@orsmsx404.amr.corp.intel.com>
-References: <C7AB9DA4D0B1F344BF2489FA165E502409A1201A@orsmsx404.amr.corp.intel.com>
-Content-Type: text/plain
-Date: Fri, 02 Sep 2005 09:03:13 +0800
-Message-Id: <1125622993.4010.6.camel@linux-hp.sh.intel.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+	Thu, 1 Sep 2005 21:05:57 -0400
+Received: from mail01.solnet.ch ([212.101.4.135]:30728 "EHLO mail01.solnet.ch")
+	by vger.kernel.org with ESMTP id S1030622AbVIBBF5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 21:05:57 -0400
+From: Damir Perisa <damir.perisa@solnet.ch>
+To: Alan Cox <alan@redhat.com>, Andrew Morton <akpm@osdl.org>
+Subject: 2.6.13-mm1 - drivers/serial/jsm/jsm_tty broken too
+Date: Fri, 2 Sep 2005 03:05:42 +0200
+User-Agent: KMail/1.8.2
+References: <20050901035542.1c621af6.akpm@osdl.org> <200509011941.07104.damir.perisa@solnet.ch>
+In-Reply-To: <200509011941.07104.damir.perisa@solnet.ch>
+X-Face: +)fhYFmn|<pyRIlgch_);krg#jn!^z'?xy(Ur#Z6rZi)KD+_-V<Y@i>0pOVfJ4<=?utf-8?q?Q1/=26/=26z=0A=093cxqRa=3B7O=5C4g=5C=7C=5DF-!H0!ew9kx1LqK/iP?=
+ =?utf-8?q?Ov8eXi=26I7=60Pez0V0VNMAxnqRL8-30qqKK=3DxGM=0A=09pExQc=5B2=7C?=
+ =?utf-8?q?l6v=23?=<iwBvEO9+h|_YS[48z%/kuD2*aT*S/$0323VCL3V9?@}jq<
+ =?utf-8?q?Ns6V=3A0m=27Qia=0A=09?="[#oJg[RVe}Sy/lP95E@pa[vdKzqLqn&M`exb91"`,<k`3;Vt97cLjhub0.v+]m`%|>@Z(
+ =?utf-8?q?=0A=09EeC/zU7=25?=@"L6mi#..8Q^M
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Alanine: true
+Glycine: true
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2778784.vLgtkrm9QS";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200509020305.45894.damir.perisa@solnet.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-09-01 at 23:20 +0800, Nguyen, Tom L wrote:
-> On Wednesday, August 31, 2005 2:44 PM Greg KH wrote:
-> >>On Thu, Aug 18, 2005 at 01:35:46PM +0800, Shaohua Li wrote:
-> >> Hi,
-> >> It appears pci_enable_msi doesn't reconfigure msi registers if it
-> >> successfully look up a msi for a device. It assumes the data and
-> address
-> >> registers unchanged after calling pci_disable_msi. But this isn't
-> always
-> >> true, such as in a suspend/resume circle. In my test system, the
-> >> registers unsurprised become zero after a S3 resume. This patch fixes
-> my
-> >> problem, please look at it. MSIX might have the same issue, but I
-> >> haven't taken a close look.
-> 
-> > Tom, any comments on this?
-> 
-> In the cases of suspend/resume, a device driver needs to restore its PCI
-> configuration space registers, which include the MSI/MSI-X capability
-> structures if a device uses MSI/MSI-X. I think reconfiguring MSI
-> data/address each time a driver calls pci_enable_msi may not be
-> necessary.
-Just when you called pci_disable_msi, reconfiguring MSI registers should
-be done. Is there any pain of reconfiguring MSI registers?
-I don't understand why should we have the assumption. If you disabled
-the ability, you must reconfigure it to me. This is the easy logic.
+--nextPart2778784.vLgtkrm9QS
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Thanks,
-Shaohua
+i disabled the isdn subsystem temporarely and tried to recompile=20
+finding out that jsm-tty is affected too:
 
+ CC [M]  drivers/serial/jsm/jsm_tty.o
+drivers/serial/jsm/jsm_tty.c: In function 'jsm_input':
+drivers/serial/jsm/jsm_tty.c:592: error: 'struct tty_struct' has no member =
+named 'flip'
+drivers/serial/jsm/jsm_tty.c:619: error: 'struct tty_struct' has no member =
+named 'flip'
+drivers/serial/jsm/jsm_tty.c:620: error: 'struct tty_struct' has no member =
+named 'flip'
+drivers/serial/jsm/jsm_tty.c:623: error: 'struct tty_struct' has no member =
+named 'flip'
+drivers/serial/jsm/jsm_tty.c:624: error: 'struct tty_struct' has no member =
+named 'flip'
+drivers/serial/jsm/jsm_tty.c:667: error: 'struct tty_struct' has no member =
+named 'flip'
+drivers/serial/jsm/jsm_tty.c:668: error: 'struct tty_struct' has no member =
+named 'flip'
+drivers/serial/jsm/jsm_tty.c:669: error: 'struct tty_struct' has no member =
+named 'flip'
+drivers/serial/jsm/jsm_tty.c:670: error: 'struct tty_struct' has no member =
+named 'flip'
+drivers/serial/jsm/jsm_tty.c:671: error: 'struct tty_struct' has no member =
+named 'flip'
+drivers/serial/jsm/jsm_tty.c:672: error: 'struct tty_struct' has no member =
+named 'flip'
+drivers/serial/jsm/jsm_tty.c:674: error: 'struct tty_struct' has no member =
+named 'flip'
+drivers/serial/jsm/jsm_tty.c:677: error: 'struct tty_struct' has no member =
+named 'flip'
+drivers/serial/jsm/jsm_tty.c:677: error: 'struct tty_struct' has no member =
+named 'flip'
+drivers/serial/jsm/jsm_tty.c:677: error: 'struct tty_struct' has no member =
+named 'flip'
+drivers/serial/jsm/jsm_tty.c:677: error: 'struct tty_struct' has no member =
+named 'flip'
+drivers/serial/jsm/jsm_tty.c:680: error: 'struct tty_struct' has no member =
+named 'flip'
+drivers/serial/jsm/jsm_tty.c:681: error: 'struct tty_struct' has no member =
+named 'flip'
+drivers/serial/jsm/jsm_tty.c:682: error: 'struct tty_struct' has no member =
+named 'flip'
+drivers/serial/jsm/jsm_tty.c:691: error: 'struct tty_struct' has no member =
+named 'flip'
+drivers/serial/jsm/jsm_tty.c:692: error: 'struct tty_struct' has no member =
+named 'flip'
+drivers/serial/jsm/jsm_tty.c:693: error: 'struct tty_struct' has no member =
+named 'flip'
+drivers/serial/jsm/jsm_tty.c:694: error: 'struct tty_struct' has no member =
+named 'flip'
+drivers/serial/jsm/jsm_tty.c:695: error: 'struct tty_struct' has no member =
+named 'flip'
+drivers/serial/jsm/jsm_tty.c:696: error: 'struct tty_struct' has no member =
+named 'flip'
+drivers/serial/jsm/jsm_tty.c:698: error: 'struct tty_struct' has no member =
+named 'flip'
+drivers/serial/jsm/jsm_tty.c:701: error: 'struct tty_struct' has no member =
+named 'flip'
+drivers/serial/jsm/jsm_tty.c:701: error: 'struct tty_struct' has no member =
+named 'flip'
+drivers/serial/jsm/jsm_tty.c:701: error: 'struct tty_struct' has no member =
+named 'flip'
+drivers/serial/jsm/jsm_tty.c:701: error: 'struct tty_struct' has no member =
+named 'flip'
+drivers/serial/jsm/jsm_tty.c:742: error: 'struct tty_struct' has no member =
+named 'flip'
+drivers/serial/jsm/jsm_tty.c:742: error: 'struct tty_struct' has no member =
+named 'flip'
+make[3]: *** [drivers/serial/jsm/jsm_tty.o] Error 1
+make[2]: *** [drivers/serial/jsm] Error 2
+make[1]: *** [drivers/serial] Error 2
+make: *** [drivers] Error 2
+
+hope that this tty breaks will be fixed in mm2
+
+greetings,
+Damir
+
+=2D-=20
+It would save me a lot of time if you just gave up and went mad now.
+
+--nextPart2778784.vLgtkrm9QS
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBDF6VpPABWKV6NProRAhv6AJ9X3v1StppaC3rPhmSu4TU42+toIQCfTRVM
+nAr/gnTAFFst4z1nlm54Z1s=
+=CNKn
+-----END PGP SIGNATURE-----
+
+--nextPart2778784.vLgtkrm9QS--

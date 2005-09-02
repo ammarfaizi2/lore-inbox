@@ -1,56 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161116AbVIBXKq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161115AbVIBXOf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161116AbVIBXKq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 19:10:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161122AbVIBXKq
+	id S1161115AbVIBXOf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 19:14:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161121AbVIBXOf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 19:10:46 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:52616 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S1161116AbVIBXKo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 19:10:44 -0400
-Date: Sat, 3 Sep 2005 00:54:25 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: netdev@vger.kernel.org
-Cc: pascal.chapperon@wanadoo.fr, lars.vahlenberg@mandator.com,
-       Alexey Dobriyan <adobriyan@gmail.com>, apatard@mandriva.com,
-       jgarzik@pobox.com, akpm@osdl.org
-Subject: [patch 2.6.13-git3 1/5] sis190: unmask the link change events
-Message-ID: <20050902225425.GB25687@electric-eye.fr.zoreil.com>
-References: <20050902225224.GA25687@electric-eye.fr.zoreil.com>
+	Fri, 2 Sep 2005 19:14:35 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:15233 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1161115AbVIBXOe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 19:14:34 -0400
+Date: Fri, 2 Sep 2005 19:14:23 -0400
+From: Dave Jones <davej@redhat.com>
+To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: agp_backend_initialize() failed on ServerWorks CNB20LE
+Message-ID: <20050902231423.GD24062@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
+	linux-kernel@vger.kernel.org
+References: <1957123248.20050902232139@dns.toxicfilms.tv>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050902225224.GA25687@electric-eye.fr.zoreil.com>
+In-Reply-To: <1957123248.20050902232139@dns.toxicfilms.tv>
 User-Agent: Mutt/1.4.2.1i
-X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-link changes reporting does not work when the driver masks its irq event
+On Fri, Sep 02, 2005 at 11:21:39PM +0200, Maciej Soltysiak wrote:
+ > Hello,
+ > 
+ > On a server with ServerWorks CNB20LE and CONFIG_AGP_SWORKS enabled
+ > I get these upon bootup:
+ > Linux agpgart interface v0.101 (c) Dave Jones
+ > agpgart: unable to determine aperture size.
+ > agpgart: agp_backend_initialize() failed.
+ > agpgart-serverworks: probe of 0000:00:00.0 failed with error -22
+ > agpgart: unable to determine aperture size.
+ > agpgart: agp_backend_initialize() failed.
+ > agpgart-serverworks: probe of 0000:00:00.1 failed with error -22
 
-Signed-off-by: Arnaud Patard <apatard@mandriva.com>
-Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
+Every time I've seen this reported so far, its turned out that the board
+doesn't actually have an AGP slot. Is this case here too ?
 
-diff -puN a/drivers/net/sis190.c~sis190-170 b/drivers/net/sis190.c
---- a/drivers/net/sis190.c~sis190-170	2005-09-02 23:27:18.621147267 +0200
-+++ b/drivers/net/sis190.c	2005-09-02 23:27:18.643143712 +0200
-@@ -360,7 +360,7 @@ MODULE_VERSION(DRV_VERSION);
- MODULE_LICENSE("GPL");
- 
- static const u32 sis190_intr_mask =
--	RxQEmpty | RxQInt | TxQ1Int | TxQ0Int | RxHalt | TxHalt;
-+	RxQEmpty | RxQInt | TxQ1Int | TxQ0Int | RxHalt | TxHalt | LinkChange;
- 
- /*
-  * Maximum number of multicast addresses to filter (vs. Rx-all-multicast).
-@@ -923,6 +923,7 @@ static void sis190_phy_task(void * data)
- 		     BMSR_ANEGCOMPLETE)) {
- 		net_link(tp, KERN_WARNING "%s: PHY reset until link up.\n",
- 			 dev->name);
-+		netif_carrier_off(dev);
- 		mdio_write(ioaddr, phy_id, MII_BMCR, val | BMCR_RESET);
- 		mod_timer(&tp->timer, jiffies + SIS190_PHY_TIMEOUT);
- 	} else {
+Documentation on serverworks chipsets is as good as non-existant,
+so there's not a great deal we can do here.
 
-_
+ > The only problems I have that *may* be related to these messages is the
+ > fact that when I boot into X and try to switch to a text console, the
+ > screen gets garbled and freezes, the server works fine besides the
+ > screen throwing trash at me.
+
+Likely completely unrelated. agpgart is used only for accelerated 3d.
+
+		Dave
+

@@ -1,73 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030419AbVIBOaW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030499AbVIBOdn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030419AbVIBOaW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 10:30:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030446AbVIBOaV
+	id S1030499AbVIBOdn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 10:33:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030521AbVIBOdm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 10:30:21 -0400
-Received: from mailfe09.tele2.se ([212.247.155.1]:28875 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S1030419AbVIBOaV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 10:30:21 -0400
-X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
-Date: Fri, 2 Sep 2005 16:30:12 +0200
-From: Alexander Nyberg <alexn@telia.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Subject: Re: 2.6.13-mm1
-Message-ID: <20050902143012.GA18532@localhost.localdomain>
-References: <20050901035542.1c621af6.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050901035542.1c621af6.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+	Fri, 2 Sep 2005 10:33:42 -0400
+Received: from gw1.cosmosbay.com ([62.23.185.226]:48522 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S1030499AbVIBOdm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 10:33:42 -0400
+Message-ID: <431862C0.7040305@cosmosbay.com>
+Date: Fri, 02 Sep 2005 16:33:36 +0200
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Rick Warner <rick@microway.com>
+CC: linux-kernel@vger.kernel.org, eliot@microway.com
+Subject: Re: latency doubled on tg3 device from 2.6.11 to 2.6.12
+References: <200509011730.51990.rick@microway.com> <431776C5.9070709@cosmosbay.com> <200509020956.00690.rick@microway.com>
+In-Reply-To: <200509020956.00690.rick@microway.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Fri, 02 Sep 2005 16:33:37 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 01, 2005 at 03:55:42AM -0700 Andrew Morton wrote:
-
+Rick Warner a écrit :
+> On Thursday 01 September 2005 05:46 pm, Eric Dumazet wrote:
 > 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13/2.6.13-mm1/
+>>Rick Warner a écrit :
+>>
+>>>Hello,
+>>> We have been testing latency and bandwidth using our proprietary MPI
+>>>link checker tool (http://www.microway.com/mpilinkchecker.html) and have
+>>>found that the latency increased from ~25ms to ~45ms going from 2.6.11 to
+>>>2.6.12. 2.6.13 has the same result.  We also tried the latest bcm5700
+>>>from broadcom (8.2.18) and got the same ~45ms latencies.  This was tried
+>>>on several different opteron and em64t motherboards.
+>>>
+>>> We see 20-25ms latencies with the e1000 driver (with some module
+>>>options) on all 3 kernel versions.  For those interested, the e1000
+>>>options used are:
+>>>
+>>> InterruptThrottleRate=0 RxIntDelay=0 TxIntDelay=0 RxAbsIntDelay=0
+>>>TxAbsIntDelay=0
+>>>
+>>> Digging through source, it seems that a new locking mechanism for tg3
+>>>was put in place in 2.6.12.  Is this the likely cause?  What can we do to
+>>>restore our lower latency?
+>>
+>>Could you please define latency ?
+>>
+>>tg3 driver was recently updated to use coalescing.
+>>
+>>So when the nic receives one frame, it may delay up to XXXX us ( XXXX <
+>>1024) the interrupt.
+>>
+>>But 25 ms is far more than 1024 us, so I dont think this coalescing can
+>>explain your problem.
+>>
+>>The HZ change from 1000 to 250 could be the root of the problem ?
+>>
+>>Using a simple ping between 2 machines with tg3, I get less than 1ms time.
+>>
+>>Eric
+> 
+> 
+> Our mpi link checker tool does a 1 way transfer of a 0 byte message (+ header) 
+> and times it to each system (in addition to other tests).  All systems in a 
+> cluster are showing the same high latency.  The numbers I gave were supposed 
+> to be us, I used the wrong unit by accident.
+> 
+> Low latency is often essential to clustered applications.  While a delay of up 
+> to 1024 us doesn't affect regular communications too much, it may severely 
+> affect mpi jobs.
+> 
+> Thanks.
 > 
 
-i386-boottime-for_each_cpu-broken.patch
-i386-boottime-for_each_cpu-broken-fix.patch
+OK
 
-The SMP version of __alloc_percpu checks the cpu_possible_map
-before allocating memory for a certain cpu. With the above patches
-the BSP cpuid is never set in cpu_possible_map which breaks CONFIG_SMP
-on uniprocessor machines (as soon as someone tries to dereference
-something allocated via __alloc_percpu, which in fact is never allocated
-since the cpu is not set in cpu_possible_map).
+tg3 driver set a rx-usecs of 20us per default.
+This is certainly the root of your problem.
 
-The below fixes this, I'm not entirely sure about the voyager
-part, should the cpu_possible_map really be CPU_MASK_ALL to begin
-with there, Zwane?
+Try to lower it on mpi links ?
 
-Signed-off-by: Alexander Nyberg <alexn@telia.com>
+ethtool -C eth0 rx-usecs 0
 
-Index: mm/arch/i386/kernel/smpboot.c
-===================================================================
---- mm.orig/arch/i386/kernel/smpboot.c	2005-09-02 15:28:20.000000000 +0200
-+++ mm/arch/i386/kernel/smpboot.c	2005-09-02 16:16:46.000000000 +0200
-@@ -1265,6 +1265,7 @@
- 	cpu_set(smp_processor_id(), cpu_online_map);
- 	cpu_set(smp_processor_id(), cpu_callout_map);
- 	cpu_set(smp_processor_id(), cpu_present_map);
-+	cpu_set(smp_processor_id(), cpu_possible_map);
- 	per_cpu(cpu_state, smp_processor_id()) = CPU_ONLINE;
- }
- 
-Index: mm/arch/i386/mach-voyager/voyager_smp.c
-===================================================================
---- mm.orig/arch/i386/mach-voyager/voyager_smp.c	2005-09-02 15:28:20.000000000 +0200
-+++ mm/arch/i386/mach-voyager/voyager_smp.c	2005-09-02 16:17:29.000000000 +0200
-@@ -1910,6 +1910,7 @@
- {
- 	cpu_set(smp_processor_id(), cpu_online_map);
- 	cpu_set(smp_processor_id(), cpu_callout_map);
-+	cpu_set(smp_processor_id(), cpu_possible_map);
- }
- 
- int __devinit
+Eric

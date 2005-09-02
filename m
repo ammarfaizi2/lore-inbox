@@ -1,64 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030644AbVIBBxj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030265AbVIBB5D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030644AbVIBBxj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Sep 2005 21:53:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030642AbVIBBxj
+	id S1030265AbVIBB5D (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Sep 2005 21:57:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030642AbVIBB5D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Sep 2005 21:53:39 -0400
-Received: from mailhub.lss.emc.com ([168.159.2.31]:17757 "EHLO
-	mailhub.lss.emc.com") by vger.kernel.org with ESMTP
-	id S1030640AbVIBBxi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Sep 2005 21:53:38 -0400
-From: Brett Russ <russb@emc.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.13] libata: fix pio_mask values (take 2)
-References: <20050830190309.E14FE20F4C@lns1058.lss.emc.com>
-In-Reply-To: <20050830190309.E14FE20F4C@lns1058.lss.emc.com>
-Message-Id: <20050902015334.1ED2520F96@lns1058.lss.emc.com>
-Date: Thu,  1 Sep 2005 21:53:34 -0400 (EDT)
-X-PMX-Version: 4.7.1.128075, Antispam-Engine: 2.1.0.0, Antispam-Data: 2005.9.1.37
-X-PerlMx-Spam: Gauge=, SPAM=7%, Reasons='__HAS_MSGID 0, __MIME_TEXT_ONLY 0, __SANE_MSGID 0'
+	Thu, 1 Sep 2005 21:57:03 -0400
+Received: from smtp05.auna.com ([62.81.186.15]:26241 "EHLO smtp05.retemail.es")
+	by vger.kernel.org with ESMTP id S1030265AbVIBB5B convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Sep 2005 21:57:01 -0400
+Date: Fri, 02 Sep 2005 01:56:59 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: 2.6.13-mm1
+To: Linux-Kernel Lista <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>
+References: <fa.hqupr0d.1u3af35@ifi.uio.no> <4317AD4D.6030001@reub.net>
+In-Reply-To: <4317AD4D.6030001@reub.net> (from reuben-lkml@reub.net on Fri
+	Sep  2 03:39:25 2005)
+X-Mailer: Balsa 2.3.4
+Message-Id: <1125626219l.6072l.0l@werewolf.able.es>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+X-Auth-Info: Auth:LOGIN IP:[83.138.208.222] Login:jamagallon@able.es Fecha:Fri, 2 Sep 2005 03:57:00 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ata_get_mode_mask() uses bits 3 and 4 in the pio_mask to represent PIO
-modes 3 and 4.  The value read from the drive, which reports support
-for PIO3 and PIO4 in bits 0 and 1, is shifted left by 3 bits and OR'd
-with 0x7 (which then corresponds to PIO 2-0 in libata).  Thus, the
-drivers below need adjustments to comply with the way pio_mask is
-used.  I changed the masks from the commented values to all support
-PIO4-0, since the spec mandates that PIO0-2 are supported and there's
-no reason not to support PIO3 IMO.
 
-Signed-off-by: Brett Russ <russb@emc.com>
+On 1/09/2005 10:58 a.m., Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13/2.6.13-mm1/
+> 
+> - Included Alan's big tty layer buffering rewrite.  This breaks the build on
+>   lots of more obscure character device drivers.  Patches welcome (please cc
+>   Alan).
+> 
+
+I have problems with udev and latest -mm.
+2.6.13 boots fine, but 2.6.13-mm1 blocks when starting udev.
+System is Mandriva Cooker. As cooker, things are changing fast (initscripts,
+udev, etc), but the fact is that with the same setup, plain .13 boots
+and -mm1 blocks. Udev is 068 version.
+
+Any idea about what can be the reason ?
+
+TIA
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandriva Linux release 2006.0 (Cooker) for i586
+Linux 2.6.13 (gcc 4.0.1 (4.0.1-5mdk for Mandriva Linux release 2006.0))
 
 
-Index: linux-2.6.13/drivers/scsi/ahci.c
-===================================================================
---- linux-2.6.13.orig/drivers/scsi/ahci.c
-+++ linux-2.6.13/drivers/scsi/ahci.c
-@@ -244,7 +244,7 @@ static struct ata_port_info ahci_port_in
- 		.host_flags	= ATA_FLAG_SATA | ATA_FLAG_NO_LEGACY |
- 				  ATA_FLAG_SATA_RESET | ATA_FLAG_MMIO |
- 				  ATA_FLAG_PIO_DMA,
--		.pio_mask	= 0x03, /* pio3-4 */
-+		.pio_mask	= 0x1f, /* pio4-0 */
- 		.udma_mask	= 0x7f, /* udma0-6 ; FIXME */
- 		.port_ops	= &ahci_ops,
- 	},
-Index: linux-2.6.13/drivers/scsi/sata_uli.c
-===================================================================
---- linux-2.6.13.orig/drivers/scsi/sata_uli.c
-+++ linux-2.6.13/drivers/scsi/sata_uli.c
-@@ -120,8 +120,8 @@ static struct ata_port_info uli_port_inf
- 	.sht            = &uli_sht,
- 	.host_flags     = ATA_FLAG_SATA | ATA_FLAG_SATA_RESET |
- 			  ATA_FLAG_NO_LEGACY,
--	.pio_mask       = 0x03,		//support pio mode 4 (FIXME)
--	.udma_mask      = 0x7f,		//support udma mode 6
-+	.pio_mask       = 0x1f,		/* pio4-0 */
-+	.udma_mask      = 0x7f,		/* udma6-0 */
- 	.port_ops       = &uli_ops,
- };
- 

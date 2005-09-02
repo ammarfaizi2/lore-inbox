@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751088AbVIBUA6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751065AbVIBUDq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751088AbVIBUA6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 16:00:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbVIBUA6
+	id S1751065AbVIBUDq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 16:03:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751110AbVIBUDq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 16:00:58 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:39930 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S1751088AbVIBUA5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 16:00:57 -0400
-Subject: [PATCH] RT: set LPPTEST default to off
-From: Daniel Walker <dwalker@mvista.com>
-To: mingo@elte.hu
-Cc: trini@kernel.crashing.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Fri, 02 Sep 2005 13:00:49 -0700
-Message-Id: <1125691250.2709.2.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+	Fri, 2 Sep 2005 16:03:46 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:10712
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751065AbVIBUDo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 16:03:44 -0400
+Date: Fri, 02 Sep 2005 13:03:43 -0700 (PDT)
+Message-Id: <20050902.130343.53230378.davem@davemloft.net>
+To: alan@lxorguk.ukuu.org.uk
+Cc: viro@ZenIV.linux.org.uk, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] more of sparc32 dependencies fallout
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <1125692648.30867.35.camel@localhost.localdomain>
+References: <20050902191201.GB5155@ZenIV.linux.org.uk>
+	<1125692648.30867.35.camel@localhost.localdomain>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-6) 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] more of sparc32 dependencies fallout
+Date: Fri, 02 Sep 2005 21:24:08 +0100
 
-Set the default to off for the LPP test. Since it's not usually going
-to be used.
+> On Gwe, 2005-09-02 at 20:12 +0100, viro@ZenIV.linux.org.uk wrote:
+> >  config MOXA_SMARTIO
+> >  	tristate "Moxa SmartIO support"
+> > -	depends on SERIAL_NONSTANDARD
+> > +	depends on SERIAL_NONSTANDARD && (BROKEN || !SPARC32)
+> >  	help
+> 
+> 
+> Why mark it "BROKEN" and !SPARC32. Why not mark it (ISA || PCI) ? Its
+> only available as a plugin card and its apparently working
 
-Signed-Off-By: Daniel Walker <dwalker@mvista.com>
-
-Index: linux-2.6.13/drivers/char/Kconfig
-===================================================================
---- linux-2.6.13.orig/drivers/char/Kconfig	2005-09-01 21:25:52.000000000 +0000
-+++ linux-2.6.13/drivers/char/Kconfig	2005-09-02 16:06:59.000000000 +0000
-@@ -730,7 +730,7 @@ config BLOCKER
- config LPPTEST
- 	tristate "Parallel Port Based Latency Measurement Device"
- 	depends on !PARPORT
--	default y
-+	default n 
- 	---help---
- 	  If you say Y here then a device will be created that the userspace
- 	  testlpp utility uses to measure IRQ latencies of a target system
-
-
+He marked it BROKEN "OR" !SPARC32, not "AND".
+Also, SPARC32 supports PCI on Javastation machines.
 

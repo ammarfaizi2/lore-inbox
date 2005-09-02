@@ -1,96 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161055AbVIBVna@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161059AbVIBVni@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161055AbVIBVna (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 17:43:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161059AbVIBVna
+	id S1161059AbVIBVni (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 17:43:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161060AbVIBVnh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 17:43:30 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:49591 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161055AbVIBVn3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 17:43:29 -0400
-Date: Fri, 2 Sep 2005 14:45:52 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-mm1
-Message-Id: <20050902144552.77c92d06.akpm@osdl.org>
-In-Reply-To: <1125676407l.6262l.0l@werewolf.able.es>
-References: <fa.hqupr0d.1u3af35@ifi.uio.no>
-	<4317AD4D.6030001@reub.net>
-	<1125626219l.6072l.0l@werewolf.able.es>
-	<20050901190655.345914ba.akpm@osdl.org>
-	<1125676407l.6262l.0l@werewolf.able.es>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 2 Sep 2005 17:43:37 -0400
+Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:28802 "HELO
+	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1161059AbVIBVnh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 17:43:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=Bh8+IEoJIQLQ/kG0RiPmr1VPosTBGQuScKTDjp7hZBOtXxinzHCSPJASOA9WV//e/q6TcMH7hG/PNHNv0bJfFNauBs7+/CEljtK2U4RRTPC5zY4Xo1+XPsmrN6zfgY3B4NtgtWEtyEGD8Ba2WwCrxEcaNgbvjOm00zZTQ+cuntQ=  ;
+Message-ID: <4318C79D.1050000@yahoo.com.au>
+Date: Sat, 03 Sep 2005 07:43:57 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@davemloft.net>
+CC: Andi Kleen <ak@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.13] lockless pagecache 2/7
+References: <4317F136.4040601@yahoo.com.au>	<1125666486.30867.11.camel@localhost.localdomain>	<p73k6hzqk1w.fsf@verdi.suse.de> <20050902.141255.50099210.davem@davemloft.net>
+In-Reply-To: <20050902.141255.50099210.davem@davemloft.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"J.A. Magallon" <jamagallon@able.es> wrote:
->
+Bear with me Dave, I'll repeat myself a bit, for the benefit of lkml.
+
+
+Andi Kleen wrote:
+>>>Yeah quite a few. I suspect most MIPS also would have a problem in this
+>>>area.
+>>
+>>cmpxchg can be done with LL/SC can't it? Any MIPS should have that.
 > 
-> On 09.02, Andrew Morton wrote:
-> > "J.A. Magallon" <jamagallon@able.es> wrote:
-> > >
-> > > 
-> > > On 1/09/2005 10:58 a.m., Andrew Morton wrote:
-> > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13/2.6.13-mm1/
-> > > > 
-> > > > - Included Alan's big tty layer buffering rewrite.  This breaks the build on
-> > > >   lots of more obscure character device drivers.  Patches welcome (please cc
-> > > >   Alan).
-> > > > 
-> > > 
-> > > I have problems with udev and latest -mm.
-> > > 2.6.13 boots fine, but 2.6.13-mm1 blocks when starting udev.
-> > > System is Mandriva Cooker. As cooker, things are changing fast (initscripts,
-> > > udev, etc), but the fact is that with the same setup, plain .13 boots
-> > > and -mm1 blocks. Udev is 068 version.
-> > > 
-> > > Any idea about what can be the reason ?
-> > > 
-> > 
-> > There's some suspect locking in the /proc/devices seq_file conversion code.
-> > 
-> > Could you revert convert-proc-devices-to-use-seq_file-interface-fix.patch
-> > then convert-proc-devices-to-use-seq_file-interface.patch?
-> > 
 > 
-> Still the same result, system bocks starting udev...
+> Right.
+> 
+> On PARISC, I don't see where they are emulating compare and swap
+> as indicated.  They are doing the funny hashed spinlocks for the
+> atomic_t operations and bitops, but that is entirely different.
 > 
 
-OK, thanks.   Nothing from sysrq-t?  Does the below help?
+Yep, same as SPARC (at least, SPARC's 32-bit atomic_t).
 
---- devel/fs/sysfs/file.c~gregkh-driver-sysfs-strip_leading_trailing_whitespace-fix	2005-09-02 04:01:40.000000000 -0700
-+++ devel-akpm/fs/sysfs/file.c	2005-09-02 04:05:02.000000000 -0700
-@@ -202,13 +202,14 @@ fill_write_buffer(struct sysfs_buffer * 
-  *	passing the buffer that we acquired in fill_write_buffer().
-  */
- 
--static int 
--flush_write_buffer(struct dentry * dentry, struct sysfs_buffer * buffer, size_t count)
-+static int flush_write_buffer(struct dentry *dentry,
-+			struct sysfs_buffer *buffer, size_t count_in)
- {
- 	struct attribute * attr = to_attr(dentry);
- 	struct kobject * kobj = to_kobj(dentry->d_parent);
- 	struct sysfs_ops * ops = buffer->ops;
- 	char *x;
-+	size_t count = count_in;
- 
- 	/* locate trailing white space */
- 	while ((count > 0) && isspace(buffer->page[count - 1]))
-@@ -224,7 +225,8 @@ flush_write_buffer(struct dentry * dentr
- 	/* terminate the string */
- 	x[count] = '\0';
- 
--	return ops->store(kobj, attr, x, count);
-+	ops->store(kobj, attr, x, count);
-+	return count_in;
- }
- 
- 
-_
+> cmpxchg() has to operate in an environment where, unlike the atomic_t
+> and bitops, you cannot control the accessors to the object at all.
+> 
+> The DRM is the only place in the kernel that requires cmpxchg()
+> and you can thus make a list of what platform can provide cmpxchg()
+> by which ones support DRM and thus provide the cmpxchg() macro already
+> in asm/system.h
+> 
+> We really can't require support for this primitive kernel wide, it's
+> simply not possible on a couple chips.
 
+Not a generic cmpxchg, no. However, I _believe_ that those
+architectures that are missing something like ll/sc or real
+atomic cmpxchg should still be able to implement an
+"atomic_cmpxchg" on their atomic type.
+
+Sorry if I wasn't at all clear initially. What I'd be interested
+in is an architecture that doesn't support ll/sc or real cmpxchg
+*and* does not implement atomic_t operations with locks.
+
+Thanks,
+Nick
+
+-- 
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

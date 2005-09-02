@@ -1,59 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161081AbVIBWSO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161084AbVIBWTF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161081AbVIBWSO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 18:18:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161084AbVIBWSO
+	id S1161084AbVIBWTF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 18:19:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161085AbVIBWTF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 18:18:14 -0400
-Received: from smtp.dkm.cz ([62.24.64.34]:1804 "HELO smtp.dkm.cz")
-	by vger.kernel.org with SMTP id S1161081AbVIBWSN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 18:18:13 -0400
-Message-ID: <4318CF95.5040801@rulez.cz>
-Date: Sat, 03 Sep 2005 00:17:57 +0200
-From: iSteve <isteve@rulez.cz>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: SysFS, module names and .name
-References: <43176488.2080608@rulez.cz> <20050902155338.GA13648@kroah.com>
-In-Reply-To: <20050902155338.GA13648@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 2 Sep 2005 18:19:05 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:34805 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161084AbVIBWTB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 18:19:01 -0400
+Subject: Re: [PATCH 07/11] memory hotplug: sysfs and add/remove functions
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050902151311.5f292ef5.akpm@osdl.org>
+References: <20050902205643.9A4EC17A@kernel.beaverton.ibm.com>
+	 <20050902205648.07018412@kernel.beaverton.ibm.com>
+	 <20050902151311.5f292ef5.akpm@osdl.org>
+Content-Type: text/plain
+Date: Fri, 02 Sep 2005 15:18:28 -0700
+Message-Id: <1125699509.26605.38.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, I am rather interested -- could you please provide details about 
-this method?
+On Fri, 2005-09-02 at 15:13 -0700, Andrew Morton wrote:
+> Dave Hansen <haveblue@us.ibm.com> wrote:
+> >
+> > +		for (i = 0; i < PAGES_PER_SECTION; i++) {
+> > +			if (PageReserved(first_page+i))
+> > +				continue;
+> 
+> How intimate do these patches get with PageReserved()?  Bear in mind that
+> we're slowly working toward making PageReserved go away.
 
-Thanks in advance.
+It's basically the same way that the init code uses it.  When
+initialized, a struct page has it set.  In theory, an architecture could
+decide to keep the bit set when it is doing online_pages().  However, I
+don't think any do that today.  Nobody would really notice if we killed
+that.  That check could probably instead be something like
+page_is_ram().
 
-  - iSteve
+-- Dave
 
-Greg KH wrote:
-> On Thu, Sep 01, 2005 at 10:28:56PM +0200, iSteve wrote:
-> 
->>Greetings,
->>in sysfs, /sys/bus/*/drivers lists the driver names, with their exported 
->>.name (eg. '.name = "EMU10K1_Audigy"' in the module code, from now on 
->>'driver name'). In /sys/modules, the kernel modules are listed with 
->>their module name, eg. snd_emu10k1. However, it seems to me that in 
->>sysfs, there is no way in particular to tell, which module has which 
->>.name. That is, that snd_emu10k1 is EMU10K1_Audigy and vice versa.
->>
->>I wonder whether it wouldn't be possible to add a symlink to the 
->>particular module from the driver, and/or from the module to the driver, 
->>so the list of devices handled by the module and the module name would 
->>be accessible. This way, I would know which driver name corresponds to 
->>which module name and vice versa.
-> 
-> 
-> It's already automatically created for some bus drivers (like USB).  I
-> had a simple patch to enable this for PCI, but haven't gotten around to
-> changing every single pci driver to enable it.  If you want to do so,
-> it isn't tough at all.
-> 
-> thanks,
-> 
-> greg k-h

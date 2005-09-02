@@ -1,75 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161038AbVIBVRR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161037AbVIBVQ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161038AbVIBVRR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 17:17:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161039AbVIBVRQ
+	id S1161037AbVIBVQ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 17:16:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161038AbVIBVQ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 17:17:16 -0400
-Received: from ns2.suse.de ([195.135.220.15]:30652 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1161038AbVIBVRO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 17:17:14 -0400
-To: linux clustering <linux-cluster@redhat.com>, akpm@osdl.org
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: GFS, what's remaining
-References: <20050901104620.GA22482@redhat.com>
-	<20050901035939.435768f3.akpm@osdl.org>
-	<1125586158.15768.42.camel@localhost.localdomain>
-	<20050901132104.2d643ccd.akpm@osdl.org>
-From: Andi Kleen <ak@suse.de>
-Date: 02 Sep 2005 23:17:08 +0200
-In-Reply-To: <20050901132104.2d643ccd.akpm@osdl.org>
-Message-ID: <p73fysnqiej.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Fri, 2 Sep 2005 17:16:58 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:18699 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1161037AbVIBVQ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 17:16:58 -0400
+Date: Fri, 2 Sep 2005 23:16:48 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: len.brown@intel.com
+Cc: acpi-devel@lists.sourceforge.net,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [-mm patch] drivers/acpi/: make needlessly global functions static
+Message-ID: <20050902211648.GW3657@stusta.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+This patch makes some needlesly global functions static.
 
-> 
-> > > - Why GFS is better than OCFS2, or has functionality which OCFS2 cannot
-> > >   possibly gain (or vice versa)
-> > > 
-> > > - Relative merits of the two offerings
-> > 
-> > You missed the important one - people actively use it and have been for
-> > some years. Same reason with have NTFS, HPFS, and all the others. On
-> > that alone it makes sense to include.
->  
-> Again, that's not a technical reason.  It's _a_ reason, sure.  But what are
-> the technical reasons for merging gfs[2], ocfs2, both or neither?
 
-There seems to be clearly a need for a shared-storage fs of some sort
-for HA clusters and virtualized usage (multiple guests sharing a
-partition).  Shared storage can be more efficient than network file
-systems like NFS because the storage access is often more efficient
-than network access  and it is more reliable because it doesn't have a
-single point of failure in form of the NFS server.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-It's also a logical extension of the "failover on failure" clusters
-many people run now - instead of only failing over the shared fs at
-failure and keeping one machine idle the load can be balanced between
-multiple machines at any time.
+---
 
-One argument to merge both might be that nobody really knows yet which
-shared-storage file system (GFS or OCFS2) is better. The only way to
-find out would be to let the user base try out both, and that's most
-practical when they're merged.
+ drivers/acpi/osl.c            |    2 +-
+ drivers/acpi/pci_bind.c       |    3 ++-
+ drivers/acpi/processor_core.c |    2 +-
+ drivers/acpi/scan.c           |    2 +-
+ 4 files changed, 5 insertions(+), 4 deletions(-)
 
-Personally I think ocfs2 has nicer&cleaner code than GFS.
-It seems to be more or less a 64bit ext3 with cluster support, while
-GFS seems to reinvent a lot more things and has somewhat uglier code.
-On the other hand GFS' cluster support seems to be more aimed
-at being a universal cluster service open for other usages too,
-which might be a good thing. OCFS2s cluster seems to be more 
-aimed at only serving the file system.
+--- linux-2.6.13-mm1-full/drivers/acpi/osl.c.old	2005-09-02 22:54:33.000000000 +0200
++++ linux-2.6.13-mm1-full/drivers/acpi/osl.c	2005-09-02 22:54:46.000000000 +0200
+@@ -1038,7 +1038,7 @@
+ 
+ __setup("acpi_wake_gpes_always_on", acpi_wake_gpes_always_on_setup);
+ 
+-int __init acpi_hotkey_setup(char *str)
++static int __init acpi_hotkey_setup(char *str)
+ {
+ 	acpi_specific_hotkey_enabled = FALSE;
+ 	return 1;
+--- linux-2.6.13-mm1-full/drivers/acpi/pci_bind.c.old	2005-09-02 22:57:23.000000000 +0200
++++ linux-2.6.13-mm1-full/drivers/acpi/pci_bind.c	2005-09-02 22:57:45.000000000 +0200
+@@ -44,7 +44,8 @@
+ 	struct pci_dev *dev;
+ };
+ 
+-void acpi_pci_data_handler(acpi_handle handle, u32 function, void *context)
++static void acpi_pci_data_handler(acpi_handle handle, u32 function,
++				  void *context)
+ {
+ 	ACPI_FUNCTION_TRACE("acpi_pci_data_handler");
+ 
+--- linux-2.6.13-mm1-full/drivers/acpi/processor_core.c.old	2005-09-02 22:59:06.000000000 +0200
++++ linux-2.6.13-mm1-full/drivers/acpi/processor_core.c	2005-09-02 22:59:18.000000000 +0200
+@@ -221,7 +221,7 @@
+ 	return_VALUE(0);
+ }
+ 
+-int acpi_processor_errata(struct acpi_processor *pr)
++static int acpi_processor_errata(struct acpi_processor *pr)
+ {
+ 	int result = 0;
+ 	struct pci_dev *dev = NULL;
+--- linux-2.6.13-mm1-full/drivers/acpi/scan.c.old	2005-09-02 22:59:48.000000000 +0200
++++ linux-2.6.13-mm1-full/drivers/acpi/scan.c	2005-09-02 23:00:02.000000000 +0200
+@@ -527,7 +527,7 @@
+ 	return_VALUE(0);
+ }
+ 
+-int acpi_start_single_object(struct acpi_device *device)
++static int acpi_start_single_object(struct acpi_device *device)
+ {
+ 	int result = 0;
+ 	struct acpi_driver *driver;
 
-But which one works better in practice is really an open question.
-
-The only thing that should be probably resolved is a common API
-for at least the clustered lock manager. Having multiple
-incompatible user space APIs for that would be sad.
-
--Andi

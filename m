@@ -1,71 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161068AbVIBVrW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161071AbVIBVsO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161068AbVIBVrW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 17:47:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161072AbVIBVrW
+	id S1161071AbVIBVsO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 17:48:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161069AbVIBVsO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 17:47:22 -0400
-Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:40634 "HELO
-	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1161068AbVIBVrV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 17:47:21 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=JDpz2Nc5WSsVeJTaZ/epY+6SS+W2XXMwCoyueIwQ7l4jwxegqBh8kTjAkO1NFcGYC2RM1SrPQUOINcL/+bMqdd1QH8UjgAAhI9hJ2VWUwXTvPmbKKKcEPDyOhap1WHtyofj7PLQrIV4Y66zzsSchKz3+GLcX1c9nvlHo3xhgKi0=  ;
-Message-ID: <4318C884.3050607@yahoo.com.au>
-Date: Sat, 03 Sep 2005 07:47:48 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
-X-Accept-Language: en
+	Fri, 2 Sep 2005 17:48:14 -0400
+Received: from www.tuxrocks.com ([64.62.190.123]:31499 "EHLO tuxrocks.com")
+	by vger.kernel.org with ESMTP id S1161071AbVIBVsM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 17:48:12 -0400
+Message-ID: <4318C893.1000009@tuxrocks.com>
+Date: Fri, 02 Sep 2005 15:48:03 -0600
+From: Frank Sorenson <frank@tuxrocks.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "David S. Miller" <davem@davemloft.net>
-CC: ak@suse.de, alan@lxorguk.ukuu.org.uk, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.13] lockless pagecache 2/7
-References: <1125666486.30867.11.camel@localhost.localdomain>	<p73k6hzqk1w.fsf@verdi.suse.de>	<4318C28A.5010000@yahoo.com.au> <20050902.143149.08652495.davem@davemloft.net>
-In-Reply-To: <20050902.143149.08652495.davem@davemloft.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: "H. Peter Anvin" <hpa@zytor.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Make the bzImage format self-terminating
+References: <4318BD50.5050507@zytor.com> <4318C3F6.6000004@zytor.com>
+In-Reply-To: <4318C3F6.6000004@zytor.com>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
-> From: Nick Piggin <nickpiggin@yahoo.com.au>
-> Date: Sat, 03 Sep 2005 07:22:18 +1000
-> 
-> 
->>This atomic_cmpxchg, unlike a "regular" cmpxchg, has the advantage
->>that the memory altered should always be going through the atomic_
->>accessors, and thus should be implementable with spinlocks.
->>
->>See for example, arch/sparc/lib/atomic32.c
->>
->>At least, that's what I'm hoping for.
-> 
-> 
-> Ok, as long as the rule is that all accesses have to go
-> through accessor macros, it would work.  This is not true
-> for existing uses of cmpxchg() btw, userland accesses shared
-> locks with the kernel would using any kind of accessors we
-> can control.
-> 
-> This means that your atomic_cmpxchg() cannot be used for locking
-> objects shared with userland, as DRM wants, since the hashed spinlock
-> trick does not work in such a case.
-> 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-So neither could currently supported atomic_t ops be shared with
-userland accesses?
+H. Peter Anvin wrote:
+> I'm proposing the attached patch to replace Frank Sorenson's
+> i386-buildc-write-out-larger-system-size-to-bootsector patch currently
+> in -mm.  The goal (presumably) is to make the bzImage format
+> self-terminating.
+> 
+> Signed-off-by: H. Peter Anvin <hpa@zytor.com>
 
-Then I think it would not be breaking any interface rule to do an
-atomic_t atomic_cmpxchg either. Definitely for my usage it will
-not be shared with userland.
+Looks good to me.  Using the 2 additional bytes allows the header to
+contain the full system size for a very long time, and your patch
+includes documentation and x86_64.
 
-Thanks,
-Nick
+Frank
+- --
+Frank Sorenson - KD7TZK
+Systems Manager, Computer Science Department
+Brigham Young University
+frank@tuxrocks.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
--- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+iD8DBQFDGMiTaI0dwg4A47wRAghjAJ9p5sElrA0kDpbwmX4kW9N6WoE3TwCg0Slp
+yq/DxrzJ32DlG+Scp4I7zDM=
+=DKHC
+-----END PGP SIGNATURE-----

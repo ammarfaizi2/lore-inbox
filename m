@@ -1,51 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750860AbVIBUNG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751320AbVIBUSO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750860AbVIBUNG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 16:13:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751160AbVIBUNG
+	id S1751320AbVIBUSO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 16:18:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbVIBUSO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 16:13:06 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:35486 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750860AbVIBUNE (ORCPT
+	Fri, 2 Sep 2005 16:18:14 -0400
+Received: from smtp06.web.de ([217.72.192.224]:41958 "EHLO smtp06.web.de")
+	by vger.kernel.org with ESMTP id S1751320AbVIBUSN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 16:13:04 -0400
-Date: Fri, 2 Sep 2005 13:11:22 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-mm1: hangs during boot ...
-Message-Id: <20050902131122.4c634211.akpm@osdl.org>
-In-Reply-To: <43184B8A.4040801@bigpond.net.au>
-References: <43184B8A.4040801@bigpond.net.au>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 2 Sep 2005 16:18:13 -0400
+From: Thomas Schlichter <thomas.schlichter@web.de>
+To: vatsa@in.ibm.com
+Subject: Re: [PATCH 2/3] dyntick - Fix lost tick calculation in timer pm.c
+Date: Fri, 2 Sep 2005 22:18:01 +0200
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
+       john stultz <johnstul@us.ibm.com>, Con Kolivas <kernel@kolivas.org>,
+       ck list <ck@vds.kolivas.org>
+References: <20050831165843.GA4974@in.ibm.com> <200509030145.18368.kernel@kolivas.org> <20050902172504.GB4650@in.ibm.com>
+In-Reply-To: <20050902172504.GB4650@in.ibm.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_8NLGD1fRzh4wz21";
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200509022218.04796.thomas.schlichter@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams <pwil3058@bigpond.net.au> wrote:
+
+--Boundary-02=_8NLGD1fRzh4wz21
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Description: signed data
+Content-Disposition: inline
+
+Hi Srivatsa,
+
+thank you for improving your patch by fixing the two problems. Now I do hav=
+e=20
+just two minor nits which you may consider:
+
+1. You don't need to hold the monotonic_lock that long, it is only necessar=
+y=20
+when updating offset_last and monotonic_base. So I would propose something=
+=20
+like this:
+
+  offset_now =3D read_pmtmr();
+
+  /* calculate tick interval */
+  delta =3D (offset_now - offset_last) & ACPI_PM_MASK;
+
+  /* convert to ticks */
+  lost =3D delta / pm_ticks_per_jiffy;
+
+  /* convert ticks to usecs */
+  deltaus =3D cyc2us(lost * pm_ticks_per_jiffy);
+  // can we use this instead: ?
+  // deltaus =3D jiffies_to_usecs(lost);
+
+  write_seqlock(&monotonic_lock);
+  offset_last +=3D lost * pm_ticks_per_jiffy;
+  offset_last &=3D ACPI_PM_MASK;
+
+  /* update the monotonic base value */
+  monotonic_base +=3D deltaus * NSEC_PER_USEC;
+  write_sequnlock(&monotonic_lock);
+
+2. Can we really assure that the monotonic clock is still monotonic?
+I think with your new code we estimate the monotonic clock value and the=20
+offset_last at the last tick.
+But if we underestimate monotonic_base or overestimate offset_last (even=20
+simply by rounding errors), the time will make a small step backwards with=
+=20
+the value-update.
+And as far as I understand the monotonic clock its not that bad if it drift=
+s a=20
+bit, but it is really bad if time makes steps backward...
+
+But maybe you can show me that I am wrong with my second point.
+I hope I don't bother you too much with this kind of stuff...
+
+  Thomas
+
+P.S.: I CC'd John because he knows the monotonic clock better than I do... =
+:-)
+
+Am Freitag, 2. September 2005 19:25 schrieb Srivatsa Vaddagiri:
+> Con,
+> 	Pls use this updated "Lost tick" calculation patch, which rectifies the
+> two problems Thomas pointed out. I have done some basic test with it.
 >
-> ... at the the point indicated by the following output:
-> 
-> [    8.197224] Freeing unused kernel memory: 288k freed
-> [    8.428217] SCSI subsystem initialized
-> [    8.510376] sym0: <810a> rev 0x23 at pci 0000:00:08.0 irq 11
-> [    8.587731] sym0: No NVRAM, ID 7, Fast-10, SE, parity checking
-> [    8.671531] sym0: SCSI BUS has been reset.
-> [    8.725530] scsi0 : sym-2.2.1
-> [   17.256480]  0:0:0:0: ABORT operation started.
-> [   22.323534]  0:0:0:0: ABORT operation timed-out.
-> [   22.384348]  0:0:0:0: DEVICE RESET operation started.
-> [   27.458702]  0:0:0:0: DEVICE RESET operation timed-out.
-> [   27.527544]  0:0:0:0: BUS RESET operation started.
-> [   32.533775]  0:0:0:0: BUS RESET operation timed-out.
-> [   32.599173]  0:0:0:0: HOST RESET operation started.
-> [   32.669659] sym0: SCSI BUS has been reset.
-> 
+> Would it be possible to incorporate this updated patch in
+> http://ck.kolivas.org/patches/dyn-ticks/2.6.13-mm1-dtck1.patch?
+>
+> Sorry for the inconvenience!
 
-Is there no response from sysrq-T?
+--Boundary-02=_8NLGD1fRzh4wz21
+Content-Type: application/pgp-signature
+Content-Description: signature
 
-Maybe adding initcall_debug to the boot command line will show extra info?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-The .config would be useful, thanks.
+iD8DBQBDGLN8YAiN+WRIZzQRAkVMAKDoBToOorMe2SYjFHIPL8YRmHYCdgCfYLnY
+Dohx7oLgPGE8o7YpuEMxNGg=
+=RPpG
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_8NLGD1fRzh4wz21--
+

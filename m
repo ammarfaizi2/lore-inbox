@@ -1,62 +1,346 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030484AbVIBH2B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030532AbVIBH7x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030484AbVIBH2B (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 03:28:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030522AbVIBH2B
+	id S1030532AbVIBH7x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 03:59:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030540AbVIBH7x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 03:28:01 -0400
-Received: from nproxy.gmail.com ([64.233.182.194]:53294 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030484AbVIBH2A convert rfc822-to-8bit
+	Fri, 2 Sep 2005 03:59:53 -0400
+Received: from RT-soft-2.Moscow.itn.ru ([80.240.96.70]:42391 "HELO
+	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S1030532AbVIBH7w
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 03:28:00 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ZRp0R3sX2+PUNrltRT/5PokRWAy6Evrqj570K/vnEjs51Qi0p8QP109lCIEzDr6MbOZYnW2M31MZjj8aplvaG3FzAyz/3lZkx4unBHVbhpBUh9ytW8oeyxPQIAx0nTwsUI+1RvfjCz8jhpa8XwuyRM2/sIQu4JAMqx7MO0Kf3TI=
-Message-ID: <62b0912f0509020027212e6c42@mail.gmail.com>
-Date: Fri, 2 Sep 2005 07:27:58 +0000
-From: Molle Bestefich <molle.bestefich@gmail.com>
-To: ataraid-list@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: IDE HPA
-In-Reply-To: <87941b4c050830095111bf484e@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <87941b4c05082913101e15ddda@mail.gmail.com>
-	 <200508300859.19701.tennert@science-computing.de>
-	 <87941b4c05083008523cddbb2a@mail.gmail.com>
-	 <1125419927.8276.32.camel@localhost.localdomain>
-	 <87941b4c050830095111bf484e@mail.gmail.com>
+	Fri, 2 Sep 2005 03:59:52 -0400
+Message-ID: <4318069D.1040200@rbcmail.ru>
+Date: Fri, 02 Sep 2005 12:00:29 +0400
+From: Leeds United Fan <kewell@rbcmail.ru>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mark Underwood <basicmark@yahoo.com>
+CC: David Brownell <david-b@pacbell.net>, linux-kernel@vger.kernel.org,
+       dpervushin@ru.mvista.com
+Subject: Re: SPI redux ... driver model support
+References: <20050902072125.23825.qmail@web30303.mail.mud.yahoo.com>
+In-Reply-To: <20050902072125.23825.qmail@web30303.mail.mud.yahoo.com>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> Greg Felix wrote:
-> > Right.  I get the output at bootup time.  It reads that the HPA is
-> > 20MB.  Which is exactly the size of how far off the metadata is in
-> > Linux (once the HPA is disabled).
-> 
-> So your actual problem is nothing to do with the kernel or with the HPA
-> behaviour ? Whatever tool you are using for raid set up isn't reading
-> and processing the right fields.
+Hi Mark,
+you've mentioned the code that you're working on several times, but no 
+one in LKML has ever seen a single line of code from you. Will you 
+please be so kind to share a piece of you SPI subsystem?
 
-If the formula is to fix all the userspace apps to take into account a
-potential HPA, then eg. FDISK + SFDISK + Disk Druid et al should also
-be fixed.  Because if you create a partition spanning your entire
-disk, including the HPA area, and your boot files by some coincidence
-ends up in the HPA part of the disk, the BIOS won't be able to read
-them, and your system will not boot.  And if you fix those tools now,
-what about users that use older Linux distributions?  They'll have a
-parade of problems coming to them with their new HPA-enabled disks
-because every userspace tool assumes that <BIOS sector count == Linux
-sector count>.
+TIA!
 
-> It isnt the kernels fault if you compute from of end of disk rather than
-> from end of non reserved area is it ?
+Mark Underwood wrote:
 
-I agree that the entire disk should be visible under Linux.  But
-instead of fixing every userspace app that assumes <BIOS sector count
-== Linux sector count> (I'm guessing that's a lot), how about simply
-exporting the HPA as /dev/ide/hostX/busY/targetZ/lunA/hpa, next to the
-'disc' device ?
+>--- David Brownell <david-b@pacbell.net> wrote:
+>
+>  
+>
+>>>Date: Wed, 31 Aug 2005 08:59:44 +0100 (BST)
+>>>From: Mark Underwood <basicmark@yahoo.com>
+>>>
+>>>--- David Brownell wrote:
+>>>
+>>>      
+>>>
+>>>>The last couple times SPI frameworks came up
+>>>>        
+>>>>
+>>here, some of the feedback
+>>    
+>>
+>>>>included "make it use the driver model properly;
+>>>>        
+>>>>
+>>don't be like I2C".
+>>    
+>>
+>>>>In hopes that it'll be useful, here's a small
+>>>>        
+>>>>
+>>SPI core with driver model
+>>    
+>>
+>>>>support driven from board-specific tables
+>>>>        
+>>>>
+>>listing devices.  I expect the
+>>    
+>>
+>>>>I/O call(s) could stand to change; but at least
+>>>>        
+>>>>
+>>this one starts out right,
+>>    
+>>
+>>>>based on async I/O.  (There's a synchronous
+>>>>        
+>>>>
+>>call; it's a trivial wrapper.)
+>>    
+>>
+>>>>	...
+>>>>        
+>>>>
+>>>Well I guess great minds think alike ;-). After
+>>>looking though my SPI core layer I released that
+>>>      
+>>>
+>>it in
+>>    
+>>
+>>>no way reflected the new driver model (not
+>>>      
+>>>
+>>surprising
+>>    
+>>
+>>>as it was a copy of i2c-core.c) and I would
+>>>      
+>>>
+>>probably
+>>    
+>>
+>>>get laughed off the kernel mailing list if I sent
+>>>      
+>>>
+>>it
+>>    
+>>
+>>>as was ;-).  
+>>>      
+>>>
+>>That usually doesn't happen.  You'd just be told
+>>"make it use the driver
+>>model properly; don't be like I2C."  Though maybe
+>>there'd be a fiew
+>>other criticisms mixed in.  :)
+>>
+>>
+>>    
+>>
+>>>I am now writing a new spi-core.c which uses the
+>>>      
+>>>
+>>new
+>>    
+>>
+>>>driver model.
+>>>      
+>>>
+>>How about just merging the code I sent?  It's not
+>>large, and it solves
+>>that problem.  I don't much care about the I/O model
+>>issues quite yet,
+>>though requirements for quick sensor captures
+>>(RPC-ish) would seem
+>>different from ones like reading bulk SPI flash
+>>data.
+>>
+>>
+>>    
+>>
+>>>For registering an adapter:
+>>>1) Register an adapter that has a cs table showing
+>>>where devices sit on the adapter.
+>>>      
+>>>
+>>But how is the adapter driver itself supposed to
+>>know that?
+>>    
+>>
+>
+>It gets passed the cs table as part of its platform
+>data.
+>
+>  
+>
+>>That's what I addressed with my patch:  the need for
+>>the config tables
+>>to be **independent** of controller (and protocol)
+>>code.  It decouples
+>>all the board-specific tables from the drivers.
+>>
+>>(Example shown below.)
+>>
+>>The nightmare to avoid is this:  EVERY time someone
+>>adds a new
+>>SPI-equipped board, working/debugged/stable drivers
+>>need to change,
+>>because the board-specific config data was never
+>>separated from the
+>>drivers.  (And we know it can be, as shown in the
+>>patch I posted...)
+>>    
+>>
+>
+>Now I've fixed my version I'll have a more detailed
+>look.
+>
+>  
+>
+>>Ideally adding a new board means adding a source
+>>file for just that one
+>>board, with the relevent implementation parameters. 
+>>Only when hardware
+>>guys do something funky should any driver need to
+>>change.
+>>
+>>    
+>>
+>
+>That's what happens in my SPI subsystem. The adapter
+>driver only knows how the driver the adapter. When a
+>adapter gets probed it has platform data passed to it
+>which contains a pointer to the cs table, the number
+>of entry’s in the cs table and the pointer to a
+>function to control some GPIO(s) as cs for adapters
+>that don’t have any built in.
+>
+>  
+>
+>>>2) This causes spi-core to enumerate the devices
+>>>      
+>>>
+>>on
+>>    
+>>
+>>>the cs table and register them.
+>>>
+>>>For un-registering an adapter:
+>>>1) Unregister an adapter
+>>>2) This causes spi-core to remove all the children
+>>>      
+>>>
+>>of
+>>    
+>>
+>>>the adapter
+>>>      
+>>>
+>>Right, that's all exactly as in the patch I posted,
+>>though I punted
+>>on the "unregister" path -- an exercise for the
+>>reader! -- because I
+>>wanted to focus on (a) the driver model structure,
+>>like where things
+>>land in sysfs, and (b) how to keep board-specific
+>>initialization code
+>>out of controller and protocol drivers.
+>>    
+>>
+>
+>OK. If you want I could do the same, that is send the
+>un/registration and sysfs code before I put the
+>transfer methods in. I have some dummy devices so you
+>can see what happens in sysfs.
+>
+>  
+>
+>>- Dave
+>>
+>>
+>>--- o26.orig/arch/arm/mach-omap1/board-osk.c
+>>2005-08-27 02:11:45.000000000 -0700
+>>+++ o26/arch/arm/mach-omap1/board-osk.c	2005-08-27
+>>18:44:20.000000000 -0700
+>>@@ -193,6 +193,34 @@ static struct
+>>omap_board_config_kernel o
+>> 
+>> #ifdef	CONFIG_OMAP_OSK_MISTRAL
+>> 
+>>+#include <linux/spi.h>
+>>+
+>>+struct ads7864_info {		/* FIXME put in standard
+>>header */
+>>+	u16	pen_irq, busy;		/* GPIO lines */
+>>+	u16	x_ohms, y_ohms;
+>>+};
+>>+
+>>+static struct ads7864_info mistral_ts_info = {
+>>+	.pen_irq	= OMAP_GPIO_IRQ(4),
+>>+	.busy		= /* GPIO */ 6,
+>>+	.x_ohms		= 419,
+>>+	.y_ohms		= 486,
+>>+};
+>>+
+>>+static const struct spi_board_info
+>>mistral_boardinfo[] = {
+>>+{
+>>+	/* MicroWire CS0 has an ads7846e with touchscreen
+>>and
+>>+	 * other sensors.  It's currently glued into some
+>>OMAP
+>>+	 * touchscreen support that ignores the driver
+>>model.
+>>+	 */
+>>+	.driver_name	= "ads7846",
+>>+	.platform_data	= &mistral_ts_info,
+>>+	.max_speed_hz	= 2000000,
+>>+	.bus_num	= 2, 		/* spi2 == microwire */
+>>    
+>>
+>
+>I did think about doing this but the problem is how do
+>you know bus 2 is the bus you think it is? This would
+>work for SPI adapters that are platform devices, but
+>what about hot-plug devices like PCI and USB (we are
+>thinking of actually making a USB to SPI converter so
+>customers can try out some of our SPI devices on a PC
+>:).
+>
+>Mark
+>
+>  
+>
+>>+	.chip_select	= 0,
+>>+},
+>>+};
+>>+
+>> #ifdef	CONFIG_PM
+>> static irqreturn_t
+>> osk_mistral_wake_interrupt(int irq, void *ignored,
+>>struct pt_regs *regs)
+>>@@ -211,6 +239,9 @@ static void __init
+>>osk_mistral_init(void
+>> 	 * But this is too early for that...
+>> 	 */
+>> 
+>>+	spi_register_board_info(mistral_boardinfo,
+>>+			ARRAY_SIZE(mistral_boardinfo));
+>>+
+>> 	/* the sideways button (SW1) is for use as a
+>>"wakeup" button */
+>> 	omap_cfg_reg(N15_1610_MPUIO2);
+>> 	if (omap_request_gpio(OMAP_MPUIO(2)) == 0) {
+>>-
+>>To unsubscribe from this list: send the line
+>>"unsubscribe linux-kernel" in
+>>the body of a message to majordomo@vger.kernel.org
+>>More majordomo info at 
+>>http://vger.kernel.org/majordomo-info.html
+>>Please read the FAQ at  http://www.tux.org/lkml/
+>>
+>>    
+>>
+>
+>
+>
+>	
+>	
+>		
+>___________________________________________________________ 
+>Yahoo! Messenger - NEW crystal clear PC to PC calling worldwide with voicemail http://uk.messenger.yahoo.com
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>  
+>
+

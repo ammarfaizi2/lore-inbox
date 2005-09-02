@@ -1,57 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161039AbVIBVSb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161043AbVIBVTR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161039AbVIBVSb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 17:18:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161044AbVIBVSa
+	id S1161043AbVIBVTR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 17:19:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161048AbVIBVTQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 17:18:30 -0400
-Received: from yakov.inr.ac.ru ([194.67.69.111]:443 "HELO yakov.inr.ac.ru")
-	by vger.kernel.org with SMTP id S1161039AbVIBVS3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 17:18:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=ms2.inr.ac.ru;
-  b=IELnfEsz9Hq+HCMxlZ5xOidVcUSXsRp1rtvQfT5SWhSOYuNXfHH6GjHXrFXjGKt3MLce1NYHxDThRmvJmAL6iIQ8IWSiCJWl0ztwXfhDf5FksStq/VYvEvcL99bomMfYgDnEioo+b/OzQfW0Hpy7XKGNGY7O55q34S4A4KdcqEc=;
-Date: Sat, 3 Sep 2005 01:18:10 +0400
-From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-To: Ion Badulescu <ion.badulescu@limegroup.com>
-Cc: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Ion Badulescu <lists@limebrokerage.com>,
-       "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: Possible BUG in IPv4 TCP window handling, all recent 2.4.x/2.6.x kernels
-Message-ID: <20050902211810.GB18605@yakov.inr.ac.ru>
-References: <Pine.LNX.4.61.0509011713240.6083@guppy.limebrokerage.com> <20050901.154300.118239765.davem@davemloft.net> <Pine.LNX.4.61.0509011845040.6083@guppy.limebrokerage.com> <20050902183656.GA16537@yakov.inr.ac.ru> <Pine.LNX.4.61.0509021609430.6083@guppy.limebrokerage.com>
+	Fri, 2 Sep 2005 17:19:16 -0400
+Received: from lakshmi.addtoit.com ([198.99.130.6]:21265 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S1161045AbVIBVTQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 17:19:16 -0400
+Date: Fri, 2 Sep 2005 16:17:49 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: Blaisorblade <blaisorblade@yahoo.it>
+Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [patch 1/3] uml: share page bits handling between 2 and 3 level pagetables
+Message-ID: <20050902201749.GA9104@ccure.user-mode-linux.org>
+References: <20050728185655.9C6ADA3@zion.home.lan> <20050730160218.GB4585@ccure.user-mode-linux.org> <200508102137.28414.blaisorblade@yahoo.it>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0509021609430.6083@guppy.limebrokerage.com>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <200508102137.28414.blaisorblade@yahoo.it>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Wed, Aug 10, 2005 at 09:37:28PM +0200, Blaisorblade wrote:
+> Also look, on the "set_pte" theme, at the attached patch. 
 
-> Well, take a look at the double acks for 84439343, 84440447 and 84441059, 
-> they seem pretty much identical to me.
++       WARN_ON(!pte_young(*pte) || pte_write(*pte) && !pte_dirty(*pte));
 
-It is just a little tcpdump glitch.
+This one has been firing on me, and I decided to figure out why.  The
+culprit is this code in do_no_page:
 
-19:34:54.532271 < 10.2.20.246.33060 > 65.171.224.182.8700: . 44:44(0) ack 84439343 win 24544 <nop,nop,timestamp 226080638 99717832> (DF) (ttl 64, id 60946)
-19:34:54.532432 < 10.2.20.246.33060 > 65.171.224.182.8700: . 44:44(0) ack 84439343 win 24544 <nop,nop,timestamp 226080638 99717832> (DF) (ttl 64, id 60946)
+	if (pte_none(*page_table)) {
+		if (!PageReserved(new_page))
+			inc_mm_counter(mm, rss);
 
-It is one ACK (look at IP ID), shown twice. This happens sometimes
-with our packet socket.
+		flush_icache_page(vma, new_page);
+		entry = mk_pte(new_page, vma->vm_page_prot);
+		if (write_access)
+			entry = maybe_mkwrite(pte_mkdirty(entry), vma);
+		set_pte_at(mm, address, page_table, entry);
 
+The first mk_pte immediately sets the pte to the protection limits of
+the VMA, regardless of the access type.  So, if it's a read access on
+a writeable page, we get a writeable, but not dirty pte, since the
+mkdirty never happens.  The exercises the warning you added.
 
-> >I still do not know how the value of 184 is possible in your case,
-> >I would expect 730 as an absolute possible minumum. I see 9420 (2355*4).
-> 
-> The numbers I mentioned are straight from the tcpdump and are not scaled, 
+This seems somewhat bogus to me.  If we set the pte protection to its
+limits, then the maybe_mkwrite is unneccesary.  
 
-I understood. I expect when 184*4, when you said 184. But minimum is
-still 730 (unscaled 1460*2). If you really saw values lower than 730
-(unscaled 1460*2), there is another more severe problem and the suggested
-patch will not solve it.
+If we are the process in this address space, and we have a write
+access, then the maybe_mkwrite doesn't do anything because the pte is
+already writeable because the VMA has to be writeable, or we would
+have been faulted already.
 
-Alexey
+If we are a debugger changing the process memory, then the vma may be
+read-only, and maybe_mkwrite is explicitly a no-op in this case.
+
+This doesn't seem to harm our dirty bit emulation.  fix_range_common
+checks the dirty and accessed bits and disables read and write
+protection as appropriate.
+
+So, it seems like the warning could be dropped, or perhaps made more
+selective, like checking for is_write == 0 and VM_WRITE, but then the
+test is getting complicated.
+
+				Heff

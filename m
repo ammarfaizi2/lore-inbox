@@ -1,44 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750901AbVIBJAL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751144AbVIBJFU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750901AbVIBJAL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 05:00:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751144AbVIBJAK
+	id S1751144AbVIBJFU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 05:05:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751157AbVIBJFT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 05:00:10 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:32440 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750901AbVIBJAI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 05:00:08 -0400
-Date: Fri, 2 Sep 2005 02:00:03 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: =?ISO-8859-1?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>,
-       git@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: empty patch-2.6.13-git? patches on ftp.kernel.org
-In-Reply-To: <1125649389.6928.19.camel@baythorne.infradead.org>
-Message-ID: <Pine.LNX.4.58.0509020159110.3613@evo.osdl.org>
-References: <Pine.BSO.4.62.0508311527340.10416@rudy.mif.pg.gda.pl>
- <1125649389.6928.19.camel@baythorne.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 2 Sep 2005 05:05:19 -0400
+Received: from zproxy.gmail.com ([64.233.162.206]:65136 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751144AbVIBJFS convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 05:05:18 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=OTnMQ2JBgG1u01QoL9DF55nXrYIdUPOBh8GPWPFd0i27yR5ieGy76O5ihriHDB9lOYRU+kp9iQGvQ7KhFUlwEmwrN0Y0iHDHZkr/OUfISH4X3csenJ7ZGuZWgLrOr+Fn8tSsVBoqnI7JR+Xh5/u1VW/Y7V7RDI5kVYPdYPGGqf8=
+Message-ID: <9a874849050902020543a5b931@mail.gmail.com>
+Date: Fri, 2 Sep 2005 11:05:15 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Phy Prabab <phyprabab@yahoo.com>
+Subject: Re: mail list broken?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050902064239.3383.qmail@web51803.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050902064239.3383.qmail@web51803.mail.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 2 Sep 2005, David Woodhouse wrote:
+On 9/2/05, Phy Prabab <phyprabab@yahoo.com> wrote:
+> Hello,
 > 
-> 	rm -rf tmp-empty-tree
-> 	mkdir -p tmp-empty-tree/.git
-> 	cd tmp-empty-tree
+> Does anyone know why all of a sudden I have stopped
+> receiving LK mailings?  The last email was yesterday
+> mornig around 02.00 US PST.  I see the archives are
+> continuing to get mail. hmmm.
+> 
+> Any help is appreciated.
+> 
+See http://vger.kernel.org/majordomo-info.html - there's a test
+address listed you can try.
+IIRC you can also send a mail to majordomo and ask if you are still subscribed.
+Also try vgers mxverify tool : http://vger.kernel.org/mxverify.html
 
-Ahh. Please change that to
+Hope that's useful.
 
-	rm -rf tmp-empty-tree
-	mkdir tmp-empty-tree
-	cd tmp-empty-tree
-	git-init-db
-
-because otherwise you'll almost certainly hit something else later on..
-
-		Linus
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

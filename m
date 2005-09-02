@@ -1,219 +1,287 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030385AbVIBG35@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161002AbVIBGa5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030385AbVIBG35 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 02:29:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030384AbVIBG35
+	id S1161002AbVIBGa5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 02:30:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161003AbVIBGa5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 02:29:57 -0400
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:42599 "HELO
-	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1030385AbVIBG34 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 02:29:56 -0400
+	Fri, 2 Sep 2005 02:30:57 -0400
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:44174 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1161004AbVIBGa4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 02:30:56 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.com.au;
   h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:Subject:References:In-Reply-To:Content-Type;
-  b=rNHAheUnvK+UfnSD2Jhfv/7GDkVLzrQyiHEkjt+NHs9ghGkQdHmtsHDdPi/MfzCAjyhnlGVkr4EbK2SYgy2JP4VSgsWiXNh4//tyEVbqyM8R0mgJerTtUP7QBp4iyD8HYZo+Ex4HygFI/2LE0/O9DuVpg9UL1qMDa4mUWEXtp18=  ;
-Message-ID: <4317F17F.5050306@yahoo.com.au>
-Date: Fri, 02 Sep 2005 16:30:23 +1000
+  b=ortyrlWxlfnPqITAq8V4MIXg4yg4GO01F0AzCu47eA3gqhDDzPPGEoGmgonbCZ5Tkj5hGDESmYFGP4Fkl5jLnbiBN55BHnpQbLIWoETHMnptYhwKwNuzLtXMNmre37bXEpsvN66lDWpFga7dPQEHMvsS/sf6C8vbe84YQdkXteE=  ;
+Message-ID: <4317F1BD.8060808@yahoo.com.au>
+Date: Fri, 02 Sep 2005 16:31:25 +1000
 From: Nick Piggin <nickpiggin@yahoo.com.au>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
 X-Accept-Language: en
 MIME-Version: 1.0
 To: Linux Memory Management <linux-mm@kvack.org>,
        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6.13] lockless pagecache 3/7
-References: <4317F071.1070403@yahoo.com.au> <4317F0F9.1080602@yahoo.com.au> <4317F136.4040601@yahoo.com.au>
-In-Reply-To: <4317F136.4040601@yahoo.com.au>
+Subject: [PATCH 2.6.13] lockless pagecache 5/7
+References: <4317F071.1070403@yahoo.com.au> <4317F0F9.1080602@yahoo.com.au> <4317F136.4040601@yahoo.com.au> <4317F17F.5050306@yahoo.com.au> <4317F1A2.8030605@yahoo.com.au>
+In-Reply-To: <4317F1A2.8030605@yahoo.com.au>
 Content-Type: multipart/mixed;
- boundary="------------000802000001060008080009"
+ boundary="------------060101080407090206090103"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------000802000001060008080009
+--------------060101080407090206090103
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-3/7
+5/7
 
 -- 
 SUSE Labs, Novell Inc.
 
-
---------------000802000001060008080009
+--------------060101080407090206090103
 Content-Type: text/plain;
- name="mm-speculative-get_page.patch"
+ name="radix-tree-lockless-readside.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="mm-speculative-get_page.patch"
+ filename="radix-tree-lockless-readside.patch"
 
-If we can be sure that elevating the page_count on a pagecache
-page will pin it, we can speculatively run this operation, and
-subsequently check to see if we hit the right page rather than
-relying on holding a lock or otherwise pinning a reference to
-the page.
+Make radix tree lookups safe to be performed without locks.
+Readers are protected against nodes being deleted by using RCU
+based freeing. Readers are protected against new node insertion
+by using memory barriers to ensure the node itself will be
+properly written before it is visible in the radix tree.
 
-This can be done if get_page/put_page behaves in the same manner
-throughout the whole tree (ie. if we "get" the page after it has
-been used for something else, we must be able to free it with a
-put_page).
+Also introduce a lockfree gang_lookup_slot which will be used
+by a future patch.
 
-This needs an atomic_cmpxchg operation to ensure we don't try to
-grab a free page.
-
-Index: linux-2.6/include/linux/page-flags.h
+Index: linux-2.6/lib/radix-tree.c
 ===================================================================
---- linux-2.6.orig/include/linux/page-flags.h
-+++ linux-2.6/include/linux/page-flags.h
-@@ -76,6 +76,8 @@
- #define PG_nosave_free		18	/* Free, should not be written */
- #define PG_uncached		19	/* Page has been mapped as uncached */
+--- linux-2.6.orig/lib/radix-tree.c
++++ linux-2.6/lib/radix-tree.c
+@@ -29,6 +29,7 @@
+ #include <linux/gfp.h>
+ #include <linux/string.h>
+ #include <linux/bitops.h>
++#include <linux/rcupdate.h>
  
-+#define PG_freeing		20	/* Pagecache is about to be freed */
-+
- /*
-  * Global page accounting.  One instance per CPU.  Only unsigned longs are
-  * allowed.
-@@ -306,6 +308,11 @@ extern void __mod_page_state(unsigned lo
- #define SetPageUncached(page)	set_bit(PG_uncached, &(page)->flags)
- #define ClearPageUncached(page)	clear_bit(PG_uncached, &(page)->flags)
  
-+#define PageFreeing(page)	test_bit(PG_freeing, &(page)->flags)
-+#define SetPageFreeing(page)	set_bit(PG_freeing, &(page)->flags)
-+#define ClearPageFreeing(page)	clear_bit(PG_freeing, &(page)->flags)
-+#define __ClearPageFreeing(page) __clear_bit(PG_freeing, &(page)->flags)
-+
- struct page;	/* forward declaration */
+ #ifdef __KERNEL__
+@@ -45,7 +46,9 @@
+ 	((RADIX_TREE_MAP_SIZE + BITS_PER_LONG - 1) / BITS_PER_LONG)
  
- int test_clear_page_dirty(struct page *page);
-Index: linux-2.6/include/linux/pagemap.h
-===================================================================
---- linux-2.6.orig/include/linux/pagemap.h
-+++ linux-2.6/include/linux/pagemap.h
-@@ -50,6 +50,36 @@ static inline void mapping_set_gfp_mask(
- #define page_cache_release(page)	put_page(page)
- void release_pages(struct page **pages, int nr, int cold);
+ struct radix_tree_node {
++	unsigned int	height;		/* Height from the bottom */
+ 	unsigned int	count;
++	struct rcu_head	rcu_head;
+ 	void		*slots[RADIX_TREE_MAP_SIZE];
+ 	unsigned long	tags[RADIX_TREE_TAGS][RADIX_TREE_TAG_LONGS];
+ };
+@@ -97,10 +100,17 @@ radix_tree_node_alloc(struct radix_tree_
+ 	return ret;
+ }
  
-+static inline struct page *page_cache_get_speculative(struct page **pagep)
++static void radix_tree_node_rcu_free(struct rcu_head *head)
 +{
-+	struct page *page;
-+	int count;
-+
-+	page = *pagep;
-+	if (!page)
-+		return NULL;
-+
-+	do {
-+		count = atomic_read(&page->_count);
-+		if (unlikely(count == -1)) /* Picked up a free page. */
-+			return NULL;
-+	} while (unlikely(atomic_cmpxchg(&page->_count, count, count+1) != count));
-+
-+	/* Note that atomic_load_lock provides a memory barrier */
-+
-+	if (unlikely(PageFreeing(page) || page != *pagep)) {
-+		/*
-+		 * Picked up a page being freed, or one that is no longer
-+		 * being pointed to by pagep. Now that we have a reference
-+		 * to the page, we must do a put_page.
-+		 */
-+		put_page(page);
-+		return NULL;
-+	}
-+
-+	return page;
++	struct radix_tree_node *node =
++			container_of(head, struct radix_tree_node, rcu_head);
++	kmem_cache_free(radix_tree_node_cachep, node);
 +}
 +
- static inline struct page *page_cache_alloc(struct address_space *x)
+ static inline void
+ radix_tree_node_free(struct radix_tree_node *node)
  {
- 	return alloc_pages(mapping_gfp_mask(x)|__GFP_NORECLAIM, 0);
-Index: linux-2.6/mm/vmscan.c
-===================================================================
---- linux-2.6.orig/mm/vmscan.c
-+++ linux-2.6/mm/vmscan.c
-@@ -504,6 +504,7 @@ static int shrink_list(struct list_head 
- 		if (!mapping)
- 			goto keep_locked;	/* truncate got there first */
+-	kmem_cache_free(radix_tree_node_cachep, node);
++	call_rcu(&node->rcu_head, radix_tree_node_rcu_free);
+ }
  
-+		SetPageFreeing(page);
- 		write_lock_irq(&mapping->tree_lock);
- 
- 		/*
-@@ -513,6 +514,7 @@ static int shrink_list(struct list_head 
- 		 */
- 		if (page_count(page) != 2 || PageDirty(page)) {
- 			write_unlock_irq(&mapping->tree_lock);
-+			ClearPageFreeing(page);
- 			goto keep_locked;
- 		}
- 
-@@ -533,6 +535,7 @@ static int shrink_list(struct list_head 
- 
- free_it:
- 		unlock_page(page);
-+		ClearPageFreeing(page);
- 		reclaimed++;
- 		if (!pagevec_add(&freed_pvec, page))
- 			__pagevec_release_nonlru(&freed_pvec);
-Index: linux-2.6/mm/bootmem.c
-===================================================================
---- linux-2.6.orig/mm/bootmem.c
-+++ linux-2.6/mm/bootmem.c
-@@ -289,19 +289,20 @@ static unsigned long __init free_all_boo
- 			int j, order;
- 
- 			page = pfn_to_page(pfn);
-+			prefetchw(page);
-+
- 			count += BITS_PER_LONG;
--			__ClearPageReserved(page);
- 			order = ffs(BITS_PER_LONG) - 1;
--			set_page_refs(page, order);
--			for (j = 1; j < BITS_PER_LONG; j++) {
--				if (j + 16 < BITS_PER_LONG)
--					prefetchw(page + j + 16);
-+			for (j = 0; j < BITS_PER_LONG; j++) {
-+				if (j + 1 < BITS_PER_LONG)
-+					prefetchw(page + j + 1);
- 				__ClearPageReserved(page + j);
- 				set_page_count(page + j, 0);
- 			}
-+			set_page_refs(page, order);
- 			__free_pages(page, order);
-+
- 			i += BITS_PER_LONG;
--			page += BITS_PER_LONG;
- 		} else if (v) {
- 			unsigned long m;
- 
-@@ -310,6 +311,7 @@ static unsigned long __init free_all_boo
- 				if (v & m) {
- 					count++;
- 					__ClearPageReserved(page);
-+					set_page_count(page, 0);
- 					set_page_refs(page, 0);
- 					__free_page(page);
- 				}
-Index: linux-2.6/mm/swapfile.c
-===================================================================
---- linux-2.6.orig/mm/swapfile.c
-+++ linux-2.6/mm/swapfile.c
-@@ -338,6 +338,7 @@ int remove_exclusive_swap_page(struct pa
- 	retval = 0;
- 	if (p->swap_map[swp_offset(entry)] == 1) {
- 		/* Recheck the page count with the swapcache lock held.. */
-+		SetPageFreeing(page);
- 		write_lock_irq(&swapper_space.tree_lock);
- 		if ((page_count(page) == 2) && !PageWriteback(page)) {
- 			__delete_from_swap_cache(page);
-@@ -345,6 +346,7 @@ int remove_exclusive_swap_page(struct pa
- 			retval = 1;
- 		}
- 		write_unlock_irq(&swapper_space.tree_lock);
-+		ClearPageFreeing(page);
+ /*
+@@ -196,6 +206,7 @@ static int radix_tree_extend(struct radi
  	}
- 	swap_info_put(p);
  
+ 	do {
++		unsigned int newheight;
+ 		if (!(node = radix_tree_node_alloc(root)))
+ 			return -ENOMEM;
+ 
+@@ -208,9 +219,11 @@ static int radix_tree_extend(struct radi
+ 				tag_set(node, tag, 0);
+ 		}
+ 
++		newheight = root->height+1;
++		node->height = newheight;
+ 		node->count = 1;
+-		root->rnode = node;
+-		root->height++;
++		rcu_assign_pointer(root->rnode, node);
++		root->height = newheight;
+ 	} while (height > root->height);
+ out:
+ 	return 0;
+@@ -250,9 +263,10 @@ int radix_tree_insert(struct radix_tree_
+ 			/* Have to add a child node.  */
+ 			if (!(tmp = radix_tree_node_alloc(root)))
+ 				return -ENOMEM;
+-			*slot = tmp;
++			tmp->height = height;
+ 			if (node)
+ 				node->count++;
++			rcu_assign_pointer(*slot, tmp);
+ 		}
+ 
+ 		/* Go a level down */
+@@ -282,12 +296,14 @@ static inline void **__lookup_slot(struc
+ 	unsigned int height, shift;
+ 	struct radix_tree_node **slot;
+ 
+-	height = root->height;
++	if (root->rnode == NULL)
++		return NULL;
++	slot = &root->rnode;
++	height = (*slot)->height;
+ 	if (index > radix_tree_maxindex(height))
+ 		return NULL;
+ 
+ 	shift = (height-1) * RADIX_TREE_MAP_SHIFT;
+-	slot = &root->rnode;
+ 
+ 	while (height > 0) {
+ 		if (*slot == NULL)
+@@ -491,21 +507,24 @@ EXPORT_SYMBOL(radix_tree_tag_get);
+ #endif
+ 
+ static unsigned int
+-__lookup(struct radix_tree_root *root, void **results, unsigned long index,
++__lookup(struct radix_tree_root *root, void ***results, unsigned long index,
+ 	unsigned int max_items, unsigned long *next_index)
+ {
++	unsigned long i;
+ 	unsigned int nr_found = 0;
+ 	unsigned int shift;
+-	unsigned int height = root->height;
++	unsigned int height;
+ 	struct radix_tree_node *slot;
+ 
+-	shift = (height-1) * RADIX_TREE_MAP_SHIFT;
+ 	slot = root->rnode;
++	if (!slot)
++		goto out;
++	height = slot->height;
++	shift = (height-1) * RADIX_TREE_MAP_SHIFT;
+ 
+-	while (height > 0) {
+-		unsigned long i = (index >> shift) & RADIX_TREE_MAP_MASK;
+-
+-		for ( ; i < RADIX_TREE_MAP_SIZE; i++) {
++	for (;;) {
++		for (i = (index >> shift) & RADIX_TREE_MAP_MASK;
++						i < RADIX_TREE_MAP_SIZE; i++) {
+ 			if (slot->slots[i] != NULL)
+ 				break;
+ 			index &= ~((1UL << shift) - 1);
+@@ -516,21 +535,23 @@ __lookup(struct radix_tree_root *root, v
+ 		if (i == RADIX_TREE_MAP_SIZE)
+ 			goto out;
+ 		height--;
+-		if (height == 0) {	/* Bottom level: grab some items */
+-			unsigned long j = index & RADIX_TREE_MAP_MASK;
+-
+-			for ( ; j < RADIX_TREE_MAP_SIZE; j++) {
+-				index++;
+-				if (slot->slots[j]) {
+-					results[nr_found++] = slot->slots[j];
+-					if (nr_found == max_items)
+-						goto out;
+-				}
+-			}
++		if (height == 0) {
++			/* Bottom level: grab some items */
++			break;
+ 		}
+ 		shift -= RADIX_TREE_MAP_SHIFT;
+ 		slot = slot->slots[i];
+ 	}
++
++	for (i = index & RADIX_TREE_MAP_MASK; i < RADIX_TREE_MAP_SIZE; i++) {
++		index++;
++		if (slot->slots[i]) {
++			results[nr_found++] = &(slot->slots[i]);
++			if (nr_found == max_items)
++				goto out;
++		}
++	}
++
+ out:
+ 	*next_index = index;
+ 	return nr_found;
+@@ -558,6 +579,43 @@ radix_tree_gang_lookup(struct radix_tree
+ 	unsigned int ret = 0;
+ 
+ 	while (ret < max_items) {
++		unsigned int nr_found, i;
++		unsigned long next_index;	/* Index of next search */
++
++		if (cur_index > max_index)
++			break;
++		nr_found = __lookup(root, (void ***)results + ret, cur_index,
++					max_items - ret, &next_index);
++		for (i = 0; i < nr_found; i++)
++			results[ret + i] = *(((void ***)results)[ret + i]);
++		ret += nr_found;
++		if (next_index == 0)
++			break;
++		cur_index = next_index;
++	}
++	return ret;
++}
++EXPORT_SYMBOL(radix_tree_gang_lookup);
++
++/**
++ *	radix_tree_gang_lookup_slot - perform multiple lookup on a radix tree
++ *	@root:		radix tree root
++ *	@results:	where the results of the lookup are placed
++ *	@first_index:	start the lookup from this key
++ *	@max_items:	place up to this many items at *results
++ *
++ *	Same as radix_tree_gang_lookup, but returns an array of pointers
++ *	(slots) to the stored items instead of the items themselves.
++ */
++unsigned int
++radix_tree_gang_lookup_slot(struct radix_tree_root *root, void ***results,
++			unsigned long first_index, unsigned int max_items)
++{
++	const unsigned long max_index = radix_tree_maxindex(root->height);
++	unsigned long cur_index = first_index;
++	unsigned int ret = 0;
++
++	while (ret < max_items) {
+ 		unsigned int nr_found;
+ 		unsigned long next_index;	/* Index of next search */
+ 
+@@ -572,7 +630,8 @@ radix_tree_gang_lookup(struct radix_tree
+ 	}
+ 	return ret;
+ }
+-EXPORT_SYMBOL(radix_tree_gang_lookup);
++EXPORT_SYMBOL(radix_tree_gang_lookup_slot);
++
+ 
+ /*
+  * FIXME: the two tag_get()s here should use find_next_bit() instead of
+Index: linux-2.6/include/linux/radix-tree.h
+===================================================================
+--- linux-2.6.orig/include/linux/radix-tree.h
++++ linux-2.6/include/linux/radix-tree.h
+@@ -51,6 +51,9 @@ void *radix_tree_delete(struct radix_tre
+ unsigned int
+ radix_tree_gang_lookup(struct radix_tree_root *root, void **results,
+ 			unsigned long first_index, unsigned int max_items);
++unsigned int
++radix_tree_gang_lookup_slot(struct radix_tree_root *root, void ***results,
++			unsigned long first_index, unsigned int max_items);
+ int radix_tree_preload(int gfp_mask);
+ void radix_tree_init(void);
+ void *radix_tree_tag_set(struct radix_tree_root *root,
 
---------------000802000001060008080009--
+--------------060101080407090206090103--
 Send instant messages to your online friends http://au.messenger.yahoo.com 

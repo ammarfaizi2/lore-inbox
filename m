@@ -1,62 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750877AbVIBTuM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751039AbVIBT6b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750877AbVIBTuM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 15:50:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751025AbVIBTuM
+	id S1751039AbVIBT6b (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 15:58:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751044AbVIBT6b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 15:50:12 -0400
-Received: from wscnet.wsc.cz ([212.80.64.118]:47495 "EHLO wscnet.wsc.cz")
-	by vger.kernel.org with ESMTP id S1750877AbVIBTuK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 15:50:10 -0400
-Date: Fri, 2 Sep 2005 21:49:47 +0200
-Message-Id: <200509021949.j82JnlKl026403@wscnet.wsc.cz>
-Subject: [PATCH, repost] Removing maintainer's bad e-mails
-From: Jiri Slaby <jirislaby@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Rolf Eike Beer <eike-kernel@sf-tec.de>
+	Fri, 2 Sep 2005 15:58:31 -0400
+Received: from fmr24.intel.com ([143.183.121.16]:21985 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1751029AbVIBT6a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 15:58:30 -0400
+Date: Fri, 2 Sep 2005 12:58:22 -0700
+From: Rajesh Shah <rajesh.shah@intel.com>
+To: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+Cc: Andrew Morton <akpm@osdl.org>, greg@kroah.com,
+       "Li, Shaohua" <shaohua.li@intel.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC/PATCH]reconfigure MSI registers after resume
+Message-ID: <20050902125822.A11794@unix-os.sc.intel.com>
+Reply-To: Rajesh Shah <rajesh.shah@intel.com>
+References: <C7AB9DA4D0B1F344BF2489FA165E502409A45B38@orsmsx404.amr.corp.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <C7AB9DA4D0B1F344BF2489FA165E502409A45B38@orsmsx404.amr.corp.intel.com>; from tom.l.nguyen@intel.com on Thu, Sep 01, 2005 at 01:59:32PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes 1 whole entry, which is no longer maintained and 1 e-mail,
-which is not right.
-[comtrol was posted by Rolf Eike Beer]
+On Thu, Sep 01, 2005 at 01:59:32PM -0700, Nguyen, Tom L wrote:
+> On Thursday, September 01, 2005 1:10 PM Andrew Morton wrote:
+> > Is it not possible to do this in some single centralized place?
+> Existing pci_save_state(dev)/pci_restore_state(dev) covers only 64 bytes
+> of PCI header. One solution is to extend these APIs to cover up to 256
+> bytes. What do you think?
+> 
+No, we can't have these generic functions blindly save/restore
+device specific parts of the config space (offset 64+). I know
+of several chipset devices which have read-clear or write-clear
+bits where reading/writing would have bad side effects. If at
+all the pci core does this, it needs to explicitly walk the
+capability list and save/restore the well known capability
+registers only.
 
-Generated in 2.6.13-mm1 kernel version.
+Rajesh
 
-This patch was posted yet on:
-21 Jul 2005
-09 Sep 2005
-
-Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
-Signed-off-by: Jiri Slaby <xslaby@fi.muni.cz>
-
- MAINTAINERS |    8 --------
- 1 files changed, 8 deletions(-)
-
-diff --git a/MAINTAINERS b/MAINTAINERS
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -208,13 +208,6 @@ P:	Colin Leroy
- M:	colin@colino.net
- S:	Maintained
- 
--ADVANSYS SCSI DRIVER
--P:	Bob Frey
--M:	linux@advansys.com
--W:	http://www.advansys.com/linux.html
--L:	linux-scsi@vger.kernel.org
--S:	Maintained
--
- AEDSP16 DRIVER
- P:	Riccardo Facchetti
- M:	fizban@tin.it
-@@ -2026,7 +2019,6 @@ S:	Supported
- 
- ROCKETPORT DRIVER
- P:	Comtrol Corp.
--M:	support@comtrol.com
- W:	http://www.comtrol.com
- S:	Maintained
- 

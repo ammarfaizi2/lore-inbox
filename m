@@ -1,69 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161012AbVIBK6g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161015AbVIBLLZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161012AbVIBK6g (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 06:58:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030436AbVIBK6g
+	id S1161015AbVIBLLZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 07:11:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030419AbVIBLLZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 06:58:36 -0400
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:54959 "EHLO
-	ogre.sisk.pl") by vger.kernel.org with ESMTP id S1030419AbVIBK6f
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 06:58:35 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
+	Fri, 2 Sep 2005 07:11:25 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:60892 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030409AbVIBLLY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 07:11:24 -0400
+Date: Fri, 2 Sep 2005 04:09:26 -0700
+From: Andrew Morton <akpm@osdl.org>
 To: Pavel Machek <pavel@suse.cz>
+Cc: rjw@sisk.pl, linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
 Subject: Re: 2.6.13-mm1: PCMCIA problem
-Date: Fri, 2 Sep 2005 12:58:51 +0200
-User-Agent: KMail/1.8.2
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20050901035542.1c621af6.akpm@osdl.org> <200509021037.16536.rjw@sisk.pl> <20050902104319.GB9647@elf.ucw.cz>
+Message-Id: <20050902040926.6e02c4e8.akpm@osdl.org>
 In-Reply-To: <20050902104319.GB9647@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+References: <20050901035542.1c621af6.akpm@osdl.org>
+	<20050901142813.47b349ed.akpm@osdl.org>
+	<200509021030.06874.rjw@sisk.pl>
+	<200509021037.16536.rjw@sisk.pl>
+	<20050902104319.GB9647@elf.ucw.cz>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509021258.51921.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, 2 of September 2005 12:43, Pavel Machek wrote:
-> Hi!
-> 
-> > > > > On Thursday, 1 of September 2005 12:55, Andrew Morton wrote:
-> > > > > > 
-> > > > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13/2.6.13-mm1/
-> > > > > 
-> > > > > I cannot start PCMCIA on x86-64 SuSE 9.3 on Asus L5D.  Apparently, the following
-> > > > > command:
-> > > > > 
-> > > > > sh -c modprobe --ignore-install firmware_class; echo 30 > /sys/class/firmware/timeout
-> > > > > 
-> > > > > loops forever with almost 100% of the time spent in the kernel.
-> > > > > 
-> > > > > AFAICS, 2.6.13-rc6-mm2 is also affected, but the mainline kernels are not.
-> > > > 
-> > > > OK.  There are no notable firmware changes in there.  While it's stuck
-> > > > could you generate a kernel profile?    I do:
-> > > > 
-> > > > readprofile -r
-> > > > sleep 5
-> > > > readprofile -n -v -m /boot/System.map | sort -n +2 | tail -40
-> > 
-> > ]--snip--[
-> > 
+Pavel Machek <pavel@suse.cz> wrote:
+>
 > > One more piece of information.  This is the one that loops:
-> > 
-> > echo 30 > /sys/class/firmware/timeout
+>  > 
+>  > echo 30 > /sys/class/firmware/timeout
 > 
-> Try echo -n ...
+>  Try echo -n ...
 
-Well that helps but it means the SuSE's scripts have to be changed to work with
-2.6.13-mm1.  Specifically "/etc/modprobe.d/firmware".  Is that intentional or not?
+Or revert gregkh-driver-sysfs-strip_leading_trailing_whitespace.patch. 
+Obviously if you write 30\n and the write returns 2 then the shell will
+then try to write the \n.  That returns zero and the shell tries again, ad
+infinitum.
 
-Rafael
+Rant.  It took me two full days to weed out and fix all the crap people
+sent me to get -mm1 into a state where it vaguely compiled and booted.  And
+it's untested nonsense like this which wrecks the whole effort for many
+testers.
+
+I suppose this is as good as anything....
 
 
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+From: Andrew Morton <akpm@osdl.org>
+
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ fs/sysfs/file.c |    8 +++++---
+ 1 files changed, 5 insertions(+), 3 deletions(-)
+
+diff -puN fs/sysfs/file.c~gregkh-driver-sysfs-strip_leading_trailing_whitespace-fix fs/sysfs/file.c
+--- devel/fs/sysfs/file.c~gregkh-driver-sysfs-strip_leading_trailing_whitespace-fix	2005-09-02 04:01:40.000000000 -0700
++++ devel-akpm/fs/sysfs/file.c	2005-09-02 04:05:02.000000000 -0700
+@@ -202,13 +202,14 @@ fill_write_buffer(struct sysfs_buffer * 
+  *	passing the buffer that we acquired in fill_write_buffer().
+  */
+ 
+-static int 
+-flush_write_buffer(struct dentry * dentry, struct sysfs_buffer * buffer, size_t count)
++static int flush_write_buffer(struct dentry *dentry,
++			struct sysfs_buffer *buffer, size_t count_in)
+ {
+ 	struct attribute * attr = to_attr(dentry);
+ 	struct kobject * kobj = to_kobj(dentry->d_parent);
+ 	struct sysfs_ops * ops = buffer->ops;
+ 	char *x;
++	size_t count = count_in;
+ 
+ 	/* locate trailing white space */
+ 	while ((count > 0) && isspace(buffer->page[count - 1]))
+@@ -224,7 +225,8 @@ flush_write_buffer(struct dentry * dentr
+ 	/* terminate the string */
+ 	x[count] = '\0';
+ 
+-	return ops->store(kobj, attr, x, count);
++	ops->store(kobj, attr, x, count);
++	return count_in;
+ }
+ 
+ 
+_
+

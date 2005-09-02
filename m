@@ -1,81 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161111AbVIBW7I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161108AbVIBXDi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161111AbVIBW7I (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 18:59:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161115AbVIBW7H
+	id S1161108AbVIBXDi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 19:03:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161112AbVIBXDi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 18:59:07 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:14216 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S1161111AbVIBW7E
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 18:59:04 -0400
-Date: Sat, 3 Sep 2005 00:56:57 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: netdev@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, pascal.chapperon@wanadoo.fr,
-       lars.vahlenberg@mandator.com, Alexey Dobriyan <adobriyan@gmail.com>,
-       apatard@mandriva.com, jgarzik@pobox.com, akpm@osdl.org
-Subject: [patch 2.6.13-git3 4/5] sis190: RGMII Tx internal delay fiddling
-Message-ID: <20050902225657.GE25687@electric-eye.fr.zoreil.com>
-References: <20050902225224.GA25687@electric-eye.fr.zoreil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050902225224.GA25687@electric-eye.fr.zoreil.com>
-User-Agent: Mutt/1.4.2.1i
-X-Organisation: Land of Sunshine Inc.
+	Fri, 2 Sep 2005 19:03:38 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:8350 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1161108AbVIBXDh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 19:03:37 -0400
+In-Reply-To: <p73fysnqiej.fsf@verdi.suse.de>
+To: Andi Kleen <ak@suse.de>
+Cc: akpm@osdl.org, linux clustering <linux-cluster@redhat.com>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Subject: Re: GFS, what's remaining
+X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
+Message-ID: <OFC7B937B5.B0B2BC62-ON88257070.007B3980-88257070.007EAB21@us.ibm.com>
+From: Bryan Henderson <hbryan@us.ibm.com>
+Date: Fri, 2 Sep 2005 16:03:33 -0700
+X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Build V70_08142005|August 14, 2005) at
+ 09/02/2005 19:03:34,
+	Serialize complete at 09/02/2005 19:03:34
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Don't ask.
-The patch is based on SiS's GPLed driver.
+I have to correct an error in perspective, or at least in the wording of 
+it, in the following, because it affects how people see the big picture in 
+trying to decide how the filesystem types in question fit into the world:
 
-Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
+>Shared storage can be more efficient than network file
+>systems like NFS because the storage access is often more efficient
+>than network access
 
-diff -puN a/drivers/net/sis190.c~sis190-200 b/drivers/net/sis190.c
---- a/drivers/net/sis190.c~sis190-200	2005-09-02 23:27:58.126761637 +0200
-+++ b/drivers/net/sis190.c	2005-09-02 23:27:58.130760990 +0200
-@@ -273,7 +273,8 @@ enum sis190_eeprom_address {
- 
- enum sis190_feature {
- 	F_HAS_RGMII	= 1,
--	F_PHY_88E1111	= 2
-+	F_PHY_88E1111	= 2,
-+	F_PHY_BCM5461	= 4
- };
- 
- struct sis190_private {
-@@ -321,7 +322,7 @@ static struct mii_chip_info {
-         unsigned int type;
- 	u32 feature;
- } mii_chip_table[] = {
--	{ "Broadcom PHY BCM5461", { 0x0020, 0x60c0 }, LAN, 0 },
-+	{ "Broadcom PHY BCM5461", { 0x0020, 0x60c0 }, LAN, F_PHY_BCM5461 },
- 	{ "Agere PHY ET1101B",    { 0x0282, 0xf010 }, LAN, 0 },
- 	{ "Marvell PHY 88E1111",  { 0x0141, 0x0cc0 }, LAN, F_PHY_88E1111 },
- 	{ "Realtek PHY RTL8201",  { 0x0000, 0x8200 }, LAN, 0 },
-@@ -960,8 +961,22 @@ static void sis190_phy_task(void * data)
- 
- 		p->ctl |= SIS_R32(StationControl) & ~0x0f001c00;
- 
-+		if ((tp->features & F_HAS_RGMII) &&
-+		    (tp->features & F_PHY_BCM5461)) {
-+			// Set Tx Delay in RGMII mode.
-+			mdio_write(ioaddr, phy_id, 0x18, 0xf1c7);
-+			udelay(200);
-+			mdio_write(ioaddr, phy_id, 0x1c, 0x8c00);
-+			p->ctl |= 0x03000000;
-+		}
-+
- 		SIS_W32(StationControl, p->ctl);
- 
-+		if (tp->features & F_HAS_RGMII) {
-+			SIS_W32(RGDelay, 0x0441);
-+			SIS_W32(RGDelay, 0x0440);
-+		}
-+
- 		net_link(tp, KERN_INFO "%s: link on %s mode.\n", dev->name,
- 			 p->msg);
- 		netif_carrier_on(dev);
+The shared storage access _is_ network access.  In most cases, it's a 
+fibre channel/FCP network.  Nowadays, it's more and more common for it to 
+be a TCP/IP network just like the one folks use for NFS (but carrying 
+ISCSI instead of NFS).  It's also been done with a handful of other 
+TCP/IP-based block storage protocols.
 
-_
+The reason the storage access is expected to be more efficient than the 
+NFS access is because the block access network protocols are supposed to 
+be more efficient than the file access network protocols.
+
+In reality, I'm not sure there really is such a difference in efficiency 
+between the protocols.  The demonstrated differences in efficiency, or at 
+least in speed, are due to other things that are different between a given 
+new shared block implementation and a given old shared file 
+implementation.
+
+But there's another advantage to shared block over shared file that hasn't 
+been mentioned yet:  some people find it easier to manage a pool of blocks 
+than a pool of filesystems.
+
+>it is more reliable because it doesn't have a
+>single point of failure in form of the NFS server.
+
+This advantage isn't because it's shared (block) storage, but because it's 
+a distributed filesystem.  There are shared storage filesystems (e.g. IBM 
+SANFS, ADIC StorNext) that have a centralized metadata or locking server 
+that makes them unreliable (or unscalable) in the same ways as an NFS 
+server.
+
+--
+Bryan Henderson                     IBM Almaden Research Center
+San Jose CA                         Filesystems
+

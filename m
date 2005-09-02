@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030245AbVIBGIf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030272AbVIBGLp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030245AbVIBGIf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 02:08:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030247AbVIBGIf
+	id S1030272AbVIBGLp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 02:11:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030266AbVIBGLp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 02:08:35 -0400
-Received: from web50208.mail.yahoo.com ([206.190.38.49]:39508 "HELO
-	web50208.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S1030245AbVIBGIe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 02:08:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=lVp9rt5Iy7Ocsc99VEZmpFYD6neW+FVvirEFfa1BHrthA8pb5U5hfc3314p0toxsae2fxqqqNHgYGr4HrRobmLvUGR+Zkz1m4oxB1eb+xvtdfaYyrnHTXsf3zxVSUZjjUPJpmqDQJtiV2GszUls8cm+N1zaWreXN+laoQRaQM1g=  ;
-Message-ID: <20050902060830.84977.qmail@web50208.mail.yahoo.com>
-Date: Thu, 1 Sep 2005 23:08:30 -0700 (PDT)
-From: Alex Davis <alex14641@yahoo.com>
-Subject: RE:  RFC: i386: kill !4KSTACKS
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 2 Sep 2005 02:11:45 -0400
+Received: from r-dd.iij4u.or.jp ([210.130.0.70]:12505 "EHLO r-dd.iij4u.or.jp")
+	by vger.kernel.org with ESMTP id S1030248AbVIBGLo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 02:11:44 -0400
+Date: Fri, 02 Sep 2005 15:11:32 +0900 (JST)
+Message-Id: <20050902.151132.15273184.Noritoshi@Demizu.ORG>
+From: Noritoshi Demizu <demizu@dd.iij4u.or.jp>
+To: Stephen Hemminger <shemminger@osdl.org>,
+       Ion Badulescu <lists@limebrokerage.com>, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org
+Subject: Re: Possible BUG in IPv4 TCP window handling, all recent
+ 2.4.x/2.6.x kernels
+In-Reply-To: <20050902.144537.35010282.Noritoshi@Demizu.ORG>
+References: <20050902.135138.38716488.Noritoshi@Demizu.ORG>
+	<20050901222032.5cc649c0@localhost.localdomain>
+	<20050902.144537.35010282.Noritoshi@Demizu.ORG>
+X-Mailer: Mew version 4.1 on Emacs 21 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ndiswrapper and driverloader will not work reliably with 4k stacks.
-This is because of the Windoze drivers they use, to which, obviously,
-they do not have the source. Since quite a few laptops have built-in
-wireless cards by companies who will not release an open-source driver,
-or won't release specs, ndiswrapper and driverloader are the only way
-to get these cards to work. 
-  Please don't tell me to "get a linux-supported wireless card". I don't
-want the clutter of an external wireless adapter sticking out of my laptop,
-nor do I want to spend money on a card when I have a free and working solution.
+> By the way, if tcpdump does not track the window scale option, the right
+> edge (ack + real win) does not change between the following two ACKs.
+>
+> > 11:34:54.337167 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84402527 win 15340 <nop,nop,timestamp 226080473 99717814> (DF)
+>   (259 ACKs are omitted here)
+> > 11:34:54.611769 10.2.20.246.33060 > 10.2.224.182.8700: . ack 84454467 win 2355 <nop,nop,timestamp 226080721 99717841> (DF)
+>
+> The first line is the 37th ACK and the second line is the 295th ACK.
+>
+>   ACK#37:  ack=84402527 win=15340 right_edge=84463887 (= ack + win * 4)
+>   ACK#295: ack=84454467 win=2355  right_edge=84463887 (= ack + win * 4)
+>
+> And all ACKs later than ACK#295 has win=2355 (2355*4=9420).
+>
+> This may be a hint.  But, sorry, I do not know the internal of Linux TCP.
 
-Thank you.
+I think there is a possibility that some middle-box does something,
+for example, some middle-box between the two machines does kinda
+traffic-shaping by tweaking the TCP window size field.
 
--Alex
-
-I code, therefore I am
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+Regards,
+Noritoshi Demizu

@@ -1,39 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751164AbVIBNrP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030510AbVIBNsr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751164AbVIBNrP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 09:47:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbVIBNrP
+	id S1030510AbVIBNsr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 09:48:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbVIBNsr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 09:47:15 -0400
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:39176 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1751164AbVIBNrO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 09:47:14 -0400
-To: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.13: Filesystem capabilities 0.16
-References: <87ll2ghb95.fsf@goat.bogus.local>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: ed  ::  20-megaton hydrogen bomb : firecracker
-Date: Fri, 02 Sep 2005 14:47:09 +0100
-In-Reply-To: <87ll2ghb95.fsf@goat.bogus.local> (Olaf Dietsche's message of
- "1 Sep 2005 19:52:27 +0100")
-Message-ID: <87fysnmvj6.fsf@amaterasu.srvr.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
+	Fri, 2 Sep 2005 09:48:47 -0400
+Received: from yakov.inr.ac.ru ([194.67.69.111]:54196 "HELO yakov.inr.ac.ru")
+	by vger.kernel.org with SMTP id S1751319AbVIBNsp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 09:48:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=ms2.inr.ac.ru;
+  b=Hv/aTsUhBKYI6kZhPcIaefnlfUV/+zPQe6skV+hD5DOA5FeRk8DEdDvNSUxQqb6W8PZVbl42n5VlGW1nRbR4OYtqdaENtAvXi6HvvcOSHpbN5Gc7Xieu6neUwC8ChjB0YLSnNysjX9h/B+X+BnXKWp7D1kwp4kO2qeHZZCXarSk=;
+Date: Fri, 2 Sep 2005 17:48:07 +0400
+From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+To: John Heffner <jheffner@psc.edu>
+Cc: Ion Badulescu <lists@limebrokerage.com>,
+       "David S. Miller" <davem@davemloft.net>, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: Possible BUG in IPv4 TCP window handling, all recent 2.4.x/2.6.x kernels
+Message-ID: <20050902134807.GB12617@yakov.inr.ac.ru>
+References: <Pine.LNX.4.61.0509011713240.6083@guppy.limebrokerage.com> <20050901.154300.118239765.davem@davemloft.net> <Pine.LNX.4.61.0509011845040.6083@guppy.limebrokerage.com> <2d02c76a84655d212634a91002b3eccd@psc.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2d02c76a84655d212634a91002b3eccd@psc.edu>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1 Sep 2005, Olaf Dietsche murmured woefully:
-> This patch implements filesystem capabilities. It allows to run
-> privileged executables without the need for suid root.
+Hello!
 
-Is there some reason why this doesn't keep its capability data in
-xattrs?
+> If you overflow the socket's memory bound, it ends up calling 
+> tcp_clamp_window().  (I'm not sure this is really the right thing to do 
+> here before trying to collapse the queue.)
 
--- 
-`... published last year in a limited edition... In one of the
- great tragedies of publishing, it was not a limited enough edition
- and so I have read it.' --- James Nicoll
+Collapsing is too expensive procedure, it is rather an emergency measure.
+So, tcp collapses queue, when it is necessary, but it must reduce window
+as well.
+
+Alexey

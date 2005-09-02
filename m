@@ -1,105 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030240AbVIBKmg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030396AbVIBKro@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030240AbVIBKmg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 06:42:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030396AbVIBKmg
+	id S1030396AbVIBKro (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 06:47:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030409AbVIBKro
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 06:42:36 -0400
-Received: from smtp004.mail.ukl.yahoo.com ([217.12.11.35]:37537 "HELO
-	smtp004.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1030240AbVIBKmf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 06:42:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=P7VR8aAIuOom75aTDEXDvtP9eUZk2CEOYkF9If0roOu5184Qpz01ThWJLduFf+T9MTUEI5Aw+JqD/3YBG9HsqAtIwnAx6C2YjRJxOPK783yH0COSI/7K/52OXDtUiaZVF1UevTMOuLREw4J4zC5molmZSJHQcCSuSjOCP6HDTmU=  ;
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] [PATCH 10/12] UML - Allow host capability usage to be disabled
-Date: Fri, 2 Sep 2005 12:39:23 +0200
-User-Agent: KMail/1.8.1
-Cc: Jeff Dike <jdike@addtoit.com>, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-References: <200509012217.j81MHKE7011567@ccure.user-mode-linux.org>
-In-Reply-To: <200509012217.j81MHKE7011567@ccure.user-mode-linux.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 2 Sep 2005 06:47:44 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:51435 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1030396AbVIBKrn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 06:47:43 -0400
+Date: Fri, 2 Sep 2005 12:43:19 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-mm1: PCMCIA problem
+Message-ID: <20050902104319.GB9647@elf.ucw.cz>
+References: <20050901035542.1c621af6.akpm@osdl.org> <20050901142813.47b349ed.akpm@osdl.org> <200509021030.06874.rjw@sisk.pl> <200509021037.16536.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200509021239.23859.blaisorblade@yahoo.it>
+In-Reply-To: <200509021037.16536.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 02 September 2005 00:17, Jeff Dike wrote:
-> From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
->
-> Add new cmdline setups:
->   - noprocmm
->   - noptracefaultinfo
-> In case of testing, they can be used to switch off usage of
-> /proc/mm and PTRACE_FAULTINFO independently.
-Is "skas0" cmd line option preserved?
-> Signed-off-by: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-> Signed-off-by: Jeff Dike <jdike@addtoit.com>
->
-> Index: test/arch/um/os-Linux/start_up.c
-> ===================================================================
-> --- test.orig/arch/um/os-Linux/start_up.c	2005-09-01 16:42:42.000000000
-> -0400 +++ test/arch/um/os-Linux/start_up.c	2005-09-01 16:51:23.000000000
-> -0400 @@ -275,6 +275,30 @@
->  	check_ptrace();
->  }
->
-> +static int __init noprocmm_cmd_param(char *str, int* add)
-> +{
-> +	proc_mm = 0;
-> +	return 0;
-> +}
-> +
-> +__uml_setup("noprocmm", noprocmm_cmd_param,
-> +"noprocmm\n"
-> +"    Turns off usage of /proc/mm, even if host supports it.\n"
-> +"    To support /proc/mm, the host needs to be patched using\n"
-> +"    the current skas3 patch.\n\n");
-> +
-> +static int __init noptracefaultinfo_cmd_param(char *str, int* add)
-> +{
-> +	ptrace_faultinfo = 0;
-> +	return 0;
-> +}
-> +
-> +__uml_setup("noptracefaultinfo", noptracefaultinfo_cmd_param,
-> +"noptracefaultinfo\n"
-> +"    Turns off usage of PTRACE_FAULTINFO, even if host supports\n"
-> +"    it. To support PTRACE_FAULTINFO, the host needs to be patched\n"
-> +"    using the current skas3 patch.\n\n");
-> +
->  #ifdef UML_CONFIG_MODE_SKAS
->  static inline void check_skas3_ptrace_support(void)
->  {
->
->
->
-> -------------------------------------------------------
-> SF.Net email is Sponsored by the Better Software Conference & EXPO
-> September 19-22, 2005 * San Francisco, CA * Development Lifecycle Practices
-> Agile & Plan-Driven Development * Managing Projects & Teams * Testing & QA
-> Security * Process Improvement & Measurement * http://www.sqe.com/bsce5sf
-> _______________________________________________
-> User-mode-linux-devel mailing list
-> User-mode-linux-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/user-mode-linux-devel
+Hi!
+
+> > > > On Thursday, 1 of September 2005 12:55, Andrew Morton wrote:
+> > > > > 
+> > > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13/2.6.13-mm1/
+> > > > 
+> > > > I cannot start PCMCIA on x86-64 SuSE 9.3 on Asus L5D.  Apparently, the following
+> > > > command:
+> > > > 
+> > > > sh -c modprobe --ignore-install firmware_class; echo 30 > /sys/class/firmware/timeout
+> > > > 
+> > > > loops forever with almost 100% of the time spent in the kernel.
+> > > > 
+> > > > AFAICS, 2.6.13-rc6-mm2 is also affected, but the mainline kernels are not.
+> > > 
+> > > OK.  There are no notable firmware changes in there.  While it's stuck
+> > > could you generate a kernel profile?    I do:
+> > > 
+> > > readprofile -r
+> > > sleep 5
+> > > readprofile -n -v -m /boot/System.map | sort -n +2 | tail -40
+> 
+> ]--snip--[
+> 
+> One more piece of information.  This is the one that loops:
+> 
+> echo 30 > /sys/class/firmware/timeout
+
+Try echo -n ...
 
 -- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
-http://www.user-mode-linux.org/~blaisorblade
-
-	
-
-	
-		
-___________________________________ 
-Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
-http://mail.yahoo.it
+if you have sharp zaurus hardware you don't need... you know my address

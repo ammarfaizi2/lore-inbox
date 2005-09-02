@@ -1,47 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161082AbVIBWCc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161036AbVIBWKt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161082AbVIBWCc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 18:02:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161083AbVIBWCc
+	id S1161036AbVIBWKt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 18:10:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161081AbVIBWKs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 18:02:32 -0400
-Received: from rev.193.226.233.176.euroweb.hu ([193.226.233.176]:5382 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S1161082AbVIBWCb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 18:02:31 -0400
-To: akpm@osdl.org
-CC: linux-kernel@vger.kernel.org, fuse-devel@lists.sourceforge.net,
-       torvalds@osdl.org
-Subject: FUSE merging?
-Message-Id: <E1EBJc2-0006J0-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Sat, 03 Sep 2005 00:02:18 +0200
+	Fri, 2 Sep 2005 18:10:48 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:31676 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161036AbVIBWKs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 18:10:48 -0400
+Date: Fri, 2 Sep 2005 15:13:11 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, haveblue@us.ibm.com
+Subject: Re: [PATCH 07/11] memory hotplug: sysfs and add/remove functions
+Message-Id: <20050902151311.5f292ef5.akpm@osdl.org>
+In-Reply-To: <20050902205648.07018412@kernel.beaverton.ibm.com>
+References: <20050902205643.9A4EC17A@kernel.beaverton.ibm.com>
+	<20050902205648.07018412@kernel.beaverton.ibm.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew!
+Dave Hansen <haveblue@us.ibm.com> wrote:
+>
+> +		for (i = 0; i < PAGES_PER_SECTION; i++) {
+> +			if (PageReserved(first_page+i))
+> +				continue;
 
-Do you plan to send FUSE to Linus for 2.6.14?
-
-I know you have some doubts about usefulness, etc.  Here are a couple
-of facts, that I hope show that Linux should benefit from having FUSE:
-
- - total number of downloads from SF: ~25000
-
- - number of downloads of last release (during 3 months): ~7000
-
- - number of distros carrying official packages: 2 (debian, gentoo)
-
- - number of publicly available filesystems known: 27
-
- - of which at least 2 are carried by debian (and maybe others)
-
- - number of language bindings: 7 (native: C, java, python, perl, C#, sh, TCL)
-
- - biggest known commercial user: ~110TB exported, total bandwidth: 1.5TB/s
-
- - mailing list traffic 100-200 messages/month
-
- - have been in -mm since 2005 january
-
-Miklos
+How intimate do these patches get with PageReserved()?  Bear in mind that
+we're slowly working toward making PageReserved go away.

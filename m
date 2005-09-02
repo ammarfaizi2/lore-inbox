@@ -1,191 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161058AbVIBVcj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161055AbVIBVna@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161058AbVIBVcj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 17:32:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161055AbVIBVcj
+	id S1161055AbVIBVna (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 17:43:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161059AbVIBVna
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 17:32:39 -0400
-Received: from terminus.zytor.com ([209.128.68.124]:43672 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1161058AbVIBVci
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 17:32:38 -0400
-Message-ID: <4318C3F6.6000004@zytor.com>
-Date: Fri, 02 Sep 2005 14:28:22 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Frank Sorenson <frank@tuxrocks.com>
-Subject: [PATCH] Make the bzImage format self-terminating
-References: <4318BD50.5050507@zytor.com>
-In-Reply-To: <4318BD50.5050507@zytor.com>
-Content-Type: multipart/mixed;
- boundary="------------000707090806060301020108"
+	Fri, 2 Sep 2005 17:43:30 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:49591 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161055AbVIBVn3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 17:43:29 -0400
+Date: Fri, 2 Sep 2005 14:45:52 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-mm1
+Message-Id: <20050902144552.77c92d06.akpm@osdl.org>
+In-Reply-To: <1125676407l.6262l.0l@werewolf.able.es>
+References: <fa.hqupr0d.1u3af35@ifi.uio.no>
+	<4317AD4D.6030001@reub.net>
+	<1125626219l.6072l.0l@werewolf.able.es>
+	<20050901190655.345914ba.akpm@osdl.org>
+	<1125676407l.6262l.0l@werewolf.able.es>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000707090806060301020108
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+"J.A. Magallon" <jamagallon@able.es> wrote:
+>
+> 
+> On 09.02, Andrew Morton wrote:
+> > "J.A. Magallon" <jamagallon@able.es> wrote:
+> > >
+> > > 
+> > > On 1/09/2005 10:58 a.m., Andrew Morton wrote:
+> > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13/2.6.13-mm1/
+> > > > 
+> > > > - Included Alan's big tty layer buffering rewrite.  This breaks the build on
+> > > >   lots of more obscure character device drivers.  Patches welcome (please cc
+> > > >   Alan).
+> > > > 
+> > > 
+> > > I have problems with udev and latest -mm.
+> > > 2.6.13 boots fine, but 2.6.13-mm1 blocks when starting udev.
+> > > System is Mandriva Cooker. As cooker, things are changing fast (initscripts,
+> > > udev, etc), but the fact is that with the same setup, plain .13 boots
+> > > and -mm1 blocks. Udev is 068 version.
+> > > 
+> > > Any idea about what can be the reason ?
+> > > 
+> > 
+> > There's some suspect locking in the /proc/devices seq_file conversion code.
+> > 
+> > Could you revert convert-proc-devices-to-use-seq_file-interface-fix.patch
+> > then convert-proc-devices-to-use-seq_file-interface.patch?
+> > 
+> 
+> Still the same result, system bocks starting udev...
+> 
 
-I'm proposing the attached patch to replace Frank Sorenson's 
-i386-buildc-write-out-larger-system-size-to-bootsector patch currently 
-in -mm.  The goal (presumably) is to make the bzImage format 
-self-terminating.
+OK, thanks.   Nothing from sysrq-t?  Does the below help?
 
-Signed-off-by: H. Peter Anvin <hpa@zytor.com>
+--- devel/fs/sysfs/file.c~gregkh-driver-sysfs-strip_leading_trailing_whitespace-fix	2005-09-02 04:01:40.000000000 -0700
++++ devel-akpm/fs/sysfs/file.c	2005-09-02 04:05:02.000000000 -0700
+@@ -202,13 +202,14 @@ fill_write_buffer(struct sysfs_buffer * 
+  *	passing the buffer that we acquired in fill_write_buffer().
+  */
+ 
+-static int 
+-flush_write_buffer(struct dentry * dentry, struct sysfs_buffer * buffer, size_t count)
++static int flush_write_buffer(struct dentry *dentry,
++			struct sysfs_buffer *buffer, size_t count_in)
+ {
+ 	struct attribute * attr = to_attr(dentry);
+ 	struct kobject * kobj = to_kobj(dentry->d_parent);
+ 	struct sysfs_ops * ops = buffer->ops;
+ 	char *x;
++	size_t count = count_in;
+ 
+ 	/* locate trailing white space */
+ 	while ((count > 0) && isspace(buffer->page[count - 1]))
+@@ -224,7 +225,8 @@ flush_write_buffer(struct dentry * dentr
+ 	/* terminate the string */
+ 	x[count] = '\0';
+ 
+-	return ops->store(kobj, attr, x, count);
++	ops->store(kobj, attr, x, count);
++	return count_in;
+ }
+ 
+ 
+_
 
---------------000707090806060301020108
-Content-Type: text/x-patch;
- name="i386-x86_64-extend-syssize.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="i386-x86_64-extend-syssize.patch"
-
-diff --git a/Documentation/i386/boot.txt b/Documentation/i386/boot.txt
---- a/Documentation/i386/boot.txt
-+++ b/Documentation/i386/boot.txt
-@@ -2,7 +2,7 @@
- 		     ----------------------------
- 
- 		    H. Peter Anvin <hpa@zytor.com>
--			Last update 2002-01-01
-+			Last update 2005-09-02
- 
- On the i386 platform, the Linux kernel uses a rather complicated boot
- convention.  This has evolved partially due to historical aspects, as
-@@ -34,6 +34,8 @@ Protocol 2.02:	(Kernel 2.4.0-test3-pre3)
- Protocol 2.03:	(Kernel 2.4.18-pre1) Explicitly makes the highest possible
- 		initrd address available to the bootloader.
- 
-+Protocol 2.04:	(Kernel 2.6.14) Extend the syssize field to four bytes.
-+
- 
- **** MEMORY LAYOUT
- 
-@@ -103,10 +105,9 @@ The header looks like:
- Offset	Proto	Name		Meaning
- /Size
- 
--01F1/1	ALL	setup_sects	The size of the setup in sectors
-+01F1/1	ALL(1	setup_sects	The size of the setup in sectors
- 01F2/2	ALL	root_flags	If set, the root is mounted readonly
--01F4/2	ALL	syssize		DO NOT USE - for bootsect.S use only
--01F6/2	ALL	swap_dev	DO NOT USE - obsolete
-+01F4/4	2.04+(2	syssize		The size of the 32-bit code in 16-byte paras
- 01F8/2	ALL	ram_size	DO NOT USE - for bootsect.S use only
- 01FA/2	ALL	vid_mode	Video mode control
- 01FC/2	ALL	root_dev	Default root device number
-@@ -129,8 +130,12 @@ Offset	Proto	Name		Meaning
- 0228/4	2.02+	cmd_line_ptr	32-bit pointer to the kernel command line
- 022C/4	2.03+	initrd_addr_max	Highest legal initrd address
- 
--For backwards compatibility, if the setup_sects field contains 0, the
--real value is 4.
-+(1) For backwards compatibility, if the setup_sects field contains 0, the
-+    real value is 4.
-+
-+(2) For boot protocol prior to 2.04, the upper two bytes of the syssize
-+    field are unusable, which means the size of a bzImage kernel
-+    cannot be determined.
- 
- If the "HdrS" (0x53726448) magic number is not found at offset 0x202,
- the boot protocol version is "old".  Loading an old kernel, the
-@@ -230,12 +235,16 @@ loader to communicate with the kernel.  
- relevant to the boot loader itself, see "special command line options"
- below.
- 
--The kernel command line is a null-terminated string up to 255
--characters long, plus the final null.
-+The kernel command line is a null-terminated string currently up to
-+255 characters long, plus the final null.  A string that is too long
-+will be automatically truncated by the kernel, a boot loader may allow
-+a longer command line to be passed to permit future kernels to extend
-+this limit.
- 
- If the boot protocol version is 2.02 or later, the address of the
- kernel command line is given by the header field cmd_line_ptr (see
--above.)
-+above.)  This address can be anywhere between the end of the setup
-+heap and 0xA0000.
- 
- If the protocol version is *not* 2.02 or higher, the kernel
- command line is entered using the following protocol:
-@@ -255,7 +264,7 @@ command line is entered using the follow
- **** SAMPLE BOOT CONFIGURATION
- 
- As a sample configuration, assume the following layout of the real
--mode segment:
-+mode segment (this is a typical, and recommended layout):
- 
- 	0x0000-0x7FFF	Real mode kernel
- 	0x8000-0x8FFF	Stack and heap
-@@ -312,9 +321,9 @@ Such a boot loader should enter the foll
- 
- **** LOADING THE REST OF THE KERNEL
- 
--The non-real-mode kernel starts at offset (setup_sects+1)*512 in the
--kernel file (again, if setup_sects == 0 the real value is 4.)  It
--should be loaded at address 0x10000 for Image/zImage kernels and
-+The 32-bit (non-real-mode) kernel starts at offset (setup_sects+1)*512
-+in the kernel file (again, if setup_sects == 0 the real value is 4.)
-+It should be loaded at address 0x10000 for Image/zImage kernels and
- 0x100000 for bzImage kernels.
- 
- The kernel is a bzImage kernel if the protocol >= 2.00 and the 0x01
-diff --git a/arch/i386/boot/setup.S b/arch/i386/boot/setup.S
---- a/arch/i386/boot/setup.S
-+++ b/arch/i386/boot/setup.S
-@@ -82,7 +82,7 @@ start:
- # This is the setup header, and it must start at %cs:2 (old 0x9020:2)
- 
- 		.ascii	"HdrS"		# header signature
--		.word	0x0203		# header version number (>= 0x0105)
-+		.word	0x0204		# header version number (>= 0x0105)
- 					# or else old loadlin-1.5 will fail)
- realmode_swtch:	.word	0, 0		# default_switch, SETUPSEG
- start_sys_seg:	.word	SYSSEG
-diff --git a/arch/i386/boot/tools/build.c b/arch/i386/boot/tools/build.c
---- a/arch/i386/boot/tools/build.c
-+++ b/arch/i386/boot/tools/build.c
-@@ -177,7 +177,9 @@ int main(int argc, char ** argv)
- 		die("Output: seek failed");
- 	buf[0] = (sys_size & 0xff);
- 	buf[1] = ((sys_size >> 8) & 0xff);
--	if (write(1, buf, 2) != 2)
-+	buf[2] = ((sys_size >> 16) & 0xff);
-+	buf[3] = ((sys_size >> 24) & 0xff);
-+	if (write(1, buf, 4) != 4)
- 		die("Write of image length failed");
- 
- 	return 0;					    /* Everything is OK */
-diff --git a/arch/x86_64/boot/setup.S b/arch/x86_64/boot/setup.S
---- a/arch/x86_64/boot/setup.S
-+++ b/arch/x86_64/boot/setup.S
-@@ -81,7 +81,7 @@ start:
- # This is the setup header, and it must start at %cs:2 (old 0x9020:2)
- 
- 		.ascii	"HdrS"		# header signature
--		.word	0x0203		# header version number (>= 0x0105)
-+		.word	0x0204		# header version number (>= 0x0105)
- 					# or else old loadlin-1.5 will fail)
- realmode_swtch:	.word	0, 0		# default_switch, SETUPSEG
- start_sys_seg:	.word	SYSSEG
-diff --git a/arch/x86_64/boot/tools/build.c b/arch/x86_64/boot/tools/build.c
---- a/arch/x86_64/boot/tools/build.c
-+++ b/arch/x86_64/boot/tools/build.c
-@@ -178,7 +178,9 @@ int main(int argc, char ** argv)
- 		die("Output: seek failed");
- 	buf[0] = (sys_size & 0xff);
- 	buf[1] = ((sys_size >> 8) & 0xff);
--	if (write(1, buf, 2) != 2)
-+	buf[2] = ((sys_size >> 16) & 0xff);
-+	buf[3] = ((sys_size >> 24) & 0xff);
-+	if (write(1, buf, 4) != 4)
- 		die("Write of image length failed");
- 
- 	return 0;					    /* Everything is OK */
-
---------------000707090806060301020108--

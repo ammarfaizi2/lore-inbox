@@ -1,87 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030519AbVIBOF2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751332AbVIBOGy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030519AbVIBOF2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 10:05:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751332AbVIBOF2
+	id S1751332AbVIBOGy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 10:06:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbVIBOGy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 10:05:28 -0400
-Received: from ns1.limegroup.com ([64.48.93.2]:57604 "EHLO ns1.limegroup.com")
-	by vger.kernel.org with ESMTP id S1751331AbVIBOF1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 10:05:27 -0400
-Date: Fri, 2 Sep 2005 10:05:15 -0400 (EDT)
-From: lists@limebrokerage.com
-X-X-Sender: ion@guppy.limebrokerage.com
-To: "David S. Miller" <davem@davemloft.net>
-cc: jheffner@psc.edu, linux-net@vger.kernel.org, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: Possible BUG in IPv4 TCP window handling, all recent 2.4.x/2.6.x
- kernels
-In-Reply-To: <20050901.232823.123760177.davem@davemloft.net>
-Message-ID: <Pine.LNX.4.61.0509020948350.6083@guppy.limebrokerage.com>
-References: <20050901.154300.118239765.davem@davemloft.net>
- <Pine.LNX.4.61.0509011845040.6083@guppy.limebrokerage.com>
- <2d02c76a84655d212634a91002b3eccd@psc.edu> <20050901.232823.123760177.davem@davemloft.net>
+	Fri, 2 Sep 2005 10:06:54 -0400
+Received: from ciistr1.ist.utl.pt ([193.136.128.1]:14803 "EHLO
+	ciistr1.ist.utl.pt") by vger.kernel.org with ESMTP id S1751332AbVIBOGy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 10:06:54 -0400
+From: Pedro Venda <pjvenda@arrakis.dhis.org>
+To: ck@vds.kolivas.org
+Subject: Re: [ck] Re: [PATCH][RFC] vm: swap prefetch
+Date: Fri, 2 Sep 2005 15:01:25 +0000
+User-Agent: KMail/1.8.2
+Cc: Con Kolivas <kernel@kolivas.org>, Hans Kristian Rosbach <hk@isphuset.no>,
+       Thomas Schlichter <thomas.schlichter@web.de>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <200509012346.33020.kernel@kolivas.org> <1125584303.25400.3.camel@linux> <200509020018.32993.kernel@kolivas.org>
+In-Reply-To: <200509020018.32993.kernel@kolivas.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart2398119.xTDFrh9hZ7";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200509021501.29505.pjvenda@arrakis.dhis.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David,
+--nextPart2398119.xTDFrh9hZ7
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-On Thu, 1 Sep 2005, David S. Miller wrote:
+On Thursday 01 September 2005 14:18, Con Kolivas wrote:
+> On Fri, 2 Sep 2005 00:18, Hans Kristian Rosbach wrote:
+> > On Thu, 2005-09-01 at 23:46 +1000, Con Kolivas wrote:
+> > > Here is a working swap prefetching patch for 2.6.13. I have
+> > > resuscitated and rewritten some early prefetch code Thomas Schlichter
+> > > did in late 2.5 to create a configurable kernel thread that reads in
+> > > swap from ram in reverse order it was written out. It does this once
+> > > kswapd has been idle for a minute (implying no current vm stress). Th=
+is
+> > > patch attached below is a rollup of two patches the current versions =
+of
+> > > which are here:
 
-> From: John Heffner <jheffner@psc.edu>
-> Date: Thu, 1 Sep 2005 22:51:48 -0400
->
->> I have an idea why this is going on.  Packets are pre-allocated by the
->> driver to be a max packet size, so when you send small packets, it
->> wastes a lot of memory.  Currently Linux uses the packets at the
->> beginning of a connection to make a guess at how best to advertise its
->> window so as not to overflow the socket's memory bounds.  Since you
->> start out with big segments then go to small ones, this is defeating
->> that mechanism.  It's actually documented in the comments in
->> tcp_input.c. :)
->>
->>   * The scheme does not work when sender sends good segments opening
->>   * window and then starts to feed us spagetti. But it should work
->>   * in common situations. Otherwise, we have to rely on queue collapsing.
->
-> That's a strong possibility, good catch John.
+> > That said, I have often thought it might be good to have something like
+> > pre-writing swap, ie reverse what your patch does.
+> >
+> > In other words it'd keep as much of swappable data on disk as possible,
+> > but without removing it from memory. So when it comes time to free up
+> > some memory, the data is already on disk so no performance penalty from
+> > writing it out.
 
-That's possible, but see below.
+both ideas make all the sense to me. I'll give it a try, but in what way ca=
+n=20
+we test this kind of enhancement? maybe write a small program that starts=20
+fills a good part of swap space and then, after 1min idle, 'watch free -m'=
+=20
+should show free memory decreasing (not counting cache/buffers) with idle=20
+activity. decent?
 
-> Although, I'm still not ruling out some box in the middle
-> even though I consider it less likely than your theory.
+about the Hans's proposal - it would increase power consumption, because of=
+=20
+increased disk activity. about con's swap prefetch, I'm not so sure...
 
-There is no funky box in the middle, that much I can guarantee you.
+regards,
+pedro venda.
+=2D-=20
 
-I said yesterday that I don't have access to the sender. While that's true 
-for the flow I had captured in those dumps, I saw the same phenomenon 
-occur between two boxes I control fully. The sender is running Windows 
-2000, and is separated from the receiver by a single Catalyst 6500 
-switch/router (they are on different VLAN's) which doesn't do anything 
-fancy (I control the switch as well).
+Pedro Jo=E3o Lopes Venda
+email: pjvenda < at > arrakis.dhis.org
+http://arrakis.dhis.org
 
-This particular Win2k sender sends _only_ real-time data, it's not capable 
-of rewinding. So it's always sending small packets, from start to finish, 
-yet the problem still occurs.
+--nextPart2398119.xTDFrh9hZ7
+Content-Type: application/pgp-signature
 
-Note that even real-time data can end up generating a stream of full-size 
-packets occassionally. It's just very unlikely they would occur at the 
-start of the flow, as market data is very thin in the pre-market open hours.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-> So you're suggesting that tcp_prune_queue() should do the:
->
-> 	if (atomic_read(&sk->sk_rmem_alloc) >= sk->sk_rcvbuf)
-> 		tcp_clamp_window(sk, tp);
->
-> check after attempting to collapse the queue.
->
-> But, that window clamping should fix the problem, as we recalculate
-> the window to advertise.
+iD8DBQBDGGlJeRy7HWZxjWERAuy7AKDyFaCUJRCtrXZgFM0pQf/+JWcbzwCguXtV
+uSR+OnoFbo6BXcCIMqPk7GI=
+=0FpG
+-----END PGP SIGNATURE-----
 
-Patches for testing are very much welcome...
-
-Thanks,
--Ion
+--nextPart2398119.xTDFrh9hZ7--

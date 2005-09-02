@@ -1,80 +1,177 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbVIBUJE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751049AbVIBULN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751125AbVIBUJE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 16:09:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbVIBUJD
+	id S1751049AbVIBULN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 16:11:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751127AbVIBULM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 16:09:03 -0400
-Received: from fed1rmmtao11.cox.net ([68.230.241.28]:61888 "EHLO
-	fed1rmmtao11.cox.net") by vger.kernel.org with ESMTP
-	id S1751125AbVIBUJC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 16:09:02 -0400
-Date: Fri, 2 Sep 2005 13:08:56 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: mingo@elte.hu
-Cc: dwalker@mvista.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] RT: Invert some TRACE_BUG_ON_LOCKED tests
-Message-ID: <20050902200856.GY3966@smtp.west.cox.net>
-References: <1125691250.2709.2.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1125691250.2709.2.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-User-Agent: Mutt/1.5.9i
+	Fri, 2 Sep 2005 16:11:12 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:47498 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751049AbVIBULK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 16:11:10 -0400
+Date: Fri, 2 Sep 2005 13:10:43 -0700 (PDT)
+From: hawkes@sgi.com
+To: Dinakar Guniguntala <dino@in.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, linux-ia64@vger.kernel.org,
+       hawkes@sgi.com, Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org
+Message-Id: <20050902201043.15701.92254.sendpatchset@jackhammer.engr.sgi.com>
+Subject: [PATCH 2/3] 2.6.13-mm1: cpuset + build_sched_domains() fix
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With 2.6.13-rt4 I had to do the following in order to get my paired down
-config booting on my x86 whitebox (defconfig works fine, after I enable
-enet/8250_console/nfsroot).  Daniel Walker helped me trace this down.
+Ingo, Dino, and Andrew,
 
-Signed-off-by: Tom Rini <trini@kernel.crashing.org>
+Here is the "cpuset + build_sched_domains() mangles structures" set of
+patches against 2.6.13-mm1.
 
---- linux-2.6.13/kernel/rt.c	2005-09-02 12:39:02.000000000 -0700
-+++ linux-2.6.13/kernel/rt.c	2005-09-02 12:24:04.000000000 -0700
-@@ -736,8 +736,8 @@
- 	if (old_owner == new_owner)
- 		return;
+Patch #2:  Fix the "dynamic sched domains" bug:
+  * For a NUMA system with multiple CPUs per node, declaring a
+    cpu-exclusive cpuset that includes only some, but not all, of the
+    CPUs in a node will mangle the sched domain structures.
+
+Signed-off-by: John Hawkes <hawkes@sgi.com>
+
+Index: linux/kernel/sched.c
+===================================================================
+--- linux.orig/kernel/sched.c	2005-09-02 10:46:27.000000000 -0700
++++ linux/kernel/sched.c	2005-09-02 11:17:46.000000000 -0700
+@@ -5305,10 +5305,10 @@
+  * gets dynamically allocated.
+  */
+ static DEFINE_PER_CPU(struct sched_domain, node_domains);
+-static struct sched_group *sched_group_nodes[MAX_NUMNODES];
++static struct sched_group **sched_group_nodes_bycpu[NR_CPUS];
  
--	TRACE_BUG_ON_LOCKED(!spin_is_locked(&old_owner->task->pi_lock));
--	TRACE_BUG_ON_LOCKED(!spin_is_locked(&new_owner->task->pi_lock));
-+	TRACE_BUG_ON_LOCKED(spin_is_locked(&old_owner->task->pi_lock));
-+	TRACE_BUG_ON_LOCKED(spin_is_locked(&new_owner->task->pi_lock));
- 	plist_for_each_safe(curr1, next1, &old_owner->task->pi_waiters) {
- 		w = plist_entry(curr1, struct rt_mutex_waiter, pi_list);
- 		if (w->lock == lock) {
-@@ -770,8 +770,8 @@
- 		return;
+ static DEFINE_PER_CPU(struct sched_domain, allnodes_domains);
+-static struct sched_group sched_group_allnodes[MAX_NUMNODES];
++static struct sched_group *sched_group_allnodes_bycpu[NR_CPUS];
+ 
+ static int cpu_to_allnodes_group(int cpu)
+ {
+@@ -5323,6 +5323,21 @@
+ void build_sched_domains(const cpumask_t *cpu_map)
+ {
+ 	int i;
++#ifdef CONFIG_NUMA
++	struct sched_group **sched_group_nodes = NULL;
++	struct sched_group *sched_group_allnodes = NULL;
++
++	/*
++	 * Allocate the per-node list of sched groups
++	 */
++	sched_group_nodes = kmalloc(sizeof(struct sched_group*)*MAX_NUMNODES,
++					   GFP_ATOMIC);
++	if (!sched_group_nodes) {
++		printk(KERN_WARNING "Can not alloc sched group node list\n");
++		return;
++	}
++	sched_group_nodes_bycpu[first_cpu(*cpu_map)] = sched_group_nodes;
++#endif
+ 
+ 	/*
+ 	 * Set up domains for cpus specified by the cpu_map.
+@@ -5335,8 +5350,21 @@
+ 		cpus_and(nodemask, nodemask, *cpu_map);
+ 
+ #ifdef CONFIG_NUMA
+-		if (num_online_cpus()
++		if (cpus_weight(*cpu_map)
+ 				> SD_NODES_PER_DOMAIN*cpus_weight(nodemask)) {
++			if (!sched_group_allnodes) {
++				sched_group_allnodes
++					= kmalloc(sizeof(struct sched_group)
++							* MAX_NUMNODES,
++						  GFP_KERNEL);
++				if (!sched_group_allnodes) {
++					printk(KERN_WARNING
++					"Can not alloc allnodes sched group\n");
++					break;
++				}
++				sched_group_allnodes_bycpu[i]
++						= sched_group_allnodes;
++			}
+ 			sd = &per_cpu(allnodes_domains, i);
+ 			*sd = SD_ALLNODES_INIT;
+ 			sd->span = *cpu_map;
+@@ -5400,8 +5428,9 @@
+ 
+ #ifdef CONFIG_NUMA
+ 	/* Set up node groups */
+-	init_sched_build_groups(sched_group_allnodes, *cpu_map,
+-				&cpu_to_allnodes_group);
++	if (sched_group_allnodes)
++		init_sched_build_groups(sched_group_allnodes, *cpu_map,
++					&cpu_to_allnodes_group);
+ 
+ 	for (i = 0; i < MAX_NUMNODES; i++) {
+ 		/* Set up node groups */
+@@ -5412,8 +5441,10 @@
+ 		int j;
+ 
+ 		cpus_and(nodemask, nodemask, *cpu_map);
+-		if (cpus_empty(nodemask))
++		if (cpus_empty(nodemask)) {
++			sched_group_nodes[i] = NULL;
+ 			continue;
++		}
+ 
+ 		domainspan = sched_domain_node_span(i);
+ 		cpus_and(domainspan, domainspan, *cpu_map);
+@@ -5558,24 +5589,42 @@
+ {
+ #ifdef CONFIG_NUMA
+ 	int i;
+-	for (i = 0; i < MAX_NUMNODES; i++) {
+-		cpumask_t nodemask = node_to_cpumask(i);
+-		struct sched_group *oldsg, *sg = sched_group_nodes[i];
++	int cpu;
+ 
+-		cpus_and(nodemask, nodemask, *cpu_map);
+-		if (cpus_empty(nodemask))
+-			continue;
++	for_each_cpu_mask(cpu, *cpu_map) {
++		struct sched_group *sched_group_allnodes
++			= sched_group_allnodes_bycpu[cpu];
++		struct sched_group **sched_group_nodes
++			= sched_group_nodes_bycpu[cpu];
++
++		if (sched_group_allnodes) {
++			kfree(sched_group_allnodes);
++			sched_group_allnodes_bycpu[cpu] = NULL;
++		}
+ 
+-		if (sg == NULL)
++		if (!sched_group_nodes)
+ 			continue;
+-		sg = sg->next;
++
++		for (i = 0; i < MAX_NUMNODES; i++) {
++			cpumask_t nodemask = node_to_cpumask(i);
++			struct sched_group *oldsg, *sg = sched_group_nodes[i];
++
++			cpus_and(nodemask, nodemask, *cpu_map);
++			if (cpus_empty(nodemask))
++				continue;
++
++			if (sg == NULL)
++				continue;
++			sg = sg->next;
+ next_sg:
+-		oldsg = sg;
+-		sg = sg->next;
+-		kfree(oldsg);
+-		if (oldsg != sched_group_nodes[i])
+-			goto next_sg;
+-		sched_group_nodes[i] = NULL;
++			oldsg = sg;
++			sg = sg->next;
++			kfree(oldsg);
++			if (oldsg != sched_group_nodes[i])
++				goto next_sg;
++		}
++		kfree(sched_group_nodes);
++		sched_group_nodes_bycpu[cpu] = NULL;
  	}
- 
--	TRACE_BUG_ON_LOCKED(!spin_is_locked(&lock->wait_lock));
--	TRACE_BUG_ON_LOCKED(!spin_is_locked(&p->pi_lock));
-+	TRACE_BUG_ON_LOCKED(spin_is_locked(&lock->wait_lock));
-+	TRACE_BUG_ON_LOCKED(spin_is_locked(&p->pi_lock));
- #ifdef CONFIG_RT_DEADLOCK_DETECT
- 	pi_prio++;
- 	if (p->policy != SCHED_NORMAL && prio > normal_prio(p)) {
-@@ -967,8 +967,8 @@
- 	/*
- 	 * Add SCHED_NORMAL tasks to the end of the waitqueue (FIFO):
- 	 */
--	TRACE_BUG_ON_LOCKED(!spin_is_locked(&task->pi_lock));
--	TRACE_BUG_ON_LOCKED(!spin_is_locked(&lock->wait_lock));
-+	TRACE_BUG_ON_LOCKED(spin_is_locked(&task->pi_lock));
-+	TRACE_BUG_ON_LOCKED(spin_is_locked(&lock->wait_lock));
- #if !ALL_TASKS_PI
- 	if (!rt_task(task)) {
- 		plist_add(&waiter->list, &lock->wait_list);
-@@ -1070,7 +1070,7 @@
- 	struct rt_mutex_waiter *waiter = NULL;
- 	struct thread_info *new_owner;
- 
--	TRACE_BUG_ON_LOCKED(!spin_is_locked(&lock->wait_lock));
-+	TRACE_BUG_ON_LOCKED(spin_is_locked(&lock->wait_lock));
- 	/*
- 	 * Get the highest prio one:
- 	 *
-
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+ #endif
+ }

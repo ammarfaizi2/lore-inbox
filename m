@@ -1,70 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbVIBPTT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751410AbVIBPjO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750709AbVIBPTT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 11:19:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750710AbVIBPTT
+	id S1751410AbVIBPjO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 11:39:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751489AbVIBPjO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 11:19:19 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:13293 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1750709AbVIBPTS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 11:19:18 -0400
-Date: Fri, 2 Sep 2005 11:19:17 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Reuben Farrelly <reuben-lkml@reub.net>
-cc: Andrew Morton <akpm@osdl.org>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>,
-       Greg KH <greg@kroah.com>
-Subject: Re: [linux-usb-devel] Re: 2.6.13-mm1
-In-Reply-To: <20050901190413.7790b869.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.44L0.0509021110480.5367-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 2 Sep 2005 11:39:14 -0400
+Received: from dilbert.robsims.com ([209.120.158.98]:10512 "EHLO
+	mail.robsims.com") by vger.kernel.org with ESMTP id S1751410AbVIBPjO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 11:39:14 -0400
+Date: Fri, 2 Sep 2005 09:39:13 -0600
+From: Rob Sims <lkml-z@robsims.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Change in NFS client behavior
+Message-ID: <20050902153913.GA23328@robsims.com>
+References: <20050831145545.GA8426@robsims.com> <1125617897.7627.14.camel@lade.trondhjem.org> <1125632597.8635.9.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1125632597.8635.9.camel@lade.trondhjem.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Sep 2005, Andrew Morton wrote:
+On Thu, Sep 01, 2005 at 11:43:17PM -0400, Trond Myklebust wrote:
+> to den 01.09.2005 Klokka 19:38 (-0400) skreiv Trond Myklebust:
+> > This is a consequence of 2.6 NFS clients optimising away unnecessary
+> > truncate calls. Whereas this is correct behaviour for truncate(), it
+> > appears to be incorrect for open(O_TRUNC).
 
-> Reuben Farrelly <reuben-lkml@reub.net> wrote:
+> > In fact, local filesystems like xfs and ext3 appear to have the opposite
+> > problem: they change ctime if you call ftruncate(0) on the zero-length
+> > file, as the attached test shows.
+ 
+The following patch fixes the problem, at least when applied against
+2.6.8:
 
-> > I'm also observing some USB messages logged:
-> > 
-> > Sep  2 13:26:22 tornado kernel: usb 5-1: new full speed USB device using 
-> > uhci_hcd and address 13
-> > Sep  2 13:26:22 tornado kernel: drivers/usb/class/usblp.c: usblp0: USB 
-> > Bidirectional printer dev 13 if 0 alt 0 proto 2 vid 0x03F0 pid 0x6204
-> > Sep  2 13:26:23 tornado kernel: hub 5-0:1.0: port 1 disabled by hub (EMI?), 
-> > re-enabling...
+--- inode.c.orig        2005-08-31 16:54:27.000000000 -0600
++++ inode.c     2005-08-31 17:06:52.000000000 -0600
+@@ -756,7 +756,7 @@
+ 	int error;
+ 
+ 	if (attr->ia_valid & ATTR_SIZE) {
+-		if (!S_ISREG(inode->i_mode) || attr->ia_size == i_size_read(inode))
++		if (!S_ISREG(inode->i_mode))
+ 	attr->ia_valid &= ~ATTR_SIZE;
+ 	}
 
-This message means pretty much what it says: noise or something else 
-caused the connection to be disabled.  In theory this could be caused by a 
-problem with the host controller, the cable, or the printer.  Does this 
-happen consistently with 2.6.13-mm1?  Did it happen with 2.6.12?
-
-> > Sep  2 13:26:23 tornado kernel: usb 5-1: USB disconnect, address 13
-> > Sep  2 13:26:23 tornado kernel: drivers/usb/class/usblp.c: usblp0: removed
-> > Sep  2 13:26:23 tornado kernel: usb 5-1: new full speed USB device using 
-> > uhci_hcd and address 14
-> > Sep  2 13:26:23 tornado kernel: usb 5-1: device descriptor read/64, error -71
-> > Sep  2 13:26:23 tornado kernel: usb 5-1: device descriptor read/64, error -71
-> > Sep  2 13:26:23 tornado kernel: usb 5-1: new full speed USB device using 
-> > uhci_hcd and address 15
-> > Sep  2 13:26:23 tornado kernel: usb 5-1: device descriptor read/all, error -71
-> > Sep  2 13:26:23 tornado kernel: usb 5-1: new full speed USB device using 
-> > uhci_hcd and address 16
-> > Sep  2 13:26:23 tornado kernel: usb 5-1: can't set config #1, error -71
-> > Sep  2 13:26:23 tornado kernel: usb 5-1: new full speed USB device using 
-> > uhci_hcd and address 17
-> > Sep  2 13:26:24 tornado kernel: usb 5-1: unable to read config index 0 
-> > descriptor/start
-> > Sep  2 13:26:24 tornado kernel: usb 5-1: can't read configurations, error -71
-
-If it's not already in 2.6.13-mm1, this patch may help with the 
-reinitialization:
-
-http://marc.theaimsgroup.com/?l=linux-usb-devel&m=112551468126219&w=2
-
-Alan Stern
-
+> Could you please check if the following patch fixes NFS (and also the
+> local filesystems) for you?
+ 
+I'll try the latest in the flood today.  Thanks for all the help!
+-- 
+Rob

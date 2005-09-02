@@ -1,82 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751322AbVIBN4m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030519AbVIBOF2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751322AbVIBN4m (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 09:56:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbVIBN4m
+	id S1030519AbVIBOF2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 10:05:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751332AbVIBOF2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 09:56:42 -0400
-Received: from mail.microway.com ([64.80.227.22]:23221 "EHLO mail.microway.com")
-	by vger.kernel.org with ESMTP id S1751322AbVIBN4l convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 09:56:41 -0400
-From: Rick Warner <rick@microway.com>
-Organization: Microway, Inc.
-To: Eric Dumazet <dada1@cosmosbay.com>
-Subject: Re: latency doubled on tg3 device from 2.6.11 to 2.6.12
-Date: Fri, 2 Sep 2005 09:56:00 -0400
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org, eliot@microway.com
-References: <200509011730.51990.rick@microway.com> <431776C5.9070709@cosmosbay.com>
-In-Reply-To: <431776C5.9070709@cosmosbay.com>
-Message-Id: <200509020956.00690.rick@microway.com>
-X-Sanitizer: Advosys mail filter
+	Fri, 2 Sep 2005 10:05:28 -0400
+Received: from ns1.limegroup.com ([64.48.93.2]:57604 "EHLO ns1.limegroup.com")
+	by vger.kernel.org with ESMTP id S1751331AbVIBOF1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 10:05:27 -0400
+Date: Fri, 2 Sep 2005 10:05:15 -0400 (EDT)
+From: lists@limebrokerage.com
+X-X-Sender: ion@guppy.limebrokerage.com
+To: "David S. Miller" <davem@davemloft.net>
+cc: jheffner@psc.edu, linux-net@vger.kernel.org, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: Possible BUG in IPv4 TCP window handling, all recent 2.4.x/2.6.x
+ kernels
+In-Reply-To: <20050901.232823.123760177.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.61.0509020948350.6083@guppy.limebrokerage.com>
+References: <20050901.154300.118239765.davem@davemloft.net>
+ <Pine.LNX.4.61.0509011845040.6083@guppy.limebrokerage.com>
+ <2d02c76a84655d212634a91002b3eccd@psc.edu> <20050901.232823.123760177.davem@davemloft.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 01 September 2005 05:46 pm, Eric Dumazet wrote:
-> Rick Warner a écrit :
-> > Hello,
-> >  We have been testing latency and bandwidth using our proprietary MPI
-> > link checker tool (http://www.microway.com/mpilinkchecker.html) and have
-> > found that the latency increased from ~25ms to ~45ms going from 2.6.11 to
-> > 2.6.12. 2.6.13 has the same result.  We also tried the latest bcm5700
-> > from broadcom (8.2.18) and got the same ~45ms latencies.  This was tried
-> > on several different opteron and em64t motherboards.
-> >
-> >  We see 20-25ms latencies with the e1000 driver (with some module
-> > options) on all 3 kernel versions.  For those interested, the e1000
-> > options used are:
-> >
-> >  InterruptThrottleRate=0 RxIntDelay=0 TxIntDelay=0 RxAbsIntDelay=0
-> > TxAbsIntDelay=0
-> >
-> >  Digging through source, it seems that a new locking mechanism for tg3
-> > was put in place in 2.6.12.  Is this the likely cause?  What can we do to
-> > restore our lower latency?
->
-> Could you please define latency ?
->
-> tg3 driver was recently updated to use coalescing.
->
-> So when the nic receives one frame, it may delay up to XXXX us ( XXXX <
-> 1024) the interrupt.
->
-> But 25 ms is far more than 1024 us, so I dont think this coalescing can
-> explain your problem.
->
-> The HZ change from 1000 to 250 could be the root of the problem ?
->
-> Using a simple ping between 2 machines with tg3, I get less than 1ms time.
->
-> Eric
+Hi David,
 
-Our mpi link checker tool does a 1 way transfer of a 0 byte message (+ header) 
-and times it to each system (in addition to other tests).  All systems in a 
-cluster are showing the same high latency.  The numbers I gave were supposed 
-to be us, I used the wrong unit by accident.
+On Thu, 1 Sep 2005, David S. Miller wrote:
 
-Low latency is often essential to clustered applications.  While a delay of up 
-to 1024 us doesn't affect regular communications too much, it may severely 
-affect mpi jobs.
+> From: John Heffner <jheffner@psc.edu>
+> Date: Thu, 1 Sep 2005 22:51:48 -0400
+>
+>> I have an idea why this is going on.  Packets are pre-allocated by the
+>> driver to be a max packet size, so when you send small packets, it
+>> wastes a lot of memory.  Currently Linux uses the packets at the
+>> beginning of a connection to make a guess at how best to advertise its
+>> window so as not to overflow the socket's memory bounds.  Since you
+>> start out with big segments then go to small ones, this is defeating
+>> that mechanism.  It's actually documented in the comments in
+>> tcp_input.c. :)
+>>
+>>   * The scheme does not work when sender sends good segments opening
+>>   * window and then starts to feed us spagetti. But it should work
+>>   * in common situations. Otherwise, we have to rely on queue collapsing.
+>
+> That's a strong possibility, good catch John.
 
-Thanks.
+That's possible, but see below.
 
--- 
-Richard Warner
-Lead Systems Integrator
-Microway, Inc
-(508)732-5517
+> Although, I'm still not ruling out some box in the middle
+> even though I consider it less likely than your theory.
+
+There is no funky box in the middle, that much I can guarantee you.
+
+I said yesterday that I don't have access to the sender. While that's true 
+for the flow I had captured in those dumps, I saw the same phenomenon 
+occur between two boxes I control fully. The sender is running Windows 
+2000, and is separated from the receiver by a single Catalyst 6500 
+switch/router (they are on different VLAN's) which doesn't do anything 
+fancy (I control the switch as well).
+
+This particular Win2k sender sends _only_ real-time data, it's not capable 
+of rewinding. So it's always sending small packets, from start to finish, 
+yet the problem still occurs.
+
+Note that even real-time data can end up generating a stream of full-size 
+packets occassionally. It's just very unlikely they would occur at the 
+start of the flow, as market data is very thin in the pre-market open hours.
+
+> So you're suggesting that tcp_prune_queue() should do the:
+>
+> 	if (atomic_read(&sk->sk_rmem_alloc) >= sk->sk_rcvbuf)
+> 		tcp_clamp_window(sk, tp);
+>
+> check after attempting to collapse the queue.
+>
+> But, that window clamping should fix the problem, as we recalculate
+> the window to advertise.
+
+Patches for testing are very much welcome...
+
+Thanks,
+-Ion

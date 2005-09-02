@@ -1,49 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751144AbVIBJFU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbVIBJV5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751144AbVIBJFU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 05:05:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751157AbVIBJFT
+	id S1751161AbVIBJV5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 05:21:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbVIBJV5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 05:05:19 -0400
-Received: from zproxy.gmail.com ([64.233.162.206]:65136 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751144AbVIBJFS convert rfc822-to-8bit
+	Fri, 2 Sep 2005 05:21:57 -0400
+Received: from zproxy.gmail.com ([64.233.162.205]:6122 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751161AbVIBJV5 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 05:05:18 -0400
+	Fri, 2 Sep 2005 05:21:57 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=OTnMQ2JBgG1u01QoL9DF55nXrYIdUPOBh8GPWPFd0i27yR5ieGy76O5ihriHDB9lOYRU+kp9iQGvQ7KhFUlwEmwrN0Y0iHDHZkr/OUfISH4X3csenJ7ZGuZWgLrOr+Fn8tSsVBoqnI7JR+Xh5/u1VW/Y7V7RDI5kVYPdYPGGqf8=
-Message-ID: <9a874849050902020543a5b931@mail.gmail.com>
-Date: Fri, 2 Sep 2005 11:05:15 +0200
+        b=oPXuUnE+LPHikJpDIphl6TPZhAPeL3mmAebFGkf16YiPzmdZCYf3D1/mPBTdAx/ou0wsqQMT4J1Q546kJBr2W6KbB/FKiWSiCrcW33k4mbuqul4bLOcB+bF7EZ5FAgzew9xMcN3z/zLPJ0Z4N3TQ9hoXgRMKfWl5jdNqbIWwa1A=
+Message-ID: <9a87484905090202214bc5bcbe@mail.gmail.com>
+Date: Fri, 2 Sep 2005 11:21:51 +0200
 From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Phy Prabab <phyprabab@yahoo.com>
-Subject: Re: mail list broken?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050902064239.3383.qmail@web51803.mail.yahoo.com>
+To: "liyu@WAN" <liyu@ccoss.com.cn>
+Subject: Re: [Q] how to use syslogd to debug kernel ?
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <4317B309.3000404@ccoss.com.cn>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <20050902064239.3383.qmail@web51803.mail.yahoo.com>
+References: <4317B309.3000404@ccoss.com.cn>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/2/05, Phy Prabab <phyprabab@yahoo.com> wrote:
-> Hello,
+On 9/2/05, liyu@WAN <liyu@ccoss.com.cn> wrote:
+> Hi, everyone.
 > 
-> Does anyone know why all of a sudden I have stopped
-> receiving LK mailings?  The last email was yesterday
-> mornig around 02.00 US PST.  I see the archives are
-> continuing to get mail. hmmm.
-> 
-> Any help is appreciated.
-> 
-See http://vger.kernel.org/majordomo-info.html - there's a test
-address listed you can try.
-IIRC you can also send a mail to majordomo and ask if you are still subscribed.
-Also try vgers mxverify tool : http://vger.kernel.org/mxverify.html
+>     I know kernel oops can be seen by run 'dmesg', but if
+> kernel crashed, we can not run it.   so I reconfigure syslogd
+> to support remote forward, the debug machine content of
 
-Hope that's useful.
+When the kernel crashes there's no guarantee that messages will reach
+syslog. Actually there's no guarantee of anything - the kernel is
+dead.
+If you want to capture Oops messages in a more reliable fashion, then
+use a serial console, netconsole or console on line-printer.
 
 -- 
 Jesper Juhl <jesper.juhl@gmail.com>

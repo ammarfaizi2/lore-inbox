@@ -1,63 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750900AbVIBTPd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750921AbVIBTP6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750900AbVIBTPd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 15:15:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750921AbVIBTPd
+	id S1750921AbVIBTP6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 15:15:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750925AbVIBTP6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 15:15:33 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:3237 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750900AbVIBTPc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 15:15:32 -0400
-Date: Fri, 2 Sep 2005 20:15:29 +0100
-From: viro@ZenIV.linux.org.uk
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] s2io u64 use for uintptr_t
-Message-ID: <20050902191529.GE5155@ZenIV.linux.org.uk>
+	Fri, 2 Sep 2005 15:15:58 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:8426 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750921AbVIBTP5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 15:15:57 -0400
+Subject: Re: IDE HPA
+From: Peter Jones <pjones@redhat.com>
+Reply-To: pjones@redhat.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "ATARAID (eg, Promise Fasttrak, Highpoint 370) related discussions" 
+	<ataraid-list@redhat.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1125687557.30867.26.camel@localhost.localdomain>
+References: <87941b4c05082913101e15ddda@mail.gmail.com>
+	 <87941b4c05083008523cddbb2a@mail.gmail.com>
+	 <1125419927.8276.32.camel@localhost.localdomain>
+	 <87941b4c050830095111bf484e@mail.gmail.com>
+	 <62b0912f0509020027212e6c42@mail.gmail.com>
+	 <1125666332.30867.10.camel@localhost.localdomain>
+	 <62b0912f05090206331d04afd3@mail.gmail.com>
+	 <E1EBCdS-00064p-00@chiark.greenend.org.uk>
+	 <62b0912f05090209242ad72321@mail.gmail.com>
+	 <1125680712.30867.20.camel@localhost.localdomain>
+	 <62b0912f05090210441d3fa248@mail.gmail.com>
+	 <1125684567.31292.2.camel@localhost.localdomain>
+	 <1125687557.30867.26.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: Red Hat, Inc.
+Date: Fri, 02 Sep 2005 15:14:43 -0400
+Message-Id: <1125688483.31292.20.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.3.8 (2.3.8-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-u64 is not uintptr_t; unsigned long is...
+On Fri, 2005-09-02 at 19:59 +0100, Alan Cox wrote:
+> On Gwe, 2005-09-02 at 14:09 -0400, Peter Jones wrote:
+> > (if there's already a straightforward way, feel free to clue me in --
+> > but the default should almost certainly be to assume the HPA is set up
+> > correctly, shouldn't it?)
+> 
+> The normal use of HPA is to clip drives to get them past BIOS boot
+> checks.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-----
-diff -urN RC13-segment/drivers/net/s2io.c RC13-s2io-u64/drivers/net/s2io.c
---- RC13-segment/drivers/net/s2io.c	2005-09-02 03:33:39.000000000 -0400
-+++ RC13-s2io-u64/drivers/net/s2io.c	2005-09-02 03:34:23.000000000 -0400
-@@ -354,7 +354,7 @@
- 	int lst_size, lst_per_page;
- 	struct net_device *dev = nic->dev;
- #ifdef CONFIG_2BUFF_MODE
--	u64 tmp;
-+	unsigned long tmp;
- 	buffAdd_t *ba;
- #endif
- 
-@@ -542,18 +542,18 @@
- 				    (BUF0_LEN + ALIGN_SIZE, GFP_KERNEL);
- 				if (!ba->ba_0_org)
- 					return -ENOMEM;
--				tmp = (u64) ba->ba_0_org;
-+				tmp = (unsigned long) ba->ba_0_org;
- 				tmp += ALIGN_SIZE;
--				tmp &= ~((u64) ALIGN_SIZE);
-+				tmp &= ~((unsigned long) ALIGN_SIZE);
- 				ba->ba_0 = (void *) tmp;
- 
- 				ba->ba_1_org = (void *) kmalloc
- 				    (BUF1_LEN + ALIGN_SIZE, GFP_KERNEL);
- 				if (!ba->ba_1_org)
- 					return -ENOMEM;
--				tmp = (u64) ba->ba_1_org;
-+				tmp = (unsigned long) ba->ba_1_org;
- 				tmp += ALIGN_SIZE;
--				tmp &= ~((u64) ALIGN_SIZE);
-+				tmp &= ~((unsigned long) ALIGN_SIZE);
- 				ba->ba_1 = (void *) tmp;
- 				k++;
- 			}
+Ugh.  So some BIOSes use it for legitimate reasons (like thinkpads), and
+some use it to work around BIOS bugs.  Great.
+
+>  The thinkpads come with a pre-installed partition table which
+> will protect the HPA unless the user goes to town removing it.
+
+Mine didn't, but it does have an HPA.  Thankfully we weren't disabling
+it yet when I installed my laptop -- I know others who weren't so lucky.
+So this partitioning scheme hasn't always been the case...
+
+And it seems broken anyway.  The point of the HPA is to make the OS see
+a smaller/different disk layout, unless it's actually trying to update
+things that are "protected", right?  If so, the partition table pointing
+outside of the the disk when the HPA configuration hasn't been changed
+from the bootup default totally broken :/
+
+It really sounds better (to my naive mind, at least) to whitelist the
+known-broken BIOSes.
+
+> The ideal case would be that the partition table is considered at boot
+> to see if the HPA matches the partitiont table or not. You'd also then
+> need dynamic HPA enable/disable for installers and other tools to go
+> with that.
+
+Well, installers probably should be aware, yes -- that's why I mentioned
+userland interfaces to enabling/disabling.  But to me it still seems
+like we want to disable the HPA during installation and bootup, but only
+if your BIOS is doing things wrong.
+
+> Send patches.
+
+Point taken.
+-- 
+  Peter
+

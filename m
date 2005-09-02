@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030680AbVIBEoW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030681AbVIBErM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030680AbVIBEoW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 00:44:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030681AbVIBEoW
+	id S1030681AbVIBErM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 00:47:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030682AbVIBErM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 00:44:22 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:62919 "EHLO
+	Fri, 2 Sep 2005 00:47:12 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:7880 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1030680AbVIBEoV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 00:44:21 -0400
-To: "Brown, Len" <len.brown@intel.com>
-Cc: "Pierre Ossman" <drzeus-list@drzeus.cx>, <ncunningham@cyclades.com>,
-       "Pavel Machek" <pavel@ucw.cz>, "Meelis Roos" <mroos@linux.ee>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+	id S1030681AbVIBErL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 00:47:11 -0400
+To: ncunningham@cyclades.com
+Cc: Pierre Ossman <drzeus-list@drzeus.cx>, Pavel Machek <pavel@ucw.cz>,
+       Meelis Roos <mroos@linux.ee>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Len Brown <len.brown@intel.com>
 Subject: Re: reboot vs poweroff
-References: <F7DC2337C7631D4386A2DF6E8FB22B30047B8DAF@hdsmsx401.amr.corp.intel.com>
+References: <20050901062406.EBA5613D5B@rhn.tartu-labor>
+	<1125557333.12996.76.camel@localhost>
+	<Pine.SOC.4.61.0509011030430.3232@math.ut.ee>
+	<4316F4E3.4030302@drzeus.cx> <1125578897.4785.23.camel@localhost>
+	<m1fysoq0p7.fsf@ebiederm.dsl.xmission.com> <43171C02.30402@drzeus.cx>
+	<m1aciwpvsz.fsf@ebiederm.dsl.xmission.com>
+	<43174643.7040007@drzeus.cx>
+	<m164tkpryx.fsf@ebiederm.dsl.xmission.com>
+	<1125609100.4785.30.camel@localhost>
 From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Thu, 01 Sep 2005 22:43:17 -0600
-In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B30047B8DAF@hdsmsx401.amr.corp.intel.com> (Len
- Brown's message of "Thu, 1 Sep 2005 14:23:31 -0400")
-Message-ID: <m1vf1knkpm.fsf@ebiederm.dsl.xmission.com>
+Date: Thu, 01 Sep 2005 22:46:08 -0600
+In-Reply-To: <1125609100.4785.30.camel@localhost> (Nigel Cunningham's
+ message of "Fri, 02 Sep 2005 07:11:40 +1000")
+Message-ID: <m1r7c8nkkv.fsf@ebiederm.dsl.xmission.com>
 User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Brown, Len" <len.brown@intel.com> writes:
+Nigel Cunningham <ncunningham@cyclades.com> writes:
 
->  
->>Patch tested and works fine here. You should probably make a 
->>note in the bugzilla so we don't get a conflicting merge
->>from the ACPI folks.
 >
-> One might also consider that it would be a good idea to
-> send patches that break ACPI files to the ACPI maintainer
-> and acpi-devel@lists.sourceforge.net before sending them
-> to Linus...
+> All I did was start calling pm_ops->prepare, ->enter and ->finish
+> regardless of the powerdown method, instead of only for S3 or S4. It
+> seems to be working fine. If, however, we should be doing things
+> differently, I'm happy to comply. What's the authoritative word?
 
-My apologies, for bug fixes that are not complete and simply move
-where the bug is.  My apologies also for not cc'ing you, I didn't
-intend to omit you but it never occurred to me.  The patch was
-also 2 lines and obviously correct.
-
-For this round I knew you were on the CC list and deliberately included
-you.
-
-My goal for the reboot/halt/suspend/kexec path is to fix it so the
-generic code is correct and consistent.  Something it hasn't been for
-years creating the affect that a correct bug fix in one place would
-break something else. 
-
-Until the reboot paths are correct and consistent things will continue
-to break, in weird and unpredictable ways, that will keep us all
-hunting weird strange bugs for a long time.  I think the S4 suspend
-case is the last code path that needs to be fixed.  It is certainly
-the last one I am aware of.
+Not certain.  I am only authoritative on device_suspend() and the
+reboot_notifiers, in this context.  Largely I read and think about
+the code to see what is going on.
 
 Eric
-

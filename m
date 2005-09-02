@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161078AbVIBV6m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161076AbVIBV6K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161078AbVIBV6m (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 17:58:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161077AbVIBV6l
+	id S1161076AbVIBV6K (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 17:58:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161077AbVIBV6K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 17:58:41 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:48066 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1161078AbVIBV6l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 17:58:41 -0400
-Message-ID: <4318CB11.8060704@namesys.com>
-Date: Fri, 02 Sep 2005 14:58:41 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
-Subject: Re: RFC: i386: kill !4KSTACKS
-References: <20050902003915.GI3657@stusta.de>
-In-Reply-To: <20050902003915.GI3657@stusta.de>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+	Fri, 2 Sep 2005 17:58:10 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:4538 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161076AbVIBV6I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Sep 2005 17:58:08 -0400
+Date: Fri, 2 Sep 2005 15:00:34 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Rajesh Shah <rajesh.shah@intel.com>
+Cc: tom.l.nguyen@intel.com, greg@kroah.com, shaohua.li@intel.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC/PATCH]reconfigure MSI registers after resume
+Message-Id: <20050902150034.72a60355.akpm@osdl.org>
+In-Reply-To: <20050902125822.A11794@unix-os.sc.intel.com>
+References: <C7AB9DA4D0B1F344BF2489FA165E502409A45B38@orsmsx404.amr.corp.intel.com>
+	<20050902125822.A11794@unix-os.sc.intel.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
+Rajesh Shah <rajesh.shah@intel.com> wrote:
+>
+> On Thu, Sep 01, 2005 at 01:59:32PM -0700, Nguyen, Tom L wrote:
+> > On Thursday, September 01, 2005 1:10 PM Andrew Morton wrote:
+> > > Is it not possible to do this in some single centralized place?
+> > Existing pci_save_state(dev)/pci_restore_state(dev) covers only 64 bytes
+> > of PCI header. One solution is to extend these APIs to cover up to 256
+> > bytes. What do you think?
+> > 
+> No, we can't have these generic functions blindly save/restore
+> device specific parts of the config space (offset 64+). I know
+> of several chipset devices which have read-clear or write-clear
+> bits where reading/writing would have bad side effects. If at
+> all the pci core does this, it needs to explicitly walk the
+> capability list and save/restore the well known capability
+> registers only.
+> 
 
->4Kb kernel stacks are the future on i386, and it seems the problems it
->initially caused are now sorted out.
->
->Does anyone knows about any currently unsolved problems?
->
->I'd like to:
->- get a patch into on of the next -mm kernels that unconditionally 
->  enables 4KSTACKS
->- if there won't be new reports of breakages, send a patch to
->  completely remove !4KSTACKS for 2.6.15
->
->In -mm, Reiser4 still has a dependency on !4KSTACKS.
->I've mentioned this at least twice to the Reiser4 people, and they 
->should check why this dependency is still there and if there are still 
->stack issues in Reiser4 fix them.
->
->If not people using Reiser4 on i386 will have to decide whether to 
->switch the filesystem or the architecture...
->
->cu
->Adrian
->
->  
->
-Can you wait just one month after we get in for this? Or even 2 weeks.
-vs needs a weekend, etc.....
+OK, thanks.  I'll drop Shaohua's
+reconfigure-msi-registers-after-resume.patch while this gets sorted out.

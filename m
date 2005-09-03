@@ -1,37 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751469AbVICPqP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751071AbVICP5W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751469AbVICPqP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Sep 2005 11:46:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751229AbVICPqO
+	id S1751071AbVICP5W (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Sep 2005 11:57:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751468AbVICP5W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Sep 2005 11:46:14 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:51721 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751469AbVICPqN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Sep 2005 11:46:13 -0400
-Date: Sat, 3 Sep 2005 16:46:08 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2/2] support for mmc chip select in wbsd
-Message-ID: <20050903164608.D4416@flint.arm.linux.org.uk>
-Mail-Followup-To: Pierre Ossman <drzeus-list@drzeus.cx>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <4312EE38.6050600@drzeus.cx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <4312EE38.6050600@drzeus.cx>; from drzeus-list@drzeus.cx on Mon, Aug 29, 2005 at 01:15:04PM +0200
+	Sat, 3 Sep 2005 11:57:22 -0400
+Received: from fmr16.intel.com ([192.55.52.70]:31981 "EHLO
+	fmsfmr006.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1751071AbVICP5V convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Sep 2005 11:57:21 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: 2.6.13-mm1: hangs during boot ...
+Date: Sat, 3 Sep 2005 11:57:07 -0400
+Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B30047FA090@hdsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.13-mm1: hangs during boot ...
+Thread-Index: AcWwbPblSZIy5+xATe+kkSVNgkr/AAAMObXQ
+From: "Brown, Len" <len.brown@intel.com>
+To: "Andrew Morton" <akpm@osdl.org>,
+       "Peter Williams" <pwil3058@bigpond.net.au>
+Cc: <linux-kernel@vger.kernel.org>, <James.Bottomley@steeleye.com>,
+       <linux-scsi@vger.kernel.org>
+X-OriginalArrivalTime: 03 Sep 2005 15:57:10.0527 (UTC) FILETIME=[249A38F0:01C5B0A0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 29, 2005 at 01:15:04PM +0200, Pierre Ossman wrote:
-> Use the chip select ios in the wbsd driver.
+>> > Please then try the latest ACPI patch here:
+>>  > 
+>http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches
+>/release/2.6.13/acpi-20050902-2.6.13.diff.gz
+>>  > It should apply to vanilla 2.6.13 with a reject in ia64/Kconfig
+>>  > that you can ignore.
+>>  > 
+>>  > If this works, then we munged git-acpi.patch in 
+>2.6.13-mm1 somehow.
+>> 
+>>  There were no problems with this patch applied.  So it 
+>looks like the 
+>>  munge theory is correct.
+>
+>That diff is significantly different from the diff I plucked from
+>master.kernel.org:/pub/scm/linux/kernel/git/lenb/linux-acpi-2.6
+>.git#test
+>for 2.6.13-mm1.
+>
+>Doing (patch -R | grep FAILED) on 2.6.13-mm1 says:
 
-Applied, thanks.
+Right.
+2.6.13/acpi-20050902-2.6.13.diff.gz
+is newers than 2.6.13-rc1's git-acpi.patch
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+2.6.13/acpi-20050815-2.6.13.diff.gz
+is a closer match -- though not exact.
+
+Peter, it might be illustrative if you have a moment
+if you can also test 2.6.13/acpi-20050815-2.6.13.diff.gz
+all by itself.
+
+If it fails, then I broke -mm1
+with acpi-20050815-2.6.13.diff.gz, but fixed
+it by acpi-20050902-2.6.13.diff.gz.
+
+If it succeeds, then the issue lies in the relatively small delta
+between acpi-20050815-2.6.13.diff.gz 2.6.13-mm1's git-acpi.patch.
+
+thanks,
+-Len
+

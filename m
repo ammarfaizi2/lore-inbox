@@ -1,147 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750942AbVICNei@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751460AbVICNvt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750942AbVICNei (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Sep 2005 09:34:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750940AbVICNei
+	id S1751460AbVICNvt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Sep 2005 09:51:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751459AbVICNvs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Sep 2005 09:34:38 -0400
-Received: from pilet.ens-lyon.fr ([140.77.167.16]:57010 "EHLO
-	relaissmtp.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S1750833AbVICNei (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Sep 2005 09:34:38 -0400
-Date: Sat, 3 Sep 2005 15:34:29 +0200
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, torvalds@osdl.org
-Subject: [PATCH] vga text console and stty cols/rows
-Message-ID: <20050903133428.GA4258@implementation>
-Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-	linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i-nntp
+	Sat, 3 Sep 2005 09:51:48 -0400
+Received: from omta04ps.mx.bigpond.com ([144.140.83.156]:64153 "EHLO
+	omta04ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1751457AbVICNvr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Sep 2005 09:51:47 -0400
+Message-ID: <4319AA71.7090700@bigpond.net.au>
+Date: Sat, 03 Sep 2005 23:51:45 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Reuben Farrelly <reuben-lkml@reub.net>
+CC: "Brown, Len" <len.brown@intel.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       linux-scsi@vger.kernel.org
+Subject: Re: 2.6.13-mm1: hangs during boot ...
+References: <fa.qs5cahs.i2khgm@ifi.uio.no> <fa.fm9i4v6.1ekchhm@ifi.uio.no> <4319A402.7030705@reub.net>
+In-Reply-To: <4319A402.7030705@reub.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sat, 3 Sep 2005 13:51:45 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Reuben Farrelly wrote:
+> Hi Peter,
+> 
+> On 3/09/2005 4:59 a.m., Peter Williams wrote:
+> 
+>> Brown, Len wrote:
+>>
+>>>>> [  279.662960]  [<c02d5c74>] wait_for_completion+0xa4/0x110
+>>>
+>>>
+>>>
+>>> possibly a missing interrupt?
+>>>
+>>>
+>>>> CONFIG_ACPI=y
+>>>
+>>>
+>>>
+>>> any difference if booted with "acpi=off" or "acpi=noirq"?
+>>
+>>
+>> Yes.  In both cases, the system appears to boot normally but I'm 
+>> unable to login or connect via ssh.  Also there's a "device not ready" 
+>> message
+> 
+> 
+> Are you seeing this "Device  not ready" message appear over and over, or 
+> just the once?
 
-Some people use 66-cells braille devices for reading the console, and
-hence would like to reduce the width of the screen by using:
+Just the once.
 
-stty cols 66
+> 
+> I am seeing it fill up my messages log as it is logging 1 or so messages 
+> each minute.  I've emailed the SCSI maintainer James Bottomley twice 
+> about it but had no response either time.
+> 
+> The SCSI device I have is:
+> 
+> Sep  3 22:14:40 tornado kernel: Vendor: SONY  Model: CD-RW  CRX145S  
+> Rev: 1.0b
+> 
+> As for the inability to log in, this bug may be relevant, given I also 
+> had that problem:
+> 
+> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=166422
+> 
+> There are fixes in the pipeline for util-linux audit interaction in 
+> Fedora as well.  I know because I reported those too ;)
+> 
+>> after the scsi initialization which I don't normally see.  I've 
+>> attached the scsi initialization output.  The PF_NETLINK error 
+>> messages after the login prompt in this output are created whenever I 
+>> try to log in or connect via ssh.
+> 
+> 
+> The workaround by enabling audit support, but obviously a better fix is 
+> in the pipeline..
+> 
+> I'm surprised more people aren't discovering these 'interactions' due to 
+> having audit not turned on.  Does everyone build audit into their kernels?
+> 
+> reuben
 
-However, the vga text console doesn't behave correctly: the 14 first
-characters of the second line are put on the right of the first line and
-so forth.
 
-Here is a patch to correct that. It corrects the disp_end and offset
-registers of the vga board on console resize and console switch.
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-On usual screens, you then correctly get a right and/or bottom blank
-margin. On some laptop panels, the output is resized so that text
-actually gets magnified, which can be great for some people (see
-http://dept-info.labri.fr/~thibault/ls.jpg ).
-
-Regards,
-Samuel
-
-Signed-off-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
-
---- linux-2.6.13/drivers/video/console/vgacon.c	2005-09-02 18:18:38.000000000 +0200
-+++ linux/drivers/video/console/vgacon.c	2005-09-03 01:18:05.000000000 +0200
-@@ -497,6 +497,56 @@ static void vgacon_cursor(struct vc_data
- 	}
- }
- 
-+static int vgacon_doresize(struct vc_data *c,
-+		unsigned int width, unsigned int height) {
-+	unsigned long flags;
-+	unsigned int scanlines = height * c->vc_font.height;
-+	u8 scanlines_lo, r7, vsync_end, mode;
-+
-+	spin_lock_irqsave(&vga_lock, flags);
-+
-+	outb_p(VGA_CRTC_MODE, vga_video_port_reg);
-+	mode = inb_p(vga_video_port_val);
-+
-+	if (mode & 0x04)
-+		scanlines >>= 1;
-+
-+	scanlines -= 1;
-+	scanlines_lo = scanlines & 0xff;
-+
-+	outb_p(VGA_CRTC_OVERFLOW, vga_video_port_reg);
-+	r7 = inb_p(vga_video_port_val) & ~0x42;
-+
-+	if (scanlines & 0x100)
-+		r7 |= 0x02;
-+	if (scanlines & 0x200)
-+		r7 |= 0x40;
-+
-+	/* deprotect registers */
-+	outb_p(VGA_CRTC_V_SYNC_END, vga_video_port_reg);
-+	vsync_end = inb_p(vga_video_port_val);
-+	outb_p(VGA_CRTC_V_SYNC_END, vga_video_port_reg);
-+	outb_p(vsync_end & ~0x80, vga_video_port_val);
-+
-+	outb_p(VGA_CRTC_H_DISP, vga_video_port_reg);
-+	outb_p(width - 1, vga_video_port_val);
-+	outb_p(VGA_CRTC_OFFSET, vga_video_port_reg);
-+	outb_p(width >> 1, vga_video_port_val);
-+
-+	outb_p(VGA_CRTC_V_DISP_END, vga_video_port_reg);
-+	outb_p(scanlines_lo, vga_video_port_val);
-+	outb_p(VGA_CRTC_OVERFLOW, vga_video_port_reg);
-+	outb_p(r7,vga_video_port_val);
-+
-+	/* reprotect registers */
-+	outb_p(VGA_CRTC_V_SYNC_END, vga_video_port_reg);
-+	outb_p(vsync_end, vga_video_port_val);
-+
-+	spin_unlock_irqrestore(&vga_lock, flags);
-+
-+	return 0;
-+}
-+
- static int vgacon_switch(struct vc_data *c)
- {
- 	/*
-@@ -510,9 +560,12 @@ static int vgacon_switch(struct vc_data 
- 	/* We can only copy out the size of the video buffer here,
- 	 * otherwise we get into VGA BIOS */
- 
--	if (!vga_is_gfx)
-+	if (!vga_is_gfx) {
- 		scr_memcpyw((u16 *) c->vc_origin, (u16 *) c->vc_screenbuf,
- 			    c->vc_screenbuf_size > vga_vram_size ? vga_vram_size : c->vc_screenbuf_size);
-+		vgacon_doresize(c, c->vc_cols, c->vc_rows);
-+	}
-+
- 	return 0;		/* Redrawing not needed */
- }
- 
-@@ -962,6 +1015,15 @@ static int vgacon_font_get(struct vc_dat
- 
- #endif
- 
-+static int vgacon_resize(struct vc_data *c, unsigned int width, unsigned int height) {
-+	if (width % 2 || width > ORIG_VIDEO_COLS || height > ORIG_VIDEO_LINES)
-+		return -EINVAL;
-+
-+	if (CON_IS_VISIBLE(c) && !vga_is_gfx) /* who knows */
-+		vgacon_doresize(c, width, height);
-+	return 0;
-+}
-+
- static int vgacon_scrolldelta(struct vc_data *c, int lines)
- {
- 	if (!lines)		/* Turn scrollback off */
-@@ -1103,6 +1165,7 @@ const struct consw vga_con = {
- 	.con_blank = vgacon_blank,
- 	.con_font_set = vgacon_font_set,
- 	.con_font_get = vgacon_font_get,
-+	.con_resize = vgacon_resize,
- 	.con_set_palette = vgacon_set_palette,
- 	.con_scrolldelta = vgacon_scrolldelta,
- 	.con_set_origin = vgacon_set_origin,
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

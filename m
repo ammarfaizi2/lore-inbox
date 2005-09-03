@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751467AbVICPTU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750983AbVICPiu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751467AbVICPTU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Sep 2005 11:19:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751468AbVICPTU
+	id S1750983AbVICPiu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Sep 2005 11:38:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751066AbVICPiu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Sep 2005 11:19:20 -0400
-Received: from paleosilicon.orionmulti.com ([209.128.68.66]:62356 "EHLO
-	paleosilicon.orionmulti.com") by vger.kernel.org with ESMTP
-	id S1751467AbVICPTU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Sep 2005 11:19:20 -0400
-X-Envelope-From: hpa@zytor.com
-Message-ID: <4319BEF5.2070000@zytor.com>
-Date: Sat, 03 Sep 2005 08:19:17 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: andersen@codepoet.org
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Splitting out kernel<=>userspace ABI headers
-References: <C670AD22-97CF-46AA-A527-965036D78667@mac.com> <20050902134108.GA16374@codepoet.org> <22D79100-00B5-44F6-992C-FFFEACA49E66@mac.com> <20050902235833.GA28238@codepoet.org> <dfapgu$dln$1@terminus.zytor.com> <20050903042859.GA30101@codepoet.org> <4319330C.5030404@zytor.com> <20050903055007.GA30966@codepoet.org> <43193A4F.5030906@zytor.com> <20050903064124.GA31400@codepoet.org>
-In-Reply-To: <20050903064124.GA31400@codepoet.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 3 Sep 2005 11:38:50 -0400
+Received: from rev.193.226.233.176.euroweb.hu ([193.226.233.176]:783 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S1750983AbVICPit (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Sep 2005 11:38:49 -0400
+To: ericvh@gmail.com
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       fuse-devel@lists.sourceforge.net, v9fs-developer@lists.sourceforge.net,
+       linux-fsdevel@vger.kernel.org
+In-reply-to: <a4e6962a0509030801616dd011@mail.gmail.com> (message from Eric
+	Van Hensbergen on Sat, 3 Sep 2005 10:01:49 -0500)
+Subject: Re: FUSE merging?
+References: <E1EBJc2-0006J0-00@dorka.pomaz.szeredi.hu>
+	 <20050902153440.309d41a5.akpm@osdl.org>
+	 <E1EBQco-0006qr-00@dorka.pomaz.szeredi.hu>
+	 <a4e6962a050903062941d46389@mail.gmail.com>
+	 <E1EBYsp-0007Sc-00@dorka.pomaz.szeredi.hu> <a4e6962a0509030801616dd011@mail.gmail.com>
+Message-Id: <E1EBa5v-0007Xz-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Sat, 03 Sep 2005 17:38:15 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Andersen wrote:
+> > Yes, it may confuse the user.  It may even confuse the kernel for
+> > sticky directories(*).  But basically it just works, and is very
+> > simple.
+> > 
 > 
-> That is certainly not what I was proposing.  Why are you bringing
-> sys/stat.h into this?  The contents of sys/stat.h are entirely up
-> to SUSv3 and the C library to worry about.  Nobody has proposed
-> mucking with that.  I dunno about your C library, but mine
-> doesn't include linux/* header files (not even sys/stat.h).  And
-> I'd really like to fix uClibc to not use any asm/* either, since
-> much of it is entirely unsuitable for user space.
-> 
+> In principal, Plan 9 file servers handle permission checking
+> server-side, so we could likewise punt -- but it seemed a good idea to
+> have some form of mapping for directory listings (and things like
+> sticky directories) to make sense.
 
-That's the whole problem here, isn't it, so let's fix it the sane way 
-instead of putting Descartes before Dehorse.
+Yes if the user/group names are available (as in 9P), then doing the
+mapping based on /etc/passwd for example makes sense.
 
-Anyway, to answer your implied question is: since I explicitly don't 
-have to worry about forward ABI compatibility, I expose the kernel ABI 
-raw.  Thus I want to be able to use the kernel ABI directly, including 
-for things like struct stat.  It poses a particularly interesting 
-problem, actually, because the real stat system call is called stat64 on 
-most platforms.
+But sshfs only transfers the numeric uid/gid, and hence there's simply
+no info to base any transformation on.
 
-Thus, an ABIzed <linux/abi/stat.h> or whatever it's called might export 
-  "struct __kabi_stat" and "struct __kabi_stat64" with the expectation 
-that the caller would "#define __kabi_stat64 stat" if that is the 
-version they want.  A typedef isn't good enough for C, since you can't 
-typedef struct tags.
+It could transfer /etc/passwd from the remote server, and use that to
+do mapping, but that is getting more complex than the problem actually
+warrants IMO.
 
-	-hpa
+Miklos

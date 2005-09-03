@@ -1,38 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750737AbVICOhu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbVICOf6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750737AbVICOhu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Sep 2005 10:37:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751464AbVICOhu
+	id S1750708AbVICOf6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Sep 2005 10:35:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750737AbVICOf6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Sep 2005 10:37:50 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:55304 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1750737AbVICOht (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Sep 2005 10:37:49 -0400
-Date: Sat, 3 Sep 2005 15:37:44 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] feature-removal-schedule.txt: remove {,un}register_serial entry
-Message-ID: <20050903153743.A4416@flint.arm.linux.org.uk>
-Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
-	linux-kernel@vger.kernel.org
-References: <20050901231459.GE3657@stusta.de>
+	Sat, 3 Sep 2005 10:35:58 -0400
+Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:19371 "EHLO
+	mta08-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S1750708AbVICOf5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Sep 2005 10:35:57 -0400
+Subject: Re: [RFC] broken installkernel.sh with CROSS_COMPILE
+From: Ian Campbell <icampbell@arcom.com>
+To: Dave Hansen <dave@sr71.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       PPC64 External List <linuxppc64-dev@ozlabs.org>
+In-Reply-To: <1125750717.11083.2.camel@localhost>
+References: <1125693554.26605.10.camel@localhost>
+	 <1125737431.6565.88.camel@azathoth.hellion.org.uk>
+	 <1125750717.11083.2.camel@localhost>
+Content-Type: text/plain
+Organization: Arcom Control Systems Ltd.
+Date: Sat, 03 Sep 2005 15:35:51 +0100
+Message-Id: <1125758151.6565.90.camel@azathoth.hellion.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050901231459.GE3657@stusta.de>; from bunk@stusta.de on Fri, Sep 02, 2005 at 01:14:59AM +0200
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 02, 2005 at 01:14:59AM +0200, Adrian Bunk wrote:
-> If the feature is removed, there's no need to keep the entry in 
-> feature-removal-schedule.txt.
+On Sat, 2005-09-03 at 05:31 -0700, Dave Hansen wrote:
+> On Sat, 2005-09-03 at 09:50 +0100, Ian Campbell wrote:
+> > > Could we do something that's guaranteed to not have lots of extra
+> > path
+> > > elements in it, like ARCH?
+> > 
+> > Or perhaps basename ${CROSSCOMPILE}?
+> 
+> The only problem with that is that some people do really have a cross
+> compiler named /usr/ppc64/bin/gcc.  So, basename will just give you
+> something useless like "bin".
 
-Thanks Adrian, applied.
+Of course, that makes perfect sense.
 
+Ian.
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Ian Campbell
+
+It seems to make an auto driver mad if he misses you.
+

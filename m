@@ -1,59 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbVICV06@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751052AbVICV0u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751133AbVICV06 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Sep 2005 17:26:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751145AbVICV06
+	id S1751052AbVICV0u (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Sep 2005 17:26:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751145AbVICV0u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Sep 2005 17:26:58 -0400
-Received: from relay02.pair.com ([209.68.5.16]:26632 "HELO relay02.pair.com")
-	by vger.kernel.org with SMTP id S1751133AbVICV05 (ORCPT
+	Sat, 3 Sep 2005 17:26:50 -0400
+Received: from quechua.inka.de ([193.197.184.2]:46293 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S1751052AbVICV0u (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Sep 2005 17:26:57 -0400
-X-pair-Authenticated: 67.187.99.138
-From: Chase Venters <chase.venters@clientec.com>
-To: Harald Welte <laforge@gnumonks.org>
-Subject: Re: [PATCH] New: Omnikey CardMan 4040 PCMCIA Driver
-Date: Sat, 3 Sep 2005 16:27:00 -0500
-User-Agent: KMail/1.8.1
-References: <20050904101218.GM4415@rama.de.gnumonks.org>
-In-Reply-To: <20050904101218.GM4415@rama.de.gnumonks.org>
-Cc: linux-kernel@vger.kernel.org
-Organization: Clientec, Inc.
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509031627.00947.chase.venters@clientec.com>
+	Sat, 3 Sep 2005 17:26:50 -0400
+From: Bernd Eckenfels <ecki@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] DSFS Network Forensic File System for Linux Patches
+Organization: Private Site running Debian GNU/Linux
+In-Reply-To: <1125569702.15768.0.camel@localhost.localdomain>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.8.1 (i686))
+Message-Id: <E1EBfWr-0004LP-00@calista.eckenfels.6bone.ka-ip.net>
+Date: Sat, 03 Sep 2005 23:26:25 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Below you can find a driver for the Omnikey CardMan 4040 PCMCIA
-> Smartcard Reader.
+In article <1125569702.15768.0.camel@localhost.localdomain> you wrote:
+>> The Linux kernel allows binary drivers, you just have to live with a limited
+>> number of exported symbols and that the kernel is tainted. Which basically
+>> means nobody sane can help you with corrupted kernel data structures.
+> 
+> You appear to be confused. The exported symbols are part of a GPL
+> product. The only question of relevance is whether the item is a derived
+> work in law or not. 
 
-Someone correct me if I'm wrong, but wouldn't these #defines be a problem with 
-the new HZ flexibility:
+I dont understand that? Can you point out where I am confused?
 
-#define	CCID_DRIVER_BULK_DEFAULT_TIMEOUT  	(150*HZ)
-#define	CCID_DRIVER_ASYNC_POWERUP_TIMEOUT 	(35*HZ)
-#define	CCID_DRIVER_MINIMUM_TIMEOUT 		(3*HZ)
-#define READ_WRITE_BUFFER_SIZE 512
-#define POLL_LOOP_COUNT				1000
+Loading a non-GPL (tagged) module leads in tainting the kernel (which basically
+is a flag for developers to be alerted while debugging), is that right?
 
-/* how often to poll for fifo status change */
-#define POLL_PERIOD 				(HZ/100)
+Non GPL Modules are also restrited in the number of symbols they can use,
+this is to make it harder to derive work from the Linux Kernel with a ABI
+interface.
 
-In particular, 2.6.13 allows a HZ of 100, which would define POLL_PERIOD to 0. 
-Your later calls to mod_timer would be setting cmx_poll_timer to the current 
-value of jiffies. 
-
-Also, you've got a typo in the comments:
-
-* 	- adhere to linux kenrel coding style and policies
-
-Forgive me if I'm way off - I'm just now getting my feet wet in kernel 
-development. Just making comments based on what I (think) I know at this 
-point.
-
-Best Regards,
-Chase Venters
+Gruss
+Bernd

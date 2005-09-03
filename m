@@ -1,56 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751465AbVICPB4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750779AbVICO7b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751465AbVICPB4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Sep 2005 11:01:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751008AbVICPB4
+	id S1750779AbVICO7b (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Sep 2005 10:59:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750787AbVICO7b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Sep 2005 11:01:56 -0400
-Received: from xproxy.gmail.com ([66.249.82.204]:3220 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750967AbVICPBz convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Sep 2005 11:01:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=HU56B6yuN7WEbUJLD80cx99IL2cjHOGnUacXjdG4m/RN6CRHeSAYaGBERgpGXahEGz2mfMPg0ofxVKZPO4hzmbF3H5uAZtIzSJ/20xrqki4zek7Yq1jBYB1fEE9ulOsW74ECklfEEVn+oT/VRD1mXGKMAbDHf2RgPLNJlo2itd0=
-Message-ID: <a4e6962a0509030801616dd011@mail.gmail.com>
-Date: Sat, 3 Sep 2005 10:01:49 -0500
-From: Eric Van Hensbergen <ericvh@gmail.com>
-Reply-To: ericvh@gmail.com
-To: Miklos Szeredi <miklos@szeredi.hu>
-Subject: Re: FUSE merging?
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       fuse-devel@lists.sourceforge.net, v9fs-developer@lists.sourceforge.net,
-       linux-fsdevel@vger.kernel.org
-In-Reply-To: <E1EBYsp-0007Sc-00@dorka.pomaz.szeredi.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sat, 3 Sep 2005 10:59:31 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:61866 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S1750779AbVICO7b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Sep 2005 10:59:31 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [PATCH 03/11] memory hotplug prep: __section_nr helper
+Date: Sat, 3 Sep 2005 17:59:06 +0300
+User-Agent: KMail/1.8.2
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <20050902205643.9A4EC17A@kernel.beaverton.ibm.com> <20050902205645.FD6DE397@kernel.beaverton.ibm.com>
+In-Reply-To: <20050902205645.FD6DE397@kernel.beaverton.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <E1EBJc2-0006J0-00@dorka.pomaz.szeredi.hu>
-	 <20050902153440.309d41a5.akpm@osdl.org>
-	 <E1EBQco-0006qr-00@dorka.pomaz.szeredi.hu>
-	 <a4e6962a050903062941d46389@mail.gmail.com>
-	 <E1EBYsp-0007Sc-00@dorka.pomaz.szeredi.hu>
+Message-Id: <200509031759.06449.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/3/05, Miklos Szeredi <miklos@szeredi.hu> wrote:
-> > While FUSE doesn't handle it directly, doesn't it have to punt it to
-> > its network file systems, how to the sshfs and what not handle this
-> > sort of mapping?
+On Friday 02 September 2005 23:56, Dave Hansen wrote:
 > 
-> Sshfs handles it by not handling it.  In this case it is neither
-> possible, nor needed to be able to correctly map the id space.
+> A little helper that we use in the hotplug code.
 > 
-> Yes, it may confuse the user.  It may even confuse the kernel for
-> sticky directories(*).  But basically it just works, and is very
-> simple.
+> Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
+> ---
 > 
+>  memhotplug-dave/include/linux/mmzone.h |   25 +++++++++++++++++++++++++
+>  1 files changed, 25 insertions(+)
+> 
+> diff -puN include/linux/mmzone.h~C3-__section_nr include/linux/mmzone.h
+> --- memhotplug/include/linux/mmzone.h~C3-__section_nr	2005-08-18 14:59:45.000000000 -0700
+> +++ memhotplug-dave/include/linux/mmzone.h	2005-08-18 14:59:45.000000000 -0700
+> @@ -511,6 +511,31 @@ static inline struct mem_section *__nr_t
+>  }
+>  
+>  /*
+> + * Although written for the SPARSEMEM_EXTREME case, this happens
+> + * to also work for the flat array case becase
+> + * NR_SECTION_ROOTS==NR_MEM_SECTIONS.
+> + */
+> +static inline int __section_nr(struct mem_section* ms)
+> +{
+> +	unsigned long root_nr;
+> +	struct mem_section* root;
+> +
+> +	for (root_nr = 0;
+> +	     root_nr < NR_MEM_SECTIONS;
+> +	     root_nr += SECTIONS_PER_ROOT) {
+> +		root = __nr_to_section(root_nr);
+> +
+> +		if (!root)
+> +			continue;
+> +
+> +		if ((ms >= root) && (ms < (root + SECTIONS_PER_ROOT)))
+> +		     break;
+> +	}
+> +
+> +	return (root_nr * SECTIONS_PER_ROOT) + (ms - root);
+> +}
+> +
+> +/*
 
-In principal, Plan 9 file servers handle permission checking
-server-side, so we could likewise punt -- but it seemed a good idea to
-have some form of mapping for directory listings (and things like
-sticky directories) to make sense.
-
-               -eric
+isn't it too much for the inlining?
+--
+vda

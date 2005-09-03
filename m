@@ -1,79 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbVICGl0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161167AbVICGm0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750701AbVICGl0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Sep 2005 02:41:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751392AbVICGl0
+	id S1161167AbVICGm0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Sep 2005 02:42:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161168AbVICGm0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Sep 2005 02:41:26 -0400
-Received: from codepoet.org ([166.70.99.138]:1924 "EHLO codepoet.org")
-	by vger.kernel.org with ESMTP id S1750701AbVICGlZ (ORCPT
+	Sat, 3 Sep 2005 02:42:26 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:20132 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161167AbVICGmZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Sep 2005 02:41:25 -0400
-Date: Sat, 3 Sep 2005 00:41:24 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Splitting out kernel<=>userspace ABI headers
-Message-ID: <20050903064124.GA31400@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: andersen@codepoet.org,
-	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-References: <C670AD22-97CF-46AA-A527-965036D78667@mac.com> <20050902134108.GA16374@codepoet.org> <22D79100-00B5-44F6-992C-FFFEACA49E66@mac.com> <20050902235833.GA28238@codepoet.org> <dfapgu$dln$1@terminus.zytor.com> <20050903042859.GA30101@codepoet.org> <4319330C.5030404@zytor.com> <20050903055007.GA30966@codepoet.org> <43193A4F.5030906@zytor.com>
+	Sat, 3 Sep 2005 02:42:25 -0400
+Date: Fri, 2 Sep 2005 23:40:42 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: linux-kernel@vger.kernel.org, fuse-devel@lists.sourceforge.net,
+       torvalds@osdl.org
+Subject: Re: FUSE merging?
+Message-Id: <20050902234042.1a7dba6e.akpm@osdl.org>
+In-Reply-To: <E1EBQco-0006qr-00@dorka.pomaz.szeredi.hu>
+References: <E1EBJc2-0006J0-00@dorka.pomaz.szeredi.hu>
+	<20050902153440.309d41a5.akpm@osdl.org>
+	<E1EBQco-0006qr-00@dorka.pomaz.szeredi.hu>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43193A4F.5030906@zytor.com>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri Sep 02, 2005 at 10:53:19PM -0700, H. Peter Anvin wrote:
-> Erik Andersen wrote:
-> >On Fri Sep 02, 2005 at 10:22:20PM -0700, H. Peter Anvin wrote:
-> >
-> >>Exportable types need to be double-underscore types, because the header 
-> >>files in user space that would include them can generally not include 
-> >><stdint.h>.
-> >
-> >
-> >I'm not talking about kernel headers that have to worry about
-> >eventually being included in user space headers.  Those nearly
-> >all live in include/asm.  I'm talking about the kernel headers
-> >that define how userspace is supposed to interface with
-> >particular kernel drivers or hardware.  Headers such as
-> >linux/cdrom.h and linux/loop.h and linux/fb.h.
-> >
+Miklos Szeredi <miklos@szeredi.hu> wrote:
+>
+>  > The main sticking point with FUSE remains the permission tricks around
+>  > fuse_allow_task().  AFAIK it remains the case that nobody has come up with
+>  > any better idea, so I'm inclined to merge the thing.
 > 
-> What are you going to do with them if you're not going to include them 
-> in userspace?!!!
-> 
-> If you're proposing one policy for linux/loop.h and one for sys/stat.h, 
-> I would have to classify that as insane.  Everything that gets exported 
-> to userspace should behave the same way, please.
+>  Do you promise?
 
-That is certainly not what I was proposing.  Why are you bringing
-sys/stat.h into this?  The contents of sys/stat.h are entirely up
-to SUSv3 and the C library to worry about.  Nobody has proposed
-mucking with that.  I dunno about your C library, but mine
-doesn't include linux/* header files (not even sys/stat.h).  And
-I'd really like to fix uClibc to not use any asm/* either, since
-much of it is entirely unsuitable for user space.
+I troll.  What others think matters.  But at this stage, objections would
+need to be substantial, IMO.  We're rather deadlocked on the permission
+thing, but if we can't come up with anything better then I'm inclined to
+say what-the-hell.
 
-I am proposing a single consistant policy for all of linux/* such
-that all linux/* headers that need integer types of a specific
-size shall #include unistd.h and use ISO C99 types rather that
-the ad-hoc kernel types they now use.
+>   I can do a resplit and submit to Linus, if that takes
+>  some load off you.
 
-The policy has _long_ been that user space must never include
-linux/* header files.  Since we are now proposing a project to
-reverse this policy, the long standing policy making linux/*
-verboten now leaves us completely free to do pretty much anything
-with linux/*.  And what I want is for linux/* to use the shiny
-ISO C99 types.
-
- -Erik
-
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+Nah, then I'd just have to check that everything is the same.

@@ -1,66 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161097AbVICA12@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161087AbVICAaP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161097AbVICA12 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 20:27:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161087AbVICA12
+	id S1161087AbVICAaP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 20:30:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161088AbVICAaP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 20:27:28 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:6873 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161085AbVICA11 (ORCPT
+	Fri, 2 Sep 2005 20:30:15 -0400
+Received: from smtpout.mac.com ([17.250.248.45]:30463 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1161087AbVICAaN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 20:27:27 -0400
-Date: Fri, 2 Sep 2005 17:27:19 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: John McGowan <jmcgowan@inch.com>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: Kernel 2.6.13 breaks libpcap (and tcpdump).
-Message-Id: <20050902172719.4eaaa6db.akpm@osdl.org>
-In-Reply-To: <20050902184416.GA6468@localhost.localdomain>
-References: <20050902184416.GA6468@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 2 Sep 2005 20:30:13 -0400
+In-Reply-To: <dfapgu$dln$1@terminus.zytor.com>
+References: <C670AD22-97CF-46AA-A527-965036D78667@mac.com> <20050902134108.GA16374@codepoet.org> <22D79100-00B5-44F6-992C-FFFEACA49E66@mac.com> <20050902235833.GA28238@codepoet.org> <dfapgu$dln$1@terminus.zytor.com>
+Mime-Version: 1.0 (Apple Message framework v734)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <B04E819E-73CD-44E5-9BFF-5ED3ADAF8515@mac.com>
+Cc: linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [RFC] Splitting out kernel<=>userspace ABI headers
+Date: Fri, 2 Sep 2005 20:30:03 -0400
+To: "H. Peter Anvin" <hpa@zytor.com>
+X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John McGowan <jmcgowan@inch.com> wrote:
+On Sep 2, 2005, at 20:07:58, H. Peter Anvin wrote:
+> Followup to:  <20050902235833.GA28238@codepoet.org>
+> By author:    Erik Andersen <andersen@codepoet.org>
+> In newsgroup: linux.dev.kernel
+>> <uClibc maintainer hat on>
+>> That would be wonderful.
+>> </off>
+>>
+>> It would be especially nice if everything targeting user space
+>> were to use only all the nice standard ISO C99 types as defined
+>> in include/stdint.h such as uint32_t and friends...
 >
-> Kernel 2.6.13. Breaks libpcap.
-> 
-> Fedora Core 2, gcc 3.3.3, Pentium III (933MHz)
-> 
-> I had written about my dismay that traceproto and tcptraceroute
-> no longer worked and suspected that libnet was broken.
-> 
-> It seems that it is libpcap that is broken by kernel 2.6.13 and
-> tcpdump itself no longer works.
-> Well, it works ... but not correctly.
-> 
->  Capture data, then look for ICMP messages
->  (e.g. Time Exceeded errors as in a traceroute)
->  by filtering the file.
->  
->   tcpdump -w 1.cap
->   tcpdump -f "ip proto \icmp" -r 1.cap
-> 
-> That works.
-> 
-> 
->  Filter incoming data, looking for ICMP messages:
->  
->   tcpdump -f "ip proto \icmp"
->  
-> Well, that catches nothing.
-> 
-> 
-> I tried recompiling (source RPM, Fedora Core 2) tcpdump
-> (libpcap, tcpdump, etc.) and reinstalling. That did not
-> fix the problem with tcpdump.
-> 
-> It also broke a tethereal script I was using (which I changed
-> to capture all packets, which works as indicated above, and
-> then used a '-R', read, filter to display the one's I want).
-> 
+> Absolutely not.  This would be a POSIX namespace violation; they
+> *must* use double-underscore types.
 
-(cc netdev)
+I would actually be more inclined to provide and use types like
+_kabi_{s,u}{8,16,32,64}, etc.  Then the glibc/klibc/etc authors would
+have the option of just doing "typedef _kabi_u32 uint32_t;" in their
+header files.
+
+Cheers,
+Kyle Moffett
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$ L++++(+ 
+++) E
+W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+ PGP+++ t+(+++) 5  
+X R?
+tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  !y?(-)
+------END GEEK CODE BLOCK------
+
+

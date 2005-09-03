@@ -1,38 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161182AbVICHoL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751208AbVICH6N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161182AbVICHoL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Sep 2005 03:44:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161180AbVICHoL
+	id S1751208AbVICH6N (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Sep 2005 03:58:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751213AbVICH6N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Sep 2005 03:44:11 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:42123 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751390AbVICHoJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Sep 2005 03:44:09 -0400
-Message-ID: <4319543A.9060505@jp.fujitsu.com>
-Date: Sat, 03 Sep 2005 16:43:54 +0900
-From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-ia64@vger.kernel.org
-CC: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6.13 1/2] IOCHK interface for I/O error handling/detecting
- (for ia64)
-References: <431694DB.90400@jp.fujitsu.com> <20050901172917.I10072@chenjesu.americas.sgi.com> <43182A3F.2020106@jp.fujitsu.com>
-In-Reply-To: <43182A3F.2020106@jp.fujitsu.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 3 Sep 2005 03:58:13 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:2065 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751208AbVICH6N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Sep 2005 03:58:13 -0400
+Date: Sat, 3 Sep 2005 08:58:01 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: vatsa@in.ibm.com, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       ck list <ck@vds.kolivas.org>
+Subject: Re: [PATCH 1/3] dynticks - implement no idle hz for x86
+Message-ID: <20050903085801.A26998@flint.arm.linux.org.uk>
+Mail-Followup-To: Con Kolivas <kernel@kolivas.org>, vatsa@in.ibm.com,
+	linux-kernel@vger.kernel.org, akpm@osdl.org,
+	ck list <ck@vds.kolivas.org>
+References: <20050831165843.GA4974@in.ibm.com> <200509030143.57782.kernel@kolivas.org> <20050902175623.D6546@flint.arm.linux.org.uk> <200509031613.10915.kernel@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200509031613.10915.kernel@kolivas.org>; from kernel@kolivas.org on Sat, Sep 03, 2005 at 04:13:10PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oh my,
+On Sat, Sep 03, 2005 at 04:13:10PM +1000, Con Kolivas wrote:
+> Noone's ignoring you. 
+> 
+> What we need to do is ensure that dynamic ticks is working properly on x86 and 
+> worth including before anything else. If and when we confirm this it makes 
+> sense only then to try and merge code from the other 2 architectures to as 
+> much common code as possible as no doubt we'll be modifying other 
+> architectures we're less familiar with. At that stage we will definitely want 
+> to tread even more cautiously at that stage.
 
-Hidetoshi Seto wrote:
-> I'd like to merge this part into 2.6.13-rc1 even if the latter half isn't
+dyntick has all the hallmarks of ending up another mess just like the
+"generic" (hahaha) irq stuff in kernel/irq - it's being developed in
+precisely the same way - by ignore non-x86 stuff.
 
-This is typo, should be 2.6.14-rc1. :-p
+I can well see that someone will say "ok, this is ready, merge it"
+at which point we then end up with multiple differing userspace
+methods of controlling it depending on the architecture, but
+multiple differing kernel interfaces as well.
 
-Thanks,
-H.Seto
+Indeed, you seem to be at the point where you'd like akpm to merge
+it.  That sets alarm bells ringing if you haven't considered these
+issues.
 
+I want to avoid that.  Just because a couple of people say "we'll
+deal with that later" it's no guarantee that it _will_ happen.  I
+want to ensure that ARM doesn't get fscked over again like it did
+with the generic IRQ crap.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

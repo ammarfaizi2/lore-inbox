@@ -1,91 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161186AbVICJXK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161199AbVICJ2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161186AbVICJXK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Sep 2005 05:23:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750843AbVICJXK
+	id S1161199AbVICJ2R (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Sep 2005 05:28:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161191AbVICJ2R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Sep 2005 05:23:10 -0400
-Received: from pne-smtpout1-sn2.hy.skanova.net ([81.228.8.83]:34448 "EHLO
-	pne-smtpout1-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S1750824AbVICJXJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Sep 2005 05:23:09 -0400
-Message-ID: <43196B55.1040904@fulhack.info>
-Date: Sat, 03 Sep 2005 11:22:29 +0200
-From: Henrik Persson <root@fulhack.info>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050727)
+	Sat, 3 Sep 2005 05:28:17 -0400
+Received: from omta04sl.mx.bigpond.com ([144.140.93.156]:61638 "EHLO
+	omta04sl.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1750824AbVICJ2Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Sep 2005 05:28:16 -0400
+Message-ID: <43196CAE.2000309@bigpond.net.au>
+Date: Sat, 03 Sep 2005 19:28:14 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       Dominik Brodowski <linux@brodo.de>, Andrew Morton <akpm@osdl.org>
-Subject: Re: Linux 2.6.13
-References: <Pine.LNX.4.58.0508281708040.3243@g5.osdl.org> <4314E07F.2080807@fulhack.info> <20050901022938.GA27209@kroah.com>
-In-Reply-To: <20050901022938.GA27209@kroah.com>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigCD5E26EA543F21D8FB9765CB"
+To: Len Brown <len.brown@intel.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       linux-scsi@vger.kernel.org
+Subject: Re: 2.6.13-mm1: hangs during boot ...
+References: <F7DC2337C7631D4386A2DF6E8FB22B30047FA063@hdsmsx401.amr.corp.intel.com>	 <4319403E.4050105@bigpond.net.au>  <43194E3B.2050609@bigpond.net.au> <1125735548.11903.53.camel@toshiba>
+In-Reply-To: <1125735548.11903.53.camel@toshiba>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sat, 3 Sep 2005 09:28:14 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigCD5E26EA543F21D8FB9765CB
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-Greg KH wrote:
-> On Wed, Aug 31, 2005 at 12:41:03AM +0200, Henrik Persson wrote:
+Len Brown wrote:
+> On Sat, 2005-09-03 at 03:18 -0400, Peter Williams wrote:
 > 
->>Linus Torvalds wrote:
+>>http://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13/2.6.13-mm1/broken-out/git-acpi.patch
 >>
->>>There it is. 
->>>
->>>The most painful part of 2.6.13 is likely to be the fact that we made x86
->>>use the generic PCI bus setup code for assigning unassigned resources.  
->>>That uncovered rather a lot of nasty small details, but should also mean
->>>that a lot of laptops in particular should be able to discover PCI devices
->>>behind bridges that the BIOS hasn't set up.
->>>
->>>We've hopefully fixed up all the problems that the longish -rc series
->>>showed, and it shouldn't be that painful, but if you have device problems,
->>>please make a report that at a minimum contains the unified diff of the
->>>output of "lspci -vvx" running on 2.6.12 vs 2.6.13. That might give us
->>>some clues.
->>
->>Well. 2.6.13 won't boot if I have my Netgear WG511 in the cardbus slot.
->>It boots just fine if it isn't inserted, though. If I insert it later
->>on, the computer will freeze and won't respond, just like it does on boot.
->>
->>2.6.12.5 works just fine, and I just did make oldconfig and used the
->>defaults (except for the hardware monitoring).
->>
->>Suggestions, anyone?
+> 
+>>I am able to confirm that the problem occurs with vanilla 2.5.13 after
+>>I apply the above patch.
 > 
 > 
-> Can you try the patch posted to lkml at:
-> 	http://marc.theaimsgroup.com/?l=linux-kernel&m=112541348008047&w=2
-> from Ivan to see if that helps this?
+> Thanks.
+> 
+> Please then try the latest ACPI patch here:
+> http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2.6.13/acpi-20050902-2.6.13.diff.gz
+> It should apply to vanilla 2.6.13 with a reject in ia64/Kconfig
+> that you can ignore.
+> 
+> If this works, then we munged git-acpi.patch in 2.6.13-mm1 somehow.
 
-Indeed. 2.6.13 now booting without any problems at all (well, no
-problems yet anyway..) :)
+There were no problems with this patch applied.  So it looks like the 
+munge theory is correct.
 
---
-Henrik Persson
+> 
+> If this fails, then please confirm it still fails with pnpacpi=off
+> 
+> if it still fails, then please open a bugzilla here:
+> http://bugzilla.kernel.org/enter_bug.cgi?product=ACPI
+> component=config-interrupts
+> 
+> build the failing kernel with CONFIG_ACPI_DEBUG=y
+> boot it with "acpi=noirq" and attach the output from
+> dmesg -s64000
+> lspci -vv
+> cat /proc/interrupts
+> acpidump, available in the latest pmtools here:
+> http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/utils/
+> 
+> also include the dmesg -s64000 from the successful
+> acpi-enabled 2.6.13 boot, along with its /proc/interrupts.
+> 
+> If you have a  serial console and can then capture the
+> failing console log with "debug", that would be ideal.
+> 
+> Where we got from there will depend what we see...
+> 
+> thanks,
+> -Len
+> 
 
---------------enigCD5E26EA543F21D8FB9765CB
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFDGWtbp5uk1YPOcmcRAmWMAJ0d4moYcvlelUPzUxjvVpzyp8NmvwCgnIoD
-j2b92DKgyYNZ4U2S23aTxeU=
-=1r+R
------END PGP SIGNATURE-----
-
---------------enigCD5E26EA543F21D8FB9765CB--
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

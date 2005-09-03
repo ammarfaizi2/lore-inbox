@@ -1,66 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161151AbVICFhW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161145AbVICFuK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161151AbVICFhW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Sep 2005 01:37:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161150AbVICFhW
+	id S1161145AbVICFuK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Sep 2005 01:50:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161147AbVICFuK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Sep 2005 01:37:22 -0400
-Received: from fmr13.intel.com ([192.55.52.67]:7079 "EHLO
-	fmsfmr001.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1161146AbVICFhU convert rfc822-to-8bit (ORCPT
+	Sat, 3 Sep 2005 01:50:10 -0400
+Received: from codepoet.org ([166.70.99.138]:19415 "EHLO codepoet.org")
+	by vger.kernel.org with ESMTP id S1161145AbVICFuI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Sep 2005 01:37:20 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: 2.6.13-mm1: hangs during boot ...
-Date: Sat, 3 Sep 2005 01:37:07 -0400
-Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B30047FA063@hdsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.13-mm1: hangs during boot ...
-Thread-Index: AcWwRC6+BN2w9vUBR8W3lqDRaBghAAABONyA
-From: "Brown, Len" <len.brown@intel.com>
-To: "Peter Williams" <pwil3058@bigpond.net.au>
-Cc: "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
-       "James Bottomley" <James.Bottomley@steeleye.com>,
-       <linux-scsi@vger.kernel.org>
-X-OriginalArrivalTime: 03 Sep 2005 05:37:09.0706 (UTC) FILETIME=[872F6AA0:01C5B049]
+	Sat, 3 Sep 2005 01:50:08 -0400
+Date: Fri, 2 Sep 2005 23:50:07 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Splitting out kernel<=>userspace ABI headers
+Message-ID: <20050903055007.GA30966@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: andersen@codepoet.org,
+	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+References: <C670AD22-97CF-46AA-A527-965036D78667@mac.com> <20050902134108.GA16374@codepoet.org> <22D79100-00B5-44F6-992C-FFFEACA49E66@mac.com> <20050902235833.GA28238@codepoet.org> <dfapgu$dln$1@terminus.zytor.com> <20050903042859.GA30101@codepoet.org> <4319330C.5030404@zytor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4319330C.5030404@zytor.com>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
->Brown, Len wrote:
->>>>[  279.662960]  [<c02d5c74>] wait_for_completion+0xa4/0x110
->> 
->> 
->> possibly a missing interrupt?
->> 
->> 
->>>CONFIG_ACPI=y
->> 
->> 
->> any difference if booted with "acpi=off" or "acpi=noirq"?
->
->Yes.  In both cases, the system appears to boot normally but 
->I'm unable 
->to login or connect via ssh.  Also there's a "device not 
->ready" message 
->after the scsi initialization which I don't normally see.  
->I've attached 
->the scsi initialization output.  The PF_NETLINK error messages 
->after the 
->login prompt in this output are created whenever I try to log in or 
->connect via ssh.
+On Fri Sep 02, 2005 at 10:22:20PM -0700, H. Peter Anvin wrote:
+> Exportable types need to be double-underscore types, because the header 
+> files in user space that would include them can generally not include 
+> <stdint.h>.
 
-Please confirm that vanilla 2.6.13 has none of these symptoms.
-Please apply just the ACPI part of the 2.6.13-mm1 patch to see if
-these issues are caused by that or if they are caused by something
-else in the mm patch.
+I'm not talking about kernel headers that have to worry about
+eventually being included in user space headers.  Those nearly
+all live in include/asm.  I'm talking about the kernel headers
+that define how userspace is supposed to interface with
+particular kernel drivers or hardware.  Headers such as
+linux/cdrom.h and linux/loop.h and linux/fb.h.
 
-http://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13/2.6.13-mm1/broken-out/git-acpi.patch
+ -Erik
 
-thanks,
--Len
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

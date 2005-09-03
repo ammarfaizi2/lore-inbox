@@ -1,67 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751261AbVICULY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751264AbVICUV4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751261AbVICULY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Sep 2005 16:11:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751263AbVICULY
+	id S1751264AbVICUV4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Sep 2005 16:21:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751266AbVICUV4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Sep 2005 16:11:24 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:15292 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751261AbVICULX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Sep 2005 16:11:23 -0400
-Date: Sat, 3 Sep 2005 13:06:32 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-mm1
-Message-Id: <20050903130632.3124e19b.akpm@osdl.org>
-In-Reply-To: <20050903195423.GP3657@stusta.de>
-References: <20050901035542.1c621af6.akpm@osdl.org>
-	<20050903122126.GM3657@stusta.de>
-	<20050903123410.1320f8ab.akpm@osdl.org>
-	<20050903195423.GP3657@stusta.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 3 Sep 2005 16:21:56 -0400
+Received: from ms-smtp-01-smtplb.ohiordc.rr.com ([65.24.5.135]:64914 "EHLO
+	ms-smtp-01-eri0.ohiordc.rr.com") by vger.kernel.org with ESMTP
+	id S1751264AbVICUV4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Sep 2005 16:21:56 -0400
+Message-Id: <200509032021.j83KLcWY002541@ms-smtp-01-eri0.ohiordc.rr.com>
+From: "The Post Office" <postmaster@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Subject: Mail System Error - Returned Mail
+Date: Sat, 3 Sep 2005 15:21:12 -0500
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_0008_35ABF126.7C08FB29"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-Virus-Scan-Result: Repaired 34256 W32.Mydoom.M@mm
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@stusta.de> wrote:
->
-> On Sat, Sep 03, 2005 at 12:34:10PM -0700, Andrew Morton wrote:
-> > Adrian Bunk <bunk@stusta.de> wrote:
-> > >
-> > > Hi Andrew,
-> > > 
-> > > it seems you dropped 
-> > > schedule-obsolete-oss-drivers-for-removal-version-2.patch, but there's 
-> > > zero mentioning of this dropping in the changelog of 2.6.13-mm1.
-> > > 
-> > > Can you explain why you did silently drop it?
-> > 
-> > It spat rejects and when I looked at the putative removal date I just
-> > didn't believe it anyway.  Send a rediffed one if you like, but
-> > October 2005 is unrealistic.
-> 
-> That the date is no longer realistic is clear. What disappoints me is 
-> that you didn't mention in the changelog of 2.6.13-mm1 where I'd have 
-> noticed it.
 
-Sometimes I can't be bothered getting into email threads over relatively
-unimportant stuff.  Usually it's related to the number of bugs we have.
 
-> It semms I need my own bookkeeping of patches I sent that are in -mm to 
-> notice when they get lost.
+This is a multi-part message in MIME format.
 
-This is called "quilt".
+------=_NextPart_000_0008_35ABF126.7C08FB29
+Content-Type: text/plain;
+	charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-> The only positive side effect of this is that 
-> I can use this to push you harder to forward some patches of me to Linus 
-> that stay unforwarded in -mm for several months...
+ALERT!
 
-A single release cycle is 2-3 months.
+This e-mail, in its original form, contained one or more attached files that were infected with a virus, worm, or other type of security threat. This e-mail was sent from a Road Runner IP address. As part of our continuing initiative to stop the spread of malicious viruses, Road Runner scans all outbound e-mail attachments. If a virus, worm, or other security threat is found, Road Runner cleans or deletes the infected attachments as necessary, but continues to send the original message content to the recipient. Further information on this initiative can be found at http://help.rr.com/faqs/e_mgsp.html.
+Please be advised that Road Runner does not contact the original sender of the e-mail as part of the scanning process. Road Runner recommends that if the sender is known to you, you contact them directly and advise them of their issue. If you do not know the sender, we advise you to forward this message in its entirety (including full headers) to the Road Runner Abuse Department, at abuse@rr.com.
 
-I'll probably be dropping some of the patches which unexport symbols, btw. 
-ANy ones which aren't really, really obvious.  We have a process for this.
+The message was undeliverable due to the following reason:
+
+Your message could not be delivered because the destination computer was
+not reachable within the allowed queue period. The amount of time
+a message is queued before it is returned depends on local configura-
+tion parameters.
+
+Most likely there is a network problem that prevented delivery, but
+it is also possible that the computer is turned off, or does not
+have a mail system running right now.
+
+Your message could not be delivered within 4 days:
+Mail server 26.93.33.40 is not responding.
+
+The following recipients could not receive this message:
+<linux-kernel@vger.kernel.org>
+
+Please reply to postmaster@vger.kernel.org
+if you feel this message to be in error.
+
+
+------=_NextPart_000_0008_35ABF126.7C08FB29
+Content-Type: text/plain;
+	name="DELETED0.TXT"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="DELETED0.TXT"
+
+ZmlsZSBhdHRhY2htZW50OiBpbnN0cnVjdGlvbi56aXANCg0KVGhpcyBlLW1haWwgaW4gaXRz
+IG9yaWdpbmFsIGZvcm0gY29udGFpbmVkIG9uZSBvciBtb3JlIGF0dGFjaGVkIGZpbGVzIHRo
+YXQgd2VyZSBpbmZlY3RlZCB3aXRoIHRoZSBXMzIuTXlkb29tLk1AbW0gdmlydXMgb3Igd29y
+bS4gVGhleSBoYXZlIGJlZW4gcmVtb3ZlZC4NCkZvciBtb3JlIGluZm9ybWF0aW9uIG9uIFJv
+YWQgUnVubmVyJ3MgdmlydXMgZmlsdGVyaW5nIGluaXRpYXRpdmUsIHZpc2l0IG91ciBIZWxw
+ICYgTWVtYmVyIFNlcnZpY2VzIHBhZ2VzIGF0IGh0dHA6Ly9oZWxwLnJyLmNvbSwgb3IgdGhl
+IHZpcnVzIGZpbHRlcmluZyBpbmZvcm1hdGlvbiBwYWdlIGRpcmVjdGx5IGF0IGh0dHA6Ly9o
+ZWxwLnJyLmNvbS9mYXFzL2VfbWdzcC5odG1sLiANCg==
+------=_NextPart_000_0008_35ABF126.7C08FB29--
+
 

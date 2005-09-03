@@ -1,82 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751183AbVICMs1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751169AbVICMws@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751183AbVICMs1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Sep 2005 08:48:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751169AbVICMs0
+	id S1751169AbVICMws (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Sep 2005 08:52:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbVICMws
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Sep 2005 08:48:26 -0400
-Received: from yue.linux-ipv6.org ([203.178.140.15]:43787 "EHLO
-	yue.st-paulia.net") by vger.kernel.org with ESMTP id S1751143AbVICMs0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Sep 2005 08:48:26 -0400
-Date: Sat, 03 Sep 2005 21:49:43 +0900 (JST)
-Message-Id: <20050903.214943.64835619.yoshfuji@linux-ipv6.org>
-To: rmk+lkml@arm.linux.org.uk, davem@davemloft.net
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       yoshfuji@linux-ipv6.org
-Subject: Re: 2.6.13-git3: build failure: sysctl_optmem_max
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <20050903112756.D29708@flint.arm.linux.org.uk>
-References: <20050903112756.D29708@flint.arm.linux.org.uk>
-Organization: USAGI/WIDE Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Sat, 3 Sep 2005 08:52:48 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:35048 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S1751169AbVICMwr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Sep 2005 08:52:47 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Jean Delvare <khali@linux-fr.org>
+Subject: Re: i2c via686a.c: save at least 0.5k of space by long v[256] -> u16 v[256]
+Date: Sat, 3 Sep 2005 15:51:51 +0300
+User-Agent: KMail/1.8.2
+Cc: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>
+References: <200509010910.14824.vda@ilport.com.ua> <200509020854.37192.vda@ilport.com.ua> <20050903102656.117e4dbe.khali@linux-fr.org>
+In-Reply-To: <20050903102656.117e4dbe.khali@linux-fr.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509031551.51564.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20050903112756.D29708@flint.arm.linux.org.uk> (at Sat, 3 Sep 2005 11:27:56 +0100), Russell King <rmk+lkml@arm.linux.org.uk> says:
-
-> While trying to build a kernel with CONFIG_SYSCTL disabled, the following
-> error occurs:
+On Saturday 03 September 2005 11:26, Jean Delvare wrote:
+> Hi Denis,
 > 
->   CC      net/ipv4/ip_sockglue.o
-> net/ipv4/ip_sockglue.c: In function `ip_setsockopt':
-> net/ipv4/ip_sockglue.c:622: error: `sysctl_optmem_max' undeclared (first use in
-> net/ipv4/ip_sockglue.c:622: error: (Each undeclared identifier is reported only
-> net/ipv4/ip_sockglue.c:622: error: for each function it appears in.)
+> BTW...
 > 
-> It seems that sysctl_optmem_max is only available if CONFIG_SYSCTL is set.
-> However, ip_setsockopt makes unconditional usage of this variable.
+> > Please be informed that there are lots of intNN_t's in i2c dir
+> > tho...
+> 
+> I couldn't find any. What were you refering to exactly?
 
-This should fix the issue.
-
-Signed-off-by: YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
-
-diff --git a/include/net/sock.h b/include/net/sock.h
---- a/include/net/sock.h
-+++ b/include/net/sock.h
-@@ -1374,8 +1374,8 @@ extern void sk_init(void);
- 
- #ifdef CONFIG_SYSCTL
- extern struct ctl_table core_table[];
--extern int sysctl_optmem_max;
- #endif
-+extern int sysctl_optmem_max;
- 
- extern __u32 sysctl_wmem_default;
- extern __u32 sysctl_rmem_default;
-diff --git a/net/core/sock.c b/net/core/sock.c
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -1719,8 +1719,8 @@ EXPORT_SYMBOL(sock_wfree);
- EXPORT_SYMBOL(sock_wmalloc);
- EXPORT_SYMBOL(sock_i_uid);
- EXPORT_SYMBOL(sock_i_ino);
--#ifdef CONFIG_SYSCTL
- EXPORT_SYMBOL(sysctl_optmem_max);
-+#ifdef CONFIG_SYSCTL
- EXPORT_SYMBOL(sysctl_rmem_max);
- EXPORT_SYMBOL(sysctl_wmem_max);
- #endif
-
--- 
-YOSHIFUJI Hideaki @ USAGI Project  <yoshfuji@linux-ipv6.org>
-GPG-FP  : 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+Sorry I was wrong. While kernel has ~15000 [u]intNN_t's
+they are all _not_ in i2c.
+--
+vda

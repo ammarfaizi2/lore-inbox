@@ -1,47 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750957AbVICAdv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751242AbVICAeU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750957AbVICAdv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 20:33:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161088AbVICAdv
+	id S1751242AbVICAeU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 20:34:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbVICAeU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 20:33:51 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:37763 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S1750957AbVICAds
+	Fri, 2 Sep 2005 20:34:20 -0400
+Received: from terminus.zytor.com ([209.128.68.124]:31459 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751242AbVICAeT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 20:33:48 -0400
-Subject: Re: FUSE merging?
-From: Kasper Sandberg <lkml@metanurb.dk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Miklos Szeredi <miklos@szeredi.hu>, linux-kernel@vger.kernel.org,
-       fuse-devel@lists.sourceforge.net, torvalds@osdl.org
-In-Reply-To: <20050902153440.309d41a5.akpm@osdl.org>
-References: <E1EBJc2-0006J0-00@dorka.pomaz.szeredi.hu>
-	 <20050902153440.309d41a5.akpm@osdl.org>
-Content-Type: text/plain
-Date: Sat, 03 Sep 2005 02:34:14 +0200
-Message-Id: <1125707654.17211.2.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Fri, 2 Sep 2005 20:34:19 -0400
+Message-ID: <4318EF83.1010401@zytor.com>
+Date: Fri, 02 Sep 2005 17:34:11 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kyle Moffett <mrmacman_g4@mac.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Splitting out kernel<=>userspace ABI headers
+References: <C670AD22-97CF-46AA-A527-965036D78667@mac.com> <20050902134108.GA16374@codepoet.org> <22D79100-00B5-44F6-992C-FFFEACA49E66@mac.com> <20050902235833.GA28238@codepoet.org> <dfapgu$dln$1@terminus.zytor.com> <B04E819E-73CD-44E5-9BFF-5ED3ADAF8515@mac.com>
+In-Reply-To: <B04E819E-73CD-44E5-9BFF-5ED3ADAF8515@mac.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-09-02 at 15:34 -0700, Andrew Morton wrote:
-> Miklos Szeredi <miklos@szeredi.hu> wrote:
-> >
-> > Hi Andrew!
-> > 
-> > Do you plan to send FUSE to Linus for 2.6.14?
+Kyle Moffett wrote:
+> On Sep 2, 2005, at 20:07:58, H. Peter Anvin wrote:
 > 
-<snip>
-
-i use fuse too, and i like it, it works good, and its quite fast and
-easy. it has given me no problems at all, i suggest merging, it harms
-nothing, and seems to be well maintained
-
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+>> Followup to:  <20050902235833.GA28238@codepoet.org>
+>> By author:    Erik Andersen <andersen@codepoet.org>
+>> In newsgroup: linux.dev.kernel
+>>
+>>> <uClibc maintainer hat on>
+>>> That would be wonderful.
+>>> </off>
+>>>
+>>> It would be especially nice if everything targeting user space
+>>> were to use only all the nice standard ISO C99 types as defined
+>>> in include/stdint.h such as uint32_t and friends...
+>>
+>>
+>> Absolutely not.  This would be a POSIX namespace violation; they
+>> *must* use double-underscore types.
+> 
+> 
+> I would actually be more inclined to provide and use types like
+> _kabi_{s,u}{8,16,32,64}, etc.  Then the glibc/klibc/etc authors would
+> have the option of just doing "typedef _kabi_u32 uint32_t;" in their
+> header files.
 > 
 
+They have to be *double-underscore*.
+
+We have that.  They're called __[su]{8,16,32,64}.
+
+	-hpa

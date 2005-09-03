@@ -1,102 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751243AbVICRiG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751252AbVICRkf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751243AbVICRiG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Sep 2005 13:38:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751252AbVICRiG
+	id S1751252AbVICRkf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Sep 2005 13:40:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbVICRkf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Sep 2005 13:38:06 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:39906 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751243AbVICRiE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Sep 2005 13:38:04 -0400
-Message-ID: <431A33D0.1040807@us.ibm.com>
-Date: Sat, 03 Sep 2005 18:37:52 -0500
-From: Brian King <brking@us.ibm.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Grant Grundler <grundler@parisc-linux.org>
-CC: Paul Mackerras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>,
-       greg@kroah.com, matthew@wil.cx, benh@kernel.crashing.org, ak@muc.de,
-       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH 1/2] pci: Block config access during BIST (resend)
-References: <41FFBDC9.2010206@us.ibm.com> <20050201174758.GE10088@parcelfarce.linux.theplanet.co.uk> <4200F2B2.3080306@us.ibm.com> <20050208200816.GA25292@kroah.com> <42B83B8D.9030901@us.ibm.com> <430B3CB4.1050105@us.ibm.com> <20050901160356.2a584975.akpm@osdl.org> <4318E6B3.7010901@us.ibm.com> <20050902224314.GB8463@colo.lackof.org> <17176.56354.363726.363290@cargo.ozlabs.ibm.com> <20050903000854.GC8463@colo.lackof.org>
-In-Reply-To: <20050903000854.GC8463@colo.lackof.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 3 Sep 2005 13:40:35 -0400
+Received: from mailfe14.swip.net ([212.247.155.161]:29613 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S1751252AbVICRkf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Sep 2005 13:40:35 -0400
+X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
+Date: Sat, 3 Sep 2005 19:40:31 +0200
+From: Alexander Nyberg <alexn@telia.com>
+To: Johnny Stenback <jst@jstenback.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: gcc coredump with 2.6.12+ kernels
+Message-ID: <20050903174030.GA5406@localhost.localdomain>
+References: <4319DC91.4020406@jstenback.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4319DC91.4020406@jstenback.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grant Grundler wrote:
-> On Sat, Sep 03, 2005 at 09:11:30AM +1000, Paul Mackerras wrote:
+On Sat, Sep 03, 2005 at 10:25:37AM -0700 Johnny Stenback wrote:
+
+> Hey all,
 > 
->>Think about it.  Taking the lock ensures that we don't do the
->>assignment (dev->block_ucfg_access = 1) while any other cpu has the
->>pci_lock.  In other words, the reason for taking the lock is so that
->>we wait until nobody else is doing an access, not to make others wait.
+> I just attempted to upgrade my kernel to 2.6.13. The kernel appears to 
+> boot and run just fine, but when I try to build any larger projects like 
+> Mozilla or the Linux kernel I constantly get segfaults from gcc. All 
+> other apps *seem* to work fine. I remember seeing this with 2.6.12 too 
+> when I tried to upgrade to it too but I didn't have the time to 
+> investigate at all then, but now I see the same problem with 2.6.13. The 
+> last version I've used that didn't show this problem is 2.6.11.3, and 
+> that's running with no problems here.
 > 
+> When gcc segfaults I get the following messages in the messages log:
 > 
-> The block_ucfg_access field is only used when making the choice to
-> use saved state or call the PCI bus cfg accessor.
-> I don't what problem waiting solves here since any CPU already
-> accessing real cfg space will finish what they are doing anyway.
-> ie they already made the choice to access real cfg space.
-> We just need to make sure successive accesses to cfg space
-> for this device only access the saved state. For that, a memory barrier
-> around all uses of block_ucfg_access should be sufficient.
-> Or do you think I'm still drinking the wrong color cool-aid?
-
-Without the locking, we introduce a race condition.
-
-CPU 0                                           CPU 1
-
-					pci_block_user_cfg_access
-						pci_save_state
-pci_read_user_config_space
-	check block_ucfg_access
-						set block_ucfg_access
-					other code that puts the device
-					in a state such that it cannot
-					handle read config i/o, such as
-					running BIST.
-
-	pci read config
-
-In this scenario, If the real read on the left happens after the flag is 
-set to block user config accesses, then the thread that set the flag 
-could go off and start BIST or do something else to put the pci device 
-in a state where it cannot accept real config I/O and we end up with a 
-target abort, which is exactly what this patch is attempting to fix.
-
-Granted, for the specific usage scenario in ipr, where I am using this 
-to block config space over BIST, I use a pci config write to start BIST, 
-which would end up being a point of synchronization, but that seems a 
-bit non-obvious and limits how the patch can be used by others...
-
->>>If you had:
->>>	spin_lock_irqsave(&pci_lock, flags);
->>>	pci_save_state(dev);
->>>	dev->block_ucfg_access = 1;
->>>	spin_unlock_irqrestore(&pci_lock, flags);
->>>
->>>Then I could buy your arguement since the flag now implies
->>>we need to atomically save state and set the flag.
->>
->>That's probably a good thing to do to.
+> cc1[16775]: segfault at 0000000000000000 rip 00000036f2b0119e rsp 
+> 00007fffffaaf0a0 error 4
+> cc1[17086]: segfault at 0000000000000000 rip 00000036f2b0119e rsp 
+> 00007fffffc4dfc0 error 4
+> cc1[17788]: segfault at 0000000000000000 rip 00000036f2b0119e rsp 
+> 00007fffffd777e0 error 4
+> cc1[17823]: segfault at 0000000000000000 rip 00000036f2b0119e rsp 
+> 00007fffffc4d630 error 4
+> cc1[17895]: segfault at 0000000000000000 rip 00000036f2b0119e rsp 
+> 00007ffffffd2330 error 4
 > 
-> 
-> One needs to verify pci_lock isn't acquired in pci_save_state()
-> (or some other obvious dead lock).
+> I'm on a dual AMD Opteron system, running x86_64 code. Using Fedora Core 
+> 2 (yeah, old, I know...) and gcc 3.3.3 20040412.
 
-Unfortunately, it is... Every pci config access grabs the lock, so we 
-would need to use some special code that did not acquire the lock in 
-pci_save_state if we wanted to do such a thing.
+Does it still happen if you run:
 
-Brian
-
-
--- 
-Brian King
-eServer Storage I/O
-IBM Linux Technology Center
+echo 0 > /proc/sys/kernel/randomize_va_space

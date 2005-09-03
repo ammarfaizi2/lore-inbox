@@ -1,77 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161162AbVICGSl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161159AbVICGXq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161162AbVICGSl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Sep 2005 02:18:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161160AbVICGSl
+	id S1161159AbVICGXq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Sep 2005 02:23:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161160AbVICGXq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Sep 2005 02:18:41 -0400
-Received: from omta04ps.mx.bigpond.com ([144.140.83.156]:13464 "EHLO
-	omta04ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1161102AbVICGSk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Sep 2005 02:18:40 -0400
-Message-ID: <4319403E.4050105@bigpond.net.au>
-Date: Sat, 03 Sep 2005 16:18:38 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Brown, Len" <len.brown@intel.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       linux-scsi@vger.kernel.org
-Subject: Re: 2.6.13-mm1: hangs during boot ...
-References: <F7DC2337C7631D4386A2DF6E8FB22B30047FA063@hdsmsx401.amr.corp.intel.com>
-In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B30047FA063@hdsmsx401.amr.corp.intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sat, 3 Sep 2005 06:18:38 +0000
+	Sat, 3 Sep 2005 02:23:46 -0400
+Received: from zproxy.gmail.com ([64.233.162.204]:7921 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161159AbVICGXq convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Sep 2005 02:23:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=YABH0a2rqslQUpoyJnBLB6je7UY8aA6bw/inby5a9rq1LPDfouxoF8vxWa/AFsZjKQt55EwNSfHb/u4kW8ppU/MYb72aXkW+EQYsvhLCwLxM/QsSaHaLReTm49NYJKN57z4uhLt6fIZ/cNusMCH5jwO+UY/g3O/U/Kxvf2VD9S0=
+Message-ID: <355e5e5e05090223231726b94a@mail.gmail.com>
+Date: Fri, 2 Sep 2005 23:23:41 -0700
+From: Lukasz Kosewski <lkosewsk@gmail.com>
+Reply-To: lkosewsk@gmail.com
+To: Ravi Wijayaratne <ravi_wija@yahoo.com>
+Subject: Re: Hotswap support for libata
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050902224418.78897.qmail@web32512.mail.mud.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050902224418.78897.qmail@web32512.mail.mud.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brown, Len wrote:
->  
+On 9/2/05, Ravi Wijayaratne <ravi_wija@yahoo.com> wrote:
+> I was wandering whether you could direct me to
+> a place where I could find the most up to date
+> patches for libata hotplug support you authored.
 > 
->>Brown, Len wrote:
->>
->>>>>[  279.662960]  [<c02d5c74>] wait_for_completion+0xa4/0x110
->>>
->>>
->>>possibly a missing interrupt?
->>>
->>>
->>>
->>>>CONFIG_ACPI=y
->>>
->>>
->>>any difference if booted with "acpi=off" or "acpi=noirq"?
->>
->>Yes.  In both cases, the system appears to boot normally but 
->>I'm unable 
->>to login or connect via ssh.  Also there's a "device not 
->>ready" message 
->>after the scsi initialization which I don't normally see.  
->>I've attached 
->>the scsi initialization output.  The PF_NETLINK error messages 
->>after the 
->>login prompt in this output are created whenever I try to log in or 
->>connect via ssh.
-> 
-> 
-> Please confirm that vanilla 2.6.13 has none of these symptoms.
+> Has Jeff Garzik decided to integrate this code
+> to 2.6 libata ?
 
-That's correct.  2.6.13 exhibits none of these symptoms.
+Hey Ravi,
 
-> Please apply just the ACPI part of the 2.6.13-mm1 patch to see if
-> these issues are caused by that or if they are caused by something
-> else in the mm patch.
-> 
-> http://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13/2.6.13-mm1/broken-out/git-acpi.patch
+You are on the money in one way; it's September, and I promised
+everyone I'd work on it come September.  However, this is a loose
+timeline; specifically, I'll be available to work on them come the 6th
+of this month.  So expect some more activity then :)
 
-OK.  I'll get back to you shortly.
+First of all let me clarify something though; these patches are two parts:
+- a libata hotswap infrastructure that allows a driver which
+understands and properly handles hotplug interrupts to hotswap drives.
+- a specific implementation of this infrastructure in the Promise
+SATA150 and SATAII150 line of controllers.
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+I've been getting quite a few emails offline from people excited with
+being able to arbitrarily hotswap all Serial ATA drives, and I should
+point out that unless people with the other controllers types (ie.
+nForce controllers, Sil controllers, etc.) actually add support for
+capturing hotswap interrupts and use the hotswap infrastructure, they
+will still not support hotplug.  If you send me a controller and the
+docs for it, I will add the support and test the b'jesus out of it,
+but otherwise only the Promise controllers will have this support.
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+Here's the current status for all to see:
+- I submitted initial patches near the end of July, which were heavily
+tested on UP machines and Promise SATA150/SATAII150 Tx4/Tx2 Plus
+controllers.  They mostly work.
+- Jeff suggested some improvements that would make them work better,
+and these improvements work better for a general infrastructure (as
+opposed to a sata_promise-centric one).
+- I sent in patches implementing the improvements on the 1st of
+August.  They weren't tested at all because I didn't have access to
+the hardware at that time, but I wanted some feedback.  Those patches
+DO NOT WORK, however, they are very close to what I want (I need to
+add a workqueue and streamline error-handling a bit more).
+- Come the 6th, I'm going to a location where I'll have access to the
+controller, as well as UP boxes and an SMP box.  So you can expect new
+patches, say, by the 10th or 11th that should be well tested and
+robust on UP and SMP machines for Jeff's perusal.
+
+So, if you really want hotswap now now now, you'll have to download my
+patches and fiddle with them.  They're available in the kernel mailing
+list archives, if you search for 'hotswap libata', they will come up. 
+Otherwise, I ask you to be patient for another wek or so and the good
+stuff will fall from the sky.
+
+Cheers,
+
+Luke Kosewski

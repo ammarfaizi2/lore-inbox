@@ -1,69 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751206AbVICJM1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161186AbVICJXK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751206AbVICJM1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Sep 2005 05:12:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750843AbVICJM1
+	id S1161186AbVICJXK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Sep 2005 05:23:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750843AbVICJXK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Sep 2005 05:12:27 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:23571 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1750824AbVICJM1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Sep 2005 05:12:27 -0400
-Date: Sat, 3 Sep 2005 10:12:21 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>, Scott_Kilau@digi.com
-Subject: Fwd: [Bug 5176] New: file:Documentation/jsm.txt  is missing
-Message-ID: <20050903101221.B29708@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Scott_Kilau@digi.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	Sat, 3 Sep 2005 05:23:10 -0400
+Received: from pne-smtpout1-sn2.hy.skanova.net ([81.228.8.83]:34448 "EHLO
+	pne-smtpout1-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S1750824AbVICJXJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Sep 2005 05:23:09 -0400
+Message-ID: <43196B55.1040904@fulhack.info>
+Date: Sat, 03 Sep 2005 11:22:29 +0200
+From: Henrik Persson <root@fulhack.info>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050727)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Dominik Brodowski <linux@brodo.de>, Andrew Morton <akpm@osdl.org>
+Subject: Re: Linux 2.6.13
+References: <Pine.LNX.4.58.0508281708040.3243@g5.osdl.org> <4314E07F.2080807@fulhack.info> <20050901022938.GA27209@kroah.com>
+In-Reply-To: <20050901022938.GA27209@kroah.com>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigCD5E26EA543F21D8FB9765CB"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Someone may like to deal with this.  Maybe the file should be placed
-in the Documentation/serial directory?
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigCD5E26EA543F21D8FB9765CB
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
------ Forwarded message from bugme-daemon@kernel-bugs.osdl.org -----
-Date: Sat, 3 Sep 2005 01:43:16 -0700
-From: bugme-daemon@kernel-bugs.osdl.org
-To: rmk@arm.linux.org.uk
-Subject: [Bug 5176] New: file:Documentation/jsm.txt  is missing
+Greg KH wrote:
+> On Wed, Aug 31, 2005 at 12:41:03AM +0200, Henrik Persson wrote:
+> 
+>>Linus Torvalds wrote:
+>>
+>>>There it is. 
+>>>
+>>>The most painful part of 2.6.13 is likely to be the fact that we made x86
+>>>use the generic PCI bus setup code for assigning unassigned resources.  
+>>>That uncovered rather a lot of nasty small details, but should also mean
+>>>that a lot of laptops in particular should be able to discover PCI devices
+>>>behind bridges that the BIOS hasn't set up.
+>>>
+>>>We've hopefully fixed up all the problems that the longish -rc series
+>>>showed, and it shouldn't be that painful, but if you have device problems,
+>>>please make a report that at a minimum contains the unified diff of the
+>>>output of "lspci -vvx" running on 2.6.12 vs 2.6.13. That might give us
+>>>some clues.
+>>
+>>Well. 2.6.13 won't boot if I have my Netgear WG511 in the cardbus slot.
+>>It boots just fine if it isn't inserted, though. If I insert it later
+>>on, the computer will freeze and won't respond, just like it does on boot.
+>>
+>>2.6.12.5 works just fine, and I just did make oldconfig and used the
+>>defaults (except for the hardware monitoring).
+>>
+>>Suggestions, anyone?
+> 
+> 
+> Can you try the patch posted to lkml at:
+> 	http://marc.theaimsgroup.com/?l=linux-kernel&m=112541348008047&w=2
+> from Ivan to see if that helps this?
 
-http://bugzilla.kernel.org/show_bug.cgi?id=5176
+Indeed. 2.6.13 now booting without any problems at all (well, no
+problems yet anyway..) :)
 
-           Summary: file:Documentation/jsm.txt  is missing
-    Kernel Version: 2.6.13
-            Status: NEW
-          Severity: low
-             Owner: rmk@arm.linux.org.uk
-         Submitter: h.rueter@gmx.de
+--
+Henrik Persson
 
+--------------enigCD5E26EA543F21D8FB9765CB
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-Not really a bug,
-but i'm missing this file.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-Help in "make menuconfig"
-{
--> Device Drivers                                                   
-  x       -> Character devices     
-  x         -> Serial drivers    
-}
+iD8DBQFDGWtbp5uk1YPOcmcRAmWMAJ0d4moYcvlelUPzUxjvVpzyp8NmvwCgnIoD
+j2b92DKgyYNZ4U2S23aTxeU=
+=1r+R
+-----END PGP SIGNATURE-----
 
-says it could be found in "linux-2.6.13/Documentation/jsm.txt"
-
-Probably just a little copyjob for the developer ...
-
-Greets Harry
-
-------- You are receiving this mail because: -------
-You are the assignee for the bug, or are watching the assignee.
-
------ End forwarded message -----
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+--------------enigCD5E26EA543F21D8FB9765CB--

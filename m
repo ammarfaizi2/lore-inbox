@@ -1,76 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750866AbVICPgp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751022AbVICPjq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750866AbVICPgp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Sep 2005 11:36:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750943AbVICPgo
+	id S1751022AbVICPjq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Sep 2005 11:39:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750952AbVICPjq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Sep 2005 11:36:44 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:37532 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S1750866AbVICPgo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Sep 2005 11:36:44 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [RFC] Splitting out kernel<=>userspace ABI headers
-Date: Sat, 3 Sep 2005 18:36:22 +0300
-User-Agent: KMail/1.8.2
-Cc: andersen@codepoet.org, "H. Peter Anvin" <hpa@zytor.com>,
-       linux-kernel@vger.kernel.org
-References: <C670AD22-97CF-46AA-A527-965036D78667@mac.com> <20050903042859.GA30101@codepoet.org> <AFDE003F-F14F-42CE-B964-2E04A4402406@mac.com>
-In-Reply-To: <AFDE003F-F14F-42CE-B964-2E04A4402406@mac.com>
+	Sat, 3 Sep 2005 11:39:46 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:38549 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751022AbVICPjp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Sep 2005 11:39:45 -0400
+Date: Sat, 3 Sep 2005 11:39:36 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@cuia.boston.redhat.com
+To: Andrew Morton <akpm@osdl.org>
+cc: David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH][2/2] fix for -mm swaptoken-tuning.patch
+Message-ID: <Pine.LNX.4.63.0509031137440.567@cuia.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509031836.22357.vda@ilport.com.ua>
+Content-Type: MULTIPART/MIXED; BOUNDARY="279735632-1694627586-1125761976=:567"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 03 September 2005 08:55, Kyle Moffett wrote:
-> On Sep 3, 2005, at 00:28:59, Erik Andersen wrote:
-> >> Absolutely not.  This would be a POSIX namespace violation; they
-> >> *must* use double-underscore types.
-> >
-> > I assume you are worried about the stuff under asm that ends up
-> > being included by nearly every header file in the world.  Of
-> > course asm must use double-underscore types.  But the thing is,
-> > the vast majority of the kernel headers live under
-> > linux/include/linux/ and do not use double-underscore types, they
-> > use kernel specific, non-underscored types such as s8, u32, etc.
-> > My copy of IEEE 1003.1 and my copy of ISO/IEC 9899:1999 both fail
-> > to prohibit using the shiny new ISO C99 type for the various
-> > #include <linux/*> header files, which is what I was suggesting.
-> 
-> Anything in linux/* that is included by userspace should not
-> presume that stdint.h has already been included or include it on
-> its own, because the userspace program may have already made its
-> own definitions of uint32_t, or it may not want them defined at
-> all.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Is this an excercise in academia? Userspace app which defines
-uint32_t to anything different than 'typedef <appropriate int type>'
-deserves the punishment, and one which does have such typedef
-instead of #include stdint.h will not notice.
+--279735632-1694627586-1125761976=:567
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-All these u32, uint32_t, __u32 end up typedef'ing to same
-integer type anyway...
+Hi Andrew,
 
-Why should we care of such 'struct uint32_t { ... };' pervert cases?
-If we will do, I suspect we will end up with __________u32's.
-We already have a lot of __'s:
+Here is the change to rmap.c that goes together with the previous
+patch, as well as a new version of swaptoken-tuning.patch that you
+can just copy into place.   Quilt is great.
 
-linux/cache.h:#define ____cacheline_aligned __attribute__((__aligned__(SMP_CACHE_BYTES)))
-linux/rcupdate.h:                             typeof(p) _________p1 = p; \
+Signed-off-by: Rik van Riel <riel@redhat.com>
 
-*three underscores* line count over kernel's include/:
+Index: linux-2.6.13/mm/rmap.c
+===================================================================
+--- linux-2.6.13.orig/mm/rmap.c
++++ linux-2.6.13/mm/rmap.c
+@@ -305,7 +305,7 @@ static int page_referenced_one(struct pa
+ 		   swap token and is in the middle of a page fault. */
+ 		if (mm != current->mm && !ignore_token &&
+ 				has_swap_token(mm) &&
+-				sem_is_read_locked(&mm->mmap_sem))
++				rwsem_is_locked(&mm->mmap_sem))
+ 			referenced++;
+ 
+ 		(*mapcount)--;
+--279735632-1694627586-1125761976=:567
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=swaptoken-tuning.patch
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.63.0509031139360.567@cuia.boston.redhat.com>
+Content-Description: 
+Content-Disposition: attachment; filename=swaptoken-tuning.patch
 
-# grep -r ___ . | wc -l
-10129
+DQpGcm9tOiBSaWsgVmFuIFJpZWwgPHJpZWxAcmVkaGF0LmNvbT4NCg0KSXQg
+dHVybnMgb3V0IHRoYXQgdGhlIG9yaWdpbmFsIHN3YXAgdG9rZW4gaW1wbGVt
+ZW50YXRpb24sIGJ5IFNvbmcgSmlhbmcsIG9ubHkNCmVuZm9yY2VkIHRoZSBz
+d2FwIHRva2VuIHdoaWxlIHRoZSB0YXNrIGhvbGRpbmcgdGhlIHRva2VuIGlz
+IGhhbmRsaW5nIGEgcGFnZQ0KZmF1bHQuICBUaGlzIHBhdGNoIGFwcHJveGlt
+YXRlcyB0aGF0LCB3aXRob3V0IGFkZGluZyBhbiBhZGRpdGlvbmFsIGZsYWcg
+dG8gdGhlDQptbV9zdHJ1Y3QsIGJ5IGNoZWNraW5nIHdoZXRoZXIgdGhlIG1t
+LT5tbWFwX3NlbSBpcyBoZWxkIGZvciByZWFkaW5nLCBsaWtlIHRoZQ0KcGFn
+ZSBmYXVsdCBjb2RlIGRvZXMuDQoNClRoaXMgcGF0Y2ggaGFzIHRoZSBlZmZl
+Y3Qgb2YgYXV0b21hdGljYWxseSwgYW5kIGdyYWR1YWxseSwgZGlzYWJsaW5n
+IHRoZQ0KZW5mb3JjZW1lbnQgb2YgdGhlIHN3YXAgdG9rZW4gd2hlbiB0aGVy
+ZSBpcyBsaXR0bGUgb3Igbm8gcGFnaW5nIGdvaW5nIG9uLCBhbmQNCiJ0dXJu
+aW5nIHVwIiB0aGUgaW50ZW5zaXR5IG9mIHRoZSBzd2FwIHRva2VuIGNvZGUg
+dGhlIG1vcmUgdGhlIHRhc2sgaG9sZGluZw0KdGhlIHRva2VuIGlzIHRocmFz
+aGluZy4NCg0KVGhhbmtzIHRvIFNvbmcgSmlhbmcgZm9yIHBvaW50aW5nIG91
+dCB0aGlzIGFzcGVjdCBvZiB0aGUgdG9rZW4gYmFzZWQgdGhyYXNoaW5nDQpj
+b250cm9sIGNvbmNlcHQuDQoNClRoZSBuZXcgY29kZSBzaG93cyBhIHNsaWdo
+dCBkZWdyYWRhdGlvbiBvdmVyIHRoZSBvbGQgc3dhcCB0b2tlbiBjb2RlLCBi
+dXQNCnN0aWxsIGEgYmlnIHdpbiBvdmVyIHJ1bm5pbmcgd2l0aG91dCB0aGUg
+c3dhcCB0b2tlbi4NCg0KMi42LjEyKyBzd2FwIHRva2VuIGRpc2FibGVkDQoN
+CiQgZm9yIGkgaW4gYHNlcSAxMGAgOyBkbyAvdXNyL2Jpbi90aW1lIC4vcXNi
+ZW5jaCAtbiAzMDAwMDAwMCAtcCAzIDsgZG9uZQ0KMTAxLjc0dXNlciAyMy4x
+M3N5c3RlbSA4OjI2LjkxZWxhcHNlZCAyNCVDUFUgKDBhdmd0ZXh0KzBhdmdk
+YXRhIDBtYXhyZXNpZGVudClrDQowaW5wdXRzKzBvdXRwdXRzICgzODU5N21h
+am9yKzQzMDMxNW1pbm9yKXBhZ2VmYXVsdHMgMHN3YXBzDQoxMDEuOTh1c2Vy
+IDI0Ljkxc3lzdGVtIDg6MDMuMDZlbGFwc2VkIDI2JUNQVSAoMGF2Z3RleHQr
+MGF2Z2RhdGEgMG1heHJlc2lkZW50KWsNCjBpbnB1dHMrMG91dHB1dHMgKDMz
+OTM5bWFqb3IrNDMwNDU3bWlub3IpcGFnZWZhdWx0cyAwc3dhcHMNCjEwMS45
+M3VzZXIgMjIuMTJzeXN0ZW0gNzozNC45MGVsYXBzZWQgMjclQ1BVICgwYXZn
+dGV4dCswYXZnZGF0YSAwbWF4cmVzaWRlbnQpaw0KMGlucHV0cyswb3V0cHV0
+cyAoMzMxNjZtYWpvcis0MjEyNjdtaW5vcilwYWdlZmF1bHRzIDBzd2Fwcw0K
+MTAxLjgydXNlciAyMi4zOHN5c3RlbSA4OjMxLjQwZWxhcHNlZCAyNCVDUFUg
+KDBhdmd0ZXh0KzBhdmdkYXRhIDBtYXhyZXNpZGVudClrDQowaW5wdXRzKzBv
+dXRwdXRzICgzOTMzOG1ham9yKzQzMzI2Mm1pbm9yKXBhZ2VmYXVsdHMgMHN3
+YXBzDQoNCjIuNi4xMisgc3dhcCB0b2tlbiBlbmFibGVkLCB0aW1lb3V0IDMw
+MCBzZWNvbmRzDQoNCiQgZm9yIGkgaW4gYHNlcSA0YCA7IGRvIC91c3IvYmlu
+L3RpbWUgLi9xc2JlbmNoIC1uIDMwMDAwMDAwIC1wIDMgOyBkb25lDQoxMDIu
+NTh1c2VyIDE2LjA4c3lzdGVtIDM6NDEuNDRlbGFwc2VkIDUzJUNQVSAoMGF2
+Z3RleHQrMGF2Z2RhdGEgMG1heHJlc2lkZW50KWsNCjBpbnB1dHMrMG91dHB1
+dHMgKDE5NzA3bWFqb3IrMjg1Nzg2bWlub3IpcGFnZWZhdWx0cyAwc3dhcHMN
+CjEwMi4wN3VzZXIgMTkuNTZzeXN0ZW0gNDowMC42NGVsYXBzZWQgNTAlQ1BV
+ICgwYXZndGV4dCswYXZnZGF0YSAwbWF4cmVzaWRlbnQpaw0KMGlucHV0cysw
+b3V0cHV0cyAoMTkwMTJtYWpvcisyOTkyNTltaW5vcilwYWdlZmF1bHRzIDBz
+d2Fwcw0KMTAyLjY0dXNlciAxOC4yNXN5c3RlbSA0OjA3LjMxZWxhcHNlZCA0
+OCVDUFUgKDBhdmd0ZXh0KzBhdmdkYXRhIDBtYXhyZXNpZGVudClrDQowaW5w
+dXRzKzBvdXRwdXRzICgyMTk5MG1ham9yKzMwNDgzMW1pbm9yKXBhZ2VmYXVs
+dHMgMHN3YXBzDQoxMDEuMzl1c2VyIDE5LjQxc3lzdGVtIDU6MTUuODFlbGFw
+c2VkIDM4JUNQVSAoMGF2Z3RleHQrMGF2Z2RhdGEgMG1heHJlc2lkZW50KWsN
+CjBpbnB1dHMrMG91dHB1dHMgKDI0ODUwbWFqb3IrMzIzMzIxbWlub3IpcGFn
+ZWZhdWx0cyAwc3dhcHMNCg0KMi42LjEyKyB3aXRoIG5ldyBzd2FwIHRva2Vu
+IGNvZGUsIHRpbWVvdXQgMzAwIHNlY29uZHMNCg0KJCBmb3IgaSBpbiBgc2Vx
+IDRgIDsgZG8gL3Vzci9iaW4vdGltZSAuL3FzYmVuY2ggLW4gMzAwMDAwMDAg
+LXAgMyA7IGRvbmUNCjEwMS44N3VzZXIgMjQuNjZzeXN0ZW0gNTo1My4yMGVs
+YXBzZWQgMzUlQ1BVICgwYXZndGV4dCswYXZnZGF0YSAwbWF4cmVzaWRlbnQp
+aw0KMGlucHV0cyswb3V0cHV0cyAoMjY4NDhtYWpvciszNjM0OTdtaW5vcilw
+YWdlZmF1bHRzIDBzd2Fwcw0KMTAyLjgzdXNlciAxOS45NXN5c3RlbSA0OjE3
+LjI1ZWxhcHNlZCA0NyVDUFUgKDBhdmd0ZXh0KzBhdmdkYXRhIDBtYXhyZXNp
+ZGVudClrDQowaW5wdXRzKzBvdXRwdXRzICgxOTk0Nm1ham9yKzMwNTcyMm1p
+bm9yKXBhZ2VmYXVsdHMgMHN3YXBzDQoxMDIuMDl1c2VyIDE5LjQ2c3lzdGVt
+IDU6MTIuNTdlbGFwc2VkIDM4JUNQVSAoMGF2Z3RleHQrMGF2Z2RhdGEgMG1h
+eHJlc2lkZW50KWsNCjBpbnB1dHMrMG91dHB1dHMgKDI1NDYxbWFqb3IrMzM0
+OTk0bWlub3IpcGFnZWZhdWx0cyAwc3dhcHMNCjEwMS42N3VzZXIgMjAuNjFz
+eXN0ZW0gNDo1Mi45N2VsYXBzZWQgNDElQ1BVICgwYXZndGV4dCswYXZnZGF0
+YSAwbWF4cmVzaWRlbnQpaw0KMGlucHV0cyswb3V0cHV0cyAoMjIxOTBtYWpv
+ciszMjk1MDhtaW5vcilwYWdlZmF1bHRzIDBzd2Fwcw0KDQpTaWduZWQtb2Zm
+LWJ5OiBSaWsgVmFuIFJpZWwgPHJpZWxAcmVkaGF0LmNvbT4NClNpZ25lZC1v
+ZmYtYnk6IEFuZHJldyBNb3J0b24gPGFrcG1Ab3NkbC5vcmc+DQpJbmRleDog
+bGludXgtMi42LjEzL21tL3JtYXAuYw0KPT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PQ0KLS0tIGxpbnV4LTIuNi4xMy5vcmlnL21tL3JtYXAuYw0KKysrIGxpbnV4
+LTIuNi4xMy9tbS9ybWFwLmMNCkBAIC0zMDEsNyArMzAxLDExIEBAIHN0YXRp
+YyBpbnQgcGFnZV9yZWZlcmVuY2VkX29uZShzdHJ1Y3QgcGENCiAJCWlmIChw
+dGVwX2NsZWFyX2ZsdXNoX3lvdW5nKHZtYSwgYWRkcmVzcywgcHRlKSkNCiAJ
+CQlyZWZlcmVuY2VkKys7DQogDQotCQlpZiAobW0gIT0gY3VycmVudC0+bW0g
+JiYgIWlnbm9yZV90b2tlbiAmJiBoYXNfc3dhcF90b2tlbihtbSkpDQorCQkv
+KiBQcmV0ZW5kIHRoZSBwYWdlIGlzIHJlZmVyZW5jZWQgaWYgdGhlIHRhc2sg
+aGFzIHRoZQ0KKwkJICAgc3dhcCB0b2tlbiBhbmQgaXMgaW4gdGhlIG1pZGRs
+ZSBvZiBhIHBhZ2UgZmF1bHQuICovDQorCQlpZiAobW0gIT0gY3VycmVudC0+
+bW0gJiYgIWlnbm9yZV90b2tlbiAmJg0KKwkJCQloYXNfc3dhcF90b2tlbiht
+bSkgJiYNCisJCQkJcndzZW1faXNfbG9ja2VkKCZtbS0+bW1hcF9zZW0pKQ0K
+IAkJCXJlZmVyZW5jZWQrKzsNCiANCiAJCSgqbWFwY291bnQpLS07DQpJbmRl
+eDogbGludXgtMi42LjEzL21tL3RocmFzaC5jDQo9PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09DQotLS0gbGludXgtMi42LjEzLm9yaWcvbW0vdGhyYXNoLmMNCisr
+KyBsaW51eC0yLjYuMTMvbW0vdGhyYXNoLmMNCkBAIC0xOSw3ICsxOSw3IEBA
+IHN0YXRpYyB1bnNpZ25lZCBsb25nIHN3YXBfdG9rZW5fY2hlY2s7DQogc3Ry
+dWN0IG1tX3N0cnVjdCAqIHN3YXBfdG9rZW5fbW0gPSAmaW5pdF9tbTsNCiAN
+CiAjZGVmaW5lIFNXQVBfVE9LRU5fQ0hFQ0tfSU5URVJWQUwgKEhaICogMikN
+Ci0jZGVmaW5lIFNXQVBfVE9LRU5fVElNRU9VVAkwDQorI2RlZmluZSBTV0FQ
+X1RPS0VOX1RJTUVPVVQJMzAwDQogLyoNCiAgKiBDdXJyZW50bHkgZGlzYWJs
+ZWQ7IE5lZWRzIGZ1cnRoZXIgY29kZSB0byB3b3JrIGF0IEhaICogMzAwLg0K
+ICAqLw0K
 
-and "only" two underscores:
-
-# grep -r __ . | wc -l
-72216
---
-vda
+--279735632-1694627586-1125761976=:567--

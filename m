@@ -1,63 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751043AbVICWS6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751272AbVICWNt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751043AbVICWS6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Sep 2005 18:18:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbVICWS6
+	id S1751272AbVICWNt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Sep 2005 18:13:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbVICWNt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Sep 2005 18:18:58 -0400
-Received: from smtp.istop.com ([66.11.167.126]:58561 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S1751004AbVICWS5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Sep 2005 18:18:57 -0400
-From: Daniel Phillips <phillips@istop.com>
-To: Wim Coekaerts <wim.coekaerts@oracle.com>
-Subject: Re: [Linux-cluster] Re: GFS, what's remaining
-Date: Sat, 3 Sep 2005 18:21:26 -0400
-User-Agent: KMail/1.8
-Cc: linux clustering <linux-cluster@redhat.com>,
-       Mark Fasheh <mark.fasheh@oracle.com>, akpm@osdl.org,
-       linux-fsdevel@vger.kernel.org, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org
-References: <20050901104620.GA22482@redhat.com> <200509030242.36506.phillips@istop.com> <20050903064633.GB4593@ca-server1.us.oracle.com>
-In-Reply-To: <20050903064633.GB4593@ca-server1.us.oracle.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 3 Sep 2005 18:13:49 -0400
+Received: from zproxy.gmail.com ([64.233.162.195]:19522 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751043AbVICWNt convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Sep 2005 18:13:49 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=tDbY3qP4l4wNiOq/R3nxGu00ofU8LGQmuP5u9v284mR1WvCdnQ4ATp7ABGrdH/pyyvNHtSGYnRsD3M2bYWc72oNeB4ZQhjPLKplAtJY98SDagP7sb2xEsEXkf7hmj/c+6a4xTVLJ0A55vJ6NGMexnVcXeGgrFyBRTXg7iQW9h4U=
+Message-ID: <29495f1d0509031513232b11b1@mail.gmail.com>
+Date: Sat, 3 Sep 2005 15:13:43 -0700
+From: Nish Aravamudan <nish.aravamudan@gmail.com>
+Reply-To: nish.aravamudan@gmail.com
+To: Chase Venters <chase.venters@clientec.com>
+Subject: Re: [PATCH] New: Omnikey CardMan 4040 PCMCIA Driver
+Cc: Harald Welte <laforge@gnumonks.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <200509031627.00947.chase.venters@clientec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200509031821.27070.phillips@istop.com>
+References: <20050904101218.GM4415@rama.de.gnumonks.org>
+	 <200509031627.00947.chase.venters@clientec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 03 September 2005 02:46, Wim Coekaerts wrote:
-> On Sat, Sep 03, 2005 at 02:42:36AM -0400, Daniel Phillips wrote:
-> > On Friday 02 September 2005 20:16, Mark Fasheh wrote:
-> > > As far as userspace dlm apis go, dlmfs already abstracts away a large
-> > > part of the dlm interaction...
-> >
-> > Dumb question, why can't you use sysfs for this instead of rolling your
-> > own?
->
-> because it's totally different. have a look at what it does.
+On 9/3/05, Chase Venters <chase.venters@clientec.com> wrote:
+> > Below you can find a driver for the Omnikey CardMan 4040 PCMCIA
+> > Smartcard Reader.
+> 
+> Someone correct me if I'm wrong, but wouldn't these #defines be a problem 
+> with the new HZ flexibility:
+> 
+> #define CCID_DRIVER_BULK_DEFAULT_TIMEOUT        (150*HZ)
+> #define CCID_DRIVER_ASYNC_POWERUP_TIMEOUT       (35*HZ)
+> #define CCID_DRIVER_MINIMUM_TIMEOUT             (3*HZ)
+> #define READ_WRITE_BUFFER_SIZE 512
+> #define POLL_LOOP_COUNT                         1000
 
-You create a dlm domain when a directory is created.  You create a lock 
-resource when a file of that name is opened.  You lock the resource when the 
-file is opened.  You access the lvb by read/writing the file.  Why doesn't 
-that fit the configfs-nee-sysfs model?  If it does, the payoff will be about 
-500 lines saved.
+These are all fine. Although I am a bit suspicious of 150 second
+timeouts; but if that is the hardware...
 
-This little dlm fs is very slick, but grossly inefficient.  Maybe efficiency 
-doesn't matter here since it is just your slow-path userspace tools taking 
-these locks.  Please do not even think of proposing this as a way to export a 
-kernel-based dlm for general purpose use!
+> /* how often to poll for fifo status change */
+> #define POLL_PERIOD                             (HZ/100)
 
-Your userdlm.c file has some hidden gold in it.  You have factored the dlm 
-calls far more attractively than the bad old bazillion-parameter Vaxcluster 
-legacy.  You are almost in system call zone there.  (But note my earlier 
-comment on dlms in general: until there are dlm-based applications, merging a 
-general-purpose dlm API is pointless and has nothing to do with getting your 
-filesystem merged.)
+This needs to be msecs_to_jiffies(10), please.
 
-Regards,
+> In particular, 2.6.13 allows a HZ of 100, which would define POLL_PERIOD to 0.
 
-Daniel
+Um, 100/100 = 1, not 0?
+
+> Your later calls to mod_timer would be setting cmx_poll_timer to the current
+> value of jiffies.
+
+Which is technically ok, because HZ=100, a
+     jiffies + 0
+or
+     jiffies + 1
+timeout request will both result in the soft-timer being expired at
+the *next* timer interrupt. Regardless, you're right, and
+msecs_to_jiffies() will cover it.
+
+> Also, you've got a typo in the comments:
+> 
+> *       - adhere to linux kenrel coding style and policies
+> 
+> Forgive me if I'm way off - I'm just now getting my feet wet in kernel
+> development. Just making comments based on what I (think) I know at this
+> point.
+
+Of bigger concern to me is the use of the sleep_on() family of
+functions, all of which are deprecated.
+
+Thanks,
+Nish

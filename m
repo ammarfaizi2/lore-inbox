@@ -1,65 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751284AbVICXB5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751082AbVICXbh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751284AbVICXB5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Sep 2005 19:01:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbVICXB5
+	id S1751082AbVICXbh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Sep 2005 19:31:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751282AbVICXbh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Sep 2005 19:01:57 -0400
-Received: from siaag2ag.compuserve.com ([149.174.40.140]:16773 "EHLO
-	siaag2ag.compuserve.com") by vger.kernel.org with ESMTP
-	id S1751284AbVICXB5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Sep 2005 19:01:57 -0400
-Date: Sat, 3 Sep 2005 18:58:00 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Brand-new notebook useless with Linux...
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200509031859_MC3-1-A720-F705@compuserve.com>
+	Sat, 3 Sep 2005 19:31:37 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:990 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751082AbVICXbg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Sep 2005 19:31:36 -0400
+Message-ID: <431A3249.9040504@pobox.com>
+Date: Sat, 03 Sep 2005 19:31:21 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+To: pjones@redhat.com
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "ATARAID (eg, Promise Fasttrak, Highpoint 370) related discussions" 
+	<ataraid-list@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: IDE HPA
+References: <87941b4c05082913101e15ddda@mail.gmail.com>	 <87941b4c05083008523cddbb2a@mail.gmail.com>	 <1125419927.8276.32.camel@localhost.localdomain>	 <87941b4c050830095111bf484e@mail.gmail.com>	 <62b0912f0509020027212e6c42@mail.gmail.com>	 <1125666332.30867.10.camel@localhost.localdomain>	 <62b0912f05090206331d04afd3@mail.gmail.com>	 <E1EBCdS-00064p-00@chiark.greenend.org.uk>	 <62b0912f05090209242ad72321@mail.gmail.com>	 <1125680712.30867.20.camel@localhost.localdomain>	 <62b0912f05090210441d3fa248@mail.gmail.com>	 <1125684567.31292.2.camel@localhost.localdomain>	 <1125687557.30867.26.camel@localhost.localdomain>	 <1125688483.31292.20.camel@localhost.localdomain>	 <1125692578.30867.33.camel@localhost.localdomain> <1125695649.31292.45.camel@localhost.localdomain>
+In-Reply-To: <1125695649.31292.45.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just bought a new notebook.  Here is the output from lspci using the latest
-pci.ids file from sourceforge:
+Peter Jones wrote:
+> So where would you envision this code to check the partition table, the
+> HPA/host default disk size, and guess how things should be set up?
+> 
+>>From a userland perspective, it's very difficult to let users know
+> they'll be screwing themselves by partitioning the entire disk, so we
+> really should be leaving HPA enabled if the protected area is indeed not
+> for consumption.
+> 
+> Also, the heuristic is harder than this -- if we reexamine the fakeraid
+> case, then it's clear we have to look for raid metadata, figure out if
+> the raid includes stuff inside the HPA or not, and then if it doesn't we
+> don't care -- but that's assuming there _is_ raid metadata.
+> 
+> Long term, many people hope, possibly unrealistically, that we'll be
+> able to write out raid metadata for people creating raids on cards which
+> support fakeraid, and have the BIOS grok it appropriately.  So in that
+> case, we may well have a blank (or garbage) disk, and we can't check the
+> partition table or any raid metadata.  Correct me if I'm wrong, but I
+> don't see a simple heuristic for this case.
+> 
+> (as a side note, I know one user who, at OLS, noticed we fail to
+> re-initialize HPA after unsuspend, so on at least t40 the disk gets
+> smaller when you suspend.  This may or may not be fixed, I haven't
+> checked.  But it's one more sort of pain we get into by disabling it,
+> whether justified or not.)
 
-00:00.0 Host bridge: ATI Technologies Inc RS480 Host Bridge (rev 01)
-00:01.0 PCI bridge: ATI Technologies Inc: Unknown device 5a3f
-00:13.0 USB Controller: ATI Technologies Inc IXP SB400 USB Host Controller
-00:13.1 USB Controller: ATI Technologies Inc IXP SB400 USB Host Controller
-00:13.2 USB Controller: ATI Technologies Inc IXP SB400 USB2 Host Controller
-00:14.0 SMBus: ATI Technologies Inc IXP SB400 SMBus Controller (rev 11)
-00:14.1 IDE interface: ATI Technologies Inc Standard Dual Channel PCI IDE Controller ATI
-00:14.3 ISA bridge: ATI Technologies Inc IXP SB400 PCI-ISA Bridge
-00:14.4 PCI bridge: ATI Technologies Inc IXP SB400 PCI-PCI Bridge
-00:14.5 Multimedia audio controller: ATI Technologies Inc IXP SB400 AC'97 Audio Controller (rev 02)
-00:14.6 Modem: ATI Technologies Inc: Unknown device 4378 (rev 02)
-00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] HyperTransport Technology Configuration
-00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Address Map
-00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] DRAM Controller
-00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Miscellaneous Control
-01:05.0 VGA compatible controller: ATI Technologies Inc ATI Radeon XPRESS 200M 5955 (PCIE)
-05:00.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
-05:02.0 Network controller: Broadcom Corporation BCM4318 [AirForce One 54g] 802.11g Wireless LAN Controller (rev 02)
-05:09.0 CardBus bridge: Texas Instruments PCIxx21/x515 Cardbus Controller
-05:09.2 FireWire (IEEE 1394): Texas Instruments OHCI Compliant IEEE 1394 Host Controller
-05:09.3 Mass storage controller: Texas Instruments PCIxx21 Integrated FlashMedia Controller
-05:09.4 Class 0805: Texas Instruments PCI6411, PCI6421, PCI6611, PCI6621, PCI7411, PCI7421, PCI7611, PCI7621 Secure Digital (SD) Controller
+It seems to me that one should write an ATA-specific Device Mapper 
+driver, which layers on top of an ATA disk.  The driver obtains the 
+starting location of HPA, then exports two block devices:  one for the 
+primary data area, and one for the HPA.
 
-None of these work and I can find no support anywhere for them:
+For situations where we want the start Linux philosophy -- Linux exports 
+100% of the hardware capability -- no DM layer needs to be used.  For 
+situations where its better to treat the HPA as a separate and distinct 
+area, the DM driver would come in handy.
 
-SMBus
-Audio ("unknown codec")
-Modem ("no codec available")
-Wireless
-FlashMedia
-SD/MMC
+This follows the same philosophy as fakeraid (BIOS RAID):  we simply 
+export the entire disk, and Device Mapper (google for 'dmraid') handles 
+the vendor-proprietary RAID metadata.
 
-Additionally, the system clock runs at 2x normal speed with PowerNow enabled.
+	Jeff
 
-Am I stuck with running XP on this thing?
 
-__
-Chuck

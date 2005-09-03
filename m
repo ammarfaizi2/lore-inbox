@@ -1,83 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751386AbVICFGe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161137AbVICFNI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751386AbVICFGe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Sep 2005 01:06:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751390AbVICFGe
+	id S1161137AbVICFNI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Sep 2005 01:13:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161135AbVICFNI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Sep 2005 01:06:34 -0400
-Received: from gold.veritas.com ([143.127.12.110]:24402 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1751386AbVICFGd (ORCPT
+	Sat, 3 Sep 2005 01:13:08 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:50835 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1161134AbVICFNG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Sep 2005 01:06:33 -0400
-Date: Sat, 3 Sep 2005 06:08:21 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Jeff Dike <jdike@addtoit.com>
-cc: Blaisorblade <blaisorblade@yahoo.it>, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [patch 1/3] uml: share page bits handling between 2 and 3 level
- pagetables
-In-Reply-To: <20050902201749.GA9104@ccure.user-mode-linux.org>
-Message-ID: <Pine.LNX.4.61.0509030555400.14051@goblin.wat.veritas.com>
-References: <20050728185655.9C6ADA3@zion.home.lan>
- <20050730160218.GB4585@ccure.user-mode-linux.org> <200508102137.28414.blaisorblade@yahoo.it>
- <20050902201749.GA9104@ccure.user-mode-linux.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 03 Sep 2005 05:06:29.0584 (UTC) FILETIME=[3E631500:01C5B045]
+	Sat, 3 Sep 2005 01:13:06 -0400
+Date: Sat, 3 Sep 2005 13:18:41 +0800
+From: David Teigland <teigland@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, linux-cluster@redhat.com
+Subject: Re: GFS, what's remaining
+Message-ID: <20050903051841.GA13211@redhat.com>
+References: <20050901104620.GA22482@redhat.com> <20050901035939.435768f3.akpm@osdl.org> <1125586158.15768.42.camel@localhost.localdomain> <20050901132104.2d643ccd.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050901132104.2d643ccd.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Sep 2005, Jeff Dike wrote:
-> On Wed, Aug 10, 2005 at 09:37:28PM +0200, Blaisorblade wrote:
-> > Also look, on the "set_pte" theme, at the attached patch. 
+On Thu, Sep 01, 2005 at 01:21:04PM -0700, Andrew Morton wrote:
+> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> > > - Why GFS is better than OCFS2, or has functionality which OCFS2 cannot
+> > >   possibly gain (or vice versa)
+> > > 
+> > > - Relative merits of the two offerings
+> > 
+> > You missed the important one - people actively use it and have been for
+> > some years. Same reason with have NTFS, HPFS, and all the others. On
+> > that alone it makes sense to include.
 > 
-> +       WARN_ON(!pte_young(*pte) || pte_write(*pte) && !pte_dirty(*pte));
+> Again, that's not a technical reason.  It's _a_ reason, sure.  But what are
+> the technical reasons for merging gfs[2], ocfs2, both or neither?
 > 
-> This one has been firing on me, and I decided to figure out why.  The
-> culprit is this code in do_no_page:
-> 
-> 	if (pte_none(*page_table)) {
-> 		if (!PageReserved(new_page))
-> 			inc_mm_counter(mm, rss);
-> 
-> 		flush_icache_page(vma, new_page);
-> 		entry = mk_pte(new_page, vma->vm_page_prot);
-> 		if (write_access)
-> 			entry = maybe_mkwrite(pte_mkdirty(entry), vma);
-> 		set_pte_at(mm, address, page_table, entry);
-> 
-> The first mk_pte immediately sets the pte to the protection limits of
-> the VMA, regardless of the access type.  So, if it's a read access on
-> a writeable page, we get a writeable, but not dirty pte, since the
-> mkdirty never happens.  The exercises the warning you added.
-> 
-> This seems somewhat bogus to me.  If we set the pte protection to its
-> limits, then the maybe_mkwrite is unneccesary.  
-> 
-> If we are the process in this address space, and we have a write
-> access, then the maybe_mkwrite doesn't do anything because the pte is
-> already writeable because the VMA has to be writeable, or we would
-> have been faulted already.
+> If one can be grown to encompass the capabilities of the other then we're
+> left with a bunch of legacy code and wasted effort.
 
-Not at all.  The private, COW areas.  They may be writeable in the sense
-that VM_WRITE is set, but pte_write permission cannot be in vm_page_prot,
-or we'd never get the fault when to Copy On Write.
+GFS is an established fs, it's not going away, you'd be hard pressed to
+find a more widely used cluster fs on Linux.  GFS is about 10 years old
+and has been in use by customers in production environments for about 5
+years.  It is a mature, stable file system with many features that have
+been technically refined over years of experience and customer/user
+feedback.  The latest development cycle (GFS2) has focussed on improving
+performance, it's not a new file system -- the "2" indicates that it's not
+ondisk compatible with earlier versions.
 
-What is bogus, I think, are those places where we do the reverse:
-like do_anonymous_page's pte_wrprotect of its mkpte of the ZERO_PAGE.
+OCFS2 is a new file system.  I expect they'll want to optimize for their
+own unique goals.  When OCFS appeared everyone I know accepted it would
+coexist with GFS, each in their niche like every other fs.  That's good,
+OCFS and GFS help each other technically even though they may eventually
+compete in some areas (which can also be good.)
 
-> If we are a debugger changing the process memory, then the vma may be
-> read-only, and maybe_mkwrite is explicitly a no-op in this case.
-> 
-> This doesn't seem to harm our dirty bit emulation.  fix_range_common
-> checks the dirty and accessed bits and disables read and write
-> protection as appropriate.
-> 
-> So, it seems like the warning could be dropped, or perhaps made more
-> selective, like checking for is_write == 0 and VM_WRITE, but then the
-> test is getting complicated.
-> 
-> 				Heff
+Dave
 
-Jugh
+Here's a random summary of technical features:
+
+- cluster infrastructure: a lot of work, perhaps as much as gfs itself,
+  has gone into the infrastructure surrounding and supporting gfs
+- cluster infrastructure allows for easy cooperation with CLVM
+- interchangable lock/cluster modules:  gfs interacts with the external
+  infrastructure, including lock manager, through an interchangable
+  module allowing the fs to be adapted to different environments.
+- a "nolock" module can be plugged in to use gfs as a local fs
+  (can be selected at mount time, so any fs can be mounted locally)
+- quotas, acls, cluster flocks, direct io, data journaling,
+  ordered/writeback journaling modes -- all supported
+- gfs transparently switches to a different locking scheme for direct io
+  allowing parallel non-allocating writes with no lock contention
+- posix locks -- supported, although it's being reworked for better
+  performance right now
+- asynchronous locking, lock prefetching + read-ahead
+- coherent shared-writeable memory mappings across the cluster
+- nfs3 support (multiple nfs servers exporting one gfs is very common)
+- extend fs online, add journals online
+- full fs quiesce to allow for block level snapshot below gfs
+- read-only mount
+- "specatator" mount (like ro but no journal allocated for the mount,
+  no fencing needed for failed node that was mounted as specatator)
+- infrastructure in place for live ondisk inode migration, fs shrink
+- stuffed dinodes, small files are stored in the disk inode block
+- tunable (fuzzy) atime updates
+- fast, nondisruptive stat on files during non-allocating direct-io
+- fast, nondisruptive statfs (df) even during heavy fs usage
+- friendly handling of io errors: shut down fs and withdraw from cluster
+- largest GFS cluster deployed was around 200 nodes, most are much smaller
+- use many GFS file systems at once on a node and in a cluster
+- customers use GFS for: scientific apps, HA, NFS serving, database,
+  others I'm sure
+- graphical management tools for gfs, clvm, and the cluster infrastruture
+  exist and are improving quickly
+

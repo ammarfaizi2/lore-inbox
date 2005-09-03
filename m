@@ -1,52 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161074AbVICBuk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161107AbVICBwg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161074AbVICBuk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 21:50:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbVICBuk
+	id S1161107AbVICBwg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 21:52:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbVICBwg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 21:50:40 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:50383 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751355AbVICBuj (ORCPT
+	Fri, 2 Sep 2005 21:52:36 -0400
+Received: from 59-171-177-165.rev.home.ne.jp ([59.171.177.165]:31880 "EHLO
+	localhost") by vger.kernel.org with ESMTP id S1751355AbVICBwf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 21:50:39 -0400
-Date: Fri, 2 Sep 2005 19:35:13 -0500
-From: serue@us.ibm.com
-To: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
-Cc: linux-kernel@vger.kernel.org, Nix <nix@esperi.org.uk>
-Subject: Re: [PATCH] 2.6.13: Filesystem capabilities 0.16
-Message-ID: <20050903003513.GA15764@sergelap.austin.ibm.com>
-References: <87ll2ghb95.fsf@goat.bogus.local> <87fysnmvj6.fsf@amaterasu.srvr.nix>
+	Fri, 2 Sep 2005 21:52:35 -0400
+Date: Sat, 03 Sep 2005 10:52:33 +0900 (JST)
+Message-Id: <20050903.105233.1300518464.whatisthis@jcom.home.ne.jp>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, cpufreq@lists.linux.org.uk
+Subject: Re: [x86_64] Exception when using powernowd.
+From: Kyuma Ohta <whatisthis@jcom.home.ne.jp>
+In-Reply-To: <20050902172437.7e8ceabd.akpm@osdl.org>
+References: <20050903.021820.1300541056.whatisthis@jcom.home.ne.jp>
+	<20050902172437.7e8ceabd.akpm@osdl.org>
+X-Mailer: Mew version 4.2.52 on Emacs 22.0.50 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87fysnmvj6.fsf@amaterasu.srvr.nix>
-User-Agent: Mutt/1.5.8i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Or, has there been any communication between yourself and
-Nicholas Hans Simmonds, who posted his xattr-based fscaps
-patch in july (first posting july 2)?
+Thanx,Andrew,
 
-thanks,
--serge
+Written by Andrew Morton <akpm@osdl.org>
+   at Fri, 2 Sep 2005 17:24:37 -0700 :
+Subject: Re: [x86_64] Exception when using powernowd.
 
-Quoting Nix (nix@esperi.org.uk):
-> On 1 Sep 2005, Olaf Dietsche murmured woefully:
-> > This patch implements filesystem capabilities. It allows to run
-> > privileged executables without the need for suid root.
-> 
-> Is there some reason why this doesn't keep its capability data in
-> xattrs?
-> 
-> -- 
-> `... published last year in a limited edition... In one of the
->  great tragedies of publishing, it was not a limited enough edition
->  and so I have read it.' --- James Nicoll
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+akpm> Kyuma Ohta <whatisthis@jcom.home.ne.jp> wrote:
+akpm> >
+akpm> > I'm using MSI K8T Neo2 (VIA K8T800 chipset) and Athlon64 3000+
+akpm> > with  linux x86_64 2.6.13 kernel and Debian/sid.
+akpm> > When enable powernow-k8 (i.e. using powernowd,cpudyn) to
+akpm> > saving power, some process is down by null protection and
+akpm> > system is unstable.
+akpm> > Then disabling powernow-k8,and reboot, system is very stable.
+akpm> > 
+akpm> > I attach any log,please give me a advice.
+akpm> 
+akpm> Did earlier kernels work OK?  Can you identify the most recent 2.6 kernel
+akpm> which didn't have this bug?
+
+ Without powernow! feature, works fine.(I tested every -rc kernel 
+after 2.6.8 for x86_64).
+ With powernow! feature,works bad at least after 2.6.11-rc*.
+
+ I'm using xserver-xorg at debian,6.8.2-dfsg.1-5 happend OOPS 
+at any process using X any older kernel, but update X to 6.8.2-6,
+any processes not/with using  X got  null exception and down
+when enable powernow! feature :-(
+ What happened? 
+
+Ohta.

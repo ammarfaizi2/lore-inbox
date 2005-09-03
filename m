@@ -1,189 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751066AbVICPpp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751226AbVICPqJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751066AbVICPpp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Sep 2005 11:45:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751226AbVICPpo
+	id S1751226AbVICPqJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Sep 2005 11:46:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751229AbVICPqJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Sep 2005 11:45:44 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:44439 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751066AbVICPpo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Sep 2005 11:45:44 -0400
-Date: Sat, 3 Sep 2005 11:45:40 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@cuia.boston.redhat.com
-To: Andrew Morton <akpm@osdl.org>
-cc: David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH][3/2] also fix rwsem-spinlock.h
-Message-ID: <Pine.LNX.4.63.0509031142470.567@cuia.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="279735632-1206587767-1125762340=:567"
+	Sat, 3 Sep 2005 11:46:09 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:51209 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751226AbVICPqI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Sep 2005 11:46:08 -0400
+Date: Sat, 3 Sep 2005 16:46:00 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/2] ios for mmc chip select
+Message-ID: <20050903164600.C4416@flint.arm.linux.org.uk>
+Mail-Followup-To: Pierre Ossman <drzeus-list@drzeus.cx>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <4312EDE6.7090603@drzeus.cx>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <4312EDE6.7090603@drzeus.cx>; from drzeus-list@drzeus.cx on Mon, Aug 29, 2005 at 01:13:42PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Mon, Aug 29, 2005 at 01:13:42PM +0200, Pierre Ossman wrote:
+> Adds a new ios for setting the chip select pin on MMC cards. Needed on
+> SD controllers which use this pin for other things and therefore cannot
+> have it pulled high at all times.
 
---279735632-1206587767-1125762340=:567
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Applied, thanks.
 
-Hi Andrew,
-
-I forgot to also update rwsem-spinlock.h.  Here is the equivalent
-change for that file.
-
-These patches simplify the code and should not have much, if any,
-difference on the behaviour of the system, compared with the
-patches currently in -mm.
-
-Signed-off-by: Rik van Riel <riel@redhat.com>
-
-Index: linux-2.6.13/include/linux/rwsem-spinlock.h
-===================================================================
---- linux-2.6.13.orig/include/linux/rwsem-spinlock.h
-+++ linux-2.6.13/include/linux/rwsem-spinlock.h
-@@ -61,14 +61,9 @@ extern void FASTCALL(__up_read(struct rw
- extern void FASTCALL(__up_write(struct rw_semaphore *sem));
- extern void FASTCALL(__downgrade_write(struct rw_semaphore *sem));
- 
--static inline int sem_is_read_locked(struct rw_semaphore *sem)
-+static inline int rwsem_is_locked(struct rw_semaphore *sem)
- {
--	return (sem->activity > 0);
--}
--
--static inline int sem_is_write_locked(struct rw_semaphore *sem)
--{
--	return (sem->activity < 0);
-+	return (sem->activity != 0);
- }
- 
- #endif /* __KERNEL__ */
---279735632-1206587767-1125762340=:567
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=add-sem_is_read-write_locked.patch
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.63.0509031145400.567@cuia.boston.redhat.com>
-Content-Description: 
-Content-Disposition: attachment; filename=add-sem_is_read-write_locked.patch
-
-DQpGcm9tOiBSaWsgVmFuIFJpZWwgPHJpZWxAcmVkaGF0LmNvbT4NCg0KQWRk
-IHNlbV9pc19yZWFkL3dyaXRlX2xvY2tlZCBmdW5jdGlvbnMgdG8gdGhlIHJl
-YWQvd3JpdGUgc2VtYXBob3JlcywgYWxvbmcgdGhlDQpzYW1lIGxpbmVzIG9m
-IHRoZSAqX2lzX2xvY2tlZCBzcGlubG9jayBmdW5jdGlvbnMuICBUaGUgc3dh
-cCB0b2tlbiB0dW5pbmcgcGF0Y2gNCnVzZXMgc2VtX2lzX3JlYWRfbG9ja2Vk
-OyBzZW1faXNfd3JpdGVfbG9ja2VkIGlzIGFkZGVkIGZvciBjb21wbGV0ZW5l
-c3MuDQoNClNpZ25lZC1vZmYtYnk6IFJpayB2YW4gUmllbCA8cmllbEByZWRo
-YXQuY29tPg0KU2lnbmVkLW9mZi1ieTogQW5kcmV3IE1vcnRvbiA8YWtwbUBv
-c2RsLm9yZz4NCkluZGV4OiBsaW51eC0yLjYuMTMvaW5jbHVkZS9hc20tYWxw
-aGEvcndzZW0uaA0KPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KLS0tIGxpbnV4
-LTIuNi4xMy5vcmlnL2luY2x1ZGUvYXNtLWFscGhhL3J3c2VtLmgNCisrKyBs
-aW51eC0yLjYuMTMvaW5jbHVkZS9hc20tYWxwaGEvcndzZW0uaA0KQEAgLTI2
-Miw1ICsyNjIsMTAgQEAgc3RhdGljIGlubGluZSBsb25nIHJ3c2VtX2F0b21p
-Y191cGRhdGUobA0KICNlbmRpZg0KIH0NCiANCitzdGF0aWMgaW5saW5lIGlu
-dCByd3NlbV9pc19sb2NrZWQoc3RydWN0IHJ3X3NlbWFwaG9yZSAqc2VtKQ0K
-K3sNCisJcmV0dXJuIChzZW0tPmNvdW50ICE9IDApOw0KK30NCisNCiAjZW5k
-aWYgLyogX19LRVJORUxfXyAqLw0KICNlbmRpZiAvKiBfQUxQSEFfUldTRU1f
-SCAqLw0KSW5kZXg6IGxpbnV4LTIuNi4xMy9pbmNsdWRlL2FzbS1pMzg2L3J3
-c2VtLmgNCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NCi0tLSBsaW51eC0yLjYu
-MTMub3JpZy9pbmNsdWRlL2FzbS1pMzg2L3J3c2VtLmgNCisrKyBsaW51eC0y
-LjYuMTMvaW5jbHVkZS9hc20taTM4Ni9yd3NlbS5oDQpAQCAtMjg0LDUgKzI4
-NCwxMCBAQCBMT0NLX1BSRUZJWAkieGFkZCAlMCwoJTIpIg0KIAlyZXR1cm4g
-dG1wK2RlbHRhOw0KIH0NCiANCitzdGF0aWMgaW5saW5lIGludCByd3NlbV9p
-c19sb2NrZWQoc3RydWN0IHJ3X3NlbWFwaG9yZSAqc2VtKQ0KK3sNCisJcmV0
-dXJuIChzZW0tPmNvdW50ICE9IDApOw0KK30NCisNCiAjZW5kaWYgLyogX19L
-RVJORUxfXyAqLw0KICNlbmRpZiAvKiBfSTM4Nl9SV1NFTV9IICovDQpJbmRl
-eDogbGludXgtMi42LjEzL2luY2x1ZGUvYXNtLWlhNjQvcndzZW0uaA0KPT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PQ0KLS0tIGxpbnV4LTIuNi4xMy5vcmlnL2lu
-Y2x1ZGUvYXNtLWlhNjQvcndzZW0uaA0KKysrIGxpbnV4LTIuNi4xMy9pbmNs
-dWRlL2FzbS1pYTY0L3J3c2VtLmgNCkBAIC0xODYsNCArMTg2LDkgQEAgX19k
-b3duZ3JhZGVfd3JpdGUgKHN0cnVjdCByd19zZW1hcGhvcmUgKg0KICNkZWZp
-bmUgcndzZW1fYXRvbWljX2FkZChkZWx0YSwgc2VtKQlhdG9taWM2NF9hZGQo
-ZGVsdGEsIChhdG9taWM2NF90ICopKCYoc2VtKS0+Y291bnQpKQ0KICNkZWZp
-bmUgcndzZW1fYXRvbWljX3VwZGF0ZShkZWx0YSwgc2VtKQlhdG9taWM2NF9h
-ZGRfcmV0dXJuKGRlbHRhLCAoYXRvbWljNjRfdCAqKSgmKHNlbSktPmNvdW50
-KSkNCiANCitzdGF0aWMgaW5saW5lIGludCByd3NlbV9pc19sb2NrZWQoc3Ry
-dWN0IHJ3X3NlbWFwaG9yZSAqc2VtKQ0KK3sNCisJcmV0dXJuIChzZW0tPmNv
-dW50ICE9IDApOw0KK30NCisNCiAjZW5kaWYgLyogX0FTTV9JQTY0X1JXU0VN
-X0ggKi8NCkluZGV4OiBsaW51eC0yLjYuMTMvaW5jbHVkZS9hc20tcHBjNjQv
-cndzZW0uaA0KPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KLS0tIGxpbnV4LTIu
-Ni4xMy5vcmlnL2luY2x1ZGUvYXNtLXBwYzY0L3J3c2VtLmgNCisrKyBsaW51
-eC0yLjYuMTMvaW5jbHVkZS9hc20tcHBjNjQvcndzZW0uaA0KQEAgLTE2Myw1
-ICsxNjMsMTAgQEAgc3RhdGljIGlubGluZSBpbnQgcndzZW1fYXRvbWljX3Vw
-ZGF0ZShpbg0KIAlyZXR1cm4gYXRvbWljX2FkZF9yZXR1cm4oZGVsdGEsIChh
-dG9taWNfdCAqKSgmc2VtLT5jb3VudCkpOw0KIH0NCiANCitzdGF0aWMgaW5s
-aW5lIGludCBzZW1faXNfcmVhZF9sb2NrZWQoc3RydWN0IHJ3X3NlbWFwaG9y
-ZSAqc2VtKQ0KK3sNCisJcmV0dXJuIChzZW0tPmNvdW50ICE9IDApOw0KK30N
-CisNCiAjZW5kaWYgLyogX19LRVJORUxfXyAqLw0KICNlbmRpZiAvKiBfUFBD
-X1JXU0VNX1hBRERfSCAqLw0KSW5kZXg6IGxpbnV4LTIuNi4xMy9pbmNsdWRl
-L2FzbS1wcGMvcndzZW0uaA0KPT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KLS0t
-IGxpbnV4LTIuNi4xMy5vcmlnL2luY2x1ZGUvYXNtLXBwYy9yd3NlbS5oDQor
-KysgbGludXgtMi42LjEzL2luY2x1ZGUvYXNtLXBwYy9yd3NlbS5oDQpAQCAt
-MTY4LDUgKzE2OCwxMCBAQCBzdGF0aWMgaW5saW5lIGludCByd3NlbV9hdG9t
-aWNfdXBkYXRlKGluDQogCXJldHVybiBhdG9taWNfYWRkX3JldHVybihkZWx0
-YSwgKGF0b21pY190ICopKCZzZW0tPmNvdW50KSk7DQogfQ0KIA0KK3N0YXRp
-YyBpbmxpbmUgaW50IHJ3c2VtX2lzX2xvY2tlZChzdHJ1Y3Qgcndfc2VtYXBo
-b3JlICpzZW0pDQorew0KKwlyZXR1cm4gKHNlbS0+Y291bnQgIT0gMCk7DQor
-fQ0KKw0KICNlbmRpZiAvKiBfX0tFUk5FTF9fICovDQogI2VuZGlmIC8qIF9Q
-UENfUldTRU1fWEFERF9IICovDQpJbmRleDogbGludXgtMi42LjEzL2luY2x1
-ZGUvYXNtLXMzOTAvcndzZW0uaA0KPT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0K
-LS0tIGxpbnV4LTIuNi4xMy5vcmlnL2luY2x1ZGUvYXNtLXMzOTAvcndzZW0u
-aA0KKysrIGxpbnV4LTIuNi4xMy9pbmNsdWRlL2FzbS1zMzkwL3J3c2VtLmgN
-CkBAIC0zNTEsNSArMzUxLDEwIEBAIHN0YXRpYyBpbmxpbmUgbG9uZyByd3Nl
-bV9hdG9taWNfdXBkYXRlKGwNCiAJcmV0dXJuIG5ldzsNCiB9DQogDQorc3Rh
-dGljIGlubGluZSBpbnQgcndzZW1faXNfbG9ja2VkKHN0cnVjdCByd19zZW1h
-cGhvcmUgKnNlbSkNCit7DQorCXJldHVybiAoc2VtLT5jb3VudCAhPSAwKTsN
-Cit9DQorDQogI2VuZGlmIC8qIF9fS0VSTkVMX18gKi8NCiAjZW5kaWYgLyog
-X1MzOTBfUldTRU1fSCAqLw0KSW5kZXg6IGxpbnV4LTIuNi4xMy9pbmNsdWRl
-L2FzbS1zaC9yd3NlbS5oDQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09DQotLS0g
-bGludXgtMi42LjEzLm9yaWcvaW5jbHVkZS9hc20tc2gvcndzZW0uaA0KKysr
-IGxpbnV4LTIuNi4xMy9pbmNsdWRlL2FzbS1zaC9yd3NlbS5oDQpAQCAtMTY2
-LDUgKzE2NiwxMCBAQCBzdGF0aWMgaW5saW5lIGludCByd3NlbV9hdG9taWNf
-dXBkYXRlKGluDQogCXJldHVybiBhdG9taWNfYWRkX3JldHVybihkZWx0YSwg
-KGF0b21pY190ICopKCZzZW0tPmNvdW50KSk7DQogfQ0KIA0KK3N0YXRpYyBp
-bmxpbmUgaW50IHJ3c2VtX2lzX2xvY2tlZChzdHJ1Y3Qgcndfc2VtYXBob3Jl
-ICpzZW0pDQorew0KKwlyZXR1cm4gKHNlbS0+Y291bnQgIT0gMCk7DQorfQ0K
-Kw0KICNlbmRpZiAvKiBfX0tFUk5FTF9fICovDQogI2VuZGlmIC8qIF9BU01f
-U0hfUldTRU1fSCAqLw0KSW5kZXg6IGxpbnV4LTIuNi4xMy9pbmNsdWRlL2Fz
-bS1zcGFyYzY0L3J3c2VtLmgNCj09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NCi0t
-LSBsaW51eC0yLjYuMTMub3JpZy9pbmNsdWRlL2FzbS1zcGFyYzY0L3J3c2Vt
-LmgNCisrKyBsaW51eC0yLjYuMTMvaW5jbHVkZS9hc20tc3BhcmM2NC9yd3Nl
-bS5oDQpAQCAtNTYsNiArNTYsMTEgQEAgc3RhdGljIGlubGluZSB2b2lkIHJ3
-c2VtX2F0b21pY19hZGQoaW50IA0KIAlhdG9taWNfYWRkKGRlbHRhLCAoYXRv
-bWljX3QgKikoJnNlbS0+Y291bnQpKTsNCiB9DQogDQorc3RhdGljIGlubGlu
-ZSBpbnQgcndzZW1faXNfbG9ja2VkKHN0cnVjdCByd19zZW1hcGhvcmUgKnNl
-bSkNCit7DQorCXJldHVybiAoc2VtLT5jb3VudCAhPSAwKTsNCit9DQorDQog
-I2VuZGlmIC8qIF9fS0VSTkVMX18gKi8NCiANCiAjZW5kaWYgLyogX1NQQVJD
-NjRfUldTRU1fSCAqLw0KSW5kZXg6IGxpbnV4LTIuNi4xMy9pbmNsdWRlL2Fz
-bS14ODZfNjQvcndzZW0uaA0KPT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KLS0t
-IGxpbnV4LTIuNi4xMy5vcmlnL2luY2x1ZGUvYXNtLXg4Nl82NC9yd3NlbS5o
-DQorKysgbGludXgtMi42LjEzL2luY2x1ZGUvYXNtLXg4Nl82NC9yd3NlbS5o
-DQpAQCAtMjc0LDUgKzI3NCwxMCBAQCBMT0NLX1BSRUZJWAkieGFkZGwgJTAs
-KCUyKSINCiAJcmV0dXJuIHRtcCtkZWx0YTsNCiB9DQogDQorc3RhdGljIGlu
-bGluZSBpbnQgcndzZW1faXNfbG9ja2VkKHN0cnVjdCByd19zZW1hcGhvcmUg
-KnNlbSkNCit7DQorCXJldHVybiAoc2VtLT5jb3VudCAhPSAwKTsNCit9DQor
-DQogI2VuZGlmIC8qIF9fS0VSTkVMX18gKi8NCiAjZW5kaWYgLyogX1g4NjY0
-X1JXU0VNX0ggKi8NCkluZGV4OiBsaW51eC0yLjYuMTMvaW5jbHVkZS9saW51
-eC9yd3NlbS1zcGlubG9jay5oDQo9PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09DQot
-LS0gbGludXgtMi42LjEzLm9yaWcvaW5jbHVkZS9saW51eC9yd3NlbS1zcGlu
-bG9jay5oDQorKysgbGludXgtMi42LjEzL2luY2x1ZGUvbGludXgvcndzZW0t
-c3BpbmxvY2suaA0KQEAgLTYxLDUgKzYxLDEwIEBAIGV4dGVybiB2b2lkIEZB
-U1RDQUxMKF9fdXBfcmVhZChzdHJ1Y3QgcncNCiBleHRlcm4gdm9pZCBGQVNU
-Q0FMTChfX3VwX3dyaXRlKHN0cnVjdCByd19zZW1hcGhvcmUgKnNlbSkpOw0K
-IGV4dGVybiB2b2lkIEZBU1RDQUxMKF9fZG93bmdyYWRlX3dyaXRlKHN0cnVj
-dCByd19zZW1hcGhvcmUgKnNlbSkpOw0KIA0KK3N0YXRpYyBpbmxpbmUgaW50
-IHJ3c2VtX2lzX2xvY2tlZChzdHJ1Y3Qgcndfc2VtYXBob3JlICpzZW0pDQor
-ew0KKwlyZXR1cm4gKHNlbS0+YWN0aXZpdHkgIT0gMCk7DQorfQ0KKw0KICNl
-bmRpZiAvKiBfX0tFUk5FTF9fICovDQogI2VuZGlmIC8qIF9MSU5VWF9SV1NF
-TV9TUElOTE9DS19IICovDQo=
-
---279735632-1206587767-1125762340=:567--
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

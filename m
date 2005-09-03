@@ -1,69 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751277AbVICQ6f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751111AbVICRIU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751277AbVICQ6f (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Sep 2005 12:58:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751252AbVICQ6e
+	id S1751111AbVICRIU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Sep 2005 13:08:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751252AbVICRIU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Sep 2005 12:58:34 -0400
-Received: from fmr13.intel.com ([192.55.52.67]:3304 "EHLO
-	fmsfmr001.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1751113AbVICQ6c convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Sep 2005 12:58:32 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: 2.6.13-mm1 login fails  (RE: 2.6.13-mm1: hangs during boot ...)
-Date: Sat, 3 Sep 2005 12:58:15 -0400
-Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B30047FA093@hdsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.13-mm1 login fails  (RE: 2.6.13-mm1: hangs during boot ...)
-Thread-Index: AcWwitF/MNHt3x7zQnecMYQFwazRswAFYwkw
-From: "Brown, Len" <len.brown@intel.com>
-To: "Reuben Farrelly" <reuben-lkml@reub.net>,
-       "Peter Williams" <pwil3058@bigpond.net.au>
-Cc: "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
-       "James Bottomley" <James.Bottomley@steeleye.com>,
-       <linux-scsi@vger.kernel.org>
-X-OriginalArrivalTime: 03 Sep 2005 16:58:17.0291 (UTC) FILETIME=[AE2A01B0:01C5B0A8]
+	Sat, 3 Sep 2005 13:08:20 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:13776 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1751094AbVICRIS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Sep 2005 13:08:18 -0400
+Subject: Re: 2.6.13-mm1: hangs during boot ...
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: Reuben Farrelly <reuben-lkml@reub.net>, "Brown, Len" <len.brown@intel.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <4319AA71.7090700@bigpond.net.au>
+References: <fa.qs5cahs.i2khgm@ifi.uio.no> <fa.fm9i4v6.1ekchhm@ifi.uio.no>
+	 <4319A402.7030705@reub.net>  <4319AA71.7090700@bigpond.net.au>
+Content-Type: text/plain
+Date: Sat, 03 Sep 2005 12:14:16 -0400
+Message-Id: <1125764058.4615.4.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-6) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
->As for the inability to log in, this bug may be relevant, 
->given I also had 
->that problem:
->
->https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=166422
->
->There are fixes in the pipeline for util-linux audit 
->interaction in Fedora as 
->well.  I know because I reported those too ;)
->
->> after the scsi initialization which I don't normally see.  
->I've attached 
->> the scsi initialization output.  The PF_NETLINK error 
->messages after the 
->> login prompt in this output are created whenever I try to log in or 
->> connect via ssh.
->
->The workaround by enabling audit support, but obviously a 
->better fix is in the 
->pipeline..
->
->I'm surprised more people aren't discovering these 
->'interactions' due to 
->having audit not turned on.  Does everyone build audit into 
->their kernels?
+On Sat, 2005-09-03 at 23:51 +1000, Peter Williams wrote:
+> > Are you seeing this "Device  not ready" message appear over and over, or 
+> > just the once?
+> 
+> Just the once.
 
-This sure made my FC4 test boxes hard to use!
+OK, I finally have a theory about this.  It's the everything goes via
+bios code.  Previously there were several levels at which commands could
+exit the SCSI stack; now we make everything go via bios, so they all
+come out at the top.
 
-CONFIG_AUDIT=y indeed did the trick.
+get_capabilities() in sr.c is sending a TEST_UNIT_READY which will get
+NOT_READY back.  Previously this was completing before it got to
+scsi_io_completion(); now it doesn't.  There must be quite a few cases
+like this.  The best fix is probably to use and respect REQ_QUIET for
+internally generated commands.
 
-When will I be able to delete CONFIG_AUDIT from my kernel again?
+James
 
-thanks
--Len
+

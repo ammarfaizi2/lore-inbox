@@ -1,60 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbVICPBY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751465AbVICPB4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750787AbVICPBY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Sep 2005 11:01:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750815AbVICPBY
+	id S1751465AbVICPB4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Sep 2005 11:01:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751008AbVICPB4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Sep 2005 11:01:24 -0400
-Received: from paleosilicon.orionmulti.com ([209.128.68.66]:56212 "EHLO
-	paleosilicon.orionmulti.com") by vger.kernel.org with ESMTP
-	id S1750787AbVICPBY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Sep 2005 11:01:24 -0400
-X-Envelope-From: hpa@zytor.com
-Message-ID: <4319BABB.20509@zytor.com>
-Date: Sat, 03 Sep 2005 08:01:15 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: andersen@codepoet.org
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Splitting out kernel<=>userspace ABI headers
-References: <C670AD22-97CF-46AA-A527-965036D78667@mac.com> <20050902134108.GA16374@codepoet.org> <22D79100-00B5-44F6-992C-FFFEACA49E66@mac.com> <20050902235833.GA28238@codepoet.org> <dfapgu$dln$1@terminus.zytor.com> <20050903042859.GA30101@codepoet.org> <4319330C.5030404@zytor.com> <20050903055007.GA30966@codepoet.org> <43193A4F.5030906@zytor.com> <20050903064124.GA31400@codepoet.org>
-In-Reply-To: <20050903064124.GA31400@codepoet.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 3 Sep 2005 11:01:56 -0400
+Received: from xproxy.gmail.com ([66.249.82.204]:3220 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750967AbVICPBz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Sep 2005 11:01:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=HU56B6yuN7WEbUJLD80cx99IL2cjHOGnUacXjdG4m/RN6CRHeSAYaGBERgpGXahEGz2mfMPg0ofxVKZPO4hzmbF3H5uAZtIzSJ/20xrqki4zek7Yq1jBYB1fEE9ulOsW74ECklfEEVn+oT/VRD1mXGKMAbDHf2RgPLNJlo2itd0=
+Message-ID: <a4e6962a0509030801616dd011@mail.gmail.com>
+Date: Sat, 3 Sep 2005 10:01:49 -0500
+From: Eric Van Hensbergen <ericvh@gmail.com>
+Reply-To: ericvh@gmail.com
+To: Miklos Szeredi <miklos@szeredi.hu>
+Subject: Re: FUSE merging?
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       fuse-devel@lists.sourceforge.net, v9fs-developer@lists.sourceforge.net,
+       linux-fsdevel@vger.kernel.org
+In-Reply-To: <E1EBYsp-0007Sc-00@dorka.pomaz.szeredi.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <E1EBJc2-0006J0-00@dorka.pomaz.szeredi.hu>
+	 <20050902153440.309d41a5.akpm@osdl.org>
+	 <E1EBQco-0006qr-00@dorka.pomaz.szeredi.hu>
+	 <a4e6962a050903062941d46389@mail.gmail.com>
+	 <E1EBYsp-0007Sc-00@dorka.pomaz.szeredi.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Andersen wrote:
+On 9/3/05, Miklos Szeredi <miklos@szeredi.hu> wrote:
+> > While FUSE doesn't handle it directly, doesn't it have to punt it to
+> > its network file systems, how to the sshfs and what not handle this
+> > sort of mapping?
 > 
-> That is certainly not what I was proposing.  Why are you bringing
-> sys/stat.h into this?  The contents of sys/stat.h are entirely up
-> to SUSv3 and the C library to worry about.  Nobody has proposed
-> mucking with that.  I dunno about your C library, but mine
-> doesn't include linux/* header files (not even sys/stat.h).  And
-> I'd really like to fix uClibc to not use any asm/* either, since
-> much of it is entirely unsuitable for user space.
+> Sshfs handles it by not handling it.  In this case it is neither
+> possible, nor needed to be able to correctly map the id space.
+> 
+> Yes, it may confuse the user.  It may even confuse the kernel for
+> sticky directories(*).  But basically it just works, and is very
+> simple.
 > 
 
-I'm in particular commenting on the stat structure involved with the 
-kernel interface.
+In principal, Plan 9 file servers handle permission checking
+server-side, so we could likewise punt -- but it seemed a good idea to
+have some form of mapping for directory listings (and things like
+sticky directories) to make sense.
 
-> I am proposing a single consistant policy for all of linux/* such
-> that all linux/* headers that need integer types of a specific
-> size shall #include unistd.h and use ISO C99 types rather that
-> the ad-hoc kernel types they now use.
-> 
-> The policy has _long_ been that user space must never include
-> linux/* header files.  Since we are now proposing a project to
-> reverse this policy, the long standing policy making linux/*
-> verboten now leaves us completely free to do pretty much anything
-> with linux/*.  And what I want is for linux/* to use the shiny
-> ISO C99 types.
-
-And I'm pointing out that that you're not only excluding a whole major 
-portion of the kernel ABI from this mechanism if you do that, you're 
-effectively requiring new mechanisms every time something is included 
-into POSIX over time!  If that isn't insane, I don't know what is.
-
-	-hpa
+               -eric

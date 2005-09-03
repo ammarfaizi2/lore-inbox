@@ -1,56 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161139AbVICFa1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161141AbVICFcA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161139AbVICFa1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Sep 2005 01:30:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161141AbVICFa1
+	id S1161141AbVICFcA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Sep 2005 01:32:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161144AbVICFcA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Sep 2005 01:30:27 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:57479 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1161139AbVICFa0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Sep 2005 01:30:26 -0400
-Subject: Re: [PATCH 1/3] Updated dynamic tick patches - Fix lost
-	tick	calculation in timer_pm.c
-From: Lee Revell <rlrevell@joe-job.com>
-To: Parag Warudkar <kernel-stuff@comcast.net>
-Cc: vatsa@in.ibm.com, linux-kernel@vger.kernel.org, arjan@infradead.org,
-       s0348365@sms.ed.ac.uk, kernel@kolivas.org, tytso@mit.edu,
-       cfriesen@nortel.com, trenn@suse.de, george@mvista.com,
-       johnstul@us.ibm.com, akpm@osdl.org
-In-Reply-To: <43193169.3090801@comcast.net>
-References: <20050831165843.GA4974@in.ibm.com>
-	 <20050831171211.GB4974@in.ibm.com> <1125720301.4991.41.camel@mindpipe>
-	 <43193169.3090801@comcast.net>
-Content-Type: text/plain
-Date: Sat, 03 Sep 2005 01:30:23 -0400
-Message-Id: <1125725424.4991.45.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.3.8 
-Content-Transfer-Encoding: 7bit
+	Sat, 3 Sep 2005 01:32:00 -0400
+Received: from rev.193.226.233.176.euroweb.hu ([193.226.233.176]:54791 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S1161141AbVICFb7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Sep 2005 01:31:59 -0400
+To: akpm@osdl.org
+CC: linux-kernel@vger.kernel.org, fuse-devel@lists.sourceforge.net,
+       torvalds@osdl.org
+In-reply-to: <20050902153440.309d41a5.akpm@osdl.org> (message from Andrew
+	Morton on Fri, 2 Sep 2005 15:34:40 -0700)
+Subject: Re: FUSE merging?
+References: <E1EBJc2-0006J0-00@dorka.pomaz.szeredi.hu> <20050902153440.309d41a5.akpm@osdl.org>
+Message-Id: <E1EBQco-0006qr-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Sat, 03 Sep 2005 07:31:34 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-09-03 at 01:15 -0400, Parag Warudkar wrote:
-> Lee Revell wrote:
-> 
-> > Are lost ticks really that common? If so, any idea what's disabling
-> >
-> >interrupts for so long (or if it's a hardware issue)?  And if not, it
-> >seems like you'd need an artificial way to simulate lost ticks in order
-> >to test this stuff.
-> >
-> >Lee
-> >  
-> >
-> Yes - I know many people with laptops who have this lost ticks problem. 
-> So no simulation and/or
-> special efforts required.  If anyone wants a test bed - my laptop is the 
-> perfect instrument.
-> 
-> In my case the rip is always as acpi_processor_idle now a days. Earlier 
-> it used to be at acpi_ec_read.
+> Haven't thought about it all much.  Have spent most of my time in the last
+> month admiring the contents of kernel bugzilla, and the ongoing attempts to
+> increase them.
 
-Ah, OK, I forgot about SMM traps.
+A penal system could be created, for example if someone is caught
+introducing a bug, he will have to choose three additional reports
+from bugzilla and analyze/fix them ;)
 
-Lee
+> >  - number of language bindings: 7 (native: C, java, python, perl,
+> >  - C#, sh, TCL)
 
+8 now, someone just sent a private mail about bindings for the Pliant
+(never heard of it) language.
+
+> I agree that lots of people would like the functionality.  I regret that
+> although it appears that v9fs could provide it,
+
+I think you are wrong there.  You don't appreciate all the complexity
+FUSE _lacks_ by not being network transparent.  Just look at the error
+text to errno conversion muck that v9fs has.  And their problems with
+trying to do generic uid/gid mappings.
+
+> there seems to be no interest in working on that.
+
+It would mean adding a plethora of extensions to the 9P protocol, that
+would take away all it's beauty.  I think you should realize that
+these are different interfaces for different purposes. There may be
+some overlap, but not enough to warrant trying to massage them into
+one big ball.
+
+> The main sticking point with FUSE remains the permission tricks around
+> fuse_allow_task().  AFAIK it remains the case that nobody has come up with
+> any better idea, so I'm inclined to merge the thing.
+
+Do you promise?  I can do a resplit and submit to Linus, if that takes
+some load off you.
+
+Thanks,
+Miklos

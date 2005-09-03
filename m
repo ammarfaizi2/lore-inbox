@@ -1,51 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750819AbVICKzo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbVICL3G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750819AbVICKzo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Sep 2005 06:55:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750866AbVICKzo
+	id S1750763AbVICL3G (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Sep 2005 07:29:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750837AbVICL3F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Sep 2005 06:55:44 -0400
-Received: from anchor-post-35.mail.demon.net ([194.217.242.85]:38928 "EHLO
-	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
-	id S1750819AbVICKzn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Sep 2005 06:55:43 -0400
-Message-ID: <43198125.5010303@superbug.demon.co.uk>
-Date: Sat, 03 Sep 2005 11:55:33 +0100
-From: James Courtier-Dutton <James@superbug.demon.co.uk>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050804)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: iSteve <isteve@rulez.cz>, linux-kernel@vger.kernel.org
-Subject: Re: SysFS, module names and .name
-References: <43176488.2080608@rulez.cz> <20050902155338.GA13648@kroah.com> <4318CF95.5040801@rulez.cz> <20050903053111.GB23711@kroah.com>
-In-Reply-To: <20050903053111.GB23711@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 3 Sep 2005 07:29:05 -0400
+Received: from pD9F86CED.dip0.t-ipconnect.de ([217.248.108.237]:18050 "EHLO
+	susi.maya.org") by vger.kernel.org with ESMTP id S1750763AbVICL3E
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Sep 2005 07:29:04 -0400
+From: Andreas Hartmann <andihartmann@01019freenet.de>
+X-Newsgroups: linux.kernel
+Subject: forbid to strace a program
+Date: Sat, 03 Sep 2005 13:28:12 +0200
+Organization: privat
+Message-ID: <dfc1cb$4na$1@pD9F86CED.dip0.t-ipconnect.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: abuse@arcor.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.11) Gecko/20050806
+X-Accept-Language: de, en-us, en
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Sat, Sep 03, 2005 at 12:17:57AM +0200, iSteve wrote:
-> 
->>Yes, I am rather interested -- could you please provide details about 
->>this method?
-> 
-> 
-> For PCI drivers, just add the line:
-> 	.owner = THIS_MODULE,
-> 
-> to their struct pci_driver definition and you will get the symlink
-> created for you.
-> 
-> USB drivers already do this.
-> 
-> Hope this helps,
-> 
-> greg k-h
-> -
+Hello!
 
-I will add this to the alsa driver snd-emu10k1 and snd-ca0106.
+Is it possible to prevent a program to be straced on x86?
+What do I have to do, eg., to prevent a perl-program to be straced?
 
-James
 
+Thanks for any hint,
+kind regards,
+Andreas Hartmann

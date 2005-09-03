@@ -1,85 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161199AbVICJ2R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161201AbVICJhW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161199AbVICJ2R (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Sep 2005 05:28:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161191AbVICJ2R
+	id S1161201AbVICJhW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Sep 2005 05:37:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161191AbVICJhW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Sep 2005 05:28:17 -0400
-Received: from omta04sl.mx.bigpond.com ([144.140.93.156]:61638 "EHLO
-	omta04sl.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1750824AbVICJ2Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Sep 2005 05:28:16 -0400
-Message-ID: <43196CAE.2000309@bigpond.net.au>
-Date: Sat, 03 Sep 2005 19:28:14 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+	Sat, 3 Sep 2005 05:37:22 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:9134 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1750824AbVICJhV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Sep 2005 05:37:21 -0400
+Message-ID: <43196EB8.9090207@jp.fujitsu.com>
+Date: Sat, 03 Sep 2005 18:36:56 +0900
+From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Len Brown <len.brown@intel.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       linux-scsi@vger.kernel.org
-Subject: Re: 2.6.13-mm1: hangs during boot ...
-References: <F7DC2337C7631D4386A2DF6E8FB22B30047FA063@hdsmsx401.amr.corp.intel.com>	 <4319403E.4050105@bigpond.net.au>  <43194E3B.2050609@bigpond.net.au> <1125735548.11903.53.camel@toshiba>
-In-Reply-To: <1125735548.11903.53.camel@toshiba>
+To: Matthew Wilcox <matthew@wil.cx>
+CC: Brent Casavant <bcasavan@sgi.com>, linux-ia64@vger.kernel.org,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6.13] IOCHK interface for I/O error handling/detecting
+ (for ia64)
+References: <431694DB.90400@jp.fujitsu.com> <20050901172917.I10072@chenjesu.americas.sgi.com> <20050902182453.GB28254@parisc-linux.org>
+In-Reply-To: <20050902182453.GB28254@parisc-linux.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sat, 3 Sep 2005 09:28:14 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Len Brown wrote:
-> On Sat, 2005-09-03 at 03:18 -0400, Peter Williams wrote:
+Matthew Wilcox wrote:
+> On Thu, Sep 01, 2005 at 05:45:54PM -0500, Brent Casavant wrote:
 > 
->>http://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13/2.6.13-mm1/broken-out/git-acpi.patch
->>
-> 
->>I am able to confirm that the problem occurs with vanilla 2.5.13 after
->>I apply the above patch.
+>>I am extremely concerned about the performance implications of this
+>>implementation.  These changes have several deleterious effects on I/O
+>>performance.
 > 
 > 
-> Thanks.
-> 
-> Please then try the latest ACPI patch here:
-> http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2.6.13/acpi-20050902-2.6.13.diff.gz
-> It should apply to vanilla 2.6.13 with a reject in ia64/Kconfig
-> that you can ignore.
-> 
-> If this works, then we munged git-acpi.patch in 2.6.13-mm1 somehow.
+> I agree.  I think the iochk patches should be abandoned and the feature
+> reimplemented on top of the asynchronous PCI error notification patches
+> from Linas Vepstas.
 
-There were no problems with this patch applied.  So it looks like the 
-munge theory is correct.
+Do you mean that all architecture especially other than PPC64 already
+have enough synchronization point or enough infrastructure to invoke
+those notifiers effectively?  I don't think so.
 
-> 
-> If this fails, then please confirm it still fails with pnpacpi=off
-> 
-> if it still fails, then please open a bugzilla here:
-> http://bugzilla.kernel.org/enter_bug.cgi?product=ACPI
-> component=config-interrupts
-> 
-> build the failing kernel with CONFIG_ACPI_DEBUG=y
-> boot it with "acpi=noirq" and attach the output from
-> dmesg -s64000
-> lspci -vv
-> cat /proc/interrupts
-> acpidump, available in the latest pmtools here:
-> http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/utils/
-> 
-> also include the dmesg -s64000 from the successful
-> acpi-enabled 2.6.13 boot, along with its /proc/interrupts.
-> 
-> If you have a  serial console and can then capture the
-> failing console log with "debug", that would be ideal.
-> 
-> Where we got from there will depend what we see...
-> 
-> thanks,
-> -Len
-> 
+As far as I know, PPC64 is enveloped by a favorable situation.
+At least in situation of readX and inX on PPC64, they already have
+a error check point, and the EEH technology and the firmware make their
+error recovery easier.
+Because PPC64 firmware (or hardware? - I'm not sure) automatically detects
+errors, isolates erroneous device and returns "(type)~0" to kernel,
+readX/inX doesn't need to do any expensive thing unless it get "(type)~0."
+Therefore PPC64 can have a nice chance to invoke notifiers by extending
+the codes in the error check point.
+It is clear that doing same thing on other architecture will be quite
+painful and expensive.
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+Why don't you think that it would be useful if the error notifier
+could be invoked from iochk_read()?  I believe the iochk patches
+will help implementing PCI error notification on not only IA64 but
+also i386 and so on.
+Or do you mean we would be happy if we all have a PPC64 box?
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+
+Thanks,
+H.Seto
+

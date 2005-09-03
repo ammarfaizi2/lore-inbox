@@ -1,68 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbVICR35@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751122AbVICRbE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751140AbVICR35 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Sep 2005 13:29:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751113AbVICR35
+	id S1751122AbVICRbE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Sep 2005 13:31:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751243AbVICRbD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Sep 2005 13:29:57 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:23773 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751082AbVICR34 (ORCPT
+	Sat, 3 Sep 2005 13:31:03 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:16586 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S1751122AbVICRbB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Sep 2005 13:29:56 -0400
-Message-ID: <4319DD7A.7000702@pobox.com>
-Date: Sat, 03 Sep 2005 13:29:30 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Tyler <pml@dtbb.net>
-CC: Brett Russ <russb@emc.com>, linux-ide@vger.kernel.org,
+	Sat, 3 Sep 2005 13:31:01 -0400
+Subject: Re: Hotswap support for libata
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: lkosewsk@gmail.com, Ravi Wijayaratne <ravi_wija@yahoo.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.13] libata: Marvell SATA support (PIO mode)
-References: <20050830183625.BEE1520F4C@lns1058.lss.emc.com> <4314C604.4030208@pobox.com> <20050901142754.B93BF27137@lns1058.lss.emc.com> <4319AE7B.3010304@dtbb.net>
-In-Reply-To: <4319AE7B.3010304@dtbb.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+In-Reply-To: <431944C8.5070205@pobox.com>
+References: <20050902224418.78897.qmail@web32512.mail.mud.yahoo.com>
+	 <355e5e5e05090223231726b94a@mail.gmail.com>
+	 <355e5e5e05090223259e47cf6@mail.gmail.com>  <431944C8.5070205@pobox.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Date: Sat, 03 Sep 2005 18:53:11 +0100
+Message-Id: <1125769991.14987.11.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tyler wrote:
-> Brett Russ wrote:
-> 
->> Some (non-functional) cleanup modifications since the version 0.10
->> driver I sent out 2005-08-30.  Also adding signed-off-by for Jeff's
->> upstream push.  This is my libata compatible low level driver for
->> the Marvell SATA family.  Currently it successfully runs in PIO mode
->> on a 6081 chip.  EDMA support is in the works and should be done
->> shortly.  Review, testing (especially on other flavors of Marvell),
->> comments welcome.
->>
->> Thank you,
->> BR
->>
->> Signed-off-by: Brett Russ <russb@emc.com>
->>
->>  
->>
-> [snip..]
-> 
-> Please find attached patches that add the Adaptec 1420SA controller to 
-> the PCI ID list in the driver, and a small note in the kernel config 
-> option to state so.  This is untested as of currently, if anyone has a 
-> 1420SA to try, that would be great..  The one I had access to is now 
-> gone to a remote location out of reach for testing.  I read in one post 
-> I found with google, that the 1420SA uses a 6541 chip instead of a 6041, 
-> but I am not able to verify this, and also don't know if it may still 
-> work as a 6041.  The card is still a Sata2, PCI-X card, with 4 ports, 
-> the same as the 6041 based cards.  This patch may or may not be 
-> useful..  The card comes with a manufacturer ID of 9005 according to a 
-> linux PCI-ID list, which is a secondary id of Adaptec's known as 
-> ADAPTEC2, and an actual PCI Id of 0241.
+On Sad, 2005-09-03 at 02:38 -0400, Jeff Garzik wrote:
+> controllers myself.  Many controllers don't have an explicit hotplug 
+> interrupt, but rather we must examine the PhyRdy bit in the standard 
+> SError register for details.  If the bit's state changes in any way 
+> (including two or more state changes), we (a) check for device presence, 
+> and (b) if device is present, initialize it (SET FEATURES - XFER MODE, 
+> etc.).
 
-I would prefer to have it tested, before accepting this patch...
+For PATA we may need to reprogram both drives so please be sure that is
+allowed for. Also much PATA is "warm swap" not "hot swap" as we have to
+perform actions in software prior to the swap.
 
-	Jeff
-
-
+Alan
 

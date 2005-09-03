@@ -1,46 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161167AbVICGm0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161171AbVICGrF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161167AbVICGm0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Sep 2005 02:42:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161168AbVICGm0
+	id S1161171AbVICGrF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Sep 2005 02:47:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161169AbVICGrE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Sep 2005 02:42:26 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:20132 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161167AbVICGmZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Sep 2005 02:42:25 -0400
-Date: Fri, 2 Sep 2005 23:40:42 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: linux-kernel@vger.kernel.org, fuse-devel@lists.sourceforge.net,
-       torvalds@osdl.org
-Subject: Re: FUSE merging?
-Message-Id: <20050902234042.1a7dba6e.akpm@osdl.org>
-In-Reply-To: <E1EBQco-0006qr-00@dorka.pomaz.szeredi.hu>
-References: <E1EBJc2-0006J0-00@dorka.pomaz.szeredi.hu>
-	<20050902153440.309d41a5.akpm@osdl.org>
-	<E1EBQco-0006qr-00@dorka.pomaz.szeredi.hu>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 3 Sep 2005 02:47:04 -0400
+Received: from rgminet03.oracle.com ([148.87.122.32]:28768 "EHLO
+	rgminet03.oracle.com") by vger.kernel.org with ESMTP
+	id S1161168AbVICGrC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Sep 2005 02:47:02 -0400
+Date: Fri, 2 Sep 2005 23:46:34 -0700
+From: Wim Coekaerts <wim.coekaerts@oracle.com>
+To: linux clustering <linux-cluster@redhat.com>
+Cc: Mark Fasheh <mark.fasheh@oracle.com>, akpm@osdl.org,
+       linux-fsdevel@vger.kernel.org, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Linux-cluster] Re: GFS, what's remaining
+Message-ID: <20050903064633.GB4593@ca-server1.us.oracle.com>
+References: <20050901104620.GA22482@redhat.com> <p73fysnqiej.fsf@verdi.suse.de> <20050903001628.GH21228@ca-server1.us.oracle.com> <200509030242.36506.phillips@istop.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200509030242.36506.phillips@istop.com>
+User-Agent: Mutt/1.5.10i
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miklos Szeredi <miklos@szeredi.hu> wrote:
->
->  > The main sticking point with FUSE remains the permission tricks around
->  > fuse_allow_task().  AFAIK it remains the case that nobody has come up with
->  > any better idea, so I'm inclined to merge the thing.
+On Sat, Sep 03, 2005 at 02:42:36AM -0400, Daniel Phillips wrote:
+> On Friday 02 September 2005 20:16, Mark Fasheh wrote:
+> > As far as userspace dlm apis go, dlmfs already abstracts away a large part
+> > of the dlm interaction...
 > 
->  Do you promise?
+> Dumb question, why can't you use sysfs for this instead of rolling your own?
 
-I troll.  What others think matters.  But at this stage, objections would
-need to be substantial, IMO.  We're rather deadlocked on the permission
-thing, but if we can't come up with anything better then I'm inclined to
-say what-the-hell.
+because it's totally different. have a look at what it does.
 
->   I can do a resplit and submit to Linus, if that takes
->  some load off you.
-
-Nah, then I'd just have to check that everything is the same.

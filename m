@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbVICOf6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbVICPBY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750708AbVICOf6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Sep 2005 10:35:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750737AbVICOf6
+	id S1750787AbVICPBY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Sep 2005 11:01:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750815AbVICPBY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Sep 2005 10:35:58 -0400
-Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:19371 "EHLO
-	mta08-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S1750708AbVICOf5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Sep 2005 10:35:57 -0400
-Subject: Re: [RFC] broken installkernel.sh with CROSS_COMPILE
-From: Ian Campbell <icampbell@arcom.com>
-To: Dave Hansen <dave@sr71.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       PPC64 External List <linuxppc64-dev@ozlabs.org>
-In-Reply-To: <1125750717.11083.2.camel@localhost>
-References: <1125693554.26605.10.camel@localhost>
-	 <1125737431.6565.88.camel@azathoth.hellion.org.uk>
-	 <1125750717.11083.2.camel@localhost>
-Content-Type: text/plain
-Organization: Arcom Control Systems Ltd.
-Date: Sat, 03 Sep 2005 15:35:51 +0100
-Message-Id: <1125758151.6565.90.camel@azathoth.hellion.org.uk>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Sat, 3 Sep 2005 11:01:24 -0400
+Received: from paleosilicon.orionmulti.com ([209.128.68.66]:56212 "EHLO
+	paleosilicon.orionmulti.com") by vger.kernel.org with ESMTP
+	id S1750787AbVICPBY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Sep 2005 11:01:24 -0400
+X-Envelope-From: hpa@zytor.com
+Message-ID: <4319BABB.20509@zytor.com>
+Date: Sat, 03 Sep 2005 08:01:15 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: andersen@codepoet.org
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Splitting out kernel<=>userspace ABI headers
+References: <C670AD22-97CF-46AA-A527-965036D78667@mac.com> <20050902134108.GA16374@codepoet.org> <22D79100-00B5-44F6-992C-FFFEACA49E66@mac.com> <20050902235833.GA28238@codepoet.org> <dfapgu$dln$1@terminus.zytor.com> <20050903042859.GA30101@codepoet.org> <4319330C.5030404@zytor.com> <20050903055007.GA30966@codepoet.org> <43193A4F.5030906@zytor.com> <20050903064124.GA31400@codepoet.org>
+In-Reply-To: <20050903064124.GA31400@codepoet.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-09-03 at 05:31 -0700, Dave Hansen wrote:
-> On Sat, 2005-09-03 at 09:50 +0100, Ian Campbell wrote:
-> > > Could we do something that's guaranteed to not have lots of extra
-> > path
-> > > elements in it, like ARCH?
-> > 
-> > Or perhaps basename ${CROSSCOMPILE}?
+Erik Andersen wrote:
 > 
-> The only problem with that is that some people do really have a cross
-> compiler named /usr/ppc64/bin/gcc.  So, basename will just give you
-> something useless like "bin".
+> That is certainly not what I was proposing.  Why are you bringing
+> sys/stat.h into this?  The contents of sys/stat.h are entirely up
+> to SUSv3 and the C library to worry about.  Nobody has proposed
+> mucking with that.  I dunno about your C library, but mine
+> doesn't include linux/* header files (not even sys/stat.h).  And
+> I'd really like to fix uClibc to not use any asm/* either, since
+> much of it is entirely unsuitable for user space.
+> 
 
-Of course, that makes perfect sense.
+I'm in particular commenting on the stat structure involved with the 
+kernel interface.
 
-Ian.
--- 
-Ian Campbell
+> I am proposing a single consistant policy for all of linux/* such
+> that all linux/* headers that need integer types of a specific
+> size shall #include unistd.h and use ISO C99 types rather that
+> the ad-hoc kernel types they now use.
+> 
+> The policy has _long_ been that user space must never include
+> linux/* header files.  Since we are now proposing a project to
+> reverse this policy, the long standing policy making linux/*
+> verboten now leaves us completely free to do pretty much anything
+> with linux/*.  And what I want is for linux/* to use the shiny
+> ISO C99 types.
 
-It seems to make an auto driver mad if he misses you.
+And I'm pointing out that that you're not only excluding a whole major 
+portion of the kernel ABI from this mechanism if you do that, you're 
+effectively requiring new mechanisms every time something is included 
+into POSIX over time!  If that isn't insane, I don't know what is.
 
+	-hpa

@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161114AbVICDse@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbVICDrh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161114AbVICDse (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Sep 2005 23:48:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751364AbVICDse
+	id S1750800AbVICDrh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Sep 2005 23:47:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751358AbVICDrh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Sep 2005 23:48:34 -0400
-Received: from wproxy.gmail.com ([64.233.184.193]:7769 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751361AbVICDsd convert rfc822-to-8bit
+	Fri, 2 Sep 2005 23:47:37 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:12788 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S1750800AbVICDrg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Sep 2005 23:48:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=Pc+FttQfVXMSUYcU+M0zOolm34zbK0UXtCv0A2zXuLgq9+uxblqOTS5iJeEGl8lRsznjN9qr5XTTCuhd9PVNhA/cBkH9lSCk4z43rIox+VmRzzpT5y2qRVC3CpLcJz9HKlkv19UW5Y2MxtcXhqozh1Lu7zcxIaHI7XqUfbI3ubk=
-Message-ID: <a44ae5cd050902204854687377@mail.gmail.com>
-Date: Fri, 2 Sep 2005 20:48:28 -0700
-From: Miles Lane <miles.lane@gmail.com>
-Reply-To: miles.lane@gmail.com
-To: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       "James P. Ketrenos" <ipw2100-admin@linux.intel.com>
-Subject: Old ipw2200 code in 2.6.13-git3 and 2.6.13-mm1
+	Fri, 2 Sep 2005 23:47:36 -0400
+Subject: [PATCH] RT: trace_irqs_on in raw_local_irq_restore
+From: Daniel Walker <dwalker@mvista.com>
+To: mingo@elte.hu
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Fri, 02 Sep 2005 20:47:29 -0700
+Message-Id: <1125719249.2709.17.camel@c-67-188-6-232.hsd1.ca.comcast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+X-Mailer: Evolution 2.0.4 (2.0.4-6) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The most recent IPW2200 release is 1.0.6.  Now we have:
-          #define IPW2200_VERSION "1.0.0"
-in 2.6.13-git2.  Here, the version of firmware is set to the last release:
-          ipw2200.c:#define IPW_FW_MAJOR_VERSION 2
-          ipw2200.c:#define IPW_FW_MINOR_VERSION 2
-The most recent firmware release is 2.3.
 
-When I attempt to bring up the ipw2200 network connection to a
-wireless hub with WPA2 encrypted connection, I get the following
-error:
+	Add trace_irqs_on() to raw_local_irq_restore() . 
 
-WEXT auth param 7 value 0x1 - ioctl[SIOCSIWAUTH]: Operation not supported
-ioctl[SIOCSIWENCODEEXT]: Operation not supported
-ioctl[SIOCSIWENCODEEXT]: Operation not supported
-ioctl[SIOCSIWENCODEEXT]: Operation not supported
-ioctl[SIOCSIWENCODEEXT]: Operation not supported
-WEXT auth param 4 value 0x0 - ioctl[SIOCSIWAUTH]: Operation not supported
-WEXT auth param 5 value 0x1 - ioctl[SIOCSIWAUTH]: Operation not supported
+Signed-Off-By: Daniel Walker <dwalker@mvista.com>
 
-Can we please get the latest IPW2200 code into the development kernels soon?
+Index: linux-2.6.13/include/linux/rt_irq.h
+===================================================================
+--- linux-2.6.13.orig/include/linux/rt_irq.h	2005-09-01 21:25:53.000000000 +0000
++++ linux-2.6.13/include/linux/rt_irq.h	2005-09-03 00:45:28.000000000 +0000
+@@ -30,7 +30,8 @@ extern int irqs_disabled_flags(unsigned 
+ # define raw_local_irq_disable()	do { __raw_local_irq_disable(); trace_irqs_off(); } while (0)
+ # define raw_local_irq_save(flags)	do { __raw_local_irq_save(flags); trace_irqs_off(); } while (0)
+ # define raw_local_irq_restore(flags) \
+-	do { check_raw_flags(flags); __raw_local_irq_restore(flags); } while (0)
++	do { check_raw_flags(flags); if (!__raw_irqs_disabled_flags(flags)) { trace_irqs_on(); } \
++			__raw_local_irq_restore(flags); } while (0)
+ # define raw_safe_halt()		__raw_safe_halt()
+ #else
+ # define RAW_LOCAL_ILLEGAL_MASK		0UL
 
-Many thanks,
-       Miles
+

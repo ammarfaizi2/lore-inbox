@@ -1,41 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161190AbVICI0r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161192AbVICIbE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161190AbVICI0r (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Sep 2005 04:26:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161191AbVICI0r
+	id S1161192AbVICIbE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Sep 2005 04:31:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161193AbVICIbE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Sep 2005 04:26:47 -0400
-Received: from smtp-106-saturday.noc.nerim.net ([62.4.17.106]:44809 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1161190AbVICI0q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Sep 2005 04:26:46 -0400
-Date: Sat, 3 Sep 2005 10:26:56 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Denis Vlasenko <vda@ilport.com.ua>
-Cc: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: i2c via686a.c: save at least 0.5k of space by long v[256] ->
- u16 v[256]
-Message-Id: <20050903102656.117e4dbe.khali@linux-fr.org>
-In-Reply-To: <200509020854.37192.vda@ilport.com.ua>
-References: <200509010910.14824.vda@ilport.com.ua>
-	<20050901155915.GB1235@kroah.com>
-	<200509020854.37192.vda@ilport.com.ua>
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 3 Sep 2005 04:31:04 -0400
+Received: from liaag1ad.mx.compuserve.com ([149.174.40.30]:57277 "EHLO
+	liaag1ad.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1161192AbVICIbC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Sep 2005 04:31:02 -0400
+Date: Sat, 3 Sep 2005 04:29:19 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: Initramfs and TMPFS!
+To: Erik Mouw <erik@harddisk-recovery.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200509030430_MC3-1-A90C-CFD5@compuserve.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Denis,
+In-Reply-To: <20050826102943.GA28640@harddisk-recovery.com>
 
-BTW...
+> Linux-kernel is a very high volume mailing list, and proper use of
+> email threading is *vital* to read it: you immediately get all
+> references to previous messages, and it makes it easy to skip threads
+> you're not interested in 
 
-> Please be informed that there are lots of intNN_t's in i2c dir
-> tho...
+ Does manually adding the reply header work?
 
-I couldn't find any. What were you refering to exactly?
+> (nobody except Alan Cox and his gnomes reads
+> every message to linux-kernel).
 
-Thanks,
--- 
-Jean Delvare
+ Some of us use KDE. :-P
+
+
+__
+Chuck

@@ -1,81 +1,154 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751272AbVICWNt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbVICVr3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751272AbVICWNt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Sep 2005 18:13:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbVICWNt
+	id S1751138AbVICVr3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Sep 2005 17:47:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751142AbVICVr3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Sep 2005 18:13:49 -0400
-Received: from zproxy.gmail.com ([64.233.162.195]:19522 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751043AbVICWNt convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Sep 2005 18:13:49 -0400
+	Sat, 3 Sep 2005 17:47:29 -0400
+Received: from wproxy.gmail.com ([64.233.184.197]:3249 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751138AbVICVr3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Sep 2005 17:47:29 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=tDbY3qP4l4wNiOq/R3nxGu00ofU8LGQmuP5u9v284mR1WvCdnQ4ATp7ABGrdH/pyyvNHtSGYnRsD3M2bYWc72oNeB4ZQhjPLKplAtJY98SDagP7sb2xEsEXkf7hmj/c+6a4xTVLJ0A55vJ6NGMexnVcXeGgrFyBRTXg7iQW9h4U=
-Message-ID: <29495f1d0509031513232b11b1@mail.gmail.com>
-Date: Sat, 3 Sep 2005 15:13:43 -0700
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-Reply-To: nish.aravamudan@gmail.com
-To: Chase Venters <chase.venters@clientec.com>
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=sNyj+y7lhWAu826VoYgQ1p41AP3LhuAPaaqIPFHjj/IBmxhsKaVg6Bo+fqpGt57Xht76O4FqXQi0p1u4JgOo5VY+1SX1z28Pnb6NIBiBo/hNfIHSnbF5yOa0m4V+gRUmENlaKkIlzdHDCXSnAbXpOt1yEPdqII0hj6VxMPyBVFA=
+Date: Sun, 4 Sep 2005 01:56:56 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Harald Welte <laforge@gnumonks.org>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] New: Omnikey CardMan 4040 PCMCIA Driver
-Cc: Harald Welte <laforge@gnumonks.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <200509031627.00947.chase.venters@clientec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Message-ID: <20050903215656.GA10187@mipter.zuzino.mipt.ru>
 References: <20050904101218.GM4415@rama.de.gnumonks.org>
-	 <200509031627.00947.chase.venters@clientec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050904101218.GM4415@rama.de.gnumonks.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/3/05, Chase Venters <chase.venters@clientec.com> wrote:
-> > Below you can find a driver for the Omnikey CardMan 4040 PCMCIA
-> > Smartcard Reader.
-> 
-> Someone correct me if I'm wrong, but wouldn't these #defines be a problem 
-> with the new HZ flexibility:
-> 
-> #define CCID_DRIVER_BULK_DEFAULT_TIMEOUT        (150*HZ)
-> #define CCID_DRIVER_ASYNC_POWERUP_TIMEOUT       (35*HZ)
-> #define CCID_DRIVER_MINIMUM_TIMEOUT             (3*HZ)
-> #define READ_WRITE_BUFFER_SIZE 512
-> #define POLL_LOOP_COUNT                         1000
+On Sun, Sep 04, 2005 at 12:12:18PM +0200, Harald Welte wrote:
+> Below you can find a driver for the Omnikey CardMan 4040 PCMCIA
+> Smartcard Reader.  
 
-These are all fine. Although I am a bit suspicious of 150 second
-timeouts; but if that is the hardware...
+> --- /dev/null
+> +++ b/drivers/char/pcmcia/cm4040_cs.c
 
-> /* how often to poll for fifo status change */
-> #define POLL_PERIOD                             (HZ/100)
+> +#include <linux/config.h>
 
-This needs to be msecs_to_jiffies(10), please.
+Not needed.
 
-> In particular, 2.6.13 allows a HZ of 100, which would define POLL_PERIOD to 0.
+> +static volatile char *version =
 
-Um, 100/100 = 1, not 0?
+Can we lose all volatile and register keywords?
 
-> Your later calls to mod_timer would be setting cmx_poll_timer to the current
-> value of jiffies.
+> +typedef struct reader_dev_t {
+> +	dev_link_t		link;		
+> +	dev_node_t		node;		
+> +	wait_queue_head_t	devq;	
+> +
+> +	wait_queue_head_t	poll_wait;
+> +	wait_queue_head_t	read_wait;
+> +	wait_queue_head_t	write_wait;
+> +
+> +	unsigned int 	  	buffer_status;
+> +                                
+> +	unsigned int      	fTimerExpired;
+> +	struct timer_list	timer;
+> +	unsigned long     	timeout;
+> +	unsigned char     	sBuf[READ_WRITE_BUFFER_SIZE];
+> +	unsigned char     	rBuf[READ_WRITE_BUFFER_SIZE];
+> +	struct task_struct 	*owner;	
+> +} reader_dev_t;
 
-Which is technically ok, because HZ=100, a
-     jiffies + 0
-or
-     jiffies + 1
-timeout request will both result in the soft-timer being expired at
-the *next* timer interrupt. Regardless, you're right, and
-msecs_to_jiffies() will cover it.
+And typedefs too.
 
-> Also, you've got a typo in the comments:
-> 
-> *       - adhere to linux kenrel coding style and policies
-> 
-> Forgive me if I'm way off - I'm just now getting my feet wet in kernel
-> development. Just making comments based on what I (think) I know at this
-> point.
+	struct reader_dev {
+	
+	};
 
-Of bigger concern to me is the use of the sleep_on() family of
-functions, all of which are deprecated.
+> +static ssize_t cmx_read(struct file *filp,char *buf,size_t count,loff_t *ppos)
 
-Thanks,
-Nish
+char __user *buf
+
+> +	ulBytesToRead = 5 + 
+> +			(0x000000FF&((char)dev->rBuf[1])) + 
+> +			(0x0000FF00&((char)dev->rBuf[2] << 8)) + 
+> +			(0x00FF0000&((char)dev->rBuf[3] << 16)) + 
+> +			(0xFF000000&((char)dev->rBuf[4] << 24));
+
+	ulBytesToRead = 5 + le32_to_cpu(*(__le32 *)&dev->rBuf[1]);
+
+> +	ulMin = (count < (ulBytesToRead+5))?count:(ulBytesToRead+5);
+
+	ulMin = min(count, ulBytesToRead + 5);
+
+> +	copy_to_user(buf, dev->rBuf, ulMin);
+
+Can fail.
+
+> +static ssize_t cmx_write(struct file *filp,const char *buf,size_t count,
+
+const char __user *buf
+
+> +			 loff_t *ppos)
+
+> +	copy_from_user(dev->sBuf, buf, uiBytesToWrite);
+
+Can fail.
+
+> +static int cmx_ioctl(struct inode *inode,struct file *filp,unsigned int cmd,
+> +			unsigned long arg)
+> +{
+> +	dev_link_t *link;
+> +	int rc, size;
+> +
+> +	link=dev_table[MINOR(inode->i_rdev)];
+> +	if (!(DEV_OK(link))) {
+> +		DEBUG(4, "DEV_OK false\n");
+> +		return -ENODEV;
+> +	}
+> +	if (_IOC_TYPE(cmd)!=CM_IOC_MAGIC) {
+> +		DEBUG(4,"ioctype mismatch\n");
+> +		return -EINVAL;
+> +	}
+> +	if (_IOC_NR(cmd)>CM_IOC_MAXNR) {
+> +		DEBUG(4,"iocnr mismatch\n");
+> +		return -EINVAL;
+> +	} 
+> +	size = _IOC_SIZE(cmd);
+> +	rc = 0;
+> +	DEBUG(4,"iocdir=%.4x iocr=%.4x iocw=%.4x iocsize=%d cmd=%.4x\n",
+> +		_IOC_DIR(cmd),_IOC_READ,_IOC_WRITE,size,cmd);
+> +
+> +	if (_IOC_DIR(cmd)&_IOC_READ) {
+> +		if (!access_ok(VERIFY_WRITE, (void *)arg, size))
+> +			return -EFAULT;
+> +	}
+> +	if (_IOC_DIR(cmd)&_IOC_WRITE) {
+> +		if (!access_ok(VERIFY_READ, (void *)arg, size))
+> +			return -EFAULT;
+> +	}
+> +
+> +	return rc;
+> +}
+
+Whoo, empty ioctl handler.
+
+> +static void reader_release(u_long arg)
+
+> +	link = (dev_link_t *)arg;
+
+You do
+
+	reader_release((unsigned long)link);
+
+somewhere above and below.
+
+> +static void reader_detach_by_devno(int devno,dev_link_t *link)
+
+> +		reader_release((u_long)link);
+
+Like this.
+

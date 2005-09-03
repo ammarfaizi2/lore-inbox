@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751388AbVICGiJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161163AbVICGkP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751388AbVICGiJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Sep 2005 02:38:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750701AbVICGiJ
+	id S1161163AbVICGkP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Sep 2005 02:40:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751390AbVICGkO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Sep 2005 02:38:09 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:18396 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751388AbVICGiI (ORCPT
+	Sat, 3 Sep 2005 02:40:14 -0400
+Received: from smtp.istop.com ([66.11.167.126]:26551 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S1750701AbVICGkN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Sep 2005 02:38:08 -0400
-Message-ID: <431944C8.5070205@pobox.com>
-Date: Sat, 03 Sep 2005 02:38:00 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
+	Sat, 3 Sep 2005 02:40:13 -0400
+From: Daniel Phillips <phillips@istop.com>
+To: Mark Fasheh <mark.fasheh@oracle.com>
+Subject: Re: GFS, what's remaining
+Date: Sat, 3 Sep 2005 02:42:36 -0400
+User-Agent: KMail/1.8
+Cc: Andi Kleen <ak@suse.de>, linux clustering <linux-cluster@redhat.com>,
+       akpm@osdl.org, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+References: <20050901104620.GA22482@redhat.com> <p73fysnqiej.fsf@verdi.suse.de> <20050903001628.GH21228@ca-server1.us.oracle.com>
+In-Reply-To: <20050903001628.GH21228@ca-server1.us.oracle.com>
 MIME-Version: 1.0
-To: lkosewsk@gmail.com
-CC: Ravi Wijayaratne <ravi_wija@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Hotswap support for libata
-References: <20050902224418.78897.qmail@web32512.mail.mud.yahoo.com>	 <355e5e5e05090223231726b94a@mail.gmail.com> <355e5e5e05090223259e47cf6@mail.gmail.com>
-In-Reply-To: <355e5e5e05090223259e47cf6@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Disposition: inline
+Message-Id: <200509030242.36506.phillips@istop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lukasz Kosewski wrote:
-> On a happier note, once the infrastructure is accepted, anyone with a
-> hotswap-unsupported controller and some time on their hands will
-> easily be able to integrate hotswap in; that is the whole goal of an
-> infrastructure.  So if your controller isn't supported, but you know
-> something about it (or better yet, you yourself have docs), adding
-> hotswap support to it should be too hard.
+On Friday 02 September 2005 20:16, Mark Fasheh wrote:
+> As far as userspace dlm apis go, dlmfs already abstracts away a large part
+> of the dlm interaction...
 
-Once the infrastructure is there, I'll probably add support for several 
-controllers myself.  Many controllers don't have an explicit hotplug 
-interrupt, but rather we must examine the PhyRdy bit in the standard 
-SError register for details.  If the bit's state changes in any way 
-(including two or more state changes), we (a) check for device presence, 
-and (b) if device is present, initialize it (SET FEATURES - XFER MODE, 
-etc.).
+Dumb question, why can't you use sysfs for this instead of rolling your own?
 
-	Jeff
+Side note: you seem to have deleted all the 2.6.12-rc4 patches.  Perhaps you 
+forgot that there are dozens of lkml archives pointing at them?
 
+Regards,
 
-
+Daniel

@@ -1,27 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751061AbVIDEy5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbVIDE6t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751061AbVIDEy5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 00:54:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751115AbVIDEy5
+	id S1751104AbVIDE6t (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 00:58:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbVIDE6s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 00:54:57 -0400
-Received: from rgminet04.oracle.com ([148.87.122.33]:50876 "EHLO
-	rgminet04.oracle.com") by vger.kernel.org with ESMTP
-	id S1751061AbVIDEy5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 00:54:57 -0400
-Date: Sat, 3 Sep 2005 21:54:45 -0700
+	Sun, 4 Sep 2005 00:58:48 -0400
+Received: from rgminet03.oracle.com ([148.87.122.32]:27883 "EHLO
+	rgminet03.oracle.com") by vger.kernel.org with ESMTP
+	id S1751104AbVIDE6r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 00:58:47 -0400
+Date: Sat, 3 Sep 2005 21:58:21 -0700
 From: Joel Becker <Joel.Becker@oracle.com>
-To: Andrew Morton <akpm@osdl.org>, phillips@istop.com,
-       linux-kernel@vger.kernel.org, greg@kroah.com
-Subject: Re: [RFC][PATCH 1 of 4] Configfs is really sysfs
-Message-ID: <20050904045444.GS8684@ca-server1.us.oracle.com>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>, phillips@istop.com,
-	linux-kernel@vger.kernel.org, greg@kroah.com
-References: <200508310854.40482.phillips@istop.com> <20050830231307.GE22068@insight.us.oracle.com> <20050830162846.5f6d0a53.akpm@osdl.org> <20050904035341.GO8684@ca-server1.us.oracle.com> <20050904041224.GP8684@ca-server1.us.oracle.com> <20050904044136.GR8684@ca-server1.us.oracle.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Daniel Phillips <phillips@istop.com>, linux-cluster@redhat.com,
+       wim.coekaerts@oracle.com, linux-fsdevel@vger.kernel.org, ak@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Linux-cluster] Re: GFS, what's remaining
+Message-ID: <20050904045821.GT8684@ca-server1.us.oracle.com>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Daniel Phillips <phillips@istop.com>, linux-cluster@redhat.com,
+	wim.coekaerts@oracle.com, linux-fsdevel@vger.kernel.org, ak@suse.de,
+	linux-kernel@vger.kernel.org
+References: <20050901104620.GA22482@redhat.com> <20050903183241.1acca6c9.akpm@osdl.org> <20050904030640.GL8684@ca-server1.us.oracle.com> <200509040022.37102.phillips@istop.com> <20050903214653.1b8a8cb7.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050904044136.GR8684@ca-server1.us.oracle.com>
+In-Reply-To: <20050903214653.1b8a8cb7.akpm@osdl.org>
 X-Burt-Line: Trees are cool.
 X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
 User-Agent: Mutt/1.5.10i
@@ -30,53 +34,36 @@ X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 03, 2005 at 09:41:36PM -0700, Joel Becker wrote:
-> On Sat, Sep 03, 2005 at 09:12:24PM -0700, Joel Becker wrote:
-> > On Tue, Aug 30, 2005 at 04:28:46PM -0700, Andrew Morton wrote:
-> > > Sure, but all that copying-and-pasting really sucks.  I'm sure there's some
-> > > way of providing the slightly different semantics from the same codebase?
-> 
+On Sat, Sep 03, 2005 at 09:46:53PM -0700, Andrew Morton wrote:
+> It would be much better to do something which explicitly and directly
+> expresses what you're trying to do rather than this strange "lets do this
+> because the names sound the same" thing.
 
-	So, what conclusions can we draw from looking at this again?
-	First, merging the kobject/kset structures with the
-config_item/config_group structures has one benefit: they have the same
-name.  However, that's also the first problem.  As it currently stands,
-you know from the name what you are working with.  If they have the same
-name, you don't know if you are working with an object in sysfs or
-configfs.  We call a pid "pid_t" rather than "unsigned int" for the same
-reason, clarity of usage.
-	Merging them has a lot of other problems.  Far from removing
-code bloat (a configfs object and a sysfs object need different
-initialization, etc, so there would be two paths anyway), it adds
-significant memory bloat, as configfs objects and sysfs objects are
-carrying around members for the other filesystem.  Finally, there are
-surprises in store if you try to use some of the API that isn't
-appropriate.  With a different name and type, you just _can't_ do that.
-	We could perhaps share the attribute structure.  This has the
-same name confusion problem above, but that's about it, assuming that
-sysfs never wants to do anything smarter with them.  I'm hoping the
-sysfs folks comment on this.
-	Sharing the attribute file code is much harder.  They operate on
-different types, and those types are laid out differently.  I think we'd
-have to make the API far more invasive.  Instead of black-boxing the API
-and having only show/store to implement, we'd have to provide some sort
-of translation from the native structure to a shared type.  Basically,
-repeating what the VFS has already done for us.
-	Finally, assuming that the sysfs_dirent/configfs_dirent
-arrangement is pretty fleshed out, I think that perhaps this backing
-store could be joined.  Again, no more magic could be added, and it
-would have to handle the sysfs and configfs types in concurrence, but I
-think it could be done.  Again, sysfs folks, please comment.
+	So, you'd like a new flag name?  That can be done.
+
+> What happens when we want to add some new primitive which has no posix-file
+> analog?
+
+	The point of dlmfs is not to express every primitive that the
+DLM has.  dlmfs cannot express the CR, CW, and PW levels of the VMS
+locking scheme.  Nor should it.  The point isn't to use a filesystem
+interface for programs that need all the flexibility and power of the
+VMS DLM.  The point is a simple system that programs needing the basic
+operations can use.  Even shell scripts.
 
 Joel
 
 -- 
 
-"Hell is oneself, hell is alone, the other figures in it, merely projections."
-        - T. S. Eliot
+"You must remember this:
+ A kiss is just a kiss,
+ A sigh is just a sigh.
+ The fundamental rules apply
+ As time goes by."
 
 Joel Becker
 Senior Member of Technical Staff
 Oracle
 E-mail: joel.becker@oracle.com
 Phone: (650) 506-8127
+

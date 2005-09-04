@@ -1,59 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbVIDK0M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbVIDKd7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750718AbVIDK0M (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 06:26:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750707AbVIDK0M
+	id S1750706AbVIDKd7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 06:33:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbVIDKd7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 06:26:12 -0400
-Received: from mailfe13.tele2.se ([212.247.155.129]:39629 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S1750706AbVIDK0L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 06:26:11 -0400
-X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
-Date: Sun, 4 Sep 2005 12:26:04 +0200
-From: Alexander Nyberg <alexn@telia.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Matt Mackall <mpm@selenic.com>,
-       netdev@vger.kernel.org
-Subject: Re: 2.6.13-mm1
-Message-ID: <20050904102604.GA7026@localhost.localdomain>
-References: <20050901035542.1c621af6.akpm@osdl.org>
+	Sun, 4 Sep 2005 06:33:59 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:35081 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1750731AbVIDKd6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 06:33:58 -0400
+Date: Sun, 4 Sep 2005 11:33:51 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pavel Machek <pavel@suse.cz>
+Cc: rpurdie@rpsys.net, lenz@cs.wisc.edu,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] Fix compilation in locomo.c
+Message-ID: <20050904113351.B30509@flint.arm.linux.org.uk>
+Mail-Followup-To: Pavel Machek <pavel@suse.cz>, rpurdie@rpsys.net,
+	lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>
+References: <20050726063043.GI8684@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050901035542.1c621af6.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050726063043.GI8684@elf.ucw.cz>; from pavel@suse.cz on Tue, Jul 26, 2005 at 08:30:43AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 01, 2005 at 03:55:42AM -0700 Andrew Morton wrote:
-
+On Tue, Jul 26, 2005 at 08:30:43AM +0200, Pavel Machek wrote:
+> Do not access children in struct device directly, use
+> device_for_each_child helper instead. It fixes compilation.
 > 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13/2.6.13-mm1/
-> 
+> Signed-off-by: Pavel Machek <pavel@suse.cz>
 
-I got:
-<7>Dead loop on netdevice eth0, fix it urgently!
+Given up waiting for John/Richard to okay this, applied anyway.
 
-When using netconsole and printing out some information from kernel to
-console.
-
-The box uses:
-netconsole=4444@192.168.1.12/eth0,7002@192.168.1.1/
-
-0000:00:0f.0 Ethernet controller: Linksys NC100 Network Everywhere Fast
-Ethernet 10/100 (rev 11)
-
-Relevant config:
-CONFIG_NET_TULIP=y
-# CONFIG_DE2104X is not set
-CONFIG_TULIP=y
-CONFIG_TULIP_MWI=y
-# CONFIG_TULIP_MMIO is not set
-CONFIG_TULIP_NAPI=y
-
-
-Matt, on another box I got some irq off hangs that went away when removing
-netconsole from the .config on a box with 3c59x. Is this known? The
-problem is getting backtraces when netconsole is active, but the last
-thing I see before the box goes is that some carrier is up...
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

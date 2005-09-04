@@ -1,90 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751089AbVIDUA7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751099AbVIDUNN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751089AbVIDUA7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 16:00:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751091AbVIDUA7
+	id S1751099AbVIDUNN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 16:13:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbVIDUNM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 16:00:59 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:44048 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751089AbVIDUA6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 16:00:58 -0400
-Date: Sun, 4 Sep 2005 22:00:55 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-mm1
-Message-ID: <20050904200055.GC3741@stusta.de>
-References: <20050901035542.1c621af6.akpm@osdl.org> <20050903122126.GM3657@stusta.de> <20050903123410.1320f8ab.akpm@osdl.org> <20050903195423.GP3657@stusta.de> <20050903130632.3124e19b.akpm@osdl.org>
+	Sun, 4 Sep 2005 16:13:12 -0400
+Received: from wproxy.gmail.com ([64.233.184.206]:37285 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751099AbVIDUNL convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 16:13:11 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=J0c247lNNoesGiUUmFIX0UdGeg2t6+AM9t7g8GNTaXggxJZAMaIDkeJfkkrDv12JErTxUGGYrLS9eHBv1O0i6l3UkWHEW2JIqGFboGlFPCmAZnzG8+V9G+nwl8PVUBT6T25nuh1bb5cNWICA/djYF4S7mGfvUmHKwa9aXvPwaL4=
+Message-ID: <6880bed305090413132c37fed3@mail.gmail.com>
+Date: Sun, 4 Sep 2005 22:13:10 +0200
+From: Bas Westerbaan <bas.westerbaan@gmail.com>
+Reply-To: bas.westerbaan@gmail.com
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: RFC: i386: kill !4KSTACKS
+Cc: Pekka Enberg <penberg@cs.helsinki.fi>, Paul Misner <paul@misner.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050904193350.GA3741@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050903130632.3124e19b.akpm@osdl.org>
-User-Agent: Mutt/1.5.10i
+References: <20050902060830.84977.qmail@web50208.mail.yahoo.com>
+	 <200509041549.17512.vda@ilport.com.ua>
+	 <200509041144.13145.paul@misner.org>
+	 <84144f02050904100721d3844d@mail.gmail.com>
+	 <6880bed305090410127f82a59f@mail.gmail.com>
+	 <20050904193350.GA3741@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 03, 2005 at 01:06:32PM -0700, Andrew Morton wrote:
-> Adrian Bunk <bunk@stusta.de> wrote:
-> >
-> > On Sat, Sep 03, 2005 at 12:34:10PM -0700, Andrew Morton wrote:
-> > > Adrian Bunk <bunk@stusta.de> wrote:
-> > > >
-> > > > Hi Andrew,
-> > > > 
-> > > > it seems you dropped 
-> > > > schedule-obsolete-oss-drivers-for-removal-version-2.patch, but there's 
-> > > > zero mentioning of this dropping in the changelog of 2.6.13-mm1.
-> > > > 
-> > > > Can you explain why you did silently drop it?
-> > > 
-> > > It spat rejects and when I looked at the putative removal date I just
-> > > didn't believe it anyway.  Send a rediffed one if you like, but
-> > > October 2005 is unrealistic.
-> > 
-> > That the date is no longer realistic is clear. What disappoints me is 
-> > that you didn't mention in the changelog of 2.6.13-mm1 where I'd have 
-> > noticed it.
+> > Though 4K stacks are used a lot, they probably aren't used on all
+> > configurations yet. Other situations may arise where 8K stacks may be
+> > preferred. It is too early to kill 8K stacks imho.
 > 
-> Sometimes I can't be bothered getting into email threads over relatively
-> unimportant stuff.  Usually it's related to the number of bugs we have.
+> Please name situations where 8K stacks may be preferred that do not
+> involve binary-only modules.
 
-This is not about email threads.
+I meant that there could be situations, which have not yet been found,
+where it could be preferred to use 8K stacks instead of 4K. When you
+switch from having 8K stacks as default to 4K stacks without
+possibility for 8K stacks you'd possibly encounter these yet to be
+found situations.
 
-You send a changelog when you announce a new -mm kernel.
-Why didn't you simply mention that you dropped this patch due to rejects 
-in the changelog you are sending?
+When on the other hand the 4K stacks are set as default, leaving the
+option in, instead of removing it, these possible situations, when
+found, could be resolved (temporarilly) by switching back to 8K
+stacks.
 
-> > It semms I need my own bookkeeping of patches I sent that are in -mm to 
-> > notice when they get lost.
-> 
-> This is called "quilt".
-> 
-> > The only positive side effect of this is that 
-> > I can use this to push you harder to forward some patches of me to Linus 
-> > that stay unforwarded in -mm for several months...
-> 
-> A single release cycle is 2-3 months.
-
-And I'm talking about patches waiting in -mm for more than 5 months.
-
-> I'll probably be dropping some of the patches which unexport symbols, btw. 
-> ANy ones which aren't really, really obvious.  We have a process for this.
-
-You accept patches into -mm, and without any new issues with these 
-patches you tell me more than five months later "I'll probably be 
-dropping some of the patches which unexport symbols, btw."?
-
-If this is how my work is appreciated here I'll better stop wasting part 
-of my spare time and unsubscribe from linux-kernel.
-
-cu
-Adrian
+After a while having 4K stacks as default would be a better time to
+decide whether to remove the option or not instead of now.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Bas Westerbaan
+http://blog.w-nz.com/
+GPG Public Keys: http://w-nz.com/keys/bas.westerbaan.asc

@@ -1,76 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751078AbVIDTtT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751089AbVIDUA7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751078AbVIDTtT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 15:49:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751073AbVIDTtT
+	id S1751089AbVIDUA7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 16:00:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751091AbVIDUA7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 15:49:19 -0400
-Received: from smtp.istop.com ([66.11.167.126]:4561 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S1751023AbVIDTtS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 15:49:18 -0400
-From: Daniel Phillips <phillips@istop.com>
+	Sun, 4 Sep 2005 16:00:59 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:44048 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751089AbVIDUA6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 16:00:58 -0400
+Date: Sun, 4 Sep 2005 22:00:55 +0200
+From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [Linux-cluster] Re: GFS, what's remaining
-Date: Sun, 4 Sep 2005 15:51:56 -0400
-User-Agent: KMail/1.8
-Cc: Joel.Becker@oracle.com, linux-cluster@redhat.com, wim.coekaerts@oracle.com,
-       linux-fsdevel@vger.kernel.org, ak@suse.de, linux-kernel@vger.kernel.org
-References: <20050901104620.GA22482@redhat.com> <200509040240.08467.phillips@istop.com> <20050904002828.3d26f64c.akpm@osdl.org>
-In-Reply-To: <20050904002828.3d26f64c.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-mm1
+Message-ID: <20050904200055.GC3741@stusta.de>
+References: <20050901035542.1c621af6.akpm@osdl.org> <20050903122126.GM3657@stusta.de> <20050903123410.1320f8ab.akpm@osdl.org> <20050903195423.GP3657@stusta.de> <20050903130632.3124e19b.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200509041551.56614.phillips@istop.com>
+In-Reply-To: <20050903130632.3124e19b.akpm@osdl.org>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 04 September 2005 03:28, Andrew Morton wrote:
-> If there is already a richer interface into all this code (such as a
-> syscall one) and it's feasible to migrate the open() tricksies to that API
-> in the future if it all comes unstuck then OK.  That's why I asked (thus
-> far unsuccessfully):
->
->    Are you saying that the posix-file lookalike interface provides
->    access to part of the functionality, but there are other APIs which are
->    used to access the rest of the functionality?  If so, what is that
->    interface, and why cannot that interface offer access to 100% of the
->    functionality, thus making the posix-file tricks unnecessary?
+On Sat, Sep 03, 2005 at 01:06:32PM -0700, Andrew Morton wrote:
+> Adrian Bunk <bunk@stusta.de> wrote:
+> >
+> > On Sat, Sep 03, 2005 at 12:34:10PM -0700, Andrew Morton wrote:
+> > > Adrian Bunk <bunk@stusta.de> wrote:
+> > > >
+> > > > Hi Andrew,
+> > > > 
+> > > > it seems you dropped 
+> > > > schedule-obsolete-oss-drivers-for-removal-version-2.patch, but there's 
+> > > > zero mentioning of this dropping in the changelog of 2.6.13-mm1.
+> > > > 
+> > > > Can you explain why you did silently drop it?
+> > > 
+> > > It spat rejects and when I looked at the putative removal date I just
+> > > didn't believe it anyway.  Send a rediffed one if you like, but
+> > > October 2005 is unrealistic.
+> > 
+> > That the date is no longer realistic is clear. What disappoints me is 
+> > that you didn't mention in the changelog of 2.6.13-mm1 where I'd have 
+> > noticed it.
+> 
+> Sometimes I can't be bothered getting into email threads over relatively
+> unimportant stuff.  Usually it's related to the number of bugs we have.
 
-There is no such interface at the moment, nor is one needed in the immediate 
-future.  Let's look at the arguments for exporting a dlm to userspace:
+This is not about email threads.
 
-  1) Since we already have a dlm in kernel, why not just export that and save
-     100K of userspace library?  Answer: because we don't want userspace-only
-     dlm features bulking up the kernel.  Answer #2: the extra syscalls and
-     interface baggage serve no useful purpose.
+You send a changelog when you announce a new -mm kernel.
+Why didn't you simply mention that you dropped this patch due to rejects 
+in the changelog you are sending?
 
-  2) But we need to take locks in the same lockspaces as the kernel dlm(s)!
-     Answer: only support tools need to do that.  A cut-down locking api is
-     entirely appropriate for this.
+> > It semms I need my own bookkeeping of patches I sent that are in -mm to 
+> > notice when they get lost.
+> 
+> This is called "quilt".
+> 
+> > The only positive side effect of this is that 
+> > I can use this to push you harder to forward some patches of me to Linus 
+> > that stay unforwarded in -mm for several months...
+> 
+> A single release cycle is 2-3 months.
 
-  3) But the kernel dlm is the only one we have!  Answer: easily fixed, a
-     simple matter of coding.  But please bear in mind that dlm-style
-     synchronization is probably a bad idea for most cluster applications,
-     particularly ones that already do their synchronization via sockets.
+And I'm talking about patches waiting in -mm for more than 5 months.
 
-In other words, exporting the full dlm api is a red herring.  It has nothing 
-to do with getting cluster filesystems up and running.  It is really just 
-marketing: it sounds like a great thing for userspace to get a dlm "for 
-free", but it isn't free, it contributes to kernel bloat and it isn't even 
-the most efficient way to do it.
+> I'll probably be dropping some of the patches which unexport symbols, btw. 
+> ANy ones which aren't really, really obvious.  We have a process for this.
 
-If after considering that, we _still_ want to export a dlm api from kernel, 
-then can we please take the necessary time and get it right?  The full api 
-requires not only syscall-style elements, but asynchronous events as well, 
-similar to aio.  I do not think anybody has a good answer to this today, nor 
-do we even need it to begin porting applications to cluster filesystems.
+You accept patches into -mm, and without any new issues with these 
+patches you tell me more than five months later "I'll probably be 
+dropping some of the patches which unexport symbols, btw."?
 
-Oracle guys: what is the distributed locking API for RAC?  Is the RAC team 
-waiting with bated breath to adopt your kernel-based dlm?  If not, why not?
+If this is how my work is appreciated here I'll better stop wasting part 
+of my spare time and unsubscribe from linux-kernel.
 
-Regards,
+cu
+Adrian
 
-Daniel
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

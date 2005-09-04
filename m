@@ -1,41 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751176AbVIDFqX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751185AbVIDFnj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751176AbVIDFqX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 01:46:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751178AbVIDFqX
+	id S1751185AbVIDFnj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 01:43:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751178AbVIDFnj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 01:46:23 -0400
-Received: from S01060013104bd78e.vc.shawcable.net ([24.85.145.160]:43909 "EHLO
-	r3000.fsmlabs.com") by vger.kernel.org with ESMTP id S1751176AbVIDFqX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 01:46:23 -0400
-Date: Sat, 3 Sep 2005 22:46:32 -0700 (PDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Willy Tarreau <willy@w.ods.org>
-Subject: Re: Brand-new notebook useless with Linux...
-In-Reply-To: <20050904052351.GB30279@alpha.home.local>
-Message-ID: <Pine.LNX.4.63.0509032240310.3393@r3000.fsmlabs.com>
-References: <200509031859_MC3-1-A720-F705@compuserve.com>
- <20050904052351.GB30279@alpha.home.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 4 Sep 2005 01:43:39 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:64929 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751170AbVIDFni (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 01:43:38 -0400
+Date: Sat, 3 Sep 2005 22:41:40 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Joel Becker <Joel.Becker@oracle.com>
+Cc: phillips@istop.com, linux-cluster@redhat.com, wim.coekaerts@oracle.com,
+       linux-fsdevel@vger.kernel.org, ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [Linux-cluster] Re: GFS, what's remaining
+Message-Id: <20050903224140.0442fac4.akpm@osdl.org>
+In-Reply-To: <20050904045821.GT8684@ca-server1.us.oracle.com>
+References: <20050901104620.GA22482@redhat.com>
+	<20050903183241.1acca6c9.akpm@osdl.org>
+	<20050904030640.GL8684@ca-server1.us.oracle.com>
+	<200509040022.37102.phillips@istop.com>
+	<20050903214653.1b8a8cb7.akpm@osdl.org>
+	<20050904045821.GT8684@ca-server1.us.oracle.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 4 Sep 2005, Willy Tarreau wrote:
-
-> On Sat, Sep 03, 2005 at 06:58:00PM -0400, Chuck Ebbert wrote:
-> > I just bought a new notebook.  Here is the output from lspci using the latest
-> > pci.ids file from sourceforge:
+Joel Becker <Joel.Becker@oracle.com> wrote:
+>
+>  > What happens when we want to add some new primitive which has no posix-file
+>  > analog?
 > 
-> You seem to be surprized by the contents. When I recently changed my 
-> work notebook (dead screen on the previous one), it took me nearly 6
-> months to find one which suits my needs (serial, floppy, ...) and to
-> ensure that everything in it was supported. I've refused several ones
-> because there was no clear indication that they hosted supported hardware.
-> So I'm a bit amazed by your reaction, you seem to have bought the first
-> cheap K8 you saw in a store.
+>  	The point of dlmfs is not to express every primitive that the
+>  DLM has.  dlmfs cannot express the CR, CW, and PW levels of the VMS
+>  locking scheme.  Nor should it.  The point isn't to use a filesystem
+>  interface for programs that need all the flexibility and power of the
+>  VMS DLM.  The point is a simple system that programs needing the basic
+>  operations can use.  Even shell scripts.
 
-Incidentally, Is that a Compaq R4000?
+Are you saying that the posix-file lookalike interface provides access to
+part of the functionality, but there are other APIs which are used to
+access the rest of the functionality?  If so, what is that interface, and
+why cannot that interface offer access to 100% of the functionality, thus
+making the posix-file tricks unnecessary?

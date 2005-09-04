@@ -1,89 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751305AbVIDIjF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751306AbVIDIrn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751305AbVIDIjF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 04:39:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751304AbVIDIjE
+	id S1751306AbVIDIrn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 04:47:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751304AbVIDIrn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 04:39:04 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:10431 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751303AbVIDIjD (ORCPT
+	Sun, 4 Sep 2005 04:47:43 -0400
+Received: from zproxy.gmail.com ([64.233.162.198]:11626 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751306AbVIDIrm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 04:39:03 -0400
-Date: Sun, 4 Sep 2005 01:37:04 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Mark Fasheh <mark.fasheh@oracle.com>
-Cc: phillips@istop.com, Joel.Becker@oracle.com, linux-cluster@redhat.com,
-       wim.coekaerts@oracle.com, linux-fsdevel@vger.kernel.org, ak@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Linux-cluster] Re: GFS, what's remaining
-Message-Id: <20050904013704.55c2d9f5.akpm@osdl.org>
-In-Reply-To: <20050904081748.GJ21228@ca-server1.us.oracle.com>
-References: <20050901104620.GA22482@redhat.com>
-	<20050903183241.1acca6c9.akpm@osdl.org>
-	<20050904030640.GL8684@ca-server1.us.oracle.com>
-	<200509040022.37102.phillips@istop.com>
-	<20050903214653.1b8a8cb7.akpm@osdl.org>
-	<20050904061045.GI21228@ca-server1.us.oracle.com>
-	<20050904002343.079daa85.akpm@osdl.org>
-	<20050904081748.GJ21228@ca-server1.us.oracle.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 4 Sep 2005 04:47:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=o90kKTJg0kDSr4CaiK2liJSZV0i21p5FZAAvJp7A/DV/DSz0D0fW6NovXFrA8xXLMP1+tUapwfj4Zb8fc12erkq9A2IFkvHvliHCcnGDn+ZHX+y+t9ClabeAvdUtjE1nB1Pw/uuF5Dj/z089Tq/Z/AaAcgrf3kFgArySlE5sWRM=
+Date: Sun, 4 Sep 2005 17:47:32 +0900
+From: Tejun Heo <htejun@gmail.com>
+To: Andreas Hartmann <andihartmann@01019freenet.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: forbid to strace a program
+Message-ID: <20050904084732.GA30256@htj.dyndns.org>
+References: <4IOGw-1DU-11@gated-at.bofh.it> <4IOGw-1DU-13@gated-at.bofh.it> <4IOGw-1DU-9@gated-at.bofh.it> <4IOQc-1Pk-23@gated-at.bofh.it> <dfe7ui$14q$1@pD9F874C0.dip0.t-ipconnect.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <dfe7ui$14q$1@pD9F874C0.dip0.t-ipconnect.de>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Fasheh <mark.fasheh@oracle.com> wrote:
->
-> On Sun, Sep 04, 2005 at 12:23:43AM -0700, Andrew Morton wrote:
-> > > What would be an acceptable replacement? I admit that O_NONBLOCK -> trylock
-> > > is a bit unfortunate, but really it just needs a bit to express that -
-> > > nobody over here cares what it's called.
+On Sun, Sep 04, 2005 at 09:32:34AM +0200, Andreas Hartmann wrote:
+> Chase Venters wrote:
+> >> Is there another way to do this? If the password is crypted, I need a
+> >> passphrase or something other to decrypt it again. Not really a solution
+> >> of the problem.
+> >>
+> >> Therefore, it would be best, to hide it by preventing stracing of the
+> >> application to all users and root.
+> >>
+> >> Ok, root could search for the password directly in the memory, but this
+> >> would be not as easy as a strace.
 > > 
-> > The whole idea of reinterpreting file operations to mean something utterly
-> > different just seems inappropriate to me.
-> Putting aside trylock for a minute, I'm not sure how utterly different the
-> operations are. You create a lock resource by creating a file named after
-> it. You get a lock (fd) at read or write level on the resource by calling 
-> open(2) with the appropriate mode (O_RDONLY, O_WRONLY/O_RDWR).
-> Now that we've got an fd, lock value blocks are naturally represented as
-> file data which can be read(2) or written(2).
-> Close(2) drops the lock.
+> > Obfuscation isn't really valid security. Making something 'harder' to break 
+> > isn't a solution unless you're making it hard enough that current technology 
+> > can't break it (eg... you always have the brute force option, but good crypto 
+> > intends to make such an option impossible without expending zillions of clock 
+> > cycles). 
 > 
-> A really trivial usage example from shell:
+> You're right. If I would have a solution, which could do this, I would
+> prefer it.
 > 
-> node1$ echo "hello world" > mylock
-> node2$ cat mylock
-> hello world
+> > 
+> > Can I ask why you want to hide the database password from root?
 > 
-> I could always give a more useful one after I get some sleep :)
-
-It isn't extensible though.  One couldn't retain this approach while adding
-(random cfs ignorance exposure) upgrade-read, downgrade-write,
-query-for-various-runtime-stats, priority modification, whatever.
-
-> > You get a lot of goodies when using a filesystem - the ability for
-> > unrelated processes to look things up, resource release on exit(), etc.  If
-> > those features are valuable in the ocfs2 context then fine.
-> Right, they certainly are and I think Joel, in another e-mail on this
-> thread, explained well the advantages of using a filesystem.
+> It's easy: for security reasons. There could always be some bugs in some
+> software, which makes it possible for some other user, to gain root
+> privileges. Now, they could easily strace for information, they shouldn't
+> could do it. The password they could see, isn't just used for the DB, but
+> for some other applications, too. That's the disadvantage of general
+> (single sign on) passwords.
 > 
-> > But I'd have thought that it would be saner and more extensible to add new
-> > syscalls (perhaps taking fd's) rather than overloading the open() mode in
-> > this manner.
-> The idea behind dlmfs was to very simply export a small set of cluster dlm
-> operations to userspace. Given that goal, I felt that a whole set of system
-> calls would have been overkill. That said, I think perhaps I should clarify
-> that I don't intend dlmfs to become _the_ userspace dlm api, just a simple
-> and (imho) intuitive one which could be trivially accessed from any software
-> which just knows how to read and write files.
 
-Well, as I say.  Making it a filesystem is superficially attractive, but
-once you've build a super-dooper enterprise-grade infrastructure on top of
-it all, nobody's going to touch the fs interface by hand and you end up
-wondering why it's there, adding baggage.
+ I'm no security expert, but if root privileges are compromised,
+there's no way to plug anything.  A kernel module can be loaded to do
+just about anything.  Signals can be sent to obtain core dumps.
+Binaries can be switched.  Network traffics can be sniffed.  Kernel
+image can be replaced and rebooted while no one is watching without
+leaving any record.
 
-Not that I'm questioning the fs interface!  It has useful permission
-management, monitoring and resource releasing characteristics.  I'm
-questioning the open() tricks.  I guess from Joel's tiny description, the
-filesystem's interpretation of mknod and mkdir look sensible enough.
+ If security is important for your application, move the application
+into a separate machine in a physically protected place and use very
+restrictive firewall.  Plugging strace() will make little (if any)
+change w.r.t. security.
+
+-- 
+tejun

@@ -1,2581 +1,2583 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbVIDKwN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbVIDLFm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750743AbVIDKwN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 06:52:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750744AbVIDKwN
+	id S1750746AbVIDLFm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 07:05:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbVIDLFm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 06:52:13 -0400
-Received: from dd6424.kasserver.com ([83.133.49.41]:64948 "EHLO
-	dd6424.kasserver.com") by vger.kernel.org with ESMTP
-	id S1750743AbVIDKwM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 06:52:12 -0400
-Message-ID: <431AD1D8.6010103@feuerpokemon.de>
-Date: Sun, 04 Sep 2005 12:52:08 +0200
-From: dragoran <dragoran@feuerpokemon.de>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: de-DE, de, en-us, en
+	Sun, 4 Sep 2005 07:05:42 -0400
+Received: from smtp1.libero.it ([193.70.192.51]:26867 "EHLO smtp1.libero.it")
+	by vger.kernel.org with ESMTP id S1750746AbVIDLFl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 07:05:41 -0400
+From: "Giampaolo Tomassoni" <g.tomassoni@libero.it>
+To: <linux-kernel@vger.kernel.org>, <linux-atm-general@lists.sourceforge.net>
+Subject: [ATMSAR] Request for review - update #1
+Date: Sun, 4 Sep 2005 13:05:21 +0200
+Message-ID: <NBBBIHMOBLOHKCGIMJMDGEHPEKAA.g.tomassoni@libero.it>
 MIME-Version: 1.0
-To: dragoran <dragoran@feuerpokemon.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: snd-emu10k1 broken in 2.6.13
-References: <4IY3f-61u-13@gated-at.bofh.it> <431ABB63.5020608@gmx.de> <431AC5C6.7030103@feuerpokemon.de> <431ACD54.7060404@feuerpokemon.de>
-In-Reply-To: <431ACD54.7060404@feuerpokemon.de>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_0005_01C5B151.4E8AE540"
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
+Importance: Normal
+X-Scanned: with antispam and antivirus automated system at libero.it
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dragoran wrote:
+This is a multi-part message in MIME format.
 
-> dragoran wrote:
->
->> Niko Nitsche wrote:
->>
->>> dragoran wrote:
->>>  
->>>
->>>> Hello.
->>>> I am running FC4 and compiled a vanilla linux 2.6.13.
->>>> After booting the kernel I see an error messages that says that it was
->>>> unable to load snd-emu10k1 (see dmesg).
->>>> In dmesg I got this:
->>>> Sep  4 10:09:47 chello062178124144 kernel: snd_emu10k1: Unknown
->>>> parameter `'
->>>> Sep  4 10:09:47 chello062178124144 last message repeated 2 times
->>>> the same modprobe.conf works in 2.6.12.
->>>> I tryed to load it by hand (modprobe snd-emu10k1) => same result
->>>> modprobe snd-emu10k1 index=0 => same result.
->>>> I will attach my .config file
->>>> (please CC me as I am not subscribed to the list)
->>>>
->>>>
->>>> ------------------------------------------------------------------------ 
->>>>
->>>>
->>>> #
->>>> # Automatically generated make config: don't edit
->>>> # Linux kernel version: 2.6.13
->>>> # Sun Sep  4 09:51:58 2005
->>>> #
->>>> CONFIG_X86_64=y
->>>> CONFIG_64BIT=y
->>>> CONFIG_X86=y
->>>> CONFIG_MMU=y
->>>> CONFIG_RWSEM_GENERIC_SPINLOCK=y
->>>> CONFIG_GENERIC_CALIBRATE_DELAY=y
->>>> CONFIG_X86_CMPXCHG=y
->>>> CONFIG_EARLY_PRINTK=y
->>>> CONFIG_GENERIC_ISA_DMA=y
->>>> CONFIG_GENERIC_IOMAP=y
->>>>
->>>> #
->>>> # Code maturity level options
->>>> #
->>>> CONFIG_EXPERIMENTAL=y
->>>> CONFIG_CLEAN_COMPILE=y
->>>> CONFIG_BROKEN_ON_SMP=y
->>>> CONFIG_INIT_ENV_ARG_LIMIT=32
->>>>
->>>> #
->>>> # General setup
->>>> #
->>>> CONFIG_LOCALVERSION=""
->>>> CONFIG_SWAP=y
->>>> CONFIG_SYSVIPC=y
->>>> CONFIG_POSIX_MQUEUE=y
->>>> CONFIG_BSD_PROCESS_ACCT=y
->>>> # CONFIG_BSD_PROCESS_ACCT_V3 is not set
->>>> CONFIG_SYSCTL=y
->>>> CONFIG_AUDIT=y
->>>> CONFIG_AUDITSYSCALL=y
->>>> CONFIG_HOTPLUG=y
->>>> CONFIG_KOBJECT_UEVENT=y
->>>> # CONFIG_IKCONFIG is not set
->>>> # CONFIG_EMBEDDED is not set
->>>> CONFIG_KALLSYMS=y
->>>> # CONFIG_KALLSYMS_ALL is not set
->>>> CONFIG_KALLSYMS_EXTRA_PASS=y
->>>> CONFIG_PRINTK=y
->>>> CONFIG_BUG=y
->>>> CONFIG_BASE_FULL=y
->>>> CONFIG_FUTEX=y
->>>> CONFIG_EPOLL=y
->>>> CONFIG_SHMEM=y
->>>> CONFIG_CC_ALIGN_FUNCTIONS=0
->>>> CONFIG_CC_ALIGN_LABELS=0
->>>> CONFIG_CC_ALIGN_LOOPS=0
->>>> CONFIG_CC_ALIGN_JUMPS=0
->>>> # CONFIG_TINY_SHMEM is not set
->>>> CONFIG_BASE_SMALL=0
->>>>
->>>> #
->>>> # Loadable module support
->>>> #
->>>> CONFIG_MODULES=y
->>>> CONFIG_MODULE_UNLOAD=y
->>>> # CONFIG_MODULE_FORCE_UNLOAD is not set
->>>> CONFIG_OBSOLETE_MODPARM=y
->>>> CONFIG_MODVERSIONS=y
->>>> CONFIG_MODULE_SRCVERSION_ALL=y
->>>> CONFIG_KMOD=y
->>>>
->>>> #
->>>> # Processor type and features
->>>> #
->>>> CONFIG_MK8=y
->>>> # CONFIG_MPSC is not set
->>>> # CONFIG_GENERIC_CPU is not set
->>>> CONFIG_X86_L1_CACHE_BYTES=64
->>>> CONFIG_X86_L1_CACHE_SHIFT=6
->>>> CONFIG_X86_TSC=y
->>>> CONFIG_X86_GOOD_APIC=y
->>>> CONFIG_MICROCODE=m
->>>> CONFIG_X86_MSR=y
->>>> CONFIG_X86_CPUID=y
->>>> CONFIG_X86_IO_APIC=y
->>>> CONFIG_X86_LOCAL_APIC=y
->>>> CONFIG_MTRR=y
->>>> # CONFIG_SMP is not set
->>>> # CONFIG_PREEMPT_NONE is not set
->>>> CONFIG_PREEMPT_VOLUNTARY=y
->>>> # CONFIG_PREEMPT is not set
->>>> # CONFIG_NUMA is not set
->>>> CONFIG_ARCH_FLATMEM_ENABLE=y
->>>> CONFIG_SELECT_MEMORY_MODEL=y
->>>> CONFIG_FLATMEM_MANUAL=y
->>>> # CONFIG_DISCONTIGMEM_MANUAL is not set
->>>> # CONFIG_SPARSEMEM_MANUAL is not set
->>>> CONFIG_FLATMEM=y
->>>> CONFIG_FLAT_NODE_MEM_MAP=y
->>>> CONFIG_HAVE_ARCH_EARLY_PFN_TO_NID=y
->>>> CONFIG_HPET_TIMER=y
->>>> CONFIG_X86_PM_TIMER=y
->>>> CONFIG_HPET_EMULATE_RTC=y
->>>> CONFIG_GART_IOMMU=y
->>>> CONFIG_SWIOTLB=y
->>>> CONFIG_X86_MCE=y
->>>> CONFIG_X86_MCE_INTEL=y
->>>> CONFIG_PHYSICAL_START=0x100000
->>>> # CONFIG_KEXEC is not set
->>>> CONFIG_SECCOMP=y
->>>> # CONFIG_HZ_100 is not set
->>>> CONFIG_HZ_250=y
->>>> # CONFIG_HZ_1000 is not set
->>>> CONFIG_HZ=250
->>>> CONFIG_GENERIC_HARDIRQS=y
->>>> CONFIG_GENERIC_IRQ_PROBE=y
->>>> CONFIG_ISA_DMA_API=y
->>>>
->>>> #
->>>> # Power management options
->>>> #
->>>> CONFIG_PM=y
->>>> # CONFIG_PM_DEBUG is not set
->>>> # CONFIG_SOFTWARE_SUSPEND is not set
->>>>
->>>> #
->>>> # ACPI (Advanced Configuration and Power Interface) Support
->>>> #
->>>> CONFIG_ACPI=y
->>>> CONFIG_ACPI_BOOT=y
->>>> CONFIG_ACPI_INTERPRETER=y
->>>> CONFIG_ACPI_SLEEP=y
->>>> CONFIG_ACPI_SLEEP_PROC_FS=y
->>>> # CONFIG_ACPI_SLEEP_PROC_SLEEP is not set
->>>> CONFIG_ACPI_AC=m
->>>> CONFIG_ACPI_BATTERY=m
->>>> CONFIG_ACPI_BUTTON=m
->>>> CONFIG_ACPI_VIDEO=m
->>>> # CONFIG_ACPI_HOTKEY is not set
->>>> CONFIG_ACPI_FAN=y
->>>> CONFIG_ACPI_PROCESSOR=y
->>>> CONFIG_ACPI_THERMAL=y
->>>> CONFIG_ACPI_ASUS=m
->>>> CONFIG_ACPI_IBM=m
->>>> CONFIG_ACPI_TOSHIBA=m
->>>> CONFIG_ACPI_BLACKLIST_YEAR=2001
->>>> # CONFIG_ACPI_DEBUG is not set
->>>> CONFIG_ACPI_BUS=y
->>>> CONFIG_ACPI_EC=y
->>>> CONFIG_ACPI_POWER=y
->>>> CONFIG_ACPI_PCI=y
->>>> CONFIG_ACPI_SYSTEM=y
->>>> # CONFIG_ACPI_CONTAINER is not set
->>>>
->>>> #
->>>> # CPU Frequency scaling
->>>> #
->>>> CONFIG_CPU_FREQ=y
->>>> CONFIG_CPU_FREQ_TABLE=y
->>>> CONFIG_CPU_FREQ_DEBUG=y
->>>> CONFIG_CPU_FREQ_STAT=m
->>>> CONFIG_CPU_FREQ_STAT_DETAILS=y
->>>> # CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE is not set
->>>> CONFIG_CPU_FREQ_DEFAULT_GOV_USERSPACE=y
->>>> CONFIG_CPU_FREQ_GOV_PERFORMANCE=y
->>>> CONFIG_CPU_FREQ_GOV_POWERSAVE=m
->>>> CONFIG_CPU_FREQ_GOV_USERSPACE=y
->>>> CONFIG_CPU_FREQ_GOV_ONDEMAND=m
->>>> CONFIG_CPU_FREQ_GOV_CONSERVATIVE=m
->>>>
->>>> #
->>>> # CPUFreq processor drivers
->>>> #
->>>> CONFIG_X86_POWERNOW_K8=y
->>>> CONFIG_X86_POWERNOW_K8_ACPI=y
->>>> CONFIG_X86_SPEEDSTEP_CENTRINO=y
->>>> CONFIG_X86_SPEEDSTEP_CENTRINO_ACPI=y
->>>> CONFIG_X86_ACPI_CPUFREQ=m
->>>>
->>>> #
->>>> # shared options
->>>> #
->>>> # CONFIG_X86_ACPI_CPUFREQ_PROC_INTF is not set
->>>> # CONFIG_X86_SPEEDSTEP_LIB is not set
->>>>
->>>> #
->>>> # Bus options (PCI etc.)
->>>> #
->>>> CONFIG_PCI=y
->>>> CONFIG_PCI_DIRECT=y
->>>> CONFIG_PCI_MMCONFIG=y
->>>> # CONFIG_UNORDERED_IO is not set
->>>> CONFIG_PCIEPORTBUS=y
->>>> CONFIG_HOTPLUG_PCI_PCIE=m
->>>> # CONFIG_HOTPLUG_PCI_PCIE_POLL_EVENT_MODE is not set
->>>> CONFIG_PCI_MSI=y
->>>> CONFIG_PCI_LEGACY_PROC=y
->>>> # CONFIG_PCI_NAMES is not set
->>>> # CONFIG_PCI_DEBUG is not set
->>>>
->>>> #
->>>> # PCCARD (PCMCIA/CardBus) support
->>>> #
->>>> CONFIG_PCCARD=m
->>>> # CONFIG_PCMCIA_DEBUG is not set
->>>> CONFIG_PCMCIA=m
->>>> # CONFIG_PCMCIA_LOAD_CIS is not set
->>>> # CONFIG_PCMCIA_IOCTL is not set
->>>> CONFIG_CARDBUS=y
->>>>
->>>> #
->>>> # PC-card bridges
->>>> #
->>>> CONFIG_YENTA=m
->>>> CONFIG_PD6729=m
->>>> CONFIG_I82092=m
->>>> CONFIG_TCIC=m
->>>> CONFIG_PCCARD_NONSTATIC=m
->>>>
->>>> #
->>>> # PCI Hotplug Support
->>>> #
->>>> CONFIG_HOTPLUG_PCI=y
->>>> # CONFIG_HOTPLUG_PCI_FAKE is not set
->>>> CONFIG_HOTPLUG_PCI_ACPI=m
->>>> CONFIG_HOTPLUG_PCI_ACPI_IBM=m
->>>> # CONFIG_HOTPLUG_PCI_CPCI is not set
->>>> CONFIG_HOTPLUG_PCI_SHPC=m
->>>> # CONFIG_HOTPLUG_PCI_SHPC_POLL_EVENT_MODE is not set
->>>>
->>>> #
->>>> # Executable file formats / Emulations
->>>> #
->>>> CONFIG_BINFMT_ELF=y
->>>> CONFIG_BINFMT_MISC=y
->>>> CONFIG_IA32_EMULATION=y
->>>> # CONFIG_IA32_AOUT is not set
->>>> CONFIG_COMPAT=y
->>>> CONFIG_SYSVIPC_COMPAT=y
->>>> CONFIG_UID16=y
->>>>
->>>> #
->>>> # Networking
->>>> #
->>>> CONFIG_NET=y
->>>>
->>>> #
->>>> # Networking options
->>>> #
->>>> CONFIG_PACKET=y
->>>> CONFIG_PACKET_MMAP=y
->>>> CONFIG_UNIX=y
->>>> CONFIG_XFRM=y
->>>> CONFIG_XFRM_USER=y
->>>> CONFIG_NET_KEY=m
->>>> CONFIG_INET=y
->>>> CONFIG_IP_MULTICAST=y
->>>> CONFIG_IP_ADVANCED_ROUTER=y
->>>> CONFIG_ASK_IP_FIB_HASH=y
->>>> # CONFIG_IP_FIB_TRIE is not set
->>>> CONFIG_IP_FIB_HASH=y
->>>> CONFIG_IP_MULTIPLE_TABLES=y
->>>> CONFIG_IP_ROUTE_FWMARK=y
->>>> CONFIG_IP_ROUTE_MULTIPATH=y
->>>> # CONFIG_IP_ROUTE_MULTIPATH_CACHED is not set
->>>> CONFIG_IP_ROUTE_VERBOSE=y
->>>> # CONFIG_IP_PNP is not set
->>>> CONFIG_NET_IPIP=m
->>>> CONFIG_NET_IPGRE=m
->>>> CONFIG_NET_IPGRE_BROADCAST=y
->>>> CONFIG_IP_MROUTE=y
->>>> CONFIG_IP_PIMSM_V1=y
->>>> CONFIG_IP_PIMSM_V2=y
->>>> # CONFIG_ARPD is not set
->>>> CONFIG_SYN_COOKIES=y
->>>> CONFIG_INET_AH=m
->>>> CONFIG_INET_ESP=m
->>>> CONFIG_INET_IPCOMP=m
->>>> CONFIG_INET_TUNNEL=m
->>>> CONFIG_IP_TCPDIAG=m
->>>> CONFIG_IP_TCPDIAG_IPV6=y
->>>> # CONFIG_TCP_CONG_ADVANCED is not set
->>>> CONFIG_TCP_CONG_BIC=y
->>>>
->>>> #
->>>> # IP: Virtual Server Configuration
->>>> #
->>>> CONFIG_IP_VS=m
->>>> # CONFIG_IP_VS_DEBUG is not set
->>>> CONFIG_IP_VS_TAB_BITS=12
->>>>
->>>> #
->>>> # IPVS transport protocol load balancing support
->>>> #
->>>> CONFIG_IP_VS_PROTO_TCP=y
->>>> CONFIG_IP_VS_PROTO_UDP=y
->>>> CONFIG_IP_VS_PROTO_ESP=y
->>>> CONFIG_IP_VS_PROTO_AH=y
->>>>
->>>> #
->>>> # IPVS scheduler
->>>> #
->>>> CONFIG_IP_VS_RR=m
->>>> CONFIG_IP_VS_WRR=m
->>>> CONFIG_IP_VS_LC=m
->>>> CONFIG_IP_VS_WLC=m
->>>> CONFIG_IP_VS_LBLC=m
->>>> CONFIG_IP_VS_LBLCR=m
->>>> CONFIG_IP_VS_DH=m
->>>> CONFIG_IP_VS_SH=m
->>>> CONFIG_IP_VS_SED=m
->>>> CONFIG_IP_VS_NQ=m
->>>>
->>>> #
->>>> # IPVS application helper
->>>> #
->>>> CONFIG_IP_VS_FTP=m
->>>> CONFIG_IPV6=m
->>>> CONFIG_IPV6_PRIVACY=y
->>>> CONFIG_INET6_AH=m
->>>> CONFIG_INET6_ESP=m
->>>> CONFIG_INET6_IPCOMP=m
->>>> CONFIG_INET6_TUNNEL=m
->>>> CONFIG_IPV6_TUNNEL=m
->>>> CONFIG_NETFILTER=y
->>>> # CONFIG_NETFILTER_DEBUG is not set
->>>> CONFIG_BRIDGE_NETFILTER=y
->>>>
->>>> #
->>>> # IP: Netfilter Configuration
->>>> #
->>>> CONFIG_IP_NF_CONNTRACK=m
->>>> CONFIG_IP_NF_CT_ACCT=y
->>>> CONFIG_IP_NF_CONNTRACK_MARK=y
->>>> CONFIG_IP_NF_CT_PROTO_SCTP=m
->>>> CONFIG_IP_NF_FTP=m
->>>> CONFIG_IP_NF_IRC=m
->>>> CONFIG_IP_NF_TFTP=m
->>>> CONFIG_IP_NF_AMANDA=m
->>>> CONFIG_IP_NF_QUEUE=m
->>>> CONFIG_IP_NF_IPTABLES=m
->>>> CONFIG_IP_NF_MATCH_LIMIT=m
->>>> CONFIG_IP_NF_MATCH_IPRANGE=m
->>>> CONFIG_IP_NF_MATCH_MAC=m
->>>> CONFIG_IP_NF_MATCH_PKTTYPE=m
->>>> CONFIG_IP_NF_MATCH_MARK=m
->>>> CONFIG_IP_NF_MATCH_MULTIPORT=m
->>>> CONFIG_IP_NF_MATCH_TOS=m
->>>> CONFIG_IP_NF_MATCH_RECENT=m
->>>> CONFIG_IP_NF_MATCH_ECN=m
->>>> CONFIG_IP_NF_MATCH_DSCP=m
->>>> CONFIG_IP_NF_MATCH_AH_ESP=m
->>>> CONFIG_IP_NF_MATCH_LENGTH=m
->>>> CONFIG_IP_NF_MATCH_TTL=m
->>>> CONFIG_IP_NF_MATCH_TCPMSS=m
->>>> CONFIG_IP_NF_MATCH_HELPER=m
->>>> CONFIG_IP_NF_MATCH_STATE=m
->>>> CONFIG_IP_NF_MATCH_CONNTRACK=m
->>>> CONFIG_IP_NF_MATCH_OWNER=m
->>>> CONFIG_IP_NF_MATCH_PHYSDEV=m
->>>> CONFIG_IP_NF_MATCH_ADDRTYPE=m
->>>> CONFIG_IP_NF_MATCH_REALM=m
->>>> CONFIG_IP_NF_MATCH_SCTP=m
->>>> CONFIG_IP_NF_MATCH_COMMENT=m
->>>> CONFIG_IP_NF_MATCH_CONNMARK=m
->>>> CONFIG_IP_NF_MATCH_HASHLIMIT=m
->>>> CONFIG_IP_NF_FILTER=m
->>>> CONFIG_IP_NF_TARGET_REJECT=m
->>>> CONFIG_IP_NF_TARGET_LOG=m
->>>> CONFIG_IP_NF_TARGET_ULOG=m
->>>> CONFIG_IP_NF_TARGET_TCPMSS=m
->>>> CONFIG_IP_NF_NAT=m
->>>> CONFIG_IP_NF_NAT_NEEDED=y
->>>> CONFIG_IP_NF_TARGET_MASQUERADE=m
->>>> CONFIG_IP_NF_TARGET_REDIRECT=m
->>>> CONFIG_IP_NF_TARGET_NETMAP=m
->>>> CONFIG_IP_NF_TARGET_SAME=m
->>>> CONFIG_IP_NF_NAT_SNMP_BASIC=m
->>>> CONFIG_IP_NF_NAT_IRC=m
->>>> CONFIG_IP_NF_NAT_FTP=m
->>>> CONFIG_IP_NF_NAT_TFTP=m
->>>> CONFIG_IP_NF_NAT_AMANDA=m
->>>> CONFIG_IP_NF_MANGLE=m
->>>> CONFIG_IP_NF_TARGET_TOS=m
->>>> CONFIG_IP_NF_TARGET_ECN=m
->>>> CONFIG_IP_NF_TARGET_DSCP=m
->>>> CONFIG_IP_NF_TARGET_MARK=m
->>>> CONFIG_IP_NF_TARGET_CLASSIFY=m
->>>> CONFIG_IP_NF_TARGET_CONNMARK=m
->>>> CONFIG_IP_NF_TARGET_CLUSTERIP=m
->>>> CONFIG_IP_NF_RAW=m
->>>> CONFIG_IP_NF_TARGET_NOTRACK=m
->>>> CONFIG_IP_NF_ARPTABLES=m
->>>> CONFIG_IP_NF_ARPFILTER=m
->>>> CONFIG_IP_NF_ARP_MANGLE=m
->>>>
->>>> #
->>>> # IPv6: Netfilter Configuration (EXPERIMENTAL)
->>>> #
->>>> CONFIG_IP6_NF_QUEUE=m
->>>> CONFIG_IP6_NF_IPTABLES=m
->>>> CONFIG_IP6_NF_MATCH_LIMIT=m
->>>> CONFIG_IP6_NF_MATCH_MAC=m
->>>> CONFIG_IP6_NF_MATCH_RT=m
->>>> CONFIG_IP6_NF_MATCH_OPTS=m
->>>> CONFIG_IP6_NF_MATCH_FRAG=m
->>>> CONFIG_IP6_NF_MATCH_HL=m
->>>> CONFIG_IP6_NF_MATCH_MULTIPORT=m
->>>> CONFIG_IP6_NF_MATCH_OWNER=m
->>>> CONFIG_IP6_NF_MATCH_MARK=m
->>>> CONFIG_IP6_NF_MATCH_IPV6HEADER=m
->>>> CONFIG_IP6_NF_MATCH_AHESP=m
->>>> CONFIG_IP6_NF_MATCH_LENGTH=m
->>>> CONFIG_IP6_NF_MATCH_EUI64=m
->>>> CONFIG_IP6_NF_MATCH_PHYSDEV=m
->>>> CONFIG_IP6_NF_FILTER=m
->>>> CONFIG_IP6_NF_TARGET_LOG=m
->>>> CONFIG_IP6_NF_MANGLE=m
->>>> CONFIG_IP6_NF_TARGET_MARK=m
->>>> CONFIG_IP6_NF_RAW=m
->>>>
->>>> #
->>>> # Bridge: Netfilter Configuration
->>>> #
->>>> CONFIG_BRIDGE_NF_EBTABLES=m
->>>> CONFIG_BRIDGE_EBT_BROUTE=m
->>>> CONFIG_BRIDGE_EBT_T_FILTER=m
->>>> CONFIG_BRIDGE_EBT_T_NAT=m
->>>> CONFIG_BRIDGE_EBT_802_3=m
->>>> CONFIG_BRIDGE_EBT_AMONG=m
->>>> CONFIG_BRIDGE_EBT_ARP=m
->>>> CONFIG_BRIDGE_EBT_IP=m
->>>> CONFIG_BRIDGE_EBT_LIMIT=m
->>>> CONFIG_BRIDGE_EBT_MARK=m
->>>> CONFIG_BRIDGE_EBT_PKTTYPE=m
->>>> CONFIG_BRIDGE_EBT_STP=m
->>>> CONFIG_BRIDGE_EBT_VLAN=m
->>>> CONFIG_BRIDGE_EBT_ARPREPLY=m
->>>> CONFIG_BRIDGE_EBT_DNAT=m
->>>> CONFIG_BRIDGE_EBT_MARK_T=m
->>>> CONFIG_BRIDGE_EBT_REDIRECT=m
->>>> CONFIG_BRIDGE_EBT_SNAT=m
->>>> CONFIG_BRIDGE_EBT_LOG=m
->>>> CONFIG_BRIDGE_EBT_ULOG=m
->>>>
->>>> #
->>>> # SCTP Configuration (EXPERIMENTAL)
->>>> #
->>>> CONFIG_IP_SCTP=m
->>>> # CONFIG_SCTP_DBG_MSG is not set
->>>> # CONFIG_SCTP_DBG_OBJCNT is not set
->>>> # CONFIG_SCTP_HMAC_NONE is not set
->>>> # CONFIG_SCTP_HMAC_SHA1 is not set
->>>> CONFIG_SCTP_HMAC_MD5=y
->>>> CONFIG_ATM=m
->>>> CONFIG_ATM_CLIP=m
->>>> # CONFIG_ATM_CLIP_NO_ICMP is not set
->>>> CONFIG_ATM_LANE=m
->>>> # CONFIG_ATM_MPOA is not set
->>>> CONFIG_ATM_BR2684=m
->>>> # CONFIG_ATM_BR2684_IPFILTER is not set
->>>> CONFIG_BRIDGE=m
->>>> CONFIG_VLAN_8021Q=m
->>>> # CONFIG_DECNET is not set
->>>> CONFIG_LLC=y
->>>> # CONFIG_LLC2 is not set
->>>> CONFIG_IPX=m
->>>> # CONFIG_IPX_INTERN is not set
->>>> CONFIG_ATALK=m
->>>> CONFIG_DEV_APPLETALK=y
->>>> CONFIG_IPDDP=m
->>>> CONFIG_IPDDP_ENCAP=y
->>>> CONFIG_IPDDP_DECAP=y
->>>> # CONFIG_X25 is not set
->>>> # CONFIG_LAPB is not set
->>>> CONFIG_NET_DIVERT=y
->>>> # CONFIG_ECONET is not set
->>>> CONFIG_WAN_ROUTER=m
->>>> CONFIG_NET_SCHED=y
->>>> CONFIG_NET_SCH_CLK_JIFFIES=y
->>>> # CONFIG_NET_SCH_CLK_GETTIMEOFDAY is not set
->>>> # CONFIG_NET_SCH_CLK_CPU is not set
->>>> CONFIG_NET_SCH_CBQ=m
->>>> CONFIG_NET_SCH_HTB=m
->>>> CONFIG_NET_SCH_HFSC=m
->>>> CONFIG_NET_SCH_ATM=m
->>>> CONFIG_NET_SCH_PRIO=m
->>>> CONFIG_NET_SCH_RED=m
->>>> CONFIG_NET_SCH_SFQ=m
->>>> CONFIG_NET_SCH_TEQL=m
->>>> CONFIG_NET_SCH_TBF=m
->>>> CONFIG_NET_SCH_GRED=m
->>>> CONFIG_NET_SCH_DSMARK=m
->>>> CONFIG_NET_SCH_NETEM=m
->>>> CONFIG_NET_SCH_INGRESS=m
->>>> CONFIG_NET_QOS=y
->>>> CONFIG_NET_ESTIMATOR=y
->>>> CONFIG_NET_CLS=y
->>>> CONFIG_NET_CLS_BASIC=m
->>>> CONFIG_NET_CLS_TCINDEX=m
->>>> CONFIG_NET_CLS_ROUTE4=m
->>>> CONFIG_NET_CLS_ROUTE=y
->>>> CONFIG_NET_CLS_FW=m
->>>> CONFIG_NET_CLS_U32=m
->>>> CONFIG_CLS_U32_PERF=y
->>>> CONFIG_NET_CLS_IND=y
->>>> CONFIG_CLS_U32_MARK=y
->>>> CONFIG_NET_CLS_RSVP=m
->>>> CONFIG_NET_CLS_RSVP6=m
->>>> CONFIG_NET_EMATCH=y
->>>> CONFIG_NET_EMATCH_STACK=32
->>>> CONFIG_NET_EMATCH_CMP=m
->>>> CONFIG_NET_EMATCH_NBYTE=m
->>>> CONFIG_NET_EMATCH_U32=m
->>>> CONFIG_NET_EMATCH_META=m
->>>> # CONFIG_NET_EMATCH_TEXT is not set
->>>> # CONFIG_NET_CLS_ACT is not set
->>>> CONFIG_NET_CLS_POLICE=y
->>>>
->>>> #
->>>> # Network testing
->>>> #
->>>> # CONFIG_NET_PKTGEN is not set
->>>> # CONFIG_HAMRADIO is not set
->>>> CONFIG_IRDA=m
->>>>
->>>> #
->>>> # IrDA protocols
->>>> #
->>>> CONFIG_IRLAN=m
->>>> CONFIG_IRNET=m
->>>> CONFIG_IRCOMM=m
->>>> # CONFIG_IRDA_ULTRA is not set
->>>>
->>>> #
->>>> # IrDA options
->>>> #
->>>> CONFIG_IRDA_CACHE_LAST_LSAP=y
->>>> CONFIG_IRDA_FAST_RR=y
->>>> # CONFIG_IRDA_DEBUG is not set
->>>>
->>>> #
->>>> # Infrared-port device drivers
->>>> #
->>>>
->>>> #
->>>> # SIR device drivers
->>>> #
->>>> CONFIG_IRTTY_SIR=m
->>>>
->>>> #
->>>> # Dongle support
->>>> #
->>>> CONFIG_DONGLE=y
->>>> CONFIG_ESI_DONGLE=m
->>>> CONFIG_ACTISYS_DONGLE=m
->>>> CONFIG_TEKRAM_DONGLE=m
->>>> CONFIG_LITELINK_DONGLE=m
->>>> CONFIG_MA600_DONGLE=m
->>>> CONFIG_GIRBIL_DONGLE=m
->>>> CONFIG_MCP2120_DONGLE=m
->>>> CONFIG_OLD_BELKIN_DONGLE=m
->>>> CONFIG_ACT200L_DONGLE=m
->>>>
->>>> #
->>>> # Old SIR device drivers
->>>> #
->>>> CONFIG_IRPORT_SIR=m
->>>>
->>>> #
->>>> # Old Serial dongle support
->>>> #
->>>> # CONFIG_DONGLE_OLD is not set
->>>>
->>>> #
->>>> # FIR device drivers
->>>> #
->>>> CONFIG_USB_IRDA=m
->>>> CONFIG_SIGMATEL_FIR=m
->>>> CONFIG_NSC_FIR=m
->>>> CONFIG_WINBOND_FIR=m
->>>> CONFIG_SMC_IRCC_FIR=m
->>>> CONFIG_ALI_FIR=m
->>>> CONFIG_VLSI_FIR=m
->>>> CONFIG_VIA_FIR=m
->>>> CONFIG_BT=m
->>>> CONFIG_BT_L2CAP=m
->>>> CONFIG_BT_SCO=m
->>>> CONFIG_BT_RFCOMM=m
->>>> CONFIG_BT_RFCOMM_TTY=y
->>>> CONFIG_BT_BNEP=m
->>>> CONFIG_BT_BNEP_MC_FILTER=y
->>>> CONFIG_BT_BNEP_PROTO_FILTER=y
->>>> CONFIG_BT_HIDP=m
->>>>
->>>> #
->>>> # Bluetooth device drivers
->>>> #
->>>> CONFIG_BT_HCIUSB=m
->>>> CONFIG_BT_HCIUSB_SCO=y
->>>> CONFIG_BT_HCIUART=m
->>>> CONFIG_BT_HCIUART_H4=y
->>>> CONFIG_BT_HCIUART_BCSP=y
->>>> CONFIG_BT_HCIUART_BCSP_TXCRC=y
->>>> CONFIG_BT_HCIBCM203X=m
->>>> CONFIG_BT_HCIBPA10X=m
->>>> CONFIG_BT_HCIBFUSB=m
->>>> CONFIG_BT_HCIDTL1=m
->>>> CONFIG_BT_HCIBT3C=m
->>>> CONFIG_BT_HCIBLUECARD=m
->>>> CONFIG_BT_HCIBTUART=m
->>>> CONFIG_BT_HCIVHCI=m
->>>>
->>>> #
->>>> # Device Drivers
->>>> #
->>>>
->>>> #
->>>> # Generic Driver Options
->>>> #
->>>> CONFIG_STANDALONE=y
->>>> CONFIG_PREVENT_FIRMWARE_BUILD=y
->>>> CONFIG_FW_LOADER=y
->>>> # CONFIG_DEBUG_DRIVER is not set
->>>>
->>>> #
->>>> # Memory Technology Devices (MTD)
->>>> #
->>>> CONFIG_MTD=m
->>>> # CONFIG_MTD_DEBUG is not set
->>>> CONFIG_MTD_CONCAT=m
->>>> CONFIG_MTD_PARTITIONS=y
->>>> CONFIG_MTD_REDBOOT_PARTS=m
->>>> CONFIG_MTD_REDBOOT_DIRECTORY_BLOCK=-1
->>>> # CONFIG_MTD_REDBOOT_PARTS_UNALLOCATED is not set
->>>> # CONFIG_MTD_REDBOOT_PARTS_READONLY is not set
->>>> CONFIG_MTD_CMDLINE_PARTS=y
->>>>
->>>> #
->>>> # User Modules And Translation Layers
->>>> #
->>>> CONFIG_MTD_CHAR=m
->>>> CONFIG_MTD_BLOCK=m
->>>> CONFIG_MTD_BLOCK_RO=m
->>>> CONFIG_FTL=m
->>>> CONFIG_NFTL=m
->>>> CONFIG_NFTL_RW=y
->>>> CONFIG_INFTL=m
->>>>
->>>> #
->>>> # RAM/ROM/Flash chip drivers
->>>> #
->>>> CONFIG_MTD_CFI=m
->>>> CONFIG_MTD_JEDECPROBE=m
->>>> CONFIG_MTD_GEN_PROBE=m
->>>> # CONFIG_MTD_CFI_ADV_OPTIONS is not set
->>>> CONFIG_MTD_MAP_BANK_WIDTH_1=y
->>>> CONFIG_MTD_MAP_BANK_WIDTH_2=y
->>>> CONFIG_MTD_MAP_BANK_WIDTH_4=y
->>>> # CONFIG_MTD_MAP_BANK_WIDTH_8 is not set
->>>> # CONFIG_MTD_MAP_BANK_WIDTH_16 is not set
->>>> # CONFIG_MTD_MAP_BANK_WIDTH_32 is not set
->>>> CONFIG_MTD_CFI_I1=y
->>>> CONFIG_MTD_CFI_I2=y
->>>> # CONFIG_MTD_CFI_I4 is not set
->>>> # CONFIG_MTD_CFI_I8 is not set
->>>> CONFIG_MTD_CFI_INTELEXT=m
->>>> CONFIG_MTD_CFI_AMDSTD=m
->>>> CONFIG_MTD_CFI_AMDSTD_RETRY=3
->>>> CONFIG_MTD_CFI_STAA=m
->>>> CONFIG_MTD_CFI_UTIL=m
->>>> CONFIG_MTD_RAM=m
->>>> CONFIG_MTD_ROM=m
->>>> CONFIG_MTD_ABSENT=m
->>>>
->>>> #
->>>> # Mapping drivers for chip access
->>>> #
->>>> CONFIG_MTD_COMPLEX_MAPPINGS=y
->>>> # CONFIG_MTD_PHYSMAP is not set
->>>> # CONFIG_MTD_PNC2000 is not set
->>>> CONFIG_MTD_SC520CDP=m
->>>> CONFIG_MTD_NETSC520=m
->>>> CONFIG_MTD_TS5500=m
->>>> CONFIG_MTD_SBC_GXX=m
->>>> # CONFIG_MTD_AMD76XROM is not set
->>>> # CONFIG_MTD_ICHXROM is not set
->>>> CONFIG_MTD_SCB2_FLASH=m
->>>> # CONFIG_MTD_NETtel is not set
->>>> # CONFIG_MTD_DILNETPC is not set
->>>> # CONFIG_MTD_L440GX is not set
->>>> CONFIG_MTD_PCI=m
->>>> # CONFIG_MTD_PLATRAM is not set
->>>>
->>>> #
->>>> # Self-contained MTD device drivers
->>>> #
->>>> CONFIG_MTD_PMC551=m
->>>> # CONFIG_MTD_PMC551_BUGFIX is not set
->>>> # CONFIG_MTD_PMC551_DEBUG is not set
->>>> # CONFIG_MTD_SLRAM is not set
->>>> # CONFIG_MTD_PHRAM is not set
->>>> CONFIG_MTD_MTDRAM=m
->>>> CONFIG_MTDRAM_TOTAL_SIZE=4096
->>>> CONFIG_MTDRAM_ERASE_SIZE=128
->>>> # CONFIG_MTD_BLKMTD is not set
->>>> CONFIG_MTD_BLOCK2MTD=m
->>>>
->>>> #
->>>> # Disk-On-Chip Device Drivers
->>>> #
->>>> CONFIG_MTD_DOC2000=m
->>>> # CONFIG_MTD_DOC2001 is not set
->>>> CONFIG_MTD_DOC2001PLUS=m
->>>> CONFIG_MTD_DOCPROBE=m
->>>> CONFIG_MTD_DOCECC=m
->>>> # CONFIG_MTD_DOCPROBE_ADVANCED is not set
->>>> CONFIG_MTD_DOCPROBE_ADDRESS=0
->>>>
->>>> #
->>>> # NAND Flash Device Drivers
->>>> #
->>>> CONFIG_MTD_NAND=m
->>>> # CONFIG_MTD_NAND_VERIFY_WRITE is not set
->>>> CONFIG_MTD_NAND_IDS=m
->>>> # CONFIG_MTD_NAND_DISKONCHIP is not set
->>>> # CONFIG_MTD_NAND_NANDSIM is not set
->>>>
->>>> #
->>>> # Parallel port support
->>>> #
->>>> CONFIG_PARPORT=m
->>>> CONFIG_PARPORT_PC=m
->>>> CONFIG_PARPORT_SERIAL=m
->>>> # CONFIG_PARPORT_PC_FIFO is not set
->>>> # CONFIG_PARPORT_PC_SUPERIO is not set
->>>> CONFIG_PARPORT_PC_PCMCIA=m
->>>> CONFIG_PARPORT_NOT_PC=y
->>>> # CONFIG_PARPORT_GSC is not set
->>>> CONFIG_PARPORT_1284=y
->>>>
->>>> #
->>>> # Plug and Play support
->>>> #
->>>> CONFIG_PNP=y
->>>> # CONFIG_PNP_DEBUG is not set
->>>>
->>>> #
->>>> # Protocols
->>>> #
->>>> CONFIG_PNPACPI=y
->>>>
->>>> #
->>>> # Block devices
->>>> #
->>>> CONFIG_BLK_DEV_FD=m
->>>> CONFIG_PARIDE=m
->>>> CONFIG_PARIDE_PARPORT=m
->>>>
->>>> #
->>>> # Parallel IDE high-level drivers
->>>> #
->>>> CONFIG_PARIDE_PD=m
->>>> CONFIG_PARIDE_PCD=m
->>>> CONFIG_PARIDE_PF=m
->>>> CONFIG_PARIDE_PT=m
->>>> CONFIG_PARIDE_PG=m
->>>>
->>>> #
->>>> # Parallel IDE protocol modules
->>>> #
->>>> CONFIG_PARIDE_ATEN=m
->>>> CONFIG_PARIDE_BPCK=m
->>>> CONFIG_PARIDE_COMM=m
->>>> CONFIG_PARIDE_DSTR=m
->>>> CONFIG_PARIDE_FIT2=m
->>>> CONFIG_PARIDE_FIT3=m
->>>> CONFIG_PARIDE_EPAT=m
->>>> CONFIG_PARIDE_EPATC8=y
->>>> CONFIG_PARIDE_EPIA=m
->>>> CONFIG_PARIDE_FRIQ=m
->>>> CONFIG_PARIDE_FRPW=m
->>>> CONFIG_PARIDE_KBIC=m
->>>> CONFIG_PARIDE_KTTI=m
->>>> CONFIG_PARIDE_ON20=m
->>>> CONFIG_PARIDE_ON26=m
->>>> CONFIG_BLK_CPQ_DA=m
->>>> CONFIG_BLK_CPQ_CISS_DA=m
->>>> CONFIG_CISS_SCSI_TAPE=y
->>>> CONFIG_BLK_DEV_DAC960=m
->>>> CONFIG_BLK_DEV_UMEM=m
->>>> # CONFIG_BLK_DEV_COW_COMMON is not set
->>>> CONFIG_BLK_DEV_LOOP=m
->>>> CONFIG_BLK_DEV_CRYPTOLOOP=m
->>>> CONFIG_BLK_DEV_NBD=m
->>>> CONFIG_BLK_DEV_SX8=m
->>>> # CONFIG_BLK_DEV_UB is not set
->>>> CONFIG_BLK_DEV_RAM=y
->>>> CONFIG_BLK_DEV_RAM_COUNT=16
->>>> CONFIG_BLK_DEV_RAM_SIZE=16384
->>>> CONFIG_BLK_DEV_INITRD=y
->>>> CONFIG_INITRAMFS_SOURCE=""
->>>> CONFIG_LBD=y
->>>> CONFIG_CDROM_PKTCDVD=m
->>>> CONFIG_CDROM_PKTCDVD_BUFFERS=8
->>>> # CONFIG_CDROM_PKTCDVD_WCACHE is not set
->>>>
->>>> #
->>>> # IO Schedulers
->>>> #
->>>> CONFIG_IOSCHED_NOOP=y
->>>> CONFIG_IOSCHED_AS=y
->>>> CONFIG_IOSCHED_DEADLINE=y
->>>> CONFIG_IOSCHED_CFQ=y
->>>> CONFIG_ATA_OVER_ETH=m
->>>>
->>>> #
->>>> # ATA/ATAPI/MFM/RLL support
->>>> #
->>>> CONFIG_IDE=y
->>>> CONFIG_BLK_DEV_IDE=y
->>>>
->>>> #
->>>> # Please see Documentation/ide.txt for help/info on IDE drives
->>>> #
->>>> # CONFIG_BLK_DEV_IDE_SATA is not set
->>>> # CONFIG_BLK_DEV_HD_IDE is not set
->>>> CONFIG_BLK_DEV_IDEDISK=y
->>>> CONFIG_IDEDISK_MULTI_MODE=y
->>>> CONFIG_BLK_DEV_IDECS=m
->>>> CONFIG_BLK_DEV_IDECD=y
->>>> # CONFIG_BLK_DEV_IDETAPE is not set
->>>> CONFIG_BLK_DEV_IDEFLOPPY=y
->>>> CONFIG_BLK_DEV_IDESCSI=m
->>>> # CONFIG_IDE_TASK_IOCTL is not set
->>>>
->>>> #
->>>> # IDE chipset support/bugfixes
->>>> #
->>>> CONFIG_IDE_GENERIC=y
->>>> CONFIG_BLK_DEV_CMD640=y
->>>> CONFIG_BLK_DEV_CMD640_ENHANCED=y
->>>> CONFIG_BLK_DEV_IDEPNP=y
->>>> CONFIG_BLK_DEV_IDEPCI=y
->>>> CONFIG_IDEPCI_SHARE_IRQ=y
->>>> # CONFIG_BLK_DEV_OFFBOARD is not set
->>>> CONFIG_BLK_DEV_GENERIC=y
->>>> # CONFIG_BLK_DEV_OPTI621 is not set
->>>> CONFIG_BLK_DEV_RZ1000=y
->>>> CONFIG_BLK_DEV_IDEDMA_PCI=y
->>>> # CONFIG_BLK_DEV_IDEDMA_FORCED is not set
->>>> CONFIG_IDEDMA_PCI_AUTO=y
->>>> # CONFIG_IDEDMA_ONLYDISK is not set
->>>> CONFIG_BLK_DEV_AEC62XX=y
->>>> CONFIG_BLK_DEV_ALI15X3=y
->>>> # CONFIG_WDC_ALI15X3 is not set
->>>> CONFIG_BLK_DEV_AMD74XX=y
->>>> CONFIG_BLK_DEV_ATIIXP=y
->>>> CONFIG_BLK_DEV_CMD64X=y
->>>> CONFIG_BLK_DEV_TRIFLEX=y
->>>> CONFIG_BLK_DEV_CY82C693=y
->>>> CONFIG_BLK_DEV_CS5520=y
->>>> CONFIG_BLK_DEV_CS5530=y
->>>> CONFIG_BLK_DEV_HPT34X=y
->>>> # CONFIG_HPT34X_AUTODMA is not set
->>>> CONFIG_BLK_DEV_HPT366=y
->>>> # CONFIG_BLK_DEV_SC1200 is not set
->>>> CONFIG_BLK_DEV_PIIX=y
->>>> CONFIG_BLK_DEV_IT821X=y
->>>> # CONFIG_BLK_DEV_NS87415 is not set
->>>> CONFIG_BLK_DEV_PDC202XX_OLD=y
->>>> # CONFIG_PDC202XX_BURST is not set
->>>> CONFIG_BLK_DEV_PDC202XX_NEW=y
->>>> CONFIG_PDC202XX_FORCE=y
->>>> CONFIG_BLK_DEV_SVWKS=y
->>>> CONFIG_BLK_DEV_SIIMAGE=y
->>>> CONFIG_BLK_DEV_SIS5513=y
->>>> CONFIG_BLK_DEV_SLC90E66=y
->>>> # CONFIG_BLK_DEV_TRM290 is not set
->>>> CONFIG_BLK_DEV_VIA82CXXX=y
->>>> # CONFIG_IDE_ARM is not set
->>>> CONFIG_BLK_DEV_IDEDMA=y
->>>> # CONFIG_IDEDMA_IVB is not set
->>>> CONFIG_IDEDMA_AUTO=y
->>>> # CONFIG_BLK_DEV_HD is not set
->>>>
->>>> #
->>>> # SCSI device support
->>>> #
->>>> CONFIG_SCSI=m
->>>> CONFIG_SCSI_PROC_FS=y
->>>>
->>>> #
->>>> # SCSI support type (disk, tape, CD-ROM)
->>>> #
->>>> CONFIG_BLK_DEV_SD=m
->>>> CONFIG_CHR_DEV_ST=m
->>>> CONFIG_CHR_DEV_OSST=m
->>>> CONFIG_BLK_DEV_SR=m
->>>> CONFIG_BLK_DEV_SR_VENDOR=y
->>>> CONFIG_CHR_DEV_SG=m
->>>> # CONFIG_CHR_DEV_SCH is not set
->>>>
->>>> #
->>>> # Some SCSI devices (e.g. CD jukebox) support multiple LUNs
->>>> #
->>>> CONFIG_SCSI_MULTI_LUN=y
->>>> CONFIG_SCSI_CONSTANTS=y
->>>> CONFIG_SCSI_LOGGING=y
->>>>
->>>> #
->>>> # SCSI Transport Attributes
->>>> #
->>>> CONFIG_SCSI_SPI_ATTRS=m
->>>> CONFIG_SCSI_FC_ATTRS=m
->>>> CONFIG_SCSI_ISCSI_ATTRS=m
->>>>
->>>> #
->>>> # SCSI low-level drivers
->>>> #
->>>> CONFIG_BLK_DEV_3W_XXXX_RAID=m
->>>> CONFIG_SCSI_3W_9XXX=m
->>>> CONFIG_SCSI_ACARD=m
->>>> CONFIG_SCSI_AACRAID=m
->>>> CONFIG_SCSI_AIC7XXX=m
->>>> CONFIG_AIC7XXX_CMDS_PER_DEVICE=4
->>>> CONFIG_AIC7XXX_RESET_DELAY_MS=15000
->>>> # CONFIG_AIC7XXX_DEBUG_ENABLE is not set
->>>> CONFIG_AIC7XXX_DEBUG_MASK=0
->>>> # CONFIG_AIC7XXX_REG_PRETTY_PRINT is not set
->>>> CONFIG_SCSI_AIC7XXX_OLD=m
->>>> CONFIG_SCSI_AIC79XX=m
->>>> CONFIG_AIC79XX_CMDS_PER_DEVICE=4
->>>> CONFIG_AIC79XX_RESET_DELAY_MS=15000
->>>> # CONFIG_AIC79XX_ENABLE_RD_STRM is not set
->>>> # CONFIG_AIC79XX_DEBUG_ENABLE is not set
->>>> CONFIG_AIC79XX_DEBUG_MASK=0
->>>> # CONFIG_AIC79XX_REG_PRETTY_PRINT is not set
->>>> CONFIG_MEGARAID_NEWGEN=y
->>>> CONFIG_MEGARAID_MM=m
->>>> CONFIG_MEGARAID_MAILBOX=m
->>>> CONFIG_SCSI_SATA=m
->>>> CONFIG_SCSI_SATA_AHCI=m
->>>> CONFIG_SCSI_SATA_SVW=m
->>>> CONFIG_SCSI_ATA_PIIX=m
->>>> CONFIG_SCSI_SATA_NV=m
->>>> CONFIG_SCSI_SATA_PROMISE=m
->>>> CONFIG_SCSI_SATA_QSTOR=m
->>>> CONFIG_SCSI_SATA_SX4=m
->>>> CONFIG_SCSI_SATA_SIL=m
->>>> CONFIG_SCSI_SATA_SIS=m
->>>> CONFIG_SCSI_SATA_ULI=m
->>>> CONFIG_SCSI_SATA_VIA=m
->>>> CONFIG_SCSI_SATA_VITESSE=m
->>>> CONFIG_SCSI_BUSLOGIC=m
->>>> # CONFIG_SCSI_OMIT_FLASHPOINT is not set
->>>> # CONFIG_SCSI_DMX3191D is not set
->>>> # CONFIG_SCSI_EATA is not set
->>>> # CONFIG_SCSI_FUTURE_DOMAIN is not set
->>>> CONFIG_SCSI_GDTH=m
->>>> CONFIG_SCSI_IPS=m
->>>> CONFIG_SCSI_INITIO=m
->>>> CONFIG_SCSI_INIA100=m
->>>> CONFIG_SCSI_PPA=m
->>>> CONFIG_SCSI_IMM=m
->>>> # CONFIG_SCSI_IZIP_EPP16 is not set
->>>> # CONFIG_SCSI_IZIP_SLOW_CTR is not set
->>>> CONFIG_SCSI_SYM53C8XX_2=m
->>>> CONFIG_SCSI_SYM53C8XX_DMA_ADDRESSING_MODE=1
->>>> CONFIG_SCSI_SYM53C8XX_DEFAULT_TAGS=16
->>>> CONFIG_SCSI_SYM53C8XX_MAX_TAGS=64
->>>> # CONFIG_SCSI_SYM53C8XX_IOMAPPED is not set
->>>> # CONFIG_SCSI_IPR is not set
->>>> # CONFIG_SCSI_QLOGIC_FC is not set
->>>> CONFIG_SCSI_QLOGIC_1280=m
->>>> CONFIG_SCSI_QLOGIC_1280_1040=y
->>>> CONFIG_SCSI_QLA2XXX=m
->>>> CONFIG_SCSI_QLA21XX=m
->>>> CONFIG_SCSI_QLA22XX=m
->>>> CONFIG_SCSI_QLA2300=m
->>>> CONFIG_SCSI_QLA2322=m
->>>> CONFIG_SCSI_QLA6312=m
->>>> # CONFIG_SCSI_QLA24XX is not set
->>>> CONFIG_SCSI_LPFC=m
->>>> CONFIG_SCSI_DC395x=m
->>>> CONFIG_SCSI_DC390T=m
->>>> # CONFIG_SCSI_DEBUG is not set
->>>>
->>>> #
->>>> # PCMCIA SCSI adapter support
->>>> #
->>>> # CONFIG_PCMCIA_FDOMAIN is not set
->>>> CONFIG_PCMCIA_QLOGIC=m
->>>> CONFIG_PCMCIA_SYM53C500=m
->>>>
->>>> #
->>>> # Multi-device support (RAID and LVM)
->>>> #
->>>> CONFIG_MD=y
->>>> CONFIG_BLK_DEV_MD=y
->>>> CONFIG_MD_LINEAR=m
->>>> CONFIG_MD_RAID0=m
->>>> CONFIG_MD_RAID1=m
->>>> CONFIG_MD_RAID10=m
->>>> CONFIG_MD_RAID5=m
->>>> CONFIG_MD_RAID6=m
->>>> CONFIG_MD_MULTIPATH=m
->>>> CONFIG_MD_FAULTY=m
->>>> CONFIG_BLK_DEV_DM=m
->>>> CONFIG_DM_CRYPT=m
->>>> CONFIG_DM_SNAPSHOT=m
->>>> CONFIG_DM_MIRROR=m
->>>> CONFIG_DM_ZERO=m
->>>> CONFIG_DM_MULTIPATH=m
->>>> CONFIG_DM_MULTIPATH_EMC=m
->>>>
->>>> #
->>>> # Fusion MPT device support
->>>> #
->>>> # CONFIG_FUSION is not set
->>>> # CONFIG_FUSION_SPI is not set
->>>> # CONFIG_FUSION_FC is not set
->>>>
->>>> #
->>>> # IEEE 1394 (FireWire) support
->>>> #
->>>> CONFIG_IEEE1394=m
->>>>
->>>> #
->>>> # Subsystem Options
->>>> #
->>>> # CONFIG_IEEE1394_VERBOSEDEBUG is not set
->>>> CONFIG_IEEE1394_OUI_DB=y
->>>> CONFIG_IEEE1394_EXTRA_CONFIG_ROMS=y
->>>> CONFIG_IEEE1394_CONFIG_ROM_IP1394=y
->>>> # CONFIG_IEEE1394_EXPORT_FULL_API is not set
->>>>
->>>> #
->>>> # Device Drivers
->>>> #
->>>> CONFIG_IEEE1394_PCILYNX=m
->>>> CONFIG_IEEE1394_OHCI1394=m
->>>>
->>>> #
->>>> # Protocol Drivers
->>>> #
->>>> CONFIG_IEEE1394_VIDEO1394=m
->>>> CONFIG_IEEE1394_SBP2=m
->>>> # CONFIG_IEEE1394_SBP2_PHYS_DMA is not set
->>>> CONFIG_IEEE1394_ETH1394=m
->>>> CONFIG_IEEE1394_DV1394=m
->>>> CONFIG_IEEE1394_RAWIO=m
->>>> CONFIG_IEEE1394_CMP=m
->>>> CONFIG_IEEE1394_AMDTP=m
->>>>
->>>> #
->>>> # I2O device support
->>>> #
->>>> CONFIG_I2O=m
->>>> CONFIG_I2O_EXT_ADAPTEC=y
->>>> CONFIG_I2O_EXT_ADAPTEC_DMA64=y
->>>> CONFIG_I2O_CONFIG=m
->>>> CONFIG_I2O_CONFIG_OLD_IOCTL=y
->>>> # CONFIG_I2O_BUS is not set
->>>> CONFIG_I2O_BLOCK=m
->>>> CONFIG_I2O_SCSI=m
->>>> CONFIG_I2O_PROC=m
->>>>
->>>> #
->>>> # Network device support
->>>> #
->>>> CONFIG_NETDEVICES=y
->>>> CONFIG_DUMMY=m
->>>> CONFIG_BONDING=m
->>>> CONFIG_EQUALIZER=m
->>>> CONFIG_TUN=m
->>>> CONFIG_NET_SB1000=m
->>>>
->>>> #
->>>> # ARCnet devices
->>>> #
->>>> # CONFIG_ARCNET is not set
->>>>
->>>> #
->>>> # Ethernet (10 or 100Mbit)
->>>> #
->>>> CONFIG_NET_ETHERNET=y
->>>> CONFIG_MII=m
->>>> CONFIG_HAPPYMEAL=m
->>>> CONFIG_SUNGEM=m
->>>> CONFIG_NET_VENDOR_3COM=y
->>>> CONFIG_VORTEX=m
->>>> CONFIG_TYPHOON=m
->>>>
->>>> #
->>>> # Tulip family network device support
->>>> #
->>>> CONFIG_NET_TULIP=y
->>>> CONFIG_DE2104X=m
->>>> CONFIG_TULIP=m
->>>> # CONFIG_TULIP_MWI is not set
->>>> CONFIG_TULIP_MMIO=y
->>>> # CONFIG_TULIP_NAPI is not set
->>>> CONFIG_DE4X5=m
->>>> CONFIG_WINBOND_840=m
->>>> CONFIG_DM9102=m
->>>> CONFIG_PCMCIA_XIRCOM=m
->>>> # CONFIG_PCMCIA_XIRTULIP is not set
->>>> # CONFIG_HP100 is not set
->>>> CONFIG_NET_PCI=y
->>>> CONFIG_PCNET32=m
->>>> CONFIG_AMD8111_ETH=m
->>>> CONFIG_AMD8111E_NAPI=y
->>>> CONFIG_ADAPTEC_STARFIRE=m
->>>> CONFIG_ADAPTEC_STARFIRE_NAPI=y
->>>> CONFIG_B44=m
->>>> CONFIG_FORCEDETH=m
->>>> CONFIG_DGRS=m
->>>> CONFIG_EEPRO100=m
->>>> CONFIG_E100=m
->>>> CONFIG_FEALNX=m
->>>> CONFIG_NATSEMI=m
->>>> CONFIG_NE2K_PCI=m
->>>> CONFIG_8139CP=m
->>>> CONFIG_8139TOO=m
->>>> CONFIG_8139TOO_PIO=y
->>>> # CONFIG_8139TOO_TUNE_TWISTER is not set
->>>> CONFIG_8139TOO_8129=y
->>>> # CONFIG_8139_OLD_RX_RESET is not set
->>>> CONFIG_SIS900=m
->>>> CONFIG_EPIC100=m
->>>> CONFIG_SUNDANCE=m
->>>> # CONFIG_SUNDANCE_MMIO is not set
->>>> CONFIG_VIA_RHINE=m
->>>> CONFIG_VIA_RHINE_MMIO=y
->>>>
->>>> #
->>>> # Ethernet (1000 Mbit)
->>>> #
->>>> CONFIG_ACENIC=m
->>>> # CONFIG_ACENIC_OMIT_TIGON_I is not set
->>>> CONFIG_DL2K=m
->>>> CONFIG_E1000=m
->>>> CONFIG_E1000_NAPI=y
->>>> CONFIG_NS83820=m
->>>> CONFIG_HAMACHI=m
->>>> CONFIG_YELLOWFIN=m
->>>> CONFIG_R8169=m
->>>> CONFIG_R8169_NAPI=y
->>>> CONFIG_R8169_VLAN=y
->>>> # CONFIG_SKGE is not set
->>>> CONFIG_SK98LIN=m
->>>> CONFIG_VIA_VELOCITY=m
->>>> CONFIG_TIGON3=m
->>>> CONFIG_BNX2=m
->>>>
->>>> #
->>>> # Ethernet (10000 Mbit)
->>>> #
->>>> CONFIG_IXGB=m
->>>> CONFIG_IXGB_NAPI=y
->>>> CONFIG_S2IO=m
->>>> CONFIG_S2IO_NAPI=y
->>>> # CONFIG_2BUFF_MODE is not set
->>>>
->>>> #
->>>> # Token Ring devices
->>>> #
->>>> CONFIG_TR=y
->>>> CONFIG_IBMOL=m
->>>> CONFIG_3C359=m
->>>> CONFIG_TMS380TR=m
->>>> CONFIG_TMSPCI=m
->>>> CONFIG_ABYSS=m
->>>>
->>>> #
->>>> # Wireless LAN (non-hamradio)
->>>> #
->>>> CONFIG_NET_RADIO=y
->>>>
->>>> #
->>>> # Obsolete Wireless cards support (pre-802.11)
->>>> #
->>>> # CONFIG_STRIP is not set
->>>> CONFIG_PCMCIA_WAVELAN=m
->>>> CONFIG_PCMCIA_NETWAVE=m
->>>>
->>>> #
->>>> # Wireless 802.11 Frequency Hopping cards support
->>>> #
->>>> # CONFIG_PCMCIA_RAYCS is not set
->>>>
->>>> #
->>>> # Wireless 802.11b ISA/PCI cards support
->>>> #
->>>> CONFIG_HERMES=m
->>>> CONFIG_PLX_HERMES=m
->>>> CONFIG_TMD_HERMES=m
->>>> CONFIG_PCI_HERMES=m
->>>> CONFIG_ATMEL=m
->>>> CONFIG_PCI_ATMEL=m
->>>>
->>>> #
->>>> # Wireless 802.11b Pcmcia/Cardbus cards support
->>>> #
->>>> CONFIG_PCMCIA_HERMES=m
->>>> CONFIG_AIRO_CS=m
->>>> CONFIG_PCMCIA_ATMEL=m
->>>> CONFIG_PCMCIA_WL3501=m
->>>>
->>>> #
->>>> # Prism GT/Duette 802.11(a/b/g) PCI/Cardbus support
->>>> #
->>>> CONFIG_PRISM54=m
->>>> CONFIG_NET_WIRELESS=y
->>>>
->>>> #
->>>> # PCMCIA network device support
->>>> #
->>>> CONFIG_NET_PCMCIA=y
->>>> CONFIG_PCMCIA_3C589=m
->>>> CONFIG_PCMCIA_3C574=m
->>>> CONFIG_PCMCIA_FMVJ18X=m
->>>> CONFIG_PCMCIA_PCNET=m
->>>> CONFIG_PCMCIA_NMCLAN=m
->>>> CONFIG_PCMCIA_SMC91C92=m
->>>> CONFIG_PCMCIA_XIRC2PS=m
->>>> CONFIG_PCMCIA_AXNET=m
->>>>
->>>> #
->>>> # Wan interfaces
->>>> #
->>>> # CONFIG_WAN is not set
->>>>
->>>> #
->>>> # ATM drivers
->>>> #
->>>> CONFIG_ATM_TCP=m
->>>> CONFIG_ATM_LANAI=m
->>>> CONFIG_ATM_ENI=m
->>>> # CONFIG_ATM_ENI_DEBUG is not set
->>>> # CONFIG_ATM_ENI_TUNE_BURST is not set
->>>> CONFIG_ATM_FIRESTREAM=m
->>>> # CONFIG_ATM_ZATM is not set
->>>> CONFIG_ATM_IDT77252=m
->>>> # CONFIG_ATM_IDT77252_DEBUG is not set
->>>> # CONFIG_ATM_IDT77252_RCV_ALL is not set
->>>> CONFIG_ATM_IDT77252_USE_SUNI=y
->>>> CONFIG_ATM_AMBASSADOR=m
->>>> # CONFIG_ATM_AMBASSADOR_DEBUG is not set
->>>> CONFIG_ATM_HORIZON=m
->>>> # CONFIG_ATM_HORIZON_DEBUG is not set
->>>> CONFIG_ATM_FORE200E_MAYBE=m
->>>> # CONFIG_ATM_FORE200E_PCA is not set
->>>> CONFIG_ATM_HE=m
->>>> # CONFIG_ATM_HE_USE_SUNI is not set
->>>> CONFIG_FDDI=y
->>>> # CONFIG_DEFXX is not set
->>>> CONFIG_SKFP=m
->>>> # CONFIG_HIPPI is not set
->>>> CONFIG_PLIP=m
->>>> CONFIG_PPP=m
->>>> CONFIG_PPP_MULTILINK=y
->>>> CONFIG_PPP_FILTER=y
->>>> CONFIG_PPP_ASYNC=m
->>>> CONFIG_PPP_SYNC_TTY=m
->>>> CONFIG_PPP_DEFLATE=m
->>>> # CONFIG_PPP_BSDCOMP is not set
->>>> CONFIG_PPPOE=m
->>>> CONFIG_PPPOATM=m
->>>> CONFIG_SLIP=m
->>>> CONFIG_SLIP_COMPRESSED=y
->>>> CONFIG_SLIP_SMART=y
->>>> # CONFIG_SLIP_MODE_SLIP6 is not set
->>>> CONFIG_NET_FC=y
->>>> # CONFIG_SHAPER is not set
->>>> CONFIG_NETCONSOLE=m
->>>> CONFIG_NETPOLL=y
->>>> # CONFIG_NETPOLL_RX is not set
->>>> CONFIG_NETPOLL_TRAP=y
->>>> CONFIG_NET_POLL_CONTROLLER=y
->>>>
->>>> #
->>>> # ISDN subsystem
->>>> #
->>>> # CONFIG_ISDN is not set
->>>>
->>>> #
->>>> # Telephony Support
->>>> #
->>>> # CONFIG_PHONE is not set
->>>>
->>>> #
->>>> # Input device support
->>>> #
->>>> CONFIG_INPUT=y
->>>>
->>>> #
->>>> # Userland interfaces
->>>> #
->>>> CONFIG_INPUT_MOUSEDEV=y
->>>> # CONFIG_INPUT_MOUSEDEV_PSAUX is not set
->>>> CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
->>>> CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
->>>> CONFIG_INPUT_JOYDEV=m
->>>> # CONFIG_INPUT_TSDEV is not set
->>>> CONFIG_INPUT_EVDEV=y
->>>> # CONFIG_INPUT_EVBUG is not set
->>>>
->>>> #
->>>> # Input Device Drivers
->>>> #
->>>> CONFIG_INPUT_KEYBOARD=y
->>>> CONFIG_KEYBOARD_ATKBD=y
->>>> # CONFIG_KEYBOARD_SUNKBD is not set
->>>> # CONFIG_KEYBOARD_LKKBD is not set
->>>> # CONFIG_KEYBOARD_XTKBD is not set
->>>> # CONFIG_KEYBOARD_NEWTON is not set
->>>> CONFIG_INPUT_MOUSE=y
->>>> CONFIG_MOUSE_PS2=y
->>>> CONFIG_MOUSE_SERIAL=m
->>>> CONFIG_MOUSE_VSXXXAA=m
->>>> CONFIG_INPUT_JOYSTICK=y
->>>> CONFIG_JOYSTICK_ANALOG=m
->>>> CONFIG_JOYSTICK_A3D=m
->>>> CONFIG_JOYSTICK_ADI=m
->>>> CONFIG_JOYSTICK_COBRA=m
->>>> CONFIG_JOYSTICK_GF2K=m
->>>> CONFIG_JOYSTICK_GRIP=m
->>>> CONFIG_JOYSTICK_GRIP_MP=m
->>>> CONFIG_JOYSTICK_GUILLEMOT=m
->>>> CONFIG_JOYSTICK_INTERACT=m
->>>> CONFIG_JOYSTICK_SIDEWINDER=m
->>>> CONFIG_JOYSTICK_TMDC=m
->>>> CONFIG_JOYSTICK_IFORCE=m
->>>> CONFIG_JOYSTICK_IFORCE_USB=y
->>>> CONFIG_JOYSTICK_IFORCE_232=y
->>>> CONFIG_JOYSTICK_WARRIOR=m
->>>> CONFIG_JOYSTICK_MAGELLAN=m
->>>> CONFIG_JOYSTICK_SPACEORB=m
->>>> CONFIG_JOYSTICK_SPACEBALL=m
->>>> CONFIG_JOYSTICK_STINGER=m
->>>> CONFIG_JOYSTICK_TWIDJOY=m
->>>> CONFIG_JOYSTICK_DB9=m
->>>> CONFIG_JOYSTICK_GAMECON=m
->>>> CONFIG_JOYSTICK_TURBOGRAFX=m
->>>> CONFIG_JOYSTICK_JOYDUMP=m
->>>> CONFIG_INPUT_TOUCHSCREEN=y
->>>> CONFIG_TOUCHSCREEN_GUNZE=m
->>>> CONFIG_TOUCHSCREEN_ELO=m
->>>> CONFIG_TOUCHSCREEN_MTOUCH=m
->>>> CONFIG_TOUCHSCREEN_MK712=m
->>>> CONFIG_INPUT_MISC=y
->>>> CONFIG_INPUT_PCSPKR=m
->>>> CONFIG_INPUT_UINPUT=m
->>>>
->>>> #
->>>> # Hardware I/O ports
->>>> #
->>>> CONFIG_SERIO=y
->>>> CONFIG_SERIO_I8042=y
->>>> CONFIG_SERIO_SERPORT=y
->>>> # CONFIG_SERIO_CT82C710 is not set
->>>> # CONFIG_SERIO_PARKBD is not set
->>>> # CONFIG_SERIO_PCIPS2 is not set
->>>> CONFIG_SERIO_LIBPS2=y
->>>> # CONFIG_SERIO_RAW is not set
->>>> CONFIG_GAMEPORT=m
->>>> CONFIG_GAMEPORT_NS558=m
->>>> CONFIG_GAMEPORT_L4=m
->>>> CONFIG_GAMEPORT_EMU10K1=m
->>>> CONFIG_GAMEPORT_FM801=m
->>>>
->>>> #
->>>> # Character devices
->>>> #
->>>> CONFIG_VT=y
->>>> CONFIG_VT_CONSOLE=y
->>>> CONFIG_HW_CONSOLE=y
->>>> CONFIG_SERIAL_NONSTANDARD=y
->>>> # CONFIG_COMPUTONE is not set
->>>> CONFIG_ROCKETPORT=m
->>>> # CONFIG_CYCLADES is not set
->>>> # CONFIG_MOXA_INTELLIO is not set
->>>> # CONFIG_MOXA_SMARTIO is not set
->>>> # CONFIG_ISI is not set
->>>> # CONFIG_SYNCLINK is not set
->>>> # CONFIG_SYNCLINKMP is not set
->>>> CONFIG_N_HDLC=m
->>>> # CONFIG_RISCOM8 is not set
->>>> # CONFIG_SPECIALIX is not set
->>>> # CONFIG_SX is not set
->>>> # CONFIG_RIO is not set
->>>> CONFIG_STALDRV=y
->>>> # CONFIG_STALLION is not set
->>>> # CONFIG_ISTALLION is not set
->>>>
->>>> #
->>>> # Serial drivers
->>>> #
->>>> CONFIG_SERIAL_8250=y
->>>> CONFIG_SERIAL_8250_CONSOLE=y
->>>> CONFIG_SERIAL_8250_CS=m
->>>> # CONFIG_SERIAL_8250_ACPI is not set
->>>> CONFIG_SERIAL_8250_NR_UARTS=32
->>>> CONFIG_SERIAL_8250_EXTENDED=y
->>>> CONFIG_SERIAL_8250_MANY_PORTS=y
->>>> CONFIG_SERIAL_8250_SHARE_IRQ=y
->>>> CONFIG_SERIAL_8250_DETECT_IRQ=y
->>>> CONFIG_SERIAL_8250_RSA=y
->>>>
->>>> #
->>>> # Non-8250 serial port support
->>>> #
->>>> CONFIG_SERIAL_CORE=y
->>>> CONFIG_SERIAL_CORE_CONSOLE=y
->>>> # CONFIG_SERIAL_JSM is not set
->>>> CONFIG_UNIX98_PTYS=y
->>>> # CONFIG_LEGACY_PTYS is not set
->>>> CONFIG_PRINTER=m
->>>> CONFIG_LP_CONSOLE=y
->>>> CONFIG_PPDEV=m
->>>> CONFIG_TIPAR=m
->>>>
->>>> #
->>>> # IPMI
->>>> #
->>>> CONFIG_IPMI_HANDLER=m
->>>> # CONFIG_IPMI_PANIC_EVENT is not set
->>>> CONFIG_IPMI_DEVICE_INTERFACE=m
->>>> CONFIG_IPMI_SI=m
->>>> CONFIG_IPMI_WATCHDOG=m
->>>> CONFIG_IPMI_POWEROFF=m
->>>>
->>>> #
->>>> # Watchdog Cards
->>>> #
->>>> CONFIG_WATCHDOG=y
->>>> # CONFIG_WATCHDOG_NOWAYOUT is not set
->>>>
->>>> #
->>>> # Watchdog Device Drivers
->>>> #
->>>> CONFIG_SOFT_WATCHDOG=m
->>>> CONFIG_ACQUIRE_WDT=m
->>>> CONFIG_ADVANTECH_WDT=m
->>>> CONFIG_ALIM1535_WDT=m
->>>> CONFIG_ALIM7101_WDT=m
->>>> CONFIG_SC520_WDT=m
->>>> CONFIG_EUROTECH_WDT=m
->>>> CONFIG_IB700_WDT=m
->>>> CONFIG_WAFER_WDT=m
->>>> CONFIG_I8XX_TCO=m
->>>> CONFIG_SC1200_WDT=m
->>>> # CONFIG_60XX_WDT is not set
->>>> CONFIG_CPU5_WDT=m
->>>> CONFIG_W83627HF_WDT=m
->>>> CONFIG_W83877F_WDT=m
->>>> CONFIG_MACHZ_WDT=m
->>>>
->>>> #
->>>> # PCI-based Watchdog Cards
->>>> #
->>>> CONFIG_PCIPCWATCHDOG=m
->>>> CONFIG_WDTPCI=m
->>>> CONFIG_WDT_501_PCI=y
->>>>
->>>> #
->>>> # USB-based Watchdog Cards
->>>> #
->>>> CONFIG_USBPCWATCHDOG=m
->>>> CONFIG_HW_RANDOM=m
->>>> # CONFIG_NVRAM is not set
->>>> CONFIG_RTC=y
->>>> CONFIG_DTLK=m
->>>> CONFIG_R3964=m
->>>> # CONFIG_APPLICOM is not set
->>>>
->>>> #
->>>> # Ftape, the floppy tape device driver
->>>> #
->>>> # CONFIG_FTAPE is not set
->>>> CONFIG_AGP=y
->>>> CONFIG_AGP_AMD64=y
->>>> CONFIG_AGP_INTEL=y
->>>> CONFIG_DRM=m
->>>> CONFIG_DRM_TDFX=m
->>>> CONFIG_DRM_R128=m
->>>> CONFIG_DRM_RADEON=m
->>>> CONFIG_DRM_I810=m
->>>> CONFIG_DRM_I830=m
->>>> CONFIG_DRM_I915=m
->>>> CONFIG_DRM_MGA=m
->>>> CONFIG_DRM_SIS=m
->>>> # CONFIG_DRM_VIA is not set
->>>>
->>>> #
->>>> # PCMCIA character devices
->>>> #
->>>> # CONFIG_SYNCLINK_CS is not set
->>>> CONFIG_MWAVE=m
->>>> # CONFIG_RAW_DRIVER is not set
->>>> CONFIG_HPET=y
->>>> # CONFIG_HPET_RTC_IRQ is not set
->>>> # CONFIG_HPET_MMAP is not set
->>>> CONFIG_HANGCHECK_TIMER=m
->>>>
->>>> #
->>>> # TPM devices
->>>> #
->>>> # CONFIG_TCG_TPM is not set
->>>>
->>>> #
->>>> # I2C support
->>>> #
->>>> CONFIG_I2C=m
->>>> CONFIG_I2C_CHARDEV=m
->>>>
->>>> #
->>>> # I2C Algorithms
->>>> #
->>>> CONFIG_I2C_ALGOBIT=m
->>>> CONFIG_I2C_ALGOPCF=m
->>>> CONFIG_I2C_ALGOPCA=m
->>>>
->>>> #
->>>> # I2C Hardware Bus support
->>>> #
->>>> # CONFIG_I2C_ALI1535 is not set
->>>> # CONFIG_I2C_ALI1563 is not set
->>>> # CONFIG_I2C_ALI15X3 is not set
->>>> CONFIG_I2C_AMD756=m
->>>> CONFIG_I2C_AMD756_S4882=m
->>>> CONFIG_I2C_AMD8111=m
->>>> # CONFIG_I2C_I801 is not set
->>>> # CONFIG_I2C_I810 is not set
->>>> # CONFIG_I2C_PIIX4 is not set
->>>> CONFIG_I2C_ISA=m
->>>> CONFIG_I2C_NFORCE2=m
->>>> # CONFIG_I2C_PARPORT is not set
->>>> # CONFIG_I2C_PARPORT_LIGHT is not set
->>>> CONFIG_I2C_PROSAVAGE=m
->>>> CONFIG_I2C_SAVAGE4=m
->>>> # CONFIG_SCx200_ACB is not set
->>>> # CONFIG_I2C_SIS5595 is not set
->>>> # CONFIG_I2C_SIS630 is not set
->>>> CONFIG_I2C_SIS96X=m
->>>> CONFIG_I2C_STUB=m
->>>> CONFIG_I2C_VIA=m
->>>> CONFIG_I2C_VIAPRO=m
->>>> CONFIG_I2C_VOODOO3=m
->>>> CONFIG_I2C_PCA_ISA=m
->>>> CONFIG_I2C_SENSOR=m
->>>>
->>>> #
->>>> # Miscellaneous I2C Chip support
->>>> #
->>>> CONFIG_SENSORS_DS1337=m
->>>> # CONFIG_SENSORS_DS1374 is not set
->>>> CONFIG_SENSORS_EEPROM=m
->>>> CONFIG_SENSORS_PCF8574=m
->>>> # CONFIG_SENSORS_PCA9539 is not set
->>>> CONFIG_SENSORS_PCF8591=m
->>>> CONFIG_SENSORS_RTC8564=m
->>>> # CONFIG_SENSORS_MAX6875 is not set
->>>> # CONFIG_I2C_DEBUG_CORE is not set
->>>> # CONFIG_I2C_DEBUG_ALGO is not set
->>>> # CONFIG_I2C_DEBUG_BUS is not set
->>>> # CONFIG_I2C_DEBUG_CHIP is not set
->>>>
->>>> #
->>>> # Dallas's 1-wire bus
->>>> #
->>>> CONFIG_W1=m
->>>> CONFIG_W1_MATROX=m
->>>> CONFIG_W1_DS9490=m
->>>> CONFIG_W1_DS9490_BRIDGE=m
->>>> CONFIG_W1_THERM=m
->>>> CONFIG_W1_SMEM=m
->>>>
->>>> #
->>>> # Hardware Monitoring support
->>>> #
->>>> CONFIG_HWMON=y
->>>> CONFIG_SENSORS_ADM1021=m
->>>> CONFIG_SENSORS_ADM1025=m
->>>> CONFIG_SENSORS_ADM1026=m
->>>> CONFIG_SENSORS_ADM1031=m
->>>> CONFIG_SENSORS_ADM9240=m
->>>> CONFIG_SENSORS_ASB100=m
->>>> CONFIG_SENSORS_ATXP1=m
->>>> CONFIG_SENSORS_DS1621=m
->>>> CONFIG_SENSORS_FSCHER=m
->>>> CONFIG_SENSORS_FSCPOS=m
->>>> CONFIG_SENSORS_GL518SM=m
->>>> CONFIG_SENSORS_GL520SM=m
->>>> CONFIG_SENSORS_IT87=m
->>>> CONFIG_SENSORS_LM63=m
->>>> CONFIG_SENSORS_LM75=m
->>>> CONFIG_SENSORS_LM77=m
->>>> CONFIG_SENSORS_LM78=m
->>>> CONFIG_SENSORS_LM80=m
->>>> CONFIG_SENSORS_LM83=m
->>>> CONFIG_SENSORS_LM85=m
->>>> CONFIG_SENSORS_LM87=m
->>>> CONFIG_SENSORS_LM90=m
->>>> CONFIG_SENSORS_LM92=m
->>>> CONFIG_SENSORS_MAX1619=m
->>>> CONFIG_SENSORS_PC87360=m
->>>> CONFIG_SENSORS_SIS5595=m
->>>> CONFIG_SENSORS_SMSC47M1=m
->>>> CONFIG_SENSORS_SMSC47B397=m
->>>> CONFIG_SENSORS_VIA686A=m
->>>> CONFIG_SENSORS_W83781D=m
->>>> CONFIG_SENSORS_W83L785TS=m
->>>> CONFIG_SENSORS_W83627HF=m
->>>> CONFIG_SENSORS_W83627EHF=m
->>>> # CONFIG_HWMON_DEBUG_CHIP is not set
->>>>
->>>> #
->>>> # Misc devices
->>>> #
->>>> # CONFIG_IBM_ASM is not set
->>>>
->>>> #
->>>> # Multimedia devices
->>>> #
->>>> CONFIG_VIDEO_DEV=m
->>>>
->>>> #
->>>> # Video For Linux
->>>> #
->>>>
->>>> #
->>>> # Video Adapters
->>>> #
->>>> CONFIG_VIDEO_BT848=m
->>>> CONFIG_VIDEO_BWQCAM=m
->>>> CONFIG_VIDEO_CQCAM=m
->>>> CONFIG_VIDEO_W9966=m
->>>> CONFIG_VIDEO_CPIA=m
->>>> CONFIG_VIDEO_CPIA_PP=m
->>>> CONFIG_VIDEO_CPIA_USB=m
->>>> CONFIG_VIDEO_SAA5246A=m
->>>> CONFIG_VIDEO_SAA5249=m
->>>> CONFIG_TUNER_3036=m
->>>> CONFIG_VIDEO_STRADIS=m
->>>> CONFIG_VIDEO_ZORAN=m
->>>> CONFIG_VIDEO_ZORAN_BUZ=m
->>>> CONFIG_VIDEO_ZORAN_DC10=m
->>>> CONFIG_VIDEO_ZORAN_DC30=m
->>>> CONFIG_VIDEO_ZORAN_LML33=m
->>>> CONFIG_VIDEO_ZORAN_LML33R10=m
->>>> CONFIG_VIDEO_SAA7134=m
->>>> CONFIG_VIDEO_SAA7134_DVB=m
->>>> CONFIG_VIDEO_MXB=m
->>>> CONFIG_VIDEO_DPC=m
->>>> CONFIG_VIDEO_HEXIUM_ORION=m
->>>> CONFIG_VIDEO_HEXIUM_GEMINI=m
->>>> CONFIG_VIDEO_CX88=m
->>>> CONFIG_VIDEO_CX88_DVB=m
->>>> CONFIG_VIDEO_OVCAMCHIP=m
->>>>
->>>> #
->>>> # Radio Adapters
->>>> #
->>>> CONFIG_RADIO_GEMTEK_PCI=m
->>>> CONFIG_RADIO_MAXIRADIO=m
->>>> CONFIG_RADIO_MAESTRO=m
->>>>
->>>> #
->>>> # Digital Video Broadcasting Devices
->>>> #
->>>> CONFIG_DVB=y
->>>> CONFIG_DVB_CORE=m
->>>>
->>>> #
->>>> # Supported SAA7146 based PCI Adapters
->>>> #
->>>> CONFIG_DVB_AV7110=m
->>>> CONFIG_DVB_AV7110_OSD=y
->>>> CONFIG_DVB_BUDGET=m
->>>> CONFIG_DVB_BUDGET_CI=m
->>>> CONFIG_DVB_BUDGET_AV=m
->>>> CONFIG_DVB_BUDGET_PATCH=m
->>>>
->>>> #
->>>> # Supported USB Adapters
->>>> #
->>>> # CONFIG_DVB_USB is not set
->>>> CONFIG_DVB_TTUSB_BUDGET=m
->>>> CONFIG_DVB_TTUSB_DEC=m
->>>> CONFIG_DVB_CINERGYT2=m
->>>> CONFIG_DVB_CINERGYT2_TUNING=y
->>>> CONFIG_DVB_CINERGYT2_STREAM_URB_COUNT=32
->>>> CONFIG_DVB_CINERGYT2_STREAM_BUF_SIZE=512
->>>> CONFIG_DVB_CINERGYT2_QUERY_INTERVAL=250
->>>> CONFIG_DVB_CINERGYT2_ENABLE_RC_INPUT_DEVICE=y
->>>> CONFIG_DVB_CINERGYT2_RC_QUERY_INTERVAL=100
->>>>
->>>> #
->>>> # Supported FlexCopII (B2C2) Adapters
->>>> #
->>>> CONFIG_DVB_B2C2_FLEXCOP=m
->>>> CONFIG_DVB_B2C2_FLEXCOP_PCI=m
->>>> CONFIG_DVB_B2C2_FLEXCOP_USB=m
->>>> # CONFIG_DVB_B2C2_FLEXCOP_DEBUG is not set
->>>>
->>>> #
->>>> # Supported BT878 Adapters
->>>> #
->>>> CONFIG_DVB_BT8XX=m
->>>>
->>>> #
->>>> # Supported Pluto2 Adapters
->>>> #
->>>> # CONFIG_DVB_PLUTO2 is not set
->>>>
->>>> #
->>>> # Supported DVB Frontends
->>>> #
->>>>
->>>> #
->>>> # Customise DVB Frontends
->>>> #
->>>>
->>>> #
->>>> # DVB-S (satellite) frontends
->>>> #
->>>> CONFIG_DVB_STV0299=m
->>>> CONFIG_DVB_CX24110=m
->>>> CONFIG_DVB_TDA8083=m
->>>> CONFIG_DVB_TDA80XX=m
->>>> CONFIG_DVB_MT312=m
->>>> CONFIG_DVB_VES1X93=m
->>>> CONFIG_DVB_S5H1420=m
->>>>
->>>> #
->>>> # DVB-T (terrestrial) frontends
->>>> #
->>>> CONFIG_DVB_SP8870=m
->>>> CONFIG_DVB_SP887X=m
->>>> CONFIG_DVB_CX22700=m
->>>> CONFIG_DVB_CX22702=m
->>>> CONFIG_DVB_L64781=m
->>>> CONFIG_DVB_TDA1004X=m
->>>> CONFIG_DVB_NXT6000=m
->>>> CONFIG_DVB_MT352=m
->>>> CONFIG_DVB_DIB3000MB=m
->>>> CONFIG_DVB_DIB3000MC=m
->>>>
->>>> #
->>>> # DVB-C (cable) frontends
->>>> #
->>>> CONFIG_DVB_ATMEL_AT76C651=m
->>>> CONFIG_DVB_VES1820=m
->>>> CONFIG_DVB_TDA10021=m
->>>> CONFIG_DVB_STV0297=m
->>>>
->>>> #
->>>> # ATSC (North American/Korean Terresterial DTV) frontends
->>>> #
->>>> CONFIG_DVB_NXT2002=m
->>>> CONFIG_DVB_OR51211=m
->>>> CONFIG_DVB_OR51132=m
->>>> CONFIG_DVB_BCM3510=m
->>>> CONFIG_DVB_LGDT330X=m
->>>> CONFIG_VIDEO_SAA7146=m
->>>> CONFIG_VIDEO_SAA7146_VV=m
->>>> CONFIG_VIDEO_VIDEOBUF=m
->>>> CONFIG_VIDEO_TUNER=m
->>>> CONFIG_VIDEO_BUF=m
->>>> CONFIG_VIDEO_BUF_DVB=m
->>>> CONFIG_VIDEO_BTCX=m
->>>> CONFIG_VIDEO_IR=m
->>>> CONFIG_VIDEO_TVEEPROM=m
->>>>
->>>> #
->>>> # Graphics support
->>>> #
->>>> CONFIG_FB=y
->>>> CONFIG_FB_CFB_FILLRECT=y
->>>> CONFIG_FB_CFB_COPYAREA=y
->>>> CONFIG_FB_CFB_IMAGEBLIT=y
->>>> CONFIG_FB_SOFT_CURSOR=y
->>>> # CONFIG_FB_MACMODES is not set
->>>> CONFIG_FB_MODE_HELPERS=y
->>>> CONFIG_FB_TILEBLITTING=y
->>>> CONFIG_FB_CIRRUS=m
->>>> # CONFIG_FB_PM2 is not set
->>>> # CONFIG_FB_CYBER2000 is not set
->>>> # CONFIG_FB_ARC is not set
->>>> # CONFIG_FB_ASILIANT is not set
->>>> # CONFIG_FB_IMSTT is not set
->>>> CONFIG_FB_VGA16=m
->>>> CONFIG_FB_VESA=y
->>>> CONFIG_VIDEO_SELECT=y
->>>> # CONFIG_FB_HGA is not set
->>>> # CONFIG_FB_NVIDIA is not set
->>>> CONFIG_FB_RIVA=m
->>>> # CONFIG_FB_RIVA_I2C is not set
->>>> # CONFIG_FB_RIVA_DEBUG is not set
->>>> CONFIG_FB_MATROX=m
->>>> CONFIG_FB_MATROX_MILLENIUM=y
->>>> CONFIG_FB_MATROX_MYSTIQUE=y
->>>> CONFIG_FB_MATROX_G=y
->>>> CONFIG_FB_MATROX_I2C=m
->>>> CONFIG_FB_MATROX_MAVEN=m
->>>> CONFIG_FB_MATROX_MULTIHEAD=y
->>>> # CONFIG_FB_RADEON_OLD is not set
->>>> CONFIG_FB_RADEON=m
->>>> CONFIG_FB_RADEON_I2C=y
->>>> # CONFIG_FB_RADEON_DEBUG is not set
->>>> CONFIG_FB_ATY128=m
->>>> CONFIG_FB_ATY=m
->>>> CONFIG_FB_ATY_CT=y
->>>> CONFIG_FB_ATY_GENERIC_LCD=y
->>>> # CONFIG_FB_ATY_XL_INIT is not set
->>>> CONFIG_FB_ATY_GX=y
->>>> CONFIG_FB_SAVAGE=m
->>>> CONFIG_FB_SAVAGE_I2C=y
->>>> CONFIG_FB_SAVAGE_ACCEL=y
->>>> # CONFIG_FB_SIS is not set
->>>> CONFIG_FB_NEOMAGIC=m
->>>> CONFIG_FB_KYRO=m
->>>> CONFIG_FB_3DFX=m
->>>> CONFIG_FB_3DFX_ACCEL=y
->>>> CONFIG_FB_VOODOO1=m
->>>> CONFIG_FB_TRIDENT=m
->>>> CONFIG_FB_TRIDENT_ACCEL=y
->>>> # CONFIG_FB_GEODE is not set
->>>> # CONFIG_FB_S1D13XXX is not set
->>>> # CONFIG_FB_VIRTUAL is not set
->>>>
->>>> #
->>>> # Console display driver support
->>>> #
->>>> CONFIG_VGA_CONSOLE=y
->>>> CONFIG_DUMMY_CONSOLE=y
->>>> CONFIG_FRAMEBUFFER_CONSOLE=y
->>>> # CONFIG_FONTS is not set
->>>> CONFIG_FONT_8x8=y
->>>> CONFIG_FONT_8x16=y
->>>>
->>>> #
->>>> # Logo configuration
->>>> #
->>>> CONFIG_LOGO=y
->>>> # CONFIG_LOGO_LINUX_MONO is not set
->>>> # CONFIG_LOGO_LINUX_VGA16 is not set
->>>> CONFIG_LOGO_LINUX_CLUT224=y
->>>> CONFIG_BACKLIGHT_LCD_SUPPORT=y
->>>> CONFIG_BACKLIGHT_CLASS_DEVICE=m
->>>> CONFIG_BACKLIGHT_DEVICE=y
->>>> CONFIG_LCD_CLASS_DEVICE=m
->>>> CONFIG_LCD_DEVICE=y
->>>>
->>>> #
->>>> # Sound
->>>> #
->>>> CONFIG_SOUND=m
->>>>
->>>> #
->>>> # Advanced Linux Sound Architecture
->>>> #
->>>> CONFIG_SND=m
->>>> CONFIG_SND_TIMER=m
->>>> CONFIG_SND_PCM=m
->>>> CONFIG_SND_HWDEP=m
->>>> CONFIG_SND_RAWMIDI=m
->>>> CONFIG_SND_SEQUENCER=m
->>>> CONFIG_SND_SEQ_DUMMY=m
->>>> CONFIG_SND_OSSEMUL=y
->>>> CONFIG_SND_MIXER_OSS=m
->>>> CONFIG_SND_PCM_OSS=m
->>>> CONFIG_SND_SEQUENCER_OSS=y
->>>> CONFIG_SND_RTCTIMER=m
->>>> # CONFIG_SND_VERBOSE_PRINTK is not set
->>>> # CONFIG_SND_DEBUG is not set
->>>>
->>>> #
->>>> # Generic devices
->>>> #
->>>> CONFIG_SND_MPU401_UART=m
->>>> CONFIG_SND_OPL3_LIB=m
->>>> CONFIG_SND_VX_LIB=m
->>>> CONFIG_SND_DUMMY=m
->>>> CONFIG_SND_VIRMIDI=m
->>>> CONFIG_SND_MTPAV=m
->>>> # CONFIG_SND_SERIAL_U16550 is not set
->>>> CONFIG_SND_MPU401=m
->>>>
->>>> #
->>>> # PCI devices
->>>> #
->>>> CONFIG_SND_AC97_CODEC=m
->>>> CONFIG_SND_ALI5451=m
->>>> CONFIG_SND_ATIIXP=m
->>>> CONFIG_SND_ATIIXP_MODEM=m
->>>> CONFIG_SND_AU8810=m
->>>> CONFIG_SND_AU8820=m
->>>> CONFIG_SND_AU8830=m
->>>> CONFIG_SND_AZT3328=m
->>>> CONFIG_SND_BT87X=m
->>>> # CONFIG_SND_BT87X_OVERCLOCK is not set
->>>> CONFIG_SND_CS46XX=m
->>>> CONFIG_SND_CS46XX_NEW_DSP=y
->>>> CONFIG_SND_CS4281=m
->>>> CONFIG_SND_EMU10K1=m
->>>> CONFIG_SND_EMU10K1X=m
->>>> CONFIG_SND_CA0106=m
->>>> CONFIG_SND_KORG1212=m
->>>> CONFIG_SND_MIXART=m
->>>> CONFIG_SND_NM256=m
->>>> CONFIG_SND_RME32=m
->>>> CONFIG_SND_RME96=m
->>>> CONFIG_SND_RME9652=m
->>>> CONFIG_SND_HDSP=m
->>>> # CONFIG_SND_HDSPM is not set
->>>> CONFIG_SND_TRIDENT=m
->>>> CONFIG_SND_YMFPCI=m
->>>> CONFIG_SND_ALS4000=m
->>>> CONFIG_SND_CMIPCI=m
->>>> CONFIG_SND_ENS1370=m
->>>> CONFIG_SND_ENS1371=m
->>>> CONFIG_SND_ES1938=m
->>>> CONFIG_SND_ES1968=m
->>>> CONFIG_SND_MAESTRO3=m
->>>> CONFIG_SND_FM801=m
->>>> CONFIG_SND_FM801_TEA575X=m
->>>> CONFIG_SND_ICE1712=m
->>>> CONFIG_SND_ICE1724=m
->>>> CONFIG_SND_INTEL8X0=m
->>>> CONFIG_SND_INTEL8X0M=m
->>>> CONFIG_SND_SONICVIBES=m
->>>> CONFIG_SND_VIA82XX=m
->>>> CONFIG_SND_VIA82XX_MODEM=m
->>>> CONFIG_SND_VX222=m
->>>> CONFIG_SND_HDA_INTEL=m
->>>>
->>>> #
->>>> # USB devices
->>>> #
->>>> CONFIG_SND_USB_AUDIO=m
->>>> CONFIG_SND_USB_USX2Y=m
->>>>
->>>> #
->>>> # PCMCIA devices
->>>> #
->>>>
->>>> #
->>>> # Open Sound System
->>>> #
->>>> # CONFIG_SOUND_PRIME is not set
->>>>
->>>> #
->>>> # USB support
->>>> #
->>>> CONFIG_USB_ARCH_HAS_HCD=y
->>>> CONFIG_USB_ARCH_HAS_OHCI=y
->>>> CONFIG_USB=y
->>>> # CONFIG_USB_DEBUG is not set
->>>>
->>>> #
->>>> # Miscellaneous USB options
->>>> #
->>>> CONFIG_USB_DEVICEFS=y
->>>> # CONFIG_USB_BANDWIDTH is not set
->>>> # CONFIG_USB_DYNAMIC_MINORS is not set
->>>> # CONFIG_USB_SUSPEND is not set
->>>> # CONFIG_USB_OTG is not set
->>>>
->>>> #
->>>> # USB Host Controller Drivers
->>>> #
->>>> CONFIG_USB_EHCI_HCD=m
->>>> CONFIG_USB_EHCI_SPLIT_ISO=y
->>>> CONFIG_USB_EHCI_ROOT_HUB_TT=y
->>>> # CONFIG_USB_ISP116X_HCD is not set
->>>> CONFIG_USB_OHCI_HCD=m
->>>> # CONFIG_USB_OHCI_BIG_ENDIAN is not set
->>>> CONFIG_USB_OHCI_LITTLE_ENDIAN=y
->>>> CONFIG_USB_UHCI_HCD=m
->>>> CONFIG_USB_SL811_HCD=m
->>>> CONFIG_USB_SL811_CS=m
->>>>
->>>> #
->>>> # USB Device Class drivers
->>>> #
->>>> # CONFIG_USB_AUDIO is not set
->>>>
->>>> #
->>>> # USB Bluetooth TTY can only be used with disabled Bluetooth subsystem
->>>> #
->>>> CONFIG_USB_MIDI=m
->>>> CONFIG_USB_ACM=m
->>>> CONFIG_USB_PRINTER=m
->>>>
->>>> #
->>>> # NOTE: USB_STORAGE enables SCSI, and 'SCSI disk support' may also 
->>>> be needed; see USB_STORAGE Help for more information
->>>> #
->>>> CONFIG_USB_STORAGE=m
->>>> # CONFIG_USB_STORAGE_DEBUG is not set
->>>> CONFIG_USB_STORAGE_DATAFAB=y
->>>> CONFIG_USB_STORAGE_FREECOM=y
->>>> CONFIG_USB_STORAGE_ISD200=y
->>>> CONFIG_USB_STORAGE_DPCM=y
->>>> CONFIG_USB_STORAGE_USBAT=y
->>>> CONFIG_USB_STORAGE_SDDR09=y
->>>> CONFIG_USB_STORAGE_SDDR55=y
->>>> CONFIG_USB_STORAGE_JUMPSHOT=y
->>>>
->>>> #
->>>> # USB Input Devices
->>>> #
->>>> CONFIG_USB_HID=y
->>>> CONFIG_USB_HIDINPUT=y
->>>> CONFIG_HID_FF=y
->>>> CONFIG_HID_PID=y
->>>> CONFIG_LOGITECH_FF=y
->>>> CONFIG_THRUSTMASTER_FF=y
->>>> CONFIG_USB_HIDDEV=y
->>>> CONFIG_USB_AIPTEK=m
->>>> CONFIG_USB_WACOM=m
->>>> # CONFIG_USB_ACECAD is not set
->>>> CONFIG_USB_KBTAB=m
->>>> CONFIG_USB_POWERMATE=m
->>>> CONFIG_USB_MTOUCH=m
->>>> # CONFIG_USB_ITMTOUCH is not set
->>>> CONFIG_USB_EGALAX=m
->>>> CONFIG_USB_XPAD=m
->>>> CONFIG_USB_ATI_REMOTE=m
->>>> # CONFIG_USB_KEYSPAN_REMOTE is not set
->>>>
->>>> #
->>>> # USB Imaging devices
->>>> #
->>>> CONFIG_USB_MDC800=m
->>>> CONFIG_USB_MICROTEK=m
->>>>
->>>> #
->>>> # USB Multimedia devices
->>>> #
->>>> CONFIG_USB_DABUSB=m
->>>> CONFIG_USB_VICAM=m
->>>> CONFIG_USB_DSBR=m
->>>> CONFIG_USB_IBMCAM=m
->>>> CONFIG_USB_KONICAWC=m
->>>> CONFIG_USB_OV511=m
->>>> CONFIG_USB_SE401=m
->>>> CONFIG_USB_SN9C102=m
->>>> CONFIG_USB_STV680=m
->>>> CONFIG_USB_W9968CF=m
->>>> CONFIG_USB_PWC=m
->>>>
->>>> #
->>>> # USB Network Adapters
->>>> #
->>>> CONFIG_USB_CATC=m
->>>> CONFIG_USB_KAWETH=m
->>>> CONFIG_USB_PEGASUS=m
->>>> CONFIG_USB_RTL8150=m
->>>> CONFIG_USB_USBNET=m
->>>>
->>>> #
->>>> # USB Host-to-Host Cables
->>>> #
->>>> CONFIG_USB_ALI_M5632=y
->>>> CONFIG_USB_AN2720=y
->>>> CONFIG_USB_BELKIN=y
->>>> CONFIG_USB_GENESYS=y
->>>> CONFIG_USB_NET1080=y
->>>> CONFIG_USB_PL2301=y
->>>> CONFIG_USB_KC2190=y
->>>>
->>>> #
->>>> # Intelligent USB Devices/Gadgets
->>>> #
->>>> CONFIG_USB_ARMLINUX=y
->>>> CONFIG_USB_EPSON2888=y
->>>> CONFIG_USB_ZAURUS=y
->>>> CONFIG_USB_CDCETHER=y
->>>>
->>>> #
->>>> # USB Network Adapters
->>>> #
->>>> CONFIG_USB_AX8817X=y
->>>> CONFIG_USB_ZD1201=m
->>>> CONFIG_USB_MON=y
->>>>
->>>> #
->>>> # USB port drivers
->>>> #
->>>> CONFIG_USB_USS720=m
->>>>
->>>> #
->>>> # USB Serial Converter support
->>>> #
->>>> CONFIG_USB_SERIAL=m
->>>> CONFIG_USB_SERIAL_GENERIC=y
->>>> CONFIG_USB_SERIAL_AIRPRIME=m
->>>> CONFIG_USB_SERIAL_BELKIN=m
->>>> CONFIG_USB_SERIAL_WHITEHEAT=m
->>>> CONFIG_USB_SERIAL_DIGI_ACCELEPORT=m
->>>> CONFIG_USB_SERIAL_CP2101=m
->>>> CONFIG_USB_SERIAL_CYPRESS_M8=m
->>>> CONFIG_USB_SERIAL_EMPEG=m
->>>> CONFIG_USB_SERIAL_FTDI_SIO=m
->>>> CONFIG_USB_SERIAL_VISOR=m
->>>> CONFIG_USB_SERIAL_IPAQ=m
->>>> CONFIG_USB_SERIAL_IR=m
->>>> CONFIG_USB_SERIAL_EDGEPORT=m
->>>> CONFIG_USB_SERIAL_EDGEPORT_TI=m
->>>> CONFIG_USB_SERIAL_GARMIN=m
->>>> CONFIG_USB_SERIAL_IPW=m
->>>> CONFIG_USB_SERIAL_KEYSPAN_PDA=m
->>>> CONFIG_USB_SERIAL_KEYSPAN=m
->>>> CONFIG_USB_SERIAL_KEYSPAN_MPR=y
->>>> CONFIG_USB_SERIAL_KEYSPAN_USA28=y
->>>> CONFIG_USB_SERIAL_KEYSPAN_USA28X=y
->>>> CONFIG_USB_SERIAL_KEYSPAN_USA28XA=y
->>>> CONFIG_USB_SERIAL_KEYSPAN_USA28XB=y
->>>> CONFIG_USB_SERIAL_KEYSPAN_USA19=y
->>>> CONFIG_USB_SERIAL_KEYSPAN_USA18X=y
->>>> CONFIG_USB_SERIAL_KEYSPAN_USA19W=y
->>>> CONFIG_USB_SERIAL_KEYSPAN_USA19QW=y
->>>> CONFIG_USB_SERIAL_KEYSPAN_USA19QI=y
->>>> CONFIG_USB_SERIAL_KEYSPAN_USA49W=y
->>>> CONFIG_USB_SERIAL_KEYSPAN_USA49WLC=y
->>>> CONFIG_USB_SERIAL_KLSI=m
->>>> CONFIG_USB_SERIAL_KOBIL_SCT=m
->>>> CONFIG_USB_SERIAL_MCT_U232=m
->>>> CONFIG_USB_SERIAL_PL2303=m
->>>> CONFIG_USB_SERIAL_HP4X=m
->>>> CONFIG_USB_SERIAL_SAFE=m
->>>> CONFIG_USB_SERIAL_SAFE_PADDED=y
->>>> CONFIG_USB_SERIAL_TI=m
->>>> CONFIG_USB_SERIAL_CYBERJACK=m
->>>> CONFIG_USB_SERIAL_XIRCOM=m
->>>> CONFIG_USB_SERIAL_OPTION=m
->>>> CONFIG_USB_SERIAL_OMNINET=m
->>>> CONFIG_USB_EZUSB=y
->>>>
->>>> #
->>>> # USB Miscellaneous drivers
->>>> #
->>>> CONFIG_USB_EMI62=m
->>>> # CONFIG_USB_EMI26 is not set
->>>> CONFIG_USB_AUERSWALD=m
->>>> CONFIG_USB_RIO500=m
->>>> CONFIG_USB_LEGOTOWER=m
->>>> CONFIG_USB_LCD=m
->>>> CONFIG_USB_LED=m
->>>> # CONFIG_USB_CYTHERM is not set
->>>> CONFIG_USB_PHIDGETKIT=m
->>>> CONFIG_USB_PHIDGETSERVO=m
->>>> CONFIG_USB_IDMOUSE=m
->>>> CONFIG_USB_SISUSBVGA=m
->>>> # CONFIG_USB_LD is not set
->>>> CONFIG_USB_TEST=m
->>>>
->>>> #
->>>> # USB DSL modem support
->>>> #
->>>> CONFIG_USB_ATM=m
->>>> CONFIG_USB_SPEEDTOUCH=m
->>>> # CONFIG_USB_CXACRU is not set
->>>> # CONFIG_USB_XUSBATM is not set
->>>>
->>>> #
->>>> # USB Gadget Support
->>>> #
->>>> # CONFIG_USB_GADGET is not set
->>>>
->>>> #
->>>> # MMC/SD Card support
->>>> #
->>>> CONFIG_MMC=m
->>>> # CONFIG_MMC_DEBUG is not set
->>>> CONFIG_MMC_BLOCK=m
->>>> CONFIG_MMC_WBSD=m
->>>>
->>>> #
->>>> # InfiniBand support
->>>> #
->>>> CONFIG_INFINIBAND=m
->>>> # CONFIG_INFINIBAND_USER_VERBS is not set
->>>> CONFIG_INFINIBAND_MTHCA=m
->>>> # CONFIG_INFINIBAND_MTHCA_DEBUG is not set
->>>> CONFIG_INFINIBAND_IPOIB=m
->>>> # CONFIG_INFINIBAND_IPOIB_DEBUG is not set
->>>>
->>>> #
->>>> # SN Devices
->>>> #
->>>>
->>>> #
->>>> # Firmware Drivers
->>>> #
->>>> CONFIG_EDD=m
->>>>
->>>> #
->>>> # File systems
->>>> #
->>>> CONFIG_EXT2_FS=y
->>>> CONFIG_EXT2_FS_XATTR=y
->>>> CONFIG_EXT2_FS_POSIX_ACL=y
->>>> CONFIG_EXT2_FS_SECURITY=y
->>>> # CONFIG_EXT2_FS_XIP is not set
->>>> CONFIG_EXT3_FS=m
->>>> CONFIG_EXT3_FS_XATTR=y
->>>> CONFIG_EXT3_FS_POSIX_ACL=y
->>>> CONFIG_EXT3_FS_SECURITY=y
->>>> CONFIG_JBD=m
->>>> # CONFIG_JBD_DEBUG is not set
->>>> CONFIG_FS_MBCACHE=y
->>>> CONFIG_REISERFS_FS=m
->>>> # CONFIG_REISERFS_CHECK is not set
->>>> CONFIG_REISERFS_PROC_INFO=y
->>>> CONFIG_REISERFS_FS_XATTR=y
->>>> CONFIG_REISERFS_FS_POSIX_ACL=y
->>>> CONFIG_REISERFS_FS_SECURITY=y
->>>> CONFIG_JFS_FS=m
->>>> CONFIG_JFS_POSIX_ACL=y
->>>> CONFIG_JFS_SECURITY=y
->>>> # CONFIG_JFS_DEBUG is not set
->>>> # CONFIG_JFS_STATISTICS is not set
->>>> CONFIG_FS_POSIX_ACL=y
->>>>
->>>> #
->>>> # XFS support
->>>> #
->>>> CONFIG_XFS_FS=m
->>>> CONFIG_XFS_EXPORT=y
->>>> # CONFIG_XFS_RT is not set
->>>> CONFIG_XFS_QUOTA=y
->>>> CONFIG_XFS_SECURITY=y
->>>> CONFIG_XFS_POSIX_ACL=y
->>>> CONFIG_MINIX_FS=m
->>>> CONFIG_ROMFS_FS=m
->>>> CONFIG_INOTIFY=y
->>>> CONFIG_QUOTA=y
->>>> # CONFIG_QFMT_V1 is not set
->>>> CONFIG_QFMT_V2=y
->>>> CONFIG_QUOTACTL=y
->>>> CONFIG_DNOTIFY=y
->>>> CONFIG_AUTOFS_FS=m
->>>> CONFIG_AUTOFS4_FS=m
->>>>
->>>> #
->>>> # CD-ROM/DVD Filesystems
->>>> #
->>>> CONFIG_ISO9660_FS=y
->>>> CONFIG_JOLIET=y
->>>> CONFIG_ZISOFS=y
->>>> CONFIG_ZISOFS_FS=y
->>>> CONFIG_UDF_FS=m
->>>> CONFIG_UDF_NLS=y
->>>>
->>>> #
->>>> # DOS/FAT/NT Filesystems
->>>> #
->>>> CONFIG_FAT_FS=m
->>>> CONFIG_MSDOS_FS=m
->>>> CONFIG_VFAT_FS=m
->>>> CONFIG_FAT_DEFAULT_CODEPAGE=437
->>>> CONFIG_FAT_DEFAULT_IOCHARSET="ascii"
->>>> CONFIG_NTFS_FS=m
->>>> # CONFIG_NTFS_DEBUG is not set
->>>> # CONFIG_NTFS_RW is not set
->>>>
->>>> #
->>>> # Pseudo filesystems
->>>> #
->>>> CONFIG_PROC_FS=y
->>>> CONFIG_PROC_KCORE=y
->>>> CONFIG_SYSFS=y
->>>> CONFIG_DEVPTS_FS_XATTR=y
->>>> CONFIG_DEVPTS_FS_SECURITY=y
->>>> CONFIG_TMPFS=y
->>>> CONFIG_TMPFS_XATTR=y
->>>> CONFIG_TMPFS_SECURITY=y
->>>> CONFIG_HUGETLBFS=y
->>>> CONFIG_HUGETLB_PAGE=y
->>>> CONFIG_RAMFS=y
->>>>
->>>> #
->>>> # Miscellaneous filesystems
->>>> #
->>>> # CONFIG_ADFS_FS is not set
->>>> CONFIG_AFFS_FS=m
->>>> CONFIG_HFS_FS=m
->>>> CONFIG_HFSPLUS_FS=m
->>>> CONFIG_BEFS_FS=m
->>>> # CONFIG_BEFS_DEBUG is not set
->>>> CONFIG_BFS_FS=m
->>>> CONFIG_EFS_FS=m
->>>> # CONFIG_JFFS_FS is not set
->>>> CONFIG_JFFS2_FS=m
->>>> CONFIG_JFFS2_FS_DEBUG=0
->>>> CONFIG_JFFS2_FS_WRITEBUFFER=y
->>>> # CONFIG_JFFS2_COMPRESSION_OPTIONS is not set
->>>> CONFIG_JFFS2_ZLIB=y
->>>> CONFIG_JFFS2_RTIME=y
->>>> # CONFIG_JFFS2_RUBIN is not set
->>>> CONFIG_CRAMFS=m
->>>> CONFIG_VXFS_FS=m
->>>> # CONFIG_HPFS_FS is not set
->>>> CONFIG_QNX4FS_FS=m
->>>> CONFIG_SYSV_FS=m
->>>> CONFIG_UFS_FS=m
->>>> # CONFIG_UFS_FS_WRITE is not set
->>>>
->>>> #
->>>> # Network File Systems
->>>> #
->>>> CONFIG_NFS_FS=m
->>>> CONFIG_NFS_V3=y
->>>> # CONFIG_NFS_V3_ACL is not set
->>>> CONFIG_NFS_V4=y
->>>> CONFIG_NFS_DIRECTIO=y
->>>> CONFIG_NFSD=m
->>>> CONFIG_NFSD_V3=y
->>>> # CONFIG_NFSD_V3_ACL is not set
->>>> CONFIG_NFSD_V4=y
->>>> CONFIG_NFSD_TCP=y
->>>> CONFIG_LOCKD=m
->>>> CONFIG_LOCKD_V4=y
->>>> CONFIG_EXPORTFS=m
->>>> CONFIG_NFS_COMMON=y
->>>> CONFIG_SUNRPC=m
->>>> CONFIG_SUNRPC_GSS=m
->>>> CONFIG_RPCSEC_GSS_KRB5=m
->>>> CONFIG_RPCSEC_GSS_SPKM3=m
->>>> CONFIG_SMB_FS=m
->>>> # CONFIG_SMB_NLS_DEFAULT is not set
->>>> CONFIG_CIFS=m
->>>> # CONFIG_CIFS_STATS is not set
->>>> CONFIG_CIFS_XATTR=y
->>>> CONFIG_CIFS_POSIX=y
->>>> # CONFIG_CIFS_EXPERIMENTAL is not set
->>>> CONFIG_NCP_FS=m
->>>> CONFIG_NCPFS_PACKET_SIGNING=y
->>>> CONFIG_NCPFS_IOCTL_LOCKING=y
->>>> CONFIG_NCPFS_STRONG=y
->>>> CONFIG_NCPFS_NFS_NS=y
->>>> CONFIG_NCPFS_OS2_NS=y
->>>> CONFIG_NCPFS_SMALLDOS=y
->>>> CONFIG_NCPFS_NLS=y
->>>> CONFIG_NCPFS_EXTRAS=y
->>>> # CONFIG_CODA_FS is not set
->>>> # CONFIG_AFS_FS is not set
->>>>
->>>> #
->>>> # Partition Types
->>>> #
->>>> CONFIG_PARTITION_ADVANCED=y
->>>> # CONFIG_ACORN_PARTITION is not set
->>>> CONFIG_OSF_PARTITION=y
->>>> CONFIG_AMIGA_PARTITION=y
->>>> # CONFIG_ATARI_PARTITION is not set
->>>> CONFIG_MAC_PARTITION=y
->>>> CONFIG_MSDOS_PARTITION=y
->>>> CONFIG_BSD_DISKLABEL=y
->>>> CONFIG_MINIX_SUBPARTITION=y
->>>> CONFIG_SOLARIS_X86_PARTITION=y
->>>> CONFIG_UNIXWARE_DISKLABEL=y
->>>> # CONFIG_LDM_PARTITION is not set
->>>> CONFIG_SGI_PARTITION=y
->>>> # CONFIG_ULTRIX_PARTITION is not set
->>>> CONFIG_SUN_PARTITION=y
->>>> CONFIG_EFI_PARTITION=y
->>>>
->>>> #
->>>> # Native Language Support
->>>> #
->>>> CONFIG_NLS=y
->>>> CONFIG_NLS_DEFAULT="utf8"
->>>> CONFIG_NLS_CODEPAGE_437=y
->>>> CONFIG_NLS_CODEPAGE_737=m
->>>> CONFIG_NLS_CODEPAGE_775=m
->>>> CONFIG_NLS_CODEPAGE_850=m
->>>> CONFIG_NLS_CODEPAGE_852=m
->>>> CONFIG_NLS_CODEPAGE_855=m
->>>> CONFIG_NLS_CODEPAGE_857=m
->>>> CONFIG_NLS_CODEPAGE_860=m
->>>> CONFIG_NLS_CODEPAGE_861=m
->>>> CONFIG_NLS_CODEPAGE_862=m
->>>> CONFIG_NLS_CODEPAGE_863=m
->>>> CONFIG_NLS_CODEPAGE_864=m
->>>> CONFIG_NLS_CODEPAGE_865=m
->>>> CONFIG_NLS_CODEPAGE_866=m
->>>> CONFIG_NLS_CODEPAGE_869=m
->>>> CONFIG_NLS_CODEPAGE_936=m
->>>> CONFIG_NLS_CODEPAGE_950=m
->>>> CONFIG_NLS_CODEPAGE_932=m
->>>> CONFIG_NLS_CODEPAGE_949=m
->>>> CONFIG_NLS_CODEPAGE_874=m
->>>> CONFIG_NLS_ISO8859_8=m
->>>> CONFIG_NLS_CODEPAGE_1250=m
->>>> CONFIG_NLS_CODEPAGE_1251=m
->>>> CONFIG_NLS_ASCII=y
->>>> CONFIG_NLS_ISO8859_1=m
->>>> CONFIG_NLS_ISO8859_2=m
->>>> CONFIG_NLS_ISO8859_3=m
->>>> CONFIG_NLS_ISO8859_4=m
->>>> CONFIG_NLS_ISO8859_5=m
->>>> CONFIG_NLS_ISO8859_6=m
->>>> CONFIG_NLS_ISO8859_7=m
->>>> CONFIG_NLS_ISO8859_9=m
->>>> CONFIG_NLS_ISO8859_13=m
->>>> CONFIG_NLS_ISO8859_14=m
->>>> CONFIG_NLS_ISO8859_15=m
->>>> CONFIG_NLS_KOI8_R=m
->>>> CONFIG_NLS_KOI8_U=m
->>>> CONFIG_NLS_UTF8=m
->>>>
->>>> #
->>>> # Profiling support
->>>> #
->>>> CONFIG_PROFILING=y
->>>> CONFIG_OPROFILE=m
->>>>
->>>> #
->>>> # Kernel hacking
->>>> #
->>>> # CONFIG_PRINTK_TIME is not set
->>>> CONFIG_DEBUG_KERNEL=y
->>>> CONFIG_MAGIC_SYSRQ=y
->>>> CONFIG_LOG_BUF_SHIFT=17
->>>> # CONFIG_SCHEDSTATS is not set
->>>> # CONFIG_DEBUG_SLAB is not set
->>>> # CONFIG_DEBUG_SPINLOCK is not set
->>>> # CONFIG_DEBUG_SPINLOCK_SLEEP is not set
->>>> # CONFIG_DEBUG_KOBJECT is not set
->>>> # CONFIG_DEBUG_INFO is not set
->>>> # CONFIG_DEBUG_FS is not set
->>>> # CONFIG_CHECKING is not set
->>>> # CONFIG_INIT_DEBUG is not set
->>>> # CONFIG_IOMMU_DEBUG is not set
->>>> CONFIG_KPROBES=y
->>>>
->>>> #
->>>> # Security options
->>>> #
->>>> CONFIG_KEYS=y
->>>> CONFIG_KEYS_DEBUG_PROC_KEYS=y
->>>> CONFIG_SECURITY=y
->>>> CONFIG_SECURITY_NETWORK=y
->>>> CONFIG_SECURITY_CAPABILITIES=y
->>>> # CONFIG_SECURITY_ROOTPLUG is not set
->>>> # CONFIG_SECURITY_SECLVL is not set
->>>> CONFIG_SECURITY_SELINUX=y
->>>> CONFIG_SECURITY_SELINUX_BOOTPARAM=y
->>>> CONFIG_SECURITY_SELINUX_BOOTPARAM_VALUE=1
->>>> CONFIG_SECURITY_SELINUX_DISABLE=y
->>>> CONFIG_SECURITY_SELINUX_DEVELOP=y
->>>> CONFIG_SECURITY_SELINUX_AVC_STATS=y
->>>> CONFIG_SECURITY_SELINUX_CHECKREQPROT_VALUE=1
->>>>
->>>> #
->>>> # Cryptographic options
->>>> #
->>>> CONFIG_CRYPTO=y
->>>> CONFIG_CRYPTO_HMAC=y
->>>> CONFIG_CRYPTO_NULL=m
->>>> CONFIG_CRYPTO_MD4=m
->>>> CONFIG_CRYPTO_MD5=y
->>>> CONFIG_CRYPTO_SHA1=y
->>>> CONFIG_CRYPTO_SHA256=m
->>>> CONFIG_CRYPTO_SHA512=m
->>>> CONFIG_CRYPTO_WP512=m
->>>> CONFIG_CRYPTO_TGR192=m
->>>> CONFIG_CRYPTO_DES=m
->>>> CONFIG_CRYPTO_BLOWFISH=m
->>>> CONFIG_CRYPTO_TWOFISH=m
->>>> CONFIG_CRYPTO_SERPENT=m
->>>> # CONFIG_CRYPTO_AES_X86_64 is not set
->>>> CONFIG_CRYPTO_CAST5=m
->>>> CONFIG_CRYPTO_CAST6=m
->>>> CONFIG_CRYPTO_TEA=m
->>>> CONFIG_CRYPTO_ARC4=m
->>>> CONFIG_CRYPTO_KHAZAD=m
->>>> CONFIG_CRYPTO_ANUBIS=m
->>>> CONFIG_CRYPTO_DEFLATE=m
->>>> CONFIG_CRYPTO_MICHAEL_MIC=m
->>>> CONFIG_CRYPTO_CRC32C=m
->>>> # CONFIG_CRYPTO_TEST is not set
->>>>
->>>> #
->>>> # Hardware crypto devices
->>>> #
->>>>
->>>> #
->>>> # Library routines
->>>> #
->>>> CONFIG_CRC_CCITT=m
->>>> CONFIG_CRC32=y
->>>> CONFIG_LIBCRC32C=m
->>>> CONFIG_ZLIB_INFLATE=y
->>>> CONFIG_ZLIB_DEFLATE=m
->>>>   
->>>
->>>
->>>
->>> Hi,
->>>
->>> I had the same problem with FC4/vanilla 2.6.13 and snd-intel8x0
->>> and I had two lines in modprobe.conf like this:
->>>
->>> options snd-card-0 index=0
->>> options snd-intel8x0 index=0
->>>
->>> I removed them and now everything works just fine. Accutally I had the
->>> Unknown parameter `' messages before but the module loaded.
->>>
->>>
->>>  
->>>
->> sorry but this isn't solution (it works thought) but this happens for 
->> all modules that have a options line in /etc/modprobe.conf
->> Is this a bug or has the syntax of modprobe.conf changed in 2.6.13?
->>
-> I am now recompiling with this patch from FC4 cvs:
-> http://cvs.fedora.redhat.com/viewcvs/*checkout*/rpms/kernel/FC-4/linux-2.6.10-revert-module-invalidparam.patch?rev=1.2 
->
-> will write if it worked or not
->
->
-it works fine with this patch.
+------=_NextPart_000_0005_01C5B151.4E8AE540
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+Dears,
+
+thanks to Jiri Slaby who found a bug in the AAL0 handling of the ATMSAR =
+module.
+
+I attach a fixed version of the atmsar patch as a diff against the =
+2.6.13 kernel tree.
+
+Now the sources are also fully-delethalized by avoiding any line wrap in =
+the Linus' 80-column monitor and the danger due to whitespaces at end of =
+lines is prevented.
+
+However, I'm still hearing for your comments about the usefulness of an =
+ATMSAR layer. I'm also trying hard to get in touch with Duncan Sands =
+(SpeedTouch USB Driver maintainer) and Chas Williams (ATM maintainer) in =
+order to get this patch reviewed and, eventually, committed.
+
+How am I supposed to contact them? I had no reply to the mails I sent =
+them...
+
+Thanks for your interest in this,
+
+-----------------------------------
+Giampaolo Tomassoni - IT Consultant
+Piazza VIII Aprile 1948, 4
+I-53044 Chiusi (SI) - Italy
+Ph: +39-0578-21100
+
+------=_NextPart_000_0005_01C5B151.4E8AE540
+Content-Type: application/octet-stream;
+	name="patch-2.6.13+atmsar.diff"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="patch-2.6.13+atmsar.diff"
+
+diff -Nurd linux-2.6.13/MAINTAINERS linux-2.6.13+atmsar/MAINTAINERS=0A=
+--- linux-2.6.13/MAINTAINERS	2005-08-29 01:41:01.000000000 +0200=0A=
++++ linux-2.6.13+atmsar/MAINTAINERS	2005-09-04 12:28:06.000000000 +0200=0A=
+@@ -370,6 +370,12 @@=0A=
+ W:	http://atmelwlandriver.sourceforge.net/=0A=
+ S:	Maintained=0A=
+ =0A=
++ATMSAR SUPPORT=0A=
++P:      Giampaolo Tomassoni=0A=
++M:      g.tomassoni@libero.it=0A=
++W:      http://www.tomassoni.biz=0A=
++S:      Maintained=0A=
++=0A=
+ AUDIT SUBSYSTEM=0A=
+ L:	linux-audit@redhat.com (subscribers-only)=0A=
+ S:	Maintained=0A=
+diff -Nurd linux-2.6.13/drivers/atm/Kconfig =
+linux-2.6.13+atmsar/drivers/atm/Kconfig=0A=
+--- linux-2.6.13/drivers/atm/Kconfig	2005-08-29 01:41:01.000000000 +0200=0A=
++++ linux-2.6.13+atmsar/drivers/atm/Kconfig	2005-09-04 =
+11:55:16.000000000 +0200=0A=
+@@ -444,5 +444,18 @@=0A=
+ 	  Support for the S/UNI-Ultra and S/UNI-622 found in the ForeRunner=0A=
+ 	  HE cards.  This driver provides carrier detection some statistics.=0A=
+ =0A=
+-endmenu=0A=
++config ATM_SAR=0A=
++	tristate "SAR support (EXPERIMENTAL)"=0A=
++	depends on ATM && CRC32=0A=
++	help=0A=
++	  This is experimental code which supplies a SAR (Segment And=0A=
++	  Reassembly) layer to the ATM stack.=0A=
+ =0A=
++	  The SAR layer can be used by various "dumb" ATM devices (notably=0A=
++	  ADSL modems) whose firmware lacks of SAR capabilities.=0A=
++=0A=
++	  For further details see: <file:include/linux/atmsar.h>=0A=
++=0A=
++	  If unsure, say N.=0A=
++=0A=
++endmenu=0A=
+diff -Nurd linux-2.6.13/drivers/atm/Makefile =
+linux-2.6.13+atmsar/drivers/atm/Makefile=0A=
+--- linux-2.6.13/drivers/atm/Makefile	2005-08-29 01:41:01.000000000 +0200=0A=
++++ linux-2.6.13+atmsar/drivers/atm/Makefile	2005-09-04 =
+11:52:51.000000000 +0200=0A=
+@@ -70,3 +70,6 @@=0A=
+ $(obj)/%.bin $(obj)/%.bin1 $(obj)/%.bin2: $(src)/%.data=0A=
+ 	objcopy -Iihex $< -Obinary $@.gz=0A=
+ 	gzip -n -df $@.gz=0A=
++=0A=
++obj-$(CONFIG_ATM_SAR)		+=3D atmsar.o=0A=
++atmsar-objs			+=3D sar.o saraalr.o saraal0.o saraal5.o=0A=
+diff -Nurd linux-2.6.13/drivers/atm/sar.c =
+linux-2.6.13+atmsar/drivers/atm/sar.c=0A=
+--- linux-2.6.13/drivers/atm/sar.c	1970-01-01 01:00:00.000000000 +0100=0A=
++++ linux-2.6.13+atmsar/drivers/atm/sar.c	2005-09-04 12:34:26.000000000 =
++0200=0A=
+@@ -0,0 +1,837 @@=0A=
++/* ATM SAR layer=0A=
++ *=0A=
++ * Copyright (C) 2005 Giampaolo Tomassoni=0A=
++ *=0A=
++ * This program is free software; you can redistribute it and/or modify=0A=
++ * it under the terms of the GNU General Public License as published by=0A=
++ * the Free Software Foundation; either version 2 of the License, or=0A=
++ * (at your option) any later version.=0A=
++ *=0A=
++ * This program is distributed in the hope that it will be useful,=0A=
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of=0A=
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the=0A=
++ * GNU General Public License for more details.=0A=
++ *=0A=
++ * You should have received a copy of the GNU General Public License=0A=
++ * along with this program; if not, write to the Free Software=0A=
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 =
+ USA=0A=
++ *=0A=
++ * The GNU GPL is contained in /usr/doc/copyright/GPL on a Debian=0A=
++ * system and in the file COPYING in the Linux kernel source.=0A=
++ */=0A=
++=0A=
++/*=0A=
++ * CREDITS go to the following people:=0A=
++ *=0A=
++ * - Johan Verrept, for its previous work on a SAR library in Linux;=0A=
++ * - Charles Michael Heard for its tutorial on CRC-8 Error Correction.=0A=
++ * - Chas Williams for its help in integrating this with the ATM module.=0A=
++ *=0A=
++ *=0A=
++ * Theory of operation and api description in include/linux/atmsar.h=0A=
++ */=0A=
++#include <linux/version.h>=0A=
++#include <linux/module.h>=0A=
++#include <linux/moduleparam.h>=0A=
++#include <linux/gfp.h>=0A=
++#include <linux/kernel.h>=0A=
++#include <linux/sched.h>=0A=
++#include <linux/wait.h>=0A=
++#include <linux/list.h>=0A=
++#include <linux/smp_lock.h>=0A=
++#include <linux/init.h>=0A=
++#include <linux/errno.h>=0A=
++#include <linux/skbuff.h>=0A=
++#include <linux/atm.h>=0A=
++#include <linux/atmdev.h>=0A=
++=0A=
++#include <linux/atmsar.h>=0A=
++#include "sar.h"=0A=
++=0A=
++=0A=
++#define	VERSION		"1.0.0"=0A=
++=0A=
++#undef	ATM_SAR_DBG=0A=
++=0A=
++=0A=
++#define	SARDEV(atmdev)	((atmsar_dev_t*)((atmdev)->dev_data))=0A=
++#define	SARVCC(atmvcc)	((atmsar_vcc_t*)((atmvcc)->dev_data))=0A=
++=0A=
++#define	ASAR_MSG	"ATMSAR if#%d: "=0A=
++=0A=
++#define	D(v)		printk(KERN_ALERT "AtmSar: checkpoint " v " passed\n")=0A=
++=0A=
++#define	VPIVCI(vpi, vci)	(	\=0A=
++	(((vpi)<<ATM_HDR_VPI_SHIFT)&ATM_HDR_VPI_MASK) |	\=0A=
++	(((vci)<<ATM_HDR_VCI_SHIFT)&ATM_HDR_VCI_MASK)	\=0A=
++)=0A=
++=0A=
++=0A=
++typedef enum _HECSTS    {=0A=
++        HS_OK           =3D 0,=0A=
++        HS_CORRECTED,=0A=
++        HS_UNCORRECTIBLE=0A=
++}       HECSTS;=0A=
++=0A=
++=0A=
++#define	SRCSKB(skb)	(*(struct sk_buff**)(skb)->cb)=0A=
++=0A=
++=0A=
++extern const atmsar_aalops_t	opsAALR;=0A=
++extern const atmsar_aalops_t	opsAAL0;=0A=
++extern const atmsar_aalops_t	opsAAL5;=0A=
++static const atmsar_aalops_t*	aOps[] =3D {=0A=
++	&opsAALR,=0A=
++	&opsAAL0,=0A=
++	&opsAAL5,=0A=
++	NULL=0A=
++};=0A=
++=0A=
++=0A=
++static int	chbad =3D 0;=0A=
++=0A=
++module_param(chbad, bool, 0444);=0A=
++MODULE_PARM_DESC(=0A=
++	chbad,=0A=
++	"Treat cells having a correctible header as bad (default=3Dno)"=0A=
++);=0A=
++=0A=
++=0A=
++#if	0=0A=
++// This is still to be done=0A=
++static int	stats =3D 0;=0A=
++=0A=
++module_param(stats, bool, 0444);=0A=
++MODULE_PARM_DESC(=0A=
++	stats,=0A=
++	"Waste a bit of cpu to maintain useful statistical data"=0A=
++);=0A=
++#endif=0A=
++=0A=
++=0A=
++static const unsigned char tabSyn[256] =3D {=0A=
++	0x00,	0x07,	0x0e,	0x09,	0x1c,	0x1b,	0x12,	0x15,=0A=
++	0x38,	0x3f,	0x36,	0x31,	0x24,	0x23,	0x2a,	0x2d,=0A=
++	0x70,	0x77,	0x7e,	0x79,	0x6c,	0x6b,	0x62,	0x65,=0A=
++	0x48,	0x4f,	0x46,	0x41,	0x54,	0x53,	0x5a,	0x5d,=0A=
++	0xe0,	0xe7,	0xee,	0xe9,	0xfc,	0xfb,	0xf2,	0xf5,=0A=
++	0xd8,	0xdf,	0xd6,	0xd1,	0xc4,	0xc3,	0xca,	0xcd,=0A=
++	0x90,	0x97,	0x9e,	0x99,	0x8c,	0x8b,	0x82,	0x85,=0A=
++	0xa8,	0xaf,	0xa6,	0xa1,	0xb4,	0xb3,	0xba,	0xbd,=0A=
++=0A=
++	0xc7,	0xc0,	0xc9,	0xce,	0xdb,	0xdc,	0xd5,	0xd2,=0A=
++	0xff,	0xf8,	0xf1,	0xf6,	0xe3,	0xe4,	0xed,	0xea,=0A=
++	0xb7,	0xb0,	0xb9,	0xbe,	0xab,	0xac,	0xa5,	0xa2,=0A=
++	0x8f,	0x88,	0x81,	0x86,	0x93,	0x94,	0x9d,	0x9a,=0A=
++	0x27,	0x20,	0x29,	0x2e,	0x3b,	0x3c,	0x35,	0x32,=0A=
++	0x1f,	0x18,	0x11,	0x16,	0x03,	0x04,	0x0d,	0x0a,=0A=
++	0x57,	0x50,	0x59,	0x5e,	0x4b,	0x4c,	0x45,	0x42,=0A=
++	0x6f,	0x68,	0x61,	0x66,	0x73,	0x74,	0x7d,	0x7a,=0A=
++=0A=
++	0x89,	0x8e,	0x87,	0x80,	0x95,	0x92,	0x9b,	0x9c,=0A=
++	0xb1,	0xb6,	0xbf,	0xb8,	0xad,	0xaa,	0xa3,	0xa4,=0A=
++	0xf9,	0xfe,	0xf7,	0xf0,	0xe5,	0xe2,	0xeb,	0xec,=0A=
++	0xc1,	0xc6,	0xcf,	0xc8,	0xdd,	0xda,	0xd3,	0xd4,=0A=
++	0x69,	0x6e,	0x67,	0x60,	0x75,	0x72,	0x7b,	0x7c,=0A=
++	0x51,	0x56,	0x5f,	0x58,	0x4d,	0x4a,	0x43,	0x44,=0A=
++	0x19,	0x1e,	0x17,	0x10,	0x05,	0x02,	0x0b,	0x0c,=0A=
++	0x21,	0x26,	0x2f,	0x28,	0x3d,	0x3a,	0x33,	0x34,=0A=
++=0A=
++	0x4e,	0x49,	0x40,	0x47,	0x52,	0x55,	0x5c,	0x5b,=0A=
++	0x76,	0x71,	0x78,	0x7f,	0x6a,	0x6d,	0x64,	0x63,=0A=
++	0x3e,	0x39,	0x30,	0x37,	0x22,	0x25,	0x2c,	0x2b,=0A=
++	0x06,	0x01,	0x08,	0x0f,	0x1a,	0x1d,	0x14,	0x13,=0A=
++	0xae,	0xa9,	0xa0,	0xa7,	0xb2,	0xb5,	0xbc,	0xbb,=0A=
++	0x96,	0x91,	0x98,	0x9f,	0x8a,	0x8d,	0x84,	0x83,=0A=
++	0xde,	0xd9,	0xd0,	0xd7,	0xc2,	0xc5,	0xcc,	0xcb,=0A=
++	0xe6,	0xe1,	0xe8,	0xef,	0xfa,	0xfd,	0xf4,	0xf3=0A=
++};=0A=
++=0A=
++#define	COSET_LEADER	0x55=0A=
++=0A=
++=0A=
++#if     defined(__i386__) || defined(__x86_64__)=0A=
++static unsigned char inline	hecCompute(const unsigned char* hdr) {=0A=
++	register unsigned char hec;=0A=
++=0A=
++        __asm__ (=0A=
++                "\=0A=
++			movl (%%edx), %%ecx;\n\=0A=
++			movb %%cl, %%al; shrl $8, %%ecx; xlatb\n\=0A=
++			xorb %%cl, %%al; shrl $8, %%ecx; xlatb\n\=0A=
++			xorb %%cl, %%al; shrl $8, %%ecx; xlatb\n\=0A=
++			xorb %%cl, %%al;		 xlatb\n\=0A=
++			xorb $0x55, %%al\n\=0A=
++                "=0A=
++        :=0A=
++		"=3Da" (hec)=0A=
++	:=0A=
++                "b" (tabSyn),=0A=
++                "d" (hdr)=0A=
++        :=0A=
++		"ecx"=0A=
++        );=0A=
++=0A=
++	return(hec);=0A=
++}=0A=
++#else=0A=
++static unsigned char inline	hecCompute(const unsigned char* hdr) {=0A=
++	register unsigned char hec;=0A=
++=0A=
++	hec =3D tabSyn[*hdr++];=0A=
++	hec =3D tabSyn[hec ^ (*hdr++)];=0A=
++	hec =3D tabSyn[hec ^ (*hdr++)];=0A=
++	hec =3D tabSyn[hec ^ *hdr];=0A=
++	return(hec ^ COSET_LEADER);=0A=
++}=0A=
++#endif=0A=
++=0A=
++static void inline	hecGenerate(unsigned char* hdr)=0A=
++{ hdr[4] =3D hecCompute(hdr); }=0A=
++=0A=
++=0A=
++#define	SYN_OK	0xff=0A=
++#define	SYN_ER	0x80=0A=
++=0A=
++static const unsigned char tabPos[256] =3D {=0A=
++	SYN_OK,	    39,	    38,	SYN_ER,	    37,	SYN_ER,	SYN_ER,	    31,=0A=
++	    36,	SYN_ER,	SYN_ER,	     8,	SYN_ER,	SYN_ER,	    30,	SYN_ER,=0A=
++	    35,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	    23,	     7,	SYN_ER,=0A=
++	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	    29,	SYN_ER,	SYN_ER,	SYN_ER,=0A=
++	    34,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,=0A=
++	SYN_ER,	SYN_ER,	    22,	SYN_ER,	     6,	SYN_ER,	SYN_ER,	SYN_ER,=0A=
++	SYN_ER,	     0,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,=0A=
++	    28,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,=0A=
++=0A=
++	    33,	SYN_ER,	SYN_ER,	    10,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,=0A=
++	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,=0A=
++	SYN_ER,	    12,	SYN_ER,	SYN_ER,	    21,	SYN_ER,	SYN_ER,	    19,=0A=
++	     5,	SYN_ER,	SYN_ER,	    17,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,=0A=
++	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	     3,=0A=
++	SYN_ER,	SYN_ER,	SYN_ER,	    15,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,=0A=
++	    27,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,=0A=
++	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,=0A=
++=0A=
++	    32,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	     9,	SYN_ER,=0A=
++	SYN_ER,	    24,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,=0A=
++	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,=0A=
++	SYN_ER,	SYN_ER,	SYN_ER,	     1,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,=0A=
++	SYN_ER,	SYN_ER,	    11,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,=0A=
++	    20,	SYN_ER,	SYN_ER,	    13,	SYN_ER,	SYN_ER,	    18,	SYN_ER,=0A=
++	     4,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	    16,	SYN_ER,=0A=
++	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,=0A=
++=0A=
++	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	    25,=0A=
++	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	     2,	SYN_ER,=0A=
++	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	    14,	SYN_ER,=0A=
++	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,=0A=
++	    26,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,=0A=
++	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,=0A=
++	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,=0A=
++	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER,	SYN_ER=0A=
++};=0A=
++=0A=
++=0A=
++static void		putHdrNoHec(struct sk_buff* skb, unsigned hdr)=0A=
++{ *(unsigned*)skb_put(skb, sizeof(hdr)) =3D htonl(hdr); }=0A=
++=0A=
++static void		putHdrWithHec(struct sk_buff* skb, unsigned hdr) {=0A=
++	unsigned char* buf =3D skb_put(skb, sizeof(hdr) + 1);=0A=
++=0A=
++	*(unsigned*)buf =3D htonl(hdr);=0A=
++	hecGenerate(buf);=0A=
++}=0A=
++=0A=
++=0A=
++static void inline	txSkbFree(struct sk_buff *skbSrc) {=0A=
++	struct atm_vcc *vcc =3D ATM_SKB(skbSrc)->vcc;=0A=
++	if(vcc !=3D NULL && vcc->pop !=3D NULL)=0A=
++		vcc->pop(vcc, skbSrc);=0A=
++	else=0A=
++		kfree_skb(skbSrc);=0A=
++}=0A=
++=0A=
++=0A=
++#if	defined(ATM_SAR_DBG)=0A=
++static void inline	dumpCell(char* dst, const ATM_CELL* cell) {=0A=
++	const unsigned char *src =3D (unsigned char*)cell;=0A=
++	int n;=0A=
++	for(n =3D 52; --n >=3D 0; dst +=3D 2)=0A=
++		sprintf(dst, "%02x", *src++);=0A=
++}=0A=
++#endif=0A=
++=0A=
++static int	atmProcRead(struct atm_dev *atmdev, loff_t *pos, char *page) =
+{=0A=
++	atmsar_dev_t* dev =3D SARDEV(atmdev);=0A=
++	loff_t skip =3D *pos;=0A=
++=0A=
++	if(skip-- =3D=3D 0)=0A=
++		return(sprintf(page, "sarver:\t" VERSION "\n"));=0A=
++=0A=
++	if(skip-- =3D=3D 0) {=0A=
++		strcpy(page, "signal:\t");=0A=
++		switch(atmdev->signal) {=0A=
++		case ATM_PHY_SIG_LOST:=0A=
++			strcat(page, "down\n");=0A=
++			break;=0A=
++=0A=
++		case ATM_PHY_SIG_FOUND:=0A=
++			strcat(page, "synched\n");=0A=
++			break;=0A=
++=0A=
++		default:=0A=
++			strcat(page, "unknown\n");=0A=
++			break;=0A=
++		}=0A=
++=0A=
++		return(strlen(page));=0A=
++	}=0A=
++=0A=
++	if(skip-- =3D=3D 0) {=0A=
++		strcpy(page, "dnrate:\t");=0A=
++		if(dev->rx_speed !=3D ATMSAR_SPEED_UNSPEC)=0A=
++			sprintf(=0A=
++				&page[strlen(page)],=0A=
++				"%ld kbps\n",=0A=
++				dev->rx_speed=0A=
++			);=0A=
++		else=0A=
++			strcat(page, "unknown\n");=0A=
++		return(strlen(page));=0A=
++	}=0A=
++=0A=
++	if(skip-- =3D=3D 0) {=0A=
++		strcpy(page, "uprate:\t");=0A=
++		if(dev->tx_speed !=3D ATMSAR_SPEED_UNSPEC)=0A=
++			sprintf(=0A=
++				&page[strlen(page)],=0A=
++				"%ld kbps\n",=0A=
++				dev->tx_speed=0A=
++			);=0A=
++		else=0A=
++			strcat(page, "unknown\n");=0A=
++		return(strlen(page));=0A=
++	}=0A=
++=0A=
++#if	defined(ATM_SAR_DBG)=0A=
++	if(skip-- =3D=3D 0) {=0A=
++		strcpy(page, " rxlst:\t");=0A=
++		dumpCell(&page[strlen(page)], &dev->cellLastRx);=0A=
++		strcat(page, "\n");=0A=
++		return(strlen(page));=0A=
++	}=0A=
++=0A=
++	if(skip-- =3D=3D 0) {=0A=
++		strcpy(page, " txlst:\t");=0A=
++		dumpCell(&page[strlen(page)], &dev->cellLastTx);=0A=
++		strcat(page, "\n");=0A=
++		return(strlen(page));=0A=
++	}=0A=
++#endif=0A=
++=0A=
++	if(skip-- =3D=3D 0)=0A=
++		return(sprintf(page, "  vccs:\t%d\n", dev->vccs_count));=0A=
++=0A=
++	if(dev->ops->proc_read !=3D NULL)=0A=
++		return(dev->ops->proc_read(dev, &skip, page));=0A=
++=0A=
++	return(0);=0A=
++}=0A=
++=0A=
++static int	atmIOCtl(struct atm_dev *atmdev, unsigned int cmd, void =
+__user *arg) {=0A=
++	atmsar_dev_t *dev =3D SARDEV(atmdev);=0A=
++	if(dev->ops->ioctl !=3D NULL)=0A=
++		return(dev->ops->ioctl(dev, cmd, arg));=0A=
++=0A=
++	return(-EINVAL);=0A=
++}=0A=
++=0A=
++=0A=
++/**=0A=
++ * __atmSend - Sends a packet out from our device=0A=
++ * @vcc:	the atm_vcc from which the send had been invoked=0A=
++ * @skb:	the data to be sent, formatted according to the vcc AAL=0A=
++ *=0A=
++ * atmSend is our implementation of the atm_vcc's send op.=0A=
++ *=0A=
++ * The ATM code invokes this function during process context, but it =
+seems=0A=
++ * we are not supposed to use schedule() to pace the transmission.=0A=
++ * What we do is to create a further skb which will contain the AAL0 =
+(raw)=0A=
++ * version of the skb sent to us, as well as a pointer to the original=0A=
++ * skb. When data will be delivered out of the device, the original skb=0A=
++ * will be released. This way, the sock implementation of the ATM code=0A=
++ * will (should?) take care of tx pacing and such.=0A=
++ */=0A=
++static int	atmSend(struct atm_vcc* vcc, struct sk_buff* skbSrc) {=0A=
++	atmsar_vcc_t* sar =3D SARVCC(vcc);=0A=
++	atmsar_dev_t* dev =3D SARDEV(vcc->dev);=0A=
++	int ecode;=0A=
++=0A=
++	if(dev->atmdev->signal =3D=3D ATM_PHY_SIG_FOUND) {=0A=
++		ecode =3D sar->ops->encodeGetCellCount(sar, skbSrc);=0A=
++		if(ecode > 0) {=0A=
++			struct sk_buff *skb =3D alloc_skb(=0A=
++				dev->tx_head_reserve=0A=
++				+ ecode*dev->tx_cell_size=0A=
++				+ dev->tx_tail_reserve,=0A=
++				GFP_ATOMIC=0A=
++			);=0A=
++			if(skb !=3D NULL) {=0A=
++				// Attaches source skb=0A=
++				SRCSKB(skb) =3D skbSrc;=0A=
++=0A=
++				// Reserve header space=0A=
++				skb_reserve(skb, dev->tx_head_reserve);=0A=
++=0A=
++				// Encode packet into cells=0A=
++				sar->ops->encode(=0A=
++					skb,=0A=
++					(dev->flags&ATMSAR_FLG_53BYTE_CELL) ?=0A=
++						putHdrWithHec=0A=
++					:=0A=
++						putHdrNoHec,=0A=
++					sar,=0A=
++					skbSrc=0A=
++				);=0A=
++=0A=
++				// Queue it up=0A=
++				if(dev->ops->tx_restart !=3D NULL) {=0A=
++					unsigned long sts;=0A=
++					int needsTxWakeup;=0A=
++=0A=
++					spin_lock_irqsave(=0A=
++						&dev->skq_tx.lock,=0A=
++						sts=0A=
++					);=0A=
++					needsTxWakeup =3D skb_queue_empty(=0A=
++						&dev->skq_tx=0A=
++					);=0A=
++					__skb_queue_tail(&dev->skq_tx, skb);=0A=
++					spin_unlock_irqrestore(=0A=
++						&dev->skq_tx.lock,=0A=
++						sts=0A=
++					);=0A=
++=0A=
++					// Restart tx if needed=0A=
++					if(needsTxWakeup)=0A=
++						dev->ops->tx_restart(dev);=0A=
++				} else=0A=
++					skb_queue_tail(&dev->skq_tx, skb);=0A=
++=0A=
++				// Done with it=0A=
++				return(0);=0A=
++			} else=0A=
++				// No more memory=0A=
++				ecode =3D -ENOMEM;=0A=
++		}=0A=
++=0A=
++		// Is it right to report this?=0A=
++		atomic_inc(&vcc->stats->tx_err);=0A=
++	} else=0A=
++		// Well, few ideas...=0A=
++		// We refuse the packet giving back an ENOLINK.=0A=
++		// Is it wrong? What are we supposed to do?=0A=
++		ecode =3D -ENOLINK;=0A=
++=0A=
++=0A=
++	txSkbFree(skbSrc);=0A=
++	return(ecode);=0A=
++}=0A=
++=0A=
++=0A=
++static inline int	ocMutexTry(atmsar_dev_t* dev) {=0A=
++	if(atomic_dec_and_test(&dev->mtx_openclose))=0A=
++		// Mutex acquired!=0A=
++		return(1);=0A=
++=0A=
++	// Mutex acquired by someone else. Release=0A=
++	// our attempt and fail try.=0A=
++	atomic_inc(&dev->mtx_openclose);=0A=
++	return(0);=0A=
++}=0A=
++=0A=
++=0A=
++static inline atmsar_vcc_t**	GetSARPtr(atmsar_dev_t* dev, unsigned =
+vpivci) {=0A=
++	atmsar_vcc_t **psar;=0A=
++	for(=0A=
++		psar =3D &dev->vccs_hash[vpivci%ATMSAR_N_HASHVCCS];=0A=
++		*psar !=3D NULL && (*psar)->vpivci !=3D vpivci;=0A=
++		psar =3D &(*psar)->next=0A=
++	);=0A=
++=0A=
++	return(psar);=0A=
++}=0A=
++=0A=
++=0A=
++static void	atmClose(struct atm_vcc *vcc) {=0A=
++	atmsar_dev_t *dev =3D SARDEV(vcc->dev);=0A=
++	const unsigned vpivci =3D VPIVCI(vcc->vpi, vcc->vci);=0A=
++	atmsar_vcc_t **psar;=0A=
++=0A=
++	clear_bit(ATM_VF_READY, &vcc->flags);=0A=
++=0A=
++	// Wait for Open/Close mutex acquisition=0A=
++	wait_event(dev->wqh_openclose, ocMutexTry(dev));=0A=
++=0A=
++	psar =3D GetSARPtr(dev, vpivci);=0A=
++	if(unlikely(*psar =3D=3D NULL))=0A=
++		// We have no sar pointer for this vcc, so this vcc wasn't=0A=
++		// opened with us or it had been already closed.=0A=
++		printk(=0A=
++			KERN_ERR=0A=
++			ASAR_MSG "atm close on an unknown vpi/vci (%d/%d)\n",=0A=
++			dev->atmdev->number,=0A=
++			vcc->vpi, vcc->vci=0A=
++		);=0A=
++	else if(unlikely((*psar)->vcc !=3D vcc))=0A=
++		// The vcc we know being assigned to this vpi/vci pair is=0A=
++		// not the one for which a close has been asked.=0A=
++		// This is quite a weird error, since the atm layer should=0A=
++		// ensure vcc uniqueness on vpi/vci...=0A=
++		printk(=0A=
++			KERN_ERR=0A=
++			ASAR_MSG "atm close on an unmatched vpi/vci (%d/%d)\n",=0A=
++			dev->atmdev->number,=0A=
++			vcc->vpi, vcc->vci=0A=
++		);=0A=
++	else {=0A=
++		atmsar_vcc_t *sar =3D *psar;=0A=
++		unsigned long sts;=0A=
++		int lastClose;=0A=
++=0A=
++		write_lock_irqsave(&dev->rwl_vccs, sts);=0A=
++		*psar =3D sar->next;=0A=
++		lastClose =3D (--dev->vccs_count =3D=3D 0);=0A=
++		write_unlock_irqrestore(&dev->rwl_vccs, sts);=0A=
++=0A=
++		sar->ops->end(sar);=0A=
++		kfree(sar);=0A=
++		if(lastClose && dev->ops->last_close !=3D NULL)=0A=
++			// Last close.=0A=
++			// There is no spinlock hold and local irqs are in=0A=
++			// normal shape, so our client may schedule() and do=0A=
++			// (almost) whatever he/she wants...=0A=
++			dev->ops->last_close(dev);=0A=
++	}=0A=
++=0A=
++	clear_bit(ATM_VF_ADDR, &vcc->flags);=0A=
++=0A=
++	// Yield control to next open/close function=0A=
++	atomic_inc(&dev->mtx_openclose);=0A=
++	wake_up(&dev->wqh_openclose);=0A=
++}=0A=
++=0A=
++=0A=
++static inline int	__atmOpen(atmsar_dev_t* dev, struct atm_vcc* vcc) {=0A=
++	const atmsar_aalops_t** ops;=0A=
++	int ecode;=0A=
++=0A=
++	for(ops =3D aOps; *ops !=3D NULL && (*ops)->aal !=3D vcc->qos.aal; =
+++ops);=0A=
++	if(*ops =3D=3D NULL)=0A=
++		// We don't handle this aal, yet...=0A=
++		ecode =3D -ENOTSUPP;=0A=
++	else if(vcc->vpi =3D=3D ATM_VPI_UNSPEC || vcc->vci =3D=3D =
+ATM_VCI_UNSPEC)=0A=
++		// We need an address to be spec.=0A=
++		ecode =3D -EDESTADDRREQ;=0A=
++	else {=0A=
++		const unsigned vpivci =3D VPIVCI(vcc->vpi, vcc->vci);=0A=
++		atmsar_vcc_t **psar =3D GetSARPtr(dev, vpivci);=0A=
++=0A=
++		if(*psar =3D=3D NULL) {=0A=
++			atmsar_vcc_t *sar =3D (*ops)->init(vcc);=0A=
++			if(sar !=3D NULL) {=0A=
++				// There is no spinlock hold and local irqs are=0A=
++				// in normal shape, so our client may schedule()=0A=
++				// and do (almost) whatever it wants...=0A=
++				if(=0A=
++					dev->vccs_count !=3D 0		||=0A=
++					dev->ops->first_open =3D=3D NULL	||=0A=
++					(ecode =3D dev->ops->first_open(dev)) >=3D 0=0A=
++				) {=0A=
++					unsigned long sts;=0A=
++=0A=
++					sar->vpivci	=3D vpivci;=0A=
++=0A=
++					sar->dev	=3D dev;=0A=
++					sar->vcc	=3D vcc;=0A=
++					sar->ops	=3D *ops;=0A=
++=0A=
++					write_lock_irqsave(&dev->rwl_vccs, sts);=0A=
++					sar->next	=3D *psar;=0A=
++					*psar		=3D sar;=0A=
++					++dev->vccs_count;=0A=
++					write_unlock_irqrestore(=0A=
++						&dev->rwl_vccs,=0A=
++						sts=0A=
++					);=0A=
++=0A=
++					vcc->dev_data	=3D sar;=0A=
++=0A=
++					// Soldout!=0A=
++					set_bit(ATM_VF_ADDR,	&vcc->flags);=0A=
++					set_bit(ATM_VF_READY,	&vcc->flags);=0A=
++					return(0);=0A=
++				}=0A=
++=0A=
++				(*ops)->end(sar);=0A=
++				kfree(sar);=0A=
++			} else=0A=
++				// Most possible cause.=0A=
++				ecode =3D -ENOMEM;=0A=
++		} else=0A=
++			// VPI/VCI already present. This case shouln't be, since=0A=
++			// the atm layer handles this for us. Anyway...=0A=
++			ecode =3D -EADDRINUSE;=0A=
++	}=0A=
++=0A=
++	return(ecode);=0A=
++}	=0A=
++=0A=
++static int atmOpen(struct atm_vcc *vcc) {=0A=
++	atmsar_dev_t *dev =3D SARDEV(vcc->dev);=0A=
++	int ecode;=0A=
++=0A=
++	// Wait for Open/Close mutex acquisition=0A=
++	wait_event(dev->wqh_openclose, ocMutexTry(dev));=0A=
++=0A=
++	// Invoke the "true" open=0A=
++	ecode =3D __atmOpen(dev, vcc);=0A=
++=0A=
++	// Yield control to next open/close function=0A=
++	atomic_inc(&dev->mtx_openclose);=0A=
++	wake_up(&dev->wqh_openclose);=0A=
++=0A=
++	return(ecode);=0A=
++}	=0A=
++=0A=
++=0A=
++static const struct atmdev_ops	atmops =3D {=0A=
++	.owner	=3D THIS_MODULE,=0A=
++=0A=
++	.open	=3D atmOpen,=0A=
++	.close	=3D atmClose,=0A=
++	.send	=3D atmSend,=0A=
++	.ioctl	=3D atmIOCtl,=0A=
++=0A=
++	.proc_read =3D atmProcRead=0A=
++};=0A=
++=0A=
++=0A=
++void			atmsar_tx_skb_complete(struct sk_buff *skb) {=0A=
++	struct sk_buff* skbSrc =3D SRCSKB(skb);=0A=
++=0A=
++	atomic_inc(&ATM_SKB(skbSrc)->vcc->stats->tx);=0A=
++=0A=
++	txSkbFree(skbSrc);=0A=
++	kfree_skb(skb);=0A=
++}=0A=
++=0A=
++void			atmsar_tx_skb_discard(struct sk_buff *skb) {=0A=
++	struct sk_buff* skbSrc =3D SRCSKB(skb);=0A=
++=0A=
++	atomic_inc(&ATM_SKB(skbSrc)->vcc->stats->tx_err);=0A=
++=0A=
++	txSkbFree(skbSrc);=0A=
++	kfree_skb(skb);=0A=
++}=0A=
++=0A=
++void			atmsar_tx_purge(atmsar_dev_t* dev) {=0A=
++	struct sk_buff *skb;=0A=
++	unsigned long sts;=0A=
++=0A=
++	spin_lock_irqsave(&dev->skq_tx.lock, sts);=0A=
++	while((skb =3D __skb_dequeue(&dev->skq_tx)) !=3D NULL)=0A=
++		atmsar_tx_skb_discard(skb);=0A=
++	spin_unlock_irqrestore(&dev->skq_tx.lock, sts);=0A=
++}=0A=
++=0A=
++=0A=
++void		atmsar_rx_purge(atmsar_dev_t *dev) {=0A=
++	int i;=0A=
++	unsigned long sts;=0A=
++=0A=
++	read_lock_irqsave(&dev->rwl_vccs, sts);=0A=
++	for(i =3D 0; i < ATMSAR_N_HASHVCCS; ++i) {=0A=
++		atmsar_vcc_t* sar;=0A=
++		for(sar =3D dev->vccs_hash[i]; sar !=3D NULL; sar =3D sar->next)=0A=
++			sar->ops->decodeReset(sar);=0A=
++	}=0A=
++	read_unlock_irqrestore(&dev->rwl_vccs, sts);=0A=
++}=0A=
++=0A=
++static void	sarDecode(=0A=
++	atmsar_dev_t*	dev,=0A=
++	unsigned	hdr,=0A=
++	const void*	payload=0A=
++) {=0A=
++	atmsar_vcc_t*	sar;=0A=
++	unsigned long	sts;=0A=
++=0A=
++	read_lock_irqsave(&dev->rwl_vccs, sts);=0A=
++	sar =3D *GetSARPtr(dev, hdr&(ATM_HDR_VPI_MASK|ATM_HDR_VCI_MASK));=0A=
++	if(sar !=3D NULL) {=0A=
++		struct sk_buff* skb =3D sar->ops->decode(sar, hdr, payload);=0A=
++		read_unlock_irqrestore(&dev->rwl_vccs, sts);=0A=
++=0A=
++		if(skb !=3D NULL) {=0A=
++			// We got a (reassembled) packet.=0A=
++			if(likely(atm_charge(sar->vcc, skb->truesize))) {=0A=
++				// Push it up to upper layers=0A=
++				sar->vcc->push(sar->vcc, skb);=0A=
++				atomic_inc(&sar->vcc->stats->rx);=0A=
++			} else=0A=
++				// atm_charge() increments rx_drop=0A=
++				dev_kfree_skb(skb);=0A=
++		}=0A=
++	} else=0A=
++		// An 'empty' cell (which are mostly tagged by a (0,0)=0A=
++		// (VPI,VCI), but this may be device-specific), or even=0A=
++		// a cell for an unopened vcc.=0A=
++		// We just discard it without any further notification.=0A=
++		read_unlock_irqrestore(&dev->rwl_vccs, sts);=0A=
++}=0A=
++=0A=
++void		atmsar_rx_decode_52bytes(atmsar_dev_t* dev, const void* cell)=0A=
++{ sarDecode(dev, ntohl(*(unsigned*)cell), &((char*)cell)[4]); }=0A=
++=0A=
++void		atmsar_rx_decode_53bytes(atmsar_dev_t* dev, const void* cell) {=0A=
++	const unsigned posErr =3D=0A=
++		tabPos[hecCompute(cell) ^ ((unsigned char*)cell)[4]]=0A=
++	;=0A=
++	unsigned hdr;=0A=
++=0A=
++	if(posErr =3D=3D SYN_OK)=0A=
++		hdr =3D ntohl(*(unsigned*)cell);=0A=
++	else if(posErr =3D=3D SYN_ER || !chbad) {=0A=
++		// Cell discarded due to hec error.=0A=
++		atomic_inc(&dev->atmdev->stats.aal0.rx_err);=0A=
++		return;=0A=
++	} else=0A=
++		// Correcting header error=0A=
++		hdr =3D ntohl(*(unsigned*)cell)^(0x80000000 >> (posErr%8));=0A=
++=0A=
++	// Decode!=0A=
++	sarDecode(dev, hdr, &((char*)cell)[5]);=0A=
++}=0A=
++=0A=
++void		atmsar_rx_decode_53bytes_skiphec(=0A=
++	atmsar_dev_t*	dev,=0A=
++	const void*	cell=0A=
++) { sarDecode(dev, ntohl(*(unsigned*)cell), &((char*)cell)[5]); }=0A=
++=0A=
++=0A=
++void		atmsar_dev_deregister(atmsar_dev_t *dev) {=0A=
++	int i;=0A=
++=0A=
++	atm_dev_deregister(dev->atmdev);=0A=
++=0A=
++	for(i =3D 0; i < ATMSAR_N_HASHVCCS; ++i)=0A=
++		while(dev->vccs_hash[i] !=3D NULL)=0A=
++			atmClose(dev->vccs_hash[i]->vcc);=0A=
++=0A=
++	kfree(dev);=0A=
++}=0A=
++=0A=
++=0A=
++static const atmsar_ops_t nullOps =3D { NULL };=0A=
++=0A=
++atmsar_dev_t*		atmsar_dev_register(=0A=
++	const char		*name,=0A=
++	const unsigned char	*esi,=0A=
++	const atmsar_ops_t	*ops,=0A=
++	const struct atmphy_ops	*phy_ops,=0A=
++	unsigned		flags,=0A=
++	size_t			tx_head_reserve,=0A=
++	size_t			tx_tail_reserve,=0A=
++	size_t			tx_cell_size=0A=
++) {=0A=
++	const size_t szCell =3D=0A=
++		(flags&ATMSAR_FLG_53BYTE_CELL) ? ATM_CELL_SIZE : ATM_AAL0_SDU=0A=
++	;=0A=
++	if(=0A=
++		(flags&~(ATMSAR_FLG_53BYTE_CELL)) =3D=3D 0	&&=0A=
++		tx_head_reserve >=3D 0			&&=0A=
++		tx_tail_reserve >=3D 0			&&=0A=
++		tx_cell_size >=3D szCell=0A=
++	) {=0A=
++		atmsar_dev_t* dev =3D kmalloc(sizeof(*dev), GFP_KERNEL);=0A=
++		if(dev !=3D NULL) {=0A=
++			memset(dev, 0, sizeof(*dev));=0A=
++=0A=
++			dev->atmdev =3D atm_dev_register(name, &atmops, -1, NULL);=0A=
++			if(dev->atmdev !=3D NULL) {=0A=
++				if(esi !=3D NULL)=0A=
++					memcpy(dev->atmdev->esi, esi, ESI_LEN);=0A=
++=0A=
++				// The 'classical' sizes for vpi/vci fields.=0A=
++				// Since we are using this module, our hardware=0A=
++				// has seldom any preference about this. This=0A=
++				// not holding, just change these fields right=0A=
++				// after your call to atmsar_dev_register()=0A=
++				dev->atmdev->ci_range.vpi_bits =3D  8;=0A=
++				dev->atmdev->ci_range.vci_bits =3D 16;=0A=
++=0A=
++				dev->atmdev->phy =3D phy_ops;=0A=
++				dev->atmdev->dev_data =3D dev;=0A=
++=0A=
++				dev->data  =3D NULL;=0A=
++				dev->flags =3D flags;=0A=
++				dev->ops   =3D ops !=3D NULL ? ops : &nullOps;=0A=
++=0A=
++				// Parameters for tx buffers adjusting=0A=
++				dev->tx_head_reserve =3D tx_head_reserve;=0A=
++				dev->tx_tail_reserve =3D tx_tail_reserve;=0A=
++				dev->tx_cell_size =3D tx_cell_size;=0A=
++				dev->tx_cell_gap  =3D tx_cell_size - szCell;=0A=
++=0A=
++				memset(dev->vccs_hash, 0, sizeof(dev->vccs_hash));=0A=
++				dev->rwl_vccs =3D RW_LOCK_UNLOCKED;=0A=
++=0A=
++				atomic_set(&dev->mtx_openclose, 1);=0A=
++				init_waitqueue_head(&dev->wqh_openclose);=0A=
++=0A=
++				skb_queue_head_init(&dev->skq_tx);=0A=
++=0A=
++				dev->rx_speed =3D ATMSAR_SPEED_UNSPEC;=0A=
++				dev->tx_speed =3D ATMSAR_SPEED_UNSPEC;=0A=
++=0A=
++				// Sold out!=0A=
++				return(dev);=0A=
++			}=0A=
++=0A=
++			kfree(dev);=0A=
++		}=0A=
++	}=0A=
++=0A=
++	return(NULL);=0A=
++}=0A=
++=0A=
++=0A=
++static int __init	initModule(void) {=0A=
++	printk(KERN_INFO "ATMSAR module v." VERSION " loaded.\n");=0A=
++	return(0);=0A=
++}=0A=
++=0A=
++module_init(initModule);=0A=
++=0A=
++=0A=
++static void __exit	endModule(void)=0A=
++{ printk(KERN_INFO "ATMSAR module removed.\n"); }=0A=
++=0A=
++module_exit(endModule);=0A=
++=0A=
++=0A=
++EXPORT_SYMBOL_GPL(atmsar_tx_skb_complete);=0A=
++EXPORT_SYMBOL_GPL(atmsar_tx_skb_discard);=0A=
++EXPORT_SYMBOL_GPL(atmsar_tx_purge);=0A=
++EXPORT_SYMBOL_GPL(atmsar_rx_purge);=0A=
++EXPORT_SYMBOL_GPL(atmsar_rx_decode_52bytes);=0A=
++EXPORT_SYMBOL_GPL(atmsar_rx_decode_53bytes);=0A=
++EXPORT_SYMBOL_GPL(atmsar_rx_decode_53bytes_skiphec);=0A=
++EXPORT_SYMBOL_GPL(atmsar_dev_deregister);=0A=
++EXPORT_SYMBOL_GPL(atmsar_dev_register);=0A=
++=0A=
++MODULE_DESCRIPTION("An ATM SAR library for AAL-unaware ATM devices");=0A=
++MODULE_LICENSE("GPL");=0A=
++MODULE_AUTHOR("Giampaolo Tomassoni");=0A=
++MODULE_VERSION(VERSION);=0A=
+diff -Nurd linux-2.6.13/drivers/atm/sar.h =
+linux-2.6.13+atmsar/drivers/atm/sar.h=0A=
+--- linux-2.6.13/drivers/atm/sar.h	1970-01-01 01:00:00.000000000 +0100=0A=
++++ linux-2.6.13+atmsar/drivers/atm/sar.h	2005-09-04 12:08:25.000000000 =
++0200=0A=
+@@ -0,0 +1,81 @@=0A=
++/* ATM SAR layer=0A=
++ *=0A=
++ * Copyright (C) 2005 Giampaolo Tomassoni=0A=
++ *=0A=
++ * This program is free software; you can redistribute it and/or modify=0A=
++ * it under the terms of the GNU General Public License as published by=0A=
++ * the Free Software Foundation; either version 2 of the License, or=0A=
++ * (at your option) any later version.=0A=
++ *=0A=
++ * This program is distributed in the hope that it will be useful,=0A=
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of=0A=
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the=0A=
++ * GNU General Public License for more details.=0A=
++ *=0A=
++ * You should have received a copy of the GNU General Public License=0A=
++ * along with this program; if not, write to the Free Software=0A=
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 =
+ USA=0A=
++ *=0A=
++ * The GNU GPL is contained in /usr/doc/copyright/GPL on a Debian=0A=
++ * system and in the file COPYING in the Linux kernel source.=0A=
++ */=0A=
++=0A=
++/*=0A=
++ * CREDITS go to the following people:=0A=
++ *=0A=
++ * - Johan Verrept, for its previous work on a SAR library in Linux;=0A=
++ * - Charles Michael Heard for its tutorial on CRC-8 Error Correction.=0A=
++ * - Chas Williams for its help in integrating this with the ATM module.=0A=
++ *=0A=
++ *=0A=
++ * Theory of operation and api description in include/linux/atmsar.h=0A=
++ */=0A=
++#if	!defined(_SAR_H__INCLUDED)=0A=
++#define	_SAR_H__INCLUDED=0A=
++=0A=
++=0A=
++#define	SZAALENCODESTS	32=0A=
++=0A=
++struct	atmsar_vcc_base	{=0A=
++	struct atmsar_vcc_base	*next;=0A=
++	unsigned		vpivci;=0A=
++=0A=
++	atmsar_dev_t		*dev;=0A=
++	struct atm_vcc		*vcc;=0A=
++	const atmsar_aalops_t	*ops;=0A=
++};=0A=
++=0A=
++typedef	void		SARPUTHDR(struct sk_buff* skb, unsigned hdr);=0A=
++=0A=
++typedef	atmsar_vcc_t*	AALINIT(struct atm_vcc* vcc);=0A=
++typedef	void		AALEND(atmsar_vcc_t* sar);=0A=
++typedef void		AALDECODERRESET(atmsar_vcc_t* sar);=0A=
++typedef struct sk_buff*	AALDECODER(=0A=
++	atmsar_vcc_t*	sar,=0A=
++	unsigned	hdr,=0A=
++	const void*	payload=0A=
++);=0A=
++typedef int     	AALENCODERGCC(atmsar_vcc_t* sar, struct sk_buff* =
+skbIn);=0A=
++typedef void		AALENCODER(=0A=
++	struct sk_buff*	skbOut,=0A=
++	SARPUTHDR*	putHdr,=0A=
++	atmsar_vcc_t*	sar,=0A=
++	struct sk_buff*	skbIn=0A=
++);=0A=
++=0A=
++struct	atmsar_aalops	{=0A=
++	unsigned char	aal;=0A=
++=0A=
++	char*		name;=0A=
++=0A=
++	AALINIT*	init;=0A=
++	AALEND*		end;=0A=
++=0A=
++	AALDECODERRESET* decodeReset;=0A=
++	AALDECODER*	decode;=0A=
++=0A=
++	AALENCODERGCC*	encodeGetCellCount;=0A=
++	AALENCODER*	encode;=0A=
++};=0A=
++=0A=
++#endif	// defined(_SAR_H__INCLUDED)=0A=
+diff -Nurd linux-2.6.13/drivers/atm/saraal0.c =
+linux-2.6.13+atmsar/drivers/atm/saraal0.c=0A=
+--- linux-2.6.13/drivers/atm/saraal0.c	1970-01-01 01:00:00.000000000 =
++0100=0A=
++++ linux-2.6.13+atmsar/drivers/atm/saraal0.c	2005-09-04 =
+12:34:36.000000000 +0200=0A=
+@@ -0,0 +1,148 @@=0A=
++/* ATM SAR layer=0A=
++ *=0A=
++ * Copyright (C) 2005 Giampaolo Tomassoni=0A=
++ *=0A=
++ * This program is free software; you can redistribute it and/or modify=0A=
++ * it under the terms of the GNU General Public License as published by=0A=
++ * the Free Software Foundation; either version 2 of the License, or=0A=
++ * (at your option) any later version.=0A=
++ *=0A=
++ * This program is distributed in the hope that it will be useful,=0A=
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of=0A=
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the=0A=
++ * GNU General Public License for more details.=0A=
++ *=0A=
++ * You should have received a copy of the GNU General Public License=0A=
++ * along with this program; if not, write to the Free Software=0A=
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 =
+ USA=0A=
++ *=0A=
++ * The GNU GPL is contained in /usr/doc/copyright/GPL on a Debian=0A=
++ * system and in the file COPYING in the Linux kernel source.=0A=
++ */=0A=
++=0A=
++/*=0A=
++ * CREDITS go to the following people:=0A=
++ *=0A=
++ * - Johan Verrept, for its previous work on a SAR library in Linux;=0A=
++ * - Charles Michael Heard for its tutorial on CRC-8 Error Correction.=0A=
++ * - Chas Williams for its help in integrating this with the ATM module.=0A=
++ *=0A=
++ *=0A=
++ * Theory of operation and api description in include/linux/atmsar.h=0A=
++ */=0A=
++#include <linux/version.h>=0A=
++#include <linux/module.h>=0A=
++#include <linux/moduleparam.h>=0A=
++#include <linux/gfp.h>=0A=
++#include <linux/kernel.h>=0A=
++#include <linux/sched.h>=0A=
++#include <linux/wait.h>=0A=
++#include <linux/list.h>=0A=
++#include <linux/smp_lock.h>=0A=
++#include <linux/init.h>=0A=
++#include <linux/errno.h>=0A=
++#include <linux/skbuff.h>=0A=
++#include <linux/atm.h>=0A=
++#include <linux/atmdev.h>=0A=
++=0A=
++#include <linux/atmsar.h>=0A=
++#include "sar.h"=0A=
++=0A=
++=0A=
++static int	aal0EncodeGetCellCount(=0A=
++	atmsar_vcc_t*	sar,=0A=
++	struct sk_buff*	skbIn=0A=
++) {=0A=
++	atomic_inc(&sar->vcc->stats->tx);=0A=
++	return((skbIn->len + ATM_CELL_PAYLOAD - 1)/ATM_CELL_PAYLOAD);=0A=
++}=0A=
++=0A=
++static void	aal0Encode(=0A=
++	struct sk_buff*	skbOut,=0A=
++	SARPUTHDR*	putHdr,=0A=
++	atmsar_vcc_t*	sar,=0A=
++	struct sk_buff*	skbIn=0A=
++) {=0A=
++	size_t len =3D skbIn->len;=0A=
++	unsigned hdr =3D sar->vpivci;=0A=
++=0A=
++	if(len =3D=3D 0) {=0A=
++		putHdr(skbOut, hdr|(ATM_PTI_US1|ATM_HDR_PTI_SHIFT));=0A=
++		memset(skb_put(skbOut, ATM_CELL_PAYLOAD), 0, ATM_CELL_PAYLOAD);=0A=
++	} else {=0A=
++		unsigned char* payload;=0A=
++=0A=
++		do {=0A=
++			if(len > ATM_CELL_PAYLOAD)=0A=
++				len =3D ATM_CELL_PAYLOAD;=0A=
++			else=0A=
++				hdr |=3D ATM_PTI_US1<<ATM_HDR_PTI_SHIFT;=0A=
++=0A=
++			putHdr(skbOut, hdr);=0A=
++=0A=
++			payload =3D skb_put(skbOut, ATM_CELL_PAYLOAD);=0A=
++=0A=
++			if(sar->dev->tx_cell_gap !=3D 0)=0A=
++				memset(=0A=
++					skb_put(skbOut, sar->dev->tx_cell_gap),=0A=
++					0,=0A=
++					sar->dev->tx_cell_gap=0A=
++				);=0A=
++=0A=
++			if(len > 0)=0A=
++				memcpy(payload, skb_pull(skbIn, len), len);=0A=
++=0A=
++			len =3D skbIn->len;=0A=
++		} while(len !=3D 0);=0A=
++=0A=
++		if(len < ATM_CELL_PAYLOAD)=0A=
++			memset(&payload[len], 0, ATM_CELL_PAYLOAD - len);=0A=
++	}=0A=
++}=0A=
++=0A=
++=0A=
++static void	aal0DecodeReset(atmsar_vcc_t* sar)=0A=
++{}=0A=
++=0A=
++static struct sk_buff*	aal0Decode(=0A=
++	atmsar_vcc_t*	sar,=0A=
++	unsigned	hdr,=0A=
++	const void*	payload=0A=
++) {=0A=
++	struct sk_buff *skb =3D dev_alloc_skb(ATM_CELL_PAYLOAD);=0A=
++	if(skb =3D=3D NULL) {=0A=
++		atomic_inc(&sar->vcc->stats->rx_drop);=0A=
++		return(NULL);=0A=
++	}=0A=
++=0A=
++	memcpy(skb_put(skb, ATM_CELL_PAYLOAD), payload, ATM_CELL_PAYLOAD);=0A=
++	atomic_inc(&sar->vcc->stats->rx);=0A=
++	return(skb);=0A=
++}=0A=
++=0A=
++=0A=
++static atmsar_vcc_t*	aal0Init(struct atm_vcc* vcc) {=0A=
++	atmsar_vcc_t* sar =3D (atmsar_vcc_t*)kmalloc(sizeof(*sar), GFP_KERNEL);=0A=
++	if(sar !=3D NULL)=0A=
++		memset(sar, 0, sizeof(*sar));=0A=
++=0A=
++	return(sar);=0A=
++}=0A=
++=0A=
++static void	aal0End(atmsar_vcc_t* sarvcc)=0A=
++{/* kfree() in atmsarmod.c */}=0A=
++=0A=
++=0A=
++const atmsar_aalops_t opsAAL0 =3D {=0A=
++	ATM_NO_AAL,=0A=
++	"0",=0A=
++=0A=
++	aal0Init,=0A=
++	aal0End,=0A=
++=0A=
++	aal0DecodeReset,=0A=
++	aal0Decode,=0A=
++=0A=
++	aal0EncodeGetCellCount,=0A=
++	aal0Encode=0A=
++};=0A=
+diff -Nurd linux-2.6.13/drivers/atm/saraal5.c =
+linux-2.6.13+atmsar/drivers/atm/saraal5.c=0A=
+--- linux-2.6.13/drivers/atm/saraal5.c	1970-01-01 01:00:00.000000000 =
++0100=0A=
++++ linux-2.6.13+atmsar/drivers/atm/saraal5.c	2005-09-04 =
+12:21:11.000000000 +0200=0A=
+@@ -0,0 +1,445 @@=0A=
++/* ATM SAR layer=0A=
++ *=0A=
++ * Copyright (C) 2005 Giampaolo Tomassoni=0A=
++ *=0A=
++ * This program is free software; you can redistribute it and/or modify=0A=
++ * it under the terms of the GNU General Public License as published by=0A=
++ * the Free Software Foundation; either version 2 of the License, or=0A=
++ * (at your option) any later version.=0A=
++ *=0A=
++ * This program is distributed in the hope that it will be useful,=0A=
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of=0A=
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the=0A=
++ * GNU General Public License for more details.=0A=
++ *=0A=
++ * You should have received a copy of the GNU General Public License=0A=
++ * along with this program; if not, write to the Free Software=0A=
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 =
+ USA=0A=
++ *=0A=
++ * The GNU GPL is contained in /usr/doc/copyright/GPL on a Debian=0A=
++ * system and in the file COPYING in the Linux kernel source.=0A=
++ */=0A=
++=0A=
++/*=0A=
++ * CREDITS go to the following people:=0A=
++ *=0A=
++ * - Johan Verrept, for its previous work on a SAR library in Linux;=0A=
++ * - Charles Michael Heard for its tutorial on CRC-8 Error Correction.=0A=
++ * - Chas Williams for its help in integrating this with the ATM module.=0A=
++ *=0A=
++ *=0A=
++ * Theory of operation and api description in include/linux/atmsar.h=0A=
++ */=0A=
++#include <linux/version.h>=0A=
++#include <linux/module.h>=0A=
++#include <linux/moduleparam.h>=0A=
++#include <linux/gfp.h>=0A=
++#include <linux/kernel.h>=0A=
++#include <linux/sched.h>=0A=
++#include <linux/wait.h>=0A=
++#include <linux/list.h>=0A=
++#include <linux/smp_lock.h>=0A=
++#include <linux/init.h>=0A=
++#include <linux/errno.h>=0A=
++#include <linux/skbuff.h>=0A=
++#include <linux/crc32.h>=0A=
++#include <linux/atm.h>=0A=
++#include <linux/atmdev.h>=0A=
++=0A=
++#include <linux/atmsar.h>=0A=
++#include "sar.h"=0A=
++=0A=
++=0A=
++/* SZ_FIRST_AAL5SDU=0A=
++ * This is the initial size of an AAL5 assembly buffer.=0A=
++ * The initial size is large enough to allow for common AAL5 SDUs, ie: =
+the=0A=
++ * more-or-less 1544 bytes of an IP-Over-ATM link.=0A=
++ * If the receiving packets and the vcc MTU dictate for a greater SDU,=0A=
++ * the buffer is allowed to progressively double in size up to 64KB at =
+cell=0A=
++ * reception until the SDU needs are satisfied or the vcc MTU limit is =
+reached.=0A=
++ * This buffer is basicly per-vcc and is released at vcc close, so at =
+any=0A=
++ * time its size is due to the largest SDU received compatible with the =
+MTU.=0A=
++ */=0A=
++#define	SZ_FIRST_AAL5SDU	(2*1024)=0A=
++=0A=
++/* CRC32_REMAINDER=0A=
++ * This is the remainder 32-bit word expected to be returned by the =
+crc32=0A=
++ * function on valid ATM SDU.=0A=
++ */=0A=
++#define CRC32_REMAINDER	0xc704dd7b=0A=
++=0A=
++=0A=
++typedef	struct _atmsar_vcc_t5 {=0A=
++	atmsar_vcc_t	com;=0A=
++=0A=
++	// Decoder status=0A=
++	size_t		rxMtu;	// Maximum (incoming) Transmit Unit=0A=
++	unsigned char	*rxBuf;=0A=
++	size_t		rxSize;=0A=
++	size_t		rxLen;=0A=
++	unsigned int	rxHead;=0A=
++	unsigned int	rxTail;=0A=
++=0A=
++	// Encoder status=0A=
++	size_t		txMtu;	// Maximum (outgoing) Transmit Unit=0A=
++}	atmsar_vcc_t5;=0A=
++=0A=
++=0A=
++#pragma	pack(1)=0A=
++typedef struct	_aal5pdu {=0A=
++	unsigned char	pl[ATM_CELL_PAYLOAD - ATM_AAL5_TRAILER];=0A=
++	unsigned char	uu;=0A=
++	unsigned char	cpi;=0A=
++	unsigned short	len;=0A=
++	unsigned int	crc;=0A=
++}	aal5pdu_t;=0A=
++#pragma	pack()=0A=
++=0A=
++=0A=
++static int	aal5EncodeGetCellCount(=0A=
++	atmsar_vcc_t*	sar,=0A=
++	struct sk_buff*	skbIn=0A=
++) {=0A=
++	if(skbIn->len > ((atmsar_vcc_t5*)sar)->txMtu)=0A=
++		return(-EMSGSIZE);=0A=
++=0A=
++	return(=0A=
++		(skbIn->len + ATM_AAL5_TRAILER + ATM_CELL_PAYLOAD - 1)=0A=
++		/ATM_CELL_PAYLOAD=0A=
++	);=0A=
++}=0A=
++=0A=
++static void	aal5Encode(=0A=
++	struct sk_buff*	skbOut,=0A=
++	SARPUTHDR*	putHdr,=0A=
++	atmsar_vcc_t*	sar,=0A=
++	struct sk_buff*	skbIn=0A=
++) {=0A=
++	const size_t tx_cell_gap =3D sar->dev->tx_cell_gap;=0A=
++	const size_t len =3D skbIn->len;=0A=
++	aal5pdu_t *pdu;=0A=
++	size_t trLen;=0A=
++	unsigned crc =3D ~0;=0A=
++=0A=
++	while(skbIn->len >=3D ATM_CELL_PAYLOAD) {=0A=
++		unsigned char* payload;=0A=
++=0A=
++		putHdr(skbOut, sar->vpivci);=0A=
++		payload =3D skb_put(skbOut, ATM_CELL_PAYLOAD);=0A=
++=0A=
++		memcpy(payload, skbIn->data, ATM_CELL_PAYLOAD);=0A=
++		crc =3D crc32_be(crc, payload, ATM_CELL_PAYLOAD);=0A=
++		skb_pull(skbIn, ATM_CELL_PAYLOAD);=0A=
++=0A=
++		if(tx_cell_gap !=3D 0)=0A=
++			memset(skb_put(skbOut, tx_cell_gap), 0, tx_cell_gap);=0A=
++	}=0A=
++=0A=
++	// Now skbIn->len is assured to be < ATM_CELL_PAYLOAD=0A=
++=0A=
++	if(skbIn->len > ATM_CELL_PAYLOAD - ATM_AAL5_TRAILER) {=0A=
++		unsigned char* payload;=0A=
++=0A=
++		putHdr(skbOut, sar->vpivci);=0A=
++		payload =3D skb_put(skbOut, ATM_CELL_PAYLOAD);=0A=
++=0A=
++		trLen =3D skbIn->len;=0A=
++		memcpy(payload, skbIn->data, trLen);=0A=
++		memset(&payload[trLen], 0, ATM_CELL_PAYLOAD - trLen);=0A=
++		crc =3D crc32_be(crc, payload, ATM_CELL_PAYLOAD);=0A=
++		skb_pull(skbIn, trLen);=0A=
++=0A=
++		if(tx_cell_gap !=3D 0)=0A=
++			memset(skb_put(skbOut, tx_cell_gap), 0, tx_cell_gap);=0A=
++	}=0A=
++=0A=
++	putHdr(skbOut, sar->vpivci|(ATM_PTI_US1<<ATM_HDR_PTI_SHIFT));=0A=
++	pdu =3D (aal5pdu_t*)skb_put(skbOut, sizeof(*pdu));=0A=
++=0A=
++	trLen =3D skbIn->len;=0A=
++	if(trLen !=3D 0) {=0A=
++		memcpy(pdu->pl, skbIn->data, trLen);=0A=
++		skb_pull(skbIn, trLen);=0A=
++	}=0A=
++=0A=
++	if(trLen < ATM_CELL_PAYLOAD - ATM_AAL5_TRAILER)=0A=
++		memset(&pdu->pl[trLen], 0, ATM_CELL_PAYLOAD - ATM_AAL5_TRAILER - =
+trLen);=0A=
++=0A=
++	pdu->uu =3D pdu->cpi =3D 0;=0A=
++	pdu->len =3D htons((unsigned short)len);=0A=
++	pdu->crc =3D htonl(=0A=
++		~crc32_be(crc, pdu->pl, sizeof(*pdu) - sizeof(pdu->crc))=0A=
++	);=0A=
++=0A=
++	if(tx_cell_gap !=3D 0)=0A=
++		memset(skb_put(skbOut, tx_cell_gap), 0, tx_cell_gap);=0A=
++}=0A=
++=0A=
++=0A=
++static void inline	aal5DecodeDoReset(atmsar_vcc_t5* ctx)=0A=
++{ ctx->rxLen =3D ctx->rxHead =3D ctx->rxTail =3D 0; }=0A=
++=0A=
++static void		aal5DecodeReset(atmsar_vcc_t* sar) {=0A=
++	atmsar_vcc_t5 *ctx =3D (atmsar_vcc_t5*)sar;=0A=
++	if(ctx->rxLen !=3D 0) {=0A=
++		atomic_inc(&sar->vcc->stats->rx_err);=0A=
++		aal5DecodeDoReset(ctx);=0A=
++	}=0A=
++}=0A=
++=0A=
++static struct sk_buff*	aal5Decode(=0A=
++	atmsar_vcc_t*	sar,=0A=
++	unsigned	hdr,=0A=
++	const void*	payload=0A=
++) {=0A=
++	atmsar_vcc_t5* ctx =3D (atmsar_vcc_t5*)sar;=0A=
++=0A=
++	const unsigned pti =3D hdr&ATM_HDR_PTI_MASK;=0A=
++	if(=0A=
++		pti =3D=3D (ATM_PTI_US1<<ATM_HDR_PTI_SHIFT)	||=0A=
++		pti =3D=3D (ATM_PTI_UCES1<<ATM_HDR_PTI_SHIFT)=0A=
++	) {=0A=
++		// Last cell=0A=
++		const aal5pdu_t *pdu =3D (aal5pdu_t*)payload;=0A=
++		const size_t lenTotal =3D (size_t)ntohs(pdu->len);=0A=
++		int lenLeft =3D lenTotal;=0A=
++		int hadDiscardedCells =3D 0;=0A=
++		unsigned crc =3D ~0;=0A=
++		struct sk_buff *skb;=0A=
++=0A=
++		const int nMissingCells =3D ctx->rxLen/ATM_CELL_PAYLOAD - (=0A=
++			(lenTotal + ATM_AAL5_TRAILER + ATM_CELL_PAYLOAD - 1)=0A=
++			/ATM_CELL_PAYLOAD - 1=0A=
++		);=0A=
++		if(nMissingCells > 0) {=0A=
++			// Too few cells in buffer=0A=
++			aal5DecodeReset(sar);=0A=
++			return(NULL);=0A=
++		} else if(nMissingCells < 0) {=0A=
++			// Too many cells in buffer=0A=
++			const size_t lenDiff =3D -nMissingCells*ATM_CELL_PAYLOAD;=0A=
++			ctx->rxTail =3D (ctx->rxTail + lenDiff)%ctx->rxSize;=0A=
++			ctx->rxLen -=3D lenDiff;=0A=
++=0A=
++			hadDiscardedCells =3D 1;=0A=
++		}=0A=
++=0A=
++		// A bit of optimism: we alloc an skb right now,=0A=
++		// while SDU content is not yet validated.=0A=
++		skb =3D dev_alloc_skb(lenTotal);=0A=
++		if(skb =3D=3D NULL) {=0A=
++			// skb allocation failed=0A=
++			atomic_inc(&sar->vcc->stats->rx_drop);=0A=
++			aal5DecodeDoReset(ctx);=0A=
++			return(NULL);=0A=
++		}=0A=
++=0A=
++		// Copy SDU data from buffer=0A=
++		while(ctx->rxLen !=3D 0 && lenLeft !=3D 0) {=0A=
++			size_t len =3D ctx->rxLen;=0A=
++			if(len > ctx->rxSize - ctx->rxTail)=0A=
++				// Start with first chunk=0A=
++				len =3D ctx->rxSize - ctx->rxTail;=0A=
++			if(len > lenLeft)=0A=
++				len =3D lenLeft;=0A=
++=0A=
++			crc =3D crc32_be(=0A=
++				crc,=0A=
++				memcpy(=0A=
++					skb_put(skb, len),=0A=
++					&ctx->rxBuf[ctx->rxTail],=0A=
++					len=0A=
++				),=0A=
++				len=0A=
++			);=0A=
++=0A=
++			ctx->rxTail =3D (ctx->rxTail + len)%ctx->rxSize;=0A=
++			ctx->rxLen -=3D len;=0A=
++			lenLeft	   -=3D len;=0A=
++		}=0A=
++=0A=
++		// At this point, rxLen and lenLeft can't be both non-zero=0A=
++		if(ctx->rxLen !=3D 0)=0A=
++			// SDU end: no copy but do crc on padding.=0A=
++			// There should be only one cell left in buffer,=0A=
++			// but we can't assume rxTail will not cross=0A=
++			// buffer boundaries since the buffer size is not=0A=
++			// necessarly a multiple of a cell's payload size.=0A=
++			do {=0A=
++				size_t len =3D ctx->rxLen;=0A=
++				if(len > ctx->rxSize - ctx->rxTail)=0A=
++					len =3D ctx->rxSize - ctx->rxTail;=0A=
++=0A=
++				crc =3D crc32_be(=0A=
++					crc,=0A=
++					&ctx->rxBuf[ctx->rxTail],=0A=
++					len=0A=
++				);=0A=
++=0A=
++				ctx->rxTail =3D (ctx->rxTail + len)%ctx->rxSize;=0A=
++				ctx->rxLen -=3D len;=0A=
++			} while(ctx->rxLen !=3D 0);=0A=
++		else if(lenLeft !=3D 0)=0A=
++			// Buffer end: now copy data from PTI cell=0A=
++			crc =3D crc32_be(=0A=
++				crc,=0A=
++				memcpy(skb_put(skb, lenLeft), pdu->pl, lenLeft),=0A=
++				lenLeft=0A=
++			);=0A=
++=0A=
++		// We don't need the rx buffer anymore=0A=
++		aal5DecodeDoReset(ctx);=0A=
++=0A=
++		// Crc on padding, uu, cpi, len, and crc in PTI cell=0A=
++		crc =3D crc32_be(=0A=
++			crc,=0A=
++			&pdu->pl[lenLeft],=0A=
++			ATM_CELL_PAYLOAD - lenLeft=0A=
++		);=0A=
++=0A=
++		if(crc !=3D CRC32_REMAINDER) {=0A=
++			// SDU unreliable. Discard it!=0A=
++			dev_kfree_skb(skb);=0A=
++			atomic_inc(&sar->vcc->stats->rx_err);=0A=
++			return(NULL);=0A=
++		} else if(hadDiscardedCells)=0A=
++			// This is because we don't want to increase=0A=
++			// rx_err twice when there are discarder cells=0A=
++			// AND the SDU content isn't reliable...=0A=
++			atomic_inc(&sar->vcc->stats->rx_err);=0A=
++=0A=
++		// SDU reliable. Give it back!=0A=
++		return(skb);=0A=
++	} else {=0A=
++		// Start or middle cell=0A=
++		size_t newLen;=0A=
++=0A=
++		if(ctx->rxSize =3D=3D 0) {=0A=
++			ctx->rxBuf =3D kmalloc(SZ_FIRST_AAL5SDU, GFP_ATOMIC);=0A=
++			if(ctx->rxBuf =3D=3D NULL) {=0A=
++				atomic_inc(&sar->vcc->stats->rx_drop);=0A=
++				return(NULL);=0A=
++			}=0A=
++=0A=
++			ctx->rxSize =3D SZ_FIRST_AAL5SDU;=0A=
++		}=0A=
++=0A=
++		newLen =3D ctx->rxLen + ATM_CELL_PAYLOAD;=0A=
++ 		if(newLen > ctx->rxMtu) {=0A=
++			ctx->rxTail =3D=0A=
++				(ctx->rxTail + ATM_CELL_PAYLOAD)%ctx->rxSize=0A=
++			;=0A=
++			atomic_inc(&sar->vcc->stats->rx_err);=0A=
++		} else if(newLen > ctx->rxSize) {=0A=
++			// This case is invoked only few times (at most 5 during=0A=
++			// the whole vcc life). It is meant to increase the=0A=
++			// buffer size when a new packet arrives and the rxMtu=0A=
++			// allows for a buffer increase. Vccs should reach a=0A=
++			// stable buffer size almost early. The buffer size will=0A=
++			// be a tradeoff between speed and memory consumption.=0A=
++			// Please note that the buffer doubles its size only=0A=
++			// when packets seem to really need it. Ie: their rxMtu=0A=
++			// limit is not reached...=0A=
++			const size_t newSize =3D 2*ctx->rxSize;=0A=
++			unsigned char* oldRxBuf =3D ctx->rxBuf;=0A=
++=0A=
++			ctx->rxBuf =3D kmalloc(newSize, GFP_ATOMIC);=0A=
++			if(ctx->rxBuf =3D=3D NULL) {=0A=
++				// Undo things. We discard this cell.=0A=
++				ctx->rxBuf =3D oldRxBuf;=0A=
++=0A=
++				atomic_inc(&sar->vcc->stats->rx_drop);=0A=
++				return(NULL);=0A=
++			} else if(ctx->rxLen > 0) {=0A=
++				if(ctx->rxTail >=3D ctx->rxHead) {=0A=
++					const size_t len =3D=0A=
++						ctx->rxSize - ctx->rxTail=0A=
++					;=0A=
++=0A=
++					memcpy(=0A=
++						ctx->rxBuf,=0A=
++						&oldRxBuf[ctx->rxTail],=0A=
++						len=0A=
++					);=0A=
++					if(ctx->rxLen > len)=0A=
++						memcpy(=0A=
++							&ctx->rxBuf[len],=0A=
++							oldRxBuf,=0A=
++							ctx->rxLen - len=0A=
++						);=0A=
++				} else=0A=
++					memcpy(=0A=
++						ctx->rxBuf,=0A=
++						&oldRxBuf[ctx->rxTail],=0A=
++						ctx->rxLen=0A=
++					);=0A=
++			}=0A=
++=0A=
++			ctx->rxTail =3D 0;=0A=
++			ctx->rxHead =3D ctx->rxLen;=0A=
++			ctx->rxSize =3D newSize;=0A=
++=0A=
++			// Time to give back our quaint buffer...=0A=
++			kfree(oldRxBuf);=0A=
++		}=0A=
++=0A=
++		// Transfers received cell=0A=
++		memcpy(&ctx->rxBuf[ctx->rxHead], payload, ATM_CELL_PAYLOAD);=0A=
++		ctx->rxHead =3D (ctx->rxHead + ATM_CELL_PAYLOAD)%ctx->rxSize;=0A=
++		ctx->rxLen  =3D newLen;=0A=
++		return(NULL);=0A=
++	}=0A=
++}=0A=
++=0A=
++=0A=
++static atmsar_vcc_t*	aal5Init(struct atm_vcc* vcc) {=0A=
++	if(=0A=
++		vcc->qos.rxtp.max_sdu <=3D ATM_MAX_AAL5_PDU	&&=0A=
++		vcc->qos.txtp.max_sdu <=3D ATM_MAX_AAL5_PDU=0A=
++	) {=0A=
++		atmsar_vcc_t5 *sarvcc =3D (atmsar_vcc_t5*)kmalloc(=0A=
++			sizeof(atmsar_vcc_t5),=0A=
++			GFP_KERNEL=0A=
++		);=0A=
++		if(sarvcc !=3D NULL) {=0A=
++			memset(sarvcc, 0, sizeof(*sarvcc));=0A=
++			sarvcc->rxMtu =3D (=0A=
++				vcc->qos.rxtp.max_sdu =3D=3D 0=0A=
++			?=0A=
++				ATM_MAX_AAL5_PDU=0A=
++			:=0A=
++				vcc->qos.rxtp.max_sdu=0A=
++			);=0A=
++			sarvcc->txMtu =3D (=0A=
++				vcc->qos.txtp.max_sdu =3D=3D 0=0A=
++			?=0A=
++				ATM_MAX_AAL5_PDU=0A=
++			:=0A=
++				vcc->qos.txtp.max_sdu=0A=
++			);=0A=
++			return((atmsar_vcc_t*)sarvcc);=0A=
++		}=0A=
++	}=0A=
++=0A=
++	return(NULL);=0A=
++}=0A=
++=0A=
++static void	aal5End(atmsar_vcc_t* sarvcc) {=0A=
++	atmsar_vcc_t5* ctx =3D (atmsar_vcc_t5*)sarvcc;=0A=
++	if(ctx->rxSize !=3D 0)=0A=
++		kfree(ctx->rxBuf);=0A=
++}=0A=
++=0A=
++=0A=
++const atmsar_aalops_t opsAAL5 =3D {=0A=
++	ATM_AAL5, "5",=0A=
++=0A=
++	aal5Init,=0A=
++	aal5End,=0A=
++=0A=
++	aal5DecodeReset,=0A=
++	aal5Decode,=0A=
++=0A=
++	aal5EncodeGetCellCount,=0A=
++	aal5Encode=0A=
++};=0A=
+diff -Nurd linux-2.6.13/drivers/atm/saraalr.c =
+linux-2.6.13+atmsar/drivers/atm/saraalr.c=0A=
+--- linux-2.6.13/drivers/atm/saraalr.c	1970-01-01 01:00:00.000000000 =
++0100=0A=
++++ linux-2.6.13+atmsar/drivers/atm/saraalr.c	2005-09-04 =
+12:22:24.000000000 +0200=0A=
+@@ -0,0 +1,144 @@=0A=
++/* ATM SAR layer=0A=
++ *=0A=
++ * Copyright (C) 2005 Giampaolo Tomassoni=0A=
++ *=0A=
++ * This program is free software; you can redistribute it and/or modify=0A=
++ * it under the terms of the GNU General Public License as published by=0A=
++ * the Free Software Foundation; either version 2 of the License, or=0A=
++ * (at your option) any later version.=0A=
++ *=0A=
++ * This program is distributed in the hope that it will be useful,=0A=
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of=0A=
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the=0A=
++ * GNU General Public License for more details.=0A=
++ *=0A=
++ * You should have received a copy of the GNU General Public License=0A=
++ * along with this program; if not, write to the Free Software=0A=
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 =
+ USA=0A=
++ *=0A=
++ * The GNU GPL is contained in /usr/doc/copyright/GPL on a Debian=0A=
++ * system and in the file COPYING in the Linux kernel source.=0A=
++ */=0A=
++=0A=
++/*=0A=
++ * CREDITS go to the following people:=0A=
++ *=0A=
++ * - Johan Verrept, for its previous work on a SAR library in Linux;=0A=
++ * - Charles Michael Heard for its tutorial on CRC-8 Error Correction.=0A=
++ * - Chas Williams for its help in integrating this with the ATM module.=0A=
++ *=0A=
++ *=0A=
++ * Theory of operation and api description in include/linux/atmsar.h=0A=
++ */=0A=
++#include <linux/version.h>=0A=
++#include <linux/module.h>=0A=
++#include <linux/moduleparam.h>=0A=
++#include <linux/gfp.h>=0A=
++#include <linux/kernel.h>=0A=
++#include <linux/sched.h>=0A=
++#include <linux/wait.h>=0A=
++#include <linux/list.h>=0A=
++#include <linux/smp_lock.h>=0A=
++#include <linux/init.h>=0A=
++#include <linux/errno.h>=0A=
++#include <linux/skbuff.h>=0A=
++#include <linux/atm.h>=0A=
++#include <linux/atmdev.h>=0A=
++=0A=
++#include <linux/atmsar.h>=0A=
++#include "sar.h"=0A=
++=0A=
++=0A=
++static int	aalREncodeGetCellCount(=0A=
++	atmsar_vcc_t*	sar,=0A=
++	struct sk_buff*	skbIn=0A=
++) {=0A=
++	// skbIn must contain correctly-sized cells=0A=
++	if((skbIn->len%ATM_AAL0_SDU) !=3D 0) {=0A=
++		// Size is not a multiple of 52 bytes=0A=
++		atomic_inc(&sar->vcc->stats->tx_err);=0A=
++		return(-EMSGSIZE);=0A=
++	} else {=0A=
++		atomic_inc(&sar->vcc->stats->tx);=0A=
++		return(skbIn->len/ATM_AAL0_SDU);=0A=
++	}=0A=
++}=0A=
++=0A=
++static void	aalREncode(=0A=
++	struct sk_buff*	skbOut,=0A=
++	SARPUTHDR*	putHdr,=0A=
++	atmsar_vcc_t*	sar,=0A=
++	struct sk_buff*	skbIn=0A=
++) {=0A=
++	while(skbIn->len > 0) {=0A=
++		const unsigned char* cell =3D skb_pull(skbIn, ATM_AAL0_SDU);=0A=
++=0A=
++		putHdr(skbOut, *(unsigned*)cell);=0A=
++		memcpy(=0A=
++			skb_put(skbOut, ATM_CELL_PAYLOAD),=0A=
++			&cell[4],=0A=
++			ATM_CELL_PAYLOAD=0A=
++		);=0A=
++=0A=
++		if(sar->dev->tx_cell_gap !=3D 0)=0A=
++			memset(=0A=
++				skb_put(skbOut, sar->dev->tx_cell_gap),=0A=
++				0,=0A=
++				sar->dev->tx_cell_gap=0A=
++			);=0A=
++	}=0A=
++}=0A=
++=0A=
++=0A=
++static void	aalRDecodeReset(atmsar_vcc_t* sarvcc)=0A=
++{}=0A=
++=0A=
++static struct sk_buff*	aalRDecode(=0A=
++	atmsar_vcc_t*	sar,=0A=
++	unsigned	hdr,=0A=
++	const void*	payload=0A=
++) {=0A=
++	unsigned char* buf;=0A=
++	struct sk_buff *skb =3D dev_alloc_skb(ATM_AAL0_SDU);=0A=
++	if(skb =3D=3D NULL) {=0A=
++		atomic_inc(&sar->vcc->stats->rx_drop);=0A=
++		return(NULL);=0A=
++	}=0A=
++=0A=
++	buf =3D skb_put(skb, ATM_AAL0_SDU);=0A=
++	*(unsigned*)buf =3D hdr;=0A=
++	memcpy(&buf[4], payload, ATM_CELL_PAYLOAD);=0A=
++=0A=
++	atomic_inc(&sar->vcc->stats->rx);=0A=
++	return(skb);=0A=
++}=0A=
++=0A=
++=0A=
++static atmsar_vcc_t*	aalRInit(struct atm_vcc* vcc) {=0A=
++	atmsar_vcc_t* sar =3D (atmsar_vcc_t*)kmalloc(=0A=
++		sizeof(atmsar_vcc_t),=0A=
++		GFP_KERNEL=0A=
++	);=0A=
++	if(sar !=3D NULL)=0A=
++		memset(sar, 0, sizeof(*sar));=0A=
++=0A=
++	return(sar);=0A=
++}=0A=
++=0A=
++static void	aalREnd(atmsar_vcc_t* sarvcc)=0A=
++{ /* kfree() is in atmsarmod.c */ }=0A=
++=0A=
++=0A=
++const atmsar_aalops_t opsAALR =3D {=0A=
++	ATM_AAL0,=0A=
++	"raw",=0A=
++=0A=
++	aalRInit,=0A=
++	aalREnd,=0A=
++=0A=
++	aalRDecodeReset,=0A=
++	aalRDecode,=0A=
++=0A=
++	aalREncodeGetCellCount,=0A=
++	aalREncode=0A=
++};=0A=
+diff -Nurd linux-2.6.13/include/linux/atmsar.h =
+linux-2.6.13+atmsar/include/linux/atmsar.h=0A=
+--- linux-2.6.13/include/linux/atmsar.h	1970-01-01 01:00:00.000000000 =
++0100=0A=
++++ linux-2.6.13+atmsar/include/linux/atmsar.h	2005-09-04 =
+12:25:03.000000000 +0200=0A=
+@@ -0,0 +1,736 @@=0A=
++/* ATM SAR layer=0A=
++ *=0A=
++ * Copyright (C) 2005 Giampaolo Tomassoni=0A=
++ *=0A=
++ * This program is free software; you can redistribute it and/or modify=0A=
++ * it under the terms of the GNU General Public License as published by=0A=
++ * the Free Software Foundation; either version 2 of the License, or=0A=
++ * (at your option) any later version.=0A=
++ *=0A=
++ * This program is distributed in the hope that it will be useful,=0A=
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of=0A=
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the=0A=
++ * GNU General Public License for more details.=0A=
++ *=0A=
++ * You should have received a copy of the GNU General Public License=0A=
++ * along with this program; if not, write to the Free Software=0A=
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 =
+ USA=0A=
++ *=0A=
++ * The GNU GPL is contained in /usr/doc/copyright/GPL on a Debian=0A=
++ * system and in the file COPYING in the Linux kernel source.=0A=
++ */=0A=
++=0A=
++/*=0A=
++ * CREDITS go to the following people:=0A=
++ *=0A=
++ * - Johan Verrept, for its previous work on a SAR library in Linux;=0A=
++ * - Charles Michael Heard for its tutorial on CRC-8 Error Correction.=0A=
++ * - Chas Williams for its help in integrating this with the ATM module.=0A=
++ *=0A=
++ *=0A=
++ * Purposes, theory of operation and module interfacing details=0A=
++ *=0A=
++ * This is yet another Segment And Reassembly (SAR) layer for the=0A=
++ * linux ATM stack.=0A=
++ *=0A=
++ * The differences from other solutions, as well as its power, are that:=0A=
++ *=0A=
++ * - it is mind to be shared by any atm interface, instead of being =
+somehow=0A=
++ *   embedded in a bus-wide module (see usb_atm) or, much worse, in=0A=
++ *   a single device driver (see pulsar). The usb_atm solution is =
+restricted=0A=
++ *   to usb devices. ADSL modems are often USB, so usb_atm is =
+effectively=0A=
++ *   an interesting solution, but why not devise a more general =
+solution?=0A=
++ *   The atmsar module wants to be this bus-unspecific solution.=0A=
++ *=0A=
++ * - supplies a coherent interface which allows the device driver to=0A=
++ *   bypass almost any interaction with the atm layer;=0A=
++ *=0A=
++ * - supports ATM header&hec check, correction and generation, which is=0A=
++ *   most useful for dumb atm devices (ie: most ADSL modems);=0A=
++ *=0A=
++ * - supports automatic and fast routing of received cells to =
+destinating=0A=
++ *   vcc;=0A=
++ *=0A=
++ * - actually supports AALraw, AAL0 and AAL5;=0A=
++ *=0A=
++ * - aal decoding/encoding routines are designed as atmsar plug-ins, so=0A=
++ *   that further types may easily be supported;=0A=
++ *=0A=
++ * - implements speed- and memory-concerned techniques for per-vcc=0A=
++ *   decoding;=0A=
++ *=0A=
++ * - allows using dma-streaming techniques in sending cells to device;=0A=
++ *=0A=
++ * - supports tx buffer adjusting against device needs;=0A=
++ *=0A=
++ * - avoids vcc open/close paradigm handling in device driver;=0A=
++ *=0A=
++ * - yields a uniform view to SAR status in /proc.=0A=
++ *=0A=
++ *=0A=
++ * Ok. That said, Theory of operation=0A=
++ *=0A=
++ * The atmsar module is designed as a middle layer between the atm=0A=
++ * stack and the device driver.=0A=
++ *=0A=
++ * As with an usual atm-based solution, the device driver will be=0A=
++ * responsible for handling all the hardware details regarding bus=0A=
++ * interfacing, device interfacing, interrupt handling and the like.=0A=
++ *=0A=
++ * Not like usual atm-based solutions, the device driver will=0A=
++ * not need anymore to directly handle cell decoding and encoding,=0A=
++ * packet segmenting and reassembly, and vcc open/close handling.=0A=
++ * At init time the driver will register itself with the atmsar=0A=
++ * layer by calling atmsar_dev_register() instead of registering=0A=
++ * with atm_dev_register().=0A=
++ *=0A=
++ * The atmsar_dev_register() invocation gives a chance to the=0A=
++ * driver to specify some tuning values about wanted tx buffers,=0A=
++ * tx cells structure and supported operations (atmsar_ops_t type).=0A=
++ *=0A=
++ * The driver interacts with the atmsar layer both through=0A=
++ * callbacks (very useful but completely optional) and functions=0A=
++ * call.=0A=
++ *=0A=
++ * The callbacks which the driver may specify in the=0A=
++ * atmsar_dev_register() ops parameter are:=0A=
++ *=0A=
++ * - ATMSAR_FIRST_OPEN=0A=
++ *   The driver callback will be invoked when the device is=0A=
++ *   first opened by the atm layer. Further opens will not be=0A=
++ *   propagated to the device. Also, a mutex is used to avoid=0A=
++ *   any race condition by the open/close paradigm.=0A=
++ *=0A=
++ *   In this callback, the device is given the chance to report=0A=
++ *   any failure in initializing things, thereby allowing it=0A=
++ *   to avoid further operations;=0A=
++ *=0A=
++ * - ATMSAR_LAST_CLOSE=0A=
++ *   This is the callback dual to ATMSAR_FIRST_OPEN. It is invo-=0A=
++ *   ked when the last vcc on the device get closed by the atm=0A=
++ *   layer. On SMP and preemptive contexts, this callback is=0A=
++ *   assured to be atomic with respect to ATMSAR_FIRST_OPEN;=0A=
++ *=0A=
++ * - ATMSAR_TX_RESTART=0A=
++ *   This callback is invoked when new outgoing cells are ready=0A=
++ *   for delivery. The implementing driver may use this callback=0A=
++ *   to restart cell transmission;=0A=
++ *=0A=
++ * - ATMSAR_IOCTL=0A=
++ *   A chance for the driver to receive ioctls from userspace;=0A=
++ *=0A=
++ * - ATMSAR_PROCREAD=0A=
++ *   A chance for the driver to report status data through /proc.=0A=
++ *=0A=
++ *=0A=
++ * These are the most important functions supplied by atmsar:=0A=
++ *=0A=
++ * - atmsar_rx_decode_52bytes(),=0A=
++ *   atmsar_rx_decode_53bytes(),=0A=
++ *   atmsar_rx_decode_53bytes_skiphec()=0A=
++ *=0A=
++ *   The driver may use one of three functions above in order to=0A=
++ *   get a received cell synchronously processed.=0A=
++ *=0A=
++ *   Please note that the atmsar_rx_decode_*() beasts do process=0A=
++ *   a single cell synchronously. You may find their processing=0A=
++ *   time to be acceptable for direct cell decoding at rx=0A=
++ *   interrupt time. However, to allow for slow architectures to=0A=
++ *   benefit from your driver, it is better to write a tasklet=0A=
++ *   for this purpose.=0A=
++ *=0A=
++ * - atmsar_tx_skb_fetch()=0A=
++ *   The driver may use this function to obtain the next buffer=0A=
++ *   to be transmitted out of the device.=0A=
++ *=0A=
++ * - atmsar_dev_hassignal()/atmsar_dev_setsignal()=0A=
++ *   Allow the driver to specify the current state of the carrier=0A=
++ *   signal, as well as to inspect the state known to atmsar.=0A=
++ *   When the driver marks the carrier as lost, no more cells will=0A=
++ *   be queued to the tx queue until it marks the carrier present=0A=
++ *   again.=0A=
++ *=0A=
++ *   Please note that after atmsar_dev_register(), the atmsar=0A=
++ *   layer assumes the carrier signal to be lost. The driver has=0A=
++ *   to issue an atmsar_dev_setsignal() call to set it as present=0A=
++ *   if it wants to process outgoing cells (and if it is the case).=0A=
++ *=0A=
++ *=0A=
++ * Tx operations:=0A=
++ *=0A=
++ * atmsar packs encoded cells in struct sk_buff buffers, which are=0A=
++ * queued in the field skq_tx in atmsar_dev_t.=0A=
++ *=0A=
++ * Tx skbs are shaped according to the tuning parameters specified=0A=
++ * to atmsar_dev_register().=0A=
++ *=0A=
++ * These parameters allow for a buffer prefix area, a buffer=0A=
++ * postfix area, as well as non-standard cell sizes (better said,=0A=
++ * standard cells with gaps at their ends).=0A=
++ *=0A=
++ * Buffer prefix spans from skb->data to skb->head-1, buffer=0A=
++ * postfix spans from skb->tail to the end of the data.=0A=
++ *=0A=
++ * Both prefix and postfix are given to uninitialized to the driver,=0A=
++ * while cell gaps are zeroed. Prefix and postfix are thereby supposed=0A=
++ * to be filled by the driver with usefull content, before streaming=0A=
++ * the whole buffer to the device.=0A=
++ *=0A=
++ * When a driver is ready to send cells out of the device, it invokes=0A=
++ * atmsar_tx_skb_fetch() which returns the next available buffer.=0A=
++ *=0A=
++ * If the device has specific needs, the driver may setup the buffer=0A=
++ * prefix and postfix areas in order to fullfil them.=0A=
++ *=0A=
++ * The driver may then use whatever mean it likes in order to send=0A=
++ * the buffer content to the device. One of the most effective ways=0A=
++ * is streaming DMA, but this is left to the driver developer and=0A=
++ * device limits.=0A=
++ *=0A=
++ * Once the skb has been completely sent to the device, it may be=0A=
++ * released. The driver is required to use atmsar_tx_skb_*()=0A=
++ * to do so. Never use kfree_skb(), or you'll cause memory leakage.=0A=
++ */=0A=
++=0A=
++/* ATMSAR_N_HASHVCCS=0A=
++ * This is the size of the hash of open atm vccs.=0A=
++ * Being it the size of a hash table, a prime works better.=0A=
++ */=0A=
++#define	ATMSAR_N_HASHVCCS	7=0A=
++=0A=
++=0A=
++/* atmsar_dev_t=0A=
++ * A forward declaration to struct atmsar_dev=0A=
++ */=0A=
++typedef	struct	atmsar_dev	atmsar_dev_t;=0A=
++=0A=
++/* atmsar_vcc_t=0A=
++ * A forward declaration to some AAL-dependent=0A=
++ * structures devoted to tracking the state of=0A=
++ * the aal routine in charge of a vcc.=0A=
++ * This is an opaque type to users of this module.=0A=
++ */=0A=
++typedef	struct	atmsar_vcc_base	atmsar_vcc_t;=0A=
++=0A=
++/* atmsar_aalops_t=0A=
++ * Another opaque type to users of this module.=0A=
++ */=0A=
++typedef	struct	atmsar_aalops	atmsar_aalops_t;=0A=
++=0A=
++=0A=
++/* ATMSAR_FIRSTOPEN=0A=
++ * This is the typedef for the first_open callback.=0A=
++ * Devices implementing the first_open method should=0A=
++ * conform to it.=0A=
++ *=0A=
++ * @dev:	the device instance as returned by=0A=
++ *		atmsar_dev_register()=0A=
++ *=0A=
++ * return:	>=3D 0 on success, <0 in case of an=0A=
++ *		error detected by the upper layer.=0A=
++ *=0A=
++ * The atmsar module invokes this callback when=0A=
++ * the first vcc is opened on the device.=0A=
++ *=0A=
++ * When an error is returned by the first_open()=0A=
++ * callback, this driver unwinds initialization and=0A=
++ * returns the error code to the downstream open()=0A=
++ * function.=0A=
++ *=0A=
++ * This callback is invoked with no spinlock held=0A=
++ * and interrupts enabled, so that the implementor=0A=
++ * may schedule().=0A=
++ */=0A=
++typedef	int	ATMSAR_FIRSTOPEN(atmsar_dev_t *dev);=0A=
++=0A=
++/* ATMSAR_LASTCLOSE=0A=
++ * This is the typedef for the last_close callback.=0A=
++ * Devices implementing the last_close method should=0A=
++ * conform to it.=0A=
++ *=0A=
++ * @dev:	the device instance as returned by=0A=
++ *=0A=
++ * The atmsar module invokes this callback when=0A=
++ * the last vcc is closed.=0A=
++ *=0A=
++ * This callback is invoked with no spinlock held=0A=
++ * and interrupts enabled, so that the implementor=0A=
++ * may schedule().=0A=
++ */=0A=
++typedef	void	ATMSAR_LASTCLOSE(atmsar_dev_t *dev);=0A=
++=0A=
++/* ATMSAR_IOCTL=0A=
++ * This is the typedef for the ioctl() callback.=0A=
++ * Devices implementing the ioctl() method should=0A=
++ * conform to it.=0A=
++ *=0A=
++ * @dev:	the device instance as returned by=0A=
++ *		atmsar_dev_register().=0A=
++ * @cmd:	the user-invoked ioctl command.=0A=
++ * @arg:	the ioctl argument, which may be=0A=
++ *		a pointer to user-space data.=0A=
++ *=0A=
++ * return:	Whatever the upper code wants to=0A=
++ *		yield back to the user.=0A=
++ *=0A=
++ * This callback is invoked in the same runtime=0A=
++ * status of the atm ioctl callback. This should=0A=
++ * generally mean that no spinlock is held and=0A=
++ * that interrupts are enabled.=0A=
++ */=0A=
++typedef	int	ATMSAR_IOCTL(=0A=
++	atmsar_dev_t	*dev,=0A=
++	unsigned	cmd,=0A=
++	void __user	*arg=0A=
++);=0A=
++=0A=
++/* ATMSAR_PROCREAD=0A=
++ * This is the typedef for the proread() callback.=0A=
++ * Devices implementing the aioctl() method should=0A=
++ * conform to it.=0A=
++ *=0A=
++ * @dev:	the device instance as returned by=0A=
++ *		atmsar_dev_register().=0A=
++ * @pos:	a pointer to the skipping position.=0A=
++ *		The procread implementation is sup-=0A=
++ *		posed to emit its message on page=0A=
++ *		when *pos is 0, then decrement it.=0A=
++ * @page:	a pointer to the character buffer=0A=
++ *		which will be emitted by the module.=0A=
++ *=0A=
++ * return:	the number of characters written to page.=0A=
++ *=0A=
++ * This callback is invoked with no spinlock held=0A=
++ * and interrupts enabled, so that the implementor=0A=
++ * may schedule().=0A=
++ */=0A=
++typedef	int	ATMSAR_PROCREAD(=0A=
++	atmsar_dev_t*	dev,=0A=
++	loff_t*		pos,=0A=
++	char*		page=0A=
++);=0A=
++=0A=
++/* ATMSAR_TX_RESTART=0A=
++ * This is the typedef for the tx_restart() callback.=0A=
++ * Devices implementing the tx_restart() method should=0A=
++ * conform to it.=0A=
++ *=0A=
++ * @dev:	the device instance as returned by=0A=
++ *		atmsar_dev_register().=0A=
++ *=0A=
++ * When implemented, this callback will be invoked=0A=
++ * when atmsar appends new SKBs are appended to an=0A=
++ * empty dev->skq_tx.=0A=
++ *=0A=
++ * This callback is invoked in the same context as=0A=
++ * the atm send callback. This means that most of the=0A=
++ * time no spinlock is held and interrupts are enabled,=0A=
++ * but there are cases in which this doesn't hold=0A=
++ * (pppoatm?). Implementors better avoid schedule()=0A=
++ * and such.=0A=
++ */=0A=
++typedef	void	ATMSAR_TX_RESTART(atmsar_dev_t *dev);=0A=
++=0A=
++=0A=
++/* atmsar_ops_t=0A=
++ * An envelope for all the above mentioned callbacks.=0A=
++ */=0A=
++typedef	struct	atmsar_ops	{=0A=
++	ATMSAR_TX_RESTART*	tx_restart;=0A=
++	ATMSAR_FIRSTOPEN*	first_open;=0A=
++	ATMSAR_LASTCLOSE*	last_close;=0A=
++	ATMSAR_IOCTL*		ioctl;=0A=
++	ATMSAR_PROCREAD*	proc_read;=0A=
++}	atmsar_ops_t;=0A=
++=0A=
++=0A=
++/* ATMSAR_FLG_53BYTE_CELL=0A=
++ * This flag may be used in atmsar_dev_register() to=0A=
++ * indicate that a full cell (ie: one containing also=0A=
++ * the HEC field) must be generated during encoding.=0A=
++ * Its assertion generally means that the device=0A=
++ * using this module has no support for hec generation.=0A=
++ */=0A=
++#define	ATMSAR_FLG_53BYTE_CELL	(1<<0)	// Cell must contain hec=0A=
++=0A=
++/* ATMSAR_SPEED_UNSPEC=0A=
++ * This is the value returned by get_*_speed() when=0A=
++ * the speed is not known.=0A=
++ */=0A=
++#define	ATMSAR_SPEED_UNSPEC	((unsigned long)0)=0A=
++=0A=
++/* atmsar_dev_t=0A=
++ * This is the incarnation of the atmsar_dev_t type,=0A=
++ * which is the device instance as returned by the=0A=
++ * atmsar_dev_register() function.=0A=
++ */=0A=
++struct	atmsar_dev	{=0A=
++	// General infos=0A=
++	struct atm_dev*		atmdev;		// ATM device=0A=
++	void*			data;		// Upper device data=0A=
++=0A=
++	// Configuration=0A=
++	const atmsar_ops_t*	ops;		// Upper device ops=0A=
++	unsigned		flags;		// Flags defined by u-d=0A=
++	size_t			tx_head_reserve; // head size in tx skb=0A=
++	size_t			tx_tail_reserve; // tail size in tx skb=0A=
++	size_t			tx_cell_size;	// A device cell size=0A=
++	size_t			tx_cell_gap;	// The gap between cells=0A=
++=0A=
++	// Open/Close and Send/Receive data=0A=
++	atmsar_vcc_t*		vccs_hash[ATMSAR_N_HASHVCCS];=0A=
++	int			vccs_count;=0A=
++	rwlock_t		rwl_vccs;=0A=
++	atomic_t		mtx_openclose;=0A=
++	wait_queue_head_t	wqh_openclose;=0A=
++=0A=
++	// Transmit queue=0A=
++	struct sk_buff_head	skq_tx;=0A=
++=0A=
++	// Status=0A=
++	unsigned long		rx_speed;	// cells/sec=0A=
++	unsigned long		tx_speed;	// cells/sec=0A=
++};=0A=
++=0A=
++=0A=
++/* atmsar_dev_register=0A=
++ * Register a device with this module.=0A=
++ *=0A=
++ * @name:	the mnemonic name of the device/driver=0A=
++ * @esi:	the esi field, or NULL if unknown=0A=
++ * @ops:	the callback ops. May be NULL.=0A=
++ * @phy_ops:	physical ops, passed to atm_dev_register()=0A=
++ * @flags:	registration flags, actually may be just=0A=
++ *		0 or ATMSAR_FLG_53BYTE_CELL=0A=
++ * @tx_head_reserve:	reserve this amount of uninizialied=0A=
++ *			bytes at the beginning of tx SKBs=0A=
++ *			queued to dev->skq_tx	[0,)=0A=
++ * @tx_tail_reserve:	reserve this amount of uninizialized=0A=
++ *			bytes at the end of tx SKBs queued=0A=
++ *			to dev->skq_tx		[0,)=0A=
++ * @tx_cell_size:	the tx cell size as expected by=0A=
++ *			the device		[ATM_AAL0_SDU,)=0A=
++ * return:	a pointer to an atmsar_dev_t instance, to=0A=
++ *		be specified in almost every other atmsar=0A=
++ *		functions. If the registration fails,=0A=
++ *		NULL is returned.=0A=
++ *=0A=
++ * Registering a device with atmsar is the first operation=0A=
++ * to be accomplished by the driver.=0A=
++ *=0A=
++ * This function will in turn register the device with the=0A=
++ * atm layer, so you don't need to do it. A pointer to the=0A=
++ * instance of the atm_dev struct may be obtained by the=0A=
++ * atmdev field of the atmsar_dev_t element.=0A=
++ *=0A=
++ * In order to increase speed, the module is designed to=0A=
++ * adjust for device diversity. This is accomplished in=0A=
++ * the "outgoing" direction by generating SKBs immediately=0A=
++ * suitable for streaming DMA or otherwise output to the=0A=
++ * device. This is the purpose of tx_head_reserve,=0A=
++ * tx_tail_reserve and tx_cell_size: the driver calling=0A=
++ * this function must specify the values expected by the=0A=
++ * device for them. tx_head_reserve specifies the number=0A=
++ * of bytes to be reserved at the beginning of a tx skb;=0A=
++ * tx_tail_reserve specifies the number of bytes to be=0A=
++ * reserved at the end of the tx skb, while tx_cell_size=0A=
++ * specifies the size of a cell as expected by the=0A=
++ * device. The latter value may be suitable for any cell=0A=
++ * padding needed by the device.=0A=
++ *=0A=
++ * This function cannot be called at interrupt time.=0A=
++ */=0A=
++extern atmsar_dev_t*	atmsar_dev_register(=0A=
++	const char*		name,=0A=
++	const unsigned char*	esi,=0A=
++	const atmsar_ops_t*	ops,=0A=
++	const struct atmphy_ops* phy_ops,=0A=
++	unsigned		flags,=0A=
++	size_t			tx_head_reserve,=0A=
++	size_t			tx_tail_reserve,=0A=
++	size_t			tx_cell_size=0A=
++);=0A=
++=0A=
++/* atmsar_dev_deregister=0A=
++ * Deregisters a device with atmsar.=0A=
++ *=0A=
++ * @dev:	a pointer to the atmsar_dev_t instance to=0A=
++ *		be deregistered.=0A=
++ *=0A=
++ * Deregistering a device is the last operation to be invoked=0A=
++ * by a device, just before it removes.=0A=
++ *=0A=
++ * This function in turn deregisters the device with the=0A=
++ * atm layer, so you don't have to.=0A=
++ *=0A=
++ * Invoking this function implies shutting down any reference=0A=
++ * with the atm layer, as well as releasing any open vcc.=0A=
++ *=0A=
++ * This function cannot be called at interrupt time.=0A=
++ */=0A=
++extern void		atmsar_dev_deregister(atmsar_dev_t *dev);=0A=
++=0A=
++/* atmsar_dev_getatm=0A=
++ * Gives a pointer to the atm_dev structure tied to the=0A=
++ * given device.=0A=
++ *=0A=
++ * @dev:	a pointer to the atmsar_dev_t instance=0A=
++ * return:	the pointer to the atm_dev structure=0A=
++ */=0A=
++static inline struct atm_dev* atmsar_dev_getatm(const atmsar_dev_t* dev)=0A=
++{ return(dev->atmdev); }=0A=
++=0A=
++/* atmsar_dev_getdata=0A=
++ * Functions to get driver data.=0A=
++ *=0A=
++ * @dev:	a pointer to the atmsar_dev_t instance=0A=
++ * return:	the device data=0A=
++ *=0A=
++ * See atmsar_dev_setdata() below=0A=
++ */=0A=
++static inline void*	atmsar_dev_getdata(const atmsar_dev_t* dev)=0A=
++{ return(dev->data); }=0A=
++=0A=
++/* atmsar_dev_setdata=0A=
++ * Functions to set driver data.=0A=
++ *=0A=
++ * @dev:	a pointer to the atmsar_dev_t instance=0A=
++ * @data:	the data to be set=0A=
++ *=0A=
++ * This function allows the upper driver to store driver data=0A=
++ * into the atmsar_dev_t instance.=0A=
++ *=0A=
++ * This allows the data to be recerenced lather when a callback=0A=
++ * is schedule by the atmsar module.=0A=
++ *=0A=
++ * This way, data private to the driver can be stored in a=0A=
++ * structure and its pointer saved into the atmsar_dev_t instance.=0A=
++ */=0A=
++static inline void	atmsar_dev_setdata(atmsar_dev_t* dev, void* data)=0A=
++{ dev->data =3D data; }=0A=
++=0A=
++/* atmsar_rx_purge=0A=
++ * Resets the rx state of all the opened vccs.=0A=
++ *=0A=
++ * @dev:	a pointer to the atmsar_dev_t instance=0A=
++ */=0A=
++extern void		atmsar_rx_purge(atmsar_dev_t *dev);=0A=
++=0A=
++/* atmsar_rx_decode_*=0A=
++ * Decodes a received cell=0A=
++ *=0A=
++ * @dev:	a pointer to the atmsar_dev_t instance=0A=
++ * @cell:	pointer to the cell data=0A=
++ *=0A=
++ * These are the main functions for cell reception. The=0A=
++ * cell data to be decoded is given to the atmsar driver=0A=
++ * which synchronously decodes and eventually dispatches=0A=
++ * the result to the atm layer.=0A=
++ *=0A=
++ * There are three version of this method:=0A=
++ *=0A=
++ * atmsar_rx_decode_52bytes assumes that the device=0A=
++ * supplies cells without the HEC field to the driver.=0A=
++ * This kind of cells is 52 bytes long (not counting any=0A=
++ * cell padding).=0A=
++ *=0A=
++ * atmsar_rx_decode_53bytes assumes that the device=0A=
++ * supplies cells WITH the HEC field to the driver.=0A=
++ * Also, the device is assumed not to be smart enough=0A=
++ * to have checked or corrected the cell header against=0A=
++ * the HEC field itself, so this too is performed by=0A=
++ * the function.=0A=
++ *=0A=
++ * atmsar_rx_decode_53bytes_skiphec assumes that the=0A=
++ * device supplies cells having a placeholder as HEC=0A=
++ * field: the device already checked and corrected the=0A=
++ * cell header against the HEC field and this will be=0A=
++ * simply skipped by the function.=0A=
++ *=0A=
++ * Your driver will most probably need to call only=0A=
++ * one version of this method, since this depends on=0A=
++ * the device you are working on.=0A=
++ *=0A=
++ * Please note that any buffer heading, trailing and=0A=
++ * cell padding doesn't apply to atmsar_rx_decode_*,=0A=
++ * since you are expected to call this function for=0A=
++ * each cell received, passing a pointer to the=0A=
++ * beginning of the cell (ie: the cell header) as=0A=
++ * the cell parameter.=0A=
++ *=0A=
++ * These functions can be called at interrupt time.=0A=
++ */=0A=
++extern void		atmsar_rx_decode_52bytes(=0A=
++	atmsar_dev_t		*dev,=0A=
++	const void		*cell=0A=
++);=0A=
++extern void		atmsar_rx_decode_53bytes(=0A=
++	atmsar_dev_t		*dev,=0A=
++	const void		*cell=0A=
++);=0A=
++extern void		atmsar_rx_decode_53bytes_skiphec(=0A=
++	atmsar_dev_t		*dev,=0A=
++	const void		*cell=0A=
++);=0A=
++=0A=
++=0A=
++/* atmsar_tx_isempty=0A=
++ * Returns true if tx queue is empty=0A=
++ *=0A=
++ * @dev:	a pointer to the atmsar_dev_t instance=0A=
++ * return:	true if the tx queue is empty, false=0A=
++ *		otherwise=0A=
++ *=0A=
++ * This function can be called at interrupt time.=0A=
++ */=0A=
++static inline int	atmsar_tx_isempty(const atmsar_dev_t* dev)=0A=
++{ return(skb_queue_empty(&dev->skq_tx)); }=0A=
++=0A=
++/* atmsar_tx_skb_fetch=0A=
++ * Fetches the next tx skb to be transmitted by the=0A=
++ * device, if any.=0A=
++ *=0A=
++ * @dev:	a pointer to the atmsar_dev_t instance=0A=
++ * return:	the skb to be transmitted, or NULL if the=0A=
++ *		tx queue is empty=0A=
++ *=0A=
++ * When the atm layer sends packets through atmsar, the latter=0A=
++ * converts them into ready-to-send atm cells which are packed=0A=
++ * into SKBs. These tx skbs are then queued into a tx queue=0A=
++ * (dev->skq_tx).=0A=
++ *=0A=
++ * This function may be invoked to fetch the next skb to be=0A=
++ * transmitted out by the device.=0A=
++ *=0A=
++ * Please note that the tx SKBs are tied to the originating ones,=0A=
++ * so you can't simply invoke kfree_skb() to release them: use=0A=
++ * atmsar_tx_skb_*() instead.=0A=
++ *=0A=
++ * This function can be invoked at interrupt time.=0A=
++ */=0A=
++static inline struct sk_buff* atmsar_tx_skb_fetch(atmsar_dev_t* dev)=0A=
++{ return(skb_dequeue(&dev->skq_tx)); }=0A=
++=0A=
++/* atmsar_tx_purge=0A=
++ * Purges the whole tx queue=0A=
++ *=0A=
++ * @dev:	a pointer to the atmsar_dev_t instance=0A=
++ *=0A=
++ * This function purges the tx queue associated to the given=0A=
++ * atmsar_dev_t instance.=0A=
++ *=0A=
++ * Purging the tx queue will end discarding all the memory associated=0A=
++ * to the contained SKBs.=0A=
++ *=0A=
++ * This function may be used when the tx queue content is too old=0A=
++ * to be useful. In example, after a synch loss.=0A=
++ *=0A=
++ * This function can be called at interrupt time.=0A=
++ */=0A=
++extern void		atmsar_tx_purge(atmsar_dev_t *dev);=0A=
++=0A=
++/* atmsar_tx_skb_*=0A=
++ * Releases the memory allocated by a tx skb=0A=
++ *=0A=
++ * @skb:	a pointer to the tx skb to be freed=0A=
++ *=0A=
++ * When you need to free a tx skb, don't use kfree_skb(). Use one=0A=
++ * of these function, instead.=0A=
++ *=0A=
++ * This function releases the given skb and the originating one=0A=
++ * (whose pointer is stored into it).=0A=
++ *=0A=
++ * The _complete version of this function increments the tx field=0A=
++ * of the aal status field. The _discard version increments instead=0A=
++ * the tx_err field.=0A=
++ *=0A=
++ * The suggested usage of the first is when the transmission of the=0A=
++ * skb is completed and the skb itself is not needed anymore. The=0A=
++ * latter would instead be used when the transmission can't be=0A=
++ * completed for whatever reason. Note that the atmsar_tx_purge()=0A=
++ * function uses the atmsar_tx_skb_discard() version.=0A=
++ *=0A=
++ * This function can be called at interrupt time.=0A=
++ */=0A=
++extern void		atmsar_tx_skb_complete(struct sk_buff *skb);=0A=
++extern void		atmsar_tx_skb_discard(struct sk_buff *skb);=0A=
++=0A=
++/* atmsar_dev_hassignal=0A=
++ * Returns true when the "signal" of the device is reported to be=0A=
++ * present.=0A=
++ *=0A=
++ * @dev:	a pointer to the atmsar_dev_t instance=0A=
++ * return:	true when the signal is present, false otherwise=0A=
++ *=0A=
++ * Every atm device is supposed to exchange data through some kind=0A=
++ * of (carrier) signal. This function reports its state, which=0A=
++ * is in turn to be defined by the driver itself (see=0A=
++ * atmsar_dev_setsignal()).=0A=
++ *=0A=
++ * This function can be called at interrupt time.=0A=
++ */=0A=
++static int inline	atmsar_dev_hassignal(const atmsar_dev_t* dev)=0A=
++{ return(dev->atmdev->signal =3D=3D ATM_PHY_SIG_FOUND); }=0A=
++=0A=
++/* atmsar_dev_setsignal=0A=
++ * Returns true when the "signal" of the device is reported to be=0A=
++ * present.=0A=
++ *=0A=
++ * @dev:		a pointer to the atmsar_dev_t instance=0A=
++ * @signal_present:	1 if signal present, 0 otherwhise.=0A=
++ *=0A=
++ * Every atm device is supposed to exchange data through some kind=0A=
++ * of (carrier) signal.=0A=
++ *=0A=
++ * The driver is in turn supposed to know the state of the carrier=0A=
++ * signal used by its device, so it MUST inform of its changes the=0A=
++ * atmsar layer.=0A=
++ *=0A=
++ * When the driver informs the atmsar module that the carrier signal=0A=
++ * is not anymore present, the atmsar stops queueing more outgoing=0A=
++ * packets to the device.=0A=
++ *=0A=
++ * When the carrier signal gets back and the driver invokes=0A=
++ * atmsar_dev_setsignal(dev, 1), the transmitting packed encoding=0A=
++ * resumes and queueing may restart.=0A=
++ *=0A=
++ * After atmsar_dev_register(), the signal is supposed to be lost.=0A=
++ *=0A=
++ * Please note that you are supposed to flush tx buffers by invoking=0A=
++ * atmsar_tx_purge() sometime after reporting the device signal as lost.=0A=
++ *=0A=
++ * This function can be called at interrupt time.=0A=
++ */=0A=
++static void inline	atmsar_dev_setsignal(=0A=
++	atmsar_dev_t*	dev,=0A=
++	int		signal_present=0A=
++) {=0A=
++	dev->atmdev->signal =3D (=0A=
++		signal_present=0A=
++	?=0A=
++		ATM_PHY_SIG_FOUND=0A=
++	:=0A=
++		ATM_PHY_SIG_LOST=0A=
++	);=0A=
++}=0A=
++=0A=
++=0A=
++/*=0A=
++ * TODO: Speed inspection and control. Not yet implemented=0A=
++ */=0A=
++static unsigned long inline	atmsar_rx_get_speed(const atmsar_dev_t *dev)=0A=
++{ return(dev->rx_speed); }=0A=
++=0A=
++extern void			atmsar_rx_set_speed(=0A=
++	atmsar_dev_t*	dev,=0A=
++	unsigned long	speed=0A=
++);=0A=
++=0A=
++=0A=
++static unsigned long inline	atmsar_tx_get_speed(const atmsar_dev_t *dev)=0A=
++{ return(dev->tx_speed); }=0A=
++=0A=
++extern void			atmsar_tx_set_speed(=0A=
++	atmsar_dev_t* dev,=0A=
++	unsigned long speed=0A=
++);=0A=
+
+------=_NextPart_000_0005_01C5B151.4E8AE540--
+

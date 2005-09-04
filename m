@@ -1,59 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751199AbVIDUmV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751083AbVIDUvO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751199AbVIDUmV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 16:42:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbVIDUmV
+	id S1751083AbVIDUvO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 16:51:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbVIDUvO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 16:42:21 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:9940 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751199AbVIDUmU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 16:42:20 -0400
-Date: Sun, 4 Sep 2005 13:41:54 -0700
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: Con Kolivas <kernel@kolivas.org>, vatsa@in.ibm.com,
-       linux-kernel@vger.kernel.org, akpm@osdl.org,
-       ck list <ck@vds.kolivas.org>
-Subject: Re: [PATCH 1/3] dynticks - implement no idle hz for x86
-Message-ID: <20050904204154.GB25856@us.ibm.com>
-References: <20050831165843.GA4974@in.ibm.com> <200509031801.09069.kernel@kolivas.org> <20050903090650.B26998@flint.arm.linux.org.uk> <200509031814.49666.kernel@kolivas.org> <20050904201054.GA4495@us.ibm.com> <20050904212616.B11265@flint.arm.linux.org.uk>
+	Sun, 4 Sep 2005 16:51:14 -0400
+Received: from zproxy.gmail.com ([64.233.162.207]:48183 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751083AbVIDUvO convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 16:51:14 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=rBdklYnJUad5V2ETzwwGS5L9RthBK8K6Fsv139lfIJX6BTDzLEH+hZRiPyC0n4pD1hZu/7bjjS5Ms/yvA7gRlucgqP3REVDHWA1Cv3L+pKd7aPFjG8aZBvdM3Td6CI2tUi7orVDn3kG6vpH0CLg7hcFIBXsoIJ1nMdVDeItvzLQ=
+Message-ID: <dda83e78050904135113b95c4a@mail.gmail.com>
+Date: Sun, 4 Sep 2005 13:51:08 -0700
+From: Bret Towe <magnade@gmail.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: nfs4 client bug
+In-Reply-To: <dda83e78050904124454fc675a@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050904212616.B11265@flint.arm.linux.org.uk>
-X-Operating-System: Linux 2.6.13 (i686)
-User-Agent: Mutt/1.5.10i
+References: <dda83e78050903171516948181@mail.gmail.com>
+	 <dda83e7805090320053b03615d@mail.gmail.com>
+	 <20050904103523.GA5613@electric-eye.fr.zoreil.com>
+	 <dda83e78050904124454fc675a@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 04.09.2005 [21:26:16 +0100], Russell King wrote:
-> On Sun, Sep 04, 2005 at 01:10:54PM -0700, Nishanth Aravamudan wrote:
-> > I've got a few ideas that I think might help push Con's patch coalescing
-> > efforts in an arch-independent fashion.
+On 9/4/05, Bret Towe <magnade@gmail.com> wrote:
+> On 9/4/05, Francois Romieu <romieu@fr.zoreil.com> wrote:
+> > Bret Towe <magnade@gmail.com> :
+> > [...]
+> > > after moving some files on the server to a new location then trying to
+> > > add the files
+> > > to xmms playlist i found the following in dmesg after xmms froze
+> > > wonder how many more items i can find...
+> >
+> > The system includes some binary only stuff. Please contact your vendor
+> > or provide the traces for a configuration wherein the relevant module
+> > was not loaded after boot. It may make sense to get in touch with
+> > nfs@lists.sourceforge.net then.
 > 
-> Note that ARM contains cleanups on top of Tony's original work, on
-> which the x86 version is based.
-> 
-> Basically, Tony submitted his ARM version, we discussed it, fixed up
-> some locking problems and simplified it (it contained multiple
-> structures which weren't necessary, even in multiple timer-based systems).
+> the 'binary only stuff' is ati-drivers kernel module and it crashs
+> with or without it
+> ill provide a 'untainted' trace as soon as i can repeat the bug again
 
-<snip>
+ok without ati-drivers kernel module loaded the computer basicly just
+hard locks when
+some bug hits dunno if its the same item 
 
-> > First of all, and maybe this is just me, I think it would be good to
-> > make the dyn_tick_timer per-interrupt source, as opposed to each arch?
-> > Thus, for x86, we would have a dyn_tick_timer structure for the PIT,
-> > APIC, ACPI PM-timer and the HPET. These structures could be put in
-> > arch-specific timer.c files (there currently is not one for x86, I
-> > believe).
-> 
-> Each timer source should have its own struct dyn_tick_timer.  On x86,
-> maybe it makes sense having a pointer in the init_timer_opts or timer_opts
-> structures?
-
-Just to be clear, I think we mean the same thing with timer source and
-interrupt source. But I believe time sources are distinct (which is why<
-I think, John hates the naming (his own) of timer_opts).
-
-Thanks,
-Nish
+to repeat it tho one needs laptop-mode enabled have xmms playing music
+(flac in my case)
+which resides on nfs then just put the computer under some local load
+for a little bit
+till which im guessing it needs to clear some memory or somethin and
+it hits this hard lock
+or the errors i mailed previously when ati-drivers is loaded

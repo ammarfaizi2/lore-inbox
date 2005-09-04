@@ -1,51 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750898AbVIDPMH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750914AbVIDPco@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750898AbVIDPMH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 11:12:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750903AbVIDPMH
+	id S1750914AbVIDPco (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 11:32:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750907AbVIDPco
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 11:12:07 -0400
-Received: from ms-smtp-01.texas.rr.com ([24.93.47.40]:18576 "EHLO
-	ms-smtp-01-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S1750898AbVIDPMG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 11:12:06 -0400
-From: Daniel Goller <morfic@gentoo.org>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: Brand-new notebook useless with Linux...
-Date: Sun, 4 Sep 2005 10:10:54 -0500
-User-Agent: KMail/1.8.2
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-References: <200509031859_MC3-1-A720-F705@compuserve.com> <20050904052351.GB30279@alpha.home.local> <Pine.LNX.4.63.0509032240310.3393@r3000.fsmlabs.com>
-In-Reply-To: <Pine.LNX.4.63.0509032240310.3393@r3000.fsmlabs.com>
+	Sun, 4 Sep 2005 11:32:44 -0400
+Received: from mail.portrix.net ([212.202.157.208]:4572 "EHLO
+	zoidberg.portrix.net") by vger.kernel.org with ESMTP
+	id S1750846AbVIDPcn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 11:32:43 -0400
+Message-ID: <431B1348.6000209@ppp0.net>
+Date: Sun, 04 Sep 2005 17:31:20 +0200
+From: Jan Dittmer <jdittmer@ppp0.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Thunderbird/1.0.6 Mnenhy/0.6.0.104
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: David Woodhouse <dwmw2@infradead.org>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       =?ISO-8859-1?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>,
+       git@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: empty patch-2.6.13-git? patches on ftp.kernel.org
+References: <Pine.BSO.4.62.0508311527340.10416@rudy.mif.pg.gda.pl>	 <1125649389.6928.19.camel@baythorne.infradead.org>	 <Pine.LNX.4.58.0509020159110.3613@evo.osdl.org> <1125652914.6928.27.camel@baythorne.infradead.org>
+In-Reply-To: <1125652914.6928.27.camel@baythorne.infradead.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509041010.54433.morfic@gentoo.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-for my V2311US with Broadcom 4318 these drivers worked with ndiswrapper: 
-ftp://ftp.support.acer-euro.com/notebook/ferrari_4000/driver/winxp64bit/80211g.zip
-while these did not: 
-http://www.broadcom.com/products/Wireless-LAN/802.11-Wireless-LAN-Solutions/BCM94318
-PCIID: 14e4:4318
+David Woodhouse wrote:
+> On Fri, 2005-09-02 at 02:00 -0700, Linus Torvalds wrote:
+> 
+>>Ahh. Please change that to
+>>
+>>        rm -rf tmp-empty-tree
+>>        mkdir tmp-empty-tree
+>>        cd tmp-empty-tree
+>>        git-init-db
+>>
+>>because otherwise you'll almost certainly hit something else later
+>>on..
+> 
+> 
+> OK, done. 
+> 
 
-the ati-drivers 8.16.20 worked very well with the xpress 200 (ATI IXP) in it 
-at 1280x768 (proprietary drivers seem to be a problem with software-suspend, 
-which might be why i have not successfully resumed yet, vbetools to help here 
-does not compile for me..yet?)
+-git4 is again empty
 
-the twice as fast clock problem you will find several times on kernel.org's 
-bugzilla for now add "noapic" to the kernel parameters, this works here at 
-least till it is fixed (i havent tried booting 2.6.13 w/o it to be honest)
+ patch-2.6.13-git4.bz2      03-Sep-2005 02:03   14
+[   ] patch-2.6.13-git4.bz2.sign 03-Sep-2005 02:03  248
+[   ] patch-2.6.13-git4.gz       03-Sep-2005 02:03   20
+[   ] patch-2.6.13-git4.gz.sign  03-Sep-2005 02:03  248
+[   ] patch-2.6.13-git4.id       03-Sep-2005 02:01   41
+[   ] patch-2.6.13-git4.log      03-Sep-2005 02:03  526K
+[   ] patch-2.6.13-git4.sign     03-Sep-2005 02:03  248
 
-i get the charge of my battery, no info on current use 
-through /proc/acpi/battery
-
-have not really tried using mmc slot
-
-i hope this helps you anything
-
-Daniel
+-- 
+Jan

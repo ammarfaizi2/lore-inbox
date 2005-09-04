@@ -1,74 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750935AbVIDQly@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750944AbVIDQoU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750935AbVIDQly (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 12:41:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750944AbVIDQly
+	id S1750944AbVIDQoU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 12:44:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750961AbVIDQoU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 12:41:54 -0400
-Received: from alpha.polcom.net ([217.79.151.115]:7045 "EHLO alpha.polcom.net")
-	by vger.kernel.org with ESMTP id S1750935AbVIDQlx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 12:41:53 -0400
-Date: Sun, 4 Sep 2005 18:41:46 +0200 (CEST)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Cc: Giampaolo Tomassoni <g.tomassoni@libero.it>, linux-kernel@vger.kernel.org,
-       linux-atm-general@lists.sourceforge.net
-Subject: Re: [ATMSAR] Request for review - update #1
-In-Reply-To: <200509041720.55588.s0348365@sms.ed.ac.uk>
-Message-ID: <Pine.LNX.4.63.0509041830270.29195@alpha.polcom.net>
-References: <NBBBIHMOBLOHKCGIMJMDGEHPEKAA.g.tomassoni@libero.it>
- <200509041720.55588.s0348365@sms.ed.ac.uk>
+	Sun, 4 Sep 2005 12:44:20 -0400
+Received: from ms-smtp-02.rdc-kc.rr.com ([24.94.166.122]:39667 "EHLO
+	ms-smtp-02.rdc-kc.rr.com") by vger.kernel.org with ESMTP
+	id S1750944AbVIDQoU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 12:44:20 -0400
+From: Paul Misner <paul@misner.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: RFC: i386: kill !4KSTACKS
+Date: Sun, 4 Sep 2005 11:44:13 -0500
+User-Agent: KMail/1.8.2
+References: <20050902060830.84977.qmail@web50208.mail.yahoo.com> <200509041549.17512.vda@ilport.com.ua>
+In-Reply-To: <200509041549.17512.vda@ilport.com.ua>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509041144.13145.paul@misner.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 4 Sep 2005, Alistair John Strachan wrote:
-
-> On Sunday 04 September 2005 12:05, Giampaolo Tomassoni wrote:
->> Dears,
->>
->> thanks to Jiri Slaby who found a bug in the AAL0 handling of the ATMSAR
->> module.
->>
->> I attach a fixed version of the atmsar patch as a diff against the 2.6.13
->> kernel tree.
->>
-> [snip]
+On Sunday 04 September 2005 7:49 am, Denis Vlasenko wrote:
+> On Friday 02 September 2005 09:08, Alex Davis wrote:
+> > ndiswrapper and driverloader will not work reliably with 4k stacks.
+> > This is because of the Windoze drivers they use, to which, obviously,
+> > they do not have the source. Since quite a few laptops have built-in
+> > wireless cards by companies who will not release an open-source driver,
+> > or won't release specs, ndiswrapper and driverloader are the only way
+> > to get these cards to work.
+> >   Please don't tell me to "get a linux-supported wireless card". I don't
+> > want the clutter of an external wireless adapter sticking out of my
+> > laptop, nor do I want to spend money on a card when I have a free and
+> > working solution.
 >
-> Just out of curiosity, is there ANY reason why this has to be done in the
-> kernel? The PPPoATM module for pppd implements (via linux-atm) a completely
-> userspace ATM decoder.. if anything, now redundant ATM stack code should be
-> REMOVED from Linux!
+> Please don't tell me to "care for closed-source drivers". I don't
+> want the pain of debugging crashes on the machines which run unknown code
+> in kernel space.
 >
-> Most distributions (to my knowledge) supporting the speedtouch modem do so
-> using the method prescribed on speedtouch.sf.net; an entirely userspace
-> procedure. pppd does all the ATM magic.
->
-> Does this have real-world applications beyond the Speedtouch DSL modems? If
-> not, I propose adding this code to linux-atm, not the kernel, since most
-> users of USB speedtouch DSL modems will not be using the kernel's ATM.
+> IOW, if you run closed source modules - it's _your_ problem, not ours.
+> --
+> vda
+> -
+No one is asking you to 'care' about our problems running a notebook with a 
+closed source driver under ndiswrapper.  We aren't asking you to debug 
+problems with them either.  All we're asking is for you to not go out of your 
+way to break existing working machines, and make it difficult to run Linux on 
+them.  You are talking about knowingly removing an option that allows many 
+machines to currently run without problems, some of them for reasons other 
+than closed source code.
 
-I am using SpeedTouch 330 modem with kernel driver (on Gentoo).
+If you want 4k stacks to be the default, I have no problem with that.  If you 
+want to rip out the provision for 8k stacks to be selectable at build time, 
+that is a different issue entirely.
 
-The instalation is currently (with firmware loader instead of modem_run) 
-very simple: USE="atm" emerge ppp, download firmware and place it in 
-/lib/firmware, compile the kernel with speedtch support.
-
-I tried to use userspace driver some time ago but it wasn't working for me 
-so I gave up. I was using modem_run with kernel driver for long time to 
-load the firmware but there were many problems with it too (nearly every 
-kernel or modem_run upgrade was breaking something, modem_run was hanging 
-in D state in most unapropriate moments and so on).
-
-Now I am using pure kernel driver and firmware loader and it works 100% 
-ok. There were no problems with it for long time. And I don't even want to 
-look at this userspace driver again.
-
-Since Linux newer was (or is going to be) userspace-driver OS, maybe we 
-should leave it that way...
-
-
-Grzegorz Kulewski
-
+Paul

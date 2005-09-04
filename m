@@ -1,60 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750847AbVIDQiW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750935AbVIDQly@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750847AbVIDQiW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 12:38:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750935AbVIDQiW
+	id S1750935AbVIDQly (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 12:41:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750944AbVIDQly
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 12:38:22 -0400
-Received: from ms-smtp-02-lbl.southeast.rr.com ([24.25.9.101]:26363 "EHLO
-	ms-smtp-02-eri0.southeast.rr.com") by vger.kernel.org with ESMTP
-	id S1750847AbVIDQiV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 12:38:21 -0400
-Message-Id: <200509041638.j84Gc5lA024062@ms-smtp-02-eri0.southeast.rr.com>
-From: "Matt LaPlante" <laplam@rpi.edu>
-To: "'Herbert Xu'" <herbert@gondor.apana.org.au>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Potential IPSec DoS/Kernel Panic with 2.6.13
-Date: Sun, 4 Sep 2005 12:38:01 -0400
+	Sun, 4 Sep 2005 12:41:54 -0400
+Received: from alpha.polcom.net ([217.79.151.115]:7045 "EHLO alpha.polcom.net")
+	by vger.kernel.org with ESMTP id S1750935AbVIDQlx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 12:41:53 -0400
+Date: Sun, 4 Sep 2005 18:41:46 +0200 (CEST)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: Giampaolo Tomassoni <g.tomassoni@libero.it>, linux-kernel@vger.kernel.org,
+       linux-atm-general@lists.sourceforge.net
+Subject: Re: [ATMSAR] Request for review - update #1
+In-Reply-To: <200509041720.55588.s0348365@sms.ed.ac.uk>
+Message-ID: <Pine.LNX.4.63.0509041830270.29195@alpha.polcom.net>
+References: <NBBBIHMOBLOHKCGIMJMDGEHPEKAA.g.tomassoni@libero.it>
+ <200509041720.55588.s0348365@sms.ed.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-In-Reply-To: <E1EBpnC-0001SQ-00@gondolin.me.apana.org.au>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-Thread-Index: AcWxKk2vzf2inQanTWu/etX8RnVtQgARETPg
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-
-> owner@vger.kernel.org] On Behalf Of Herbert Xu
-> Sent: Sunday, September 04, 2005 4:24 AM
-> To: Matt LaPlante
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: Potential IPSec DoS/Kernel Panic with 2.6.13
-> 
-> Matt LaPlante <laplam@rpi.edu> wrote:
-> >
-> > network connectivity on my router.  Upon further inspection I noticed
-> the
-> > packet had actually caused a kernel panic (visible only on the monitor,
-> now
-> > also unresponsive).
-> 
-> Thanks for the report.  I'll try to track it down.
-> 
-> If you could jot down the important bits of the panic message
-> (IP, Call-Trace) it would help me find the problem much quicker.
+On Sun, 4 Sep 2005, Alistair John Strachan wrote:
 
-I'd be more than happy to help you track this one down.  The problem here is
-that the panic scrolls up and off the screen after which the system is
-unusable.  Is there a way for me to capture it or redirect it somewhere that
-I can read it?  I can also include my kernel config or any other system
-details of interest.  Thanks.
+> On Sunday 04 September 2005 12:05, Giampaolo Tomassoni wrote:
+>> Dears,
+>>
+>> thanks to Jiri Slaby who found a bug in the AAL0 handling of the ATMSAR
+>> module.
+>>
+>> I attach a fixed version of the atmsar patch as a diff against the 2.6.13
+>> kernel tree.
+>>
+> [snip]
+>
+> Just out of curiosity, is there ANY reason why this has to be done in the
+> kernel? The PPPoATM module for pppd implements (via linux-atm) a completely
+> userspace ATM decoder.. if anything, now redundant ATM stack code should be
+> REMOVED from Linux!
+>
+> Most distributions (to my knowledge) supporting the speedtouch modem do so
+> using the method prescribed on speedtouch.sf.net; an entirely userspace
+> procedure. pppd does all the ATM magic.
+>
+> Does this have real-world applications beyond the Speedtouch DSL modems? If
+> not, I propose adding this code to linux-atm, not the kernel, since most
+> users of USB speedtouch DSL modems will not be using the kernel's ATM.
 
--
-Matt
+I am using SpeedTouch 330 modem with kernel driver (on Gentoo).
+
+The instalation is currently (with firmware loader instead of modem_run) 
+very simple: USE="atm" emerge ppp, download firmware and place it in 
+/lib/firmware, compile the kernel with speedtch support.
+
+I tried to use userspace driver some time ago but it wasn't working for me 
+so I gave up. I was using modem_run with kernel driver for long time to 
+load the firmware but there were many problems with it too (nearly every 
+kernel or modem_run upgrade was breaking something, modem_run was hanging 
+in D state in most unapropriate moments and so on).
+
+Now I am using pure kernel driver and firmware loader and it works 100% 
+ok. There were no problems with it for long time. And I don't even want to 
+look at this userspace driver again.
+
+Since Linux newer was (or is going to be) userspace-driver OS, maybe we 
+should leave it that way...
 
 
+Grzegorz Kulewski
 

@@ -1,38 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbVIDKgB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbVIDKgH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750727AbVIDKgB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 06:36:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbVIDKgB
+	id S1750739AbVIDKgH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 06:36:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbVIDKgH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 06:36:01 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:37084 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S1750727AbVIDKgA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 06:36:00 -0400
-Date: Sun, 4 Sep 2005 12:35:57 +0200
-From: bert hubert <bert.hubert@netherlabs.nl>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Brand-new notebook useless with Linux...
-Message-ID: <20050904103557.GA27456@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
-	Chuck Ebbert <76306.1226@compuserve.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <200509031859_MC3-1-A720-F705@compuserve.com>
+	Sun, 4 Sep 2005 06:36:07 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:59666 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1750739AbVIDKgG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 06:36:06 -0400
+Date: Sun, 4 Sep 2005 11:36:00 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: rpurdie@rpsys.net, lenz@cs.wisc.edu,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] Add suspend/resume support to locomo.c
+Message-ID: <20050904113600.C30509@flint.arm.linux.org.uk>
+Mail-Followup-To: Pavel Machek <pavel@ucw.cz>, rpurdie@rpsys.net,
+	lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>
+References: <20050721052558.GD7849@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200509031859_MC3-1-A720-F705@compuserve.com>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050721052558.GD7849@elf.ucw.cz>; from pavel@ucw.cz on Thu, Jul 21, 2005 at 07:25:58AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 03, 2005 at 06:58:00PM -0400, Chuck Ebbert wrote:
-> I just bought a new notebook.  Here is the output from lspci using the latest
-> pci.ids file from sourceforge:
+On Thu, Jul 21, 2005 at 07:25:58AM +0200, Pavel Machek wrote:
+> From: John Lenz <lenz@cs.wisc.edu>
+> 
+> This adds low-level suspend/resume support to locomo.c. 
+> 
+> Signed-off-by: Pavel Machek <pavel@suse.cz>
 
-I'd suggest researching before buying.
+Shouldn't this be signed off by John himself?  Not applied.
 
 -- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://netherlabs.nl              Open and Closed source services
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

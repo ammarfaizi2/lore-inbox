@@ -1,77 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750892AbVIDD7i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750904AbVIDEMg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750892AbVIDD7i (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Sep 2005 23:59:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750895AbVIDD7i
+	id S1750904AbVIDEMg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 00:12:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750926AbVIDEMg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Sep 2005 23:59:38 -0400
-Received: from pippin.dreamhost.com ([66.33.211.27]:15332 "EHLO
-	pippin.dreamhost.com") by vger.kernel.org with ESMTP
-	id S1750880AbVIDD7h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Sep 2005 23:59:37 -0400
-Message-ID: <431A7115.7070101@jstenback.com>
-Date: Sat, 03 Sep 2005 20:59:17 -0700
-From: Johnny Stenback <jst@jstenback.com>
-User-Agent: Thunderbird 1.6a1 (Windows/20050830)
-MIME-Version: 1.0
-To: Alexander Nyberg <alexn@telia.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: gcc coredump with 2.6.12+ kernels
-References: <4319DC91.4020406@jstenback.com> <20050903174030.GA5406@localhost.localdomain>
-In-Reply-To: <20050903174030.GA5406@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 4 Sep 2005 00:12:36 -0400
+Received: from agminet04.oracle.com ([141.146.126.231]:59250 "EHLO
+	agminet04.oracle.com") by vger.kernel.org with ESMTP
+	id S1750895AbVIDEMf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 00:12:35 -0400
+Date: Sat, 3 Sep 2005 21:12:24 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Andrew Morton <akpm@osdl.org>, phillips@istop.com,
+       linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: Re: [RFC][PATCH 1 of 4] Configfs is really sysfs
+Message-ID: <20050904041224.GP8684@ca-server1.us.oracle.com>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>, phillips@istop.com,
+	linux-kernel@vger.kernel.org, greg@kroah.com
+References: <200508310854.40482.phillips@istop.com> <20050830231307.GE22068@insight.us.oracle.com> <20050830162846.5f6d0a53.akpm@osdl.org> <20050904035341.GO8684@ca-server1.us.oracle.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050904035341.GO8684@ca-server1.us.oracle.com>
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.10i
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Nyberg wrote:
-> On Sat, Sep 03, 2005 at 10:25:37AM -0700 Johnny Stenback wrote:
-> 
->> Hey all,
->>
->> I just attempted to upgrade my kernel to 2.6.13. The kernel appears to 
->> boot and run just fine, but when I try to build any larger projects like 
->> Mozilla or the Linux kernel I constantly get segfaults from gcc. All 
->> other apps *seem* to work fine. I remember seeing this with 2.6.12 too 
->> when I tried to upgrade to it too but I didn't have the time to 
->> investigate at all then, but now I see the same problem with 2.6.13. The 
->> last version I've used that didn't show this problem is 2.6.11.3, and 
->> that's running with no problems here.
->>
->> When gcc segfaults I get the following messages in the messages log:
->>
->> cc1[16775]: segfault at 0000000000000000 rip 00000036f2b0119e rsp 
->> 00007fffffaaf0a0 error 4
->> cc1[17086]: segfault at 0000000000000000 rip 00000036f2b0119e rsp 
->> 00007fffffc4dfc0 error 4
->> cc1[17788]: segfault at 0000000000000000 rip 00000036f2b0119e rsp 
->> 00007fffffd777e0 error 4
->> cc1[17823]: segfault at 0000000000000000 rip 00000036f2b0119e rsp 
->> 00007fffffc4d630 error 4
->> cc1[17895]: segfault at 0000000000000000 rip 00000036f2b0119e rsp 
->> 00007ffffffd2330 error 4
->>
->> I'm on a dual AMD Opteron system, running x86_64 code. Using Fedora Core 
->> 2 (yeah, old, I know...) and gcc 3.3.3 20040412.
-> 
-> Does it still happen if you run:
-> 
-> echo 0 > /proc/sys/kernel/randomize_va_space
+On Tue, Aug 30, 2005 at 04:28:46PM -0700, Andrew Morton wrote:
+> Sure, but all that copying-and-pasting really sucks.  I'm sure there's some
+> way of providing the slightly different semantics from the same codebase?
 
-Just tried that, and I still get the same error, and the same error in 
-the log too (just a different address):
+	What about the backing store?  Specifically, sysfs_dirent vs
+configfs_dirent.
+	The structures are almost identical.  What's different?
+configfs has a list of symlinks, as these are hard linkages and involve
+pinning and reference counting.  So, to merge the structures, you have
+to add two pointers (a list_head) to every sysfs object.
+	Allocating, initializing, and freeing them really does appear to
+be virtually identical.  The functions that call the creation are very
+different, but they could call the same thing.  There are more types of
+things in configfs, so all shared calls would have to be able to handle
+them.
+	Oh, but the get_name() functions, the one that return the string
+name of a _dirent, are very different.  So you'd have to add another
+pointer to the structure, a ->get_name() callback.  That's an additional
+pointer for every sysfs object.
+	The attach_attr() functions are different.  Some of that is the
+BIN_ATTR type of sysfs, which configfs doesn't and shouldn't have.  In
+that case, the code still works, as BIN_ATTR test wouldn't succeed.
+They configure dentry_ops, which are different in sysfs and configfs.
+So the API would have to change to specify the appropriate dentry_ops.
+	This is certainly not insurmountable.  I don't know what you'd
+call it, fs/libfs/backing_store.c?  I'm interested in what the sysfs
+folks have to say on this, and how much they'd like to help.
 
-cc1plus[2961]: segfault at 0000000000000000 rip
-00000036f2b0119e rsp 00007fffffffdbb0 error 4
-
-Anything else I can try?
-
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Joel
 
 -- 
-jst
+
+A good programming language should have features that make the
+kind of people who use the phrase "software engineering" shake
+their heads disapprovingly.
+	- Paul Graham
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

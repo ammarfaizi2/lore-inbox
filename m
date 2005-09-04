@@ -1,81 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932094AbVIDWKL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932099AbVIDWSt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932094AbVIDWKL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 18:10:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbVIDWKK
+	id S932099AbVIDWSt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 18:18:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932097AbVIDWSs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 18:10:10 -0400
-Received: from zproxy.gmail.com ([64.233.162.204]:33425 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932094AbVIDWKJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 18:10:09 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=EFo2PEdUzUO2MH5QsJsuyVrMHS9t9vVKR0flQF0sujGvjmolfXjcVyICBp2SipeKEZYmALkE5tqRjwu4XiZYmWuO2ZuwMQm0J6RYSrYWNAevobcljrrBzSgUBnZVepcTJmj346v1DKIOzB8OQOqf8H7LO+A+QPTODbql28JJLI4=
-Message-ID: <9a87484905090415107e82c725@mail.gmail.com>
-Date: Mon, 5 Sep 2005 00:10:04 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Subject: Re: [PATCH] New: Omnikey CardMan 4040 PCMCIA Driver
-Cc: Harald Welte <laforge@gnumonks.org>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <200509042106.j84L6kvV019764@laptop11.inf.utfsm.cl>
+	Sun, 4 Sep 2005 18:18:48 -0400
+Received: from rgminet04.oracle.com ([148.87.122.33]:4995 "EHLO
+	rgminet04.oracle.com") by vger.kernel.org with ESMTP
+	id S932096AbVIDWSr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 18:18:47 -0400
+Date: Sun, 4 Sep 2005 15:18:20 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: David Teigland <teigland@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, linux-cluster@redhat.com
+Subject: Re: GFS, what's remaining
+Message-ID: <20050904221820.GB8684@ca-server1.us.oracle.com>
+Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
+	David Teigland <teigland@redhat.com>, Andrew Morton <akpm@osdl.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-cluster@redhat.com
+References: <20050901104620.GA22482@redhat.com> <20050901035939.435768f3.akpm@osdl.org> <1125586158.15768.42.camel@localhost.localdomain> <20050901132104.2d643ccd.akpm@osdl.org> <20050903051841.GA13211@redhat.com> <20050904203344.GA1987@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <jesper.juhl@gmail.com> <9a87484905090315273f9b7048@mail.gmail.com>
-	 <200509042106.j84L6kvV019764@laptop11.inf.utfsm.cl>
+In-Reply-To: <20050904203344.GA1987@elf.ucw.cz>
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.10i
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/4/05, Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
-> Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> > On 9/4/05, Harald Welte <laforge@gnumonks.org> wrote:
-> > > On Sun, Sep 04, 2005 at 12:12:18PM +0200, Harald Welte wrote:
-> > > > Hi!
-> > > >
-> > > > Below you can find a driver for the Omnikey CardMan 4040 PCMCIA
-> > > > Smartcard Reader.
-> > >
-> > > Sorry, the patch was missing a "cg-add" of the header file.  Please use
-> > > the patch below.
-> >
-> > It would be so much nicer if the patch actually was "below" - that is
-> > "inline in the email as opposed to as an attachment". Having to first
-> > save an attachment and then cut'n'paste from it is a pain.
-> >
-> > Anyway, a few comments below :
+On Sun, Sep 04, 2005 at 10:33:44PM +0200, Pavel Machek wrote:
+> > - read-only mount
+> > - "specatator" mount (like ro but no journal allocated for the mount,
+> >   no fencing needed for failed node that was mounted as specatator)
 > 
-> [...]
-> 
-> > +     unsigned long ulBytesToRead;
-> >
-> >
-> > lowercase prefered also for variables.
-> 
-> Also, "encoding" the type (ul) into the variable name is nonsense.
-> 
-Agreed, and it's even mentioned in CodingStyle (ok, it talks about
-functions, but the same goes for variables):
+> I'd call it "real-read-only", and yes, that's very usefull
+> mount. Could we get it for ext3, too?
 
-...
-Encoding the type of a function into the name (so-called Hungarian
-notation) is brain damaged - the compiler knows the types anyway and can
-check those, and it only confuses the programmer.  No wonder MicroSoft
-makes buggy programs.
+	In OCFS2 we call readonly+journal+connected-to-cluster "soft
+readonly".  We're a live node, other nodes know we exist, and we can
+flush pending transactions during the rw->ro transition.  In addition,
+we can allow a ro->rw transition.
+	The no-journal+no-cluster-connection mode we call "hard
+readonly".  This is the mode you get when a device itself is readonly,
+because you can't do *anything*.
 
-LOCAL variable names should be short, and to the point.  If you have
-some random integer loop counter, it should probably be called "i".
-Calling it "loop_counter" is non-productive, if there is no chance of it
-being mis-understood.  Similarly, "tmp" can be just about any type of
-variable that is used to hold a temporary value.
-...
-
-
+Joel
 
 -- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+
+"Lately I've been talking in my sleep.
+ Can't imagine what I'd have to say.
+ Except my world will be right
+ When love comes back my way."
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

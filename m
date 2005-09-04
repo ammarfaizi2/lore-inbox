@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932333AbVIEQcD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932335AbVIEQdS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932333AbVIEQcD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 12:32:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932332AbVIEQcB
+	id S932335AbVIEQdS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 12:33:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932332AbVIEQdS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 12:32:01 -0400
-Received: from [81.2.110.250] ([81.2.110.250]:61333 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S932331AbVIEQcA (ORCPT
+	Mon, 5 Sep 2005 12:33:18 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:65173 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S932335AbVIEQdQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 12:32:00 -0400
-Subject: Re: RFC: i386: kill !4KSTACKS
+	Mon, 5 Sep 2005 12:33:16 -0400
+Subject: Re: [Linux-cluster] Re: GFS, what's remaining
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: Denis Vlasenko <vda@ilport.com.ua>, Alex Davis <alex14641@yahoo.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200509040930.57622.tomlins@cam.org>
-References: <20050902060830.84977.qmail@web50208.mail.yahoo.com>
-	 <200509041549.17512.vda@ilport.com.ua> <200509040930.57622.tomlins@cam.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Daniel Phillips <phillips@istop.com>, Joel.Becker@oracle.com,
+       linux-cluster@redhat.com, wim.coekaerts@oracle.com,
+       linux-fsdevel@vger.kernel.org, ak@suse.de, linux-kernel@vger.kernel.org
+In-Reply-To: <20050903214653.1b8a8cb7.akpm@osdl.org>
+References: <20050901104620.GA22482@redhat.com>
+	 <20050903183241.1acca6c9.akpm@osdl.org>
+	 <20050904030640.GL8684@ca-server1.us.oracle.com>
+	 <200509040022.37102.phillips@istop.com>
+	 <20050903214653.1b8a8cb7.akpm@osdl.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Sun, 04 Sep 2005 15:49:11 +0100
-Message-Id: <1125845351.23858.25.camel@localhost.localdomain>
+Date: Sun, 04 Sep 2005 09:37:15 +0100
+Message-Id: <1125823035.23858.10.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2005-09-04 at 09:30 -0400, Ed Tomlinson wrote:
-> MS stuff.  We know that 4K stacks hurt the above.  Do we really want to break working
-> configs just to enforce 4K stacks?  How does it hurt to make 4K the default and 
-> allow 8K?  What _might_ make sense is to make 8K a reason to taint the kernel.
+On Sad, 2005-09-03 at 21:46 -0700, Andrew Morton wrote:
+> Actually I think it's rather sick.  Taking O_NONBLOCK and making it a
+> lock-manager trylock because they're kinda-sorta-similar-sounding?  Spare
+> me.  O_NONBLOCK means "open this file in nonblocking mode", not "attempt to
+> acquire a clustered filesystem lock".  Not even close.
 
-The question is whether ndiswrapper can do stack switching itself. Since
-as I understand it the NT stack is way more than 8K. Is there anything
-else needed so it (and perhaps in future other 'hard cases') can handle
-stacks themselves. We have seperate IRQ stack handling already which
-should also help this.
+The semantics of O_NONBLOCK on many other devices are "trylock"
+semantics. OSS audio has those semantics for example, as do regular
+files in the presence of SYS5 mandatory locks. While the latter is "try
+lock , do operation and then drop lock" the drivers using O_NDELAY are
+very definitely providing trylock semantics.
 
-So what is needed to make it go away - specific technical items or just
-the persuasive effect of having to fix it ?
+I am curious why a lock manager uses open to implement its locking
+semantics rather than using the locking API (POSIX locks etc) however.
+
+Alan
 

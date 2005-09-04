@@ -1,77 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750967AbVIDISO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751291AbVIDIVZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750967AbVIDISO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 04:18:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750816AbVIDISO
+	id S1751291AbVIDIVZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 04:21:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbVIDIVZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 04:18:14 -0400
-Received: from agminet02.oracle.com ([141.146.126.229]:57657 "EHLO
-	agminet02.oracle.com") by vger.kernel.org with ESMTP
-	id S1750706AbVIDISN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 04:18:13 -0400
-Date: Sun, 4 Sep 2005 01:17:48 -0700
-From: Mark Fasheh <mark.fasheh@oracle.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: phillips@istop.com, Joel.Becker@oracle.com, linux-cluster@redhat.com,
-       wim.coekaerts@oracle.com, linux-fsdevel@vger.kernel.org, ak@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Linux-cluster] Re: GFS, what's remaining
-Message-ID: <20050904081748.GJ21228@ca-server1.us.oracle.com>
-Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
-References: <20050901104620.GA22482@redhat.com> <20050903183241.1acca6c9.akpm@osdl.org> <20050904030640.GL8684@ca-server1.us.oracle.com> <200509040022.37102.phillips@istop.com> <20050903214653.1b8a8cb7.akpm@osdl.org> <20050904061045.GI21228@ca-server1.us.oracle.com> <20050904002343.079daa85.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050904002343.079daa85.akpm@osdl.org>
-Organization: Oracle Corporation
-User-Agent: Mutt/1.5.9i
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
+	Sun, 4 Sep 2005 04:21:25 -0400
+Received: from jay.exetel.com.au ([220.233.0.8]:32933 "EHLO jay.exetel.com.au")
+	by vger.kernel.org with ESMTP id S1751149AbVIDIVY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 04:21:24 -0400
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: akpm@osdl.org (Andrew Morton)
+Subject: Re: Kernel 2.6.13 breaks libpcap (and tcpdump).
+Cc: jmcgowan@inch.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       Patrick McHardy <kaber@trash.net>, davem@davemloft.net
+Organization: Core
+In-Reply-To: <20050902172719.4eaaa6db.akpm@osdl.org>
+X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.netdev
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
+Message-Id: <E1EBpkT-0001RP-00@gondolin.me.apana.org.au>
+Date: Sun, 04 Sep 2005 18:21:09 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 04, 2005 at 12:23:43AM -0700, Andrew Morton wrote:
-> > What would be an acceptable replacement? I admit that O_NONBLOCK -> trylock
-> > is a bit unfortunate, but really it just needs a bit to express that -
-> > nobody over here cares what it's called.
+Andrew Morton <akpm@osdl.org> wrote:
 > 
-> The whole idea of reinterpreting file operations to mean something utterly
-> different just seems inappropriate to me.
-Putting aside trylock for a minute, I'm not sure how utterly different the
-operations are. You create a lock resource by creating a file named after
-it. You get a lock (fd) at read or write level on the resource by calling 
-open(2) with the appropriate mode (O_RDONLY, O_WRONLY/O_RDWR).
-Now that we've got an fd, lock value blocks are naturally represented as
-file data which can be read(2) or written(2).
-Close(2) drops the lock.
+>>  Filter incoming data, looking for ICMP messages:
+>>  
+>>   tcpdump -f "ip proto \icmp"
+>>  
+>> Well, that catches nothing.
 
-A really trivial usage example from shell:
+We aren't handling the reading of specific fields like the IP protocol
+field correctly.  This patch should make it work again.
 
-node1$ echo "hello world" > mylock
-node2$ cat mylock
-hello world
+I tried to move this logic into the new load_pointer function but it
+all came out messy so I simply rolled it back.
 
-I could always give a more useful one after I get some sleep :)
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 
-> You get a lot of goodies when using a filesystem - the ability for
-> unrelated processes to look things up, resource release on exit(), etc.  If
-> those features are valuable in the ocfs2 context then fine.
-Right, they certainly are and I think Joel, in another e-mail on this
-thread, explained well the advantages of using a filesystem.
-
-> But I'd have thought that it would be saner and more extensible to add new
-> syscalls (perhaps taking fd's) rather than overloading the open() mode in
-> this manner.
-The idea behind dlmfs was to very simply export a small set of cluster dlm
-operations to userspace. Given that goal, I felt that a whole set of system
-calls would have been overkill. That said, I think perhaps I should clarify
-that I don't intend dlmfs to become _the_ userspace dlm api, just a simple
-and (imho) intuitive one which could be trivially accessed from any software
-which just knows how to read and write files.
-	--Mark
-
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
 --
-Mark Fasheh
-Senior Software Developer, Oracle
-mark.fasheh@oracle.com
-
+diff --git a/net/core/filter.c b/net/core/filter.c
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -36,7 +36,7 @@
+ #include <linux/filter.h>
+ 
+ /* No hurry in this branch */
+-static void *__load_pointer(struct sk_buff *skb, int k)
++static void *load_pointer(struct sk_buff *skb, int k)
+ {
+ 	u8 *ptr = NULL;
+ 
+@@ -50,18 +50,6 @@ static void *__load_pointer(struct sk_bu
+ 	return NULL;
+ }
+ 
+-static inline void *load_pointer(struct sk_buff *skb, int k,
+-                                 unsigned int size, void *buffer)
+-{
+-	if (k >= 0)
+-		return skb_header_pointer(skb, k, size, buffer);
+-	else {
+-		if (k >= SKF_AD_OFF)
+-			return NULL;
+-		return __load_pointer(skb, k);
+-	}
+-}
+-
+ /**
+  *	sk_run_filter	- 	run a filter on a socket
+  *	@skb: buffer to run the filter on
+@@ -177,7 +165,13 @@ int sk_run_filter(struct sk_buff *skb, s
+ 		case BPF_LD|BPF_W|BPF_ABS:
+ 			k = fentry->k;
+  load_w:
+-			ptr = load_pointer(skb, k, 4, &tmp);
++			if (k >= 0)
++				ptr = skb_header_pointer(skb, k, 4, &tmp);
++			else if (k < SKF_AD_OFF)
++				ptr = load_pointer(skb, k);
++			else
++				break;
++
+ 			if (ptr != NULL) {
+ 				A = ntohl(*(u32 *)ptr);
+ 				continue;
+@@ -186,7 +180,13 @@ int sk_run_filter(struct sk_buff *skb, s
+ 		case BPF_LD|BPF_H|BPF_ABS:
+ 			k = fentry->k;
+  load_h:
+-			ptr = load_pointer(skb, k, 2, &tmp);
++			if (k >= 0)
++				ptr = skb_header_pointer(skb, k, 2, &tmp);
++			else if (k < SKF_AD_OFF)
++				ptr = load_pointer(skb, k);
++			else
++				break;
++
+ 			if (ptr != NULL) {
+ 				A = ntohs(*(u16 *)ptr);
+ 				continue;
+@@ -195,7 +195,13 @@ int sk_run_filter(struct sk_buff *skb, s
+ 		case BPF_LD|BPF_B|BPF_ABS:
+ 			k = fentry->k;
+ load_b:
+-			ptr = load_pointer(skb, k, 1, &tmp);
++			if (k >= 0)
++				ptr = skb_header_pointer(skb, k, 1, &tmp);
++			else if (k < SKF_AD_OFF)
++				ptr = load_pointer(skb, k);
++			else
++				break;
++
+ 			if (ptr != NULL) {
+ 				A = *(u8 *)ptr;
+ 				continue;
+@@ -217,7 +223,9 @@ load_b:
+ 			k = X + fentry->k;
+ 			goto load_b;
+ 		case BPF_LDX|BPF_B|BPF_MSH:
+-			ptr = load_pointer(skb, fentry->k, 1, &tmp);
++			if (fentry->k < 0)
++				return 0;
++			ptr = skb_header_pointer(skb, fentry->k, 1, &tmp);
+ 			if (ptr != NULL) {
+ 				X = (*(u8 *)ptr & 0xf) << 2;
+ 				continue;

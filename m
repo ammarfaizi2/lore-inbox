@@ -1,71 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932150AbVIDXdo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932153AbVIDXdo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932150AbVIDXdo (ORCPT <rfc822;willy@w.ods.org>);
+	id S932153AbVIDXdo (ORCPT <rfc822;willy@w.ods.org>);
 	Sun, 4 Sep 2005 19:33:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932153AbVIDXch
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbVIDXbK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 19:32:37 -0400
-Received: from allen.werkleitz.de ([80.190.251.108]:62081 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S932155AbVIDXbT
+	Sun, 4 Sep 2005 19:31:10 -0400
+Received: from allen.werkleitz.de ([80.190.251.108]:39041 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S932125AbVIDXa3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 19:31:19 -0400
-Message-Id: <20050904232337.296861000@abc>
+	Sun, 4 Sep 2005 19:30:29 -0400
+Message-Id: <20050904232326.452095000@abc>
 References: <20050904232259.777473000@abc>
-Date: Mon, 05 Sep 2005 01:23:53 +0200
+Date: Mon, 05 Sep 2005 01:23:26 +0200
 From: Johannes Stezenbach <js@linuxtv.org>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org,
-       Marcelo Feitoza Parisi <marcelo@feitoza.com.br>,
-       Domen Puncer <domen@coderock.org>
-Content-Disposition: inline; filename=dvb-ttusb-budget-time_after-cleanup.patch
+Cc: linux-kernel@vger.kernel.org, Patrick Boettcher <pb@linuxtv.org>
+Content-Disposition: inline; filename=dvb-usb-dtt200u-naming-and-formatting-changes.patch
 X-SA-Exim-Connect-IP: 84.189.198.88
-Subject: [DVB patch 54/54] ttusb-budget: use time_after_eq()
+Subject: [DVB patch 27/54] usb: dtt200u: add proper device names
 X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
 X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Marcelo Feitoza Parisi <marcelo@feitoza.com.br>
+From: Patrick Boettcher <pb@linuxtv.org>
 
-Use of the time_after_eq() macro, defined at linux/jiffies.h, which deal
-with wrapping correctly and are nicer to read.
+Added names for clones of the DVB-T stick.
+Whitespace cleanups.
 
-Signed-off-by: Marcelo Feitoza Parisi <marcelo@feitoza.com.br>
-Signed-off-by: Domen Puncer <domen@coderock.org>
+Signed-off-by: Patrick Boettcher <pb@linuxtv.org>
 Signed-off-by: Johannes Stezenbach <js@linuxtv.org>
 
- drivers/media/dvb/ttusb-budget/dvb-ttusb-budget.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/media/dvb/dvb-usb/dtt200u.c |   17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
---- linux-2.6.13-git4.orig/drivers/media/dvb/ttusb-budget/dvb-ttusb-budget.c	2005-09-04 22:28:03.000000000 +0200
-+++ linux-2.6.13-git4/drivers/media/dvb/ttusb-budget/dvb-ttusb-budget.c	2005-09-04 22:31:06.000000000 +0200
-@@ -18,6 +18,7 @@
- #include <linux/delay.h>
- #include <linux/time.h>
- #include <linux/errno.h>
-+#include <linux/jiffies.h>
- #include <asm/semaphore.h>
+--- linux-2.6.13-git4.orig/drivers/media/dvb/dvb-usb/dtt200u.c	2005-09-04 22:24:23.000000000 +0200
++++ linux-2.6.13-git4/drivers/media/dvb/dvb-usb/dtt200u.c	2005-09-04 22:28:20.000000000 +0200
+@@ -106,12 +106,11 @@ static int dtt200u_usb_probe(struct usb_
+ }
  
- #include "dvb_frontend.h"
-@@ -570,7 +571,8 @@ static void ttusb_handle_sec_data(struct
- 				  const u8 * data, int len);
- #endif
+ static struct usb_device_id dtt200u_usb_table [] = {
+-//		{ USB_DEVICE(0x04b4,0x8613) },
+-	    { USB_DEVICE(USB_VID_WIDEVIEW, USB_PID_DTT200U_COLD) },
+-	    { USB_DEVICE(USB_VID_WIDEVIEW, USB_PID_DTT200U_WARM) },
+-		{ USB_DEVICE(USB_VID_WIDEVIEW, USB_PID_WT220U_COLD)  },
+-		{ USB_DEVICE(USB_VID_WIDEVIEW, USB_PID_WT220U_WARM)  },
+-	    { 0 },
++	{ USB_DEVICE(USB_VID_WIDEVIEW, USB_PID_DTT200U_COLD) },
++	{ USB_DEVICE(USB_VID_WIDEVIEW, USB_PID_DTT200U_WARM) },
++	{ USB_DEVICE(USB_VID_WIDEVIEW, USB_PID_WT220U_COLD)  },
++	{ USB_DEVICE(USB_VID_WIDEVIEW, USB_PID_WT220U_WARM)  },
++	{ 0 },
+ };
+ MODULE_DEVICE_TABLE(usb, dtt200u_usb_table);
  
--static int numpkt = 0, lastj, numts, numstuff, numsec, numinvalid;
-+static int numpkt = 0, numts, numstuff, numsec, numinvalid;
-+static unsigned long lastj;
+@@ -189,7 +188,7 @@ static struct dvb_usb_properties wt220u_
  
- static void ttusb_process_muxpack(struct ttusb *ttusb, const u8 * muxpack,
- 			   int len)
-@@ -779,7 +781,7 @@ static void ttusb_iso_irq(struct urb *ur
- 			u8 *data;
- 			int len;
- 			numpkt++;
--			if ((jiffies - lastj) >= HZ) {
-+			if (time_after_eq(jiffies, lastj + HZ)) {
- #if DEBUG > 2
- 				printk
- 				    ("frames/s: %d (ts: %d, stuff %d, sec: %d, invalid: %d, all: %d)\n",
+ 	.num_device_descs = 1,
+ 	.devices = {
+-		{ .name = "WideView WT-220U PenType Receiver (and clones)",
++		{ .name = "WideView WT-220U PenType Receiver (Typhoon/Freecom)",
+ 		  .cold_ids = { &dtt200u_usb_table[2], NULL },
+ 		  .warm_ids = { &dtt200u_usb_table[3], NULL },
+ 		},
+@@ -201,9 +200,9 @@ static struct dvb_usb_properties wt220u_
+ static struct usb_driver dtt200u_usb_driver = {
+ 	.owner		= THIS_MODULE,
+ 	.name		= "dvb_usb_dtt200u",
+-	.probe 		= dtt200u_usb_probe,
++	.probe		= dtt200u_usb_probe,
+ 	.disconnect = dvb_usb_device_exit,
+-	.id_table 	= dtt200u_usb_table,
++	.id_table	= dtt200u_usb_table,
+ };
+ 
+ /* module stuff */
 
 --
 

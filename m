@@ -1,53 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751220AbVIDIqb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbVIDJLu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751220AbVIDIqb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 04:46:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751304AbVIDIqb
+	id S1751315AbVIDJLu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 05:11:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751312AbVIDJLt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 04:46:31 -0400
-Received: from poros.telenet-ops.be ([195.130.132.44]:17084 "EHLO
-	poros.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S1751220AbVIDIqa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 04:46:30 -0400
-From: Jan De Luyck <lkml@kcore.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Genesys USB 2.0 enclosures
-Date: Sun, 4 Sep 2005 10:46:01 +0200
-User-Agent: KMail/1.8.1
-Cc: Alan Stern <stern@rowland.harvard.edu>,
-       USB Storage list <usb-storage@lists.one-eyed-alien.net>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-References: <Pine.LNX.4.44L0.0509032151040.5675-100000@netrider.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0509032151040.5675-100000@netrider.rowland.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 4 Sep 2005 05:11:49 -0400
+Received: from rgminet01.oracle.com ([148.87.122.30]:12417 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1751310AbVIDJLs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 05:11:48 -0400
+Date: Sun, 4 Sep 2005 02:11:18 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: phillips@istop.com, linux-cluster@redhat.com, wim.coekaerts@oracle.com,
+       linux-fsdevel@vger.kernel.org, ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [Linux-cluster] Re: GFS, what's remaining
+Message-ID: <20050904091118.GZ8684@ca-server1.us.oracle.com>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>, phillips@istop.com,
+	linux-cluster@redhat.com, wim.coekaerts@oracle.com,
+	linux-fsdevel@vger.kernel.org, ak@suse.de,
+	linux-kernel@vger.kernel.org
+References: <20050901104620.GA22482@redhat.com> <200509040022.37102.phillips@istop.com> <20050903214653.1b8a8cb7.akpm@osdl.org> <200509040240.08467.phillips@istop.com> <20050904002828.3d26f64c.akpm@osdl.org> <20050904080102.GY8684@ca-server1.us.oracle.com> <20050904011805.68df8dde.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200509041046.01652.lkml@kcore.org>
+In-Reply-To: <20050904011805.68df8dde.akpm@osdl.org>
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.10i
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 04 September 2005 03:53, Alan Stern wrote:
->
-> This one certainly goes into the Bizarro file.
->
-> Just out of curiosity -- when you use the powered hub, does the drive work
-> even if you remove that delay completely?
+On Sun, Sep 04, 2005 at 01:18:05AM -0700, Andrew Morton wrote:
+> > 	I thought I stated this in my other email.  We're not intending
+> > to extend dlmfs.
+> 
+> Famous last words ;)
 
-I haven't tested that. I will, next time I need the drive, which will probably 
-be in about a week. 
+	Heh, of course :-)
 
-I just wanted to make my backup, and finally managed to do that. I don't get 
-it either what's really wrong with these chips - but it was one of the 
-recommendations i found on the linux-usb device list pages. And it seems to 
-work.
+> I don't buy the general "fs is nice because we can script it" argument,
+> really.  You can just write a few simple applications which provide access
+> to the syscalls (or the fs!) and then write scripts around those.
 
-If now only I can get the firewire part of one of them working without 
-serialize_io, then I can use that too.
+	I can't see how that works easily.  I'm not worried about a
+tarball (eventually Red Hat and SuSE and Debian would have it).  I'm
+thinking about this shell:
 
-Jan
+	exec 7</dlm/domainxxxx/lock1
+	do stuff
+	exec 7</dev/null
+
+If someone kills the shell while stuff is doing, the lock is unlocked
+because fd 7 is closed.  However, if you have an application to do the
+locking:
+
+	takelock domainxxx lock1
+	do sutff
+	droplock domainxxx lock1
+
+When someone kills the shell, the lock is leaked, becuase droplock isn't
+called.  And SEGV/QUIT/-9 (especially -9, folks love it too much) are
+handled by the first example but not by the second.
+	
+Joel
 
 -- 
-A billion here, a billion there -- pretty soon it adds up to real money.
-		-- Sen. Everett Dirksen, on the U.S. defense budget
+
+"Same dancers in the same old shoes.
+ You get too careful with the steps you choose.
+ You don't care about winning but you don't want to lose
+ After the thrill is gone."
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127
+

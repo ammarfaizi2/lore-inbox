@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750784AbVIDMbd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750792AbVIDMbm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750784AbVIDMbd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 08:31:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750792AbVIDMbc
+	id S1750792AbVIDMbm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 08:31:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750796AbVIDMbm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 08:31:32 -0400
-Received: from pop.gmx.de ([213.165.64.20]:22964 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750784AbVIDMbc (ORCPT
+	Sun, 4 Sep 2005 08:31:42 -0400
+Received: from imap.gmx.net ([213.165.64.20]:22958 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750792AbVIDMbl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 08:31:32 -0400
+	Sun, 4 Sep 2005 08:31:41 -0400
 X-Authenticated: #945972
-Message-ID: <431AE2B4.8030205@gmx.de>
-Date: Sun, 04 Sep 2005 14:04:04 +0200
+Message-ID: <431AE865.5070106@gmx.de>
+Date: Sun, 04 Sep 2005 14:28:21 +0200
 From: Niko Nitsche <fal16con@gmx.de>
 Organization: http://www.brainopoly.de
 User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
@@ -49,6 +49,7 @@ but I think those are the correct ones:
 
 alias snd-card-0 snd-intel8x0
 options snd-intel8x0 "index=0"
+options snd-card-0 "index=0"
 
 > this is my modprobe.conf:
 > alias eth0 forcedeth
@@ -69,4 +70,5 @@ options snd-intel8x0 "index=0"
 so at least for me, using double quotes for options works out
 
 Niko
+
 

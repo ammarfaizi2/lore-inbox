@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751150AbVIDH3W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751181AbVIDHaa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751150AbVIDH3W (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 03:29:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751181AbVIDH3V
+	id S1751181AbVIDHaa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 03:30:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751187AbVIDHaa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 03:29:21 -0400
-Received: from mxfep02.bredband.com ([195.54.107.73]:9969 "EHLO
-	mxfep02.bredband.com") by vger.kernel.org with ESMTP
-	id S1751150AbVIDH3V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 03:29:21 -0400
-Message-ID: <431AA3E2.8020909@stesmi.com>
-Date: Sun, 04 Sep 2005 09:36:02 +0200
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
-       reiserfs-dev@namesys.com
-Subject: Re: RFC: i386: kill !4KSTACKS
-References: <20050902003915.GI3657@stusta.de> <1125805704.14032.71.camel@mindpipe>
-In-Reply-To: <1125805704.14032.71.camel@mindpipe>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=UTF-8
+	Sun, 4 Sep 2005 03:30:30 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:34223 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751181AbVIDHa3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 03:30:29 -0400
+Date: Sun, 4 Sep 2005 00:28:28 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Daniel Phillips <phillips@istop.com>
+Cc: Joel.Becker@oracle.com, linux-cluster@redhat.com, wim.coekaerts@oracle.com,
+       linux-fsdevel@vger.kernel.org, ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [Linux-cluster] Re: GFS, what's remaining
+Message-Id: <20050904002828.3d26f64c.akpm@osdl.org>
+In-Reply-To: <200509040240.08467.phillips@istop.com>
+References: <20050901104620.GA22482@redhat.com>
+	<200509040022.37102.phillips@istop.com>
+	<20050903214653.1b8a8cb7.akpm@osdl.org>
+	<200509040240.08467.phillips@istop.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira Milter 1.0.7; VAE 6.29.0.5; VDF 6.29.0.100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Daniel Phillips <phillips@istop.com> wrote:
+>
+> If the only user is their tools I would say let it go ahead and be cute, even 
+>  sickeningly so.  It is not supposed to be a general dlm api, at least that is 
+>  my understanding.  It is just supposed to be an interface for their tools.  
+>  Of course it would help to know exactly how those tools use it.
 
-Lee Revell wrote:
-> On Fri, 2005-09-02 at 02:39 +0200, Adrian Bunk wrote:
-> 
->>4Kb kernel stacks are the future on i386, and it seems the problems it
->>initially caused are now sorted out.
->>
->>Does anyone knows about any currently unsolved problems?
-> 
-> 
-> ndiswrapper
+Well I'm not saying "don't do this".   I'm saying "eww" and "why?".
 
-While I agree ndiswrapper has a use ... I don't think we should
-base kernel development upon messing with something that is designed
-to run a windows driver in linux ...
+If there is already a richer interface into all this code (such as a
+syscall one) and it's feasible to migrate the open() tricksies to that API
+in the future if it all comes unstuck then OK.  That's why I asked (thus
+far unsuccessfully):
 
-// Stefan
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (MingW32)
+   Are you saying that the posix-file lookalike interface provides
+   access to part of the functionality, but there are other APIs which are
+   used to access the rest of the functionality?  If so, what is that
+   interface, and why cannot that interface offer access to 100% of the
+   functionality, thus making the posix-file tricks unnecessary?
 
-iD8DBQFDGqPiBrn2kJu9P78RAgO4AJ9r6FNwB+72iRmdcMoxP0vi8gTDUQCfeUG5
-5Qbcq/o/Zao79JPEVqOmH+M=
-=xpUz
------END PGP SIGNATURE-----

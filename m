@@ -1,62 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932077AbVIDVwW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbVIDV6g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932077AbVIDVwW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 17:52:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932079AbVIDVwW
+	id S932079AbVIDV6g (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 17:58:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932087AbVIDV6g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 17:52:22 -0400
-Received: from dsl093-002-214.det1.dsl.speakeasy.net ([66.93.2.214]:12228 "EHLO
-	pickle.fieldses.org") by vger.kernel.org with ESMTP id S932077AbVIDVwV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 17:52:21 -0400
-Date: Sun, 4 Sep 2005 17:52:19 -0400
-To: Bret Towe <magnade@gmail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: nfs4 client bug
-Message-ID: <20050904215219.GA9812@fieldses.org>
-References: <dda83e78050903171516948181@mail.gmail.com> <dda83e7805090320053b03615d@mail.gmail.com> <20050904103523.GA5613@electric-eye.fr.zoreil.com> <dda83e78050904124454fc675a@mail.gmail.com> <dda83e78050904135113b95c4a@mail.gmail.com>
+	Sun, 4 Sep 2005 17:58:36 -0400
+Received: from [204.13.84.100] ([204.13.84.100]:21063 "EHLO
+	stargazer.tbdnetworks.com") by vger.kernel.org with ESMTP
+	id S932079AbVIDV6f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 17:58:35 -0400
+Subject: 2.6.13 locks my machine within 1h, 2.6.12.5 works fine (PREEMPT?)
+From: Norbert Kiesel <nkiesel@tbdnetworks.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-qzSKpLghevkQHATov3m1"
+Organization: TBD Networks
+Date: Sun, 04 Sep 2005 14:58:25 -0700
+Message-Id: <1125871105.4785.11.camel@defiant>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <dda83e78050904135113b95c4a@mail.gmail.com>
-User-Agent: Mutt/1.5.10i
-From: "J. Bruce Fields" <bfields@fieldses.org>
+X-Mailer: Evolution 2.2.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 04, 2005 at 01:51:08PM -0700, Bret Towe wrote:
-> On 9/4/05, Bret Towe <magnade@gmail.com> wrote:
-> > On 9/4/05, Francois Romieu <romieu@fr.zoreil.com> wrote:
-> > > Bret Towe <magnade@gmail.com> :
-> > > [...]
-> > > > after moving some files on the server to a new location then trying to
-> > > > add the files
-> > > > to xmms playlist i found the following in dmesg after xmms froze
-> > > > wonder how many more items i can find...
-> > >
-> > > The system includes some binary only stuff. Please contact your vendor
-> > > or provide the traces for a configuration wherein the relevant module
-> > > was not loaded after boot. It may make sense to get in touch with
-> > > nfs@lists.sourceforge.net then.
-> > 
-> > the 'binary only stuff' is ati-drivers kernel module and it crashs
-> > with or without it
-> > ill provide a 'untainted' trace as soon as i can repeat the bug again
-> 
-> ok without ati-drivers kernel module loaded the computer basicly just
-> hard locks when
-> some bug hits dunno if its the same item 
 
-Do you get anything from alt-sysrq-T?
+--=-qzSKpLghevkQHATov3m1
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> to repeat it tho one needs laptop-mode enabled have xmms playing music
-> (flac in my case)
-> which resides on nfs then just put the computer under some local load
-> for a little bit
-> till which im guessing it needs to clear some memory or somethin and
-> it hits this hard lock
-> or the errors i mailed previously when ati-drivers is loaded
+Hi,
 
-What kernel version is this?
+I had 2.6.13 lock my machine three times within a hour each after
+upgrading to 2.6.13 (last time within 5 minutes).  The machine was
+running 2.6.12.5 (and earlier releases) without any problems, so I'd
+suspect it's not a hardware issue.  Problem is that I don't find any
+trace of this lockup anywhere in the usual logfiles.  Symptoms are that
+screen, keyboard and network is frozen (i.e no screen refresh, even
+numlock does no longer toggles the light, and ping from another machine
+does not work anymore).  This is a standard 2.6.13 kernel running on
+Debian unstable.  New features I enabled were INOTIFY and
+PREEMPT_VOLUNTARY instead of PREEMPT:
 
---b.
+diff -U0 =3D(grep '^C' /boot/config-2.6.12.5 | sort) =3D(grep
+'^C' /boot/config-2.6.13 | sort) | grep '^.C'
+-CONFIG_ACPI_DEBUG=3Dy
++CONFIG_ACPI_FAN=3Dm
++CONFIG_ACPI_VIDEO=3Dm
++CONFIG_FLATMEM=3Dy
++CONFIG_FLATMEM_MANUAL=3Dy
++CONFIG_FLAT_NODE_MEM_MAP=3Dy
+-CONFIG_HAVE_DEC_LOCK=3Dy
++CONFIG_HWMON=3Dy
++CONFIG_HZ=3D250
++CONFIG_HZ_250=3Dy
++CONFIG_INOTIFY=3Dy
++CONFIG_IP_FIB_HASH=3Dy
+-CONFIG_LOCK_KERNEL=3Dy
++CONFIG_NFS_COMMON=3Dy
+-CONFIG_PNP=3Dy
+-CONFIG_PNPACPI=3Dy
++CONFIG_PHYSICAL_START=3D0x100000
++CONFIG_PM=3Dy
+-CONFIG_PREEMPT=3Dy
+-CONFIG_PREEMPT_BKL=3Dy
++CONFIG_PREEMPT_VOLUNTARY=3Dy
++CONFIG_SELECT_MEMORY_MODEL=3Dy
++CONFIG_TCP_CONG_BIC=3Dy
+
+I know that that's most likely not enough to pinpoint the problem, so I
+think I need to get more information from the lockup itself.  What's the
+best way to do this?  As the keyboard is locked up too, even Alt-SysRq
+does not work.
+
+Best,
+  Norbert
+
+
+--=-qzSKpLghevkQHATov3m1
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDG24BOIJDAvi0wRwRAlYQAKCjUU8LJUko1LEEbkuM/7ShZHXqYQCfTUpo
+0jHHpNQ4TNXxx6282a1Nw4o=
+=6DpD
+-----END PGP SIGNATURE-----
+
+--=-qzSKpLghevkQHATov3m1--
+

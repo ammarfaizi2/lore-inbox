@@ -1,33 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750829AbVIDDiS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750836AbVIDDs1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750829AbVIDDiS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Sep 2005 23:38:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750832AbVIDDiS
+	id S1750836AbVIDDs1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Sep 2005 23:48:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750854AbVIDDs1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Sep 2005 23:38:18 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:16794 "HELO
+	Sat, 3 Sep 2005 23:48:27 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:24987 "HELO
 	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750829AbVIDDiR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Sep 2005 23:38:17 -0400
-Subject: Re: Brand-new notebook useless with Linux...
+	id S1750836AbVIDDs0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Sep 2005 23:48:26 -0400
+Subject: Re: RFC: i386: kill !4KSTACKS
 From: Lee Revell <rlrevell@joe-job.com>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200509031859_MC3-1-A720-F705@compuserve.com>
-References: <200509031859_MC3-1-A720-F705@compuserve.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
+In-Reply-To: <20050902003915.GI3657@stusta.de>
+References: <20050902003915.GI3657@stusta.de>
 Content-Type: text/plain
-Date: Sat, 03 Sep 2005 23:38:10 -0400
-Message-Id: <1125805091.14032.69.camel@mindpipe>
+Date: Sat, 03 Sep 2005 23:48:24 -0400
+Message-Id: <1125805704.14032.71.camel@mindpipe>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.3.8 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-09-03 at 18:58 -0400, Chuck Ebbert wrote:
-> I just bought a new notebook.
+On Fri, 2005-09-02 at 02:39 +0200, Adrian Bunk wrote:
+> 4Kb kernel stacks are the future on i386, and it seems the problems it
+> initially caused are now sorted out.
+> 
+> Does anyone knows about any currently unsolved problems?
 
-I'd return it if I were you.
-
-Lee
+ndiswrapper
 

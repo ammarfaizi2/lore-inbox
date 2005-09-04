@@ -1,82 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbVIDJLu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751308AbVIDJQS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751315AbVIDJLu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 05:11:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751312AbVIDJLt
+	id S1751308AbVIDJQS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 05:16:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751312AbVIDJQS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 05:11:49 -0400
-Received: from rgminet01.oracle.com ([148.87.122.30]:12417 "EHLO
-	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1751310AbVIDJLs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 05:11:48 -0400
-Date: Sun, 4 Sep 2005 02:11:18 -0700
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: phillips@istop.com, linux-cluster@redhat.com, wim.coekaerts@oracle.com,
-       linux-fsdevel@vger.kernel.org, ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [Linux-cluster] Re: GFS, what's remaining
-Message-ID: <20050904091118.GZ8684@ca-server1.us.oracle.com>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>, phillips@istop.com,
-	linux-cluster@redhat.com, wim.coekaerts@oracle.com,
-	linux-fsdevel@vger.kernel.org, ak@suse.de,
+	Sun, 4 Sep 2005 05:16:18 -0400
+Received: from 90.Red-213-97-199.pooles.rima-tde.net ([213.97.199.90]:30833
+	"HELO fargo") by vger.kernel.org with SMTP id S1751308AbVIDJQR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 05:16:17 -0400
+Date: Sun, 4 Sep 2005 11:10:12 +0200
+From: David =?utf-8?B?R8OzbWV6?= <david@pleyades.net>
+To: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>, linux-kernel@vger.kernel.org
+Subject: Re: Brand-new notebook useless with Linux...
+Message-ID: <20050904091012.GA4394@fargo>
+Mail-Followup-To: Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
+	Chuck Ebbert <76306.1226@compuserve.com>,
 	linux-kernel@vger.kernel.org
-References: <20050901104620.GA22482@redhat.com> <200509040022.37102.phillips@istop.com> <20050903214653.1b8a8cb7.akpm@osdl.org> <200509040240.08467.phillips@istop.com> <20050904002828.3d26f64c.akpm@osdl.org> <20050904080102.GY8684@ca-server1.us.oracle.com> <20050904011805.68df8dde.akpm@osdl.org>
+References: <200509031859_MC3-1-A720-F705@compuserve.com> <E1EBje3-0002GW-00@chiark.greenend.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20050904011805.68df8dde.akpm@osdl.org>
-X-Burt-Line: Trees are cool.
-X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
-User-Agent: Mutt/1.5.10i
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <E1EBje3-0002GW-00@chiark.greenend.org.uk>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 04, 2005 at 01:18:05AM -0700, Andrew Morton wrote:
-> > 	I thought I stated this in my other email.  We're not intending
-> > to extend dlmfs.
+Hi,
+
+On Sep 04 at 02:50:07, Matthew Garrett wrote:
+> Chuck Ebbert <76306.1226@compuserve.com> wrote:
 > 
-> Famous last words ;)
+> > SMBus
+> 
+> Is there anything on there that you actually want to talk to?
 
-	Heh, of course :-)
+Smart batteries are accesed thru the SMBus. If you want to know
+battery information, like the charge, you need to talk to the SMBus.
 
-> I don't buy the general "fs is nice because we can script it" argument,
-> really.  You can just write a few simple applications which provide access
-> to the syscalls (or the fs!) and then write scripts around those.
+There are some patches out there, not integrated yet into ACPI
+i think...
 
-	I can't see how that works easily.  I'm not worried about a
-tarball (eventually Red Hat and SuSE and Debian would have it).  I'm
-thinking about this shell:
-
-	exec 7</dlm/domainxxxx/lock1
-	do stuff
-	exec 7</dev/null
-
-If someone kills the shell while stuff is doing, the lock is unlocked
-because fd 7 is closed.  However, if you have an application to do the
-locking:
-
-	takelock domainxxx lock1
-	do sutff
-	droplock domainxxx lock1
-
-When someone kills the shell, the lock is leaked, becuase droplock isn't
-called.  And SEGV/QUIT/-9 (especially -9, folks love it too much) are
-handled by the first example but not by the second.
-	
-Joel
+regards,
 
 -- 
-
-"Same dancers in the same old shoes.
- You get too careful with the steps you choose.
- You don't care about winning but you don't want to lose
- After the thrill is gone."
-
-Joel Becker
-Senior Member of Technical Staff
-Oracle
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
-
+David Gómez                                      Jabber ID: davidge@jabber.org

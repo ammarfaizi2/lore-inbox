@@ -1,91 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932175AbVIDXpn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932129AbVIDXrt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932175AbVIDXpn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 19:45:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932172AbVIDXpm
+	id S932129AbVIDXrt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 19:47:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932117AbVIDXal
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 19:45:42 -0400
-Received: from zproxy.gmail.com ([64.233.162.195]:49164 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932177AbVIDXph convert rfc822-to-8bit
+	Sun, 4 Sep 2005 19:30:41 -0400
+Received: from allen.werkleitz.de ([80.190.251.108]:34945 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S932118AbVIDXaV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 19:45:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=FsPInjDLb263d1Y8Y/7C5Ck4QY/EVwsnKTSTze6BZjujK8FbykIiqoD1bpJfhhuOmKZW/vJB17jZmr6jAWesiw3jBTnODHI5e6295v1cu94K2bqnRbNCff5U1NpjZ4duyRz6SVY2MYsuwiBwpqcE16e+NdENA079IPpuxVZXmPM=
-Message-ID: <29495f1d05090416453841f8d4@mail.gmail.com>
-Date: Sun, 4 Sep 2005 16:45:35 -0700
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-Reply-To: nish.aravamudan@gmail.com
-To: Johannes Stezenbach <js@linuxtv.org>
-Subject: Re: [DVB patch 54/54] ttusb-budget: use time_after_eq()
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Marcelo Feitoza Parisi <marcelo@feitoza.com.br>,
-       Domen Puncer <domen@coderock.org>
-In-Reply-To: <20050904232337.296861000@abc>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050904232259.777473000@abc> <20050904232337.296861000@abc>
+	Sun, 4 Sep 2005 19:30:21 -0400
+Message-Id: <20050904232323.231842000@abc>
+References: <20050904232259.777473000@abc>
+Date: Mon, 05 Sep 2005 01:23:18 +0200
+From: Johannes Stezenbach <js@linuxtv.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Adam Szalkowski <adam@szalkowski.de>
+Content-Disposition: inline; filename=dvb-frontend-cx24110-diseqc-fix2.patch
+X-SA-Exim-Connect-IP: 84.189.198.88
+Subject: [DVB patch 19/54] frontend: cx24110: another DiSEqC fix
+X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
+X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/4/05, Johannes Stezenbach <js@linuxtv.org> wrote:
-> From: Marcelo Feitoza Parisi <marcelo@feitoza.com.br>
-> 
-> Use of the time_after_eq() macro, defined at linux/jiffies.h, which deal
-> with wrapping correctly and are nicer to read.
-> 
-> Signed-off-by: Marcelo Feitoza Parisi <marcelo@feitoza.com.br>
-> Signed-off-by: Domen Puncer <domen@coderock.org>
-> Signed-off-by: Johannes Stezenbach <js@linuxtv.org>
-> 
->  drivers/media/dvb/ttusb-budget/dvb-ttusb-budget.c |    6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
-> 
-> --- linux-2.6.13-git4.orig/drivers/media/dvb/ttusb-budget/dvb-ttusb-budget.c    2005-09-04 22:28:03.000000000 +0200
-> +++ linux-2.6.13-git4/drivers/media/dvb/ttusb-budget/dvb-ttusb-budget.c 2005-09-04 22:31:06.000000000 +0200
-> @@ -18,6 +18,7 @@
->  #include <linux/delay.h>
->  #include <linux/time.h>
->  #include <linux/errno.h>
-> +#include <linux/jiffies.h>
->  #include <asm/semaphore.h>
-> 
->  #include "dvb_frontend.h"
-> @@ -570,7 +571,8 @@ static void ttusb_handle_sec_data(struct
->                                   const u8 * data, int len);
->  #endif
-> 
-> -static int numpkt = 0, lastj, numts, numstuff, numsec, numinvalid;
-> +static int numpkt = 0, numts, numstuff, numsec, numinvalid;
-> +static unsigned long lastj;
-> 
->  static void ttusb_process_muxpack(struct ttusb *ttusb, const u8 * muxpack,
->                            int len)
-> @@ -779,7 +781,7 @@ static void ttusb_iso_irq(struct urb *ur
->                         u8 *data;
->                         int len;
->                         numpkt++;
-> -                       if ((jiffies - lastj) >= HZ) {
-> +                       if (time_after_eq(jiffies, lastj + HZ)) {
+From: Adam Szalkowski <adamsz@gmx.net>
 
-I think you actually want:
+Fix DiSEqC problems.
 
-static void ttusb_iso_irq(....)
-{
-     unsigned long lastj;
+Signed-off-by: Adam Szalkowski <adam@szalkowski.de>
+Signed-off-by: Johannes Stezenbach <js@linuxtv.org>
 
-     ...
+ drivers/media/dvb/frontends/cx24110.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-     lastj = jiffies + HZ;
-     if (time_after_eq(jiffies, lastj)) {
-          ...
+--- linux-2.6.13-git4.orig/drivers/media/dvb/frontends/cx24110.c	2005-09-04 22:28:09.000000000 +0200
++++ linux-2.6.13-git4/drivers/media/dvb/frontends/cx24110.c	2005-09-04 22:28:10.000000000 +0200
+@@ -398,7 +398,8 @@ static int cx24110_diseqc_send_burst(str
+ 		return -EINVAL;
+ 
+ 	rv = cx24110_readreg(state, 0x77);
+-	cx24110_writereg(state, 0x77, rv | 0x04);
++	if (!(rv & 0x04))
++		cx24110_writereg(state, 0x77, rv | 0x04);
+ 
+ 	rv = cx24110_readreg(state, 0x76);
+ 	cx24110_writereg(state, 0x76, ((rv & 0x90) | 0x40 | bit));
+@@ -418,14 +419,16 @@ static int cx24110_send_diseqc_msg(struc
+ 		cx24110_writereg(state, 0x79 + i, cmd->msg[i]);
+ 
+ 	rv = cx24110_readreg(state, 0x77);
+-	cx24110_writereg(state, 0x77, rv & ~0x04);
+-	msleep(30); /* reportedly fixes switching problems */
++	if (rv & 0x04) {
++		cx24110_writereg(state, 0x77, rv & ~0x04);
++		msleep(30); /* reportedly fixes switching problems */
++	}
+ 
+ 	rv = cx24110_readreg(state, 0x76);
+ 
+ 	cx24110_writereg(state, 0x76, ((rv & 0x90) | 0x40) | ((cmd->msg_len-3) & 3));
+-	for (i=500; i-- > 0 && !(cx24110_readreg(state,0x76)&0x40);)
+-		; /* wait for LNB ready */
++	for (i=100; i-- > 0 && !(cx24110_readreg(state,0x76)&0x40);)
++		msleep(1); /* wait for LNB ready */
+ 
+ 	return 0;
+ }
 
-}
+--
 
-The current code doesn't assign jiffies to lastj at any point that I see.
-
-Thanks,
-Nish

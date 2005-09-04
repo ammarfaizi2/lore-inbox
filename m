@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751339AbVIDKTI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbVIDK0M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751339AbVIDKTI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 06:19:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751341AbVIDKTI
+	id S1750718AbVIDK0M (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 06:26:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750707AbVIDK0M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 06:19:08 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9488 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751339AbVIDKTG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 06:19:06 -0400
-Date: Sun, 4 Sep 2005 11:19:01 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>, jongk@linux-m68k.org
-Subject: 8250_hp300: initialisation ordering bug
-Message-ID: <20050904111901.A30509@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	jongk@linux-m68k.org
+	Sun, 4 Sep 2005 06:26:12 -0400
+Received: from mailfe13.tele2.se ([212.247.155.129]:39629 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S1750706AbVIDK0L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 06:26:11 -0400
+X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
+Date: Sun, 4 Sep 2005 12:26:04 +0200
+From: Alexander Nyberg <alexn@telia.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Matt Mackall <mpm@selenic.com>,
+       netdev@vger.kernel.org
+Subject: Re: 2.6.13-mm1
+Message-ID: <20050904102604.GA7026@localhost.localdomain>
+References: <20050901035542.1c621af6.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050901035542.1c621af6.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Sep 01, 2005 at 03:55:42AM -0700 Andrew Morton wrote:
 
-I've noticed that 8250_hp300 is buggy wrt the ordering of hardware
-initialisation to the visibility of devices to user space.  Namely,
-8250_hp300 does the following:
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13/2.6.13-mm1/
+> 
 
-        line = serial8250_register_port(&port);
-...
-        /* Enable board-interrupts */
-        out_8(d->resource.start + DIO_VIRADDRBASE + DCA_IC, DCA_IC_IE);
-        dio_set_drvdata(d, (void *)line);
+I got:
+<7>Dead loop on netdevice eth0, fix it urgently!
 
-        /* Reset the DCA */
-        out_8(d->resource.start + DIO_VIRADDRBASE + DCA_ID, 0xff);
-        udelay(100);
+When using netconsole and printing out some information from kernel to
+console.
 
-serial8250_register_port() makes the port visible to userspace, so
-from that point on it could be opened.  However, if it's opened
-prior to the remainder of the above completing, we will be missing
-interrupts (and what effect does "reset the DCA" have?)
+The box uses:
+netconsole=4444@192.168.1.12/eth0,7002@192.168.1.1/
 
-Surely this hardware fiddling should be completed before we register
-the port?
+0000:00:0f.0 Ethernet controller: Linksys NC100 Network Everywhere Fast
+Ethernet 10/100 (rev 11)
+
+Relevant config:
+CONFIG_NET_TULIP=y
+# CONFIG_DE2104X is not set
+CONFIG_TULIP=y
+CONFIG_TULIP_MWI=y
+# CONFIG_TULIP_MMIO is not set
+CONFIG_TULIP_NAPI=y
 
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Matt, on another box I got some irq off hangs that went away when removing
+netconsole from the .config on a box with 3c59x. Is this known? The
+problem is getting backtraces when netconsole is active, but the last
+thing I see before the box goes is that some carrier is up...

@@ -1,67 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932098AbVIDWmz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932097AbVIDW3s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932098AbVIDWmz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 18:42:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932100AbVIDWmz
+	id S932097AbVIDW3s (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 18:29:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932098AbVIDW3s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 18:42:55 -0400
-Received: from ms-smtp-01-lbl.southeast.rr.com ([24.25.9.100]:36493 "EHLO
-	ms-smtp-01-eri0.southeast.rr.com") by vger.kernel.org with ESMTP
-	id S932098AbVIDWmz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 18:42:55 -0400
-Message-Id: <200509042242.j84MgYWg019419@ms-smtp-01-eri0.southeast.rr.com>
-From: "Matt LaPlante" <laplam@rpi.edu>
-To: "'Jesper Juhl'" <jesper.juhl@gmail.com>
-Cc: "'Herbert Xu'" <herbert@gondor.apana.org.au>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: Potential IPSec DoS/Kernel Panic with 2.6.13
-Date: Sun, 4 Sep 2005 18:42:31 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-In-Reply-To: <9a87484905090411492cc3f823@mail.gmail.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-Thread-Index: AcWxgXYWeTh15vkASguJ6xCTze+FkgAH9ahQ
+	Sun, 4 Sep 2005 18:29:48 -0400
+Received: from nproxy.gmail.com ([64.233.182.195]:54514 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932097AbVIDW3r convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 18:29:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=sszvKtI7fKo/FiCb/THHz24swHAqauKFxKPEkgmcDRjALrf1i5/w/FepB5XeqE9rGSROGM9raJbUSB+qUxvkC2UcH8xyjzo6ol0BGB31QaoptB+OucpNQLZmMF5DlcDqKU6HvnUitqKDExUzwVtAzEmIN0LXzxzGMJTQCuyv8xo=
+Message-ID: <81b0412b0509041529524bca1f@mail.gmail.com>
+Date: Mon, 5 Sep 2005 00:29:43 +0200
+From: Alex Riesen <raa.lkml@gmail.com>
+To: shappen@gmail.com
+Subject: Re: threads questions
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <d2a0e906050903212678ad88a1@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <d2a0e906050903212678ad88a1@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 9/4/05, Petter Shappen <shappen@gmail.com> wrote:
+> As we all know the kernel maintain a data struct for the
+> process(PCB),and also for the thread.Because of the latter's smaller
+> than the former's,thread switching is faster than the process
 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-
-> owner@vger.kernel.org] On Behalf Of Jesper Juhl
-> Sent: Sunday, September 04, 2005 2:49 PM
-> To: Matt LaPlante
-> Cc: Herbert Xu; linux-kernel@vger.kernel.org
-> Subject: Re: Potential IPSec DoS/Kernel Panic with 2.6.13
-> 
-> >
-> serial console over a cross-over cable to a second box.
-> netconsole will let you put the console on a different box over the
-> network.
-> console on line printer will let you have a permanent record of the
-> console output on paper.
-> 
-> See
->  Documentation/serial-console.txt
->  Documentation/networking/netconsole.txt
->  the help entry for "config LP_CONSOLE" (in drivers/char/Kconfig)
-> 
+not really. They just share some bits (like: address space, file
+table, signal handlers, etc),
+but aside from that - normal processes.
 
-Well I've tried for several hours now to get netconsole working, but it just
-won't give me output.  I've tried using both built in as well as module, and
-I've tried two different clients using both netcat and syslogd on different
-ports.  The most output I ever get is when loading the module I manage to
-receive one message saying "netconsole: network logging started".  I've
-verified all the netconsole settings are correct in the kernel logs when it
-loads.  I'm not one to give up easily, but this one's got me stumped.
+> switching.And from the book,I read that threads shares some data
 
-I know the option to use a printer is out...I might be able to manage a
-serial connection, but I'll have to rebuild my kernel to support it.  I'll
-look into that later...
+What exactly is this book you're reading?
 
--
-Matt
+> information of the process,so my question is that when the threads of
+> different processes have to switch,and the threads also use some data
+> of the processes,will the process switch  before the threads?The speed
+> of these threads switching is slower than normal,is that true ?
 
+Why?
 
+> How can the thread's advantage over process reflect?
+
+It usually don't. Not noticably, in any case

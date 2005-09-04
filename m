@@ -1,50 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbVIDXtx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932135AbVIDXwM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932119AbVIDXtx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 19:49:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932115AbVIDXaf
+	id S932135AbVIDXwM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 19:52:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbVIDXwK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 19:30:35 -0400
-Received: from allen.werkleitz.de ([80.190.251.108]:33665 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S932116AbVIDXaS
+	Sun, 4 Sep 2005 19:52:10 -0400
+Received: from zproxy.gmail.com ([64.233.162.198]:33191 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932116AbVIDXwI convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 19:30:18 -0400
-Message-Id: <20050904232322.072462000@abc>
-References: <20050904232259.777473000@abc>
-Date: Mon, 05 Sep 2005 01:23:15 +0200
-From: Johannes Stezenbach <js@linuxtv.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Andrew de Quincey <adq_dvb@lidskialf.net>
-Content-Disposition: inline; filename=dvb-frontend-tda1004x-snr-fix.patch
-X-SA-Exim-Connect-IP: 84.189.198.88
-Subject: [DVB patch 16/54] frontend: tda1004x: fix SNR reading
-X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
-X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
+	Sun, 4 Sep 2005 19:52:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=rbVJZfL3L10V9/EUhJIUtOXu3eX53EN6NkosYg5bIx5qPb+q6E+gbfbsbIAMPZjE4rWDBmroGl5BAbfxOMoxCEyIDVC5GMSzJnFhtBA7FpIsiar9N7kRbyEdF0orQJtKhU4i9Q6jztSKPGGSYXuZo7v/pdSu/7aMhBlvuYc7TPk=
+Message-ID: <29495f1d050904165221291c1d@mail.gmail.com>
+Date: Sun, 4 Sep 2005 16:52:08 -0700
+From: Nish Aravamudan <nish.aravamudan@gmail.com>
+Reply-To: nish.aravamudan@gmail.com
+To: Johannes Stezenbach <js@linuxtv.org>
+Subject: Re: [DVB patch 23/54] usb: add TwinhanDTV StarBox support
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Patrick Boettcher <pb@linuxtv.org>
+In-Reply-To: <20050904232324.846856000@abc>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050904232259.777473000@abc> <20050904232324.846856000@abc>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andrew de Quincey <adq_dvb@lidskialf.net>
+On 9/4/05, Johannes Stezenbach <js@linuxtv.org> wrote:
+> From: Patrick Boettcher <pb@linuxtv.org>
+> 
+> Add driver for the TwinhanDTV StarBox and clones.
+> 
+> Thanks to Ralph Metzler for his initial work on this box and thanks to Twinhan
+> for their support.
 
-Fix SNR reading
+<snip>
 
-Signed-off-by: Andrew de Quincey <adq_dvb@lidskialf.net>
-Signed-off-by: Johannes Stezenbach <js@linuxtv.org>
+> --- /dev/null   1970-01-01 00:00:00.000000000 +0000
+> +++ linux-2.6.13-git4/drivers/media/dvb/dvb-usb/vp702x-fe.c     2005-09-04 22:28:15.000000000 +0200
 
- drivers/media/dvb/frontends/tda1004x.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+<snip>
 
---- linux-2.6.13-git4.orig/drivers/media/dvb/frontends/tda1004x.c	2005-09-04 22:24:24.000000000 +0200
-+++ linux-2.6.13-git4/drivers/media/dvb/frontends/tda1004x.c	2005-09-04 22:28:07.000000000 +0200
-@@ -1046,8 +1046,7 @@ static int tda1004x_read_snr(struct dvb_
- 	tmp = tda1004x_read_byte(state, TDA1004X_SNR);
- 	if (tmp < 0)
- 		return -EIO;
--	if (tmp)
--		tmp = 255 - tmp;
-+	tmp = 255 - tmp;
- 
- 	*snr = ((tmp << 8) | tmp);
- 	dprintk("%s: snr=0x%x\n", __FUNCTION__, *snr);
+> +static int vp702x_fe_refresh_state(struct vp702x_fe_state *st)
+> +{
+> +       u8 buf[10];
+> +       if (time_after(jiffies,st->next_status_check)) {
+> +               vp702x_usb_in_op(st->d,READ_STATUS,0,0,buf,10);
+> +
+> +               st->lock = buf[4];
+> +               vp702x_usb_in_op(st->d,READ_TUNER_REG_REQ,0x11,0,&st->snr,1);
+> +               vp702x_usb_in_op(st->d,READ_TUNER_REG_REQ,0x15,0,&st->sig,1);
+> +
+> +               st->next_status_check = jiffies + (st->status_check_interval*HZ)/1000;
 
---
+Should this be
 
+st->next_status_check = jiffies + msecs_to_jiffies(st->status_check_interval);
+
+?
+
+Thanks,
+Nish

@@ -1,148 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750930AbVIDPe5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750790AbVIDPzE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750930AbVIDPe5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 11:34:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750916AbVIDPe5
+	id S1750790AbVIDPzE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 11:55:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750744AbVIDPzE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 11:34:57 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:3724 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S1750932AbVIDPe4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 11:34:56 -0400
-Date: Sun, 4 Sep 2005 17:32:41 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Giampaolo Tomassoni <g.tomassoni@libero.it>
-Cc: linux-kernel@vger.kernel.org, linux-atm-general@lists.sourceforge.net
-Subject: Re: R: [Linux-ATM-General] [ATMSAR] Request for review - update #1
-Message-ID: <20050904153241.GA7779@electric-eye.fr.zoreil.com>
-References: <20050904120047.GA6556@electric-eye.fr.zoreil.com> <NBBBIHMOBLOHKCGIMJMDCEICEKAA.g.tomassoni@libero.it>
+	Sun, 4 Sep 2005 11:55:04 -0400
+Received: from smtp3.nextra.sk ([195.168.1.142]:3346 "EHLO mailhub3.nextra.sk")
+	by vger.kernel.org with ESMTP id S1750847AbVIDPzC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 11:55:02 -0400
+Message-ID: <431B18D2.2000708@rainbow-software.org>
+Date: Sun, 04 Sep 2005 17:54:58 +0200
+From: Ondrej Zary <linux@rainbow-software.org>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <NBBBIHMOBLOHKCGIMJMDCEICEKAA.g.tomassoni@libero.it>
-User-Agent: Mutt/1.4.2.1i
-X-Organisation: Land of Sunshine Inc.
+Content-Type: multipart/mixed; boundary="=_tic-35054-1125849300-0001-2"
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ide-floppy - software eject not working with LS-120 drive
+References: <4318BA6C.8070707@rainbow-software.org> <200509031801.11356.vda@ilport.com.ua>
+In-Reply-To: <200509031801.11356.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Giampaolo Tomassoni <g.tomassoni@libero.it> :
-[...]
-> Well, the idea is that more pci devices may appear, as adsl-enabled
-> embedded systems will begin to appear in the market.
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
+
+--=_tic-35054-1125849300-0001-2
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Denis Vlasenko wrote:
+> On Friday 02 September 2005 23:47, Ondrej Zary wrote:
 > 
-> Also, I believe that adsl will carry much more services then just AAL5 for
-> internet connection in the future.
-
-I'd be happily surprized to see more documented ADSL PCI/USB device in the
-near future. :o(
-
-> Even if the ATMSAR actually lacks of AAL1 and AAL2/3 capabilities, adding
-> them in a single, specialized module is much easier than swimming in a
-> usb+atm middle layer.
+>>Hello,
+>>I've bought "new" LS-120 drive and found that software eject does not 
+>>work with 2.6.13 kernel:
+>>root@pentium:~# eject /dev/hdc
+>>eject: unable to eject, last error: Invalid argument
+>>
+>>The drive spins up and after a while the command fails.
+>>This appears in dmesg after each eject attempt:
+>>  hdc: unknown partition table
+>>ide-floppy: hdc: I/O error, pc = 1b, key =  5, asc = 24, ascq =  0
+>>
+>>When I boot 2.4.31, eject works fine.
 > 
-> Finally, the fact that ATMSAR is device-unspecific makes it easier to
-> maintain, I guess.
-
-Ok. Your suggestion may have more impact if there is a patch to convert
-the sole existing in-kernel driver to use this module.
-
-[...]
-> > The codingstyle is broken. Please read again Documentation/CodingStyle,
 > 
-> That's a matter of taste: even Linus burned the GNU coding style book...
+> Can you probive something narrower than 2.4.31 -> 2.6.13 jump?
 
-An uniform codingstyle is useful when people need to review code. Something
-is wrong when a reviewer must uncipher a piece of code. You will find areas
-in the kernel whose trends differ but a codingstyle from Mars is usually a
-hint. So it is not _only_ a matter of taste.
+The problem is caused by idefloppy_ioctl() function which *first* tries
+generic_ide_ioctl() and *only* if it fails with -EINVAL, proceeds with
+the specific ioctls.
+This patch fixes it by first going through the internal ioctls and only
+trying generic_ide_ioctl() if none of them matches.
 
-> However, if it is needed by the linux community, I shurely will fix it
-> whenever the ATMSAR idea will get passed: I'm just gathering feedbacks
-> like the previous one you expressed.
+Signed-off-by: Ondrej Zary <linux@rainbow-software.org>
 
-You may have more feedback/review then. I only gave a cursory look at the
-code.
+-- 
+Ondrej Zary
 
-[...]
-> > remove the redundant typedef
-> 
-> Oh, you mean the "typedef enum _HECSTS ..." ?
 
-Rather the "typedef struct atmsar_dev atmsar_dev_t;" (yes, I know the "It
-saves typing" argument). Maybe something could be done at the same time
-regarding the need for the forward declarations.
 
-[...]
-> > and the silly comments ("Reserve 
-> > header space",
-> > Encode packet into cells", ...).
-> 
-> I would prefer to explain better what the ATMSAR is doing there. So, I'll
-> get your as a "clarify silly comments". Ok?
 
-s/what/why/
+--=_tic-35054-1125849300-0001-2
+Content-Type: text/plain; name="ide-floppy-eject.patch"; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ide-floppy-eject.patch"
 
-And no, documenting a call to skb_reserve is silly.
+--- linux-2.6.13-orig/drivers/ide/ide-floppy.c	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.13-pentium/drivers/ide/ide-floppy.c	2005-09-04 14:07:53.000000000 +0200
+@@ -2038,11 +2038,9 @@
+ 	struct ide_floppy_obj *floppy = ide_floppy_g(bdev->bd_disk);
+ 	ide_drive_t *drive = floppy->drive;
+ 	void __user *argp = (void __user *)arg;
+-	int err = generic_ide_ioctl(drive, file, bdev, cmd, arg);
++	int err;
+ 	int prevent = (arg) ? 1 : 0;
+ 	idefloppy_pc_t pc;
+-	if (err != -EINVAL)
+-		return err;
+ 
+ 	switch (cmd) {
+ 	case CDROMEJECT:
+@@ -2094,7 +2092,7 @@
+ 	case IDEFLOPPY_IOCTL_FORMAT_GET_PROGRESS:
+ 		return idefloppy_get_format_progress(drive, argp);
+ 	}
+- 	return -EINVAL;
++	return generic_ide_ioctl(drive, file, bdev, cmd, arg);
+ }
+ 
+ static int idefloppy_media_changed(struct gendisk *disk)
 
-[...]
-> > - &page[strlen(page)] in atmProcRead sucks.
-> 
-> Why? It is preceded by an strcpy(page,...). A constant would be worse if
-> someone changes the prefix string...
 
-The value returned by sprintf and friends contains the needed offset, i.e.
-buf += sprintf(buf, ...);.
 
-[...]
-> > - "return" is not a function.
-> 
-> Not even for() or while(). But doesn't they look cute this way?
 
-No.
-
-for (), while (), return rc;
-
-[...]
-> > - consider 'goto' to handle the errors instead of deep nesting
-> 
-> I prefer not using goto when not required to. Nesting is far more readable
-> to my opinion.
-
-OTOH, it makes ugly code to have it fit in a 80 columns console.
-
-[...]
-> Anyway, which are the functions you are objecting?
-
-atmSend. Probably others.
-
-If you can make the code look like existing in-kernel code (not fs/cifs
-please) say network or ata driver code and you do not need goto, it's fine
-too.
-
-[...]
-> > - +const atmsar_aalops_t opsAALR = {
-> >   +       ATM_AAL0,
-> >   +       "raw",
-> >   -> use .foo = baz instead.
-> 
-> atmasr_aalops_t is not an exported structure (you'll find just an opaque
-> definition in include/linux/atmsar.h), so it is not meant to be statically
-> declared by device drivers. But I guess that the problem is readability,
-> right?
-
-struct foo zoy {
-	.bar	= barbar,
-	.baz	= bazbaz,
-	.quuz	= ...
-};
-
-[...]
-> May I ask if this is just your own contribution or if you are in charge of
-> something in the linux and/or linux-atm projects?
-
-/me scratches head
-
-http://ww.google.com/search?hl=en&q=romieu+linux+cabal
-
---
-Ueimor
+--=_tic-35054-1125849300-0001-2--

@@ -1,74 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751003AbVIDStS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751005AbVIDSuy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751003AbVIDStS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 14:49:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751004AbVIDStS
+	id S1751005AbVIDSuy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 14:50:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751018AbVIDSuy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 14:49:18 -0400
-Received: from zproxy.gmail.com ([64.233.162.206]:24074 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751002AbVIDStS convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 14:49:18 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=OSyrFLvjYplGH8QBTtGvIJFUHPFfuhMTbD1783jG+428gd7itCDhqYCV66MIKO1XOK7/GbQDsuewesUYAlOpUIJ5fD/aaaYHrVtNEG7WVam8lGBZr7IL4a9MkjbcZHazwt994eG38PMHrLaKznT6/gz1T/RVqTywQr8EQ8Z2CeY=
-Message-ID: <9a87484905090411492cc3f823@mail.gmail.com>
-Date: Sun, 4 Sep 2005 20:49:15 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Matt LaPlante <laplam@rpi.edu>
-Subject: Re: Potential IPSec DoS/Kernel Panic with 2.6.13
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, linux-kernel@vger.kernel.org
-In-Reply-To: <200509041638.j84Gc5lA024062@ms-smtp-02-eri0.southeast.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sun, 4 Sep 2005 14:50:54 -0400
+Received: from mail.metronet.co.uk ([213.162.97.75]:4558 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP
+	id S1751004AbVIDSux (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 14:50:53 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: "Giampaolo Tomassoni" <g.tomassoni@libero.it>
+Subject: Re: R: [ATMSAR] Request for review - update #1
+Date: Sun, 4 Sep 2005 19:51:00 +0100
+User-Agent: KMail/1.8.90
+Cc: linux-kernel@vger.kernel.org, linux-atm-general@lists.sourceforge.net
+References: <NBBBIHMOBLOHKCGIMJMDCEIIEKAA.g.tomassoni@libero.it>
+In-Reply-To: <NBBBIHMOBLOHKCGIMJMDCEIIEKAA.g.tomassoni@libero.it>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <E1EBpnC-0001SQ-00@gondolin.me.apana.org.au>
-	 <200509041638.j84Gc5lA024062@ms-smtp-02-eri0.southeast.rr.com>
+Message-Id: <200509041951.00822.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/4/05, Matt LaPlante <laplam@rpi.edu> wrote:
-> > -----Original Message-----
-> > From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-
-> > owner@vger.kernel.org] On Behalf Of Herbert Xu
-> > Sent: Sunday, September 04, 2005 4:24 AM
-> > To: Matt LaPlante
-> > Cc: linux-kernel@vger.kernel.org
-> > Subject: Re: Potential IPSec DoS/Kernel Panic with 2.6.13
-> >
-> > Matt LaPlante <laplam@rpi.edu> wrote:
-> > >
-> > > network connectivity on my router.  Upon further inspection I noticed
-> > the
-> > > packet had actually caused a kernel panic (visible only on the monitor,
-> > now
-> > > also unresponsive).
-> >
-> > Thanks for the report.  I'll try to track it down.
-> >
-> > If you could jot down the important bits of the panic message
-> > (IP, Call-Trace) it would help me find the problem much quicker.
-> 
-> I'd be more than happy to help you track this one down.  The problem here is
-> that the panic scrolls up and off the screen after which the system is
-> unusable.  Is there a way for me to capture it or redirect it somewhere that
-> I can read it?  I can also include my kernel config or any other system
-> details of interest.  Thanks.
-> 
-serial console over a cross-over cable to a second box.
-netconsole will let you put the console on a different box over the network.
-console on line printer will let you have a permanent record of the
-console output on paper.
+On Sunday 04 September 2005 19:36, Giampaolo Tomassoni wrote:
+[snip]
+>
+> This may be true for AAL5 support, which is the way by which data is
+> actually transferred between ADSL DSLAMs and CPE equipment.
+>
+> This may not be generally true, however: most providers are already
+> delivering internet+voice solutions over ADSL channels (here in Italy, in
+> example, Telecom offers Alice Mia, which is an ADSL line with internet
+> access and VoIP for added voice capabilities). Albeit the voice part of
+> these solutions are actually based on VoIP technology, it is not the best
+> way to do this. In the future, I believe we will easily see internet +
+> voice sols based over AAL5 + AAL2/3, or even multi voice channels over
+> AAL2/3 over ADSL (replacing ISDN PRIs and multi-BRIs -based lines for PABX
+> connection).
+>
+> When (and if) that will happen, we will probabily need a kernel-based
+> solution since cell timing and QoS is a much stricter requirement with
+> non-AAL5 encodings, such that it is easier to attain from inside the kernel
+> than from userland.
+>
+> So, I'm not that shure all the ATM code is to be stripped out of the
+> kernel. Maybe it can be done with the PPPoATM network interface. But
+> probably it can't be done with the ATM core and the ATM SAR code. Wherever
+> the latter will be in ATMUSB, in ATMSAR or in a device driver.
 
-See 
- Documentation/serial-console.txt
- Documentation/networking/netconsole.txt
- the help entry for "config LP_CONSOLE" (in drivers/char/Kconfig)
+The above is a decent technical justification for why the code is generally 
+required; it's set my mind at rest, I thought maybe this was only for the 
+speedtouch modem crew.
 
+I was aware of ATM's ability to interleave data and "digital voice" services; 
+ATM is widely deployed across Europe in preparation for "pure digital" 
+consumer telephony..
+
+My primary concern with the ATM code is that it's not (yet) an often used part 
+of the kernel; there are a number of viable applications out there, but most 
+can happily use linux-atm and/or pppd. I can see VoIP clients doing the same.
+
+However, for embedded or non-pure-client purposes, there's a reason for an 
+in-kernel implementation.
+
+I don't know enough about the applications of the "ATM stack" versus using a 
+userspace library, so I think as long as the patch is cleaned up and can be 
+reused, it's okay to put in the kernel.
+
+>
+> The PPPoATM module is a network interface. It stays on the other side of
+> the ATM world: [netif] <-> [PPPoATM] <-> [atmif] <-> [ATM] <-> [ATMSAR] <->
+> [device driver]. I'm not a PPPoATM expert, but it may probably be possible
+> to have all the PPPoATM code in userland. But the [ATM] <-> [ATMSAR] <->
+> [device driver] chain is probably too close to hardware to gain any benefit
+> by "userlanding" it.
+>
+
+I agree, if there are users beyond the speedtouch modem, it may make sense to 
+have this code in the kernel. Thanks for fielding my questions.
 
 -- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Cheers,
+Alistair.
+
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

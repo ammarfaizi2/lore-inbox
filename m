@@ -1,54 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751182AbVIDHZn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751150AbVIDH3W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751182AbVIDHZn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 03:25:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751181AbVIDHZn
+	id S1751150AbVIDH3W (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 03:29:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751181AbVIDH3V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 03:25:43 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:41901 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751142AbVIDHZm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 03:25:42 -0400
-Date: Sun, 4 Sep 2005 00:23:43 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Mark Fasheh <mark.fasheh@oracle.com>
-Cc: phillips@istop.com, Joel.Becker@oracle.com, linux-cluster@redhat.com,
-       wim.coekaerts@oracle.com, linux-fsdevel@vger.kernel.org, ak@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Linux-cluster] Re: GFS, what's remaining
-Message-Id: <20050904002343.079daa85.akpm@osdl.org>
-In-Reply-To: <20050904061045.GI21228@ca-server1.us.oracle.com>
-References: <20050901104620.GA22482@redhat.com>
-	<20050903183241.1acca6c9.akpm@osdl.org>
-	<20050904030640.GL8684@ca-server1.us.oracle.com>
-	<200509040022.37102.phillips@istop.com>
-	<20050903214653.1b8a8cb7.akpm@osdl.org>
-	<20050904061045.GI21228@ca-server1.us.oracle.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 4 Sep 2005 03:29:21 -0400
+Received: from mxfep02.bredband.com ([195.54.107.73]:9969 "EHLO
+	mxfep02.bredband.com") by vger.kernel.org with ESMTP
+	id S1751150AbVIDH3V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 03:29:21 -0400
+Message-ID: <431AA3E2.8020909@stesmi.com>
+Date: Sun, 04 Sep 2005 09:36:02 +0200
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
+       reiserfs-dev@namesys.com
+Subject: Re: RFC: i386: kill !4KSTACKS
+References: <20050902003915.GI3657@stusta.de> <1125805704.14032.71.camel@mindpipe>
+In-Reply-To: <1125805704.14032.71.camel@mindpipe>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by Vexira Milter 1.0.7; VAE 6.29.0.5; VDF 6.29.0.100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Fasheh <mark.fasheh@oracle.com> wrote:
->
-> On Sat, Sep 03, 2005 at 09:46:53PM -0700, Andrew Morton wrote:
-> > Actually I think it's rather sick.  Taking O_NONBLOCK and making it a
-> > lock-manager trylock because they're kinda-sorta-similar-sounding?  Spare
-> > me.  O_NONBLOCK means "open this file in nonblocking mode", not "attempt to
-> > acquire a clustered filesystem lock".  Not even close.
->
-> What would be an acceptable replacement? I admit that O_NONBLOCK -> trylock
-> is a bit unfortunate, but really it just needs a bit to express that -
-> nobody over here cares what it's called.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-The whole idea of reinterpreting file operations to mean something utterly
-different just seems inappropriate to me.
+Lee Revell wrote:
+> On Fri, 2005-09-02 at 02:39 +0200, Adrian Bunk wrote:
+> 
+>>4Kb kernel stacks are the future on i386, and it seems the problems it
+>>initially caused are now sorted out.
+>>
+>>Does anyone knows about any currently unsolved problems?
+> 
+> 
+> ndiswrapper
 
-You get a lot of goodies when using a filesystem - the ability for
-unrelated processes to look things up, resource release on exit(), etc.  If
-those features are valuable in the ocfs2 context then fine.  But I'd have
-thought that it would be saner and more extensible to add new syscalls
-(perhaps taking fd's) rather than overloading the open() mode in this
-manner.
+While I agree ndiswrapper has a use ... I don't think we should
+base kernel development upon messing with something that is designed
+to run a windows driver in linux ...
+
+// Stefan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (MingW32)
+
+iD8DBQFDGqPiBrn2kJu9P78RAgO4AJ9r6FNwB+72iRmdcMoxP0vi8gTDUQCfeUG5
+5Qbcq/o/Zao79JPEVqOmH+M=
+=xpUz
+-----END PGP SIGNATURE-----

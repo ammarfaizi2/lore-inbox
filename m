@@ -1,53 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751118AbVIDVR4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751186AbVIDVYG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751118AbVIDVR4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 17:17:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751178AbVIDVRz
+	id S1751186AbVIDVYG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 17:24:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751187AbVIDVYF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 17:17:55 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:17161 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751118AbVIDVRz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 17:17:55 -0400
-Date: Sun, 4 Sep 2005 22:17:42 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Nishanth Aravamudan <nacc@us.ibm.com>
-Cc: Con Kolivas <kernel@kolivas.org>, vatsa@in.ibm.com,
-       linux-kernel@vger.kernel.org, akpm@osdl.org,
-       ck list <ck@vds.kolivas.org>
-Subject: Re: [PATCH 1/3] dynticks - implement no idle hz for x86
-Message-ID: <20050904221742.C11265@flint.arm.linux.org.uk>
-Mail-Followup-To: Nishanth Aravamudan <nacc@us.ibm.com>,
-	Con Kolivas <kernel@kolivas.org>, vatsa@in.ibm.com,
-	linux-kernel@vger.kernel.org, akpm@osdl.org,
-	ck list <ck@vds.kolivas.org>
-References: <20050831165843.GA4974@in.ibm.com> <200509031801.09069.kernel@kolivas.org> <20050903090650.B26998@flint.arm.linux.org.uk> <200509031814.49666.kernel@kolivas.org> <20050904201054.GA4495@us.ibm.com> <20050904212616.B11265@flint.arm.linux.org.uk> <20050904203755.GA25856@us.ibm.com>
+	Sun, 4 Sep 2005 17:24:05 -0400
+Received: from zproxy.gmail.com ([64.233.162.196]:46044 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751186AbVIDVYE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 17:24:04 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=jqSd/0rl6tSOy73BqkNFjHEijtFIEQwCWyoEi+HftNPqT740eiF6elj9bWIlM+v3wO6WEux8sZJGHlXn/yzCxG1u7ebUwIBXmqwsEJDVdNmkO/UAkvZXdb+J+rxjStLHh1/giFcwpzn0rozAHLUwm4a+6oEI04fNHaLx2a526WA=
+Message-ID: <9a87484905090414245589a3c@mail.gmail.com>
+Date: Sun, 4 Sep 2005 23:24:03 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.13-mm1
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050903130632.3124e19b.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050904203755.GA25856@us.ibm.com>; from nacc@us.ibm.com on Sun, Sep 04, 2005 at 01:37:55PM -0700
+References: <20050901035542.1c621af6.akpm@osdl.org>
+	 <20050903122126.GM3657@stusta.de>
+	 <20050903123410.1320f8ab.akpm@osdl.org>
+	 <20050903195423.GP3657@stusta.de>
+	 <20050903130632.3124e19b.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 04, 2005 at 01:37:55PM -0700, Nishanth Aravamudan wrote:
-> That looks great! So I guess I'm just suggesting moving this from
-> include/asm-arch/mach/time.h to arch-independent headers? Perhaps
-> timer.h is the best place for now, as it already contains the
-> next_timer_interrupt() prototype (which probably should be in the #ifdef
-> with timer_dyn_reprogram()).
+On 9/3/05, Andrew Morton <akpm@osdl.org> wrote:
+> Adrian Bunk <bunk@stusta.de> wrote:
+> >
+> > On Sat, Sep 03, 2005 at 12:34:10PM -0700, Andrew Morton wrote:
+> > > Adrian Bunk <bunk@stusta.de> wrote:
+> > > >
+> > > > Hi Andrew,
+> > > >
+> > > > it seems you dropped
+> > > > schedule-obsolete-oss-drivers-for-removal-version-2.patch, but there's
+> > > > zero mentioning of this dropping in the changelog of 2.6.13-mm1.
+> > > >
+> > > > Can you explain why you did silently drop it?
+> > >
+> > > It spat rejects and when I looked at the putative removal date I just
+> > > didn't believe it anyway.  Send a rediffed one if you like, but
+> > > October 2005 is unrealistic.
+> >
+> > That the date is no longer realistic is clear. What disappoints me is
+> > that you didn't mention in the changelog of 2.6.13-mm1 where I'd have
+> > noticed it.
+> 
+> Sometimes I can't be bothered getting into email threads over relatively
+> unimportant stuff.  Usually it's related to the number of bugs we have.
+> 
+> > It semms I need my own bookkeeping of patches I sent that are in -mm to
+> > notice when they get lost.
+> 
+> This is called "quilt".
+> 
 
-Sounds great!
+I'm wondering if it would be too much trouble to have a mm-drops list
+similar to the mm-commits list.
 
-> Overall, though, do you agree it would be best to have the common code
-> in a common file? If so, I'll work harder on getting some patches out.
+I also like to keep track of what patches of mine get accepted and
+subsequently dropped.
 
-Absolutely, with the proviso that ARM doesn't (yet) use the generic IRQ
-code.  I say "(yet)" there because there are some folk working in this
-area, and I've recently merged a couple of bits which reduce the impact
-of their patches.
+What I'm thinking is that it seems you have the mails to mm-commit
+pretty much automated (I may be wrong, but it seems that way to me).
+If they are indeed automated, then how hard would it be to set your
+end up to automatically send a mail to the same people who got the
+original mm-commits mail + send it to a central mm-drops list that
+those of us who care about this could subscribe to?
+
+As far as I'm concerned the mails wouldn't even need to contain a
+reason (although one would of course be nice) - just a mail stating
+the fact that patch xyz was dropped from the mm tree would be great.
+
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

@@ -1,57 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751299AbVIDIqI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751220AbVIDIqb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751299AbVIDIqI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 04:46:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751304AbVIDIqI
+	id S1751220AbVIDIqb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 04:46:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751304AbVIDIqb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 04:46:08 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:26898 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1751299AbVIDIqH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 04:46:07 -0400
-Date: Sun, 4 Sep 2005 10:45:59 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Andreas Hartmann <andihartmann@01019freenet.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: forbid to strace a program
-Message-ID: <20050904084559.GC30279@alpha.home.local>
-References: <4IOGw-1DU-11@gated-at.bofh.it> <4IOGw-1DU-13@gated-at.bofh.it> <4IOGw-1DU-9@gated-at.bofh.it> <4IOQc-1Pk-23@gated-at.bofh.it> <dfe7ui$14q$1@pD9F874C0.dip0.t-ipconnect.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 4 Sep 2005 04:46:31 -0400
+Received: from poros.telenet-ops.be ([195.130.132.44]:17084 "EHLO
+	poros.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S1751220AbVIDIqa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 04:46:30 -0400
+From: Jan De Luyck <lkml@kcore.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] Genesys USB 2.0 enclosures
+Date: Sun, 4 Sep 2005 10:46:01 +0200
+User-Agent: KMail/1.8.1
+Cc: Alan Stern <stern@rowland.harvard.edu>,
+       USB Storage list <usb-storage@lists.one-eyed-alien.net>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+References: <Pine.LNX.4.44L0.0509032151040.5675-100000@netrider.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0509032151040.5675-100000@netrider.rowland.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <dfe7ui$14q$1@pD9F874C0.dip0.t-ipconnect.de>
-User-Agent: Mutt/1.5.10i
+Message-Id: <200509041046.01652.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andreas,
+On Sunday 04 September 2005 03:53, Alan Stern wrote:
+>
+> This one certainly goes into the Bizarro file.
+>
+> Just out of curiosity -- when you use the powered hub, does the drive work
+> even if you remove that delay completely?
 
-On Sun, Sep 04, 2005 at 09:32:34AM +0200, Andreas Hartmann wrote:
-> > Can I ask why you want to hide the database password from root?
-> 
-> It's easy: for security reasons. There could always be some bugs in some
-> software, which makes it possible for some other user, to gain root
-> privileges. Now, they could easily strace for information, they shouldn't
-> could do it.
+I haven't tested that. I will, next time I need the drive, which will probably 
+be in about a week. 
 
-Then you're loosing your time. If the user gains root privileges, then he
-can do what he wants to get the password, including loading modules or
-scanning the memory. For instance, it happened to me several times that
-my browser crashed during a post with a very long message. Not funny at
-all. Then, as root, I started my hex editor and scaned all memory for
-words I was sure I wouldn't find anywhere else, and then I could restore
-my data by hand. Doing so to find a password is pretty easy too. And don't
-tell me that it's deleted very soon, because it's also possible to send
-lots of SIGSTOP/scan/SIGCONT very fast to try to catch the clear password.
+I just wanted to make my backup, and finally managed to do that. I don't get 
+it either what's really wrong with these chips - but it was one of the 
+recommendations i found on the linux-usb device list pages. And it seems to 
+work.
 
-> The password they could see, isn't just used for the DB, but
-> for some other applications, too. That's the disadvantage of general
-> (single sign on) passwords.
+If now only I can get the firewire part of one of them working without 
+serialize_io, then I can use that too.
 
-can't you use a specific password just for this app ? or use another server
-on which no user has access to relay your connections and insert the right
-password itself ?
+Jan
 
-Regards,
-Willy
-
+-- 
+A billion here, a billion there -- pretty soon it adds up to real money.
+		-- Sen. Everett Dirksen, on the U.S. defense budget

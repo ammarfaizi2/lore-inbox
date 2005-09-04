@@ -1,42 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbVIDRbc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932080AbVIDRfE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932081AbVIDRbc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 13:31:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932080AbVIDRbc
+	id S932080AbVIDRfE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 13:35:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932083AbVIDRfE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 13:31:32 -0400
-Received: from mail.collax.com ([213.164.67.137]:59111 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S932078AbVIDRbb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 13:31:31 -0400
-Message-ID: <431B2F6E.9070401@trash.net>
-Date: Sun, 04 Sep 2005 19:31:26 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
+	Sun, 4 Sep 2005 13:35:04 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:11416 "EHLO
+	pd4mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S932080AbVIDRfB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 13:35:01 -0400
+Date: Sun, 04 Sep 2005 11:33:53 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: RFC: i386: kill !4KSTACKS
+In-reply-to: <4J1DC-2NU-1@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <431B3001.20300@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
 X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Herbert Xu <herbert@gondor.apana.org.au>
-CC: Andrew Morton <akpm@osdl.org>, jmcgowan@inch.com,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       davem@davemloft.net
-Subject: Re: Kernel 2.6.13 breaks libpcap (and tcpdump).
-References: <E1EBpkT-0001RP-00@gondolin.me.apana.org.au> <431B2985.1060502@trash.net>
-In-Reply-To: <431B2985.1060502@trash.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <4I7UM-M1-1@gated-at.bofh.it> <4ITG4-8nH-1@gated-at.bofh.it>
+ <4J1DC-2NU-1@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick McHardy wrote:
-> Herbert Xu wrote:
+Guillaume Chazarain wrote:
+> Just a thought : why couldn't ndiswrapper set apart some piece
+> of memory and use it as the stack by changing the esp register
+> before executing windows code.
 > 
->> We aren't handling the reading of specific fields like the IP protocol
->> field correctly.  This patch should make it work again.
+> Like http://article.gmane.org/gmane.linux.drivers.ndiswrapper.general/4737
 > 
+> It's dirty, I know, but after all they are executing win32 code ...
 > 
-> I can't spot the problem, could you give me a hint?
+> Why wouldn't this work ?
 
-Never mind, I got it, we never fall through to the second switch
-statement anymore. I think we could simply break when load_pointer
-returns NULL. The switch statement will fall through to the default
-case and return 0 for all cases but 0 > k >= SKF_AD_OFF.
+I think this would be a good idea. I don't see any reason in principle 
+why the ndiswrapper code couldn't use a separate stack for the Win32 
+driver code. Sharing the stack between the Linux kernel and whatever 
+junk is going on inside the Windows driver seems rather inherently fragile..
+
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
+

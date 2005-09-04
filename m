@@ -1,189 +1,34 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-X-Sieve: CMU Sieve 2.2
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964854AbVI0IGq (ORCPT <rfc822;rjwysocki@sisk.pl>);
-	Tue, 27 Sep 2005 04:06:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964855AbVI0IGq
+	id S932075AbVIDRU0 (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sun, 4 Sep 2005 13:20:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932076AbVIDRU0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Sep 2005 04:06:46 -0400
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:13518 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S964854AbVI0IGp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Sep 2005 04:06:45 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: [PATCH][Fix] Fix Bug #4959 (take 3)
-Date: Wed, 28 Sep 2005 12:29:52 +0200
-User-Agent: KMail/1.8.2
-Cc: LKML <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
-        Andrew Morton <akpm@osdl.org>
-References: <200509241936.12214.rjw@sisk.pl>
-In-Reply-To: <200509241936.12214.rjw@sisk.pl>
+	Sun, 4 Sep 2005 13:20:26 -0400
+Received: from filtro.mksnet.com.br ([200.180.239.4]:5300 "EHLO
+	filtro.mksnet.com.br") by vger.kernel.org with ESMTP
+	id S932075AbVIDRUZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 13:20:25 -0400
+X-Antivirus-MYDOMAIN-Mail-From: fone04@uol.com.br via filtro
+X-Antivirus-MYDOMAIN: 1.22-st-qms (Clear:RC:1(200.102.171.247):. Processed in 0.340576 secs Process 23121)
+From: =?ISO-8859-1?Q?=20S=E9rgio?= <fone04@uol.com.br>
+To: clientes@vger.kernel.org
+Subject: Gravador de conversas  =?ISO-8859-1?Q?=20telef=F4nicas?=
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200509281229.53262.linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Illegal-Object: Syntax error in Message-Id: value found on vger.kernel.org:
+	Message-Id:	=?ISO-8859-1?Q?=20<cjnftopqhrhfnma?= =?ISO-8859-1?Q?fthbggmdnrpgiqt@?= =?ISO-8859-1?Q?S=E9rgio>
+				^		  ^-illegal end of message identification
+			 \-Extraneous program text, illegal start of message identification
+X-Priority: 1
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+Date: Sun, 4 Sep 2005 13:20:25 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-X-Length: 10927
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-
-Hi,
-
-The following patch fixes Bug #4959.  For this purpose it creates temporary
-page translation tables including the kernel mapping (reused) and the direct
-mapping (created from scratch) and makes swsusp switch to these tables
-right before the image is restored.
-
-The code that generates the direct mapping is based on the code in
-arch/x86_64/mm/init.c.
-
-Please consider for applying.
-
-Greetings,
-Rafael
+Message-Id: <S932075AbVIDRU0/20050904172026Z+59@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932075AbVIDRU0@vger.kernel.org>
 
 
-Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+Saiba tudo que é falado em seu telefone na sua ausência. Chegou o mini gravador de conversas telefônicas.Você pode escondê-lo em qualquer ponto do fio da sua linha telefônica e não importa o número de extensões, vigia e grava o uso de qualquer uma delas; tirou o fone do gancho, efetuando ou recebendo uma chamada, a gravação é acionada automaticamente.Para ouvir o que foi gravado é só voltar a fita e pressionar a tecla play, e ficar por dentro de tudo que foi falado. O aparelho tem 11 x 9,5 cm e utiliza pilhas e fitas cassets convencionais.A instalação é muito fácil, dispensando um técnico para instalá-lo. O custo dessa nova tecnologia de gravação está ao seu alcançe por apenas R$195,00. Despachamos para todo o Brasil.
+Contato com Sérgio nos fones: 51- 471.3583 (pela manhã)  #  51- 8424.1442 ( 24 hs) ou mercador10@hotmail.com. Obs: Instalar esse aparelho em linhas alheias é contra a lei.
+                                             "temos aparelhos especiais para gravação em ramais pabx"
 
-Index: linux-2.6.14-rc2-git6/arch/x86_64/kernel/suspend.c
-===================================================================
---- linux-2.6.14-rc2-git6.orig/arch/x86_64/kernel/suspend.c	2005-09-28 01:17:23.000000000 +0200
-+++ linux-2.6.14-rc2-git6/arch/x86_64/kernel/suspend.c	2005-09-28 10:28:05.000000000 +0200
-@@ -11,6 +11,21 @@
- #include <linux/smp.h>
- #include <linux/suspend.h>
- #include <asm/proto.h>
-+#include <asm/page.h>
-+#include <asm/pgtable.h>
-+
-+#define MAX_RESUME_PUD_ENTRIES	8
-+#define MAX_RESUME_RAM_SIZE	(MAX_RESUME_PUD_ENTRIES * PTRS_PER_PMD * PMD_SIZE)
-+
-+int arch_prepare_suspend(void)
-+{
-+	if (MAX_RESUME_RAM_SIZE < (end_pfn << PAGE_SHIFT)) {
-+		printk(KERN_ERR "Too much RAM for suspend (%lu K), max. allowed: %lu K",
-+			end_pfn << (PAGE_SHIFT - 10), MAX_RESUME_RAM_SIZE >> 10);
-+		return -ENOMEM;
-+	}
-+	return 0;
-+}
- 
- struct saved_context saved_context;
- 
-@@ -140,4 +155,62 @@
- 
- }
- 
-+/* Defined in arch/x86_64/kernel/suspend_asm.S */
-+int restore_image(void);
-+
-+/* References to section boundaries */
-+extern const void __nosave_begin, __nosave_end;
- 
-+pgd_t resume_level4_pgt[PTRS_PER_PGD] __nosavedata;
-+pud_t resume_level3_pgt[PTRS_PER_PUD] __nosavedata;
-+pmd_t resume_level2_pgt[MAX_RESUME_PUD_ENTRIES*PTRS_PER_PMD] __nosavedata;
-+
-+static void phys_pud_init(pud_t *pud, unsigned long end)
-+{
-+	long i, j;
-+	pmd_t *pmd = resume_level2_pgt;
-+
-+	for (i = 0; i < PTRS_PER_PUD; pud++, i++) {
-+		unsigned long paddr;
-+
-+		paddr = i*PUD_SIZE;
-+		if (paddr >= end) {
-+			for (; i < PTRS_PER_PUD; i++, pud++)
-+				set_pud(pud, __pud(0));
-+			break;
-+		}
-+
-+		set_pud(pud, __pud(__pa(pmd) | _KERNPG_TABLE));
-+		for (j = 0; j < PTRS_PER_PMD; pmd++, j++, paddr += PMD_SIZE) {
-+			unsigned long pe;
-+
-+			if (paddr >= end) {
-+				for (; j < PTRS_PER_PMD; j++, pmd++)
-+					set_pmd(pmd,  __pmd(0));
-+				break;
-+			}
-+			pe = _PAGE_NX|_PAGE_PSE | _KERNPG_TABLE | _PAGE_GLOBAL | paddr;
-+			pe &= __supported_pte_mask;
-+			set_pmd(pmd, __pmd(pe));
-+		}
-+	}
-+}
-+
-+static void set_up_temporary_mappings(void)
-+{
-+	/* It is safe to reuse the original kernel mapping */
-+	set_pgd(resume_level4_pgt + pgd_index(__START_KERNEL_map),
-+		init_level4_pgt[pgd_index(__START_KERNEL_map)]);
-+
-+	/* Set up the direct mapping from scratch */
-+	phys_pud_init(resume_level3_pgt, end_pfn << PAGE_SHIFT);
-+	set_pgd(resume_level4_pgt + pgd_index(PAGE_OFFSET),
-+		mk_kernel_pgd(__pa(resume_level3_pgt)));
-+}
-+
-+int swsusp_arch_resume(void)
-+{
-+	set_up_temporary_mappings();
-+	restore_image();
-+	return 0;
-+}
-Index: linux-2.6.14-rc2-git6/arch/x86_64/kernel/suspend_asm.S
-===================================================================
---- linux-2.6.14-rc2-git6.orig/arch/x86_64/kernel/suspend_asm.S	2005-09-28 01:17:23.000000000 +0200
-+++ linux-2.6.14-rc2-git6/arch/x86_64/kernel/suspend_asm.S	2005-09-28 01:18:12.000000000 +0200
-@@ -39,12 +39,12 @@
- 	call swsusp_save
- 	ret
- 
--ENTRY(swsusp_arch_resume)
--	/* set up cr3 */	
--	leaq	init_level4_pgt(%rip),%rax
--	subq	$__START_KERNEL_map,%rax
--	movq	%rax,%cr3
--
-+ENTRY(restore_image)
-+	/* switch to temporary page tables */
-+	leaq	resume_level4_pgt(%rip), %rax
-+	subq	$__START_KERNEL_map, %rax
-+	movq	%rax, %cr3
-+	/* Flush TLB */
- 	movq	mmu_cr4_features(%rip), %rax
- 	movq	%rax, %rdx
- 	andq	$~(1<<7), %rdx	# PGE
-@@ -69,6 +69,10 @@
- 	movq	pbe_next(%rdx), %rdx
- 	jmp	loop
- done:
-+	/* go back to the original page tables */
-+	leaq	init_level4_pgt(%rip), %rax
-+	subq	$__START_KERNEL_map, %rax
-+	movq	%rax, %cr3
- 	/* Flush TLB, including "global" things (vmalloc) */
- 	movq	mmu_cr4_features(%rip), %rax
- 	movq	%rax, %rdx
-Index: linux-2.6.14-rc2-git6/include/asm-x86_64/suspend.h
-===================================================================
---- linux-2.6.14-rc2-git6.orig/include/asm-x86_64/suspend.h	2005-08-29 01:41:01.000000000 +0200
-+++ linux-2.6.14-rc2-git6/include/asm-x86_64/suspend.h	2005-09-28 01:18:12.000000000 +0200
-@@ -6,11 +6,7 @@
- #include <asm/desc.h>
- #include <asm/i387.h>
- 
--static inline int
--arch_prepare_suspend(void)
--{
--	return 0;
--}
-+extern int arch_prepare_suspend(void);
- 
- /* Image of the saved processor state. If you touch this, fix acpi_wakeup.S. */
- struct saved_context {

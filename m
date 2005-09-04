@@ -1,88 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751221AbVIDHd7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751189AbVIDHdq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751221AbVIDHd7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 03:33:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751211AbVIDHd6
+	id S1751189AbVIDHdq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 03:33:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751211AbVIDHdq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 03:33:58 -0400
-Received: from ganesha.gnumonks.org ([213.95.27.120]:4809 "EHLO
-	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
-	id S1751221AbVIDHd6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 03:33:58 -0400
-Date: Sun, 4 Sep 2005 09:33:51 +0200
-From: Harald Welte <laforge@gnumonks.org>
-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-Cc: Chase Venters <chase.venters@clientec.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] New: Omnikey CardMan 4040 PCMCIA Driver
-Message-ID: <20050904073351.GB15212@sunbeam.de.gnumonks.org>
-References: <20050904101218.GM4415@rama.de.gnumonks.org> <200509031627.00947.chase.venters@clientec.com> <29495f1d0509031513232b11b1@mail.gmail.com>
+	Sun, 4 Sep 2005 03:33:46 -0400
+Received: from pD9F874C0.dip0.t-ipconnect.de ([217.248.116.192]:33408 "EHLO
+	susi.maya.org") by vger.kernel.org with ESMTP id S1751189AbVIDHdp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 03:33:45 -0400
+From: Andreas Hartmann <andihartmann@01019freenet.de>
+X-Newsgroups: linux.kernel
+Subject: Re: forbid to strace a program
+Date: Sun, 04 Sep 2005 09:32:34 +0200
+Organization: privat
+Message-ID: <dfe7ui$14q$1@pD9F874C0.dip0.t-ipconnect.de>
+References: <4IOGw-1DU-11@gated-at.bofh.it> <4IOGw-1DU-13@gated-at.bofh.it> <4IOGw-1DU-9@gated-at.bofh.it> <4IOQc-1Pk-23@gated-at.bofh.it>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="i9LlY+UWpKt15+FH"
-Content-Disposition: inline
-In-Reply-To: <29495f1d0509031513232b11b1@mail.gmail.com>
-User-Agent: mutt-ng devel-20050619 (Debian)
-X-Spam-Score: 0.0 (/)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: abuse@arcor.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.11) Gecko/20050806
+X-Accept-Language: de, en-us, en
+In-Reply-To: <4IOQc-1Pk-23@gated-at.bofh.it>
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Chase Venters wrote:
+>> Is there another way to do this? If the password is crypted, I need a
+>> passphrase or something other to decrypt it again. Not really a solution
+>> of the problem.
+>>
+>> Therefore, it would be best, to hide it by preventing stracing of the
+>> application to all users and root.
+>>
+>> Ok, root could search for the password directly in the memory, but this
+>> would be not as easy as a strace.
+> 
+> Obfuscation isn't really valid security. Making something 'harder' to break 
+> isn't a solution unless you're making it hard enough that current technology 
+> can't break it (eg... you always have the brute force option, but good crypto 
+> intends to make such an option impossible without expending zillions of clock 
+> cycles). 
 
---i9LlY+UWpKt15+FH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+You're right. If I would have a solution, which could do this, I would
+prefer it.
 
-Hi Nish,=20
+> 
+> Can I ask why you want to hide the database password from root?
 
-thanks for your comments.
+It's easy: for security reasons. There could always be some bugs in some
+software, which makes it possible for some other user, to gain root
+privileges. Now, they could easily strace for information, they shouldn't
+could do it. The password they could see, isn't just used for the DB, but
+for some other applications, too. That's the disadvantage of general
+(single sign on) passwords.
 
-On Sat, Sep 03, 2005 at 03:13:43PM -0700, Nish Aravamudan wrote:
-> On 9/3/05, Chase Venters <chase.venters@clientec.com> wrote:
-> > > Below you can find a driver for the Omnikey CardMan 4040 PCMCIA
-> > > Smartcard Reader.
-> >=20
-> > #define CCID_DRIVER_BULK_DEFAULT_TIMEOUT        (150*HZ)
->=20
-> These are all fine. Although I am a bit suspicious of 150 second
-> timeouts; but if that is the hardware...
 
-That's a definition from the original vendor-supplied driver.
-Unfortunately there's no hardware documentation, so I can't verify it.
-But generally speaking, serial smart cards can really be slow, so I
-think it could make sense.
-
-> > /* how often to poll for fifo status change */
-> > #define POLL_PERIOD                             (HZ/100)
->=20
-> This needs to be msecs_to_jiffies(10), please.
-
-thanks, changed in my local tree now.
-
-> Of bigger concern to me is the use of the sleep_on() family of
-> functions, all of which are deprecated.
-
-Ok, I'm working on replacing the respective code with
-wait_event_interruptible_timeout().
-
---=20
-- Harald Welte <laforge@gnumonks.org>          	        http://gnumonks.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-"Privacy in residential applications is a desirable marketing option."
-                                                  (ETSI EN 300 175-7 Ch. A6)
-
---i9LlY+UWpKt15+FH
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFDGqNfXaXGVTD0i/8RAqshAKCsr82L2zrZUAsf4zNMJSnQpJ5JCACffosJ
-bpQbHUvp5x2bYfLZwbXuIPw=
-=kzY/
------END PGP SIGNATURE-----
-
---i9LlY+UWpKt15+FH--
+Kind regards,
+Andreas Hartmann

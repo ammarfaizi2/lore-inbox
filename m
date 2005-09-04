@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbVIEQcX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932333AbVIEQcD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932317AbVIEQcX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 12:32:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932332AbVIEQcX
+	id S932333AbVIEQcD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 12:32:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932332AbVIEQcB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 12:32:23 -0400
-Received: from [81.2.110.250] ([81.2.110.250]:62357 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S932317AbVIEQcU (ORCPT
+	Mon, 5 Sep 2005 12:32:01 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:61333 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S932331AbVIEQcA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 12:32:20 -0400
-Subject: Re: [ANNOUNCE] DSFS Network Forensic File System for Linux Patches
+	Mon, 5 Sep 2005 12:32:00 -0400
+Subject: Re: RFC: i386: kill !4KSTACKS
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bernd Eckenfels <ecki@lina.inka.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E1EBfWr-0004LP-00@calista.eckenfels.6bone.ka-ip.net>
-References: <E1EBfWr-0004LP-00@calista.eckenfels.6bone.ka-ip.net>
+To: Ed Tomlinson <tomlins@cam.org>
+Cc: Denis Vlasenko <vda@ilport.com.ua>, Alex Davis <alex14641@yahoo.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200509040930.57622.tomlins@cam.org>
+References: <20050902060830.84977.qmail@web50208.mail.yahoo.com>
+	 <200509041549.17512.vda@ilport.com.ua> <200509040930.57622.tomlins@cam.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Sun, 04 Sep 2005 09:45:31 +0100
-Message-Id: <1125823531.23858.16.camel@localhost.localdomain>
+Date: Sun, 04 Sep 2005 15:49:11 +0100
+Message-Id: <1125845351.23858.25.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2005-09-03 at 23:26 +0200, Bernd Eckenfels wrote:
-> Loading a non-GPL (tagged) module leads in tainting the kernel (which basically
-> is a flag for developers to be alerted while debugging), is that right?
+On Sul, 2005-09-04 at 09:30 -0400, Ed Tomlinson wrote:
+> MS stuff.  We know that 4K stacks hurt the above.  Do we really want to break working
+> configs just to enforce 4K stacks?  How does it hurt to make 4K the default and 
+> allow 8K?  What _might_ make sense is to make 8K a reason to taint the kernel.
 
-Correct, although some administrators find it useful too
+The question is whether ndiswrapper can do stack switching itself. Since
+as I understand it the NT stack is way more than 8K. Is there anything
+else needed so it (and perhaps in future other 'hard cases') can handle
+stacks themselves. We have seperate IRQ stack handling already which
+should also help this.
 
-> Non GPL Modules are also restrited in the number of symbols they can use,
-> this is to make it harder to derive work from the Linux Kernel with a ABI
-> interface.
-
-Non GPL modules are required not to be derivative works (a term of law).
-The EXPORT_SYMBOL information is merely advisory to help seperate
-symbols. In many cases its purely historical as to whether a symbol is
-marked _GPL or not.
-
-If a work is derivative of another GPL work by any means then the GPL
-applies to it. If it is not then the GPL has no power over it because
-the GPL is a copyright based license. The law itself circumscribes the
-power of such licenses and their reach.
-
-And no doubt German law could be totally different.
-
-Alan
+So what is needed to make it go away - specific technical items or just
+the persuasive effect of having to fix it ?
 

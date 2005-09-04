@@ -1,80 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932093AbVIDWJq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932094AbVIDWKL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932093AbVIDWJq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 18:09:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932094AbVIDWJq
+	id S932094AbVIDWKL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 18:10:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbVIDWKK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 18:09:46 -0400
-Received: from jay.exetel.com.au ([220.233.0.8]:23512 "EHLO jay.exetel.com.au")
-	by vger.kernel.org with ESMTP id S932090AbVIDWJp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 18:09:45 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: kaber@trash.net (Patrick McHardy)
-Subject: Re: Kernel 2.6.13 breaks libpcap (and tcpdump).
-Cc: herbert@gondor.apana.org.au, akpm@osdl.org, jmcgowan@inch.com,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       davem@davemloft.net
-Organization: Core
-In-Reply-To: <431B2F6E.9070401@trash.net>
-X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.netdev
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
-Message-Id: <E1EC2gG-0006hm-00@gondolin.me.apana.org.au>
-Date: Mon, 05 Sep 2005 08:09:40 +1000
+	Sun, 4 Sep 2005 18:10:10 -0400
+Received: from zproxy.gmail.com ([64.233.162.204]:33425 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932094AbVIDWKJ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 18:10:09 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=EFo2PEdUzUO2MH5QsJsuyVrMHS9t9vVKR0flQF0sujGvjmolfXjcVyICBp2SipeKEZYmALkE5tqRjwu4XiZYmWuO2ZuwMQm0J6RYSrYWNAevobcljrrBzSgUBnZVepcTJmj346v1DKIOzB8OQOqf8H7LO+A+QPTODbql28JJLI4=
+Message-ID: <9a87484905090415107e82c725@mail.gmail.com>
+Date: Mon, 5 Sep 2005 00:10:04 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Subject: Re: [PATCH] New: Omnikey CardMan 4040 PCMCIA Driver
+Cc: Harald Welte <laforge@gnumonks.org>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <200509042106.j84L6kvV019764@laptop11.inf.utfsm.cl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <jesper.juhl@gmail.com> <9a87484905090315273f9b7048@mail.gmail.com>
+	 <200509042106.j84L6kvV019764@laptop11.inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick McHardy <kaber@trash.net> wrote:
+On 9/4/05, Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
+> Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> > On 9/4/05, Harald Welte <laforge@gnumonks.org> wrote:
+> > > On Sun, Sep 04, 2005 at 12:12:18PM +0200, Harald Welte wrote:
+> > > > Hi!
+> > > >
+> > > > Below you can find a driver for the Omnikey CardMan 4040 PCMCIA
+> > > > Smartcard Reader.
+> > >
+> > > Sorry, the patch was missing a "cg-add" of the header file.  Please use
+> > > the patch below.
+> >
+> > It would be so much nicer if the patch actually was "below" - that is
+> > "inline in the email as opposed to as an attachment". Having to first
+> > save an attachment and then cut'n'paste from it is a pain.
+> >
+> > Anyway, a few comments below :
 > 
-> Never mind, I got it, we never fall through to the second switch
-> statement anymore. I think we could simply break when load_pointer
-> returns NULL. The switch statement will fall through to the default
-> case and return 0 for all cases but 0 > k >= SKF_AD_OFF.
+> [...]
+> 
+> > +     unsigned long ulBytesToRead;
+> >
+> >
+> > lowercase prefered also for variables.
+> 
+> Also, "encoding" the type (ul) into the variable name is nonsense.
+> 
+Agreed, and it's even mentioned in CodingStyle (ok, it talks about
+functions, but the same goes for variables):
 
-Thanks Patrick, that's a much better idea.  Here's a patch to do just
-that.
+...
+Encoding the type of a function into the name (so-called Hungarian
+notation) is brain damaged - the compiler knows the types anyway and can
+check those, and it only confuses the programmer.  No wonder MicroSoft
+makes buggy programs.
 
-I left BPF_MSH alone because it's really a hack to calculate the IP
-header length, which makes no sense when applied to the special data.
+LOCAL variable names should be short, and to the point.  If you have
+some random integer loop counter, it should probably be called "i".
+Calling it "loop_counter" is non-productive, if there is no chance of it
+being mis-understood.  Similarly, "tmp" can be just about any type of
+variable that is used to hold a temporary value.
+...
 
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 
-BTW, you should be able to send me mail now.  Sorry about that.
 
-Cheers,
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
---
-diff --git a/net/core/filter.c b/net/core/filter.c
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -182,7 +182,7 @@ int sk_run_filter(struct sk_buff *skb, s
- 				A = ntohl(*(u32 *)ptr);
- 				continue;
- 			}
--			return 0;
-+			break;
- 		case BPF_LD|BPF_H|BPF_ABS:
- 			k = fentry->k;
-  load_h:
-@@ -191,7 +191,7 @@ int sk_run_filter(struct sk_buff *skb, s
- 				A = ntohs(*(u16 *)ptr);
- 				continue;
- 			}
--			return 0;
-+			break;
- 		case BPF_LD|BPF_B|BPF_ABS:
- 			k = fentry->k;
- load_b:
-@@ -200,7 +200,7 @@ load_b:
- 				A = *(u8 *)ptr;
- 				continue;
- 			}
--			return 0;
-+			break;
- 		case BPF_LD|BPF_W|BPF_LEN:
- 			A = skb->len;
- 			continue;
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

@@ -1,59 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751294AbVIDIfw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751305AbVIDIjF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751294AbVIDIfw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 04:35:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751299AbVIDIfw
+	id S1751305AbVIDIjF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 04:39:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751304AbVIDIjE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 04:35:52 -0400
-Received: from postfix3-2.free.fr ([213.228.0.169]:53982 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S1751294AbVIDIfv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 04:35:51 -0400
-Date: Sun, 4 Sep 2005 08:30:00 +0200 (CEST)
-From: =?ISO-8859-15?Q?Peter_M=FCnster?= <pmlists@free.fr>
-X-X-Sender: peter@gaston.free.fr
-To: Chris Wright <chrisw@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel freezes with 2.6.12.5 and 2.6.13
-In-Reply-To: <20050829215238.GF7762@shell0.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.58.0509040820500.22435@gaston.free.fr>
-References: <Pine.LNX.4.58.0508292050180.28621@gaston.free.fr>
- <20050829191754.GW7991@shell0.pdx.osdl.net> <Pine.LNX.4.58.0508292253590.32579@gaston.free.fr>
- <20050829215238.GF7762@shell0.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Sun, 4 Sep 2005 04:39:04 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:10431 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751303AbVIDIjD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 04:39:03 -0400
+Date: Sun, 4 Sep 2005 01:37:04 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Mark Fasheh <mark.fasheh@oracle.com>
+Cc: phillips@istop.com, Joel.Becker@oracle.com, linux-cluster@redhat.com,
+       wim.coekaerts@oracle.com, linux-fsdevel@vger.kernel.org, ak@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Linux-cluster] Re: GFS, what's remaining
+Message-Id: <20050904013704.55c2d9f5.akpm@osdl.org>
+In-Reply-To: <20050904081748.GJ21228@ca-server1.us.oracle.com>
+References: <20050901104620.GA22482@redhat.com>
+	<20050903183241.1acca6c9.akpm@osdl.org>
+	<20050904030640.GL8684@ca-server1.us.oracle.com>
+	<200509040022.37102.phillips@istop.com>
+	<20050903214653.1b8a8cb7.akpm@osdl.org>
+	<20050904061045.GI21228@ca-server1.us.oracle.com>
+	<20050904002343.079daa85.akpm@osdl.org>
+	<20050904081748.GJ21228@ca-server1.us.oracle.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Aug 2005, Chris Wright wrote:
-
-> * Peter Münster (pmlists@free.fr) wrote:
-> > On Mon, 29 Aug 2005, Chris Wright wrote:
+Mark Fasheh <mark.fasheh@oracle.com> wrote:
+>
+> On Sun, Sep 04, 2005 at 12:23:43AM -0700, Andrew Morton wrote:
+> > > What would be an acceptable replacement? I admit that O_NONBLOCK -> trylock
+> > > is a bit unfortunate, but really it just needs a bit to express that -
+> > > nobody over here cares what it's called.
 > > 
-> > > * Peter Münster (pmlists@free.fr) wrote:
-> > > > with 2.6.12.4 no problem. But with a newer version, I get a black screen
-> > > > and no more network access, when trying to print (lpr some-file.ps).
-> > > > Everything else seems to work ok.
-> > > > Printer is a network-printer managed by cups.
-> > > > I suppose, it's a smp-problem, so here is my /proc/cpuinfo:
-> > > 
-> > > Is this 100% reproducible?  Do you get any kernel oops messages on
-> > > the console?  There are very few patches between 2.6.12.4 and 2.6.12.5,
-> > > so if the problem is reproducible can you narrow to the specific patch?
-> > 
-> > Yes, it's 100% reproducible. But I do not get any message. Display is
-> > shutting down, and no more access with ssh. Ctrl-Alt-Del does not work
-> > neither. Nothing in /var/log/messages.
+> > The whole idea of reinterpreting file operations to mean something utterly
+> > different just seems inappropriate to me.
+> Putting aside trylock for a minute, I'm not sure how utterly different the
+> operations are. You create a lock resource by creating a file named after
+> it. You get a lock (fd) at read or write level on the resource by calling 
+> open(2) with the appropriate mode (O_RDONLY, O_WRONLY/O_RDWR).
+> Now that we've got an fd, lock value blocks are naturally represented as
+> file data which can be read(2) or written(2).
+> Close(2) drops the lock.
 > 
-> Are you running X?  Can you reproduce running lpr from console command line?
+> A really trivial usage example from shell:
+> 
+> node1$ echo "hello world" > mylock
+> node2$ cat mylock
+> hello world
+> 
+> I could always give a more useful one after I get some sleep :)
 
-Friday I got some surprises: I could reproduce now the system crash (always
-with lpr and without X) with all other kernels too: 2.6.12.4, 2.6.12 and
-even with the kernel, that was really stable for a long time on my system:
-2.6.11.3. So now, I believe, that there is a hardware problem.
-I'm sorry, having stolen your time...
-Greetings, Peter
+It isn't extensible though.  One couldn't retain this approach while adding
+(random cfs ignorance exposure) upgrade-read, downgrade-write,
+query-for-various-runtime-stats, priority modification, whatever.
 
--- 
-http://pmrb.free.fr/contact/
+> > You get a lot of goodies when using a filesystem - the ability for
+> > unrelated processes to look things up, resource release on exit(), etc.  If
+> > those features are valuable in the ocfs2 context then fine.
+> Right, they certainly are and I think Joel, in another e-mail on this
+> thread, explained well the advantages of using a filesystem.
+> 
+> > But I'd have thought that it would be saner and more extensible to add new
+> > syscalls (perhaps taking fd's) rather than overloading the open() mode in
+> > this manner.
+> The idea behind dlmfs was to very simply export a small set of cluster dlm
+> operations to userspace. Given that goal, I felt that a whole set of system
+> calls would have been overkill. That said, I think perhaps I should clarify
+> that I don't intend dlmfs to become _the_ userspace dlm api, just a simple
+> and (imho) intuitive one which could be trivially accessed from any software
+> which just knows how to read and write files.
+
+Well, as I say.  Making it a filesystem is superficially attractive, but
+once you've build a super-dooper enterprise-grade infrastructure on top of
+it all, nobody's going to touch the fs interface by hand and you end up
+wondering why it's there, adding baggage.
+
+Not that I'm questioning the fs interface!  It has useful permission
+management, monitoring and resource releasing characteristics.  I'm
+questioning the open() tricks.  I guess from Joel's tiny description, the
+filesystem's interpretation of mknod and mkdir look sensible enough.

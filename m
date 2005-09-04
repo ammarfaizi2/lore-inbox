@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932331AbVIEQcl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbVIEQcX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932331AbVIEQcl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 12:32:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932332AbVIEQcl
+	id S932317AbVIEQcX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 12:32:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932332AbVIEQcX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 12:32:41 -0400
-Received: from [81.2.110.250] ([81.2.110.250]:63637 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S932331AbVIEQcj (ORCPT
+	Mon, 5 Sep 2005 12:32:23 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:62357 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S932317AbVIEQcU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 12:32:39 -0400
-Subject: Re: [PATCH 2.6.13] lockless pagecache 2/7
+	Mon, 5 Sep 2005 12:32:20 -0400
+Subject: Re: [ANNOUNCE] DSFS Network Forensic File System for Linux Patches
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andi Kleen <ak@suse.de>, Linux Memory Management <linux-mm@kvack.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <431A4767.4030403@yahoo.com.au>
-References: <4317F071.1070403@yahoo.com.au> <4317F0F9.1080602@yahoo.com.au>
-	 <4317F136.4040601@yahoo.com.au>
-	 <1125666486.30867.11.camel@localhost.localdomain>
-	 <p73k6hzqk1w.fsf@verdi.suse.de>  <4318C28A.5010000@yahoo.com.au>
-	 <1125705471.30867.40.camel@localhost.localdomain>
-	 <4318FF2B.6000805@yahoo.com.au>
-	 <1125768697.14987.7.camel@localhost.localdomain>
-	 <431A4767.4030403@yahoo.com.au>
+To: Bernd Eckenfels <ecki@lina.inka.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E1EBfWr-0004LP-00@calista.eckenfels.6bone.ka-ip.net>
+References: <E1EBfWr-0004LP-00@calista.eckenfels.6bone.ka-ip.net>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Sun, 04 Sep 2005 09:20:18 +0100
-Message-Id: <1125822018.23858.2.camel@localhost.localdomain>
+Date: Sun, 04 Sep 2005 09:45:31 +0100
+Message-Id: <1125823531.23858.16.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2005-09-04 at 11:01 +1000, Nick Piggin wrote:
-> I would be surprised if it was a big loss... but I'm assuming
-> a locked cmpxchg isn't outlandishly expensive. Basically:
-> 
->    read_lock_irqsave(cacheline1);
->    atomic_inc_return(cacheline2);
->    read_unlock_irqrestore(cacheline1);
-> 
-> Turns into
-> 
->    atomic_cmpxchg();
-> 
-> I'll do some microbenchmarks and get back to you. I'm quite
-> interested now ;) What sort of AMDs did you have in mind,
+On Sad, 2005-09-03 at 23:26 +0200, Bernd Eckenfels wrote:
+> Loading a non-GPL (tagged) module leads in tainting the kernel (which basically
+> is a flag for developers to be alerted while debugging), is that right?
 
+Correct, although some administrators find it useful too
 
-Athlon or higher give very different atomic numbers to P4. If you are
-losing the read_lock/unlock then the atomic_cmpxchg should be faster on
-all I agree.
+> Non GPL Modules are also restrited in the number of symbols they can use,
+> this is to make it harder to derive work from the Linux Kernel with a ABI
+> interface.
 
-One question however - atomic_foo operations are not store barriers so
-you might need mb() and friends for PPC ?
+Non GPL modules are required not to be derivative works (a term of law).
+The EXPORT_SYMBOL information is merely advisory to help seperate
+symbols. In many cases its purely historical as to whether a symbol is
+marked _GPL or not.
+
+If a work is derivative of another GPL work by any means then the GPL
+applies to it. If it is not then the GPL has no power over it because
+the GPL is a copyright based license. The law itself circumscribes the
+power of such licenses and their reach.
+
+And no doubt German law could be totally different.
 
 Alan
 

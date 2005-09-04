@@ -1,127 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750814AbVIDNNj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750820AbVIDN1I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750814AbVIDNNj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 09:13:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750812AbVIDNNj
+	id S1750820AbVIDN1I (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 09:27:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750821AbVIDN1H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 09:13:39 -0400
-Received: from smtp8.libero.it ([193.70.192.92]:7661 "EHLO smtp8.libero.it")
-	by vger.kernel.org with ESMTP id S1750814AbVIDNNi convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 09:13:38 -0400
-From: "Giampaolo Tomassoni" <g.tomassoni@libero.it>
-To: "Francois Romieu" <romieu@fr.zoreil.com>
-Cc: <linux-kernel@vger.kernel.org>, <linux-atm-general@lists.sourceforge.net>
-Subject: R: [Linux-ATM-General] [ATMSAR] Request for review - update #1
-Date: Sun, 4 Sep 2005 15:13:19 +0200
-Message-ID: <NBBBIHMOBLOHKCGIMJMDCEICEKAA.g.tomassoni@libero.it>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <20050904120047.GA6556@electric-eye.fr.zoreil.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
-Importance: Normal
-X-Scanned: with antispam and antivirus automated system at libero.it
+	Sun, 4 Sep 2005 09:27:07 -0400
+Received: from mx2.suse.de ([195.135.220.15]:9088 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750820AbVIDN1G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 09:27:06 -0400
+Date: Sun, 4 Sep 2005 15:27:04 +0200
+From: Olaf Hering <olh@suse.de>
+To: Jesse Barnes <jbarnes@sgi.com>, Jon Smirl <jonsmirl@gmail.com>
+Cc: akpm@osdl.org, benh@kernel.crashing.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] quiet non-x86 option ROM warnings
+Message-ID: <20050904132704.GA27274@suse.de>
+References: <200502151557.06049.jbarnes@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <200502151557.06049.jbarnes@sgi.com>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Messaggio originale-----
-> Da: linux-atm-general-admin@lists.sourceforge.net
-> [mailto:linux-atm-general-admin@lists.sourceforge.net]Per conto di
-> Francois Romieu
-> Inviato: domenica 4 settembre 2005 14.01
-> A: Giampaolo Tomassoni
-> Cc: linux-kernel@vger.kernel.org;
-> linux-atm-general@lists.sourceforge.net
-> Oggetto: Re: [Linux-ATM-General] [ATMSAR] Request for review - update #1
-> 
-> 
-> Giampaolo Tomassoni <g.tomassoni@libero.it> :
-> [...]
-> > However, I'm still hearing for your comments about the usefulness of an
-> > ATMSAR layer.
-> 
-> Afaik all but one pci ADSL modems are out of tree drivers and 
-> include various
-> level of proprietary code. If Duncan is not interested in 
-> changing its code,
-> the usefulness remains to be proven.
+ On Tue, Feb 15, Jesse Barnes wrote:
 
-Well, the idea is that more pci devices may appear, as adsl-enabled embedded systems will begin to appear in the market.
+> Both the r128 and radeon drivers complain if they don't find an x86 option ROM 
+> on the device they're talking to.  This would be fine, except that the 
+> message is incorrect--not all option ROMs are required to be x86 based.  This 
+> small patch just removes the messages altogether, causing the drivers to 
+> *silently* fall back to the non-x86 option ROM behavior (it works fine and 
+> there's no cause for alarm).
 
-Also, I believe that adsl will carry much more services then just AAL5 for internet connection in the future. Even if the ATMSAR actually lacks of AAL1 and AAL2/3 capabilities, adding them in a single, specialized module is much easier than swimming in a usb+atm middle layer.
-
-Finally, the fact that ATMSAR is device-unspecific makes it easier to maintain, I guess.
+This patch wasnt applied, back in February this year. Please do so now.
 
 
-> The codingstyle is broken. Please read again Documentation/CodingStyle,
 
-That's a matter of taste: even Linus burned the GNU coding style book...
-
-However, if it is needed by the linux community, I shurely will fix it whenever the ATMSAR idea will get passed: I'm just gathering feedbacks like the previous one you expressed.
+Quiet an incorrect warning in aty128fb and radeonfb about the PCI ROM
+content. Macs work just find without that signature.
 
 
-> remove the redundant typedef
+Signed-off-by: Olaf Hering <olh@suse.de>
 
-Oh, you mean the "typedef enum _HECSTS ..." ?
+ drivers/video/aty/aty128fb.c    |    2 +-
+ drivers/video/aty/radeon_base.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-You're right, thanks.
-
-
-> and the silly comments ("Reserve 
-> header space",
-> Encode packet into cells", ...).
-
-I would prefer to explain better what the ATMSAR is doing there. So, I'll get your as a "clarify silly comments". Ok?
-
-
-> - &page[strlen(page)] in atmProcRead sucks.
-
-Why? It is preceded by an strcpy(page,...). A constant would be worse if someone changes the prefix string...
-
-Or is a page (a pointer) + strlen(page) (an integer) preferred over a closed syntax?
-
-
-> - "return" is not a function.
-
-Not even for() or while(). But doesn't they look cute this way?
-
-
-> - consider 'goto' to handle the errors instead of deep nesting
-
-I prefer not using goto when not required to. Nesting is far more readable to my opinion. Compilers do work fine with both.
-
-Anyway, which are the functions you are objecting?
-
-
-> - +const atmsar_aalops_t opsAALR = {
->   +       ATM_AAL0,
->   +       "raw",
->   -> use .foo = baz instead.
-
-atmasr_aalops_t is not an exported structure (you'll find just an opaque definition in include/linux/atmsar.h), so it is not meant to be statically declared by device drivers. But I guess that the problem is readability, right?
-
-Ok, I'm going to consider your hint in the next patch version.
-
-
-> drivers/net/*c may give some hint.
-> 
-> --
-> Ueimor
-
-Thank you for your help.
-
-May I ask if this is just your own contribution or if you are in charge of something in the linux and/or linux-atm projects?
-
-Regards,
-
------------------------------------
-Giampaolo Tomassoni - IT Consultant
-Piazza VIII Aprile 1948, 4
-I-53044 Chiusi (SI) - Italy
-Ph: +39-0578-21100
-
+Index: linux-2.6.13-fb-rom/drivers/video/aty/aty128fb.c
+===================================================================
+--- linux-2.6.13-fb-rom.orig/drivers/video/aty/aty128fb.c
++++ linux-2.6.13-fb-rom/drivers/video/aty/aty128fb.c
+@@ -806,7 +806,7 @@ static void __iomem * __init aty128_map_
+ 
+ 	/* Very simple test to make sure it appeared */
+ 	if (BIOS_IN16(0) != 0xaa55) {
+-		printk(KERN_ERR "aty128fb: Invalid ROM signature %x should be 0xaa55\n",
++		printk(KERN_DEBUG "aty128fb: Invalid ROM signature %x should be 0xaa55\n",
+ 		       BIOS_IN16(0));
+ 		goto failed;
+ 	}
+Index: linux-2.6.13-fb-rom/drivers/video/aty/radeon_base.c
+===================================================================
+--- linux-2.6.13-fb-rom.orig/drivers/video/aty/radeon_base.c
++++ linux-2.6.13-fb-rom/drivers/video/aty/radeon_base.c
+@@ -329,7 +329,7 @@ static int __devinit radeon_map_ROM(stru
+ 
+ 	/* Very simple test to make sure it appeared */
+ 	if (BIOS_IN16(0) != 0xaa55) {
+-		printk(KERN_ERR "radeonfb (%s): Invalid ROM signature %x should be"
++		printk(KERN_DEBUG "radeonfb (%s): Invalid ROM signature %x should be"
+ 		       "0xaa55\n", pci_name(rinfo->pdev), BIOS_IN16(0));
+ 		goto failed;
+ 	}

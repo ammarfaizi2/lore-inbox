@@ -1,96 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751259AbVIDIUF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750967AbVIDISO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751259AbVIDIUF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 04:20:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751008AbVIDIUF
+	id S1750967AbVIDISO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 04:18:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750816AbVIDISO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 04:20:05 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:42171 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750968AbVIDIUD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 04:20:03 -0400
-Date: Sun, 4 Sep 2005 01:18:05 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Joel Becker <Joel.Becker@oracle.com>
-Cc: phillips@istop.com, linux-cluster@redhat.com, wim.coekaerts@oracle.com,
-       linux-fsdevel@vger.kernel.org, ak@suse.de, linux-kernel@vger.kernel.org
+	Sun, 4 Sep 2005 04:18:14 -0400
+Received: from agminet02.oracle.com ([141.146.126.229]:57657 "EHLO
+	agminet02.oracle.com") by vger.kernel.org with ESMTP
+	id S1750706AbVIDISN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 04:18:13 -0400
+Date: Sun, 4 Sep 2005 01:17:48 -0700
+From: Mark Fasheh <mark.fasheh@oracle.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: phillips@istop.com, Joel.Becker@oracle.com, linux-cluster@redhat.com,
+       wim.coekaerts@oracle.com, linux-fsdevel@vger.kernel.org, ak@suse.de,
+       linux-kernel@vger.kernel.org
 Subject: Re: [Linux-cluster] Re: GFS, what's remaining
-Message-Id: <20050904011805.68df8dde.akpm@osdl.org>
-In-Reply-To: <20050904080102.GY8684@ca-server1.us.oracle.com>
-References: <20050901104620.GA22482@redhat.com>
-	<200509040022.37102.phillips@istop.com>
-	<20050903214653.1b8a8cb7.akpm@osdl.org>
-	<200509040240.08467.phillips@istop.com>
-	<20050904002828.3d26f64c.akpm@osdl.org>
-	<20050904080102.GY8684@ca-server1.us.oracle.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Message-ID: <20050904081748.GJ21228@ca-server1.us.oracle.com>
+Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
+References: <20050901104620.GA22482@redhat.com> <20050903183241.1acca6c9.akpm@osdl.org> <20050904030640.GL8684@ca-server1.us.oracle.com> <200509040022.37102.phillips@istop.com> <20050903214653.1b8a8cb7.akpm@osdl.org> <20050904061045.GI21228@ca-server1.us.oracle.com> <20050904002343.079daa85.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050904002343.079daa85.akpm@osdl.org>
+Organization: Oracle Corporation
+User-Agent: Mutt/1.5.9i
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joel Becker <Joel.Becker@oracle.com> wrote:
->
-> On Sun, Sep 04, 2005 at 12:28:28AM -0700, Andrew Morton wrote:
-> > If there is already a richer interface into all this code (such as a
-> > syscall one) and it's feasible to migrate the open() tricksies to that API
-> > in the future if it all comes unstuck then OK.
-> > That's why I asked (thus far unsuccessfully):
+On Sun, Sep 04, 2005 at 12:23:43AM -0700, Andrew Morton wrote:
+> > What would be an acceptable replacement? I admit that O_NONBLOCK -> trylock
+> > is a bit unfortunate, but really it just needs a bit to express that -
+> > nobody over here cares what it's called.
 > 
-> 	I personally was under the impression that "syscalls are not
-> to be added".
+> The whole idea of reinterpreting file operations to mean something utterly
+> different just seems inappropriate to me.
+Putting aside trylock for a minute, I'm not sure how utterly different the
+operations are. You create a lock resource by creating a file named after
+it. You get a lock (fd) at read or write level on the resource by calling 
+open(2) with the appropriate mode (O_RDONLY, O_WRONLY/O_RDWR).
+Now that we've got an fd, lock value blocks are naturally represented as
+file data which can be read(2) or written(2).
+Close(2) drops the lock.
 
-We add syscalls all the time.  Whichever user<->kernel API is considered to
-be most appropriate, use it.
+A really trivial usage example from shell:
 
->  I'm also wary of the effort required to hook into process
-> exit.
+node1$ echo "hello world" > mylock
+node2$ cat mylock
+hello world
 
-I'm not questioning the use of a filesystem.  I'm questioning this
-overloading of normal filesystem system calls.  For example (and this is
-just an example!  there's also mknod, mkdir, O_RDWR, O_EXCL...) it would be
-more usual to do
+I could always give a more useful one after I get some sleep :)
 
-	fd = open("/sys/whatever", ...);
-	err = sys_dlm_trylock(fd);
+> You get a lot of goodies when using a filesystem - the ability for
+> unrelated processes to look things up, resource release on exit(), etc.  If
+> those features are valuable in the ocfs2 context then fine.
+Right, they certainly are and I think Joel, in another e-mail on this
+thread, explained well the advantages of using a filesystem.
 
-I guess your current implementation prevents /sys/whatever from ever
-appearing if the trylock failed.  Dunno if that's valuable.
+> But I'd have thought that it would be saner and more extensible to add new
+> syscalls (perhaps taking fd's) rather than overloading the open() mode in
+> this manner.
+The idea behind dlmfs was to very simply export a small set of cluster dlm
+operations to userspace. Given that goal, I felt that a whole set of system
+calls would have been overkill. That said, I think perhaps I should clarify
+that I don't intend dlmfs to become _the_ userspace dlm api, just a simple
+and (imho) intuitive one which could be trivially accessed from any software
+which just knows how to read and write files.
+	--Mark
 
->  Not to mention all the lifetiming that has to be written again.
-> 	On top of that, we lose our cute ability to shell script it.  We
-> find this very useful in testing, and think others would in practice.
-> 
-> >    Are you saying that the posix-file lookalike interface provides
-> >    access to part of the functionality, but there are other APIs which are
-> >    used to access the rest of the functionality?  If so, what is that
-> >    interface, and why cannot that interface offer access to 100% of the
-> >    functionality, thus making the posix-file tricks unnecessary?
-> 
-> 	I thought I stated this in my other email.  We're not intending
-> to extend dlmfs.
+--
+Mark Fasheh
+Senior Software Developer, Oracle
+mark.fasheh@oracle.com
 
-Famous last words ;)
-
->  It pretty much covers the simple DLM usage required of
-> a simple interface.  The OCFS2 DLM does not provide any other
-> functionality.
-> 	If the OCFS2 DLM grew more functionality, or you consider the
-> GFS2 DLM that already has it (and a less intuitive interface via sysfs
-> IIRC), I would contend that dlmfs still has a place.  It's simple to use
-> and understand, and it's usable from shell scripts and other simple
-> code.
-
-(wonders how to do O_NONBLOCK from a script)
-
-
-
-
-I don't buy the general "fs is nice because we can script it" argument,
-really.  You can just write a few simple applications which provide access
-to the syscalls (or the fs!) and then write scripts around those.
-
-Yes, you suddenly need to get a little tarball into users' hands and that's
-a hassle.  And I sometimes think we let this hassle guide kernel interfaces
-(mutters something about /sbin/hotplug), and that's sad.  

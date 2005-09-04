@@ -1,70 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750722AbVIDBAy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750774AbVIDBJq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750722AbVIDBAy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Sep 2005 21:00:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbVIDBAy
+	id S1750774AbVIDBJq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Sep 2005 21:09:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbVIDBJq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Sep 2005 21:00:54 -0400
-Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:7538 "HELO
-	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1750722AbVIDBAy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Sep 2005 21:00:54 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=X/kmRSFq0aLmv9GRc1SUCJwjDc4g2Y6TjwbGCViDZKDRgJSkL9/sZY+e9b/y1IHsDCF6Dc2Wpvtqr35m9VZXvOSf5IdO/sa28GdOQtVFXmOuq0vqiPN5aFBDUU5jBeE00QPo5UDazLv5LQD/b1ENAVlKZnSmvAeM2l9jJXk4YII=  ;
-Message-ID: <431A4767.4030403@yahoo.com.au>
-Date: Sun, 04 Sep 2005 11:01:27 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Andi Kleen <ak@suse.de>, Linux Memory Management <linux-mm@kvack.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6.13] lockless pagecache 2/7
-References: <4317F071.1070403@yahoo.com.au> <4317F0F9.1080602@yahoo.com.au>	 <4317F136.4040601@yahoo.com.au>	 <1125666486.30867.11.camel@localhost.localdomain>	 <p73k6hzqk1w.fsf@verdi.suse.de>  <4318C28A.5010000@yahoo.com.au>	 <1125705471.30867.40.camel@localhost.localdomain>	 <4318FF2B.6000805@yahoo.com.au> <1125768697.14987.7.camel@localhost.localdomain>
-In-Reply-To: <1125768697.14987.7.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 3 Sep 2005 21:09:46 -0400
+Received: from rgminet04.oracle.com ([148.87.122.33]:33529 "EHLO
+	rgminet04.oracle.com") by vger.kernel.org with ESMTP
+	id S1750717AbVIDBJp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Sep 2005 21:09:45 -0400
+Date: Sat, 3 Sep 2005 18:09:12 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: linux clustering <linux-cluster@redhat.com>
+Cc: Wim Coekaerts <wim.coekaerts@oracle.com>, akpm@osdl.org,
+       linux-fsdevel@vger.kernel.org, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Linux-cluster] Re: GFS, what's remaining
+Message-ID: <20050904010912.GJ8684@ca-server1.us.oracle.com>
+Mail-Followup-To: linux clustering <linux-cluster@redhat.com>,
+	Wim Coekaerts <wim.coekaerts@oracle.com>, akpm@osdl.org,
+	linux-fsdevel@vger.kernel.org, Andi Kleen <ak@suse.de>,
+	linux-kernel@vger.kernel.org
+References: <20050901104620.GA22482@redhat.com> <200509030242.36506.phillips@istop.com> <20050903064633.GB4593@ca-server1.us.oracle.com> <200509031821.27070.phillips@istop.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200509031821.27070.phillips@istop.com>
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.10i
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Sad, 2005-09-03 at 11:40 +1000, Nick Piggin wrote:
-> 
->>We'll see how things go. I'm fairly sure that for my usage it will
->>be a win even if it is costly. It is replacing an atomic_inc_return,
->>and a read_lock/read_unlock pair.
-> 
-> 
-> Make sure you bench both AMD and Intel - I'd expect it to be a big loss
-> on AMD because the AMD stuff will perform atomic locked operations very
-> efficiently if they are already exclusive on this CPU or a prefetch_w()
-> on them was done 200+ clocks before.
-> 
+On Sat, Sep 03, 2005 at 06:21:26PM -0400, Daniel Phillips wrote:
+> that fit the configfs-nee-sysfs model?  If it does, the payoff will be about 
+> 500 lines saved.
 
-I will try to get numbers for both.
+	I'm still awaiting your merge of ext3 and reiserfs, because you
+can save probably 500 lines having a filesystem that can create reiser
+and ext3 files at the same time.
 
-I would be surprised if it was a big loss... but I'm assuming
-a locked cmpxchg isn't outlandishly expensive. Basically:
-
-   read_lock_irqsave(cacheline1);
-   atomic_inc_return(cacheline2);
-   read_unlock_irqrestore(cacheline1);
-
-Turns into
-
-   atomic_cmpxchg();
-
-I'll do some microbenchmarks and get back to you. I'm quite
-interested now ;) What sort of AMDs did you have in mind,
-Opterons?
-
-Thanks,
-Nick
+Joel
 
 -- 
-SUSE Labs, Novell Inc.
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Life's Little Instruction Book #267
+
+	"Lie on your back and look at the stars."
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127
+

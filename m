@@ -1,84 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751268AbVIDGyI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751235AbVIDHK3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751268AbVIDGyI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 02:54:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbVIDGyH
+	id S1751235AbVIDHK3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 03:10:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751239AbVIDHK3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 02:54:07 -0400
-Received: from ms-smtp-02.rdc-kc.rr.com ([24.94.166.122]:13760 "EHLO
-	ms-smtp-02.rdc-kc.rr.com") by vger.kernel.org with ESMTP
-	id S1751268AbVIDGyG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 02:54:06 -0400
-From: Paul Misner <paul@misner.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Brand-new notebook useless with Linux...
-Date: Sun, 4 Sep 2005 01:53:57 -0500
-User-Agent: KMail/1.8.2
-References: <200509031859_MC3-1-A720-F705@compuserve.com>
-In-Reply-To: <200509031859_MC3-1-A720-F705@compuserve.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 4 Sep 2005 03:10:29 -0400
+Received: from ganesha.gnumonks.org ([213.95.27.120]:18891 "EHLO
+	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
+	id S1751235AbVIDHK2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 03:10:28 -0400
+Date: Sun, 4 Sep 2005 09:10:26 +0200
+From: Harald Welte <laforge@gnumonks.org>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] New: Omnikey CardMan 4040 PCMCIA Driver
+Message-ID: <20050904071026.GA15212@sunbeam.de.gnumonks.org>
+References: <20050904101218.GM4415@rama.de.gnumonks.org> <20050903215656.GA10187@mipter.zuzino.mipt.ru>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="sdtB3X0nJg68CQEu"
 Content-Disposition: inline
-Message-Id: <200509040153.57751.paul@misner.org>
+In-Reply-To: <20050903215656.GA10187@mipter.zuzino.mipt.ru>
+User-Agent: mutt-ng devel-20050619 (Debian)
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 03 September 2005 5:58 pm, Chuck Ebbert wrote:
-> I just bought a new notebook.  Here is the output from lspci using the
-> latest pci.ids file from sourceforge:
->
-...
-> controller: Broadcom Corporation BCM4318 [AirForce One 54g] 802.11g
-> Wireless LAN Controller (rev 02) 05:09.0 CardBus bridge: Texas Instruments
-> 05:09.4 Class 0805: Texas Instruments PCI6411, PCI6421, PCI6611, PCI6621,
-> PCI7411, PCI7421, PCI7611, PCI7621 Secure Digital (SD) Controller
->
-> None of these work and I can find no support anywhere for them:
->
-> SMBus
-> Audio ("unknown codec")
-> Modem ("no codec available")
-> Wireless
-> FlashMedia
-> SD/MMC
->
-> Additionally, the system clock runs at 2x normal speed with PowerNow
-> enabled.
->
-> Am I stuck with running XP on this thing?
->
-> __
-> Chuck
-> -
 
-You already had an answer on the audio.  Your answer on the wireless is 
-ndiswrapper.  You should really be looking at the Linux r3000 list, which 
-handles much more than that now.  The information for that list is:
+--sdtB3X0nJg68CQEu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-LinuxR3000 mailing list
-LinuxR3000@lists.pcxperience.com
-http://lists.pcxperience.com/cgi-bin/mailman/listinfo/linuxr3000
-Wiki at http://prinsig.se/weekee/
+Thanks for your comments, Alexey.
 
-If those folks don't know how to make you notebook run, you are in serious 
-trouble.  I have a Compaq R3120US, which I learned how to set up from the 
-people over there.  Notebooks are very different from most other computers, 
-and you can expect to take some extra time and effort to get one set up.
+I've now incorprorated all of the requested changes and am testing the
+driver.  If everything is still  fine, I'll repost later today.
 
-An important note about your wireless is that even with ndiswrapper, not all 
-Windows drivers are created equal, and you may need to try several for the 
-same chip from different sources to find one that works.
+--=20
+- Harald Welte <laforge@gnumonks.org>          	        http://gnumonks.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+"Privacy in residential applications is a desirable marketing option."
+                                                  (ETSI EN 300 175-7 Ch. A6)
 
-Good luck with your SD/MMC reader, that tends to be something that doesn't 
-work under Linux because the manufacturers haven't released the information 
-needed to create proper drivers for them.
+--sdtB3X0nJg68CQEu
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Mandriva tends to work great on notebooks, once you install the proper 
-wireless driver, I have had good luck with Mepis as well, and I know many 
-people running Fedora as well.  Your other big challenge, maybe the biggest 
-one, is going to be the display, at least if you have an uncommon display 
-like the 1280 X 800 on my notebook.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-Paul
+iD8DBQFDGp3iXaXGVTD0i/8RAlwpAJ9JfgosTYAAIMPN1N/ThvbZZhsyVgCffWEc
+AVqXpgC3T+BA9xPJqerd/x8=
+=hHbG
+-----END PGP SIGNATURE-----
+
+--sdtB3X0nJg68CQEu--

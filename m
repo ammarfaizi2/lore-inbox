@@ -1,45 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750854AbVIDOUZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750867AbVIDO1b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750854AbVIDOUZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 10:20:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750850AbVIDOUZ
+	id S1750867AbVIDO1b (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 10:27:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750882AbVIDO1b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 10:20:25 -0400
-Received: from ns.suse.de ([195.135.220.2]:61077 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750830AbVIDOUY (ORCPT
+	Sun, 4 Sep 2005 10:27:31 -0400
+Received: from nevyn.them.org ([66.93.172.17]:42398 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S1750850AbVIDO1a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 10:20:24 -0400
-From: Andreas Schwab <schwab@suse.de>
-To: Olaf Hering <olh@suse.de>
-Cc: Jesse Barnes <jbarnes@sgi.com>, Jon Smirl <jonsmirl@gmail.com>,
-       akpm@osdl.org, benh@kernel.crashing.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] quiet non-x86 option ROM warnings
-References: <200502151557.06049.jbarnes@sgi.com>
-	<20050904132704.GA27274@suse.de>
-X-Yow: Quick, sing me the BUDAPEST NATIONAL ANTHEM!!
-Date: Sun, 04 Sep 2005 16:20:10 +0200
-In-Reply-To: <20050904132704.GA27274@suse.de> (Olaf Hering's message of "Sun,
-	4 Sep 2005 15:27:04 +0200")
-Message-ID: <jeu0h0kj8l.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Sun, 4 Sep 2005 10:27:30 -0400
+Date: Sun, 4 Sep 2005 10:27:28 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: Frank van Maarseveen <frankvm@frankvm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13 SMP on Athlon X2: nanosleep returning waay to soon, clock_gettime(CLOCK_REALTIME...) proceeding too fast
+Message-ID: <20050904142728.GA32691@nevyn.them.org>
+Mail-Followup-To: Frank van Maarseveen <frankvm@frankvm.com>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.63.0508182351460.6338@claven.physics.ucsb.edu> <20050830134743.GA26890@janus> <20050904113915.GA13954@janus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050904113915.GA13954@janus>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olaf Hering <olh@suse.de> writes:
+On Sun, Sep 04, 2005 at 01:39:15PM +0200, Frank van Maarseveen wrote:
+> After replacing the kernel on a fresh FC4 install with a stock 2.6.13
+> (using gcc 3.2) and my own config it appears that the clock is going too
+> fast: it gains at least an hour every 12 hours or so. FC4 kernel (rpm:
+> kernel-2.6.11-1.1369_FC4) seems ok
 
-> -		printk(KERN_ERR "radeonfb (%s): Invalid ROM signature %x should be"
-> +		printk(KERN_DEBUG "radeonfb (%s): Invalid ROM signature %x should be"
->  		       "0xaa55\n", pci_name(rinfo->pdev), BIOS_IN16(0));
+Mind sticking this information in bugzilla.kernel.org, bug 5105?
 
-While you are at it you could also add the missing space.
+> annotated output:
+> 
+>       CPU0 CPU1   Total
+> -----------------------
+>      1  0 + 251 = 251
+>      2  0 + 251 = 251
+>      3  0 + 251 = 251
+>      4  0 + 251 = 251
+>      5  0 + 251 = 251
+>      6  52 + 196 = 248		<== (?)
+>      7  251 + 0 = 251
+>      8  251 + 0 = 251
+>      9  251 + 0 = 251
+>     10  251 + 0 = 251
+>     11  251 + 0 = 251
+>     12  251 + 0 = 251
+>     13  251 + 0 = 251
+>     14  251 + 0 = 251
+>     15  251 + 0 = 251
+>     16  147 + 1 = 148		<==
+>     17  0 + 252 = 252
 
-Andreas.
+Hmmmmmmmmmmmmmmmmmmmmmm, very interesting.
+
 
 -- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+Daniel Jacobowitz
+CodeSourcery, LLC

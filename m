@@ -1,77 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751290AbVIDIBk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751286AbVIDIFY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751290AbVIDIBk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 04:01:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbVIDIBk
+	id S1751286AbVIDIFY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 04:05:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbVIDIFY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 04:01:40 -0400
-Received: from agminet04.oracle.com ([141.146.126.231]:20157 "EHLO
-	agminet04.oracle.com") by vger.kernel.org with ESMTP
-	id S1751246AbVIDIBj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 04:01:39 -0400
-Date: Sun, 4 Sep 2005 01:01:02 -0700
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Daniel Phillips <phillips@istop.com>, linux-cluster@redhat.com,
-       wim.coekaerts@oracle.com, linux-fsdevel@vger.kernel.org, ak@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Linux-cluster] Re: GFS, what's remaining
-Message-ID: <20050904080102.GY8684@ca-server1.us.oracle.com>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Daniel Phillips <phillips@istop.com>, linux-cluster@redhat.com,
-	wim.coekaerts@oracle.com, linux-fsdevel@vger.kernel.org, ak@suse.de,
-	linux-kernel@vger.kernel.org
-References: <20050901104620.GA22482@redhat.com> <200509040022.37102.phillips@istop.com> <20050903214653.1b8a8cb7.akpm@osdl.org> <200509040240.08467.phillips@istop.com> <20050904002828.3d26f64c.akpm@osdl.org>
+	Sun, 4 Sep 2005 04:05:24 -0400
+Received: from zproxy.gmail.com ([64.233.162.205]:17990 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751286AbVIDIFX convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 04:05:23 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=YPEYBvVpNq2IaIERBEwJNcHJG+aj2mBH9f+XkiT83NzgzX9vx3HVSmCOxQI5/WVw/l3VYvwaizOjGQRgWoueNYYuSaiwdJti5GCubVFG2+oZ50oy2thRyl+IqpZFHJaezLNLn8kVNF3AqhweMJtNx8GbLAsSREuExZSwl4xGhiY=
+Message-ID: <195c7a9005090401055146141@mail.gmail.com>
+Date: Sun, 4 Sep 2005 16:05:22 +0800
+From: roucaries bastien <roucaries.bastien@gmail.com>
+To: Paul Misner <paul@misner.org>
+Subject: Re: Brand-new notebook useless with Linux...
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200509040153.57751.paul@misner.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050904002828.3d26f64c.akpm@osdl.org>
-X-Burt-Line: Trees are cool.
-X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
-User-Agent: Mutt/1.5.10i
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
+References: <200509031859_MC3-1-A720-F705@compuserve.com>
+	 <200509040153.57751.paul@misner.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 04, 2005 at 12:28:28AM -0700, Andrew Morton wrote:
-> If there is already a richer interface into all this code (such as a
-> syscall one) and it's feasible to migrate the open() tricksies to that API
-> in the future if it all comes unstuck then OK.
-> That's why I asked (thus far unsuccessfully):
-
-	I personally was under the impression that "syscalls are not
-to be added".  I'm also wary of the effort required to hook into process
-exit.  Not to mention all the lifetiming that has to be written again.
-	On top of that, we lose our cute ability to shell script it.  We
-find this very useful in testing, and think others would in practice.
-
->    Are you saying that the posix-file lookalike interface provides
->    access to part of the functionality, but there are other APIs which are
->    used to access the rest of the functionality?  If so, what is that
->    interface, and why cannot that interface offer access to 100% of the
->    functionality, thus making the posix-file tricks unnecessary?
-
-	I thought I stated this in my other email.  We're not intending
-to extend dlmfs.  It pretty much covers the simple DLM usage required of
-a simple interface.  The OCFS2 DLM does not provide any other
-functionality.
-	If the OCFS2 DLM grew more functionality, or you consider the
-GFS2 DLM that already has it (and a less intuitive interface via sysfs
-IIRC), I would contend that dlmfs still has a place.  It's simple to use
-and understand, and it's usable from shell scripts and other simple
-code.
-
-Joel
-
--- 
-
-"The first thing we do, let's kill all the lawyers."
-                                        -Henry VI, IV:ii
-
-Joel Becker
-Senior Member of Technical Staff
-Oracle
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
-
+On 9/4/05, Paul Misner <paul@misner.org> wrote: 
+> On Saturday 03 September 2005 5:58 pm, Chuck Ebbert wrote:
+> > I just bought a new notebook.  Here is the output from lspci using the 
+> > latest pci.ids file from sourceforge:
+> >
+> ...
+> > controller: Broadcom Corporation BCM4318 [AirForce One 54g] 802.11g
+> > Wireless LAN Controller (rev 02) 05:09.0 CardBus bridge: Texas Instruments
+> > 05:09.4 Class 0805: Texas Instruments PCI6411, PCI6421, PCI6611, PCI6621,
+> > PCI7411, PCI7421, PCI7611, PCI7621 Secure Digital (SD) Controller
+> >
+> > None of these work and I can find no support anywhere for them: 
+> >
+> > SMBus
+> > Audio ("unknown codec")
+> > Modem ("no codec available")
+> > Wireless
+> > FlashMedia
+> > SD/MMC
+> >
+> > Additionally, the system clock runs at 2x normal speed with PowerNow 
+> > enabled.
+> >
+> > Am I stuck with running XP on this thing?
+> >
+> > __
+> > Chuck
+> > -
+> 
+> >You already had an answer on the audio.  Your answer on the wireless is
+> >ndiswrapper.  You should really be looking at the Linux r3000 list, which 
+> >handles much more than that now.  The information for that list is:
+> >
+> >LinuxR3000 mailing list
+> >LinuxR3000@lists.pcxperience.com
+> > http://lists.pcxperience.com/cgi-bin/mailman/listinfo/linuxr3000
+> >Wiki at http://prinsig.se/weekee/
+ 
+ 
+Or help to rewrite from scracth broadcom drivers see
+http://bcm-specs.sipsolutions.net/ for the specs. Unfortunatly, I have
+no time to do this but I expect somebody have...
+ 
+> >If those folks don't know how to make you notebook run, you are in serious
+> >trouble.  I have a Compaq R3120US, which I learned how to set up from the 
+> >people over there.  Notebooks are very different from most other computers,
+> >and you can expect to take some extra time and effort to get one set up.
+> 
+> >An important note about your wireless is that even with ndiswrapper, not all 
+> >Windows drivers are created equal, and you may need to try several for the
+> >same chip from different sources to find one that works.
+> 
+> >Good luck with your SD/MMC reader, that tends to be something that doesn't 
+> >work under Linux because the manufacturers haven't released the information
+> >needed to create proper drivers for them.
+> 
+> >Mandriva tends to work great on notebooks, once you install the proper
+> >wireless driver, I have had good luck with Mepis as well, and I know many 
+> >people running Fedora as well.  Your other big challenge, maybe the biggest
+> >one, is going to be the display, at least if you have an uncommon display
+> >like the 1280 X 800 on my notebook.
+> 
+> >Paul 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at   http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

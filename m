@@ -1,71 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932129AbVIDXrt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbVIDXrt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932129AbVIDXrt (ORCPT <rfc822;willy@w.ods.org>);
+	id S932117AbVIDXrt (ORCPT <rfc822;willy@w.ods.org>);
 	Sun, 4 Sep 2005 19:47:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932117AbVIDXal
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbVIDXrs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 19:30:41 -0400
-Received: from allen.werkleitz.de ([80.190.251.108]:34945 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S932118AbVIDXaV
+	Sun, 4 Sep 2005 19:47:48 -0400
+Received: from allen.werkleitz.de ([80.190.251.108]:44161 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S932131AbVIDXam
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 19:30:21 -0400
-Message-Id: <20050904232323.231842000@abc>
+	Sun, 4 Sep 2005 19:30:42 -0400
+Message-Id: <20050904232332.097949000@abc>
 References: <20050904232259.777473000@abc>
-Date: Mon, 05 Sep 2005 01:23:18 +0200
+Date: Mon, 05 Sep 2005 01:23:40 +0200
 From: Johannes Stezenbach <js@linuxtv.org>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Adam Szalkowski <adam@szalkowski.de>
-Content-Disposition: inline; filename=dvb-frontend-cx24110-diseqc-fix2.patch
+Cc: linux-kernel@vger.kernel.org, Manu Abraham <manu@linuxtv.org>
+Content-Disposition: inline; filename=dvb-bt8xx-dst-fix-dvb-c-tuning.patch
 X-SA-Exim-Connect-IP: 84.189.198.88
-Subject: [DVB patch 19/54] frontend: cx24110: another DiSEqC fix
+Subject: [DVB patch 41/54] dst: fix DVB-C tuning
 X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
 X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Adam Szalkowski <adamsz@gmx.net>
+From: Manu Abraham <manu@linuxtv.org>
 
-Fix DiSEqC problems.
+Fix BUG in DVB-C frequency setting.
+Thanks to Peng Cao <caopeng75@gmail.com>
 
-Signed-off-by: Adam Szalkowski <adam@szalkowski.de>
+Signed-off-by: Manu Abraham <manu@linuxtv.org>
 Signed-off-by: Johannes Stezenbach <js@linuxtv.org>
 
- drivers/media/dvb/frontends/cx24110.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/media/dvb/bt8xx/dst.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- linux-2.6.13-git4.orig/drivers/media/dvb/frontends/cx24110.c	2005-09-04 22:28:09.000000000 +0200
-+++ linux-2.6.13-git4/drivers/media/dvb/frontends/cx24110.c	2005-09-04 22:28:10.000000000 +0200
-@@ -398,7 +398,8 @@ static int cx24110_diseqc_send_burst(str
- 		return -EINVAL;
- 
- 	rv = cx24110_readreg(state, 0x77);
--	cx24110_writereg(state, 0x77, rv | 0x04);
-+	if (!(rv & 0x04))
-+		cx24110_writereg(state, 0x77, rv | 0x04);
- 
- 	rv = cx24110_readreg(state, 0x76);
- 	cx24110_writereg(state, 0x76, ((rv & 0x90) | 0x40 | bit));
-@@ -418,14 +419,16 @@ static int cx24110_send_diseqc_msg(struc
- 		cx24110_writereg(state, 0x79 + i, cmd->msg[i]);
- 
- 	rv = cx24110_readreg(state, 0x77);
--	cx24110_writereg(state, 0x77, rv & ~0x04);
--	msleep(30); /* reportedly fixes switching problems */
-+	if (rv & 0x04) {
-+		cx24110_writereg(state, 0x77, rv & ~0x04);
-+		msleep(30); /* reportedly fixes switching problems */
-+	}
- 
- 	rv = cx24110_readreg(state, 0x76);
- 
- 	cx24110_writereg(state, 0x76, ((rv & 0x90) | 0x40) | ((cmd->msg_len-3) & 3));
--	for (i=500; i-- > 0 && !(cx24110_readreg(state,0x76)&0x40);)
--		; /* wait for LNB ready */
-+	for (i=100; i-- > 0 && !(cx24110_readreg(state,0x76)&0x40);)
-+		msleep(1); /* wait for LNB ready */
- 
- 	return 0;
- }
+--- linux-2.6.13-git4.orig/drivers/media/dvb/bt8xx/dst.c	2005-09-04 22:28:35.000000000 +0200
++++ linux-2.6.13-git4/drivers/media/dvb/bt8xx/dst.c	2005-09-04 22:28:37.000000000 +0200
+@@ -359,6 +359,7 @@ static int dst_set_freq(struct dst_state
+ 		state->tx_tuna[3] = (freq >> 8) & 0xff;
+ 		state->tx_tuna[4] = (u8) freq;
+ 	} else if (state->dst_type == DST_TYPE_IS_CABLE) {
++		freq = freq / 1000;
+ 		state->tx_tuna[2] = (freq >> 16) & 0xff;
+ 		state->tx_tuna[3] = (freq >> 8) & 0xff;
+ 		state->tx_tuna[4] = (u8) freq;
 
 --
 

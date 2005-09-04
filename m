@@ -1,47 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932091AbVIDWDQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbVIDWKk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932091AbVIDWDQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 18:03:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932090AbVIDWDQ
+	id S932095AbVIDWKk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 18:10:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbVIDWKk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 18:03:16 -0400
-Received: from cavan.codon.org.uk ([217.147.81.22]:35045 "EHLO
-	cavan.codon.org.uk") by vger.kernel.org with ESMTP id S932091AbVIDWDP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 18:03:15 -0400
-Date: Sun, 4 Sep 2005 23:02:01 +0100
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
-       76306.1226@compuserve.com, linux-kernel@vger.kernel.org
-Subject: Re: Brand-new notebook useless with Linux...
-Message-ID: <20050904220201.GA27033@srcf.ucam.org>
-References: <200509031859_MC3-1-A720-F705@compuserve.com> <E1EBje3-0002GW-00@chiark.greenend.org.uk> <20050904142530.4b906fef.akpm@osdl.org>
-Mime-Version: 1.0
+	Sun, 4 Sep 2005 18:10:40 -0400
+Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:4995 "EHLO
+	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S932095AbVIDWKj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 18:10:39 -0400
+From: Grant Coady <grant_lkml@dodo.com.au>
+To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+Cc: Alan Stern <stern@rowland.harvard.edu>, Jan De Luyck <lkml@kcore.org>,
+       USB Storage list <usb-storage@lists.one-eyed-alien.net>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] Genesys USB 2.0 enclosures
+Date: Mon, 05 Sep 2005 08:10:08 +1000
+Organization: http://bugsplatter.mine.nu/
+Message-ID: <6brmh15ti5rqcb0iia4t4tg7gpm8499at9@4ax.com>
+References: <200509031812.54753.lkml@kcore.org> <Pine.LNX.4.44L0.0509032151040.5675-100000@netrider.rowland.org> <20050904210446.GA16290@one-eyed-alien.net>
+In-Reply-To: <20050904210446.GA16290@one-eyed-alien.net>
+X-Mailer: Forte Agent 2.0/32.652
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050904142530.4b906fef.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on cavan.codon.org.uk); SAEximRunCond expanded to false
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 04, 2005 at 02:25:30PM -0700, Andrew Morton wrote:
-> Matthew Garrett <mgarrett@chiark.greenend.org.uk> wrote:
-> >
-> >  > SD/MMC
-> > 
-> >  Ditto.
-> > 
-> 
-> There are Secure Digital drivers in -mm.  I'm sure Pierre would like a
-> tester..
+On Sun, 4 Sep 2005 14:04:46 -0700, Matthew Dharm <mdharm-kernel@one-eyed-alien.net> wrote:
 
-Not for the TI part, as far as I know. The only specs available are for 
-the PCI register space and the firmware loader interface - there's 
-nothing on how to actually drive the device.
+>On Sat, Sep 03, 2005 at 09:53:19PM -0400, Alan Stern wrote:
+>> On Sat, 3 Sep 2005, Jan De Luyck wrote:
+>> 
+>> > I've posted in the past about problems with these enclosures - increasing the 
+>> > delay seems to fix it, albeit temporarily. The further you go in using the 
+>> > disk in such an enclosure, the higher the udelay() had to be - atleast that's 
+>> > what I'm seeing here (I've got two of these now :/ )
+>> > 
+>> > One permanent fix is adding a powered USB-hub in between the drive enclosures 
+>> > and the computer. Since I've done that, I've no longer seen any of the 
+>> > problems (i've attached the 'fault' log). Weird but true, since the drives 
+>> > come with their own powersupply.
+>> > 
+>> > Hope this helps anyone in the future running into the same problem.
+>> 
+>> This one certainly goes into the Bizarro file.
+>> 
+>> Just out of curiosity -- when you use the powered hub, does the drive work 
+>> even if you remove that delay completely?
+>
+>Aren't USB 2.0 hubs more "intelligent" as part of the requirement to
+>support 1.1 and 2.0 devices?  I wonder if it's really a 2.0 drive, and if
+>the timing is different enough with the hub to make a difference.
 
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+Fixed a USB powered (two USB plugs) Genesys based 2.5" HDD enclosure with 
+extra 5V supply bypass capacitors, the HDD was shutting down without loss 
+of data with a 'soft' 5V supply.  Now USB drive works everywhere except a 
+laptop with a single USB.  HDD uses 700mA, USB is spec'd 500mA per socket.
+
+Some bugs are the hardware :o)
+
+Grant.
+

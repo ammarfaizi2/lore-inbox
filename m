@@ -1,56 +1,194 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbVIDSD2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750986AbVIDSoM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932083AbVIDSD2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 14:03:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932074AbVIDSD1
+	id S1750986AbVIDSoM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 14:44:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750987AbVIDSoM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 14:03:27 -0400
-Received: from wproxy.gmail.com ([64.233.184.203]:8578 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750971AbVIDSD1 convert rfc822-to-8bit
+	Sun, 4 Sep 2005 14:44:12 -0400
+Received: from smtp2.libero.it ([193.70.192.52]:53891 "EHLO smtp2.libero.it")
+	by vger.kernel.org with ESMTP id S1750979AbVIDSoL convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 14:03:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ib7851Ghzt0zLVk+9mpn49KMI325xTNEtmU40cCdJDXkVPNRZGu2y/cafWWz8fuODduAUHc8HlwbnjXdYf76MkyjxGngr/ZAIO+lftPloQiykfFxZFIpTtODDBIzL93dKiR2FYmDJXoWCVPhXspmHSbmzQvlesfm3CMhSkfMCXk=
-Message-ID: <924c288305090411038aa80f8@mail.gmail.com>
-Date: Sun, 4 Sep 2005 11:03:21 -0700
-From: Hua Zhong <hzhong@gmail.com>
-To: linux clustering <linux-cluster@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       phillips@istop.com, wim.coekaerts@oracle.com,
-       linux-fsdevel@vger.kernel.org, ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [Linux-cluster] Re: GFS, what's remaining
-In-Reply-To: <20050904091118.GZ8684@ca-server1.us.oracle.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050901104620.GA22482@redhat.com>
-	 <200509040022.37102.phillips@istop.com>
-	 <20050903214653.1b8a8cb7.akpm@osdl.org>
-	 <200509040240.08467.phillips@istop.com>
-	 <20050904002828.3d26f64c.akpm@osdl.org>
-	 <20050904080102.GY8684@ca-server1.us.oracle.com>
-	 <20050904011805.68df8dde.akpm@osdl.org>
-	 <20050904091118.GZ8684@ca-server1.us.oracle.com>
+	Sun, 4 Sep 2005 14:44:11 -0400
+From: "Giampaolo Tomassoni" <g.tomassoni@libero.it>
+To: "Francois Romieu" <romieu@fr.zoreil.com>
+Cc: <linux-kernel@vger.kernel.org>, <linux-atm-general@lists.sourceforge.net>
+Subject: R: R: [Linux-ATM-General] [ATMSAR] Request for review - update #1
+Date: Sun, 4 Sep 2005 20:44:01 +0200
+Message-ID: <NBBBIHMOBLOHKCGIMJMDIEIIEKAA.g.tomassoni@libero.it>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <20050904153241.GA7779@electric-eye.fr.zoreil.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->        takelock domainxxx lock1
->        do sutff
->        droplock domainxxx lock1
+> -----Messaggio originale-----
+> Da: Francois Romieu [mailto:romieu@fr.zoreil.com]
+> Inviato: domenica 4 settembre 2005 17.33
+> A: Giampaolo Tomassoni
+> Cc: linux-kernel@vger.kernel.org;
+> linux-atm-general@lists.sourceforge.net
+> Oggetto: Re: R: [Linux-ATM-General] [ATMSAR] Request for review - update #1
 > 
-> When someone kills the shell, the lock is leaked, becuase droplock isn't
-> called.
+> ...omissis...
+> 
+> I'd be happily surprized to see more documented ADSL PCI/USB device in the
+> near future. :o(
 
-Why not open the lock resource (or the lock space) instead of
-individual locks as file? It then looks like this:
+OT Question. What about an open adsl device? The linux community had been bumped out by the adsl market for at least a couple of years, and nobody knows (or tells) why...
 
-open lock space file
-takelock lockresource lock1
-do stuff
-droplock lockresource lock1
-close lock space file
+That could be a definitive answer. Is there anybody interested in this?
 
-Then if you are killed the ->release of lock space file should take
-care of cleaning up all the locks
+
+> 
+> ...omissis...
+> 
+> > Finally, the fact that ATMSAR is device-unspecific makes it easier to
+> > maintain, I guess.
+> 
+> Ok. Your suggestion may have more impact if there is a patch to convert
+> the sole existing in-kernel driver to use this module.
+
+Mmmh. I can try to do this, but I would prefer to hear Sands about this.
+
+
+>
+> ...omissis
+>
+> An uniform codingstyle is useful when people need to review code. 
+> Something is wrong when a reviewer must uncipher a piece of code.
+> You will find areas in the kernel whose trends differ but a codingstyle
+> from Mars is usually a hint. So it is not _only_ a matter of taste.
+
+Ok, ok. I'll (try to) behave...
+
+
+> 
+> ...omissis...
+> 
+> You may have more feedback/review then. I only gave a cursory look at the
+> code.
+
+Right, that's what I'm looking for.
+
+
+> 
+> ...omissis...
+> 
+> Rather the "typedef struct atmsar_dev atmsar_dev_t;" (yes, I know the "It
+> saves typing" argument). Maybe something could be done at the same time
+> regarding the need for the forward declarations.
+
+Well, fine. I'll "struct _whatever *". But atmsar_dev_t no, that nonono: it mimics the atm_dev_t typedef... It's all around the idea a developer needs to use atmsar_dev_t instead of atm_dev_t...
+
+
+>
+> ...omissis...
+>
+> s/what/why/
+> 
+> And no, documenting a call to skb_reserve is silly.
+
+...
+
+
+> 
+> ...omissis...
+> 
+> The value returned by sprintf and friends contains the needed offset, i.e.
+> buf += sprintf(buf, ...);.
+
+I used an strcpy() to put the constant string in the buffer. However, I'm changing it this way:
+
+        if(skip-- == 0) {
+                count = strlen(strcpy(page, "dnrate:\t"));
+                if(dev->rx_speed != ATMSAR_SPEED_UNSPEC)
+                        count += sprintf(
+                                &page[count],
+                                "%ld kbps\n",
+                                dev->rx_speed
+                        );
+                else
+                        count += strlen(strcpy(&page[count], "unknown\n"));
+                return(count);
+        }
+
+
+> [...]
+> > > - "return" is not a function.
+> > 
+> > Not even for() or while(). But doesn't they look cute this way?
+> 
+> No.
+> 
+> for (), while (), return rc;
+
+...
+
+
+> [...]
+> > > - consider 'goto' to handle the errors instead of deep nesting
+> > 
+> > I prefer not using goto when not required to. Nesting is far 
+> more readable
+> > to my opinion.
+> 
+> OTOH, it makes ugly code to have it fit in a 80 columns console.
+> 
+> [...]
+> > Anyway, which are the functions you are objecting?
+> 
+> atmSend. Probably others.
+> 
+> If you can make the code look like existing in-kernel code (not fs/cifs
+> please) say network or ata driver code and you do not need goto, it's fine
+> too.
+
+Mmmmh. I'll check it out.
+
+
+> > > - +const atmsar_aalops_t opsAALR = {
+> > >   +       ATM_AAL0,
+> > >   +       "raw",
+> > >   -> use .foo = baz instead.
+> > 
+> > atmasr_aalops_t is not an exported structure (you'll find just an opaque
+> > definition in include/linux/atmsar.h), so it is not meant to be 
+> statically
+> > declared by device drivers. But I guess that the problem is readability,
+> > right?
+> 
+> struct foo zoy {
+> 	.bar	= barbar,
+> 	.baz	= bazbaz,
+> 	.quuz	= ...
+> };
+
+...
+
+
+> [...]
+> > May I ask if this is just your own contribution or if you are 
+> in charge of
+> > something in the linux and/or linux-atm projects?
+> 
+> /me scratches head
+> 
+> http://ww.google.com/search?hl=en&q=romieu+linux+cabal
+
+That was to give the right wedge to your hints. If you were just around this list, your hints had a different value than if you were a committer. Am I wrong?
+
+Thanks,
+
+-----------------------------------
+Giampaolo Tomassoni - IT Consultant
+Piazza VIII Aprile 1948, 4
+I-53044 Chiusi (SI) - Italy
+Ph: +39-0578-21100
+

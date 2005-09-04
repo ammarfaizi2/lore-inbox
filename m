@@ -1,46 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750765AbVIDMtp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbVIDM7K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750765AbVIDMtp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 08:49:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750775AbVIDMtp
+	id S1750807AbVIDM7K (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 08:59:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750812AbVIDM7K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 08:49:45 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:58303 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S1750765AbVIDMto (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 08:49:44 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Alex Davis <alex14641@yahoo.com>
-Subject: Re: RFC: i386: kill !4KSTACKS
-Date: Sun, 4 Sep 2005 15:49:17 +0300
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org
-References: <20050902060830.84977.qmail@web50208.mail.yahoo.com>
-In-Reply-To: <20050902060830.84977.qmail@web50208.mail.yahoo.com>
+	Sun, 4 Sep 2005 08:59:10 -0400
+Received: from smtprelay04.ispgateway.de ([80.67.18.16]:34516 "EHLO
+	smtprelay04.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1750807AbVIDM7J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 08:59:09 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: Harald Welte <laforge@gnumonks.org>
+Subject: Re: [PATCH] New: Omnikey CardMan 4040 PCMCIA Driver
+Date: Sun, 4 Sep 2005 14:58:27 +0200
+User-Agent: KMail/1.7.2
+Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+References: <20050904101218.GM4415@rama.de.gnumonks.org>
+In-Reply-To: <20050904101218.GM4415@rama.de.gnumonks.org>
 MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1635815.ehtM9xSVJF";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200509041458.33341.ioe-lkml@rameria.de>
+Sender: linux-kernel-owner@vger.kernel.org
+X-Mailing-List: linux-kernel@vger.kernel.org
+
+--nextPart1635815.ehtM9xSVJF
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200509041549.17512.vda@ilport.com.ua>
-Sender: linux-kernel-owner@vger.kernel.org
-X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 02 September 2005 09:08, Alex Davis wrote:
-> ndiswrapper and driverloader will not work reliably with 4k stacks.
-> This is because of the Windoze drivers they use, to which, obviously,
-> they do not have the source. Since quite a few laptops have built-in
-> wireless cards by companies who will not release an open-source driver,
-> or won't release specs, ndiswrapper and driverloader are the only way
-> to get these cards to work. 
->   Please don't tell me to "get a linux-supported wireless card". I don't
-> want the clutter of an external wireless adapter sticking out of my laptop,
-> nor do I want to spend money on a card when I have a free and working solution.
+On Sunday 04 September 2005 12:12, Harald Welte wrote:
+> cmx_llseek
 
-Please don't tell me to "care for closed-source drivers". I don't
-want the pain of debugging crashes on the machines which run unknown code
-in kernel space.
+just use
 
-IOW, if you run closed source modules - it's _your_ problem, not ours.
---
-vda
+	return nonseekable_open(inode, filp);
+
+as your last statement in cmx_open() instead of
+
+	return 0;
+
+to really disable any file pointer positioning (e.g. pwrite/pread too).
+
+Addtionally cmx_llseek() is implement already as "no_llseek()"
+by the VFS, so you delete it from the driver an use no_llseek() from
+the VFS instead.
+
+
+Regards
+
+Ingo Oeser
+
+
+--nextPart1635815.ehtM9xSVJF
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDGu95U56oYWuOrkARAmfGAKDauKDj0CvpohqDm5p7UpjEUwzqEACeM0Jo
+/Q5Q9o0GW4DO9CeqLChsiRA=
+=OSQJ
+-----END PGP SIGNATURE-----
+
+--nextPart1635815.ehtM9xSVJF--

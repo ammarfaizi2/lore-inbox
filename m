@@ -1,62 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751099AbVIDUNN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751098AbVIDULE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751099AbVIDUNN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 16:13:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbVIDUNM
+	id S1751098AbVIDULE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 16:11:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751099AbVIDULE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 16:13:12 -0400
-Received: from wproxy.gmail.com ([64.233.184.206]:37285 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751099AbVIDUNL convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 16:13:11 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=J0c247lNNoesGiUUmFIX0UdGeg2t6+AM9t7g8GNTaXggxJZAMaIDkeJfkkrDv12JErTxUGGYrLS9eHBv1O0i6l3UkWHEW2JIqGFboGlFPCmAZnzG8+V9G+nwl8PVUBT6T25nuh1bb5cNWICA/djYF4S7mGfvUmHKwa9aXvPwaL4=
-Message-ID: <6880bed305090413132c37fed3@mail.gmail.com>
-Date: Sun, 4 Sep 2005 22:13:10 +0200
-From: Bas Westerbaan <bas.westerbaan@gmail.com>
-Reply-To: bas.westerbaan@gmail.com
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: RFC: i386: kill !4KSTACKS
-Cc: Pekka Enberg <penberg@cs.helsinki.fi>, Paul Misner <paul@misner.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050904193350.GA3741@stusta.de>
+	Sun, 4 Sep 2005 16:11:04 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:15584 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751098AbVIDULB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 16:11:01 -0400
+Date: Sun, 4 Sep 2005 13:10:54 -0700
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, vatsa@in.ibm.com,
+       linux-kernel@vger.kernel.org, akpm@osdl.org,
+       ck list <ck@vds.kolivas.org>
+Subject: Re: [PATCH 1/3] dynticks - implement no idle hz for x86
+Message-ID: <20050904201054.GA4495@us.ibm.com>
+References: <20050831165843.GA4974@in.ibm.com> <200509031801.09069.kernel@kolivas.org> <20050903090650.B26998@flint.arm.linux.org.uk> <200509031814.49666.kernel@kolivas.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20050902060830.84977.qmail@web50208.mail.yahoo.com>
-	 <200509041549.17512.vda@ilport.com.ua>
-	 <200509041144.13145.paul@misner.org>
-	 <84144f02050904100721d3844d@mail.gmail.com>
-	 <6880bed305090410127f82a59f@mail.gmail.com>
-	 <20050904193350.GA3741@stusta.de>
+In-Reply-To: <200509031814.49666.kernel@kolivas.org>
+X-Operating-System: Linux 2.6.13 (i686)
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Though 4K stacks are used a lot, they probably aren't used on all
-> > configurations yet. Other situations may arise where 8K stacks may be
-> > preferred. It is too early to kill 8K stacks imho.
+On 03.09.2005 [18:14:48 +1000], Con Kolivas wrote:
+> On Sat, 3 Sep 2005 18:06, Russell King wrote:
+> > On Sat, Sep 03, 2005 at 06:01:08PM +1000, Con Kolivas wrote:
+> > > On Sat, 3 Sep 2005 17:58, Russell King wrote:
+> > > > On Sat, Sep 03, 2005 at 04:13:10PM +1000, Con Kolivas wrote:
+> > > > > Noone's ignoring you.
+> > > > >
+> > > > > What we need to do is ensure that dynamic ticks is working properly
+> > > > > on x86 and worth including before anything else. If and when we
+> > > > > confirm this it makes sense only then to try and merge code from the
+> > > > > other 2 architectures to as much common code as possible as no doubt
+> > > > > we'll be modifying other architectures we're less familiar with. At
+> > > > > that stage we will definitely want to tread even more cautiously at
+> > > > > that stage.
+> > > >
+> > > > dyntick has all the hallmarks of ending up another mess just like the
+> > > > "generic" (hahaha) irq stuff in kernel/irq - it's being developed in
+> > > > precisely the same way - by ignore non-x86 stuff.
+> > > >
+> > > > I can well see that someone will say "ok, this is ready, merge it"
+> > > > at which point we then end up with multiple differing userspace
+> > > > methods of controlling it depending on the architecture, but
+> > > > multiple differing kernel interfaces as well.
+> > > >
+> > > > Indeed, you seem to be at the point where you'd like akpm to merge
+> > > > it.  That sets alarm bells ringing if you haven't considered these
+> > > > issues.
+> > > >
+> > > > I want to avoid that.  Just because a couple of people say "we'll
+> > > > deal with that later" it's no guarantee that it _will_ happen.  I
+> > > > want to ensure that ARM doesn't get fscked over again like it did
+> > > > with the generic IRQ crap.
+> > >
+> > > Ok I'll make it clearer. We don't merge x86 dynticks to mainline till all
+> > > are consolidated in -mm.
+> >
+> > Does this mean you're seriously going to rewrite bits of it after
+> > you've spent what seems like months sorting out all the problems
+> > currently being found?
+> >
+> > Excuse me for being stupid, but I somehow don't see that happening.
+> > Those months would be effectively wasted effort, both on the side
+> > of the people working on the patches and those testing them.
 > 
-> Please name situations where 8K stacks may be preferred that do not
-> involve binary-only modules.
+> I've personally been on this code for 3 separate days in total and have no 
+> deadline or requirement for this to go in ever so I should stop speaking on 
+> behalf of the others.
 
-I meant that there could be situations, which have not yet been found,
-where it could be preferred to use 8K stacks instead of 4K. When you
-switch from having 8K stacks as default to 4K stacks without
-possibility for 8K stacks you'd possibly encounter these yet to be
-found situations.
+To join in this conversation late:
 
-When on the other hand the 4K stacks are set as default, leaving the
-option in, instead of removing it, these possible situations, when
-found, could be resolved (temporarilly) by switching back to 8K
-stacks.
+I've got a few ideas that I think might help push Con's patch coalescing
+efforts in an arch-independent fashion.
 
-After a while having 4K stacks as default would be a better time to
-decide whether to remove the option or not instead of now.
+First of all, and maybe this is just me, I think it would be good to
+make the dyn_tick_timer per-interrupt source, as opposed to each arch?
+Thus, for x86, we would have a dyn_tick_timer structure for the PIT,
+APIC, ACPI PM-timer and the HPET. These structures could be put in
+arch-specific timer.c files (there currently is not one for x86, I
+believe). Then, at compilation time, the appropriate structure would be
+linked to the arch-generic code. That should make the arch-independent
+code simple to implement (I do have some patches in the works, but it's
+slow going, right now, sorry). I think ARM and s390 could perhaps use
+this infrastructure as well?
 
--- 
-Bas Westerbaan
-http://blog.w-nz.com/
-GPG Public Keys: http://w-nz.com/keys/bas.westerbaan.asc
+Also, I am a bit confused by the use of "dynamic-tick" to describe these
+changes. To me, these are all NO_IDLE_HZ implementations, as they are
+only invoked from cpu_idle() (or their equivalent) routines. I know this
+is true of s390 and the x86 code, and I believe it is true of the ARM
+code? If it were dynamic-tick, I would think we would be adjusting the
+timer interrupt frequency continuously (e.g., at the end of
+__run_timers() and at every call to {add,mod,del}_timer()). I was
+working on a patch which did some renaming to no_idle_hz_timer, etc.,
+but it's mostly code churn :)
+
+Con, wrt to the x86 implementation, I think the max_skip field should be
+a member of the interrupt source (dyn_tick_timer) structure, as opposed
+to the state. This would require dyn_tick_reprogram_timer() to change
+slightly: either push the max_skip check into arch-specific code (and
+then have arch_reprogram() return the actual number of jiffies
+programmed to skip) or simply change the check conditional.
+
+Also, what exactly the purpose of conditional_run_local_timers()? It
+seems identical to run_local_timers(), except you check for inequality
+before potentially raising the softirq. It seems like the conditional
+check in run_timer_softirq() [the TIMER_SOFTIRQ callback] will achieve
+the same thing? And, in fact, I think that conditional is always true?
+At the end of __run_timers, base->timer_jiffies should be greater than
+jiffies by 1.
+
+In any case, sorry for all the words and no code... I will try and
+rectify that soon. I think it *is* possible to do some architecting now,
+so that other architectures can also easily implement no_idle_hz.
+
+Thanks,
+Nish

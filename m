@@ -1,60 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932115AbVIDXuF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbVIDXtx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932115AbVIDXuF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 19:50:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932128AbVIDXuC
+	id S932119AbVIDXtx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 19:49:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932115AbVIDXaf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 19:50:02 -0400
-Received: from allen.werkleitz.de ([80.190.251.108]:40577 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S932122AbVIDXaf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 4 Sep 2005 19:30:35 -0400
-Message-Id: <20050904232327.627552000@abc>
+Received: from allen.werkleitz.de ([80.190.251.108]:33665 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S932116AbVIDXaS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 19:30:18 -0400
+Message-Id: <20050904232322.072462000@abc>
 References: <20050904232259.777473000@abc>
-Date: Mon, 05 Sep 2005 01:23:29 +0200
+Date: Mon, 05 Sep 2005 01:23:15 +0200
 From: Johannes Stezenbach <js@linuxtv.org>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Patrick Boettcher <pb@linuxtv.org>
-Content-Disposition: inline; filename=dvb-usb-vp7045-whitespace-cleanup.patch
+Cc: linux-kernel@vger.kernel.org, Andrew de Quincey <adq_dvb@lidskialf.net>
+Content-Disposition: inline; filename=dvb-frontend-tda1004x-snr-fix.patch
 X-SA-Exim-Connect-IP: 84.189.198.88
-Subject: [DVB patch 30/54] usb: white space cleanup
+Subject: [DVB patch 16/54] frontend: tda1004x: fix SNR reading
 X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
 X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Patrick Boettcher <pb@linuxtv.org>
+From: Andrew de Quincey <adq_dvb@lidskialf.net>
 
-white space cleanup
+Fix SNR reading
 
-Signed-off-by: Patrick Boettcher <pb@linuxtv.org>
+Signed-off-by: Andrew de Quincey <adq_dvb@lidskialf.net>
 Signed-off-by: Johannes Stezenbach <js@linuxtv.org>
 
- drivers/media/dvb/dvb-usb/vp7045.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/media/dvb/frontends/tda1004x.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- linux-2.6.13-git4.orig/drivers/media/dvb/dvb-usb/vp7045.c	2005-09-04 22:28:21.000000000 +0200
-+++ linux-2.6.13-git4/drivers/media/dvb/dvb-usb/vp7045.c	2005-09-04 22:28:23.000000000 +0200
-@@ -164,7 +164,6 @@ static int vp7045_read_eeprom(struct dvb
- 	return 0;
- }
+--- linux-2.6.13-git4.orig/drivers/media/dvb/frontends/tda1004x.c	2005-09-04 22:24:24.000000000 +0200
++++ linux-2.6.13-git4/drivers/media/dvb/frontends/tda1004x.c	2005-09-04 22:28:07.000000000 +0200
+@@ -1046,8 +1046,7 @@ static int tda1004x_read_snr(struct dvb_
+ 	tmp = tda1004x_read_byte(state, TDA1004X_SNR);
+ 	if (tmp < 0)
+ 		return -EIO;
+-	if (tmp)
+-		tmp = 255 - tmp;
++	tmp = 255 - tmp;
  
--
- static int vp7045_read_mac_addr(struct dvb_usb_device *d,u8 mac[6])
- {
- 	return vp7045_read_eeprom(d,mac, 6, MAC_0_ADDR);
-@@ -256,9 +255,9 @@ static struct dvb_usb_properties vp7045_
- static struct usb_driver vp7045_usb_driver = {
- 	.owner		= THIS_MODULE,
- 	.name		= "dvb_usb_vp7045",
--	.probe 		= vp7045_usb_probe,
-+	.probe		= vp7045_usb_probe,
- 	.disconnect = dvb_usb_device_exit,
--	.id_table 	= vp7045_usb_table,
-+	.id_table	= vp7045_usb_table,
- };
- 
- /* module stuff */
+ 	*snr = ((tmp << 8) | tmp);
+ 	dprintk("%s: snr=0x%x\n", __FUNCTION__, *snr);
 
 --
 

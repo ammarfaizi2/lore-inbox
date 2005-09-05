@@ -1,94 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932211AbVIEFdI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932216AbVIEFjA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932211AbVIEFdI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 01:33:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932213AbVIEFdI
+	id S932216AbVIEFjA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 01:39:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932222AbVIEFjA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 01:33:08 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:45045 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932211AbVIEFdH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 01:33:07 -0400
-Date: Mon, 5 Sep 2005 11:02:25 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Nishanth Aravamudan <nacc@us.ibm.com>, Con Kolivas <kernel@kolivas.org>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org,
-       ck list <ck@vds.kolivas.org>, rmk+lkml@arm.linux.org.uk
-Subject: Re: [PATCH 1/3] dynticks - implement no idle hz for x86
-Message-ID: <20050905053225.GA4294@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20050831165843.GA4974@in.ibm.com> <200509031801.09069.kernel@kolivas.org> <20050903090650.B26998@flint.arm.linux.org.uk> <200509031814.49666.kernel@kolivas.org> <20050904201054.GA4495@us.ibm.com> <20050904212616.B11265@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050904212616.B11265@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+	Mon, 5 Sep 2005 01:39:00 -0400
+Received: from mail2.asahi-net.or.jp ([202.224.39.198]:12514 "EHLO
+	mail.asahi-net.or.jp") by vger.kernel.org with ESMTP
+	id S932216AbVIEFi7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 01:38:59 -0400
+Message-ID: <431BD9BC.8090306@thinrope.net>
+Date: Mon, 05 Sep 2005 14:38:04 +0900
+From: Kalin KOZHUHAROV <kalin@thinrope.net>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050804)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Parag Warudkar <kernel-stuff@comcast.net>
+Cc: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11.11 and rsync oops (SATA related?)
+References: <dfg2i0$p2e$1@sea.gmane.org> <9a87484905090417183c26a5a5@mail.gmail.com> <431BD2DC.8040206@comcast.net>
+In-Reply-To: <431BD2DC.8040206@comcast.net>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 04, 2005 at 09:26:16PM +0100, Russell King wrote:
-> I'd be really surprised if any architecture couldn't use what ARM has
-> today - in other words, this is the only kernel-side interface:
+Parag Warudkar wrote:
+> Jesper Juhl wrote:
+> 
+>> It seems you forgot to include the data.  Nothing inline in the email,
+>> nor any attachments.
 
-Russel,
-	I went thr' the ARM implementation and have some remarks (mostly
-from a SMP perspective):
+Sorry for that, I really forgot to include the attachments at first, 
+then send the mail, then canceled it (on gmane.org), then send another 
+mail with the attachments.
 
-1. On a SMP platform, we want to let individual CPUs "sleep" independent of 
-   each other. What this mean is there has to be some way of tracking which
-   CPU's are sleeping currently, so that code like RCU ignores sleeping CPUs.
-   This was the reason nohz_cpu_mask bitmap was added. I don't see that
-   bitmap being updated at all in ARM implementation.
+> I could see the attachments and inline dmesg - probably your mail server 
+> is at it.
+Jesper was just to quick to notice my mistake :-) But I thought that I 
+don't need to reply to him to increase the S/N ratio...
 
-2. On architectures like x86 there is a separate jiffy interrupt source 
-   (PIT) which is used to update time-of-day. This is different from the
-   HZ timer interrupts used on each CPU (local apic timer). When all 
-   CPUs are idle and sleeping, we want to shut off this PIT timer as well.
-   That's why I added 'arch_all_cpus_idle' interface. One could argue that
-   this can be done as part of the dyn_tick->reprogram interface as well,
-   but I felt that having a separate arch_all_cpus_idle is cleaner and
-   makes it clear what its purpose is.
-
-3. The fact that we want to manipulate the bitmap (set a bit when CPU is going
-   idle and unset it when it is waking up) _and_ the fact that want to take
-   some action when all CPUs are idle or when the first CPU is waking up, 
-   requires the use of a spinlock, which is again not present in the ARM 
-   implementation.
-
-4. Again the fact that CPUs could be sleeping independent of each other
-   requires do_IRQ to check out whether the current CPU was sleeping as 
-   its first step. If the CPU was sleeping, it needs to unset itself
-   from the bitmap _and_ if we are coming out of "all-cpu-asleep" state,
-   the PIT timer needs to be restarted as well as time recovered. Note
-   that these two steps need not be undertaken if we were not in 
-   "all-cpus-asleep" state.
-
-I don't see provisions for all these in the current ARM implementation.
-In fact the x86 patch that Tony/Con posted didnt take into account most of these
-as well, which is the reason I jumped in to fix the above issues.
-
-5. Don't see how DYN_TICK_SKIPPING is being used. In SMP scenario,
-   it doesnt make sense since it will have to be per-cpu. The bitmap
-   that I talked of exactly tells that (whether a CPU is skipping
-   ticks or not).
-
-6. S390 makes use of notifier mechanism to notify when CPUs are coming
-   in and out of idle state. Don't know how it will be used in other
-   arches. But obviously, if we are talking of unifying, we have to
-   provide one.
-
-I hope this makes clear why some of the rework happened, which
-in a way is extending the interface that ARM already has. Having
-said all these, I do agree that having a consistent interface 
-is good (for example: x86 has dyn_tick_state structure whereas
-ARM uses dyn_tick_timer strucuture itself to store the state etc).
-   
+Kalin.
 
 -- 
+|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
++-> http://ThinRope.net/ <-+
+|[ ______________________ ]|
 
-
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560017

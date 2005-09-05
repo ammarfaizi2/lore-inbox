@@ -1,108 +1,202 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932389AbVIEScx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbVIESdI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932389AbVIEScx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 14:32:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932390AbVIEScx
+	id S932395AbVIESdI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 14:33:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbVIESc5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 14:32:53 -0400
-Received: from fep30-0.kolumbus.fi ([193.229.0.32]:54883 "EHLO
+	Mon, 5 Sep 2005 14:32:57 -0400
+Received: from fep30-0.kolumbus.fi ([193.229.0.32]:47459 "EHLO
 	fep30-app.kolumbus.fi") by vger.kernel.org with ESMTP
-	id S932389AbVIEScw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S932385AbVIEScw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 5 Sep 2005 14:32:52 -0400
-Message-Id: <20050905183247.593067000@kohtala.home.org>
+Message-Id: <20050905183245.134152000@kohtala.home.org>
 References: <20050905183109.284672000@kohtala.home.org>
-Date: Mon, 05 Sep 2005 21:31:17 +0300
+Date: Mon, 05 Sep 2005 21:31:11 +0300
 From: marko.kohtala@gmail.com
 To: akpm@osdl.org
 Cc: linux-parport@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: [patch 08/10] parport: ieee1284 fixes and cleanups
-Content-Disposition: inline; filename=parport-correct-dependency-on-parport-pc-rather-than-just-parport.patch
+Subject: [patch 02/10] parport: ieee1284 fixes and cleanups
+Content-Disposition: inline; filename=parport-fix-read-nibble.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Make drivers that use directly PC parport HW depend on PARPORT_PC
-rather than HW independent PARPORT.
+Did not move the parport interface properly into IEEE1284_PH_REV_IDLE
+phase at end of data due to comparing bytes with nibbles. Internal
+phase IEEE1284_PH_HBUSY_DNA became unused, so remove it.
 
 Signed-off-by: Marko Kohtala <marko.kohtala@gmail.com>
 
 ---
 
- drivers/block/Kconfig        |    2 +-
- drivers/block/paride/Kconfig |    5 +++--
- drivers/scsi/Kconfig         |    8 ++++----
- 3 files changed, 8 insertions(+), 7 deletions(-)
+ drivers/media/video/cpia_pp.c  |   30 ++++++++-----------
+ drivers/parport/ieee1284_ops.c |   62 +++++++++++++++++++----------------------
+ include/linux/parport.h        |    1 
+ 3 files changed, 42 insertions(+), 51 deletions(-)
 
-Index: linux-dvb/drivers/block/Kconfig
+Index: linux-dvb/drivers/media/video/cpia_pp.c
 ===================================================================
---- linux-dvb.orig/drivers/block/Kconfig	2005-06-23 22:12:45.000000000 +0300
-+++ linux-dvb/drivers/block/Kconfig	2005-06-24 13:03:46.000000000 +0300
-@@ -117,7 +117,7 @@ config BLK_DEV_XD
+--- linux-dvb.orig/drivers/media/video/cpia_pp.c	2005-05-30 19:44:27.000000000 +0300
++++ linux-dvb/drivers/media/video/cpia_pp.c	2005-05-30 19:48:30.000000000 +0300
+@@ -170,16 +170,9 @@ static size_t cpia_read_nibble (struct p
+ 		/* Does the error line indicate end of data? */
+ 		if (((i /*& 1*/) == 0) &&
+ 		    (parport_read_status(port) & PARPORT_STATUS_ERROR)) {
+-			port->physport->ieee1284.phase = IEEE1284_PH_HBUSY_DNA;
+-				DBG("%s: No more nibble data (%d bytes)\n",
+-				port->name, i/2);
+-
+-			/* Go to reverse idle phase. */
+-			parport_frob_control (port,
+-					      PARPORT_CONTROL_AUTOFD,
+-					      PARPORT_CONTROL_AUTOFD);
+-			port->physport->ieee1284.phase = IEEE1284_PH_REV_IDLE;
+-			break;
++			DBG("%s: No more nibble data (%d bytes)\n",
++			    port->name, i/2);
++			goto end_of_data;
+ 		}
  
- config PARIDE
- 	tristate "Parallel port IDE device support"
--	depends on PARPORT
-+	depends on PARPORT_PC
- 	---help---
- 	  There are many external CD-ROM and disk devices that connect through
- 	  your computer's parallel port. Most of them are actually IDE devices
-Index: linux-dvb/drivers/block/paride/Kconfig
+ 		/* Event 7: Set nAutoFd low. */
+@@ -227,18 +220,21 @@ static size_t cpia_read_nibble (struct p
+ 			byte = nibble;
+ 	}
+ 
+-	i /= 2; /* i is now in bytes */
+-
+ 	if (i == len) {
+ 		/* Read the last nibble without checking data avail. */
+-		port = port->physport;
+-		if (parport_read_status (port) & PARPORT_STATUS_ERROR)
+-			port->ieee1284.phase = IEEE1284_PH_HBUSY_DNA;
++		if (parport_read_status (port) & PARPORT_STATUS_ERROR) {
++		end_of_data:
++			/* Go to reverse idle phase. */
++			parport_frob_control (port,
++					      PARPORT_CONTROL_AUTOFD,
++					      PARPORT_CONTROL_AUTOFD);
++			port->physport->ieee1284.phase = IEEE1284_PH_REV_IDLE;
++		}
+ 		else
+-			port->ieee1284.phase = IEEE1284_PH_HBUSY_DAVAIL;
++			port->physport->ieee1284.phase = IEEE1284_PH_HBUSY_DAVAIL;
+ 	}
+ 
+-	return i;
++	return i/2;
+ }
+ 
+ /* CPiA nonstandard "Nibble Stream" mode (2 nibbles per cycle, instead of 1)
+Index: linux-dvb/drivers/parport/ieee1284_ops.c
 ===================================================================
---- linux-dvb.orig/drivers/block/paride/Kconfig	2005-06-23 22:12:45.000000000 +0300
-+++ linux-dvb/drivers/block/paride/Kconfig	2005-06-24 13:03:46.000000000 +0300
-@@ -4,11 +4,12 @@
- # PARIDE doesn't need PARPORT, but if PARPORT is configured as a module,
- # PARIDE must also be a module.  The bogus CONFIG_PARIDE_PARPORT option
- # controls the choices given to the user ...
-+# PARIDE only supports PC style parports. Tough for USB or other parports...
- config PARIDE_PARPORT
- 	tristate
- 	depends on PARIDE!=n
--	default m if PARPORT=m
--	default y if PARPORT!=m
-+	default m if PARPORT_PC=m
-+	default y if PARPORT_PC!=m
+--- linux-dvb.orig/drivers/parport/ieee1284_ops.c	2005-05-30 19:45:54.000000000 +0300
++++ linux-dvb/drivers/parport/ieee1284_ops.c	2005-05-30 19:48:30.000000000 +0300
+@@ -166,17 +166,7 @@ size_t parport_ieee1284_read_nibble (str
+ 		/* Does the error line indicate end of data? */
+ 		if (((i & 1) == 0) &&
+ 		    (parport_read_status(port) & PARPORT_STATUS_ERROR)) {
+-			port->physport->ieee1284.phase = IEEE1284_PH_HBUSY_DNA;
+-			DPRINTK (KERN_DEBUG
+-				"%s: No more nibble data (%d bytes)\n",
+-				port->name, i/2);
+-
+-			/* Go to reverse idle phase. */
+-			parport_frob_control (port,
+-					      PARPORT_CONTROL_AUTOFD,
+-					      PARPORT_CONTROL_AUTOFD);
+-			port->physport->ieee1284.phase = IEEE1284_PH_REV_IDLE;
+-			break;
++			goto end_of_data;
+ 		}
  
- comment "Parallel IDE high-level drivers"
- 	depends on PARIDE
-Index: linux-dvb/drivers/scsi/Kconfig
+ 		/* Event 7: Set nAutoFd low. */
+@@ -226,18 +216,25 @@ size_t parport_ieee1284_read_nibble (str
+ 			byte = nibble;
+ 	}
+ 
+-	i /= 2; /* i is now in bytes */
+-
+ 	if (i == len) {
+ 		/* Read the last nibble without checking data avail. */
+-		port = port->physport;
+-		if (parport_read_status (port) & PARPORT_STATUS_ERROR)
+-			port->ieee1284.phase = IEEE1284_PH_HBUSY_DNA;
++		if (parport_read_status (port) & PARPORT_STATUS_ERROR) {
++		end_of_data:
++			DPRINTK (KERN_DEBUG
++				"%s: No more nibble data (%d bytes)\n",
++				port->name, i/2);
++
++			/* Go to reverse idle phase. */
++			parport_frob_control (port,
++					      PARPORT_CONTROL_AUTOFD,
++					      PARPORT_CONTROL_AUTOFD);
++			port->physport->ieee1284.phase = IEEE1284_PH_REV_IDLE;
++		}
+ 		else
+-			port->ieee1284.phase = IEEE1284_PH_HBUSY_DAVAIL;
++			port->physport->ieee1284.phase = IEEE1284_PH_HBUSY_DAVAIL;
+ 	}
+ 
+-	return i;
++	return i/2;
+ #endif /* IEEE1284 support */
+ }
+ 
+@@ -257,17 +254,7 @@ size_t parport_ieee1284_read_byte (struc
+ 
+ 		/* Data available? */
+ 		if (parport_read_status (port) & PARPORT_STATUS_ERROR) {
+-			port->physport->ieee1284.phase = IEEE1284_PH_HBUSY_DNA;
+-			DPRINTK (KERN_DEBUG
+-				 "%s: No more byte data (%Zd bytes)\n",
+-				 port->name, count);
+-
+-			/* Go to reverse idle phase. */
+-			parport_frob_control (port,
+-					      PARPORT_CONTROL_AUTOFD,
+-					      PARPORT_CONTROL_AUTOFD);
+-			port->physport->ieee1284.phase = IEEE1284_PH_REV_IDLE;
+-			break;
++			goto end_of_data;
+ 		}
+ 
+ 		/* Event 14: Place data bus in high impedance state. */
+@@ -319,11 +306,20 @@ size_t parport_ieee1284_read_byte (struc
+ 
+ 	if (count == len) {
+ 		/* Read the last byte without checking data avail. */
+-		port = port->physport;
+-		if (parport_read_status (port) & PARPORT_STATUS_ERROR)
+-			port->ieee1284.phase = IEEE1284_PH_HBUSY_DNA;
++		if (parport_read_status (port) & PARPORT_STATUS_ERROR) {
++		end_of_data:
++			DPRINTK (KERN_DEBUG
++				 "%s: No more byte data (%Zd bytes)\n",
++				 port->name, count);
++
++			/* Go to reverse idle phase. */
++			parport_frob_control (port,
++					      PARPORT_CONTROL_AUTOFD,
++					      PARPORT_CONTROL_AUTOFD);
++			port->physport->ieee1284.phase = IEEE1284_PH_REV_IDLE;
++		}
+ 		else
+-			port->ieee1284.phase = IEEE1284_PH_HBUSY_DAVAIL;
++			port->physport->ieee1284.phase = IEEE1284_PH_HBUSY_DAVAIL;
+ 	}
+ 
+ 	return count;
+Index: linux-dvb/include/linux/parport.h
 ===================================================================
---- linux-dvb.orig/drivers/scsi/Kconfig	2005-06-24 10:41:40.000000000 +0300
-+++ linux-dvb/drivers/scsi/Kconfig	2005-06-24 13:03:46.000000000 +0300
-@@ -855,7 +855,7 @@ config SCSI_INIA100
- 
- config SCSI_PPA
- 	tristate "IOMEGA parallel port (ppa - older drives)"
--	depends on SCSI && PARPORT
-+	depends on SCSI && PARPORT_PC
- 	---help---
- 	  This driver supports older versions of IOMEGA's parallel port ZIP
- 	  drive (a 100 MB removable media device).
-@@ -882,7 +882,7 @@ config SCSI_PPA
- 
- config SCSI_IMM
- 	tristate "IOMEGA parallel port (imm - newer drives)"
--	depends on SCSI && PARPORT
-+	depends on SCSI && PARPORT_PC
- 	---help---
- 	  This driver supports newer versions of IOMEGA's parallel port ZIP
- 	  drive (a 100 MB removable media device).
-@@ -909,7 +909,7 @@ config SCSI_IMM
- 
- config SCSI_IZIP_EPP16
- 	bool "ppa/imm option - Use slow (but safe) EPP-16"
--	depends on PARPORT && (SCSI_PPA || SCSI_IMM)
-+	depends on SCSI_PPA || SCSI_IMM
- 	---help---
- 	  EPP (Enhanced Parallel Port) is a standard for parallel ports which
- 	  allows them to act as expansion buses that can handle up to 64
-@@ -924,7 +924,7 @@ config SCSI_IZIP_EPP16
- 
- config SCSI_IZIP_SLOW_CTR
- 	bool "ppa/imm option - Assume slow parport control register"
--	depends on PARPORT && (SCSI_PPA || SCSI_IMM)
-+	depends on SCSI_PPA || SCSI_IMM
- 	help
- 	  Some parallel ports are known to have excessive delays between
- 	  changing the parallel port control register and good data being
+--- linux-dvb.orig/include/linux/parport.h	2005-05-30 19:44:27.000000000 +0300
++++ linux-dvb/include/linux/parport.h	2005-05-30 19:48:30.000000000 +0300
+@@ -242,7 +242,6 @@ enum ieee1284_phase {
+ 	IEEE1284_PH_FWD_IDLE,
+ 	IEEE1284_PH_TERMINATE,
+ 	IEEE1284_PH_NEGOTIATION,
+-	IEEE1284_PH_HBUSY_DNA,
+ 	IEEE1284_PH_REV_IDLE,
+ 	IEEE1284_PH_HBUSY_DAVAIL,
+ 	IEEE1284_PH_REV_DATA,
 
 --

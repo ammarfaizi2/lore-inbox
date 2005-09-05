@@ -1,81 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932187AbVIEDmM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932188AbVIEDyr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932187AbVIEDmM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 23:42:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbVIEDmM
+	id S932188AbVIEDyr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 23:54:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932190AbVIEDyr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 23:42:12 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:18623 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932138AbVIEDmK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 23:42:10 -0400
-Date: Mon, 5 Sep 2005 11:47:39 +0800
-From: David Teigland <teigland@redhat.com>
-To: Greg KH <greg@kroah.com>, joern@wohnheim.fh-wedel.de, arjan@infradead.org
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       linux-cluster@redhat.com
-Subject: Re: GFS, what's remaining
-Message-ID: <20050905034739.GA11337@redhat.com>
-References: <20050901104620.GA22482@redhat.com> <1125574523.5025.10.camel@laptopd505.fenrus.org> <20050902094403.GD16595@redhat.com> <20050903052821.GA23711@kroah.com>
+	Sun, 4 Sep 2005 23:54:47 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:32322
+	"EHLO g5.random") by vger.kernel.org with ESMTP id S932188AbVIEDyq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 23:54:46 -0400
+Date: Mon, 5 Sep 2005 05:54:32 +0200
+From: Andrea Arcangeli <andrea@cpushare.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org,
+       cpushare-devel@cpushare.com
+Subject: [patch] i386 seccomp fix for auditing/ptrace
+Message-ID: <20050905035432.GG17185@g5.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050903052821.GA23711@kroah.com>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 02, 2005 at 10:28:21PM -0700, Greg KH wrote:
-> On Fri, Sep 02, 2005 at 05:44:03PM +0800, David Teigland wrote:
-> > On Thu, Sep 01, 2005 at 01:35:23PM +0200, Arjan van de Ven wrote:
-> > 
-> > > +	gfs2_assert(gl->gl_sbd, atomic_read(&gl->gl_count) > 0,);
-> > 
-> > > what is gfs2_assert() about anyway? please just use BUG_ON directly
-> > > everywhere
-> > 
-> > When a machine has many gfs file systems mounted at once it can be useful
-> > to know which one failed.  Does the following look ok?
-> > 
-> > #define gfs2_assert(sdp, assertion)                                       \
-> > do {                                                                      \
-> >         if (unlikely(!(assertion))) {                                     \
-> >                 printk(KERN_ERR                                           \
-> >                         "GFS2: fsid=%s: fatal: assertion \"%s\" failed\n" \
-> >                         "GFS2: fsid=%s:   function = %s\n"                \
-> >                         "GFS2: fsid=%s:   file = %s, line = %u\n"         \
-> >                         "GFS2: fsid=%s:   time = %lu\n",                  \
-> >                         sdp->sd_fsname, # assertion,                      \
-> >                         sdp->sd_fsname,  __FUNCTION__,                    \
-> >                         sdp->sd_fsname, __FILE__, __LINE__,               \
-> >                         sdp->sd_fsname, get_seconds());                   \
-> >                 BUG();                                                    \
-> 
-> You will already get the __FUNCTION__ (and hence the __FILE__ info)
-> directly from the BUG() dump, as well as the time from the syslog
-> message (turn on the printk timestamps if you want a more fine grain
-> timestamp), so the majority of this macro is redundant with the BUG()
-> macro...
+Hello,
 
-Joern already suggested moving this out of line and into a function (as it
-was before) to avoid repeating string constants.  In that case the
-function, file and line from BUG aren't useful.  We now have this, does it
-look ok?
+This is the same issue as ppc64 before, when returning to userland we
+shouldn't re-compute the seccomp check or the task could be killed
+during sigreturn when orig_eax is overwritten by the sigreturn syscall.
+This was found by Roland.
 
-void gfs2_assert_i(struct gfs2_sbd *sdp, char *assertion, const char *function,
-                   char *file, unsigned int line)
-{
-        panic("GFS2: fsid=%s: fatal: assertion \"%s\" failed\n"
-              "GFS2: fsid=%s:   function = %s, file = %s, line = %u\n",
-              sdp->sd_fsname, assertion,
-              sdp->sd_fsname, function, file, line);
-}
+This was harmless from a security standpoint, but some i686 users
+reported failures with auditing enabled system wide (some distro
+surprisingly makes it the default) and I reproduced it too by keeping
+the whole workload under strace -f.
 
-#define gfs2_assert(sdp, assertion) \
-do { \
-        if (unlikely(!(assertion))) { \
-                gfs2_assert_i((sdp), #assertion, \
-                              __FUNCTION__, __FILE__, __LINE__); \
-        } \
-} while (0)
+Patch is tested and works for me under strace -f.
 
+nobody@athlon:~/cpushare> strace -o /tmp/o -f python seccomp_test.py
+make: Nothing to be done for `seccomp_test'.
+Starting computing some malicious bytecode
+init
+load
+start
+stop
+receive_data failure
+kill
+exit_code 0 signal 9
+The malicious bytecode has been killed successfully by seccomp
+Starting computing some safe bytecode
+init
+load
+start
+stop
+174 counts
+kill
+exit_code 0 signal 0
+The seccomp_test.py completed successfully, thank you for testing.
+
+Thanks.
+
+Signed-off-by: Andrea Arcangeli <andrea@cpushare.com>
+
+diff -r 1df7bfbb783f arch/i386/kernel/ptrace.c
+--- a/arch/i386/kernel/ptrace.c	Fri Sep  2 09:01:35 2005
++++ b/arch/i386/kernel/ptrace.c	Mon Sep  5 05:30:49 2005
+@@ -680,8 +680,9 @@
+ __attribute__((regparm(3)))
+ void do_syscall_trace(struct pt_regs *regs, int entryexit)
+ {
+-	/* do the secure computing check first */
+-	secure_computing(regs->orig_eax);
++	if (!entryexit)
++		/* do the secure computing check first */
++		secure_computing(regs->orig_eax);
+ 
+ 	if (unlikely(current->audit_context) && entryexit)
+ 		audit_syscall_exit(current, AUDITSC_RESULT(regs->eax), regs->eax);

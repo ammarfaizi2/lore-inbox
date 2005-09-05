@@ -1,49 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932251AbVIENnA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932252AbVIENoR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932251AbVIENnA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 09:43:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932280AbVIENnA
+	id S932252AbVIENoR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 09:44:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932278AbVIENoR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 09:43:00 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:37288 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932251AbVIENm7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 09:42:59 -0400
-Date: Mon, 5 Sep 2005 09:42:46 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@cuia.boston.redhat.com
-To: David Howells <dhowells@redhat.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][1/2] fix for -mm add-sem_is_read-write_locked.patch 
-In-Reply-To: <26510.1125913723@warthog.cambridge.redhat.com>
-Message-ID: <Pine.LNX.4.63.0509050936240.4369@cuia.boston.redhat.com>
-References: <Pine.LNX.4.63.0509031134240.567@cuia.boston.redhat.com> 
- <26510.1125913723@warthog.cambridge.redhat.com>
+	Mon, 5 Sep 2005 09:44:17 -0400
+Received: from mail04.syd.optusnet.com.au ([211.29.132.185]:8858 "EHLO
+	mail04.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932252AbVIENoQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 09:44:16 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: 2.6.13-ck2
+Date: Mon, 5 Sep 2005 23:44:08 +1000
+User-Agent: KMail/1.8.2
+Cc: ck list <ck@vds.kolivas.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/signed;
+  boundary="nextPart1214396.p9S88tSLBG";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200509052344.11665.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Sep 2005, David Howells wrote:
+--nextPart1214396.p9S88tSLBG
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> The comment attached to the drop-in replacement patch is wrong:
+These are patches designed to improve system responsiveness and interactivi=
+ty.=20
+It is configurable to any workload but the default ck* patch is aimed at th=
+e=20
+desktop and ck*-server is available with more emphasis on serverspace.
 
-Indeed it is.  Good thing Andrew doesn't seem to have dropped
-it in ;)
 
-> | +static inline int sem_is_read_locked(struct rw_semaphore *sem)
-> | +{
-> | +	return (sem->count != 0);
-> | +}
-> | +
-> 
-> This uses the function wrong name. And:
+Apply to 2.6.13
+http://ck.kolivas.org/patches/2.6/2.6.13/2.6.13-ck2/patch-2.6.13-ck2.bz2
 
-Argh.  That should be rwsem_is_locked of course...
+or server version (no new version this release):
+http://ck.kolivas.org/patches/2.6/2.6.13/2.6.13-ck1/patch-2.6.13-ck1-server=
+=2Ebz2
 
-> Is inconsistent, though the tests are valid.
 
-I fixed that one in a separate patch.
+web:
+http://kernel.kolivas.org
+all patches:
+http://ck.kolivas.org/patches/
+Split patches available.
 
--- 
-All Rights Reversed
+
+Changes:
+
+Added:
+ +vm-swap_prefetch-2.patch
+As mentioned many times already, this code prefetches ram that has been=20
+swapped out during idle periods. This is the latest version of the patch an=
+d=20
+is a config option.
+
+ +sched-staircase12_tweak.patch
+The interactivity tweak which was isolated to the developmental 2.6.13-ck1+=
+=20
+patch seemed not to bring problems with the changes bringing staircase up t=
+o=20
+v12 so it has been incorporated.
+
+
+Cheers,
+Con
+
+--nextPart1214396.p9S88tSLBG
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDHEurZUg7+tp6mRURAh3gAJ477wfXHZmPAADRlPdk6E7GBYkFMACfU9VL
+Bx5zlq+bUeCi4NhbdLuhw7I=
+=7dO5
+-----END PGP SIGNATURE-----
+
+--nextPart1214396.p9S88tSLBG--

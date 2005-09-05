@@ -1,73 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750775AbVIEC3w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbVIEDAO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750775AbVIEC3w (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 22:29:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750838AbVIEC3w
+	id S932148AbVIEDAO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 23:00:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932152AbVIEDAO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 22:29:52 -0400
-Received: from web50203.mail.yahoo.com ([206.190.38.44]:22351 "HELO
-	web50203.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S1750775AbVIEC3v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 22:29:51 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=fszO4NhaZymF8u+2gJvkdsONp7kcnP19ItsFtGNpKJCbagq3W5X8B+cmKZv0qMT3bf3azPKqNq/5TVjZzHV2uxQNkLBjwTqe3lXbhlvQYXeQhymtUDaAHtF94kaqi8hgOuV3ayMnYjCwYlouT1f3W9ehyRHWRSuKVrn4UMAfl1k=  ;
-Message-ID: <20050905022943.46272.qmail@web50203.mail.yahoo.com>
-Date: Sun, 4 Sep 2005 19:29:43 -0700 (PDT)
-From: Alex Davis <alex14641@yahoo.com>
+	Sun, 4 Sep 2005 23:00:14 -0400
+Received: from simmts12.bellnexxia.net ([206.47.199.141]:40444 "EHLO
+	simmts12-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S932148AbVIEDAM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 23:00:12 -0400
+Message-ID: <36918.10.10.10.10.1125889201.squirrel@linux1>
+In-Reply-To: <20050905022943.46272.qmail@web50203.mail.yahoo.com>
+References: <39271.10.10.10.10.1125886053.squirrel@linux1>
+    <20050905022943.46272.qmail@web50203.mail.yahoo.com>
+Date: Sun, 4 Sep 2005 23:00:01 -0400 (EDT)
 Subject: re: RFC: i386: kill !4KSTACKS
-To: Sean <seanlkml@sympatico.ca>
+From: "Sean" <seanlkml@sympatico.ca>
+To: "Alex Davis" <alex14641@yahoo.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <39271.10.10.10.10.1125886053.squirrel@linux1>
+User-Agent: SquirrelMail/1.4.4-2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, September 4, 2005 10:29 pm, Alex Davis said:
+
+> Linux isn't just used by kernel developers. It's that attitude that
+> helps insure Linux will always have a small userbase. Lack of numbers
+> just gives the manufacturers another reason not to care about us. Joe
+> User doesn't care about our philosophical issues, nor should he. When
+> I install Linux on someone's machine, he wants it to work NOW, not in
+> some 'perfect-world' future.
+
+Alex,
+
+I think you're wrong on just about all counts.  The developers get to
+_dictate_ what goes into Linux because they're footing the bill.  Their
+past performance shows that your worries are unfounded (as the vast
+acceptance of Linux long _before_ binary-only drivers even existed,
+shows).
+
+Please stop the hand wringing over not being able to convince Joe User to
+install Linux today.  It will happen naturally when it's appropriate,
+Linux is steadily growing in power and acceptance without binary drivers. 
+ Trying to artificially speed up the process by destroying the very thing
+that makes Linux an important force is actually counterproductive.
+
+It's not a philosophical issue, it's what Linux _is_: an open source
+operating system!   That's what the developers are working on; not your
+half-baked vision.  If you want to create some bastardized version and are
+willing to commit dollars and effort to maintaining the code needed to do
+so, feel free.
+
+Regards,
+Sean
 
 
---- Sean <seanlkml@sympatico.ca> wrote:
-
-> On Sun, September 4, 2005 10:00 pm, Alex Davis said:
-> > Dave Jones wrote:
-> >>- NDISwrapper / driverloader.
-> >>  (Shock, horror - no-one cares).
-> >
-> > Shock, horror. Someone DOES care: everyone who uses ndiswrapper or
-> > driverloader, whether they know it or not. Are you proposing that
-> > we punish the end-users because of the obstinence of the hardware
-> > manufacturers? If/when native drivers are written, maybe we can
-> > revisit this.
-> 
-> 
-> Continuing the promotion of binary-only drivers _hurts_ the demand for
-> (and thus the development of) open source drivers.  Read the comment from
-> Dave as something like "Nobody who matters, with regard to kernel
-> development, cares about NDISwrapper".   If _you_ care, fork your own tree
-> and maintain the patch as necessary.
-> 
-> Regards,
-> Sean
-
-Sean:
-
-Linux isn't just used by kernel developers. It's that attitude that helps insure
-Linux will always have a small userbase. Lack of numbers just gives the manufacturers
-another reason not to care about us. Joe User doesn't care about our philosophical
-issues, nor should he. When I install Linux on someone's machine, he wants it to work
-NOW, not in some 'perfect-world' future. 
-
--Alex
-
--Alex
-> 
-
-
-I code, therefore I am
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 

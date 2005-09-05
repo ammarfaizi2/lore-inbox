@@ -1,47 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932324AbVIEIwx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932380AbVIEI4I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932324AbVIEIwx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 04:52:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932360AbVIEIwx
+	id S932380AbVIEI4I (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 04:56:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932376AbVIEI4I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 04:52:53 -0400
-Received: from ns.suse.de ([195.135.220.2]:47853 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932324AbVIEIwx (ORCPT
+	Mon, 5 Sep 2005 04:56:08 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:28099 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932375AbVIEI4H (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 04:52:53 -0400
-Date: Mon, 5 Sep 2005 10:52:47 +0200 (CEST)
-From: Michael Matz <matz@suse.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: ak@suse.de, discuss@x86-64.org, linux-kernel@vger.kernel.org
-Subject: Re: [discuss] [2.6 patch] include/asm-x86_64 "extern inline" ->
- "static inline"
-In-Reply-To: <20050902203123.GT3657@stusta.de>
-Message-ID: <Pine.LNX.4.58.0509051047530.27439@wotan.suse.de>
-References: <20050902203123.GT3657@stusta.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 5 Sep 2005 04:56:07 -0400
+Date: Mon, 5 Sep 2005 01:54:08 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: David Teigland <teigland@redhat.com>
+Cc: Joel.Becker@oracle.com, ak@suse.de, linux-cluster@redhat.com,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [Linux-cluster] Re: GFS, what's remaining
+Message-Id: <20050905015408.21455e56.akpm@osdl.org>
+In-Reply-To: <20050905043033.GB11337@redhat.com>
+References: <20050901104620.GA22482@redhat.com>
+	<20050903183241.1acca6c9.akpm@osdl.org>
+	<20050904030640.GL8684@ca-server1.us.oracle.com>
+	<200509040022.37102.phillips@istop.com>
+	<20050903214653.1b8a8cb7.akpm@osdl.org>
+	<20050904045821.GT8684@ca-server1.us.oracle.com>
+	<20050903224140.0442fac4.akpm@osdl.org>
+	<20050905043033.GB11337@redhat.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+David Teigland <teigland@redhat.com> wrote:
+>
+>  We export our full dlm API through read/write/poll on a misc device.
+>
 
-On Fri, 2 Sep 2005, Adrian Bunk wrote:
+inotify did that for a while, but we ended up going with a straight syscall
+interface.
 
-> "extern inline" doesn't make much sense.
+How fat is the dlm interface?   ie: how many syscalls would it take?
 
-It does.  It's a GCC extension which says "never ever emit an out-of-line
-version of this function, not even if its address is taken", i.e. it's
-implicitely assumed, that if there is a need for such out-of-line variant,
-then it is provided by some other mean (for instance by defining it
-without inline markers in some .o file).  Usually there won't be such need
-as all instances are inlined, in which case the out-of-line version would
-be dead bloat, which you can't get rid of without this extension.  And if
-some calls are not inlined then this extension serves as a poor mans
-check, because a link error will result.
-
-All in all, it does make sense, and no it's not the same as a "static 
-inline", not even if forced always_inline.
-
-
-Ciao,
-Michael.

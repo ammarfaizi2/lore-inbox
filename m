@@ -1,50 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932216AbVIEFjA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932219AbVIEFi3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932216AbVIEFjA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 01:39:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932222AbVIEFjA
+	id S932219AbVIEFi3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 01:38:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbVIEFi3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 01:39:00 -0400
-Received: from mail2.asahi-net.or.jp ([202.224.39.198]:12514 "EHLO
-	mail.asahi-net.or.jp") by vger.kernel.org with ESMTP
-	id S932216AbVIEFi7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 01:38:59 -0400
-Message-ID: <431BD9BC.8090306@thinrope.net>
-Date: Mon, 05 Sep 2005 14:38:04 +0900
-From: Kalin KOZHUHAROV <kalin@thinrope.net>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050804)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Parag Warudkar <kernel-stuff@comcast.net>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11.11 and rsync oops (SATA related?)
-References: <dfg2i0$p2e$1@sea.gmane.org> <9a87484905090417183c26a5a5@mail.gmail.com> <431BD2DC.8040206@comcast.net>
-In-Reply-To: <431BD2DC.8040206@comcast.net>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 5 Sep 2005 01:38:29 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:30084 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932215AbVIEFi2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 01:38:28 -0400
+Date: Mon, 5 Sep 2005 13:43:48 +0800
+From: David Teigland <teigland@redhat.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-fsdevel@vger.kernel.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       linux-cluster@redhat.com
+Subject: Re: GFS, what's remaining
+Message-ID: <20050905054348.GC11337@redhat.com>
+References: <20050901104620.GA22482@redhat.com> <1125574523.5025.10.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1125574523.5025.10.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Parag Warudkar wrote:
-> Jesper Juhl wrote:
+On Thu, Sep 01, 2005 at 01:35:23PM +0200, Arjan van de Ven wrote:
+
+> +void gfs2_glock_hold(struct gfs2_glock *gl)
+> +{
+> +	glock_hold(gl);
+> +}
 > 
->> It seems you forgot to include the data.  Nothing inline in the email,
->> nor any attachments.
+> eh why?
 
-Sorry for that, I really forgot to include the attachments at first, 
-then send the mail, then canceled it (on gmane.org), then send another 
-mail with the attachments.
+You removed the comment stating exactly why, see below.  If that's not a
+accepted technique in the kernel, say so and I'll be happy to change it
+here and elsewhere.
+Thanks,
+Dave
 
-> I could see the attachments and inline dmesg - probably your mail server 
-> is at it.
-Jesper was just to quick to notice my mistake :-) But I thought that I 
-don't need to reply to him to increase the S/N ratio...
+static inline void glock_hold(struct gfs2_glock *gl)
+{
+        gfs2_assert(gl->gl_sbd, atomic_read(&gl->gl_count) > 0);
+        atomic_inc(&gl->gl_count);
+}
 
-Kalin.
+/**
+ * gfs2_glock_hold() - As glock_hold(), but suitable for exporting
+ * @gl: The glock to hold
+ *
+ */
 
--- 
-|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
-+-> http://ThinRope.net/ <-+
-|[ ______________________ ]|
+void gfs2_glock_hold(struct gfs2_glock *gl)
+{
+        glock_hold(gl);
+}
 

@@ -1,56 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932267AbVIEHS7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932265AbVIEHRS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932267AbVIEHS7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 03:18:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932268AbVIEHS7
+	id S932265AbVIEHRS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 03:17:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932267AbVIEHRS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 03:18:59 -0400
-Received: from smtp.cs.aau.dk ([130.225.194.6]:28397 "EHLO smtp.cs.aau.dk")
-	by vger.kernel.org with ESMTP id S932267AbVIEHS6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 03:18:58 -0400
-Message-ID: <431BF0FF.6050402@cs.aau.dk>
-Date: Mon, 05 Sep 2005 09:17:19 +0200
-From: Emmanuel Fleury <fleury@cs.aau.dk>
-User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
-X-Accept-Language: en-us, en
+	Mon, 5 Sep 2005 03:17:18 -0400
+Received: from poros.telenet-ops.be ([195.130.132.44]:32464 "EHLO
+	poros.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S932265AbVIEHRR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 03:17:17 -0400
+Message-ID: <39543.217.136.171.4.1125904710.squirrel@www.pieter.dejaeghere.net>
+Date: Mon, 5 Sep 2005 09:18:30 +0200 (CEST)
+Subject: [PATCH] Arcnet, linux 2.6.13
+From: "Pieter Dejaeghere" <pieter@dejaeghere.net>
+To: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.5
 MIME-Version: 1.0
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: [2.6.13+swsusp2] iounmap Oops
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+In the current arcnet driver, the hard_start_xmit method allocates a
+buffer for an outgoing transmission. However, this method doesn't check
+whether there was already an allocated buffer from an earlier outgoing
+transmission. This patch checks whether lp->next_tx already had an
+allocated buffer, and if so, it returns NETDEV_TX_BUSY. This prevents
+buffers from dissapearing under heavy traffic.
 
-I have a Debian unstable (Xorg) and recently (since I installed the
-2.6.13) I've noticed a new message in /var/log/kern/log:
+This patch seems to work fine on my arcnet network, and I also sent it to
+the person (Esben Nielsen simlo@phys.au.dk) who made some arcnet patches
+in 2.6.8 and 2.6.11, and they work fine on his setup too.
 
-Sep  5 08:39:21 hermes vmunix: iounmap: bad address d72f2000
-Sep  5 08:39:21 hermes vmunix:  [<c010e245>] iounmap+0xc5/0xd0
-Sep  5 08:39:21 hermes vmunix:  [<c015161b>] page_remove_rmap+0x3b/0x60
-Sep  5 08:39:21 hermes vmunix:  [<c020c9e8>]
-radeon_do_cleanup_cp+0x348/0x410
-Sep  5 08:39:21 hermes vmunix:  [<c020cef5>] radeon_do_release+0xa5/0x120
-Sep  5 08:39:21 hermes vmunix:  [<c020493a>] drm_takedown+0x2a/0x4f0
-Sep  5 08:39:21 hermes vmunix:  [<c0205d38>] drm_fasync+0x48/0xa0
-Sep  5 08:39:21 hermes vmunix:  [<c02059d2>] drm_release+0x3f2/0x4d0
-Sep  5 08:39:21 hermes vmunix:  [<c015bec1>] __fput+0xa1/0x170
-Sep  5 08:39:21 hermes vmunix:  [<c015a452>] filp_close+0x52/0x90
-Sep  5 08:39:21 hermes vmunix:  [<c015a4e8>] sys_close+0x58/0x60
-Sep  5 08:39:21 hermes vmunix:  [<c0102dc5>] syscall_call+0x7/0xb
+url to the patch:
+http://pieter.dejaeghere.net:9080/arcnet/patch-buffer
 
-Seems to be linked to the DRM of the Radeon driver, but I ain't no
-expert. If wanted I can dig a bit more.
+inlined (hopefully without broken linewraps):
+--- linux-2.6.12-gentoo-r1/drivers/net/arcnet/arcnet.c	2005-06-25
+20:42:46.000000000 +0200
++++ linux-2.6.13-gentoo/drivers/net/arcnet/arcnet.c	2005-09-03
+19:46:54.227846664 +0200
+@@ -597,7 +597,7 @@ static int arcnet_send_packet(struct sk_
+ 	struct ArcProto *proto;
+ 	int txbuf;
+ 	unsigned long flags;
+-	int freeskb = 0;
++	int freeskb, retval;
 
-Regards
--- 
-Emmanuel Fleury
+ 	BUGMSG(D_DURING,
+ 	       "transmit requested (status=%Xh, txbufs=%d/%d, len=%d, protocol
+%x)\n",
+@@ -615,7 +615,7 @@ static int arcnet_send_packet(struct sk_
+ 	if (skb->len - ARC_HDR_SIZE > XMTU && !proto->continue_tx) {
+ 		BUGMSG(D_NORMAL, "fixme: packet too large: compensating badly!\n");
+ 		dev_kfree_skb(skb);
+-		return 0;	/* don't try again */
++		return NETDEV_TX_OK;	/* don't try again */
+ 	}
 
-Assistant Professor          | Office: B1-201
-Computer Science Department, | Phone:  +45 96 35 72 23
-Aalborg University,          | Mobile: +45 26 22 98 03
-Fredriks Bajersvej 7E,       | E-mail: fleury@cs.aau.dk
-9220 Aalborg East, Denmark   | URL: www.cs.aau.dk/~fleury
+ 	/* We're busy transmitting a packet... */
+@@ -623,8 +623,11 @@ static int arcnet_send_packet(struct sk_
+
+ 	spin_lock_irqsave(&lp->lock, flags);
+ 	AINTMASK(0);
+-
+-	txbuf = get_arcbuf(dev);
++	if(lp->next_tx == -1)
++		txbuf = get_arcbuf(dev);
++	else {
++		txbuf = -1;
++	}
+ 	if (txbuf != -1) {
+ 		if (proto->prepare_tx(dev, pkt, skb->len, txbuf) &&
+ 		    !proto->ack_tx) {
+@@ -638,6 +641,8 @@ static int arcnet_send_packet(struct sk_
+ 			lp->outgoing.skb = skb;
+ 			lp->outgoing.pkt = pkt;
+
++			freeskb = 0;
++
+ 			if (proto->continue_tx &&
+ 			    proto->continue_tx(dev, txbuf)) {
+ 			  BUGMSG(D_NORMAL,
+@@ -645,10 +650,12 @@ static int arcnet_send_packet(struct sk_
+ 				 "(proto='%c')\n", proto->suffix);
+ 			}
+ 		}
+-
++		retval = NETDEV_TX_OK;
++		dev->trans_start = jiffies;
+ 		lp->next_tx = txbuf;
+ 	} else {
+-		freeskb = 1;
++		retval = NETDEV_TX_BUSY;
++		freeskb = 0;
+ 	}
+
+ 	BUGMSG(D_DEBUG, "%s: %d: %s, status:
+%x\n",__FILE__,__LINE__,__FUNCTION__,ASTATUS());
+@@ -664,7 +671,7 @@ static int arcnet_send_packet(struct sk_
+ 	if (freeskb) {
+ 		dev_kfree_skb(skb);
+ 	}
+-	return 0;		/* no need to try again */
++	return retval;		/* no need to try again */
+ }
+
+
+@@ -690,7 +697,6 @@ static int go_tx(struct net_device *dev)
+ 	/* start sending */
+ 	ACOMMAND(TXcmd | (lp->cur_tx << 3));
+
+-	dev->trans_start = jiffies;
+ 	lp->stats.tx_packets++;
+ 	lp->lasttrans_dest = lp->lastload_dest;
+ 	lp->lastload_dest = 0;
+@@ -917,6 +923,9 @@ irqreturn_t arcnet_interrupt(int irq, vo
+
+ 			BUGMSG(D_RECON, "Network reconfiguration detected (status=%Xh)\n",
+ 			       status);
++			/* MYRECON bit is at bit 7 of diagstatus */
++			if(diagstatus & 0x80)
++				BUGMSG(D_RECON,"Put out that recon myself\n");
+
+ 			/* is the RECON info empty or old? */
+ 			if (!lp->first_recon || !lp->last_recon ||
+

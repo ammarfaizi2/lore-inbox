@@ -1,49 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932323AbVIEQ2m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932329AbVIEQ2w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932323AbVIEQ2m (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 12:28:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932329AbVIEQ2m
+	id S932329AbVIEQ2w (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 12:28:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932330AbVIEQ2s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 12:28:42 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:27619 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932323AbVIEQ2l (ORCPT
+	Mon, 5 Sep 2005 12:28:48 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:58261 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S932318AbVIEQ2q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 12:28:41 -0400
-Date: Mon, 5 Sep 2005 09:28:08 -0700
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: vatsa@in.ibm.com, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       ck list <ck@vds.kolivas.org>
-Subject: Re: [PATCH 1/3] dynticks - implement no idle hz for x86
-Message-ID: <20050905162808.GF25856@us.ibm.com>
-References: <20050831165843.GA4974@in.ibm.com> <20050904212616.B11265@flint.arm.linux.org.uk> <20050904203755.GA25856@us.ibm.com> <200509051308.20331.kernel@kolivas.org>
+	Mon, 5 Sep 2005 12:28:46 -0400
+Subject: Re: [Linux-cluster] Re: GFS, what's remaining
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Teigland <teigland@redhat.com>, Joel.Becker@oracle.com, ak@suse.de,
+       linux-cluster@redhat.com, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050905021948.6241f1e0.akpm@osdl.org>
+References: <20050901104620.GA22482@redhat.com>
+	 <20050903183241.1acca6c9.akpm@osdl.org>
+	 <20050904030640.GL8684@ca-server1.us.oracle.com>
+	 <200509040022.37102.phillips@istop.com>
+	 <20050903214653.1b8a8cb7.akpm@osdl.org>
+	 <20050904045821.GT8684@ca-server1.us.oracle.com>
+	 <20050903224140.0442fac4.akpm@osdl.org> <20050905043033.GB11337@redhat.com>
+	 <20050905015408.21455e56.akpm@osdl.org> <20050905092433.GE17607@redhat.com>
+	 <20050905021948.6241f1e0.akpm@osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 05 Sep 2005 13:21:34 +0100
+Message-Id: <1125922894.8714.14.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200509051308.20331.kernel@kolivas.org>
-X-Operating-System: Linux 2.6.13 (i686)
-User-Agent: Mutt/1.5.10i
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 05.09.2005 [13:08:20 +1000], Con Kolivas wrote:
-> On Mon, 5 Sep 2005 06:37 am, Nishanth Aravamudan wrote:
-> > On 04.09.2005 [21:26:16 +0100], Russell King wrote:
-> > > On Sun, Sep 04, 2005 at 01:10:54PM -0700, Nishanth Aravamudan wrote:
-> > > > I've got a few ideas that I think might help push Con's patch
-> > > > coalescing efforts in an arch-independent fashion.
+On Llu, 2005-09-05 at 02:19 -0700, Andrew Morton wrote:
+> >   create_lockspace()
+> >   release_lockspace()
+> >   lock()
+> >   unlock()
 > 
-> Thanks very much Nish!
-> 
-> I've updated the patches here http://ck.kolivas.org/patches/dyn-ticks/ with 
-> the latest change to timer_pm.c that Srivatsa sent me and have a new rollup 
-> there as well as the split out patches. The ball is in Nish's court now so 
-> we'll avoid touching the code till you get back to us (this project needs 
-> some form of locking ;) ).
+> Neat.  I'd be inclined to make them syscalls then.  I don't suppose anyone
+> is likely to object if we reserve those slots.
 
-Albeit, don't take that to mean that other people shouldn't keep doing
-what they are doing (Srivatsa with his pm_timer work, scalability work,
-e.g.) :) Hopefully, any changes I make, will not take too long.
+If the locks are not file descriptors then answer the following:
 
-Thanks,
-Nish
+- How are they ref counted
+- What are the cleanup semantics
+- How do I pass a lock between processes (AF_UNIX sockets wont work now)
+- How do I poll on a lock coming free. 
+- What are the semantics of lock ownership
+- What rules apply for inheritance
+- How do I access a lock across threads.
+- What is the permission model. 
+- How do I attach audit to it
+- How do I write SELinux rules for it
+- How do I use mount to make namespaces appear in multiple vservers
+
+and thats for starters...
+
+Every so often someone decides that a deeply un-unix interface with new
+syscalls is a good idea. Every time history proves them totally bonkers.
+There are cases for new system calls but this doesn't seem one of them.
+
+Look at system 5 shared memory, look at system 5 ipc, and so on. You
+can't use common interfaces on them, you can't select on them, you can't
+sanely pass them by fd passing.
+
+All our existing locking uses the following behaviour
+
+	fd = open(namespace, options)
+	fcntl(.. lock ...)
+	blah
+	flush
+	fcntl(.. unlock ...)
+	close
+
+Unfortunately some people here seem to have forgotten WHY we do things
+this way.
+
+1.	The semantics of file descriptors are well understood by users and by
+programs. That makes programming easier and keeps code size down
+2.	Everyone knows how close() works including across fork
+3.	FD passing is an obscure art but understood and just works
+4.	Poll() is a standard understood interface
+5.	Ownership of files is a standard model
+6.	FD passing across fork/exec is controlled in a standard way
+7.	The semantics for threaded applications are defined
+8.	Permissions are a standard model
+9.	Audit just works with the same tools
+9.	SELinux just works with the same tools
+10.	I don't need specialist applications to see the system state (the
+whole point of sysfs yet someone wants to break it all again)
+11.	fcntl fd locking is a posix standard interface with precisely
+defined semantics. Our extensions including leases are very powerful
+12.	And yes - fcntl fd locking supports mandatory locking too. That also
+is standards based with precise semantics.
+
+
+Everyone understands how to use the existing locking operations. So if
+you use the existing interfaces with some small extensions if neccessary
+everyone understands how to use cluster locks. Isn't that neat....
+
+

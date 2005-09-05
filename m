@@ -1,39 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964883AbVIEWdJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964903AbVIEWq4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964883AbVIEWdJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 18:33:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964885AbVIEWdJ
+	id S964903AbVIEWq4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 18:46:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964904AbVIEWq4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 18:33:09 -0400
-Received: from colibri.its.UU.SE ([130.238.4.154]:37867 "EHLO
-	colibri.its.uu.se") by vger.kernel.org with ESMTP id S964883AbVIEWdH convert rfc822-to-8bit
+	Mon, 5 Sep 2005 18:46:56 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:6548 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S964903AbVIEWqz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 18:33:07 -0400
-From: Thorild Selen <thorild@Update.UU.SE>
-To: linux-kernel@vger.kernel.org
-Subject: Re: RFC: i386: kill !4KSTACKS
-In-Reply-To: <20050904193350.GA3741@stusta.de>
-References: <4IcUz-7H2-27@gated-at.bofh.it> <4J2gx-3zf-3@gated-at.bofh.it>
-	<4J5R1-cH-21@gated-at.bofh.it> <4J6ao-L9-21@gated-at.bofh.it>
-	<4J6jZ-Xg-11@gated-at.bofh.it> <4J8vt-43Y-13@gated-at.bofh.it>
-References: <20050902060830.84977.qmail@web50208.mail.yahoo.com> <200509041549.17512.vda@ilport.com.ua> <200509041144.13145.paul@misner.org> <84144f02050904100721d3844d@mail.gmail.com> <6880bed305090410127f82a59f@mail.gmail.com> <20050904193350.GA3741@stusta.de>
-Date: Tue, 06 Sep 2005 00:32:32 +0200
-Message-ID: <x3ky86b5enz.fsf@Psilocybe.Update.UU.SE>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Mon, 5 Sep 2005 18:46:55 -0400
+Date: Tue, 6 Sep 2005 00:45:16 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Nick Warne <nick@linicks.net>
+Cc: linux-kernel@vger.kernel.org, OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Subject: Re: [Bug 5078] Re: kernel status, 5 Sep 2005
+Message-ID: <20050905224516.GB897@electric-eye.fr.zoreil.com>
+References: <200509052240.11929.nick@linicks.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200509052240.11929.nick@linicks.net>
+User-Agent: Mutt/1.4.2.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@stusta.de> writes:
-> Please name situations where 8K stacks may be preferred that do not 
-> involve binary-only modules.
+Nick Warne <nick@linicks.net> :
+[...]
+> This one looks _so_ familiar to me personally - exactly the same problems I 
+> had:
+> 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=112458400611745&w=2
 
-How about NFS-exporting a filesystem on LVM atop md?  I believe it has
-been mentioned before in discussions that 8k stacks are strongly
-recommended in this case.  Are those issues solved?
+Hmmm... I had not envisioned a lost event but it could turn into
+something interesting. Thanks for the heads-up.
 
-
-Thorild Selén
-Datorföreningen Update / Update Computer Club, Uppsala, SE
+--
+Ueimor

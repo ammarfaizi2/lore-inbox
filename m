@@ -1,67 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932184AbVIEDvV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932187AbVIEDmM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932184AbVIEDvV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 23:51:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbVIEDvV
+	id S932187AbVIEDmM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 23:42:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbVIEDmM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 23:51:21 -0400
-Received: from simmts12.bellnexxia.net ([206.47.199.141]:6291 "EHLO
-	simmts12-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S932184AbVIEDvU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 23:51:20 -0400
-Message-ID: <35547.10.10.10.10.1125892279.squirrel@linux1>
-In-Reply-To: <20050905034158.97152.qmail@web50213.mail.yahoo.com>
-References: <36918.10.10.10.10.1125889201.squirrel@linux1>
-    <20050905034158.97152.qmail@web50213.mail.yahoo.com>
-Date: Sun, 4 Sep 2005 23:51:19 -0400 (EDT)
-Subject: re: RFC: i386: kill !4KSTACKS
-From: "Sean" <seanlkml@sympatico.ca>
-To: "Alex Davis" <alex14641@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.4-2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+	Sun, 4 Sep 2005 23:42:12 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:18623 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932138AbVIEDmK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 23:42:10 -0400
+Date: Mon, 5 Sep 2005 11:47:39 +0800
+From: David Teigland <teigland@redhat.com>
+To: Greg KH <greg@kroah.com>, joern@wohnheim.fh-wedel.de, arjan@infradead.org
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       linux-cluster@redhat.com
+Subject: Re: GFS, what's remaining
+Message-ID: <20050905034739.GA11337@redhat.com>
+References: <20050901104620.GA22482@redhat.com> <1125574523.5025.10.camel@laptopd505.fenrus.org> <20050902094403.GD16595@redhat.com> <20050903052821.GA23711@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050903052821.GA23711@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, September 4, 2005 11:41 pm, Alex Davis said:
+On Fri, Sep 02, 2005 at 10:28:21PM -0700, Greg KH wrote:
+> On Fri, Sep 02, 2005 at 05:44:03PM +0800, David Teigland wrote:
+> > On Thu, Sep 01, 2005 at 01:35:23PM +0200, Arjan van de Ven wrote:
+> > 
+> > > +	gfs2_assert(gl->gl_sbd, atomic_read(&gl->gl_count) > 0,);
+> > 
+> > > what is gfs2_assert() about anyway? please just use BUG_ON directly
+> > > everywhere
+> > 
+> > When a machine has many gfs file systems mounted at once it can be useful
+> > to know which one failed.  Does the following look ok?
+> > 
+> > #define gfs2_assert(sdp, assertion)                                       \
+> > do {                                                                      \
+> >         if (unlikely(!(assertion))) {                                     \
+> >                 printk(KERN_ERR                                           \
+> >                         "GFS2: fsid=%s: fatal: assertion \"%s\" failed\n" \
+> >                         "GFS2: fsid=%s:   function = %s\n"                \
+> >                         "GFS2: fsid=%s:   file = %s, line = %u\n"         \
+> >                         "GFS2: fsid=%s:   time = %lu\n",                  \
+> >                         sdp->sd_fsname, # assertion,                      \
+> >                         sdp->sd_fsname,  __FUNCTION__,                    \
+> >                         sdp->sd_fsname, __FILE__, __LINE__,               \
+> >                         sdp->sd_fsname, get_seconds());                   \
+> >                 BUG();                                                    \
+> 
+> You will already get the __FUNCTION__ (and hence the __FILE__ info)
+> directly from the BUG() dump, as well as the time from the syslog
+> message (turn on the printk timestamps if you want a more fine grain
+> timestamp), so the majority of this macro is redundant with the BUG()
+> macro...
 
-> It will never be 'appropriate' if the system doesn't somehow work on Joe's
-> hardware. We currently have something that works. In my opinion it's
-> pointless to take that away. The manufacturers will still stone-wall us
-> regardless of ndiswrapper's existence. They were doing it before ndis-
-> wrapper existed.
+Joern already suggested moving this out of line and into a function (as it
+was before) to avoid repeating string constants.  In that case the
+function, file and line from BUG aren't useful.  We now have this, does it
+look ok?
 
-There are lots and lots of systems where Linux works.  Encouraging users
-to buy hardware that works with Linux, can only help.  Encouraging them
-that it doesn't matter and that binary-only drivers are a good
-alternative, can only hurt.
+void gfs2_assert_i(struct gfs2_sbd *sdp, char *assertion, const char *function,
+                   char *file, unsigned int line)
+{
+        panic("GFS2: fsid=%s: fatal: assertion \"%s\" failed\n"
+              "GFS2: fsid=%s:   function = %s, file = %s, line = %u\n",
+              sdp->sd_fsname, assertion,
+              sdp->sd_fsname, function, file, line);
+}
 
-> Please explain how Linux can be an 'important force' if people can't
-> use it? Wireless networking is very important to people.
-
-Lots of people can and do use Linux without ANY binary drivers.   There
-are Wireless choices that don't require binary only drivers.
-
-> Um, ever hear of 'compromise'?? All I'm saying is let people use what
-> currently works until we can get an open-source solution. Ndiswrapper's
-> existence is not stopping you (or anyone else) from pestering
-> manufacturers
-> for spec's and writing drivers. I look at ndiswrapper as a stop-gap
-> solution.
-> Hey, even Linus himself has said 'better a sub-optimal solution than no
-> solution'.
-
-Nobody is stopping anyone from using what "currently works", there will be
-lots of like minded people to provide crap kernels and shitty binary
-drivers to people who don't know better.   So don't worry, your well
-intentioned vision of the future will survive the removal of 8K stacks
-from the kernel.
-
-Regards,
-Sean
-
+#define gfs2_assert(sdp, assertion) \
+do { \
+        if (unlikely(!(assertion))) { \
+                gfs2_assert_i((sdp), #assertion, \
+                              __FUNCTION__, __FILE__, __LINE__); \
+        } \
+} while (0)
 

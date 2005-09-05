@@ -1,71 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932381AbVIEI6M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932382AbVIEJNM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932381AbVIEI6M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 04:58:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932379AbVIEI6M
+	id S932382AbVIEJNM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 05:13:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbVIEJNM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 04:58:12 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:29639 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S932294AbVIEI6K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 04:58:10 -0400
-Date: Mon, 5 Sep 2005 10:58:08 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: David Teigland <teigland@redhat.com>
+	Mon, 5 Sep 2005 05:13:12 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:18567 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932355AbVIEJNJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 05:13:09 -0400
+Date: Mon, 5 Sep 2005 17:18:47 +0800
+From: David Teigland <teigland@redhat.com>
+To: J?rn Engel <joern@wohnheim.fh-wedel.de>
 Cc: Greg KH <greg@kroah.com>, arjan@infradead.org,
        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
        linux-cluster@redhat.com
 Subject: Re: GFS, what's remaining
-Message-ID: <20050905085808.GA22802@wohnheim.fh-wedel.de>
-References: <20050901104620.GA22482@redhat.com> <1125574523.5025.10.camel@laptopd505.fenrus.org> <20050902094403.GD16595@redhat.com> <20050903052821.GA23711@kroah.com> <20050905034739.GA11337@redhat.com>
+Message-ID: <20050905091847.GD17607@redhat.com>
+References: <20050901104620.GA22482@redhat.com> <1125574523.5025.10.camel@laptopd505.fenrus.org> <20050902094403.GD16595@redhat.com> <20050903052821.GA23711@kroah.com> <20050905034739.GA11337@redhat.com> <20050905085808.GA22802@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050905034739.GA11337@redhat.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20050905085808.GA22802@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 September 2005 11:47:39 +0800, David Teigland wrote:
-> 
-> Joern already suggested moving this out of line and into a function (as it
-> was before) to avoid repeating string constants.  In that case the
-> function, file and line from BUG aren't useful.  We now have this, does it
-> look ok?
+On Mon, Sep 05, 2005 at 10:58:08AM +0200, J?rn Engel wrote:
 
-Ok wrt. my concerns, but not with Greg's.  BUG() still gives you
-everything that you need, except:
-o fsid
+> #define gfs2_assert(sdp, assertion) do {			\
+> 	if (unlikely(!(assertion))) {				\
+> 	printk(KERN_ERR "GFS2: fsid=\n", (sdp)->sd_fsname);	\
+> 	BUG();							\
+> } while (0)
 
-Notice how this list is just one entry long? ;)
+OK thanks,
+Dave
 
-So how about
-
-
-#define gfs2_assert(sdp, assertion) do {			\
-	if (unlikely(!(assertion))) {				\
-	printk(KERN_ERR "GFS2: fsid=\n", (sdp)->sd_fsname);	\
-	BUG();							\
-} while (0)
-
-
-Or, to move the constant out of line again
-
-
-void __gfs2_assert(struct gfs2_sbd *sdp) {
-	printk(KERN_ERR "GFS2: fsid=\n", sdp->sd_fsname);
-}
-
-#define gfs2_assert(sdp, assertion) do {\
-	if (unlikely(!(assertion))) {	\
-	__gfs2_assert(sdp);		\
-	BUG();				\
-} while (0)
-
-
-Jörn
-
--- 
-Admonish your friends privately, but praise them openly.
--- Publilius Syrus 

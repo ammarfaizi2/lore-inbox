@@ -1,60 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964924AbVIEXHW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964928AbVIEXI3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964924AbVIEXHW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 19:07:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964925AbVIEXHW
+	id S964928AbVIEXI3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 19:08:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964926AbVIEXI3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 19:07:22 -0400
-Received: from smtpout.mac.com ([17.250.248.83]:971 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S964924AbVIEXHW (ORCPT
+	Mon, 5 Sep 2005 19:08:29 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:35972 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964928AbVIEXI2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 19:07:22 -0400
-In-Reply-To: <x3ky86b5enz.fsf@Psilocybe.Update.UU.SE>
-References: <4IcUz-7H2-27@gated-at.bofh.it> <4J2gx-3zf-3@gated-at.bofh.it> <4J5R1-cH-21@gated-at.bofh.it> <4J6ao-L9-21@gated-at.bofh.it> <4J6jZ-Xg-11@gated-at.bofh.it> <4J8vt-43Y-13@gated-at.bofh.it> <x3ky86b5enz.fsf@Psilocybe.Update.UU.SE>
-Mime-Version: 1.0 (Apple Message framework v734)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <9E6A1734-A6B6-4189-9656-C252D677BB32@mac.com>
-Cc: linux-kernel@vger.kernel.org
+	Mon, 5 Sep 2005 19:08:28 -0400
+Date: Mon, 5 Sep 2005 16:06:13 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: teigland@redhat.com, Joel.Becker@oracle.com, ak@suse.de,
+       linux-cluster@redhat.com, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Linux-cluster] Re: GFS, what's remaining
+Message-Id: <20050905160613.7b0ee7fc.akpm@osdl.org>
+In-Reply-To: <1125962411.8714.46.camel@localhost.localdomain>
+References: <20050901104620.GA22482@redhat.com>
+	<20050903183241.1acca6c9.akpm@osdl.org>
+	<20050904030640.GL8684@ca-server1.us.oracle.com>
+	<200509040022.37102.phillips@istop.com>
+	<20050903214653.1b8a8cb7.akpm@osdl.org>
+	<20050904045821.GT8684@ca-server1.us.oracle.com>
+	<20050903224140.0442fac4.akpm@osdl.org>
+	<20050905043033.GB11337@redhat.com>
+	<20050905015408.21455e56.akpm@osdl.org>
+	<20050905092433.GE17607@redhat.com>
+	<20050905021948.6241f1e0.akpm@osdl.org>
+	<1125922894.8714.14.camel@localhost.localdomain>
+	<20050905125309.4b657b08.akpm@osdl.org>
+	<1125962411.8714.46.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: RFC: i386: kill !4KSTACKS
-Date: Mon, 5 Sep 2005 19:06:58 -0400
-To: Thorild Selen <thorild@Update.UU.SE>
-X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 5, 2005, at 18:32:32, Thorild Selen wrote:
-> Adrian Bunk <bunk@stusta.de> writes:
->> Please name situations where 8K stacks may be preferred that do not
->> involve binary-only modules.
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 >
-> How about NFS-exporting a filesystem on LVM atop md?  I believe it has
-> been mentioned before in discussions that 8k stacks are strongly
-> recommended in this case.  Are those issues solved?
+> On Llu, 2005-09-05 at 12:53 -0700, Andrew Morton wrote:
+>  > >  - How are they ref counted
+>  > >  - What are the cleanup semantics
+>  > >  - How do I pass a lock between processes (AF_UNIX sockets wont work now)
+>  > >  - How do I poll on a lock coming free. 
+>  > >  - What are the semantics of lock ownership
+>  > >  - What rules apply for inheritance
+>  > >  - How do I access a lock across threads.
+>  > >  - What is the permission model. 
+>  > >  - How do I attach audit to it
+>  > >  - How do I write SELinux rules for it
+>  > >  - How do I use mount to make namespaces appear in multiple vservers
+>  > > 
+>  > >  and thats for starters...
+>  > 
+>  > Return an fd from create_lockspace().
+> 
+>  That only answers about four of the questions. The rest only come out if
+>  create_lockspace behaves like a file system - in other words
+>  create_lockspace is better known as either mkdir or mount.
 
-I think the worst overflow case anyone found was  
-nfs=>xfs=>lvm=>dm=>scsi, if
-someone has such a configuration, please retest with current -mm or  
-similar.
-I think there are several patches in there to resolve the excessive  
-stack
-usage and a few to do some sort of bio chaining (Instead of recursive  
-calls).
-I don't remember what underlying hardware was behind the SCSI, but I  
-suspect
-something like iSCSI or USB would push some extra stack in there for  
-stress
-testing.
+But David said that "We export our full dlm API through read/write/poll on
+a misc device.".  That miscdevice will simply give us an fd.  Hence my
+suggestion that the miscdevice be done away with in favour of a dedicated
+syscall which returns an fd.
 
-Cheers,
-Kyle Moffett
-
---
-I have yet to see any problem, however complicated, which, when you  
-looked at
-it in the right way, did not become still more complicated.
-   -- Poul Anderson
-
-
-
+What does a filesystem have to do with this?

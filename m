@@ -1,79 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932264AbVIEHkk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932276AbVIEHoc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932264AbVIEHkk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 03:40:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbVIEHkk
+	id S932276AbVIEHoc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 03:44:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932278AbVIEHoc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 03:40:40 -0400
-Received: from smtp-vbr7.xs4all.nl ([194.109.24.27]:50705 "EHLO
-	smtp-vbr7.xs4all.nl") by vger.kernel.org with ESMTP id S932264AbVIEHkk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 03:40:40 -0400
-Message-ID: <431BF66D.4010804@baanhofman.nl>
-Date: Mon, 05 Sep 2005 09:40:29 +0200
-From: Wilco Baan Hofman <wilco@baanhofman.nl>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040605)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: RAID1 ramdisk patch
-References: <431B9558.1070900@baanhofman.nl> <17179.40731.907114.194935@cse.unsw.edu.au>
-In-Reply-To: <17179.40731.907114.194935@cse.unsw.edu.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 5 Sep 2005 03:44:32 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:22543 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932276AbVIEHoc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 03:44:32 -0400
+Date: Mon, 5 Sep 2005 08:44:25 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+Cc: Nishanth Aravamudan <nacc@us.ibm.com>, Con Kolivas <kernel@kolivas.org>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org,
+       ck list <ck@vds.kolivas.org>
+Subject: Re: [PATCH 1/3] dynticks - implement no idle hz for x86
+Message-ID: <20050905084425.B24051@flint.arm.linux.org.uk>
+Mail-Followup-To: Srivatsa Vaddagiri <vatsa@in.ibm.com>,
+	Nishanth Aravamudan <nacc@us.ibm.com>,
+	Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org,
+	akpm@osdl.org, ck list <ck@vds.kolivas.org>
+References: <20050831165843.GA4974@in.ibm.com> <200509031801.09069.kernel@kolivas.org> <20050903090650.B26998@flint.arm.linux.org.uk> <200509031814.49666.kernel@kolivas.org> <20050904201054.GA4495@us.ibm.com> <20050905070053.GA7329@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050905070053.GA7329@in.ibm.com>; from vatsa@in.ibm.com on Mon, Sep 05, 2005 at 12:30:53PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown wrote:
+On Mon, Sep 05, 2005 at 12:30:53PM +0530, Srivatsa Vaddagiri wrote:
+> On Sun, Sep 04, 2005 at 01:10:54PM -0700, Nishanth Aravamudan wrote:
+> > First of all, and maybe this is just me, I think it would be good to
+> > make the dyn_tick_timer per-interrupt source, as opposed to each arch?
+> 
+> Nish, may be a good idea as it may make the code more cleaner (it will
+> remove the 'if (cpu_has_local_apic())' kind of code that is there
+> currently in x86). However note that ARM currently has 'handler' member also 
+> part of it, which is used to recover time and that has nothing to do with 
+> interrupt source. Unless there is something like John's TOD, we still
+> need to recover time in a arch-dependent fashion ..Where do you
+> propose to have that 'handler' member?
 
->On Monday September 5, wilco@baanhofman.nl wrote:
->  
->
->>Hi all,
->>
->>I have written a small patch for use with a HDD-backed ramdisk in the md 
->>raid1 driver. The raid1 driver usually does read balancing on the disks, 
->>but I feel that if it encounters a single ram disk in the array that 
->>should be the preferred read disk. The application of this would be for 
->>example a 2GB ram disk in raid1 with a 2GB partition, where the ram disk 
->>is used for reading and both 'disks' used for writing.
->>
->>Attached is a bit of code which checks for a ram-disk and sets it as 
->>preferred disk. It also checks if the ram disk is in sync before 
->>allowing the read.
->>    
->>
->
->Hi,
-> equivalent functionality is now available in 2.6-mm and is referred
-> to as 'write mostly'.
-> If you use mdadm-2.0 and mark a device as --write-mostly, then all
-> read requests will go to the other device(s) if possible,.
-> e.g.
->   mdadm --create /dev/md0 --level=1 --raid-disks=2 /dev/ramdisk \
->      --writemostly /dev/realdisk
->
-> Does this suit your needs?
->
-> You can also arrange for the write to the writemostly device to be
-> 'write-behind' so that the filesystem doesn't wait for the write to
-> complete.  This can reduce write-latency (though not increase write
-> throughput) at a very small cost of reliability (if the RAM dies, the
-> disk may not be 100% up-to-date).
->
->NeilBrown
->
->  
->
-I was looking for that (but couldn't find it)..
+Exactly where it is.  It's there because of the problem you allude to
+above - it's there to catch up system time.  Any generic code can't
+answer the question "how much time has passed since we disabled the
+timer" without additional information.
 
-At this point I don't see why it wouldn't, if that also syncs from the 
-partition then it's basically the same functionality, but written from a 
-different perspective.
+However, we could change "handler" to be a function pointer which
+returns the number of missed ticks instead, and then updates the
+kernels time and tick keeping.  That would probably be more efficient.
 
-To use it I'll have to deviate from stock linux and use a non-packaged 
-mdadm, but that is better than applying my patch every kernel update ;-)
-
-Thanks, I'll look into it.
-
-Wilco Baan Hofman
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

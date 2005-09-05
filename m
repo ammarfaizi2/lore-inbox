@@ -1,75 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751282AbVIEOPN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751270AbVIEOR2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751282AbVIEOPN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 10:15:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751279AbVIEOPL
+	id S1751270AbVIEOR2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 10:17:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbVIEOR2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 10:15:11 -0400
-Received: from main.gmane.org ([80.91.229.2]:10896 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751276AbVIEOPI (ORCPT
+	Mon, 5 Sep 2005 10:17:28 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:9858 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S1751270AbVIEOR2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 10:15:08 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Kalin KOZHUHAROV <kalin@thinrope.net>
-Subject: Re: 2.6.13 (was 2.6.11.11) and rsync oops (SATA or NFS related?)
-Date: Mon, 05 Sep 2005 23:12:15 +0900
-Message-ID: <dfhjp3$fd4$1@sea.gmane.org>
-References: <dfg2sa$peu$2@sea.gmane.org> <dfguoq$eng$1@sea.gmane.org>
+	Mon, 5 Sep 2005 10:17:28 -0400
+Date: Mon, 5 Sep 2005 16:16:31 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Bernd Eckenfels <ecki@lina.inka.de>, linux-kernel@vger.kernel.org
+Subject: Re: GFS, what's remaining
+Message-ID: <20050905141631.GG5498@marowsky-bree.de>
+References: <20050903070639.GC4593@ca-server1.us.oracle.com> <E1EBSRB-0003lW-00@calista.eckenfels.6bone.ka-ip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: s175249.ppp.asahi-net.or.jp
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050804)
-X-Accept-Language: en-us, en
-In-Reply-To: <dfguoq$eng$1@sea.gmane.org>
-X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <E1EBSRB-0003lW-00@calista.eckenfels.6bone.ka-ip.net>
+X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kalin KOZHUHAROV wrote:
-> Kalin KOZHUHAROV wrote:
-> 
->> Hi, there.
->> Long time no posting - didn't have kernel problems for long time :-)
->>
->> That is why I am still running 2.6.11.11 (2.6.12 elsewhere). Will move
->> to 2.6.13 soon.
->>
->> Yesterday just bought a new SATAII drive (Seagate Barracuda 7200.8
->> ST3300831AS) and while trying to rsync some data from the old drives the
->> rsync process died with segfault. My SiI3112 controller is not SATAII,
->> but it should work in SATA mode, have another drive for year+. Looking
->> at the dmesg I saw 3 oopses (see the shortened .dmesg file). Run the
->> ksymoops and got some output (see .ksymoops.bz2).
->>
->> Although it does not seem very related to the drive, that is the only
->> recent change in hardware, in software: udev . The machine (MB: A7V8X
->> Deluxe) was working stable for 6 months with a few restarts.
->>
->> As far as reproducibility goes, apart from those 3 oopses everything is
->> OK, didn't even have to restart and am now continuing to rsync some
->> 200GB more.
->>
->> Any ideas as to what caused this?
-> 
-> 
-> OK, I upgraded to the latest 2.6.13 kernel and still got (similar?) oops.
-> 
-> Looking again at it it might be NFS (using v4 recently) related.
+On 2005-09-03T09:27:41, Bernd Eckenfels <ecki@lina.inka.de> wrote:
 
-After stopping nfs (both v3 and v4) and rebooting, I could finish the 
-required 170GB rsync without more oopses. But I am still not convinced 
-whether this is a nfs issue or just I am being lucky this time. Will 
-keep on eye on the machine and report here again.
+> Oh thats interesting, I never thought about putting data files (tablespaces)
+> in a clustered file system. Does that mean you can run supported RAC on
+> shared ocfs2 files and anybody is using that?
 
-Kalin.
+That is the whole point why OCFS exists ;-)
 
-/ When nobody answers, try answering yourself :-| /
+> Do you see this go away with ASM?
+
+No. Beyond the table spaces, there's also ORACLE_HOME; a cluster
+benefits in several aspects from a general-purpose SAN-backed CFS.
+
+
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
 
 -- 
-|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
-+-> http://ThinRope.net/ <-+
-|[ ______________________ ]|
+High Availability & Clustering
+SUSE Labs, Research and Development
+SUSE LINUX Products GmbH - A Novell Business	 -- Charles Darwin
+"Ignorance more frequently begets confidence than does knowledge"
 

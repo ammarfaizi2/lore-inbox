@@ -1,82 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932516AbVIEUsf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750945AbVIEUxx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932516AbVIEUsf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 16:48:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932517AbVIEUsf
+	id S1750945AbVIEUxx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 16:53:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbVIEUxx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 16:48:35 -0400
-Received: from zproxy.gmail.com ([64.233.162.196]:4872 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932516AbVIEUsf convert rfc822-to-8bit
+	Mon, 5 Sep 2005 16:53:53 -0400
+Received: from shill.XCF.Berkeley.EDU ([128.32.112.247]:45778 "EHLO
+	wilber.gimp.org") by vger.kernel.org with ESMTP id S1750945AbVIEUxx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 16:48:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Ye0XryJQtWApUcDq+YdVRKWY7AtMAiG8Gajw2AMeTCm6QtcAy1gYFiiBU+oH7oGUHgzI8vQuoc6AWuh/TFNMcCWlTMQ7Ta/rGwbf1D43hwlMYIbiVJehHZsQcIBb3y5XWJq5uEXOu089DI2a6ywTO3YETpIFIshHdP3/1V8A/Gw=
-Message-ID: <9a87484905090513481118e67b@mail.gmail.com>
-Date: Mon, 5 Sep 2005 22:48:32 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Bret Towe <magnade@gmail.com>
-Subject: Re: nfs4 client bug
-Cc: "J. Bruce Fields" <bfields@fieldses.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <dda83e78050905134420f06fbf@mail.gmail.com>
+	Mon, 5 Sep 2005 16:53:53 -0400
+Date: Mon, 5 Sep 2005 13:53:51 -0700
+From: Kurt Hackel <kurt.hackel@oracle.com>
+To: Bernd Eckenfels <be-mail2005@lina.inka.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: GFS, what's remaining
+Message-ID: <20050905205351.GB21169@gimp.org>
+References: <20050903070639.GC4593@ca-server1.us.oracle.com> <E1EBSRB-0003lW-00@calista.eckenfels.6bone.ka-ip.net> <20050905141631.GG5498@marowsky-bree.de> <20050905202403.GB7580@lina.inka.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <dda83e78050903171516948181@mail.gmail.com>
-	 <dda83e7805090320053b03615d@mail.gmail.com>
-	 <20050904103523.GA5613@electric-eye.fr.zoreil.com>
-	 <dda83e78050904124454fc675a@mail.gmail.com>
-	 <dda83e78050904135113b95c4a@mail.gmail.com>
-	 <20050904215219.GA9812@fieldses.org>
-	 <dda83e780509042008294fbe26@mail.gmail.com>
-	 <20050905031825.GA22209@fieldses.org>
-	 <dda83e78050905134420f06fbf@mail.gmail.com>
+In-Reply-To: <20050905202403.GB7580@lina.inka.de>
+X-Burt-Line: Trees are cool.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/5/05, Bret Towe <magnade@gmail.com> wrote:
-> On 9/4/05, J. Bruce Fields <bfields@fieldses.org> wrote:
-> > On Sun, Sep 04, 2005 at 08:08:22PM -0700, Bret Towe wrote:
-> > > On 9/4/05, J. Bruce Fields <bfields@fieldses.org> wrote:
-> > > > Do you get anything from alt-sysrq-T?
-> > >
-> > > no i havent used that im usally in x when its freezing
-> > > x wont even switch to console would it still give me anything then?
-> >
-> > Well, you can try something like:
-> >         alt-sysrq-T
-> > wait a couple seconds, then
-> >         alt-sysrq-S
-> >         alt-sysrq-U
-> >         alt-sysrq-B
-> > with maybe a second between each to give stuff a chance to get to disk.
-> >
-> > Then if you're lucky you may find the stack dumps in your log after you
-> > reboot.
+On Mon, Sep 05, 2005 at 10:24:03PM +0200, Bernd Eckenfels wrote:
+> On Mon, Sep 05, 2005 at 04:16:31PM +0200, Lars Marowsky-Bree wrote:
+> > That is the whole point why OCFS exists ;-)
 > 
-> tried it and so far no luck ill keep trying a few more times and see
-> if i can get it
-> to spit somethin out to disk but i dont think ill be that lucky as that would
-> prob make life to easy wouldnt it?
+> The whole point of the orcacle cluster filesystem as it was described in old
+> papers was about pfiles, control files and software, because you can easyly
+> use direct block access (with ASM) for tablespaces.
 
-How about 
+The original OCFS was intended for use with pfiles and control files but
+very definitely *not* software (the ORACLE_HOME).  It was not remotely
+general purpose.  It also predated ASM by about a year or so, and the
+two solutions are complementary.  Either one is a good choice for Oracle
+datafiles, depending upon your needs.
 
-serial console over a cross-over cable to a second box.
-netconsole will let you put the console on a different box over the network.
-console on line printer will let you have a permanent record of the
-console output on paper.
+> > No. Beyond the table spaces, there's also ORACLE_HOME; a cluster
+> > benefits in several aspects from a general-purpose SAN-backed CFS.
+> 
+> Yes, I dont dispute the usefullness of OCFS for ORA_HOME (beside I think a
+> replicated filesystem makes more sense), I am just nor sure if anybody sane
+> would use it for tablespaces.
 
-See
- Documentation/serial-console.txt
- Documentation/networking/netconsole.txt
- the help entry for "config LP_CONSOLE" (in drivers/char/Kconfig)
+Too many to mention here, but let's just say that some of the largest
+databases are running Oracle datafiles on top of OCFS1.  Very large
+companies with very important data.
 
-Would any of those perhaps help you in capturing anything ?
+> I guess I have to correct the artile in my german it blog :) (if somebody
+> can name productive customers).
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Yeah you should definitely update your blog ;-)  If you need named
+references, we can give you loads of those.
+
+-kurt
+
+Kurt C. Hackel
+Oracle
+kurt.hackel@oracle.com

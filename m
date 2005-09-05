@@ -1,58 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932352AbVIEHud@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbVIEIAy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932352AbVIEHud (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 03:50:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbVIEHuc
+	id S932283AbVIEIAy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 04:00:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbVIEIAy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 03:50:32 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:8388 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932352AbVIEHua (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 03:50:30 -0400
-Date: Mon, 5 Sep 2005 15:55:28 +0800
-From: David Teigland <teigland@redhat.com>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
+	Mon, 5 Sep 2005 04:00:54 -0400
+Received: from nproxy.gmail.com ([64.233.182.205]:39129 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932282AbVIEIAw convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 04:00:52 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=hlobLDFBNPM2/SOStzlrBau5MMC4rUQKl30Ob3AjoRBfJMYCbumDEo20iJYNKBUFlYShqttCubDoKHC+RNrwQcEkm5QngbD5KYq52y0H1duKleAZFqrF9pH8jPXn6xa8ZvgdHF+qe4Jw+sGp4W+pmTrMffj9QZQk4hd5+/EDLTM=
+Message-ID: <84144f02050905010066bc516d@mail.gmail.com>
+Date: Mon, 5 Sep 2005 11:00:51 +0300
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: David Teigland <teigland@redhat.com>
+Subject: Re: GFS, what's remaining
 Cc: Arjan van de Ven <arjan@infradead.org>, linux-fsdevel@vger.kernel.org,
        akpm@osdl.org, linux-kernel@vger.kernel.org, linux-cluster@redhat.com
-Subject: Re: GFS, what's remaining
-Message-ID: <20050905075528.GB17607@redhat.com>
-References: <20050901104620.GA22482@redhat.com> <1125574523.5025.10.camel@laptopd505.fenrus.org> <20050905054348.GC11337@redhat.com> <84144f02050904233274d45230@mail.gmail.com>
+In-Reply-To: <20050905075528.GB17607@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <84144f02050904233274d45230@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+References: <20050901104620.GA22482@redhat.com>
+	 <1125574523.5025.10.camel@laptopd505.fenrus.org>
+	 <20050905054348.GC11337@redhat.com>
+	 <84144f02050904233274d45230@mail.gmail.com>
+	 <20050905075528.GB17607@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 05, 2005 at 09:32:59AM +0300, Pekka Enberg wrote:
-> On Thu, Sep 01, 2005 at 01:35:23PM +0200, Arjan van de Ven wrote:
-> > > +void gfs2_glock_hold(struct gfs2_glock *gl)
-> > > +{
-> > > +     glock_hold(gl);
-> > > +}
-> > >
-> > > eh why?
+On 9/5/05, David Teigland <teigland@redhat.com> wrote:
+> Either set could be trivially removed.  It's such an insignificant issue
+> that I've removed glock_hold and put.  For the record,
 > 
-> On 9/5/05, David Teigland <teigland@redhat.com> wrote:
-> > You removed the comment stating exactly why, see below.  If that's not a
-> > accepted technique in the kernel, say so and I'll be happy to change it
-> > here and elsewhere.
+> within glock.c we consistently paired inlined versions of:
+>         glock_hold()
+>         glock_put()
 > 
-> Is there a reason why users of gfs2_glock_hold() cannot use
-> glock_hold() directly?
+> we wanted external versions to be appropriately named so we had:
+>         gfs2_glock_hold()
+>         gfs2_glock_put()
+> 
+> still not sure if that technique is acceptable in this crowd or not.
 
-Either set could be trivially removed.  It's such an insignificant issue
-that I've removed glock_hold and put.  For the record,
+You still didn't answer my question why you needed two versions,
+though. AFAIK you didn't which makes the other one an redundant
+wrapper which are discouraged in kernel code.
 
-within glock.c we consistently paired inlined versions of:
-	glock_hold()
-	glock_put()
-
-we wanted external versions to be appropriately named so we had:
-	gfs2_glock_hold()
-	gfs2_glock_put()
-
-still not sure if that technique is acceptable in this crowd or not.
-Dave
-
+                               Pekka

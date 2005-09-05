@@ -1,44 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbVIEJmg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750910AbVIEJsz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932302AbVIEJmg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 05:42:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbVIEJmg
+	id S1750910AbVIEJsz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 05:48:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750911AbVIEJsz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 05:42:36 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:20375 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932302AbVIEJmf (ORCPT
+	Mon, 5 Sep 2005 05:48:55 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:32154 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750878AbVIEJsy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 05:42:35 -0400
-Date: Mon, 5 Sep 2005 17:48:07 +0800
-From: David Teigland <teigland@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Joel.Becker@oracle.com, ak@suse.de, linux-cluster@redhat.com,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [Linux-cluster] Re: GFS, what's remaining
-Message-ID: <20050905094807.GG17607@redhat.com>
-References: <20050903183241.1acca6c9.akpm@osdl.org> <20050904030640.GL8684@ca-server1.us.oracle.com> <200509040022.37102.phillips@istop.com> <20050903214653.1b8a8cb7.akpm@osdl.org> <20050904045821.GT8684@ca-server1.us.oracle.com> <20050903224140.0442fac4.akpm@osdl.org> <20050905043033.GB11337@redhat.com> <20050905015408.21455e56.akpm@osdl.org> <20050905092433.GE17607@redhat.com> <20050905021948.6241f1e0.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050905021948.6241f1e0.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+	Mon, 5 Sep 2005 05:48:54 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <Pine.LNX.4.63.0509031134240.567@cuia.boston.redhat.com> 
+References: <Pine.LNX.4.63.0509031134240.567@cuia.boston.redhat.com> 
+To: Rik van Riel <riel@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][1/2] fix for -mm add-sem_is_read-write_locked.patch 
+X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 22.0.50.4
+Date: Mon, 05 Sep 2005 10:48:43 +0100
+Message-ID: <26510.1125913723@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 05, 2005 at 02:19:48AM -0700, Andrew Morton wrote:
-> David Teigland <teigland@redhat.com> wrote:
-> > Four functions:
-> >   create_lockspace()
-> >   release_lockspace()
-> >   lock()
-> >   unlock()
-> 
-> Neat.  I'd be inclined to make them syscalls then.  I don't suppose anyone
-> is likely to object if we reserve those slots.
+Rik van Riel <riel@redhat.com> wrote:
 
-Patrick is really the expert in this area and he's off this week, but
-based on what he's done with the misc device I don't see why there'd be
-more than two or three parameters for any of these.
+> Here is an incremental fix to the add-sem_is_read-write_locked
+> patch in -mm.  Also attached is a full version of that file,
+> which can just be dropped into place - I've verified that none
+> of the patches in your stack get rejects.
 
-Dave
+The comment attached to the drop-in replacement patch is wrong:
 
+| [1. text/plain; add-sem_is_read-write_locked.patch]   
+| 
+| From: Rik Van Riel <riel@redhat.com>
+| 
+| Add sem_is_read/write_locked functions to the read/write semaphores, along the
+| same lines of the *_is_locked spinlock functions.  The swap token tuning patch
+| uses sem_is_read_locked; sem_is_write_locked is added for completeness.
+
+The function names you've used are incorrect.
+
+Furthermore, the substance of the patch is wrong in a number of ways:
+
+| Index: linux-2.6.13/include/asm-ppc64/rwsem.h
+| ===================================================================
+| --- linux-2.6.13.orig/include/asm-ppc64/rwsem.h
+| +++ linux-2.6.13/include/asm-ppc64/rwsem.h
+| @@ -163,5 +163,10 @@ static inline int rwsem_atomic_update(in
+|  	return atomic_add_return(delta, (atomic_t *)(&sem->count));
+|  }
+|  
+| +static inline int sem_is_read_locked(struct rw_semaphore *sem)
+| +{
+| +	return (sem->count != 0);
+| +}
+| +
+
+This uses the function wrong name. And:
+
+| Index: linux-2.6.13/include/linux/rwsem-spinlock.h
+| ===================================================================
+| --- linux-2.6.13.orig/include/linux/rwsem-spinlock.h
+| +++ linux-2.6.13/include/linux/rwsem-spinlock.h
+| @@ -61,5 +61,15 @@ extern void FASTCALL(__up_read(struct rw
+|  extern void FASTCALL(__up_write(struct rw_semaphore *sem));
+|  extern void FASTCALL(__downgrade_write(struct rw_semaphore *sem));
+|  
+| +static inline int sem_is_read_locked(struct rw_semaphore *sem)
+| +{
+| +	return (sem->activity > 0);
+| +}
+| +
+| +static inline int sem_is_write_locked(struct rw_semaphore *sem)
+| +{
+| +	return (sem->activity < 0);
+| +}
+| +
+
+Is inconsistent, though the tests are valid.
+
+Also, you don't need to bracket the expression handed to the return directive,
+but that's a minor matter.
+
+David

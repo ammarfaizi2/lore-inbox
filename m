@@ -1,60 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751283AbVIEOPJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751282AbVIEOPN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751283AbVIEOPJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 10:15:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751279AbVIEOPI
+	id S1751282AbVIEOPN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 10:15:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751279AbVIEOPL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 10:15:08 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:5250 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S1751266AbVIEOPG (ORCPT
+	Mon, 5 Sep 2005 10:15:11 -0400
+Received: from main.gmane.org ([80.91.229.2]:10896 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751276AbVIEOPI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 10:15:06 -0400
-Date: Mon, 5 Sep 2005 16:14:32 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Daniel Phillips <phillips@istop.com>, Andi Kleen <ak@suse.de>
-Cc: linux clustering <linux-cluster@redhat.com>, akpm@osdl.org,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: GFS, what's remaining
-Message-ID: <20050905141432.GF5498@marowsky-bree.de>
-References: <20050901104620.GA22482@redhat.com> <20050901132104.2d643ccd.akpm@osdl.org> <p73fysnqiej.fsf@verdi.suse.de> <200509030157.31581.phillips@istop.com>
+	Mon, 5 Sep 2005 10:15:08 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Kalin KOZHUHAROV <kalin@thinrope.net>
+Subject: Re: 2.6.13 (was 2.6.11.11) and rsync oops (SATA or NFS related?)
+Date: Mon, 05 Sep 2005 23:12:15 +0900
+Message-ID: <dfhjp3$fd4$1@sea.gmane.org>
+References: <dfg2sa$peu$2@sea.gmane.org> <dfguoq$eng$1@sea.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200509030157.31581.phillips@istop.com>
-X-Ctuhulu: HASTUR
-User-Agent: Mutt/1.5.10i
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: s175249.ppp.asahi-net.or.jp
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050804)
+X-Accept-Language: en-us, en
+In-Reply-To: <dfguoq$eng$1@sea.gmane.org>
+X-Enigmail-Version: 0.92.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2005-09-03T01:57:31, Daniel Phillips <phillips@istop.com> wrote:
+Kalin KOZHUHAROV wrote:
+> Kalin KOZHUHAROV wrote:
+> 
+>> Hi, there.
+>> Long time no posting - didn't have kernel problems for long time :-)
+>>
+>> That is why I am still running 2.6.11.11 (2.6.12 elsewhere). Will move
+>> to 2.6.13 soon.
+>>
+>> Yesterday just bought a new SATAII drive (Seagate Barracuda 7200.8
+>> ST3300831AS) and while trying to rsync some data from the old drives the
+>> rsync process died with segfault. My SiI3112 controller is not SATAII,
+>> but it should work in SATA mode, have another drive for year+. Looking
+>> at the dmesg I saw 3 oopses (see the shortened .dmesg file). Run the
+>> ksymoops and got some output (see .ksymoops.bz2).
+>>
+>> Although it does not seem very related to the drive, that is the only
+>> recent change in hardware, in software: udev . The machine (MB: A7V8X
+>> Deluxe) was working stable for 6 months with a few restarts.
+>>
+>> As far as reproducibility goes, apart from those 3 oopses everything is
+>> OK, didn't even have to restart and am now continuing to rsync some
+>> 200GB more.
+>>
+>> Any ideas as to what caused this?
+> 
+> 
+> OK, I upgraded to the latest 2.6.13 kernel and still got (similar?) oops.
+> 
+> Looking again at it it might be NFS (using v4 recently) related.
 
-> The only current users of dlms are cluster filesystems.  There are zero users 
-> of the userspace dlm api. 
+After stopping nfs (both v3 and v4) and rebooting, I could finish the 
+required 170GB rsync without more oopses. But I am still not convinced 
+whether this is a nfs issue or just I am being lucky this time. Will 
+keep on eye on the machine and report here again.
 
-That is incorrect, and you're contradicting yourself here:
+Kalin.
 
-> What does have to be resolved is a common API for node management.  It is not 
-> just cluster filesystems and their lock managers that have to interface to 
-> node management.  Below the filesystem layer, cluster block devices and 
-> cluster volume management need to be coordinated by the same system, and 
-> above the filesystem layer, applications also need to be hooked into it.  
-> This work is, in a word, incomplete.
-
-The Cluster Volume Management of LVM2 for example _does_ use simple
-cluster-wide locks, and some OCFS2 scripts, I seem to recall, do too.
-
-(EVMS2 in cluster-mode uses a verrry simple locking scheme which is
-basically operated by the failover software and thus uses a different
-model.)
-
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
+/ When nobody answers, try answering yourself :-| /
 
 -- 
-High Availability & Clustering
-SUSE Labs, Research and Development
-SUSE LINUX Products GmbH - A Novell Business	 -- Charles Darwin
-"Ignorance more frequently begets confidence than does knowledge"
+|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
++-> http://ThinRope.net/ <-+
+|[ ______________________ ]|
 

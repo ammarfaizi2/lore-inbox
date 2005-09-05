@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbVIEP3e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbVIEPc7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932307AbVIEP3e (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 11:29:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932297AbVIEP3e
+	id S932309AbVIEPc7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 11:32:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932313AbVIEPc7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 11:29:34 -0400
-Received: from chiark.greenend.org.uk ([193.201.200.170]:5301 "EHLO
-	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
-	id S932307AbVIEP3e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 11:29:34 -0400
-To: gl@dsa-ac.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: who sets boot_params[].screen_info.orig_video_isVGA?
-In-Reply-To: <Pine.LNX.4.63.0509051646480.11341@pcgl.dsa-ac.de>
-References: <Pine.LNX.4.63.0509051646480.11341@pcgl.dsa-ac.de>
-Date: Mon, 5 Sep 2005 16:29:33 +0100
-Message-Id: <E1ECIub-00088O-00@chiark.greenend.org.uk>
-From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+	Mon, 5 Sep 2005 11:32:59 -0400
+Received: from [85.8.12.41] ([85.8.12.41]:12416 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S932309AbVIEPc6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 11:32:58 -0400
+Message-ID: <431C6522.2090700@drzeus.cx>
+Date: Mon, 05 Sep 2005 17:32:50 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 1.0.6-5 (X11/20050818)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] ISA DMA suspend for i386
+References: <200509050815.j858FWrw027844@hera.kernel.org> <431C021C.2030603@pobox.com>
+In-Reply-To: <431C021C.2030603@pobox.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gl@dsa-ac.de <gl@dsa-ac.de> wrote:
-> Hi all,
+Jeff Garzik wrote:
 > 
-> I am trying to get intelfb running on a system with a 855GM onboard chip, 
-> and the driver exits at intelfbdrv.c::intelfb_pci_register() (2.6.13, line 
-> 814:
+> Where is CONFIG_PM?
 > 
->  	if (FIXED_MODE(dinfo) && ORIG_VIDEO_ISVGA != VIDEO_TYPE_VLFB) {
->  		ERR_MSG("Video mode must be programmed at boot time.\n");
->  		cleanup(dinfo);
->  		return -ENODEV;
->  	}
+>     Jeff
 
-This ought to be done by the bootloader if you pass a vga=foo argument.
-The framebuffer driver doesn't know how to switch resolutions (primarily
-because Intel won't tell anyone how to do it, so the only method is a
-real-mode BIOS call to the VESA BIOS)
+I'm not sure you're receiving my mails, but I'll give it a try anyway.
+It would also seem that my MTA is choking on your MX entries. I'll look
+into that once I get home.
 
--- 
-Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org
+CONFIG_PM is missing because of consistency with i8259.c, on which the
+code is based. So if it is desired I suppose a patch for them both would
+be in order.
+
+Rgds
+Pierre
+

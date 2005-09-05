@@ -1,41 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964941AbVIEXVf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbVIEXZS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964941AbVIEXVf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 19:21:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964944AbVIEXVf
+	id S964930AbVIEXZS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 19:25:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964947AbVIEXZR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 19:21:35 -0400
-Received: from allen.werkleitz.de ([80.190.251.108]:62338 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S964941AbVIEXVe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 19:21:34 -0400
-Date: Tue, 6 Sep 2005 01:21:24 +0200
-From: Johannes Stezenbach <js@linuxtv.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com
-Message-ID: <20050905232124.GA32121@linuxtv.org>
-Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	jgarzik@pobox.com
-References: <20050905135546.7732ec27.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 5 Sep 2005 19:25:17 -0400
+Received: from ns1.suse.de ([195.135.220.2]:50361 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964930AbVIEXZQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 19:25:16 -0400
+From: Andi Kleen <ak@suse.de>
+To: discuss@x86-64.org
+Subject: Re: [discuss] [2.6 patch] include/asm-x86_64 "extern inline" -> "static inline"
+Date: Tue, 6 Sep 2005 01:25:03 +0200
+User-Agent: KMail/1.8
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+References: <20050902203123.GT3657@stusta.de>
+In-Reply-To: <20050902203123.GT3657@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050905135546.7732ec27.akpm@osdl.org>
-User-Agent: Mutt/1.5.10i
-X-SA-Exim-Connect-IP: 84.189.247.218
-Subject: [Bug 4962] Re: kernel status, 5 Sep 2005
-X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
-X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
+Message-Id: <200509060125.04490.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 05, 2005 Andrew Morton wrote:
-> [Bug 4962] b2c2-flexcop module freezes
-> 	http://bugzilla.kernel.org/show_bug.cgi?id=4962
+On Friday 02 September 2005 22:31, Adrian Bunk wrote:
+> "extern inline" doesn't make much sense.
+>
+>
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-"freeze" means the hardware stops generating interrupts. Reason unknown,
-but a partial workaround was already merged into 2.6.13.
-Please read my comments in bugzilla and close this bug.
+Thanks applied (with a better description) 
 
-Johannes
+-Andi

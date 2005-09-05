@@ -1,87 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932274AbVIEHaR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932268AbVIEH1m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932274AbVIEHaR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 03:30:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbVIEHaR
+	id S932268AbVIEH1m (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 03:27:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbVIEH1m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 03:30:17 -0400
-Received: from colgate.yandex.ru ([213.180.200.34]:32927 "EHLO
-	colgate.yandex.ru") by vger.kernel.org with ESMTP id S932274AbVIEHaQ
+	Mon, 5 Sep 2005 03:27:42 -0400
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:61407 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S932268AbVIEH1l
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 03:30:16 -0400
-Date: Mon, 5 Sep 2005 11:30:02 +0400 (MSD)
-From: "Alexander Krizhanovsky" <klx@yandex.ru>
-Message-Id: <431BF3FA.000001.11625@colgate.yandex.ru>
-MIME-Version: 1.0
-X-Mailer: Yamail [ http://yandex.ru ]
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] autofs: fix "busy inodes after umount..."
-Reply-To: klx@yandex.ru
-X-Source-Ip: 195.214.233.10
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_262C40MWKGMMYJ0CCJD0"
+	Mon, 5 Sep 2005 03:27:41 -0400
+X-ORBL: [67.117.73.34]
+Date: Mon, 5 Sep 2005 10:27:05 +0300
+From: Tony Lindgren <tony@atomide.com>
+To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+Cc: Nishanth Aravamudan <nacc@us.ibm.com>, Con Kolivas <kernel@kolivas.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, ck list <ck@vds.kolivas.org>
+Subject: Re: [PATCH 1/3] dynticks - implement no idle hz for x86
+Message-ID: <20050905072704.GB5734@atomide.com>
+References: <20050831165843.GA4974@in.ibm.com> <200509031801.09069.kernel@kolivas.org> <20050903090650.B26998@flint.arm.linux.org.uk> <200509031814.49666.kernel@kolivas.org> <20050904201054.GA4495@us.ibm.com> <20050905070053.GA7329@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050905070053.GA7329@in.ibm.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Srivatsa Vaddagiri <vatsa@in.ibm.com> [050905 10:03]:
+> On Sun, Sep 04, 2005 at 01:10:54PM -0700, Nishanth Aravamudan wrote:
+> > 
+> > Also, I am a bit confused by the use of "dynamic-tick" to describe these
+> > changes. To me, these are all NO_IDLE_HZ implementations, as they are
+> > only invoked from cpu_idle() (or their equivalent) routines. I know this
+> > is true of s390 and the x86 code, and I believe it is true of the ARM
+> > code? If it were dynamic-tick, I would think we would be adjusting the
+> > timer interrupt frequency continuously (e.g., at the end of
+> > __run_timers() and at every call to {add,mod,del}_timer()). I was
+> > working on a patch which did some renaming to no_idle_hz_timer, etc.,
+> > but it's mostly code churn :)
+> 
+> Yes, the name 'dynamic-tick' is misleading!
 
---------------Boundary-00=_262C40MWKGMMYJ0CCJD0
-Content-Type: text/plain;
-  charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
+Huh? For most people dynamic-tick is much more descriptive name than
+NO_IDLE_HZ or VST!
 
-Hello!
+If you wanted, you could reprogram the next timer to happen from
+{add,mod,del}_timer() just by calling the timer_dyn_reprogram() there.
 
-This patch for old autofs (version 3) cleans dentries which not putted after killing automount daemon (it's analogue of recent patch for autofs4).
+And you would want to do that if you wanted sub-jiffie timer interrupts.
 
-Signed-off-by: Alexander Krizhanovsky <klx@yandex.ru>
---------------Boundary-00=_262C40MWKGMMYJ0CCJD0
-Content-Disposition: attachment;
-  Filename="autofs-patch"
-Content-Type: application/octet-stream;
-  name="autofs-patch"
-Content-Transfer-Encoding: base64
+So I'd rather not limit the name to the currently implemented functionality
+only :)
 
-LS0tIGxpbnV4LTIuNi4xMy9mcy9hdXRvZnMvYXV0b2ZzX2kuaC5vcmlnCTIwMDUtMDgtMjkgMDM6
-NDE6MDEuMDAwMDAwMDAwICswNDAwCisrKyBsaW51eC0yLjYuMTMvZnMvYXV0b2ZzL2F1dG9mc19p
-LmgJMjAwNS0wOS0wMiAyMDoxMDo1OS4wMDAwMDAwMDAgKzA0MDAKQEAgLTEwNSw2ICsxMDUsNyBA
-QCBzdHJ1Y3QgYXV0b2ZzX3NiX2luZm8gewogCXN0cnVjdCBmaWxlICpwaXBlOwogCXBpZF90IG96
-X3BncnA7CiAJaW50IGNhdGF0b25pYzsKKwlzdHJ1Y3Qgc3VwZXJfYmxvY2sgKnNiOwogCXVuc2ln
-bmVkIGxvbmcgZXhwX3RpbWVvdXQ7CiAJaW5vX3QgbmV4dF9kaXJfaW5vOwogCXN0cnVjdCBhdXRv
-ZnNfd2FpdF9xdWV1ZSAqcXVldWVzOyAvKiBXYWl0IHF1ZXVlIHBvaW50ZXIgKi8KQEAgLTEzNCw3
-ICsxMzUsNyBAQCB2b2lkIGF1dG9mc19oYXNoX2luc2VydChzdHJ1Y3QgYXV0b2ZzX2RpCiB2b2lk
-IGF1dG9mc19oYXNoX2RlbGV0ZShzdHJ1Y3QgYXV0b2ZzX2Rpcl9lbnQgKik7CiBzdHJ1Y3QgYXV0
-b2ZzX2Rpcl9lbnQgKmF1dG9mc19oYXNoX2VudW0oY29uc3Qgc3RydWN0IGF1dG9mc19kaXJoYXNo
-ICosb2ZmX3QgKixzdHJ1Y3QgYXV0b2ZzX2Rpcl9lbnQgKik7CiB2b2lkIGF1dG9mc19oYXNoX2Rw
-dXRhbGwoc3RydWN0IGF1dG9mc19kaXJoYXNoICopOwotdm9pZCBhdXRvZnNfaGFzaF9udWtlKHN0
-cnVjdCBhdXRvZnNfZGlyaGFzaCAqKTsKK3ZvaWQgYXV0b2ZzX2hhc2hfbnVrZShzdHJ1Y3QgYXV0
-b2ZzX3NiX2luZm8gKik7CiAKIC8qIEV4cGlyYXRpb24taGFuZGxpbmcgZnVuY3Rpb25zICovCiAK
-LS0tIGxpbnV4LTIuNi4xMy9mcy9hdXRvZnMvaW5vZGUuYy5vcmlnCTIwMDUtMDgtMjkgMDM6NDE6
-MDEuMDAwMDAwMDAwICswNDAwCisrKyBsaW51eC0yLjYuMTMvZnMvYXV0b2ZzL2lub2RlLmMJMjAw
-NS0wOS0wMiAyMDoxMzo0My4wMDAwMDAwMDAgKzA0MDAKQEAgLTI3LDcgKzI3LDcgQEAgc3RhdGlj
-IHZvaWQgYXV0b2ZzX3B1dF9zdXBlcihzdHJ1Y3Qgc3VwZQogCWlmICggIXNiaS0+Y2F0YXRvbmlj
-ICkKIAkJYXV0b2ZzX2NhdGF0b25pY19tb2RlKHNiaSk7IC8qIEZyZWUgd2FpdCBxdWV1ZXMsIGNs
-b3NlIHBpcGUgKi8KIAotCWF1dG9mc19oYXNoX251a2UoJnNiaS0+ZGlyaGFzaCk7CisJYXV0b2Zz
-X2hhc2hfbnVrZShzYmkpOwogCWZvciAoIG4gPSAwIDsgbiA8IEFVVE9GU19NQVhfU1lNTElOS1Mg
-OyBuKysgKSB7CiAJCWlmICggdGVzdF9iaXQobiwgc2JpLT5zeW1saW5rX2JpdG1hcCkgKQogCQkJ
-a2ZyZWUoc2JpLT5zeW1saW5rW25dLmRhdGEpOwpAQCAtMTQ4LDYgKzE0OCw3IEBAIGludCBhdXRv
-ZnNfZmlsbF9zdXBlcihzdHJ1Y3Qgc3VwZXJfYmxvY2sKIAlzLT5zX21hZ2ljID0gQVVUT0ZTX1NV
-UEVSX01BR0lDOwogCXMtPnNfb3AgPSAmYXV0b2ZzX3NvcHM7CiAJcy0+c190aW1lX2dyYW4gPSAx
-OworCXNiaS0+c2IgPSBzOwogCiAJcm9vdF9pbm9kZSA9IGlnZXQocywgQVVUT0ZTX1JPT1RfSU5P
-KTsKIAlyb290ID0gZF9hbGxvY19yb290KHJvb3RfaW5vZGUpOwotLS0gbGludXgtMi42LjEzL2Zz
-L2F1dG9mcy9kaXJoYXNoLmMub3JpZwkyMDA1LTA4LTI5IDAzOjQxOjAxLjAwMDAwMDAwMCArMDQw
-MAorKysgbGludXgtMi42LjEzL2ZzL2F1dG9mcy9kaXJoYXNoLmMJMjAwNS0wOS0wMiAyMDoxMDo1
-OS4wMDAwMDAwMDAgKzA0MDAKQEAgLTIzMiwxMyArMjMyLDEzIEBAIHZvaWQgYXV0b2ZzX2hhc2hf
-ZHB1dGFsbChzdHJ1Y3QgYXV0b2ZzX2QKIAogLyogRGVsZXRlIGV2ZXJ5dGhpbmcuICBUaGlzIGlz
-IHVzZWQgb24gZmlsZXN5c3RlbSBkZXN0cnVjdGlvbiwgc28gd2UKICAgIG1ha2Ugbm8gYXR0ZW1w
-dCB0byBrZWVwIHRoZSBwb2ludGVycyB2YWxpZCAqLwotdm9pZCBhdXRvZnNfaGFzaF9udWtlKHN0
-cnVjdCBhdXRvZnNfZGlyaGFzaCAqZGgpCit2b2lkIGF1dG9mc19oYXNoX251a2Uoc3RydWN0IGF1
-dG9mc19zYl9pbmZvICpzYmkpCiB7CiAJaW50IGk7CiAJc3RydWN0IGF1dG9mc19kaXJfZW50ICpl
-bnQsICpuZW50OwogCiAJZm9yICggaSA9IDAgOyBpIDwgQVVUT0ZTX0hBU0hfU0laRSA7IGkrKyAp
-IHsKLQkJZm9yICggZW50ID0gZGgtPmhbaV0gOyBlbnQgOyBlbnQgPSBuZW50ICkgeworCQlmb3Ig
-KCBlbnQgPSBzYmktPmRpcmhhc2guaFtpXSA7IGVudCA7IGVudCA9IG5lbnQgKSB7CiAJCQluZW50
-ID0gZW50LT5uZXh0OwogCQkJaWYgKCBlbnQtPmRlbnRyeSApCiAJCQkJZHB1dChlbnQtPmRlbnRy
-eSk7CkBAIC0yNDYsNCArMjQ2LDUgQEAgdm9pZCBhdXRvZnNfaGFzaF9udWtlKHN0cnVjdCBhdXRv
-ZnNfZGlyaAogCQkJa2ZyZWUoZW50KTsKIAkJfQogCX0KKwlzaHJpbmtfZGNhY2hlX3NiKHNiaS0+
-c2IpOwogfQo=
-
---------------Boundary-00=_262C40MWKGMMYJ0CCJD0--
+Tony

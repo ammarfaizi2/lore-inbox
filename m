@@ -1,57 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751248AbVIENGx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751249AbVIENR5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751248AbVIENGx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 09:06:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbVIENGx
+	id S1751249AbVIENR5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 09:17:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbVIENR5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 09:06:53 -0400
-Received: from fnoeppeil48.netpark.at ([217.175.205.176]:48145 "EHLO
-	roarinelk.homelinux.net") by vger.kernel.org with ESMTP
-	id S1751248AbVIENGx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 09:06:53 -0400
-Date: Mon, 5 Sep 2005 15:06:43 +0200
-From: Manuel Lauss <mano@roarinelk.homelinux.net>
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6.13 repeated ACPI events?
-Message-ID: <20050905130643.GA30428@roarinelk.homelinux.net>
-References: <Pine.LNX.4.63.0509050853310.3389@p34>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.63.0509050853310.3389@p34>
-User-Agent: Mutt/1.5.8i
+	Mon, 5 Sep 2005 09:17:57 -0400
+Received: from web8509.mail.in.yahoo.com ([202.43.219.171]:16473 "HELO
+	web8509.mail.in.yahoo.com") by vger.kernel.org with SMTP
+	id S1751249AbVIENR4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 09:17:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.co.in;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=NBD1LNe2NMBoAL7vNO6k8W+HnIIEkV6yppvj5z9P9NxYQo5h0XoilU+fRB5ACU+HIrtp3HoBUjUbNmV8u199qLRXxSz4fWACF78WRjBdKibnguV3S5agbl+y6Uyg5J4+e2GjbnuXwSpiPWKCLUC98jwDUN/npCnln5gEEa8yA8w=  ;
+Message-ID: <20050905131746.11900.qmail@web8509.mail.in.yahoo.com>
+Date: Mon, 5 Sep 2005 14:17:46 +0100 (BST)
+From: manomugdha biswas <manomugdhab@yahoo.co.in>
+Subject: netif_rx for ATM
+To: linux-kernel@vger.kernel.org
+Cc: linux-net@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 05, 2005 at 08:54:59AM -0400, Justin Piszcz wrote:
-> I have a box where I keep getting this in dmesg:
-> 
-> ACPI: PCI Interrupt 0000:01:00.0[A] -> Link [LNKD] -> GSI 5 (level, low) 
-> -> IRQ 5
-> ACPI: PCI Interrupt 0000:01:00.0[A] -> Link [LNKD] -> GSI 5 (level, low) 
-> -> IRQ 5
-> ACPI: PCI Interrupt 0000:01:00.0[A] -> Link [LNKD] -> GSI 5 (level, low) 
-> -> IRQ 5
-> ACPI: PCI Interrupt 0000:01:00.0[A] -> Link [LNKD] -> GSI 5 (level, low) 
-> -> IRQ 5
-> ACPI: PCI Interrupt 0000:01:00.0[A] -> Link [LNKD] -> GSI 5 (level, low) 
-> -> IRQ 5
-> ACPI: PCI Interrupt 0000:01:00.0[A] -> Link [LNKD] -> GSI 5 (level, low) 
-> -> IRQ 5
-> ACPI: PCI Interrupt 0000:01:00.0[A] -> Link [LNKD] -> GSI 5 (level, low) 
-> -> IRQ 5
-> ACPI: PCI Interrupt 0000:01:00.0[A] -> Link [LNKD] -> GSI 5 (level, low) 
-> -> IRQ 5
+Hi,
+I am writing a new driver module for ATM. I want to
+send a packet to protocol stack using netif_rx(). For
+ethernet i am using netif_rx() in the following way. I
+have dev pointer.
 
-> 01:00.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone]
-> 01:04.0 Ethernet controller: 3Com Corporation 3c905C-TX/TX-M [Tornado] 
+  skbuff->dev = device; 
+  skbuff->protocol = eth_type_trans(skbuff, device); 
+  netif_rx(skbuff); 
 
-I have a 3c905B nic that was sometimes enumerated up to 15 times (Intel
-BX Chipset)
-Plugging the thing out of its pci socket and back in always cured it.
+It works for ethernet and POS and does not work for
+ATM. Could anyone please tell me what to do for ATM?
 
-maybe yours suffers from the same "bug" ?
+Regards,
+Mano
 
--- 
- Manuel Lauss
+
+Manomugdha Biswas
+
+
+	
+
+	
+		
+__________________________________________________________ 
+Yahoo! India Matrimony: Find your partner online. Go to http://yahoo.shaadi.com

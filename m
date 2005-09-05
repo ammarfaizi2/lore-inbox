@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751270AbVIEOR2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751276AbVIEO01@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751270AbVIEOR2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 10:17:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbVIEOR2
+	id S1751276AbVIEO01 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 10:26:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751279AbVIEO00
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 10:17:28 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:9858 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S1751270AbVIEOR2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 10:17:28 -0400
-Date: Mon, 5 Sep 2005 16:16:31 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Bernd Eckenfels <ecki@lina.inka.de>, linux-kernel@vger.kernel.org
-Subject: Re: GFS, what's remaining
-Message-ID: <20050905141631.GG5498@marowsky-bree.de>
-References: <20050903070639.GC4593@ca-server1.us.oracle.com> <E1EBSRB-0003lW-00@calista.eckenfels.6bone.ka-ip.net>
+	Mon, 5 Sep 2005 10:26:26 -0400
+Received: from nproxy.gmail.com ([64.233.182.198]:40675 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751276AbVIEO00 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 10:26:26 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=GMlkaCxKFFv2d9MNNT6Azx7oK4/6gPJ98IsDvsldzgH8ubPr8BurzqESGh/N+Az5uYsC0v/4xT1uKaoanNQ2a5kwTNHw2hegqOifXDZNB3nI7y4z0aFzndAL2I8OiFIniiWVBH9NPy3lOCSSOhtR5gj5av9RyOVbz6eyjjb215A=
+Message-ID: <df33fe7c050905072642a9c938@mail.gmail.com>
+Date: Mon, 5 Sep 2005 16:26:21 +0200
+From: Takis <panagiotis.issaris@gmail.com>
+To: Jiri Slaby <jirislaby@gmail.com>
+Subject: Re: [PATCH] ipw2200: Missing kmalloc check
+Cc: ipw2100-admin@linux.intel.com, linux-kernel@vger.kernel.org
+In-Reply-To: <431C31A5.3080804@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <E1EBSRB-0003lW-00@calista.eckenfels.6bone.ka-ip.net>
-X-Ctuhulu: HASTUR
-User-Agent: Mutt/1.5.10i
+References: <1125886450.4017.14.camel@nyx> <431C31A5.3080804@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2005-09-03T09:27:41, Bernd Eckenfels <ecki@lina.inka.de> wrote:
+On 9/5/05, Jiri Slaby <jirislaby@gmail.com> wrote:
+> >       rxq = (struct ipw_rx_queue *)kmalloc(sizeof(*rxq), GFP_KERNEL);
+> >+      if (unlikely(!rxq)) {
+> >+              IPW_ERROR("memory allocation failed\n");
+> >+              return NULL;
+> >+      }
+> >       memset(rxq, 0, sizeof(*rxq));
+> >
+> >
+> and use kzalloc instead of kmalloc and memset 0?
 
-> Oh thats interesting, I never thought about putting data files (tablespaces)
-> in a clustered file system. Does that mean you can run supported RAC on
-> shared ocfs2 files and anybody is using that?
+Yes, but Morton's tree hasn't got the ipw2200 yet, while Linus'
+Linux-tree hasn't pulled in the patches containing kzalloc. I'll send
+a new patch as soon as the kzalloc patch get in Linus' tree or ipw in
+Marton's.
 
-That is the whole point why OCFS exists ;-)
-
-> Do you see this go away with ASM?
-
-No. Beyond the table spaces, there's also ORACLE_HOME; a cluster
-benefits in several aspects from a general-purpose SAN-backed CFS.
-
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-High Availability & Clustering
-SUSE Labs, Research and Development
-SUSE LINUX Products GmbH - A Novell Business	 -- Charles Darwin
-"Ignorance more frequently begets confidence than does knowledge"
-
+With friendly regards,
+Takis

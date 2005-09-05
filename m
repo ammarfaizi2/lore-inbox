@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751027AbVIEK5G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751073AbVIELJs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751027AbVIEK5G (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 06:57:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751081AbVIEK5G
+	id S1751073AbVIELJs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 07:09:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751081AbVIELJs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 06:57:06 -0400
-Received: from ns2.suse.de ([195.135.220.15]:25313 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751027AbVIEK5F (ORCPT
+	Mon, 5 Sep 2005 07:09:48 -0400
+Received: from mx1.suse.de ([195.135.220.2]:64909 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751073AbVIELJr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 06:57:05 -0400
-Date: Mon, 05 Sep 2005 12:57:01 +0200
-Message-ID: <s5h1x43u6iq.wl%tiwai@suse.de>
+	Mon, 5 Sep 2005 07:09:47 -0400
+Date: Mon, 05 Sep 2005 13:09:46 +0200
+Message-ID: <s5hzmqrsrd1.wl%tiwai@suse.de>
 From: Takashi Iwai <tiwai@suse.de>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: PeiSen Hou <pshou@realtek.com.tw>,
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, alsa-devel@alsa-project.org, perex@suse.cz,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] Bring the Vaio's RA826G HDA (82801) to life ...
-In-Reply-To: <Pine.LNX.4.63.0509041007560.9176@localhost.localdomain>
-References: <Pine.LNX.4.63.0509041007560.9176@localhost.localdomain>
+Subject: Re: [PATCH] fix some warnings in sound
+In-Reply-To: <200509022243.j82MhrAZ002660@wscnet.wsc.cz>
+References: <200509022243.j82MhrAZ002660@wscnet.wsc.cz>
 User-Agent: Wanderlust/2.12.0 (Your Wildest Dreams) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.7 (=?ISO-8859-4?Q?Sanj=F2?=) APEL/10.6 MULE XEmacs/21.5 (beta18)
  (chestnut) (+CVS-20041021) (i386-suse-linux)
@@ -26,19 +26,77 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At Sun, 4 Sep 2005 10:13:01 -0700 (PDT),
-Davide Libenzi wrote:
+At Sat, 3 Sep 2005 00:43:53 +0200,
+Jiri Slaby wrote:
 > 
+> Some drivers don't control return values, that can fail.
 > 
-> Add the subsystem PCI devid to the list (on top of 2.6.13).
+> Generated in 2.6.13-mm1 kernel version.
 > 
+> Signed-off-by: Jiri Slaby <xslaby@fi.muni.cz>
 > 
-> - Davide
+>  ali5451/ali5451.c   |    3 ++-
+>  cs46xx/cs46xx_lib.c |    6 ++++--
+>  via82xx.c           |    8 +++++---
+>  3 files changed, 11 insertions(+), 6 deletions(-)
 > 
-> 
-> Signed-off-by: Davide Libenzi <davidel@xmailserver.org>
+> diff --git a/sound/pci/ali5451/ali5451.c b/sound/pci/ali5451/ali5451.c
+> --- a/sound/pci/ali5451/ali5451.c
+> +++ b/sound/pci/ali5451/ali5451.c
+> @@ -2067,7 +2067,8 @@ static int ali_resume(snd_card_t *card)
+>  	if (! im)
+>  		return 0;
+>  
+> -	pci_enable_device(chip->pci);
+> +	if ((i = pci_enable_device(chip->pci)))
+> +		return i;
+>  
+>  	spin_lock_irq(&chip->reg_lock);
+>  	
+> diff --git a/sound/pci/cs46xx/cs46xx_lib.c b/sound/pci/cs46xx/cs46xx_lib.c
+> --- a/sound/pci/cs46xx/cs46xx_lib.c
+> +++ b/sound/pci/cs46xx/cs46xx_lib.c
+> @@ -3722,9 +3722,11 @@ static int snd_cs46xx_suspend(snd_card_t
+>  static int snd_cs46xx_resume(snd_card_t *card)
+>  {
+>  	cs46xx_t *chip = card->pm_private_data;
+> -	int amp_saved;
+> +	int amp_saved, err;
+> +
+> +	if ((err = pci_enable_device(chip->pci)))
+> +		return err;
+>  
+> -	pci_enable_device(chip->pci);
+>  	pci_set_master(chip->pci);
+>  	amp_saved = chip->amplifier;
+>  	chip->amplifier = 0;
+> diff --git a/sound/pci/via82xx.c b/sound/pci/via82xx.c
+> --- a/sound/pci/via82xx.c
+> +++ b/sound/pci/via82xx.c
+> @@ -1977,7 +1977,8 @@ static int snd_via82xx_suspend(snd_card_
+>  		chip->capture_src_saved[1] = inb(chip->port + VIA_REG_CAPTURE_CHANNEL + 0x10);
+>  	}
+>  
+> -	pci_set_power_state(chip->pci, 3);
+> +	if ((i = pci_set_power_state(chip->pci, 3)))
+> +		return i;
+>  	pci_disable_device(chip->pci);
+>  	return 0;
+>  }
+> @@ -1987,8 +1988,9 @@ static int snd_via82xx_resume(snd_card_t
+>  	via82xx_t *chip = card->pm_private_data;
+>  	int i;
+>  
+> -	pci_enable_device(chip->pci);
+> -	pci_set_power_state(chip->pci, 0);
+> +	if ((i = pci_enable_device(chip->pci)) ||
+> +			(i = pci_set_power_state(chip->pci, 0)))
+> +		return i;
+>  
+>  	snd_via82xx_chip_init(chip);
 
-Applied to ALSA tree.  Thanks!
+Wel, these changes don't work as expected in the end because pci
+handler doesn't handle the error path in suspend/resume...
 
 
 Takashi

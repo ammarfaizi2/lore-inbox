@@ -1,44 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbVIFPcR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750728AbVIFPnh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750720AbVIFPcR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 11:32:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbVIFPcR
+	id S1750728AbVIFPnh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 11:43:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750734AbVIFPnh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 11:32:17 -0400
-Received: from main.gmane.org ([80.91.229.2]:37766 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750720AbVIFPcQ (ORCPT
+	Tue, 6 Sep 2005 11:43:37 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:35507 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1750728AbVIFPng (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 11:32:16 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Matthieu CASTET <castet.matthieu@free.fr>
-Subject: Re: how to create atm interface in linux
-Date: Tue, 06 Sep 2005 16:06:10 +0200
-Message-ID: <pan.2005.09.06.14.06.10.837023@free.fr>
-References: <20050906134335.48615.qmail@web8501.mail.in.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: cac94-1-81-57-151-96.fbx.proxad.net
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
-Cc: linux-net@vger.kernel.org
+	Tue, 6 Sep 2005 11:43:36 -0400
+Message-ID: <092301c5b2b4$c6f4b330$448b5c99@polux132>
+Reply-To: <polux132@cashette.com>
+From: <polux132@cashette.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: CANADA & USA funding available
+Date: Tue, 06 Sep 2005 07:29:55 +0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1123
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1123
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le Tue, 06 Sep 2005 14:43:35 +0100, manomugdha biswas a écrit :
+CANADIAN PUBLICATIONS
+4865 HWY 138, R.R 1
+ST-ANDREWS WEST 
+ONTARIO, KOC 2A0
+1-866-322-3376
+To; linux-kernel@vger.kernel.org
 
-> Hi,
-> I want to create an ATM interface on linux. I can
-> create ethernet interface using alloc_etherdev() and
-> then registering this device. Can I use the same
-> function to create atm interface ? Or there is other
-> way to do this? Can you please give some light on this
-> issue?
-> 
-look how it is done in net/atm driver
+PRESS RELEASE
 
-Hint : use alloc_netdev
+CANADIAN SUBSIDY DIRECTORY YEAR 2005 EDITION
+Also available: American Grants & Loans Directory (USA)
 
-Matthieu
+Canadian Publications is offering to the public a revised edition of the
+Canadian Subsidy Directory, a guide containing more than 3000 direct and
+indirect financial subsidies, grants and loans offered by government
+departments and agencies, foundations, associations and organizations.  In
+this new 2005 edition all programs are well described.
+The Canadian Subsidy Directory is the most comprehensive tool to start up a
+business, improve existent activities, set up a business plan, or obtain
+assistance from experts in fields such as:
+Industry, transport, agriculture, communications, municipal infrastructure,
+education, import-export, labor, construction and renovation, the service
+sector, hi-tech industries, research and development, joint ventures, arts,
+cinema, theatre, music and recording industry, the self employed, contests,
+and new talents.
+Assistance from and for foundations and associations, guidance to prepare a
+business plan, market surveys, computers, and much more!
+The Canadian Subsidy Directory is sold $ 69.95 CD-Rom or $ 149.95 Printed,
+to obtain the Canadian Subsidy Directory call toll free 1-866-322-3376.
+
 

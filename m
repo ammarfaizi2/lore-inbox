@@ -1,79 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932188AbVIEDyr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932185AbVIEDy1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932188AbVIEDyr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 23:54:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932190AbVIEDyr
+	id S932185AbVIEDy1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 23:54:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbVIEDy1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 23:54:47 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:32322
-	"EHLO g5.random") by vger.kernel.org with ESMTP id S932188AbVIEDyq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 23:54:46 -0400
-Date: Mon, 5 Sep 2005 05:54:32 +0200
-From: Andrea Arcangeli <andrea@cpushare.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org,
-       cpushare-devel@cpushare.com
-Subject: [patch] i386 seccomp fix for auditing/ptrace
-Message-ID: <20050905035432.GG17185@g5.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Sun, 4 Sep 2005 23:54:27 -0400
+Received: from smtpout.mac.com ([17.250.248.85]:5606 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S932185AbVIEDy0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 23:54:26 -0400
+In-Reply-To: <20050905034158.97152.qmail@web50213.mail.yahoo.com>
+References: <20050905034158.97152.qmail@web50213.mail.yahoo.com>
+Mime-Version: 1.0 (Apple Message framework v734)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <2248681C-3D0F-4DA8-A882-9ECBBFB0247E@mac.com>
+Cc: Sean <seanlkml@sympatico.ca>, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: RFC: i386: kill !4KSTACKS
+Date: Sun, 4 Sep 2005 23:54:04 -0400
+To: Alex Davis <alex14641@yahoo.com>
+X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sep 4, 2005, at 23:41:58, Alex Davis wrote:
+> --- Sean <seanlkml@sympatico.ca> wrote:
+>> It's not a philosophical issue, it's what Linux _is_: an open source
+>> operating system! That's what the developers are working on; not your
+>> half-baked vision.
+> Um, ever hear of 'compromise'?? All I'm saying is let people use what
+> currently works until we can get an open-source solution.  
+> Ndiswrapper's
+> existence is not stopping you (or anyone else) from pestering  
+> manufacturers
+> for spec's and writing drivers. I look at ndiswrapper as a stop-gap  
+> solution.
+> Hey, even Linus himself has said 'better a sub-optimal solution  
+> than no solution'.
 
-This is the same issue as ppc64 before, when returning to userland we
-shouldn't re-compute the seccomp check or the task could be killed
-during sigreturn when orig_eax is overwritten by the sigreturn syscall.
-This was found by Roland.
+In any case, this discussion is moot because the kernel API is changing
+for the better and there is a clearly defined fix for ndiswrapper that
+will allow it to continue to work even with the new interface:  allocate
+a separate ndiswrapper stack (IE: Not the kernel stacks).  The kernel is
+under no obligation not to break out-of-tree drivers, etc, even semi- 
+non-
+-binary-only ones such as ndiswrapper.  Figure out how to fix it and
+move on!
 
-This was harmless from a security standpoint, but some i686 users
-reported failures with auditing enabled system wide (some distro
-surprisingly makes it the default) and I reproduced it too by keeping
-the whole workload under strace -f.
+Cheers,
+Kyle Moffett
 
-Patch is tested and works for me under strace -f.
+--
+Q: Why do programmers confuse Halloween and Christmas?
+A: Because OCT 31 == DEC 25.
 
-nobody@athlon:~/cpushare> strace -o /tmp/o -f python seccomp_test.py
-make: Nothing to be done for `seccomp_test'.
-Starting computing some malicious bytecode
-init
-load
-start
-stop
-receive_data failure
-kill
-exit_code 0 signal 9
-The malicious bytecode has been killed successfully by seccomp
-Starting computing some safe bytecode
-init
-load
-start
-stop
-174 counts
-kill
-exit_code 0 signal 0
-The seccomp_test.py completed successfully, thank you for testing.
 
-Thanks.
 
-Signed-off-by: Andrea Arcangeli <andrea@cpushare.com>
-
-diff -r 1df7bfbb783f arch/i386/kernel/ptrace.c
---- a/arch/i386/kernel/ptrace.c	Fri Sep  2 09:01:35 2005
-+++ b/arch/i386/kernel/ptrace.c	Mon Sep  5 05:30:49 2005
-@@ -680,8 +680,9 @@
- __attribute__((regparm(3)))
- void do_syscall_trace(struct pt_regs *regs, int entryexit)
- {
--	/* do the secure computing check first */
--	secure_computing(regs->orig_eax);
-+	if (!entryexit)
-+		/* do the secure computing check first */
-+		secure_computing(regs->orig_eax);
- 
- 	if (unlikely(current->audit_context) && entryexit)
- 		audit_syscall_exit(current, AUDITSC_RESULT(regs->eax), regs->eax);

@@ -1,56 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932268AbVIEH1m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932272AbVIEH1H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932268AbVIEH1m (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 03:27:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbVIEH1m
+	id S932272AbVIEH1H (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 03:27:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbVIEH1G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 03:27:42 -0400
-Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:61407 "EHLO
-	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S932268AbVIEH1l
+	Mon, 5 Sep 2005 03:27:06 -0400
+Received: from nproxy.gmail.com ([64.233.182.207]:31209 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932268AbVIEH1F convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 03:27:41 -0400
-X-ORBL: [67.117.73.34]
-Date: Mon, 5 Sep 2005 10:27:05 +0300
-From: Tony Lindgren <tony@atomide.com>
-To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-Cc: Nishanth Aravamudan <nacc@us.ibm.com>, Con Kolivas <kernel@kolivas.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, ck list <ck@vds.kolivas.org>
-Subject: Re: [PATCH 1/3] dynticks - implement no idle hz for x86
-Message-ID: <20050905072704.GB5734@atomide.com>
-References: <20050831165843.GA4974@in.ibm.com> <200509031801.09069.kernel@kolivas.org> <20050903090650.B26998@flint.arm.linux.org.uk> <200509031814.49666.kernel@kolivas.org> <20050904201054.GA4495@us.ibm.com> <20050905070053.GA7329@in.ibm.com>
+	Mon, 5 Sep 2005 03:27:05 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=c/IoGaOOr6k2FvTFuopGs2og/j/JwSyr4/kHeSJ8hYjeDUCfcKUgVhpfiqiiaRytodJdBA9IA4q/4CO8Z2aSTgXE/jLlD9T7trkHatWqar1B/uD5Ppgfs5CmOPjPS76+mdrl04fJ0TlHrQQjDzN0uBkrM00mRgc6YloyG17bc7w=
+Message-ID: <58cb370e050905002630a0e02e@mail.gmail.com>
+Date: Mon, 5 Sep 2005 09:26:57 +0200
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
+Subject: Re: Linux Kernel 2.6.13-rc7 (WORKS) (2.6.13, DRQ/System CRASH)
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, support@promise.com,
+       linux-ide@vger.kernel.org, apiszcz@lucidpixels.com
+In-Reply-To: <Pine.LNX.4.63.0508311408320.1945@p34>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050905070053.GA7329@in.ibm.com>
-User-Agent: Mutt/1.5.9i
+References: <Pine.LNX.4.63.0508311328230.1945@p34>
+	 <Pine.LNX.4.63.0508311408320.1945@p34>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Srivatsa Vaddagiri <vatsa@in.ibm.com> [050905 10:03]:
-> On Sun, Sep 04, 2005 at 01:10:54PM -0700, Nishanth Aravamudan wrote:
-> > 
-> > Also, I am a bit confused by the use of "dynamic-tick" to describe these
-> > changes. To me, these are all NO_IDLE_HZ implementations, as they are
-> > only invoked from cpu_idle() (or their equivalent) routines. I know this
-> > is true of s390 and the x86 code, and I believe it is true of the ARM
-> > code? If it were dynamic-tick, I would think we would be adjusting the
-> > timer interrupt frequency continuously (e.g., at the end of
-> > __run_timers() and at every call to {add,mod,del}_timer()). I was
-> > working on a patch which did some renaming to no_idle_hz_timer, etc.,
-> > but it's mostly code churn :)
+On 8/31/05, Justin Piszcz <jpiszcz@lucidpixels.com> wrote:
+> I do not even have IDE Taskfile Access enabled, so how is the kernel
+> printing these error messages before it freezes?
 > 
-> Yes, the name 'dynamic-tick' is misleading!
+> linux-2.6.13/drivers/ide/ide-taskfile.c:                printk(KERN_ERR
+> "%s: no DRQ after issuing %sWRITE%s\n",
+> 
+> 
+>    lqqqqqqqqqqqqqqqqqqqqqqq ATA/ATAPI/MFM/RLL support qqqqqqqqqqqqqqqqqqqqqqqk
+>    x x[ ]     IDE Taskfile Access
 
-Huh? For most people dynamic-tick is much more descriptive name than
-NO_IDLE_HZ or VST!
+After DMA timeout driver reverted back to PIO,
+ide-taskfile.c also holds PIO code besides IDE Taskfile Access.
 
-If you wanted, you could reprogram the next timer to happen from
-{add,mod,del}_timer() just by calling the timer_dyn_reprogram() there.
-
-And you would want to do that if you wanted sub-jiffie timer interrupts.
-
-So I'd rather not limit the name to the currently implemented functionality
-only :)
-
-Tony
+Bartlomiej

@@ -1,76 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932297AbVIEP3s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751231AbVIEPno@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932297AbVIEP3s (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 11:29:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbVIEP3s
+	id S1751231AbVIEPno (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 11:43:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751295AbVIEPno
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 11:29:48 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:9649 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S932297AbVIEP3r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 11:29:47 -0400
-Message-Id: <200509051529.j85FTeGi019917@laptop11.inf.utfsm.cl>
-To: Willy Tarreau <willy@w.ods.org>
-cc: Sean <seanlkml@sympatico.ca>, Alex Davis <alex14641@yahoo.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: RFC: i386: kill !4KSTACKS 
-In-Reply-To: Message from Willy Tarreau <willy@w.ods.org> 
-   of "Mon, 05 Sep 2005 07:01:08 +0200." <20050905050108.GA16596@alpha.home.local> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Mon, 05 Sep 2005 11:29:40 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.19.1]); Mon, 05 Sep 2005 11:29:42 -0400 (CLT)
+	Mon, 5 Sep 2005 11:43:44 -0400
+Received: from pythagoras.zen.co.uk ([212.23.3.140]:20715 "EHLO
+	pythagoras.zen.co.uk") by vger.kernel.org with ESMTP
+	id S1751231AbVIEPnn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 11:43:43 -0400
+Message-Id: <200509051543.j85FhWDS008418@StraightRunning.com>
+From: "Colin Harrison" <colin.harrison@virgin.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: kernel BUG at net/ipv4/tcp.c:775!  with 2.6.13-git5
+Date: Mon, 5 Sep 2005 16:43:44 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Copyright: Copyright (c) 2005 Colin Harrison
+X-Domain: StraightRunning.com
+X-Admin: colin@straightrunning.com
+X-Originating-Pythagoras-IP: [62.3.107.196]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau <willy@w.ods.org> wrote:
-> On Mon, Sep 05, 2005 at 12:47:03AM -0400, Sean wrote:
+Hi
 
-[...]
+I'm getting the following BUG report with 2.6.13-git5:-
 
-> > But the real crux of the argument here is not whether or not people should
-> > ever use binary-only drivers, it's whether the open source kernel
-> > developers should spend any time worrying about it or not.
+ ------------[ cut here ]------------
+kernel BUG at net/ipv4/tcp.c:775!
+invalid operand: 0000 [#5]
+PREEMPT
+Modules linked in: raw ipv6 snd_seq_oss snd_seq_midi_event snd_seq
+snd_seq_devic
+e snd_pcm_oss snd_mixer_oss snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_pcm
+snd
+_timer snd_page_alloc snd soundcore parport_pc lp parport floppy natsemi
+nls_iso
+8859_15 ntfs mga_vid fusion intel_agp agpgart hw_random uhci_hcd usbcore
+sd_mod
+aic7xxx scsi_transport_spi
+CPU:    0
+EIP:    0060:[<c0266a08>]    Not tainted VLI
+EFLAGS: 00010206   (2.6.13-git5)
+EIP is at tcp_sendmsg+0x8c4/0xab3
+eax: 00001000   ebx: 00001000   ecx: 00000000   edx: 00000001
+esi: d2e09700   edi: 0000015c   ebp: d4f67380   esp: d3f97d68
+ds: 007b   es: 007b   ss: 0068
+Process httpd (pid: 5952, threadinfo=d3f97000 task=d6b84030)
+Stack: ea055778 0000008f d6b84030 d6b8415c d3f97000 ffffffff 00001000
+00000000
+       00000001 00000000 d293e1b5 000000b5 084329a4 0000015c 00001e80
+00004000
+       00004000 00000040 00000003 d3f97f4c 00000000 000080d2 00000000
+e2c638a0
+Call Trace:
+ [<c0281e34>] inet_sendmsg+0x47/0x5f
+ [<c0241e30>] sock_sendmsg+0xc9/0xeb
+ [<c013fbf8>] do_no_page+0x6b/0x36d
+ [<c013f0a5>] do_wp_page+0x214/0x361
+ [<c013574c>] buffered_rmqueue+0x107/0x1e9
+ [<c0127dad>] autoremove_wake_function+0x0/0x43
+ [<c0135c04>] __alloc_pages+0x313/0x3c6
+ [<c02422cb>] sock_readv_writev+0x69/0x8e
+ [<c0242368>] sock_writev+0x37/0x3e
+ [<c0242331>] sock_writev+0x0/0x3e
+ [<c014dfd1>] do_readv_writev+0x29a/0x2c2
+ [<c01104eb>] do_page_fault+0x1a2/0x54a
+ [<c014e08b>] vfs_writev+0x48/0x4d
+ [<c014e16e>] sys_writev+0x41/0x9d
+ [<c01029a3>] sysenter_past_esp+0x54/0x75
+Code: 01 f8 3d ff 0f 00 00 0f 87 ee fc ff ff 8b 4c 24 1c ff 41 08 89 8e fc
+00 00
+ 00 e9 dc fc ff ff 8b 44 24 18 85 c0 0f 84 d0 fb ff ff <0f> 0b 07 03 e0 72
+2b c0
+ e9 c3 fb ff ff 31 c9 8b 54 24 2c 89 e8
 
-> I think we should not worry about it, but we should not deliberately break
-> it in a stable series when that does not bring anything.
+Any more details required?
+I'll build a debug version and see if i get a better trace.
 
-4Kstacks sure /does/ bring something. Quite a lot, actually. Please stop
-pretending that the kernel crowd is out to get innocent users just for fun
-and games. There /are/ technical reasons behind the change, the change
-/has/ been tested for a long time and remaining bugs have (all but) been
-flushed out, and now the time for the final step has come (get rid of the
-old ways once and for all).
-
->                                                          The fact that
-> Adrian proposed to completely remove the option is sad.
-
-I for one don't see why.
-
->                                                         It's in the windows
-> world that you can't choose. In Linux, you make menuconfig and choose what
-> suits your needs.
-
-When it goes away, you can fork your own version of the kernel with the
-legacy option, or even figure out how to fix the offending user that needs
-it (funny, that was exactly what was supposed to happen in the meantime).
-
-You could even try to brib^Wconvince a kernel developer to do the above for
-you, or hire a competent hacker. Or even pool your money with others that
-see the same need and put out a call for getting it done.
-
-Perhaps even better, put pressure on the vendors that don't want to give
-out specs. Find out why, try to find out if something can be worked out
-(specs under NDA, but GPLed driver, perhaps).
-
-Yes, Linux /is/ full of options. 
-
-Just go and try to make some piece of ancient hardware work on some of the
-propietary systems. /There/ you get no chance but "Oh, just change your
-machine". 
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Colin Harrison
 

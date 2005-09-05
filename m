@@ -1,299 +1,276 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932677AbVIEVoH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932682AbVIEVpY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932677AbVIEVoH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 17:44:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932673AbVIEVnw
+	id S932682AbVIEVpY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 17:45:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932691AbVIEVpI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 17:43:52 -0400
-Received: from smtp4.brturbo.com.br ([200.199.201.180]:20562 "EHLO
-	smtp4.brturbo.com.br") by vger.kernel.org with ESMTP
-	id S932677AbVIEVnl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 17:43:41 -0400
-Date: Mon, 05 Sep 2005 18:26:15 -0300
-From: mchehab@brturbo.com.br
-To: linux-kernel@vger.kernel.org
-Cc: video4linux-list@redhat.com, akpm@osdl.org
-Subject: [PATCH 04/24] V4L: SAA7134 updates and board additions
-Message-ID: <431cb7f7.GOx66tQV23534Tpt%mchehab@brturbo.com.br>
-User-Agent: nail 11.25 7/29/05
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="=_431cb7f7.ZAMOIm5bB9cfYK2hVL+RW7Nffz7tuAD93Pl1iLA8+Dt0SiL5"
+	Mon, 5 Sep 2005 17:45:08 -0400
+Received: from mail.kroah.org ([69.55.234.183]:12742 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932673AbVIEVoz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 17:44:55 -0400
+Date: Mon, 5 Sep 2005 14:44:32 -0700
+From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org
+Subject: [GIT PATCH] I2C patches for 2.6.13
+Message-ID: <20050905214431.GA5897@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Here are a bunch of I2C and HWMON patches that have been in the -mm tree
+for a while.  There is a bunch of hwmon and i2c driver split up changes,
+and some i2c api reworks to reduce the size of the structures, and the
+size of the kernel code (which accounts for all of the small changes to
+all of the sensor and i2c drivers across the whole kenel tree.)  There
+are also a few new drivers added to the tree.
 
---=_431cb7f7.ZAMOIm5bB9cfYK2hVL+RW7Nffz7tuAD93Pl1iLA8+Dt0SiL5
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Please pull from:
+	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/i2c-2.6.git/
+or from:
+	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/i2c-2.6.git/
+if it isn't synced up yet.
 
-.
+The full patch series will sent to the sensors mailing list, if anyone
+wants to see them.
 
---=_431cb7f7.ZAMOIm5bB9cfYK2hVL+RW7Nffz7tuAD93Pl1iLA8+Dt0SiL5
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="v4l-04-saa7134-update.diff"
+thanks,
 
-- Remove $Id CVS logs for V4L files
-- linux/version.h replaced by linux/utsname.h
-- Add new Digimatrix card and LG TAPC Mini tuner for it
+greg k-h
 
-Signed-off-by: Hermann Pitton <hermann.pitton@onlinehome.de>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+ Documentation/hwmon/lm78                          |    7 
+ Documentation/hwmon/w83792d                       |  174 ++
+ Documentation/i2c/chips/max6875                   |   98 -
+ Documentation/i2c/functionality                   |    2 
+ Documentation/i2c/porting-clients                 |   25 
+ Documentation/i2c/writing-clients                 |  144 -
+ MAINTAINERS                                       |    9 
+ drivers/hwmon/Kconfig                             |   74 
+ drivers/hwmon/Makefile                            |    4 
+ drivers/hwmon/adm1021.c                           |   35 
+ drivers/hwmon/adm1025.c                           |   31 
+ drivers/hwmon/adm1026.c                           |   27 
+ drivers/hwmon/adm1031.c                           |   24 
+ drivers/hwmon/adm9240.c                           |   33 
+ drivers/hwmon/asb100.c                            |   56 
+ drivers/hwmon/atxp1.c                             |   26 
+ drivers/hwmon/ds1621.c                            |   29 
+ drivers/hwmon/fscher.c                            |   27 
+ drivers/hwmon/fscpos.c                            |   27 
+ drivers/hwmon/gl518sm.c                           |   28 
+ drivers/hwmon/gl520sm.c                           |   31 
+ drivers/hwmon/hwmon-vid.c                         |  211 ++
+ drivers/hwmon/hwmon.c                             |   98 +
+ drivers/hwmon/it87.c                              |   82 -
+ drivers/hwmon/lm63.c                              |   27 
+ drivers/hwmon/lm75.c                              |   41 
+ drivers/hwmon/lm75.h                              |    2 
+ drivers/hwmon/lm77.c                              |   24 
+ drivers/hwmon/lm78.c                              |   90 -
+ drivers/hwmon/lm80.c                              |   27 
+ drivers/hwmon/lm83.c                              |   27 
+ drivers/hwmon/lm85.c                              |   39 
+ drivers/hwmon/lm87.c                              |   31 
+ drivers/hwmon/lm90.c                              |   27 
+ drivers/hwmon/lm92.c                              |   28 
+ drivers/hwmon/max1619.c                           |   28 
+ drivers/hwmon/pc87360.c                           | 1006 ++++++-------
+ drivers/hwmon/sis5595.c                           |   70 
+ drivers/hwmon/smsc47b397.c                        |   74 
+ drivers/hwmon/smsc47m1.c                          |   72 
+ drivers/hwmon/via686a.c                           |   76 
+ drivers/hwmon/w83627ehf.c                         |   64 
+ drivers/hwmon/w83627hf.c                          |   82 -
+ drivers/hwmon/w83781d.c                           |   94 -
+ drivers/hwmon/w83792d.c                           | 1677 +++++++++++++++++++++-
+ drivers/hwmon/w83l785ts.c                         |   27 
+ drivers/i2c/Makefile                              |    6 
+ drivers/i2c/algos/i2c-algo-bit.c                  |    6 
+ drivers/i2c/algos/i2c-algo-ite.c                  |    6 
+ drivers/i2c/algos/i2c-algo-pca.c                  |   18 
+ drivers/i2c/algos/i2c-algo-pcf.c                  |    6 
+ drivers/i2c/algos/i2c-algo-sgi.c                  |    7 
+ drivers/i2c/algos/i2c-algo-sibyte.c               |    6 
+ drivers/i2c/busses/Kconfig                        |    8 
+ drivers/i2c/busses/i2c-ali1535.c                  |    2 
+ drivers/i2c/busses/i2c-ali1563.c                  |    2 
+ drivers/i2c/busses/i2c-ali15x3.c                  |    2 
+ drivers/i2c/busses/i2c-amd756.c                   |    2 
+ drivers/i2c/busses/i2c-amd8111.c                  |    2 
+ drivers/i2c/busses/i2c-au1550.c                   |    2 
+ drivers/i2c/busses/i2c-i801.c                     |    2 
+ drivers/i2c/busses/i2c-ibm_iic.c                  |    6 
+ drivers/i2c/busses/i2c-iop3xx.c                   |    2 
+ drivers/i2c/busses/i2c-isa.c                      |  163 +-
+ drivers/i2c/busses/i2c-keywest.c                  |   15 
+ drivers/i2c/busses/i2c-mpc.c                      |    4 
+ drivers/i2c/busses/i2c-mv64xxx.c                  |   12 
+ drivers/i2c/busses/i2c-nforce2.c                  |   33 
+ drivers/i2c/busses/i2c-piix4.c                    |    2 
+ drivers/i2c/busses/i2c-s3c2410.c                  |    1 
+ drivers/i2c/busses/i2c-sis5595.c                  |    2 
+ drivers/i2c/busses/i2c-sis630.c                   |    2 
+ drivers/i2c/busses/i2c-sis96x.c                   |    2 
+ drivers/i2c/busses/i2c-stub.c                     |    2 
+ drivers/i2c/busses/i2c-viapro.c                   |    2 
+ drivers/i2c/busses/scx200_acb.c                   |    4 
+ drivers/i2c/chips/Kconfig                         |   10 
+ drivers/i2c/chips/ds1337.c                        |   11 
+ drivers/i2c/chips/ds1374.c                        |    3 
+ drivers/i2c/chips/eeprom.c                        |   17 
+ drivers/i2c/chips/m41t00.c                        |    3 
+ drivers/i2c/chips/max6875.c                       |  478 +-----
+ drivers/i2c/chips/pca9539.c                       |   12 
+ drivers/i2c/chips/pcf8574.c                       |   13 
+ drivers/i2c/chips/pcf8591.c                       |   13 
+ drivers/i2c/chips/rtc8564.c                       |    1 
+ drivers/i2c/i2c-core.c                            |  310 ++--
+ drivers/i2c/i2c-dev.c                             |    5 
+ drivers/i2c/i2c-sensor-detect.c                   |  185 --
+ drivers/i2c/i2c-sensor-vid.c                      |  108 -
+ drivers/ieee1394/pcilynx.c                        |   20 
+ drivers/media/common/saa7146_i2c.c                |    4 
+ drivers/media/dvb/b2c2/flexcop-i2c.c              |    3 
+ drivers/media/dvb/dvb-usb/cxusb.c                 |    2 
+ drivers/media/dvb/dvb-usb/dibusb-common.c         |    2 
+ drivers/media/dvb/dvb-usb/digitv.c                |    2 
+ drivers/media/dvb/dvb-usb/dvb-usb-i2c.c           |    1 
+ drivers/media/dvb/pluto2/pluto2.c                 |    1 
+ drivers/media/dvb/ttusb-budget/dvb-ttusb-budget.c |    3 
+ drivers/media/video/adv7170.c                     |    1 
+ drivers/media/video/adv7175.c                     |    1 
+ drivers/media/video/bt819.c                       |    1 
+ drivers/media/video/bt832.c                       |    4 
+ drivers/media/video/bt856.c                       |    1 
+ drivers/media/video/bttv-i2c.c                    |   12 
+ drivers/media/video/cx88/cx88-i2c.c               |    8 
+ drivers/media/video/ir-kbd-i2c.c                  |    6 
+ drivers/media/video/msp3400.c                     |    4 
+ drivers/media/video/ovcamchip/ov6x20.c            |    6 
+ drivers/media/video/ovcamchip/ov6x30.c            |    4 
+ drivers/media/video/ovcamchip/ovcamchip_core.c    |   14 
+ drivers/media/video/saa7110.c                     |    1 
+ drivers/media/video/saa7111.c                     |    1 
+ drivers/media/video/saa7114.c                     |    1 
+ drivers/media/video/saa7134/saa6752hs.c           |    2 
+ drivers/media/video/saa7134/saa7134-i2c.c         |   10 
+ drivers/media/video/saa7185.c                     |    1 
+ drivers/media/video/tda7432.c                     |    4 
+ drivers/media/video/tda9840.c                     |    4 
+ drivers/media/video/tda9875.c                     |    4 
+ drivers/media/video/tda9887.c                     |    8 
+ drivers/media/video/tea6415c.c                    |    4 
+ drivers/media/video/tea6420.c                     |    4 
+ drivers/media/video/tuner-3036.c                  |    3 
+ drivers/media/video/tuner-core.c                  |    2 
+ drivers/media/video/tvaudio.c                     |   51 
+ drivers/media/video/tveeprom.c                    |    2 
+ drivers/media/video/tvmixer.c                     |   14 
+ drivers/media/video/vpx3220.c                     |    1 
+ drivers/media/video/zoran_card.c                  |    2 
+ drivers/usb/media/w9968cf.c                       |   12 
+ drivers/video/aty/radeon_i2c.c                    |    2 
+ drivers/video/matrox/matroxfb_maven.c             |    2 
+ drivers/video/nvidia/nv_i2c.c                     |    3 
+ drivers/video/riva/rivafb-i2c.c                   |    3 
+ drivers/video/savage/savagefb-i2c.c               |    3 
+ include/linux/hwmon-sysfs.h                       |   15 
+ include/linux/hwmon-vid.h                         |  197 +-
+ include/linux/hwmon.h                             |   35 
+ include/linux/i2c-id.h                            |  192 --
+ include/linux/i2c-isa.h                           |   44 
+ include/linux/i2c-sensor.h                        |  421 +----
+ include/linux/i2c-vid.h                           |  111 -
+ include/linux/i2c.h                               |  210 ++
+ include/media/id.h                                |    5 
+ 145 files changed, 4794 insertions(+), 3113 deletions(-)
 
- Documentation/video4linux/CARDLIST.saa7134    |    1 
- drivers/media/video/saa7134/saa7134-cards.c   |   48 +++++++++++++++++++++++++-
- drivers/media/video/saa7134/saa7134-core.c    |    1 
- drivers/media/video/saa7134/saa7134-dvb.c     |    1 
- drivers/media/video/saa7134/saa7134-empress.c |    1 
- drivers/media/video/saa7134/saa7134-i2c.c     |    1 
- drivers/media/video/saa7134/saa7134-input.c   |    1 
- drivers/media/video/saa7134/saa7134-oss.c     |    1 
- drivers/media/video/saa7134/saa7134-reg.h     |    1 
- drivers/media/video/saa7134/saa7134-ts.c      |    1 
- drivers/media/video/saa7134/saa7134-tvaudio.c |    1 
- drivers/media/video/saa7134/saa7134-vbi.c     |    1 
- drivers/media/video/saa7134/saa7134-video.c   |   25 -------------
- drivers/media/video/saa7134/saa7134.h         |    4 +-
- 14 files changed, 51 insertions(+), 37 deletions(-)
 
-diff -upr linux-2.6.13.orig/Documentation/video4linux/CARDLIST.saa7134 linux-2.6.13/Documentation/video4linux/CARDLIST.saa7134
---- linux-2.6.13.orig/Documentation/video4linux/CARDLIST.saa7134	2005-09-05 11:41:05.108719917 -0500
-+++ linux-2.6.13/Documentation/video4linux/CARDLIST.saa7134	2005-09-05 11:49:47.531714572 -0500
-@@ -62,3 +62,4 @@
-  61 -> Philips TOUGH DVB-T reference design     [1131:2004]
-  62 -> Compro VideoMate TV Gold+II
-  63 -> Kworld Xpert TV PVR7134
-+ 64 -> FlyTV mini Asus Digimatrix               [1043:0210,1043:0210]
-diff -upr linux-2.6.13.orig/drivers/media/video/saa7134/saa7134-cards.c linux-2.6.13/drivers/media/video/saa7134/saa7134-cards.c
---- linux-2.6.13.orig/drivers/media/video/saa7134/saa7134-cards.c	2005-09-05 11:41:05.683505374 -0500
-+++ linux-2.6.13/drivers/media/video/saa7134/saa7134-cards.c	2005-09-05 11:49:33.319019934 -0500
-@@ -1,5 +1,4 @@
- /*
-- * $Id: saa7134-cards.c,v 1.80 2005/07/07 01:49:30 mkrufky Exp $
-  *
-  * device driver for philips saa7134 based TV cards
-  * card-specific stuff.
-@@ -2001,6 +2000,41 @@ struct saa7134_board saa7134_boards[] = 
- 			.gpio = 0x000,
- 		},
- 	},
-+	[SAA7134_BOARD_FLYTV_DIGIMATRIX] = {
-+		.name		= "FlyTV mini Asus Digimatrix",
-+		.audio_clock	= 0x00200000,
-+		.tuner_type	= TUNER_LG_NTSC_TALN_MINI,
-+		.radio_type     = UNSET,
-+		.tuner_addr	= ADDR_UNSET,
-+		.radio_addr	= ADDR_UNSET,
-+		.inputs         = {{
-+			.name = name_tv,
-+			.vmux = 1,
-+			.amux = TV,
-+			.tv   = 1,
-+		},{
-+			.name = name_tv_mono,
-+			.vmux = 1,
-+			.amux = LINE2,
-+			.tv   = 1,
-+		},{
-+			.name = name_comp1,
-+			.vmux = 0,
-+			.amux = LINE2,
-+		},{
-+			.name = name_comp2,
-+			.vmux = 3,
-+			.amux = LINE2,
-+		},{
-+			.name = name_svideo,
-+			.vmux = 8,
-+			.amux = LINE2,
-+		}},
-+		.radio = {
-+			.name = name_radio,		/* radio unconfirmed */
-+			.amux = LINE2,
-+		},
-+	},
- };
- 
- 
-@@ -2346,6 +2380,18 @@ struct pci_device_id saa7134_pci_tbl[] =
- 		.subvendor    = 0x4e42,
- 		.subdevice    = 0x0502,
- 		.driver_data  = SAA7134_BOARD_THYPHOON_DVBT_DUO_CARDBUS,
-+	},{
-+		.vendor       = PCI_VENDOR_ID_PHILIPS,
-+		.device       = PCI_DEVICE_ID_PHILIPS_SAA7133,
-+		.subvendor    = 0x1043,
-+		.subdevice    = 0x0210,		/* mini pci NTSC version */
-+		.driver_data  = SAA7134_BOARD_FLYTV_DIGIMATRIX,
-+	},{
-+		.vendor       = PCI_VENDOR_ID_PHILIPS,
-+		.device       = PCI_DEVICE_ID_PHILIPS_SAA7134,
-+		.subvendor    = 0x1043,
-+		.subdevice    = 0x0210,		/* mini pci PAL/SECAM version */
-+		.driver_data  = SAA7134_BOARD_FLYTV_DIGIMATRIX,
- 
- 	},{
- 		/* --- boards without eeprom + subsystem ID --- */
-diff -upr linux-2.6.13.orig/drivers/media/video/saa7134/saa7134-core.c linux-2.6.13/drivers/media/video/saa7134/saa7134-core.c
---- linux-2.6.13.orig/drivers/media/video/saa7134/saa7134-core.c	2005-09-05 11:41:05.682505747 -0500
-+++ linux-2.6.13/drivers/media/video/saa7134/saa7134-core.c	2005-09-05 11:49:08.302358216 -0500
-@@ -1,5 +1,4 @@
- /*
-- * $Id: saa7134-core.c,v 1.39 2005/07/05 17:37:35 nsh Exp $
-  *
-  * device driver for philips saa7134 based TV cards
-  * driver core
-diff -upr linux-2.6.13.orig/drivers/media/video/saa7134/saa7134-dvb.c linux-2.6.13/drivers/media/video/saa7134/saa7134-dvb.c
---- linux-2.6.13.orig/drivers/media/video/saa7134/saa7134-dvb.c	2005-09-05 11:41:05.680506493 -0500
-+++ linux-2.6.13/drivers/media/video/saa7134/saa7134-dvb.c	2005-09-05 11:49:08.313354111 -0500
-@@ -1,5 +1,4 @@
- /*
-- * $Id: saa7134-dvb.c,v 1.23 2005/07/24 22:12:47 mkrufky Exp $
-  *
-  * (c) 2004 Gerd Knorr <kraxel@bytesex.org> [SuSE Labs]
-  *
-diff -upr linux-2.6.13.orig/drivers/media/video/saa7134/saa7134-empress.c linux-2.6.13/drivers/media/video/saa7134/saa7134-empress.c
---- linux-2.6.13.orig/drivers/media/video/saa7134/saa7134-empress.c	2005-09-05 11:41:05.682505747 -0500
-+++ linux-2.6.13/drivers/media/video/saa7134/saa7134-empress.c	2005-09-05 11:49:08.313354111 -0500
-@@ -1,5 +1,4 @@
- /*
-- * $Id: saa7134-empress.c,v 1.11 2005/05/22 19:23:39 nsh Exp $
-  *
-  * (c) 2004 Gerd Knorr <kraxel@bytesex.org> [SuSE Labs]
-  *
-diff -upr linux-2.6.13.orig/drivers/media/video/saa7134/saa7134.h linux-2.6.13/drivers/media/video/saa7134/saa7134.h
---- linux-2.6.13.orig/drivers/media/video/saa7134/saa7134.h	2005-09-05 11:41:05.681506120 -0500
-+++ linux-2.6.13/drivers/media/video/saa7134/saa7134.h	2005-09-05 11:49:33.318020307 -0500
-@@ -1,5 +1,4 @@
- /*
-- * $Id: saa7134.h,v 1.49 2005/07/13 17:25:25 mchehab Exp $
-  *
-  * v4l2 device driver for philips saa7134 based TV cards
-  *
-@@ -20,7 +19,7 @@
-  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  */
- 
--#include <linux/version.h>
-+#include <linux/utsname.h>
- #define SAA7134_VERSION_CODE KERNEL_VERSION(0,2,14)
- 
- #include <linux/pci.h>
-@@ -185,6 +184,7 @@ struct saa7134_format {
- #define SAA7134_BOARD_PHILIPS_TOUGH 61
- #define SAA7134_BOARD_VIDEOMATE_TV_GOLD_PLUSII 62
- #define SAA7134_BOARD_KWORLD_XPERT 63
-+#define SAA7134_BOARD_FLYTV_DIGIMATRIX 64
- 
- #define SAA7134_MAXBOARDS 8
- #define SAA7134_INPUT_MAX 8
-diff -upr linux-2.6.13.orig/drivers/media/video/saa7134/saa7134-i2c.c linux-2.6.13/drivers/media/video/saa7134/saa7134-i2c.c
---- linux-2.6.13.orig/drivers/media/video/saa7134/saa7134-i2c.c	2005-09-05 11:41:05.680506493 -0500
-+++ linux-2.6.13/drivers/media/video/saa7134/saa7134-i2c.c	2005-09-05 11:49:08.306356723 -0500
-@@ -1,5 +1,4 @@
- /*
-- * $Id: saa7134-i2c.c,v 1.22 2005/07/22 04:09:41 mkrufky Exp $
-  *
-  * device driver for philips saa7134 based TV cards
-  * i2c interface support
-diff -upr linux-2.6.13.orig/drivers/media/video/saa7134/saa7134-input.c linux-2.6.13/drivers/media/video/saa7134/saa7134-input.c
---- linux-2.6.13.orig/drivers/media/video/saa7134/saa7134-input.c	2005-09-05 11:41:05.680506493 -0500
-+++ linux-2.6.13/drivers/media/video/saa7134/saa7134-input.c	2005-09-05 11:49:08.312354484 -0500
-@@ -1,5 +1,4 @@
- /*
-- * $Id: saa7134-input.c,v 1.21 2005/06/22 23:37:34 nsh Exp $
-  *
-  * handle saa7134 IR remotes via linux kernel input layer.
-  *
-diff -upr linux-2.6.13.orig/drivers/media/video/saa7134/saa7134-oss.c linux-2.6.13/drivers/media/video/saa7134/saa7134-oss.c
---- linux-2.6.13.orig/drivers/media/video/saa7134/saa7134-oss.c	2005-09-05 11:41:05.681506120 -0500
-+++ linux-2.6.13/drivers/media/video/saa7134/saa7134-oss.c	2005-09-05 11:49:08.311354858 -0500
-@@ -1,5 +1,4 @@
- /*
-- * $Id: saa7134-oss.c,v 1.17 2005/06/28 23:41:47 mkrufky Exp $
-  *
-  * device driver for philips saa7134 based TV cards
-  * oss dsp interface
-diff -upr linux-2.6.13.orig/drivers/media/video/saa7134/saa7134-reg.h linux-2.6.13/drivers/media/video/saa7134/saa7134-reg.h
---- linux-2.6.13.orig/drivers/media/video/saa7134/saa7134-reg.h	2005-09-05 11:41:05.683505374 -0500
-+++ linux-2.6.13/drivers/media/video/saa7134/saa7134-reg.h	2005-09-05 11:49:08.301358589 -0500
-@@ -1,5 +1,4 @@
- /*
-- * $Id: saa7134-reg.h,v 1.2 2004/09/15 16:15:24 kraxel Exp $
-  *
-  * philips saa7134 registers
-  */
-diff -upr linux-2.6.13.orig/drivers/media/video/saa7134/saa7134-ts.c linux-2.6.13/drivers/media/video/saa7134/saa7134-ts.c
---- linux-2.6.13.orig/drivers/media/video/saa7134/saa7134-ts.c	2005-09-05 11:41:05.684505001 -0500
-+++ linux-2.6.13/drivers/media/video/saa7134/saa7134-ts.c	2005-09-05 11:49:08.312354484 -0500
-@@ -1,5 +1,4 @@
- /*
-- * $Id: saa7134-ts.c,v 1.15 2005/06/14 22:48:18 hhackmann Exp $
-  *
-  * device driver for philips saa7134 based TV cards
-  * video4linux video interface
-diff -upr linux-2.6.13.orig/drivers/media/video/saa7134/saa7134-tvaudio.c linux-2.6.13/drivers/media/video/saa7134/saa7134-tvaudio.c
---- linux-2.6.13.orig/drivers/media/video/saa7134/saa7134-tvaudio.c	2005-09-05 11:41:05.680506493 -0500
-+++ linux-2.6.13/drivers/media/video/saa7134/saa7134-tvaudio.c	2005-09-05 11:49:08.307356350 -0500
-@@ -1,5 +1,4 @@
- /*
-- * $Id: saa7134-tvaudio.c,v 1.30 2005/06/28 23:41:47 mkrufky Exp $
-  *
-  * device driver for philips saa7134 based TV cards
-  * tv audio decoder (fm stereo, nicam, ...)
-diff -upr linux-2.6.13.orig/drivers/media/video/saa7134/saa7134-vbi.c linux-2.6.13/drivers/media/video/saa7134/saa7134-vbi.c
---- linux-2.6.13.orig/drivers/media/video/saa7134/saa7134-vbi.c	2005-09-05 11:41:05.681506120 -0500
-+++ linux-2.6.13/drivers/media/video/saa7134/saa7134-vbi.c	2005-09-05 11:49:08.311354858 -0500
-@@ -1,5 +1,4 @@
- /*
-- * $Id: saa7134-vbi.c,v 1.7 2005/05/24 23:13:06 nsh Exp $
-  *
-  * device driver for philips saa7134 based TV cards
-  * video4linux video interface
-diff -upr linux-2.6.13.orig/drivers/media/video/saa7134/saa7134-video.c linux-2.6.13/drivers/media/video/saa7134/saa7134-video.c
---- linux-2.6.13.orig/drivers/media/video/saa7134/saa7134-video.c	2005-09-05 11:41:05.682505747 -0500
-+++ linux-2.6.13/drivers/media/video/saa7134/saa7134-video.c	2005-09-05 11:49:51.577204456 -0500
-@@ -1,5 +1,4 @@
- /*
-- * $Id: saa7134-video.c,v 1.36 2005/06/28 23:41:47 mkrufky Exp $
-  *
-  * device driver for philips saa7134 based TV cards
-  * video4linux video interface
-@@ -1368,29 +1367,7 @@ static int video_release(struct inode *i
- 	saa_andorb(SAA7134_OFMT_DATA_A, 0x1f, 0);
- 	saa_andorb(SAA7134_OFMT_DATA_B, 0x1f, 0);
- 
--	if (dev->tuner_type == TUNER_PHILIPS_TDA8290) {
--		u8 data[2];
--		int ret;
--		struct i2c_msg msg = {.addr=I2C_ADDR_TDA8290, .flags=0, .buf=data, .len = 2};
--		data[0] = 0x21;
--		data[1] = 0xc0;
--		ret = i2c_transfer(&dev->i2c_adap, &msg, 1);
--		if (ret != 1)
--			printk(KERN_ERR "TDA8290 access failure\n");
--		msg.addr = I2C_ADDR_TDA8275;
--		data[0] = 0x30;
--		data[1] = 0xd0;
--		ret = i2c_transfer(&dev->i2c_adap, &msg, 1);
--		if (ret != 1)
--			printk(KERN_ERR "TDA8275 access failure\n");
--		msg.addr = I2C_ADDR_TDA8290;
--		data[0] = 0x21;
--		data[1] = 0x80;
--		i2c_transfer(&dev->i2c_adap, &msg, 1);
--		data[0] = 0x00;
--		data[1] = 0x02;
--		i2c_transfer(&dev->i2c_adap, &msg, 1);
--	}
-+	saa7134_i2c_call_clients(dev, TUNER_SET_STANDBY, NULL);
- 
- 	/* free stuff */
- 	videobuf_mmap_free(&fh->cap);
+bgardner@wabtec.com:
+  I2C: update max6875 documentation
+  I2C: simplify max6875 driver
+  I2C: max6875 documentation cleanup
+  I2C: add kobj_to_i2c_client
+  I2C: max6875 code cleanup
 
---=_431cb7f7.ZAMOIm5bB9cfYK2hVL+RW7Nffz7tuAD93Pl1iLA8+Dt0SiL5--
+Greg Kroah-Hartman:
+  I2C: fix max6875 build error
+
+Hans-Frieder Vogt:
+  I2C: cleanup of i2c-nforce2
+
+Ian Campbell:
+  I2C: i2c-algo-pca -- gracefully handle a busy bus
+
+Jean Delvare:
+  hwmon: kill client name lm78-j
+  hwmon: soften lm75 initialization
+  hwmon: Document on the W83627EHG chip
+  I2C: Separate non-i2c hwmon drivers from i2c-core (2/9)
+  I2C: Separate non-i2c hwmon drivers from i2c-core (1/9)
+  I2C: Separate non-i2c hwmon drivers from i2c-core (3/9)
+  I2C: Separate non-i2c hwmon drivers from i2c-core (5/9)
+  I2C: Separate non-i2c hwmon drivers from i2c-core (4/9)
+  I2C: Separate non-i2c hwmon drivers from i2c-core (6/9)
+  I2C: Separate non-i2c hwmon drivers from i2c-core (8/9)
+  I2C: Separate non-i2c hwmon drivers from i2c-core (7/9)
+  I2C: Separate non-i2c hwmon drivers from i2c-core (9/9)
+  I2C: refactor message in i2c_detach_client
+  I2C: inline i2c_adapter_id
+  hwmon: tag super-i/o find functions __init
+  I2C: fix typo in documentation
+  I2C: Improve core debugging messages
+  hwmon: move SENSORS_LIMIT to hwmon.h
+  hwmon: lm85: trivial cleanups
+  hwmon: hwmon vs i2c, second round (01/11)
+  hwmon: hwmon vs i2c, second round (02/11)
+  hwmon: hwmon vs i2c, second round (03/11)
+  hwmon: hwmon vs i2c, second round (04/11)
+  hwmon: hwmon vs i2c, second round (05/11)
+  hwmon: hwmon vs i2c, second round (06/11)
+  hwmon: hwmon vs i2c, second round (07/11)
+  hwmon: hwmon vs i2c, second round (08/11)
+  hwmon: hwmon vs i2c, second round (10/11)
+  hwmon: hwmon vs i2c, second round (09/11)
+  hwmon: hwmon vs i2c, second round (11/11)
+  I2C: Centralize 24RF08 corruption prevention
+  I2C: Rewrite i2c_probe
+  I2C: Kill i2c_algorithm.name (1/7)
+  I2C: Kill i2c_algorithm.id (2/7)
+  I2C: Kill i2c_algorithm.id (4/7)
+  I2C: Kill i2c_algorithm.id (3/7)
+  I2C: Kill i2c_algorithm.id (5/7)
+  I2C: Kill i2c_algorithm.id (6/7)
+  I2C: Outdated i2c_adapter comment
+  I2C: Kill i2c_algorithm.id (7/7)
+  hwmon: separate maintainer
+  I2C: Drop I2C_DEVNAME and i2c_clientname
+  I2C: Drop debug eeprom dump code in pcilynx
+  I2C: Drop probe parameter of i2c-keywest
+  i2c: bug fix for busses/i2c-mv64xxx.c
+  I2C: Fix sgi_xfer return value
+  I2C: Drop the I2C_ACK_TEST ioctl
+
+Jim Cromie:
+  hwmon: (1/3) pc87360 driver update
+  hwmon: (3/3) pc87360 driver update
+  hwmon: (2/3) pc87360 driver update
+
+Mark A. Greer:
+  i2c: chips/ds1374.c fixup
+  i2c: chips/m41t00.c fixup
+
+Mark M. Hoffman:
+  I2C hwmon: hwmon sysfs class
+  I2C hwmon: add hwmon sysfs class to drivers
+
+Rudolf Marek:
+  I2C: W83792D driver 1/3
+  I2C: W83792D add hwmon class register 2/3
+  I2C: W83792D documentation 3/3
+  hwmon: VID table update
+

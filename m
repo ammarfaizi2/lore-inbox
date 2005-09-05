@@ -1,50 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932194AbVIEEIa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932191AbVIEEM6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932194AbVIEEIa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 00:08:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932192AbVIEEIa
+	id S932191AbVIEEM6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 00:12:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932192AbVIEEM6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 00:08:30 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:54942
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932191AbVIEEIa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 00:08:30 -0400
-Date: Sun, 04 Sep 2005 21:08:48 -0700 (PDT)
-Message-Id: <20050904.210848.43982827.davem@davemloft.net>
-To: davej@redhat.com
-Cc: linux-kernel@vger.kernel.org, hyoshiok@miraclelinux.com,
-       mm-commits@vger.kernel.org
-Subject: Re: x86-cache-pollution-aware-__copy_from_user_ll.patch added to
- -mm tree
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20050904202333.GA4715@redhat.com>
-References: <200509042017.j84KHekQ032373@shell0.pdx.osdl.net>
-	<20050904202333.GA4715@redhat.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 5 Sep 2005 00:12:58 -0400
+Received: from simmts12.bellnexxia.net ([206.47.199.141]:48538 "EHLO
+	simmts12-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S932191AbVIEEM5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 00:12:57 -0400
+Message-ID: <50570.10.10.10.10.1125893576.squirrel@linux1>
+In-Reply-To: <20050905040311.29623.qmail@web50204.mail.yahoo.com>
+References: <35547.10.10.10.10.1125892279.squirrel@linux1>
+    <20050905040311.29623.qmail@web50204.mail.yahoo.com>
+Date: Mon, 5 Sep 2005 00:12:56 -0400 (EDT)
+Subject: re: RFC: i386: kill !4KSTACKS
+From: "Sean" <seanlkml@sympatico.ca>
+To: "Alex Davis" <alex14641@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.4-2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Dave Jones <davej@redhat.com>
-Subject: Re: x86-cache-pollution-aware-__copy_from_user_ll.patch added to -mm tree
-Date: Sun, 4 Sep 2005 16:23:33 -0400
+On Mon, September 5, 2005 12:03 am, Alex Davis said:
+>
+> What if you don't have a choice? When someone comes to me with their
+> laptop
+> containing a built-in wireless card not natively supported by Linux, am I
+> supposed to tell them "go buy a Linux-supported card" when there's a way
+> I can make their existing card work? I don't think so.
 
-> On Sun, Sep 04, 2005 at 01:16:00PM -0700, Andrew Morton wrote:
->  >  unsigned long __copy_to_user_ll(void __user *to, const void *from, unsigned long n)
->  >  {
->  >  	BUG_ON((long) n < 0);
-> 
-> Ehh? It's unsigned. This will never be true.
+You always have a choice in life.  Nobody is stopping you from doing what
+_you_ choose to do.  That doesn't mean that developers who are concerned
+with the creation and promotion of open source should care one whit about
+your particular take on the situation.   Go do whatever you want just
+don't expect the open source developers to pay for it; you maintain the
+crufty patches yourself.
 
-It's to catch the user slipping in enormous lengths to
-the user copy routines.
+If you want to see the stupidity of your argument imagine someone going to
+Microsoft and saying... "look, if you'd simply stop charging for MS
+Windows more people would embrace it!"   Do you think therefore microsoft
+should stop charging for Windows???
 
-Sparc64 makes this check as well.  From U3memcpy.S:
+What if I wrote an email to them and said...  "A friend of mine brings me
+his laptop to install Windows on it, but he can't afford a copy of
+Windows!!!"  Do you think they should stop charging for Windows to help
+you out??  Get real.
 
-	srlx		%o2, 31, %g2
-	cmp		%g2, 0
-	tne		%xcc, 5
+Please just do whatever you want and stop hoping that open source
+developers will ever care about your choice to embrace binary-only
+drivers.
 
-%o2 is the length, we make sure the upper 33-bits are clear.
+Cheers,
+Sean
+
+

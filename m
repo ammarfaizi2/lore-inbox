@@ -1,85 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932287AbVIEHtp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932321AbVIEHuG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932287AbVIEHtp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 03:49:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932281AbVIEHtp
+	id S932321AbVIEHuG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 03:50:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932297AbVIEHuF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 03:49:45 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:59332 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S932279AbVIEHto (ORCPT
+	Mon, 5 Sep 2005 03:50:05 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:3480 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932304AbVIEHuD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 03:49:44 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: rc5 seemed to kill a disk that rc4-mm1 likes. Also some X trouble.
-Date: Mon, 5 Sep 2005 09:49:31 +0200
-User-Agent: KMail/1.8.2
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Helge Hafting <helge.hafting@aitel.hist.no>,
-       Dave Airlie <airlied@gmail.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Michael Ellerman <michael@ellerman.id.au>,
-       Greg Kroah-Hartman <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>
-References: <Pine.LNX.4.58.0508012201010.3341@g5.osdl.org> <Pine.LNX.4.58.0508221034090.3317@g5.osdl.org> <200508301007.11554@bilbo.math.uni-mannheim.de>
-In-Reply-To: <200508301007.11554@bilbo.math.uni-mannheim.de>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1454242.8FTKg1DQok";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200509050949.38842@bilbo.math.uni-mannheim.de>
+	Mon, 5 Sep 2005 03:50:03 -0400
+Date: Mon, 5 Sep 2005 13:19:28 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Nishanth Aravamudan <nacc@us.ibm.com>, Con Kolivas <kernel@kolivas.org>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org,
+       ck list <ck@vds.kolivas.org>
+Subject: Re: [PATCH 1/3] dynticks - implement no idle hz for x86
+Message-ID: <20050905074928.GA7924@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20050831165843.GA4974@in.ibm.com> <200509031801.09069.kernel@kolivas.org> <20050903090650.B26998@flint.arm.linux.org.uk> <200509031814.49666.kernel@kolivas.org> <20050904201054.GA4495@us.ibm.com> <20050904212616.B11265@flint.arm.linux.org.uk> <20050905053225.GA4294@in.ibm.com> <20050905083728.A24051@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050905083728.A24051@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1454242.8FTKg1DQok
-Content-Type: text/plain;
-  charset="iso-8859-6"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Mon, Sep 05, 2005 at 08:37:28AM +0100, Russell King wrote:
+> That's because, like x86, we've been ignoring each other.  ARM
+> doesn't handle dyntick SMP yet - ARM is fairly young as far as
+> SMP issues goes, and as yet doesn't include a full SMP
+> implementation in mainline.
 
-Am Dienstag, 30. August 2005 10:07 schrieb Rolf Eike Beer:
->Linus Torvalds wrote:
->>On Mon, 22 Aug 2005, Rolf Eike Beer wrote:
->>> >It's a PII-350 with more or less SuSE 9.3. The machine has no net
->>> > access, so I can only try to narrow it down to one rc at the weekend.
->>>
->>> 2.6.12 works fine, everything since 2.6.13-rc1 breaks it.
->>
->>Gaah. I don't see anything really obvious in that range. However, I notice
->>that pci_mmap_resource() (in drivers/pci/pci-sysfs.c) now has
->>
->>+       if (i >= PCI_ROM_RESOURCE)
->>+               return -ENODEV;
->>
->>which seems a big bogus. Why wouldn't we allow the ROM resource to be
->>mapped? I could imagine that the X server would very much like to mmap it,
->>although I don't know if modern X actually does that. The fact that it
->>works when root runs the X server and causes problems for normal users
->>does seem like there's something that root can do that users can't do, and
->>doing a mmap() on /dev/mem might be just that.
->>
->>Eike, maybe you could change the ">=" to just ">" instead?
->>
->>PS. The patch that introduced this was billed as "no change for anything
->>but ppc". Tssk.
->
->This does not fix the problem. I'll narrow it down to one git snapshot next
->weekend (forgot the tarball on friday).
 
-The problem appeared between 2.6.12-git3 and 2.6.12-git4.
 
-Eike
+> 
+> Despite that, the timers as implemented on the hardware are not
+> suitable for dyntick use - attempting to use them, you lose long
+> term precision of the timer interrupts.
 
---nextPart1454242.8FTKg1DQok
-Content-Type: application/pgp-signature
+Thats one of the problems I am seeing on x86 as well. Recovering
+wall-time precisely after sleep is tough esepcially if the interrupt
+source (PIT) and backing-time source (TSC/PM Timer/HPET) can
+drift wrt each other. PPC64 should be much better I hope (which is what I 
+intend to take up next).
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
+> > 5. Don't see how DYN_TICK_SKIPPING is being used. In SMP scenario,
+> >    it doesnt make sense since it will have to be per-cpu. The bitmap
+> >    that I talked of exactly tells that (whether a CPU is skipping
+> >    ticks or not).
+> 
+> What's DYN_TICK_SKIPPING and what's it used for?  It looks like
+> a redundant definition left over from Tony's original implementation.
 
-iD8DBQBDG/iSXKSJPmm5/E4RAjN5AKCNGmipf/kbTBVaPoZNiAzRPpMz/QCgo5rL
-ldM9sGpkmqw/e37SJabwEJQ=
-=DT9u
------END PGP SIGNATURE-----
+Tony was using it to signal that all CPUs are idle and timer are
+being skipped. With the SMP changes I made, I felt it can be
+substituted with the nohz_cpu_mask bitmap and hence I removed
+it.
 
---nextPart1454242.8FTKg1DQok--
+
+-- 
+
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

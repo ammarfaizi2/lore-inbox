@@ -1,68 +1,159 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964965AbVIEXhh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964976AbVIFAAP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964965AbVIEXhh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 19:37:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964967AbVIEXhh
+	id S964976AbVIFAAP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 20:00:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964978AbVIFAAP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 19:37:37 -0400
-Received: from agminet01.oracle.com ([141.146.126.228]:38507 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S964965AbVIEXhg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 19:37:36 -0400
-Date: Mon, 5 Sep 2005 16:37:31 -0700
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Bernd Eckenfels <be-mail2005@lina.inka.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: GFS, what's remaining
-Message-ID: <20050905233731.GA24523@ca-server1.us.oracle.com>
-Mail-Followup-To: Bernd Eckenfels <be-mail2005@lina.inka.de>,
-	linux-kernel@vger.kernel.org
-References: <20050903070639.GC4593@ca-server1.us.oracle.com> <E1EBSRB-0003lW-00@calista.eckenfels.6bone.ka-ip.net> <20050905141631.GG5498@marowsky-bree.de> <20050905202403.GB7580@lina.inka.de>
-Mime-Version: 1.0
+	Mon, 5 Sep 2005 20:00:15 -0400
+Received: from ozlabs.org ([203.10.76.45]:26595 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S964976AbVIFAAN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 20:00:13 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050905202403.GB7580@lina.inka.de>
-X-Burt-Line: Trees are cool.
-X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
-User-Agent: Mutt/1.5.10i
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
+Content-Transfer-Encoding: 7bit
+Message-ID: <17180.54583.575784.494320@cargo.ozlabs.ibm.com>
+Date: Tue, 6 Sep 2005 09:31:03 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: Greg KH <greg@kroah.com>
+CC: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: [PATCH] Small rearrangement of PCI probing code
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 05, 2005 at 10:24:03PM +0200, Bernd Eckenfels wrote:
-> The whole point of the orcacle cluster filesystem as it was described in old
-> papers was about pfiles, control files and software, because you can easyly
-> use direct block access (with ASM) for tablespaces.
+This patch makes some small rearrangements of the PCI probing code in
+order to make it possible for arch code to set up the PCI tree
+without needing to duplicate code from the PCI layer unnecessarily.
+PPC64 will use this to set up the PCI tree from the Open Firmware
+device tree, which we need to do on logically-partitioned pSeries
+systems.
 
-	OCFS, the original filesystem, only works for datafiles,
-logfiles, and other database data.  It's currently used in serious anger
-by several major customers.  Oracle's websites must have a list of them
-somewhere.  We're talking many terabytes of datafiles.
+Signed-off-by: Paul Mackerras <paulus@samba.org>
+---
+ drivers/pci/pci.h   |    1 -
+ drivers/pci/probe.c |   50 +++++++++++++++++++++++++++++++++-----------------
+ include/linux/pci.h |    3 +++
+ 3 files changed, 36 insertions(+), 18 deletions(-)
 
-> Yes, I dont dispute the usefullness of OCFS for ORA_HOME (beside I think a
-> replicated filesystem makes more sense), I am just nor sure if anybody sane
-> would use it for tablespaces.
-
-	OCFS2, the new filesystem, is fully general purpose.  It
-supports all the usual stuff, is quite fast, and is what we expect folks
-to use for both ORACLE_HOME and datafiles in the future.  Customers can,
-of course, use ASM or even raw devices.  OCFS2 is as fast as raw
-devices, and far more manageable, so raw devices are probably not a
-choice for the future.  ASM has its own management advantages, and we
-certainly expect customers to like it as well.  But that doesn't mean
-people won't use OCFS2 for datafiles depending on their environment or
-needs.
-
-
--- 
-
-"The first requisite of a good citizen in this republic of ours
- is that he shall be able and willing to pull his weight."
-	- Theodore Roosevelt
-
-Joel Becker
-Senior Member of Technical Staff
-Oracle
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+diff -urN linux-2.6/drivers/pci/pci.h g5-ofpci/drivers/pci/pci.h
+--- linux-2.6/drivers/pci/pci.h	2005-08-17 17:51:11.000000000 +1000
++++ g5-ofpci/drivers/pci/pci.h	2005-08-22 16:25:43.000000000 +1000
+@@ -29,7 +29,6 @@
+ #endif
+ 
+ /* Functions for PCI Hotplug drivers to use */
+-extern struct pci_bus * pci_add_new_bus(struct pci_bus *parent, struct pci_dev *dev, int busnr);
+ extern unsigned int pci_do_scan_bus(struct pci_bus *bus);
+ extern int pci_remove_device_safe(struct pci_dev *dev);
+ extern unsigned char pci_max_busnr(void);
+diff -urN linux-2.6/drivers/pci/probe.c g5-ofpci/drivers/pci/probe.c
+--- linux-2.6/drivers/pci/probe.c	2005-07-31 17:38:35.000000000 +1000
++++ g5-ofpci/drivers/pci/probe.c	2005-08-22 15:03:30.000000000 +1000
+@@ -753,6 +753,12 @@
+ 		kfree(dev);
+ 		return NULL;
+ 	}
++
++	return dev;
++}
++
++void __devinit pci_device_add(struct pci_dev *dev, struct pci_bus *bus)
++{
+ 	device_initialize(&dev->dev);
+ 	dev->dev.release = pci_release_dev;
+ 	pci_dev_get(dev);
+@@ -762,20 +768,6 @@
+ 	dev->dev.dma_mask = &dev->dma_mask;
+ 	dev->dev.coherent_dma_mask = 0xffffffffull;
+ 
+-	return dev;
+-}
+-
+-struct pci_dev * __devinit
+-pci_scan_single_device(struct pci_bus *bus, int devfn)
+-{
+-	struct pci_dev *dev;
+-
+-	dev = pci_scan_device(bus, devfn);
+-	pci_scan_msi_device(dev);
+-
+-	if (!dev)
+-		return NULL;
+-	
+ 	/* Fix up broken headers */
+ 	pci_fixup_device(pci_fixup_header, dev);
+ 
+@@ -787,6 +779,19 @@
+ 	spin_lock(&pci_bus_lock);
+ 	list_add_tail(&dev->bus_list, &bus->devices);
+ 	spin_unlock(&pci_bus_lock);
++}
++
++struct pci_dev * __devinit
++pci_scan_single_device(struct pci_bus *bus, int devfn)
++{
++	struct pci_dev *dev;
++
++	dev = pci_scan_device(bus, devfn);
++	if (!dev)
++		return NULL;
++
++	pci_device_add(dev, bus);
++	pci_scan_msi_device(dev);
+ 
+ 	return dev;
+ }
+@@ -883,7 +888,8 @@
+ 	return max;
+ }
+ 
+-struct pci_bus * __devinit pci_scan_bus_parented(struct device *parent, int bus, struct pci_ops *ops, void *sysdata)
++struct pci_bus * __devinit pci_create_bus(struct device *parent,
++		int bus, struct pci_ops *ops, void *sysdata)
+ {
+ 	int error;
+ 	struct pci_bus *b;
+@@ -940,8 +946,6 @@
+ 	b->resource[0] = &ioport_resource;
+ 	b->resource[1] = &iomem_resource;
+ 
+-	b->subordinate = pci_scan_child_bus(b);
+-
+ 	return b;
+ 
+ sys_create_link_err:
+@@ -959,6 +963,18 @@
+ 	kfree(b);
+ 	return NULL;
+ }
++EXPORT_SYMBOL_GPL(pci_create_bus);
++
++struct pci_bus * __devinit pci_scan_bus_parented(struct device *parent,
++		int bus, struct pci_ops *ops, void *sysdata)
++{
++	struct pci_bus *b;
++
++	b = pci_create_bus(parent, bus, ops, sysdata);
++	if (b)
++		b->subordinate = pci_scan_child_bus(b);
++	return b;
++}
+ EXPORT_SYMBOL(pci_scan_bus_parented);
+ 
+ #ifdef CONFIG_HOTPLUG
+diff -urN linux-2.6/include/linux/pci.h g5-ofpci/include/linux/pci.h
+--- linux-2.6/include/linux/pci.h	2005-08-17 17:51:11.000000000 +1000
++++ g5-ofpci/include/linux/pci.h	2005-08-24 21:06:14.000000000 +1000
+@@ -745,8 +745,11 @@
+ 		pci_bus_add_devices(root_bus);
+ 	return root_bus;
+ }
++struct pci_bus *pci_create_bus(struct device *parent, int bus, struct pci_ops *ops, void *sysdata);
++struct pci_bus * pci_add_new_bus(struct pci_bus *parent, struct pci_dev *dev, int busnr);
+ int pci_scan_slot(struct pci_bus *bus, int devfn);
+ struct pci_dev * pci_scan_single_device(struct pci_bus *bus, int devfn);
++void pci_device_add(struct pci_dev *dev, struct pci_bus *bus);
+ unsigned int pci_scan_child_bus(struct pci_bus *bus);
+ void pci_bus_add_device(struct pci_dev *dev);
+ void pci_name_device(struct pci_dev *dev);

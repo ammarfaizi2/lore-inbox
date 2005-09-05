@@ -1,57 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932384AbVIEJVm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932492AbVIEJZc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932384AbVIEJVm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 05:21:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbVIEJVm
+	id S932492AbVIEJZc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 05:25:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932494AbVIEJZc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 05:21:42 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:4296 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932337AbVIEJVl (ORCPT
+	Mon, 5 Sep 2005 05:25:32 -0400
+Received: from smtp.cs.aau.dk ([130.225.194.6]:51847 "EHLO smtp.cs.aau.dk")
+	by vger.kernel.org with ESMTP id S932492AbVIEJZb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 05:21:41 -0400
-Date: Mon, 5 Sep 2005 02:19:48 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: David Teigland <teigland@redhat.com>
-Cc: Joel.Becker@oracle.com, ak@suse.de, linux-cluster@redhat.com,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [Linux-cluster] Re: GFS, what's remaining
-Message-Id: <20050905021948.6241f1e0.akpm@osdl.org>
-In-Reply-To: <20050905092433.GE17607@redhat.com>
-References: <20050901104620.GA22482@redhat.com>
-	<20050903183241.1acca6c9.akpm@osdl.org>
-	<20050904030640.GL8684@ca-server1.us.oracle.com>
-	<200509040022.37102.phillips@istop.com>
-	<20050903214653.1b8a8cb7.akpm@osdl.org>
-	<20050904045821.GT8684@ca-server1.us.oracle.com>
-	<20050903224140.0442fac4.akpm@osdl.org>
-	<20050905043033.GB11337@redhat.com>
-	<20050905015408.21455e56.akpm@osdl.org>
-	<20050905092433.GE17607@redhat.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 5 Sep 2005 05:25:31 -0400
+Message-ID: <431C0EA7.8030309@cs.aau.dk>
+Date: Mon, 05 Sep 2005 11:23:51 +0200
+From: Emmanuel Fleury <fleury@cs.aau.dk>
+User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: A Framework to automatically configure a Kernel
+References: <20050905084236.46978.qmail@web51011.mail.yahoo.com>
+In-Reply-To: <20050905084236.46978.qmail@web51011.mail.yahoo.com>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Teigland <teigland@redhat.com> wrote:
->
-> On Mon, Sep 05, 2005 at 01:54:08AM -0700, Andrew Morton wrote:
-> > David Teigland <teigland@redhat.com> wrote:
-> > >
-> > >  We export our full dlm API through read/write/poll on a misc device.
-> > >
-> > 
-> > inotify did that for a while, but we ended up going with a straight syscall
-> > interface.
-> > 
-> > How fat is the dlm interface?   ie: how many syscalls would it take?
-> 
-> Four functions:
->   create_lockspace()
->   release_lockspace()
->   lock()
->   unlock()
+Nice idea !
 
-Neat.  I'd be inclined to make them syscalls then.  I don't suppose anyone
-is likely to object if we reserve those slots.
+I really would like to have such feature.
+
+I tried a bit your stuff, unfortunately, I got this:
+
+[fleury@rade7 linux-2.6.13-autoconf]$ make auconfig
+  HOSTCC  scripts/kconfig/auto_conf.o
+scripts/kconfig/auto_conf.c: In function 'auto_conf':
+scripts/kconfig/auto_conf.c:288: warning: pointer targets in passing
+argument 2 of '__builtin_strncpy' differ in signedness
+scripts/kconfig/auto_conf.c: In function 'must_have':
+scripts/kconfig/auto_conf.c:301: error: syntax error at end of input
+make[1]: *** [scripts/kconfig/auto_conf.o] Error 1
+make: *** [auconfig] Error 2
+
+Seems that you don't use gcc-4 !
+
+Two questions:
+
+1) Isn't the XML parser a bit overkilling ????
+
+2) Why is the target called "auconfig" and not "autoconfig" (just like
+we have a "menuconfig") ?
+
+Speaking about this autoconfig thingy, haven't been any serious attempt
+to grab as much information as possible from lspci, /proc, /sys and so
+on to build at least a skeleton for the .config ?
+
+Regards
+-- 
+Emmanuel Fleury
+
+Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it.
+  -- Brian W. Kernighan
+

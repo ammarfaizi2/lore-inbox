@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbVIEGfZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932255AbVIEGlh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932248AbVIEGfZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 02:35:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932255AbVIEGfZ
+	id S932255AbVIEGlh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 02:41:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbVIEGlh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 02:35:25 -0400
-Received: from [65.195.187.51] ([65.195.187.51]:18816 "EHLO candi.us")
-	by vger.kernel.org with ESMTP id S932248AbVIEGfY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 02:35:24 -0400
-Message-ID: <431BE71F.2040901@lorez.org>
-Date: Sun, 04 Sep 2005 23:35:11 -0700
-From: Bob Richmond <bob@lorez.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050719 Fedora/1.7.10-1.5.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Immediate general protection errors on Tyan board
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 5 Sep 2005 02:41:37 -0400
+Received: from ookhoi.xs4all.nl ([213.84.114.66]:47031 "EHLO
+	favonius.humilis.net") by vger.kernel.org with ESMTP
+	id S932255AbVIEGlh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 02:41:37 -0400
+Date: Mon, 5 Sep 2005 08:41:36 +0200
+From: Sander <sander@humilis.net>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Sean <seanlkml@sympatico.ca>, Alex Davis <alex14641@yahoo.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: RFC: i386: kill !4KSTACKS
+Message-ID: <20050905064135.GB27746@favonius>
+Reply-To: sander@humilis.net
+References: <35547.10.10.10.10.1125892279.squirrel@linux1> <20050905040311.29623.qmail@web50204.mail.yahoo.com> <50570.10.10.10.10.1125893576.squirrel@linux1> <20050905043613.GD30279@alpha.home.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050905043613.GD30279@alpha.home.local>
+X-Uptime: 21:39:20 up 29 days,  7:03, 31 users,  load average: 0.18, 0.17, 0.12
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Immediately upon boot on this system, most userland programs will 
-segfault, including mount. This causes the system to come up in a 
-bizarre state with the root filesystem mounted read-only, and nothing 
-runs without segfault. There have been numerous similar posts about this 
-problem, but they also seem to point to an associated kernel message, 
-"Bad page state" that I don't observe. dmesg (which runs without 
-segfault) returns many similar messages to:
+Willy Tarreau wrote (ao):
+> So you're both half-right from your point of view. But you're both half-wrong
+> too : no, people can't always choose, and no, people who don't choose their
+> laptop are not impacted by development kernels. So let's turn the page and
+> wait for a stable kernel.
 
-start_udev[576] general protection rip:2aaaaae0fc70 rsp:7fffffb23d90 error:0
+If the company provides a laptop that doesn't mean that the user can't
+choose anymore. He can buy his own laptop. Companies don't allow you to
+fiddle with the installed OS anyway.
 
-This occurrs on the latest Fedora Core 4 kernel RPM 
-(kernel-2.6.12-1.1447_FC4) on a Tyan S2892 motherboard with 2 Opteron 
-246 processors. The BIOS is up to date with what is available on Tyan's 
-website for this board.
+	Kind regards, Sander
 
-I'm not sure if the Fedora maintainers have rolled in the latest AMD 
-errata changes from 2.6.13 in the latest package, but that will be my 
-next test.
-
-Does anyone still observe this problem in their systems?
+-- 
+Humilis IT Services and Solutions
+http://www.humilis.net

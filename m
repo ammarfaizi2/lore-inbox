@@ -1,32 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964959AbVIEXde@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964965AbVIEXhh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964959AbVIEXde (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 19:33:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964964AbVIEXde
+	id S964965AbVIEXhh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 19:37:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964967AbVIEXhh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 19:33:34 -0400
-Received: from agminet04.oracle.com ([141.146.126.231]:61348 "EHLO
-	agminet04.oracle.com") by vger.kernel.org with ESMTP
-	id S964959AbVIEXdd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 19:33:33 -0400
-Date: Mon, 5 Sep 2005 16:32:36 -0700
+	Mon, 5 Sep 2005 19:37:37 -0400
+Received: from agminet01.oracle.com ([141.146.126.228]:38507 "EHLO
+	agminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S964965AbVIEXhg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 19:37:36 -0400
+Date: Mon, 5 Sep 2005 16:37:31 -0700
 From: Joel Becker <Joel.Becker@oracle.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>, Daniel Phillips <phillips@istop.com>,
-       linux-cluster@redhat.com, wim.coekaerts@oracle.com,
-       linux-fsdevel@vger.kernel.org, ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [Linux-cluster] Re: GFS, what's remaining
-Message-ID: <20050905233236.GF8684@ca-server1.us.oracle.com>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Andrew Morton <akpm@osdl.org>, Daniel Phillips <phillips@istop.com>,
-	linux-cluster@redhat.com, wim.coekaerts@oracle.com,
-	linux-fsdevel@vger.kernel.org, ak@suse.de,
+To: Bernd Eckenfels <be-mail2005@lina.inka.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: GFS, what's remaining
+Message-ID: <20050905233731.GA24523@ca-server1.us.oracle.com>
+Mail-Followup-To: Bernd Eckenfels <be-mail2005@lina.inka.de>,
 	linux-kernel@vger.kernel.org
-References: <20050901104620.GA22482@redhat.com> <20050903183241.1acca6c9.akpm@osdl.org> <20050904030640.GL8684@ca-server1.us.oracle.com> <200509040022.37102.phillips@istop.com> <20050903214653.1b8a8cb7.akpm@osdl.org> <1125823035.23858.10.camel@localhost.localdomain>
+References: <20050903070639.GC4593@ca-server1.us.oracle.com> <E1EBSRB-0003lW-00@calista.eckenfels.6bone.ka-ip.net> <20050905141631.GG5498@marowsky-bree.de> <20050905202403.GB7580@lina.inka.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1125823035.23858.10.camel@localhost.localdomain>
+In-Reply-To: <20050905202403.GB7580@lina.inka.de>
 X-Burt-Line: Trees are cool.
 X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
 User-Agent: Mutt/1.5.10i
@@ -35,29 +30,39 @@ X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 04, 2005 at 09:37:15AM +0100, Alan Cox wrote:
-> I am curious why a lock manager uses open to implement its locking
-> semantics rather than using the locking API (POSIX locks etc) however.
+On Mon, Sep 05, 2005 at 10:24:03PM +0200, Bernd Eckenfels wrote:
+> The whole point of the orcacle cluster filesystem as it was described in old
+> papers was about pfiles, control files and software, because you can easyly
+> use direct block access (with ASM) for tablespaces.
 
-	Because it is simple (how do you fcntl(2) from a shell fd?), has no
-ranges (what do you do with ranges passed in to fcntl(2) and you don't
-support them?), and has a well-known fork(2)/exec(2) pattern.  fcntl(2)
-has a known but less intuitive fork(2) pattern.
-	The real reason, though, is that we never considered fcntl(2).
-We could never think of a case when a process wanted a lock fd open but
-not locked.  At least, that's my recollection.  Mark might have more to
-comment.
+	OCFS, the original filesystem, only works for datafiles,
+logfiles, and other database data.  It's currently used in serious anger
+by several major customers.  Oracle's websites must have a list of them
+somewhere.  We're talking many terabytes of datafiles.
 
-Joel
+> Yes, I dont dispute the usefullness of OCFS for ORA_HOME (beside I think a
+> replicated filesystem makes more sense), I am just nor sure if anybody sane
+> would use it for tablespaces.
+
+	OCFS2, the new filesystem, is fully general purpose.  It
+supports all the usual stuff, is quite fast, and is what we expect folks
+to use for both ORACLE_HOME and datafiles in the future.  Customers can,
+of course, use ASM or even raw devices.  OCFS2 is as fast as raw
+devices, and far more manageable, so raw devices are probably not a
+choice for the future.  ASM has its own management advantages, and we
+certainly expect customers to like it as well.  But that doesn't mean
+people won't use OCFS2 for datafiles depending on their environment or
+needs.
+
 
 -- 
 
-"In the room the women come and go
- Talking of Michaelangelo."
+"The first requisite of a good citizen in this republic of ours
+ is that he shall be able and willing to pull his weight."
+	- Theodore Roosevelt
 
 Joel Becker
 Senior Member of Technical Staff
 Oracle
 E-mail: joel.becker@oracle.com
 Phone: (650) 506-8127
-

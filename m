@@ -1,61 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbVIERHI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932351AbVIERXz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932350AbVIERHI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 13:07:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932314AbVIERHI
+	id S932351AbVIERXz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 13:23:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932353AbVIERXz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 13:07:08 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:18851 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932350AbVIERHG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 13:07:06 -0400
-Date: Mon, 5 Sep 2005 10:06:58 -0700
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: Srivatsa Vaddagiri <vatsa@in.ibm.com>, Con Kolivas <kernel@kolivas.org>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org,
-       ck list <ck@vds.kolivas.org>, johnstul@us.ibm.com
-Subject: Re: [PATCH 1/3] dynticks - implement no idle hz for x86
-Message-ID: <20050905170658.GL25856@us.ibm.com>
-References: <20050831165843.GA4974@in.ibm.com> <200509031801.09069.kernel@kolivas.org> <20050903090650.B26998@flint.arm.linux.org.uk> <200509031814.49666.kernel@kolivas.org> <20050904201054.GA4495@us.ibm.com> <20050905070053.GA7329@in.ibm.com> <20050905084425.B24051@flint.arm.linux.org.uk> <20050905081935.GB7924@in.ibm.com> <20050905093221.E24051@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050905093221.E24051@flint.arm.linux.org.uk>
-X-Operating-System: Linux 2.6.13 (i686)
-User-Agent: Mutt/1.5.10i
+	Mon, 5 Sep 2005 13:23:55 -0400
+Received: from lucidpixels.com ([66.45.37.187]:48277 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S932351AbVIERXz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 13:23:55 -0400
+Date: Mon, 5 Sep 2005 13:23:54 -0400 (EDT)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, linux-ide@vger.kernel.org,
+       apiszcz@lucidpixels.com
+Subject: Re: Linux Kernel 2.6.13-rc7 (WORKS) (2.6.13, DRQ/System CRASH)
+In-Reply-To: <1125923397.8714.22.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.63.0509051322400.3389@p34>
+References: <Pine.LNX.4.63.0508311328230.1945@p34>  <Pine.LNX.4.63.0508311408320.1945@p34>
+  <58cb370e050905002630a0e02e@mail.gmail.com> <1125923397.8714.22.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 05.09.2005 [09:32:21 +0100], Russell King wrote:
-> On Mon, Sep 05, 2005 at 01:49:35PM +0530, Srivatsa Vaddagiri wrote:
-> > This is precisely what I have done. I have made cur_timer->mark-offset() to 
-> > return the lost ticks and update wall-time from the callee, which
-> > can be either timer_interrupt handler or in dyn-tick case the dyn-tick
-> > code (I have called it dyn_tick_interrupt) which is called before processing 
-> > _any_ interrupt.
-> 
-> When you have a timer which constantly increments from 0 to MAX and
-> wraps, and you can set the value to match to cause an interrupt,
-> it makes more sense to handle it the way we're doing it (which
-> incidentally leads to no loss of precision.)
+Also,
 
-This is the way ppc works, I believe (match register).
+Part of the problem may be that I have two ATA/133 Promise cards in one 
+box and only one ATA/133 in the other box.
 
-> Calculating the number of ticks missed, updating the kernel time,
-> and updating the timer match will cause problems with these - if
-> the timer has already past the number of ticks you originally
-> calculated, you may not get another interrupt for a long time.
+Kernel 2.6.13 has fixed the problem with one ATA/133 card in the box.
+Kernel 2.6.13 has not fixed the problem with two ATA/133 cards in the box.
 
-Yes, this is the source of much bugginess, especially with bad hardware
-:)
+FYI
 
-> > If ARM had a timer_opts equivalent we could have followed 
-> 
-> I think your timer_opts is effectively our struct sys_timer.
+Justin.
 
-I agree, in looking over the two. Perhaps those structures could be
-served to be unified as well? John Stultz would be the one to talk to,
-though.
 
-Thanks,
-Nish
+On Mon, 5 Sep 2005, Alan Cox wrote:
+
+> On Llu, 2005-09-05 at 09:26 +0200, Bartlomiej Zolnierkiewicz wrote:
+>> After DMA timeout driver reverted back to PIO,
+>> ide-taskfile.c also holds PIO code besides IDE Taskfile Access.
+>
+>
+> On SMP after a DMA timeout it will potentially freeze. There are some
+> paths in that code which lead to double lock takes and hangs, plus some
+> timer races.
+>
+> Justin can you make a backup (I mean that seriously), then build a
+> kernel with spin lock debug enabled and see if you can reproduce the
+> problem and get a trace.
+>
+> If its the locking you'll get a trace and the kernel will continue. At
+> that point because the spinlock debug continues unsafely through a
+> double lock after the trace you are in the "danger zone" hence the
+> backup warning
+>
+> [Yes the spin lock debug code really should warn you its dangerous for
+> non debug uses or get patched as it is in Fedora to trace and stop]
+>
+> If its a hardware or other problem it will still hang
+>
+> if its an unrelated lock problem it should still get a trace.
+>
+>
+> Why you see this only on 2.6.13 not 2.6.13-rc7 I don't know. It makes me
+> wonder if you have a bad drive - but then you imply going back to rc7
+> goes back to stable. Can you therefore also check the .config options
+> between the two kernels match.
+>
+> Alan
+>

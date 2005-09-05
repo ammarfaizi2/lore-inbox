@@ -1,64 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbVIEPpU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbVIEPpx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932178AbVIEPpU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 11:45:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932192AbVIEPpT
+	id S932214AbVIEPpx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 11:45:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932192AbVIEPpx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 11:45:19 -0400
-Received: from mail.dsa-ac.de ([62.112.80.99]:13075 "EHLO mail.dsa-ac.de")
-	by vger.kernel.org with ESMTP id S932178AbVIEPpR (ORCPT
+	Mon, 5 Sep 2005 11:45:53 -0400
+Received: from wproxy.gmail.com ([64.233.184.196]:58676 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932214AbVIEPpw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 11:45:17 -0400
-Date: Mon, 5 Sep 2005 17:45:09 +0200 (CEST)
-From: gl@dsa-ac.de
-To: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: who sets boot_params[].screen_info.orig_video_isVGA?
-In-Reply-To: <E1ECIub-00088O-00@chiark.greenend.org.uk>
-Message-ID: <Pine.LNX.4.63.0509051736420.11341@pcgl.dsa-ac.de>
-References: <Pine.LNX.4.63.0509051646480.11341@pcgl.dsa-ac.de>
- <E1ECIub-00088O-00@chiark.greenend.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 5 Sep 2005 11:45:52 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=WhT8G5sj03paNlhCuSsJw6wQz8y4sgU5BTYal2qjNpBq9U7gqw/xgGUH2INPxEwOJaD1k2DrNyEEpoBEND5Vsy3n2PgSdpCcD0qbSI0pzR/1YuBpbfrKTfDF9cfpjTEkeYwqumW4JVhE81XRI5PdaFVdBCa5qlf3x5BKrTH9Y60=
+Date: Mon, 5 Sep 2005 19:55:22 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: viro@ZenIV.linux.org.uk
+Subject: Re: [PATCHSET] 2.6.13-git3-bird1
+Message-ID: <20050905155522.GA8057@mipter.zuzino.mipt.ru>
+References: <20050905035848.GG5155@ZenIV.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050905035848.GG5155@ZenIV.linux.org.uk>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for the reply, Matthew.
+On Mon, Sep 05, 2005 at 04:58:48AM +0100, viro@ZenIV.linux.org.uk wrote:
+> 	While waaaaay overdue, "fixes and sparse annotations" tree is finally
+> going public.  This version is basically a starting point - there will be
+> much more stuff to merge.
 
-On Mon, 5 Sep 2005, Matthew Garrett wrote:
+> 	Current patchset is on ftp.linux.org.uk/pub/people/viro/ -
+> patch-2.6.13-git3-bird1.bz2 is combined patch, patchset/* is the splitup.
+> Long description of patches is in patchset/set*, short log is in the end of
+> this posting.  Current build and sparse logs are in logs/*/{log17b,S-log17b}.
 
-> gl@dsa-ac.de <gl@dsa-ac.de> wrote:
->> I am trying to get intelfb running on a system with a 855GM onboard chip,
->> and the driver exits at intelfbdrv.c::intelfb_pci_register() (2.6.13, line
->> 814:
->>
->>  	if (FIXED_MODE(dinfo) && ORIG_VIDEO_ISVGA != VIDEO_TYPE_VLFB) {
->>  		ERR_MSG("Video mode must be programmed at boot time.\n");
->>  		cleanup(dinfo);
->>  		return -ENODEV;
->>  	}
->
-> This ought to be done by the bootloader if you pass a vga=foo argument.
-> The framebuffer driver doesn't know how to switch resolutions (primarily
-> because Intel won't tell anyone how to do it, so the only method is a
-> real-mode BIOS call to the VESA BIOS)
+Those who want to help with endian annotations (sparse -Wbitwise) are
+welcome at ftp://ftp.berlios.de/pub/linux-sparse/logs/
 
-Do I get it right, that, say, if I tell grub to load a kernel and specify 
-"vga=xxx" on the kernel command line, grub will interpret it, issue some 
-VESA BIOS calls and fill in the screen_info struct? If so, the card often 
-supports several modes (VGA, SVGA, VESA, different resolutions, colour 
-depths, etc.), right? So, which one will be chosen? Does it depend on the 
-specific value I give to "vga="? How do I force VIDEO_TYPE_VLFB (VESA VGA 
-in graphic mode) mopde then?
+[allmodconfig + CONFIG_DEBUG_INFO=n] x [alpha, i386, parisc, ppc, ppc64,
+s390, sh, sh64, sparc, sparc64, x86_64]
 
-BTW, I didn't find any code in grub that sets up screen_info, or it's very 
-well hidden:-)
+-git5 is compiling right now.
 
-Thanks
-Guennadi
----------------------------------
-Guennadi Liakhovetski, Ph.D.
-DSA Daten- und Systemtechnik GmbH
-Pascalstr. 28
-D-52076 Aachen
-Germany

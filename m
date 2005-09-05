@@ -1,61 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932659AbVIEJgN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbVIEJmg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932659AbVIEJgN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 05:36:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932662AbVIEJgM
+	id S932302AbVIEJmg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 05:42:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbVIEJmg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 05:36:12 -0400
-Received: from ns.firmix.at ([62.141.48.66]:11740 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S932661AbVIEJgK (ORCPT
+	Mon, 5 Sep 2005 05:42:36 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:20375 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932302AbVIEJmf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 05:36:10 -0400
-Subject: Re: forbid to strace a program
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Andreas Hartmann <andihartmann@01019freenet.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <dfe7ui$14q$1@pD9F874C0.dip0.t-ipconnect.de>
-References: <4IOGw-1DU-11@gated-at.bofh.it> <4IOGw-1DU-13@gated-at.bofh.it>
-	 <4IOGw-1DU-9@gated-at.bofh.it> <4IOQc-1Pk-23@gated-at.bofh.it>
-	 <dfe7ui$14q$1@pD9F874C0.dip0.t-ipconnect.de>
-Content-Type: text/plain
-Organization: Firmix Software GmbH
-Date: Mon, 05 Sep 2005 11:36:05 +0200
-Message-Id: <1125912965.27110.34.camel@tara.firmix.at>
+	Mon, 5 Sep 2005 05:42:35 -0400
+Date: Mon, 5 Sep 2005 17:48:07 +0800
+From: David Teigland <teigland@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Joel.Becker@oracle.com, ak@suse.de, linux-cluster@redhat.com,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [Linux-cluster] Re: GFS, what's remaining
+Message-ID: <20050905094807.GG17607@redhat.com>
+References: <20050903183241.1acca6c9.akpm@osdl.org> <20050904030640.GL8684@ca-server1.us.oracle.com> <200509040022.37102.phillips@istop.com> <20050903214653.1b8a8cb7.akpm@osdl.org> <20050904045821.GT8684@ca-server1.us.oracle.com> <20050903224140.0442fac4.akpm@osdl.org> <20050905043033.GB11337@redhat.com> <20050905015408.21455e56.akpm@osdl.org> <20050905092433.GE17607@redhat.com> <20050905021948.6241f1e0.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050905021948.6241f1e0.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-09-04 at 09:32 +0200, Andreas Hartmann wrote:
-> Chase Venters wrote:
-[...]
-> > 
-> > Can I ask why you want to hide the database password from root?
+On Mon, Sep 05, 2005 at 02:19:48AM -0700, Andrew Morton wrote:
+> David Teigland <teigland@redhat.com> wrote:
+> > Four functions:
+> >   create_lockspace()
+> >   release_lockspace()
+> >   lock()
+> >   unlock()
 > 
-> It's easy: for security reasons. There could always be some bugs in some
-> software, which makes it possible for some other user, to gain root
-> privileges. Now, they could easily strace for information, they shouldn't
+> Neat.  I'd be inclined to make them syscalls then.  I don't suppose anyone
+> is likely to object if we reserve those slots.
 
-Forget it.
-You cannot hide anything seriously from root (or equivalent users on
-other OSes and so-called OSes) with such attempts (independent how the
-process got root - with the correct password or through a security hole
-somewhere).
-Consider the case that root installed a (patched) DB-server which dumps
-the passwords in some logfile. Or root logs from the authentication
-framework (be it PAM or something else)
+Patrick is really the expert in this area and he's off this week, but
+based on what he's done with the misc device I don't see why there'd be
+more than two or three parameters for any of these.
 
-> could do it. The password they could see, isn't just used for the DB, but
-> for some other applications, too. That's the disadvantage of general
-> (single sign on) passwords.
-
-So either you get your own machine or you use different passwords for
-different services.
-
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
+Dave
 

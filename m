@@ -1,61 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932357AbVIETAR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932405AbVIETGl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932357AbVIETAR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 15:00:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932372AbVIETAR
+	id S932405AbVIETGl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 15:06:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932406AbVIETGl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 15:00:17 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:4880 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932357AbVIETAP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 15:00:15 -0400
-Date: Mon, 5 Sep 2005 21:00:14 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Jakub Jelinek <jakub@redhat.com>
-Cc: Michael Matz <matz@suse.de>, ak@suse.de, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [discuss] [2.6 patch] include/asm-x86_64 "extern inline" -> "static inline"
-Message-ID: <20050905190014.GB3776@stusta.de>
-References: <20050902203123.GT3657@stusta.de> <Pine.LNX.4.58.0509051047530.27439@wotan.suse.de> <20050905180005.GA3776@stusta.de> <20050905184740.GF7403@devserv.devel.redhat.com>
+	Mon, 5 Sep 2005 15:06:41 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:15250 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932405AbVIETGl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 15:06:41 -0400
+Date: Mon, 5 Sep 2005 20:06:35 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Harald Welte <laforge@gnumonks.org>
+Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Omnikey Cardman 4040 driver
+Message-ID: <20050905190635.GA18315@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Harald Welte <laforge@gnumonks.org>,
+	Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+References: <20050905195404.GA16056@rama.de.gnumonks.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050905184740.GF7403@devserv.devel.redhat.com>
-User-Agent: Mutt/1.5.10i
+In-Reply-To: <20050905195404.GA16056@rama.de.gnumonks.org>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 05, 2005 at 02:47:40PM -0400, Jakub Jelinek wrote:
-> On Mon, Sep 05, 2005 at 08:00:05PM +0200, Adrian Bunk wrote:
-> > It isn't the same, but "static inline" is the correct variant.
-> > 
-> > "extern inline __attribute__((always_inline))" (which is what
-> > "extern inline" is expanded to) doesn't make sense.
-> 
-> It does make sense and is different from
-> static inline __attribute__((always_inline)).
-> Try:
-> static inline __attribute__((always_inline)) void foo (void) {}
-> void (*fn)(void) = foo;
-> vs.
-> extern inline __attribute__((always_inline)) void foo (void) {}
-> void (*fn)(void) = foo;
-> In the former case, GCC will emit the out of line static copy of foo
-> if you take its address, in the latter case either you provide foo
-> function by other means, or you get linker error.
+> +#include <linux/version.h>
 
-And we need the former case because in the kernel we do not have 
-out-of-line variants of the inline functions.
+I don't think you need this one.
 
-> 	Jakub
+> +#include <pcmcia/version.h>
 
-cu
-Adrian
+you shouldn't need this one.
 
--- 
+> +static atomic_t cm4040_num_devices_open;
+> +
+> +#ifdef PCMCIA_DEBUG
+> +static int pc_debug = PCMCIA_DEBUG;
+> +module_param(pc_debug, int, 0600);
+> +#define DEBUG(n, x, args...) do { if (pc_debug >= (n)) 			    \
+> +				  printk(KERN_DEBUG "%s:%s:" x, MODULE_NAME, \
+> +					 __FUNCTION__, ##args); } while (0)
+> +#else
+> +#define DEBUG(n, args...)
+> +#endif
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+What about just using pr_debug (or dev_dbg where you have a struct device
+handy)
+
+> +/* poll the device fifo status register.  not to be confused with
+> + * the poll syscall. */
+> +static void cm4040_do_poll(unsigned long dummy)
+> +{
+> +	unsigned int i;
+> +	/* walk through all devices */	
+> +	for (i = 0; dev_table[i]; i++) {
+
+Please make the poll timer per device.  We generally try to avoid
+global state, and this allows to get rid of the opencount tracking aswell.
+
+> +static ssize_t cm4040_read(struct file *filp, char __user *buf,
+> +			size_t count, loff_t *ppos)
+> +{
+> +	struct reader_dev *dev = (struct reader_dev *) filp->private_data;
+
+no need to case a void pointer.
+
+> +	if (count < 10)
+> +		return -EFAULT;
+> +
+> +	if (filp->f_flags & O_NONBLOCK) { 
+> +		DEBUG(4, "filep->f_flags O_NONBLOCK set\n");
+> +		DEBUG(2, "<- cm4040_read (failure)\n");
+> +		return -EAGAIN;
+> +	}
+
+this sounds rather pointless.  letting an O_NONBLOCK open fail all
+the time doesn't sound like a good idea.
+
+> +static int cm4040_open(struct inode *inode, struct file *filp)
+> +{
+> +	struct reader_dev *dev;
+> +	dev_link_t *link;
+> +	int i;
+> +
+> +	DEBUG(2, "-> cm4040_open(device=%d.%d process=%s,%d)\n",
+> +		MAJOR(inode->i_rdev), MINOR(inode->i_rdev),
+> +		current->comm, current->pid);
+> +
+> +	i = MINOR(inode->i_rdev);
+
+please use iminor.
+
+> +	if (filp->f_flags & O_NONBLOCK) { 
+> +		DEBUG(4, "filep->f_flags O_NONBLOCK set\n");
+> +		DEBUG(4, "<- cm4040_open (failure)\n");
+> +		return -EAGAIN;
+> +	}
+
+given that you fail O_NONLOCK in open already the code above makes even
+less sense.
+
+> +
+> +	dev->owner = current;
+
+this doesn't make a lot of sense and seems to be only used in
+debug code, I'd suggest killing it.
+
+> +static int cm4040_close(struct inode *inode,struct file *filp)
+> +{
+> +	struct reader_dev *dev;
+> +	dev_link_t *link;
+> +	int i;
+> +
+> +	DEBUG(2, "-> cm4040_close(maj/min=%d.%d)\n",
+> +		MAJOR(inode->i_rdev), MINOR(inode->i_rdev));
+> +
+> +	i = MINOR(inode->i_rdev);
+> +	if (i >= CM_MAX_DEV)
+> +		return -ENODEV;
+> +
+> +	link = dev_table[MINOR(inode->i_rdev)];
+> +	if (link == NULL)
+> +		return -ENODEV;
+> +
+> +	dev = (struct reader_dev *) link->priv;
+
+you should be able to use file->private_data here.
+
+> +		case CS_EVENT_CARD_REMOVAL:
+> +			DEBUG(5, "CS_EVENT_CARD_REMOVAL\n");
+> +			link->state &= ~DEV_PRESENT;
+> +			break;
+> +		case CS_EVENT_PM_SUSPEND:
+> +			DEBUG(5, "CS_EVENT_PM_SUSPEND "
+> +			      "(fall-through to CS_EVENT_RESET_PHYSICAL)\n");
+> +			link->state |= DEV_SUSPEND;
+> +		
+> +		case CS_EVENT_RESET_PHYSICAL:
+> +			DEBUG(5, "CS_EVENT_RESET_PHYSICAL\n");
+> +			if (link->state & DEV_CONFIG) {
+> +		  		DEBUG(5, "ReleaseConfiguration\n");
+> +		  		pcmcia_release_configuration(link->handle);
+> +			}
+> +			break;
+> +		case CS_EVENT_PM_RESUME:
+> +			DEBUG(5, "CS_EVENT_PM_RESUME "
+> +			      "(fall-through to CS_EVENT_CARD_RESET)\n");
+> +			link->state &= ~DEV_SUSPEND;
+
+I think these events became methods of their own recently, not sure
+if it hit -mm or mainline yet.
 

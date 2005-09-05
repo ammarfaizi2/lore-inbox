@@ -1,499 +1,170 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932330AbVIEScr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932386AbVIESd1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932330AbVIEScr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 14:32:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbVIEScr
+	id S932386AbVIESd1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 14:33:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932383AbVIESdO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 14:32:47 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:11920 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932330AbVIEScq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 14:32:46 -0400
-Message-ID: <431C8EF8.7020702@us.ibm.com>
-Date: Mon, 05 Sep 2005 13:31:20 -0500
-From: Brian King <brking@us.ibm.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Grant Grundler <grundler@parisc-linux.org>
-CC: Paul Mackerras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>,
-       greg@kroah.com, matthew@wil.cx, benh@kernel.crashing.org, ak@muc.de,
-       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH 1/2] pci: Block config access during BIST (resend)
-References: <4200F2B2.3080306@us.ibm.com> <20050208200816.GA25292@kroah.com> <42B83B8D.9030901@us.ibm.com> <430B3CB4.1050105@us.ibm.com> <20050901160356.2a584975.akpm@osdl.org> <4318E6B3.7010901@us.ibm.com> <20050902224314.GB8463@colo.lackof.org> <17176.56354.363726.363290@cargo.ozlabs.ibm.com> <20050903000854.GC8463@colo.lackof.org> <431A33D0.1040807@us.ibm.com> <20050903193958.GB30579@colo.lackof.org>
-In-Reply-To: <20050903193958.GB30579@colo.lackof.org>
-Content-Type: multipart/mixed;
- boundary="------------060600060802070206080408"
+	Mon, 5 Sep 2005 14:33:14 -0400
+Received: from fep30-0.kolumbus.fi ([193.229.0.32]:58723 "EHLO
+	fep30-app.kolumbus.fi") by vger.kernel.org with ESMTP
+	id S932392AbVIESc4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 14:32:56 -0400
+Message-Id: <20050905183246.782212000@kohtala.home.org>
+References: <20050905183109.284672000@kohtala.home.org>
+Date: Mon, 05 Sep 2005 21:31:15 +0300
+From: marko.kohtala@gmail.com
+To: akpm@osdl.org
+Cc: linux-parport@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: [patch 06/10] parport: ieee1284 fixes and cleanups
+Content-Disposition: inline; filename=parport-add-some-missing-const-from-static-variables-in-parport-driver.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060600060802070206080408
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Trivial "const" additions to places in parport that truly are const.
 
-Grant Grundler wrote:
-> On Sat, Sep 03, 2005 at 06:37:52PM -0500, Brian King wrote:
-> ...
-> 
->>Without the locking, we introduce a race condition.
->>
->>CPU 0                                           CPU 1
->>
->>					pci_block_user_cfg_access
->>						pci_save_state
->>pci_read_user_config_space
->>	check block_ucfg_access
->>						set block_ucfg_access
->>					other code that puts the device
->>					in a state such that it cannot
->>					handle read config i/o, such as
->>					running BIST.
->>
->>	pci read config
-> 
-> 
-> Ok this is good example - I see what the problem is.
-> You could use the following sequence too then:
-> 	pci_block_user_cfg_access
-> 		pci_save_state
-> 		block_ucfg_access = 1
-> 		mb()
-> 		while (spin_is_locked(&pci_lock))
-> 			relax_cpu();
-> 
-> Think this is sufficient?
+Signed-off-by: Marko Kohtala <marko.kohtala@gmail.com>
 
-That should work also. Here is an updated patch.
-
-
--- 
-Brian King
-eServer Storage I/O
-IBM Linux Technology Center
-
---------------060600060802070206080408
-Content-Type: text/x-patch;
- name="pci_block_user_config_io_during_bist_again.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="pci_block_user_config_io_during_bist_again.patch"
-
-
-Some PCI adapters (eg. ipr scsi adapters) have an exposure today in that 
-they issue BIST to the adapter to reset the card. If, during the time
-it takes to complete BIST, userspace attempts to access PCI config space, 
-the host bus bridge will master abort the access since the ipr adapter 
-does not respond on the PCI bus for a brief period of time when running BIST. 
-On PPC64 hardware, this master abort results in the host PCI bridge
-isolating that PCI device from the rest of the system, making the device
-unusable until Linux is rebooted. This patch is an attempt to close that
-exposure by introducing some blocking code in the PCI code. When blocked,
-writes will be humored and reads will return the cached value. Ben
-Herrenschmidt has also mentioned that he plans to use this in PPC power
-management.
-
-Signed-off-by: Brian King <brking@us.ibm.com>
 ---
 
- drivers/pci/access.c    |   81 ++++++++++++++++++++++++++++++++++++++++++++++++
- drivers/pci/pci-sysfs.c |   20 +++++------
- drivers/pci/pci.h       |    7 ++++
- drivers/pci/proc.c      |   28 ++++++++--------
- drivers/pci/syscall.c   |   14 ++++----
- include/linux/pci.h     |    5 ++
- 6 files changed, 124 insertions(+), 31 deletions(-)
+ drivers/parport/parport_pc.c |   38 ++++++++++++++++++++++----------------
+ drivers/parport/probe.c      |    6 +++---
+ 2 files changed, 25 insertions(+), 19 deletions(-)
 
-diff -puN drivers/pci/access.c~pci_block_user_config_io_during_bist_again drivers/pci/access.c
---- linux-2.6/drivers/pci/access.c~pci_block_user_config_io_during_bist_again	2005-09-04 22:33:13.000000000 -0500
-+++ linux-2.6-bjking1/drivers/pci/access.c	2005-09-04 22:43:35.000000000 -0500
-@@ -60,3 +60,84 @@ EXPORT_SYMBOL(pci_bus_read_config_dword)
- EXPORT_SYMBOL(pci_bus_write_config_byte);
- EXPORT_SYMBOL(pci_bus_write_config_word);
- EXPORT_SYMBOL(pci_bus_write_config_dword);
-+
-+static u32 pci_user_cached_config(struct pci_dev *dev, int pos)
-+{
-+	u32 data;
-+
-+	data = dev->saved_config_space[pos/sizeof(dev->saved_config_space[0])];
-+	data >>= (pos % sizeof(dev->saved_config_space[0])) * 8;
-+	return data;
-+}
-+
-+#define PCI_USER_READ_CONFIG(size,type)					\
-+int pci_user_read_config_##size						\
-+	(struct pci_dev *dev, int pos, type *val)			\
-+{									\
-+	unsigned long flags;						\
-+	int ret = 0;							\
-+	u32 data = -1;							\
-+	if (PCI_##size##_BAD) return PCIBIOS_BAD_REGISTER_NUMBER;	\
-+	spin_lock_irqsave(&pci_lock, flags);				\
-+	if (likely(!dev->block_ucfg_access))				\
-+		ret = dev->bus->ops->read(dev->bus, dev->devfn,		\
-+					pos, sizeof(type), &data);	\
-+	else if (pos < sizeof(dev->saved_config_space))			\
-+		data = pci_user_cached_config(dev, pos); 		\
-+	spin_unlock_irqrestore(&pci_lock, flags);			\
-+	*val = (type)data;						\
-+	return ret;							\
-+}
-+
-+#define PCI_USER_WRITE_CONFIG(size,type)				\
-+int pci_user_write_config_##size					\
-+	(struct pci_dev *dev, int pos, type val)			\
-+{									\
-+	unsigned long flags;						\
-+	int ret = -EIO;							\
-+	if (PCI_##size##_BAD) return PCIBIOS_BAD_REGISTER_NUMBER;	\
-+	spin_lock_irqsave(&pci_lock, flags);				\
-+	if (likely(!dev->block_ucfg_access))				\
-+		ret = dev->bus->ops->write(dev->bus, dev->devfn,	\
-+					pos, sizeof(type), val);	\
-+	spin_unlock_irqrestore(&pci_lock, flags);			\
-+	return ret;							\
-+}
-+
-+PCI_USER_READ_CONFIG(byte, u8)
-+PCI_USER_READ_CONFIG(word, u16)
-+PCI_USER_READ_CONFIG(dword, u32)
-+PCI_USER_WRITE_CONFIG(byte, u8)
-+PCI_USER_WRITE_CONFIG(word, u16)
-+PCI_USER_WRITE_CONFIG(dword, u32)
-+
-+/**
-+ * pci_block_user_cfg_access - Block userspace PCI config reads/writes
-+ * @dev:	pci device struct
-+ *
-+ * This function blocks any userspace PCI config accesses from occurring.
-+ * When blocked, any writes will be bit bucketed and reads will return the
-+ * data saved using pci_save_state for the first 64 bytes of config
-+ * space and return 0xff for all other config reads.
-+ **/
-+void pci_block_user_cfg_access(struct pci_dev *dev)
-+{
-+	pci_save_state(dev);
-+	dev->block_ucfg_access = 1;
-+	mb();
-+	while (spin_is_locked(&pci_lock))
-+		cpu_relax();
-+}
-+EXPORT_SYMBOL_GPL(pci_block_user_cfg_access);
-+
-+/**
-+ * pci_unblock_user_cfg_access - Unblock userspace PCI config reads/writes
-+ * @dev:	pci device struct
-+ *
-+ * This function allows userspace PCI config accesses to resume.
-+ **/
-+void pci_unblock_user_cfg_access(struct pci_dev *dev)
-+{
-+	dev->block_ucfg_access = 0;
-+}
-+EXPORT_SYMBOL_GPL(pci_unblock_user_cfg_access);
-diff -puN drivers/pci/pci-sysfs.c~pci_block_user_config_io_during_bist_again drivers/pci/pci-sysfs.c
---- linux-2.6/drivers/pci/pci-sysfs.c~pci_block_user_config_io_during_bist_again	2005-09-04 22:33:13.000000000 -0500
-+++ linux-2.6-bjking1/drivers/pci/pci-sysfs.c	2005-09-04 22:33:13.000000000 -0500
-@@ -126,7 +126,7 @@ pci_read_config(struct kobject *kobj, ch
+Index: linux-dvb/drivers/parport/parport_pc.c
+===================================================================
+--- linux-dvb.orig/drivers/parport/parport_pc.c	2005-06-24 10:41:40.000000000 +0300
++++ linux-dvb/drivers/parport/parport_pc.c	2005-06-24 13:03:46.000000000 +0300
+@@ -1170,7 +1170,7 @@ dump_parport_state ("fwd idle", port);
  
- 	if ((off & 1) && size) {
- 		u8 val;
--		pci_read_config_byte(dev, off, &val);
-+		pci_user_read_config_byte(dev, off, &val);
- 		data[off - init_off] = val;
- 		off++;
- 		size--;
-@@ -134,7 +134,7 @@ pci_read_config(struct kobject *kobj, ch
+ /* GCC is not inlining extern inline function later overwriten to non-inline,
+    so we use outlined_ variants here.  */
+-static struct parport_operations parport_pc_ops =
++static const struct parport_operations parport_pc_ops =
+ {
+ 	.write_data	= parport_pc_write_data,
+ 	.read_data	= parport_pc_read_data,
+@@ -1212,10 +1212,11 @@ static struct parport_operations parport
+ static void __devinit show_parconfig_smsc37c669(int io, int key)
+ {
+ 	int cr1,cr4,cra,cr23,cr26,cr27,i=0;
+-	static const char *modes[]={ "SPP and Bidirectional (PS/2)",	
+-				     "EPP and SPP",
+-				     "ECP",
+-				     "ECP and EPP" };
++	static const char *const modes[]={
++		"SPP and Bidirectional (PS/2)",	
++		"EPP and SPP",
++		"ECP",
++		"ECP and EPP" };
  
- 	if ((off & 3) && size > 2) {
- 		u16 val;
--		pci_read_config_word(dev, off, &val);
-+		pci_user_read_config_word(dev, off, &val);
- 		data[off - init_off] = val & 0xff;
- 		data[off - init_off + 1] = (val >> 8) & 0xff;
- 		off += 2;
-@@ -143,7 +143,7 @@ pci_read_config(struct kobject *kobj, ch
+ 	outb(key,io);
+ 	outb(key,io);
+@@ -1289,7 +1290,7 @@ static void __devinit show_parconfig_sms
+ static void __devinit show_parconfig_winbond(int io, int key)
+ {
+ 	int cr30,cr60,cr61,cr70,cr74,crf0,i=0;
+-	static const char *modes[] = {
++	static const char *const modes[] = {
+ 		"Standard (SPP) and Bidirectional(PS/2)", /* 0 */
+ 		"EPP-1.9 and SPP",
+ 		"ECP",
+@@ -1298,7 +1299,9 @@ static void __devinit show_parconfig_win
+ 		"EPP-1.7 and SPP",		/* 5 */
+ 		"undefined!",
+ 		"ECP and EPP-1.7" };
+-	static char *irqtypes[] = { "pulsed low, high-Z", "follows nACK" };
++	static char *const irqtypes[] = {
++		"pulsed low, high-Z",
++		"follows nACK" };
+ 		
+ 	/* The registers are called compatible-PnP because the
+            register layout is modelled after ISA-PnP, the access
+@@ -2397,7 +2400,8 @@ EXPORT_SYMBOL (parport_pc_unregister_por
  
- 	while (size > 3) {
- 		u32 val;
--		pci_read_config_dword(dev, off, &val);
-+		pci_user_read_config_dword(dev, off, &val);
- 		data[off - init_off] = val & 0xff;
- 		data[off - init_off + 1] = (val >> 8) & 0xff;
- 		data[off - init_off + 2] = (val >> 16) & 0xff;
-@@ -154,7 +154,7 @@ pci_read_config(struct kobject *kobj, ch
+ /* ITE support maintained by Rich Liu <richliu@poorman.org> */
+ static int __devinit sio_ite_8872_probe (struct pci_dev *pdev, int autoirq,
+-					 int autodma, struct parport_pc_via_data *via)
++					 int autodma,
++					 const struct parport_pc_via_data *via)
+ {
+ 	short inta_addr[6] = { 0x2A0, 0x2C0, 0x220, 0x240, 0x1E0 };
+ 	struct resource *base_res;
+@@ -2505,7 +2509,7 @@ static int __devinit sio_ite_8872_probe 
+ static int __devinitdata parport_init_mode = 0;
  
- 	if (size >= 2) {
- 		u16 val;
--		pci_read_config_word(dev, off, &val);
-+		pci_user_read_config_word(dev, off, &val);
- 		data[off - init_off] = val & 0xff;
- 		data[off - init_off + 1] = (val >> 8) & 0xff;
- 		off += 2;
-@@ -163,7 +163,7 @@ pci_read_config(struct kobject *kobj, ch
+ /* Data for two known VIA chips */
+-static struct parport_pc_via_data via_686a_data __devinitdata = {
++static const struct parport_pc_via_data via_686a_data __devinitdata = {
+ 	0x51,
+ 	0x50,
+ 	0x85,
+@@ -2514,7 +2518,7 @@ static struct parport_pc_via_data via_68
+ 	0xF0,
+ 	0xE6
+ };
+-static struct parport_pc_via_data via_8231_data __devinitdata = {
++static const struct parport_pc_via_data via_8231_data __devinitdata = {
+ 	0x45,
+ 	0x44,
+ 	0x50,
+@@ -2525,7 +2529,8 @@ static struct parport_pc_via_data via_82
+ };
  
- 	if (size > 0) {
- 		u8 val;
--		pci_read_config_byte(dev, off, &val);
-+		pci_user_read_config_byte(dev, off, &val);
- 		data[off - init_off] = val;
- 		off++;
- 		--size;
-@@ -188,7 +188,7 @@ pci_write_config(struct kobject *kobj, c
- 	}
- 	
- 	if ((off & 1) && size) {
--		pci_write_config_byte(dev, off, data[off - init_off]);
-+		pci_user_write_config_byte(dev, off, data[off - init_off]);
- 		off++;
- 		size--;
- 	}
-@@ -196,7 +196,7 @@ pci_write_config(struct kobject *kobj, c
- 	if ((off & 3) && size > 2) {
- 		u16 val = data[off - init_off];
- 		val |= (u16) data[off - init_off + 1] << 8;
--                pci_write_config_word(dev, off, val);
-+                pci_user_write_config_word(dev, off, val);
-                 off += 2;
-                 size -= 2;
-         }
-@@ -206,7 +206,7 @@ pci_write_config(struct kobject *kobj, c
- 		val |= (u32) data[off - init_off + 1] << 8;
- 		val |= (u32) data[off - init_off + 2] << 16;
- 		val |= (u32) data[off - init_off + 3] << 24;
--		pci_write_config_dword(dev, off, val);
-+		pci_user_write_config_dword(dev, off, val);
- 		off += 4;
- 		size -= 4;
- 	}
-@@ -214,13 +214,13 @@ pci_write_config(struct kobject *kobj, c
- 	if (size >= 2) {
- 		u16 val = data[off - init_off];
- 		val |= (u16) data[off - init_off + 1] << 8;
--		pci_write_config_word(dev, off, val);
-+		pci_user_write_config_word(dev, off, val);
- 		off += 2;
- 		size -= 2;
- 	}
+ static int __devinit sio_via_probe (struct pci_dev *pdev, int autoirq,
+-					 int autodma, struct parport_pc_via_data *via)
++				    int autodma,
++				    const struct parport_pc_via_data *via)
+ {
+ 	u8 tmp, tmp2, siofunc;
+ 	u8 ppcontrol = 0;
+@@ -2694,9 +2699,10 @@ enum parport_pc_sio_types {
+ };
  
- 	if (size) {
--		pci_write_config_byte(dev, off, data[off - init_off]);
-+		pci_user_write_config_byte(dev, off, data[off - init_off]);
- 		off++;
- 		--size;
- 	}
-diff -puN drivers/pci/proc.c~pci_block_user_config_io_during_bist_again drivers/pci/proc.c
---- linux-2.6/drivers/pci/proc.c~pci_block_user_config_io_during_bist_again	2005-09-04 22:33:13.000000000 -0500
-+++ linux-2.6-bjking1/drivers/pci/proc.c	2005-09-04 22:33:13.000000000 -0500
-@@ -80,7 +80,7 @@ proc_bus_pci_read(struct file *file, cha
+ /* each element directly indexed from enum list, above */
+-static struct parport_pc_superio {
+-	int (*probe) (struct pci_dev *pdev, int autoirq, int autodma, struct parport_pc_via_data *via);
+-	struct parport_pc_via_data *via;
++static const struct parport_pc_superio {
++	int (*probe) (struct pci_dev *pdev, int autoirq, int autodma,
++		      const struct parport_pc_via_data *via);
++	const struct parport_pc_via_data *via;
+ } parport_pc_superio_info[] __devinitdata = {
+ 	{ sio_via_probe, &via_686a_data, },
+ 	{ sio_via_probe, &via_8231_data, },
+@@ -2756,7 +2762,7 @@ enum parport_pc_pci_cards {
  
- 	if ((pos & 1) && cnt) {
- 		unsigned char val;
--		pci_read_config_byte(dev, pos, &val);
-+		pci_user_read_config_byte(dev, pos, &val);
- 		__put_user(val, buf);
- 		buf++;
- 		pos++;
-@@ -89,7 +89,7 @@ proc_bus_pci_read(struct file *file, cha
+ /* each element directly indexed from enum list, above 
+  * (but offset by last_sio) */
+-static struct parport_pc_pci {
++static const struct parport_pc_pci {
+ 	int numports;
+ 	struct { /* BAR (base address registers) numbers in the config
+                     space header */
+@@ -2827,7 +2833,7 @@ static struct parport_pc_pci {
+ 	/* netmos_9815 */               { 2, { { 0, -1 }, { 2, -1 }, } }, /* untested */
+ };
  
- 	if ((pos & 3) && cnt > 2) {
- 		unsigned short val;
--		pci_read_config_word(dev, pos, &val);
-+		pci_user_read_config_word(dev, pos, &val);
- 		__put_user(cpu_to_le16(val), (unsigned short __user *) buf);
- 		buf += 2;
- 		pos += 2;
-@@ -98,7 +98,7 @@ proc_bus_pci_read(struct file *file, cha
- 
- 	while (cnt >= 4) {
- 		unsigned int val;
--		pci_read_config_dword(dev, pos, &val);
-+		pci_user_read_config_dword(dev, pos, &val);
- 		__put_user(cpu_to_le32(val), (unsigned int __user *) buf);
- 		buf += 4;
- 		pos += 4;
-@@ -107,7 +107,7 @@ proc_bus_pci_read(struct file *file, cha
- 
- 	if (cnt >= 2) {
- 		unsigned short val;
--		pci_read_config_word(dev, pos, &val);
-+		pci_user_read_config_word(dev, pos, &val);
- 		__put_user(cpu_to_le16(val), (unsigned short __user *) buf);
- 		buf += 2;
- 		pos += 2;
-@@ -116,7 +116,7 @@ proc_bus_pci_read(struct file *file, cha
- 
- 	if (cnt) {
- 		unsigned char val;
--		pci_read_config_byte(dev, pos, &val);
-+		pci_user_read_config_byte(dev, pos, &val);
- 		__put_user(val, buf);
- 		buf++;
- 		pos++;
-@@ -151,7 +151,7 @@ proc_bus_pci_write(struct file *file, co
- 	if ((pos & 1) && cnt) {
- 		unsigned char val;
- 		__get_user(val, buf);
--		pci_write_config_byte(dev, pos, val);
-+		pci_user_write_config_byte(dev, pos, val);
- 		buf++;
- 		pos++;
- 		cnt--;
-@@ -160,7 +160,7 @@ proc_bus_pci_write(struct file *file, co
- 	if ((pos & 3) && cnt > 2) {
- 		unsigned short val;
- 		__get_user(val, (unsigned short __user *) buf);
--		pci_write_config_word(dev, pos, le16_to_cpu(val));
-+		pci_user_write_config_word(dev, pos, le16_to_cpu(val));
- 		buf += 2;
- 		pos += 2;
- 		cnt -= 2;
-@@ -169,7 +169,7 @@ proc_bus_pci_write(struct file *file, co
- 	while (cnt >= 4) {
- 		unsigned int val;
- 		__get_user(val, (unsigned int __user *) buf);
--		pci_write_config_dword(dev, pos, le32_to_cpu(val));
-+		pci_user_write_config_dword(dev, pos, le32_to_cpu(val));
- 		buf += 4;
- 		pos += 4;
- 		cnt -= 4;
-@@ -178,7 +178,7 @@ proc_bus_pci_write(struct file *file, co
- 	if (cnt >= 2) {
- 		unsigned short val;
- 		__get_user(val, (unsigned short __user *) buf);
--		pci_write_config_word(dev, pos, le16_to_cpu(val));
-+		pci_user_write_config_word(dev, pos, le16_to_cpu(val));
- 		buf += 2;
- 		pos += 2;
- 		cnt -= 2;
-@@ -187,7 +187,7 @@ proc_bus_pci_write(struct file *file, co
- 	if (cnt) {
- 		unsigned char val;
- 		__get_user(val, buf);
--		pci_write_config_byte(dev, pos, val);
-+		pci_user_write_config_byte(dev, pos, val);
- 		buf++;
- 		pos++;
- 		cnt--;
-@@ -484,10 +484,10 @@ static int show_dev_config(struct seq_fi
- 
- 	drv = pci_dev_driver(dev);
- 
--	pci_read_config_dword(dev, PCI_CLASS_REVISION, &class_rev);
--	pci_read_config_byte (dev, PCI_LATENCY_TIMER, &latency);
--	pci_read_config_byte (dev, PCI_MIN_GNT, &min_gnt);
--	pci_read_config_byte (dev, PCI_MAX_LAT, &max_lat);
-+	pci_user_read_config_dword(dev, PCI_CLASS_REVISION, &class_rev);
-+	pci_user_read_config_byte (dev, PCI_LATENCY_TIMER, &latency);
-+	pci_user_read_config_byte (dev, PCI_MIN_GNT, &min_gnt);
-+	pci_user_read_config_byte (dev, PCI_MAX_LAT, &max_lat);
- 	seq_printf(m, "  Bus %2d, device %3d, function %2d:\n",
- 	       dev->bus->number, PCI_SLOT(dev->devfn), PCI_FUNC(dev->devfn));
- 	class = pci_class_name(class_rev >> 16);
-diff -puN drivers/pci/syscall.c~pci_block_user_config_io_during_bist_again drivers/pci/syscall.c
---- linux-2.6/drivers/pci/syscall.c~pci_block_user_config_io_during_bist_again	2005-09-04 22:33:13.000000000 -0500
-+++ linux-2.6-bjking1/drivers/pci/syscall.c	2005-09-04 22:33:13.000000000 -0500
-@@ -13,7 +13,7 @@
- #include <linux/smp_lock.h>
- #include <linux/syscalls.h>
+-static struct pci_device_id parport_pc_pci_tbl[] = {
++static const struct pci_device_id parport_pc_pci_tbl[] = {
+ 	/* Super-IO onboard chips */
+ 	{ 0x1106, 0x0686, PCI_ANY_ID, PCI_ANY_ID, 0, 0, sio_via_686a },
+ 	{ 0x1106, 0x8231, PCI_ANY_ID, PCI_ANY_ID, 0, 0, sio_via_8231 },
+Index: linux-dvb/drivers/parport/probe.c
+===================================================================
+--- linux-dvb.orig/drivers/parport/probe.c	2005-06-24 13:03:46.000000000 +0300
++++ linux-dvb/drivers/parport/probe.c	2005-06-24 13:03:46.000000000 +0300
+@@ -11,9 +11,9 @@
+ #include <linux/string.h>
  #include <asm/uaccess.h>
--
-+#include "pci.h"
  
- asmlinkage long
- sys_pciconfig_read(unsigned long bus, unsigned long dfn,
-@@ -38,13 +38,13 @@ sys_pciconfig_read(unsigned long bus, un
- 	lock_kernel();
- 	switch (len) {
- 	case 1:
--		cfg_ret = pci_read_config_byte(dev, off, &byte);
-+		cfg_ret = pci_user_read_config_byte(dev, off, &byte);
- 		break;
- 	case 2:
--		cfg_ret = pci_read_config_word(dev, off, &word);
-+		cfg_ret = pci_user_read_config_word(dev, off, &word);
- 		break;
- 	case 4:
--		cfg_ret = pci_read_config_dword(dev, off, &dword);
-+		cfg_ret = pci_user_read_config_dword(dev, off, &dword);
- 		break;
- 	default:
- 		err = -EINVAL;
-@@ -112,7 +112,7 @@ sys_pciconfig_write(unsigned long bus, u
- 		err = get_user(byte, (u8 __user *)buf);
- 		if (err)
- 			break;
--		err = pci_write_config_byte(dev, off, byte);
-+		err = pci_user_write_config_byte(dev, off, byte);
- 		if (err != PCIBIOS_SUCCESSFUL)
- 			err = -EIO;
- 		break;
-@@ -121,7 +121,7 @@ sys_pciconfig_write(unsigned long bus, u
- 		err = get_user(word, (u16 __user *)buf);
- 		if (err)
- 			break;
--		err = pci_write_config_word(dev, off, word);
-+		err = pci_user_write_config_word(dev, off, word);
- 		if (err != PCIBIOS_SUCCESSFUL)
- 			err = -EIO;
- 		break;
-@@ -130,7 +130,7 @@ sys_pciconfig_write(unsigned long bus, u
- 		err = get_user(dword, (u32 __user *)buf);
- 		if (err)
- 			break;
--		err = pci_write_config_dword(dev, off, dword);
-+		err = pci_user_write_config_dword(dev, off, dword);
- 		if (err != PCIBIOS_SUCCESSFUL)
- 			err = -EIO;
- 		break;
-diff -puN include/linux/pci.h~pci_block_user_config_io_during_bist_again include/linux/pci.h
---- linux-2.6/include/linux/pci.h~pci_block_user_config_io_during_bist_again	2005-09-04 22:33:13.000000000 -0500
-+++ linux-2.6-bjking1/include/linux/pci.h	2005-09-04 22:33:13.000000000 -0500
-@@ -557,6 +557,7 @@ struct pci_dev {
- 	unsigned int	is_enabled:1;	/* pci_enable_device has been called */
- 	unsigned int	is_busmaster:1; /* device is busmaster */
- 	unsigned int	no_msi:1;	/* device may not use msi */
-+	unsigned int	block_ucfg_access:1;	/* userspace config space access is blocked */
- 
- 	u32		saved_config_space[16]; /* config space saved at suspend time */
- 	struct bin_attribute *rom_attr; /* attribute descriptor for sysfs ROM entry */
-@@ -912,6 +913,8 @@ extern void pci_disable_msix(struct pci_
- extern void msi_remove_pci_irq_vectors(struct pci_dev *dev);
- #endif
- 
-+extern void pci_block_user_cfg_access(struct pci_dev *dev);
-+extern void pci_unblock_user_cfg_access(struct pci_dev *dev);
- #endif /* CONFIG_PCI */
- 
- /* Include architecture-dependent settings and functions */
-@@ -962,6 +965,8 @@ static inline void pci_unregister_driver
- static inline int pci_find_capability (struct pci_dev *dev, int cap) {return 0; }
- static inline int pci_find_ext_capability (struct pci_dev *dev, int cap) {return 0; }
- static inline const struct pci_device_id *pci_match_device(const struct pci_device_id *ids, const struct pci_dev *dev) { return NULL; }
-+static inline void pci_block_user_cfg_access(struct pci_dev *dev) { }
-+static inline void pci_unblock_user_cfg_access(struct pci_dev *dev) { }
- 
- /* Power management related routines */
- static inline int pci_save_state(struct pci_dev *dev) { return 0; }
-diff -puN drivers/pci/pci.h~pci_block_user_config_io_during_bist_again drivers/pci/pci.h
---- linux-2.6/drivers/pci/pci.h~pci_block_user_config_io_during_bist_again	2005-09-04 22:33:13.000000000 -0500
-+++ linux-2.6-bjking1/drivers/pci/pci.h	2005-09-04 22:33:13.000000000 -0500
-@@ -15,6 +15,13 @@ extern int pci_bus_alloc_resource(struct
- extern int (*platform_pci_choose_state)(struct pci_dev *dev, pm_message_t state);
- extern int (*platform_pci_set_power_state)(struct pci_dev *dev, pci_power_t state);
- 
-+extern int pci_user_read_config_byte(struct pci_dev *dev, int where, u8 *val);
-+extern int pci_user_read_config_word(struct pci_dev *dev, int where, u16 *val);
-+extern int pci_user_read_config_dword(struct pci_dev *dev, int where, u32 *val);
-+extern int pci_user_write_config_byte(struct pci_dev *dev, int where, u8 val);
-+extern int pci_user_write_config_word(struct pci_dev *dev, int where, u16 val);
-+extern int pci_user_write_config_dword(struct pci_dev *dev, int where, u32 val);
-+
- /* PCI /proc functions */
- #ifdef CONFIG_PROC_FS
- extern int pci_proc_attach_device(struct pci_dev *dev);
-_
+-static struct {
+-	char *token;
+-	char *descr;
++static const struct {
++	const char *token;
++	const char *descr;
+ } classes[] = {
+ 	{ "",            "Legacy device" },
+ 	{ "PRINTER",     "Printer" },
 
---------------060600060802070206080408--
+--

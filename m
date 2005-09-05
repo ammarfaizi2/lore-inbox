@@ -1,111 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751119AbVIEMGe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751102AbVIEMU3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751119AbVIEMGe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 08:06:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751128AbVIEMGe
+	id S1751102AbVIEMU3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 08:20:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751128AbVIEMU3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 08:06:34 -0400
-Received: from web8403.mail.in.yahoo.com ([202.43.219.151]:45951 "HELO
-	web8403.mail.in.yahoo.com") by vger.kernel.org with SMTP
-	id S1751119AbVIEMGd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 08:06:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.co.in;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=FqbrqXGhaVHsLDtnEEnKPED3Y2WFzneCoK1/IvxUmdXDzRJvKTfAbkiJP8RSuN/a1jESjeNpe7BcdvybpcpTMAuHiTWlIbA4zs6pXezLU6gjgTh5piBo4n0abzdYMw7YqXKlOHNTz5pd1PoieSyhFJ4FilEmNGlFcn+5Mk/Loak=  ;
-Message-ID: <20050905120625.70268.qmail@web8403.mail.in.yahoo.com>
-Date: Mon, 5 Sep 2005 13:06:25 +0100 (BST)
-From: vinay hegde <thisismevinay@yahoo.co.in>
-Subject: Regarding the booting the linux kernel on a
- > PPC board.
-To: linux-kernel@vger.kernel.org
-Cc: thisismevinay@yahoo.co.in
+	Mon, 5 Sep 2005 08:20:29 -0400
+Received: from odin2.bull.net ([192.90.70.84]:31643 "EHLO odin2.bull.net")
+	by vger.kernel.org with ESMTP id S1751102AbVIEMU2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 08:20:28 -0400
+From: "Serge Noiraud" <serge.noiraud@bull.net>
+To: george@mvista.com
+Subject: Re: [patch] KGDB for Real-Time Preemption systems
+Date: Mon, 5 Sep 2005 14:23:46 +0200
+User-Agent: KMail/1.7.1
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>
+References: <20050811110051.GA20872@elte.hu> <43028A94.1050603@mvista.com>
+In-Reply-To: <43028A94.1050603@mvista.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_TjDHDJu2AMwUQ7i"
+Message-Id: <200509051423.47380.Serge.Noiraud@bull.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--Boundary-00=_TjDHDJu2AMwUQ7i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> Hi All,
->  
-> I am working on bringing up a PowerPC based board
-> with Linux 2.6 kernel (Board supoort package).
-> However, I am facing some problem with respect to
-> debugging.
->  
-> When I boot the board with the Linux kernel (BSP),
-> the board hangs after printing the following
-> information.
->  
-> >>>>>>>>>>>>>>>>>>>>>>>
-> 
-> Network Loading from: /dev/enet0 
-> 
-> Client IP Address      = 192.168.4.38 
-> Server IP Address      = 192.168.4.101 
-> Gateway IP Address     = 192.168.4.253 
-> Subnet IP Address Mask = 255.255.255.0 
-> Boot File Name         = developer.kdi 
-> Load Address           = 04000000 
-> Buffer Size = 2000000 
-> 
-> Network Boot File Load Start - Press <ESC> to
-> Bypass, <SPC> to Continue 
-> 
-> 
-> Bytes Received =&6141952, Bytes Loaded =&6141952 
-> Bytes/Second   =&511829, Elapsed Time =12 Second(s) 
-> 
-> Boot Device       =/dev/enet0 
-> Boot File         =developer.kdi 
-> Load Address      =04000000 
-> Load Size         =005DB800 
-> Execution Address =04000020 
-> Execution Offset  =00000020 
-> 
-> Passing control to the loaded file/image. 
-> loaded at:     00800000 00DD8800 
-> zimage at:     008058E0 009933BB 
-> initrd at:     00998000 00DD8800 
-> avail ram:     00400000 00800000 
-> 
-> Linux/PPC load: console=ttyS0,9600 console=tty0
-> root=/dev/sda2 
-> console=ttyS0,9600 root=/dev/ram rw 
-> Uncompressing Linux...done. 
-> Now booting the kernel 
-> 
-> 
-> >>>>>>>>>>>>>>>>>>>>>. 
-> 
-> I am going through the source code to figure out the
-> problem, but unable to find out what is going wrong
-> here.
-> 
-> Does anybody have any idea about the problem? Also,
-> is it possible to print some debug messages at this
-> point of booting? {Note that, in the early stage of
-> booting process the serial is initialized and all
-> the above mentioned messages (like Uncomressing
-> Linux, Now booting the kernel etc) are printed. And
-> immediately after printing the "now booting the
-> kernel message,the serial is closed. This code is in
-> uncompress_kernel() function in
-> arch/ppc/boot/simple/misc.c file).
-> 
-> Can somebody help me with the above problem?
-> 
-> Thank you,
-> 
-> vinay hegde.
-> 
+mercredi 17 Ao=FBt 2005 02:53, George Anzinger wrote/a =E9crit=A0:
+> I have put a version of KGDB for x86 RT kernels here:
+> http://source.mvista.com/~ganzinger/
+>
+> The common_kgdb_cfi_.... stuff creates debug records for entry.S and
+> friends so that you can "bt" through them.  Apply in this order:
+> Ingo's patch
+> kgdb-ga-rt.patch
+> common_kgdb_cfi_annotations.patch
+>
+> This is, more or less, the same kgdb that is in Andrew's mm tree changed
+> to fix the RT issues.
 
+Hi, everybody
 
+I found two bugs in kgdb-ga-rt patch.
 
-	
+The first one : if CONFIG_SMP is not set, we have a compile error
+The second one : if CONFIG_KGDB is not set, we have a link error=20
+I send you a diff patch to correct this. I am not sure the last patch is=20
+correct, but it works.
 
-	
-		
-__________________________________________________________ 
-Yahoo! India Matrimony: Find your partner online. Go to http://yahoo.shaadi.com
+--Boundary-00=_TjDHDJu2AMwUQ7i
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="diff.kgdb-ga-rt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="diff.kgdb-ga-rt"
+
+--- kgdb-ga-rt.patch.org	2005-09-05 12:00:17.103019648 +0200
++++ kgdb-ga-rt.patch	2005-09-05 12:08:04.561955088 +0200
+@@ -1861,11 +1861,11 @@
+ +	gdb_i386errcode = err_code;
+ +	kgdb_info.called_from = __builtin_return_address(0);
+ +	kgdb_info.why = str;
+++#ifdef CONFIG_SMP
+ +	kgdb_info.cpus_waiting[trap_cpu].regs = linux_regs;
+ +	kgdb_info.cpus_waiting[trap_cpu].task = current;
+ +	kgdb_info.cpus_waiting[trap_cpu].pid = 
+ +		(current->pid) ? : (PID_MAX + trap_cpu);
+-+#ifdef CONFIG_SMP
+ +	/*
+ +	 * OK, we can now communicate, lets tell gdb about the sync.
+ +	 * but only if we had a problem.
+@@ -5078,7 +5078,7 @@
+ ===================================================================
+ --- /dev/null
+ +++ linux-2.6.13-rc/include/asm-i386/kgdb_local.h
+-@@ -0,0 +1,174 @@
++@@ -0,0 +1,178 @@
+ +#ifndef __KGDB_LOCAL
+ +#define ___KGDB_LOCAL
+ +#include <linux/config.h>
+@@ -5248,7 +5248,11 @@
+ +#endif
+ +#define INIT_KDEBUG putDebugChar("+");
+ +extern struct  notifier_block kgdb_notify_struct;
+++#ifdef CONFIG_KGDB 
+ +#define KGDB_NOTIFY {&kgdb_notify_struct}
+++#else				/* CONFIG_KGDB */
+++#define KGDB_NOTIFY {NULL}
+++#endif				/* CONFIG_KGDB */
+ +#else
+ +#define KGDB_NOTIFY {NULL}
+ +#endif                          /* __ASSEMBLY__ */
+
+--Boundary-00=_TjDHDJu2AMwUQ7i--

@@ -1,62 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932191AbVIEEM6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932193AbVIEEOv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932191AbVIEEM6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 00:12:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932192AbVIEEM6
+	id S932193AbVIEEOv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 00:14:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932196AbVIEEOv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 00:12:58 -0400
-Received: from simmts12.bellnexxia.net ([206.47.199.141]:48538 "EHLO
-	simmts12-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S932191AbVIEEM5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 00:12:57 -0400
-Message-ID: <50570.10.10.10.10.1125893576.squirrel@linux1>
-In-Reply-To: <20050905040311.29623.qmail@web50204.mail.yahoo.com>
-References: <35547.10.10.10.10.1125892279.squirrel@linux1>
-    <20050905040311.29623.qmail@web50204.mail.yahoo.com>
-Date: Mon, 5 Sep 2005 00:12:56 -0400 (EDT)
-Subject: re: RFC: i386: kill !4KSTACKS
-From: "Sean" <seanlkml@sympatico.ca>
-To: "Alex Davis" <alex14641@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.4-2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+	Mon, 5 Sep 2005 00:14:51 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:25740
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932193AbVIEEOu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 00:14:50 -0400
+Date: Sun, 04 Sep 2005 21:15:05 -0700 (PDT)
+Message-Id: <20050904.211505.00894889.davem@davemloft.net>
+To: linux-kernel@vger.kernel.org, akpm@osdl.org
+Cc: davej@redhat.com, hyoshiok@miraclelinux.com, mm-commits@vger.kernel.org
+Subject: Re: x86-cache-pollution-aware-__copy_from_user_ll.patch added to
+ -mm tree
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20050904144218.7fe25102.akpm@osdl.org>
+References: <200509042017.j84KHekQ032373@shell0.pdx.osdl.net>
+	<20050904202333.GA4715@redhat.com>
+	<20050904144218.7fe25102.akpm@osdl.org>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, September 5, 2005 12:03 am, Alex Davis said:
->
-> What if you don't have a choice? When someone comes to me with their
-> laptop
-> containing a built-in wireless card not natively supported by Linux, am I
-> supposed to tell them "go buy a Linux-supported card" when there's a way
-> I can make their existing card work? I don't think so.
+From: Andrew Morton <akpm@osdl.org>
+Date: Sun, 4 Sep 2005 14:42:18 -0700
 
-You always have a choice in life.  Nobody is stopping you from doing what
-_you_ choose to do.  That doesn't mean that developers who are concerned
-with the creation and promotion of open source should care one whit about
-your particular take on the situation.   Go do whatever you want just
-don't expect the open source developers to pay for it; you maintain the
-crufty patches yourself.
+> It seems a strange thing to check though.   Do we really need it?
 
-If you want to see the stupidity of your argument imagine someone going to
-Microsoft and saying... "look, if you'd simply stop charging for MS
-Windows more people would embrace it!"   Do you think therefore microsoft
-should stop charging for Windows???
-
-What if I wrote an email to them and said...  "A friend of mine brings me
-his laptop to install Windows on it, but he can't afford a copy of
-Windows!!!"  Do you think they should stop charging for Windows to help
-you out??  Get real.
-
-Please just do whatever you want and stop hoping that open source
-developers will ever care about your choice to embrace binary-only
-drivers.
-
-Cheers,
-Sean
-
-
+Other platforms already do, it's a very good sanity check.

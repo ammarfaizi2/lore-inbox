@@ -1,57 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932401AbVIESeI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932389AbVIEScx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932401AbVIESeI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 14:34:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932392AbVIESdp
+	id S932389AbVIEScx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 14:32:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932390AbVIEScx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 14:33:45 -0400
-Received: from zproxy.gmail.com ([64.233.162.202]:38736 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932383AbVIESdh convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 14:33:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=frVP3GJYd2zKsdzstRsDEdpLKio2YKEYiXfDjEmqNAYWMHFtGYy+CL1eqFYjBx6ok/4z7rvshabhKe5J/ZxYt65eLB8x95D1WdL4wELWXPp4nDPz+2oq6E49MvH8b0zmBhuUKENKUD3jI3oJ1S0j9GyNoTxChMKoZuz3OTVAw00=
-Message-ID: <9a874849050905113369bae774@mail.gmail.com>
-Date: Mon, 5 Sep 2005 20:33:34 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Chaskiel Grundman <cg2v@andrew.cmu.edu>
-Subject: Re: (alpha) process_reloc_for_got confuses r_offset and r_addend
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.63.0509051334440.8784@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <Pine.LNX.4.63.0509051334440.8784@localhost>
+	Mon, 5 Sep 2005 14:32:53 -0400
+Received: from fep30-0.kolumbus.fi ([193.229.0.32]:54883 "EHLO
+	fep30-app.kolumbus.fi") by vger.kernel.org with ESMTP
+	id S932389AbVIEScw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 14:32:52 -0400
+Message-Id: <20050905183247.593067000@kohtala.home.org>
+References: <20050905183109.284672000@kohtala.home.org>
+Date: Mon, 05 Sep 2005 21:31:17 +0300
+From: marko.kohtala@gmail.com
+To: akpm@osdl.org
+Cc: linux-parport@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: [patch 08/10] parport: ieee1284 fixes and cleanups
+Content-Disposition: inline; filename=parport-correct-dependency-on-parport-pc-rather-than-just-parport.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/5/05, Chaskiel Grundman <cg2v@andrew.cmu.edu> wrote:
-> arch/alpha/kernel/module.c:process_reloc_for_got(), which figures out how
-> big the .got section for a module should be, appears to be confusing
-> r_offset (the file offset that the relocation needs to be applied to) with
-> r_addend (the offset of the relocation's actual target address from the
-> address of the relocation's symbol). Because of this, one .got entry is
-> allocated for each relocation instead of one each unique symbol/addend.
-> 
-> In the module I am working with, this causes the .got section to be almost
-> 10 times larger than it needs to be (75544 bytes instead of 7608 bytes).
-> As the .got is accessed with global-pointer-relative instructions, it
-> needs to be within the 64k gp "zone", and a 75544 byte .got clearly does
-> not fit. The result of this is that relocation overflows are detected
-> during module load and the load is aborted.
-> 
-> Does anyone see anything wrong with this analysis? I tested a patch that
-> makes the obvious change to struct got_entry/process_reloc_for_got and it
-> seems to work ok.
-> 
-> (Please cc me on replies. thanks)
+Make drivers that use directly PC parport HW depend on PARPORT_PC
+rather than HW independent PARPORT.
 
-Why not post the patch you made for review as well?
+Signed-off-by: Marko Kohtala <marko.kohtala@gmail.com>
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+---
+
+ drivers/block/Kconfig        |    2 +-
+ drivers/block/paride/Kconfig |    5 +++--
+ drivers/scsi/Kconfig         |    8 ++++----
+ 3 files changed, 8 insertions(+), 7 deletions(-)
+
+Index: linux-dvb/drivers/block/Kconfig
+===================================================================
+--- linux-dvb.orig/drivers/block/Kconfig	2005-06-23 22:12:45.000000000 +0300
++++ linux-dvb/drivers/block/Kconfig	2005-06-24 13:03:46.000000000 +0300
+@@ -117,7 +117,7 @@ config BLK_DEV_XD
+ 
+ config PARIDE
+ 	tristate "Parallel port IDE device support"
+-	depends on PARPORT
++	depends on PARPORT_PC
+ 	---help---
+ 	  There are many external CD-ROM and disk devices that connect through
+ 	  your computer's parallel port. Most of them are actually IDE devices
+Index: linux-dvb/drivers/block/paride/Kconfig
+===================================================================
+--- linux-dvb.orig/drivers/block/paride/Kconfig	2005-06-23 22:12:45.000000000 +0300
++++ linux-dvb/drivers/block/paride/Kconfig	2005-06-24 13:03:46.000000000 +0300
+@@ -4,11 +4,12 @@
+ # PARIDE doesn't need PARPORT, but if PARPORT is configured as a module,
+ # PARIDE must also be a module.  The bogus CONFIG_PARIDE_PARPORT option
+ # controls the choices given to the user ...
++# PARIDE only supports PC style parports. Tough for USB or other parports...
+ config PARIDE_PARPORT
+ 	tristate
+ 	depends on PARIDE!=n
+-	default m if PARPORT=m
+-	default y if PARPORT!=m
++	default m if PARPORT_PC=m
++	default y if PARPORT_PC!=m
+ 
+ comment "Parallel IDE high-level drivers"
+ 	depends on PARIDE
+Index: linux-dvb/drivers/scsi/Kconfig
+===================================================================
+--- linux-dvb.orig/drivers/scsi/Kconfig	2005-06-24 10:41:40.000000000 +0300
++++ linux-dvb/drivers/scsi/Kconfig	2005-06-24 13:03:46.000000000 +0300
+@@ -855,7 +855,7 @@ config SCSI_INIA100
+ 
+ config SCSI_PPA
+ 	tristate "IOMEGA parallel port (ppa - older drives)"
+-	depends on SCSI && PARPORT
++	depends on SCSI && PARPORT_PC
+ 	---help---
+ 	  This driver supports older versions of IOMEGA's parallel port ZIP
+ 	  drive (a 100 MB removable media device).
+@@ -882,7 +882,7 @@ config SCSI_PPA
+ 
+ config SCSI_IMM
+ 	tristate "IOMEGA parallel port (imm - newer drives)"
+-	depends on SCSI && PARPORT
++	depends on SCSI && PARPORT_PC
+ 	---help---
+ 	  This driver supports newer versions of IOMEGA's parallel port ZIP
+ 	  drive (a 100 MB removable media device).
+@@ -909,7 +909,7 @@ config SCSI_IMM
+ 
+ config SCSI_IZIP_EPP16
+ 	bool "ppa/imm option - Use slow (but safe) EPP-16"
+-	depends on PARPORT && (SCSI_PPA || SCSI_IMM)
++	depends on SCSI_PPA || SCSI_IMM
+ 	---help---
+ 	  EPP (Enhanced Parallel Port) is a standard for parallel ports which
+ 	  allows them to act as expansion buses that can handle up to 64
+@@ -924,7 +924,7 @@ config SCSI_IZIP_EPP16
+ 
+ config SCSI_IZIP_SLOW_CTR
+ 	bool "ppa/imm option - Assume slow parport control register"
+-	depends on PARPORT && (SCSI_PPA || SCSI_IMM)
++	depends on SCSI_PPA || SCSI_IMM
+ 	help
+ 	  Some parallel ports are known to have excessive delays between
+ 	  changing the parallel port control register and good data being
+
+--

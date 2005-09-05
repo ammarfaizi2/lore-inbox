@@ -1,36 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932225AbVIEP6W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932206AbVIEP4u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932225AbVIEP6W (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 11:58:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932223AbVIEP6W
+	id S932206AbVIEP4u (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 11:56:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932223AbVIEP4u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 11:58:22 -0400
-Received: from chiark.greenend.org.uk ([193.201.200.170]:22720 "EHLO
-	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
-	id S932225AbVIEP6W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 11:58:22 -0400
-To: gl@dsa-ac.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: who sets boot_params[].screen_info.orig_video_isVGA?
-In-Reply-To: <Pine.LNX.4.63.0509051736420.11341@pcgl.dsa-ac.de>
-References: <Pine.LNX.4.63.0509051646480.11341@pcgl.dsa-ac.de> <E1ECIub-00088O-00@chiark.greenend.org.uk> <E1ECIub-00088O-00@chiark.greenend.org.uk> <Pine.LNX.4.63.0509051736420.11341@pcgl.dsa-ac.de>
-Date: Mon, 5 Sep 2005 16:58:21 +0100
-Message-Id: <E1ECJMT-0004Zp-00@chiark.greenend.org.uk>
-From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+	Mon, 5 Sep 2005 11:56:50 -0400
+Received: from ipx10069.ipxserver.de ([80.190.240.67]:54214 "EHLO codeblau.de")
+	by vger.kernel.org with ESMTP id S932206AbVIEP4t (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 11:56:49 -0400
+Date: Mon, 5 Sep 2005 17:56:40 +0200
+From: felix-linuxkernel@fefe.de
+To: linux-kernel@vger.kernel.org
+Subject: igmp problem
+Message-ID: <20050905155640.GA18216@codeblau.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gl@dsa-ac.de <gl@dsa-ac.de> wrote:
+Hi!
 
-> Do I get it right, that, say, if I tell grub to load a kernel and specify 
-> "vga=xxx" on the kernel command line, grub will interpret it, issue some 
-> VESA BIOS calls and fill in the screen_info struct? If so, the card often 
-> supports several modes (VGA, SVGA, VESA, different resolutions, colour 
-> depths, etc.), right? So, which one will be chosen? Does it depend on the 
-> specific value I give to "vga="? How do I force VIDEO_TYPE_VLFB (VESA VGA 
-> in graphic mode) mopde then?
+I wrote a few multicast tools, which use these multicast groups:
 
-Yup. You probably want to take a look at Documentation/fb/vesafb.txt -
-the modes are the same.
--- 
-Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org
+  225.109.99.112
+  ff02::6d63:7030
+  224.110.99.112
+  ff02::6e63:7030
+
+I have a Cisco in the middle, and both boxes are in different VLANs.
+The Cisco is sending out igmp queries.  The kernel never answers, even
+after subscribing to these multicast groups.
+
+The kernel version is 2.4.26.  What could be the problem here?
+
+I found no netfilter rules, and the kernel has multicast support (at
+least several igmp related sysctls exist).
+
+Felix

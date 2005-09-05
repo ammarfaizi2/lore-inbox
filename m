@@ -1,65 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932492AbVIEJZc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932349AbVIEJZW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932492AbVIEJZc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 05:25:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932494AbVIEJZc
+	id S932349AbVIEJZW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 05:25:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932489AbVIEJZW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 05:25:32 -0400
-Received: from smtp.cs.aau.dk ([130.225.194.6]:51847 "EHLO smtp.cs.aau.dk")
-	by vger.kernel.org with ESMTP id S932492AbVIEJZb (ORCPT
+	Mon, 5 Sep 2005 05:25:22 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:41162 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932349AbVIEJZV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 05:25:31 -0400
-Message-ID: <431C0EA7.8030309@cs.aau.dk>
-Date: Mon, 05 Sep 2005 11:23:51 +0200
-From: Emmanuel Fleury <fleury@cs.aau.dk>
-User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: A Framework to automatically configure a Kernel
-References: <20050905084236.46978.qmail@web51011.mail.yahoo.com>
-In-Reply-To: <20050905084236.46978.qmail@web51011.mail.yahoo.com>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+	Mon, 5 Sep 2005 05:25:21 -0400
+Date: Mon, 5 Sep 2005 14:54:39 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Nishanth Aravamudan <nacc@us.ibm.com>, Con Kolivas <kernel@kolivas.org>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org,
+       ck list <ck@vds.kolivas.org>
+Subject: Re: [PATCH 1/3] dynticks - implement no idle hz for x86
+Message-ID: <20050905092439.GA8038@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20050831165843.GA4974@in.ibm.com> <200509031801.09069.kernel@kolivas.org> <20050903090650.B26998@flint.arm.linux.org.uk> <200509031814.49666.kernel@kolivas.org> <20050904201054.GA4495@us.ibm.com> <20050905070053.GA7329@in.ibm.com> <20050905084425.B24051@flint.arm.linux.org.uk> <20050905081935.GB7924@in.ibm.com> <20050905093221.E24051@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050905093221.E24051@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nice idea !
+On Mon, Sep 05, 2005 at 09:32:21AM +0100, Russell King wrote:
+> When you have a timer which constantly increments from 0 to MAX and
+> wraps, and you can set the value to match to cause an interrupt,
+> it makes more sense to handle it the way we're doing it (which
+> incidentally leads to no loss of precision.)
 
-I really would like to have such feature.
+> Calculating the number of ticks missed, updating the kernel time,
+> and updating the timer match will cause problems with these - if
+> the timer has already past the number of ticks you originally
+> calculated, you may not get another interrupt for a long time.
+> 
+> So I don't actually think that your proposal will work for these
+> (SA11x0 and PXA).
 
-I tried a bit your stuff, unfortunately, I got this:
+I presume you are referring to code as in omap_32k_timer_interrupt
+which calculates lost ticks as well as updates wall-time and 
+sets up the next interrupt (BTW doesnt 'now' need to be
+refreshed everytime in the loop otherwise will cause the problem
+you cite - may not get interrupt for a long time?). Tony,
+that may have cause slow bootups for you :)
 
-[fleury@rade7 linux-2.6.13-autoconf]$ make auconfig
-  HOSTCC  scripts/kconfig/auto_conf.o
-scripts/kconfig/auto_conf.c: In function 'auto_conf':
-scripts/kconfig/auto_conf.c:288: warning: pointer targets in passing
-argument 2 of '__builtin_strncpy' differ in signedness
-scripts/kconfig/auto_conf.c: In function 'must_have':
-scripts/kconfig/auto_conf.c:301: error: syntax error at end of input
-make[1]: *** [scripts/kconfig/auto_conf.o] Error 1
-make: *** [auconfig] Error 2
+I am not saying that all the above be done from the callee. In fact
+in case of ARM, the same handler can be called from dyn_tick_interrupt.
+Having some form of 'dyn_tick_interrupt' makes sense because
+it encapsulates functionalities like:
 
-Seems that you don't use gcc-4 !
+	- If CPU is not sleeping currently, return (which can happen in SMP)
+	- Reset the CPU from the bitmap, under the cover of a spinlock
+	- Recover wall-time if we are coming out of 'all-cpus-were-asleep'
+	  state.  In case of ARM, dyn_tick_timer->handler could be called
+	  for this purpose.
 
-Two questions:
+ 
+> This seems to only recover one tick.  What if multiple ticks were lost?
 
-1) Isn't the XML parser a bit overkilling ????
+cur_timer->mark_offset() recovers the rest.
 
-2) Why is the target called "auconfig" and not "autoconfig" (just like
-we have a "menuconfig") ?
-
-Speaking about this autoconfig thingy, haven't been any serious attempt
-to grab as much information as possible from lspci, /proc, /sys and so
-on to build at least a skeleton for the .config ?
-
-Regards
 -- 
-Emmanuel Fleury
 
-Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it.
-  -- Brian W. Kernighan
 
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

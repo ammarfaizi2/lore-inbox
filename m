@@ -1,62 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbVIEQNT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932313AbVIEQTI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932222AbVIEQNT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 12:13:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932313AbVIEQNS
+	id S932313AbVIEQTI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 12:19:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbVIEQTI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 12:13:18 -0400
-Received: from zproxy.gmail.com ([64.233.162.205]:22613 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932222AbVIEQNS convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 12:13:18 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=T8uFUEULDwqxDEquaYa5KuPj4IboxiB0yeJF5HoupNnpzzcV4QJECeGmOg25zTjhPkoVLZ9S7NF3PJqAxitxqZfbm8rhadAEExVYrKQHLZoHmpzOMndPQWJez3xeJdt6mReCCgLY81S3w4CrMP0cdEkguO6OIwQaxHScme2iXhA=
-Message-ID: <9a874849050905091364b6a103@mail.gmail.com>
-Date: Mon, 5 Sep 2005 18:13:15 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: hanasaki <hanasaki@hanaden.com>
-Subject: Re: kernel 2.6.13 hangs / freezes with nvidia kernel module on switch to virtual console (also 2.6.12)
-Cc: LIST - Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <431C6C0A.4080302@hanaden.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 5 Sep 2005 12:19:08 -0400
+Received: from smtp102.sbc.mail.re2.yahoo.com ([68.142.229.103]:60274 "HELO
+	smtp102.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S932314AbVIEQTG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 12:19:06 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: GFS, what's remaining
+Date: Mon, 5 Sep 2005 11:18:45 -0500
+User-Agent: KMail/1.8.2
+Cc: Daniel Phillips <phillips@istop.com>, Lars Marowsky-Bree <lmb@suse.de>,
+       Andi Kleen <ak@suse.de>, linux clustering <linux-cluster@redhat.com>,
+       akpm@osdl.org, linux-fsdevel@vger.kernel.org
+References: <20050901104620.GA22482@redhat.com> <20050905141432.GF5498@marowsky-bree.de> <200509051149.49929.phillips@istop.com>
+In-Reply-To: <200509051149.49929.phillips@istop.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <431C6C0A.4080302@hanaden.com>
+Message-Id: <200509051118.45792.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/5/05, hanasaki <hanasaki@hanaden.com> wrote:
-> kernel 2.6.13 hangs / freezes with nvidia
-> kernel module on switch to virtual console
+On Monday 05 September 2005 10:49, Daniel Phillips wrote:
+> On Monday 05 September 2005 10:14, Lars Marowsky-Bree wrote:
+> > On 2005-09-03T01:57:31, Daniel Phillips <phillips@istop.com> wrote:
+> > > The only current users of dlms are cluster filesystems.  There are zero
+> > > users of the userspace dlm api.
+> >
+> > That is incorrect...
 > 
-> Running Debian testing and stable and built the kernel with the attached
-> config.  Then the NVidia installer was run.  Everything boots and runs
-> fine.  X and Gnome come up and run.  Switching to a Virtual Console
-> locks up the system and shows some crazy colors.
-> 
-> The system ran fine with the same configs until ~kernel 2.6.12.x and has
-> exhibited this failing behavior since then with multiple kernels.
-> 
-> The graphics card is a shown below and has two outputs both in use for
-> two monitors.  Thus the actual driver from NV is needed.  I do not
-> believe the Xfree nv driver supports dual head.
-> 
-> ======================
-> NVidia version
-> NVIDIA-Linux-x86-1.0-7676-pkg1.run <= from nvidia.com
-> 
+> Application users Lars, sorry if I did not make that clear.  The issue is 
+> whether we need to export an all-singing-all-dancing dlm api from kernel to 
+> userspace today, or whether we can afford to take the necessary time to get 
+> it right while application writers take their time to have a good think about 
+> whether they even need it.
+>
 
-Reproduce the problem without a binary only kernel module. Or in this
-case, complain to nvidia.
+If Linux fully supported OpenVMS DLM semantics we could start thinking asbout
+moving our application onto a Linux box because our alpha server is aging.
 
-It's impossible for kernel developers to debug a problem involving a
-closed source module. The authors of that module will have to do the
-fixing.
+That's just my user application writer $0.02.
 
 -- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Dmitry

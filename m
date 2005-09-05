@@ -1,72 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964951AbVIEX21@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964957AbVIEXcd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964951AbVIEX21 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 19:28:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964956AbVIEX21
+	id S964957AbVIEXcd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 19:32:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964959AbVIEXcd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 19:28:27 -0400
-Received: from smtpout.mac.com ([17.250.248.87]:62687 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S964951AbVIEX21 (ORCPT
+	Mon, 5 Sep 2005 19:32:33 -0400
+Received: from mail.kroah.org ([69.55.234.183]:7553 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S964957AbVIEXcd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 19:28:27 -0400
-In-Reply-To: <dfhs4u$1ld$1@terminus.zytor.com>
-References: <C670AD22-97CF-46AA-A527-965036D78667@mac.com> <20050903064124.GA31400@codepoet.org> <4319BEF5.2070000@zytor.com> <B9E70F6F-CC0A-4053-AB34-A90836431358@mac.com> <dfhs4u$1ld$1@terminus.zytor.com>
-Mime-Version: 1.0 (Apple Message framework v734)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <5A37B032-9BBD-4AEA-A9BF-D42AFF79BC86@mac.com>
+	Mon, 5 Sep 2005 19:32:33 -0400
+Date: Mon, 5 Sep 2005 16:32:08 -0700
+From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [RFC] Splitting out kernel<=>userspace ABI headers
-Date: Mon, 5 Sep 2005 19:28:07 -0400
-To: "H. Peter Anvin" <hpa@zytor.com>
-X-Mailer: Apple Mail (2.734)
+Subject: [GIT PATCH] Driver core patches for 2.6.13
+Message-ID: <20050905233207.GA16560@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 5, 2005, at 12:35:42, H. Peter Anvin wrote:
-> Followup to:  <B9E70F6F-CC0A-4053-AB34-A90836431358@mac.com>
-> By author:    Kyle Moffett <mrmacman_g4@mac.com>
-> In newsgroup: linux.dev.kernel
->
->> Didn't you mean "#define stat __kabi_stat64"?  Also, I can see that
->> would pose other issues as well say my app does "struct stat stat;"
->> Any error messages would refer to a variable "__kabi_stat64" instead
->> of the expected "stat":
->
-> No, I didn't.  That's *exactly* why I didn't mean that.
->
-> #define __kabi_stat64 stat
-> #include <linux/abi/stat.h>
->
-> That being said, I would personally like to see it possible to typedef
-> struct, union and enum tags.
+Here are some patches for the driver core for 2.6.13.  They have all
+been in the -mm tree for a while and fix a few bugs, and add proper
+sysfs support for the floppy driver.
 
-_OH_!!! Forgive me for missing the point entirely!  I can see how  
-that would
-work very well.  Nice trick, BTW!  Very sneaky, needs significant  
-explanatory
-comments in whatever header file it ends up in lest others get  
-confused in
-the same fashion as I.  With all of that mess out of the way, I'll  
-work on
-getting a few initial RFC patches out the door, and then we can  
-revisit this
-discussion once there is something tangible to talk about.
+Please pull from:
+	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-2.6.git/
+or if master.kernel.org hasn't synced up yet:
+	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/driver-2.6.git/
 
-Cheers,
-Kyle Moffett
+thanks,
 
---
-Somone asked me why I work on this free (http://www.fsf.org/philosophy/)
-software stuff and not get a real job. Charles Shultz had the best  
-answer:
+greg k-h
 
-"Why do musicians compose symphonies and poets write poems? They do  
-it because
-life wouldn't have any meaning for them if they didn't. That's why I  
-draw
-cartoons. It's my life."
-   -- Charles Shultz
+ Documentation/filesystems/sysfs.txt |   30 ++++-----
+ drivers/base/bus.c                  |    8 +-
+ drivers/base/class.c                |   39 ++++++++++--
+ drivers/base/core.c                 |    2 
+ drivers/base/dd.c                   |    2 
+ drivers/base/sys.c                  |  110 +++++++++++++++++++++++++++---------
+ drivers/block/floppy.c              |   57 +++++++++++-------
+ drivers/usb/core/hcd.c              |    2 
+ include/linux/klist.h               |    8 +-
+ lib/klist.c                         |    8 +-
+ 10 files changed, 187 insertions(+), 79 deletions(-)
 
+
+Andrew Morton:
+  Floppy: add cmos attribute to floppy driver tidy
+
+Dmitry Torokhov:
+  Driver core: link device and all class devices derived from it.
+
+Greg Kroah-Hartman:
+  Fix manual binding infinite loop
+
+Hannes Reinecke:
+  Floppy: Add cmos attribute to floppy driver
+
+James Bottomley:
+  klist: fix klist to have the same klist_add semantics as list_head
+
+Jan Veldeman:
+  Driver core: Documentation: use S_IRUSR | ... in stead of 0644
+  Driver core: Documentation: fix whitespace between parameters
+
+Jesper Juhl:
+  Driver core: small cleanup; remove check for NULL before kfree() in driver core
+
+Shaohua Li:
+  Driver core: hande sysdev suspend failure
 

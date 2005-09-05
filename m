@@ -1,49 +1,516 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932296AbVIEQY3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932319AbVIEQYw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932296AbVIEQY3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 12:24:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbVIEQY3
+	id S932319AbVIEQYw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 12:24:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932317AbVIEQYw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 12:24:29 -0400
-Received: from orb.pobox.com ([207.8.226.5]:40419 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S932296AbVIEQY2 (ORCPT
+	Mon, 5 Sep 2005 12:24:52 -0400
+Received: from 1-1-1-12a.nvik.sth.bostream.se ([82.183.147.11]:28596 "EHLO
+	zappa.cx") by vger.kernel.org with ESMTP id S932226AbVIEQYu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 12:24:28 -0400
-Message-ID: <431C7131.3030506@rtr.ca>
-Date: Mon, 05 Sep 2005 12:24:17 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050728
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: Oliver Tennert <O.Tennert@science-computing.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: DVD+-R[W] regression in 2.6.12/13
-References: <200509051533.01465.tennert@science-computing.de>
-In-Reply-To: <200509051533.01465.tennert@science-computing.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 5 Sep 2005 12:24:50 -0400
+Subject: Re: nfs4 client bug
+From: Andreas Sundstrom <sunkan@zappa.cx>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Mon, 05 Sep 2005 18:24:23 +0200
+Message-Id: <1125937463.3536.14.camel@sunkan.zappa.cx>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: (-5.899) ALL_TRUSTED,BAYES_00,UPPERCASE_50_75
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Tennert wrote:
->
-> "hdparm -I /dev/dvdrecorder" leads to the output:
+[Bret Towe]
+> i encountered the following error while using nfs4
+> ive hit this error i think twice now not sure what causes it yet tho
+> this time the only io related items going on was emerge sync running
+> in the background (which shouldnt of touched nfs at all) and xmms
+> playing some music
 > 
-> /dev/dvdrecorder:
->  HDIO_DRIVE_CMD(identify) failed: Input/output error
+> another problem i had was iowait was showing near 100% but nothing
+> over nfs was working
+> but no errors or anything was showing in dmesg if i encounter this
+> again is there a way to
+> find out where it locked up so i can give a report on what the problem
+> is?
 > 
-> The kernel tells me:
+> attached is my config the box is an athlon64
+> if any further information is needed let me know
 > 
-> [4296893.262000] hdd: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
-> [4296893.262000] hdd: drive_cmd: error=0x04 { AbortedCommand }
-> [4296893.262000] ide: failed opcode was: 0xec
 
-Those messages are "normal" for an ATAPI drive.
+I have had some issues with nfsv4 in 2.6.13 too. I've had three Oopses
+now, and the last one is included in this e-mail.
 
-hdparm first tries the IDENTIFY opcode (0xec), and if that fails (above)
-it then tries the PACKET_IDENTIFY opcode (0xa1), which should work for ATAPI.
+I'm also running on Athlon64, but I'm not running in 64-bit mode at the
+moment. I've reverted to 2.6.12.5 for now, but if it would help I could
+run 2.6.13 to gather more info if it's needed.
 
-I'm not sure why the "failed: Input/output error" (-EIO) result is
-being returned from the ATA layer in this case.  Driver bug, most likely.
+I'm not on the list so CC me for quicker response.
 
-Cheers
+/Andreas Sundstrom
+
+Kernel Oops:
+
+kernel: Unable to handle kernel paging request at virtual address
+00100104
+kernel:  printing eip:
+kernel: c01803b9
+kernel: *pde = 00000000
+kernel: Oops: 0002 [#1]
+kernel: PREEMPT
+kernel: Modules linked in: evdev snd_emu10k1_synth snd_emux_synth
+snd_seq_virmidi snd_seq_midi_emul snd_seq_midi snd_seq_midi_event
+snd_seq snd_emu10k1 snd_rawmidi snd_seq_device snd_ac97_codec snd_pcm
+snd_timer snd_page_alloc snd_util_mem snd_hwdep snd dm_mod st sbp2
+kernel: CPU:    0
+kernel: EIP:    0060:[generic_forget_inode+89/416]    Not tainted VLI
+kernel: EFLAGS: 00010246   (2.6.13)
+kernel: EIP is at generic_forget_inode+0x59/0x1a0
+kernel: eax: 00200200   ebx: f39761c0   ecx: 00100100   edx: f39761c8
+kernel: esi: f6609200   edi: f6770800   ebp: 00000000   esp: c1b5dd50
+kernel: ds: 007b   es: 007b   ss: 0068
+kernel: Process kswapd0 (pid: 165, threadinfo=c1b5d000 task=c1b5b570)
+kernel: Stack: f39761c0 c0180561 f39761e4 f39761c0 f3976130 c01f12ad
+f39761c0 c1b5dd70
+kernel:        ffffffff ffffffff f39761c0 f39761c0 f39760a4 f39761b4
+c01f17e2 f39761c0
+kernel:        c01429e2 f3976264 c1b5ddf4 00000000 0000000e 00000001
+c1b5ddec 00000000
+kernel: Call Trace:
+kernel:  [iput+65/128] iput+0x41/0x80
+kernel:  [nfs_wait_on_inode+125/160] nfs_wait_on_inode+0x7d/0xa0
+kernel:  [__nfs_revalidate_inode+146/704] __nfs_revalidate_inode
++0x92/0x2c0
+kernel:  [find_get_pages_tag+66/144] find_get_pages_tag+0x42/0x90
+kernel:  [pagevec_lookup_tag+51/64] pagevec_lookup_tag+0x33/0x40
+kernel:  [wait_on_page_writeback_range+109/288]
+wait_on_page_writeback_range+0x6d/0x120
+kernel:  [nfs_commit_inode+69/160] nfs_commit_inode+0x45/0xa0
+kernel:  [nfs_sync_inode+104/128] nfs_sync_inode+0x68/0x80
+kernel:  [nfs_do_return_delegation+43/96] nfs_do_return_delegation
++0x2b/0x60
+kernel:  [nfs_inode_return_delegation+236/272]
+nfs_inode_return_delegation+0xec/0x110
+kernel:  [nfs4_clear_inode+35/176] nfs4_clear_inode+0x23/0xb0
+kernel:  [clear_inode+106/192] clear_inode+0x6a/0xc0
+kernel:  [dispose_list+47/288] dispose_list+0x2f/0x120
+kernel:  [prune_icache+142/528] prune_icache+0x8e/0x210
+kernel:  [get_writeback_state+64/80] get_writeback_state+0x40/0x50
+kernel:  [shrink_icache_memory+69/80] shrink_icache_memory+0x45/0x50
+kernel:  [shrink_slab+308/416] shrink_slab+0x134/0x1a0
+kernel:  [balance_pgdat+571/1024] balance_pgdat+0x23b/0x400
+kernel:  [kswapd+214/288] kswapd+0xd6/0x120
+kernel:  [autoremove_wake_function+0/96] autoremove_wake_function
++0x0/0x60
+kernel:  [kswapd+0/288] kswapd+0x0/0x120
+kernel:  [kernel_thread_helper+5/12] kernel_thread_helper+0x5/0xc
+kernel: Code: 46 37 40 74 45 b8 00 f0 ff ff 21 e0 ff 48 14 8b 40 08 a8
+08 0f 85 2c 01 00 00 83 c4 0c 5b 5e c3 89 f6 8d 53 08 8b 4b 08 8b 42 04
+<89> 41 04 89 08 a1 ec 0c 49 c0 89 50 04 89 43 08 c7 42 04 ec 0c
+kernel:  <6>note: kswapd0[165] exited with preempt_count 1
+kernel: SysRq : Emergency Sync
+kernel: Emergency Sync complete
+kernel: SysRq : Emergency Sync
+
+
+Relevant info from the config
+
+sunkan@sunkan:~/kernel$ egrep -v "(^( |\t)*#|^$)" linux-2.6.13/.config
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_GENERIC_IOMAP=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_CLEAN_COMPILE=y
+CONFIG_BROKEN_ON_SMP=y
+CONFIG_LOCK_KERNEL=y
+CONFIG_INIT_ENV_ARG_LIMIT=32
+CONFIG_LOCALVERSION=""
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_POSIX_MQUEUE=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_BSD_PROCESS_ACCT_V3=y
+CONFIG_SYSCTL=y
+CONFIG_HOTPLUG=y
+CONFIG_KOBJECT_UEVENT=y
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+CONFIG_KALLSYMS=y
+CONFIG_PRINTK=y
+CONFIG_BUG=y
+CONFIG_BASE_FULL=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_SHMEM=y
+CONFIG_CC_ALIGN_FUNCTIONS=0
+CONFIG_CC_ALIGN_LABELS=0
+CONFIG_CC_ALIGN_LOOPS=0
+CONFIG_CC_ALIGN_JUMPS=0
+CONFIG_BASE_SMALL=0
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_KMOD=y
+CONFIG_X86_PC=y
+CONFIG_MK8=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=6
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_GENERIC_CALIBRATE_DELAY=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_HPET_TIMER=y
+CONFIG_PREEMPT=y
+CONFIG_PREEMPT_BKL=y
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_UP_IOAPIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_TSC=y
+CONFIG_X86_MCE=y
+CONFIG_X86_MCE_NONFATAL=y
+CONFIG_HIGHMEM4G=y
+CONFIG_HIGHMEM=y
+CONFIG_SELECT_MEMORY_MODEL=y
+CONFIG_FLATMEM_MANUAL=y
+CONFIG_FLATMEM=y
+CONFIG_FLAT_NODE_MEM_MAP=y
+CONFIG_MTRR=y
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_SECCOMP=y
+CONFIG_HZ_250=y
+CONFIG_HZ=250
+CONFIG_PHYSICAL_START=0x100000
+CONFIG_PM=y
+CONFIG_ACPI=y
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_SLEEP=y
+CONFIG_ACPI_SLEEP_PROC_FS=y
+CONFIG_ACPI_AC=y
+CONFIG_ACPI_BATTERY=y
+CONFIG_ACPI_BUTTON=y
+CONFIG_ACPI_VIDEO=m
+CONFIG_ACPI_FAN=y
+CONFIG_ACPI_PROCESSOR=y
+CONFIG_ACPI_THERMAL=y
+CONFIG_ACPI_BLACKLIST_YEAR=0
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_CPU_FREQ=y
+CONFIG_CPU_FREQ_TABLE=y
+CONFIG_CPU_FREQ_STAT=y
+CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE=y
+CONFIG_CPU_FREQ_GOV_PERFORMANCE=y
+CONFIG_CPU_FREQ_GOV_POWERSAVE=y
+CONFIG_CPU_FREQ_GOV_ONDEMAND=y
+CONFIG_CPU_FREQ_GOV_CONSERVATIVE=m
+CONFIG_X86_POWERNOW_K8=y
+CONFIG_X86_POWERNOW_K8_ACPI=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_MMCONFIG=y
+CONFIG_ISA_DMA_API=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=y
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_UNIX=y
+CONFIG_XFRM=y
+CONFIG_XFRM_USER=y
+CONFIG_NET_KEY=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IP_FIB_HASH=y
+CONFIG_INET_AH=y
+CONFIG_INET_ESP=y
+CONFIG_INET_IPCOMP=y
+CONFIG_INET_TUNNEL=y
+CONFIG_IP_TCPDIAG=y
+CONFIG_IP_TCPDIAG_IPV6=y
+CONFIG_TCP_CONG_BIC=y
+CONFIG_IPV6=y
+CONFIG_INET6_AH=y
+CONFIG_INET6_ESP=y
+CONFIG_INET6_IPCOMP=y
+CONFIG_INET6_TUNNEL=y
+CONFIG_STANDALONE=y
+CONFIG_PREVENT_FIRMWARE_BUILD=y
+CONFIG_PNP=y
+CONFIG_PNPACPI=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_BLK_DEV_RAM=y
+CONFIG_BLK_DEV_RAM_COUNT=16
+CONFIG_BLK_DEV_RAM_SIZE=16384
+CONFIG_BLK_DEV_INITRD=y
+CONFIG_INITRAMFS_SOURCE=""
+CONFIG_CDROM_PKTCDVD=m
+CONFIG_CDROM_PKTCDVD_BUFFERS=8
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_IOSCHED_CFQ=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_IDE_GENERIC=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_VIA82CXXX=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_SCSI=y
+CONFIG_SCSI_PROC_FS=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_CHR_DEV_ST=m
+CONFIG_CHR_DEV_SG=m
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_LOGGING=y
+CONFIG_SCSI_SPI_ATTRS=m
+CONFIG_SCSI_AIC7XXX=m
+CONFIG_AIC7XXX_CMDS_PER_DEVICE=32
+CONFIG_AIC7XXX_RESET_DELAY_MS=5000
+CONFIG_AIC7XXX_DEBUG_ENABLE=y
+CONFIG_AIC7XXX_DEBUG_MASK=0
+CONFIG_AIC7XXX_REG_PRETTY_PRINT=y
+CONFIG_SCSI_QLA2XXX=y
+CONFIG_MD=y
+CONFIG_BLK_DEV_DM=m
+CONFIG_DM_SNAPSHOT=m
+CONFIG_IEEE1394=y
+CONFIG_IEEE1394_OHCI1394=y
+CONFIG_IEEE1394_SBP2=m
+CONFIG_IEEE1394_DV1394=m
+CONFIG_IEEE1394_RAWIO=m
+CONFIG_NETDEVICES=y
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=y
+CONFIG_NET_VENDOR_3COM=y
+CONFIG_VORTEX=y
+CONFIG_R8169=y
+CONFIG_R8169_NAPI=y
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1600
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=1200
+CONFIG_INPUT_EVDEV=m
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_LIBPS2=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_NR_UARTS=2
+CONFIG_SERIAL_CORE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_LEGACY_PTYS=y
+CONFIG_LEGACY_PTY_COUNT=256
+CONFIG_AGP=y
+CONFIG_AGP_AMD64=y
+CONFIG_AGP_VIA=y
+CONFIG_I2C=m
+CONFIG_I2C_CHARDEV=m
+CONFIG_I2C_ALGOBIT=m
+CONFIG_I2C_ALGOPCF=m
+CONFIG_I2C_ALGOPCA=m
+CONFIG_I2C_ALI1535=m
+CONFIG_I2C_ALI1563=m
+CONFIG_I2C_ALI15X3=m
+CONFIG_I2C_AMD756=m
+CONFIG_I2C_AMD8111=m
+CONFIG_I2C_I801=m
+CONFIG_I2C_I810=m
+CONFIG_I2C_PIIX4=m
+CONFIG_I2C_ISA=m
+CONFIG_I2C_NFORCE2=m
+CONFIG_I2C_PARPORT_LIGHT=m
+CONFIG_I2C_PROSAVAGE=m
+CONFIG_I2C_SAVAGE4=m
+CONFIG_SCx200_ACB=m
+CONFIG_I2C_SIS5595=m
+CONFIG_I2C_SIS630=m
+CONFIG_I2C_SIS96X=m
+CONFIG_I2C_VIA=m
+CONFIG_I2C_VIAPRO=m
+CONFIG_I2C_VOODOO3=m
+CONFIG_I2C_PCA_ISA=m
+CONFIG_I2C_SENSOR=m
+CONFIG_SENSORS_EEPROM=m
+CONFIG_SENSORS_PCF8574=m
+CONFIG_SENSORS_PCA9539=m
+CONFIG_SENSORS_PCF8591=m
+CONFIG_SENSORS_RTC8564=m
+CONFIG_SENSORS_MAX6875=m
+CONFIG_HWMON=y
+CONFIG_SENSORS_ADM1021=m
+CONFIG_SENSORS_ADM1025=m
+CONFIG_SENSORS_ADM1026=m
+CONFIG_SENSORS_ADM1031=m
+CONFIG_SENSORS_ADM9240=m
+CONFIG_SENSORS_ASB100=m
+CONFIG_SENSORS_ATXP1=m
+CONFIG_SENSORS_DS1621=m
+CONFIG_SENSORS_FSCHER=m
+CONFIG_SENSORS_GL518SM=m
+CONFIG_SENSORS_IT87=m
+CONFIG_SENSORS_LM63=m
+CONFIG_SENSORS_LM75=m
+CONFIG_SENSORS_LM77=m
+CONFIG_SENSORS_LM78=m
+CONFIG_SENSORS_LM80=m
+CONFIG_SENSORS_LM83=m
+CONFIG_SENSORS_LM85=m
+CONFIG_SENSORS_LM87=m
+CONFIG_SENSORS_LM90=m
+CONFIG_SENSORS_MAX1619=m
+CONFIG_SENSORS_PC87360=m
+CONFIG_SENSORS_SMSC47M1=m
+CONFIG_SENSORS_VIA686A=m
+CONFIG_SENSORS_W83781D=m
+CONFIG_SENSORS_W83L785TS=m
+CONFIG_SENSORS_W83627HF=m
+CONFIG_SENSORS_W83627EHF=m
+CONFIG_FB=y
+CONFIG_FB_CFB_FILLRECT=y
+CONFIG_FB_CFB_COPYAREA=y
+CONFIG_FB_CFB_IMAGEBLIT=y
+CONFIG_FB_SOFT_CURSOR=y
+CONFIG_FB_VESA=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FRAMEBUFFER_CONSOLE=y
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
+CONFIG_SOUND=y
+CONFIG_SND=m
+CONFIG_SND_TIMER=m
+CONFIG_SND_PCM=m
+CONFIG_SND_HWDEP=m
+CONFIG_SND_RAWMIDI=m
+CONFIG_SND_SEQUENCER=m
+CONFIG_SND_MPU401_UART=m
+CONFIG_SND_AC97_CODEC=m
+CONFIG_SND_EMU10K1=m
+CONFIG_SND_VIA82XX=m
+CONFIG_USB_ARCH_HAS_HCD=y
+CONFIG_USB_ARCH_HAS_OHCI=y
+CONFIG_USB=y
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_EHCI_HCD=y
+CONFIG_USB_UHCI_HCD=y
+CONFIG_USB_PRINTER=y
+CONFIG_USB_STORAGE=y
+CONFIG_USB_HID=y
+CONFIG_USB_HIDINPUT=y
+CONFIG_USB_MON=y
+CONFIG_EXT2_FS=y
+CONFIG_REISERFS_FS=y
+CONFIG_FS_POSIX_ACL=y
+CONFIG_MINIX_FS=y
+CONFIG_ROMFS_FS=y
+CONFIG_INOTIFY=y
+CONFIG_DNOTIFY=y
+CONFIG_AUTOFS4_FS=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_UDF_FS=y
+CONFIG_UDF_NLS=y
+CONFIG_FAT_FS=y
+CONFIG_MSDOS_FS=y
+CONFIG_VFAT_FS=y
+CONFIG_FAT_DEFAULT_CODEPAGE=437
+CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
+CONFIG_NTFS_FS=m
+CONFIG_NTFS_RW=y
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_SYSFS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_CRAMFS=y
+CONFIG_NFS_FS=y
+CONFIG_NFS_V3=y
+CONFIG_NFS_V3_ACL=y
+CONFIG_NFS_V4=y
+CONFIG_NFSD=y
+CONFIG_NFSD_V2_ACL=y
+CONFIG_NFSD_V3=y
+CONFIG_NFSD_V3_ACL=y
+CONFIG_NFSD_V4=y
+CONFIG_NFSD_TCP=y
+CONFIG_LOCKD=y
+CONFIG_LOCKD_V4=y
+CONFIG_EXPORTFS=y
+CONFIG_NFS_ACL_SUPPORT=y
+CONFIG_NFS_COMMON=y
+CONFIG_SUNRPC=y
+CONFIG_SUNRPC_GSS=y
+CONFIG_RPCSEC_GSS_KRB5=y
+CONFIG_SMB_FS=m
+CONFIG_CIFS=m
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_NLS_ISO8859_1=y
+CONFIG_NLS_ISO8859_15=m
+CONFIG_NLS_UTF8=m
+CONFIG_DEBUG_KERNEL=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_LOG_BUF_SHIFT=14
+CONFIG_DEBUG_BUGVERBOSE=y
+CONFIG_EARLY_PRINTK=y
+CONFIG_4KSTACKS=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+CONFIG_CRYPTO=y
+CONFIG_CRYPTO_HMAC=y
+CONFIG_CRYPTO_NULL=y
+CONFIG_CRYPTO_MD4=y
+CONFIG_CRYPTO_MD5=y
+CONFIG_CRYPTO_SHA1=y
+CONFIG_CRYPTO_SHA256=y
+CONFIG_CRYPTO_SHA512=y
+CONFIG_CRYPTO_TGR192=m
+CONFIG_CRYPTO_DES=y
+CONFIG_CRYPTO_AES_586=y
+CONFIG_CRYPTO_DEFLATE=y
+CONFIG_CRYPTO_CRC32C=m
+CONFIG_CRC_CCITT=m
+CONFIG_CRC32=y
+CONFIG_LIBCRC32C=m
+CONFIG_ZLIB_INFLATE=y
+CONFIG_ZLIB_DEFLATE=y
+CONFIG_GENERIC_HARDIRQS=y
+CONFIG_GENERIC_IRQ_PROBE=y
+CONFIG_X86_BIOS_REBOOT=y
+CONFIG_PC=y
+sunkan@sunkan:~/kernel$
+
+
+

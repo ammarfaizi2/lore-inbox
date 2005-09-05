@@ -1,65 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751113AbVIELxe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751119AbVIEMGe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751113AbVIELxe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 07:53:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbVIELxe
+	id S1751119AbVIEMGe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 08:06:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751128AbVIEMGe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 07:53:34 -0400
-Received: from wscnet.wsc.cz ([212.80.64.118]:34693 "EHLO wscnet.wsc.cz")
-	by vger.kernel.org with ESMTP id S1751113AbVIELxd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 07:53:33 -0400
-Message-ID: <431C31A5.3080804@gmail.com>
-Date: Mon, 05 Sep 2005 13:53:09 +0200
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: cs, en-us, en
+	Mon, 5 Sep 2005 08:06:34 -0400
+Received: from web8403.mail.in.yahoo.com ([202.43.219.151]:45951 "HELO
+	web8403.mail.in.yahoo.com") by vger.kernel.org with SMTP
+	id S1751119AbVIEMGd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 08:06:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.co.in;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=FqbrqXGhaVHsLDtnEEnKPED3Y2WFzneCoK1/IvxUmdXDzRJvKTfAbkiJP8RSuN/a1jESjeNpe7BcdvybpcpTMAuHiTWlIbA4zs6pXezLU6gjgTh5piBo4n0abzdYMw7YqXKlOHNTz5pd1PoieSyhFJ4FilEmNGlFcn+5Mk/Loak=  ;
+Message-ID: <20050905120625.70268.qmail@web8403.mail.in.yahoo.com>
+Date: Mon, 5 Sep 2005 13:06:25 +0100 (BST)
+From: vinay hegde <thisismevinay@yahoo.co.in>
+Subject: Regarding the booting the linux kernel on a
+ > PPC board.
+To: linux-kernel@vger.kernel.org
+Cc: thisismevinay@yahoo.co.in
 MIME-Version: 1.0
-To: Panagiotis Issaris <panagiotis.issaris@gmail.com>
-CC: ipw2100-admin@linux.intel.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ipw2200: Missing kmalloc check
-References: <1125886450.4017.14.camel@nyx>
-In-Reply-To: <1125886450.4017.14.camel@nyx>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Panagiotis Issaris napsal(a):
 
->The ipw2200 driver code in current GIT contains a kmalloc() followed by
->a memset() without handling a possible memory allocation failure.
->
->Signed-off-by: Panagiotis Issaris <panagiotis.issaris@gmail.com>
->---
->
-> drivers/net/wireless/ipw2200.c |    4 ++++
-> 1 files changed, 4 insertions(+), 0 deletions(-)
->
->8e288419b49346fee512739acac446c951727d04
->diff --git a/drivers/net/wireless/ipw2200.c
->b/drivers/net/wireless/ipw2200.c
->--- a/drivers/net/wireless/ipw2200.c
->+++ b/drivers/net/wireless/ipw2200.c
->@@ -3976,6 +3976,10 @@ static struct ipw_rx_queue *ipw_rx_queue
-> 	int i;
+> Hi All,
+>  
+> I am working on bringing up a PowerPC based board
+> with Linux 2.6 kernel (Board supoort package).
+> However, I am facing some problem with respect to
+> debugging.
+>  
+> When I boot the board with the Linux kernel (BSP),
+> the board hangs after printing the following
+> information.
+>  
+> >>>>>>>>>>>>>>>>>>>>>>>
 > 
-> 	rxq = (struct ipw_rx_queue *)kmalloc(sizeof(*rxq), GFP_KERNEL);
->+	if (unlikely(!rxq)) {
->+		IPW_ERROR("memory allocation failed\n");
->+		return NULL;
->+	}
-> 	memset(rxq, 0, sizeof(*rxq));
->  
->
-and use kzalloc instead of kmalloc and memset 0?
+> Network Loading from: /dev/enet0 
+> 
+> Client IP Address      = 192.168.4.38 
+> Server IP Address      = 192.168.4.101 
+> Gateway IP Address     = 192.168.4.253 
+> Subnet IP Address Mask = 255.255.255.0 
+> Boot File Name         = developer.kdi 
+> Load Address           = 04000000 
+> Buffer Size = 2000000 
+> 
+> Network Boot File Load Start - Press <ESC> to
+> Bypass, <SPC> to Continue 
+> 
+> 
+> Bytes Received =&6141952, Bytes Loaded =&6141952 
+> Bytes/Second   =&511829, Elapsed Time =12 Second(s) 
+> 
+> Boot Device       =/dev/enet0 
+> Boot File         =developer.kdi 
+> Load Address      =04000000 
+> Load Size         =005DB800 
+> Execution Address =04000020 
+> Execution Offset  =00000020 
+> 
+> Passing control to the loaded file/image. 
+> loaded at:     00800000 00DD8800 
+> zimage at:     008058E0 009933BB 
+> initrd at:     00998000 00DD8800 
+> avail ram:     00400000 00800000 
+> 
+> Linux/PPC load: console=ttyS0,9600 console=tty0
+> root=/dev/sda2 
+> console=ttyS0,9600 root=/dev/ram rw 
+> Uncompressing Linux...done. 
+> Now booting the kernel 
+> 
+> 
+> >>>>>>>>>>>>>>>>>>>>>. 
+> 
+> I am going through the source code to figure out the
+> problem, but unable to find out what is going wrong
+> here.
+> 
+> Does anybody have any idea about the problem? Also,
+> is it possible to print some debug messages at this
+> point of booting? {Note that, in the early stage of
+> booting process the serial is initialized and all
+> the above mentioned messages (like Uncomressing
+> Linux, Now booting the kernel etc) are printed. And
+> immediately after printing the "now booting the
+> kernel message,the serial is closed. This code is in
+> uncompress_kernel() function in
+> arch/ppc/boot/simple/misc.c file).
+> 
+> Can somebody help me with the above problem?
+> 
+> Thank you,
+> 
+> vinay hegde.
+> 
 
-> 	spin_lock_init(&rxq->lock);
-> 	INIT_LIST_HEAD(&rxq->rx_free);
->  
->
--- 
-Jiri Slaby         www.fi.muni.cz/~xslaby
-~\-/~      jirislaby@gmail.com      ~\-/~
-241B347EC88228DE51EE A49C4A73A25004CB2A10
 
+
+	
+
+	
+		
+__________________________________________________________ 
+Yahoo! India Matrimony: Find your partner online. Go to http://yahoo.shaadi.com

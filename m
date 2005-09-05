@@ -1,71 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932298AbVIEPBW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932301AbVIEPEv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932298AbVIEPBW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 11:01:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932300AbVIEPBW
+	id S932301AbVIEPEv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 11:04:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbVIEPEv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 11:01:22 -0400
-Received: from mail.dsa-ac.de ([62.112.80.99]:45330 "EHLO mail.dsa-ac.de")
-	by vger.kernel.org with ESMTP id S932298AbVIEPBV (ORCPT
+	Mon, 5 Sep 2005 11:04:51 -0400
+Received: from [217.170.8.20] ([217.170.8.20]:21271 "EHLO research.newtrade.nl")
+	by vger.kernel.org with ESMTP id S932301AbVIEPEv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 11:01:21 -0400
-Date: Mon, 5 Sep 2005 17:01:12 +0200 (CEST)
-From: gl@dsa-ac.de
-To: linux-kernel@vger.kernel.org
-Subject: who sets boot_params[].screen_info.orig_video_isVGA?
-Message-ID: <Pine.LNX.4.63.0509051646480.11341@pcgl.dsa-ac.de>
+	Mon, 5 Sep 2005 11:04:51 -0400
+From: Duncan Sands <baldrick@free.fr>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Subject: Re: [ATMSAR] Request for review - update #1
+Date: Mon, 5 Sep 2005 17:04:44 +0200
+User-Agent: KMail/1.8.2
+Cc: Grzegorz Kulewski <kangur@polcom.net>,
+       Giampaolo Tomassoni <g.tomassoni@libero.it>,
+       linux-kernel@vger.kernel.org, linux-atm-general@lists.sourceforge.net
+References: <NBBBIHMOBLOHKCGIMJMDGEHPEKAA.g.tomassoni@libero.it> <Pine.LNX.4.63.0509041830270.29195@alpha.polcom.net> <200509041754.54995.s0348365@sms.ed.ac.uk>
+In-Reply-To: <200509041754.54995.s0348365@sms.ed.ac.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509051704.44315.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Hi Alistair,
 
-I am trying to get intelfb running on a system with a 855GM onboard chip, 
-and the driver exits at intelfbdrv.c::intelfb_pci_register() (2.6.13, line 
-814:
+> > The instalation is currently (with firmware loader instead of modem_run)
+> > very simple: USE="atm" emerge ppp, download firmware and place it in
+> > /lib/firmware, compile the kernel with speedtch support.
+> 
+> Compared to "place the firmware in /lib/firmware" on many other distros, this 
+> sounds like a lot of work! The kernel speedtch provides no advantages to its 
+> userspace alternative.
 
- 	if (FIXED_MODE(dinfo) && ORIG_VIDEO_ISVGA != VIDEO_TYPE_VLFB) {
- 		ERR_MSG("Video mode must be programmed at boot time.\n");
- 		cleanup(dinfo);
- 		return -ENODEV;
- 	}
+historically the main problem with using the kernel driver was getting hold of
+an ATM aware pppd.  The step "USE="atm" emerge ppp" looks like gentoos way of
+installing such a pppd.  Nowadays several major distributions ship with an
+ATM aware pppd, so if you are using one there is nothing to be done.  Likewise,
+most distributions ship a kernel with speedtch support.  So if you're using
+such a distribution all you have to do to use the kernel driver is
+"place the firmware in /lib/firmware".
 
-The FIXED_MODE(dinfo) test is true, because the board has a LCD connected 
-to it, now, why is ORIG_VIDEO_ISVGA != VIDEO_TYPE_VLFB and is there any 
-way to set the type to VIDEO_TYPE_VLFB? ORIG_VIDEO_ISVGA is defined in 
-tty.h as
+On the other hand, it is misleading to say that with the user mode driver
+all you have to do is place the firmware in /lib/firmware.  That's only
+true if your distribution (eg: Mandrake) explicitly supports the user mode
+driver and has pre-installed and configured it for you.  If you don't have
+such a distribution then setting up the user mode driver, while not difficult,
+does require some work.
 
-#define ORIG_VIDEO_ISVGA	(screen_info.orig_video_isVGA)
+> > I tried to use userspace driver some time ago but it wasn't working for me
+> > so I gave up. I was using modem_run with kernel driver for long time to
+> > load the firmware but there were many problems with it too (nearly every
+> > kernel or modem_run upgrade was breaking something, modem_run was hanging
+> > in D state in most unapropriate moments and so on).
+> 
+> This is not the case any longer.
 
-and screen_info is populated in setup.c::setup_arch() as
+I'm the one who fixed most of those problems by the way.
 
-  	screen_info = SCREEN_INFO;
+> > Now I am using pure kernel driver and firmware loader and it works 100%
+> > ok. There were no problems with it for long time. And I don't even want to
+> > look at this userspace driver again.
+> 
+> Conversely people (including myself) found the kernel implementation to be 
+> buggy, and when userspace breaks, you can simply restart it.. when the kernel 
+> breaks, you have to reboot.
 
-where SCREEN_INFO is defined in include/asm-i386/setup.h as
+Tell me what problems you've been seeing and I will try to fix them.
 
-extern unsigned char boot_params[PARAM_SIZE];
+All the best,
 
-#define PARAM	(boot_params)
-#define SCREEN_INFO (*(struct screen_info *) (PARAM+0))
-
-Now, what do I do with that? I couldn't get my analysis behind this point. 
-It doesn't seem to be set up by the bootloader. Who sets this field(s), 
-how can one force isVGA to the needed value and is this the correct way to 
-get the driver to initialise at all? Is the test in intelfbdrv.c actually 
-correct? And this
-
-#define SCREEN_INFO (*(struct screen_info *) (PARAM+0))
-#define EXT_MEM_K (*(unsigned short *) (PARAM+2))
-
-in setup.h looks somewhat strange, unless, of course, it is not some 
-16-bit mode...
-
-Thanks in advance
-Guennadi
----------------------------------
-Guennadi Liakhovetski, Ph.D.
-DSA Daten- und Systemtechnik GmbH
-Pascalstr. 28
-D-52076 Aachen
-Germany
+Duncan.

@@ -1,130 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932265AbVIEHRS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932274AbVIEHaR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932265AbVIEHRS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 03:17:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932267AbVIEHRS
+	id S932274AbVIEHaR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 03:30:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbVIEHaR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 03:17:18 -0400
-Received: from poros.telenet-ops.be ([195.130.132.44]:32464 "EHLO
-	poros.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S932265AbVIEHRR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 03:17:17 -0400
-Message-ID: <39543.217.136.171.4.1125904710.squirrel@www.pieter.dejaeghere.net>
-Date: Mon, 5 Sep 2005 09:18:30 +0200 (CEST)
-Subject: [PATCH] Arcnet, linux 2.6.13
-From: "Pieter Dejaeghere" <pieter@dejaeghere.net>
-To: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.5
+	Mon, 5 Sep 2005 03:30:17 -0400
+Received: from colgate.yandex.ru ([213.180.200.34]:32927 "EHLO
+	colgate.yandex.ru") by vger.kernel.org with ESMTP id S932274AbVIEHaQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 03:30:16 -0400
+Date: Mon, 5 Sep 2005 11:30:02 +0400 (MSD)
+From: "Alexander Krizhanovsky" <klx@yandex.ru>
+Message-Id: <431BF3FA.000001.11625@colgate.yandex.ru>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+X-Mailer: Yamail [ http://yandex.ru ]
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] autofs: fix "busy inodes after umount..."
+Reply-To: klx@yandex.ru
+X-Source-Ip: 195.214.233.10
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_262C40MWKGMMYJ0CCJD0"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the current arcnet driver, the hard_start_xmit method allocates a
-buffer for an outgoing transmission. However, this method doesn't check
-whether there was already an allocated buffer from an earlier outgoing
-transmission. This patch checks whether lp->next_tx already had an
-allocated buffer, and if so, it returns NETDEV_TX_BUSY. This prevents
-buffers from dissapearing under heavy traffic.
 
-This patch seems to work fine on my arcnet network, and I also sent it to
-the person (Esben Nielsen simlo@phys.au.dk) who made some arcnet patches
-in 2.6.8 and 2.6.11, and they work fine on his setup too.
+--------------Boundary-00=_262C40MWKGMMYJ0CCJD0
+Content-Type: text/plain;
+  charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
 
-url to the patch:
-http://pieter.dejaeghere.net:9080/arcnet/patch-buffer
+Hello!
 
-inlined (hopefully without broken linewraps):
---- linux-2.6.12-gentoo-r1/drivers/net/arcnet/arcnet.c	2005-06-25
-20:42:46.000000000 +0200
-+++ linux-2.6.13-gentoo/drivers/net/arcnet/arcnet.c	2005-09-03
-19:46:54.227846664 +0200
-@@ -597,7 +597,7 @@ static int arcnet_send_packet(struct sk_
- 	struct ArcProto *proto;
- 	int txbuf;
- 	unsigned long flags;
--	int freeskb = 0;
-+	int freeskb, retval;
+This patch for old autofs (version 3) cleans dentries which not putted after killing automount daemon (it's analogue of recent patch for autofs4).
 
- 	BUGMSG(D_DURING,
- 	       "transmit requested (status=%Xh, txbufs=%d/%d, len=%d, protocol
-%x)\n",
-@@ -615,7 +615,7 @@ static int arcnet_send_packet(struct sk_
- 	if (skb->len - ARC_HDR_SIZE > XMTU && !proto->continue_tx) {
- 		BUGMSG(D_NORMAL, "fixme: packet too large: compensating badly!\n");
- 		dev_kfree_skb(skb);
--		return 0;	/* don't try again */
-+		return NETDEV_TX_OK;	/* don't try again */
- 	}
+Signed-off-by: Alexander Krizhanovsky <klx@yandex.ru>
+--------------Boundary-00=_262C40MWKGMMYJ0CCJD0
+Content-Disposition: attachment;
+  Filename="autofs-patch"
+Content-Type: application/octet-stream;
+  name="autofs-patch"
+Content-Transfer-Encoding: base64
 
- 	/* We're busy transmitting a packet... */
-@@ -623,8 +623,11 @@ static int arcnet_send_packet(struct sk_
+LS0tIGxpbnV4LTIuNi4xMy9mcy9hdXRvZnMvYXV0b2ZzX2kuaC5vcmlnCTIwMDUtMDgtMjkgMDM6
+NDE6MDEuMDAwMDAwMDAwICswNDAwCisrKyBsaW51eC0yLjYuMTMvZnMvYXV0b2ZzL2F1dG9mc19p
+LmgJMjAwNS0wOS0wMiAyMDoxMDo1OS4wMDAwMDAwMDAgKzA0MDAKQEAgLTEwNSw2ICsxMDUsNyBA
+QCBzdHJ1Y3QgYXV0b2ZzX3NiX2luZm8gewogCXN0cnVjdCBmaWxlICpwaXBlOwogCXBpZF90IG96
+X3BncnA7CiAJaW50IGNhdGF0b25pYzsKKwlzdHJ1Y3Qgc3VwZXJfYmxvY2sgKnNiOwogCXVuc2ln
+bmVkIGxvbmcgZXhwX3RpbWVvdXQ7CiAJaW5vX3QgbmV4dF9kaXJfaW5vOwogCXN0cnVjdCBhdXRv
+ZnNfd2FpdF9xdWV1ZSAqcXVldWVzOyAvKiBXYWl0IHF1ZXVlIHBvaW50ZXIgKi8KQEAgLTEzNCw3
+ICsxMzUsNyBAQCB2b2lkIGF1dG9mc19oYXNoX2luc2VydChzdHJ1Y3QgYXV0b2ZzX2RpCiB2b2lk
+IGF1dG9mc19oYXNoX2RlbGV0ZShzdHJ1Y3QgYXV0b2ZzX2Rpcl9lbnQgKik7CiBzdHJ1Y3QgYXV0
+b2ZzX2Rpcl9lbnQgKmF1dG9mc19oYXNoX2VudW0oY29uc3Qgc3RydWN0IGF1dG9mc19kaXJoYXNo
+ICosb2ZmX3QgKixzdHJ1Y3QgYXV0b2ZzX2Rpcl9lbnQgKik7CiB2b2lkIGF1dG9mc19oYXNoX2Rw
+dXRhbGwoc3RydWN0IGF1dG9mc19kaXJoYXNoICopOwotdm9pZCBhdXRvZnNfaGFzaF9udWtlKHN0
+cnVjdCBhdXRvZnNfZGlyaGFzaCAqKTsKK3ZvaWQgYXV0b2ZzX2hhc2hfbnVrZShzdHJ1Y3QgYXV0
+b2ZzX3NiX2luZm8gKik7CiAKIC8qIEV4cGlyYXRpb24taGFuZGxpbmcgZnVuY3Rpb25zICovCiAK
+LS0tIGxpbnV4LTIuNi4xMy9mcy9hdXRvZnMvaW5vZGUuYy5vcmlnCTIwMDUtMDgtMjkgMDM6NDE6
+MDEuMDAwMDAwMDAwICswNDAwCisrKyBsaW51eC0yLjYuMTMvZnMvYXV0b2ZzL2lub2RlLmMJMjAw
+NS0wOS0wMiAyMDoxMzo0My4wMDAwMDAwMDAgKzA0MDAKQEAgLTI3LDcgKzI3LDcgQEAgc3RhdGlj
+IHZvaWQgYXV0b2ZzX3B1dF9zdXBlcihzdHJ1Y3Qgc3VwZQogCWlmICggIXNiaS0+Y2F0YXRvbmlj
+ICkKIAkJYXV0b2ZzX2NhdGF0b25pY19tb2RlKHNiaSk7IC8qIEZyZWUgd2FpdCBxdWV1ZXMsIGNs
+b3NlIHBpcGUgKi8KIAotCWF1dG9mc19oYXNoX251a2UoJnNiaS0+ZGlyaGFzaCk7CisJYXV0b2Zz
+X2hhc2hfbnVrZShzYmkpOwogCWZvciAoIG4gPSAwIDsgbiA8IEFVVE9GU19NQVhfU1lNTElOS1Mg
+OyBuKysgKSB7CiAJCWlmICggdGVzdF9iaXQobiwgc2JpLT5zeW1saW5rX2JpdG1hcCkgKQogCQkJ
+a2ZyZWUoc2JpLT5zeW1saW5rW25dLmRhdGEpOwpAQCAtMTQ4LDYgKzE0OCw3IEBAIGludCBhdXRv
+ZnNfZmlsbF9zdXBlcihzdHJ1Y3Qgc3VwZXJfYmxvY2sKIAlzLT5zX21hZ2ljID0gQVVUT0ZTX1NV
+UEVSX01BR0lDOwogCXMtPnNfb3AgPSAmYXV0b2ZzX3NvcHM7CiAJcy0+c190aW1lX2dyYW4gPSAx
+OworCXNiaS0+c2IgPSBzOwogCiAJcm9vdF9pbm9kZSA9IGlnZXQocywgQVVUT0ZTX1JPT1RfSU5P
+KTsKIAlyb290ID0gZF9hbGxvY19yb290KHJvb3RfaW5vZGUpOwotLS0gbGludXgtMi42LjEzL2Zz
+L2F1dG9mcy9kaXJoYXNoLmMub3JpZwkyMDA1LTA4LTI5IDAzOjQxOjAxLjAwMDAwMDAwMCArMDQw
+MAorKysgbGludXgtMi42LjEzL2ZzL2F1dG9mcy9kaXJoYXNoLmMJMjAwNS0wOS0wMiAyMDoxMDo1
+OS4wMDAwMDAwMDAgKzA0MDAKQEAgLTIzMiwxMyArMjMyLDEzIEBAIHZvaWQgYXV0b2ZzX2hhc2hf
+ZHB1dGFsbChzdHJ1Y3QgYXV0b2ZzX2QKIAogLyogRGVsZXRlIGV2ZXJ5dGhpbmcuICBUaGlzIGlz
+IHVzZWQgb24gZmlsZXN5c3RlbSBkZXN0cnVjdGlvbiwgc28gd2UKICAgIG1ha2Ugbm8gYXR0ZW1w
+dCB0byBrZWVwIHRoZSBwb2ludGVycyB2YWxpZCAqLwotdm9pZCBhdXRvZnNfaGFzaF9udWtlKHN0
+cnVjdCBhdXRvZnNfZGlyaGFzaCAqZGgpCit2b2lkIGF1dG9mc19oYXNoX251a2Uoc3RydWN0IGF1
+dG9mc19zYl9pbmZvICpzYmkpCiB7CiAJaW50IGk7CiAJc3RydWN0IGF1dG9mc19kaXJfZW50ICpl
+bnQsICpuZW50OwogCiAJZm9yICggaSA9IDAgOyBpIDwgQVVUT0ZTX0hBU0hfU0laRSA7IGkrKyAp
+IHsKLQkJZm9yICggZW50ID0gZGgtPmhbaV0gOyBlbnQgOyBlbnQgPSBuZW50ICkgeworCQlmb3Ig
+KCBlbnQgPSBzYmktPmRpcmhhc2guaFtpXSA7IGVudCA7IGVudCA9IG5lbnQgKSB7CiAJCQluZW50
+ID0gZW50LT5uZXh0OwogCQkJaWYgKCBlbnQtPmRlbnRyeSApCiAJCQkJZHB1dChlbnQtPmRlbnRy
+eSk7CkBAIC0yNDYsNCArMjQ2LDUgQEAgdm9pZCBhdXRvZnNfaGFzaF9udWtlKHN0cnVjdCBhdXRv
+ZnNfZGlyaAogCQkJa2ZyZWUoZW50KTsKIAkJfQogCX0KKwlzaHJpbmtfZGNhY2hlX3NiKHNiaS0+
+c2IpOwogfQo=
 
- 	spin_lock_irqsave(&lp->lock, flags);
- 	AINTMASK(0);
--
--	txbuf = get_arcbuf(dev);
-+	if(lp->next_tx == -1)
-+		txbuf = get_arcbuf(dev);
-+	else {
-+		txbuf = -1;
-+	}
- 	if (txbuf != -1) {
- 		if (proto->prepare_tx(dev, pkt, skb->len, txbuf) &&
- 		    !proto->ack_tx) {
-@@ -638,6 +641,8 @@ static int arcnet_send_packet(struct sk_
- 			lp->outgoing.skb = skb;
- 			lp->outgoing.pkt = pkt;
-
-+			freeskb = 0;
-+
- 			if (proto->continue_tx &&
- 			    proto->continue_tx(dev, txbuf)) {
- 			  BUGMSG(D_NORMAL,
-@@ -645,10 +650,12 @@ static int arcnet_send_packet(struct sk_
- 				 "(proto='%c')\n", proto->suffix);
- 			}
- 		}
--
-+		retval = NETDEV_TX_OK;
-+		dev->trans_start = jiffies;
- 		lp->next_tx = txbuf;
- 	} else {
--		freeskb = 1;
-+		retval = NETDEV_TX_BUSY;
-+		freeskb = 0;
- 	}
-
- 	BUGMSG(D_DEBUG, "%s: %d: %s, status:
-%x\n",__FILE__,__LINE__,__FUNCTION__,ASTATUS());
-@@ -664,7 +671,7 @@ static int arcnet_send_packet(struct sk_
- 	if (freeskb) {
- 		dev_kfree_skb(skb);
- 	}
--	return 0;		/* no need to try again */
-+	return retval;		/* no need to try again */
- }
-
-
-@@ -690,7 +697,6 @@ static int go_tx(struct net_device *dev)
- 	/* start sending */
- 	ACOMMAND(TXcmd | (lp->cur_tx << 3));
-
--	dev->trans_start = jiffies;
- 	lp->stats.tx_packets++;
- 	lp->lasttrans_dest = lp->lastload_dest;
- 	lp->lastload_dest = 0;
-@@ -917,6 +923,9 @@ irqreturn_t arcnet_interrupt(int irq, vo
-
- 			BUGMSG(D_RECON, "Network reconfiguration detected (status=%Xh)\n",
- 			       status);
-+			/* MYRECON bit is at bit 7 of diagstatus */
-+			if(diagstatus & 0x80)
-+				BUGMSG(D_RECON,"Put out that recon myself\n");
-
- 			/* is the RECON info empty or old? */
- 			if (!lp->first_recon || !lp->last_recon ||
-
+--------------Boundary-00=_262C40MWKGMMYJ0CCJD0--

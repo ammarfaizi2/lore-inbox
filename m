@@ -1,69 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932321AbVIEHuG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932352AbVIEHud@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932321AbVIEHuG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 03:50:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932297AbVIEHuF
+	id S932352AbVIEHud (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 03:50:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbVIEHuc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 03:50:05 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:3480 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932304AbVIEHuD (ORCPT
+	Mon, 5 Sep 2005 03:50:32 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:8388 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932352AbVIEHua (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 03:50:03 -0400
-Date: Mon, 5 Sep 2005 13:19:28 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Nishanth Aravamudan <nacc@us.ibm.com>, Con Kolivas <kernel@kolivas.org>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org,
-       ck list <ck@vds.kolivas.org>
-Subject: Re: [PATCH 1/3] dynticks - implement no idle hz for x86
-Message-ID: <20050905074928.GA7924@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20050831165843.GA4974@in.ibm.com> <200509031801.09069.kernel@kolivas.org> <20050903090650.B26998@flint.arm.linux.org.uk> <200509031814.49666.kernel@kolivas.org> <20050904201054.GA4495@us.ibm.com> <20050904212616.B11265@flint.arm.linux.org.uk> <20050905053225.GA4294@in.ibm.com> <20050905083728.A24051@flint.arm.linux.org.uk>
+	Mon, 5 Sep 2005 03:50:30 -0400
+Date: Mon, 5 Sep 2005 15:55:28 +0800
+From: David Teigland <teigland@redhat.com>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-fsdevel@vger.kernel.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, linux-cluster@redhat.com
+Subject: Re: GFS, what's remaining
+Message-ID: <20050905075528.GB17607@redhat.com>
+References: <20050901104620.GA22482@redhat.com> <1125574523.5025.10.camel@laptopd505.fenrus.org> <20050905054348.GC11337@redhat.com> <84144f02050904233274d45230@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050905083728.A24051@flint.arm.linux.org.uk>
+In-Reply-To: <84144f02050904233274d45230@mail.gmail.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 05, 2005 at 08:37:28AM +0100, Russell King wrote:
-> That's because, like x86, we've been ignoring each other.  ARM
-> doesn't handle dyntick SMP yet - ARM is fairly young as far as
-> SMP issues goes, and as yet doesn't include a full SMP
-> implementation in mainline.
-
-
-
+On Mon, Sep 05, 2005 at 09:32:59AM +0300, Pekka Enberg wrote:
+> On Thu, Sep 01, 2005 at 01:35:23PM +0200, Arjan van de Ven wrote:
+> > > +void gfs2_glock_hold(struct gfs2_glock *gl)
+> > > +{
+> > > +     glock_hold(gl);
+> > > +}
+> > >
+> > > eh why?
 > 
-> Despite that, the timers as implemented on the hardware are not
-> suitable for dyntick use - attempting to use them, you lose long
-> term precision of the timer interrupts.
-
-Thats one of the problems I am seeing on x86 as well. Recovering
-wall-time precisely after sleep is tough esepcially if the interrupt
-source (PIT) and backing-time source (TSC/PM Timer/HPET) can
-drift wrt each other. PPC64 should be much better I hope (which is what I 
-intend to take up next).
-
-> > 5. Don't see how DYN_TICK_SKIPPING is being used. In SMP scenario,
-> >    it doesnt make sense since it will have to be per-cpu. The bitmap
-> >    that I talked of exactly tells that (whether a CPU is skipping
-> >    ticks or not).
+> On 9/5/05, David Teigland <teigland@redhat.com> wrote:
+> > You removed the comment stating exactly why, see below.  If that's not a
+> > accepted technique in the kernel, say so and I'll be happy to change it
+> > here and elsewhere.
 > 
-> What's DYN_TICK_SKIPPING and what's it used for?  It looks like
-> a redundant definition left over from Tony's original implementation.
+> Is there a reason why users of gfs2_glock_hold() cannot use
+> glock_hold() directly?
 
-Tony was using it to signal that all CPUs are idle and timer are
-being skipped. With the SMP changes I made, I felt it can be
-substituted with the nohz_cpu_mask bitmap and hence I removed
-it.
+Either set could be trivially removed.  It's such an insignificant issue
+that I've removed glock_hold and put.  For the record,
 
+within glock.c we consistently paired inlined versions of:
+	glock_hold()
+	glock_put()
 
--- 
+we wanted external versions to be appropriately named so we had:
+	gfs2_glock_hold()
+	gfs2_glock_put()
 
+still not sure if that technique is acceptable in this crowd or not.
+Dave
 
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560017

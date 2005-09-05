@@ -1,48 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751295AbVIEPnq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbVIEPpU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751295AbVIEPnq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 11:43:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751301AbVIEPnq
+	id S932178AbVIEPpU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 11:45:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932192AbVIEPpT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 11:43:46 -0400
-Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:33228 "EHLO
-	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP
-	id S1751295AbVIEPnq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 11:43:46 -0400
-X-ORBL: [67.117.73.34]
-Date: Mon, 5 Sep 2005 18:43:11 +0300
-From: Tony Lindgren <tony@atomide.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Joerg Sommrey <jo@sommrey.de>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/2] amd76x_pm: C2 powersaving for AMD K7
-Message-ID: <20050905154311.GV5734@atomide.com>
-References: <20050901201434.GA8728@sommrey.de> <20050905145240.GB2142@openzaurus.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050905145240.GB2142@openzaurus.ucw.cz>
-User-Agent: Mutt/1.5.9i
+	Mon, 5 Sep 2005 11:45:19 -0400
+Received: from mail.dsa-ac.de ([62.112.80.99]:13075 "EHLO mail.dsa-ac.de")
+	by vger.kernel.org with ESMTP id S932178AbVIEPpR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 11:45:17 -0400
+Date: Mon, 5 Sep 2005 17:45:09 +0200 (CEST)
+From: gl@dsa-ac.de
+To: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: who sets boot_params[].screen_info.orig_video_isVGA?
+In-Reply-To: <E1ECIub-00088O-00@chiark.greenend.org.uk>
+Message-ID: <Pine.LNX.4.63.0509051736420.11341@pcgl.dsa-ac.de>
+References: <Pine.LNX.4.63.0509051646480.11341@pcgl.dsa-ac.de>
+ <E1ECIub-00088O-00@chiark.greenend.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Pavel Machek <pavel@ucw.cz> [050905 17:59]:
-> Hi!
-> 
-> 
-> > +NOTE: Currently there's a bug somewhere where the reading the
-> > +      P_LVL2 for the first time causes the system to sleep instead of 
-> > +      idling. This means that you need to hit the power button once to
-> > +      wake the system after loading the module for the first time after
-> > +      reboot. After that the system idles as supposed.
-> > +      (Only observed on Tony's system.)
-> 
-> Could you fix this before merge?
+Thanks for the reply, Matthew.
 
-I think this is some BIOS issue or hardware bug. It happens only on
-Tyan S2460. I tried dumping the registers few years ago on my
-Tyan s2460, but no luck.
+On Mon, 5 Sep 2005, Matthew Garrett wrote:
 
-Low chance for anybody fixing it...
+> gl@dsa-ac.de <gl@dsa-ac.de> wrote:
+>> I am trying to get intelfb running on a system with a 855GM onboard chip,
+>> and the driver exits at intelfbdrv.c::intelfb_pci_register() (2.6.13, line
+>> 814:
+>>
+>>  	if (FIXED_MODE(dinfo) && ORIG_VIDEO_ISVGA != VIDEO_TYPE_VLFB) {
+>>  		ERR_MSG("Video mode must be programmed at boot time.\n");
+>>  		cleanup(dinfo);
+>>  		return -ENODEV;
+>>  	}
+>
+> This ought to be done by the bootloader if you pass a vga=foo argument.
+> The framebuffer driver doesn't know how to switch resolutions (primarily
+> because Intel won't tell anyone how to do it, so the only method is a
+> real-mode BIOS call to the VESA BIOS)
 
-Tony
+Do I get it right, that, say, if I tell grub to load a kernel and specify 
+"vga=xxx" on the kernel command line, grub will interpret it, issue some 
+VESA BIOS calls and fill in the screen_info struct? If so, the card often 
+supports several modes (VGA, SVGA, VESA, different resolutions, colour 
+depths, etc.), right? So, which one will be chosen? Does it depend on the 
+specific value I give to "vga="? How do I force VIDEO_TYPE_VLFB (VESA VGA 
+in graphic mode) mopde then?
+
+BTW, I didn't find any code in grub that sets up screen_info, or it's very 
+well hidden:-)
+
+Thanks
+Guennadi
+---------------------------------
+Guennadi Liakhovetski, Ph.D.
+DSA Daten- und Systemtechnik GmbH
+Pascalstr. 28
+D-52076 Aachen
+Germany

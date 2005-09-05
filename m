@@ -1,168 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932332AbVIERlf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932361AbVIERxc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932332AbVIERlf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 13:41:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932353AbVIERlf
+	id S932361AbVIERxc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 13:53:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932360AbVIERxc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 13:41:35 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:23916 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S932332AbVIERlf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 13:41:35 -0400
-Date: Mon, 5 Sep 2005 19:41:50 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>
-Subject: [GIT PATCHES] kbuild updates
-Message-ID: <20050905174150.GA17923@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+	Mon, 5 Sep 2005 13:53:32 -0400
+Received: from dhcp-57-63.dsl.telerama.com ([205.201.57.63]:44161 "EHLO
+	localhost") by vger.kernel.org with ESMTP id S932362AbVIERxb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 13:53:31 -0400
+Date: Mon, 5 Sep 2005 13:53:22 -0400 (EDT)
+From: Chaskiel Grundman <cg2v@andrew.cmu.edu>
+X-X-Sender: cg2v@localhost
+To: linux-kernel@vger.kernel.org
+Subject: (alpha) process_reloc_for_got confuses r_offset and r_addend
+Message-ID: <Pine.LNX.4.63.0509051334440.8784@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus.
+arch/alpha/kernel/module.c:process_reloc_for_got(), which figures out how 
+big the .got section for a module should be, appears to be confusing 
+r_offset (the file offset that the relocation needs to be applied to) with 
+r_addend (the offset of the relocation's actual target address from the 
+address of the relocation's symbol). Because of this, one .got entry is 
+allocated for each relocation instead of one each unique symbol/addend.
 
-kbuild updates as accumulated over the last few months.
-All patches has been in -mm in one or several versions.
+In the module I am working with, this causes the .got section to be almost 
+10 times larger than it needs to be (75544 bytes instead of 7608 bytes). 
+As the .got is accessed with global-pointer-relative instructions, it 
+needs to be within the 64k gp "zone", and a 75544 byte .got clearly does 
+not fit. The result of this is that relocation overflows are detected 
+during module load and the load is aborted.
 
-Most noteworthy:
-1) -Wundef added to CFLAGS. This is the cause of several new warnings,
-   which for the most part has been fixed for now.
-2) "PREEMPT" in UTS_VERSION. So we complain when dealing
-   with modules compiled for a wrong kernel
-3) Introduced Kbuild.include (the cause of most of
-   the changes lines in top-level Makefile).
-   It killed a lot of duplicate code
-4) Introduce debug_kallsyms to better debug situations where
-   kallsyms fails the consistency check
-5) Added support for building rpm tarballs of source
+Does anyone see anything wrong with this analysis? I tested a patch that 
+makes the obvious change to struct got_entry/process_reloc_for_got and it 
+seems to work ok.
 
-Some of this was leftovers from my old bitkeeper tree, and authorship
-is not correct due to wron cogito usage. The changelog message though 
-attributes the correct author.
-
-Please pull from:
-www.kernel.org/pub/scm/linux/kernel/git/sam/kbuild.git
-
-	Sam
-
-Diffstat:
-  
- Documentation/kbuild/makefiles.txt  |    6 +
- Makefile                            |  160 ++++++++++++++----------------------
- arch/m68knommu/Makefile             |    2 
- arch/mips/Makefile                  |    2 
- drivers/block/Kconfig               |   42 ---------
- include/asm-generic/vmlinux.lds.h   |    9 ++
- init/Kconfig                        |   22 ++++
- init/Makefile                       |    3 
- scripts/Kbuild.include              |   96 +++++++++++++++++++++
- scripts/Lindent                     |    2 
- scripts/Makefile.build              |    7 +
- scripts/Makefile.clean              |   14 +--
- scripts/Makefile.host               |    3 
- scripts/Makefile.lib                |   99 ----------------------
- scripts/Makefile.modinst            |    2 
- scripts/Makefile.modpost            |    1 
- scripts/conmakehash.c               |    2 
- scripts/kallsyms.c                  |    6 -
- scripts/kconfig/lkc.h               |    2 
- scripts/kconfig/menu.c              |    4 
- scripts/kconfig/zconf.tab.c_shipped |    8 -
- scripts/kconfig/zconf.y             |    8 -
- scripts/kernel-doc                  |    8 +
- scripts/lxdialog/dialog.h           |    2 
- scripts/lxdialog/inputbox.c         |    4 
- scripts/mkcompile_h                 |   12 +-
- scripts/mod/modpost.c               |    9 +-
- scripts/mod/sumversion.c            |    8 -
- scripts/package/Makefile            |   24 ++++-
- scripts/package/builddeb            |   56 +++++++++++-
- scripts/package/buildtar            |  111 ++++++++++++++++++++++++
- scripts/package/mkspec              |    9 ++
- scripts/reference_discarded.pl      |    1 
- scripts/reference_init.pl           |    1 
- scripts/setlocalversion             |   56 ++++++++++++
- usr/Kconfig                         |   46 ++++++++++
- usr/Makefile                        |    2 
- 37 files changed, 555 insertions(+), 294 deletions(-)
-
-
-Coywolf Qi Hunt:
-  kbuild: make help binrpm-pkg fix
-
-Fabio Massimo Di Nitto:
-  kbuild: modpost needs to cope with new glibc elf header on sparc
-
-Greg Edwards:
-  kbuild: add ia64 support to rpm Makefile target
-
-Ian Campbell:
-  kbuild: allow cscope to index multiple architectures
-
-J.A. Magallon:
-  kbuild: signed char fixes for scripts
-
-Jan-Benedict Glaw:
-  kbuild: create tarballs
-
-Jeff Mahoney:
-  Lindent: ignore .indent.pro
-
-Jesper Juhl:
-  kallsyms: clarify KALLSYMS_ALL help text
-
-Karl Hegbloom:
-  kbuild: make 'cscope -q' play well with cscope.el
-
-Keenan Pepper:
-  kbuild: signed/unsigned char fix for make menuconfig
-
-Matthias Urlichs:
-  kbuild: obey HOSTLOADLIBES_programname for single-file compilation
-
-Olaf Hering:
-  kbuild: add -Wundef to global CFLAGS
-
-Paolo 'Blaisorblade' Giarrusso:
-  kbuild: describe Kbuild pitfall
-  kconfig: trivial cleanup
-
-Randy Dunlap:
-  scripts/kernel-doc: don't use uninitialized SRCTREE
-
-Ryan Anderson:
-  kbuild: automatically append a short string to the version based upon the git commit
-
-Sam Ravnborg:
-  kbuild: Fix build as root then user
-  buildcheck: reduce DEBUG_INFO noise from reference* scripts
-  kbuild: Avoid inconsistent kallsyms data
-  kbuild: "PREEMPT" in UTS_VERSION
-  kbuild: Add target debug_kallsyms
-  kbuild: fix buildcheck
-  kbuild: Don't fail if include/asm symlink exists
-  uml: Make deb-pkg build target build a Debian-style user-mode-linux package
-  uml: Restore proper descriptions in make deb-pkg target
-  kbuild: Fix bug in make deb-pkg when using seperate source and output directories
-  kbuild: fix make O=... build
-  kbuild: drop -Wundef from HOSTCFLAGS for now
-  kbuild: drop descend - converting existing users
-  kbuild: introduce Kbuild.include
-  kbuild: fix make O=...
-  kbuild: define clean before including kbuild file
-  kbuild: KBUILD_VERBOSE was exported twice
-  kbuild: pass less variables to second make invocation when using make O=...
-  kbuild: silence mystery message
-  kbuild: fix building external modules
-  kbuild: fix make TAGS (for emacs use)
-  kconfig: move initramfs options to General Setup
-
-Tom Rini:
-  kbuild: When checking depmod version, redirect stderr
-
-Yum Rayan:
-  kbuild: restrain output of "make help" to 80 columns
-
+(Please cc me on replies. thanks)

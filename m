@@ -1,78 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932210AbVIEFbe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932211AbVIEFdI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932210AbVIEFbe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 01:31:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbVIEFbe
+	id S932211AbVIEFdI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 01:33:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932213AbVIEFdI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 01:31:34 -0400
-Received: from simmts5.bellnexxia.net ([206.47.199.163]:31932 "EHLO
-	simmts5-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S932210AbVIEFbe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 01:31:34 -0400
-Message-ID: <59215.10.10.10.10.1125898289.squirrel@linux1>
-In-Reply-To: <20050905050108.GA16596@alpha.home.local>
-References: <35547.10.10.10.10.1125892279.squirrel@linux1>
-    <20050905040311.29623.qmail@web50204.mail.yahoo.com>
-    <50570.10.10.10.10.1125893576.squirrel@linux1>
-    <20050905043613.GD30279@alpha.home.local>
-    <46230.10.10.10.10.1125895623.squirrel@linux1>
-    <20050905050108.GA16596@alpha.home.local>
-Date: Mon, 5 Sep 2005 01:31:29 -0400 (EDT)
-Subject: Re: RFC: i386: kill !4KSTACKS
-From: "Sean" <seanlkml@sympatico.ca>
-To: "Willy Tarreau" <willy@w.ods.org>
-Cc: "Alex Davis" <alex14641@yahoo.com>, linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.4-2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+	Mon, 5 Sep 2005 01:33:08 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:45045 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932211AbVIEFdH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 01:33:07 -0400
+Date: Mon, 5 Sep 2005 11:02:25 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Nishanth Aravamudan <nacc@us.ibm.com>, Con Kolivas <kernel@kolivas.org>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org,
+       ck list <ck@vds.kolivas.org>, rmk+lkml@arm.linux.org.uk
+Subject: Re: [PATCH 1/3] dynticks - implement no idle hz for x86
+Message-ID: <20050905053225.GA4294@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20050831165843.GA4974@in.ibm.com> <200509031801.09069.kernel@kolivas.org> <20050903090650.B26998@flint.arm.linux.org.uk> <200509031814.49666.kernel@kolivas.org> <20050904201054.GA4495@us.ibm.com> <20050904212616.B11265@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050904212616.B11265@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, September 5, 2005 1:01 am, Willy Tarreau said:
+On Sun, Sep 04, 2005 at 09:26:16PM +0100, Russell King wrote:
+> I'd be really surprised if any architecture couldn't use what ARM has
+> today - in other words, this is the only kernel-side interface:
 
-> But how do you think Linux has penetrated the enterprise market ???
-> We all have put dual boots on every windows machine we had access to,
-> eventhough this was clearly forbidden. And after repeatedly showing
-> to the staff that you saved their day with your Linux, they finally
-> start to get interested to it. One of my best customers has finally
-> bought about one hundred RHEL3 licences to replace amateur installs
-> on production machines. They would never have looked at it without
-> us braving unauthorized dual boots.
+Russel,
+	I went thr' the ARM implementation and have some remarks (mostly
+from a SMP perspective):
 
-And how impressed would they have been if you had to install a bunch of
-binary drivers to get the job done?   Do you think all the problems that
-are associated with binary drivers would not have bitten you or your
-company?
+1. On a SMP platform, we want to let individual CPUs "sleep" independent of 
+   each other. What this mean is there has to be some way of tracking which
+   CPU's are sleeping currently, so that code like RCU ignores sleeping CPUs.
+   This was the reason nohz_cpu_mask bitmap was added. I don't see that
+   bitmap being updated at all in ARM implementation.
 
-What you're talking about did happen, but it didn't happen on laptops, and
-it didn't happen with binary drivers.   It happened naturally when Linux
-grew mature enough to support servers without the need for binary-only
-hacks.
+2. On architectures like x86 there is a separate jiffy interrupt source 
+   (PIT) which is used to update time-of-day. This is different from the
+   HZ timer interrupts used on each CPU (local apic timer). When all 
+   CPUs are idle and sleeping, we want to shut off this PIT timer as well.
+   That's why I added 'arch_all_cpus_idle' interface. One could argue that
+   this can be done as part of the dyn_tick->reprogram interface as well,
+   but I felt that having a separate arch_all_cpus_idle is cleaner and
+   makes it clear what its purpose is.
 
-Trying to accelerate the acceptance of Linux on the desktop with binary
-hacks is simply counterproductive.
+3. The fact that we want to manipulate the bitmap (set a bit when CPU is going
+   idle and unset it when it is waking up) _and_ the fact that want to take
+   some action when all CPUs are idle or when the first CPU is waking up, 
+   requires the use of a spinlock, which is again not present in the ARM 
+   implementation.
 
-> I think we should not worry about it, but we should not deliberately break
-> it in a stable series when that does not bring anything. The fact that
-> Adrian proposed to completely remove the option is sad. It's in the
-> windows
-> world that you can't choose. In Linux, you make menuconfig and choose what
-> suits your needs.
+4. Again the fact that CPUs could be sleeping independent of each other
+   requires do_IRQ to check out whether the current CPU was sleeping as 
+   its first step. If the CPU was sleeping, it needs to unset itself
+   from the bitmap _and_ if we are coming out of "all-cpu-asleep" state,
+   the PIT timer needs to be restarted as well as time recovered. Note
+   that these two steps need not be undertaken if we were not in 
+   "all-cpus-asleep" state.
 
-That's the beauty of open source; nobody is being deprived of a choice. 
-Anyone can simply patch their kernel with 8K support if that's what they
-need.   But as has been aptly pointed out by others in this thread, 8K
-stacks aren't really needed at all, even for NDISwrapper.
+I don't see provisions for all these in the current ARM implementation.
+In fact the x86 patch that Tony/Con posted didnt take into account most of these
+as well, which is the reason I jumped in to fix the above issues.
 
-4K stacks were NOT invented to hassle binary-only driver owners, they were
-created to solve problems associated with 8K stacks..  Leaving the 8K
-stack option in the kernel signals that it is a _good_ option.  That just
-isn't true, so the option should be removed or at least marked BROKEN.
+5. Don't see how DYN_TICK_SKIPPING is being used. In SMP scenario,
+   it doesnt make sense since it will have to be per-cpu. The bitmap
+   that I talked of exactly tells that (whether a CPU is skipping
+   ticks or not).
 
-Cheers,
-Sean
+6. S390 makes use of notifier mechanism to notify when CPUs are coming
+   in and out of idle state. Don't know how it will be used in other
+   arches. But obviously, if we are talking of unifying, we have to
+   provide one.
+
+I hope this makes clear why some of the rework happened, which
+in a way is extending the interface that ARM already has. Having
+said all these, I do agree that having a consistent interface 
+is good (for example: x86 has dyn_tick_state structure whereas
+ARM uses dyn_tick_timer strucuture itself to store the state etc).
+   
+
+-- 
 
 
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

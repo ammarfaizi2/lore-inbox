@@ -1,68 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932295AbVIEIcb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932366AbVIEIf5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932295AbVIEIcb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 04:32:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932312AbVIEIcb
+	id S932366AbVIEIf5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 04:35:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932369AbVIEIf4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 04:32:31 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:31503 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932295AbVIEIca (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 04:32:30 -0400
-Date: Mon, 5 Sep 2005 09:32:21 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-Cc: Nishanth Aravamudan <nacc@us.ibm.com>, Con Kolivas <kernel@kolivas.org>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org,
-       ck list <ck@vds.kolivas.org>
-Subject: Re: [PATCH 1/3] dynticks - implement no idle hz for x86
-Message-ID: <20050905093221.E24051@flint.arm.linux.org.uk>
-Mail-Followup-To: Srivatsa Vaddagiri <vatsa@in.ibm.com>,
-	Nishanth Aravamudan <nacc@us.ibm.com>,
-	Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org,
-	akpm@osdl.org, ck list <ck@vds.kolivas.org>
-References: <20050831165843.GA4974@in.ibm.com> <200509031801.09069.kernel@kolivas.org> <20050903090650.B26998@flint.arm.linux.org.uk> <200509031814.49666.kernel@kolivas.org> <20050904201054.GA4495@us.ibm.com> <20050905070053.GA7329@in.ibm.com> <20050905084425.B24051@flint.arm.linux.org.uk> <20050905081935.GB7924@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050905081935.GB7924@in.ibm.com>; from vatsa@in.ibm.com on Mon, Sep 05, 2005 at 01:49:35PM +0530
+	Mon, 5 Sep 2005 04:35:56 -0400
+Received: from zeus2.kernel.org ([204.152.191.36]:37271 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S932366AbVIEIf4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 04:35:56 -0400
+Date: Mon, 5 Sep 2005 10:35:49 +0200
+From: Genesis <chronograph@xanalys.com>
+X-Mailer: The Bat! (v1.67) Business
+X-Priority: 3 (Normal)
+Message-ID: <5503058996.20050905121892@cm-85-152-176-43.telecable.es>
+To: <linux-kernel@vger.kernel.org>
+Subject: SmallCap For You to Watch
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 05, 2005 at 01:49:35PM +0530, Srivatsa Vaddagiri wrote:
-> This is precisely what I have done. I have made cur_timer->mark-offset() to 
-> return the lost ticks and update wall-time from the callee, which
-> can be either timer_interrupt handler or in dyn-tick case the dyn-tick
-> code (I have called it dyn_tick_interrupt) which is called before processing 
-> _any_ interrupt.
+Big news expected. 
+This stock will explode. 
+Do not wait until it is too late.
+Investment Times Alert Issues: (STRONG BUY)
 
-When you have a timer which constantly increments from 0 to MAX and
-wraps, and you can set the value to match to cause an interrupt,
-it makes more sense to handle it the way we're doing it (which
-incidentally leads to no loss of precision.)
+Date: 06.09.2005
+Name: China World Trade Corporation
+Symbol: CWTD.OB
+Current price: $1.93
+3-Day Target: $5
 
-Calculating the number of ticks missed, updating the kernel time,
-and updating the timer match will cause problems with these - if
-the timer has already past the number of ticks you originally
-calculated, you may not get another interrupt for a long time.
+Make no mistake: Our mission at SmallCap-Investors is to claw our way 
+through the thousands of underperforming companies out there 
+to find the golden needle in the haystack the micro-cap DIAMOND 
+that can make you rich. More often than not, the stocks we profile 
+show a significant increase in stock price and sometimes in days, 
+not months or years.
 
-So I don't actually think that your proposal will work for these
-(SA11x0 and PXA).
+Do this often enough, and your portfolio can double, 
+even TRIPLE (!!!) in value.
 
-> If ARM had a timer_opts equivalent we could have followed 
-
-I think your timer_opts is effectively our struct sys_timer.
-
->                         int lost;
-> 
->                         lost = cur_timer->mark_offset();
->                         if (lost)
->                                 do_timer(regs);
-
-This seems to only recover one tick.  What if multiple ticks were lost?
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core

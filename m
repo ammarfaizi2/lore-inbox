@@ -1,83 +1,152 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932114AbVIEAeu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbVIEAqc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932114AbVIEAeu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 20:34:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbVIEAeu
+	id S932146AbVIEAqc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 20:46:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbVIEAqc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 20:34:50 -0400
-Received: from zproxy.gmail.com ([64.233.162.201]:52110 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932114AbVIEAet convert rfc822-to-8bit
+	Sun, 4 Sep 2005 20:46:32 -0400
+Received: from smtp-vbr8.xs4all.nl ([194.109.24.28]:4620 "EHLO
+	smtp-vbr8.xs4all.nl") by vger.kernel.org with ESMTP id S932146AbVIEAqb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 20:34:49 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=LIuTIZ9YJpyVIxIggMwYiBKwykpb6FSBr95BrMcI501PPzU5Kc4AjpG6S9Mcp1BDbn5y7jUQJD5F5qpS7vo7QQ0fWsG3+mlVkoWhPebVdE063m8vb0XQSmedKcdDvoI7eXKRNApTlwsUTS+DYD98JYgtL/1VKbVYBg3UZall6EU=
-Message-ID: <29495f1d05090417344abf386b@mail.gmail.com>
-Date: Sun, 4 Sep 2005 17:34:45 -0700
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-Reply-To: nish.aravamudan@gmail.com
-To: Johannes Stezenbach <js@linuxtv.org>,
-       Nish Aravamudan <nish.aravamudan@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Oliver Endriss <o.endriss@gmx.de>, Patrick Boettcher <pb@linuxtv.org>,
-       Andrew de Quincey <adq_dvb@lidskialf.net>
-Subject: Re: [DVB patch 51/54] ttpci: av7110: RC5+ remote control support
-In-Reply-To: <20050905002732.GA20808@linuxtv.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050904232259.777473000@abc> <20050904232336.080662000@abc>
-	 <29495f1d05090416413caf9043@mail.gmail.com>
-	 <20050905001336.GB20663@linuxtv.org>
-	 <29495f1d05090417165837a07b@mail.gmail.com>
-	 <20050905002732.GA20808@linuxtv.org>
+	Sun, 4 Sep 2005 20:46:31 -0400
+Message-ID: <431B9558.1070900@baanhofman.nl>
+Date: Mon, 05 Sep 2005 02:46:16 +0200
+From: Wilco Baan Hofman <wilco@baanhofman.nl>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040605)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: RAID1 ramdisk patch
+Content-Type: multipart/mixed;
+ boundary="------------050505050106080801020906"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/4/05, Johannes Stezenbach <js@linuxtv.org> wrote:
-> On Sun, Sep 04, 2005 Nish Aravamudan wrote:
-> > On 9/4/05, Johannes Stezenbach <js@linuxtv.org> wrote:
-> > > On Sun, Sep 04, 2005 Nish Aravamudan wrote:
-> > > > On 9/4/05, Johannes Stezenbach <js@linuxtv.org> wrote:
-> > > > >
-> > > > > -#define UP_TIMEOUT (HZ/4)
-> > > > > +#define UP_TIMEOUT (HZ*7/25)
-> > > >
-> > > > #define UP_TIMEOUT msecs_to_jiffies(280)
-> > > > #define UP_TIMEOUT (7*msecs_to_jiffies(40)
-> > >
-> > > I agree it's nicer to read, but AFAIK not required for correctness?
-> > > If so, then we'll fix those up in linuxtv.org CVS and submit
-> > > cleanup patches later.
-> >
-> > Yeah, it's correct with the three current values of HZ (100, 250 and
-> > 1000), but if you try a not-so-clean value (like Con did with 864, or
-> > something), you might run into rounding issues. msecs_to_jiffies()
-> > should take care of them (or will be a single point to do so
-> > eventually).
-> 
-> Well, if msecs_to_jiffies() is the new way of specifying timeouts
-> we'd have a lot more to fix up in our tree. But something like
-> a remote control key-up timeout doesn't need much precision.
-> Generally I see nothing wrong with HZ/4, but something like
-> HZ*20/1000 could be problematic with small or odd HZ values.
+This is a multi-part message in MIME format.
+--------------050505050106080801020906
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-This discussion comes up every time ;) HZ/4 rounds incorrectly
-(depends on your perspective, I guess) with HZ=250.
+Hi all,
 
-> Agreed? Or is it desired that people generally use msecs_to_jiffies()?
+I have written a small patch for use with a HDD-backed ramdisk in the md 
+raid1 driver. The raid1 driver usually does read balancing on the disks, 
+but I feel that if it encounters a single ram disk in the array that 
+should be the preferred read disk. The application of this would be for 
+example a 2GB ram disk in raid1 with a 2GB partition, where the ram disk 
+is used for reading and both 'disks' used for writing.
 
-I agree, generally it's ok, as timeouts aren't meant to be precise. I,
-personally, am converting code over to msecs_to_jiffies() as I come to
-it, just so that the conversions are consistent (a number in the tree
-were not, not that yours are) and basically self-commented. And, like
-I mentioned, they are automatically rounded correctly with "strange"
-values of HZ.
+Attached is a bit of code which checks for a ram-disk and sets it as 
+preferred disk. It also checks if the ram disk is in sync before 
+allowing the read.
 
-The changes I mentioned in your patchset are generally not critical,
-but just comments and my own preferences.
+PS. I am not this list, please CC me if a reply were to be made.
 
-Thanks,
-Nish
+Regards,
+
+Wilco Baan Hofman
+
+--------------050505050106080801020906
+Content-Type: text/plain;
+ name="syn-raid1ramdisk-20050905.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="syn-raid1ramdisk-20050905.patch"
+
+diff -urN linux-2.6.13-rc6.orig/include/linux/raid/raid1.h linux-2.6.13-rc6/include/linux/raid/raid1.h
+--- linux-2.6.13-rc6.orig/include/linux/raid/raid1.h	2005-08-07 20:18:56.000000000 +0200
++++ linux-2.6.13-rc6/include/linux/raid/raid1.h	2005-09-04 11:41:24.000000000 +0200
+@@ -32,6 +32,7 @@
+ 	int			raid_disks;
+ 	int			working_disks;
+ 	int			last_used;
++	int			preferred_read_disk;
+ 	sector_t		next_seq_sect;
+ 	spinlock_t		device_lock;
+diff -urN linux-2.6.13-rc6.orig/drivers/md/raid1.c linux-2.6.13-rc6/drivers/md/raid1.c 
+--- linux-2.6.13-rc6.orig/drivers/md/raid1.c	2005-08-07 20:18:56.000000000 +0200
++++ linux-2.6.13-rc6/drivers/md/raid1.c	2005-09-05 01:54:26.000000000 +0200
+@@ -21,6 +21,8 @@
+  * Additions to bitmap code, (C) 2003-2004 Paul Clements, SteelEye Technology:
+  * - persistent bitmap code
+  *
++ * Special handling of ramdisk (C) 2005 Wilco Baan Hofman <wilco@baanhofman.nl>
++ *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+  * the Free Software Foundation; either version 2, or (at your option)
+@@ -399,8 +401,6 @@
+ 			goto rb_out;
+ 		}
+ 	}
+-	disk = new_disk;
+-	/* now disk == new_disk == starting point for search */
+ 
+ 	/*
+ 	 * Don't change to another disk for sequential reads:
+@@ -409,7 +409,18 @@
+ 		goto rb_out;
+ 	if (this_sector == conf->mirrors[new_disk].head_position)
+ 		goto rb_out;
+-
++	
++	/* [SYN] If the preferred disk exists, return it */
++	if (conf->preferred_read_disk != -1 &&
++			(new_rdev=conf->mirrors[conf->preferred_read_disk].rdev) != NULL &&
++		        new_rdev->in_sync) {
++		new_disk = conf->preferred_read_disk;
++		goto rb_out;
++	}
++	
++	disk = new_disk;
++	/* now disk == new_disk == starting point for search */
++	
+ 	current_distance = abs(this_sector - conf->mirrors[disk].head_position);
+ 
+ 	/* Find the disk whose head is closest */
+@@ -1292,10 +1303,11 @@
+ static int run(mddev_t *mddev)
+ {
+ 	conf_t *conf;
+-	int i, j, disk_idx;
++	int i, j, disk_idx, ram_count;
+ 	mirror_info_t *disk;
+ 	mdk_rdev_t *rdev;
+ 	struct list_head *tmp;
++	char b[BDEVNAME_SIZE];
+ 
+ 	if (mddev->level != 1) {
+ 		printk("raid1: %s: raid level not set to mirroring (%d)\n",
+@@ -1417,6 +1429,30 @@
+ 	mddev->queue->unplug_fn = raid1_unplug;
+ 	mddev->queue->issue_flush_fn = raid1_issue_flush;
+ 
++	/* [SYN] if there is a ram disk, that will be the preferred disk.
++	 * .. unless there are multiple ram disks. */
++	conf->preferred_read_disk = -1;
++	for (i = 0,
++	     ram_count = 0; 
++	     i < mddev->raid_disks; 
++	     i++) {
++	
++		bdevname(conf->mirrors[i].rdev->bdev, b);
++		if (strncmp(b, "ram", 3) == 0) {
++			if (ram_count) {
++				conf->preferred_read_disk = -1;
++				break;
++			}
++			conf->preferred_read_disk = i;
++			ram_count++;
++		}
++	}
++	if (conf->preferred_read_disk >= 0) {
++		printk(KERN_INFO 
++			"raid1: One ram disk (%s) found, setting it preferred read disk.\n", b);
++	}
++
++	
+ 	return 0;
+ 
+ out_no_mem:
+
+--------------050505050106080801020906--

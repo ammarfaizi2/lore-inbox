@@ -1,56 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932275AbVIEHhm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932264AbVIEHkk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932275AbVIEHhm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 03:37:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbVIEHhm
+	id S932264AbVIEHkk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 03:40:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbVIEHkk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 03:37:42 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:44306 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932275AbVIEHhl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 03:37:41 -0400
-Date: Mon, 5 Sep 2005 08:37:28 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-Cc: Nishanth Aravamudan <nacc@us.ibm.com>, Con Kolivas <kernel@kolivas.org>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org,
-       ck list <ck@vds.kolivas.org>
-Subject: Re: [PATCH 1/3] dynticks - implement no idle hz for x86
-Message-ID: <20050905083728.A24051@flint.arm.linux.org.uk>
-Mail-Followup-To: Srivatsa Vaddagiri <vatsa@in.ibm.com>,
-	Nishanth Aravamudan <nacc@us.ibm.com>,
-	Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org,
-	akpm@osdl.org, ck list <ck@vds.kolivas.org>
-References: <20050831165843.GA4974@in.ibm.com> <200509031801.09069.kernel@kolivas.org> <20050903090650.B26998@flint.arm.linux.org.uk> <200509031814.49666.kernel@kolivas.org> <20050904201054.GA4495@us.ibm.com> <20050904212616.B11265@flint.arm.linux.org.uk> <20050905053225.GA4294@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050905053225.GA4294@in.ibm.com>; from vatsa@in.ibm.com on Mon, Sep 05, 2005 at 11:02:25AM +0530
+	Mon, 5 Sep 2005 03:40:40 -0400
+Received: from smtp-vbr7.xs4all.nl ([194.109.24.27]:50705 "EHLO
+	smtp-vbr7.xs4all.nl") by vger.kernel.org with ESMTP id S932264AbVIEHkk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 03:40:40 -0400
+Message-ID: <431BF66D.4010804@baanhofman.nl>
+Date: Mon, 05 Sep 2005 09:40:29 +0200
+From: Wilco Baan Hofman <wilco@baanhofman.nl>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040605)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: RAID1 ramdisk patch
+References: <431B9558.1070900@baanhofman.nl> <17179.40731.907114.194935@cse.unsw.edu.au>
+In-Reply-To: <17179.40731.907114.194935@cse.unsw.edu.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 05, 2005 at 11:02:25AM +0530, Srivatsa Vaddagiri wrote:
-> I don't see provisions for all these in the current ARM implementation.
+Neil Brown wrote:
 
-That's because, like x86, we've been ignoring each other.  ARM
-doesn't handle dyntick SMP yet - ARM is fairly young as far as
-SMP issues goes, and as yet doesn't include a full SMP
-implementation in mainline.
+>On Monday September 5, wilco@baanhofman.nl wrote:
+>  
+>
+>>Hi all,
+>>
+>>I have written a small patch for use with a HDD-backed ramdisk in the md 
+>>raid1 driver. The raid1 driver usually does read balancing on the disks, 
+>>but I feel that if it encounters a single ram disk in the array that 
+>>should be the preferred read disk. The application of this would be for 
+>>example a 2GB ram disk in raid1 with a 2GB partition, where the ram disk 
+>>is used for reading and both 'disks' used for writing.
+>>
+>>Attached is a bit of code which checks for a ram-disk and sets it as 
+>>preferred disk. It also checks if the ram disk is in sync before 
+>>allowing the read.
+>>    
+>>
+>
+>Hi,
+> equivalent functionality is now available in 2.6-mm and is referred
+> to as 'write mostly'.
+> If you use mdadm-2.0 and mark a device as --write-mostly, then all
+> read requests will go to the other device(s) if possible,.
+> e.g.
+>   mdadm --create /dev/md0 --level=1 --raid-disks=2 /dev/ramdisk \
+>      --writemostly /dev/realdisk
+>
+> Does this suit your needs?
+>
+> You can also arrange for the write to the writemostly device to be
+> 'write-behind' so that the filesystem doesn't wait for the write to
+> complete.  This can reduce write-latency (though not increase write
+> throughput) at a very small cost of reliability (if the RAM dies, the
+> disk may not be 100% up-to-date).
+>
+>NeilBrown
+>
+>  
+>
+I was looking for that (but couldn't find it)..
 
-Despite that, the timers as implemented on the hardware are not
-suitable for dyntick use - attempting to use them, you lose long
-term precision of the timer interrupts.
+At this point I don't see why it wouldn't, if that also syncs from the 
+partition then it's basically the same functionality, but written from a 
+different perspective.
 
-> 5. Don't see how DYN_TICK_SKIPPING is being used. In SMP scenario,
->    it doesnt make sense since it will have to be per-cpu. The bitmap
->    that I talked of exactly tells that (whether a CPU is skipping
->    ticks or not).
+To use it I'll have to deviate from stock linux and use a non-packaged 
+mdadm, but that is better than applying my patch every kernel update ;-)
 
-What's DYN_TICK_SKIPPING and what's it used for?  It looks like
-a redundant definition left over from Tony's original implementation.
+Thanks, I'll look into it.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Wilco Baan Hofman

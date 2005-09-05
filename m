@@ -1,62 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbVIEB2A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbVIEBlz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932116AbVIEB2A (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 21:28:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbVIEB2A
+	id S932147AbVIEBlz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 21:41:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932161AbVIEBlz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 21:28:00 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.59]:23459 "EHLO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S932116AbVIEB17 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 21:27:59 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Wilco Baan Hofman <wilco@baanhofman.nl>
-Date: Mon, 5 Sep 2005 11:27:55 +1000
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17179.40731.907114.194935@cse.unsw.edu.au>
+	Sun, 4 Sep 2005 21:41:55 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:24595 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932147AbVIEBlz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 21:41:55 -0400
+Date: Mon, 5 Sep 2005 03:41:53 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Alex Davis <alex14641@yahoo.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: RAID1 ramdisk patch
-In-Reply-To: message from Wilco Baan Hofman on Monday September 5
-References: <431B9558.1070900@baanhofman.nl>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Subject: Re: RFC: i386: kill !4KSTACKS
+Message-ID: <20050905014153.GD3741@stusta.de>
+References: <20050905013030.14361.qmail@web50211.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050905013030.14361.qmail@web50211.mail.yahoo.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday September 5, wilco@baanhofman.nl wrote:
-> Hi all,
+On Sun, Sep 04, 2005 at 06:30:29PM -0700, Alex Davis wrote:
+> >The NdisWrapper FAQ already tells you that you need a patch for some of 
+> >the binary-only Windows drivers that require more than 8kB stacks.
+> >
+> >And the fact that NdisWrapper is mostly working hinders the development 
+> >of open source drivers for this hardware.
 > 
-> I have written a small patch for use with a HDD-backed ramdisk in the md 
-> raid1 driver. The raid1 driver usually does read balancing on the disks, 
-> but I feel that if it encounters a single ram disk in the array that 
-> should be the preferred read disk. The application of this would be for 
-> example a 2GB ram disk in raid1 with a 2GB partition, where the ram disk 
-> is used for reading and both 'disks' used for writing.
+> If the hardware manufacturer won't give you the spec's then writing a driver
+> is going to be pretty difficult, if not impossible. Reverse-engineering 
+> may be possible, but still....
 > 
-> Attached is a bit of code which checks for a ram-disk and sets it as 
-> preferred disk. It also checks if the ram disk is in sync before 
-> allowing the read.
+> I believe it's the lack of spec's, rather than the existence of ndiswrapper
+> and driverloader, that hinder driver development. 
 
-Hi,
- equivalent functionality is now available in 2.6-mm and is referred
- to as 'write mostly'.
- If you use mdadm-2.0 and mark a device as --write-mostly, then all
- read requests will go to the other device(s) if possible,.
- e.g.
-   mdadm --create /dev/md0 --level=1 --raid-disks=2 /dev/ramdisk \
-      --writemostly /dev/realdisk
+How do you put pressure on hardware manufacturers for getting them to 
+release the specs?
 
- Does this suit your needs?
+If they are able to write "supported by Linux" on their products anyway 
+because there's a driver that runs under NdisWrapper?
 
- You can also arrange for the write to the writemostly device to be
- 'write-behind' so that the filesystem doesn't wait for the write to
- complete.  This can reduce write-latency (though not increase write
- throughput) at a very small cost of reliability (if the RAM dies, the
- disk may not be 100% up-to-date).
+Or if people return/don't buy the hardware because of missing Linux 
+support reducing the revenue of the hardware manufacturer by some $$ ?
 
-NeilBrown
+> -Alex
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

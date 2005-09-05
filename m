@@ -1,76 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932351AbVIERXz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932322AbVIER0v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932351AbVIERXz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 13:23:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932353AbVIERXz
+	id S932322AbVIER0v (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 13:26:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932353AbVIER0u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 13:23:55 -0400
-Received: from lucidpixels.com ([66.45.37.187]:48277 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S932351AbVIERXz (ORCPT
+	Mon, 5 Sep 2005 13:26:50 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:5280 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932322AbVIER0u (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 13:23:55 -0400
-Date: Mon, 5 Sep 2005 13:23:54 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, linux-ide@vger.kernel.org,
-       apiszcz@lucidpixels.com
-Subject: Re: Linux Kernel 2.6.13-rc7 (WORKS) (2.6.13, DRQ/System CRASH)
-In-Reply-To: <1125923397.8714.22.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.63.0509051322400.3389@p34>
-References: <Pine.LNX.4.63.0508311328230.1945@p34>  <Pine.LNX.4.63.0508311408320.1945@p34>
-  <58cb370e050905002630a0e02e@mail.gmail.com> <1125923397.8714.22.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 5 Sep 2005 13:26:50 -0400
+Date: Mon, 5 Sep 2005 22:55:01 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Nishanth Aravamudan <nacc@us.ibm.com>
+Cc: Con Kolivas <kernel@kolivas.org>, Russell King <rmk+lkml@arm.linux.org.uk>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org,
+       ck list <ck@vds.kolivas.org>, johnstul@us.ibm.com
+Subject: Re: [PATCH 1/3] dynticks - implement no idle hz for x86
+Message-ID: <20050905172501.GA9132@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20050831165843.GA4974@in.ibm.com> <200509031801.09069.kernel@kolivas.org> <20050903090650.B26998@flint.arm.linux.org.uk> <200509031814.49666.kernel@kolivas.org> <20050904201054.GA4495@us.ibm.com> <20050905070053.GA7329@in.ibm.com> <20050905165730.GI25856@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050905165730.GI25856@us.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Also,
+On Mon, Sep 05, 2005 at 09:57:30AM -0700, Nishanth Aravamudan wrote:
+> I think it's ok where it is. Currently, with x86, at least, you can have
+> an independent interrupt source and time source (not true for all archs,
+> of course, ppc64 being a good example, I think?) Perhaps "handler"
 
-Part of the problem may be that I have two ATA/133 Promise cards in one 
-box and only one ATA/133 in the other box.
+By "independent" do you mean driven by separate clocks? PPC64 does
+use decrementer as its interrupt source and Time-base-register as 
+its timesource AFAIK. Both are driven by the same clock I think.
 
-Kernel 2.6.13 has fixed the problem with one ATA/133 card in the box.
-Kernel 2.6.13 has not fixed the problem with two ATA/133 cards in the box.
+> What may be useful is something similar to what John Stultz does in his
+> rework, attaching priorities to the various interrupt sources. For
+> example, on x86, if we have an HPET, then we should use it, if not, then
+> use APIC and PIT, but if the APIC doesn't exist in h/w, or is buggy
+> (perhaps determined via a calibration loop), then only use the PIT.
 
-FYI
+This logic is what the arch-code should follow in picking its interrupt
+source and is independent of dyn-tick. dyn-tick just works with whatever 
+arch-code has chosen as its interrupt source.
 
-Justin.
+> I agree. I guess max_skip, to me, is what the kernel thinks the
+> interrupt source should maximally skip by, not what the interrupt source
+> thinks it can do. So, I think it fits in fine with what you are saying
+> and with the code you have in the current patch.
+
+Great!
+
+> I was just wondering; I guess it makes sense, but did you check to see
+> if it ever *doesn't* get called? Like I said, __run_timers() [from how I
+
+Haven't tested that, but I feel can happen in practice, since we dont
+control device interrupts.
+
+> base->timer_jiffies) [the condition in run_timer_softirq()] is not. How
+> much does it cost to raise the softirq, if it is going to return
+> immediately from the callback?
+
+Don't know. It just felt nice to avoid any unnecessary invocations.
+
+-- 
 
 
-On Mon, 5 Sep 2005, Alan Cox wrote:
-
-> On Llu, 2005-09-05 at 09:26 +0200, Bartlomiej Zolnierkiewicz wrote:
->> After DMA timeout driver reverted back to PIO,
->> ide-taskfile.c also holds PIO code besides IDE Taskfile Access.
->
->
-> On SMP after a DMA timeout it will potentially freeze. There are some
-> paths in that code which lead to double lock takes and hangs, plus some
-> timer races.
->
-> Justin can you make a backup (I mean that seriously), then build a
-> kernel with spin lock debug enabled and see if you can reproduce the
-> problem and get a trace.
->
-> If its the locking you'll get a trace and the kernel will continue. At
-> that point because the spinlock debug continues unsafely through a
-> double lock after the trace you are in the "danger zone" hence the
-> backup warning
->
-> [Yes the spin lock debug code really should warn you its dangerous for
-> non debug uses or get patched as it is in Fedora to trace and stop]
->
-> If its a hardware or other problem it will still hang
->
-> if its an unrelated lock problem it should still get a trace.
->
->
-> Why you see this only on 2.6.13 not 2.6.13-rc7 I don't know. It makes me
-> wonder if you have a bad drive - but then you imply going back to rc7
-> goes back to stable. Can you therefore also check the .config options
-> between the two kernels match.
->
-> Alan
->
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

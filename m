@@ -1,75 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964957AbVIEXcd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964959AbVIEXde@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964957AbVIEXcd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 19:32:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964959AbVIEXcd
+	id S964959AbVIEXde (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 19:33:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964964AbVIEXde
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 19:32:33 -0400
-Received: from mail.kroah.org ([69.55.234.183]:7553 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S964957AbVIEXcd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 19:32:33 -0400
-Date: Mon, 5 Sep 2005 16:32:08 -0700
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [GIT PATCH] Driver core patches for 2.6.13
-Message-ID: <20050905233207.GA16560@kroah.com>
+	Mon, 5 Sep 2005 19:33:34 -0400
+Received: from agminet04.oracle.com ([141.146.126.231]:61348 "EHLO
+	agminet04.oracle.com") by vger.kernel.org with ESMTP
+	id S964959AbVIEXdd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 19:33:33 -0400
+Date: Mon, 5 Sep 2005 16:32:36 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, Daniel Phillips <phillips@istop.com>,
+       linux-cluster@redhat.com, wim.coekaerts@oracle.com,
+       linux-fsdevel@vger.kernel.org, ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [Linux-cluster] Re: GFS, what's remaining
+Message-ID: <20050905233236.GF8684@ca-server1.us.oracle.com>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Andrew Morton <akpm@osdl.org>, Daniel Phillips <phillips@istop.com>,
+	linux-cluster@redhat.com, wim.coekaerts@oracle.com,
+	linux-fsdevel@vger.kernel.org, ak@suse.de,
+	linux-kernel@vger.kernel.org
+References: <20050901104620.GA22482@redhat.com> <20050903183241.1acca6c9.akpm@osdl.org> <20050904030640.GL8684@ca-server1.us.oracle.com> <200509040022.37102.phillips@istop.com> <20050903214653.1b8a8cb7.akpm@osdl.org> <1125823035.23858.10.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <1125823035.23858.10.camel@localhost.localdomain>
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
 User-Agent: Mutt/1.5.10i
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are some patches for the driver core for 2.6.13.  They have all
-been in the -mm tree for a while and fix a few bugs, and add proper
-sysfs support for the floppy driver.
+On Sun, Sep 04, 2005 at 09:37:15AM +0100, Alan Cox wrote:
+> I am curious why a lock manager uses open to implement its locking
+> semantics rather than using the locking API (POSIX locks etc) however.
 
-Please pull from:
-	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-2.6.git/
-or if master.kernel.org hasn't synced up yet:
-	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/driver-2.6.git/
+	Because it is simple (how do you fcntl(2) from a shell fd?), has no
+ranges (what do you do with ranges passed in to fcntl(2) and you don't
+support them?), and has a well-known fork(2)/exec(2) pattern.  fcntl(2)
+has a known but less intuitive fork(2) pattern.
+	The real reason, though, is that we never considered fcntl(2).
+We could never think of a case when a process wanted a lock fd open but
+not locked.  At least, that's my recollection.  Mark might have more to
+comment.
 
-thanks,
+Joel
 
-greg k-h
+-- 
 
- Documentation/filesystems/sysfs.txt |   30 ++++-----
- drivers/base/bus.c                  |    8 +-
- drivers/base/class.c                |   39 ++++++++++--
- drivers/base/core.c                 |    2 
- drivers/base/dd.c                   |    2 
- drivers/base/sys.c                  |  110 +++++++++++++++++++++++++++---------
- drivers/block/floppy.c              |   57 +++++++++++-------
- drivers/usb/core/hcd.c              |    2 
- include/linux/klist.h               |    8 +-
- lib/klist.c                         |    8 +-
- 10 files changed, 187 insertions(+), 79 deletions(-)
+"In the room the women come and go
+ Talking of Michaelangelo."
 
-
-Andrew Morton:
-  Floppy: add cmos attribute to floppy driver tidy
-
-Dmitry Torokhov:
-  Driver core: link device and all class devices derived from it.
-
-Greg Kroah-Hartman:
-  Fix manual binding infinite loop
-
-Hannes Reinecke:
-  Floppy: Add cmos attribute to floppy driver
-
-James Bottomley:
-  klist: fix klist to have the same klist_add semantics as list_head
-
-Jan Veldeman:
-  Driver core: Documentation: use S_IRUSR | ... in stead of 0644
-  Driver core: Documentation: fix whitespace between parameters
-
-Jesper Juhl:
-  Driver core: small cleanup; remove check for NULL before kfree() in driver core
-
-Shaohua Li:
-  Driver core: hande sysdev suspend failure
+Joel Becker
+Senior Member of Technical Staff
+Oracle
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127
 

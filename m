@@ -1,46 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbVIENVf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932215AbVIENeE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932133AbVIENVf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 09:21:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbVIENVf
+	id S932215AbVIENeE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 09:34:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932198AbVIENeE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 09:21:35 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:36339 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932138AbVIENVe
+	Mon, 5 Sep 2005 09:34:04 -0400
+Received: from rproxy.gmail.com ([64.233.170.194]:54798 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932215AbVIENeC convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 09:21:34 -0400
-Date: Mon, 5 Sep 2005 18:49:43 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Nishanth Aravamudan <nacc@us.ibm.com>
-Cc: Con Kolivas <kernel@kolivas.org>, Russell King <rmk+lkml@arm.linux.org.uk>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org,
-       ck list <ck@vds.kolivas.org>
-Subject: Re: [PATCH 1/3] dynticks - implement no idle hz for x86
-Message-ID: <20050905131943.GB8624@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20050831165843.GA4974@in.ibm.com> <200509031801.09069.kernel@kolivas.org> <20050903090650.B26998@flint.arm.linux.org.uk> <200509031814.49666.kernel@kolivas.org> <20050904201054.GA4495@us.ibm.com> <20050905070053.GA7329@in.ibm.com>
+	Mon, 5 Sep 2005 09:34:02 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=OVQl+0quq+71mnxWgJAqX3Q6rJTrREl0iZ2xaslR8lUpxk8ATLQ+CLvjQyAj+j2MMPXT0VRNOiQwjBJP1PH3A4hgX8lfyb80xdvZFLtALqlsYMmPdFSofiGoQVUq7eBwbV8WElCrwieqhZvPJ/JuRFcvtF5sXKqAgDfuUh/gC+Y=
+Message-ID: <907421f905090506337ba17394@mail.gmail.com>
+Date: Mon, 5 Sep 2005 21:33:59 +0800
+From: mandy london <laborious.bee@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: the difference between irq save and the irq disable ?
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050905070053.GA7329@in.ibm.com>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 05, 2005 at 12:30:53PM +0530, Srivatsa Vaddagiri wrote:
-> > Thus, for x86, we would have a dyn_tick_timer structure for the PIT,
-> > APIC, ACPI PM-timer and the HPET. These structures could be put in
-> 
-> Does the ACPI PM-timer support generating interrupts also? Same question
-> I have for HPET.
+in my mind, irq save only store the conditions of that time ,  and the
+following code can access the shared region and change it ,so modify 
+irq  states .
 
-I think HPET does support generation of interrupts but not PM timer.
+while , disable irq  keeps the states of interrupt unchangable .
 
--- 
+but , I have no knowlege of the difference between code in irq save
+and irq restore and  in irq disable and irq enable ?
 
-
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560017
+whethe the former can be interrupted and the later not ? only this ?

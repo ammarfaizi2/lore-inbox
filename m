@@ -1,49 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932186AbVIEDYG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbVIEDS3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932186AbVIEDYG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Sep 2005 23:24:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbVIEDYG
+	id S932183AbVIEDS3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Sep 2005 23:18:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932171AbVIEDS3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 23:24:06 -0400
-Received: from ns.miraclelinux.com ([219.118.163.66]:13362 "EHLO
-	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S932171AbVIEDYE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 23:24:04 -0400
-Date: Mon, 05 Sep 2005 12:19:25 +0900 (JST)
-Message-Id: <20050905.121925.943973397.hyoshiok@miraclelinux.com>
-To: akpm@osdl.org
-Cc: davej@redhat.com, linux-kernel@vger.kernel.org, mm-commits@vger.kernel.org,
-       hyoshiok@miraclelinux.com
-Subject: Re: x86-cache-pollution-aware-__copy_from_user_ll.patch added to
- -mm tree
-From: Hiro Yoshioka <hyoshiok@miraclelinux.com>
-In-Reply-To: <20050904144218.7fe25102.akpm@osdl.org>
-References: <200509042017.j84KHekQ032373@shell0.pdx.osdl.net>
-	<20050904202333.GA4715@redhat.com>
-	<20050904144218.7fe25102.akpm@osdl.org>
-X-Mailer: Mew version 3.3 on XEmacs 21.4.13 (Rational FORTRAN)
+	Sun, 4 Sep 2005 23:18:29 -0400
+Received: from dsl093-002-214.det1.dsl.speakeasy.net ([66.93.2.214]:9665 "EHLO
+	pickle.fieldses.org") by vger.kernel.org with ESMTP id S932183AbVIEDS2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Sep 2005 23:18:28 -0400
+Date: Sun, 4 Sep 2005 23:18:25 -0400
+To: Bret Towe <magnade@gmail.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: nfs4 client bug
+Message-ID: <20050905031825.GA22209@fieldses.org>
+References: <dda83e78050903171516948181@mail.gmail.com> <dda83e7805090320053b03615d@mail.gmail.com> <20050904103523.GA5613@electric-eye.fr.zoreil.com> <dda83e78050904124454fc675a@mail.gmail.com> <dda83e78050904135113b95c4a@mail.gmail.com> <20050904215219.GA9812@fieldses.org> <dda83e780509042008294fbe26@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <dda83e780509042008294fbe26@mail.gmail.com>
+User-Agent: Mutt/1.5.10i
+From: "J. Bruce Fields" <bfields@fieldses.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andrew Morton <akpm@osdl.org>
-
-> Dave Jones <davej@redhat.com> wrote:
-> >
-> > On Sun, Sep 04, 2005 at 01:16:00PM -0700, Andrew Morton wrote:
-> >   >  unsigned long __copy_to_user_ll(void __user *to, const void *from, unsigned long n)
-> >   >  {
-> >   >  	BUG_ON((long) n < 0);
-> > 
-> >  Ehh? It's unsigned. This will never be true.
+On Sun, Sep 04, 2005 at 08:08:22PM -0700, Bret Towe wrote:
+> On 9/4/05, J. Bruce Fields <bfields@fieldses.org> wrote:
+> > Do you get anything from alt-sysrq-T?
 > 
-> It's cast to long, so it'll trap if we try to copy >=2G.
-> 
-> It seems a strange thing to check though.   Do we really need it?
+> no i havent used that im usally in x when its freezing
+> x wont even switch to console would it still give me anything then?
 
-I don't know. I've just cut&paste the original __copy_from_user_ll()
+Well, you can try something like:
+	alt-sysrq-T
+wait a couple seconds, then
+	alt-sysrq-S
+	alt-sysrq-U
+	alt-sysrq-B
+with maybe a second between each to give stuff a chance to get to disk.
 
-Regards,
-  Hiro
+Then if you're lucky you may find the stack dumps in your log after you
+reboot.
+
+--b.

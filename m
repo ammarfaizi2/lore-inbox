@@ -1,58 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751222AbVIEMmr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751158AbVIEMzB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751222AbVIEMmr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 08:42:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751231AbVIEMmr
+	id S1751158AbVIEMzB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 08:55:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbVIEMzB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 08:42:47 -0400
-Received: from nproxy.gmail.com ([64.233.182.192]:28733 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751222AbVIEMmq convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 08:42:46 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=KWe5B5H0Y5NCM73ITiGztHlHXzT+8bk2Vi4SIlgfXPyCj4jYCnKU+QhPr2ltQK2lmU1Ev/01RB8eTiMxL7BzmpRzikFMJDPfGmgacU7iF6HSeNxBGvOIvdLhdQ+K9Wnr61J9+idRq+8xVPSmLKOnp+C86fehyiq0UgtmiMcPOQA=
-Message-ID: <58cb370e0509050542b512131@mail.gmail.com>
-Date: Mon, 5 Sep 2005 14:42:43 +0200
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Bug#321442: kernel-source-2.6.8: fails to compile on powerpc (drivers/ide/ppc/pmac.c)
-Cc: LT-P <LT-P@lt-p.net>, Horms <horms@debian.org>, 321442@bugs.debian.org,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-In-Reply-To: <C2F63384-9CC2-4979-956B-8CB5DA77F4AE@mac.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-References: <E1E13vT-0008G7-R1@arda.LT-P.net>
-	 <20050808085703.GE18551@verge.net.au>
-	 <20050814005430.2e26e627@arda.LT-P.net>
-	 <C2F63384-9CC2-4979-956B-8CB5DA77F4AE@mac.com>
+	Mon, 5 Sep 2005 08:55:01 -0400
+Received: from lucidpixels.com ([66.45.37.187]:8084 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S1751158AbVIEMzA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 08:55:00 -0400
+Date: Mon, 5 Sep 2005 08:54:59 -0400 (EDT)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34
+To: linux-kernel@vger.kernel.org
+Subject: Kernel 2.6.13 repeated ACPI events?
+Message-ID: <Pine.LNX.4.63.0509050853310.3389@p34>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Should be fixed in 2.6.13.
+I have a box where I keep getting this in dmesg:
 
-On 8/16/05, Kyle Moffett <mrmacman_g4@mac.com> wrote:
-> On Aug 13, 2005, at 18:54:30, LT-P wrote:
-> > Le lun 08 aoû 2005 17:57:04 CEST, Horms <horms@debian.org> a écrit:
-> >> Can you please enable BLK_DEV_IDEDMA_PCI and see if that resolves
-> >> your
-> >> problem. If it does, then the following patch should fix Kconfig
-> >> so that BLK_DEV_IDEDMA_PCI needs to be enabled for BLK_DEV_IDE_PMAC
-> >> to be enabled. It should patch cleanly against Debian's 2.6.8 and
-> >> Linus' current Git tree.
-> > It seems to solve the problem, thanks.
-> > Sometimes, I feel like I am the only person in the world to compile
-> > the kernel on
-> > powerpc... :)
-> 
-> Actually, I ran into this same bug a day or so ago when updating to
-> 2.6.13-rc6,
-> it's just I noticed the error, fixed my config, then recompiled and
-> forgot
-> about it completely until now :-D.  Thanks for the bug report, though!
-> 
-> Cheers,
-> Kyle Moffett
+ACPI: PCI Interrupt 0000:01:00.0[A] -> Link [LNKD] -> GSI 5 (level, low) 
+-> IRQ 5
+ACPI: PCI Interrupt 0000:01:00.0[A] -> Link [LNKD] -> GSI 5 (level, low) 
+-> IRQ 5
+ACPI: PCI Interrupt 0000:01:00.0[A] -> Link [LNKD] -> GSI 5 (level, low) 
+-> IRQ 5
+ACPI: PCI Interrupt 0000:01:00.0[A] -> Link [LNKD] -> GSI 5 (level, low) 
+-> IRQ 5
+ACPI: PCI Interrupt 0000:01:00.0[A] -> Link [LNKD] -> GSI 5 (level, low) 
+-> IRQ 5
+ACPI: PCI Interrupt 0000:01:00.0[A] -> Link [LNKD] -> GSI 5 (level, low) 
+-> IRQ 5
+ACPI: PCI Interrupt 0000:01:00.0[A] -> Link [LNKD] -> GSI 5 (level, low) 
+-> IRQ 5
+ACPI: PCI Interrupt 0000:01:00.0[A] -> Link [LNKD] -> GSI 5 (level, low) 
+-> IRQ 5
+
+# cat /proc/interrupts
+            CPU0
+   0:    2691916          XT-PIC  timer
+   1:        392          XT-PIC  i8042
+   2:          0          XT-PIC  cascade
+   5:    1120689          XT-PIC  eth1, eth0
+   9:          1          XT-PIC  acpi
+  14:       3938          XT-PIC  ide0
+  15:         45          XT-PIC  ide1
+NMI:          0
+LOC:          0
+ERR:          0
+MIS:          0
+
+Anyone have any idea what could cause this?
+
+# lspci
+00:00.0 Host bridge: Intel Corp. 82815 815 Chipset Host Bridge and Memory 
+Controller Hub (rev 02)
+00:01.0 PCI bridge: Intel Corp. 82815 815 Chipset AGP Bridge (rev 02)
+00:1e.0 PCI bridge: Intel Corp. 82801AA PCI Bridge (rev 02)
+00:1f.0 ISA bridge: Intel Corp. 82801AA ISA Bridge (LPC) (rev 02)
+00:1f.1 IDE interface: Intel Corp. 82801AA IDE (rev 02)
+00:1f.2 USB Controller: Intel Corp. 82801AA USB (rev 02)
+00:1f.3 SMBus: Intel Corp. 82801AA SMBus (rev 02)
+01:00.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone]
+01:04.0 Ethernet controller: 3Com Corporation 3c905C-TX/TX-M [Tornado] 
+(rev 78)
+02:00.0 VGA compatible controller: nVidia Corporation NV5M64 [RIVA TNT2 
+Model 64/Model 64 Pro] (rev 15)
+

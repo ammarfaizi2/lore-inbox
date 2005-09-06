@@ -1,82 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964847AbVIFMxF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932452AbVIFMyU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964847AbVIFMxF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 08:53:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964845AbVIFMxF
+	id S932452AbVIFMyU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 08:54:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932149AbVIFMyU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 08:53:05 -0400
-Received: from tumsa.unibanka.lv ([193.178.151.91]:43151 "EHLO fax.unibanka.lv")
-	by vger.kernel.org with ESMTP id S964847AbVIFMxE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 08:53:04 -0400
-From: Aivils Stoss <aivils@unibanka.lv>
-To: vojtech@suse.cz
-Subject: Re: INPUT: keyboard_tasklet - don't touch LED's of already grabed device
-Date: Tue, 6 Sep 2005 15:55:25 +0300
-User-Agent: KMail/1.7.2
-Cc: Hugo Vanwoerkom <hvw59601@yahoo.com>, linux-kernel@vger.kernel.org,
-       bruby <linuxconsole-dev@lists.sourceforge.net>
-References: <200509061034.55963.aivils@unibanka.lv> <20050906115228.80715.qmail@web31008.mail.mud.yahoo.com> <20050906115750.GA10001@ucw.cz>
-In-Reply-To: <20050906115750.GA10001@ucw.cz>
+	Tue, 6 Sep 2005 08:54:20 -0400
+Received: from laf31-5-82-235-130-100.fbx.proxad.net ([82.235.130.100]:16865
+	"EHLO lexbox.fr") by vger.kernel.org with ESMTP id S932452AbVIFMyT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 08:54:19 -0400
+Subject: Promise SATAII 150 TX (PDC 20579) & PATA/SATA port problem
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509061555.26753.aivils@unibanka.lv>
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Date: Tue, 6 Sep 2005 14:51:47 +0200
+Message-ID: <17AB476A04B7C842887E0EB1F268111E026F4D@xpserver.intra.lexbox.org>
+Content-class: urn:content-classes:message
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Promise SATAII 150 TX (PDC 20579) & PATA/SATA port problem
+thread-index: AcWy4b3EnpVNIn7KQDuni7USno37SA==
+From: "David Sanchez" <david.sanchez@lexbox.fr>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Otrdiena, 6. Septembris 2005 14:57, Vojtech Pavlik wrote:
-> On Tue, Sep 06, 2005 at 04:52:28AM -0700, Hugo Vanwoerkom wrote:
-> > --- Aivils Stoss <aivils@unibanka.lv> wrote:
-> > > Hi, Vojtech!
-> > >
-> > > Recent kernels allow exclusive usage of input device
-> > > when
-> > > input device is grabed. keyboard_tasklet does not
-> > > check
-> > > device state and switch LED's of all keyboards.
-> > > However
-> > > grabed device may be use another LED steering code.
-> > >
-> > > This patch forbid keyboard_tasklet switch LED's of
-> > > grabed devices.
-> > >
-> > > Aivils Stoss
-> >
-> > While trying this with 2.6.12 it gets a compilation
-> > error. Not when you move the added statements after
-> > the structure declaration.
-> >
-> > Is that me heading for them thar hills?
->
-> The patch probably wasn't tested. ;)
+Hi,
 
-How a soul who hates kernel compilation can test a patch?
-Runtime modifcation:
-http://www.ltn.lv/~aivils/files/hijackled-2.6.11-12mdk.tar.bz2
+I'm using the linux 2.6.13 (from www.linux-mips.org) containing the
+libata patch (2.6.13-rc7-libata1.patch.bz2) on an AMD DBAu1550 (mips32).
+I've connected a HDD to the pata port of my PDC 20579 controller.
+Unfortunately, it doesn't work. Here a part of the boot messages:
 
-Aivils
+...
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 33MHz system bus speed for PIO modes; override with
+idebus=xx
+PCI: Enabling device 0000:00:0c.0 (0000 -> 0003)
+sata_promise PATA port found
+ata1: SATA max UDMA/133 cmd 0xC0054200 ctl 0xC0054238 bmdma 0x0 irq 2
+ata2: SATA max UDMA/133 cmd 0xC0054280 ctl 0xC00542B8 bmdma 0x0 irq 2
+ata3: PATA max UDMA/133 cmd 0xC0054300 ctl 0xC0054338 bmdma 0x0 irq 2
+ata1: no device found (phy stat 00002821)
+scsi0 : sata_promise
+ata2: no device found (phy stat 00002821)
+scsi1 : sata_promise
+ata3: disabling port
+scsi2 : sata_promise 
+...
 
---- linux-2.6.13/drivers/char/keyboard.c        2005-08-29 02:41:01.000000000 +0300
-+++ linux-2.6.13/drivers/char/keyboard.c~       2005-09-06 15:32:28.000000000 +0300
-@@ -896,16 +896,18 @@ static inline unsigned char getleds(void
- static void kbd_bh(unsigned long dummy)
- {
-        struct list_head * node;
-        unsigned char leds = getleds();
 
-        if (leds != ledstate) {
-                list_for_each(node,&kbd_handler.h_list) {
-                        struct input_handle * handle = to_handle_h(node);
-+                       if (handle->dev->grab)
-+                               continue;
-                        input_event(handle->dev, EV_LED, LED_SCROLLL, !!(leds & 0x01));
-                        input_event(handle->dev, EV_LED, LED_NUML,    !!(leds & 0x02));
-                        input_event(handle->dev, EV_LED, LED_CAPSL,   !!(leds & 0x04));
-                        input_sync(handle->dev);
-                }
-        }
+I've try to connect a HDD on a SATA port and the problem still appears
+:(. More when I try the 2.6.10 kernel with the corresponding libata
+patch it, works !
 
-        ledstate = leds;
+Does somebody have such a behaviour ?
+Please help me ! What can I do to make the kernel2.6.13 works with my
+promise controller ?
+
+Thanks
+David
+

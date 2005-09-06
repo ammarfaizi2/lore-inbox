@@ -1,60 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932198AbVIFGDt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932414AbVIFGV4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932198AbVIFGDt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 02:03:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932394AbVIFGDt
+	id S932414AbVIFGV4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 02:21:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932415AbVIFGV4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 02:03:49 -0400
-Received: from ookhoi.xs4all.nl ([213.84.114.66]:52418 "EHLO
-	favonius.humilis.net") by vger.kernel.org with ESMTP
-	id S932198AbVIFGDr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 02:03:47 -0400
-Date: Tue, 6 Sep 2005 08:03:46 +0200
-From: Sander <sander@humilis.net>
-To: Parag Warudkar <kernel-stuff@comcast.net>
-Cc: Bob Richmond <bob@lorez.org>, linux-kernel@vger.kernel.org
-Subject: Re: Immediate general protection errors on Tyan board
-Message-ID: <20050906060346.GA9071@favonius>
-Reply-To: sander@humilis.net
-References: <431BE71F.2040901@lorez.org> <431BE9CE.8080302@comcast.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <431BE9CE.8080302@comcast.net>
-X-Uptime: 07:17:43 up 30 days, 16:42, 30 users,  load average: 0.00, 0.03, 0.01
-User-Agent: Mutt/1.5.10i
+	Tue, 6 Sep 2005 02:21:56 -0400
+Received: from [85.21.88.2] ([85.21.88.2]:18844 "HELO mail.dev.rtsoft.ru")
+	by vger.kernel.org with SMTP id S932414AbVIFGVz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 02:21:55 -0400
+Message-ID: <431D35A5.1010201@rbcmail.ru>
+Date: Tue, 06 Sep 2005 10:22:29 +0400
+From: Vitaly Wool <vitalhome@rbcmail.ru>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Grigory Tolstolytkin <gtolstolytkin@dev.rtsoft.ru>
+CC: Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] custom PM support for 8250
+References: <43159011.3060206@rbcmail.ru> <20050831122622.B1118@flint.arm.linux.org.uk> <431C170A.7070208@dev.rtsoft.ru>
+In-Reply-To: <431C170A.7070208@dev.rtsoft.ru>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Parag Warudkar wrote (ao):
-> Bob Richmond wrote:
-> >Immediately upon boot on this system, most userland programs will 
-> >segfault, including mount. This causes the system to come up in a 
-> >bizarre state with the root filesystem mounted read-only, and nothing 
-> >runs without segfault. There have been numerous similar posts about 
-> >this problem, but they also seem to point to an associated kernel 
-> >message, "Bad page state" that I don't observe. dmesg (which runs 
-> >without segfault) returns many similar messages to:
-> >
-> >start_udev[576] general protection rip:2aaaaae0fc70 rsp:7fffffb23d90 
-> >error:0
-> 
-> echo 0 > /proc/sys/kernel/randomize_va_space - Seems to fix it for most 
-> people.
-> 
-> See http://bugzilla.kernel.org/show_bug.cgi?id=4851 for more details.
+Russell,
 
-I only had some programs segfault, but this got resolved by doing an
-update of the OS (Debian). It also started after an update of Debian.
+what I'd suggest is to separate the changes that allow to provide PM 
+callbacks and generic changes in the interface/structures as the latter 
+will result in changing a lot of code that uses 8250 serial driver, 
+otherwise that code will stop working.
+Namely, is it posible to have the first patch I've sent for 8250 in 
+place first?
+I'll continue to work on 8250 PM/platform_serial_data changes then.
 
-Both programs installed with Debian packages as self-compiled programs
-crashed with the ".. general protection rip: .." and ".. segfault at
-..".
+Vitaly
 
-This happened on a dual Opteron Tyan system running 2.6.12-rc5.
+Grigory Tolstolytkin wrote:
 
-	Kind regards, Sander
+> Hi Russel,
+>
+> I tried the patch provided by Vitaly Wool. And it works correctly. And 
+> now I'm successful with the PM support for my own serial8250 driver. 
+> Are you planning to commit the Vitlaly's changes into the mainstream? 
+> I guess it'll be helpful for the other people too. What I want is to 
+> know whether this changes will be supported by the Community or not. 
+> It's important for the project I'm worin on, cause I'm planning to 
+> push it into Open Source ;)
+>
+> Thanks,
+> Grigory.
+>
+> Russell King wrote:
+>
+>> On Wed, Aug 31, 2005 at 03:10:09PM +0400, Vitaly Wool wrote:
+>>  
+>>
+>>> please find the patch that allows passing the pointer to custom 
+>>> power management routine (via platform_device) to 8250 serial driver.
+>>> Please note that the interface to the outer world (i. e. exported 
+>>> functions) remained the same.
+>>>   
+>>
+>>
+>> I'd rather change the structure passed via the platform device to
+>> something like:
+>>
+>> struct platform_serial_data {
+>>     void    (*pm)(struct uart_port *port, unsigned int state, 
+>> unsigned int old);
+>>     int    nr_ports;
+>>     struct plat_serial8250_port *ports;
+>> };
+>>
+>> which also eliminates the empty plat_serial8250_port terminator from
+>> all the serial8250 platform devices (which appears to have caused some
+>> folk problems.)
+>>
+>> It does mean that a set of 8250 ports (grouped by each platform device)
+>> have a common power management method - which seems a logical 
+>> restriction.
+>>
+>>  
+>>
+>
 
--- 
-Humilis IT Services and Solutions
-http://www.humilis.net

@@ -1,66 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750797AbVIFSx0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750795AbVIFSyd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750797AbVIFSx0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 14:53:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750795AbVIFSx0
+	id S1750795AbVIFSyd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 14:54:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750799AbVIFSyd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 14:53:26 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:461 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1750797AbVIFSxZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 14:53:25 -0400
-Message-Id: <200509061853.j86IrI3T016264@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: "J. Bruce Fields" <bfields@fieldses.org>
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, Bret Towe <magnade@gmail.com>,
-       Jesper Juhl <jesper.juhl@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: nfs4 client bug 
-In-Reply-To: Your message of "Tue, 06 Sep 2005 14:30:08 EDT."
-             <20050906183008.GG10632@fieldses.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <dda83e78050904124454fc675a@mail.gmail.com> <dda83e78050904135113b95c4a@mail.gmail.com> <20050904215219.GA9812@fieldses.org> <dda83e780509042008294fbe26@mail.gmail.com> <20050905031825.GA22209@fieldses.org> <dda83e78050905134420f06fbf@mail.gmail.com> <9a87484905090513481118e67b@mail.gmail.com> <dda83e7805090520407aefb4d1@mail.gmail.com> <20050906181327.GE10632@fieldses.org> <Pine.LNX.4.50.0509061119380.19596-100000@shark.he.net>
-            <20050906183008.GG10632@fieldses.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1126032798_2971P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Tue, 6 Sep 2005 14:54:33 -0400
+Received: from touchdown.wvpn.de ([212.227.64.97]:757 "EHLO mail.wvpn.de")
+	by vger.kernel.org with ESMTP id S1750795AbVIFSyc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 14:54:32 -0400
+Message-ID: <431DE5E8.8000703@maintech.de>
+Date: Tue, 06 Sep 2005 20:54:32 +0200
+From: Thomas Kleffel <tk@maintech.de>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050803)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: B.Zolnierkiewicz@elka.pw.edu.pl
+CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: [PATCH] fix kernel oops, when IDE-Device (CF-Card) is removed while
+ mounted.
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Tue, 06 Sep 2005 14:53:18 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1126032798_2971P
-Content-Type: text/plain; charset=us-ascii
+Hello,
 
-On Tue, 06 Sep 2005 14:30:08 EDT, "J. Bruce Fields" said:
-> On Tue, Sep 06, 2005 at 11:21:09AM -0700, Randy.Dunlap wrote:
-> > On Tue, 6 Sep 2005, J. Bruce Fields wrote:
-> > 
-> > > On Mon, Sep 05, 2005 at 08:40:53PM -0700, Bret Towe wrote:
-> > > > Pid: 14169, comm: xmms Tainted: G   M  2.6.13
-> > >
-> > > Hm, can someone explain what that means?  A proprietary module was
-> > > loaded then unloaded, maybe?
-> > 
-> > 'M' means Machine Check, which sets the Tainted flag.
-> > So the processor thought that there was some kind of problem.
-> 
-> Does this NMI watchdog event ("NMI Watchdog detected LOCKUP on CPU0CPU
-> 0") set that flag?
+when I physically remove a CF-Card while it is still mounted and 
+accessed, the result is a kernel oops. I traced the problem down to the 
+following situation:
 
-Not directly - but if the MCE wedged a processor, that could cause the NMI
-to fire complaining about a lockup.  You should have a MCE logged someplace.
+1) Physical device is removed and the corresponding ide_trive_t gets 
+deleted, reference to the contained *queue is given back and queue gets 
+deleted.
 
---==_Exmh_1126032798_2971P
-Content-Type: application/pgp-signature
+2) struct block_device still exists, because the device is still 
+mounted, and points to a struct gendisk, which contains the - now 
+invalid - pointer to the queue that was destructed earlier.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+3) As soon as a request is sent to the block device, the queue pointer 
+is used and the kernel oopses.
 
-iD8DBQFDHeWdcC3lWbTT17ARAuaCAKCl16qRA5JPk8KFZFP/HVHJiG2M/QCgq5J9
-t/bq+85AlbaV2bJTc+kdft4=
-=iI0z
------END PGP SIGNATURE-----
+To fix this matter, I've made the following changes:
 
---==_Exmh_1126032798_2971P--
+1a) When a queue is attached to a struct gendisk by ide_disk_probe(), 
+its reference counter shall be incremented by a blk_get_queue()-call.
+
+1b) When a disk is released by disk_release(), its queue's reference 
+count shall be decremented by calling blk_cleanup_queue().
+
+2a) When a physical drive is released by drive_release_dev(), the 
+corresponding queue is marked dead, so that no further calls to the 
+physical device's queue-handler are made.
+
+2b) When a request is submitted to a dead queue using 
+generic_make_request(), the request shall be failed immedaiately with 
+-ENXIO which causes the caller to recive a "Bus error". This is the same 
+beaviour as when a USB-Storage device gets pulled while in use.
+
+
+diff -uprN -X b/Documentation/dontdiff a/drivers/block/genhd.c 
+b/drivers/block/genhd.c
+--- a/drivers/block/genhd.c	2005-08-08 15:30:13.000000000 +0200
++++ b/drivers/block/genhd.c	2005-09-05 02:07:46.000000000 +0200
+@@ -415,6 +415,9 @@ static struct attribute * default_attrs[
+  static void disk_release(struct kobject * kobj)
+  {
+  	struct gendisk *disk = to_disk(kobj);
++	
++	blk_cleanup_queue(disk->queue);
++	
+  	kfree(disk->random);
+  	kfree(disk->part);
+  	free_disk_stats(disk);
+diff -uprN -X b/Documentation/dontdiff a/drivers/block/ll_rw_blk.c 
+b/drivers/block/ll_rw_blk.c
+--- a/drivers/block/ll_rw_blk.c	2005-08-13 15:54:15.000000000 +0200
++++ b/drivers/block/ll_rw_blk.c	2005-09-05 02:08:35.000000000 +0200
+@@ -2877,15 +2877,26 @@ end_io:
+  		}
+
+  		if (unlikely(bio_sectors(bio) > q->max_hw_sectors)) {
+-			printk("bio too big device %s (%u > %u)\n",
++			printk(KERN_ERR
++				"generic_make_request: "
++				"bio too big device %s (%u > %u)\n",
+  				bdevname(bio->bi_bdev, b),
+  				bio_sectors(bio),
+  				q->max_hw_sectors);
+  			goto end_io;
+  		}
+
+-		if (unlikely(test_bit(QUEUE_FLAG_DEAD, &q->queue_flags)))
+-			goto end_io;
++		if (unlikely(test_bit(QUEUE_FLAG_DEAD, &q->queue_flags))) {
++			printk(KERN_ERR
++				"generic_make_request: access to "
++				"dead device %s (%Lu)\n",
++				bdevname(bio->bi_bdev, b),
++				(long long) bio->bi_sector);
++			bio_endio(bio, bio->bi_size, -ENXIO);
++			break;
++		}
+
+  		block_wait_queue_running(q);
+
+diff -uprN -X b/Documentation/dontdiff a/drivers/ide/ide-disk.c 
+b/drivers/ide/ide-disk.c
+--- a/drivers/ide/ide-disk.c	2005-08-24 17:58:02.000000000 +0200
++++ b/drivers/ide/ide-disk.c	2005-09-05 02:10:30.000000000 +0200
+@@ -1224,6 +1221,9 @@ static int ide_disk_probe(struct device
+  	if (!g)
+  		goto out_free_idkp;
+
++	if(0 != blk_get_queue(drive->queue))
++		goto out_free_idkp;
++
+  	ide_init_disk(g, drive);
+
+  	ide_register_subdriver(drive, &idedisk_driver);
+diff -uprN -X b/Documentation/dontdiff a/drivers/ide/ide-probe.c 
+b/drivers/ide/ide-probe.c
+--- a/drivers/ide/ide-probe.c	2005-08-24 17:58:02.000000000 +0200
++++ b/drivers/ide/ide-probe.c	2005-09-05 02:10:59.000000000 +0200
+@@ -1321,6 +1321,13 @@ static void drive_release_dev (struct de
+  		drive->id = NULL;
+  	}
+  	drive->present = 0;
++
++	/* Set the queue dead, so it won't call us anymore */
++	set_bit(QUEUE_FLAG_DEAD, &drive->queue->queue_flags);
++
++	/* remove pointer to ide drive as it will be gone, soon */
++	drive->queue->queuedata = NULL;
++
+  	/* Messed up locking ... */
+  	spin_unlock_irq(&ide_lock);
+  	blk_cleanup_queue(drive->queue);
+
+
+Signed-off-by: Thomas Kleffel <tk@maintech.de>
+
+Best regards,
+Thomas

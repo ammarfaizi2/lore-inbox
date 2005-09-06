@@ -1,164 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750835AbVIFUKL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750857AbVIFULp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750835AbVIFUKL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 16:10:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750855AbVIFUKL
+	id S1750857AbVIFULp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 16:11:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750858AbVIFULp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 16:10:11 -0400
-Received: from web30312.mail.mud.yahoo.com ([68.142.201.230]:51289 "HELO
-	web30312.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750835AbVIFUKK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 16:10:10 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=maFlBBbmOWCneqzNKqkimAvp5A6TxFOmjaZ47voIGAar+AOA2x/yrlQQjGrXJSmDnXjBzcymFLf3P8TwF6aJxQ6FTziXphdUNGHX30ryS7GITucKam0gkj4zVr6gPZ6b8OFXolYqJM39k0gEg2T+VAcRWEJGgEY9DmDcR6+cdH8=  ;
-Message-ID: <20050906201001.68988.qmail@web30312.mail.mud.yahoo.com>
-Date: Tue, 6 Sep 2005 21:10:01 +0100 (BST)
-From: Mark Underwood <basicmark@yahoo.com>
-Subject: Re: SPI redux ... driver model support
-To: David Brownell <david-b@pacbell.net>, linux-kernel@vger.kernel.org
-Cc: dpervushin@ru.mvista.com
-In-Reply-To: <20050906160043.9BDFAD480C@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
+	Tue, 6 Sep 2005 16:11:45 -0400
+Received: from penobscot.web.itd.umich.edu ([141.211.144.185]:29094 "EHLO
+	penobscot.web.itd.umich.edu") by vger.kernel.org with ESMTP
+	id S1750855AbVIFULo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 16:11:44 -0400
+Message-ID: <20050906161132.tvjp84734084kg0k@engin.mail.umich.edu>
+Date: Tue, 06 Sep 2005 16:11:32 -0400
+From: mreuther@umich.edu
+To: David Sanchez <david.sanchez@lexbox.fr>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Promise SATAII 150 TX (PDC 20579) & PATA/SATA port problem
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+	charset=ISO-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+User-Agent: Internet Messaging Program (IMP) H3 (4.0.3)
+X-Remote-Browser: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1;
+	.NET CLR 1.1.4322)
+X-IMP-Server: 141.211.144.247
+X-Originating-IP: 71.4.119.66
+X-Originating-User: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On  2005-09-06 at 12:51:47, you wrote:
 
---- David Brownell <david-b@pacbell.net> wrote:
-
-> > > > I did think about doing this but the problem
-> is how do
-> > > > you know bus 2 is the bus you think it is?
-> > > 
-> > > The numbering is board-specific, but in most
-> cases
-> > > that can be simplified to being SOC-specific. 
-> ...
-> > > 
-> > > Hotpluggable SPI controllers are not common, but
-> > > that's where that sysfs API to define new
-> devices
-> > > would really hit the spot. ...
-> > > 
-> > > (What I've seen a bit more often is that
-> expansion
-> > > cards will be wired for SPI, so the thing that's
-> > > vaguely hotplug-ish is that once you know what
-> > > card's hooked up, you'll know the SPI devices it
-> > > has.  Then the question is how to tell the
-> kernel
-> > > about them ...  same solution, which again must
-> work
-> > > without hardware probing.)
-> >
-> > This is why I decided to pass the cs table as
-> platform
-> > data when an adapter is registered. This way you
-> don't
-> > have to try to find out an adapters bus number as
-> the
-> > adapter has the cs table in it, but because it was
-> > passed in as platform data it still abstracts that
-> > from the adapter driver. Simple, yet effective :)
-> 
-> Except that it doesn't work in that primary case,
-> where the SPI devices
-> are physically decoupled from any given SPI (master)
-> controller.
-> One expansion card uses CS1 for a touchscreen;
-> another uses CS3 for
-> SPI flash ... the same "cs table" can't handle both
-> configurations.
-> It's got to be segmented, with devices separated
-> from controllers.
-
-With my subsystem that would look like:
-
-static const struct spi_cs_table
-platform_spi1_cs_table[] = {
- {
-  .name  = "touchscreen",
-  .cs_no  = 1,
-  .platform_data = NULL,
-  .flags  = SPI_CS_IDLE_HIGH,
-  .cs_data = 0,
- },
- {
-  .name  = "flash",
-  .cs_no  = 3,
-  .platform_data = NULL,
-  .flags  = SPI_CS_IDLE_HIGH,
-  .cs_data = 0,
- },
-};
-
-As far as I can see most SPI devices have fixed
-wirering to an adapter as SPI is not really a hotplug
-bus.
-The subsystem does allow you to add extra devices that
-aren't in the cs table if you want by calling
-spi_device_register in which case you have to setup
-the spi_device with the correct information.
-
-> 
-> Plus, that depends on standardizing platform_data
-> between platforms.
-> That's really not the model for platform_data!  And
-> "struct clk" is
-> ARM-only for now, too ... 
-
-The struct clk should have been removed, I missed it
-on that tidy up.
-Why not pass platform data through the platform_data
-pointer? I have now provided an extra field now which
-lets you pass in any other platform data. 
-
-> 
-> 
-> > Have you looked at the patch which I sent?
-> >
+>Hi,
 >
-http://www.ussg.iu.edu/hypermail/linux/kernel/0509.0/0817.html
-> >
-> > I would appreciate any comments on this approach.
-> 
-> Yes, I plan to follow up to that with comments.  As
-> with Dmitry's
-> proposal, it's modeled closely on I2C, and is in
-> consequence larger
-> than needed for what it does.
+>I'm using the linux 2.6.13 (from www.linux-mips.org) containing the
+>libata patch (2.6.13-rc7-libata1.patch.bz2) on an AMD DBAu1550 (mips32).
+>I've connected a HDD to the pata port of my PDC 20579 controller.
+>Unfortunately, it doesn't work. Here a part of the boot messages:
 
-I hope not, I spent a long time learning about the
-features of the 2.6 driver model. I'm happy to trim
-down any fat.
+[snip]
 
-> 
-> One reason I posted this driver-model-only patch was
-> to highlight how
-> minimal an SPI core can be if it reuses the driver
-> model core.  I'm
-> not a fan of much "mid-layer" infrastructure in
-> driver stacks.
-> 
+>I've try to connect a HDD on a SATA port and the problem still appears
+>:(. More when I try the 2.6.10 kernel with the corresponding libata
+>patch it, works !
+>
+>Does somebody have such a behaviour ?
+>Please help me ! What can I do to make the kernel2.6.13 works with my
+>promise controller ?
+>
+>Thanks
+>David
 
-This is what my SPI core tries to do. I would like to
-make at 'as small as possible and no smaller'
+Hi, David. I think I have the same problem with a similar card, the SATA150
+TX2plus. The sata_promise module sees the SATA ports, but not the PATA port.
 
-Mark
+Promise made up a driver called pdc-ultra (not based o ftlib.o) that worked with
+2.4 kernels (I could see the PATA drive as a SCSI drive), but it spits back
+"unresolved symbols" errors with 2.6. Promise is useless for tech support on
+this.
 
-> - Dave
-> 
-> -
-> To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Jeff Garzik says something on the libata website about a patch for preliminary
+support of PATA on Promise SATA, but I haven't tried it out.
 
-
-Send instant messages to your online friends http://uk.messenger.yahoo.com 
+Matt

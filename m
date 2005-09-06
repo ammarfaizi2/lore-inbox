@@ -1,64 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964801AbVIFKq4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964803AbVIFKws@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964801AbVIFKq4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 06:46:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964803AbVIFKq4
+	id S964803AbVIFKws (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 06:52:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964805AbVIFKws
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 06:46:56 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:62624 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S964801AbVIFKq4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 06:46:56 -0400
-Date: Tue, 6 Sep 2005 16:16:03 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
-       arjan@infradead.org, s0348365@sms.ed.ac.uk, kernel@kolivas.org,
-       tytso@mit.edu, cfriesen@nortel.com, trenn@suse.de, george@mvista.com,
-       johnstul@us.ibm.com, akpm@osdl.org
-Subject: Re: [PATCH 1/3] Updated dynamic tick patches - Fix lost tick calculation in timer_pm.c
-Message-ID: <20050906104603.GA17654@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20050831165843.GA4974@in.ibm.com> <20050831171211.GB4974@in.ibm.com> <1125720301.4991.41.camel@mindpipe> <20050906103232.GA22278@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050906103232.GA22278@elf.ucw.cz>
-User-Agent: Mutt/1.4.1i
+	Tue, 6 Sep 2005 06:52:48 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:31146 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S964803AbVIFKwr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 06:52:47 -0400
+Date: Tue, 6 Sep 2005 12:52:34 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: viro@ZenIV.linux.org.uk
+cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Kconfig fix (BLK_DEV_FD dependencies)
+In-Reply-To: <20050906004842.GP5155@ZenIV.linux.org.uk>
+Message-ID: <Pine.LNX.4.61.0509061205510.3743@scrub.home>
+References: <20050906004842.GP5155@ZenIV.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 06, 2005 at 12:32:32PM +0200, Pavel Machek wrote:
-> Try running this from userspace (and watch for time going completely
-> crazy). Try it in mainline, too; it broke even vanilla some time
-> ago. Need to run as root. 
+Hi,
 
-Note that kernel relies on some backing time source (like TSC/PM)
-to recover lost ticks (& time). And these backing time source have 
-their own limitation on how many max lost ticks you can recover,
-which in turn means how long you can have interrupts blocked.
-In case of TSC, since only 32-bit previous snapshot is maintained (in x86
-atleast) it allows for ticks to be lost only upto a second (if I remember
-correctly), while the 24-bit ACPI PM timer allows for upto 3-4
-seconds. 
+On Tue, 6 Sep 2005 viro@ZenIV.linux.org.uk wrote:
 
-I found that the while loop below takes 3.66 seconds running
-on a 1.8GHz P4 CPU. That may be too much if kernel is using
-(32-bit snapshot of) TSC to recover ticks, while maybe just
-at the max limit allowed for ACPI PM timer.
+> Sanitized and fixed floppy dependencies: split the messy dependencies for
+> BLK_DEV_FD by introducing a new symbol (ARCH_MAY_HAVE_PC_FDC), making
+> BLK_DEV_FD depend on that one and taking declarations of ARCH_MAY_HAVE_PC_FDC
+> to arch/*/Kconfig.  While we are at it, fixed several obvious cases when
+> BLK_DEV_FD should have been excluded (architectures lacking asm/floppy.h
+> are *not* going to have floppy.c compile, let alone work).
 
-I will test this code with the lost-tick recovery fixes
-for ACPI PM timer that I sent out and let you know
-how it performs!
+I'm not really a big fan of such dummy symbols, those whole point is to 
+only enable dependencies, but are otherwise unsused.
+The basic problem is similiar to selects, that one has to grep the whole 
+Kconfig to find out what modifies the dependencies of a symbol.
 
->                 for (i=0; i<1000000000; i++)
->                         asm volatile("");
+If we really want to describe dependencies like this, I'd prefer to extend 
+the Kconfig syntax for this:
 
--- 
+config FOO
+	allow BAR
 
+config BAR
+	option hidden
 
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560017
+The hidden option would explicitly hide the symbol, unless otherwise 
+allowed.
+
+bye, Roman

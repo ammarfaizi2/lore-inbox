@@ -1,22 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964785AbVIFJqK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964786AbVIFJri@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964785AbVIFJqK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 05:46:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964788AbVIFJqK
+	id S964786AbVIFJri (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 05:47:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964788AbVIFJri
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 05:46:10 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:26453
+	Tue, 6 Sep 2005 05:47:38 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:40789
 	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S964785AbVIFJqI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 05:46:08 -0400
-Message-Id: <431D81B80200007800023FBD@emea1-mh.id2.novell.com>
+	id S964786AbVIFJri (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 05:47:38 -0400
+Message-Id: <431D82120200007800023FC1@emea1-mh.id2.novell.com>
 X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Tue, 06 Sep 2005 11:47:04 +0200
+Date: Tue, 06 Sep 2005 11:48:34 +0200
 From: "Jan Beulich" <JBeulich@novell.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fix split-include dependency
+To: <discuss@x86-64.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] x86_64: watchdog frequency calculation adjustments
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=__PartDBF98888.0__="
+Content-Type: multipart/mixed; boundary="=__PartB193E2E2.0__="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -24,7 +25,7 @@ This is a MIME message. If you are reading this text, you may want to
 consider changing to a mail reader or gateway that understands how to 
 properly handle MIME multipart messages.
 
---=__PartDBF98888.0__=
+--=__PartB193E2E2.0__=
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
@@ -32,90 +33,85 @@ Content-Disposition: inline
 (Note: Patch also attached because the inline version is certain to get
 line wrapped.)
 
-Splitting of autoconf.h requires that split-include was built before,
-and
-needs to be-re-done when split-include changes. This dependency was
-previously missing. Additionally, since autoconf.h is (suppoosed to
-be)
-generated as a side effect of executing config targets, include/linux
-should be created prior to running the respective sub-make.
+Like previously done for i386, get the x86_64 watchdog tick
+calculation
+into a state where it can also be used on CPUs with frequencies beyond
+4GHz.
 
 Signed-off-by: Jan Beulich <jbeulich@novell.com>
 
---- /home/jbeulich/tmp/linux-2.6.13/Makefile	2005-08-29
+---
+/home/jbeulich/tmp/linux-2.6.13/arch/x86_64/kernel/nmi.c	2005-08-29
 01:41:01.000000000 +0200
-+++ 2.6.13/Makefile	2005-08-29 09:50:38.000000000 +0200
-@@ -385,6 +385,9 @@ RCS_TAR_IGNORE := --exclude SCCS --exclu
- scripts_basic:
- 	$(Q)$(MAKE) $(build)=scripts/basic
++++ 2.6.13/arch/x86_64/kernel/nmi.c	2005-09-06 11:03:36.000000000
++0200
+@@ -367,7 +367,7 @@ static void setup_k7_watchdog(void)
+ 		| K7_NMI_EVENT;
  
-+# To avoid any implicit rule to kick in, define an empty command.
-+scripts/basic/%: scripts_basic ;
-+
- .PHONY: outputmakefile
- # outputmakefile generate a Makefile to be placed in output directory,
-if
- # using a seperate output directory. This allows convinient use
-@@ -447,9 +450,8 @@ ifeq ($(config-targets),1)
- include $(srctree)/arch/$(ARCH)/Makefile
- export KBUILD_DEFCONFIG
+ 	wrmsr(MSR_K7_EVNTSEL0, evntsel, 0);
+-	wrmsr(MSR_K7_PERFCTR0, -(cpu_khz/nmi_hz*1000), -1);
++	wrmsrl(MSR_K7_PERFCTR0, -((u64)cpu_khz * 1000 / nmi_hz));
+ 	apic_write(APIC_LVTPC, APIC_DM_NMI);
+ 	evntsel |= K7_EVNTSEL_ENABLE;
+ 	wrmsr(MSR_K7_EVNTSEL0, evntsel, 0);
+@@ -408,8 +408,8 @@ static int setup_p4_watchdog(void)
  
--config: scripts_basic outputmakefile FORCE
--	$(Q)$(MAKE) $(build)=scripts/kconfig $@
--%config: scripts_basic outputmakefile FORCE
-+config %config: scripts_basic outputmakefile FORCE
-+	$(Q)mkdir -p include/linux
- 	$(Q)$(MAKE) $(build)=scripts/kconfig $@
+ 	wrmsr(MSR_P4_CRU_ESCR0, P4_NMI_CRU_ESCR0, 0);
+ 	wrmsr(MSR_P4_IQ_CCCR0, P4_NMI_IQ_CCCR0 & ~P4_CCCR_ENABLE, 0);
+-	Dprintk("setting P4_IQ_COUNTER0 to 0x%08lx\n",
+-(cpu_khz/nmi_hz*1000));
+-	wrmsr(MSR_P4_IQ_COUNTER0, -(cpu_khz/nmi_hz*1000), -1);
++	Dprintk("setting P4_IQ_COUNTER0 to 0x%08lx\n", -(cpu_khz *
+1000UL / nmi_hz));
++	wrmsrl(MSR_P4_IQ_COUNTER0, -((u64)cpu_khz * 1000 / nmi_hz));
+ 	apic_write(APIC_LVTPC, APIC_DM_NMI);
+ 	wrmsr(MSR_P4_IQ_CCCR0, nmi_p4_cccr_val, 0);
+ 	return 1;
+@@ -505,7 +505,7 @@ void nmi_watchdog_tick (struct pt_regs *
+  			wrmsr(MSR_P4_IQ_CCCR0, nmi_p4_cccr_val, 0);
+  			apic_write(APIC_LVTPC, APIC_DM_NMI);
+  		}
+-		wrmsr(nmi_perfctr_msr, -(cpu_khz/nmi_hz*1000), -1);
++		wrmsrl(nmi_perfctr_msr, -((u64)cpu_khz * 1000 /
+nmi_hz));
+ 	}
+ }
  
- else
-@@ -815,7 +817,7 @@ include/asm:
- 
- # 	Split autoconf.h into include/linux/config/*
- 
--include/config/MARKER: include/linux/autoconf.h
-+include/config/MARKER: scripts/basic/split-include
-include/linux/autoconf.h
- 	@echo '  SPLIT   include/linux/autoconf.h -> include/config/*'
- 	@scripts/basic/split-include include/linux/autoconf.h
-include/config
- 	@touch $@
 
 
---=__PartDBF98888.0__=
-Content-Type: application/octet-stream; name="linux-2.6.13-split-include-dep.patch"
+--=__PartB193E2E2.0__=
+Content-Type: application/octet-stream; name="linux-2.6.13-x86_64-watchdog.patch"
 Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="linux-2.6.13-split-include-dep.patch"
+Content-Disposition: attachment; filename="linux-2.6.13-x86_64-watchdog.patch"
 
 KE5vdGU6IFBhdGNoIGFsc28gYXR0YWNoZWQgYmVjYXVzZSB0aGUgaW5saW5lIHZlcnNpb24gaXMg
-Y2VydGFpbiB0byBnZXQKbGluZSB3cmFwcGVkLikKClNwbGl0dGluZyBvZiBhdXRvY29uZi5oIHJl
-cXVpcmVzIHRoYXQgc3BsaXQtaW5jbHVkZSB3YXMgYnVpbHQgYmVmb3JlLCBhbmQKbmVlZHMgdG8g
-YmUtcmUtZG9uZSB3aGVuIHNwbGl0LWluY2x1ZGUgY2hhbmdlcy4gVGhpcyBkZXBlbmRlbmN5IHdh
-cwpwcmV2aW91c2x5IG1pc3NpbmcuIEFkZGl0aW9uYWxseSwgc2luY2UgYXV0b2NvbmYuaCBpcyAo
-c3VwcG9vc2VkIHRvIGJlKQpnZW5lcmF0ZWQgYXMgYSBzaWRlIGVmZmVjdCBvZiBleGVjdXRpbmcg
-Y29uZmlnIHRhcmdldHMsIGluY2x1ZGUvbGludXgKc2hvdWxkIGJlIGNyZWF0ZWQgcHJpb3IgdG8g
-cnVubmluZyB0aGUgcmVzcGVjdGl2ZSBzdWItbWFrZS4KClNpZ25lZC1vZmYtYnk6IEphbiBCZXVs
-aWNoIDxqYmV1bGljaEBub3ZlbGwuY29tPgoKLS0tIC9ob21lL2piZXVsaWNoL3RtcC9saW51eC0y
-LjYuMTMvTWFrZWZpbGUJMjAwNS0wOC0yOSAwMTo0MTowMS4wMDAwMDAwMDAgKzAyMDAKKysrIDIu
-Ni4xMy9NYWtlZmlsZQkyMDA1LTA4LTI5IDA5OjUwOjM4LjAwMDAwMDAwMCArMDIwMApAQCAtMzg1
-LDYgKzM4NSw5IEBAIFJDU19UQVJfSUdOT1JFIDo9IC0tZXhjbHVkZSBTQ0NTIC0tZXhjbHUKIHNj
-cmlwdHNfYmFzaWM6CiAJJChRKSQoTUFLRSkgJChidWlsZCk9c2NyaXB0cy9iYXNpYwogCisjIFRv
-IGF2b2lkIGFueSBpbXBsaWNpdCBydWxlIHRvIGtpY2sgaW4sIGRlZmluZSBhbiBlbXB0eSBjb21t
-YW5kLgorc2NyaXB0cy9iYXNpYy8lOiBzY3JpcHRzX2Jhc2ljIDsKKwogLlBIT05ZOiBvdXRwdXRt
-YWtlZmlsZQogIyBvdXRwdXRtYWtlZmlsZSBnZW5lcmF0ZSBhIE1ha2VmaWxlIHRvIGJlIHBsYWNl
-ZCBpbiBvdXRwdXQgZGlyZWN0b3J5LCBpZgogIyB1c2luZyBhIHNlcGVyYXRlIG91dHB1dCBkaXJl
-Y3RvcnkuIFRoaXMgYWxsb3dzIGNvbnZpbmllbnQgdXNlCkBAIC00NDcsOSArNDUwLDggQEAgaWZl
-cSAoJChjb25maWctdGFyZ2V0cyksMSkKIGluY2x1ZGUgJChzcmN0cmVlKS9hcmNoLyQoQVJDSCkv
-TWFrZWZpbGUKIGV4cG9ydCBLQlVJTERfREVGQ09ORklHCiAKLWNvbmZpZzogc2NyaXB0c19iYXNp
-YyBvdXRwdXRtYWtlZmlsZSBGT1JDRQotCSQoUSkkKE1BS0UpICQoYnVpbGQpPXNjcmlwdHMva2Nv
-bmZpZyAkQAotJWNvbmZpZzogc2NyaXB0c19iYXNpYyBvdXRwdXRtYWtlZmlsZSBGT1JDRQorY29u
-ZmlnICVjb25maWc6IHNjcmlwdHNfYmFzaWMgb3V0cHV0bWFrZWZpbGUgRk9SQ0UKKwkkKFEpbWtk
-aXIgLXAgaW5jbHVkZS9saW51eAogCSQoUSkkKE1BS0UpICQoYnVpbGQpPXNjcmlwdHMva2NvbmZp
-ZyAkQAogCiBlbHNlCkBAIC04MTUsNyArODE3LDcgQEAgaW5jbHVkZS9hc206CiAKICMgCVNwbGl0
-IGF1dG9jb25mLmggaW50byBpbmNsdWRlL2xpbnV4L2NvbmZpZy8qCiAKLWluY2x1ZGUvY29uZmln
-L01BUktFUjogaW5jbHVkZS9saW51eC9hdXRvY29uZi5oCitpbmNsdWRlL2NvbmZpZy9NQVJLRVI6
-IHNjcmlwdHMvYmFzaWMvc3BsaXQtaW5jbHVkZSBpbmNsdWRlL2xpbnV4L2F1dG9jb25mLmgKIAlA
-ZWNobyAnICBTUExJVCAgIGluY2x1ZGUvbGludXgvYXV0b2NvbmYuaCAtPiBpbmNsdWRlL2NvbmZp
-Zy8qJwogCUBzY3JpcHRzL2Jhc2ljL3NwbGl0LWluY2x1ZGUgaW5jbHVkZS9saW51eC9hdXRvY29u
-Zi5oIGluY2x1ZGUvY29uZmlnCiAJQHRvdWNoICRACg==
+Y2VydGFpbiB0byBnZXQKbGluZSB3cmFwcGVkLikKCkxpa2UgcHJldmlvdXNseSBkb25lIGZvciBp
+Mzg2LCBnZXQgdGhlIHg4Nl82NCB3YXRjaGRvZyB0aWNrIGNhbGN1bGF0aW9uCmludG8gYSBzdGF0
+ZSB3aGVyZSBpdCBjYW4gYWxzbyBiZSB1c2VkIG9uIENQVXMgd2l0aCBmcmVxdWVuY2llcyBiZXlv
+bmQKNEdIei4KClNpZ25lZC1vZmYtYnk6IEphbiBCZXVsaWNoIDxqYmV1bGljaEBub3ZlbGwuY29t
+PgoKLS0tIC9ob21lL2piZXVsaWNoL3RtcC9saW51eC0yLjYuMTMvYXJjaC94ODZfNjQva2VybmVs
+L25taS5jCTIwMDUtMDgtMjkgMDE6NDE6MDEuMDAwMDAwMDAwICswMjAwCisrKyAyLjYuMTMvYXJj
+aC94ODZfNjQva2VybmVsL25taS5jCTIwMDUtMDktMDYgMTE6MDM6MzYuMDAwMDAwMDAwICswMjAw
+CkBAIC0zNjcsNyArMzY3LDcgQEAgc3RhdGljIHZvaWQgc2V0dXBfazdfd2F0Y2hkb2codm9pZCkK
+IAkJfCBLN19OTUlfRVZFTlQ7CiAKIAl3cm1zcihNU1JfSzdfRVZOVFNFTDAsIGV2bnRzZWwsIDAp
+OwotCXdybXNyKE1TUl9LN19QRVJGQ1RSMCwgLShjcHVfa2h6L25taV9oeioxMDAwKSwgLTEpOwor
+CXdybXNybChNU1JfSzdfUEVSRkNUUjAsIC0oKHU2NCljcHVfa2h6ICogMTAwMCAvIG5taV9oeikp
+OwogCWFwaWNfd3JpdGUoQVBJQ19MVlRQQywgQVBJQ19ETV9OTUkpOwogCWV2bnRzZWwgfD0gSzdf
+RVZOVFNFTF9FTkFCTEU7CiAJd3Jtc3IoTVNSX0s3X0VWTlRTRUwwLCBldm50c2VsLCAwKTsKQEAg
+LTQwOCw4ICs0MDgsOCBAQCBzdGF0aWMgaW50IHNldHVwX3A0X3dhdGNoZG9nKHZvaWQpCiAKIAl3
+cm1zcihNU1JfUDRfQ1JVX0VTQ1IwLCBQNF9OTUlfQ1JVX0VTQ1IwLCAwKTsKIAl3cm1zcihNU1Jf
+UDRfSVFfQ0NDUjAsIFA0X05NSV9JUV9DQ0NSMCAmIH5QNF9DQ0NSX0VOQUJMRSwgMCk7Ci0JRHBy
+aW50aygic2V0dGluZyBQNF9JUV9DT1VOVEVSMCB0byAweCUwOGx4XG4iLCAtKGNwdV9raHovbm1p
+X2h6KjEwMDApKTsKLQl3cm1zcihNU1JfUDRfSVFfQ09VTlRFUjAsIC0oY3B1X2toei9ubWlfaHoq
+MTAwMCksIC0xKTsKKwlEcHJpbnRrKCJzZXR0aW5nIFA0X0lRX0NPVU5URVIwIHRvIDB4JTA4bHhc
+biIsIC0oY3B1X2toeiAqIDEwMDBVTCAvIG5taV9oeikpOworCXdybXNybChNU1JfUDRfSVFfQ09V
+TlRFUjAsIC0oKHU2NCljcHVfa2h6ICogMTAwMCAvIG5taV9oeikpOwogCWFwaWNfd3JpdGUoQVBJ
+Q19MVlRQQywgQVBJQ19ETV9OTUkpOwogCXdybXNyKE1TUl9QNF9JUV9DQ0NSMCwgbm1pX3A0X2Nj
+Y3JfdmFsLCAwKTsKIAlyZXR1cm4gMTsKQEAgLTUwNSw3ICs1MDUsNyBAQCB2b2lkIG5taV93YXRj
+aGRvZ190aWNrIChzdHJ1Y3QgcHRfcmVncyAqCiAgCQkJd3Jtc3IoTVNSX1A0X0lRX0NDQ1IwLCBu
+bWlfcDRfY2Njcl92YWwsIDApOwogIAkJCWFwaWNfd3JpdGUoQVBJQ19MVlRQQywgQVBJQ19ETV9O
+TUkpOwogIAkJfQotCQl3cm1zcihubWlfcGVyZmN0cl9tc3IsIC0oY3B1X2toei9ubWlfaHoqMTAw
+MCksIC0xKTsKKwkJd3Jtc3JsKG5taV9wZXJmY3RyX21zciwgLSgodTY0KWNwdV9raHogKiAxMDAw
+IC8gbm1pX2h6KSk7CiAJfQogfQogCg==
 
---=__PartDBF98888.0__=--
+--=__PartB193E2E2.0__=--

@@ -1,70 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbVIFRF7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750761AbVIFQ6U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750763AbVIFRF7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 13:05:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750770AbVIFRF7
+	id S1750761AbVIFQ6U (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 12:58:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750760AbVIFQ6U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 13:05:59 -0400
-Received: from wproxy.gmail.com ([64.233.184.201]:58064 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750763AbVIFRF6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 13:05:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=YYCUCoQS1U3zABevQp1UUzNT6b7aFZdqAskQT3SeIDQPscXoIieYDR513he5cnb/1DLFx6OQ8NOJAQLLQ31Ib9E9bjb94XdRq8qUGYkQzN1jtQndyUiRuk2VIfEL5NNiGAFnVhK/glEJ3iQK24LKTqN4qR2xVxoESuLSSuj8uqI=
-Message-ID: <58d0dbf10509061005358dce91@mail.gmail.com>
-Date: Tue, 6 Sep 2005 19:05:55 +0200
-From: Jan Kiszka <jan.kiszka@googlemail.com>
-Reply-To: jan.kiszka@googlemail.com
-To: Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>
-Subject: Re: RFC: i386: kill !4KSTACKS
+	Tue, 6 Sep 2005 12:58:20 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:11481 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1750761AbVIFQ6T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 12:58:19 -0400
+Message-Id: <200509061658.j86GwB5w029481@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: walking.to.remember@gmail.com
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <dfk5cp$19p$1@sea.gmane.org>
+Subject: Re: what will connect the fork() with its following code ? a simple example below: 
+In-Reply-To: Your message of "Tue, 06 Sep 2005 17:15:51 +0800."
+             <6b5347dc0509060215128d477e@mail.gmail.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <6b5347dc0509060215128d477e@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050904145129.53730.qmail@web50202.mail.yahoo.com>
-	 <1125854398.23858.51.camel@localhost.localdomain>
-	 <p73aciqrev0.fsf@verdi.suse.de> <dfk5cp$19p$1@sea.gmane.org>
+Content-Type: multipart/signed; boundary="==_Exmh_1126025888_2971P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 06 Sep 2005 12:58:09 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2005/9/6, Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>:
-> Andi Kleen wrote:
+--==_Exmh_1126025888_2971P
+Content-Type: text/plain; charset=us-ascii
+
+On Tue, 06 Sep 2005 17:15:51 +0800, "Sat." said:
+
+Not a kernel problem, please consult an intro-to-C list next time....
+
+> if(!(pid=fork())){
+>      ......
+>      printk("in child process");
+>      ......
+> }else{
+>      .....
+>      printk("in father process"); 
+>      .....
+> }
 > 
-> > AFAIK with interrupt stacks it shouldn't be a big issue to switch
-> > to a private bigger stack. ndiswrapper just needs to have its own private
-> > way to do "current" which accesses thread_info at the bottom of the stack.
-> 
-> I am developer of ndiswrapper and just caught up with this discussion. I am
-> interested in providing private stack for ndiswrapper. I am not familiar
-> with linux kernel internals to understand your proposal. Could you give me
-> details please: If you can give a rough sketch of idea, I can implement it.
-> Better yet, if you (or anyone else) can provide an implementation (not
-> necessarily against ndsiwrapper, but a proof of concept), it will be
-> greatly appreciated - this should also help any other projects that need
-> more than 4k stack.
-> 
 
-You may take a look at how the IRQ stacks work on x86, e.g.
-http://lxr.linux.no/source/arch/i386/kernel/irq.c#L48
+> values., and do nothing . so the bridge  between the new process and
+> its following code, printk("in child process"), seems disappear 
 
-The idea of switching stacks first sounds appealing, but it is not
-that trivial. The tricky part comes with current/current_thread_info.
-After you switched to a private stack and called some Windows driver
-function, that code may call back to the ndiswrapper API which, in
-turn, may jump into some kernel functions. If that kernel code calls
-current_thread_info while your differently sized stack is active,
-current_thread_info will not be able to evaluate a correct thread_info
-address (see http://lxr.linux.no/source/include/asm-i386/thread_info.h#L88).
+I'm assuming you actually meant printf() (which is the userspace stdio call)
+rather than printk() (which is the inside-the-kernel variant).
 
-The only way I see is to switch stacks back on ndiswrapper API entry.
-But managing all those stacks correctly is challenging, as you will
-likely not want to create a new stack on each switching point. Rather,
-maintaining them per context (IRQ, tasklet, kernel thread, user
-process, <stuff I forgot>) is required in order to save memory and
-avoid shortages in atomic contexts.
+'man setbuf' - most likely the output of the child process is buffered and
+never actually output before it exits.  You want to set stdout to be
+line-buffered or unbuffered, or write to stderr (unbuffered by default) rather
+than stdout. 
 
-Jan
+
+--==_Exmh_1126025888_2971P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFDHcqgcC3lWbTT17ARAjANAJ9xbZaSESYmhsBc73Dm2oE/WCA3SQCbBzaN
+8h5hJlb6YKCeDZ45p3Jp5Ac=
+=dZ5t
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1126025888_2971P--

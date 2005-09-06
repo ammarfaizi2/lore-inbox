@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751314AbVIFEeW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbVIFEjI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751314AbVIFEeW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 00:34:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751318AbVIFEeW
+	id S932377AbVIFEjI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 00:39:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbVIFEjH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 00:34:22 -0400
-Received: from highlandsun.propagation.net ([66.221.212.168]:39954 "EHLO
-	highlandsun.propagation.net") by vger.kernel.org with ESMTP
-	id S1751314AbVIFEeV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 00:34:21 -0400
-Message-ID: <431D1C3F.6090302@symas.com>
-Date: Mon, 05 Sep 2005 21:34:07 -0700
-From: Howard Chu <hyc@symas.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8b4) Gecko/20050829 SeaMonkey/1.1a
-MIME-Version: 1.0
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6, devfs, SMP, SATA
-References: <d2a0e906050903212678ad88a1@mail.gmail.com>	 <81b0412b0509041529524bca1f@mail.gmail.com>	 <431B7BE2.9070806@symas.com> <84144f02050905055633713bd3@mail.gmail.com>
-In-Reply-To: <84144f02050905055633713bd3@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 6 Sep 2005 00:39:07 -0400
+Received: from hera.kernel.org ([209.128.68.125]:39856 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S932377AbVIFEjF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 00:39:05 -0400
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: [discuss] [2.6 patch] include/asm-x86_64 "extern inline" -> "static inline"
+Date: Tue, 6 Sep 2005 04:38:47 +0000 (UTC)
+Organization: Mostly alphabetical, except Q, which We do not fancy
+Message-ID: <dfj6gn$emj$1@terminus.zytor.com>
+References: <20050902203123.GT3657@stusta.de> <20050905180005.GA3776@stusta.de> <20050905184740.GF7403@devserv.devel.redhat.com> <20050905190014.GB3776@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1125981527 15060 127.0.0.1 (6 Sep 2005 04:38:47 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Tue, 6 Sep 2005 04:38:47 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pekka Enberg wrote:
-> On 9/5/05, Howard Chu <hyc@symas.com> wrote:
->   
->> So, any guesses why with otherwise identical config options, a kernel
->> with SMP enabled doesn't boot up with all of the device nodes that it
->> should? (Both drives are on the same controller. I haven't checked to
->> see if any other device files are missing.)
->>     
+Followup to:  <20050905190014.GB3776@stusta.de>
+By author:    Adrian Bunk <bunk@stusta.de>
+In newsgroup: linux.dev.kernel
 >
-> Devfs is disabled in 2.6.13 as it most likely will be going away soon.
-> See http://marc.theaimsgroup.com/?l=linux-kernel&m=111939455921877&w=2.
->   
-Thanks for the note. I guess I meant udev, or whatever it is that 
-populates /dev these days.
+> On Mon, Sep 05, 2005 at 02:47:40PM -0400, Jakub Jelinek wrote:
+> > On Mon, Sep 05, 2005 at 08:00:05PM +0200, Adrian Bunk wrote:
+> > > It isn't the same, but "static inline" is the correct variant.
+> > > 
+> > > "extern inline __attribute__((always_inline))" (which is what
+> > > "extern inline" is expanded to) doesn't make sense.
+> > 
+> > It does make sense and is different from
+> > static inline __attribute__((always_inline)).
+> > Try:
+> > static inline __attribute__((always_inline)) void foo (void) {}
+> > void (*fn)(void) = foo;
+> > vs.
+> > extern inline __attribute__((always_inline)) void foo (void) {}
+> > void (*fn)(void) = foo;
+> > In the former case, GCC will emit the out of line static copy of foo
+> > if you take its address, in the latter case either you provide foo
+> > function by other means, or you get linker error.
+> 
+> And we need the former case because in the kernel we do not have 
+> out-of-line variants of the inline functions.
+> 
 
--- 
-  -- Howard Chu
-  Chief Architect, Symas Corp.  http://www.symas.com
-  Director, Highland Sun        http://highlandsun.com/hyc
-  OpenLDAP Core Team            http://www.openldap.org/project/
+UNLESS the function is broken if out-of-lined.  If the function cannot
+be safely out-of-lined, extern inline MUST be used.
 
+	-hpa

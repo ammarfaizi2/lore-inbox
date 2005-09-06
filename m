@@ -1,54 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964789AbVIFLAF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964799AbVIFLFv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964789AbVIFLAF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 07:00:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964799AbVIFLAE
+	id S964799AbVIFLFv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 07:05:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964807AbVIFLFv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 07:00:04 -0400
-Received: from ozlabs.org ([203.10.76.45]:11927 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S964789AbVIFLAD (ORCPT
+	Tue, 6 Sep 2005 07:05:51 -0400
+Received: from ns.sevcity.net ([193.47.166.213]:53731 "EHLO mail.sevcity.net")
+	by vger.kernel.org with ESMTP id S964799AbVIFLFu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 07:00:03 -0400
-To: Paul Mackerras <paulus@samba.org>
-CC: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
-       <linuxppc64-dev@ozlabs.org>, Linus Torvalds <torvalds@osdl.org>
-From: Michael Ellerman <michael@ellerman.id.au>
-Subject: [PATCH] ppc64: Fix oops for !CONFIG_NUMA
-Message-Id: <20050906110002.B586C68110@ozlabs.org>
-Date: Tue,  6 Sep 2005 21:00:02 +1000 (EST)
+	Tue, 6 Sep 2005 07:05:50 -0400
+Subject: [PATCH] remove use global lock list from lockd
+From: Alex Lyashkov <shadow@psoft.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed; boundary="=-C9CimhrcJ2QVM8ofnMTy"
+Organization: Positive Software
+Message-Id: <1126004739.3377.8.camel@berloga.shadowland>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-14) 
+Date: Tue, 06 Sep 2005 14:05:39 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The SPARSEMEM EXTREME code (802f192e4a600f7ef84ca25c8b818c8830acef5a) that
-went in yesterday broke PPC64 for !CONFIG_NUMA.
 
-The problem is that (free|reserve)_bootmem don't take a page number as their
-first argument, they take an address. Ruh roh.
+--=-C9CimhrcJ2QVM8ofnMTy
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Booted on P5 LPAR, iSeries and G5.
+Hello All
 
-Signed-off-by: Michael Ellerman <michael@ellerman.id.au>
----
+What anyone think about this patch? 
+this patch remove play with global lock list and use interlnal list
+nlm_blocked.
 
- arch/ppc64/mm/init.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+-- 
+Alex
 
-Index: work/arch/ppc64/mm/init.c
-===================================================================
---- work.orig/arch/ppc64/mm/init.c
-+++ work/arch/ppc64/mm/init.c
-@@ -553,12 +553,12 @@ void __init do_init_bootmem(void)
- 	 * present.
- 	 */
- 	for (i=0; i < lmb.memory.cnt; i++)
--		free_bootmem(lmb_start_pfn(&lmb.memory, i),
-+		free_bootmem(lmb.memory.region[i].base,
- 			     lmb_size_bytes(&lmb.memory, i));
- 
- 	/* reserve the sections we're already using */
- 	for (i=0; i < lmb.reserved.cnt; i++)
--		reserve_bootmem(lmb_start_pfn(&lmb.reserved, i),
-+		reserve_bootmem(lmb.reserved.region[i].base,
- 				lmb_size_bytes(&lmb.reserved, i));
- 
- 	for (i=0; i < lmb.memory.cnt; i++)
+
+--=-C9CimhrcJ2QVM8ofnMTy
+Content-Disposition: attachment; filename=lockd_file_lock.patch
+Content-Type: text/x-patch; name=lockd_file_lock.patch; charset=KOI8-R
+Content-Transfer-Encoding: base64
+
+SW5kZXg6IGNsbnRsb2NrLmMNCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NClJDUyBmaWxlOiAvaG9tZS9jdnMva2VybmVs
+XzI2L2ZzL2xvY2tkL2NsbnRsb2NrLmMsdg0KcmV0cmlldmluZyByZXZpc2lvbiAxLjEuMS4xDQpk
+aWZmIC11IC1yMS4xLjEuMSBjbG50bG9jay5jDQotLS0gY2xudGxvY2suYwkyMyBGZWIgMjAwNSAx
+MTowNzo1NSAtMDAwMAkxLjEuMS4xDQorKysgY2xudGxvY2suYwk2IFNlcCAyMDA1IDEwOjQ0OjM0
+IC0wMDAwDQpAQCAtMTM3LDI0ICsxMzcsMTcgQEANCiANCiAvKg0KICAqIE1hcmsgdGhlIGxvY2tz
+IGZvciByZWNsYWltaW5nLg0KLSAqIEZJWE1FOiBJbiAyLjUgd2UgZG9uJ3Qgd2FudCB0byBpdGVy
+YXRlIHRocm91Z2ggYW55IGdsb2JhbCBmaWxlX2xvY2tfbGlzdC4NCi0gKiAgICAgICAgTWFpbnRh
+aW4gTkxNIGxvY2sgcmVjbGFpbWluZyBsaXN0cyBpbiB0aGUgbmxtX2hvc3QgaW5zdGVhZC4NCiAg
+Ki8NCiBzdGF0aWMNCiB2b2lkIG5sbWNsbnRfbWFya19yZWNsYWltKHN0cnVjdCBubG1faG9zdCAq
+aG9zdCkNCiB7DQorCXN0cnVjdCBubG1fd2FpdCAqaGVhZDsNCiAJc3RydWN0IGZpbGVfbG9jayAq
+Zmw7DQotCXN0cnVjdCBpbm9kZSAqaW5vZGU7DQotCXN0cnVjdCBsaXN0X2hlYWQgKnRtcDsNCiAN
+Ci0JbGlzdF9mb3JfZWFjaCh0bXAsICZmaWxlX2xvY2tfbGlzdCkgew0KLQkJZmwgPSBsaXN0X2Vu
+dHJ5KHRtcCwgc3RydWN0IGZpbGVfbG9jaywgZmxfbGluayk7DQotDQotCQlpbm9kZSA9IGZsLT5m
+bF9maWxlLT5mX2RlbnRyeS0+ZF9pbm9kZTsNCi0JCWlmIChpbm9kZS0+aV9zYi0+c19tYWdpYyAh
+PSBORlNfU1VQRVJfTUFHSUMpDQotCQkJY29udGludWU7DQotCQlpZiAoZmwtPmZsX3UubmZzX2Zs
+Lm93bmVyLT5ob3N0ICE9IGhvc3QpDQorCWZvciAoaGVhZCA9IG5sbV9ibG9ja2VkOyBoZWFkOyBo
+ZWFkID0gaGVhZC0+Yl9uZXh0KSB7DQorCQlpZiAoaGVhZC0+Yl9ob3N0ICE9IGhvc3QpDQogCQkJ
+Y29udGludWU7DQorCQlmbCA9IGhlYWQtPmJfbG9jazsNCiAJCWlmICghKGZsLT5mbF91Lm5mc19m
+bC5mbGFncyAmIE5GU19MQ0tfR1JBTlRFRCkpDQogCQkJY29udGludWU7DQogCQlmbC0+ZmxfdS5u
+ZnNfZmwuZmxhZ3MgfD0gTkZTX0xDS19SRUNMQUlNOw0KQEAgLTIwMiw5ICsxOTUsOCBAQA0KIHsN
+CiAJc3RydWN0IG5sbV9ob3N0CSAgKmhvc3QgPSAoc3RydWN0IG5sbV9ob3N0ICopIHB0cjsNCiAJ
+c3RydWN0IG5sbV93YWl0CSAgKmJsb2NrOw0KLQlzdHJ1Y3QgbGlzdF9oZWFkICp0bXA7DQogCXN0
+cnVjdCBmaWxlX2xvY2sgKmZsOw0KLQlzdHJ1Y3QgaW5vZGUgKmlub2RlOw0KKwlzdHJ1Y3Qgbmxt
+X3dhaXQgKmhlYWQ7CQ0KIA0KIAlkYWVtb25pemUoIiVzLXJlY2xhaW0iLCBob3N0LT5oX25hbWUp
+Ow0KIAlhbGxvd19zaWduYWwoU0lHS0lMTCk7DQpAQCAtMjE2LDE0ICsyMDgsMTAgQEANCiANCiAJ
+LyogRmlyc3QsIHJlY2xhaW0gYWxsIGxvY2tzIHRoYXQgaGF2ZSBiZWVuIG1hcmtlZC4gKi8NCiBy
+ZXN0YXJ0Og0KLQlsaXN0X2Zvcl9lYWNoKHRtcCwgJmZpbGVfbG9ja19saXN0KSB7DQotCQlmbCA9
+IGxpc3RfZW50cnkodG1wLCBzdHJ1Y3QgZmlsZV9sb2NrLCBmbF9saW5rKTsNCi0NCi0JCWlub2Rl
+ID0gZmwtPmZsX2ZpbGUtPmZfZGVudHJ5LT5kX2lub2RlOw0KLQkJaWYgKGlub2RlLT5pX3NiLT5z
+X21hZ2ljICE9IE5GU19TVVBFUl9NQUdJQykNCi0JCQljb250aW51ZTsNCi0JCWlmIChmbC0+Zmxf
+dS5uZnNfZmwub3duZXItPmhvc3QgIT0gaG9zdCkNCisJZm9yIChoZWFkID0gbmxtX2Jsb2NrZWQ7
+IGhlYWQ7IGhlYWQgPSBoZWFkLT5iX25leHQpIHsNCisJCWlmIChoZWFkLT5iX2hvc3QgIT0gaG9z
+dCkNCiAJCQljb250aW51ZTsNCisJCWZsID0gaGVhZC0+Yl9sb2NrOw0KIAkJaWYgKCEoZmwtPmZs
+X3UubmZzX2ZsLmZsYWdzICYgTkZTX0xDS19SRUNMQUlNKSkNCiAJCQljb250aW51ZTsNCiANCg==
+
+--=-C9CimhrcJ2QVM8ofnMTy--

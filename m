@@ -1,80 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750867AbVIFUXs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750881AbVIFUZU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750867AbVIFUXs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 16:23:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750873AbVIFUXs
+	id S1750881AbVIFUZU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 16:25:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750882AbVIFUZU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 16:23:48 -0400
-Received: from zproxy.gmail.com ([64.233.162.203]:11526 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750865AbVIFUXs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 16:23:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:disposition-notification-to:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=ggsJr7pavdXEhGo8Mwy3uIDprAyU/j5Dxn9NExP/MoXisbKdqjR8laIqw2B8c6KOhhtc3+V/YjRtIVvOyo/vtxwmvY+Zzj6Uo2SXUFDrKkzoX8iyOsgNfrEKo3578rHblqYsKOLGLImQQp9JhFk5aRu8Bp2L4/BHGTBJgdeDto4=
-Message-ID: <431DF9E9.5050102@gmail.com>
-Date: Tue, 06 Sep 2005 23:19:53 +0300
-From: Alon Bar-Lev <alon.barlev@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050727)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: THE LINUX/I386 BOOT PROTOCOL - Breaking the 256 limit
-References: <4315B668.6030603@gmail.com> <43162148.9040604@zytor.com> <20050831215757.GA10804@taniwha.stupidest.org> <431628D5.1040709@zytor.com>
-In-Reply-To: <431628D5.1040709@zytor.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 6 Sep 2005 16:25:20 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:32402 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S1750879AbVIFUZS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 16:25:18 -0400
+Date: Tue, 6 Sep 2005 22:25:52 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Andreas Gruenbacher <agruen@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] kbuild: building with a mostly-clean /usr/src/linux and O=
+Message-ID: <20050906202552.GA17931@mars.ravnborg.org>
+References: <200509062213.52989.agruen@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200509062213.52989.agruen@suse.de>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-> Chris Wedgwood wrote:
+On Tue, Sep 06, 2005 at 10:13:52PM +0200, Andreas Gruenbacher wrote:
+> When compiling a kernel with a separate output directory,
 > 
->> On Wed, Aug 31, 2005 at 02:29:44PM -0700, H. Peter Anvin wrote:
->>
->>> I think someone on the SYSLINUX mailing list already sent a patch to
->>> akpm to make 512 the default; making it configurable would be a
->>> better idea.  Feel free to send your patch through me.
->>
->>
->> So we really need this to be a configuration option?  We have too many
->> of those already.
+>   /var/tmp/kernel-obj>  cp $CONFIG_FILE .config
+>   /var/tmp/kernel-obj>  make -C /usr/src/linux O=`pwd`
 > 
+> the main kernel Makefile first tries to make sure that /usr/src/linux
+> is a clean source tree by checking if /usr/src/linux contains .config
+> or the include/asm symlink. This test is more restrictive than
+> necessary, and can be relaxed with a few additional changes so that
+> /usr/src/linux may contain a few additional critical files, and may
+> still be used as the kernel compilation source.
 > 
-> Maybe not.  Another option would simply be to bump it up significantly 
-> (2x isn't really that much.)   4096, maybe.
-> 
->     -hpa
-> 
+> The additional files I have in mind are include/asm,
+> include/linux/version.h, include/linux/autoconf.h, and perhaps also
+> include/asm/offset.h. With these files present, it's possible to use
+> kernel headers from user-space. I know that's evil and frowned upon,
+> but it's still done once in a while, and sometimes it's the least
+> painful path compared to the alternatives. The kbuild changes required
+> to allow this IMHO are harmless; please consider for inclusion.
 
-Hello Peter, I've written a reply before but got no response...
+I've already included below patch from you.
+It was included in -linus last night.
 
-The idea of putting arguments in initramfs is not practical, 
-since the whole idea is to have the same image of system and 
-affecting its behavior using the boot loader...
+Do we really need more?
 
-I would like to push forward the idea to extend the 
-command-line size...
+	Sam
 
-All we need for start is an updated version of the "THE 
-LINUX/I386 BOOT PROTOCOL" document that states that in the 
-2.02+  protocol the boot loader should set cmd_line_ptr to a 
-pointer to a null terminated string without any size 
-restriction, specifying that the kernel will read as much as 
-it can.
+diff-tree d80e22460968ec7986c82fd7d207ebe3de59e03d (from c5f75eca120de6587e67a1951ce3e6912e2c6879)
+Author: Sam Ravnborg <sam@mars.(none)>
+Date:   Thu Jul 14 20:22:39 2005 +0000
 
-After I get this update, I will try to work with GRUB and LILO 
-so that they will fix their implementation. Currently they 
-claim that they understand that they should truncate the 
-string to 256.
+    kbuild: Don't fail if include/asm symlink exists
+    
+    From: Andreas Gruenbacher <agruen@suse.de>
+    
+    We're having the following situation: There are user-space applications
+    that include kernel headers directly. With a completely unconfigured
+    /usr/src/linux tree, including most headers fails because essential
+    files are not there:
+    
+    	include/asm
+    	include/linux/autoconf.h
+    	include/linux/version.h
+    
+    So we create these files. On the other hand, we want to use
+    /usr/src/linux as read-only source for building kernels or additional
+    modules. Now when building a kernel with a separate output directory
+    (O=), there is a check in the main makefile for the include/asm symlink.
+    There is no real need for this check: if we ensure that
+    $(objdir)/include/asm is always created as the patch does,
+    $(srctree)/include/asm becomes irrelevant.
+    
+    Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
 
-After that I will provide my simple  patch for setting the 
-maximum size the kernel allocates in the configuration.
-
-BTW: Do you know why the COMMAND_LINE_SIZE constant is located 
-in two separate include files?
-
-Best Regards,
-Alon Bar-Lev.
+diff --git a/Makefile b/Makefile
+--- a/Makefile
++++ b/Makefile
+@@ -765,11 +765,11 @@ $(vmlinux-dirs): prepare-all scripts
+ # 2) Create the include2 directory, used for the second asm symlink
+ 
+ prepare2:
+ ifneq ($(KBUILD_SRC),)
+ 	@echo '  Using $(srctree) as source for kernel'
+-	$(Q)if [ -h $(srctree)/include/asm -o -f $(srctree)/.config ]; then \
++	$(Q)if [ -f $(srctree)/.config ]; then \
+ 		echo "  $(srctree) is not clean, please run 'make mrproper'";\
+ 		echo "  in the '$(srctree)' directory.";\
+ 		/bin/false; \
+ 	fi;
+ 	$(Q)if [ ! -d include2 ]; then mkdir -p include2; fi;
+@@ -777,11 +777,12 @@ ifneq ($(KBUILD_SRC),)
+ endif
+ 
+ # prepare1 creates a makefile if using a separate output directory
+ prepare1: prepare2 outputmakefile
+ 
+-prepare0: prepare1 include/linux/version.h include/asm include/config/MARKER
++prepare0: prepare1 include/linux/version.h $(objtree)/include/asm \
++                   include/config/MARKER
+ ifneq ($(KBUILD_MODULES),)
+ 	$(Q)rm -rf $(MODVERDIR)
+ 	$(Q)mkdir -p $(MODVERDIR)
+ endif
+ 
+@@ -816,11 +817,11 @@ export CPPFLAGS_vmlinux.lds += -P -C -U$
+ 
+ # 	FIXME: The asm symlink changes when $(ARCH) changes. That's
+ #	hard to detect, but I suppose "make mrproper" is a good idea
+ #	before switching between archs anyway.
+ 
+-include/asm:
++$(objtree)/include/asm:
+ 	@echo '  SYMLINK $@ -> include/asm-$(ARCH)'
+ 	$(Q)if [ ! -d include ]; then mkdir -p include; fi;
+ 	@ln -fsn asm-$(ARCH) $@
+ 
+ # 	Split autoconf.h into include/linux/config/*

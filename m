@@ -1,46 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750967AbVIFVS5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750969AbVIFVUQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750967AbVIFVS5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 17:18:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750968AbVIFVS5
+	id S1750969AbVIFVUQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 17:20:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750975AbVIFVUP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 17:18:57 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:49854 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S1750966AbVIFVS5
+	Tue, 6 Sep 2005 17:20:15 -0400
+Received: from zproxy.gmail.com ([64.233.162.194]:5398 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750969AbVIFVUO convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 17:18:57 -0400
-Date: Tue, 6 Sep 2005 23:15:51 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Valdis.Kletnieks@vt.edu
-Cc: Miroslaw Mieszczak <mieszcz@zabrze.zigzag.pl>, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Patch for link detection for R8169
-Message-ID: <20050906211551.GC20862@electric-eye.fr.zoreil.com>
-References: <431DA887.2010008@zabrze.zigzag.pl> <20050906194602.GA20862@electric-eye.fr.zoreil.com> <200509062002.j86K28R8019604@turing-police.cc.vt.edu> <20050906204221.GB20862@electric-eye.fr.zoreil.com> <200509062059.j86Kx17K022141@turing-police.cc.vt.edu>
+	Tue, 6 Sep 2005 17:20:14 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=O0/7RtE8sVL6rFNdovoVd39v0bAo+jfJZ3+MaFLo/OJrYuA0hUv4uHBWO3qXz5WxzdAm4d8hfUHdcNwnNtnlGpZ1RKwz2+FFWzU4kPximxuKQNMIQrbVlP7qdvrILoOIkwsDpgDe0yqcR8mCTU6yFemT2QJ6v92jPb85+nqRYQE=
+Message-ID: <9a87484905090614204ba36b83@mail.gmail.com>
+Date: Tue, 6 Sep 2005 23:20:12 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: "Budde, Marco" <budde@telos.de>
+Subject: Re: kbuild & C++
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <809C13DD6142E74ABE20C65B11A2439809C4BD@www.telos.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <200509062059.j86Kx17K022141@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.4.2.1i
-X-Organisation: Land of Sunshine Inc.
+References: <809C13DD6142E74ABE20C65B11A2439809C4BD@www.telos.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> :
-> On Tue, 06 Sep 2005 22:42:21 +0200, Francois Romieu said:
+On 9/6/05, Budde, Marco <budde@telos.de> wrote:
+> Hi,
 > 
-> > Currently one can do 'ifconfig ethX up', check the link status, then try
-> > to DHCP or whatever. Apparently a few drivers do not support tne detection
-> > of link as presented above. So is it anything like a vendor requirement/a
-> > standard (or should it be the new right way (TM)) or does the userspace
-> > needs fixing wrt its expectation ?
+> for one of our customers I have to port a Windows driver to
+> Linux. Large parts of the driver's backend code consists of
+> C++.
 > 
-> The "ifconfig up then check link status" method is probably usable for the
-> vast majority of cases.  Are there any driver/card combos that *can't* be
-> fixed to support that?  (A somewhat hidden side effect is that if you're
+> How can I compile this code with kbuild? The C++ support
+> (I have tested with 2.6.11) of kbuild seems to be incomplete /
+> not working.
+> 
 
-I meant "as presented above" == "check the link while the network device
-is down".
+That would be because the kernel is written in *C* (and some asm), *not* C++.
+There /is/ no C++ support.
 
---
-Ueimor
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

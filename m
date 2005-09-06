@@ -1,63 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbVIFSkK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbVIFSmF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750747AbVIFSkK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 14:40:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750764AbVIFSkK
+	id S1750764AbVIFSmF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 14:42:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750772AbVIFSmF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 14:40:10 -0400
-Received: from xenotime.net ([66.160.160.81]:26032 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750747AbVIFSkI (ORCPT
+	Tue, 6 Sep 2005 14:42:05 -0400
+Received: from spirit.analogic.com ([208.224.221.4]:9235 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP
+	id S1750764AbVIFSmE convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 14:40:08 -0400
-Date: Tue, 6 Sep 2005 11:40:06 -0700 (PDT)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: "J. Bruce Fields" <bfields@fieldses.org>
-cc: "Randy.Dunlap" <rdunlap@xenotime.net>, Bret Towe <magnade@gmail.com>,
-       Jesper Juhl <jesper.juhl@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: nfs4 client bug
-In-Reply-To: <20050906183008.GG10632@fieldses.org>
-Message-ID: <Pine.LNX.4.50.0509061135410.19596-100000@shark.he.net>
-References: <dda83e78050904124454fc675a@mail.gmail.com>
- <dda83e78050904135113b95c4a@mail.gmail.com> <20050904215219.GA9812@fieldses.org>
- <dda83e780509042008294fbe26@mail.gmail.com> <20050905031825.GA22209@fieldses.org>
- <dda83e78050905134420f06fbf@mail.gmail.com> <9a87484905090513481118e67b@mail.gmail.com>
- <dda83e7805090520407aefb4d1@mail.gmail.com> <20050906181327.GE10632@fieldses.org>
- <Pine.LNX.4.50.0509061119380.19596-100000@shark.he.net>
- <20050906183008.GG10632@fieldses.org>
+	Tue, 6 Sep 2005 14:42:04 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: A<dfkjav$lmd$1@sea.gmane.org>
+References: <20050904145129.53730.qmail@web50202.mail.yahoo.com> <1125854398.23858.51.camel@localhost.localdomain> <p73aciqrev0.fsf@verdi.suse.de> <dfk5cp$19p$1@sea.gmane.org> <58d0dbf10509061005358dce91@mail.gmail.com> A<dfkjav$lmd$1@sea.gmane.org>
+X-OriginalArrivalTime: 06 Sep 2005 18:42:02.0936 (UTC) FILETIME=[AC2D4B80:01C5B312]
+Content-class: urn:content-classes:message
+Subject: Re: RFC: i386: kill !4KSTACKS
+Date: Tue, 6 Sep 2005 14:42:02 -0400
+Message-ID: <Pine.LNX.4.61.0509061431440.4277@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: RFC: i386: kill !4KSTACKS
+Thread-Index: AcWzEqw02hA+0pGWRhKcCDzImHlmkQ==
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Giridhar Pemmasani" <giri@lmc.cs.sunysb.edu>
+Cc: <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Sep 2005, J. Bruce Fields wrote:
 
-> On Tue, Sep 06, 2005 at 11:21:09AM -0700, Randy.Dunlap wrote:
-> > On Tue, 6 Sep 2005, J. Bruce Fields wrote:
-> >
-> > > On Mon, Sep 05, 2005 at 08:40:53PM -0700, Bret Towe wrote:
-> > > > Pid: 14169, comm: xmms Tainted: G   M  2.6.13
-> > >
-> > > Hm, can someone explain what that means?  A proprietary module was
-> > > loaded then unloaded, maybe?
-> >
-> > 'M' means Machine Check, which sets the Tainted flag.
-> > So the processor thought that there was some kind of problem.
+On Tue, 6 Sep 2005, Giridhar Pemmasani wrote:
+
+> Jan Kiszka wrote:
 >
-> Does this NMI watchdog event ("NMI Watchdog detected LOCKUP on CPU0CPU
-> 0") set that flag?
-
-Not that I can see.
-
-There should be a logged MCE (machine check exception) in there
-somewhere AFAICT.
-
-> > (/we needs to update Documentation/oops-tracing.txt)
+>> The only way I see is to switch stacks back on ndiswrapper API entry.
+>> But managing all those stacks correctly is challenging, as you will
+>> likely not want to create a new stack on each switching point. Rather,
 >
-> Oops, thanks, I overlooked that!
+> This is what I had in mind before I saw this thread here. I, in fact, did
+> some work along those lines, but it is even more complicated than you
+> mentioned here: Windows uses different calling conventions (STDCALL,
+> FASTCALL, CDECL) so switching stacks by copying arguments/results gets
+> complicated. So I gave up on that approach. For X86-64 drivers we use
+> similar approach, but for that there is only one calling convention and we
+> don't need to switch stacks, but reshuffle arguments on stack / in
+> registers.
 >
-> --b.
+> I am still hoping that Andi's approach is possible (I don't understand how
+> we can make kernel see current info from private stack).
+>
+> Giri
 
--- 
-~Randy
+You can't without copying info from one stack to another. There are
+other problems, also, the only place you can get data for a stack in the
+kernel dynamically is from kmalloc(GFP_ATOMIC). Other kmalloc() data
+are paged which may (will) cause a double-fault if you use it for
+a stack. You are not going to get much more than a page of GFP_ATOMIC
+data so you can't really make a larger stack than the existing
+process/kernel stack.
+
+I have tried to just allocate data when a module is installed (in the
+.bss or .data segments as static data). Unfortunately, some kernel
+code traps this as a "triple fault" if I try to use it for a stack,
+even though the kernel segments for ES, SS, DS, all point to the
+same area(s).
+
+I think the purpose of compressing the stack was to get rid of
+NDIS, but that's only a theory. Currently, they did a good job
+of it!
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.13 on an i686 machine (5589.54 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+.
+I apologize for the following. I tried to kill it with the above dot :
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

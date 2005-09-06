@@ -1,63 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932290AbVIFEh2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932393AbVIFEmP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932290AbVIFEh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 00:37:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbVIFEh2
+	id S932393AbVIFEmP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 00:42:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932394AbVIFEmP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 00:37:28 -0400
-Received: from mx2.suse.de ([195.135.220.15]:15580 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932290AbVIFEh1 (ORCPT
+	Tue, 6 Sep 2005 00:42:15 -0400
+Received: from colo.lackof.org ([198.49.126.79]:34989 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S932393AbVIFEmP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 00:37:27 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, vda@ilport.com.ua
-Subject: Re: RFC: i386: kill !4KSTACKS
-References: <20050904145129.53730.qmail@web50202.mail.yahoo.com>
-	<1125854398.23858.51.camel@localhost.localdomain>
-From: Andi Kleen <ak@suse.de>
-Date: 06 Sep 2005 06:37:23 +0200
-In-Reply-To: <1125854398.23858.51.camel@localhost.localdomain>
-Message-ID: <p73aciqrev0.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Tue, 6 Sep 2005 00:42:15 -0400
+Date: Mon, 5 Sep 2005 22:48:09 -0600
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Brian King <brking@us.ibm.com>
+Cc: Grant Grundler <grundler@parisc-linux.org>,
+       Paul Mackerras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>,
+       greg@kroah.com, matthew@wil.cx, benh@kernel.crashing.org, ak@muc.de,
+       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH 1/2] pci: Block config access during BIST (resend)
+Message-ID: <20050906044809.GA19347@colo.lackof.org>
+References: <42B83B8D.9030901@us.ibm.com> <430B3CB4.1050105@us.ibm.com> <20050901160356.2a584975.akpm@osdl.org> <4318E6B3.7010901@us.ibm.com> <20050902224314.GB8463@colo.lackof.org> <17176.56354.363726.363290@cargo.ozlabs.ibm.com> <20050903000854.GC8463@colo.lackof.org> <431A33D0.1040807@us.ibm.com> <20050903193958.GB30579@colo.lackof.org> <431C8EF8.7020702@us.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <431C8EF8.7020702@us.ibm.com>
+X-Home-Page: http://www.parisc-linux.org/
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+On Mon, Sep 05, 2005 at 01:31:20PM -0500, Brian King wrote:
+> That should work also. Here is an updated patch.
+...
 
-> On Sul, 2005-09-04 at 07:51 -0700, Alex Davis wrote:
-> > I'm not asking you to debug crashes. I'm simply requesting that the
-> > kernel stack size situation remain as it is: with 8K as the default
-> > and 4K configurable. 
-> 
-> How about the relevant question - why hasn't someone fixed ndiswrapper
-> yet - its been pending for months.
+The code looks good...but it got me thinking.
 
-AFAIK with interrupt stacks it shouldn't be a big issue to switch
-to a private bigger stack. ndiswrapper just needs to have its own private
-way to do "current" which accesses thread_info at the bottom of the stack. 
-The old problem used to be that interrupts use current too, but 
-the i386 irq stack code solves this already.
+...
+> +void pci_block_user_cfg_access(struct pci_dev *dev)
+> +{
+> +	pci_save_state(dev);
+> +	dev->block_ucfg_access = 1;
+> +	mb();
+> +	while (spin_is_locked(&pci_lock))
+> +		cpu_relax();
+> +}
+> +EXPORT_SYMBOL_GPL(pci_block_user_cfg_access);
+> +
+> +/**
+> + * pci_unblock_user_cfg_access - Unblock userspace PCI config reads/writes
+> + * @dev:	pci device struct
+> + *
+> + * This function allows userspace PCI config accesses to resume.
+> + **/
+> +void pci_unblock_user_cfg_access(struct pci_dev *dev)
+> +{
+> +	dev->block_ucfg_access = 0;
+> +}
 
-I suppose the real reason is that most people who are capable
-to do these are too scared of the general concept of ndiswrapper
-and don't touch it with a fire pole, and the others are unable to do it.
+Shouldn't pci_unblock_user_cfg_access() have a similar construct
+as pci_block_user_cfg_access()?
 
-BTW Windows actually seems to have 12k of stack so even 8k is not
-quite safe (if that word can be applied to ndiswrapper at all) 
+I'm thinking we don't want to pull the rug out from under someone
+who is accessing the saved state, right?
+Or does something else guarantee that?
 
-In general I think 4k stack is a bad move though - the VM stalls
-argument is a red hering because if that really was such a big issue
-(which my perception is that it is not) then it has to be fixed for
-other architectures which need double page stack (like x86-64)
-anyways. And the problem of running with tight stack is that you'll
-always run into corner cases (e.g. involving more complicated stacking
-cases or error handling paths etc.) where you overflow and which will
-be hard to fix.
+It wasn't obvious from this diff alone.
 
-Running with tight stack is just a fundamentally fragile configuration
-and will come back to bite you later. Even with 8k we regularly
-had overflows reported and with 4k it will be much worse.
-
--Andi
+thanks,
+grant

@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964773AbVIFH7i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932442AbVIFIJ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964773AbVIFH7i (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 03:59:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964774AbVIFH7i
+	id S932442AbVIFIJ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 04:09:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932443AbVIFIJ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 03:59:38 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:58838 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964773AbVIFH7i (ORCPT
+	Tue, 6 Sep 2005 04:09:26 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:49830 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932442AbVIFIJ0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 03:59:38 -0400
-Date: Tue, 6 Sep 2005 09:58:53 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: rpurdie@rpsys.net, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] Add suspend/resume support to locomo.c
-Message-ID: <20050906075853.GA3883@elf.ucw.cz>
-References: <20050721052558.GD7849@elf.ucw.cz> <20050904113600.C30509@flint.arm.linux.org.uk>
+	Tue, 6 Sep 2005 04:09:26 -0400
+Date: Tue, 6 Sep 2005 01:08:22 -0700
+From: Paul Jackson <pj@sgi.com>
+To: akpm@osdl.org
+Cc: mel@csn.ul.ie, linux-kernel@vger.kernel.org, dino@in.ibm.com,
+       jschopp@austin.ibm.com, Simon.Derr@bull.net, torvalds@osdl.org,
+       haveblue@us.ibm.com
+Subject: Re: [PATCH 0/4] cpusets mems_allowed constrain GFP_KERNEL, oom
+ killer
+Message-Id: <20050906010822.5cb635c0.pj@sgi.com>
+In-Reply-To: <20050901090853.18441.24035.sendpatchset@jackhammer.engr.sgi.com>
+References: <20050901090853.18441.24035.sendpatchset@jackhammer.engr.sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050904113600.C30509@flint.arm.linux.org.uk>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Andrew,
 
-> > From: John Lenz <lenz@cs.wisc.edu>
-> > 
-> > This adds low-level suspend/resume support to locomo.c. 
-> > 
-> > Signed-off-by: Pavel Machek <pavel@suse.cz>
-> 
-> Shouldn't this be signed off by John himself?  Not applied.
+Please throw away the following 4 patches in 2.6.13-mm1:
 
-Well, it would be nice if it was signed off by him, but John is
-nowhere to be reached.
+  cpusets-oom_kill-tweaks.patch
+  cpusets-new-__gfp_hardwall-flag.patch
+  cpusets-formalize-intermediate-gfp_kernel-containment.patch
+  cpusets-confine-oom_killer-to-mem_exclusive-cpuset.patch
 
-So I signed it off myself, as in:
+You will see almost the same patches come back at you, in another
+week, after I first send some patches to rework handling the global
+cpuset semaphore cpuset_sem.
 
-        (b) The contribution is based upon previous work that, to the best
-            of my knowledge, is covered under an appropriate open source
-            license and I have the right under that license to submit that
-            work with modifications, whether created in whole or in part
-            by me, under the same open source license (unless I am
-            permitted to submit under a different license), as indicated
-            in the file; or
+My code reading leads me to think there is a rare lockup possibility
+here, where a task already holding cpuset_sem could try to get it
+again in the new cpuset_zone_allowed() code.
 
-; that should be okay.
-								Pavel
+Only systems actively manipulating cpusets have any chance of seeing
+this.
+
 -- 
-if you have sharp zaurus hardware you don't need... you know my address
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

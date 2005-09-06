@@ -1,111 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932417AbVIFGei@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932420AbVIFGkG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932417AbVIFGei (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 02:34:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932419AbVIFGei
+	id S932420AbVIFGkG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 02:40:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbVIFGkG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 02:34:38 -0400
-Received: from web33806.mail.mud.yahoo.com ([66.163.178.53]:42108 "HELO
-	web33806.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932417AbVIFGeh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 02:34:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=GKNnNRW1kvVPggjBMqnLsH1T8csda0AItBFa+bUjtCgsA0Eq31Q7K4iiPruqAtnJEqNn0wuDWc4DSbo7gAdyjyk65qwczqVetniEbJScmOVvCOJrNa38YFE3wDIwUjHpRFw8rzVDjcBYPN6x6x2Cy5/TnDjjgaHTCnOQZClwUx4=  ;
-Message-ID: <20050906063416.17001.qmail@web33806.mail.mud.yahoo.com>
-Date: Tue, 6 Sep 2005 07:34:16 +0100 (BST)
-From: Mehul Vora <mehul_linux@yahoo.com>
-Subject: Re: netif_rx for ATM
-To: manomugdha biswas <manomugdhab@yahoo.co.in>, linux-kernel@vger.kernel.org
-Cc: linux-net@vger.kernel.org
-In-Reply-To: <20050906041604.50601.qmail@web8505.mail.in.yahoo.com>
+	Tue, 6 Sep 2005 02:40:06 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:53997 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S932420AbVIFGkF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 02:40:05 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: RFC: i386: kill !4KSTACKS
+Date: Tue, 6 Sep 2005 09:39:27 +0300
+User-Agent: KMail/1.8.2
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+References: <20050904145129.53730.qmail@web50202.mail.yahoo.com> <1125854398.23858.51.camel@localhost.localdomain> <p73aciqrev0.fsf@verdi.suse.de>
+In-Reply-To: <p73aciqrev0.fsf@verdi.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509060939.28055.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
-  For submitting an sk_buff to upper layer you have to
-use atm_vcc structure, provided by kernel. This has
-one "push" entry point where you can pass your skbuff
-structure. go through drivers/atm/zatm.c.
+On Tuesday 06 September 2005 07:37, Andi Kleen wrote:
+> Running with tight stack is just a fundamentally fragile configuration
+> and will come back to bite you later. Even with 8k we regularly
+> had overflows reported and with 4k it will be much worse.
 
-Mehul.
+I think one of the reasons is:
 
+"No matter how big stack is, there are always careless
+code which can overflow it. 4k, 8k, 64k (hypotetically),
+we still must keep stack size in mind when coding.
 
---- manomugdha biswas <manomugdhab@yahoo.co.in> wrote:
+So, since we already are writing stack size aware code,
+why not pick minimum realistically working stack size? Looks
+like we can make 4k stack work, and it's naturally smallest
+sensible (and in fact easiest to allocate/manage) stack for i386.
+So be it, let's use 4k."
 
-> 
-> 
->  Hi,
->  I am writing a new driver module for ATM. I want to
->  send a packet to protocol stack using netif_rx().
->  For
->  ethernet i am using netif_rx() in the following
-> way.
->  I
->  have dev pointer.
->  
->    skbuff->dev = device; 
->    skbuff->protocol = eth_type_trans(skbuff,
-> device);
->  
->    netif_rx(skbuff); 
->  
->  It works for ethernet and POS and does not work for
->  ATM. Could anyone please tell me what to do for
-> ATM?
->  
->  Regards,
->  Mano
->  
->  
-> > Manomugdha Biswas
-> > 
-> > 
-> > 	
-> > 
-> > 	
-> > 		
-> >
->
-__________________________________________________________
-> > 
-> > Yahoo! India Matrimony: Find your partner online.
-> Go
-> > to http://yahoo.shaadi.com
-> > -
-> > To unsubscribe from this list: send the line
-> > "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at 
-> > http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> 
-> 
-> Manomugdha Biswas
-> 
-> 
-> 	
-> 
-> 	
-> 		
->
-__________________________________________________________
-> 
-> Yahoo! India Matrimony: Find your partner online. Go
-> to http://yahoo.shaadi.com
-> -
-> To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-
-Send instant messages to your online friends http://uk.messenger.yahoo.com 
+I suspect Windows went the opposite way. I bet they already went
+thru several iterations of "ouch these drivers from BogoSoft
+can overflow stack on nt N, let's bump up stack size for
+our new shiny nt N+1".
+--
+vda

@@ -1,46 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750891AbVIFUbw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750893AbVIFUch@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750891AbVIFUbw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 16:31:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750892AbVIFUbw
+	id S1750893AbVIFUch (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 16:32:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750894AbVIFUch
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 16:31:52 -0400
-Received: from st.cuni.cz ([195.113.20.8]:13757 "EHLO ss1000.ms.mff.cuni.cz")
-	by vger.kernel.org with ESMTP id S1750890AbVIFUbv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 16:31:51 -0400
-Date: Tue, 6 Sep 2005 22:31:39 +0200
-From: Rudo Thomas <rudo@matfyz.cz>
-To: Adam Petaccia <adam@tpetaccia.com>
-Cc: Con Kolivas <kernel@kolivas.org>, ck list <ck@vds.kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.13-ck2
-Message-ID: <20050906203139.GB10282@ss1000.ms.mff.cuni.cz>
-Mail-Followup-To: Adam Petaccia <adam@tpetaccia.com>,
-	Con Kolivas <kernel@kolivas.org>, ck list <ck@vds.kolivas.org>,
-	linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200509052344.11665.kernel@kolivas.org> <1126031157.8117.5.camel@pimpmobile>
+	Tue, 6 Sep 2005 16:32:37 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:23185
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1750892AbVIFUch (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 16:32:37 -0400
+Date: Tue, 06 Sep 2005 13:32:08 -0700 (PDT)
+Message-Id: <20050906.133208.68854265.davem@davemloft.net>
+To: ak@suse.de
+Cc: discuss@x86-64.org, Terrence.Miller@sun.com, jakub@redhat.com,
+       bunk@stusta.de, matz@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [discuss] [2.6 patch] include/asm-x86_64 "extern inline" ->
+ "static inline"
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <200509062223.50747.ak@suse.de>
+References: <20050905184740.GF7403@devserv.devel.redhat.com>
+	<431DD7BE.7060504@Sun.COM>
+	<200509062223.50747.ak@suse.de>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1126031157.8117.5.camel@pimpmobile>
-User-Agent: Mutt/1.5.7i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I think this patch is missing an IFDEF or something (I'm not really a
-> programmer, I just like to pretend).  Anyway, I've tried building -ck2
-> without swap enabled, and it failed.  Just to make sure, I make'd
-> distclean, and I get the following:
-> 
->   LD      .tmp_vmlinux1
-> mm/built-in.o: In function `zone_watermark_ok':
-> mm/page_alloc.c:763: undefined reference to `delay_prefetch'
-> mm/built-in.o: In function `swap_setup':
-> mm/swap.c:485: undefined reference to `prepare_prefetch'
-> make: *** [.tmp_vmlinux1] Error 1
+From: Andi Kleen <ak@suse.de>
+Date: Tue, 6 Sep 2005 22:23:50 +0200
 
-Maybe the mistake will be obvious to the autor (Con:), but it would be
-helpful if you included .config from the kernel directory.
+> I don't think the functionality of having single copies in case 
+> an out of line version was needed was ever required by the Linux kernel.
 
-Rudo.
+Alpha does, exactly for the kind of case this gcc inlining feature was
+designed for.

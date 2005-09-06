@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964838AbVIFM2U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964821AbVIFMkh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964838AbVIFM2U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 08:28:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964821AbVIFM2T
+	id S964821AbVIFMkh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 08:40:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964841AbVIFMkh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 08:28:19 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:59275 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S964838AbVIFM2T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 08:28:19 -0400
-Date: Mon, 5 Sep 2005 22:28:31 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Tony Lindgren <tony@atomide.com>
-Cc: Pavel Machek <pavel@ucw.cz>, Joerg Sommrey <jo@sommrey.de>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/2] amd76x_pm: C2 powersaving for AMD K7
-Message-ID: <20050905202831.GD2142@openzaurus.ucw.cz>
-References: <20050901201434.GA8728@sommrey.de> <20050905145240.GB2142@openzaurus.ucw.cz> <20050905154311.GV5734@atomide.com>
+	Tue, 6 Sep 2005 08:40:37 -0400
+Received: from tim.rpsys.net ([194.106.48.114]:59791 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S964821AbVIFMkg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 08:40:36 -0400
+Subject: Re: [-mm patch 3/5] SharpSL: Abstract c7x0 specifics from Corgi
+	Touchscreen driver
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+In-Reply-To: <1126007630.8338.128.camel@localhost.localdomain>
+References: <1126007630.8338.128.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Tue, 06 Sep 2005 13:40:25 +0100
+Message-Id: <1126010426.8338.139.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050905154311.GV5734@atomide.com>
-User-Agent: Mutt/1.3.27i
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, 2005-09-06 at 12:53 +0100, Richard Purdie wrote:
+> Separate out the Sharp Zaurus c7x0 series specific code from the Corgi
+> Touchscreen driver. Use the new functions in corgi_lcd.c via sharpsl.h
+> for hsync handling and pass the IRQ as a platform device resource. Move
+> a function prototype into the w100fb header file where it belongs.
+> 
+> This enables the driver to be used by the Zaurus cxx00 series.
+> 
+> Index: linux-2.6.12/drivers/input/touchscreen/corgi_ts.c
+> ===================================================================
 
-> > > +NOTE: Currently there's a bug somewhere where the reading the
-> > > +      P_LVL2 for the first time causes the system to sleep instead of 
-> > > +      idling. This means that you need to hit the power button once to
-> > > +      wake the system after loading the module for the first time after
-> > > +      reboot. After that the system idles as supposed.
-> > > +      (Only observed on Tony's system.)
-> > 
-> > Could you fix this before merge?
-> 
-> I think this is some BIOS issue or hardware bug. It happens only on
-> Tyan S2460. I tried dumping the registers few years ago on my
-> Tyan s2460, but no luck.
-> 
-> Low chance for anybody fixing it...
-> 
+I've updated Andrew with versions of patches 3 and 5 with correct
+Signed-Off-by: lines.
 
-So at least DMI-blacklist it...
-				Pavel
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+Richard
 

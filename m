@@ -1,55 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbVIFOuO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbVIFPFm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750700AbVIFOuO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 10:50:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750702AbVIFOuO
+	id S1750708AbVIFPFm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 11:05:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750709AbVIFPFm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 10:50:14 -0400
-Received: from main.gmane.org ([80.91.229.2]:45780 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750700AbVIFOuM (ORCPT
+	Tue, 6 Sep 2005 11:05:42 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:60587 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1750708AbVIFPFm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 10:50:12 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Matthieu CASTET <castet.matthieu@free.fr>
-Subject: Re: Patch for link detection for R8169
-Date: Tue, 06 Sep 2005 16:46:55 +0200
-Message-ID: <pan.2005.09.06.14.46.50.324819@free.fr>
-References: <431DA887.2010008@zabrze.zigzag.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: cac94-1-81-57-151-96.fbx.proxad.net
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
+	Tue, 6 Sep 2005 11:05:42 -0400
+Date: Tue, 6 Sep 2005 17:05:33 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: viro@ZenIV.linux.org.uk
+cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Kconfig fix (BLK_DEV_FD dependencies)
+In-Reply-To: <20050906134944.GV5155@ZenIV.linux.org.uk>
+Message-ID: <Pine.LNX.4.61.0509061701060.3743@scrub.home>
+References: <20050906004842.GP5155@ZenIV.linux.org.uk>
+ <Pine.LNX.4.61.0509061205510.3743@scrub.home> <20050906134944.GV5155@ZenIV.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le Tue, 06 Sep 2005 16:32:39 +0200, Miroslaw Mieszczak a écrit :
+Hi,
 
-> There is a patch to driver of RLT8169 network card. This match make 
-> possible detection of the link status even if network interface is down.
-> This is usefull for laptop users.
-> 
-> 
-> 
-> --- r8169.c	2005-09-02 15:34:52.000000000 +0200
-> +++ linux/drivers/net/r8169.c	2005-09-05 21:11:15.000000000 +0200
-> @@ -538,14 +538,27 @@
->  
->  static unsigned int rtl8169_tbi_link_ok(void __iomem *ioaddr)
->  {
-> -	return RTL_R32(TBICSR) & TBILinkOk;
-> +	return (RTL_R32(TBICSR) & TBILinkOk) == TBILinkOk ? 1:0;
->  }
->  
->  static unsigned int rtl8169_xmii_link_ok(void __iomem *ioaddr)
->  {
-> -	return RTL_R8(PHYstatus) & LinkStatus;
-> +	return (RTL_R8(PHYstatus) & LinkStatus) == LinkStatus ? 1:0;
->  }
->  
-(a==b)?1:0 is stupid just use (a==b) ...
-And in this case I am sure we care only if it is null or non-null,
-so there no need to change that...
+On Tue, 6 Sep 2005 viro@ZenIV.linux.org.uk wrote:
 
+> We could go for your "allow" form, but what else would need it?  USB gadget
+> stuff with its "must have at most one low-level driver, high-level drivers
+> should be allowed only if a low-level one is present"?  RTC mess is better
+> solved in other ways, PARPORT_PC is mostly solved by now, what's left?
+> VGA_CONSOLE?  I really don't see enough uses for such construct...
+
+It would be mostly useful for arm/mips with their millions of 
+configurations. Adding or removing one of them would become easier if the 
+references to it aren't spread over the complete.
+Basically select is already used (and sometimes abused) this way.
+
+bye, Roman

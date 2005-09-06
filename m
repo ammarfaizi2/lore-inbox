@@ -1,43 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbVIFTs5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750832AbVIFTyu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750834AbVIFTs5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 15:48:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750835AbVIFTs5
+	id S1750832AbVIFTyu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 15:54:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750833AbVIFTyu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 15:48:57 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:48342 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S1750834AbVIFTs5
+	Tue, 6 Sep 2005 15:54:50 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:52715 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750832AbVIFTyt
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 15:48:57 -0400
-Date: Tue, 6 Sep 2005 21:46:02 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Miroslaw Mieszczak <mieszcz@zabrze.zigzag.pl>
-Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org
-Subject: Re: Patch for link detection for R8169
-Message-ID: <20050906194602.GA20862@electric-eye.fr.zoreil.com>
-References: <431DA887.2010008@zabrze.zigzag.pl>
+	Tue, 6 Sep 2005 15:54:49 -0400
+Subject: Re: [RFC][PATCH] Use proper casting with signed timespec.tv_nsec
+	values
+From: john stultz <johnstul@us.ibm.com>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.62.0509061032010.16745@schroedinger.engr.sgi.com>
+References: <1125608627.22448.4.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.62.0509061032010.16745@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Date: Tue, 06 Sep 2005 12:54:37 -0700
+Message-Id: <1126036477.14172.4.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <431DA887.2010008@zabrze.zigzag.pl>
-User-Agent: Mutt/1.4.2.1i
-X-Organisation: Land of Sunshine Inc.
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miroslaw Mieszczak <mieszcz@zabrze.zigzag.pl> :
-> There is a patch to driver of RLT8169 network card. This match make 
-> possible detection of the link status even if network interface is down.
-> This is usefull for laptop users.
+On Tue, 2005-09-06 at 10:33 -0700, Christoph Lameter wrote:
+> On Thu, 1 Sep 2005, john stultz wrote:
+> 
+> > 	I recently ran into a bug with an older kernel where xtime's tv_nsec
+> > field had accumulated more then 2 seconds worth of time. The timespec's
+> > tv_nsec is a signed long, however gettimeofday() treats it as an
+> > unsigned long. Thus when the failure occured, very strange and difficult
+> > to debug time problems occurred.
+> 
+> How can that happen? I think the source of the problem needs to be fixed. 
+> The fix is only going decrease the likelyhood of the problem occurring.
 
-(side note: there is maintainer entry for the r8169 and network related
-patches are welcome on netdev@vger.kernel.org)
+Really it shouldn't, I'm just adding the extra casting to be more
+explicit to if at some point in the future a bug does creep up, it will
+be easier to understand. The code is assuming we're unsigned, so why not
+make that clear to the compiler?
 
-Can you elaborate why it is usefull for laptop users ?
+Granted, its not really all that critical and it is a bit paranoid. I
+just figured I'd float the patch to see if folks thought it would be a
+good idea. 
 
-I am sceptical: tg3/bn2x/skge do not seem to allow it either.
+thanks
+-john
 
-Jeff, is it a requirement ?
 
---
-Ueimor
+

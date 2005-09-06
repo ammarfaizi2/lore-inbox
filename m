@@ -1,46 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965047AbVIFBPb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965025AbVIFBUa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965047AbVIFBPb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 21:15:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965050AbVIFBPb
+	id S965025AbVIFBUa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 21:20:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965054AbVIFBUa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 21:15:31 -0400
-Received: from mail.tor.primus.ca ([216.254.136.21]:4248 "EHLO
-	smtp-03.primus.ca") by vger.kernel.org with ESMTP id S965047AbVIFBPb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 21:15:31 -0400
-From: "Gabriel A. Devenyi" <ace@staticwave.ca>
-To: linux-kernel@vger.kernel.org
-Subject: Bit Truncation in drivers/pci/probe.c on amd64
-User-Agent: KMail/1.8.2
+	Mon, 5 Sep 2005 21:20:30 -0400
+Received: from zproxy.gmail.com ([64.233.162.192]:15837 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965025AbVIFBUa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 21:20:30 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=bOTVVZKU/ssQAPcG0DH246Wls3Ln/WpRBUDPJ0byxd+TOVtMfh8fJ1k8q+K/K4UQtsboiGBEAI1uHZSbEEjhkYEbumOhLJp7i/k7dB4kDGG6s/CLSo161bZcZNUVjQb8jAnM3DujeSRXTYQO7c+EakjudIoBB/JTIMdXeW139eU=
+Message-ID: <431CEEAF.5090701@gmail.com>
+Date: Tue, 06 Sep 2005 09:19:43 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-X-Length: 1380
-Date: Mon, 5 Sep 2005 21:15:27 -0400
-Cc: kernel-janitors@lists.osdl.org
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: gl@dsa-ac.de
+CC: Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: who sets boot_params[].screen_info.orig_video_isVGA?
+References: <Pine.LNX.4.63.0509051646480.11341@pcgl.dsa-ac.de> <E1ECIub-00088O-00@chiark.greenend.org.uk> <Pine.LNX.4.63.0509051736420.11341@pcgl.dsa-ac.de>
+In-Reply-To: <Pine.LNX.4.63.0509051736420.11341@pcgl.dsa-ac.de>
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200509052115.27300.ace@staticwave.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the current git repository, on my amd64 machine I get the following warning on compile
-drivers/pci/probe.c: In function `pci_read_bases':
-drivers/pci/probe.c:166: warning: large integer implicitly truncated to unsigned type
-drivers/pci/probe.c:216: warning: large integer implicitly truncated to unsigned type
+gl@dsa-ac.de wrote:
+> Thanks for the reply, Matthew.
+> 
+> On Mon, 5 Sep 2005, Matthew Garrett wrote:
+> 
+>> gl@dsa-ac.de <gl@dsa-ac.de> wrote:
+>>> I am trying to get intelfb running on a system with a 855GM onboard
+>>> chip,
+>>> and the driver exits at intelfbdrv.c::intelfb_pci_register() (2.6.13,
+>>> line
+>>> 814:
+>>>
+>>>      if (FIXED_MODE(dinfo) && ORIG_VIDEO_ISVGA != VIDEO_TYPE_VLFB) {
+>>>          ERR_MSG("Video mode must be programmed at boot time.\n");
+>>>          cleanup(dinfo);
+>>>          return -ENODEV;
+>>>      }
+>>
+>> This ought to be done by the bootloader if you pass a vga=foo argument.
+>> The framebuffer driver doesn't know how to switch resolutions (primarily
+>> because Intel won't tell anyone how to do it, so the only method is a
+>> real-mode BIOS call to the VESA BIOS)
+> 
+> Do I get it right, that, say, if I tell grub to load a kernel and
+> specify "vga=xxx" on the kernel command line, grub will interpret it,
+> issue some VESA BIOS calls and fill in the screen_info struct? If so,
+> the card often supports several modes (VGA, SVGA, VESA, different
+> resolutions, colour depths, etc.), right? So, which one will be chosen?
+> Does it depend on the specific value I give to "vga="? How do I force
+> VIDEO_TYPE_VLFB (VESA VGA in graphic mode) mopde then?
+> 
+> BTW, I didn't find any code in grub that sets up screen_info, or it's
+> very well hidden:-)
 
-I've tracked this down to pci_size, and two #define's in include/linux/pci.h
+One good method is to use the "vesa" driver of Xorg/Xfree86.  Check
+/var/log/X*.log and it should have a nice list of vesa mode id's that
+are supported.
 
-#define  PCI_BASE_ADDRESS_MEM_MASK	(~0x0fUL)
-#define PCI_ROM_ADDRESS_MASK	(~0x7ffUL)
+Then add 0x200 to any of them and use it in your vga= parameter.
 
-pci_size expects 3 u32 arguments,but from what I can tell, on 64 bit arch's the two above 
-defines expand to 64bit values, and are truncated when being passed.
-
-I'm not sure how to go about fixing this, if pci_size should accept a u64 or if the defines should
-be changed. Is this bug dangerous? What should be done to fix it?
-
--- 
-Gabriel A. Devenyi
-ace@staticwave.ca
+Tony 

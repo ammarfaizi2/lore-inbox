@@ -1,49 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbVIFQNS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750750AbVIFQIw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750733AbVIFQNS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 12:13:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbVIFQNS
+	id S1750750AbVIFQIw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 12:08:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750733AbVIFQIv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 12:13:18 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:16044 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1750733AbVIFQNR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 12:13:17 -0400
-Date: Tue, 6 Sep 2005 18:13:13 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: viro@ZenIV.linux.org.uk
-cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Kconfig fix (BLK_DEV_FD dependencies)
-In-Reply-To: <20050906152320.GX5155@ZenIV.linux.org.uk>
-Message-ID: <Pine.LNX.4.61.0509061807200.3728@scrub.home>
-References: <20050906004842.GP5155@ZenIV.linux.org.uk>
- <Pine.LNX.4.61.0509061205510.3743@scrub.home> <20050906134944.GV5155@ZenIV.linux.org.uk>
- <Pine.LNX.4.61.0509061701060.3743@scrub.home> <20050906152320.GX5155@ZenIV.linux.org.uk>
+	Tue, 6 Sep 2005 12:08:51 -0400
+Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:7359 "EHLO
+	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP
+	id S1750750AbVIFQIv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 12:08:51 -0400
+X-ORBL: [69.107.75.50]
+Date: Tue, 06 Sep 2005 09:00:43 -0700
+From: David Brownell <david-b@pacbell.net>
+To: linux-kernel@vger.kernel.org, basicmark@yahoo.com
+Subject: Re: SPI redux ... driver model support
+Cc: dpervushin@ru.mvista.com
+References: <20050906100513.25072.qmail@web30307.mail.mud.yahoo.com>
+In-Reply-To: <20050906100513.25072.qmail@web30307.mail.mud.yahoo.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20050906160043.9BDFAD480C@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> > > I did think about doing this but the problem is how do
+> > > you know bus 2 is the bus you think it is?
+> > 
+> > The numbering is board-specific, but in most cases
+> > that can be simplified to being SOC-specific.  ...
+> > 
+> > Hotpluggable SPI controllers are not common, but
+> > that's where that sysfs API to define new devices
+> > would really hit the spot. ...
+> > 
+> > (What I've seen a bit more often is that expansion
+> > cards will be wired for SPI, so the thing that's
+> > vaguely hotplug-ish is that once you know what
+> > card's hooked up, you'll know the SPI devices it
+> > has.  Then the question is how to tell the kernel
+> > about them ...  same solution, which again must work
+> > without hardware probing.)
+>
+> This is why I decided to pass the cs table as platform
+> data when an adapter is registered. This way you don't
+> have to try to find out an adapters bus number as the
+> adapter has the cs table in it, but because it was
+> passed in as platform data it still abstracts that
+> from the adapter driver. Simple, yet effective :)
 
-On Tue, 6 Sep 2005 viro@ZenIV.linux.org.uk wrote:
+Except that it doesn't work in that primary case, where the SPI devices
+are physically decoupled from any given SPI (master) controller.
+One expansion card uses CS1 for a touchscreen; another uses CS3 for
+SPI flash ... the same "cs table" can't handle both configurations.
+It's got to be segmented, with devices separated from controllers.
 
-> # there's a glue for PC-like FDC
-> allow BLD_DEV_FD
-> 
-> If you insist on having dummy config around allow/select, I don't see any
-> real benefits in using "allow" form...
+Plus, that depends on standardizing platform_data between platforms.
+That's really not the model for platform_data!  And "struct clk" is
+ARM-only for now, too ... 
 
-It has to be in some context, otherwise Kconfig can't tell whether it 
-belongs to the previous config or stands alone.
-At the very last it needs something so it can be internally translated to
 
-config y
-	tristate
-	allow BLD_DEV_FD
+> Have you looked at the patch which I sent?
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0509.0/0817.html
+>
+> I would appreciate any comments on this approach.
 
-OTOH every arch already defines a "config <arch>", where things like this 
-can be added.
+Yes, I plan to follow up to that with comments.  As with Dmitry's
+proposal, it's modeled closely on I2C, and is in consequence larger
+than needed for what it does.
 
-bye, Roman
+One reason I posted this driver-model-only patch was to highlight how
+minimal an SPI core can be if it reuses the driver model core.  I'm
+not a fan of much "mid-layer" infrastructure in driver stacks.
+
+- Dave
+

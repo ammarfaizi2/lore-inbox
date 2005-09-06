@@ -1,38 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750893AbVIFUch@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750861AbVIFUhG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750893AbVIFUch (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 16:32:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750894AbVIFUch
+	id S1750861AbVIFUhG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 16:37:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750895AbVIFUhG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 16:32:37 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:23185
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1750892AbVIFUch (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 16:32:37 -0400
-Date: Tue, 06 Sep 2005 13:32:08 -0700 (PDT)
-Message-Id: <20050906.133208.68854265.davem@davemloft.net>
-To: ak@suse.de
-Cc: discuss@x86-64.org, Terrence.Miller@sun.com, jakub@redhat.com,
-       bunk@stusta.de, matz@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [discuss] [2.6 patch] include/asm-x86_64 "extern inline" ->
- "static inline"
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <200509062223.50747.ak@suse.de>
-References: <20050905184740.GF7403@devserv.devel.redhat.com>
-	<431DD7BE.7060504@Sun.COM>
-	<200509062223.50747.ak@suse.de>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 6 Sep 2005 16:37:06 -0400
+Received: from ns1.coraid.com ([65.14.39.133]:12534 "EHLO coraid.com")
+	by vger.kernel.org with ESMTP id S1750861AbVIFUhF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 16:37:05 -0400
+To: Jim MacBaine <jmacbaine@gmail.com>
+Cc: "David S. Miller" <davem@davemloft.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: aoe fails on sparc64
+References: <3afbacad0508310630797f397d@mail.gmail.com>
+	<87vf1mm7fk.fsf@coraid.com>
+	<20050831.232430.50551657.davem@davemloft.net>
+	<87k6i0bnyn.fsf@coraid.com>
+	<3afbacad05090309064b3cad87@mail.gmail.com>
+From: Ed L Cashin <ecashin@coraid.com>
+Date: Tue, 06 Sep 2005 16:31:19 -0400
+In-Reply-To: <3afbacad05090309064b3cad87@mail.gmail.com> (Jim MacBaine's
+ message of "Sat, 3 Sep 2005 18:06:33 +0200")
+Message-ID: <87ll2agcq0.fsf@coraid.com>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andi Kleen <ak@suse.de>
-Date: Tue, 6 Sep 2005 22:23:50 +0200
+Jim MacBaine <jmacbaine@gmail.com> writes:
 
-> I don't think the functionality of having single copies in case 
-> an out of line version was needed was ever required by the Linux kernel.
+> On 9/1/05, Ed L Cashin <ecashin@coraid.com> wrote:
+>
+>> The aoe driver looks OK, but it turns out there's a byte swapping bug
+>> in the vblade that could be related if he's running the vblade on a
+>> big endian host (even though he said it was an x86 host), but I
+>> haven't heard back from the original poster yet.
+>
+> It is in fact a x86_64 kernel, but with a mostly x86 userland. Vblade
+> is pure x86 code.
+>
+>> The vblade bug was the omission of swapping the bytes in each short.
+>> The fix below shows what I mean:
+>
+> Unfortunately it doesn't fix anything here. The client still reports
+> the same wrong size as before.  The dmesg output is identical, too.
 
-Alpha does, exactly for the kind of case this gcc inlining feature was
-designed for.
+Let's take this discussion off the lkml, because I doubt there's a
+problem with the aoe driver in the kernel, and I can easily follow up
+to the lkml with a synopsis if it turns out I'm wrong.
+
+Jim MacBaine, I'm going to ask for more details in a separate email.
+
+-- 
+  Ed L Cashin <ecashin@coraid.com>
+

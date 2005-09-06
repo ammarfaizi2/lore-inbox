@@ -1,1104 +1,473 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750863AbVIFUVK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750874AbVIFUVw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750863AbVIFUVK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 16:21:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750865AbVIFUVK
+	id S1750874AbVIFUVw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 16:21:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750873AbVIFUVw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 16:21:10 -0400
-Received: from ganesha.gnumonks.org ([213.95.27.120]:64183 "EHLO
-	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
-	id S1750863AbVIFUVI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 16:21:08 -0400
-Date: Tue, 6 Sep 2005 22:21:02 +0200
-From: Harald Welte <laforge@gnumonks.org>
-To: Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Omnikey Cardman 4040 driver (UPDATE)
-Message-ID: <20050906202102.GN14984@sunbeam.de.gnumonks.org>
-References: <20050905195404.GA16056@rama.de.gnumonks.org> <20050905190635.GA18315@infradead.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gTtJ75FAzB1T2CN6"
-Content-Disposition: inline
-In-Reply-To: <20050905190635.GA18315@infradead.org>
-User-Agent: mutt-ng devel-20050619 (Debian)
-X-Spam-Score: 0.2 (/)
-X-Spam-Report: Spam detection software, running on the system "ganesha", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Hi hch, thanks for your feedback. An updated version of
-	the patch is at the bottom of this mail. On Mon, Sep 05, 2005 at
-	08:06:35PM +0100, Christoph Hellwig wrote: > > +#include
-	<linux/version.h> > > I don't think you need this one. [...] 
-	Content analysis details:   (0.2 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 TW_FC                  BODY: Odd Letter Triples with FC
-	0.1 TW_DB                  BODY: Odd Letter Triples with DB
+	Tue, 6 Sep 2005 16:21:52 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:44046 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S1750874AbVIFUVv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 16:21:51 -0400
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_001_01C5B320.9A5C6900"
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <58d0dbf105090612421dcd9d8d@mail.gmail.com>
+References: <20050904145129.53730.qmail@web50202.mail.yahoo.com> <1125854398.23858.51.camel@localhost.localdomain> <p73aciqrev0.fsf@verdi.suse.de> <dfk5cp$19p$1@sea.gmane.org> <58d0dbf10509061005358dce91@mail.gmail.com> <dfkjav$lmd$1@sea.gmane.org> <58d0dbf105090612421dcd9d8d@mail.gmail.com>
+X-OriginalArrivalTime: 06 Sep 2005 20:21:46.0078 (UTC) FILETIME=[9A684FE0:01C5B320]
+Content-class: urn:content-classes:message
+Subject: Re: RFC: i386: kill !4KSTACKS
+Date: Tue, 6 Sep 2005 16:21:45 -0400
+Message-ID: <Pine.LNX.4.61.0509061616540.4686@chaos.analogic.com>
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+Thread-Topic: RFC: i386: kill !4KSTACKS
+Thread-Index: AcWzIJp2bVVm35riTIGwmCmKRml8sA==
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Jan Kiszka" <jan.kiszka@googlemail.com>
+Cc: "Giridhar Pemmasani" <giri@lmc.cs.sunysb.edu>,
+       "Linux kernel" <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
 
---gTtJ75FAzB1T2CN6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+------_=_NextPart_001_01C5B320.9A5C6900
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
-Hi hch, thanks for your feedback.
 
-An updated version of the patch is at the bottom of this mail.
+On Tue, 6 Sep 2005, Jan Kiszka wrote:
 
-On Mon, Sep 05, 2005 at 08:06:35PM +0100, Christoph Hellwig wrote:
-> > +#include <linux/version.h>
->=20
-> I don't think you need this one.
+> 2005/9/6, Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>:
+>> Jan Kiszka wrote:
+>>
+>>> The only way I see is to switch stacks back on ndiswrapper API entry.
+>>> But managing all those stacks correctly is challenging, as you will
+>>> likely not want to create a new stack on each switching point. Rather,
+>>
+>> This is what I had in mind before I saw this thread here. I, in fact,=
+ did
+>> some work along those lines, but it is even more complicated than you
+>> mentioned here: Windows uses different calling conventions (STDCALL,
+>> FASTCALL, CDECL) so switching stacks by copying arguments/results gets
+>> complicated. So I gave up on that approach. For X86-64 drivers we use
+>> similar approach, but for that there is only one calling convention and=
+ we
+>> don't need to switch stacks, but reshuffle arguments on stack / in
+>> registers.
+>>
+>> I am still hoping that Andi's approach is possible (I don't understand=
+ how
+>> we can make kernel see current info from private stack).
+>>
+>
+> The more I think about this the more it becomes clear that this path
+> will be too winding, especially when compared to the effort needed to
+> patch 8K (or more) back into the kernel as an intermediate workaround.
+>
+> Moving the Windows code out of the kernel to userspace should be more
+> helpful on the long term. It would take a small stub, something like
+> tun/tap devices with wireless extensions, plus something to forward
+> PCI interrupts, and you could start hacking the wrapper in a save
+> harbour. If libusb is already prepared for such a task is not yet
+> clear to me (at least it is lacking USB 2.0 according to the docs).
+> But time will likely solve this as well.
+>
+> Jan
+> -
 
-done
 
-> > +#include <pcmcia/version.h>
->=20
-> you shouldn't need this one.
+The attached device-driver allocates a 0x4000 length
+stack in an ioctl() procedure, uses that stack, then
+returns to the old stack before returning from the
+ioctl(). Since the data-space for the stack is allocated
+only once (when the module is installed), the runtime
+overhead is not very great. The driver runs on 2.6.13.
 
-done
+This just shows that it can be done! This doesn't mean
+that one should actually do this!
 
-> > +static atomic_t cm4040_num_devices_open;
-> > +
-> > +#ifdef PCMCIA_DEBUG
-> > +static int pc_debug =3D PCMCIA_DEBUG;
-> > +module_param(pc_debug, int, 0600);
-> > +#define DEBUG(n, x, args...) do { if (pc_debug >=3D (n)) 			    \
-> > +				  printk(KERN_DEBUG "%s:%s:" x, MODULE_NAME, \
-> > +					 __FUNCTION__, ##args); } while (0)
-> > +#else
-> > +#define DEBUG(n, args...)
-> > +#endif
->=20
-> What about just using pr_debug (or dev_dbg where you have a struct device
-> handy)
+Script started on Tue 06 Sep 2005 04:09:32 PM EDT
+[root@chaos driver]# make install
+Analogic StkDev : Initialization complete
+[root@chaos driver]# ./tester
+[root@chaos driver]# ./tester
+[root@chaos driver]# ./tester
+[root@chaos driver]# make remove
+StkDev 6020 0 - Live 0xf0a34000
+Analogic StkDev : Initialization complete
+Doing something scary on the new stack!!
+Actually survived!
+Doing something scary on the new stack!!
+Actually survived!
+Doing something scary on the new stack!!
+Actually survived!
+Analogic StkDev : Module removed
+[root@chaos driver]# exit
+Script done on Tue 06 Sep 2005 04:09:55 PM EDT
 
-I really appreciate the multiple debug levels of the driver, sorry.
-However, I have converted the DEBUG macro to use dev_printk as a
-compromise.
-=20
-> Please make the poll timer per device.  We generally try to avoid
-> global state, and this allows to get rid of the opencount tracking aswell.
 
-done.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.13 on an i686 machine (5589.54 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+.
+I apologize for the following. I tried to kill it with the above dot :
 
-> > +static ssize_t cm4040_read(struct file *filp, char __user *buf,
-> > +			size_t count, loff_t *ppos)
-> > +{
-> > +	struct reader_dev *dev =3D (struct reader_dev *) filp->private_data;
->=20
-> no need to case a void pointer.
 
-well, but good style in my opioion anyway.  Anway, I don't really mind,
-so it has been removed.
+****************************************************************
+The information transmitted in this message is confidential and may be=
+ privileged.  Any review, retransmission, dissemination, or other use of=
+ this information by persons or entities other than the intended recipient=
+ is prohibited.  If you are not the intended recipient, please notify=
+ Analogic Corporation immediately - by replying to this message or by=
+ sending an email to DeliveryErrors@analogic.com - and destroy all copies=
+ of this information, including any attachments, without reading or=
+ disclosing them.
 
-> > +	if (count < 10)
-> > +		return -EFAULT;
-> > +
-> > +	if (filp->f_flags & O_NONBLOCK) {=20
-> > +		DEBUG(4, "filep->f_flags O_NONBLOCK set\n");
-> > +		DEBUG(2, "<- cm4040_read (failure)\n");
-> > +		return -EAGAIN;
-> > +	}
->=20
-> this sounds rather pointless.  letting an O_NONBLOCK open fail all
-> the time doesn't sound like a good idea.
+Thank you.
+------_=_NextPart_001_01C5B320.9A5C6900
+Content-Type: APPLICATION/x-gzip;
+	name="stack.tar.gz"
+Content-Transfer-Encoding: base64
+Content-Description: stack.tar.gz
+Content-Disposition: attachment;
+	filename="stack.tar.gz"
 
-what about fcntl enabling NONBLOCK after the open? =20
-Other character drivers (such as rtc) do the same, btw.
-Is there any way how I can tell the VFS to make any nonblocking
-operation fail?
+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
+BCoAAAAAMBeqPMOBALgBAA==
 
-> please use iminor.
-
-done.
-
-> given that you fail O_NONLOCK in open already the code above makes even
-> less sense.
-
-see my comment above.
-
-> > +	dev->owner =3D current;
->=20
-> this doesn't make a lot of sense and seems to be only used in
-> debug code, I'd suggest killing it.
-
-done.
-
-> you should be able to use file->private_data here.
-
-done
-
-> I think these events became methods of their own recently, not sure
-> if it hit -mm or mainline yet.
-
-I cannot find anything like that in mainline, thus my code remains
-unchanged for now.
-
-diff --git a/MAINTAINERS b/MAINTAINERS
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -1737,6 +1737,11 @@ L:	linux-tr@linuxtr.net
- W:	http://www.linuxtr.net
- S:	Maintained
-=20
-+OMNIKEY CARDMAN 4040 DRIVER
-+P:	Harald Welte
-+M:	laforge@gnumonks.org
-+S:	Maintained
-+
- ONSTREAM SCSI TAPE DRIVER
- P:	Willem Riede
- M:	osst@riede.org
-diff --git a/drivers/char/pcmcia/Kconfig b/drivers/char/pcmcia/Kconfig
---- a/drivers/char/pcmcia/Kconfig
-+++ b/drivers/char/pcmcia/Kconfig
-@@ -18,5 +18,18 @@ config SYNCLINK_CS
- 	  The module will be called synclinkmp.  If you want to do that, say M
- 	  here.
-=20
-+config CARDMAN_4040
-+	tristate "Omnikey CardMan 4040 support"
-+	depends on PCMCIA
-+	help
-+	  Enable support for the Omnikey CardMan 4040 PCMCIA Smartcard
-+	  reader.
-+	 =20
-+	  This card is basically a USB CCID device connected to a FIFO
-+	  in I/O space.  To use the kernel driver, you will need either the
-+	  PC/SC ifdhandler provided from the Omnikey homepage
-+	  (http://www.omnikey.com/), or a current development version of OpenCT
-+	  (http://www.opensc.org/).
-+
- endmenu
-=20
-diff --git a/drivers/char/pcmcia/Makefile b/drivers/char/pcmcia/Makefile
---- a/drivers/char/pcmcia/Makefile
-+++ b/drivers/char/pcmcia/Makefile
-@@ -5,3 +5,4 @@
- #
-=20
- obj-$(CONFIG_SYNCLINK_CS) +=3D synclink_cs.o
-+obj-$(CONFIG_CARDMAN_4040) +=3D cm4040_cs.o
-diff --git a/drivers/char/pcmcia/cm4040_cs.c b/drivers/char/pcmcia/cm4040_c=
-s.c
-new file mode 100644
---- /dev/null
-+++ b/drivers/char/pcmcia/cm4040_cs.c
-@@ -0,0 +1,835 @@
-+/*
-+ * A driver for the Omnikey PCMCIA smartcard reader CardMan 4040
-+ *
-+ * (c) 2000-2004 Omnikey AG (http://www.omnikey.com/)
-+ *
-+ * (C) 2005 Harald Welte <laforge@gnumonks.org>
-+ * 	- add support for poll()
-+ * 	- driver cleanup
-+ * 	- add waitqueues
-+ * 	- adhere to linux kernel coding style and policies
-+ * 	- support 2.6.13 "new style" pcmcia interface
-+ *
-+ * The device basically is a USB CCID compliant device that has been
-+ * attached to an I/O-Mapped FIFO.
-+ *
-+ * All rights reserved, Dual BSD/GPL Licensed.
-+ */
-+
-+/* #define PCMCIA_DEBUG 6 */
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/slab.h>
-+#include <linux/init.h>
-+#include <linux/fs.h>
-+#include <linux/delay.h>
-+#include <linux/poll.h>
-+#include <linux/wait.h>
-+#include <asm/uaccess.h>
-+#include <asm/io.h>
-+
-+#include <pcmcia/cs_types.h>
-+#include <pcmcia/cs.h>
-+#include <pcmcia/cistpl.h>
-+#include <pcmcia/cisreg.h>
-+#include <pcmcia/ciscode.h>
-+#include <pcmcia/ds.h>
-+
-+#include "cm4040_cs.h"
-+
-+
-+#ifdef PCMCIA_DEBUG
-+#define reader_to_dev(x)	(&handle_to_dev(x->link.handle))
-+static int pc_debug =3D PCMCIA_DEBUG;
-+module_param(pc_debug, int, 0600);
-+#define DEBUGP(n, rdr, x, args...) do { 				\
-+	if (pc_debug >=3D (n)) 						\
-+		dev_printk(KERN_DEBUG, reader_to_dev(rdr), "%s:" x, 	\
-+			   __FUNCTION__, ##args); 			\
-+	} while (0)
-+#else
-+#define DEBUGP(n, rdr, x, args...)
-+#endif
-+
-+static char *version =3D
-+"OMNIKEY CardMan 4040 v1.1.0gm4 - All bugs added by Harald Welte";
-+
-+#define	CCID_DRIVER_BULK_DEFAULT_TIMEOUT  	(150*HZ)
-+#define	CCID_DRIVER_ASYNC_POWERUP_TIMEOUT 	(35*HZ)
-+#define	CCID_DRIVER_MINIMUM_TIMEOUT 		(3*HZ)
-+#define READ_WRITE_BUFFER_SIZE 512
-+#define POLL_LOOP_COUNT				1000
-+
-+/* how often to poll for fifo status change */
-+#define POLL_PERIOD 				msecs_to_jiffies(10)
-+
-+static void reader_release(dev_link_t *link);
-+static void reader_detach(dev_link_t *link);
-+
-+static int major;
-+
-+#define		BS_READABLE	0x01
-+#define		BS_WRITABLE	0x02
-+
-+struct reader_dev {
-+	dev_link_t		link;
-+	dev_node_t		node;
-+	wait_queue_head_t	devq;
-+	wait_queue_head_t	poll_wait;
-+	wait_queue_head_t	read_wait;
-+	wait_queue_head_t	write_wait;
-+	unsigned int 	  	buffer_status;
-+	unsigned long     	timeout;
-+	unsigned char     	s_buf[READ_WRITE_BUFFER_SIZE];
-+	unsigned char     	r_buf[READ_WRITE_BUFFER_SIZE];
-+	struct timer_list 	poll_timer;
-+};
-+
-+static dev_info_t dev_info =3D MODULE_NAME;
-+static dev_link_t *dev_table[CM_MAX_DEV] =3D { NULL, };
-+
-+#ifndef PCMCIA_DEBUG
-+#define	xoutb	outb
-+#define	xinb	inb
-+#else
-+static inline void xoutb(unsigned char val, unsigned short port)
-+{
-+	if (pc_debug >=3D 7)
-+		printk(KERN_DEBUG "outb(val=3D%.2x,port=3D%.4x)\n", val, port);
-+	outb(val, port);
-+}
-+
-+static inline unsigned char xinb(unsigned short port)
-+{
-+	unsigned char val;
-+
-+	val =3D inb(port);
-+	if (pc_debug >=3D 7)
-+		printk(KERN_DEBUG "%.2x=3Dinb(%.4x)\n", val, port);
-+	return val;
-+}
-+#endif
-+
-+/* poll the device fifo status register.  not to be confused with
-+ * the poll syscall. */
-+static void cm4040_do_poll(unsigned long dummy)
-+{
-+	struct reader_dev *dev =3D (struct reader_dev *) dummy;
-+	unsigned int obs =3D xinb(dev->link.io.BasePort1
-+				+ REG_OFFSET_BUFFER_STATUS);
-+
-+	if ((obs & BSR_BULK_IN_FULL)) {
-+		set_bit(BS_READABLE, &dev->buffer_status);
-+		DEBUGP(4, dev, "waking up read_wait\n");
-+		wake_up_interruptible(&dev->read_wait);
-+	} else
-+		clear_bit(BS_READABLE, &dev->buffer_status);
-+
-+	if (!(obs & BSR_BULK_OUT_FULL)) {
-+		set_bit(BS_WRITABLE, &dev->buffer_status);
-+		DEBUGP(4, dev, "waking up write_wait\n");
-+		wake_up_interruptible(&dev->write_wait);
-+	} else
-+		clear_bit(BS_WRITABLE, &dev->buffer_status);
-+
-+	if (dev->buffer_status)
-+		wake_up_interruptible(&dev->poll_wait);
-+
-+	mod_timer(&dev->poll_timer, jiffies + POLL_PERIOD);
-+}
-+
-+static int wait_for_bulk_out_ready(struct reader_dev *dev)
-+{
-+	int i, rc;
-+	int iobase =3D dev->link.io.BasePort1;
-+
-+	for (i =3D 0; i < POLL_LOOP_COUNT; i++) {
-+		if ((xinb(iobase + REG_OFFSET_BUFFER_STATUS)
-+		    & BSR_BULK_OUT_FULL) =3D=3D 0) {
-+			DEBUGP(4, dev, "BulkOut empty (i=3D%d)\n", i);
-+			return 1;
-+		}
-+	}
-+
-+	DEBUGP(4, dev, "wait_event_interruptible_timeout(timeout=3D%ld\n",
-+		dev->timeout);
-+	rc =3D wait_event_interruptible_timeout(dev->write_wait,
-+					      test_and_clear_bit(BS_WRITABLE,
-+						       &dev->buffer_status),
-+					      dev->timeout);
-+
-+	if (rc > 0)
-+		DEBUGP(4, dev, "woke up: BulkOut empty\n");
-+	else if (rc =3D=3D 0)
-+		DEBUGP(4, dev, "woke up: BulkOut full, returning 0 :(\n");
-+	else if (rc < 0)
-+		DEBUGP(4, dev, "woke up: signal arrived\n");
-+
-+	return rc;
-+}
-+
-+/* Write to Sync Control Register */
-+static int write_sync_reg(unsigned char val, struct reader_dev *dev)
-+{
-+	int iobase =3D dev->link.io.BasePort1;
-+	int rc;
-+
-+	rc =3D wait_for_bulk_out_ready(dev);
-+	if (rc <=3D 0)
-+		return rc;
-+
-+	xoutb(val, iobase + REG_OFFSET_SYNC_CONTROL);
-+	rc =3D wait_for_bulk_out_ready(dev);
-+	if (rc <=3D 0)
-+		return rc;
-+
-+	return 1;
-+}
-+
-+static int wait_for_bulk_in_ready(struct reader_dev *dev)
-+{
-+	int i, rc;
-+	int iobase =3D dev->link.io.BasePort1;
-+
-+	for (i =3D 0; i < POLL_LOOP_COUNT; i++) {
-+		if ((xinb(iobase + REG_OFFSET_BUFFER_STATUS)
-+		    & BSR_BULK_IN_FULL) =3D=3D BSR_BULK_IN_FULL) {
-+			DEBUGP(3, dev, "BulkIn full (i=3D%d)\n", i);
-+			return 1;
-+		}
-+	}
-+
-+	DEBUGP(4, dev, "wait_event_interruptible_timeout(timeout=3D%ld\n",
-+		dev->timeout);
-+	rc =3D wait_event_interruptible_timeout(dev->read_wait,
-+					      test_and_clear_bit(BS_READABLE,
-+						 	&dev->buffer_status),
-+					      dev->timeout);
-+	if (rc > 0)
-+		DEBUGP(4, dev, "woke up: BulkIn full\n");
-+	else if (rc =3D=3D 0)
-+		DEBUGP(4, dev, "woke up: BulkIn not full, returning 0 :(\n");
-+	else if (rc < 0)
-+		DEBUGP(4, dev, "woke up: signal arrived\n");
-+
-+	return rc;
-+}
-+
-+static ssize_t cm4040_read(struct file *filp, char __user *buf,
-+			size_t count, loff_t *ppos)
-+{
-+	struct reader_dev *dev =3D filp->private_data;
-+	int iobase =3D dev->link.io.BasePort1;
-+	unsigned long bytes_to_read;
-+	unsigned long i;
-+	unsigned long min_bytes_to_read;
-+	int rc;
-+	unsigned char uc;
-+
-+	DEBUGP(2, dev, "-> cm4040_read(%s,%d)\n", current->comm, current->pid);
-+
-+	if (count =3D=3D 0)
-+		return 0;
-+
-+	if (count < 10)
-+		return -EFAULT;
-+
-+	if (filp->f_flags & O_NONBLOCK) {
-+		DEBUGP(4, dev, "filep->f_flags O_NONBLOCK set\n");
-+		DEBUGP(2, dev, "<- cm4040_read (failure)\n");
-+		return -EAGAIN;
-+	}
-+
-+	if ((dev->link.state & DEV_PRESENT)=3D=3D0)
-+		return -ENODEV;
-+
-+	schedule_timeout(1*HZ);
-+	for (i =3D 0; i < 5; i++) {
-+		rc =3D wait_for_bulk_in_ready(dev);
-+		if (rc <=3D 0) {
-+			DEBUGP(5, dev, "wait_for_bulk_in_ready rc=3D%.2x\n", rc);
-+			DEBUGP(2, dev, "<- cm4040_read (failed)\n");
-+			if (rc =3D=3D -ERESTARTSYS)
-+				return rc;
-+			return -EIO;
-+		}
-+	  	dev->r_buf[i] =3D xinb(iobase + REG_OFFSET_BULK_IN);
-+#ifdef PCMCIA_DEBUG
-+		if (pc_debug >=3D 6)
-+			printk(KERN_DEBUG "%lu:%2x ", i, dev->r_buf[i]);
-+	}
-+	printk("\n");
-+#else
-+	}
-+#endif
-+
-+	bytes_to_read =3D 5 + le32_to_cpu(*(__le32 *)&dev->r_buf[1]);
-+
-+	DEBUGP(6, dev, "BytesToRead=3D%lu\n", bytes_to_read);
-+
-+	min_bytes_to_read =3D min(count, bytes_to_read + 5);
-+
-+	DEBUGP(6, dev, "Min=3D%lu\n", min_bytes_to_read);
-+
-+	for (i =3D 0; i < (min_bytes_to_read-5); i++) {
-+		rc =3D wait_for_bulk_in_ready(dev);
-+		if (rc <=3D 0) {
-+			DEBUGP(5, dev, "wait_for_bulk_in_ready rc=3D%.2x\n", rc);
-+			DEBUGP(2, dev, "<- cm4040_read (failed)\n");
-+			if (rc =3D=3D -ERESTARTSYS)
-+				return rc;
-+			return -EIO;
-+		}
-+		dev->r_buf[i+5] =3D xinb(iobase + REG_OFFSET_BULK_IN);
-+#ifdef PCMCIA_DEBUG
-+		if (pc_debug >=3D 6)
-+			printk(KERN_DEBUG "%lu:%2x ", i, dev->r_buf[i]);
-+	}
-+	printk("\n");
-+#else
-+	}
-+#endif
-+
-+	*ppos =3D min_bytes_to_read;
-+	if (copy_to_user(buf, dev->r_buf, min_bytes_to_read))
-+		return -EFAULT;
-+
-+	rc =3D wait_for_bulk_in_ready(dev);
-+	if (rc <=3D 0) {
-+		DEBUGP(5, dev, "wait_for_bulk_in_ready rc=3D%.2x\n", rc);
-+		DEBUGP(2, dev, "<- cm4040_read (failed)\n");
-+		if (rc =3D=3D -ERESTARTSYS)
-+			return rc;
-+		return -EIO;
-+	}
-+
-+	rc =3D write_sync_reg(SCR_READER_TO_HOST_DONE, dev);
-+	if (rc <=3D 0) {
-+		DEBUGP(5, dev, "write_sync_reg c=3D%.2x\n", rc);
-+		DEBUGP(2, dev, "<- cm4040_read (failed)\n");
-+		if (rc =3D=3D -ERESTARTSYS)
-+			return rc;
-+		else
-+			return -EIO;
-+	}
-+
-+	uc =3D xinb(iobase + REG_OFFSET_BULK_IN);
-+
-+	DEBUGP(2, dev, "<- cm4040_read (successfully)\n");
-+	return min_bytes_to_read;
-+}
-+
-+static ssize_t cm4040_write(struct file *filp, const char __user *buf,
-+			 size_t count, loff_t *ppos)
-+{
-+	struct reader_dev *dev =3D filp->private_data;
-+	int iobase =3D dev->link.io.BasePort1;
-+	ssize_t rc;
-+	int i;
-+	unsigned int bytes_to_write;
-+
-+	DEBUGP(2, dev, "-> cm4040_write(%s,%d)\n", current->comm, current->pid);
-+
-+	if (count =3D=3D 0) {
-+		DEBUGP(2, dev, "<- cm4040_write empty read (successfully)\n");
-+		return 0;
-+	}
-+
-+	if (count < 5) {
-+		DEBUGP(2, dev, "<- cm4040_write buffersize=3D%Zd < 5\n", count);
-+		return -EIO;
-+	}
-+
-+	if (filp->f_flags & O_NONBLOCK) {
-+		DEBUGP(4, dev, "filep->f_flags O_NONBLOCK set\n");
-+		DEBUGP(4, dev, "<- cm4040_write (failure)\n");
-+		return -EAGAIN;
-+	}
-+
-+	if ((dev->link.state & DEV_PRESENT) =3D=3D 0)
-+		return -ENODEV;
-+
-+	bytes_to_write =3D count;
-+	if (copy_from_user(dev->s_buf, buf, bytes_to_write))
-+		return -EFAULT;
-+
-+	switch (dev->s_buf[0]) {
-+		case CMD_PC_TO_RDR_XFRBLOCK:
-+		case CMD_PC_TO_RDR_SECURE:
-+		case CMD_PC_TO_RDR_TEST_SECURE:
-+		case CMD_PC_TO_RDR_OK_SECURE:
-+			dev->timeout =3D CCID_DRIVER_BULK_DEFAULT_TIMEOUT;
-+			break;
-+
-+		case CMD_PC_TO_RDR_ICCPOWERON:
-+			dev->timeout =3D CCID_DRIVER_ASYNC_POWERUP_TIMEOUT;
-+			break;
-+
-+		case CMD_PC_TO_RDR_GETSLOTSTATUS:
-+		case CMD_PC_TO_RDR_ICCPOWEROFF:
-+		case CMD_PC_TO_RDR_GETPARAMETERS:
-+		case CMD_PC_TO_RDR_RESETPARAMETERS:
-+		case CMD_PC_TO_RDR_SETPARAMETERS:
-+		case CMD_PC_TO_RDR_ESCAPE:
-+		case CMD_PC_TO_RDR_ICCCLOCK:
-+		default:
-+			dev->timeout =3D CCID_DRIVER_MINIMUM_TIMEOUT;
-+			break;
-+	}
-+
-+	rc =3D write_sync_reg(SCR_HOST_TO_READER_START, dev);
-+	if (rc <=3D 0) {
-+		DEBUGP(5, dev, "write_sync_reg c=3D%.2Zx\n", rc);
-+		DEBUGP(2, dev, "<- cm4040_write (failed)\n");
-+		if (rc =3D=3D -ERESTARTSYS)
-+			return rc;
-+		else
-+			return -EIO;
-+	}
-+
-+	DEBUGP(4, dev, "start \n");
-+
-+	for (i =3D 0; i < bytes_to_write; i++) {
-+		rc =3D wait_for_bulk_out_ready(dev);
-+		if (rc <=3D 0) {
-+			DEBUGP(5, dev, "wait_for_bulk_out_ready rc=3D%.2Zx\n",
-+			       rc);
-+			DEBUGP(2, dev, "<- cm4040_write (failed)\n");
-+			if (rc =3D=3D -ERESTARTSYS)
-+				return rc;
-+			else
-+				return -EIO;
-+		}
-+
-+		xoutb(dev->s_buf[i],iobase + REG_OFFSET_BULK_OUT);
-+	}
-+	DEBUGP(4, dev, "end\n");
-+
-+	rc =3D write_sync_reg(SCR_HOST_TO_READER_DONE, dev);
-+
-+	if (rc <=3D 0) {
-+		DEBUGP(5, dev, "write_sync_reg c=3D%.2Zx\n", rc);
-+		DEBUGP(2, dev, "<- cm4040_write (failed)\n");
-+		if (rc =3D=3D -ERESTARTSYS)
-+			return rc;
-+		else
-+			return -EIO;
-+	}
-+
-+	DEBUGP(2, dev, "<- cm4040_write (successfully)\n");
-+	return count;
-+}
-+
-+static unsigned int cm4040_poll(struct file *filp, poll_table *wait)
-+{
-+	struct reader_dev *dev =3D filp->private_data;
-+	unsigned int mask =3D 0;
-+
-+	poll_wait(filp, &dev->poll_wait, wait);
-+
-+	if (test_and_clear_bit(BS_READABLE, &dev->buffer_status))
-+		mask |=3D POLLIN | POLLRDNORM;
-+	if (test_and_clear_bit(BS_WRITABLE, &dev->buffer_status))
-+		mask |=3D POLLOUT | POLLWRNORM;
-+
-+	DEBUGP(2, dev, "<- cm4040_poll(%u)\n", mask);
-+
-+	return mask;
-+}
-+
-+static int cm4040_open(struct inode *inode, struct file *filp)
-+{
-+	struct reader_dev *dev;
-+	dev_link_t *link;
-+	int minor =3D iminor(inode);
-+
-+	if (minor >=3D CM_MAX_DEV)
-+		return -ENODEV;
-+
-+	link =3D dev_table[minor];
-+	if (link =3D=3D NULL || !(DEV_OK(link)))
-+		return -ENODEV;
-+
-+	if (link->open)
-+		return -EBUSY;
-+
-+	dev =3D (struct reader_dev *)link->priv;
-+	filp->private_data =3D dev;
-+
-+	if (filp->f_flags & O_NONBLOCK) {
-+		DEBUGP(4, dev, "filep->f_flags O_NONBLOCK set\n");
-+		return -EAGAIN;
-+	}
-+
-+	link->open =3D 1;
-+
-+	dev->poll_timer.data =3D (unsigned long) dev;
-+	mod_timer(&dev->poll_timer, jiffies + POLL_PERIOD);
-+
-+	DEBUGP(2, dev, "<- cm4040_open (successfully)\n");
-+	return nonseekable_open(inode, filp);
-+}
-+
-+static int cm4040_close(struct inode *inode, struct file *filp)
-+{
-+	struct reader_dev *dev =3D filp->private_data;
-+	dev_link_t *link;
-+	int minor =3D iminor(inode);
-+
-+	DEBUGP(2, dev, "-> cm4040_close(maj/min=3D%d.%d)\n", imajor(inode),=20
-+	      iminor(inode));
-+
-+	if (minor >=3D CM_MAX_DEV)
-+		return -ENODEV;
-+
-+	link =3D dev_table[minor];
-+	if (link =3D=3D NULL)
-+		return -ENODEV;
-+
-+	link->open =3D 0;
-+	wake_up(&dev->devq);
-+
-+	DEBUGP(2, dev, "<- cm4040_close\n");
-+	return 0;
-+}
-+
-+static void cm4040_reader_release(dev_link_t *link)
-+{
-+	struct reader_dev *dev =3D link->priv;
-+
-+	DEBUGP(3, dev, "-> cm4040_reader_release\n");
-+	while (link->open) {
-+		DEBUGP(3, dev, KERN_INFO MODULE_NAME ": delaying release "
-+		       "until process has terminated\n");
-+ 		wait_event(dev->devq, (link->open =3D=3D 0));
-+	}
-+	DEBUGP(3, dev, "<- cm4040_reader_release\n");
-+	return;
-+}
-+
-+static void reader_config(dev_link_t *link, int devno)
-+{
-+	client_handle_t handle;
-+	struct reader_dev *dev;
-+	tuple_t tuple;
-+	cisparse_t parse;
-+	config_info_t conf;
-+	u_char buf[64];
-+	int fail_fn, fail_rc;
-+	int rc;
-+
-+	handle =3D link->handle;
-+
-+	tuple.DesiredTuple =3D CISTPL_CONFIG;
-+	tuple.Attributes =3D 0;
-+	tuple.TupleData =3D buf;
-+	tuple.TupleDataMax =3D sizeof(buf);
-+ 	tuple.TupleOffset =3D 0;
-+
-+	if ((fail_rc =3D pcmcia_get_first_tuple(handle, &tuple)) !=3D CS_SUCCESS)=
- {
-+		fail_fn =3D GetFirstTuple;
-+		goto cs_failed;
-+	}
-+	if ((fail_rc =3D pcmcia_get_tuple_data(handle, &tuple)) !=3D CS_SUCCESS) {
-+		fail_fn =3D GetTupleData;
-+		goto cs_failed;
-+	}
-+	if ((fail_rc =3D pcmcia_parse_tuple(handle, &tuple, &parse))
-+							!=3D CS_SUCCESS) {
-+		fail_fn =3D ParseTuple;
-+		goto cs_failed;
-+	}
-+	if ((fail_rc =3D pcmcia_get_configuration_info(handle, &conf))
-+							!=3D CS_SUCCESS) {
-+		fail_fn =3D GetConfigurationInfo;
-+		goto cs_failed;
-+	}
-+
-+	link->state |=3D DEV_CONFIG;
-+	link->conf.ConfigBase =3D parse.config.base;
-+	link->conf.Present =3D parse.config.rmask[0];
-+	link->conf.Vcc =3D conf.Vcc;
-+
-+	link->io.BasePort2 =3D 0;
-+	link->io.NumPorts2 =3D 0;
-+	link->io.Attributes2 =3D 0;
-+	tuple.DesiredTuple =3D CISTPL_CFTABLE_ENTRY;
-+	for (rc =3D pcmcia_get_first_tuple(handle, &tuple);
-+	     rc =3D=3D CS_SUCCESS;
-+	     rc =3D pcmcia_get_next_tuple(handle, &tuple)) {
-+		rc =3D pcmcia_get_tuple_data(handle, &tuple);
-+		if (rc !=3D CS_SUCCESS)
-+			continue;
-+		rc =3D pcmcia_parse_tuple(handle, &tuple, &parse);
-+		if (rc !=3D CS_SUCCESS)
-+			continue;
-+
-+		link->conf.ConfigIndex =3D parse.cftable_entry.index;
-+
-+		if (!parse.cftable_entry.io.nwin)
-+			continue;
-+
-+		link->io.BasePort1 =3D parse.cftable_entry.io.win[0].base;
-+		link->io.NumPorts1 =3D parse.cftable_entry.io.win[0].len;
-+		link->io.Attributes1 =3D IO_DATA_PATH_WIDTH_AUTO;
-+		if (!(parse.cftable_entry.io.flags & CISTPL_IO_8BIT))
-+			link->io.Attributes1 =3D IO_DATA_PATH_WIDTH_16;
-+		if (!(parse.cftable_entry.io.flags & CISTPL_IO_16BIT))
-+			link->io.Attributes1 =3D IO_DATA_PATH_WIDTH_8;
-+		link->io.IOAddrLines =3D parse.cftable_entry.io.flags
-+						& CISTPL_IO_LINES_MASK;
-+		rc =3D pcmcia_request_io(handle, &link->io);
-+
-+		dev_printk(KERN_INFO, &handle_to_dev(handle), "foo");
-+		if (rc =3D=3D CS_SUCCESS)
-+			break;
-+		else
-+			dev_printk(KERN_INFO, &handle_to_dev(handle),
-+				   "pcmcia_request_io failed 0x%x\n", rc);
-+	}
-+	if (rc !=3D CS_SUCCESS)
-+		goto cs_release;
-+
-+	link->conf.IntType =3D 00000002;
-+
-+	if ((fail_rc =3D pcmcia_request_configuration(handle,&link->conf))
-+								!=3DCS_SUCCESS) {
-+		fail_fn =3D RequestConfiguration;
-+		dev_printk(KERN_INFO, &handle_to_dev(handle),=20
-+			   "pcmcia_request_configuration failed 0x%x\n",
-+			   fail_rc);
-+		goto cs_release;
-+	}
-+
-+	dev =3D link->priv;
-+	sprintf(dev->node.dev_name, DEVICE_NAME "%d", devno);
-+	dev->node.major =3D major;
-+	dev->node.minor =3D devno;
-+	dev->node.next =3D NULL;
-+	link->dev =3D &dev->node;
-+	link->state &=3D ~DEV_CONFIG_PENDING;
-+
-+	DEBUGP(2, dev, "device " DEVICE_NAME "%d at 0x%.4x-0x%.4x\n", devno,
-+	      link->io.BasePort1, link->io.BasePort1+link->io.NumPorts1);
-+	DEBUGP(2, dev, "<- reader_config (succ)\n");
-+
-+	return;
-+
-+cs_failed:
-+	cs_error(handle, fail_fn, fail_rc);
-+cs_release:
-+	reader_release(link);
-+	link->state &=3D ~DEV_CONFIG_PENDING;
-+}
-+
-+static int reader_event(event_t event, int priority,
-+			event_callback_args_t *args)
-+{
-+	dev_link_t *link;
-+	struct reader_dev *dev;
-+	int devno;
-+
-+	link =3D args->client_data;
-+	dev =3D link->priv;
-+	DEBUGP(3, dev, "-> reader_event\n");
-+	for (devno =3D 0; devno < CM_MAX_DEV; devno++) {
-+		if (dev_table[devno] =3D=3D link)
-+			break;
-+	}
-+	if (devno =3D=3D CM_MAX_DEV)
-+		return CS_BAD_ADAPTER;
-+
-+	switch (event) {
-+		case CS_EVENT_CARD_INSERTION:
-+			DEBUGP(5, dev, "CS_EVENT_CARD_INSERTION\n");
-+			link->state |=3D DEV_PRESENT | DEV_CONFIG_PENDING;
-+			reader_config(link, devno);
-+			break;
-+		case CS_EVENT_CARD_REMOVAL:
-+			DEBUGP(5, dev, "CS_EVENT_CARD_REMOVAL\n");
-+			link->state &=3D ~DEV_PRESENT;
-+			break;
-+		case CS_EVENT_PM_SUSPEND:
-+			DEBUGP(5, dev, "CS_EVENT_PM_SUSPEND "
-+			      "(fall-through to CS_EVENT_RESET_PHYSICAL)\n");
-+			link->state |=3D DEV_SUSPEND;
-+
-+		case CS_EVENT_RESET_PHYSICAL:
-+			DEBUGP(5, dev, "CS_EVENT_RESET_PHYSICAL\n");
-+			if (link->state & DEV_CONFIG) {
-+		  		DEBUGP(5, dev, "ReleaseConfiguration\n");
-+		  		pcmcia_release_configuration(link->handle);
-+			}
-+			break;
-+		case CS_EVENT_PM_RESUME:
-+			DEBUGP(5, dev, "CS_EVENT_PM_RESUME "
-+			      "(fall-through to CS_EVENT_CARD_RESET)\n");
-+			link->state &=3D ~DEV_SUSPEND;
-+
-+		case CS_EVENT_CARD_RESET:
-+			DEBUGP(5, dev, "CS_EVENT_CARD_RESET\n");
-+			if ((link->state & DEV_CONFIG)) {
-+				DEBUGP(5, dev, "RequestConfiguration\n");
-+		  		pcmcia_request_configuration(link->handle,
-+							     &link->conf);
-+			}
-+			break;
-+		default:
-+			DEBUGP(5, dev, "reader_event: unknown event %.2x\n",
-+			       event);
-+			break;
-+	}
-+	DEBUGP(3, dev, "<- reader_event\n");
-+	return CS_SUCCESS;
-+}
-+
-+static void reader_release(dev_link_t *link)
-+{
-+	cm4040_reader_release(link->priv);
-+	pcmcia_release_configuration(link->handle);
-+	pcmcia_release_io(link->handle, &link->io);
-+}
-+
-+static dev_link_t *reader_attach(void)
-+{
-+	struct reader_dev *dev;
-+	dev_link_t *link;
-+	client_reg_t client_reg;
-+	int i;
-+
-+	for (i =3D 0; i < CM_MAX_DEV; i++) {
-+		if (dev_table[i] =3D=3D NULL)
-+			break;
-+	}
-+
-+	if (i =3D=3D CM_MAX_DEV)
-+		return NULL;
-+
-+	dev =3D kmalloc(sizeof(struct reader_dev), GFP_KERNEL);
-+	if (dev =3D=3D NULL)
-+		return NULL;
-+
-+	memset(dev, 0, sizeof(struct reader_dev));
-+	dev->timeout =3D CCID_DRIVER_MINIMUM_TIMEOUT;
-+	dev->buffer_status =3D 0;
-+
-+	link =3D &dev->link;
-+	link->priv =3D dev;
-+
-+	link->conf.IntType =3D INT_MEMORY_AND_IO;
-+	dev_table[i] =3D link;
-+
-+	client_reg.dev_info =3D &dev_info;
-+	client_reg.Attributes =3D INFO_IO_CLIENT | INFO_CARD_SHARE;
-+	client_reg.EventMask=3D
-+		CS_EVENT_CARD_INSERTION | CS_EVENT_CARD_REMOVAL |
-+		CS_EVENT_RESET_PHYSICAL | CS_EVENT_CARD_RESET |
-+		CS_EVENT_PM_SUSPEND | CS_EVENT_PM_RESUME;
-+	client_reg.Version =3D 0x0210;
-+	client_reg.event_callback_args.client_data =3D link;
-+	i =3D pcmcia_register_client(&link->handle, &client_reg);
-+	if (i) {
-+		cs_error(link->handle, RegisterClient, i);
-+		reader_detach(link);
-+		return NULL;
-+	}
-+	init_waitqueue_head(&dev->devq);
-+	init_waitqueue_head(&dev->poll_wait);
-+	init_waitqueue_head(&dev->read_wait);
-+	init_waitqueue_head(&dev->write_wait);
-+	init_timer(&dev->poll_timer);
-+	dev->poll_timer.function =3D &cm4040_do_poll;
-+
-+	return link;
-+}
-+
-+static void reader_detach_by_devno(int devno, dev_link_t *link)
-+{
-+	struct reader_dev *dev =3D link->priv;
-+
-+	if (link->state & DEV_CONFIG) {
-+		DEBUGP(5, dev, "device still configured (try to release it)\n");
-+		reader_release(link);
-+	}
-+
-+	pcmcia_deregister_client(link->handle);
-+	dev_table[devno] =3D NULL;
-+	DEBUGP(5, dev, "freeing dev=3D%p\n", dev);
-+	kfree(dev);
-+	return;
-+}
-+
-+static void reader_detach(dev_link_t *link)
-+{
-+	int i;
-+
-+	/* find device */
-+	for (i =3D 0; i < CM_MAX_DEV; i++) {
-+		if (dev_table[i] =3D=3D link)
-+			break;
-+	}
-+	if (i =3D=3D CM_MAX_DEV)
-+		return;
-+
-+	reader_detach_by_devno(i, link);
-+	return;
-+}
-+
-+static struct file_operations reader_fops =3D {
-+	.owner		=3D THIS_MODULE,
-+	.read		=3D cm4040_read,
-+	.write		=3D cm4040_write,
-+	.open		=3D cm4040_open,
-+	.release	=3D cm4040_close,
-+	.poll		=3D cm4040_poll,
-+};
-+
-+static struct pcmcia_device_id cm4040_ids[] =3D {
-+	PCMCIA_DEVICE_MANF_CARD(0x0223, 0x0200),
-+	PCMCIA_DEVICE_PROD_ID12("OMNIKEY", "CardMan 4040",
-+				0xE32CDD8C, 0x8F23318B),
-+	PCMCIA_DEVICE_NULL,
-+};
-+MODULE_DEVICE_TABLE(pcmcia, cm4040_ids);
-+
-+static struct pcmcia_driver reader_driver =3D {
-+  	.owner		=3D THIS_MODULE,
-+  	.drv		=3D {
-+		.name	=3D "cm4040_cs",
-+	},
-+	.attach		=3D reader_attach,
-+	.detach		=3D reader_detach,
-+	.event		=3D reader_event,
-+	.id_table	=3D cm4040_ids,
-+};
-+
-+static int __init cm4040_init(void)
-+{
-+	printk(KERN_INFO "%s\n", version);
-+	pcmcia_register_driver(&reader_driver);
-+	major =3D register_chrdev(0, DEVICE_NAME, &reader_fops);
-+	if (major < 0) {
-+		printk(KERN_WARNING MODULE_NAME
-+			": could not get major number\n");
-+		return -1;
-+	}
-+	return 0;
-+}
-+
-+static void __exit cm4040_exit(void)
-+{
-+	int i;
-+
-+	printk(KERN_INFO MODULE_NAME ": unloading\n");
-+	pcmcia_unregister_driver(&reader_driver);
-+	for (i =3D 0; i < CM_MAX_DEV; i++) {
-+		if (dev_table[i])
-+			reader_detach_by_devno(i, dev_table[i]);
-+	}
-+	unregister_chrdev(major, DEVICE_NAME);
-+}
-+
-+module_init(cm4040_init);
-+module_exit(cm4040_exit);
-+MODULE_LICENSE("Dual BSD/GPL");
-diff --git a/drivers/char/pcmcia/cm4040_cs.h b/drivers/char/pcmcia/cm4040_c=
-s.h
-new file mode 100644
---- /dev/null
-+++ b/drivers/char/pcmcia/cm4040_cs.h
-@@ -0,0 +1,47 @@
-+#ifndef	_CM4040_H_
-+#define	_CM4040_H_
-+
-+#define	CM_MAX_DEV		4
-+
-+#define	DEVICE_NAME		"cmx"
-+#define	MODULE_NAME		"cm4040_cs"
-+
-+#define REG_OFFSET_BULK_OUT      0
-+#define REG_OFFSET_BULK_IN       0
-+#define REG_OFFSET_BUFFER_STATUS 1
-+#define REG_OFFSET_SYNC_CONTROL  2
-+
-+#define BSR_BULK_IN_FULL  0x02
-+#define BSR_BULK_OUT_FULL 0x01
-+
-+#define SCR_HOST_TO_READER_START 0x80
-+#define SCR_ABORT                0x40
-+#define SCR_EN_NOTIFY            0x20
-+#define SCR_ACK_NOTIFY           0x10
-+#define SCR_READER_TO_HOST_DONE  0x08
-+#define SCR_HOST_TO_READER_DONE  0x04
-+#define SCR_PULSE_INTERRUPT      0x02
-+#define SCR_POWER_DOWN           0x01
-+
-+
-+#define  CMD_PC_TO_RDR_ICCPOWERON       0x62
-+#define  CMD_PC_TO_RDR_GETSLOTSTATUS    0x65
-+#define  CMD_PC_TO_RDR_ICCPOWEROFF      0x63
-+#define  CMD_PC_TO_RDR_SECURE           0x69
-+#define  CMD_PC_TO_RDR_GETPARAMETERS    0x6C
-+#define  CMD_PC_TO_RDR_RESETPARAMETERS  0x6D
-+#define  CMD_PC_TO_RDR_SETPARAMETERS    0x61
-+#define  CMD_PC_TO_RDR_XFRBLOCK         0x6F
-+#define  CMD_PC_TO_RDR_ESCAPE           0x6B
-+#define  CMD_PC_TO_RDR_ICCCLOCK         0x6E
-+#define  CMD_PC_TO_RDR_TEST_SECURE      0x74
-+#define  CMD_PC_TO_RDR_OK_SECURE        0x89
-+
-+
-+#define  CMD_RDR_TO_PC_SLOTSTATUS         0x81
-+#define  CMD_RDR_TO_PC_DATABLOCK          0x80
-+#define  CMD_RDR_TO_PC_PARAMETERS         0x82
-+#define  CMD_RDR_TO_PC_ESCAPE             0x83
-+#define  CMD_RDR_TO_PC_OK_SECURE          0x89
-+
-+#endif	/* _CM4040_H_ */
---=20
-- Harald Welte <laforge@gnumonks.org>          	        http://gnumonks.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-"Privacy in residential applications is a desirable marketing option."
-                                                  (ETSI EN 300 175-7 Ch. A6)
-
---gTtJ75FAzB1T2CN6
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFDHfouXaXGVTD0i/8RAnSqAJ0YY0Zmf8xvU7aiFf363MfYfhrlwwCfbaGH
-o8iR9ydC118H8xKvP9IePCQ=
-=jMTd
------END PGP SIGNATURE-----
-
---gTtJ75FAzB1T2CN6--
+------_=_NextPart_001_01C5B320.9A5C6900--

@@ -1,50 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964871AbVIFObN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964852AbVIFOcy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964871AbVIFObN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 10:31:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964873AbVIFObN
+	id S964852AbVIFOcy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 10:32:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964865AbVIFOcy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 10:31:13 -0400
-Received: from v6.netlin.pl ([62.121.136.6]:16822 "EHLO pointblue.com.pl")
-	by vger.kernel.org with ESMTP id S964871AbVIFObL convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 10:31:11 -0400
-From: Grzegorz Piotr Jaskiewicz <gj@kde.org.uk>
-Organization: KDE
-To: "Mathieu" <matt@minas-morgul.org>
-Subject: Re: oops in VMWARE vmnet, on 2.6.12.x
-Date: Tue, 6 Sep 2005 16:30:42 +0200
-User-Agent: KMail/1.8.91
-Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       "Christoph Hellwig" <hch@infradead.org>,
-       "Jan Engelhardt" <jengelh@linux01.gwdg.de>,
-       "Petr Vandrovec" <vandrove@vc.cvut.cz>, linux-kernel@vger.kernel.org
-References: <200508091744.33523@gj-laptop> <Pine.LNX.4.61.0509060755180.20318@chaos.analogic.com> <87ll2a4cao.fsf@barad-dur.minas-morgul.org>
-In-Reply-To: <87ll2a4cao.fsf@barad-dur.minas-morgul.org>
-X-Face: ?m}EMc-C]"l7<^`)a1NYO-(=?utf-8?q?=27xy3=3A5V=7B82Z=5E-/D3=5E=5BMU8IHkf=24o=60=7E=25CC5D4=5BGhaIgk?=
- =?utf-8?q?/=24oN7=0A=09Y7=3Bf=7D!?=(<IG>ooAGiKCVs$m~P1B-8Vt=]<V,FX{h4@fK/?Qtg]5ofD|P~&)q:6H>
- =?utf-8?q?=7E1Nt2fh=0A=09s-iKbN=24=2ENe=5E1?=(4tdwmmW>ew'=LPv+{{=YE=LoZU-5kfYnZSa`P7Q4pW]tKmUk`@&}M,
- =?utf-8?q?dn-=0A=09Kh=7BhA=7B=7ELs4a=24NjJI?=@1_f')]3|_}!GoJZss[Q$D-#l^.4GxPp[p:s<S~B&+6)
+	Tue, 6 Sep 2005 10:32:54 -0400
+Received: from mail4.zigzag.pl ([217.11.136.106]:49348 "HELO mail4.zigzag.pl")
+	by vger.kernel.org with SMTP id S964852AbVIFOcx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 10:32:53 -0400
+Message-ID: <431DA887.2010008@zabrze.zigzag.pl>
+Date: Tue, 06 Sep 2005 16:32:39 +0200
+From: Miroslaw Mieszczak <mieszcz@zabrze.zigzag.pl>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050827)
+X-Accept-Language: pl, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200509061630.43064@gj-laptop>
+To: linux-kernel@vger.kernel.org
+Subject: Patch for link detection for R8169
+Content-Type: multipart/mixed;
+ boundary="------------090105050307070501070907"
+X-BitDefender-Scanner: Clean, Agent: BitDefender Qmail 1.6.2 on
+ mail4.zigzag.pl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 06 September 2005 14:21, Mathieu wrote:
-> "linux-os \(Dick Johnson\)" <linux-os@analogic.com> disait dernièrement que
-> :
->
-> are you serious or just on drugs ?
-Someone was on drugs in first place, when he decided to change API in such 
-baaad way.....
+This is a multi-part message in MIME format.
+--------------090105050307070501070907
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
+
+There is a patch to driver of RLT8169 network card. This match make 
+possible detection of the link status even if network interface is down.
+This is usefull for laptop users.
 
 
--- 
-GJ
 
-Binary system, you're either 1 or 0...
-dead or alive ;)
+
+--------------090105050307070501070907
+Content-Type: text/plain;
+ name="r8169.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="r8169.diff"
+
+--- r8169.c	2005-09-02 15:34:52.000000000 +0200
++++ linux/drivers/net/r8169.c	2005-09-05 21:11:15.000000000 +0200
+@@ -538,14 +538,27 @@
+ 
+ static unsigned int rtl8169_tbi_link_ok(void __iomem *ioaddr)
+ {
+-	return RTL_R32(TBICSR) & TBILinkOk;
++	return (RTL_R32(TBICSR) & TBILinkOk) == TBILinkOk ? 1:0;
+ }
+ 
+ static unsigned int rtl8169_xmii_link_ok(void __iomem *ioaddr)
+ {
+-	return RTL_R8(PHYstatus) & LinkStatus;
++	return (RTL_R8(PHYstatus) & LinkStatus) == LinkStatus ? 1:0;
+ }
+ 
++static u32 rtl8169_get_link(struct net_device *dev)
++{
++	struct rtl8169_private *np = netdev_priv(dev);
++	unsigned int result;
++	unsigned long flags;
++  
++	spin_lock_irqsave(&np->lock, flags);
++	result = np->link_ok(np->mmio_addr);
++	spin_unlock_irqrestore(&np->lock, flags);
++	return result;
++}
++
++
+ static void rtl8169_tbi_reset_enable(void __iomem *ioaddr)
+ {
+ 	RTL_W32(TBICSR, RTL_R32(TBICSR) | TBIReset);
+@@ -577,6 +590,8 @@
+ 	spin_unlock_irqrestore(&tp->lock, flags);
+ }
+ 
++
++
+ static void rtl8169_link_option(int idx, u8 *autoneg, u16 *speed, u8 *duplex)
+ {
+ 	struct {
+@@ -1010,7 +1025,7 @@
+ static struct ethtool_ops rtl8169_ethtool_ops = {
+ 	.get_drvinfo		= rtl8169_get_drvinfo,
+ 	.get_regs_len		= rtl8169_get_regs_len,
+-	.get_link		= ethtool_op_get_link,
++	.get_link		= rtl8169_get_link,/*              ethtool_op_get_link,*/
+ 	.get_settings		= rtl8169_get_settings,
+ 	.set_settings		= rtl8169_set_settings,
+ 	.get_msglevel		= rtl8169_get_msglevel,
+
+--------------090105050307070501070907--
+

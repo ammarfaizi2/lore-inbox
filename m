@@ -1,116 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964820AbVIFMoV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964846AbVIFMrb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964820AbVIFMoV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 08:44:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964834AbVIFMoV
+	id S964846AbVIFMrb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 08:47:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964844AbVIFMrb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 08:44:21 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:40977 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S964820AbVIFMoU convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 08:44:20 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <87ll2a4cao.fsf@barad-dur.minas-morgul.org>
-References: <200508091744.33523@gj-laptop> <42F8D23D.3000505@vc.cvut.cz><20050809164526.GA21622@infradead.org><Pine.LNX.4.61.0508110815410.28320@yvahk01.tjqt.qr><20050906114447.GF5309@infradead.org><Pine.LNX.4.61.0509060755180.20318@chaos.analogic.com> <87ll2a4cao.fsf@barad-dur.minas-morgul.org>
-X-OriginalArrivalTime: 06 Sep 2005 12:44:19.0899 (UTC) FILETIME=[B335C0B0:01C5B2E0]
-Content-class: urn:content-classes:message
-Subject: Re: oops in VMWARE vmnet, on 2.6.12.x
-Date: Tue, 6 Sep 2005 08:44:19 -0400
-Message-ID: <Pine.LNX.4.61.0509060843320.20467@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: oops in VMWARE vmnet, on 2.6.12.x
-Thread-Index: AcWy4LM//ncvs0ibRr2qpFaXvQpE+g==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Mathieu" <matt@minas-morgul.org>
-Cc: "Christoph Hellwig" <hch@infradead.org>,
-       "Jan Engelhardt" <jengelh@linux01.gwdg.de>,
-       "Petr Vandrovec" <vandrove@vc.cvut.cz>,
-       "Grzegorz Piotr Jaskiewicz" <gj@kde.org.uk>,
-       <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Tue, 6 Sep 2005 08:47:31 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:43732 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S964835AbVIFMra
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 08:47:30 -0400
+Date: Tue, 6 Sep 2005 18:25:18 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux clustering <linux-cluster@redhat.com>, akpm@osdl.org,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: GFS, what's remaining
+Message-ID: <20050906125517.GA7531@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <20050901104620.GA22482@redhat.com> <20050901035939.435768f3.akpm@osdl.org> <1125586158.15768.42.camel@localhost.localdomain> <20050901132104.2d643ccd.akpm@osdl.org> <p73fysnqiej.fsf@verdi.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p73fysnqiej.fsf@verdi.suse.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Sep 02, 2005 at 11:17:08PM +0200, Andi Kleen wrote:
+> Andrew Morton <akpm@osdl.org> writes:
+> 
+> > 
+> > > > - Why GFS is better than OCFS2, or has functionality which OCFS2 cannot
+> > > >   possibly gain (or vice versa)
+> > > > 
+> > > > - Relative merits of the two offerings
+> > > 
+> > > You missed the important one - people actively use it and have been for
+> > > some years. Same reason with have NTFS, HPFS, and all the others. On
+> > > that alone it makes sense to include.
+> >  
+> > Again, that's not a technical reason.  It's _a_ reason, sure.  But what are
+> > the technical reasons for merging gfs[2], ocfs2, both or neither?
+> 
+> There seems to be clearly a need for a shared-storage fs of some sort
+> for HA clusters and virtualized usage (multiple guests sharing a
+> partition).  Shared storage can be more efficient than network file
+> systems like NFS because the storage access is often more efficient
+> than network access  and it is more reliable because it doesn't have a
+> single point of failure in form of the NFS server.
+> 
+> It's also a logical extension of the "failover on failure" clusters
+> many people run now - instead of only failing over the shared fs at
+> failure and keeping one machine idle the load can be balanced between
+> multiple machines at any time.
+> 
+> One argument to merge both might be that nobody really knows yet which
+> shared-storage file system (GFS or OCFS2) is better. The only way to
+> find out would be to let the user base try out both, and that's most
+> practical when they're merged.
+> 
+> Personally I think ocfs2 has nicer&cleaner code than GFS.
+> It seems to be more or less a 64bit ext3 with cluster support, while
 
-On Tue, 6 Sep 2005, Mathieu wrote:
+The "more or less" is what bothers me here - the first time I heard this,
+it sounded a little misleading, as I expected to find some kind of a
+patch to ext3 to make it 64 bit with extents and cluster support.
+Now I understand it a little better (thanks to Joel and Mark)
 
-> "linux-os \(Dick Johnson\)" <linux-os@analogic.com> disait dernièrement que :
->
-> are you serious or just on drugs ?
->
+And herein lies the issue where I tend to agree with Andrew on
+-- its really nice to have multiple filesystems innovating freely in
+their niches and eventually proving themselves in practice, without
+being bogged down by legacy etc. But at the same time, is there enough
+thought and discussion about where the fragmentation/diversification is really
+warranted, vs improving what is already there, or say incorporating
+the best of one into another, maybe over a period of time ?
 
-Absolutely serious although I did try something new this weekend!
+The number of filesystems seems to just keep growing, and supporting
+all of them isn't easy -- for users it isn't really easy to switch from
+one to another, and the justifications for choosing between them is
+sometimes confusing and burdensome from an administrator standpoint
+- one filesystem is good in certain conditions, another in others,
+stability levels may vary etc, and its not always possible to predict
+which aspect to prioritize.
 
->> On Tue, 6 Sep 2005, Christoph Hellwig wrote:
->>
->>> On Thu, Aug 11, 2005 at 08:17:28AM +0200, Jan Engelhardt wrote:
->>>>
->>>>> Nothing in the tarball mentiones any opensource license.  If vmware is
->>>
->>> please read this sentence again.  Just because somethings source is available
->>> doesn't mean it's opensource.
->>>
->>
->> Sure it is! It just isn't the GNU flavor of open source. It's likely
->> that it's even "compatible" as long as it's not more restrictive
->> than GNU.
->>
->> Often the "GNU protestants" are rejecting perfectly good work because
->> they have adopted a highly restrictive religion, having been taught
->> that it is the true meaning of freedom. Marx would be so proud!
->>
->> Wonderful thing about published private works, i.e., proprietary
->> source-code, is that you can use it as a reference and write your
->> own version(s). Since it's published, you don't need "clean-room"
->> techniques. You just can't grab portions "whole cloth" and paste
->> them into your source.
->>
->> When your driver, probably with improvements, is finished it
->> is normal, but not necessary to provide some attribution in the
->> source such as "Adapted from xxx.yyy.zzz" as a public "thank you".
->>
->>>>> actually using an opensource license please tell them to mention that
->>>>> license and remove the propritary code markers.
->>>>
->>>> It's not opensource, but "proprietary and S_IRUGO". Though, the world won't
->>>> fall down instantly if you change something [e.g. bugfix] and redistribute
->>>> (with all the copyright stuff intact, and for non-profit)
->>>
->>
->> Cheers,
->> Dick Johnson
->> Penguin : Linux version 2.6.13 on an i686 machine (5589.54 BogoMips).
->> Warning : 98.36% of all statistics are fiction.
->> .
->> I apologize for the following. I tried to kill it with the above dot :
->>
->> ****************************************************************
->> The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
->>
->> Thank you.
->> -
->> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
->>
->
-> --
-> No fortunes found
->
+Now, with filesystems that have been around in production for a long
+time, the on-disk format becomes a major constraining factor, and the
+reason for having various legacy support around. Likewise, for some
+special purpose filesystems there really is a niche usage. But for new
+and sufficiently general purpose filesystems, with new on-disk structure,
+isn't it worth thinking this through and trying to get it right ? 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13 on an i686 machine (5589.54 BogoMips).
-Warning : 98.36% of all statistics are fiction.
+Yeah, it is a lot of work upfront ... but with double the people working
+on something, it just might get much better than what they individually
+can. Sometimes.
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+BTW, I don't know if it is worth it in this particular case, but just
+something that worries me in general.
 
-Thank you.
+> GFS seems to reinvent a lot more things and has somewhat uglier code.
+> On the other hand GFS' cluster support seems to be more aimed
+> at being a universal cluster service open for other usages too,
+> which might be a good thing. OCFS2s cluster seems to be more 
+> aimed at only serving the file system.
+> 
+> But which one works better in practice is really an open question.
+
+True, but what usually ends up happening is that this question can
+never quite be answered in black and white. So both just continue
+to exist and apps need to support both ... convergence becomes impossible
+and long term duplication inevitable.
+
+So at least having a clear demarcation/guideline of what situations
+each is suitable for upfront would be a good thing. That might also
+get some cross ocfs-gfs and ocfs-ext3 reviews in the process :)
+
+Regards
+Suparna
+
+-- 
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
+

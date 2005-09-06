@@ -1,42 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932466AbVIFNaF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932467AbVIFNa4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932466AbVIFNaF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 09:30:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbVIFNaF
+	id S932467AbVIFNa4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 09:30:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932469AbVIFNa4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 09:30:05 -0400
-Received: from wproxy.gmail.com ([64.233.184.202]:35043 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932466AbVIFNaB convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 09:30:01 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=hU4/6bDoco2sGx9mFnTS/oYDonCBFgotqgZLM4AMgSYAxlinroogQWjSUiblqzUTUIcz4qYVB3EUgPiJKcJIFEbCdRegswHN87c6L9jd+PZahPc27T6/ZpzaQoKMrL28vOA7oRAxfSo2ozNytO2tpoem6LvKpbEhT5kjzDjbDi4=
-Date: Tue, 6 Sep 2005 15:29:42 +0200
-From: Diego Calleja <diegocg@gmail.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: ak@suse.de, vda@ilport.com.ua, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: RFC: i386: kill !4KSTACKS
-Message-Id: <20050906152942.dc311fa8.diegocg@gmail.com>
-In-Reply-To: <1125991977.5138.6.camel@npiggin-nld.site>
-References: <20050904145129.53730.qmail@web50202.mail.yahoo.com>
-	<p73aciqrev0.fsf@verdi.suse.de>
-	<200509060939.28055.vda@ilport.com.ua>
-	<200509060913.59822.ak@suse.de>
-	<1125991977.5138.6.camel@npiggin-nld.site>
-X-Mailer: Sylpheed version 2.1.1 (GTK+ 2.8.2; i486-pc-linux-gnu)
+	Tue, 6 Sep 2005 09:30:56 -0400
+Received: from verein.lst.de ([213.95.11.210]:19591 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S932467AbVIFNaz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 09:30:55 -0400
+Date: Tue, 6 Sep 2005 15:30:33 +0200
+From: "'hch@lst.de'" <hch@lst.de>
+To: "Bagalkote, Sreenivas" <sreenib@lsil.com>
+Cc: "'hch@lst.de'" <hch@lst.de>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
+       "'James Bottomley'" <James.Bottomley@SteelEye.com>,
+       Andrew Morton <akpm@osdl.org>,
+       "'Matt_Domsch@Dell.com'" <Matt_Domsch@Dell.com>,
+       "Patro, Sumant" <sumantp@COS1.co.lsil.com>,
+       "Kolli, Neela Syam" <knsyam@lsil.com>
+Subject: Re: FW: [Fwd: Re: [PATCH scsi-misc 2/2] megaraid_sas: LSI Logic MegaR AID SAS RA ID D river]
+Message-ID: <20050906133033.GA30721@lst.de>
+References: <0E3FA95632D6D047BA649F95DAB60E57060CD126@exa-atlanta>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E57060CD126@exa-atlanta>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Tue, 06 Sep 2005 17:32:57 +1000,
-Nick Piggin <nickpiggin@yahoo.com.au> escribió:
+On Wed, Aug 31, 2005 at 08:34:07PM -0400, Bagalkote, Sreenivas wrote:
+> >  - the ->queuecommand cleanup patch I sent you a awhile ago doesn't
+> >    seem to be applied
+> 
+> I seem to have missed it. I will submit the patch after inclusion
 
+ok, this is really just a small cleanup anyway.
 
-> Are there still good reasons to have such a thing?
+> >  - there's quite a lot of slightly odd formating, it would be nice
+> >    if you could run the code through scripts/Lindent.
+> 
+> I ran Lindent. It looks worse :( I am submitting the Lindent output anyway.
+> 
+> > 
+> > If you could sent out an unmangled patch (even as attachment or on 
+> > LSI's ftp side) I'd like to take another, closer look.
+> 
+> I am sending this from a Linux box. Hopefully, this will comeout clean.
+> Sorry for mangled patches.
 
-Bigger block sizes was one of their features.
+It's still wrapped, unfortunately.  Let's retry as an attachment.
+Anyway, I think we can put the patch in now.  I have a few more really
+small things that I'd like to address, I will submit patches as soon
+as I have a codebase that I can create patches against.
+

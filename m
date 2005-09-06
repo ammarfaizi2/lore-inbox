@@ -1,63 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750899AbVIFUkw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750912AbVIFUm5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750899AbVIFUkw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 16:40:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750900AbVIFUkw
+	id S1750912AbVIFUm5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 16:42:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750907AbVIFUm5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 16:40:52 -0400
-Received: from terminus.zytor.com ([209.128.68.124]:2027 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1750899AbVIFUkv
+	Tue, 6 Sep 2005 16:42:57 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:20153 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S1750903AbVIFUm4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 16:40:51 -0400
-Message-ID: <431DFEC3.1070309@zytor.com>
-Date: Tue, 06 Sep 2005 13:40:35 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alon Bar-Lev <alon.barlev@gmail.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: THE LINUX/I386 BOOT PROTOCOL - Breaking the 256 limit
-References: <4315B668.6030603@gmail.com> <43162148.9040604@zytor.com> <20050831215757.GA10804@taniwha.stupidest.org> <431628D5.1040709@zytor.com> <431DF9E9.5050102@gmail.com>
-In-Reply-To: <431DF9E9.5050102@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 6 Sep 2005 16:42:56 -0400
+Date: Tue, 6 Sep 2005 22:42:21 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Valdis.Kletnieks@vt.edu
+Cc: Miroslaw Mieszczak <mieszcz@zabrze.zigzag.pl>, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Patch for link detection for R8169
+Message-ID: <20050906204221.GB20862@electric-eye.fr.zoreil.com>
+References: <431DA887.2010008@zabrze.zigzag.pl> <20050906194602.GA20862@electric-eye.fr.zoreil.com> <200509062002.j86K28R8019604@turing-police.cc.vt.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200509062002.j86K28R8019604@turing-police.cc.vt.edu>
+User-Agent: Mutt/1.4.2.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alon Bar-Lev wrote:
-> 
-> Hello Peter, I've written a reply before but got no response...
-> 
-> The idea of putting arguments in initramfs is not practical, since the 
-> whole idea is to have the same image of system and affecting its 
-> behavior using the boot loader...
-> 
+Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> :
+[...]
 
-No, you're wrong.  The boot loader can synthesize an initramfs.
+Ok, thanks for the hint.
 
-> I would like to push forward the idea to extend the command-line size...
-> 
-> All we need for start is an updated version of the "THE LINUX/I386 BOOT 
-> PROTOCOL" document that states that in the 2.02+  protocol the boot 
-> loader should set cmd_line_ptr to a pointer to a null terminated string 
-> without any size restriction, specifying that the kernel will read as 
-> much as it can.
+Currently one can do 'ifconfig ethX up', check the link status, then try
+to DHCP or whatever. Apparently a few drivers do not support tne detection
+of link as presented above. So is it anything like a vendor requirement/a
+standard (or should it be the new right way (TM)) or does the userspace
+needs fixing wrt its expectation ?
 
-Already pushed to Andrew.  I will follow it up with a patch to extend 
-the command line, at least to 512.
+The lack of irq means that netif_carrier_on/off can not be reliable until
+the device is up. It is a bit worrying.
 
-> After I get this update, I will try to work with GRUB and LILO so that 
-> they will fix their implementation. Currently they claim that they 
-> understand that they should truncate the string to 256.
-> 
-> After that I will provide my simple  patch for setting the maximum size 
-> the kernel allocates in the configuration.
-> 
-> BTW: Do you know why the COMMAND_LINE_SIZE constant is located in two 
-> separate include files?
-
-No, I don't.  It could be because one is included from assembly code in 
-the i386 architecture.
-
-	-hpa
+--
+Ueimor

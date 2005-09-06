@@ -1,70 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932393AbVIFEmP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932402AbVIFEzu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932393AbVIFEmP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 00:42:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932394AbVIFEmP
+	id S932402AbVIFEzu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 00:55:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932400AbVIFEzt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 00:42:15 -0400
-Received: from colo.lackof.org ([198.49.126.79]:34989 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S932393AbVIFEmP (ORCPT
+	Tue, 6 Sep 2005 00:55:49 -0400
+Received: from smtp.istop.com ([66.11.167.126]:45545 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S932394AbVIFEzt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 00:42:15 -0400
-Date: Mon, 5 Sep 2005 22:48:09 -0600
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Brian King <brking@us.ibm.com>
-Cc: Grant Grundler <grundler@parisc-linux.org>,
-       Paul Mackerras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>,
-       greg@kroah.com, matthew@wil.cx, benh@kernel.crashing.org, ak@muc.de,
-       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH 1/2] pci: Block config access during BIST (resend)
-Message-ID: <20050906044809.GA19347@colo.lackof.org>
-References: <42B83B8D.9030901@us.ibm.com> <430B3CB4.1050105@us.ibm.com> <20050901160356.2a584975.akpm@osdl.org> <4318E6B3.7010901@us.ibm.com> <20050902224314.GB8463@colo.lackof.org> <17176.56354.363726.363290@cargo.ozlabs.ibm.com> <20050903000854.GC8463@colo.lackof.org> <431A33D0.1040807@us.ibm.com> <20050903193958.GB30579@colo.lackof.org> <431C8EF8.7020702@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 6 Sep 2005 00:55:49 -0400
+From: Daniel Phillips <phillips@istop.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: GFS, what's remainingh
+Date: Tue, 6 Sep 2005 00:58:44 -0400
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org, Lars Marowsky-Bree <lmb@suse.de>,
+       Andi Kleen <ak@suse.de>, linux clustering <linux-cluster@redhat.com>,
+       akpm@osdl.org, linux-fsdevel@vger.kernel.org
+References: <20050901104620.GA22482@redhat.com> <200509060002.40823.phillips@istop.com> <200509052307.27417.dtor_core@ameritech.net>
+In-Reply-To: <200509052307.27417.dtor_core@ameritech.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <431C8EF8.7020702@us.ibm.com>
-X-Home-Page: http://www.parisc-linux.org/
-User-Agent: Mutt/1.5.9i
+Message-Id: <200509060058.44934.phillips@istop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 05, 2005 at 01:31:20PM -0500, Brian King wrote:
-> That should work also. Here is an updated patch.
-...
+On Tuesday 06 September 2005 00:07, Dmitry Torokhov wrote:
+> On Monday 05 September 2005 23:02, Daniel Phillips wrote:
+> > By the way, you said "alpha server" not "alpha servers", was that just a
+> > slip? Because if you don't have a cluster then why are you using a dlm?
+>
+> No, it is not a slip. The application is running on just one node, so we
+> do not really use "distributed" part. However we make heavy use of the
+> rest of lock manager features, especially lock value blocks.
 
-The code looks good...but it got me thinking.
+Urk, so you imprinted on the clunkiest, most pathetically limited dlm feature 
+without even having the excuse you were forced to use it.  Why don't you just 
+have a daemon that sends your values over a socket?  That should be all of a 
+day's coding.
 
-...
-> +void pci_block_user_cfg_access(struct pci_dev *dev)
-> +{
-> +	pci_save_state(dev);
-> +	dev->block_ucfg_access = 1;
-> +	mb();
-> +	while (spin_is_locked(&pci_lock))
-> +		cpu_relax();
-> +}
-> +EXPORT_SYMBOL_GPL(pci_block_user_cfg_access);
-> +
-> +/**
-> + * pci_unblock_user_cfg_access - Unblock userspace PCI config reads/writes
-> + * @dev:	pci device struct
-> + *
-> + * This function allows userspace PCI config accesses to resume.
-> + **/
-> +void pci_unblock_user_cfg_access(struct pci_dev *dev)
-> +{
-> +	dev->block_ucfg_access = 0;
-> +}
+Anyway, thanks for sticking your head up, and sorry if it sounds aggressive. 
+But you nicely supported my claim that most who think they should be using a 
+dlm, really shouldn't.
 
-Shouldn't pci_unblock_user_cfg_access() have a similar construct
-as pci_block_user_cfg_access()?
+Regards,
 
-I'm thinking we don't want to pull the rug out from under someone
-who is accessing the saved state, right?
-Or does something else guarantee that?
-
-It wasn't obvious from this diff alone.
-
-thanks,
-grant
+Daniel

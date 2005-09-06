@@ -1,177 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964841AbVIFMlI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964820AbVIFMoV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964841AbVIFMlI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 08:41:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964844AbVIFMlI
+	id S964820AbVIFMoV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 08:44:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964834AbVIFMoV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 08:41:08 -0400
-Received: from spirit.analogic.com ([208.224.221.4]:16393 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP id S964841AbVIFMlG convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 08:41:06 -0400
+	Tue, 6 Sep 2005 08:44:21 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:40977 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S964820AbVIFMoU convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 08:44:20 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <6b5347dc05090604596ac08cb6@mail.gmail.com>
-References: <6b5347dc0509060215128d477e@mail.gmail.com> <003a01c5b2d6$610d6360$6464a8c0@pc0001> <6b5347dc05090604596ac08cb6@mail.gmail.com>
-X-OriginalArrivalTime: 06 Sep 2005 12:41:05.0687 (UTC) FILETIME=[3F735A70:01C5B2E0]
+In-Reply-To: <87ll2a4cao.fsf@barad-dur.minas-morgul.org>
+References: <200508091744.33523@gj-laptop> <42F8D23D.3000505@vc.cvut.cz><20050809164526.GA21622@infradead.org><Pine.LNX.4.61.0508110815410.28320@yvahk01.tjqt.qr><20050906114447.GF5309@infradead.org><Pine.LNX.4.61.0509060755180.20318@chaos.analogic.com> <87ll2a4cao.fsf@barad-dur.minas-morgul.org>
+X-OriginalArrivalTime: 06 Sep 2005 12:44:19.0899 (UTC) FILETIME=[B335C0B0:01C5B2E0]
 Content-class: urn:content-classes:message
-Subject: Re: what will connect the fork() with its following code ? a simple example below:
-Date: Tue, 6 Sep 2005 08:41:05 -0400
-Message-ID: <Pine.LNX.4.61.0509060814530.20318@chaos.analogic.com>
+Subject: Re: oops in VMWARE vmnet, on 2.6.12.x
+Date: Tue, 6 Sep 2005 08:44:19 -0400
+Message-ID: <Pine.LNX.4.61.0509060843320.20467@chaos.analogic.com>
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
-Thread-Topic: what will connect the fork() with its following code ? a simple example below:
-Thread-Index: AcWy4D96SeWHQQlOQfevwVULZj9ejQ==
+Thread-Topic: oops in VMWARE vmnet, on 2.6.12.x
+Thread-Index: AcWy4LM//ncvs0ibRr2qpFaXvQpE+g==
 From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Sat." <walking.to.remember@gmail.com>
-Cc: "Dirk Gerdes" <mail@dirk-gerdes.de>,
-       "Linux kernel" <linux-kernel@vger.kernel.org>
+To: "Mathieu" <matt@minas-morgul.org>
+Cc: "Christoph Hellwig" <hch@infradead.org>,
+       "Jan Engelhardt" <jengelh@linux01.gwdg.de>,
+       "Petr Vandrovec" <vandrove@vc.cvut.cz>,
+       "Grzegorz Piotr Jaskiewicz" <gj@kde.org.uk>,
+       <linux-kernel@vger.kernel.org>
 Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Tue, 6 Sep 2005, Sat. wrote:
+On Tue, 6 Sep 2005, Mathieu wrote:
 
-> here is a snip in 0.11 version linux ,
-> in linux/init/main.c
+> "linux-os \(Dick Johnson\)" <linux-os@analogic.com> disait dernièrement que :
 >
->
-> 179 if (!(pid=fork())) {
-> 180 close(0);
-> 181 if (open( "/etc/rc",O_RDONLY,0))
-> 182 _exit(1);
-> 183 execve( "/bin/sh",argv_rc,envp_rc);
-> 184 _exit(2);
-> 185 }
->
-> natually, the code from 180 to 184 is runned by the new process, what
-> I can understand is why the new process know that the next code will
-> run is close(0) and why it know It will end at line 184 ?
->
-> so ,I feel that there should be some connection between  them . but
-> what the relationship in depth is ?
->
-> thanks your help :)
+> are you serious or just on drugs ?
 >
 
-After the fork() system call, fork() returns the child's pid
-(or an error) to the parent, and a ZERO (0) to the child. That
-way the code 'knows' if the child or the parent is executing.
+Absolutely serious although I did try something new this weekend!
 
-
-     switch ((pid = fork()))
-     {
-     case 0:    			// Child runs here
-         printf("Child\n");
-         sleep(1);
-         exit(0);
-     case -1:			// This is for errors
-         fprintf(stderr, "fork() failed (%s)\n", strerror(errno));
-         exit(1);
-     default:			// The parent executes here
-        printf("Parent waits for child with pid %d\n", pid);
-        wait(&status);
-        printf("Child executed with %d status\n", status >> 8);
-     }
-
->
-> 2005/9/6, Dirk Gerdes <mail@dirk-gerdes.de>:
->> There is no connection between a child an its parent.
->> The child only gets a copy of the code.
->> If there were a pointer to a child or to the parent, you wouldn't need any
->> signals.
->> The processes could communicate directly.
+>> On Tue, 6 Sep 2005, Christoph Hellwig wrote:
 >>
->> regards
+>>> On Thu, Aug 11, 2005 at 08:17:28AM +0200, Jan Engelhardt wrote:
+>>>>
+>>>>> Nothing in the tarball mentiones any opensource license.  If vmware is
+>>>
+>>> please read this sentence again.  Just because somethings source is available
+>>> doesn't mean it's opensource.
+>>>
 >>
->> ----- Original Message -----
->> From: "Sat." <walking.to.remember@gmail.com>
->> To: <linux-kernel@vger.kernel.org>
->> Sent: Tuesday, September 06, 2005 11:15 AM
->> Subject: what will connect the fork() with its following code ? a simple
->> example below:
+>> Sure it is! It just isn't the GNU flavor of open source. It's likely
+>> that it's even "compatible" as long as it's not more restrictive
+>> than GNU.
 >>
+>> Often the "GNU protestants" are rejecting perfectly good work because
+>> they have adopted a highly restrictive religion, having been taught
+>> that it is the true meaning of freedom. Marx would be so proud!
 >>
->>> if(!(pid=fork())){
->>>     ......
->>>     printk("in child process");
->>>     ......
->>> }else{
->>>     .....
->>>     printk("in father process");
->>>     .....
->>> }
+>> Wonderful thing about published private works, i.e., proprietary
+>> source-code, is that you can use it as a reference and write your
+>> own version(s). Since it's published, you don't need "clean-room"
+>> techniques. You just can't grab portions "whole cloth" and paste
+>> them into your source.
+>>
+>> When your driver, probably with improvements, is finished it
+>> is normal, but not necessary to provide some attribution in the
+>> source such as "Adapted from xxx.yyy.zzz" as a public "thank you".
+>>
+>>>>> actually using an opensource license please tell them to mention that
+>>>>> license and remove the propritary code markers.
+>>>>
+>>>> It's not opensource, but "proprietary and S_IRUGO". Though, the world won't
+>>>> fall down instantly if you change something [e.g. bugfix] and redistribute
+>>>> (with all the copyright stuff intact, and for non-profit)
 >>>
->>> this is a classical example, when the fork() system call runs, it will
->>> build a new process and active it . while the schedule() select the
->>> new process it will run. this is rather normal.
->>>
->>> but there is always a confusion in my minds.
->>> because , sys_fork() only copies father process and configure some new
->>> values., and do nothing . so the bridge  between the new process and
->>> its following code, printk("in child process"), seems disappear . so I
->>> always believe that the new process should have a pointer which point
->>> the code "printk("in child process");". except this , there are not
->>> any connection between them ?
->>>
->>> very confused :(
->>>
->>> any help will  appreciate  !
-
-sys_fork() should never be executed from inside the kernel because
-it is going to copy a process' code and data. The kernel isn't a
-process. To make a process from inside the kernel, you need to use:
-
-//
-//   Code to execute as a kernel thread.
-//
-
-int thread_code(void *ptr)
-{
-     daemonize("%s", "Kernel Thread!");
-     allow_signal(SIGTERM);
-     for(;;)		// Run forever
-     {
-         do_something();
-
-         set_current_state(TASK_INTERRUPTIBLE);
-         if(signal_pending(current))
-             complete_and_exit(&exit_flag);
-     }
-}
-
-//
-//   Code to start the kernel thread.
-//
-
-pid = kernel_thread(thread_code, NULL, CLONE_FS|CLONE_FILES);
-
-
-//
-//   Code to stop the kernel thread.
-//
-
-     kill_proc(pid, SIGTERM);
-     wait_for_completion(&exit_flag);
-
-
->>>
->>>
->>>
->>> --
->>> Sat.
-
-
+>>
+>> Cheers,
+>> Dick Johnson
+>> Penguin : Linux version 2.6.13 on an i686 machine (5589.54 BogoMips).
+>> Warning : 98.36% of all statistics are fiction.
+>> .
+>> I apologize for the following. I tried to kill it with the above dot :
+>>
+>> ****************************************************************
+>> The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+>>
+>> Thank you.
+>> -
+>> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> Please read the FAQ at  http://www.tux.org/lkml/
+>>
+>
+> --
+> No fortunes found
+>
 
 Cheers,
 Dick Johnson
 Penguin : Linux version 2.6.13 on an i686 machine (5589.54 BogoMips).
 Warning : 98.36% of all statistics are fiction.
-.
-I apologize for the following. I tried to kill it with the above dot :
 
 ****************************************************************
 The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.

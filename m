@@ -1,165 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750924AbVIFUvV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750905AbVIFUxK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750924AbVIFUvV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 16:51:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750929AbVIFUvV
+	id S1750905AbVIFUxK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 16:53:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750925AbVIFUxK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 16:51:21 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:59870 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750923AbVIFUvU (ORCPT
+	Tue, 6 Sep 2005 16:53:10 -0400
+Received: from zproxy.gmail.com ([64.233.162.200]:38585 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750905AbVIFUxI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 16:51:20 -0400
-Date: Tue, 6 Sep 2005 13:51:12 -0700
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-Cc: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, ck list <ck@vds.kolivas.org>, rmk+lkml@arm.linux.org.uk
-Subject: Re: [PATCH 1/3] dynticks - implement no idle hz for x86
-Message-ID: <20050906205112.GA3038@us.ibm.com>
-References: <20050831165843.GA4974@in.ibm.com> <200509031801.09069.kernel@kolivas.org> <20050903090650.B26998@flint.arm.linux.org.uk> <200509031814.49666.kernel@kolivas.org> <20050904201054.GA4495@us.ibm.com> <20050904212616.B11265@flint.arm.linux.org.uk> <20050905053225.GA4294@in.ibm.com> <20050905054813.GC25856@us.ibm.com> <20050905063229.GB4294@in.ibm.com> <20050905064416.GD25856@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050905064416.GD25856@us.ibm.com>
-X-Operating-System: Linux 2.6.13 (i686)
-User-Agent: Mutt/1.5.10i
+	Tue, 6 Sep 2005 16:53:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:disposition-notification-to:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=Nv+7icuBTJswdrfUK/xa6S2KpK94wPQb7w4cZmxgkYns/rxgZS1VrgOxbL2pScs0mnnyqUIj0462hJqz3+OXn4hCxnnhwsIFTkayGwWvg+/B231/nCl7BohyX4BcVbh4a5zNrAHCQMnTCYK9Ba9lD3NiiCyuorlVCGlRJQd7j4E=
+Message-ID: <431E00C8.3060606@gmail.com>
+Date: Tue, 06 Sep 2005 23:49:12 +0300
+From: Alon Bar-Lev <alon.barlev@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050727)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "H. Peter Anvin" <hpa@zytor.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: THE LINUX/I386 BOOT PROTOCOL - Breaking the 256 limit
+References: <4315B668.6030603@gmail.com> <43162148.9040604@zytor.com> <20050831215757.GA10804@taniwha.stupidest.org> <431628D5.1040709@zytor.com> <431DF9E9.5050102@gmail.com> <431DFEC3.1070309@zytor.com>
+In-Reply-To: <431DFEC3.1070309@zytor.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 04.09.2005 [23:44:16 -0700], Nishanth Aravamudan wrote:
-> On 05.09.2005 [12:02:29 +0530], Srivatsa Vaddagiri wrote:
-> > On Sun, Sep 04, 2005 at 10:48:13PM -0700, Nishanth Aravamudan wrote:
-> > > Admittedly, I don't think SMP ARM has been around all that long?
-> > > Maybe the existing code just has not been extended.
-> > 
-> > Yeah, maybe ARM never cared for SMP. But we do care :)
+
+Thank you for the reply,
+
+H. Peter Anvin wrote:
+> Alon Bar-Lev wrote:
 > 
-> I just took a look at arm/Kconfig and SMP is marked as EXPERIMENTAL &&
-> BROKEN. So I'm guessing that is the only reason for some of the
-> differences you mentioned (the differences are of course, valid and the
-> x86 SMP implementation makes sense to me to extend arch-independently).
+>>
+>> Hello Peter, I've written a reply before but got no response...
+>>
+>> The idea of putting arguments in initramfs is not practical, since the 
+>> whole idea is to have the same image of system and affecting its 
+>> behavior using the boot loader...
+>>
 > 
-> > > I'm not sure on this. It's going to be NULL for other architectures,
-> > > or end up being called by the reprogram() call for the last CPU to
-> > > go idle, right (presuming there isn't a separate TOD source, like in
-> > > x86). I think it is better to be in the reprogram() interface.
-> > 
-> > Non-x86 could have it set to NULL, in which case it doesn't get
-> > called.  (I know the current code does not take care of this
-> > situation).  But having an explicit 'all_cpus_idle' interface may be
-> > good, since Tony talked of idling some devices when all CPUs are idle.
-> > So it probably has non-x86/PIT uses too.
+> No, you're wrong.  The boot loader can synthesize an initramfs.
+
+Hmm... Isn't it somewhat big change for them?
+Do you mean that they can add a text file at root containing 
+the command-line?
+It is not so good... Since currently many scripts looks at 
+/proc/cmdline and get the arguments they are interested in... 
+The initramfs will not allow this... And there is no access to 
+initramfs files after control is passed to root, since most 
+distributions erase its contents in order to free memory...
+
 > 
-> OK, not a problem. I'll try and write up a general intsource.h file
-> (interrupt source header) tonight and tomorrow and send it to this list
-> to see if everybody agrees on what's in the structure and where the
-> arch-independent/dependent line lies.
+> Already pushed to Andrew.  I will follow it up with a patch to extend 
+> the command line, at least to 512.
 
-Sigh, later than I had hoped, but here is what I have hashed out so far.
-Does it seem like a step in the right direction? Rather hand-wavy, but I
-think it's mostly correct ;)
+Thanks!!!
+But why not making it a configuration option?
+For example, I think it should be at least 1024...
 
-Thanks,
-Nish
+Will this patch update the document?
+If it does please don't specify maximum size,
+The boot loader should be instructed to put unlimited 
+string... OK... there is no thing like unlimited, so max 16K :)
 
+Only the kernel should truncate it to the right size.
 
-- include/linux/intsource.h
-	with definitions in kernel/intsource.c
-
-#define DYN_TICK_ENABLED	(1 << 1)
-#define DYN_TICK_SUITABLE	(1 << 0)
-
-#define DYN_TICK_MIN_SKIP	2
-
-/* Abstraction of an interrupt source
- * @state: current state
- * @max_skip: current maximum number of ticks to skip
- * @arch_init: initialization routine
- * @arch_enable_dyn_tick: called via sysfs to enable interrupt skipping
- * @arch_disable_dyn_tick: called via sysfs to disable interrupt
- * 				skipping
- * @arch_set_all_cpus_idle: last cpu to go idle calls this, which should
- * 				disable any timesource (e.g. PIT on x86)
- * @arch_recover_time: handler for returning from skipped ticks and keeping
- * 				time consistent
- */
-struct interrupt_source {
-	unsigned int state;
-	unsigned long max_skip;
-	int (*arch_init) (void);
-	void (*arch_enable_dyn_tick) (void);
-	void (*arch_disable_dyn_tick) (void);
-	unsigned long (*arch_reprogram) (unsigned long); /* return number of ticks skipped */
-	unsigned long (*arch_recover_time) (int, void *, struct pt_regs *); /* handler in arm */
-	/* following empty in UP */
-	void (*arch_set_all_cpus_idle) (int);
-	spinlock_t lock;
-};
-
-extern void interrupt_source_register(struct interrupt_source *new_interrupt_source);
-extern struct interrupt_source *current_intsource;
-
-#ifdef CONFIG_NO_IDLE_HZ
-extern void set_interrupt_max_skip(unsigned long max_skip);
-/* idle_reprogram_interrupt calls reprogram_interrupt calls current_intsource->arch_reprogram()
- * do we really need the first step? */
-extern void idle_reprogram_interrupt(void);
-/* return number of ticks skipped, potentially for accounting purposes? */
-extern unsigned long reprogram_interrupt(void);
-
-extern struct interrupt_source * __init arch_select_interrupt_source(void);
-extern void __init dyn_tick_init(void); /* calls select_interrupt_source(), verifies source is usable, then calls interrupt_source_register() */
-
-static inline int dyn_tick_enabled(void)
-{
-	return (current_intsource->state & DYN_TICK_ENABLED);
-}
-
-#else	/* CONFIG_NO_IDLE_HZ */
-static inline void set_interrupt_max_skip(unsigned long max_skip)
-{
-}
-
-static inline void idle_reprogram_interrupt(void)
-{
-}
-
-static inline unsigned long reprogram_interrupt(void)
-{
-	return 0;
-}
-
-static inline void dyn_tick_init(void)
-{
-}
-
-static inline int dyn_tick_enabled(void)
-{
-	return 0;
-}
-#endif	/* CONFIG_NO_IDLE_HZ */
-
-/* Pick up arch specific header */
-#include <asm/intsource.h>
-
-#endif	/* _DYN_TICK_TIMER_H */
-
-- sched.c / sched.h
-	/* do we want these elsewhere? */
-	cpumask_t no_idle_hz_cpumask;
-
-* each arch-specific file pair needs to provide:
-	arch_select_interrupt_source();
-	appropriate struct interrupt_source definitions, functions, etc.
-
-- include/asm-i386/intsource.h
-	with defines in arch/i386/intsource.c
-
-- include/asm-arm/arch-omap/intsource.h
-	with definitions in arch/arm/mach-omap/intsource.c
-
-- include/asm-s390/intsource.h
-	with definitions in arch/s390/intsource.c
-
-- include/asm-generic/intsource.h
-	do I need something here?
+Best Regards,
+Alon Bar-Lev.

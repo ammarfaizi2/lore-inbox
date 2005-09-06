@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932456AbVIFNA2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932461AbVIFNCF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932456AbVIFNA2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 09:00:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932457AbVIFNA2
+	id S932461AbVIFNCF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 09:02:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932459AbVIFNCE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 09:00:28 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:60079 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S932456AbVIFNA2
+	Tue, 6 Sep 2005 09:02:04 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:6834 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S932458AbVIFNCD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 09:00:28 -0400
-Date: Tue, 6 Sep 2005 15:03:28 +0200
+	Tue, 6 Sep 2005 09:02:03 -0400
+Date: Tue, 6 Sep 2005 15:05:03 +0200
 From: Frank Pavlic <pavlic@de.ibm.com>
 To: jgarzik@pobox.com
 Cc: linux-kernel@vger.kernel.org
-Subject: [patch 2/4] s390: ctc driver fixes
-Message-ID: <20050906130328.GE9265@pavlic>
+Subject: [patch 3/4] s390: TSO related fixes in qeth driver
+Message-ID: <20050906130503.GF9265@pavlic>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,107 +23,195 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[patch 2/4] s390: ctc driver fixes
+[patch 3/4] s390: TSO related fixes in qeth driver 
 
-From: Peter Tiedemann <ptiedem@de.ibm.com>
-	- race condition fixed
-	- minor cleanup 
-	
+From: Frank Pavlic <pavlic@de.ibm.com>
+	TSO related fixes :
+	  - changing value of large_send attribute while network traffic
+	    is running caused program check and thus device recovery.
+	  - Due to hardware restriction discard packet when it exceeds 60K
+	    otherwise qeth will cause program checks and thus traffic stall 
+	    when trying to send such huge packets.
+
 Signed-off-by: Frank Pavlic <pavlic@de.ibm.com>
 
 diffstat:
- ctcmain.c |   25 ++++++++++++++++---------
- 1 files changed, 16 insertions(+), 9 deletions(-)
+ qeth.h      |    4 ++--
+ qeth_main.c |   33 +++++++++++++++++++++------------
+ qeth_sys.c  |   10 +++-------
+ 3 files changed, 26 insertions(+), 21 deletions(-)
 
-
-diff -Naupr linux-2.6-orig/drivers/s390/net/ctcmain.c linux-2.6-patched/drivers/s390/net/ctcmain.c
---- linux-2.6-orig/drivers/s390/net/ctcmain.c	2005-09-05 11:46:56.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/net/ctcmain.c	2005-09-05 15:28:46.000000000 +0200
-@@ -1,5 +1,5 @@
+diff -Naupr linux-2.6-orig/drivers/s390/net/qeth.h linux-2.6-patched/drivers/s390/net/qeth.h
+--- linux-2.6-orig/drivers/s390/net/qeth.h	2005-09-05 11:46:56.000000000 +0200
++++ linux-2.6-patched/drivers/s390/net/qeth.h	2005-09-05 12:16:08.000000000 +0200
+@@ -24,7 +24,7 @@
+ 
+ #include "qeth_mpc.h"
+ 
+-#define VERSION_QETH_H 		"$Revision: 1.139 $"
++#define VERSION_QETH_H 		"$Revision: 1.141 $"
+ 
+ #ifdef CONFIG_QETH_IPV6
+ #define QETH_VERSION_IPV6 	":IPv6"
+@@ -1172,7 +1172,7 @@ extern int
+ qeth_realloc_buffer_pool(struct qeth_card *, int);
+ 
+ extern int
+-qeth_set_large_send(struct qeth_card *);
++qeth_set_large_send(struct qeth_card *, enum qeth_large_send_types);
+ 
+ extern void
+ qeth_fill_header(struct qeth_card *, struct qeth_hdr *,
+diff -Naupr linux-2.6-orig/drivers/s390/net/qeth_main.c linux-2.6-patched/drivers/s390/net/qeth_main.c
+--- linux-2.6-orig/drivers/s390/net/qeth_main.c	2005-09-05 11:46:56.000000000 +0200
++++ linux-2.6-patched/drivers/s390/net/qeth_main.c	2005-09-05 12:17:38.000000000 +0200
+@@ -1,6 +1,6 @@
  /*
-- * $Id: ctcmain.c,v 1.74 2005/03/24 09:04:17 mschwide Exp $
-+ * $Id: ctcmain.c,v 1.77 2005/08/29 09:47:04 mschwide Exp $
   *
-  * CTC / ESCON network driver
+- * linux/drivers/s390/net/qeth_main.c ($Revision: 1.214 $)
++ * linux/drivers/s390/net/qeth_main.c ($Revision: 1.219 $)
   *
-@@ -37,7 +37,7 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  * Linux on zSeries OSA Express and HiperSockets support
   *
-- * RELEASE-TAG: CTC/ESCON network driver $Revision: 1.74 $
-+ * RELEASE-TAG: CTC/ESCON network driver $Revision: 1.77 $
+@@ -12,7 +12,7 @@
+  *			  Frank Pavlic (pavlic@de.ibm.com) and
+  *		 	  Thomas Spatzier <tspat@de.ibm.com>
   *
-  */
- 
-@@ -249,7 +249,7 @@ static void
- print_banner(void)
+- *    $Revision: 1.214 $	 $Date: 2005/05/04 20:19:18 $
++ *    $Revision: 1.219 $	 $Date: 2005/05/04 20:19:18 $
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -80,7 +80,7 @@ qeth_eyecatcher(void)
+ #include "qeth_eddp.h"
+ #include "qeth_tso.h"
+ 
+-#define VERSION_QETH_C "$Revision: 1.214 $"
++#define VERSION_QETH_C "$Revision: 1.219 $"
+ static const char *version = "qeth S/390 OSA-Express driver";
+ 
+ /**
+@@ -3795,12 +3795,16 @@ static inline int
+ qeth_prepare_skb(struct qeth_card *card, struct sk_buff **skb,
+ 		 struct qeth_hdr **hdr, int ipv)
  {
- 	static int printed = 0;
--	char vbuf[] = "$Revision: 1.74 $";
-+	char vbuf[] = "$Revision: 1.77 $";
- 	char *version = vbuf;
++	int rc;
+ #ifdef CONFIG_QETH_VLAN
+ 	u16 *tag;
+ #endif
  
- 	if (printed)
-@@ -2209,13 +2209,18 @@ transmit_skb(struct channel *ch, struct 
- 	int rc = 0;
+ 	QETH_DBF_TEXT(trace, 6, "prepskb");
  
- 	DBF_TEXT(trace, 5, __FUNCTION__);
-+	/* we need to acquire the lock for testing the state
-+	 * otherwise we can have an IRQ changing the state to 
-+	 * TXIDLE after the test but before acquiring the lock.
-+	 */
-+	spin_lock_irqsave(&ch->collect_lock, saveflags);
- 	if (fsm_getstate(ch->fsm) != CH_STATE_TXIDLE) {
- 		int l = skb->len + LL_HEADER_LENGTH;
++        rc = qeth_realloc_headroom(card, skb, sizeof(struct qeth_hdr));
++        if (rc)
++                return rc;
+ #ifdef CONFIG_QETH_VLAN
+ 	if (card->vlangrp && vlan_tx_tag_present(*skb) &&
+ 	    ((ipv == 6) || card->options.layer2) ) {
+@@ -4251,7 +4255,8 @@ out:
+ }
  
--		spin_lock_irqsave(&ch->collect_lock, saveflags);
--		if (ch->collect_len + l > ch->max_bufsize - 2)
--			rc = -EBUSY;
--		else {
-+		if (ch->collect_len + l > ch->max_bufsize - 2) {
-+			spin_unlock_irqrestore(&ch->collect_lock, saveflags);
-+			return -EBUSY;
-+		} else {
- 			atomic_inc(&skb->users);
- 			header.length = l;
- 			header.type = skb->protocol;
-@@ -2231,7 +2236,7 @@ transmit_skb(struct channel *ch, struct 
- 		int ccw_idx;
- 		struct sk_buff *nskb;
- 		unsigned long hi;
--
-+		spin_unlock_irqrestore(&ch->collect_lock, saveflags);
- 		/**
- 		 * Protect skb against beeing free'd by upper
- 		 * layers.
-@@ -2256,6 +2261,7 @@ transmit_skb(struct channel *ch, struct 
- 			if (!nskb) {
- 				atomic_dec(&skb->users);
- 				skb_pull(skb, LL_HEADER_LENGTH + 2);
-+				ctc_clear_busy(ch->netdev);
- 				return -ENOMEM;
- 			} else {
- 				memcpy(skb_put(nskb, skb->len),
-@@ -2281,6 +2287,7 @@ transmit_skb(struct channel *ch, struct 
- 				 */
- 				atomic_dec(&skb->users);
- 				skb_pull(skb, LL_HEADER_LENGTH + 2);
-+				ctc_clear_busy(ch->netdev);
- 				return -EBUSY;
- 			}
+ static inline int
+-qeth_get_elements_no(struct qeth_card *card, void *hdr, struct sk_buff *skb)
++qeth_get_elements_no(struct qeth_card *card, void *hdr, 
++		     struct sk_buff *skb, int elems)
+ {
+ 	int elements_needed = 0;
  
-@@ -2327,6 +2334,7 @@ transmit_skb(struct channel *ch, struct 
+@@ -4261,9 +4266,10 @@ qeth_get_elements_no(struct qeth_card *c
+         if (elements_needed == 0 )
+                 elements_needed = 1 + (((((unsigned long) hdr) % PAGE_SIZE)
+                                         + skb->len) >> PAGE_SHIFT);
+-        if (elements_needed > QETH_MAX_BUFFER_ELEMENTS(card)){
++	if ((elements_needed + elems) > QETH_MAX_BUFFER_ELEMENTS(card)){
+                 PRINT_ERR("qeth_do_send_packet: invalid size of "
+-                          "IP packet. Discarded.");
++                          "IP packet (Number=%d / Length=%d). Discarded.\n",
++                          (elements_needed+elems), skb->len);
+                 return 0;
+         }
+         return elements_needed;
+@@ -4337,9 +4343,11 @@ qeth_send_packet(struct qeth_card *card,
+ 			return -EINVAL;
  		}
+ 	} else {
+-		elements_needed += qeth_get_elements_no(card,(void*) hdr, skb);
+-		if (!elements_needed)
++		int elems = qeth_get_elements_no(card,(void*) hdr, skb,
++						 elements_needed);
++		if (!elems)
+ 			return -EINVAL;
++		elements_needed += elems;
  	}
  
-+	ctc_clear_busy(ch->netdev);
+ 	if (card->info.type != QETH_CARD_TYPE_IQD)
+@@ -7038,14 +7046,16 @@ qeth_setrouting_v6(struct qeth_card *car
+ }
+ 
+ int
+-qeth_set_large_send(struct qeth_card *card)
++qeth_set_large_send(struct qeth_card *card, enum qeth_large_send_types type)
+ {
+ 	int rc = 0;
+ 
+-	if (card->dev == NULL)
++	if (card->dev == NULL) {
++		card->options.large_send = type;
+ 		return 0;
+-
++	}
+ 	netif_stop_queue(card->dev);
++	card->options.large_send = type;
+ 	switch (card->options.large_send) {
+ 	case QETH_LARGE_SEND_EDDP:
+ 		card->dev->features |= NETIF_F_TSO | NETIF_F_SG;
+@@ -7066,7 +7076,6 @@ qeth_set_large_send(struct qeth_card *ca
+ 		card->dev->features &= ~(NETIF_F_TSO | NETIF_F_SG);
+ 		break;
+ 	}
+-
+ 	netif_wake_queue(card->dev);
  	return rc;
  }
- 
-@@ -2421,7 +2429,6 @@ ctc_tx(struct sk_buff *skb, struct net_d
- 	dev->trans_start = jiffies;
- 	if (transmit_skb(privptr->channel[WRITE], skb) != 0)
- 		rc = 1;
--	ctc_clear_busy(dev);
- 	return rc;
+diff -Naupr linux-2.6-orig/drivers/s390/net/qeth_sys.c linux-2.6-patched/drivers/s390/net/qeth_sys.c
+--- linux-2.6-orig/drivers/s390/net/qeth_sys.c	2005-09-05 11:46:56.000000000 +0200
++++ linux-2.6-patched/drivers/s390/net/qeth_sys.c	2005-09-05 12:14:30.000000000 +0200
+@@ -1,6 +1,6 @@
+ /*
+  *
+- * linux/drivers/s390/net/qeth_sys.c ($Revision: 1.51 $)
++ * linux/drivers/s390/net/qeth_sys.c ($Revision: 1.53 $)
+  *
+  * Linux on zSeries OSA Express and HiperSockets support
+  * This file contains code related to sysfs.
+@@ -20,7 +20,7 @@
+ #include "qeth_mpc.h"
+ #include "qeth_fs.h"
+ 
+-const char *VERSION_QETH_SYS_C = "$Revision: 1.51 $";
++const char *VERSION_QETH_SYS_C = "$Revision: 1.53 $";
+ 
+ /*****************************************************************************/
+ /*                                                                           */
+@@ -771,9 +771,7 @@ qeth_dev_large_send_store(struct device 
+ 
+ 	if (!card)
+ 		return -EINVAL;
+-
+ 	tmp = strsep((char **) &buf, "\n");
+-
+ 	if (!strcmp(tmp, "no")){
+ 		type = QETH_LARGE_SEND_NO;
+ 	} else if (!strcmp(tmp, "EDDP")) {
+@@ -786,10 +784,8 @@ qeth_dev_large_send_store(struct device 
+ 	}
+ 	if (card->options.large_send == type)
+ 		return count;
+-	card->options.large_send = type;
+-	if ((rc = qeth_set_large_send(card)))
++	if ((rc = qeth_set_large_send(card, type)))	
+ 		return rc;
+-
+ 	return count;
  }
+ 

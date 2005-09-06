@@ -1,48 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751069AbVIFWdF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751084AbVIFWnS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751069AbVIFWdF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 18:33:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751071AbVIFWdF
+	id S1751084AbVIFWnS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 18:43:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751085AbVIFWnR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 18:33:05 -0400
-Received: from smtp.istop.com ([66.11.167.126]:58252 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S1751069AbVIFWdE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 18:33:04 -0400
-From: Daniel Phillips <phillips@istop.com>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: RFC: i386: kill !4KSTACKS
-Date: Tue, 6 Sep 2005 18:36:07 -0400
-User-Agent: KMail/1.8
-Cc: Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>, linux-kernel@vger.kernel.org
-References: <20050904145129.53730.qmail@web50202.mail.yahoo.com> <200509061819.45567.phillips@istop.com> <200509070021.29959.ak@suse.de>
-In-Reply-To: <200509070021.29959.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 6 Sep 2005 18:43:17 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:16528 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751084AbVIFWnR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 18:43:17 -0400
+Subject: Re: [PATCH] PCI: Unhide SMBus on Compaq Evo N620c
+From: Lee Revell <rlrevell@joe-job.com>
+To: Rumen Ivanov Zarev <rzarev@its.caltech.edu>
+Cc: gregkh@suse.de, linux-kernel@vger.kernel.org
+In-Reply-To: <200509062039.j86KdWMr014934@inky.its.caltech.edu>
+References: <200509062039.j86KdWMr014934@inky.its.caltech.edu>
+Content-Type: text/plain
+Date: Tue, 06 Sep 2005 18:43:10 -0400
+Message-Id: <1126046590.13159.9.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.3.8 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509061836.07813.phillips@istop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 06 September 2005 18:21, Andi Kleen wrote:
-> On Wednesday 07 September 2005 00:19, Daniel Phillips wrote:
-> > Andi, their stack will have to have a valid thread_info->task because
-> > interrupts will use it.  Out of interest, could you please explain what
-> > for?
->
-> No, with 4k interrupts run on their own stack with their own thread_info
-> Or rather they mostly do. Currently do_IRQ does irq_enter which refers
-> thread_info before switching to the interrupt stack, that order would
-> likely need to be exchanged.
+On Tue, 2005-09-06 at 13:39 -0700, Rumen Ivanov Zarev wrote:
+> Trivial patch against 2.6.13 to unhide SMBus on Compaq Evo N620c laptop using
+> Intel 82855PM chipset.
 
-But then how would thread_info->task on the irq stack ever get initialized?
+> +	} else if (unlikely(dev->subsystem_vendor == PCI_VENDOR_ID_COMPAQ)) {
 
-My "what for" question was re why interrupt routines even need a valid 
-current.  I see one answer out there on the web: statistical profiling.  Is 
-that it?
+Should unlikely() be used for cases where the conditional will be true
+iff a specific piece of hardware is present?  Seems like we'd always
+lose.
 
-Regards,
+Lee
 
-Daniel
+

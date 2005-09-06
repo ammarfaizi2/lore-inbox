@@ -1,63 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932432AbVIFHcW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932439AbVIFHdR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932432AbVIFHcW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 03:32:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932435AbVIFHcW
+	id S932439AbVIFHdR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 03:33:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932438AbVIFHdR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 03:32:22 -0400
-Received: from mail.dsa-ac.de ([62.112.80.99]:6151 "EHLO mail.dsa-ac.de")
-	by vger.kernel.org with ESMTP id S932432AbVIFHcW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 03:32:22 -0400
-Date: Tue, 6 Sep 2005 09:32:07 +0200 (CEST)
-From: gl@dsa-ac.de
-To: Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
-       "Antonino A. Daplas" <adaplas@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: who sets boot_params[].screen_info.orig_video_isVGA?
-In-Reply-To: <431CEEAF.5090701@gmail.com>
-Message-ID: <Pine.LNX.4.63.0509060918310.11341@pcgl.dsa-ac.de>
-References: <Pine.LNX.4.63.0509051646480.11341@pcgl.dsa-ac.de>
- <E1ECIub-00088O-00@chiark.greenend.org.uk> <Pine.LNX.4.63.0509051736420.11341@pcgl.dsa-ac.de>
- <431CEEAF.5090701@gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 6 Sep 2005 03:33:17 -0400
+Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:31614 "HELO
+	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S932437AbVIFHdQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 03:33:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Subject:From:To:Cc:In-Reply-To:References:Content-Type:Date:Message-Id:Mime-Version:X-Mailer:Content-Transfer-Encoding;
+  b=rB8yZc23EutiZfOALGX/WxcNt48Z2kdgOInD+JRxLHCb1eSMnTZe+p5SUtUIW+8Q46HRdplwVA57Ri1QE/EceoFgQ/Yar6i96lTZ9niHOZ08xijV86SyjEb1MRICYqo8zlqm6PQvdnz1pti9Pf3cflT5yGI1uNXqBXrYudA6LuY=  ;
+Subject: Re: RFC: i386: kill !4KSTACKS
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+To: Andi Kleen <ak@suse.de>
+Cc: Denis Vlasenko <vda@ilport.com.ua>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <200509060913.59822.ak@suse.de>
+References: <20050904145129.53730.qmail@web50202.mail.yahoo.com>
+	 <p73aciqrev0.fsf@verdi.suse.de> <200509060939.28055.vda@ilport.com.ua>
+	 <200509060913.59822.ak@suse.de>
+Content-Type: text/plain
+Date: Tue, 06 Sep 2005 17:32:57 +1000
+Message-Id: <1125991977.5138.6.camel@npiggin-nld.site>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Sep 2005, Matthew Garrett wrote:
+On Tue, 2005-09-06 at 09:13 +0200, Andi Kleen wrote:
 
-> Yup. You probably want to take a look at Documentation/fb/vesafb.txt -
-> the modes are the same.
+> At some point we undoubtedly will need to increase it further, 
+> the logical point would be when Linux switches to larger softpage 
+> sizes.
 
-Great, thanks! I tried VESA 0x111 (Linux 0x311) - it is also what is used 
-by xfree86 vesa driver, after I've followed the suggestion from Tony 
-(cc'ed and quoted below) and tried X with vesa. The kernel boots, intelfb 
-driver doesn't exit, I can even start X over fb and it runs! But:
+Is this really a "when"?
 
-1) both screens - LCD and CRT bocome black as soon as intelfb takes over 
-and stay that way also under X
+Hugh and wli were both working on this and IIRC neither could
+show enough justification to get people interested in it and
+get it merged (maybe apart from helping stupidly sized PAE systems
+limp along)
 
-2) kernel logs fill with
+And that was even before page size reductions and objrmap came
+along, which makes the potential gain even smaller.
 
-intelfb: the cursor was killed - restore it !!
-intelfb: size 8, 16   pos 0, 464
+Are there still good reasons to have such a thing?
 
-Buggy video BIOS?...
+Nick
 
-On Tue, 6 Sep 2005, Antonino A. Daplas wrote:
+-- 
+SUSE Labs, Novell Inc.
 
-> One good method is to use the "vesa" driver of Xorg/Xfree86.  Check
-> /var/log/X*.log and it should have a nice list of vesa mode id's that
-> are supported.
->
-> Then add 0x200 to any of them and use it in your vga= parameter.
 
-Thanks
-Guennadi
----------------------------------
-Guennadi Liakhovetski, Ph.D.
-DSA Daten- und Systemtechnik GmbH
-Pascalstr. 28
-D-52076 Aachen
-Germany
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

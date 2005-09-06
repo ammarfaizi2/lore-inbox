@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932455AbVIFNAL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932456AbVIFNA2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932455AbVIFNAL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 09:00:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932456AbVIFNAK
+	id S932456AbVIFNA2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 09:00:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932457AbVIFNA2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 09:00:10 -0400
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:43759 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S932455AbVIFNAI
+	Tue, 6 Sep 2005 09:00:28 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:60079 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S932456AbVIFNA2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 09:00:08 -0400
-Date: Tue, 6 Sep 2005 15:03:09 +0200
+	Tue, 6 Sep 2005 09:00:28 -0400
+Date: Tue, 6 Sep 2005 15:03:28 +0200
 From: Frank Pavlic <pavlic@de.ibm.com>
 To: jgarzik@pobox.com
 Cc: linux-kernel@vger.kernel.org
-Subject: [patch 1/4] s390: claw driver fixes
-Message-ID: <20050906130309.GD9265@pavlic>
+Subject: [patch 2/4] s390: ctc driver fixes
+Message-ID: <20050906130328.GE9265@pavlic>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,91 +23,107 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[patch 1/4] s390: claw driver fixes
+[patch 2/4] s390: ctc driver fixes
 
-From: Andy Richter <richtera@us.ibm.com>
-	- change memory allocation and move dbf from proc to debugfs
-	- use dev_kfree_skb_any instead of dev_kfree_skb_irq
-
+From: Peter Tiedemann <ptiedem@de.ibm.com>
+	- race condition fixed
+	- minor cleanup 
+	
 Signed-off-by: Frank Pavlic <pavlic@de.ibm.com>
 
 diffstat:
- claw.c |   20 ++++++++++----------
- 1 files changed, 10 insertions(+), 10 deletions(-)
+ ctcmain.c |   25 ++++++++++++++++---------
+ 1 files changed, 16 insertions(+), 9 deletions(-)
 
-diff -Naupr linux-2.6-orig/drivers/s390/net/claw.c linux-2.6-patched/drivers/s390/net/claw.c
---- linux-2.6-orig/drivers/s390/net/claw.c	2005-09-05 11:46:56.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/net/claw.c	2005-09-05 15:18:59.000000000 +0200
-@@ -2,9 +2,9 @@
-  *  drivers/s390/net/claw.c
-  *    ESCON CLAW network driver
+
+diff -Naupr linux-2.6-orig/drivers/s390/net/ctcmain.c linux-2.6-patched/drivers/s390/net/ctcmain.c
+--- linux-2.6-orig/drivers/s390/net/ctcmain.c	2005-09-05 11:46:56.000000000 +0200
++++ linux-2.6-patched/drivers/s390/net/ctcmain.c	2005-09-05 15:28:46.000000000 +0200
+@@ -1,5 +1,5 @@
+ /*
+- * $Id: ctcmain.c,v 1.74 2005/03/24 09:04:17 mschwide Exp $
++ * $Id: ctcmain.c,v 1.77 2005/08/29 09:47:04 mschwide Exp $
   *
-- *    $Revision: 1.35 $ $Date: 2005/03/24 12:25:38 $
-+ *    $Revision: 1.38 $ $Date: 2005/08/29 09:47:04 $
+  * CTC / ESCON network driver
   *
-- *  Linux fo zSeries version
-+ *  Linux for zSeries version
-  *    Copyright (C) 2002,2005 IBM Corporation
-  *  Author(s) Original code written by:
-  *              Kazuo Iimura (iimura@jp.ibm.com)
-@@ -431,12 +431,12 @@ claw_pack_skb(struct claw_privbk *privpt
- 	if (!skb_queue_empty(&p_ch->collect_queue)) {
- 	/* some data */
- 		held_skb = skb_dequeue(&p_ch->collect_queue);
--		if (p_env->packing != DO_PACKED)
--			return held_skb;
- 		if (held_skb)
--			atomic_dec(&held_skb->users);
-+			dev_kfree_skb_any(held_skb);
- 		else
- 			return NULL;
-+		if (p_env->packing != DO_PACKED)
-+			return held_skb;
- 		/* get a new SKB we will pack at least one */
- 		new_skb = dev_alloc_skb(p_env->write_size);
- 		if (new_skb == NULL) {
-@@ -455,7 +455,7 @@ claw_pack_skb(struct claw_privbk *privpt
- 				privptr->stats.tx_packets++;
- 				so_far += held_skb->len;
- 				pkt_cnt++;
--				dev_kfree_skb_irq(held_skb);
-+				dev_kfree_skb_any(held_skb);
- 				held_skb = skb_dequeue(&p_ch->collect_queue);
- 				if (held_skb)
- 					atomic_dec(&held_skb->users);
-@@ -1092,7 +1092,7 @@ claw_release(struct net_device *dev)
-                 }
-         }
- 	if (privptr->pk_skb != NULL) {
--		dev_kfree_skb(privptr->pk_skb);
-+		dev_kfree_skb_any(privptr->pk_skb);
- 		privptr->pk_skb = NULL;
+@@ -37,7 +37,7 @@
+  * along with this program; if not, write to the Free Software
+  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  *
+- * RELEASE-TAG: CTC/ESCON network driver $Revision: 1.74 $
++ * RELEASE-TAG: CTC/ESCON network driver $Revision: 1.77 $
+  *
+  */
+ 
+@@ -249,7 +249,7 @@ static void
+ print_banner(void)
+ {
+ 	static int printed = 0;
+-	char vbuf[] = "$Revision: 1.74 $";
++	char vbuf[] = "$Revision: 1.77 $";
+ 	char *version = vbuf;
+ 
+ 	if (printed)
+@@ -2209,13 +2209,18 @@ transmit_skb(struct channel *ch, struct 
+ 	int rc = 0;
+ 
+ 	DBF_TEXT(trace, 5, __FUNCTION__);
++	/* we need to acquire the lock for testing the state
++	 * otherwise we can have an IRQ changing the state to 
++	 * TXIDLE after the test but before acquiring the lock.
++	 */
++	spin_lock_irqsave(&ch->collect_lock, saveflags);
+ 	if (fsm_getstate(ch->fsm) != CH_STATE_TXIDLE) {
+ 		int l = skb->len + LL_HEADER_LENGTH;
+ 
+-		spin_lock_irqsave(&ch->collect_lock, saveflags);
+-		if (ch->collect_len + l > ch->max_bufsize - 2)
+-			rc = -EBUSY;
+-		else {
++		if (ch->collect_len + l > ch->max_bufsize - 2) {
++			spin_unlock_irqrestore(&ch->collect_lock, saveflags);
++			return -EBUSY;
++		} else {
+ 			atomic_inc(&skb->users);
+ 			header.length = l;
+ 			header.type = skb->protocol;
+@@ -2231,7 +2236,7 @@ transmit_skb(struct channel *ch, struct 
+ 		int ccw_idx;
+ 		struct sk_buff *nskb;
+ 		unsigned long hi;
+-
++		spin_unlock_irqrestore(&ch->collect_lock, saveflags);
+ 		/**
+ 		 * Protect skb against beeing free'd by upper
+ 		 * layers.
+@@ -2256,6 +2261,7 @@ transmit_skb(struct channel *ch, struct 
+ 			if (!nskb) {
+ 				atomic_dec(&skb->users);
+ 				skb_pull(skb, LL_HEADER_LENGTH + 2);
++				ctc_clear_busy(ch->netdev);
+ 				return -ENOMEM;
+ 			} else {
+ 				memcpy(skb_put(nskb, skb->len),
+@@ -2281,6 +2287,7 @@ transmit_skb(struct channel *ch, struct 
+ 				 */
+ 				atomic_dec(&skb->users);
+ 				skb_pull(skb, LL_HEADER_LENGTH + 2);
++				ctc_clear_busy(ch->netdev);
+ 				return -EBUSY;
+ 			}
+ 
+@@ -2327,6 +2334,7 @@ transmit_skb(struct channel *ch, struct 
+ 		}
  	}
- 	if(privptr->buffs_alloc != 1) {
-@@ -2016,7 +2016,7 @@ claw_hw_tx(struct sk_buff *skb, struct n
-         p_buf=(struct ccwbk*)privptr->p_end_ccw;
-         dumpit((char *)p_buf, sizeof(struct endccw));
- #endif
--        dev_kfree_skb(skb);
-+        dev_kfree_skb_any(skb);
- 	if (linkid==0) {
-         	lock=LOCK_NO;
-         }
-@@ -4061,7 +4061,7 @@ claw_purge_skb_queue(struct sk_buff_head
  
-         while ((skb = skb_dequeue(q))) {
-                 atomic_dec(&skb->users);
--                dev_kfree_skb_irq(skb);
-+                dev_kfree_skb_any(skb);
-         }
++	ctc_clear_busy(ch->netdev);
+ 	return rc;
  }
- 
-@@ -4410,7 +4410,7 @@ claw_init(void)
- #else
-                 "compiled into kernel "
- #endif
--                " $Revision: 1.35 $ $Date: 2005/03/24 12:25:38 $ \n");
-+                " $Revision: 1.38 $ $Date: 2005/08/29 09:47:04 $ \n");
- 
- 
- #ifdef FUNCTRACE
+ 
+@@ -2421,7 +2429,6 @@ ctc_tx(struct sk_buff *skb, struct net_d
+ 	dev->trans_start = jiffies;
+ 	if (transmit_skb(privptr->channel[WRITE], skb) != 0)
+ 		rc = 1;
+-	ctc_clear_busy(dev);
+ 	return rc;
+ }

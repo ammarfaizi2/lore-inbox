@@ -1,76 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965032AbVIFBDY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965027AbVIFBHB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965032AbVIFBDY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 21:03:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965027AbVIFBDX
+	id S965027AbVIFBHB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 21:07:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965037AbVIFBHB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 21:03:23 -0400
-Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:42939 "HELO
-	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S965032AbVIFBDX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 21:03:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=fl1IQJFcUrKJzoKD7JSUKNOeGf71AaQIeYmJ8YKq54wf1aREu986dfQJZnEv1mdAUl7ellZlCY9iFh8Sk3H+CC5HaHoMRMdJJGozk1+H31UVgA9stTVjv3LtB+YTK0Up8IplMDxFyrvdZhA8WG/YuI7YHQI/zpwi5u8V2IFQLcM=  ;
-Message-ID: <431CEAD1.9080007@yahoo.com.au>
-Date: Tue, 06 Sep 2005 11:03:13 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Andi Kleen <ak@suse.de>, Linux Memory Management <linux-mm@kvack.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6.13] lockless pagecache 2/7
-References: <4317F071.1070403@yahoo.com.au> <4317F0F9.1080602@yahoo.com.au>	 <4317F136.4040601@yahoo.com.au>	 <1125666486.30867.11.camel@localhost.localdomain>	 <p73k6hzqk1w.fsf@verdi.suse.de>  <4318C28A.5010000@yahoo.com.au>	 <1125705471.30867.40.camel@localhost.localdomain>	 <4318FF2B.6000805@yahoo.com.au>	 <1125768697.14987.7.camel@localhost.localdomain>	 <431A4767.4030403@yahoo.com.au> <1125822018.23858.2.camel@localhost.localdomain>
-In-Reply-To: <1125822018.23858.2.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 5 Sep 2005 21:07:01 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:21395 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965027AbVIFBHA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 21:07:00 -0400
+Date: Tue, 6 Sep 2005 02:06:57 +0100
+From: viro@ZenIV.linux.org.uk
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: [PATCH] iomem annotations (sound/arm/aaci)
+Message-ID: <20050906010657.GS5155@ZenIV.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Sul, 2005-09-04 at 11:01 +1000, Nick Piggin wrote:
-> 
->>I would be surprised if it was a big loss... but I'm assuming
->>a locked cmpxchg isn't outlandishly expensive. Basically:
->>
->>   read_lock_irqsave(cacheline1);
->>   atomic_inc_return(cacheline2);
->>   read_unlock_irqrestore(cacheline1);
->>
->>Turns into
->>
->>   atomic_cmpxchg();
->>
->>I'll do some microbenchmarks and get back to you. I'm quite
->>interested now ;) What sort of AMDs did you have in mind,
-> 
-> 
-> 
-> Athlon or higher give very different atomic numbers to P4. If you are
-> losing the read_lock/unlock then the atomic_cmpxchg should be faster on
-> all I agree.
-> 
-
-Phew! I'll test them anyway, however.
-
-> One question however - atomic_foo operations are not store barriers so
-> you might need mb() and friends for PPC ?
-> 
-
-Dave's documented that nicely in Documentation/atomic_ops.txt
-
-In general, atomic ops that do not return a value are not barriers,
-while operations that do return a value are.
-
-So I think we can define the atomic_cmpxchg as providing a barrier.
-
-Thanks,
-Nick
-
--- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+----
+diff -urN RC13-git5-sunsu/sound/arm/aaci.c RC13-git5-aaci/sound/arm/aaci.c
+--- RC13-git5-sunsu/sound/arm/aaci.c	2005-08-28 23:09:50.000000000 -0400
++++ RC13-git5-aaci/sound/arm/aaci.c	2005-09-05 16:41:09.000000000 -0400
+@@ -821,7 +821,7 @@
+ 
+ static unsigned int __devinit aaci_size_fifo(struct aaci *aaci)
+ {
+-	void *base = aaci->base + AACI_CSCH1;
++	void __iomem *base = aaci->base + AACI_CSCH1;
+ 	int i;
+ 
+ 	writel(TXCR_FEN | TXCR_TSZ16 | TXCR_TXEN, base + AACI_TXCR);
+@@ -877,7 +877,7 @@
+ 	aaci->playback.fifo = aaci->base + AACI_DR1;
+ 
+ 	for (i = 0; i < 4; i++) {
+-		void *base = aaci->base + i * 0x14;
++		void __iomem *base = aaci->base + i * 0x14;
+ 
+ 		writel(0, base + AACI_IE);
+ 		writel(0, base + AACI_TXCR);
+diff -urN RC13-git5-sunsu/sound/arm/aaci.h RC13-git5-aaci/sound/arm/aaci.h
+--- RC13-git5-sunsu/sound/arm/aaci.h	2005-08-28 23:09:50.000000000 -0400
++++ RC13-git5-aaci/sound/arm/aaci.h	2005-09-05 16:41:09.000000000 -0400
+@@ -200,8 +200,8 @@
+ 
+ 
+ struct aaci_runtime {
+-	void			*base;
+-	void			*fifo;
++	void			__iomem *base;
++	void			__iomem *fifo;
+ 
+ 	struct ac97_pcm		*pcm;
+ 	int			pcm_open;
+@@ -223,7 +223,7 @@
+ struct aaci {
+ 	struct amba_device	*dev;
+ 	snd_card_t		*card;
+-	void			*base;
++	void			__iomem *base;
+ 	unsigned int		fifosize;
+ 
+ 	/* AC'97 */

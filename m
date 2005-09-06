@@ -1,65 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932452AbVIFMyU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932149AbVIFM4H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932452AbVIFMyU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 08:54:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932149AbVIFMyU
+	id S932149AbVIFM4H (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 08:56:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932448AbVIFM4H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 08:54:20 -0400
-Received: from laf31-5-82-235-130-100.fbx.proxad.net ([82.235.130.100]:16865
-	"EHLO lexbox.fr") by vger.kernel.org with ESMTP id S932452AbVIFMyT convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 08:54:19 -0400
-Subject: Promise SATAII 150 TX (PDC 20579) & PATA/SATA port problem
+	Tue, 6 Sep 2005 08:56:07 -0400
+Received: from mail3.netbeat.de ([193.254.185.27]:45459 "HELO mail3.netbeat.de")
+	by vger.kernel.org with SMTP id S932149AbVIFM4G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 08:56:06 -0400
+Message-ID: <005301c5b2e3$1890a4a0$6464a8c0@pc0001>
+From: "Dirk Gerdes" <mail@dirk-gerdes.de>
+To: <walking.to.remember@gmail.com>
+Cc: <linux-kernel@vger.kernel.org>
+References: <6b5347dc0509060215128d477e@mail.gmail.com> <003a01c5b2d6$610d6360$6464a8c0@pc0001> <6b5347dc05090604596ac08cb6@mail.gmail.com>
+Subject: Re: what will connect the fork() with its following code ? a simple example below:
+Date: Tue, 6 Sep 2005 15:01:26 +0200
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Date: Tue, 6 Sep 2005 14:51:47 +0200
-Message-ID: <17AB476A04B7C842887E0EB1F268111E026F4D@xpserver.intra.lexbox.org>
-Content-class: urn:content-classes:message
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Promise SATAII 150 TX (PDC 20579) & PATA/SATA port problem
-thread-index: AcWy4b3EnpVNIn7KQDuni7USno37SA==
-From: "David Sanchez" <david.sanchez@lexbox.fr>
-To: <linux-kernel@vger.kernel.org>
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2670
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+fork returns 0 to the child and the pid of the child to the parent.
 
-I'm using the linux 2.6.13 (from www.linux-mips.org) containing the
-libata patch (2.6.13-rc7-libata1.patch.bz2) on an AMD DBAu1550 (mips32).
-I've connected a HDD to the pata port of my PDC 20579 controller.
-Unfortunately, it doesn't work. Here a part of the boot messages:
+both child and parent get the same code, so the child gets true in the 
+if-statement and the parent gets false.
 
-...
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-PCI: Enabling device 0000:00:0c.0 (0000 -> 0003)
-sata_promise PATA port found
-ata1: SATA max UDMA/133 cmd 0xC0054200 ctl 0xC0054238 bmdma 0x0 irq 2
-ata2: SATA max UDMA/133 cmd 0xC0054280 ctl 0xC00542B8 bmdma 0x0 irq 2
-ata3: PATA max UDMA/133 cmd 0xC0054300 ctl 0xC0054338 bmdma 0x0 irq 2
-ata1: no device found (phy stat 00002821)
-scsi0 : sata_promise
-ata2: no device found (phy stat 00002821)
-scsi1 : sata_promise
-ata3: disabling port
-scsi2 : sata_promise 
-...
+it would be the same as
+
+pid = fork();
+if (pid == 0){
+// child
+}
+else{
+// parent
+}
 
 
-I've try to connect a HDD on a SATA port and the problem still appears
-:(. More when I try the 2.6.10 kernel with the corresponding libata
-patch it, works !
+----- Original Message ----- 
+From: "Sat." <walking.to.remember@gmail.com>
+To: "Dirk Gerdes" <mail@dirk-gerdes.de>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Tuesday, September 06, 2005 1:59 PM
+Subject: Re: what will connect the fork() with its following code ? a simple 
+example below:
 
-Does somebody have such a behaviour ?
-Please help me ! What can I do to make the kernel2.6.13 works with my
-promise controller ?
 
-Thanks
-David
+here is a snip in 0.11 version linux ,
+in linux/init/main.c
+
+
+179 if (!(pid=fork())) {
+180 close(0);
+181 if (open( "/etc/rc",O_RDONLY,0))
+182 _exit(1);
+183 execve( "/bin/sh",argv_rc,envp_rc);
+184 _exit(2);
+185 }
+
+natually, the code from 180 to 184 is runned by the new process, what
+I can understand is why the new process know that the next code will
+run is close(0) and why it know It will end at line 184 ?
+
+so ,I feel that there should be some connection between  them . but
+what the relationship in depth is ?
+
+thanks your help :)
+
+
+2005/9/6, Dirk Gerdes <mail@dirk-gerdes.de>:
+> There is no connection between a child an its parent.
+> The child only gets a copy of the code.
+> If there were a pointer to a child or to the parent, you wouldn't need any
+> signals.
+> The processes could communicate directly.
+>
+> regards
+>
+> ----- Original Message -----
+> From: "Sat." <walking.to.remember@gmail.com>
+> To: <linux-kernel@vger.kernel.org>
+> Sent: Tuesday, September 06, 2005 11:15 AM
+> Subject: what will connect the fork() with its following code ? a simple
+> example below:
+>
+>
+> > if(!(pid=fork())){
+> >     ......
+> >     printk("in child process");
+> >     ......
+> > }else{
+> >     .....
+> >     printk("in father process");
+> >     .....
+> > }
+> >
+> > this is a classical example, when the fork() system call runs, it will
+> > build a new process and active it . while the schedule() select the
+> > new process it will run. this is rather normal.
+> >
+> > but there is always a confusion in my minds.
+> > because , sys_fork() only copies father process and configure some new
+> > values., and do nothing . so the bridge  between the new process and
+> > its following code, printk("in child process"), seems disappear . so I
+> > always believe that the new process should have a pointer which point
+> > the code "printk("in child process");". except this , there are not
+> > any connection between them ?
+> >
+> > very confused :(
+> >
+> > any help will  appreciate  !
+> >
+> >
+> >
+> > --
+> > Sat.
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" 
+> > in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+>
+>
+
+
+-- 
+Sat.
 

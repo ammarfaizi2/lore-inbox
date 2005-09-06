@@ -1,59 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750728AbVIFPnh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbVIFPwP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750728AbVIFPnh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 11:43:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750734AbVIFPnh
+	id S1750734AbVIFPwP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 11:52:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750735AbVIFPwP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 11:43:37 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:35507 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1750728AbVIFPng (ORCPT
+	Tue, 6 Sep 2005 11:52:15 -0400
+Received: from smtpout.mac.com ([17.250.248.70]:62912 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1750734AbVIFPwO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 11:43:36 -0400
-Message-ID: <092301c5b2b4$c6f4b330$448b5c99@polux132>
-Reply-To: <polux132@cashette.com>
-From: <polux132@cashette.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: CANADA & USA funding available
-Date: Tue, 06 Sep 2005 07:29:55 +0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Tue, 6 Sep 2005 11:52:14 -0400
+In-Reply-To: <BAY106-F34D910C37C07A9F8D18173ABA70@phx.gbl>
+References: <BAY106-F34D910C37C07A9F8D18173ABA70@phx.gbl>
+Mime-Version: 1.0 (Apple Message framework v734)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <D10533AF-9FD4-4231-B9DE-030FB12983A7@mac.com>
+Cc: linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1123
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1123
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Modifying Cryptography code
+Date: Tue, 6 Sep 2005 11:51:53 -0400
+To: Alaa Dalghan <alaadalghan@hotmail.com>
+X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-CANADIAN PUBLICATIONS
-4865 HWY 138, R.R 1
-ST-ANDREWS WEST 
-ONTARIO, KOC 2A0
-1-866-322-3376
-To; linux-kernel@vger.kernel.org
+On Sep 6, 2005, at 08:38:48, Alaa Dalghan wrote:
+> What I am looking for is the portion of the C code in the kernel where
+> the Decryption function is called to decrypt a received packet. When I
+> find this statement, maybe i can make it conditionnal such as:  If the
+> destination is me then Decrypt  else DO NOT!
 
-PRESS RELEASE
+You can't make this work.  First of all, the other WinXP clients would
+be completely unable to decrypt your packets, because they don't have
+the right key.  Secondly, the kernel cannot know what the destination
+is until *after* it has decrypted the packet, because the real target
+address is encrypted along with the rest of the data for security.  If
+your OpenSwan box is too slow, get a faster OpenSwan box, don't try to
+break the encryption to make it faster.  You cannot remove enough
+encryption features to get the required extra speed without disabling
+the encryption entirely.
 
-CANADIAN SUBSIDY DIRECTORY YEAR 2005 EDITION
-Also available: American Grants & Loans Directory (USA)
+Cheers,
+Kyle Moffett
 
-Canadian Publications is offering to the public a revised edition of the
-Canadian Subsidy Directory, a guide containing more than 3000 direct and
-indirect financial subsidies, grants and loans offered by government
-departments and agencies, foundations, associations and organizations.  In
-this new 2005 edition all programs are well described.
-The Canadian Subsidy Directory is the most comprehensive tool to start up a
-business, improve existent activities, set up a business plan, or obtain
-assistance from experts in fields such as:
-Industry, transport, agriculture, communications, municipal infrastructure,
-education, import-export, labor, construction and renovation, the service
-sector, hi-tech industries, research and development, joint ventures, arts,
-cinema, theatre, music and recording industry, the self employed, contests,
-and new talents.
-Assistance from and for foundations and associations, guidance to prepare a
-business plan, market surveys, computers, and much more!
-The Canadian Subsidy Directory is sold $ 69.95 CD-Rom or $ 149.95 Printed,
-to obtain the Canadian Subsidy Directory call toll free 1-866-322-3376.
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$ L++++(+ 
+++) E
+W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+ PGP+++ t+(+++) 5  
+X R?
+tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  !y?(-)
+------END GEEK CODE BLOCK------
 
 

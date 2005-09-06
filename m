@@ -1,47 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750779AbVIFSaN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750784AbVIFScT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750779AbVIFSaN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 14:30:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbVIFSaN
+	id S1750784AbVIFScT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 14:32:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbVIFScT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 14:30:13 -0400
-Received: from dsl093-002-214.det1.dsl.speakeasy.net ([66.93.2.214]:32480 "EHLO
-	pickle.fieldses.org") by vger.kernel.org with ESMTP
-	id S1750779AbVIFSaM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 14:30:12 -0400
-Date: Tue, 6 Sep 2005 14:30:08 -0400
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: Bret Towe <magnade@gmail.com>, Jesper Juhl <jesper.juhl@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: nfs4 client bug
-Message-ID: <20050906183008.GG10632@fieldses.org>
-References: <dda83e78050904124454fc675a@mail.gmail.com> <dda83e78050904135113b95c4a@mail.gmail.com> <20050904215219.GA9812@fieldses.org> <dda83e780509042008294fbe26@mail.gmail.com> <20050905031825.GA22209@fieldses.org> <dda83e78050905134420f06fbf@mail.gmail.com> <9a87484905090513481118e67b@mail.gmail.com> <dda83e7805090520407aefb4d1@mail.gmail.com> <20050906181327.GE10632@fieldses.org> <Pine.LNX.4.50.0509061119380.19596-100000@shark.he.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50.0509061119380.19596-100000@shark.he.net>
-User-Agent: Mutt/1.5.10i
-From: "J. Bruce Fields" <bfields@fieldses.org>
+	Tue, 6 Sep 2005 14:32:19 -0400
+Received: from [219.133.116.24] ([219.133.116.24]:50442 "HELO 202.96.154.15")
+	by vger.kernel.org with SMTP id S1750784AbVIFScS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 14:32:18 -0400
+Message-ID: <B8yx9uVgu4id8f3@titan.seed.net.tw>
+From: nNbyh0xm7h0r@sky.seed.net.tw
+To: kAPpbh@tcts1.seed.net.tw
+Subject: =?ISO-8859-1?Q?=20=C4=FA=C9=CF=BF=CD=BB=A7=B9=D8=CF=B5=B9=DC=C0=ED?=
+	=?ISO-8859-1?Q?=CF=B5=CD=B3=C1=CB=C2=F0,=CE=D2=CF=EB=D5=E2=C0?=
+	=?ISO-8859-1?Q?=EF=D3=D0=C4=E3=D7=EE=BA=C3=B5=C4=D1=A1=D4=F1!?=
+Content-Type: text/plain;
+X-Priority: 3
+X-MSMail-Priority: Normal
+Date: Tue, 6 Sep 2005 14:32:18 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+X-MIME-Autoconverted: from Quoted-Printable to 8bit by alpha.home.local id j86IVQLq022074
 
-On Tue, Sep 06, 2005 at 11:21:09AM -0700, Randy.Dunlap wrote:
-> On Tue, 6 Sep 2005, J. Bruce Fields wrote:
-> 
-> > On Mon, Sep 05, 2005 at 08:40:53PM -0700, Bret Towe wrote:
-> > > Pid: 14169, comm: xmms Tainted: G   M  2.6.13
-> >
-> > Hm, can someone explain what that means?  A proprietary module was
-> > loaded then unloaded, maybe?
-> 
-> 'M' means Machine Check, which sets the Tainted flag.
-> So the processor thought that there was some kind of problem.
+  
+    Super-CRM客户关系管理系统5.0,仅售 800 元.
+    
+    有了本系统,您再也不用担心您的优质客户随业务人员的变动而流失!!!
+    
+    测试地址  http://litiansoft.oicp.net/supercrm.htm
+  
+    进入21世纪，客户已成为企业的核心战略资源。客户的识别、选择、争取、
+发展和保持，即客户关系管理CRM,已成为企业确立市场竞争优势的最重要也是
+唯一的基础。基于此，界范围内获得了广泛的应用和巨大的成功。然而，我国
+大部分企业，特别是中小企业在CRM系统建设方面尚处于比较落    后的状态，
+面对WTO的挑战和国内激烈的市场竞争，这些企业明显缺乏致    胜的关键能力。 
 
-Does this NMI watchdog event ("NMI Watchdog detected LOCKUP on CPU0CPU
-0") set that flag?
+    基于上述思路，深圳市力天软件开发有限公司充分运用两年多来在市场营
+销管理和客户关系管理方面积累的丰富知识和经验，在大量客户应用及反馈的
+基础上，将力天SuperCRM客户关系管理系统成功升级到了5.0版本，比以前版本
+功能更强，设计也更加合理。 
 
-> (/we needs to update Documentation/oops-tracing.txt)
+    该软件能辅助企业牢牢把握客户资源，洞察客户需求，加强客户挖掘、客
+户跟进、客户服务、客户关怀的业务进程的管理，提高客户响应速度及分析、
+决策的能力，提升客户满意度，增强企业赢利能力。该软件现已在华工科技、
+楚天激光等知名企业获得应用，发展前景广阔。
 
-Oops, thanks, I overlooked that!
+   Supercrm是以客户为中心的信息系统，使企业完整地认识整个客户生命周期
+，提供与客户沟通的统一台，提高员工与客户接触的效率和客户反馈率, 通过管
+理与客户间的互动，努力减少销售环节，降低销售成本，发现新市场和渠道，提
+高客户价值、客户满意度、客户利润贡献度（profitability）、客户忠诚度，
+实现最终效果的提高. Sumpercrm旨在完成以下目标： 
 
---b.
+    1:对每个客户的数据进行整合，提供对每个客户的总的看法 
+    2:瞄准利润贡献度较高的客户，提高它对本公司的忠诚度 
+    3:向客户提供个性化的产品和服务 
+    4:提高每个销售员为企业带来的收入，同时减少销售费用和营销费用; 
+    5:更快更好地发现销售机会，更快更好地进响应客户查询
+    6:向高层管理人员提供关于销售和营销活动状况的详细报告
+    7:对市场的变化做出及时的反应   
+    
+    正规公司,正规发票,信心保证.    
+
+    联系人：李涛
+
+    电 话：0755-6 1 3 2 1 1 9 6      传真：0755-26786121
+
+    E-mail:  litao@ltsoft.org
+
+

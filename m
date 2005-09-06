@@ -1,42 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964856AbVIFONt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964850AbVIFOSA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964856AbVIFONt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 10:13:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750825AbVIFONt
+	id S964850AbVIFOSA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 10:18:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964862AbVIFOSA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 10:13:49 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:41451 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1750817AbVIFONs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 10:13:48 -0400
-Subject: Re: [PATCH] IBM VSCSI Client: handle large scatter/gather lists
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Anton Blanchard <anton@samba.org>
-Cc: Linda Xie <lxiep@us.ibm.com>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Dave C Boutcher <sleddog@us.ibm.com>, Santiago Leon <santil@us.ibm.com>
-In-Reply-To: <20050906074943.GS6945@krispykreme>
-References: <42C2D85E.5010306@us.ibm.com>
-	 <20050906074943.GS6945@krispykreme>
+	Tue, 6 Sep 2005 10:18:00 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:21450 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964850AbVIFOR7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 10:17:59 -0400
+Subject: PATCH: USB white heat update for new tty buffers
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: linux-kernel@vger.kernel.org, akpm@osdl.org
 Content-Type: text/plain
-Date: Tue, 06 Sep 2005 09:13:25 -0500
-Message-Id: <1126016005.5012.1.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-6) 
 Content-Transfer-Encoding: 7bit
+Date: Tue, 06 Sep 2005 15:42:34 +0100
+Message-Id: <1126017754.22131.69.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-09-06 at 17:49 +1000, Anton Blanchard wrote:
-> Any chance we could get this into 2.6.14? I just tested it on current
-> git and as expected the number of sg elements increased. Testing a dd
-> from a virtual disk with clustering disabled (to avoid physical merging
-> effects) shows:
+This got missed originally as it is marked BROKEN_ON_SMP (I can't see
+why however). Updated and compile tested. I don't have hardware
 
-Yes ... but according to my records it wasn't acked by the
-maintainer ... does he agree?
+Signed-off-by: Alan Cox <alan@redhat.com>
 
-James
-
+--- ../linux.vanilla-2.6.13-rc6-mm2/drivers/usb/serial/whiteheat.c	2005-08-25 17:04:32.000000000 +0100
++++ drivers/usb/serial/whiteheat.c	2005-09-06 14:50:38.000000000 +0100
+@@ -1430,7 +1430,9 @@
+ 		urb = wrap->urb;
+ 
+ 		if (tty && urb->actual_length) {
+-			if (urb->actual_length > TTY_FLIPBUF_SIZE - tty->flip.count) {
++			int len = tty_buffer_request_room(tty, urb->actual_length);
++			/* This stuff can go away now I suspect */
++			if (unlikely(len < urb->actual_length)) {
+ 				spin_lock_irqsave(&info->lock, flags);
+ 				list_add(tmp, &info->rx_urb_q);
+ 				spin_unlock_irqrestore(&info->lock, flags);
+@@ -1438,11 +1440,8 @@
+ 				schedule_work(&info->rx_work);
+ 				return;
+ 			}
+-
+-			memcpy(tty->flip.char_buf_ptr, urb->transfer_buffer, urb->actual_length);
+-			tty->flip.char_buf_ptr += urb->actual_length;
+-			tty->flip.count += urb->actual_length;
+-			sent += urb->actual_length;
++			tty_insert_flip_string(tty, urb->transfer_buffer, len);
++			sent += len;
+ 		}
+ 
+ 		urb->dev = port->serial->dev;
 

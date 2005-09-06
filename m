@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750748AbVIFSEX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbVIFSLq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750748AbVIFSEX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 14:04:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbVIFSEX
+	id S1750751AbVIFSLq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 14:11:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbVIFSLq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 14:04:23 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:6117 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750748AbVIFSEW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 14:04:22 -0400
-Subject: Re: [PATCH 1/3] Updated dynamic tick patches - Fix lost tick
-	calculation in timer_pm.c
-From: john stultz <johnstul@us.ibm.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: vatsa@in.ibm.com, linux-kernel@vger.kernel.org, arjan@infradead.org,
-       s0348365@sms.ed.ac.uk, kernel@kolivas.org, tytso@mit.edu,
-       cfriesen@nortel.com, trenn@suse.de, george@mvista.com, akpm@osdl.org
-In-Reply-To: <1125720301.4991.41.camel@mindpipe>
-References: <20050831165843.GA4974@in.ibm.com>
-	 <20050831171211.GB4974@in.ibm.com>  <1125720301.4991.41.camel@mindpipe>
-Content-Type: text/plain
-Date: Tue, 06 Sep 2005 11:04:06 -0700
-Message-Id: <1126029846.22448.36.camel@cog.beaverton.ibm.com>
+	Tue, 6 Sep 2005 14:11:46 -0400
+Received: from mailgw.aecom.yu.edu ([129.98.1.16]:58004 "EHLO
+	mailgw.aecom.yu.edu") by vger.kernel.org with ESMTP
+	id S1750751AbVIFSLq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 14:11:46 -0400
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Message-Id: <a06230906bf438c1b6065@[129.98.90.227]>
+In-Reply-To: <91888D455306F94EBD4D168954A9457C03DF21EA@nacos172.co.lsil.com>
+References: <91888D455306F94EBD4D168954A9457C03DF21EA@nacos172.co.lsil.com>
+Date: Tue, 6 Sep 2005 14:12:04 -0400
+To: "Moore, Eric Dean" <Eric.Moore@lsil.com>
+From: Maurice Volaski <mvolaski@aecom.yu.edu>
+Subject: RE: LSI Logic fusion mptscsih driver doesn't see devices under 2.
+ 6.13
+Cc: linux-kernel@vger.kernel.org, mpt_linux_developer@lsil.com
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-09-03 at 00:05 -0400, Lee Revell wrote:
-> On Wed, 2005-08-31 at 22:42 +0530, Srivatsa Vaddagiri wrote:
-> > With this patch, time had kept up really well on one particular
-> > machine (Intel 4way Pentium 3 box) overnight, while
-> > on another newer machine (Intel 4way Xeon with HT) it didnt do so
-> > well (time sped up after 3 or 4 hours). Hence I consider this
-> > particular patch will need more review/work.
-> > 
-> 
-> Are lost ticks really that common?  If so, any idea what's disabling
-> interrupts for so long (or if it's a hardware issue)?  And if not, it
-> seems like you'd need an artificial way to simulate lost ticks in order
-> to test this stuff.
+Oh. Thanks. It works again.
 
-Pavel came up with a pretty good test for this awhile back.
+>We introduced split drivers for 2.6.13.  There are new layer drivers
+>that sit ontop of mptscsih.ko.  These drivers are split along bus
+>protocal, so there is mptspi.ko, mptfc.ko, and mptsas.ko.  This is
+>to tie into the scsi transport layers that are split the same.
+>
+>If your using RedHat, you need to change mptscish to mptspi in
+>/etc/modprobe.conf.
+>If your using SuSE, you need to change mptscish to mptspi in
+>/etc/sysconfig/kernel
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=110519095425851&w=2
 
-Adding:
-	unsigned long mask = 0x1;
-	sched_setaffinity(0, sizeof(mask), &mask);
+-- 
 
-to the top helps it work on SMP systems.
-
-thanks
--john
-
+Maurice Volaski, mvolaski@aecom.yu.edu
+Computing Support, Rose F. Kennedy Center
+Albert Einstein College of Medicine of Yeshiva University

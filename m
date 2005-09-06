@@ -1,70 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965027AbVIFBHB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965041AbVIFBIF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965027AbVIFBHB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 21:07:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965037AbVIFBHB
+	id S965041AbVIFBIF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 21:08:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965039AbVIFBIF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 21:07:01 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:21395 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965027AbVIFBHA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 21:07:00 -0400
-Date: Tue, 6 Sep 2005 02:06:57 +0100
-From: viro@ZenIV.linux.org.uk
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: [PATCH] iomem annotations (sound/arm/aaci)
-Message-ID: <20050906010657.GS5155@ZenIV.linux.org.uk>
+	Mon, 5 Sep 2005 21:08:05 -0400
+Received: from main.gmane.org ([80.91.229.2]:14057 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S965041AbVIFBIE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 21:08:04 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Jack Byer <ojbyer@usa.net>
+Subject: legacy megaraid driver bug in mm-series
+Date: Mon, 05 Sep 2005 21:05:40 -0400
+Message-ID: <dfiq14$1b2$1@sea.gmane.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 69.37.187.190
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050902
+X-Accept-Language: en-us, en
+X-Enigmail-Version: 0.92.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-----
-diff -urN RC13-git5-sunsu/sound/arm/aaci.c RC13-git5-aaci/sound/arm/aaci.c
---- RC13-git5-sunsu/sound/arm/aaci.c	2005-08-28 23:09:50.000000000 -0400
-+++ RC13-git5-aaci/sound/arm/aaci.c	2005-09-05 16:41:09.000000000 -0400
-@@ -821,7 +821,7 @@
- 
- static unsigned int __devinit aaci_size_fifo(struct aaci *aaci)
- {
--	void *base = aaci->base + AACI_CSCH1;
-+	void __iomem *base = aaci->base + AACI_CSCH1;
- 	int i;
- 
- 	writel(TXCR_FEN | TXCR_TSZ16 | TXCR_TXEN, base + AACI_TXCR);
-@@ -877,7 +877,7 @@
- 	aaci->playback.fifo = aaci->base + AACI_DR1;
- 
- 	for (i = 0; i < 4; i++) {
--		void *base = aaci->base + i * 0x14;
-+		void __iomem *base = aaci->base + i * 0x14;
- 
- 		writel(0, base + AACI_IE);
- 		writel(0, base + AACI_TXCR);
-diff -urN RC13-git5-sunsu/sound/arm/aaci.h RC13-git5-aaci/sound/arm/aaci.h
---- RC13-git5-sunsu/sound/arm/aaci.h	2005-08-28 23:09:50.000000000 -0400
-+++ RC13-git5-aaci/sound/arm/aaci.h	2005-09-05 16:41:09.000000000 -0400
-@@ -200,8 +200,8 @@
- 
- 
- struct aaci_runtime {
--	void			*base;
--	void			*fifo;
-+	void			__iomem *base;
-+	void			__iomem *fifo;
- 
- 	struct ac97_pcm		*pcm;
- 	int			pcm_open;
-@@ -223,7 +223,7 @@
- struct aaci {
- 	struct amba_device	*dev;
- 	snd_card_t		*card;
--	void			*base;
-+	void			__iomem *base;
- 	unsigned int		fifosize;
- 
- 	/* AC'97 */
+My AMI megaraid card no longer works with recent mm-series kernels. The
+bug appears on mm- kernels newer than 2.6.12-rc6-mm1; mainline kernels
+are not affected.
+
+The driver will load and detect both devices on the card (sda and sdb).
+It will scan each device and read the partition table successfully,
+however the megaraid driver message will include the following errors:
+
+sda: sector size 0 reported, assuming 512.
+sda: asking for cache data failed.
+sda: assuming drive cache: write through
+
+When the kernel tries to mount the root file system, I get the following
+error:
+
+ReiserFS: sda3: warning: sh-2006: read_super_block: bread failed (dev
+sda3, block 2, size 4096)
+ReiserFS: sda3: warning: sh-2006: read_super_block: bread failed (dev
+sda3, block 16, size 4096)
+VFS: Cannot open root device "sda3" or unknown-block(0,3)
+
+Here is a summary of the kernels I have tested for this bug:
+
+2.6.11-mm1:	works
+2.6.11-mm4:	works
+2.6.12-rc5-mm1:	will not compile
+2.6.12-rc6-mm1:	works
+2.6.12-mm1:	will not compile megaraid driver
+2.6.12-mm2:	broken
+2.6.13-mm1:	broken
+
+2.6.12:		works
+2.6.13:		works
+

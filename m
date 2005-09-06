@@ -1,63 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750713AbVIFPJy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750710AbVIFPQm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750713AbVIFPJy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 11:09:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750711AbVIFPJy
+	id S1750710AbVIFPQm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 11:16:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750711AbVIFPQm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 11:09:54 -0400
-Received: from mailhub.lss.emc.com ([168.159.2.31]:37572 "EHLO
-	mailhub.lss.emc.com") by vger.kernel.org with ESMTP
-	id S1750709AbVIFPJx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 11:09:53 -0400
-Message-ID: <431DB127.3010809@emc.com>
-Date: Tue, 06 Sep 2005 11:09:27 -0400
-From: Brett Russ <russb@emc.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.13] libata: use common pci remove in ahci
-References: <20050903071852.95A10271C2@lns1058.lss.emc.com> <431CBDCB.40903@pobox.com>
-In-Reply-To: <431CBDCB.40903@pobox.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-PMX-Version: 4.7.1.128075, Antispam-Engine: 2.1.0.0, Antispam-Data: 2005.9.6.14
-X-PerlMx-Spam: Gauge=, SPAM=7%, Reasons='EMC_FROM_00+ 0, __CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0, __USER_AGENT 0'
+	Tue, 6 Sep 2005 11:16:42 -0400
+Received: from fed1rmmtao12.cox.net ([68.230.241.27]:58005 "EHLO
+	fed1rmmtao12.cox.net") by vger.kernel.org with ESMTP
+	id S1750710AbVIFPQl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 11:16:41 -0400
+Date: Tue, 6 Sep 2005 08:16:40 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: mingo@elte.hu, dwalker@mvista.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] RT: Invert some TRACE_BUG_ON_LOCKED tests
+Message-ID: <20050906151640.GA3966@smtp.west.cox.net>
+References: <1125691250.2709.2.camel@c-67-188-6-232.hsd1.ca.comcast.net> <20050902200856.GY3966@smtp.west.cox.net> <1125700852.5601.16.camel@localhost.localdomain> <1125701636.5601.19.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1125701636.5601.19.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Brett Russ wrote:
->> 2) Isn't it wrong for the IRQ disable at the chip to occur *after*
->> free_irq() is called to disconnect the handler (independent of
->> question 1...since this is the case currently)?  Granted, all of the
->> ports have gone through scsi_remove_host() but theoretically there
->> still is a possibility the chip could interrupt.
->>
->> If I'm wrong on both counts I'll blame it on need for sleep... :-)
+On Fri, Sep 02, 2005 at 06:53:56PM -0400, Steven Rostedt wrote:
+> On Fri, 2005-09-02 at 18:40 -0400, Steven Rostedt wrote:
+> > On Fri, 2005-09-02 at 13:08 -0700, Tom Rini wrote:
+> > > With 2.6.13-rt4 I had to do the following in order to get my paired down
+> > > config booting on my x86 whitebox (defconfig works fine, after I enable
+> > > enet/8250_console/nfsroot).  Daniel Walker helped me trace this down.
+> > 
+> 
+> > 
+> > Ingo, I guess we need a TRACE_BUG_ON_LOCKED_SMP() macro.
 > 
 > 
+> Tom,
 > 
-> Moving AHCI away from ata_pci_remove_one() was actually intentional. 
-> This gives the driver a bit more freedom:  legacy region handling and 
-> ->host_stop() became unnecessary.  Also, I was concerned that 
-> ata_pci_remove_one() might grow into a one-size-fits-all unmaintainable 
-> behemoth.
-> 
-> Short term, if one were being obsessive, a potential cleanup could be to 
-> make common the two loops in ahci_remove_one()/ata_pci_remove_one().
-> 
-> Long term, libata driver API should become more like the 
-> register_foo()/unregister_foo() interfaces you see elsewhere in the 
-> kernel.  That direction has the potential to shake up the current code 
-> path through ata_pci_remove_one().
-> 
-> So... your patch, while technically correct, is going in the opposite 
-> direction to where I want to go :)
+> try this patch instead.  It removes the tests of the spin_is_locked on
+> UP.
 
+This of course works too, thanks!
 
-Good to know, thanks for explaining the goals.  How about question #2 above?
-
-Thanks,
-BR
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

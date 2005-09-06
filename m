@@ -1,80 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964799AbVIFLFv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964808AbVIFLQq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964799AbVIFLFv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 07:05:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964807AbVIFLFv
+	id S964808AbVIFLQq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 07:16:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964809AbVIFLQq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 07:05:51 -0400
-Received: from ns.sevcity.net ([193.47.166.213]:53731 "EHLO mail.sevcity.net")
-	by vger.kernel.org with ESMTP id S964799AbVIFLFu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 07:05:50 -0400
-Subject: [PATCH] remove use global lock list from lockd
-From: Alex Lyashkov <shadow@psoft.net>
+	Tue, 6 Sep 2005 07:16:46 -0400
+Received: from mail.customers.edis.at ([62.99.242.131]:8342 "EHLO
+	smtp-1.edis.at") by vger.kernel.org with ESMTP id S964808AbVIFLQp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 07:16:45 -0400
+Message-ID: <431D7A94.3080006@lawatsch.at>
+Date: Tue, 06 Sep 2005 13:16:36 +0200
+From: Philip Lawatsch <philip@lawatsch.at>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.10) Gecko/20050724 Thunderbird/1.0.6 Mnenhy/0.7.2.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed; boundary="=-C9CimhrcJ2QVM8ofnMTy"
-Organization: Positive Software
-Message-Id: <1126004739.3377.8.camel@berloga.shadowland>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-14) 
-Date: Tue, 06 Sep 2005 14:05:39 +0300
+Subject: intr in /proc/stat and number of syscalls made
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-C9CimhrcJ2QVM8ofnMTy
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-Hello All
-
-What anyone think about this patch? 
-this patch remove play with global lock list and use interlnal list
-nlm_blocked.
-
--- 
-Alex
+Hi,
 
 
---=-C9CimhrcJ2QVM8ofnMTy
-Content-Disposition: attachment; filename=lockd_file_lock.patch
-Content-Type: text/x-patch; name=lockd_file_lock.patch; charset=KOI8-R
-Content-Transfer-Encoding: base64
+I'm trying to log some stats for one of my server.
 
-SW5kZXg6IGNsbnRsb2NrLmMNCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NClJDUyBmaWxlOiAvaG9tZS9jdnMva2VybmVs
-XzI2L2ZzL2xvY2tkL2NsbnRsb2NrLmMsdg0KcmV0cmlldmluZyByZXZpc2lvbiAxLjEuMS4xDQpk
-aWZmIC11IC1yMS4xLjEuMSBjbG50bG9jay5jDQotLS0gY2xudGxvY2suYwkyMyBGZWIgMjAwNSAx
-MTowNzo1NSAtMDAwMAkxLjEuMS4xDQorKysgY2xudGxvY2suYwk2IFNlcCAyMDA1IDEwOjQ0OjM0
-IC0wMDAwDQpAQCAtMTM3LDI0ICsxMzcsMTcgQEANCiANCiAvKg0KICAqIE1hcmsgdGhlIGxvY2tz
-IGZvciByZWNsYWltaW5nLg0KLSAqIEZJWE1FOiBJbiAyLjUgd2UgZG9uJ3Qgd2FudCB0byBpdGVy
-YXRlIHRocm91Z2ggYW55IGdsb2JhbCBmaWxlX2xvY2tfbGlzdC4NCi0gKiAgICAgICAgTWFpbnRh
-aW4gTkxNIGxvY2sgcmVjbGFpbWluZyBsaXN0cyBpbiB0aGUgbmxtX2hvc3QgaW5zdGVhZC4NCiAg
-Ki8NCiBzdGF0aWMNCiB2b2lkIG5sbWNsbnRfbWFya19yZWNsYWltKHN0cnVjdCBubG1faG9zdCAq
-aG9zdCkNCiB7DQorCXN0cnVjdCBubG1fd2FpdCAqaGVhZDsNCiAJc3RydWN0IGZpbGVfbG9jayAq
-Zmw7DQotCXN0cnVjdCBpbm9kZSAqaW5vZGU7DQotCXN0cnVjdCBsaXN0X2hlYWQgKnRtcDsNCiAN
-Ci0JbGlzdF9mb3JfZWFjaCh0bXAsICZmaWxlX2xvY2tfbGlzdCkgew0KLQkJZmwgPSBsaXN0X2Vu
-dHJ5KHRtcCwgc3RydWN0IGZpbGVfbG9jaywgZmxfbGluayk7DQotDQotCQlpbm9kZSA9IGZsLT5m
-bF9maWxlLT5mX2RlbnRyeS0+ZF9pbm9kZTsNCi0JCWlmIChpbm9kZS0+aV9zYi0+c19tYWdpYyAh
-PSBORlNfU1VQRVJfTUFHSUMpDQotCQkJY29udGludWU7DQotCQlpZiAoZmwtPmZsX3UubmZzX2Zs
-Lm93bmVyLT5ob3N0ICE9IGhvc3QpDQorCWZvciAoaGVhZCA9IG5sbV9ibG9ja2VkOyBoZWFkOyBo
-ZWFkID0gaGVhZC0+Yl9uZXh0KSB7DQorCQlpZiAoaGVhZC0+Yl9ob3N0ICE9IGhvc3QpDQogCQkJ
-Y29udGludWU7DQorCQlmbCA9IGhlYWQtPmJfbG9jazsNCiAJCWlmICghKGZsLT5mbF91Lm5mc19m
-bC5mbGFncyAmIE5GU19MQ0tfR1JBTlRFRCkpDQogCQkJY29udGludWU7DQogCQlmbC0+ZmxfdS5u
-ZnNfZmwuZmxhZ3MgfD0gTkZTX0xDS19SRUNMQUlNOw0KQEAgLTIwMiw5ICsxOTUsOCBAQA0KIHsN
-CiAJc3RydWN0IG5sbV9ob3N0CSAgKmhvc3QgPSAoc3RydWN0IG5sbV9ob3N0ICopIHB0cjsNCiAJ
-c3RydWN0IG5sbV93YWl0CSAgKmJsb2NrOw0KLQlzdHJ1Y3QgbGlzdF9oZWFkICp0bXA7DQogCXN0
-cnVjdCBmaWxlX2xvY2sgKmZsOw0KLQlzdHJ1Y3QgaW5vZGUgKmlub2RlOw0KKwlzdHJ1Y3Qgbmxt
-X3dhaXQgKmhlYWQ7CQ0KIA0KIAlkYWVtb25pemUoIiVzLXJlY2xhaW0iLCBob3N0LT5oX25hbWUp
-Ow0KIAlhbGxvd19zaWduYWwoU0lHS0lMTCk7DQpAQCAtMjE2LDE0ICsyMDgsMTAgQEANCiANCiAJ
-LyogRmlyc3QsIHJlY2xhaW0gYWxsIGxvY2tzIHRoYXQgaGF2ZSBiZWVuIG1hcmtlZC4gKi8NCiBy
-ZXN0YXJ0Og0KLQlsaXN0X2Zvcl9lYWNoKHRtcCwgJmZpbGVfbG9ja19saXN0KSB7DQotCQlmbCA9
-IGxpc3RfZW50cnkodG1wLCBzdHJ1Y3QgZmlsZV9sb2NrLCBmbF9saW5rKTsNCi0NCi0JCWlub2Rl
-ID0gZmwtPmZsX2ZpbGUtPmZfZGVudHJ5LT5kX2lub2RlOw0KLQkJaWYgKGlub2RlLT5pX3NiLT5z
-X21hZ2ljICE9IE5GU19TVVBFUl9NQUdJQykNCi0JCQljb250aW51ZTsNCi0JCWlmIChmbC0+Zmxf
-dS5uZnNfZmwub3duZXItPmhvc3QgIT0gaG9zdCkNCisJZm9yIChoZWFkID0gbmxtX2Jsb2NrZWQ7
-IGhlYWQ7IGhlYWQgPSBoZWFkLT5iX25leHQpIHsNCisJCWlmIChoZWFkLT5iX2hvc3QgIT0gaG9z
-dCkNCiAJCQljb250aW51ZTsNCisJCWZsID0gaGVhZC0+Yl9sb2NrOw0KIAkJaWYgKCEoZmwtPmZs
-X3UubmZzX2ZsLmZsYWdzICYgTkZTX0xDS19SRUNMQUlNKSkNCiAJCQljb250aW51ZTsNCiANCg==
+Now what I wanted to log is the number of pagefaults and the number of 
+syscalls done since system startup.
+(I'm on a system without sysenter)
 
---=-C9CimhrcJ2QVM8ofnMTy--
+I thought that /proc/stat's intr line would provide information about 
+how often an interrupt was called. But it looks like there are only 
+stats about the irqs in there and not about all interrupts.
+
+I've already found /proc/vmstat | grep pgfault which will give me the 
+number of pagefaults, but I'm still looking for a way to get the number 
+of syscalls.
+
+I also think that the Documenation about /proc/stat is misleading 
+(perhaps putting the word irq somewhere in there would be a good idea).
+
+
+So, is there a way to find out how often the syscall interrupt / 
+sysenter handler was run? I'd actually prefer to get the number for each 
+interrupt because then I could also track some other nice things.
+
+
+kind regards Philip

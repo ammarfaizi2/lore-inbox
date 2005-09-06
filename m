@@ -1,53 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751105AbVIFW6J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751101AbVIFW7h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751105AbVIFW6J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 18:58:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbVIFW6J
+	id S1751101AbVIFW7h (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 18:59:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbVIFW7h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 18:58:09 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:40709 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1751100AbVIFW6H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 18:58:07 -0400
-Date: Tue, 6 Sep 2005 18:57:46 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: hch@infradead.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       jgarzik@pobox.com
-Subject: Re: [patch 2.6.13 2/2] 3c59x: add option for using memory-mapped PCI I/O resources
-Message-ID: <20050906225744.GB26003@tuxdriver.com>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>, hch@infradead.org,
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-	jgarzik@pobox.com
-References: <20050906204147.GC20145@tuxdriver.com> <20050906204400.GD20145@tuxdriver.com> <20050906205429.GA19319@infradead.org> <20050906140414.40b65253.akpm@osdl.org> <20050906220922.GA26003@tuxdriver.com> <20050906151546.4d5ed4db.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050906151546.4d5ed4db.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+	Tue, 6 Sep 2005 18:59:37 -0400
+Received: from outgoing-mail.its.caltech.edu ([131.215.239.19]:47606 "EHLO
+	outgoing-mail.its.caltech.edu") by vger.kernel.org with ESMTP
+	id S1751101AbVIFW7g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 18:59:36 -0400
+Message-ID: <431E1F4E.4080700@caltech.edu>
+Date: Wed, 07 Sep 2005 01:59:26 +0300
+From: Rumen Zarev <rzarev@caltech.edu>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050727)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: gregkh@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PCI: Unhide SMBus on Compaq Evo N620c
+References: <200509062039.j86KdWMr014934@inky.its.caltech.edu> <1126046590.13159.9.camel@mindpipe>
+In-Reply-To: <1126046590.13159.9.camel@mindpipe>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 06, 2005 at 03:15:46PM -0700, Andrew Morton wrote:
-> "John W. Linville" <linville@tuxdriver.com> wrote:
-> >
-> > I fully intend to have have a flag in the private data set based on
-> >  the PCI ID when I accumulate some data on which devices support this
-> >  and which don't.  So far I've only got a short list...  Do you think
-> >  such a flag should be based on which ones work, or which ones break?
+Lee Revell wrote:
+> On Tue, 2005-09-06 at 13:39 -0700, Rumen Ivanov Zarev wrote:
 > 
-> The ones which are known to work.
+>>Trivial patch against 2.6.13 to unhide SMBus on Compaq Evo N620c laptop using
+>>Intel 82855PM chipset.
 > 
-> Bear in mind that this is an old, messy and relatively stable driver which
-> handles a huge number of different NICs.   Caution is the rule here.
+> 
+>>+	} else if (unlikely(dev->subsystem_vendor == PCI_VENDOR_ID_COMPAQ)) {
+> 
+> 
+> Should unlikely() be used for cases where the conditional will be true
+> iff a specific piece of hardware is present?  Seems like we'd always
+> lose.
+> 
+> Lee
+> 
+> 
+> 
 
-I definitely agree.  That is another part of why I defaulted to "use_mmio=0".
+I just copied some code that was already there and modified it for my 
+case. I don't really know HOW it works - I'm not much of a programmer 
+myself.
 
-I'll post PCI ID based patches as I determine supported cards.
+Rumen
 
-Thanks,
-
-John
--- 
-John W. Linville
-linville@tuxdriver.com

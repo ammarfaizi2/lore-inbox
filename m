@@ -1,74 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750961AbVIFXMz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751007AbVIFXNf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750961AbVIFXMz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 19:12:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750987AbVIFXMz
+	id S1751007AbVIFXNf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 19:13:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751008AbVIFXNe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 19:12:55 -0400
-Received: from fmr22.intel.com ([143.183.121.14]:13238 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1750960AbVIFXMz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 19:12:55 -0400
-Date: Tue, 6 Sep 2005 16:12:15 -0700
-From: Ashok Raj <ashok.raj@intel.com>
-To: Andi Kleen <ak@muc.de>
-Cc: akpm@osdl.org, ashok.raj@intel.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch 13/14] x86_64: Use common functions in cluster and physflat mode
-Message-ID: <20050906161215.B19592@unix-os.sc.intel.com>
-References: <200509032135.j83LZ8gX020554@shell0.pdx.osdl.net> <20050905231628.GA16476@muc.de>
+	Tue, 6 Sep 2005 19:13:34 -0400
+Received: from nevyn.them.org ([66.93.172.17]:19893 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S1750987AbVIFXNe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 19:13:34 -0400
+Date: Tue, 6 Sep 2005 19:13:32 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: Frank van Maarseveen <frankvm@frankvm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13 SMP on AMD Athlon64 X2 + FC4: PS/2 keyboard b0rken; taskset/sched_setaffinity() saves the day!
+Message-ID: <20050906231332.GA17523@nevyn.them.org>
+Mail-Followup-To: Frank van Maarseveen <frankvm@frankvm.com>,
+	linux-kernel@vger.kernel.org
+References: <20050906211029.GA1638@janus>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050905231628.GA16476@muc.de>; from ak@muc.de on Tue, Sep 06, 2005 at 01:16:28AM +0200
+In-Reply-To: <20050906211029.GA1638@janus>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 06, 2005 at 01:16:28AM +0200, Andi Kleen wrote:
-> On Sat, Sep 03, 2005 at 02:33:30PM -0700, akpm@osdl.org wrote:
-> > 
-> > From: Ashok Raj <ashok.raj@intel.com>
-> > 
-> > Newly introduced physflat_* shares way too much with cluster with only a very
-> > differences.  So we introduce some common functions in that can be reused in
-> > both cases.
-> > 
-> > In addition the following are also fixed.
-> > - Use of non-existent CONFIG_CPU_HOTPLUG option renamed to actual one in use.
-> > - Removed comment that ACPI would provide a way to select this dynamically
-> >   since ACPI_CONFIG_HOTPLUG_CPU already exists that indicates platform support
-> >   for hotplug via ACPI. In addition CONFIG_HOTPLUG_CPU only indicates logical 
-> >   offline/online which is even used by Suspend/Resume folks where the same 
-> >   support (for no-broadcast) is required.
+On Tue, Sep 06, 2005 at 11:10:29PM +0200, Frank van Maarseveen wrote:
+> While playing with a new AMD Athlon64 X2 3800+ (i386) the keyboard goes
+> wild for 10 (20?) seconds, behaves normally for 10 (20?) seconds, and
+> then goes wild again: when "wild", every keypress results in a random
+> number of repeats, e.g.:
 > 
+> $ pppsss aaxxxuuuuuuuuuuu
+> bash: pppsss: command not found
+> $
+> $
+> $
+> $
+> $
+> $
+> $
+> $
 > 
-> (hmm did I reply to that? I think I did but my mailer seems to have
-> lost the r flag. My apologies if it's a duplicate) 
+> Upgrading Xorg to xorg-x11-6.8.2-37.FC4.45 did not help.
 > 
-> I didn't like that one because it makes the code less readable than
-> before imho. I did a separate patch for the CPU_HOTPLUG typo.
+> Booting with "nosmp" seems to fix it. And this _seems_ to fix it too:
+> 
+>         taskset -p 1 `ps axo comm,pid|awk '$1=="X"{print $2}'`
+> 
+> I haven't seen this problem on the console.
 
-The code is less readable? Now iam confused. Attached the link to patch
-below to refresh your memory.
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=112293577309653&w=2
-
-diffstat would show we have fewer lines ~40 less lines of code. physflat
-basicaly copied/cloned some useful code in cluster and some from flat mode
-genapic code. 
-
-I would have consolidated the code in the first place when you put the physflat
-mode. Again this was just my habit, cant step over code bloat and duplication.
-
-Which part of the code is unreadable to you? If you are happy with just renamed
-functions with copied body of the code which is what physflat did, thats fine.
-
-I was just puzzeled at the convoluted and less readable part of the code. If 
-there is something you like to point out, i would be happy to fix it.. or you 
-can if you prefer it that way.
-
+This is probably the same problem as the earlier one you reported.  If
+you take a look at bugzilla, you'll see that the normal manifestation
+is messed up key repeat rates...
 
 -- 
-Cheers,
-Ashok Raj
-- Open Source Technology Center
+Daniel Jacobowitz
+CodeSourcery, LLC

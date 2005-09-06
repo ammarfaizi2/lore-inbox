@@ -1,39 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbVIFRdm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbVIFRsW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750732AbVIFRdm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 13:33:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbVIFRdm
+	id S1750727AbVIFRsW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 13:48:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750731AbVIFRsW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 13:33:42 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:42966 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1750732AbVIFRdl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 13:33:41 -0400
-Date: Tue, 6 Sep 2005 10:33:32 -0700 (PDT)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: john stultz <johnstul@us.ibm.com>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] Use proper casting with signed timespec.tv_nsec
- values
-In-Reply-To: <1125608627.22448.4.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.62.0509061032010.16745@schroedinger.engr.sgi.com>
-References: <1125608627.22448.4.camel@cog.beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 6 Sep 2005 13:48:22 -0400
+Received: from fed1rmmtao07.cox.net ([68.230.241.32]:65417 "EHLO
+	fed1rmmtao07.cox.net") by vger.kernel.org with ESMTP
+	id S1750727AbVIFRsW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 13:48:22 -0400
+Date: Tue, 6 Sep 2005 10:48:18 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: "Maciej W. Rozycki" <macro@linux-mips.org>
+Cc: viro@ZenIV.linux.org.uk, "David S. Miller" <davem@davemloft.net>,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Kconfig fix (GEN_RTC dependencies)
+Message-ID: <20050906174818.GB3966@smtp.west.cox.net>
+References: <20050906005645.GQ5155@ZenIV.linux.org.uk> <20050905.185141.44096788.davem@davemloft.net> <20050906022423.GT5155@ZenIV.linux.org.uk> <Pine.LNX.4.61L.0509061109350.6760@blysk.ds.pg.gda.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61L.0509061109350.6760@blysk.ds.pg.gda.pl>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Sep 2005, john stultz wrote:
+On Tue, Sep 06, 2005 at 03:40:47PM +0100, Maciej W. Rozycki wrote:
+> On Tue, 6 Sep 2005 viro@ZenIV.linux.org.uk wrote:
+> 
+> > >From my reading of that code, GEN_RTC should've been called FAKE_RTC...
+> 
+>  Yep, it's an excuse for platform maintainers not to write proper drivers.
 
-> 	I recently ran into a bug with an older kernel where xtime's tv_nsec
-> field had accumulated more then 2 seconds worth of time. The timespec's
-> tv_nsec is a signed long, however gettimeofday() treats it as an
-> unsigned long. Thus when the failure occured, very strange and difficult
-> to debug time problems occurred.
+I talked with Al about this off list a bit, and pointed out it's
+different than it appears.  GEN_RTC really is a mostly-generic RTC
+driver.  There's some fakey stuff going on for UIE (all under
+GEN_RTC_X), but the real meat of the driver is common export get/set
+time and per-arch (which can abstract further, see ppc32) poke the
+hardware for the time. There's 2 (afaik) problems, one being a lack of
+alarm support, and the other being hardware access isn't (today)
+abstracted out far enough for i2c stuff to work.
 
-How can that happen? I think the source of the problem needs to be fixed. 
-The fix is only going decrease the likelyhood of the problem occurring.
+Russell King has both of these fixed in the ARM-specific but hardware
+poking abstracted rtc driver.  I'd like to try and merge things at
+somepoint...
 
-We may need special measures if the system was frozen for some 
-reason for longer than a certain time period.
-
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

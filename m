@@ -1,72 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbVIFR7T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750748AbVIFSEX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750749AbVIFR7T (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 13:59:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbVIFR7T
+	id S1750748AbVIFSEX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 14:04:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbVIFSEX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 13:59:19 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:21409 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750749AbVIFR7S (ORCPT
+	Tue, 6 Sep 2005 14:04:23 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:6117 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750748AbVIFSEW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 13:59:18 -0400
-Date: Tue, 6 Sep 2005 14:03:26 -0400 (EDT)
-From: Jason Baron <jbaron@redhat.com>
-X-X-Sender: jbaron@dhcp83-105.boston.redhat.com
-To: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: PATCH: fix disassociate_ctty vs. fork race  
-Message-ID: <Pine.LNX.4.61.0509061348370.567@dhcp83-105.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 6 Sep 2005 14:04:22 -0400
+Subject: Re: [PATCH 1/3] Updated dynamic tick patches - Fix lost tick
+	calculation in timer_pm.c
+From: john stultz <johnstul@us.ibm.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: vatsa@in.ibm.com, linux-kernel@vger.kernel.org, arjan@infradead.org,
+       s0348365@sms.ed.ac.uk, kernel@kolivas.org, tytso@mit.edu,
+       cfriesen@nortel.com, trenn@suse.de, george@mvista.com, akpm@osdl.org
+In-Reply-To: <1125720301.4991.41.camel@mindpipe>
+References: <20050831165843.GA4974@in.ibm.com>
+	 <20050831171211.GB4974@in.ibm.com>  <1125720301.4991.41.camel@mindpipe>
+Content-Type: text/plain
+Date: Tue, 06 Sep 2005 11:04:06 -0700
+Message-Id: <1126029846.22448.36.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2005-09-03 at 00:05 -0400, Lee Revell wrote:
+> On Wed, 2005-08-31 at 22:42 +0530, Srivatsa Vaddagiri wrote:
+> > With this patch, time had kept up really well on one particular
+> > machine (Intel 4way Pentium 3 box) overnight, while
+> > on another newer machine (Intel 4way Xeon with HT) it didnt do so
+> > well (time sped up after 3 or 4 hours). Hence I consider this
+> > particular patch will need more review/work.
+> > 
+> 
+> Are lost ticks really that common?  If so, any idea what's disabling
+> interrupts for so long (or if it's a hardware issue)?  And if not, it
+> seems like you'd need an artificial way to simulate lost ticks in order
+> to test this stuff.
 
-hi,
+Pavel came up with a pretty good test for this awhile back.
 
-Race is as follows. Process A forks process B, both being part of the same 
-session. Then, A calls disassociate_ctty while B forks C:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=110519095425851&w=2
 
+Adding:
+	unsigned long mask = 0x1;
+	sched_setaffinity(0, sizeof(mask), &mask);
 
-A				B
-----				----
-				fork()
-				  copy_signal()
-dissasociate_ctty()		....
-				  attach_pid(p, PIDTYPE_SID, p->signal->session);
+to the top helps it work on SMP systems.
 
-
-
-Now, C can have current->signal->tty pointing to a freed tty structure, as 
-it hasn't yet been added to the session group (to have its controlling tty 
-cleared on the diassociate_ctty() call). 
- 
-This has shown up as an oops but could be even more serious. I haven't 
-tried to create a test case, but a customer has verified that the patch 
-below resolves the issue, which was occuring quite frequently. I'll try 
-and post the test case if i can.
-
-The patch simply checks for a NULL tty *after* it has been attached to the 
-proper session group and clears it as necessary. Alternatively, we could 
-simply do the tty assignment after the the process is added to the proper 
-session group.
-
-thanks,
-
--Jason
-
-Signed-off-by: Jason Baron <jbaron@redhat.com>
-
---- linux-2.6.git/kernel/fork.c.bak	2005-09-06 13:42:14.000000000 -0400
-+++ linux-2.6.git/kernel/fork.c	2005-09-06 13:43:47.000000000 -0400
-@@ -1115,6 +1115,9 @@ static task_t *copy_process(unsigned lon
- 			__get_cpu_var(process_counts)++;
- 	}
- 
-+	if (!current->signal->tty && p->signal->tty)
-+		p->signal->tty = NULL;
-+
- 	nr_threads++;
- 	total_forks++;
- 	write_unlock_irq(&tasklist_lock);
-
+thanks
+-john
 

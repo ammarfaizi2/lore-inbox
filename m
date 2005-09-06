@@ -1,85 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964836AbVIFML0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964832AbVIFMK4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964836AbVIFML0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 08:11:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964837AbVIFML0
+	id S964832AbVIFMK4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 08:10:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964836AbVIFMK4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 08:11:26 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:46852 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S964836AbVIFMLZ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 08:11:25 -0400
-MIME-Version: 1.0
+	Tue, 6 Sep 2005 08:10:56 -0400
+Received: from nproxy.gmail.com ([64.233.182.194]:55339 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964832AbVIFMK4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 08:10:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=U/tjb9Gw3jLka/Oiw4AuKW+eEZltyQ8cXnhAj28dd4Tlf313zuzy7JaV5xPyVrUqf62EqctuxWmM+g/aH/1z2RAVHfsCyoJCVLMT8E4IIA8/XMmMv/XGAAvmvYuv7RTEdojbhikbfOI+6MQrXam1i2g7Vohv2Cy3h3LU1Y47RuA=
+Message-ID: <84144f0205090605107a76dd78@mail.gmail.com>
+Date: Tue, 6 Sep 2005 15:10:47 +0300
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Richard Purdie <rpurdie@rpsys.net>
+Subject: Re: [-mm patch 2/5] SharpSL: Add cxx00 support to the Corgi LCD driver
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+In-Reply-To: <1126007628.8338.127.camel@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <20050906114447.GF5309@infradead.org>
-References: <200508091744.33523@gj-laptop> <42F8D23D.3000505@vc.cvut.cz> <20050809164526.GA21622@infradead.org> <Pine.LNX.4.61.0508110815410.28320@yvahk01.tjqt.qr> <20050906114447.GF5309@infradead.org>
-X-OriginalArrivalTime: 06 Sep 2005 12:11:24.0061 (UTC) FILETIME=[1984CCD0:01C5B2DC]
-Content-class: urn:content-classes:message
-Subject: Re: oops in VMWARE vmnet, on 2.6.12.x
-Date: Tue, 6 Sep 2005 08:11:23 -0400
-Message-ID: <Pine.LNX.4.61.0509060755180.20318@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: oops in VMWARE vmnet, on 2.6.12.x
-Thread-Index: AcWy3BmMjPdFKQ2SR5m3PzijeKbWQQ==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Christoph Hellwig" <hch@infradead.org>
-Cc: "Jan Engelhardt" <jengelh@linux01.gwdg.de>,
-       "Petr Vandrovec" <vandrove@vc.cvut.cz>,
-       "Grzegorz Piotr Jaskiewicz" <gj@kde.org.uk>,
-       <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Disposition: inline
+References: <1126007628.8338.127.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 9/6/05, Richard Purdie <rpurdie@rpsys.net> wrote:
+> +/*
+> + * Corgi/Spitz Touchscreen to LCD interface
+> + */
+> +unsigned long inline corgi_get_hsync_len(void)
+> +{
+> +       if (machine_is_corgi() || machine_is_shepherd() || machine_is_husky()) {
+> +#ifdef CONFIG_PXA_SHARP_C7xx
+> +               return w100fb_get_hsynclen(&corgifb_device.dev);
+> +#endif
+> +       } else if (machine_is_spitz() || machine_is_akita() || machine_is_borzoi()) {
+> +#ifdef CONFIG_PXA_SHARP_Cxx00
+> +               return pxafb_get_hsync_time(&pxafb_device.dev);
+> +#endif
+> +       }
+> +       return 0;
+> +}
 
-On Tue, 6 Sep 2005, Christoph Hellwig wrote:
+Please consider making two version of corgi_get_hsync_len() instead
+for both config options. The above is hard to read.
 
-> On Thu, Aug 11, 2005 at 08:17:28AM +0200, Jan Engelhardt wrote:
->>
->>> Nothing in the tarball mentiones any opensource license.  If vmware is
->
-> please read this sentence again.  Just because somethings source is available
-> doesn't mean it's opensource.
->
-
-Sure it is! It just isn't the GNU flavor of open source. It's likely
-that it's even "compatible" as long as it's not more restrictive
-than GNU.
-
-Often the "GNU protestants" are rejecting perfectly good work because
-they have adopted a highly restrictive religion, having been taught
-that it is the true meaning of freedom. Marx would be so proud!
-
-Wonderful thing about published private works, i.e., proprietary
-source-code, is that you can use it as a reference and write your
-own version(s). Since it's published, you don't need "clean-room"
-techniques. You just can't grab portions "whole cloth" and paste
-them into your source.
-
-When your driver, probably with improvements, is finished it
-is normal, but not necessary to provide some attribution in the
-source such as "Adapted from xxx.yyy.zzz" as a public "thank you".
-
->>> actually using an opensource license please tell them to mention that
->>> license and remove the propritary code markers.
->>
->> It's not opensource, but "proprietary and S_IRUGO". Though, the world won't
->> fall down instantly if you change something [e.g. bugfix] and redistribute
->> (with all the copyright stuff intact, and for non-profit)
->
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13 on an i686 machine (5589.54 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
-I apologize for the following. I tried to kill it with the above dot :
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+                               Pekka

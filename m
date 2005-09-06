@@ -1,68 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750789AbVIFSrN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750793AbVIFSum@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750789AbVIFSrN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 14:47:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750795AbVIFSrN
+	id S1750793AbVIFSum (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 14:50:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750794AbVIFSum
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 14:47:13 -0400
-Received: from zproxy.gmail.com ([64.233.162.206]:45842 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750789AbVIFSrL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 14:47:11 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=GTFn7fyFQrWg7sJQle50pGzIe9adQhr5Vi0yf2Hk71/Yw5RwjDMlAQXpp3ie+XMoPfa390em7vtg0/auUYNwejSJEP6jzC6l+xBF9vdkoUq9FqsPtmrdAn2dtyhp49NcHWTffJ0FPYQiihAnV5WQbs4KEYcKfqZoRDF4KLtZsuE=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Alejandro Bonilla <abonilla@linuxwireless.org>
-Subject: [PATCH] wrong firmware location in IPW2100 Kconfig entry   (Was: IPW2100 Kconfig)
-Date: Tue, 6 Sep 2005 20:48:29 +0200
-User-Agent: KMail/1.8.2
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       ipw2100-admin@linux.intel.com, Roman Zippel <zippel@linux-m68k.org>,
-       Sam Ravnborg <sam@ravnborg.org>
-References: <005101c5b311$4ca69a50$a20cc60a@amer.sykes.com>
-In-Reply-To: <005101c5b311$4ca69a50$a20cc60a@amer.sykes.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 6 Sep 2005 14:50:42 -0400
+Received: from frankvm.xs4all.nl ([80.126.170.174]:4499 "EHLO
+	janus.localdomain") by vger.kernel.org with ESMTP id S1750793AbVIFSum
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 14:50:42 -0400
+Date: Tue, 6 Sep 2005 20:50:41 +0200
+From: Frank van Maarseveen <frankvm@frankvm.com>
+To: viro@ZenIV.linux.org.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13: can kill X server but readlink of /proc/<pid>/exe et. al. says EACCES. feature?
+Message-ID: <20050906185041.GA728@janus>
+References: <20050906175349.GA390@janus> <20050906175737.GY5155@ZenIV.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200509062048.29495.jesper.juhl@gmail.com>
+In-Reply-To: <20050906175737.GY5155@ZenIV.linux.org.uk>
+User-Agent: Mutt/1.4.1i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 06 September 2005 20:32, Alejandro Bonilla wrote:
-> Hi,
+On Tue, Sep 06, 2005 at 06:57:37PM +0100, viro@ZenIV.linux.org.uk wrote:
+> On Tue, Sep 06, 2005 at 07:53:49PM +0200, Frank van Maarseveen wrote:
+> > While I have access to /proc/<pid>, readlink fails with EACCES on
+> > 
+> > 	/proc/<pid>/exe
+> > 	/proc/<pid>/cwd
+> > 	/proc/<pid>/root
+> > 
+> > even when I own <pid> though it runs with a different effective/saved/fs
+> > uid such as the X server. This is a bit uncomfortable and doesn't
+> > seem right.
+> > 
+> > Or is this to make /proc mounting inside a chroot jail safe?
 > 
-> 	I checked the IPW2100 in the current git from linux-2.6 and the menuconfig
-> help (Kconfig) says you need to put the firmware in /etc/firmware, it should
-> be /lib/firmware.
-> 
-> Who should I send the "patch" to? Or can someone simply change that?
-> 
+> suid-root task does chdir() to place you shouldn't be able to access.
+> You do cd /proc/<pid>/cwd and get there anyway.  Bad Things Happen...
 
-Firmware should go into /lib/firmware, not /etc/firmware.
+Ok, but being able to do readlink() does not mean that one can chdir(),
+usually.
 
-Found by Alejandro Bonilla.
-
-
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
-
- drivers/net/wireless/Kconfig |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
---- linux-2.6.13-mm1-orig/drivers/net/wireless/Kconfig	2005-09-02 23:59:51.000000000 +0200
-+++ linux-2.6.13-mm1/drivers/net/wireless/Kconfig	2005-09-06 20:39:45.000000000 +0200
-@@ -152,7 +152,7 @@
- 	  In order to use this driver, you will need a firmware image for it.
-           You can obtain the firmware from
- 	  <http://ipw2100.sf.net/>.  Once you have the firmware image, you 
--	  will need to place it in /etc/firmware.
-+	  will need to place it in /lib/firmware.
- 
-           You will also very likely need the Wireless Tools in order to
-           configure your card:
-
-
+-- 
+Frank

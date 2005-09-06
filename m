@@ -1,56 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751046AbVIFWVF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751048AbVIFWVj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751046AbVIFWVF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 18:21:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751048AbVIFWVF
+	id S1751048AbVIFWVj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 18:21:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751055AbVIFWVj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 18:21:05 -0400
-Received: from a.mail.sonic.net ([64.142.16.245]:44266 "EHLO a.mail.sonic.net")
-	by vger.kernel.org with ESMTP id S1751044AbVIFWVB (ORCPT
+	Tue, 6 Sep 2005 18:21:39 -0400
+Received: from mx2.suse.de ([195.135.220.15]:40671 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751048AbVIFWVi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 18:21:01 -0400
-Date: Tue, 6 Sep 2005 15:20:35 -0700
-From: David Hinds <dhinds@sonic.net>
-To: "Thomas Kleffel (LKML)" <lkml@maintech.de>
-Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-ide@vger.kernel.org,
-       linux-pcmcia@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Make ide-cs work for hardware with 8-bit CF-Interface
-Message-ID: <20050906222035.GA26345@sonic.net>
-References: <431DC80C.8030706@maintech.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 6 Sep 2005 18:21:38 -0400
+From: Andi Kleen <ak@suse.de>
+To: Daniel Phillips <phillips@istop.com>
+Subject: Re: RFC: i386: kill !4KSTACKS
+Date: Wed, 7 Sep 2005 00:21:29 +0200
+User-Agent: KMail/1.8
+Cc: Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>, linux-kernel@vger.kernel.org
+References: <20050904145129.53730.qmail@web50202.mail.yahoo.com> <dfkjav$lmd$1@sea.gmane.org> <200509061819.45567.phillips@istop.com>
+In-Reply-To: <200509061819.45567.phillips@istop.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <431DC80C.8030706@maintech.de>
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200509070021.29959.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 06, 2005 at 06:47:08PM +0200, Thomas Kleffel (LKML) wrote:
-> 
-> The following patch is against vanilla 2.6.13.
-> 
-> ldiff -uprN a/drivers/ide/legacy/ide-cs.c b/drivers/ide/legacy/ide-cs.c
-> --- a/drivers/ide/legacy/ide-cs.c       2005-08-08 15:30:35.000000000 +0200
-> +++ b/drivers/ide/legacy/ide-cs.c       2005-09-05 02:09:47.000000000 +0200
-> @@ -186,7 +186,8 @@ static int idecs_register(unsigned long
->  {
->      hw_regs_t hw;
->      memset(&hw, 0, sizeof(hw));
-> -    ide_init_hwif_ports(&hw, io, ctl, NULL);
-> +    ide_std_init_ports(&hw, io, ctl);
-> +    hw.io_ports[IDE_DATA_OFFSET] = io + 0x08;
->      hw.irq = irq;
->      hw.chipset = ide_pci;
->      return ide_register_hw_with_fixup(&hw, NULL, ide_undecoded_slave);
+On Wednesday 07 September 2005 00:19, Daniel Phillips wrote:
 
-You can't do this, at least not exactly this way.  io + 0x08 may not
-be a mapped IO address; it is only valid when a card is mapped with
-one contiguous 16-bit IO window.  PCMCIA IDE cards are not necessarily
-mapped that way: they may be mapped with one 8-port window and one
-1-port window, to match standard IBM PC IDE port locations.  In that
-case, the registers at 0x08 and 0x09 are not available.  The CF spec
-may impose more uniformity here than the PCMCIA spec does.  I do know
-that some IDE cards do end up configured with discontiguous register
-allocations when used with ide-cs.c.
+> Andi, their stack will have to have a valid thread_info->task because
+> interrupts will use it.  Out of interest, could you please explain what
+> for?
 
--- Dave
+No, with 4k interrupts run on their own stack with their own thread_info
+Or rather they mostly do. Currently do_IRQ does irq_enter which refers
+thread_info before switching to the interrupt stack, that order would likely 
+need to be
+exchanged.
+
+-Andi

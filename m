@@ -1,58 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750861AbVIFUhG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750895AbVIFUje@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750861AbVIFUhG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 16:37:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750895AbVIFUhG
+	id S1750895AbVIFUje (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 16:39:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750897AbVIFUje
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 16:37:06 -0400
-Received: from ns1.coraid.com ([65.14.39.133]:12534 "EHLO coraid.com")
-	by vger.kernel.org with ESMTP id S1750861AbVIFUhF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 16:37:05 -0400
-To: Jim MacBaine <jmacbaine@gmail.com>
-Cc: "David S. Miller" <davem@davemloft.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: aoe fails on sparc64
-References: <3afbacad0508310630797f397d@mail.gmail.com>
-	<87vf1mm7fk.fsf@coraid.com>
-	<20050831.232430.50551657.davem@davemloft.net>
-	<87k6i0bnyn.fsf@coraid.com>
-	<3afbacad05090309064b3cad87@mail.gmail.com>
-From: Ed L Cashin <ecashin@coraid.com>
-Date: Tue, 06 Sep 2005 16:31:19 -0400
-In-Reply-To: <3afbacad05090309064b3cad87@mail.gmail.com> (Jim MacBaine's
- message of "Sat, 3 Sep 2005 18:06:33 +0200")
-Message-ID: <87ll2agcq0.fsf@coraid.com>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 6 Sep 2005 16:39:34 -0400
+Received: from outgoing-mail.its.caltech.edu ([131.215.239.19]:51047 "EHLO
+	outgoing-mail.its.caltech.edu") by vger.kernel.org with ESMTP
+	id S1750895AbVIFUjd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 16:39:33 -0400
+Date: Tue, 6 Sep 2005 13:39:32 -0700 (PDT)
+From: Rumen Ivanov Zarev <rzarev@its.caltech.edu>
+Message-Id: <200509062039.j86KdWMr014934@inky.its.caltech.edu>
+To: gregkh@suse.de
+Subject: [PATCH] PCI: Unhide SMBus on Compaq Evo N620c
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jim MacBaine <jmacbaine@gmail.com> writes:
+Trivial patch against 2.6.13 to unhide SMBus on Compaq Evo N620c laptop using
+Intel 82855PM chipset.
 
-> On 9/1/05, Ed L Cashin <ecashin@coraid.com> wrote:
->
->> The aoe driver looks OK, but it turns out there's a byte swapping bug
->> in the vblade that could be related if he's running the vblade on a
->> big endian host (even though he said it was an x86 host), but I
->> haven't heard back from the original poster yet.
->
-> It is in fact a x86_64 kernel, but with a mostly x86 userland. Vblade
-> is pure x86 code.
->
->> The vblade bug was the omission of swapping the bytes in each short.
->> The fix below shows what I mean:
->
-> Unfortunately it doesn't fix anything here. The client still reports
-> the same wrong size as before.  The dmesg output is identical, too.
+Signed-off-by: Rumen Zarev <rzarev@caltech.edu>
 
-Let's take this discussion off the lkml, because I doubt there's a
-problem with the aoe driver in the kernel, and I can easily follow up
-to the lkml with a synopsis if it turns out I'm wrong.
-
-Jim MacBaine, I'm going to ask for more details in a separate email.
-
--- 
-  Ed L Cashin <ecashin@coraid.com>
+--- linux-2.6.13/drivers/pci/quirks.c.orig	2005-09-05 23:36:49.213894072 +0300
++++ linux-2.6.13/drivers/pci/quirks.c	2005-09-05 23:42:15.391307568 +0300
+@@ -850,6 +850,12 @@ static void __init asus_hides_smbus_host
+                        case 0xC00C: /* Samsung P35 notebook */
+                                asus_hides_smbus = 1;
+                        }
++	} else if (unlikely(dev->subsystem_vendor == PCI_VENDOR_ID_COMPAQ)) {
++		if (dev->device == PCI_DEVICE_ID_INTEL_82855PM_HB)
++			switch(dev->subsystem_device) {
++			case 0x0058: /* Compaq Evo N620c */
++				asus_hides_smbus = 1;
++			}
+ 	}
+ }
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82845_HB,	asus_hides_smbus_hostbridge );
 

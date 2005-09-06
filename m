@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964803AbVIFKws@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964789AbVIFLAF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964803AbVIFKws (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 06:52:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964805AbVIFKws
+	id S964789AbVIFLAF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 07:00:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964799AbVIFLAE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 06:52:48 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:31146 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S964803AbVIFKwr (ORCPT
+	Tue, 6 Sep 2005 07:00:04 -0400
+Received: from ozlabs.org ([203.10.76.45]:11927 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S964789AbVIFLAD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 06:52:47 -0400
-Date: Tue, 6 Sep 2005 12:52:34 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: viro@ZenIV.linux.org.uk
-cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Kconfig fix (BLK_DEV_FD dependencies)
-In-Reply-To: <20050906004842.GP5155@ZenIV.linux.org.uk>
-Message-ID: <Pine.LNX.4.61.0509061205510.3743@scrub.home>
-References: <20050906004842.GP5155@ZenIV.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 6 Sep 2005 07:00:03 -0400
+To: Paul Mackerras <paulus@samba.org>
+CC: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+       <linuxppc64-dev@ozlabs.org>, Linus Torvalds <torvalds@osdl.org>
+From: Michael Ellerman <michael@ellerman.id.au>
+Subject: [PATCH] ppc64: Fix oops for !CONFIG_NUMA
+Message-Id: <20050906110002.B586C68110@ozlabs.org>
+Date: Tue,  6 Sep 2005 21:00:02 +1000 (EST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+The SPARSEMEM EXTREME code (802f192e4a600f7ef84ca25c8b818c8830acef5a) that
+went in yesterday broke PPC64 for !CONFIG_NUMA.
 
-On Tue, 6 Sep 2005 viro@ZenIV.linux.org.uk wrote:
+The problem is that (free|reserve)_bootmem don't take a page number as their
+first argument, they take an address. Ruh roh.
 
-> Sanitized and fixed floppy dependencies: split the messy dependencies for
-> BLK_DEV_FD by introducing a new symbol (ARCH_MAY_HAVE_PC_FDC), making
-> BLK_DEV_FD depend on that one and taking declarations of ARCH_MAY_HAVE_PC_FDC
-> to arch/*/Kconfig.  While we are at it, fixed several obvious cases when
-> BLK_DEV_FD should have been excluded (architectures lacking asm/floppy.h
-> are *not* going to have floppy.c compile, let alone work).
+Booted on P5 LPAR, iSeries and G5.
 
-I'm not really a big fan of such dummy symbols, those whole point is to 
-only enable dependencies, but are otherwise unsused.
-The basic problem is similiar to selects, that one has to grep the whole 
-Kconfig to find out what modifies the dependencies of a symbol.
+Signed-off-by: Michael Ellerman <michael@ellerman.id.au>
+---
 
-If we really want to describe dependencies like this, I'd prefer to extend 
-the Kconfig syntax for this:
+ arch/ppc64/mm/init.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-config FOO
-	allow BAR
-
-config BAR
-	option hidden
-
-The hidden option would explicitly hide the symbol, unless otherwise 
-allowed.
-
-bye, Roman
+Index: work/arch/ppc64/mm/init.c
+===================================================================
+--- work.orig/arch/ppc64/mm/init.c
++++ work/arch/ppc64/mm/init.c
+@@ -553,12 +553,12 @@ void __init do_init_bootmem(void)
+ 	 * present.
+ 	 */
+ 	for (i=0; i < lmb.memory.cnt; i++)
+-		free_bootmem(lmb_start_pfn(&lmb.memory, i),
++		free_bootmem(lmb.memory.region[i].base,
+ 			     lmb_size_bytes(&lmb.memory, i));
+ 
+ 	/* reserve the sections we're already using */
+ 	for (i=0; i < lmb.reserved.cnt; i++)
+-		reserve_bootmem(lmb_start_pfn(&lmb.reserved, i),
++		reserve_bootmem(lmb.reserved.region[i].base,
+ 				lmb_size_bytes(&lmb.reserved, i));
+ 
+ 	for (i=0; i < lmb.memory.cnt; i++)

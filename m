@@ -1,54 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbVIFOkw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbVIFOui@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750701AbVIFOkw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 10:40:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750702AbVIFOkv
+	id S1750702AbVIFOui (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 10:50:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750703AbVIFOui
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 10:40:51 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:9228 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP
-	id S1750701AbVIFOkv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 10:40:51 -0400
-Date: Tue, 6 Sep 2005 15:40:47 +0100 (BST)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
+	Tue, 6 Sep 2005 10:50:38 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:25584 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S1750702AbVIFOui (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 10:50:38 -0400
+Date: Tue, 6 Sep 2005 16:50:23 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: viro@ZenIV.linux.org.uk
-Cc: "David S. Miller" <davem@davemloft.net>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Kconfig fix (GEN_RTC dependencies)
-In-Reply-To: <20050906022423.GT5155@ZenIV.linux.org.uk>
-Message-ID: <Pine.LNX.4.61L.0509061109350.6760@blysk.ds.pg.gda.pl>
-References: <20050906005645.GQ5155@ZenIV.linux.org.uk>
- <20050905.185141.44096788.davem@davemloft.net> <20050906022423.GT5155@ZenIV.linux.org.uk>
+cc: Roman Zippel <zippel@linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Kconfig fix (BLK_DEV_FD dependencies)
+In-Reply-To: <20050906134944.GV5155@ZenIV.linux.org.uk>
+Message-ID: <Pine.LNX.4.62.0509061649330.20769@numbat.sonytel.be>
+References: <20050906004842.GP5155@ZenIV.linux.org.uk>
+ <Pine.LNX.4.61.0509061205510.3743@scrub.home> <20050906134944.GV5155@ZenIV.linux.org.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Tue, 6 Sep 2005 viro@ZenIV.linux.org.uk wrote:
+> 	* the same is true for subarchitectures of arm/mips/ppc - hell, even
+> for m68k, except that there we don't get new ones.
 
-> >From my reading of that code, GEN_RTC should've been called FAKE_RTC...
+I wouldn't count on that... Coldfire with MMU, where are you? ;-)
 
- Yep, it's an excuse for platform maintainers not to write proper drivers.
+Gr{oetje,eeting}s,
 
-> AFAICS, more or less clean solution would be to split the damn thing
-> into frontend (parsing of ioctls, hopefully very few API variants) and
-> backend (set of methods for talking to real hardware, or, in this case,
-> fake of a hardware).  With at most one backend selectable (i.e. select
-> in Kconfig) and frontend available if backend is selected.  With any
-> luck we could eventually get frontends down to one; in any case, their
-> APIs have no place in include/asm-*
-> 
-> Note that e.g. fsckloads of MIPS RTC drivers would simply become backends
-> in that scheme; lots of duplicated glue would disappear from them...
+						Geert
 
- Note that a few of MIPS RTC drivers are actually I2C devices that the 
-fake code accesses directly bypassing the relevant I2C driver.  That may 
-be a justified fallback for the one-off boot-time system clock setup when 
-no suitable I2C driver has been built in, but for normal operation that's 
-rather miserable.  As I happen to have a suitable system for testing, I 
-may have a look at how to interface such drivers to a generic frontend.  
-I'm not sure whether in this particular system the RTC chip's interrupt is 
-wired though -- probably not -- so I may only leave this part of code to 
-be tested by others.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-  Maciej
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

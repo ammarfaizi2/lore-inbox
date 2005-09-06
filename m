@@ -1,85 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964873AbVIFObj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964871AbVIFObN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964873AbVIFObj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 10:31:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964875AbVIFObi
+	id S964871AbVIFObN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 10:31:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964873AbVIFObN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 10:31:38 -0400
-Received: from rproxy.gmail.com ([64.233.170.202]:15292 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964873AbVIFObh convert rfc822-to-8bit
+	Tue, 6 Sep 2005 10:31:13 -0400
+Received: from v6.netlin.pl ([62.121.136.6]:16822 "EHLO pointblue.com.pl")
+	by vger.kernel.org with ESMTP id S964871AbVIFObL convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 10:31:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=TKzUswuf6ytfB+nPV5nlzdKGFrGktA3Xq/cCQwN2ut81+mPzu5NpAOKb+Sz/KKA2C8zntoe08U43ExYPmf3EkdEM/vAwHIOsRy5PBWj+sh8cOtUZRNrsqOf1eeC5QiSuHhtVwAKilsFbpadocJ3B/VcYB+6B/SBeQCFm7vrUqAY=
-Message-ID: <d120d50005090607315168e479@mail.gmail.com>
-Date: Tue, 6 Sep 2005 09:31:34 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Daniel Phillips <phillips@istop.com>
-Subject: Re: GFS, what's remainingh
-Cc: linux-kernel@vger.kernel.org, Lars Marowsky-Bree <lmb@suse.de>,
-       Andi Kleen <ak@suse.de>, linux clustering <linux-cluster@redhat.com>,
-       akpm@osdl.org, linux-fsdevel@vger.kernel.org
-In-Reply-To: <200509060318.25260.phillips@istop.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 6 Sep 2005 10:31:11 -0400
+From: Grzegorz Piotr Jaskiewicz <gj@kde.org.uk>
+Organization: KDE
+To: "Mathieu" <matt@minas-morgul.org>
+Subject: Re: oops in VMWARE vmnet, on 2.6.12.x
+Date: Tue, 6 Sep 2005 16:30:42 +0200
+User-Agent: KMail/1.8.91
+Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       "Christoph Hellwig" <hch@infradead.org>,
+       "Jan Engelhardt" <jengelh@linux01.gwdg.de>,
+       "Petr Vandrovec" <vandrove@vc.cvut.cz>, linux-kernel@vger.kernel.org
+References: <200508091744.33523@gj-laptop> <Pine.LNX.4.61.0509060755180.20318@chaos.analogic.com> <87ll2a4cao.fsf@barad-dur.minas-morgul.org>
+In-Reply-To: <87ll2a4cao.fsf@barad-dur.minas-morgul.org>
+X-Face: ?m}EMc-C]"l7<^`)a1NYO-(=?utf-8?q?=27xy3=3A5V=7B82Z=5E-/D3=5E=5BMU8IHkf=24o=60=7E=25CC5D4=5BGhaIgk?=
+ =?utf-8?q?/=24oN7=0A=09Y7=3Bf=7D!?=(<IG>ooAGiKCVs$m~P1B-8Vt=]<V,FX{h4@fK/?Qtg]5ofD|P~&)q:6H>
+ =?utf-8?q?=7E1Nt2fh=0A=09s-iKbN=24=2ENe=5E1?=(4tdwmmW>ew'=LPv+{{=YE=LoZU-5kfYnZSa`P7Q4pW]tKmUk`@&}M,
+ =?utf-8?q?dn-=0A=09Kh=7BhA=7B=7ELs4a=24NjJI?=@1_f')]3|_}!GoJZss[Q$D-#l^.4GxPp[p:s<S~B&+6)
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-References: <20050901104620.GA22482@redhat.com>
-	 <200509060248.47433.phillips@istop.com>
-	 <200509060155.04685.dtor_core@ameritech.net>
-	 <200509060318.25260.phillips@istop.com>
+Message-Id: <200509061630.43064@gj-laptop>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/6/05, Daniel Phillips <phillips@istop.com> wrote:
-> On Tuesday 06 September 2005 02:55, Dmitry Torokhov wrote:
-> > On Tuesday 06 September 2005 01:48, Daniel Phillips wrote:
-> > > On Tuesday 06 September 2005 01:05, Dmitry Torokhov wrote:
-> > > > do you think it is a bit premature to dismiss something even without
-> > > > ever seeing the code?
-> > >
-> > > You told me you are using a dlm for a single-node application, is there
-> > > anything more I need to know?
-> >
-> > I would still like to know why you consider it a "sin". On OpenVMS it is
-> > fast, provides a way of cleaning up...
-> 
-> There is something hard about handling EPIPE?
-> 
-
-Just the fact that you want me to handle it ;)
-
-> > and does not introduce single point
-> > of failure as it is the case with a daemon. And if we ever want to spread
-> > the load between 2 boxes we easily can do it.
-> 
-> But you said it runs on an aging Alpha, surely you do not intend to expand it
-> to two aging Alphas?
-
-You would be right if I was designing this right now. Now roll 10 - 12
-years back and now I have a shiny new alpha. Would you criticize me
-then for using a mechanism that allowed easily spread application
-across several nodes with minimal changes if needed?
-
-What you fail to realize that there applications that run and will
-continue to run for a long time.
-
->  And what makes you think that socket-based
-> synchronization keeps you from spreading out the load over multiple boxes?
-> 
-> > Why would I not want to use it?
-> 
-> It is not the right tool for the job from what you have told me.  You want to
-> get a few bytes of information from one task to another?  Use a socket, as
-> God intended.
+On Tuesday 06 September 2005 14:21, Mathieu wrote:
+> "linux-os \(Dick Johnson\)" <linux-os@analogic.com> disait dernièrement que
+> :
 >
+> are you serious or just on drugs ?
+Someone was on drugs in first place, when he decided to change API in such 
+baaad way.....
 
-Again, when TCPIP is not a native network stack, when libc socket
-routines are not readily available - DLM starts looking much more
-viable.
 
 -- 
-Dmitry
+GJ
+
+Binary system, you're either 1 or 0...
+dead or alive ;)

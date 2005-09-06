@@ -1,117 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964786AbVIFJri@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964788AbVIFKFb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964786AbVIFJri (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 05:47:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964788AbVIFJri
+	id S964788AbVIFKFb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 06:05:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964789AbVIFKFb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 05:47:38 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:40789
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S964786AbVIFJri (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 05:47:38 -0400
-Message-Id: <431D82120200007800023FC1@emea1-mh.id2.novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Tue, 06 Sep 2005 11:48:34 +0200
-From: "Jan Beulich" <JBeulich@novell.com>
-To: <discuss@x86-64.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] x86_64: watchdog frequency calculation adjustments
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=__PartB193E2E2.0__="
+	Tue, 6 Sep 2005 06:05:31 -0400
+Received: from web30307.mail.mud.yahoo.com ([68.142.200.100]:31641 "HELO
+	web30307.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S964788AbVIFKFa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 06:05:30 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=V0bGFHqYw/VmWG/oFzrig9b2bFDSWMcwRhCLY76jK7aB1vro3zJsFvVsWQnrVSt2fcEyExsQMgu1kakX2+O4xI+SAVEKe6sdhXq/+rBkkxFebRhi6ZSA/x4oM/Ig7XXlnf32VSobVIxPgwIpasTdhJGjvLD7cNF3Edy/U2EvxRI=  ;
+Message-ID: <20050906100513.25072.qmail@web30307.mail.mud.yahoo.com>
+Date: Tue, 6 Sep 2005 11:05:13 +0100 (BST)
+From: Mark Underwood <basicmark@yahoo.com>
+Subject: Re: SPI redux ... driver model support
+To: David Brownell <david-b@pacbell.net>, linux-kernel@vger.kernel.org
+Cc: dpervushin@ru.mvista.com, basicmark@yahoo.com
+In-Reply-To: <20050906020922.C8911C0006@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME message. If you are reading this text, you may want to 
-consider changing to a mail reader or gateway that understands how to 
-properly handle MIME multipart messages.
 
---=__PartB193E2E2.0__=
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+--- David Brownell <david-b@pacbell.net> wrote:
 
-(Note: Patch also attached because the inline version is certain to get
-line wrapped.)
+> > > @@ -193,6 +193,34 @@
+> > >  
+> > >  #ifdef	CONFIG_OMAP_OSK_MISTRAL
+> > >  
+> > > +#include <linux/spi.h>
+> > > +
+> > > +struct ads7864_info {		/* FIXME put in standard
+> header */
+> > > +	u16	pen_irq, busy;		/* GPIO lines */
+> > > +	u16	x_ohms, y_ohms;
+> > > +};
+> > > +
+> > > +static struct ads7864_info mistral_ts_info = {
+> > > +	.pen_irq	= OMAP_GPIO_IRQ(4),
+> > > +	.busy		= /* GPIO */ 6,
+> > > +	.x_ohms		= 419,
+> > > +	.y_ohms		= 486,
+> > > +};
+> > > +
+> > > +static const struct spi_board_info
+> mistral_boardinfo[] = {
+> > > +{
+> > > +	/* MicroWire CS0 has an ads7846e with
+> touchscreen and
+> > > +	 * other sensors.  It's currently glued into
+> some OMAP
+> > > +	 * touchscreen support that ignores the driver
+> model.
+> > > +	 */
+> > > +	.driver_name	= "ads7846",
+> > > +	.platform_data	= &mistral_ts_info,
+> > > +	.max_speed_hz	= 2000000,
+> > > +	.bus_num	= 2, 		/* spi2 == microwire */
+> >
+> > I did think about doing this but the problem is
+> how do
+> > you know bus 2 is the bus you think it is?
+> 
+> The numbering is board-specific, but in most cases
+> that can be simplified
+> to being SOC-specific.  In this case I numbered the
+> SPI-capable controllers
+> (from 1..7, not included in this patch) and this one
+> came out "2".  The
+> consistency matters, not the actual (nonzero)
+> numbers.
+> 
+> Hotpluggable SPI controllers are not common, but
+> that's where that sysfs
+> API to define new devices would really hit the spot.
+>  That would be how the
+> kernel learns about "struct spi_board_info"
+> structures associated with some
+> dynamically assigned bus_num.  Likely some
+> convention for dynamically
+> assigned IDs would help, like "they're all
+> negative".
+> 
+> (What I've seen a bit more often is that expansion
+> cards will be wired
+> for SPI, so the thing that's vaguely hotplug-ish is
+> that once you know
+> what card's hooked up, you'll know the SPI devices
+> it has.  Then the
+> question is how to tell the kernel about them ...
+> same solution, which
+> again must work without hardware probing.)
+> 
 
-Like previously done for i386, get the x86_64 watchdog tick
-calculation
-into a state where it can also be used on CPUs with frequencies beyond
-4GHz.
+This is why I decided to pass the cs table as platform
+data when an adapter is registered. This way you don't
+have to try to find out an adapters bus number as the
+adapter has the cs table in it, but because it was
+passed in as platform data it still abstracts that
+from the adapter driver. Simple, yet effective :)
 
-Signed-off-by: Jan Beulich <jbeulich@novell.com>
+Have you looked at the patch which I sent?
+http://www.ussg.iu.edu/hypermail/linux/kernel/0509.0/0817.html
 
----
-/home/jbeulich/tmp/linux-2.6.13/arch/x86_64/kernel/nmi.c	2005-08-29
-01:41:01.000000000 +0200
-+++ 2.6.13/arch/x86_64/kernel/nmi.c	2005-09-06 11:03:36.000000000
-+0200
-@@ -367,7 +367,7 @@ static void setup_k7_watchdog(void)
- 		| K7_NMI_EVENT;
- 
- 	wrmsr(MSR_K7_EVNTSEL0, evntsel, 0);
--	wrmsr(MSR_K7_PERFCTR0, -(cpu_khz/nmi_hz*1000), -1);
-+	wrmsrl(MSR_K7_PERFCTR0, -((u64)cpu_khz * 1000 / nmi_hz));
- 	apic_write(APIC_LVTPC, APIC_DM_NMI);
- 	evntsel |= K7_EVNTSEL_ENABLE;
- 	wrmsr(MSR_K7_EVNTSEL0, evntsel, 0);
-@@ -408,8 +408,8 @@ static int setup_p4_watchdog(void)
- 
- 	wrmsr(MSR_P4_CRU_ESCR0, P4_NMI_CRU_ESCR0, 0);
- 	wrmsr(MSR_P4_IQ_CCCR0, P4_NMI_IQ_CCCR0 & ~P4_CCCR_ENABLE, 0);
--	Dprintk("setting P4_IQ_COUNTER0 to 0x%08lx\n",
--(cpu_khz/nmi_hz*1000));
--	wrmsr(MSR_P4_IQ_COUNTER0, -(cpu_khz/nmi_hz*1000), -1);
-+	Dprintk("setting P4_IQ_COUNTER0 to 0x%08lx\n", -(cpu_khz *
-1000UL / nmi_hz));
-+	wrmsrl(MSR_P4_IQ_COUNTER0, -((u64)cpu_khz * 1000 / nmi_hz));
- 	apic_write(APIC_LVTPC, APIC_DM_NMI);
- 	wrmsr(MSR_P4_IQ_CCCR0, nmi_p4_cccr_val, 0);
- 	return 1;
-@@ -505,7 +505,7 @@ void nmi_watchdog_tick (struct pt_regs *
-  			wrmsr(MSR_P4_IQ_CCCR0, nmi_p4_cccr_val, 0);
-  			apic_write(APIC_LVTPC, APIC_DM_NMI);
-  		}
--		wrmsr(nmi_perfctr_msr, -(cpu_khz/nmi_hz*1000), -1);
-+		wrmsrl(nmi_perfctr_msr, -((u64)cpu_khz * 1000 /
-nmi_hz));
- 	}
- }
- 
+I would appreciate any comments on this approach.
+
+> 
+> >		This would
+> > work for SPI adapters that are platform devices,
+> but
+> > what about hot-plug devices like PCI and USB (we
+> are
+> > thinking of actually making a USB to SPI converter
+> so
+> > customers can try out some of our SPI devices on a
+> PC
+> 
+> Some of the microcontrollers that talk both USB
+> (slave) and SPI (master)
+> will even run Linux for you.  :)
+
+Yes, but not on a 8051 bassed Cypress USB chip ;)
+
+> 
+> - Dave
+> 
+> -
+> To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at 
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 
---=__PartB193E2E2.0__=
-Content-Type: application/octet-stream; name="linux-2.6.13-x86_64-watchdog.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="linux-2.6.13-x86_64-watchdog.patch"
 
-KE5vdGU6IFBhdGNoIGFsc28gYXR0YWNoZWQgYmVjYXVzZSB0aGUgaW5saW5lIHZlcnNpb24gaXMg
-Y2VydGFpbiB0byBnZXQKbGluZSB3cmFwcGVkLikKCkxpa2UgcHJldmlvdXNseSBkb25lIGZvciBp
-Mzg2LCBnZXQgdGhlIHg4Nl82NCB3YXRjaGRvZyB0aWNrIGNhbGN1bGF0aW9uCmludG8gYSBzdGF0
-ZSB3aGVyZSBpdCBjYW4gYWxzbyBiZSB1c2VkIG9uIENQVXMgd2l0aCBmcmVxdWVuY2llcyBiZXlv
-bmQKNEdIei4KClNpZ25lZC1vZmYtYnk6IEphbiBCZXVsaWNoIDxqYmV1bGljaEBub3ZlbGwuY29t
-PgoKLS0tIC9ob21lL2piZXVsaWNoL3RtcC9saW51eC0yLjYuMTMvYXJjaC94ODZfNjQva2VybmVs
-L25taS5jCTIwMDUtMDgtMjkgMDE6NDE6MDEuMDAwMDAwMDAwICswMjAwCisrKyAyLjYuMTMvYXJj
-aC94ODZfNjQva2VybmVsL25taS5jCTIwMDUtMDktMDYgMTE6MDM6MzYuMDAwMDAwMDAwICswMjAw
-CkBAIC0zNjcsNyArMzY3LDcgQEAgc3RhdGljIHZvaWQgc2V0dXBfazdfd2F0Y2hkb2codm9pZCkK
-IAkJfCBLN19OTUlfRVZFTlQ7CiAKIAl3cm1zcihNU1JfSzdfRVZOVFNFTDAsIGV2bnRzZWwsIDAp
-OwotCXdybXNyKE1TUl9LN19QRVJGQ1RSMCwgLShjcHVfa2h6L25taV9oeioxMDAwKSwgLTEpOwor
-CXdybXNybChNU1JfSzdfUEVSRkNUUjAsIC0oKHU2NCljcHVfa2h6ICogMTAwMCAvIG5taV9oeikp
-OwogCWFwaWNfd3JpdGUoQVBJQ19MVlRQQywgQVBJQ19ETV9OTUkpOwogCWV2bnRzZWwgfD0gSzdf
-RVZOVFNFTF9FTkFCTEU7CiAJd3Jtc3IoTVNSX0s3X0VWTlRTRUwwLCBldm50c2VsLCAwKTsKQEAg
-LTQwOCw4ICs0MDgsOCBAQCBzdGF0aWMgaW50IHNldHVwX3A0X3dhdGNoZG9nKHZvaWQpCiAKIAl3
-cm1zcihNU1JfUDRfQ1JVX0VTQ1IwLCBQNF9OTUlfQ1JVX0VTQ1IwLCAwKTsKIAl3cm1zcihNU1Jf
-UDRfSVFfQ0NDUjAsIFA0X05NSV9JUV9DQ0NSMCAmIH5QNF9DQ0NSX0VOQUJMRSwgMCk7Ci0JRHBy
-aW50aygic2V0dGluZyBQNF9JUV9DT1VOVEVSMCB0byAweCUwOGx4XG4iLCAtKGNwdV9raHovbm1p
-X2h6KjEwMDApKTsKLQl3cm1zcihNU1JfUDRfSVFfQ09VTlRFUjAsIC0oY3B1X2toei9ubWlfaHoq
-MTAwMCksIC0xKTsKKwlEcHJpbnRrKCJzZXR0aW5nIFA0X0lRX0NPVU5URVIwIHRvIDB4JTA4bHhc
-biIsIC0oY3B1X2toeiAqIDEwMDBVTCAvIG5taV9oeikpOworCXdybXNybChNU1JfUDRfSVFfQ09V
-TlRFUjAsIC0oKHU2NCljcHVfa2h6ICogMTAwMCAvIG5taV9oeikpOwogCWFwaWNfd3JpdGUoQVBJ
-Q19MVlRQQywgQVBJQ19ETV9OTUkpOwogCXdybXNyKE1TUl9QNF9JUV9DQ0NSMCwgbm1pX3A0X2Nj
-Y3JfdmFsLCAwKTsKIAlyZXR1cm4gMTsKQEAgLTUwNSw3ICs1MDUsNyBAQCB2b2lkIG5taV93YXRj
-aGRvZ190aWNrIChzdHJ1Y3QgcHRfcmVncyAqCiAgCQkJd3Jtc3IoTVNSX1A0X0lRX0NDQ1IwLCBu
-bWlfcDRfY2Njcl92YWwsIDApOwogIAkJCWFwaWNfd3JpdGUoQVBJQ19MVlRQQywgQVBJQ19ETV9O
-TUkpOwogIAkJfQotCQl3cm1zcihubWlfcGVyZmN0cl9tc3IsIC0oY3B1X2toei9ubWlfaHoqMTAw
-MCksIC0xKTsKKwkJd3Jtc3JsKG5taV9wZXJmY3RyX21zciwgLSgodTY0KWNwdV9raHogKiAxMDAw
-IC8gbm1pX2h6KSk7CiAJfQogfQogCg==
-
---=__PartB193E2E2.0__=--
+	
+	
+		
+___________________________________________________________ 
+Yahoo! Messenger - NEW crystal clear PC to PC calling worldwide with voicemail http://uk.messenger.yahoo.com

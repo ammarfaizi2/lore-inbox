@@ -1,43 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751038AbVIFWRw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751042AbVIFWUc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751038AbVIFWRw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 18:17:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751039AbVIFWRw
+	id S1751042AbVIFWUc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 18:20:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751044AbVIFWUc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 18:17:52 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:47593 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751036AbVIFWRv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 18:17:51 -0400
-Date: Tue, 6 Sep 2005 15:15:46 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "John W. Linville" <linville@tuxdriver.com>
-Cc: hch@infradead.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       jgarzik@pobox.com
-Subject: Re: [patch 2.6.13 2/2] 3c59x: add option for using memory-mapped
- PCI I/O resources
-Message-Id: <20050906151546.4d5ed4db.akpm@osdl.org>
-In-Reply-To: <20050906220922.GA26003@tuxdriver.com>
-References: <20050906204147.GC20145@tuxdriver.com>
-	<20050906204400.GD20145@tuxdriver.com>
-	<20050906205429.GA19319@infradead.org>
-	<20050906140414.40b65253.akpm@osdl.org>
-	<20050906220922.GA26003@tuxdriver.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 6 Sep 2005 18:20:32 -0400
+Received: from lirs02.phys.au.dk ([130.225.28.43]:40907 "EHLO
+	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S1751039AbVIFWUb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 18:20:31 -0400
+Date: Wed, 7 Sep 2005 00:20:11 +0200 (METDST)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: "Budde, Marco" <budde@telos.de>, linux-kernel@vger.kernel.org
+Subject: Re: kbuild & C++
+In-Reply-To: <9a87484905090614204ba36b83@mail.gmail.com>
+Message-Id: <Pine.OSF.4.05.10509070012390.28020-100000@da410.phys.au.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"John W. Linville" <linville@tuxdriver.com> wrote:
->
-> I fully intend to have have a flag in the private data set based on
->  the PCI ID when I accumulate some data on which devices support this
->  and which don't.  So far I've only got a short list...  Do you think
->  such a flag should be based on which ones work, or which ones break?
+On Tue, 6 Sep 2005, Jesper Juhl wrote:
 
-The ones which are known to work.
+> On 9/6/05, Budde, Marco <budde@telos.de> wrote:
+> > Hi,
+> > 
+> > for one of our customers I have to port a Windows driver to
+> > Linux. Large parts of the driver's backend code consists of
+> > C++.
+> > 
+> > How can I compile this code with kbuild? The C++ support
+> > (I have tested with 2.6.11) of kbuild seems to be incomplete /
+> > not working.
+> > 
+> 
+> That would be because the kernel is written in *C* (and some asm), *not* C++.
+> There /is/ no C++ support.
 
-Bear in mind that this is an old, messy and relatively stable driver which
-handles a huge number of different NICs.   Caution is the rule here.
+Which is too bad. You can do stuff much more elegant, effectively and
+safer in C++ than in C. Yes, you can do inheritance in C, but it leaves
+it up to the user to make sure the type-casts are done OK every time. You
+can with macros do some dynamic typing, but not nearly as effectively as
+with templates, and those macros always comes very, very ugly. (Some say
+templates are ugly, but they first become ugly when they are used
+way beyond what you can do with macros.)
+
+I think it can only be a plus to Linux to add C++ support for at least
+out-of-mainline drivers. Adding drivers written in C++ into the mainline
+is another thing.
+
+Esben
+

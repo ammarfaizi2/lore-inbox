@@ -1,71 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750761AbVIFQ6U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750760AbVIFREv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750761AbVIFQ6U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 12:58:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750760AbVIFQ6U
+	id S1750760AbVIFREv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 13:04:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbVIFREv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 12:58:20 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:11481 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1750761AbVIFQ6T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 12:58:19 -0400
-Message-Id: <200509061658.j86GwB5w029481@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: walking.to.remember@gmail.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: what will connect the fork() with its following code ? a simple example below: 
-In-Reply-To: Your message of "Tue, 06 Sep 2005 17:15:51 +0800."
-             <6b5347dc0509060215128d477e@mail.gmail.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <6b5347dc0509060215128d477e@mail.gmail.com>
+	Tue, 6 Sep 2005 13:04:51 -0400
+Received: from kanga.kvack.org ([66.96.29.28]:27785 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S1750760AbVIFREu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 13:04:50 -0400
+Date: Tue, 6 Sep 2005 13:04:07 -0400
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: Dave Jones <davej@redhat.com>, Alex Davis <alex14641@yahoo.com>,
+       Sean <seanlkml@sympatico.ca>, linux-kernel@vger.kernel.org
+Subject: Re: RFC: i386: kill !4KSTACKS
+Message-ID: <20050906170407.GB31861@kvack.org>
+References: <36918.10.10.10.10.1125889201.squirrel@linux1> <20050905034158.97152.qmail@web50213.mail.yahoo.com> <20050905042641.GD4715@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1126025888_2971P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 06 Sep 2005 12:58:09 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050905042641.GD4715@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1126025888_2971P
-Content-Type: text/plain; charset=us-ascii
+On Mon, Sep 05, 2005 at 12:26:41AM -0400, Dave Jones wrote:
+> As someone who gets to read a lot of bug reports from end-users,
+> this thing is far from perfect judging by the number of tainted
+> oopses I've seen, and not all of them look like stack size issues.
 
-On Tue, 06 Sep 2005 17:15:51 +0800, "Sat." said:
+It would make sense to use 4KB pages with a guard page to catch unexpected 
+stack overflows.  Then we'd at least catch some of the binary only modules 
+with Oops that clearly show who is at fault.
 
-Not a kernel problem, please consult an intro-to-C list next time....
+> Helping the cause of binary (or part binary) solutions doesn't solve anything.
+> It brings nothing but unsolvable problems, and upset users when their problems
+> can't get fixed.
 
-> if(!(pid=fork())){
->      ......
->      printk("in child process");
->      ......
-> }else{
->      .....
->      printk("in father process"); 
->      .....
-> }
-> 
+Definately.
 
-> values., and do nothing . so the bridge  between the new process and
-> its following code, printk("in child process"), seems disappear 
-
-I'm assuming you actually meant printf() (which is the userspace stdio call)
-rather than printk() (which is the inside-the-kernel variant).
-
-'man setbuf' - most likely the output of the child process is buffered and
-never actually output before it exits.  You want to set stdout to be
-line-buffered or unbuffered, or write to stderr (unbuffered by default) rather
-than stdout. 
-
-
---==_Exmh_1126025888_2971P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFDHcqgcC3lWbTT17ARAjANAJ9xbZaSESYmhsBc73Dm2oE/WCA3SQCbBzaN
-8h5hJlb6YKCeDZ45p3Jp5Ac=
-=dZ5t
------END PGP SIGNATURE-----
-
---==_Exmh_1126025888_2971P--
+		-ben
+-- 
+"Time is what keeps everything from happening all at once." -- John Wheeler

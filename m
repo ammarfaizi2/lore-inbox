@@ -1,41 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750895AbVIFUje@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750899AbVIFUkw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750895AbVIFUje (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 16:39:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750897AbVIFUje
+	id S1750899AbVIFUkw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 16:40:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750900AbVIFUkw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 16:39:34 -0400
-Received: from outgoing-mail.its.caltech.edu ([131.215.239.19]:51047 "EHLO
-	outgoing-mail.its.caltech.edu") by vger.kernel.org with ESMTP
-	id S1750895AbVIFUjd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 16:39:33 -0400
-Date: Tue, 6 Sep 2005 13:39:32 -0700 (PDT)
-From: Rumen Ivanov Zarev <rzarev@its.caltech.edu>
-Message-Id: <200509062039.j86KdWMr014934@inky.its.caltech.edu>
-To: gregkh@suse.de
-Subject: [PATCH] PCI: Unhide SMBus on Compaq Evo N620c
-Cc: linux-kernel@vger.kernel.org
+	Tue, 6 Sep 2005 16:40:52 -0400
+Received: from terminus.zytor.com ([209.128.68.124]:2027 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1750899AbVIFUkv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 16:40:51 -0400
+Message-ID: <431DFEC3.1070309@zytor.com>
+Date: Tue, 06 Sep 2005 13:40:35 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alon Bar-Lev <alon.barlev@gmail.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: THE LINUX/I386 BOOT PROTOCOL - Breaking the 256 limit
+References: <4315B668.6030603@gmail.com> <43162148.9040604@zytor.com> <20050831215757.GA10804@taniwha.stupidest.org> <431628D5.1040709@zytor.com> <431DF9E9.5050102@gmail.com>
+In-Reply-To: <431DF9E9.5050102@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trivial patch against 2.6.13 to unhide SMBus on Compaq Evo N620c laptop using
-Intel 82855PM chipset.
+Alon Bar-Lev wrote:
+> 
+> Hello Peter, I've written a reply before but got no response...
+> 
+> The idea of putting arguments in initramfs is not practical, since the 
+> whole idea is to have the same image of system and affecting its 
+> behavior using the boot loader...
+> 
 
-Signed-off-by: Rumen Zarev <rzarev@caltech.edu>
+No, you're wrong.  The boot loader can synthesize an initramfs.
 
---- linux-2.6.13/drivers/pci/quirks.c.orig	2005-09-05 23:36:49.213894072 +0300
-+++ linux-2.6.13/drivers/pci/quirks.c	2005-09-05 23:42:15.391307568 +0300
-@@ -850,6 +850,12 @@ static void __init asus_hides_smbus_host
-                        case 0xC00C: /* Samsung P35 notebook */
-                                asus_hides_smbus = 1;
-                        }
-+	} else if (unlikely(dev->subsystem_vendor == PCI_VENDOR_ID_COMPAQ)) {
-+		if (dev->device == PCI_DEVICE_ID_INTEL_82855PM_HB)
-+			switch(dev->subsystem_device) {
-+			case 0x0058: /* Compaq Evo N620c */
-+				asus_hides_smbus = 1;
-+			}
- 	}
- }
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82845_HB,	asus_hides_smbus_hostbridge );
+> I would like to push forward the idea to extend the command-line size...
+> 
+> All we need for start is an updated version of the "THE LINUX/I386 BOOT 
+> PROTOCOL" document that states that in the 2.02+  protocol the boot 
+> loader should set cmd_line_ptr to a pointer to a null terminated string 
+> without any size restriction, specifying that the kernel will read as 
+> much as it can.
 
+Already pushed to Andrew.  I will follow it up with a patch to extend 
+the command line, at least to 512.
+
+> After I get this update, I will try to work with GRUB and LILO so that 
+> they will fix their implementation. Currently they claim that they 
+> understand that they should truncate the string to 256.
+> 
+> After that I will provide my simple  patch for setting the maximum size 
+> the kernel allocates in the configuration.
+> 
+> BTW: Do you know why the COMMAND_LINE_SIZE constant is located in two 
+> separate include files?
+
+No, I don't.  It could be because one is included from assembly code in 
+the i386 architecture.
+
+	-hpa

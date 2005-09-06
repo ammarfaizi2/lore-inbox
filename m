@@ -1,75 +1,164 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750850AbVIFUDS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750835AbVIFUKL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750850AbVIFUDS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 16:03:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750852AbVIFUDR
+	id S1750835AbVIFUKL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 16:10:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750855AbVIFUKL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 16:03:17 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:52915 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1750849AbVIFUDR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 16:03:17 -0400
-Message-Id: <200509062002.j86K28R8019604@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Francois Romieu <romieu@fr.zoreil.com>
-Cc: Miroslaw Mieszczak <mieszcz@zabrze.zigzag.pl>, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Patch for link detection for R8169 
-In-Reply-To: Your message of "Tue, 06 Sep 2005 21:46:02 +0200."
-             <20050906194602.GA20862@electric-eye.fr.zoreil.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <431DA887.2010008@zabrze.zigzag.pl>
-            <20050906194602.GA20862@electric-eye.fr.zoreil.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1126036928_2971P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 06 Sep 2005 16:02:08 -0400
+	Tue, 6 Sep 2005 16:10:11 -0400
+Received: from web30312.mail.mud.yahoo.com ([68.142.201.230]:51289 "HELO
+	web30312.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750835AbVIFUKK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 16:10:10 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=maFlBBbmOWCneqzNKqkimAvp5A6TxFOmjaZ47voIGAar+AOA2x/yrlQQjGrXJSmDnXjBzcymFLf3P8TwF6aJxQ6FTziXphdUNGHX30ryS7GITucKam0gkj4zVr6gPZ6b8OFXolYqJM39k0gEg2T+VAcRWEJGgEY9DmDcR6+cdH8=  ;
+Message-ID: <20050906201001.68988.qmail@web30312.mail.mud.yahoo.com>
+Date: Tue, 6 Sep 2005 21:10:01 +0100 (BST)
+From: Mark Underwood <basicmark@yahoo.com>
+Subject: Re: SPI redux ... driver model support
+To: David Brownell <david-b@pacbell.net>, linux-kernel@vger.kernel.org
+Cc: dpervushin@ru.mvista.com
+In-Reply-To: <20050906160043.9BDFAD480C@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1126036928_2971P
-Content-Type: text/plain; charset=us-ascii
 
-On Tue, 06 Sep 2005 21:46:02 +0200, Francois Romieu said:
-> Miroslaw Mieszczak <mieszcz@zabrze.zigzag.pl> :
-> > There is a patch to driver of RLT8169 network card. This match make 
-> > possible detection of the link status even if network interface is down.
-> > This is usefull for laptop users.
+--- David Brownell <david-b@pacbell.net> wrote:
+
+> > > > I did think about doing this but the problem
+> is how do
+> > > > you know bus 2 is the bus you think it is?
+> > > 
+> > > The numbering is board-specific, but in most
+> cases
+> > > that can be simplified to being SOC-specific. 
+> ...
+> > > 
+> > > Hotpluggable SPI controllers are not common, but
+> > > that's where that sysfs API to define new
+> devices
+> > > would really hit the spot. ...
+> > > 
+> > > (What I've seen a bit more often is that
+> expansion
+> > > cards will be wired for SPI, so the thing that's
+> > > vaguely hotplug-ish is that once you know what
+> > > card's hooked up, you'll know the SPI devices it
+> > > has.  Then the question is how to tell the
+> kernel
+> > > about them ...  same solution, which again must
+> work
+> > > without hardware probing.)
+> >
+> > This is why I decided to pass the cs table as
+> platform
+> > data when an adapter is registered. This way you
+> don't
+> > have to try to find out an adapters bus number as
+> the
+> > adapter has the cs table in it, but because it was
+> > passed in as platform data it still abstracts that
+> > from the adapter driver. Simple, yet effective :)
 > 
-> (side note: there is maintainer entry for the r8169 and network related
-> patches are welcome on netdev@vger.kernel.org)
+> Except that it doesn't work in that primary case,
+> where the SPI devices
+> are physically decoupled from any given SPI (master)
+> controller.
+> One expansion card uses CS1 for a touchscreen;
+> another uses CS3 for
+> SPI flash ... the same "cs table" can't handle both
+> configurations.
+> It's got to be segmented, with devices separated
+> from controllers.
+
+With my subsystem that would look like:
+
+static const struct spi_cs_table
+platform_spi1_cs_table[] = {
+ {
+  .name  = "touchscreen",
+  .cs_no  = 1,
+  .platform_data = NULL,
+  .flags  = SPI_CS_IDLE_HIGH,
+  .cs_data = 0,
+ },
+ {
+  .name  = "flash",
+  .cs_no  = 3,
+  .platform_data = NULL,
+  .flags  = SPI_CS_IDLE_HIGH,
+  .cs_data = 0,
+ },
+};
+
+As far as I can see most SPI devices have fixed
+wirering to an adapter as SPI is not really a hotplug
+bus.
+The subsystem does allow you to add extra devices that
+aren't in the cs table if you want by calling
+spi_device_register in which case you have to setup
+the spi_device with the correct information.
+
 > 
-> Can you elaborate why it is usefull for laptop users ?
+> Plus, that depends on standardizing platform_data
+> between platforms.
+> That's really not the model for platform_data!  And
+> "struct clk" is
+> ARM-only for now, too ... 
 
-Desktops and rack mounts you tend to leave that RJ45 plugged into the back
-all the time.  As a result, "no link" is a rare error condition.
+The struct clk should have been removed, I missed it
+on that tidy up.
+Why not pass platform data through the platform_data
+pointer? I have now provided an extra field now which
+lets you pass in any other platform data. 
 
-On the other hand, laptops are often sitting around with no RJ45 in sight.
-Being able to detect "card present but no cable plugged in" can be useful in
-startup scripts and the like, so you can do something like
+> 
+> 
+> > Have you looked at the patch which I sent?
+> >
+>
+http://www.ussg.iu.edu/hypermail/linux/kernel/0509.0/0817.html
+> >
+> > I would appreciate any comments on this approach.
+> 
+> Yes, I plan to follow up to that with comments.  As
+> with Dmitry's
+> proposal, it's modeled closely on I2C, and is in
+> consequence larger
+> than needed for what it does.
 
-if [ link-is-up eth3 ];
-then
-	ifup eth3;
-fi
+I hope not, I spent a long time learning about the
+features of the 2.6 driver model. I'm happy to trim
+down any fat.
 
-and avoid throwing nasty error messages (and even worse, timeouts) trying to
-bring up the card if there's nothing plugged in.  There's no sense in trying to
-do the whole DHCP thing (or whatever you need to do) if you can tell beforehand
-that it will fail....
+> 
+> One reason I posted this driver-model-only patch was
+> to highlight how
+> minimal an SPI core can be if it reuses the driver
+> model core.  I'm
+> not a fan of much "mid-layer" infrastructure in
+> driver stacks.
+> 
+
+This is what my SPI core tries to do. I would like to
+make at 'as small as possible and no smaller'
+
+Mark
+
+> - Dave
+> 
+> -
+> To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at 
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 
---==_Exmh_1126036928_2971P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFDHfXAcC3lWbTT17ARAiwDAJ4rcTDvCzMIT943P6CyBabKYmokLwCfeCQF
-WsJqNjZfn3imfDeFlao99tQ=
-=6ZHH
------END PGP SIGNATURE-----
-
---==_Exmh_1126036928_2971P--
+Send instant messages to your online friends http://uk.messenger.yahoo.com 

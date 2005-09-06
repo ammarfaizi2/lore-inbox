@@ -1,66 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750984AbVIFCDf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932261AbVIFCKE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750984AbVIFCDf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 22:03:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932199AbVIFCDf
+	id S932261AbVIFCKE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 22:10:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932281AbVIFCKD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 22:03:35 -0400
-Received: from smtp105.sbc.mail.re2.yahoo.com ([68.142.229.100]:8020 "HELO
-	smtp105.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1750984AbVIFCDe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 22:03:34 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Daniel Phillips <phillips@istop.com>
-Subject: Re: GFS, what's remaining
-Date: Mon, 5 Sep 2005 21:03:19 -0500
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org, Lars Marowsky-Bree <lmb@suse.de>,
-       Andi Kleen <ak@suse.de>, linux clustering <linux-cluster@redhat.com>,
-       akpm@osdl.org, linux-fsdevel@vger.kernel.org
-References: <20050901104620.GA22482@redhat.com> <200509051118.45792.dtor_core@ameritech.net> <200509052057.23807.phillips@istop.com>
-In-Reply-To: <200509052057.23807.phillips@istop.com>
+	Mon, 5 Sep 2005 22:10:03 -0400
+Received: from livid.absolutedigital.net ([66.92.46.173]:49927 "EHLO
+	mx2.absolutedigital.net") by vger.kernel.org with ESMTP
+	id S932261AbVIFCKA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 22:10:00 -0400
+Date: Mon, 5 Sep 2005 22:10:18 -0400 (EDT)
+From: Cal Peake <cp@absolutedigital.net>
+To: Mathieu <matt@minas-morgul.org>
+cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Brand-new notebook useless with Linux...
+In-Reply-To: <87psrn6d04.fsf@barad-dur.minas-morgul.org>
+Message-ID: <Pine.LNX.4.61.0509052157190.31857@lancer.cnet.absolutedigital.net>
+References: <200509031859_MC3-1-A720-F705@compuserve.com>
+ <87psrn6d04.fsf@barad-dur.minas-morgul.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509052103.20519.dtor_core@ameritech.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 05 September 2005 19:57, Daniel Phillips wrote:
-> On Monday 05 September 2005 12:18, Dmitry Torokhov wrote:
-> > On Monday 05 September 2005 10:49, Daniel Phillips wrote:
-> > > On Monday 05 September 2005 10:14, Lars Marowsky-Bree wrote:
-> > > > On 2005-09-03T01:57:31, Daniel Phillips <phillips@istop.com> wrote:
-> > > > > The only current users of dlms are cluster filesystems.  There are
-> > > > > zero users of the userspace dlm api.
-> > > >
-> > > > That is incorrect...
-> > >
-> > > Application users Lars, sorry if I did not make that clear.  The issue is
-> > > whether we need to export an all-singing-all-dancing dlm api from kernel
-> > > to userspace today, or whether we can afford to take the necessary time
-> > > to get it right while application writers take their time to have a good
-> > > think about whether they even need it.
-> >
-> > If Linux fully supported OpenVMS DLM semantics we could start thinking
-> > asbout moving our application onto a Linux box because our alpha server is
-> > aging.
-> >
-> > That's just my user application writer $0.02.
-> 
-> What stops you from trying it with the patch?  That kind of feedback would be 
-> worth way more than $0.02.
->
+On Mon, 5 Sep 2005, Mathieu wrote:
 
-We do not have such plans at the moment and I prefer spending my free
-time on tinkering with kernel, not rewriting some in-house application.
-Besides, DLM is not the only thing that does not have a drop-in
-replacement in Linux.
+> the bioses released by phoenix seem a little broken. try a 2.6.13
+> kernel with the option ec_burst=1.
 
-You just said you did not know if there are any potential users for the
-full DLM and I said there are some.
+I agree with the broken phoenix part but be careful playing with ec_burst. 
+When it was set to default pre-2.6.13-rc6 it caused my laptop to overheat 
+and trip the thermal shutdown on several occasions before I figured out 
+what the hell was going on (the fan wasn't getting spun when needed).
+
+good luck,
+-cp
 
 -- 
-Dmitry
+". . . tell 'em we use Linux." -- Dave Chappelle
+

@@ -1,67 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750770AbVIFRIF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750783AbVIFR0Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750770AbVIFRIF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 13:08:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750772AbVIFRIF
+	id S1750783AbVIFR0Y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 13:26:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750785AbVIFR0Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 13:08:05 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:32683 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750770AbVIFRIE (ORCPT
+	Tue, 6 Sep 2005 13:26:24 -0400
+Received: from main.gmane.org ([80.91.229.2]:56528 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1750783AbVIFR0Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 13:08:04 -0400
-Subject: Re: [WATCHDOG] v2.6.13 watchdog-patches
-From: Josh Boyer <jdub@us.ibm.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Wim Van Sebroeck <wim@iguana.be>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org, Chuck Ebbert <76306.1226@compuserve.com>,
-       "P @ Draig Brady" <P@draigBrady.com>, Ben Dooks <ben-linux@fluff.org>,
-       Dimitry Andric <dimitry.andric@tomtom.com>, Olaf Hering <olh@suse.de>,
-       Deepak Saxena <dsaxena@plexity.net>,
-       Christer Weinigel <wingel@nano-system.com>
-In-Reply-To: <1125778302.3223.29.camel@laptopd505.fenrus.org>
-References: <20050903200443.GO19487@infomag.infomag.iguana.be>
-	 <1125778302.3223.29.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Date: Tue, 06 Sep 2005 12:06:25 -0500
-Message-Id: <1126026385.6930.3.camel@windu.rchland.ibm.com>
+	Tue, 6 Sep 2005 13:26:24 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>
+Subject: Re: RFC: i386: kill !4KSTACKS
+Date: Tue, 06 Sep 2005 13:23:51 -0400
+Message-ID: <dfkjav$lmd$1@sea.gmane.org>
+References: <20050904145129.53730.qmail@web50202.mail.yahoo.com> <1125854398.23858.51.camel@localhost.localdomain> <p73aciqrev0.fsf@verdi.suse.de> <dfk5cp$19p$1@sea.gmane.org> <58d0dbf10509061005358dce91@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: lmcgw.cs.sunysb.edu
+User-Agent: KNode/0.9.90
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-09-03 at 22:11 +0200, Arjan van de Ven wrote:
-> On Sat, 2005-09-03 at 22:04 +0200, Wim Van Sebroeck wrote:
-> > Author: Chuck Ebbert <76306.1226@compuserve.com>
-> > Date:   Fri Aug 19 14:14:07 2005 +0200
-> > 
-> >     [WATCHDOG] softdog-timer-running-oops.patch
-> >     
-> >     The softdog watchdog timer has a bug that can create an oops:
-> >     
-> >     1.  Load the module without the nowayout option.
-> >     2.  Open the driver and close it without writing 'V' before close.
-> >     3.  Unload the module.  The timer will continue to run...
-> >     4.  Oops happens when timer fires.
-> >     
-> >     Reported Sun, 10 Oct 2004, by Michael Schierl <schierlm@gmx.de>
-> >     
-> >     Fix is easy: always take a reference on the module on open.
-> >     Release it only when the device is closed and no timer is running.
-> >     Tested on 2.6.13-rc6 using the soft_noboot option.  While the
-> >     timer is running and the device is closed, the module use count
-> >     stays at 1.  After the timer fires, it drops to 0.  Repeatedly
-> >     opening and closing the driver caused no problems.  Please apply.
-> 
-> 
-> this looks ENTIRELY like the wrong solution!
-> Isn't it a LOT easier to just del_timer_sync() the timer from the module
-> exit code? Mucking with module refcounts in a driver is almost always a
-> sign of a bug or at least really bad design, and I think that is the
-> case here.....
-> 
+Jan Kiszka wrote:
 
-But that defeats the purpose of the nowayout option doesn't it?
+> The only way I see is to switch stacks back on ndiswrapper API entry.
+> But managing all those stacks correctly is challenging, as you will
+> likely not want to create a new stack on each switching point. Rather,
 
-josh
+This is what I had in mind before I saw this thread here. I, in fact, did
+some work along those lines, but it is even more complicated than you
+mentioned here: Windows uses different calling conventions (STDCALL,
+FASTCALL, CDECL) so switching stacks by copying arguments/results gets
+complicated. So I gave up on that approach. For X86-64 drivers we use
+similar approach, but for that there is only one calling convention and we
+don't need to switch stacks, but reshuffle arguments on stack / in
+registers.
+
+I am still hoping that Andi's approach is possible (I don't understand how
+we can make kernel see current info from private stack).
+
+Giri
 

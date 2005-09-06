@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932468AbVIFNcN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964839AbVIFNnq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932468AbVIFNcN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 09:32:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932469AbVIFNcN
+	id S964839AbVIFNnq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 09:43:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964782AbVIFNnp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 09:32:13 -0400
-Received: from main.gmane.org ([80.91.229.2]:50843 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932468AbVIFNcM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 09:32:12 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Tue, 6 Sep 2005 09:43:45 -0400
+Received: from web8501.mail.in.yahoo.com ([202.43.219.163]:30323 "HELO
+	web8501.mail.in.yahoo.com") by vger.kernel.org with SMTP
+	id S932472AbVIFNnp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 09:43:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.co.in;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=g2eUox+Ep0kOLKkTUGLtvE2Xe6/D3tOikqG3CpZJyvUUnthozb53Ck0ZgxObIOY2gk5GXLs+nBYGZBOXyzDYuEKT6C/jlj9UTbArQ+uDM6jgEGQaV/fQgglLM4LPAGhOlVkkdqfEkReTelLN+5DUe9MtCGfbPpX7roGu9bTyvQo=  ;
+Message-ID: <20050906134335.48615.qmail@web8501.mail.in.yahoo.com>
+Date: Tue, 6 Sep 2005 14:43:35 +0100 (BST)
+From: manomugdha biswas <manomugdhab@yahoo.co.in>
+Subject: how to create atm interface in linux
 To: linux-kernel@vger.kernel.org
-From: Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>
-Subject: Re: RFC: i386: kill !4KSTACKS
-Date: Tue, 06 Sep 2005 09:25:55 -0400
-Message-ID: <dfk5cp$19p$1@sea.gmane.org>
-References: <20050904145129.53730.qmail@web50202.mail.yahoo.com> <1125854398.23858.51.camel@localhost.localdomain> <p73aciqrev0.fsf@verdi.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: lmcgw.cs.sunysb.edu
-User-Agent: KNode/0.9.90
+Cc: linux-net@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
+Hi,
+I want to create an ATM interface on linux. I can
+create ethernet interface using alloc_etherdev() and
+then registering this device. Can I use the same
+function to create atm interface ? Or there is other
+way to do this? Can you please give some light on this
+issue?
 
-> AFAIK with interrupt stacks it shouldn't be a big issue to switch
-> to a private bigger stack. ndiswrapper just needs to have its own private
-> way to do "current" which accesses thread_info at the bottom of the stack.
+Regards,
+Mano
 
-I am developer of ndiswrapper and just caught up with this discussion. I am
-interested in providing private stack for ndiswrapper. I am not familiar
-with linux kernel internals to understand your proposal. Could you give me
-details please: If you can give a rough sketch of idea, I can implement it.
-Better yet, if you (or anyone else) can provide an implementation (not
-necessarily against ndsiwrapper, but a proof of concept), it will be
-greatly appreciated - this should also help any other projects that need
-more than 4k stack.
-
-Thanks,
-Giri.
+Manomugdha Biswas
 
 
+	
 
+	
+		
+__________________________________________________________ 
+Yahoo! India Matrimony: Find your partner online. Go to http://yahoo.shaadi.com

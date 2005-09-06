@@ -1,58 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751110AbVIFXFM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751127AbVIFXHd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751110AbVIFXFM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 19:05:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751118AbVIFXFM
+	id S1751127AbVIFXHd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 19:07:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbVIFXHd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 19:05:12 -0400
-Received: from fmr23.intel.com ([143.183.121.15]:42632 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1751110AbVIFXFK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 19:05:10 -0400
-Date: Tue, 6 Sep 2005 16:04:29 -0700
-From: Ashok Raj <ashok.raj@intel.com>
-To: Andi Kleen <ak@muc.de>
-Cc: akpm@osdl.org, ashok.raj@intel.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch 14/14] x86_64: Choose physflat for AMD systems only when >8 CPUS.
-Message-ID: <20050906160429.A19592@unix-os.sc.intel.com>
-References: <200509032135.j83LZ90U020559@shell0.pdx.osdl.net> <20050905231808.GB16476@muc.de>
+	Tue, 6 Sep 2005 19:07:33 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:60561
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751121AbVIFXHc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 19:07:32 -0400
+Date: Tue, 06 Sep 2005 16:07:28 -0700 (PDT)
+Message-Id: <20050906.160728.25203864.davem@davemloft.net>
+To: kaber@trash.net
+Cc: daniele@orlandi.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: proto_unregister sleeps while atomic
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <431E1FE9.7030405@trash.net>
+References: <200509070026.34999.daniele@orlandi.com>
+	<431E1FE9.7030405@trash.net>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050905231808.GB16476@muc.de>; from ak@muc.de on Tue, Sep 06, 2005 at 01:18:08AM +0200
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 06, 2005 at 01:18:08AM +0200, Andi Kleen wrote:
-> On Sat, Sep 03, 2005 at 02:33:30PM -0700, akpm@osdl.org wrote:
-> > 
-> > From: Ashok Raj <ashok.raj@intel.com>
-> > 
-> > It is not required to choose the physflat mode when CPU hotplug is enabled and
-> > CPUs <=8 case.  Use of genapic_flat with the mask version is capable of doing
-> > the same, instead of doing the send_IPI_mask_sequence() where its a unicast.
-> 
-> I don't get the reasoning of this change. So probably not.
+From: Patrick McHardy <kaber@trash.net>
+Date: Wed, 07 Sep 2005 01:02:01 +0200
 
-Hummm...Please see below. Nothing has changed since then, any idea why
-its not acceptable now?
+> You're right, good catch. This patch fixes it by moving the lock
+> down to the list-operation which it is supposed to protect.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=112315304423377&w=2
+I think we need to unlink from the list first if you're
+going to do it this way.  Otherwise someone can find the
+protocol via lookup, and then bogusly try to use the SLAB
+cache we're freeing up.
 
-This really doesnt affect me, it just bothers me to go over inefficient code.
-send_IPI_mask_sequence() does unicast IPI's. When number of CPUs is <=8
-the mask version acheives the same with just one write, so its a selective
-broadcast which is more efficient. 
-
-Based on our earlier exchange i assumed it was clear and apparent which is
-why you  "OK"ed the version when it was submitted to -mm. 
-
-Nothing has changed, its the exact same patch. Hope its clear now.
-
-Entirely up to you... :-(
-
--- 
-Cheers,
-Ashok Raj
-- Open Source Technology Center
+Or does something else prevent this?

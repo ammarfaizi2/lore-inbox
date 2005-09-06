@@ -1,80 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965065AbVIFB34@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965080AbVIFBjL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965065AbVIFB34 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 21:29:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965066AbVIFB34
+	id S965080AbVIFBjL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 21:39:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965081AbVIFBjL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 21:29:56 -0400
-Received: from smtpout.mac.com ([17.250.248.46]:44240 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S965065AbVIFB3z (ORCPT
+	Mon, 5 Sep 2005 21:39:11 -0400
+Received: from waste.org ([216.27.176.166]:23523 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S965080AbVIFBjJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 21:29:55 -0400
-In-Reply-To: <5A37B032-9BBD-4AEA-A9BF-D42AFF79BC86@mac.com>
-References: <C670AD22-97CF-46AA-A527-965036D78667@mac.com> <20050903064124.GA31400@codepoet.org> <4319BEF5.2070000@zytor.com> <B9E70F6F-CC0A-4053-AB34-A90836431358@mac.com> <dfhs4u$1ld$1@terminus.zytor.com> <5A37B032-9BBD-4AEA-A9BF-D42AFF79BC86@mac.com>
-Mime-Version: 1.0 (Apple Message framework v734)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <9C47C740-86CF-48F1-8DB6-B547E5D098FF@mac.com>
-Cc: LKML Kernel <linux-kernel@vger.kernel.org>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: [RFC][MEGAPATCH] Change __ASSEMBLY__ to __ASSEMBLER__ (defined by GCC from 2.95 to current CVS)
-Date: Mon, 5 Sep 2005 21:29:27 -0400
-To: "H. Peter Anvin" <hpa@zytor.com>
-X-Mailer: Apple Mail (2.734)
+	Mon, 5 Sep 2005 21:39:09 -0400
+Date: Mon, 5 Sep 2005 18:38:58 -0700
+From: Matt Mackall <mpm@selenic.com>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: Sam Ravnborg <sam@ravnborg.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [GIT PATCHES] kbuild updates
+Message-ID: <20050906013858.GI27787@waste.org>
+References: <20050905174150.GA17923@mars.ravnborg.org> <200509052035.14156.s0348365@sms.ed.ac.uk> <20050905201345.GA26106@mars.ravnborg.org> <200509052232.04135.s0348365@sms.ed.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200509052232.04135.s0348365@sms.ed.ac.uk>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 5, 2005, at 19:28:07, Kyle Moffett wrote:
-> With all of that mess out of the way, I'll work on getting a few  
-> initial RFC
-> patches out the door, and then we can revisit this discussion once  
-> there is
-> something tangible to talk about.
+On Mon, Sep 05, 2005 at 10:32:04PM +0100, Alistair John Strachan wrote:
+> On Monday 05 September 2005 21:13, Sam Ravnborg wrote:
+> > On Mon, Sep 05, 2005 at 08:35:14PM +0100, Alistair John Strachan wrote:
+> > > On Monday 05 September 2005 18:41, Sam Ravnborg wrote:
+> > > > Hi Linus.
+> > > >
+> > > > kbuild updates as accumulated over the last few months.
+> > > > All patches has been in -mm in one or several versions.
+> > > >
+> > > > Most noteworthy:
+> > > > 1) -Wundef added to CFLAGS. This is the cause of several new warnings,
+> > > >    which for the most part has been fixed for now.
+> > > > 2) "PREEMPT" in UTS_VERSION. So we complain when dealing
+> > > >    with modules compiled for a wrong kernel
+> > >
+> > > How is this different from the preempt module vermagic?
+> > >
+> > > ~$ modinfo agpgart | grep vermagic
+> > > vermagic:       2.6.13 preempt gcc-4.0
+> >
+> > My bad. Adding PREEMT to UTS_VERSION makes it visible in uname -a.
+> >
+> 
+> I see. I can understand adding an extraversion for SMP and experimental 
+> patches (like Ingo's RT work), but why is it useful to differentiate (by 
+> name) between preempt and non-preempt kernels? Do distributors wish to 
+> package both in parallel?
 
-Ugh.  Step one for my cleanup is to rename __ASSEMBLY__ to something  
-defined
-automatically by GCC (IE: __ASSEMBLER__).  And yes, I checked,  
-__ASSEMBLER__
-is defined by everything from old 2.95 to 4.0, even though it wasn't  
-really
-documented in anything older than 3.4.  This megapatch is basically a  
-search
-and replace of __ASSEMBLY__ with __ASSEMBLER__ over the whole kernel  
-source,
-except in Makefiles, where I just delete the -D__ASSEMBLY__  
-argument.  If
-this is generally acceptable, I'll break it up into small digestible  
-pieces
-and send to individual maintainers, unless someone wants to pass the  
-whole
-monster through their tree in one big lump.  This is a lot of code  
-churn,
-but it's a valid cleanup and will help me out as I try to make more  
-of the
-kernel headers easily digestible for userspace.
+I created the patch so that it would show up in oops reports and
+elsewhere and avoid the inevitable question "was this a preempt
+kernel?"
 
-Ok, the patch itself is temporarily located here (Please be nice to my
-desktop, it has a 650MB/day upload limit imposed by Virginia Tech  
-that I'd
-rather not go over) [patch is 308k]:
-
-http://zeus.moffetthome.net/~kyle/rename-__ASSEMBLY__-to- 
-__ASSEMBLER__.patch
-
-And here's the diffstat [27k]
-
-http://zeus.moffetthome.net/~kyle/rename-__ASSEMBLY__-to- 
-__ASSEMBLER__.diffstat
-
-Cheers,
-Kyle Moffett
-
---
-Unix was not designed to stop people from doing stupid things,  
-because that
-would also stop them from doing clever things.
-   -- Doug Gwyn
-
-
-
+-- 
+Mathematics is the supreme nostalgia of our time.

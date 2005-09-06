@@ -1,62 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932423AbVIFGrp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932424AbVIFGvR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932423AbVIFGrp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 02:47:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932424AbVIFGrp
+	id S932424AbVIFGvR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 02:51:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932427AbVIFGvR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 02:47:45 -0400
-Received: from xproxy.gmail.com ([66.249.82.205]:29378 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932423AbVIFGrp convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 02:47:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=rjpjj8E2kHPXoQ/HslPcAotPxtxSwAZ3tBpfxU+WMgq0yL3xqt1Cb5sONvKi/jfWdaafdpM0kZgtp3fbqqCSpwOIQPKH3RAWbMdFnPnjUqM7DtSrQ5ob+qkWjQ1C3ltSVYc+DFhSWf7BBIrMP1beAWFqeSuyOPgFYqXEfCtX6U4=
-Message-ID: <e8ac1af105090523472d2af8a7@mail.gmail.com>
-Date: Tue, 6 Sep 2005 12:17:40 +0530
-From: Tushar Adeshara <adesharatushar@gmail.com>
-To: mandy london <laborious.bee@gmail.com>
-Subject: Re: the difference between irq save and the irq disable ?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <907421f905090506337ba17394@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <907421f905090506337ba17394@mail.gmail.com>
+	Tue, 6 Sep 2005 02:51:17 -0400
+Received: from lisa.usl6.toscana.it ([159.213.44.2]:51371 "EHLO
+	lisa.nord.usl6.toscana.it") by vger.kernel.org with ESMTP
+	id S932424AbVIFGvQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 02:51:16 -0400
+Message-ID: <001e01c5b2af$7ebb4430$1f01a8c0@Ric>
+Reply-To: "Riccardo Castellani" <r.castellani@usl6.toscana.it>
+From: "Riccardo Castellani" <r.castellani@usl6.toscana.it>
+To: "Stephen C. Tweedie" <sct@redhat.com>,
+       "Riccardo Castellani" <r.castellani@usl6.toscana.it>
+Cc: "Stephen Tweedie" <sct@redhat.com>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>
+References: <007b01c5b236$5b6019d0$1f01a8c0@Ric> <1125944400.1910.19.camel@sisko.sctweedie.blueyonder.co.uk>
+Subject: Re: EXT3-fs error (device hda8): ext3_free_blocks: Freeing blocksnot in datazone
+Date: Tue, 6 Sep 2005 08:52:06 +0200
+Organization: Azienda USL 6 - Livorno
+MIME-Version: 1.0
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2527
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/5/05, mandy london <laborious.bee@gmail.com> wrote:
-> in my mind, irq save only store the conditions of that time ,  and the
-> following code can access the shared region and change it ,so modify
-> irq  states .
-> 
-> while , disable irq  keeps the states of interrupt unchangable .
-> 
-> but , I have no knowlege of the difference between code in irq save
-> and irq restore and  in irq disable and irq enable ?
-> 
-> whethe the former can be interrupted and the later not ? only this ?
+I run memtest86 and It gives errors.
+I removed the installed 256 MB RAM of 512 MB and now PC works.
 
-Have a look at Documentaion/cli-sti-removal.txt. As per that,
-irq_enable will enable all irqs and irq_restore will bring irq status
-to the one it was
-before irq_save.
-                            And as per my knowledge, non are
-interruptible except case of RT.
-
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+thanks
 
 
--- 
-Regards,
-Tushar
---------------------
-It's not a problem, it's an opportunity for improvement. Lets improve.
+----- Original Message ----- 
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: "Riccardo Castellani" <r.castellani@usl6.toscana.it>
+Cc: "Stephen Tweedie" <sct@redhat.com>; "linux-kernel" 
+<linux-kernel@vger.kernel.org>
+Sent: Monday, September 05, 2005 8:20 PM
+Subject: Re: EXT3-fs error (device hda8): ext3_free_blocks: Freeing 
+blocksnot in datazone
+
+
+> Hi,
+>
+> On Mon, 2005-09-05 at 17:24, Riccardo Castellani wrote:
+>> I'm using FC3 with Kernel 2.6.12-1.1376.
+>> After few hours file system on /dev/hda8 EXT3 partition has a problem so 
+>> it
+>> remounted in only read mode.
+>
+>> Sep  5 17:34:40 mrtg kernel: EXT3-fs error (device hda8): 
+>> ext3_free_blocks:
+>> Freeing blocks not in datazone - block = 134217728, count = 1
+>
+> That block number is 0x8000000 in hex.  It's a single-bit flip error;
+> that strongly sounds like hardware, and I'd run memtest86 on that box
+> next.
+>
+>> Sep  5 17:34:40 mrtg kernel: Aborting journal on device hda8.
+>> Sep  5 17:34:40 mrtg kernel: EXT3-fs error (device hda8) in
+>> ext3_reserve_inode_write: Journal has aborted
+> ...
+>
+>> I tried several times to run fsck on this partition and I also tried to
+>> remount fs in a new partition, but it happened nothing !
+>
+> What do you mean?  fsck found nothing wrong?  remount failed?  You _did_
+> unmount before fscking, did you?
+>
+> --Stephen
+>>
+> 
+

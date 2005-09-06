@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965022AbVIFA4r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965030AbVIFBCZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965022AbVIFA4r (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 20:56:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965027AbVIFA4r
+	id S965030AbVIFBCZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 21:02:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965032AbVIFBCY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 20:56:47 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:31181 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965022AbVIFA4q
+	Mon, 5 Sep 2005 21:02:24 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:3787 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965030AbVIFBCY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 20:56:46 -0400
-Date: Tue, 6 Sep 2005 01:56:45 +0100
+	Mon, 5 Sep 2005 21:02:24 -0400
+Date: Tue, 6 Sep 2005 02:02:22 +0100
 From: viro@ZenIV.linux.org.uk
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
-Subject: [PATCH] Kconfig fix (GEN_RTC dependencies)
-Message-ID: <20050906005645.GQ5155@ZenIV.linux.org.uk>
+Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH] lost chunk of "uml: build cleanups"
+Message-ID: <20050906010222.GR5155@ZenIV.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,27 +22,23 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Yet another architecture not coverd by GEN_RTC - sparc64 never
-picked it until now and it doesn't have asm/rtc.h to go with it, so
-it wouldn't compile anyway (or have these ioctls in the user-visible
-headers, for that matter).
-
-	FWIW, I'm very tempted to introduce ARCH_HAS_GEN_RTC and have
-it set in arch/*/Kconfig for architectures that know what to do with this
-stuff - for something supposedly generic the list of architectures where
-it doesn't work is getting too long...
+A piece of the UML stubs patch got lost - it has
+    Killed STUBS_CFLAGS - it's not needed and the only remaining use had been
+    gratitious - it only polluted CFLAGS
+in description and does remove it in arch/um/Makefile-x86_64, but forgets to
+do the same in i386 counterpart.  Lost chunk follows:
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 ----
-diff -urN RC13-git5-serial/drivers/char/Kconfig RC13-git5-genrtc/drivers/char/Kconfig
---- RC13-git5-serial/drivers/char/Kconfig	2005-09-05 16:41:18.000000000 -0400
-+++ RC13-git5-genrtc/drivers/char/Kconfig	2005-09-05 16:41:19.000000000 -0400
-@@ -736,7 +736,7 @@
+diff -urN RC13-git5-uml-user/arch/um/Makefile-i386 RC13-git5-stubs/arch/um/Makefile-i386
+--- RC13-git5-uml-user/arch/um/Makefile-i386	2005-08-28 23:09:40.000000000 -0400
++++ RC13-git5-stubs/arch/um/Makefile-i386	2005-09-05 16:40:46.000000000 -0400
+@@ -27,7 +27,7 @@
+ endif
+ endif
  
- config GEN_RTC
- 	tristate "Generic /dev/rtc emulation"
--	depends on RTC!=y && !IA64 && !ARM && !PPC64 && !M32R && !SPARC32
-+	depends on RTC!=y && !IA64 && !ARM && !PPC64 && !M32R && !SPARC32 && !SPARC64
- 	---help---
- 	  If you say Y here and create a character special file /dev/rtc with
- 	  major number 10 and minor number 135 using mknod ("man mknod"), you
+-CFLAGS += -U__$(SUBARCH)__ -U$(SUBARCH) $(STUB_CFLAGS)
++CFLAGS += -U__$(SUBARCH)__ -U$(SUBARCH)
+ 
+ ifneq ($(CONFIG_GPROF),y)
+ ARCH_CFLAGS += -DUM_FASTCALL

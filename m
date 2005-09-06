@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750969AbVIFVUQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750862AbVIFVZY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750969AbVIFVUQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 17:20:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750975AbVIFVUP
+	id S1750862AbVIFVZY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 17:25:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750860AbVIFVZY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 17:20:15 -0400
-Received: from zproxy.gmail.com ([64.233.162.194]:5398 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750969AbVIFVUO convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 17:20:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=O0/7RtE8sVL6rFNdovoVd39v0bAo+jfJZ3+MaFLo/OJrYuA0hUv4uHBWO3qXz5WxzdAm4d8hfUHdcNwnNtnlGpZ1RKwz2+FFWzU4kPximxuKQNMIQrbVlP7qdvrILoOIkwsDpgDe0yqcR8mCTU6yFemT2QJ6v92jPb85+nqRYQE=
-Message-ID: <9a87484905090614204ba36b83@mail.gmail.com>
-Date: Tue, 6 Sep 2005 23:20:12 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: "Budde, Marco" <budde@telos.de>
-Subject: Re: kbuild & C++
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <809C13DD6142E74ABE20C65B11A2439809C4BD@www.telos.de>
+	Tue, 6 Sep 2005 17:25:24 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:37612 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750803AbVIFVZY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 17:25:24 -0400
+Date: Tue, 6 Sep 2005 14:25:14 -0700
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: akpm@osdl.org
+Cc: dwmw2@infradead.org, bunk@stusta.de, johnstul@us.ibm.com,
+       drepper@redhat.com, Franz.Fischer@goyellow.de,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][Bug 5132] fix sys_poll() large timeout handling
+Message-ID: <20050906212514.GB3038@us.ibm.com>
+References: <20050831200109.GB3017@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <809C13DD6142E74ABE20C65B11A2439809C4BD@www.telos.de>
+In-Reply-To: <20050831200109.GB3017@us.ibm.com>
+X-Operating-System: Linux 2.6.13 (i686)
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/6/05, Budde, Marco <budde@telos.de> wrote:
-> Hi,
+On 31.08.2005 [13:01:09 -0700], Nishanth Aravamudan wrote:
+> Sorry everybody, forgot the most important Cc: :)
 > 
-> for one of our customers I have to port a Windows driver to
-> Linux. Large parts of the driver's backend code consists of
-> C++.
+> -Nish
 > 
-> How can I compile this code with kbuild? The C++ support
-> (I have tested with 2.6.11) of kbuild seems to be incomplete /
-> not working.
+> Hi Andrew,
 > 
+> In looking at Bug 5132 and sys_poll(), I think there is a flaw in the
+> current code.
+> 
+> The @timeout parameter to sys_poll() is in milliseconds but we compare
+> it to (MAX_SCHEDULE_TIMEOUT / HZ), which is jiffies/jiffies-per-sec or
+> seconds. That seems blatantly broken. Also, I think we are better served
+> by converting to jiffies first then comparing, as opposed to converting
+> our maximum to milliseconds (or seconds, incorrectly) and comparing.
+> 
+> Comments, suggestions for improvement?
 
-That would be because the kernel is written in *C* (and some asm), *not* C++.
-There /is/ no C++ support.
+I haven't got any responses (here or on the bug)... A silent NACK?
+Anything I should change to make people happier?
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Thanks,
+Nish

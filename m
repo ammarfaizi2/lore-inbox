@@ -1,53 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbVIFSVO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750778AbVIFS0J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750746AbVIFSVO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 14:21:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750764AbVIFSVO
+	id S1750778AbVIFS0J (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 14:26:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750779AbVIFS0J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 14:21:14 -0400
-Received: from xenotime.net ([66.160.160.81]:64167 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750746AbVIFSVO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 14:21:14 -0400
-Date: Tue, 6 Sep 2005 11:21:09 -0700 (PDT)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: "J. Bruce Fields" <bfields@fieldses.org>
-cc: Bret Towe <magnade@gmail.com>, Jesper Juhl <jesper.juhl@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: nfs4 client bug
-In-Reply-To: <20050906181327.GE10632@fieldses.org>
-Message-ID: <Pine.LNX.4.50.0509061119380.19596-100000@shark.he.net>
-References: <dda83e7805090320053b03615d@mail.gmail.com>
- <20050904103523.GA5613@electric-eye.fr.zoreil.com> <dda83e78050904124454fc675a@mail.gmail.com>
- <dda83e78050904135113b95c4a@mail.gmail.com> <20050904215219.GA9812@fieldses.org>
- <dda83e780509042008294fbe26@mail.gmail.com> <20050905031825.GA22209@fieldses.org>
- <dda83e78050905134420f06fbf@mail.gmail.com> <9a87484905090513481118e67b@mail.gmail.com>
- <dda83e7805090520407aefb4d1@mail.gmail.com> <20050906181327.GE10632@fieldses.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 6 Sep 2005 14:26:09 -0400
+Received: from ms-smtp-01-lbl.southeast.rr.com ([24.25.9.100]:36060 "EHLO
+	ms-smtp-01-eri0.southeast.rr.com") by vger.kernel.org with ESMTP
+	id S1750778AbVIFS0I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 14:26:08 -0400
+Subject: Re: [ck] 2.6.13-ck2
+From: Adam Petaccia <adam@tpetaccia.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       ck list <ck@vds.kolivas.org>
+In-Reply-To: <200509052344.11665.kernel@kolivas.org>
+References: <200509052344.11665.kernel@kolivas.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-gXFI7U7oQmQQtfDsu7LM"
+Date: Tue, 06 Sep 2005 14:25:57 -0400
+Message-Id: <1126031157.8117.5.camel@pimpmobile>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.3.8 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Sep 2005, J. Bruce Fields wrote:
 
-> On Mon, Sep 05, 2005 at 08:40:53PM -0700, Bret Towe wrote:
-> > Pid: 14169, comm: xmms Tainted: G   M  2.6.13
->
-> Hm, can someone explain what that means?  A proprietary module was
-> loaded then unloaded, maybe?
+--=-gXFI7U7oQmQQtfDsu7LM
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-'M' means Machine Check, which sets the Tainted flag.
-So the processor thought that there was some kind of problem.
+On Mon, 2005-09-05 at 23:44 +1000, Con Kolivas wrote:
+> These are patches designed to improve system responsiveness and interacti=
+vity.=20
+> It is configurable to any workload but the default ck* patch is aimed at =
+the=20
+> desktop and ck*-server is available with more emphasis on serverspace.
+>=20
+>=20
+> Apply to 2.6.13
+> http://ck.kolivas.org/patches/2.6/2.6.13/2.6.13-ck2/patch-2.6.13-ck2.bz2
+>=20
+> or server version (no new version this release):
+> http://ck.kolivas.org/patches/2.6/2.6.13/2.6.13-ck1/patch-2.6.13-ck1-serv=
+er.bz2
+>=20
+>=20
+> web:
+> http://kernel.kolivas.org
+> all patches:
+> http://ck.kolivas.org/patches/
+> Split patches available.
+>=20
+>=20
+> Changes:
+>=20
+> Added:
+>  +vm-swap_prefetch-2.patch
+> As mentioned many times already, this code prefetches ram that has been=20
+> swapped out during idle periods. This is the latest version of the patch =
+and=20
+> is a config option.
+I think this patch is missing an IFDEF or something (I'm not really a
+programmer, I just like to pretend).  Anyway, I've tried building -ck2
+without swap enabled, and it failed.  Just to make sure, I make'd
+distclean, and I get the following:
 
-(/we needs to update Documentation/oops-tracing.txt)
+  LD      .tmp_vmlinux1
+mm/built-in.o: In function `zone_watermark_ok':
+mm/page_alloc.c:763: undefined reference to `delay_prefetch'
+mm/built-in.o: In function `swap_setup':
+mm/swap.c:485: undefined reference to `prepare_prefetch'
+make: *** [.tmp_vmlinux1] Error 1
 
-> You may also want to retest with
->
-> http://www.citi.umich.edu/projects/nfsv4/linux/kernel-patches/2.6.13-1/linux-2.6.13-001-NFS_ALL_MODIFIED.dif
->
-> applied, to make sure there isn't a patch in Trond's series that already
-> fixes the bug.
+--=20
+Adam Petaccia <adam@tpetaccia.com>
 
--- 
-~Randy
+--=-gXFI7U7oQmQQtfDsu7LM
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBDHd81BIvjQglsR2ARAjQOAJ49jQ2VosD+puvx8Z7EIFmvIu7j+ACgtQXB
+Cb07kNnk7QgkVMu6u8LYbik=
+=vdSy
+-----END PGP SIGNATURE-----
+
+--=-gXFI7U7oQmQQtfDsu7LM--
+

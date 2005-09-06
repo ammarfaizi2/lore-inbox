@@ -1,72 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750931AbVIFU4M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750930AbVIFU7K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750931AbVIFU4M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 16:56:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750930AbVIFU4L
+	id S1750930AbVIFU7K (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 16:59:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750932AbVIFU7K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 16:56:11 -0400
-Received: from brmea-mail-4.Sun.COM ([192.18.98.36]:47089 "EHLO
-	brmea-mail-4.sun.com") by vger.kernel.org with ESMTP
-	id S1750822AbVIFU4K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 16:56:10 -0400
-Date: Tue, 06 Sep 2005 13:55:26 -0700
-From: Terrence Miller <Terrence.Miller@Sun.COM>
-Subject: Re: [discuss] [2.6 patch] include/asm-x86_64 "extern inline" ->
- "static inline"
-In-reply-to: <200509062223.50747.ak@suse.de>
-To: Andi Kleen <ak@suse.de>
-Cc: discuss@x86-64.org, Jakub Jelinek <jakub@redhat.com>,
-       Adrian Bunk <bunk@stusta.de>, Michael Matz <matz@suse.de>,
+	Tue, 6 Sep 2005 16:59:10 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:50573 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1750935AbVIFU7J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 16:59:09 -0400
+Message-Id: <200509062059.j86Kx17K022141@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: Miroslaw Mieszczak <mieszcz@zabrze.zigzag.pl>, jgarzik@pobox.com,
        linux-kernel@vger.kernel.org
-Reply-to: Terrence.Miller@Sun.COM
-Message-id: <431E023E.3050301@Sun.COM>
-Organization: Sun Microsystems
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:1.4) Gecko/20041214
-References: <20050902203123.GT3657@stusta.de>
- <20050905184740.GF7403@devserv.devel.redhat.com> <431DD7BE.7060504@Sun.COM>
- <200509062223.50747.ak@suse.de>
+Subject: Re: Patch for link detection for R8169 
+In-Reply-To: Your message of "Tue, 06 Sep 2005 22:42:21 +0200."
+             <20050906204221.GB20862@electric-eye.fr.zoreil.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <431DA887.2010008@zabrze.zigzag.pl> <20050906194602.GA20862@electric-eye.fr.zoreil.com> <200509062002.j86K28R8019604@turing-police.cc.vt.edu>
+            <20050906204221.GB20862@electric-eye.fr.zoreil.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1126040340_2971P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 06 Sep 2005 16:59:01 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> I don't think the functionality of having single copies in case 
-> an out of line version was needed was ever required by the Linux kernel.
+--==_Exmh_1126040340_2971P
+Content-Type: text/plain; charset=us-ascii
 
-But shouldn't the compiler that compiles Linux be C99 compliant?
+On Tue, 06 Sep 2005 22:42:21 +0200, Francois Romieu said:
 
-> extern inline was used in the kernel a long time ago as a "poor man's 
-> -Winline". Basically the intention was to get an linker error 
-> if the inlining didn't work for some reason because if we say
-> inline we mean inline.
-> 
-> But that's long obsolete because the requirements of the C++ "template is 
-> turing complete" people has broken inlining so badly (they want a lot of 
-> inlining, but not too much inlining because otherwise their compile times 
-> explode and the heuristics needed for making some of these pathologic cases 
-> work seems to break a lot of other sane code)  that the kernel was forced to 
-> define inline to __attribute__((always_inline)). And with that you get an 
-> error if inlining
-> fails. 
-> 
-> So the original purpose if extern inline is fulfilled by static inline now.
-> However extern inline also doesn't hurt, it really makes no difference now.
-> 
-> -Andi
->  
+> Currently one can do 'ifconfig ethX up', check the link status, then try
+> to DHCP or whatever. Apparently a few drivers do not support tne detection
+> of link as presented above. So is it anything like a vendor requirement/a
+> standard (or should it be the new right way (TM)) or does the userspace
+> needs fixing wrt its expectation ?
 
--- 
+The "ifconfig up then check link status" method is probably usable for the
+vast majority of cases.  Are there any driver/card combos that *can't* be fixed
+to support that?  (A somewhat hidden side effect is that if you're doing this,
+the driver also needs to be able to support additional ifconfig calls later
+to set encapsulation, address/netmask, and the like.  I've run across dain-bramaged
+older hardware/software (not Linux-based) that would require an 'ifconfig down'
+followed by 'ifconfig foo <value> bar <value> up' to change stuff....
 
-                              Terrence
+--==_Exmh_1126040340_2971P
+Content-Type: application/pgp-signature
 
-        ****************************************************
-        | Terrence C. Miller      |  Sun Microsystems      |
-        | terrence.miller@Sun.COM |  M.S. MPK16-303        |
-        | 650-786-9192            |  16 Network Circle     |
-        |                         |  Menlo Park, CA 94025  |
-        ****************************************************
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQFDHgMUcC3lWbTT17ARAg3GAJ9/nwvvG3I4EuFMTDYkuM7ryUm9SACgg2+J
+/ckUQee8Z6dwCqYbLbpLhvA=
+=5fEW
+-----END PGP SIGNATURE-----
 
+--==_Exmh_1126040340_2971P--

@@ -1,64 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750773AbVIFB6l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750984AbVIFCDf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750773AbVIFB6l (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 21:58:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750872AbVIFB6l
+	id S1750984AbVIFCDf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 22:03:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932199AbVIFCDf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 21:58:41 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:50854
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1750773AbVIFB6k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 21:58:40 -0400
-Date: Mon, 05 Sep 2005 18:58:43 -0700 (PDT)
-Message-Id: <20050905.185843.25774101.davem@davemloft.net>
-To: colin.harrison@virgin.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at net/ipv4/tcp.c:775! with 2.6.13-git5
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <200509051543.j85FhWDS008418@StraightRunning.com>
-References: <200509051543.j85FhWDS008418@StraightRunning.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Mon, 5 Sep 2005 22:03:35 -0400
+Received: from smtp105.sbc.mail.re2.yahoo.com ([68.142.229.100]:8020 "HELO
+	smtp105.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1750984AbVIFCDe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 22:03:34 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Daniel Phillips <phillips@istop.com>
+Subject: Re: GFS, what's remaining
+Date: Mon, 5 Sep 2005 21:03:19 -0500
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org, Lars Marowsky-Bree <lmb@suse.de>,
+       Andi Kleen <ak@suse.de>, linux clustering <linux-cluster@redhat.com>,
+       akpm@osdl.org, linux-fsdevel@vger.kernel.org
+References: <20050901104620.GA22482@redhat.com> <200509051118.45792.dtor_core@ameritech.net> <200509052057.23807.phillips@istop.com>
+In-Reply-To: <200509052057.23807.phillips@istop.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509052103.20519.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Colin Harrison" <colin.harrison@virgin.net>
-Date: Mon, 5 Sep 2005 16:43:44 +0100
+On Monday 05 September 2005 19:57, Daniel Phillips wrote:
+> On Monday 05 September 2005 12:18, Dmitry Torokhov wrote:
+> > On Monday 05 September 2005 10:49, Daniel Phillips wrote:
+> > > On Monday 05 September 2005 10:14, Lars Marowsky-Bree wrote:
+> > > > On 2005-09-03T01:57:31, Daniel Phillips <phillips@istop.com> wrote:
+> > > > > The only current users of dlms are cluster filesystems.  There are
+> > > > > zero users of the userspace dlm api.
+> > > >
+> > > > That is incorrect...
+> > >
+> > > Application users Lars, sorry if I did not make that clear.  The issue is
+> > > whether we need to export an all-singing-all-dancing dlm api from kernel
+> > > to userspace today, or whether we can afford to take the necessary time
+> > > to get it right while application writers take their time to have a good
+> > > think about whether they even need it.
+> >
+> > If Linux fully supported OpenVMS DLM semantics we could start thinking
+> > asbout moving our application onto a Linux box because our alpha server is
+> > aging.
+> >
+> > That's just my user application writer $0.02.
+> 
+> What stops you from trying it with the patch?  That kind of feedback would be 
+> worth way more than $0.02.
+>
 
-> I'm getting the following BUG report with 2.6.13-git5:-
+We do not have such plans at the moment and I prefer spending my free
+time on tinkering with kernel, not rewriting some in-house application.
+Besides, DLM is not the only thing that does not have a drop-in
+replacement in Linux.
 
-Should be fixed by this patch.  And please use netdev@vger.kernel.org
-for networking kernel stuff, thanks.
+You just said you did not know if there are any potential users for the
+full DLM and I said there are some.
 
-diff-tree fb5f5e6e0cebd574be737334671d1aa8f170d5f3 (from 1198ad002ad36291817c7bf0308ab9c50ee2571d)
-Author: Herbert Xu <herbert@gondor.apana.org.au>
-Date:   Mon Sep 5 18:55:48 2005 -0700
-
-    [TCP]: Fix TCP_OFF() bug check introduced by previous change.
-    
-    The TCP_OFF assignment at the bottom of that if block can indeed set
-    TCP_OFF without setting TCP_PAGE.  Since there is not much to be
-    gained from avoiding this situation, we might as well just zap the
-    offset.  The following patch should fix it.
-    
-    Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-    Signed-off-by: David S. Miller <davem@davemloft.net>
-
-diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -769,10 +769,10 @@ new_segment:
- 					if (off == PAGE_SIZE) {
- 						put_page(page);
- 						TCP_PAGE(sk) = page = NULL;
--						TCP_OFF(sk) = off = 0;
-+						off = 0;
- 					}
- 				} else
--					BUG_ON(off);
-+					off = 0;
- 
- 				if (copy > PAGE_SIZE - off)
- 					copy = PAGE_SIZE - off;
+-- 
+Dmitry

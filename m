@@ -1,59 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932439AbVIFHdR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932435AbVIFHco@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932439AbVIFHdR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 03:33:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932438AbVIFHdR
+	id S932435AbVIFHco (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 03:32:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932437AbVIFHcn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 03:33:17 -0400
-Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:31614 "HELO
-	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932437AbVIFHdQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 03:33:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Subject:From:To:Cc:In-Reply-To:References:Content-Type:Date:Message-Id:Mime-Version:X-Mailer:Content-Transfer-Encoding;
-  b=rB8yZc23EutiZfOALGX/WxcNt48Z2kdgOInD+JRxLHCb1eSMnTZe+p5SUtUIW+8Q46HRdplwVA57Ri1QE/EceoFgQ/Yar6i96lTZ9niHOZ08xijV86SyjEb1MRICYqo8zlqm6PQvdnz1pti9Pf3cflT5yGI1uNXqBXrYudA6LuY=  ;
-Subject: Re: RFC: i386: kill !4KSTACKS
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-To: Andi Kleen <ak@suse.de>
-Cc: Denis Vlasenko <vda@ilport.com.ua>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <200509060913.59822.ak@suse.de>
-References: <20050904145129.53730.qmail@web50202.mail.yahoo.com>
-	 <p73aciqrev0.fsf@verdi.suse.de> <200509060939.28055.vda@ilport.com.ua>
-	 <200509060913.59822.ak@suse.de>
-Content-Type: text/plain
-Date: Tue, 06 Sep 2005 17:32:57 +1000
-Message-Id: <1125991977.5138.6.camel@npiggin-nld.site>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
+	Tue, 6 Sep 2005 03:32:43 -0400
+Received: from tumsa.unibanka.lv ([193.178.151.91]:31096 "EHLO fax.unibanka.lv")
+	by vger.kernel.org with ESMTP id S932435AbVIFHcn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 03:32:43 -0400
+From: Aivils Stoss <aivils@unibanka.lv>
+To: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: INPUT: keyboard_tasklet - don't touch LED's of already grabed device
+Date: Tue, 6 Sep 2005 10:34:55 +0300
+User-Agent: KMail/1.7.2
+Cc: bruby <linuxconsole-dev@lists.sourceforge.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509061034.55963.aivils@unibanka.lv>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-09-06 at 09:13 +0200, Andi Kleen wrote:
+Hi, Vojtech!
 
-> At some point we undoubtedly will need to increase it further, 
-> the logical point would be when Linux switches to larger softpage 
-> sizes.
+Recent kernels allow exclusive usage of input device when
+input device is grabed. keyboard_tasklet does not check
+device state and switch LED's of all keyboards. However
+grabed device may be use another LED steering code.
 
-Is this really a "when"?
+This patch forbid keyboard_tasklet switch LED's of
+grabed devices.
 
-Hugh and wli were both working on this and IIRC neither could
-show enough justification to get people interested in it and
-get it merged (maybe apart from helping stupidly sized PAE systems
-limp along)
+Aivils Stoss
 
-And that was even before page size reductions and objrmap came
-along, which makes the potential gain even smaller.
+--- linux-2.6.13/drivers/char/keyboard.c        2005-08-29 02:41:01.000000000 +0300
++++ linux-2.6.13/drivers/char/keyboard.c~       2005-09-06 10:09:35.000000000 +0300
+@@ -895,16 +895,18 @@ static inline unsigned char getleds(void
 
-Are there still good reasons to have such a thing?
+ static void kbd_bh(unsigned long dummy)
+ {
+        struct list_head * node;
+        unsigned char leds = getleds();
 
-Nick
+        if (leds != ledstate) {
+                list_for_each(node,&kbd_handler.h_list) {
++                       if (handle->dev->grab)
++                               continue;
+                        struct input_handle * handle = to_handle_h(node);
+                        input_event(handle->dev, EV_LED, LED_SCROLLL, !!(leds & 0x01));
+                        input_event(handle->dev, EV_LED, LED_NUML,    !!(leds & 0x02));
+                        input_event(handle->dev, EV_LED, LED_CAPSL,   !!(leds & 0x04));
+                        input_sync(handle->dev);
+                }
+        }
 
--- 
-SUSE Labs, Novell Inc.
-
-
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 

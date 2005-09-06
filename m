@@ -1,44 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964872AbVIFNWJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932466AbVIFNaF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964872AbVIFNWJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 09:22:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964869AbVIFNWJ
+	id S932466AbVIFNaF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 09:30:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbVIFNaF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 09:22:09 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:47005 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964868AbVIFNWH
+	Tue, 6 Sep 2005 09:30:05 -0400
+Received: from wproxy.gmail.com ([64.233.184.202]:35043 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932466AbVIFNaB convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 09:22:07 -0400
-Subject: Re: GFS, what's remainingh
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Daniel Phillips <phillips@istop.com>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
-       Lars Marowsky-Bree <lmb@suse.de>, Andi Kleen <ak@suse.de>,
-       linux clustering <linux-cluster@redhat.com>, akpm@osdl.org,
-       linux-fsdevel@vger.kernel.org
-In-Reply-To: <200509060248.47433.phillips@istop.com>
-References: <20050901104620.GA22482@redhat.com>
-	 <200509060058.44934.phillips@istop.com>
-	 <200509060005.59578.dtor_core@ameritech.net>
-	 <200509060248.47433.phillips@istop.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 06 Sep 2005 14:42:29 +0100
-Message-Id: <1126014150.22131.51.camel@localhost.localdomain>
+	Tue, 6 Sep 2005 09:30:01 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=hU4/6bDoco2sGx9mFnTS/oYDonCBFgotqgZLM4AMgSYAxlinroogQWjSUiblqzUTUIcz4qYVB3EUgPiJKcJIFEbCdRegswHN87c6L9jd+PZahPc27T6/ZpzaQoKMrL28vOA7oRAxfSo2ozNytO2tpoem6LvKpbEhT5kjzDjbDi4=
+Date: Tue, 6 Sep 2005 15:29:42 +0200
+From: Diego Calleja <diegocg@gmail.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: ak@suse.de, vda@ilport.com.ua, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: RFC: i386: kill !4KSTACKS
+Message-Id: <20050906152942.dc311fa8.diegocg@gmail.com>
+In-Reply-To: <1125991977.5138.6.camel@npiggin-nld.site>
+References: <20050904145129.53730.qmail@web50202.mail.yahoo.com>
+	<p73aciqrev0.fsf@verdi.suse.de>
+	<200509060939.28055.vda@ilport.com.ua>
+	<200509060913.59822.ak@suse.de>
+	<1125991977.5138.6.camel@npiggin-nld.site>
+X-Mailer: Sylpheed version 2.1.1 (GTK+ 2.8.2; i486-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2005-09-06 at 02:48 -0400, Daniel Phillips wrote:
-> On Tuesday 06 September 2005 01:05, Dmitry Torokhov wrote:
-> > do you think it is a bit premature to dismiss something even without
-> > ever seeing the code?
-> 
-> You told me you are using a dlm for a single-node application, is there 
-> anything more I need to know?
+El Tue, 06 Sep 2005 17:32:57 +1000,
+Nick Piggin <nickpiggin@yahoo.com.au> escribió:
 
-That's standard practice for many non-Unix operating systems. It means
-your code supports failover without much additional work and it provides
-all the functionality for locks on a single node too
 
+> Are there still good reasons to have such a thing?
+
+Bigger block sizes was one of their features.

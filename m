@@ -1,62 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965041AbVIFBIF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965047AbVIFBPb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965041AbVIFBIF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Sep 2005 21:08:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965039AbVIFBIF
+	id S965047AbVIFBPb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Sep 2005 21:15:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965050AbVIFBPb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Sep 2005 21:08:05 -0400
-Received: from main.gmane.org ([80.91.229.2]:14057 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S965041AbVIFBIE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Sep 2005 21:08:04 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Mon, 5 Sep 2005 21:15:31 -0400
+Received: from mail.tor.primus.ca ([216.254.136.21]:4248 "EHLO
+	smtp-03.primus.ca") by vger.kernel.org with ESMTP id S965047AbVIFBPb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Sep 2005 21:15:31 -0400
+From: "Gabriel A. Devenyi" <ace@staticwave.ca>
 To: linux-kernel@vger.kernel.org
-From: Jack Byer <ojbyer@usa.net>
-Subject: legacy megaraid driver bug in mm-series
-Date: Mon, 05 Sep 2005 21:05:40 -0400
-Message-ID: <dfiq14$1b2$1@sea.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Bit Truncation in drivers/pci/probe.c on amd64
+User-Agent: KMail/1.8.2
+MIME-Version: 1.0
+Content-Disposition: inline
+X-Length: 1380
+Date: Mon, 5 Sep 2005 21:15:27 -0400
+Cc: kernel-janitors@lists.osdl.org
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 69.37.187.190
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050902
-X-Accept-Language: en-us, en
-X-Enigmail-Version: 0.92.0.0
+Message-Id: <200509052115.27300.ace@staticwave.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My AMI megaraid card no longer works with recent mm-series kernels. The
-bug appears on mm- kernels newer than 2.6.12-rc6-mm1; mainline kernels
-are not affected.
+In the current git repository, on my amd64 machine I get the following warning on compile
+drivers/pci/probe.c: In function `pci_read_bases':
+drivers/pci/probe.c:166: warning: large integer implicitly truncated to unsigned type
+drivers/pci/probe.c:216: warning: large integer implicitly truncated to unsigned type
 
-The driver will load and detect both devices on the card (sda and sdb).
-It will scan each device and read the partition table successfully,
-however the megaraid driver message will include the following errors:
+I've tracked this down to pci_size, and two #define's in include/linux/pci.h
 
-sda: sector size 0 reported, assuming 512.
-sda: asking for cache data failed.
-sda: assuming drive cache: write through
+#define  PCI_BASE_ADDRESS_MEM_MASK	(~0x0fUL)
+#define PCI_ROM_ADDRESS_MASK	(~0x7ffUL)
 
-When the kernel tries to mount the root file system, I get the following
-error:
+pci_size expects 3 u32 arguments,but from what I can tell, on 64 bit arch's the two above 
+defines expand to 64bit values, and are truncated when being passed.
 
-ReiserFS: sda3: warning: sh-2006: read_super_block: bread failed (dev
-sda3, block 2, size 4096)
-ReiserFS: sda3: warning: sh-2006: read_super_block: bread failed (dev
-sda3, block 16, size 4096)
-VFS: Cannot open root device "sda3" or unknown-block(0,3)
+I'm not sure how to go about fixing this, if pci_size should accept a u64 or if the defines should
+be changed. Is this bug dangerous? What should be done to fix it?
 
-Here is a summary of the kernels I have tested for this bug:
-
-2.6.11-mm1:	works
-2.6.11-mm4:	works
-2.6.12-rc5-mm1:	will not compile
-2.6.12-rc6-mm1:	works
-2.6.12-mm1:	will not compile megaraid driver
-2.6.12-mm2:	broken
-2.6.13-mm1:	broken
-
-2.6.12:		works
-2.6.13:		works
-
+-- 
+Gabriel A. Devenyi
+ace@staticwave.ca

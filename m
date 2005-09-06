@@ -1,59 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932435AbVIFHco@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932434AbVIFHoj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932435AbVIFHco (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 03:32:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932437AbVIFHcn
+	id S932434AbVIFHoj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 03:44:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932438AbVIFHoj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 03:32:43 -0400
-Received: from tumsa.unibanka.lv ([193.178.151.91]:31096 "EHLO fax.unibanka.lv")
-	by vger.kernel.org with ESMTP id S932435AbVIFHcn (ORCPT
+	Tue, 6 Sep 2005 03:44:39 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:28887 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932434AbVIFHoi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 03:32:43 -0400
-From: Aivils Stoss <aivils@unibanka.lv>
-To: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-Subject: INPUT: keyboard_tasklet - don't touch LED's of already grabed device
-Date: Tue, 6 Sep 2005 10:34:55 +0300
-User-Agent: KMail/1.7.2
-Cc: bruby <linuxconsole-dev@lists.sourceforge.net>
+	Tue, 6 Sep 2005 03:44:38 -0400
+Date: Tue, 6 Sep 2005 00:44:31 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Sonny Rao <sonny@burdell.org>
+cc: Rolf Eike Beer <eike-kernel@sf-tec.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Helge Hafting <helge.hafting@aitel.hist.no>,
+       Dave Airlie <airlied@gmail.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Michael Ellerman <michael@ellerman.id.au>,
+       Greg Kroah-Hartman <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>
+Subject: Re: rc5 seemed to kill a disk that rc4-mm1 likes. Also some X trouble.
+In-Reply-To: <20050905195849.GA8683@kevlar.burdell.org>
+Message-ID: <Pine.LNX.4.58.0509060038070.4316@evo.osdl.org>
+References: <Pine.LNX.4.58.0508012201010.3341@g5.osdl.org>
+ <Pine.LNX.4.58.0508221034090.3317@g5.osdl.org> <200508301007.11554@bilbo.math.uni-mannheim.de>
+ <200509050949.38842@bilbo.math.uni-mannheim.de> <Pine.LNX.4.58.0509050117310.5316@evo.osdl.org>
+ <20050905195849.GA8683@kevlar.burdell.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509061034.55963.aivils@unibanka.lv>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Vojtech!
 
-Recent kernels allow exclusive usage of input device when
-input device is grabed. keyboard_tasklet does not check
-device state and switch LED's of all keyboards. However
-grabed device may be use another LED steering code.
 
-This patch forbid keyboard_tasklet switch LED's of
-grabed devices.
+On Mon, 5 Sep 2005, Sonny Rao wrote:
+> 
+> Can this method detect breakages that are spread across more than one
+> patch? I suppose it'll just trigger on the last patch commited in the
+> set in this case?   
 
-Aivils Stoss
+It will trigger on just the commit that introduces the user-visible 
+breakage, so yes, it's usually the last in a series (or the first one, for 
+that matter).
 
---- linux-2.6.13/drivers/char/keyboard.c        2005-08-29 02:41:01.000000000 +0300
-+++ linux-2.6.13/drivers/char/keyboard.c~       2005-09-06 10:09:35.000000000 +0300
-@@ -895,16 +895,18 @@ static inline unsigned char getleds(void
+And it's not perfect. A problem that fades in and out is not something you
+can do binary searching on. For example, sometimes a bug gets introduced
+and ends up being dependent on things like cache alignment or some
+variable layout etc, so you only _see_ the problem occasionally, and it 
+ends up happening due to totally unrelated changes - then the bisection 
+algorithm ends up being totally useles..
 
- static void kbd_bh(unsigned long dummy)
- {
-        struct list_head * node;
-        unsigned char leds = getleds();
-
-        if (leds != ledstate) {
-                list_for_each(node,&kbd_handler.h_list) {
-+                       if (handle->dev->grab)
-+                               continue;
-                        struct input_handle * handle = to_handle_h(node);
-                        input_event(handle->dev, EV_LED, LED_SCROLLL, !!(leds & 0x01));
-                        input_event(handle->dev, EV_LED, LED_NUML,    !!(leds & 0x02));
-                        input_event(handle->dev, EV_LED, LED_CAPSL,   !!(leds & 0x04));
-                        input_sync(handle->dev);
-                }
-        }
-
+		Linus

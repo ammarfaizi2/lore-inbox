@@ -1,85 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751009AbVIFXQM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751122AbVIFXd0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751009AbVIFXQM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 19:16:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751017AbVIFXQM
+	id S1751122AbVIFXd0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 19:33:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751065AbVIFXd0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 19:16:12 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:17560 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751008AbVIFXQK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 19:16:10 -0400
-Date: Tue, 6 Sep 2005 16:13:30 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "John W. Linville" <linville@tuxdriver.com>
-Cc: hch@infradead.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       jgarzik@pobox.com
-Subject: Re: [patch 2.6.13 2/2] 3c59x: add option for using memory-mapped
- PCI I/O resources
-Message-Id: <20050906161330.0138f5a2.akpm@osdl.org>
-In-Reply-To: <20050906225744.GB26003@tuxdriver.com>
-References: <20050906204147.GC20145@tuxdriver.com>
-	<20050906204400.GD20145@tuxdriver.com>
-	<20050906205429.GA19319@infradead.org>
-	<20050906140414.40b65253.akpm@osdl.org>
-	<20050906220922.GA26003@tuxdriver.com>
-	<20050906151546.4d5ed4db.akpm@osdl.org>
-	<20050906225744.GB26003@tuxdriver.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 6 Sep 2005 19:33:26 -0400
+Received: from serv01.siteground.net ([70.85.91.68]:25066 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S1751033AbVIFXdZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 19:33:25 -0400
+Date: Tue, 6 Sep 2005 16:33:22 -0700
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
+       Alok Kataria <alokk@calsoftinc.com>
+Subject: [patch 0/4] ide: Break ide_lock to per-hwgroup lock
+Message-ID: <20050906233322.GA3642@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"John W. Linville" <linville@tuxdriver.com> wrote:
->
-> On Tue, Sep 06, 2005 at 03:15:46PM -0700, Andrew Morton wrote:
-> > "John W. Linville" <linville@tuxdriver.com> wrote:
-> > >
-> > > I fully intend to have have a flag in the private data set based on
-> > >  the PCI ID when I accumulate some data on which devices support this
-> > >  and which don't.  So far I've only got a short list...  Do you think
-> > >  such a flag should be based on which ones work, or which ones break?
-> > 
-> > The ones which are known to work.
-> > 
-> > Bear in mind that this is an old, messy and relatively stable driver which
-> > handles a huge number of different NICs.   Caution is the rule here.
-> 
-> I definitely agree.  That is another part of why I defaulted to "use_mmio=0".
-> 
-> I'll post PCI ID based patches as I determine supported cards.
-> 
+The following patchset breaks down the global ide_lock to per-hwgroup lock.
+We have taken the following approach.
 
-What I'd suggest you do is to look at enabling the feature for, say,
-IS_CYCLONE and IS_TORNADO NICs.  Do that as a separate -mm patch, make sure
-that an explicit `use_mmio=0' will still turn it off.
+1. Move the hwif tuning code from probe_hwif to ideprobe_init, after
+hwif_init so that hwgroups are present for all the hwifs when the tune
+routines for the hwifs are invoked (patch 1)
 
-So in the style of that driver, something like:
+2. Change the core ide code to use hwgroup->lock instead of ide_lock.
+Deprecate ide_lock (patch 2)
 
-static int use_mmio[MAX_UNITS] = { [ 0 .. MAX_UNITS-1 ] = -1, };
+3. Change the host controllers to use hwgroup->lock (patch 3)
 
-Then:
+4. Change host controller drivers to use per driver lock instead of ide_lock
+where needed or hwgroup->lock on case by case basis. This can be done 
+incrementally for various controllers and we will have working code between 
+patches -- this is done now for piix controller only.  Eventually, 
+we can change all controllers to remove ide_lock
 
-	if (module parm given)
-		use_mmio[unit] = 1 or 0
+Thanks to Bartlomiej for comments and suggestions.
 
-	...
+Patchset follows.  Patchset tested on a smp box with a piix controller.
 
-	/* Determine the default if the user didn't override us */
-	if (use_mmio[unit] == -1 && (IS_CYCLONE || IS_TORNADO))
-		use_mmio[unit] = 1;
-
-	priv->use_mmio = use_mmio[unit];	(maybe)
-
-	....
-
-	if (priv->use_mmio == 1)
-		do mmio stuff
-
-
-There's a bit to be done here, so I'll drop your initial set of patches.
-
-btw, Donald Becker's 3c59x.c has done mmio for ages.  Suggest you take a
-look in there. http://www.scyld.com/vortex.html
+Thanks,
+Kiran

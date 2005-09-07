@@ -1,57 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751197AbVIGB4J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751189AbVIGB73@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751197AbVIGB4J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 21:56:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbVIGB4J
+	id S1751189AbVIGB73 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 21:59:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbVIGB73
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 21:56:09 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:43754 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751191AbVIGB4I (ORCPT
+	Tue, 6 Sep 2005 21:59:29 -0400
+Received: from orb.pobox.com ([207.8.226.5]:15810 "EHLO orb.pobox.com")
+	by vger.kernel.org with ESMTP id S1751189AbVIGB73 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 21:56:08 -0400
-Message-ID: <431E48B1.7050600@pobox.com>
-Date: Tue, 06 Sep 2005 21:56:01 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
+	Tue, 6 Sep 2005 21:59:29 -0400
+Message-ID: <431E497A.4080303@rtr.ca>
+Date: Tue, 06 Sep 2005 21:59:22 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050728
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-To: Francois Romieu <romieu@fr.zoreil.com>
-CC: Miroslaw Mieszczak <mieszcz@zabrze.zigzag.pl>,
-       linux-kernel@vger.kernel.org, Netdev List <netdev@vger.kernel.org>
-Subject: Re: Patch for link detection for R8169
-References: <431DA887.2010008@zabrze.zigzag.pl> <20050906194602.GA20862@electric-eye.fr.zoreil.com>
-In-Reply-To: <20050906194602.GA20862@electric-eye.fr.zoreil.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Daniel Phillips <phillips@istop.com>
+Cc: Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>, linux-kernel@vger.kernel.org,
+       Andi Kleen <ak@suse.de>
+Subject: Re: RFC: i386: kill !4KSTACKS
+References: <20050904145129.53730.qmail@web50202.mail.yahoo.com> <58d0dbf10509061005358dce91@mail.gmail.com> <dfkjav$lmd$1@sea.gmane.org> <200509061819.45567.phillips@istop.com>
+In-Reply-To: <200509061819.45567.phillips@istop.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois Romieu wrote:
-> Miroslaw Mieszczak <mieszcz@zabrze.zigzag.pl> :
-> 
->>There is a patch to driver of RLT8169 network card. This match make 
->>possible detection of the link status even if network interface is down.
->>This is usefull for laptop users.
-> 
-> 
-> (side note: there is maintainer entry for the r8169 and network related
-> patches are welcome on netdev@vger.kernel.org)
-> 
-> Can you elaborate why it is usefull for laptop users ?
-> 
-> I am sceptical: tg3/bn2x/skge do not seem to allow it either.
-> 
-> Jeff, is it a requirement ?
+Daniel Phillips wrote:
+> There are only two stacks involved, the normal kernel stack and your new ndis 
+> stack.  You save ESP of the kernel stack at the base of the ndis stack.  When 
+> the Windows code calls your api, you get the ndis ESP, load the kernel ESP 
+> from the base of the ndis stack, push the ndis ESP so you can get back to the 
+> ndis code later, and continue on your merry way.
 
-Generally most drivers power down hardware, MAC at least, when the 
-interface is down.  As such, many drivers do not (cannot), as written, 
-report any useful link information.
+With CONFIG_PREEMPT, this will still cause trouble due to lack
+of "current" task info on the NDIS stack.
 
-IF the phy is not powered down, when the interface goes down, and IF 
-hardware permits, it would certainly be nice to report link state when 
-interface is down.  This is a hardware-dependent, driver-dependent choice.
+One option is to copy (duplicate) the bottom-of-stack info when
+switching to the NDIS stack.
 
-	Jeff
+Another option is to stick a Mutex around any use of the NDIS stack
+when calling into the foreign driver (might be done like this already??),
+which will prevent PREEMPTion during the call.
 
-
+Cheers

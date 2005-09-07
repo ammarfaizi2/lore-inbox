@@ -1,76 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbVIGKsJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932110AbVIGKts@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932106AbVIGKsJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 06:48:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932108AbVIGKsJ
+	id S932110AbVIGKts (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 06:49:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932109AbVIGKts
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 06:48:09 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:16547 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S932106AbVIGKsI (ORCPT
+	Wed, 7 Sep 2005 06:49:48 -0400
+Received: from verein.lst.de ([213.95.11.210]:32413 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S932107AbVIGKtr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 06:48:08 -0400
-Date: Wed, 7 Sep 2005 11:47:30 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [git pull] drm fixes tree
-Message-ID: <Pine.LNX.4.58.0509071050320.8480@skynet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 7 Sep 2005 06:49:47 -0400
+Date: Wed, 7 Sep 2005 12:49:32 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       linuxppc64-dev@ozlabs.org, Santiago Leon <santil@us.ibm.com>,
+       Linda Xie <lxiep@us.ibm.com>
+Subject: Re: [RFC] SCSI target for IBM Power5 LPAR
+Message-ID: <20050907104932.GA14200@lst.de>
+References: <20050906212801.GB14057@cs.umn.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050906212801.GB14057@cs.umn.edu>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Sep 06, 2005 at 04:28:01PM -0500, Dave C Boutcher wrote:
+> This device driver provides the SCSI target side of the "virtual
+> SCSI" on IBM Power5 systems.  The initiator side has been in mainline
+> for a while now (drivers/scsi/ibmvscsi/ibmvscsi.c.)  Targets already
+> exist for AIX and OS/400.
 
-Hi Linus,
-	Can you pull the drm-fixes branch from
-
-rsync://rsync.kernel.org/pub/scm/linux/kernel/git/airlied/drm-2.6.git
-
-It's got some fixes and minor cleanups ... Andrew I'm bypassing -mm as
-these are needed in mainline...
-
- drivers/char/drm/drm_bufs.c    |   66 ++++++++++++++++++++---------------------
- drivers/char/drm/drm_context.c |    2 -
- drivers/char/drm/drm_sysfs.c   |    1
- drivers/char/drm/mga_dma.c     |   14 ++++++--
- 4 files changed, 46 insertions(+), 37 deletions(-)
-
-
-commit 908f9c485042e516bb3749f4361129a94772fe26
-Author: Dave Airlie <airlied@starflyer.(none)>
-Date:   Mon Sep 5 21:51:30 2005 +1000
-
-    drm: fix MGA on non AGP systems
-
-    Al Viro noticed that MGA wouldn't build on non AGP systems.
-
-    Signed-off-by: Dave Airlie <airlied@linux.ie>
-
-commit f210973bb6d17aa220c797e8ea23d127d96859b7
-Author: Dave Airlie <airlied@starflyer.(none)>
-Date:   Mon Sep 5 21:33:44 2005 +1000
-
-    drm: small cleanups
-
-    This patch contains the following small cleanups:
-    - make two needlessly global functions static
-    - drm_sysfs.c: every file should #include the header with the prototypes
-                  of the global functions it is offering
-
-    Signed-off-by: Adrian Bunk <bunk@stusta.de>
-    Signed-off-by: Dave Airlie <airlied@linux.ie>
-
-commit 89625eb186b9b0b9454d44126f8b1bcc72ad93b7
-Author: Dave Airlie <airlied@starflyer.(none)>
-Date:   Mon Sep 5 21:23:23 2005 +1000
-
-    drm: fix issue with handle lookup for a 0 handle
-
-    On 32-bit PPC a 0 handle is valid for AGP space, the 32/64 lookup
-    doesn't handle 0 correctly.
-
-    From: Ben Herrenschmidt <benh@kernel.crashing.org> and Paul Mackerras <paulus@samba.org>
-    Signed-off-by: Dave Airlie <airlied@linux.ie>
-
+Please try to integrate that with the generic scsi target framework at
+http://developer.berlios.de/projects/stgt/.
 

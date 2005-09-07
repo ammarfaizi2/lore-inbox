@@ -1,56 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932212AbVIGWx5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932476AbVIGXP2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932212AbVIGWx5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 18:53:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932230AbVIGWx5
+	id S932476AbVIGXP2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 19:15:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932478AbVIGXP2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 18:53:57 -0400
-Received: from blackbird.sr71.net ([64.146.134.44]:12213 "EHLO
-	blackbird.sr71.net") by vger.kernel.org with ESMTP id S932212AbVIGWx5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 18:53:57 -0400
-Subject: Re: [RFC] broken installkernel.sh with CROSS_COMPILE
-From: Dave Hansen <dave@sr71.net>
-To: linas <linas@austin.ibm.com>
-Cc: icampbell@arcom.com, PPC64 External List <linuxppc64-dev@ozlabs.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050907223538.GF30028@austin.ibm.com>
-References: <1125693554.26605.10.camel@localhost>
-	 <20050907223538.GF30028@austin.ibm.com>
-Content-Type: text/plain
-Date: Wed, 07 Sep 2005 15:53:51 -0700
-Message-Id: <1126133631.6354.2.camel@localhost>
+	Wed, 7 Sep 2005 19:15:28 -0400
+Received: from fed1rmmtao02.cox.net ([68.230.241.37]:53468 "EHLO
+	fed1rmmtao02.cox.net") by vger.kernel.org with ESMTP
+	id S932476AbVIGXP1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Sep 2005 19:15:27 -0400
+Date: Wed, 7 Sep 2005 16:15:26 -0700
+From: Matt Porter <mporter@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][MM] cleanup rionet and use updated rio message interface
+Message-ID: <20050907161526.F1925@cox.net>
+References: <20050907081751.C1925@cox.net> <20050907154444.4f38462d.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20050907154444.4f38462d.akpm@osdl.org>; from akpm@osdl.org on Wed, Sep 07, 2005 at 03:44:44PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-09-07 at 17:35 -0500, linas wrote:
-> On Fri, Sep 02, 2005 at 01:39:13PM -0700, Dave Hansen was heard to remark:
-> > I noticed that my cross-compilation 'make install' broke with 2.6.13 (I
-> > don't use it horribly often).  It's from this commit:
-> > 
-> > Which added CROSS_COMPILE to each arch's install.sh:
-> > 
-> > if [ -x ~/bin/${CROSS_COMPILE}installkernel ]; then exec ~/bin/${CROSS_COMPILE}installkernel "$@"; fi
-> > 
-> > However, I don't just have a simple arch name as my CROSS_COMPILE, I
-> > have a whole path, so that line expands like this for me:
+On Wed, Sep 07, 2005 at 03:44:44PM -0700, Andrew Morton wrote:
+> Matt Porter <mporter@kernel.crashing.org> wrote:
+> >
+> > This is the rionet cleanup patch previously posted in reply to Jeff's
+> > concerns with this driver. It depends on the rapidio messaging interface
+> > updates patch. 
 > 
-> Try this:
-> 
-> # path to compilers and binutils, user may override by setting
-> # CROSS_PATH in environment
-> CROSS_PATH=${CROSS_PATH:-/opt/cross-3.3.2/bin}
-> 
-> CROSS_COMPILE=powerpc64-linux-
-> 
-> export PATH=$CROSS_PATH:$PATH
-> 
-> echo "using toolchain from $CROSS_PATH"
+> Thanks.  So are there any outstanding issues with the rapidio patches?
 
-I'm not sure I understand.  Where should that be done?
+There are no outstanding issues raised on the base subsystem. There are
+issues with the lack of features implemented, however. ;) Myself and
+others are working on some enhancements for new silicon, MMIO, etc.
 
--- Dave
+Jeff's comments on the rionet driver were the only remaining issues on
+the current patches.  Hopefully he can ack/nack these updates to rionet.
 
+-Matt

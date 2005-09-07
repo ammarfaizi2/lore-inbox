@@ -1,61 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751215AbVIGNjT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751216AbVIGOEJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751215AbVIGNjT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 09:39:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751217AbVIGNjT
+	id S1751216AbVIGOEJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 10:04:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751217AbVIGOEJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 09:39:19 -0400
-Received: from relay.axxeo.de ([213.239.199.237]:14552 "EHLO relay.axxeo.de")
-	by vger.kernel.org with ESMTP id S1751214AbVIGNjS (ORCPT
+	Wed, 7 Sep 2005 10:04:09 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:2009 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751216AbVIGOEI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 09:39:18 -0400
-From: Ingo Oeser <netdev@axxeo.de>
-Organization: Axxeo GmbH
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [patch 1/1] ipw2100: remove by-hand function entry/exit debugging
-Date: Wed, 7 Sep 2005 15:39:08 +0200
-User-Agent: KMail/1.7.2
-Cc: "David S. Miller" <davem@davemloft.net>, akpm@osdl.org, pavel@ucw.cz,
-       ipw2100-admin@linux.intel.com, pavel@suse.cz,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-References: <200509062056.j86KuHcL031448@shell0.pdx.osdl.net> <20050906.194111.130652562.davem@davemloft.net> <431E5514.2070003@pobox.com>
-In-Reply-To: <431E5514.2070003@pobox.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 7 Sep 2005 10:04:08 -0400
+Subject: RE: [PATCH 2/3 htlb-fault] Demand faulting for hugetlb
+From: Adam Litke <agl@us.ibm.com>
+To: "Zhang, Yanmin" <yanmin.zhang@intel.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <8126E4F969BA254AB43EA03C59F44E8403365201@pdsmsx404>
+References: <8126E4F969BA254AB43EA03C59F44E8403365201@pdsmsx404>
+Content-Type: text/plain
+Organization: IBM
+Date: Wed, 07 Sep 2005 09:04:00 -0500
+Message-Id: <1126101840.3123.74.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509071539.08780.netdev@axxeo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jeff,
+On Wed, 2005-09-07 at 10:33 +0800, Zhang, Yanmin wrote:
+> >>-----Original Message-----
+> >>From: linux-kernel-owner@vger.kernel.org
+> >>[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Adam Litke
+> >>Sent: Wednesday, September 07, 2005 5:59 AM
+> >>To: linux-kernel@vger.kernel.org
+> >>Cc: ADAM G. LITKE [imap]
+> >>Subject: Re: [PATCH 2/3 htlb-fault] Demand faulting for hugetlb
+> 
+> >>+retry:
+> >>+	page = find_get_page(mapping, idx);
+> >>+	if (!page) {
+> >>+		/* charge the fs quota first */
+> >>+		if (hugetlb_get_quota(mapping)) {
+> >>+			ret = VM_FAULT_SIGBUS;
+> >>+			goto out;
+> >>+		}
+> >>+		page = alloc_huge_page();
+> >>+		if (!page) {
+> >>+			hugetlb_put_quota(mapping);
+> >>+			ret = VM_FAULT_SIGBUS;
+> >>+			goto out;
+> >>+		}
+> >>+		if (add_to_page_cache(page, mapping, idx, GFP_ATOMIC)) {
+> 
+> Here you lost hugetlb_put_quota(mapping);
 
-Jeff Garzik wrote:
-> David S. Miller wrote:
-> > From: Jeff Garzik <jgarzik@pobox.com>
-> > Date: Tue, 06 Sep 2005 21:51:21 -0400
-> >
-> >>NAK.  Rationale: maintainer's choice.  Pavel doesn't get to choose
-> >>the debugger of choice for the driver maintainer.
-> >
-> > If it makes the driver unreadable and thus harder to maintain,
-> > I think such changes should seriously be considered.
-> >
-> > Most of the DEBUG_INFO macro usage is fine, but those "enter"
-> > and "exit" ones are just pure noise and should be removed.
->
-> I find them useful in my own drivers; they are definitely not pure noise.
+Whoops, thanks for catching that.
 
-gcc -finstrument-functions
+> >>+			put_page(page);
+> >>+			goto retry;
+> >>+		}
+> >>+		unlock_page(page);
+> 
+> As for regular pages, kernel is used to unlock mm-> page_table_lock
+> before find_get_page and relock it before setting pte. Why isn't the
+> style followed by huge page fault?
 
-can do that completely without adding noise to the sources.
+As far as I can tell, we should be able to do that for large pages as
+well.  I'll give it a spin.
 
-been there, done that. With a gcc-patch you don't even need to 
-resolve symbols.
-
-
-Regards
-
-Ingo Oeser
+-- 
+Adam Litke - (agl at us.ibm.com)
+IBM Linux Technology Center
 

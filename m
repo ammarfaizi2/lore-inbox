@@ -1,51 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932186AbVIGSWq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbVIGSWx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932186AbVIGSWq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 14:22:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbVIGSWq
+	id S932190AbVIGSWx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 14:22:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbVIGSWx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 14:22:46 -0400
-Received: from dvhart.com ([64.146.134.43]:3466 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S932190AbVIGSWp (ORCPT
+	Wed, 7 Sep 2005 14:22:53 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:45720 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932190AbVIGSWw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 14:22:45 -0400
-Date: Wed, 07 Sep 2005 11:22:42 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Dave Hansen <haveblue@us.ibm.com>, Magnus Damm <magnus@valinux.co.jp>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>,
-       "A. P. Whitcroft [imap]" <andyw@uk.ibm.com>
-Subject: Re: [PATCH] i386: single node SPARSEMEM fix
-Message-ID: <512850000.1126117362@flay>
-In-Reply-To: <1126114116.7329.16.camel@localhost>
-References: <20050906035531.31603.46449.sendpatchset@cherry.local> <1126114116.7329.16.camel@localhost>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	Wed, 7 Sep 2005 14:22:52 -0400
+Date: Wed, 7 Sep 2005 11:22:48 -0700
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+Cc: Tony Lindgren <tony@atomide.com>, Con Kolivas <kernel@kolivas.org>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org,
+       ck list <ck@vds.kolivas.org>, rmk+lkml@arm.linux.org.uk,
+       schwidefsky@de.ibm.com
+Subject: Re: [PATCH 1/3] dynticks - implement no idle hz for x86
+Message-ID: <20050907182248.GF22849@us.ibm.com>
+References: <20050905053225.GA4294@in.ibm.com> <20050905054813.GC25856@us.ibm.com> <20050905063229.GB4294@in.ibm.com> <20050905064416.GD25856@us.ibm.com> <20050906205112.GA3038@us.ibm.com> <20050907081303.GC5804@atomide.com> <20050907155352.GD4590@us.ibm.com> <20050907170703.GA28387@in.ibm.com> <20050907172315.GB22849@us.ibm.com> <20050907181445.GD28387@in.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20050907181445.GD28387@in.ibm.com>
+X-Operating-System: Linux 2.6.13 (i686)
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On Wednesday, September 07, 2005 10:28:36 -0700 Dave Hansen <haveblue@us.ibm.com> wrote:
-
-> On Tue, 2005-09-06 at 12:56 +0900, Magnus Damm wrote:
->> This patch for 2.6.13-git5 fixes single node sparsemem support. In the case
->> when multiple nodes are used, setup_memory() in arch/i386/mm/discontig.c calls
->> get_memcfg_numa() which calls memory_present(). The single node case with
->> setup_memory() in arch/i386/kernel/setup.c does not call memory_present()
->> without this patch, which breaks single node support.
+On 07.09.2005 [23:44:45 +0530], Srivatsa Vaddagiri wrote:
+> On Wed, Sep 07, 2005 at 10:23:15AM -0700, Nishanth Aravamudan wrote:
+> > > > #define DYN_TICK_MIN_SKIP	2
+> > 
+> > Another point. Why is this 2? I guess if you're going to make it 2, why
+> > bother defining/checking it at all?
 > 
-> First of all, this is really a feature addition, not a bug fix. :)
-> 
-> The reason we haven't included this so far is that we don't really have
-> any machines that need sparsemem on i386 that aren't NUMA.  So, we
-> disabled it for now, and probably need to decide first why we need it
-> before a patch like that goes in.
+> I think that should be arch-specific.
 
-CONFIG_NUMA was meant to (and did at one point) support both NUMA and flat
-machines. This is essential in order for the distros to support it - same
-will go for sparsemem.
- 
-M.
+Yes, I agree, will perhaps add a min_skip member to the structure.
+
+> > > > 	void (*disable_dyn_tick) (void);
+> > > > 	unsigned long (*reprogram) (unsigned long); /* return number of ticks skipped */
+> > > 
+> > > How will it be able to return the number of ticks skipped? Or are you
+> > > referring to max_skip here?
+> > 
+> > Yes, maybe this can be a void function... I was thinking more along the
+> > lines of you can send whatever request you want to reprogram(), it does
+> > what it can with the request (cuts it short if too long, ignores it if
+> > too short) and then returns what it actually did.
+> 
+> Looks fine in that case to have a non-void return.
+
+Ok, I agree.
+
+> > > In x86-like architectures, there can be multiple ticksources that can
+> > > be simultaneously active - ex: APIC and PIT. So one
+> > > "current_ticksource" doesnt capture that fact?
+> > 
+> > Not really, though, right? Only one is registered to do the timer
+> > callbacks? 
+> 
+> True.
+
+Thanks for confirming, I wasn't sure if that was the case or not.
+
+> > So, for x86, if you use the PIT ticksource, you only need to
+> > be PIT aware, but if you use the APIC ticksource, then it needs to be
+> > aware of the APIC and PIT (I believe you mentioned they are tied to each
+> > other), but that's ticksource-specific. CMIIW, though, please.
+> 
+> I was going more by what meaning 'current_ticksource' may give - from
+> a pure "ticksource" perspective, both (PIT/APIC) are tick sources!
+> Thats why current_ticksource may not be a good term.
+
+Ah, true. maybe current_dyn_tick_source or something to that effect?
+Because there should only be one dyn_tick_timer, yes?
+
+> > Maybe you are right. I don't like having a separate struct for the
+> > state, though, and the dyn_tick_timer struct doesn't have a
+> > recover_time() style member. If you look closely, my structure is
+> 
+> I agree we can remove the separate struct for state and have
+> recover_time member. Although in x86, it may have to be a wrapper
+> around mark_offset() since mark_offset does not recover time
+> completely (it expect the callee to recover one remaining tick).
+
+Yes, certainly, in fact, I think some of these functions may provide
+impetus to eventually clean up other code.
+
+> > basically exactly what the x86 work has, just some different names
+> > (don't need arch_ prefix, for instance, because it's clearly
+> > dyn_tick_timer specific, etc.) I also would like to hear from the s390
+> > folks about their issues/opinions.
+> 
+> Martin Schwidefsky (whom I have CC'ed) may be the person who can comment on 
+> behalf of s390.
+
+Thanks, I forwarded him the first plan I submitted a few days ago, but
+didn't add him to the Cc.
+
+> > Yes, true. I'm wondering, do we need to make the
+> > current_ticksource/current_dyn_tick_timer per-CPU? I am just wondering
+> > how to gracefully handle the SMP case. Or is that not a problem?
+> 
+> I don't see that current_ticksource/current_dyn_tick_timer to be write-heavy.
+> In fact I see them to be initialied during bootup and after that mostly
+> read-only. That may not warrant a per-CPU structure.
+
+I meant more for making sure we can manage that one CPU may have access
+to the PIT, but others may not (CPU0)? More along the lines of diverse
+h/w setups where perhaps the HPET is tied to one chip, but not the
+other. So, actually different hardware per-cpu. If that can't be the
+case (at least not currently), then the nohz_mask and spin_lock is
+enough to guarantee we don't muck with cpus accidentally.
+
+Thanks,
+Nish

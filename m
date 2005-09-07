@@ -1,48 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751242AbVIGQhF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751245AbVIGQhx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751242AbVIGQhF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 12:37:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751252AbVIGQhE
+	id S1751245AbVIGQhx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 12:37:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751252AbVIGQhw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 12:37:04 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:9220 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP
-	id S1751242AbVIGQhC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 12:37:02 -0400
-Message-ID: <431F18A3.6050502@tmr.com>
-Date: Wed, 07 Sep 2005 12:43:15 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alex Davis <alex14641@yahoo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: RFC: i386: kill !4KSTACKS
-References: <20050904145129.53730.qmail@web50202.mail.yahoo.com>
-In-Reply-To: <20050904145129.53730.qmail@web50202.mail.yahoo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 7 Sep 2005 12:37:52 -0400
+Received: from venezia.uab.es ([158.109.168.132]:4044 "EHLO venezia.uab.es")
+	by vger.kernel.org with ESMTP id S1751241AbVIGQhv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Sep 2005 12:37:51 -0400
+Date: Wed, 07 Sep 2005 18:38:08 +0200
+From: =?UTF-8?B?TcOgcml1cyBNb250w7Nu?= <Marius.Monton@uab.es>
+Subject: Re: 'virtual HW' into kernel (SystemC)
+In-reply-to: <BFECAF9E178F144FAEF2BF4CE739C66801B76517@exmail1.se.axis.com>
+To: Mikael Starvik <mikael.starvik@axis.com>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <431F1770.3030603@uab.es>
+Organization: Cephis-UAB
+MIME-version: 1.0
+Content-type: multipart/mixed; boundary="Boundary_(ID_3KmpwErb3mhgNnHPYGMptw)"
+X-Accept-Language: ca, es
+X-Enigmail-Version: 0.92.0.0
+References: <BFECAF9E178F144FAEF2BF4CE739C66801B76517@exmail1.se.axis.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-OriginalArrivalTime: 07 Sep 2005 16:38:36.0188 (UTC)
+ FILETIME=[97D2FDC0:01C5B3CA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Davis wrote:
->>Please don't tell me to "care for closed-source drivers". 
-> 
-> ndiswrapper is NOT closed source. And I'm not asking you to "care".
-> 
-> 
->>I don't want the pain of debugging crashes on the machines which run unknown code
->>in kernel space.
-> 
-> I'm not asking you to debug crashes. I'm simply requesting that the
-> kernel stack size situation remain as it is: with 8K as the default
-> and 4K configurable. 
+This is a multi-part message in MIME format.
 
-I can be happy with 4K as the default, everything I use *except* 
-ndiswrapper seems to run fine (I don't currently need fancy filesystems) 
-but laptops seem to include a lot of unsupported hardware, which can't 
-be replaced due to resources (money, slots, batter life).
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+--Boundary_(ID_3KmpwErb3mhgNnHPYGMptw)
+Content-type: text/plain; charset=UTF-8
+Content-transfer-encoding: 8BIT
+
+
+
+Mikael Starvik wrote:
+
+>>Application <-> our driver <-> kernel PCI-subsystem <-> our link <-> 
+>>daemon <-> SystemC simulator. 
+>>    
+>>
+>
+>  
+>
+>>Our link and our daemon get all PCI communication, and interface to 
+>>SystemC simulator. 
+>>Is that so complex to develop? 
+>>    
+>>
+>
+>No, not really. I've implemented a link like this
+>
+>Application<->driver<->our link<->daemon<-TCP/IP->glue<->Verilog simulator
+>
+>In your case I would probably implement a "fake" PCI bridge that forwards any PCI access to you daemon and puts the requesting process to sleep until the request has been processed. Some drivers may of course break due to the latency. 
+>
+>Our link is a kernel module that queues up requests from the driver and deliver them to the daemon through a poll/read interface. Each process that make a request is put to sleep until the request has been answered by the dameon. A couple of days of development. A bit more in your case due to the fake PCI bridge (yes, I have implemented one of those as well for cardbus).
+>
+>Regards
+>/Mikael
+>
+>  
+>
+
+Can you send me or post your code?
+This code can be a good starting point for us.
+
+Thanks
+
+Màrius
+
+> 
+>
+>  
+>
+
+
+--Boundary_(ID_3KmpwErb3mhgNnHPYGMptw)
+Content-type: text/x-vcard; charset=utf-8; name=marius.monton.vcf
+Content-transfer-encoding: 7BIT
+Content-disposition: attachment; filename=marius.monton.vcf
+
+begin:vcard
+fn;quoted-printable:M=C3=A0rius Mont=C3=B3n
+n;quoted-printable;quoted-printable:Mont=C3=B3n;M=C3=A0rius
+org;quoted-printable:UAB;Departament de Microelectr=C3=B2nica i Sistemes Electr=C3=B2nics
+adr:Campus de la UAB;;QC-2088 ETSE;Bellaterra;Barcelona;08193;SPAIN
+email;internet:marius.monton@uab.es
+tel;work:+34935813534
+x-mozilla-html:TRUE
+url:http://cephis.uab.es
+version:2.1
+end:vcard
+
+
+--Boundary_(ID_3KmpwErb3mhgNnHPYGMptw)--

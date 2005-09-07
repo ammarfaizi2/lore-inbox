@@ -1,57 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751297AbVIGUI7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751294AbVIGUK0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751297AbVIGUI7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 16:08:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbVIGUI7
+	id S1751294AbVIGUK0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 16:10:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751299AbVIGUK0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 16:08:59 -0400
-Received: from relay02.infobox.ru ([195.208.235.29]:22150 "EHLO
-	relay02.infobox.ru") by vger.kernel.org with ESMTP id S1751297AbVIGUI6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 16:08:58 -0400
-Message-ID: <431F4871.6080905@vlnb.net>
-Date: Thu, 08 Sep 2005 00:07:13 +0400
-From: Vladislav Bolkhovitin <vst@vlnb.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-2
-X-Accept-Language: ru, en-us, en
+	Wed, 7 Sep 2005 16:10:26 -0400
+Received: from fmr14.intel.com ([192.55.52.68]:3771 "EHLO
+	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1751294AbVIGUKZ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Sep 2005 16:10:25 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Mike Christie <michaelc@cs.wisc.edu>
-Cc: boutcher@cs.umn.edu, Christoph Hellwig <hch@lst.de>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       linuxppc64-dev@ozlabs.org, Santiago Leon <santil@us.ibm.com>,
-       Linda Xie <lxiep@us.ibm.com>, iscsitarget-devel@lists.sourceforge.net
-Subject: Re: [RFC] SCSI target for IBM Power5 LPAR/SCST 0.9.3-pre1 published
-References: <20050906212801.GB14057@cs.umn.edu> <20050907104932.GA14200@lst.de> <20050907124504.GA13614@cs.umn.edu> <431F35D2.7040209@vlnb.net> <431F37E6.3080706@cs.wisc.edu>
-In-Reply-To: <431F37E6.3080706@cs.wisc.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: battery status events (RE: Kernel 2.6.13 repeated ACPI events?)
+Date: Wed, 7 Sep 2005 16:10:07 -0400
+Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B30048646E9@hdsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: battery status events (RE: Kernel 2.6.13 repeated ACPI events?)
+Thread-Index: AcWyHGFIAA7ZO+/ITQaBtO7Axf+85gByqPBw
+From: "Brown, Len" <len.brown@intel.com>
+To: "Jan De Luyck" <lkml@kcore.org>
+Cc: <acpi-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>,
+       "Lebedev, Vladimir P" <vladimir.p.lebedev@intel.com>,
+       "Yu, Luming" <luming.yu@intel.com>
+X-OriginalArrivalTime: 07 Sep 2005 20:10:13.0604 (UTC) FILETIME=[2812EA40:01C5B3E8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Christie wrote:
-> Vladislav Bolkhovitin wrote:
->> Sorry, I can see on stgt page only mail lists archive and not from 
->> start (from Aug 22). Mike, can I see stgt code and some design 
->> description, please? You can send it directly on my e-mail address, if 
->> necessary.
-> 
-> goto the svn page for the code
-> http://developer.berlios.de/svn/?group_id=4492
-> 
-> As for design desc, I do not have anything. It is the evolving source :) 
-> We are slowly merging leasons we learned from open-iscsi, your SCST 
-> code, the available software and HW targets, and the SCSI ULD's 
-> scatterlist code which needs redoing so it is a bit of a mess.
+ 
 
-OK, thanks, will try tomorrow.
+>-----Original Message-----
+>From: linux-kernel-owner@vger.kernel.org 
+>[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Jan De Luyck
+>Sent: Monday, September 05, 2005 9:17 AM
+>To: linux-kernel@vger.kernel.org
+>Subject: Re: Kernel 2.6.13 repeated ACPI events?
+>
+>I'm seeing repeated ACPI events too, but of the battery kind:
+>
+>[Mon Sep  5 15:13:52 2005] received event "battery BAT2 
+>00000080 00000001"
+>[Mon Sep  5 15:13:52 2005] completed event "battery BAT2 
+>00000080 00000001"
+>[Mon Sep  5 15:14:53 2005] received event "battery BAT1 
+>00000080 00000001"
+>[Mon Sep  5 15:14:53 2005] completed event "battery BAT1 
+>00000080 00000001"
+>[Mon Sep  5 15:14:53 2005] received event "battery BAT2 
+>00000080 00000001"
+>[Mon Sep  5 15:14:53 2005] completed event "battery BAT2 
+>00000080 00000001"
+>[Mon Sep  5 15:15:55 2005] received event "battery BAT1 
+>00000080 00000001"
+>[Mon Sep  5 15:15:55 2005] completed event "battery BAT1 
+>00000080 00000001"
+>[Mon Sep  5 15:15:55 2005] received event "battery BAT2 
+>00000080 00000001"
+>[Mon Sep  5 15:15:55 2005] completed event "battery BAT2 
+>00000080 00000001"
+>
+>going on forever and ever...
+>
+>Jan
 
-I put SCST 0.9.3-pre1 on its page 
-(http://sourceforge.net/projects/scst/). This is not the latest, but 
-this is the one, which working. At the end of this week I'll try to put 
-there the latest one as well. Hope, you will learn some more lessons 
-from it :).
+The kernel doesn't created these messages -- presumably
+they're from acpid or some other user-level daemon
+that is monitoring /proc/acpi/event.  Unlikely that
+logging these events is necessary...
 
-Any comments are welcome.
+Event 0x80 on the battery device is a "Battery Status Changed"
+which you'd expect to see when plugging/charging/discharging
+a battery.  How frequent they are depends on the rate,
+the battery and the firmware that is talking to it.
 
-Vlad
+Is there a GUI or something reading the battery status files?
+Do these events stop when running in text mode?
 
+Did this not happen on this box with earlier kernels?
+
+Do the /proc/acpi/battery* files look sane --
+is the status really changing?
+
+thanks,
+-Len

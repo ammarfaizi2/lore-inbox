@@ -1,63 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751169AbVIGAoM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751179AbVIGBAn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751169AbVIGAoM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 20:44:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbVIGAoM
+	id S1751179AbVIGBAn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 21:00:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbVIGBAn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 20:44:12 -0400
-Received: from zproxy.gmail.com ([64.233.162.206]:6461 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751169AbVIGAoL convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 20:44:11 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=QoEKWdV6AmiYaw3NB937+VojRohOCsa/PC+fR7PRf+5u3H4MhCxSa6J7fTFqjJLn+9j14relguguKNfuWR3tPQQJmIQdjnRTcJu7j/+BLwBprOkLFOPYORYfckbyZMz9oozDWzD1PlELBK+Em2YS/ITCr9hNKmsj9Sq29CBxdqY=
-Message-ID: <9a87484905090617444e89722d@mail.gmail.com>
-Date: Wed, 7 Sep 2005 02:44:07 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Paul Jackson <pj@sgi.com>
-Subject: Re: 2.6.13-mm1
-Cc: Andrew Morton <akpm@osdl.org>, bunk@stusta.de,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050906170513.60ed024a.pj@sgi.com>
+	Tue, 6 Sep 2005 21:00:43 -0400
+Received: from moutng.kundenserver.de ([212.227.126.171]:48836 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751179AbVIGBAm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 21:00:42 -0400
+Subject: Re: [PATCH 01/24] V4L: Common part Updates and tuner additions
+From: hermann pitton <hermann.pitton@onlinehome.de>
+To: Linux and Kernel Video <video4linux-list@redhat.com>
+Cc: mchehab@brturbo.com.br, linux-kernel@vger.kernel.org
+In-Reply-To: <20050906170128.243a3a39.akpm@osdl.org>
+References: <431cb7f6.3a1Y2AL2UcB0Asbo%mchehab@brturbo.com.br>
+	 <20050906170128.243a3a39.akpm@osdl.org>
+Content-Type: text/plain
+Date: Wed, 07 Sep 2005 03:15:42 +0200
+Message-Id: <1126055743.4191.7.camel@pc08.localdom.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050901035542.1c621af6.akpm@osdl.org>
-	 <20050903122126.GM3657@stusta.de>
-	 <20050903123410.1320f8ab.akpm@osdl.org>
-	 <20050903195423.GP3657@stusta.de>
-	 <20050903130632.3124e19b.akpm@osdl.org>
-	 <9a87484905090414245589a3c@mail.gmail.com>
-	 <20050904143033.13a4bed3.akpm@osdl.org>
-	 <20050906170513.60ed024a.pj@sgi.com>
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:17498165d1d898a28ef793368f1053bc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/7/05, Paul Jackson <pj@sgi.com> wrote:
-> Andrew wrote"
-> > So then I was asked to include an explanation
-> > with the drop message and that all got too hard so I turned them off.
-> >
-> > <turns them back on again>
+Am Dienstag, den 06.09.2005, 17:01 -0700 schrieb Andrew Morton:
+> Two of these patches:
 > 
+> v4l-adds-the-adapter-number-and-i2c-address-to.patch
+> v4l-allows-clearer-message-prefixes-containing-the-i2c-for-tveeprom_hauppauge_analog.patch
 > 
-> Dang it, Andrew.  It didn't have to be hard.  Just adding a
-> boiler plate sentence to all the drop messages saying something
-> like:
+> throw great reject storms, due to changes in Linus's current tree.  Greg's
+> i2c stuff.
 > 
->         If I just sent the patch to Linus, that is
->         probably why I dropped it here.
+> I'm not confident that the v4l changes will work without those two patches
+> and I'm not confident that they'll work against all the i2c changes, so
+> could you please redo all these patches against current -linus or most
+> recent -mm, retest and resend?
 > 
-> That should be enough of a clue for most folks.
+> Thanks.
 
-I agree completely. Something like that would be just fine for the
-patches that have been sent on to Linus.
+Hi,
 
+I'm very confident that all other patches should work without these two,
+if not, it is not related to this two patches, but right, let's check
+more carefully and if necessary resend.
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Greetings,
+Hermann
+

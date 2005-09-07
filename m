@@ -1,58 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbVIGUdU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbVIGUkt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932239AbVIGUdU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 16:33:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbVIGUdU
+	id S932248AbVIGUkt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 16:40:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932249AbVIGUkt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 16:33:20 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9491 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932239AbVIGUdU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 16:33:20 -0400
-Date: Wed, 7 Sep 2005 21:33:16 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Kars de Jong <jongk@linux-m68k.org>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 8250_hp300: initialisation ordering bug
-Message-ID: <20050907213316.G19199@flint.arm.linux.org.uk>
-Mail-Followup-To: Kars de Jong <jongk@linux-m68k.org>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-References: <20050904111901.A30509@flint.arm.linux.org.uk> <1126124269.3968.5.camel@kars.perseus.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 7 Sep 2005 16:40:49 -0400
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:49612 "EHLO
+	ogre.sisk.pl") by vger.kernel.org with ESMTP id S932248AbVIGUks
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Sep 2005 16:40:48 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Subject: Re: swsusp doesn't suspend devices
+Date: Wed, 7 Sep 2005 22:40:42 +0200
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
+       linux-pm@osdl.org
+References: <431ECCE3.8080408@drzeus.cx> <200509072203.19283.rjw@sisk.pl> <431F4AC4.9030206@drzeus.cx>
+In-Reply-To: <431F4AC4.9030206@drzeus.cx>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1126124269.3968.5.camel@kars.perseus.home>; from jongk@linux-m68k.org on Wed, Sep 07, 2005 at 10:17:49PM +0200
+Message-Id: <200509072240.42854.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 07, 2005 at 10:17:49PM +0200, Kars de Jong wrote:
-> Yes, you are right. I am working on rewriting the driver a bit to use a
-> platform device for the APCI driver, I'll take your bug report into
-> account as well.
+On Wednesday, 7 of September 2005 22:17, Pierre Ossman wrote:
+> Rafael J. Wysocki wrote:
+> 
+> >On Wednesday, 7 of September 2005 13:20, Pierre Ossman wrote:
+> >  
+> >
+> >>It would seem that swsusp doesn't properly suspend devices, or more
+> >>precisely it wakes them up again before suspending the machine.
+> >>    
+> >>
+> >
+> >Yes, it does.  By design.
+> >
+> >  
+> >
+> 
+> That seems counter-productive, so I'm obviously missing something.
 
-Thanks.
+In swsusp, the suspend consists of freezing processes, suspending devices, turning off
+interrupts, and creating a memory snapshot (the image) in that state (ie of the "frozen"
+system).  Afterwards the image is in memory and it has to be written to a swap partition.
+For this purpose we need to resume some devices, in particular the disk that contains
+this swap partition, but it always relies on some other devices that have to be resumed
+as well.  In principle we could check what devices have to be resumed, but currently
+we just resume them all.  An additional upside of this approach is that the suspend
+and resume code is (almost) identical.
 
-> On a related note: can I use the "serial8250" platform driver also for
-> non-ISA devices (like my APCI platform device)? The comments in
-> drivers/serial/8250.c suggest it's for ISA devices only, but I don't see
-> a particular reason for not using it for my APCI devices.
+Greetings,
+Rafael
 
-The legacy platform device (serial8250_isa_devs) is for the old
-legacy ISA tables, found in include/asm-*/serial.h.
-
-Other serial8250 platform devices can be used to register other
-devices - preferably groups of platform specific serial ports.
-
-However, if you're talking about registering a set of devices
-found on a different bus type (eg, PCI) then look at how 8250_pci
-handles that.  I'd prefer bus-specific device registration to be
-done in a similar way to 8250_pci rather than creating extra
-platform devices.
-
-I hope that's clear.
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

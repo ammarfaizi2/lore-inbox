@@ -1,85 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932258AbVIGVHH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932259AbVIGVHN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932258AbVIGVHH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 17:07:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932259AbVIGVHG
+	id S932259AbVIGVHN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 17:07:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932310AbVIGVHN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 17:07:06 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:19132 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932258AbVIGVHF (ORCPT
+	Wed, 7 Sep 2005 17:07:13 -0400
+Received: from [67.40.69.52] ([67.40.69.52]:33770 "EHLO morpheus")
+	by vger.kernel.org with ESMTP id S932259AbVIGVHM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 17:07:05 -0400
-Date: Wed, 7 Sep 2005 23:06:51 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: LKML <linux-kernel@vger.kernel.org>, linux-pm@osdl.org
-Subject: Re: swsusp doesn't suspend devices
-Message-ID: <20050907210651.GA2878@elf.ucw.cz>
-References: <431ECCE3.8080408@drzeus.cx>
+	Wed, 7 Sep 2005 17:07:12 -0400
+Subject: Re: [ham] Re: Gracefully killing kswapd, or any kernel thread
+From: Kristis Makris <kristis.makris@asu.edu>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0509071554190.4695@chaos.analogic.com>
+References: <1126122068.2744.20.camel@syd.mkgnu.net>
+	 <Pine.LNX.4.61.0509071554190.4695@chaos.analogic.com>
+Date: Wed, 07 Sep 2005 14:07:12 -0700
+Message-Id: <1126127233.2743.25.camel@syd.mkgnu.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <431ECCE3.8080408@drzeus.cx>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.0.4 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> To kill a kernel thread, you need to make __it__ call exit(). It must be
 
-> It would seem that swsusp doesn't properly suspend devices, or more
-> precisely it wakes them up again before suspending the machine.
+There must be another way to do it. Perhaps one could have another
+process effectively issue the contents of do_exit for the kswapd
+task_struct ?
 
-Yes, and that's okay.
+> CODED to do that! You can't do it externally although you can send
 
- What happens to devices during swsusp? They seem to be resumed
-during system suspend?
+I'm clearly asking for the case where the thread wasn't coded to do
+that.
 
-A: That's correct. We need to resume them if we want to write image to
-disk. Whole sequence goes like
+> it a signal, after which it will spin forever....
 
-      Suspend part
-      ~~~~~~~~~~~~
-      running system, user asks for suspend-to-disk
+kflushd and keventd don't seem to spin forever. I still haven't
+determined what makes kswapd spin forever after it receives the signal.
 
-      user processes are stopped
 
-      suspend(PMSG_FREEZE): devices are frozen so that they don't
-interfere
-                      with state snapshot
-
-      state snapshot: copy of whole used memory is taken with
-interrupts disabled
-
-      resume(): devices are woken up so that we can write image to
-swap
-
-      write image to swap
-
-      suspend(PMSG_SUSPEND): suspend devices so that we can power off
-
-      turn the power off
-
-      Resume part
-      ~~~~~~~~~~~
-      (is actually pretty similar)
-
-      running system, user asks for suspend-to-disk
-
-      user processes are stopped (in common case there are none, but
-with resume-from-initrd, noone k\nows)
-
-      read image from disk
-
-      suspend(PMSG_FREEZE): devices are frozen so that they don't
-interfere
-                      with image restoration
-
-      image restoration: rewrite memory with image
-
-      resume(): devices are woken up so that system can continue
-
-      thaw all user processes
-
--- 
-if you have sharp zaurus hardware you don't need... you know my address

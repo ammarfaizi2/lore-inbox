@@ -1,43 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbVIGFpQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbVIGFtW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750706AbVIGFpQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 01:45:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750718AbVIGFpQ
+	id S1750726AbVIGFtW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 01:49:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbVIGFtW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 01:45:16 -0400
-Received: from smtp.istop.com ([66.11.167.126]:23188 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S1750706AbVIGFpO (ORCPT
+	Wed, 7 Sep 2005 01:49:22 -0400
+Received: from ozlabs.org ([203.10.76.45]:20177 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1750726AbVIGFtV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 01:45:14 -0400
-From: Daniel Phillips <phillips@istop.com>
-To: Mark Lord <lkml@rtr.ca>
-Subject: Re: RFC: i386: kill !4KSTACKS
-Date: Wed, 7 Sep 2005 01:48:18 -0400
-User-Agent: KMail/1.8
-Cc: Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>, linux-kernel@vger.kernel.org,
-       Andi Kleen <ak@suse.de>
-References: <20050904145129.53730.qmail@web50202.mail.yahoo.com> <431E497A.4080303@rtr.ca> <200509070016.42121.phillips@istop.com>
-In-Reply-To: <200509070016.42121.phillips@istop.com>
+	Wed, 7 Sep 2005 01:49:21 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509070148.18822.phillips@istop.com>
+Message-ID: <17182.32625.930500.874251@cargo.ozlabs.ibm.com>
+Date: Wed, 7 Sep 2005 15:49:37 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: Grant Grundler <grundler@parisc-linux.org>
+Cc: Brian King <brking@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       greg@kroah.com, matthew@wil.cx, benh@kernel.crashing.org, ak@muc.de,
+       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH 1/2] pci: Block config access during BIST (resend)
+In-Reply-To: <20050903193958.GB30579@colo.lackof.org>
+References: <4200F2B2.3080306@us.ibm.com>
+	<20050208200816.GA25292@kroah.com>
+	<42B83B8D.9030901@us.ibm.com>
+	<430B3CB4.1050105@us.ibm.com>
+	<20050901160356.2a584975.akpm@osdl.org>
+	<4318E6B3.7010901@us.ibm.com>
+	<20050902224314.GB8463@colo.lackof.org>
+	<17176.56354.363726.363290@cargo.ozlabs.ibm.com>
+	<20050903000854.GC8463@colo.lackof.org>
+	<431A33D0.1040807@us.ibm.com>
+	<20050903193958.GB30579@colo.lackof.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 07 September 2005 00:16, Daniel Phillips wrote:
-> ...as long as ->task and ->previous_esp are initialized,
-> staying on the bigger stack looks fine (previous_esp is apparently used
-> only for backtrace) ... just like do_IRQ.
+Grant Grundler writes:
 
-Ahem, but let me note before somebody else does: it isn't interrupt context, 
-it is normal process context - while an interrupt can ignore most of the 
-thread_info fields, a normal process has to worry about all 9.  To be on the 
-safe side, the first 8 need to be copied into and out of the ndis stack, with 
-preempt disabled until after the stack switch.
+> Ok this is good example - I see what the problem is.
+> You could use the following sequence too then:
+> 	pci_block_user_cfg_access
+> 		pci_save_state
+> 		block_ucfg_access = 1
+> 		mb()
+> 		while (spin_is_locked(&pci_lock))
+> 			relax_cpu();
+> 
+> Think this is sufficient?
 
-Regards,
+Maybe, but it seems like a bad idea to me.  It's longer, it's less
+obvious what's happening, and it precludes the sorts of optimization
+that we do on ppc64 where a cpu that is waiting for a lock can tell
+give its time slice to the cpu that is holding the lock (on systems
+where the hypervisor time-slices multiple virtual cpus on one physical
+cpu).
 
-Daniel
+What's wrong with just doing spin_lock/spin_unlock?
+
+Paul.
+
+

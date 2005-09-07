@@ -1,55 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751155AbVIGOp7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932152AbVIGOsX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751155AbVIGOp7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 10:45:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751211AbVIGOp7
+	id S932152AbVIGOsX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 10:48:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbVIGOsX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 10:45:59 -0400
-Received: from mail4.zigzag.pl ([217.11.136.106]:39599 "HELO mail4.zigzag.pl")
-	by vger.kernel.org with SMTP id S1751155AbVIGOp6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 10:45:58 -0400
-Message-ID: <431EFD0E.9030409@zabrze.zigzag.pl>
-Date: Wed, 07 Sep 2005 19:15:34 +0430
-From: Miroslaw Mieszczak <mieszcz@zabrze.zigzag.pl>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050827)
-X-Accept-Language: pl, en-us, en
+	Wed, 7 Sep 2005 10:48:23 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:19468 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S932152AbVIGOsW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Sep 2005 10:48:22 -0400
+Message-ID: <431EFE93.5050900@tmr.com>
+Date: Wed, 07 Sep 2005 10:52:03 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Francois Romieu <romieu@fr.zoreil.com>
-CC: Valdis.Kletnieks@vt.edu, jgarzik@pobox.com, linux-kernel@vger.kernel.org
-Subject: Re: Patch for link detection for R8169
-References: <431DA887.2010008@zabrze.zigzag.pl> <20050906194602.GA20862@electric-eye.fr.zoreil.com> <200509062002.j86K28R8019604@turing-police.cc.vt.edu> <20050906204221.GB20862@electric-eye.fr.zoreil.com>
-In-Reply-To: <20050906204221.GB20862@electric-eye.fr.zoreil.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-BitDefender-Scanner: Clean, Agent: BitDefender Qmail 1.6.2 on
- mail4.zigzag.pl
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "ATARAID (eg, Promise Fasttrak, Highpoint 370) related discussions" 
+	<ataraid-list@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: IDE HPA
+References: <87941b4c05082913101e15ddda@mail.gmail.com>	 <87941b4c05083008523cddbb2a@mail.gmail.com>	 <1125419927.8276.32.camel@localhost.localdomain>	 <87941b4c050830095111bf484e@mail.gmail.com>	 <62b0912f0509020027212e6c42@mail.gmail.com>	 <1125666332.30867.10.camel@localhost.localdomain>	 <62b0912f05090206331d04afd3@mail.gmail.com>	 <E1EBCdS-00064p-00@chiark.greenend.org.uk>	 <62b0912f05090209242ad72321@mail.gmail.com>	 <1125680712.30867.20.camel@localhost.localdomain>	 <62b0912f05090210441d3fa248@mail.gmail.com>	 <1125684567.31292.2.camel@localhost.localdomain>	 <1125687557.30867.26.camel@localhost.localdomain>	 <1125688483.31292.20.camel@localhost.localdomain>	 <1125692578.30867.33.camel@localhost.localdomain> <1125695649.31292.45.camel@localhost.localdomain> <431A3249.9040504@pobox.com>
+In-Reply-To: <431A3249.9040504@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois Romieu napisał(a):
+Jeff Garzik wrote:
 
->Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> :
->[...]
->
->Ok, thanks for the hint.
->
->Currently one can do 'ifconfig ethX up', check the link status, then try
->to DHCP or whatever. Apparently a few drivers do not support tne detection
->of link as presented above. So is it anything like a vendor requirement/a
->standard (or should it be the new right way (TM)) or does the userspace
->needs fixing wrt its expectation ?
->  
->
-The main problem with this driver is, that if I do like this, then every 
-10 seconds I receive new message from the network card in kernel log.
-There is following message:
+> It seems to me that one should write an ATA-specific Device Mapper 
+> driver, which layers on top of an ATA disk.  The driver obtains the 
+> starting location of HPA, then exports two block devices:  one for the 
+> primary data area, and one for the HPA.
 
-Sep  4 16:31:43 laptop_mirka eth0: PHY reset until link up
-Sep  4 16:31:53 laptop_mirka eth0: PHY reset until link up
+I've stayed out of this, but that sounds like a perfect solution to move 
+the choice back to the user. However, installers still need to be aware 
+of it at initial Linux install, and give the user some rational options:
+   - ignore it
+   - leave alone but visible
+   - blow it away and use the whole drive
 
-Do you think, that this is correct way t do the things? I
-In my opinion, the solution, that link status can be checked (if 
-hardware allow this) when interface is down is more usefull.
+It feels as if that's where the future disposition needs to be made. I 
+do like treating the HPA as a separate drive though.
+> 
+> For situations where we want the start Linux philosophy -- Linux exports 
+> 100% of the hardware capability -- no DM layer needs to be used.  For 
+> situations where its better to treat the HPA as a separate and distinct 
+> area, the DM driver would come in handy.
+> 
+> This follows the same philosophy as fakeraid (BIOS RAID):  we simply 
+> export the entire disk, and Device Mapper (google for 'dmraid') handles 
+> the vendor-proprietary RAID metadata.
 
-
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

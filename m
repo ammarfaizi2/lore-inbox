@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932131AbVIGMoh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932140AbVIGMpR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932131AbVIGMoh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 08:44:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932134AbVIGMoh
+	id S932140AbVIGMpR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 08:45:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932139AbVIGMpK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 08:44:37 -0400
-Received: from rain.plan9.de ([193.108.181.162]:53148 "EHLO rain.plan9.de")
-	by vger.kernel.org with ESMTP id S932131AbVIGMoh (ORCPT
+	Wed, 7 Sep 2005 08:45:10 -0400
+Received: from mail.cs.umn.edu ([128.101.32.202]:13754 "EHLO mail.cs.umn.edu")
+	by vger.kernel.org with ESMTP id S932134AbVIGMpI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 08:44:37 -0400
-Date: Wed, 7 Sep 2005 14:44:35 +0200
-From: Marc Lehmann <schmorp@schmorp.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: masquerading failure for at least icmp and tcp+sack on amd64
-Message-ID: <20050907124435.GA576@schmorp.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20050906172930.GA29753@schmorp.de>
+	Wed, 7 Sep 2005 08:45:08 -0400
+Date: Wed, 7 Sep 2005 07:45:04 -0500
+From: Dave C Boutcher <sleddog@us.ibm.com>
+To: Christoph Hellwig <hch@lst.de>, Vladislav Bolkhovitin <vst@vlnb.net>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       linuxppc64-dev@ozlabs.org, Santiago Leon <santil@us.ibm.com>,
+       Linda Xie <lxiep@us.ibm.com>
+Subject: Re: [RFC] SCSI target for IBM Power5 LPAR
+Message-ID: <20050907124504.GA13614@cs.umn.edu>
+Reply-To: boutcher@cs.umn.edu
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
+	Vladislav Bolkhovitin <vst@vlnb.net>, linux-kernel@vger.kernel.org,
+	linux-scsi@vger.kernel.org, linuxppc64-dev@ozlabs.org,
+	Santiago Leon <santil@us.ibm.com>, Linda Xie <lxiep@us.ibm.com>
+References: <20050906212801.GB14057@cs.umn.edu> <20050907104932.GA14200@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050906172930.GA29753@schmorp.de>
-X-PGP: "1024D/DA743396 1999-01-26 Marc Alexander Lehmann <schmorp@schmorp.de>
-       Key fingerprint = 475A FE9B D1D4 039E 01AC  C217 A1E8 0270 DA74 3396"
+In-Reply-To: <20050907104932.GA14200@lst.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 06, 2005 at 07:29:30PM +0200, Marc Lehmann <schmorp@schmorp.de> wrote:
-> Weird obervation 2:
+On Wed, Sep 07, 2005 at 12:49:32PM +0200, Christoph Hellwig wrote:
+> On Tue, Sep 06, 2005 at 04:28:01PM -0500, Dave C Boutcher wrote:
+> > This device driver provides the SCSI target side of the "virtual
+> > SCSI" on IBM Power5 systems.  The initiator side has been in mainline
+> > for a while now (drivers/scsi/ibmvscsi/ibmvscsi.c.)  Targets already
+> > exist for AIX and OS/400.
 > 
-> Some sites could be connected to with TCP. It turned out that those
-> sites did not support TCP SACK. Indeed, turning off SACK either on the
-> remote side of a connection or on the origonator side resulted in workign
-> masquerading:
+> Please try to integrate that with the generic scsi target framework at
+> http://developer.berlios.de/projects/stgt/.
 
-Sorry for the F'up, but this turned to be slightly untrue: turning off SACK
-makes the syn handshake happen, but some packets further down the stream
-the masquerading router sends a RST again.
+There hasn't been a lot of forward progress on stgt in over a year, and
+there were some issues (lack of scatterlist support, synchronous and
+serial command execution) that were an issue when last I looked.
 
-> Kernels that don't work:
-> 
->    2.6.13-rc7 (compiled with gcc-3.4 and 4.0.2 debian), 2.6.13 (gcc-4.02)
-> 
-
-I forgot to mention that the kernels that don't work are for amd64. In
-the meantime, I also tried out 2.6.11 (as I had some troubles with
-2.6.12..2.6.13-rc7 on other amd64 machines), with the same result (reply
-packets are ignored/rejected).
+Vlad, can you comment on the state of stgt and whether you see it
+being ready for mainline any time soon?
 
 -- 
-                The choice of a
-      -----==-     _GNU_
-      ----==-- _       generation     Marc Lehmann
-      ---==---(_)__  __ ____  __      pcg@goof.com
-      --==---/ / _ \/ // /\ \/ /      http://schmorp.de/
-      -=====/_/_//_/\_,_/ /_/\_\      XX11-RIPE
+Dave Boutcher

@@ -1,79 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbVIGTlJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932224AbVIGTmZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932220AbVIGTlJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 15:41:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932224AbVIGTlJ
+	id S932224AbVIGTmZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 15:42:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932233AbVIGTmZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 15:41:09 -0400
-Received: from [67.40.69.52] ([67.40.69.52]:17914 "EHLO morpheus")
-	by vger.kernel.org with ESMTP id S932220AbVIGTlI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 15:41:08 -0400
-Subject: Gracefully killing kswapd, or any kernel thread
-From: Kristis Makris <kristis.makris@asu.edu>
-To: linux-kernel@vger.kernel.org
-Date: Wed, 07 Sep 2005 12:41:08 -0700
-Message-Id: <1126122068.2744.20.camel@syd.mkgnu.net>
+	Wed, 7 Sep 2005 15:42:25 -0400
+Received: from fed1rmmtao11.cox.net ([68.230.241.28]:46027 "EHLO
+	fed1rmmtao11.cox.net") by vger.kernel.org with ESMTP
+	id S932224AbVIGTmZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Sep 2005 15:42:25 -0400
+Date: Wed, 7 Sep 2005 12:42:24 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: "Maciej W. Rozycki" <macro@linux-mips.org>
+Cc: viro@ZenIV.linux.org.uk, "David S. Miller" <davem@davemloft.net>,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Kconfig fix (GEN_RTC dependencies)
+Message-ID: <20050907194224.GE3966@smtp.west.cox.net>
+References: <20050906005645.GQ5155@ZenIV.linux.org.uk> <20050905.185141.44096788.davem@davemloft.net> <20050906022423.GT5155@ZenIV.linux.org.uk> <Pine.LNX.4.61L.0509061109350.6760@blysk.ds.pg.gda.pl> <20050906174818.GB3966@smtp.west.cox.net> <Pine.LNX.4.61L.0509071853030.4591@blysk.ds.pg.gda.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution 2.0.4 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61L.0509071853030.4591@blysk.ds.pg.gda.pl>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wed, Sep 07, 2005 at 07:06:25PM +0100, Maciej W. Rozycki wrote:
+> On Tue, 6 Sep 2005, Tom Rini wrote:
+> 
+> > >  Yep, it's an excuse for platform maintainers not to write proper drivers.
+> > 
+> > I talked with Al about this off list a bit, and pointed out it's
+> > different than it appears.  GEN_RTC really is a mostly-generic RTC
+> > driver.  There's some fakey stuff going on for UIE (all under
+> > GEN_RTC_X), but the real meat of the driver is common export get/set
+> > time and per-arch (which can abstract further, see ppc32) poke the
+> > hardware for the time. There's 2 (afaik) problems, one being a lack of
+> > alarm support, and the other being hardware access isn't (today)
+> > abstracted out far enough for i2c stuff to work.
+> 
+>  The generic problem with the generic driver is it only supports the bare 
+> minimum an RTC might support and no way to provide access to what more 
+> sophisticated hardware may implement (e.g. an IRQ).  There is simply no 
+> room for that in the API.  And I have seen proposals for reducing the 
+> MC146818 to GEN_RTC, too...
 
-I'm trying to kill a kernel thread gracefully, in particular kswapd,
-without any success.
+Yes, that's in some ways a feature.  Personally I tie IRQ support to
+alarm, but perhaps that's just my lack of exposure.
 
-The goal is to start another kernel thread that contains updated kswapd
-functionality, through a loadable module; no kernel recompilation.
-
-I noticed that kernel threads block SIGKILL. Hence, on module load I'm
-running:
-
-task = find_task_by_name("kswapd");
-if (task != NULL) {
-    spin_lock_irq(&task->sigmask_lock);
-    sigdelset(&task->blocked, SIGKILL);
-    recalc_sigpending(task);
-    spin_unlock_irq(&task->sigmask_lock);
-    // Also tried issuing here a: kill_proc(task->pid, SIGKILL, 1);
-}
-
-Then from userspace I issue:
-
-# ps aux |grep -i swap
-root         4  0.0  0.0     0    0 ?        SW   18:36   0:00 [kswapd]
-$ kill -9 4
-
-After the kill is issued, kswapd is taking up 99.9% of CPU time and
-remains at a runnable state:
-# ps aux |grep -i swap
-root         4  0.2  0.0     0    0 ?        RW   18:36   0:02 [kswapd]
-
-
-Can anyone explain why this is happening ? I've tried this with linux
-kernels 2.2.19 and 2.4.27 (with patch kdb-4.3). What is the proper way
-of gracefully killing a kernel thread launched from the original kernel
-image (not a module) in kernels < 2.6 (ie. without the new kernel thread
-API that contains the stop_kthread call documented in
-http://www.scs.ch/~frey/linux/kernelthreads.html)
-
-I've also tried the same with kflushd, kupdate, and keventd in 2.2.19.
-When I do issue a "kill -9" for them I see:
-
-# ps aux
-USER       PID %CPU %MEM   VSZ  RSS TTY      STAT START   TIME COMMAND
-root         2  0.0  0.0     0    0 ?        SW   12:18   0:00 [kflushd]
-root         3  1.5  0.0     0    0 ?        RW   12:18   0:16 [kupdate]
-root         5  0.0  0.0     0    0 ?        SW   12:18   0:00 [keventd]
-
-All 3 kernel threads remain in the process list. kupdate also appears to
-be in a running state consuming 99.9% of the CPU when killed. What's so
-special about kupdate and kswapd that makes them stay at a running
-state, and why do all kernel threads seem unkillable?
-
-Thanks,
-Kristis
-
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

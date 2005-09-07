@@ -1,44 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbVIGJjP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750851AbVIGJwr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932088AbVIGJjP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 05:39:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932089AbVIGJjP
+	id S1750851AbVIGJwr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 05:52:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751175AbVIGJwr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 05:39:15 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:23235 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932088AbVIGJjO (ORCPT
+	Wed, 7 Sep 2005 05:52:47 -0400
+Received: from chilli.pcug.org.au ([203.10.76.44]:11225 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S1750851AbVIGJwr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 05:39:14 -0400
-Date: Wed, 7 Sep 2005 02:37:28 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, haveblue@us.ibm.com
-Subject: Re: [PATCH 01/11] memory hotplug prep: kill local_mapnr
-Message-Id: <20050907023728.732a5a9f.akpm@osdl.org>
-In-Reply-To: <20050902205643.9A4EC17A@kernel.beaverton.ibm.com>
-References: <20050902205643.9A4EC17A@kernel.beaverton.ibm.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 7 Sep 2005 05:52:47 -0400
+Date: Wed, 7 Sep 2005 19:52:38 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Linus <torvalds@osdl.org>
+Cc: paulus@samba.org, anton@samba.org, LKML <linux-kernel@vger.kernel.org>,
+       ppc64-dev <linuxppc64-dev@ozlabs.org>, Milton Miller <miltonm@bga.com>
+Subject: [PATCH] ppc64: iSeries early printk breakage
+Message-Id: <20050907195238.5523dada.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Wed__7_Sep_2005_19_52_38_+1000_S_dVQnFnOMjhJI/7"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen <haveblue@us.ibm.com> wrote:
->
->  --- memhotplug/include/asm-x86_64/mmzone.h~C0-kill-local_mapnr	2005-08-18 14:59:43.000000000 -0700
->  +++ memhotplug-dave/include/asm-x86_64/mmzone.h	2005-08-18 14:59:43.000000000 -0700
->  @@ -38,8 +38,6 @@ static inline __attribute__((pure)) int 
->   
->   #ifdef CONFIG_DISCONTIGMEM
->   
->  -#define pfn_to_nid(pfn) phys_to_nid((unsigned long)(pfn) << PAGE_SHIFT)
->  -#define kvaddr_to_nid(kaddr)	phys_to_nid(__pa(kaddr))
->   
->   /* AK: this currently doesn't deal with invalid addresses. We'll see 
->      if the 2.5 kernel doesn't pass them
->  _
+--Signature=_Wed__7_Sep_2005_19_52_38_+1000_S_dVQnFnOMjhJI/7
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-What's this bit doing here?   It breaks the x86_64 build all over the place.
+The earlier commit 8d9273918635f0301368c01b56c03a6f339e8d51
+(Consolidate early console and PPCDBG code) broke iSeries because
+it caused unregister_console(&udbg_console) to be called
+unconditionally.  iSeries never registers the udbg_console.
 
-I'll drop that chunk and see how we go...
+This just reverts part of the change.
+
+Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
+---
+
+ arch/ppc64/kernel/udbg.c |    6 ++++++
+ 1 files changed, 6 insertions(+), 0 deletions(-)
+
+--=20
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
+
+234f5032f6ccb4d72e4b74d33af55716b67d8a27
+diff --git a/arch/ppc64/kernel/udbg.c b/arch/ppc64/kernel/udbg.c
+--- a/arch/ppc64/kernel/udbg.c
++++ b/arch/ppc64/kernel/udbg.c
+@@ -158,14 +158,20 @@ static struct console udbg_console =3D {
+ 	.index	=3D -1,
+ };
+=20
++static int early_console_initialized;
++
+ void __init disable_early_printk(void)
+ {
++	if (!early_console_initialized)
++		return;
+ 	unregister_console(&udbg_console);
++	early_console_initialized =3D 0;
+ }
+=20
+ /* called by setup_system */
+ void register_early_udbg_console(void)
+ {
++	early_console_initialized =3D 1;
+ 	register_console(&udbg_console);
+ }
+=20
+
+--Signature=_Wed__7_Sep_2005_19_52_38_+1000_S_dVQnFnOMjhJI/7
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFDHrhvFdBgD/zoJvwRAupmAJ9X79UWaAtYlLyq79eHdSh4lDzICACeLFPZ
+dpNdzU4F0Y5q+FiPtvubWPw=
+=14Ac
+-----END PGP SIGNATURE-----
+
+--Signature=_Wed__7_Sep_2005_19_52_38_+1000_S_dVQnFnOMjhJI/7--

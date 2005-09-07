@@ -1,93 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbVIGUzf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932258AbVIGVHH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751315AbVIGUzf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 16:55:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbVIGUzf
+	id S932258AbVIGVHH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 17:07:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932259AbVIGVHG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 16:55:35 -0400
-Received: from wscnet.wsc.cz ([212.80.64.118]:60293 "EHLO wscnet.wsc.cz")
-	by vger.kernel.org with ESMTP id S1751315AbVIGUzf (ORCPT
+	Wed, 7 Sep 2005 17:07:06 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:19132 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932258AbVIGVHF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 16:55:35 -0400
-Message-ID: <431F53B6.6000805@gmail.com>
-Date: Wed, 07 Sep 2005 22:55:18 +0200
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: cs, en-us, en
-MIME-Version: 1.0
-To: John Richard Moser <nigelenki@comcast.net>
-CC: linux-kernel@vger.kernel.org, Grant Coady <lkml@dodo.com.au>
-Subject: Re: Some warnings and stuff GCC 4
-References: <431F292D.3070705@comcast.net>
-In-Reply-To: <431F292D.3070705@comcast.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 7 Sep 2005 17:07:05 -0400
+Date: Wed, 7 Sep 2005 23:06:51 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: LKML <linux-kernel@vger.kernel.org>, linux-pm@osdl.org
+Subject: Re: swsusp doesn't suspend devices
+Message-ID: <20050907210651.GA2878@elf.ucw.cz>
+References: <431ECCE3.8080408@drzeus.cx>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <431ECCE3.8080408@drzeus.cx>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Richard Moser napsal(a):
+Hi!
 
->-----BEGIN PGP SIGNED MESSAGE-----
->Hash: SHA1
->
->I get lots of warnings building my kernel.  I've attached my .config;
->I'm using a kernel I downloaded from kernel.org, unpatched.
->  
->
-[snip]
+> It would seem that swsusp doesn't properly suspend devices, or more
+> precisely it wakes them up again before suspending the machine.
 
->. . . one of the V4L drivers failed to build too, I turned it off.
->
->
->drivers/media/video/zr36120.c: At top level:
->drivers/media/video/zr36120.c:1821: error: unknown field 'open'
->specified in initializer
->drivers/media/video/zr36120.c:1821: warning: initialization makes
->integer from pointer without a cast
->drivers/media/video/zr36120.c:1822: error: unknown field 'close'
->specified in initializer
->drivers/media/video/zr36120.c:1822: warning: initialization from
->incompatible pointer type
->drivers/media/video/zr36120.c:1823: error: unknown field 'read'
->specified in initializer
->drivers/media/video/zr36120.c:1823: warning: initialization from
->incompatible pointer type
->drivers/media/video/zr36120.c:1824: error: unknown field 'write'
->specified in initializer
->drivers/media/video/zr36120.c:1824: warning: initialization from
->incompatible pointer type
->drivers/media/video/zr36120.c:1825: error: unknown field 'poll'
->specified in initializer
->drivers/media/video/zr36120.c:1826: error: unknown field 'ioctl'
->specified in initializer
->
->  
->
-<cite source="http://lkml.org/lkml/2005/7/29/302">
+Yes, and that's okay.
 
-On Fri, 29 Jul 2005 18:40:46 -0300, Mauro Carvalho Chehab <mchehab@brturbo.com.br> wrote:
->>>>drivers/media/video/zr36120.c
->>>>drivers/media/video/zr36120_i2c.c
->>>>drivers/media/video/zr36120_mem.c
->> 
->> 
->> Being discussed on the V4L list
->	It seems that nobody are interested on maintaining it. No answer from
->V4L list subscribers.
->
->	I think it may be removed.
+ What happens to devices during swsusp? They seem to be resumed
+during system suspend?
 
-Please no, I'll get to it, I have one to play with.
-Grant.
+A: That's correct. We need to resume them if we want to write image to
+disk. Whole sequence goes like
 
-</cite>
-So, Grant, are you doing something with that or could we schedule it for 
-wiping out?
+      Suspend part
+      ~~~~~~~~~~~~
+      running system, user asks for suspend-to-disk
 
-regards,
+      user processes are stopped
+
+      suspend(PMSG_FREEZE): devices are frozen so that they don't
+interfere
+                      with state snapshot
+
+      state snapshot: copy of whole used memory is taken with
+interrupts disabled
+
+      resume(): devices are woken up so that we can write image to
+swap
+
+      write image to swap
+
+      suspend(PMSG_SUSPEND): suspend devices so that we can power off
+
+      turn the power off
+
+      Resume part
+      ~~~~~~~~~~~
+      (is actually pretty similar)
+
+      running system, user asks for suspend-to-disk
+
+      user processes are stopped (in common case there are none, but
+with resume-from-initrd, noone k\nows)
+
+      read image from disk
+
+      suspend(PMSG_FREEZE): devices are frozen so that they don't
+interfere
+                      with image restoration
+
+      image restoration: rewrite memory with image
+
+      resume(): devices are woken up so that system can continue
+
+      thaw all user processes
 
 -- 
-Jiri Slaby         www.fi.muni.cz/~xslaby
-~\-/~      jirislaby@gmail.com      ~\-/~
-241B347EC88228DE51EE A49C4A73A25004CB2A10
-
+if you have sharp zaurus hardware you don't need... you know my address

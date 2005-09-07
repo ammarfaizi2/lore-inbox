@@ -1,50 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932174AbVIGQrD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751080AbVIGRCb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932174AbVIGQrD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 12:47:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932177AbVIGQrD
+	id S1751080AbVIGRCb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 13:02:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751029AbVIGRCb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 12:47:03 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:5297 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932174AbVIGQrB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 12:47:01 -0400
-Date: Wed, 7 Sep 2005 08:42:22 -0700 (PDT)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-cc: torvalds@osdl.org, akpm@osdl.org, nickpiggin@yahoo.com.au,
-       hugh@veritas.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: Hugh's alternate page fault scalability approach on 512p Altix
-In-Reply-To: <20660000.1126103324@[10.10.2.4]>
-Message-ID: <Pine.LNX.4.62.0509070838240.21170@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.62.0509061129380.16939@schroedinger.engr.sgi.com>
- <20660000.1126103324@[10.10.2.4]>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 7 Sep 2005 13:02:31 -0400
+Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:37323
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S1750705AbVIGRCb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Sep 2005 13:02:31 -0400
+Subject: [patch] synclink.c compiler optimiation fix
+From: Paul Fulghum <paulkf@microgate.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1126112543.3984.17.camel@deimos.microgate.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Wed, 07 Sep 2005 12:02:23 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Sep 2005, Martin J. Bligh wrote:
+[patch] synclink.c compiler optimization fix
 
-> > Anticipatory prefaulting raises the highest fault rate obtainable three-fold
-> > through gang scheduling faults but may allocate some pages to a task that are
-> > not needed.
-> 
-> IIRC that costed more than it saved, at least for forky workloads like a
-> kernel compile - extra cost in zap_pte_range etc. If things have changed
-> substantially in that path, I guess we could run the numbers again - has
-> been a couple of years.
+From: Paul Fulghum <paulkf@microgate.com>
 
-Right. The costs come about through wrong anticipations installing useless 
-mappings. The patches that I posted have this feature off by default. Gang 
-scheduling can be enabled by modifying a value in /proc. But I guess the 
-approach is essentially dead unless others want this feature too. The 
-current page fault scalability approach should be fine for a couple of 
-years and who knows what direction mmu technology has taken then.
+Make some fields of DMA descriptor volatile to
+prevent compiler optimizations.
 
+Signed-off-by: Paul Fulghum <paulkf@microgate.com>
 
-
-
-
+--- linux-2.6.13/drivers/char/synclink.c	2005-09-07 11:43:56.000000000 -0500
++++ linux-2.6.13-mg/drivers/char/synclink.c	2005-09-07 11:52:08.000000000 -0500
+@@ -1,7 +1,7 @@
+ /*
+  * linux/drivers/char/synclink.c
+  *
+- * $Id: synclink.c,v 4.28 2004/08/11 19:30:01 paulkf Exp $
++ * $Id: synclink.c,v 4.37 2005/09/07 13:13:19 paulkf Exp $
+  *
+  * Device driver for Microgate SyncLink ISA and PCI
+  * high speed multiprotocol serial adapters.
+@@ -141,9 +141,9 @@ static MGSL_PARAMS default_params = {
+ typedef struct _DMABUFFERENTRY
+ {
+ 	u32 phys_addr;	/* 32-bit flat physical address of data buffer */
+-	u16 count;	/* buffer size/data count */
+-	u16 status;	/* Control/status field */
+-	u16 rcc;	/* character count field */
++	volatile u16 count;	/* buffer size/data count */
++	volatile u16 status;	/* Control/status field */
++	volatile u16 rcc;	/* character count field */
+ 	u16 reserved;	/* padding required by 16C32 */
+ 	u32 link;	/* 32-bit flat link to next buffer entry */
+ 	char *virt_addr;	/* virtual address of data buffer */
+@@ -896,7 +896,7 @@ module_param_array(txdmabufs, int, NULL,
+ module_param_array(txholdbufs, int, NULL, 0);
+ 
+ static char *driver_name = "SyncLink serial driver";
+-static char *driver_version = "$Revision: 4.28 $";
++static char *driver_version = "$Revision: 4.37 $";
+ 
+ static int synclink_init_one (struct pci_dev *dev,
+ 				     const struct pci_device_id *ent);
 
 

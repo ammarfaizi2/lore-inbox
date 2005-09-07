@@ -1,87 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750851AbVIGJwr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932094AbVIGJ6k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750851AbVIGJwr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 05:52:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751175AbVIGJwr
+	id S932094AbVIGJ6k (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 05:58:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932095AbVIGJ6k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 05:52:47 -0400
-Received: from chilli.pcug.org.au ([203.10.76.44]:11225 "EHLO smtps.tip.net.au")
-	by vger.kernel.org with ESMTP id S1750851AbVIGJwr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 05:52:47 -0400
-Date: Wed, 7 Sep 2005 19:52:38 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Linus <torvalds@osdl.org>
-Cc: paulus@samba.org, anton@samba.org, LKML <linux-kernel@vger.kernel.org>,
-       ppc64-dev <linuxppc64-dev@ozlabs.org>, Milton Miller <miltonm@bga.com>
-Subject: [PATCH] ppc64: iSeries early printk breakage
-Message-Id: <20050907195238.5523dada.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i486-pc-linux-gnu)
+	Wed, 7 Sep 2005 05:58:40 -0400
+Received: from h80ad25ab.async.vt.edu ([128.173.37.171]:38887 "EHLO
+	h80ad25ab.async.vt.edu") by vger.kernel.org with ESMTP
+	id S932094AbVIGJ6j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Sep 2005 05:58:39 -0400
+Message-Id: <200509070958.j879w4p0017726@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: "Budde, Marco" <budde@telos.de>
+Cc: Esben Nielsen <simlo@phys.au.dk>, Jesper Juhl <jesper.juhl@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: kbuild & C++ 
+In-Reply-To: Your message of "Wed, 07 Sep 2005 11:13:24 +0200."
+             <809C13DD6142E74ABE20C65B11A2439809C4BE@www.telos.de> 
+From: Valdis.Kletnieks@vt.edu
+References: <809C13DD6142E74ABE20C65B11A2439809C4BE@www.telos.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Wed__7_Sep_2005_19_52_38_+1000_S_dVQnFnOMjhJI/7"
+Content-Type: multipart/signed; boundary="==_Exmh_1126087078_3088P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 07 Sep 2005 05:57:58 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Wed__7_Sep_2005_19_52_38_+1000_S_dVQnFnOMjhJI/7
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+--==_Exmh_1126087078_3088P
+Content-Type: text/plain; charset=us-ascii
 
-The earlier commit 8d9273918635f0301368c01b56c03a6f339e8d51
-(Consolidate early console and PPCDBG code) broke iSeries because
-it caused unregister_console(&udbg_console) to be called
-unconditionally.  iSeries never registers the udbg_console.
+On Wed, 07 Sep 2005 11:13:24 +0200, "Budde, Marco" said:
 
-This just reverts part of the change.
+> E.g. in my case the Windows source code has got more than 10 MB.
+> Nobody will convert such an amount of code from C++ to C.
+> This would take years.
 
-Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
----
+Do you have any *serious* intent to drop 10 *megabytes* worth of driver
+into the kernel??? (Hint - *everything* in drivers/net/wireless *totals*
+to only 2.7M).
 
- arch/ppc64/kernel/udbg.c |    6 ++++++
- 1 files changed, 6 insertions(+), 0 deletions(-)
+A Linux device driver isn't the same thing as a Windows device driver - much of
+a Windows driver is considered "userspace" on Linux, and you're free to do that
+in C++ if you want.
 
---=20
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
 
-234f5032f6ccb4d72e4b74d33af55716b67d8a27
-diff --git a/arch/ppc64/kernel/udbg.c b/arch/ppc64/kernel/udbg.c
---- a/arch/ppc64/kernel/udbg.c
-+++ b/arch/ppc64/kernel/udbg.c
-@@ -158,14 +158,20 @@ static struct console udbg_console =3D {
- 	.index	=3D -1,
- };
-=20
-+static int early_console_initialized;
-+
- void __init disable_early_printk(void)
- {
-+	if (!early_console_initialized)
-+		return;
- 	unregister_console(&udbg_console);
-+	early_console_initialized =3D 0;
- }
-=20
- /* called by setup_system */
- void register_early_udbg_console(void)
- {
-+	early_console_initialized =3D 1;
- 	register_console(&udbg_console);
- }
-=20
 
---Signature=_Wed__7_Sep_2005_19_52_38_+1000_S_dVQnFnOMjhJI/7
+--==_Exmh_1126087078_3088P
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQFDHrhvFdBgD/zoJvwRAupmAJ9X79UWaAtYlLyq79eHdSh4lDzICACeLFPZ
-dpNdzU4F0Y5q+FiPtvubWPw=
-=14Ac
+iD8DBQFDHrmmcC3lWbTT17ARAn+zAJ9unG7oiTOr7kBdJhPpNEIR/7BGIACgk54B
+Bcs7zgdmlcuWAjhQHiPeTeo=
+=NNUz
 -----END PGP SIGNATURE-----
 
---Signature=_Wed__7_Sep_2005_19_52_38_+1000_S_dVQnFnOMjhJI/7--
+--==_Exmh_1126087078_3088P--

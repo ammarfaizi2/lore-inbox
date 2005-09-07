@@ -1,569 +1,632 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751157AbVIGLtu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751164AbVIGLwA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751157AbVIGLtu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 07:49:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751164AbVIGLtu
+	id S1751164AbVIGLwA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 07:52:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751171AbVIGLwA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 07:49:50 -0400
-Received: from smtp1.brturbo.com.br ([200.199.201.163]:59339 "EHLO
-	smtp1.brturbo.com.br") by vger.kernel.org with ESMTP
-	id S1751157AbVIGLtu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 07:49:50 -0400
-Subject: [PATCH 1/2] V4L: TVaudio cleanup and better degug messages
+	Wed, 7 Sep 2005 07:52:00 -0400
+Received: from smtp3.brturbo.com.br ([200.199.201.164]:45975 "EHLO
+	smtp3.brturbo.com.br") by vger.kernel.org with ESMTP
+	id S1751164AbVIGLwA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Sep 2005 07:52:00 -0400
+Subject: [PATCH 2/2] V4L: tveeprom improved to support newer Hauppage cards
 From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: Linux and Kernel Video <video4linux-list@redhat.com>,
        Andrew Morton <akpm@osdl.org>
-Content-Type: multipart/mixed; boundary="=-ODZnKcmVMvHovzpN2WHI"
-Date: Wed, 07 Sep 2005 08:49:45 -0300
-Message-Id: <1126093786.5784.13.camel@localhost>
+Content-Type: multipart/mixed; boundary="=-aU6lnVreTaz8yx/jAjP1"
+Date: Wed, 07 Sep 2005 08:51:56 -0300
+Message-Id: <1126093916.5784.16.camel@localhost>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3-8mdk 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-ODZnKcmVMvHovzpN2WHI
+--=-aU6lnVreTaz8yx/jAjP1
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
 
 
 
---=-ODZnKcmVMvHovzpN2WHI
-Content-Disposition: attachment; filename=v4l_fixup_tvaudio.diff
-Content-Type: text/x-patch; name=v4l_fixup_tvaudio.diff; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+--=-aU6lnVreTaz8yx/jAjP1
+Content-Disposition: attachment; filename=v4l_fixup_tveeprom.diff
+Content-Type: text/x-patch; name=v4l_fixup_tveeprom.diff; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 
-- adds the adapter number + i2c address to printk msgs.
-- Some CodingStyle cleanups.
+- tveeprom improved and updated to reflect newer Hauppage cards.
+- CodingStyle fixes.
 
 Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
 
- linux/drivers/media/video/tvaudio.c |  206 +++++++++++++++-------------
- 1 files changed, 112 insertions(+), 94 deletions(-)
+ linux/drivers/media/video/bttv-cards.c      |    3 
+ linux/drivers/media/video/bttv-driver.c     |    1 
+ linux/drivers/media/video/cx88/cx88-cards.c |    2 
+ linux/drivers/media/video/tveeprom.c        |  329 +++++++++++++-------
+ linux/include/media/tveeprom.h              |    8 
+ 5 files changed, 239 insertions(+), 104 deletions(-)
 
-diff -u /tmp/dst.20048 linux/drivers/media/video/tvaudio.c
---- /tmp/dst.20048	2005-09-07 07:53:38.000000000 -0300
-+++ linux/drivers/media/video/tvaudio.c	2005-09-07 07:53:38.000000000 -0300
-@@ -46,7 +46,17 @@ MODULE_AUTHOR("Eric Sandeen, Steve VanDe
- MODULE_LICENSE("GPL");
+diff -u /tmp/dst.29011 linux/drivers/media/video/bttv-driver.c
+--- /tmp/dst.29011	2005-09-07 08:19:32.000000000 -0300
++++ linux/drivers/media/video/bttv-driver.c	2005-09-07 08:19:32.000000000 -0300
+@@ -4079,6 +4079,7 @@ static int bttv_suspend(struct pci_dev *
+ 	struct bttv_buffer_set idle;
+ 	unsigned long flags;
  
- #define UNSET    (-1U)
--#define dprintk  if (debug) printk
++	dprintk("bttv%d: suspend %d\n", btv->c.nr, state.event);
+ 
+ 	/* stop dma + irqs */
+ 	spin_lock_irqsave(&btv->s_lock,flags);
+diff -u /tmp/dst.29011 linux/drivers/media/video/bttv-cards.c
+--- /tmp/dst.29011	2005-09-07 08:19:32.000000000 -0300
++++ linux/drivers/media/video/bttv-cards.c	2005-09-07 08:19:32.000000000 -0300
+@@ -3062,7 +3062,7 @@ static void __devinit hauppauge_eeprom(s
+ {
+ 	struct tveeprom tv;
+ 
+-	tveeprom_hauppauge_analog(&tv, eeprom_data);
++	tveeprom_hauppauge_analog(&btv->i2c_client, &tv, eeprom_data);
+ 	btv->tuner_type = tv.tuner_type;
+ 	btv->has_radio  = tv.has_radio;
+ }
+@@ -4487,6 +4487,7 @@ void __devinit bttv_check_chipset(void)
+ 	}
+ 	if (UNSET != latency)
+ 		printk(KERN_INFO "bttv: pci latency fixup [%d]\n",latency);
 +
-+#define tvaudio_info(fmt, arg...) do {\
-+	printk(KERN_INFO "tvaudio %d-%04x: " fmt, \
-+			chip->c.adapter->nr, chip->c.addr, ## arg); } while (0)
-+#define tvaudio_warn(fmt, arg...) do {\
-+	printk(KERN_WARNING "tvaudio %d-%04x: " fmt, \
-+			chip->c.adapter->nr, chip->c.addr, ## arg); } while (0)
-+#define tvaudio_dbg(fmt, arg...) do {\
+ 	while ((dev = pci_find_device(PCI_VENDOR_ID_INTEL,
+ 				      PCI_DEVICE_ID_INTEL_82441, dev))) {
+                 unsigned char b;
+diff -u /tmp/dst.29011 linux/drivers/media/video/cx88/cx88-cards.c
+--- /tmp/dst.29011	2005-09-07 08:19:32.000000000 -0300
++++ linux/drivers/media/video/cx88/cx88-cards.c	2005-09-07 08:19:32.000000000 -0300
+@@ -945,7 +945,7 @@ static void hauppauge_eeprom(struct cx88
+ {
+ 	struct tveeprom tv;
+ 
+-	tveeprom_hauppauge_analog(&tv, eeprom_data);
++	tveeprom_hauppauge_analog(&core->i2c_client, &tv, eeprom_data);
+ 	core->tuner_type = tv.tuner_type;
+ 	core->has_radio  = tv.has_radio;
+ }
+diff -u /tmp/dst.29011 linux/include/media/tveeprom.h
+--- /tmp/dst.29011	2005-09-07 08:19:33.000000000 -0300
++++ linux/include/media/tveeprom.h	2005-09-07 08:19:33.000000000 -0300
+@@ -3,15 +3,19 @@
+ 
+ struct tveeprom {
+ 	u32 has_radio;
++	u32 has_ir;     /* 0: no IR, 1: IR present, 2: unknown */
+ 
+ 	u32 tuner_type;
+ 	u32 tuner_formats;
+ 
++	u32 tuner2_type;
++	u32 tuner2_formats;
++
+ 	u32 digitizer;
+ 	u32 digitizer_formats;
+ 
+ 	u32 audio_processor;
+-	/* a_p_fmts? */
++	u32 decoder_processor;
+ 
+ 	u32 model;
+ 	u32 revision;
+@@ -19,7 +23,7 @@ struct tveeprom {
+ 	char rev_str[5];
+ };
+ 
+-void tveeprom_hauppauge_analog(struct tveeprom *tvee,
++void tveeprom_hauppauge_analog(struct i2c_client *c, struct tveeprom *tvee,
+ 			       unsigned char *eeprom_data);
+ 
+ int tveeprom_read(struct i2c_client *c, unsigned char *eedata, int len);
+diff -u /tmp/dst.29011 linux/drivers/media/video/tveeprom.c
+--- /tmp/dst.29011	2005-09-07 08:19:33.000000000 -0300
++++ linux/drivers/media/video/tveeprom.c	2005-09-07 08:19:33.000000000 -0300
+@@ -47,18 +47,21 @@ MODULE_LICENSE("GPL");
+ 
+ static int debug = 0;
+ module_param(debug, int, 0644);
+-MODULE_PARM_DESC(debug, "Debug level (0-2)");
++MODULE_PARM_DESC(debug, "Debug level (0-1)");
+ 
+ #define STRM(array,i) (i < sizeof(array)/sizeof(char*) ? array[i] : "unknown")
+ 
+-#define dprintk(num, args...) \
+-	do { \
+-		if (debug >= num) \
+-			printk(KERN_INFO "tveeprom: " args); \
+-	} while (0)
++#define tveeprom_info(fmt, arg...) do {\
++	printk(KERN_INFO "tveeprom %d-%04x: " fmt, \
++                        c->adapter->nr, c->addr, ## arg); } while (0)
++#define tveeprom_warn(fmt, arg...) do {\
++	printk(KERN_WARNING "tveeprom %d-%04x: " fmt, \
++                        c->adapter->nr, c->addr, ## arg); } while (0)
++#define tveeprom_dbg(fmt, arg...) do {\
 +	if (debug) \
-+		printk(KERN_INFO "tvaudio %d-%04x: " fmt, \
-+			chip->c.adapter->nr, chip->c.addr, ## arg); } while (0)
++                printk(KERN_INFO "tveeprom %d-%04x: " fmt, \
++                        c->adapter->nr, c->addr, ## arg); } while (0)
  
- /* ---------------------------------------------------------------------- */
- /* our structs                                                            */
-@@ -162,23 +172,24 @@ static int chip_write(struct CHIPSTATE *
- 	unsigned char buffer[2];
+-#define TVEEPROM_KERN_ERR(args...) printk(KERN_ERR "tveeprom: " args);
+-#define TVEEPROM_KERN_INFO(args...) printk(KERN_INFO "tveeprom: " args);
  
- 	if (-1 == subaddr) {
--		dprintk("%s: chip_write: 0x%x\n", chip->c.name, val);
-+		tvaudio_dbg("%s: chip_write: 0x%x\n",
-+			chip->c.name, val);
- 		chip->shadow.bytes[1] = val;
- 		buffer[0] = val;
- 		if (1 != i2c_master_send(&chip->c,buffer,1)) {
--			printk(KERN_WARNING "%s: I/O error (write 0x%x)\n",
--			       chip->c.name, val);
-+			tvaudio_warn("%s: I/O error (write 0x%x)\n",
-+				chip->c.name, val);
- 			return -1;
+ /* ----------------------------------------------------------------------- */
+ /* some hauppauge specific stuff                                           */
+@@ -70,14 +73,14 @@ static struct HAUPPAUGE_TUNER_FMT
+ }
+ hauppauge_tuner_fmt[] =
+ {
+-	{ 0x00000000, "unknown1" },
+-	{ 0x00000000, "unknown2" },
+-	{ 0x00000007, "PAL(B/G)" },
+-	{ 0x00001000, "NTSC(M)" },
+-	{ 0x00000010, "PAL(I)" },
+-	{ 0x00400000, "SECAM(L/L´)" },
+-	{ 0x00000e00, "PAL(D/K)" },
+-	{ 0x03000000, "ATSC Digital" },
++	{ 0x00000000, " unknown1" },
++	{ 0x00000000, " unknown2" },
++	{ 0x00000007, " PAL(B/G)" },
++	{ 0x00001000, " NTSC(M)" },
++	{ 0x00000010, " PAL(I)" },
++	{ 0x00400000, " SECAM(L/L')" },
++	{ 0x00000e00, " PAL(D/K)" },
++	{ 0x03000000, " ATSC Digital" },
+ };
+ 
+ /* This is the full list of possible tuners. Many thanks to Hauppauge for
+@@ -203,20 +206,47 @@ hauppauge_tuner[] =
+         { TUNER_TCL_2002N,     "TCL 2002N 5H"},
+ 	/* 100-103 */
+ 	{ TUNER_ABSENT,        "Unspecified"},
+-        { TUNER_ABSENT,        "Unspecified"},
++        { TUNER_TEA5767,       "Philips TEA5767HN FM Radio"},
+         { TUNER_ABSENT,        "Unspecified"},
+         { TUNER_PHILIPS_FM1236_MK3, "TCL MFNM05 4"},
+ };
+ 
+-static char *sndtype[] = {
+-	"None", "TEA6300", "TEA6320", "TDA9850", "MSP3400C", "MSP3410D",
+-	"MSP3415", "MSP3430", "MSP3438", "CS5331", "MSP3435", "MSP3440",
+-	"MSP3445", "MSP3411", "MSP3416", "MSP3425",
+-
+-	"Type 0x10","Type 0x11","Type 0x12","Type 0x13",
+-	"Type 0x14","Type 0x15","Type 0x16","Type 0x17",
+-	"Type 0x18","MSP4418","Type 0x1a","MSP4448",
+-	"Type 0x1c","Type 0x1d","Type 0x1e","Type 0x1f",
++/* This list is supplied by Hauppauge. Thanks! */
++static const char *audioIC[] = {
++        /* 0-4 */
++        "None", "TEA6300", "TEA6320", "TDA9850", "MSP3400C",
++        /* 5-9 */
++        "MSP3410D", "MSP3415", "MSP3430", "MSP3438", "CS5331",
++        /* 10-14 */
++        "MSP3435", "MSP3440", "MSP3445", "MSP3411", "MSP3416",
++        /* 15-19 */
++        "MSP3425", "MSP3451", "MSP3418", "Type 0x12", "OKI7716",
++        /* 20-24 */
++        "MSP4410", "MSP4420", "MSP4440", "MSP4450", "MSP4408",
++        /* 25-29 */
++        "MSP4418", "MSP4428", "MSP4448", "MSP4458", "Type 0x1d",
++        /* 30-34 */
++        "CX880", "CX881", "CX883", "CX882", "CX25840",
++        /* 35-38 */
++        "CX25841", "CX25842", "CX25843", "CX23418",
++};
++
++/* This list is supplied by Hauppauge. Thanks! */
++static const char *decoderIC[] = {
++        /* 0-4 */
++        "None", "BT815", "BT817", "BT819", "BT815A",
++        /* 5-9 */
++        "BT817A", "BT819A", "BT827", "BT829", "BT848",
++        /* 10-14 */
++        "BT848A", "BT849A", "BT829A", "BT827A", "BT878",
++        /* 15-19 */
++        "BT879", "BT880", "VPX3226E", "SAA7114", "SAA7115",
++        /* 20-24 */
++        "CX880", "CX881", "CX883", "SAA7111", "SAA7113",
++        /* 25-29 */
++        "CX882", "TVP5150A", "CX25840", "CX25841", "CX25842",
++        /* 30-31 */
++        "CX25843", "CX23418",
+ };
+ 
+ static int hasRadioTuner(int tunerType)
+@@ -257,7 +287,8 @@ static int hasRadioTuner(int tunerType)
+         return 0;
+ }
+ 
+-void tveeprom_hauppauge_analog(struct tveeprom *tvee, unsigned char *eeprom_data)
++void tveeprom_hauppauge_analog(struct i2c_client *c, struct tveeprom *tvee,
++                                unsigned char *eeprom_data)
+ {
+ 	/* ----------------------------------------------
+ 	** The hauppauge eeprom format is tagged
+@@ -267,10 +298,11 @@ void tveeprom_hauppauge_analog(struct tv
+ 	** if packet[0] & f8 == f8, then EOD and packet[1] == checksum
+ 	**
+ 	** In our (ivtv) case we're interested in the following:
+-	** tuner type: tag [00].05 or [0a].01 (index into hauppauge_tuner)
+-	** tuner fmts: tag [00].04 or [0a].00 (bitmask index into hauppauge_tuner_fmt)
+-	** radio:      tag [00].{last} or [0e].00  (bitmask.  bit2=FM)
+-	** audio proc: tag [02].01 or [05].00 (lower nibble indexes lut?)
++	** tuner type:   tag [00].05 or [0a].01 (index into hauppauge_tuner)
++	** tuner fmts:   tag [00].04 or [0a].00 (bitmask index into hauppauge_tuner_fmt)
++	** radio:        tag [00].{last} or [0e].00  (bitmask.  bit2=FM)
++	** audio proc:   tag [02].01 or [05].00 (mask with 0x7f)
++	** decoder proc: tag [09].01)
+ 
+ 	** Fun info:
+ 	** model:      tag [00].07-08 or [06].00-01
+@@ -280,20 +312,24 @@ void tveeprom_hauppauge_analog(struct tv
+ 	** # of inputs/outputs ???
+ 	*/
+ 
+-	int i, j, len, done, beenhere, tag, tuner = 0, t_format = 0;
+-	char *t_name = NULL, *t_fmt_name = NULL;
++	int i, j, len, done, beenhere, tag;
+ 
+-	dprintk(1, "%s\n",__FUNCTION__);
+-	tvee->revision = done = len = beenhere = 0;
+-	for (i = 0; !done && i < 256; i += len) {
+-		dprintk(2, "processing pos = %02x (%02x, %02x)\n",
+-			i, eeprom_data[i], eeprom_data[i + 1]);
++        int tuner1 = 0, t_format1 = 0;
++	char *t_name1 = NULL;
++        const char *t_fmt_name1[8] = { " none", "", "", "", "", "", "", "" };
++
++        int tuner2 = 0, t_format2 = 0;
++	char *t_name2 = NULL;
++        const char *t_fmt_name2[8] = { " none", "", "", "", "", "", "", "" };
+ 
++        memset(tvee, 0, sizeof(*tvee));
++	done = len = beenhere = 0;
++	for (i = 0; !done && i < 256; i += len) {
+ 		if (eeprom_data[i] == 0x84) {
+ 			len = eeprom_data[i + 1] + (eeprom_data[i + 2] << 8);
+-			i+=3;
++			i += 3;
+ 		} else if ((eeprom_data[i] & 0xf0) == 0x70) {
+-			if ((eeprom_data[i] & 0x08)) {
++			if (eeprom_data[i] & 0x08) {
+ 				/* verify checksum! */
+ 				done = 1;
+ 				break;
+@@ -301,24 +337,30 @@ void tveeprom_hauppauge_analog(struct tv
+ 			len = eeprom_data[i] & 0x07;
+ 			++i;
+ 		} else {
+-			TVEEPROM_KERN_ERR("Encountered bad packet header [%02x]. "
++			tveeprom_warn("Encountered bad packet header [%02x]. "
+ 				   "Corrupt or not a Hauppauge eeprom.\n", eeprom_data[i]);
+ 			return;
  		}
- 	} else {
--		dprintk("%s: chip_write: reg%d=0x%x\n",
-+		tvaudio_dbg("%s: chip_write: reg%d=0x%x\n",
- 			chip->c.name, subaddr, val);
- 		chip->shadow.bytes[subaddr+1] = val;
- 		buffer[0] = subaddr;
- 		buffer[1] = val;
- 		if (2 != i2c_master_send(&chip->c,buffer,2)) {
--			printk(KERN_WARNING "%s: I/O error (write reg%d=0x%x)\n",
--			       chip->c.name, subaddr, val);
-+			tvaudio_warn("%s: I/O error (write reg%d=0x%x)\n",
-+						chip->c.name, subaddr, val);
- 			return -1;
- 		}
- 	}
-@@ -202,29 +213,30 @@ static int chip_read(struct CHIPSTATE *c
- 	unsigned char buffer;
  
- 	if (1 != i2c_master_recv(&chip->c,&buffer,1)) {
--		printk(KERN_WARNING "%s: I/O error (read)\n", chip->c.name);
-+		tvaudio_warn("%s: I/O error (read)\n",
-+		chip->c.name);
- 		return -1;
- 	}
--	dprintk("%s: chip_read: 0x%x\n", chip->c.name, buffer);
-+	tvaudio_dbg("%s: chip_read: 0x%x\n",chip->c.name,buffer);
- 	return buffer;
- }
+-		dprintk(1, "%3d [%02x] ", len, eeprom_data[i]);
+-		for(j = 1; j < len; j++) {
+-			dprintk(1, "%02x ", eeprom_data[i + j]);
+-		}
+-		dprintk(1, "\n");
++                if (debug) {
++                        tveeprom_info("Tag [%02x] + %d bytes:", eeprom_data[i], len - 1);
++                        for(j = 1; j < len; j++) {
++                                printk(" %02x", eeprom_data[i + j]);
++                        }
++                        printk("\n");
++                }
  
- static int chip_read2(struct CHIPSTATE *chip, int subaddr)
- {
--        unsigned char write[1];
--        unsigned char read[1];
--        struct i2c_msg msgs[2] = {
--                { chip->c.addr, 0,        1, write },
--                { chip->c.addr, I2C_M_RD, 1, read  }
--        };
--        write[0] = subaddr;
-+	unsigned char write[1];
-+	unsigned char read[1];
-+	struct i2c_msg msgs[2] = {
-+		{ chip->c.addr, 0,        1, write },
-+		{ chip->c.addr, I2C_M_RD, 1, read  }
-+	};
-+	write[0] = subaddr;
- 
- 	if (2 != i2c_transfer(chip->c.adapter,msgs,2)) {
--		printk(KERN_WARNING "%s: I/O error (read2)\n", chip->c.name);
-+		tvaudio_warn("%s: I/O error (read2)\n", chip->c.name);
- 		return -1;
- 	}
--	dprintk("%s: chip_read2: reg%d=0x%x\n",
--		chip->c.name, subaddr, read[0]);
-+	tvaudio_dbg("%s: chip_read2: reg%d=0x%x\n",
-+			chip->c.name,subaddr,read[0]);
- 	return read[0];
- }
- 
-@@ -236,17 +248,19 @@ static int chip_cmd(struct CHIPSTATE *ch
- 		return 0;
- 
- 	/* update our shadow register set; print bytes if (debug > 0) */
--	dprintk("%s: chip_cmd(%s): reg=%d, data:",
--		chip->c.name, name, cmd->bytes[0]);
-+	tvaudio_dbg("%s: chip_cmd(%s): reg=%d, data:",
-+		chip->c.name,name,cmd->bytes[0]);
- 	for (i = 1; i < cmd->count; i++) {
--		dprintk(" 0x%x",cmd->bytes[i]);
-+		if (debug)
-+			printk(" 0x%x",cmd->bytes[i]);
- 		chip->shadow.bytes[i+cmd->bytes[0]] = cmd->bytes[i];
- 	}
--	dprintk("\n");
-+	if (debug)
-+		printk("\n");
- 
- 	/* send data to the chip */
- 	if (cmd->count != i2c_master_send(&chip->c,cmd->bytes,cmd->count)) {
--		printk(KERN_WARNING "%s: I/O error (%s)\n", chip->c.name, name);
-+		tvaudio_warn("%s: I/O error (%s)\n", chip->c.name, name);
- 		return -1;
- 	}
- 	return 0;
-@@ -261,19 +275,19 @@ static int chip_cmd(struct CHIPSTATE *ch
- 
- static void chip_thread_wake(unsigned long data)
- {
--        struct CHIPSTATE *chip = (struct CHIPSTATE*)data;
-+	struct CHIPSTATE *chip = (struct CHIPSTATE*)data;
- 	wake_up_interruptible(&chip->wq);
- }
- 
- static int chip_thread(void *data)
- {
- 	DECLARE_WAITQUEUE(wait, current);
--        struct CHIPSTATE *chip = data;
-+	struct CHIPSTATE *chip = data;
- 	struct CHIPDESC  *desc = chiplist + chip->type;
- 
- 	daemonize("%s", chip->c.name);
- 	allow_signal(SIGTERM);
--	dprintk("%s: thread started\n", chip->c.name);
-+	tvaudio_dbg("%s: thread started\n", chip->c.name);
- 
- 	for (;;) {
- 		add_wait_queue(&chip->wq, &wait);
-@@ -285,7 +299,7 @@ static int chip_thread(void *data)
- 		try_to_freeze();
- 		if (chip->done || signal_pending(current))
+ 		/* process by tag */
+ 		tag = eeprom_data[i];
+ 		switch (tag) {
+ 		case 0x00:
+-			tuner = eeprom_data[i+6];
+-			t_format = eeprom_data[i+5];
++                        /* tag: 'Comprehensive' */
++			tuner1 = eeprom_data[i+6];
++			t_format1 = eeprom_data[i+5];
+ 			tvee->has_radio = eeprom_data[i+len-1];
++                        /* old style tag, don't know how to detect
++                           IR presence, mark as unknown. */
++			tvee->has_ir = 2;
+ 			tvee->model =
+ 				eeprom_data[i+8] +
+ 				(eeprom_data[i+9] << 8);
+@@ -326,25 +368,43 @@ void tveeprom_hauppauge_analog(struct tv
+ 				(eeprom_data[i+11] << 8) +
+ 				(eeprom_data[i+12] << 16);
  			break;
--		dprintk("%s: thread wakeup\n", chip->c.name);
-+		tvaudio_dbg("%s: thread wakeup\n", chip->c.name);
- 
- 		/* don't do anything for radio or if mode != auto */
- 		if (chip->norm == VIDEO_MODE_RADIO || chip->mode != 0)
-@@ -298,8 +312,8 @@ static int chip_thread(void *data)
- 		mod_timer(&chip->wt, jiffies+2*HZ);
++
+ 		case 0x01:
++                        /* tag: 'SerialID' */
+ 			tvee->serial_number =
+ 				eeprom_data[i+6] +
+ 				(eeprom_data[i+7] << 8) +
+ 				(eeprom_data[i+8] << 16);
+ 			break;
++
+ 		case 0x02:
+-			tvee->audio_processor = eeprom_data[i+2] & 0x0f;
++                        /* tag 'AudioInfo'
++                           Note mask with 0x7F, high bit used on some older models
++                           to indicate 4052 mux was removed in favor of using MSP
++                           inputs directly. */
++			tvee->audio_processor = eeprom_data[i+2] & 0x7f;
+ 			break;
++
++                /* case 0x03: tag 'EEInfo' */
++
+ 		case 0x04:
++                        /* tag 'SerialID2' */
+ 			tvee->serial_number =
+ 				eeprom_data[i+5] +
+ 				(eeprom_data[i+6] << 8) +
+ 				(eeprom_data[i+7] << 16);
+ 			break;
++
+ 		case 0x05:
+-			tvee->audio_processor = eeprom_data[i+1] & 0x0f;
++                        /* tag 'Audio2'
++                           Note mask with 0x7F, high bit used on some older models
++                           to indicate 4052 mux was removed in favor of using MSP
++                           inputs directly. */
++			tvee->audio_processor = eeprom_data[i+1] & 0x7f;
+ 			break;
++
+ 		case 0x06:
++                        /* tag 'ModelRev' */
+ 			tvee->model =
+ 				eeprom_data[i+1] +
+ 				(eeprom_data[i+2] << 8);
+@@ -352,27 +412,66 @@ void tveeprom_hauppauge_analog(struct tv
+ 				(eeprom_data[i+6] << 8) +
+ 				(eeprom_data[i+7] << 16);
+ 			break;
++
++		case 0x07:
++                        /* tag 'Details': according to Hauppauge not interesting
++                           on any PCI-era or later boards. */
++			break;
++
++                /* there is no tag 0x08 defined */
++
++		case 0x09:
++                        /* tag 'Video' */
++			tvee->decoder_processor = eeprom_data[i + 1];
++			break;
++
+ 		case 0x0a:
+-			if(beenhere == 0) {
+-				tuner = eeprom_data[i+2];
+-				t_format = eeprom_data[i+1];
++                        /* tag 'Tuner' */
++			if (beenhere == 0) {
++				tuner1 = eeprom_data[i+2];
++				t_format1 = eeprom_data[i+1];
+ 				beenhere = 1;
+-				break;
+ 			} else {
+-				break;
+-			}
++                                /* a second (radio) tuner may be present */
++				tuner2 = eeprom_data[i+2];
++				t_format2 = eeprom_data[i+1];
++                                if (t_format2 == 0) {  /* not a TV tuner? */
++                                        tvee->has_radio = 1; /* must be radio */
++                                }
++                        }
++			break;
++
++                case 0x0b:
++                        /* tag 'Inputs': according to Hauppauge this is specific
++                           to each driver family, so no good assumptions can be
++                           made. */
++                        break;
++
++                /* case 0x0c: tag 'Balun' */
++                /* case 0x0d: tag 'Teletext' */
++
+ 		case 0x0e:
++                        /* tag: 'Radio' */
+ 			tvee->has_radio = eeprom_data[i+1];
+ 			break;
++
++                case 0x0f:
++                        /* tag 'IRInfo' */
++                        tvee->has_ir = eeprom_data[i+1];
++                        break;
++
++                /* case 0x10: tag 'VBIInfo' */
++                /* case 0x11: tag 'QCInfo' */
++                /* case 0x12: tag 'InfoBits' */
++
+ 		default:
+-			dprintk(1, "Not sure what to do with tag [%02x]\n", tag);
++			tveeprom_dbg("Not sure what to do with tag [%02x]\n", tag);
+ 			/* dump the rest of the packet? */
+ 		}
+-
  	}
  
--	dprintk("%s: thread exiting\n", chip->c.name);
--        complete_and_exit(&chip->texit, 0);
-+	tvaudio_dbg("%s: thread exiting\n", chip->c.name);
-+	complete_and_exit(&chip->texit, 0);
- 	return 0;
- }
- 
-@@ -309,9 +323,9 @@ static void generic_checkmode(struct CHI
- 	int mode = desc->getmode(chip);
- 
- 	if (mode == chip->prevmode)
--	    return;
-+		return;
- 
--	dprintk("%s: thread checkmode\n", chip->c.name);
-+	tvaudio_dbg("%s: thread checkmode\n", chip->c.name);
- 	chip->prevmode = mode;
- 
- 	if (mode & VIDEO_SOUND_STEREO)
-@@ -358,8 +372,8 @@ static int tda9840_getmode(struct CHIPST
- 	if (val & TDA9840_ST_STEREO)
- 		mode |= VIDEO_SOUND_STEREO;
- 
--	dprintk ("tda9840_getmode(): raw chip read: %d, return: %d\n",
--		 val, mode);
-+	tvaudio_dbg ("tda9840_getmode(): raw chip read: %d, return: %d\n",
-+		val, mode);
- 	return mode;
- }
- 
-@@ -654,8 +668,8 @@ static int tda9873_getmode(struct CHIPST
- 		mode |= VIDEO_SOUND_STEREO;
- 	if (val & TDA9873_DUAL)
- 		mode |= VIDEO_SOUND_LANG1 | VIDEO_SOUND_LANG2;
--	dprintk ("tda9873_getmode(): raw chip read: %d, return: %d\n",
--		 val, mode);
-+	tvaudio_dbg ("tda9873_getmode(): raw chip read: %d, return: %d\n",
-+		val, mode);
- 	return mode;
- }
- 
-@@ -665,12 +679,12 @@ static void tda9873_setmode(struct CHIPS
- 	/*	int adj_data = chip->shadow.bytes[TDA9873_AD+1] ; */
- 
- 	if ((sw_data & TDA9873_INP_MASK) != TDA9873_INTERNAL) {
--		dprintk("tda9873_setmode(): external input\n");
-+		tvaudio_dbg("tda9873_setmode(): external input\n");
+ 	if (!done) {
+-		TVEEPROM_KERN_ERR("Ran out of data!\n");
++		tveeprom_warn("Ran out of data!\n");
  		return;
  	}
  
--	dprintk("tda9873_setmode(): chip->shadow.bytes[%d] = %d\n", TDA9873_SW+1, chip->shadow.bytes[TDA9873_SW+1]);
--	dprintk("tda9873_setmode(): sw_data  = %d\n", sw_data);
-+	tvaudio_dbg("tda9873_setmode(): chip->shadow.bytes[%d] = %d\n", TDA9873_SW+1, chip->shadow.bytes[TDA9873_SW+1]);
-+	tvaudio_dbg("tda9873_setmode(): sw_data  = %d\n", sw_data);
- 
- 	switch (mode) {
- 	case VIDEO_SOUND_MONO:
-@@ -691,7 +705,7 @@ static void tda9873_setmode(struct CHIPS
+@@ -384,47 +483,72 @@ void tveeprom_hauppauge_analog(struct tv
+ 		tvee->rev_str[4] = 0;
  	}
  
- 	chip_write(chip, TDA9873_SW, sw_data);
--	dprintk("tda9873_setmode(): req. mode %d; chip_write: %d\n",
-+	tvaudio_dbg("tda9873_setmode(): req. mode %d; chip_write: %d\n",
- 		mode, sw_data);
- }
+-        if (hasRadioTuner(tuner) && !tvee->has_radio) {
+-	    TVEEPROM_KERN_INFO("The eeprom says no radio is present, but the tuner type\n");
+-	    TVEEPROM_KERN_INFO("indicates otherwise. I will assume that radio is present.\n");
++        if (hasRadioTuner(tuner1) && !tvee->has_radio) {
++	    tveeprom_info("The eeprom says no radio is present, but the tuner type\n");
++	    tveeprom_info("indicates otherwise. I will assume that radio is present.\n");
+             tvee->has_radio = 1;
+         }
  
-@@ -828,9 +842,9 @@ static int tda9874a_setup(struct CHIPSTA
- 	} else { /* dic == 0x07 */
- 		chip_write(chip, TDA9874A_AMCONR, 0xfb);
- 		chip_write(chip, TDA9874A_SDACOSR, (tda9874a_mode) ? 0x81:0x80);
--		chip_write(chip, TDA9874A_AOSR, 0x00); // or 0x10
-+		chip_write(chip, TDA9874A_AOSR, 0x00); /* or 0x10 */
- 	}
--	dprintk("tda9874a_setup(): %s [0x%02X].\n",
-+	tvaudio_dbg("tda9874a_setup(): %s [0x%02X].\n",
- 		tda9874a_modelist[tda9874a_STD].name,tda9874a_STD);
- 	return 1;
- }
-@@ -873,7 +887,7 @@ static int tda9874a_getmode(struct CHIPS
- 			mode |= VIDEO_SOUND_LANG1 | VIDEO_SOUND_LANG2;
- 	}
- 
--	dprintk("tda9874a_getmode(): DSR=0x%X, NSR=0x%X, NECR=0x%X, return: %d.\n",
-+	tvaudio_dbg("tda9874a_getmode(): DSR=0x%X, NSR=0x%X, NECR=0x%X, return: %d.\n",
- 		 dsr, nsr, necr, mode);
- 	return mode;
- }
-@@ -919,7 +933,7 @@ static void tda9874a_setmode(struct CHIP
- 		chip_write(chip, TDA9874A_AOSR, aosr);
- 		chip_write(chip, TDA9874A_MDACOSR, mdacosr);
- 
--		dprintk("tda9874a_setmode(): req. mode %d; AOSR=0x%X, MDACOSR=0x%X.\n",
-+		tvaudio_dbg("tda9874a_setmode(): req. mode %d; AOSR=0x%X, MDACOSR=0x%X.\n",
- 			mode, aosr, mdacosr);
- 
- 	} else { /* dic == 0x07 */
-@@ -954,7 +968,7 @@ static void tda9874a_setmode(struct CHIP
- 		chip_write(chip, TDA9874A_FMMR, fmmr);
- 		chip_write(chip, TDA9874A_AOSR, aosr);
- 
--		dprintk("tda9874a_setmode(): req. mode %d; FMMR=0x%X, AOSR=0x%X.\n",
-+		tvaudio_dbg("tda9874a_setmode(): req. mode %d; FMMR=0x%X, AOSR=0x%X.\n",
- 			mode, fmmr, aosr);
- 	}
- }
-@@ -968,10 +982,10 @@ static int tda9874a_checkit(struct CHIPS
- 	if(-1 == (sic = chip_read2(chip,TDA9874A_SIC)))
- 		return 0;
- 
--	dprintk("tda9874a_checkit(): DIC=0x%X, SIC=0x%X.\n", dic, sic);
-+	tvaudio_dbg("tda9874a_checkit(): DIC=0x%X, SIC=0x%X.\n", dic, sic);
- 
- 	if((dic == 0x11)||(dic == 0x07)) {
--		printk("tvaudio: found tda9874%s.\n", (dic == 0x11) ? "a":"h");
-+		tvaudio_info("found tda9874%s.\n", (dic == 0x11) ? "a":"h");
- 		tda9874a_dic = dic;	/* remember device id. */
- 		return 1;
- 	}
-@@ -1146,7 +1160,7 @@ static void tda8425_setmode(struct CHIPS
- /* ---------------------------------------------------------------------- */
- /* audio chip descriptions - defines+functions for TA8874Z                */
- 
--// write 1st byte
-+/* write 1st byte */
- #define TA8874Z_LED_STE	0x80
- #define TA8874Z_LED_BIL	0x40
- #define TA8874Z_LED_EXT	0x20
-@@ -1156,21 +1170,22 @@ static void tda8425_setmode(struct CHIPS
- #define TA8874Z_MODE_SUB	0x02
- #define TA8874Z_MODE_MAIN	0x01
- 
--// write 2nd byte
--//#define TA8874Z_TI	0x80  // test mode
-+/* write 2nd byte */
-+/*#define TA8874Z_TI	0x80  */ /* test mode */
- #define TA8874Z_SEPARATION	0x3f
- #define TA8874Z_SEPARATION_DEFAULT	0x10
- 
--// read
-+/* read */
- #define TA8874Z_B1	0x80
- #define TA8874Z_B0	0x40
- #define TA8874Z_CHAG_FLAG	0x20
- 
--//        B1 B0
--// mono    L  H
--// stereo  L  L
--// BIL     H  L
--
-+/*
-+ *        B1 B0
-+ * mono    L  H
-+ * stereo  L  L
-+ * BIL     H  L
-+ */
- static int ta8874z_getmode(struct CHIPSTATE *chip)
- {
- 	int val, mode;
-@@ -1182,7 +1197,7 @@ static int ta8874z_getmode(struct CHIPST
- 	}else if (!(val & TA8874Z_B0)){
- 		mode |= VIDEO_SOUND_STEREO;
- 	}
--	//dprintk ("ta8874z_getmode(): raw chip read: 0x%02x, return: 0x%02x\n", val, mode);
-+	/* tvaudio_dbg ("ta8874z_getmode(): raw chip read: 0x%02x, return: 0x%02x\n", val, mode); */
- 	return mode;
- }
- 
-@@ -1195,7 +1210,7 @@ static void ta8874z_setmode(struct CHIPS
- {
- 	int update = 1;
- 	audiocmd *t = NULL;
--	dprintk("ta8874z_setmode(): mode: 0x%02x\n", mode);
-+	tvaudio_dbg("ta8874z_setmode(): mode: 0x%02x\n", mode);
- 
- 	switch(mode){
- 	case VIDEO_SOUND_MONO:
-@@ -1235,11 +1250,11 @@ static int tda9850  = 1;
- static int tda9855  = 1;
- static int tda9873  = 1;
- static int tda9874a = 1;
--static int tea6300  = 0;  // address clash with msp34xx
--static int tea6320  = 0;  // address clash with msp34xx
-+static int tea6300  = 0;  /* address clash with msp34xx */
-+static int tea6320  = 0;  /* address clash with msp34xx */
- static int tea6420  = 1;
- static int pic16c54 = 1;
--static int ta8874z  = 0;  // address clash with tda9840
-+static int ta8874z  = 0;  /* address clash with tda9840 */
- 
- module_param(tda8425, int, 0444);
- module_param(tda9840, int, 0444);
-@@ -1441,7 +1456,7 @@ static struct CHIPDESC chiplist[] = {
- 	{
- 		.name       = "ta8874z",
- 		.id         = -1,
--		//.id         = I2C_DRIVERID_TA8874Z,
-+		/*.id         = I2C_DRIVERID_TA8874Z, */
- 		.checkit    = ta8874z_checkit,
- 		.insmodopt  = &ta8874z,
- 		.addr_lo    = I2C_TDA9840 >> 1,
-@@ -1476,7 +1491,7 @@ static int chip_attach(struct i2c_adapte
- 	i2c_set_clientdata(&chip->c, chip);
- 
- 	/* find description for the chip */
--	dprintk("tvaudio: chip found @ i2c-addr=0x%x\n", addr<<1);
-+	tvaudio_dbg("chip found @ 0x%x\n", addr<<1);
- 	for (desc = chiplist; desc->name != NULL; desc++) {
- 		if (0 == *(desc->insmodopt))
- 			continue;
-@@ -1488,17 +1503,19 @@ static int chip_attach(struct i2c_adapte
- 		break;
- 	}
- 	if (desc->name == NULL) {
--		dprintk("tvaudio: no matching chip description found\n");
-+		tvaudio_dbg("no matching chip description found\n");
- 		return -EIO;
- 	}
--	printk("tvaudio: found %s @ 0x%x\n", desc->name, addr<<1);
--	dprintk("tvaudio: matches:%s%s%s.\n",
--		(desc->flags & CHIP_HAS_VOLUME)     ? " volume"      : "",
--		(desc->flags & CHIP_HAS_BASSTREBLE) ? " bass/treble" : "",
--		(desc->flags & CHIP_HAS_INPUTSEL)   ? " audiomux"    : "");
-+	tvaudio_info("%s found @ 0x%x (%s)\n", desc->name, addr<<1, adap->name);
-+        if (desc->flags) {
-+                tvaudio_dbg("matches:%s%s%s.\n",
-+                        (desc->flags & CHIP_HAS_VOLUME)     ? " volume"      : "",
-+                        (desc->flags & CHIP_HAS_BASSTREBLE) ? " bass/treble" : "",
-+                        (desc->flags & CHIP_HAS_INPUTSEL)   ? " audiomux"    : "");
-+        }
- 
- 	/* fill required data structures */
--	strcpy(chip->c.name, desc->name);
-+	strcpy(chip->c.name,desc->name);
- 	chip->type = desc-chiplist;
- 	chip->shadow.count = desc->registers+1;
-         chip->prevmode = -1;
-@@ -1534,7 +1551,7 @@ static int chip_attach(struct i2c_adapte
- 		init_completion(&chip->texit);
- 		chip->tpid = kernel_thread(chip_thread,(void *)chip,0);
- 		if (chip->tpid < 0)
--			printk(KERN_WARNING "%s: kernel_thread() failed\n",
-+			tvaudio_warn("%s: kernel_thread() failed\n",
- 			       chip->c.name);
- 		wake_up_interruptible(&chip->wq);
- 	}
-@@ -1545,7 +1562,7 @@ static int chip_probe(struct i2c_adapter
- {
- 	/* don't attach on saa7146 based cards,
- 	   because dedicated drivers are used */
--	if (adap->id == I2C_HW_SAA7146)
-+	if ((adap->id == I2C_HW_SAA7146))
- 		return 0;
- #ifdef I2C_CLASS_TV_ANALOG
- 	if (adap->class & I2C_CLASS_TV_ANALOG)
-@@ -1584,11 +1601,11 @@ static int chip_detach(struct i2c_client
- static int chip_command(struct i2c_client *client,
- 			unsigned int cmd, void *arg)
- {
--        __u16 *sarg = arg;
-+	__u16 *sarg = arg;
- 	struct CHIPSTATE *chip = i2c_get_clientdata(client);
- 	struct CHIPDESC  *desc = chiplist + chip->type;
- 
--	dprintk("%s: chip_command 0x%x\n", chip->c.name, cmd);
-+	tvaudio_dbg("%s: chip_command 0x%x\n",chip->c.name,cmd);
- 
- 	switch (cmd) {
- 	case AUDC_SET_INPUT:
-@@ -1601,7 +1618,6 @@ static int chip_command(struct i2c_clien
- 		break;
- 
- 	case AUDC_SET_RADIO:
--		dprintk(KERN_DEBUG "tvaudio: AUDC_SET_RADIO\n");
- 		chip->norm = VIDEO_MODE_RADIO;
- 		chip->watch_stereo = 0;
- 		/* del_timer(&chip->wt); */
-@@ -1609,7 +1625,7 @@ static int chip_command(struct i2c_clien
- 
- 	/* --- v4l ioctls --- */
- 	/* take care: bttv does userspace copying, we'll get a
--	   kernel pointer here... */
-+					kernel pointer here... */
- 	case VIDIOCGAUDIO:
- 	{
- 		struct video_audio *va = arg;
-@@ -1643,9 +1659,9 @@ static int chip_command(struct i2c_clien
- 
- 		if (desc->flags & CHIP_HAS_VOLUME) {
- 			chip->left = (min(65536 - va->balance,32768) *
--				      va->volume) / 32768;
-+				va->volume) / 32768;
- 			chip->right = (min(va->balance,(__u16)32768) *
--				       va->volume) / 32768;
-+				va->volume) / 32768;
- 			chip_write(chip,desc->leftreg,desc->volfunc(chip->left));
- 			chip_write(chip,desc->rightreg,desc->volfunc(chip->right));
- 		}
-@@ -1667,17 +1683,16 @@ static int chip_command(struct i2c_clien
- 	{
- 		struct video_channel *vc = arg;
- 
--		dprintk(KERN_DEBUG "tvaudio: VIDIOCSCHAN\n");
- 		chip->norm = vc->norm;
- 		break;
- 	}
- 	case VIDIOCSFREQ:
- 	{
--	    	chip->mode = 0; /* automatic */
-+		chip->mode = 0; /* automatic */
- 		if (desc->checkmode) {
- 			desc->setmode(chip,VIDEO_SOUND_MONO);
--		    	if (chip->prevmode != VIDEO_SOUND_MONO)
--		    		chip->prevmode = -1; /* reset previous mode */
-+			if (chip->prevmode != VIDEO_SOUND_MONO)
-+				chip->prevmode = -1; /* reset previous mode */
- 			mod_timer(&chip->wt, jiffies+2*HZ);
- 			/* the thread will call checkmode() later */
- 		}
-@@ -1689,29 +1704,32 @@ static int chip_command(struct i2c_clien
- 
- static struct i2c_driver driver = {
- 	.owner           = THIS_MODULE,
--        .name            = "generic i2c audio driver",
--        .id              = I2C_DRIVERID_TVAUDIO,
--        .flags           = I2C_DF_NOTIFY,
--        .attach_adapter  = chip_probe,
--        .detach_client   = chip_detach,
--        .command         = chip_command,
-+	.name            = "generic i2c audio driver",
-+	.id              = I2C_DRIVERID_TVAUDIO,
-+	.flags           = I2C_DF_NOTIFY,
-+	.attach_adapter  = chip_probe,
-+	.detach_client   = chip_detach,
-+	.command         = chip_command,
- };
- 
- static struct i2c_client client_template =
- {
- 	.name       = "(unset)",
- 	.flags      = I2C_CLIENT_ALLOW_USE,
--        .driver     = &driver,
-+	.driver     = &driver,
- };
- 
- static int __init audiochip_init_module(void)
- {
- 	struct CHIPDESC  *desc;
--	printk(KERN_INFO "tvaudio: TV audio decoder + audio/video mux driver\n");
--	printk(KERN_INFO "tvaudio: known chips: ");
--	for (desc = chiplist; desc->name != NULL; desc++)
--		printk("%s%s", (desc == chiplist) ? "" : ",",desc->name);
--	printk("\n");
-+
-+	if (debug) {
-+		printk(KERN_INFO "tvaudio: TV audio decoder + audio/video mux driver\n");
-+		printk(KERN_INFO "tvaudio: known chips: ");
-+		for (desc = chiplist; desc->name != NULL; desc++)
-+			printk("%s%s", (desc == chiplist) ? "" : ", ", desc->name);
-+		printk("\n");
+-	if (tuner < sizeof(hauppauge_tuner)/sizeof(struct HAUPPAUGE_TUNER)) {
+-		tvee->tuner_type = hauppauge_tuner[tuner].id;
+-		t_name = hauppauge_tuner[tuner].name;
++	if (tuner1 < sizeof(hauppauge_tuner)/sizeof(struct HAUPPAUGE_TUNER)) {
++		tvee->tuner_type = hauppauge_tuner[tuner1].id;
++		t_name1 = hauppauge_tuner[tuner1].name;
++	} else {
++		t_name1 = "unknown";
 +	}
++
++	if (tuner2 < sizeof(hauppauge_tuner)/sizeof(struct HAUPPAUGE_TUNER)) {
++		tvee->tuner2_type = hauppauge_tuner[tuner2].id;
++		t_name2 = hauppauge_tuner[tuner2].name;
+ 	} else {
+-		t_name = "<unknown>";
++		t_name2 = "unknown";
+ 	}
  
- 	return i2c_add_driver(&driver);
+ 	tvee->tuner_formats = 0;
+-	t_fmt_name = "<none>";
+-	for (i = 0; i < 8; i++) {
+-		if (t_format & (1<<i)) {
++	tvee->tuner2_formats = 0;
++	for (i = j = 0; i < 8; i++) {
++		if (t_format1 & (1 << i)) {
+ 			tvee->tuner_formats |= hauppauge_tuner_fmt[i].id;
+-			/* yuck */
+-			t_fmt_name = hauppauge_tuner_fmt[i].name;
++			t_fmt_name1[j++] = hauppauge_tuner_fmt[i].name;
+ 		}
++                if (t_format2 & (1 << i)) {
++                        tvee->tuner2_formats |= hauppauge_tuner_fmt[i].id;
++                        t_fmt_name2[j++] = hauppauge_tuner_fmt[i].name;
++                }
+ 	}
+ 
+-
+-	TVEEPROM_KERN_INFO("Hauppauge: model = %d, rev = %s, serial# = %d\n",
+-		   tvee->model,
+-		   tvee->rev_str,
+-		   tvee->serial_number);
+-	TVEEPROM_KERN_INFO("tuner = %s (idx = %d, type = %d)\n",
+-		   t_name,
+-		   tuner,
+-		   tvee->tuner_type);
+-	TVEEPROM_KERN_INFO("tuner fmt = %s (eeprom = 0x%02x, v4l2 = 0x%08x)\n",
+-		   t_fmt_name,
+-		   t_format,
+-		   tvee->tuner_formats);
+-
+-	TVEEPROM_KERN_INFO("audio_processor = %s (type = %d)\n",
+-		   STRM(sndtype,tvee->audio_processor),
++	tveeprom_info("Hauppauge model %d, rev %s, serial# %d\n",
++		   tvee->model, tvee->rev_str, tvee->serial_number);
++	tveeprom_info("tuner model is %s (idx %d, type %d)\n",
++		   t_name1, tuner1, tvee->tuner_type);
++	tveeprom_info("TV standards%s%s%s%s%s%s%s%s (eeprom 0x%02x)\n",
++		   t_fmt_name1[0], t_fmt_name1[1], t_fmt_name1[2], t_fmt_name1[3],
++		   t_fmt_name1[4], t_fmt_name1[5], t_fmt_name1[6], t_fmt_name1[7],
++                   t_format1);
++        if (tuner2) {
++                tveeprom_info("second tuner model is %s (idx %d, type %d)\n",
++                           t_name2, tuner2, tvee->tuner2_type);
++        }
++        if (t_format2) {
++                tveeprom_info("TV standards%s%s%s%s%s%s%s%s (eeprom 0x%02x)\n",
++                           t_fmt_name2[0], t_fmt_name2[1], t_fmt_name2[2], t_fmt_name2[3],
++                           t_fmt_name2[4], t_fmt_name2[5], t_fmt_name2[6], t_fmt_name2[7],
++                           t_format2);
++        }
++	tveeprom_info("audio processor is %s (idx %d)\n",
++		   STRM(audioIC, tvee->audio_processor),
+ 		   tvee->audio_processor);
+-
++        if (tvee->decoder_processor) {
++                tveeprom_info("decoder processor is %s (idx %d)\n",
++                           STRM(decoderIC, tvee->decoder_processor),
++                           tvee->decoder_processor);
++        }
++        if (tvee->has_ir == 2)
++                tveeprom_info("has %sradio\n",
++                                tvee->has_radio ? "" : "no ");
++        else
++                tveeprom_info("has %sradio, has %sIR remote\n",
++                                tvee->has_radio ? "" : "no ",
++                                tvee->has_ir ? "" : "no ");
  }
+ EXPORT_SYMBOL(tveeprom_hauppauge_analog);
+ 
+@@ -436,23 +560,31 @@ int tveeprom_read(struct i2c_client *c, 
+ 	unsigned char buf;
+ 	int err;
+ 
+-	dprintk(1, "%s\n",__FUNCTION__);
+ 	buf = 0;
+-	if (1 != (err = i2c_master_send(c,&buf,1))) {
+-		printk(KERN_INFO "tveeprom(%s): Huh, no eeprom present (err=%d)?\n",
+-		       c->name,err);
++	if (1 != (err = i2c_master_send(c, &buf, 1))) {
++		tveeprom_info("Huh, no eeprom present (err=%d)?\n", err);
+ 		return -1;
+ 	}
+-	if (len != (err = i2c_master_recv(c,eedata,len))) {
+-		printk(KERN_WARNING "tveeprom(%s): i2c eeprom read error (err=%d)\n",
+-		       c->name,err);
++	if (len != (err = i2c_master_recv(c, eedata, len))) {
++		tveeprom_warn("i2c eeprom read error (err=%d)\n", err);
+ 		return -1;
+ 	}
++        if (debug) {
++                int i;
++
++                tveeprom_info("full 256-byte eeprom dump:\n");
++                for (i = 0; i < len; i++) {
++                        if (0 == (i % 16))
++                                tveeprom_info("%02x:", i);
++                        printk(" %02x", eedata[i]);
++                        if (15 == (i % 16))
++                                printk("\n");
++                }
++        }
+ 	return 0;
+ }
+ EXPORT_SYMBOL(tveeprom_read);
+ 
+-
+ /* ----------------------------------------------------------------------- */
+ /* needed for ivtv.sf.net at the moment.  Should go away in the long       */
+ /* run, just call the exported tveeprom_* directly, there is no point in   */
+@@ -485,7 +617,7 @@ tveeprom_command(struct i2c_client *clie
+ 		buf = kmalloc(256,GFP_KERNEL);
+ 		memset(buf,0,256);
+ 		tveeprom_read(client,buf,256);
+-		tveeprom_hauppauge_analog(&eeprom,buf);
++		tveeprom_hauppauge_analog(client, &eeprom,buf);
+ 		kfree(buf);
+ 		eeprom_props[0] = eeprom.tuner_type;
+ 		eeprom_props[1] = eeprom.tuner_formats;
+@@ -506,8 +638,6 @@ tveeprom_detect_client(struct i2c_adapte
+ {
+ 	struct i2c_client *client;
+ 
+-	dprintk(1,"%s: id 0x%x @ 0x%x\n",__FUNCTION__,
+-	       adapter->id, address << 1);
+ 	client = kmalloc(sizeof(struct i2c_client), GFP_KERNEL);
+ 	if (NULL == client)
+ 		return -ENOMEM;
+@@ -524,7 +654,6 @@ tveeprom_detect_client(struct i2c_adapte
+ static int
+ tveeprom_attach_adapter (struct i2c_adapter *adapter)
+ {
+-	dprintk(1,"%s: id 0x%x\n",__FUNCTION__,adapter->id);
+ 	if (adapter->id != I2C_HW_B_BT848)
+ 		return 0;
+ 	return i2c_probe(adapter, &addr_data, tveeprom_detect_client);
 
---=-ODZnKcmVMvHovzpN2WHI--
+--=-aU6lnVreTaz8yx/jAjP1--
 

@@ -1,63 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751214AbVIGRpL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751264AbVIGRu0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751214AbVIGRpL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 13:45:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751257AbVIGRpL
+	id S1751264AbVIGRu0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 13:50:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751260AbVIGRu0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 13:45:11 -0400
-Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:9676
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S1751214AbVIGRpK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 13:45:10 -0400
-Subject: [patch] synclinkmp.c fix async internal loopback
-From: Paul Fulghum <paulkf@microgate.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1126115104.4056.17.camel@deimos.microgate.com>
+	Wed, 7 Sep 2005 13:50:26 -0400
+Received: from serv01.siteground.net ([70.85.91.68]:15562 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S1751259AbVIGRuZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Sep 2005 13:50:25 -0400
+Date: Wed, 7 Sep 2005 10:50:19 -0700
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org,
+       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
+       Alok Kataria <alokk@calsoftinc.com>
+Subject: Re: [patch 4/4] ide: Break ide_lock -- remove ide_lock  from piix driver
+Message-ID: <20050907175019.GA3769@localhost.localdomain>
+References: <20050906233322.GA3642@localhost.localdomain> <20050906234429.GE3642@localhost.localdomain> <1126112783.8928.14.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 07 Sep 2005 12:45:05 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1126112783.8928.14.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[patch] synclinkmp.c fix async internal loopback
+On Wed, Sep 07, 2005 at 06:06:23PM +0100, Alan Cox wrote:
+> On Maw, 2005-09-06 at 16:44 -0700, Ravikiran G Thirumalai wrote:
+> > Patch to convert piix driver to use per-driver/hwgroup lock and kill
+> > ide_lock.  In the case of piix, hwgroup->lock should be sufficient.
+> 
+> PIIX requires that both channels are quiescent when retuning in some
+> cases. It wasn't totally safe before, its now totally broken. Start by
 
-From: Paul Fulghum <paulkf@microgate.com>
-
-Fix async internal loopback by not using
-enable_loopback function which reprograms
-clocking and should only be used for hdlc mode.
-
-Signed-off-by: Paul Fulghum <paulkf@microgate.com>
-
---- linux-2.6.13/drivers/char/synclinkmp.c	2005-08-28 18:41:01.000000000 -0500
-+++ linux-2.6.13-mg/drivers/char/synclinkmp.c	2005-09-07 12:28:21.000000000 -0500
-@@ -4489,11 +4489,13 @@ void async_mode(SLMP_INFO *info)
- 	/* MD2, Mode Register 2
- 	 *
- 	 * 07..02  Reserved, must be 0
--	 * 01..00  CNCT<1..0> Channel connection, 0=normal
-+	 * 01..00  CNCT<1..0> Channel connection, 00=normal 11=local loopback
- 	 *
- 	 * 0000 0000
- 	 */
- 	RegValue = 0x00;
-+	if (info->params.loopback)
-+		RegValue |= (BIT1 + BIT0);
- 	write_reg(info, MD2, RegValue);
- 
- 	/* RXS, Receive clock source
-@@ -4574,9 +4576,6 @@ void async_mode(SLMP_INFO *info)
- 	write_reg(info, IE2, info->ie2_value);
- 
- 	set_rate( info, info->params.data_rate * 16 );
--
--	if (info->params.loopback)
--		enable_loopback(info,1);
- }
- 
- /* Program the SCA for HDLC communications.
+Then the change to piix controller in my patchset is bad, How about changing
+the ide_lock to per-driver lock in this case?  Locking for rest of the
+controllers in the system is left equivalent to what ide_lock did earlier..
 
 
+> fixing the IDE layer locking properly (or forward porting my patches and
+> then fixing them for all the refcounting changes and other stuff done
+> since).
+
+Can you please point me to the patchset...
+
+Thanks,
+Kiran

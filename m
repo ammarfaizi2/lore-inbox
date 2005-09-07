@@ -1,46 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751306AbVIGURM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932240AbVIGURx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751306AbVIGURM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 16:17:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751307AbVIGURL
+	id S932240AbVIGURx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 16:17:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbVIGURx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 16:17:11 -0400
-Received: from [85.8.12.41] ([85.8.12.41]:20096 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S1751306AbVIGURK (ORCPT
+	Wed, 7 Sep 2005 16:17:53 -0400
+Received: from smtpq3.home.nl ([213.51.128.198]:44763 "EHLO smtpq3.home.nl")
+	by vger.kernel.org with ESMTP id S932211AbVIGURw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 16:17:10 -0400
-Message-ID: <431F4AC4.9030206@drzeus.cx>
-Date: Wed, 07 Sep 2005 22:17:08 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-CC: linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
-       linux-pm@osdl.org
-Subject: Re: swsusp doesn't suspend devices
-References: <431ECCE3.8080408@drzeus.cx> <200509072203.19283.rjw@sisk.pl>
-In-Reply-To: <200509072203.19283.rjw@sisk.pl>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 7 Sep 2005 16:17:52 -0400
+Subject: Re: 8250_hp300: initialisation ordering bug
+From: Kars de Jong <jongk@linux-m68k.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050904111901.A30509@flint.arm.linux.org.uk>
+References: <20050904111901.A30509@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Date: Wed, 07 Sep 2005 22:17:49 +0200
+Message-Id: <1126124269.3968.5.camel@kars.perseus.home>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
+X-AtHome-MailScanner-Information: Please contact support@home.nl for more information
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rafael J. Wysocki wrote:
+On zo, 2005-09-04 at 11:19 +0100, Russell King wrote:
+> Hi,
+> 
+> I've noticed that 8250_hp300 is buggy wrt the ordering of hardware
+> initialisation to the visibility of devices to user space.  Namely,
+> 8250_hp300 does the following:
+> 
+> ...
 
->On Wednesday, 7 of September 2005 13:20, Pierre Ossman wrote:
->  
->
->>It would seem that swsusp doesn't properly suspend devices, or more
->>precisely it wakes them up again before suspending the machine.
->>    
->>
->
->Yes, it does.  By design.
->
->  
->
+> serial8250_register_port() makes the port visible to userspace, so
+> from that point on it could be opened.  However, if it's opened
+> prior to the remainder of the above completing, we will be missing
+> interrupts (and what effect does "reset the DCA" have?)
+> 
+> Surely this hardware fiddling should be completed before we register
+> the port?
 
-That seems counter-productive, so I'm obviously missing something.
+Yes, you are right. I am working on rewriting the driver a bit to use a
+platform device for the APCI driver, I'll take your bug report into
+account as well.
+
+On a related note: can I use the "serial8250" platform driver also for
+non-ISA devices (like my APCI platform device)? The comments in
+drivers/serial/8250.c suggest it's for ISA devices only, but I don't see
+a particular reason for not using it for my APCI devices.
+
+
+Kind regards,
+
+Kars.
+
+

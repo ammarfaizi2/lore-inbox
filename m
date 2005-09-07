@@ -1,65 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751008AbVIGENj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751036AbVIGEUc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751008AbVIGENj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 00:13:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751017AbVIGENj
+	id S1751036AbVIGEUc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 00:20:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbVIGEUc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 00:13:39 -0400
-Received: from smtp.istop.com ([66.11.167.126]:38291 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S1751005AbVIGENi (ORCPT
+	Wed, 7 Sep 2005 00:20:32 -0400
+Received: from main.gmane.org ([80.91.229.2]:53915 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751036AbVIGEUc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 00:13:38 -0400
-From: Daniel Phillips <phillips@istop.com>
-To: Mark Lord <lkml@rtr.ca>
-Subject: Re: RFC: i386: kill !4KSTACKS
-Date: Wed, 7 Sep 2005 00:16:41 -0400
-User-Agent: KMail/1.8
-Cc: Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>, linux-kernel@vger.kernel.org,
-       Andi Kleen <ak@suse.de>
-References: <20050904145129.53730.qmail@web50202.mail.yahoo.com> <200509061819.45567.phillips@istop.com> <431E497A.4080303@rtr.ca>
-In-Reply-To: <431E497A.4080303@rtr.ca>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 7 Sep 2005 00:20:32 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Aric Cyr <Aric.Cyr@gmail.com>
+Subject: Re: 2.6.13 (was 2.6.11.11) and rsync oops (SATA or NFS related?)
+Date: Wed, 7 Sep 2005 04:00:16 +0000 (UTC)
+Message-ID: <loom.20050907T055454-169@post.gmane.org>
+References: <dfg2sa$peu$2@sea.gmane.org> <dfguoq$eng$1@sea.gmane.org> <dfhjp3$fd4$1@sea.gmane.org> <dfjjp9$f7k$1@sea.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509070016.42121.phillips@istop.com>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 203.179.48.72 (Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Firefox/1.0.6)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 06 September 2005 21:59, Mark Lord wrote:
-> Daniel Phillips wrote:
-> > There are only two stacks involved, the normal kernel stack and your new
-> > ndis stack.  You save ESP of the kernel stack at the base of the ndis
-> > stack.  When the Windows code calls your api, you get the ndis ESP, load
-> > the kernel ESP from the base of the ndis stack, push the ndis ESP so you
-> > can get back to the ndis code later, and continue on your merry way.
+Kalin KOZHUHAROV <kalin <at> thinrope.net> writes:
 
-I must have been smoking something when I convinced myself that the driver 
-can't call into the kernel without switching back to the kernel stack.  But 
-this is wrong, as long as ->task and ->previous_esp are initialized, staying 
-on the bigger stack looks fine (previous_esp is apparently used only for 
-backtrace).
-
-> With CONFIG_PREEMPT, this will still cause trouble due to lack
-> of "current" task info on the NDIS stack.
+> 
+> A closer examination of the drive:
+> 	(Model=ST3300831AS, FwRev=3.03, SerialNo=3NF07KA1 )
+> and why is it so slow revealed that it was running not in UDMA.
 >
-> One option is to copy (duplicate) the bottom-of-stack info when
-> switching to the NDIS stack.
+> Got one total oops, even no logs were written to disk.
+> Seems that rsync-ing huge amounts of data (200 GB in *many* small files)
+streses the system too much.
 
-Yes, just like do_IRQ.
+It seems that you are using the IDE-SATA driver... perhaps you should try the
+SCSI-SATA (i.e. libata)?  The IDE one is deprecated and should no longer be
+used.  Disable SATA from in the IDE menu and enable the SCSI libata driver for
+your chipset (in the scsi kernel menu).
 
-> Another option is to stick a Mutex around any use of the NDIS stack
-> when calling into the foreign driver (might be done like this already??),
 
-There is no mutex now, but this is the easy way to get by with just one ndis 
-stack.
+Also the reason you don't get higher UDMA modes is because your drive is a
+blacklisted seagate.  There are known problems with some of those drives, and so
+they are downgraded to slower modes (this was mentioned in your kernel log if
+you look closely).  If you upgrade the BIOS on your harddrive, you _might_ be
+able to remove the drive from the blacklist in the kernel to improve
+performance... this may be dangerous however, so don't complain if you lose your
+data.
 
-> which will prevent PREEMPTion during the call.
-
-We have preempt_enable/disable for that.  But I am not sure preemption needs 
-to be disabled.
-
-Regards,
-
-Daniel

@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbVIGSd6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbVIGSez@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932195AbVIGSd6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 14:33:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932202AbVIGSd6
+	id S932202AbVIGSez (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 14:34:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932204AbVIGSez
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 14:33:58 -0400
-Received: from zproxy.gmail.com ([64.233.162.200]:12683 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932195AbVIGSd5 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 14:33:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=m+gOUr2RHz6oUtJUQu+bVS3DLz/uLvS4bMmv10iXKm8eeTDAdNE2V81VllelDyCJLbjFsw+96/avEX+loG+TT4ju2YJLpPTwbYFmSkYn3hnrQ9JNyJu88dHoqG3Ag3RzW2bHtmmTj7xZavfOx4mCnB38DGZMn1qJdmRGDlie2KE=
-Message-ID: <29495f1d0509071133441e4ec2@mail.gmail.com>
-Date: Wed, 7 Sep 2005 11:33:55 -0700
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-Reply-To: nish.aravamudan@gmail.com
-To: vatsa@in.ibm.com
-Subject: Re: [PATCH 1/3] dynticks - implement no idle hz for x86
-Cc: Bill Davidsen <davidsen@tmr.com>, Con Kolivas <kernel@kolivas.org>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org,
-       ck list <ck@vds.kolivas.org>, rmk+lkml@arm.linux.org.uk
-In-Reply-To: <20050907181823.GF28387@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 7 Sep 2005 14:34:55 -0400
+Received: from dvhart.com ([64.146.134.43]:5514 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S932202AbVIGSey (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Sep 2005 14:34:54 -0400
+Date: Wed, 07 Sep 2005 11:34:51 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Magnus Damm <magnus@valinux.co.jp>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>,
+       "A. P. Whitcroft [imap]" <andyw@uk.ibm.com>
+Subject: Re: [PATCH] i386: single node SPARSEMEM fix
+Message-ID: <521510000.1126118091@flay>
+In-Reply-To: <1126117674.7329.27.camel@localhost>
+References: <20050906035531.31603.46449.sendpatchset@cherry.local> <1126114116.7329.16.camel@localhost>  <512850000.1126117362@flay> <1126117674.7329.27.camel@localhost>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <200509031814.49666.kernel@kolivas.org>
-	 <20050904212616.B11265@flint.arm.linux.org.uk>
-	 <20050905053225.GA4294@in.ibm.com> <20050905054813.GC25856@us.ibm.com>
-	 <20050905063229.GB4294@in.ibm.com> <431F11FF.2000704@tmr.com>
-	 <29495f1d0509070942688059a6@mail.gmail.com>
-	 <20050907171756.GB28387@in.ibm.com>
-	 <29495f1d05090710276d64a3de@mail.gmail.com>
-	 <20050907181823.GF28387@in.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/7/05, Srivatsa Vaddagiri <vatsa@in.ibm.com> wrote:
-> On Wed, Sep 07, 2005 at 10:27:43AM -0700, Nish Aravamudan wrote:
-> > enter_all_cpus_idle() and exit_all_cpus_idle() would be better?
-> 
-> Looks perfect.
-> 
-> > No, I was saying what you were, if a little unclearly, so the caller
-> > does something like:
-> >
-> > current_dyn_tick_timer->reprogram();
-> > check_cpu_mask(nohz_cpu_mask);
-> > if (we_are_last_idle)
-> >   enter_all_cpus_idle();
-> 
-> Looks fine!
 
-Great!
 
-Thanks,
-Nish
+--On Wednesday, September 07, 2005 11:27:54 -0700 Dave Hansen <haveblue@us.ibm.com> wrote:
+
+> On Wed, 2005-09-07 at 11:22 -0700, Martin J. Bligh wrote:
+>> CONFIG_NUMA was meant to (and did at one point) support both NUMA and flat
+>> machines. This is essential in order for the distros to support it - same
+>> will go for sparsemem.
+> 
+> That's a different issue.  The current code works if you boot a NUMA=y
+> SPARSEMEM=y machine with a single node.  The current Kconfig options
+> also enforce that SPARSEMEM depends on NUMA on i386.
+> 
+> Magnus would like to enable SPARSEMEM=y while CONFIG_NUMA=n.  That
+> requires some Kconfig changes, as well as an extra memory present call.
+> I'm questioning why we need to do that when we could never do
+> DISCONTIG=y while NUMA=n on i386.
+
+Ah, OK - makes more sense. However, some machines do have large holes
+in e820 map setups - is not really critical, more of an efficiency
+thing.
+
+M.
+

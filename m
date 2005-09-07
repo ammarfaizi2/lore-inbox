@@ -1,107 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932254AbVIGUpl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbVIGUzf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932254AbVIGUpl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 16:45:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932255AbVIGUpl
+	id S1751315AbVIGUzf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 16:55:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbVIGUzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 16:45:41 -0400
-Received: from fmr22.intel.com ([143.183.121.14]:47288 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S932254AbVIGUpl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 16:45:41 -0400
-Date: Wed, 7 Sep 2005 16:41:07 -0400
-From: Benjamin LaHaise <bcrl@linux.intel.com>
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [AIO] kiocb locking to serialise retry and cancel
-Message-ID: <20050907204107.GB21330@linux.intel.com>
-References: <20050907203956.GA21330@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050907203956.GA21330@linux.intel.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 7 Sep 2005 16:55:35 -0400
+Received: from wscnet.wsc.cz ([212.80.64.118]:60293 "EHLO wscnet.wsc.cz")
+	by vger.kernel.org with ESMTP id S1751315AbVIGUzf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Sep 2005 16:55:35 -0400
+Message-ID: <431F53B6.6000805@gmail.com>
+Date: Wed, 07 Sep 2005 22:55:18 +0200
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: cs, en-us, en
+MIME-Version: 1.0
+To: John Richard Moser <nigelenki@comcast.net>
+CC: linux-kernel@vger.kernel.org, Grant Coady <lkml@dodo.com.au>
+Subject: Re: Some warnings and stuff GCC 4
+References: <431F292D.3070705@comcast.net>
+In-Reply-To: <431F292D.3070705@comcast.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[AIO] kiocb locking to serialise retry and cancel
+John Richard Moser napsal(a):
 
-Implement a per-kiocb lock to serialise retry operations and cancel.  This
-is done using wait_on_bit_lock() on the KIF_LOCKED bit of kiocb->ki_flags.
-Also, make the cancellation path lock the kiocb and subsequently release
-all references to it if the cancel was successful.  This version includes 
-a fix for the deadlock with __aio_run_iocbs.
+>-----BEGIN PGP SIGNED MESSAGE-----
+>Hash: SHA1
+>
+>I get lots of warnings building my kernel.  I've attached my .config;
+>I'm using a kernel I downloaded from kernel.org, unpatched.
+>  
+>
+[snip]
 
-Signed-off-by: Benjamin LaHaise <bcrl@linux.intel.com>
+>. . . one of the V4L drivers failed to build too, I turned it off.
+>
+>
+>drivers/media/video/zr36120.c: At top level:
+>drivers/media/video/zr36120.c:1821: error: unknown field 'open'
+>specified in initializer
+>drivers/media/video/zr36120.c:1821: warning: initialization makes
+>integer from pointer without a cast
+>drivers/media/video/zr36120.c:1822: error: unknown field 'close'
+>specified in initializer
+>drivers/media/video/zr36120.c:1822: warning: initialization from
+>incompatible pointer type
+>drivers/media/video/zr36120.c:1823: error: unknown field 'read'
+>specified in initializer
+>drivers/media/video/zr36120.c:1823: warning: initialization from
+>incompatible pointer type
+>drivers/media/video/zr36120.c:1824: error: unknown field 'write'
+>specified in initializer
+>drivers/media/video/zr36120.c:1824: warning: initialization from
+>incompatible pointer type
+>drivers/media/video/zr36120.c:1825: error: unknown field 'poll'
+>specified in initializer
+>drivers/media/video/zr36120.c:1826: error: unknown field 'ioctl'
+>specified in initializer
+>
+>  
+>
+<cite source="http://lkml.org/lkml/2005/7/29/302">
 
- aio.c |   29 +++++++++++++++++++++++++----
- 1 files changed, 25 insertions(+), 4 deletions(-)
+On Fri, 29 Jul 2005 18:40:46 -0300, Mauro Carvalho Chehab <mchehab@brturbo.com.br> wrote:
+>>>>drivers/media/video/zr36120.c
+>>>>drivers/media/video/zr36120_i2c.c
+>>>>drivers/media/video/zr36120_mem.c
+>> 
+>> 
+>> Being discussed on the V4L list
+>	It seems that nobody are interested on maintaining it. No answer from
+>V4L list subscribers.
+>
+>	I think it may be removed.
 
-diff -purN --exclude=description 01_aio_enosys/fs/aio.c 02_lock_kiocb/fs/aio.c
---- 01_aio_enosys/fs/aio.c	2005-09-07 11:03:55.000000000 -0400
-+++ 02_lock_kiocb/fs/aio.c	2005-09-07 11:03:57.000000000 -0400
-@@ -546,6 +546,24 @@ struct kioctx *lookup_ioctx(unsigned lon
- 	return ioctx;
- }
- 
-+static int lock_kiocb_action(void *param)
-+{
-+	schedule();
-+	return 0;
-+}
-+
-+static inline void lock_kiocb(struct kiocb *iocb)
-+{
-+	wait_on_bit_lock(&iocb->ki_flags, KIF_LOCKED, lock_kiocb_action,
-+			 TASK_UNINTERRUPTIBLE);
-+}
-+
-+static inline void unlock_kiocb(struct kiocb *iocb)
-+{
-+	kiocbClearLocked(iocb);
-+	wake_up_bit(&iocb->ki_flags, KIF_LOCKED);
-+}
-+
- /*
-  * use_mm
-  *	Makes the calling kernel thread take on the specified
-@@ -786,7 +804,9 @@ static int __aio_run_iocbs(struct kioctx
- 		 * Hold an extra reference while retrying i/o.
- 		 */
- 		iocb->ki_users++;       /* grab extra reference */
-+		lock_kiocb(iocb);
- 		aio_run_iocb(iocb);
-+		unlock_kiocb(iocb);
- 		if (__aio_put_req(ctx, iocb))  /* drop extra ref */
- 			put_ioctx(ctx);
-  	}
-@@ -1527,10 +1547,9 @@ int fastcall io_submit_one(struct kioctx
- 		goto out_put_req;
- 
- 	spin_lock_irq(&ctx->ctx_lock);
--	if (likely(list_empty(&ctx->run_list))) {
--		aio_run_iocb(req);
--	} else {
--		list_add_tail(&req->ki_run_list, &ctx->run_list);
-+	aio_run_iocb(req);
-+	unlock_kiocb(req);
-+	if (!list_empty(&ctx->run_list)) {
- 		/* drain the run list */
- 		while (__aio_run_iocbs(ctx))
- 			;
-@@ -1661,6 +1680,7 @@ asmlinkage long sys_io_cancel(aio_contex
- 	if (NULL != cancel) {
- 		struct io_event tmp;
- 		pr_debug("calling cancel\n");
-+		lock_kiocb(kiocb);
- 		memset(&tmp, 0, sizeof(tmp));
- 		tmp.obj = (u64)(unsigned long)kiocb->ki_obj.user;
- 		tmp.data = kiocb->ki_user_data;
-@@ -1672,6 +1692,7 @@ asmlinkage long sys_io_cancel(aio_contex
- 			if (copy_to_user(result, &tmp, sizeof(tmp)))
- 				ret = -EFAULT;
- 		}
-+		unlock_kiocb(kiocb);
- 	} else
- 		ret = -EINVAL;
- 
+Please no, I'll get to it, I have one to play with.
+Grant.
+
+</cite>
+So, Grant, are you doing something with that or could we schedule it for 
+wiping out?
+
+regards,
+
+-- 
+Jiri Slaby         www.fi.muni.cz/~xslaby
+~\-/~      jirislaby@gmail.com      ~\-/~
+241B347EC88228DE51EE A49C4A73A25004CB2A10
+

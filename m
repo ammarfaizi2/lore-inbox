@@ -1,53 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbVIGT02@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751277AbVIGTZS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751281AbVIGT02 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 15:26:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751284AbVIGT02
+	id S1751277AbVIGTZS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 15:25:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751281AbVIGTZS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 15:26:28 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:36038 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751281AbVIGT01 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 15:26:27 -0400
-Subject: [ANNOUNCE]  Spet release of LTP available
-To: linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.net,
-       ltp-announce@lists.sourceforge.net
-X-Mailer: Lotus Notes Release 6.5.3 September 14, 2004
-Message-ID: <OF771BF032.5C6E37A8-ON85257075.006A88C6-86257075.006AADE8@us.ibm.com>
-From: Marty Ridgeway <mridge@us.ibm.com>
-Date: Wed, 7 Sep 2005 14:25:17 -0500
-X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 6.5.4FP1 HF2|August 30, 2005) at
- 09/07/2005 15:25:43
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+	Wed, 7 Sep 2005 15:25:18 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:59918 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751277AbVIGTZQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Sep 2005 15:25:16 -0400
+Date: Wed, 7 Sep 2005 20:25:04 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Max Asbock <masbock@us.ibm.com>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>, amax@us.ibm.com,
+       ralf@linux-mips.org, starvik@axis.com
+Subject: Re: [FINAL WARNING] Removal of deprecated serial functions - please update your drivers NOW
+Message-ID: <20050907202504.F19199@flint.arm.linux.org.uk>
+Mail-Followup-To: Max Asbock <masbock@us.ibm.com>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>, amax@us.ibm.com,
+	ralf@linux-mips.org, starvik@axis.com
+References: <20050831103352.A26480@flint.arm.linux.org.uk> <1126120374.17335.169.camel@w-amax>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1126120374.17335.169.camel@w-amax>; from masbock@us.ibm.com on Wed, Sep 07, 2005 at 12:12:54PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Change Log is as follows:
+On Wed, Sep 07, 2005 at 12:12:54PM -0700, Max Asbock wrote:
+> Here is a patch for the ibmasm driver. Let me know it I missed
+> something.
 
-LTP-20050907
-- Added test for statvfs()
-- Applied a load of patches submitted to the mailing list by Gentoo's Mike
-Frysinger
-- Applied patch from Erik Andersee:
-  if __NR_fremovexattr isnt defined by the current linux headers,
-  acl_file_test.c will fail to build
-- Relocated getcontext() test from getcontext01 to just getcontext.
-  Also added the directory to the list of tests not ran on uclinux.
-- Applied patch to madvise02 for tmp memory
-- Applied patch to mallopt01 to fix logging error.
-- fix for defect 17723, change sleep to an at least vs an exact amount
-- Correct testcase return on RHEL 3 & 4 2.6.13-rc6-mm1
-- Applied IA64 patch received from Jacky Malcles to write03-04
-- Added -n option to allow disabling networking stress to ltp-stress
+Thanks.  Does it still need to include serial.h?
 
-Marty Ridgeway
-Linux Test Project
-Linux Technology Center
-IBM Corporation
+Also, can I have a signed-off-by line as per the DCO v1.1 please
+(see Documentation/SubmittingPatches) ?
 
-Internet E-Mail : mridge@us.ibm.com
-IBM, 11501 Burnet Rd, Austin, TX  78758
-Phone (512) 838-1356 - T/L 678-1356 - Bldg. 908/1C005
-Austin, TX.
+Thanks again.
 
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

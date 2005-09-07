@@ -1,80 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbVIGLUA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932111AbVIGL2P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932113AbVIGLUA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 07:20:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932114AbVIGLUA
+	id S932111AbVIGL2P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 07:28:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932115AbVIGL2P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 07:20:00 -0400
-Received: from [85.8.12.41] ([85.8.12.41]:19072 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S932113AbVIGLT7 (ORCPT
+	Wed, 7 Sep 2005 07:28:15 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:2797 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932111AbVIGL2O (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 07:19:59 -0400
-Message-ID: <431ECCE3.8080408@drzeus.cx>
-Date: Wed, 07 Sep 2005 13:20:03 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 1.0.6-5 (X11/20050818)
+	Wed, 7 Sep 2005 07:28:14 -0400
+Message-ID: <431ECEBA.7040802@pobox.com>
+Date: Wed, 07 Sep 2005 07:27:54 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>, LKML <linux-kernel@vger.kernel.org>,
-       linux-pm@osdl.org
-Subject: swsusp doesn't suspend devices
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+To: Takashi Iwai <tiwai@suse.de>
+CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [git patch] fix DocBook build
+References: <20050907051720.GA10211@havoc.gtf.org>	<s5h3boh8af4.wl%tiwai@suse.de> <s5h1x4189ur.wl%tiwai@suse.de>
+In-Reply-To: <s5h1x4189ur.wl%tiwai@suse.de>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It would seem that swsusp doesn't properly suspend devices, or more
-precisely it wakes them up again before suspending the machine.
+Takashi Iwai wrote:
+> At Wed, 07 Sep 2005 12:00:31 +0200,
+> I wrote:
+> 
+>>At Wed, 7 Sep 2005 01:17:20 -0400,
+>>Jeff Garzik wrote:
+>>
+>>>
+>>>    [kernel-doc] fix various DocBook build problems/warnings
+>>>    
+>>>    Most serious is fixing include/sound/pcm.h, which breaks the DocBook
+>>>    build.
+>>
+>>What is the error exactly?  IIRC, it did work in the early version.
+>>Well, I need to test it by myself... 
+> 
+> 
+> OK, I see it, too.  How about the fix below, instead?
+> 
+> 
+> [PATCH] Fix DocBook build in sound/pcm.h
+> 
+> Signed-off-by: Takashi Iwai <tiwai@suse.de>
+> 
+> 
+> diff --git a/include/sound/pcm.h b/include/sound/pcm.h
+> --- a/include/sound/pcm.h
+> +++ b/include/sound/pcm.h
+> @@ -910,7 +910,7 @@ int snd_pcm_format_big_endian(snd_pcm_fo
+>   * Returns 1 if the given PCM format is CPU-endian, 0 if
+>   * opposite, or a negative error code if endian not specified.
+>   */
+> -/* int snd_pcm_format_cpu_endian(snd_pcm_format_t format); */
+> +int snd_pcm_format_cpu_endian(snd_pcm_format_t format);
+>  #ifdef SNDRV_LITTLE_ENDIAN
+>  #define snd_pcm_format_cpu_endian	snd_pcm_format_little_endian
+>  #else
 
-The problem is in swsusp_suspend(). It is designed as if
-swsusp_arch_suspend() would suspend the hardware, when in fact all it
-does is prepare for a suspend. The effect is that devices are brought
-back up because swsusp_suspend() believes it is resuming.
+I considered that, but decided not to, given the C pre-processor games 
+that are occurring with that symbol shortly after the commented-out block.
 
-Below is a patch that uses the same system as kernel/power/disk.c to
-determine if it's suspending or resuming. The patch brings up a new
-problem though, disk writes generate a huge amount of "scheduling while
-atomic".
+	Jeff
 
----
 
-Index: linux-wbsd/kernel/power/swsusp.c
-===================================================================
---- linux-wbsd/kernel/power/swsusp.c    (revision 165)
-+++ linux-wbsd/kernel/power/swsusp.c    (working copy)
-@@ -84,6 +84,8 @@
- /* Local variables that should not be affected by save */
- static unsigned int nr_copy_pages __nosavedata = 0;
-
-+static int in_suspend __nosavedata = 0;
-+
- /* Suspend pagedir is allocated before final copy, therefore it
-    must be freed after resume
-
-@@ -897,15 +899,18 @@
-                return error;
-        }
-
-+       in_suspend = 1;
-        save_processor_state();
-        if ((error = swsusp_arch_suspend()))
-                printk("Error %d suspending\n", error);
--       /* Restore control flow magically appears here */
--       restore_processor_state();
--       BUG_ON (nr_copy_pages_check != nr_copy_pages);
--       restore_highmem();
--       device_power_up();
--       local_irq_enable();
-+       if (!in_suspend || error) {
-+               /* Restore control flow magically appears here */
-+               restore_processor_state();
-+               BUG_ON (nr_copy_pages_check != nr_copy_pages);
-+               restore_highmem();
-+               device_power_up();
-+               local_irq_enable();
-+       }
-        return error;
- }
 

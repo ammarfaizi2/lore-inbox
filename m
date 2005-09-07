@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751240AbVIGQgx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751242AbVIGQhF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751240AbVIGQgx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 12:36:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbVIGQgx
+	id S1751242AbVIGQhF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 12:37:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751252AbVIGQhE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 12:36:53 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:14471 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751240AbVIGQgw convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 12:36:52 -0400
-Subject: Re: 'virtual HW' into kernel (SystemC)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: =?ISO-8859-1?Q?M=E0rius_Mont=F3n?= <Marius.Monton@uab.es>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <431EC16B.2040604@uab.es>
-References: <431EC16B.2040604@uab.es>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Date: Wed, 07 Sep 2005 18:01:29 +0100
-Message-Id: <1126112489.8928.11.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+	Wed, 7 Sep 2005 12:37:04 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:9220 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id S1751242AbVIGQhC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Sep 2005 12:37:02 -0400
+Message-ID: <431F18A3.6050502@tmr.com>
+Date: Wed, 07 Sep 2005 12:43:15 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alex Davis <alex14641@yahoo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: i386: kill !4KSTACKS
+References: <20050904145129.53730.qmail@web50202.mail.yahoo.com>
+In-Reply-To: <20050904145129.53730.qmail@web50202.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2005-09-07 at 12:31 +0200, Màrius Montón wrote:
-> At this point, we plan to develop a pci device driver to act as a bridge
-> between kernel PCI subsystem and SystemC simulator (in user space).
+Alex Davis wrote:
+>>Please don't tell me to "care for closed-source drivers". 
+> 
+> ndiswrapper is NOT closed source. And I'm not asking you to "care".
+> 
+> 
+>>I don't want the pain of debugging crashes on the machines which run unknown code
+>>in kernel space.
+> 
+> I'm not asking you to debug crashes. I'm simply requesting that the
+> kernel stack size situation remain as it is: with 8K as the default
+> and 4K configurable. 
 
-The first thing that would worry me about such an architecture would be
-deadlocks between user space and kernel PCI accesses trapped under
-simulation.
-
-If you take a look at Xen or qemu both would give you a way to run the
-virtualised simulated device in Linux user space on a sane complete
-Linux environment while running a seperate copy of Linux experiencing
-the simulated device.
-
-Xen is fast - very fast, qemu is somewhat slower but because it is a JIT
-can do accurate tracing and has a lovely well designed API for adding
-virtualised drivers, plus nice examples like video cards and a virtual
-NE2000.
-
-Alan
-
+I can be happy with 4K as the default, everything I use *except* 
+ndiswrapper seems to run fine (I don't currently need fancy filesystems) 
+but laptops seem to include a lot of unsupported hardware, which can't 
+be replaced due to resources (money, slots, batter life).
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

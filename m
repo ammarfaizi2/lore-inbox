@@ -1,102 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751067AbVIGRh7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751178AbVIGRkE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751067AbVIGRh7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 13:37:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751214AbVIGRh6
+	id S1751178AbVIGRkE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 13:40:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751214AbVIGRkD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 13:37:58 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:13233 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751067AbVIGRh6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 13:37:58 -0400
-Date: Wed, 7 Sep 2005 13:37:42 -0400 (Eastern Daylight Time)
-From: Janak Desai <janak@us.ibm.com>
-To: viro@ZenIV.linux.org.uk, akpm@osdl.org
-cc: hch@infradead.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 0/2] (repost) New System call, unshare
-Message-ID: <Pine.WNT.4.63.0509071335040.3520@IBM-AIP3070F3AM>
-X-X-Sender: janak@imap.linux.ibm.com
+	Wed, 7 Sep 2005 13:40:03 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:28421 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id S1751206AbVIGRkB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Sep 2005 13:40:01 -0400
+Message-ID: <431F2760.5060904@tmr.com>
+Date: Wed, 07 Sep 2005 13:46:08 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: jan.kiszka@googlemail.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: RFC: i386: kill !4KSTACKS
+References: <20050904145129.53730.qmail@web50202.mail.yahoo.com>	 <1125854398.23858.51.camel@localhost.localdomain>	 <p73aciqrev0.fsf@verdi.suse.de> <dfk5cp$19p$1@sea.gmane.org>	 <58d0dbf10509061005358dce91@mail.gmail.com>	 <dfkjav$lmd$1@sea.gmane.org> <58d0dbf105090612421dcd9d8d@mail.gmail.com>
+In-Reply-To: <58d0dbf105090612421dcd9d8d@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jan Kiszka wrote:
+> 2005/9/6, Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>:
+> 
+>>Jan Kiszka wrote:
+>>
+>>
+>>>The only way I see is to switch stacks back on ndiswrapper API entry.
+>>>But managing all those stacks correctly is challenging, as you will
+>>>likely not want to create a new stack on each switching point. Rather,
+>>
+>>This is what I had in mind before I saw this thread here. I, in fact, did
+>>some work along those lines, but it is even more complicated than you
+>>mentioned here: Windows uses different calling conventions (STDCALL,
+>>FASTCALL, CDECL) so switching stacks by copying arguments/results gets
+>>complicated. So I gave up on that approach. For X86-64 drivers we use
+>>similar approach, but for that there is only one calling convention and we
+>>don't need to switch stacks, but reshuffle arguments on stack / in
+>>registers.
+>>
+>>I am still hoping that Andi's approach is possible (I don't understand how
+>>we can make kernel see current info from private stack).
+>>
+> 
+> 
+> The more I think about this the more it becomes clear that this path
+> will be too winding, especially when compared to the effort needed to
+> patch 8K (or more) back into the kernel as an intermediate workaround.
 
-These patches were posted to lkml and fsdevel on 8/8/2005. I
-amd resubmitting them for inclusion in the latest -mm tree.
+Is there a technical reason ("hard to implement" is a practical reason) 
+why all stacks need to be the same size?
 
-Patch Summary:
-This patch implements a new system call, unshare.  unshare allows
-a process to disassociate parts of the process context that were 
-initially being shared using the clone() system call.
-
-The patch consists of two parts:
-[1/2] Implements the system call handler function sys_unshare.
-[2/2] Implements system call setup for x86 architecture.
-
-Patch Justification:
-Inspiration for this patch came from the 4/20/05 post by Al Viro
-on linux-fsdevel mailing list and the needs of per-process namespace 
-based polyinstantiated directories. In his post Mr. Viro saw 
-usefulness of the ability to create a private namespace without
-forking. He also mentioned that "There used to be a kinda-sorta 
-agreement on a new syscall: unshare(bitmap) with arguments like 
-those of clone(2)".
-
-Polyinstantiated directories provide an instance of a directory
-based on the process security context (user id and/or extended
-selinux attributes). Polyinstantiation of public directories such 
-as /tmp provide better separation of processes and prevent 
-illegal information flow through file name. Polyinstantiated
-directories are needed for common criteria certification using 
-Mandatory Access Control based Protection Profiles.
-
-Legacy Mandatory Access Control based UNIX operating systems
-often modified kernel's pathname translation routines to
-implement polyinstantiated directories. We are currently working
-on a userspace polyinstantiation mechanism that was proposed by 
-Stephen Smalley on the selinux mailing list and that uses the
-per-process namespace.  Without the unshare system call, namespace
-separation can only be achieved by clone(2), which would require 
-porting and maintaining all commands such as login, su, gdm, ssh,
-cron, newrole, etc, that establish a user session.  With unshare,
-namespace setup can be done using PAM session management functions
-without patching individual commands. 
-
-This patch was first submitted on linux-fsdevel in mid-may and 
-suggestions for improvement have been incorporated. It is now
-ported to the latest rc5-mm tree and is being submitted for
-consideration for inclusion in the mm tree for 2.6.14.
-
-Overall Approach:
-The overall approach followed clone system call and its permission
-enforcement. However, instead of clone's "what do we leave shared?" 
-logic, here the logic was based on "what do we unshare, that was 
-previously being shared?". Unlike clone, which operated on a newly 
-allocated and not-yet schedulable task structure, additional
-task_lock()s were taken to avoid race conditions from unshare 
-having to work on the current process. Before unsharing any part 
-of the context, a check is made to ensure that that part of the
-context is being shared in the first place. If the context is not
-being shared to begin with, the system call returns success. If 
-the context is being shared, the system call makes a private copy
-of that context and updates the appropriate pointers of the 
-current task structure to point to this new private copy. If 
-allocation and setup of the private copy fails, the system call 
-appropriately restores the current task structures to continue 
-using the shared context.
-
-Currently, the system call only allows "unsharing" of namespace, 
-signal handlers and virtual memory, because those three were deemed 
-useful on the linux-fsdevel mailing list.
-
-Testing:
-The patch has been unit tested on uni-processor i386 architecture
-based Fedora Core 3 system. It has been tested to ensure successful
-unsharing of namespace, signal handlers and virtual memory. 
-Requirement of root privileges to unshare namespace have been
-verified.
-
-
-Signed off by: Janak Desai
-
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

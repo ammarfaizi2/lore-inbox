@@ -1,50 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751121AbVIGRRy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751112AbVIGRTf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751121AbVIGRRy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 13:17:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751116AbVIGRRy
+	id S1751112AbVIGRTf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 13:19:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751116AbVIGRTf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 13:17:54 -0400
-Received: from sabe.cs.wisc.edu ([128.105.6.20]:48290 "EHLO sabe.cs.wisc.edu")
-	by vger.kernel.org with ESMTP id S1751091AbVIGRRx (ORCPT
+	Wed, 7 Sep 2005 13:19:35 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:4237 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751112AbVIGRTe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 13:17:53 -0400
-Message-ID: <431F20AA.1090101@cs.wisc.edu>
-Date: Wed, 07 Sep 2005 12:17:30 -0500
-From: Mike Christie <michaelc@cs.wisc.edu>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>
-CC: boutcher@cs.umn.edu, hch@lst.de, vst@vlnb.net,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       linuxppc64-dev@ozlabs.org, santil@us.ibm.com, lxiep@us.ibm.com
-Subject: Re: [RFC] SCSI target for IBM Power5 LPAR
-References: <20050906212801.GB14057@cs.umn.edu>	<20050907104932.GA14200@lst.de>	<20050907124504.GA13614@cs.umn.edu> <20050907215816C.fujita.tomonori@lab.ntt.co.jp>
-In-Reply-To: <20050907215816C.fujita.tomonori@lab.ntt.co.jp>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 7 Sep 2005 13:19:34 -0400
+Date: Wed, 7 Sep 2005 22:47:56 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Nish Aravamudan <nish.aravamudan@gmail.com>
+Cc: Bill Davidsen <davidsen@tmr.com>, Con Kolivas <kernel@kolivas.org>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org,
+       ck list <ck@vds.kolivas.org>, rmk+lkml@arm.linux.org.uk
+Subject: Re: [PATCH 1/3] dynticks - implement no idle hz for x86
+Message-ID: <20050907171756.GB28387@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <200509031801.09069.kernel@kolivas.org> <20050903090650.B26998@flint.arm.linux.org.uk> <200509031814.49666.kernel@kolivas.org> <20050904201054.GA4495@us.ibm.com> <20050904212616.B11265@flint.arm.linux.org.uk> <20050905053225.GA4294@in.ibm.com> <20050905054813.GC25856@us.ibm.com> <20050905063229.GB4294@in.ibm.com> <431F11FF.2000704@tmr.com> <29495f1d0509070942688059a6@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <29495f1d0509070942688059a6@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FUJITA Tomonori wrote:
-> month. We discussed it with Christoph and decided that it would be
-> better to start from scratch because of the design differences.
+On Wed, Sep 07, 2005 at 09:42:24AM -0700, Nish Aravamudan wrote:
+> Hrm, got dropped from the Cc... :) Yes, the dynamic-tick generic
+> infrastructure being proposed, with the idle CPU mask and the
+> set_all_cpus_idle() tick_source hook, would allow exactly this in
+> arch-specific code.
 
-Some of the things we are trying to improve upon are things that are 
-better supported in 2.6. Some differences:
+I think Bill is referring to the "resume" interface i.e an
+unset_all_cpus_idle() interface, which is missing (set/unset
+probably are not good prefixes maybe?). I feel we can
+add one.
 
-- We will support controller hotplug.
-- We allow any type of device (dm, scsi, ide, LVM@ etc) as storage. And 
-we do not want hook into SCSI-ml's upper layer drivers and deal with 
-that refcounting if we can help it so we push a lot of code to userspace 
-and only do reads and writes in the kernel.
-- We also hope to support any block layer target.
-- As mentioned before, scatterlists by using the block layer's support.
+> Is there a generic location where the all-idle state is entered?
 
-There may be more that I am forgetting, but originally we started out by 
-trying to clean up the SCST code for 2.6 and make it resemble SCSI-ml's 
-hotplug model. As we did this it looked like some code could live in 
-userspace and it would end up being a rewrite becuase there was so much 
-to do so we started a new project. We hope to work with Vlad and the 
-SCST developers.
+Should be from the place where the last cpu is set in the bitmap
+and bitmap is found equal to cpu_online_map.
+
+> Currently, I think we can do it via the generic reprogram() routine
+> checking the mask and then calling set_all_cpus_idle(), if
+> appropriate, after reprogramming the last idle CPU.
+
+So are you saying that setting of the CPU in the bitmap will be done
+inside reprogram_timer routine? If we consider that reprogram_timer can 
+directly point to a routine in a interrupt source file (like apic.c/timer_pit.c)
+I dont think that it is the right place to set bits in the nohz_cpu_mask.
+It can be done by the callee of reprogram_timer itself.
+
+-- 
+
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

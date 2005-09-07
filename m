@@ -1,64 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932200AbVIGSbc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbVIGSd6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932200AbVIGSbc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 14:31:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932201AbVIGSbc
+	id S932195AbVIGSd6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 14:33:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932202AbVIGSd6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 14:31:32 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:34985 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932200AbVIGSbb
+	Wed, 7 Sep 2005 14:33:58 -0400
+Received: from zproxy.gmail.com ([64.233.162.200]:12683 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932195AbVIGSd5 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 14:31:31 -0400
-Date: Wed, 7 Sep 2005 19:31:31 +0100
-From: viro@ZenIV.linux.org.uk
-To: linux-kernel@vger.kernel.org
-Subject: [PATCHSET] 2.6.13-git7-bird1
-Message-ID: <20050907183131.GF5155@ZenIV.linux.org.uk>
-References: <20050905035848.GG5155@ZenIV.linux.org.uk> <20050905155522.GA8057@mipter.zuzino.mipt.ru> <20050905160313.GH5155@ZenIV.linux.org.uk> <20050905164712.GI5155@ZenIV.linux.org.uk> <20050905212026.GL5155@ZenIV.linux.org.uk>
+	Wed, 7 Sep 2005 14:33:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=m+gOUr2RHz6oUtJUQu+bVS3DLz/uLvS4bMmv10iXKm8eeTDAdNE2V81VllelDyCJLbjFsw+96/avEX+loG+TT4ju2YJLpPTwbYFmSkYn3hnrQ9JNyJu88dHoqG3Ag3RzW2bHtmmTj7xZavfOx4mCnB38DGZMn1qJdmRGDlie2KE=
+Message-ID: <29495f1d0509071133441e4ec2@mail.gmail.com>
+Date: Wed, 7 Sep 2005 11:33:55 -0700
+From: Nish Aravamudan <nish.aravamudan@gmail.com>
+Reply-To: nish.aravamudan@gmail.com
+To: vatsa@in.ibm.com
+Subject: Re: [PATCH 1/3] dynticks - implement no idle hz for x86
+Cc: Bill Davidsen <davidsen@tmr.com>, Con Kolivas <kernel@kolivas.org>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org,
+       ck list <ck@vds.kolivas.org>, rmk+lkml@arm.linux.org.uk
+In-Reply-To: <20050907181823.GF28387@in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050905212026.GL5155@ZenIV.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+References: <200509031814.49666.kernel@kolivas.org>
+	 <20050904212616.B11265@flint.arm.linux.org.uk>
+	 <20050905053225.GA4294@in.ibm.com> <20050905054813.GC25856@us.ibm.com>
+	 <20050905063229.GB4294@in.ibm.com> <431F11FF.2000704@tmr.com>
+	 <29495f1d0509070942688059a6@mail.gmail.com>
+	 <20050907171756.GB28387@in.ibm.com>
+	 <29495f1d05090710276d64a3de@mail.gmail.com>
+	 <20050907181823.GF28387@in.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patchset moved to -git7.  News:
-	* sparse arguments fixed on ppc64 (dealt with regression)
-	* -Wundef gcc warnigns all dealt with on tracked targets
-Note that sparse -Wundef is broken; logs this time are with sparse
-wrapper that rips -Wundef from its arguments.
+On 9/7/05, Srivatsa Vaddagiri <vatsa@in.ibm.com> wrote:
+> On Wed, Sep 07, 2005 at 10:27:43AM -0700, Nish Aravamudan wrote:
+> > enter_all_cpus_idle() and exit_all_cpus_idle() would be better?
+> 
+> Looks perfect.
+> 
+> > No, I was saying what you were, if a little unclearly, so the caller
+> > does something like:
+> >
+> > current_dyn_tick_timer->reprogram();
+> > check_cpu_mask(nohz_cpu_mask);
+> > if (we_are_last_idle)
+> >   enter_all_cpus_idle();
+> 
+> Looks fine!
 
-Patch is on ftp.linux.org.uk/pub/peole/viro/patch-2.6.13-git7-brid1.bz2,
-its splitup is in usual place and logs are in logs/*/*log19.
+Great!
 
-Added:
-S26-ppc64-sparse	CHECKFLAGS on ppc64 got broken
-C40-elf_class		bogus symbol used in elf_aux.c
-C41-xfs			XFS __...._ENDIAN -Wundef warnings
-O5-m68k-hardirq		(m68k) hardirq checks were in wrong place
-O6-simserial		bogus #if (simserial)
-O7-uml-mem		bogus #if (arch/um/kernel/mem.c)
-O8-hisax		-Wundef fixes (hisax)
-O9-smc-undef		bogus #if (smc91x)
-O10-ncr5380		-Wundef fixes (ncr5380)
-O11-hamachi		-Wundef fixes (hamachi)
-O12-ncr53c406		bogus #if (ncr53c406)
-
-Merged upstream:
-B35-82596
-B41-s390-phy
-B44-genrtc
-C33-mxser
-C34-uli526x
-C36-sunsu
-S0-chelsio
-S1-e1000
-S2-s2io-iomem
-S3-ipw2100
-S10-ethtool
-
-Updated:
-S5-ahci
-S7-sata_sx4
-C39-s390
+Thanks,
+Nish

@@ -1,57 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750975AbVIGGkH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751017AbVIGGt4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750975AbVIGGkH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 02:40:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750988AbVIGGkH
+	id S1751017AbVIGGt4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 02:49:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751021AbVIGGt4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 02:40:07 -0400
-Received: from ns.firmix.at ([62.141.48.66]:3552 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S1750975AbVIGGkF (ORCPT
+	Wed, 7 Sep 2005 02:49:56 -0400
+Received: from colin.muc.de ([193.149.48.1]:12043 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S1751016AbVIGGtz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 02:40:05 -0400
-Subject: Re: kbuild & C++
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Chris Frey <cdfrey@netdirect.ca>
-Cc: "Budde, Marco" <budde@telos.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050906210801.GA27897@netdirect.ca>
-References: <809C13DD6142E74ABE20C65B11A2439809C4BD@www.telos.de>
-	 <1126006234.31664.13.camel@tara.firmix.at>
-	 <20050906210801.GA27897@netdirect.ca>
-Content-Type: text/plain
-Organization: Firmix Software GmbH
-Date: Wed, 07 Sep 2005 08:39:54 +0200
-Message-Id: <1126075194.24425.5.camel@tara.firmix.at>
+	Wed, 7 Sep 2005 02:49:55 -0400
+Date: 7 Sep 2005 08:49:50 +0200
+Date: Wed, 7 Sep 2005 08:49:50 +0200
+From: Andi Kleen <ak@muc.de>
+To: Ashok Raj <ashok.raj@intel.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch 09/14] x86_64: Don't call enforce_max_cpus when hotplug is enabled
+Message-ID: <20050907064950.GB96684@muc.de>
+References: <200509032135.j83LZ5Od020541@shell0.pdx.osdl.net> <20050905044821.GH17516@muc.de> <20050906155617.A19439@unix-os.sc.intel.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050906155617.A19439@unix-os.sc.intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-09-06 at 17:08 -0400, Chris Frey wrote:
-> On Tue, Sep 06, 2005 at 01:30:34PM +0200, Bernd Petrovitsch wrote:
-> > Yes, because the official Linux kernel is pure C (using some gcc
-> > extensions).
-> > There is http://netlab.ru.is/exception/LinuxCXX.shtml but it is
-> > a) not integrated (and will probably never) and
-> > b) you can't use parts of C++ anyway with it.
+On Tue, Sep 06, 2005 at 03:56:17PM -0700, Ashok Raj wrote:
+> Hi Andi
 > 
-> All the language features are supported, according to them.  The standard
-> library is not available that I can see, but it's not available in C
-> either, in the kernel.
+> On Mon, Sep 05, 2005 at 06:48:21AM +0200, Andi Kleen wrote:
+> > On Sat, Sep 03, 2005 at 02:33:26PM -0700, akpm@osdl.org wrote:
+> > > 
+> > > From: Ashok Raj <ashok.raj@intel.com>
+> > > 
+> > > No need to enforce_max_cpus when hotplug code is enabled.  This nukes out
+> > > cpu_present_map and cpu_possible_map making it impossible to add new cpus in
+> > > the system.
+> > 
+> > I see the point, but the implementation is wrong. If anything
+> > we shouldn't do it neither for the !HOTPLUG_CPU case.Why did 
+> > you not do it unconditionally? 
+> > 
+> > I would prefer to keep the special cases for hotplug to be
+> > as narrow as possible.
+> 
+> Link to earlier discussion below
+> 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=112317327529855&w=2
+> 
+> I had suggested that we remove it completely in our discussion but i didnt
+> hear anything from you after that, so i thought that was acceptable.
 
-ACK (and the few necessary equal or similar functions of the standard C
-lib are implemented directly).
-It depends on the to-be-integrated C++ source if it is clean enough from
-these features (let alone from Win* specific stuff) so that it makes
-sense to really integrate it (so that future versions can replace it
-more easily) and just convert it to pure C (which may be less work now
-but more of a maintenance headache).
-And no, I don't think that building a "windriverwrapper" (a la
-ndiswrapper) is a useful thing.
+Just because I don't follow up on everything doesn't necessarily
+mean the patch is acceptable.
 
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
+> 
+> You had suggested in that discussion that it would be better to add an 
+> option for startup. Iam opposed to adding any option, when we certainly know 
+
+I suggested to auto detect it based on ACPI information. I don't 
+think I ever wrote anything about an option.
+
+If that is not possible it's better to always use the sequence mechanism.
+
+> there are no users. Earlier based on your suggestion i added a startup
+> option to choose ipi broadcast mode, which you promptly removed when you
+> put physflat changes. I think its better to not add any option without
+> real need. Do you agree?
+
+Yes. 
+
+> Please reply if you want me to remove the !HOTPLUG case which is my 
+> preference as well, and maybe while the memory is fresh, we can stick
+> with it this time when we are in the same page :-(
+
+Yes, as I wrote earlier hotplug should be removed.
+
+-Andi
+
+P.S.: Don't bother sending me such "blame game" mails again. I will
+just d them next time because they're a waste of time.
 

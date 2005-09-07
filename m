@@ -1,68 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751268AbVIGS4s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751261AbVIGTHT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751268AbVIGS4s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 14:56:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751232AbVIGS4s
+	id S1751261AbVIGTHT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 15:07:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751273AbVIGTHT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 14:56:48 -0400
-Received: from sabe.cs.wisc.edu ([128.105.6.20]:29859 "EHLO sabe.cs.wisc.edu")
-	by vger.kernel.org with ESMTP id S1750831AbVIGS4r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 14:56:47 -0400
-Message-ID: <431F37E6.3080706@cs.wisc.edu>
-Date: Wed, 07 Sep 2005 13:56:38 -0500
-From: Mike Christie <michaelc@cs.wisc.edu>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Vladislav Bolkhovitin <vst@vlnb.net>
-CC: boutcher@cs.umn.edu, Christoph Hellwig <hch@lst.de>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       linuxppc64-dev@ozlabs.org, Santiago Leon <santil@us.ibm.com>,
-       Linda Xie <lxiep@us.ibm.com>
-Subject: Re: [RFC] SCSI target for IBM Power5 LPAR
-References: <20050906212801.GB14057@cs.umn.edu> <20050907104932.GA14200@lst.de> <20050907124504.GA13614@cs.umn.edu> <431F35D2.7040209@vlnb.net>
-In-Reply-To: <431F35D2.7040209@vlnb.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 7 Sep 2005 15:07:19 -0400
+Received: from smtp-103-wednesday.noc.nerim.net ([62.4.17.103]:5893 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1751261AbVIGTHR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Sep 2005 15:07:17 -0400
+Date: Wed, 7 Sep 2005 21:07:53 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+Cc: LM Sensors <lm-sensors@lm-sensors.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Request only really used I/O ports in w83627hf driver
+Message-Id: <20050907210753.3dbad61b.khali@linux-fr.org>
+In-Reply-To: <20050907181415.GA468@vana.vc.cvut.cz>
+References: <20050907181415.GA468@vana.vc.cvut.cz>
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vladislav Bolkhovitin wrote:
-> Dave C Boutcher wrote:
-> 
->> On Wed, Sep 07, 2005 at 12:49:32PM +0200, Christoph Hellwig wrote:
->>
->>> On Tue, Sep 06, 2005 at 04:28:01PM -0500, Dave C Boutcher wrote:
->>>
->>>> This device driver provides the SCSI target side of the "virtual
->>>> SCSI" on IBM Power5 systems.  The initiator side has been in mainline
->>>> for a while now (drivers/scsi/ibmvscsi/ibmvscsi.c.)  Targets already
->>>> exist for AIX and OS/400.
->>>
->>>
->>> Please try to integrate that with the generic scsi target framework at
->>> http://developer.berlios.de/projects/stgt/.
->>
->>
->>
->> There hasn't been a lot of forward progress on stgt in over a year, and
->> there were some issues (lack of scatterlist support, synchronous and
->> serial command execution) that were an issue when last I looked.
->>
->> Vlad, can you comment on the state of stgt and whether you see it
->> being ready for mainline any time soon?
-> 
-> 
-> Sorry, I can see on stgt page only mail lists archive and not from start 
-> (from Aug 22). Mike, can I see stgt code and some design description, 
-> please? You can send it directly on my e-mail address, if necessary.
+Hi Petr,
 
+> my motherboard (Tyan S2885) reports range 295-296 in its PNP hardware
+> descriptors, and due to this w83627hf driver fails to load, as it
+> requests 290-297 range, which is not subrange of this PNP resource. 
+> As hardware monitor chip responds to 295/296 addresses only, there is
+> no reason to request full 8 byte I/O.
 
-goto the svn page for the code
-http://developer.berlios.de/svn/?group_id=4492
+Another point of view would be: as the physical address of the chip is
+0x290-0x297, there is no reason to even think of requesting a different
+range. And there is a very valid reason to request the full 8 byte I/O
+range: to let the user know that this range is not available for other
+devices. Mapping another device to the unused I/O ports of the W83627HF
+would not work, right? Also consider that future chips of this family
+could use additional ports.
 
-As for design desc, I do not have anything. It is the evolving source :) 
-We are slowly merging leasons we learned from open-iscsi, your SCST 
-code, the available software and HW targets, and the SCSI ULD's 
-scatterlist code which needs redoing so it is a bit of a mess.
+The cause of your trouble is, IMVHO, a buggy BIOS. Ask Tyan to fix their
+BIOS to allocate the real I/O range to the W83627HF chip, and you're
+done.
+
+http://bugzilla.kernel.org/show_bug.cgi?id=4014
+
+Your fix might come in handy for your own situation, but it looks wrong
+in the long run. We are not going to shrink the requested I/O range of
+every random driver each time a motherboard manufacturer releases a
+buggy BIOS.
+
+If getting the manufacturers to provide fixed BIOSes doesn't seem to be
+feasable, then the PNPACPI code certainly needs to be extended to handle
+this case transparently. This could be achived using quirks similar to
+what we have for PCI, or PNPACPI could simply accept requests of I/O
+ranges which include a single PNP range as defined by the BIOS. Note
+that everything was working just fine for everyone before PNPACPI was
+added to the kernel.
+
+> While I was doing that, I also changed W83781D_*_REG_OFFSET definitions
+> from 5/6 to 0/1.  Code is a bit smaller after doing that, and it looks
+> better now since we do not allocate full 8 byte range.
+
+I find this change rather confusing myself, and it makes the code
+bigger, not smaller.
+
+-- 
+Jean Delvare

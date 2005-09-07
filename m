@@ -1,68 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751080AbVIGRCb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750845AbVIGREB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751080AbVIGRCb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 13:02:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751029AbVIGRCb
+	id S1750845AbVIGREB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 13:04:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750844AbVIGREB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 13:02:31 -0400
-Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:37323
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S1750705AbVIGRCb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 13:02:31 -0400
-Subject: [patch] synclink.c compiler optimiation fix
-From: Paul Fulghum <paulkf@microgate.com>
+	Wed, 7 Sep 2005 13:04:01 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:34182 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750705AbVIGREA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Sep 2005 13:04:00 -0400
+Subject: Re: [PATCH 01/11] memory hotplug prep: kill local_mapnr
+From: Dave Hansen <haveblue@us.ibm.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050907023728.732a5a9f.akpm@osdl.org>
+References: <20050902205643.9A4EC17A@kernel.beaverton.ibm.com>
+	 <20050907023728.732a5a9f.akpm@osdl.org>
 Content-Type: text/plain
-Message-Id: <1126112543.3984.17.camel@deimos.microgate.com>
+Date: Wed, 07 Sep 2005 10:03:06 -0700
+Message-Id: <1126112586.7329.5.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 07 Sep 2005 12:02:23 -0500
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[patch] synclink.c compiler optimization fix
+On Wed, 2005-09-07 at 02:37 -0700, Andrew Morton wrote:
+> Dave Hansen <haveblue@us.ibm.com> wrote:
+> >
+> >  --- memhotplug/include/asm-x86_64/mmzone.h~C0-kill-local_mapnr	2005-08-18 14:59:43.000000000 -0700
+> >  +++ memhotplug-dave/include/asm-x86_64/mmzone.h	2005-08-18 14:59:43.000000000 -0700
+> >  @@ -38,8 +38,6 @@ static inline __attribute__((pure)) int 
+> >   
+> >   #ifdef CONFIG_DISCONTIGMEM
+> >   
+> >  -#define pfn_to_nid(pfn) phys_to_nid((unsigned long)(pfn) << PAGE_SHIFT)
+> >  -#define kvaddr_to_nid(kaddr)	phys_to_nid(__pa(kaddr))
+> >   
+> >   /* AK: this currently doesn't deal with invalid addresses. We'll see 
+> >      if the 2.5 kernel doesn't pass them
+> >  _
+> 
+> What's this bit doing here?   It breaks the x86_64 build all over the place.
+> 
+> I'll drop that chunk and see how we go...
 
-From: Paul Fulghum <paulkf@microgate.com>
+That could have easily been some merge borkage on my part.  I don't
+think that hunk is valid, so dropping it is the right move.
 
-Make some fields of DMA descriptor volatile to
-prevent compiler optimizations.
-
-Signed-off-by: Paul Fulghum <paulkf@microgate.com>
-
---- linux-2.6.13/drivers/char/synclink.c	2005-09-07 11:43:56.000000000 -0500
-+++ linux-2.6.13-mg/drivers/char/synclink.c	2005-09-07 11:52:08.000000000 -0500
-@@ -1,7 +1,7 @@
- /*
-  * linux/drivers/char/synclink.c
-  *
-- * $Id: synclink.c,v 4.28 2004/08/11 19:30:01 paulkf Exp $
-+ * $Id: synclink.c,v 4.37 2005/09/07 13:13:19 paulkf Exp $
-  *
-  * Device driver for Microgate SyncLink ISA and PCI
-  * high speed multiprotocol serial adapters.
-@@ -141,9 +141,9 @@ static MGSL_PARAMS default_params = {
- typedef struct _DMABUFFERENTRY
- {
- 	u32 phys_addr;	/* 32-bit flat physical address of data buffer */
--	u16 count;	/* buffer size/data count */
--	u16 status;	/* Control/status field */
--	u16 rcc;	/* character count field */
-+	volatile u16 count;	/* buffer size/data count */
-+	volatile u16 status;	/* Control/status field */
-+	volatile u16 rcc;	/* character count field */
- 	u16 reserved;	/* padding required by 16C32 */
- 	u32 link;	/* 32-bit flat link to next buffer entry */
- 	char *virt_addr;	/* virtual address of data buffer */
-@@ -896,7 +896,7 @@ module_param_array(txdmabufs, int, NULL,
- module_param_array(txholdbufs, int, NULL, 0);
- 
- static char *driver_name = "SyncLink serial driver";
--static char *driver_version = "$Revision: 4.28 $";
-+static char *driver_version = "$Revision: 4.37 $";
- 
- static int synclink_init_one (struct pci_dev *dev,
- 				     const struct pci_device_id *ent);
-
+-- Dave
 

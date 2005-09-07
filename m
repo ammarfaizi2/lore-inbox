@@ -1,89 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751294AbVIGUK0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932203AbVIGUOK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751294AbVIGUK0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 16:10:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751299AbVIGUK0
+	id S932203AbVIGUOK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 16:14:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751305AbVIGUOK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 16:10:26 -0400
-Received: from fmr14.intel.com ([192.55.52.68]:3771 "EHLO
-	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1751294AbVIGUKZ convert rfc822-to-8bit (ORCPT
+	Wed, 7 Sep 2005 16:14:10 -0400
+Received: from smtp.istop.com ([66.11.167.126]:15269 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S1751300AbVIGUOJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 16:10:25 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Wed, 7 Sep 2005 16:14:09 -0400
+From: Daniel Phillips <phillips@istop.com>
+To: jan.kiszka@googlemail.com
+Subject: Re: RFC: i386: kill !4KSTACKS
+Date: Wed, 7 Sep 2005 16:17:24 -0400
+User-Agent: KMail/1.8
+Cc: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
+References: <20050904145129.53730.qmail@web50202.mail.yahoo.com> <58d0dbf10509071054175e82ff@mail.gmail.com> <200509071552.27543.phillips@istop.com>
+In-Reply-To: <200509071552.27543.phillips@istop.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: battery status events (RE: Kernel 2.6.13 repeated ACPI events?)
-Date: Wed, 7 Sep 2005 16:10:07 -0400
-Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B30048646E9@hdsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: battery status events (RE: Kernel 2.6.13 repeated ACPI events?)
-Thread-Index: AcWyHGFIAA7ZO+/ITQaBtO7Axf+85gByqPBw
-From: "Brown, Len" <len.brown@intel.com>
-To: "Jan De Luyck" <lkml@kcore.org>
-Cc: <acpi-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>,
-       "Lebedev, Vladimir P" <vladimir.p.lebedev@intel.com>,
-       "Yu, Luming" <luming.yu@intel.com>
-X-OriginalArrivalTime: 07 Sep 2005 20:10:13.0604 (UTC) FILETIME=[2812EA40:01C5B3E8]
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509071617.24181.phillips@istop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
+On Wednesday 07 September 2005 15:52, Daniel Phillips wrote:
+Ah, there's another issue: an interrupt can come in when esp is on the ndis 
+stack and above THREAD_SIZE, so do_IRQ will not find thread_info.  Sorry,
+this one is nasty.
 
->-----Original Message-----
->From: linux-kernel-owner@vger.kernel.org 
->[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Jan De Luyck
->Sent: Monday, September 05, 2005 9:17 AM
->To: linux-kernel@vger.kernel.org
->Subject: Re: Kernel 2.6.13 repeated ACPI events?
->
->I'm seeing repeated ACPI events too, but of the battery kind:
->
->[Mon Sep  5 15:13:52 2005] received event "battery BAT2 
->00000080 00000001"
->[Mon Sep  5 15:13:52 2005] completed event "battery BAT2 
->00000080 00000001"
->[Mon Sep  5 15:14:53 2005] received event "battery BAT1 
->00000080 00000001"
->[Mon Sep  5 15:14:53 2005] completed event "battery BAT1 
->00000080 00000001"
->[Mon Sep  5 15:14:53 2005] received event "battery BAT2 
->00000080 00000001"
->[Mon Sep  5 15:14:53 2005] completed event "battery BAT2 
->00000080 00000001"
->[Mon Sep  5 15:15:55 2005] received event "battery BAT1 
->00000080 00000001"
->[Mon Sep  5 15:15:55 2005] completed event "battery BAT1 
->00000080 00000001"
->[Mon Sep  5 15:15:55 2005] received event "battery BAT2 
->00000080 00000001"
->[Mon Sep  5 15:15:55 2005] completed event "battery BAT2 
->00000080 00000001"
->
->going on forever and ever...
->
->Jan
+Regards,
 
-The kernel doesn't created these messages -- presumably
-they're from acpid or some other user-level daemon
-that is monitoring /proc/acpi/event.  Unlikely that
-logging these events is necessary...
-
-Event 0x80 on the battery device is a "Battery Status Changed"
-which you'd expect to see when plugging/charging/discharging
-a battery.  How frequent they are depends on the rate,
-the battery and the firmware that is talking to it.
-
-Is there a GUI or something reading the battery status files?
-Do these events stop when running in text mode?
-
-Did this not happen on this box with earlier kernels?
-
-Do the /proc/acpi/battery* files look sane --
-is the status really changing?
-
-thanks,
--Len
+Daniel

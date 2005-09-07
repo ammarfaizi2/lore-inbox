@@ -1,145 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932166AbVIGPyH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751233AbVIGQKe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932166AbVIGPyH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 11:54:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbVIGPyH
+	id S1751233AbVIGQKe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 12:10:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751229AbVIGQKe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 11:54:07 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:15302 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932166AbVIGPyG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 11:54:06 -0400
-Date: Wed, 7 Sep 2005 08:53:52 -0700
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: Tony Lindgren <tony@atomide.com>
-Cc: Srivatsa Vaddagiri <vatsa@in.ibm.com>, Con Kolivas <kernel@kolivas.org>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org,
-       ck list <ck@vds.kolivas.org>, rmk+lkml@arm.linux.org.uk
-Subject: Re: [PATCH 1/3] dynticks - implement no idle hz for x86
-Message-ID: <20050907155352.GD4590@us.ibm.com>
-References: <20050903090650.B26998@flint.arm.linux.org.uk> <200509031814.49666.kernel@kolivas.org> <20050904201054.GA4495@us.ibm.com> <20050904212616.B11265@flint.arm.linux.org.uk> <20050905053225.GA4294@in.ibm.com> <20050905054813.GC25856@us.ibm.com> <20050905063229.GB4294@in.ibm.com> <20050905064416.GD25856@us.ibm.com> <20050906205112.GA3038@us.ibm.com> <20050907081303.GC5804@atomide.com>
+	Wed, 7 Sep 2005 12:10:34 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:34988 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S932155AbVIGQKd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Sep 2005 12:10:33 -0400
+Date: Wed, 7 Sep 2005 09:14:23 -0700
+From: Grant Grundler <iod00d@hp.com>
+To: Coywolf Qi Hunt <coywolf@gmail.com>
+Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, linux-ia64@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Prefetch kernel stacks to speed up context switch
+Message-ID: <20050907161423.GA30660@esmail.cup.hp.com>
+References: <200509070829.j878TSg25898@unix-os.sc.intel.com> <2cd57c900509070152518fac06@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050907081303.GC5804@atomide.com>
-X-Operating-System: Linux 2.6.13 (i686)
-User-Agent: Mutt/1.5.10i
+In-Reply-To: <2cd57c900509070152518fac06@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 07.09.2005 [11:13:04 +0300], Tony Lindgren wrote:
-> * Nishanth Aravamudan <nacc@us.ibm.com> [050906 23:55]:
-> 
-> ...
-> 
-> > Sigh, later than I had hoped, but here is what I have hashed out so far.
-> > Does it seem like a step in the right direction? Rather hand-wavy, but I
-> > think it's mostly correct ;)
-> 
-> Some comments below.
+On Wed, Sep 07, 2005 at 04:52:17PM +0800, Coywolf Qi Hunt wrote:
+> On 9/7/05, Chen, Kenneth W <kenneth.w.chen@intel.com> wrote:
+> > Repost previously discussed patch (on Jul 27, 2005).
 
-Updated document below.
+For reference:
+http://www.gelato.unsw.edu.au/archives/linux-ia64/0507/14686.html
 
-Thanks,
-Nish
+> Do you have any benchmarks?
 
+Have you read the discussion?
+See:
+    http://www.gelato.unsw.edu.au/archives/linux-ia64/0507/14685.html
 
-- include/linux/timer.h
-	with definitions in kernel/timer.c
+Ken didn't post any benchmark results originally but clearly
+stated the cacheline misses were occurring enough to be measurable.
+Just knowing which workload and how much much time was spent
+stalling for cacheline misses should be sufficient.
 
-OR better in
-- include/linux/ticksource.h
-	with definitions in kernel/ticksource.c?
-
-#define DYN_TICK_ENABLED	(1 << 1)
-#define DYN_TICK_SUITABLE	(1 << 0)
-
-#define DYN_TICK_MIN_SKIP	2
-
-/* Abstraction of a tick source
- * @state: current state
- * @max_skip: current maximum number of ticks to skip
- * @init: initialization routine
- * @enable_dyn_tick: called via sysfs to enable interrupt skipping
- * @disable_dyn_tick: called via sysfs to disable interrupt
- * 				skipping
- * @set_all_cpus_idle: last cpu to go idle calls this, which should
- * 				disable any timesource (e.g. PIT on x86)
- * @recover_time: handler for returning from skipped ticks and keeping
- * 				time consistent
- */
-struct tick_source {
-	unsigned int state;
-	unsigned long max_skip;
-	int (*init) (void);
-	void (*enable_dyn_tick) (void);
-	void (*disable_dyn_tick) (void);
-	unsigned long (*reprogram) (unsigned long); /* return number of ticks skipped */
-	unsigned long (*recover_time) (int, void *, struct pt_regs *); /* handler in arm */
-	/* following empty in UP */
-	void (*set_all_cpus_idle) (int);
-	spinlock_t lock;
-};
-
-extern void tick_source_register(struct tick_source *new_tick_source);
-extern struct tick_source *current_ticksource;
-
-#ifdef CONFIG_NO_IDLE_HZ /* which means CONFIG_DYNTICK is also on */
-extern void set_tick_max_skip(unsigned long max_skip);
-/* idle_reprogram_tick calls reprogram_tick calls current_ticksource->reprogram()
- * do we really need the first step? */
-extern void idle_reprogram_tick(void);
-/* return number of ticks skipped, potentially for accounting purposes? */
-extern unsigned long reprogram_tick(void);
-
-extern struct tick_source * __init arch_select_tick_source(void);
-extern void __init dyn_tick_init(void); /* calls select_tick_source(), verifies source is usable, then calls tick_source_register() */
-
-static inline int dyn_tick_enabled(void)
-{
-	return (current_ticksource->state & DYN_TICK_ENABLED);
-}
-
-#else	/* CONFIG_NO_IDLE_HZ */
-static inline void set_tick_max_skip(unsigned long max_skip)
-{
-}
-
-static inline void idle_reprogram_tick(void)
-{
-}
-
-static inline unsigned long reprogram_tick(void)
-{
-	return 0;
-}
-
-static inline void dyn_tick_init(void)
-{
-}
-
-static inline int dyn_tick_enabled(void)
-{
-	return 0;
-}
-#endif	/* CONFIG_NO_IDLE_HZ */
-
-/* Pick up arch specific header */
-#include <asm/timer.h> /* or <asm/ticksource.h>, depending */
-
-- sched.c / sched.h
-	/* do we want these elsewhere? */
-	cpumask_t no_idle_hz_cpumask;
-
-- each arch-specific file pair needs to provide:
-	arch_select_tick_source();
-	appropriate struct tick_source definitions, functions, etc.
-
-- include/asm-i386/timer.h /* or ticksource.h */
-	with defines in arch/i386/timer.c /* or ticksource.c */
-
-- include/asm-arm/arch-omap/timer.h /* or ticksource.h */
-	with definitions in arch/arm/mach-omap/timer.c /* or ticksource.c */
-
-- include/asm-s390/timer.h /* or ticksource.h */
-	with definitions in arch/s390/timer.c /* or ticksource.c */
+grant

@@ -1,44 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932243AbVIGU37@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbVIGUdU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932243AbVIGU37 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 16:29:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbVIGU37
+	id S932239AbVIGUdU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 16:33:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbVIGUdU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 16:29:59 -0400
-Received: from wproxy.gmail.com ([64.233.184.201]:55742 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932243AbVIGU36 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 16:29:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=LbzZyGblzsinGpDwUou+CPQgCAmmwkNpJfiAvcomnKou/xJHc6taxfy1+ukJtYHnrvd+XArC+gvuNE7mhym06mNIOkm9s3PoDeMK/K/al6PQsf9AslaBD85vkuIzauq0Cf9NX4KqpfhIhpieqFY7JvILIBznSWVgMJPcuDRdk+I=
-Message-ID: <58d0dbf1050907132951a2aee7@mail.gmail.com>
-Date: Wed, 7 Sep 2005 22:29:55 +0200
-From: Jan Kiszka <jan.kiszka@googlemail.com>
-Reply-To: jan.kiszka@googlemail.com
-To: Daniel Phillips <phillips@istop.com>
-Subject: Re: RFC: i386: kill !4KSTACKS
-Cc: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200509071617.24181.phillips@istop.com>
+	Wed, 7 Sep 2005 16:33:20 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9491 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932239AbVIGUdU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Sep 2005 16:33:20 -0400
+Date: Wed, 7 Sep 2005 21:33:16 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Kars de Jong <jongk@linux-m68k.org>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: 8250_hp300: initialisation ordering bug
+Message-ID: <20050907213316.G19199@flint.arm.linux.org.uk>
+Mail-Followup-To: Kars de Jong <jongk@linux-m68k.org>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+References: <20050904111901.A30509@flint.arm.linux.org.uk> <1126124269.3968.5.camel@kars.perseus.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20050904145129.53730.qmail@web50202.mail.yahoo.com>
-	 <58d0dbf10509071054175e82ff@mail.gmail.com>
-	 <200509071552.27543.phillips@istop.com>
-	 <200509071617.24181.phillips@istop.com>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1126124269.3968.5.camel@kars.perseus.home>; from jongk@linux-m68k.org on Wed, Sep 07, 2005 at 10:17:49PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2005/9/7, Daniel Phillips <phillips@istop.com>:
-> On Wednesday 07 September 2005 15:52, Daniel Phillips wrote:
-> Ah, there's another issue: an interrupt can come in when esp is on the ndis
-> stack and above THREAD_SIZE, so do_IRQ will not find thread_info.  Sorry,
-> this one is nasty.
-> 
+On Wed, Sep 07, 2005 at 10:17:49PM +0200, Kars de Jong wrote:
+> Yes, you are right. I am working on rewriting the driver a bit to use a
+> platform device for the APCI driver, I'll take your bug report into
+> account as well.
 
-Oh, you already got it as well.
+Thanks.
 
-Jan
+> On a related note: can I use the "serial8250" platform driver also for
+> non-ISA devices (like my APCI platform device)? The comments in
+> drivers/serial/8250.c suggest it's for ISA devices only, but I don't see
+> a particular reason for not using it for my APCI devices.
+
+The legacy platform device (serial8250_isa_devs) is for the old
+legacy ISA tables, found in include/asm-*/serial.h.
+
+Other serial8250 platform devices can be used to register other
+devices - preferably groups of platform specific serial ports.
+
+However, if you're talking about registering a set of devices
+found on a different bus type (eg, PCI) then look at how 8250_pci
+handles that.  I'd prefer bus-specific device registration to be
+done in a similar way to 8250_pci rather than creating extra
+platform devices.
+
+I hope that's clear.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

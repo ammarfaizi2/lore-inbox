@@ -1,43 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932124AbVIGMCl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932132AbVIGMD2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932124AbVIGMCl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 08:02:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932125AbVIGMCl
+	id S932132AbVIGMD2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 08:03:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932131AbVIGMD2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 08:02:41 -0400
-Received: from mail-in-02.arcor-online.net ([151.189.21.42]:30141 "EHLO
-	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
-	id S932124AbVIGMCk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 08:02:40 -0400
-From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
-Subject: Re: kbuild & C++
-To: Budde@vger.kernel.org, Marco <budde@telos.de>,
-       linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Wed, 07 Sep 2005 14:02:30 +0200
-References: <4JJOt-77X-9@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Wed, 7 Sep 2005 08:03:28 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:2221 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S932132AbVIGMD1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Sep 2005 08:03:27 -0400
+Message-ID: <431ED6DC.9040503@lifl.fr>
+Date: Wed, 07 Sep 2005 14:02:36 +0200
+From: Eric Piel <Eric.Piel@lifl.fr>
+User-Agent: Mozilla Thunderbird 1.0.6-5mdk (X11/20050322)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1ECydL-0000oM-GC@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: =?UTF-8?B?TcOgcml1cyBNb250w7Nu?= <Marius.Monton@uab.es>,
+       linux-kernel@vger.kernel.org, mulix@mulix.org
+Subject: Re: 'virtual HW' into kernel (SystemC)
+References: <431EC16B.2040604@uab.es> <431ED1B9.7040407@pobox.com>
+In-Reply-To: <431ED1B9.7040407@pobox.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Budde, Marco <budde@telos.de> wrote:
-
-> for one of our customers I have to port a Windows driver to
-> Linux. Large parts of the driver's backend code consists of
-> C++.
+09/07/2005 01:40 PM, Jeff Garzik wrote/a écrit:
+> Màrius Montón wrote:
 > 
-> How can I compile this code with kbuild? The C++ support
-> (I have tested with 2.6.11) of kbuild seems to be incomplete /
-> not working.
+:
+>> At this point, we plan to develop a pci device driver to act as a bridge
+>> between kernel PCI subsystem and SystemC simulator (in user space).
+> 
+> 
+> No need for a set of tools.  As long as your SystemC simulator simulates 
+> an entire platform -- CPU, DRAM, etc. -- then you can boot Linux on the 
+> simulated platform.
+> 
+> If you can boot Linux on the simulated platform, then you can easily 
+> develop a Linux driver long before real HW is available.
 
-Maybe this can help: http://en.wikipedia.org/wiki/Cfront
--- 
-Ich danke GMX daf�r, die Verwendung meiner Adressen mittels per SPF
-verbreiteten L�gen zu sabotieren.
+No, this approach is not feasible because it would be require to 
+describe the entire computer in SystemC: it's extremly complex to do and 
+the simulation will be very slow.
+
+ From what I understand Màrius tries to only simulate one component 
+(like a PCI card). As suggested Muli, a plugin to something like quemu 
+sounds like a good idea?
+
+Eric
+

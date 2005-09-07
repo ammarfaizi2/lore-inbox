@@ -1,92 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932101AbVIGKao@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932104AbVIGKly@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932101AbVIGKao (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 06:30:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932104AbVIGKao
+	id S932104AbVIGKly (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 06:41:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751185AbVIGKly
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 06:30:44 -0400
-Received: from istanbul.uab.es ([158.109.168.138]:25387 "EHLO istanbul.uab.es")
-	by vger.kernel.org with ESMTP id S932101AbVIGKan (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 06:30:43 -0400
-Date: Wed, 07 Sep 2005 12:31:07 +0200
-From: =?ISO-8859-1?Q?M=E0rius_Mont=F3n?= <Marius.Monton@uab.es>
-Subject: 'virtual HW' into kernel (SystemC)
-To: linux-kernel@vger.kernel.org
-Message-id: <431EC16B.2040604@uab.es>
-Organization: Cephis-UAB
-MIME-version: 1.0
-Content-type: multipart/mixed; boundary="Boundary_(ID_jPtLQnzXqkrJ1dIuguskxA)"
-X-Accept-Language: ca, es
-X-Enigmail-Version: 0.92.0.0
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
-X-OriginalArrivalTime: 07 Sep 2005 10:31:24.0007 (UTC)
- FILETIME=[4B9EF770:01C5B397]
+	Wed, 7 Sep 2005 06:41:54 -0400
+Received: from mail05.syd.optusnet.com.au ([211.29.132.186]:24277 "EHLO
+	mail05.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1751175AbVIGKly (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Sep 2005 06:41:54 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Adam Petaccia <adam@tpetaccia.com>
+Subject: Re: [ck] 2.6.13-ck2
+Date: Wed, 7 Sep 2005 20:41:39 +1000
+User-Agent: KMail/1.8.2
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       ck list <ck@vds.kolivas.org>
+References: <200509052344.11665.kernel@kolivas.org> <1126031157.8117.5.camel@pimpmobile>
+In-Reply-To: <1126031157.8117.5.camel@pimpmobile>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_kPsHDIEso7sufis"
+Message-Id: <200509072041.40153.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+--Boundary-00=_kPsHDIEso7sufis
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
---Boundary_(ID_jPtLQnzXqkrJ1dIuguskxA)
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 8BIT
+On Wed, 7 Sep 2005 04:25, Adam Petaccia wrote:
+> I think this patch is missing an IFDEF or something (I'm not really a
+> programmer, I just like to pretend).  Anyway, I've tried building -ck2
+> without swap enabled, and it failed.  Just to make sure, I make'd
+> distclean, and I get the following:
+>
+>   LD      .tmp_vmlinux1
+> mm/built-in.o: In function `zone_watermark_ok':
+> mm/page_alloc.c:763: undefined reference to `delay_prefetch'
+> mm/built-in.o: In function `swap_setup':
+> mm/swap.c:485: undefined reference to `prepare_prefetch'
+> make: *** [.tmp_vmlinux1] Error 1
 
-Hello all,
+Bad layout on my part.
 
-I'm a PhD student and I'm focusing on HW/SW co-design.
+Try this patch on top.
 
-First of all, a brief introduction to problem:
-Nowadays, we can use C++ libraries, called SystemC, to describe HW
-behavior, and synthesize with commercial tools.
+Cheers,
+Con
 
-A SystemC description can be simulated using its own simulator kernel,
-and we can indeed wrap a module with its simulator kernel into a C++
-class, so we can use it as a 'normal' C++ code...
+--Boundary-00=_kPsHDIEso7sufis
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="vm-prefetch_noswapfix.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+	filename="vm-prefetch_noswapfix.patch"
 
-Our main problem now appears: if we develop a PCI device using SystemC
-we cannot start to develop and test the device driver until we have a
-real prototype,
-and hence, we cannot test our HW with SW.
+Index: linux-2.6.13-ck2test/include/linux/swap.h
+===================================================================
+--- linux-2.6.13-ck2test.orig/include/linux/swap.h	2005-09-07 20:25:40.000000000 +1000
++++ linux-2.6.13-ck2test/include/linux/swap.h	2005-09-07 20:35:12.000000000 +1000
+@@ -186,6 +186,32 @@ extern int shmem_unuse(swp_entry_t entry
+ 
+ extern void swap_unplug_io_fn(struct backing_dev_info *, struct page *);
+ 
++#ifdef CONFIG_SWAP_PREFETCH
++/*	mm/swap_prefetch.c */
++extern void prepare_prefetch(void);
++extern void add_to_swapped_list(unsigned long index);
++extern void remove_from_swapped_list(unsigned long index);
++extern void delay_prefetch(void);
++
++#else	/* CONFIG_SWAP_PREFETCH */
++static inline void add_to_swapped_list(unsigned long index)
++{
++}
++
++static inline void prepare_prefetch(void)
++{
++}
++
++static inline void remove_from_swapped_list(unsigned long index)
++{
++}
++
++static inline void delay_prefetch(void)
++{
++}
++
++#endif	/* CONFIG_SWAP_PREFETCH */
++
+ #ifdef CONFIG_SWAP
+ /* linux/mm/page_io.c */
+ extern int swap_readpage(struct file *, struct page *);
+@@ -249,32 +275,6 @@ static inline void put_swap_token(struct
+ 		__put_swap_token(mm);
+ }
+ 
+-#ifdef CONFIG_SWAP_PREFETCH
+-/*	mm/swap_prefetch.c */
+-extern void prepare_prefetch(void);
+-extern void add_to_swapped_list(unsigned long index);
+-extern void remove_from_swapped_list(unsigned long index);
+-extern void delay_prefetch(void);
+-
+-#else	/* CONFIG_SWAP_PREFETCH */
+-static inline void add_to_swapped_list(unsigned long index)
+-{
+-}
+-
+-static inline void prepare_prefetch(void)
+-{
+-}
+-
+-static inline void remove_from_swapped_list(unsigned long index)
+-{
+-}
+-
+-static inline void delay_prefetch(void)
+-{
+-}
+-
+-#endif	/* CONFIG_SWAP_PREFETCH */
+-
+ #else /* CONFIG_SWAP */
+ 
+ #define total_swap_pages			0
 
-Our proposal is to develop a set of tools (kernel module, daemon, ...) in
-order to use a SystemC model of HW as a virtual device.
-
-With this set of code, when we have SystemC description finished (and
-only SystemC code, nor prototype, nor real HW), we will able to start
-developing driver, and testing our "virtual HW" with complete SW suite.
-
-At this point, we plan to develop a pci device driver to act as a bridge
-between kernel PCI subsystem and SystemC simulator (in user space).
-
-Do you think this implementation is fine? Maybe it's better to register
-a new bus
-subsystem and link to a daemon to user space to run SystemC simulations?
-We are open to any idea or suggestion about it.
-
-Thanks,
-
-Màrius
-
-http://mariusmonton.name
-http://cephis.uab.es
-
-
---Boundary_(ID_jPtLQnzXqkrJ1dIuguskxA)
-Content-type: text/x-vcard; charset=utf-8; name=marius.monton.vcf
-Content-transfer-encoding: 7BIT
-Content-disposition: attachment; filename=marius.monton.vcf
-
-begin:vcard
-fn;quoted-printable:M=C3=A0rius Mont=C3=B3n
-n;quoted-printable;quoted-printable:Mont=C3=B3n;M=C3=A0rius
-org;quoted-printable:UAB;Departament de Microelectr=C3=B2nica i Sistemes Electr=C3=B2nics
-adr:Campus de la UAB;;QC-2088 ETSE;Bellaterra;Barcelona;08193;SPAIN
-email;internet:marius.monton@uab.es
-tel;work:+34935813534
-x-mozilla-html:TRUE
-url:http://cephis.uab.es
-version:2.1
-end:vcard
-
-
---Boundary_(ID_jPtLQnzXqkrJ1dIuguskxA)--
+--Boundary-00=_kPsHDIEso7sufis--

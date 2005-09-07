@@ -1,67 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750883AbVIGDCW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750897AbVIGDMa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750883AbVIGDCW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 23:02:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750877AbVIGDCW
+	id S1750897AbVIGDMa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 23:12:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750901AbVIGDMa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 23:02:22 -0400
-Received: from ozlabs.org ([203.10.76.45]:1228 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1750866AbVIGDCV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 23:02:21 -0400
-Date: Wed, 7 Sep 2005 12:59:32 +1000
-From: Anton Blanchard <anton@samba.org>
-To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       linuxppc64-dev@ozlabs.org, Santiago Leon <santil@us.ibm.com>,
-       Linda Xie <lxiep@us.ibm.com>
-Subject: Re: [RFC] SCSI target for IBM Power5 LPAR
-Message-ID: <20050907025932.GU6945@krispykreme>
-References: <20050906212801.GB14057@cs.umn.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050906212801.GB14057@cs.umn.edu>
-User-Agent: Mutt/1.5.10i
+	Tue, 6 Sep 2005 23:12:30 -0400
+Received: from simmts5.bellnexxia.net ([206.47.199.163]:7835 "EHLO
+	simmts5-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S1750896AbVIGDM3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 23:12:29 -0400
+Message-ID: <00da01c5b35a$b12b9860$1b00a8c0@cruncher>
+Reply-To: "Mike Kirk" <mike.kirk@sympatico.ca>
+From: "Mike Kirk" <mike.kirk@sympatico.ca>
+To: <linux-kernel@vger.kernel.org>
+Subject: Multipath routing changes? "[kernel] Badness in dst_release at include/net/dst.h:154"
+Date: Tue, 6 Sep 2005 23:17:34 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1506
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1506
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
-Hi Dave,
+This is regarding an external patch to enable routing over multiple network
+connections, but I'm wondering if it's revealing another problem:
 
-> This device driver provides the SCSI target side of the "virtual
-> SCSI" on IBM Power5 systems.  The initiator side has been in mainline
-> for a while now (drivers/scsi/ibmvscsi/ibmvscsi.c.)  Targets already
-> exist for AIX and OS/400.
+Up to 2.6.10 and the corresponding patch here:
+(http://www.ssi.bg/~ja/#routes-2.6) allowed me to combine cable and DSL
+Internet connections. 2.6.11/12/13 (stock kernel from kernel.org + patch
+from that URL) all give errors such as (from 2.6.13):
 
-Good stuff. Got a couple of small suggestions.
+        Sep  6 22:51:08 [kernel] Badness in dst_release at
+include/net/dst.h:154
+            - Last output repeated 15 times -
 
-+/* Allocate a buffer with a dma_address.  Don't use dma_alloc_coherent
-+ * since that uses GFP_ATOMIC internally and we can tollerate a delay
-+ */
-+static void *alloc_coherent_buffer(struct server_adapter *adapter, size_t size,
-+				   dma_addr_t *dma_handle)
-+{
-+	void *buffer = kmalloc(size, GFP_KERNEL);
-+
-+	if (buffer) {
-+		*dma_handle = dma_map_single(adapter->dev, buffer, size,
-+					     DMA_BIDIRECTIONAL);
-+
-+		if (dma_mapping_error(*dma_handle)) {
-+			kfree(buffer);
-+			buffer = NULL;
-+		}
-+	}
-+
-+	return buffer;
-+}
+...with occasional lines like this:
 
-This should be fixed in mainline, on ppc64 we no longer build the dma_*
-ops on top of the pci_* ops. This means we actually look at the flags :)
+        Sep  6 22:54:02 [kernel]  [<c03748ac>] __kfree_skb+0xec/0x100
 
-+	adapter->max_sectors = MAX_SECTORS;
+Other than the error messages the system seems to run fine, but it only uses
+one of the two Internet connections. Rebooting to 2.6.10 makes the problem
+go away and the traffic is balanced over both connections again.
 
-Does this mean we are limited to 128kB transfers? Would it be OK to
-bump the default?
+I've emailed the patch maintainer and he mentioned recent kernels have
+change multipath routing code and few other people have reported this
+problem. I realize since it's an external patch it's not your job to figure
+it out, but I thought I'd post my log entries in case I'm seeing a legit
+kernel error message.
 
-Anton
+Regards,
+
+   Mike
+

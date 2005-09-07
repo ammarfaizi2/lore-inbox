@@ -1,49 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751167AbVIGR3O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751196AbVIGRet@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751167AbVIGR3O (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 13:29:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751175AbVIGR3O
+	id S1751196AbVIGRet (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 13:34:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751206AbVIGRes
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 13:29:14 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:29868 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751167AbVIGR3M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 13:29:12 -0400
-Subject: Re: [PATCH] i386: single node SPARSEMEM fix
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Magnus Damm <magnus@valinux.co.jp>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>,
-       "A. P. Whitcroft [imap]" <andyw@uk.ibm.com>
-In-Reply-To: <20050906035531.31603.46449.sendpatchset@cherry.local>
-References: <20050906035531.31603.46449.sendpatchset@cherry.local>
+	Wed, 7 Sep 2005 13:34:48 -0400
+Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:61899
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S1751196AbVIGRes (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Sep 2005 13:34:48 -0400
+Subject: [patch] synclinkmp.c fix double mapping of signals
+From: Paul Fulghum <paulkf@microgate.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Date: Wed, 07 Sep 2005 10:28:36 -0700
-Message-Id: <1126114116.7329.16.camel@localhost>
+Message-Id: <1126114482.4056.3.camel@deimos.microgate.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Wed, 07 Sep 2005 12:34:42 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-09-06 at 12:56 +0900, Magnus Damm wrote:
-> This patch for 2.6.13-git5 fixes single node sparsemem support. In the case
-> when multiple nodes are used, setup_memory() in arch/i386/mm/discontig.c calls
-> get_memcfg_numa() which calls memory_present(). The single node case with
-> setup_memory() in arch/i386/kernel/setup.c does not call memory_present()
-> without this patch, which breaks single node support.
+[patch] synclinkmp.c fix double mapping of signals
 
-First of all, this is really a feature addition, not a bug fix. :)
+From: Paul Fulghum <paulkf@microgate.com>
 
-The reason we haven't included this so far is that we don't really have
-any machines that need sparsemem on i386 that aren't NUMA.  So, we
-disabled it for now, and probably need to decide first why we need it
-before a patch like that goes in.
+Serial signals were incorrectly mapped twice
+to events.
 
-I actually have exactly the same patch that you sent out in my tree, but
-it's just for testing.  Magnus, perhaps we can get some of my testing
-patches in good enough shape to put them in -mm so that the non-NUMA
-folks can do more sparsemem testing.  
+Signed-off-by: Paul Fulghum <paulkf@microgate.com>
 
--- Dave
+--- linux-2.6.13/drivers/char/synclinkmp.c	2005-08-28 18:41:01.000000000 -0500
++++ linux-2.6.13-mg/drivers/char/synclinkmp.c	2005-09-07 12:21:33.000000000 -0500
+@@ -1,5 +1,5 @@
+ /*
+- * $Id: synclinkmp.c,v 4.34 2005/03/04 15:07:10 paulkf Exp $
++ * $Id: synclinkmp.c,v 4.38 2005/07/15 13:29:44 paulkf Exp $
+  *
+  * Device driver for Microgate SyncLink Multiport
+  * high speed multiprotocol serial adapter.
+@@ -487,7 +487,7 @@ module_param_array(maxframe, int, NULL, 
+ module_param_array(dosyncppp, int, NULL, 0);
+ 
+ static char *driver_name = "SyncLink MultiPort driver";
+-static char *driver_version = "$Revision: 4.34 $";
++static char *driver_version = "$Revision: 4.38 $";
+ 
+ static int synclinkmp_init_one(struct pci_dev *dev,const struct pci_device_id *ent);
+ static void synclinkmp_remove_one(struct pci_dev *dev);
+@@ -556,7 +556,6 @@ static int  set_txidle(SLMP_INFO *info, 
+ static int  tx_enable(SLMP_INFO *info, int enable);
+ static int  tx_abort(SLMP_INFO *info);
+ static int  rx_enable(SLMP_INFO *info, int enable);
+-static int  map_status(int signals);
+ static int  modem_input_wait(SLMP_INFO *info,int arg);
+ static int  wait_mgsl_event(SLMP_INFO *info, int __user *mask_ptr);
+ static int  tiocmget(struct tty_struct *tty, struct file *file);
+@@ -3109,16 +3108,6 @@ static int rx_enable(SLMP_INFO * info, i
+ 	return 0;
+ }
+ 
+-static int map_status(int signals)
+-{
+-	/* Map status bits to API event bits */
+-
+-	return ((signals & SerialSignal_DSR) ? MgslEvent_DsrActive : MgslEvent_DsrInactive) +
+-	       ((signals & SerialSignal_CTS) ? MgslEvent_CtsActive : MgslEvent_CtsInactive) +
+-	       ((signals & SerialSignal_DCD) ? MgslEvent_DcdActive : MgslEvent_DcdInactive) +
+-	       ((signals & SerialSignal_RI)  ? MgslEvent_RiActive : MgslEvent_RiInactive);
+-}
+-
+ /* wait for specified event to occur
+  */
+ static int wait_mgsl_event(SLMP_INFO * info, int __user *mask_ptr)
+@@ -3145,7 +3134,7 @@ static int wait_mgsl_event(SLMP_INFO * i
+ 
+ 	/* return immediately if state matches requested events */
+ 	get_signals(info);
+-	s = map_status(info->serial_signals);
++	s = info->serial_signals;
+ 
+ 	events = mask &
+ 		( ((s & SerialSignal_DSR) ? MgslEvent_DsrActive:MgslEvent_DsrInactive) +
+
 

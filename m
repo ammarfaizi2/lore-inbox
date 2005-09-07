@@ -1,64 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932118AbVIGR74@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932108AbVIGSDi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932118AbVIGR74 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 13:59:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932108AbVIGR74
+	id S932108AbVIGSDi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 14:03:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932100AbVIGSDi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 13:59:56 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:33722 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932092AbVIGR7z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 13:59:55 -0400
-Subject: Re: [patch 4/4] ide: Break ide_lock -- remove ide_lock  from piix
-	driver
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org,
-       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
-       Alok Kataria <alokk@calsoftinc.com>
-In-Reply-To: <20050907175019.GA3769@localhost.localdomain>
-References: <20050906233322.GA3642@localhost.localdomain>
-	 <20050906234429.GE3642@localhost.localdomain>
-	 <1126112783.8928.14.camel@localhost.localdomain>
-	 <20050907175019.GA3769@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 07 Sep 2005 19:24:29 +0100
-Message-Id: <1126117469.8928.30.camel@localhost.localdomain>
+	Wed, 7 Sep 2005 14:03:38 -0400
+Received: from mail.cs.umn.edu ([128.101.32.202]:27349 "EHLO mail.cs.umn.edu")
+	by vger.kernel.org with ESMTP id S932089AbVIGSDh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Sep 2005 14:03:37 -0400
+Date: Wed, 7 Sep 2005 13:03:33 -0500
+From: Dave C Boutcher <sleddog@us.ibm.com>
+To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: [Patch 0/4] [RFC] Resend SCSI target for IBM Power5 LPAR
+Message-ID: <20050907180333.GA12904@cs.umn.edu>
+Reply-To: boutcher@cs.umn.edu
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	linux-scsi@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2005-09-07 at 10:50 -0700, Ravikiran G Thirumalai wrote:
-> Then the change to piix controller in my patchset is bad, How about changing
-> the ide_lock to per-driver lock in this case?  Locking for rest of the
-> controllers in the system is left equivalent to what ide_lock did earlier..
+The dog ate my homework.  No, that's not it, the mailer ate my patches.
+In any case, since most of the mailing list mailers ate my (>100K) 
+patches, here's the same thing broken up.
 
-Thats what we did in Fedora Core. Its neccessary because the state of
-ide_lock is undefined when the tuning functions get called and the base
-kernel didn't handle this well - we had various reports from users of
-hangs as a result.
+his device driver provides the SCSI target side of the "virtual
+SCSI" on IBM Power5 systems.  The initiator side has been in mainline
+for a while now (drivers/scsi/ibmvscsi/ibmvscsi.c.)  Targets already
+exist for AIX and OS/400.
 
-Its not a full fix, really PIIX needs to wrap the entire command issue
-with a semaphore or similar to avoid the error handling (CRC error)
-breaking the driver. Unfortunately we do the CRC error handling and
-speed change in an IRQ handler polled so I've never seen how we could
-fix that without rewriting the entire error recovery code to work like
-the scsi layer (in a thread).
+One of the biggest discussions, I expect, will be whether much of
+this belongs in user-land.  We have had considerable debates on that
+subject, and ended up with it all in the kernel.  Unlike some other
+targets (e.g. iSCSI) that sit on top of nice TCP/IP stacks, this one
+interacts at a pretty low level with the firmware.  There weren't
+any good user-land splits that seemed to make sense (and looking at
+the history of the NFS server also influenced the discussion.)
 
-> > fixing the IDE layer locking properly (or forward porting my patches and
-> > then fixing them for all the refcounting changes and other stuff done
-> > since).
-> 
-> Can you please point me to the patchset...
+This is currently just an RFC...if my boxers survive the flamage
+I'll submit it for inclusion.
 
-2.6.11-ac kernels. I will send you (off list) the last full version of
-the fixes. Part of what it fixes (especially the proc file locking
-changes) are mostly handled now by the reworking of the IDE code to use
-refcounts that Bartlomiej did, and which is definitely the better way to
-fix it.
+As an additional note, Cristoph already pointed me to Mike Christie and
+Tomonori Fujita who are doing some similar work
 
-Alan
+Thanks
+
+Dave B
 

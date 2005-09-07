@@ -1,58 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbVIGRnS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751214AbVIGRpL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751253AbVIGRnS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 13:43:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751214AbVIGRnS
+	id S1751214AbVIGRpL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 13:45:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751257AbVIGRpL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 13:43:18 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:60588 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751253AbVIGRnR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 13:43:17 -0400
-Date: Wed, 7 Sep 2005 13:43:09 -0400 (Eastern Daylight Time)
-From: Janak Desai <janak@us.ibm.com>
-To: viro@ZenIV.linux.org.uk, akpm@osdl.org
-cc: hch@infradead.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2] (repost) New System call, unshare
-Message-ID: <Pine.WNT.4.63.0509071340570.3520@IBM-AIP3070F3AM>
-X-X-Sender: janak@imap.linux.ibm.com
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 7 Sep 2005 13:45:11 -0400
+Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:9676
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S1751214AbVIGRpK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Sep 2005 13:45:10 -0400
+Subject: [patch] synclinkmp.c fix async internal loopback
+From: Paul Fulghum <paulkf@microgate.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1126115104.4056.17.camel@deimos.microgate.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Wed, 07 Sep 2005 12:45:05 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[patch] synclinkmp.c fix async internal loopback
 
+From: Paul Fulghum <paulkf@microgate.com>
 
-[PATCH 2/2] unshare system call: System Call setup for i386 arch
+Fix async internal loopback by not using
+enable_loopback function which reprograms
+clocking and should only be used for hdlc mode.
 
-Signed-off-by: Janak Desai
+Signed-off-by: Paul Fulghum <paulkf@microgate.com>
 
-
- arch/i386/kernel/syscall_table.S |    1 +
- include/asm-i386/unistd.h        |    3 ++-
- 2 files changed, 3 insertions(+), 1 deletion(-)
-
-
-diff -Naurp linux-2.6.13-mm1/arch/i386/kernel/syscall_table.S linux-2.6.13-mm1+unshare-patch2/arch/i386/kernel/syscall_table.S
---- linux-2.6.13-mm1/arch/i386/kernel/syscall_table.S	2005-09-07 13:24:01.000000000 +0000
-+++ linux-2.6.13-mm1+unshare-patch2/arch/i386/kernel/syscall_table.S	2005-09-07 13:40:42.000000000 +0000
-@@ -300,3 +300,4 @@ ENTRY(sys_call_table)
- 	.long sys_vperfctr_control
- 	.long sys_vperfctr_write
- 	.long sys_vperfctr_read
-+	.long sys_unshare		/* 300 */
-diff -Naurp linux-2.6.13-mm1/include/asm-i386/unistd.h linux-2.6.13-mm1+unshare-patch2/include/asm-i386/unistd.h
---- linux-2.6.13-mm1/include/asm-i386/unistd.h	2005-09-07 13:24:52.000000000 +0000
-+++ linux-2.6.13-mm1+unshare-patch2/include/asm-i386/unistd.h	2005-09-07 13:40:42.000000000 +0000
-@@ -305,8 +305,9 @@
- #define __NR_vperfctr_control	(__NR_vperfctr_open+1)
- #define __NR_vperfctr_write	(__NR_vperfctr_open+2)
- #define __NR_vperfctr_read	(__NR_vperfctr_open+3)
-+#define __NR_unshare		300
+--- linux-2.6.13/drivers/char/synclinkmp.c	2005-08-28 18:41:01.000000000 -0500
++++ linux-2.6.13-mg/drivers/char/synclinkmp.c	2005-09-07 12:28:21.000000000 -0500
+@@ -4489,11 +4489,13 @@ void async_mode(SLMP_INFO *info)
+ 	/* MD2, Mode Register 2
+ 	 *
+ 	 * 07..02  Reserved, must be 0
+-	 * 01..00  CNCT<1..0> Channel connection, 0=normal
++	 * 01..00  CNCT<1..0> Channel connection, 00=normal 11=local loopback
+ 	 *
+ 	 * 0000 0000
+ 	 */
+ 	RegValue = 0x00;
++	if (info->params.loopback)
++		RegValue |= (BIT1 + BIT0);
+ 	write_reg(info, MD2, RegValue);
  
--#define NR_syscalls 300
-+#define NR_syscalls 301
+ 	/* RXS, Receive clock source
+@@ -4574,9 +4576,6 @@ void async_mode(SLMP_INFO *info)
+ 	write_reg(info, IE2, info->ie2_value);
  
- /*
-  * user-visible error numbers are in the range -1 - -128: see
+ 	set_rate( info, info->params.data_rate * 16 );
+-
+-	if (info->params.loopback)
+-		enable_loopback(info,1);
+ }
+ 
+ /* Program the SCA for HDLC communications.
+
 

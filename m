@@ -1,67 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750753AbVIGCfq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbVIGCid@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750753AbVIGCfq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 22:35:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbVIGCfq
+	id S1750780AbVIGCid (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 22:38:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750796AbVIGCid
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 22:35:46 -0400
-Received: from fmr19.intel.com ([134.134.136.18]:52380 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1750753AbVIGCfp convert rfc822-to-8bit (ORCPT
+	Tue, 6 Sep 2005 22:38:33 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:48558 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750780AbVIGCic (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 22:35:45 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH 2/3 htlb-fault] Demand faulting for hugetlb
-Date: Wed, 7 Sep 2005 10:33:24 +0800
-Message-ID: <8126E4F969BA254AB43EA03C59F44E8403365201@pdsmsx404>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 2/3 htlb-fault] Demand faulting for hugetlb
-Thread-Index: AcWzLo0RE3SGBWexReiqqGdlJHQJvAAIvxcw
-From: "Zhang, Yanmin" <yanmin.zhang@intel.com>
-To: "Adam Litke" <agl@us.ibm.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 07 Sep 2005 02:34:41.0078 (UTC) FILETIME=[B2F25D60:01C5B354]
+	Tue, 6 Sep 2005 22:38:32 -0400
+Date: Tue, 6 Sep 2005 19:38:07 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: akpm@osdl.org, bunk@stusta.de, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-mm1
+Message-Id: <20050906193807.472228b5.pj@sgi.com>
+In-Reply-To: <9a87484905090617444e89722d@mail.gmail.com>
+References: <20050901035542.1c621af6.akpm@osdl.org>
+	<20050903122126.GM3657@stusta.de>
+	<20050903123410.1320f8ab.akpm@osdl.org>
+	<20050903195423.GP3657@stusta.de>
+	<20050903130632.3124e19b.akpm@osdl.org>
+	<9a87484905090414245589a3c@mail.gmail.com>
+	<20050904143033.13a4bed3.akpm@osdl.org>
+	<20050906170513.60ed024a.pj@sgi.com>
+	<9a87484905090617444e89722d@mail.gmail.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>-----Original Message-----
->>From: linux-kernel-owner@vger.kernel.org
->>[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Adam Litke
->>Sent: Wednesday, September 07, 2005 5:59 AM
->>To: linux-kernel@vger.kernel.org
->>Cc: ADAM G. LITKE [imap]
->>Subject: Re: [PATCH 2/3 htlb-fault] Demand faulting for hugetlb
+Jesper wrote:
+> Something like that would be just fine for the
+> patches that have been sent on to Linus.
 
->>+retry:
->>+	page = find_get_page(mapping, idx);
->>+	if (!page) {
->>+		/* charge the fs quota first */
->>+		if (hugetlb_get_quota(mapping)) {
->>+			ret = VM_FAULT_SIGBUS;
->>+			goto out;
->>+		}
->>+		page = alloc_huge_page();
->>+		if (!page) {
->>+			hugetlb_put_quota(mapping);
->>+			ret = VM_FAULT_SIGBUS;
->>+			goto out;
->>+		}
->>+		if (add_to_page_cache(page, mapping, idx, GFP_ATOMIC)) {
+No - not just the patches sent to Linus - that's a burden on Andrew to
+separate things out.
 
-Here you lost hugetlb_put_quota(mapping);
+Andrew can put the boiler plate statement on _all_ drop messages
 
+>         If I just sent the patch to Linus, that is
+>         probably why I dropped it here.
 
->>+			put_page(page);
->>+			goto retry;
->>+		}
->>+		unlock_page(page);
+At the very least, he gets to cuss us out for not being able to read,
+instead of not being able to associate the 'patch to Linus' message with
+the 'drop' message a few hours later.
 
-As for regular pages, kernel is used to unlock mm-> page_table_lock
-before find_get_page and relock it before setting pte. Why isn't the
-style followed by huge page fault?
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

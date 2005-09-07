@@ -1,52 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751184AbVIGBiN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751190AbVIGBse@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751184AbVIGBiN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Sep 2005 21:38:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751187AbVIGBiN
+	id S1751190AbVIGBse (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Sep 2005 21:48:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751167AbVIGBse
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Sep 2005 21:38:13 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:46513 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1751184AbVIGBiN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Sep 2005 21:38:13 -0400
-Message-ID: <431E43C8.3030309@comcast.net>
-Date: Tue, 06 Sep 2005 21:35:04 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050831)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Kernel profiles anyone?
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	Tue, 6 Sep 2005 21:48:34 -0400
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:62920
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S1751159AbVIGBsd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Sep 2005 21:48:33 -0400
+Subject: [PATCH Linus Git] README.ipw2200 does not contain firmware
+	information.
+From: Alejandro Bonilla Beeche <abonilla@linuxwireless.org>
+Reply-To: abonilla@linuxwireless.org
+To: ipw2200-devel@lists.sourceforge.net, netdev@vger.kernel.org,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Cc: jketreno@linux.intel.com, Linus Torvalds <torvalds@osdl.org>
+Content-Type: multipart/mixed; boundary="=-8DrBDELEAfZ2VD7VNBsn"
+Date: Tue, 06 Sep 2005 19:48:37 -0600
+Message-Id: <1126057717.5165.9.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Are there any recent kernel profiles?  I think from an acedemic
-perspective it'd be nice to see some graphs and numbers nobody
-understands showing where the longest running code paths in the kernel
-occur.  It might also be nice for those latency whores (*runs to the
-back and raises hand*) and those who want to increase overall
-performance and efficiency; then there'd be a map showing . . .
-something that only kernel hackers could possibly understand or care about.
+--=-8DrBDELEAfZ2VD7VNBsn
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
+Hi,
 
-    Creative brains are a valuable, limited resource. They shouldn't be
-    wasted on re-inventing the wheel when there are so many fascinating
-    new problems waiting out there.
-                                                 -- Eric Steven Raymond
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+	The kconfig from net/wireless says to look at the README.ipw2200 for
+further installation of the firmware file. We have that information unde
+INSTALL not under README.ipw2200, still I just added a part that talks
+about installing the firmware file. This because README.ipw2200 is
+already in the Documentation/networking/.
 
-iD8DBQFDHkPIhDd4aOud5P8RAiQ4AJwPdaJAZchWNNtoO9zjz6AePpty/ACbBa/A
-vX+9F3/Yuw68QtteomUXtqQ=
-=faXl
------END PGP SIGNATURE-----
+I'm still spamming everyone cause I have not been told where to send
+this directly. :-)
+
+Signed-off-by: Alejandro Bonilla <abonilla@linuxwireless.org>
+
+Pasted and attached.
+
+debian:~/linux-2.6# diff -usr Documentation/networking/README.ipw2200~
+Documentation/networking/README.ipw2200
+
+--- Documentation/networking/README.ipw2200~    2005-09-06
+19:33:24.000000000 -0600
++++ Documentation/networking/README.ipw2200     2005-09-06
+19:33:24.000000000 -0600
+@@ -27,7 +27,8 @@
+ 1.4. Sysfs Helper Files
+ 2.   About the Version Numbers
+ 3.   Support
+-4.   License
++4.   Firmware installation
++5.   License
+ 
+ 
+ 1.   Introduction
+@@ -272,7 +273,18 @@
+     http://ipw2200.sf.net/
+ 
+ 
+-4.  License
++4.  Firmware installation
++----------------------------------------------
++
++The driver requires a firmware image, download it and extract the files
++under /lib/firmware
++
++The firmware can be downloaded from the following URL:
++
++    http://ipw2200.sf.net/
++
++
++5.  License
+ -----------------------------------------------
+ 
+   Copyright(c) 2003 - 2005 Intel Corporation. All rights reserved.
+
+
+--=-8DrBDELEAfZ2VD7VNBsn
+Content-Disposition: attachment; filename=IPW2200-README-git.patch
+Content-Type: text/x-patch; name=IPW2200-README-git.patch; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+--- Documentation/networking/README.ipw2200~	2005-09-06 19:33:24.000000000 -0600
++++ Documentation/networking/README.ipw2200	2005-09-06 19:33:24.000000000 -0600
+@@ -27,7 +27,8 @@
+ 1.4. Sysfs Helper Files
+ 2.   About the Version Numbers
+ 3.   Support
+-4.   License
++4.   Firmware installation
++5.   License
+ 
+ 
+ 1.   Introduction
+@@ -272,7 +273,18 @@
+     http://ipw2200.sf.net/
+ 
+ 
+-4.  License
++4.  Firmware installation
++----------------------------------------------
++
++The driver requires a firmware image, download it and extract the files
++under /lib/firmware
++
++The firmware can be downloaded from the following URL:
++
++    http://ipw2200.sf.net/
++
++
++5.  License
+ -----------------------------------------------
+ 
+   Copyright(c) 2003 - 2005 Intel Corporation. All rights reserved.
+
+--=-8DrBDELEAfZ2VD7VNBsn--
+

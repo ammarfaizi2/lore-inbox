@@ -1,60 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932152AbVIGOsX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbVIGOwW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932152AbVIGOsX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 10:48:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbVIGOsX
+	id S932148AbVIGOwW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 10:52:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932153AbVIGOwW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 10:48:23 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:19468 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S932152AbVIGOsW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 10:48:22 -0400
-Message-ID: <431EFE93.5050900@tmr.com>
-Date: Wed, 07 Sep 2005 10:52:03 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "ATARAID (eg, Promise Fasttrak, Highpoint 370) related discussions" 
-	<ataraid-list@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: IDE HPA
-References: <87941b4c05082913101e15ddda@mail.gmail.com>	 <87941b4c05083008523cddbb2a@mail.gmail.com>	 <1125419927.8276.32.camel@localhost.localdomain>	 <87941b4c050830095111bf484e@mail.gmail.com>	 <62b0912f0509020027212e6c42@mail.gmail.com>	 <1125666332.30867.10.camel@localhost.localdomain>	 <62b0912f05090206331d04afd3@mail.gmail.com>	 <E1EBCdS-00064p-00@chiark.greenend.org.uk>	 <62b0912f05090209242ad72321@mail.gmail.com>	 <1125680712.30867.20.camel@localhost.localdomain>	 <62b0912f05090210441d3fa248@mail.gmail.com>	 <1125684567.31292.2.camel@localhost.localdomain>	 <1125687557.30867.26.camel@localhost.localdomain>	 <1125688483.31292.20.camel@localhost.localdomain>	 <1125692578.30867.33.camel@localhost.localdomain> <1125695649.31292.45.camel@localhost.localdomain> <431A3249.9040504@pobox.com>
-In-Reply-To: <431A3249.9040504@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 7 Sep 2005 10:52:22 -0400
+Received: from colo.lackof.org ([198.49.126.79]:53706 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S932148AbVIGOwV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Sep 2005 10:52:21 -0400
+Date: Wed, 7 Sep 2005 08:58:18 -0600
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Paul Mackerras <paulus@samba.org>
+Cc: Grant Grundler <grundler@parisc-linux.org>, Brian King <brking@us.ibm.com>,
+       Andrew Morton <akpm@osdl.org>, greg@kroah.com, matthew@wil.cx,
+       benh@kernel.crashing.org, ak@muc.de, linux-kernel@vger.kernel.org,
+       alan@lxorguk.ukuu.org.uk, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH 1/2] pci: Block config access during BIST (resend)
+Message-ID: <20050907145818.GA25409@colo.lackof.org>
+References: <42B83B8D.9030901@us.ibm.com> <430B3CB4.1050105@us.ibm.com> <20050901160356.2a584975.akpm@osdl.org> <4318E6B3.7010901@us.ibm.com> <20050902224314.GB8463@colo.lackof.org> <17176.56354.363726.363290@cargo.ozlabs.ibm.com> <20050903000854.GC8463@colo.lackof.org> <431A33D0.1040807@us.ibm.com> <20050903193958.GB30579@colo.lackof.org> <17182.32625.930500.874251@cargo.ozlabs.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17182.32625.930500.874251@cargo.ozlabs.ibm.com>
+X-Home-Page: http://www.parisc-linux.org/
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+On Wed, Sep 07, 2005 at 03:49:37PM +1000, Paul Mackerras wrote:
+> Maybe, but it seems like a bad idea to me.  It's longer, it's less
+> obvious what's happening,
 
-> It seems to me that one should write an ATA-specific Device Mapper 
-> driver, which layers on top of an ATA disk.  The driver obtains the 
-> starting location of HPA, then exports two block devices:  one for the 
-> primary data area, and one for the HPA.
+I would argue it more obvious. People looking at the code
+are immediately going to realize it was a deliberate choice to
+not use a spinlock.
 
-I've stayed out of this, but that sounds like a perfect solution to move 
-the choice back to the user. However, installers still need to be aware 
-of it at initial Linux install, and give the user some rational options:
-   - ignore it
-   - leave alone but visible
-   - blow it away and use the whole drive
+> and it precludes the sorts of optimization
+> that we do on ppc64 where a cpu that is waiting for a lock can tell
+> give its time slice to the cpu that is holding the lock (on systems
+> where the hypervisor time-slices multiple virtual cpus on one physical
+> cpu).
 
-It feels as if that's where the future disposition needs to be made. I 
-do like treating the HPA as a separate drive though.
-> 
-> For situations where we want the start Linux philosophy -- Linux exports 
-> 100% of the hardware capability -- no DM layer needs to be used.  For 
-> situations where its better to treat the HPA as a separate and distinct 
-> area, the DM driver would come in handy.
-> 
-> This follows the same philosophy as fakeraid (BIOS RAID):  we simply 
-> export the entire disk, and Device Mapper (google for 'dmraid') handles 
-> the vendor-proprietary RAID metadata.
+relax_cpu() doesn't do that?
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+
+> What's wrong with just doing spin_lock/spin_unlock?
+
+it's not wrong - just misleading IMHO. There is no
+"critical section" in that particular chunk of code.
+
+If relax_cpu doesn't allow time-slice donation, then I guess
+spinlock/unlock with only a comment inside it explain why
+would be ok too.
+
+thanks,
+grant

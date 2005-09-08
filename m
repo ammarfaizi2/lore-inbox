@@ -1,129 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932536AbVIHPEE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932619AbVIHPG1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932536AbVIHPEE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 11:04:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932532AbVIHPEE
+	id S932619AbVIHPG1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 11:06:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932613AbVIHPG0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 11:04:04 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:17505
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S932534AbVIHPEB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 11:04:01 -0400
-Message-Id: <43206F420200007800024455@emea1-mh.id2.novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Thu, 08 Sep 2005 17:05:06 +0200
-From: "Jan Beulich" <JBeulich@novell.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] add stricmp
+	Thu, 8 Sep 2005 11:06:26 -0400
+Received: from tim.rpsys.net ([194.106.48.114]:24483 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S932611AbVIHPGZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 11:06:25 -0400
+Subject: Re: [-mm patch 2/5] SharpSL: Add cxx00 support to the Corgi LCD
+	driver
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050908133408.F31595@flint.arm.linux.org.uk>
+References: <1126007628.8338.127.camel@localhost.localdomain>
+	 <20050908133408.F31595@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Date: Thu, 08 Sep 2005 16:06:10 +0100
+Message-Id: <1126191970.8147.79.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=__Part6A480432.0__="
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME message. If you are reading this text, you may want to 
-consider changing to a mail reader or gateway that understands how to 
-properly handle MIME multipart messages.
+On Thu, 2005-09-08 at 13:34 +0100, Russell King wrote: 
+> On Tue, Sep 06, 2005 at 12:53:48PM +0100, Richard Purdie wrote:
+> > +/*
+> > + * Corgi/Spitz Touchscreen to LCD interface
+> > + */
+> > +unsigned long inline corgi_get_hsync_len(void) 
+> > +{
+> > +	if (machine_is_corgi() || machine_is_shepherd() || machine_is_husky()) {
+> > +#ifdef CONFIG_PXA_SHARP_C7xx
+> > +		return w100fb_get_hsynclen(&corgifb_device.dev);
+> > +#endif
+> > +	} else if (machine_is_spitz() || machine_is_akita() || machine_is_borzoi()) {
+> > +#ifdef CONFIG_PXA_SHARP_Cxx00
+> > +		return pxafb_get_hsync_time(&pxafb_device.dev);
+> > +#endif
+> 
+> This means you have to force these drivers to be built (since this file
+> will always be built for sharp stuff.)  This doesn't seem like a good
+> solution.
 
---=__Part6A480432.0__=
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+It was made inline so in theory only the touchscreen drivers had the
+dependency. I then moved it to another file which kind of breaks things.
 
-(Note: Patch also attached because the inline version is certain to get
-line wrapped.)
+Would using symbol_put and symbol_get be a better solution? I was warned
+off those functions in the past but this would appear to be an ideal use
+as if the framebuffer drivers aren't loaded, we don't care about this.
 
-While strnicmp existed in the set of string support routines, stricmp
-didn't, which this patch adjusts.
+> > +#define SyncHS(x)   while((GPLR(x) & GPIO_bit(x)) == 0); while((GPLR(x) & GPIO_bit(x)) != 0);
+> 
+> That's particularly gruesome - firstly, two statements inside a macro.
+> Secondly, no barrier() or cpu_relax() in there (as the kernel janitors
+> like to see.)  It won't make any difference to the generated code, but
+> makes other folk happier.
 
-Signed-off-by: Jan Beulich <jbeulich@novell.com>
+This needs to be a fast piece of code as its in an interrupt handler and
+we go to great lengths to time things to avoid interference from the
+lcd. I need to check what timing overhead those functions have...
 
-diff -Npru 2.6.13/include/linux/string.h
-2.6.13-stricmp/include/linux/string.h
---- 2.6.13/include/linux/string.h	2005-08-29 01:41:01.000000000
-+0200
-+++ 2.6.13-stricmp/include/linux/string.h	2005-09-01
-11:32:12.000000000 +0200
-@@ -47,6 +47,9 @@ extern int strcmp(const char *,const cha
- #ifndef __HAVE_ARCH_STRNCMP
- extern int strncmp(const char *,const char *,__kernel_size_t);
- #endif
-+#ifndef __HAVE_ARCH_STRICMP
-+extern int stricmp(const char *, const char *);
-+#endif
- #ifndef __HAVE_ARCH_STRNICMP
- extern int strnicmp(const char *, const char *, __kernel_size_t);
- #endif
-diff -Npru 2.6.13/lib/string.c 2.6.13-stricmp/lib/string.c
---- 2.6.13/lib/string.c	2005-08-29 01:41:01.000000000 +0200
-+++ 2.6.13-stricmp/lib/string.c	2005-09-01 11:32:13.000000000
-+0200
-@@ -24,6 +24,31 @@
- #include <linux/ctype.h>
- #include <linux/module.h>
- 
-+#ifndef __HAVE_ARCH_STRICMP
-+/**
-+ * stricmp - Compare two strings case-insensitively
-+ * @s1: One string
-+ * @s2: Another string
-+ */
-+int stricmp(const char *s1, const char *s2)
-+{
-+	unsigned char c1, c2;
-+
-+	for (;;) {
-+		c1 = *s1++;
-+		c2 = *s2++;
-+		if (!c1 || !c2)
-+			break;
-+		if (c1 == c2)
-+			continue;
-+		if ((c1 = tolower(c1)) != (c2 = tolower(c2)))
-+			break;
-+	}
-+	return (int)c1 - (int)c2;
-+}
-+#endif
-+EXPORT_SYMBOL(stricmp);
-+
- #ifndef __HAVE_ARCH_STRNICMP
- /**
-  * strnicmp - Case insensitive, length-limited string comparison
+Richard
 
-
---=__Part6A480432.0__=
-Content-Type: application/octet-stream; name="linux-2.6.13-stricmp.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="linux-2.6.13-stricmp.patch"
-
-KE5vdGU6IFBhdGNoIGFsc28gYXR0YWNoZWQgYmVjYXVzZSB0aGUgaW5saW5lIHZlcnNpb24gaXMg
-Y2VydGFpbiB0byBnZXQKbGluZSB3cmFwcGVkLikKCldoaWxlIHN0cm5pY21wIGV4aXN0ZWQgaW4g
-dGhlIHNldCBvZiBzdHJpbmcgc3VwcG9ydCByb3V0aW5lcywgc3RyaWNtcApkaWRuJ3QsIHdoaWNo
-IHRoaXMgcGF0Y2ggYWRqdXN0cy4KClNpZ25lZC1vZmYtYnk6IEphbiBCZXVsaWNoIDxqYmV1bGlj
-aEBub3ZlbGwuY29tPgoKZGlmZiAtTnBydSAyLjYuMTMvaW5jbHVkZS9saW51eC9zdHJpbmcuaCAy
-LjYuMTMtc3RyaWNtcC9pbmNsdWRlL2xpbnV4L3N0cmluZy5oCi0tLSAyLjYuMTMvaW5jbHVkZS9s
-aW51eC9zdHJpbmcuaAkyMDA1LTA4LTI5IDAxOjQxOjAxLjAwMDAwMDAwMCArMDIwMAorKysgMi42
-LjEzLXN0cmljbXAvaW5jbHVkZS9saW51eC9zdHJpbmcuaAkyMDA1LTA5LTAxIDExOjMyOjEyLjAw
-MDAwMDAwMCArMDIwMApAQCAtNDcsNiArNDcsOSBAQCBleHRlcm4gaW50IHN0cmNtcChjb25zdCBj
-aGFyICosY29uc3QgY2hhCiAjaWZuZGVmIF9fSEFWRV9BUkNIX1NUUk5DTVAKIGV4dGVybiBpbnQg
-c3RybmNtcChjb25zdCBjaGFyICosY29uc3QgY2hhciAqLF9fa2VybmVsX3NpemVfdCk7CiAjZW5k
-aWYKKyNpZm5kZWYgX19IQVZFX0FSQ0hfU1RSSUNNUAorZXh0ZXJuIGludCBzdHJpY21wKGNvbnN0
-IGNoYXIgKiwgY29uc3QgY2hhciAqKTsKKyNlbmRpZgogI2lmbmRlZiBfX0hBVkVfQVJDSF9TVFJO
-SUNNUAogZXh0ZXJuIGludCBzdHJuaWNtcChjb25zdCBjaGFyICosIGNvbnN0IGNoYXIgKiwgX19r
-ZXJuZWxfc2l6ZV90KTsKICNlbmRpZgpkaWZmIC1OcHJ1IDIuNi4xMy9saWIvc3RyaW5nLmMgMi42
-LjEzLXN0cmljbXAvbGliL3N0cmluZy5jCi0tLSAyLjYuMTMvbGliL3N0cmluZy5jCTIwMDUtMDgt
-MjkgMDE6NDE6MDEuMDAwMDAwMDAwICswMjAwCisrKyAyLjYuMTMtc3RyaWNtcC9saWIvc3RyaW5n
-LmMJMjAwNS0wOS0wMSAxMTozMjoxMy4wMDAwMDAwMDAgKzAyMDAKQEAgLTI0LDYgKzI0LDMxIEBA
-CiAjaW5jbHVkZSA8bGludXgvY3R5cGUuaD4KICNpbmNsdWRlIDxsaW51eC9tb2R1bGUuaD4KIAor
-I2lmbmRlZiBfX0hBVkVfQVJDSF9TVFJJQ01QCisvKioKKyAqIHN0cmljbXAgLSBDb21wYXJlIHR3
-byBzdHJpbmdzIGNhc2UtaW5zZW5zaXRpdmVseQorICogQHMxOiBPbmUgc3RyaW5nCisgKiBAczI6
-IEFub3RoZXIgc3RyaW5nCisgKi8KK2ludCBzdHJpY21wKGNvbnN0IGNoYXIgKnMxLCBjb25zdCBj
-aGFyICpzMikKK3sKKwl1bnNpZ25lZCBjaGFyIGMxLCBjMjsKKworCWZvciAoOzspIHsKKwkJYzEg
-PSAqczErKzsKKwkJYzIgPSAqczIrKzsKKwkJaWYgKCFjMSB8fCAhYzIpCisJCQlicmVhazsKKwkJ
-aWYgKGMxID09IGMyKQorCQkJY29udGludWU7CisJCWlmICgoYzEgPSB0b2xvd2VyKGMxKSkgIT0g
-KGMyID0gdG9sb3dlcihjMikpKQorCQkJYnJlYWs7CisJfQorCXJldHVybiAoaW50KWMxIC0gKGlu
-dCljMjsKK30KKyNlbmRpZgorRVhQT1JUX1NZTUJPTChzdHJpY21wKTsKKwogI2lmbmRlZiBfX0hB
-VkVfQVJDSF9TVFJOSUNNUAogLyoqCiAgKiBzdHJuaWNtcCAtIENhc2UgaW5zZW5zaXRpdmUsIGxl
-bmd0aC1saW1pdGVkIHN0cmluZyBjb21wYXJpc29uCg==
-
---=__Part6A480432.0__=--

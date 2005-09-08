@@ -1,42 +1,206 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751402AbVIHVNv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751406AbVIHVOb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751402AbVIHVNv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 17:13:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751403AbVIHVNu
+	id S1751406AbVIHVOb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 17:14:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751405AbVIHVOb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 17:13:50 -0400
-Received: from nproxy.gmail.com ([64.233.182.195]:33825 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751402AbVIHVNu convert rfc822-to-8bit
+	Thu, 8 Sep 2005 17:14:31 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:5529 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S1751404AbVIHVOa
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 17:13:50 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=dHTDs5GlI58W6V3J5PLa1vvKNOQq7SQWacf9rm9/xu4QG2NfmTO+eLTGKYiV369qQ+c78mw5c0MNJiW8iVkDCUOz+xTULtMLb0XUBCvRammBaxjHPEXX4WqdTgGZ0+8gyvQoIP6l4BHpYWZWF9VF/WRfWukzVemQhCF8+MZdkvo=
-Message-ID: <81b0412b05090814132ebe54dd@mail.gmail.com>
-Date: Thu, 8 Sep 2005 23:13:12 +0200
-From: Alex Riesen <raa.lkml@gmail.com>
-To: Ahmad Reza Cheraghi <a_r_cheraghi@yahoo.com>
-Subject: Re: Automatic .config generation
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050908203957.7463.qmail@web51005.mail.yahoo.com>
+	Thu, 8 Sep 2005 17:14:30 -0400
+Date: Thu, 8 Sep 2005 23:15:39 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [RFC] Consistently use the name asm-offsets.h
+Message-ID: <20050908211539.GA24714@mars.ravnborg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20050908203957.7463.qmail@web51005.mail.yahoo.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/8/05, Ahmad Reza Cheraghi <a_r_cheraghi@yahoo.com> wrote:
-> I made this Framework to generate a .config based on a
-> Target-System. Right-now it works on my Laptop Acer
+Today all architectures expect 3 generate an asm-offsets.h file.
+The exceptions are: frv, m32r, sparc64
 
-how about teaching it to generate .config using just sysfs and lsbus?
-So noone will need to contact you regarding adding their system to
-your files, especially when all the information is already present in
-the kernel in a very parsable form (pci.ids, for example).
+Most architectures uses a name similar to asm_offsets.h with small
+differences. A few uses asm-consts.h and a few uses '-' instead of '_'.
 
-The whole scenary will then shorten to:
-$ make autoconfig
-$ make
+I suggest moving all the logic required to build the asm-offsets.h file
+to a common places and do proper search&replace in architectures to make
+the naming consitent. For frv, m32r and sparc64 we will need to create a
+dummy file until they start using asm-offsets.h
+
+The input file is consistently named asm-offsets.c so I plan to use the
+name asm-offsets.h all over the place.
+
+Sample patch for i386 (without renaming) below.
+Notice that the chunk deleted from arch/i386/Makefile will be the same
+for all architectures.
+
+And as an added bonus introducing the below we finally get all
+dependencies automatically tracked for the asm-offsets.h file.
+This had slipped my mind for a long time but I was remineded when
+I thougt about what dependencies could have been missed when using
+bisect support in git.
+
+If there is no objections I will see if I can have it ready before -rc1.
+It's the dependency thing that want me to have is added soon.
+
+The Kbuild file in the top-level directory is planned to be extended over
+time. For now it contains only the asm-offsets stuff.
+
+
+	Sam
+
+	
+ Kbuild             |   40 ++++++++++++++++++++++++++++++++++++++++
+ Makefile           |   37 ++++++++++---------------------------
+ arch/i386/Makefile |    9 ---------
+ 3 files changed, 50 insertions(+), 36 deletions(-)
+
+diff --git a/Kbuild b/Kbuild
+new file mode 100644
+--- /dev/null
++++ b/Kbuild
+@@ -0,0 +1,40 @@
++#
++# Kbuild for top-level directory of the kernel
++# This file takes care of the following:
++# 1) Generate asm-offsets.h
++
++# 1) Generate asm-offsets.h 
++#
++
++offsets-file := include/asm-$(ARCH)/asm_offsets.h
++
++always  := $(offsets-file)
++targets := $(offsets-file)
++targets += arch/$(ARCH)/kernel/asm-offsets.s
++
++quiet_cmd_offsets = GEN     $@
++define cmd_offsets
++	cat $< | \
++	(set -e; \
++	 echo "#ifndef __ASM_OFFSETS_H__"; \
++	 echo "#define __ASM_OFFSETS_H__"; \
++	 echo "/*"; \
++	 echo " * DO NOT MODIFY."; \
++	 echo " *"; \
++	 echo " * This file was generated by $(srctree)/Kbuild"; \
++	 echo " *"; \
++	 echo " */"; \
++	 echo ""; \
++	 sed -ne "/^->/{s:^->\([^ ]*\) [\$$#]*\([^ ]*\) \(.*\):#define \1 \2 /* \3 */:; s:->::; p;}"; \
++	 echo ""; \
++	 echo "#endif" ) > $@
++endef
++
++# We use internal kbuild rules to avoid the "is up to date" message from make
++arch/$(ARCH)/kernel/asm-offsets.s: arch/$(ARCH)/kernel/asm-offsets.c FORCE
++	$(Q)mkdir -p $(dir $@)
++	$(call if_changed_dep,cc_s_c)
++
++$(srctree)/$(offsets-file): arch/$(ARCH)/kernel/asm-offsets.s Kbuild
++	$(call cmd,offsets)
++
+diff --git a/Makefile b/Makefile
+--- a/Makefile
++++ b/Makefile
+@@ -776,14 +776,14 @@ $(vmlinux-dirs): prepare-all scripts
+ # A multi level approach is used. prepare1 is updated first, then prepare0.
+ # prepare-all is the collection point for the prepare targets.
+ 
+-.PHONY: prepare-all prepare prepare0 prepare1 prepare2
++.PHONY: prepare-all prepare prepare0 prepare1 prepare2 prepare3
+ 
+-# prepare2 is used to check if we are building in a separate output directory,
++# preparei3 is used to check if we are building in a separate output directory,
+ # and if so do:
+ # 1) Check that make has not been executed in the kernel src $(srctree)
+ # 2) Create the include2 directory, used for the second asm symlink
+ 
+-prepare2:
++prepare3:
+ ifneq ($(KBUILD_SRC),)
+ 	@echo '  Using $(srctree) as source for kernel'
+ 	$(Q)if [ -f $(srctree)/.config ]; then \
+@@ -795,16 +795,19 @@ ifneq ($(KBUILD_SRC),)
+ 	$(Q)ln -fsn $(srctree)/include/asm-$(ARCH) include2/asm
+ endif
+ 
+-# prepare1 creates a makefile if using a separate output directory
+-prepare1: prepare2 outputmakefile
++# prepare2 creates a makefile if using a separate output directory
++prepare2: prepare3 outputmakefile
+ 
+-prepare0: prepare1 include/linux/version.h include/asm \
++prepare1: prepare2 include/linux/version.h include/asm \
+                    include/config/MARKER
+ ifneq ($(KBUILD_MODULES),)
+ 	$(Q)rm -rf $(MODVERDIR)
+ 	$(Q)mkdir -p $(MODVERDIR)
+ endif
+ 
++prepare0: prepare1 FORCE
++	$(Q)$(MAKE) $(build)=$(srctree)
++
+ # All the preparing..
+ prepare-all: prepare0 prepare
+ 
+@@ -949,26 +952,6 @@ modules modules_install: FORCE
+ 
+ endif # CONFIG_MODULES
+ 
+-# Generate asm-offsets.h 
+-# ---------------------------------------------------------------------------
+-
+-define filechk_gen-asm-offsets
+-	(set -e; \
+-	 echo "#ifndef __ASM_OFFSETS_H__"; \
+-	 echo "#define __ASM_OFFSETS_H__"; \
+-	 echo "/*"; \
+-	 echo " * DO NOT MODIFY."; \
+-	 echo " *"; \
+-	 echo " * This file was generated by arch/$(ARCH)/Makefile"; \
+-	 echo " *"; \
+-	 echo " */"; \
+-	 echo ""; \
+-	 sed -ne "/^->/{s:^->\([^ ]*\) [\$$#]*\([^ ]*\) \(.*\):#define \1 \2 /* \3 */:; s:->::; p;}"; \
+-	 echo ""; \
+-	 echo "#endif" )
+-endef
+-
+-
+ ###
+ # Cleaning is done on three levels.
+ # make clean     Delete most generated files
+@@ -991,7 +974,7 @@ MRPROPER_FILES += .config .config.old in
+ #
+ clean: rm-dirs  := $(CLEAN_DIRS)
+ clean: rm-files := $(CLEAN_FILES)
+-clean-dirs      := $(addprefix _clean_,$(vmlinux-alldirs))
++clean-dirs      := $(addprefix _clean_,$(srctree) $(vmlinux-alldirs))
+ 
+ .PHONY: $(clean-dirs) clean archclean
+ $(clean-dirs):
+diff --git a/arch/i386/Makefile b/arch/i386/Makefile
+--- a/arch/i386/Makefile
++++ b/arch/i386/Makefile
+@@ -156,15 +156,6 @@ install: vmlinux
+ install kernel_install:
+ 	$(Q)$(MAKE) $(build)=$(boot) BOOTIMAGE=$(KBUILD_IMAGE) install
+ 
+-prepare: include/asm-$(ARCH)/asm_offsets.h
+-CLEAN_FILES += include/asm-$(ARCH)/asm_offsets.h
+-
+-arch/$(ARCH)/kernel/asm-offsets.s: include/asm include/linux/version.h \
+-				   include/config/MARKER
+-
+-include/asm-$(ARCH)/asm_offsets.h: arch/$(ARCH)/kernel/asm-offsets.s
+-	$(call filechk,gen-asm-offsets)
+-
+ archclean:
+ 	$(Q)$(MAKE) $(clean)=arch/i386/boot
+ 

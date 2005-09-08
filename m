@@ -1,62 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751343AbVIHIPU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751345AbVIHIQH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751343AbVIHIPU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 04:15:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbVIHIPU
+	id S1751345AbVIHIQH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 04:16:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbVIHIQG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 04:15:20 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:2569 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751343AbVIHIPT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 04:15:19 -0400
-Date: Thu, 8 Sep 2005 10:15:21 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Giancarlo Formicuccia <giancarlo.formicuccia@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [2.6.13] task_struct->fs_excl, kernel_thread and jffs2
-Message-ID: <20050908081520.GH4893@suse.de>
-References: <200509080947.58155.giancarlo.formicuccia@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200509080947.58155.giancarlo.formicuccia@gmail.com>
+	Thu, 8 Sep 2005 04:16:06 -0400
+Received: from mail.curamsoftware.com ([193.120.164.2]:30365 "EHLO
+	mail.curamsoftware.com") by vger.kernel.org with ESMTP
+	id S1751345AbVIHIQG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 04:16:06 -0400
+X-IronPort-AV: i="3.96,178,1122850800"; 
+   d="txt'?scan'208"; a="456044:sNHT41322384"
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_001_01C5B44D.88B3CF5C"
+Subject: The BogoMIPS value sometimes too low on Intel Mobile P3
+Date: Thu, 8 Sep 2005 09:15:54 +0100
+Message-ID: <949F43A185737046A32445D37D15EC0201BE7645@Mail04.curamsoftware.com>
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+Thread-Topic: The BogoMIPS value sometimes too low on Intel Mobile P3
+Thread-Index: AcW0TYh4q2IFxRMUTnyvSYP3jbGn3g==
+From: "Martin Vlk" <MVlk@curamsoftware.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Jens Pittler" <jpitt@physik.uni-leipzig.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 08 2005, Giancarlo Formicuccia wrote:
-> Hi,
-> [please CC me in any reply]
-> I'm not sure that dup_task_struct() must copy the fs_excl field. This can leads to
-> problems if do_fork() is somehow called while fs_excl!=0.
-> For example, the jffs2 code creates a kernel thread (jffs2_garbage_collect_thread)
-> in a path where lock_super() is held (i.e. by do_remount_sb, during -o remount,rw).
-> When the new thread expires, a badness happens (kernel/exit.c:787). This problem
-> was observed by a couple of people and can be easily reproduced:
-> http://lists.infradead.org/pipermail/linux-mtd/2005-August/013487.html
-> http://lists.arm.linux.org.uk/pipermail/linux-arm-kernel/2005-September/031109.html
-> 
-> At first glance, I'd simply set fs_excl to 0 for every new thread in dup_task_struct:
-> 
-> --- linux-2.6.13/kernel/fork.c	2005-08-29 01:41:01.000000000 +0200
-> +++ linux-2.6.13-new/kernel/fork.c	2005-09-07 17:06:23.000000000 +0200
-> @@ -173,6 +173,7 @@ static struct task_struct *dup_task_stru
->  	*tsk = *orig;
->  	tsk->thread_info = ti;
->  	ti->task = tsk;
-> +	atomic_set(&tsk->fs_excl, 0);
->  
->  	/* One for us, one for whoever does the "release_task()" (usually parent) */
->  	atomic_set(&tsk->usage,2);
-> 
-> but I've a doubt about the WARN_ON in exit.c being actually here to report these 
-> kernel_thread() users (like jffs2)...
-> 
-> Any comment/suggestion?
+This is a multi-part message in MIME format.
 
-Patch is correct, that is definitely an oversight!
+------_=_NextPart_001_01C5B44D.88B3CF5C
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: quoted-printable
 
-Acked-by: Jens Axboe <axboe@suse.de>
+Hi folks,
+I am running a custom-built kernel 2.6.10 on an Intel Mobile P3 processor. =
+(Acer
+TravelMate 620)
 
--- 
-Jens Axboe
+>From time to time it happens to me that on boot-up the USB mouse doesn't wo=
+rk.
+When I try a USB camera in this situation it doesn't work either.
 
+I discovered that when the USB devices don't work the BogoMIPS value calcul=
+ated
+is far lower than it should be. For example it is 32 whereas normally it sh=
+ould
+be around 1450.
+
+The low BogoMIPS value causes the USB init delays to be calculated too shor=
+t and
+the devices are not given enough time to initialize.
+
+It happens in approximately 45% of boot-ups and the only way I know of to m=
+ake
+it work again is restart. Very often restart is needed multiple times befor=
+e it
+starts working again.
+
+I tried to switch processor power management settings in BIOS, but with no
+success so far. Also today I discovered another BIOS setting related to Int=
+el
+SpeedStep technology and I tried to change the value to try if I get any be=
+tter
+behaviour. Will see in few days.
+
+Attached are log examples from both successful and unsuccessful boot-ups. I
+noticed the detected processor speed varies and also different hi-res
+timesources are used (tsc, pmtmr). Is that of any significance?
+
+Any idea what the problem and solution is?
+
+Thanks
+Martin V.
+
+
+The information in this email is confidential and may be legally privileged.
+It is intended solely for the addressee. Access to this email by anyone else
+is unauthorized. If you are not the intended recipient, any disclosure,
+copying, distribution or any action taken or omitted to be taken in reliance
+on it, is prohibited and may be unlawful. If you are not the intended
+addressee please contact the sender and dispose of this e-mail. Thank you.
+
+------_=_NextPart_001_01C5B44D.88B3CF5C
+Content-Type: text/plain;
+	name="logs.txt"
+Content-Transfer-Encoding: base64
+Content-Description: logs.txt
+Content-Disposition: attachment;
+	filename="logs.txt"
+
+RGV0ZWN0ZWQgNzMzLjQ0MCBNSHogcHJvY2Vzc29yLg0KVXNpbmcgdHNjIGZvciBoaWdoLXJlcyB0
+aW1lc291cmNlDQpDb25zb2xlOiBjb2xvdXIgZHVtbXkgZGV2aWNlIDgweDI1DQpEZW50cnkgY2Fj
+aGUgaGFzaCB0YWJsZSBlbnRyaWVzOiA2NTUzNiAob3JkZXI6IDYsIDI2MjE0NCBieXRlcykNCklu
+b2RlLWNhY2hlIGhhc2ggdGFibGUgZW50cmllczogMzI3NjggKG9yZGVyOiA1LCAxMzEwNzIgYnl0
+ZXMpDQpNZW1vcnk6IDUwODE4NGsvNTE1OTA0ayBhdmFpbGFibGUgKDE1NjhrIGtlcm5lbCBjb2Rl
+LCA3MjQ0ayByZXNlcnZlZCwgODY5ayBkYXRhLCAxNTJrIGluaXQsIDBrPj4+aGlnaG1lbSkNCkNo
+ZWNraW5nIGlmIHRoaXMgcHJvY2Vzc29yIGhvbm91cnMgdGhlIFdQIGJpdCBldmVuIGluIHN1cGVy
+dmlzb3IgbW9kZS4uLk9rLg0KQ2FsaWJyYXRpbmcgZGVsYXkgbG9vcC4uLiAxNDQ5Ljk4IEJvZ29N
+SVBTIChscGo9NzI0OTkyKQ0KDQpEZXRlY3RlZCA5OTkuOTkyIE1IeiBwcm9jZXNzb3IuDQpVc2lu
+ZyBwbXRtciBmb3IgaGlnaC1yZXMgdGltZXNvdXJjZQ0KQ29uc29sZTogY29sb3VyIGR1bW15IGRl
+dmljZSA4MHgyNQ0KRGVudHJ5IGNhY2hlIGhhc2ggdGFibGUgZW50cmllczogNjU1MzYgKG9yZGVy
+OiA2LCAyNjIxNDQgYnl0ZXMpDQpJbm9kZS1jYWNoZSBoYXNoIHRhYmxlIGVudHJpZXM6IDMyNzY4
+IChvcmRlcjogNSwgMTMxMDcyIGJ5dGVzKQ0KTWVtb3J5OiA1MDgxODRrLzUxNTkwNGsgYXZhaWxh
+YmxlICgxNTY4ayBrZXJuZWwgY29kZSwgNzI0NGsgcmVzZXJ2ZWQsIDg2OWsgZGF0YSwgMTUyayBp
+bml0LCAwaz4+PmhpZ2htZW0pDQpDaGVja2luZyBpZiB0aGlzIHByb2Nlc3NvciBob25vdXJzIHRo
+ZSBXUCBiaXQgZXZlbiBpbiBzdXBlcnZpc29yIG1vZGUuLi5Pay4NCkNhbGlicmF0aW5nIGRlbGF5
+IGxvb3AuLi4gMzIuNTcgQm9nb01JUFMgKGxwaj0xNjI4OCkNCg0KRGV0ZWN0ZWQgMTAwMC4xMzUg
+TUh6IHByb2Nlc3Nvci4NClVzaW5nIHBtdG1yIGZvciBoaWdoLXJlcyB0aW1lc291cmNlDQpDb25z
+b2xlOiBjb2xvdXIgZHVtbXkgZGV2aWNlIDgweDI1DQpEZW50cnkgY2FjaGUgaGFzaCB0YWJsZSBl
+bnRyaWVzOiA2NTUzNiAob3JkZXI6IDYsIDI2MjE0NCBieXRlcykNCklub2RlLWNhY2hlIGhhc2gg
+dGFibGUgZW50cmllczogMzI3NjggKG9yZGVyOiA1LCAxMzEwNzIgYnl0ZXMpDQpNZW1vcnk6IDUw
+ODE4NGsvNTE1OTA0ayBhdmFpbGFibGUgKDE1NjhrIGtlcm5lbCBjb2RlLCA3MjQ0ayByZXNlcnZl
+ZCwgODY5ayBkYXRhLCAxNTJrIGluaXQsIDBrIGhpZ2htZW0pDQpDaGVja2luZyBpZiB0aGlzIHBy
+b2Nlc3NvciBob25vdXJzIHRoZSBXUCBiaXQgZXZlbiBpbiBzdXBlcnZpc29yIG1vZGUuLi5Pay4N
+CkNhbGlicmF0aW5nIGRlbGF5IGxvb3AuLi4gMTA0MC4zOCBCb2dvTUlQUyAobHBqPTUyMDE5MikN
+Cg0KRGV0ZWN0ZWQgMTAwMC4yODUgTUh6IHByb2Nlc3Nvci4NClVzaW5nIHBtdG1yIGZvciBoaWdo
+LXJlcyB0aW1lc291cmNlDQpDb25zb2xlOiBjb2xvdXIgZHVtbXkgZGV2aWNlIDgweDI1DQpEZW50
+cnkgY2FjaGUgaGFzaCB0YWJsZSBlbnRyaWVzOiA2NTUzNiAob3JkZXI6IDYsIDI2MjE0NCBieXRl
+cykNCklub2RlLWNhY2hlIGhhc2ggdGFibGUgZW50cmllczogMzI3NjggKG9yZGVyOiA1LCAxMzEw
+NzIgYnl0ZXMpDQpNZW1vcnk6IDUwODE4NGsvNTE1OTA0ayBhdmFpbGFibGUgKDE1NjhrIGtlcm5l
+bCBjb2RlLCA3MjQ0ayByZXNlcnZlZCwgODY5ayBkYXRhLCAxNTJrIGluaXQsIDBrPj4+aGlnaG1l
+bSkNCkNoZWNraW5nIGlmIHRoaXMgcHJvY2Vzc29yIGhvbm91cnMgdGhlIFdQIGJpdCBldmVuIGlu
+IHN1cGVydmlzb3IgbW9kZS4uLk9rLg0KQ2FsaWJyYXRpbmcgZGVsYXkgbG9vcC4uLiA2NS4xNSBC
+b2dvTUlQUyAobHBqPTMyNTc2KQ0KDQo=
+
+------_=_NextPart_001_01C5B44D.88B3CF5C--

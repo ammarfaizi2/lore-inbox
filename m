@@ -1,131 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751345AbVIHIQH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932211AbVIHISU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751345AbVIHIQH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 04:16:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbVIHIQG
+	id S932211AbVIHISU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 04:18:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751347AbVIHISU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 04:16:06 -0400
-Received: from mail.curamsoftware.com ([193.120.164.2]:30365 "EHLO
-	mail.curamsoftware.com") by vger.kernel.org with ESMTP
-	id S1751345AbVIHIQG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 04:16:06 -0400
-X-IronPort-AV: i="3.96,178,1122850800"; 
-   d="txt'?scan'208"; a="456044:sNHT41322384"
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C5B44D.88B3CF5C"
-Subject: The BogoMIPS value sometimes too low on Intel Mobile P3
-Date: Thu, 8 Sep 2005 09:15:54 +0100
-Message-ID: <949F43A185737046A32445D37D15EC0201BE7645@Mail04.curamsoftware.com>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: The BogoMIPS value sometimes too low on Intel Mobile P3
-Thread-Index: AcW0TYh4q2IFxRMUTnyvSYP3jbGn3g==
-From: "Martin Vlk" <MVlk@curamsoftware.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Jens Pittler" <jpitt@physik.uni-leipzig.de>
+	Thu, 8 Sep 2005 04:18:20 -0400
+Received: from sv1.valinux.co.jp ([210.128.90.2]:37319 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S1751346AbVIHISU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 04:18:20 -0400
+Date: Thu, 8 Sep 2005 17:18:19 +0900
+From: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
+To: Paul Jackson <pj@sgi.com>
+Cc: dino@in.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/5] SUBCPUSETS: a resource control functionality using
+ CPUSETS
+In-Reply-To: <20050908002323.181fd7d5.pj@sgi.com>
+References: <20050908053912.1352770031@sv1.valinux.co.jp>
+	<20050908002323.181fd7d5.pj@sgi.com>
+X-Mailer: Sylpheed version 2.1.0+svn (GTK+ 2.6.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20050908081819.2EA4E70031@sv1.valinux.co.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Thu, 8 Sep 2005 00:23:23 -0700
+Paul Jackson <pj@sgi.com> wrote:
 
-------_=_NextPart_001_01C5B44D.88B3CF5C
-Content-Type: text/plain;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: quoted-printable
+> I've just started reading this - it seems well presented and I think
+> you have put much effort into it.  Thank-you for posting it.
 
-Hi folks,
-I am running a custom-built kernel 2.6.10 on an Intel Mobile P3 processor. =
-(Acer
-TravelMate 620)
+Thank you for reading my patches!
 
->From time to time it happens to me that on boot-up the USB mouse doesn't wo=
-rk.
-When I try a USB camera in this situation it doesn't work either.
+> I have not yet taken the time to understand it properly, but a couple
+> of questions come to mind offhand.  I hope these questions will not be
+> too silly.
+> 
+>  1) What is the relation of this patch set to CKRM?
 
-I discovered that when the USB devices don't work the BogoMIPS value calcul=
-ated
-is far lower than it should be. For example it is 32 whereas normally it sh=
-ould
-be around 1450.
+My patches consist of two parts, one for subcpuset framework
+and another for the cpu resource controller.
+Subcpuset framework code doesn't have the relation to CKRM.
+CKRM could probably use the cpu resource controller code as 
+a resource controller of it with some modification.
 
-The low BogoMIPS value causes the USB init delays to be calculated too shor=
-t and
-the devices are not given enough time to initialize.
+>  2) Would a structure similar to Dinakar's patches to connect
+>     cpusets and dynamic sched domains (posted to linux-mm)
+>     work here as well?
 
-It happens in approximately 45% of boot-ups and the only way I know of to m=
-ake
-it work again is restart. Very often restart is needed multiple times befor=
-e it
-starts working again.
+Yes, subcpusets could work with the dynamic sched domains.
+The cpu resource controller divides cpu resources by scaling 
+time_slice of the tasks, so multiple subcpusets can be created
+under the cpuset that has one cpu only.  So, uniprocessor systems
+also could get the benefit of subcpusets-patched cpusets.
 
-I tried to switch processor power management settings in BIOS, but with no
-success so far. Also today I discovered another BIOS setting related to Int=
-el
-SpeedStep technology and I tried to change the value to try if I get any be=
-tter
-behaviour. Will see in few days.
+> My initial understanding is that subcpusets provide a way to partial
+> out the proportion of cpu and memory used by various tasks.  A leaf
+> node cpuset can partition the tasks attached to it into subsets, called
+> subcpusets, where each subcpuset gets a proportion of cpu and memory
+> available to the original leaf node cpuset.
 
-Attached are log examples from both successful and unsuccessful boot-ups. I
-noticed the detected processor speed varies and also different hi-res
-timesources are used (tsc, pmtmr). Is that of any significance?
+That's right.
 
-Any idea what the problem and solution is?
+> I'm guessing you do not want such cpusets (the parents of subcpusets)
+> to overlap, because if they did, it would seem to confuse the meaning
+> of getting a fixed proportion of available cpu and memory resources.  I
+> was a little surprised not to see any additional checks that
+> cpu_exclusive and mem_exclusive must be set true in these cpusets, to
+> insure non- overlapping cpusets.
 
-Thanks
-Martin V.
+Right - I don't want the parents of the subcpusets to overlap and 
+I should add such checks, but wanted to know first what people would
+think of subcpusets.
 
+Regards,
 
-The information in this email is confidential and may be legally privileged.
-It is intended solely for the addressee. Access to this email by anyone else
-is unauthorized. If you are not the intended recipient, any disclosure,
-copying, distribution or any action taken or omitted to be taken in reliance
-on it, is prohibited and may be unlawful. If you are not the intended
-addressee please contact the sender and dispose of this e-mail. Thank you.
-
-------_=_NextPart_001_01C5B44D.88B3CF5C
-Content-Type: text/plain;
-	name="logs.txt"
-Content-Transfer-Encoding: base64
-Content-Description: logs.txt
-Content-Disposition: attachment;
-	filename="logs.txt"
-
-RGV0ZWN0ZWQgNzMzLjQ0MCBNSHogcHJvY2Vzc29yLg0KVXNpbmcgdHNjIGZvciBoaWdoLXJlcyB0
-aW1lc291cmNlDQpDb25zb2xlOiBjb2xvdXIgZHVtbXkgZGV2aWNlIDgweDI1DQpEZW50cnkgY2Fj
-aGUgaGFzaCB0YWJsZSBlbnRyaWVzOiA2NTUzNiAob3JkZXI6IDYsIDI2MjE0NCBieXRlcykNCklu
-b2RlLWNhY2hlIGhhc2ggdGFibGUgZW50cmllczogMzI3NjggKG9yZGVyOiA1LCAxMzEwNzIgYnl0
-ZXMpDQpNZW1vcnk6IDUwODE4NGsvNTE1OTA0ayBhdmFpbGFibGUgKDE1NjhrIGtlcm5lbCBjb2Rl
-LCA3MjQ0ayByZXNlcnZlZCwgODY5ayBkYXRhLCAxNTJrIGluaXQsIDBrPj4+aGlnaG1lbSkNCkNo
-ZWNraW5nIGlmIHRoaXMgcHJvY2Vzc29yIGhvbm91cnMgdGhlIFdQIGJpdCBldmVuIGluIHN1cGVy
-dmlzb3IgbW9kZS4uLk9rLg0KQ2FsaWJyYXRpbmcgZGVsYXkgbG9vcC4uLiAxNDQ5Ljk4IEJvZ29N
-SVBTIChscGo9NzI0OTkyKQ0KDQpEZXRlY3RlZCA5OTkuOTkyIE1IeiBwcm9jZXNzb3IuDQpVc2lu
-ZyBwbXRtciBmb3IgaGlnaC1yZXMgdGltZXNvdXJjZQ0KQ29uc29sZTogY29sb3VyIGR1bW15IGRl
-dmljZSA4MHgyNQ0KRGVudHJ5IGNhY2hlIGhhc2ggdGFibGUgZW50cmllczogNjU1MzYgKG9yZGVy
-OiA2LCAyNjIxNDQgYnl0ZXMpDQpJbm9kZS1jYWNoZSBoYXNoIHRhYmxlIGVudHJpZXM6IDMyNzY4
-IChvcmRlcjogNSwgMTMxMDcyIGJ5dGVzKQ0KTWVtb3J5OiA1MDgxODRrLzUxNTkwNGsgYXZhaWxh
-YmxlICgxNTY4ayBrZXJuZWwgY29kZSwgNzI0NGsgcmVzZXJ2ZWQsIDg2OWsgZGF0YSwgMTUyayBp
-bml0LCAwaz4+PmhpZ2htZW0pDQpDaGVja2luZyBpZiB0aGlzIHByb2Nlc3NvciBob25vdXJzIHRo
-ZSBXUCBiaXQgZXZlbiBpbiBzdXBlcnZpc29yIG1vZGUuLi5Pay4NCkNhbGlicmF0aW5nIGRlbGF5
-IGxvb3AuLi4gMzIuNTcgQm9nb01JUFMgKGxwaj0xNjI4OCkNCg0KRGV0ZWN0ZWQgMTAwMC4xMzUg
-TUh6IHByb2Nlc3Nvci4NClVzaW5nIHBtdG1yIGZvciBoaWdoLXJlcyB0aW1lc291cmNlDQpDb25z
-b2xlOiBjb2xvdXIgZHVtbXkgZGV2aWNlIDgweDI1DQpEZW50cnkgY2FjaGUgaGFzaCB0YWJsZSBl
-bnRyaWVzOiA2NTUzNiAob3JkZXI6IDYsIDI2MjE0NCBieXRlcykNCklub2RlLWNhY2hlIGhhc2gg
-dGFibGUgZW50cmllczogMzI3NjggKG9yZGVyOiA1LCAxMzEwNzIgYnl0ZXMpDQpNZW1vcnk6IDUw
-ODE4NGsvNTE1OTA0ayBhdmFpbGFibGUgKDE1NjhrIGtlcm5lbCBjb2RlLCA3MjQ0ayByZXNlcnZl
-ZCwgODY5ayBkYXRhLCAxNTJrIGluaXQsIDBrIGhpZ2htZW0pDQpDaGVja2luZyBpZiB0aGlzIHBy
-b2Nlc3NvciBob25vdXJzIHRoZSBXUCBiaXQgZXZlbiBpbiBzdXBlcnZpc29yIG1vZGUuLi5Pay4N
-CkNhbGlicmF0aW5nIGRlbGF5IGxvb3AuLi4gMTA0MC4zOCBCb2dvTUlQUyAobHBqPTUyMDE5MikN
-Cg0KRGV0ZWN0ZWQgMTAwMC4yODUgTUh6IHByb2Nlc3Nvci4NClVzaW5nIHBtdG1yIGZvciBoaWdo
-LXJlcyB0aW1lc291cmNlDQpDb25zb2xlOiBjb2xvdXIgZHVtbXkgZGV2aWNlIDgweDI1DQpEZW50
-cnkgY2FjaGUgaGFzaCB0YWJsZSBlbnRyaWVzOiA2NTUzNiAob3JkZXI6IDYsIDI2MjE0NCBieXRl
-cykNCklub2RlLWNhY2hlIGhhc2ggdGFibGUgZW50cmllczogMzI3NjggKG9yZGVyOiA1LCAxMzEw
-NzIgYnl0ZXMpDQpNZW1vcnk6IDUwODE4NGsvNTE1OTA0ayBhdmFpbGFibGUgKDE1NjhrIGtlcm5l
-bCBjb2RlLCA3MjQ0ayByZXNlcnZlZCwgODY5ayBkYXRhLCAxNTJrIGluaXQsIDBrPj4+aGlnaG1l
-bSkNCkNoZWNraW5nIGlmIHRoaXMgcHJvY2Vzc29yIGhvbm91cnMgdGhlIFdQIGJpdCBldmVuIGlu
-IHN1cGVydmlzb3IgbW9kZS4uLk9rLg0KQ2FsaWJyYXRpbmcgZGVsYXkgbG9vcC4uLiA2NS4xNSBC
-b2dvTUlQUyAobHBqPTMyNTc2KQ0KDQo=
-
-------_=_NextPart_001_01C5B44D.88B3CF5C--
+KUROSAWA, Takahiro

@@ -1,64 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932518AbVIHFRV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932507AbVIHFYQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932518AbVIHFRV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 01:17:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932528AbVIHFRV
+	id S932507AbVIHFYQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 01:24:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932529AbVIHFYQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 01:17:21 -0400
-Received: from web52601.mail.yahoo.com ([206.190.48.204]:49513 "HELO
-	web52601.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S932518AbVIHFRV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 01:17:21 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=g6NysYw1wcHWeTUotUHlGlgeTYNwT0ABjlth0baqn5uReUwz8zGPrJs+lg8tYQ6w+kShd9p7jQ1dqCbKfTnWSL/NX9N1A3k/c9Hs0lP/NkseXm7a+75aSBwAnPjF8eGYnOwHgJ31AKiLjnPWMoeL772WU4Bi7a4OJdfTm/wbccs=  ;
-Message-ID: <20050908051716.94223.qmail@web52601.mail.yahoo.com>
-Date: Wed, 7 Sep 2005 22:17:16 -0700 (PDT)
-From: nazim khan <naz_taurus@yahoo.com>
-Subject: Re: How to find out kernel stack over flow?
-To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <431EA245.2040703@stud.feec.vutbr.cz>
-MIME-Version: 1.0
+	Thu, 8 Sep 2005 01:24:16 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:26753 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932507AbVIHFYQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 01:24:16 -0400
+Date: Wed, 7 Sep 2005 22:23:47 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Miloslav Trmac <mitr@volny.cz>
+Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Wistron laptop button driver
+Message-Id: <20050907222347.493f1047.akpm@osdl.org>
+In-Reply-To: <431E4E28.5020604@volny.cz>
+References: <431E4E28.5020604@volny.cz>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks Michal for your response,
+Miloslav Trmac <mitr@volny.cz> wrote:
+>
+> +static void call_bios(struct regs *regs)
+>  +{
+>  +	unsigned long flags;
+>  +
+>  +	preempt_disable();
+>  +	local_irq_save(flags);
+>  +	asm volatile ("pushl %%ebp;"
+>  +		      "movl %[data], %%ebp;"
+>  +		      "call *%[routine];"
+>  +		      "popl %%ebp"
+>  +		      : "=a" (regs->eax), "=b" (regs->ebx), "=c" (regs->ecx)
+>  +		      : "0" (regs->eax), "1" (regs->ebx), "2" (regs->ecx),
+>  +			[routine] "m" (bios_entry_point),
+>  +			[data] "m" (bios_data_map_base)
+>  +		      : "edx", "edi", "esi", "memory");
+>  +	local_irq_restore(flags);
+>  +	preempt_enable();
+>  +}
+>  +
 
-I forgot to mention that I am using linux 2.4.26,
-and STACKOVERFLOW option is not available here.
+(the preempt_disable/enable isn't needed - local_irq_save() will suffice)
 
-regards,
-Nazim
+gcc-2.95.x spits the dummy over this [routine] stuff.  What compiler does
+this require?
 
---- Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-wrote:
-
-> nazim khan wrote:
-> > I suspect that one of my module that I am
-> inserting in
-> > the kernel may be causing the stack overflow which
-> is
-> > leading to kernel crash (may because it is
-> corrupting
-> > some one lese memory).
-> > 
-> > How can I find this out?
-> 
-> You could enable CONFIG_DEBUG_STACKOVERFLOW.
-> If you showed us your module's source code, someone
-> might see the bug.
-> 
-> Michal
-> 
-
-
-
-	
-		
-______________________________________________________
-Click here to donate to the Hurricane Katrina relief effort.
-http://store.yahoo.com/redcross-donate3/
+Is it necessary to open-code the BIOS call in the driver?  Does it make
+sense to have some library function to do this?

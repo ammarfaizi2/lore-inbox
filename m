@@ -1,43 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965066AbVIHWmO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965069AbVIHWwc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965066AbVIHWmO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 18:42:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965061AbVIHWmO
+	id S965069AbVIHWwc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 18:52:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965068AbVIHWwc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 18:42:14 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:64977 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965059AbVIHWmN (ORCPT
+	Thu, 8 Sep 2005 18:52:32 -0400
+Received: from mail0.lsil.com ([147.145.40.20]:48048 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S965063AbVIHWwb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 18:42:13 -0400
-Date: Thu, 8 Sep 2005 15:41:14 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Tommy Christensen <tommy.christensen@tpack.net>
-Cc: Bogdan.Costescu@iwr.uni-heidelberg.de, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH] 3c59x: read current link status from phy
-Message-Id: <20050908154114.69307f92.akpm@osdl.org>
-In-Reply-To: <4320BD96.3060307@tpack.net>
-References: <200509080125.j881PcL9015847@hera.kernel.org>
-	<431F9899.4060602@pobox.com>
-	<Pine.LNX.4.63.0509081351160.21354@dingo.iwr.uni-heidelberg.de>
-	<1126184700.4805.32.camel@tsc-6.cph.tpack.net>
-	<Pine.LNX.4.63.0509081521140.21354@dingo.iwr.uni-heidelberg.de>
-	<1126190554.4805.68.camel@tsc-6.cph.tpack.net>
-	<Pine.LNX.4.63.0509081713500.22954@dingo.iwr.uni-heidelberg.de>
-	<4320BD96.3060307@tpack.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 8 Sep 2005 18:52:31 -0400
+Message-ID: <91888D455306F94EBD4D168954A9457C03F495CC@nacos172.co.lsil.com>
+From: "Moore, Eric Dean" <Eric.Moore@lsil.com>
+To: mike.miller@hp.com, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Cc: axboe@suse.de, akpm@osdl.org
+Subject: RE: can't boot 2.6.13
+Date: Thu, 8 Sep 2005 16:51:45 -0600 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2658.27)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tommy Christensen <tommy.christensen@tpack.net> wrote:
->
-> In order to spare some I/O operations, be more intelligent about
->  when to read from the PHY.
+On Thursday, September 08, 2005 3:19 PM, Mike Miller(HP) wrote:
+> I am not able to boot the 2.6.13 version of the kernel. I've 
+> tried different systems, tried downloading again, still 
+> nothing. Here's the last thing I see from the serial port:
+> 
+> md: Autodetecting RAID arrays.
+> md: autorun ...
+> md: ... autorun DONE.
+> RAMDISK: Compressed image found at block 0
+> input: AT Translated Set 2 keyboard on isa0060/serio0
+> VFS: Mounted root (ext2 filesystem).
+> logips2pp: Detected unknown logitech mouse model 1
+> input: PS/2 Logitech Mouse on isa0060/serio1
+> SCSI subsystem initialized
+> Fusion MPT base driver 3.03.02
+> Copyright (c) 1999-2005 LSI Logic Corporation
+> 
 
-Seems sane.
+We introduced split drivers for 2.6.13.  There are new layer drivers
+that sit ontop of mptscsih.ko.  These drivers are split along bus
+protocal, so there is mptspi.ko, mptfc.ko, and mptsas.ko.  This is
+to tie into the scsi transport layers that are split the same.
 
-Should we also decrease the polling interval?  Perhaps only when the cable
-is unplugged?
+For 1030(a SPI controller)
+If your using RedHat, you need to change mptscish to mptspi in
+/etc/modprobe.conf.
+If your using SuSE, you need to change mptscish to mptspi in
+/etc/sysconfig/kernel
+

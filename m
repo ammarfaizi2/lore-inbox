@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751356AbVIHNfl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932513AbVIHNlr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751356AbVIHNfl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 09:35:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751352AbVIHNfl
+	id S932513AbVIHNlr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 09:41:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751355AbVIHNlr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 09:35:41 -0400
-Received: from relay.uni-heidelberg.de ([129.206.100.212]:45790 "EHLO
-	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
-	id S1751353AbVIHNfk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 09:35:40 -0400
-Date: Thu, 8 Sep 2005 15:35:26 +0200 (CEST)
-From: Bogdan Costescu <Bogdan.Costescu@iwr.uni-heidelberg.de>
-To: Tommy Christensen <tommy.christensen@tpack.net>
-cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Netdev List <netdev@vger.kernel.org>
-Subject: Re: [PATCH] 3c59x: read current link status from phy
-In-Reply-To: <1126184700.4805.32.camel@tsc-6.cph.tpack.net>
-Message-ID: <Pine.LNX.4.63.0509081521140.21354@dingo.iwr.uni-heidelberg.de>
-References: <200509080125.j881PcL9015847@hera.kernel.org>  <431F9899.4060602@pobox.com>
-  <Pine.LNX.4.63.0509081351160.21354@dingo.iwr.uni-heidelberg.de>
- <1126184700.4805.32.camel@tsc-6.cph.tpack.net>
+	Thu, 8 Sep 2005 09:41:47 -0400
+Received: from zctfs063.nortelnetworks.com ([47.164.128.120]:4551 "EHLO
+	zctfs063.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S1751352AbVIHNlr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 09:41:47 -0400
+Message-ID: <43203F8E.5080108@nortel.com>
+Date: Thu, 08 Sep 2005 09:41:34 -0400
+From: "Stephane Couture" <stephanc@nortel.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: LKML <linux-kernel@vger.kernel.org>
+CC: Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.13-rt3
+References: <1125591893.7842.7.camel@localhost.localdomain> <1125593160.5761.3.camel@localhost.localdomain> <1125603507.5810.6.camel@localhost.localdomain> <20050901202830.GB27229@elte.hu>
+In-Reply-To: <20050901202830.GB27229@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 08 Sep 2005 13:41:37.0317 (UTC) FILETIME=[08E59D50:01C5B47B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Sep 2005, Tommy Christensen wrote:
+Ingo Molnar wrote:
+> * Steven Rostedt <rostedt@goodmis.org> wrote:
+> 
+> 
+>>Ingo,
+>>
+>>I just found a __MAJOR__ bug in my code.  Below is the patch that 
+>>fixes this bug, zaps the WARN_ON in check_pi_list_present, and changes 
+>>ALL_TASKS_PI to a booleon instead of just a define.
+>>
+>>The major bug was in __down_trylock.  See anything wrong with this 
+>>code :-) I'm surprised that this worked as well as it did!
+> 
+> 
+> ok, i've released -rt4 with this fix included. The 8-way box boots fine 
+> now.
+> 
+> 	Ingo
 
-> The idea is to avoid an extra delay of 60 seconds before detecting 
-> link-up.
+On 2.6.13-rt4, I get this error when HIGH_RES_TIMERS is disabled :
 
-But you are adding the read to a function that is called repeatedly to 
-fix an event that happens only once at start-up !
+arch/ppc/kernel/built-in.o(.text+0x1dbc): In function `timer_interrupt':
+arch/ppc/kernel/time.c:241: undefined reference to `do_hr_timer_int'
 
-If this read is really needed (I still doubt it...), can't it be 
-performed in vortex_up(), by possibly doubling the existing one there ?
-vortex_up() is executed only once at start-up, not every 60 seconds.
-
-> Please see http://bugzilla.kernel.org/show_bug.cgi?id=5025
-
-Hah, a Cisco switch.  Look in Documentation/networking/vortex.txt for 
-"portfast".
-
--- 
-Bogdan Costescu
-
-IWR - Interdisziplinaeres Zentrum fuer Wissenschaftliches Rechnen
-Universitaet Heidelberg, INF 368, D-69120 Heidelberg, GERMANY
-Telephone: +49 6221 54 8869, Telefax: +49 6221 54 8868
-E-mail: Bogdan.Costescu@IWR.Uni-Heidelberg.De
+There is some #ifdef CONFIG_HIGH_RES_TIMERS missing in 
+arch/ppc/kernel/time.c

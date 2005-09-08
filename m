@@ -1,49 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932567AbVIHCSd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932566AbVIHCVq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932567AbVIHCSd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 22:18:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932566AbVIHCSd
+	id S932566AbVIHCVq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 22:21:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932568AbVIHCVq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 22:18:33 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:57217 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932563AbVIHCSc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 22:18:32 -0400
-Message-ID: <431F9F75.9020704@pobox.com>
-Date: Wed, 07 Sep 2005 22:18:29 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: abonilla@linuxwireless.org
-CC: netdev@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       ieee80211-devel@lists.sourceforge.net,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Git broken for IPW2200
-References: <1126143695.5402.11.camel@localhost.localdomain>
-In-Reply-To: <1126143695.5402.11.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Wed, 7 Sep 2005 22:21:46 -0400
+Received: from oracle.bridgewayconsulting.com.au ([203.56.14.38]:45743 "EHLO
+	oracle.bridgewayconsulting.com.au") by vger.kernel.org with ESMTP
+	id S932566AbVIHCVp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Sep 2005 22:21:45 -0400
+Date: Thu, 8 Sep 2005 10:21:06 +0800
+From: Bernard Blackham <b-lkml@blackham.com.au>
+To: rob <rob.rice@fuse.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: swsusp
+Message-ID: <20050908022105.GF6055@blackham.com.au>
+References: <431E97E5.1080506@fuse.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <431E97E5.1080506@fuse.net>
+Organization: Dagobah Systems
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alejandro Bonilla Beeche wrote:
-> Hi,
-> 
-> 	Where does one report this? I was building Linus Git tree as per I
-> updated it at 09/07/2005 7:00PM PDT and got this while compiling.
-> 
-> Where do I report this?
-> 
-> Debian unstable updated at same time.
-> 
-> it looks like ipw2200 is thinking that ieee80211 is not compiled in, but
-> I did select it as a module?
+On Wed, Sep 07, 2005 at 03:33:57AM -0400, rob wrote:
+> Is there some way to change the sowftware suspend2 scripts to work with the
+> unpatched kernel software suspend
 
-Wanna post a URL to your .config?
+Yes. Just comment out everything in the suspend2 section, and enable
+"UseSysfsPowerState disk". It really should get a less ugly name one
+of these days :)
 
-	Jeff
+Bernard.
 
-
-
+-- 
+ Bernard Blackham <bernard at blackham dot com dot au>

@@ -1,72 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750940AbVIHO27@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751364AbVIHOaB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750940AbVIHO27 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 10:28:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751364AbVIHO27
+	id S1751364AbVIHOaB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 10:30:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbVIHOaA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 10:28:59 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:13659
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S1750940AbVIHO27 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 10:28:59 -0400
-Message-Id: <4320670B0200007800024411@emea1-mh.id2.novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Thu, 08 Sep 2005 16:30:03 +0200
-From: "Jan Beulich" <JBeulich@novell.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] minor ELF definitions addition
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=__PartBA98D4FB.0__="
+	Thu, 8 Sep 2005 10:30:00 -0400
+Received: from dvhart.com ([64.146.134.43]:32394 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S1751364AbVIHOaA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 10:30:00 -0400
+Date: Thu, 08 Sep 2005 07:30:01 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Cc: Andi Kleen <ak@suse.de>
+Subject: Re: 2.6.13-mm2
+Message-ID: <73450000.1126189801@[10.10.2.4]>
+In-Reply-To: <20050908053042.6e05882f.akpm@osdl.org>
+References: <20050908053042.6e05882f.akpm@osdl.org>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME message. If you are reading this text, you may want to 
-consider changing to a mail reader or gateway that understands how to 
-properly handle MIME multipart messages.
 
---=__PartBA98D4FB.0__=
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13/2.6.13-mm2/
+> 
+> (kernel.org propagation is slow.  There's a temp copy at
+> http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.13-mm2.bz2)
+> 
+> 
+> 
+> - Added Andi's x86_64 tree, as separate patches
+> 
+> - Added a driver for TI acx1xx cardbus wireless NICs
+> 
+> - Large revamp of pcmcia suspend handling
+> 
+> - Largeish v4l and DVB updates
+> 
+> - Significant parport rework
+> 
+> - Many tty drivers still won't compile
+> 
+> - Lots of framebuffer driver updates
+> 
+> - There are still many patches here for 2.6.14.  We're doing pretty well
+>   with merging up the subsystem trees.  ia64 and CIFS are still pending. 
+>   x86_64 and several of Greg's trees (especially USB) aren't merged yet.
 
-(Note: Patch also attached because the inline version is certain to get
-line wrapped.)
+Build fails on x86_64, at least, with this config:
+http://ftp.kernel.org/pub/linux/kernel/people/mbligh/config/abat/amd64
 
-A trivial addition to the EFL definitions.
+arch/x86_64/pci/built-in.o(.init.text+0xa88): In function `pci_acpi_scan_root':
+: undefined reference to `pxm_to_node'
+make: *** [.tmp_vmlinux1] Error 1
+09/08/05-06:52:31 Build the kernel. Failed rc = 2
+09/08/05-06:52:31 build: kernel build Failed rc = 1
+09/08/05-06:52:31 command complete: (2) rc=126
+Failed and terminated the run
 
-Signed-off-by: Jan Beulich <jbeulich@novell.com>
-
-diff -Npru 2.6.13/include/linux/elf.h 2.6.13-elf/include/linux/elf.h
---- 2.6.13/include/linux/elf.h	2005-08-29 01:41:01.000000000 +0200
-+++ 2.6.13-elf/include/linux/elf.h	2005-03-16 12:24:42.000000000
-+0100
-@@ -150,6 +150,8 @@ typedef __s64	Elf64_Sxword;
- #define STT_FUNC    2
- #define STT_SECTION 3
- #define STT_FILE    4
-+#define STT_COMMON  5
-+#define STT_TLS     6
- 
- #define ELF_ST_BIND(x)		((x) >> 4)
- #define ELF_ST_TYPE(x)		(((unsigned int) x) & 0xf)
-
-
---=__PartBA98D4FB.0__=
-Content-Type: application/octet-stream; name="linux-2.6.13-elf.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="linux-2.6.13-elf.patch"
-
-KE5vdGU6IFBhdGNoIGFsc28gYXR0YWNoZWQgYmVjYXVzZSB0aGUgaW5saW5lIHZlcnNpb24gaXMg
-Y2VydGFpbiB0byBnZXQKbGluZSB3cmFwcGVkLikKCkEgdHJpdmlhbCBhZGRpdGlvbiB0byB0aGUg
-RUZMIGRlZmluaXRpb25zLgoKU2lnbmVkLW9mZi1ieTogSmFuIEJldWxpY2ggPGpiZXVsaWNoQG5v
-dmVsbC5jb20+CgpkaWZmIC1OcHJ1IDIuNi4xMy9pbmNsdWRlL2xpbnV4L2VsZi5oIDIuNi4xMy1l
-bGYvaW5jbHVkZS9saW51eC9lbGYuaAotLS0gMi42LjEzL2luY2x1ZGUvbGludXgvZWxmLmgJMjAw
-NS0wOC0yOSAwMTo0MTowMS4wMDAwMDAwMDAgKzAyMDAKKysrIDIuNi4xMy1lbGYvaW5jbHVkZS9s
-aW51eC9lbGYuaAkyMDA1LTAzLTE2IDEyOjI0OjQyLjAwMDAwMDAwMCArMDEwMApAQCAtMTUwLDYg
-KzE1MCw4IEBAIHR5cGVkZWYgX19zNjQJRWxmNjRfU3h3b3JkOwogI2RlZmluZSBTVFRfRlVOQyAg
-ICAyCiAjZGVmaW5lIFNUVF9TRUNUSU9OIDMKICNkZWZpbmUgU1RUX0ZJTEUgICAgNAorI2RlZmlu
-ZSBTVFRfQ09NTU9OICA1CisjZGVmaW5lIFNUVF9UTFMgICAgIDYKIAogI2RlZmluZSBFTEZfU1Rf
-QklORCh4KQkJKCh4KSA+PiA0KQogI2RlZmluZSBFTEZfU1RfVFlQRSh4KQkJKCgodW5zaWduZWQg
-aW50KSB4KSAmIDB4ZikK
-
---=__PartBA98D4FB.0__=--

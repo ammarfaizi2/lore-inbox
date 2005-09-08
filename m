@@ -1,37 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964936AbVIHU0n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964990AbVIHU1K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964936AbVIHU0n (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 16:26:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964986AbVIHU0n
+	id S964990AbVIHU1K (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 16:27:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964991AbVIHU1K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 16:26:43 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:44723
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S964936AbVIHU0n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 16:26:43 -0400
-Date: Thu, 08 Sep 2005 13:26:34 -0700 (PDT)
-Message-Id: <20050908.132634.88719733.davem@davemloft.net>
-To: rmk+lkml@arm.linux.org.uk
-Cc: torvalds@osdl.org, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
-       davem@redhat.com, akpm@osdl.org
-Subject: Re: Serial maintainership
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20050908212236.A19542@flint.arm.linux.org.uk>
-References: <Pine.LNX.4.58.0509080922230.3208@g5.osdl.org>
-	<20050908.131358.93602687.davem@davemloft.net>
-	<20050908212236.A19542@flint.arm.linux.org.uk>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Thu, 8 Sep 2005 16:27:10 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:146 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S964988AbVIHU1I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 16:27:08 -0400
+Date: Thu, 8 Sep 2005 10:01:06 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Alejandro Bonilla <abonilla@linuxwireless.org>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: IPW2100 Kconfig
+Message-ID: <20050908080106.GB773@openzaurus.ucw.cz>
+References: <005101c5b311_4ca69a50_a20cc60a@amer.sykes.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <005101c5b311_4ca69a50_a20cc60a@amer.sykes.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-Date: Thu, 8 Sep 2005 21:22:36 +0100
+Hi!
 
-> the "regs" argument may not exist in the parent context in the
-> !SUPPORT_SYSRQ case.
+> 	I checked the IPW2100 in the current git from linux-2.6 and the menuconfig
+> help (Kconfig) says you need to put the firmware in /etc/firmware, it should
+> be /lib/firmware.
+> 
+> Who should I send the "patch" to? Or can someone simply change that?
 
-Then pass in a NULL in the ARM serial drivers instead of this ugly
-dependency upon the macro not using the argument.
+Are you sure it is not distro-dependend?
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+

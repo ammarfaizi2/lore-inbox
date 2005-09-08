@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964991AbVIHUb0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964996AbVIHUgK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964991AbVIHUb0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 16:31:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964992AbVIHUbZ
+	id S964996AbVIHUgK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 16:36:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965000AbVIHUgK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 16:31:25 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:53473 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S964991AbVIHUbZ
+	Thu, 8 Sep 2005 16:36:10 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:24207 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S964996AbVIHUgI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 16:31:25 -0400
-Date: Thu, 8 Sep 2005 21:31:20 +0100
-From: viro@ZenIV.linux.org.uk
-To: "David S. Miller" <davem@davemloft.net>
-Cc: torvalds@osdl.org, alan@lxorguk.ukuu.org.uk, rmk+lkml@arm.linux.org.uk,
-       linux-kernel@vger.kernel.org, davem@redhat.com, akpm@osdl.org
-Subject: Re: Serial maintainership
-Message-ID: <20050908203120.GC9623@ZenIV.linux.org.uk>
-References: <20050908165256.D5661@flint.arm.linux.org.uk> <1126197523.19834.49.camel@localhost.localdomain> <Pine.LNX.4.58.0509080922230.3208@g5.osdl.org> <20050908.131358.93602687.davem@davemloft.net>
+	Thu, 8 Sep 2005 16:36:08 -0400
+Date: Thu, 8 Sep 2005 22:37:15 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Fabian LoneStar Fr?d?rick <fabian.frederick@gmx.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: git_linux addition ; genericity pls
+Message-ID: <20050908203715.GA26675@mars.ravnborg.org>
+References: <17416.1126211209@www78.gmx.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050908.131358.93602687.davem@davemloft.net>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <17416.1126211209@www78.gmx.net>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 08, 2005 at 01:13:58PM -0700, David S. Miller wrote:
-> From: Linus Torvalds <torvalds@osdl.org>
-> Date: Thu, 8 Sep 2005 09:27:56 -0700 (PDT)
+On Thu, Sep 08, 2005 at 10:26:49PM +0200, "Fabian LoneStar Fr?d?rick" wrote:
+> Hi,
 > 
-> > Mistakes happen, and the way you fix them is not to pull a tantrum, but 
-> > tell people that they are idiots and they broke something, and get them to 
-> > fix it instead.
-> 
-> In all this noise I still haven't seen what is wrong with
-> the build warning fix I made.
+>    I know git's made for any kind of _big_ project out there but what about
+> having git_linux cmd or something to do all the stuff (create path, cloning,
+> download, readtree, checkout, make oldconf, make, export stuff ... ) ? I do
+> feel somekind of a regression in front of install_latest_kernel ease of
+> use.Did I miss something ?
 
-The fact that it's called regardless of SUPPORT_SYSRQ and some callers
-look like
+cogito?
 
-#ifdef SUPPORT_SYSRQ
-int foo(blah, struct pt_regs *regs)
-#else
-int foo(blah)
-#endif
-{
-	...
-	uart_handle_sysrq_char(..., regs);
-	...
-}
+cg-clone \
+rsync://rsync.kernel.org/pub/scm/linux/kernel/git/linus/linux-2.6.git \
+linux-2.6.git
 
-which works with old definition (without SUPPORT_SYSRQ the last argument of
-uart_handle_sysrq_char() is never seen by parser) and obviously dies with
-the new one.
+cd linux-2.6
+make menuconfig
 
-And yes, it's sick...
+See http://www.kernel.org/git for cogito pointers.
+
+	Sam

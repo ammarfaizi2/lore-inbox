@@ -1,41 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965012AbVIHViI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965015AbVIHVjL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965012AbVIHViI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 17:38:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965013AbVIHViI
+	id S965015AbVIHVjL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 17:39:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965016AbVIHVjL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 17:38:08 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:54975 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965012AbVIHViH (ORCPT
+	Thu, 8 Sep 2005 17:39:11 -0400
+Received: from fmr16.intel.com ([192.55.52.70]:64727 "EHLO
+	fmsfmr006.fm.intel.com") by vger.kernel.org with ESMTP
+	id S965013AbVIHVjI convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 17:38:07 -0400
-Date: Thu, 8 Sep 2005 14:37:42 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "David S. Miller" <davem@davemloft.net>
-cc: rmk+lkml@arm.linux.org.uk, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org, davem@redhat.com, akpm@osdl.org
-Subject: Re: Serial maintainership
-In-Reply-To: <Pine.LNX.4.58.0509081418310.3039@g5.osdl.org>
-Message-ID: <Pine.LNX.4.58.0509081433580.3039@g5.osdl.org>
-References: <20050908212236.A19542@flint.arm.linux.org.uk>
- <20050908.132634.88719733.davem@davemloft.net> <Pine.LNX.4.58.0509081333450.3039@g5.osdl.org>
- <20050908.134259.51218842.davem@davemloft.net> <Pine.LNX.4.58.0509081418310.3039@g5.osdl.org>
+	Thu, 8 Sep 2005 17:39:08 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [RFC] Consistently use the name asm-offsets.h
+Date: Thu, 8 Sep 2005 14:39:04 -0700
+Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F0456EE9E@scsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [RFC] Consistently use the name asm-offsets.h
+Thread-Index: AcW0uu1IFyla8nQWTVuc2s/m9jj0WwAAmGFg
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "Sam Ravnborg" <sam@ravnborg.org>, <linux-arch@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 08 Sep 2005 21:39:03.0401 (UTC) FILETIME=[BB4B2590:01C5B4BD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The existing ia64 specific rule to generate offsets.h
+has to "echo #define IA64_TASK_SIZE 0 > include/asm-ia64/offsets.h"
+before building asm-offsets.s to avoid compilation errors.
 
+So long as you take care of this somehow in the generic version, go wild.
 
-On Thu, 8 Sep 2005, Linus Torvalds wrote:
-> 
-> (You might even remove the #ifdef inside the function by then, since "ch" 
-> being a constant zero will make 90% of it go away anyway).
-
-Sadly, the remaining part checks "port->sysrq", which doesn't even exist 
-unless CONFIG_SERIAL_CORE_CONSOLE is set, so that doesn't work out.
-
-Oh, well. That simple three-liner should work fine, I was just hoping we 
-could do the rest more cleanly..
-
-		Linus
+-Tony

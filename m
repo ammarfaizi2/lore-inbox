@@ -1,39 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751352AbVIHNmN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932515AbVIHNtA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751352AbVIHNmN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 09:42:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751355AbVIHNmN
+	id S932515AbVIHNtA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 09:49:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932517AbVIHNtA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 09:42:13 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:58891 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751352AbVIHNmM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 09:42:12 -0400
-Date: Thu, 8 Sep 2005 14:42:07 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: rpurdie@rpsys.net, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] Add suspend/resume support to locomo.c
-Message-ID: <20050908144207.B2843@flint.arm.linux.org.uk>
-Mail-Followup-To: Pavel Machek <pavel@ucw.cz>, rpurdie@rpsys.net,
-	lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>
-References: <20050721052558.GD7849@elf.ucw.cz> <20050904113600.C30509@flint.arm.linux.org.uk> <20050906075853.GA3883@elf.ucw.cz>
+	Thu, 8 Sep 2005 09:49:00 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:45953 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932515AbVIHNtA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 09:49:00 -0400
+Date: Thu, 8 Sep 2005 14:48:57 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-mm2
+Message-ID: <20050908134857.GA8676@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20050908053042.6e05882f.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050906075853.GA3883@elf.ucw.cz>; from pavel@ucw.cz on Tue, Sep 06, 2005 at 09:58:53AM +0200
+In-Reply-To: <20050908053042.6e05882f.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 06, 2005 at 09:58:53AM +0200, Pavel Machek wrote:
-> Well, it would be nice if it was signed off by him, but John is
-> nowhere to be reached.
+On Thu, Sep 08, 2005 at 05:30:42AM -0700, Andrew Morton wrote:
+> -ocfs2-prep.patch
+> 
+>  Dropped this - maintaining the
+>  move-truncate_inode_pages-into-delete_inode.patch patch separately was a
+>  pita.  Simply pull it in from git-ocfs2.patch
 
-Hmm, ok, applied.
+Could you please just send the  move truncate_inode_pages into delete_inode
+patch to Linus ASAP instead?  It's useful without OCFS2, I have some changes
+that need it pending, and the reiser4 folks also need it to clean some
+of their mess up (if they're still interested..)
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core

@@ -1,56 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751174AbVIHUkF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751265AbVIHUkT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751174AbVIHUkF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 16:40:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751265AbVIHUkE
+	id S1751265AbVIHUkT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 16:40:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751382AbVIHUkS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 16:40:04 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:62376 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751174AbVIHUkD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 16:40:03 -0400
-Date: Thu, 8 Sep 2005 13:39:35 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "David S. Miller" <davem@davemloft.net>
-cc: rmk+lkml@arm.linux.org.uk, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org, davem@redhat.com, akpm@osdl.org
-Subject: Re: Serial maintainership
-In-Reply-To: <20050908.132634.88719733.davem@davemloft.net>
-Message-ID: <Pine.LNX.4.58.0509081333450.3039@g5.osdl.org>
-References: <Pine.LNX.4.58.0509080922230.3208@g5.osdl.org>
- <20050908.131358.93602687.davem@davemloft.net> <20050908212236.A19542@flint.arm.linux.org.uk>
- <20050908.132634.88719733.davem@davemloft.net>
+	Thu, 8 Sep 2005 16:40:18 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:9108 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1751265AbVIHUkR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 16:40:17 -0400
+Date: Thu, 8 Sep 2005 16:40:16 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Jim Ramsay <jim.ramsay@gmail.com>
+cc: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
+       <linux-usb-users@lists.sourceforge.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       <linux-scsi@vger.kernel.org>
+Subject: Re: [Linux-usb-users] Possible bug in usb storage (2.6.11 kernel)
+In-Reply-To: <4789af9e05090813287f05e12a@mail.gmail.com>
+Message-ID: <Pine.LNX.4.44L0.0509081637410.4545-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 8 Sep 2005, Jim Ramsay wrote:
 
-
-On Thu, 8 Sep 2005, David S. Miller wrote:
+> More information:
 > 
-> > the "regs" argument may not exist in the parent context in the
-> > !SUPPORT_SYSRQ case.
+> The error only occurrs during device sensing when the
+> srb->request_buffer is assigned as follows, by usb/storage/transport.c
+> in the routine usb_stor_invoke_transport:
 > 
-> Then pass in a NULL in the ARM serial drivers instead of this ugly
-> dependency upon the macro not using the argument.
+> old_request_buffer = srb->request_buffer;
+> srb->request_buffer = srb->sense_buffer;
+> 
+> Now, this is a problem because srb->sense_buffer is defined as follows
+> in the struct scsi_cmnd:
+> 
+> #define SCSI_SENSE_BUFFERSIZE   96
+>         unsigned char sense_buffer[SCSI_SENSE_BUFFERSIZE];
+> 
+> Since it is not allocated at runtime there is NO WAY the SCSI layer
+> can possibly guarantee it is page- or cache-aligned and ready for DMA.
+> 
+> Any suggestions on best fix for this?  Is it still a SCSI-layer issue?
+>  Or should USB step up in this case and ensure this buffer is dma-safe
+> itself?
 
-No, the ARM driver -does- want to pass in "regs" for the SYSRQ case, it's 
-just that "regs" doesn't even exist when SYSRQ is not enabled. Look into 
-drivers/serial/amba-pl010.c as an example.
+Aha!
 
-Yes, it's a bit ugly, but we've had similar cases in other places. And
-it's likely a valid optimization, and the old code worked beautifully by
-just not even caring when "regs" wasn't used due to SYSRQ not being
-enabled.
+I've long thought that usb-storage should allocate its own transfer buffer 
+for sense data.  In the past people have said, "No, don't bother, it's not 
+really needed."  Here's a good reason for doing it.
 
-We've had somewhat similar cases where optimizations depended on macros 
-not even expanding their arguments when they aren't used (ie the arguments 
-might be expensive to expand: function calls or inline asm that the 
-compiler can't remove even if the result isn't used).
+Expect a patch before long.
 
-So it's certainly a valid optimization to know that the arguments aren't
-even evaluated, and thus it's sometimes really wrong to change a macro
-into an inline function.
+Alan Stern
 
-		Linus

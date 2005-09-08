@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751265AbVIHUkT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751380AbVIHUki@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751265AbVIHUkT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 16:40:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751382AbVIHUkS
+	id S1751380AbVIHUki (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 16:40:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751384AbVIHUkf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 16:40:18 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:9108 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1751265AbVIHUkR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 16:40:17 -0400
-Date: Thu, 8 Sep 2005 16:40:16 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Jim Ramsay <jim.ramsay@gmail.com>
-cc: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-       <linux-usb-users@lists.sourceforge.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       <linux-scsi@vger.kernel.org>
-Subject: Re: [Linux-usb-users] Possible bug in usb storage (2.6.11 kernel)
-In-Reply-To: <4789af9e05090813287f05e12a@mail.gmail.com>
-Message-ID: <Pine.LNX.4.44L0.0509081637410.4545-100000@iolanthe.rowland.org>
+	Thu, 8 Sep 2005 16:40:35 -0400
+Received: from web51005.mail.yahoo.com ([206.190.38.136]:42837 "HELO
+	web51005.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S1751380AbVIHUkX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 16:40:23 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=pPZl4xtNtbzYu+hRSpw7v0Td/j8Pu8RVD69WcsTCOzNwsgao451LF6UtBj1MHWJPhwPQ/MuiV+Yc5hdUrrLhuxPkz9vTjysfwXhwlOTHKkN1fZfU48Kcevvdc2KViIY8oudGBTWKG4XuSbZ2UQnzkzay3TWagaYI6GuOr/TSuH0=  ;
+Message-ID: <20050908203957.7463.qmail@web51005.mail.yahoo.com>
+Date: Thu, 8 Sep 2005 13:39:57 -0700 (PDT)
+From: Ahmad Reza Cheraghi <a_r_cheraghi@yahoo.com>
+Subject: Automatic .config generation
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Sep 2005, Jim Ramsay wrote:
+Hi
 
-> More information:
-> 
-> The error only occurrs during device sensing when the
-> srb->request_buffer is assigned as follows, by usb/storage/transport.c
-> in the routine usb_stor_invoke_transport:
-> 
-> old_request_buffer = srb->request_buffer;
-> srb->request_buffer = srb->sense_buffer;
-> 
-> Now, this is a problem because srb->sense_buffer is defined as follows
-> in the struct scsi_cmnd:
-> 
-> #define SCSI_SENSE_BUFFERSIZE   96
->         unsigned char sense_buffer[SCSI_SENSE_BUFFERSIZE];
-> 
-> Since it is not allocated at runtime there is NO WAY the SCSI layer
-> can possibly guarantee it is page- or cache-aligned and ready for DMA.
-> 
-> Any suggestions on best fix for this?  Is it still a SCSI-layer issue?
->  Or should USB step up in this case and ensure this buffer is dma-safe
-> itself?
+I made this Framework to generate a .config based on a
+Target-System. Right-now it works on my Laptop Acer
+TM290. It has to be upgradet to other system as well.
+But it's realy easy just read the readme. I would be
+realy happy if some of you guys give me some comments
+and suggestion about it.
 
-Aha!
+readme:
+http://www.energyparty.de/ahmad/readme
 
-I've long thought that usb-storage should allocate its own transfer buffer 
-for sense data.  In the past people have said, "No, don't bother, it's not 
-really needed."  Here's a good reason for doing it.
+A patch for the Kernel:
+http://www.energyparty.de/ahmad/autoconfig_0_1_patch.tgz
 
-Expect a patch before long.
+sources:
+http://www.energyparty.de/ahmad/autoconfig_0_1.tgz
 
-Alan Stern
 
+Regard
+
+Ahmad Reza Cheraghi
+
+
+	
+		
+______________________________________________________
+Click here to donate to the Hurricane Katrina relief effort.
+http://store.yahoo.com/redcross-donate3/

@@ -1,38 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751257AbVIHECV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932508AbVIHEOG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751257AbVIHECV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 00:02:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751325AbVIHECV
+	id S932508AbVIHEOG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 00:14:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751328AbVIHEOF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 00:02:21 -0400
-Received: from colo.lackof.org ([198.49.126.79]:59606 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S1751257AbVIHECV (ORCPT
+	Thu, 8 Sep 2005 00:14:05 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:15787 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751326AbVIHEOE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 00:02:21 -0400
-Date: Wed, 7 Sep 2005 22:08:20 -0600
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Brian King <brking@us.ibm.com>
-Cc: Grant Grundler <grundler@parisc-linux.org>,
-       Paul Mackerras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>,
-       greg@kroah.com, matthew@wil.cx, benh@kernel.crashing.org, ak@muc.de,
-       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH 1/2] pci: Block config access during BIST (resend)
-Message-ID: <20050908040820.GA14170@colo.lackof.org>
-References: <20050902224314.GB8463@colo.lackof.org> <17176.56354.363726.363290@cargo.ozlabs.ibm.com> <20050903000854.GC8463@colo.lackof.org> <431A33D0.1040807@us.ibm.com> <20050903193958.GB30579@colo.lackof.org> <17182.32625.930500.874251@cargo.ozlabs.ibm.com> <20050907145818.GA25409@colo.lackof.org> <17183.27667.47675.454393@cargo.ozlabs.ibm.com> <20050908012116.GB2065@colo.lackof.org> <431FAA7A.90503@us.ibm.com>
+	Thu, 8 Sep 2005 00:14:04 -0400
+Date: Wed, 7 Sep 2005 21:13:50 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: <martinmaurer@gmx.at>, linux-kernel@vger.kernel.org
+Subject: Re: kernel status, "Elitegroup K7S5A"
+Message-Id: <20050907211350.18c07fa9.zaitcev@redhat.com>
+In-Reply-To: <mailman.1125954121.30702.linux-kernel2news@redhat.com>
+References: <mailman.1125954121.30702.linux-kernel2news@redhat.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.0.0 (GTK+ 2.8.3; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <431FAA7A.90503@us.ibm.com>
-X-Home-Page: http://www.parisc-linux.org/
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 07, 2005 at 10:05:30PM -0500, Brian King wrote:
-> I reverted the patch to use a spinlock and added a comment.
-> How does this look?
+On Mon, 5 Sep 2005 13:55:46 -0700, Andrew Morton <akpm@osdl.org> wrote:
 
-Fine with me. Ball is in akpm/Paul's court.
+> Re: Elitegroup K7S5A + usb_storage problem
+> [linux-usb-devel] Fw: Re: Elitegroup K7S5A + usb_storage problem
 
-grant
+This appears to be stuck. It has to have someone with a lot of patience
+to play with the device.
+
+Martin collected me a good USB trace from Windows, but I was unable
+to figure out what we do differently. The device accepts writes,
+everything looks fine, but if unplugged and plugged back, it returns
+old data. All commands appear basically the same.
+
+The device, BTW, is called "Fun" and "Stick". Has nothing to do with
+memory sticks, of course. Stupid DNT. Anyway, a European Linux hacker
+has to get his hands on one of these before any progress can be made:
+ http://www.dnt.de/index.php?dir=details&pid=53038&cat=mp3-128&m_id=mp3-128&h_curr=
+
+-- Pete

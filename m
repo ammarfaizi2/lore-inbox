@@ -1,119 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964948AbVIHT1K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964950AbVIHTbw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964948AbVIHT1K (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 15:27:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964950AbVIHT1J
+	id S964950AbVIHTbw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 15:31:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964952AbVIHTbw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 15:27:09 -0400
-Received: from mail0.lsil.com ([147.145.40.20]:17048 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S964948AbVIHT1I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 15:27:08 -0400
-Message-ID: <0E3FA95632D6D047BA649F95DAB60E5703662B20@exa-atlanta>
-From: "Ju, Seokmann" <sju@lsil.com>
-To: Jack Byer <ojbyer@usa.net>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: RE: legacy megaraid driver bug in mm-series
-Date: Thu, 8 Sep 2005 15:26:55 -0400 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2658.27)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Thu, 8 Sep 2005 15:31:52 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:8125 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S964950AbVIHTbv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 15:31:51 -0400
+Subject: Re: Brand-new notebook useless with Linux...
+From: Lee Revell <rlrevell@joe-job.com>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: alsa-devel <alsa-devel@alsa-project.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200509081522_MC3-1-A986-1B52@compuserve.com>
+References: <200509081522_MC3-1-A986-1B52@compuserve.com>
+Content-Type: text/plain
+Date: Thu, 08 Sep 2005 15:31:44 -0400
+Message-Id: <1126207905.12697.20.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 2005-09-08 at 15:19 -0400, Chuck Ebbert wrote:
+> In-Reply-To: <1125805091.14032.69.camel@mindpipe>
+> 
+> On Sat, 03 Sep 2005 at 23:38:10 -0400, Lee Revell wrote:
+> 
+> > On Sat, 2005-09-03 at 18:58 -0400, Chuck Ebbert wrote:
+> > > I just bought a new notebook.
+> > 
+> > I'd return it if I were you.
+> 
+>  What fun is that?  I have learned that HP/Compaq is hostile to Linux,
+> for one thing, which was interesting (my system is a Compaq Presario
+> V2312US.)
+> 
+>  Can you help me find out why my codec is unknown?  I gave up trying to
+> figure out how to get the codec ID and hacked the source to print it:
+> 
+> 
+> atiixp: codec 0 not available for modem
+> atiixp: no codec available
+> ALSA device list:
+>   #0 ATI IXP rev 2 with 0x43585430 at 0xd0003400, irq 177
+> 
+> 
+> So it's a Conexant codec with ID 0x30 on an atiixp.  OSS has some support
+> for this codec, apparently.
 
-On Thursday, September 08, 2005 3:01 PM, Ju, Seokmann wrote:
-> I've tried and it works fine.
-> I'm not sure where the problem is related to compilation.
-> Please provide more details.
-My applogize to all for confusion.
+Wait, that sounds like the modem, not the AC97 audio codec.
 
-There is an issue on compiling legacy megaraid driver on 2.6.12-mm1 kernel.
-That is due to undefined symbol "adapter_t *" in the megaraid_reset().
-I'm not sure how and where this change came from, though.
+You might be able to get the modem to work with the (proprietary)
+slmodem software modem, or something.  I wouldn't count on it though.
 
-I'll create patch and submit soon.
+Does your sound work?
 
-Thank you.
+Lee
 
-> -----Original Message-----
-> From: Ju, Seokmann [mailto:sju@lsil.com] 
-> Sent: Thursday, September 08, 2005 3:01 PM
-> To: Jack Byer; linux-kernel@vger.kernel.org
-> Subject: RE: legacy megaraid driver bug in mm-series
-> 
-> Hi,
-> 
-> On Monday, September 05, 2005 9:06 PM, Jack Byer wrote:
-> > 2.6.12-mm1:	will not compile megaraid driver
-> I've tried and it works fine.
-> I'm not sure where the problem is related to compilation.
-> Please provide more details.
-> 
-> Thank you,
-> 
-> Seokmann
-> 
-> > -----Original Message-----
-> > From: Jack Byer [mailto:ojbyer@usa.net] 
-> > Sent: Monday, September 05, 2005 9:06 PM
-> > To: linux-kernel@vger.kernel.org
-> > Subject: legacy megaraid driver bug in mm-series
-> > 
-> > My AMI megaraid card no longer works with recent mm-series 
-> > kernels. The
-> > bug appears on mm- kernels newer than 2.6.12-rc6-mm1; 
-> mainline kernels
-> > are not affected.
-> > 
-> > The driver will load and detect both devices on the card (sda 
-> > and sdb).
-> > It will scan each device and read the partition table successfully,
-> > however the megaraid driver message will include the 
-> following errors:
-> > 
-> > sda: sector size 0 reported, assuming 512.
-> > sda: asking for cache data failed.
-> > sda: assuming drive cache: write through
-> > 
-> > When the kernel tries to mount the root file system, I get 
-> > the following
-> > error:
-> > 
-> > ReiserFS: sda3: warning: sh-2006: read_super_block: bread 
-> failed (dev
-> > sda3, block 2, size 4096)
-> > ReiserFS: sda3: warning: sh-2006: read_super_block: bread 
-> failed (dev
-> > sda3, block 16, size 4096)
-> > VFS: Cannot open root device "sda3" or unknown-block(0,3)
-> > 
-> > Here is a summary of the kernels I have tested for this bug:
-> > 
-> > 2.6.11-mm1:	works
-> > 2.6.11-mm4:	works
-> > 2.6.12-rc5-mm1:	will not compile
-> > 2.6.12-rc6-mm1:	works
-> > 2.6.12-mm1:	will not compile megaraid driver
-> > 2.6.12-mm2:	broken
-> > 2.6.13-mm1:	broken
-> > 
-> > 2.6.12:		works
-> > 2.6.13:		works
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe 
-> > linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 

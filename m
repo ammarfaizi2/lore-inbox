@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965069AbVIHWwc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965052AbVIHWvV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965069AbVIHWwc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 18:52:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965068AbVIHWwc
+	id S965052AbVIHWvV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 18:51:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965061AbVIHWvV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 18:52:32 -0400
-Received: from mail0.lsil.com ([147.145.40.20]:48048 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S965063AbVIHWwb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 18:52:31 -0400
-Message-ID: <91888D455306F94EBD4D168954A9457C03F495CC@nacos172.co.lsil.com>
-From: "Moore, Eric Dean" <Eric.Moore@lsil.com>
-To: mike.miller@hp.com, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Cc: axboe@suse.de, akpm@osdl.org
-Subject: RE: can't boot 2.6.13
-Date: Thu, 8 Sep 2005 16:51:45 -0600 
+	Thu, 8 Sep 2005 18:51:21 -0400
+Received: from simmts5.bellnexxia.net ([206.47.199.163]:50622 "EHLO
+	simmts5-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S965052AbVIHWvU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 18:51:20 -0400
+Message-ID: <33910.10.10.10.10.1126219879.squirrel@linux1>
+In-Reply-To: <43209C79.1070109@tmr.com>
+References: <willy@w.ods.org>
+    <200509051529.j85FTeGi019917@laptop11.inf.utfsm.cl>
+    <43209C79.1070109@tmr.com>
+Date: Thu, 8 Sep 2005 18:51:19 -0400 (EDT)
+Subject: Re: RFC: i386: kill !4KSTACKS
+From: "Sean" <seanlkml@sympatico.ca>
+To: "Bill Davidsen" <davidsen@tmr.com>
+Cc: "Horst von Brand" <vonbrand@inf.utfsm.cl>,
+       "Alex Davis" <alex14641@yahoo.com>, linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.4-2
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2658.27)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, September 08, 2005 3:19 PM, Mike Miller(HP) wrote:
-> I am not able to boot the 2.6.13 version of the kernel. I've 
-> tried different systems, tried downloading again, still 
-> nothing. Here's the last thing I see from the serial port:
-> 
-> md: Autodetecting RAID arrays.
-> md: autorun ...
-> md: ... autorun DONE.
-> RAMDISK: Compressed image found at block 0
-> input: AT Translated Set 2 keyboard on isa0060/serio0
-> VFS: Mounted root (ext2 filesystem).
-> logips2pp: Detected unknown logitech mouse model 1
-> input: PS/2 Logitech Mouse on isa0060/serio1
-> SCSI subsystem initialized
-> Fusion MPT base driver 3.03.02
-> Copyright (c) 1999-2005 LSI Logic Corporation
-> 
+On Thu, September 8, 2005 4:18 pm, Bill Davidsen said:
 
-We introduced split drivers for 2.6.13.  There are new layer drivers
-that sit ontop of mptscsih.ko.  These drivers are split along bus
-protocal, so there is mptspi.ko, mptfc.ko, and mptsas.ko.  This is
-to tie into the scsi transport layers that are split the same.
+> Is "maintain your own operating system" really better in your mind? Does
+> that sound like a viable alternative?
 
-For 1030(a SPI controller)
-If your using RedHat, you need to change mptscish to mptspi in
-/etc/modprobe.conf.
-If your using SuSE, you need to change mptscish to mptspi in
-/etc/sysconfig/kernel
+No, that's a false choice.  You folks just need to convince your
+distribution to apply the patches you "need" or create your own
+distribution.  That does not mean this cruft should be in the mainline
+kernel.
+
+> It's not old hardware that's the problem, it's new hardware which isn't
+> supported. And unlike desktops, there's a lot less in the way of
+> hardware options on a lappie, you take what you get, you get what you
+> can afford, and often that means running on what someone else chooses.
+
+So?
+
+Cheers,
+Sean
+
 

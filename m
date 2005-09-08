@@ -1,38 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964877AbVIHQOa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964895AbVIHQPc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964877AbVIHQOa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 12:14:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964891AbVIHQOa
+	id S964895AbVIHQPc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 12:15:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964891AbVIHQPc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 12:14:30 -0400
-Received: from f27.mail.ru ([194.67.57.195]:59653 "EHLO f27.mail.ru")
-	by vger.kernel.org with ESMTP id S964877AbVIHQO3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 12:14:29 -0400
-From: Serge Goodenko <s_goodenko@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: msghdr problem in tcp_sendmsg
+	Thu, 8 Sep 2005 12:15:32 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:64426 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964895AbVIHQPa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 12:15:30 -0400
+Subject: Re: Ethernet IP multicast maximum packet size
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: jagdmann@gmail.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <5d0f6099050908083510aa9ab4@mail.gmail.com>
+References: <5d0f6099050908083510aa9ab4@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 08 Sep 2005 17:40:25 +0100
+Message-Id: <1126197625.19834.52.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [194.85.70.42]
-Date: Thu, 08 Sep 2005 20:14:23 +0400
-Reply-To: Serge Goodenko <s_goodenko@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E1EDP2d-000Jzx-00.s_goodenko-mail-ru@f27.mail.ru>
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Iau, 2005-09-08 at 17:35 +0200, Dirk Jagdmann wrote:
+> Hello developers,
+> 
+> I googled around all day, but did not find any satisfying answer. Is
+> there a maximum packet size when I use IP multicasting in a local
+> ethernet LAN? Or more precisely, does the multicast code in Linux
+> handle an IP fragmentation/defragmentation of a 63K UDP multicast
+> datagram, which is transmitted over an 1500bytes MTU ethernet? Or
+> should I stay on the safe edge and don't construct datagrams > 1500 so
+> I'll avoid fragmentation?
 
-I trace the kernel networking code (ver 2.4.25).
-I send simple message (say, "hello") using simple client and see how tcp_sendmsg function works.
-And what I see is that there's NO my message (e.g. "hello") in the msghdr structure that tcp_sendmsg receives,
-e.g. in (char*)msg->msg_iov->iov_base, although debugger shows that msg->msg_iov->iov_len = 6, e.g. equals to "hello" message length (+1).
-Can anyone explain where I am wrong or what I do not understand?
+It is considered good practice to keep local multicast within local MTU.
+For remote multicast 576 byte total frames used to be recommended by
+some people but MTU discovery and multicast is a real can of worms. (A
+google for "multicast implosion" should find some useful material on the
+question of discovery and multicast)
 
-I am using the UML kernel and standard gdb debugger.
-
-
-Serge Goodenko,
-MIPT, Russia

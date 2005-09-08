@@ -1,62 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932850AbVIHB3g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932849AbVIHB3X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932850AbVIHB3g (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 21:29:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932851AbVIHB3g
+	id S932849AbVIHB3X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 21:29:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932846AbVIHB3X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 21:29:36 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:39066 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932850AbVIHB3e (ORCPT
+	Wed, 7 Sep 2005 21:29:23 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:27034 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932541AbVIHB3V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 21:29:34 -0400
-Message-Id: <20050908012903.782898000@localhost.localdomain>
+	Wed, 7 Sep 2005 21:29:21 -0400
+Message-Id: <20050908012855.090515000@localhost.localdomain>
 References: <20050908012842.299637000@localhost.localdomain>
-Date: Wed, 07 Sep 2005 18:28:50 -0700
+Date: Wed, 07 Sep 2005 18:28:44 -0700
 From: Chris Wright <chrisw@osdl.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
+To: linux-kernel@vger.kernel.org, stable@kernel.org,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       Andrew Morton <akpm@osdl.org>
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Stephen Hemminger <shemminger@osdl.org>,
-       "David S. Miller" <davem@davemloft.net>, Chris Wright <chrisw@osdl.org>
-Subject: [PATCH 8/9] [IPV4]: Reassembly trim not clearing CHECKSUM_HW
-Content-Disposition: inline; filename=ipv4-fragmentation-csum-handling.patch
+       alan@lxorguk.ukuu.org.uk, linux-scsi <linux-scsi@vger.kernel.org>,
+       Mark Salyzyn <mark_salyzyn@adaptec.com>,
+       Mark Haverkamp <markh@osdl.org>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       Chris Wright <chrisw@osdl.org>
+Subject: [PATCH 2/9] [PATCH] aacraid: 2.6.13 aacraid bad BUG_ON fix
+Content-Disposition: inline; filename=aacraid-bad-BUG_ON-fix.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any  objections, please let us know.
 ------------------
 
-[IPV4]: Reassembly trim not clearing CHECKSUM_HW
+This was noticed by Doug Bazamic and the fix found by Mark Salyzyn at
+Adaptec.
 
-This was found by inspection while looking for checksum problems
-with the skge driver that sets CHECKSUM_HW. It did not fix the
-problem, but it looks like it is needed.
+There was an error in the BUG_ON() statement that validated the
+calculated fib size which can cause the driver to panic.
 
-If IP reassembly is trimming an overlapping fragment, it
-should reset (or adjust) the hardware checksum flag on the skb.
-
-Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
-Signed-off-by: "David S. Miller" <davem@davemloft.net>
+Signed-off-by: Mark Haverkamp <markh@osdl.org>
+Acked-by: James Bottomley <James.Bottomley@SteelEye.com>
 Signed-off-by: Chris Wright <chrisw@osdl.org>
 ---
- net/ipv4/ip_fragment.c |    2 +-
+ drivers/scsi/aacraid/aachba.c |    2 +-
  1 files changed, 1 insertion(+), 1 deletion(-)
 
-Index: linux-2.6.13.y/net/ipv4/ip_fragment.c
+Index: linux-2.6.13.y/drivers/scsi/aacraid/aachba.c
 ===================================================================
---- linux-2.6.13.y.orig/net/ipv4/ip_fragment.c
-+++ linux-2.6.13.y/net/ipv4/ip_fragment.c
-@@ -457,7 +457,7 @@ static void ip_frag_queue(struct ipq *qp
- 
- 	if (pskb_pull(skb, ihl) == NULL)
- 		goto err;
--	if (pskb_trim(skb, end-offset))
-+	if (pskb_trim_rcsum(skb, end-offset))
- 		goto err;
- 
- 	/* Find out which fragments are in front and at the back of us
+--- linux-2.6.13.y.orig/drivers/scsi/aacraid/aachba.c
++++ linux-2.6.13.y/drivers/scsi/aacraid/aachba.c
+@@ -968,7 +968,7 @@ static int aac_read(struct scsi_cmnd * s
+ 		fibsize = sizeof(struct aac_read64) + 
+ 			((le32_to_cpu(readcmd->sg.count) - 1) * 
+ 			 sizeof (struct sgentry64));
+-		BUG_ON (fibsize > (sizeof(struct hw_fib) - 
++		BUG_ON (fibsize > (dev->max_fib_size - 
+ 					sizeof(struct aac_fibhdr)));
+ 		/*
+ 		 *	Now send the Fib to the adapter
 
 --

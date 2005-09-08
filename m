@@ -1,38 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964919AbVIHSKz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964917AbVIHSaA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964919AbVIHSKz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 14:10:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964921AbVIHSKz
+	id S964917AbVIHSaA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 14:30:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964921AbVIHSaA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 14:10:55 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:33497 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964919AbVIHSKy (ORCPT
+	Thu, 8 Sep 2005 14:30:00 -0400
+Received: from atlrel6.hp.com ([156.153.255.205]:30091 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S964917AbVIHS37 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 14:10:54 -0400
-Date: Thu, 8 Sep 2005 11:10:31 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Alexander Nyberg <alexn@telia.com>
-Cc: Ludovic Drolez <ludovic.drolez@linbox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Strange LVM2/DM data corruption with 2.6.11.12
-Message-ID: <20050908181031.GC7991@shell0.pdx.osdl.net>
-References: <43200B5E.90401@linbox.com> <20050908140235.GB2746@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 8 Sep 2005 14:29:59 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] Re: [GIT PATCH] ACPI for 2.6.14
+Date: Thu, 8 Sep 2005 12:29:51 -0600
+User-Agent: KMail/1.8.1
+Cc: Andrew Morton <akpm@osdl.org>, Len Brown <len.brown@intel.com>,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org
+References: <1126163937.21723.12.camel@toshiba> <20050908003420.00e49325.akpm@osdl.org>
+In-Reply-To: <20050908003420.00e49325.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050908140235.GB2746@localhost.localdomain>
-User-Agent: Mutt/1.5.6i
+Message-Id: <200509081229.51208.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Alexander Nyberg (alexn@telia.com) wrote:
-> Please upgrade to 2.6.12.6 (I don't remember exactly in which
-> 2.6.12.x it went in), it contains a bugfix that should fix what
-> you are seeing. 2.6.13 also has this.
+On Thursday 08 September 2005 1:34 am, Andrew Morton wrote:
+> Len Brown <len.brown@intel.com> wrote:
+> >
+> > Hi Linus, please pull from the release branch here:
+> > 
+> >  rsync://rsync.kernel.org/pub/scm/linux/kernel/git/lenb/linux-acpi-2.6.git release
+> 
+> There are a few bugs which I'd identified as arising from the acpi tree
+> while it was in -mm.  Is this patch likely to drag them into mainline?
+> 
+> They include:
+> 
+> 
+> http://bugzilla.kernel.org/show_bug.cgi?id=4977
+>             Summary: ACPI 20050708 fails on HP RX2600 platform
 
-Yep, that was 2.6.12.4, and here's the patch:
-
-http://www.kernel.org/git/?p=linux/kernel/git/chrisw/stable-queue.git;a=blob_plain;h=6267a6b8da4b52eaf0fbddd9091a6e6ff2fe233c
-
-thanks,
--chris
+I tested 2.6.13 + the acpi-20050902 patch, and it works fine, so
+I think this bug can be closed.  I pinged the submitter to do so.

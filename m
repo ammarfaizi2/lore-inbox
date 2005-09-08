@@ -1,62 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751410AbVIHVRu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964993AbVIHVTF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751410AbVIHVRu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 17:17:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbVIHVRu
+	id S964993AbVIHVTF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 17:19:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964998AbVIHVTF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 17:17:50 -0400
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:63421
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S1751407AbVIHVRt (ORCPT
+	Thu, 8 Sep 2005 17:19:05 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:46525 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964993AbVIHVTC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 17:17:49 -0400
-Reply-To: <abonilla@linuxwireless.org>
-From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
-To: "'Bharath Ramesh'" <krosswindz@gmail.com>, "'Pavel Machek'" <pavel@ucw.cz>
-Cc: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: RE: IPW2100 Kconfig
-Date: Thu, 8 Sep 2005 15:17:38 -0600
-Message-ID: <008501c5b4ba$be1a7990$a20cc60a@amer.sykes.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Thu, 8 Sep 2005 17:19:02 -0400
+Subject: Re: [PATCH 1/3 htlb-get_user_pages] Demand faulting for hugetlb
+From: Adam Litke <agl@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: agl@us.ibm.com
+In-Reply-To: <1126214145.28895.13.camel@localhost.localdomain>
+References: <1126214145.28895.13.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: IBM
+Date: Thu, 08 Sep 2005 16:18:55 -0500
+Message-Id: <1126214335.28895.15.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1506
-In-Reply-To: <c775eb9b05090814114f258dc9@mail.gmail.com>
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Initial Post (Thu, 18 Aug 2005)
 
-> AFAIK hotplug looks for firmware in /lib/firmware and not
-> /etc/firmware.
->
-> On 9/8/05, Pavel Machek <pavel@ucw.cz> wrote:
-> > Hi!
-> >
-> > >       I checked the IPW2100 in the current git from
-> linux-2.6 and the menuconfig
-> > > help (Kconfig) says you need to put the firmware in
-> /etc/firmware, it should
-> > > be /lib/firmware.
-> > >
-> > > Who should I send the "patch" to? Or can someone simply
-> change that?
-> >
-> > Are you sure it is not distro-dependend?
-> > --
+In preparation for hugetlb demand faulting, remove this get_user_pages()
+optimization.  Since huge pages will no longer be prefaulted, we can't assume
+that the huge ptes are established and hence, calling follow_hugetlb_page() is
+not valid.
 
-Right, IPW2100 came with Legacy fw load first. Maybe that was dragged from
-long time ago and used incorrectly.
+With the follow_hugetlb_page() call removed, the normal code path will be
+triggered.  follow_page() will either use follow_huge_addr() or
+follow_huge_pmd() to check for a previously faulted "page" to return.  When
+this fails (ie. with demand faults), __handle_mm_fault() gets called which
+invokes the hugetlb_fault() handler to instantiate the huge page.
 
-I'm 100% sure that new versions of hotplug try to look at /lib/firmware and
-was /usr/lib/hotplug/firmware before, but there was some discussion that
-/lib would make more sense cause /usr could be dependant on other stuff.
+This patch doesn't make a lot of sense by itself, but I've broken it out to
+facilitate discussion on this specific element of the demand fault changes.
+While coding this up, I referenced previous discussion on this topic starting
+at http://lkml.org/lkml/2004/4/13/176 , which contains more opinions about the
+correctness of this approach.
 
-Jesper already signed the patch.
+Diffed against 2.6.13-git6
 
-.Alejandro
+Signed-off-by: Adam Litke <agl@us.ibm.com>
+
+---
+ memory.c |    5 -----
+ 1 files changed, 5 deletions(-)
+diff -upN reference/mm/memory.c current/mm/memory.c
+--- reference/mm/memory.c
++++ current/mm/memory.c
+@@ -949,11 +949,6 @@ int get_user_pages(struct task_struct *t
+ 				|| !(flags & vma->vm_flags))
+ 			return i ? : -EFAULT;
+ 
+-		if (is_vm_hugetlb_page(vma)) {
+-			i = follow_hugetlb_page(mm, vma, pages, vmas,
+-						&start, &len, i);
+-			continue;
+-		}
+ 		spin_lock(&mm->page_table_lock);
+ 		do {
+ 			int write_access = write;
+
+-- 
+Adam Litke - (agl at us.ibm.com)
+IBM Linux Technology Center
 

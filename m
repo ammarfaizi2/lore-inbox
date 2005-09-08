@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932509AbVIHNBS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932512AbVIHNFL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932509AbVIHNBS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 09:01:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932510AbVIHNBR
+	id S932512AbVIHNFL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 09:05:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751347AbVIHNFK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 09:01:17 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:2805 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932509AbVIHNBR (ORCPT
+	Thu, 8 Sep 2005 09:05:10 -0400
+Received: from ip18.tpack.net ([213.173.228.18]:24255 "HELO mail.tpack.net")
+	by vger.kernel.org with SMTP id S1751325AbVIHNFJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 09:01:17 -0400
-Date: Thu, 8 Sep 2005 18:44:27 +0530
-From: Dinakar Guniguntala <dino@in.ibm.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: KUROSAWA Takahiro <kurosawa@valinux.co.jp>, linux-kernel@vger.kernel.org,
-       ckrm-tech@lists.sourceforge.net
-Subject: Re: [PATCH 0/5] SUBCPUSETS: a resource control functionality using CPUSETS
-Message-ID: <20050908131427.GA5994@in.ibm.com>
-Reply-To: dino@in.ibm.com
-References: <20050908053912.1352770031@sv1.valinux.co.jp> <20050908002323.181fd7d5.pj@sgi.com>
+	Thu, 8 Sep 2005 09:05:09 -0400
+Subject: Re: [PATCH] 3c59x: read current link status from phy
+From: Tommy Christensen <tommy.christensen@tpack.net>
+To: Bogdan Costescu <Bogdan.Costescu@iwr.uni-heidelberg.de>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Netdev List <netdev@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.63.0509081351160.21354@dingo.iwr.uni-heidelberg.de>
+References: <200509080125.j881PcL9015847@hera.kernel.org>
+	 <431F9899.4060602@pobox.com>
+	 <Pine.LNX.4.63.0509081351160.21354@dingo.iwr.uni-heidelberg.de>
+Content-Type: text/plain
+Message-Id: <1126184700.4805.32.camel@tsc-6.cph.tpack.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050908002323.181fd7d5.pj@sgi.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 08 Sep 2005 15:05:00 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2005-09-08 at 13:58, Bogdan Costescu wrote:
+> Can the original poster give an explanation ? I've enjoyed a rather 
+> well functioning 3c59x driver for the past ~6 years without such 
+> double reading. Plus:
+> - this operation is I/O expensive
+> - it is performed inside a region protected by a spinlock
+> - it is performed often, every 60 seconds
+> 
+> Is there some specific hardware that exhibits a problem that is solved 
+> by this double reading ?
 
-Interesting implementation of resource controls. Cross posting this 
-to ckrm-tech as well. I am sure CKRM folks have something to say...
+Nothing critical. The idea is to avoid an extra delay of 60 seconds
+before detecting link-up.
 
-Any thoughts about how you want to add more resource control features
-on top of/in addition to this setup. (Such as memory etc)
-
-
-On Thu, Sep 08, 2005 at 12:23:23AM -0700, Paul Jackson wrote:
-> I'm guessing you do not want such cpusets (the parents of subcpusets)
-> to overlap, because if they did, it would seem to confuse the meaning
-> of getting a fixed proportion of available cpu and memory resources.  I
-> was a little surprised not to see any additional checks that
-> cpu_exclusive and mem_exclusive must be set true in these cpusets, to
-> insure non- overlapping cpusets.
-
-I agree with Paul here. You would want to build your controllers
-on top of exclusive cpusets to keep things sane.
-
-> On the other hand, Dinakar had more work to do than you might, because
-> he needed a complete covering (so had to round up cpus in non exclusive
-> cpusets to form more covering elements).  From what I can tell, you
-> don't need a complete covering - it seems fine if some cpus are not
-> managed by this resource control function.
+Please see http://bugzilla.kernel.org/show_bug.cgi?id=5025
 
 
-I think it makes more sense to add this functionality directly as part
-of the existing cpusets instead of creating further leaf cpusets (or subcpusets
-as you call it) where we can specify resource control parameters. I think that 
-approach would be much more intuitive and simple to work with rather than 
-what you have currently. 
+-Tommy
 
-	-Dinakar

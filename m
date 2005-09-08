@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965056AbVIHWYp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965036AbVIHW03@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965056AbVIHWYp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 18:24:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965043AbVIHWYT
+	id S965036AbVIHW03 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 18:26:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965053AbVIHW00
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 18:24:19 -0400
-Received: from mail.kroah.org ([69.55.234.183]:43198 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S965055AbVIHWW6 convert rfc822-to-8bit
+	Thu, 8 Sep 2005 18:26:26 -0400
+Received: from mail.kroah.org ([69.55.234.183]:37822 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S965036AbVIHWWz convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 18:22:58 -0400
+	Thu, 8 Sep 2005 18:22:55 -0400
 Cc: johnpol@2ka.mipt.ru
-Subject: [PATCH] w1: Added DS2433 driver.
-In-Reply-To: <11262181623532@kroah.com>
+Subject: [PATCH] w1: Detouching bug fixed.
+In-Reply-To: <11262181602327@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Thu, 8 Sep 2005 15:22:42 -0700
-Message-Id: <11262181621949@kroah.com>
+Date: Thu, 8 Sep 2005 15:22:40 -0700
+Message-Id: <11262181601746@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,273 +24,302 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] w1: Added DS2433 driver.
-
-Work by Ben Gardner <bgardner@wabtec.com>.
+[PATCH] w1: Detouching bug fixed.
 
 Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit 80895392c83e54653540e72e7d40573aac7ee690
-tree 3fb57983caf779f0648baebf18672f232a3c8c58
-parent 7c8f5703de91ade517d4fd6c3cc8e08dbba2b739
+commit 3aca692d3ec7cf89da4575f598e41f74502b22d7
+tree 84740dbcf1ea648b303020f2106e7f9e46f92835
+parent d2a4ef6a0ce4d841293b49bf2cdc17a0ebfaaf9d
 author Evgeniy Polyakov <johnpol@2ka.mipt.ru> Thu, 11 Aug 2005 17:27:50 +0400
-committer Greg Kroah-Hartman <gregkh@suse.de> Thu, 08 Sep 2005 14:41:27 -0700
+committer Greg Kroah-Hartman <gregkh@suse.de> Thu, 08 Sep 2005 14:41:26 -0700
 
- drivers/w1/Kconfig     |    7 ++
- drivers/w1/Makefile    |    1 
- drivers/w1/w1_ds2433.c |  222 ++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 230 insertions(+), 0 deletions(-)
+ drivers/w1/w1.c     |   93 +++++++++++++++++++++++++++------------------------
+ drivers/w1/w1.h     |    3 +-
+ drivers/w1/w1_int.c |    6 +--
+ 3 files changed, 51 insertions(+), 51 deletions(-)
 
-diff --git a/drivers/w1/Kconfig b/drivers/w1/Kconfig
---- a/drivers/w1/Kconfig
-+++ b/drivers/w1/Kconfig
-@@ -54,4 +54,11 @@ config W1_SMEM
- 	  Say Y here if you want to connect 1-wire
- 	  simple 64bit memory rom(ds2401/ds2411/ds1990*) to you wire.
+diff --git a/drivers/w1/w1.c b/drivers/w1/w1.c
+--- a/drivers/w1/w1.c
++++ b/drivers/w1/w1.c
+@@ -45,10 +45,12 @@ MODULE_AUTHOR("Evgeniy Polyakov <johnpol
+ MODULE_DESCRIPTION("Driver for 1-wire Dallas network protocol.");
  
-+config W1_DS2433
-+	tristate "4kb EEPROM family support (DS2433)"
-+	depends on W1
-+	help
-+	  Say Y here if you want to use a 1-wire
-+	  4kb EEPROM family device (DS2433).
-+
- endmenu
-diff --git a/drivers/w1/Makefile b/drivers/w1/Makefile
---- a/drivers/w1/Makefile
-+++ b/drivers/w1/Makefile
-@@ -18,3 +18,4 @@ ds9490r-objs    := dscore.o
+ static int w1_timeout = 10;
++static int w1_control_timeout = 1;
+ int w1_max_slave_count = 10;
+ int w1_max_slave_ttl = 10;
  
- obj-$(CONFIG_W1_DS9490_BRIDGE)	+= ds_w1_bridge.o
+ module_param_named(timeout, w1_timeout, int, 0);
++module_param_named(control_timeout, w1_control_timeout, int, 0);
+ module_param_named(max_slave_count, w1_max_slave_count, int, 0);
+ module_param_named(slave_ttl, w1_max_slave_ttl, int, 0);
  
-+obj-$(CONFIG_W1_DS2433)		+= w1_ds2433.o
-diff --git a/drivers/w1/w1_ds2433.c b/drivers/w1/w1_ds2433.c
-new file mode 100644
---- /dev/null
-+++ b/drivers/w1/w1_ds2433.c
-@@ -0,0 +1,222 @@
-+/*
-+ *	w1_ds2433.c - w1 family 23 (DS2433) driver
-+ *
-+ * Copyright (c) 2005 Ben Gardner <bgardner@wabtec.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the smems of the GNU General Public License as published by
-+ * the Free Software Foundation; version 2 of the License.
-+ */
+@@ -69,37 +71,51 @@ static int w1_master_probe(struct device
+ 	return -ENODEV;
+ }
+ 
+-static int w1_master_remove(struct device *dev)
+-{
+-	return 0;
+-}
+-
+ static void w1_master_release(struct device *dev)
+ {
+ 	struct w1_master *md = dev_to_w1_master(dev);
+-	complete(&md->dev_released);
 +
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/moduleparam.h>
-+#include <linux/device.h>
-+#include <linux/types.h>
-+#include <linux/delay.h>
++	dev_dbg(dev, "%s: Releasing %s.\n", __func__, md->name);
 +
-+#include "w1.h"
-+#include "w1_io.h"
-+#include "w1_int.h"
-+#include "w1_family.h"
++	if (md->nls && md->nls->sk_socket)
++		sock_release(md->nls->sk_socket);
++	memset(md, 0, sizeof(struct w1_master) + sizeof(struct w1_bus_master));
++	kfree(md);
+ }
+ 
+ static void w1_slave_release(struct device *dev)
+ {
+ 	struct w1_slave *sl = dev_to_w1_slave(dev);
+-	complete(&sl->dev_released);
 +
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Ben Gardner <bgardner@wabtec.com>");
-+MODULE_DESCRIPTION("w1 family 23 driver for DS2433, 4kb EEPROM");
++	dev_dbg(dev, "%s: Releasing %s.\n", __func__, sl->name);
 +
-+#define W1_EEPROM_SIZE		512
-+#define W1_PAGE_SIZE		32
-+#define W1_PAGE_BITS		5
-+#define W1_PAGE_MASK		0x1F
++	while (atomic_read(&sl->refcnt)) {
++		dev_dbg(dev, "Waiting for %s to become free: refcnt=%d.\n",
++				sl->name, atomic_read(&sl->refcnt));
++		if (msleep_interruptible(1000))
++			flush_signals(current);
++	}
 +
-+#define W1_F23_READ_EEPROM	0xF0
-+#define W1_F23_WRITE_SCRATCH	0x0F
-+#define W1_F23_READ_SCRATCH	0xAA
-+#define W1_F23_COPY_SCRATCH	0x55
++	w1_family_put(sl->family);
++	sl->master->slave_count--;
 +
-+/**
-+ * Check the file size bounds and adjusts count as needed.
-+ * This may not be needed if the sysfs layer checks bounds.
-+ */
-+static inline size_t w1_f23_fix_count(loff_t off, size_t count, size_t size)
-+{
-+	if (off > size)
-+		return 0;
-+
-+	if ((off + count) > size)
-+		return (size - off);
-+
-+	return count;
-+}
-+
-+static ssize_t w1_f23_read_bin(struct kobject *kobj, char *buf, loff_t off, size_t count)
-+{
++	complete(&sl->released);
+ }
+ 
+ static ssize_t w1_slave_read_name(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+-      struct w1_slave *sl = dev_to_w1_slave(dev);
++	struct w1_slave *sl = dev_to_w1_slave(dev);
+ 
+-      return sprintf(buf, "%s\n", sl->name);
++	return sprintf(buf, "%s\n", sl->name);
+ }
+ 
+ static ssize_t w1_slave_read_id(struct kobject *kobj, char *buf, loff_t off, size_t count)
+ {
+-      struct w1_slave *sl = kobj_to_w1_slave(kobj);
 +	struct w1_slave *sl = kobj_to_w1_slave(kobj);
-+	u8 wrbuf[3];
-+
-+	if ((count = w1_f23_fix_count(off, count, W1_EEPROM_SIZE)) == 0)
-+		return 0;
-+
+ 
+-      atomic_inc(&sl->refcnt);
+-      if (off > 8) {
+-              count = 0;
 +	atomic_inc(&sl->refcnt);
-+	if (down_interruptible(&sl->master->mutex)) {
++	if (off > 8) {
 +		count = 0;
-+		goto out_dec;
-+	}
-+
-+	/* read directly from the EEPROM */
-+	if (w1_reset_select_slave(sl)) {
-+		count = -EIO;
-+		goto out_up;
-+	}
-+
-+	wrbuf[0] = W1_F23_READ_EEPROM;
-+	wrbuf[1] = off & 0xff;
-+	wrbuf[2] = off >> 8;
-+	w1_write_block(sl->master, wrbuf, 3);
-+	w1_read_block(sl->master, buf, count);
-+
-+out_up:
-+	up(&sl->master->mutex);
-+out_dec:
-+	atomic_dec(&sl->refcnt);
-+
-+	return count;
+ 	} else {
+ 		if (off + count > 8)
+ 			count = 8 - off;
+@@ -109,7 +125,7 @@ static ssize_t w1_slave_read_id(struct k
+ 	atomic_dec(&sl->refcnt);
+ 
+ 	return count;
+-  }
 +}
+ 
+ static struct device_attribute w1_slave_attr_name =
+ 	__ATTR(name, S_IRUGO, w1_slave_read_name, NULL);
+@@ -139,7 +155,6 @@ struct device_driver w1_master_driver = 
+ 	.name = "w1_master_driver",
+ 	.bus = &w1_bus_type,
+ 	.probe = w1_master_probe,
+-	.remove = w1_master_remove,
+ };
+ 
+ struct device w1_master_device = {
+@@ -160,6 +175,7 @@ struct device w1_slave_device = {
+ 	.bus = &w1_bus_type,
+ 	.bus_id = "w1 bus slave",
+ 	.driver = &w1_slave_driver,
++	.release = &w1_slave_release
+ };
+ 
+ static ssize_t w1_master_attribute_show_name(struct device *dev, struct device_attribute *attr, char *buf)
+@@ -406,8 +422,7 @@ static int __w1_attach_slave_device(stru
+ 		 (unsigned int) sl->reg_num.family,
+ 		 (unsigned long long) sl->reg_num.id);
+ 
+-	dev_dbg(&sl->dev, "%s: registering %s.\n", __func__,
+-		&sl->dev.bus_id[0]);
++	dev_dbg(&sl->dev, "%s: registering %s as %p.\n", __func__, &sl->dev.bus_id[0]);
+ 
+ 	err = device_register(&sl->dev);
+ 	if (err < 0) {
+@@ -480,7 +495,7 @@ static int w1_attach_slave_device(struct
+ 
+ 	memcpy(&sl->reg_num, rn, sizeof(sl->reg_num));
+ 	atomic_set(&sl->refcnt, 0);
+-	init_completion(&sl->dev_released);
++	init_completion(&sl->released);
+ 
+ 	spin_lock(&w1_flock);
+ 	f = w1_family_registered(rn->family);
+@@ -512,6 +527,8 @@ static int w1_attach_slave_device(struct
+ 	msg.type = W1_SLAVE_ADD;
+ 	w1_netlink_send(dev, &msg);
+ 
++	dev_info(&dev->dev, "Finished %s for sl=%p.\n", __func__, sl);
 +
-+/**
-+ * Writes to the scratchpad and reads it back for verification.
-+ * The master must be locked.
-+ *
-+ * @param sl	The slave structure
-+ * @param addr	Address for the write
-+ * @param len   length must be <= (W1_PAGE_SIZE - (addr & W1_PAGE_MASK))
-+ * @param data	The data to write
-+ * @return	0=Success -1=failure
-+ */
-+static int w1_f23_write(struct w1_slave *sl, int addr, int len, const u8 *data)
-+{
-+	u8 wrbuf[4];
-+	u8 rdbuf[W1_PAGE_SIZE + 3];
-+	u8 es = (addr + len - 1) & 0x1f;
+ 	return 0;
+ }
+ 
+@@ -519,29 +536,23 @@ static void w1_slave_detach(struct w1_sl
+ {
+ 	struct w1_netlink_msg msg;
+ 
+-	dev_info(&sl->dev, "%s: detaching %s.\n", __func__, sl->name);
++	dev_info(&sl->dev, "%s: detaching %s [%p].\n", __func__, sl->name, sl);
+ 
+-	while (atomic_read(&sl->refcnt)) {
+-		printk(KERN_INFO "Waiting for %s to become free: refcnt=%d.\n",
+-				sl->name, atomic_read(&sl->refcnt));
+-
+-		if (msleep_interruptible(1000))
+-			flush_signals(current);
+-	}
++	list_del(&sl->w1_slave_entry);
+ 
+ 	if (sl->family->fops && sl->family->fops->remove_slave)
+ 		sl->family->fops->remove_slave(sl);
+ 
++	memcpy(&msg.id.id, &sl->reg_num, sizeof(msg.id.id));
++	msg.type = W1_SLAVE_REMOVE;
++	w1_netlink_send(sl->master, &msg);
 +
-+	/* Write the data to the scratchpad */
-+	if (w1_reset_select_slave(sl))
-+		return -1;
-+
-+	wrbuf[0] = W1_F23_WRITE_SCRATCH;
-+	wrbuf[1] = addr & 0xff;
-+	wrbuf[2] = addr >> 8;
-+
-+	w1_write_block(sl->master, wrbuf, 3);
-+	w1_write_block(sl->master, data, len);
-+
-+	/* Read the scratchpad and verify */
-+	if (w1_reset_select_slave(sl))
-+		return -1;
-+
-+	w1_write_8(sl->master, W1_F23_READ_SCRATCH);
-+	w1_read_block(sl->master, rdbuf, len + 3);
-+
-+	/* Compare what was read against the data written */
-+	if ((rdbuf[0] != wrbuf[1]) || (rdbuf[1] != wrbuf[2]) ||
-+	    (rdbuf[2] != es) || (memcmp(data, &rdbuf[3], len) != 0))
-+		return -1;
-+
-+	/* Copy the scratchpad to EEPROM */
-+	if (w1_reset_select_slave(sl))
-+		return -1;
-+
-+	wrbuf[0] = W1_F23_COPY_SCRATCH;
-+	wrbuf[3] = es;
-+	w1_write_block(sl->master, wrbuf, 4);
-+
-+	/* Sleep for 5 ms to wait for the write to complete */
-+	msleep(5);
-+
-+	/* Reset the bus to wake up the EEPROM (this may not be needed) */
-+	w1_reset_bus(sl->master);
-+
-+	return 0;
-+}
-+
-+static ssize_t w1_f23_write_bin(struct kobject *kobj, char *buf, loff_t off,
-+				size_t count)
-+{
-+	struct w1_slave *sl = kobj_to_w1_slave(kobj);
-+	int addr, len, idx;
-+
-+	if ((count = w1_f23_fix_count(off, count, W1_EEPROM_SIZE)) == 0)
-+		return 0;
-+
-+	atomic_inc(&sl->refcnt);
-+	if (down_interruptible(&sl->master->mutex)) {
-+		count = 0;
-+		goto out_dec;
-+	}
-+
-+	/* Can only write data to one page at a time */
-+	idx = 0;
-+	while (idx < count) {
-+		addr = off + idx;
-+		len = W1_PAGE_SIZE - (addr & W1_PAGE_MASK);
-+		if (len > (count - idx))
-+			len = count - idx;
-+
-+		if (w1_f23_write(sl, addr, len, &buf[idx]) < 0) {
-+			count = -EIO;
-+			goto out_up;
-+		}
-+		idx += len;
-+	}
-+
-+out_up:
-+	up(&sl->master->mutex);
-+out_dec:
-+	atomic_dec(&sl->refcnt);
-+
-+	return count;
-+}
-+
-+static struct bin_attribute w1_f23_bin_attr = {
-+	.attr = {
-+		.name = "eeprom",
-+		.mode = S_IRUGO | S_IWUSR,
-+		.owner = THIS_MODULE,
-+	},
-+	.size = W1_EEPROM_SIZE,
-+	.read = w1_f23_read_bin,
-+	.write = w1_f23_write_bin,
-+};
-+
-+static int w1_f23_add_slave(struct w1_slave *sl)
-+{
-+	return sysfs_create_bin_file(&sl->dev.kobj, &w1_f23_bin_attr);
-+}
-+
-+static void w1_f23_remove_slave(struct w1_slave *sl)
-+{
-+	sysfs_remove_bin_file(&sl->dev.kobj, &w1_f23_bin_attr);
-+}
-+
-+static struct w1_family_ops w1_f23_fops = {
-+	.add_slave      = w1_f23_add_slave,
-+	.remove_slave   = w1_f23_remove_slave,
-+};
-+
-+static struct w1_family w1_family_23 = {
-+	.fid = W1_EEPROM_DS2433,
-+	.fops = &w1_f23_fops,
-+};
-+
-+static int __init w1_f23_init(void)
-+{
-+	return w1_register_family(&w1_family_23);
-+}
-+
-+static void __exit w1_f23_fini(void)
-+{
-+	w1_unregister_family(&w1_family_23);
-+}
-+
-+module_init(w1_f23_init);
-+module_exit(w1_f23_fini);
+ 	sysfs_remove_bin_file(&sl->dev.kobj, &w1_slave_attr_bin_id);
+ 	device_remove_file(&sl->dev, &w1_slave_attr_name);
+ 	device_unregister(&sl->dev);
+-	w1_family_put(sl->family);
+ 
+-	sl->master->slave_count--;
+-
+-	memcpy(&msg.id.id, &sl->reg_num, sizeof(msg.id.id));
+-	msg.type = W1_SLAVE_REMOVE;
+-	w1_netlink_send(sl->master, &msg);
++	wait_for_completion(&sl->released);
++	kfree(sl);
+ }
+ 
+ static struct w1_master *w1_search_master(unsigned long data)
+@@ -713,7 +724,7 @@ static int w1_control(void *data)
+ 		have_to_wait = 0;
+ 
+ 		try_to_freeze();
+-		msleep_interruptible(w1_timeout * 1000);
++		msleep_interruptible(w1_control_timeout * 1000);
+ 
+ 		if (signal_pending(current))
+ 			flush_signals(current);
+@@ -746,13 +757,12 @@ static int w1_control(void *data)
+ 				list_del(&dev->w1_master_entry);
+ 				spin_unlock_bh(&w1_mlock);
+ 
++				down(&dev->mutex);
+ 				list_for_each_entry_safe(sl, sln, &dev->slist, w1_slave_entry) {
+-					list_del(&sl->w1_slave_entry);
+-
+ 					w1_slave_detach(sl);
+-					kfree(sl);
+ 				}
+ 				w1_destroy_master_attributes(dev);
++				up(&dev->mutex);
+ 				atomic_dec(&dev->refcnt);
+ 				continue;
+ 			}
+@@ -760,19 +770,17 @@ static int w1_control(void *data)
+ 			if (test_bit(W1_MASTER_NEED_RECONNECT, &dev->flags)) {
+ 				dev_info(&dev->dev, "Reconnecting slaves in device %s.\n", dev->name);
+ 				down(&dev->mutex);
+-				list_for_each_entry(sl, &dev->slist, w1_slave_entry) {
++				list_for_each_entry_safe(sl, sln, &dev->slist, w1_slave_entry) {
+ 					if (sl->family->fid == W1_FAMILY_DEFAULT) {
+ 						struct w1_reg_num rn;
+-						list_del(&sl->w1_slave_entry);
+-						w1_slave_detach(sl);
+ 
+ 						memcpy(&rn, &sl->reg_num, sizeof(rn));
+-
+-						kfree(sl);
++						w1_slave_detach(sl);
+ 
+ 						w1_attach_slave_device(dev, &rn);
+ 					}
+ 				}
++				dev_info(&dev->dev, "Reconnecting slaves in device %s has been finished.\n", dev->name);
+ 				clear_bit(W1_MASTER_NEED_RECONNECT, &dev->flags);
+ 				up(&dev->mutex);
+ 			}
+@@ -816,10 +824,7 @@ int w1_process(void *data)
+ 
+ 		list_for_each_entry_safe(sl, sln, &dev->slist, w1_slave_entry) {
+ 			if (!test_bit(W1_SLAVE_ACTIVE, (unsigned long *)&sl->flags) && !--sl->ttl) {
+-				list_del (&sl->w1_slave_entry);
+-
+ 				w1_slave_detach(sl);
+-				kfree(sl);
+ 
+ 				dev->slave_count--;
+ 			} else if (test_bit(W1_SLAVE_ACTIVE, (unsigned long *)&sl->flags))
+diff --git a/drivers/w1/w1.h b/drivers/w1/w1.h
+--- a/drivers/w1/w1.h
++++ b/drivers/w1/w1.h
+@@ -76,7 +76,7 @@ struct w1_slave
+ 	struct w1_master	*master;
+ 	struct w1_family	*family;
+ 	struct device		dev;
+-	struct completion	dev_released;
++	struct completion	released;
+ };
+ 
+ typedef void (* w1_slave_found_callback)(unsigned long, u64);
+@@ -176,7 +176,6 @@ struct w1_master
+ 
+ 	struct device_driver	*driver;
+ 	struct device		dev;
+-	struct completion	dev_released;
+ 	struct completion	dev_exited;
+ 
+ 	struct w1_bus_master	*bus_master;
+diff --git a/drivers/w1/w1_int.c b/drivers/w1/w1_int.c
+--- a/drivers/w1/w1_int.c
++++ b/drivers/w1/w1_int.c
+@@ -76,7 +76,6 @@ static struct w1_master * w1_alloc_dev(u
+ 	INIT_LIST_HEAD(&dev->slist);
+ 	init_MUTEX(&dev->mutex);
+ 
+-	init_completion(&dev->dev_released);
+ 	init_completion(&dev->dev_exited);
+ 
+ 	memcpy(&dev->dev, device, sizeof(struct device));
+@@ -107,9 +106,6 @@ static struct w1_master * w1_alloc_dev(u
+ void w1_free_dev(struct w1_master *dev)
+ {
+ 	device_unregister(&dev->dev);
+-	dev_fini_netlink(dev);
+-	memset(dev, 0, sizeof(struct w1_master) + sizeof(struct w1_bus_master));
+-	kfree(dev);
+ }
+ 
+ int w1_add_master_device(struct w1_bus_master *master)
+@@ -184,7 +180,7 @@ void __w1_remove_master_device(struct w1
+ 			 __func__, dev->kpid);
+ 
+ 	while (atomic_read(&dev->refcnt)) {
+-		printk(KERN_INFO "Waiting for %s to become free: refcnt=%d.\n",
++		dev_dbg(&dev->dev, "Waiting for %s to become free: refcnt=%d.\n",
+ 				dev->name, atomic_read(&dev->refcnt));
+ 
+ 		if (msleep_interruptible(1000))
 

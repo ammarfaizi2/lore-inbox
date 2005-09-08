@@ -1,61 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964848AbVIHKoG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964844AbVIHKrR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964848AbVIHKoG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 06:44:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964844AbVIHKoG
+	id S964844AbVIHKrR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 06:47:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964849AbVIHKrR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 06:44:06 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:42731 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964807AbVIHKoE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 06:44:04 -0400
-Date: Thu, 8 Sep 2005 11:44:00 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [SCSI] qla1280: endianess annotations
-Message-ID: <20050908104400.GA5627@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	SCSI Mailing List <linux-scsi@vger.kernel.org>
-References: <200509080111.j881BbNm032480@hera.kernel.org> <431F9E41.5010701@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <431F9E41.5010701@pobox.com>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 8 Sep 2005 06:47:17 -0400
+Received: from mail.dsa-ac.de ([62.112.80.99]:27652 "EHLO mail.dsa-ac.de")
+	by vger.kernel.org with ESMTP id S964844AbVIHKrQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 06:47:16 -0400
+Date: Thu, 8 Sep 2005 12:47:10 +0200 (CEST)
+From: gl@dsa-ac.de
+To: "Brown, Len" <len.brown@intel.com>
+Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       "Li, Shaohua" <shaohua.li@intel.com>
+Subject: RE: [OOPS] vanilla 2.6.13 + "rmmod processor"
+In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B30048B3F05@hdsmsx401.amr.corp.intel.com>
+Message-ID: <Pine.LNX.4.63.0509081221440.11341@pcgl.dsa-ac.de>
+References: <F7DC2337C7631D4386A2DF6E8FB22B30048B3F05@hdsmsx401.amr.corp.intel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 07, 2005 at 10:13:21PM -0400, Jeff Garzik wrote:
-> Linux Kernel Mailing List wrote:
-> >diff --git a/drivers/scsi/qla1280.c b/drivers/scsi/qla1280.c
-> >--- a/drivers/scsi/qla1280.c
-> >+++ b/drivers/scsi/qla1280.c
-> >@@ -1546,7 +1546,7 @@ qla1280_return_status(struct response * 
-> > 	int host_status = DID_ERROR;
-> > 	uint16_t comp_status = le16_to_cpu(sts->comp_status);
-> > 	uint16_t state_flags = le16_to_cpu(sts->state_flags);
-> >-	uint16_t residual_length = le16_to_cpu(sts->residual_length);
-> >+	uint16_t residual_length = le32_to_cpu(sts->residual_length);
-> > 	uint16_t scsi_status = le16_to_cpu(sts->scsi_status);
-> [...]
-> >+	__le16 status_flags;	/* Status flags. */
-> >+	__le16 time;		/* Time. */
-> >+	__le16 req_sense_length;/* Request sense data length. */
-> >+	__le32 residual_length;	/* Residual transfer length. */
-> >+	__le16 reserved[4];
-> > 	uint8_t req_sense_data[32];	/* Request sense data. */
-> 
-> This isn't merely an endian annotation.
-> 
-> Is this a size fix, from 16 to 32, or a typo?  If its not a typo, 
-> shouldn't the variable be declared 'uint32_t residual_length'?
+On Thu, 8 Sep 2005, Brown, Len wrote:
 
-It's a typo-fix.  The variable is 32bits in hardware.  Declaring it
-in 32bit in software might make sense, but isn't that important.  Feel
-free to send a patch if you care enough.
+>> Just booted a 2.6.13 compiled with UP, ACPI, APIC, LAPIC,
+>> sensor modules
+>> with "nolapic noapic acpi=off".
+>
+> Huh, I don't see I don't see the processor module checking
+> for acpi_disabled anyplace...
+>
+> I assume the oops goes away when you
+> do not boot with "acpi=off"?
 
+Yep. With apic lapic without acpi= thermal (and other ACPI modules) get 
+also loaded successfully by hotplug, so, one has to rmmod thermal 
+processor, then no Oops. Actually, should it (processor) at all load 
+successfully with acpi=off? It is the only module that loads.
+
+>> The processor module was still loaded by
+>> the hotplug. On rmmod it Oopsed:
+>
+> Note other processor rmmod fix here, maybe unrelated:
+> http://bugzilla.kernel.org/show_bug.cgi?id=5021
+
+Are you sure it is this bug? Cannot see how those patches can be related 
+to rmmod path, it said something about races, which doesn't seem to be the 
+case here. I might be wrong, of course.
+
+Thanks
+Guennadi
+---------------------------------
+Guennadi Liakhovetski, Ph.D.
+DSA Daten- und Systemtechnik GmbH
+Pascalstr. 28
+D-52076 Aachen
+Germany

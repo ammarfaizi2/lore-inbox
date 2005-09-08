@@ -1,55 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964939AbVIHTWy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964946AbVIHT0F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964939AbVIHTWy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 15:22:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964944AbVIHTWy
+	id S964946AbVIHT0F (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 15:26:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964950AbVIHT0F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 15:22:54 -0400
-Received: from liaag1ad.mx.compuserve.com ([149.174.40.30]:40067 "EHLO
-	liaag1ad.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S964939AbVIHTWy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 15:22:54 -0400
-Date: Thu, 8 Sep 2005 15:19:32 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: Brand-new notebook useless with Linux...
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: alsa-devel <alsa-devel@alsa-project.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200509081522_MC3-1-A986-1B52@compuserve.com>
+	Thu, 8 Sep 2005 15:26:05 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:62344 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964946AbVIHT0E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 15:26:04 -0400
+Date: Thu, 8 Sep 2005 12:25:59 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Reminder: 2.6.14 merge window closing
+Message-ID: <Pine.LNX.4.58.0509081218570.3039@g5.osdl.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <1125805091.14032.69.camel@mindpipe>
 
-On Sat, 03 Sep 2005 at 23:38:10 -0400, Lee Revell wrote:
+As per the new merge policies that were discussed during LKS in Ottawa 
+earlier during the summer, I'm going to accept new stuff for 2.6.14 only 
+during the first two weeks after 2.6.13 was released.
 
-> On Sat, 2005-09-03 at 18:58 -0400, Chuck Ebbert wrote:
-> > I just bought a new notebook.
-> 
-> I'd return it if I were you.
+That release was ten days ago, so you've got four more days before I don't 
+want any big merges.
 
- What fun is that?  I have learned that HP/Compaq is hostile to Linux,
-for one thing, which was interesting (my system is a Compaq Presario
-V2312US.)
+After that, I'll do a -rc1, and then we're supposed to just do fixes and
+thus only work on any regressions and other immediate issues.
 
- Can you help me find out why my codec is unknown?  I gave up trying to
-figure out how to get the codec ID and hacked the source to print it:
+I've been merging a lot lately (happily, I got some work done during the
+trip last week), so we certainly already have enough for 2.6.14. But I
+just wanted to remind people that if they expected me to merge your work,
+you're getting closer to the cut-off point..
 
+(Of course, if you already sent me a pointer, and I haven't merged it yet, 
+it might be because I missed something during travels, so please do 
+re-send in that case)
 
-atiixp: codec 0 not available for modem
-atiixp: no codec available
-ALSA device list:
-  #0 ATI IXP rev 2 with 0x43585430 at 0xd0003400, irq 177
-
-
-So it's a Conexant codec with ID 0x30 on an atiixp.  OSS has some support
-for this codec, apparently.
-
-
-__
-Chuck
+			Linus

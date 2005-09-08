@@ -1,81 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964975AbVIHUON@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964984AbVIHURD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964975AbVIHUON (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 16:14:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964980AbVIHUON
+	id S964984AbVIHURD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 16:17:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964986AbVIHURD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 16:14:13 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:56963
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S964975AbVIHUON (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 16:14:13 -0400
-Date: Thu, 08 Sep 2005 13:13:58 -0700 (PDT)
-Message-Id: <20050908.131358.93602687.davem@davemloft.net>
-To: torvalds@osdl.org
-Cc: alan@lxorguk.ukuu.org.uk, rmk+lkml@arm.linux.org.uk,
-       linux-kernel@vger.kernel.org, davem@redhat.com, akpm@osdl.org
-Subject: Re: Serial maintainership
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <Pine.LNX.4.58.0509080922230.3208@g5.osdl.org>
-References: <20050908165256.D5661@flint.arm.linux.org.uk>
-	<1126197523.19834.49.camel@localhost.localdomain>
-	<Pine.LNX.4.58.0509080922230.3208@g5.osdl.org>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Thu, 8 Sep 2005 16:17:03 -0400
+Received: from mail.bmts.com ([216.183.128.202]:22707 "EHLO cathy.bmts.com")
+	by vger.kernel.org with ESMTP id S964984AbVIHURB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 16:17:01 -0400
+Date: Thu, 8 Sep 2005 16:16:51 -0400
+From: Mike Houston <mikeserv@bmts.com>
+To: Andreas Baer <lnx1@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Large File Support in Kernel 2.6
+Message-Id: <20050908161651.4347678c.mikeserv@bmts.com>
+In-Reply-To: <432090AE.2030200@gmx.net>
+References: <20050904203725.GB4715@redhat.com>
+	<20050902060830.84977.qmail@web50208.mail.yahoo.com>
+	<200509041549.17512.vda@ilport.com.ua>
+	<200509041144.13145.paul@misner.org>
+	<84144f02050904100721d3844d@mail.gmail.com>
+	<6880bed305090410127f82a59f@mail.gmail.com>
+	<20050904193350.GA3741@stusta.de>
+	<6880bed305090413132c37fed3@mail.gmail.com>
+	<20050904203725.GB4715@redhat.com>
+	<431F1778.5050200@tmr.com>
+	<5.2.1.1.2.20050907194344.00c2bea8@pop.gmx.net>
+	<43208B77.9060009@tmr.com>
+	<432090AE.2030200@gmx.net>
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Linus Torvalds <torvalds@osdl.org>
-Date: Thu, 8 Sep 2005 09:27:56 -0700 (PDT)
+On Thu, 08 Sep 2005 21:27:42 +0200
+Andreas Baer <lnx1@gmx.net> wrote:
 
-> Mistakes happen, and the way you fix them is not to pull a tantrum, but 
-> tell people that they are idiots and they broke something, and get them to 
-> fix it instead.
 
-In all this noise I still haven't seen what is wrong with
-the build warning fix I made.
+> I think it's 2TB for the file size and 2e73 for the file system, but
+> I don't understand the second reference and the part about the
+> CONIFG_LBD. What is exactly the CONFIG_LBD option?
+> -
 
-Even as networking maintainer, other people put changes into the
-networking as build or warning fixes, and I have to live with that.
-If I don't like what happened, I call it out and send in a more
-appropriate fix.  This is never something worth peeing my pants in
-public about.
+This is "Support for Large Block Devices" under Device Drivers/Block
+Devices:
 
-Anyways, let's discuss the concrete problem here.
+CONFIG_LBD:
 
-The previous definition of uart_handle_sysrq_char(), when
-SUPPORT_SYSRQ was disabled, was a plain macro define to "(0)" but this
-makes gcc emit empty statement warnings (and rightly so) in cases such
-as:
+Say Y here if you want to attach large (bigger than 2TB) discs to
+your machine, or if you want to have a raid or loopback device
+bigger than 2TB.  Otherwise say N.
 
-		if (tty == NULL) {
-			uart_handle_sysrq_char(&up->port, ch, regs);
-			continue;
-		}
-
-(that example is from drivers/sun/sunsab.c)
-
-So I changed it so that it was an inline function, borrowing the
-existing code, so that we get the warning erased _and_ we get type
-checking even when SUPPORT_SYSRQ is disabled.  So we end up with:
-
-static inline int
-uart_handle_sysrq_char(struct uart_port *port, unsigned int ch,
-		       struct pt_regs *regs)
-{
-#ifdef SUPPORT_SYSRQ
-	if (port->sysrq) {
-		if (ch && time_before(jiffies, port->sysrq)) {
-			handle_sysrq(ch, regs, NULL);
-			port->sysrq = 0;
-			return 1;
-		}
-		port->sysrq = 0;
-	}
-#endif
-	return 0;
-}
-
-which is what is there now.  I can't see what's so wrong with that.
+The "2e73" refers to 2 to the exponent 73 bytes in size. Huge :-)

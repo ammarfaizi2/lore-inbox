@@ -1,87 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751227AbVIHJ7H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964772AbVIHKBE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751227AbVIHJ7H (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 05:59:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751274AbVIHJ7H
+	id S964772AbVIHKBE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 06:01:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964782AbVIHKBE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 05:59:07 -0400
-Received: from fbxmetz.linbox.com ([81.56.128.63]:63164 "EHLO xiii.metz")
-	by vger.kernel.org with ESMTP id S1751227AbVIHJ7G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 05:59:06 -0400
-Message-ID: <43200B5E.90401@linbox.com>
-Date: Thu, 08 Sep 2005 11:58:54 +0200
-From: Ludovic Drolez <ludovic.drolez@linbox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en, fr
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Strange LVM2/DM data corruption with 2.6.11.12
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 8 Sep 2005 06:01:04 -0400
+Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:41395 "EHLO
+	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S964772AbVIHKBC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 06:01:02 -0400
+X-ORBL: [67.117.73.34]
+Date: Thu, 8 Sep 2005 13:00:36 +0300
+From: Tony Lindgren <tony@atomide.com>
+To: Nishanth Aravamudan <nacc@us.ibm.com>
+Cc: Srivatsa Vaddagiri <vatsa@in.ibm.com>, Con Kolivas <kernel@kolivas.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, ck list <ck@vds.kolivas.org>
+Subject: Re: [PATCH 1/3] dynticks - implement no idle hz for x86
+Message-ID: <20050908100035.GD25847@atomide.com>
+References: <20050831165843.GA4974@in.ibm.com> <200509031801.09069.kernel@kolivas.org> <20050903090650.B26998@flint.arm.linux.org.uk> <200509031814.49666.kernel@kolivas.org> <20050904201054.GA4495@us.ibm.com> <20050905070053.GA7329@in.ibm.com> <20050905072704.GB5734@atomide.com> <20050905170202.GJ25856@us.ibm.com> <20050907073743.GB5804@atomide.com> <20050907150517.GC4590@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050907150517.GC4590@us.ibm.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+* Nishanth Aravamudan <nacc@us.ibm.com> [050907 18:07]:
+> On 07.09.2005 [10:37:43 +0300], Tony Lindgren wrote:
+> > * Nishanth Aravamudan <nacc@us.ibm.com> [050905 20:02]:
+> > > On 05.09.2005 [10:27:05 +0300], Tony Lindgren wrote:
+> > > > * Srivatsa Vaddagiri <vatsa@in.ibm.com> [050905 10:03]:
+> > > > > On Sun, Sep 04, 2005 at 01:10:54PM -0700, Nishanth Aravamudan wrote:
+> > > > > > 
+> > > > > > Also, I am a bit confused by the use of "dynamic-tick" to describe these
+> > > > > > changes. To me, these are all NO_IDLE_HZ implementations, as they are
+> > > > > > only invoked from cpu_idle() (or their equivalent) routines. I know this
+> > > > > > is true of s390 and the x86 code, and I believe it is true of the ARM
+> > > > > > code? If it were dynamic-tick, I would think we would be adjusting the
+> > > > > > timer interrupt frequency continuously (e.g., at the end of
+> > > > > > __run_timers() and at every call to {add,mod,del}_timer()). I was
+> > > > > > working on a patch which did some renaming to no_idle_hz_timer, etc.,
+> > > > > > but it's mostly code churn :)
+> > > > > 
+> > > > > Yes, the name 'dynamic-tick' is misleading!
+> > > > 
+> > > > Huh? For most people dynamic-tick is much more descriptive name than
+> > > > NO_IDLE_HZ or VST!
+> > > 
+> > > I understand this. My point is that the structures are *not*
+> > > dynamic-tick specific. They are interrupt source specific, generally
+> > > (also known as hardware timers) -- dynamic tick or NO_IDLE_HZ are the
+> > > users of the interrupt source reprogramming functions, but not the
+> > > reprogrammers themselves, in my mind. Also, it still would be confusing
+> > > to use dynamic-tick, when the .config option is NO_IDLE_HZ! :)
+> > 
+> > I see what you mean, it's a confusing naming issue currently :) Would
+> > the following solution work for you:
+> > 
+> > - Dynamic tick is the structure you register with, and then you use it
+> >   for any kind of non-continuous timer tinkering 
+> > 
+> > - This structure has at least two possible users, NO_IDLE_HZ and
+> >   sub-jiffie timers
+> > 
+> > So we could have following config options:
+> > 
+> > CONFIG_DYNTICK
+> > CONFIG_NO_IDLE_HZ	depends on dyntick
+> > CONFIG_SUBJIFFIE_TIMER	depends on dyntick
+> 
+> Hrm, yes, first you are right with the dependency ordering. I take it
+> CONFIG_DYNTICK is simply there as NO_IDLE_HZ and SUBJIFFIE_TIMER are
+> independent users of the same underlying infrastructure.
 
-We are developing (GPLed) disk cloning software similar to partimage: it's an 
-intelligent 'dd' which backups only used sectors.
+Cool, I'm glad we got the dependencies figured out now rather than later :)
+ 
+> > > > If you wanted, you could reprogram the next timer to happen from
+> > > > {add,mod,del}_timer() just by calling the timer_dyn_reprogram() there.
+> > > 
+> > > I messed with this with my soft-timer rework (which has since has fallen
+> > > by the wayside). It is a bit of overhead, especially del_timer(), but
+> > > it's possible. This is what I would consider "dynamic-tick." And I would
+> > > setup a *different* .config option to enable it. Perhaps depending on
+> > > CONFIG_NO_IDLE_HZ.
+> > 
+> > Yes, I agree it should be a different .config option. Maybe the example
+> > above would work for that?
+> 
+> Yes, I'm thinking it might.
+> 
+> > > > And you would want to do that if you wanted sub-jiffie timer
+> > > > interrupts.
+> > > 
+> > > Yes, true, it does enable that. Well, to be honest, it completely
+> > > redefines (in some sense) the jiffy, as it is potentially continuously
+> > > changing, not just at idle times.
+> > 
+> > Yeah. But should still work as we already accept interrupts at any point
+> > inbetween jiffies to update time, and update the system time from a
+> > second continuously running timer :)
+> 
+> The problem with subjiffie timers is that the precision of soft-timers
+> is jiffies currently. It requires some serious effort to modify the
+> soft-timer subsystem to be aware of the extra bits it needs,
+> efficiently -- take a look at what HRT has had to do.
 
-Recently I added LVM1/2 support to it, and sometimes we saw LVM restorations 
-failing randomly (Disk images are not corrupted, but the result of the 
-restoration can be lead to a corrupted filesystem). If a restoration fails, just 
-try another one and it will work...
+Yes, we should coordinate that with HRT. BTW, we can reduce the overhead
+of del_timer() by _not_ calling next_timer_interrupt(), and programming
+the next timer interrupt to happen where next jiffie would be. Then once
+we get to the idle, we call next_timer_interrupt()...
+ 
+> > > > So I'd rather not limit the name to the currently implemented
+> > > > functionality only :)
+> > > 
+> > > I'm not trying to limit the name, but make sure we are tying the
+> > > strcutures and functions to the right abstraction (interrupt source, in
+> > > my opinion).
+> > 
+> > But other devices are interrupt sources too... And really the only use
+> > for this stuct is non-continuous timer stuff, right?
+> 
+> Would "tick_source" be better? I guess you are right, that there is only
+> this one consumer... Although if that is the case, then maybe a separate
+> .h/.c file is the right way to go, to isolate the code, reduce
+> #ifdeffery in timer.h/.c.
 
-How the restoration program works:
-- I restore the LVM2 administrative data (384 sectors, most of the time),
-- I 'vgscan', 'vgchange',
-- open for writing the '/dev/dm-xxxx',
-- read a compressed file over NFS,
-- and put the sectors in place, so it's a succession of '_llseek()' and 
-'write()' to the DM device.
+Hmmm, seems like dyntick.[ch] is still the best name for it...
 
-But, *sometimes*, for example, the current seek position is at 9GB, and some 
-data is written to sector 0 ! It happens randomly.
-
-Here is a typical strace of a restoration:
-
-write(5, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 512) = 512
-write(5, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 512) = 512
-_llseek(5, 20963328, [37604032512], SEEK_CUR) = 0
-_llseek(5, 0, [37604032512], SEEK_CUR)  = 0
-_llseek(5, 2097152, [37606129664], SEEK_CUR) = 0
-write(5, "\1\335E\0\f\0\1\2.\0\0\0\2\0\0\0\364\17\2\2..\0\0\0\0\0"..., 512) = 51
-2
-write(5, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 512) = 512
-write(5, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 512) = 512
-write(5, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 512) = 512
-write(5, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 512) = 512
-write(5, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 512) = 512
-write(5, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 512) = 512
-write(5, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 512) = 512
-_llseek(5, 88076288, [37694210048], SEEK_CUR) = 0
-_llseek(5, 0, [37694210048], SEEK_CUR)  = 0
-_llseek(5, 20971520, [37715181568], SEEK_CUR) = 0
-write(5, "\377\377\377\377\377\377\377\377\377\377\377\377\377\377"..., 512) = 5
-12
-....
-....
-
-As you can see, there are no seeks to sector 0, but something randomly write 
-some data to sector 0 !
-I could reproduce these random problems on different kind of PCs.
-
-But, the strace above comes from an improved version, which aggregates 
-'_llseek's. A previous version, which did *many* 512 bytes seeks had much more 
-problems. Aggregating seeks made the corruption to appears very rarely... And I 
-more likely to happen, for a 40GB restoration than for a 10GB one.
-
-So less system calls to the DM/LVM2 layer seems to give less corruption probability.
-
-
-Any ideas ? Newer kernel releases could have fixed such a problem ?
-
-
--- 
-Ludovic DROLEZ                              Linbox / Free&ALter Soft
-http://lrs.linbox.org - Linbox Rescue Server GPL edition
+Tony

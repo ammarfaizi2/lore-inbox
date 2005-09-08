@@ -1,66 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932473AbVIHMHy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932425AbVIHMKe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932473AbVIHMHy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 08:07:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932481AbVIHMHx
+	id S932425AbVIHMKe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 08:10:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932481AbVIHMKe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 08:07:53 -0400
-Received: from mail1.bizmail.net.au ([202.162.77.164]:25538 "EHLO
-	mail1.bizmail.net.au") by vger.kernel.org with ESMTP
-	id S932473AbVIHMHx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 08:07:53 -0400
-Message-ID: <4320297F.2010602@bizmail.com.au>
-Date: Thu, 08 Sep 2005 22:07:27 +1000
-From: YH <yh@bizmail.com.au>
-Reply-To: yh@bizmail.com.au
-Organization: yh@bizmail.com.au, yhus@suers.sf.net, yudeh@rtunet.com
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: system IPC
-References: <431ED4C1.6020406@bizmail.com.au> <Pine.LNX.4.61.0509070805430.7221@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0509070805430.7221@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 8 Sep 2005 08:10:34 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:65290 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932425AbVIHMKd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 08:10:33 -0400
+Date: Thu, 8 Sep 2005 13:10:28 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Richard Purdie <rpurdie@rpsys.net>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [-mm patch 3/5] SharpSL: Abstract c7x0 specifics from Corgi Touchscreen driver
+Message-ID: <20050908131028.B31595@flint.arm.linux.org.uk>
+Mail-Followup-To: Richard Purdie <rpurdie@rpsys.net>,
+	Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+References: <1126007630.8338.128.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1126007630.8338.128.camel@localhost.localdomain>; from rpurdie@rpsys.net on Tue, Sep 06, 2005 at 12:53:50PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Are there any messaging mechanism (not signal) designed in kernel for 
-drivers to communicate user mode asynchronously? If not, any reason why 
-not using messaging in kernel as it is an effective and simple mechanism 
-for embedded and real time system?
+On Tue, Sep 06, 2005 at 12:53:50PM +0100, Richard Purdie wrote:
+> Separate out the Sharp Zaurus c7x0 series specific code from the Corgi
+> Touchscreen driver. Use the new functions in corgi_lcd.c via sharpsl.h
+> for hsync handling and pass the IRQ as a platform device resource. Move
+> a function prototype into the w100fb header file where it belongs.
 
-Thank you.
+This patch looks a little confused.
 
-Cheers.
+> +	corgi_ts->irq_gpio = platform_get_irq(pdev, 0);
 
-Jim
+So irq_gpio is an IRQ number.
 
-linux-os (Dick Johnson) wrote:
-> On Wed, 7 Sep 2005, YH wrote:
-> 
-> 
->>It seems that the kernel disallows drivers to use system IPC.
->>Asynchronous communication mechanism is very effective mechanism among
->>various embedded OSes, even popular in RTOSes. Any reason why cannot use
->>sys_msgsnd and sys_msgrcv for kernel drivers?
->>
-> 
-> 
-> Because they were not designed for use inside the kernel.
-> 
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.6.13 on an i686 machine (5589.54 BogoMips).
-> Warning : 98.36% of all statistics are fiction.
-> .
-> I apologize for the following. I tried to kill it with the above dot :
-> 
-> ****************************************************************
-> The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-> 
-> Thank you.
-> 
+> @@ -313,14 +324,14 @@
+>  	input_register_device(&corgi_ts->input);
+>  	corgi_ts->power_mode = PWR_MODE_ACTIVE;
+>  
+> -	if (request_irq(CORGI_IRQ_GPIO_TP_INT, ts_interrupt, SA_INTERRUPT, "ts", corgi_ts)) {
+> +	if (request_irq(IRQ_GPIO(corgi_ts->irq_gpio), ts_interrupt, SA_INTERRUPT, "ts", corgi_ts)) {
 
+Or is it.  It _should_ be an IRQ number.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

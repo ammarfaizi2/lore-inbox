@@ -1,67 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932500AbVIHByK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932560AbVIHCJM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932500AbVIHByK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 21:54:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932508AbVIHByK
+	id S932560AbVIHCJM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 22:09:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932561AbVIHCJM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 21:54:10 -0400
-Received: from zproxy.gmail.com ([64.233.162.193]:40027 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932500AbVIHByJ convert rfc822-to-8bit
+	Wed, 7 Sep 2005 22:09:12 -0400
+Received: from nproxy.gmail.com ([64.233.182.199]:56205 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932560AbVIHCJL convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 21:54:09 -0400
+	Wed, 7 Sep 2005 22:09:11 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=UTxK4s1QDZ5ngYIxvv+M8CWEZAD3acd+myO9ehPgX5PcSzeA01NWRIxLTvoVlwB1gHnWxuet2ENdSqRLF9MYi98WS1ov+luLjMoWNGOLu5Ocvl7ZiXJ6HdnWIRtQ/Sa9loWwQ+XDnZfSMOiSFPOfB2PPV5x3FXc8mv+VsjEsf0E=
-Message-ID: <aec7e5c305090718543e2ff047@mail.gmail.com>
-Date: Thu, 8 Sep 2005 10:54:08 +0900
-From: Magnus Damm <magnus.damm@gmail.com>
-Reply-To: magnus.damm@gmail.com
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] i386: single node SPARSEMEM fix
-Cc: "Martin J. Bligh" <mbligh@mbligh.org>, haveblue@us.ibm.com,
-       magnus@valinux.co.jp, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       andyw@uk.ibm.com
-In-Reply-To: <20050907164945.14aba736.akpm@osdl.org>
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=alMpkYADWks4UY+gXu+PVS3svBkBEW+4MrOKgwiGDjfsHRYMKP57rxTh4zPED6btrswtPiIlhh2GO8OaoODvrGFnEYuPdi4c/l8675iUse4sTUSq51Ws4G+TDcJX1JiLUPby+WvtRi6WTmbfnmjfZjYQ+HEUKQMYu7lrNfPDBjA=
+Message-ID: <2cd57c900509071909787f43f2@mail.gmail.com>
+Date: Thu, 8 Sep 2005 10:09:05 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+To: Richard Hayden <rahaydenuk@yahoo.co.uk>
+Subject: Re: A couple of OOM killer races
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <43176820.5060609@yahoo.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <20050906035531.31603.46449.sendpatchset@cherry.local>
-	 <1126114116.7329.16.camel@localhost> <512850000.1126117362@flay>
-	 <1126117674.7329.27.camel@localhost> <521510000.1126118091@flay>
-	 <20050907164945.14aba736.akpm@osdl.org>
+References: <43176820.5060609@yahoo.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/8/05, Andrew Morton <akpm@osdl.org> wrote:
-> "Martin J. Bligh" <mbligh@mbligh.org> wrote:
-> >
-> >
-> >
-> > --On Wednesday, September 07, 2005 11:27:54 -0700 Dave Hansen <haveblue@us.ibm.com> wrote:
-> >
-> > > On Wed, 2005-09-07 at 11:22 -0700, Martin J. Bligh wrote:
-> > >> CONFIG_NUMA was meant to (and did at one point) support both NUMA and flat
-> > >> machines. This is essential in order for the distros to support it - same
-> > >> will go for sparsemem.
-> > >
-> > > That's a different issue.  The current code works if you boot a NUMA=y
-> > > SPARSEMEM=y machine with a single node.  The current Kconfig options
-> > > also enforce that SPARSEMEM depends on NUMA on i386.
-> > >
-> > > Magnus would like to enable SPARSEMEM=y while CONFIG_NUMA=n.  That
-> > > requires some Kconfig changes, as well as an extra memory present call.
-> > > I'm questioning why we need to do that when we could never do
-> > > DISCONTIG=y while NUMA=n on i386.
-> >
-> > Ah, OK - makes more sense. However, some machines do have large holes
-> > in e820 map setups - is not really critical, more of an efficiency
-> > thing.
+On 9/2/05, Richard Hayden <rahaydenuk@yahoo.co.uk> wrote:
+> Hi all,
 > 
-> Confused.   Does all this mean that we want the patch, or not?
+> It appears there is no protection in badness() (called by
+> out_of_memory() for each process) when it reads p->mm->total_vm. Another
+> processor (or a kernel preemption) could presumably run do_exit and then
+> exit_mm, freeing the process in question's reference to its mm just
+> after the (!p->mm) check but before it reads p->mm->total_vm, making the
+> latter reference a null pointer reference.
 
-What about if I remove the Kconfig stuff and just keep the "fix" for
-the non-NUMA version of setup_memory()?
+We have read_lock(&tasklist_lock); .
 
-/ magnus
+> 
+> Also there appears to be no protection when we set p->time_slice in
+> __oom_kill_task(). Am I right in thinking that this field should be
+> protected by the appropriate runqueue lock, at least this is what
+> scheduler_tick() seems to use?
+
+ditto
+
+-- 
+Coywolf Qi Hunt
+http://sosdg.org/~coywolf/

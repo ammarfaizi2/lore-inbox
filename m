@@ -1,50 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964853AbVIHP4g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964864AbVIHQCU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964853AbVIHP4g (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 11:56:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964858AbVIHP4g
+	id S964864AbVIHQCU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 12:02:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964874AbVIHQCU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 11:56:36 -0400
-Received: from fed1rmmtao12.cox.net ([68.230.241.27]:14031 "EHLO
-	fed1rmmtao12.cox.net") by vger.kernel.org with ESMTP
-	id S964853AbVIHP4f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 11:56:35 -0400
-Date: Thu, 8 Sep 2005 08:56:34 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       Hiroshi DOYU <hdoyu@mvista.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       IDE Mailing List <linux-ide@vger.kernel.org>
-Subject: Re: [PATCH 2.6.13] ide: ide-dma.c should always check hwif->cds before hwif->cds->foo
-Message-ID: <20050908155634.GO3966@smtp.west.cox.net>
-References: <20050908151529.GL3966@smtp.west.cox.net> <58cb370e05090808472f5e12e4@mail.gmail.com>
+	Thu, 8 Sep 2005 12:02:20 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:43115
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S964864AbVIHQCU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 12:02:20 -0400
+Message-Id: <43207CEA020000780002451A@emea1-mh.id2.novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0 
+Date: Thu, 08 Sep 2005 18:03:22 +0200
+From: "Jan Beulich" <JBeulich@novell.com>
+To: "Andreas Kleen" <ak@suse.de>
+Cc: <linux-kernel@vger.kernel.org>, <discuss@x86-64.org>
+Subject: [PATCH] x86-64 cmpxchg adjustment
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <58cb370e05090808472f5e12e4@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
+Content-Type: multipart/mixed; boundary="=__PartB193DFDA.1__="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 08, 2005 at 05:47:38PM +0200, Bartlomiej Zolnierkiewicz wrote:
+This is a MIME message. If you are reading this text, you may want to 
+consider changing to a mail reader or gateway that understands how to 
+properly handle MIME multipart messages.
 
-> On 9/8/05, Tom Rini <trini@kernel.crashing.org> wrote:
-> > In some cases (such as the mips Toshiba TX4939 w/ onboard IDE, not PCI
-> > IDE), hwif->cds can be NULL, so test that prior to testing
-> > hwif->cds->foo
-> 
-> Both ide_iomio_dma() and ide_mapped_mmio_dma() are only called from
-> ide_dma_iobase().  ide_setup_dma() is the only user of ide_dma_iobase()
-> and it is supposed to be used only by IDE PCI drivers.
-> 
-> What is the reason for this change?
+--=__PartB193DFDA.1__=
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-I'll try and explain for Hiroshi DOYU, but the IDE driver for the tx4939
-(overall port still need a little bit more review before being sent to
-linux-mips, so the ide driver hasn't been submitted yet either) calls
-ide_setup_dma(), and has hwif->cds == NULL.
+(Note: Patch also attached because the inline version is certain to get
+line wrapped.)
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+While only cosmetic for x86-64, this adjusts the cmpxchg code
+appearantly
+inherited from i386 to use more generic constraints.
+
+Signed-off-by: Jan Beulich <jbeulich@novell.com>
+
+diff -Npru 2.6.13/include/asm-x86_64/system.h
+2.6.13-x86_64-cmpxchg/include/asm-x86_64/system.h
+--- 2.6.13/include/asm-x86_64/system.h	2005-08-29 01:41:01.000000000
++0200
++++ 2.6.13-x86_64-cmpxchg/include/asm-x86_64/system.h	2005-09-01
+11:32:12.000000000 +0200
+@@ -247,25 +247,25 @@ static inline unsigned long __cmpxchg(vo
+ 	case 1:
+ 		__asm__ __volatile__(LOCK_PREFIX "cmpxchgb %b1,%2"
+ 				     : "=a"(prev)
+-				     : "q"(new), "m"(*__xg(ptr)),
+"0"(old)
++				     : "r"(new), "m"(*__xg(ptr)),
+"0"(old)
+ 				     : "memory");
+ 		return prev;
+ 	case 2:
+ 		__asm__ __volatile__(LOCK_PREFIX "cmpxchgw %w1,%2"
+ 				     : "=a"(prev)
+-				     : "q"(new), "m"(*__xg(ptr)),
+"0"(old)
++				     : "r"(new), "m"(*__xg(ptr)),
+"0"(old)
+ 				     : "memory");
+ 		return prev;
+ 	case 4:
+ 		__asm__ __volatile__(LOCK_PREFIX "cmpxchgl %k1,%2"
+ 				     : "=a"(prev)
+-				     : "q"(new), "m"(*__xg(ptr)),
+"0"(old)
++				     : "r"(new), "m"(*__xg(ptr)),
+"0"(old)
+ 				     : "memory");
+ 		return prev;
+ 	case 8:
+ 		__asm__ __volatile__(LOCK_PREFIX "cmpxchgq %1,%2"
+ 				     : "=a"(prev)
+-				     : "q"(new), "m"(*__xg(ptr)),
+"0"(old)
++				     : "r"(new), "m"(*__xg(ptr)),
+"0"(old)
+ 				     : "memory");
+ 		return prev;
+ 	}
+
+
+--=__PartB193DFDA.1__=
+Content-Type: application/octet-stream; name="linux-2.6.13-x86_64-cmpxchg.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="linux-2.6.13-x86_64-cmpxchg.patch"
+
+KE5vdGU6IFBhdGNoIGFsc28gYXR0YWNoZWQgYmVjYXVzZSB0aGUgaW5saW5lIHZlcnNpb24gaXMg
+Y2VydGFpbiB0byBnZXQKbGluZSB3cmFwcGVkLikKCldoaWxlIG9ubHkgY29zbWV0aWMgZm9yIHg4
+Ni02NCwgdGhpcyBhZGp1c3RzIHRoZSBjbXB4Y2hnIGNvZGUgYXBwZWFyYW50bHkKaW5oZXJpdGVk
+IGZyb20gaTM4NiB0byB1c2UgbW9yZSBnZW5lcmljIGNvbnN0cmFpbnRzLgoKU2lnbmVkLW9mZi1i
+eTogSmFuIEJldWxpY2ggPGpiZXVsaWNoQG5vdmVsbC5jb20+CgpkaWZmIC1OcHJ1IDIuNi4xMy9p
+bmNsdWRlL2FzbS14ODZfNjQvc3lzdGVtLmggMi42LjEzLXg4Nl82NC1jbXB4Y2hnL2luY2x1ZGUv
+YXNtLXg4Nl82NC9zeXN0ZW0uaAotLS0gMi42LjEzL2luY2x1ZGUvYXNtLXg4Nl82NC9zeXN0ZW0u
+aAkyMDA1LTA4LTI5IDAxOjQxOjAxLjAwMDAwMDAwMCArMDIwMAorKysgMi42LjEzLXg4Nl82NC1j
+bXB4Y2hnL2luY2x1ZGUvYXNtLXg4Nl82NC9zeXN0ZW0uaAkyMDA1LTA5LTAxIDExOjMyOjEyLjAw
+MDAwMDAwMCArMDIwMApAQCAtMjQ3LDI1ICsyNDcsMjUgQEAgc3RhdGljIGlubGluZSB1bnNpZ25l
+ZCBsb25nIF9fY21weGNoZyh2bwogCWNhc2UgMToKIAkJX19hc21fXyBfX3ZvbGF0aWxlX18oTE9D
+S19QUkVGSVggImNtcHhjaGdiICViMSwlMiIKIAkJCQkgICAgIDogIj1hIihwcmV2KQotCQkJCSAg
+ICAgOiAicSIobmV3KSwgIm0iKCpfX3hnKHB0cikpLCAiMCIob2xkKQorCQkJCSAgICAgOiAiciIo
+bmV3KSwgIm0iKCpfX3hnKHB0cikpLCAiMCIob2xkKQogCQkJCSAgICAgOiAibWVtb3J5Iik7CiAJ
+CXJldHVybiBwcmV2OwogCWNhc2UgMjoKIAkJX19hc21fXyBfX3ZvbGF0aWxlX18oTE9DS19QUkVG
+SVggImNtcHhjaGd3ICV3MSwlMiIKIAkJCQkgICAgIDogIj1hIihwcmV2KQotCQkJCSAgICAgOiAi
+cSIobmV3KSwgIm0iKCpfX3hnKHB0cikpLCAiMCIob2xkKQorCQkJCSAgICAgOiAiciIobmV3KSwg
+Im0iKCpfX3hnKHB0cikpLCAiMCIob2xkKQogCQkJCSAgICAgOiAibWVtb3J5Iik7CiAJCXJldHVy
+biBwcmV2OwogCWNhc2UgNDoKIAkJX19hc21fXyBfX3ZvbGF0aWxlX18oTE9DS19QUkVGSVggImNt
+cHhjaGdsICVrMSwlMiIKIAkJCQkgICAgIDogIj1hIihwcmV2KQotCQkJCSAgICAgOiAicSIobmV3
+KSwgIm0iKCpfX3hnKHB0cikpLCAiMCIob2xkKQorCQkJCSAgICAgOiAiciIobmV3KSwgIm0iKCpf
+X3hnKHB0cikpLCAiMCIob2xkKQogCQkJCSAgICAgOiAibWVtb3J5Iik7CiAJCXJldHVybiBwcmV2
+OwogCWNhc2UgODoKIAkJX19hc21fXyBfX3ZvbGF0aWxlX18oTE9DS19QUkVGSVggImNtcHhjaGdx
+ICUxLCUyIgogCQkJCSAgICAgOiAiPWEiKHByZXYpCi0JCQkJICAgICA6ICJxIihuZXcpLCAibSIo
+Kl9feGcocHRyKSksICIwIihvbGQpCisJCQkJICAgICA6ICJyIihuZXcpLCAibSIoKl9feGcocHRy
+KSksICIwIihvbGQpCiAJCQkJICAgICA6ICJtZW1vcnkiKTsKIAkJcmV0dXJuIHByZXY7CiAJfQo=
+
+--=__PartB193DFDA.1__=--

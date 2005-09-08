@@ -1,109 +1,214 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964989AbVIHUnx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751401AbVIHVMF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964989AbVIHUnx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 16:43:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbVIHUnx
+	id S1751401AbVIHVMF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 17:12:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751402AbVIHVMF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 16:43:53 -0400
-Received: from multivac.one-eyed-alien.net ([64.169.228.101]:45031 "EHLO
-	multivac.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id S1751388AbVIHUnw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 16:43:52 -0400
-Date: Thu, 8 Sep 2005 13:43:45 -0700
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: Jim Ramsay <jim.ramsay@gmail.com>
-Cc: linux-usb-users@lists.sourceforge.net,
-       Linux Kernel <linux-kernel@vger.kernel.org>, linux-scsi@vger.kernel.org
-Subject: Re: [Linux-usb-users] Possible bug in usb storage (2.6.11 kernel)
-Message-ID: <20050908204345.GB3196@one-eyed-alien.net>
-Mail-Followup-To: Jim Ramsay <jim.ramsay@gmail.com>,
-	linux-usb-users@lists.sourceforge.net,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	linux-scsi@vger.kernel.org
-References: <4789af9e05090810142bd3531d@mail.gmail.com> <20050908175852.GA3196@one-eyed-alien.net> <4789af9e05090812521d9d687b@mail.gmail.com> <4789af9e05090813287f05e12a@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="H1spWtNR+x+ondvy"
-Content-Disposition: inline
-In-Reply-To: <4789af9e05090813287f05e12a@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2005 Matthew Dharm, all rights reserved.
-X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
+	Thu, 8 Sep 2005 17:12:05 -0400
+Received: from az33egw02.freescale.net ([192.88.158.103]:12028 "EHLO
+	az33egw02.freescale.net") by vger.kernel.org with ESMTP
+	id S1751401AbVIHVMD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 17:12:03 -0400
+Date: Thu, 8 Sep 2005 16:11:55 -0500 (CDT)
+From: Kumar Gala <galak@freescale.com>
+X-X-Sender: galak@nylon.am.freescale.net
+To: Paul Mackerras <paulus@samba.org>
+cc: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
+       linuxppc64-dev <linuxppc64-dev@ozlabs.org>
+Subject: [PATCH] ppc: Merge tlb.h
+Message-ID: <Pine.LNX.4.61.0509081611230.5055@nylon.am.freescale.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Merged tlb.h between asm-ppc32 and asm-ppc64 into asm-powerpc.  Also, fixed
+a compiler warning in arch/ppc/mm/tlb.c since it was roughly related.
 
---H1spWtNR+x+ondvy
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Kumar K. Gala <kumar.gala@freescale.com>
 
-On Thu, Sep 08, 2005 at 02:28:09PM -0600, Jim Ramsay wrote:
-> On 9/8/05, Jim Ramsay <jim.ramsay@gmail.com> wrote:
-> > On 9/8/05, Matthew Dharm <mdharm-kernel@one-eyed-alien.net> wrote:
-> > > On Thu, Sep 08, 2005 at 11:14:36AM -0600, Jim Ramsay wrote:
-> > > > I think I have found a possible bug:
-> > > > [...]
-> > > > I suppose the scsi code could be changed to guarantee that
-> > > > srb->request_buffer is page-aligned or cache-aligned, but that seems
-> > > > like the wrong solution for this bug.
-> > >
-> > > Fixing the SCSI layer is -exactly- the correct solution.  The SCSI la=
-yer is
-> > > supposed to guarantee us that those buffers are suitable for DMA'ing,=
- and
-> > > apparently it's violating that promise.
-> >=20
-> > Thanks, I'll check on what buffer I'm actually getting, where it's
-> > allocated, and post back what I find, or how I fixed it.
->=20
-> More information:
->=20
-> The error only occurrs during device sensing when the
-> srb->request_buffer is assigned as follows, by usb/storage/transport.c
-> in the routine usb_stor_invoke_transport:
->=20
-> old_request_buffer =3D srb->request_buffer;
-> srb->request_buffer =3D srb->sense_buffer;
->=20
-> Now, this is a problem because srb->sense_buffer is defined as follows
-> in the struct scsi_cmnd:
->=20
-> #define SCSI_SENSE_BUFFERSIZE   96
->         unsigned char sense_buffer[SCSI_SENSE_BUFFERSIZE];
->=20
-> Since it is not allocated at runtime there is NO WAY the SCSI layer
-> can possibly guarantee it is page- or cache-aligned and ready for DMA.
->=20
-> Any suggestions on best fix for this?  Is it still a SCSI-layer issue?
->  Or should USB step up in this case and ensure this buffer is dma-safe
-> itself?
+---
+commit c5f0c343d08ad9c6862c1755e7b2239f31a2a633
+tree c80721ace951bc55b14a8f2a3bf69599bca2e8e9
+parent cebb2b156319990fc2fba615bbfeac81be62a86a
+author Kumar K. Gala <kumar.gala@freescale.com> Thu, 08 Sep 2005 16:09:42 -0500
+committer Kumar K. Gala <kumar.gala@freescale.com> Thu, 08 Sep 2005 16:09:42 -0500
 
-Ah, that buffer doesn't come from SCSI (tho I've long thought they should
-provide us with a sense data buffer).  So this is a real usb-storage bug.
+ arch/ppc/mm/tlb.c         |    1 +
+ include/asm-powerpc/tlb.h |   50 +++++++++++++++++++++++++++++++++++++++
+ include/asm-ppc/tlb.h     |   57 ---------------------------------------------
+ include/asm-ppc64/tlb.h   |   39 -------------------------------
+ 4 files changed, 51 insertions(+), 96 deletions(-)
 
-Matt
-
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
-
-What, are you one of those Microsoft-bashing Linux freaks?
-					-- Customer to Greg
-User Friendly, 2/10/1999
-
---H1spWtNR+x+ondvy
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFDIKKBHL9iwnUZqnkRAvTjAJ9OHrIYeHE7to8yWHF7NImA8o7NgACdF9LS
-o2NPzfcGF4CinxqR7PEKEUY=
-=LM5m
------END PGP SIGNATURE-----
-
---H1spWtNR+x+ondvy--
+diff --git a/arch/ppc/mm/tlb.c b/arch/ppc/mm/tlb.c
+--- a/arch/ppc/mm/tlb.c
++++ b/arch/ppc/mm/tlb.c
+@@ -28,6 +28,7 @@
+ #include <linux/mm.h>
+ #include <linux/init.h>
+ #include <linux/highmem.h>
++#include <linux/pagemap.h>
+ #include <asm/tlbflush.h>
+ #include <asm/tlb.h>
+ 
+diff --git a/include/asm-powerpc/tlb.h b/include/asm-powerpc/tlb.h
+new file mode 100644
+--- /dev/null
++++ b/include/asm-powerpc/tlb.h
+@@ -0,0 +1,50 @@
++#ifndef _ASM_POWERPC_TLB_H
++#define _ASM_POWERPC_TLB_H
++
++#include <asm/tlbflush.h>
++#include <asm/page.h>
++
++/* Nothing needed here in fact... */
++#define tlb_start_vma(tlb, vma)	do { } while (0)
++#define tlb_end_vma(tlb, vma)	do { } while (0)
++
++/* Avoid pulling in another include just for this */
++#define check_pgt_cache()	do { } while (0)
++
++#if defined(CONFIG_PPC64)
++struct mmu_gather;
++
++extern void pte_free_finish(void);
++
++#define __tlb_remove_tlb_entry(tlb, pte, address) do { } while (0)
++static inline void tlb_flush(struct mmu_gather *tlb)
++{
++	flush_tlb_pending();
++	pte_free_finish();
++}
++#elif defined(CONFIG_PPC_STD_MMU)
++/* Classic PPC with hash-table based MMU... */
++
++struct mmu_gather;
++extern void tlb_flush(struct mmu_gather *tlb);
++extern void flush_hash_entry(struct mm_struct *mm, pte_t *ptep,
++			     unsigned long address);
++#else
++/* Embedded PPC with software-loaded TLB, very simple... */
++
++#define __tlb_remove_tlb_entry(tlb, pte, address) do { } while (0)
++#define tlb_flush(tlb)			flush_tlb_mm((tlb)->mm)
++#endif /* CONFIG_PPC64 */
++
++/* Get the generic bits... */
++#include <asm-generic/tlb.h>
++
++#ifdef CONFIG_PPC_STD_MMU
++static inline void __tlb_remove_tlb_entry(struct mmu_gather *tlb, pte_t *ptep,
++					unsigned long address)
++{
++	if (pte_val(*ptep) & _PAGE_HASHPTE)
++		flush_hash_entry(tlb->mm, ptep, address);
++}
++#endif /* CONFIG_PPC_STD_MMU */
++#endif /* _ASM_POWERPC_TLB_H */
+diff --git a/include/asm-ppc/tlb.h b/include/asm-ppc/tlb.h
+deleted file mode 100644
+--- a/include/asm-ppc/tlb.h
++++ /dev/null
+@@ -1,57 +0,0 @@
+-/*
+- *	TLB shootdown specifics for PPC
+- *
+- * Copyright (C) 2002 Paul Mackerras, IBM Corp.
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License
+- * as published by the Free Software Foundation; either version
+- * 2 of the License, or (at your option) any later version.
+- */
+-#ifndef _PPC_TLB_H
+-#define _PPC_TLB_H
+-
+-#include <linux/config.h>
+-#include <asm/pgtable.h>
+-#include <asm/pgalloc.h>
+-#include <asm/tlbflush.h>
+-#include <asm/page.h>
+-#include <asm/mmu.h>
+-
+-#ifdef CONFIG_PPC_STD_MMU
+-/* Classic PPC with hash-table based MMU... */
+-
+-struct mmu_gather;
+-extern void tlb_flush(struct mmu_gather *tlb);
+-
+-/* Get the generic bits... */
+-#include <asm-generic/tlb.h>
+-
+-/* Nothing needed here in fact... */
+-#define tlb_start_vma(tlb, vma)	do { } while (0)
+-#define tlb_end_vma(tlb, vma)	do { } while (0)
+-
+-extern void flush_hash_entry(struct mm_struct *mm, pte_t *ptep,
+-			     unsigned long address);
+-
+-static inline void __tlb_remove_tlb_entry(struct mmu_gather *tlb, pte_t *ptep,
+-					unsigned long address)
+-{
+-	if (pte_val(*ptep) & _PAGE_HASHPTE)
+-		flush_hash_entry(tlb->mm, ptep, address);
+-}
+-
+-#else
+-/* Embedded PPC with software-loaded TLB, very simple... */
+-
+-#define tlb_start_vma(tlb, vma)		do { } while (0)
+-#define tlb_end_vma(tlb, vma)		do { } while (0)
+-#define __tlb_remove_tlb_entry(tlb, pte, address) do { } while (0)
+-#define tlb_flush(tlb)			flush_tlb_mm((tlb)->mm)
+-
+-/* Get the generic bits... */
+-#include <asm-generic/tlb.h>
+-
+-#endif /* CONFIG_PPC_STD_MMU */
+-
+-#endif /* __PPC_TLB_H */
+diff --git a/include/asm-ppc64/tlb.h b/include/asm-ppc64/tlb.h
+deleted file mode 100644
+--- a/include/asm-ppc64/tlb.h
++++ /dev/null
+@@ -1,39 +0,0 @@
+-/*
+- *	TLB shootdown specifics for PPC64
+- *
+- * Copyright (C) 2002 Anton Blanchard, IBM Corp.
+- * Copyright (C) 2002 Paul Mackerras, IBM Corp.
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License
+- * as published by the Free Software Foundation; either version
+- * 2 of the License, or (at your option) any later version.
+- */
+-#ifndef _PPC64_TLB_H
+-#define _PPC64_TLB_H
+-
+-#include <asm/tlbflush.h>
+-
+-struct mmu_gather;
+-
+-extern void pte_free_finish(void);
+-
+-static inline void tlb_flush(struct mmu_gather *tlb)
+-{
+-	flush_tlb_pending();
+-	pte_free_finish();
+-}
+-
+-/* Avoid pulling in another include just for this */
+-#define check_pgt_cache()	do { } while (0)
+-
+-/* Get the generic bits... */
+-#include <asm-generic/tlb.h>
+-
+-/* Nothing needed here in fact... */
+-#define tlb_start_vma(tlb, vma)	do { } while (0)
+-#define tlb_end_vma(tlb, vma)	do { } while (0)
+-
+-#define __tlb_remove_tlb_entry(tlb, pte, address) do { } while (0)
+-
+-#endif /* _PPC64_TLB_H */

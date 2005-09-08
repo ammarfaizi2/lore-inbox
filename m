@@ -1,85 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932550AbVIHBdA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932545AbVIHBgo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932550AbVIHBdA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 21:33:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964878AbVIHBcd
+	id S932545AbVIHBgo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 21:36:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932551AbVIHBgo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 21:32:33 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:47514 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932855AbVIHB3l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 21:29:41 -0400
-Message-Id: <20050908012856.927348000@localhost.localdomain>
-References: <20050908012842.299637000@localhost.localdomain>
-Date: Wed, 07 Sep 2005 18:28:47 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, herbert@gondor.apana.org.au,
-       kaber@trash.net, "David S. Miller" <davem@davemloft.net>,
-       Chris Wright <chrisw@osdl.org>
-Subject: [PATCH 5/9] [NET]: 2.6.13 breaks libpcap (and tcpdump)
-Content-Disposition: inline; filename=fix-socket-filter-regression.patch
+	Wed, 7 Sep 2005 21:36:44 -0400
+Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:64367 "HELO
+	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S932545AbVIHBgn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Sep 2005 21:36:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=v7gqAAYs5D8SJYuf1bCjnVl5ISHBi7QXYrkzeMPTDKcH1iUEZh2aNwgkazHNnrCFPBc43JYD/uja1Xp/Dsa6+xOFAd/4GXifIb1aAJsxFePKNXHMEb6MkH+ZUlLVWovf1a3Gq5qdud6MUQKjmAHpaAcW/Ugf6b0WfK1BG1SyRpA=  ;
+Message-ID: <431F95C3.8010200@yahoo.com.au>
+Date: Thu, 08 Sep 2005 11:37:07 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Janak Desai <janak@us.ibm.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] (repost) New System call, unshare (fwd)
+References: <Pine.WNT.4.63.0509071350080.4008@IBM-AIP3070F3AM>
+In-Reply-To: <Pine.WNT.4.63.0509071350080.4008@IBM-AIP3070F3AM>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--stable review patch.  If anyone has any  objections, please let us know.
-------------------
+Janak Desai wrote:
 
-[NET]: 2.6.13 breaks libpcap (and tcpdump)
 
-Patrick McHardy says:
+> -	tsk->min_flt = tsk->maj_flt = 0;
+> -	tsk->nvcsw = tsk->nivcsw = 0;
+> +	/*
+> +	 * If the process memory is being duplicated as part of the
+> +	 * unshare system call, we are working with the current process
+> +	 * and not a newly allocated task strucutre, and should not
+> +	 * zero out fault info, context switch counts, mm and active_mm
+> +	 * fields.
+> +	 */
+> +	if (copy_share_action == MAY_SHARE) {
+> +		tsk->min_flt = tsk->maj_flt = 0;
+> +		tsk->nvcsw = tsk->nivcsw = 0;
+>  
 
-  Never mind, I got it, we never fall through to the second switch
-  statement anymore. I think we could simply break when load_pointer
-  returns NULL. The switch statement will fall through to the default
-  case and return 0 for all cases but 0 > k >= SKF_AD_OFF.
+Why don't you just do this in copy_process?
 
-Here's a patch to do just that.
+> -	tsk->mm = NULL;
+> -	tsk->active_mm = NULL;
+> +		tsk->mm = NULL;
+> +		tsk->active_mm = NULL;
+> +	}
+>  
+>  	/*
+>  	 * Are we cloning a kernel thread?
+> @@ -1002,7 +1023,7 @@ static task_t *copy_process(unsigned lon
+>  		goto bad_fork_cleanup_fs;
+>  	if ((retval = copy_signal(clone_flags, p)))
+>  		goto bad_fork_cleanup_sighand;
+> -	if ((retval = copy_mm(clone_flags, p)))
+> +	if ((retval = copy_mm(clone_flags, p, MAY_SHARE)))
+>  		goto bad_fork_cleanup_signal;
+>  	if ((retval = copy_keys(clone_flags, p)))
+>  		goto bad_fork_cleanup_mm;
+> @@ -1317,3 +1338,172 @@ void __init proc_caches_init(void)
+>  			sizeof(struct mm_struct), 0,
+>  			SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
+>  }
+> +
+> +/*
+> + * unshare_mm is called from the unshare system call handler function to
+> + * make a private copy of the mm_struct structure. It calls copy_mm with
+> + * CLONE_VM flag cleard, to ensure that a private copy of mm_struct is made,
+> + * and with mm_copy_share enum set to UNSHARE, to ensure that copy_mm
+> + * does not clear fault info, context switch counts, mm and active_mm
+> + * fields of the mm_struct.
+> + */
+> +static int unshare_mm(unsigned long unshare_flags, struct task_struct *tsk)
+> +{
+> +	int retval = 0;
+> +	struct mm_struct *mm = tsk->mm;
+> +
+> +	/*
+> +	 * If the virtual memory is being shared, make a private
+> +	 * copy and disassociate the process from the shared virtual
+> +	 * memory.
+> +	 */
+> +	if (atomic_read(&mm->mm_users) > 1) {
+> +		retval = copy_mm((unshare_flags & ~CLONE_VM), tsk, UNSHARE);
+> +
+> +		/*
+> +		 * If copy_mm was successful, decrement the number of users
+> +		 * on the original, shared, mm_struct.
+> +		 */
+> +		if (!retval)
+> +			atomic_dec(&mm->mm_users);
+> +	}
+> +	return retval;
+> +}
+> +
 
-I left BPF_MSH alone because it's really a hack to calculate the IP
-header length, which makes no sense when applied to the special data.
+What prevents thread 1 from decrementing mm_users after thread 2 has
+found it to be 2?
 
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: "David S. Miller" <davem@davemloft.net>
-Signed-off-by: Chris Wright <chrisw@osdl.org>
----
- net/core/filter.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+-- 
+SUSE Labs, Novell Inc.
 
-Index: linux-2.6.13.y/net/core/filter.c
-===================================================================
---- linux-2.6.13.y.orig/net/core/filter.c
-+++ linux-2.6.13.y/net/core/filter.c
-@@ -182,7 +182,7 @@ int sk_run_filter(struct sk_buff *skb, s
- 				A = ntohl(*(u32 *)ptr);
- 				continue;
- 			}
--			return 0;
-+			break;
- 		case BPF_LD|BPF_H|BPF_ABS:
- 			k = fentry->k;
-  load_h:
-@@ -191,7 +191,7 @@ int sk_run_filter(struct sk_buff *skb, s
- 				A = ntohs(*(u16 *)ptr);
- 				continue;
- 			}
--			return 0;
-+			break;
- 		case BPF_LD|BPF_B|BPF_ABS:
- 			k = fentry->k;
- load_b:
-@@ -200,7 +200,7 @@ load_b:
- 				A = *(u8 *)ptr;
- 				continue;
- 			}
--			return 0;
-+			break;
- 		case BPF_LD|BPF_W|BPF_LEN:
- 			A = skb->len;
- 			continue;
 
---
+Send instant messages to your online friends http://au.messenger.yahoo.com 

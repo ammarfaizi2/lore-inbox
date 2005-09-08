@@ -1,38 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965015AbVIHVjL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965016AbVIHVjV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965015AbVIHVjL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 17:39:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965016AbVIHVjL
+	id S965016AbVIHVjV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 17:39:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965017AbVIHVjV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 17:39:11 -0400
-Received: from fmr16.intel.com ([192.55.52.70]:64727 "EHLO
-	fmsfmr006.fm.intel.com") by vger.kernel.org with ESMTP
-	id S965013AbVIHVjI convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 17:39:08 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Thu, 8 Sep 2005 17:39:21 -0400
+Received: from simmts8.bellnexxia.net ([206.47.199.166]:30395 "EHLO
+	simmts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S965016AbVIHVjU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 17:39:20 -0400
+Message-ID: <47520.10.10.10.10.1126215555.squirrel@linux1>
+In-Reply-To: <20050908203715.GA26675@mars.ravnborg.org>
+References: <17416.1126211209@www78.gmx.net>
+    <20050908203715.GA26675@mars.ravnborg.org>
+Date: Thu, 8 Sep 2005 17:39:15 -0400 (EDT)
+Subject: Re: git_linux addition ; genericity pls
+From: "Sean" <seanlkml@sympatico.ca>
+To: "Sam Ravnborg" <sam@ravnborg.org>
+Cc: "Fabian LoneStar Fr?d?rick" <fabian.frederick@gmx.fr>,
+       linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.4-2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Subject: RE: [RFC] Consistently use the name asm-offsets.h
-Date: Thu, 8 Sep 2005 14:39:04 -0700
-Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F0456EE9E@scsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [RFC] Consistently use the name asm-offsets.h
-Thread-Index: AcW0uu1IFyla8nQWTVuc2s/m9jj0WwAAmGFg
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "Sam Ravnborg" <sam@ravnborg.org>, <linux-arch@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 08 Sep 2005 21:39:03.0401 (UTC) FILETIME=[BB4B2590:01C5B4BD]
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The existing ia64 specific rule to generate offsets.h
-has to "echo #define IA64_TASK_SIZE 0 > include/asm-ia64/offsets.h"
-before building asm-offsets.s to avoid compilation errors.
+On Thu, September 8, 2005 4:37 pm, Sam Ravnborg said:
 
-So long as you take care of this somehow in the generic version, go wild.
+> cogito?
+>
+> cg-clone \
+> rsync://rsync.kernel.org/pub/scm/linux/kernel/git/linus/linux-2.6.git \
+> linux-2.6.git
+>
+> cd linux-2.6
+> make menuconfig
+>
 
--Tony
+
+The cogito shell scripts don't buy you as much as they once did.   For
+example, the above procedure in raw git, is:
+
+git clone
+rsync://www.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
+linux-2.6
+
+cd linux-2.6
+make menuconfig
+
+
+Cheers,
+Sean
+
+

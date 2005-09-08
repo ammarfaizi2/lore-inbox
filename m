@@ -1,51 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964771AbVIHIXH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932151AbVIHIWu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964771AbVIHIXH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 04:23:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964848AbVIHIXG
+	id S932151AbVIHIWu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 04:22:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbVIHIWu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 04:23:06 -0400
-Received: from fmr14.intel.com ([192.55.52.68]:40593 "EHLO
-	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
-	id S964771AbVIHIXB convert rfc822-to-8bit (ORCPT
+	Thu, 8 Sep 2005 04:22:50 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:41389 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932151AbVIHIWt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 04:23:01 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
+	Thu, 8 Sep 2005 04:22:49 -0400
+Date: Thu, 8 Sep 2005 01:22:19 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Brown, Len" <len.brown@intel.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: [GIT PATCH] ACPI for 2.6.14
+Message-Id: <20050908012219.6b5431b7.akpm@osdl.org>
+In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B30048B3F04@hdsmsx401.amr.corp.intel.com>
+References: <F7DC2337C7631D4386A2DF6E8FB22B30048B3F04@hdsmsx401.amr.corp.intel.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [OOPS] vanilla 2.6.13 + "rmmod processor"
-Date: Thu, 8 Sep 2005 04:22:45 -0400
-Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B30048B3F05@hdsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [OOPS] vanilla 2.6.13 + "rmmod processor"
-Thread-Index: AcW0SLKC0QglXy+hQPeJ7td/jrSX9gABNZ3A
-From: "Brown, Len" <len.brown@intel.com>
-To: <gl@dsa-ac.de>, <linux-kernel@vger.kernel.org>
-Cc: <acpi-devel@lists.sourceforge.net>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       "Li, Shaohua" <shaohua.li@intel.com>
-X-OriginalArrivalTime: 08 Sep 2005 08:22:49.0623 (UTC) FILETIME=[7FE72270:01C5B44E]
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Brown, Len" <len.brown@intel.com> wrote:
+>
+> I saw lots of transient battery issues from 2.6.13-rc3
+>  until 2.6.13-rc6, but the ones I followed went away
+>  as of 2.6.13 final.  Do you have your eye on others
+>  besides 4980?
 
->Just booted a 2.6.13 compiled with UP, ACPI, APIC, LAPIC, 
->sensor modules 
->with "nolapic noapic acpi=off".
+Not specifically, but then ACPI bugs are the one sort which I don't track. 
+a) because there are so many and b) because the ACPI team use bugzilla
+well.
 
-Huh, I don't see I don't see the processor module checking
-for acpi_disabled anyplace...
-
-I assume the oops goes away when you
-do not boot with "acpi=off"?
-
-> The processor module was still loaded by 
->the hotplug. On rmmod it Oopsed:
-
-Note other processor rmmod fix here, maybe unrelated:
-http://bugzilla.kernel.org/show_bug.cgi?id=5021
-
-
+Sticking "battery" into the bugzilla Summary field turns up a few. 
+<vague>There seem to have been four or five reports in recent weeks.

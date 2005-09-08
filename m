@@ -1,23 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932151AbVIHIWu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932242AbVIHIpG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932151AbVIHIWu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 04:22:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbVIHIWu
+	id S932242AbVIHIpG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 04:45:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbVIHIpF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 04:22:50 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:41389 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932151AbVIHIWt (ORCPT
+	Thu, 8 Sep 2005 04:45:05 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:23474 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932242AbVIHIpE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 04:22:49 -0400
-Date: Thu, 8 Sep 2005 01:22:19 -0700
+	Thu, 8 Sep 2005 04:45:04 -0400
+Date: Thu, 8 Sep 2005 01:44:36 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: "Brown, Len" <len.brown@intel.com>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: [GIT PATCH] ACPI for 2.6.14
-Message-Id: <20050908012219.6b5431b7.akpm@osdl.org>
-In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B30048B3F04@hdsmsx401.amr.corp.intel.com>
-References: <F7DC2337C7631D4386A2DF6E8FB22B30048B3F04@hdsmsx401.amr.corp.intel.com>
+To: Parag Warudkar <kernel-stuff@comcast.net>
+Cc: ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-mm1 X86_64: All 32bit programs segfault
+Message-Id: <20050908014436.6edd2f53.akpm@osdl.org>
+In-Reply-To: <431FC7DA.6090309@comcast.net>
+References: <431FB5FF.1030700@comcast.net>
+	<200509080600.39368.ak@suse.de>
+	<431FC7DA.6090309@comcast.net>
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -25,16 +26,24 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Brown, Len" <len.brown@intel.com> wrote:
+Parag Warudkar <kernel-stuff@comcast.net> wrote:
 >
-> I saw lots of transient battery issues from 2.6.13-rc3
->  until 2.6.13-rc6, but the ones I followed went away
->  as of 2.6.13 final.  Do you have your eye on others
->  besides 4980?
+> Andi Kleen wrote:
+> 
+>  >Hmm - not many x86-64 patches in mm1. 2.6.13 definitely works.
+>  >  
+>  >
+>  2.6.13-git7 works. So something in -mm has gone bad (if not x86_64, may 
+>  be i386 or arch-independent changes?)
+>  It seems it has got something to do with the sys_set_tid_address as 
+>  evident from the strace output below.
+>  Another thing - If I set LD_ASSUME_KERNEL=2.4 and then run the binary, 
+>  it works fine.
 
-Not specifically, but then ACPI bugs are the one sort which I don't track. 
-a) because there are so many and b) because the ACPI team use bugzilla
-well.
+I can't reproduce this with the current -mm lineup.  I compiled up a 32-bit
+app on x86 and transferred that across.
 
-Sticking "battery" into the bugzilla Summary field turns up a few. 
-<vague>There seem to have been four or five reports in recent weeks.
+Maybe it got fixed.  Please test 2.6.13-mm2, which appears to be an hour or
+two away.  If it still fails then I'd need a recipe (including URLs and
+stuff) with which to reproduce it please.
+

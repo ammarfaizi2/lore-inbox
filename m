@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751317AbVIHL6W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750837AbVIHLxk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751317AbVIHL6W (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 07:58:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751274AbVIHL6W
+	id S1750837AbVIHLxk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 07:53:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750870AbVIHLxk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 07:58:22 -0400
-Received: from relay.uni-heidelberg.de ([129.206.100.212]:56774 "EHLO
-	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
-	id S1751317AbVIHL6U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 07:58:20 -0400
-Date: Thu, 8 Sep 2005 13:58:05 +0200 (CEST)
-From: Bogdan Costescu <Bogdan.Costescu@iwr.uni-heidelberg.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Netdev List <netdev@vger.kernel.org>
-Subject: Re: [PATCH] 3c59x: read current link status from phy
-In-Reply-To: <431F9899.4060602@pobox.com>
-Message-ID: <Pine.LNX.4.63.0509081351160.21354@dingo.iwr.uni-heidelberg.de>
-References: <200509080125.j881PcL9015847@hera.kernel.org> <431F9899.4060602@pobox.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 8 Sep 2005 07:53:40 -0400
+Received: from mail.ccur.com ([208.248.32.212]:49207 "EHLO mail.ccur.com")
+	by vger.kernel.org with ESMTP id S1750837AbVIHLxj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 07:53:39 -0400
+Subject: strange signal on new clone creation under ptrace?
+From: Tom Horsley <tom.horsley@ccur.com>
+To: linux-kernel@vger.kernel.org
+Cc: bugsy@ccur.com
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 08 Sep 2005 07:53:38 -0400
+Message-Id: <1126180418.11585.12.camel@tweety>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Sep 2005, Jeff Garzik wrote:
+I'm seeing this on a redhat enterprise 4 system (so the kernel is
+older than dirt in lkml time :-), but I wondered if it might
+strike a familiar note to anyone working on ptrace issues.
 
->> The phy status register must be read twice in order to get the actual link
->> state.
+In my debugger, I'm following clone and fork creation around
+to debug children using PTRACE_SETOPTIONS. Normally when I get
+the waitpid() status for a new clone, it shows up with SIGSTOP
+as the initial reported signal. My debugger is expecting this
+and handles it no problem.
 
-Can the original poster give an explanation ? I've enjoyed a rather 
-well functioning 3c59x driver for the past ~6 years without such 
-double reading. Plus:
-- this operation is I/O expensive
-- it is performed inside a region protected by a spinlock
-- it is performed often, every 60 seconds
+In a hairy complex threads program a user has (which is apparently
+using SIGUSR1 a lot), the very first status that ever shows up for
+a brand new clone reports SIGUSR1 rather than SIGSTOP.
 
-Is there some specific hardware that exhibits a problem that is solved 
-by this double reading ?
+When I teach the debugger to deal with that and get the new clone
+started up, it immediately gets the SIGSTOP I didn't get on the
+initial status.
 
--- 
-Bogdan Costescu
+I haven't been able to create any test program to reproduce this
+behavior, so I have no idea how it could happen, but it appears
+as though the kernel managed to queue up the signals in the wrong
+order.
 
-IWR - Interdisziplinaeres Zentrum fuer Wissenschaftliches Rechnen
-Universitaet Heidelberg, INF 368, D-69120 Heidelberg, GERMANY
-Telephone: +49 6221 54 8869, Telefax: +49 6221 54 8868
-E-mail: Bogdan.Costescu@IWR.Uni-Heidelberg.De
+Does this sound like a bug anyone remembers fixing? Does anyone
+have an idea how I could make it happen? Just curious about what
+the heck could be going on here (I can probably teach the debugger
+to work around this as well).
+

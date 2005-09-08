@@ -1,112 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932545AbVIHBgo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932551AbVIHBko@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932545AbVIHBgo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 21:36:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932551AbVIHBgo
+	id S932551AbVIHBko (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 21:40:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932552AbVIHBko
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 21:36:44 -0400
-Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:64367 "HELO
-	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932545AbVIHBgn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 21:36:43 -0400
+	Wed, 7 Sep 2005 21:40:44 -0400
+Received: from zproxy.gmail.com ([64.233.162.195]:14200 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932551AbVIHBkn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Sep 2005 21:40:43 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=v7gqAAYs5D8SJYuf1bCjnVl5ISHBi7QXYrkzeMPTDKcH1iUEZh2aNwgkazHNnrCFPBc43JYD/uja1Xp/Dsa6+xOFAd/4GXifIb1aAJsxFePKNXHMEb6MkH+ZUlLVWovf1a3Gq5qdud6MUQKjmAHpaAcW/Ugf6b0WfK1BG1SyRpA=  ;
-Message-ID: <431F95C3.8010200@yahoo.com.au>
-Date: Thu, 08 Sep 2005 11:37:07 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Janak Desai <janak@us.ibm.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] (repost) New System call, unshare (fwd)
-References: <Pine.WNT.4.63.0509071350080.4008@IBM-AIP3070F3AM>
-In-Reply-To: <Pine.WNT.4.63.0509071350080.4008@IBM-AIP3070F3AM>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=A4IrIrrVmpA3ysIrJwEHqU7RXi7+zjGFz3b8f4P6lRmgVGjgcNwryET3T7kTLaSn1I7k4EktHm2glmBu9eaKqX+aHc0XvsUxrrhnhiCBfPzGkEPIgmUV/gN+jPYAotO8785c37uqyX+nHtckCR3G+yonCxB0Noa1vA6ILRIqZNE=
+Message-ID: <aec7e5c3050907184033423e69@mail.gmail.com>
+Date: Thu, 8 Sep 2005 10:40:39 +0900
+From: Magnus Damm <magnus.damm@gmail.com>
+Reply-To: magnus.damm@gmail.com
+To: Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [PATCH] i386: single node SPARSEMEM fix
+Cc: Magnus Damm <magnus@valinux.co.jp>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>,
+       "A. P. Whitcroft [imap]" <andyw@uk.ibm.com>
+In-Reply-To: <1126114116.7329.16.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050906035531.31603.46449.sendpatchset@cherry.local>
+	 <1126114116.7329.16.camel@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Janak Desai wrote:
+On 9/8/05, Dave Hansen <haveblue@us.ibm.com> wrote:
+> On Tue, 2005-09-06 at 12:56 +0900, Magnus Damm wrote:
+> > This patch for 2.6.13-git5 fixes single node sparsemem support. In the case
+> > when multiple nodes are used, setup_memory() in arch/i386/mm/discontig.c calls
+> > get_memcfg_numa() which calls memory_present(). The single node case with
+> > setup_memory() in arch/i386/kernel/setup.c does not call memory_present()
+> > without this patch, which breaks single node support.
+> 
+> First of all, this is really a feature addition, not a bug fix. :)
 
+>From the POV that you can use sparsemem on a PC, yes. But from the POV
+that setup_memory() in arch/i386/kernel/setup.c not includes a call to
+memory_present(), I think it is a fix. =)
 
-> -	tsk->min_flt = tsk->maj_flt = 0;
-> -	tsk->nvcsw = tsk->nivcsw = 0;
-> +	/*
-> +	 * If the process memory is being duplicated as part of the
-> +	 * unshare system call, we are working with the current process
-> +	 * and not a newly allocated task strucutre, and should not
-> +	 * zero out fault info, context switch counts, mm and active_mm
-> +	 * fields.
-> +	 */
-> +	if (copy_share_action == MAY_SHARE) {
-> +		tsk->min_flt = tsk->maj_flt = 0;
-> +		tsk->nvcsw = tsk->nivcsw = 0;
->  
+While at it, why do we have two copies of setup_memory()? Couldn't
+NUMA and non-NUMA share the same code? OTOH, NUMA and discontigmem
+seems very integrated/mixed up and there seems to be much activity in
+this field so maybe it is nice to keep the NUMA part separated anyway.
+ 
+> The reason we haven't included this so far is that we don't really have
+> any machines that need sparsemem on i386 that aren't NUMA.  So, we
+> disabled it for now, and probably need to decide first why we need it
+> before a patch like that goes in.
 
-Why don't you just do this in copy_process?
+Well, I do not have any hardware here that requires sparsemem either,
+but I wanted to add NUMA emulation code to be able to run some
+multiple-memory-nodes tests on a virtual PC in QEMU. And this little
+patch shows my first step which involved getting sparsememto run on a
+PC.
 
-> -	tsk->mm = NULL;
-> -	tsk->active_mm = NULL;
-> +		tsk->mm = NULL;
-> +		tsk->active_mm = NULL;
-> +	}
->  
->  	/*
->  	 * Are we cloning a kernel thread?
-> @@ -1002,7 +1023,7 @@ static task_t *copy_process(unsigned lon
->  		goto bad_fork_cleanup_fs;
->  	if ((retval = copy_signal(clone_flags, p)))
->  		goto bad_fork_cleanup_sighand;
-> -	if ((retval = copy_mm(clone_flags, p)))
-> +	if ((retval = copy_mm(clone_flags, p, MAY_SHARE)))
->  		goto bad_fork_cleanup_signal;
->  	if ((retval = copy_keys(clone_flags, p)))
->  		goto bad_fork_cleanup_mm;
-> @@ -1317,3 +1338,172 @@ void __init proc_caches_init(void)
->  			sizeof(struct mm_struct), 0,
->  			SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
->  }
-> +
-> +/*
-> + * unshare_mm is called from the unshare system call handler function to
-> + * make a private copy of the mm_struct structure. It calls copy_mm with
-> + * CLONE_VM flag cleard, to ensure that a private copy of mm_struct is made,
-> + * and with mm_copy_share enum set to UNSHARE, to ensure that copy_mm
-> + * does not clear fault info, context switch counts, mm and active_mm
-> + * fields of the mm_struct.
-> + */
-> +static int unshare_mm(unsigned long unshare_flags, struct task_struct *tsk)
-> +{
-> +	int retval = 0;
-> +	struct mm_struct *mm = tsk->mm;
-> +
-> +	/*
-> +	 * If the virtual memory is being shared, make a private
-> +	 * copy and disassociate the process from the shared virtual
-> +	 * memory.
-> +	 */
-> +	if (atomic_read(&mm->mm_users) > 1) {
-> +		retval = copy_mm((unshare_flags & ~CLONE_VM), tsk, UNSHARE);
-> +
-> +		/*
-> +		 * If copy_mm was successful, decrement the number of users
-> +		 * on the original, shared, mm_struct.
-> +		 */
-> +		if (!retval)
-> +			atomic_dec(&mm->mm_users);
-> +	}
-> +	return retval;
-> +}
-> +
+> I actually have exactly the same patch that you sent out in my tree, but
+> it's just for testing.  Magnus, perhaps we can get some of my testing
+> patches in good enough shape to put them in -mm so that the non-NUMA
+> folks can do more sparsemem testing.
 
-What prevents thread 1 from decrementing mm_users after thread 2 has
-found it to be 2?
+Well, my NUMA emulation project has been postponed a bit now, but
+sooner or later I or someone else will need sparsemem on non-NUMA. So
+getting your testing patches in to -mm seems like a good idea!
 
--- 
-SUSE Labs, Novell Inc.
+Thanks!
 
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+/ magnus

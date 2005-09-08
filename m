@@ -1,101 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965061AbVIHWvh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965071AbVIHXKE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965061AbVIHWvh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 18:51:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965063AbVIHWvh
+	id S965071AbVIHXKE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 19:10:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965073AbVIHXKE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 18:51:37 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:46045 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S965061AbVIHWvg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 18:51:36 -0400
-Subject: Re: [ckrm-tech] Re: [PATCH 0/5] SUBCPUSETS: a resource control
-	functionality using CPUSETS
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: dino@in.ibm.com
-Cc: Paul Jackson <pj@sgi.com>, KUROSAWA Takahiro <kurosawa@valinux.co.jp>,
-       linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
-In-Reply-To: <20050908131427.GA5994@in.ibm.com>
-References: <20050908053912.1352770031@sv1.valinux.co.jp>
-	 <20050908002323.181fd7d5.pj@sgi.com>  <20050908131427.GA5994@in.ibm.com>
-Content-Type: text/plain
-Organization: IBM
-Date: Thu, 08 Sep 2005 15:51:29 -0700
-Message-Id: <1126219889.21617.91.camel@linuxchandra>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-6) 
+	Thu, 8 Sep 2005 19:10:04 -0400
+Received: from ip18.tpack.net ([213.173.228.18]:17117 "HELO mail.tpack.net")
+	by vger.kernel.org with SMTP id S965072AbVIHXKB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 19:10:01 -0400
+Message-ID: <4320C555.4020800@tpack.net>
+Date: Fri, 09 Sep 2005 01:12:21 +0200
+From: Tommy Christensen <tommy.christensen@tpack.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Bogdan.Costescu@iwr.uni-heidelberg.de, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH] 3c59x: read current link status from phy
+References: <200509080125.j881PcL9015847@hera.kernel.org>	<431F9899.4060602@pobox.com>	<Pine.LNX.4.63.0509081351160.21354@dingo.iwr.uni-heidelberg.de>	<1126184700.4805.32.camel@tsc-6.cph.tpack.net>	<Pine.LNX.4.63.0509081521140.21354@dingo.iwr.uni-heidelberg.de>	<1126190554.4805.68.camel@tsc-6.cph.tpack.net>	<Pine.LNX.4.63.0509081713500.22954@dingo.iwr.uni-heidelberg.de>	<4320BD96.3060307@tpack.net> <20050908154114.69307f92.akpm@osdl.org>
+In-Reply-To: <20050908154114.69307f92.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-09-08 at 18:44 +0530, Dinakar Guniguntala wrote:
-> Interesting implementation of resource controls. Cross posting this 
+Andrew Morton wrote:
+> Should we also decrease the polling interval?  Perhaps only when the cable
+> is unplugged?
 
-I second this :)
+Sounds like a plan. 60 seconds certainly strikes me as being very slow.
+OTOH, I'm not aware of the reasoning behind this choice in the first place.
+It might make sense for some odd setups.
 
-Browsed a little through the docs/patches... seems to fit very well into
-a resource management solution (hint CKRM :) than CPUSET (resource
-isolation).
-
-I can see the usefulness of resource management inside CPUSET. We have
-had discussions earlier(in lkml and lse-tech) about how CKRM can play
-inside a CPUSET, and this plays directly into that, providing resource
-management inside a CPUSET.
-
-The parameters used, guarantee and limit, fits very well into CKRM's
-shares usage model.
-
-Takahiro-san, How much effort you think will be needed to make this work
-under CKRM. thanks.
-
-> to ckrm-tech as well. I am sure CKRM folks have something to say...
-> 
-> Any thoughts about how you want to add more resource control features
-> on top of/in addition to this setup. (Such as memory etc)
-> 
-> 
-> On Thu, Sep 08, 2005 at 12:23:23AM -0700, Paul Jackson wrote:
-> > I'm guessing you do not want such cpusets (the parents of subcpusets)
-> > to overlap, because if they did, it would seem to confuse the meaning
-> > of getting a fixed proportion of available cpu and memory resources.  I
-> > was a little surprised not to see any additional checks that
-> > cpu_exclusive and mem_exclusive must be set true in these cpusets, to
-> > insure non- overlapping cpusets.
-> 
-> I agree with Paul here. You would want to build your controllers
-> on top of exclusive cpusets to keep things sane.
-> 
-> > On the other hand, Dinakar had more work to do than you might, because
-> > he needed a complete covering (so had to round up cpus in non exclusive
-> > cpusets to form more covering elements).  From what I can tell, you
-> > don't need a complete covering - it seems fine if some cpus are not
-> > managed by this resource control function.
-> 
-> 
-> I think it makes more sense to add this functionality directly as part
-> of the existing cpusets instead of creating further leaf cpusets (or subcpusets
-> as you call it) where we can specify resource control parameters. I think that 
-> approach would be much more intuitive and simple to work with rather than 
-> what you have currently. 
-> 
-> 	-Dinakar
-> 
-> 
-> -------------------------------------------------------
-> SF.Net email is Sponsored by the Better Software Conference & EXPO
-> September 19-22, 2005 * San Francisco, CA * Development Lifecycle Practices
-> Agile & Plan-Driven Development * Managing Projects & Teams * Testing & QA
-> Security * Process Improvement & Measurement * http://www.sqe.com/bsce5sf
-> _______________________________________________
-> ckrm-tech mailing list
-> https://lists.sourceforge.net/lists/listinfo/ckrm-tech
-> 
--- 
-
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
+Since I don't even have any HW to play around with, I think I'll step
+down for now.
 
 
+-Tommy

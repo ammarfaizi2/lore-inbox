@@ -1,50 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751360AbVIHORn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751363AbVIHOVc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751360AbVIHORn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 10:17:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbVIHORn
+	id S1751363AbVIHOVc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 10:21:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751364AbVIHOVc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 10:17:43 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:17867 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751360AbVIHORm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 10:17:42 -0400
-Date: Thu, 8 Sep 2005 19:41:52 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Dinakar Guniguntala <dino@in.ibm.com>
-Cc: Paul Jackson <pj@sgi.com>, KUROSAWA Takahiro <kurosawa@valinux.co.jp>,
-       linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
-Subject: Re: [PATCH 0/5] SUBCPUSETS: a resource control functionality using CPUSETS
-Message-ID: <20050908141152.GA11793@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20050908053912.1352770031@sv1.valinux.co.jp> <20050908002323.181fd7d5.pj@sgi.com> <20050908131427.GA5994@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050908131427.GA5994@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 8 Sep 2005 10:21:32 -0400
+Received: from de01egw01.freescale.net ([192.88.165.102]:24193 "EHLO
+	de01egw01.freescale.net") by vger.kernel.org with ESMTP
+	id S1751363AbVIHOVb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 10:21:31 -0400
+Date: Thu, 8 Sep 2005 09:20:55 -0500 (CDT)
+From: Kumar Gala <galak@freescale.com>
+X-X-Sender: galak@nylon.am.freescale.net
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+cc: linux-kernel@vger.kernel.org,
+       linuxppc-embedded <linuxppc-embedded@ozlabs.org>
+Subject: [PATCH] ppc32: Fix head_4xx.S compile error
+Message-ID: <Pine.LNX.4.61.0509080920200.4577@nylon.am.freescale.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 08, 2005 at 06:44:27PM +0530, Dinakar Guniguntala wrote:
-> 
-> 
-> > On the other hand, Dinakar had more work to do than you might, because
-> > he needed a complete covering (so had to round up cpus in non exclusive
-> > cpusets to form more covering elements).  From what I can tell, you
-> > don't need a complete covering - it seems fine if some cpus are not
-> > managed by this resource control function.
-> 
-> 
-> I think it makes more sense to add this functionality directly as part
-> of the existing cpusets instead of creating further leaf cpusets (or subcpusets
-> as you call it) where we can specify resource control parameters. I think that 
-> approach would be much more intuitive and simple to work with rather than 
-> what you have currently. 
+head_4xx.S wasn't compiling due to a missing #endif
 
-If what subcpusets is doing is slicing cpusets resources, then wouldn't
-it be more intusive to call them slice0, slice1 etc. under the 
-respective cpuset ?
+Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
 
-Thanks
-Dipankar
+---
+commit 170118f5773bf979d0be23673b703f9dd26d63e7
+tree 16e609ae6dd17af7236bbed11a875a1a653a7237
+parent 4706df3d3c42af802597d82c8b1542c3d52eab23
+author Kumar K. Gala <kumar.gala@freescale.com> Thu, 08 Sep 2005 09:18:08 -0500
+committer Kumar K. Gala <kumar.gala@freescale.com> Thu, 08 Sep 2005 09:18:08 -0500
+
+ arch/ppc/kernel/head_4xx.S |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/arch/ppc/kernel/head_4xx.S b/arch/ppc/kernel/head_4xx.S
+--- a/arch/ppc/kernel/head_4xx.S
++++ b/arch/ppc/kernel/head_4xx.S
+@@ -453,6 +453,7 @@ label:
+ #else
+ 	CRITICAL_EXCEPTION(0x1020, WDTException, UnknownException)
+ #endif
++#endif
+ 
+ /* 0x1100 - Data TLB Miss Exception
+  * As the name implies, translation is not in the MMU, so search the

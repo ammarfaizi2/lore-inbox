@@ -1,57 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932490AbVIHA4a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932498AbVIHBA5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932490AbVIHA4a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 20:56:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932496AbVIHA43
+	id S932498AbVIHBA5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 21:00:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932496AbVIHBA5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 20:56:29 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:24722 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S932490AbVIHA43 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 20:56:29 -0400
-Subject: Re: [GIT PATCH] SCSI merge for 2.6.13
-From: James Bottomley <James.Bottomley@SteelEye.com>
+	Wed, 7 Sep 2005 21:00:57 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:47500 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932483AbVIHBA4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Sep 2005 21:00:56 -0400
+Date: Wed, 7 Sep 2005 17:59:06 -0700
+From: Andrew Morton <akpm@osdl.org>
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Jens Axboe <axboe@suse.de>, Greg KH <greg@kroah.com>
+Cc: James.Bottomley@SteelEye.com, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, axboe@suse.de, greg@kroah.com
+Subject: Re: [GIT PATCH] SCSI merge for 2.6.13
+Message-Id: <20050907175906.09b0a46f.akpm@osdl.org>
 In-Reply-To: <Pine.LNX.4.58.0509071743380.11102@g5.osdl.org>
 References: <1126053452.5012.28.camel@mulgrave>
-	 <Pine.LNX.4.58.0509071730490.11102@g5.osdl.org>
-	 <Pine.LNX.4.58.0509071738050.11102@g5.osdl.org>
-	 <Pine.LNX.4.58.0509071743380.11102@g5.osdl.org>
-Content-Type: text/plain
-Date: Wed, 07 Sep 2005 19:56:19 -0500
-Message-Id: <1126140979.4823.65.camel@mulgrave>
+	<Pine.LNX.4.58.0509071730490.11102@g5.osdl.org>
+	<Pine.LNX.4.58.0509071738050.11102@g5.osdl.org>
+	<Pine.LNX.4.58.0509071743380.11102@g5.osdl.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-6) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-09-07 at 17:49 -0700, Linus Torvalds wrote:
+Linus Torvalds <torvalds@osdl.org> wrote:
+>
+> 
+> 
+> On Wed, 7 Sep 2005, Linus Torvalds wrote:
+> > 
 > > Quite frankly, what's the point in asking people to pull a tree that is 
 > > known to not compile?
-> 
+
+James was assuming you'd merged the klist patch whcih I'd sent beforehand.
+
 > Btw, I see the patch that is supposed to fix it, but I'm in no position to
 > know whether it's even acceptable to basically double the size of the
 > "struct klist", for example. There may be a good reason why Greg hasn't 
-> been merging the klist stuff, and just assuming that they are merged not 
-> only screws up everybody down-stream, it's not necessarily valid in the 
-> first place.
-> 
-> In other words, I think I will have to just revert the commit that
-> introduces this bogus "assume a patch that wasn't merged" (commit ID
-> 2b7d6a8cb9718fc1d9e826201b64909c44a915f4) for now.
-> 
-> And once more strongly complain about it getting sent to me in the first
-> place since it was known to not even compile.
+> been merging the klist stuff,
 
-He's been on holiday, but he did send me a sign off for that particular
-patch so I could put it through the SCSI tree.  However, because Andrew
-sent you the patch before I could do this, there didn't seem to be any
-necessity ...
+This patch came out around the time Greg went walkabout.
 
-James
-
-
+I'd suggest we merge the klist patch anyway, so it doesn't hold up scsi. 
+If Greg wants to fix that bug by other means later on, we can do that
+anytime.

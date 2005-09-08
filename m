@@ -1,99 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964907AbVIHRtq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964912AbVIHRvw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964907AbVIHRtq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 13:49:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964908AbVIHRtq
+	id S964912AbVIHRvw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 13:51:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964913AbVIHRvw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 13:49:46 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:32017 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S964907AbVIHRtp convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 13:49:45 -0400
+	Thu, 8 Sep 2005 13:51:52 -0400
+Received: from S01060013104bd78e.vc.shawcable.net ([24.85.145.160]:11995 "EHLO
+	r3000.fsmlabs.com") by vger.kernel.org with ESMTP id S964912AbVIHRvv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 13:51:51 -0400
+Date: Thu, 8 Sep 2005 10:51:27 -0700 (PDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Jan Beulich <JBeulich@novell.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] move i386's enabling of fxsr and xmmxcpt
+In-Reply-To: <4320724C020000780002447D@emea1-mh.id2.novell.com>
+Message-ID: <Pine.LNX.4.63.0509081038460.8052@r3000.fsmlabs.com>
+References: <4320724C020000780002447D@emea1-mh.id2.novell.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <9c23279705090810123132447d@mail.gmail.com>
-References: <9c23279705090810123132447d@mail.gmail.com>
-X-OriginalArrivalTime: 08 Sep 2005 17:49:44.0036 (UTC) FILETIME=[B212AA40:01C5B49D]
-Content-class: urn:content-classes:message
-Subject: Re: How to plan a kernel update ?
-Date: Thu, 8 Sep 2005 13:49:43 -0400
-Message-ID: <Pine.LNX.4.61.0509081330270.4898@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: How to plan a kernel update ?
-Thread-Index: AcW0nbIZdCcafe6RQFiZzDhjTaXX6Q==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Weber Ress" <ress.weber@gmail.com>
-Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 8 Sep 2005, Jan Beulich wrote:
 
-On Thu, 8 Sep 2005, Weber Ress wrote:
-
-> Hi,
+> (Note: Patch also attached because the inline version is certain to get
+> line wrapped.)
+> 
+> Move some code unrelated to any dealing with hardware bugs from i386's
+> bugs.h to a more logical place.
+> 
+> Signed-off-by: Jan Beulich <jbeulich@novell.com>
 >
-> I'm responsible to planning a kernel upgrade in many servers, from 2.4
-> version to 2.6.13 (last stable version), using Debian 3.1r0a
->
-> My team has good technical skills, but they need to be led. I would
-> like know, what's the best pratices and recommendations that a project
-> manager need think BEFORE an kernel upgrade.
->
-> A technical guy have a particular vision about this upgrade, but I
-> will be very been thankful if I receive from this community another
-> vision.. a vision centered in the project process (planning,
-> executing, controlling) to make this activity successfully.
->
-> Thank's !
->
-> Weber Ress
+> diff -Npru 2.6.13/arch/i386/kernel/traps.c
+> 2.6.13-i386-fxsr/arch/i386/kernel/traps.c
+> --- 2.6.13/arch/i386/kernel/traps.c	2005-08-29 01:41:01.000000000
+> +0200
+> +++ 2.6.13-i386-fxsr/arch/i386/kernel/traps.c	2005-09-07
+> 11:46:35.000000000 +0200
+> @@ -1098,6 +1098,24 @@ void __init trap_init(void)
+>  #endif
+>  	set_trap_gate(19,&simd_coprocessor_error);
+>  
+> +	if (cpu_has_fxsr) {
+> +		/*
+> +		 * Verify that the FXSAVE/FXRSTOR data will be 16-byte
+> aligned.
+> +		 */
+> +		struct fxsrAlignAssert {
+> +			int _:!(offsetof(struct task_struct,
+> thread.i387.fxsave) & 15);
+> +		};
+> +
+> +		printk(KERN_INFO "Enabling fast FPU save and restore...
+> ");
+> +		set_in_cr4(X86_CR4_OSFXSR);
+> +		printk("done.\n");
+> +	}
+> +	if (cpu_has_xmm) {
+> +		printk(KERN_INFO "Enabling unmasked SIMD FPU exception
+> support... ");
+> +		set_in_cr4(X86_CR4_OSXMMEXCPT);
+> +		printk("done.\n");
+> +	}
+> +
+>  	set_system_gate(SYSCALL_VECTOR,&system_call);
 
-I think you need to get a new distribution from your vendor and
-NOT try to just upgrade the kernel. The vendor has already made
-certain that the utilities provided with the new distribution work
-together. It is a gigantic jump from 2.4 to 2.6 and you may find
-that some things don't work as planned.
-
-Then, you should build up an otherwise unused server using your
-existing configuration and server programs. It should be a clone
-of an existing one with its IP address changed to something
-unimportant. Then you should upgrade this server with an entire
-new distribution from your favorite vendor.
-
-Once that server is up, you can test its functionality and
-verify that all its programs play nicely together. If they
-don't, you can modify or rebuild anything that needs to be
-fixed BEFORE it goes onto a production server.
-
-Never just grab a new distribution and upgrade a production
-server. Even if you have to purchase another box to experiment
-with before the upgrade it will be worth it in the long run.
-With production servers, never just upgrade the kernel unless
-the version numbers between what you have and what you will
-have are very close. Even that's not truly safe but you can
-dual-boot to get back to the previous kernel if everything
-falls apart. You see, it's possible that one or more of your
-programs rely upon some side-effects or bugs in an older kernel.
-If that bug gets fixed, your program(s) may no longer work
-(think data-bases after an off-by-one lseek bug-fix).
-
-Once you have upgraded the emulated server and know what to
-fix, upgrade the others one-at-a-time.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13 on an i686 machine (5589.54 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
-I apologize for the following. I tried to kill it with the above dot :
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+Hmm doesn't this really belong in identify_cpu()?

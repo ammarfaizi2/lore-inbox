@@ -1,76 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932694AbVIHP1X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932696AbVIHP3b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932694AbVIHP1X (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 11:27:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932695AbVIHP1X
+	id S932696AbVIHP3b (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 11:29:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932697AbVIHP3b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 11:27:23 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:43393 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S932694AbVIHP1W
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 11:27:22 -0400
-Date: Thu, 8 Sep 2005 17:28:19 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "Budde, Marco" <budde@telos.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kbuild: libraries and subdirectories
-Message-ID: <20050908152819.GA7749@mars.ravnborg.org>
-References: <809C13DD6142E74ABE20C65B11A2439809C4C2@www.telos.de>
+	Thu, 8 Sep 2005 11:29:31 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:12390
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S932696AbVIHP3b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 11:29:31 -0400
+Message-Id: <4320753F02000078000244AA@emea1-mh.id2.novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0 
+Date: Thu, 08 Sep 2005 17:30:39 +0200
+From: "Jan Beulich" <JBeulich@novell.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] fix i386 init initializers
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <809C13DD6142E74ABE20C65B11A2439809C4C2@www.telos.de>
-User-Agent: Mutt/1.5.8i
+Content-Type: multipart/mixed; boundary="=__Part5D7F330F.0__="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 08, 2005 at 03:40:59PM +0200, Budde, Marco wrote:
-> I have a large number of sources files, which I have to
-> compile into one kernel module. Let's assume I have the
-> following source organisation:
-> 
->   main/
->     main_code.c
->   lib1/
->     part1/
->       file_1_1_1.c
->     part2/
->       file_1_2_1.c
->   lib2/
->     part1/
->       file_2_1_1.c
->     part2/
->       file_2_2_1.c
-> 
-> I would like to build all source files in lib1 into one
-> lib.a library and all files in lib2 into a second lib.a
-> library.
+This is a MIME message. If you are reading this text, you may want to 
+consider changing to a mail reader or gateway that understands how to 
+properly handle MIME multipart messages.
 
-kbuild is optimised for kernel usage.
-And within the kernel only xfs and oprofile (+a few others)
-have files spread over more than one directory like in your
-example. This is not considered good practice and therefore
-kbuild does not document this usage - neither encourage it.
+--=__Part5D7F330F.0__=
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Also kbuild does not support building .a file in the way you
-want it to do.
+(Note: Patch also attached because the inline version is certain to get
+line wrapped.)
 
-You can do the following:
-obj-$(CONFIG_foo) += main/main_code.o
-obj-$(CONFIG_foo) += lib1/part1/file_1_1_1.c
-obj-$(CONFIG_foo) += lib1/part2/file1_2_1.o
+An addition and a fix to the static i386 initializers.
 
-etc.
+Signed-off-by: Jan Beulich <jbeulich@novell.com>
 
-> 
-> At the end I would like to compile the code in main and
-> link every together (result should be one kernel module).
-> 
-> How can I archieve this with kbuild? Its documentation is not
-> really deep.
-Please point out in what section you miss information and I will try to
-update it.
-I for one consider the kbuild syntax well documented, but I may be a bit
-biased in this respect.
+diff -Npru 2.6.13/include/asm-i386/processor.h
+2.6.13-i386-init/include/asm-i386/processor.h
+--- 2.6.13/include/asm-i386/processor.h	2005-08-29
+01:41:01.000000000 +0200
++++ 2.6.13-i386-init/include/asm-i386/processor.h	2005-09-01
+13:14:48.000000000 +0200
+@@ -460,6 +460,7 @@ struct thread_struct {
+ 
+ #define INIT_THREAD 
+{							\
+ 	.vm86_info =
+NULL,						\
++	.esp0 = sizeof(init_stack) +
+(long)&init_stack,			\
+ 	.sysenter_cs =
+__KERNEL_CS,					\
+ 	.io_bitmap_ptr =
+NULL,						\
+ }
+@@ -474,7 +475,7 @@ struct thread_struct {
+ 	.esp0		= sizeof(init_stack) +
+(long)&init_stack,	\
+ 	.ss0		=
+__KERNEL_DS,					\
+ 	.ss1		=
+__KERNEL_CS,					\
+-	.ldt		=
+GDT_ENTRY_LDT,				\
++	.ldt		= GDT_ENTRY_LDT *
+8,				\
+ 	.io_bitmap_base	=
+INVALID_IO_BITMAP_OFFSET,			\
+ 	.io_bitmap	= { [ 0 ... IO_BITMAP_LONGS] = ~0
+},		\
+ }
 
-	Sam
+
+--=__Part5D7F330F.0__=
+Content-Type: application/octet-stream; name="linux-2.6.13-i386-init.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="linux-2.6.13-i386-init.patch"
+
+KE5vdGU6IFBhdGNoIGFsc28gYXR0YWNoZWQgYmVjYXVzZSB0aGUgaW5saW5lIHZlcnNpb24gaXMg
+Y2VydGFpbiB0byBnZXQKbGluZSB3cmFwcGVkLikKCkFuIGFkZGl0aW9uIGFuZCBhIGZpeCB0byB0
+aGUgc3RhdGljIGkzODYgaW5pdGlhbGl6ZXJzLgoKU2lnbmVkLW9mZi1ieTogSmFuIEJldWxpY2gg
+PGpiZXVsaWNoQG5vdmVsbC5jb20+CgpkaWZmIC1OcHJ1IDIuNi4xMy9pbmNsdWRlL2FzbS1pMzg2
+L3Byb2Nlc3Nvci5oIDIuNi4xMy1pMzg2LWluaXQvaW5jbHVkZS9hc20taTM4Ni9wcm9jZXNzb3Iu
+aAotLS0gMi42LjEzL2luY2x1ZGUvYXNtLWkzODYvcHJvY2Vzc29yLmgJMjAwNS0wOC0yOSAwMTo0
+MTowMS4wMDAwMDAwMDAgKzAyMDAKKysrIDIuNi4xMy1pMzg2LWluaXQvaW5jbHVkZS9hc20taTM4
+Ni9wcm9jZXNzb3IuaAkyMDA1LTA5LTAxIDEzOjE0OjQ4LjAwMDAwMDAwMCArMDIwMApAQCAtNDYw
+LDYgKzQ2MCw3IEBAIHN0cnVjdCB0aHJlYWRfc3RydWN0IHsKIAogI2RlZmluZSBJTklUX1RIUkVB
+RCAgewkJCQkJCQlcCiAJLnZtODZfaW5mbyA9IE5VTEwsCQkJCQkJXAorCS5lc3AwID0gc2l6ZW9m
+KGluaXRfc3RhY2spICsgKGxvbmcpJmluaXRfc3RhY2ssCQkJXAogCS5zeXNlbnRlcl9jcyA9IF9f
+S0VSTkVMX0NTLAkJCQkJXAogCS5pb19iaXRtYXBfcHRyID0gTlVMTCwJCQkJCQlcCiB9CkBAIC00
+NzQsNyArNDc1LDcgQEAgc3RydWN0IHRocmVhZF9zdHJ1Y3QgewogCS5lc3AwCQk9IHNpemVvZihp
+bml0X3N0YWNrKSArIChsb25nKSZpbml0X3N0YWNrLAlcCiAJLnNzMAkJPSBfX0tFUk5FTF9EUywJ
+CQkJCVwKIAkuc3MxCQk9IF9fS0VSTkVMX0NTLAkJCQkJXAotCS5sZHQJCT0gR0RUX0VOVFJZX0xE
+VCwJCQkJXAorCS5sZHQJCT0gR0RUX0VOVFJZX0xEVCAqIDgsCQkJCVwKIAkuaW9fYml0bWFwX2Jh
+c2UJPSBJTlZBTElEX0lPX0JJVE1BUF9PRkZTRVQsCQkJXAogCS5pb19iaXRtYXAJPSB7IFsgMCAu
+Li4gSU9fQklUTUFQX0xPTkdTXSA9IH4wIH0sCQlcCiB9Cg==
+
+--=__Part5D7F330F.0__=--

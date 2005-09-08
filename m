@@ -1,69 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964912AbVIHRvw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964905AbVIHR66@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964912AbVIHRvw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 13:51:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964913AbVIHRvw
+	id S964905AbVIHR66 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 13:58:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964913AbVIHR66
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 13:51:52 -0400
-Received: from S01060013104bd78e.vc.shawcable.net ([24.85.145.160]:11995 "EHLO
-	r3000.fsmlabs.com") by vger.kernel.org with ESMTP id S964912AbVIHRvv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 13:51:51 -0400
-Date: Thu, 8 Sep 2005 10:51:27 -0700 (PDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Jan Beulich <JBeulich@novell.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] move i386's enabling of fxsr and xmmxcpt
-In-Reply-To: <4320724C020000780002447D@emea1-mh.id2.novell.com>
-Message-ID: <Pine.LNX.4.63.0509081038460.8052@r3000.fsmlabs.com>
-References: <4320724C020000780002447D@emea1-mh.id2.novell.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 8 Sep 2005 13:58:58 -0400
+Received: from multivac.one-eyed-alien.net ([64.169.228.101]:26852 "EHLO
+	multivac.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id S964905AbVIHR65 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 13:58:57 -0400
+Date: Thu, 8 Sep 2005 10:58:52 -0700
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: Jim Ramsay <jim.ramsay@gmail.com>
+Cc: linux-usb-users@lists.sourceforge.net,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-usb-users] Possible bug in usb storage (2.6.11 kernel)
+Message-ID: <20050908175852.GA3196@one-eyed-alien.net>
+Mail-Followup-To: Jim Ramsay <jim.ramsay@gmail.com>,
+	linux-usb-users@lists.sourceforge.net,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <4789af9e05090810142bd3531d@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="y0ulUmNC+osPPQO6"
+Content-Disposition: inline
+In-Reply-To: <4789af9e05090810142bd3531d@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2005 Matthew Dharm, all rights reserved.
+X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Sep 2005, Jan Beulich wrote:
 
-> (Note: Patch also attached because the inline version is certain to get
-> line wrapped.)
-> 
-> Move some code unrelated to any dealing with hardware bugs from i386's
-> bugs.h to a more logical place.
-> 
-> Signed-off-by: Jan Beulich <jbeulich@novell.com>
->
-> diff -Npru 2.6.13/arch/i386/kernel/traps.c
-> 2.6.13-i386-fxsr/arch/i386/kernel/traps.c
-> --- 2.6.13/arch/i386/kernel/traps.c	2005-08-29 01:41:01.000000000
-> +0200
-> +++ 2.6.13-i386-fxsr/arch/i386/kernel/traps.c	2005-09-07
-> 11:46:35.000000000 +0200
-> @@ -1098,6 +1098,24 @@ void __init trap_init(void)
->  #endif
->  	set_trap_gate(19,&simd_coprocessor_error);
->  
-> +	if (cpu_has_fxsr) {
-> +		/*
-> +		 * Verify that the FXSAVE/FXRSTOR data will be 16-byte
-> aligned.
-> +		 */
-> +		struct fxsrAlignAssert {
-> +			int _:!(offsetof(struct task_struct,
-> thread.i387.fxsave) & 15);
-> +		};
-> +
-> +		printk(KERN_INFO "Enabling fast FPU save and restore...
-> ");
-> +		set_in_cr4(X86_CR4_OSFXSR);
-> +		printk("done.\n");
-> +	}
-> +	if (cpu_has_xmm) {
-> +		printk(KERN_INFO "Enabling unmasked SIMD FPU exception
-> support... ");
-> +		set_in_cr4(X86_CR4_OSXMMEXCPT);
-> +		printk("done.\n");
-> +	}
-> +
->  	set_system_gate(SYSCALL_VECTOR,&system_call);
+--y0ulUmNC+osPPQO6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hmm doesn't this really belong in identify_cpu()?
+On Thu, Sep 08, 2005 at 11:14:36AM -0600, Jim Ramsay wrote:
+> I think I have found a possible bug:
+> [...]
+> I suppose the scsi code could be changed to guarantee that
+> srb->request_buffer is page-aligned or cache-aligned, but that seems
+> like the wrong solution for this bug.
+
+Fixing the SCSI layer is -exactly- the correct solution.  The SCSI layer is
+supposed to guarantee us that those buffers are suitable for DMA'ing, and
+apparently it's violating that promise.
+
+Matt
+
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
+
+What, are you one of those Microsoft-bashing Linux freaks?
+					-- Customer to Greg
+User Friendly, 2/10/1999
+
+--y0ulUmNC+osPPQO6
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFDIHvcHL9iwnUZqnkRAtfIAJ4n/UXA19mFtRtH+SKPX++JmM3nZACgsWWd
+mfWFqi9Sb5ToTGtvddmJinA=
+=S+00
+-----END PGP SIGNATURE-----
+
+--y0ulUmNC+osPPQO6--

@@ -1,134 +1,164 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965053AbVIHW0a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965048AbVIHW1q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965053AbVIHW0a (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 18:26:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965045AbVIHW0X
+	id S965048AbVIHW1q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 18:27:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965051AbVIHW1p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 18:26:23 -0400
-Received: from mail.kroah.org ([69.55.234.183]:38846 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S965051AbVIHWW4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 18:22:56 -0400
-Cc: johnpol@2ka.mipt.ru
-Subject: [PATCH] w1: Added w1_reset_select_slave() - Resets the bus and then selects the slave by
-In-Reply-To: <11262181613474@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Thu, 8 Sep 2005 15:22:41 -0700
-Message-Id: <11262181611117@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
+	Thu, 8 Sep 2005 18:27:45 -0400
+Received: from mail.kroah.org ([69.55.234.183]:46785 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S965063AbVIHW1P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 18:27:15 -0400
+Date: Thu, 8 Sep 2005 15:25:53 -0700
 From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: [GIT PATCH] PCI patches for 2.6.13
+Message-ID: <20050908222553.GA6847@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] w1: Added w1_reset_select_slave() - Resets the bus and then selects the slave by
+Here are some PCI patches against your latest git tree.  All of these
+have been in the -mm tree for a while.  They do the following major
+things:
+	- remove the pci ids database, finally
+	- some pci hotplug driver fixes
+	- clean up pci.h to be a bit smaller
+	- add compiler warnings if you don't check the return value of
+	  some pci api functions.
+	- other minor fixes.
 
-sending either a skip rom or a rom match.
+Please pull from:
+	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/pci-2.6.git/
+or if master.kernel.org hasn't synced up yet:
+	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/pci-2.6.git/
 
-Patch from Ben Gardner <bgardner@wabtec.com>
+The full patches will be sent to the linux-pci mailing lists, if anyone
+wants to see them.
 
-Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+thanks,
 
----
-commit ea7d8f65c865ebfa1d7cd67c360a87333ff013c1
-tree 1e687c32d53a92c10a61fb23ab14763459ff5779
-parent db2d0008de519c5db6baec45f7831e08790301cf
-author Evgeniy Polyakov <johnpol@2ka.mipt.ru> Thu, 11 Aug 2005 17:27:49 +0400
-committer Greg Kroah-Hartman <gregkh@suse.de> Thu, 08 Sep 2005 14:41:26 -0700
+greg k-h
 
- drivers/w1/w1_io.c    |   24 ++++++++++++++++++++++++
- drivers/w1/w1_io.h    |    1 +
- drivers/w1/w1_therm.c |   11 ++---------
- 3 files changed, 27 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/w1/w1_io.c b/drivers/w1/w1_io.c
---- a/drivers/w1/w1_io.c
-+++ b/drivers/w1/w1_io.c
-@@ -277,6 +277,29 @@ void w1_search_devices(struct w1_master 
- 		w1_search(dev, cb);
- }
- 
-+/**
-+ * Resets the bus and then selects the slave by sending either a skip rom
-+ * or a rom match.
-+ * The w1 master lock must be held.
-+ *
-+ * @param sl	the slave to select
-+ * @return 	0=success, anything else=error
-+ */
-+int w1_reset_select_slave(struct w1_slave *sl)
-+{
-+	if (w1_reset_bus(sl->master))
-+		return -1;
-+
-+	if (sl->master->slave_count == 1)
-+		w1_write_8(sl->master, W1_SKIP_ROM);
-+	else {
-+		u8 match[9] = {W1_MATCH_ROM, };
-+		memcpy(&match[1], (u8 *)&sl->reg_num, 8);
-+		w1_write_block(sl->master, match, 9);
-+	}
-+	return 0;
-+}
-+
- EXPORT_SYMBOL(w1_touch_bit);
- EXPORT_SYMBOL(w1_write_8);
- EXPORT_SYMBOL(w1_read_8);
-@@ -286,3 +309,4 @@ EXPORT_SYMBOL(w1_delay);
- EXPORT_SYMBOL(w1_read_block);
- EXPORT_SYMBOL(w1_write_block);
- EXPORT_SYMBOL(w1_search_devices);
-+EXPORT_SYMBOL(w1_reset_select_slave);
-diff --git a/drivers/w1/w1_io.h b/drivers/w1/w1_io.h
---- a/drivers/w1/w1_io.h
-+++ b/drivers/w1/w1_io.h
-@@ -34,5 +34,6 @@ u8 w1_calc_crc8(u8 *, int);
- void w1_write_block(struct w1_master *, const u8 *, int);
- u8 w1_read_block(struct w1_master *, u8 *, int);
- void w1_search_devices(struct w1_master *dev, w1_slave_found_callback cb);
-+int w1_reset_select_slave(struct w1_slave *sl);
- 
- #endif /* __W1_IO_H */
-diff --git a/drivers/w1/w1_therm.c b/drivers/w1/w1_therm.c
---- a/drivers/w1/w1_therm.c
-+++ b/drivers/w1/w1_therm.c
-@@ -176,15 +176,10 @@ static ssize_t w1_therm_read_bin(struct 
- 	crc = 0;
- 
- 	while (max_trying--) {
--		if (!w1_reset_bus (dev)) {
-+		if (!w1_reset_select_slave(sl)) {
- 			int count = 0;
--			u8 match[9] = {W1_MATCH_ROM, };
- 			unsigned int tm = 750;
- 
--			memcpy(&match[1], (u64 *) & sl->reg_num, 8);
--
--			w1_write_block(dev, match, 9);
--
- 			w1_write_8(dev, W1_CONVERT_TEMP);
- 
- 			while (tm) {
-@@ -193,8 +188,7 @@ static ssize_t w1_therm_read_bin(struct 
- 					flush_signals(current);
- 			}
- 
--			if (!w1_reset_bus (dev)) {
--				w1_write_block(dev, match, 9);
-+			if (!w1_reset_select_slave(sl)) {
- 
- 				w1_write_8(dev, W1_READ_SCRATCHPAD);
- 				if ((count = w1_read_block(dev, rom, 9)) != 9) {
-@@ -205,7 +199,6 @@ static ssize_t w1_therm_read_bin(struct 
- 
- 				if (rom[8] == crc && rom[0])
- 					verdict = 1;
--
- 			}
- 		}
- 
+ Documentation/feature-removal-schedule.txt |    9 
+ MAINTAINERS                                |    7 
+ arch/alpha/kernel/sys_marvel.c             |    5 
+ arch/i386/pci/i386.c                       |    6 
+ arch/ppc/kernel/pci.c                      |    1 
+ arch/ppc64/kernel/eeh.c                    |   31 
+ arch/ppc64/kernel/iSeries_VpdInfo.c        |    5 
+ arch/ppc64/kernel/pci.c                    |    1 
+ arch/sparc64/kernel/pci.c                  |  139 
+ arch/sparc64/kernel/pci_psycho.c           |   34 
+ arch/sparc64/kernel/pci_sabre.c            |   36 
+ arch/sparc64/kernel/pci_schizo.c           |   48 
+ drivers/char/drm/drmP.h                    |    4 
+ drivers/infiniband/hw/mthca/mthca_main.c   |    8 
+ drivers/infiniband/hw/mthca/mthca_reset.c  |    8 
+ drivers/net/irda/vlsi_ir.h                 |    6 
+ drivers/parport/parport_pc.c               |    2 
+ drivers/pci/Kconfig                        |   17 
+ drivers/pci/Makefile                       |   24 
+ drivers/pci/bus.c                          |   51 
+ drivers/pci/gen-devlist.c                  |  132 
+ drivers/pci/hotplug/Makefile               |    3 
+ drivers/pci/hotplug/pciehp.h               |    2 
+ drivers/pci/hotplug/rpadlpar_core.c        |  355 -
+ drivers/pci/hotplug/rpaphp.h               |   37 
+ drivers/pci/hotplug/rpaphp_core.c          |  144 
+ drivers/pci/hotplug/rpaphp_pci.c           |  373 -
+ drivers/pci/hotplug/rpaphp_slot.c          |   66 
+ drivers/pci/hotplug/rpaphp_vio.c           |  129 
+ drivers/pci/hotplug/sgi_hotplug.c          |  195 
+ drivers/pci/hotplug/shpchp.h               |    2 
+ drivers/pci/msi.c                          |   10 
+ drivers/pci/names.c                        |  137 
+ drivers/pci/pci-driver.c                   |   37 
+ drivers/pci/pci.c                          |  106 
+ drivers/pci/pci.ids                        |10180 -----------------------------
+ drivers/pci/pcie/portdrv_pci.c             |    8 
+ drivers/pci/probe.c                        |    4 
+ drivers/pci/proc.c                         |   12 
+ drivers/pci/quirks.c                       |    7 
+ drivers/pci/setup-res.c                    |    7 
+ drivers/scsi/ahci.c                        |   16 
+ drivers/scsi/ata_piix.c                    |   14 
+ drivers/scsi/sata_sis.c                    |   14 
+ drivers/scsi/sata_uli.c                    |   14 
+ drivers/usb/core/hcd-pci.c                 |   28 
+ drivers/usb/host/ehci-hcd.c                |    4 
+ drivers/video/nvidia/nvidia.c              |    4 
+ drivers/video/riva/fbdev.c                 |    4 
+ include/asm-alpha/pci.h                    |   13 
+ include/asm-arm/pci.h                      |   13 
+ include/asm-generic/pci.h                  |   13 
+ include/asm-ia64/pci.h                     |   13 
+ include/asm-parisc/pci.h                   |   13 
+ include/asm-ppc/pci.h                      |   13 
+ include/asm-ppc64/pci.h                    |   13 
+ include/asm-sparc64/pci.h                  |    2 
+ include/linux/mempolicy.h                  |    1 
+ include/linux/pci.h                        |  511 -
+ include/linux/pci_regs.h                   |  448 +
+ mm/mempolicy.c                             |    2 
+ 61 files changed, 1379 insertions(+), 12162 deletions(-)
+
+----------------
+
+Adrian Bunk:
+  PCI: remove CONFIG_PCI_NAMES
+
+Alan Stern:
+  PCI: Fix regression in pci_enable_device_bars
+
+Andi Kleen:
+  PCI: Run PCI driver initialization on local node
+
+Andrew Morton:
+  PCI: Move PCI fixup data into r/o section
+  PCI: fix up pretty-names removal patch
+
+Brett M Russ:
+  PCI/libata INTx cleanup
+
+Daniel Ritz:
+  PCI: Support PCM PM CAP version 3
+
+David S. Miller:
+  Make sparc64 use setup-res.c
+
+Greg Kroah-Hartman:
+  PCI: clean up pci.h and split pci register info to separate header file.
+  PCI: start paying attention to a lot of pci function return values
+
+Jiri Slaby:
+  PCI: remove pci_find_device from parport_pc.c
+
+John Rose:
+  PCI Hotplug: rpaphp: Move VIO registration
+  PCI Hotplug: rpaphp: Change slot pci reference
+  PCI Hotplug: rpaphp: Remove unused stuff
+  PCI Hotplug: rpaphp: Remove rpaphp_find_pci
+  PCI Hotplug: rpaphp: Purify hotplug
+  PCI Hotplug: rpaphp: Export slot enable
+
+John W. Linville:
+  PCI: restore BAR values after D3hot->D0 for devices that need it
+
+Kristen Accardi:
+  PCI Hotplug: use bus_slot number for name
+
+Michael S. Tsirkin:
+  arch/386/pci: remap_pfn_range -> io_remap_pfn_range
+
+Paul Mackerras:
+  PCI: Add pci_walk_bus function to PCI core (nonrecursive)
+
+Prarit Bhargava:
+  PCI Hotplug: SGI hotplug driver fixes
 

@@ -1,87 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751342AbVIHIL2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751343AbVIHIPU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751342AbVIHIL2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 04:11:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbVIHIL2
+	id S1751343AbVIHIPU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 04:15:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbVIHIPU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 04:11:28 -0400
-Received: from fmr15.intel.com ([192.55.52.69]:50381 "EHLO
-	fmsfmr005.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1751342AbVIHIL1 convert rfc822-to-8bit (ORCPT
+	Thu, 8 Sep 2005 04:15:20 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:2569 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751343AbVIHIPT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 04:11:27 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [GIT PATCH] ACPI for 2.6.14
-Date: Thu, 8 Sep 2005 04:11:06 -0400
-Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B30048B3F04@hdsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [GIT PATCH] ACPI for 2.6.14
-Thread-Index: AcW0R8k61XKcCzCTSTylwYojt55eDQAAU9nQ
-From: "Brown, Len" <len.brown@intel.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Cc: <torvalds@osdl.org>, <linux-kernel@vger.kernel.org>,
-       <acpi-devel@lists.sourceforge.net>
-X-OriginalArrivalTime: 08 Sep 2005 08:11:10.0331 (UTC) FILETIME=[DF17A4B0:01C5B44C]
+	Thu, 8 Sep 2005 04:15:19 -0400
+Date: Thu, 8 Sep 2005 10:15:21 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Giancarlo Formicuccia <giancarlo.formicuccia@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [2.6.13] task_struct->fs_excl, kernel_thread and jffs2
+Message-ID: <20050908081520.GH4893@suse.de>
+References: <200509080947.58155.giancarlo.formicuccia@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200509080947.58155.giancarlo.formicuccia@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->There are a few bugs which I'd identified as arising from the acpi tree
->while it was in -mm.  Is this patch likely to drag them into mainline?
->
->They include:
->
->
->http://bugzilla.kernel.org/show_bug.cgi?id=4977
->            Summary: ACPI 20050708 fails on HP RX2600 platform
+On Thu, Sep 08 2005, Giancarlo Formicuccia wrote:
+> Hi,
+> [please CC me in any reply]
+> I'm not sure that dup_task_struct() must copy the fs_excl field. This can leads to
+> problems if do_fork() is somehow called while fs_excl!=0.
+> For example, the jffs2 code creates a kernel thread (jffs2_garbage_collect_thread)
+> in a path where lock_super() is held (i.e. by do_remount_sb, during -o remount,rw).
+> When the new thread expires, a badness happens (kernel/exit.c:787). This problem
+> was observed by a couple of people and can be easily reproduced:
+> http://lists.infradead.org/pipermail/linux-mtd/2005-August/013487.html
+> http://lists.arm.linux.org.uk/pipermail/linux-arm-kernel/2005-September/031109.html
+> 
+> At first glance, I'd simply set fs_excl to 0 for every new thread in dup_task_struct:
+> 
+> --- linux-2.6.13/kernel/fork.c	2005-08-29 01:41:01.000000000 +0200
+> +++ linux-2.6.13-new/kernel/fork.c	2005-09-07 17:06:23.000000000 +0200
+> @@ -173,6 +173,7 @@ static struct task_struct *dup_task_stru
+>  	*tsk = *orig;
+>  	tsk->thread_info = ti;
+>  	ti->task = tsk;
+> +	atomic_set(&tsk->fs_excl, 0);
+>  
+>  	/* One for us, one for whoever does the "release_task()" (usually parent) */
+>  	atomic_set(&tsk->usage,2);
+> 
+> but I've a doubt about the WARN_ON in exit.c being actually here to report these 
+> kernel_thread() users (like jffs2)...
+> 
+> Any comment/suggestion?
 
-This was filed against ACPICA 20050708
-which had a known problem with module-level code.
-The ACPI patch now contains ACPICA 20050902 which
-fixes that issue, and this system needs to be
-re-tested with the latest patch.
+Patch is correct, that is definitely an oversight!
 
->http://bugzilla.kernel.org/show_bug.cgi?id=4867
->            Summary: bug in ACPI crashes machine when reading
->                     /proc/acpi/thermal_zone/THRM/temperature
+Acked-by: Jens Axboe <axboe@suse.de>
 
-UNREPRODUCIBLE.
-test system died and is no longer available.
+-- 
+Jens Axboe
 
->http://bugzilla.kernel.org/show_bug.cgi?id=4980
->            Summary: krash on entering mem sleep
-
-The submitter confirmed that suspend to memory now works on this box.
-
-The remaining issue on this box is related to the EC and battery,
-and we're getting contradictory feedback on it.
-Frankly, I think we need broader testing, and
-pushing the latest ec code into 2.6.14 now is the best
-way to get that.  If it turns out to be a mistake
-we can always turn back time and revert
-drivers/acpi/ec.c to the one that shipped in 2.6.12 --
-but the one in the latest patch has proven to be
-superior to 2.6.13 on other systems.
-
->Plus we have all the battery monitor woes, but they're in 
->2.6.13 already.
-
-Re: 2.6.13 regressions vs 2.6.12, I'm aware of these:
-
-  http://bugzilla.kernel.org/show_bug.cgi?id=5165
-  smp c-states on Pentium 4 with hyperthreading causes big slow-down
-
-  http://bugzilla.kernel.org/show_bug.cgi?id=5171
-  2.6.13 SMP kernel crash on boot at pm_idle_save()
-
-I saw lots of transient battery issues from 2.6.13-rc3
-until 2.6.13-rc6, but the ones I followed went away
-as of 2.6.13 final.  Do you have your eye on others
-besides 4980?
-
-thanks,
--Len

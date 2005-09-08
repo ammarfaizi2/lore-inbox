@@ -1,55 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932691AbVIHP1S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932694AbVIHP1X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932691AbVIHP1S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 11:27:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932694AbVIHP1S
+	id S932694AbVIHP1X (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 11:27:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932695AbVIHP1X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 11:27:18 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:54629
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S932691AbVIHP1R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 11:27:17 -0400
-Message-Id: <432074B302000078000244A3@emea1-mh.id2.novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Thu, 08 Sep 2005 17:28:19 +0200
-From: "Jan Beulich" <JBeulich@novell.com>
-To: "Christoph Hellwig" <hch@infradead.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] add stricmp
-References: <43206F420200007800024455@emea1-mh.id2.novell.com> <20050908151754.GB11067@infradead.org>
-In-Reply-To: <20050908151754.GB11067@infradead.org>
+	Thu, 8 Sep 2005 11:27:23 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:43393 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S932694AbVIHP1W
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 11:27:22 -0400
+Date: Thu, 8 Sep 2005 17:28:19 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Budde, Marco" <budde@telos.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kbuild: libraries and subdirectories
+Message-ID: <20050908152819.GA7749@mars.ravnborg.org>
+References: <809C13DD6142E74ABE20C65B11A2439809C4C2@www.telos.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <809C13DD6142E74ABE20C65B11A2439809C4C2@www.telos.de>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> Christoph Hellwig <hch@infradead.org> 08.09.05 17:17:54 >>>
->On Thu, Sep 08, 2005 at 05:05:06PM +0200, Jan Beulich wrote:
->> (Note: Patch also attached because the inline version is certain to
-get
->> line wrapped.)
->> 
->> While strnicmp existed in the set of string support routines,
-stricmp
->> didn't, which this patch adjusts.
->
->I don't thing we should do case-insenstitive comparims in kernel, and
->in the few cases where we must (legacy OS fileystem support) it needs
->to be NLS-capable.
+On Thu, Sep 08, 2005 at 03:40:59PM +0200, Budde, Marco wrote:
+> I have a large number of sources files, which I have to
+> compile into one kernel module. Let's assume I have the
+> following source organisation:
+> 
+>   main/
+>     main_code.c
+>   lib1/
+>     part1/
+>       file_1_1_1.c
+>     part2/
+>       file_1_2_1.c
+>   lib2/
+>     part1/
+>       file_2_1_1.c
+>     part2/
+>       file_2_2_1.c
+> 
+> I would like to build all source files in lib1 into one
+> lib.a library and all files in lib2 into a second lib.a
+> library.
 
-Then how am I supposed to do ASCII-only case-insensitive compares (i.e.
-reading config files)? And why is there a strnicmp? If this is not going
-to be available as general library routine, I'd just have to add this to
-a place where it doesn't really belong.
+kbuild is optimised for kernel usage.
+And within the kernel only xfs and oprofile (+a few others)
+have files spread over more than one directory like in your
+example. This is not considered good practice and therefore
+kbuild does not document this usage - neither encourage it.
 
->But once again we need to see the users anyway.  You're adding tons
-of
->bloat in your patches without showing us an actually useful user.
+Also kbuild does not support building .a file in the way you
+want it to do.
 
-The intended user can be seen at
-http://forge.novell.com/modules/xfmod/project/?nlkd (and see also my
-previous reply to your earlier, similar complaint).
+You can do the following:
+obj-$(CONFIG_foo) += main/main_code.o
+obj-$(CONFIG_foo) += lib1/part1/file_1_1_1.c
+obj-$(CONFIG_foo) += lib1/part2/file1_2_1.o
 
-Jan
+etc.
+
+> 
+> At the end I would like to compile the code in main and
+> link every together (result should be one kernel module).
+> 
+> How can I archieve this with kbuild? Its documentation is not
+> really deep.
+Please point out in what section you miss information and I will try to
+update it.
+I for one consider the kbuild syntax well documented, but I may be a bit
+biased in this respect.
+
+	Sam

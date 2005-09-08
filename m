@@ -1,52 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750837AbVIHLxk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750870AbVIHL6Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750837AbVIHLxk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 07:53:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750870AbVIHLxk
+	id S1750870AbVIHL6Q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 07:58:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751322AbVIHL6Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 07:53:40 -0400
-Received: from mail.ccur.com ([208.248.32.212]:49207 "EHLO mail.ccur.com")
-	by vger.kernel.org with ESMTP id S1750837AbVIHLxj (ORCPT
+	Thu, 8 Sep 2005 07:58:16 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:36320 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1750870AbVIHL6Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 07:53:39 -0400
-Subject: strange signal on new clone creation under ptrace?
-From: Tom Horsley <tom.horsley@ccur.com>
-To: linux-kernel@vger.kernel.org
-Cc: bugsy@ccur.com
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 08 Sep 2005 07:53:38 -0400
-Message-Id: <1126180418.11585.12.camel@tweety>
+	Thu, 8 Sep 2005 07:58:16 -0400
+Date: Thu, 8 Sep 2005 04:58:05 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Robin Holt <holt@sgi.com>
+Cc: holt@sgi.com, kurosawa@valinux.co.jp, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/5][BUG] SUBCPUSETS: fix for cpusets minor problem
+Message-Id: <20050908045805.034bc5ed.pj@sgi.com>
+In-Reply-To: <20050908112507.GB19987@lnx-holt.americas.sgi.com>
+References: <20050908054053.35DAD70031@sv1.valinux.co.jp>
+	<20050908111731.GA19987@lnx-holt.americas.sgi.com>
+	<20050908112507.GB19987@lnx-holt.americas.sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm seeing this on a redhat enterprise 4 system (so the kernel is
-older than dirt in lkml time :-), but I wondered if it might
-strike a familiar note to anyone working on ptrace issues.
+Robin wrote:
+> Oops, didn't see you had already sent it along.
 
-In my debugger, I'm following clone and fork creation around
-to debug children using PTRACE_SETOPTIONS. Normally when I get
-the waitpid() status for a new clone, it shows up with SIGSTOP
-as the initial reported signal. My debugger is expecting this
-and handles it no problem.
+Looks like you, me, Takahiro-san and Andrew are all in agreement
+on sending this Patch 1/5 along.
 
-In a hairy complex threads program a user has (which is apparently
-using SIGUSR1 a lot), the very first status that ever shows up for
-a brand new clone reports SIGUSR1 rather than SIGSTOP.
+Excellent.
 
-When I teach the debugger to deal with that and get the new clone
-started up, it immediately gets the SIGSTOP I didn't get on the
-initial status.
-
-I haven't been able to create any test program to reproduce this
-behavior, so I have no idea how it could happen, but it appears
-as though the kernel managed to queue up the signals in the wrong
-order.
-
-Does this sound like a bug anyone remembers fixing? Does anyone
-have an idea how I could make it happen? Just curious about what
-the heck could be going on here (I can probably teach the debugger
-to work around this as well).
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

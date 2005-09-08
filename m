@@ -1,61 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932664AbVIHPq7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932620AbVIHPrV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932664AbVIHPq7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 11:46:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932704AbVIHPq6
+	id S932620AbVIHPrV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 11:47:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932666AbVIHPrU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 11:46:58 -0400
-Received: from fed1rmmtao10.cox.net ([68.230.241.29]:60889 "EHLO
-	fed1rmmtao10.cox.net") by vger.kernel.org with ESMTP
-	id S932664AbVIHPqq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 11:46:46 -0400
-Date: Thu, 8 Sep 2005 08:46:45 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Jan Beulich <JBeulich@novell.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i386 CFI annotations
-Message-ID: <20050908154645.GN3966@smtp.west.cox.net>
-References: <432070850200007800024465@emea1-mh.id2.novell.com>
+	Thu, 8 Sep 2005 11:47:20 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:8809
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S932620AbVIHPrT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 11:47:19 -0400
+Message-Id: <4320796402000078000244DC@emea1-mh.id2.novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0 
+Date: Thu, 08 Sep 2005 17:48:20 +0200
+From: "Jan Beulich" <JBeulich@novell.com>
+To: "Tom Rini" <trini@kernel.crashing.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] rmmod notifier chain
+References: <43206EFE0200007800024451@emea1-mh.id2.novell.com> <20050908153314.GM3966@smtp.west.cox.net>
+In-Reply-To: <20050908153314.GM3966@smtp.west.cox.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <432070850200007800024465@emea1-mh.id2.novell.com>
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 08, 2005 at 05:10:29PM +0200, Jan Beulich wrote:
+>It's possible to do this a bit differently, if I'm guessing right at
+>what NLKD does.  The following is from the KGDB patches (trimmed of
+some
+>other, unrelated to the notify part code):
 
-> As a foundation for reliable stack unwinding, this adds CFI unwind
-> annotations to many low-level i386 routines, plus a config option
-> (available to all architectures) to enable them as well as the
-> compiler
-> producing similar information for all C sources.
-> 
-> Signed-off-by: Jan Beulich <jbeulich@novell.com>
+Hmm, yes, this seems to be the better way to go.
 
-x86_64 has proper CFI annotations on things, and just depends on
-DEBUG_INFO.  Perhaps that would be a slightly easier path to use for
-pushing this along?
-
-> +	CFI_ADJUST_CFA_OFFSET 4;\
-> +	/*CFI_REL_OFFSET es, 0;*/\
->  	pushl %ds; \
-> +	CFI_ADJUST_CFA_OFFSET 4;\
-> +	/*CFI_REL_OFFSET ds, 0;*/\
-
-Adding new commented out code never wins new friends. :)
-
-> diff -Npru 2.6.13/include/asm-i386/dwarf2.h
-[snip]
-> +#ifdef CONFIG_UNWIND_INFO
-[snip]
-> +#else
-[snip]
-> +#define CFI_STARTPROC	ignore
-
-Why not just empty defines?
-
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Thanks, Jan

@@ -1,71 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932484AbVIHAox@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932493AbVIHAtN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932484AbVIHAox (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 20:44:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932487AbVIHAox
+	id S932493AbVIHAtN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 20:49:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932490AbVIHAtN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 20:44:53 -0400
-Received: from web50203.mail.yahoo.com ([206.190.38.44]:5271 "HELO
-	web50203.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S932484AbVIHAow (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 20:44:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=t4wO4JNnoHCZAvgkc4C7ESZOdPrpwnIJUHsnJ3KYKmkgSN7G7kFB7mcKp8QuOowPEV90KHVqLTzG5EMW0D0CtML0BT7i6gSMY29gOB/2C+Q3VP1El+CEcWWI5ol2+trig/8QNueFoGCCJLMQVxYOztXuP8qg7/cBrMbWbeCtfqM=  ;
-Message-ID: <20050908004442.83467.qmail@web50203.mail.yahoo.com>
-Date: Wed, 7 Sep 2005 17:44:42 -0700 (PDT)
-From: Alex Davis <alex14641@yahoo.com>
-Subject: Re: RFC: i386: kill !4KSTACKS
-To: Bill Davidsen <davidsen@tmr.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <431F18A3.6050502@tmr.com>
+	Wed, 7 Sep 2005 20:49:13 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:1928 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932479AbVIHAtM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Sep 2005 20:49:12 -0400
+Date: Wed, 7 Sep 2005 17:49:04 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Jens Axboe <axboe@suse.de>, Greg KH <greg@kroah.com>
+Subject: Re: [GIT PATCH] SCSI merge for 2.6.13
+In-Reply-To: <Pine.LNX.4.58.0509071738050.11102@g5.osdl.org>
+Message-ID: <Pine.LNX.4.58.0509071743380.11102@g5.osdl.org>
+References: <1126053452.5012.28.camel@mulgrave> <Pine.LNX.4.58.0509071730490.11102@g5.osdl.org>
+ <Pine.LNX.4.58.0509071738050.11102@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
---- Bill Davidsen <davidsen@tmr.com> wrote:
-
-> Alex Davis wrote:
-> >>Please don't tell me to "care for closed-source drivers". 
-> > 
-> > ndiswrapper is NOT closed source. And I'm not asking you to "care".
-> > 
-> > 
-> >>I don't want the pain of debugging crashes on the machines which run unknown code
-> >>in kernel space.
-> > 
-> > I'm not asking you to debug crashes. I'm simply requesting that the
-> > kernel stack size situation remain as it is: with 8K as the default
-> > and 4K configurable. 
+On Wed, 7 Sep 2005, Linus Torvalds wrote:
 > 
-> I can be happy with 4K as the default, everything I use *except* 
-> ndiswrapper seems to run fine (I don't currently need fancy filesystems) 
-> but laptops seem to include a lot of unsupported hardware, which can't 
-> be replaced due to resources (money, slots, batter life).
-> -- 
-I could live with any default, as long as it's configurable.
-The intent here, however, is to take away the option. That's
-what I have an issue with.
+> Quite frankly, what's the point in asking people to pull a tree that is 
+> known to not compile?
 
-Is there any problem caused by letting stack size be
-configurable to any (sane) arbitrary maximum value
-(e.g. 32K)?
+Btw, I see the patch that is supposed to fix it, but I'm in no position to
+know whether it's even acceptable to basically double the size of the
+"struct klist", for example. There may be a good reason why Greg hasn't 
+been merging the klist stuff, and just assuming that they are merged not 
+only screws up everybody down-stream, it's not necessarily valid in the 
+first place.
 
+In other words, I think I will have to just revert the commit that
+introduces this bogus "assume a patch that wasn't merged" (commit ID
+2b7d6a8cb9718fc1d9e826201b64909c44a915f4) for now.
 
->     -bill davidsen (davidsen@tmr.com)
-> "The secret to procrastination is to put things off until the
->   last possible moment - but no longer"  -me
-> 
+And once more strongly complain about it getting sent to me in the first
+place since it was known to not even compile.
 
-
-I code, therefore I am
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+		Linus

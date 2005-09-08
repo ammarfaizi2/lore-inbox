@@ -1,94 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932532AbVIHPdS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932535AbVIHPfH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932532AbVIHPdS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 11:33:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932704AbVIHPdR
+	id S932535AbVIHPfH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 11:35:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932702AbVIHPfH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 11:33:17 -0400
-Received: from fed1rmmtao02.cox.net ([68.230.241.37]:8586 "EHLO
-	fed1rmmtao02.cox.net") by vger.kernel.org with ESMTP
-	id S932532AbVIHPdQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 11:33:16 -0400
-Date: Thu, 8 Sep 2005 08:33:14 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Jan Beulich <JBeulich@novell.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rmmod notifier chain
-Message-ID: <20050908153314.GM3966@smtp.west.cox.net>
-References: <43206EFE0200007800024451@emea1-mh.id2.novell.com>
+	Thu, 8 Sep 2005 11:35:07 -0400
+Received: from zproxy.gmail.com ([64.233.162.205]:37547 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932535AbVIHPfF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 11:35:05 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=n+zAymSz4Axu2EKb+C2QGY5plinmo/a6aX4QKHAOJfuKh1gMuBB91jiWMIWZTM/p5fwmAsEbbNDlyoR+KDM/udLkh4GWORUHiMlcWNcoRkTlMZ6wQA0xzJ6I41GhvI5lTIwKE0tLzaBEtWa1bPPdlA3vrhKAM7WNvtaQPsTgrUU=
+Message-ID: <5d0f6099050908083510aa9ab4@mail.gmail.com>
+Date: Thu, 8 Sep 2005 17:35:02 +0200
+From: Dirk Jagdmann <jagdmann@gmail.com>
+Reply-To: jagdmann@gmail.com
+To: linux-kernel@vger.kernel.org
+Subject: Ethernet IP multicast maximum packet size
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <43206EFE0200007800024451@emea1-mh.id2.novell.com>
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 08, 2005 at 05:03:58PM +0200, Jan Beulich wrote:
+Hello developers,
 
-> (Note: Patch also attached because the inline version is certain to get
-> line wrapped.)
-> 
-> Debugging and maintenance support code occasionally needs to know not
-> only of module insertions, but also modulke removals. This adds a
-> notifier
-> chain for this purpose.
+I googled around all day, but did not find any satisfying answer. Is
+there a maximum packet size when I use IP multicasting in a local
+ethernet LAN? Or more precisely, does the multicast code in Linux
+handle an IP fragmentation/defragmentation of a 63K UDP multicast
+datagram, which is transmitted over an 1500bytes MTU ethernet? Or
+should I stay on the safe edge and don't construct datagrams > 1500 so
+I'll avoid fragmentation?
 
-It's possible to do this a bit differently, if I'm guessing right at
-what NLKD does.  The following is from the KGDB patches (trimmed of some
-other, unrelated to the notify part code):
-
-diff -puN include/linux/module.h~module include/linux/module.h
---- linux-2.6.13/include/linux/module.h~module	2005-09-01 12:00:49.000000000 -0700
-+++ linux-2.6.13-trini/include/linux/module.h	2005-09-01 12:00:49.000000000 -0700
-@@ -210,6 +210,7 @@ enum module_state
- 	MODULE_STATE_LIVE,
- 	MODULE_STATE_COMING,
- 	MODULE_STATE_GOING,
-+ 	MODULE_STATE_GONE,
- };
- 
- /* Similar stuff for section attributes. */
-diff -puN kernel/module.c~module kernel/module.c
---- linux-2.6.13/kernel/module.c~module	2005-09-01 12:00:49.000000000 -0700
-+++ linux-2.6.13-trini/kernel/module.c	2005-09-01 12:00:49.000000000 -0700
-@@ -623,6 +623,12 @@ sys_delete_module(const char __user *nam
- 	if (ret != 0)
- 		goto out;
- 
-+	down(&notify_mutex);
-+	notifier_call_chain(&module_notify_list, MODULE_STATE_GOING,
-+        			mod);
-+	up(&notify_mutex);
-+
-+
- 	/* Never wait if forced. */
- 	if (!forced && module_refcount(mod) != 0)
- 		wait_for_zero_refcount(mod);
-@@ -635,6 +641,11 @@ sys_delete_module(const char __user *nam
- 	}
- 	free_module(mod);
- 
-+	down(&notify_mutex);
-+	notifier_call_chain(&module_notify_list, MODULE_STATE_GONE,
-+			NULL);
-+	up(&notify_mutex);
-+
-  out:
- 	up(&module_mutex);
- 	return ret;
-@@ -1909,6 +1961,10 @@ sys_init_module(void __user *umod,
- 		/* Init routine failed: abort.  Try to protect us from
-                    buggy refcounters. */
- 		mod->state = MODULE_STATE_GOING;
-+		down(&notify_mutex);
-+		notifier_call_chain(&module_notify_list, MODULE_STATE_GOING,
-+				mod);
-+		up(&notify_mutex);
- 		synchronize_sched();
- 		if (mod->unsafe)
- 			printk(KERN_ERR "%s: module is now stuck!\n",
-_
 -- 
-Tom Rini
-http://gate.crashing.org/~trini/
+---> Dirk Jagdmann
+----> http://cubic.org/~doj
+-----> http://llg.cubic.org

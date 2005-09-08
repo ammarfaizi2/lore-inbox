@@ -1,78 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964962AbVIHTgN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964964AbVIHThK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964962AbVIHTgN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 15:36:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964963AbVIHTgN
+	id S964964AbVIHThK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 15:37:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964966AbVIHThK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 15:36:13 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:5516 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964962AbVIHTgN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 15:36:13 -0400
-Date: Thu, 8 Sep 2005 12:35:25 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       davem@redhat.com
-Subject: Re: Serial maintainership
-Message-Id: <20050908123525.6bc0cb26.akpm@osdl.org>
-In-Reply-To: <20050908172537.F5661@flint.arm.linux.org.uk>
-References: <20050908165256.D5661@flint.arm.linux.org.uk>
-	<1126197523.19834.49.camel@localhost.localdomain>
-	<20050908172537.F5661@flint.arm.linux.org.uk>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 8 Sep 2005 15:37:10 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:45316 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S964964AbVIHThJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 15:37:09 -0400
+Message-ID: <43209457.6060301@tmr.com>
+Date: Thu, 08 Sep 2005 15:43:19 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: jan.kiszka@googlemail.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: RFC: i386: kill !4KSTACKS
+References: <20050904145129.53730.qmail@web50202.mail.yahoo.com>	 <1125854398.23858.51.camel@localhost.localdomain>	 <p73aciqrev0.fsf@verdi.suse.de> <dfk5cp$19p$1@sea.gmane.org>	 <58d0dbf10509061005358dce91@mail.gmail.com>	 <dfkjav$lmd$1@sea.gmane.org>	 <58d0dbf105090612421dcd9d8d@mail.gmail.com> <431F2760.5060904@tmr.com> <58d0dbf10509071054175e82ff@mail.gmail.com>
+In-Reply-To: <58d0dbf10509071054175e82ff@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
->
-> On Thu, Sep 08, 2005 at 05:38:43PM +0100, Alan Cox wrote:
-> > On Iau, 2005-09-08 at 16:52 +0100, Russell King wrote:
-> > > I notice DaveM's taken over serial maintainership.  Please arrange for
-> > > serial patches to be sent to davem in future, thanks.  (All ARM serial
-> > > drivers are broken as of Tuesday.)
-> > > 
-> > > I might take a different view if I at least had a curtious CC: of the
-> > > patch, which I had already asked akpm to reject.
-> > > 
-> > > Thanks.  That's another subsystem I don't have to care about anymore.
-> > 
-> > Please remember to send Linus a patch updating MAINTAINERS if so.
+Jan Kiszka wrote:
+> 2005/9/7, Bill Davidsen <davidsen@tmr.com>:
 > 
-> Well, it appears that we're fast approaching meltdown in kernel
-> land - patches are being applied despite maintainers objection,
-> maintainers are not being copied with changes in their area, etc.
 
-Sometimes.  They're mistakes.
-
-> I might mind less with the occasional slip up if it was occasional,
-> but it doesn't appear to be anymore - maybe not from my perspective.
-
-The number of times I've been made aware of it happening is quite occasional.
-
-> This morning Andi Kleen stated:
+>>Is there a technical reason ("hard to implement" is a practical reason)
+>>why all stacks need to be the same size?
+>>
 > 
->  "normally he (akpm) asks you before finally sending them off -
->   then you can complain again"
 > 
-> I don't appear to be asked by akpm
+> Because of
+> 
+> static inline struct thread_info *current_thread_info(void)
+> {
+>         struct thread_info *ti;
+>         __asm__("andl %%esp,%0; ":"=r" (ti) : "" (~(THREAD_SIZE - 1)));
+>         return ti;
+> }
+> [include/asm-i386/thread_info.h]
+> 
+> which assumes that it can "round down" the stack pointer and then will
+> find the thread_info of the current context there. Only works for
+> identically sized stacks. Note that this function is heavily used in
+> the kernel, either directly or indirectly. You cannot avoid it.
 
-Maintainer is (at least) cc'ed when the patch goes into -mm and when it
-goes over to Linus.  Post-facto complaining is appreciated, so we can fix
-the kernel and so I can tweak the process or the brain.
+Avoiding it isn't necessary, a config option to read a variable 
+THREAD_SIZE would solve this part of it. I looked at the implications of 
+this, and other than a slight overhead it looks as if the problem is 
+where to put the size :-( I think it could be done given that all 
+threads of a process would have the same size, but I am *not* suggesting 
+that it should be done.
+> 
+> My current assessment regarding differently sized threads for
+> ndiswrapper: not feasible with vanilla kernels.
 
-> - patches from -mm are sent
-> to Linus CC'd me, and that occurs during the night.  Come the
-> morning, they're in Linus tree so unless one is awake reading
-> email 24 hours a day, it's impossible to "complain again".
+Have to agree, it would take way more effort than it's worth, given that 
+the need can be avoided by allowing user config of the stack size. It 
+does look relatively easy to allow larger stack sizes, though. Wasn't 
+there one driver so ill-behaved it wouldn't even run in an 8k stack?
 
-It shouldn't be necessary to complain more than once.  Sometimes I'll hang
-on to a complained-about patch a) to remember that something needs to
-happen and b) because an update is expected.  Once or twice I've
-accidentally submitted such patches.
+Andi made the point that allocating server size memory in 4k blocks 
+results in a lot of them, resulting in increased overhead in some 
+places. Thinking about configuring the stack size, maybe it would be 
+useful to make memory allocation block size independent of the hardware 
+and let both be set over a wide range in config.
 
-This particular patch ([SERIAL]: Avoid 'statement with no effect'
-warnings.) didn't ever go into -mm.
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

@@ -1,46 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932438AbVIHAlK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932484AbVIHAox@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932438AbVIHAlK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Sep 2005 20:41:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932487AbVIHAlK
+	id S932484AbVIHAox (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Sep 2005 20:44:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932487AbVIHAox
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Sep 2005 20:41:10 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:42629 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932438AbVIHAlJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Sep 2005 20:41:09 -0400
-Date: Wed, 7 Sep 2005 17:41:02 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Jens Axboe <axboe@suse.de>
-Subject: Re: [GIT PATCH] SCSI merge for 2.6.13
-In-Reply-To: <Pine.LNX.4.58.0509071730490.11102@g5.osdl.org>
-Message-ID: <Pine.LNX.4.58.0509071738050.11102@g5.osdl.org>
-References: <1126053452.5012.28.camel@mulgrave> <Pine.LNX.4.58.0509071730490.11102@g5.osdl.org>
+	Wed, 7 Sep 2005 20:44:53 -0400
+Received: from web50203.mail.yahoo.com ([206.190.38.44]:5271 "HELO
+	web50203.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S932484AbVIHAow (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Sep 2005 20:44:52 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=t4wO4JNnoHCZAvgkc4C7ESZOdPrpwnIJUHsnJ3KYKmkgSN7G7kFB7mcKp8QuOowPEV90KHVqLTzG5EMW0D0CtML0BT7i6gSMY29gOB/2C+Q3VP1El+CEcWWI5ol2+trig/8QNueFoGCCJLMQVxYOztXuP8qg7/cBrMbWbeCtfqM=  ;
+Message-ID: <20050908004442.83467.qmail@web50203.mail.yahoo.com>
+Date: Wed, 7 Sep 2005 17:44:42 -0700 (PDT)
+From: Alex Davis <alex14641@yahoo.com>
+Subject: Re: RFC: i386: kill !4KSTACKS
+To: Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <431F18A3.6050502@tmr.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Wed, 7 Sep 2005, Linus Torvalds wrote:
->
-> You meant 
+--- Bill Davidsen <davidsen@tmr.com> wrote:
+
+> Alex Davis wrote:
+> >>Please don't tell me to "care for closed-source drivers". 
+> > 
+> > ndiswrapper is NOT closed source. And I'm not asking you to "care".
+> > 
+> > 
+> >>I don't want the pain of debugging crashes on the machines which run unknown code
+> >>in kernel space.
+> > 
+> > I'm not asking you to debug crashes. I'm simply requesting that the
+> > kernel stack size situation remain as it is: with 8K as the default
+> > and 4K configurable. 
 > 
->   master.kernel.org:/pub/scm/linux/kernel/git/jejb/scsi-for-linus-2.6.git
+> I can be happy with 4K as the default, everything I use *except* 
+> ndiswrapper seems to run fine (I don't currently need fancy filesystems) 
+> but laptops seem to include a lot of unsupported hardware, which can't 
+> be replaced due to resources (money, slots, batter life).
+> -- 
+I could live with any default, as long as it's configurable.
+The intent here, however, is to take away the option. That's
+what I have an issue with.
+
+Is there any problem caused by letting stack size be
+configurable to any (sane) arbitrary maximum value
+(e.g. 32K)?
+
+
+>     -bill davidsen (davidsen@tmr.com)
+> "The secret to procrastination is to put things off until the
+>   last possible moment - but no longer"  -me
 > 
-> I do believe,
 
-And also, this fails to compile due to the klist problem.
 
-Quite frankly, what's the point in asking people to pull a tree that is 
-known to not compile?
+I code, therefore I am
 
-Now I made the mistake of pushing the thing out before I realized that the 
-thing that you asked me to pull was the same thing that was known to be 
-incomplete and non-working. That just makes me irritated.
-
-		Linus
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

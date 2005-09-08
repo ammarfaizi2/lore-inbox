@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932517AbVIHOy5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932519AbVIHOzb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932517AbVIHOy5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 10:54:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932519AbVIHOy5
+	id S932519AbVIHOzb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 10:55:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932520AbVIHOzb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 10:54:57 -0400
-Received: from rproxy.gmail.com ([64.233.170.202]:34778 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932517AbVIHOy5 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 10:54:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=IccDd+oa5uieuooxUdNCmHm5nZIdrFH+9BoPU/CtRJG6sT86H+2YU3hzPBbGT2jsFy8QyO1ynbJCPJTKbjJ/26iLxU85f386wwt/XA4MbrI6olqPTm3asxIn8bpUSr1sUF7uoh0AqXTmfD3VMJ/KAxrRY7FfFsdi+PyIqG39X0M=
-Message-ID: <d120d500050908075446a4c9e0@mail.gmail.com>
-Date: Thu, 8 Sep 2005 09:54:33 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Eric Piel <Eric.Piel@lifl.fr>
-Subject: Re: [DRIVER] Where is the PSX Gamepad Driver in 2.6.13-rc3?
-Cc: Christoph Litters <christophlitters@gmx.de>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <43204DD4.3090103@lifl.fr>
+	Thu, 8 Sep 2005 10:55:31 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:15325 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S932519AbVIHOza (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 10:55:30 -0400
+Date: Thu, 8 Sep 2005 07:55:13 -0700
+From: Paul Jackson <pj@sgi.com>
+To: dipankar@in.ibm.com
+Cc: dino@in.ibm.com, kurosawa@valinux.co.jp, linux-kernel@vger.kernel.org,
+       ckrm-tech@lists.sourceforge.net
+Subject: Re: [PATCH 0/5] SUBCPUSETS: a resource control functionality using
+ CPUSETS
+Message-Id: <20050908075513.26c8c2d5.pj@sgi.com>
+In-Reply-To: <20050908141152.GA11793@in.ibm.com>
+References: <20050908053912.1352770031@sv1.valinux.co.jp>
+	<20050908002323.181fd7d5.pj@sgi.com>
+	<20050908131427.GA5994@in.ibm.com>
+	<20050908141152.GA11793@in.ibm.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-References: <42E48CA5.9010709@m1k.net> <43201906.8040902@gmx.de>
-	 <d120d500050908073942876de5@mail.gmail.com> <43204DD4.3090103@lifl.fr>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/8/05, Eric Piel <Eric.Piel@lifl.fr> wrote:
-> 09/08/2005 04:38 PM, Dmitry Torokhov wrote/a écrit:
-> > On 9/8/05, Christoph Litters <christophlitters@gmx.de> wrote:
-> >
-> >>Hello,
-> >>
-> >>I have an adapter usb to psx i have tried it with 2.6.9 and it works
-> >>perfectly with the kernel driver.
-> >>with 2.6.12 i cant get it to work and with 2.6.13-rc3 i havent seen any
-> >>option to enable it.
-> >>could anybody help me?
-> >>
-> >
-> >
-> > Device Drivers  ---> Input device support  ---> Joysticks  --->
-> > Multisystem, NES, SNES, N64, PSX joysticks and gamepads
-> >
-> > Needs parport support.
-> >
-> 
-> Are you sure? Isn't this only for parallel to psx adapters? Christoph
-> says he has a "usb to psx" adapter.
-> 
+Dipankar wrote:
+> If what subcpusets is doing is slicing cpusets resources, then wouldn't
+> it be more intusive to call them slice0, slice1 etc. under the 
+> respective cpuset ?
 
-Oh, yes, sorry. In that case wouldn't HID driver handle it?
+If we continue with Takahiro-san's design, then I agree that the name
+'subcpusets' doesn't have quite the right connotations, and would join
+you in exploring alternative names.
+
+First it looks to be worth exploring alternatives that make resource
+control more an attribute of existing cpusets than a new (sub) type of
+cpuset, as Dinakar and I have both contemplated in earlier posts today.
 
 -- 
-Dmitry
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

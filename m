@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751351AbVIHNcW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751356AbVIHNfl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751351AbVIHNcW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 09:32:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751354AbVIHNcW
+	id S1751356AbVIHNfl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 09:35:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751352AbVIHNfl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 09:32:22 -0400
-Received: from wproxy.gmail.com ([64.233.184.195]:4467 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751351AbVIHNcV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 09:32:21 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=saElDg2Q/fPuincYS33rlyN57aAewIFcsyQQQCquZs0BJSwwly2oShupRyiyA9LgieEEjm7sYxgvlNfIwEL84FU06RRABiNyczomi6faDDPVWykg01aEvl+AyUUkpHdACsbRvyDfE01bIshniccJbkCpuohUNQ5BmnH4fMdqtYc=
-Message-ID: <1e62d1370509080632873c1d1@mail.gmail.com>
-Date: Thu, 8 Sep 2005 06:32:20 -0700
-From: Fawad Lateef <fawadlateef@gmail.com>
-To: David Howells <dhowells@redhat.com>
-Subject: Re: Reuse of BIOs
-Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-In-Reply-To: <11859.1126185451@warthog.cambridge.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <11859.1126185451@warthog.cambridge.redhat.com>
+	Thu, 8 Sep 2005 09:35:41 -0400
+Received: from relay.uni-heidelberg.de ([129.206.100.212]:45790 "EHLO
+	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
+	id S1751353AbVIHNfk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 09:35:40 -0400
+Date: Thu, 8 Sep 2005 15:35:26 +0200 (CEST)
+From: Bogdan Costescu <Bogdan.Costescu@iwr.uni-heidelberg.de>
+To: Tommy Christensen <tommy.christensen@tpack.net>
+cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Netdev List <netdev@vger.kernel.org>
+Subject: Re: [PATCH] 3c59x: read current link status from phy
+In-Reply-To: <1126184700.4805.32.camel@tsc-6.cph.tpack.net>
+Message-ID: <Pine.LNX.4.63.0509081521140.21354@dingo.iwr.uni-heidelberg.de>
+References: <200509080125.j881PcL9015847@hera.kernel.org>  <431F9899.4060602@pobox.com>
+  <Pine.LNX.4.63.0509081351160.21354@dingo.iwr.uni-heidelberg.de>
+ <1126184700.4805.32.camel@tsc-6.cph.tpack.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/8/05, David Howells <dhowells@redhat.com> wrote:
-> 
-> 
-> Is it possible to reuse a BIO once the callback on it has been invoked to
-> indicate final completion? Or does it have to be released and another one
-> allocated?
-> 
+On Thu, 8 Sep 2005, Tommy Christensen wrote:
 
-The thing which I did in my virtual caching device driver is I keeps
-the pointer of BIO got from the kernel in my locally created BIO's
-private field (and fill other fields with the original BIO's Data) and
-sends it to other caching device and when got the end_io for that BIO
-(like in read from caching device and writing to target device) I put
-that in the queue and one of my thread directly sends that to the
-target device without changed except replacing the sector of caching
-device to the target device sector and after getting completion signal
-from target device, I just freed that BIO or move it to my free pool
-of BIOs and just call the completion for the original BIO taken back
-from the private field of local BIO ..........
+> The idea is to avoid an extra delay of 60 seconds before detecting 
+> link-up.
 
-This means we can reuse BIO sended to one device and then sending that
-to other device after getting completion signal from first device
-......... But I can't say this about the original kernel BIO b/c I m
-not sending it to any of my devices !!!!
+But you are adding the read to a function that is called repeatedly to 
+fix an event that happens only once at start-up !
+
+If this read is really needed (I still doubt it...), can't it be 
+performed in vortex_up(), by possibly doubling the existing one there ?
+vortex_up() is executed only once at start-up, not every 60 seconds.
+
+> Please see http://bugzilla.kernel.org/show_bug.cgi?id=5025
+
+Hah, a Cisco switch.  Look in Documentation/networking/vortex.txt for 
+"portfast".
 
 -- 
-Fawad Lateef
+Bogdan Costescu
+
+IWR - Interdisziplinaeres Zentrum fuer Wissenschaftliches Rechnen
+Universitaet Heidelberg, INF 368, D-69120 Heidelberg, GERMANY
+Telephone: +49 6221 54 8869, Telefax: +49 6221 54 8868
+E-mail: Bogdan.Costescu@IWR.Uni-Heidelberg.De

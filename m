@@ -1,66 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964942AbVIHTB0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964944AbVIHTZO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964942AbVIHTB0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 15:01:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964945AbVIHTB0
+	id S964944AbVIHTZO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 15:25:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964946AbVIHTZO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 15:01:26 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:13317 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S964944AbVIHTBZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 15:01:25 -0400
-Message-ID: <43208B77.9060009@tmr.com>
-Date: Thu, 08 Sep 2005 15:05:27 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+	Thu, 8 Sep 2005 15:25:14 -0400
+Received: from pop.gmx.de ([213.165.64.20]:43447 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S964944AbVIHTZM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 15:25:12 -0400
+X-Authenticated: #28678167
+Message-ID: <432090AE.2030200@gmx.net>
+Date: Thu, 08 Sep 2005 21:27:42 +0200
+From: Andreas Baer <lnx1@gmx.net>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050902)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Mike Galbraith <efault@gmx.de>
-CC: Adrian Bunk <bunk@stusta.de>, Pekka Enberg <penberg@cs.helsinki.fi>,
-       Paul Misner <paul@misner.org>, linux-kernel@vger.kernel.org
-Subject: Re: RFC: i386: kill !4KSTACKS
-References: <20050904203725.GB4715@redhat.com> <20050902060830.84977.qmail@web50208.mail.yahoo.com> <200509041549.17512.vda@ilport.com.ua> <200509041144.13145.paul@misner.org> <84144f02050904100721d3844d@mail.gmail.com> <6880bed305090410127f82a59f@mail.gmail.com> <20050904193350.GA3741@stusta.de> <6880bed305090413132c37fed3@mail.gmail.com> <20050904203725.GB4715@redhat.com> <431F1778.5050200@tmr.com> <5.2.1.1.2.20050907194344.00c2bea8@pop.gmx.net>
-In-Reply-To: <5.2.1.1.2.20050907194344.00c2bea8@pop.gmx.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+CC: linux-kernel@vger.kernel.org
+Subject: Large File Support in Kernel 2.6
+References: <20050904203725.GB4715@redhat.com> <20050902060830.84977.qmail@web50208.mail.yahoo.com> <200509041549.17512.vda@ilport.com.ua> <200509041144.13145.paul@misner.org> <84144f02050904100721d3844d@mail.gmail.com> <6880bed305090410127f82a59f@mail.gmail.com> <20050904193350.GA3741@stusta.de> <6880bed305090413132c37fed3@mail.gmail.com> <20050904203725.GB4715@redhat.com> <431F1778.5050200@tmr.com> <5.2.1.1.2.20050907194344.00c2bea8@pop.gmx.net> <43208B77.9060009@tmr.com>
+In-Reply-To: <43208B77.9060009@tmr.com>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith wrote:
-> At 12:38 PM 9/7/2005 -0400, Bill Davidsen wrote:
-> 
->> You must have something more useful to work on, which would ADD value 
->> to the kernel instead of breaking existing installations. Ripping out 
->> petty stuff which works is a waste of your time and talent, please 
->> find something better to do.
-> 
-> 
-> Ahem. Please...
-> 
->> Perhaps devise a way for programs like ndiswrapper to provide their 
->> own stack, for instance.
-> 
-> 
-> ...follow your own suggestion instead of hammering someone else.
-> 
-> I've seen some discussion.  More of that, and less of this please.
+I have a question about the Large File Support using Linux and glibc 2.3
+on a 32-Bit machine. What's the correct limit for the file size and the
+file system using LFS (just for the kernel, not to mention filesystem
+limits etc)?
 
-Frankly this should be done by someone who really understands the code, 
-and considering the time it's likely to take it would probably be (a) 
-someone with a desparate need, (b) someone rich or retired who doesn't 
-work for a living and has the time, or (c) someone who works for a 
-company which sells Linux distributions and therefore could get paid to 
-do this. That lets me out on all counts, I would resent wasting the time 
-to patch 8KSTACKS back in as a patch, but I could do that to make 
-laptops useful. As Andi pointed out some architectures can't run 4k 
-stacks, and at the memory sizes people typically use there would 
-probably be a performance gain to do memory in 8k or larger blocks anyway.
+I found two references:
 
-I just see this as a large hassle for many laptop users and people with 
-unconverted drivers, and no significant gain for most. 4k stacks work 
-fine on most machines, but some people just can't use them.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+"The 2.6 kernel imposes its own limits on the size of files and file
+systems handled by it. These are as follows:
+- file size: On 32-bit systems, files may not exceed the size of 2 TB.
+- file system size: File systems may be up to 2e73 bytes large. However,
+this limit is still out of reach for the currently available hardware."
+
+Source:
+http://www.novell.com/documentation/suse91/suselinux-adminguide/html/apas04.html
+
+
+"Kernel 2.6: For both 32-bit systems with option CONFIG_LBD set and for
+64-bit systems: The size of a file system is limited to 2e73 (far too
+much for today). On 32-bit systems (without CONFIG_LBD set) the size of
+a file is limited to 2 TiB. Note that not all filesystems and hardware
+drivers might handle such large filesystems."
+
+Source: http://www.suse.de/~aj/linux_lfs.html
+
+
+I think it's 2TB for the file size and 2e73 for the file system, but I
+don't understand the second reference and the part about the CONIFG_LBD.
+What is exactly the CONFIG_LBD option?

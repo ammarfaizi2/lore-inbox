@@ -1,41 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965071AbVIHXKE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965045AbVIHXYF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965071AbVIHXKE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 19:10:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965073AbVIHXKE
+	id S965045AbVIHXYF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 19:24:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965063AbVIHXYF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 19:10:04 -0400
-Received: from ip18.tpack.net ([213.173.228.18]:17117 "HELO mail.tpack.net")
-	by vger.kernel.org with SMTP id S965072AbVIHXKB (ORCPT
+	Thu, 8 Sep 2005 19:24:05 -0400
+Received: from ccerelbas04.cce.hp.com ([161.114.21.107]:24469 "EHLO
+	ccerelbas04.cce.hp.com") by vger.kernel.org with ESMTP
+	id S965045AbVIHXYE convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 19:10:01 -0400
-Message-ID: <4320C555.4020800@tpack.net>
-Date: Fri, 09 Sep 2005 01:12:21 +0200
-From: Tommy Christensen <tommy.christensen@tpack.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
+	Thu, 8 Sep 2005 19:24:04 -0400
+X-MIMEOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Bogdan.Costescu@iwr.uni-heidelberg.de, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH] 3c59x: read current link status from phy
-References: <200509080125.j881PcL9015847@hera.kernel.org>	<431F9899.4060602@pobox.com>	<Pine.LNX.4.63.0509081351160.21354@dingo.iwr.uni-heidelberg.de>	<1126184700.4805.32.camel@tsc-6.cph.tpack.net>	<Pine.LNX.4.63.0509081521140.21354@dingo.iwr.uni-heidelberg.de>	<1126190554.4805.68.camel@tsc-6.cph.tpack.net>	<Pine.LNX.4.63.0509081713500.22954@dingo.iwr.uni-heidelberg.de>	<4320BD96.3060307@tpack.net> <20050908154114.69307f92.akpm@osdl.org>
-In-Reply-To: <20050908154114.69307f92.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: can't boot 2.6.13
+Date: Thu, 8 Sep 2005 18:23:59 -0500
+Message-ID: <D4CFB69C345C394284E4B78B876C1CF10AC92126@cceexc23.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: can't boot 2.6.13
+Thread-index: AcW0x+/ULQBd7l6oQYmVgvc7RjjjsAABFnqQ
+From: "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>
+To: "Moore, Eric Dean" <Eric.Moore@lsil.com>, <linux-kernel@vger.kernel.org>,
+       <linux-scsi@vger.kernel.org>
+Cc: <axboe@suse.de>, <akpm@osdl.org>
+X-OriginalArrivalTime: 08 Sep 2005 23:24:00.0374 (UTC) FILETIME=[6494F960:01C5B4CC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Should we also decrease the polling interval?  Perhaps only when the cable
-> is unplugged?
+Thanks, Eric.
+Anyone have any ideas why my cciss based system won't boot?
 
-Sounds like a plan. 60 seconds certainly strikes me as being very slow.
-OTOH, I'm not aware of the reasoning behind this choice in the first place.
-It might make sense for some odd setups.
+mikem 
 
-Since I don't even have any HW to play around with, I think I'll step
-down for now.
-
-
--Tommy
+> -----Original Message-----
+> From: Moore, Eric Dean [mailto:Eric.Moore@lsil.com] 
+> Sent: Thursday, September 08, 2005 5:52 PM
+> To: Miller, Mike (OS Dev); linux-kernel@vger.kernel.org; 
+> linux-scsi@vger.kernel.org
+> Cc: axboe@suse.de; akpm@osdl.org
+> Subject: RE: can't boot 2.6.13
+> 
+> On Thursday, September 08, 2005 3:19 PM, Mike Miller(HP) wrote:
+> > I am not able to boot the 2.6.13 version of the kernel. I've tried 
+> > different systems, tried downloading again, still nothing. 
+> Here's the 
+> > last thing I see from the serial port:
+> > 
+> > md: Autodetecting RAID arrays.
+> > md: autorun ...
+> > md: ... autorun DONE.
+> > RAMDISK: Compressed image found at block 0
+> > input: AT Translated Set 2 keyboard on isa0060/serio0
+> > VFS: Mounted root (ext2 filesystem).
+> > logips2pp: Detected unknown logitech mouse model 1
+> > input: PS/2 Logitech Mouse on isa0060/serio1 SCSI subsystem 
+> > initialized Fusion MPT base driver 3.03.02 Copyright (c) 
+> 1999-2005 LSI 
+> > Logic Corporation
+> > 
+> 
+> We introduced split drivers for 2.6.13.  There are new layer 
+> drivers that sit ontop of mptscsih.ko.  These drivers are 
+> split along bus protocal, so there is mptspi.ko, mptfc.ko, 
+> and mptsas.ko.  This is to tie into the scsi transport layers 
+> that are split the same.
+> 
+> For 1030(a SPI controller)
+> If your using RedHat, you need to change mptscish to mptspi 
+> in /etc/modprobe.conf.
+> If your using SuSE, you need to change mptscish to mptspi in 
+> /etc/sysconfig/kernel
+> 
+> 

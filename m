@@ -1,48 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751370AbVIHOjX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751372AbVIHOjd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751370AbVIHOjX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 10:39:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751372AbVIHOjX
+	id S1751372AbVIHOjd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 10:39:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751373AbVIHOjd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 10:39:23 -0400
-Received: from rproxy.gmail.com ([64.233.170.205]:12366 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751370AbVIHOjX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 10:39:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ZrJSftOLaoi+lyqxGyLm/TYdReYGqx/JYUw59M+bsfUP+Ecaw++uz8JFWqQR0n52TolSZ/QM9wJIxlXiIn90m55cuNDUQTZd5VDFs2Mh7T7/NeDqFxeyYC/bIOZ5hjh/Vn4Af37/Y6XSyMIa1EZ+TQGhH2dQwb785LtyksjCKK4=
-Message-ID: <d120d500050908073942876de5@mail.gmail.com>
-Date: Thu, 8 Sep 2005 09:38:46 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Christoph Litters <christophlitters@gmx.de>
-Subject: Re: [DRIVER] Where is the PSX Gamepad Driver in 2.6.13-rc3?
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <43201906.8040902@gmx.de>
+	Thu, 8 Sep 2005 10:39:33 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:2653
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S1751372AbVIHOjc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 10:39:32 -0400
+Message-Id: <432069850200007800024427@emea1-mh.id2.novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0 
+Date: Thu, 08 Sep 2005 16:40:37 +0200
+From: "Jan Beulich" <JBeulich@novell.com>
+To: "Christoph Hellwig" <hch@infradead.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] minor ELF definitions addition
+References: <4320670B0200007800024411@emea1-mh.id2.novell.com> <20050908143216.GA9665@infradead.org>
+In-Reply-To: <20050908143216.GA9665@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <42E48CA5.9010709@m1k.net> <43201906.8040902@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/8/05, Christoph Litters <christophlitters@gmx.de> wrote:
-> Hello,
-> 
-> I have an adapter usb to psx i have tried it with 2.6.9 and it works
-> perfectly with the kernel driver.
-> with 2.6.12 i cant get it to work and with 2.6.13-rc3 i havent seen any
-> option to enable it.
-> could anybody help me?
-> 
+>>> Christoph Hellwig <hch@infradead.org> 08.09.05 16:32:16 >>>
+>On Thu, Sep 08, 2005 at 04:30:03PM +0200, Jan Beulich wrote:
+>> (Note: Patch also attached because the inline version is certain to
+get
+>> line wrapped.)
+>> 
+>> A trivial addition to the EFL definitions.
+>
+>Why?  They're obviously not needed in kernelspace..
 
-Device Drivers  ---> Input device support  ---> Joysticks  ---> 
-Multisystem, NES, SNES, N64, PSX joysticks and gamepads
+I have dependent code (on STT_COMMON), and am in the process of
+breaking this up. Since the definition doesn't hurt anyone (and I need
+it), I can't see why it can't be there; I agree that STT_TLS will rarely
+be needed in kernel code, but I still decided to also add this for
+completeness.
 
-Needs parport support.
+>> 
+>> Signed-off-by: Jan Beulich <jbeulich@novell.com>
+>> 
+>> diff -Npru 2.6.13/include/linux/elf.h
+2.6.13-elf/include/linux/elf.h
+>> --- 2.6.13/include/linux/elf.h	2005-08-29 01:41:01.000000000
++0200
+>> +++ 2.6.13-elf/include/linux/elf.h	2005-03-16 12:24:42.000000000
+>> +0100
+>> @@ -150,6 +150,8 @@ typedef __s64	Elf64_Sxword;
+>>  #define STT_FUNC    2
+>>  #define STT_SECTION 3
+>>  #define STT_FILE    4
+>> +#define STT_COMMON  5
+>> +#define STT_TLS     6
+>>  
+>>  #define ELF_ST_BIND(x)		((x) >> 4)
+>>  #define ELF_ST_TYPE(x)		(((unsigned int) x) & 0xf)
+>> 
 
--- 
-Dmitry

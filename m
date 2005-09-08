@@ -1,43 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932481AbVIHMMO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932482AbVIHMOp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932481AbVIHMMO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 08:12:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932482AbVIHMMO
+	id S932482AbVIHMOp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 08:14:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932486AbVIHMOp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 08:12:14 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:46091 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932481AbVIHMMO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 08:12:14 -0400
-Date: Thu, 8 Sep 2005 13:12:09 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Richard Purdie <rpurdie@rpsys.net>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [-mm patch 0/5] SharpSL: Prepare drivers and add new ARM PXA machines Spitz and Borzoi
-Message-ID: <20050908131209.C31595@flint.arm.linux.org.uk>
-Mail-Followup-To: Richard Purdie <rpurdie@rpsys.net>,
-	Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-References: <1126007626.8338.125.camel@localhost.localdomain>
+	Thu, 8 Sep 2005 08:14:45 -0400
+Received: from wproxy.gmail.com ([64.233.184.194]:33062 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932482AbVIHMOp convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 08:14:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=njiVI6Md67p2m4NxS19Fk9cvT7xpEcVw7P7mbQuUTt9CEIQdTXyg8DbtrjsC3867oWAN4ODbbOU05LFl/8pu0KyPipYoG7yBFCYUhpn9oonSpLotGcRwksRRwlSlPsEJkBoUA8UNoLFLeQ3OePeOuAb8zDBlmAsIGkAu8KAQ7BU=
+Message-ID: <6bffcb0e050908051412e945c9@mail.gmail.com>
+Date: Thu, 8 Sep 2005 14:14:39 +0200
+From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Reply-To: michal.k.k.piotrowski@gmail.com
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: 2.6.13-git7 strange system freeze
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1126007626.8338.125.camel@localhost.localdomain>; from rpurdie@rpsys.net on Tue, Sep 06, 2005 at 12:53:45PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As a general note, these patches could do with being closer to the
-coding style, such that things like
+Hi,
 
-	foo=bar;
-	foo+=bar;
+after about 20 hours of uptime, my 2.6.13-git7 system freeze. I find
+it in my klog.
 
-have spaces around the assignment and operators thusly:
+Sep  8 13:45:09 ng02 kernel: KERNEL: assertion ((int)tp->lost_out >=
+0) failed at net/ipv4/tcp_input.c (2148)
+Sep  8 13:45:09 ng02 kernel: Leak l=4294967295 4
+Sep  8 13:45:20 ng02 kernel: KERNEL: assertion ((int)tp->sacked_out >=
+0) failed at net/ipv4/tcp_input.c (2147)
+Sep  8 13:45:20 ng02 kernel: Leak s=4294967295 4
+Sep  8 13:46:21 ng02 kernel: retrans_out leaked.
+Sep  8 13:48:37 ng02 kernel: KERNEL: assertion ((int)tp->sacked_out >=
+0) failed at net/ipv4/tcp_input.c (2147)
+Sep  8 13:49:08 ng02 last message repeated 2 times
+Sep  8 13:49:41 ng02 last message repeated 3 times
+Sep  8 13:49:41 ng02 kernel: Leak s=4294967295 3
+Sep  8 13:49:46 ng02 kernel: KERNEL: assertion ((int)tp->sacked_out >=
+0) failed at net/ipv4/tcp_input.c (2147)
+Sep  8 13:49:46 ng02 kernel: Leak l=1 4
+Sep  8 13:49:46 ng02 kernel: Leak s=4294967295 4
+Sep  8 13:49:52 ng02 kernel: KERNEL: assertion ((int)tp->sacked_out >=
+0) failed at net/ipv4/tcp_input.c (2147)
+Sep  8 13:49:52 ng02 kernel: KERNEL: assertion ((int)tp->sacked_out >=
+0) failed at net/ipv4/tcp_input.c (2147)
+Sep  8 13:49:52 ng02 kernel: Leak l=1 4
+Sep  8 13:49:52 ng02 kernel: Leak s=4294967295 4
+Sep  8 13:49:52 ng02 kernel: Leak r=1 4
+Sep  8 13:49:58 ng02 kernel: KERNEL: assertion ((int)tp->sacked_out >=
+0) failed at net/ipv4/tcp_input.c (2147)
 
-	foo = bar;
-	foo += bar;
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Regards,
+Michal Piotrowski

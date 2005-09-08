@@ -1,34 +1,41 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932075AbVIDRU0 (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sun, 4 Sep 2005 13:20:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932076AbVIDRU0
+	id S1751361AbVIHODp (ORCPT <rfc822;ralf@linux-mips.org>);
+	Thu, 8 Sep 2005 10:03:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750940AbVIHODp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Sep 2005 13:20:26 -0400
-Received: from filtro.mksnet.com.br ([200.180.239.4]:5300 "EHLO
-	filtro.mksnet.com.br") by vger.kernel.org with ESMTP
-	id S932075AbVIDRUZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Sep 2005 13:20:25 -0400
-X-Antivirus-MYDOMAIN-Mail-From: fone04@uol.com.br via filtro
-X-Antivirus-MYDOMAIN: 1.22-st-qms (Clear:RC:1(200.102.171.247):. Processed in 0.340576 secs Process 23121)
-From: =?ISO-8859-1?Q?=20S=E9rgio?= <fone04@uol.com.br>
-To: clientes@vger.kernel.org
-Subject: Gravador de conversas  =?ISO-8859-1?Q?=20telef=F4nicas?=
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Illegal-Object: Syntax error in Message-Id: value found on vger.kernel.org:
-	Message-Id:	=?ISO-8859-1?Q?=20<cjnftopqhrhfnma?= =?ISO-8859-1?Q?fthbggmdnrpgiqt@?= =?ISO-8859-1?Q?S=E9rgio>
-				^		  ^-illegal end of message identification
-			 \-Extraneous program text, illegal start of message identification
-X-Priority: 1
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-Date: Sun, 4 Sep 2005 13:20:25 -0400
+	Thu, 8 Sep 2005 10:03:45 -0400
+Received: from [218.18.42.204] ([218.18.42.204]:14089 "HELO 202.96.154.15")
+	by vger.kernel.org with SMTP id S932517AbVIHODp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 10:03:45 -0400
+Message-ID: <37GFwKVDbD0wy@gcn.net.tw>
+From: VW869j0@ksts.seed.net.tw
+To: KrP@pchome.com.tw
+Subject: =?ISO-8859-1?Q?=20=CD=A8=D6=AA:S?= t a r t E R  =?ISO-8859-1?Q?=20P=D7=EE=D0=C2=C9=FD=BC?=
+	=?ISO-8859-1?Q?=B6=B5=BD3.3=B0=E6=B1=BE?=
+Content-Type: text/plain;
+Content-Transfer-Encoding: Quoted-Printable
+X-Priority: 3
+X-MSMail-Priority: Normal
+Date: Thu, 8 Sep 2005 10:03:45 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Message-Id: <S932075AbVIDRU0/20050904172026Z+59@vger.kernel.org>
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932075AbVIDRU0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751361AbVIHODp@vger.kernel.org>
 
+=D7=EE=D0=C2=CD=A8=D6=AA: S t a r t - E R P V 3 . 0=C9=FD=BC=B6=B5=BDV3.3=B0=E6=B1=BE.
 
-Saiba tudo que é falado em seu telefone na sua ausência. Chegou o mini gravador de conversas telefônicas.Você pode escondê-lo em qualquer ponto do fio da sua linha telefônica e não importa o número de extensões, vigia e grava o uso de qualquer uma delas; tirou o fone do gancho, efetuando ou recebendo uma chamada, a gravação é acionada automaticamente.Para ouvir o que foi gravado é só voltar a fita e pressionar a tecla play, e ficar por dentro de tudo que foi falado. O aparelho tem 11 x 9,5 cm e utiliza pilhas e fitas cassets convencionais.A instalação é muito fácil, dispensando um técnico para instalá-lo. O custo dessa nova tecnologia de gravação está ao seu alcançe por apenas R$195,00. Despachamos para todo o Brasil.
-Contato com Sérgio nos fones: 51- 471.3583 (pela manhã)  #  51- 8424.1442 ( 24 hs) ou mercador10@hotmail.com. Obs: Instalar esse aparelho em linhas alheias é contra a lei.
-                                             "temos aparelhos especiais para gravação em ramais pabx"
+=D0=C2=B0=E6=B1=BE=D6=F7=D2=AA=BD=E2=BE=F6=C1=CB=BE=C9=B0=E6=B1=BE=D6=D0mrp=B2=BB=C4=DC=D4=CB=CB=E3,=C9=F5=D6=C1=B3=F6=CF=D6=B4=ED=CE=F3=B5=C4=CE=CA=CC=E2.
+
+=CD=AC=CA=B1=BD=E2=BE=F6=C1=CB=D2=D4=C7=B0=B2=E2=CA=D4=D3=C3=BB=A7=CB=F9=CC=E1=B3=F6=B5=C4bug.=D6=C1=BD=F1=CE=AA=D6=B9,StartERP=D3=C3=BB=A7
+
+=D2=D1=BE=AD=B3=AC=B9=FD70=CE=BB,=C6=E4=D6=D0=D3=D0=B2=BF=B7=D6=B9=AB=CB=BE=D2=D1=BE=AD=CE=AA=BF=CD=BB=A7=CA=B5=CA=A9=BB=F2=D5=FD=D4=DA=CA=B5=CA=A9=D6=D0.
+
+=CF=EA=CF=B8=D7=CA=C1=CF,=C7=EB=B7=C3=CE=CA:
+ 
+http:// s t a r t e r p . o i c p . n e t / o k . h t m
+
+=B1=BE=C8=CB=BD=AB=BE=A1=CE=D2=CB=F9=C4=DC,=CE=AA=B4=F3=BC=D2=B7=FE=CE=F1.=D0=BB=D0=BB!
+
+=C1=AA=CF=B5=B5=E7=BB=B0: 0 8 6 - 7 5 5 - 6 1 3 2 5 3 1 1   =B2=DC=C9=BD
+
 

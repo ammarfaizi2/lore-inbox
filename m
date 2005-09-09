@@ -1,54 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030227AbVIIKgi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030221AbVIIKmX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030227AbVIIKgi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 06:36:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030228AbVIIKgi
+	id S1030221AbVIIKmX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 06:42:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030228AbVIIKmX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 06:36:38 -0400
-Received: from nproxy.gmail.com ([64.233.182.196]:29600 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030227AbVIIKgi convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 06:36:38 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=D0mqKMHtZaz5HSPLjFv2MgfdF6choJY3SEAAiPj2oph4KlBLwLzcbxy4X2pJaJfT+VYbzwwnypslshck3F9w9sRr4AiXQLm2N29zQAdH2YIKpq4luw7yqE3q2LIEdJ697JhZA7XTkM7gl6m6EyeLcJ03786qrd9GlP8D2aJP42A=
-Message-ID: <84144f0205090903366454da6@mail.gmail.com>
-Date: Fri, 9 Sep 2005 13:36:33 +0300
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-Reply-To: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: [PATCH 2/25] NTFS: Allow highmem kmalloc() in ntfs_malloc_nofs() and add _nofail() version.
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-ntfs-dev@lists.sourceforge.net
-In-Reply-To: <Pine.LNX.4.60.0509091019290.26845@hermes-1.csi.cam.ac.uk>
+	Fri, 9 Sep 2005 06:42:23 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:14723 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030221AbVIIKmW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 06:42:22 -0400
+Date: Fri, 9 Sep 2005 03:41:53 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andi Kleen <ak@suse.de>
+Cc: mbligh@mbligh.org, linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Re: 2.6.13-mm2
+Message-Id: <20050909034153.51203f9e.akpm@osdl.org>
+In-Reply-To: <20050909003947.GE19913@wotan.suse.de>
+References: <20050908053042.6e05882f.akpm@osdl.org>
+	<73450000.1126189801@[10.10.2.4]>
+	<20050909003947.GE19913@wotan.suse.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <Pine.LNX.4.60.0509090950100.11051@hermes-1.csi.cam.ac.uk>
-	 <Pine.LNX.4.60.0509091019290.26845@hermes-1.csi.cam.ac.uk>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/9/05, Anton Altaparmakov <aia21@cam.ac.uk> wrote:
-> -static inline void *ntfs_malloc_nofs(unsigned long size)
-> +static inline void *__ntfs_malloc(unsigned long size,
-> +               unsigned int __nocast gfp_mask)
->  {
->         if (likely(size <= PAGE_SIZE)) {
->                 BUG_ON(!size);
->                 /* kmalloc() has per-CPU caches so is faster for now. */
-> -               return kmalloc(PAGE_SIZE, GFP_NOFS);
-> -               /* return (void *)__get_free_page(GFP_NOFS | __GFP_HIGHMEM); */
-> +               return kmalloc(PAGE_SIZE, gfp_mask);
-> +               /* return (void *)__get_free_page(gfp_mask); */
->         }
->         if (likely(size >> PAGE_SHIFT < num_physpages))
-> -               return __vmalloc(size, GFP_NOFS | __GFP_HIGHMEM, PAGE_KERNEL);
-> +               return __vmalloc(size, gfp_mask, PAGE_KERNEL);
+Andi Kleen <ak@suse.de> wrote:
+>
+>  > arch/x86_64/pci/built-in.o(.init.text+0xa88): In function `pci_acpi_scan_root':
+>  > : undefined reference to `pxm_to_node'
+>  > make: *** [.tmp_vmlinux1] Error 1
+>  > 09/08/05-06:52:31 Build the kernel. Failed rc = 2
+>  > 09/08/05-06:52:31 build: kernel build Failed rc = 1
+>  > 09/08/05-06:52:31 command complete: (2) rc=126
+>  > Failed and terminated the run
+> 
+>  I tried the config in my (non mm) tree and it compiled just fine.
 
-Unrelated to this patch but why do you have this wrapper instead of
-using kmalloc() where you can and__vmalloc() where you really have to?
+You must have mucked it up.
 
-                                     Pekka
+>  Must be some bad interaction with another patch in -mm* or a bad 
+>  merge.
+
+Nope.
+
+>  The original patch that introduces it is
+>  ftp://ftp.firstfloor.org/pub/ak/x86_64/x86_64-2.6.13-1/patches/pci-pxm
+> 
+>  pxm_to_node for x86-64 is supposed to be declared in arch/x86_64/mm/srat.c
+
+pxm_to_node is *defined* in arch/x86_64/mm/srat.c, which is enabled by
+CONFIG_ACPI_NUMA.
+
+pxm_to_node is declared in include/asm-x86_64/numa.h
+
+pxm_to_node is referenced in arch/i386/pci/acpi.c, under CONFIG_NUMA.
+
+Consequently CONFIG_ACPI_NUMA=n, CONFIG_NUMA=y will fail to link.
+
+Also x86 compilation of arch/i386/pci/acpi.c with CONFIG_NUMA=y will
+generate an `implicit declaration of function' warning and will fail to
+link.
+
+
+
+Also, x86_64-srat-overlap-error.patch adds this forward decl in
+arch/x86_64/mm/srat.c:
+
+int node_to_pxm(int n);
+
+Please, either give it static scope or, if it really needs global scope (it
+doesn't), put the declaration in the right place?

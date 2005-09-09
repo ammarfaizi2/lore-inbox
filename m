@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965006AbVIHX4u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965090AbVIIABq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965006AbVIHX4u (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 19:56:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965084AbVIHX4u
+	id S965090AbVIIABq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 20:01:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965089AbVIIABq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 19:56:50 -0400
-Received: from gate.crashing.org ([63.228.1.57]:59862 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S965006AbVIHX4u (ORCPT
+	Thu, 8 Sep 2005 20:01:46 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:29066 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S965086AbVIIABp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 19:56:50 -0400
-Subject: Re: [PATCH] ppc: Merge tlb.h
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Kumar Gala <galak@freescale.com>
-Cc: Paul Mackerras <paulus@samba.org>, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org,
-       linuxppc64-dev <linuxppc64-dev@ozlabs.org>
-In-Reply-To: <Pine.LNX.4.61.0509081611230.5055@nylon.am.freescale.net>
-References: <Pine.LNX.4.61.0509081611230.5055@nylon.am.freescale.net>
-Content-Type: text/plain
-Date: Fri, 09 Sep 2005 09:56:05 +1000
-Message-Id: <1126223767.29803.34.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Thu, 8 Sep 2005 20:01:45 -0400
+Message-ID: <4320D0DB.3040405@pobox.com>
+Date: Thu, 08 Sep 2005 20:01:31 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Tommy Christensen <tommy.christensen@tpack.net>
+CC: Andrew Morton <akpm@osdl.org>, Bogdan.Costescu@iwr.uni-heidelberg.de,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH] 3c59x: read current link status from phy
+References: <200509080125.j881PcL9015847@hera.kernel.org>	<431F9899.4060602@pobox.com>	<Pine.LNX.4.63.0509081351160.21354@dingo.iwr.uni-heidelberg.de>	<1126184700.4805.32.camel@tsc-6.cph.tpack.net>	<Pine.LNX.4.63.0509081521140.21354@dingo.iwr.uni-heidelberg.de>	<1126190554.4805.68.camel@tsc-6.cph.tpack.net>	<Pine.LNX.4.63.0509081713500.22954@dingo.iwr.uni-heidelberg.de>	<4320BD96.3060307@tpack.net> <20050908154114.69307f92.akpm@osdl.org> <4320C555.4020800@tpack.net>
+In-Reply-To: <4320C555.4020800@tpack.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-09-08 at 16:11 -0500, Kumar Gala wrote:
-> Merged tlb.h between asm-ppc32 and asm-ppc64 into asm-powerpc.  Also, fixed
-> a compiler warning in arch/ppc/mm/tlb.c since it was roughly related.
+Tommy Christensen wrote:
+> Andrew Morton wrote:
 > 
-> Signed-off-by: Kumar K. Gala <kumar.gala@freescale.com>
+>> Should we also decrease the polling interval?  Perhaps only when the 
+>> cable
+>> is unplugged?
+> 
+> 
+> Sounds like a plan. 60 seconds certainly strikes me as being very slow.
+> OTOH, I'm not aware of the reasoning behind this choice in the first place.
+> It might make sense for some odd setups.
+> 
+> Since I don't even have any HW to play around with, I think I'll step
+> down for now.
 
-Do we want to do that ?
+The standard for Becker drivers is 5 seconds if link is down, and 60 
+seconds if link is up, IIRC.
 
-Replacing 2 different files with one split in #ifdef isn't a progress...
-As I said, I think we need two subdirs for the low level stuffs that is
-different, and that includes at this point all of the memory management
-related stuff.
+	Jeff
 
-In addition, I'd appreciate if we could avoid touching ppc64 mm related
-files completely for a couple of weeks as I'm working on a fairly big
-patch that I'm really tired of having to rebase all the time ;)
-
-Ben.
 
 

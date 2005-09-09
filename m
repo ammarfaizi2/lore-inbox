@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030283AbVIIReq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030285AbVIIRfd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030283AbVIIReq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 13:34:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030282AbVIIReq
+	id S1030285AbVIIRfd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 13:35:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030284AbVIIRfd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 13:34:46 -0400
-Received: from mail-out2.fuse.net ([216.68.8.175]:64492 "EHLO smtp2.fuse.net")
-	by vger.kernel.org with ESMTP id S1030283AbVIIRep (ORCPT
+	Fri, 9 Sep 2005 13:35:33 -0400
+Received: from mail-out2.fuse.net ([216.68.8.175]:24813 "EHLO smtp2.fuse.net")
+	by vger.kernel.org with ESMTP id S1030286AbVIIRfc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 13:34:45 -0400
-Message-ID: <43211FAE.9060909@fuse.net>
-Date: Fri, 09 Sep 2005 01:37:50 -0400
+	Fri, 9 Sep 2005 13:35:32 -0400
+Message-ID: <43211FDD.6000508@fuse.net>
+Date: Fri, 09 Sep 2005 01:38:37 -0400
 From: rob <rob.rice@fuse.net>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041221
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: kernel <linux-kernel@vger.kernel.org>
 Subject: Re: swsusp
-References: <431E97E5.1080506@fuse.net> <200509072201.13268.rjw@sisk.pl> <4321190E.2030804@fuse.net>
-In-Reply-To: <4321190E.2030804@fuse.net>
+References: <431E97E5.1080506@fuse.net> <431F42D0.6080304@gmail.com> <4321179B.6080107@fuse.net>
+In-Reply-To: <4321179B.6080107@fuse.net>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -26,12 +26,9 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 rob wrote:
 
-> Rafael J. Wysocki wrote:
+> Alon Bar-Lev wrote:
 >
->> Hi,
->>
->> On Wednesday, 7 of September 2005 09:33, rob wrote:
->>  
+>> rob wrote:
 >>
 >>> I singed up to this mailing list just to ask this question
 >>> I have built a 2.6.13 kernel for a toshiba  tecra 500cdt
@@ -50,34 +47,29 @@ rob wrote:
 >>> with the
 >>> unpatched kernel software suspend or where can I get the path to init
 >>> talked about in the menuconfig file
->>>   
+>>> -
+>>> To unsubscribe from this list: send the line "unsubscribe 
+>>> linux-kernel" in
+>>> the body of a message to majordomo@vger.kernel.org
+>>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>> Please read the FAQ at  http://www.tux.org/lkml/
+>>>
 >>
+>> I am using suspend2 (www.suspend2.net) which works very well... Have 
+>> you considered it?
 >>
->> Could you just try
+>> Best Regards,
+>> Alon Bar-Lev.
 >>
->> # echo shutdown > /sys/power/disk && echo disk > /sys/power/state
+>> -
+>> To unsubscribe from this list: send the line "unsubscribe 
+>> linux-kernel" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> Please read the FAQ at  http://www.tux.org/lkml/
 >>
->> without unloading any modules and see what happens (it should suspend
->> to disk)?
->>
->> If it craches, could you boot the kernel with the init=/bin/bash 
->> option and try
->>
->> # mount /sys
->> # mount /proc
->> # /sbin/swapon -a
->> # echo shutdown > /sys/power/disk && echo disk > /sys/power/state
->>
->> and see what happens?
->>
->> Rafael
->>
->>
->>  
->>
-> yes I did try this it just crashes and tacks out my file system with it
-> and I have to reinstall to recover from it it chops up files like bash
-> and every thing on the path the error codes scroll by so fast there is
-> no hope ov finding out what errors are tacking place
+> it crashes the kernel with atempt to kill init or it trys to load a 
+> memory image that was never saved
+> I can't get it to boot for the first time so it can save a memory image
 >
 

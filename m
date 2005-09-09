@@ -1,78 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030213AbVIIKHN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030214AbVIIKKT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030213AbVIIKHN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 06:07:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030214AbVIIKHN
+	id S1030214AbVIIKKT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 06:10:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030215AbVIIKKT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 06:07:13 -0400
-Received: from zorg.st.net.au ([203.16.233.9]:12992 "EHLO borg.st.net.au")
-	by vger.kernel.org with ESMTP id S1030213AbVIIKHL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 06:07:11 -0400
-Message-ID: <43215EE4.6050003@torque.net>
-Date: Fri, 09 Sep 2005 20:07:32 +1000
-From: Douglas Gilbert <dougg@torque.net>
-Reply-To: dougg@torque.net
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
+	Fri, 9 Sep 2005 06:10:19 -0400
+Received: from relay.uni-heidelberg.de ([129.206.100.212]:5006 "EHLO
+	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
+	id S1030214AbVIIKKR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 06:10:17 -0400
+Date: Fri, 9 Sep 2005 12:10:04 +0200 (CEST)
+From: Bogdan Costescu <Bogdan.Costescu@iwr.uni-heidelberg.de>
+To: Andy Fleming <afleming@freescale.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Netdev <netdev@vger.kernel.org>
+Subject: Re: [PATCH] 3c59x: read current link status from phy
+In-Reply-To: <62AA8EFA-7D65-4E87-B71F-55A07321011E@freescale.com>
+Message-ID: <Pine.LNX.4.63.0509091152450.23760@dingo.iwr.uni-heidelberg.de>
+References: <200509080125.j881PcL9015847@hera.kernel.org>  <431F9899.4060602@pobox.com>
+ <Pine.LNX.4.63.0509081351160.21354@dingo.iwr.uni-heidelberg.de> 
+ <1126184700.4805.32.camel@tsc-6.cph.tpack.net> 
+ <Pine.LNX.4.63.0509081521140.21354@dingo.iwr.uni-heidelberg.de>
+ <1126190554.4805.68.camel@tsc-6.cph.tpack.net>
+ <Pine.LNX.4.63.0509081713500.22954@dingo.iwr.uni-heidelberg.de>
+ <62AA8EFA-7D65-4E87-B71F-55A07321011E@freescale.com>
 MIME-Version: 1.0
-To: linux-scsi@vger.kernel.org
-CC: linux-kernel@vger.kernel.org, axboe@suse.de, ballen@gravity.phys.uwm.edu
-Subject: [PATCH] permit READ DEFECT DATA in block/scsi_ioctl
-X-Enigmail-Version: 0.92.0.0
-Content-Type: multipart/mixed;
- boundary="------------070106010203090209060500"
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070106010203090209060500
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On Thu, 8 Sep 2005, Andy Fleming wrote:
 
-The soon to be released smartmontools 5.34 uses the
-READ DEFECT DATA command on SCSI disks. A disk that
-has defect list entries (or worse, an increasing number
-of them) is at risk.
+> The new PHY Layer (drivers/net/phy/*) can provide all these features 
+> for you without much difficulty, I suspect.
 
-Currently the first invocation of smartctl causes this:
-   scsi: unknown opcode 0x37
-message to appear the console and in the log.
+As pointed to be Andrew a few days ago, this driver supports a lot of 
+chips - for most of them the test hardware would be hard to come by 
+and the documentation even more. Unless you'd like to do it based on 
+"whoever is interested should cry loud"...
 
-The READ DEFECT DATA SCSI command does not change
-the state of a disk. Its opcode (0x37) is valid for
-SBC devices (e.g. disks) and SMC-2 devices (media
-changers) where it is called INITIALIZE STATUS ELEMENT
-WITH RANGE and again doesn't change the external state
-of the device.
+> The layer supports handling the interrupts for you, or (if it's 
+> shared with your controller's interrupt)
 
-The patch is against lk 2.6.13 .
+Yes, there is only one interrupt that for data transmission (both Tx 
+and Rx), statistics, errors and (for those chips that support it) link 
+state change.
 
-Changelog:
-  - mark SCSI opcode 0x37 (READ DEFECT DATA) as
-    safe_for_read
+> Is the cost of an extra read every minute really too high?
 
-Signed-off-by: Douglas Gilbert <dougg@torque.net>
+You probably didn't look at the code. The MII registers are not 
+exposed in the PCI space, they need to be accessed through a serial 
+protocol, such that each MII register read is in fact about 200 (in 
+total) of outw and inw/inl operations.
 
-Doug Gilbert
+-- 
+Bogdan Costescu
 
-
---------------070106010203090209060500
-Content-Type: text/x-patch;
- name="scsi_ioctl2613rdd.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="scsi_ioctl2613rdd.diff"
-
---- linux/drivers/block/scsi_ioctl.c	2005-06-19 07:54:59.000000000 +1000
-+++ linux/drivers/block/scsi_ioctl.c2613rdd	2005-09-09 17:21:52.000000000 +1000
-@@ -123,6 +123,7 @@
- 		safe_for_read(READ_12),
- 		safe_for_read(READ_16),
- 		safe_for_read(READ_BUFFER),
-+		safe_for_read(READ_DEFECT_DATA),
- 		safe_for_read(READ_LONG),
- 		safe_for_read(INQUIRY),
- 		safe_for_read(MODE_SENSE),
-
---------------070106010203090209060500--
+IWR - Interdisziplinaeres Zentrum fuer Wissenschaftliches Rechnen
+Universitaet Heidelberg, INF 368, D-69120 Heidelberg, GERMANY
+Telephone: +49 6221 54 8869, Telefax: +49 6221 54 8868
+E-mail: Bogdan.Costescu@IWR.Uni-Heidelberg.De

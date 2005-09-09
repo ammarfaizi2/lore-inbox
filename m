@@ -1,38 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030394AbVIITlP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030389AbVIITn2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030394AbVIITlP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 15:41:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030391AbVIITlM
+	id S1030389AbVIITn2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 15:43:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030369AbVIITm6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 15:41:12 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:9159 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S1030386AbVIITk7 (ORCPT
+	Fri, 9 Sep 2005 15:42:58 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:37063 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S1030398AbVIITmR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 15:40:59 -0400
-Message-ID: <4321E544.1030304@adaptec.com>
-Date: Fri, 09 Sep 2005 15:40:52 -0400
+	Fri, 9 Sep 2005 15:42:17 -0400
+Message-ID: <4321E593.5090803@adaptec.com>
+Date: Fri, 09 Sep 2005 15:42:11 -0400
 From: Luben Tuikov <luben_tuikov@adaptec.com>
 User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: [PATCH 2.6.13 8/14] sas-class: sas_event.c SAS Event management and
- processing
+Subject: [PATCH 2.6.13 13/14] sas-class: sas_port.c SAS Port (events, attrs,
+ initialization)
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Sep 2005 19:40:57.0930 (UTC) FILETIME=[666FD2A0:01C5B576]
+X-OriginalArrivalTime: 09 Sep 2005 19:42:16.0510 (UTC) FILETIME=[95462DE0:01C5B576]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Signed-off-by: Luben Tuikov <luben_tuikov@adaptec.com>
 
-diff -X linux-2.6.13/Documentation/dontdiff -Naur linux-2.6.13-orig/drivers/scsi/sas-class/sas_event.c linux-2.6.13/drivers/scsi/sas-class/sas_event.c
---- linux-2.6.13-orig/drivers/scsi/sas-class/sas_event.c	1969-12-31 19:00:00.000000000 -0500
-+++ linux-2.6.13/drivers/scsi/sas-class/sas_event.c	2005-09-09 11:14:29.000000000 -0400
-@@ -0,0 +1,294 @@
+diff -X linux-2.6.13/Documentation/dontdiff -Naur linux-2.6.13-orig/drivers/scsi/sas-class/sas_port.c linux-2.6.13/drivers/scsi/sas-class/sas_port.c
+--- linux-2.6.13-orig/drivers/scsi/sas-class/sas_port.c	1969-12-31 19:00:00.000000000 -0500
++++ linux-2.6.13/drivers/scsi/sas-class/sas_port.c	2005-09-09 11:50:35.000000000 -0400
+@@ -0,0 +1,430 @@
 +/*
-+ * Serial Attached SCSI (SAS) Event processing
++ * Serial Attached SCSI (SAS) Port class
 + *
 + * Copyright (C) 2005 Adaptec, Inc.  All rights reserved.
 + * Copyright (C) 2005 Luben Tuikov <luben_tuikov@adaptec.com>
@@ -53,277 +53,413 @@ diff -X linux-2.6.13/Documentation/dontdiff -Naur linux-2.6.13-orig/drivers/scsi
 + * along with this program; if not, write to the Free Software
 + * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 + *
-+ * $Id: //depot/sas-class/sas_event.c#25 $
++ * $Id: //depot/sas-class/sas_port.c#41 $
 + */
 +
-+/**
-+ * Implementation Of Priority Queue Without Duplication
-+ * Luben Tuikov 2005/07/11
-+ *
-+ * The SAS class implements priority queue without duplication for
-+ * handling ha/port/phy/discover events.  That is, we want to process
-+ * the last N unique/non-duplicating events, in the order they arrived.
-+ *
-+ * The requirement is that insertion is O(1), and ordered removal is O(1).
-+ *
-+ * Suppose events are identified by integers.  Then what is required
-+ * is that for a given sequence of any random integers R, to find a
-+ * sorted sequence E, where
-+ *     a) |E| <= |R|.  If the number of types of events is bounded,
-+ *        then E is also bounded by that number, from b).
-+ *     b) For all i and k, E[i] != E[k], except when i == k,
-+ *        this gives us uniqueness/non duplication.
-+ *     c) For all i < k, Order(E[i]) < Order(E[k]), this gives us
-+ *        ordering.
-+ *     d) If T(R) = E, then O(T) <= |R|, this ensures that insertion
-+ *        is O(1), and ordered removal is O(1) trivially, since we
-+ *        remove at the head of E.
-+ *
-+ * Example:
-+ * If R = {4, 5, 1, 2, 5, 3, 3, 4, 4, 3, 1}, then
-+ *    E = {2, 5, 4, 3, 1}.
-+ *
-+ * The algorithm, T, makes use of an array of list elements, indexed
-+ * by event type, and an event list head which is a linked list of the
-+ * elements of the array.  When the next event arrives, we index the
-+ * array by the event, and add that event to the tail of the event
-+ * list head, deleting it from its previous list position (if it had
-+ * one).
-+ *
-+ * Clearly insertion is O(1).
-+ *
-+ * E is given by the elements of the event list, traversed from head
-+ * to tail.
-+ */
-+
-+#include <scsi/scsi_host.h>
 +#include "sas_internal.h"
-+#include "sas_dump.h"
 +#include <scsi/sas/sas_discover.h>
 +
-+static void sas_process_phy_event(struct sas_phy *phy)
++/* called only when num_phys increments, afterwards */
++static void sas_create_port_sysfs_links(struct sas_phy *phy)
 +{
-+	unsigned long flags;
-+	struct sas_ha_struct *sas_ha = phy->ha;
-+	enum phy_event phy_event;
++	struct sas_port *port = phy->port;
 +
-+	spin_lock_irqsave(&sas_ha->event_lock, flags);
-+	while (!list_empty(&phy->phy_event_list)) {
-+		struct list_head *head = phy->phy_event_list.next;
-+		phy_event = container_of(head, struct sas_event, el)->event;
-+		list_del_init(head);
-+		spin_unlock_irqrestore(&sas_ha->event_lock, flags);
-+
-+		sas_dprint_phye(phy->id, phy_event);
-+
-+		switch(phy_event) {
-+		case PHYE_LOSS_OF_SIGNAL:
-+			sas_phye_loss_of_signal(phy);
-+			break;
-+		case PHYE_OOB_DONE:
-+			sas_phye_oob_done(phy);
-+			break;
-+		case PHYE_OOB_ERROR:
-+			sas_phye_oob_error(phy);
-+			break;
-+		case PHYE_SPINUP_HOLD:
-+			sas_phye_spinup_hold(phy);
-+			break;
-+		}
-+		spin_lock_irqsave(&sas_ha->event_lock, flags);
++	if (port->num_phys == 1) {
++		kobject_register(&port->port_kobj);
++		kset_register(&port->phy_kset);
++		kset_register(&port->dev_kset);
 +	}
-+	/* Clear the bit in case we received events in due time. */
-+	sas_ha->phye_mask &= ~(1 << phy->id);
-+	spin_unlock_irqrestore(&sas_ha->event_lock, flags);
++	/* add port->phy link */
++	sysfs_create_link(&port->phy_kset.kobj, &phy->phy_kobj,
++			  kobject_name(&phy->phy_kobj));
++	/* add phy->port link */
++	sysfs_create_link(&phy->phy_kobj, &port->port_kobj, "port");
 +}
 +
-+static void sas_process_port_event(struct sas_phy *phy)
++/* called only when num_phys decrements, just before it does */
++static void sas_remove_port_sysfs_links(struct sas_phy *phy)
 +{
-+	unsigned long flags;
-+	struct sas_ha_struct *sas_ha = phy->ha;
-+	enum port_event port_event;
++	struct sas_port *port = phy->port;
 +
-+	spin_lock_irqsave(&sas_ha->event_lock, flags);
-+	while (!list_empty(&phy->port_event_list)) {
-+		struct list_head *head = phy->port_event_list.next;
-+		port_event = container_of(head, struct sas_event, el)->event;
-+		list_del_init(head);
-+		spin_unlock_irqrestore(&sas_ha->event_lock, flags);
++	/* remove phy->port link */
++	sysfs_remove_link(&phy->phy_kobj, "port");
++	/* remove port to phy link */
++	sysfs_remove_link(&port->phy_kset.kobj, kobject_name(&phy->phy_kobj));
 +
-+		sas_dprint_porte(phy->id, port_event);
-+
-+		switch (port_event) {
-+		case PORTE_BYTES_DMAED:
-+			sas_porte_bytes_dmaed(phy);
-+			break;
-+		case PORTE_BROADCAST_RCVD:
-+			sas_porte_broadcast_rcvd(phy);
-+			break;
-+		case PORTE_LINK_RESET_ERR:
-+			sas_porte_link_reset_err(phy);
-+			break;
-+		case PORTE_TIMER_EVENT:
-+			sas_porte_timer_event(phy);
-+			break;
-+		case PORTE_HARD_RESET:
-+			sas_porte_hard_reset(phy);
-+			break;
-+		}
-+		spin_lock_irqsave(&sas_ha->event_lock, flags);
++	if (port->num_phys == 1) {
++		kset_unregister(&port->dev_kset);
++		kset_unregister(&port->phy_kset);
++		kobject_unregister(&port->port_kobj);
 +	}
-+	/* Clear the bit in case we received events in due time. */
-+	sas_ha->porte_mask &= ~(1 << phy->id);
-+	spin_unlock_irqrestore(&sas_ha->event_lock, flags);
 +}
 +
-+static void sas_process_ha_event(struct sas_ha_struct *sas_ha)
++/**
++ * sas_form_port -- add this phy to a port
++ * @phy: the phy of interest
++ *
++ * This function adds this phy to an existing port, thus creating a wide
++ * port, or it creates a port and adds the phy to the port.
++ */
++static void sas_form_port(struct sas_phy *phy)
++{
++	int i;
++	struct sas_ha_struct *sas_ha = phy->ha;
++	struct sas_port *port = phy->port;
++
++	if (port) {
++		if (memcmp(port->attached_sas_addr, phy->attached_sas_addr,
++			   SAS_ADDR_SIZE) == 0)
++			sas_deform_port(phy);
++		else {
++			SAS_DPRINTK("%s: phy%d belongs to port%d already(%d)!\n",
++				    __FUNCTION__, phy->id, phy->port->id,
++				    phy->port->num_phys);
++			return;
++		}
++	}
++
++	/* find a port */
++	spin_lock(&sas_ha->phy_port_lock);
++	for (i = 0; i < sas_ha->num_phys; i++) {
++		port = sas_ha->sas_port[i];
++		spin_lock(&port->phy_list_lock);
++		if (*(u64 *) port->sas_addr &&
++		    memcmp(port->attached_sas_addr,
++			   phy->attached_sas_addr, SAS_ADDR_SIZE) == 0 &&
++		    port->num_phys > 0) {
++			/* wide port */
++			SAS_DPRINTK("phy%d matched wide port%d\n", phy->id,
++				    port->id);
++			break;
++		} else if (*(u64 *) port->sas_addr == 0 && port->num_phys==0) {
++			memcpy(port->sas_addr, phy->sas_addr, SAS_ADDR_SIZE);
++			break;
++		}
++		spin_unlock(&port->phy_list_lock);
++	}
++
++	if (i >= sas_ha->num_phys) {
++		printk(KERN_NOTICE "%s: couldn't find a free port, bug?\n",
++		       __FUNCTION__);
++		spin_unlock(&sas_ha->phy_port_lock);
++		return;
++	}
++
++	/* add the phy to the port */
++	list_add_tail(&phy->port_phy_el, &port->phy_list);
++	phy->port = port;
++	port->num_phys++;
++	port->phy_mask |= (1U << phy->id);
++
++	SAS_DPRINTK("phy%d added to port%d, phy_mask:0x%x\n", phy->id,
++		    port->id, port->phy_mask);
++
++	if (*(u64 *)port->attached_sas_addr == 0) {
++		port->class = phy->class;
++		memcpy(port->attached_sas_addr, phy->attached_sas_addr,
++		       SAS_ADDR_SIZE);
++		port->iproto = phy->iproto;
++		port->tproto = phy->tproto;
++		port->oob_mode = phy->oob_mode;
++		port->linkrate = phy->linkrate;
++	} else
++		port->linkrate = max(port->linkrate, phy->linkrate);
++	spin_unlock(&port->phy_list_lock);
++	spin_unlock(&sas_ha->phy_port_lock);
++
++	if (port->port_dev)
++		port->port_dev->pathways = port->num_phys;
++	
++	sas_create_port_sysfs_links(phy);
++	/* Tell the LLDD about this port formation. */
++	if (sas_ha->lldd_port_formed)
++		sas_ha->lldd_port_formed(phy);
++
++	sas_discover_event(phy->port, DISCE_DISCOVER_DOMAIN);
++}
++
++/**
++ * sas_deform_port -- remove this phy from the port it belongs to
++ * @phy: the phy of interest
++ *
++ * This is called when the physical link to the other phy has been
++ * lost (on this phy), in Event thread context. We cannot delay here.
++ */
++void sas_deform_port(struct sas_phy *phy)
++{
++	struct sas_ha_struct *sas_ha = phy->ha;
++	struct sas_port *port = phy->port;
++
++	if (!port)
++		return;		  /* done by a phy event */
++
++	if (port->port_dev)
++		port->port_dev->pathways--;
++
++	if (port->num_phys == 1) {
++		init_completion(&port->port_gone_completion);
++		sas_discover_event(port, DISCE_PORT_GONE);
++		wait_for_completion(&port->port_gone_completion);
++	}
++
++	if (sas_ha->lldd_port_deformed)
++		sas_ha->lldd_port_deformed(phy);
++
++	sas_remove_port_sysfs_links(phy);
++
++	spin_lock(&sas_ha->phy_port_lock);
++	spin_lock(&port->phy_list_lock);
++
++	list_del_init(&phy->port_phy_el);
++	phy->port = NULL;
++	port->num_phys--;
++	port->phy_mask &= ~(1U << phy->id);
++
++	if (port->num_phys == 0) {
++		INIT_LIST_HEAD(&port->phy_list);
++		memset(port->sas_addr, 0, SAS_ADDR_SIZE);
++		memset(port->attached_sas_addr, 0, SAS_ADDR_SIZE);
++		port->class = 0;
++		port->iproto = 0;
++		port->tproto = 0;
++		port->oob_mode = 0;
++		port->phy_mask = 0;
++	}
++	spin_unlock(&port->phy_list_lock);
++	spin_unlock(&sas_ha->phy_port_lock);
++
++	return;
++}
++
++/* ---------- SAS port events ---------- */
++
++void sas_porte_bytes_dmaed(struct sas_phy *phy)
++{
++	sas_form_port(phy);
++}
++
++void sas_porte_broadcast_rcvd(struct sas_phy *phy)
 +{
 +	unsigned long flags;
-+	enum ha_event ha_event;
++	u32 prim;
++	
++	spin_lock_irqsave(&phy->sas_prim_lock, flags);
++	prim = phy->sas_prim;
++	spin_unlock_irqrestore(&phy->sas_prim_lock, flags);
 +
-+	spin_lock_irqsave(&sas_ha->event_lock, flags);
-+	while (!list_empty(&sas_ha->ha_event_list)) {
-+		struct list_head *head = sas_ha->ha_event_list.next;
-+		ha_event = container_of(head, struct sas_event, el)->event;
-+		list_del_init(head);
-+		spin_unlock_irqrestore(&sas_ha->event_lock, flags);
++	SAS_DPRINTK("broadcast received: %d\n", prim);
++	sas_discover_event(phy->port, DISCE_REVALIDATE_DOMAIN);
++}
 +
-+		sas_dprint_hae(sas_ha, ha_event);
++void sas_porte_link_reset_err(struct sas_phy *phy)
++{
++	sas_deform_port(phy);
++}
++
++void sas_porte_timer_event(struct sas_phy *phy)
++{
++	sas_deform_port(phy);
++}
++
++void sas_porte_hard_reset(struct sas_phy *phy)
++{
++	sas_deform_port(phy);
++}
++
++/* ---------- SAS port attributes ---------- */
++
++static ssize_t sas_port_id_show(struct sas_port *port, char *buf)
++{
++	return sprintf(buf, "%d\n", port->id);
++}
++
++static ssize_t sas_port_class_show(struct sas_port *port, char *buf)
++{
++	return sas_show_class(port->class, buf);
++}
++
++static ssize_t sas_port_sas_addr_show(struct sas_port *port, char *buf)
++{
++	return sprintf(buf, "%llx\n", SAS_ADDR(port->sas_addr));
++}
++
++static ssize_t sas_port_attached_sas_addr_show(struct sas_port *port,char *buf)
++{
++	return sprintf(buf, "%llx\n", SAS_ADDR(port->attached_sas_addr));
++}
++
++static ssize_t sas_port_iproto_show(struct sas_port *port, char *buf)
++{
++	return sas_show_proto(port->iproto, buf);
++}
++
++static ssize_t sas_port_tproto_show(struct sas_port *port, char *buf)
++{
++	return sas_show_proto(port->tproto, buf);
++}
++
++static ssize_t sas_port_oob_mode_show(struct sas_port *port, char *buf)
++{
++	return sas_show_oob_mode(port->oob_mode, buf);
++}
++
++struct port_attribute {
++	struct attribute attr;
++	ssize_t (*show)(struct sas_port *port, char *);
++	ssize_t (*store)(struct sas_port *port, const char *, size_t);
++};
++
++static struct port_attribute port_attrs[] = {
++	__ATTR(id, 0444, sas_port_id_show, NULL),
++	__ATTR(class, 0444, sas_port_class_show, NULL),
++	__ATTR(port_identifier, 0444, sas_port_sas_addr_show, NULL),
++	__ATTR(attached_port_identifier, 0444, sas_port_attached_sas_addr_show, NULL),
++	__ATTR(iproto, 0444, sas_port_iproto_show, NULL),
++	__ATTR(tproto, 0444, sas_port_tproto_show, NULL),	
++	__ATTR(oob_mode, 0444, sas_port_oob_mode_show, NULL),
++	__ATTR_NULL,
++};
++
++static struct attribute *def_attrs[ARRAY_SIZE(port_attrs)];
++
++#define to_sas_port(_obj) container_of(_obj, struct sas_port, port_kobj)
++#define to_port_attr(_attr) container_of(_attr, struct port_attribute, attr)
++
++static ssize_t port_show_attr(struct kobject *kobj, struct attribute *attr,
++			      char *page)
++{
++	ssize_t ret = 0;
++	struct sas_port *port = to_sas_port(kobj);
++	struct port_attribute *port_attr = to_port_attr(attr);
++
++	if (port_attr->show)
++		ret = port_attr->show(port, page);
++	return ret;
++}
++
++static struct sysfs_ops port_sysfs_ops = {
++	.show = port_show_attr,
++};
++
++static struct kobj_type port_type = {
++	.sysfs_ops = &port_sysfs_ops,
++	.default_attrs = def_attrs,
++};
++
++/* ---------- SAS port registration ---------- */
++
++static void sas_init_port(struct sas_port *port,
++			  struct sas_ha_struct *sas_ha, int i,
++			  struct kset *parent_kset)
++{
++	port->id = i;
++	INIT_LIST_HEAD(&port->dev_list);
++	spin_lock_init(&port->phy_list_lock);
++	INIT_LIST_HEAD(&port->phy_list);
++	port->num_phys = 0;
++	port->phy_mask = 0;
++	port->ha = sas_ha;
++
++	memset(&port->port_kobj, 0, sizeof(port->port_kobj));
++	memset(&port->phy_kset, 0, sizeof(port->phy_kset));
++	memset(&port->dev_kset, 0, sizeof(port->dev_kset));
 +		
-+		switch (ha_event) {
-+		case HAE_RESET:
-+			sas_hae_reset(sas_ha);
-+			break;
-+		}
-+		spin_lock_irqsave(&sas_ha->event_lock, flags);
-+	}
-+	spin_unlock_irqrestore(&sas_ha->event_lock, flags);
++	kobject_set_name(&port->port_kobj, "%d", port->id);
++	port->port_kobj.kset = parent_kset;
++	port->port_kobj.ktype= parent_kset->ktype;
++
++	kobject_set_name(&port->phy_kset.kobj, "%s", "phys");
++	port->phy_kset.kobj.parent = &port->port_kobj;
++	port->phy_kset.ktype = NULL;
++
++	kobject_set_name(&port->dev_kset.kobj, "%s", "domain");
++	port->dev_kset.kobj.parent = &port->port_kobj;
++	port->dev_kset.ktype = NULL;
++
++	port->id_map.max_ids = 128;
++	port->id_map.id_bitmap_size =
++		BITS_TO_LONGS(port->id_map.max_ids)*sizeof(long);
++	port->id_map.id_bitmap = kmalloc(port->id_map.id_bitmap_size,
++					 GFP_KERNEL);
++	memset(port->id_map.id_bitmap, 0, port->id_map.id_bitmap_size);
++	spin_lock_init(&port->id_map.id_bitmap_lock);
 +}
 +
-+static void sas_process_events(struct sas_ha_struct *sas_ha)
-+{
-+	unsigned long flags;
-+	u32 porte_mask, phye_mask;
-+	int p;
-+
-+	spin_lock_irqsave(&sas_ha->event_lock, flags);
-+	phye_mask = sas_ha->phye_mask;
-+	sas_ha->phye_mask = 0;
-+	spin_unlock_irqrestore(&sas_ha->event_lock, flags);
-+
-+	for (p = 0; phye_mask != 0; phye_mask >>= 1, p++)
-+		if (phye_mask & 01)
-+			sas_process_phy_event(sas_ha->sas_phy[p]);
-+
-+	spin_lock_irqsave(&sas_ha->event_lock, flags);
-+	porte_mask = sas_ha->porte_mask;
-+	sas_ha->porte_mask = 0;
-+	spin_unlock_irqrestore(&sas_ha->event_lock, flags);
-+
-+	for (p = 0; porte_mask != 0; porte_mask >>= 1, p++)
-+		if (porte_mask & 01)
-+			sas_process_port_event(sas_ha->sas_phy[p]);
-+
-+	sas_process_ha_event(sas_ha);
-+}
-+
-+static void notify_ha_event(struct sas_ha_struct *sas_ha, enum ha_event event)
-+{
-+	unsigned long flags;
-+	
-+	spin_lock_irqsave(&sas_ha->event_lock, flags);
-+	list_move_tail(&sas_ha->ha_events[event].el, &sas_ha->ha_event_list);
-+	up(&sas_ha->event_sema);
-+	spin_unlock_irqrestore(&sas_ha->event_lock, flags);
-+}
-+
-+static void notify_port_event(struct sas_phy *phy, enum port_event event)
-+{
-+	struct sas_ha_struct *ha = phy->ha;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&ha->event_lock, flags);
-+	list_move_tail(&phy->port_events[event].el, &phy->port_event_list);
-+	ha->porte_mask |= (1 << phy->id);
-+	up(&ha->event_sema);
-+	spin_unlock_irqrestore(&ha->event_lock, flags);
-+}
-+
-+static void notify_phy_event(struct sas_phy *phy, enum phy_event event)
-+{
-+	struct sas_ha_struct *ha = phy->ha;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&ha->event_lock, flags);
-+	list_move_tail(&phy->phy_events[event].el, &phy->phy_event_list);
-+	ha->phye_mask |= (1 << phy->id);
-+	up(&ha->event_sema);
-+	spin_unlock_irqrestore(&ha->event_lock, flags);
-+}
-+
-+static DECLARE_COMPLETION(event_th_comp);
-+
-+static int sas_event_thread(void *_sas_ha)
-+{
-+	struct sas_ha_struct *sas_ha = _sas_ha;
-+
-+	daemonize("sas_event_%d", sas_ha->core.shost->host_no);
-+	current->flags |= PF_NOFREEZE;
-+
-+	complete(&event_th_comp);
-+	
-+	while (1) {
-+		down_interruptible(&sas_ha->event_sema);
-+		if (sas_ha->event_thread_kill)
-+			break;
-+		sas_process_events(sas_ha);
-+	}
-+
-+	complete(&event_th_comp);
-+
-+	return 0;
-+}
-+
-+int sas_start_event_thread(struct sas_ha_struct *sas_ha)
-+{
-+	int i;
-+
-+	init_MUTEX_LOCKED(&sas_ha->event_sema);
-+	sas_ha->event_thread_kill = 0;
-+
-+	spin_lock_init(&sas_ha->event_lock);
-+	INIT_LIST_HEAD(&sas_ha->ha_event_list);
-+	sas_ha->porte_mask = 0;
-+	sas_ha->phye_mask = 0;
-+
-+	for (i = 0; i < HA_NUM_EVENTS; i++) {
-+		struct sas_event *ev = &sas_ha->ha_events[i];
-+		ev->event = i;
-+		INIT_LIST_HEAD(&ev->el);
-+	}
-+
-+	sas_ha->notify_ha_event = notify_ha_event;
-+	sas_ha->notify_port_event = notify_port_event;
-+	sas_ha->notify_phy_event = notify_phy_event;
-+
-+	i = kernel_thread(sas_event_thread, sas_ha, 0);
-+	if (i >= 0)
-+		wait_for_completion(&event_th_comp);
-+
-+	return i < 0 ? i : 0;
-+}
-+
-+void sas_kill_event_thread(struct sas_ha_struct *sas_ha)
++int sas_register_ports(struct sas_ha_struct *sas_ha)
 +{
 +	int i;
 +	
-+	init_completion(&event_th_comp);
-+	sas_ha->event_thread_kill = 1;
-+	up(&sas_ha->event_sema);
-+	wait_for_completion(&event_th_comp);
++	for (i = 0; i < ARRAY_SIZE(def_attrs)-1; i++)
++		def_attrs[i] = &port_attrs[i].attr;
++	def_attrs[i] = NULL;
++
++	/* make sas/ha/ports/ appear */
++	kobject_set_name(&sas_ha->port_kset.kobj, "%s", "ports");
++	sas_ha->port_kset.kobj.kset = &sas_ha->ha_kset; /* parent */
++	/* no type inheritance */
++	sas_ha->port_kset.kobj.ktype = NULL;
++	sas_ha->port_kset.ktype = &port_type; /* children are of this type */
++
++	/* initialize the ports and discovery */
++	for (i = 0; i < sas_ha->num_phys; i++) {
++		struct sas_port *port = sas_ha->sas_port[i];
++
++		sas_init_port(port, sas_ha, i, &sas_ha->port_kset);
++		sas_init_disc(&port->disc, port);
++	}
++
++	return kset_register(&sas_ha->port_kset);
++}
++
++void sas_unregister_ports(struct sas_ha_struct *sas_ha)
++{
++	int i;
 +
 +	for (i = 0; i < sas_ha->num_phys; i++)
-+		sas_kill_disc_thread(sas_ha->sas_port[i]);
++		if (sas_ha->sas_phy[i]->port)
++			sas_deform_port(sas_ha->sas_phy[i]);
++
++	for (i = 0; i < sas_ha->num_phys; i++) {
++		kfree(sas_ha->sas_port[i]->id_map.id_bitmap);
++		sas_ha->sas_port[i]->id_map.id_bitmap = NULL;
++	}
++
++	kset_unregister(&sas_ha->port_kset);
++}
++
++int sas_reserve_free_id(struct sas_port *port)
++{
++	int id;
++
++	spin_lock(&port->id_map.id_bitmap_lock);
++	id = find_first_zero_bit(port->id_map.id_bitmap, port->id_map.max_ids);
++	if (id >= port->id_map.max_ids) {
++		id = -ENOMEM;
++		spin_unlock(&port->id_map.id_bitmap_lock);
++		goto out;
++	}
++	set_bit(id, port->id_map.id_bitmap);
++	spin_unlock(&port->id_map.id_bitmap_lock);
++out:
++	return id;
++}
++
++void sas_reserve_scsi_id(struct sas_port *port, int id)
++{
++	if (0 > id || id >= port->id_map.max_ids)
++		return;
++	spin_lock(&port->id_map.id_bitmap_lock);
++	set_bit(id, port->id_map.id_bitmap);
++	spin_unlock(&port->id_map.id_bitmap_lock);
++}
++
++void sas_release_scsi_id(struct sas_port *port, int id)
++{
++	if (0 > id || id >= port->id_map.max_ids)
++		return;
++	spin_lock(&port->id_map.id_bitmap_lock);
++	clear_bit(id, port->id_map.id_bitmap);
++	spin_unlock(&port->id_map.id_bitmap_lock);
 +}
 
 

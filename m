@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751428AbVIINpH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964810AbVIIOIq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751428AbVIINpH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 09:45:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751429AbVIINpH
+	id S964810AbVIIOIq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 10:08:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964889AbVIIOIq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 09:45:07 -0400
-Received: from zproxy.gmail.com ([64.233.162.202]:61366 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751428AbVIINpF convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 09:45:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=U3ANDvX7IpXwxZ8dufHQoPBWyV/JtQQfitTakkdnmJ+ZFfLLa9NO/R11y5q763KIBuvO94mfP5CiyAsZqhVNeAfw/S9JAotGAfKPTv/thy+l5Ze+ja7zoEzdwqG/HM6YqV7hx+nZOLg0bThunj5utLNSqaBtfAb6Sldh+tDGIgc=
-Message-ID: <9a87484905090906446a3c3bf5@mail.gmail.com>
-Date: Fri, 9 Sep 2005 15:44:57 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Reply-To: jesper.juhl@gmail.com
-To: Jan Beulich <JBeulich@novell.com>
-Subject: Re: [PATCH] rmmod notifier chain
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <43219FDF0200007800024975@emea1-mh.id2.novell.com>
+	Fri, 9 Sep 2005 10:08:46 -0400
+Received: from main.gmane.org ([80.91.229.2]:11149 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S964810AbVIIOIp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 10:08:45 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Ed L Cashin <ecashin@coraid.com>
+Subject: Re: aoe fails on sparc64
+Date: Fri, 09 Sep 2005 10:06:12 -0400
+Message-ID: <87r7bygwtn.fsf@coraid.com>
+References: <3afbacad0508310630797f397d@mail.gmail.com>
+	<87vf1mm7fk.fsf@coraid.com>
+	<20050831.232430.50551657.davem@davemloft.net>
+	<87k6i0bnyn.fsf@coraid.com>
+	<3afbacad05090309064b3cad87@mail.gmail.com>
+	<87ll2agcq0.fsf@coraid.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <43206EFE0200007800024451@emea1-mh.id2.novell.com>
-	 <20050908151624.GA11067@infradead.org>
-	 <432073610200007800024489@emea1-mh.id2.novell.com>
-	 <20050908184659.6aa5a136.akpm@osdl.org>
-	 <43219FDF0200007800024975@emea1-mh.id2.novell.com>
+Content-Type: text/plain; charset=us-ascii
+X-Complaints-To: usenet@sea.gmane.org
+Cc: "David S. Miller" <davem@davemloft.net>,
+       Jim MacBaine <jmacbaine@gmail.com>
+X-Gmane-NNTP-Posting-Host: adsl-19-26-204.asm.bellsouth.net
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+Cancel-Lock: sha1:p7Q/2D2JrceJ048+LILnG5ur23o=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/9/05, Jan Beulich <JBeulich@novell.com> wrote:
-[snip]
-> 
-> First, I rarely saw any kind of positive review feedback from lkml
-> besides the notification that you added something to your -mm tree
-> (negative things of course always arrive), yet no feedback at all is far
-[snip]
+Ed L Cashin <ecashin@coraid.com> writes:
 
-I wouldn't say only negative feedback is the general rule. 
-I've posted lots of patches where people have send comments like
-"looks good", "thanks, applied", "generally OK, but please change this
-or that little bit", etc... And I see the same for many other peoples
-patches.  Positive feedback does happen.
+...
+> Let's take this discussion off the lkml, because I doubt there's a
+> problem with the aoe driver in the kernel, and I can easily follow up
+> to the lkml with a synopsis if it turns out I'm wrong.
+
+It looks like I was probably wrong.  I need to do some debugging, but
+the only sparc64 machine here at hand is in use.
+
+If anybody would be up for running 2.6.13 on a sparc64 host and
+running tests with a patched aoe driver, please let me know.  A test
+would look something like this, using an x86 host and a sparc64 host
+on the same LAN.
+
+  x86$ dd if=/dev/zero of=/tmp/0x1234567 bs=1k count=1 seek=19088742
+  x86$ vblade 0 1 eth0 /tmp/0x1234567
+
+  sparc64$ rmmod aoe
+  sparc64$ cd ~/linux-2.6.13
+  sparc64$ patch -p1 < aoe.diff
+  sparc64$ make && make modules_install
+  sparc64$ modprobe aoe
+
+I'd email you patches, and you'd email me the printk messages that
+show up in the logs.  Such help would be much appreciated.
 
 -- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+  Ed L Cashin <ecashin@coraid.com>
+

@@ -1,82 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030212AbVIIQKq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030195AbVIIQMg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030212AbVIIQKq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 12:10:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030218AbVIIQKq
+	id S1030195AbVIIQMg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 12:12:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030205AbVIIQMg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 12:10:46 -0400
-Received: from smtp.dkm.cz ([62.24.64.34]:24586 "HELO smtp.dkm.cz")
-	by vger.kernel.org with SMTP id S1030212AbVIIQKq (ORCPT
+	Fri, 9 Sep 2005 12:12:36 -0400
+Received: from mail.tmr.com ([64.65.253.246]:10633 "EHLO gaimboi.tmr.com")
+	by vger.kernel.org with ESMTP id S1030195AbVIIQMf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 12:10:46 -0400
-Message-ID: <4321B404.1000400@rulez.cz>
-Date: Fri, 09 Sep 2005 18:10:44 +0200
-From: iSteve <isteve@rulez.cz>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+	Fri, 9 Sep 2005 12:12:35 -0400
+Message-ID: <4321B80E.8090801@tmr.com>
+Date: Fri, 09 Sep 2005 12:27:58 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+Organization: TMR Associates Inc, Schenectady NY
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: query_modules syscall gone? Any replacement?
-References: <4321A40C.6080205@rulez.cz> <Pine.LNX.4.61.0509091116490.4715@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0509091116490.4715@chaos.analogic.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: vatsa@in.ibm.com
+CC: Nish Aravamudan <nish.aravamudan@gmail.com>,
+       Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, ck list <ck@vds.kolivas.org>, rmk+lkml@arm.linux.org.uk
+Subject: Re: [PATCH 1/3] dynticks - implement no idle hz for x86
+References: <200509031801.09069.kernel@kolivas.org> <20050903090650.B26998@flint.arm.linux.org.uk> <200509031814.49666.kernel@kolivas.org> <20050904201054.GA4495@us.ibm.com> <20050904212616.B11265@flint.arm.linux.org.uk> <20050905053225.GA4294@in.ibm.com> <20050905054813.GC25856@us.ibm.com> <20050905063229.GB4294@in.ibm.com> <431F11FF.2000704@tmr.com> <29495f1d0509070942688059a6@mail.gmail.com> <20050907171756.GB28387@in.ibm.com>
+In-Reply-To: <20050907171756.GB28387@in.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Drat, that's a pity, the interface seemed pretty neat and usable (from 
-my rather linux-kernel-newbie point of view, anyway:), especially neater 
-than parsing a file.
+Srivatsa Vaddagiri wrote:
 
-Why did the query_module get removed, by the way? (I searched lkml, but 
-lkml.org search on 'query module' or 'query_module' didn't really give 
-me any relevant hits).
+>On Wed, Sep 07, 2005 at 09:42:24AM -0700, Nish Aravamudan wrote:
+>  
+>
+>>Hrm, got dropped from the Cc... :) Yes, the dynamic-tick generic
+>>infrastructure being proposed, with the idle CPU mask and the
+>>set_all_cpus_idle() tick_source hook, would allow exactly this in
+>>arch-specific code.
+>>    
+>>
+>
+>I think Bill is referring to the "resume" interface i.e an
+>unset_all_cpus_idle() interface, which is missing (set/unset
+>probably are not good prefixes maybe?). I feel we can
+>add one.
+>
+Exactly what I had in mind. If there are hooks for all_idle transitions 
+then architectures can hang whatever makes sense there. That hopefully 
+would result in readable code for both power reduction (laptop) and for 
+the strange things that embedded systems sometimes do.
 
-  - iSteve
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO TMR Associates, Inc
+  Doing interesting things with small computers since 1979
 
-linux-os (Dick Johnson) wrote:
-> On Fri, 9 Sep 2005, iSteve wrote:
-> 
-> 
->>Greetings,
->> I'm coding an application that messes with modules a lot, and I've
->>stumbled upon a query_modules syscall in my docs. Later I've found out
->>that the docs come from modutils and that module-init-tools doesn't seem
->>to document (any of) the syscalls.
->>
->> May I then ask, why is the query_module syscall gone? And more
->>importantly, what replaces it, if anything? It seems to me that parsing
->>the /proc/modules is not only less comfortable, but according to the
->>very obsolete manpage I have, it also can provide less information.
->>
->> For exmaple I'm not aware of anything like QM_SYMBOLS on per-module
->>basis like it was (do correct me if I am wrong, it'd simplify my work a
->>lot), ... and getting QM_REFS for example requires extensive parsing of
->>/proc/modules.
->>
->>Thanks in advance for reply.
->>
->> - iSteve
-> 
-> 
-> The newer modutils package doesn't use query_modules and calling
-> that function will return -ENOSYS in 'modern' kernels. The
-> latest modutils becomes very sparse because most of the module
-> functionality got moved into the kernel where it expanded, err,..
-> don't get me started. Anyway, your user-mode interface is now
-> /proc/modules. It does provide a bit more information than
-> before, but as you noticed, it sucks^M^M^M^M^Mis not nice.
-> Have fun!
-> 
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.6.13 on an i686 machine (5589.53 BogoMips).
-> Warning : 98.36% of all statistics are fiction.
-> .
-> I apologize for the following. I tried to kill it with the above dot :
-> 
-> ****************************************************************
-> The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-> 
-> Thank you.

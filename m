@@ -1,47 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030405AbVIITs1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030408AbVIIT7Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030405AbVIITs1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 15:48:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030355AbVIITs0
+	id S1030408AbVIIT7Q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 15:59:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030409AbVIIT7Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 15:48:26 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:61896 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S1030346AbVIITsX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 15:48:23 -0400
-Message-ID: <4321E701.6060305@adaptec.com>
-Date: Fri, 09 Sep 2005 15:48:17 -0400
-From: Luben Tuikov <luben_tuikov@adaptec.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Benjamin LaHaise <bcrl@kvack.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Fri, 9 Sep 2005 15:59:16 -0400
+Received: from zproxy.gmail.com ([64.233.162.207]:49644 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030408AbVIIT7P convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 15:59:15 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Q0sUAqfZsH7DadzQi/GjPmSQHiKNHNA2Su83bsQJebo8n6kplyD0XdqE4vBaOVxEoXlEG/NwNslvhs6tsQMZeWgPuHHdO9MJ+K5Ijr/7z8htkpqV29CJ23+t0VsObzC5k1WPXZAML6tv6ZFowalXmTPM6jPaSQQrKeLT/l63wAI=
+Message-ID: <29495f1d05090912591d55be5f@mail.gmail.com>
+Date: Fri, 9 Sep 2005 12:59:08 -0700
+From: Nish Aravamudan <nish.aravamudan@gmail.com>
+Reply-To: nish.aravamudan@gmail.com
+To: Luben Tuikov <luben_tuikov@adaptec.com>
+Subject: Re: [PATCH 2.6.13 5/14] sas-class: sas_discover.c Discover process (end devices)
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH 2.6.13 1/20] aic94xx: Makefile
-References: <4321E335.5010805@adaptec.com> <20050909193541.GE24673@kvack.org>
-In-Reply-To: <20050909193541.GE24673@kvack.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Sep 2005 19:48:22.0457 (UTC) FILETIME=[6F654290:01C5B577]
+In-Reply-To: <4321E51F.8040906@adaptec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <4321E51F.8040906@adaptec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ben,
+On 9/9/05, Luben Tuikov <luben_tuikov@adaptec.com> wrote:
+> Signed-off-by: Luben Tuikov <luben_tuikov@adaptec.com>
 
-I think I mentioned this in the Announcement 0/2:
-http://www.geocities.com/ltuikov/
-
-I'll soon move this to an Adaptec site.
-
-	Luben
+<snip>
 
 
-On 09/09/05 15:35, Benjamin LaHaise wrote:
-> A single file per patch is not really a patch split up.  Patches should 
-> stand on their own, leaving the tree in a compilable functioning state 
-> during each step.
-> 
-> 		-ben
-> 
++static int sas_execute_task(struct sas_task *task, void *buffer, int size,
++                           int pci_dma_dir)
 
+<snip>
+
++                       set_current_state(TASK_INTERRUPTIBLE);
++                       schedule_timeout(HZ);
+
+<snip>
+
++                               set_current_state(TASK_INTERRUPTIBLE);
++                               schedule_timeout(5*HZ);
+
+Can you use msleep_interruptible() here? I don't see wait-queues in
+the immediate vicinity. If not, and you're going for the normal -mm
+route (and from there to mainline), can you use
+schedule_timeout_interruptible(), please?
+
+Thanks,
+Nish

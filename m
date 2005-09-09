@@ -1,55 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030245AbVIILVN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030246AbVIILWv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030245AbVIILVN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 07:21:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030246AbVIILVN
+	id S1030246AbVIILWv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 07:22:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030248AbVIILWv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 07:21:13 -0400
-Received: from ns2.suse.de ([195.135.220.15]:51665 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1030245AbVIILVM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 07:21:12 -0400
-Date: Fri, 9 Sep 2005 13:21:08 +0200
-From: Andi Kleen <ak@suse.de>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andi Kleen <ak@suse.de>, Jan Beulich <JBeulich@novell.com>,
-       linux-kernel@vger.kernel.org, discuss@x86-64.org
-Subject: Re: [discuss] [PATCH] allow CONFIG_FRAME_POINTER for x86-64
-Message-ID: <20050909112108.GK19913@wotan.suse.de>
-References: <43207D28020000780002451E@emea1-mh.id2.novell.com> <4321749202000078000248C5@emea1-mh.id2.novell.com> <Pine.LNX.4.61.0509091133180.5937@goblin.wat.veritas.com> <200509091258.13300.ak@suse.de> <Pine.LNX.4.61.0509091208350.6247@goblin.wat.veritas.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0509091208350.6247@goblin.wat.veritas.com>
+	Fri, 9 Sep 2005 07:22:51 -0400
+Received: from mxout1.vodatel.hr ([217.14.208.62]:51845 "EHLO
+	mxout1.vodatel.hr") by vger.kernel.org with ESMTP id S1030246AbVIILWu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 07:22:50 -0400
+Message-ID: <43217233.30206@vodatel.hr>
+Date: Fri, 09 Sep 2005 13:29:55 +0200
+From: Vedran Rodic <vedran@vodatel.hr>
+User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-dvb@linuxtv.org
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.13 reboot problems (when skystar2 DVB driver inserted)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 09, 2005 at 12:14:38PM +0100, Hugh Dickins wrote:
-> 
-> Ah, right.  I'm using kdb with it.  (And my recollection of when
-> show_stack did have a framepointer version, is that it was hopelessly
-> broken on interrupt frames, and we're much better off without it.)
+Hi
 
-Not sure if the x86-64 kdb had code to follow them either.
-The i386 one has.
+I'm using 2.6.13 on my computer with skystar2, b2c2-flexcop driver.
+
+If the driver is inserted into kernel, the reboot won't work.
+
+It just hangs at "Rebooting..."
+
+Can I get any help in debugging these reboot problems?
+
+I've put dmesg and lspci output at 
+http://gargamel.vodatel.hr/~vedran/kernel/
 
 
-> 
-> > The only reason to use them would be external debuggers, but those
-> > don't need them on x86-64 neither.
-> 
-> Don't need them, but find them as useful on x86_64 as on i386?
-> 
-> Certainly, I can go on patching in FRAME_POINTERs for x86_64
-> as I have done, no problem with that.  But it seems both bogus
-> and unhelpful to have that "&& !X86_64" in lib/Kconfig.debug -
-> framepointers are as helpful/useless on x86_64 as the rest.
+Thank you
 
-The original reason was that they were never enabled because
-nobody passed -fno-omit-frame-pointer. That was apparently
-later fixed.
-
-But kdb should be using a dwarf2 unwinder instead. kgdb certainly
-supports that, as does NLKD.
-
--Andi
+Vedran Rodic

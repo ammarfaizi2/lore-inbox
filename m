@@ -1,16 +1,16 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030220AbVIIQyO (ORCPT <rfc822;ralf@linux-mips.org>);
-	Fri, 9 Sep 2005 12:54:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030228AbVIIQyO
+	id S932070AbVIISaM (ORCPT <rfc822;ralf@linux-mips.org>);
+	Fri, 9 Sep 2005 14:30:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932576AbVIISaM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 12:54:14 -0400
-Received: from qmailer.bethesdahosting.com ([209.183.221.247]:46864 "EHLO
+	Fri, 9 Sep 2005 14:30:12 -0400
+Received: from qmailer.bethesdahosting.com ([209.183.221.247]:20239 "EHLO
 	qMailer.bethesdahosting.com") by vger.kernel.org with ESMTP
-	id S1030220AbVIIQyO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 12:54:14 -0400
+	id S932070AbVIISaL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 14:30:11 -0400
 From: Charlie at Brief Encounters USA <DCMetro@briefencountersusa.com>
 To: <linux-kernel@vger.kernel.org>
-Date: Fri, 09 Sep 2005 17:13:31 GMT
+Date: Fri, 09 Sep 2005 18:49:41 GMT
 X-MSMail-Priority: Normal
 Reply-To: DCMetro@briefencountersusa.com
 X-mailer: AspMail 4.0 4.03 (SMT4B845CF)
@@ -18,11 +18,11 @@ Subject: New September Events -Meet For A Movie,Tennis..
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-ID: <SHADY4BXD65R1fL1dnB00089cc0@qMailer.bethesdahosting.com>
-X-OriginalArrivalTime: 09 Sep 2005 17:13:31.0390 (UTC) FILETIME=[CD7CF1E0:01C5B561]
+Message-ID: <SHADYaCdhxJKocJqj0C0008c8bf@qMailer.bethesdahosting.com>
+X-OriginalArrivalTime: 09 Sep 2005 18:49:41.0953 (UTC) FILETIME=[3D02FB10:01C5B56F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1030220AbVIIQyO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932070AbVIISaM@vger.kernel.org>
 
 
 Hi,

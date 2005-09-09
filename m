@@ -1,89 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030429AbVIIWDB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030418AbVIIWCr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030429AbVIIWDB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 18:03:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030428AbVIIWDA
+	id S1030418AbVIIWCr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 18:02:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030419AbVIIWCq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 18:03:00 -0400
-Received: from ccerelbas04.cce.hp.com ([161.114.21.107]:41683 "EHLO
-	ccerelbas04.cce.hp.com") by vger.kernel.org with ESMTP
-	id S1030426AbVIIWC6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 18:02:58 -0400
-Date: Fri, 9 Sep 2005 17:02:34 -0500
-From: mike.miller@hp.com
-To: akpm@osdl.org, axboe@suse.de
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: [PATCH 2/8] cciss:busy_initializing flag
-Message-ID: <20050909220234.GB4616@beardog.cca.cpqcorp.net>
-Reply-To: mikem@beardog.cca.cpqcorp.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Fri, 9 Sep 2005 18:02:46 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:18831 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1030420AbVIIWCp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 18:02:45 -0400
+Message-ID: <43220682.6030101@namesys.com>
+Date: Fri, 09 Sep 2005 15:02:42 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, Reiserfs-Dev@namesys.com,
+       reiserfs-list@namesys.com
+Subject: Re: List of things requested by lkml for reiser4 inclusion (to review)
+References: <200509091817.39726.zam@namesys.com>	<4321C806.60404@namesys.com> <20050909144142.0f96802f.akpm@osdl.org>
+In-Reply-To: <20050909144142.0f96802f.akpm@osdl.org>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch 2 of 8
-This patch adds a flag called busy_initializing. If there are multiple
-controllers in a server AND the HP agents are running it's possible
-the agents may try to poll a card that is still initializing if the 
-driver is removed and then added again.
-Please consider this for inclusion.
+Andrew Morton wrote:
 
-Signed-off-by: Don Brace <dab@hp.com>
-Signed-of-by: Mike Miller <mike.miller@hp.com>
+>
+>  
+>
+>>1. pseudo files or "...." files
+>>
+>>    
+>>
+>
+>  
+>
+>>  disabled.  It remains a point of (extraordinary) contention as to
+>>whether it can be fixed, we want to keep the code around until we can
+>>devote proper resources into proving it can be (or until we fail to prove
+>>it can be and remove it).  We don't want to delay the rest of the code for
+>>that proof, but we still think it can be done (by several different ways of
+>>which we need to select one and make it work.) Let us postpone contention
+>>on this until the existence of a patch that cannot crash makes contention
+>>purposeful, shall we?
+>>    
+>>
+>
+>I'd prefer that unused code simply not be present in the tree, sorry.
+>  
+>
+Ok, edward will remove.
 
- cciss.c |    8 ++++++++
- cciss.h |    1 +
- 2 files changed, 9 insertions(+)
---------------------------------------------------------------------------------
-diff -burNp lx2613-p001/drivers/block/cciss.c lx2613/drivers/block/cciss.c
---- lx2613-p001/drivers/block/cciss.c	2005-09-07 13:27:05.390086000 -0500
-+++ lx2613/drivers/block/cciss.c	2005-09-07 14:27:13.573559656 -0500
-@@ -468,6 +468,9 @@ static int cciss_open(struct inode *inod
- 	printk(KERN_DEBUG "cciss_open %s\n", inode->i_bdev->bd_disk->disk_name);
- #endif /* CCISS_DEBUG */ 
- 
-+	if (host->busy_initializing)
-+		return -EBUSY;
-+
- 	/*
- 	 * Root is allowed to open raw volume zero even if it's not configured
- 	 * so array config can still work. Root is also allowed to open any
-@@ -2743,6 +2746,9 @@ static int __devinit cciss_init_one(stru
- 	i = alloc_cciss_hba();
- 	if(i < 0)
- 		return (-1);
-+
-+	hba[i]->busy_initializing = 1;
-+
- 	if (cciss_pci_init(hba[i], pdev) != 0)
- 		goto clean1;
- 
-@@ -2865,6 +2871,7 @@ static int __devinit cciss_init_one(stru
- 		add_disk(disk);
- 	}
- 
-+	hba[i]->busy_initializing = 0;
- 	return(1);
- 
- clean4:
-@@ -2885,6 +2892,7 @@ clean2:
- clean1:
- 	release_io_mem(hba[i]);
- 	free_hba(i);
-+	hba[i]->busy_initializing = 0;
- 	return(-1);
- }
- 
-diff -burNp lx2613-p001/drivers/block/cciss.h lx2613/drivers/block/cciss.h
---- lx2613-p001/drivers/block/cciss.h	2005-08-28 18:41:01.000000000 -0500
-+++ lx2613/drivers/block/cciss.h	2005-09-07 14:24:55.174599496 -0500
-@@ -83,6 +83,7 @@ struct ctlr_info 
- 	int			nr_allocs;
- 	int			nr_frees; 
- 	int			busy_configuring;
-+	int			busy_initializing;
- 
- 	/* This element holds the zero based queue number of the last
- 	 * queue to be started.  It is used for fairness.
+>  
+>
+>>2. dependency on 4k stack turned off
+>>
+>>   removed as requested
+>>    
+>>
+>
+>So it all runs OK with 4k stacks now?
+>  
+>
+vs will answer this.
+
+>  
+>
+>>3. remove conditional variable code, use wait queues instead.
+>>
+>>not done.  There are times when reduced functionality aids debugging. 
+>>kcond is (literally) textbook code.  We don't care enough to fight much for
+>>it, but akpm, what is your opinion?  Will remove if akpm asks us to.
+>>    
+>>
+>
+>kcond is only used in a couple of places.  One looks like it could use
+>complete() and the other is a standard wait-for-something-to-do kernel
+>thread loop, which we open-code without any fuss in lots of places
+>(kjournald, loop, pdflush, etc).  So yes, I'd be inclined to remove kcond
+>please.
+>  
+>
+ok, zam will do so.
+
+>Also, it would be better to use the kthread API rather than open-coding
+>kernel_thread() calls.  If you think that reiser4 needs additional ways of
+>controlling kernel threads then feel free to enhance the kthread API.
+>
+>  
+>
+>>6.  remove type safe lists and type safe hash queues.
+>>
+>>not done, it is not clear that the person asking for this represents a
+>>unified consensus of lkml.  Other persons instead asked that it just be
+>>moved out of reiser4 code into the generic kernel code, which implies they
+>>did not object to it.  There are many who like being type safe.  Akpm, what
+>>do you yourself think?
+>>    
+>>
+>
+>The type-unsafety of existing list_heads gives me conniptions too.  Yes,
+>it'd be nice to have a type-safe version available.
+>
+>That being said, I don't see why such a thing cannot be a wrapper around
+>the existing list_head functions.  Yes, there will be some ghastly
+>C-templates-via-CPP stuff, best avoided by not looking at the file ;)
+>
+>We should aim for a complete 1:1 relationship between list_heads and
+>type-safe lists.  So people know what they're called, know how they work,
+>etc.  We shouldn't go adding things called rx_event_list_pop_back() when
+>everyone has learned the existing list API.
+>
+>Of course, it would have been better to do this work as a completely
+>separate kernel feature rather than bundling it with a filesystem.  If this
+>isn't a thing your team wants to take on now then yes, I'd be inclined to
+>switch reiser4 to list_heads.
+>  
+>
+Ok, Edward, this task is yours.  Edward, how big you make the task is up
+to you so long as it is done by Monday.  If you run low on time, get
+help with it.
+

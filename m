@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932576AbVIITAL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030265AbVIITOJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932576AbVIITAL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 15:00:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932583AbVIITAL
+	id S1030265AbVIITOJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 15:14:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030280AbVIITOJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 15:00:11 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:5539 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932576AbVIITAK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 15:00:10 -0400
-Date: Fri, 9 Sep 2005 20:00:07 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Christoph Hellwig <hch@infradead.org>, Hans Reiser <reiser@namesys.com>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: List of things requested by lkml for reiser4 inclusion (to review)
-Message-ID: <20050909190007.GA12109@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Hans Reiser <reiser@namesys.com>, Andrew Morton <akpm@osdl.org>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>,
-	ReiserFS List <reiserfs-list@namesys.com>
-References: <200509091817.39726.zam@namesys.com> <4321C806.60404@namesys.com> <20050909185740.GA11923@infradead.org>
+	Fri, 9 Sep 2005 15:14:09 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:16278 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030265AbVIITOH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 15:14:07 -0400
+Date: Fri, 9 Sep 2005 20:14:05 +0100
+From: viro@ZenIV.linux.org.uk
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Corey Minyard <minyard@acm.org>
+Subject: [PATCH] trivial __user annotations (ipmi)
+Message-ID: <20050909191405.GU9623@ZenIV.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050909185740.GA11923@infradead.org>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 09, 2005 at 07:57:40PM +0100, Christoph Hellwig wrote:
-> A very annoying small thing that comes to mind is the usage of
-> reiser4_internal.  Please remove it, all but exported symbol are
-> module-private.
-
-Oh, one other things that's totally annoying and makes reading the
-code a pain are the line-length and comment style.  Please wrap
-lines after 80 chars and use normal
-
-/* foobar, blagg */
-
-or 
-
-/*
- * fvsfafsfasdrfasddddddddddddddddddddd
- * fdsfsfdsfsdf
- * sdfsdfs
- */
-
-comments, thanks
-
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+----
+diff -urN RC13-git8-base/drivers/char/ipmi/ipmi_devintf.c current/drivers/char/ipmi/ipmi_devintf.c
+--- RC13-git8-base/drivers/char/ipmi/ipmi_devintf.c	2005-09-08 10:17:39.000000000 -0400
++++ current/drivers/char/ipmi/ipmi_devintf.c	2005-09-08 23:53:33.000000000 -0400
+@@ -735,7 +735,8 @@
+ 	case COMPAT_IPMICTL_RECEIVE_MSG:
+ 	case COMPAT_IPMICTL_RECEIVE_MSG_TRUNC:
+ 	{
+-		struct ipmi_recv   *precv64, recv64;
++		struct ipmi_recv   __user *precv64;
++		struct ipmi_recv   recv64;
+ 
+ 		if (get_compat_ipmi_recv(&recv64, compat_ptr(arg)))
+ 			return -EFAULT;
+@@ -748,7 +749,7 @@
+ 				((cmd == COMPAT_IPMICTL_RECEIVE_MSG)
+ 				 ? IPMICTL_RECEIVE_MSG
+ 				 : IPMICTL_RECEIVE_MSG_TRUNC),
+-				(long) precv64);
++				(unsigned long) precv64);
+ 		if (rc != 0)
+ 			return rc;
+ 

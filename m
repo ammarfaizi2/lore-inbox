@@ -1,135 +1,154 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751156AbVIIDJy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964922AbVIIDMM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751156AbVIIDJy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 23:09:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751251AbVIIDJy
+	id S964922AbVIIDMM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 23:12:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751392AbVIIDMM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 23:09:54 -0400
-Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:21644 "EHLO
-	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP
-	id S1751156AbVIIDJy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 23:09:54 -0400
-X-ORBL: [69.107.75.50]
-DomainKey-Signature: a=rsa-sha1; s=sbc01; d=pacbell.net; c=nofws; q=dns;
-	h=received:date:from:to:subject:cc:references:in-reply-to:
-	mime-version:content-type:content-transfer-encoding:message-id;
-	b=C5Ql5UO/Sp7H32C+5iEyNa67unY0Z30QdtxM1JwUlHlS0VemJ+543JFP18yQoHT3k
-	2+CQfMFdmSGuAcQbbDG0Q==
-Date: Thu, 08 Sep 2005 20:09:34 -0700
-From: David Brownell <david-b@pacbell.net>
-To: linux-kernel@vger.kernel.org, basicmark@yahoo.com
-Subject: Re: SPI redux ... driver model support
-Cc: dpervushin@ru.mvista.com
-References: <20050907183843.14745.qmail@web30307.mail.mud.yahoo.com>
-In-Reply-To: <20050907183843.14745.qmail@web30307.mail.mud.yahoo.com>
-MIME-Version: 1.0
+	Thu, 8 Sep 2005 23:12:12 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:2541 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S1751251AbVIIDMK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 23:12:10 -0400
+Date: Thu, 8 Sep 2005 23:12:07 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [git patch] libata fixes
+Message-ID: <20050909031207.GA25014@havoc.gtf.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <20050909030934.8419AE9DCC@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Date: Wed, 7 Sep 2005 19:38:43 +0100 (BST)
-> From: Mark Underwood <basicmark@yahoo.com>
-> ...
->
-> I see several posabiltiys of how SPI devices could be
-> connected to an adapter.
 
-Certainly, and all are addressed cleanly by the kind of
-configuration scheme I showed.
+Please pull from 'upstream' branch of
+master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
+
+to obtain fixes for last-minute problems noticed in current build,
+following GregKH's PCI merge.
 
 
-> 1) All SPI devices are hardwired to the adapter. I
-> think this would be the most common.
-
-For custom hardware, not designed for expansion, yes.  Zaurus Corgi
-models, for example, keep three SPI devices busy.
-
-But in that category I'd also include custom hardware that happens to
-be packaged by connecting boards, which is also the territory of #2 or
-#3 below.  "Hard wired" can include connectors that are removable by
-breaking the warranty.  :)
-
-
-> 2) Some SPI devices are hardwired and some are
-> removable.
-
-Development/Evaluation boards -- the reference implementations in most
-environments, not just Linux -- seem to all but universally choose this
-option (or, more rarely, #3).  There might be some domain-specific chips
-hardwired (touchscreen or CAN controller, ADC/DAC, etc), but expansion
-connectors WILL expose SPI.
-
-That makes sense; one goal is to support system prototyping, and it's
-hard to do that if for any reason one of the major hardware connectivity
-options is hard to get at!
-
-
-> 3) All SPI devices are removable.
-
-This is common for the sort of single board computers that get sold
-to run Linux (or whatever) as part of semicustom hardware:  maybe not
-much more than a few square inches packed with an SOC CPU, FLASH, RAM,
-and expansion connectors providing access to a few dozen SOC peripherals.
-(There might be 250 or so SOC pins, with expansion connectors providing
-access to some big portion of those pins ... including some for SPI.)
-
-It'd be nice to be able to support those SBCs with a core Linux port,
-and then just layer support for addon boards on top of that without
-needing to touch a line of arch code.  And convenient for folk who
-are adding value through those addons.  :)
+ drivers/scsi/sata_mv.c  |   16 ----------------
+ drivers/scsi/sata_sis.c |   20 +++++++++++---------
+ 2 files changed, 11 insertions(+), 25 deletions(-)
 
 
 
-> 	 When you plug a card in you use
-> spi_device_register to add that device to the system
-> and when you remove the card you call
-> spi_device_unregister. You can then do the same for a
-> different card and at no time have you changed the
-> declaration of the controller.
+commit 8add788574694c5aed04fcb281a5c999e40cd8f6
+Author: Jeff Garzik <jgarzik@pobox.com>
+Date:   Thu Sep 8 23:07:29 2005 -0400
 
-That implies whoever is registering is actually going and creating the
-SPI devices ... and doing it AFTER the controller driver is registered.
-I actually have issues with each of those implications.
-
-However, I was also aiming to support the model where the controller
-drivers are modular, and the "add driver" and "declare hardware" steps
-can go in any order.  That way things can work "just like other busses"
-when you load the controller drivers ... and the approach is like the
-familiar "boot firmware gives hardware description tables to the OS"
-approach used by lots of _other_ hardware that probes poorly.  (Except
-that Linux is likely taking over lots of that "boot firmware" role.)
+    [libata] minor fixes
+    
+    * sata_mv: remove pci_intx(), now that the same function is in PCI core
+    * sata_sis: fix variable initialization bug, trim trailing whitespace
 
 
-> > I'll post a refresh of my patch that seems to me to be
-> > a much better match for those goals.  The refresh includes
-> > some tweaks based on what you sent, but it's still just
-> > one KByte of overhead in the target ROM.  :)
 
-Grr.  I added sysfs attributes and an I/O utility function,
-and now it's a bit bigger than 1KByte.  Especially with
-debugging enabled, it's nearer 1.5KB.  The curse of actually
-trying to hook up to hardware and its quirks.  :(
-
-
-> OK. I will post an updated version of my SPI subsystem
-> within the next few days with the transfer stuff added
-> and maybe the interrupt and GPO abstraction as well.
-
-OK.
-
-
-> I haven't seen any replies to my SPI patch :( did you
-> reply to it?
-
-No, I was going to sent it when I sent that refresh; it's helped
-focus my thoughts a bit.  :)
-
-Several of the comments (like "get rid of algorithm layer!") you'll have
-heard before in response to the RFC from MontaVista.  It seems both
-approaches are still trying to make SPI seem like I2C, and not taking
-the opportunity to _fix_ very much of the I2C oddness.
-
-- Dave
-
+diff --git a/drivers/scsi/sata_mv.c b/drivers/scsi/sata_mv.c
+--- a/drivers/scsi/sata_mv.c
++++ b/drivers/scsi/sata_mv.c
+@@ -699,22 +699,6 @@ static int mv_host_init(struct ata_probe
+ 	return rc;
+ }
+ 
+-/* move to PCI layer, integrate w/ MSI stuff */
+-static void pci_intx(struct pci_dev *pdev, int enable)
+-{
+-	u16 pci_command, new;
+-
+-	pci_read_config_word(pdev, PCI_COMMAND, &pci_command);
+-
+-	if (enable)
+-		new = pci_command & ~PCI_COMMAND_INTX_DISABLE;
+-	else
+-		new = pci_command | PCI_COMMAND_INTX_DISABLE;
+-
+-	if (new != pci_command)
+-		pci_write_config_word(pdev, PCI_COMMAND, pci_command);
+-}
+-
+ static int mv_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
+ {
+ 	static int printed_version = 0;
+diff --git a/drivers/scsi/sata_sis.c b/drivers/scsi/sata_sis.c
+--- a/drivers/scsi/sata_sis.c
++++ b/drivers/scsi/sata_sis.c
+@@ -55,7 +55,7 @@ enum {
+ 	SIS180_SATA1_OFS	= 0x10, /* offset from sata0->sata1 phy regs */
+ 	SIS182_SATA1_OFS	= 0x20, /* offset from sata0->sata1 phy regs */
+ 	SIS_PMR			= 0x90, /* port mapping register */
+-	SIS_PMR_COMBINED	= 0x30, 
++	SIS_PMR_COMBINED	= 0x30,
+ 
+ 	/* random bits */
+ 	SIS_FLAG_CFGSCR		= (1 << 30), /* host flag: SCRs via PCI cfg */
+@@ -147,11 +147,13 @@ static unsigned int get_scr_cfg_addr(uns
+ {
+ 	unsigned int addr = SIS_SCR_BASE + (4 * sc_reg);
+ 
+-	if (port_no) 
++	if (port_no)  {
+ 		if (device == 0x182)
+ 			addr += SIS182_SATA1_OFS;
+ 		else
+ 			addr += SIS180_SATA1_OFS;
++	}
++
+ 	return addr;
+ }
+ 
+@@ -166,10 +168,10 @@ static u32 sis_scr_cfg_read (struct ata_
+ 		return 0xffffffff;
+ 
+ 	pci_read_config_byte(pdev, SIS_PMR, &pmr);
+-	
++
+ 	pci_read_config_dword(pdev, cfg_addr, &val);
+ 
+-	if ((pdev->device == 0x182) || (pmr & SIS_PMR_COMBINED)) 
++	if ((pdev->device == 0x182) || (pmr & SIS_PMR_COMBINED))
+ 		pci_read_config_dword(pdev, cfg_addr+0x10, &val2);
+ 
+ 	return val|val2;
+@@ -185,7 +187,7 @@ static void sis_scr_cfg_write (struct at
+ 		return;
+ 
+ 	pci_read_config_byte(pdev, SIS_PMR, &pmr);
+-	
++
+ 	pci_write_config_dword(pdev, cfg_addr, val);
+ 
+ 	if ((pdev->device == 0x182) || (pmr & SIS_PMR_COMBINED))
+@@ -195,7 +197,7 @@ static void sis_scr_cfg_write (struct at
+ static u32 sis_scr_read (struct ata_port *ap, unsigned int sc_reg)
+ {
+ 	struct pci_dev *pdev = to_pci_dev(ap->host_set->dev);
+-	u32 val,val2;
++	u32 val, val2 = 0;
+ 	u8 pmr;
+ 
+ 	if (sc_reg > SCR_CONTROL)
+@@ -209,9 +211,9 @@ static u32 sis_scr_read (struct ata_port
+ 	val = inl(ap->ioaddr.scr_addr + (sc_reg * 4));
+ 
+ 	if ((pdev->device == 0x182) || (pmr & SIS_PMR_COMBINED))
+-		val2 = inl(ap->ioaddr.scr_addr + (sc_reg * 4)+0x10);
++		val2 = inl(ap->ioaddr.scr_addr + (sc_reg * 4) + 0x10);
+ 
+-	return val|val2;
++	return val | val2;
+ }
+ 
+ static void sis_scr_write (struct ata_port *ap, unsigned int sc_reg, u32 val)
+@@ -223,7 +225,7 @@ static void sis_scr_write (struct ata_po
+ 		return;
+ 
+ 	pci_read_config_byte(pdev, SIS_PMR, &pmr);
+-	
++
+ 	if (ap->flags & SIS_FLAG_CFGSCR)
+ 		sis_scr_cfg_write(ap, sc_reg, val);
+ 	else {

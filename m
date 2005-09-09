@@ -1,60 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932561AbVIINpu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751428AbVIINpH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932561AbVIINpu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 09:45:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932557AbVIINpu
+	id S1751428AbVIINpH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 09:45:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751429AbVIINpH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 09:45:50 -0400
-Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:1975 "EHLO
-	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S932561AbVIINpt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 09:45:49 -0400
-From: Grant Coady <grant_lkml@dodo.com.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Marko Kohtala <marko.kohtala@gmail.com>
-Subject: Re: 2.6.13-mm2
-Date: Fri, 09 Sep 2005 23:45:38 +1000
-Organization: http://bugsplatter.mine.nu/
-Message-ID: <d243i19hk055rl5b5o5i9suofsvbmv5r8l@4ax.com>
-References: <20050908053042.6e05882f.akpm@osdl.org> <m1q1i1lav2vl7k0lpposq0uj4uobsptnor@4ax.com> <20050909024336.01763521.akpm@osdl.org>
-In-Reply-To: <20050909024336.01763521.akpm@osdl.org>
-X-Mailer: Forte Agent 2.0/32.652
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Fri, 9 Sep 2005 09:45:07 -0400
+Received: from zproxy.gmail.com ([64.233.162.202]:61366 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751428AbVIINpF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 09:45:05 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=U3ANDvX7IpXwxZ8dufHQoPBWyV/JtQQfitTakkdnmJ+ZFfLLa9NO/R11y5q763KIBuvO94mfP5CiyAsZqhVNeAfw/S9JAotGAfKPTv/thy+l5Ze+ja7zoEzdwqG/HM6YqV7hx+nZOLg0bThunj5utLNSqaBtfAb6Sldh+tDGIgc=
+Message-ID: <9a87484905090906446a3c3bf5@mail.gmail.com>
+Date: Fri, 9 Sep 2005 15:44:57 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: jesper.juhl@gmail.com
+To: Jan Beulich <JBeulich@novell.com>
+Subject: Re: [PATCH] rmmod notifier chain
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <43219FDF0200007800024975@emea1-mh.id2.novell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <43206EFE0200007800024451@emea1-mh.id2.novell.com>
+	 <20050908151624.GA11067@infradead.org>
+	 <432073610200007800024489@emea1-mh.id2.novell.com>
+	 <20050908184659.6aa5a136.akpm@osdl.org>
+	 <43219FDF0200007800024975@emea1-mh.id2.novell.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew, Marko,
-On Fri, 9 Sep 2005 02:43:36 -0700, Andrew Morton <akpm@osdl.org> wrote:
+On 9/9/05, Jan Beulich <JBeulich@novell.com> wrote:
+[snip]
+> 
+> First, I rarely saw any kind of positive review feedback from lkml
+> besides the notification that you added something to your -mm tree
+> (negative things of course always arrive), yet no feedback at all is far
+[snip]
 
->Grant Coady <grant_lkml@dodo.com.au> wrote:
->>
->> On Thu, 8 Sep 2005 05:30:42 -0700, Andrew Morton <akpm@osdl.org> wrote:
->> 
->> >
->> >ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13/2.6.13-mm2/
->> 
->> Hi Andrew,
->> 
->> After this error:
->> 
->>   CC      drivers/parport/parport_pc.o
->> drivers/parport/parport_pc.c:2511: error: via_686a_data causes a section type conflict
->> drivers/parport/parport_pc.c:2520: error: via_8231_data causes a section type conflict
->> drivers/parport/parport_pc.c:2705: error: parport_pc_superio_info causes a section type conflict
->> drivers/parport/parport_pc.c:2782: error: cards causes a section type conflict
->> make[2]: *** [drivers/parport/parport_pc.o] Error 1
->> make[1]: *** [drivers/parport] Error 2
->> make: *** [drivers] Error 2
->
->Yes, gcc 4.x doesn't like the consts for some reason.
+I wouldn't say only negative feedback is the general rule. 
+I've posted lots of patches where people have send comments like
+"looks good", "thanks, applied", "generally OK, but please change this
+or that little bit", etc... And I see the same for many other peoples
+patches.  Positive feedback does happen.
 
-Not using gcc 4.x, Slackware-10.1+ with Gnu C 3.3.6
->
->diff -puN drivers/parport/parport_pc.c~a drivers/parport/parport_pc.c
-[...]
-Thank you, compile completed :o)  Bonus!  It booted too.
-
-Grant.
-
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

@@ -1,69 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030666AbVIIWI7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030687AbVIIWKF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030666AbVIIWI7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 18:08:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030669AbVIIWI5
+	id S1030687AbVIIWKF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 18:10:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030674AbVIIWKD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 18:08:57 -0400
-Received: from mail.kroah.org ([69.55.234.183]:8844 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1030663AbVIIWIx (ORCPT
+	Fri, 9 Sep 2005 18:10:03 -0400
+Received: from atlrel6.hp.com ([156.153.255.205]:13470 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S1030682AbVIIWKA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 18:08:53 -0400
-Date: Fri, 9 Sep 2005 15:07:58 -0700
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: [GIT PATCH] More PCI patches for 2.6.13
-Message-ID: <20050909220758.GA29746@kroah.com>
+	Fri, 9 Sep 2005 18:10:00 -0400
+Date: Fri, 9 Sep 2005 17:09:38 -0500
+From: mike.miller@hp.com
+To: akpm@osdl.org, axboe@suse.de
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: [PATCH 6/8] cciss: fix for DMA brokeness
+Message-ID: <20050909220938.GF4616@beardog.cca.cpqcorp.net>
+Reply-To: mikem@beardog.cca.cpqcorp.net
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.10i
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are some more PCI patches against your latest git tree.  Most of
-them were just not applied to the last pci git pull, due to me messing
-up the mbox that I applied to the tree.  They have been in the -mm tree
-for a while.
+Patch 6 of 8
+The CCISS driver seems to loose track of DMA mappings
+created by it's fill_cmd() routine.  Neither callers of this routine are
+extracting the DMA address created in order to do the unmap.
+Instead, they simply try to unmap 0x0.  It's easy to see this
+problem on an x86_64 system when using the "swiotlb=force"
+boot option.  In this case, the driver is leaking resources
+of the swiotlb and not causing a sync of the bounce buffer.  Thanks
 
-The other two patches are a moving around of the pci probe functions so
-that ppc has an easier time of future work, and I've sent in a pci quirk
-that has been in the -mm tree for a while.
+Signed-off-by: Alex Williamson <alex.williamson@hp.com>
+Signed-off-by: Mike Miller <mike.miller@hp.com>
 
-Please pull from:
-	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/pci-2.6.git/
-or if master.kernel.org hasn't synced up yet:
-	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/pci-2.6.git/
-
-The full patches will be sent to the linux-pci mailing lists, if anyone
-wants to see them.
-
-thanks,
-
-greg k-h
-
- drivers/pci/hotplug.c               |   53 ++++++++++++++----------------------
- drivers/pci/hotplug/pciehprm_acpi.c |    8 ++---
- drivers/pci/pci.h                   |    1 
- drivers/pci/probe.c                 |   50 ++++++++++++++++++++++-----------
- drivers/pci/quirks.c                |   12 ++++++++
- include/linux/pci.h                 |   23 ++++++++-------
- 6 files changed, 83 insertions(+), 64 deletions(-)
-
-
-Dave Jones:
-  must_check attributes for PCI layer.
-
-Greg Kroah-Hartman:
-  PCI: move pci core to use add_hotplug_env_var()
-
-Paul Mackerras:
-  PCI: Small rearrangement of PCI probing code
-
-Rajesh Shah:
-  PCI: Fix PCI bus mastering enable problem in pciehp
-
-Rumen Ivanov Zarev:
-  PCI: Unhide SMBus on Compaq Evo N620c
-
+ cciss.c |   13 +++++++++----
+ 1 files changed, 9 insertions(+), 4 deletions(-)
+--------------------------------------------------------------------------------
+diff -burNp lx2613-p004/drivers/block/cciss.c lx2613/drivers/block/cciss.c
+--- lx2613-p004/drivers/block/cciss.c	2005-09-09 16:09:13.362617000 -0500
++++ lx2613/drivers/block/cciss.c	2005-09-09 16:14:54.116814816 -0500
+@@ -1731,8 +1731,10 @@ case CMD_HARDWARE_ERR:
+ 		}
+ 	}	
+ 	/* unlock the buffers from DMA */
++	buff_dma_handle.val32.lower = c->SG[0].Addr.lower;
++	buff_dma_handle.val32.upper = c->SG[0].Addr.upper;
+ 	pci_unmap_single( h->pdev, (dma_addr_t) buff_dma_handle.val,
+-			size, PCI_DMA_BIDIRECTIONAL);
++			c->SG[0].Len, PCI_DMA_BIDIRECTIONAL);
+ 	cmd_free(h, c, 0);
+         return(return_status);
+ 
+@@ -2013,8 +2015,10 @@ resend_cmd1:
+ 		
+ cleanup1:	
+ 	/* unlock the data buffer from DMA */
++	buff_dma_handle.val32.lower = c->SG[0].Addr.lower;
++	buff_dma_handle.val32.upper = c->SG[0].Addr.upper;
+ 	pci_unmap_single(info_p->pdev, (dma_addr_t) buff_dma_handle.val,
+-				size, PCI_DMA_BIDIRECTIONAL);
++				c->SG[0].Len, PCI_DMA_BIDIRECTIONAL);
+ 	cmd_free(info_p, c, 1);
+ 	return (status);
+ } 
+@@ -3097,9 +3101,10 @@ static void __devexit cciss_remove_one (
+ 	/* remove it from the disk list */
+ 	for (j = 0; j < NWD; j++) {
+ 		struct gendisk *disk = hba[i]->gendisk[j];
+-		if (disk->flags & GENHD_FL_UP)
+-			blk_cleanup_queue(disk->queue);
++		if (disk->flags & GENHD_FL_UP) {
+ 			del_gendisk(disk);
++			blk_cleanup_queue(disk->queue);
++		}
+ 	}
+ 
+ 	pci_free_consistent(hba[i]->pdev, NR_CMDS * sizeof(CommandList_struct),

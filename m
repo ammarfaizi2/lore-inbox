@@ -1,70 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030318AbVIIVJN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030340AbVIIVTy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030318AbVIIVJN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 17:09:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030340AbVIIVJN
+	id S1030340AbVIIVTy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 17:19:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030348AbVIIVTy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 17:09:13 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:34743 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030318AbVIIVJM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 17:09:12 -0400
-Date: Fri, 9 Sep 2005 22:09:08 +0100
-From: viro@ZenIV.linux.org.uk
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: davem@davemloft.net, linux-kernel@vger.kernel.org
-Subject: [PATCH] envctrl fixes
-Message-ID: <20050909210908.GG9623@ZenIV.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Fri, 9 Sep 2005 17:19:54 -0400
+Received: from mail-out3.fuse.net ([216.68.8.176]:35548 "EHLO smtp3.fuse.net")
+	by vger.kernel.org with ESMTP id S1030340AbVIIVTx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 17:19:53 -0400
+Message-ID: <43215470.3020502@fuse.net>
+Date: Fri, 09 Sep 2005 05:22:56 -0400
+From: rob <rob.rice@fuse.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041221
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: kernel <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp
+References: <431E97E5.1080506@fuse.net> <431F42D0.6080304@gmail.com> <4321179B.6080107@fuse.net> <4321C7FF.8030109@gmail.com>
+In-Reply-To: <4321C7FF.8030109@gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-envctrl doesn't need unistd.h; moreover, since it declares errno static
-gcc4 gets very unhappy about including unistd.h.
-	
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-----
-diff -urN RC13-git7-m68k-8390/drivers/sbus/char/bbc_envctrl.c RC13-git7-envctrl/drivers/sbus/char/bbc_envctrl.c
---- RC13-git7-m68k-8390/drivers/sbus/char/bbc_envctrl.c	2005-08-28 23:09:45.000000000 -0400
-+++ RC13-git7-envctrl/drivers/sbus/char/bbc_envctrl.c	2005-09-07 13:55:16.000000000 -0400
-@@ -5,6 +5,7 @@
-  */
- 
- #define __KERNEL_SYSCALLS__
-+static int errno;
- 
- #include <linux/kernel.h>
- #include <linux/kthread.h>
-@@ -13,8 +14,6 @@
- #include <linux/delay.h>
- #include <asm/oplib.h>
- #include <asm/ebus.h>
--static int errno;
--#include <asm/unistd.h>
- 
- #include "bbc_i2c.h"
- #include "max1617.h"
-diff -urN RC13-git7-m68k-8390/drivers/sbus/char/envctrl.c RC13-git7-envctrl/drivers/sbus/char/envctrl.c
---- RC13-git7-m68k-8390/drivers/sbus/char/envctrl.c	2005-08-28 23:09:45.000000000 -0400
-+++ RC13-git7-envctrl/drivers/sbus/char/envctrl.c	2005-09-07 13:55:16.000000000 -0400
-@@ -20,6 +20,7 @@
-  */
- 
- #define __KERNEL_SYSCALLS__
-+static int errno;
- 
- #include <linux/config.h>
- #include <linux/module.h>
-@@ -38,9 +39,6 @@
- #include <asm/uaccess.h>
- #include <asm/envctrl.h>
- 
--static int errno;
--#include <asm/unistd.h>
--
- #define ENVCTRL_MINOR	162
- 
- #define PCF8584_ADDRESS	0x55
+Alon Bar-Lev wrote:
+
+>>>
+>> it crashes the kernel with atempt to kill init or it trys to load a 
+>> memory image that was never saved
+>> I can't get it to boot for the first time so it can save a memory image
+>>
+>
+> Strange...
+> Have you read the documentation? use resume2 instead of resume and so on?
+>
+> Suspend2 works.. and solves many problems of suspend1... I recommend 
+> you invest some more time making it work.
+>
+> Best Regards,
+> Alon Bar-Lev.
+>
+yes and it dosen't behave as expected the noresume2 dosen't work at all
+I even had to "rdev -R /dev/hda1 " the kernel just to get it to find the 
+root parttion it was erroring with
+(3.1) unrecnised device i even had to down the 2.6.13 source just to try 
+it the patch would not apply
+to a 2.6.12.5 source code
+
+I have seen swsusp work on this laptop I haven't even seen swsusp2 even 
+boot
+on the fastest computer I have acess to there is a 2 1/2 hour built of 
+the kernel
+and I have to remove the hard drive from the laptop install it in the 
+desk top get
+the kernel on it reflash the BIOSreset al the hard ware settings reset 
+the clock
+just to see the kernel crash on boot up I have done this 3 times I have 
+doubts
+that this patch was ever ment for laptops the doucmentation isen't even 
+included
+in the source package
+(laptops are not always on the net or always easy to get on the net )
+
+I see it as a good thing it hasen't ben included in the kernel tree

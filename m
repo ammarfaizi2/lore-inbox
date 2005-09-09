@@ -1,138 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030203AbVIIJoM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030204AbVIIJoN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030203AbVIIJoM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 05:44:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030207AbVIIJoM
+	id S1030204AbVIIJoN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 05:44:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030207AbVIIJoN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 05:44:12 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:7958
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S1030203AbVIIJoK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 05:44:10 -0400
-Message-Id: <432175CB02000078000248D0@emea1-mh.id2.novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Fri, 09 Sep 2005 11:45:15 +0200
-From: "Jan Beulich" <JBeulich@novell.com>
-To: "Zwane Mwaikambo" <zwane@arm.linux.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix i386 interrupt re-enabling in die() (attempt
-	2)
-References: <4320718A0200007800024476@emea1-mh.id2.novell.com> <Pine.LNX.4.63.0509081036110.8052@r3000.fsmlabs.com>
-In-Reply-To: <Pine.LNX.4.63.0509081036110.8052@r3000.fsmlabs.com>
+	Fri, 9 Sep 2005 05:44:13 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:60646 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030204AbVIIJoL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 05:44:11 -0400
+Date: Fri, 9 Sep 2005 02:43:36 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Grant Coady <grant_lkml@dodo.com.au>
+Cc: linux-kernel@vger.kernel.org, Marko Kohtala <marko.kohtala@gmail.com>
+Subject: Re: 2.6.13-mm2
+Message-Id: <20050909024336.01763521.akpm@osdl.org>
+In-Reply-To: <m1q1i1lav2vl7k0lpposq0uj4uobsptnor@4ax.com>
+References: <20050908053042.6e05882f.akpm@osdl.org>
+	<m1q1i1lav2vl7k0lpposq0uj4uobsptnor@4ax.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=__PartE8CA87BB.1__="
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME message. If you are reading this text, you may want to 
-consider changing to a mail reader or gateway that understands how to 
-properly handle MIME multipart messages.
-
---=__PartE8CA87BB.1__=
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
->>> Zwane Mwaikambo <zwane@arm.linux.org.uk> 08.09.05 19:37:20 >>>
->On Thu, 8 Sep 2005, Jan Beulich wrote:
+Grant Coady <grant_lkml@dodo.com.au> wrote:
 >
->> diff -Npru 2.6.13/arch/i386/kernel/traps.c
->> 2.6.13-i386-die-irq/arch/i386/kernel/traps.c
->> --- 2.6.13/arch/i386/kernel/traps.c	2005-08-29 01:41:01.000000000
->> +0200
->> +++ 2.6.13-i386-die-irq/arch/i386/kernel/traps.c	2005-09-07
->> 11:39:40.000000000 +0200
->> @@ -304,6 +304,7 @@ void die(const char * str, struct pt_reg
->>  		spinlock_t lock;
->>  		u32 lock_owner;
->>  		int lock_owner_depth;
->> +		unsigned long flags;
->>  	} die = {
->>  		.lock =			SPIN_LOCK_UNLOCKED,
->>  		.lock_owner =		-1,
->> @@ -313,7 +314,7 @@ void die(const char * str, struct pt_reg
->>  
->>  	if (die.lock_owner != raw_smp_processor_id()) {
->>  		console_verbose();
->> -		spin_lock_irq(&die.lock);
->> +		spin_lock_irqsave(&die.lock, die.flags);
->
->This corrupts flags on contention, use a stack variable.
+> On Thu, 8 Sep 2005 05:30:42 -0700, Andrew Morton <akpm@osdl.org> wrote:
+> 
+> >
+> >ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13/2.6.13-mm2/
+> 
+> Hi Andrew,
+> 
+> After this error:
+> 
+>   CC      drivers/parport/parport_pc.o
+> drivers/parport/parport_pc.c:2511: error: via_686a_data causes a section type conflict
+> drivers/parport/parport_pc.c:2520: error: via_8231_data causes a section type conflict
+> drivers/parport/parport_pc.c:2705: error: parport_pc_superio_info causes a section type conflict
+> drivers/parport/parport_pc.c:2782: error: cards causes a section type conflict
+> make[2]: *** [drivers/parport/parport_pc.o] Error 1
+> make[1]: *** [drivers/parport] Error 2
+> make: *** [drivers] Error 2
 
-Indeed. Corrected below:
+Yes, gcc 4.x doesn't like the consts for some reason.
 
-(Note: Patch also attached because the inline version is certain to
-get
-line wrapped.)
 
-Rather than blindly re-enabling interrupts in die(), save their state
-upon
-entry and then restore that state.
-
-Signed-off-by: Jan Beulich <jbeulich@novell.com>
-
-diff -Npru 2.6.13/arch/i386/kernel/traps.c
-2.6.13-i386-die-irq/arch/i386/kernel/traps.c
---- 2.6.13/arch/i386/kernel/traps.c	2005-08-29 01:41:01.000000000
-+0200
-+++ 2.6.13-i386-die-irq/arch/i386/kernel/traps.c	2005-09-09
-11:33:30.202343904 +0200
-@@ -310,14 +310,17 @@ void die(const char * str, struct pt_reg
- 		.lock_owner_depth =	0
- 	};
- 	static int die_counter;
-+	unsigned long flags;
+diff -puN drivers/parport/parport_pc.c~a drivers/parport/parport_pc.c
+--- devel/drivers/parport/parport_pc.c~a	2005-09-09 02:32:49.000000000 -0700
++++ devel-akpm/drivers/parport/parport_pc.c	2005-09-09 02:33:35.000000000 -0700
+@@ -2509,7 +2509,7 @@ static int __devinit sio_ite_8872_probe 
+ static int __devinitdata parport_init_mode = 0;
  
- 	if (die.lock_owner != raw_smp_processor_id()) {
- 		console_verbose();
--		spin_lock_irq(&die.lock);
-+		spin_lock_irqsave(&die.lock, flags);
- 		die.lock_owner = smp_processor_id();
- 		die.lock_owner_depth = 0;
- 		bust_spinlocks(1);
- 	}
-+	else
-+		local_save_flags(flags);
+ /* Data for two known VIA chips */
+-static const struct parport_pc_via_data via_686a_data __devinitdata = {
++static struct parport_pc_via_data via_686a_data __devinitdata = {
+ 	0x51,
+ 	0x50,
+ 	0x85,
+@@ -2518,7 +2518,7 @@ static const struct parport_pc_via_data 
+ 	0xF0,
+ 	0xE6
+ };
+-static const struct parport_pc_via_data via_8231_data __devinitdata = {
++static struct parport_pc_via_data via_8231_data __devinitdata = {
+ 	0x45,
+ 	0x44,
+ 	0x50,
+@@ -2699,7 +2699,7 @@ enum parport_pc_sio_types {
+ };
  
- 	if (++die.lock_owner_depth < 3) {
- 		int nl = 0;
-@@ -344,7 +347,7 @@ void die(const char * str, struct pt_reg
+ /* each element directly indexed from enum list, above */
+-static const struct parport_pc_superio {
++static struct parport_pc_superio {
+ 	int (*probe) (struct pci_dev *pdev, int autoirq, int autodma,
+ 		      const struct parport_pc_via_data *via);
+ 	const struct parport_pc_via_data *via;
+@@ -2763,7 +2763,7 @@ enum parport_pc_pci_cards {
  
- 	bust_spinlocks(0);
- 	die.lock_owner = -1;
--	spin_unlock_irq(&die.lock);
-+	spin_unlock_irqrestore(&die.lock, flags);
- 
- 	if (kexec_should_crash(current))
- 		crash_kexec(regs);
+ /* each element directly indexed from enum list, above 
+  * (but offset by last_sio) */
+-static const struct parport_pc_pci {
++static struct parport_pc_pci {
+ 	int numports;
+ 	struct { /* BAR (base address registers) numbers in the config
+                     space header */
+_
 
 
---=__PartE8CA87BB.1__=
-Content-Type: application/octet-stream; name="linux-2.6.13-i386-die-irq.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="linux-2.6.13-i386-die-irq.patch"
 
-KE5vdGU6IFBhdGNoIGFsc28gYXR0YWNoZWQgYmVjYXVzZSB0aGUgaW5saW5lIHZlcnNpb24gaXMg
-Y2VydGFpbiB0byBnZXQKbGluZSB3cmFwcGVkLikKClJhdGhlciB0aGFuIGJsaW5kbHkgcmUtZW5h
-YmxpbmcgaW50ZXJydXB0cyBpbiBkaWUoKSwgc2F2ZSB0aGVpciBzdGF0ZSB1cG9uCmVudHJ5IGFu
-ZCB0aGVuIHJlc3RvcmUgdGhhdCBzdGF0ZS4KClNpZ25lZC1vZmYtYnk6IEphbiBCZXVsaWNoIDxq
-YmV1bGljaEBub3ZlbGwuY29tPgoKZGlmZiAtTnBydSAyLjYuMTMvYXJjaC9pMzg2L2tlcm5lbC90
-cmFwcy5jIDIuNi4xMy1pMzg2LWRpZS1pcnEvYXJjaC9pMzg2L2tlcm5lbC90cmFwcy5jCi0tLSAy
-LjYuMTMvYXJjaC9pMzg2L2tlcm5lbC90cmFwcy5jCTIwMDUtMDgtMjkgMDE6NDE6MDEuMDAwMDAw
-MDAwICswMjAwCisrKyAyLjYuMTMtaTM4Ni1kaWUtaXJxL2FyY2gvaTM4Ni9rZXJuZWwvdHJhcHMu
-YwkyMDA1LTA5LTA5IDExOjMzOjMwLjIwMjM0MzkwNCArMDIwMApAQCAtMzEwLDE0ICszMTAsMTcg
-QEAgdm9pZCBkaWUoY29uc3QgY2hhciAqIHN0ciwgc3RydWN0IHB0X3JlZwogCQkubG9ja19vd25l
-cl9kZXB0aCA9CTAKIAl9OwogCXN0YXRpYyBpbnQgZGllX2NvdW50ZXI7CisJdW5zaWduZWQgbG9u
-ZyBmbGFnczsKIAogCWlmIChkaWUubG9ja19vd25lciAhPSByYXdfc21wX3Byb2Nlc3Nvcl9pZCgp
-KSB7CiAJCWNvbnNvbGVfdmVyYm9zZSgpOwotCQlzcGluX2xvY2tfaXJxKCZkaWUubG9jayk7CisJ
-CXNwaW5fbG9ja19pcnFzYXZlKCZkaWUubG9jaywgZmxhZ3MpOwogCQlkaWUubG9ja19vd25lciA9
-IHNtcF9wcm9jZXNzb3JfaWQoKTsKIAkJZGllLmxvY2tfb3duZXJfZGVwdGggPSAwOwogCQlidXN0
-X3NwaW5sb2NrcygxKTsKIAl9CisJZWxzZQorCQlsb2NhbF9zYXZlX2ZsYWdzKGZsYWdzKTsKIAog
-CWlmICgrK2RpZS5sb2NrX293bmVyX2RlcHRoIDwgMykgewogCQlpbnQgbmwgPSAwOwpAQCAtMzQ0
-LDcgKzM0Nyw3IEBAIHZvaWQgZGllKGNvbnN0IGNoYXIgKiBzdHIsIHN0cnVjdCBwdF9yZWcKIAog
-CWJ1c3Rfc3BpbmxvY2tzKDApOwogCWRpZS5sb2NrX293bmVyID0gLTE7Ci0Jc3Bpbl91bmxvY2tf
-aXJxKCZkaWUubG9jayk7CisJc3Bpbl91bmxvY2tfaXJxcmVzdG9yZSgmZGllLmxvY2ssIGZsYWdz
-KTsKIAogCWlmIChrZXhlY19zaG91bGRfY3Jhc2goY3VycmVudCkpCiAJCWNyYXNoX2tleGVjKHJl
-Z3MpOwo=
+> Warning! Found recursive dependency: HOSTAP IEEE80211 NET_RADIO HOSTAP IEEE80211_CRYPT_WEP CRYPTO CRYPTO_ANUBIS
+> Warning! Found recursive dependency: HOSTAP IEEE80211 NET_RADIO HOSTAP IEEE80211_CRYPT_WEP CRYPTO CRYPTO_MD4
+> Warning! Found recursive dependency: HOSTAP IEEE80211 NET_RADIO HOSTAP IEEE80211_CRYPT_WEP CRYPTO CRYPTO_MD5
+> Warning! Found recursive dependency: HOSTAP IEEE80211 NET_RADIO HOSTAP IEEE80211_CRYPT_WEP CRYPTO CRYPTO_AES_X86_64
+> Warning! Found recursive dependency: NET_RADIO HOSTAP IEEE80211 NET_RADIO HERMES TMD_HERMES
+> Warning! Found recursive dependency: HOSTAP IEEE80211 NET_RADIO HOSTAP HOSTAP_PCI
+> Warning! Found recursive dependency: NET_RADIO HOSTAP IEEE80211 NET_RADIO WAVELAN
 
---=__PartE8CA87BB.1__=--
+Yup, Jeff knows about that..

@@ -1,124 +1,417 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965237AbVIICHB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965236AbVIICCG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965237AbVIICHB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 22:07:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965238AbVIICHB
+	id S965236AbVIICCG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 22:02:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965235AbVIICCG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 22:07:01 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:39873 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965237AbVIICHA (ORCPT
+	Thu, 8 Sep 2005 22:02:06 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:30609 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965236AbVIICCF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 22:07:00 -0400
-Message-ID: <4320EE3E.8010902@us.ibm.com>
-Date: Thu, 08 Sep 2005 22:06:54 -0400
+	Thu, 8 Sep 2005 22:02:05 -0400
+Message-ID: <4320ED16.9080502@us.ibm.com>
+Date: Thu, 08 Sep 2005 22:01:58 -0400
 From: Janak Desai <janak@us.ibm.com>
 User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: linux-kernel@vger.kernel.org, Chris Wright <chrisw@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
-       viro@ZenIV.linux.org.uk
+To: Chris Wright <chrisw@osdl.org>
+CC: linux-kernel@vger.kernel.org, viro@ZenIV.linux.org.uk, akpm@osdl.org,
+       hch@infradead.org, Nick Piggin <nickpiggin@yahoo.com.au>
 Subject: Re: [PATCH 1/2] (repost) New System call, unshare (fwd)
-References: <Pine.WNT.4.63.0509071350080.4008@IBM-AIP3070F3AM> <431F95C3.8010200@yahoo.com.au>
-In-Reply-To: <431F95C3.8010200@yahoo.com.au>
+References: <Pine.WNT.4.63.0509071350080.4008@IBM-AIP3070F3AM> <20050907211222.GB7991@shell0.pdx.osdl.net>
+In-Reply-To: <20050907211222.GB7991@shell0.pdx.osdl.net>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
+Thanks again for your review. I understand the problems that
+you highlighted. I will rework the code and this time create
+test programs that test these aspects of unsharing that I had
+missed. Basically, the four areas that I have to fix are
+   - Investigate impact on aio and futex
+   - Handle possibilities of other threads manipulating use
+     counts and/or deleting mm/namespace/sighand structures
+     that were being shared
+   - Review/handle implications of calling copy_* with a
+     task that is visible globably.
+   - Consider impact of previous call to clone() with
+     sharing of appropriate resources.
 
-> Janak Desai wrote:
-> 
-> 
->> -    tsk->min_flt = tsk->maj_flt = 0;
->> -    tsk->nvcsw = tsk->nivcsw = 0;
->> +    /*
->> +     * If the process memory is being duplicated as part of the
->> +     * unshare system call, we are working with the current process
->> +     * and not a newly allocated task strucutre, and should not
->> +     * zero out fault info, context switch counts, mm and active_mm
->> +     * fields.
->> +     */
->> +    if (copy_share_action == MAY_SHARE) {
->> +        tsk->min_flt = tsk->maj_flt = 0;
->> +        tsk->nvcsw = tsk->nivcsw = 0;
->>  
-> 
-> 
-> Why don't you just do this in copy_process?
-> 
+Specific responses are inline ...
 
-I was trying to avoid changing interface of copy_process since it
-is also used by do_fork() and fork_idle().
 
->> -    tsk->mm = NULL;
->> -    tsk->active_mm = NULL;
->> +        tsk->mm = NULL;
->> +        tsk->active_mm = NULL;
->> +    }
->>  
->>      /*
->>       * Are we cloning a kernel thread?
->> @@ -1002,7 +1023,7 @@ static task_t *copy_process(unsigned lon
->>          goto bad_fork_cleanup_fs;
->>      if ((retval = copy_signal(clone_flags, p)))
->>          goto bad_fork_cleanup_sighand;
->> -    if ((retval = copy_mm(clone_flags, p)))
->> +    if ((retval = copy_mm(clone_flags, p, MAY_SHARE)))
->>          goto bad_fork_cleanup_signal;
->>      if ((retval = copy_keys(clone_flags, p)))
->>          goto bad_fork_cleanup_mm;
->> @@ -1317,3 +1338,172 @@ void __init proc_caches_init(void)
->>              sizeof(struct mm_struct), 0,
->>              SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
->>  }
->> +
->> +/*
->> + * unshare_mm is called from the unshare system call handler function to
->> + * make a private copy of the mm_struct structure. It calls copy_mm with
->> + * CLONE_VM flag cleard, to ensure that a private copy of mm_struct 
->> is made,
->> + * and with mm_copy_share enum set to UNSHARE, to ensure that copy_mm
->> + * does not clear fault info, context switch counts, mm and active_mm
->> + * fields of the mm_struct.
->> + */
->> +static int unshare_mm(unsigned long unshare_flags, struct task_struct 
->> *tsk)
->> +{
->> +    int retval = 0;
->> +    struct mm_struct *mm = tsk->mm;
->> +
->> +    /*
->> +     * If the virtual memory is being shared, make a private
->> +     * copy and disassociate the process from the shared virtual
->> +     * memory.
->> +     */
->> +    if (atomic_read(&mm->mm_users) > 1) {
->> +        retval = copy_mm((unshare_flags & ~CLONE_VM), tsk, UNSHARE);
->> +
->> +        /*
->> +         * If copy_mm was successful, decrement the number of users
->> +         * on the original, shared, mm_struct.
->> +         */
->> +        if (!retval)
->> +            atomic_dec(&mm->mm_users);
->> +    }
->> +    return retval;
->> +}
->> +
+Chris Wright wrote:
+
+> * Janak Desai (janak@us.ibm.com) wrote:
+> 
+>>diff -Naurp linux-2.6.13-mm1/kernel/fork.c linux-2.6.13-mm1+unshare-patch1/kernel/fork.c
+>>--- linux-2.6.13-mm1/kernel/fork.c	2005-09-07 13:25:01.000000000 +0000
+>>+++ linux-2.6.13-mm1+unshare-patch1/kernel/fork.c	2005-09-07 13:40:11.000000000 +0000
+>>@@ -58,6 +58,17 @@ int nr_threads; 		/* The idle threads do
+>> 
+>> int max_threads;		/* tunable limit on nr_threads */
+>> 
+>>+/*
+>>+ * mm_copy gets called from clone or unshare system calls. When called
+>>+ * from clone, mm_struct may be shared depending on the clone flags
+>>+ * argument, however, when called from the unshare system call, a private
+>>+ * copy of mm_struct is made.
+>>+ */
+>>+enum mm_copy_share {
+>>+	MAY_SHARE,
+>>+	UNSHARE,
+>>+};
+>>+
+>> DEFINE_PER_CPU(unsigned long, process_counts) = 0;
+>> 
+>>  __cacheline_aligned DEFINE_RWLOCK(tasklist_lock);  /* outer */
+>>@@ -448,16 +459,26 @@ void mm_release(struct task_struct *tsk,
+>> 	}
+>> }
+>> 
+>>-static int copy_mm(unsigned long clone_flags, struct task_struct * tsk)
+>>+static int copy_mm(unsigned long clone_flags, struct task_struct * tsk,
+>>+			enum mm_copy_share copy_share_action)
 > 
 > 
-> What prevents thread 1 from decrementing mm_users after thread 2 has
-> found it to be 2?
+> minor nitpick, pretty verbose name, could just be share.
 > 
 
-Yes, Chris pointed out that as well. I will be reviewing and reworking
-this logic.
+ok, sounds good. Will change to share.
 
-Thanks.
 
--Janak
+> 
+>> {
+>> 	struct mm_struct * mm, *oldmm;
+>> 	int retval;
+>> 
+>>-	tsk->min_flt = tsk->maj_flt = 0;
+>>-	tsk->nvcsw = tsk->nivcsw = 0;
+>>+	/*
+>>+	 * If the process memory is being duplicated as part of the
+>>+	 * unshare system call, we are working with the current process
+>>+	 * and not a newly allocated task strucutre, and should not
+>>+	 * zero out fault info, context switch counts, mm and active_mm
+>>+	 * fields.
+>>+	 */
+>>+	if (copy_share_action == MAY_SHARE) {
+>>+		tsk->min_flt = tsk->maj_flt = 0;
+>>+		tsk->nvcsw = tsk->nivcsw = 0;
+>> 
+>>-	tsk->mm = NULL;
+>>-	tsk->active_mm = NULL;
+>>+		tsk->mm = NULL;
+>>+		tsk->active_mm = NULL;
+>>+	}
+>> 
+>> 	/*
+>> 	 * Are we cloning a kernel thread?
+>>@@ -1002,7 +1023,7 @@ static task_t *copy_process(unsigned lon
+>> 		goto bad_fork_cleanup_fs;
+>> 	if ((retval = copy_signal(clone_flags, p)))
+>> 		goto bad_fork_cleanup_sighand;
+>>-	if ((retval = copy_mm(clone_flags, p)))
+>>+	if ((retval = copy_mm(clone_flags, p, MAY_SHARE)))
+>> 		goto bad_fork_cleanup_signal;
+>> 	if ((retval = copy_keys(clone_flags, p)))
+>> 		goto bad_fork_cleanup_mm;
+>>@@ -1317,3 +1338,172 @@ void __init proc_caches_init(void)
+>> 			sizeof(struct mm_struct), 0,
+>> 			SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
+>> }
+>>+
+>>+/*
+>>+ * unshare_mm is called from the unshare system call handler function to
+>>+ * make a private copy of the mm_struct structure. It calls copy_mm with
+>>+ * CLONE_VM flag cleard, to ensure that a private copy of mm_struct is made,
+>>+ * and with mm_copy_share enum set to UNSHARE, to ensure that copy_mm
+>>+ * does not clear fault info, context switch counts, mm and active_mm
+>>+ * fields of the mm_struct.
+>>+ */
+>>+static int unshare_mm(unsigned long unshare_flags, struct task_struct *tsk)
+>>+{
+>>+	int retval = 0;
+>>+	struct mm_struct *mm = tsk->mm;
+>>+
+>>+	/*
+>>+	 * If the virtual memory is being shared, make a private
+>>+	 * copy and disassociate the process from the shared virtual
+>>+	 * memory.
+>>+	 */
+>>+	if (atomic_read(&mm->mm_users) > 1) {
+>>+		retval = copy_mm((unshare_flags & ~CLONE_VM), tsk, UNSHARE);
+> 
+> 
+> Looks like this could allow aio to be done on behalf of wrong mm?  Hmm,
+> and what about the futex code?
+> 
+
+I had missed aio and futex implications, I will carefully
+review them to ensure that unshare doesn't break them.
+
+> 
+>>+
+>>+		/*
+>>+		 * If copy_mm was successful, decrement the number of users
+>>+		 * on the original, shared, mm_struct.
+>>+		 */
+>>+		if (!retval)
+>>+			atomic_dec(&mm->mm_users);
+> 
+> 
+> This is not sufficient.  Should be mmput().  It's trivial to bump the
+> refcount without it actually being shared, so you may have just leaked
+> the mm_struct if you were last holder.
+> 
+
+yes, will change to mmput(). I see now how mmput() releases
+resources only when the count goes to zero.
+
+> 
+>>+	}
+>>+	return retval;
+>>+}
+>>+
+>>+/*
+>>+ * unshare_sighand is called from the unshare system call handler function to
+>>+ * make a private copy of the sighand_struct structure. It calls copy_sighand
+>>+ * with CLONE_SIGHAND cleared to ensure that a new signal handler structure
+>>+ * is cloned from the current shared one.
+>>+ */
+>>+static int unshare_sighand(unsigned long unshare_flags, struct task_struct *tsk)
+>>+{
+>>+	int retval = 0;
+>>+	struct sighand_struct *sighand = tsk->sighand;
+>>+
+>>+	/*
+>>+	 * If the signal handlers are being shared, make a private
+>>+	 * copy and disassociate the process from the shared signal
+>>+	 * handlers.
+>>+	 */
+>>+	if (atomic_read(&sighand->count) > 1) {
+>>+		retval = copy_sighand((unshare_flags & ~CLONE_SIGHAND), tsk);
+>>+
+>>+		/*
+>>+		 * If copy_sighand was successful, decrement the use count
+>>+		 * on the original, shared, sighand_struct.
+>>+		 */
+>>+		if (!retval)
+>>+			atomic_dec(&sighand->count);
+> 
+> 
+> Actually, if other thread that was sharing sighand is doing execve() or
+> exit(), this atomic_dec could drop count to either 0 (it's now leaked) or
+> 1, in which case the exit/execve will drop count to 0 and destroy
+> sighand (which you later restore under error conditions).
+> 
+
+Understood. I will rework the logic.
+
+> 
+>>+	}
+>>+	return retval;
+>>+}
+>>+
+>>+/*
+>>+ * unshare_namespace is called from the unshare system call handler
+>>+ * function to make a private copy of the current shared namespace. It
+>>+ * calls copy_namespace with CLONE_NEWNS set to ensure that a new
+>>+ * namespace is cloned from the current namespace.
+>>+ */
+>>+static int unshare_namespace(struct task_struct *tsk)
+>>+{
+>>+	int retval = 0;
+>>+	struct namespace *namespace = tsk->namespace;
+>>+
+>>+	/*
+>>+	 * If the namespace is being shared, make a private copy
+>>+	 * and disassociate the process from the shared namespace.
+>>+	 */
+>>+	if (atomic_read(&namespace->count) > 1) {
+>>+		retval = copy_namespace(CLONE_NEWNS, tsk);
+>>+
+>>+		/*
+>>+		 * If copy_namespace was successful, decrement the use count
+>>+		 * on the original, shared, namespace struct.
+>>+		 */
+>>+		if (!retval)
+>>+			atomic_dec(&namespace->count);
+> 
+> 
+> This can leak namespace.
+> 
+
+Understood. I will rework the logic.
+
+> 
+>>+	}
+>>+	return retval;
+>>+}
+>>+
+>>+/*
+>>+ * unshare allows a process to 'unshare' part of the process
+>>+ * context which was originally shared using clone.
+>>+ */
+>>+asmlinkage long sys_unshare(unsigned long unshare_flags)
+>>+{
+>>+	struct task_struct *tsk = current;
+>>+	int retval = 0;
+>>+	struct namespace *namespace;
+>>+	struct mm_struct *mm;
+>>+	struct sighand_struct *sighand;
+>>+
+>>+	if (unshare_flags & ~(CLONE_NEWNS | CLONE_VM | CLONE_SIGHAND))
+>>+		goto bad_unshare_invalid_val;
+> 
+> 
+> Just start with retval (I'd call it err) set to -EINVAL, and goto
+> unshare_out directly.
+> 
+
+ok makes sense. Will change as suggested.
+
+> 
+>>+	/*
+>>+	 * Shared signal handlers imply shared VM, so if CLONE_SIGHAND is
+>>+	 * set, CLONE_VM must also be set in the system call argument.
+>>+	 */
+>>+	if ((unshare_flags & CLONE_SIGHAND) && !(unshare_flags & CLONE_VM))
+>>+		goto bad_unshare_invalid_val;
+> 
+> 
+> ditto
+> 
+
+ok makes sense. Will change as suggested.
+
+> 
+>>+	task_lock(tsk);
+> 
+> 
+> The current copy_* are able to make assumptions about visibility of new
+> task (it's not yet globally visible).  Did you do careful review to
+> make sure you're not violating such assumptions.
+> 
+> Simple example, unshare_* below are called with task_lock held, but then
+> they do allocations with GFP_KERNEL via copy_*.
+> 
+
+Yes, I had done a review knowing that I was calling copy_* with a
+task that was visible. I will do more thorough review.
+
+> 
+>>+	namespace = tsk->namespace;
+>>+	mm = tsk->mm;
+>>+	sighand = tsk->sighand;
+>>+
+>>+	if (unshare_flags & CLONE_VM) {
+>>+		retval = unshare_mm(unshare_flags, tsk);
+>>+		if (retval)
+>>+			goto unshare_unlock_task;
+>>+		else if (unshare_flags & CLONE_SIGHAND) {
+> 
+> 
+> Looks like this doesn't properly handle:
+> 
+> clone(CLONE_SIGHAND|CLONE_VM);
+> unshare(CLONE_VM);
+> 
+> I think you'll need to check if sighand->count > 1.
+> 
+
+Understood. Will appropriately check sighand->count as you suggest.
+
+> 
+>>+			retval = unshare_sighand(unshare_flags, tsk);
+>>+			if (retval)
+>>+				goto bad_unshare_cleanup_mm;
+>>+		}
+>>+	}
+>>+
+>>+	if (unshare_flags & CLONE_NEWNS) {
+>>+		retval = unshare_namespace(tsk);
+> 
+> 
+> This poses a problem for:
+> 
+> clone(CLONE_FS)
+> unshare(CLONE_NEWNS)
+> 
+> You must guarantee unshared ->fs, since copy_namespace is going to write
+> to it.
+> 
+
+Good point. I had missed the impact of previously cloned fs. If I
+appropriately unshare fs by calling copy_fs() when fs->count is
+greater than 1, would that work?
+
+> 
+>>+		if (retval)
+>>+			goto bad_unshare_cleanup_sighand;
+>>+	}
+>>+
+>>+unshare_unlock_task:
+>>+	task_unlock(tsk);
+>>+
+>>+unshare_out:
+>>+	return retval;
+>>+
+>>+bad_unshare_cleanup_sighand:
+>>+	/*
+>>+	 * If signal handlers were unshared (private copy was made),
+>>+	 * clean them up (delete the private copy) and restore
+>>+	 * the task to point to the old, shared, value.
+>>+	 */
+>>+	if (unshare_flags & CLONE_SIGHAND) {
+>>+		exit_sighand(tsk);
+>>+		tsk->sighand = sighand;
+> 
+> 
+> sighand could be long gone, this is trouble waiting to happen.
+> 
+
+Understood. I will rework this along with fixing the sighand leak
+that you pointed to earlier.
+
+> 
+>>+		atomic_inc(&sighand->count);
+>>+	}
+>>+
+>>+bad_unshare_cleanup_mm:
+>>+	/*
+>>+	 * If mm struct was unshared (private copy was made),
+>>+	 * clean it up (delete the private copy) and restore
+>>+	 * the task to point to the old, shared, value.
+>>+	 */
+>>+	if (unshare_flags & CLONE_VM) {
+>>+		if (tsk->mm)
+>>+			mmput(tsk->mm);
+>>+		tsk->mm = mm;
+> 
+> 
+> mm could be destroyed already.
+> 
+
+Understood. I will rework the logic.
+
+> 
+>>+		atomic_inc(&mm->mm_users);
+>>+	}
+>>+	goto unshare_unlock_task;
+>>+
+>>+bad_unshare_invalid_val:
+>>+	retval = -EINVAL;
+>>+	goto unshare_out;
+>>+}
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
 
 

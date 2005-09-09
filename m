@@ -1,73 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030507AbVIIUpo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030509AbVIIUqI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030507AbVIIUpo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 16:45:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030509AbVIIUpo
+	id S1030509AbVIIUqI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 16:46:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030510AbVIIUqI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 16:45:44 -0400
-Received: from keetweej.xs4all.nl ([213.84.46.114]:61072 "EHLO
-	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
-	id S1030507AbVIIUpn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 16:45:43 -0400
-Date: Fri, 9 Sep 2005 22:43:13 +0200
-From: Folkert van Heusden <folkert@vanheusden.com>
-To: linkern@vger.kernel.org
-Subject: testing a kernel - how can i help?
-Message-ID: <20050909204313.GA26469@vanheusden.com>
+	Fri, 9 Sep 2005 16:46:08 -0400
+Received: from fmr24.intel.com ([143.183.121.16]:27316 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1030509AbVIIUqG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 16:46:06 -0400
+Date: Fri, 9 Sep 2005 13:45:03 -0700
+From: Ashok Raj <ashok.raj@intel.com>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Ashok Raj <ashok.raj@intel.com>, Andi Kleen <ak@muc.de>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 13/14] x86_64: Use common functions in cluster and physflat mode
+Message-ID: <20050909134503.A29351@unix-os.sc.intel.com>
+References: <200509032135.j83LZ8gX020554@shell0.pdx.osdl.net> <20050905231628.GA16476@muc.de> <20050906161215.B19592@unix-os.sc.intel.com> <Pine.LNX.4.61.0509091003490.978@montezuma.fsmlabs.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="k+w/mQv8wyuph6w0"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Organization: www.unixexpert.nl
-X-Chameleon-Return-To: folkert@vanheusden.com
-X-Xfmail-Return-To: folkert@vanheusden.com
-X-Phonenumber: +31-6-41278122
-X-URL: http://www.vanheusden.com/
-X-PGP-KeyID: 1F28D8AE
-X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
-X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
-Read-Receipt-To: <folkert@vanheusden.com>
-Reply-By: Sat Sep 10 22:39:56 CEST 2005
-X-MSMail-Priority: High
-X-Message-Flag: Want to extend your PGP web-of-trust? Coordinate a key-signing
-	at www.biglumber.com
-User-Agent: Mutt/1.5.10i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.61.0509091003490.978@montezuma.fsmlabs.com>; from zwane@arm.linux.org.uk on Fri, Sep 09, 2005 at 10:07:28AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Sep 09, 2005 at 10:07:28AM -0700, Zwane Mwaikambo wrote:
+> On a slightly different topic, how come we're using physflat for hotplug 
+> cpu?
+> 
+> -#ifndef CONFIG_CPU_HOTPLUG
+>  		/* In the CPU hotplug case we cannot use broadcast mode
+>  		   because that opens a race when a CPU is removed.
+> -		   Stay at physflat mode in this case.
+> -		   It is bad to do this unconditionally though. Once
+> -		   we have ACPI platform support for CPU hotplug
+> -		   we should detect hotplug capablity from ACPI tables and
+> -		   only do this when really needed. -AK */
+> +		   Stay at physflat mode in this case. - AK */
+> +#ifdef CONFIG_HOTPLUG_CPU
+>  		if (num_cpus <= 8)
+>  			genapic = &apic_flat;
 
---k+w/mQv8wyuph6w0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+What you say was true before this patch, (Although now that you point out i 
+realize the ifdef CONFIG_HOTPLUG_CPU is not required). 
 
-Running klive on a sparc.
-Now I wonder: what should/can I run to help by testing a kernel? The sun
-is dedicated for the testing so everything is possible.
+Think Andi is fixing this in his next drop to -mm*
 
+When physflat was introduced, it also  switched to use physflat mode for 
+#cpus <=8 when hotplug is enabled, since it doesnt use shortcuts and 
+so is also safer (although slower). 
 
-Folkert van Heusden
+http://marc.theaimsgroup.com/?l=linux-kernel&m=112317686712929&w=2
 
---=20
-Try MultiTail! Multiple windows with logfiles, filtered with regular
-expressions, colored output, etc. etc. www.vanheusden.com/multitail/
-----------------------------------------------------------------------
-Get your PGP/GPG key signed at www.biglumber.com!
-----------------------------------------------------------------------
-Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com
+The link above made using genapic_flat safer by using the
+flat_send_IPI_mask(), and hence i switched back to using
+logical flat mode when #cpus <=8, since that a little more efficient than
+the send_IPI_mask_sequence() used in physflat mode.
 
---k+w/mQv8wyuph6w0
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+In general we need
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+flat_mode - #cpus <= 8 (Hotplug defined or not, so we use mask version 
+                       for safety)
 
-iIMEARECAEMFAkMh8+E8Gmh0dHA6Ly93d3cudmFuaGV1c2Rlbi5jb20vZGF0YS1z
-aWduaW5nLXdpdGgtcGdwLXBvbGljeS5odG1sAAoJEDAZDowfKNiuHZwAoJCZ1VjE
-8IbxOFqUgK5tfnE+GRKqAKCM/F/ErKmIV/AMqAdkygQmd+u3QA==
-=oyMk
------END PGP SIGNATURE-----
+physflat or cluster_mode when #cpus >8.
 
---k+w/mQv8wyuph6w0--
+If we choose physflat as default for #cpus <=8 (with hotplug) would make
+IPI performance worse, since it would do one cpu at a time, and requires 2 
+writes per cpu for each IPI v.s just 2 for a flat mode mask version of the API.
+
+-- 
+Cheers,
+Ashok Raj
+- Open Source Technology Center

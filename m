@@ -1,36 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030727AbVIIWwN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030906AbVIIXCF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030727AbVIIWwN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 18:52:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030726AbVIIWwN
+	id S1030906AbVIIXCF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 19:02:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030907AbVIIXCE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 18:52:13 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:55684 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S1030724AbVIIWwL (ORCPT
+	Fri, 9 Sep 2005 19:02:04 -0400
+Received: from mail.kroah.org ([69.55.234.183]:24482 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1030906AbVIIXCB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 18:52:11 -0400
-Message-ID: <43221215.9060301@adaptec.com>
-Date: Fri, 09 Sep 2005 18:52:05 -0400
-From: Luben Tuikov <luben_tuikov@adaptec.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 2.6.13-mm2 3/3] aic94xx: The aic94xx SAS LLDD
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Sep 2005 22:52:10.0411 (UTC) FILETIME=[1C917FB0:01C5B591]
+	Fri, 9 Sep 2005 19:02:01 -0400
+Date: Fri, 9 Sep 2005 15:54:21 -0700
+From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, davej@codemonkey.org.uk,
+       arjan@infradead.org
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [GIT PATCH] More PCI patches for 2.6.13
+Message-ID: <20050909225421.GA31433@suse.de>
+References: <20050909220758.GA29746@kroah.com> <Pine.LNX.4.58.0509091535180.3051@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0509091535180.3051@g5.osdl.org>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew, 
+On Fri, Sep 09, 2005 at 03:37:16PM -0700, Linus Torvalds wrote:
+> 
+> 
+> On Fri, 9 Sep 2005, Greg KH wrote:
+> > 
+> > Dave Jones:
+> >   must_check attributes for PCI layer.
+> 
+> Why?
 
-This is the aic94xx LLDD against the mm2 tree.
+This is something that David and Arjan wanted in.  Guys?
 
-Here is the link:
+> This only clutters up the compile, hiding real errors.
+> 
+> I think all those compile warnings are totally bogus. Who really cares? 
+> Are they going to be fixed, or were they added just to irritate people?
 
-http://www.geocities.com/ltuikov/mm2/aic94xx.patch.gz
+I fixed up all of the PCI core and USB drivers that were flagged by
+these warnings already.  Biggest area left is network drivers that I
+saw.
 
-	Luben
+> We should have a strict rule: anybody who adds things like "must_check"
+> and "deprecated" had better also be ready and willing to fix all the new
+> warnings they cause - you're not allowed to just assume that "somebody
+> else will fix it".
+
+Fair enough.  Dave and Arjan, want to fix up the rest of the tree?
+
+thanks,
+
+greg k-h

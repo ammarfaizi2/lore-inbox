@@ -1,58 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030281AbVIIReR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030283AbVIIReq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030281AbVIIReR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 13:34:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030282AbVIIReR
+	id S1030283AbVIIReq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 13:34:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030282AbVIIReq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 13:34:17 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:58567 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030281AbVIIReQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 13:34:16 -0400
-Date: Fri, 9 Sep 2005 18:34:15 +0100
-From: viro@ZenIV.linux.org.uk
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andreas Schwab <schwab@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [sparse fix] (was Re: [PATCH] bogus cast in bio.c)
-Message-ID: <20050909173415.GS9623@ZenIV.linux.org.uk>
-References: <20050909155356.GF9623@ZenIV.linux.org.uk> <je4q8u1agp.fsf@sykes.suse.de> <20050909163643.GO9623@ZenIV.linux.org.uk> <20050909172938.GQ9623@ZenIV.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050909172938.GQ9623@ZenIV.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+	Fri, 9 Sep 2005 13:34:46 -0400
+Received: from mail-out2.fuse.net ([216.68.8.175]:64492 "EHLO smtp2.fuse.net")
+	by vger.kernel.org with ESMTP id S1030283AbVIIRep (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 13:34:45 -0400
+Message-ID: <43211FAE.9060909@fuse.net>
+Date: Fri, 09 Sep 2005 01:37:50 -0400
+From: rob <rob.rice@fuse.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041221
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: kernel <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp
+References: <431E97E5.1080506@fuse.net> <200509072201.13268.rjw@sisk.pl> <4321190E.2030804@fuse.net>
+In-Reply-To: <4321190E.2030804@fuse.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 09, 2005 at 06:29:38PM +0100, viro@ZenIV.linux.org.uk wrote:
-> > fs/bio.c:686:15: warning: incorrect type in assignment (different address spaces)
-> > fs/bio.c:686:15:    expected void [noderef] *iov_base<asn:1>
-> > fs/bio.c:686:15:    got void [noderef] *<noident>
-> > from the first form (cast to __user void *).  Lovely...
-> > 
-> > OK, I think I know what's going on there, will fix.
-> 
-> What happens is actually pretty simple - we get address_space(1) handled
-> in declaration_specifiers(), which sets ctype->as to 1.  Then we see
-> "void" and eventually get to
->                         ctype->base_type = type;
->                 }
-> 
->                 check_modifiers(&token->pos, s, ctype->modifiers);
->                 apply_ctype(token->pos, &thistype, ctype);
-> with thistype coming from lookup for "void".  And that, of course, has
-> zero ->as.  Now apply_ctype merrily buggers ctype->as and we have 0...
-> 
-> So AFAICS proper fix for sparse should be to check thistype->as to see
-> if it really has any intention to change ->as.  ACK?
+rob wrote:
 
-PS: obvious testcase for that one:
+> Rafael J. Wysocki wrote:
+>
+>> Hi,
+>>
+>> On Wednesday, 7 of September 2005 09:33, rob wrote:
+>>  
+>>
+>>> I singed up to this mailing list just to ask this question
+>>> I have built a 2.6.13 kernel for a toshiba  tecra 500cdt
+>>> this computer uses the pci buss for the sound card
+>>> and pcmcia bridge
+>>> I have writen a script to unload all the pci buss modules amd go to 
+>>> sleep
+>>> it works up to this point
+>>> now how do I get the modules put back when ever I add the lines to
+>>> rerun the " /etc/rc.d/rc.hotplug /etc/rc.d/rc.pcmcia and 
+>>> /etc/rc.d/rcmodules "
+>>> I get a kernel crash befor it gose to sleep
+>>> I have been al over the net and the olny info I can find is about 
+>>> software suspend2
+>>> Is there some way to change the sowftware suspend2 scripts to work 
+>>> with the
+>>> unpatched kernel software suspend or where can I get the path to init
+>>> talked about in the menuconfig file
+>>>   
+>>
+>>
+>> Could you just try
+>>
+>> # echo shutdown > /sys/power/disk && echo disk > /sys/power/state
+>>
+>> without unloading any modules and see what happens (it should suspend
+>> to disk)?
+>>
+>> If it craches, could you boot the kernel with the init=/bin/bash 
+>> option and try
+>>
+>> # mount /sys
+>> # mount /proc
+>> # /sbin/swapon -a
+>> # echo shutdown > /sys/power/disk && echo disk > /sys/power/state
+>>
+>> and see what happens?
+>>
+>> Rafael
+>>
+>>
+>>  
+>>
+> yes I did try this it just crashes and tacks out my file system with it
+> and I have to reinstall to recover from it it chops up files like bash
+> and every thing on the path the error codes scroll by so fast there is
+> no hope ov finding out what errors are tacking place
+>
 
-#define X __attribute__((address_space(1)))    
-void X *p;
-void X *q;
-void foo(unsigned long n)
-{
-        p = (void X *)n;
-        q = (X void *)n;
-}

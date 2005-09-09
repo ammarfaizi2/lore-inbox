@@ -1,92 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030284AbVIIRgL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030286AbVIIRjh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030284AbVIIRgL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 13:36:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030286AbVIIRgL
+	id S1030286AbVIIRjh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 13:39:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030287AbVIIRjh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 13:36:11 -0400
-Received: from rwcrmhc13.comcast.net ([216.148.227.118]:48352 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1030284AbVIIRgJ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 13:36:09 -0400
-Message-ID: <4321C806.60404@namesys.com>
-Date: Fri, 09 Sep 2005 10:36:06 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: LKML <linux-kernel@vger.kernel.org>,
-       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: List of things requested by lkml for reiser4 inclusion (to review)
-References: <200509091817.39726.zam@namesys.com>
-In-Reply-To: <200509091817.39726.zam@namesys.com>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 9 Sep 2005 13:39:37 -0400
+Received: from tirith.ics.muni.cz ([147.251.4.36]:34797 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1030286AbVIIRjg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 13:39:36 -0400
+Date: Fri, 9 Sep 2005 19:39:28 +0200
+From: Jan Kasprzak <kas@fi.muni.cz>
+To: linux-kernel@vger.kernel.org
+Cc: netdev@oss.sgi.com
+Subject: TCP segmentation offload performance
+Message-ID: <20050909173928.GI4823@fi.muni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Envelope-From: kas@fi.muni.cz
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We haven't been sending much email out, but we have been working away. 
-We just finished the VFS work, and will send a patch out on Monday.  
-akpm asked for a bullet list of things suggested on lkml as issues for
-inclusion. 
+	Hello, world!
 
-There are some things that I would like akpm to confirm represent the
-official opinion/consensus as opposed to just someone posting an opinion
-and perhaps not being right.  I assure you that all points made by
-commenters were considered carefully, and I thank all of them for their
-time.
+	I tried to find out whether the TCP segmentation offload
+can perform better on my server than no TSO at all. My server
+is dual Opteron 244 with Tyan S2882 board with the following NIC:
 
-If we lose every remaining point of this list, we can generate a patch
-in a few days, because the VFS work was the only substantive (in coding
-hours) task, and it is done.  Do I remember right that the submission
-deadline is a week from Monday for 2.6.14 inclusion?
+eth0: Tigon3 [partno(BCM95704A7) rev 2003 PHY(5704)] (PCIX:100MHz:64-bit) 10/100/1000BaseT Ethernet 00:e0:81:27:de:17
+eth0: RXcsums[1] LinkChgREG[0] MIirq[0] ASF[0] Split[0] WireSpeed[1] TSOcap[1]
+eth0: dma_rwctrl[769f4000]
 
-This is supposed to be a bullet list, so I don't list here the line by
-line minor code improvements sent to us, most of which were
-incorporated, but let me take a moment to thanks those who donated them.
+The server runs ProFTPd with sendfile(2) enabled (and I have verified
+that it is being used with strace(8)). The kernel is 2.6.12.2.
 
-Hans
+	I have found that according to ethtool -k eth0 the TSO is switched
+off by default. So I tried to switch it on (altough I wondered why it is
+not switched on by default, provided that the hardware supports this feature).
 
-1. pseudo files or "...." files
+	I tried to measure the difference by downloading an ISO image of
+FC4 i386 CD1 (665434112 bytes) from two hosts connected to the same
+switch. I did 10 transfers of the same file with each settings, and took
+the average and maximum of the last five transfers only (to avoid any
+start-up temporary conditions). The client Alpha was dual Opteron 248
+with Tyan S2882 board, and the client Beta was quad Opteron 848 on HP
+DL-585 board.
 
-   disabled.  It remains a point of (extraordinary) contention as to whether it can be fixed, we want to keep the code around until we can devote proper resources into proving it can be (or until we fail to prove it can be and remove it).  We don't want to delay the rest of the code for that proof, but we still think it can be done (by several different ways of which we need to select one and make it work.)  Let us postpone contention on this until the existence of a patch that cannot crash makes contention purposeful, shall we?
+Client	TSO	Average speed	Max speed
+Alpha	off	108.7 MB/s	110.5 MB/s
+Alpha	on	100.9 MB/s	101.2 MB/s
+Beta	off	102.1 MB/s	102.4 MB/s
+Beta	on	93.2 MB/s	95.5 MB/s
 
+	Surprisingly enough, the tests without TSO were faster than with TSO
+enabled. Looking at tcpdump it seems that the system with TSO enabled
+sends only a 15 KB-sized frames to the NIC instead of full 64 KB-sized
+ones:
 
-2. dependency on 4k stack turned off
+18:45:38.993150 IP odysseus.ftp-data > alpha.33125: P 127424:143352(15928) ack 1 win 1460 <nop,nop,timestamp 2408404 698142942>
+18:45:38.993203 IP odysseus.ftp-data > alpha.33125: P 143352:159280(15928) ack 1 win 1460 <nop,nop,timestamp 2408404 698142942>
 
-   removed as requested
+	So I wonder what is wrong with TSO on my hardware and whether
+the TSO is expected to be faster than generating MTU-sized packets in the
+TCP stack. I did not measure the CPU usage on the server, only the
+network speed.
 
-3. remove conditional variable code, use wait queues instead.
+Thanks!
 
-   not done.  There are times when reduced functionality aids debugging.  kcond is (literally) textbook code.
-   We don't care enough to fight much for it, but akpm, what is your opinion?  Will remove if akpm asks us to.
+-Yenya
 
-4. remove reiser4_drop_inode
-
-   done.
-
-5. remove undesired abstraction layer right below reiser4 VFS hooks.
-
-   done.  This was a big job just completed.  
-
-6. remove type safe lists and type safe hash queues.
-
-   not done, it is not clear that the person asking for this represents a unified consensus of lkml.  Other persons instead asked that it just be moved out of reiser4 code into the generic kernel code, which implies they did not object to it.  There are many who like being type safe.  Akpm, what do you yourself think?
-
-7. remove fs/reiser4/lib.h:/div64_32.
-
-   is being replaced by the linux one.
-
-8.  Remove all assertions because they clutter the code and make it hard to read
-
-    We think this person was not an experienced security specialist, and that what we do is considered by professional code auditors to be laudable practice.  We can supply an emacs macro that makes them greyed out.  I myself found the assertions to be distracting at first (though functional and especially necessary for a DARPA funded project), and then after time got used to them, and now I understand that it was just my inexperience that caused the discomfort.  I now have a more sophisticated subconscious that is not discomforted or distracted by them.  People debugging find them very useful.  Defense branches tear their hair out at how difficult it is to get the commercial software they use coded this way, and I think they are right to be frustrated.  Linux kernel folks, those DoD guys actually know quite a few things about security, maybe its ok that they taught me something and the code reflects that?  We will conform on this if requested to by akpm, but somehow I doubt he will quite honestly.  akpm?
-
-
-
-
-
+-- 
+| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
+| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
+| http://www.fi.muni.cz/~kas/    Journal: http://www.fi.muni.cz/~kas/blog/ |
+>>> $ cd my-kernel-tree-2.6                                              <<<
+>>> $ dotest /path/to/mbox  # yes, Linus has no taste in naming scripts  <<<

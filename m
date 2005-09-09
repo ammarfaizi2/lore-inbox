@@ -1,64 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030216AbVIIKRL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030217AbVIIKSk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030216AbVIIKRL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 06:17:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030217AbVIIKRL
+	id S1030217AbVIIKSk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 06:18:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030220AbVIIKSk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 06:17:11 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:51483
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S1030216AbVIIKRK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 06:17:10 -0400
-Message-Id: <43217D8C02000078000248DF@emea1-mh.id2.novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Fri, 09 Sep 2005 12:18:20 +0200
-From: "Jan Beulich" <JBeulich@novell.com>
-To: "Andi Kleen" <ak@suse.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] new kallsyms approach
-References: <43206DBB0200007800024447@emea1-mh.id2.novell.com> <p733boe52c0.fsf@verdi.suse.de>
-In-Reply-To: <p733boe52c0.fsf@verdi.suse.de>
+	Fri, 9 Sep 2005 06:18:40 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:20499 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1030217AbVIIKSj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 06:18:39 -0400
+Date: Fri, 9 Sep 2005 11:18:35 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Mathias Adam <a2@adamis.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 8250.c: Fix to make 16C950 UARTs work
+Message-ID: <20050909111835.D17575@flint.arm.linux.org.uk>
+Mail-Followup-To: Mathias Adam <a2@adamis.de>, linux-kernel@vger.kernel.org
+References: <20050909013144.GA6660@adamis.de> <4320EC45.1080108@stesmi.com> <20050909024926.GA13643@adamis.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050909024926.GA13643@adamis.de>; from a2@adamis.de on Fri, Sep 09, 2005 at 04:49:27AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I don't think it's a good idea to have two different ways
->to do kallsyms. Either we should always use your new
->way in standard KALLSYMS or not do it at all.
+A couple of comments - see below.
 
-I agree, but I wanted to retain the old mechanism not the least because
-of the space constraints you mention.
+On Fri, Sep 09, 2005 at 04:49:27AM +0200, Mathias Adam wrote:
+> --- linux-2.6.13-org/drivers/serial/8250.c	2005-08-29 01:41:01.000000000 +0200
+> +++ linux-2.6.13/drivers/serial/8250.c	2005-09-09 02:16:49.000000000 +0200
+> @@ -1665,7 +1665,7 @@
+>  	struct uart_8250_port *up = (struct uart_8250_port *)port;
+>  	unsigned char cval, fcr = 0;
+>  	unsigned long flags;
+> -	unsigned int baud, quot;
+> +	unsigned int baud, quot, max_baud;
+>  
+>  	switch (termios->c_cflag & CSIZE) {
+>  	case CS5:
+> @@ -1697,9 +1697,28 @@
+>  	/*
+>  	 * Ask the core to calculate the divisor for us.
+>  	 */
+> -	baud = uart_get_baud_rate(port, termios, old, 0, port->uartclk/16); 
+> +	max_baud = (up->port.type == PORT_16C950 ? port->uartclk/4 : port->uartclk/16);
+> +	baud = uart_get_baud_rate(port, termios, old, 0, max_baud); 
+>  	quot = serial8250_get_divisor(port, baud);
+>  
+> +	/* 
+> +	 * 16C950 supports additional prescaler ratios between 1:16 and 1:4
+> +	 * thus increasing max baud rate to uartclk/4. The following was taken
+> +	 * from kernel 2.4 by Mathias Adam <a2@adamis.de> to make the Socket
+> +	 * Bluetooth CF Card work under 2.6.13.
+> +	 */
+> +	if (up->port.type == PORT_16C950) {
+> +		unsigned int baud_base = port->uartclk/16;
 
->The major decision factor is how much bloat it adds.
->Can you post before/after numbers of binary size? 
+baud_base appears unused.
 
-i386 vmlinux KALLSYMS_ALL=n: old=5782934 new=6106675 (5.60% increase)
-i386 vmlinux KALLSYMS_ALL=y: old=6049118 new=6524411 (7.85% increase)
-x86-64 vmlinux KALLSYMS_ALL=n: old=8593125 new=8962128 (4.30%
-increase)
-x86-64 vmlinux KALLSYMS_ALL=y: old=8797853 new=9117704 (3.64%
-increase)
+> +		if (baud <= port->uartclk/16)
+> +			serial_icr_write(up, UART_TCR, 0);
+> +		else if (baud <= port->uartclk/8) {
+> +			serial_icr_write(up, UART_TCR, 0x8);
+> +		} else if (baud <= port->uartclk/4) {
+> +			serial_icr_write(up, UART_TCR, 0x4);
+> +		} else
+> +			serial_icr_write(up, UART_TCR, 0);
 
-I shall note additionally that not using KALLSYMS_ALL with the new
-approach increases the build time somewhat because the stripping of the
-data symbols in this scheme is rather inefficient (a binutils limitation
-as I would call it). KALLSYMS_ALL=y, however, is mostly suited for
-kernel debugging, while KALLSYMS_ALL=n seems the best choice if just
-caring about symbolic stack traces, which seems to be another argument
-for keeping both mechanisms.
+baud can't be larger than port->uartclk/4 since you limited it above.
 
->If the difference is >5% or so - are there ways to recover
->the difference? 
+> +	}
+> +	
+>  	/*
+>  	 * Oxford Semi 952 rev B workaround
+>  	 */
 
-There are certainly ways, but I'm not sure how much they would cost.
-One thing would be to teach the linker to not only optimize the section
-string table, but also the (normal) symbol string one. Decreasing the
-symbol table size might be more difficult - only st_size and only on
-64-bit archs seems to lend itself to reduction (as any symbol's size can
-clearly be expected to be less than 4G). But that would result in
-alignment problems, so I don't think that'd be a good idea either.
-
-Jan
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

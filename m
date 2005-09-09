@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751452AbVIINFH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbVIINbr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751452AbVIINFH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 09:05:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751451AbVIINFH
+	id S1750810AbVIINbr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 09:31:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751428AbVIINbr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 09:05:07 -0400
-Received: from mailhub.lss.emc.com ([168.159.2.31]:34870 "EHLO
-	mailhub.lss.emc.com") by vger.kernel.org with ESMTP
-	id S1751449AbVIINFF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 09:05:05 -0400
-To: Greg KH <greg@kroah.com>
-CC: Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Greg KH <gregkh@suse.de>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Brett Russ <russb@emc.com>
-Subject: [PATCH 2.6.13] PCI/libata INTx bug fix
-References: <20050803204709.8BA0720B06@lns1058.lss.emc.com> <42FBA08C.5040103@pobox.com> <20050812171043.CF61020E8B@lns1058.lss.emc.com> <20050812182253.GA7842@suse.de> <42FD14E9.8060502@pobox.com> <20050812224303.F40A820E94@lns1058.lss.emc.com> <20050815185732.GA15216@kroah.com> <20050815192341.6600220FF7@lns1058.lss.emc.com> <1126218402469@kroah.com>
-In-Reply-To: <20050815192341.6600220FF7@lns1058.lss.emc.com> <1126218402469@kroah.com>
-Message-Id: <20050909130440.4E31E271E6@lns1058.lss.emc.com>
-Date: Fri,  9 Sep 2005 09:04:40 -0400 (EDT)
-From: russb@emc.com (Brett M Russ)
-X-PMX-Version: 4.7.1.128075, Antispam-Engine: 2.1.0.0, Antispam-Data: 2005.9.9.10
-X-PerlMx-Spam: Gauge=, SPAM=7%, Reasons='__HAS_MSGID 0, __MIME_TEXT_ONLY 0, __SANE_MSGID 0'
+	Fri, 9 Sep 2005 09:31:47 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:35712 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1750810AbVIINbp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 09:31:45 -0400
+Date: Fri, 9 Sep 2005 06:31:31 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Hirokazu Takahashi <taka@valinux.co.jp>
+Cc: magnus.damm@gmail.com, kurosawa@valinux.co.jp, dino@in.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/5] SUBCPUSETS: a resource control functionality using
+ CPUSETS
+Message-Id: <20050909063131.64dc8155.pj@sgi.com>
+In-Reply-To: <20050909.203849.33293224.taka@valinux.co.jp>
+References: <20050909013804.1B64B70037@sv1.valinux.co.jp>
+	<aec7e5c305090821126cea6b57@mail.gmail.com>
+	<20050908225539.0bc1acf6.pj@sgi.com>
+	<20050909.203849.33293224.taka@valinux.co.jp>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previous INTx cleanup patch had a bug that was not caught.  I found
-this last night during testing and can confirm that it is now 100%
-working.
+Takahashi-san wrote:
+> What do you think if you make cpusets for sched domain be able to
+> have their siblings, which have the same attribute and share
+> their resources between them.
 
-Signed-off-by: Brett Russ <russb@emc.com>
+I do not understand this question.  I guess "cpusets for sched
+domains" means "cpusets whose 'cpu_exclusive' attribute is
+marked true, but which have no child cpusets so marked."
 
+But even that guess I am unsure of, and the rest of the sentence
+"which have the same ..." I don't even have a guess what means.
 
-Index: linux-2.6.13/drivers/pci/pci.c
-===================================================================
---- linux-2.6.13.orig/drivers/pci/pci.c
-+++ linux-2.6.13/drivers/pci/pci.c
-@@ -764,7 +764,7 @@ pci_intx(struct pci_dev *pdev, int enabl
- 	}
- 
- 	if (new != pci_command) {
--		pci_write_config_word(pdev, PCI_COMMAND, pci_command);
-+		pci_write_config_word(pdev, PCI_COMMAND, new);
- 	}
- }
- 
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

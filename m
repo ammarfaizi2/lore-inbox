@@ -1,417 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965236AbVIICCG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965238AbVIICK5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965236AbVIICCG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 22:02:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965235AbVIICCG
+	id S965238AbVIICK5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 22:10:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965239AbVIICK5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 22:02:06 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:30609 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965236AbVIICCF (ORCPT
+	Thu, 8 Sep 2005 22:10:57 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:57258 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S965238AbVIICK5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 22:02:05 -0400
-Message-ID: <4320ED16.9080502@us.ibm.com>
-Date: Thu, 08 Sep 2005 22:01:58 -0400
-From: Janak Desai <janak@us.ibm.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chris Wright <chrisw@osdl.org>
-CC: linux-kernel@vger.kernel.org, viro@ZenIV.linux.org.uk, akpm@osdl.org,
-       hch@infradead.org, Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [PATCH 1/2] (repost) New System call, unshare (fwd)
-References: <Pine.WNT.4.63.0509071350080.4008@IBM-AIP3070F3AM> <20050907211222.GB7991@shell0.pdx.osdl.net>
-In-Reply-To: <20050907211222.GB7991@shell0.pdx.osdl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 8 Sep 2005 22:10:57 -0400
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
+From: Keith Owens <kaos@sgi.com>
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] Scheduler hooks to support separate ia64 MCA/INIT stacks
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 09 Sep 2005 12:10:51 +1000
+Message-ID: <6922.1126231851@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks again for your review. I understand the problems that
-you highlighted. I will rework the code and this time create
-test programs that test these aspects of unsharing that I had
-missed. Basically, the four areas that I have to fix are
-   - Investigate impact on aio and futex
-   - Handle possibilities of other threads manipulating use
-     counts and/or deleting mm/namespace/sighand structures
-     that were being shared
-   - Review/handle implications of calling copy_* with a
-     task that is visible globably.
-   - Consider impact of previous call to clone() with
-     sharing of appropriate resources.
+The new ia64 MCA/INIT handlers[1] (think of them as super NMI) run on
+separate stacks.  99% of the changes for these new handlers is ia64
+only code, however they need a couple of scheduler hooks to support
+these extra stacks.  The complete patch set will be coming through the
+ia64 tree, this RFC covers just the scheduler changes, so they do not
+come as a surprise when the ia64 tree is rolled up.
 
-Specific responses are inline ...
+[1] http://marc.theaimsgroup.com/?l=linux-ia64&m=112537827113545&w=2
+    and the following patches.
 
+IA64 MCA/INIT are completely asynchronous events.  They can be
+delivered even when normal interrupts are disabled.  The cpu can be in
+user context, in kernel context, in prom called from the kernel, the
+cpu can even be in physical addressing mode with no valid stack
+pointers when MCA/INIT is delivered.
 
-Chris Wright wrote:
+Because of all the modes in which these events can occur, it is not
+safe to use the normal kernel stacks, mainly because we cannot always
+tell what state the kernel stacks are in when MCA/INIT is delivered.
+The new MCA/INIT handlers define some additional per-cpu stacks.  When
+MCA/INIT is delivered, the cpu starts using the relevant per-cpu stack,
+effectively running as a new process.  If the original kernel stack can
+be identified and verified then the process that was interrupted is
+modified to look like a blocked task.
 
-> * Janak Desai (janak@us.ibm.com) wrote:
-> 
->>diff -Naurp linux-2.6.13-mm1/kernel/fork.c linux-2.6.13-mm1+unshare-patch1/kernel/fork.c
->>--- linux-2.6.13-mm1/kernel/fork.c	2005-09-07 13:25:01.000000000 +0000
->>+++ linux-2.6.13-mm1+unshare-patch1/kernel/fork.c	2005-09-07 13:40:11.000000000 +0000
->>@@ -58,6 +58,17 @@ int nr_threads; 		/* The idle threads do
->> 
->> int max_threads;		/* tunable limit on nr_threads */
->> 
->>+/*
->>+ * mm_copy gets called from clone or unshare system calls. When called
->>+ * from clone, mm_struct may be shared depending on the clone flags
->>+ * argument, however, when called from the unshare system call, a private
->>+ * copy of mm_struct is made.
->>+ */
->>+enum mm_copy_share {
->>+	MAY_SHARE,
->>+	UNSHARE,
->>+};
->>+
->> DEFINE_PER_CPU(unsigned long, process_counts) = 0;
->> 
->>  __cacheline_aligned DEFINE_RWLOCK(tasklist_lock);  /* outer */
->>@@ -448,16 +459,26 @@ void mm_release(struct task_struct *tsk,
->> 	}
->> }
->> 
->>-static int copy_mm(unsigned long clone_flags, struct task_struct * tsk)
->>+static int copy_mm(unsigned long clone_flags, struct task_struct * tsk,
->>+			enum mm_copy_share copy_share_action)
-> 
-> 
-> minor nitpick, pretty verbose name, could just be share.
-> 
+IA64 backtrace has two distinct starting points, a task can either be
+running or it can be blocked.  The ia64 unwinder starts with two
+different states, depending on the task state.  Since MCA/INIT
+backtrace is done using one cpu to list all the tasks, there has to be
+a way for the backtrace code to determine if a task is running on
+another cpu or is blocked.  In 2.4 we used to have a flag to say that a
+task was running on a cpu.  In 2.6, that data is stored in
+cpu_curr(cpu), which needs to be exposed to support ia64 MCA/INIT
+handlers.
 
-ok, sounds good. Will change to share.
+The new MCA/INIT handlers are the equivalent of an asynchronous context
+switch.  Because MCA/INIT can be delivered at any time, the handlers
+cannot trust the state of any spinlock, MCA/INIT can occur when
+spin_lock_irq has been issued, i.e. they can occur in the middle of
+critical code.  Therefore it is not safe to call the normal scheduler
+functions which update the runqueues.
+
+This patch adds two small hooks that can be safely called from MCA/INIT
+context.  If other architectures want to support NMI on separate stacks
+then they can also use these functions.
 
 
-> 
->> {
->> 	struct mm_struct * mm, *oldmm;
->> 	int retval;
->> 
->>-	tsk->min_flt = tsk->maj_flt = 0;
->>-	tsk->nvcsw = tsk->nivcsw = 0;
->>+	/*
->>+	 * If the process memory is being duplicated as part of the
->>+	 * unshare system call, we are working with the current process
->>+	 * and not a newly allocated task strucutre, and should not
->>+	 * zero out fault info, context switch counts, mm and active_mm
->>+	 * fields.
->>+	 */
->>+	if (copy_share_action == MAY_SHARE) {
->>+		tsk->min_flt = tsk->maj_flt = 0;
->>+		tsk->nvcsw = tsk->nivcsw = 0;
->> 
->>-	tsk->mm = NULL;
->>-	tsk->active_mm = NULL;
->>+		tsk->mm = NULL;
->>+		tsk->active_mm = NULL;
->>+	}
->> 
->> 	/*
->> 	 * Are we cloning a kernel thread?
->>@@ -1002,7 +1023,7 @@ static task_t *copy_process(unsigned lon
->> 		goto bad_fork_cleanup_fs;
->> 	if ((retval = copy_signal(clone_flags, p)))
->> 		goto bad_fork_cleanup_sighand;
->>-	if ((retval = copy_mm(clone_flags, p)))
->>+	if ((retval = copy_mm(clone_flags, p, MAY_SHARE)))
->> 		goto bad_fork_cleanup_signal;
->> 	if ((retval = copy_keys(clone_flags, p)))
->> 		goto bad_fork_cleanup_mm;
->>@@ -1317,3 +1338,172 @@ void __init proc_caches_init(void)
->> 			sizeof(struct mm_struct), 0,
->> 			SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
->> }
->>+
->>+/*
->>+ * unshare_mm is called from the unshare system call handler function to
->>+ * make a private copy of the mm_struct structure. It calls copy_mm with
->>+ * CLONE_VM flag cleard, to ensure that a private copy of mm_struct is made,
->>+ * and with mm_copy_share enum set to UNSHARE, to ensure that copy_mm
->>+ * does not clear fault info, context switch counts, mm and active_mm
->>+ * fields of the mm_struct.
->>+ */
->>+static int unshare_mm(unsigned long unshare_flags, struct task_struct *tsk)
->>+{
->>+	int retval = 0;
->>+	struct mm_struct *mm = tsk->mm;
->>+
->>+	/*
->>+	 * If the virtual memory is being shared, make a private
->>+	 * copy and disassociate the process from the shared virtual
->>+	 * memory.
->>+	 */
->>+	if (atomic_read(&mm->mm_users) > 1) {
->>+		retval = copy_mm((unshare_flags & ~CLONE_VM), tsk, UNSHARE);
-> 
-> 
-> Looks like this could allow aio to be done on behalf of wrong mm?  Hmm,
-> and what about the futex code?
-> 
+Index: linux/include/linux/sched.h
+===================================================================
+- --- linux.orig/include/linux/sched.h	2005-09-08 16:47:05.668290545 +1000
++++ linux/include/linux/sched.h	2005-09-08 16:47:08.165015793 +1000
+@@ -883,6 +883,8 @@ extern int task_curr(const task_t *p);
+ extern int idle_cpu(int cpu);
+ extern int sched_setscheduler(struct task_struct *, int, struct sched_param *);
+ extern task_t *idle_task(int cpu);
++extern task_t *curr_task(int cpu);
++extern void set_curr_task(int cpu, task_t *p);
+ 
+ void yield(void);
+ 
+Index: linux/kernel/sched.c
+===================================================================
+- --- linux.orig/kernel/sched.c	2005-09-08 16:47:05.669266973 +1000
++++ linux/kernel/sched.c	2005-09-09 11:36:53.017356186 +1000
+@@ -3471,6 +3471,32 @@ task_t *idle_task(int cpu)
+ }
+ 
+ /**
++ * curr_task - return the current task for a given cpu.
++ * @cpu: the processor in question.
++ */
++task_t *curr_task(int cpu)
++{
++	return cpu_curr(cpu);
++}
++
++/**
++ * set_curr_task - set the current task for a given cpu.
++ * @cpu: the processor in question.
++ * @p: the task pointer to set.
++ *
++ * Description: This function must only be used when non-maskable interrupts
++ * are serviced on a separate stack.  It allows the architecture to switch the
++ * notion of the current task on a cpu in a non-blocking manner.  This function
++ * must be called with interrupts disabled, the caller must save the original
++ * value of the current task (see curr_task() above) and restore that value
++ * before reenabling interrupts.
++ */
++void set_curr_task(int cpu, task_t *p)
++{
++	cpu_curr(cpu) = p;
++}
++
++/**
+  * find_process_by_pid - find a process with a matching PID value.
+  * @pid: the pid in question.
+  */
 
-I had missed aio and futex implications, I will carefully
-review them to ensure that unshare doesn't break them.
 
-> 
->>+
->>+		/*
->>+		 * If copy_mm was successful, decrement the number of users
->>+		 * on the original, shared, mm_struct.
->>+		 */
->>+		if (!retval)
->>+			atomic_dec(&mm->mm_users);
-> 
-> 
-> This is not sufficient.  Should be mmput().  It's trivial to bump the
-> refcount without it actually being shared, so you may have just leaked
-> the mm_struct if you were last holder.
-> 
-
-yes, will change to mmput(). I see now how mmput() releases
-resources only when the count goes to zero.
-
-> 
->>+	}
->>+	return retval;
->>+}
->>+
->>+/*
->>+ * unshare_sighand is called from the unshare system call handler function to
->>+ * make a private copy of the sighand_struct structure. It calls copy_sighand
->>+ * with CLONE_SIGHAND cleared to ensure that a new signal handler structure
->>+ * is cloned from the current shared one.
->>+ */
->>+static int unshare_sighand(unsigned long unshare_flags, struct task_struct *tsk)
->>+{
->>+	int retval = 0;
->>+	struct sighand_struct *sighand = tsk->sighand;
->>+
->>+	/*
->>+	 * If the signal handlers are being shared, make a private
->>+	 * copy and disassociate the process from the shared signal
->>+	 * handlers.
->>+	 */
->>+	if (atomic_read(&sighand->count) > 1) {
->>+		retval = copy_sighand((unshare_flags & ~CLONE_SIGHAND), tsk);
->>+
->>+		/*
->>+		 * If copy_sighand was successful, decrement the use count
->>+		 * on the original, shared, sighand_struct.
->>+		 */
->>+		if (!retval)
->>+			atomic_dec(&sighand->count);
-> 
-> 
-> Actually, if other thread that was sharing sighand is doing execve() or
-> exit(), this atomic_dec could drop count to either 0 (it's now leaked) or
-> 1, in which case the exit/execve will drop count to 0 and destroy
-> sighand (which you later restore under error conditions).
-> 
-
-Understood. I will rework the logic.
-
-> 
->>+	}
->>+	return retval;
->>+}
->>+
->>+/*
->>+ * unshare_namespace is called from the unshare system call handler
->>+ * function to make a private copy of the current shared namespace. It
->>+ * calls copy_namespace with CLONE_NEWNS set to ensure that a new
->>+ * namespace is cloned from the current namespace.
->>+ */
->>+static int unshare_namespace(struct task_struct *tsk)
->>+{
->>+	int retval = 0;
->>+	struct namespace *namespace = tsk->namespace;
->>+
->>+	/*
->>+	 * If the namespace is being shared, make a private copy
->>+	 * and disassociate the process from the shared namespace.
->>+	 */
->>+	if (atomic_read(&namespace->count) > 1) {
->>+		retval = copy_namespace(CLONE_NEWNS, tsk);
->>+
->>+		/*
->>+		 * If copy_namespace was successful, decrement the use count
->>+		 * on the original, shared, namespace struct.
->>+		 */
->>+		if (!retval)
->>+			atomic_dec(&namespace->count);
-> 
-> 
-> This can leak namespace.
-> 
-
-Understood. I will rework the logic.
-
-> 
->>+	}
->>+	return retval;
->>+}
->>+
->>+/*
->>+ * unshare allows a process to 'unshare' part of the process
->>+ * context which was originally shared using clone.
->>+ */
->>+asmlinkage long sys_unshare(unsigned long unshare_flags)
->>+{
->>+	struct task_struct *tsk = current;
->>+	int retval = 0;
->>+	struct namespace *namespace;
->>+	struct mm_struct *mm;
->>+	struct sighand_struct *sighand;
->>+
->>+	if (unshare_flags & ~(CLONE_NEWNS | CLONE_VM | CLONE_SIGHAND))
->>+		goto bad_unshare_invalid_val;
-> 
-> 
-> Just start with retval (I'd call it err) set to -EINVAL, and goto
-> unshare_out directly.
-> 
-
-ok makes sense. Will change as suggested.
-
-> 
->>+	/*
->>+	 * Shared signal handlers imply shared VM, so if CLONE_SIGHAND is
->>+	 * set, CLONE_VM must also be set in the system call argument.
->>+	 */
->>+	if ((unshare_flags & CLONE_SIGHAND) && !(unshare_flags & CLONE_VM))
->>+		goto bad_unshare_invalid_val;
-> 
-> 
-> ditto
-> 
-
-ok makes sense. Will change as suggested.
-
-> 
->>+	task_lock(tsk);
-> 
-> 
-> The current copy_* are able to make assumptions about visibility of new
-> task (it's not yet globally visible).  Did you do careful review to
-> make sure you're not violating such assumptions.
-> 
-> Simple example, unshare_* below are called with task_lock held, but then
-> they do allocations with GFP_KERNEL via copy_*.
-> 
-
-Yes, I had done a review knowing that I was calling copy_* with a
-task that was visible. I will do more thorough review.
-
-> 
->>+	namespace = tsk->namespace;
->>+	mm = tsk->mm;
->>+	sighand = tsk->sighand;
->>+
->>+	if (unshare_flags & CLONE_VM) {
->>+		retval = unshare_mm(unshare_flags, tsk);
->>+		if (retval)
->>+			goto unshare_unlock_task;
->>+		else if (unshare_flags & CLONE_SIGHAND) {
-> 
-> 
-> Looks like this doesn't properly handle:
-> 
-> clone(CLONE_SIGHAND|CLONE_VM);
-> unshare(CLONE_VM);
-> 
-> I think you'll need to check if sighand->count > 1.
-> 
-
-Understood. Will appropriately check sighand->count as you suggest.
-
-> 
->>+			retval = unshare_sighand(unshare_flags, tsk);
->>+			if (retval)
->>+				goto bad_unshare_cleanup_mm;
->>+		}
->>+	}
->>+
->>+	if (unshare_flags & CLONE_NEWNS) {
->>+		retval = unshare_namespace(tsk);
-> 
-> 
-> This poses a problem for:
-> 
-> clone(CLONE_FS)
-> unshare(CLONE_NEWNS)
-> 
-> You must guarantee unshared ->fs, since copy_namespace is going to write
-> to it.
-> 
-
-Good point. I had missed the impact of previously cloned fs. If I
-appropriately unshare fs by calling copy_fs() when fs->count is
-greater than 1, would that work?
-
-> 
->>+		if (retval)
->>+			goto bad_unshare_cleanup_sighand;
->>+	}
->>+
->>+unshare_unlock_task:
->>+	task_unlock(tsk);
->>+
->>+unshare_out:
->>+	return retval;
->>+
->>+bad_unshare_cleanup_sighand:
->>+	/*
->>+	 * If signal handlers were unshared (private copy was made),
->>+	 * clean them up (delete the private copy) and restore
->>+	 * the task to point to the old, shared, value.
->>+	 */
->>+	if (unshare_flags & CLONE_SIGHAND) {
->>+		exit_sighand(tsk);
->>+		tsk->sighand = sighand;
-> 
-> 
-> sighand could be long gone, this is trouble waiting to happen.
-> 
-
-Understood. I will rework this along with fixing the sighand leak
-that you pointed to earlier.
-
-> 
->>+		atomic_inc(&sighand->count);
->>+	}
->>+
->>+bad_unshare_cleanup_mm:
->>+	/*
->>+	 * If mm struct was unshared (private copy was made),
->>+	 * clean it up (delete the private copy) and restore
->>+	 * the task to point to the old, shared, value.
->>+	 */
->>+	if (unshare_flags & CLONE_VM) {
->>+		if (tsk->mm)
->>+			mmput(tsk->mm);
->>+		tsk->mm = mm;
-> 
-> 
-> mm could be destroyed already.
-> 
-
-Understood. I will rework the logic.
-
-> 
->>+		atomic_inc(&mm->mm_users);
->>+	}
->>+	goto unshare_unlock_task;
->>+
->>+bad_unshare_invalid_val:
->>+	retval = -EINVAL;
->>+	goto unshare_out;
->>+}
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
 
 

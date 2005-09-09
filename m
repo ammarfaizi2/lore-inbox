@@ -1,94 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965073AbVIIAQR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965092AbVIIAUr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965073AbVIIAQR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 20:16:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965084AbVIIAQR
+	id S965092AbVIIAUr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 20:20:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965093AbVIIAUr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 20:16:17 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:58857 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965073AbVIIAQQ (ORCPT
+	Thu, 8 Sep 2005 20:20:47 -0400
+Received: from mail.suse.de ([195.135.220.2]:65226 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S965092AbVIIAUq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 20:16:16 -0400
-Date: Thu, 8 Sep 2005 17:16:03 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: helge.hafting@aitel.hist.no,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       airlied@gmail.com
-Subject: Re: rc6 keeps hanging and blanking displays where rc4-mm1 works
- fine.
-In-Reply-To: <20050908164719.00066dc2.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0509081700220.3051@g5.osdl.org>
-References: <Pine.LNX.4.58.0508012201010.3341@g5.osdl.org>
- <20050805104025.GA14688@aitel.hist.no> <21d7e99705080503515e3045d5@mail.gmail.com>
- <42F89F79.1060103@aitel.hist.no> <42FC7372.7040607@aitel.hist.no>
- <Pine.LNX.4.58.0508120937140.3295@g5.osdl.org> <43008C9C.60806@aitel.hist.no>
- <Pine.LNX.4.58.0508150843380.3553@g5.osdl.org> <20050908164719.00066dc2.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 8 Sep 2005 20:20:46 -0400
+Date: Fri, 9 Sep 2005 02:20:45 +0200
+From: Andi Kleen <ak@suse.de>
+To: Jan Beulich <JBeulich@novell.com>
+Cc: Andreas Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       discuss@x86-64.org
+Subject: Re: [discuss] [PATCH] add and handle NMI_VECTOR
+Message-ID: <20050909002045.GA19913@wotan.suse.de>
+References: <43207DFC0200007800024543@emea1-mh.id2.novell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43207DFC0200007800024543@emea1-mh.id2.novell.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 8 Sep 2005, Andrew Morton wrote:
-> Linus Torvalds <torvalds@osdl.org> wrote:
-> >
-> > If you remember/save the good/bad commit ID's, you can restart the whole
-> >  process and just feed the correct state for the ID's:
-> > 
-> >  	git bisect start
-> >  	git bisect bad v2.6.13-rc5
-> >  	git bisect good v2.6.13-rc4
-> >  	.. here bisect will start narrowing things down ..
-> >  	git bisect bad <sha1 of known bad>
-> >  	git bisect good <sha1 of known good>
-> >  	..
+On Thu, Sep 08, 2005 at 06:07:56PM +0200, Jan Beulich wrote:
+> (Note: Patch also attached because the inline version is certain to get
+> line wrapped.)
 > 
-> What do you suggest should be done if you hit a compile error partway
-> through the bisection search?  Is there some way to go forward or backward
-> a few csets while keeping the search markers sane?
+> Declare NMI_VECTOR and handle it in the IPI sending code.
 
-Hmm.. There's no really nice interface for doing it, but since bisection 
-uses a perfectly normal git branch (it's a special "bisect" branch) you 
-can use other git commands to move around the head of that branch and try 
-at any other point than the one it selected for you automatically.
+The earlier consensus was to just rename KDB_VECTOR to NMI vector.
 
-In other words, you can "git reset" the head point of the branch to any
-point you want to, and the only problem is to pick what point to try next
-(since you don't want to mark the current point good or bad). One thing to
-do is perhaps to just do:
+I added the following patch.
 
-	git bisect visualize
+-Andi
 
-which just starts "gitk" with the proper arguments that you can see what 
-we're currently looking at bisecting. Then you can pick a new point to 
-select as the bisection point by hand, and then do
 
-	git reset --hard <sha-of-that-point>
+Rename KDB_VECTOR to NMI_VECTOR
 
-by just selecting that commit in gitk and pasting the result into that 
-"git reset --hard xyz.." command line.
+As a generic NMI IPI vector to be used by debuggers.
 
-("git reset --hard ..." will reset the current branch to the selected
-point and force a checkout of the new state while its at it. It's pretty
-much equivalent to "git reset ..." followed by a "git checkout -f").
+And clean up the ICR setup for that slightly (code is equivalent, but cleaner 
+now)
 
-Of course, you can pick the bisection point with any other means too. So
-if you just do "git log" and you know what commit broke the compile, just
-pick the father by hand.
+Signed-off-by: Andi Kleen <ak@suse.de>
 
-The only important point is that you should obviously pick something that
-is within the current known good/bad range, and that's where the
-aforementioned "git bisect visualize" can help.
-
-Oh, and the "git bisect visualize" thing is fairly new: if you have an 
-older version of git that doesn't have that nice helper function, you can 
-always do it by hand with the following magic command line.
-
-	gitk bisect/bad --not $(cd .git/refs && echo bisect/good-*)
-
-(you can see how "git bisect visualize" is a bit simpler to type and
-remember ;)
-
-		Linus
+Index: linux/include/asm-x86_64/hw_irq.h
+===================================================================
+--- linux.orig/include/asm-x86_64/hw_irq.h
++++ linux/include/asm-x86_64/hw_irq.h
+@@ -52,7 +52,7 @@ struct hw_interrupt_type;
+ #define ERROR_APIC_VECTOR	0xfe
+ #define RESCHEDULE_VECTOR	0xfd
+ #define CALL_FUNCTION_VECTOR	0xfc
+-#define KDB_VECTOR		0xfb	/* reserved for KDB */
++#define NMI_VECTOR		0xfb	/* IPI NMIs for debugging */
+ #define THERMAL_APIC_VECTOR	0xfa
+ /* 0xf9 free */
+ #define INVALIDATE_TLB_VECTOR_END	0xf8
+Index: linux/include/asm-x86_64/ipi.h
+===================================================================
+--- linux.orig/include/asm-x86_64/ipi.h
++++ linux/include/asm-x86_64/ipi.h
+@@ -29,11 +29,14 @@
+  * We use 'broadcast', CPU->CPU IPIs and self-IPIs too.
+  */
+ 
+-static inline unsigned int __prepare_ICR (unsigned int shortcut, int vector, unsigned int dest)
++static inline unsigned int
++__prepare_ICR (unsigned int shortcut, int vector, unsigned int dest)
+ {
+-	unsigned int icr =  APIC_DM_FIXED | shortcut | vector | dest;
+-	if (vector == KDB_VECTOR)
+-		icr = (icr & (~APIC_VECTOR_MASK)) | APIC_DM_NMI;
++	unsigned int icr =  shortcut | dest;
++	if (vector == NMI_VECTOR)
++		icr |= APIC_DM_DMI;
++	else
++		icr |= APIC_DM_FIXED | vector;
+ 	return icr;
+ }
+ 

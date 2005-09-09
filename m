@@ -1,79 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030248AbVIIL0b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030252AbVIILbS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030248AbVIIL0b (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 07:26:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030251AbVIIL0b
+	id S1030252AbVIILbS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 07:31:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030254AbVIILbS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 07:26:31 -0400
-Received: from smtp806.mail.ukl.yahoo.com ([217.12.12.196]:8058 "HELO
-	smtp806.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1030248AbVIIL03 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 07:26:29 -0400
-Message-ID: <43217162.2010401@btinternet.com>
-Date: Fri, 09 Sep 2005 12:26:26 +0100
-From: Matt Keenan <matt.keenan@btinternet.com>
-User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
-X-Accept-Language: en-us, en
+	Fri, 9 Sep 2005 07:31:18 -0400
+Received: from silver.veritas.com ([143.127.12.111]:32920 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S1030252AbVIILbR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 07:31:17 -0400
+Date: Fri, 9 Sep 2005 12:31:00 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Andi Kleen <ak@suse.de>
+cc: Jan Beulich <JBeulich@novell.com>, linux-kernel@vger.kernel.org,
+       discuss@x86-64.org
+Subject: Re: [discuss] [PATCH] allow CONFIG_FRAME_POINTER for x86-64
+In-Reply-To: <20050909112108.GK19913@wotan.suse.de>
+Message-ID: <Pine.LNX.4.61.0509091222310.6443@goblin.wat.veritas.com>
+References: <43207D28020000780002451E@emea1-mh.id2.novell.com>
+ <4321749202000078000248C5@emea1-mh.id2.novell.com>
+ <Pine.LNX.4.61.0509091133180.5937@goblin.wat.veritas.com> <200509091258.13300.ak@suse.de>
+ <Pine.LNX.4.61.0509091208350.6247@goblin.wat.veritas.com>
+ <20050909112108.GK19913@wotan.suse.de>
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-CC: dtor_core@ameritech.net, Eric Piel <Eric.Piel@lifl.fr>,
-       Christoph Litters <christophlitters@gmx.de>
-Subject: Re: [DRIVER] Where is the PSX Gamepad Driver in 2.6.13-rc3?
-References: <42E48CA5.9010709@m1k.net> <43201906.8040902@gmx.de>	 <d120d500050908073942876de5@mail.gmail.com> <43204DD4.3090103@lifl.fr> <d120d500050908075446a4c9e0@mail.gmail.com>
-In-Reply-To: <d120d500050908075446a4c9e0@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 09 Sep 2005 11:31:11.0664 (UTC) FILETIME=[FADB7B00:01C5B531]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov wrote:
+On Fri, 9 Sep 2005, Andi Kleen wrote:
+> On Fri, Sep 09, 2005 at 12:14:38PM +0100, Hugh Dickins wrote:
+> > 
+> > Ah, right.  I'm using kdb with it.  (And my recollection of when
+> > show_stack did have a framepointer version, is that it was hopelessly
+> > broken on interrupt frames, and we're much better off without it.)
+> 
+> Not sure if the x86-64 kdb had code to follow them either.
+> The i386 one has.
 
->On 9/8/05, Eric Piel <Eric.Piel@lifl.fr> wrote:
->  
->
->>09/08/2005 04:38 PM, Dmitry Torokhov wrote/a écrit:
->>    
->>
->>>On 9/8/05, Christoph Litters <christophlitters@gmx.de> wrote:
->>>
->>>      
->>>
->>>>Hello,
->>>>
->>>>I have an adapter usb to psx i have tried it with 2.6.9 and it works
->>>>perfectly with the kernel driver.
->>>>with 2.6.12 i cant get it to work and with 2.6.13-rc3 i havent seen any
->>>>option to enable it.
->>>>could anybody help me?
->>>>
->>>>        
->>>>
->>>Device Drivers  ---> Input device support  ---> Joysticks  --->
->>>Multisystem, NES, SNES, N64, PSX joysticks and gamepads
->>>
->>>Needs parport support.
->>>
->>>      
->>>
->>Are you sure? Isn't this only for parallel to psx adapters? Christoph
->>says he has a "usb to psx" adapter.
->>
->>    
->>
->
->Oh, yes, sorry. In that case wouldn't HID driver handle it?
->
->  
->
-I have such a device myself (send me an email in private if you want to 
-confirm it is the same model et al). The HID driver worked just fine. I 
-also found that there was almost zero information about this on the net. 
-I just use USB, USB HID, USB HID input support, Input support, and the 
-Input joystick interface driver. Works just fine, check it with the 
-joystick calibrator program of your choice. If your PSX -> USB converter 
-doesn't support the joystick HID (which most seem to do) you may need a 
-driver of some kind. Or better yet go buy one that does support it, you 
-should be able to pick one up for less than $20 USD.
+x86_64 kdb does have the code to follow them, it's pretty much the same.
 
-Matt
+(kdb does have a bug in its x86_64 setjmp with framepointers, but that's
+irrelevant to whether the x86_64 kernel supports framepointers.)
 
+> But kdb should be using a dwarf2 unwinder instead. kgdb certainly
+> supports that, as does NLKD.
+
+In an ideal and bloat-neutral world.  I've always imagined it to be
+quite a lot of work, bringing in its own set of problems: but great
+that that work has now been done, and yes, it might one day get
+ported to kdb.  But removing "&& !X86_64" is much easier.
+
+Hugh

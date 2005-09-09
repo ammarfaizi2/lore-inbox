@@ -1,61 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964954AbVIIPjI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964972AbVIIPmv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964954AbVIIPjI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 11:39:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964972AbVIIPjI
+	id S964972AbVIIPmv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 11:42:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964974AbVIIPmv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 11:39:08 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:15035 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S964954AbVIIPjH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 11:39:07 -0400
-Date: Fri, 9 Sep 2005 08:37:55 -0700
-From: Paul Jackson <pj@sgi.com>
-To: "Jan Beulich" <JBeulich@novell.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rmmod notifier chain
-Message-Id: <20050909083755.5ff302c3.pj@sgi.com>
-In-Reply-To: <43219FDF0200007800024975@emea1-mh.id2.novell.com>
-References: <43206EFE0200007800024451@emea1-mh.id2.novell.com>
-	<20050908151624.GA11067@infradead.org>
-	<432073610200007800024489@emea1-mh.id2.novell.com>
-	<20050908184659.6aa5a136.akpm@osdl.org>
-	<43219FDF0200007800024975@emea1-mh.id2.novell.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Fri, 9 Sep 2005 11:42:51 -0400
+Received: from relay4.mail.ox.ac.uk ([129.67.1.163]:8143 "EHLO
+	relay4.mail.ox.ac.uk") by vger.kernel.org with ESMTP
+	id S964972AbVIIPmu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 11:42:50 -0400
+Date: Fri, 9 Sep 2005 16:42:47 +0100
+From: Ian Collier <Ian.Collier@comlab.ox.ac.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13: loop ioctl crashes
+Message-ID: <20050909164246.B23692@pixie.comlab>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20050909132725.C23462@pixie.comlab> <Pine.LNX.4.61.0509090829260.8368@chaos.analogic.com> <20050909143804.A23692@pixie.comlab> <Pine.LNX.4.61.0509091017020.4550@chaos.analogic.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.61.0509091017020.4550@chaos.analogic.com>; from linux-os@analogic.com on Fri, Sep 09, 2005 at 10:41:29AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan wrote:
-> Hence I wouldn't consider it reasonable to
-> break up the debugger patch entirely and submit all the pieces at once,
-> because that could easily mean that if one intermediate piece doesn't
-> get accepted all the dependent pieces have been separated out
-> pointlessly.
+On Fri, Sep 09, 2005 at 10:41:29AM -0400, linux-os (Dick Johnson) wrote:
+> Try to see if it is really the loop device or something that is
+> interfacing with it. Here I copy the contents of a DOS floppy
+> to a file, then mount the file through the loop device:
 
-This statement sounds selfish.  I read it as saying that there is
-no point in doing something if it didn't result in getting your
-patch accepted.
+I do know how to use loop devices. ;-)
 
-No.  There is another point.  At least one.  Contributing to the well
-being of the Linux community and kernel.  That benefits us all.
+Now you mention it, "losetup" without encryption works fine.
 
-A properly split and presented patch set contributes to its being
-understood by others.  The clearer each patch is, the more rapidly
-others can understand that patch, and the faster the kernel can adapt
-while remaining healthy.
+This: losetup -e blowfish /dev/loop0 /tmp/test.img
+fails with "bad address" if the blowfish module is not loaded,
+and causes a kernel panic if it is (and now I have to go home
+to reset my machine. :-( ).
 
-If there is some good reason that some or all of your patch should not
-be accepted (a reason you missed, despite your honest best efforts),
-and your presentation of the patch makes it easier for someone else
-to understand what you're doing and expose this reason, then be happy
-- you've done your job well - assisting someone else to shoot down
-your patch.
+The only thing I can see that the ppdd patch has done here is to
+increase LO_KEY_SIZE from 32 to 1844; the rest should be as in
+vanilla 2.6.13 (though at some point I'll recompile without
+patches and see if that changes anything).
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+imc

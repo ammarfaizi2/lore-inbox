@@ -1,59 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030979AbVIIXfi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932624AbVIIXiz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030979AbVIIXfi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 19:35:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030981AbVIIXfi
+	id S932624AbVIIXiz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 19:38:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932611AbVIIXiz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 19:35:38 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:24453 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1030979AbVIIXfh (ORCPT
+	Fri, 9 Sep 2005 19:38:55 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:65482 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932624AbVIIXiy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 19:35:37 -0400
-Date: Fri, 9 Sep 2005 16:35:30 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: akpm@osdl.org, Simon.Derr@bull.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cpuset semaphore depth check deadlock fix
-Message-Id: <20050909163530.7b160863.pj@sgi.com>
-In-Reply-To: <Pine.LNX.4.58.0509091512180.3051@g5.osdl.org>
-References: <20050909220116.26993.9674.sendpatchset@jackhammer.engr.sgi.com>
-	<Pine.LNX.4.58.0509091512180.3051@g5.osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Fri, 9 Sep 2005 19:38:54 -0400
+Date: Fri, 9 Sep 2005 19:38:32 -0400
+From: Dave Jones <davej@redhat.com>
+To: len.brown@intel.com
+Cc: linux-kernel@vger.kernel.org
+Subject: processor_idle.c indentation fixes.
+Message-ID: <20050909233832.GA2202@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, len.brown@intel.com,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus wrote:
-> We _really_ don't want to have function names like "cs_up()" 
+processor_idle.c vs Lindent resulted in something of a trainwreck
+with inconsistent whitespace.  This diff rearranges the
+processor_power_dmi_table to look like it did before that accident,
+and adds two additional BIOS's to the list as encountered by
+Fedora users.
 
-I thoroughly agree with your attention to naming, and spent more time
-than I will admit in public futzing over this detail.
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=165590
 
-I wrote the code using cpuset_lock(void) and cpuset_unlock(void), for
-reasons such as you state, and out of personnal instinct.
+Signed-off-by: Dave Jones <davej@redhat.com>
 
-But then I noticed that I wanted these routines to replace up(&sem) and
-down(&sem) (in kernel/cpuset.c), so changed them to cpuset_up(&sem) and
-cpuset_down(&sem), adding in the explicitly passed argument.
-
-But then I noticed that these names looked "too global" to me, and
-intentionally changed that to cs_up(&sem) and cs_down(&sem).  I tend
-to intentionally choose shorter names for more local stuff, especially
-inlines and such that won't even show up on a stack trace.
-
- 1) Is cpuset_up(&sem) and cpuset_down(&sem) ok by you?  I would like
-    to have the up/down in there somewhere.
-
- 2) How the heck do I make this change:
-     - Send another patch from scratch, ignoring the first one I sent.
-     - Send a second patch that layers on the first.
-     - Let you do the edit.
-     - ??
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+--- linux-2.6.13/drivers/acpi/processor_idle.c~	2005-09-09 19:24:25.000000000 -0400
++++ linux-2.6.13/drivers/acpi/processor_idle.c	2005-09-09 19:33:18.000000000 -0400
+@@ -94,22 +94,27 @@ static int set_max_cstate(struct dmi_sys
+ }
+ 
+ static struct dmi_system_id __initdata processor_power_dmi_table[] = {
+-	{set_max_cstate, "IBM ThinkPad R40e", {
+-					       DMI_MATCH(DMI_BIOS_VENDOR,
+-							 "IBM"),
+-					       DMI_MATCH(DMI_BIOS_VERSION,
+-							 "1SET60WW")},
++	{ set_max_cstate, "IBM ThinkPad R40e", {
++	 DMI_MATCH(DMI_BIOS_VENDOR, "IBM"),
++	 DMI_MATCH(DMI_BIOS_VERSION, "1SET60WW")},
+ 	 (void *)1},
++	{ set_max_cstate, "IBM ThinkPad R40e", {
++	 DMI_MATCH(DMI_BIOS_VENDOR,"IBM"),
++	 DMI_MATCH(DMI_BIOS_VERSION,"1SET61WW")},
++	 (void*)1},
++	{ set_max_cstate, "IBM ThinkPad R40e", {
++	 DMI_MATCH(DMI_BIOS_VENDOR,"IBM"),
++	 DMI_MATCH(DMI_BIOS_VERSION,"1SET68WW") },
++	 (void*)1},
++
+ 	{set_max_cstate, "Medion 41700", {
+-					  DMI_MATCH(DMI_BIOS_VENDOR,
+-						    "Phoenix Technologies LTD"),
+-					  DMI_MATCH(DMI_BIOS_VERSION,
+-						    "R01-A1J")}, (void *)1},
++	 DMI_MATCH(DMI_BIOS_VENDOR, "Phoenix Technologies LTD"),
++	 DMI_MATCH(DMI_BIOS_VERSION, "R01-A1J")},
++	 (void *)1},
++
+ 	{set_max_cstate, "Clevo 5600D", {
+-					 DMI_MATCH(DMI_BIOS_VENDOR,
+-						   "Phoenix Technologies LTD"),
+-					 DMI_MATCH(DMI_BIOS_VERSION,
+-						   "SHE845M0.86C.0013.D.0302131307")},
++	 DMI_MATCH(DMI_BIOS_VENDOR, "Phoenix Technologies LTD"),
++	 DMI_MATCH(DMI_BIOS_VERSION, "SHE845M0.86C.0013.D.0302131307")},
+ 	 (void *)2},
+ 	{},
+ };

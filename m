@@ -1,41 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030315AbVIISQz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030323AbVIISWx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030315AbVIISQz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 14:16:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030314AbVIISQz
+	id S1030323AbVIISWx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 14:22:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030322AbVIISWx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 14:16:55 -0400
-Received: from thunk.org ([69.25.196.29]:37301 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1030315AbVIISQy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 14:16:54 -0400
-Date: Fri, 9 Sep 2005 14:16:49 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Akinobu Mita <mita@miraclelinux.com>
-Cc: linux-kernel@vger.kernel.org, sct@redhat.com, akpm@osdl.org,
-       adilger@clusterfs.com, ext3-users@redhat.com
-Subject: Re: [PATCH 1/6] jbd: remove duplicated debug print
-Message-ID: <20050909181649.GC24228@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Akinobu Mita <mita@miraclelinux.com>, linux-kernel@vger.kernel.org,
-	sct@redhat.com, akpm@osdl.org, adilger@clusterfs.com,
-	ext3-users@redhat.com
-References: <20050909084214.GB14205@miraclelinux.com> <20050909084342.GC14205@miraclelinux.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050909084342.GC14205@miraclelinux.com>
-User-Agent: Mutt/1.5.10i
+	Fri, 9 Sep 2005 14:22:53 -0400
+Received: from mailwasher.lanl.gov ([192.65.95.54]:28633 "EHLO
+	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
+	id S1030319AbVIISWw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 14:22:52 -0400
+Message-ID: <4321D2F8.5020500@lanl.gov>
+Date: Fri, 09 Sep 2005 12:22:48 -0600
+From: Josip Loncaric <josip@lanl.gov>
+Organization: LANL
+User-Agent: Mozilla Thunderbird 1.0.6 (Macintosh/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Stephen Hemminger <shemminger@osdl.org>
+CC: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: Re: PROBLEM: sk98lin misbehaves with D-Link DGE-530T which doesn't
+ have readable VPD
+References: <42EE9721.5000501@lanl.gov>	<4321CB39.3080206@lanl.gov> <20050909110550.3fb82d36@localhost.localdomain>
+In-Reply-To: <20050909110550.3fb82d36@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-PMX-Version: 4.7.1.128075
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 09, 2005 at 05:43:42PM +0900, Akinobu Mita wrote:
-> remove duplicated debug print
+Stephen Hemminger wrote:
+> On Fri, 09 Sep 2005 11:49:45 -0600
+> Josip Loncaric <josip@lanl.gov> wrote:
+> 
+> 
+>>Driver sk98lin makes repeated attempts to read VPD even after the first 
+>>VpdInit() fails.  This is wrong.
+> 
+> Now that skge is in 2.6.13, perhaps the proper thing to do is to take
+> DGE-530T out of the PCI table for sk98lin?
 
-> -	jbd_debug(3, "JBD: commit phase 2\n");
-> -
+Sounds good to me -- since your skge works fine -- but there are lots of 
+people with Marvell GBE on the motherboard that are in the same 
+predicament.  The PCI table for sk98lin could be pruned further (in 
+favor of skge).
 
-If you're going to do this, please renumber the rest of the "commit
-phase n" messages.  Or the debugging messages will look very funny.
-
-						- Ted
+Sincerely,
+Josip

@@ -1,474 +1,760 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030379AbVIITjZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030356AbVIITgd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030379AbVIITjZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 15:39:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030362AbVIITjW
+	id S1030356AbVIITgd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 15:36:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030361AbVIITg0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 15:39:22 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:42182 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S1030377AbVIITjP (ORCPT
+	Fri, 9 Sep 2005 15:36:26 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:36805 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S1030356AbVIITfv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 15:39:15 -0400
-Message-ID: <4321E4DD.7070405@adaptec.com>
-Date: Fri, 09 Sep 2005 15:39:09 -0400
+	Fri, 9 Sep 2005 15:35:51 -0400
+Message-ID: <4321E411.6000701@adaptec.com>
+Date: Fri, 09 Sep 2005 15:35:45 -0400
 From: Luben Tuikov <luben_tuikov@adaptec.com>
 User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: [PATCH 2.6.13 2/14] sas-class: README
+Subject: [PATCH 2.6.13 14/20] aic94xx: aic94xx_scb.c Sequencer control block
+ management
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Sep 2005 19:39:14.0130 (UTC) FILETIME=[28913320:01C5B576]
+X-OriginalArrivalTime: 09 Sep 2005 19:35:50.0297 (UTC) FILETIME=[AF12C090:01C5B575]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Signed-off-by: Luben Tuikov <luben_tuikov@adaptec.com>
 
-diff -X linux-2.6.13/Documentation/dontdiff -Naur linux-2.6.13-orig/drivers/scsi/sas-class/README linux-2.6.13/drivers/scsi/sas-class/README
---- linux-2.6.13-orig/drivers/scsi/sas-class/README	1969-12-31 19:00:00.000000000 -0500
-+++ linux-2.6.13/drivers/scsi/sas-class/README	2005-09-09 12:22:32.000000000 -0400
-@@ -0,0 +1,440 @@
-+SAS Layer
-+---------
+diff -X linux-2.6.13/Documentation/dontdiff -Naur linux-2.6.13-orig/drivers/scsi/aic94xx/aic94xx_scb.c linux-2.6.13/drivers/scsi/aic94xx/aic94xx_scb.c
+--- linux-2.6.13-orig/drivers/scsi/aic94xx/aic94xx_scb.c	1969-12-31 19:00:00.000000000 -0500
++++ linux-2.6.13/drivers/scsi/aic94xx/aic94xx_scb.c	2005-09-09 11:21:23.000000000 -0400
+@@ -0,0 +1,726 @@
++/*
++ * Aic94xx SAS/SATA driver SCB management.
++ *
++ * Copyright (C) 2005 Adaptec, Inc.  All rights reserved.
++ * Copyright (C) 2005 Luben Tuikov <luben_tuikov@adaptec.com>
++ *
++ * This file is licensed under GPLv2.
++ * 
++ * This file is part of the aic94xx driver.
++ *
++ * The aic94xx driver is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License as
++ * published by the Free Software Foundation; version 2 of the
++ * License.
++ *
++ * The aic94xx driver is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with the aic94xx driver; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ *
++ * $Id: //depot/aic94xx/aic94xx_scb.c#70 $
++ */
 +
-+The SAS Layer is a management infrastructure which manages
-+SAS LLDDs.  It sits between SCSI Core and SAS LLDDs.  The
-+layout is as follows: while SCSI Core is concerned with
-+SAM/SPC issues, and a SAS LLDD+sequencer is concerned with
-+phy/OOB/link management, the SAS layer is concerned with:
++#include <linux/pci.h>
 +
-+      * SAS Phy/Port/HA event management (LLDD generates,
-+        SAS Layer processes),
-+      * SAS Port management (creation/destruction),
-+      * SAS Domain discovery and revalidation,
-+      * SAS Domain device management,
-+      * SCSI Host registration/unregistration,
-+      * Device registration with SCSI Core (SAS) or libata
-+        (SATA), and
-+      * Expander management and exporting expander control
-+        to user space.
++#include "aic94xx.h"
++#include "aic94xx_reg.h"
++#include "aic94xx_hwi.h"
++#include "aic94xx_seq.h"
 +
-+A SAS LLDD is a PCI device driver.  It is concerned with
-+phy/OOB management, and vendor specific tasks and generates
-+events to the SAS layer.
++#include "aic94xx_dump.h"
 +
-+The SAS Layer does most SAS tasks as outlined in the SAS 1.1
-+spec.
++/* ---------- EMPTY SCB ---------- */
 +
-+The sas_ha_struct describes the SAS LLDD to the SAS layer.
-+Most of it is used by the SAS Layer but a few fields need to
-+be initialized by the LLDDs.
++#define DL_PHY_MASK      7
++#define BYTES_DMAED      0
++#define PRIMITIVE_RECVD  0x08
++#define PHY_EVENT        0x10
++#define LINK_RESET_ERROR 0x18
++#define TIMER_EVENT      0x20
++#define REQ_TASK_ABORT   0xF0
++#define REQ_DEVICE_RESET 0xF1
++#define SIGNAL_NCQ_ERROR 0xF2
++#define CLEAR_NCQ_ERROR  0xF3
 +
-+After initializing your hardware, from the probe() function
-+you call sas_register_ha(). It will register your LLDD with
-+the SCSI subsystem, creating a SCSI host and it will
-+register your SAS driver with the sysfs SAS tree it creates.
-+It will then return.  Then you enable your phys to actually
-+start OOB (at which point your driver will start calling the
-+notify_* event callbacks).
++#define PHY_EVENTS_STATUS (CURRENT_LOSS_OF_SIGNAL | CURRENT_OOB_DONE   \
++			   | CURRENT_SPINUP_HOLD | CURRENT_GTO_TIMEOUT \
++			   | CURRENT_OOB_ERROR)
 +
-+Structure descriptions:
-+
-+struct sas_phy --------------------
-+Normally this is statically embedded to your driver's
-+phy structure:
-+	struct my_phy {
-+	       blah;
-+	       struct sas_phy sas_phy;
-+	       bleh;
-+	};
-+And then all the phys are an array of my_phy in your HA
-+struct (shown below).
-+
-+Then as you go along and initialize your phys you also
-+initialize the sas_phy struct, along with your own
-+phy structure.
-+
-+In general, the phys are managed by the LLDD and the ports
-+are managed by the SAS layer.  So the phys are initialized
-+and updated by the LLDD and the ports are initialized and
-+updated by the SAS layer.
-+
-+There is a scheme where the LLDD can RW certain fields,
-+and the SAS layer can only read such ones, and vice versa.
-+The idea is to avoid unnecessary locking.
-+
-+enabled -- must be set (0/1)
-+id -- must be set [0,MAX_PHYS)
-+class, proto, type, role, oob_mode, linkrate -- must be set
-+oob_mode --  you set this when OOB has finished and then notify
-+the SAS Layer.
-+
-+sas_addr -- this normally points to an array holding the sas
-+address of the phy, possibly somewhere in your my_phy
-+struct.
-+
-+attached_sas_addr -- set this when you (LLDD) receive an
-+IDENTIFY frame or a FIS frame, _before_ notifying the SAS
-+layer.  The idea is that sometimes the LLDD may want to fake
-+or provide a different SAS address on that phy/port and this
-+allows it to do this.  At best you should copy the sas
-+address from the IDENTIFY frame or maybe generate a SAS
-+address for SATA directly attached devices.  The Discover
-+process may later change this.
-+
-+frame_rcvd -- this is where you copy the IDENTIFY/FIS frame
-+when you get it; you lock, copy, set frame_rcvd_size and
-+unlock the lock, and then call the event.  It is a pointer
-+since there's no way to know your hw frame size _exactly_,
-+so you define the actual array in your phy struct and let
-+this pointer point to it.  You copy the frame from your
-+DMAable memory to that area holding the lock.
-+
-+sas_prim -- this is where primitives go when they're
-+received.  See sas.h. Grab the lock, set the primitive,
-+release the lock, notify.
-+
-+port -- this points to the sas_port if the phy belongs
-+to a port -- the LLDD only reads this. It points to the
-+sas_port this phy is part of.  Set by the SAS Layer.
-+
-+ha -- may be set; the SAS layer sets it anyway.
-+
-+lldd_phy -- you should set this to point to your phy so you
-+can find your way around faster when the SAS layer calls one
-+of your callbacks and passes you a phy.  If the sas_phy is
-+embedded you can also use container_of -- whatever you
-+prefer.
-+
-+
-+struct sas_port --------------------
-+The LLDD doesn't set any fields of this struct -- it only
-+reads them.  They should be self explanatory.
-+
-+phy_mask is 32 bit, this should be enough for now, as I
-+haven't heard of a HA having more than 8 phys.
-+
-+lldd_port -- I haven't found use for that -- maybe other
-+LLDD who wish to have internal port representation can make
-+use of this.
-+
-+
-+struct sas_ha_struct --------------------
-+It normally is statically declared in your own LLDD
-+structure describing your adapter: 
-+struct my_sas_ha {
-+       blah;
-+       struct sas_ha_struct sas_ha;
-+       struct my_phy phys[MAX_PHYS];
-+       struct sas_port sas_ports[MAX_PHYS]; /* (1) */
-+       bleh;
-+};
-+
-+(1) If your LLDD doesn't have its own port representation.
-+
-+What needs to be initialized (sample function given below).
-+
-+pcidev
-+sas_addr -- since the SAS layer doesn't want to mess with
-+	 memory allocation, etc, this points to statically
-+	 allocated array somewhere (say in your host adapter
-+	 structure) and holds the SAS address of the host
-+	 adapter as given by you or the manufacturer, etc.
-+sas_port
-+sas_phy -- an array of pointers to structures. (see
-+	note above on sas_addr).
-+	These must be set.  See more notes below.
-+num_phys -- the number of phys present in the sas_phy array,
-+	 and the number of ports present in the sas_port
-+	 array.  There can be a maximum num_phys ports (one per
-+	 port) so we drop the num_ports, and only use
-+	 num_phys.
-+
-+The event interface:
-+
-+	/* LLDD calls these to notify the class of an event. */
-+	void (*notify_ha_event)(struct sas_ha_struct *, enum ha_event);
-+	void (*notify_port_event)(struct sas_phy *, enum port_event);
-+	void (*notify_phy_event)(struct sas_phy *, enum phy_event);
-+
-+When sas_register_ha() returns, those are set and can be
-+called by the LLDD to notify the SAS layer of such events
-+the SAS layer.
-+
-+The port notification:
-+
-+	/* The class calls these to notify the LLDD of an event. */
-+	void (*lldd_port_formed)(struct sas_phy *);
-+	void (*lldd_port_deformed)(struct sas_phy *);
-+
-+If the LLDD wants notification when a port has been formed
-+or deformed it sets those to a function satisfying the type.
-+
-+A SAS LLDD should also implement at least one of the Task
-+Management Functions (TMFs) described in SAM:
-+
-+	/* Task Management Functions. Must be called from process context. */
-+	int (*lldd_abort_task)(struct sas_task *);
-+	int (*lldd_abort_task_set)(struct domain_device *, u8 *lun);
-+	int (*lldd_clear_aca)(struct domain_device *, u8 *lun);
-+	int (*lldd_clear_task_set)(struct domain_device *, u8 *lun);
-+	int (*lldd_I_T_nexus_reset)(struct domain_device *);
-+	int (*lldd_lu_reset)(struct domain_device *, u8 *lun);
-+	int (*lldd_query_task)(struct sas_task *);
-+
-+For more information please read SAM from T10.org.
-+
-+Port and Adapter management:
-+
-+	/* Port and Adapter management */
-+	int (*lldd_clear_nexus_port)(struct sas_port *);
-+	int (*lldd_clear_nexus_ha)(struct sas_ha_struct *);
-+
-+A SAS LLDD should implement at least one of those.
-+
-+Phy management:
-+
-+	/* Phy management */
-+	int (*lldd_control_phy)(struct sas_phy *, enum phy_func);
-+
-+lldd_ha -- set this to point to your HA struct. You can also
-+use container_of if you embedded it as shown above.
-+
-+A sample initialization and registration function
-+can look like this (called last thing from probe())
-+*but* before you enable the phys to do OOB:	
-+
-+static int register_sas_ha(struct my_sas_ha *my_ha)
++static inline void get_lrate_mode(struct asd_phy *phy, u8 oob_mode)
 +{
-+	int i;
-+	static struct sas_phy   *sas_phys[MAX_PHYS];
-+	static struct sas_port  *sas_ports[MAX_PHYS];
-+	
-+	my_ha->sas_ha.sas_addr = &my_ha->sas_addr[0];
-+
-+	for (i = 0; i < MAX_PHYS; i++) {
-+		sas_phys[i] = &my_ha->phys[i].sas_phy;
-+		sas_ports[i] = &my_ha->sas_ports[i];
++	switch (oob_mode & 7) {
++	case PHY_SPEED_60:
++		phy->sas_phy.linkrate = PHY_LINKRATE_6;
++		break;
++	case PHY_SPEED_30:
++		phy->sas_phy.linkrate = PHY_LINKRATE_3;
++		break;
++	case PHY_SPEED_15:
++		phy->sas_phy.linkrate = PHY_LINKRATE_1_5;
++		break;
 +	}
-+
-+	my_ha->sas_ha.sas_phy  = sas_phys;
-+	my_ha->sas_ha.sas_port = sas_ports;
-+	my_ha->sas_ha.num_phys = MAX_PHYS;
-+
-+	my_ha->sas_ha.lldd_port_formed = my_port_formed;
-+
-+	return sas_register_ha(&my_ha->sas_ha);
++	if (oob_mode & SAS_MODE)
++		phy->sas_phy.oob_mode = SAS_OOB_MODE;
++	else if (oob_mode & SATA_MODE)
++		phy->sas_phy.oob_mode = SATA_OOB_MODE;
 +}
 +
++static inline void asd_phy_event_tasklet(struct asd_ascb *ascb,
++					 struct done_list_struct *dl)
++{
++	struct asd_ha_struct *asd_ha = ascb->ha;
++	struct sas_ha_struct *sas_ha = &asd_ha->sas_ha;
++	int phy_id = dl->status_block[0] & DL_PHY_MASK;
++	struct asd_phy *phy = &asd_ha->phys[phy_id];
 +
-+Events
-+------
++	u8 oob_status = dl->status_block[1] & PHY_EVENTS_STATUS;
++	u8 oob_mode   = dl->status_block[2];
 +
-+Events are _the only way_ a SAS LLDD notifies the SAS layer
-+of anything.  There is no other method or way a LLDD to tell
-+the SAS layer of anything happening internally or on the SAS
-+domain.
++	switch (oob_status) {
++	case CURRENT_LOSS_OF_SIGNAL:
++		/* directly attached device was removed */
++		ASD_DPRINTK("phy%d: device unplugged\n", phy_id);
++		asd_turn_led(asd_ha, phy_id, 0);
++		sas_phy_disconnected(&phy->sas_phy);
++		sas_ha->notify_phy_event(&phy->sas_phy, PHYE_LOSS_OF_SIGNAL);
++		break;
++	case CURRENT_OOB_DONE:
++		/* hot plugged device */
++		asd_turn_led(asd_ha, phy_id, 1);
++		get_lrate_mode(phy, oob_mode);
++		ASD_DPRINTK("phy%d device plugged: lrate:0x%x, proto:0x%x\n",
++			    phy_id, phy->sas_phy.linkrate, phy->sas_phy.iproto);
++		sas_ha->notify_phy_event(&phy->sas_phy, PHYE_OOB_DONE);
++		break;
++	case CURRENT_SPINUP_HOLD:
++		/* hot plug SATA, no COMWAKE sent */
++		asd_turn_led(asd_ha, phy_id, 1);
++		sas_ha->notify_phy_event(&phy->sas_phy, PHYE_SPINUP_HOLD);
++		break;
++	case CURRENT_GTO_TIMEOUT:
++	case CURRENT_OOB_ERROR:
++		ASD_DPRINTK("phy%d error while OOB: oob status:0x%x\n", phy_id,
++			    dl->status_block[1]);
++		asd_turn_led(asd_ha, phy_id, 0);
++		sas_phy_disconnected(&phy->sas_phy);
++		sas_ha->notify_phy_event(&phy->sas_phy, PHYE_OOB_ERROR);
++		break;
++	}
++}
 +
-+Phy events: 
-+	PHYE_LOSS_OF_SIGNAL, (C)
-+	PHYE_OOB_DONE,
-+	PHYE_OOB_ERROR,      (C)
-+	PHYE_SPINUP_HOLD.
++/* If phys are enabled sparsely, this will do the right thing. */
++static inline unsigned ord_phy(struct asd_ha_struct *asd_ha,
++			       struct asd_phy *phy)
++{
++	u8 enabled_mask = asd_ha->hw_prof.enabled_phys;
++	int i, k = 0;
 +
-+Port events, passed on a _phy_:
-+	PORTE_BYTES_DMAED,      (M)
-+	PORTE_BROADCAST_RCVD,   (E)
-+	PORTE_LINK_RESET_ERR,   (C)
-+	PORTE_TIMER_EVENT,      (C)
-+	PORTE_HARD_RESET.
++	for_each_phy(enabled_mask, enabled_mask, i) {
++		if (&asd_ha->phys[i] == phy)
++			return k;
++		k++;
++	}
++}
 +
-+Host Adapter event:
-+	HAE_RESET
++/**
++ * asd_get_attached_sas_addr -- extract/generate attached SAS address
++ * phy: pointer to asd_phy
++ * sas_addr: pointer to buffer where the SAS address is to be written
++ *
++ * This function extracts the SAS address from an IDENTIFY frame
++ * received.  If OOB is SATA, then a SAS address is generated from the
++ * HA tables.
++ *
++ * LOCKING: the frame_rcvd_lock needs to be held since this parses the frame
++ * buffer.
++ */
++static inline void asd_get_attached_sas_addr(struct asd_phy *phy, u8 *sas_addr)
++{
++	if (phy->sas_phy.frame_rcvd[0] == 0x34
++	    && phy->sas_phy.oob_mode == SATA_OOB_MODE) {
++		struct asd_ha_struct *asd_ha = phy->sas_phy.ha->lldd_ha;
++		/* FIS device-to-host */
++		u64 addr = be64_to_cpu(*(__be64 *)phy->phy_desc->sas_addr);
 +
-+A SAS LLDD should be able to generate
-+	- at least one event from group C (choice),
-+	- events marked M (mandatory) are mandatory (only one),
-+	- events marked E (expander) if it wants the SAS layer
-+	  to handle domain revalidation (only one such).
-+	- Unmarked events are optional.
++		addr += asd_ha->hw_prof.sata_name_base + ord_phy(asd_ha, phy);
++		*(__be64 *)sas_addr = cpu_to_be64(addr);
++	} else {
++		struct sas_identify_frame *idframe =
++			(void *) phy->sas_phy.frame_rcvd;
++		memcpy(sas_addr, idframe->sas_addr, SAS_ADDR_SIZE);
++	}
++}
 +
-+Meaning:
++static inline void asd_bytes_dmaed_tasklet(struct asd_ascb *ascb,
++					   struct done_list_struct *dl,
++					   int edb_id, int phy_id)
++{
++	unsigned long flags;
++	int edb_el = edb_id + ascb->edb_index;
++	struct asd_dma_tok *edb = ascb->ha->seq.edb_arr[edb_el];
++	struct asd_phy *phy = &ascb->ha->phys[phy_id];
++	struct sas_ha_struct *sas_ha = phy->sas_phy.ha;
++	u16 size = ((dl->status_block[3] & 7) << 8) | dl->status_block[2];
 +
-+HAE_RESET -- when your HA got internal error and was reset.
++	size = min(size, (u16) sizeof(phy->frame_rcvd));
 +
-+PORTE_BYTES_DMAED -- on receiving an IDENTIFY/FIS frame
-+PORTE_BROADCAST_RCVD -- on receiving a primitive
-+PORTE_LINK_RESET_ERR -- timer expired, loss of signal, loss
-+of DWS, etc. (*)
-+PORTE_TIMER_EVENT -- DWS reset timeout timer expired (*)
-+PORTE_HARD_RESET -- Hard Reset primitive received.
++	spin_lock_irqsave(&phy->sas_phy.frame_rcvd_lock, flags);
++	memcpy(phy->sas_phy.frame_rcvd, edb->vaddr, size);
++	phy->sas_phy.frame_rcvd_size = size;
++	asd_get_attached_sas_addr(phy, phy->sas_phy.attached_sas_addr);
++	spin_unlock_irqrestore(&phy->sas_phy.frame_rcvd_lock, flags);
++	asd_dump_frame_rcvd(phy, dl);
++	sas_ha->notify_port_event(&phy->sas_phy, PORTE_BYTES_DMAED);
++}
 +
-+PHYE_LOSS_OF_SIGNAL -- the device is gone (*)
-+PHYE_OOB_DONE -- OOB went fine and oob_mode is valid
-+PHYE_OOB_ERROR -- Error while doing OOB, the device probably
-+got disconnected. (*)
-+PHYE_SPINUP_HOLD -- SATA is present, COMWAKE not sent.
++static inline void asd_link_reset_err_tasklet(struct asd_ascb *ascb,
++					      struct done_list_struct *dl,
++					      int phy_id)
++{
++	struct asd_ha_struct *asd_ha = ascb->ha;
++	struct sas_ha_struct *sas_ha = &asd_ha->sas_ha;
++	struct sas_phy *sas_phy = sas_ha->sas_phy[phy_id];
++	u8 lr_error = dl->status_block[1];
++	u8 retries_left = dl->status_block[2];
 +
-+(*) should set/clear the appropriate fields in the phy,
-+    or alternatively call the inlined sas_phy_disconnected()
-+    which is just a helper, from their tasklet.
++	switch (lr_error) {
++	case 0:
++		ASD_DPRINTK("phy%d: Receive ID timer expired\n", phy_id);
++		break;
++	case 1:
++		ASD_DPRINTK("phy%d: Loss of signal\n", phy_id);
++		break;
++	case 2:
++		ASD_DPRINTK("phy%d: Loss of dword sync\n", phy_id);
++		break;
++	case 3:
++		ASD_DPRINTK("phy%d: Receive FIS timeout\n", phy_id);
++		break;
++	default:
++		ASD_DPRINTK("phy%d: unknown link reset error code: 0x%x\n",
++			    phy_id, lr_error);
++		break;
++	}
 +
-+The Execute Command SCSI RPC:
++	asd_turn_led(asd_ha, phy_id, 0);
++	sas_phy_disconnected(sas_phy);
++	sas_ha->notify_port_event(sas_phy, PORTE_LINK_RESET_ERR);
 +
-+	int (*lldd_execute_task)(struct sas_task *, int num,
-+				 unsigned long gfp_flags);
++	if (retries_left == 0) {
++		int num = 1;
++		struct asd_ascb *cp = asd_ascb_alloc_list(ascb->ha, &num,
++							  GFP_ATOMIC);
++		if (!cp) {
++			asd_printk("%s: out of memory\n", __FUNCTION__);
++			goto out;
++		}
++		ASD_DPRINTK("phy%d: retries:0 performing link reset seq\n",
++			    phy_id);
++		asd_build_control_phy(cp, phy_id, ENABLE_PHY);
++		if (asd_post_ascb_list(ascb->ha, cp, 1) != 0)
++			asd_ascb_free(cp);
++	}
++out:
++	;
++}
 +
-+Used to queue a task to the SAS LLDD.  @task is the tasks to
-+be executed.  @num should be the number of tasks being
-+queued at this function call (they are linked listed via
-+task::list), @gfp_mask should be the gfp_mask defining the
-+context of the caller.
++static inline void asd_primitive_rcvd_tasklet(struct asd_ascb *ascb,
++					      struct done_list_struct *dl,
++					      int phy_id)
++{
++	unsigned long flags;
++	struct sas_ha_struct *sas_ha = &ascb->ha->sas_ha;
++	struct sas_phy *sas_phy = sas_ha->sas_phy[phy_id];
++	u8  reg  = dl->status_block[1];
++	u32 cont = dl->status_block[2] << ((reg & 3)*8);
 +
-+This function should implement the Execute Command SCSI RPC,
-+or if you're sending a SCSI Task as linked commands, you
-+should also use this function.
++	reg &= ~3;
++	switch (reg) {
++	case LmPRMSTAT0BYTE0:
++		switch (cont) {
++		case LmBROADCH:
++		case LmBROADRVCH0:
++		case LmBROADRVCH1:
++		case LmBROADSES:
++			ASD_DPRINTK("phy%d: BROADCAST change received:%d\n",
++				    phy_id, cont);
++			spin_lock_irqsave(&sas_phy->sas_prim_lock, flags);
++			sas_phy->sas_prim = ffs(cont);
++			spin_unlock_irqrestore(&sas_phy->sas_prim_lock, flags);
++			sas_ha->notify_port_event(sas_phy,PORTE_BROADCAST_RCVD);
++			break;
 +
-+That is, when lldd_execute_task() is called, the command(s)
-+go out on the transport *immediately*.  There is *no*
-+queuing of any sort and at any level in a SAS LLDD.
++		case LmUNKNOWNP:
++			ASD_DPRINTK("phy%d: unknown BREAK\n", phy_id);
++			break;
 +
-+The use of task::list is two-fold, one for linked commands,
-+the other discussed below.
++		default:
++			ASD_DPRINTK("phy%d: primitive reg:0x%x, cont:0x%04x\n",
++				    phy_id, reg, cont);
++			break;
++		}
++		break;
++	case LmPRMSTAT1BYTE0:
++		switch (cont) {
++		case LmHARDRST:
++			ASD_DPRINTK("phy%d: HARD_RESET primitive rcvd\n",
++				    phy_id);
++			/* The sequencer disables all phys on that port.
++			 * We have to re-enable the phys ourselves. */
++			sas_ha->notify_port_event(sas_phy, PORTE_HARD_RESET);
++			break;
++			
++		default:
++			ASD_DPRINTK("phy%d: primitive reg:0x%x, cont:0x%04x\n",
++				    phy_id, reg, cont);
++			break;
++		}
++		break;
++	default:
++		ASD_DPRINTK("unknown primitive register:0x%x\n",
++			    dl->status_block[1]);
++		break;
++	}
++}
++
++/**
++ * asd_invalidate_edb -- invalidate an EDB and if necessary post the ESCB
++ * @ascb: pointer to Empty SCB
++ * @edb_id: index [0,6] to the empty data buffer which is to be invalidated
++ *
++ * After an EDB has been invalidated, if all EDBs in this ESCB have been
++ * invalidated, the ESCB is posted back to the sequencer.
++ * Context is tasklet/IRQ.
++ */
++void asd_invalidate_edb(struct asd_ascb *ascb, int edb_id)
++{
++	struct asd_seq_data *seq = &ascb->ha->seq;
++	struct empty_scb *escb = &ascb->scb->escb;
++	struct sg_el     *eb   = &escb->eb[edb_id];
++	struct asd_dma_tok *edb = seq->edb_arr[ascb->edb_index + edb_id];
++
++	memset(edb->vaddr, 0, ASD_EDB_SIZE);
++	eb->flags |= ELEMENT_NOT_VALID;
++	escb->num_valid--;
++
++	if (escb->num_valid == 0) {
++		int i;
++		/* ASD_DPRINTK("reposting escb: vaddr: 0x%p, "
++			    "dma_handle: 0x%08llx, next: 0x%08llx, "
++			    "index:%d, opcode:0x%02x\n",
++			    ascb->dma_scb.vaddr,
++			    (u64)ascb->dma_scb.dma_handle,
++			    le64_to_cpu(ascb->scb->header.next_scb),
++			    le16_to_cpu(ascb->scb->header.index),
++			    ascb->scb->header.opcode);
++		*/
++		escb->num_valid = ASD_EDBS_PER_SCB;
++		for (i = 0; i < ASD_EDBS_PER_SCB; i++)
++			escb->eb[i].flags = 0;
++		if (!list_empty(&ascb->list))
++			list_del_init(&ascb->list);
++		i = asd_post_escb_list(ascb->ha, ascb, 1);
++		if (i)
++			asd_printk("couldn't post escb, err:%d\n", i);
++	}
++}
++
++static void escb_tasklet_complete(struct asd_ascb *ascb,
++				  struct done_list_struct *dl)
++{
++	struct asd_ha_struct *asd_ha = ascb->ha;
++	struct sas_ha_struct *sas_ha = &asd_ha->sas_ha;
++	int edb = (dl->opcode & DL_PHY_MASK) - 1; /* [0xc1,0xc7] -> [0,6] */
++	u8  sb_opcode = dl->status_block[0];
++	int phy_id = sb_opcode & DL_PHY_MASK;
++	struct sas_phy *sas_phy = sas_ha->sas_phy[phy_id];
++
++	if (edb > 6 || edb < 0) {
++		ASD_DPRINTK("edb is 0x%x! dl->opcode is 0x%x\n",
++			    edb, dl->opcode);
++		ASD_DPRINTK("sb_opcode : 0x%x, phy_id: 0x%x\n",
++			    sb_opcode, phy_id);
++		ASD_DPRINTK("escb: vaddr: 0x%p, "
++			    "dma_handle: 0x%08llx, next: 0x%08llx, "
++			    "index:%d, opcode:0x%02x\n",
++			    ascb->dma_scb.vaddr,
++			    (u64)ascb->dma_scb.dma_handle,
++			    le64_to_cpu(ascb->scb->header.next_scb),
++			    le16_to_cpu(ascb->scb->header.index),
++			    ascb->scb->header.opcode);
++	}
++
++	sb_opcode &= ~DL_PHY_MASK;
++
++	switch (sb_opcode) {
++	case BYTES_DMAED:
++		ASD_DPRINTK("%s: phy%d: BYTES_DMAED\n", __FUNCTION__, phy_id);
++		asd_bytes_dmaed_tasklet(ascb, dl, edb, phy_id);
++		break;
++	case PRIMITIVE_RECVD:
++		ASD_DPRINTK("%s: phy%d: PRIMITIVE_RECVD\n", __FUNCTION__,
++			    phy_id);
++		asd_primitive_rcvd_tasklet(ascb, dl, phy_id);
++		break;
++	case PHY_EVENT:
++		ASD_DPRINTK("%s: phy%d: PHY_EVENT\n", __FUNCTION__, phy_id);
++		asd_phy_event_tasklet(ascb, dl);
++		break;
++	case LINK_RESET_ERROR:
++		ASD_DPRINTK("%s: phy%d: LINK_RESET_ERROR\n", __FUNCTION__,
++			    phy_id);
++		asd_link_reset_err_tasklet(ascb, dl, phy_id);
++		break;
++	case TIMER_EVENT:
++		ASD_DPRINTK("%s: phy%d: TIMER_EVENT, lost dw sync\n",
++			    __FUNCTION__, phy_id);
++		asd_turn_led(asd_ha, phy_id, 0);
++		/* the device is gone */
++		sas_phy_disconnected(sas_phy);
++		sas_ha->notify_port_event(sas_phy, PORTE_TIMER_EVENT);
++		break;
++	case REQ_TASK_ABORT:
++		ASD_DPRINTK("%s: phy%d: REQ_TASK_ABORT\n", __FUNCTION__,
++			    phy_id);
++		break;
++	case REQ_DEVICE_RESET:
++		ASD_DPRINTK("%s: phy%d: REQ_DEVICE_RESET\n", __FUNCTION__,
++			    phy_id);
++		break;
++	case SIGNAL_NCQ_ERROR:
++		ASD_DPRINTK("%s: phy%d: SIGNAL_NCQ_ERROR\n", __FUNCTION__,
++			    phy_id);
++		break;
++	case CLEAR_NCQ_ERROR:
++		ASD_DPRINTK("%s: phy%d: CLEAR_NCQ_ERROR\n", __FUNCTION__,
++			    phy_id);
++		break;
++	default:
++		ASD_DPRINTK("%s: phy%d: unknown event:0x%x\n", __FUNCTION__,
++			    phy_id, sb_opcode);
++		ASD_DPRINTK("edb is 0x%x! dl->opcode is 0x%x\n",
++			    edb, dl->opcode);
++		ASD_DPRINTK("sb_opcode : 0x%x, phy_id: 0x%x\n",
++			    sb_opcode, phy_id);
++		ASD_DPRINTK("escb: vaddr: 0x%p, "
++			    "dma_handle: 0x%08llx, next: 0x%08llx, "
++			    "index:%d, opcode:0x%02x\n",
++			    ascb->dma_scb.vaddr,
++			    (u64)ascb->dma_scb.dma_handle,
++			    le64_to_cpu(ascb->scb->header.next_scb),
++			    le16_to_cpu(ascb->scb->header.index),
++			    ascb->scb->header.opcode);
++		
++		break;
++	}
++
++	asd_invalidate_edb(ascb, edb);
++}
++
++int asd_init_post_escbs(struct asd_ha_struct *asd_ha)
++{
++	struct asd_seq_data *seq = &asd_ha->seq;
++	int i;
++
++	for (i = 0; i < seq->num_escbs; i++)
++		seq->escb_arr[i]->tasklet_complete = escb_tasklet_complete;
++
++	ASD_DPRINTK("posting %d escbs\n", i);
++	return asd_post_escb_list(asd_ha, seq->escb_arr[0], seq->num_escbs);
++}
++
++/* ---------- CONTROL PHY ---------- */
++
++#define CONTROL_PHY_STATUS (CURRENT_DEVICE_PRESENT | CURRENT_OOB_DONE   \
++			    | CURRENT_SPINUP_HOLD | CURRENT_GTO_TIMEOUT \
++			    | CURRENT_OOB_ERROR)
++
++/**
++ * control_phy_tasklet_complete -- tasklet complete for CONTROL PHY ascb
++ * @ascb: pointer to an ascb
++ * @dl: pointer to the done list entry
++ *
++ * This function completes a CONTROL PHY scb and frees the ascb.
++ * A note on LEDs:
++ *  - an LED blinks if there is IO though it,
++ *  - if a device is connected to the LED, it is lit,
++ *  - if no device is connected to the LED, is is dimmed (off).
++ */
++static void control_phy_tasklet_complete(struct asd_ascb *ascb,
++					 struct done_list_struct *dl)
++{
++	struct asd_ha_struct *asd_ha = ascb->ha;
++	struct scb *scb = ascb->scb;
++	struct control_phy *control_phy = &scb->control_phy;
++	u8 phy_id = control_phy->phy_id;
++	struct asd_phy *phy = &ascb->ha->phys[phy_id];
++
++	u8 status     = dl->status_block[0];
++	u8 oob_status = dl->status_block[1];
++	u8 oob_mode   = dl->status_block[2];
++	/* u8 oob_signals= dl->status_block[3]; */
++
++	if (status != 0) {
++		ASD_DPRINTK("%s: phy%d status block opcode:0x%x\n",
++			    __FUNCTION__, phy_id, status);
++		goto out;
++	}
++
++	switch (control_phy->sub_func) {
++	case DISABLE_PHY:
++		asd_ha->hw_prof.enabled_phys &= ~(1 << phy_id);
++		asd_turn_led(asd_ha, phy_id, 0);
++		asd_control_led(asd_ha, phy_id, 0);
++		ASD_DPRINTK("%s: disable phy%d\n", __FUNCTION__, phy_id);
++		break;
++
++	case ENABLE_PHY:
++		asd_control_led(asd_ha, phy_id, 1);
++		if (oob_status & CURRENT_OOB_DONE) {
++			asd_ha->hw_prof.enabled_phys |= (1 << phy_id);
++			get_lrate_mode(phy, oob_mode);
++			asd_turn_led(asd_ha, phy_id, 1);
++			ASD_DPRINTK("%s: phy%d, lrate:0x%x, proto:0x%x\n",
++				    __FUNCTION__, phy_id,phy->sas_phy.linkrate,
++				    phy->sas_phy.iproto);
++		} else if (oob_status & CURRENT_SPINUP_HOLD) {
++			asd_ha->hw_prof.enabled_phys |= (1 << phy_id);
++			asd_turn_led(asd_ha, phy_id, 1);
++			ASD_DPRINTK("%s: phy%d, spinup hold\n", __FUNCTION__,
++				    phy_id);
++		} else if (oob_status & CURRENT_ERR_MASK) {
++			asd_turn_led(asd_ha, phy_id, 0);
++			ASD_DPRINTK("%s: phy%d: error: oob status:0x%02x\n",
++				    __FUNCTION__, phy_id, oob_status);
++		} else if (oob_status & (CURRENT_HOT_PLUG_CNCT
++					 | CURRENT_DEVICE_PRESENT))  {
++			asd_ha->hw_prof.enabled_phys |= (1 << phy_id);
++			asd_turn_led(asd_ha, phy_id, 1);
++			ASD_DPRINTK("%s: phy%d: hot plug or device present\n",
++				    __FUNCTION__, phy_id);
++		} else {
++			asd_ha->hw_prof.enabled_phys |= (1 << phy_id);
++			asd_turn_led(asd_ha, phy_id, 0);
++			ASD_DPRINTK("%s: phy%d: no device present: "
++				    "oob_status:0x%x\n",
++				    __FUNCTION__, phy_id, oob_status);
++		}
++		break;
++	case RELEASE_SPINUP_HOLD:
++	case PHY_NO_OP:
++	case EXECUTE_HARD_RESET:
++		ASD_DPRINTK("%s: phy%d: sub_func:0x%x\n", __FUNCTION__,
++			    phy_id, control_phy->sub_func);
++		/* XXX finish */
++		break;
++	default:
++		ASD_DPRINTK("%s: phy%d: sub_func:0x%x?\n", __FUNCTION__,
++			    phy_id, control_phy->sub_func);
++		break;
++	}
++out:
++	asd_ascb_free(ascb);
++}
++
++static inline void set_speed_mask(u8 *speed_mask, struct asd_phy_desc *pd)
++{
++	/* disable all speeds, then enable defaults */
++	*speed_mask = SAS_SPEED_60_DIS | SAS_SPEED_30_DIS | SAS_SPEED_15_DIS
++		| SATA_SPEED_30_DIS | SATA_SPEED_15_DIS;
 +	
-+It is possible to queue up more than one task at a time, by
-+initializing the list element of struct sas_task, and
-+passing the number of tasks enlisted in this manner in num.
++	switch (pd->max_sas_lrate) {
++	case PHY_LINKRATE_6:
++		*speed_mask &= ~SAS_SPEED_60_DIS;
++	default:
++	case PHY_LINKRATE_3:
++		*speed_mask &= ~SAS_SPEED_30_DIS;
++	case PHY_LINKRATE_1_5:
++		*speed_mask &= ~SAS_SPEED_15_DIS;
++	}
++
++	switch (pd->min_sas_lrate) {
++	case PHY_LINKRATE_6:
++		*speed_mask |= SAS_SPEED_30_DIS;
++	case PHY_LINKRATE_3:
++		*speed_mask |= SAS_SPEED_15_DIS;
++	default:
++	case PHY_LINKRATE_1_5:
++		/* nothing to do */
++		;
++	}
++
++	switch (pd->max_sata_lrate) {
++	case PHY_LINKRATE_3:
++		*speed_mask &= ~SATA_SPEED_30_DIS;
++	default:
++	case PHY_LINKRATE_1_5:
++		*speed_mask &= ~SATA_SPEED_15_DIS;
++	}
 +	
-+Returns: -SAS_QUEUE_FULL, -ENOMEM, nothing was queued;
-+	 0, the task(s) were queued.
++	switch (pd->min_sata_lrate) {
++	case PHY_LINKRATE_3:
++		*speed_mask |= SATA_SPEED_15_DIS;
++	default:
++	case PHY_LINKRATE_1_5:
++		/* nothing to do */
++		;
++	}
++}
 +
-+If you want to pass num > 1, then either
-+A) you're the only caller of this function and keep track
-+   of what you've queued to the LLDD, or
-+B) you know what you're doing and have a strategy of
-+   retrying.
++/**
++ * asd_build_control_phy -- build a CONTROL PHY SCB
++ * @ascb: pointer to an ascb
++ * @phy_id: phy id to control, integer
++ * @subfunc: subfunction, what to actually to do the phy
++ *
++ * This function builds a CONTROL PHY scb.  No allocation of any kind
++ * is performed. @ascb is allocated with the list function.
++ * The caller can override the ascb->tasklet_complete to point
++ * to its own callback function.  It must call asd_ascb_free()
++ * at its tasklet complete function.
++ * See the default implementation.
++ */
++void asd_build_control_phy(struct asd_ascb *ascb, int phy_id, u8 subfunc)
++{
++	struct asd_phy *phy = &ascb->ha->phys[phy_id];
++	struct scb *scb = ascb->scb;
++	struct control_phy *control_phy = &scb->control_phy;
 +
-+As opposed to queuing one task at a time (function call),
-+batch queuing of tasks, by having num > 1, greatly
-+simplifies LLDD code, sequencer code, and _hardware design_,
-+and has some performance advantages in certain situations
-+(DBMS).
-+
-+The LLDD advertises if it can take more than one command at
-+a time at lldd_execute_task(), by setting the
-+lldd_max_execute_num parameter (controlled by "collector"
-+module parameter in aic94xx SAS LLDD).
-+
-+You should leave this to the default 1, unless you know what
-+you're doing.
-+
-+This is a function of the LLDD, to which the SAS layer can
-+cater to.
-+
-+int lldd_queue_size
-+	The host adapter's queue size.  This is the maximum
-+number of commands the lldd can have pending to domain
-+devices on behalf of all upper layers submitting through
-+lldd_execute_task().
++	scb->header.opcode = CONTROL_PHY;
++	control_phy->phy_id = (u8) phy_id;
++	control_phy->sub_func = subfunc;
 +	
-+You really want to set this to something (much) larger than
-+1.
++	switch (subfunc) {
++	case EXECUTE_HARD_RESET:  /* 0x81 */
++	case ENABLE_PHY:          /* 0x01 */
++		/* decide hot plug delay */
++		control_phy->hot_plug_delay = HOTPLUG_DELAY_TIMEOUT;
++		
++		/* decide speed mask */
++		set_speed_mask(&control_phy->speed_mask, phy->phy_desc);
 +
-+This _really_ has absolutely nothing to do with queuing.
-+There is no queuing in SAS LLDDs.
++		/* initiator port settings are in the hi nibble */
++		if (phy->sas_phy.role == PHY_ROLE_INITIATOR)
++			control_phy->port_type = SAS_PROTO_ALL << 4;
++		else if (phy->sas_phy.role == PHY_ROLE_TARGET)
++			control_phy->port_type = SAS_PROTO_ALL;
++		else
++			control_phy->port_type =
++				(SAS_PROTO_ALL << 4) | SAS_PROTO_ALL;
 +
-+struct sas_task {
-+	dev -- the device this task is destined to
-+	list -- must be initialized (INIT_LIST_HEAD)
-+	task_proto -- _one_ of enum sas_proto
-+	scatter -- pointer to scatter gather list array
-+	num_scatter -- number of elements in scatter
-+	total_xfer_len -- total number of bytes expected to be transfered
-+	data_dir -- PCI_DMA_...
-+	task_done -- callback when the task has finished execution
++		/* link reset retries, this should be nominal */
++		control_phy->link_reset_retries = 10;
++
++	case RELEASE_SPINUP_HOLD: /* 0x02 */
++		/* decide the func_mask */
++		control_phy->func_mask = FUNCTION_MASK_DEFAULT;
++		if (phy->phy_desc->flags & ASD_SATA_SPINUP_HOLD)
++			control_phy->func_mask &= ~SPINUP_HOLD_DIS;
++		else
++			control_phy->func_mask |= SPINUP_HOLD_DIS;
++	}
++
++	control_phy->conn_handle = cpu_to_le16(0xFFFF);
++
++	ascb->tasklet_complete = control_phy_tasklet_complete;
++}
++
++/* ---------- INITIATE LINK ADM TASK ---------- */
++
++static void link_adm_tasklet_complete(struct asd_ascb *ascb,
++				      struct done_list_struct *dl)
++{
++	u8 opcode = dl->opcode;
++	struct initiate_link_adm *link_adm = &ascb->scb->link_adm;
++	u8 phy_id = link_adm->phy_id;
++
++	if (opcode != TC_NO_ERROR) {
++		asd_printk("phy%d: link adm task 0x%x completed with error "
++			   "0x%x\n", phy_id, link_adm->sub_func, opcode);
++	}
++	ASD_DPRINTK("phy%d: link adm task 0x%x: 0x%x\n",
++		    phy_id, link_adm->sub_func, opcode);
++
++	asd_ascb_free(ascb);
++}
++
++void asd_build_initiate_link_adm_task(struct asd_ascb *ascb, int phy_id,
++				      u8 subfunc)
++{
++	struct scb *scb = ascb->scb;
++	struct initiate_link_adm *link_adm = &scb->link_adm;
++
++	scb->header.opcode = INITIATE_LINK_ADM_TASK;
++
++	link_adm->phy_id = phy_id;
++	link_adm->sub_func = subfunc;
++	link_adm->conn_handle = cpu_to_le16(0xFFFF);
++
++	ascb->tasklet_complete = link_adm_tasklet_complete;
++}
++
++/* ---------- SCB timer ---------- */
++
++/**
++ * asd_ascb_timedout -- called when a pending SCB's timer has expired
++ * @data: unsigned long, a pointer to the ascb in question
++ *
++ * This is the default timeout function which does the most necessary.
++ * Upper layers can implement their own timeout function, say to free
++ * resources they have with this SCB, and then call this one at the
++ * end of their timeout function.  To do this, one should initialize
++ * the ascb->timer.{function, data, expires} prior to calling the post
++ * funcion.  The timer is started by the post function.
++ */
++void asd_ascb_timedout(unsigned long data)
++{
++	struct asd_ascb *ascb = (void *) data;
++	struct asd_seq_data *seq = &ascb->ha->seq;
++	unsigned long flags;
++
++	ASD_DPRINTK("scb:0x%x timed out\n", ascb->scb->header.opcode);
++
++	spin_lock_irqsave(&seq->pend_q_lock, flags);
++	seq->pending--;
++	list_del_init(&ascb->list);
++	spin_unlock_irqrestore(&seq->pend_q_lock, flags);
++	
++	asd_ascb_free(ascb);
++}
++
++/* ---------- CONTROL PHY ---------- */
++
++/* Given the spec value, return a driver value. */
++static const int phy_func_table[] = {
++	[PHY_FUNC_NOP]        = PHY_NO_OP,
++	[PHY_FUNC_LINK_RESET] = ENABLE_PHY,
++	[PHY_FUNC_HARD_RESET] = EXECUTE_HARD_RESET,
++	[PHY_FUNC_DISABLE]    = DISABLE_PHY,
++	[PHY_FUNC_RELEASE_SPINUP_HOLD] = RELEASE_SPINUP_HOLD,
 +};
 +
-+When an external entity, entity other than the LLDD or the
-+SAS Layer, wants to work with a struct domain_device, it
-+_must_ call kobject_get() when getting a handle on the
-+device and kobject_put() when it is done with the device.
++int asd_control_phy(struct sas_phy *phy, enum phy_func func)
++{
++	struct asd_ha_struct *asd_ha = phy->ha->lldd_ha;
++	struct asd_ascb *ascb;
++	int res = 1;
 +
-+This does two things:
-+     A) implements proper kfree() for the device;
-+     B) increments/decrements the kref for all players:
-+     domain_device
-+	all domain_device's ... (if past an expander)
-+	    port
-+		host adapter
-+		     pci device
-+			 and up the ladder, etc.
++	if (func == PHY_FUNC_CLEAR_ERROR_LOG)
++		return -ENOSYS;
 +
-+DISCOVERY
-+---------
++	ascb = asd_ascb_alloc_list(asd_ha, &res, GFP_KERNEL);
++	if (!ascb)
++		return -ENOMEM;
 +
-+The sysfs tree has the following purposes:
-+    a) It shows you the physical layout of the SAS domain at
-+       the current time, i.e. how the domain looks in the
-+       physical world right now.
-+    b) Shows some device parameters _at_discovery_time_.
++	asd_build_control_phy(ascb, phy->id, phy_func_table[func]);
++	res = asd_post_ascb_list(asd_ha, ascb , 1);
++	if (res)
++		asd_ascb_free(ascb);
 +
-+This is a link to the tree(1) program, very useful in
-+viewing the SAS domain:
-+ftp://mama.indstate.edu/linux/tree/
-+I expect user space applications to actually create a
-+graphical interface of this.
-+
-+That is, the sysfs domain tree doesn't show or keep state if
-+you e.g., change the meaning of the READY LED MEANING
-+setting, but it does show you the current connection status
-+of the domain device.
-+
-+Keeping internal device state changes is responsibility of
-+upper layers (Command set drivers) and user space.
-+
-+When a device or devices are unplugged from the domain, this
-+is reflected in the sysfs tree immediately, and the device(s)
-+removed from the system.
-+
-+The structure domain_device describes any device in the SAS
-+domain.  It is completely managed by the SAS layer.  A task
-+points to a domain device, this is how the SAS LLDD knows
-+where to send the task(s) to.  A SAS LLDD only reads the
-+contents of the domain_device structure, but it never creates
-+or destroys one.
-+
-+Expander management from User Space
-+-----------------------------------
-+
-+In each expander directory in sysfs, there is a file called
-+"smp_portal".  It is a binary sysfs attribute file, which
-+implements an SMP portal (Note: this is *NOT* an SMP port),
-+to which user space applications can send SMP requests and
-+receive SMP responses.
-+
-+Functionality is deceptively simple:
-+
-+1. Build the SMP frame you want to send. The format and layout
-+   is described in the SAS spec.  Leave the CRC field equal 0.
-+open(2)
-+2. Open the expander's SMP portal sysfs file in RW mode.
-+write(2)
-+3. Write the frame you built in 1.
-+read(2)
-+4. Read the amount of data you expect to receive for the frame you built.
-+   If you receive different amount of data you expected to receive,
-+   then there was some kind of error.
-+close(2)
-+All this process is shown in detail in the function do_smp_func()
-+and its callers, in the file "expander_conf.c".
-+
-+The kernel functionality is implemented in the file
-+"sas_expander.c".
-+
-+The program "expander_conf.c" implements this. It takes one
-+argument, the sysfs file name of the SMP portal to the
-+expander, and gives expander information, including routing
-+tables.
-+
-+The SMP portal gives you complete control of the expander,
-+so please be careful.
-
++	return res;
++}
 

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030205AbVIIQOP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030207AbVIIQPT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030205AbVIIQOP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 12:14:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030206AbVIIQOO
+	id S1030207AbVIIQPT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 12:15:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030215AbVIIQPS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 12:14:14 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:15752 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030205AbVIIQOO
+	Fri, 9 Sep 2005 12:15:18 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:16776 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030210AbVIIQPR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 12:14:14 -0400
-Date: Fri, 9 Sep 2005 17:14:12 +0100
+	Fri, 9 Sep 2005 12:15:17 -0400
+Date: Fri, 9 Sep 2005 17:15:13 +0100
 From: viro@ZenIV.linux.org.uk
 To: Linus Torvalds <torvalds@osdl.org>
 Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] sparse on uml (infrastructure bits)
-Message-ID: <20050909161412.GK9623@ZenIV.linux.org.uk>
+Subject: [PATCH] uaccess.h annotations (uml)
+Message-ID: <20050909161513.GL9623@ZenIV.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,34 +22,65 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Passes -m64 to sparse on uml/amd64, tells sparse to stay out of
-USER_OBJS.
-
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 ----
-diff -urN RC13-git7-stubs/arch/um/Makefile-x86_64 RC13-git7-uml-checker/arch/um/Makefile-x86_64
---- RC13-git7-stubs/arch/um/Makefile-x86_64	2005-09-05 07:05:14.000000000 -0400
-+++ RC13-git7-uml-checker/arch/um/Makefile-x86_64	2005-09-07 13:55:09.000000000 -0400
-@@ -8,6 +8,7 @@
- #it's needed for headers to work!
- CFLAGS += -U__$(SUBARCH)__ -fno-builtin
- USER_CFLAGS += -fno-builtin
-+CHECKFLAGS  += -m64
+diff -urN RC13-git7-m68k-hardirq/arch/um/kernel/skas/include/uaccess-skas.h RC13-git7-uml-user/arch/um/kernel/skas/include/uaccess-skas.h
+--- RC13-git7-m68k-hardirq/arch/um/kernel/skas/include/uaccess-skas.h	2005-06-17 15:48:29.000000000 -0400
++++ RC13-git7-uml-user/arch/um/kernel/skas/include/uaccess-skas.h	2005-09-07 13:55:07.000000000 -0400
+@@ -18,18 +18,18 @@
+ 	  ((unsigned long) (addr) + (size) <= FIXADDR_USER_END) && \
+ 	  ((unsigned long) (addr) + (size) >= (unsigned long)(addr))))
  
- ELF_ARCH := i386:x86-64
- ELF_FORMAT := elf64-x86-64
-diff -urN RC13-git7-stubs/arch/um/scripts/Makefile.rules RC13-git7-uml-checker/arch/um/scripts/Makefile.rules
---- RC13-git7-stubs/arch/um/scripts/Makefile.rules	2005-08-28 23:09:40.000000000 -0400
-+++ RC13-git7-uml-checker/arch/um/scripts/Makefile.rules	2005-09-07 13:55:09.000000000 -0400
-@@ -9,6 +9,11 @@
+-static inline int verify_area_skas(int type, const void * addr,
++static inline int verify_area_skas(int type, const void __user * addr,
+                                    unsigned long size)
+ {
+ 	return(access_ok_skas(type, addr, size) ? 0 : -EFAULT);
+ }
  
- $(USER_OBJS) : c_flags = -Wp,-MD,$(depfile) $(USER_CFLAGS) \
- 	$(CFLAGS_$(notdir $@))
-+$(USER_OBJS): cmd_checksrc =
-+$(USER_OBJS): quiet_cmd_checksrc =
-+$(USER_OBJS): cmd_force_checksrc =
-+$(USER_OBJS): quiet_cmd_force_checksrc =
-+
+-extern int copy_from_user_skas(void *to, const void *from, int n);
+-extern int copy_to_user_skas(void *to, const void *from, int n);
+-extern int strncpy_from_user_skas(char *dst, const char *src, int count);
+-extern int __clear_user_skas(void *mem, int len);
+-extern int clear_user_skas(void *mem, int len);
+-extern int strnlen_user_skas(const void *str, int len);
++extern int copy_from_user_skas(void *to, const void __user *from, int n);
++extern int copy_to_user_skas(void __user *to, const void *from, int n);
++extern int strncpy_from_user_skas(char *dst, const char __user *src, int count);
++extern int __clear_user_skas(void __user *mem, int len);
++extern int clear_user_skas(void __user *mem, int len);
++extern int strnlen_user_skas(const void __user *str, int len);
  
- # The stubs and unmap.o can't try to call mcount or update basic block data
- define unprofile
+ #endif
+ 
+diff -urN RC13-git7-m68k-hardirq/arch/um/kernel/tt/include/uaccess-tt.h RC13-git7-uml-user/arch/um/kernel/tt/include/uaccess-tt.h
+--- RC13-git7-m68k-hardirq/arch/um/kernel/tt/include/uaccess-tt.h	2005-06-17 15:48:29.000000000 -0400
++++ RC13-git7-uml-user/arch/um/kernel/tt/include/uaccess-tt.h	2005-09-07 13:55:07.000000000 -0400
+@@ -33,7 +33,7 @@
+          (((unsigned long) (addr) <= ((unsigned long) (addr) + (size))) && \
+           (under_task_size(addr, size) || is_stack(addr, size))))
+ 
+-static inline int verify_area_tt(int type, const void * addr,
++static inline int verify_area_tt(int type, const void __user * addr,
+                                  unsigned long size)
+ {
+ 	return(access_ok_tt(type, addr, size) ? 0 : -EFAULT);
+@@ -50,12 +50,12 @@
+ extern int __do_strnlen_user(const char *str, unsigned long n,
+ 			     void **fault_addr, void **fault_catcher);
+ 
+-extern int copy_from_user_tt(void *to, const void *from, int n);
+-extern int copy_to_user_tt(void *to, const void *from, int n);
+-extern int strncpy_from_user_tt(char *dst, const char *src, int count);
+-extern int __clear_user_tt(void *mem, int len);
+-extern int clear_user_tt(void *mem, int len);
+-extern int strnlen_user_tt(const void *str, int len);
++extern int copy_from_user_tt(void *to, const void __user *from, int n);
++extern int copy_to_user_tt(void __user *to, const void *from, int n);
++extern int strncpy_from_user_tt(char *dst, const char __user *src, int count);
++extern int __clear_user_tt(void __user *mem, int len);
++extern int clear_user_tt(void __user *mem, int len);
++extern int strnlen_user_tt(const void __user *str, int len);
+ 
+ #endif
+ 

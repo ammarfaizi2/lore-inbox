@@ -1,81 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030286AbVIIRjh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030255AbVIIRkl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030286AbVIIRjh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 13:39:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030287AbVIIRjh
+	id S1030255AbVIIRkl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 13:40:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030287AbVIIRkl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 13:39:37 -0400
-Received: from tirith.ics.muni.cz ([147.251.4.36]:34797 "EHLO
-	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1030286AbVIIRjg
+	Fri, 9 Sep 2005 13:40:41 -0400
+Received: from qproxy.gmail.com ([72.14.204.192]:12246 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030255AbVIIRkk convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 13:39:36 -0400
-Date: Fri, 9 Sep 2005 19:39:28 +0200
-From: Jan Kasprzak <kas@fi.muni.cz>
-To: linux-kernel@vger.kernel.org
-Cc: netdev@oss.sgi.com
-Subject: TCP segmentation offload performance
-Message-ID: <20050909173928.GI4823@fi.muni.cz>
+	Fri, 9 Sep 2005 13:40:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=P796Ns2/Aid1lJsvC1JsZJpl9jFKlyxz2InghU7fpGB/G9Z3hgHFNewg5qQGBQHJQ7F2woXrMxqpOKpXBjWBiugqQW8ZWJaqzDFQmqxvtW3vfdBW8rEa052cp8DFuR1aHIHcUHVvh0FE65Zc0Ja5Xc/HedQvmo8ZEJusUJPlkIU=
+Message-ID: <528646bc0509091040364ae7d4@mail.gmail.com>
+Date: Fri, 9 Sep 2005 11:40:39 -0600
+From: Grant Likely <glikely@gmail.com>
+Reply-To: glikely@gmail.com
+To: David Brownell <david-b@pacbell.net>
+Subject: Re: SPI redux ... driver model support
+Cc: linux-kernel@vger.kernel.org, basicmark@yahoo.com,
+       dpervushin@ru.mvista.com
+In-Reply-To: <20050909030934.8419AE9DCC@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Envelope-From: kas@fi.muni.cz
-X-Muni-Virus-Test: Clean
+References: <20050907183843.14745.qmail@web30307.mail.mud.yahoo.com>
+	 <20050909030934.8419AE9DCC@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hello, world!
+On 9/8/05, David Brownell <david-b@pacbell.net> wrote:
+> That implies whoever is registering is actually going and creating the
+> SPI devices ... and doing it AFTER the controller driver is registered.
+> I actually have issues with each of those implications.
+> 
+> However, I was also aiming to support the model where the controller
+> drivers are modular, and the "add driver" and "declare hardware" steps
+> can go in any order.  That way things can work "just like other busses"
+> when you load the controller drivers ... and the approach is like the
+> familiar "boot firmware gives hardware description tables to the OS"
+> approach used by lots of _other_ hardware that probes poorly.  (Except
+> that Linux is likely taking over lots of that "boot firmware" role.)
+To clarify/confirm what your saying:
 
-	I tried to find out whether the TCP segmentation offload
-can perform better on my server than no TSO at all. My server
-is dual Opteron 244 with Tyan S2882 board with the following NIC:
+(I'm going to make liberal use of  stars to hilight "devices" and
+"drivers" just to make sure that a critical word doesn't get
+transposed)
 
-eth0: Tigon3 [partno(BCM95704A7) rev 2003 PHY(5704)] (PCIX:100MHz:64-bit) 10/100/1000BaseT Ethernet 00:e0:81:27:de:17
-eth0: RXcsums[1] LinkChgREG[0] MIirq[0] ASF[0] Split[0] WireSpeed[1] TSOcap[1]
-eth0: dma_rwctrl[769f4000]
+There should be four parts to the SPI model:
+1. SPI bus controller *devices*; attached to another bus *instance*
+(ie. platform, PCI, etc)
+2. SPI bus controller *drivers*; registered with the other bus
+*subsystem* (platform, PCI, etc)
+3. SPI slave *devices*; attached to a specifiec SPI bus *instance*
+4. SPI slave *drivers*; registered with the SPI *subsystem*
 
-The server runs ProFTPd with sendfile(2) enabled (and I have verified
-that it is being used with strace(8)). The kernel is 2.6.12.2.
+a. SPI bus controller *drivers* and slave *drivers* can be registered
+at any time in any order
+b. SPI bus controller *devices* can be attached to the bus subsystem at any time
+c. SPI bus controller *drivers* attach to bus controller *devices* to
+create new spi bus instances whenever the driver model makes a 'match'
+d. SPI slave devices can be attached to an SPI bus instance only after
+that bus instance is created.
+e. SPI slave *drivers* attach to SPI slave *devices* when the driver
+model makes a match.  (let's call it an SPI slave instance)
+f. Unregistration of any SPI bus controller *driver* or *device* will
+cause attached SPI bus instance(s) and any attached devices to go away
+g. Unregistration of any SPI slave *driver* or *device* will cause SPI
+slave instance to go away.
 
-	I have found that according to ethtool -k eth0 the TSO is switched
-off by default. So I tried to switch it on (altough I wondered why it is
-not switched on by default, provided that the hardware supports this feature).
+[pretty much exactly how the driver model is supposed to work I guess  :)  ]
 
-	I tried to measure the difference by downloading an ISO image of
-FC4 i386 CD1 (665434112 bytes) from two hosts connected to the same
-switch. I did 10 transfers of the same file with each settings, and took
-the average and maximum of the last five transfers only (to avoid any
-start-up temporary conditions). The client Alpha was dual Opteron 248
-with Tyan S2882 board, and the client Beta was quad Opteron 848 on HP
-DL-585 board.
+Ideally controller drivers, controller devices, slave drivers and
+slave devices are all independent of each other.  The board setup code
+will probably take care of attaching devices to busses independent of
+the bus controller drivers and spi slave drivers.  Driver code is
+responsible for registering itself with the SPI subsystem.
 
-Client	TSO	Average speed	Max speed
-Alpha	off	108.7 MB/s	110.5 MB/s
-Alpha	on	100.9 MB/s	101.2 MB/s
-Beta	off	102.1 MB/s	102.4 MB/s
-Beta	on	93.2 MB/s	95.5 MB/s
+If this is what your saying, then I *strongly* second that opinion. 
+If not, then what is your view?
 
-	Surprisingly enough, the tests without TSO were faster than with TSO
-enabled. Looking at tcpdump it seems that the system with TSO enabled
-sends only a 15 KB-sized frames to the NIC instead of full 64 KB-sized
-ones:
+I've been dealing with the same problems on my project.  Just for
+kicks, here's another implementation to look at.
 
-18:45:38.993150 IP odysseus.ftp-data > alpha.33125: P 127424:143352(15928) ack 1 win 1460 <nop,nop,timestamp 2408404 698142942>
-18:45:38.993203 IP odysseus.ftp-data > alpha.33125: P 143352:159280(15928) ack 1 win 1460 <nop,nop,timestamp 2408404 698142942>
+http://ozlabs.org/pipermail/linuxppc-embedded/2005-July/019259.html
+http://ozlabs.org/pipermail/linuxppc-embedded/2005-July/019260.html
+http://ozlabs.org/pipermail/linuxppc-embedded/2005-July/019261.html
+http://ozlabs.org/pipermail/linuxppc-embedded/2005-July/019262.html
 
-	So I wonder what is wrong with TSO on my hardware and whether
-the TSO is expected to be faster than generating MTU-sized packets in the
-TCP stack. I did not measure the CPU usage on the server, only the
-network speed.
+It also is not based on i2c in any way and it tries ot follow the
+device model.  It solves my problem, but I've held off active work on
+it while looking at the other options being discussed here.
 
-Thanks!
-
--Yenya
-
--- 
-| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
-| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
-| http://www.fi.muni.cz/~kas/    Journal: http://www.fi.muni.cz/~kas/blog/ |
->>> $ cd my-kernel-tree-2.6                                              <<<
->>> $ dotest /path/to/mbox  # yes, Linus has no taste in naming scripts  <<<
+Thanks,
+g.

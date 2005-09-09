@@ -1,37 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965105AbVIII50@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965104AbVIIJHT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965105AbVIII50 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 04:57:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965108AbVIII5Z
+	id S965104AbVIIJHT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 05:07:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965106AbVIIJHT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 04:57:25 -0400
-Received: from ns2.suse.de ([195.135.220.15]:41913 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965105AbVIII5Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 04:57:24 -0400
-From: Andi Kleen <ak@suse.de>
-To: discuss@x86-64.org
-Subject: Re: [discuss] [PATCH] adjust x86-64 HPET definitions
-Date: Fri, 9 Sep 2005 10:53:22 +0200
-User-Agent: KMail/1.8
-Cc: "Jan Beulich" <JBeulich@novell.com>, linux-kernel@vger.kernel.org
-References: <43207D6A020000780002453B@emea1-mh.id2.novell.com>
-In-Reply-To: <43207D6A020000780002453B@emea1-mh.id2.novell.com>
+	Fri, 9 Sep 2005 05:07:19 -0400
+Received: from ppp59-167.lns1.cbr1.internode.on.net ([59.167.59.167]:21521
+	"EHLO triton.bird.org") by vger.kernel.org with ESMTP
+	id S965104AbVIIJHR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 05:07:17 -0400
+Message-ID: <432151B0.7030603@acquerra.com.au>
+Date: Fri, 09 Sep 2005 19:11:12 +1000
+From: Anthony Wesley <awesley@acquerra.com.au>
+Reply-To: awesley@acquerra.com.au
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.8) Gecko/20050511
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.6.13 buffer strangeness
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509091053.22903.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 08 September 2005 18:05, Jan Beulich wrote:
-> (Note: Patch also attached because the inline version is certain to get
-> line wrapped.)
->
-> Adjust, correct, and complete the HPET definitions for x86-64.
+Thanks David, but if you read my original post in full you'll see that I've tried that, and while I can start the write out sooner by lowering /proc/sys/vm/dirty_ratio , it makes no difference to the results that I am getting. I still seem to run out of steam after only 50 seconds where it should take about 3 minutes.
 
-Thanks applied.
+regards, Anthony
 
--Andi
+-- 
+Anthony Wesley
+Director and IT/Network Consultant
+Smart Networks Pty Ltd
+Acquerra Pty Ltd
+
+Anthony.Wesley@acquerra.com.au
+Phone: (02) 62595404 or 0419409836
+

@@ -1,64 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965263AbVIIF5v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965265AbVIIGHN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965263AbVIIF5v (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 01:57:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965264AbVIIF5v
+	id S965265AbVIIGHN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 02:07:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965266AbVIIGHM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 01:57:51 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:32985 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S965263AbVIIF5v (ORCPT
+	Fri, 9 Sep 2005 02:07:12 -0400
+Received: from mx1.suse.de ([195.135.220.2]:4328 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S965265AbVIIGHL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 01:57:51 -0400
-Date: Thu, 8 Sep 2005 22:55:39 -0700
-From: Paul Jackson <pj@sgi.com>
-To: magnus.damm@gmail.com
-Cc: kurosawa@valinux.co.jp, dino@in.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/5] SUBCPUSETS: a resource control functionality using
- CPUSETS
-Message-Id: <20050908225539.0bc1acf6.pj@sgi.com>
-In-Reply-To: <aec7e5c305090821126cea6b57@mail.gmail.com>
-References: <20050908053912.1352770031@sv1.valinux.co.jp>
-	<20050908002323.181fd7d5.pj@sgi.com>
-	<20050908081819.2EA4E70031@sv1.valinux.co.jp>
-	<20050908050232.3681cf0c.pj@sgi.com>
-	<20050909013804.1B64B70037@sv1.valinux.co.jp>
-	<aec7e5c305090821126cea6b57@mail.gmail.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 9 Sep 2005 02:07:11 -0400
+From: Andi Kleen <ak@suse.de>
+To: Piter PUNK <piterpk@terra.com.br>,
+       Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch 2.6.13] x86: check host bridge when applying vendor quirks
+Date: Fri, 9 Sep 2005 08:07:03 +0200
+User-Agent: KMail/1.8
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+References: <200509082236_MC3-1-A99D-81DD@compuserve.com> <200509090447.10118.ak@suse.de> <43211B67.30607@terra.com.br>
+In-Reply-To: <43211B67.30607@terra.com.br>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509090807.04074.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-magnus wrote:
-> Maybe it is possible to have an hierarchical model and keep the
-> framework simple and easy to understand while providing guarantees,
+On Friday 09 September 2005 07:19, Piter PUNK wrote:
 
-Dinakar's patches to use cpu_exclusive cpusets to define dynamic
-sched domains accomplish something like this.
+> Hmmm... no.
 
-What scheduler domains and resource control domains both need
-are non-overlapping subsets of the CPUs and/or Memory Nodes.
+Yes. e.g. the Machines with AMD 8111 or Nvidia chipsets don't have another 
+Hostbridge.
 
-In the case of sched domains, you normally want the subsets
-to cover all the CPUs.  You want every CPU to have exactly
-one scheduler that is responsible for its scheduling.
+>> root@Weasley:/etc# lspci
+> 00:00.0 Host bridge: ATI Technologies Inc: Unknown device 5950
+> <...many things...>
+> 00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron]
+> HyperTransport Technology Configuration
+> 00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron]
+> Address Map
+> 00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron]
+> DRAM Controller
+> 00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron]
+> Miscellaneous Control
+>
+> The Athlon64 machines has an external host bridge. You can look the
+> ATI Host Bridge in the first line of lspci.
 
-In the case of resource control domains, you perhaps don't
-care if some CPUs or Memory Nodes have no particular resources
-constraints defined for them.  In that case, every CPU and
-every Memory Node maps to _either_ zero or one resource control
-domain.
+Maybe your ATI chipset, but not in general.
 
-Either way, a 'flat model' non-overlapping partitioning of the
-CPUs and/or Memory Nodes can be obtained from a hierarchical
-model (nested sets of subsets) by selecting some of the subsets
-that don't overlap ;).  In /dev/cpuset, this selection is normally
-made by specifying another boolean file (contains '0' or '1')
-that controls whether that cpuset is one of the selected subsets.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+-Andi

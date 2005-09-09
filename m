@@ -1,67 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030259AbVIILl5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030262AbVIILmT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030259AbVIILl5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 07:41:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030260AbVIILl5
+	id S1030262AbVIILmT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 07:42:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030260AbVIILmT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 07:41:57 -0400
-Received: from sv1.valinux.co.jp ([210.128.90.2]:46218 "EHLO sv1.valinux.co.jp")
-	by vger.kernel.org with ESMTP id S1030259AbVIILl5 (ORCPT
+	Fri, 9 Sep 2005 07:42:19 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:47064 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030261AbVIILmR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 07:41:57 -0400
-Date: Fri, 09 Sep 2005 20:38:49 +0900 (JST)
-Message-Id: <20050909.203849.33293224.taka@valinux.co.jp>
-To: pj@sgi.com
-Cc: magnus.damm@gmail.com, kurosawa@valinux.co.jp, dino@in.ibm.com,
+	Fri, 9 Sep 2005 07:42:17 -0400
+From: Andi Kleen <ak@suse.de>
+To: discuss@x86-64.org
+Subject: Re: [discuss] [PATCH] allow CONFIG_FRAME_POINTER for x86-64
+Date: Fri, 9 Sep 2005 13:42:12 +0200
+User-Agent: KMail/1.8
+Cc: Hugh Dickins <hugh@veritas.com>, Jan Beulich <JBeulich@novell.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/5] SUBCPUSETS: a resource control functionality using
- CPUSETS
-From: Hirokazu Takahashi <taka@valinux.co.jp>
-In-Reply-To: <20050908225539.0bc1acf6.pj@sgi.com>
-References: <20050909013804.1B64B70037@sv1.valinux.co.jp>
-	<aec7e5c305090821126cea6b57@mail.gmail.com>
-	<20050908225539.0bc1acf6.pj@sgi.com>
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+References: <43207D28020000780002451E@emea1-mh.id2.novell.com> <20050909112108.GK19913@wotan.suse.de> <Pine.LNX.4.61.0509091222310.6443@goblin.wat.veritas.com>
+In-Reply-To: <Pine.LNX.4.61.0509091222310.6443@goblin.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509091342.12517.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Friday 09 September 2005 13:31, Hugh Dickins wrote:
+> On Fri, 9 Sep 2005, Andi Kleen wrote:
+> > On Fri, Sep 09, 2005 at 12:14:38PM +0100, Hugh Dickins wrote:
+> > > Ah, right.  I'm using kdb with it.  (And my recollection of when
+> > > show_stack did have a framepointer version, is that it was hopelessly
+> > > broken on interrupt frames, and we're much better off without it.)
+> >
+> > Not sure if the x86-64 kdb had code to follow them either.
+> > The i386 one has.
+>
+> x86_64 kdb does have the code to follow them, it's pretty much the same.
 
-> magnus wrote:
-> > Maybe it is possible to have an hierarchical model and keep the
-> > framework simple and easy to understand while providing guarantees,
-> 
-> Dinakar's patches to use cpu_exclusive cpusets to define dynamic
-> sched domains accomplish something like this.
-> 
-> What scheduler domains and resource control domains both need
-> are non-overlapping subsets of the CPUs and/or Memory Nodes.
-> 
-> In the case of sched domains, you normally want the subsets
-> to cover all the CPUs.  You want every CPU to have exactly
-> one scheduler that is responsible for its scheduling.
-> 
-> In the case of resource control domains, you perhaps don't
-> care if some CPUs or Memory Nodes have no particular resources
-> constraints defined for them.  In that case, every CPU and
-> every Memory Node maps to _either_ zero or one resource control
-> domain.
-> 
-> Either way, a 'flat model' non-overlapping partitioning of the
-> CPUs and/or Memory Nodes can be obtained from a hierarchical
-> model (nested sets of subsets) by selecting some of the subsets
-> that don't overlap ;).  In /dev/cpuset, this selection is normally
-> made by specifying another boolean file (contains '0' or '1')
-> that controls whether that cpuset is one of the selected subsets.
+It will not work very well because the interrupt/exception etc. code makes
+no attempt to preserve the frame. So it's a bad hack at best.
 
-What do you think if you make cpusets for sched domain be able to
-have their siblings, which have the same attribute and share
-their resources between them.
+> > But kdb should be using a dwarf2 unwinder instead. kgdb certainly
+> > supports that, as does NLKD.
+>
+> In an ideal and bloat-neutral world.  I've always imagined it to be
+> quite a lot of work, bringing in its own set of problems: but great
+> that that work has now been done, and yes, it might one day get
+> ported to kdb.  But removing "&& !X86_64" is much easier.
 
-I guess it would be simple.
+Hmm ok. I will do that change.
 
-Thanks,
-Hirokazu Takahashi.
+-Andi

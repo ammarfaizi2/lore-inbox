@@ -1,102 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030204AbVIIJoN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030213AbVIIKHN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030204AbVIIJoN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 05:44:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030207AbVIIJoN
+	id S1030213AbVIIKHN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 06:07:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030214AbVIIKHN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 05:44:13 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:60646 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030204AbVIIJoL (ORCPT
+	Fri, 9 Sep 2005 06:07:13 -0400
+Received: from zorg.st.net.au ([203.16.233.9]:12992 "EHLO borg.st.net.au")
+	by vger.kernel.org with ESMTP id S1030213AbVIIKHL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 05:44:11 -0400
-Date: Fri, 9 Sep 2005 02:43:36 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Grant Coady <grant_lkml@dodo.com.au>
-Cc: linux-kernel@vger.kernel.org, Marko Kohtala <marko.kohtala@gmail.com>
-Subject: Re: 2.6.13-mm2
-Message-Id: <20050909024336.01763521.akpm@osdl.org>
-In-Reply-To: <m1q1i1lav2vl7k0lpposq0uj4uobsptnor@4ax.com>
-References: <20050908053042.6e05882f.akpm@osdl.org>
-	<m1q1i1lav2vl7k0lpposq0uj4uobsptnor@4ax.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 9 Sep 2005 06:07:11 -0400
+Message-ID: <43215EE4.6050003@torque.net>
+Date: Fri, 09 Sep 2005 20:07:32 +1000
+From: Douglas Gilbert <dougg@torque.net>
+Reply-To: dougg@torque.net
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-scsi@vger.kernel.org
+CC: linux-kernel@vger.kernel.org, axboe@suse.de, ballen@gravity.phys.uwm.edu
+Subject: [PATCH] permit READ DEFECT DATA in block/scsi_ioctl
+X-Enigmail-Version: 0.92.0.0
+Content-Type: multipart/mixed;
+ boundary="------------070106010203090209060500"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grant Coady <grant_lkml@dodo.com.au> wrote:
->
-> On Thu, 8 Sep 2005 05:30:42 -0700, Andrew Morton <akpm@osdl.org> wrote:
-> 
-> >
-> >ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13/2.6.13-mm2/
-> 
-> Hi Andrew,
-> 
-> After this error:
-> 
->   CC      drivers/parport/parport_pc.o
-> drivers/parport/parport_pc.c:2511: error: via_686a_data causes a section type conflict
-> drivers/parport/parport_pc.c:2520: error: via_8231_data causes a section type conflict
-> drivers/parport/parport_pc.c:2705: error: parport_pc_superio_info causes a section type conflict
-> drivers/parport/parport_pc.c:2782: error: cards causes a section type conflict
-> make[2]: *** [drivers/parport/parport_pc.o] Error 1
-> make[1]: *** [drivers/parport] Error 2
-> make: *** [drivers] Error 2
+This is a multi-part message in MIME format.
+--------------070106010203090209060500
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Yes, gcc 4.x doesn't like the consts for some reason.
+The soon to be released smartmontools 5.34 uses the
+READ DEFECT DATA command on SCSI disks. A disk that
+has defect list entries (or worse, an increasing number
+of them) is at risk.
 
+Currently the first invocation of smartctl causes this:
+   scsi: unknown opcode 0x37
+message to appear the console and in the log.
 
-diff -puN drivers/parport/parport_pc.c~a drivers/parport/parport_pc.c
---- devel/drivers/parport/parport_pc.c~a	2005-09-09 02:32:49.000000000 -0700
-+++ devel-akpm/drivers/parport/parport_pc.c	2005-09-09 02:33:35.000000000 -0700
-@@ -2509,7 +2509,7 @@ static int __devinit sio_ite_8872_probe 
- static int __devinitdata parport_init_mode = 0;
- 
- /* Data for two known VIA chips */
--static const struct parport_pc_via_data via_686a_data __devinitdata = {
-+static struct parport_pc_via_data via_686a_data __devinitdata = {
- 	0x51,
- 	0x50,
- 	0x85,
-@@ -2518,7 +2518,7 @@ static const struct parport_pc_via_data 
- 	0xF0,
- 	0xE6
- };
--static const struct parport_pc_via_data via_8231_data __devinitdata = {
-+static struct parport_pc_via_data via_8231_data __devinitdata = {
- 	0x45,
- 	0x44,
- 	0x50,
-@@ -2699,7 +2699,7 @@ enum parport_pc_sio_types {
- };
- 
- /* each element directly indexed from enum list, above */
--static const struct parport_pc_superio {
-+static struct parport_pc_superio {
- 	int (*probe) (struct pci_dev *pdev, int autoirq, int autodma,
- 		      const struct parport_pc_via_data *via);
- 	const struct parport_pc_via_data *via;
-@@ -2763,7 +2763,7 @@ enum parport_pc_pci_cards {
- 
- /* each element directly indexed from enum list, above 
-  * (but offset by last_sio) */
--static const struct parport_pc_pci {
-+static struct parport_pc_pci {
- 	int numports;
- 	struct { /* BAR (base address registers) numbers in the config
-                     space header */
-_
+The READ DEFECT DATA SCSI command does not change
+the state of a disk. Its opcode (0x37) is valid for
+SBC devices (e.g. disks) and SMC-2 devices (media
+changers) where it is called INITIALIZE STATUS ELEMENT
+WITH RANGE and again doesn't change the external state
+of the device.
+
+The patch is against lk 2.6.13 .
+
+Changelog:
+  - mark SCSI opcode 0x37 (READ DEFECT DATA) as
+    safe_for_read
+
+Signed-off-by: Douglas Gilbert <dougg@torque.net>
+
+Doug Gilbert
 
 
+--------------070106010203090209060500
+Content-Type: text/x-patch;
+ name="scsi_ioctl2613rdd.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="scsi_ioctl2613rdd.diff"
 
-> Warning! Found recursive dependency: HOSTAP IEEE80211 NET_RADIO HOSTAP IEEE80211_CRYPT_WEP CRYPTO CRYPTO_ANUBIS
-> Warning! Found recursive dependency: HOSTAP IEEE80211 NET_RADIO HOSTAP IEEE80211_CRYPT_WEP CRYPTO CRYPTO_MD4
-> Warning! Found recursive dependency: HOSTAP IEEE80211 NET_RADIO HOSTAP IEEE80211_CRYPT_WEP CRYPTO CRYPTO_MD5
-> Warning! Found recursive dependency: HOSTAP IEEE80211 NET_RADIO HOSTAP IEEE80211_CRYPT_WEP CRYPTO CRYPTO_AES_X86_64
-> Warning! Found recursive dependency: NET_RADIO HOSTAP IEEE80211 NET_RADIO HERMES TMD_HERMES
-> Warning! Found recursive dependency: HOSTAP IEEE80211 NET_RADIO HOSTAP HOSTAP_PCI
-> Warning! Found recursive dependency: NET_RADIO HOSTAP IEEE80211 NET_RADIO WAVELAN
+--- linux/drivers/block/scsi_ioctl.c	2005-06-19 07:54:59.000000000 +1000
++++ linux/drivers/block/scsi_ioctl.c2613rdd	2005-09-09 17:21:52.000000000 +1000
+@@ -123,6 +123,7 @@
+ 		safe_for_read(READ_12),
+ 		safe_for_read(READ_16),
+ 		safe_for_read(READ_BUFFER),
++		safe_for_read(READ_DEFECT_DATA),
+ 		safe_for_read(READ_LONG),
+ 		safe_for_read(INQUIRY),
+ 		safe_for_read(MODE_SENSE),
 
-Yup, Jeff knows about that..
+--------------070106010203090209060500--

@@ -1,51 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965090AbVIIABq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965073AbVIIAQR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965090AbVIIABq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 20:01:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965089AbVIIABq
+	id S965073AbVIIAQR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 20:16:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965084AbVIIAQR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 20:01:46 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:29066 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S965086AbVIIABp (ORCPT
+	Thu, 8 Sep 2005 20:16:17 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:58857 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965073AbVIIAQQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 20:01:45 -0400
-Message-ID: <4320D0DB.3040405@pobox.com>
-Date: Thu, 08 Sep 2005 20:01:31 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
+	Thu, 8 Sep 2005 20:16:16 -0400
+Date: Thu, 8 Sep 2005 17:16:03 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: helge.hafting@aitel.hist.no,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       airlied@gmail.com
+Subject: Re: rc6 keeps hanging and blanking displays where rc4-mm1 works
+ fine.
+In-Reply-To: <20050908164719.00066dc2.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0509081700220.3051@g5.osdl.org>
+References: <Pine.LNX.4.58.0508012201010.3341@g5.osdl.org>
+ <20050805104025.GA14688@aitel.hist.no> <21d7e99705080503515e3045d5@mail.gmail.com>
+ <42F89F79.1060103@aitel.hist.no> <42FC7372.7040607@aitel.hist.no>
+ <Pine.LNX.4.58.0508120937140.3295@g5.osdl.org> <43008C9C.60806@aitel.hist.no>
+ <Pine.LNX.4.58.0508150843380.3553@g5.osdl.org> <20050908164719.00066dc2.akpm@osdl.org>
 MIME-Version: 1.0
-To: Tommy Christensen <tommy.christensen@tpack.net>
-CC: Andrew Morton <akpm@osdl.org>, Bogdan.Costescu@iwr.uni-heidelberg.de,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH] 3c59x: read current link status from phy
-References: <200509080125.j881PcL9015847@hera.kernel.org>	<431F9899.4060602@pobox.com>	<Pine.LNX.4.63.0509081351160.21354@dingo.iwr.uni-heidelberg.de>	<1126184700.4805.32.camel@tsc-6.cph.tpack.net>	<Pine.LNX.4.63.0509081521140.21354@dingo.iwr.uni-heidelberg.de>	<1126190554.4805.68.camel@tsc-6.cph.tpack.net>	<Pine.LNX.4.63.0509081713500.22954@dingo.iwr.uni-heidelberg.de>	<4320BD96.3060307@tpack.net> <20050908154114.69307f92.akpm@osdl.org> <4320C555.4020800@tpack.net>
-In-Reply-To: <4320C555.4020800@tpack.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tommy Christensen wrote:
-> Andrew Morton wrote:
+
+
+On Thu, 8 Sep 2005, Andrew Morton wrote:
+> Linus Torvalds <torvalds@osdl.org> wrote:
+> >
+> > If you remember/save the good/bad commit ID's, you can restart the whole
+> >  process and just feed the correct state for the ID's:
+> > 
+> >  	git bisect start
+> >  	git bisect bad v2.6.13-rc5
+> >  	git bisect good v2.6.13-rc4
+> >  	.. here bisect will start narrowing things down ..
+> >  	git bisect bad <sha1 of known bad>
+> >  	git bisect good <sha1 of known good>
+> >  	..
 > 
->> Should we also decrease the polling interval?  Perhaps only when the 
->> cable
->> is unplugged?
-> 
-> 
-> Sounds like a plan. 60 seconds certainly strikes me as being very slow.
-> OTOH, I'm not aware of the reasoning behind this choice in the first place.
-> It might make sense for some odd setups.
-> 
-> Since I don't even have any HW to play around with, I think I'll step
-> down for now.
+> What do you suggest should be done if you hit a compile error partway
+> through the bisection search?  Is there some way to go forward or backward
+> a few csets while keeping the search markers sane?
 
-The standard for Becker drivers is 5 seconds if link is down, and 60 
-seconds if link is up, IIRC.
+Hmm.. There's no really nice interface for doing it, but since bisection 
+uses a perfectly normal git branch (it's a special "bisect" branch) you 
+can use other git commands to move around the head of that branch and try 
+at any other point than the one it selected for you automatically.
 
-	Jeff
+In other words, you can "git reset" the head point of the branch to any
+point you want to, and the only problem is to pick what point to try next
+(since you don't want to mark the current point good or bad). One thing to
+do is perhaps to just do:
 
+	git bisect visualize
 
+which just starts "gitk" with the proper arguments that you can see what 
+we're currently looking at bisecting. Then you can pick a new point to 
+select as the bisection point by hand, and then do
 
+	git reset --hard <sha-of-that-point>
+
+by just selecting that commit in gitk and pasting the result into that 
+"git reset --hard xyz.." command line.
+
+("git reset --hard ..." will reset the current branch to the selected
+point and force a checkout of the new state while its at it. It's pretty
+much equivalent to "git reset ..." followed by a "git checkout -f").
+
+Of course, you can pick the bisection point with any other means too. So
+if you just do "git log" and you know what commit broke the compile, just
+pick the father by hand.
+
+The only important point is that you should obviously pick something that
+is within the current known good/bad range, and that's where the
+aforementioned "git bisect visualize" can help.
+
+Oh, and the "git bisect visualize" thing is fairly new: if you have an 
+older version of git that doesn't have that nice helper function, you can 
+always do it by hand with the following magic command line.
+
+	gitk bisect/bad --not $(cd .git/refs && echo bisect/good-*)
+
+(you can see how "git bisect visualize" is a bit simpler to type and
+remember ;)
+
+		Linus

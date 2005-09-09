@@ -1,138 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030390AbVIIWAw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030384AbVIIWA5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030390AbVIIWAw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 18:00:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030384AbVIIWAw
+	id S1030384AbVIIWA5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 18:00:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030386AbVIIWA5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 18:00:52 -0400
-Received: from atlrel9.hp.com ([156.153.255.214]:28822 "EHLO atlrel9.hp.com")
-	by vger.kernel.org with ESMTP id S1030381AbVIIWAv (ORCPT
+	Fri, 9 Sep 2005 18:00:57 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:63109 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1030384AbVIIWA4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 18:00:51 -0400
-Date: Fri, 9 Sep 2005 17:00:26 -0500
-From: mike.miller@hp.com
-To: akpm@osdl.org, axboe@suse.de
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: [PATCH 1/8] cciss: new controller pci/subsystem ids
-Message-ID: <20050909220026.GA4616@beardog.cca.cpqcorp.net>
-Reply-To: mikem@beardog.cca.cpqcorp.net
+	Fri, 9 Sep 2005 18:00:56 -0400
+Date: Sat, 10 Sep 2005 01:58:14 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Greg KH <greg@kroah.com>
+Cc: Greg KH <gregkh@suse.de>, Marcel Holtmann <marcel@holtmann.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [GIT PATCH] W1 patches for 2.6.13
+Message-ID: <20050909215814.GA6022@2ka.mipt.ru>
+References: <20050908222105.GA6633@kroah.com> <1126222209.5286.74.camel@blade> <20050909033036.GB11369@suse.de> <20050909050825.GA16668@2ka.mipt.ru> <20050909211619.GA28696@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20050909211619.GA28696@kroah.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Sat, 10 Sep 2005 02:00:39 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-NOTE: All patches in this set have been tested.
+On Fri, Sep 09, 2005 at 02:16:19PM -0700, GregKH (greg@kroah.com) wrote:
+> On Fri, Sep 09, 2005 at 09:08:25AM +0400, Evgeniy Polyakov wrote:
+> > On Thu, Sep 08, 2005 at 08:30:36PM -0700, Greg KH (gregkh@suse.de) wrote:
+> > > On Fri, Sep 09, 2005 at 01:30:09AM +0200, Marcel Holtmann wrote:
+> > > > Hi Greg,
+> > > > 
+> > > > > Here are some w1 patches that have been in the -mm tree for a while.
+> > > > > They add a new driver, and fix up the netlink logic a lot.  They also
+> > > > > add a crc16 implementation that is needed.
+> > > > 
+> > > > adding the CRC-16 is very cool. I was just about to submit one by my
+> > > > own, because it is also needed for the Bluetooth L2CAP retransmission
+> > > > and flow control support.
+> > > > 
+> > > > What about the 1-Wire notes inside the CRC-16 code. This suppose to be
+> > > > generic code and so this doesn't belong there.
+> > > 
+> > > Yes, those comments don't belong there.  Evgeniy, want to fix this?
+> > 
+> > No problem. Patch attached.
+> > 
+> > > thanks,
+> > > 
+> > > greg k-h
+> > 
+> > Remove w1 specific comments from generic crc16 implementation.
+> > 
+> > Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+> > 
+> > diff --git a/include/linux/crc16.h b/include/linux/crc16.h
+> > --- a/include/linux/crc16.h
+> > +++ b/include/linux/crc16.h
+> > @@ -1,22 +1,11 @@
+> >  /*
+> >   *	crc16.h - CRC-16 routine
+> >   *
+> > - * Implements the standard CRC-16, as used with 1-wire devices:
+> > + * Implements the standard CRC-16:
+> >   *   Width 16
+> >   *   Poly  0x8005 (x^16 + x^15 + x^2 + 1)
+> >   *   Init  0
+> >   *
+> > - * For 1-wire devices, the CRC is stored inverted, LSB-first
+> > - *
+> > - * Example buffer with the CRC attached:
+> > - *   31 32 33 34 35 36 37 38 39 C2 44
+> > - *
+> > - * The CRC over a buffer with the CRC attached is 0xB001.
+> > - * So, if (crc16(0, buf, size) == 0xB001) then the buffer is valid.
+> > - *
+> > - * Refer to "Application Note 937: Book of iButton Standards" for details.
+> > - * http://www.maxim-ic.com/appnotes.cfm/appnote_number/937
+> > - *
+> >   * Copyright (c) 2005 Ben Gardner <bgardner@wabtec.com>
+> >   *
+> >   * This source code is licensed under the GNU General Public License,
+> > @@ -28,9 +17,6 @@
+> >  
+> >  #include <linux/types.h>
+> >  
+> > -#define CRC16_INIT		0
+> > -#define CRC16_VALID		0xb001
+> > -
+> 
+> This breaks your w1 code:
+> 	    CC [M]  drivers/w1/w1_ds2433.o
+> 	  drivers/w1/w1_ds2433.c: In function `w1_f23_refresh_block':
+> 	  drivers/w1/w1_ds2433.c:84: error: `CRC16_INIT' undeclared (first use in this function)
+> 	  drivers/w1/w1_ds2433.c:84: error: (Each undeclared identifier is reported only once
+> 	  drivers/w1/w1_ds2433.c:84: error: for each function it appears in.)
+> 	  drivers/w1/w1_ds2433.c:84: error: `CRC16_VALID' undeclared (first use in this function)
+> 	  drivers/w1/w1_ds2433.c: In function `w1_f23_write_bin':
+> 	  drivers/w1/w1_ds2433.c:224: error: `CRC16_INIT' undeclared (first use in this function)
+> 	  drivers/w1/w1_ds2433.c:224: error: `CRC16_VALID' undeclared (first use in this function)
+> 
+> 
+> So I'm not going to apply this :(
 
-Patch 1 of 8
+I'm sorry - quite far from testing machines...
+Here is additional patch for ds_2433.c - it adds two missing defines.
 
-This patch adds new PCI and subsystem ID's that finally made the spec. It also
-include a name change for one controller. I know there's a lot of duplicat names
- but the fw folks wanted this for the different implementations.
-Even though the same ASIC is used it may be embedded on some platforms,
-standup card in others, and a mezzanine in other servers.
-Please consider this for inclusion.
+--- ./drivers/w1/w1_ds2433.c.orig	2005-09-10 01:59:41.000000000 +0400
++++ ./drivers/w1/w1_ds2433.c	2005-09-10 01:57:41.000000000 +0400
+@@ -15,6 +15,10 @@
+ #include <linux/delay.h>
+ #ifdef CONFIG_W1_F23_CRC
+ #include <linux/crc16.h>
++
++#define CRC16_INIT		0
++#define CRC16_VALID		0xb001
++
+ #endif
+ 
+ #include "w1.h"
 
-Signed-off-by: Mike Miller <mike.miller@hp.com>
+> thanks,
+> 
+> greg k-h
 
- Documentation/cciss.txt |    4 +++-
- drivers/block/cciss.c   |   33 ++++++++++++++++++++++++---------
- include/linux/pci_ids.h |    4 +++-
- 3 files changed, 30 insertions(+), 11 deletions(-)
---------------------------------------------------------------------------------
-diff -burNp lx2613.orig/Documentation/cciss.txt lx2613/Documentation/cciss.txt
---- lx2613.orig/Documentation/cciss.txt	2005-08-28 18:41:01.000000000 -0500
-+++ lx2613/Documentation/cciss.txt	2005-09-07 13:28:14.743543592 -0500
-@@ -17,7 +17,9 @@ This driver is known to work with the fo
- 	* SA P600
- 	* SA P800
- 	* SA E400
--	* SA E300
-+	* SA P400i
-+	* SA E200
-+	* SA E200i
- 
- If nodes are not already created in the /dev/cciss directory, run as root:
- 
-diff -burNp lx2613.orig/drivers/block/cciss.c lx2613/drivers/block/cciss.c
---- lx2613.orig/drivers/block/cciss.c	2005-08-28 18:41:01.000000000 -0500
-+++ lx2613/drivers/block/cciss.c	2005-09-07 13:27:05.390086920 -0500
-@@ -47,14 +47,14 @@
- #include <linux/completion.h>
- 
- #define CCISS_DRIVER_VERSION(maj,min,submin) ((maj<<16)|(min<<8)|(submin))
--#define DRIVER_NAME "HP CISS Driver (v 2.6.6)"
--#define DRIVER_VERSION CCISS_DRIVER_VERSION(2,6,6)
-+#define DRIVER_NAME "HP CISS Driver (v 2.6.8)"
-+#define DRIVER_VERSION CCISS_DRIVER_VERSION(2,6,8)
- 
- /* Embedded module documentation macros - see modules.h */
- MODULE_AUTHOR("Hewlett-Packard Company");
--MODULE_DESCRIPTION("Driver for HP Controller SA5xxx SA6xxx version 2.6.6");
-+MODULE_DESCRIPTION("Driver for HP Controller SA5xxx SA6xxx version 2.6.8");
- MODULE_SUPPORTED_DEVICE("HP SA5i SA5i+ SA532 SA5300 SA5312 SA641 SA642 SA6400"
--			" SA6i P600 P800 E400 E300");
-+			" SA6i P600 P800 P400 P400i E200 E200i");
- MODULE_LICENSE("GPL");
- 
- #include "cciss_cmd.h"
-@@ -83,12 +83,22 @@ static const struct pci_device_id cciss_
- 		0x0E11, 0x4091, 0, 0, 0},
- 	{ PCI_VENDOR_ID_HP, PCI_DEVICE_ID_HP_CISSA,
- 		0x103C, 0x3225, 0, 0, 0},
--	{ PCI_VENDOR_ID_HP, PCI_DEVICE_ID_HP_CISSB,
-+	{ PCI_VENDOR_ID_HP, PCI_DEVICE_ID_HP_CISSC,
- 		0x103c, 0x3223, 0, 0, 0},
- 	{ PCI_VENDOR_ID_HP, PCI_DEVICE_ID_HP_CISSC,
--		0x103c, 0x3231, 0, 0, 0},
-+		0x103c, 0x3234, 0, 0, 0},
- 	{ PCI_VENDOR_ID_HP, PCI_DEVICE_ID_HP_CISSC,
--		0x103c, 0x3233, 0, 0, 0},
-+		0x103c, 0x3235, 0, 0, 0},
-+	{ PCI_VENDOR_ID_HP, PCI_DEVICE_ID_HP_CISSD,
-+		0x103c, 0x3211, 0, 0, 0},
-+	{ PCI_VENDOR_ID_HP, PCI_DEVICE_ID_HP_CISSD,
-+		0x103c, 0x3212, 0, 0, 0},
-+	{ PCI_VENDOR_ID_HP, PCI_DEVICE_ID_HP_CISSD,
-+		0x103c, 0x3213, 0, 0, 0},
-+	{ PCI_VENDOR_ID_HP, PCI_DEVICE_ID_HP_CISSD,
-+		0x103c, 0x3214, 0, 0, 0},
-+	{ PCI_VENDOR_ID_HP, PCI_DEVICE_ID_HP_CISSD,
-+		0x103c, 0x3215, 0, 0, 0},
- 	{0,}
- };
- MODULE_DEVICE_TABLE(pci, cciss_pci_device_id);
-@@ -111,8 +121,13 @@ static struct board_type products[] = {
- 	{ 0x40910E11, "Smart Array 6i", &SA5_access},
- 	{ 0x3225103C, "Smart Array P600", &SA5_access},
- 	{ 0x3223103C, "Smart Array P800", &SA5_access},
--	{ 0x3231103C, "Smart Array E400", &SA5_access},
--	{ 0x3233103C, "Smart Array E300", &SA5_access},
-+	{ 0x3234103C, "Smart Array P400", &SA5_access},
-+	{ 0x3235103C, "Smart Array P400i", &SA5_access},
-+	{ 0x3211103C, "Smart Array E200i", &SA5_access},
-+	{ 0x3212103C, "Smart Array E200", &SA5_access},
-+	{ 0x3213103C, "Smart Array E200i", &SA5_access},
-+	{ 0x3214103C, "Smart Array E200i", &SA5_access},
-+	{ 0x3215103C, "Smart Array E200i", &SA5_access},
- };
- 
- /* How long to wait (in millesconds) for board to go into simple mode */
-diff -burNp lx2613.orig/include/linux/pci_ids.h lx2613/include/linux/pci_ids.h
---- lx2613.orig/include/linux/pci_ids.h	2005-08-28 18:41:01.000000000 -0500
-+++ lx2613/include/linux/pci_ids.h	2005-09-07 13:29:55.946158456 -0500
-@@ -713,10 +713,12 @@
- #define PCI_DEVICE_ID_HP_DIVA_EVEREST	0x1282
- #define PCI_DEVICE_ID_HP_DIVA_AUX	0x1290
- #define PCI_DEVICE_ID_HP_DIVA_RMP3	0x1301
-+#define PCI_DEVICE_ID_HP_CISS		0x3210
- #define PCI_DEVICE_ID_HP_CISSA		0x3220
- #define PCI_DEVICE_ID_HP_CISSB		0x3222
--#define PCI_DEVICE_ID_HP_ZX2_IOC	0x4031
- #define PCI_DEVICE_ID_HP_CISSC		0x3230
-+#define PCI_DEVICE_ID_HP_CISSD		0x3238
-+#define PCI_DEVICE_ID_HP_ZX2_IOC	0x4031
- 
- #define PCI_VENDOR_ID_PCTECH		0x1042
- #define PCI_DEVICE_ID_PCTECH_RZ1000	0x1000
+-- 
+	Evgeniy Polyakov

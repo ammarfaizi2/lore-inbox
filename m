@@ -1,40 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030464AbVIIUda@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030499AbVIIUfd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030464AbVIIUda (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 16:33:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030466AbVIIUda
+	id S1030499AbVIIUfd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 16:35:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030503AbVIIUfd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 16:33:30 -0400
-Received: from smtp.dkm.cz ([62.24.64.34]:60684 "HELO smtp.dkm.cz")
-	by vger.kernel.org with SMTP id S1030464AbVIIUd3 (ORCPT
+	Fri, 9 Sep 2005 16:35:33 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:10657 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030499AbVIIUfc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 16:33:29 -0400
-Message-ID: <4321F19A.3020503@rulez.cz>
-Date: Fri, 09 Sep 2005 22:33:30 +0200
-From: iSteve <isteve@rulez.cz>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: 7eggert@gmx.de, linux-kernel@vger.kernel.org
-Subject: Re: query_modules syscall gone? Any replacement?
-References: <4KSFY-2pO-17@gated-at.bofh.it> <E1EDpQq-0000iV-Oe@be1.lrz>
-In-Reply-To: <E1EDpQq-0000iV-Oe@be1.lrz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 9 Sep 2005 16:35:32 -0400
+Date: Fri, 9 Sep 2005 13:35:01 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Ian E. Morgan" <imorgan@webcon.ca>
+Cc: wim@iguana.be, linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       tech@webcon.ca
+Subject: Re: [WATCHDOG] Push SBC8360 driver upstream
+Message-Id: <20050909133501.5cfb6591.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.63.0509091556520.16138@light.int.webcon.net>
+References: <Pine.LNX.4.63.0509091556520.16138@light.int.webcon.net>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm aware of the sysfs interface -- but neither /proc/modules nor 
-/sys/module/ actually really supplement the query_module api...
+"Ian E. Morgan" <imorgan@webcon.ca> wrote:
+>
+>  I would like to ask that the SBC8360 watchdog driver be pushed upstream from
+>  -mm in time for the 2.6.14-rc series.
 
-  - iSteve
+That's in Wim's tree now.
 
-Bodo Eggert wrote:
-> iSteve <isteve@rulez.cz> wrote:
-> 
-> 
->>  May I then ask, why is the query_module syscall gone? And more
->>importantly, what replaces it, if anything?
-> 
-> 
-> I don't know query_module, but ls -laR /sys/module might do the job.
+Wim, could you please prepare a pull for Linus within the next couple of days?

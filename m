@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030701AbVIIWMG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030339AbVIIWNe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030701AbVIIWMG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 18:12:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030720AbVIIWMF
+	id S1030339AbVIIWNe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 18:13:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030720AbVIIWNe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 18:12:05 -0400
-Received: from atlrel8.hp.com ([156.153.255.206]:64155 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S1030701AbVIIWMD (ORCPT
+	Fri, 9 Sep 2005 18:13:34 -0400
+Received: from atlrel7.hp.com ([156.153.255.213]:20952 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S1030718AbVIIWNd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 18:12:03 -0400
-Date: Fri, 9 Sep 2005 17:11:44 -0500
+	Fri, 9 Sep 2005 18:13:33 -0400
+Date: Fri, 9 Sep 2005 17:13:12 -0500
 From: mike.miller@hp.com
 To: akpm@osdl.org, axboe@suse.de
 Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: [PATCH 7/8] cciss: One Button Disaster Recovery support
-Message-ID: <20050909221144.GG4616@beardog.cca.cpqcorp.net>
+Subject: [PATCH 8/8] cciss: SCSI tape info for /proc
+Message-ID: <20050909221312.GH4616@beardog.cca.cpqcorp.net>
 Reply-To: mikem@beardog.cca.cpqcorp.net
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -23,109 +23,71 @@ User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch 7 of 8
-This patch adds support for "One Button Disaster Recovery" devices
-to the cciss driver.  (OBDR devices are tape drives which can
-pretend to be cd-rom devices temporarily.  Once booted the device
-can be reverted to a tape drive and data recovery operations can
-be automatically begun.)
-This is an enhancement request by a vendor/partner working on
-One Button Disaster Recovery.
-Please consider for inclusion.
+Patch 8 of 8
+Add SCSI host and device info not elsewhere available to /proc/scsi/cciss/*
+Namely, connect cciss device instance with scsi host number, and
+give scsi host number, bus, target, lun, devicetype, and 8-byte cciss LUNID
+for each tapedrive/medium changer attached to a controller
+
+For instance:
+
+# cat /proc/scsi/cciss/2
+cciss0: SCSI host: 2
+c2b0t0l0 01 0x0000000000000001
 
 Signed-off-by: Stephen M. Cameron <steve.cameron@hp.com>
 Signed-off-by: Mike Miller <mike.miller@hp.com>
 
- cciss_scsi.c |   41 +++++++++++++++++++++++++++++------------
- 1 files changed, 29 insertions(+), 12 deletions(-)
+ cciss_scsi.c |   25 +++++++++++++++++++++++--
+ 1 files changed, 23 insertions(+), 2 deletions(-)
 --------------------------------------------------------------------------------
-diff -burNp lx2613-p006/drivers/block/cciss_scsi.c lx2613/drivers/block/cciss_scsi.c
---- lx2613-p006/drivers/block/cciss_scsi.c	2005-09-09 16:09:13.365616000 -0500
-+++ lx2613/drivers/block/cciss_scsi.c	2005-09-09 16:20:35.292948160 -0500
-@@ -878,7 +878,7 @@ cciss_scsi_interpret_error(CommandList_s
+diff -burNp lx2613-p007/drivers/block/cciss_scsi.c lx2613/drivers/block/cciss_scsi.c
+--- lx2613-p007/drivers/block/cciss_scsi.c	2005-09-09 16:20:35.292948000 -0500
++++ lx2613/drivers/block/cciss_scsi.c	2005-09-09 16:24:43.948146824 -0500
+@@ -1144,6 +1144,7 @@ cciss_scsi_proc_info(struct Scsi_Host *s
  
- static int
- cciss_scsi_do_inquiry(ctlr_info_t *c, unsigned char *scsi3addr, 
--		 InquiryData_struct *buf)
-+		 unsigned char *buf, unsigned char bufsize)
- {
- 	int rc;
- 	CommandList_struct *cp;
-@@ -901,11 +901,10 @@ cciss_scsi_do_inquiry(ctlr_info_t *c, un
- 	cdb[1] = 0;
- 	cdb[2] = 0;
- 	cdb[3] = 0;
--	cdb[4] = sizeof(*buf) & 0xff;
-+	cdb[4] = bufsize;
- 	cdb[5] = 0;
- 	rc = cciss_scsi_do_simple_cmd(c, cp, scsi3addr, cdb, 
--				6, (unsigned char *) buf, 
--				sizeof(*buf), XFER_READ);
-+				6, buf, bufsize, XFER_READ);
+ 	int buflen, datalen;
+ 	ctlr_info_t *ci;
++	int i;
+ 	int cntl_num;
  
- 	if (rc != 0) return rc; /* something went wrong */
  
-@@ -1001,9 +1000,10 @@ cciss_update_non_disk_devices(int cntl_n
- 	   that though.  
+@@ -1154,8 +1155,28 @@ cciss_scsi_proc_info(struct Scsi_Host *s
+ 	cntl_num = ci->ctlr;	/* Get our index into the hba[] array */
  
- 	 */
--
-+#define OBDR_TAPE_INQ_SIZE 49
-+#define OBDR_TAPE_SIG "$DR-10"
- 	ReportLunData_struct *ld_buff;
--	InquiryData_struct *inq_buff;
-+	unsigned char *inq_buff;
- 	unsigned char scsi3addr[8];
- 	ctlr_info_t *c;
- 	__u32 num_luns=0;
-@@ -1021,7 +1021,7 @@ cciss_update_non_disk_devices(int cntl_n
- 		return;
- 	}
- 	memset(ld_buff, 0, reportlunsize);
--	inq_buff = kmalloc(sizeof( InquiryData_struct), GFP_KERNEL);
-+	inq_buff = kmalloc(OBDR_TAPE_INQ_SIZE, GFP_KERNEL);
-         if (inq_buff == NULL) {
-                 printk(KERN_ERR "cciss: out of memory\n");
-                 kfree(ld_buff);
-@@ -1052,19 +1052,36 @@ cciss_update_non_disk_devices(int cntl_n
+ 	if (func == 0) {	/* User is reading from /proc/scsi/ciss*?/?*  */
+-		buflen = sprintf(buffer, "hostnum=%d\n", sh->host_no); 	
++		buflen = sprintf(buffer, "cciss%d: SCSI host: %d\n", 
++				cntl_num, sh->host_no); 	
  
- 		/* for each physical lun, do an inquiry */
- 		if (ld_buff->LUN[i][3] & 0xC0) continue;
--		memset(inq_buff, 0, sizeof(InquiryData_struct));
-+		memset(inq_buff, 0, OBDR_TAPE_INQ_SIZE);
- 		memcpy(&scsi3addr[0], &ld_buff->LUN[i][0], 8);
- 
--		if (cciss_scsi_do_inquiry(hba[cntl_num], 
--			scsi3addr, inq_buff) != 0)
--		{
-+		if (cciss_scsi_do_inquiry(hba[cntl_num], scsi3addr, inq_buff, 
-+			(unsigned char) OBDR_TAPE_INQ_SIZE) != 0) {
- 			/* Inquiry failed (msg printed already) */
- 			devtype = 0; /* so we will skip this device. */
- 		} else /* what kind of device is this? */
--			devtype = (inq_buff->data_byte[0] & 0x1f);
-+			devtype = (inq_buff[0] & 0x1f);
- 
- 		switch (devtype)
- 		{
-+		  case 0x05: /* CD-ROM */ {
++		/* this information is needed by apps to know which cciss 
++		   device corresponds to which scsi host number without 
++		   having to open a scsi target device node.  The device 
++		   information is not a duplicate of /proc/scsi/scsi because 
++		   the two may be out of sync due to scsi hotplug, rather 
++		   this info is for an app to be able to use to know how to 
++		   get them back in sync. */
 +
-+			/* We don't *really* support actual CD-ROM devices,
-+			 * just this "One Button Disaster Recovery" tape drive
-+			 * which temporarily pretends to be a CD-ROM drive.
-+			 * So we check that the device is really an OBDR tape 
-+			 * device by checking for "$DR-10" in bytes 43-48 of 
-+			 * the inquiry data.
-+			 */ 
-+				char obdr_sig[7]; 
-+
-+				strncpy(obdr_sig, &inq_buff[43], 6);
-+				obdr_sig[6] = '\0';
-+				if (strncmp(obdr_sig, OBDR_TAPE_SIG, 6) != 0) 
-+					/* Not OBDR device, ignore it. */
-+					break;
-+			}
-+			/* fall through . . . */
- 		  case 0x01: /* sequential access, (tape) */
- 		  case 0x08: /* medium changer */
- 			if (ncurrent >= CCISS_MAX_SCSI_DEVS_PER_HBA) {
++		for (i=0;i<ccissscsi[cntl_num].ndevices;i++) {
++			struct cciss_scsi_dev_t *sd = &ccissscsi[cntl_num].dev[i];
++			buflen += sprintf(&buffer[buflen], "c%db%dt%dl%d %02d "
++				"0x%02x%02x%02x%02x%02x%02x%02x%02x\n",
++				sh->host_no, sd->bus, sd->target, sd->lun, 
++				sd->devtype,
++				sd->scsi3addr[0], sd->scsi3addr[1], 
++				sd->scsi3addr[2], sd->scsi3addr[3],
++				sd->scsi3addr[4], sd->scsi3addr[5], 
++				sd->scsi3addr[6], sd->scsi3addr[7]);
++		}
+ 		datalen = buflen - offset;
+ 		if (datalen < 0) { 	/* they're reading past EOF. */
+ 			datalen = 0;
+@@ -1417,7 +1438,7 @@ cciss_proc_tape_report(int ctlr, unsigne
+ 
+ 	CPQ_TAPE_LOCK(ctlr, flags);
+ 	size = sprintf(buffer + *len, 
+-		"       Sequential access devices: %d\n\n",
++		"Sequential access devices: %d\n\n",
+ 			ccissscsi[ctlr].ndevices);
+ 	CPQ_TAPE_UNLOCK(ctlr, flags);
+ 	*pos += size; *len += size;

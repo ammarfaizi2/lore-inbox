@@ -1,71 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030986AbVIIXgp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030979AbVIIXfi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030986AbVIIXgp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 19:36:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030985AbVIIXgp
+	id S1030979AbVIIXfi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 19:35:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030981AbVIIXfi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 19:36:45 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:17620 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030981AbVIIXgo (ORCPT
+	Fri, 9 Sep 2005 19:35:38 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:24453 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1030979AbVIIXfh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 19:36:44 -0400
-Date: Fri, 9 Sep 2005 16:36:34 -0700
-From: Andrew Morton <akpm@osdl.org>
+	Fri, 9 Sep 2005 19:35:37 -0400
+Date: Fri, 9 Sep 2005 16:35:30 -0700
+From: Paul Jackson <pj@sgi.com>
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: gregkh@suse.de, davej@codemonkey.org.uk, arjan@infradead.org,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [GIT PATCH] More PCI patches for 2.6.13
-Message-Id: <20050909163634.21afe4ca.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0509091613310.3051@g5.osdl.org>
-References: <20050909220758.GA29746@kroah.com>
-	<Pine.LNX.4.58.0509091535180.3051@g5.osdl.org>
-	<20050909225421.GA31433@suse.de>
-	<Pine.LNX.4.58.0509091613310.3051@g5.osdl.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Cc: akpm@osdl.org, Simon.Derr@bull.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cpuset semaphore depth check deadlock fix
+Message-Id: <20050909163530.7b160863.pj@sgi.com>
+In-Reply-To: <Pine.LNX.4.58.0509091512180.3051@g5.osdl.org>
+References: <20050909220116.26993.9674.sendpatchset@jackhammer.engr.sgi.com>
+	<Pine.LNX.4.58.0509091512180.3051@g5.osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> wrote:
->
-> 
-> 
-> On Fri, 9 Sep 2005, Greg KH wrote:
-> > 
-> > I fixed up all of the PCI core and USB drivers that were flagged by
-> > these warnings already.  Biggest area left is network drivers that I
-> > saw.
-> 
-> The reason I really dislike patches like these is that it causes people to 
-> do questionable things.
-> 
-> For example, there may be perfectly valid reasons why somebody doesn't
-> care about the result. I don't see much point in forcing people to check
-> the return value of "pci_enable_wake()" for example. There's really no
-> real reason to ever care, as far as I can tell - if it fails, there's 
-> nothing you can really do about it anyway.
-> 
-> Also, in general, the fact is that things like "pci_set_power_state()" 
-> might fail in _theory_, but we just don't care. A driver that doesn't 
-> check the return value is in practice as good a driver as one that does, 
-> and forcing people to add code that is totally useless in reality - or 
-> look at a warning that is irritating - is just not very productive.
-> 
-> There are functions where it is really _important_ to check the error 
-> return, because they return errors often enough - and the error case is 
-> something you have to do something about - that it's good to force people 
-> to be aware.
-> 
-> But "pci_set_power_state()"?
-> 
-> I don't think so.
-> 
+Linus wrote:
+> We _really_ don't want to have function names like "cs_up()" 
 
-If something like a PCI power management function fails then it will likely
-cause suspend or resume to malfunction, and we have a lot of such problems.
+I thoroughly agree with your attention to naming, and spent more time
+than I will admit in public futzing over this detail.
 
-So we-the-developers do need to hear about it when such functions fail.  So
-either a) each and every driver has to blurt a printk (dumb) or b) we stick
-a warning and a backtrace in the failing function (better).
+I wrote the code using cpuset_lock(void) and cpuset_unlock(void), for
+reasons such as you state, and out of personnal instinct.
+
+But then I noticed that I wanted these routines to replace up(&sem) and
+down(&sem) (in kernel/cpuset.c), so changed them to cpuset_up(&sem) and
+cpuset_down(&sem), adding in the explicitly passed argument.
+
+But then I noticed that these names looked "too global" to me, and
+intentionally changed that to cs_up(&sem) and cs_down(&sem).  I tend
+to intentionally choose shorter names for more local stuff, especially
+inlines and such that won't even show up on a stack trace.
+
+ 1) Is cpuset_up(&sem) and cpuset_down(&sem) ok by you?  I would like
+    to have the up/down in there somewhere.
+
+ 2) How the heck do I make this change:
+     - Send another patch from scratch, ignoring the first one I sent.
+     - Send a second patch that layers on the first.
+     - Let you do the edit.
+     - ??
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

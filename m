@@ -1,77 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751433AbVIIHtE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751435AbVIIHwE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751433AbVIIHtE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 03:49:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751437AbVIIHtE
+	id S1751435AbVIIHwE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 03:52:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751436AbVIIHwE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 03:49:04 -0400
-Received: from web51014.mail.yahoo.com ([206.190.39.79]:16217 "HELO
-	web51014.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S1751433AbVIIHtD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 03:49:03 -0400
+	Fri, 9 Sep 2005 03:52:04 -0400
+Received: from zproxy.gmail.com ([64.233.162.198]:52134 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751435AbVIIHwD convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 03:52:03 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=x0w+W/oe0isaty8efsUZ1RNb4qC6lcH/h3aMLCJtD0vK2EWG+gMHNIaYP5ZMEgVcvAbvmQYd1oefNpyFkaSkB+Sg+gaRWrci9X/xVfPOkpUG88QGylghCLrfpXwZf7fgZ+lOZhcUwT6AdRyrDRVl20LDer10RFyezCtOy1py33M=  ;
-Message-ID: <20050909074900.62012.qmail@web51014.mail.yahoo.com>
-Date: Fri, 9 Sep 2005 00:48:59 -0700 (PDT)
-From: Ahmad Reza Cheraghi <a_r_cheraghi@yahoo.com>
-Subject: Re: Automatic .config generation
-To: linux-kernel@vger.kernel.org
-Cc: Alex Riesen <raa.lkml@gmail.com>
-In-Reply-To: <81b0412b05090814132ebe54dd@mail.gmail.com>
-MIME-Version: 1.0
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=WJBB3Mt1tTJmTbFaaoMPlFBX7AG4V81Vu9rcF+ckjmZ3c3/kvYzdeKaxSIoHAmx1cv438qLLohUUmJQPpKMhSJnu2wf/govZDvDh5/j+vCr9e4E5RWtCi/67YK9nwshEl0nOMudifRyXaLwgvWpXXVG/Oy024Zq4xOSE0SXCgQM=
+Message-ID: <aec7e5c3050909005273a0d12b@mail.gmail.com>
+Date: Fri, 9 Sep 2005 16:52:00 +0900
+From: Magnus Damm <magnus.damm@gmail.com>
+Reply-To: magnus.damm@gmail.com
+To: Paul Jackson <pj@sgi.com>
+Subject: Re: [PATCH 0/5] SUBCPUSETS: a resource control functionality using CPUSETS
+Cc: kurosawa@valinux.co.jp, dino@in.ibm.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20050908225539.0bc1acf6.pj@sgi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050908053912.1352770031@sv1.valinux.co.jp>
+	 <20050908002323.181fd7d5.pj@sgi.com>
+	 <20050908081819.2EA4E70031@sv1.valinux.co.jp>
+	 <20050908050232.3681cf0c.pj@sgi.com>
+	 <20050909013804.1B64B70037@sv1.valinux.co.jp>
+	 <aec7e5c305090821126cea6b57@mail.gmail.com>
+	 <20050908225539.0bc1acf6.pj@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
---- Alex Riesen <raa.lkml@gmail.com> wrote:
-
-> On 9/8/05, Ahmad Reza Cheraghi
-> <a_r_cheraghi@yahoo.com> wrote:
-> > I made this Framework to generate a .config based
-> on a
-> > Target-System. Right-now it works on my Laptop
-> Acer
+On 9/9/05, Paul Jackson <pj@sgi.com> wrote:
+> magnus wrote:
+> > Maybe it is possible to have an hierarchical model and keep the
+> > framework simple and easy to understand while providing guarantees,
 > 
-> how about teaching it to generate .config using just
-> sysfs and lsbus?
+> Dinakar's patches to use cpu_exclusive cpusets to define dynamic
+> sched domains accomplish something like this.
 
-Thats another way, to find the Hardware(better than
-dmesg). But is this always installed on a nacked
-Kernel? And i think, lsbus is not supported by the new
-sysfsutils. 
-The best thing is for detecting the Hardware is
-directly from the I/O, and the only program I know is
-lspci.
+Ah. I'm not familiar with Dinakar's patches and how these domains
+work. I'm actually more interested in this from the memory resource
+control point of view, but these areas are of course somehow related.
  
-> So noone will need to contact you regarding adding
-> their system to
-> your files, especially when all the information is
-> already present in
-> the kernel in a very parsable form (pci.ids, for
-> example).
-Thangs, didn't know that!
+> What scheduler domains and resource control domains both need
+> are non-overlapping subsets of the CPUs and/or Memory Nodes.
+
+Yes, that sounds like a good idea. But because English is not my
+native language, I just want to reassure that we mean the same thing.
+Non-overlapping subsets of cpu or memory nodes basically mean that
+children of a cpuset only clear bits in the bitmap, never sets them.
+Please correct me if I'm wrong.
+
+> In the case of sched domains, you normally want the subsets
+> to cover all the CPUs.  You want every CPU to have exactly
+> one scheduler that is responsible for its scheduling.
+
+Hm, I'm not sure how this relates to memory management, but you
+probably need a place to store per-bit (node/cpu) guarantee count
+regardless of memory or cpu resource control.
+
+I think one major problem is how the guarantee should be divided
+between all subcpusets that share one bit. And using one percent value
+(or page count) per cpuset if more than 1 bit is set raises a similar
+guarantee question.
+
+One solution to the guarantee dividing problem could be to have a
+percent value per bit set in the bitmap, maybe something like this:
+
+# echo 0=50% > /dev/cpuset/foo/cpus
+
+> In the case of resource control domains, you perhaps don't
+> care if some CPUs or Memory Nodes have no particular resources
+> constraints defined for them.  In that case, every CPU and
+> every Memory Node maps to _either_ zero or one resource control
+> domain.
+
+These "resource control domains", are they similar to your "meter"
+suggestion earlier, or are they something else?
  
-> The whole scenary will then shorten to:
-> $ make autoconfig
-> $ make
-> -
-> To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> Either way, a 'flat model' non-overlapping partitioning of the
+> CPUs and/or Memory Nodes can be obtained from a hierarchical
+> model (nested sets of subsets) by selecting some of the subsets
+> that don't overlap ;).  In /dev/cpuset, this selection is normally
+> made by specifying another boolean file (contains '0' or '1')
+> that controls whether that cpuset is one of the selected subsets.
 
+This boolean file, do you mean one of your "meter" files or something else?
 
+Thank you for your comments!
 
-	
-		
-______________________________________________________
-Click here to donate to the Hurricane Katrina relief effort.
-http://store.yahoo.com/redcross-donate3/
+/ magnus - will have a nice weekend now... =)

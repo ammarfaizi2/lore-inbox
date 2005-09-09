@@ -1,38 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030369AbVIITng@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030394AbVIITlP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030369AbVIITng (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 15:43:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030373AbVIITmz
+	id S1030394AbVIITlP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 15:41:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030391AbVIITlM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 15:42:55 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:30663 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S1030402AbVIITmA (ORCPT
+	Fri, 9 Sep 2005 15:41:12 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:9159 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S1030386AbVIITk7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 15:42:00 -0400
-Message-ID: <4321E582.9020401@adaptec.com>
-Date: Fri, 09 Sep 2005 15:41:54 -0400
+	Fri, 9 Sep 2005 15:40:59 -0400
+Message-ID: <4321E544.1030304@adaptec.com>
+Date: Fri, 09 Sep 2005 15:40:52 -0400
 From: Luben Tuikov <luben_tuikov@adaptec.com>
 User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: [PATCH 2.6.13 12/14] sas-class: sas_phy.c SAS Phy (events, attrs,
- initializaion)
+Subject: [PATCH 2.6.13 8/14] sas-class: sas_event.c SAS Event management and
+ processing
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Sep 2005 19:41:59.0416 (UTC) FILETIME=[8B15D780:01C5B576]
+X-OriginalArrivalTime: 09 Sep 2005 19:40:57.0930 (UTC) FILETIME=[666FD2A0:01C5B576]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Signed-off-by: Luben Tuikov <luben_tuikov@adaptec.com>
 
-diff -X linux-2.6.13/Documentation/dontdiff -Naur linux-2.6.13-orig/drivers/scsi/sas-class/sas_phy.c linux-2.6.13/drivers/scsi/sas-class/sas_phy.c
---- linux-2.6.13-orig/drivers/scsi/sas-class/sas_phy.c	1969-12-31 19:00:00.000000000 -0500
-+++ linux-2.6.13/drivers/scsi/sas-class/sas_phy.c	2005-09-09 11:14:29.000000000 -0400
-@@ -0,0 +1,307 @@
+diff -X linux-2.6.13/Documentation/dontdiff -Naur linux-2.6.13-orig/drivers/scsi/sas-class/sas_event.c linux-2.6.13/drivers/scsi/sas-class/sas_event.c
+--- linux-2.6.13-orig/drivers/scsi/sas-class/sas_event.c	1969-12-31 19:00:00.000000000 -0500
++++ linux-2.6.13/drivers/scsi/sas-class/sas_event.c	2005-09-09 11:14:29.000000000 -0400
+@@ -0,0 +1,294 @@
 +/*
-+ * Serial Attached SCSI (SAS) Phy class
++ * Serial Attached SCSI (SAS) Event processing
 + *
 + * Copyright (C) 2005 Adaptec, Inc.  All rights reserved.
 + * Copyright (C) 2005 Luben Tuikov <luben_tuikov@adaptec.com>
@@ -53,290 +53,277 @@ diff -X linux-2.6.13/Documentation/dontdiff -Naur linux-2.6.13-orig/drivers/scsi
 + * along with this program; if not, write to the Free Software
 + * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 + *
-+ * $Id: //depot/sas-class/sas_phy.c#37 $
++ * $Id: //depot/sas-class/sas_event.c#25 $
 + */
 +
++/**
++ * Implementation Of Priority Queue Without Duplication
++ * Luben Tuikov 2005/07/11
++ *
++ * The SAS class implements priority queue without duplication for
++ * handling ha/port/phy/discover events.  That is, we want to process
++ * the last N unique/non-duplicating events, in the order they arrived.
++ *
++ * The requirement is that insertion is O(1), and ordered removal is O(1).
++ *
++ * Suppose events are identified by integers.  Then what is required
++ * is that for a given sequence of any random integers R, to find a
++ * sorted sequence E, where
++ *     a) |E| <= |R|.  If the number of types of events is bounded,
++ *        then E is also bounded by that number, from b).
++ *     b) For all i and k, E[i] != E[k], except when i == k,
++ *        this gives us uniqueness/non duplication.
++ *     c) For all i < k, Order(E[i]) < Order(E[k]), this gives us
++ *        ordering.
++ *     d) If T(R) = E, then O(T) <= |R|, this ensures that insertion
++ *        is O(1), and ordered removal is O(1) trivially, since we
++ *        remove at the head of E.
++ *
++ * Example:
++ * If R = {4, 5, 1, 2, 5, 3, 3, 4, 4, 3, 1}, then
++ *    E = {2, 5, 4, 3, 1}.
++ *
++ * The algorithm, T, makes use of an array of list elements, indexed
++ * by event type, and an event list head which is a linked list of the
++ * elements of the array.  When the next event arrives, we index the
++ * array by the event, and add that event to the tail of the event
++ * list head, deleting it from its previous list position (if it had
++ * one).
++ *
++ * Clearly insertion is O(1).
++ *
++ * E is given by the elements of the event list, traversed from head
++ * to tail.
++ */
++
++#include <scsi/scsi_host.h>
 +#include "sas_internal.h"
++#include "sas_dump.h"
++#include <scsi/sas/sas_discover.h>
 +
-+/* ---------- Phy events ---------- */
-+
-+void sas_phye_loss_of_signal(struct sas_phy *phy)
++static void sas_process_phy_event(struct sas_phy *phy)
 +{
-+	phy->error = 0;
-+	sas_deform_port(phy);
-+}
-+
-+void sas_phye_oob_done(struct sas_phy *phy)
-+{
-+	phy->error = 0;
-+}
-+
-+void sas_phye_oob_error(struct sas_phy *phy)
-+{
++	unsigned long flags;
 +	struct sas_ha_struct *sas_ha = phy->ha;
-+	struct sas_port *port = phy->port;
++	enum phy_event phy_event;
 +
-+	sas_deform_port(phy);
++	spin_lock_irqsave(&sas_ha->event_lock, flags);
++	while (!list_empty(&phy->phy_event_list)) {
++		struct list_head *head = phy->phy_event_list.next;
++		phy_event = container_of(head, struct sas_event, el)->event;
++		list_del_init(head);
++		spin_unlock_irqrestore(&sas_ha->event_lock, flags);
 +
-+	if (!port && phy->enabled && sas_ha->lldd_control_phy) {
-+		phy->error++;
-+		switch (phy->error) {
-+		case 1:
-+		case 2:
-+			sas_ha->lldd_control_phy(phy, PHY_FUNC_HARD_RESET);
++		sas_dprint_phye(phy->id, phy_event);
++
++		switch(phy_event) {
++		case PHYE_LOSS_OF_SIGNAL:
++			sas_phye_loss_of_signal(phy);
 +			break;
-+		case 3:
-+		default:
-+			phy->error = 0;
-+			phy->enabled = 0;
-+			sas_ha->lldd_control_phy(phy, PHY_FUNC_DISABLE);
++		case PHYE_OOB_DONE:
++			sas_phye_oob_done(phy);
++			break;
++		case PHYE_OOB_ERROR:
++			sas_phye_oob_error(phy);
++			break;
++		case PHYE_SPINUP_HOLD:
++			sas_phye_spinup_hold(phy);
 +			break;
 +		}
++		spin_lock_irqsave(&sas_ha->event_lock, flags);
 +	}
++	/* Clear the bit in case we received events in due time. */
++	sas_ha->phye_mask &= ~(1 << phy->id);
++	spin_unlock_irqrestore(&sas_ha->event_lock, flags);
 +}
 +
-+void sas_phye_spinup_hold(struct sas_phy *phy)
++static void sas_process_port_event(struct sas_phy *phy)
 +{
++	unsigned long flags;
 +	struct sas_ha_struct *sas_ha = phy->ha;
++	enum port_event port_event;
 +
-+	phy->error = 0;
-+	sas_ha->lldd_control_phy(phy, PHY_FUNC_RELEASE_SPINUP_HOLD);
-+}
++	spin_lock_irqsave(&sas_ha->event_lock, flags);
++	while (!list_empty(&phy->port_event_list)) {
++		struct list_head *head = phy->port_event_list.next;
++		port_event = container_of(head, struct sas_event, el)->event;
++		list_del_init(head);
++		spin_unlock_irqrestore(&sas_ha->event_lock, flags);
 +
-+/* ---------- Phy attributes ---------- */
++		sas_dprint_porte(phy->id, port_event);
 +
-+static ssize_t sas_phy_id_show(struct sas_phy *phy, char *buf)
-+{
-+	return sprintf(buf, "%d\n", phy->id);
-+}
-+
-+static ssize_t sas_phy_enabled_show(struct sas_phy *phy, char *buf)
-+{
-+	return sprintf(buf, "%d\n", phy->enabled);
-+}
-+
-+static ssize_t sas_phy_enabled_store(struct sas_phy *phy, const char *buf,
-+				     size_t size)
-+{
-+	if (size > 0) {
-+		if (buf[0] == '1')
-+			phy->ha->lldd_control_phy(phy, PHY_FUNC_LINK_RESET);
-+	}
-+	return size;
-+}
-+
-+static ssize_t sas_phy_class_show(struct sas_phy *phy, char *buf)
-+{
-+	if (!phy->enabled)
-+		return 0;
-+	return sas_show_class(phy->class, buf);
-+}
-+
-+static ssize_t sas_phy_iproto_show(struct sas_phy *phy, char *page)
-+{
-+	if (!phy->enabled)
-+		return 0;
-+	return sas_show_proto(phy->iproto, page);
-+}
-+
-+static ssize_t sas_phy_tproto_show(struct sas_phy *phy, char *page)
-+{
-+	if (!phy->enabled)
-+		return 0;
-+	return sas_show_proto(phy->tproto, page);
-+}
-+
-+static ssize_t sas_phy_type_show(struct sas_phy *phy, char *buf)
-+{
-+	static const char *phy_type_str[] = {
-+		[PHY_TYPE_PHYSICAL] = "physical",
-+		[PHY_TYPE_VIRTUAL] = "virtual",
-+	};
-+	if (!phy->enabled)
-+		return 0;
-+	return sprintf(buf, "%s\n", phy_type_str[phy->type]);
-+}
-+
-+static ssize_t sas_phy_role_show(struct sas_phy *phy, char *page)
-+{
-+	static const char *phy_role_str[] = {
-+		[PHY_ROLE_NONE] = "none",
-+		[PHY_ROLE_TARGET] = "target",
-+		[PHY_ROLE_INITIATOR] = "initiator",
-+	};
-+	int  v;
-+	char *buf = page;
-+
-+	if (!phy->enabled)
-+		return 0;
-+
-+	if (phy->role == PHY_ROLE_NONE)
-+		return sprintf(buf, "%s\n", phy_role_str[PHY_ROLE_NONE]);
-+
-+	for (v = 1; v <= PHY_ROLE_INITIATOR; v <<= 1) {
-+		if (v & phy->role) {
-+			buf += sprintf(buf, "%s", phy_role_str[v]);
-+			if (phy->role & ~((v<<1)-1))
-+				buf += sprintf(buf, "|");
-+			else
-+				buf += sprintf(buf, "\n");
++		switch (port_event) {
++		case PORTE_BYTES_DMAED:
++			sas_porte_bytes_dmaed(phy);
++			break;
++		case PORTE_BROADCAST_RCVD:
++			sas_porte_broadcast_rcvd(phy);
++			break;
++		case PORTE_LINK_RESET_ERR:
++			sas_porte_link_reset_err(phy);
++			break;
++		case PORTE_TIMER_EVENT:
++			sas_porte_timer_event(phy);
++			break;
++		case PORTE_HARD_RESET:
++			sas_porte_hard_reset(phy);
++			break;
 +		}
++		spin_lock_irqsave(&sas_ha->event_lock, flags);
 +	}
-+	return buf-page;
++	/* Clear the bit in case we received events in due time. */
++	sas_ha->porte_mask &= ~(1 << phy->id);
++	spin_unlock_irqrestore(&sas_ha->event_lock, flags);
 +}
 +
-+static ssize_t sas_phy_linkrate_show(struct sas_phy *phy, char *buf)
++static void sas_process_ha_event(struct sas_ha_struct *sas_ha)
 +{
-+	if (!phy->enabled)
-+		return 0;
-+	return sas_show_linkrate(phy->linkrate, buf);
-+}
++	unsigned long flags;
++	enum ha_event ha_event;
 +
-+static ssize_t sas_phy_addr_show(struct sas_phy *phy, char *buf)
-+{
-+	if (!phy->enabled)
-+		return 0;
-+	return sprintf(buf, "%llx\n", SAS_ADDR(phy->sas_addr));
-+}
++	spin_lock_irqsave(&sas_ha->event_lock, flags);
++	while (!list_empty(&sas_ha->ha_event_list)) {
++		struct list_head *head = sas_ha->ha_event_list.next;
++		ha_event = container_of(head, struct sas_event, el)->event;
++		list_del_init(head);
++		spin_unlock_irqrestore(&sas_ha->event_lock, flags);
 +
-+static ssize_t sas_phy_oob_mode_show(struct sas_phy *phy, char *buf)
-+{
-+	if (!phy->enabled)
-+		return 0;
-+	return sas_show_oob_mode(phy->oob_mode, buf);
-+}
-+
-+struct phy_attribute {
-+	struct attribute attr;
-+	ssize_t (*show)(struct sas_phy *phy, char *);
-+	ssize_t (*store)(struct sas_phy *phy, const char *, size_t);
-+};
-+
-+static struct phy_attribute phy_attrs[] = {
-+	/* port is a symlink */
-+	__ATTR(id, 0444, sas_phy_id_show, NULL),
-+	__ATTR(enabled, 0644, sas_phy_enabled_show, sas_phy_enabled_store),
-+	__ATTR(class, 0444, sas_phy_class_show, NULL),
-+	__ATTR(iproto, 0444, sas_phy_iproto_show, NULL),
-+	__ATTR(tproto, 0444, sas_phy_tproto_show, NULL),
-+	__ATTR(type, 0444, sas_phy_type_show, NULL),
-+	__ATTR(role, 0444, sas_phy_role_show, NULL),
-+	__ATTR(linkrate, 0444, sas_phy_linkrate_show, NULL),
-+	__ATTR(sas_addr, 0444, sas_phy_addr_show, NULL),
-+	__ATTR(oob_mode, 0444, sas_phy_oob_mode_show, NULL),
-+	__ATTR_NULL,
-+};
-+
-+static struct attribute *def_attrs[ARRAY_SIZE(phy_attrs)];
-+
-+#define to_sas_phy(_obj) container_of(_obj, struct sas_phy, phy_kobj)
-+#define to_phy_attr(_attr) container_of(_attr, struct phy_attribute, attr)
-+
-+static ssize_t phy_show_attr(struct kobject *kobj,
-+			     struct attribute *attr,
-+			     char *page)
-+{
-+	ssize_t ret = 0;
-+	struct sas_phy *phy = to_sas_phy(kobj);
-+	struct phy_attribute *phy_attr = to_phy_attr(attr);
-+
-+	if (phy_attr->show)
-+		ret = phy_attr->show(phy, page);
-+	return ret;
-+}
-+
-+static ssize_t phy_store_attr(struct kobject *kobj,
-+			      struct attribute *attr,
-+			      const char *page, size_t size)
-+{
-+	ssize_t ret = 0;
-+	struct sas_phy *phy = to_sas_phy(kobj);
-+	struct phy_attribute *phy_attr = to_phy_attr(attr);
-+	
-+	if (phy_attr->store)
-+		ret = phy_attr->store(phy, page, size);
-+	return ret;
-+}
-+
-+static struct sysfs_ops phy_sysfs_ops = {
-+	.show = phy_show_attr,
-+	.store = phy_store_attr,
-+};
-+
-+static struct kobj_type phy_ktype = {
-+	.sysfs_ops = &phy_sysfs_ops,
-+	.default_attrs = def_attrs,
-+};
-+
-+/* ---------- Phy class registration ---------- */
-+
-+int sas_register_phys(struct sas_ha_struct *sas_ha)
-+{
-+	int i, error;
-+
-+	for (i = 0; i < ARRAY_SIZE(def_attrs)-1; i++)
-+		def_attrs[i] = &phy_attrs[i].attr;
-+	def_attrs[i] = NULL;		
-+	
-+	/* make sas/ha/phys/ appear */
-+	kobject_set_name(&sas_ha->phy_kset.kobj, "%s", "phys");
-+	sas_ha->phy_kset.kobj.kset = &sas_ha->ha_kset; /* parent */
-+	/* we do not inherit the type of the parent */
-+	sas_ha->phy_kset.kobj.ktype = NULL;
-+	sas_ha->phy_kset.ktype = &phy_ktype;
-+	error = kset_register(&sas_ha->phy_kset);
-+	if (error)
-+		return error;
-+
-+	/* Now register the phys. */
-+	for (i = 0; i < sas_ha->num_phys; i++) {
-+		int k;
-+		struct sas_phy *phy = sas_ha->sas_phy[i];
-+
-+		phy->error = 0;
-+		INIT_LIST_HEAD(&phy->port_phy_el);
-+		INIT_LIST_HEAD(&phy->port_event_list);
-+		INIT_LIST_HEAD(&phy->phy_event_list);
-+		for (k = 0; k < PORT_NUM_EVENTS; k++) {
-+			struct sas_event *ev = &phy->port_events[k];
-+			ev->event = k;
-+			INIT_LIST_HEAD(&ev->el);
++		sas_dprint_hae(sas_ha, ha_event);
++		
++		switch (ha_event) {
++		case HAE_RESET:
++			sas_hae_reset(sas_ha);
++			break;
 +		}
-+		for (k = 0; k < PHY_NUM_EVENTS; k++) {
-+			struct sas_event *ev = &phy->phy_events[k];
-+			ev->event = k;
-+			INIT_LIST_HEAD(&ev->el);
-+		}
-+		phy->port = NULL;
-+		phy->ha = sas_ha;
-+		spin_lock_init(&phy->frame_rcvd_lock);
-+		spin_lock_init(&phy->sas_prim_lock);
-+		phy->frame_rcvd_size = 0;
-+
-+		kobject_set_name(&phy->phy_kobj, "%d", i);
-+		phy->phy_kobj.kset = &sas_ha->phy_kset; /* parent */
-+		phy->phy_kobj.ktype = sas_ha->phy_kset.ktype;
-+		error = kobject_register(&phy->phy_kobj);
-+		if (error)
-+			goto unroll;
++		spin_lock_irqsave(&sas_ha->event_lock, flags);
 +	}
++	spin_unlock_irqrestore(&sas_ha->event_lock, flags);
++}
++
++static void sas_process_events(struct sas_ha_struct *sas_ha)
++{
++	unsigned long flags;
++	u32 porte_mask, phye_mask;
++	int p;
++
++	spin_lock_irqsave(&sas_ha->event_lock, flags);
++	phye_mask = sas_ha->phye_mask;
++	sas_ha->phye_mask = 0;
++	spin_unlock_irqrestore(&sas_ha->event_lock, flags);
++
++	for (p = 0; phye_mask != 0; phye_mask >>= 1, p++)
++		if (phye_mask & 01)
++			sas_process_phy_event(sas_ha->sas_phy[p]);
++
++	spin_lock_irqsave(&sas_ha->event_lock, flags);
++	porte_mask = sas_ha->porte_mask;
++	sas_ha->porte_mask = 0;
++	spin_unlock_irqrestore(&sas_ha->event_lock, flags);
++
++	for (p = 0; porte_mask != 0; porte_mask >>= 1, p++)
++		if (porte_mask & 01)
++			sas_process_port_event(sas_ha->sas_phy[p]);
++
++	sas_process_ha_event(sas_ha);
++}
++
++static void notify_ha_event(struct sas_ha_struct *sas_ha, enum ha_event event)
++{
++	unsigned long flags;
 +	
++	spin_lock_irqsave(&sas_ha->event_lock, flags);
++	list_move_tail(&sas_ha->ha_events[event].el, &sas_ha->ha_event_list);
++	up(&sas_ha->event_sema);
++	spin_unlock_irqrestore(&sas_ha->event_lock, flags);
++}
++
++static void notify_port_event(struct sas_phy *phy, enum port_event event)
++{
++	struct sas_ha_struct *ha = phy->ha;
++	unsigned long flags;
++
++	spin_lock_irqsave(&ha->event_lock, flags);
++	list_move_tail(&phy->port_events[event].el, &phy->port_event_list);
++	ha->porte_mask |= (1 << phy->id);
++	up(&ha->event_sema);
++	spin_unlock_irqrestore(&ha->event_lock, flags);
++}
++
++static void notify_phy_event(struct sas_phy *phy, enum phy_event event)
++{
++	struct sas_ha_struct *ha = phy->ha;
++	unsigned long flags;
++
++	spin_lock_irqsave(&ha->event_lock, flags);
++	list_move_tail(&phy->phy_events[event].el, &phy->phy_event_list);
++	ha->phye_mask |= (1 << phy->id);
++	up(&ha->event_sema);
++	spin_unlock_irqrestore(&ha->event_lock, flags);
++}
++
++static DECLARE_COMPLETION(event_th_comp);
++
++static int sas_event_thread(void *_sas_ha)
++{
++	struct sas_ha_struct *sas_ha = _sas_ha;
++
++	daemonize("sas_event_%d", sas_ha->core.shost->host_no);
++	current->flags |= PF_NOFREEZE;
++
++	complete(&event_th_comp);
++	
++	while (1) {
++		down_interruptible(&sas_ha->event_sema);
++		if (sas_ha->event_thread_kill)
++			break;
++		sas_process_events(sas_ha);
++	}
++
++	complete(&event_th_comp);
++
 +	return 0;
-+unroll:
-+	for (i--; i >= 0; i--)
-+		kobject_unregister(&sas_ha->sas_phy[i]->phy_kobj);
-+
-+	return error;
 +}
 +
-+void sas_unregister_phys(struct sas_ha_struct *sas_ha)
++int sas_start_event_thread(struct sas_ha_struct *sas_ha)
 +{
 +	int i;
 +
-+	for (i = 0; i < sas_ha->num_phys; i++)
-+		kobject_unregister(&sas_ha->sas_phy[i]->phy_kobj);
++	init_MUTEX_LOCKED(&sas_ha->event_sema);
++	sas_ha->event_thread_kill = 0;
++
++	spin_lock_init(&sas_ha->event_lock);
++	INIT_LIST_HEAD(&sas_ha->ha_event_list);
++	sas_ha->porte_mask = 0;
++	sas_ha->phye_mask = 0;
++
++	for (i = 0; i < HA_NUM_EVENTS; i++) {
++		struct sas_event *ev = &sas_ha->ha_events[i];
++		ev->event = i;
++		INIT_LIST_HEAD(&ev->el);
++	}
++
++	sas_ha->notify_ha_event = notify_ha_event;
++	sas_ha->notify_port_event = notify_port_event;
++	sas_ha->notify_phy_event = notify_phy_event;
++
++	i = kernel_thread(sas_event_thread, sas_ha, 0);
++	if (i >= 0)
++		wait_for_completion(&event_th_comp);
++
++	return i < 0 ? i : 0;
++}
++
++void sas_kill_event_thread(struct sas_ha_struct *sas_ha)
++{
++	int i;
 +	
-+	kset_unregister(&sas_ha->phy_kset);
++	init_completion(&event_th_comp);
++	sas_ha->event_thread_kill = 1;
++	up(&sas_ha->event_sema);
++	wait_for_completion(&event_th_comp);
++
++	for (i = 0; i < sas_ha->num_phys; i++)
++		sas_kill_disc_thread(sas_ha->sas_port[i]);
 +}
 
 

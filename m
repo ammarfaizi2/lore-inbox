@@ -1,72 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965227AbVIIBew@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965231AbVIIBiG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965227AbVIIBew (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 21:34:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965230AbVIIBew
+	id S965231AbVIIBiG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 21:38:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965232AbVIIBiG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 21:34:52 -0400
-Received: from az33egw01.freescale.net ([192.88.158.102]:3057 "EHLO
-	az33egw01.freescale.net") by vger.kernel.org with ESMTP
-	id S965227AbVIIBew (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 21:34:52 -0400
-In-Reply-To: <1126223767.29803.34.camel@gaston>
-References: <1126223767.29803.34.camel@gaston>
-Mime-Version: 1.0 (Apple Message framework v734)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <A32A4DA9-99D6-4574-AD5D-F1C0DFC8AE75@freescale.com>
-Cc: "Gala Kumar K.-galak" <galak@freescale.com>,
-       "Paul Mackerras" <paulus@samba.org>, <linuxppc-dev@ozlabs.org>,
-       <linux-kernel@vger.kernel.org>,
-       "linuxppc64-dev" <linuxppc64-dev@ozlabs.org>
+	Thu, 8 Sep 2005 21:38:06 -0400
+Received: from sv1.valinux.co.jp ([210.128.90.2]:51429 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S965231AbVIIBiE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 21:38:04 -0400
+Date: Fri, 9 Sep 2005 10:38:04 +0900
+From: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
+To: Paul Jackson <pj@sgi.com>
+Cc: dino@in.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/5] SUBCPUSETS: a resource control functionality using
+ CPUSETS
+In-Reply-To: <20050908050232.3681cf0c.pj@sgi.com>
+References: <20050908053912.1352770031@sv1.valinux.co.jp>
+	<20050908002323.181fd7d5.pj@sgi.com>
+	<20050908081819.2EA4E70031@sv1.valinux.co.jp>
+	<20050908050232.3681cf0c.pj@sgi.com>
+X-Mailer: Sylpheed version 2.1.0+svn (GTK+ 2.6.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-From: Kumar Gala <kumar.gala@freescale.com>
-Subject: Re: [PATCH] ppc: Merge tlb.h
-Date: Thu, 8 Sep 2005 20:34:52 -0500
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-X-Mailer: Apple Mail (2.734)
+Message-Id: <20050909013804.1B64B70037@sv1.valinux.co.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 8 Sep 2005 05:02:32 -0700
+Paul Jackson <pj@sgi.com> wrote:
 
-On Sep 8, 2005, at 6:56 PM, Benjamin Herrenschmidt wrote:
+> These subcpusets, if I understand correctly, are a bit different
+> from ordinary cpusets.  For instance, it seems one cannot make child
+> cpusets of them, and one cannot change most of their properties,
+> such as cpus, mems, cpu_exclusive, mem_exclusive, or notify_on_release.
+> 
+> Also the mems and cpus of each subcpuset are required to be
+> exactly equal to the corresponding values of its parent.
 
-> On Thu, 2005-09-08 at 16:11 -0500, Kumar Gala wrote:
->
->> Merged tlb.h between asm-ppc32 and asm-ppc64 into asm-powerpc.  Also,
->>
-> fixed
->
->> a compiler warning in arch/ppc/mm/tlb.c since it was roughly related.
->>
->> Signed-off-by: Kumar K. Gala <kumar.gala@freescale.com>
->>
->
-> Do we want to do that ?
->
-> Replacing 2 different files with one split in #ifdef isn't a  
-> progress...
-> As I said, I think we need two subdirs for the low level stuffs  
-> that is
-> different, and that includes at this point all of the memory  
-> management
-> related stuff.
+That's right.
 
-I understand, but I'm also not sure if its progress to duplicate a  
-major of a file that is common.
+> One of my passions is to avoid special cases across API boundaries.
+> 
+> I am proposing that you don't do subcpusets like this.
+> 
+> Consider the following alternative I will call 'cpuset meters'.
+> 
+> For each resource named 'R' (cpu and mem, for instance):
+>  * Add a boolean flag 'meter_R' to each cpuset.  If set, that R is
+>    metered, for the tasks in that cpuset or any descendent cpuset.
+>  * If a cpuset is metered, then files named meter_R_guar, meter_R_lim
+>    and meter_R_cur appear in that cpuset to manage R's usage by tasks
+>    in that cpuset and descendents.
+>  * There are no additional rules that restrict the ability to change
+>    various other cpuset properties such as cpus, mems, cpu_exclusive,
+>    mem_exclusive, or notify_on_release, when a cpuset is metered.
+>  * It might be that some (or by design all) resource controllers do
+>    not allow nesting metered cpusets.  I don't know.  But one should
+>    (if one has permission) be able to make child cpusets of a metered
+>    cpuset, just like one can of any other cpuset.
+>  * A metered cpuset might well have cpus or mems that are not the
+>    same as its parent, just like an unmetered cpuset ordinarly does.
 
-In this case it might be better handled by having specific versions  
-per "sub-arch".  I think the key is determining which files should be  
-handled via sub-arch diffs and which should be handled via ifdef's in  
-the file.
+Jackson-san's idea looks good for me because users don't need
+to create special cpusets (parents of subcpusets or subcpusets).
+>From the point of users, maybe they wouldn't like to create 
+special cpusets.
 
-Some cases like ppc_asm are so similar that it seems better to have a  
-single file and ifdef the specific case.
+As for the resource controller that I've posted, it assumes
+that there are groups of tasks that share the same cpumasks/nodemasks,
+and that there are no hierarchy in that groups in order to make
+things easier.  I'll investigate how I can attach the resource
+controller to the cpuset meters.
 
-> In addition, I'd appreciate if we could avoid touching ppc64 mm  
-> related
-> files completely for a couple of weeks as I'm working on a fairly big
-> patch that I'm really tired of having to rebase all the time ;)
+> If I understand correctly, one could place a job that managed its
+> own child cpusets into a metered cpuset, but not into a subcpuset.
+> Even if you wanted to allow it, it seems jobs in subcpusets cannot
+> make child cpusets or modify the properties of their current cpuset.
+> Is that correct?
 
-Will avoid touch any other mm related headers than :)
+Correct.  Subcpusets can't make child cpusets, and they don't have
+cpumask/nodemask properties actually.  Properties like cpumasks/nodemask 
+of subcpusets are the same as their parent and subcpusets can't modify
+those properties.
 
-- kumar
+Thanks,
+
+KUROSAWA, Takahiro

@@ -1,80 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965234AbVIIBsN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965237AbVIICHB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965234AbVIIBsN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 21:48:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965233AbVIIBsN
+	id S965237AbVIICHB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 22:07:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965238AbVIICHB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 21:48:13 -0400
-Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:54699 "EHLO
-	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S965234AbVIIBsL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 21:48:11 -0400
-From: Grant Coady <grant_lkml@dodo.com.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-mm2
-Date: Fri, 09 Sep 2005 11:47:52 +1000
-Organization: http://bugsplatter.mine.nu/
-Message-ID: <m1q1i1lav2vl7k0lpposq0uj4uobsptnor@4ax.com>
-References: <20050908053042.6e05882f.akpm@osdl.org>
-In-Reply-To: <20050908053042.6e05882f.akpm@osdl.org>
-X-Mailer: Forte Agent 2.0/32.652
+	Thu, 8 Sep 2005 22:07:01 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:39873 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965237AbVIICHA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 22:07:00 -0400
+Message-ID: <4320EE3E.8010902@us.ibm.com>
+Date: Thu, 08 Sep 2005 22:06:54 -0400
+From: Janak Desai <janak@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: linux-kernel@vger.kernel.org, Chris Wright <chrisw@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       viro@ZenIV.linux.org.uk
+Subject: Re: [PATCH 1/2] (repost) New System call, unshare (fwd)
+References: <Pine.WNT.4.63.0509071350080.4008@IBM-AIP3070F3AM> <431F95C3.8010200@yahoo.com.au>
+In-Reply-To: <431F95C3.8010200@yahoo.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Sep 2005 05:30:42 -0700, Andrew Morton <akpm@osdl.org> wrote:
+Nick Piggin wrote:
 
->
->ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13/2.6.13-mm2/
+> Janak Desai wrote:
+> 
+> 
+>> -    tsk->min_flt = tsk->maj_flt = 0;
+>> -    tsk->nvcsw = tsk->nivcsw = 0;
+>> +    /*
+>> +     * If the process memory is being duplicated as part of the
+>> +     * unshare system call, we are working with the current process
+>> +     * and not a newly allocated task strucutre, and should not
+>> +     * zero out fault info, context switch counts, mm and active_mm
+>> +     * fields.
+>> +     */
+>> +    if (copy_share_action == MAY_SHARE) {
+>> +        tsk->min_flt = tsk->maj_flt = 0;
+>> +        tsk->nvcsw = tsk->nivcsw = 0;
+>>  
+> 
+> 
+> Why don't you just do this in copy_process?
+> 
 
-Hi Andrew,
+I was trying to avoid changing interface of copy_process since it
+is also used by do_fork() and fork_idle().
 
-After this error:
+>> -    tsk->mm = NULL;
+>> -    tsk->active_mm = NULL;
+>> +        tsk->mm = NULL;
+>> +        tsk->active_mm = NULL;
+>> +    }
+>>  
+>>      /*
+>>       * Are we cloning a kernel thread?
+>> @@ -1002,7 +1023,7 @@ static task_t *copy_process(unsigned lon
+>>          goto bad_fork_cleanup_fs;
+>>      if ((retval = copy_signal(clone_flags, p)))
+>>          goto bad_fork_cleanup_sighand;
+>> -    if ((retval = copy_mm(clone_flags, p)))
+>> +    if ((retval = copy_mm(clone_flags, p, MAY_SHARE)))
+>>          goto bad_fork_cleanup_signal;
+>>      if ((retval = copy_keys(clone_flags, p)))
+>>          goto bad_fork_cleanup_mm;
+>> @@ -1317,3 +1338,172 @@ void __init proc_caches_init(void)
+>>              sizeof(struct mm_struct), 0,
+>>              SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
+>>  }
+>> +
+>> +/*
+>> + * unshare_mm is called from the unshare system call handler function to
+>> + * make a private copy of the mm_struct structure. It calls copy_mm with
+>> + * CLONE_VM flag cleard, to ensure that a private copy of mm_struct 
+>> is made,
+>> + * and with mm_copy_share enum set to UNSHARE, to ensure that copy_mm
+>> + * does not clear fault info, context switch counts, mm and active_mm
+>> + * fields of the mm_struct.
+>> + */
+>> +static int unshare_mm(unsigned long unshare_flags, struct task_struct 
+>> *tsk)
+>> +{
+>> +    int retval = 0;
+>> +    struct mm_struct *mm = tsk->mm;
+>> +
+>> +    /*
+>> +     * If the virtual memory is being shared, make a private
+>> +     * copy and disassociate the process from the shared virtual
+>> +     * memory.
+>> +     */
+>> +    if (atomic_read(&mm->mm_users) > 1) {
+>> +        retval = copy_mm((unshare_flags & ~CLONE_VM), tsk, UNSHARE);
+>> +
+>> +        /*
+>> +         * If copy_mm was successful, decrement the number of users
+>> +         * on the original, shared, mm_struct.
+>> +         */
+>> +        if (!retval)
+>> +            atomic_dec(&mm->mm_users);
+>> +    }
+>> +    return retval;
+>> +}
+>> +
+> 
+> 
+> What prevents thread 1 from decrementing mm_users after thread 2 has
+> found it to be 2?
+> 
 
-  CC      drivers/parport/parport_pc.o
-drivers/parport/parport_pc.c:2511: error: via_686a_data causes a section type conflict
-drivers/parport/parport_pc.c:2520: error: via_8231_data causes a section type conflict
-drivers/parport/parport_pc.c:2705: error: parport_pc_superio_info causes a section type conflict
-drivers/parport/parport_pc.c:2782: error: cards causes a section type conflict
-make[2]: *** [drivers/parport/parport_pc.o] Error 1
-make[1]: *** [drivers/parport] Error 2
-make: *** [drivers] Error 2
+Yes, Chris pointed out that as well. I will be reviewing and reworking
+this logic.
 
-got this:
+Thanks.
 
-grant@sempro:/opt/linux/linux-2.6.13-mm2a$ make menuconfig
-  HOSTCC  scripts/kconfig/conf.o
-  HOSTCC  scripts/kconfig/kxgettext.o
-  HOSTCC  scripts/kconfig/mconf.o
-  HOSTCC  scripts/kconfig/zconf.tab.o
-  HOSTLD  scripts/kconfig/mconf
-  HOSTCC  scripts/lxdialog/checklist.o
-  HOSTCC  scripts/lxdialog/inputbox.o
-  HOSTCC  scripts/lxdialog/lxdialog.o
-  HOSTCC  scripts/lxdialog/menubox.o
-  HOSTCC  scripts/lxdialog/msgbox.o
-  HOSTCC  scripts/lxdialog/textbox.o
-  HOSTCC  scripts/lxdialog/util.o
-  HOSTCC  scripts/lxdialog/yesno.o
-  HOSTLD  scripts/lxdialog/lxdialog
-scripts/kconfig/mconf arch/i386/Kconfig
-Warning! Found recursive dependency: HOSTAP IEEE80211 NET_RADIO HOSTAP IEEE80211_CRYPT_WEP CRYPTO CRYPTO_ANUBIS
-Warning! Found recursive dependency: HOSTAP IEEE80211 NET_RADIO HOSTAP IEEE80211_CRYPT_WEP CRYPTO CRYPTO_MD4
-Warning! Found recursive dependency: HOSTAP IEEE80211 NET_RADIO HOSTAP IEEE80211_CRYPT_WEP CRYPTO CRYPTO_MD5
-Warning! Found recursive dependency: HOSTAP IEEE80211 NET_RADIO HOSTAP IEEE80211_CRYPT_WEP CRYPTO CRYPTO_AES_X86_64
-Warning! Found recursive dependency: NET_RADIO HOSTAP IEEE80211 NET_RADIO HERMES TMD_HERMES
-Warning! Found recursive dependency: HOSTAP IEEE80211 NET_RADIO HOSTAP HOSTAP_PCI
-Warning! Found recursive dependency: NET_RADIO HOSTAP IEEE80211 NET_RADIO WAVELAN
-#
-# using defaults found in .config
-#
-from this: http://bugsplatter.mine.nu/test/boxen/sempro/config-2.6.13-mm2a.gz
-and: http://bugsplatter.mine.nu/test/boxen/sempro/config-2.6.13-mm2b.gz
-when I tried again, slightly different config.  I don't do wireless networking, 
-clueless ;-)
+-Janak
 
-Grant.
 

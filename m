@@ -1,37 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030437AbVIIUZ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030464AbVIIUda@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030437AbVIIUZ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 16:25:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030455AbVIIUZ0
+	id S1030464AbVIIUda (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 16:33:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030466AbVIIUda
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 16:25:26 -0400
-Received: from mail-in-08.arcor-online.net ([151.189.21.48]:13025 "EHLO
-	mail-in-08.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1030437AbVIIUZZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 16:25:25 -0400
-From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
-Subject: Re: query_modules syscall gone? Any replacement?
-To: iSteve <isteve@rulez.cz>, linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Fri, 09 Sep 2005 22:25:08 +0200
-References: <4KSFY-2pO-17@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Fri, 9 Sep 2005 16:33:30 -0400
+Received: from smtp.dkm.cz ([62.24.64.34]:60684 "HELO smtp.dkm.cz")
+	by vger.kernel.org with SMTP id S1030464AbVIIUd3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 16:33:29 -0400
+Message-ID: <4321F19A.3020503@rulez.cz>
+Date: Fri, 09 Sep 2005 22:33:30 +0200
+From: iSteve <isteve@rulez.cz>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1EDpQq-0000iV-Oe@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
+To: 7eggert@gmx.de, linux-kernel@vger.kernel.org
+Subject: Re: query_modules syscall gone? Any replacement?
+References: <4KSFY-2pO-17@gated-at.bofh.it> <E1EDpQq-0000iV-Oe@be1.lrz>
+In-Reply-To: <E1EDpQq-0000iV-Oe@be1.lrz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-iSteve <isteve@rulez.cz> wrote:
+I'm aware of the sysfs interface -- but neither /proc/modules nor 
+/sys/module/ actually really supplement the query_module api...
 
->   May I then ask, why is the query_module syscall gone? And more
-> importantly, what replaces it, if anything?
+  - iSteve
 
-I don't know query_module, but ls -laR /sys/module might do the job.
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+Bodo Eggert wrote:
+> iSteve <isteve@rulez.cz> wrote:
+> 
+> 
+>>  May I then ask, why is the query_module syscall gone? And more
+>>importantly, what replaces it, if anything?
+> 
+> 
+> I don't know query_module, but ls -laR /sys/module might do the job.

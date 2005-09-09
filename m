@@ -1,53 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030450AbVIIUQb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030451AbVIIUQf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030450AbVIIUQb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 16:16:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030451AbVIIUQa
+	id S1030451AbVIIUQf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 16:16:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030455AbVIIUQf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 16:16:30 -0400
-Received: from guru.webcon.ca ([216.194.67.26]:38553 "EHLO guru.webcon.ca")
-	by vger.kernel.org with ESMTP id S1030450AbVIIUQ3 (ORCPT
+	Fri, 9 Sep 2005 16:16:35 -0400
+Received: from mail-out2.fuse.net ([216.68.8.175]:42452 "EHLO smtp2.fuse.net")
+	by vger.kernel.org with ESMTP id S1030451AbVIIUQd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 16:16:29 -0400
-Date: Fri, 9 Sep 2005 16:16:07 -0400 (EDT)
-From: "Ian E. Morgan" <imorgan@webcon.ca>
-X-X-Sender: imorgan@light.int.webcon.net
-To: Andrew Morton <akpm@osdl.org>, Wim Van Sebroeck <wim@iguana.be>
-cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Webcon Technical Support <tech@webcon.ca>
-Subject: [WATCHDOG] Push SBC8360 driver upstream
-Message-ID: <Pine.LNX.4.63.0509091556520.16138@light.int.webcon.net>
-Organization: "Webcon, Inc"
+	Fri, 9 Sep 2005 16:16:33 -0400
+Message-ID: <4321459A.7090106@fuse.net>
+Date: Fri, 09 Sep 2005 04:19:38 -0400
+From: rob <rob.rice@fuse.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041221
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Assp-Spam-Prob: 0.00000
-X-Assp-Envelope-From: imorgan@webcon.ca
+To: kernel <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp
+References: <431E97E5.1080506@fuse.net> <200509072201.13268.rjw@sisk.pl> <4321190E.2030804@fuse.net> <200509092035.29884.rjw@sisk.pl>
+In-Reply-To: <200509092035.29884.rjw@sisk.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I would like to ask that the SBC8360 watchdog driver be pushed upstream from
--mm in time for the 2.6.14-rc series.
+Rafael J. Wysocki wrote:
 
-I recognise that this driver, like a lot of the watchdog drivers, is for a
-piece of hardware this is present in only a very small percentage of
-hardware runnig Linux. I doubt that being in -mm for a long time will make
-any significant difference to it being more widely tested. The driver is
-working perfectly as expected on each of the machines we've tested it on.
-
-As a recap, the driver was submitted to akpm, was included in -mm1
-(watchdog-new-sbc8360-driver.patch), offloaded to Wim's
-linux-2.6-watchdog-mm.git tree (commit
-88b1f50923d14195ac1a50840fc4aa4066f067a9), and subsequently included in -mm2
-by way of the combined git-watchdog.patch.
-
-Please consider merging this driver into 2.6.14-rc1. Thanks.
-
-Regards,
-Ian Morgan
-
--- 
--------------------------------------------------------------------
- Ian E. Morgan          Vice President & C.O.O.       Webcon, Inc.
- imorgan at webcon dot ca       PGP: #2DA40D07       www.webcon.ca
-    *  Customized Linux Network Solutions for your Business  *
--------------------------------------------------------------------
+>On Friday, 9 of September 2005 07:09, you wrote:
+>  
+>
+>>Rafael J. Wysocki wrote:
+>>
+>>    
+>>
+>>>Hi,
+>>>
+>>>On Wednesday, 7 of September 2005 09:33, rob wrote:
+>>> 
+>>>
+>>>      
+>>>
+>>>>I singed up to this mailing list just to ask this question
+>>>>I have built a 2.6.13 kernel for a toshiba  tecra 500cdt
+>>>>this computer uses the pci buss for the sound card
+>>>>and pcmcia bridge
+>>>>I have writen a script to unload all the pci buss modules amd go to sleep
+>>>>it works up to this point
+>>>>now how do I get the modules put back when ever I add the lines to
+>>>>rerun the " /etc/rc.d/rc.hotplug /etc/rc.d/rc.pcmcia and 
+>>>>/etc/rc.d/rcmodules "
+>>>>I get a kernel crash befor it gose to sleep
+>>>>I have been al over the net and the olny info I can find is about 
+>>>>software suspend2
+>>>>Is there some way to change the sowftware suspend2 scripts to work with the
+>>>>unpatched kernel software suspend or where can I get the path to init
+>>>>talked about in the menuconfig file
+>>>>   
+>>>>
+>>>>        
+>>>>
+>>>Could you just try
+>>>
+>>># echo shutdown > /sys/power/disk && echo disk > /sys/power/state
+>>>
+>>>without unloading any modules and see what happens (it should suspend
+>>>to disk)?
+>>>
+>>>If it craches, could you boot the kernel with the init=/bin/bash option and try
+>>>
+>>># mount /sys
+>>># mount /proc
+>>># /sbin/swapon -a
+>>># echo shutdown > /sys/power/disk && echo disk > /sys/power/state
+>>>
+>>>and see what happens?
+>>>
+>>>Rafael
+>>>
+>>>
+>>> 
+>>>
+>>>      
+>>>
+>>yes I did try this it just crashes and tacks out my file system with it
+>>and I have to reinstall to recover from it it chops up files like bash
+>>and every thing on the path the error codes scroll by so fast there is
+>>no hope ov finding out what errors are tacking place
+>>    
+>>
+>
+>Then I guess your swap partition is on a logcal volume.  Is it?
+>
+>Rafael
+>
+>
+>  
+>
+NO it's on /dev/hda2

@@ -1,44 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932270AbVIIPCx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964881AbVIIPFP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932270AbVIIPCx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 11:02:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932557AbVIIPCw
+	id S964881AbVIIPFP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 11:05:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932562AbVIIPFP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 11:02:52 -0400
-Received: from smtp.dkm.cz ([62.24.64.34]:9476 "HELO smtp.dkm.cz")
-	by vger.kernel.org with SMTP id S932270AbVIIPCw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 11:02:52 -0400
-Message-ID: <4321A40C.6080205@rulez.cz>
-Date: Fri, 09 Sep 2005 17:02:36 +0200
-From: iSteve <isteve@rulez.cz>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
+	Fri, 9 Sep 2005 11:05:15 -0400
+Received: from EXCHG2003.microtech-ks.com ([65.16.27.37]:11837 "EHLO
+	EXCHG2003.microtech-ks.com") by vger.kernel.org with ESMTP
+	id S932557AbVIIPFN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 11:05:13 -0400
+From: "Roger Heflin" <rheflin@atipa.com>
+To: <awesley@acquerra.com.au>, <linux-kernel@vger.kernel.org>
+Subject: RE: kernel 2.6.13 buffer strangeness
+Date: Fri, 9 Sep 2005 10:09:23 -0500
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: query_modules syscall gone? Any replacement?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Thread-Index: AcW1HW0oIIcPK4P0Sa6DTFPVpMMHHgAMpPbA
+In-Reply-To: <432151B0.7030603@acquerra.com.au>
+Message-ID: <EXCHG2003Zi71mrvoGd00000659@EXCHG2003.microtech-ks.com>
+X-OriginalArrivalTime: 09 Sep 2005 15:01:41.0367 (UTC) FILETIME=[62BF3870:01C5B54F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
-  I'm coding an application that messes with modules a lot, and I've 
-stumbled upon a query_modules syscall in my docs. Later I've found out 
-that the docs come from modutils and that module-init-tools doesn't seem 
-to document (any of) the syscalls.
 
-  May I then ask, why is the query_module syscall gone? And more 
-importantly, what replaces it, if anything? It seems to me that parsing 
-the /proc/modules is not only less comfortable, but according to the 
-very obsolete manpage I have, it also can provide less information.
+I saw it mentioned before that the kernel only allows a certain
+percentage of total memory to be dirty, I thought the number was
+around 40%, and I have seen machines with large amounts of ram,
+hit the 40% and then put the writing application into disk wait
+until certain amounts of things are written out, and then take
+it out of disk wait, and repeat when it again hits 40%, given your
+rate different it would be close to 40% in 50seconds.
 
-  For exmaple I'm not aware of anything like QM_SYMBOLS on per-module 
-basis like it was (do correct me if I am wrong, it'd simplify my work a 
-lot), ... and getting QM_REFS for example requires extensive parsing of 
-/proc/modules.
+And I think that you mean MB(yte) not Mb(it).
 
-Thanks in advance for reply.
+                           Roger
 
-  - iSteve
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org 
+> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
+> Anthony Wesley
+> Sent: Friday, September 09, 2005 4:11 AM
+> To: linux-kernel@vger.kernel.org
+> Subject: Re: kernel 2.6.13 buffer strangeness
+> 
+> Thanks David, but if you read my original post in full you'll 
+> see that I've tried that, and while I can start the write out 
+> sooner by lowering /proc/sys/vm/dirty_ratio , it makes no 
+> difference to the results that I am getting. I still seem to 
+> run out of steam after only 50 seconds where it should take 
+> about 3 minutes.
+> 
+> regards, Anthony
+> 
+> --
+> Anthony Wesley
+> Director and IT/Network Consultant
+> Smart Networks Pty Ltd
+> Acquerra Pty Ltd
+> 
+> Anthony.Wesley@acquerra.com.au
+> Phone: (02) 62595404 or 0419409836
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in the body of a message to 
+> majordomo@vger.kernel.org More majordomo info at  
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751418AbVIIHLE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751421AbVIIHMt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751418AbVIIHLE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 03:11:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751421AbVIIHLE
+	id S1751421AbVIIHMt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 03:12:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751422AbVIIHMt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 03:11:04 -0400
-Received: from fsmlabs.com ([168.103.115.128]:50342 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S1751418AbVIIHLD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 03:11:03 -0400
-Date: Fri, 9 Sep 2005 00:17:44 -0700 (PDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Keith Owens <kaos@sgi.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Scheduler hooks to support separate ia64 MCA/INIT stacks
-In-Reply-To: <6922.1126231851@kao2.melbourne.sgi.com>
-Message-ID: <Pine.LNX.4.61.0509082356390.978@montezuma.fsmlabs.com>
-References: <6922.1126231851@kao2.melbourne.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 9 Sep 2005 03:12:49 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:43212
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S1751421AbVIIHMt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 03:12:49 -0400
+Message-Id: <4321525102000078000247C2@emea1-mh.id2.novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0 
+Date: Fri, 09 Sep 2005 09:13:53 +0200
+From: "Jan Beulich" <JBeulich@novell.com>
+To: "Andi Kleen" <ak@suse.de>
+Cc: <linux-kernel@vger.kernel.org>, <discuss@x86-64.org>
+Subject: Re: [discuss] [PATCH] add and handle NMI_VECTOR II
+References: <43207DFC0200007800024543@emea1-mh.id2.novell.com>  <20050909004307.GA18347@wotan.suse.de>  <43214AE402000078000247AB@emea1-mh.id2.novell.com> <200509090855.52752.ak@suse.de>
+In-Reply-To: <200509090855.52752.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Sep 2005, Keith Owens wrote:
+>> >Index: linux/arch/x86_64/kernel/traps.c
+>>
+>===================================================================
+>> >--- linux.orig/arch/x86_64/kernel/traps.c
+>> >+++ linux/arch/x86_64/kernel/traps.c
+>> >@@ -931,7 +931,7 @@ void __init trap_init(void)
+>> > 	set_system_gate(IA32_SYSCALL_VECTOR, ia32_syscall);
+>> > #endif
+>> >
+>> >-	set_intr_gate(KDB_VECTOR, call_debug);
+>> >+	set_intr_gate(NMI_VECTOR, call_debug);
+>> >
+>> > 	/*
+>> > 	 * Should be a barrier for any external CPU state.
+>>
+>> I never understood what this does. If you deliver the IPI as an
+NMI,
+>> it'll never arrive at this vector, and why would anyone want to put
+an
+>> "int $NMI_VECTOR" anywhere?
+>
+>You can force an NMI when sending an IPI by setting the right bits
+>in ICR. That is what it is used for.
 
-> The new ia64 MCA/INIT handlers[1] (think of them as super NMI) run on
-> separate stacks.  99% of the changes for these new handlers is ia64
-> only code, however they need a couple of scheduler hooks to support
-> these extra stacks.  The complete patch set will be coming through the
-> ia64 tree, this RFC covers just the scheduler changes, so they do not
-> come as a surprise when the ia64 tree is rolled up.
-> 
-> [1] http://marc.theaimsgroup.com/?l=linux-ia64&m=112537827113545&w=2
->     and the following patches.
+??? This is what the code doing the setup does. But the question was -
+what do you need the IDT entry for?
 
-Thanks that gave a lot of background.
-
-> This patch adds two small hooks that can be safely called from MCA/INIT
-> context.  If other architectures want to support NMI on separate stacks
-> then they can also use these functions.
-
-Well x86_64 already does this with NMI being setup as ISTs, the difference 
-is that there we use a register to access current (via PDA/%gs). I might 
-have missed this in the URL you posted, but how come IA64 can't do this 
-via r13?
-
-Thanks,
-	Zwane
-
+Jan

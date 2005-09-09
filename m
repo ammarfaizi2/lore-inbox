@@ -1,65 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030980AbVIIX2Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030985AbVIIXgx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030980AbVIIX2Z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 19:28:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030981AbVIIX2Z
+	id S1030985AbVIIXgx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 19:36:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030983AbVIIXgx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 19:28:25 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:12754 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030980AbVIIX2Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 19:28:24 -0400
-Date: Fri, 9 Sep 2005 16:28:06 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Greg KH <gregkh@suse.de>
-cc: davej@codemonkey.org.uk, arjan@infradead.org,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [GIT PATCH] More PCI patches for 2.6.13
-In-Reply-To: <Pine.LNX.4.58.0509091613310.3051@g5.osdl.org>
-Message-ID: <Pine.LNX.4.58.0509091623500.3051@g5.osdl.org>
-References: <20050909220758.GA29746@kroah.com> <Pine.LNX.4.58.0509091535180.3051@g5.osdl.org>
- <20050909225421.GA31433@suse.de> <Pine.LNX.4.58.0509091613310.3051@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 9 Sep 2005 19:36:53 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:1453 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1030981AbVIIXgw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 19:36:52 -0400
+Subject: Re: [PATCH 2.6.13 14/14] sas-class: SCSI Host glue
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Luben Tuikov <luben_tuikov@adaptec.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <4321E5AB.5000100@adaptec.com>
+References: <4321E5AB.5000100@adaptec.com>
+Content-Type: text/plain
+Date: Fri, 09 Sep 2005 18:35:49 -0500
+Message-Id: <1126308949.4799.54.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-6) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2005-09-09 at 15:42 -0400, Luben Tuikov wrote:
+> +static const struct scsi_host_template sas_host_template = {
+> +       .module = THIS_MODULE,
+> +       /* .name is initialized */
+> +       .name = "",
+> +       .queuecommand = sas_queuecommand,
+> +       .eh_strategy_handler = sas_scsi_recover_host,
+> +       .eh_timed_out = sas_scsi_timed_out,
+> +       .slave_alloc = sas_slave_alloc,
+> +       .slave_configure = sas_slave_configure,
+> +       .slave_destroy = sas_slave_destroy,
+> +       .change_queue_depth = sas_change_queue_depth,
+> +       .change_queue_type = sas_change_queue_type,
+> +       .bios_param = sas_bios_param,
+> +       /* .can_queue is initialized */
+> +       .this_id = -1,
+> +       .sg_tablesize = SG_ALL,
+> +       .max_sectors = SCSI_DEFAULT_MAX_SECTORS,
+> +       /* .cmd_per_lun is initilized to .can_queue */
+> +       .use_clustering = ENABLE_CLUSTERING,
+> +};
+
+You can't do something like this and be generic.  You intercept all of
+the slave_* calls and try to provide the template.
+
+This has produced a class that might wrapper nicely around the aic94xx
+but it won't attach nicely to any other SAS driver.
+
+You can't decide what table size and alignment your drivers are going to
+have because not all will conform to them.  I already know that SATA (ex
+ATA) vendors are getting into the SAS market ... they have particularly
+weird SG allocation and alignment requirements for some of their stuff.
+
+To be an actual transport class, aside from actually using the transport
+class infrastructure, the code actually has to provide common routines
+that a class of drivers can use.
+
+There's already an embryonic SAS class working its way through the SCSI
+list.  Could you look at enhancing that instead of trying to produce a
+competing class?
+
+James
 
 
-On Fri, 9 Sep 2005, Linus Torvalds wrote:
-> 
-> There are functions where it is really _important_ to check the error 
-> return, because they return errors often enough - and the error case is 
-> something you have to do something about - that it's good to force people 
-> to be aware.
-> 
-> But "pci_set_power_state()"?
-> 
-> I don't think so.
-
-Btw, a perfect example of this is
-
-	pci_set_power_state(pdev, 0);
-
-which is a very common thing to do in a driver init routine. And it has
-absolutely _no_ valid return values: it either succeeds, or it doesn't,
-and the only reason it wouldn't succeed is because the device doesn't
-support power management in the first place (in which case it already
-effectively is in state 0).
-
-In other words, there's nothing you can or should do about it. Testing the 
-return value is pointless. And thus adding a "must_check" is really really 
-wrong: it might make people do
-
-	if (pci_set_power_state(pdev, 0))
-		return -ENODEV
-
-which is actually actively the _wrong_ thing to do, and would just cause 
-old revisions of the chip that might not support PM capabilities to no 
-longer work.
-
-The problem with warnings is that people may take them too seriously, and 
-generate bugs when trying to "fix" them.
-
-		Linus

@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030219AbVIIQd6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030208AbVIIQgp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030219AbVIIQd6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 12:33:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751431AbVIIQd6
+	id S1030208AbVIIQgp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 12:36:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751429AbVIIQgo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 12:33:58 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:29965 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751429AbVIIQd5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 12:33:57 -0400
-Date: Fri, 9 Sep 2005 17:33:24 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: viro@ZenIV.linux.org.uk
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       paulkf@microgate.com
-Subject: Re: [PATCH] gratitious includes of asm/serial.h
-Message-ID: <20050909173324.B2464@flint.arm.linux.org.uk>
-Mail-Followup-To: viro@ZenIV.linux.org.uk,
-	Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-	paulkf@microgate.com
-References: <20050909160251.GH9623@ZenIV.linux.org.uk>
+	Fri, 9 Sep 2005 12:36:44 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:6345 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750831AbVIIQgo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 12:36:44 -0400
+Date: Fri, 9 Sep 2005 17:36:43 +0100
+From: viro@ZenIV.linux.org.uk
+To: Andreas Schwab <schwab@suse.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] bogus cast in bio.c
+Message-ID: <20050909163643.GO9623@ZenIV.linux.org.uk>
+References: <20050909155356.GF9623@ZenIV.linux.org.uk> <je4q8u1agp.fsf@sykes.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050909160251.GH9623@ZenIV.linux.org.uk>; from viro@ZenIV.linux.org.uk on Fri, Sep 09, 2005 at 05:02:51PM +0100
+In-Reply-To: <je4q8u1agp.fsf@sykes.suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 09, 2005 at 05:02:51PM +0100, viro@ZenIV.linux.org.uk wrote:
-> Removed gratitious includes of asm/serial.h in synklinkmp and ip2main.
-> Allows to remove the rest of "broken on sparc32" in drivers/char - this
-> stuff doesn't break the build anymore.  Since it got zero testing, it almost
-> certainly won't work there, though...
+On Fri, Sep 09, 2005 at 06:18:14PM +0200, Andreas Schwab wrote:
+> viro@ZenIV.linux.org.uk writes:
 > 
-> Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+> > <qualifier> void * is not the same as void <qualifier> *...
+> 
+> IMHO it should.
 
-Acked-by: Russell King <rmk+kernel@arm.linux.org.uk>
+... and indeed it should.  My apologies - that's a combination of
+sparse bug and me being very low on coffee...
 
-This stuff does need fixing.  One day, I hope to completely remove the
-asm-*/serial.h includes from the kernel.
+FWIW, looks like we are losing address_space in the first form: with current
+sparse we get
+fs/bio.c:686:15: warning: incorrect type in assignment (different address spaces)
+fs/bio.c:686:15:    expected void [noderef] *iov_base<asn:1>
+fs/bio.c:686:15:    got void [noderef] *<noident>
+from the first form (cast to __user void *).  Lovely...
 
-Thanks Al.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+OK, I think I know what's going on there, will fix.

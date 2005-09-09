@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965233AbVIIBuo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965232AbVIIBrd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965233AbVIIBuo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 21:50:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965235AbVIIBuo
+	id S965232AbVIIBrd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 21:47:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965233AbVIIBrd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 21:50:44 -0400
-Received: from mxfep01.bredband.com ([195.54.107.70]:22444 "EHLO
-	mxfep01.bredband.com") by vger.kernel.org with ESMTP
-	id S965233AbVIIBun (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 21:50:43 -0400
-Message-ID: <4320EC45.1080108@stesmi.com>
-Date: Fri, 09 Sep 2005 03:58:29 +0200
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mathias Adam <a2@adamis.de>
-CC: linux-kernel@vger.kernel.org, rmk+serial@arm.linux.org.uk
-Subject: Re: [PATCH] 8250.c: Fix to make 16C950 UARTs work
-References: <20050909013144.GA6660@adamis.de>
-In-Reply-To: <20050909013144.GA6660@adamis.de>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 8 Sep 2005 21:47:33 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:20366 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965232AbVIIBrd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 21:47:33 -0400
+Date: Thu, 8 Sep 2005 18:46:59 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Jan Beulich" <JBeulich@novell.com>
+Cc: hch@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rmmod notifier chain
+Message-Id: <20050908184659.6aa5a136.akpm@osdl.org>
+In-Reply-To: <432073610200007800024489@emea1-mh.id2.novell.com>
+References: <43206EFE0200007800024451@emea1-mh.id2.novell.com>
+	<20050908151624.GA11067@infradead.org>
+	<432073610200007800024489@emea1-mh.id2.novell.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira Milter 1.0.7; VAE 6.29.0.5; VDF 6.29.0.100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+"Jan Beulich" <JBeulich@novell.com> wrote:
+>
+> >>> Christoph Hellwig <hch@infradead.org> 08.09.05 17:16:24 >>>
+> >On Thu, Sep 08, 2005 at 05:03:58PM +0200, Jan Beulich wrote:
+> >> (Note: Patch also attached because the inline version is certain to
+> get
+> >> line wrapped.)
 
-Mathias Adam wrote:
-> Currently serial8250_set_termios() refuses to program a baud rate larger
-> than uartclk/16. However the 16C950 supports baud rates up to uartclk/4.
-> This worked already with Linux 2.4 so the biggest part of this patch was
-> simply taken from there and adapted to 2.6.
-> -	unsigned int baud, quot;
-> +	unsigned int baud, quot, max_baud;
-                                 ^^^^^^^^
-> -	baud = uart_get_baud_rate(port, termios, old, 0, port->uartclk/16); 
-> +	MAX_baud = (up->port.type == PORT_16C950 ? port->uartclk/4 : port->uartclk/16);
-        ^^^^^^^^
+Suggest you get a new email setup.
 
-Did you even compile test this?
+> ...
+> That's funny - on one hand I'm asked to not submit huge patches (not by
+> you, but by others), but on the other hand not having the consuming code
+> in the same patch as the providing one is now deemed to be a problem.
 
-// Stefan
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (MingW32)
+Nope.
 
-iD8DBQFDIOxFBrn2kJu9P78RAnG3AJ9EJKl6q4Q4+jXRdMifvmOEdO+HewCfUPd8
-T2qQREDAgUq2C7j9yfaPemQ=
-=hGK0
------END PGP SIGNATURE-----
+Each patch should do a single logical thing.  That doesn't mean that we
+want to trickle patches in across a period of months.  It means that a
+bunch of spearate (and separately reviewed) patches can all go in at the
+same time.
+
+So the split-it-up request is for reviewing (and debugging) convenience
+only.
+

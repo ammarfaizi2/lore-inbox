@@ -1,64 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751393AbVIICaT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965239AbVIICgw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751393AbVIICaT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 22:30:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751395AbVIICaT
+	id S965239AbVIICgw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 22:36:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965241AbVIICgw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 22:30:19 -0400
-Received: from koto.vergenet.net ([210.128.90.7]:4830 "EHLO koto.vergenet.net")
-	by vger.kernel.org with ESMTP id S1751393AbVIICaS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 22:30:18 -0400
-Date: Fri, 9 Sep 2005 11:19:48 +0900
-From: Horms <horms@verge.net.au>
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: andy@wolfsinger.com, 326494@bugs.debian.org,
-       Marcel Holtmann <marcel@holtmann.org>,
-       Maxim Krasnyansky <maxk@qualcomm.com>, bluez-devel@lists.sf.ne,
-       linux-kernel@vger.kernel.org
-Subject: Re: Problems Building Bluetooth with K6 and CONFIG_REGPARM
-Message-ID: <20050909021948.GI7236@verge.net.au>
-References: <E1EBc9E-0001jo-RU@localhost> <20050908101207.GA7236@verge.net.au> <43206B8D.5020908@didntduck.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 8 Sep 2005 22:36:52 -0400
+Received: from liaag1ae.mx.compuserve.com ([149.174.40.31]:63202 "EHLO
+	liaag1ae.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S965239AbVIICgw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 22:36:52 -0400
+Date: Thu, 8 Sep 2005 22:33:51 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: [patch 2.6.13] x86_64: Clean up nmi error message
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200509082236_MC3-1-A99D-81DE@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43206B8D.5020908@didntduck.org>
-X-Cluestick: seven
-User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 08, 2005 at 12:49:17PM -0400, Brian Gerst wrote:
-> Horms wrote:
-> >Hi Andy,
-> >
-> >that does indeed seem to be a problem. I have narrowed it down to
-> >a combination of using K6 and CONFIG_REGPARM. Hunting around a bit
-> >I found this http://my.execpc.com/~geezer/osd/gotchas/, which
-> >suggests the problem is that the asm in question tries to add a register
-> >to the clobber list which is not available. This makes sense,
-> >I guess REGPARM is using edx, so inline assembly can't.
-> >
-> >I've CCed the bluetooth maintainers and lkml, hopefully someone there
-> >will have some input on how to resolve this problem, as inline assembly
-> >isn't my strong point and the problem seems to manifest in Linus' current
-> >git tree. 
-> >
-> >The relevant code is the following call to BUILDIO(b,b,char) towards the
-> >bottom of include/asm/io.h
-> >
-> >BUILDIO is as follows, and I am guessing it is the "Nd"(port) and
-> >possibley "d"(port) portions that are problematic.
-> 
-> Sounds like a compiler bug, especially since changing the CPU type fixes 
-> it.  What version of GCC?
+The x86_64 nmi code is missing a newline in one of its messages.
 
-I definately think it is compiler related, 
-I was using Debian's GCC 4.0.1-6. I could try 
-with 3.3 or soemthing like that if you like.
+I added a space before the CPU id for readability and killed the trailing
+space on the previous line as well.
 
-The problem was easily reproducable with
-4.0.1 and a K6+CONFIG_REGPARM config.
 
--- 
-Horms
+Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+
+
+ arch/x86_64/kernel/nmi.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+--- 2.6.13-64.orig/arch/x86_64/kernel/nmi.c
++++ 2.6.13-64/arch/x86_64/kernel/nmi.c
+@@ -486,8 +486,8 @@ void nmi_watchdog_tick (struct pt_regs *
+ 							== NOTIFY_STOP) {
+ 				local_set(&__get_cpu_var(alert_counter), 0);
+ 				return;
+-			} 
+-			die_nmi("NMI Watchdog detected LOCKUP on CPU%d", regs);
++			}
++			die_nmi("NMI Watchdog detected LOCKUP on CPU %d\n", regs);
+ 		}
+ 	} else {
+ 		__get_cpu_var(last_irq_sum) = sum;
+__
+Chuck

@@ -1,57 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964923AbVIIPh2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964954AbVIIPjI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964923AbVIIPh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 11:37:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964960AbVIIPh2
+	id S964954AbVIIPjI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 11:39:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964972AbVIIPjI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 11:37:28 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:13454 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S964921AbVIIPh0 (ORCPT
+	Fri, 9 Sep 2005 11:39:08 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:15035 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S964954AbVIIPjH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 11:37:26 -0400
-Message-ID: <4321AC25.8090508@pobox.com>
-Date: Fri, 09 Sep 2005 11:37:09 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Brett M Russ <russb@emc.com>
-CC: Greg KH <greg@kroah.com>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Greg KH <gregkh@suse.de>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 2.6.13] PCI/libata INTx bug fix
-References: <20050803204709.8BA0720B06@lns1058.lss.emc.com> <42FBA08C.5040103@pobox.com> <20050812171043.CF61020E8B@lns1058.lss.emc.com> <20050812182253.GA7842@suse.de> <42FD14E9.8060502@pobox.com> <20050812224303.F40A820E94@lns1058.lss.emc.com> <20050815185732.GA15216@kroah.com> <20050815192341.6600220FF7@lns1058.lss.emc.com> <1126218402469@kroah.com> <20050909130440.4E31E271E6@lns1058.lss.emc.com>
-In-Reply-To: <20050909130440.4E31E271E6@lns1058.lss.emc.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 9 Sep 2005 11:39:07 -0400
+Date: Fri, 9 Sep 2005 08:37:55 -0700
+From: Paul Jackson <pj@sgi.com>
+To: "Jan Beulich" <JBeulich@novell.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rmmod notifier chain
+Message-Id: <20050909083755.5ff302c3.pj@sgi.com>
+In-Reply-To: <43219FDF0200007800024975@emea1-mh.id2.novell.com>
+References: <43206EFE0200007800024451@emea1-mh.id2.novell.com>
+	<20050908151624.GA11067@infradead.org>
+	<432073610200007800024489@emea1-mh.id2.novell.com>
+	<20050908184659.6aa5a136.akpm@osdl.org>
+	<43219FDF0200007800024975@emea1-mh.id2.novell.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brett M Russ wrote:
-> Previous INTx cleanup patch had a bug that was not caught.  I found
-> this last night during testing and can confirm that it is now 100%
-> working.
-> 
-> Signed-off-by: Brett Russ <russb@emc.com>
-> 
-> 
-> Index: linux-2.6.13/drivers/pci/pci.c
-> ===================================================================
-> --- linux-2.6.13.orig/drivers/pci/pci.c
-> +++ linux-2.6.13/drivers/pci/pci.c
-> @@ -764,7 +764,7 @@ pci_intx(struct pci_dev *pdev, int enabl
->  	}
->  
->  	if (new != pci_command) {
-> -		pci_write_config_word(pdev, PCI_COMMAND, pci_command);
-> +		pci_write_config_word(pdev, PCI_COMMAND, new);
+Jan wrote:
+> Hence I wouldn't consider it reasonable to
+> break up the debugger patch entirely and submit all the pieces at once,
+> because that could easily mean that if one intermediate piece doesn't
+> get accepted all the dependent pieces have been separated out
+> pointlessly.
 
+This statement sounds selfish.  I read it as saying that there is
+no point in doing something if it didn't result in getting your
+patch accepted.
 
-If GregKH doesn't pick this up, I'll send it to Andrew/Linus ASAP.
+No.  There is another point.  At least one.  Contributing to the well
+being of the Linux community and kernel.  That benefits us all.
 
-libata is the only user currently, and we definitely need this fix.
+A properly split and presented patch set contributes to its being
+understood by others.  The clearer each patch is, the more rapidly
+others can understand that patch, and the faster the kernel can adapt
+while remaining healthy.
 
-	Jeff
+If there is some good reason that some or all of your patch should not
+be accepted (a reason you missed, despite your honest best efforts),
+and your presentation of the patch makes it easier for someone else
+to understand what you're doing and expose this reason, then be happy
+- you've done your job well - assisting someone else to shoot down
+your patch.
 
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

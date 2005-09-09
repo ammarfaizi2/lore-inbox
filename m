@@ -1,45 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751439AbVIIH6y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751440AbVIIIBH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751439AbVIIH6y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 03:58:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751440AbVIIH6y
+	id S1751440AbVIIIBH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 04:01:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751441AbVIIIBH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 03:58:54 -0400
-Received: from ns.suse.de ([195.135.220.2]:55939 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751439AbVIIH6x (ORCPT
+	Fri, 9 Sep 2005 04:01:07 -0400
+Received: from cantor.suse.de ([195.135.220.2]:11908 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751440AbVIIIBF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 03:58:53 -0400
+	Fri, 9 Sep 2005 04:01:05 -0400
 From: Andi Kleen <ak@suse.de>
-To: "Jan Beulich" <JBeulich@novell.com>
-Subject: Re: [discuss] [PATCH] add and handle NMI_VECTOR II
-Date: Fri, 9 Sep 2005 09:58:48 +0200
+To: Tom Rini <trini@kernel.crashing.org>
+Subject: Re: [PATCH 2.6.13] x86_64: Add notify_die() to another spot in do_page_fault()
+Date: Fri, 9 Sep 2005 10:01:00 +0200
 User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
-References: <43207DFC0200007800024543@emea1-mh.id2.novell.com> <20050909071407.GI19913@wotan.suse.de> <43215C9B02000078000247E4@emea1-mh.id2.novell.com>
-In-Reply-To: <43215C9B02000078000247E4@emea1-mh.id2.novell.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20050908163840.GR3966@smtp.west.cox.net>
+In-Reply-To: <20050908163840.GR3966@smtp.west.cox.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200509090958.48907.ak@suse.de>
+Message-Id: <200509091001.01325.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 09 September 2005 09:57, Jan Beulich wrote:
-> >>> Andi Kleen <ak@suse.de> 09.09.05 09:14:07 >>>
-> >>
-> >> ??? This is what the code doing the setup does. But the question was
+On Thursday 08 September 2005 18:38, Tom Rini wrote:
+> This adds a call to notify_die() in the "no context" portion of
+> do_page_fault() as someone on the chain might care and want to do a fixup.
 >
-> -
+> ---
 >
-> >> what do you need the IDT entry for?
-> >
-> >Without an IDT entry you cannot receive it?
+>  linux-2.6.13-trini/arch/x86_64/mm/fault.c |    4 ++++
+>  1 files changed, 4 insertions(+)
 >
-> But that's the point - if it's delivered as an NMI, it'll arrive
-> through vector 2 (the vector information specified is ignored).
+> diff -puN arch/x86_64/mm/fault.c~x86_64-no_context_hook
+> arch/x86_64/mm/fault.c ---
+> linux-2.6.13/arch/x86_64/mm/fault.c~x86_64-no_context_hook	2005-09-01
+> 12:00:43.000000000 -0700 +++
+> linux-2.6.13-trini/arch/x86_64/mm/fault.c	2005-09-01 12:00:43.000000000
+> -0700 @@ -514,6 +514,10 @@ no_context:
+>  	if (is_errata93(regs, address))
+>  		return;
+>
+> +	if (notify_die(DIE_PAGE_FAULT, "no context", regs, error_code, 14,
+> +				SIGSEGV) == NOTIFY_STOP)
+> +		return;
+> +
 
-Good point. I wonder how this ever worked. I'll remove it.
+But how would the chain users distingush this from the DIE_PAGE_FAULT
+reported at the beginning of the page fault handler? I don't see how
+it can work. If anything you would need a DIE_NO_CONTEXT or somesuch, no? 
 
 -Andi

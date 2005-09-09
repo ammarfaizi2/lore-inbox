@@ -1,122 +1,160 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030322AbVIIVBh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030517AbVIIVDt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030322AbVIIVBh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 17:01:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030374AbVIIVBh
+	id S1030517AbVIIVDt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 17:03:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030374AbVIIVDq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 17:01:37 -0400
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:3291 "EHLO
-	ogre.sisk.pl") by vger.kernel.org with ESMTP id S1030322AbVIIVBg
+	Fri, 9 Sep 2005 17:03:46 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:16573 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030344AbVIIVDp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 17:01:36 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: rob <rob.rice@fuse.net>
-Subject: Re: swsusp
-Date: Fri, 9 Sep 2005 23:01:31 +0200
-User-Agent: KMail/1.8.2
-Cc: kernel <linux-kernel@vger.kernel.org>
-References: <431E97E5.1080506@fuse.net> <200509092035.29884.rjw@sisk.pl> <43214CEB.2070702@fuse.net>
-In-Reply-To: <43214CEB.2070702@fuse.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 9 Sep 2005 17:03:45 -0400
+Date: Fri, 9 Sep 2005 22:03:44 +0100
+From: viro@ZenIV.linux.org.uk
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: [PATCH] __user annotations (scsi/ch)
+Message-ID: <20050909210344.GF9623@ZenIV.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200509092301.31863.rjw@sisk.pl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, 9 of September 2005 10:50, rob wrote:
-> Rafael J. Wysocki wrote:
-> 
-> >On Friday, 9 of September 2005 07:09, you wrote:
-> >  
-> >
-> >>Rafael J. Wysocki wrote:
-> >>
-> >>    
-> >>
-> >>>Hi,
-> >>>
-> >>>On Wednesday, 7 of September 2005 09:33, rob wrote:
-> >>> 
-> >>>
-> >>>      
-> >>>
-> >>>>I singed up to this mailing list just to ask this question
-> >>>>I have built a 2.6.13 kernel for a toshiba  tecra 500cdt
-> >>>>this computer uses the pci buss for the sound card
-> >>>>and pcmcia bridge
-> >>>>I have writen a script to unload all the pci buss modules amd go to sleep
-> >>>>it works up to this point
-> >>>>now how do I get the modules put back when ever I add the lines to
-> >>>>rerun the " /etc/rc.d/rc.hotplug /etc/rc.d/rc.pcmcia and 
-> >>>>/etc/rc.d/rcmodules "
-> >>>>I get a kernel crash befor it gose to sleep
-> >>>>I have been al over the net and the olny info I can find is about 
-> >>>>software suspend2
-> >>>>Is there some way to change the sowftware suspend2 scripts to work with the
-> >>>>unpatched kernel software suspend or where can I get the path to init
-> >>>>talked about in the menuconfig file
-> >>>>   
-> >>>>
-> >>>>        
-> >>>>
-> >>>Could you just try
-> >>>
-> >>># echo shutdown > /sys/power/disk && echo disk > /sys/power/state
-> >>>
-> >>>without unloading any modules and see what happens (it should suspend
-> >>>to disk)?
-> >>>
-> >>>If it craches, could you boot the kernel with the init=/bin/bash option and try
-> >>>
-> >>># mount /sys
-> >>># mount /proc
-> >>># /sbin/swapon -a
-> >>># echo shutdown > /sys/power/disk && echo disk > /sys/power/state
-> >>>
-> >>>and see what happens?
-> >>>
-> >>>Rafael
-> >>>
-> >>>
-> >>> 
-> >>>
-> >>>      
-> >>>
-> >>yes I did try this it just crashes and tacks out my file system with it
-> >>and I have to reinstall to recover from it it chops up files like bash
-> >>and every thing on the path the error codes scroll by so fast there is
-> >>no hope ov finding out what errors are tacking place
-> >>    
-> >>
-> >
-> >Then I guess your swap partition is on a logcal volume.  Is it?
-> >
-> >Rafael
-> >
-> >
-> >  
-> >
-> I sould have sed more than just where my syap parttion is
-> in linux2.6.13/Doucumentation /power/deviecs.txt it says
-> somethhing about pci bus devices causing problems
-> with just my sound card modules it just halts with an oops
-> with pcmcia modules loaded it eats the file system
-> with the pci bus mouldes unloaded ALL of them it suspends fine
-> and resumes just fine
-> this works I can live with this I dont mind that all the pci bus devices
-> have to be turned off and restarted after resume
-> what I need is a safe way to reload them
-
-That beats me.  You can try to ask on the acpi-devel list I think.
-
-Greetings,
-Rafael
-
-
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+----
+diff -urN RC13-git7-s2io-u64/drivers/scsi/ch.c RC13-git7-scsi-ch/drivers/scsi/ch.c
+--- RC13-git7-s2io-u64/drivers/scsi/ch.c	2005-08-28 23:09:45.000000000 -0400
++++ RC13-git7-scsi-ch/drivers/scsi/ch.c	2005-09-07 13:55:19.000000000 -0400
+@@ -565,7 +565,7 @@
+ 	return result;
+ }
+ 
+-static int ch_gstatus(scsi_changer *ch, int type, unsigned char *dest)
++static int ch_gstatus(scsi_changer *ch, int type, unsigned char __user *dest)
+ {
+ 	int retval = 0;
+ 	u_char data[16];
+@@ -639,6 +639,7 @@
+ {
+ 	scsi_changer *ch = file->private_data;
+ 	int retval;
++	void __user *argp = (void __user *)arg;
+ 	
+ 	switch (cmd) {
+ 	case CHIOGPARAMS:
+@@ -651,7 +652,7 @@
+ 		params.cp_nportals  = ch->counts[CHET_IE];
+ 		params.cp_ndrives   = ch->counts[CHET_DT];
+ 		
+-		if (copy_to_user((void *) arg, &params, sizeof(params)))
++		if (copy_to_user(argp, &params, sizeof(params)))
+ 			return -EFAULT;
+ 		return 0;
+ 	}
+@@ -676,7 +677,7 @@
+ 			vparams.cvp_n4  = ch->counts[CHET_V4];
+ 			strncpy(vparams.cvp_label4,vendor_labels[3],16);
+ 		}
+-		if (copy_to_user((void *) arg, &vparams, sizeof(vparams)))
++		if (copy_to_user(argp, &vparams, sizeof(vparams)))
+ 			return -EFAULT;
+ 		return 0;
+ 	}
+@@ -685,7 +686,7 @@
+ 	{
+ 		struct changer_position pos;
+ 		
+-		if (copy_from_user(&pos, (void*)arg, sizeof (pos)))
++		if (copy_from_user(&pos, argp, sizeof (pos)))
+ 			return -EFAULT;
+ 
+ 		if (0 != ch_checkrange(ch, pos.cp_type, pos.cp_unit)) {
+@@ -704,7 +705,7 @@
+ 	{
+ 		struct changer_move mv;
+ 
+-		if (copy_from_user(&mv, (void*)arg, sizeof (mv)))
++		if (copy_from_user(&mv, argp, sizeof (mv)))
+ 			return -EFAULT;
+ 
+ 		if (0 != ch_checkrange(ch, mv.cm_fromtype, mv.cm_fromunit) ||
+@@ -726,7 +727,7 @@
+ 	{
+ 		struct changer_exchange mv;
+ 		
+-		if (copy_from_user(&mv, (void*)arg, sizeof (mv)))
++		if (copy_from_user(&mv, argp, sizeof (mv)))
+ 			return -EFAULT;
+ 
+ 		if (0 != ch_checkrange(ch, mv.ce_srctype,  mv.ce_srcunit ) ||
+@@ -751,7 +752,7 @@
+ 	{
+ 		struct changer_element_status ces;
+ 		
+-		if (copy_from_user(&ces, (void*)arg, sizeof (ces)))
++		if (copy_from_user(&ces, argp, sizeof (ces)))
+ 			return -EFAULT;
+ 		if (ces.ces_type < 0 || ces.ces_type >= CH_TYPES)
+ 			return -EINVAL;
+@@ -767,7 +768,7 @@
+ 		unsigned int elem;
+ 		int     result,i;
+ 		
+-		if (copy_from_user(&cge, (void*)arg, sizeof (cge)))
++		if (copy_from_user(&cge, argp, sizeof (cge)))
+ 			return -EFAULT;
+ 
+ 		if (0 != ch_checkrange(ch, cge.cge_type, cge.cge_unit))
+@@ -830,7 +831,7 @@
+ 		kfree(buffer);
+ 		up(&ch->lock);
+ 		
+-		if (copy_to_user((void*)arg, &cge, sizeof (cge)))
++		if (copy_to_user(argp, &cge, sizeof (cge)))
+ 			return -EFAULT;
+ 		return result;
+ 	}
+@@ -848,7 +849,7 @@
+ 		struct changer_set_voltag csv;
+ 		int elem;
+ 
+-		if (copy_from_user(&csv, (void*)arg, sizeof(csv)))
++		if (copy_from_user(&csv, argp, sizeof(csv)))
+ 			return -EFAULT;
+ 
+ 		if (0 != ch_checkrange(ch, csv.csv_type, csv.csv_unit)) {
+@@ -866,7 +867,7 @@
+ 	}
+ 
+ 	default:
+-		return scsi_ioctl(ch->device, cmd, (void*)arg);
++		return scsi_ioctl(ch->device, cmd, argp);
+ 
+ 	}
+ }
+@@ -899,9 +900,9 @@
+ 	case CHIOGSTATUS32:
+ 	{
+ 		struct changer_element_status32 ces32;
+-		unsigned char *data;
++		unsigned char __user *data;
+ 		
+-		if (copy_from_user(&ces32, (void*)arg, sizeof (ces32)))
++		if (copy_from_user(&ces32, (void __user *)arg, sizeof (ces32)))
+ 			return -EFAULT;
+ 		if (ces32.ces_type < 0 || ces32.ces_type >= CH_TYPES)
+ 			return -EINVAL;
+diff -urN RC13-git7-s2io-u64/include/linux/chio.h RC13-git7-scsi-ch/include/linux/chio.h
+--- RC13-git7-s2io-u64/include/linux/chio.h	2005-08-28 23:09:48.000000000 -0400
++++ RC13-git7-scsi-ch/include/linux/chio.h	2005-09-07 13:55:19.000000000 -0400
+@@ -96,7 +96,7 @@
+  */
+ struct changer_element_status {
+ 	int             ces_type;
+-	unsigned char   *ces_data;
++	unsigned char   __user *ces_data;
+ };
+ #define CESTATUS_FULL     0x01 /* full */
+ #define CESTATUS_IMPEXP   0x02	/* media was imported (inserted by sysop) */

@@ -1,40 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965223AbVIIBL7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965228AbVIIBNk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965223AbVIIBL7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 21:11:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965224AbVIIBL7
+	id S965228AbVIIBNk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 21:13:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965227AbVIIBNk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 21:11:59 -0400
-Received: from ozlabs.org ([203.10.76.45]:35986 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S965223AbVIIBL7 (ORCPT
+	Thu, 8 Sep 2005 21:13:40 -0400
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:31162
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S965225AbVIIBNj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 21:11:59 -0400
-Subject: Re: [PATCH] module-init-tools: don't do '-' substitutions in depmod
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Bill Nottingham <notting@redhat.com>
-Cc: linux-kernel@vger.kernel.org, adam@yggdrasil.com
-In-Reply-To: <20050908195633.GB9884@nostromo.devel.redhat.com>
-References: <20050908195633.GB9884@nostromo.devel.redhat.com>
+	Thu, 8 Sep 2005 21:13:39 -0400
+Subject: Linus Git tree - xfs.o broken?
+From: Alejandro Bonilla Beeche <abonilla@linuxwireless.org>
+Reply-To: abonilla@linuxwireless.org
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: nathans@sgi.com, xfs-masters@oss.sgi.com,
+       Linus Torvalds <torvalds@osdl.org>
 Content-Type: text/plain
-Date: Fri, 09 Sep 2005 11:11:59 +1000
-Message-Id: <1126228319.25110.26.camel@localhost.localdomain>
+Date: Thu, 08 Sep 2005 19:12:01 -0600
+Message-Id: <1126228321.5043.5.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-09-08 at 15:56 -0400, Bill Nottingham wrote:
-> The attached patch removes the '-' for '_' substitution from
-> depmod - this makes the names printed for modules in module.alias
-> match the actual names of the module files.
+Hi,
 
-Looks fine, thanks Bill!
+	I keep posting these messages in LKML because I get no answer from
+someone to not do it, or cause I dunno what to do with them.
 
-(Note: this is harmless, because modprobe canonicalizes them itself when
-reading the file anyway, so no change there).
+This is from Linus git tree - Current as per 6PM PDT.
 
-Rusty.
--- 
-A bad analogy is like a leaky screwdriver -- Richard Braakman
+  CC      fs/xfs/linux-2.6/xfs_lrw.o
+  CC      fs/xfs/linux-2.6/xfs_super.o
+  CC      fs/xfs/linux-2.6/xfs_vfs.o
+  CC      fs/xfs/linux-2.6/xfs_vnode.o
+  CC      fs/xfs/support/move.o
+  CC      fs/xfs/support/uuid.o
+  LD      fs/xfs/xfs.o
+ld: fs/xfs/quota/: No such file: File format not recognized
+make[3]: *** [fs/xfs/xfs.o] Error 1
+make[2]: *** [fs/xfs] Error 2
+make[1]: *** [fs] Error 2
+make[1]: Leaving directory `/root/linux-2.6'
+make: *** [stamp-build] Error 2
+debian:~/linux-2.6# cd ..
+
+.Alejandro
 

@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030331AbVIIVqI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030355AbVIIVx5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030331AbVIIVqI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 17:46:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030381AbVIIVqI
+	id S1030355AbVIIVx5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 17:53:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030381AbVIIVx5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 17:46:08 -0400
-Received: from gathered-geeks.org ([217.160.210.51]:37081 "EHLO
-	p15132835.pureserver.info") by vger.kernel.org with ESMTP
-	id S1030331AbVIIVqG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 17:46:06 -0400
-Message-ID: <4322029C.2010904@funzi.de>
-Date: Fri, 09 Sep 2005 23:46:04 +0200
-From: Christopher Beppler <psiml@funzi.de>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050814)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [OOPS] hotplugging cpus via /sys/devices/system/cpu/
-References: <4321F396.3010707@funzi.de> <20050909135556.A29542@unix-os.sc.intel.com>
-In-Reply-To: <20050909135556.A29542@unix-os.sc.intel.com>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Fri, 9 Sep 2005 17:53:57 -0400
+Received: from wproxy.gmail.com ([64.233.184.193]:43351 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030355AbVIIVx4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 17:53:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=qReYqUc2cz7kY+f3aZ1g8fDMYS776+AlOgQle5OCcxDQR1iPUjADIpeIZjZraLUL5da10jfTXuW1MxMYHniUBXkquHI/EdnRAu4p9iPuedvuPdZEbLgtV9xY4g0Kk/N64ZZJHlljJKkSIYRkz1J2dpPyDOWI4Mg9e9pjI7kzs8w=
+Message-ID: <6bffcb0e0509091453117d9978@mail.gmail.com>
+Date: Fri, 9 Sep 2005 23:53:53 +0200
+From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Reply-To: michal.k.k.piotrowski@gmail.com
+To: Folkert van Heusden <folkert@vanheusden.com>
+Subject: Re: testing a kernel - how can i help?
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050909204313.GA26469@vanheusden.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050909204313.GA26469@vanheusden.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ashok Raj wrote:
-> On Fri, Sep 09, 2005 at 01:41:58PM -0700, Christopher Beppler wrote:
-> 
->>   [1.] One line summary of the problem:
->>   If I deactivate a CPU with /sys/devices/system/cpux and try to
->>   reactivate it, then the CPU doesn't start and the kernel prints out an
->>   oops.
->>
-> 
-> 
-> Could you try this on 2.6.13-mm2? If this is due to a sending broadcast
-> IPI related issue that should fix the problem.
+Hi,
 
-No... the oops occurs furthermore...
-
-> I should say i didnt try i386 in a while
-> but i suspect some of the recent suspend/resume code required some
-> modifications to the i386 hotplug code which might be getting in the way
-> if you just try logical cpu hotplug alone without using it for suspend/resume.
+On 09/09/05, Folkert van Heusden <folkert@vanheusden.com> wrote:
+> Running klive on a sparc.
+> Now I wonder: what should/can I run to help by testing a kernel? The sun
+> is dedicated for the testing so everything is possible.
 > 
-> Shaohua might know more about the status.
 > 
-> Cheers,
-> ashok
-> 
+> Folkert van Heusden
 > 
 
+You have at least 2 ways:
+1 - test less bleeding edge -git and -rc, but it's hard, every day job :).
+2 - test -mm - front line.
+
+Regression tests? You can test every plugsched release or other useful thing.
+
+Regards,
+Michal Piotrowski
+
+ps. My klive host: 6ce68650da42a5188df54b6989e153e0
+ps.2 Sorry for my horrible English

@@ -1,48 +1,304 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030278AbVIIRQ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030273AbVIIRQz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030278AbVIIRQ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 13:16:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030276AbVIIRQ0
+	id S1030273AbVIIRQz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 13:16:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030272AbVIIRQe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 13:16:26 -0400
-Received: from tim.rpsys.net ([194.106.48.114]:41392 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S1030272AbVIIRQB (ORCPT
+	Fri, 9 Sep 2005 13:16:34 -0400
+Received: from tim.rpsys.net ([194.106.48.114]:41904 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S1030275AbVIIRQF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 13:16:01 -0400
-Subject: [-mm patch 0/6] SharpSL: Prepare drivers and add new ARM PXA
-	machines Spitz and Borzoi
+	Fri, 9 Sep 2005 13:16:05 -0400
+Subject: [-mm patch 1/6] SharpSL: Abstract c7x0 specifics from Corgi SSP
 From: Richard Purdie <rpurdie@rpsys.net>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Vojtech Pavlik <vojtech@suse.cz>,
-       Linux-Input <linux-input@atrey.karlin.mff.cuni.cz>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
        LKML <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Date: Fri, 09 Sep 2005 18:15:33 +0100
-Message-Id: <1126286133.8383.58.camel@localhost.localdomain>
+Date: Fri, 09 Sep 2005 18:15:35 +0100
+Message-Id: <1126286135.8383.59.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a resend of this patch series. I've taken on board the comments
-Russell made and Nish Aravamudan's comment about the use of HZ. I've
-also tidied up the couple of coding style and white space issues that
-crept in.
+Separate out the Sharp Zaurus c7x0 series specific code from corgi_ssp.c
+so that other models such as the cxx00's can share it. Create sharpsl.h
+which will be used to abstract machine/model specifics. 
 
-Also included this time is the spitz keyboard driver. Its the same
-format as corgikbd, although the differences between the hardware make a
-common driver impractical/inefficient.
+This enables the driver to be used by the Zaurus cxx00 series.
 
-[Summary from last time]:
+Signed-Off-by: Richard Purdie <rpurdie@rpsys.net>
 
-Sharp's newer range of Zaurus clamshell handhelds, the cxx00's are
-similar to the c7x0 series yet different. This patch series abstracts
-the differences and generates a set of common drivers that support both
-series of devices. It then adds machine support for Spitz (SL-C3000) and
-Borzoi (SL-C3100). Hooks for Akita (SL-C1000) differences are also
-added. The I2C driver for its IO expander is the only missing piece.
+Index: linux-2.6.13/arch/arm/mach-pxa/corgi.c
+===================================================================
+--- linux-2.6.13.orig/arch/arm/mach-pxa/corgi.c	2005-09-09 00:09:39.000000000 +0100
++++ linux-2.6.13/arch/arm/mach-pxa/corgi.c	2005-09-09 15:49:02.000000000 +0100
+@@ -41,6 +41,7 @@
+ #include <asm/hardware/scoop.h>
+ 
+ #include "generic.h"
++#include "sharpsl.h"
+ 
+ 
+ /*
+@@ -94,6 +95,16 @@
+ 	.id		= -1,
+ };
+ 
++struct corgissp_machinfo corgi_ssp_machinfo = {
++	.port		= 1,
++	.cs_lcdcon	= CORGI_GPIO_LCDCON_CS,
++	.cs_ads7846	= CORGI_GPIO_ADS7846_CS,
++	.cs_max1111	= CORGI_GPIO_MAX1111_CS,
++	.clk_lcdcon	= 76,
++	.clk_ads7846	= 2,
++	.clk_max1111	= 8,
++};
++
+ 
+ /*
+  * Corgi Backlight Device
+@@ -243,6 +254,8 @@
+ 
+ static void __init corgi_init(void)
+ {
++	corgi_ssp_set_machinfo(&corgi_ssp_machinfo);
++
+ 	pxa_gpio_mode(CORGI_GPIO_USB_PULLUP | GPIO_OUT);
+  	pxa_set_udc_info(&udc_info);
+ 	pxa_set_mci_info(&corgi_mci_platform_data);
+Index: linux-2.6.13/arch/arm/mach-pxa/corgi_ssp.c
+===================================================================
+--- linux-2.6.13.orig/arch/arm/mach-pxa/corgi_ssp.c	2005-09-09 00:09:23.000000000 +0100
++++ linux-2.6.13/arch/arm/mach-pxa/corgi_ssp.c	2005-09-09 12:24:54.000000000 +0100
+@@ -1,7 +1,7 @@
+ /*
+  *  SSP control code for Sharp Corgi devices
+  *
+- *  Copyright (c) 2004 Richard Purdie
++ *  Copyright (c) 2004-2005 Richard Purdie
+  *
+  *  This program is free software; you can redistribute it and/or modify
+  *  it under the terms of the GNU General Public License version 2 as
+@@ -17,14 +17,16 @@
+ #include <linux/delay.h>
+ #include <linux/device.h>
+ #include <asm/hardware.h>
++#include <asm/mach-types.h>
+ 
+ #include <asm/arch/ssp.h>
+-#include <asm/arch/corgi.h>
+ #include <asm/arch/pxa-regs.h>
++#include "sharpsl.h"
+ 
+ static DEFINE_SPINLOCK(corgi_ssp_lock);
+ static struct ssp_dev corgi_ssp_dev;
+ static struct ssp_state corgi_ssp_state;
++static struct corgissp_machinfo *ssp_machinfo;
+ 
+ /*
+  * There are three devices connected to the SSP interface:
+@@ -48,12 +50,12 @@
+ 	unsigned long ret,flag;
+ 
+ 	spin_lock_irqsave(&corgi_ssp_lock, flag);
+-	GPCR0 = GPIO_bit(CORGI_GPIO_ADS7846_CS);
++	GPCR(ssp_machinfo->cs_ads7846) = GPIO_bit(ssp_machinfo->cs_ads7846);
+ 
+ 	ssp_write_word(&corgi_ssp_dev,data);
+ 	ret = ssp_read_word(&corgi_ssp_dev);
+ 
+-	GPSR0 = GPIO_bit(CORGI_GPIO_ADS7846_CS);
++	GPSR(ssp_machinfo->cs_ads7846) = GPIO_bit(ssp_machinfo->cs_ads7846);
+ 	spin_unlock_irqrestore(&corgi_ssp_lock, flag);
+ 
+ 	return ret;
+@@ -66,12 +68,12 @@
+ void corgi_ssp_ads7846_lock(void)
+ {
+ 	spin_lock(&corgi_ssp_lock);
+-	GPCR0 = GPIO_bit(CORGI_GPIO_ADS7846_CS);
++	GPCR(ssp_machinfo->cs_ads7846) = GPIO_bit(ssp_machinfo->cs_ads7846);
+ }
+ 
+ void corgi_ssp_ads7846_unlock(void)
+ {
+-	GPSR0 = GPIO_bit(CORGI_GPIO_ADS7846_CS);
++	GPSR(ssp_machinfo->cs_ads7846) = GPIO_bit(ssp_machinfo->cs_ads7846);
+ 	spin_unlock(&corgi_ssp_lock);
+ }
+ 
+@@ -97,23 +99,27 @@
+  */
+ unsigned long corgi_ssp_dac_put(ulong data)
+ {
+-	unsigned long flag;
++	unsigned long flag, sscr1 = SSCR1_SPH;
+ 
+ 	spin_lock_irqsave(&corgi_ssp_lock, flag);
+-	GPCR0 = GPIO_bit(CORGI_GPIO_LCDCON_CS);
++
++	if (machine_is_spitz() || machine_is_akita() || machine_is_borzoi())
++		sscr1 = 0;
+ 
+ 	ssp_disable(&corgi_ssp_dev);
+-	ssp_config(&corgi_ssp_dev, (SSCR0_Motorola | (SSCR0_DSS & 0x07 )), SSCR1_SPH, 0, SSCR0_SerClkDiv(76));
++	ssp_config(&corgi_ssp_dev, (SSCR0_Motorola | (SSCR0_DSS & 0x07 )), sscr1, 0, SSCR0_SerClkDiv(ssp_machinfo->clk_lcdcon));
+ 	ssp_enable(&corgi_ssp_dev);
+ 
++	GPCR(ssp_machinfo->cs_lcdcon) = GPIO_bit(ssp_machinfo->cs_lcdcon);
+ 	ssp_write_word(&corgi_ssp_dev,data);
+ 	/* Read null data back from device to prevent SSP overflow */
+ 	ssp_read_word(&corgi_ssp_dev);
++	GPSR(ssp_machinfo->cs_lcdcon) = GPIO_bit(ssp_machinfo->cs_lcdcon);
+ 
+ 	ssp_disable(&corgi_ssp_dev);
+-	ssp_config(&corgi_ssp_dev, (SSCR0_National | (SSCR0_DSS & 0x0b )), 0, 0, SSCR0_SerClkDiv(2));
++	ssp_config(&corgi_ssp_dev, (SSCR0_National | (SSCR0_DSS & 0x0b )), 0, 0, SSCR0_SerClkDiv(ssp_machinfo->clk_ads7846));
+ 	ssp_enable(&corgi_ssp_dev);
+-	GPSR0 = GPIO_bit(CORGI_GPIO_LCDCON_CS);
++	
+ 	spin_unlock_irqrestore(&corgi_ssp_lock, flag);
+ 
+ 	return 0;
+@@ -141,9 +147,9 @@
+ 	int voltage,voltage1,voltage2;
+ 
+ 	spin_lock_irqsave(&corgi_ssp_lock, flag);
+-	GPCR0 = GPIO_bit(CORGI_GPIO_MAX1111_CS);
++	GPCR(ssp_machinfo->cs_max1111) = GPIO_bit(ssp_machinfo->cs_max1111);
+ 	ssp_disable(&corgi_ssp_dev);
+-	ssp_config(&corgi_ssp_dev, (SSCR0_Motorola | (SSCR0_DSS & 0x07 )), 0, 0, SSCR0_SerClkDiv(8));
++	ssp_config(&corgi_ssp_dev, (SSCR0_Motorola | (SSCR0_DSS & 0x07 )), 0, 0, SSCR0_SerClkDiv(ssp_machinfo->clk_max1111));
+ 	ssp_enable(&corgi_ssp_dev);
+ 
+ 	udelay(1);
+@@ -161,9 +167,9 @@
+ 	voltage2=ssp_read_word(&corgi_ssp_dev);
+ 
+ 	ssp_disable(&corgi_ssp_dev);
+-	ssp_config(&corgi_ssp_dev, (SSCR0_National | (SSCR0_DSS & 0x0b )), 0, 0, SSCR0_SerClkDiv(2));
++	ssp_config(&corgi_ssp_dev, (SSCR0_National | (SSCR0_DSS & 0x0b )), 0, 0, SSCR0_SerClkDiv(ssp_machinfo->clk_ads7846));
+ 	ssp_enable(&corgi_ssp_dev);
+-	GPSR0 = GPIO_bit(CORGI_GPIO_MAX1111_CS);
++	GPSR(ssp_machinfo->cs_max1111) = GPIO_bit(ssp_machinfo->cs_max1111);
+ 	spin_unlock_irqrestore(&corgi_ssp_lock, flag);
+ 
+ 	if (voltage1 & 0xc0 || voltage2 & 0x3f)
+@@ -179,25 +185,31 @@
+ /*
+  *  Support Routines
+  */
+-int __init corgi_ssp_probe(struct device *dev)
++
++void __init corgi_ssp_set_machinfo(struct corgissp_machinfo *machinfo)
++{
++	ssp_machinfo = machinfo;
++}
++
++static int __init corgi_ssp_probe(struct device *dev)
+ {
+ 	int ret;
+ 
+ 	/* Chip Select - Disable All */
+-	GPDR0 |= GPIO_bit(CORGI_GPIO_LCDCON_CS); /* output */
+-	GPSR0 = GPIO_bit(CORGI_GPIO_LCDCON_CS);  /* High - Disable LCD Control/Timing Gen */
+-	GPDR0 |= GPIO_bit(CORGI_GPIO_MAX1111_CS); /* output */
+-	GPSR0 = GPIO_bit(CORGI_GPIO_MAX1111_CS);  /* High - Disable MAX1111*/
+-	GPDR0 |= GPIO_bit(CORGI_GPIO_ADS7846_CS);  /* output */
+-	GPSR0 = GPIO_bit(CORGI_GPIO_ADS7846_CS);   /* High - Disable ADS7846*/
++	GPDR(ssp_machinfo->cs_lcdcon) |= GPIO_bit(ssp_machinfo->cs_lcdcon); /* output */
++	GPSR(ssp_machinfo->cs_lcdcon) = GPIO_bit(ssp_machinfo->cs_lcdcon);  /* High - Disable LCD Control/Timing Gen */
++	GPDR(ssp_machinfo->cs_max1111) |= GPIO_bit(ssp_machinfo->cs_max1111); /* output */
++	GPSR(ssp_machinfo->cs_max1111) = GPIO_bit(ssp_machinfo->cs_max1111);  /* High - Disable MAX1111*/
++	GPDR(ssp_machinfo->cs_ads7846) |= GPIO_bit(ssp_machinfo->cs_ads7846);  /* output */
++	GPSR(ssp_machinfo->cs_ads7846) = GPIO_bit(ssp_machinfo->cs_ads7846);   /* High - Disable ADS7846*/
+ 
+-	ret=ssp_init(&corgi_ssp_dev,1);
++	ret = ssp_init(&corgi_ssp_dev,ssp_machinfo->port);
+ 
+ 	if (ret)
+ 		printk(KERN_ERR "Unable to register SSP handler!\n");
+ 	else {
+ 		ssp_disable(&corgi_ssp_dev);
+-		ssp_config(&corgi_ssp_dev, (SSCR0_National | (SSCR0_DSS & 0x0b )), 0, 0, SSCR0_SerClkDiv(2));
++		ssp_config(&corgi_ssp_dev, (SSCR0_National | (SSCR0_DSS & 0x0b )), 0, 0, SSCR0_SerClkDiv(ssp_machinfo->clk_ads7846));
+ 		ssp_enable(&corgi_ssp_dev);
+ 	}
+ 
+@@ -222,9 +234,9 @@
+ static int corgi_ssp_resume(struct device *dev, u32 level)
+ {
+ 	if (level == RESUME_POWER_ON) {
+-		GPSR0 = GPIO_bit(CORGI_GPIO_LCDCON_CS);  /* High - Disable LCD Control/Timing Gen */
+-		GPSR0 = GPIO_bit(CORGI_GPIO_MAX1111_CS); /* High - Disable MAX1111*/
+-		GPSR0 = GPIO_bit(CORGI_GPIO_ADS7846_CS); /* High - Disable ADS7846*/
++		GPSR(ssp_machinfo->cs_lcdcon) = GPIO_bit(ssp_machinfo->cs_lcdcon);  /* High - Disable LCD Control/Timing Gen */
++		GPSR(ssp_machinfo->cs_max1111) = GPIO_bit(ssp_machinfo->cs_max1111); /* High - Disable MAX1111*/
++		GPSR(ssp_machinfo->cs_ads7846) = GPIO_bit(ssp_machinfo->cs_ads7846); /* High - Disable ADS7846*/
+ 		ssp_restore_state(&corgi_ssp_dev,&corgi_ssp_state);
+ 		ssp_enable(&corgi_ssp_dev);
+ 	}
+Index: linux-2.6.13/arch/arm/mach-pxa/sharpsl.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6.13/arch/arm/mach-pxa/sharpsl.h	2005-09-09 15:51:22.000000000 +0100
+@@ -0,0 +1,15 @@
++/*
++ * SharpSL SSP Driver
++ */
++
++struct corgissp_machinfo {
++	int port;
++	int cs_lcdcon;
++	int cs_ads7846;
++	int cs_max1111;
++	int clk_lcdcon;
++	int clk_ads7846;
++	int clk_max1111;
++};
++
++void corgi_ssp_set_machinfo(struct corgissp_machinfo *machinfo);
+Index: linux-2.6.13/include/asm-arm/arch-pxa/corgi.h
+===================================================================
+--- linux-2.6.13.orig/include/asm-arm/arch-pxa/corgi.h	2005-09-09 00:09:29.000000000 +0100
++++ linux-2.6.13/include/asm-arm/arch-pxa/corgi.h	2005-09-09 15:38:26.000000000 +0100
+@@ -106,17 +106,5 @@
+ extern struct platform_device corgissp_device;
+ extern struct platform_device corgifb_device;
+ 
+-/*
+- * External Functions
+- */
+-extern unsigned long corgi_ssp_ads7846_putget(unsigned long);
+-extern unsigned long corgi_ssp_ads7846_get(void);
+-extern void corgi_ssp_ads7846_put(unsigned long data);
+-extern void corgi_ssp_ads7846_lock(void);
+-extern void corgi_ssp_ads7846_unlock(void);
+-extern void corgi_ssp_lcdtg_send (unsigned char adrs, unsigned char data);
+-extern void corgi_ssp_blduty_set(int duty);
+-extern int corgi_ssp_max1111_get(unsigned long data);
+-
+ #endif /* __ASM_ARCH_CORGI_H  */
+ 
+Index: linux-2.6.13/include/asm-arm/arch-pxa/sharpsl.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6.13/include/asm-arm/arch-pxa/sharpsl.h	2005-09-09 15:50:31.000000000 +0100
+@@ -0,0 +1,12 @@
++/*
++ * SharpSL SSP Driver
++ */
++
++unsigned long corgi_ssp_ads7846_putget(unsigned long);
++unsigned long corgi_ssp_ads7846_get(void);
++void corgi_ssp_ads7846_put(unsigned long data);
++void corgi_ssp_ads7846_lock(void);
++void corgi_ssp_ads7846_unlock(void);
++void corgi_ssp_lcdtg_send (unsigned char adrs, unsigned char data);
++void corgi_ssp_blduty_set(int duty);
++int corgi_ssp_max1111_get(unsigned long data);
 
-Richard
 

@@ -1,61 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751415AbVIIGz2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751419AbVIIGz6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751415AbVIIGz2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 02:55:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751416AbVIIGz2
+	id S1751419AbVIIGz6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 02:55:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751417AbVIIGz6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 02:55:28 -0400
-Received: from zproxy.gmail.com ([64.233.162.196]:27836 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751415AbVIIGz1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 02:55:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=hKU8KdsTvD5tbjcUokXMZnod/P5PN1h6B//qvBpExgq3PK1VCBb6M3ggW9WNXTfP3RubHC/6yHMUW8d89OK+S1mLWC+pQWCE80M2X5mznfqJX3MOBkgTse4egx763SGjdnIhLDEWoBD8Bk+yjJxRSLMVgG6wJn/uWdS0cS6o+FQ=
-Message-ID: <dda83e780509082355d28a8ef@mail.gmail.com>
-Date: Thu, 8 Sep 2005 23:55:24 -0700
-From: Bret Towe <magnade@gmail.com>
-Reply-To: magnade@gmail.com
-To: "J. Bruce Fields" <bfields@fieldses.org>
-Subject: Re: nfs4 client bug
-Cc: Jesper Juhl <jesper.juhl@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050906181327.GE10632@fieldses.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 9 Sep 2005 02:55:58 -0400
+Received: from mx1.suse.de ([195.135.220.2]:63979 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751416AbVIIGz5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 02:55:57 -0400
+From: Andi Kleen <ak@suse.de>
+To: "Jan Beulich" <JBeulich@novell.com>
+Subject: Re: [discuss] [PATCH] add and handle NMI_VECTOR II
+Date: Fri, 9 Sep 2005 08:55:52 +0200
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
+References: <43207DFC0200007800024543@emea1-mh.id2.novell.com> <20050909004307.GA18347@wotan.suse.de> <43214AE402000078000247AB@emea1-mh.id2.novell.com>
+In-Reply-To: <43214AE402000078000247AB@emea1-mh.id2.novell.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <dda83e7805090320053b03615d@mail.gmail.com>
-	 <dda83e78050904124454fc675a@mail.gmail.com>
-	 <dda83e78050904135113b95c4a@mail.gmail.com>
-	 <20050904215219.GA9812@fieldses.org>
-	 <dda83e780509042008294fbe26@mail.gmail.com>
-	 <20050905031825.GA22209@fieldses.org>
-	 <dda83e78050905134420f06fbf@mail.gmail.com>
-	 <9a87484905090513481118e67b@mail.gmail.com>
-	 <dda83e7805090520407aefb4d1@mail.gmail.com>
-	 <20050906181327.GE10632@fieldses.org>
+Message-Id: <200509090855.52752.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/6/05, J. Bruce Fields <bfields@fieldses.org> wrote:
-> On Mon, Sep 05, 2005 at 08:40:53PM -0700, Bret Towe wrote:
-> > Pid: 14169, comm: xmms Tainted: G   M  2.6.13
-> 
-> Hm, can someone explain what that means?  A proprietary module was
-> loaded then unloaded, maybe?
-> 
-> You may also want to retest with
-> 
-> http://www.citi.umich.edu/projects/nfsv4/linux/kernel-patches/2.6.13-1/linux-2.6.13-001-NFS_ALL_MODIFIED.dif
-> 
-> applied, to make sure there isn't a patch in Trond's series that already
-> fixes the bug.
-> 
-> --b.
-> 
+On Friday 09 September 2005 08:42, Jan Beulich wrote:
+> >Index: linux/include/asm-x86_64/hw_irq.h
+> >===================================================================
+> >--- linux.orig/include/asm-x86_64/hw_irq.h
+> >+++ linux/include/asm-x86_64/hw_irq.h
+> >@@ -52,7 +52,7 @@ struct hw_interrupt_type;
+> > #define ERROR_APIC_VECTOR	0xfe
+> > #define RESCHEDULE_VECTOR	0xfd
+> > #define CALL_FUNCTION_VECTOR	0xfc
+> >-#define KDB_VECTOR		0xfb	/* reserved for KDB */
+> >+#define NMI_VECTOR		0xfb	/* IPI NMIs for debugging */
+> > #define THERMAL_APIC_VECTOR	0xfa
+> > /* 0xf9 free */
+> > #define INVALIDATE_TLB_VECTOR_END	0xf8
+>
+> This doesn't seem too good an idea: the NMI vector really is 0x02
+> (architecturally), so defining it to something else seems at least odd.
 
-ive been running this since i got the url and so far i havent hit it
-ive also been a bit busy so i havent been able to make sure its good
-this weekend i should be able to test it and make sure its solved
+Good point. Actually the consensus (or the patch from T.Rini) was 
+to name it DEBUG_VECTOR, but I messed that up. Will fix.
+
+>
+> >Index: linux/arch/x86_64/kernel/traps.c
+> >===================================================================
+> >--- linux.orig/arch/x86_64/kernel/traps.c
+> >+++ linux/arch/x86_64/kernel/traps.c
+> >@@ -931,7 +931,7 @@ void __init trap_init(void)
+> > 	set_system_gate(IA32_SYSCALL_VECTOR, ia32_syscall);
+> > #endif
+> >
+> >-	set_intr_gate(KDB_VECTOR, call_debug);
+> >+	set_intr_gate(NMI_VECTOR, call_debug);
+> >
+> > 	/*
+> > 	 * Should be a barrier for any external CPU state.
+>
+> I never understood what this does. If you deliver the IPI as an NMI,
+> it'll never arrive at this vector, and why would anyone want to put an
+> "int $NMI_VECTOR" anywhere?
+
+You can force an NMI when sending an IPI by setting the right bits
+in ICR. That is what it is used for.
+
+-Andi

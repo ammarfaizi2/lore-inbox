@@ -1,35 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030287AbVIIRsJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030289AbVIIRwB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030287AbVIIRsJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 13:48:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030288AbVIIRsJ
+	id S1030289AbVIIRwB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 13:52:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030290AbVIIRwB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 13:48:09 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:42211 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030287AbVIIRsI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 13:48:08 -0400
-Date: Fri, 9 Sep 2005 10:48:03 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: viro@ZenIV.linux.org.uk
-cc: Andreas Schwab <schwab@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [sparse fix] (was Re: [PATCH] bogus cast in bio.c)
-In-Reply-To: <20050909172938.GQ9623@ZenIV.linux.org.uk>
-Message-ID: <Pine.LNX.4.58.0509091047530.3051@g5.osdl.org>
-References: <20050909155356.GF9623@ZenIV.linux.org.uk> <je4q8u1agp.fsf@sykes.suse.de>
- <20050909163643.GO9623@ZenIV.linux.org.uk> <20050909172938.GQ9623@ZenIV.linux.org.uk>
+	Fri, 9 Sep 2005 13:52:01 -0400
+Received: from liaag1ae.mx.compuserve.com ([149.174.40.31]:6582 "EHLO
+	liaag1ae.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1030289AbVIIRwA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 13:52:00 -0400
+Date: Fri, 9 Sep 2005 13:50:35 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [discuss] [PATCH] allow CONFIG_FRAME_POINTER for x86-64
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andi Kleen <ak@suse.de>, Jan Beulich <JBeulich@novell.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, discuss@x86-64.org
+Message-ID: <200509091351_MC3-1-A9A7-F01A@compuserve.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In-Reply-To: <Pine.LNX.4.61.0509091208350.6247@goblin.wat.veritas.com>
 
+On Fri, 9 Sep 2005 at 12:14:38 +0100 (BST), Hugh Dickins wrote:
 
-On Fri, 9 Sep 2005 viro@ZenIV.linux.org.uk wrote:
+> On Fri, 9 Sep 2005, Andi Kleen wrote:
+> > 
+> > It won't give more accurate backtraces, not even on i386 because show_stack
+> > doesn't have any code to follow frame pointers.
 > 
-> So AFAICS proper fix for sparse should be to check thistype->as to see
-> if it really has any intention to change ->as.  ACK?
+> Ah, right.
 
-Ack. Applied,
+What's this for, then? (arch/i386/kernel/traps.c line 116)
 
-		Linus
+
+static inline unsigned long print_context_stack(struct thread_info *tinfo,
+                                unsigned long *stack, unsigned long ebp)
+{
+        unsigned long addr;
+
+#ifdef  CONFIG_FRAME_POINTER
+        while (valid_stack_ptr(tinfo, (void *)ebp)) {
+                addr = *(unsigned long *)(ebp + 4);
+                printk(" [<%08lx>] ", addr);
+                print_symbol("%s", addr);
+                printk("\n");
+                ebp = *(unsigned long *)ebp;
+        }
+#else
+
+
+I get nice clean stack traces on i386 with frame pointers enabled and
+the kernel is smaller as well.
+
+__
+Chuck
+Subliminal URL: www.sluggy.com/daily.php?date=050905

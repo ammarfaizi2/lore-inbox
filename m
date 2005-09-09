@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965084AbVIIIri@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932543AbVIIIrM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965084AbVIIIri (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 04:47:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932561AbVIIIri
+	id S932543AbVIIIrM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 04:47:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932552AbVIIIrM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 04:47:38 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:37130
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S932552AbVIIIrh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 04:47:37 -0400
-Message-Id: <4321688A020000780002481E@emea1-mh.id2.novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Fri, 09 Sep 2005 10:48:42 +0200
-From: "Jan Beulich" <JBeulich@novell.com>
-To: "Andi Kleen" <ak@suse.de>, <discuss@x86-64.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [discuss] [PATCH] x86-64 CFI annotation fixes and
-	additions
-References: <43207A6302000078000244F4@emea1-mh.id2.novell.com> <200509091040.11405.ak@suse.de>
-In-Reply-To: <200509091040.11405.ak@suse.de>
+	Fri, 9 Sep 2005 04:47:12 -0400
+Received: from ns.miraclelinux.com ([219.118.163.66]:64172 "EHLO
+	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
+	id S932543AbVIIIrL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 04:47:11 -0400
+Date: Fri, 9 Sep 2005 17:43:42 +0900
+From: Akinobu Mita <mita@miraclelinux.com>
+To: linux-kernel@vger.kernel.org
+Cc: sct@redhat.com, akpm@osdl.org, adilger@clusterfs.com,
+       ext3-users@redhat.com
+Subject: [PATCH 1/6] jbd: remove duplicated debug print
+Message-ID: <20050909084342.GC14205@miraclelinux.com>
+References: <20050909084214.GB14205@miraclelinux.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20050909084214.GB14205@miraclelinux.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->The UNWIND_INFO part has still some problems - in particular it is
-lying
->on all other architectures which don't check it yet. I made it
-dependent
->on X86_64 right now.
+remove duplicated debug print
 
-I don't think so. First, the i386 patch also adds the same (as I
-indicated), and second this controls also the
--fasynchronous-exception-tables compiler flag, which should be
-generically available on all architectures (the i386 patch adds this to
-the top level makefile, x86-64 is somewhat special in requiring the
--fno- form to be used in the opposite case, which is why this ends up in
-the arch-specific makefile).
+Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
 
-Jan
+---
+
+ commit.c |    2 --
+ 1 files changed, 2 deletions(-)
+
+--- 2.6-mm/fs/jbd/commit.c.orig	2005-09-02 00:53:49.000000000 +0900
++++ 2.6-mm/fs/jbd/commit.c	2005-09-02 00:54:11.000000000 +0900
+@@ -425,8 +425,6 @@ write_out_data:
+ 
+ 	journal_write_revoke_records(journal, commit_transaction);
+ 
+-	jbd_debug(3, "JBD: commit phase 2\n");
+-
+ 	/*
+ 	 * If we found any dirty or locked buffers, then we should have
+ 	 * looped back up to the write_out_data label.  If there weren't

@@ -1,38 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030508AbVIIUmf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030372AbVIIUmX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030508AbVIIUmf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 16:42:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030505AbVIIUme
+	id S1030372AbVIIUmX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 16:42:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030504AbVIIUmX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 16:42:34 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:1255 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030504AbVIIUm2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 16:42:28 -0400
-Date: Fri, 9 Sep 2005 21:42:25 +0100
-From: viro@ZenIV.linux.org.uk
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: [PATCH] trivial iomem annotations in qla2xxx/qla_dbg.c
-Message-ID: <20050909204225.GD9623@ZenIV.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Fri, 9 Sep 2005 16:42:23 -0400
+Received: from rwcrmhc14.comcast.net ([204.127.198.54]:48050 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1030372AbVIIUmW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 16:42:22 -0400
+Message-ID: <4321F3AB.4070701@namesys.com>
+Date: Fri, 09 Sep 2005 13:42:19 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Chris Shoemaker <c.shoemaker@cox.net>
+CC: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: List of things requested by lkml for reiser4 inclusion (to review)
+References: <200509091817.39726.zam@namesys.com> <4321C806.60404@namesys.com> <20050909175739.GA32503@pe.Belkin>
+In-Reply-To: <20050909175739.GA32503@pe.Belkin>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-----
-diff -urN RC13-git8-base/drivers/scsi/qla2xxx/qla_dbg.c current/drivers/scsi/qla2xxx/qla_dbg.c
---- RC13-git8-base/drivers/scsi/qla2xxx/qla_dbg.c	2005-08-28 23:09:45.000000000 -0400
-+++ current/drivers/scsi/qla2xxx/qla_dbg.c	2005-09-08 23:53:33.000000000 -0400
-@@ -1334,7 +1334,7 @@
- 
- 		dmp_reg = (uint32_t __iomem *)((uint8_t __iomem *)reg + 0xF0);
- 		WRT_REG_DWORD(dmp_reg, 0xB0200000);
--		dmp_reg = (uint32_t *)((uint8_t *)reg + 0xFC);
-+		dmp_reg = (uint32_t __iomem *)((uint8_t __iomem *)reg + 0xFC);
- 		fw->shadow_reg[2] = RD_REG_DWORD(dmp_reg);
- 
- 		dmp_reg = (uint32_t __iomem *)((uint8_t __iomem *)reg + 0xF0);
+Chris Shoemaker wrote:
+
+>On Fri, Sep 09, 2005 at 10:36:06AM -0700, Hans Reiser wrote:
+>  
+>
+>>If we lose every remaining point of this list, we can generate a patch
+>>in a few days, because the VFS work was the only substantive (in coding
+>>hours) task, and it is done.  Do I remember right that the submission
+>>deadline is a week from Monday for 2.6.14 inclusion?
+>>    
+>>
+>
+>No.  14 days from release date of 2.6.13, which was 8/29, so deadline
+>is 9/12, this coming Monday.
+>
+>-chris
+>
+>
+>  
+>
+IIRC, Linus announced that since he was going on vacation for 7 days,
+this release only it would be 3 weeks, so it is a week from Monday that
+we must submit by, yes? 
+
+Hans

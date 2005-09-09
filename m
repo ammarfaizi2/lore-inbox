@@ -1,41 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030356AbVIITgd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030363AbVIIThZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030356AbVIITgd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 15:36:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030361AbVIITg0
+	id S1030363AbVIIThZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 15:37:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030366AbVIITg4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 15:36:26 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:36805 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S1030356AbVIITfv (ORCPT
+	Fri, 9 Sep 2005 15:36:56 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:44229 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S1030360AbVIITgV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 15:35:51 -0400
-Message-ID: <4321E411.6000701@adaptec.com>
-Date: Fri, 09 Sep 2005 15:35:45 -0400
+	Fri, 9 Sep 2005 15:36:21 -0400
+Message-ID: <4321E42F.40209@adaptec.com>
+Date: Fri, 09 Sep 2005 15:36:15 -0400
 From: Luben Tuikov <luben_tuikov@adaptec.com>
 User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: [PATCH 2.6.13 14/20] aic94xx: aic94xx_scb.c Sequencer control block
- management
+Subject: [PATCH 2.6.13 16/20] aic94xx: aic94xx_seq.c Sequencer interface
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Sep 2005 19:35:50.0297 (UTC) FILETIME=[AF12C090:01C5B575]
+X-OriginalArrivalTime: 09 Sep 2005 19:36:20.0423 (UTC) FILETIME=[C1079D70:01C5B575]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Signed-off-by: Luben Tuikov <luben_tuikov@adaptec.com>
 
-diff -X linux-2.6.13/Documentation/dontdiff -Naur linux-2.6.13-orig/drivers/scsi/aic94xx/aic94xx_scb.c linux-2.6.13/drivers/scsi/aic94xx/aic94xx_scb.c
---- linux-2.6.13-orig/drivers/scsi/aic94xx/aic94xx_scb.c	1969-12-31 19:00:00.000000000 -0500
-+++ linux-2.6.13/drivers/scsi/aic94xx/aic94xx_scb.c	2005-09-09 11:21:23.000000000 -0400
-@@ -0,0 +1,726 @@
+diff -X linux-2.6.13/Documentation/dontdiff -Naur linux-2.6.13-orig/drivers/scsi/aic94xx/aic94xx_seq.c linux-2.6.13/drivers/scsi/aic94xx/aic94xx_seq.c
+--- linux-2.6.13-orig/drivers/scsi/aic94xx/aic94xx_seq.c	1969-12-31 19:00:00.000000000 -0500
++++ linux-2.6.13/drivers/scsi/aic94xx/aic94xx_seq.c	2005-09-09 11:21:23.000000000 -0400
+@@ -0,0 +1,1317 @@
 +/*
-+ * Aic94xx SAS/SATA driver SCB management.
++ * Aic94xx SAS/SATA driver sequencer interface.
 + *
 + * Copyright (C) 2005 Adaptec, Inc.  All rights reserved.
 + * Copyright (C) 2005 Luben Tuikov <luben_tuikov@adaptec.com>
++ *
++ * Parts of this code adapted from David Chaw's adp94xx_seq.c.
 + *
 + * This file is licensed under GPLv2.
 + * 
@@ -55,706 +56,1295 @@ diff -X linux-2.6.13/Documentation/dontdiff -Naur linux-2.6.13-orig/drivers/scsi
 + * along with the aic94xx driver; if not, write to the Free Software
 + * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 + *
-+ * $Id: //depot/aic94xx/aic94xx_scb.c#70 $
++ * $Id: //depot/aic94xx/aic94xx_seq.c#40 $
 + */
 +
++#include <linux/delay.h>
 +#include <linux/pci.h>
-+
-+#include "aic94xx.h"
 +#include "aic94xx_reg.h"
 +#include "aic94xx_hwi.h"
-+#include "aic94xx_seq.h"
 +
++#include "aic94xx_seq.h"
 +#include "aic94xx_dump.h"
 +
-+/* ---------- EMPTY SCB ---------- */
++#include "aic94xx_seq_microcode.c"
 +
-+#define DL_PHY_MASK      7
-+#define BYTES_DMAED      0
-+#define PRIMITIVE_RECVD  0x08
-+#define PHY_EVENT        0x10
-+#define LINK_RESET_ERROR 0x18
-+#define TIMER_EVENT      0x20
-+#define REQ_TASK_ABORT   0xF0
-+#define REQ_DEVICE_RESET 0xF1
-+#define SIGNAL_NCQ_ERROR 0xF2
-+#define CLEAR_NCQ_ERROR  0xF3
++/* It takes no more than 0.05 us for an instruction
++ * to complete. So waiting for 1 us should be more than
++ * plenty.
++ */
++#define PAUSE_DELAY 1
++#define PAUSE_TRIES 1000
 +
-+#define PHY_EVENTS_STATUS (CURRENT_LOSS_OF_SIGNAL | CURRENT_OOB_DONE   \
-+			   | CURRENT_SPINUP_HOLD | CURRENT_GTO_TIMEOUT \
-+			   | CURRENT_OOB_ERROR)
++static u16 first_scb_site_no = 0xFFFF;
++static u16 last_scb_site_no;
 +
-+static inline void get_lrate_mode(struct asd_phy *phy, u8 oob_mode)
++/* ---------- Pause/Unpause CSEQ/LSEQ ---------- */
++
++/**
++ * asd_pause_cseq - pause the central sequencer
++ * @asd_ha: pointer to host adapter structure
++ *
++ * Return 0 on success, negative on failure.
++ */
++int asd_pause_cseq(struct asd_ha_struct *asd_ha)
 +{
-+	switch (oob_mode & 7) {
-+	case PHY_SPEED_60:
-+		phy->sas_phy.linkrate = PHY_LINKRATE_6;
-+		break;
-+	case PHY_SPEED_30:
-+		phy->sas_phy.linkrate = PHY_LINKRATE_3;
-+		break;
-+	case PHY_SPEED_15:
-+		phy->sas_phy.linkrate = PHY_LINKRATE_1_5;
-+		break;
-+	}
-+	if (oob_mode & SAS_MODE)
-+		phy->sas_phy.oob_mode = SAS_OOB_MODE;
-+	else if (oob_mode & SATA_MODE)
-+		phy->sas_phy.oob_mode = SATA_OOB_MODE;
-+}
++	int	count = PAUSE_TRIES;
++	u32	arp2ctl;
 +
-+static inline void asd_phy_event_tasklet(struct asd_ascb *ascb,
-+					 struct done_list_struct *dl)
-+{
-+	struct asd_ha_struct *asd_ha = ascb->ha;
-+	struct sas_ha_struct *sas_ha = &asd_ha->sas_ha;
-+	int phy_id = dl->status_block[0] & DL_PHY_MASK;
-+	struct asd_phy *phy = &asd_ha->phys[phy_id];
++	arp2ctl = asd_read_reg_dword(asd_ha, CARP2CTL);
++	if (arp2ctl & PAUSED)
++		return 0;
 +
-+	u8 oob_status = dl->status_block[1] & PHY_EVENTS_STATUS;
-+	u8 oob_mode   = dl->status_block[2];
++	asd_write_reg_dword(asd_ha, CARP2CTL, arp2ctl | EPAUSE);
++	do {
++		arp2ctl = asd_read_reg_dword(asd_ha, CARP2CTL);
++		if (arp2ctl & PAUSED)
++			return 0;
++		udelay(PAUSE_DELAY);
++	} while (--count > 0);
 +
-+	switch (oob_status) {
-+	case CURRENT_LOSS_OF_SIGNAL:
-+		/* directly attached device was removed */
-+		ASD_DPRINTK("phy%d: device unplugged\n", phy_id);
-+		asd_turn_led(asd_ha, phy_id, 0);
-+		sas_phy_disconnected(&phy->sas_phy);
-+		sas_ha->notify_phy_event(&phy->sas_phy, PHYE_LOSS_OF_SIGNAL);
-+		break;
-+	case CURRENT_OOB_DONE:
-+		/* hot plugged device */
-+		asd_turn_led(asd_ha, phy_id, 1);
-+		get_lrate_mode(phy, oob_mode);
-+		ASD_DPRINTK("phy%d device plugged: lrate:0x%x, proto:0x%x\n",
-+			    phy_id, phy->sas_phy.linkrate, phy->sas_phy.iproto);
-+		sas_ha->notify_phy_event(&phy->sas_phy, PHYE_OOB_DONE);
-+		break;
-+	case CURRENT_SPINUP_HOLD:
-+		/* hot plug SATA, no COMWAKE sent */
-+		asd_turn_led(asd_ha, phy_id, 1);
-+		sas_ha->notify_phy_event(&phy->sas_phy, PHYE_SPINUP_HOLD);
-+		break;
-+	case CURRENT_GTO_TIMEOUT:
-+	case CURRENT_OOB_ERROR:
-+		ASD_DPRINTK("phy%d error while OOB: oob status:0x%x\n", phy_id,
-+			    dl->status_block[1]);
-+		asd_turn_led(asd_ha, phy_id, 0);
-+		sas_phy_disconnected(&phy->sas_phy);
-+		sas_ha->notify_phy_event(&phy->sas_phy, PHYE_OOB_ERROR);
-+		break;
-+	}
-+}
-+
-+/* If phys are enabled sparsely, this will do the right thing. */
-+static inline unsigned ord_phy(struct asd_ha_struct *asd_ha,
-+			       struct asd_phy *phy)
-+{
-+	u8 enabled_mask = asd_ha->hw_prof.enabled_phys;
-+	int i, k = 0;
-+
-+	for_each_phy(enabled_mask, enabled_mask, i) {
-+		if (&asd_ha->phys[i] == phy)
-+			return k;
-+		k++;
-+	}
++	ASD_DPRINTK("couldn't pause CSEQ\n");
++	return -1;
 +}
 +
 +/**
-+ * asd_get_attached_sas_addr -- extract/generate attached SAS address
-+ * phy: pointer to asd_phy
-+ * sas_addr: pointer to buffer where the SAS address is to be written
++ * asd_unpause_cseq - unpause the central sequencer.
++ * @asd_ha: pointer to host adapter structure.
 + *
-+ * This function extracts the SAS address from an IDENTIFY frame
-+ * received.  If OOB is SATA, then a SAS address is generated from the
-+ * HA tables.
-+ *
-+ * LOCKING: the frame_rcvd_lock needs to be held since this parses the frame
-+ * buffer.
++ * Return 0 on success, negative on error.
 + */
-+static inline void asd_get_attached_sas_addr(struct asd_phy *phy, u8 *sas_addr)
++int asd_unpause_cseq(struct asd_ha_struct *asd_ha)
 +{
-+	if (phy->sas_phy.frame_rcvd[0] == 0x34
-+	    && phy->sas_phy.oob_mode == SATA_OOB_MODE) {
-+		struct asd_ha_struct *asd_ha = phy->sas_phy.ha->lldd_ha;
-+		/* FIS device-to-host */
-+		u64 addr = be64_to_cpu(*(__be64 *)phy->phy_desc->sas_addr);
++	u32	arp2ctl;
++	int	count = PAUSE_TRIES;
 +
-+		addr += asd_ha->hw_prof.sata_name_base + ord_phy(asd_ha, phy);
-+		*(__be64 *)sas_addr = cpu_to_be64(addr);
-+	} else {
-+		struct sas_identify_frame *idframe =
-+			(void *) phy->sas_phy.frame_rcvd;
-+		memcpy(sas_addr, idframe->sas_addr, SAS_ADDR_SIZE);
-+	}
-+}
++	arp2ctl = asd_read_reg_dword(asd_ha, CARP2CTL);
++	if (!(arp2ctl & PAUSED))
++		return 0;
 +
-+static inline void asd_bytes_dmaed_tasklet(struct asd_ascb *ascb,
-+					   struct done_list_struct *dl,
-+					   int edb_id, int phy_id)
-+{
-+	unsigned long flags;
-+	int edb_el = edb_id + ascb->edb_index;
-+	struct asd_dma_tok *edb = ascb->ha->seq.edb_arr[edb_el];
-+	struct asd_phy *phy = &ascb->ha->phys[phy_id];
-+	struct sas_ha_struct *sas_ha = phy->sas_phy.ha;
-+	u16 size = ((dl->status_block[3] & 7) << 8) | dl->status_block[2];
++	asd_write_reg_dword(asd_ha, CARP2CTL, arp2ctl & ~EPAUSE);
++	do {
++		arp2ctl = asd_read_reg_dword(asd_ha, CARP2CTL);
++		if (!(arp2ctl & PAUSED))
++			return 0;
++		udelay(PAUSE_DELAY);	
++	} while (--count > 0);
 +
-+	size = min(size, (u16) sizeof(phy->frame_rcvd));
-+
-+	spin_lock_irqsave(&phy->sas_phy.frame_rcvd_lock, flags);
-+	memcpy(phy->sas_phy.frame_rcvd, edb->vaddr, size);
-+	phy->sas_phy.frame_rcvd_size = size;
-+	asd_get_attached_sas_addr(phy, phy->sas_phy.attached_sas_addr);
-+	spin_unlock_irqrestore(&phy->sas_phy.frame_rcvd_lock, flags);
-+	asd_dump_frame_rcvd(phy, dl);
-+	sas_ha->notify_port_event(&phy->sas_phy, PORTE_BYTES_DMAED);
-+}
-+
-+static inline void asd_link_reset_err_tasklet(struct asd_ascb *ascb,
-+					      struct done_list_struct *dl,
-+					      int phy_id)
-+{
-+	struct asd_ha_struct *asd_ha = ascb->ha;
-+	struct sas_ha_struct *sas_ha = &asd_ha->sas_ha;
-+	struct sas_phy *sas_phy = sas_ha->sas_phy[phy_id];
-+	u8 lr_error = dl->status_block[1];
-+	u8 retries_left = dl->status_block[2];
-+
-+	switch (lr_error) {
-+	case 0:
-+		ASD_DPRINTK("phy%d: Receive ID timer expired\n", phy_id);
-+		break;
-+	case 1:
-+		ASD_DPRINTK("phy%d: Loss of signal\n", phy_id);
-+		break;
-+	case 2:
-+		ASD_DPRINTK("phy%d: Loss of dword sync\n", phy_id);
-+		break;
-+	case 3:
-+		ASD_DPRINTK("phy%d: Receive FIS timeout\n", phy_id);
-+		break;
-+	default:
-+		ASD_DPRINTK("phy%d: unknown link reset error code: 0x%x\n",
-+			    phy_id, lr_error);
-+		break;
-+	}
-+
-+	asd_turn_led(asd_ha, phy_id, 0);
-+	sas_phy_disconnected(sas_phy);
-+	sas_ha->notify_port_event(sas_phy, PORTE_LINK_RESET_ERR);
-+
-+	if (retries_left == 0) {
-+		int num = 1;
-+		struct asd_ascb *cp = asd_ascb_alloc_list(ascb->ha, &num,
-+							  GFP_ATOMIC);
-+		if (!cp) {
-+			asd_printk("%s: out of memory\n", __FUNCTION__);
-+			goto out;
-+		}
-+		ASD_DPRINTK("phy%d: retries:0 performing link reset seq\n",
-+			    phy_id);
-+		asd_build_control_phy(cp, phy_id, ENABLE_PHY);
-+		if (asd_post_ascb_list(ascb->ha, cp, 1) != 0)
-+			asd_ascb_free(cp);
-+	}
-+out:
-+	;
-+}
-+
-+static inline void asd_primitive_rcvd_tasklet(struct asd_ascb *ascb,
-+					      struct done_list_struct *dl,
-+					      int phy_id)
-+{
-+	unsigned long flags;
-+	struct sas_ha_struct *sas_ha = &ascb->ha->sas_ha;
-+	struct sas_phy *sas_phy = sas_ha->sas_phy[phy_id];
-+	u8  reg  = dl->status_block[1];
-+	u32 cont = dl->status_block[2] << ((reg & 3)*8);
-+
-+	reg &= ~3;
-+	switch (reg) {
-+	case LmPRMSTAT0BYTE0:
-+		switch (cont) {
-+		case LmBROADCH:
-+		case LmBROADRVCH0:
-+		case LmBROADRVCH1:
-+		case LmBROADSES:
-+			ASD_DPRINTK("phy%d: BROADCAST change received:%d\n",
-+				    phy_id, cont);
-+			spin_lock_irqsave(&sas_phy->sas_prim_lock, flags);
-+			sas_phy->sas_prim = ffs(cont);
-+			spin_unlock_irqrestore(&sas_phy->sas_prim_lock, flags);
-+			sas_ha->notify_port_event(sas_phy,PORTE_BROADCAST_RCVD);
-+			break;
-+
-+		case LmUNKNOWNP:
-+			ASD_DPRINTK("phy%d: unknown BREAK\n", phy_id);
-+			break;
-+
-+		default:
-+			ASD_DPRINTK("phy%d: primitive reg:0x%x, cont:0x%04x\n",
-+				    phy_id, reg, cont);
-+			break;
-+		}
-+		break;
-+	case LmPRMSTAT1BYTE0:
-+		switch (cont) {
-+		case LmHARDRST:
-+			ASD_DPRINTK("phy%d: HARD_RESET primitive rcvd\n",
-+				    phy_id);
-+			/* The sequencer disables all phys on that port.
-+			 * We have to re-enable the phys ourselves. */
-+			sas_ha->notify_port_event(sas_phy, PORTE_HARD_RESET);
-+			break;
-+			
-+		default:
-+			ASD_DPRINTK("phy%d: primitive reg:0x%x, cont:0x%04x\n",
-+				    phy_id, reg, cont);
-+			break;
-+		}
-+		break;
-+	default:
-+		ASD_DPRINTK("unknown primitive register:0x%x\n",
-+			    dl->status_block[1]);
-+		break;
-+	}
++	ASD_DPRINTK("couldn't unpause the CSEQ\n");
++	return -1;
 +}
 +
 +/**
-+ * asd_invalidate_edb -- invalidate an EDB and if necessary post the ESCB
-+ * @ascb: pointer to Empty SCB
-+ * @edb_id: index [0,6] to the empty data buffer which is to be invalidated
++ * asd_seq_pause_lseq - pause a link sequencer
++ * @asd_ha: pointer to a host adapter structure
++ * @lseq: link sequencer of interest
 + *
-+ * After an EDB has been invalidated, if all EDBs in this ESCB have been
-+ * invalidated, the ESCB is posted back to the sequencer.
-+ * Context is tasklet/IRQ.
++ * Return 0 on success, negative on error.
 + */
-+void asd_invalidate_edb(struct asd_ascb *ascb, int edb_id)
++static inline int asd_seq_pause_lseq(struct asd_ha_struct *asd_ha, int lseq)
 +{
-+	struct asd_seq_data *seq = &ascb->ha->seq;
-+	struct empty_scb *escb = &ascb->scb->escb;
-+	struct sg_el     *eb   = &escb->eb[edb_id];
-+	struct asd_dma_tok *edb = seq->edb_arr[ascb->edb_index + edb_id];
++	u32    arp2ctl;
++	int    count = PAUSE_TRIES;
 +
-+	memset(edb->vaddr, 0, ASD_EDB_SIZE);
-+	eb->flags |= ELEMENT_NOT_VALID;
-+	escb->num_valid--;
++	arp2ctl = asd_read_reg_dword(asd_ha, LmARP2CTL(lseq));
++	if (arp2ctl & PAUSED)
++		return 0;
 +
-+	if (escb->num_valid == 0) {
-+		int i;
-+		/* ASD_DPRINTK("reposting escb: vaddr: 0x%p, "
-+			    "dma_handle: 0x%08llx, next: 0x%08llx, "
-+			    "index:%d, opcode:0x%02x\n",
-+			    ascb->dma_scb.vaddr,
-+			    (u64)ascb->dma_scb.dma_handle,
-+			    le64_to_cpu(ascb->scb->header.next_scb),
-+			    le16_to_cpu(ascb->scb->header.index),
-+			    ascb->scb->header.opcode);
-+		*/
-+		escb->num_valid = ASD_EDBS_PER_SCB;
-+		for (i = 0; i < ASD_EDBS_PER_SCB; i++)
-+			escb->eb[i].flags = 0;
-+		if (!list_empty(&ascb->list))
-+			list_del_init(&ascb->list);
-+		i = asd_post_escb_list(ascb->ha, ascb, 1);
-+		if (i)
-+			asd_printk("couldn't post escb, err:%d\n", i);
-+	}
++	asd_write_reg_dword(asd_ha, LmARP2CTL(lseq), arp2ctl | EPAUSE);
++	do {
++		arp2ctl = asd_read_reg_dword(asd_ha, LmARP2CTL(lseq));
++		if (arp2ctl & PAUSED)
++			return 0;
++		udelay(PAUSE_DELAY);
++	} while (--count > 0);
++
++	ASD_DPRINTK("couldn't pause LSEQ %d\n", lseq);
++	return -1;	
 +}
-+
-+static void escb_tasklet_complete(struct asd_ascb *ascb,
-+				  struct done_list_struct *dl)
-+{
-+	struct asd_ha_struct *asd_ha = ascb->ha;
-+	struct sas_ha_struct *sas_ha = &asd_ha->sas_ha;
-+	int edb = (dl->opcode & DL_PHY_MASK) - 1; /* [0xc1,0xc7] -> [0,6] */
-+	u8  sb_opcode = dl->status_block[0];
-+	int phy_id = sb_opcode & DL_PHY_MASK;
-+	struct sas_phy *sas_phy = sas_ha->sas_phy[phy_id];
-+
-+	if (edb > 6 || edb < 0) {
-+		ASD_DPRINTK("edb is 0x%x! dl->opcode is 0x%x\n",
-+			    edb, dl->opcode);
-+		ASD_DPRINTK("sb_opcode : 0x%x, phy_id: 0x%x\n",
-+			    sb_opcode, phy_id);
-+		ASD_DPRINTK("escb: vaddr: 0x%p, "
-+			    "dma_handle: 0x%08llx, next: 0x%08llx, "
-+			    "index:%d, opcode:0x%02x\n",
-+			    ascb->dma_scb.vaddr,
-+			    (u64)ascb->dma_scb.dma_handle,
-+			    le64_to_cpu(ascb->scb->header.next_scb),
-+			    le16_to_cpu(ascb->scb->header.index),
-+			    ascb->scb->header.opcode);
-+	}
-+
-+	sb_opcode &= ~DL_PHY_MASK;
-+
-+	switch (sb_opcode) {
-+	case BYTES_DMAED:
-+		ASD_DPRINTK("%s: phy%d: BYTES_DMAED\n", __FUNCTION__, phy_id);
-+		asd_bytes_dmaed_tasklet(ascb, dl, edb, phy_id);
-+		break;
-+	case PRIMITIVE_RECVD:
-+		ASD_DPRINTK("%s: phy%d: PRIMITIVE_RECVD\n", __FUNCTION__,
-+			    phy_id);
-+		asd_primitive_rcvd_tasklet(ascb, dl, phy_id);
-+		break;
-+	case PHY_EVENT:
-+		ASD_DPRINTK("%s: phy%d: PHY_EVENT\n", __FUNCTION__, phy_id);
-+		asd_phy_event_tasklet(ascb, dl);
-+		break;
-+	case LINK_RESET_ERROR:
-+		ASD_DPRINTK("%s: phy%d: LINK_RESET_ERROR\n", __FUNCTION__,
-+			    phy_id);
-+		asd_link_reset_err_tasklet(ascb, dl, phy_id);
-+		break;
-+	case TIMER_EVENT:
-+		ASD_DPRINTK("%s: phy%d: TIMER_EVENT, lost dw sync\n",
-+			    __FUNCTION__, phy_id);
-+		asd_turn_led(asd_ha, phy_id, 0);
-+		/* the device is gone */
-+		sas_phy_disconnected(sas_phy);
-+		sas_ha->notify_port_event(sas_phy, PORTE_TIMER_EVENT);
-+		break;
-+	case REQ_TASK_ABORT:
-+		ASD_DPRINTK("%s: phy%d: REQ_TASK_ABORT\n", __FUNCTION__,
-+			    phy_id);
-+		break;
-+	case REQ_DEVICE_RESET:
-+		ASD_DPRINTK("%s: phy%d: REQ_DEVICE_RESET\n", __FUNCTION__,
-+			    phy_id);
-+		break;
-+	case SIGNAL_NCQ_ERROR:
-+		ASD_DPRINTK("%s: phy%d: SIGNAL_NCQ_ERROR\n", __FUNCTION__,
-+			    phy_id);
-+		break;
-+	case CLEAR_NCQ_ERROR:
-+		ASD_DPRINTK("%s: phy%d: CLEAR_NCQ_ERROR\n", __FUNCTION__,
-+			    phy_id);
-+		break;
-+	default:
-+		ASD_DPRINTK("%s: phy%d: unknown event:0x%x\n", __FUNCTION__,
-+			    phy_id, sb_opcode);
-+		ASD_DPRINTK("edb is 0x%x! dl->opcode is 0x%x\n",
-+			    edb, dl->opcode);
-+		ASD_DPRINTK("sb_opcode : 0x%x, phy_id: 0x%x\n",
-+			    sb_opcode, phy_id);
-+		ASD_DPRINTK("escb: vaddr: 0x%p, "
-+			    "dma_handle: 0x%08llx, next: 0x%08llx, "
-+			    "index:%d, opcode:0x%02x\n",
-+			    ascb->dma_scb.vaddr,
-+			    (u64)ascb->dma_scb.dma_handle,
-+			    le64_to_cpu(ascb->scb->header.next_scb),
-+			    le16_to_cpu(ascb->scb->header.index),
-+			    ascb->scb->header.opcode);
-+		
-+		break;
-+	}
-+
-+	asd_invalidate_edb(ascb, edb);
-+}
-+
-+int asd_init_post_escbs(struct asd_ha_struct *asd_ha)
-+{
-+	struct asd_seq_data *seq = &asd_ha->seq;
-+	int i;
-+
-+	for (i = 0; i < seq->num_escbs; i++)
-+		seq->escb_arr[i]->tasklet_complete = escb_tasklet_complete;
-+
-+	ASD_DPRINTK("posting %d escbs\n", i);
-+	return asd_post_escb_list(asd_ha, seq->escb_arr[0], seq->num_escbs);
-+}
-+
-+/* ---------- CONTROL PHY ---------- */
-+
-+#define CONTROL_PHY_STATUS (CURRENT_DEVICE_PRESENT | CURRENT_OOB_DONE   \
-+			    | CURRENT_SPINUP_HOLD | CURRENT_GTO_TIMEOUT \
-+			    | CURRENT_OOB_ERROR)
 +
 +/**
-+ * control_phy_tasklet_complete -- tasklet complete for CONTROL PHY ascb
-+ * @ascb: pointer to an ascb
-+ * @dl: pointer to the done list entry
++ * asd_pause_lseq - pause the link sequencer(s)
++ * @asd_ha: pointer to host adapter structure
++ * @lseq_mask: mask of link sequencers of interest
 + *
-+ * This function completes a CONTROL PHY scb and frees the ascb.
-+ * A note on LEDs:
-+ *  - an LED blinks if there is IO though it,
-+ *  - if a device is connected to the LED, it is lit,
-+ *  - if no device is connected to the LED, is is dimmed (off).
++ * Return 0 on success, negative on failure.
 + */
-+static void control_phy_tasklet_complete(struct asd_ascb *ascb,
-+					 struct done_list_struct *dl)
++int asd_pause_lseq(struct asd_ha_struct *asd_ha, u8 lseq_mask)
 +{
-+	struct asd_ha_struct *asd_ha = ascb->ha;
-+	struct scb *scb = ascb->scb;
-+	struct control_phy *control_phy = &scb->control_phy;
-+	u8 phy_id = control_phy->phy_id;
-+	struct asd_phy *phy = &ascb->ha->phys[phy_id];
++	int lseq;
++	int err = 0;
 +
-+	u8 status     = dl->status_block[0];
-+	u8 oob_status = dl->status_block[1];
-+	u8 oob_mode   = dl->status_block[2];
-+	/* u8 oob_signals= dl->status_block[3]; */
++	for_each_sequencer(lseq_mask, lseq_mask, lseq) {
++		err = asd_seq_pause_lseq(asd_ha, lseq);
++		if (err)
++			return err;
++	}
 +
-+	if (status != 0) {
-+		ASD_DPRINTK("%s: phy%d status block opcode:0x%x\n",
-+			    __FUNCTION__, phy_id, status);
++	return err;
++}
++
++/**
++ * asd_seq_unpause_lseq - unpause a link sequencer
++ * @asd_ha: pointer to host adapter structure
++ * @lseq: link sequencer of interest
++ *
++ * Return 0 on success, negative on error.
++ */
++static inline int asd_seq_unpause_lseq(struct asd_ha_struct *asd_ha, int lseq)
++{
++	u32 arp2ctl;
++	int count = PAUSE_TRIES;
++
++	arp2ctl = asd_read_reg_dword(asd_ha, LmARP2CTL(lseq));
++	if (!(arp2ctl & PAUSED))
++		return 0;
++
++	asd_write_reg_dword(asd_ha, LmARP2CTL(lseq), arp2ctl & ~EPAUSE);
++	do {
++		arp2ctl = asd_read_reg_dword(asd_ha, LmARP2CTL(lseq));
++		if (!(arp2ctl & PAUSED))
++			return 0;
++		udelay(PAUSE_DELAY);
++	} while (--count > 0);
++
++	ASD_DPRINTK("couldn't unpause LSEQ %d\n", lseq);
++	return 0;
++}
++
++
++/**
++ * asd_unpause_lseq - unpause the link sequencer(s)
++ * @asd_ha: pointer to host adapter structure
++ * @lseq_mask: mask of link sequencers of interest
++ *
++ * Return 0 on success, negative on failure.
++ */
++int asd_unpause_lseq(struct asd_ha_struct *asd_ha, u8 lseq_mask)
++{
++	int lseq;
++	int err = 0;
++
++	for_each_sequencer(lseq_mask, lseq_mask, lseq) {
++		err = asd_seq_unpause_lseq(asd_ha, lseq);
++		if (err)
++			return err;
++	}
++
++	return err;
++}
++
++/* ---------- Downloading CSEQ/LSEQ microcode ---------- */
++
++static int asd_verify_cseq(struct asd_ha_struct *asd_ha, const u8 *_prog,
++			   u32 size)
++{
++	u32 addr = CSEQ_RAM_REG_BASE_ADR;
++	const u32 *prog = (u32 *) _prog;
++	u32 i;
++
++	for (i = 0; i < size; i += 4, prog++, addr += 4) {
++		u32 val = asd_read_reg_dword(asd_ha, addr);
++
++		if (*prog != val) {
++			asd_printk("%s: cseq verify failed at %u "
++				   "read:0x%x, wanted:0x%x\n",
++				   pci_name(asd_ha->pcidev),
++				   i, val, *prog);
++			return -1;
++		}
++	}
++	ASD_DPRINTK("verified %d bytes, passed\n", size);
++	return 0;
++}
++
++/**
++ * asd_verify_lseq - verify the microcode of a link sequencer
++ * @asd_ha: pointer to host adapter structure
++ * @_prog: pointer to the microcode
++ * @size: size of the microcode in bytes
++ * @lseq: link sequencer of interest
++ *
++ * The link sequencer code is accessed in 4 KB pages, which are selected
++ * by setting LmRAMPAGE (bits 8 and 9) of the LmBISTCTL1 register.
++ * The 10 KB LSEQm instruction code is mapped, page at a time, at
++ * LmSEQRAM address.
++ */
++static int asd_verify_lseq(struct asd_ha_struct *asd_ha, const u8 *_prog,
++			   u32 size, int lseq)
++{
++#define LSEQ_CODEPAGE_SIZE 4096	
++	int pages =  (size + LSEQ_CODEPAGE_SIZE - 1) / LSEQ_CODEPAGE_SIZE;
++	u32 page;
++	const u32 *prog = (u32 *) _prog;
++
++	for (page = 0; page < pages; page++) {
++		u32 i;
++
++		asd_write_reg_dword(asd_ha, LmBISTCTL1(lseq),
++				    page << LmRAMPAGE_LSHIFT);
++		for (i = 0; size > 0 && i < LSEQ_CODEPAGE_SIZE;
++		     i += 4, prog++, size-=4) {
++
++			u32 val = asd_read_reg_dword(asd_ha, LmSEQRAM(lseq)+i);
++
++			if (*prog != val) {
++				asd_printk("%s: LSEQ%d verify failed "
++					   "page:%d, offs:%d\n",
++					   pci_name(asd_ha->pcidev),
++					   lseq, page, i);
++				return -1;
++			}
++		}
++	}
++	ASD_DPRINTK("LSEQ%d verified %d bytes, passed\n", lseq,
++		    (int)((u8 *)prog-_prog));
++	return 0;
++}
++
++/**
++ * asd_verify_seq -- verify CSEQ/LSEQ microcode
++ * @asd_ha: pointer to host adapter structure
++ * @prog: pointer to microcode
++ * @size: size of the microcode
++ * @lseq_mask: if 0, verify CSEQ microcode, else mask of LSEQs of interest
++ *
++ * Return 0 if microcode is correct, negative on mismatch.
++ */
++static int asd_verify_seq(struct asd_ha_struct *asd_ha, const u8 *prog,
++			      u32 size, u8 lseq_mask)
++{
++	if (lseq_mask == 0)
++		return asd_verify_cseq(asd_ha, prog, size);
++	else {
++		int lseq, err;
++
++		for_each_sequencer(lseq_mask, lseq_mask, lseq) {
++			err = asd_verify_lseq(asd_ha, prog, size, lseq);
++			if (err)
++				return err;
++		}
++	}
++
++	return 0;
++}
++#define ASD_DMA_MODE_DOWNLOAD
++#ifdef ASD_DMA_MODE_DOWNLOAD
++/* This is the size of the CSEQ Mapped instruction page */
++#define MAX_DMA_OVLY_COUNT ((1U << 14)-1)
++static int asd_download_seq(struct asd_ha_struct *asd_ha,
++			    const u8 * const prog, u32 size, u8 lseq_mask)
++{
++	u32 comstaten;
++	u32 reg;
++	int page;
++	const int pages = (size + MAX_DMA_OVLY_COUNT - 1) / MAX_DMA_OVLY_COUNT;
++	struct asd_dma_tok *token;
++	int err = 0;
++
++	if (size % 4) {
++		asd_printk("sequencer program not multiple of 4\n");
++		return -1;
++	}
++
++	asd_pause_cseq(asd_ha);
++	asd_pause_lseq(asd_ha, 0xFF);
++
++	/* save, disable and clear interrupts */
++	comstaten = asd_read_reg_dword(asd_ha, COMSTATEN);
++	asd_write_reg_dword(asd_ha, COMSTATEN, 0);
++	asd_write_reg_dword(asd_ha, COMSTAT, COMSTAT_MASK);
++	
++	asd_write_reg_dword(asd_ha, CHIMINTEN, RST_CHIMINTEN);
++	asd_write_reg_dword(asd_ha, CHIMINT, CHIMINT_MASK);
++
++	token = asd_alloc_coherent(asd_ha, MAX_DMA_OVLY_COUNT, GFP_KERNEL);
++	if (!token) {
++		asd_printk("out of memory for dma SEQ download\n");
++		err = -ENOMEM;
 +		goto out;
 +	}
++	ASD_DPRINTK("dma-ing %d bytes\n", size);
 +
-+	switch (control_phy->sub_func) {
-+	case DISABLE_PHY:
-+		asd_ha->hw_prof.enabled_phys &= ~(1 << phy_id);
-+		asd_turn_led(asd_ha, phy_id, 0);
-+		asd_control_led(asd_ha, phy_id, 0);
-+		ASD_DPRINTK("%s: disable phy%d\n", __FUNCTION__, phy_id);
-+		break;
++	for (page = 0; page < pages; page++) {
++		int i;
++  		u32 left = min(size-page*MAX_DMA_OVLY_COUNT,
++			       (u32)MAX_DMA_OVLY_COUNT);
 +
-+	case ENABLE_PHY:
-+		asd_control_led(asd_ha, phy_id, 1);
-+		if (oob_status & CURRENT_OOB_DONE) {
-+			asd_ha->hw_prof.enabled_phys |= (1 << phy_id);
-+			get_lrate_mode(phy, oob_mode);
-+			asd_turn_led(asd_ha, phy_id, 1);
-+			ASD_DPRINTK("%s: phy%d, lrate:0x%x, proto:0x%x\n",
-+				    __FUNCTION__, phy_id,phy->sas_phy.linkrate,
-+				    phy->sas_phy.iproto);
-+		} else if (oob_status & CURRENT_SPINUP_HOLD) {
-+			asd_ha->hw_prof.enabled_phys |= (1 << phy_id);
-+			asd_turn_led(asd_ha, phy_id, 1);
-+			ASD_DPRINTK("%s: phy%d, spinup hold\n", __FUNCTION__,
-+				    phy_id);
-+		} else if (oob_status & CURRENT_ERR_MASK) {
-+			asd_turn_led(asd_ha, phy_id, 0);
-+			ASD_DPRINTK("%s: phy%d: error: oob status:0x%02x\n",
-+				    __FUNCTION__, phy_id, oob_status);
-+		} else if (oob_status & (CURRENT_HOT_PLUG_CNCT
-+					 | CURRENT_DEVICE_PRESENT))  {
-+			asd_ha->hw_prof.enabled_phys |= (1 << phy_id);
-+			asd_turn_led(asd_ha, phy_id, 1);
-+			ASD_DPRINTK("%s: phy%d: hot plug or device present\n",
-+				    __FUNCTION__, phy_id);
-+		} else {
-+			asd_ha->hw_prof.enabled_phys |= (1 << phy_id);
-+			asd_turn_led(asd_ha, phy_id, 0);
-+			ASD_DPRINTK("%s: phy%d: no device present: "
-+				    "oob_status:0x%x\n",
-+				    __FUNCTION__, phy_id, oob_status);
-+		}
-+		break;
-+	case RELEASE_SPINUP_HOLD:
-+	case PHY_NO_OP:
-+	case EXECUTE_HARD_RESET:
-+		ASD_DPRINTK("%s: phy%d: sub_func:0x%x\n", __FUNCTION__,
-+			    phy_id, control_phy->sub_func);
-+		/* XXX finish */
-+		break;
-+	default:
-+		ASD_DPRINTK("%s: phy%d: sub_func:0x%x?\n", __FUNCTION__,
-+			    phy_id, control_phy->sub_func);
-+		break;
-+	}
-+out:
-+	asd_ascb_free(ascb);
-+}
-+
-+static inline void set_speed_mask(u8 *speed_mask, struct asd_phy_desc *pd)
-+{
-+	/* disable all speeds, then enable defaults */
-+	*speed_mask = SAS_SPEED_60_DIS | SAS_SPEED_30_DIS | SAS_SPEED_15_DIS
-+		| SATA_SPEED_30_DIS | SATA_SPEED_15_DIS;
-+	
-+	switch (pd->max_sas_lrate) {
-+	case PHY_LINKRATE_6:
-+		*speed_mask &= ~SAS_SPEED_60_DIS;
-+	default:
-+	case PHY_LINKRATE_3:
-+		*speed_mask &= ~SAS_SPEED_30_DIS;
-+	case PHY_LINKRATE_1_5:
-+		*speed_mask &= ~SAS_SPEED_15_DIS;
-+	}
-+
-+	switch (pd->min_sas_lrate) {
-+	case PHY_LINKRATE_6:
-+		*speed_mask |= SAS_SPEED_30_DIS;
-+	case PHY_LINKRATE_3:
-+		*speed_mask |= SAS_SPEED_15_DIS;
-+	default:
-+	case PHY_LINKRATE_1_5:
-+		/* nothing to do */
-+		;
-+	}
-+
-+	switch (pd->max_sata_lrate) {
-+	case PHY_LINKRATE_3:
-+		*speed_mask &= ~SATA_SPEED_30_DIS;
-+	default:
-+	case PHY_LINKRATE_1_5:
-+		*speed_mask &= ~SATA_SPEED_15_DIS;
-+	}
-+	
-+	switch (pd->min_sata_lrate) {
-+	case PHY_LINKRATE_3:
-+		*speed_mask |= SATA_SPEED_15_DIS;
-+	default:
-+	case PHY_LINKRATE_1_5:
-+		/* nothing to do */
-+		;
-+	}
-+}
-+
-+/**
-+ * asd_build_control_phy -- build a CONTROL PHY SCB
-+ * @ascb: pointer to an ascb
-+ * @phy_id: phy id to control, integer
-+ * @subfunc: subfunction, what to actually to do the phy
-+ *
-+ * This function builds a CONTROL PHY scb.  No allocation of any kind
-+ * is performed. @ascb is allocated with the list function.
-+ * The caller can override the ascb->tasklet_complete to point
-+ * to its own callback function.  It must call asd_ascb_free()
-+ * at its tasklet complete function.
-+ * See the default implementation.
-+ */
-+void asd_build_control_phy(struct asd_ascb *ascb, int phy_id, u8 subfunc)
-+{
-+	struct asd_phy *phy = &ascb->ha->phys[phy_id];
-+	struct scb *scb = ascb->scb;
-+	struct control_phy *control_phy = &scb->control_phy;
-+
-+	scb->header.opcode = CONTROL_PHY;
-+	control_phy->phy_id = (u8) phy_id;
-+	control_phy->sub_func = subfunc;
-+	
-+	switch (subfunc) {
-+	case EXECUTE_HARD_RESET:  /* 0x81 */
-+	case ENABLE_PHY:          /* 0x01 */
-+		/* decide hot plug delay */
-+		control_phy->hot_plug_delay = HOTPLUG_DELAY_TIMEOUT;
++		memcpy(token->vaddr, prog + page*MAX_DMA_OVLY_COUNT, left);
++		asd_write_reg_addr(asd_ha, OVLYDMAADR, token->dma_handle);
++		asd_write_reg_dword(asd_ha, OVLYDMACNT, left);
++		reg = !page ? RESETOVLYDMA : 0;
++		reg |= (STARTOVLYDMA | OVLYHALTERR);
++		reg |= (lseq_mask ? (((u32)lseq_mask) << 8) : OVLYCSEQ);
++		/* Start DMA. */
++		asd_write_reg_dword(asd_ha, OVLYDMACTL, reg);
 +		
-+		/* decide speed mask */
-+		set_speed_mask(&control_phy->speed_mask, phy->phy_desc);
-+
-+		/* initiator port settings are in the hi nibble */
-+		if (phy->sas_phy.role == PHY_ROLE_INITIATOR)
-+			control_phy->port_type = SAS_PROTO_ALL << 4;
-+		else if (phy->sas_phy.role == PHY_ROLE_TARGET)
-+			control_phy->port_type = SAS_PROTO_ALL;
-+		else
-+			control_phy->port_type =
-+				(SAS_PROTO_ALL << 4) | SAS_PROTO_ALL;
-+
-+		/* link reset retries, this should be nominal */
-+		control_phy->link_reset_retries = 10;
-+
-+	case RELEASE_SPINUP_HOLD: /* 0x02 */
-+		/* decide the func_mask */
-+		control_phy->func_mask = FUNCTION_MASK_DEFAULT;
-+		if (phy->phy_desc->flags & ASD_SATA_SPINUP_HOLD)
-+			control_phy->func_mask &= ~SPINUP_HOLD_DIS;
-+		else
-+			control_phy->func_mask |= SPINUP_HOLD_DIS;
++		for (i = PAUSE_TRIES*100; i > 0; i--) {
++			u32 dmadone = asd_read_reg_dword(asd_ha, OVLYDMACTL);
++			if (!(dmadone & OVLYDMAACT))
++				break;
++			udelay(PAUSE_DELAY);
++		}
 +	}
 +
-+	control_phy->conn_handle = cpu_to_le16(0xFFFF);
-+
-+	ascb->tasklet_complete = control_phy_tasklet_complete;
-+}
-+
-+/* ---------- INITIATE LINK ADM TASK ---------- */
-+
-+static void link_adm_tasklet_complete(struct asd_ascb *ascb,
-+				      struct done_list_struct *dl)
-+{
-+	u8 opcode = dl->opcode;
-+	struct initiate_link_adm *link_adm = &ascb->scb->link_adm;
-+	u8 phy_id = link_adm->phy_id;
-+
-+	if (opcode != TC_NO_ERROR) {
-+		asd_printk("phy%d: link adm task 0x%x completed with error "
-+			   "0x%x\n", phy_id, link_adm->sub_func, opcode);
++	reg = asd_read_reg_dword(asd_ha, COMSTAT);
++	if (!(reg & OVLYDMADONE) || (reg & OVLYERR)
++	    || (asd_read_reg_dword(asd_ha, CHIMINT) & DEVEXCEPT_MASK)){
++		asd_printk("%s: error DMA-ing sequencer code\n",
++			   pci_name(asd_ha->pcidev));
++		err = -ENODEV;
 +	}
-+	ASD_DPRINTK("phy%d: link adm task 0x%x: 0x%x\n",
-+		    phy_id, link_adm->sub_func, opcode);
++	
++	asd_free_coherent(asd_ha, token);
++ out:
++	asd_write_reg_dword(asd_ha, COMSTATEN, comstaten);
 +
-+	asd_ascb_free(ascb);
++	return err ? : asd_verify_seq(asd_ha, prog, size, lseq_mask);
 +}
-+
-+void asd_build_initiate_link_adm_task(struct asd_ascb *ascb, int phy_id,
-+				      u8 subfunc)
++#else /* ASD_DMA_MODE_DOWNLOAD */
++static int asd_download_seq(struct asd_ha_struct *asd_ha, const u8 *_prog,
++			    u32 size, u8 lseq_mask)
 +{
-+	struct scb *scb = ascb->scb;
-+	struct initiate_link_adm *link_adm = &scb->link_adm;
++	int i;
++	u32 reg = 0;
++	const u32 *prog = (u32 *) _prog;
 +
-+	scb->header.opcode = INITIATE_LINK_ADM_TASK;
++	if (size % 4) {
++		asd_printk("sequencer program not multiple of 4\n");
++		return -1;
++	}
 +
-+	link_adm->phy_id = phy_id;
-+	link_adm->sub_func = subfunc;
-+	link_adm->conn_handle = cpu_to_le16(0xFFFF);
++	asd_pause_cseq(asd_ha);
++	asd_pause_lseq(asd_ha, 0xFF);
 +
-+	ascb->tasklet_complete = link_adm_tasklet_complete;
++	reg |= (lseq_mask ? (((u32)lseq_mask) << 8) : OVLYCSEQ);
++	reg |= PIOCMODE;
++
++	asd_write_reg_dword(asd_ha, OVLYDMACNT, size);
++	asd_write_reg_dword(asd_ha, OVLYDMACTL, reg);
++
++	ASD_DPRINTK("downloading %s sequencer%s in PIO mode...\n",
++		    lseq_mask ? "LSEQ" : "CSEQ", lseq_mask ? "s" : "");
++
++	for (i = 0; i < size; i += 4, prog++)
++		asd_write_reg_dword(asd_ha, SPIODATA, *prog);
++
++	reg = (reg & ~PIOCMODE) | OVLYHALTERR;
++	asd_write_reg_dword(asd_ha, OVLYDMACTL, reg);
++
++	return asd_verify_seq(asd_ha, _prog, size, lseq_mask);
 +}
-+
-+/* ---------- SCB timer ---------- */
++#endif /* ASD_DMA_MODE_DOWNLOAD */
 +
 +/**
-+ * asd_ascb_timedout -- called when a pending SCB's timer has expired
-+ * @data: unsigned long, a pointer to the ascb in question
++ * asd_seq_download_seqs - download the sequencer microcode
++ * @asd_ha: pointer to host adapter structure
 + *
-+ * This is the default timeout function which does the most necessary.
-+ * Upper layers can implement their own timeout function, say to free
-+ * resources they have with this SCB, and then call this one at the
-+ * end of their timeout function.  To do this, one should initialize
-+ * the ascb->timer.{function, data, expires} prior to calling the post
-+ * funcion.  The timer is started by the post function.
++ * Download the central and link sequencer microcode.
 + */
-+void asd_ascb_timedout(unsigned long data)
++static int asd_seq_download_seqs(struct asd_ha_struct *asd_ha)
 +{
-+	struct asd_ascb *ascb = (void *) data;
-+	struct asd_seq_data *seq = &ascb->ha->seq;
-+	unsigned long flags;
++	int 	err;
 +
-+	ASD_DPRINTK("scb:0x%x timed out\n", ascb->scb->header.opcode);
++	if (!asd_ha->hw_prof.enabled_phys) {
++		asd_printk("%s: no enabled phys!\n", pci_name(asd_ha->pcidev));
++		return -ENODEV;
++	}
 +
-+	spin_lock_irqsave(&seq->pend_q_lock, flags);
-+	seq->pending--;
-+	list_del_init(&ascb->list);
-+	spin_unlock_irqrestore(&seq->pend_q_lock, flags);
++	/* Download the CSEQ */
++	ASD_DPRINTK("downloading CSEQ...\n");
++	err = asd_download_seq(asd_ha, Cseq, sizeof(Cseq), 0);
++	if (err) {
++		asd_printk("CSEQ download failed:%d\n", err);
++		return err;
++	}
 +	
-+	asd_ascb_free(ascb);
++	/* Download the Link Sequencers code. All of the Link Sequencers 
++	 * microcode can be downloaded at the same time.
++	 */
++	ASD_DPRINTK("downloading LSEQs...\n");
++	err = asd_download_seq(asd_ha, Lseq, sizeof(Lseq),
++			       asd_ha->hw_prof.enabled_phys);
++	if (err) {
++		/* Try it one at a time */
++		u8 lseq;
++		u8 lseq_mask = asd_ha->hw_prof.enabled_phys;
++
++		for_each_sequencer(lseq_mask, lseq_mask, lseq) {
++			err = asd_download_seq(asd_ha, Lseq, sizeof(Lseq),
++					       1<<lseq);
++			if (err)
++				break;
++		}
++	}
++	if (err)
++		asd_printk("LSEQs download failed:%d\n", err);
++
++	return err;
 +}
 +
-+/* ---------- CONTROL PHY ---------- */
++/* ---------- Initializing the chip, chip memory, etc. ---------- */
 +
-+/* Given the spec value, return a driver value. */
-+static const int phy_func_table[] = {
-+	[PHY_FUNC_NOP]        = PHY_NO_OP,
-+	[PHY_FUNC_LINK_RESET] = ENABLE_PHY,
-+	[PHY_FUNC_HARD_RESET] = EXECUTE_HARD_RESET,
-+	[PHY_FUNC_DISABLE]    = DISABLE_PHY,
-+	[PHY_FUNC_RELEASE_SPINUP_HOLD] = RELEASE_SPINUP_HOLD,
-+};
-+
-+int asd_control_phy(struct sas_phy *phy, enum phy_func func)
++/** 
++ * asd_init_cseq_mip - initialize CSEQ mode independent pages 4-7
++ * @asd_ha: pointer to host adapter structure
++ */
++static void asd_init_cseq_mip(struct asd_ha_struct *asd_ha)
 +{
-+	struct asd_ha_struct *asd_ha = phy->ha->lldd_ha;
-+	struct asd_ascb *ascb;
-+	int res = 1;
++	/* CSEQ Mode Independent, page 4 setup. */
++	asd_write_reg_word(asd_ha, CSEQ_Q_EXE_HEAD, 0xFFFF);
++	asd_write_reg_word(asd_ha, CSEQ_Q_EXE_TAIL, 0xFFFF);
++	asd_write_reg_word(asd_ha, CSEQ_Q_DONE_HEAD, 0xFFFF);
++	asd_write_reg_word(asd_ha, CSEQ_Q_DONE_TAIL, 0xFFFF);
++	asd_write_reg_word(asd_ha, CSEQ_Q_SEND_HEAD, 0xFFFF);
++	asd_write_reg_word(asd_ha, CSEQ_Q_SEND_TAIL, 0xFFFF);
++	asd_write_reg_word(asd_ha, CSEQ_Q_DMA2CHIM_HEAD, 0xFFFF);
++	asd_write_reg_word(asd_ha, CSEQ_Q_DMA2CHIM_TAIL, 0xFFFF);
++	asd_write_reg_word(asd_ha, CSEQ_Q_COPY_HEAD, 0xFFFF);
++	asd_write_reg_word(asd_ha, CSEQ_Q_COPY_TAIL, 0xFFFF);
++	asd_write_reg_word(asd_ha, CSEQ_REG0, 0);
++	asd_write_reg_word(asd_ha, CSEQ_REG1, 0);
++	asd_write_reg_dword(asd_ha, CSEQ_REG2, 0);
++	asd_write_reg_byte(asd_ha, CSEQ_LINK_CTL_Q_MAP, 0);
++	{
++		u8 con = asd_read_reg_byte(asd_ha, CCONEXIST);
++		u8 val = hweight8(con);
++		asd_write_reg_byte(asd_ha, CSEQ_MAX_CSEQ_MODE, (val<<4)|val);
++	}
++	asd_write_reg_word(asd_ha, CSEQ_FREE_LIST_HACK_COUNT, 0);
 +
-+	if (func == PHY_FUNC_CLEAR_ERROR_LOG)
-+		return -ENOSYS;
++	/* CSEQ Mode independent, page 5 setup. */
++	asd_write_reg_dword(asd_ha, CSEQ_EST_NEXUS_REQ_QUEUE, 0);
++	asd_write_reg_dword(asd_ha, CSEQ_EST_NEXUS_REQ_QUEUE+4, 0);
++	asd_write_reg_dword(asd_ha, CSEQ_EST_NEXUS_REQ_COUNT, 0);
++	asd_write_reg_dword(asd_ha, CSEQ_EST_NEXUS_REQ_COUNT+4, 0);
++	asd_write_reg_word(asd_ha, CSEQ_Q_EST_NEXUS_HEAD, 0xFFFF);
++	asd_write_reg_word(asd_ha, CSEQ_Q_EST_NEXUS_TAIL, 0xFFFF);
++	asd_write_reg_word(asd_ha, CSEQ_NEED_EST_NEXUS_SCB, 0);
++	asd_write_reg_byte(asd_ha, CSEQ_EST_NEXUS_REQ_HEAD, 0);
++	asd_write_reg_byte(asd_ha, CSEQ_EST_NEXUS_REQ_TAIL, 0);
++	asd_write_reg_byte(asd_ha, CSEQ_EST_NEXUS_SCB_OFFSET, 0);
++	
++	/* CSEQ Mode independent, page 6 setup. */
++	asd_write_reg_word(asd_ha, CSEQ_INT_ROUT_RET_ADDR0, 0);
++	asd_write_reg_word(asd_ha, CSEQ_INT_ROUT_RET_ADDR1, 0);	
++	asd_write_reg_word(asd_ha, CSEQ_INT_ROUT_SCBPTR, 0);
++	asd_write_reg_byte(asd_ha, CSEQ_INT_ROUT_MODE, 0);
++	asd_write_reg_byte(asd_ha, CSEQ_ISR_SCRATCH_FLAGS, 0);
++	asd_write_reg_word(asd_ha, CSEQ_ISR_SAVE_SINDEX, 0);
++	asd_write_reg_word(asd_ha, CSEQ_ISR_SAVE_DINDEX, 0);
++	asd_write_reg_word(asd_ha, CSEQ_Q_MONIRTT_HEAD, 0xFFFF);
++	asd_write_reg_word(asd_ha, CSEQ_Q_MONIRTT_TAIL, 0xFFFF);
++	/* Calculate the free scb mask. */
++	{
++		u16 cmdctx = asd_get_cmdctx_size(asd_ha);
++		cmdctx = (~((cmdctx/128)-1)) >> 8;
++		asd_write_reg_byte(asd_ha, CSEQ_FREE_SCB_MASK, (u8)cmdctx);
++	}
++	asd_write_reg_word(asd_ha, CSEQ_BUILTIN_FREE_SCB_HEAD,
++			   first_scb_site_no);
++	asd_write_reg_word(asd_ha, CSEQ_BUILTIN_FREE_SCB_TAIL,
++			   last_scb_site_no);
++	asd_write_reg_word(asd_ha, CSEQ_EXTENDED_FREE_SCB_HEAD, 0xFFFF);
++	asd_write_reg_word(asd_ha, CSEQ_EXTENDED_FREE_SCB_TAIL, 0xFFFF);
 +
-+	ascb = asd_ascb_alloc_list(asd_ha, &res, GFP_KERNEL);
-+	if (!ascb)
-+		return -ENOMEM;
++	/* CSEQ Mode independent, page 7 setup. */
++	asd_write_reg_dword(asd_ha, CSEQ_EMPTY_REQ_QUEUE, 0);
++	asd_write_reg_dword(asd_ha, CSEQ_EMPTY_REQ_QUEUE+4, 0);
++	asd_write_reg_dword(asd_ha, CSEQ_EMPTY_REQ_COUNT, 0);
++	asd_write_reg_dword(asd_ha, CSEQ_EMPTY_REQ_COUNT+4, 0);
++	asd_write_reg_word(asd_ha, CSEQ_Q_EMPTY_HEAD, 0xFFFF);
++	asd_write_reg_word(asd_ha, CSEQ_Q_EMPTY_TAIL, 0xFFFF);
++	asd_write_reg_word(asd_ha, CSEQ_NEED_EMPTY_SCB, 0);
++	asd_write_reg_byte(asd_ha, CSEQ_EMPTY_REQ_HEAD, 0);
++	asd_write_reg_byte(asd_ha, CSEQ_EMPTY_REQ_TAIL, 0);
++	asd_write_reg_byte(asd_ha, CSEQ_EMPTY_SCB_OFFSET, 0);
++	asd_write_reg_word(asd_ha, CSEQ_PRIMITIVE_DATA, 0);
++	asd_write_reg_dword(asd_ha, CSEQ_TIMEOUT_CONST, 0);
++}
 +
-+	asd_build_control_phy(ascb, phy->id, phy_func_table[func]);
-+	res = asd_post_ascb_list(asd_ha, ascb , 1);
-+	if (res)
-+		asd_ascb_free(ascb);
++/**
++ * asd_init_cseq_mdp - initialize CSEQ Mode dependent pages
++ * @asd_ha: pointer to host adapter structure
++ */
++static void asd_init_cseq_mdp(struct asd_ha_struct *asd_ha)
++{
++	int	i;
++	int	moffs; 
++	
++	moffs = CSEQ_PAGE_SIZE * 2;
++	
++	/* CSEQ Mode dependent, modes 0-7, page 0 setup. */
++	for (i = 0; i < 8; i++) {
++		asd_write_reg_word(asd_ha, i*moffs+CSEQ_LRM_SAVE_SINDEX, 0);
++		asd_write_reg_word(asd_ha, i*moffs+CSEQ_LRM_SAVE_SCBPTR, 0);
++		asd_write_reg_word(asd_ha, i*moffs+CSEQ_Q_LINK_HEAD, 0xFFFF);
++		asd_write_reg_word(asd_ha, i*moffs+CSEQ_Q_LINK_TAIL, 0xFFFF);
++		asd_write_reg_byte(asd_ha, i*moffs+CSEQ_LRM_SAVE_SCRPAGE, 0);
++	}
++	
++	/* CSEQ Mode dependent, mode 0-7, page 1 and 2 shall be ignored. */
 +
-+	return res;
++	/* CSEQ Mode dependent, mode 8, page 0 setup. */
++	asd_write_reg_word(asd_ha, CSEQ_RET_ADDR, 0xFFFF);
++	asd_write_reg_word(asd_ha, CSEQ_RET_SCBPTR, 0);
++	asd_write_reg_word(asd_ha, CSEQ_SAVE_SCBPTR, 0);
++	asd_write_reg_word(asd_ha, CSEQ_EMPTY_TRANS_CTX, 0);
++	asd_write_reg_word(asd_ha, CSEQ_RESP_LEN, 0);
++	asd_write_reg_word(asd_ha, CSEQ_TMF_SCBPTR, 0);
++	asd_write_reg_word(asd_ha, CSEQ_GLOBAL_PREV_SCB, 0);
++	asd_write_reg_word(asd_ha, CSEQ_GLOBAL_HEAD, 0);
++	asd_write_reg_word(asd_ha, CSEQ_CLEAR_LU_HEAD, 0);
++	asd_write_reg_byte(asd_ha, CSEQ_TMF_OPCODE, 0);
++	asd_write_reg_byte(asd_ha, CSEQ_SCRATCH_FLAGS, 0);
++	asd_write_reg_word(asd_ha, CSEQ_HSB_SITE, 0);
++	asd_write_reg_word(asd_ha, CSEQ_FIRST_INV_SCB_SITE,
++			   (u16)last_scb_site_no+1);
++	asd_write_reg_word(asd_ha, CSEQ_FIRST_INV_DDB_SITE,
++			   (u16)asd_ha->hw_prof.max_ddbs);
++	
++	/* CSEQ Mode dependent, mode 8, page 1 setup. */
++	asd_write_reg_dword(asd_ha, CSEQ_LUN_TO_CLEAR, 0);
++	asd_write_reg_dword(asd_ha, CSEQ_LUN_TO_CLEAR + 4, 0);
++	asd_write_reg_dword(asd_ha, CSEQ_LUN_TO_CHECK, 0);
++	asd_write_reg_dword(asd_ha, CSEQ_LUN_TO_CHECK + 4, 0);
++	
++	/* CSEQ Mode dependent, mode 8, page 2 setup. */
++	/* Tell the sequencer the bus address of the first SCB. */
++	asd_write_reg_addr(asd_ha, CSEQ_HQ_NEW_POINTER,
++			   asd_ha->seq.next_scb.dma_handle);
++	ASD_DPRINTK("First SCB dma_handle: 0x%08llx\n",
++		    (u64)asd_ha->seq.next_scb.dma_handle);
++
++	/* Tell the sequencer the first Done List entry address. */
++	asd_write_reg_addr(asd_ha, CSEQ_HQ_DONE_BASE,
++			   asd_ha->seq.actual_dl->dma_handle);
++
++	/* Initialize the Q_DONE_POINTER with the least significant
++	 * 4 bytes of the first Done List address. */
++	asd_write_reg_dword(asd_ha, CSEQ_HQ_DONE_POINTER,
++			    ASD_BUSADDR_LO(asd_ha->seq.actual_dl->dma_handle));
++			    
++	asd_write_reg_byte(asd_ha, CSEQ_HQ_DONE_PASS, ASD_DEF_DL_TOGGLE);
++	
++	/* CSEQ Mode dependent, mode 8, page 3 shall be ignored. */
++}
++
++/**
++ * asd_init_cseq_scratch -- setup and init CSEQ
++ * @asd_ha: pointer to host adapter structure
++ *
++ * Setup and initialize Central sequencers. Initialiaze the mode 
++ * independent and dependent scratch page to the default settings.
++ */
++static void asd_init_cseq_scratch(struct asd_ha_struct *asd_ha)
++{
++	asd_init_cseq_mip(asd_ha);
++	asd_init_cseq_mdp(asd_ha);
++}
++
++/**
++ * asd_init_lseq_mip -- initialize LSEQ Mode independent pages 0-3
++ * @asd_ha: pointer to host adapter structure
++ */
++static void asd_init_lseq_mip(struct asd_ha_struct *asd_ha, u8 lseq)
++{
++	int i;
++	
++	/* LSEQ Mode independent page 0 setup. */
++	asd_write_reg_word(asd_ha, LmSEQ_Q_TGTXFR_HEAD(lseq), 0xFFFF);
++	asd_write_reg_word(asd_ha, LmSEQ_Q_TGTXFR_TAIL(lseq), 0xFFFF);
++	asd_write_reg_byte(asd_ha, LmSEQ_LINK_NUMBER(lseq), lseq);
++	asd_write_reg_byte(asd_ha, LmSEQ_SCRATCH_FLAGS(lseq),
++			   ASD_NOTIFY_ENABLE_SPINUP);
++	asd_write_reg_dword(asd_ha, LmSEQ_CONNECTION_STATE(lseq),0x08000000);
++	asd_write_reg_word(asd_ha, LmSEQ_CONCTL(lseq), 0);
++	asd_write_reg_byte(asd_ha, LmSEQ_CONSTAT(lseq), 0);
++	asd_write_reg_byte(asd_ha, LmSEQ_CONNECTION_MODES(lseq), 0);
++	asd_write_reg_word(asd_ha, LmSEQ_REG1_ISR(lseq), 0);
++	asd_write_reg_word(asd_ha, LmSEQ_REG2_ISR(lseq), 0);		
++	asd_write_reg_word(asd_ha, LmSEQ_REG3_ISR(lseq), 0);
++	asd_write_reg_dword(asd_ha, LmSEQ_REG0_ISR(lseq), 0);
++	asd_write_reg_dword(asd_ha, LmSEQ_REG0_ISR(lseq)+4, 0);
++	
++	/* LSEQ Mode independent page 1 setup. */
++	asd_write_reg_word(asd_ha, LmSEQ_EST_NEXUS_SCBPTR0(lseq), 0xFFFF);
++	asd_write_reg_word(asd_ha, LmSEQ_EST_NEXUS_SCBPTR1(lseq), 0xFFFF);
++	asd_write_reg_word(asd_ha, LmSEQ_EST_NEXUS_SCBPTR2(lseq), 0xFFFF);
++	asd_write_reg_word(asd_ha, LmSEQ_EST_NEXUS_SCBPTR3(lseq), 0xFFFF);
++	asd_write_reg_byte(asd_ha, LmSEQ_EST_NEXUS_SCB_OPCODE0(lseq), 0);
++	asd_write_reg_byte(asd_ha, LmSEQ_EST_NEXUS_SCB_OPCODE1(lseq), 0);
++	asd_write_reg_byte(asd_ha, LmSEQ_EST_NEXUS_SCB_OPCODE2(lseq), 0);
++	asd_write_reg_byte(asd_ha, LmSEQ_EST_NEXUS_SCB_OPCODE3(lseq), 0);
++	asd_write_reg_byte(asd_ha, LmSEQ_EST_NEXUS_SCB_HEAD(lseq), 0);
++	asd_write_reg_byte(asd_ha, LmSEQ_EST_NEXUS_SCB_TAIL(lseq), 0);
++	asd_write_reg_byte(asd_ha, LmSEQ_EST_NEXUS_BUF_AVAIL(lseq), 0);
++	asd_write_reg_dword(asd_ha, LmSEQ_TIMEOUT_CONST(lseq), 0);
++	asd_write_reg_word(asd_ha, LmSEQ_ISR_SAVE_SINDEX(lseq), 0);
++	asd_write_reg_word(asd_ha, LmSEQ_ISR_SAVE_DINDEX(lseq), 0);
++		
++	/* LSEQ Mode Independent page 2 setup. */
++	asd_write_reg_word(asd_ha, LmSEQ_EMPTY_SCB_PTR0(lseq), 0xFFFF);
++	asd_write_reg_word(asd_ha, LmSEQ_EMPTY_SCB_PTR1(lseq), 0xFFFF);
++	asd_write_reg_word(asd_ha, LmSEQ_EMPTY_SCB_PTR2(lseq), 0xFFFF);
++	asd_write_reg_word(asd_ha, LmSEQ_EMPTY_SCB_PTR3(lseq), 0xFFFF);
++	asd_write_reg_byte(asd_ha, LmSEQ_EMPTY_SCB_OPCD0(lseq), 0);
++	asd_write_reg_byte(asd_ha, LmSEQ_EMPTY_SCB_OPCD1(lseq), 0);
++	asd_write_reg_byte(asd_ha, LmSEQ_EMPTY_SCB_OPCD2(lseq), 0);
++	asd_write_reg_byte(asd_ha, LmSEQ_EMPTY_SCB_OPCD3(lseq), 0);
++	asd_write_reg_byte(asd_ha, LmSEQ_EMPTY_SCB_HEAD(lseq), 0);
++	asd_write_reg_byte(asd_ha, LmSEQ_EMPTY_SCB_TAIL(lseq), 0);
++	asd_write_reg_byte(asd_ha, LmSEQ_EMPTY_BUFS_AVAIL(lseq), 0);
++	for (i = 0; i < 12; i += 4)
++		asd_write_reg_dword(asd_ha, LmSEQ_ATA_SCR_REGS(lseq) + i, 0);
++	 
++	/* LSEQ Mode Independent page 3 setup. */
++
++	/* Device present timer timeout */
++	asd_write_reg_dword(asd_ha, LmSEQ_DEV_PRES_TMR_TOUT_CONST(lseq),
++			    ASD_DEV_PRESENT_TIMEOUT);
++
++	/* SATA interlock timer disabled */
++	asd_write_reg_dword(asd_ha, LmSEQ_SATA_INTERLOCK_TIMEOUT(lseq),
++			    ASD_SATA_INTERLOCK_TIMEOUT);
++
++	/* STP shutdown timer timeout constant, IGNORED by the sequencer,
++	 * always 0. */
++	asd_write_reg_dword(asd_ha, LmSEQ_STP_SHUTDOWN_TIMEOUT(lseq),
++			    ASD_STP_SHUTDOWN_TIMEOUT);
++
++	asd_write_reg_dword(asd_ha, LmSEQ_SRST_ASSERT_TIMEOUT(lseq),
++			    ASD_SRST_ASSERT_TIMEOUT);
++
++	asd_write_reg_dword(asd_ha, LmSEQ_RCV_FIS_TIMEOUT(lseq),
++			    ASD_RCV_FIS_TIMEOUT);
++
++	asd_write_reg_dword(asd_ha, LmSEQ_ONE_MILLISEC_TIMEOUT(lseq),
++			    ASD_ONE_MILLISEC_TIMEOUT);
++
++	/* COM_INIT timer */
++	asd_write_reg_dword(asd_ha, LmSEQ_TEN_MS_COMINIT_TIMEOUT(lseq),
++			    ASD_TEN_MILLISEC_TIMEOUT);
++
++	asd_write_reg_dword(asd_ha, LmSEQ_SMP_RCV_TIMEOUT(lseq),
++			    ASD_SMP_RCV_TIMEOUT);
++}
++
++/**
++ * asd_init_lseq_mdp -- initialize LSEQ mode dependent pages.
++ * @asd_ha: pointer to host adapter structure
++ */
++static void asd_init_lseq_mdp(struct asd_ha_struct *asd_ha,  int lseq)
++{
++	int    i;
++	u32    moffs;
++	static const u16 ret_addr[] = {
++		0xFFFF,		  /* mode 0 */
++		0xFFFF,		  /* mode 1 */
++		MODE2_TASK,	  /* mode 2 */
++		0,
++		0xFFFF,		  /* mode 4/5 */
++		0xFFFF,		  /* mode 4/5 */
++	};
++	
++	/*
++	 * Mode 0,1,2 and 4/5 have common field on page 0 for the first 
++	 * 14 bytes.
++	 */
++	for (i = 0; i < 3; i++) {
++		moffs = i * LSEQ_MODE_SCRATCH_SIZE;
++		asd_write_reg_word(asd_ha, LmSEQ_RET_ADDR(lseq)+moffs,
++				   ret_addr[i]);
++		asd_write_reg_word(asd_ha, LmSEQ_REG0_MODE(lseq)+moffs, 0);
++		asd_write_reg_word(asd_ha, LmSEQ_MODE_FLAGS(lseq)+moffs, 0);
++		asd_write_reg_word(asd_ha, LmSEQ_RET_ADDR2(lseq)+moffs,0xFFFF);
++		asd_write_reg_word(asd_ha, LmSEQ_RET_ADDR1(lseq)+moffs,0xFFFF);
++		asd_write_reg_byte(asd_ha, LmSEQ_OPCODE_TO_CSEQ(lseq)+moffs,0);
++		asd_write_reg_word(asd_ha, LmSEQ_DATA_TO_CSEQ(lseq)+moffs,0);
++	}
++	/*
++	 *  Mode 5 page 0 overlaps the same scratch page with Mode 0 page 3.
++	 */
++	asd_write_reg_word(asd_ha,
++			 LmSEQ_RET_ADDR(lseq)+LSEQ_MODE5_PAGE0_OFFSET,
++			   ret_addr[5]);
++	asd_write_reg_word(asd_ha,
++			 LmSEQ_REG0_MODE(lseq)+LSEQ_MODE5_PAGE0_OFFSET,0);
++	asd_write_reg_word(asd_ha,
++			 LmSEQ_MODE_FLAGS(lseq)+LSEQ_MODE5_PAGE0_OFFSET, 0);
++	asd_write_reg_word(asd_ha,
++			 LmSEQ_RET_ADDR2(lseq)+LSEQ_MODE5_PAGE0_OFFSET,0xFFFF);
++	asd_write_reg_word(asd_ha,
++			 LmSEQ_RET_ADDR1(lseq)+LSEQ_MODE5_PAGE0_OFFSET,0xFFFF);
++	asd_write_reg_byte(asd_ha,
++		         LmSEQ_OPCODE_TO_CSEQ(lseq)+LSEQ_MODE5_PAGE0_OFFSET,0);
++	asd_write_reg_word(asd_ha,
++		         LmSEQ_DATA_TO_CSEQ(lseq)+LSEQ_MODE5_PAGE0_OFFSET, 0);
++	
++	/* LSEQ Mode dependent 0, page 0 setup. */
++	asd_write_reg_word(asd_ha, LmSEQ_FIRST_INV_DDB_SITE(lseq),
++			   (u16)asd_ha->hw_prof.max_ddbs);
++	asd_write_reg_word(asd_ha, LmSEQ_EMPTY_TRANS_CTX(lseq), 0);
++	asd_write_reg_word(asd_ha, LmSEQ_RESP_LEN(lseq), 0);
++	asd_write_reg_word(asd_ha, LmSEQ_FIRST_INV_SCB_SITE(lseq), 
++			   (u16)last_scb_site_no+1);
++	asd_write_reg_dword(asd_ha, LmSEQ_INTEN_SAVE(lseq),
++			    (u32) LmM0INTEN_MASK);
++	asd_write_reg_byte(asd_ha, LmSEQ_LINK_RST_FRM_LEN(lseq), 0);
++	asd_write_reg_byte(asd_ha, LmSEQ_LINK_RST_PROTOCOL(lseq), 0);
++	asd_write_reg_byte(asd_ha, LmSEQ_RESP_STATUS(lseq), 0);
++	asd_write_reg_byte(asd_ha, LmSEQ_LAST_LOADED_SGE(lseq), 0);
++	asd_write_reg_word(asd_ha, LmSEQ_SAVE_SCBPTR(lseq), 0);
++
++	/* LSEQ mode dependent, mode 1, page 0 setup. */
++	asd_write_reg_word(asd_ha, LmSEQ_Q_XMIT_HEAD(lseq), 0xFFFF);
++	asd_write_reg_word(asd_ha, LmSEQ_M1_EMPTY_TRANS_CTX(lseq), 0);
++	asd_write_reg_word(asd_ha, LmSEQ_INI_CONN_TAG(lseq), 0);
++	asd_write_reg_byte(asd_ha, LmSEQ_FAILED_OPEN_STATUS(lseq), 0);
++	asd_write_reg_byte(asd_ha, LmSEQ_XMIT_REQUEST_TYPE(lseq), 0);
++	asd_write_reg_byte(asd_ha, LmSEQ_M1_RESP_STATUS(lseq), 0);
++	asd_write_reg_byte(asd_ha, LmSEQ_M1_LAST_LOADED_SGE(lseq), 0);
++	asd_write_reg_word(asd_ha, LmSEQ_M1_SAVE_SCBPTR(lseq), 0);
++	
++	/* LSEQ Mode dependent mode 2, page 0 setup */
++	asd_write_reg_word(asd_ha, LmSEQ_PORT_COUNTER(lseq), 0);
++	asd_write_reg_word(asd_ha, LmSEQ_PM_TABLE_PTR(lseq), 0);
++	asd_write_reg_word(asd_ha, LmSEQ_SATA_INTERLOCK_TMR_SAVE(lseq), 0);
++	asd_write_reg_word(asd_ha, LmSEQ_IP_BITL(lseq), 0);
++	asd_write_reg_word(asd_ha, LmSEQ_COPY_SMP_CONN_TAG(lseq), 0);
++	asd_write_reg_byte(asd_ha, LmSEQ_P0M2_OFFS1AH(lseq), 0);
++	
++	/* LSEQ Mode dependent, mode 4/5, page 0 setup. */
++	asd_write_reg_byte(asd_ha, LmSEQ_SAVED_OOB_STATUS(lseq), 0);
++	asd_write_reg_byte(asd_ha, LmSEQ_SAVED_OOB_MODE(lseq), 0);
++	asd_write_reg_word(asd_ha, LmSEQ_Q_LINK_HEAD(lseq), 0xFFFF);
++	asd_write_reg_byte(asd_ha, LmSEQ_LINK_RST_ERR(lseq), 0);
++	asd_write_reg_byte(asd_ha, LmSEQ_SAVED_OOB_SIGNALS(lseq), 0);
++	asd_write_reg_byte(asd_ha, LmSEQ_SAS_RESET_MODE(lseq), 0);
++	asd_write_reg_byte(asd_ha, LmSEQ_LINK_RESET_RETRY_COUNT(lseq), 0);
++	asd_write_reg_byte(asd_ha, LmSEQ_NUM_LINK_RESET_RETRIES(lseq), 0);
++	asd_write_reg_word(asd_ha, LmSEQ_OOB_INT_ENABLES(lseq), 0);
++	/* 
++	 * Set the desired interval between transmissions of the NOTIFY
++	 * (ENABLE SPINUP) primitive.  Must be initilized to val - 1.
++	 */ 
++	asd_write_reg_word(asd_ha, LmSEQ_NOTIFY_TIMER_TIMEOUT(lseq),
++			   ASD_NOTIFY_TIMEOUT - 1);
++	/* No delay for the first NOTIFY to be sent to the attached target. */
++	asd_write_reg_word(asd_ha, LmSEQ_NOTIFY_TIMER_DOWN_COUNT(lseq),
++			   ASD_NOTIFY_DOWN_COUNT);
++	
++	/* LSEQ Mode dependent, mode 0 and 1, page 1 setup. */
++	for (i = 0; i < 2; i++)	{
++		int j;
++		/* Start from Page 1 of Mode 0 and 1. */
++		moffs = LSEQ_PAGE_SIZE + i*LSEQ_MODE_SCRATCH_SIZE;
++		/* All the fields of page 1 can be intialized to 0. */
++		for (j = 0; j < LSEQ_PAGE_SIZE; j += 4)
++			asd_write_reg_dword(asd_ha, LmSCRATCH(lseq)+moffs+j,0);
++	}
++
++	/* LSEQ Mode dependent, mode 2, page 1 setup. */
++	asd_write_reg_dword(asd_ha, LmSEQ_INVALID_DWORD_COUNT(lseq), 0);
++	asd_write_reg_dword(asd_ha, LmSEQ_DISPARITY_ERROR_COUNT(lseq), 0);
++	asd_write_reg_dword(asd_ha, LmSEQ_LOSS_OF_SYNC_COUNT(lseq), 0);
++			
++	/* LSEQ Mode dependent, mode 4/5, page 1. */
++	for (i = 0; i < LSEQ_PAGE_SIZE; i+=4)
++		asd_write_reg_dword(asd_ha, LmSEQ_FRAME_TYPE_MASK(lseq)+i, 0);
++	asd_write_reg_byte(asd_ha, LmSEQ_FRAME_TYPE_MASK(lseq), 0xFF);
++	asd_write_reg_byte(asd_ha, LmSEQ_HASHED_DEST_ADDR_MASK(lseq), 0xFF);
++	asd_write_reg_byte(asd_ha, LmSEQ_HASHED_DEST_ADDR_MASK(lseq)+1,0xFF);
++	asd_write_reg_byte(asd_ha, LmSEQ_HASHED_DEST_ADDR_MASK(lseq)+2,0xFF);
++	asd_write_reg_byte(asd_ha, LmSEQ_HASHED_SRC_ADDR_MASK(lseq), 0xFF);
++	asd_write_reg_byte(asd_ha, LmSEQ_HASHED_SRC_ADDR_MASK(lseq)+1, 0xFF);
++	asd_write_reg_byte(asd_ha, LmSEQ_HASHED_SRC_ADDR_MASK(lseq)+2, 0xFF);
++	asd_write_reg_dword(asd_ha, LmSEQ_DATA_OFFSET(lseq), 0xFFFFFFFF);
++	
++	/* LSEQ Mode dependent, mode 0, page 2 setup. */
++	asd_write_reg_dword(asd_ha, LmSEQ_SMP_RCV_TIMER_TERM_TS(lseq), 0);
++	asd_write_reg_byte(asd_ha, LmSEQ_DEVICE_BITS(lseq), 0);
++	asd_write_reg_word(asd_ha, LmSEQ_SDB_DDB(lseq), 0);
++	asd_write_reg_byte(asd_ha, LmSEQ_SDB_NUM_TAGS(lseq), 0);
++	asd_write_reg_byte(asd_ha, LmSEQ_SDB_CURR_TAG(lseq), 0);
++	
++	/* LSEQ Mode Dependent 1, page 2 setup. */
++	asd_write_reg_dword(asd_ha, LmSEQ_TX_ID_ADDR_FRAME(lseq), 0);
++	asd_write_reg_dword(asd_ha, LmSEQ_TX_ID_ADDR_FRAME(lseq)+4, 0);
++	asd_write_reg_dword(asd_ha, LmSEQ_OPEN_TIMER_TERM_TS(lseq), 0);
++	asd_write_reg_dword(asd_ha, LmSEQ_SRST_AS_TIMER_TERM_TS(lseq), 0);
++	asd_write_reg_dword(asd_ha, LmSEQ_LAST_LOADED_SG_EL(lseq), 0);
++
++	/* LSEQ Mode Dependent 2, page 2 setup. */
++	/* The LmSEQ_STP_SHUTDOWN_TIMER_TERM_TS is IGNORED by the sequencer,
++	 * i.e. always 0. */
++	asd_write_reg_dword(asd_ha, LmSEQ_STP_SHUTDOWN_TIMER_TERM_TS(lseq),0);
++	asd_write_reg_dword(asd_ha, LmSEQ_CLOSE_TIMER_TERM_TS(lseq), 0);
++	asd_write_reg_dword(asd_ha, LmSEQ_BREAK_TIMER_TERM_TS(lseq), 0);
++	asd_write_reg_dword(asd_ha, LmSEQ_DWS_RESET_TIMER_TERM_TS(lseq), 0);
++	asd_write_reg_dword(asd_ha,LmSEQ_SATA_INTERLOCK_TIMER_TERM_TS(lseq),0);
++	asd_write_reg_dword(asd_ha, LmSEQ_MCTL_TIMER_TERM_TS(lseq), 0);
++
++	/* LSEQ Mode Dependent 4/5, page 2 setup. */
++	asd_write_reg_dword(asd_ha, LmSEQ_COMINIT_TIMER_TERM_TS(lseq), 0);
++	asd_write_reg_dword(asd_ha, LmSEQ_RCV_ID_TIMER_TERM_TS(lseq), 0);
++	asd_write_reg_dword(asd_ha, LmSEQ_RCV_FIS_TIMER_TERM_TS(lseq), 0);
++	asd_write_reg_dword(asd_ha, LmSEQ_DEV_PRES_TIMER_TERM_TS(lseq),	0);
++}
++
++/**
++ * asd_init_lseq_scratch -- setup and init link sequencers
++ * @asd_ha: pointer to host adapter struct
++ */
++static void asd_init_lseq_scratch(struct asd_ha_struct *asd_ha)
++{
++	u8 lseq;
++	u8 lseq_mask;
++
++	lseq_mask = asd_ha->hw_prof.enabled_phys;
++	for_each_sequencer(lseq_mask, lseq_mask, lseq) {
++		asd_init_lseq_mip(asd_ha, lseq); 
++		asd_init_lseq_mdp(asd_ha, lseq);
++	}
++}
++
++/**
++ * asd_init_scb_sites -- initialize sequencer SCB sites (memory).
++ * @asd_ha: pointer to host adapter structure
++ *
++ * This should be done before initializing common CSEQ and LSEQ
++ * scratch since those areas depend on some computed values here,
++ * last_scb_site_no, etc.
++ */
++static void asd_init_scb_sites(struct asd_ha_struct *asd_ha)
++{
++	u16	site_no;
++	u16     max_scbs = 0;
++
++	for (site_no = asd_ha->hw_prof.max_scbs-1;
++	     site_no != (u16) -1;
++	     site_no--) {
++		u16	i;
++
++		/* Initialize all fields in the SCB site to 0. */
++		for (i = 0; i < ASD_SCB_SIZE; i += 4)
++			asd_scbsite_write_dword(asd_ha, site_no, i, 0);
++
++		/* Workaround needed by SEQ to fix a SATA issue is to exclude
++		 * certain SCB sites from the free list. */
++		if (!SCB_SITE_VALID(site_no))
++			continue;
++
++		if (last_scb_site_no == 0)
++			last_scb_site_no = site_no;
++		
++		/* For every SCB site, we need to initialize the
++		 * following fields: Q_NEXT, SCB_OPCODE, SCB_FLAGS,
++		 * and SG Element Flag. */
++
++		/* Q_NEXT field of the last SCB is invalidated. */
++		asd_scbsite_write_word(asd_ha, site_no, 0, first_scb_site_no);
++
++		/* Initialize SCB Site Opcode field to invalid. */
++		asd_scbsite_write_byte(asd_ha, site_no,
++				       offsetof(struct scb_header, opcode),
++				       0xFF);
++
++		/* Initialize SCB Site Flags field to mean a response
++		 * frame has been received.  This means inadvertent
++		 * frames received to be dropped. */
++		asd_scbsite_write_byte(asd_ha, site_no, 0x49, 0x01);	
++
++		first_scb_site_no = site_no;
++		max_scbs++;
++	}
++	asd_ha->hw_prof.max_scbs = max_scbs;
++	ASD_DPRINTK("max_scbs:%d\n", asd_ha->hw_prof.max_scbs);
++	ASD_DPRINTK("first_scb_site_no:0x%x\n", first_scb_site_no);
++	ASD_DPRINTK("last_scb_site_no:0x%x\n", last_scb_site_no);
++}
++
++/**
++ * asd_init_cseq_cio - initialize CSEQ CIO registers
++ * @asd_ha: pointer to host adapter structure
++ */
++static void asd_init_cseq_cio(struct asd_ha_struct *asd_ha)
++{
++	int i;
++
++	asd_write_reg_byte(asd_ha, CSEQCOMINTEN, 0);
++	asd_write_reg_byte(asd_ha, CSEQDLCTL, ASD_DL_SIZE_BITS);
++	asd_write_reg_byte(asd_ha, CSEQDLOFFS, 0);
++	asd_write_reg_byte(asd_ha, CSEQDLOFFS+1, 0);
++	asd_ha->seq.scbpro = 0;
++	asd_write_reg_dword(asd_ha, SCBPRO, 0);
++	asd_write_reg_dword(asd_ha, CSEQCON, 0);
++
++	/* Intialize CSEQ Mode 11 Interrupt Vectors.
++	 * The addresses are 16 bit wide and in dword units.
++	 * The values of their macros are in byte units.
++	 * Thus we have to divide by 4. */
++	asd_write_reg_word(asd_ha, CM11INTVEC0, CSEQ_INT_VEC0);
++	asd_write_reg_word(asd_ha, CM11INTVEC1, CSEQ_INT_VEC1);
++	asd_write_reg_word(asd_ha, CM11INTVEC2, CSEQ_INT_VEC2);
++	
++	/* Enable ARP2HALTC (ARP2 Halted from Halt Code Write). */
++	asd_write_reg_byte(asd_ha, CARP2INTEN, EN_ARP2HALTC);
++
++	/* Initialize CSEQ Scratch Page to 0x04. */
++	asd_write_reg_byte(asd_ha, CSCRATCHPAGE, 0x04);
++	
++	/* Initialize CSEQ Mode[0-8] Dependent registers. */
++	/* Initialize Scratch Page to 0. */
++	for (i = 0; i < 9; i++) 
++		asd_write_reg_byte(asd_ha, CMnSCRATCHPAGE(i), 0);
++	
++	/* Reset the ARP2 Program Count. */
++	asd_write_reg_word(asd_ha, CPRGMCNT, CSEQ_IDLE_LOOP_ENTRY);
++
++	for (i = 0; i < 8; i++) {
++		/* Intialize Mode n Link m Interrupt Enable. */
++		asd_write_reg_dword(asd_ha, CMnINTEN(i), EN_CMnRSPMBXF);
++		/* Initialize Mode n Request Mailbox. */
++		asd_write_reg_dword(asd_ha, CMnREQMBX(i), 0);	
++	}
++}
++
++/**
++ * asd_init_lseq_cio -- initialize LmSEQ CIO registers
++ * @asd_ha: pointer to host adapter structure
++ */
++static void asd_init_lseq_cio(struct asd_ha_struct *asd_ha, int lseq)
++{
++	u8  *sas_addr;
++	int  i;
++	
++	/* Enable ARP2HALTC (ARP2 Halted from Halt Code Write). */
++	asd_write_reg_dword(asd_ha, LmARP2INTEN(lseq), EN_ARP2HALTC);
++ 
++	asd_write_reg_byte(asd_ha, LmSCRATCHPAGE(lseq), 0);
++	
++	/* Initialize Mode 0,1, and 2 SCRATCHPAGE to 0. */
++	for (i = 0; i < 3; i++)
++		asd_write_reg_byte(asd_ha, LmMnSCRATCHPAGE(lseq, i), 0);
++
++	/* Initialize Mode 5 SCRATCHPAGE to 0. */
++	asd_write_reg_byte(asd_ha, LmMnSCRATCHPAGE(lseq, 5), 0);
++	
++	asd_write_reg_dword(asd_ha, LmRSPMBX(lseq), 0);
++	/* Initialize Mode 0,1,2 and 5 Interrupt Enable and 
++	 * Interrupt registers. */
++	asd_write_reg_dword(asd_ha, LmMnINTEN(lseq, 0), LmM0INTEN_MASK);
++	asd_write_reg_dword(asd_ha, LmMnINT(lseq, 0), 0xFFFFFFFF);
++	/* Mode 1 */
++	asd_write_reg_dword(asd_ha, LmMnINTEN(lseq, 1), LmM1INTEN_MASK);
++	asd_write_reg_dword(asd_ha, LmMnINT(lseq, 1), 0xFFFFFFFF);
++	/* Mode 2 */
++	asd_write_reg_dword(asd_ha, LmMnINTEN(lseq, 2), LmM2INTEN_MASK);
++	asd_write_reg_dword(asd_ha, LmMnINT(lseq, 2), 0xFFFFFFFF);
++	/* Mode 5 */
++	asd_write_reg_dword(asd_ha, LmMnINTEN(lseq, 5), LmM5INTEN_MASK);
++	asd_write_reg_dword(asd_ha, LmMnINT(lseq, 5), 0xFFFFFFFF);	
++			
++	/* Enable HW Timer status. */
++	asd_write_reg_byte(asd_ha, LmHWTSTATEN(lseq), LmHWTSTATEN_MASK);
++	
++	/* Enable Primitive Status 0 and 1. */
++	asd_write_reg_dword(asd_ha, LmPRIMSTAT0EN(lseq), LmPRIMSTAT0EN_MASK);
++	asd_write_reg_dword(asd_ha, LmPRIMSTAT1EN(lseq), LmPRIMSTAT1EN_MASK);
++				
++	/* Enable Frame Error. */ 
++	asd_write_reg_dword(asd_ha, LmFRMERREN(lseq), LmFRMERREN_MASK);
++	asd_write_reg_byte(asd_ha, LmMnHOLDLVL(lseq, 0), 0x50);
++	
++	/* Initialize Mode 0 Transfer Level to 512. */
++	asd_write_reg_byte(asd_ha,  LmMnXFRLVL(lseq, 0), LmMnXFRLVL_512);
++	/* Initialize Mode 1 Transfer Level to 256. */
++	asd_write_reg_byte(asd_ha, LmMnXFRLVL(lseq, 1), LmMnXFRLVL_256);
++	
++	/* Initialize Program Count. */
++	asd_write_reg_word(asd_ha, LmPRGMCNT(lseq), LSEQ_IDLE_LOOP_ENTRY);
++
++	/* Enable Blind SG Move. */
++	asd_write_reg_dword(asd_ha, LmMODECTL(lseq), LmBLIND48);
++	asd_write_reg_word(asd_ha, LmM3SATATIMER(lseq),
++			   ASD_SATA_INTERLOCK_TIMEOUT);
++	
++	(void) asd_read_reg_dword(asd_ha, LmREQMBX(lseq));
++	
++	/* Clear Primitive Status 0 and 1. */
++	asd_write_reg_dword(asd_ha, LmPRMSTAT0(lseq), 0xFFFFFFFF);
++	asd_write_reg_dword(asd_ha, LmPRMSTAT1(lseq), 0xFFFFFFFF);
++	
++	/* Clear HW Timer status. */
++	asd_write_reg_byte(asd_ha, LmHWTSTAT(lseq), 0xFF);
++	
++	/* Clear DMA Errors for Mode 0 and 1. */ 
++	asd_write_reg_byte(asd_ha, LmMnDMAERRS(lseq, 0), 0xFF);
++	asd_write_reg_byte(asd_ha, LmMnDMAERRS(lseq, 1), 0xFF);
++	
++	/* Clear SG DMA Errors for Mode 0 and 1. */ 
++	asd_write_reg_byte(asd_ha, LmMnSGDMAERRS(lseq, 0), 0xFF);
++	asd_write_reg_byte(asd_ha, LmMnSGDMAERRS(lseq, 1), 0xFF);
++	
++	/* Clear Mode 0 Buffer Parity Error. */		       
++	asd_write_reg_byte(asd_ha, LmMnBUFSTAT(lseq, 0), LmMnBUFPERR);
++	
++	/* Clear Mode 0 Frame Error register. */
++	asd_write_reg_dword(asd_ha, LmMnFRMERR(lseq, 0), 0xFFFFFFFF);
++			       	
++	/* Reset LSEQ external interrupt arbiter. */
++	asd_write_reg_byte(asd_ha, LmARP2INTCTL(lseq), RSTINTCTL);
++	
++	/* Set the Phy SAS for the LmSEQ WWN. */
++	sas_addr = asd_ha->phys[lseq].phy_desc->sas_addr;
++	for (i = 0; i < SAS_ADDR_SIZE; i++)
++		asd_write_reg_byte(asd_ha, LmWWN(lseq) + i, sas_addr[i]);
++
++	/* Set the Transmit Size to 1024 bytes, 0 = 256 Dwords. */
++	asd_write_reg_byte(asd_ha, LmMnXMTSIZE(lseq, 1), 0);
++	
++	/* Set the Bus Inactivity Time Limit Timer. */
++	asd_write_reg_word(asd_ha, LmBITL_TIMER(lseq), 9);
++
++	/* Enable SATA Port Multiplier. */
++	asd_write_reg_byte(asd_ha, LmMnSATAFS(lseq, 1), 0x80);
++
++	/* Initialize Interrupt Vector[0-10] address in Mode 3.
++	 * See the comment on CSEQ_INT_* */
++	asd_write_reg_word(asd_ha, LmM3INTVEC0(lseq), LSEQ_INT_VEC0);
++	asd_write_reg_word(asd_ha, LmM3INTVEC1(lseq), LSEQ_INT_VEC1);
++	asd_write_reg_word(asd_ha, LmM3INTVEC2(lseq), LSEQ_INT_VEC2);
++	asd_write_reg_word(asd_ha, LmM3INTVEC3(lseq), LSEQ_INT_VEC3);
++	asd_write_reg_word(asd_ha, LmM3INTVEC4(lseq), LSEQ_INT_VEC4);
++	asd_write_reg_word(asd_ha, LmM3INTVEC5(lseq), LSEQ_INT_VEC5);
++	asd_write_reg_word(asd_ha, LmM3INTVEC6(lseq), LSEQ_INT_VEC6);
++	asd_write_reg_word(asd_ha, LmM3INTVEC7(lseq), LSEQ_INT_VEC7);
++	asd_write_reg_word(asd_ha, LmM3INTVEC8(lseq), LSEQ_INT_VEC8);
++	asd_write_reg_word(asd_ha, LmM3INTVEC9(lseq), LSEQ_INT_VEC9);
++	asd_write_reg_word(asd_ha, LmM3INTVEC10(lseq), LSEQ_INT_VEC10);
++	/* 
++	 * Program the Link LED control, applicable only for 
++	 * Chip Rev. B or later.
++	 */
++	asd_write_reg_dword(asd_ha, LmCONTROL(lseq),
++			    (LEDTIMER | LEDMODE_TXRX | LEDTIMERS_100ms));
++
++	/* Set the Align Rate for SAS and STP mode. */
++	asd_write_reg_byte(asd_ha, LmM1SASALIGN(lseq), SAS_ALIGN_DEFAULT);
++	asd_write_reg_byte(asd_ha, LmM1STPALIGN(lseq), STP_ALIGN_DEFAULT);
++}
++
++
++/**
++ * asd_post_init_cseq -- clear CSEQ Mode n Int. status and Response mailbox
++ * @asd_ha: pointer to host adapter struct
++ */
++static void asd_post_init_cseq(struct asd_ha_struct *asd_ha)
++{
++	int i;
++
++	for (i = 0; i < 8; i++)
++		asd_write_reg_dword(asd_ha, CMnINT(i), 0xFFFFFFFF);
++	for (i = 0; i < 8; i++)
++		asd_read_reg_dword(asd_ha, CMnRSPMBX(i));
++	/* Reset the external interrupt arbiter. */
++	asd_write_reg_byte(asd_ha, CARP2INTCTL, RSTINTCTL); 
++}
++
++/**
++ * asd_init_ddb_0 -- initialize DDB 0
++ * @asd_ha: pointer to host adapter structure
++ *
++ * Initialize DDB site 0 which is used internally by the sequencer.
++ */
++static void asd_init_ddb_0(struct asd_ha_struct *asd_ha)
++{
++	int	i;
++
++	/* Zero out the DDB explicitly */
++	for (i = 0; i < sizeof(struct asd_ddb_seq_shared); i+=4)
++		asd_ddbsite_write_dword(asd_ha, 0, i, 0);
++
++	asd_ddbsite_write_word(asd_ha, 0,
++		 offsetof(struct asd_ddb_seq_shared, q_free_ddb_head), 0);
++	asd_ddbsite_write_word(asd_ha, 0,
++		 offsetof(struct asd_ddb_seq_shared, q_free_ddb_tail),
++			       asd_ha->hw_prof.max_ddbs-1);
++	asd_ddbsite_write_word(asd_ha, 0,
++		 offsetof(struct asd_ddb_seq_shared, q_free_ddb_cnt), 0);
++	asd_ddbsite_write_word(asd_ha, 0,
++		 offsetof(struct asd_ddb_seq_shared, q_used_ddb_head), 0xFFFF);
++	asd_ddbsite_write_word(asd_ha, 0,
++		 offsetof(struct asd_ddb_seq_shared, q_used_ddb_tail), 0xFFFF);
++	asd_ddbsite_write_word(asd_ha, 0,
++		 offsetof(struct asd_ddb_seq_shared, shared_mem_lock), 0);
++	asd_ddbsite_write_word(asd_ha, 0,
++		 offsetof(struct asd_ddb_seq_shared, smp_conn_tag), 0);
++	asd_ddbsite_write_word(asd_ha, 0,
++		 offsetof(struct asd_ddb_seq_shared, est_nexus_buf_cnt), 0);
++	asd_ddbsite_write_word(asd_ha, 0,
++		 offsetof(struct asd_ddb_seq_shared, est_nexus_buf_thresh),
++			       asd_ha->hw_prof.num_phys * 2);
++	asd_ddbsite_write_byte(asd_ha, 0,
++		 offsetof(struct asd_ddb_seq_shared, settable_max_contexts),0);
++	asd_ddbsite_write_byte(asd_ha, 0,
++	       offsetof(struct asd_ddb_seq_shared, conn_not_active), 0xFF);
++	asd_ddbsite_write_byte(asd_ha, 0,
++	       offsetof(struct asd_ddb_seq_shared, phy_is_up), 0x00);
++	/* DDB 0 is reserved */
++	set_bit(0, asd_ha->hw_prof.ddb_bitmap);
++}
++
++/** 
++ * asd_seq_setup_seqs -- setup and initialize central and link sequencers
++ * @asd_ha: pointer to host adapter structure
++ */
++static void asd_seq_setup_seqs(struct asd_ha_struct *asd_ha)
++{
++	int 		lseq;
++	u8		lseq_mask;
++	
++	/* Initialize SCB sites. Done first to compute some values which
++	 * the rest of the init code depends on. */
++	asd_init_scb_sites(asd_ha);
++
++	/* Initialize CSEQ Scratch RAM registers. */
++	asd_init_cseq_scratch(asd_ha);
++	
++	/* Initialize LmSEQ Scratch RAM registers. */
++	asd_init_lseq_scratch(asd_ha);
++
++	/* Initialize CSEQ CIO registers. */
++	asd_init_cseq_cio(asd_ha);
++
++	asd_init_ddb_0(asd_ha);
++		
++	/* Initialize LmSEQ CIO registers. */
++	lseq_mask = asd_ha->hw_prof.enabled_phys;
++	for_each_sequencer(lseq_mask, lseq_mask, lseq)
++		asd_init_lseq_cio(asd_ha, lseq);
++	asd_post_init_cseq(asd_ha);
++}
++
++
++/**
++ * asd_seq_start_cseq -- start the central sequencer, CSEQ
++ * @asd_ha: pointer to host adapter structure
++ */
++static int asd_seq_start_cseq(struct asd_ha_struct *asd_ha)
++{
++	/* Reset the ARP2 instruction to location zero. */
++	asd_write_reg_word(asd_ha, CPRGMCNT, CSEQ_IDLE_LOOP_ENTRY);
++
++	/* Unpause the CSEQ  */
++	return asd_unpause_cseq(asd_ha);
++}
++
++/**
++ * asd_seq_start_lseq -- start a link sequencer
++ * @asd_ha: pointer to host adapter structure
++ * @lseq: the link sequencer of interest
++ */
++static int asd_seq_start_lseq(struct asd_ha_struct *asd_ha, int lseq)
++{
++	/* Reset the ARP2 instruction to location zero. */
++	asd_write_reg_word(asd_ha, LmPRGMCNT(lseq), LSEQ_IDLE_LOOP_ENTRY);
++
++	/* Unpause the LmSEQ  */
++	return asd_seq_unpause_lseq(asd_ha, lseq);
++}
++
++int asd_init_seqs(struct asd_ha_struct *asd_ha)
++{
++	int err;
++
++	asd_printk("using sequencer %s\n", SAS_RAZOR_SEQUENCER_VERSION);
++	err = asd_seq_download_seqs(asd_ha);
++	if (err) {
++		asd_printk("couldn't download sequencers for %s\n",
++			   pci_name(asd_ha->pcidev));
++		return err;
++	}
++
++	asd_seq_setup_seqs(asd_ha);
++
++	return 0;
++}
++
++int asd_start_seqs(struct asd_ha_struct *asd_ha)
++{
++	int err;
++	u8  lseq_mask;
++	int lseq;
++
++	err = asd_seq_start_cseq(asd_ha);
++	if (err) {
++		asd_printk("couldn't start CSEQ for %s\n",
++			   pci_name(asd_ha->pcidev));
++		return err;
++	}
++
++	lseq_mask = asd_ha->hw_prof.enabled_phys;
++	for_each_sequencer(lseq_mask, lseq_mask, lseq) {
++		err = asd_seq_start_lseq(asd_ha, lseq);
++		if (err) {
++			asd_printk("coudln't start LSEQ %d for %s\n", lseq,
++				   pci_name(asd_ha->pcidev));
++			return err;
++		}
++	}
++
++	return 0;
++}
++	
++/**
++ * asd_update_port_links -- update port_map_by_links and phy_is_up
++ * @sas_phy: pointer to the phy which has been added to a port
++ *
++ * 1) When a link reset has completed and we got BYTES DMAED with a
++ * valid frame we call this function for that phy, to indicate that
++ * the phy is up, i.e. we update the phy_is_up in DDB 0.  The
++ * sequencer checks phy_is_up when pending SCBs are to be sent, and
++ * when an open address frame has been received.
++ * 
++ * 2) When we know of ports, we call this function to update the map
++ * of phys participaing in that port, i.e. we update the
++ * port_map_by_links in DDB 0.  When a HARD_RESET primitive has been
++ * received, the sequencer disables all phys in that port.
++ * port_map_by_links is also used as the conn_mask byte in the
++ * initiator/target port DDB.
++ */
++void asd_update_port_links(struct sas_phy *sas_phy)
++{
++	struct asd_ha_struct *asd_ha = sas_phy->ha->lldd_ha;
++	const u8 phy_mask = (u8) sas_phy->port->phy_mask;
++	u8  phy_is_up;
++	u8  mask;
++	int i, err;
++
++	for_each_phy(phy_mask, mask, i)
++		asd_ddbsite_write_byte(asd_ha, 0,
++				       offsetof(struct asd_ddb_seq_shared,
++						port_map_by_links)+i,phy_mask);
++
++	for (i = 0; i < 12; i++) {
++		phy_is_up = asd_ddbsite_read_byte(asd_ha, 0,
++			  offsetof(struct asd_ddb_seq_shared, phy_is_up));
++		err = asd_ddbsite_update_byte(asd_ha, 0,
++				offsetof(struct asd_ddb_seq_shared, phy_is_up),
++				phy_is_up,
++				phy_is_up | phy_mask);
++		if (!err)
++			break;
++		else if (err == -EFAULT) {
++			asd_printk("phy_is_up: parity error in DDB 0\n");
++			break;
++		}
++	}
++
++	if (err)
++		asd_printk("couldn't update DDB 0:error:%d\n", err);
 +}
 

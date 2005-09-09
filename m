@@ -1,43 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932145AbVIIPxD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932165AbVIIPx6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932145AbVIIPxD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 11:53:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932162AbVIIPxD
+	id S932165AbVIIPx6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 11:53:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932162AbVIIPx5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 11:53:03 -0400
-Received: from fsmlabs.com ([168.103.115.128]:60089 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S932145AbVIIPxB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 11:53:01 -0400
-Date: Fri, 9 Sep 2005 08:59:26 -0700 (PDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Jan Beulich <JBeulich@novell.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix i386 interrupt re-enabling in die() (attempt 2)
-In-Reply-To: <432175CB02000078000248D0@emea1-mh.id2.novell.com>
-Message-ID: <Pine.LNX.4.61.0509090855080.14063@montezuma.fsmlabs.com>
-References: <4320718A0200007800024476@emea1-mh.id2.novell.com>
- <Pine.LNX.4.63.0509081036110.8052@r3000.fsmlabs.com>
- <432175CB02000078000248D0@emea1-mh.id2.novell.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 9 Sep 2005 11:53:57 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:53971 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932165AbVIIPx5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 11:53:57 -0400
+Date: Fri, 9 Sep 2005 16:53:56 +0100
+From: viro@ZenIV.linux.org.uk
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] bogus cast in bio.c
+Message-ID: <20050909155356.GF9623@ZenIV.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Jan,
-
-On Fri, 9 Sep 2005, Jan Beulich wrote:
-
-> -		spin_lock_irq(&die.lock);
-> +		spin_lock_irqsave(&die.lock, flags);
->  		die.lock_owner = smp_processor_id();
->  		die.lock_owner_depth = 0;
->  		bust_spinlocks(1);
->  	}
-> +	else
-> +		local_save_flags(flags);
-
-Just one tiny nit, that else should be on the same line as the curly 
-brace.
-
-Thanks
+<qualifier> void * is not the same as void <qualifier> *...
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+----
+diff -urN RC13-git8-base/fs/bio.c current/fs/bio.c
+--- RC13-git8-base/fs/bio.c	2005-09-08 10:17:39.000000000 -0400
++++ current/fs/bio.c	2005-09-08 23:53:33.000000000 -0400
+@@ -683,7 +683,7 @@
+ {
+ 	struct sg_iovec iov;
+ 
+-	iov.iov_base = (__user void *)uaddr;
++	iov.iov_base = (void __user *)uaddr;
+ 	iov.iov_len = len;
+ 
+ 	return bio_map_user_iov(q, bdev, &iov, 1, write_to_vm);

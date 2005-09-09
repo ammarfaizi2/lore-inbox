@@ -1,42 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965242AbVIIClr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965244AbVIICrR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965242AbVIIClr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 22:41:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965243AbVIIClr
+	id S965244AbVIICrR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 22:47:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965243AbVIICrR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 22:41:47 -0400
-Received: from orb.pobox.com ([207.8.226.5]:15521 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S965242AbVIIClq (ORCPT
+	Thu, 8 Sep 2005 22:47:17 -0400
+Received: from cantor.suse.de ([195.135.220.2]:32985 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S965245AbVIICrQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 22:41:46 -0400
-Message-ID: <4320F661.2010706@rtr.ca>
-Date: Thu, 08 Sep 2005 22:41:37 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050728
-X-Accept-Language: en, en-us
+	Thu, 8 Sep 2005 22:47:16 -0400
+From: Andi Kleen <ak@suse.de>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch 2.6.13] x86: check host bridge when applying vendor quirks
+Date: Fri, 9 Sep 2005 04:47:09 +0200
+User-Agent: KMail/1.8
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Len Brown <len.brown@intel.com>
+References: <200509082236_MC3-1-A99D-81DD@compuserve.com>
+In-Reply-To: <200509082236_MC3-1-A99D-81DD@compuserve.com>
 MIME-Version: 1.0
-To: Greg KH <gregkh@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [GIT PATCH] USB patches for 2.6.13
-References: <20050908235024.GA8159@kroah.com>
-In-Reply-To: <20050908235024.GA8159@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509090447.10118.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is someone actively working on USB Suspend/Resume support yet?
+On Friday 09 September 2005 04:33, Chuck Ebbert wrote:
+> I was looking at the i386 ACPI early quirk code and x86_64 equivalent
+> and it seems to me it should be checking the host bridge vendor, not
+> the one for various PCI bridges.  Nvidia might release some kind of
+> PCI card with an embedded bridge that would break this code, for
+> example.  I made this patch but I can't test it:
 
-I ask because this is becoming more and more important as people
-shift more to portable notebook computers with Linux.
+It's wrong. On AMD K8 systems the host bridge is always from
+AMD because the Northbridge is part of the CPU.
 
-Enabling CONFIG_USB_SUSPEND is currently a surefire way to
-guarantee crashing my own notebook on suspend/resume,
-whereas it *usually* (but not always) survives when that
-config option is left unset.
-
-Nothing complicated in the configuration -- just a USB mouse,
-but that's enough to nuke it.
-
-Anyone looking at that stuff right now?
+-Andi

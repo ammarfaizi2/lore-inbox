@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030252AbVIILbS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030257AbVIILgX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030252AbVIILbS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 07:31:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030254AbVIILbS
+	id S1030257AbVIILgX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 07:36:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030256AbVIILgX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 07:31:18 -0400
-Received: from silver.veritas.com ([143.127.12.111]:32920 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S1030252AbVIILbR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 07:31:17 -0400
-Date: Fri, 9 Sep 2005 12:31:00 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Andi Kleen <ak@suse.de>
-cc: Jan Beulich <JBeulich@novell.com>, linux-kernel@vger.kernel.org,
-       discuss@x86-64.org
-Subject: Re: [discuss] [PATCH] allow CONFIG_FRAME_POINTER for x86-64
-In-Reply-To: <20050909112108.GK19913@wotan.suse.de>
-Message-ID: <Pine.LNX.4.61.0509091222310.6443@goblin.wat.veritas.com>
-References: <43207D28020000780002451E@emea1-mh.id2.novell.com>
- <4321749202000078000248C5@emea1-mh.id2.novell.com>
- <Pine.LNX.4.61.0509091133180.5937@goblin.wat.veritas.com> <200509091258.13300.ak@suse.de>
- <Pine.LNX.4.61.0509091208350.6247@goblin.wat.veritas.com>
- <20050909112108.GK19913@wotan.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 09 Sep 2005 11:31:11.0664 (UTC) FILETIME=[FADB7B00:01C5B531]
+	Fri, 9 Sep 2005 07:36:23 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:54276 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1030254AbVIILgW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 07:36:22 -0400
+Date: Fri, 9 Sep 2005 07:35:43 -0400
+From: Neil Horman <nhorman@tuxdriver.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Tommy Christensen <tommy.christensen@tpack.net>, linville@tuxdriver.com,
+       Bogdan.Costescu@iwr.uni-heidelberg.de, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH] 3c59x: read current link status from phy
+Message-ID: <20050909113543.GA19829@hmsreliant.homelinux.net>
+References: <431F9899.4060602@pobox.com> <Pine.LNX.4.63.0509081351160.21354@dingo.iwr.uni-heidelberg.de> <1126184700.4805.32.camel@tsc-6.cph.tpack.net> <Pine.LNX.4.63.0509081521140.21354@dingo.iwr.uni-heidelberg.de> <1126190554.4805.68.camel@tsc-6.cph.tpack.net> <Pine.LNX.4.63.0509081713500.22954@dingo.iwr.uni-heidelberg.de> <4320BD96.3060307@tpack.net> <20050909010816.GA28653@tuxdriver.com> <43213B18.3020606@tpack.net> <20050909004406.52a37476.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050909004406.52a37476.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Sep 2005, Andi Kleen wrote:
-> On Fri, Sep 09, 2005 at 12:14:38PM +0100, Hugh Dickins wrote:
+On Fri, Sep 09, 2005 at 12:44:06AM -0700, Andrew Morton wrote:
+> Tommy Christensen <tommy.christensen@tpack.net> wrote:
+> >
+> > John W. Linville wrote:
+> > > Any chance you could re-diff this to apply on top of the patch posted
+> > > earlier today by Neil Horman?
 > > 
-> > Ah, right.  I'm using kdb with it.  (And my recollection of when
-> > show_stack did have a framepointer version, is that it was hopelessly
-> > broken on interrupt frames, and we're much better off without it.)
+> > Sure, but his patch didn't apply to -git8.
+> > 
+> > If Neil would please resend, then I can diff against that.
+> > 
 > 
-> Not sure if the x86-64 kdb had code to follow them either.
-> The i386 one has.
+> Is OK, I'll sort it all out.
+Thanks all, I appreciate it.
+Neil
 
-x86_64 kdb does have the code to follow them, it's pretty much the same.
-
-(kdb does have a bug in its x86_64 setjmp with framepointers, but that's
-irrelevant to whether the x86_64 kernel supports framepointers.)
-
-> But kdb should be using a dwarf2 unwinder instead. kgdb certainly
-> supports that, as does NLKD.
-
-In an ideal and bloat-neutral world.  I've always imagined it to be
-quite a lot of work, bringing in its own set of problems: but great
-that that work has now been done, and yes, it might one day get
-ported to kdb.  But removing "&& !X86_64" is much easier.
-
-Hugh
+-- 
+/***************************************************
+ *Neil Horman
+ *Software Engineer
+ *gpg keyid: 1024D / 0x92A74FA1 - http://pgp.mit.edu
+ ***************************************************/

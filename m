@@ -1,506 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030325AbVIITaw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030317AbVIITaR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030325AbVIITaw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 15:30:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030321AbVIITav
+	id S1030317AbVIITaR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 15:30:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030318AbVIITaR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 15:30:51 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:33220 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S1030318AbVIITau (ORCPT
+	Fri, 9 Sep 2005 15:30:17 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:21700 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S1030317AbVIITaP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 15:30:50 -0400
-Message-ID: <4321E2E3.30006@adaptec.com>
-Date: Fri, 09 Sep 2005 15:30:43 -0400
+	Fri, 9 Sep 2005 15:30:15 -0400
+Message-ID: <4321E2C1.7080507@adaptec.com>
+Date: Fri, 09 Sep 2005 15:30:09 -0400
 From: Luben Tuikov <luben_tuikov@adaptec.com>
 User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: [ANNOUNCE 1/2] Serial Attached SCSI (SAS) support for the Linux kernel
+Subject: [ANNOUNCE 0/2] Serial Attached SCSI (SAS) support for the Linux kernel
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Sep 2005 19:30:49.0008 (UTC) FILETIME=[FB7DB300:01C5B574]
+X-OriginalArrivalTime: 09 Sep 2005 19:30:14.0820 (UTC) FILETIME=[E71D0640:01C5B574]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This email shows an example of two domains.
-The first domain has only two devices: the SAS initiator
-and a SAS end device (a disk).
-The second domain has expanders, SAS disks, a SATA II disk
-and a SATAPI disk.
+Hi,
 
-A succinct and full listings of the sysfs tree are shown
-using the tree(1) program.
+The following announcements and patches introduce 
+Serial Attached SCSI (SAS) support for the Linux kernel.
+Everything is supported.
 
-Sample configuration
---------------------
+The infrastructure is broken into
+	* SAS LLDD,
+	* SAS Layer.
 
-Directly attached devices, cascaded expanders and
-wide ports
+The SAS LLDD does phy/OOB management, and generates SAS events
+to the SAS Layer.  Those events are *the only way* a SAS LLDD
+communicates with the SAS Layer.  If you can generate 2 types
+of event, then you can use this infrastructure.  The first two
+are, loosely, "link was severed", "bytes were dmaed".  The third
+kind is "received a primitive", used for domain revalidation.
 
-1. SAS disk on HA phy 0, forming a narrow port, port 0.
+A SAS LLDD should implement the Execute Command SCSI RPC and
+at least one SCSI TMF (Task Management Function), in order for
+the SAS Layer to communicate with the SAS LLDD.
 
-2. Expander on HA phys 4, 5, 6, and 7, forming
-   a wide port, port 1.
+The SAS Layer is concerned with
+      * SAS Phy/Port/HA event management (LLDD generates,
+        SAS Layer processes),
+      * SAS Port management (creation/destruction),
+      * SAS Domain discovery and revalidation,
+      * SAS Domain device management,
+      * SCSI Host registration/deregistration,
+      * Device registration with SCSI Core (SAS) or libata
+        (SATA/PI), and
+      * Expander management and exporting expander control
+        to user space.
 
-3. Port 0, narrow, of phy 0, is formed between
-   the host adapter and a SAS end device with SAS port identifier
-   (aua/aka, SAS address) 500000e000031c12.  This device
-   has a single LU, with LUN 0, which is a disk device.
+The SAS Layer uses the Execute Command SCSI RPC, and the TMFs
+implemented by the SAS LLDD in order to manage the domain and
+the domain devices.
 
-4. Port 1, wide, of phys 4, 5, 6 and 7, is formed between
-   the Host adapter's phys 4-7 and the expander with SAS
-   address 50001c1716010600, Expander A.
+For details please see drivers/scsi/sas-class/README.
 
-5. Expander A, 50001c1716010600, has 4 devices attached to it:
-   - An expander with SAS address 50001c1071609c00,
-     expander B (using a 2 link wide port, see below).
-   - A SATA II disk, 50001c1716010603, using the expanders'
-     STP/SATA bridge.
-   - An SES device, LUN 0 of 50001c171601060d.
-   - And a SAS disk, LUN 0 of 5000c50000513329.
+The SAS Layer represents the SAS domain in sysfs.  For each
+object represented, its parent is the physical entity it attaches
+to in the physical world.  So in effect, kobject_get, gets
+the whole chain up on which that object depends on.
 
-6. Expander B, 50001c1071609c00, has 3 devices attached to it:
-   - A SATAPI device, 50001c1071609c02, using the expander's
-     STP/SATA bridge.
-   - A SAS disk, LUN 0 of 5000c50000102a65.
-   - And an expander, 5005076a000001e0, expander C,
-     (using a 2 link wide port, see below).
+In effect, the sysfs representation of the SAS domain(s)
+is what you'd see in the physical world.
 
-7. Expander C, 5005076a000001e0, has 3 devices attached to it:
-   - A SAS disk, LUN 0 of 5000c50000513385.
-   - An SES device, LUN 0 of 5005076a000001ed.
-   - A SAS disk, LUN 0 of 5c50000000409c11.
+Hot plugging and hot unplugging of devices, domains and subdomains
+is supported.  Repeated hot plugging and hot unplugging is
+also supported, naturally.
 
-Succinct listing of the tree
-----------------------------
+SAS introduces a new physical entity, an expander.
+Expanders are _not_ SAS devices, and thus are _not_ SCSI devices.
+Expanders are part of the Service Delivery Subsystem, in this case
+SAS.
 
-tree -d /sys/devices/pci0000\:01/0000\:01\:04.0/host11/sas/ha 
+Expanders are controlled using the Serial Management Protocol (SMP).
+Complete control is given to user space of all expanders found
+in the domain, using an "smp_portal".  More of this in the second
+and third email in this series.
 
-/sys/devices/pci0000:01/0000:01:04.0/host11/sas/ha
-|-- phys
-|   |-- 0
-|   |   `-- port -> ../../../../../../../../devices/pci0000:01/0000:01:04.0/host11/sas/ha/ports/0
-|   |-- 1
-|   |-- 2
-|   |-- 3
-|   |-- 4
-|   |   `-- port -> ../../../../../../../../devices/pci0000:01/0000:01:04.0/host11/sas/ha/ports/1
-|   |-- 5
-|   |   `-- port -> ../../../../../../../../devices/pci0000:01/0000:01:04.0/host11/sas/ha/ports/1
-|   |-- 6
-|   |   `-- port -> ../../../../../../../../devices/pci0000:01/0000:01:04.0/host11/sas/ha/ports/1
-|   `-- 7
-|       `-- port -> ../../../../../../../../devices/pci0000:01/0000:01:04.0/host11/sas/ha/ports/1
-`-- ports
-    |-- 0
-    |   |-- domain
-    |   |   `-- 500000e000031c12
-    |   |       `-- LUNS
-    |   |           `-- 0000000000000000
-    |   `-- phys
-    |       `-- 0 -> ../../../../../../../../../devices/pci0000:01/0000:01:04.0/host11/sas/ha/phys/0
-    `-- 1
-        |-- domain
-        |   `-- 50001c1716010600
-        |       |-- 50001c1071609c00
-        |       |   |-- 50001c1071609c02
-        |       |   |-- 5000c50000102a65
-        |       |   |   `-- LUNS
-        |       |   |       `-- 0000000000000000
-        |       |   `-- 5005076a000001e0
-        |       |       |-- 5000c50000513385
-        |       |       |   `-- LUNS
-        |       |       |       `-- 0000000000000000
-        |       |       |-- 5005076a000001ed
-        |       |       |   `-- LUNS
-        |       |       |       `-- 0000000000000000
-        |       |       `-- 5c50000000409c11
-        |       |           `-- LUNS
-        |       |               `-- 0000000000000000
-        |       |-- 50001c1716010603
-        |       |-- 50001c171601060d
-        |       |   `-- LUNS
-        |       |       `-- 0000000000000000
-        |       `-- 5000c50000513329
-        |           `-- LUNS
-        |               `-- 0000000000000000
-        `-- phys
-            |-- 4 -> ../../../../../../../../../devices/pci0000:01/0000:01:04.0/host11/sas/ha/phys/4
-            |-- 5 -> ../../../../../../../../../devices/pci0000:01/0000:01:04.0/host11/sas/ha/phys/5
-            |-- 6 -> ../../../../../../../../../devices/pci0000:01/0000:01:04.0/host11/sas/ha/phys/6
-            `-- 7 -> ../../../../../../../../../devices/pci0000:01/0000:01:04.0/host11/sas/ha/phys/7
+A user space program, "expander_conf.c" is also presented to show
+how one controls expanders in the domain.  It is located here:
+drivers/scsi/sas-class/expanders_conf.c
 
-52 directories
+The second email in this series shows an example of SAS domains
+and their representation in sysfs.
 
-Full listing of the tree
-------------------------
+The third email in this series shows an example of using the
+"expander_conf.c" program to query all expanders in the domain,
+showing their attributes, their phys, and their routing tables.
 
-tree /sys/devices/pci0000\:01/0000\:01\:04.0/host11/sas/ha
-/sys/devices/pci0000:01/0000:01:04.0/host11/sas/ha
-|-- device_name
-|-- ha_name
-|-- phys
-|   |-- 0
-|   |   |-- class
-|   |   |-- enabled
-|   |   |-- id
-|   |   |-- iproto
-|   |   |-- linkrate
-|   |   |-- oob_mode
-|   |   |-- port -> ../../../../../../../../devices/pci0000:01/0000:01:04.0/host11/sas/ha/ports/0
-|   |   |-- role
-|   |   |-- sas_addr
-|   |   |-- tproto
-|   |   `-- type
-|   |-- 1
-|   |   |-- class
-|   |   |-- enabled
-|   |   |-- id
-|   |   |-- iproto
-|   |   |-- linkrate
-|   |   |-- oob_mode
-|   |   |-- role
-|   |   |-- sas_addr
-|   |   |-- tproto
-|   |   `-- type
-|   |-- 2
-|   |   |-- class
-|   |   |-- enabled
-|   |   |-- id
-|   |   |-- iproto
-|   |   |-- linkrate
-|   |   |-- oob_mode
-|   |   |-- role
-|   |   |-- sas_addr
-|   |   |-- tproto
-|   |   `-- type
-|   |-- 3
-|   |   |-- class
-|   |   |-- enabled
-|   |   |-- id
-|   |   |-- iproto
-|   |   |-- linkrate
-|   |   |-- oob_mode
-|   |   |-- role
-|   |   |-- sas_addr
-|   |   |-- tproto
-|   |   `-- type
-|   |-- 4
-|   |   |-- class
-|   |   |-- enabled
-|   |   |-- id
-|   |   |-- iproto
-|   |   |-- linkrate
-|   |   |-- oob_mode
-|   |   |-- port -> ../../../../../../../../devices/pci0000:01/0000:01:04.0/host11/sas/ha/ports/1
-|   |   |-- role
-|   |   |-- sas_addr
-|   |   |-- tproto
-|   |   `-- type
-|   |-- 5
-|   |   |-- class
-|   |   |-- enabled
-|   |   |-- id
-|   |   |-- iproto
-|   |   |-- linkrate
-|   |   |-- oob_mode
-|   |   |-- port -> ../../../../../../../../devices/pci0000:01/0000:01:04.0/host11/sas/ha/ports/1
-|   |   |-- role
-|   |   |-- sas_addr
-|   |   |-- tproto
-|   |   `-- type
-|   |-- 6
-|   |   |-- class
-|   |   |-- enabled
-|   |   |-- id
-|   |   |-- iproto
-|   |   |-- linkrate
-|   |   |-- oob_mode
-|   |   |-- port -> ../../../../../../../../devices/pci0000:01/0000:01:04.0/host11/sas/ha/ports/1
-|   |   |-- role
-|   |   |-- sas_addr
-|   |   |-- tproto
-|   |   `-- type
-|   `-- 7
-|       |-- class
-|       |-- enabled
-|       |-- id
-|       |-- iproto
-|       |-- linkrate
-|       |-- oob_mode
-|       |-- port -> ../../../../../../../../devices/pci0000:01/0000:01:04.0/host11/sas/ha/ports/1
-|       |-- role
-|       |-- sas_addr
-|       |-- tproto
-|       `-- type
-`-- ports
-    |-- 0
-    |   |-- attached_port_identifier
-    |   |-- class
-    |   |-- domain
-    |   |   `-- 500000e000031c12
-    |   |       |-- LUNS
-    |   |       |   `-- 0000000000000000
-    |   |       |       |-- channel
-    |   |       |       |-- id
-    |   |       |       |-- inquiry_data
-    |   |       |       |-- lun
-    |   |       |       `-- task_management
-    |   |       |-- dev_type
-    |   |       |-- iproto
-    |   |       |-- iresp_timeout
-    |   |       |-- itnl_timeout
-    |   |       |-- linkrate
-    |   |       |-- max_linkrate
-    |   |       |-- min_linkrate
-    |   |       |-- pathways
-    |   |       |-- ready_led_meaning
-    |   |       |-- rl_wlun
-    |   |       |-- sas_addr
-    |   |       `-- tproto
-    |   |-- id
-    |   |-- iproto
-    |   |-- oob_mode
-    |   |-- phys
-    |   |   `-- 0 -> ../../../../../../../../../devices/pci0000:01/0000:01:04.0/host11/sas/ha/phys/0
-    |   |-- port_identifier
-    |   `-- tproto
-    `-- 1
-        |-- attached_port_identifier
-        |-- class
-        |-- domain
-        |   `-- 50001c1716010600
-        |       |-- 50001c1071609c00
-        |       |   |-- 50001c1071609c02
-        |       |   |   |-- command_set
-        |       |   |   |-- dev_type
-        |       |   |   |-- firmware_rev
-        |       |   |   |-- identify_device
-        |       |   |   |-- identify_packet_device
-        |       |   |   |-- iproto
-        |       |   |   |-- linkrate
-        |       |   |   |-- max_linkrate
-        |       |   |   |-- min_linkrate
-        |       |   |   |-- model_number
-        |       |   |   |-- port_no
-        |       |   |   |-- report_phy_sata_resp
-        |       |   |   |-- sas_addr
-        |       |   |   |-- serial_number
-        |       |   |   `-- tproto
-        |       |   |-- 5000c50000102a65
-        |       |   |   |-- LUNS
-        |       |   |   |   `-- 0000000000000000
-        |       |   |   |       |-- channel
-        |       |   |   |       |-- id
-        |       |   |   |       |-- inquiry_data
-        |       |   |   |       |-- lun
-        |       |   |   |       `-- task_management
-        |       |   |   |-- dev_type
-        |       |   |   |-- iproto
-        |       |   |   |-- iresp_timeout
-        |       |   |   |-- itnl_timeout
-        |       |   |   |-- linkrate
-        |       |   |   |-- max_linkrate
-        |       |   |   |-- min_linkrate
-        |       |   |   |-- pathways
-        |       |   |   |-- ready_led_meaning
-        |       |   |   |-- rl_wlun
-        |       |   |   |-- sas_addr
-        |       |   |   `-- tproto
-        |       |   |-- 5005076a000001e0
-        |       |   |   |-- 5000c50000513385
-        |       |   |   |   |-- LUNS
-        |       |   |   |   |   `-- 0000000000000000
-        |       |   |   |   |       |-- channel
-        |       |   |   |   |       |-- id
-        |       |   |   |   |       |-- inquiry_data
-        |       |   |   |   |       |-- lun
-        |       |   |   |   |       `-- task_management
-        |       |   |   |   |-- dev_type
-        |       |   |   |   |-- iproto
-        |       |   |   |   |-- iresp_timeout
-        |       |   |   |   |-- itnl_timeout
-        |       |   |   |   |-- linkrate
-        |       |   |   |   |-- max_linkrate
-        |       |   |   |   |-- min_linkrate
-        |       |   |   |   |-- pathways
-        |       |   |   |   |-- ready_led_meaning
-        |       |   |   |   |-- rl_wlun
-        |       |   |   |   |-- sas_addr
-        |       |   |   |   `-- tproto
-        |       |   |   |-- 5005076a000001ed
-        |       |   |   |   |-- LUNS
-        |       |   |   |   |   `-- 0000000000000000
-        |       |   |   |   |       |-- channel
-        |       |   |   |   |       |-- id
-        |       |   |   |   |       |-- inquiry_data
-        |       |   |   |   |       |-- lun
-        |       |   |   |   |       `-- task_management
-        |       |   |   |   |-- dev_type
-        |       |   |   |   |-- iproto
-        |       |   |   |   |-- iresp_timeout
-        |       |   |   |   |-- itnl_timeout
-        |       |   |   |   |-- linkrate
-        |       |   |   |   |-- max_linkrate
-        |       |   |   |   |-- min_linkrate
-        |       |   |   |   |-- pathways
-        |       |   |   |   |-- ready_led_meaning
-        |       |   |   |   |-- rl_wlun
-        |       |   |   |   |-- sas_addr
-        |       |   |   |   `-- tproto
-        |       |   |   |-- 5c50000000409c11
-        |       |   |   |   |-- LUNS
-        |       |   |   |   |   `-- 0000000000000000
-        |       |   |   |   |       |-- channel
-        |       |   |   |   |       |-- id
-        |       |   |   |   |       |-- inquiry_data
-        |       |   |   |   |       |-- lun
-        |       |   |   |   |       `-- task_management
-        |       |   |   |   |-- dev_type
-        |       |   |   |   |-- iproto
-        |       |   |   |   |-- iresp_timeout
-        |       |   |   |   |-- itnl_timeout
-        |       |   |   |   |-- linkrate
-        |       |   |   |   |-- max_linkrate
-        |       |   |   |   |-- min_linkrate
-        |       |   |   |   |-- pathways
-        |       |   |   |   |-- ready_led_meaning
-        |       |   |   |   |-- rl_wlun
-        |       |   |   |   |-- sas_addr
-        |       |   |   |   `-- tproto
-        |       |   |   |-- change_count
-        |       |   |   |-- component_id
-        |       |   |   |-- component_revision_id
-        |       |   |   |-- component_vendor_id
-        |       |   |   |-- conf_route_table
-        |       |   |   |-- configuring
-        |       |   |   |-- dev_type
-        |       |   |   |-- enclosure_logical_id
-        |       |   |   |-- iproto
-        |       |   |   |-- linkrate
-        |       |   |   |-- max_linkrate
-        |       |   |   |-- max_route_indexes
-        |       |   |   |-- min_linkrate
-        |       |   |   |-- num_phys
-        |       |   |   |-- pathways
-        |       |   |   |-- product_id
-        |       |   |   |-- product_rev
-        |       |   |   |-- sas_addr
-        |       |   |   |-- smp_portal
-        |       |   |   |-- tproto
-        |       |   |   `-- vendor_id
-        |       |   |-- change_count
-        |       |   |-- component_id
-        |       |   |-- component_revision_id
-        |       |   |-- component_vendor_id
-        |       |   |-- conf_route_table
-        |       |   |-- configuring
-        |       |   |-- dev_type
-        |       |   |-- enclosure_logical_id
-        |       |   |-- iproto
-        |       |   |-- linkrate
-        |       |   |-- max_linkrate
-        |       |   |-- max_route_indexes
-        |       |   |-- min_linkrate
-        |       |   |-- num_phys
-        |       |   |-- pathways
-        |       |   |-- product_id
-        |       |   |-- product_rev
-        |       |   |-- sas_addr
-        |       |   |-- smp_portal
-        |       |   |-- tproto
-        |       |   `-- vendor_id
-        |       |-- 50001c1716010603
-        |       |   |-- command_set
-        |       |   |-- dev_type
-        |       |   |-- firmware_rev
-        |       |   |-- identify_device
-        |       |   |-- identify_packet_device
-        |       |   |-- iproto
-        |       |   |-- linkrate
-        |       |   |-- max_linkrate
-        |       |   |-- min_linkrate
-        |       |   |-- model_number
-        |       |   |-- port_no
-        |       |   |-- report_phy_sata_resp
-        |       |   |-- sas_addr
-        |       |   |-- serial_number
-        |       |   `-- tproto
-        |       |-- 50001c171601060d
-        |       |   |-- LUNS
-        |       |   |   `-- 0000000000000000
-        |       |   |       |-- channel
-        |       |   |       |-- id
-        |       |   |       |-- inquiry_data
-        |       |   |       |-- lun
-        |       |   |       `-- task_management
-        |       |   |-- dev_type
-        |       |   |-- iproto
-        |       |   |-- iresp_timeout
-        |       |   |-- itnl_timeout
-        |       |   |-- linkrate
-        |       |   |-- max_linkrate
-        |       |   |-- min_linkrate
-        |       |   |-- pathways
-        |       |   |-- ready_led_meaning
-        |       |   |-- rl_wlun
-        |       |   |-- sas_addr
-        |       |   `-- tproto
-        |       |-- 5000c50000513329
-        |       |   |-- LUNS
-        |       |   |   `-- 0000000000000000
-        |       |   |       |-- channel
-        |       |   |       |-- id
-        |       |   |       |-- inquiry_data
-        |       |   |       |-- lun
-        |       |   |       `-- task_management
-        |       |   |-- dev_type
-        |       |   |-- iproto
-        |       |   |-- iresp_timeout
-        |       |   |-- itnl_timeout
-        |       |   |-- linkrate
-        |       |   |-- max_linkrate
-        |       |   |-- min_linkrate
-        |       |   |-- pathways
-        |       |   |-- ready_led_meaning
-        |       |   |-- rl_wlun
-        |       |   |-- sas_addr
-        |       |   `-- tproto
-        |       |-- change_count
-        |       |-- component_id
-        |       |-- component_revision_id
-        |       |-- component_vendor_id
-        |       |-- conf_route_table
-        |       |-- configuring
-        |       |-- dev_type
-        |       |-- enclosure_logical_id
-        |       |-- iproto
-        |       |-- linkrate
-        |       |-- max_linkrate
-        |       |-- max_route_indexes
-        |       |-- min_linkrate
-        |       |-- num_phys
-        |       |-- pathways
-        |       |-- product_id
-        |       |-- product_rev
-        |       |-- sas_addr
-        |       |-- smp_portal
-        |       |-- tproto
-        |       `-- vendor_id
-        |-- id
-        |-- iproto
-        |-- oob_mode
-        |-- phys
-        |   |-- 4 -> ../../../../../../../../../devices/pci0000:01/0000:01:04.0/host11/sas/ha/phys/4
-        |   |-- 5 -> ../../../../../../../../../devices/pci0000:01/0000:01:04.0/host11/sas/ha/phys/5
-        |   |-- 6 -> ../../../../../../../../../devices/pci0000:01/0000:01:04.0/host11/sas/ha/phys/6
-        |   `-- 7 -> ../../../../../../../../../devices/pci0000:01/0000:01:04.0/host11/sas/ha/phys/7
-        |-- port_identifier
-        `-- tproto
+If you have the hardware, please give it a try.  If you have
+expander(s) it would be even more interesting.
 
-52 directories, 308 files
+Patches of the SAS Layer and of the AIC94XX SAS LLDD follow.
 
-
+	Luben
+P.S. You can also download the patches from
+http://www.geocities.com/ltuikov/
 

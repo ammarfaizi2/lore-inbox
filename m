@@ -1,38 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932548AbVIIIp4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965084AbVIIIri@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932548AbVIIIp4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 04:45:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932543AbVIIIp4
+	id S965084AbVIIIri (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 04:47:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932561AbVIIIri
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 04:45:56 -0400
-Received: from ns.miraclelinux.com ([219.118.163.66]:51372 "EHLO
-	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S1751441AbVIIIpz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 04:45:55 -0400
-Date: Fri, 9 Sep 2005 17:42:14 +0900
-From: Akinobu Mita <mita@miraclelinux.com>
-To: linux-kernel@vger.kernel.org
-Cc: sct@redhat.com, akpm@osdl.org, adilger@clusterfs.com,
-       ext3-users@redhat.com
-Subject: [PATCH 0/6] jbd cleanup
-Message-ID: <20050909084214.GB14205@miraclelinux.com>
+	Fri, 9 Sep 2005 04:47:38 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:37130
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S932552AbVIIIrh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 04:47:37 -0400
+Message-Id: <4321688A020000780002481E@emea1-mh.id2.novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0 
+Date: Fri, 09 Sep 2005 10:48:42 +0200
+From: "Jan Beulich" <JBeulich@novell.com>
+To: "Andi Kleen" <ak@suse.de>, <discuss@x86-64.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [discuss] [PATCH] x86-64 CFI annotation fixes and
+	additions
+References: <43207A6302000078000244F4@emea1-mh.id2.novell.com> <200509091040.11405.ak@suse.de>
+In-Reply-To: <200509091040.11405.ak@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following 6 patches cleanup the jbd code and kill about 200 lines. 
-First of 4 patches can apply to 2.6.13-git8 and 2.6.13-mm2.
-The rest of them can apply to 2.6.13-mm2.
+>The UNWIND_INFO part has still some problems - in particular it is
+lying
+>on all other architectures which don't check it yet. I made it
+dependent
+>on X86_64 right now.
 
- fs/jbd/checkpoint.c          |  179 +++++++++++--------------------------------
- fs/jbd/commit.c              |  101 ++++++++++--------------
- fs/jbd/journal.c             |   11 +-
- fs/jbd/revoke.c              |  158 ++++++++++++++-----------------------
- fs/jbd/transaction.c         |  113 +++++----------------------
- include/linux/jbd.h          |   28 +++---
- include/linux/journal-head.h |    4 
- 7 files changed, 201 insertions(+), 393 deletions(-)
+I don't think so. First, the i386 patch also adds the same (as I
+indicated), and second this controls also the
+-fasynchronous-exception-tables compiler flag, which should be
+generically available on all architectures (the i386 patch adds this to
+the top level makefile, x86-64 is somewhat special in requiring the
+-fno- form to be used in the opposite case, which is why this ends up in
+the arch-specific makefile).
 
+Jan

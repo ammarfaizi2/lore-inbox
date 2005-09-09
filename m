@@ -1,51 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030643AbVIIWIM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030666AbVIIWI7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030643AbVIIWIM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 18:08:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030641AbVIIWIL
+	id S1030666AbVIIWI7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 18:08:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030669AbVIIWI5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 18:08:11 -0400
-Received: from ccerelbas04.cce.hp.com ([161.114.21.107]:13014 "EHLO
-	ccerelbas04.cce.hp.com") by vger.kernel.org with ESMTP
-	id S1030639AbVIIWII (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 18:08:08 -0400
-Date: Fri, 9 Sep 2005 17:07:50 -0500
-From: mike.miller@hp.com
-To: akpm@osdl.org, axboe@suse.de
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: [PATCH 5/8] cciss: bug fix in cciss_remove_one
-Message-ID: <20050909220750.GE4616@beardog.cca.cpqcorp.net>
-Reply-To: mikem@beardog.cca.cpqcorp.net
+	Fri, 9 Sep 2005 18:08:57 -0400
+Received: from mail.kroah.org ([69.55.234.183]:8844 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1030663AbVIIWIx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 18:08:53 -0400
+Date: Fri, 9 Sep 2005 15:07:58 -0700
+From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: [GIT PATCH] More PCI patches for 2.6.13
+Message-ID: <20050909220758.GA29746@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch 5 of 8
-This patch fixes a bug in cciss_remove_one. A set of braces was missing 
-for the if statement causing an Oops on driver unload.
-Please consider this for inclusion.
+Here are some more PCI patches against your latest git tree.  Most of
+them were just not applied to the last pci git pull, due to me messing
+up the mbox that I applied to the tree.  They have been in the -mm tree
+for a while.
 
-Signed-off-by: Mike Miller <mike.miller@hp.com>
+The other two patches are a moving around of the pci probe functions so
+that ppc has an easier time of future work, and I've sent in a pci quirk
+that has been in the -mm tree for a while.
 
- cciss.c |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
---------------------------------------------------------------------------------
-diff -burNp lx2613-p004/drivers/block/cciss.c lx2613/drivers/block/cciss.c
---- lx2613-p004/drivers/block/cciss.c	2005-09-09 16:09:13.362617000 -0500
-+++ lx2613/drivers/block/cciss.c	2005-09-09 16:10:55.801044320 -0500
-@@ -3097,9 +3097,10 @@ static void __devexit cciss_remove_one (
- 	/* remove it from the disk list */
- 	for (j = 0; j < NWD; j++) {
- 		struct gendisk *disk = hba[i]->gendisk[j];
--		if (disk->flags & GENHD_FL_UP)
--			blk_cleanup_queue(disk->queue);
-+		if (disk->flags & GENHD_FL_UP) {
- 			del_gendisk(disk);
-+			blk_cleanup_queue(disk->queue);
-+		}
- 	}
- 
- 	pci_free_consistent(hba[i]->pdev, NR_CMDS * sizeof(CommandList_struct),
+Please pull from:
+	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/pci-2.6.git/
+or if master.kernel.org hasn't synced up yet:
+	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/pci-2.6.git/
+
+The full patches will be sent to the linux-pci mailing lists, if anyone
+wants to see them.
+
+thanks,
+
+greg k-h
+
+ drivers/pci/hotplug.c               |   53 ++++++++++++++----------------------
+ drivers/pci/hotplug/pciehprm_acpi.c |    8 ++---
+ drivers/pci/pci.h                   |    1 
+ drivers/pci/probe.c                 |   50 ++++++++++++++++++++++-----------
+ drivers/pci/quirks.c                |   12 ++++++++
+ include/linux/pci.h                 |   23 ++++++++-------
+ 6 files changed, 83 insertions(+), 64 deletions(-)
+
+
+Dave Jones:
+  must_check attributes for PCI layer.
+
+Greg Kroah-Hartman:
+  PCI: move pci core to use add_hotplug_env_var()
+
+Paul Mackerras:
+  PCI: Small rearrangement of PCI probing code
+
+Rajesh Shah:
+  PCI: Fix PCI bus mastering enable problem in pciehp
+
+Rumen Ivanov Zarev:
+  PCI: Unhide SMBus on Compaq Evo N620c
+

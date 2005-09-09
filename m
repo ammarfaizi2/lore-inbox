@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030466AbVIIWka@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030471AbVIIWlj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030466AbVIIWka (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 18:40:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030465AbVIIWkZ
+	id S1030471AbVIIWlj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 18:41:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030469AbVIIWli
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 18:40:25 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:52340 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S932611AbVIIWkV
+	Fri, 9 Sep 2005 18:41:38 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:36119 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S1030460AbVIIWkZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 18:40:21 -0400
+	Fri, 9 Sep 2005 18:40:25 -0400
 Cc: Sam Ravnborg <sam@mars (none)>, Sam Ravnborg <sam@ravnborg.org>
-Subject: [PATCH 2/12] kbuild: h8300,m68knommu,sh,sh64 use generic asm-offsets.h support
-In-Reply-To: <11263057053061-git-send-email-sam@ravnborg.org>
+Subject: [PATCH 9/12] kbuild: mips use generic asm-offsets.h support
+In-Reply-To: <11263057062211-git-send-email-sam@ravnborg.org>
 X-Mailer: git-send-email
 Date: Sat, 10 Sep 2005 00:41:46 +0200
-Message-Id: <11263057062281-git-send-email-sam@ravnborg.org>
+Message-Id: <11263057061465-git-send-email-sam@ravnborg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Sam Ravnborg <sam@ravnborg.org>
@@ -24,119 +24,322 @@ From: Sam Ravnborg <sam@ravnborg.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-h8300, m68knommu, sh and sh64 all used the name asm-offsets.h so minimal
-changes required.
+Removed obsolete stuff from arch makefile.
+mips had a special rule for generating asm-offsets.h so preserved it
+using an architecture specific hook in top-level Kbuild file.
+Renamed .h file to asm-offsets.h
 
 Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
 
 ---
 
- arch/h8300/Makefile     |    8 --------
- arch/m68knommu/Makefile |   10 ----------
- arch/sh/Makefile        |   11 ++---------
- arch/sh64/Makefile      |    8 ++------
- 4 files changed, 4 insertions(+), 33 deletions(-)
+ Kbuild                          |    9 ++++++++-
+ arch/mips/Makefile              |   33 +--------------------------------
+ arch/mips/kernel/r2300_fpu.S    |    2 +-
+ arch/mips/kernel/r2300_switch.S |    2 +-
+ arch/mips/kernel/r4k_fpu.S      |    2 +-
+ arch/mips/kernel/r4k_switch.S   |    2 +-
+ arch/mips/kernel/r6000_fpu.S    |    2 +-
+ arch/mips/kernel/scall32-o32.S  |    2 +-
+ arch/mips/kernel/scall64-64.S   |    2 +-
+ arch/mips/kernel/syscall.c      |    2 +-
+ arch/mips/lib-32/memset.S       |    2 +-
+ arch/mips/lib-64/memset.S       |    2 +-
+ arch/mips/lib/memcpy.S          |    2 +-
+ arch/mips/lib/strlen_user.S     |    2 +-
+ arch/mips/lib/strncpy_user.S    |    2 +-
+ arch/mips/lib/strnlen_user.S    |    2 +-
+ include/asm-mips/asmmacro-32.h  |    2 +-
+ include/asm-mips/asmmacro-64.h  |    2 +-
+ include/asm-mips/sim.h          |    2 +-
+ include/asm-mips/stackframe.h   |    2 +-
+ 20 files changed, 27 insertions(+), 51 deletions(-)
 
-cca6e6f5f473ec63e85c87dfc77279ce1ca114e6
-diff --git a/arch/h8300/Makefile b/arch/h8300/Makefile
---- a/arch/h8300/Makefile
-+++ b/arch/h8300/Makefile
-@@ -61,12 +61,6 @@ archmrproper:
- archclean:
- 	$(Q)$(MAKE) $(clean)=$(boot)
+048eb582f3f89737d4a29668de9935e6feea7c36
+diff --git a/Kbuild b/Kbuild
+--- a/Kbuild
++++ b/Kbuild
+@@ -13,6 +13,13 @@ always  := $(offsets-file)
+ targets := $(offsets-file)
+ targets += arch/$(ARCH)/kernel/asm-offsets.s
  
--prepare: include/asm-$(ARCH)/asm-offsets.h
--
--include/asm-$(ARCH)/asm-offsets.h: arch/$(ARCH)/kernel/asm-offsets.s \
--				   include/asm include/linux/version.h
--	$(call filechk,gen-asm-offsets)
--
- vmlinux.srec vmlinux.bin: vmlinux
- 	$(Q)$(MAKE) $(build)=$(boot) $(boot)/$@
- 
-@@ -74,5 +68,3 @@ define archhelp
-   echo  'vmlinux.bin  - Create raw binary'
-   echo  'vmlinux.srec - Create srec binary'
++# Default sed regexp - multiline due to syntax constraints
++define sed-y
++	"/^->/{s:^->\([^ ]*\) [\$$#]*\([^ ]*\) \(.*\):#define \1 \2 /* \3 */:; s:->::; p;}"
++endef
++# Override default regexp for specific architectures
++sed-$(CONFIG_MIPS) := "/^@@@/s///p"
++
+ quiet_cmd_offsets = GEN     $@
+ define cmd_offsets
+ 	cat $< | \
+@@ -26,7 +33,7 @@ define cmd_offsets
+ 	 echo " *"; \
+ 	 echo " */"; \
+ 	 echo ""; \
+-	 sed -ne "/^->/{s:^->\([^ ]*\) [\$$#]*\([^ ]*\) \(.*\):#define \1 \2 /* \3 */:; s:->::; p;}"; \
++	 sed -ne $(sed-y); \
+ 	 echo ""; \
+ 	 echo "#endif" ) > $@
  endef
--
--CLEAN_FILES += include/asm-$(ARCH)/asm-offsets.h
-diff --git a/arch/m68knommu/Makefile b/arch/m68knommu/Makefile
---- a/arch/m68knommu/Makefile
-+++ b/arch/m68knommu/Makefile
-@@ -102,21 +102,11 @@ CFLAGS += -DUTS_SYSNAME=\"uClinux\"
+diff --git a/arch/mips/Makefile b/arch/mips/Makefile
+--- a/arch/mips/Makefile
++++ b/arch/mips/Makefile
+@@ -720,38 +720,7 @@ archclean:
+ 	@$(MAKE) $(clean)=arch/mips/boot
+ 	@$(MAKE) $(clean)=arch/mips/lasat
  
- head-y := arch/m68knommu/platform/$(cpuclass-y)/head.o
+-# Generate <asm/offset.h
+-#
+-# The default rule is suffering from funny problems on MIPS so we using our
+-# own ...
+-#
+-# ---------------------------------------------------------------------------
  
--CLEAN_FILES := include/asm-$(ARCH)/asm-offsets.h \
--	       arch/$(ARCH)/kernel/asm-offsets.s
+-define filechk_gen-asm-offset.h
+-	(set -e; \
+-	 echo "#ifndef _ASM_OFFSET_H"; \
+-	 echo "#define _ASM_OFFSET_H"; \
+-	 echo "/*"; \
+-	 echo " * DO NOT MODIFY."; \
+-	 echo " *"; \
+-	 echo " * This file was generated by arch/$(ARCH)/Makefile"; \
+-	 echo " *"; \
+-	 echo " */"; \
+-	 echo ""; \
+-	 sed -ne "/^@@@/s///p"; \
+-	 echo "#endif /* _ASM_OFFSET_H */" )
+-endef
 -
- core-y	+= arch/m68knommu/kernel/ \
- 	   arch/m68knommu/mm/ \
- 	   $(CLASSDIR) \
- 	   arch/m68knommu/platform/$(PLATFORM)/
- libs-y	+= arch/m68knommu/lib/
- 
--prepare: include/asm-$(ARCH)/asm-offsets.h
+-prepare: include/asm-$(ARCH)/offset.h
 -
- archclean:
- 	$(Q)$(MAKE) $(clean)=arch/m68knommu/boot
--
--include/asm-$(ARCH)/asm-offsets.h: arch/$(ARCH)/kernel/asm-offsets.s \
--				   include/asm include/linux/version.h \
+-arch/$(ARCH)/kernel/offset.s: include/asm include/linux/version.h \
 -				   include/config/MARKER
--	$(call filechk,gen-asm-offsets)
-diff --git a/arch/sh/Makefile b/arch/sh/Makefile
---- a/arch/sh/Makefile
-+++ b/arch/sh/Makefile
-@@ -155,7 +155,7 @@ endif
- prepare: maketools include/asm-sh/.cpu include/asm-sh/.mach
- 
- .PHONY: maketools FORCE
--maketools: include/asm-sh/asm-offsets.h include/linux/version.h FORCE
-+maketools:  include/linux/version.h FORCE
- 	$(Q)$(MAKE) $(build)=arch/sh/tools include/asm-sh/machtypes.h
- 
- all: zImage
-@@ -168,14 +168,7 @@ compressed: zImage
- archclean:
- 	$(Q)$(MAKE) $(clean)=$(boot)
- 
--CLEAN_FILES += include/asm-sh/machtypes.h include/asm-sh/asm-offsets.h
 -
--arch/sh/kernel/asm-offsets.s: include/asm include/linux/version.h \
--			      include/asm-sh/.cpu include/asm-sh/.mach
+-include/asm-$(ARCH)/offset.h: arch/$(ARCH)/kernel/offset.s
+-	$(call filechk,gen-asm-offset.h)
 -
--include/asm-sh/asm-offsets.h: arch/sh/kernel/asm-offsets.s
--	$(call filechk,gen-asm-offsets)
--
-+CLEAN_FILES += include/asm-sh/machtypes.h
+-CLEAN_FILES += include/asm-$(ARCH)/offset.h.tmp \
+-	       include/asm-$(ARCH)/offset.h \
+-	       vmlinux.32 \
++CLEAN_FILES += vmlinux.32 \
+ 	       vmlinux.64 \
+ 	       vmlinux.ecoff
+diff --git a/arch/mips/kernel/r2300_fpu.S b/arch/mips/kernel/r2300_fpu.S
+--- a/arch/mips/kernel/r2300_fpu.S
++++ b/arch/mips/kernel/r2300_fpu.S
+@@ -15,7 +15,7 @@
+ #include <asm/errno.h>
+ #include <asm/fpregdef.h>
+ #include <asm/mipsregs.h>
+-#include <asm/offset.h>
++#include <asm/asm-offsets.h>
+ #include <asm/regdef.h>
  
- define archhelp
- 	@echo '  zImage 	           - Compressed kernel image (arch/sh/boot/zImage)'
-diff --git a/arch/sh64/Makefile b/arch/sh64/Makefile
---- a/arch/sh64/Makefile
-+++ b/arch/sh64/Makefile
-@@ -73,11 +73,7 @@ compressed: zImage
- archclean:
- 	$(Q)$(MAKE) $(clean)=$(boot)
+ #define EX(a,b)							\
+diff --git a/arch/mips/kernel/r2300_switch.S b/arch/mips/kernel/r2300_switch.S
+--- a/arch/mips/kernel/r2300_switch.S
++++ b/arch/mips/kernel/r2300_switch.S
+@@ -15,7 +15,7 @@
+ #include <asm/cachectl.h>
+ #include <asm/fpregdef.h>
+ #include <asm/mipsregs.h>
+-#include <asm/offset.h>
++#include <asm/asm-offsets.h>
+ #include <asm/page.h>
+ #include <asm/regdef.h>
+ #include <asm/stackframe.h>
+diff --git a/arch/mips/kernel/r4k_fpu.S b/arch/mips/kernel/r4k_fpu.S
+--- a/arch/mips/kernel/r4k_fpu.S
++++ b/arch/mips/kernel/r4k_fpu.S
+@@ -17,7 +17,7 @@
+ #include <asm/errno.h>
+ #include <asm/fpregdef.h>
+ #include <asm/mipsregs.h>
+-#include <asm/offset.h>
++#include <asm/asm-offsets.h>
+ #include <asm/regdef.h>
  
--prepare: include/asm-$(ARCH)/asm-offsets.h arch/$(ARCH)/lib/syscalltab.h
--
--include/asm-$(ARCH)/asm-offsets.h: arch/$(ARCH)/kernel/asm-offsets.s \
--				   include/asm include/linux/version.h
--	$(call filechk,gen-asm-offsets)
-+prepare: arch/$(ARCH)/lib/syscalltab.h
+ 	.macro	EX insn, reg, src
+diff --git a/arch/mips/kernel/r4k_switch.S b/arch/mips/kernel/r4k_switch.S
+--- a/arch/mips/kernel/r4k_switch.S
++++ b/arch/mips/kernel/r4k_switch.S
+@@ -15,7 +15,7 @@
+ #include <asm/cachectl.h>
+ #include <asm/fpregdef.h>
+ #include <asm/mipsregs.h>
+-#include <asm/offset.h>
++#include <asm/asm-offsets.h>
+ #include <asm/page.h>
+ #include <asm/pgtable-bits.h>
+ #include <asm/regdef.h>
+diff --git a/arch/mips/kernel/r6000_fpu.S b/arch/mips/kernel/r6000_fpu.S
+--- a/arch/mips/kernel/r6000_fpu.S
++++ b/arch/mips/kernel/r6000_fpu.S
+@@ -13,7 +13,7 @@
+ #include <asm/asm.h>
+ #include <asm/fpregdef.h>
+ #include <asm/mipsregs.h>
+-#include <asm/offset.h>
++#include <asm/asm-offsets.h>
+ #include <asm/regdef.h>
  
- define filechk_gen-syscalltab
-        (set -e; \
-@@ -108,7 +104,7 @@ endef
- arch/$(ARCH)/lib/syscalltab.h: arch/sh64/kernel/syscalls.S
- 	$(call filechk,gen-syscalltab)
+ 	.set	noreorder
+diff --git a/arch/mips/kernel/scall32-o32.S b/arch/mips/kernel/scall32-o32.S
+--- a/arch/mips/kernel/scall32-o32.S
++++ b/arch/mips/kernel/scall32-o32.S
+@@ -19,7 +19,7 @@
+ #include <asm/thread_info.h>
+ #include <asm/unistd.h>
+ #include <asm/war.h>
+-#include <asm/offset.h>
++#include <asm/asm-offsets.h>
  
--CLEAN_FILES += include/asm-$(ARCH)/asm-offsets.h arch/$(ARCH)/lib/syscalltab.h
-+CLEAN_FILES += arch/$(ARCH)/lib/syscalltab.h
+ /* Highest syscall used of any syscall flavour */
+ #define MAX_SYSCALL_NO	__NR_O32_Linux + __NR_O32_Linux_syscalls
+diff --git a/arch/mips/kernel/scall64-64.S b/arch/mips/kernel/scall64-64.S
+--- a/arch/mips/kernel/scall64-64.S
++++ b/arch/mips/kernel/scall64-64.S
+@@ -14,7 +14,7 @@
+ #include <asm/mipsregs.h>
+ #include <asm/regdef.h>
+ #include <asm/stackframe.h>
+-#include <asm/offset.h>
++#include <asm/asm-offsets.h>
+ #include <asm/sysmips.h>
+ #include <asm/thread_info.h>
+ #include <asm/unistd.h>
+diff --git a/arch/mips/kernel/syscall.c b/arch/mips/kernel/syscall.c
+--- a/arch/mips/kernel/syscall.c
++++ b/arch/mips/kernel/syscall.c
+@@ -31,7 +31,7 @@
+ #include <asm/cachectl.h>
+ #include <asm/cacheflush.h>
+ #include <asm/ipc.h>
+-#include <asm/offset.h>
++#include <asm/asm-offsets.h>
+ #include <asm/signal.h>
+ #include <asm/sim.h>
+ #include <asm/shmparam.h>
+diff --git a/arch/mips/lib-32/memset.S b/arch/mips/lib-32/memset.S
+--- a/arch/mips/lib-32/memset.S
++++ b/arch/mips/lib-32/memset.S
+@@ -7,7 +7,7 @@
+  * Copyright (C) 1999, 2000 Silicon Graphics, Inc.
+  */
+ #include <asm/asm.h>
+-#include <asm/offset.h>
++#include <asm/asm-offsets.h>
+ #include <asm/regdef.h>
  
- define archhelp
- 	@echo '  zImage 	           - Compressed kernel image (arch/sh64/boot/zImage)'
+ #define EX(insn,reg,addr,handler)			\
+diff --git a/arch/mips/lib-64/memset.S b/arch/mips/lib-64/memset.S
+--- a/arch/mips/lib-64/memset.S
++++ b/arch/mips/lib-64/memset.S
+@@ -7,7 +7,7 @@
+  * Copyright (C) 1999, 2000 Silicon Graphics, Inc.
+  */
+ #include <asm/asm.h>
+-#include <asm/offset.h>
++#include <asm/asm-offsets.h>
+ #include <asm/regdef.h>
+ 
+ #define EX(insn,reg,addr,handler)			\
+diff --git a/arch/mips/lib/memcpy.S b/arch/mips/lib/memcpy.S
+--- a/arch/mips/lib/memcpy.S
++++ b/arch/mips/lib/memcpy.S
+@@ -14,7 +14,7 @@
+  */
+ #include <linux/config.h>
+ #include <asm/asm.h>
+-#include <asm/offset.h>
++#include <asm/asm-offsets.h>
+ #include <asm/regdef.h>
+ 
+ #define dst a0
+diff --git a/arch/mips/lib/strlen_user.S b/arch/mips/lib/strlen_user.S
+--- a/arch/mips/lib/strlen_user.S
++++ b/arch/mips/lib/strlen_user.S
+@@ -7,7 +7,7 @@
+  * Copyright (c) 1999 Silicon Graphics, Inc.
+  */
+ #include <asm/asm.h>
+-#include <asm/offset.h>
++#include <asm/asm-offsets.h>
+ #include <asm/regdef.h>
+ 
+ #define EX(insn,reg,addr,handler)			\
+diff --git a/arch/mips/lib/strncpy_user.S b/arch/mips/lib/strncpy_user.S
+--- a/arch/mips/lib/strncpy_user.S
++++ b/arch/mips/lib/strncpy_user.S
+@@ -7,7 +7,7 @@
+  */
+ #include <linux/errno.h>
+ #include <asm/asm.h>
+-#include <asm/offset.h>
++#include <asm/asm-offsets.h>
+ #include <asm/regdef.h>
+ 
+ #define EX(insn,reg,addr,handler)			\
+diff --git a/arch/mips/lib/strnlen_user.S b/arch/mips/lib/strnlen_user.S
+--- a/arch/mips/lib/strnlen_user.S
++++ b/arch/mips/lib/strnlen_user.S
+@@ -7,7 +7,7 @@
+  * Copyright (c) 1999 Silicon Graphics, Inc.
+  */
+ #include <asm/asm.h>
+-#include <asm/offset.h>
++#include <asm/asm-offsets.h>
+ #include <asm/regdef.h>
+ 
+ #define EX(insn,reg,addr,handler)			\
+diff --git a/include/asm-mips/asmmacro-32.h b/include/asm-mips/asmmacro-32.h
+--- a/include/asm-mips/asmmacro-32.h
++++ b/include/asm-mips/asmmacro-32.h
+@@ -7,7 +7,7 @@
+ #ifndef _ASM_ASMMACRO_32_H
+ #define _ASM_ASMMACRO_32_H
+ 
+-#include <asm/offset.h>
++#include <asm/asm-offsets.h>
+ #include <asm/regdef.h>
+ #include <asm/fpregdef.h>
+ #include <asm/mipsregs.h>
+diff --git a/include/asm-mips/asmmacro-64.h b/include/asm-mips/asmmacro-64.h
+--- a/include/asm-mips/asmmacro-64.h
++++ b/include/asm-mips/asmmacro-64.h
+@@ -8,7 +8,7 @@
+ #ifndef _ASM_ASMMACRO_64_H
+ #define _ASM_ASMMACRO_64_H
+ 
+-#include <asm/offset.h>
++#include <asm/asm-offsets.h>
+ #include <asm/regdef.h>
+ #include <asm/fpregdef.h>
+ #include <asm/mipsregs.h>
+diff --git a/include/asm-mips/sim.h b/include/asm-mips/sim.h
+--- a/include/asm-mips/sim.h
++++ b/include/asm-mips/sim.h
+@@ -11,7 +11,7 @@
+ 
+ #include <linux/config.h>
+ 
+-#include <asm/offset.h>
++#include <asm/asm-offsets.h>
+ 
+ #define __str2(x) #x
+ #define __str(x) __str2(x)
+diff --git a/include/asm-mips/stackframe.h b/include/asm-mips/stackframe.h
+--- a/include/asm-mips/stackframe.h
++++ b/include/asm-mips/stackframe.h
+@@ -15,7 +15,7 @@
+ 
+ #include <asm/asm.h>
+ #include <asm/mipsregs.h>
+-#include <asm/offset.h>
++#include <asm/asm-offsets.h>
+ 
+ 		.macro	SAVE_AT
+ 		.set	push
 
 

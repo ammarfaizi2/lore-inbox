@@ -1,69 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965112AbVIIJPK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965110AbVIIJQG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965112AbVIIJPK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 05:15:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965113AbVIIJPK
+	id S965110AbVIIJQG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 05:16:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965113AbVIIJQF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 05:15:10 -0400
-Received: from 7.1.203.62.cust.bluewin.ch ([62.203.1.7]:26926 "EHLO
-	kestrel.twibright.com") by vger.kernel.org with ESMTP
-	id S965112AbVIIJPI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 05:15:08 -0400
-Date: Fri, 9 Sep 2005 11:15:02 +0200
-From: Karel Kulhavy <clock@twibright.com>
-To: linux-kernel@vger.kernel.org
-Subject: USB digital camera erroneously says "no medium found"
-Message-ID: <20050909091502.GB27699@kestrel>
+	Fri, 9 Sep 2005 05:16:05 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:3041 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965110AbVIIJQE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 05:16:04 -0400
+Date: Fri, 9 Sep 2005 02:15:22 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Akinobu Mita <mita@miraclelinux.com>
+Cc: linux-kernel@vger.kernel.org, sct@redhat.com, adilger@clusterfs.com,
+       ext3-users@redhat.com
+Subject: Re: [PATCH 0/6] jbd cleanup
+Message-Id: <20050909021522.1a271e4b.akpm@osdl.org>
+In-Reply-To: <20050909084214.GB14205@miraclelinux.com>
+References: <20050909084214.GB14205@miraclelinux.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Orientation: Gay
-User-Agent: Mutt/1.5.8i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+Akinobu Mita <mita@miraclelinux.com> wrote:
+>
+> The following 6 patches cleanup the jbd code and kill about 200 lines. 
+>
 
-I have Nikon Coolpix 2000 digital camera which was working well on my
-old Linux 2.6.? machine. After moving to a different one while the old
-one is not accessible, where the new one has Linux version 2.6.13, I
-found it doesn't work anymore. When compact flash is inside the camera,
-camera turned on and connected, cat /dev/sda says no media found.  cat
-/dev/sdb, /dev/sdc, /dev/sdd say no such file or directory.
+Thanks, but I'm not inclined to apply them.
 
-If I take the compact flash card out and stick it into "roline 8in1 card
-reader", it works perfectly. This reader puts the cards also as SCSI
-disks on /dev/sda.../dev/sdd. Attaching the camera with CF inside to
-Windows 2000 machine also works perfectly.
+a) Maybe 70-80% of the Linux world uses this filesystem.  We need to be
+   very cautious in making changes to it.
 
-dmesg:
+b) A relatively large number of people are carrying quite large
+   out-of-tree patches, some of which they're hoping to merge sometime. 
+   Admittedly more against ext3 than JBD, but there is potential here to
+   cause those people trouble.
 
-usb-storage: waiting for device to settle before scanning
-  Vendor: NIKON     Model: DSC E2000         Rev: 1.00
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-SCSI device sda: 507905 512-byte hdwr sectors (260 MB)
-sda: Write Protect is off
-sda: Mode Sense: 04 00 00 00
-sda: assuming drive cache: write through
-SCSI device sda: 507905 512-byte hdwr sectors (260 MB)
-sda: Write Protect is off
-sda: Mode Sense: 04 00 00 00
-sda: assuming drive cache: write through
- sda: sda1
-Attached scsi removable disk sda at scsi4, channel 0, id 0, lun 0
-Attached scsi generic sg0 at scsi4, channel 0, id 0, lun 0,  type 0
-usb-storage: device scan complete
+Plus the switch to list_heads in journal_s has some impact on type safety
+and debuggability - I considered doing it years ago but decided not to
+because I found I _used_ those pointers fairly commonly in development. 
+list_heads are a bit of a pain in gdb (kgdb and kernel core dumps), for
+example.
 
-clock@kestrel:~$ /sbin/lspci | grep USB
-0000:00:1d.0 USB Controller: Intel Corporation 82801DB/DBL/DBM
-(ICH4/ICH4-L/ICH4-M) USB UHCI Controller #1 (rev 01)
-0000:00:1d.1 USB Controller: Intel Corporation 82801DB/DBL/DBM
-(ICH4/ICH4-L/ICH4-M) USB UHCI Controller #2 (rev 01)
-0000:00:1d.2 USB Controller: Intel Corporation 82801DB/DBL/DBM
-(ICH4/ICH4-L/ICH4-M) USB UHCI Controller #3 (rev 01)
-0000:00:1d.7 USB Controller: Intel Corporation 82801DB/DBM (ICH4/ICH4-M)
-USB2 EHCI Controller (rev 01)
-
-What should I investigate and send to diagnose the problem?
-
-CL<

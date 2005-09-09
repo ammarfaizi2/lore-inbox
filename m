@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751403AbVIIDbJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751404AbVIIDbN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751403AbVIIDbJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 23:31:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751404AbVIIDbJ
+	id S1751404AbVIIDbN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 23:31:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751408AbVIIDbN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 23:31:09 -0400
-Received: from mail.kroah.org ([69.55.234.183]:31616 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751403AbVIIDbI (ORCPT
+	Thu, 8 Sep 2005 23:31:13 -0400
+Received: from mail.kroah.org ([69.55.234.183]:34176 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751404AbVIIDbL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 23:31:08 -0400
-Date: Thu, 8 Sep 2005 20:30:36 -0700
+	Thu, 8 Sep 2005 23:31:11 -0400
+Date: Thu, 8 Sep 2005 20:28:42 -0700
 From: Greg KH <gregkh@suse.de>
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, johnpol@2ka.mipt.ru
-Subject: Re: [GIT PATCH] W1 patches for 2.6.13
-Message-ID: <20050909033036.GB11369@suse.de>
-References: <20050908222105.GA6633@kroah.com> <1126222209.5286.74.camel@blade>
+To: Mark Lord <lkml@rtr.ca>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [GIT PATCH] USB patches for 2.6.13
+Message-ID: <20050909032842.GA11369@suse.de>
+References: <20050908235024.GA8159@kroah.com> <4320F661.2010706@rtr.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1126222209.5286.74.camel@blade>
+In-Reply-To: <4320F661.2010706@rtr.ca>
 User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 09, 2005 at 01:30:09AM +0200, Marcel Holtmann wrote:
-> Hi Greg,
+On Thu, Sep 08, 2005 at 10:41:37PM -0400, Mark Lord wrote:
+> Is someone actively working on USB Suspend/Resume support yet?
 > 
-> > Here are some w1 patches that have been in the -mm tree for a while.
-> > They add a new driver, and fix up the netlink logic a lot.  They also
-> > add a crc16 implementation that is needed.
+> I ask because this is becoming more and more important as people
+> shift more to portable notebook computers with Linux.
 > 
-> adding the CRC-16 is very cool. I was just about to submit one by my
-> own, because it is also needed for the Bluetooth L2CAP retransmission
-> and flow control support.
+> Enabling CONFIG_USB_SUSPEND is currently a surefire way to
+> guarantee crashing my own notebook on suspend/resume,
+> whereas it *usually* (but not always) survives when that
+> config option is left unset.
 > 
-> What about the 1-Wire notes inside the CRC-16 code. This suppose to be
-> generic code and so this doesn't belong there.
+> Nothing complicated in the configuration -- just a USB mouse,
+> but that's enough to nuke it.
+> 
+> Anyone looking at that stuff right now?
 
-Yes, those comments don't belong there.  Evgeniy, want to fix this?
+Yes, people are.  Please report this on the linux-usb-devel mailing
+list, or file a bug at bugzilla.kernel.org
 
 thanks,
 

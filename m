@@ -1,48 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbVIINbr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751423AbVIINiJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750810AbVIINbr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 09:31:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751428AbVIINbr
+	id S1751423AbVIINiJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 09:38:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751428AbVIINiJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 09:31:47 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:35712 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S1750810AbVIINbp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 09:31:45 -0400
-Date: Fri, 9 Sep 2005 06:31:31 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Hirokazu Takahashi <taka@valinux.co.jp>
-Cc: magnus.damm@gmail.com, kurosawa@valinux.co.jp, dino@in.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/5] SUBCPUSETS: a resource control functionality using
- CPUSETS
-Message-Id: <20050909063131.64dc8155.pj@sgi.com>
-In-Reply-To: <20050909.203849.33293224.taka@valinux.co.jp>
-References: <20050909013804.1B64B70037@sv1.valinux.co.jp>
-	<aec7e5c305090821126cea6b57@mail.gmail.com>
-	<20050908225539.0bc1acf6.pj@sgi.com>
-	<20050909.203849.33293224.taka@valinux.co.jp>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Fri, 9 Sep 2005 09:38:09 -0400
+Received: from relay7.mail.ox.ac.uk ([129.67.1.167]:10928 "EHLO
+	relay7.mail.ox.ac.uk") by vger.kernel.org with ESMTP
+	id S1751423AbVIINiH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 09:38:07 -0400
+Date: Fri, 9 Sep 2005 14:38:04 +0100
+From: Ian Collier <Ian.Collier@comlab.ox.ac.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13: loop ioctl crashes
+Message-ID: <20050909143804.A23692@pixie.comlab>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20050909132725.C23462@pixie.comlab> <Pine.LNX.4.61.0509090829260.8368@chaos.analogic.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.61.0509090829260.8368@chaos.analogic.com>; from linux-os@analogic.com on Fri, Sep 09, 2005 at 08:32:10AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Takahashi-san wrote:
-> What do you think if you make cpusets for sched domain be able to
-> have their siblings, which have the same attribute and share
-> their resources between them.
+On Fri, Sep 09, 2005 at 08:32:10AM -0400, linux-os (Dick Johnson) wrote:
+> I guess you are trying to do a copy_from_user() with a spin-lock
+> being held or the interrupts otherwise disabled. You can hold
+> a semaphore, to prevent somebody else from interfering with
+> you, but you cannot hold a spin-lock during copy/to/from/user().
 
-I do not understand this question.  I guess "cpusets for sched
-domains" means "cpusets whose 'cpu_exclusive' attribute is
-marked true, but which have no child cpusets so marked."
+Well, I didn't write the code (it's right there in drivers/block/loop.c
+in 2.6.13) and I can't see where there's a spin-lock.  In fact it does
+use a semaphore.
 
-But even that guess I am unsure of, and the rest of the sentence
-"which have the same ..." I don't even have a guess what means.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+imc

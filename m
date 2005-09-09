@@ -1,115 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030182AbVIIJ0K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965123AbVIIJ0e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030182AbVIIJ0K (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 05:26:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030183AbVIIJ0J
+	id S965123AbVIIJ0e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 05:26:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965126AbVIIJ0e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 05:26:09 -0400
-Received: from ppsw-9.csi.cam.ac.uk ([131.111.8.139]:64655 "EHLO
+	Fri, 9 Sep 2005 05:26:34 -0400
+Received: from ppsw-9.csi.cam.ac.uk ([131.111.8.139]:49040 "EHLO
 	ppsw-9.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1030182AbVIIJ0G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 05:26:06 -0400
+	id S965123AbVIIJ0c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 05:26:32 -0400
 X-Cam-SpamDetails: Not scanned
 X-Cam-AntiVirus: No virus found
 X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Date: Fri, 9 Sep 2005 10:25:51 +0100 (BST)
+Date: Fri, 9 Sep 2005 10:26:22 +0100 (BST)
 From: Anton Altaparmakov <aia21@cam.ac.uk>
 To: Linus Torvalds <torvalds@osdl.org>
 cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
-Subject: [PATCH 11/25] NTFS: Remove bogus setting of PageError in
- ntfs_read_compressed_block().
+Subject: [PATCH 12/25] NTFS: Add fs/ntfs/attrib.[hc]::ntfs_resident_attr_value_resize().
 In-Reply-To: <Pine.LNX.4.60.0509090950100.11051@hermes-1.csi.cam.ac.uk>
-Message-ID: <Pine.LNX.4.60.0509091025300.26845@hermes-1.csi.cam.ac.uk>
+Message-ID: <Pine.LNX.4.60.0509091025540.26845@hermes-1.csi.cam.ac.uk>
 References: <Pine.LNX.4.60.0509090950100.11051@hermes-1.csi.cam.ac.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH 11/25] NTFS: Remove bogus setting of PageError in ntfs_read_compressed_block().
+[PATCH 12/25] NTFS: Add fs/ntfs/attrib.[hc]::ntfs_resident_attr_value_resize().
 
 Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
 
 ---
 
- fs/ntfs/ChangeLog  |    1 +
- fs/ntfs/compress.c |    8 --------
- fs/ntfs/file.c     |    9 +++++++--
- 3 files changed, 8 insertions(+), 10 deletions(-)
+ fs/ntfs/ChangeLog |    1 +
+ fs/ntfs/attrib.c  |   40 ++++++++++++++++++++++++++++++++++++++++
+ fs/ntfs/attrib.h  |    2 ++
+ 3 files changed, 43 insertions(+), 0 deletions(-)
 
-f25dfb5e44fa8641961780d681bc1871abcfb861
+0aacceacf35451ffb771ec825555e98c5dce8b01
 diff --git a/fs/ntfs/ChangeLog b/fs/ntfs/ChangeLog
 --- a/fs/ntfs/ChangeLog
 +++ b/fs/ntfs/ChangeLog
-@@ -58,6 +58,7 @@ ToDo/Notes:
- 	- Fix a bug in fs/ntfs/index.c::ntfs_index_lookup().  When the returned
+@@ -59,6 +59,7 @@ ToDo/Notes:
  	  index entry is in the index root, we forgot to set the @ir pointer in
  	  the index context.  Thanks to Yura Pakhuchiy for finding this bug.
-+	- Remove bogus setting of PageError in ntfs_read_compressed_block().
+ 	- Remove bogus setting of PageError in ntfs_read_compressed_block().
++	- Add fs/ntfs/attrib.[hc]::ntfs_resident_attr_value_resize().
  
  2.1.23 - Implement extension of resident files and make writing safe as well as
  	 many bug fixes, cleanups, and enhancements...
-diff --git a/fs/ntfs/compress.c b/fs/ntfs/compress.c
---- a/fs/ntfs/compress.c
-+++ b/fs/ntfs/compress.c
-@@ -539,7 +539,6 @@ int ntfs_read_compressed_block(struct pa
- 	if (unlikely(!pages || !bhs)) {
- 		kfree(bhs);
- 		kfree(pages);
--		SetPageError(page);
- 		unlock_page(page);
- 		ntfs_error(vol->sb, "Failed to allocate internal buffers.");
- 		return -ENOMEM;
-@@ -871,9 +870,6 @@ lock_retry_remap:
- 			for (; prev_cur_page < cur_page; prev_cur_page++) {
- 				page = pages[prev_cur_page];
- 				if (page) {
--					if (prev_cur_page == xpage &&
--							!xpage_done)
--						SetPageError(page);
- 					flush_dcache_page(page);
- 					kunmap(page);
- 					unlock_page(page);
-@@ -904,8 +900,6 @@ lock_retry_remap:
- 					"Terminating them with extreme "
- 					"prejudice.  Inode 0x%lx, page index "
- 					"0x%lx.", ni->mft_no, page->index);
--			if (cur_page == xpage && !xpage_done)
--				SetPageError(page);
- 			flush_dcache_page(page);
- 			kunmap(page);
- 			unlock_page(page);
-@@ -953,8 +947,6 @@ err_out:
- 	for (i = cur_page; i < max_page; i++) {
- 		page = pages[i];
- 		if (page) {
--			if (i == xpage && !xpage_done)
--				SetPageError(page);
- 			flush_dcache_page(page);
- 			kunmap(page);
- 			unlock_page(page);
-diff --git a/fs/ntfs/file.c b/fs/ntfs/file.c
---- a/fs/ntfs/file.c
-+++ b/fs/ntfs/file.c
-@@ -1,7 +1,7 @@
- /*
-- * file.c - NTFS kernel file operations. Part of the Linux-NTFS project.
-+ * file.c - NTFS kernel file operations.  Part of the Linux-NTFS project.
-  *
-- * Copyright (c) 2001-2004 Anton Altaparmakov
-+ * Copyright (c) 2001-2005 Anton Altaparmakov
-  *
-  * This program/include file is free software; you can redistribute it and/or
-  * modify it under the terms of the GNU General Public License as published
-@@ -94,6 +94,11 @@ static int ntfs_file_fsync(struct file *
- 	if (!datasync || !NInoNonResident(NTFS_I(vi)))
- 		ret = ntfs_write_inode(vi, 1);
- 	write_inode_now(vi, !datasync);
+diff --git a/fs/ntfs/attrib.c b/fs/ntfs/attrib.c
+--- a/fs/ntfs/attrib.c
++++ b/fs/ntfs/attrib.c
+@@ -1247,6 +1247,46 @@ int ntfs_attr_record_resize(MFT_RECORD *
+ }
+ 
+ /**
++ * ntfs_resident_attr_value_resize - resize the value of a resident attribute
++ * @m:		mft record containing attribute record
++ * @a:		attribute record whose value to resize
++ * @new_size:	new size in bytes to which to resize the attribute value of @a
++ *
++ * Resize the value of the attribute @a in the mft record @m to @new_size bytes.
++ * If the value is made bigger, the newly allocated space is cleared.
++ *
++ * Return 0 on success and -errno on error.  The following error codes are
++ * defined:
++ *	-ENOSPC	- Not enough space in the mft record @m to perform the resize.
++ *
++ * Note: On error, no modifications have been performed whatsoever.
++ *
++ * Warning: If you make a record smaller without having copied all the data you
++ *	    are interested in the data may be overwritten.
++ */
++int ntfs_resident_attr_value_resize(MFT_RECORD *m, ATTR_RECORD *a,
++		const u32 new_size)
++{
++	u32 old_size;
++
++	/* Resize the resident part of the attribute record. */
++	if (ntfs_attr_record_resize(m, a,
++			le16_to_cpu(a->data.resident.value_offset) + new_size))
++		return -ENOSPC;
 +	/*
-+	 * NOTE: If we were to use mapping->private_list (see ext2 and
-+	 * fs/buffer.c) for dirty blocks then we could optimize the below to be
-+	 * sync_mapping_buffers(vi->i_mapping).
++	 * The resize succeeded!  If we made the attribute value bigger, clear
++	 * the area between the old size and @new_size.
 +	 */
- 	err = sync_blockdev(vi->i_sb->s_bdev);
- 	if (unlikely(err && !ret))
- 		ret = err;
++	old_size = le32_to_cpu(a->data.resident.value_length);
++	if (new_size > old_size)
++		memset((u8*)a + le16_to_cpu(a->data.resident.value_offset) +
++				old_size, 0, new_size - old_size);
++	/* Finally update the length of the attribute value. */
++	a->data.resident.value_length = cpu_to_le32(new_size);
++	return 0;
++}
++
++/**
+  * ntfs_attr_make_non_resident - convert a resident to a non-resident attribute
+  * @ni:		ntfs inode describing the attribute to convert
+  *
+diff --git a/fs/ntfs/attrib.h b/fs/ntfs/attrib.h
+--- a/fs/ntfs/attrib.h
++++ b/fs/ntfs/attrib.h
+@@ -99,6 +99,8 @@ extern int ntfs_attr_can_be_resident(con
+ 		const ATTR_TYPE type);
+ 
+ extern int ntfs_attr_record_resize(MFT_RECORD *m, ATTR_RECORD *a, u32 new_size);
++extern int ntfs_resident_attr_value_resize(MFT_RECORD *m, ATTR_RECORD *a,
++		const u32 new_size);
+ 
+ extern int ntfs_attr_make_non_resident(ntfs_inode *ni);
+ 

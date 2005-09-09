@@ -1,58 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030279AbVIIRbk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030281AbVIIReR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030279AbVIIRbk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 13:31:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030280AbVIIRbk
+	id S1030281AbVIIReR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 13:34:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030282AbVIIReR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 13:31:40 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:15079 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030279AbVIIRbj
+	Fri, 9 Sep 2005 13:34:17 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:58567 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030281AbVIIReQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 13:31:39 -0400
-Date: Fri, 9 Sep 2005 18:31:38 +0100
+	Fri, 9 Sep 2005 13:34:16 -0400
+Date: Fri, 9 Sep 2005 18:34:15 +0100
 From: viro@ZenIV.linux.org.uk
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Eric Piel <Eric.Piel@lifl.fr>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] bogus #if (acpi/blacklist)
-Message-ID: <20050909173138.GR9623@ZenIV.linux.org.uk>
-References: <20050909160723.GI9623@ZenIV.linux.org.uk> <4321B5F6.4040707@lifl.fr> <20050909164358.GP9623@ZenIV.linux.org.uk> <Pine.LNX.4.61.0509091854500.3743@scrub.home>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andreas Schwab <schwab@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [sparse fix] (was Re: [PATCH] bogus cast in bio.c)
+Message-ID: <20050909173415.GS9623@ZenIV.linux.org.uk>
+References: <20050909155356.GF9623@ZenIV.linux.org.uk> <je4q8u1agp.fsf@sykes.suse.de> <20050909163643.GO9623@ZenIV.linux.org.uk> <20050909172938.GQ9623@ZenIV.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0509091854500.3743@scrub.home>
+In-Reply-To: <20050909172938.GQ9623@ZenIV.linux.org.uk>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 09, 2005 at 06:55:52PM +0200, Roman Zippel wrote:
-> Hi,
-> 
-> On Fri, 9 Sep 2005 viro@ZenIV.linux.org.uk wrote:
-> 
-> > Sigh...  It should be left as #if, of course, but I suspect that cleaner way to
-> > deal with that would be (in Kconfig)
+On Fri, Sep 09, 2005 at 06:29:38PM +0100, viro@ZenIV.linux.org.uk wrote:
+> > fs/bio.c:686:15: warning: incorrect type in assignment (different address spaces)
+> > fs/bio.c:686:15:    expected void [noderef] *iov_base<asn:1>
+> > fs/bio.c:686:15:    got void [noderef] *<noident>
+> > from the first form (cast to __user void *).  Lovely...
 > > 
-> > config ACPI_BLACKLIST_YEAR
-> >         int "Disable ACPI for systems before Jan 1st this year" if X86
-> >         default 0
+> > OK, I think I know what's going on there, will fix.
 > 
-> That would be indeed the better fix.
+> What happens is actually pretty simple - we get address_space(1) handled
+> in declaration_specifiers(), which sets ctype->as to 1.  Then we see
+> "void" and eventually get to
+>                         ctype->base_type = type;
+>                 }
 > 
-> bye, Roman
+>                 check_modifiers(&token->pos, s, ctype->modifiers);
+>                 apply_ctype(token->pos, &thistype, ctype);
+> with thistype coming from lookup for "void".  And that, of course, has
+> zero ->as.  Now apply_ctype merrily buggers ctype->as and we have 0...
+> 
+> So AFAICS proper fix for sparse should be to check thistype->as to see
+> if it really has any intention to change ->as.  ACK?
 
-There we go, then (replacement for original variant, _not_ an incremental):
+PS: obvious testcase for that one:
 
-diff -urN RC13-git8-base/drivers/acpi/Kconfig current/drivers/acpi/Kconfig
---- RC13-git8-base/drivers/acpi/Kconfig	2005-09-08 23:42:49.000000000 -0400
-+++ current/drivers/acpi/Kconfig	2005-09-09 12:41:37.000000000 -0400
-@@ -250,8 +250,7 @@
- 	  Enter the full path name to the file wich includes the AmlCode declaration.
- 
- config ACPI_BLACKLIST_YEAR
--	int "Disable ACPI for systems before Jan 1st this year"
--	depends on X86
-+	int "Disable ACPI for systems before Jan 1st this year" if X86
- 	default 0
- 	help
- 	  enter a 4-digit year, eg. 2001 to disable ACPI by default
+#define X __attribute__((address_space(1)))    
+void X *p;
+void X *q;
+void foo(unsigned long n)
+{
+        p = (void X *)n;
+        q = (X void *)n;
+}

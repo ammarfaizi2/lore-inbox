@@ -1,110 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964925AbVIIOlb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964945AbVIIOle@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964925AbVIIOlb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 10:41:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964945AbVIIOlb
+	id S964945AbVIIOle (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 10:41:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964953AbVIIOle
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 10:41:31 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:35340 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S964925AbVIIOlb convert rfc822-to-8bit (ORCPT
+	Fri, 9 Sep 2005 10:41:34 -0400
+Received: from smtp01.gra.de ([62.146.73.187]:14539 "EHLO minne.gra.de")
+	by vger.kernel.org with ESMTP id S964945AbVIIOld (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 10:41:31 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <20050909143804.A23692@pixie.comlab>
-References: <20050909132725.C23462@pixie.comlab> <Pine.LNX.4.61.0509090829260.8368@chaos.analogic.com> <20050909143804.A23692@pixie.comlab>
-X-OriginalArrivalTime: 09 Sep 2005 14:41:28.0587 (UTC) FILETIME=[8FDFADB0:01C5B54C]
-Content-class: urn:content-classes:message
-Subject: Re: 2.6.13: loop ioctl crashes
-Date: Fri, 9 Sep 2005 10:41:29 -0400
-Message-ID: <Pine.LNX.4.61.0509091017020.4550@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.13: loop ioctl crashes
-Thread-Index: AcW1TI/rPhLneK6ORFa0f+Fo6QOnCw==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Ian Collier" <Ian.Collier@comlab.ox.ac.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Fri, 9 Sep 2005 10:41:33 -0400
+Date: Fri, 9 Sep 2005 16:42:08 +0200
+From: Mathias Adam <a2@adamis.de>
+To: linux-kernel@vger.kernel.org
+Cc: rmk+serial@arm.linux.org.uk
+Subject: Re: [PATCH] 8250.c: Fix to make 16C950 UARTs work
+Message-ID: <20050909144208.GA1993@adamis.de>
+References: <20050909013144.GA6660@adamis.de> <4320EC45.1080108@stesmi.com> <20050909024926.GA13643@adamis.de> <20050909111835.D17575@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050909111835.D17575@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Russell King wrote:
+> On Fri, Sep 09, 2005 at 04:49:27AM +0200, Mathias Adam wrote:
+> > +	if (up->port.type == PORT_16C950) {
+> > +		unsigned int baud_base = port->uartclk/16;
+> 
+> baud_base appears unused.
 
-On Fri, 9 Sep 2005, Ian Collier wrote:
+you're right, it's not necessary anymore. (New patch below)
 
-> On Fri, Sep 09, 2005 at 08:32:10AM -0400, linux-os (Dick Johnson) wrote:
->> I guess you are trying to do a copy_from_user() with a spin-lock
->> being held or the interrupts otherwise disabled. You can hold
->> a semaphore, to prevent somebody else from interfering with
->> you, but you cannot hold a spin-lock during copy/to/from/user().
->
-> Well, I didn't write the code (it's right there in drivers/block/loop.c
-> in 2.6.13) and I can't see where there's a spin-lock.  In fact it does
-> use a semaphore.
->
-> imc
-> -
+> > +		if (baud <= port->uartclk/16)
+> > +			serial_icr_write(up, UART_TCR, 0);
+> > +		else if (baud <= port->uartclk/8) {
+> > +			serial_icr_write(up, UART_TCR, 0x8);
+> > +		} else if (baud <= port->uartclk/4) {
+> > +			serial_icr_write(up, UART_TCR, 0x4);
+> > +		} else
+> > +			serial_icr_write(up, UART_TCR, 0);
+> 
+> baud can't be larger than port->uartclk/4 since you limited it above.
 
-Try to see if it is really the loop device or something that is
-interfacing with it. Here I copy the contents of a DOS floppy
-to a file, then mount the file through the loop device:
+Those lines come from 2.4.29's drivers/char/serial.c (>= line 1686). I
+left in the last "else" to have some fallback if uart_get_baud_rate()
+would change its behaviour to something else (i.e. does allow baud to
+be larger than max_baud). However this would lead to an incorrect baud
+rate to be set anyway (as the maximum baud rate of 16C950 is uartclk/4),
+so one could simply set the "/4" mode for everything larger than uartclk/8.
 
-Script started on Fri 09 Sep 2005 10:17:27 AM EDT
-[root@chaos driver]# cp /dev/fd0 image
-[root@chaos driver]# ls -la image
--rw-r-----  1 root root 1474560 Sep  9 10:18 image
-[root@chaos driver]# mount -o loop image /mnt
-[root@chaos driver]# ls -la /mnt
-total 894
-drwxr-xr-x   2 root root   7168 Dec 31  1969 [01;34m.[00m
-drwxr-xr-x  26 root root   4096 Sep  9 08:41 [01;34m..[00m
--rwxr-xr-x   1 root root    170 Apr 10  2003 [01;32mautoexec.bat[00m
--rwxr-xr-x   1 root root  86413 Jul 30  2002 [01;32mcommand.com[00m
--rwxr-xr-x   1 root root   2882 Apr  9  2003 [01;32mconfig.sys[00m
--rwxr-xr-x   1 root root  16967 Mar 27  2003 [01;32merr_lev.bat[00m
--rwxr-xr-x   1 root root   5874 Jan 21  2002 [01;32mfdxxms.sys[00m
--rwxr-xr-x   1 root root   3173 Mar 27  2003 [01;32mfindramd.exe[00m
--rwxr-xr-x   1 root root  41293 Aug  4  2002 [01;32mkernel.sys[00m
--rwxr-xr-x   1 root root 719592 Jun 28  2004 [01;32msw.exe[00m
--rwxr-xr-x   1 root root  25084 Sep 28  2000 [01;32mtdsk.exe[00m
-[root@chaos driver]# umount /mnt
-[root@chaos driver]# exit
+Btw, if you look at lines 1700-1701 of original 2.6.13's 8250.c:
 
-Script done on Fri 09 Sep 2005 10:18:55 AM EDT
+    baud = uart_get_baud_rate(port, termios, old, 0, port->uartclk/16);
+    quot = serial8250_get_divisor(port, baud);
 
+baud is limited to uartclk/16 here, but serial8250_get_divisor() tests
+it for being uartclk/4 or uartclk/8...
+I'm afraid that max_baud thing has to become somewhat more general, or
+do I miss something?
 
+Hmm and I don't get the point in the calculation of "quot" - is that
+formula correct in every case? I'll look into that a little bit now.
 
-This seems to work okay in 2.6.13, however I don't think it
-__should__ work because in lo_ioctl(), the following
-functions reference 'arg' without using copy/to/from/user() or
-put/get/user():
- 	loop_set_fd (vi fget()),
- 	loop_change_fd (via fget()),
- 	loop_get_status (via memset() and others),
- 	loop_get_status_old,
- 	loop_set_status64,
- 	loop_get_status64,
-         ... etc.
+Mathias Adam
 
-Basically, anything that uses ioctl() on the loop device may find
-that they crash the system. This code is broken.
-
-Anton Altaparmakov last 'touched' that code in Feb 2005. Maybe
-he can fix the ioctl procedure to use the correct interface to
-user-land????
+PS: I'm now subscribed to the list.
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13 on an i686 machine (5589.53 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
-I apologize for the following. I tried to kill it with the above dot :
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+--- linux-2.6.13-org/drivers/serial/8250.c	2005-08-29 01:41:01.000000000 +0200
++++ linux-2.6.13/drivers/serial/8250.c	2005-09-09 15:33:23.000000000 +0200
+@@ -1665,7 +1665,7 @@
+ 	struct uart_8250_port *up = (struct uart_8250_port *)port;
+ 	unsigned char cval, fcr = 0;
+ 	unsigned long flags;
+-	unsigned int baud, quot;
++	unsigned int baud, quot, max_baud;
+ 
+ 	switch (termios->c_cflag & CSIZE) {
+ 	case CS5:
+@@ -1697,9 +1697,25 @@
+ 	/*
+ 	 * Ask the core to calculate the divisor for us.
+ 	 */
+-	baud = uart_get_baud_rate(port, termios, old, 0, port->uartclk/16); 
++	max_baud = (up->port.type == PORT_16C950 ? port->uartclk/4 : port->uartclk/16);
++	baud = uart_get_baud_rate(port, termios, old, 0, max_baud); 
+ 	quot = serial8250_get_divisor(port, baud);
+ 
++	/* 
++	 * 16C950 supports additional prescaler ratios between 1:16 and 1:4
++	 * thus increasing max baud rate to uartclk/4. The following was taken
++	 * from kernel 2.4 by Mathias Adam <a2@adamis.de> to make the Socket
++	 * Bluetooth CF Card work under 2.6.13.
++	 */
++	if (up->port.type == PORT_16C950) {
++		if (baud <= port->uartclk/16)
++			serial_icr_write(up, UART_TCR, 0);
++		else if (baud <= port->uartclk/8) {
++			serial_icr_write(up, UART_TCR, 0x8);
++		} else
++			serial_icr_write(up, UART_TCR, 0x4);
++	}
++	
+ 	/*
+ 	 * Oxford Semi 952 rev B workaround
+ 	 */

@@ -1,70 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030982AbVIIX0M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030980AbVIIX2Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030982AbVIIX0M (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 19:26:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030981AbVIIX0M
+	id S1030980AbVIIX2Z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 19:28:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030981AbVIIX2Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 19:26:12 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:59564 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1030362AbVIIX0K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 19:26:10 -0400
-Subject: Re: [PATCH 2.6.13 5/14] sas-class: sas_discover.c Discover process
-	(end devices)
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Luben Tuikov <luben_tuikov@adaptec.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <4321E51F.8040906@adaptec.com>
-References: <4321E51F.8040906@adaptec.com>
-Content-Type: text/plain
-Date: Fri, 09 Sep 2005 18:25:03 -0500
-Message-Id: <1126308304.4799.45.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-6) 
-Content-Transfer-Encoding: 7bit
+	Fri, 9 Sep 2005 19:28:25 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:12754 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030980AbVIIX2Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 19:28:24 -0400
+Date: Fri, 9 Sep 2005 16:28:06 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Greg KH <gregkh@suse.de>
+cc: davej@codemonkey.org.uk, arjan@infradead.org,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [GIT PATCH] More PCI patches for 2.6.13
+In-Reply-To: <Pine.LNX.4.58.0509091613310.3051@g5.osdl.org>
+Message-ID: <Pine.LNX.4.58.0509091623500.3051@g5.osdl.org>
+References: <20050909220758.GA29746@kroah.com> <Pine.LNX.4.58.0509091535180.3051@g5.osdl.org>
+ <20050909225421.GA31433@suse.de> <Pine.LNX.4.58.0509091613310.3051@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-09-09 at 15:40 -0400, Luben Tuikov wrote:
-> +/**
-> + * sas_do_lu_discovery -- Discover LUs of a SCSI device
-> + * @dev: pointer to a domain device of interest
-
-Aside from all the other problems, this one completely duplicates the
-mid-layer infrastructure for handling devices with Logical Units.
-
-> + * Discover logical units present in the SCSI device.  I'd like this
-> + * to be moved to SCSI Core, but SCSI Core has no concept of a "SCSI
-> + * device with a SCSI Target port".  A SCSI device with a SCSI Target
-> + * port is a device which the _transport_ found, but other than that,
-> + * the transport has little or _no_ knowledge about the device.
-> + * Ideally, a LLDD would register a "SCSI device with a SCSI Target
-> + * port" with SCSI Core and then SCSI Core would do LU discovery of
-> + * that device.
-
-That would be what scsi_scan_target() actually does.
-
-> + * REPORT LUNS is mandatory.  If a device doesn't support it,
-> + * it is broken and you should return it.  Nevertheless, we
-> + * assume (optimistically) that the link hasn't been severed and
-> + * that maybe we can get to the device anyhow.
-
-That's a surprisingly optimistic statement from someone who claims to
-have worked in SCSI for so long.  We have a huge list of heuristics for
-devices that violate the standards in one way or another.  We already
-have a flag for a SCSI3 device that doesn't respond correctly to
-REPORT_LUNS ... and we have a few other reports of potentially more
-suspect devices.
-
-Now, if you did this properly and used the mid-layer infrastructure you
-wouldn't have to worry about any of this.
-
-> +static int sas_do_lu_discovery(struct domain_device *dev)
-
-Please just handle targets ... scanning beyond targets is best handled
-in generic code.
-
-James
 
 
+On Fri, 9 Sep 2005, Linus Torvalds wrote:
+> 
+> There are functions where it is really _important_ to check the error 
+> return, because they return errors often enough - and the error case is 
+> something you have to do something about - that it's good to force people 
+> to be aware.
+> 
+> But "pci_set_power_state()"?
+> 
+> I don't think so.
+
+Btw, a perfect example of this is
+
+	pci_set_power_state(pdev, 0);
+
+which is a very common thing to do in a driver init routine. And it has
+absolutely _no_ valid return values: it either succeeds, or it doesn't,
+and the only reason it wouldn't succeed is because the device doesn't
+support power management in the first place (in which case it already
+effectively is in state 0).
+
+In other words, there's nothing you can or should do about it. Testing the 
+return value is pointless. And thus adding a "must_check" is really really 
+wrong: it might make people do
+
+	if (pci_set_power_state(pdev, 0))
+		return -ENODEV
+
+which is actually actively the _wrong_ thing to do, and would just cause 
+old revisions of the chip that might not support PM capabilities to no 
+longer work.
+
+The problem with warnings is that people may take them too seriously, and 
+generate bugs when trying to "fix" them.
+
+		Linus

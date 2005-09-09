@@ -1,60 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030311AbVIISFg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030308AbVIISIg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030311AbVIISFg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 14:05:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030309AbVIISFg
+	id S1030308AbVIISIg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 14:08:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030309AbVIISIg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 14:05:36 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:61927 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030307AbVIISFf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 14:05:35 -0400
-Date: Fri, 9 Sep 2005 11:05:50 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Josip Loncaric <josip@lanl.gov>
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: Re: PROBLEM: sk98lin misbehaves with D-Link DGE-530T which doesn't
- have readable VPD
-Message-ID: <20050909110550.3fb82d36@localhost.localdomain>
-In-Reply-To: <4321CB39.3080206@lanl.gov>
-References: <42EE9721.5000501@lanl.gov>
-	<4321CB39.3080206@lanl.gov>
-X-Mailer: Sylpheed-Claws 1.9.13 (GTK+ 2.6.7; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 9 Sep 2005 14:08:36 -0400
+Received: from az33egw01.freescale.net ([192.88.158.102]:29362 "EHLO
+	az33egw01.freescale.net") by vger.kernel.org with ESMTP
+	id S1030308AbVIISIf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 14:08:35 -0400
+In-Reply-To: <Pine.LNX.4.63.0509091152450.23760@dingo.iwr.uni-heidelberg.de>
+References: <200509080125.j881PcL9015847@hera.kernel.org>  <431F9899.4060602@pobox.com> <Pine.LNX.4.63.0509081351160.21354@dingo.iwr.uni-heidelberg.de>  <1126184700.4805.32.camel@tsc-6.cph.tpack.net>  <Pine.LNX.4.63.0509081521140.21354@dingo.iwr.uni-heidelberg.de> <1126190554.4805.68.camel@tsc-6.cph.tpack.net> <Pine.LNX.4.63.0509081713500.22954@dingo.iwr.uni-heidelberg.de> <62AA8EFA-7D65-4E87-B71F-55A07321011E@freescale.com> <Pine.LNX.4.63.0509091152450.23760@dingo.iwr.uni-heidelberg.de>
+Mime-Version: 1.0 (Apple Message framework v734)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <3D0A0EB3-0C82-4C58-8FE1-11DC9803E4A7@freescale.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Netdev <netdev@vger.kernel.org>
 Content-Transfer-Encoding: 7bit
+From: Andy Fleming <afleming@freescale.com>
+Subject: Re: [PATCH] 3c59x: read current link status from phy
+Date: Fri, 9 Sep 2005 13:08:24 -0500
+To: Bogdan Costescu <Bogdan.Costescu@iwr.uni-heidelberg.de>
+X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 09 Sep 2005 11:49:45 -0600
-Josip Loncaric <josip@lanl.gov> wrote:
 
-> Driver sk98lin makes repeated attempts to read VPD even after the first 
-> VpdInit() fails.  This is wrong.
-> 
-> Lots of people seem to be getting repeated "Vpd: Cannot read VPD keys" 
-> errors.  When nifd is active, this can happen every second, causing 
-> kernel stalls that disrupt time-critical operations (e.g. DVD use).
+On Sep 9, 2005, at 05:10, Bogdan Costescu wrote:
 
-The sk98lin driver is wrapped around VPD for it's silly proprietary
-network management interface.  
+> On Thu, 8 Sep 2005, Andy Fleming wrote:
+>
+>
+>> Is the cost of an extra read every minute really too high?
+>>
+>
+> You probably didn't look at the code. The MII registers are not  
+> exposed in the PCI space, they need to be accessed through a serial  
+> protocol, such that each MII register read is in fact about 200 (in  
+> total) of outw and inw/inl operations.
 
+I certainly looked at the code.  I'm aware that there are probably  
+about 150 microseconds of work, tops, to do each read.  Do it outside  
+of interrupt time, and separate from the normal thread of the driver  
+(like a task struct), and it shouldn't take up that much CPU time.   
+And if it's being done every minute, it's really not a big deal, is it?
 
-> Inexpensive cards like D-Link DGE-530T may lack a readable VPD, so there 
-> is no point in trying to access this missing feature and causing brief 
-> system stalls (see 
-> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=136158).
-> 
-> Can sk98lin be enhanced to give up on VPD after the first VpdInit() 
-> fails?  The NIC appears to operate stably even without a readable VPD.
-> 
-> I haven't tested the experimental driver skge, but the same comment may 
-> apply.  Obviously it makes no sense to repeatedly look for VPD keys when 
-> the VPD is missing or incorrect.
+Anyway, it's not a big deal to me.  I agree that doing only one read,  
+if the link is reported as up, is a good idea.  I'll be sure to put  
+it in the next rev of the PHY Layer.
 
-Skge doesn't use VPD for anything, it works fine on my D-Link card.
-The same data is available for applications that have a need
-(like linux-diag lsvpd) via the standard pci interface in sysfs.
+I also agree that polling should be done every 5 seconds, at least  
+when the link is down.
 
-Now that skge is in 2.6.13, perhaps the proper thing to do is to take
-DGE-530T out of the PCI table for sk98lin?
+Andy Fleming
+Freescale Open Source Team

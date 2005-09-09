@@ -1,283 +1,254 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030269AbVIIRQA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030268AbVIIRP4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030269AbVIIRQA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 13:16:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030272AbVIIRQA
+	id S1030268AbVIIRP4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 13:15:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030269AbVIIRPz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 13:16:00 -0400
-Received: from tim.rpsys.net ([194.106.48.114]:39600 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S1030269AbVIIRP7 (ORCPT
+	Fri, 9 Sep 2005 13:15:55 -0400
+Received: from tim.rpsys.net ([194.106.48.114]:37296 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S1030268AbVIIRPz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 13:15:59 -0400
-Subject: [-mm patch 2/6] SharpSL: Add cxx00 support to the Corgi LCD driver
+	Fri, 9 Sep 2005 13:15:55 -0400
+Subject: [-mm patch 4/6] SharpSL: Abstract model specifics from Corgi
+	Backlight driver
 From: Richard Purdie <rpurdie@rpsys.net>
 To: Andrew Morton <akpm@osdl.org>
 Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
        LKML <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Date: Fri, 09 Sep 2005 18:15:36 +0100
-Message-Id: <1126286136.8383.60.camel@localhost.localdomain>
+Date: Fri, 09 Sep 2005 18:15:40 +0100
+Message-Id: <1126286140.8383.62.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The same LCD is present on both the Sharp Zaurus c7x0 series and the
-cxx00 but with different framebuffer drivers (w100fb vs. pxafb). This
-patch adds support for the cxx00 series to the LCD driver. It also adds
-some LCD to touchscreen interface logic needed by the touchscreen driver
-to prevent interference problems, the idea being to keep all the ugly
-code in one place leaving the drivers themselves clean. sharpsl.h is
-used to provide the abstraction.
+Separate out the Sharp Zaurus c7x0 series specific code from the Corgi
+backlight driver. Abstract model/machine specific functions to
+corgi_lcd.c via sharpsl.h 
+
+This enables the driver to be used by the Zaurus cxx00 series.
 
 Signed-Off-by: Richard Purdie <rpurdie@rpsys.net>
 
-Index: linux-2.6.13/include/asm-arm/arch-pxa/sharpsl.h
+Index: linux-2.6.13/drivers/video/backlight/corgi_bl.c
 ===================================================================
---- linux-2.6.13.orig/include/asm-arm/arch-pxa/sharpsl.h	2005-09-09 16:03:35.000000000 +0100
-+++ linux-2.6.13/include/asm-arm/arch-pxa/sharpsl.h	2005-09-09 17:09:20.000000000 +0100
-@@ -10,3 +10,13 @@
- void corgi_ssp_lcdtg_send (unsigned char adrs, unsigned char data);
- void corgi_ssp_blduty_set(int duty);
- int corgi_ssp_max1111_get(unsigned long data);
+--- linux-2.6.13.orig/drivers/video/backlight/corgi_bl.c	2005-09-09 15:54:24.000000000 +0100
++++ linux-2.6.13/drivers/video/backlight/corgi_bl.c	2005-09-09 15:57:33.000000000 +0100
+@@ -19,17 +19,18 @@
+ #include <linux/fb.h>
+ #include <linux/backlight.h>
+ 
+-#include <asm/arch-pxa/corgi.h>
+-#include <asm/hardware/scoop.h>
++#include <asm/mach-types.h>
++#include <asm/arch/sharpsl.h>
+ 
+-#define CORGI_MAX_INTENSITY 		0x3e
+ #define CORGI_DEFAULT_INTENSITY		0x1f
+-#define CORGI_LIMIT_MASK			0x0b
++#define CORGI_LIMIT_MASK		0x0b
+ 
+ static int corgibl_powermode = FB_BLANK_UNBLANK;
+ static int current_intensity = 0;
+ static int corgibl_limit = 0;
++static void (*corgibl_mach_set_intensity)(int intensity);
+ static DEFINE_SPINLOCK(bl_lock);
++static struct backlight_properties corgibl_data;
+ 
+ static void corgibl_send_intensity(int intensity)
+ {
+@@ -43,18 +44,10 @@
+ 			intensity &= CORGI_LIMIT_MASK;
+ 	}
+ 
+-	/* Skip 0x20 as it will blank the display */
+-	if (intensity >= 0x20)
+-		intensity++;
+-
+ 	spin_lock_irqsave(&bl_lock, flags);
+-	/* Bits 0-4 are accessed via the SSP interface */
+-	corgi_ssp_blduty_set(intensity & 0x1f);
+-	/* Bit 5 is via SCOOP */
+-	if (intensity & 0x0020)
+-		set_scoop_gpio(&corgiscoop_device.dev, CORGI_SCP_BACKLIGHT_CONT);
+-	else
+-		reset_scoop_gpio(&corgiscoop_device.dev, CORGI_SCP_BACKLIGHT_CONT);
 +
-+/*
-+ * SharpSL Touchscreen Driver
-+ */
++	corgibl_mach_set_intensity(intensity);
 +
-+struct corgits_machinfo {
-+	unsigned long (*get_hsync_len)(void);
-+	void (*put_hsync)(void);
-+	void (*wait_hsync)(void);
-+};
+ 	spin_unlock_irqrestore(&bl_lock, flags);
+ }
+ 
+@@ -113,8 +106,8 @@
+ 
+ static int corgibl_set_intensity(struct backlight_device *bd, int intensity)
+ {
+-	if (intensity > CORGI_MAX_INTENSITY)
+-		intensity = CORGI_MAX_INTENSITY;
++	if (intensity > corgibl_data.max_brightness)
++		intensity = corgibl_data.max_brightness;
+ 	corgibl_send_intensity(intensity);
+ 	current_intensity=intensity;
+ 	return 0;
+@@ -141,7 +134,6 @@
+ 	.owner		= THIS_MODULE,
+ 	.get_power      = corgibl_get_power,
+ 	.set_power      = corgibl_set_power,
+-	.max_brightness = CORGI_MAX_INTENSITY,
+ 	.get_brightness = corgibl_get_intensity,
+ 	.set_brightness = corgibl_set_intensity,
+ };
+@@ -150,12 +142,18 @@
+ 
+ static int __init corgibl_probe(struct device *dev)
+ {
++	struct corgibl_machinfo *machinfo = dev->platform_data;
++
++	corgibl_data.max_brightness = machinfo->max_intensity;
++	corgibl_mach_set_intensity = machinfo->set_bl_intensity;
++
+ 	corgi_backlight_device = backlight_device_register ("corgi-bl",
+ 		NULL, &corgibl_data);
+ 	if (IS_ERR (corgi_backlight_device))
+ 		return PTR_ERR (corgi_backlight_device);
+ 
+ 	corgibl_set_intensity(NULL, CORGI_DEFAULT_INTENSITY);
++	corgibl_limit_intensity(0);
+ 
+ 	printk("Corgi Backlight Driver Initialized.\n");
+ 	return 0;
 Index: linux-2.6.13/arch/arm/mach-pxa/corgi_lcd.c
 ===================================================================
---- linux-2.6.13.orig/arch/arm/mach-pxa/corgi_lcd.c	2005-09-09 16:03:04.000000000 +0100
-+++ linux-2.6.13/arch/arm/mach-pxa/corgi_lcd.c	2005-09-09 17:09:20.000000000 +0100
-@@ -1,10 +1,14 @@
- /*
-  * linux/drivers/video/w100fb.c
-  *
-- * Corgi LCD Specific Code for ATI Imageon w100 (Wallaby)
-+ * Corgi/Spitz LCD Specific Code
-  *
-  * Copyright (C) 2005 Richard Purdie
-  *
-+ * Connectivity:
-+ *   Corgi - LCD to ATI Imageon w100 (Wallaby)
-+ *   Spitz - LCD to PXA Framebuffer
-+ *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License version 2 as
-  * published by the Free Software Foundation.
-@@ -14,9 +18,17 @@
- #include <linux/delay.h>
- #include <linux/kernel.h>
- #include <linux/device.h>
-+#include <linux/module.h>
-+#include <asm/mach-types.h>
-+#include <asm/arch/akita.h>
- #include <asm/arch/corgi.h>
-+#include <asm/arch/hardware.h>
-+#include <asm/arch/pxa-regs.h>
-+#include <asm/arch/sharpsl.h>
-+#include <asm/arch/spitz.h>
-+#include <asm/hardware/scoop.h>
- #include <asm/mach/sharpsl_param.h>
--#include <video/w100fb.h>
-+#include "generic.h"
- 
- /* Register Addresses */
- #define RESCTL_ADRS     0x00
-@@ -134,10 +146,10 @@
+--- linux-2.6.13.orig/arch/arm/mach-pxa/corgi_lcd.c	2005-09-09 15:54:24.000000000 +0100
++++ linux-2.6.13/arch/arm/mach-pxa/corgi_lcd.c	2005-09-09 15:55:11.000000000 +0100
+@@ -497,3 +497,68 @@
+ 	sharpsl_wait_sync(SPITZ_GPIO_HSYNC);
  }
- 
- /* Set Phase Adjuct */
--static void lcdtg_set_phadadj(struct w100fb_par *par)
-+static void lcdtg_set_phadadj(int mode)
- {
- 	int adj;
--	switch(par->xres) {
-+	switch(mode) {
- 		case 480:
- 		case 640:
- 			/* Setting for VGA */
-@@ -161,7 +173,7 @@
- 
- static int lcd_inited;
- 
--static void lcdtg_hw_init(struct w100fb_par *par)
-+static void lcdtg_hw_init(int mode)
- {
- 	if (!lcd_inited) {
- 		int comadj;
-@@ -215,7 +227,7 @@
- 		corgi_ssp_lcdtg_send(PICTRL_ADRS, 0);
- 
- 		/* Set Phase Adjuct */
--		lcdtg_set_phadadj(par);
-+		lcdtg_set_phadadj(mode);
- 
- 		/* Initialize for Input Signals from ATI */
- 		corgi_ssp_lcdtg_send(POLCTRL_ADRS, POLCTRL_SYNC_POL_RISE | POLCTRL_EN_POL_RISE
-@@ -224,10 +236,10 @@
- 
- 		lcd_inited=1;
- 	} else {
--		lcdtg_set_phadadj(par);
-+		lcdtg_set_phadadj(mode);
- 	}
- 
--	switch(par->xres) {
-+	switch(mode) {
- 		case 480:
- 		case 640:
- 			/* Set Lcd Resolution (VGA) */
-@@ -242,7 +254,7 @@
- 	}
- }
- 
--static void lcdtg_suspend(struct w100fb_par *par)
-+static void lcdtg_suspend(void)
- {
- 	/* 60Hz x 2 frame = 16.7msec x 2 = 33.4 msec */
- 	mdelay(34);
-@@ -276,15 +288,30 @@
- 	lcd_inited = 0;
- }
- 
--static struct w100_tg_info corgi_lcdtg_info = {
--	.change=lcdtg_hw_init,
--	.suspend=lcdtg_suspend,
--	.resume=lcdtg_hw_init,
--};
- 
- /*
-  * Corgi w100 Frame Buffer Device
-  */
-+#ifdef CONFIG_PXA_SHARP_C7xx
-+
-+#include <video/w100fb.h>
-+
-+static void w100_lcdtg_suspend(struct w100fb_par *par)
-+{
-+	lcdtg_suspend();
-+}
-+
-+static void w100_lcdtg_init(struct w100fb_par *par)
-+{
-+	lcdtg_hw_init(par->xres);
-+}
-+
-+
-+static struct w100_tg_info corgi_lcdtg_info = {
-+	.change  = w100_lcdtg_init,
-+	.suspend = w100_lcdtg_suspend,
-+	.resume  = w100_lcdtg_init,
-+};
- 
- static struct w100_mem_info corgi_fb_mem = {
- 	.ext_cntl          = 0x00040003,
-@@ -394,3 +421,80 @@
- 	},
- 
- };
-+#endif
-+
+ #endif
 +
 +/*
-+ * Spitz PXA Frame Buffer Device
++ * Corgi/Spitz Backlight Power
 + */
-+#ifdef CONFIG_PXA_SHARP_Cxx00
-+
-+#include <asm/arch/pxafb.h>
-+
-+void spitz_lcd_power(int on)
++#ifdef CONFIG_PXA_SHARP_C7xx
++void corgi_bl_set_intensity(int intensity)
 +{
-+	if (on)
-+		lcdtg_hw_init(480);
++	if (intensity > 0x10)
++		intensity += 0x10;
++
++	/* Bits 0-4 are accessed via the SSP interface */
++	corgi_ssp_blduty_set(intensity & 0x1f);
++
++	/* Bit 5 is via SCOOP */
++	if (intensity & 0x0020)
++		set_scoop_gpio(&corgiscoop_device.dev, CORGI_SCP_BACKLIGHT_CONT);
 +	else
-+		lcdtg_suspend();
++		reset_scoop_gpio(&corgiscoop_device.dev, CORGI_SCP_BACKLIGHT_CONT);
 +}
-+
 +#endif
 +
++
++#if defined(CONFIG_MACH_SPITZ) || defined(CONFIG_MACH_BORZOI)
++void spitz_bl_set_intensity(int intensity)
++{
++	if (intensity > 0x10)
++		intensity += 0x10;
++
++	/* Bits 0-4 are accessed via the SSP interface */
++	corgi_ssp_blduty_set(intensity & 0x1f);
++
++	/* Bit 5 is via SCOOP */
++	if (intensity & 0x0020)
++		reset_scoop_gpio(&spitzscoop2_device.dev, SPITZ_SCP2_BACKLIGHT_CONT);
++	else
++		set_scoop_gpio(&spitzscoop2_device.dev, SPITZ_SCP2_BACKLIGHT_CONT);
++
++	if (intensity)
++		set_scoop_gpio(&spitzscoop2_device.dev, SPITZ_SCP2_BACKLIGHT_ON);
++	else
++		reset_scoop_gpio(&spitzscoop2_device.dev, SPITZ_SCP2_BACKLIGHT_ON);
++}
++#endif
++
++#ifdef CONFIG_MACH_AKITA
++void akita_bl_set_intensity(int intensity)
++{
++	if (intensity > 0x10)
++		intensity += 0x10;
++
++	/* Bits 0-4 are accessed via the SSP interface */
++	corgi_ssp_blduty_set(intensity & 0x1f);
++
++	/* Bit 5 is via IO-Expander */
++	if (intensity & 0x0020)
++		akita_reset_ioexp(&akitaioexp_device.dev, AKITA_IOEXP_BACKLIGHT_CONT);
++	else
++		akita_set_ioexp(&akitaioexp_device.dev, AKITA_IOEXP_BACKLIGHT_CONT);
++
++	if (intensity)
++		akita_set_ioexp(&akitaioexp_device.dev, AKITA_IOEXP_BACKLIGHT_ON);
++	else
++		akita_reset_ioexp(&akitaioexp_device.dev, AKITA_IOEXP_BACKLIGHT_ON);
++}
++#endif
+Index: linux-2.6.13/include/asm-arm/arch-pxa/sharpsl.h
+===================================================================
+--- linux-2.6.13.orig/include/asm-arm/arch-pxa/sharpsl.h	2005-09-09 15:54:24.000000000 +0100
++++ linux-2.6.13/include/asm-arm/arch-pxa/sharpsl.h	2005-09-09 15:55:11.000000000 +0100
+@@ -20,3 +20,13 @@
+ 	void (*put_hsync)(void);
+ 	void (*wait_hsync)(void);
+ };
 +
 +/*
-+ * Corgi/Spitz Touchscreen to LCD interface
++ * SharpSL Backlight
 + */
-+static unsigned long (*get_hsync_time)(struct device *dev);
 +
-+static void inline sharpsl_wait_sync(int gpio)
-+{
-+	while((GPLR(gpio) & GPIO_bit(gpio)) == 0);
-+	while((GPLR(gpio) & GPIO_bit(gpio)) != 0);
-+}
++struct corgibl_machinfo {
++	int max_intensity;
++	void (*set_bl_intensity)(int intensity);
++};
 +
-+#ifdef CONFIG_PXA_SHARP_C7xx
-+unsigned long corgi_get_hsync_len(void)
-+{
-+	if (!get_hsync_time)
-+		get_hsync_time = symbol_get(w100fb_get_hsynclen);
-+	if (!get_hsync_time)
-+		return 0;
+Index: linux-2.6.13/arch/arm/mach-pxa/corgi.c
+===================================================================
+--- linux-2.6.13.orig/arch/arm/mach-pxa/corgi.c	2005-09-09 15:55:11.000000000 +0100
++++ linux-2.6.13/arch/arm/mach-pxa/corgi.c	2005-09-09 15:57:37.000000000 +0100
+@@ -109,10 +109,16 @@
+ /*
+  * Corgi Backlight Device
+  */
++static struct corgibl_machinfo corgi_bl_machinfo = {
++	.max_intensity = 0x2f,
++	.set_bl_intensity = corgi_bl_set_intensity,
++};
 +
-+	return get_hsync_time(&corgifb_device.dev);
-+}
-+
-+void corgi_put_hsync(void)
-+{
-+	if (get_hsync_time)
-+		symbol_put(w100fb_get_hsynclen);
-+}
-+
-+void corgi_wait_hsync(void)
-+{
-+	sharpsl_wait_sync(CORGI_GPIO_HSYNC);
-+}
-+#endif
-+
-+#ifdef CONFIG_PXA_SHARP_Cxx00
-+unsigned long spitz_get_hsync_len(void)
-+{
-+	if (!get_hsync_time)
-+		get_hsync_time = symbol_get(pxafb_get_hsync_time);
-+	if (!get_hsync_time)
-+		return 0;
-+
-+	return pxafb_get_hsync_time(&pxafb_device.dev);
-+}
-+
-+void spitz_put_hsync(void)
-+{
-+	if (get_hsync_time)
-+		symbol_put(pxafb_get_hsync_time);
-+}
-+
-+void spitz_wait_hsync(void)
-+{
-+	sharpsl_wait_sync(SPITZ_GPIO_HSYNC);
-+}
-+#endif
+ static struct platform_device corgibl_device = {
+ 	.name		= "corgi-bl",
+ 	.dev		= {
+  		.parent = &corgifb_device.dev,
++		.platform_data	= &corgi_bl_machinfo,
+ 	},
+ 	.id		= -1,
+ };
 Index: linux-2.6.13/arch/arm/mach-pxa/sharpsl.h
 ===================================================================
---- linux-2.6.13.orig/arch/arm/mach-pxa/sharpsl.h	2005-09-09 16:03:35.000000000 +0100
-+++ linux-2.6.13/arch/arm/mach-pxa/sharpsl.h	2005-09-09 17:09:20.000000000 +0100
-@@ -13,3 +13,14 @@
- };
+--- linux-2.6.13.orig/arch/arm/mach-pxa/sharpsl.h	2005-09-09 15:54:49.000000000 +0100
++++ linux-2.6.13/arch/arm/mach-pxa/sharpsl.h	2005-09-09 15:57:37.000000000 +0100
+@@ -23,6 +23,14 @@
+ void akita_bl_set_intensity(int intensity);
  
- void corgi_ssp_set_machinfo(struct corgissp_machinfo *machinfo);
-+
-+/*
-+ * SharpSL Touchscreen Driver
+ /*
++ * SharpSL Backlight 
 + */
 +
-+unsigned long corgi_get_hsync_len(void);
-+unsigned long spitz_get_hsync_len(void);
-+void corgi_put_hsync(void);
-+void spitz_put_hsync(void);
-+void corgi_wait_hsync(void);
-+void spitz_wait_hsync(void);
++void corgi_bl_set_intensity(int intensity);
++void spitz_bl_set_intensity(int intensity);
++void akita_bl_set_intensity(int intensity);
++
++/*
+  * SharpSL Touchscreen Driver
+  */
+ 
 
 

@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030305AbVIIU4A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030338AbVIIU4r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030305AbVIIU4A (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 16:56:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030338AbVIIUz7
+	id S1030338AbVIIU4r (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 16:56:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030370AbVIIU4r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 16:55:59 -0400
-Received: from fmr23.intel.com ([143.183.121.15]:22727 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1030305AbVIIUz7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 16:55:59 -0400
-Date: Fri, 9 Sep 2005 13:55:56 -0700
-From: Ashok Raj <ashok.raj@intel.com>
-To: Christopher Beppler <psiml@funzi.de>
-Cc: linux-kernel@vger.kernel.org, li.shaohua@intel.com
-Subject: Re: [OOPS] hotplugging cpus via /sys/devices/system/cpu/
-Message-ID: <20050909135556.A29542@unix-os.sc.intel.com>
-References: <4321F396.3010707@funzi.de>
+	Fri, 9 Sep 2005 16:56:47 -0400
+Received: from mail20.bluewin.ch ([195.186.19.65]:62876 "EHLO
+	mail20.bluewin.ch") by vger.kernel.org with ESMTP id S1030338AbVIIU4q
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 16:56:46 -0400
+Date: Fri, 9 Sep 2005 16:56:28 -0400
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] i386: Kill off CONFIG_PC
+Message-ID: <20050909205628.GA3795@mars>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <4321F396.3010707@funzi.de>; from psiml@funzi.de on Fri, Sep 09, 2005 at 01:41:58PM -0700
+User-Agent: Mutt/1.5.9i
+From: a.othieno@bluewin.ch (Arthur Othieno)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 09, 2005 at 01:41:58PM -0700, Christopher Beppler wrote:
-> 
->    [1.] One line summary of the problem:
->    If I deactivate a CPU with /sys/devices/system/cpux and try to
->    reactivate it, then the CPU doesn't start and the kernel prints out an
->    oops.
-> 
+Hi,
 
-Could you try this on 2.6.13-mm2? If this is due to a sending broadcast
-IPI related issue that should fix the problem.
+CONFIG_PC is defined but isn't actually used anywhere:
 
-I should say i didnt try i386 in a while
-but i suspect some of the recent suspend/resume code required some
-modifications to the i386 hotplug code which might be getting in the way
-if you just try logical cpu hotplug alone without using it for suspend/resume.
+  apgo@krypton:~/devel/kernel/b$ grep -rw CONFIG_PC *
+  arch/i386/defconfig:CONFIG_PC=y
+  apgo@krypton:~/devel/kernel/b$
 
-Shaohua might know more about the status.
+My impression is that this is left-over cruft after the introduction
+of CONFIG_X86_PC with the subarch split..
 
-Cheers,
-ashok
+Signed-off-by: Arthur Othieno <a.othieno@bluewin.ch>
+
+
+ arch/i386/Kconfig |    5 -----
+ 1 file changed, 5 deletions(-)
+
+--- a/arch/i386/Kconfig	2005-08-29 16:49:22.000000000 -0400
++++ b/arch/i386/Kconfig	2005-09-09 16:44:39.000000000 -0400
+@@ -1332,8 +1332,3 @@ config X86_TRAMPOLINE
+ 	bool
+ 	depends on X86_SMP || (X86_VOYAGER && SMP)
+ 	default y
+-
+-config PC
+-	bool
+-	depends on X86 && !EMBEDDED
+-	default y

@@ -1,160 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932449AbVIILov@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751324AbVIILsh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932449AbVIILov (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 07:44:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932533AbVIILov
+	id S1751324AbVIILsh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 07:48:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbVIILsh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 07:44:51 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:51497
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S932449AbVIILov (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 07:44:51 -0400
-Message-Id: <432192140200007800024933@emea1-mh.id2.novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Fri, 09 Sep 2005 13:45:56 +0200
-From: "Jan Beulich" <JBeulich@novell.com>
-To: "Andreas Kleen" <ak@suse.de>
-Cc: <linux-kernel@vger.kernel.org>, <discuss@x86-64.org>
-Subject: [PATCH] reduce x86-64 bug frame by 4 bytes
+	Fri, 9 Sep 2005 07:48:37 -0400
+Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:62654 "EHLO
+	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1751324AbVIILsg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 07:48:36 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Subject: Re: [PATCH 2/25] NTFS: Allow highmem
+	kmalloc()	in	ntfs_malloc_nofs() and add _nofail() version.
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Pekka J Enberg <penberg@cs.Helsinki.FI>
+Cc: linux-ntfs-dev@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0509091426510.28121@sbz-30.cs.Helsinki.FI>
+References: <Pine.LNX.4.60.0509090950100.11051@hermes-1.csi.cam.ac.uk>
+	 <Pine.LNX.4.60.0509091019290.26845@hermes-1.csi.cam.ac.uk>
+	 <84144f0205090903366454da6@mail.gmail.com>
+	 <1126263740.24291.16.camel@imp.csi.cam.ac.uk>
+	 <Pine.LNX.4.58.0509091407220.27527@sbz-30.cs.Helsinki.FI>
+	 <1126265138.24291.21.camel@imp.csi.cam.ac.uk>
+	 <Pine.LNX.4.58.0509091426510.28121@sbz-30.cs.Helsinki.FI>
+Content-Type: text/plain
+Organization: Computing Service, University of Cambridge, UK
+Date: Fri, 09 Sep 2005 12:48:27 +0100
+Message-Id: <1126266508.32261.3.camel@imp.csi.cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=__Part9BB9F4E4.1__="
+X-Mailer: Evolution 2.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME message. If you are reading this text, you may want to 
-consider changing to a mail reader or gateway that understands how to 
-properly handle MIME multipart messages.
+On Fri, 2005-09-09 at 14:38 +0300, Pekka J Enberg wrote: 
+> On Fri, 9 Sep 2005, Anton Altaparmakov wrote:
+> > They could be but I would rather not.  What if one day I decide to
+> > change how ntfs_malloc_nofs() works?  Then it would be needed to
+> > carefully go through the whole driver looking for places where kmalloc
+> > is used and change those, too.
+> > 
+> > From a software design point of view you should never mix interfaces
+> > when accessing an object if you want clean and maintainable code.  And
+> > using kmalloc() sometimes and ntfs_malloc_nofs() at other times for the
+> > same object would violate that.
+> > 
+> > The wrapper is a static inline so I would assume gcc can optimize away
+> > everything when a constant size is passed in like in the example you
+> > point out above.
+> 
+> Hey, I am not worried about performance. It's just that filesystems (or 
+> any other subsystem for that matter) should not invent their own memory 
+> allocators. Perhaps should provide a generic __vmalloc_fast() if this is 
+> really required?
 
---=__Part9BB9F4E4.1__=
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Even if that were the case I would still use a wrapper.  I am far too
+lazy to write __vmalloc(x, GFP_NOFS | __GFP_HIGHMEM); or even
+__vmalloc(x, GFP_NOFS | __GFP_HIGHMEM | __GFP_NOFAIL); when I can get
+away with ntfs_malloc_nofs{,nofail}()...  (-;
 
-reduce x86-64 bug frame by 4 bytes
+I completely disagree with you given that this is not "inventing [...]
+own memory allocators", it is just a convenient short hand.  I am sure a
+lot of people would agree with you though.  It is just a matter of
+personal preference.
 
-From: Jan Beulich <jbeulich@novell.com>
+Best regards,
 
-(Note: Patch also attached because the inline version is certain to
-get
-line wrapped.)
+        Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 
-As mentioned before, the size of the bug frame can be further reduced
-while
-continuing to use instructions to encode the information.
-
-Signed-off-by: Jan Beulich <jbeulich@novell.com>
-
-diff -Npru 2.6.13/arch/x86_64/kernel/traps.c
-2.6.13-x86_64-bug-reduction/arch/x86_64/kernel/traps.c
---- 2.6.13/arch/x86_64/kernel/traps.c	2005-08-29 01:41:01.000000000
-+0200
-+++
-2.6.13-x86_64-bug-reduction/arch/x86_64/kernel/traps.c	2005-09-09
-11:48:11.009725672 +0200
-@@ -323,13 +323,13 @@ void handle_BUG(struct pt_regs *regs)
- 	if (__copy_from_user(&f, (struct bug_frame *) regs->rip, 
- 			     sizeof(struct bug_frame)))
- 		return; 
--	if ((unsigned long)f.filename < __PAGE_OFFSET || 
-+	if (f.filename >= 0 || 
- 	    f.ud2[0] != 0x0f || f.ud2[1] != 0x0b) 
- 		return;
--	if (__get_user(tmp, f.filename))
--		f.filename = "unmapped filename"; 
-+	if (__get_user(tmp, (char *)(long)f.filename))
-+		f.filename = (int)(long)"unmapped filename"; 
- 	printk("----------- [cut here ] --------- [please bite here ]
----------\n");
--	printk(KERN_ALERT "Kernel BUG at %.50s:%d\n", f.filename,
-f.line);
-+	printk(KERN_ALERT "Kernel BUG at %.50s:%d\n", (char
-*)(long)f.filename, f.line);
- } 
- 
- #ifdef CONFIG_BUG
-diff -Npru 2.6.13/include/asm-x86_64/bug.h
-2.6.13-x86_64-bug-reduction/include/asm-x86_64/bug.h
---- 2.6.13/include/asm-x86_64/bug.h	2005-08-29 01:41:01.000000000
-+0200
-+++
-2.6.13-x86_64-bug-reduction/include/asm-x86_64/bug.h	2005-09-09
-11:31:11.611697728 +0200
-@@ -9,10 +9,8 @@
-  */
- struct bug_frame {
- 	unsigned char ud2[2];
--	unsigned char mov;
--	/* should use 32bit offset instead, but the assembler doesn't 
--	   like it */
--	char *filename;
-+	unsigned char push;
-+	signed int filename;
- 	unsigned char ret;
- 	unsigned short line;
- } __attribute__((packed));
-@@ -25,8 +23,8 @@ struct bug_frame {
-    The magic numbers generate mov $64bitimm,%eax ; ret $offset. */
- #define BUG()
-								\
- 	asm
-volatile(							\
--	"ud2 ; .byte 0xa3 ; .quad %c1 ; .byte 0xc2 ; .short %c0" ::
-	\
--		     "i"(__LINE__), "i" (__stringify(__FILE__)))
-+	"ud2 ; pushq $%c1 ; ret $%c0" ::
-				\
-+		     "i"(__LINE__), "i" (__FILE__))
- void out_of_line_bug(void);
- #else
- static inline void out_of_line_bug(void) { }
-
-
---=__Part9BB9F4E4.1__=
-Content-Type: application/octet-stream; name="linux-2.6.13-x86_64-bug-reduction.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="linux-2.6.13-x86_64-bug-reduction.patch"
-
-cmVkdWNlIHg4Ni02NCBidWcgZnJhbWUgYnkgNCBieXRlcwoKRnJvbTogSmFuIEJldWxpY2ggPGpi
-ZXVsaWNoQG5vdmVsbC5jb20+CgooTm90ZTogUGF0Y2ggYWxzbyBhdHRhY2hlZCBiZWNhdXNlIHRo
-ZSBpbmxpbmUgdmVyc2lvbiBpcyBjZXJ0YWluIHRvIGdldApsaW5lIHdyYXBwZWQuKQoKQXMgbWVu
-dGlvbmVkIGJlZm9yZSwgdGhlIHNpemUgb2YgdGhlIGJ1ZyBmcmFtZSBjYW4gYmUgZnVydGhlciBy
-ZWR1Y2VkIHdoaWxlCmNvbnRpbnVpbmcgdG8gdXNlIGluc3RydWN0aW9ucyB0byBlbmNvZGUgdGhl
-IGluZm9ybWF0aW9uLgoKU2lnbmVkLW9mZi1ieTogSmFuIEJldWxpY2ggPGpiZXVsaWNoQG5vdmVs
-bC5jb20+CgpkaWZmIC1OcHJ1IDIuNi4xMy9hcmNoL3g4Nl82NC9rZXJuZWwvdHJhcHMuYyAyLjYu
-MTMteDg2XzY0LWJ1Zy1yZWR1Y3Rpb24vYXJjaC94ODZfNjQva2VybmVsL3RyYXBzLmMKLS0tIDIu
-Ni4xMy9hcmNoL3g4Nl82NC9rZXJuZWwvdHJhcHMuYwkyMDA1LTA4LTI5IDAxOjQxOjAxLjAwMDAw
-MDAwMCArMDIwMAorKysgMi42LjEzLXg4Nl82NC1idWctcmVkdWN0aW9uL2FyY2gveDg2XzY0L2tl
-cm5lbC90cmFwcy5jCTIwMDUtMDktMDkgMTE6NDg6MTEuMDA5NzI1NjcyICswMjAwCkBAIC0zMjMs
-MTMgKzMyMywxMyBAQCB2b2lkIGhhbmRsZV9CVUcoc3RydWN0IHB0X3JlZ3MgKnJlZ3MpCiAJaWYg
-KF9fY29weV9mcm9tX3VzZXIoJmYsIChzdHJ1Y3QgYnVnX2ZyYW1lICopIHJlZ3MtPnJpcCwgCiAJ
-CQkgICAgIHNpemVvZihzdHJ1Y3QgYnVnX2ZyYW1lKSkpCiAJCXJldHVybjsgCi0JaWYgKCh1bnNp
-Z25lZCBsb25nKWYuZmlsZW5hbWUgPCBfX1BBR0VfT0ZGU0VUIHx8IAorCWlmIChmLmZpbGVuYW1l
-ID49IDAgfHwgCiAJICAgIGYudWQyWzBdICE9IDB4MGYgfHwgZi51ZDJbMV0gIT0gMHgwYikgCiAJ
-CXJldHVybjsKLQlpZiAoX19nZXRfdXNlcih0bXAsIGYuZmlsZW5hbWUpKQotCQlmLmZpbGVuYW1l
-ID0gInVubWFwcGVkIGZpbGVuYW1lIjsgCisJaWYgKF9fZ2V0X3VzZXIodG1wLCAoY2hhciAqKShs
-b25nKWYuZmlsZW5hbWUpKQorCQlmLmZpbGVuYW1lID0gKGludCkobG9uZykidW5tYXBwZWQgZmls
-ZW5hbWUiOyAKIAlwcmludGsoIi0tLS0tLS0tLS0tIFtjdXQgaGVyZSBdIC0tLS0tLS0tLSBbcGxl
-YXNlIGJpdGUgaGVyZSBdIC0tLS0tLS0tLVxuIik7Ci0JcHJpbnRrKEtFUk5fQUxFUlQgIktlcm5l
-bCBCVUcgYXQgJS41MHM6JWRcbiIsIGYuZmlsZW5hbWUsIGYubGluZSk7CisJcHJpbnRrKEtFUk5f
-QUxFUlQgIktlcm5lbCBCVUcgYXQgJS41MHM6JWRcbiIsIChjaGFyICopKGxvbmcpZi5maWxlbmFt
-ZSwgZi5saW5lKTsKIH0gCiAKICNpZmRlZiBDT05GSUdfQlVHCmRpZmYgLU5wcnUgMi42LjEzL2lu
-Y2x1ZGUvYXNtLXg4Nl82NC9idWcuaCAyLjYuMTMteDg2XzY0LWJ1Zy1yZWR1Y3Rpb24vaW5jbHVk
-ZS9hc20teDg2XzY0L2J1Zy5oCi0tLSAyLjYuMTMvaW5jbHVkZS9hc20teDg2XzY0L2J1Zy5oCTIw
-MDUtMDgtMjkgMDE6NDE6MDEuMDAwMDAwMDAwICswMjAwCisrKyAyLjYuMTMteDg2XzY0LWJ1Zy1y
-ZWR1Y3Rpb24vaW5jbHVkZS9hc20teDg2XzY0L2J1Zy5oCTIwMDUtMDktMDkgMTE6MzE6MTEuNjEx
-Njk3NzI4ICswMjAwCkBAIC05LDEwICs5LDggQEAKICAqLwogc3RydWN0IGJ1Z19mcmFtZSB7CiAJ
-dW5zaWduZWQgY2hhciB1ZDJbMl07Ci0JdW5zaWduZWQgY2hhciBtb3Y7Ci0JLyogc2hvdWxkIHVz
-ZSAzMmJpdCBvZmZzZXQgaW5zdGVhZCwgYnV0IHRoZSBhc3NlbWJsZXIgZG9lc24ndCAKLQkgICBs
-aWtlIGl0ICovCi0JY2hhciAqZmlsZW5hbWU7CisJdW5zaWduZWQgY2hhciBwdXNoOworCXNpZ25l
-ZCBpbnQgZmlsZW5hbWU7CiAJdW5zaWduZWQgY2hhciByZXQ7CiAJdW5zaWduZWQgc2hvcnQgbGlu
-ZTsKIH0gX19hdHRyaWJ1dGVfXygocGFja2VkKSk7CkBAIC0yNSw4ICsyMyw4IEBAIHN0cnVjdCBi
-dWdfZnJhbWUgewogICAgVGhlIG1hZ2ljIG51bWJlcnMgZ2VuZXJhdGUgbW92ICQ2NGJpdGltbSwl
-ZWF4IDsgcmV0ICRvZmZzZXQuICovCiAjZGVmaW5lIEJVRygpIAkJCQkJCQkJXAogCWFzbSB2b2xh
-dGlsZSgJCQkJCQkJXAotCSJ1ZDIgOyAuYnl0ZSAweGEzIDsgLnF1YWQgJWMxIDsgLmJ5dGUgMHhj
-MiA7IC5zaG9ydCAlYzAiIDo6IAlcCi0JCSAgICAgImkiKF9fTElORV9fKSwgImkiIChfX3N0cmlu
-Z2lmeShfX0ZJTEVfXykpKQorCSJ1ZDIgOyBwdXNocSAkJWMxIDsgcmV0ICQlYzAiIDo6IAkJCQlc
-CisJCSAgICAgImkiKF9fTElORV9fKSwgImkiIChfX0ZJTEVfXykpCiB2b2lkIG91dF9vZl9saW5l
-X2J1Zyh2b2lkKTsKICNlbHNlCiBzdGF0aWMgaW5saW5lIHZvaWQgb3V0X29mX2xpbmVfYnVnKHZv
-aWQpIHsgfQo=
-
---=__Part9BB9F4E4.1__=--

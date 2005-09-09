@@ -1,38 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030397AbVIITmK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030369AbVIITng@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030397AbVIITmK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 15:42:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030401AbVIITmD
+	id S1030369AbVIITng (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 15:43:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030373AbVIITmz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 15:42:03 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:26567 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S1030397AbVIITlo (ORCPT
+	Fri, 9 Sep 2005 15:42:55 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:30663 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S1030402AbVIITmA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 15:41:44 -0400
-Message-ID: <4321E571.8040702@adaptec.com>
-Date: Fri, 09 Sep 2005 15:41:37 -0400
+	Fri, 9 Sep 2005 15:42:00 -0400
+Message-ID: <4321E582.9020401@adaptec.com>
+Date: Fri, 09 Sep 2005 15:41:54 -0400
 From: Luben Tuikov <luben_tuikov@adaptec.com>
 User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: [PATCH 2.6.13 11/14] sas-class: sas_internal.h SAS Layer internal
- header file
+Subject: [PATCH 2.6.13 12/14] sas-class: sas_phy.c SAS Phy (events, attrs,
+ initializaion)
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Sep 2005 19:41:42.0993 (UTC) FILETIME=[814BE410:01C5B576]
+X-OriginalArrivalTime: 09 Sep 2005 19:41:59.0416 (UTC) FILETIME=[8B15D780:01C5B576]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Signed-off-by: Luben Tuikov <luben_tuikov@adaptec.com>
 
-diff -X linux-2.6.13/Documentation/dontdiff -Naur linux-2.6.13-orig/drivers/scsi/sas-class/sas_internal.h linux-2.6.13/drivers/scsi/sas-class/sas_internal.h
---- linux-2.6.13-orig/drivers/scsi/sas-class/sas_internal.h	1969-12-31 19:00:00.000000000 -0500
-+++ linux-2.6.13/drivers/scsi/sas-class/sas_internal.h	2005-09-09 11:14:47.000000000 -0400
-@@ -0,0 +1,79 @@
+diff -X linux-2.6.13/Documentation/dontdiff -Naur linux-2.6.13-orig/drivers/scsi/sas-class/sas_phy.c linux-2.6.13/drivers/scsi/sas-class/sas_phy.c
+--- linux-2.6.13-orig/drivers/scsi/sas-class/sas_phy.c	1969-12-31 19:00:00.000000000 -0500
++++ linux-2.6.13/drivers/scsi/sas-class/sas_phy.c	2005-09-09 11:14:29.000000000 -0400
+@@ -0,0 +1,307 @@
 +/*
-+ * Serial Attached SCSI (SAS) class internal header file
++ * Serial Attached SCSI (SAS) Phy class
 + *
 + * Copyright (C) 2005 Adaptec, Inc.  All rights reserved.
 + * Copyright (C) 2005 Luben Tuikov <luben_tuikov@adaptec.com>
@@ -51,64 +51,292 @@ diff -X linux-2.6.13/Documentation/dontdiff -Naur linux-2.6.13-orig/drivers/scsi
 + *
 + * You should have received a copy of the GNU General Public License
 + * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
-+ * USA
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 + *
-+ * $Id: //depot/sas-class/sas_internal.h#35 $
++ * $Id: //depot/sas-class/sas_phy.c#37 $
 + */
 +
-+#ifndef _SAS_INTERNAL_H_
-+#define _SAS_INTERNAL_H_
++#include "sas_internal.h"
 +
-+#include <scsi/sas/sas_class.h>
++/* ---------- Phy events ---------- */
 +
-+#define sas_printk(fmt, ...) printk(KERN_NOTICE "sas: " fmt, ## __VA_ARGS__)
++void sas_phye_loss_of_signal(struct sas_phy *phy)
++{
++	phy->error = 0;
++	sas_deform_port(phy);
++}
 +
-+#ifdef SAS_DEBUG
-+#define SAS_DPRINTK(fmt, ...) printk(KERN_NOTICE "sas: " fmt, ## __VA_ARGS__)
-+#else
-+#define SAS_DPRINTK(fmt, ...)
-+#endif
++void sas_phye_oob_done(struct sas_phy *phy)
++{
++	phy->error = 0;
++}
 +
-+int sas_show_class(enum sas_class class, char *buf);
-+int sas_show_proto(enum sas_proto proto, char *buf);
-+int sas_show_linkrate(enum sas_phy_linkrate linkrate, char *buf);
-+int sas_show_oob_mode(enum sas_oob_mode oob_mode, char *buf);
++void sas_phye_oob_error(struct sas_phy *phy)
++{
++	struct sas_ha_struct *sas_ha = phy->ha;
++	struct sas_port *port = phy->port;
 +
-+int  sas_register_phys(struct sas_ha_struct *sas_ha);
-+void sas_unregister_phys(struct sas_ha_struct *sas_ha);
++	sas_deform_port(phy);
 +
-+int  sas_register_ports(struct sas_ha_struct *sas_ha);
-+void sas_unregister_ports(struct sas_ha_struct *sas_ha);
++	if (!port && phy->enabled && sas_ha->lldd_control_phy) {
++		phy->error++;
++		switch (phy->error) {
++		case 1:
++		case 2:
++			sas_ha->lldd_control_phy(phy, PHY_FUNC_HARD_RESET);
++			break;
++		case 3:
++		default:
++			phy->error = 0;
++			phy->enabled = 0;
++			sas_ha->lldd_control_phy(phy, PHY_FUNC_DISABLE);
++			break;
++		}
++	}
++}
 +
-+int  sas_register_scsi_host(struct sas_ha_struct *sas_ha);
-+void sas_unregister_scsi_host(struct sas_ha_struct *sas_ha);
++void sas_phye_spinup_hold(struct sas_phy *phy)
++{
++	struct sas_ha_struct *sas_ha = phy->ha;
 +
-+int  sas_start_event_thread(struct sas_ha_struct *sas_ha);
-+void sas_kill_event_thread(struct sas_ha_struct *sas_ha);
++	phy->error = 0;
++	sas_ha->lldd_control_phy(phy, PHY_FUNC_RELEASE_SPINUP_HOLD);
++}
 +
-+int  sas_init_queue(struct sas_ha_struct *sas_ha);
-+void sas_shutdown_queue(struct sas_ha_struct *sas_ha);
++/* ---------- Phy attributes ---------- */
 +
-+void sas_phye_loss_of_signal(struct sas_phy *phy);
-+void sas_phye_oob_done(struct sas_phy *phy);
-+void sas_phye_oob_error(struct sas_phy *phy);
-+void sas_phye_spinup_hold(struct sas_phy *phy);
++static ssize_t sas_phy_id_show(struct sas_phy *phy, char *buf)
++{
++	return sprintf(buf, "%d\n", phy->id);
++}
 +
-+void sas_deform_port(struct sas_phy *phy);
++static ssize_t sas_phy_enabled_show(struct sas_phy *phy, char *buf)
++{
++	return sprintf(buf, "%d\n", phy->enabled);
++}
 +
-+void sas_porte_bytes_dmaed(struct sas_phy *phy);
-+void sas_porte_broadcast_rcvd(struct sas_phy *phy);
-+void sas_porte_link_reset_err(struct sas_phy *phy);
-+void sas_porte_timer_event(struct sas_phy *phy);
-+void sas_porte_hard_reset(struct sas_phy *phy);
++static ssize_t sas_phy_enabled_store(struct sas_phy *phy, const char *buf,
++				     size_t size)
++{
++	if (size > 0) {
++		if (buf[0] == '1')
++			phy->ha->lldd_control_phy(phy, PHY_FUNC_LINK_RESET);
++	}
++	return size;
++}
 +
-+int  sas_reserve_free_id(struct sas_port *port);
-+void sas_reserve_scsi_id(struct sas_port *port, int id);
-+void sas_release_scsi_id(struct sas_port *port, int id);
++static ssize_t sas_phy_class_show(struct sas_phy *phy, char *buf)
++{
++	if (!phy->enabled)
++		return 0;
++	return sas_show_class(phy->class, buf);
++}
 +
-+void sas_hae_reset(struct sas_ha_struct *sas_ha);
++static ssize_t sas_phy_iproto_show(struct sas_phy *phy, char *page)
++{
++	if (!phy->enabled)
++		return 0;
++	return sas_show_proto(phy->iproto, page);
++}
 +
-+#endif /* _SAS_INTERNAL_H_ */
++static ssize_t sas_phy_tproto_show(struct sas_phy *phy, char *page)
++{
++	if (!phy->enabled)
++		return 0;
++	return sas_show_proto(phy->tproto, page);
++}
++
++static ssize_t sas_phy_type_show(struct sas_phy *phy, char *buf)
++{
++	static const char *phy_type_str[] = {
++		[PHY_TYPE_PHYSICAL] = "physical",
++		[PHY_TYPE_VIRTUAL] = "virtual",
++	};
++	if (!phy->enabled)
++		return 0;
++	return sprintf(buf, "%s\n", phy_type_str[phy->type]);
++}
++
++static ssize_t sas_phy_role_show(struct sas_phy *phy, char *page)
++{
++	static const char *phy_role_str[] = {
++		[PHY_ROLE_NONE] = "none",
++		[PHY_ROLE_TARGET] = "target",
++		[PHY_ROLE_INITIATOR] = "initiator",
++	};
++	int  v;
++	char *buf = page;
++
++	if (!phy->enabled)
++		return 0;
++
++	if (phy->role == PHY_ROLE_NONE)
++		return sprintf(buf, "%s\n", phy_role_str[PHY_ROLE_NONE]);
++
++	for (v = 1; v <= PHY_ROLE_INITIATOR; v <<= 1) {
++		if (v & phy->role) {
++			buf += sprintf(buf, "%s", phy_role_str[v]);
++			if (phy->role & ~((v<<1)-1))
++				buf += sprintf(buf, "|");
++			else
++				buf += sprintf(buf, "\n");
++		}
++	}
++	return buf-page;
++}
++
++static ssize_t sas_phy_linkrate_show(struct sas_phy *phy, char *buf)
++{
++	if (!phy->enabled)
++		return 0;
++	return sas_show_linkrate(phy->linkrate, buf);
++}
++
++static ssize_t sas_phy_addr_show(struct sas_phy *phy, char *buf)
++{
++	if (!phy->enabled)
++		return 0;
++	return sprintf(buf, "%llx\n", SAS_ADDR(phy->sas_addr));
++}
++
++static ssize_t sas_phy_oob_mode_show(struct sas_phy *phy, char *buf)
++{
++	if (!phy->enabled)
++		return 0;
++	return sas_show_oob_mode(phy->oob_mode, buf);
++}
++
++struct phy_attribute {
++	struct attribute attr;
++	ssize_t (*show)(struct sas_phy *phy, char *);
++	ssize_t (*store)(struct sas_phy *phy, const char *, size_t);
++};
++
++static struct phy_attribute phy_attrs[] = {
++	/* port is a symlink */
++	__ATTR(id, 0444, sas_phy_id_show, NULL),
++	__ATTR(enabled, 0644, sas_phy_enabled_show, sas_phy_enabled_store),
++	__ATTR(class, 0444, sas_phy_class_show, NULL),
++	__ATTR(iproto, 0444, sas_phy_iproto_show, NULL),
++	__ATTR(tproto, 0444, sas_phy_tproto_show, NULL),
++	__ATTR(type, 0444, sas_phy_type_show, NULL),
++	__ATTR(role, 0444, sas_phy_role_show, NULL),
++	__ATTR(linkrate, 0444, sas_phy_linkrate_show, NULL),
++	__ATTR(sas_addr, 0444, sas_phy_addr_show, NULL),
++	__ATTR(oob_mode, 0444, sas_phy_oob_mode_show, NULL),
++	__ATTR_NULL,
++};
++
++static struct attribute *def_attrs[ARRAY_SIZE(phy_attrs)];
++
++#define to_sas_phy(_obj) container_of(_obj, struct sas_phy, phy_kobj)
++#define to_phy_attr(_attr) container_of(_attr, struct phy_attribute, attr)
++
++static ssize_t phy_show_attr(struct kobject *kobj,
++			     struct attribute *attr,
++			     char *page)
++{
++	ssize_t ret = 0;
++	struct sas_phy *phy = to_sas_phy(kobj);
++	struct phy_attribute *phy_attr = to_phy_attr(attr);
++
++	if (phy_attr->show)
++		ret = phy_attr->show(phy, page);
++	return ret;
++}
++
++static ssize_t phy_store_attr(struct kobject *kobj,
++			      struct attribute *attr,
++			      const char *page, size_t size)
++{
++	ssize_t ret = 0;
++	struct sas_phy *phy = to_sas_phy(kobj);
++	struct phy_attribute *phy_attr = to_phy_attr(attr);
++	
++	if (phy_attr->store)
++		ret = phy_attr->store(phy, page, size);
++	return ret;
++}
++
++static struct sysfs_ops phy_sysfs_ops = {
++	.show = phy_show_attr,
++	.store = phy_store_attr,
++};
++
++static struct kobj_type phy_ktype = {
++	.sysfs_ops = &phy_sysfs_ops,
++	.default_attrs = def_attrs,
++};
++
++/* ---------- Phy class registration ---------- */
++
++int sas_register_phys(struct sas_ha_struct *sas_ha)
++{
++	int i, error;
++
++	for (i = 0; i < ARRAY_SIZE(def_attrs)-1; i++)
++		def_attrs[i] = &phy_attrs[i].attr;
++	def_attrs[i] = NULL;		
++	
++	/* make sas/ha/phys/ appear */
++	kobject_set_name(&sas_ha->phy_kset.kobj, "%s", "phys");
++	sas_ha->phy_kset.kobj.kset = &sas_ha->ha_kset; /* parent */
++	/* we do not inherit the type of the parent */
++	sas_ha->phy_kset.kobj.ktype = NULL;
++	sas_ha->phy_kset.ktype = &phy_ktype;
++	error = kset_register(&sas_ha->phy_kset);
++	if (error)
++		return error;
++
++	/* Now register the phys. */
++	for (i = 0; i < sas_ha->num_phys; i++) {
++		int k;
++		struct sas_phy *phy = sas_ha->sas_phy[i];
++
++		phy->error = 0;
++		INIT_LIST_HEAD(&phy->port_phy_el);
++		INIT_LIST_HEAD(&phy->port_event_list);
++		INIT_LIST_HEAD(&phy->phy_event_list);
++		for (k = 0; k < PORT_NUM_EVENTS; k++) {
++			struct sas_event *ev = &phy->port_events[k];
++			ev->event = k;
++			INIT_LIST_HEAD(&ev->el);
++		}
++		for (k = 0; k < PHY_NUM_EVENTS; k++) {
++			struct sas_event *ev = &phy->phy_events[k];
++			ev->event = k;
++			INIT_LIST_HEAD(&ev->el);
++		}
++		phy->port = NULL;
++		phy->ha = sas_ha;
++		spin_lock_init(&phy->frame_rcvd_lock);
++		spin_lock_init(&phy->sas_prim_lock);
++		phy->frame_rcvd_size = 0;
++
++		kobject_set_name(&phy->phy_kobj, "%d", i);
++		phy->phy_kobj.kset = &sas_ha->phy_kset; /* parent */
++		phy->phy_kobj.ktype = sas_ha->phy_kset.ktype;
++		error = kobject_register(&phy->phy_kobj);
++		if (error)
++			goto unroll;
++	}
++	
++	return 0;
++unroll:
++	for (i--; i >= 0; i--)
++		kobject_unregister(&sas_ha->sas_phy[i]->phy_kobj);
++
++	return error;
++}
++
++void sas_unregister_phys(struct sas_ha_struct *sas_ha)
++{
++	int i;
++
++	for (i = 0; i < sas_ha->num_phys; i++)
++		kobject_unregister(&sas_ha->sas_phy[i]->phy_kobj);
++	
++	kset_unregister(&sas_ha->phy_kset);
++}
 
 

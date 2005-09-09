@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030473AbVIIWmH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030466AbVIIWka@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030473AbVIIWmH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 18:42:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030457AbVIIWlw
+	id S1030466AbVIIWka (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 18:40:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030465AbVIIWkZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 18:41:52 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:53875 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S1030458AbVIIWkY
+	Fri, 9 Sep 2005 18:40:25 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:52340 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S932611AbVIIWkV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 18:40:24 -0400
+	Fri, 9 Sep 2005 18:40:21 -0400
 Cc: Sam Ravnborg <sam@mars (none)>, Sam Ravnborg <sam@ravnborg.org>
-Subject: [PATCH 8/12] kbuild: ia64 use generic asm-offsets.h support
-In-Reply-To: <11263057063890-git-send-email-sam@ravnborg.org>
+Subject: [PATCH 2/12] kbuild: h8300,m68knommu,sh,sh64 use generic asm-offsets.h support
+In-Reply-To: <11263057053061-git-send-email-sam@ravnborg.org>
 X-Mailer: git-send-email
 Date: Sat, 10 Sep 2005 00:41:46 +0200
-Message-Id: <11263057062211-git-send-email-sam@ravnborg.org>
+Message-Id: <11263057062281-git-send-email-sam@ravnborg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Sam Ravnborg <sam@ravnborg.org>
@@ -24,131 +24,119 @@ From: Sam Ravnborg <sam@ravnborg.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Delete obsolete stuff from arch Makefile
-Rename file to asm-offsets.h
-The trick used in the arch Makefile to circumvent the circular
-dependency is kept.
+h8300, m68knommu, sh and sh64 all used the name asm-offsets.h so minimal
+changes required.
 
 Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
 
 ---
 
- arch/ia64/Makefile          |   21 +++++++--------------
- arch/ia64/ia32/ia32_entry.S |    2 +-
- arch/ia64/kernel/entry.S    |    2 +-
- arch/ia64/kernel/fsys.S     |    2 +-
- arch/ia64/kernel/gate.S     |    2 +-
- arch/ia64/kernel/head.S     |    2 +-
- arch/ia64/kernel/ivt.S      |    2 +-
- 7 files changed, 13 insertions(+), 20 deletions(-)
+ arch/h8300/Makefile     |    8 --------
+ arch/m68knommu/Makefile |   10 ----------
+ arch/sh/Makefile        |   11 ++---------
+ arch/sh64/Makefile      |    8 ++------
+ 4 files changed, 4 insertions(+), 33 deletions(-)
 
-39e01cb874cbf694bd0b0c44f54c4f270e2aa556
-diff --git a/arch/ia64/Makefile b/arch/ia64/Makefile
---- a/arch/ia64/Makefile
-+++ b/arch/ia64/Makefile
-@@ -82,25 +82,18 @@ unwcheck: vmlinux
+cca6e6f5f473ec63e85c87dfc77279ce1ca114e6
+diff --git a/arch/h8300/Makefile b/arch/h8300/Makefile
+--- a/arch/h8300/Makefile
++++ b/arch/h8300/Makefile
+@@ -61,12 +61,6 @@ archmrproper:
  archclean:
  	$(Q)$(MAKE) $(clean)=$(boot)
  
--CLEAN_FILES += include/asm-ia64/.offsets.h.stamp vmlinux.gz bootloader
+-prepare: include/asm-$(ARCH)/asm-offsets.h
 -
--MRPROPER_FILES += include/asm-ia64/offsets.h
--
--prepare: include/asm-ia64/offsets.h
--
--arch/ia64/kernel/asm-offsets.s: include/asm include/linux/version.h include/config/MARKER
--
--include/asm-ia64/offsets.h: arch/ia64/kernel/asm-offsets.s
+-include/asm-$(ARCH)/asm-offsets.h: arch/$(ARCH)/kernel/asm-offsets.s \
+-				   include/asm include/linux/version.h
 -	$(call filechk,gen-asm-offsets)
 -
--arch/ia64/kernel/asm-offsets.s: include/asm-ia64/.offsets.h.stamp
-+prepare:  include/asm-ia64/.offsets.h.stamp
+ vmlinux.srec vmlinux.bin: vmlinux
+ 	$(Q)$(MAKE) $(build)=$(boot) $(boot)/$@
  
- include/asm-ia64/.offsets.h.stamp:
- 	mkdir -p include/asm-ia64
--	[ -s include/asm-ia64/offsets.h ] \
--	 || echo "#define IA64_TASK_SIZE 0" > include/asm-ia64/offsets.h
-+	[ -s include/asm-ia64/asm-offsets.h ] \
-+	|| echo "#define IA64_TASK_SIZE 0" > include/asm-ia64/asm-offsets.h
- 	touch $@
+@@ -74,5 +68,3 @@ define archhelp
+   echo  'vmlinux.bin  - Create raw binary'
+   echo  'vmlinux.srec - Create srec binary'
+ endef
+-
+-CLEAN_FILES += include/asm-$(ARCH)/asm-offsets.h
+diff --git a/arch/m68knommu/Makefile b/arch/m68knommu/Makefile
+--- a/arch/m68knommu/Makefile
++++ b/arch/m68knommu/Makefile
+@@ -102,21 +102,11 @@ CFLAGS += -DUTS_SYSNAME=\"uClinux\"
  
-+
-+
-+CLEAN_FILES += vmlinux.gz bootloader include/asm-ia64/.offsets.h.stamp
-+
- boot:	lib/lib.a vmlinux
- 	$(Q)$(MAKE) $(build)=$(boot) $@
+ head-y := arch/m68knommu/platform/$(cpuclass-y)/head.o
  
-diff --git a/arch/ia64/ia32/ia32_entry.S b/arch/ia64/ia32/ia32_entry.S
---- a/arch/ia64/ia32/ia32_entry.S
-+++ b/arch/ia64/ia32/ia32_entry.S
-@@ -1,6 +1,6 @@
- #include <asm/asmmacro.h>
- #include <asm/ia32.h>
--#include <asm/offsets.h>
-+#include <asm/asm-offsets.h>
- #include <asm/signal.h>
- #include <asm/thread_info.h>
+-CLEAN_FILES := include/asm-$(ARCH)/asm-offsets.h \
+-	       arch/$(ARCH)/kernel/asm-offsets.s
+-
+ core-y	+= arch/m68knommu/kernel/ \
+ 	   arch/m68knommu/mm/ \
+ 	   $(CLASSDIR) \
+ 	   arch/m68knommu/platform/$(PLATFORM)/
+ libs-y	+= arch/m68knommu/lib/
  
-diff --git a/arch/ia64/kernel/entry.S b/arch/ia64/kernel/entry.S
---- a/arch/ia64/kernel/entry.S
-+++ b/arch/ia64/kernel/entry.S
-@@ -37,7 +37,7 @@
- #include <asm/cache.h>
- #include <asm/errno.h>
- #include <asm/kregs.h>
--#include <asm/offsets.h>
-+#include <asm/asm-offsets.h>
- #include <asm/pgtable.h>
- #include <asm/percpu.h>
- #include <asm/processor.h>
-diff --git a/arch/ia64/kernel/fsys.S b/arch/ia64/kernel/fsys.S
---- a/arch/ia64/kernel/fsys.S
-+++ b/arch/ia64/kernel/fsys.S
-@@ -14,7 +14,7 @@
+-prepare: include/asm-$(ARCH)/asm-offsets.h
+-
+ archclean:
+ 	$(Q)$(MAKE) $(clean)=arch/m68knommu/boot
+-
+-include/asm-$(ARCH)/asm-offsets.h: arch/$(ARCH)/kernel/asm-offsets.s \
+-				   include/asm include/linux/version.h \
+-				   include/config/MARKER
+-	$(call filechk,gen-asm-offsets)
+diff --git a/arch/sh/Makefile b/arch/sh/Makefile
+--- a/arch/sh/Makefile
++++ b/arch/sh/Makefile
+@@ -155,7 +155,7 @@ endif
+ prepare: maketools include/asm-sh/.cpu include/asm-sh/.mach
  
- #include <asm/asmmacro.h>
- #include <asm/errno.h>
--#include <asm/offsets.h>
-+#include <asm/asm-offsets.h>
- #include <asm/percpu.h>
- #include <asm/thread_info.h>
- #include <asm/sal.h>
-diff --git a/arch/ia64/kernel/gate.S b/arch/ia64/kernel/gate.S
---- a/arch/ia64/kernel/gate.S
-+++ b/arch/ia64/kernel/gate.S
-@@ -10,7 +10,7 @@
+ .PHONY: maketools FORCE
+-maketools: include/asm-sh/asm-offsets.h include/linux/version.h FORCE
++maketools:  include/linux/version.h FORCE
+ 	$(Q)$(MAKE) $(build)=arch/sh/tools include/asm-sh/machtypes.h
  
- #include <asm/asmmacro.h>
- #include <asm/errno.h>
--#include <asm/offsets.h>
-+#include <asm/asm-offsets.h>
- #include <asm/sigcontext.h>
- #include <asm/system.h>
- #include <asm/unistd.h>
-diff --git a/arch/ia64/kernel/head.S b/arch/ia64/kernel/head.S
---- a/arch/ia64/kernel/head.S
-+++ b/arch/ia64/kernel/head.S
-@@ -25,7 +25,7 @@
- #include <asm/fpu.h>
- #include <asm/kregs.h>
- #include <asm/mmu_context.h>
--#include <asm/offsets.h>
-+#include <asm/asm-offsets.h>
- #include <asm/pal.h>
- #include <asm/pgtable.h>
- #include <asm/processor.h>
-diff --git a/arch/ia64/kernel/ivt.S b/arch/ia64/kernel/ivt.S
---- a/arch/ia64/kernel/ivt.S
-+++ b/arch/ia64/kernel/ivt.S
-@@ -44,7 +44,7 @@
- #include <asm/break.h>
- #include <asm/ia32.h>
- #include <asm/kregs.h>
--#include <asm/offsets.h>
-+#include <asm/asm-offsets.h>
- #include <asm/pgtable.h>
- #include <asm/processor.h>
- #include <asm/ptrace.h>
+ all: zImage
+@@ -168,14 +168,7 @@ compressed: zImage
+ archclean:
+ 	$(Q)$(MAKE) $(clean)=$(boot)
+ 
+-CLEAN_FILES += include/asm-sh/machtypes.h include/asm-sh/asm-offsets.h
+-
+-arch/sh/kernel/asm-offsets.s: include/asm include/linux/version.h \
+-			      include/asm-sh/.cpu include/asm-sh/.mach
+-
+-include/asm-sh/asm-offsets.h: arch/sh/kernel/asm-offsets.s
+-	$(call filechk,gen-asm-offsets)
+-
++CLEAN_FILES += include/asm-sh/machtypes.h
+ 
+ define archhelp
+ 	@echo '  zImage 	           - Compressed kernel image (arch/sh/boot/zImage)'
+diff --git a/arch/sh64/Makefile b/arch/sh64/Makefile
+--- a/arch/sh64/Makefile
++++ b/arch/sh64/Makefile
+@@ -73,11 +73,7 @@ compressed: zImage
+ archclean:
+ 	$(Q)$(MAKE) $(clean)=$(boot)
+ 
+-prepare: include/asm-$(ARCH)/asm-offsets.h arch/$(ARCH)/lib/syscalltab.h
+-
+-include/asm-$(ARCH)/asm-offsets.h: arch/$(ARCH)/kernel/asm-offsets.s \
+-				   include/asm include/linux/version.h
+-	$(call filechk,gen-asm-offsets)
++prepare: arch/$(ARCH)/lib/syscalltab.h
+ 
+ define filechk_gen-syscalltab
+        (set -e; \
+@@ -108,7 +104,7 @@ endef
+ arch/$(ARCH)/lib/syscalltab.h: arch/sh64/kernel/syscalls.S
+ 	$(call filechk,gen-syscalltab)
+ 
+-CLEAN_FILES += include/asm-$(ARCH)/asm-offsets.h arch/$(ARCH)/lib/syscalltab.h
++CLEAN_FILES += arch/$(ARCH)/lib/syscalltab.h
+ 
+ define archhelp
+ 	@echo '  zImage 	           - Compressed kernel image (arch/sh64/boot/zImage)'
 
 

@@ -1,37 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030332AbVIITcy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030336AbVIITdk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030332AbVIITcy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 15:32:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030337AbVIITcx
+	id S1030336AbVIITdk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 15:33:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030331AbVIITdj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 15:32:53 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:59844 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S1030332AbVIITcm (ORCPT
+	Fri, 9 Sep 2005 15:33:39 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:1733 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S1030336AbVIITdS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 15:32:42 -0400
-Message-ID: <4321E354.40604@adaptec.com>
-Date: Fri, 09 Sep 2005 15:32:36 -0400
+	Fri, 9 Sep 2005 15:33:18 -0400
+Message-ID: <4321E378.9060006@adaptec.com>
+Date: Fri, 09 Sep 2005 15:33:12 -0400
 From: Luben Tuikov <luben_tuikov@adaptec.com>
 User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: [PATCH 2.6.13 3/20] aic94xx: aic94xx.h
+Subject: [PATCH 2.6.13 6/20] aic94xx: aic94xx_dump.h Dumping utility header
+ file
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Sep 2005 19:32:41.0370 (UTC) FILETIME=[3E76C7A0:01C5B575]
+X-OriginalArrivalTime: 09 Sep 2005 19:33:17.0371 (UTC) FILETIME=[53EC18B0:01C5B575]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Signed-off-by: Luben Tuikov <luben_tuikov@adaptec.com>
 
-diff -X linux-2.6.13/Documentation/dontdiff -Naur linux-2.6.13-orig/drivers/scsi/aic94xx/aic94xx.h linux-2.6.13/drivers/scsi/aic94xx/aic94xx.h
---- linux-2.6.13-orig/drivers/scsi/aic94xx/aic94xx.h	1969-12-31 19:00:00.000000000 -0500
-+++ linux-2.6.13/drivers/scsi/aic94xx/aic94xx.h	2005-09-09 11:21:23.000000000 -0400
-@@ -0,0 +1,114 @@
+diff -X linux-2.6.13/Documentation/dontdiff -Naur linux-2.6.13-orig/drivers/scsi/aic94xx/aic94xx_dump.h linux-2.6.13/drivers/scsi/aic94xx/aic94xx_dump.h
+--- linux-2.6.13-orig/drivers/scsi/aic94xx/aic94xx_dump.h	1969-12-31 19:00:00.000000000 -0500
++++ linux-2.6.13/drivers/scsi/aic94xx/aic94xx_dump.h	2005-09-09 11:21:23.000000000 -0400
+@@ -0,0 +1,53 @@
 +/*
-+ * Aic94xx SAS/SATA driver header file.
++ * Aic94xx SAS/SATA driver dump header file.
 + *
 + * Copyright (C) 2005 Adaptec, Inc.  All rights reserved.
 + * Copyright (C) 2005 Luben Tuikov <luben_tuikov@adaptec.com>
@@ -54,94 +55,33 @@ diff -X linux-2.6.13/Documentation/dontdiff -Naur linux-2.6.13-orig/drivers/scsi
 + * along with the aic94xx driver; if not, write to the Free Software
 + * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 + *
-+ * $Id: //depot/aic94xx/aic94xx.h#30 $
++ * $Id: //depot/aic94xx/aic94xx_dump.h#9 $
 + */
 +
-+#ifndef _AIC94XX_H_
-+#define _AIC94XX_H_
-+
-+#include <linux/slab.h>
-+#include <linux/ctype.h>
-+#include <scsi/sas/sas_discover.h>
-+
-+#define ASD_DRIVER_NAME		"aic94xx"
-+#define ASD_DRIVER_DESCRIPTION	"Adaptec aic94xx SAS/SATA driver"
-+
-+#define asd_printk(fmt, ...)	printk(KERN_NOTICE ASD_DRIVER_NAME ": " fmt, ## __VA_ARGS__)
-+
-+#ifdef ASD_ENTER_EXIT
-+#define ENTER  printk(KERN_NOTICE "%s: ENTER %s\n", ASD_DRIVER_NAME, \
-+		__FUNCTION__)
-+#define EXIT   printk(KERN_NOTICE "%s: --EXIT %s\n", ASD_DRIVER_NAME, \
-+		__FUNCTION__)
-+#else
-+#define ENTER
-+#define EXIT
-+#endif
++#ifndef _AIC94XX_DUMP_H_
++#define _AIC94XX_DUMP_H_
 +
 +#ifdef ASD_DEBUG
-+#define ASD_DPRINTK asd_printk
-+#else
-+#define ASD_DPRINTK(fmt, ...)
-+#endif
 +
-+/* 2*ITNL timeout + 1 second */
-+#define AIC94XX_SCB_TIMEOUT  (5*HZ)
++void asd_dump_ddb_0(struct asd_ha_struct *asd_ha);
++void asd_dump_target_ddb(struct asd_ha_struct *asd_ha, u16 site_no);
++void asd_dump_scb_sites(struct asd_ha_struct *asd_ha);
++void asd_dump_seq_state(struct asd_ha_struct *asd_ha, u8 lseq_mask);
++void asd_dump_frame_rcvd(struct asd_phy *phy,
++			 struct done_list_struct *dl);
++void asd_dump_scb_list(struct asd_ascb *ascb, int num);
++#else /* ASD_DEBUG */
 +
-+extern kmem_cache_t *asd_dma_token_cache;
-+extern kmem_cache_t *asd_ascb_cache;
-+extern char sas_addr_str[2*SAS_ADDR_SIZE + 1];
++static inline void asd_dump_ddb_0(struct asd_ha_struct *asd_ha) { }
++static inline void asd_dump_target_ddb(struct asd_ha_struct *asd_ha,
++				     u16 site_no) { }
++static inline void asd_dump_scb_sites(struct asd_ha_struct *asd_ha) { }
++static inline void asd_dump_seq_state(struct asd_ha_struct *asd_ha,
++				      u8 lseq_mask) { }
++static inline void asd_dump_frame_rcvd(struct asd_phy *phy,
++				       struct done_list_struct *dl) { }
++static inline void asd_dump_scb_list(struct asd_ascb *ascb, int num) { }
++#endif /* ASD_DEBUG */
 +
-+static inline void asd_stringify_sas_addr(char *p, const u8 *sas_addr)
-+{
-+	int i;
-+	for (i = 0; i < SAS_ADDR_SIZE; i++, p += 2)
-+		snprintf(p, 3, "%02X", sas_addr[i]);
-+	*p = '\0';
-+}
-+
-+static inline void asd_destringify_sas_addr(u8 *sas_addr, const char *p)
-+{
-+	int i;
-+	for (i = 0; i < SAS_ADDR_SIZE; i++) {
-+		u8 h, l;
-+		if (!*p)
-+			break;
-+		h = isdigit(*p) ? *p-'0' : *p-'A'+10;
-+		p++;
-+		l = isdigit(*p) ? *p-'0' : *p-'A'+10;
-+		p++;
-+		sas_addr[i] = (h<<4) | l;
-+	}
-+}
-+
-+struct asd_ha_struct;
-+struct asd_ascb;
-+
-+int  asd_read_ocm(struct asd_ha_struct *asd_ha);
-+int  asd_read_flash(struct asd_ha_struct *asd_ha);
-+
-+int  asd_dev_found(struct domain_device *dev);
-+void asd_dev_gone(struct domain_device *dev);
-+
-+void asd_invalidate_edb(struct asd_ascb *ascb, int edb_id);
-+
-+int  asd_execute_task(struct sas_task *, int num, unsigned long gfp_flags);
-+
-+/* ---------- TMFs ---------- */
-+int  asd_abort_task(struct sas_task *);
-+int  asd_abort_task_set(struct domain_device *, u8 *lun);
-+int  asd_clear_aca(struct domain_device *, u8 *lun);
-+int  asd_clear_task_set(struct domain_device *, u8 *lun);
-+int  asd_lu_reset(struct domain_device *, u8 *lun);
-+int  asd_query_task(struct sas_task *);
-+
-+/* ---------- Adapter and Port management ---------- */
-+int  asd_clear_nexus_port(struct sas_port *port);
-+int  asd_clear_nexus_ha(struct sas_ha_struct *sas_ha);
-+
-+/* ---------- Phy Management ---------- */
-+int  asd_control_phy(struct sas_phy *phy, enum phy_func func);
-+
-+#endif
++#endif /* _AIC94XX_DUMP_H_ */
 

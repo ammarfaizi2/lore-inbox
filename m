@@ -1,91 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030249AbVIILZj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030248AbVIIL0b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030249AbVIILZj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 07:25:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030248AbVIILZj
+	id S1030248AbVIIL0b (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 07:26:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030251AbVIIL0b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 07:25:39 -0400
-Received: from lug-owl.de ([195.71.106.12]:8105 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S1030247AbVIILZi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 07:25:38 -0400
-Date: Fri, 9 Sep 2005 13:25:34 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Consistently use the name asm-offsets.h
-Message-ID: <20050909112534.GF3539@lug-owl.de>
-Mail-Followup-To: Sam Ravnborg <sam@ravnborg.org>,
-	linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20050908211539.GA24714@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="FUFe+yI/t+r3nyH4"
-Content-Disposition: inline
-In-Reply-To: <20050908211539.GA24714@mars.ravnborg.org>
-X-Operating-System: Linux mail 2.6.12.3lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+	Fri, 9 Sep 2005 07:26:31 -0400
+Received: from smtp806.mail.ukl.yahoo.com ([217.12.12.196]:8058 "HELO
+	smtp806.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1030248AbVIIL03 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 07:26:29 -0400
+Message-ID: <43217162.2010401@btinternet.com>
+Date: Fri, 09 Sep 2005 12:26:26 +0100
+From: Matt Keenan <matt.keenan@btinternet.com>
+User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+CC: dtor_core@ameritech.net, Eric Piel <Eric.Piel@lifl.fr>,
+       Christoph Litters <christophlitters@gmx.de>
+Subject: Re: [DRIVER] Where is the PSX Gamepad Driver in 2.6.13-rc3?
+References: <42E48CA5.9010709@m1k.net> <43201906.8040902@gmx.de>	 <d120d500050908073942876de5@mail.gmail.com> <43204DD4.3090103@lifl.fr> <d120d500050908075446a4c9e0@mail.gmail.com>
+In-Reply-To: <d120d500050908075446a4c9e0@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dmitry Torokhov wrote:
 
---FUFe+yI/t+r3nyH4
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>On 9/8/05, Eric Piel <Eric.Piel@lifl.fr> wrote:
+>  
+>
+>>09/08/2005 04:38 PM, Dmitry Torokhov wrote/a écrit:
+>>    
+>>
+>>>On 9/8/05, Christoph Litters <christophlitters@gmx.de> wrote:
+>>>
+>>>      
+>>>
+>>>>Hello,
+>>>>
+>>>>I have an adapter usb to psx i have tried it with 2.6.9 and it works
+>>>>perfectly with the kernel driver.
+>>>>with 2.6.12 i cant get it to work and with 2.6.13-rc3 i havent seen any
+>>>>option to enable it.
+>>>>could anybody help me?
+>>>>
+>>>>        
+>>>>
+>>>Device Drivers  ---> Input device support  ---> Joysticks  --->
+>>>Multisystem, NES, SNES, N64, PSX joysticks and gamepads
+>>>
+>>>Needs parport support.
+>>>
+>>>      
+>>>
+>>Are you sure? Isn't this only for parallel to psx adapters? Christoph
+>>says he has a "usb to psx" adapter.
+>>
+>>    
+>>
+>
+>Oh, yes, sorry. In that case wouldn't HID driver handle it?
+>
+>  
+>
+I have such a device myself (send me an email in private if you want to 
+confirm it is the same model et al). The HID driver worked just fine. I 
+also found that there was almost zero information about this on the net. 
+I just use USB, USB HID, USB HID input support, Input support, and the 
+Input joystick interface driver. Works just fine, check it with the 
+joystick calibrator program of your choice. If your PSX -> USB converter 
+doesn't support the joystick HID (which most seem to do) you may need a 
+driver of some kind. Or better yet go buy one that does support it, you 
+should be able to pick one up for less than $20 USD.
 
-On Thu, 2005-09-08 23:15:39 +0200, Sam Ravnborg <sam@ravnborg.org> wrote:
-> I suggest moving all the logic required to build the asm-offsets.h file
-> to a common places and do proper search&replace in architectures to make
-> the naming consitent. For frv, m32r and sparc64 we will need to create a
-> dummy file until they start using asm-offsets.h
+Matt
 
-Yay! Another rule we can kill from arch-specific Makefile :-)
-
-> --- a/Makefile
-> +++ b/Makefile
-> @@ -776,14 +776,14 @@ $(vmlinux-dirs): prepare-all scripts
->  # A multi level approach is used. prepare1 is updated first, then prepar=
-e0.
->  # prepare-all is the collection point for the prepare targets.
-> =20
-> -.PHONY: prepare-all prepare prepare0 prepare1 prepare2
-> +.PHONY: prepare-all prepare prepare0 prepare1 prepare2 prepare3
-> =20
-> -# prepare2 is used to check if we are building in a separate output dire=
-ctory,
-> +# preparei3 is used to check if we are building in a separate output dir=
-ectory,
-           ^^^
-Typo?
-
-MfG, JBG
-
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
-m Irak!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
-
---FUFe+yI/t+r3nyH4
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFDIXEuHb1edYOZ4bsRAgXRAJ93pTuxSOvGHxEmoXpIgkB167ZcBACffDAr
-/cO28KmQZSO/uwVCoQaxMhw=
-=JUBz
------END PGP SIGNATURE-----
-
---FUFe+yI/t+r3nyH4--

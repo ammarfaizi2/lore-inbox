@@ -1,62 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030214AbVIIKKT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030216AbVIIKRL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030214AbVIIKKT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 06:10:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030215AbVIIKKT
+	id S1030216AbVIIKRL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 06:17:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030217AbVIIKRL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 06:10:19 -0400
-Received: from relay.uni-heidelberg.de ([129.206.100.212]:5006 "EHLO
-	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
-	id S1030214AbVIIKKR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 06:10:17 -0400
-Date: Fri, 9 Sep 2005 12:10:04 +0200 (CEST)
-From: Bogdan Costescu <Bogdan.Costescu@iwr.uni-heidelberg.de>
-To: Andy Fleming <afleming@freescale.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Netdev <netdev@vger.kernel.org>
-Subject: Re: [PATCH] 3c59x: read current link status from phy
-In-Reply-To: <62AA8EFA-7D65-4E87-B71F-55A07321011E@freescale.com>
-Message-ID: <Pine.LNX.4.63.0509091152450.23760@dingo.iwr.uni-heidelberg.de>
-References: <200509080125.j881PcL9015847@hera.kernel.org>  <431F9899.4060602@pobox.com>
- <Pine.LNX.4.63.0509081351160.21354@dingo.iwr.uni-heidelberg.de> 
- <1126184700.4805.32.camel@tsc-6.cph.tpack.net> 
- <Pine.LNX.4.63.0509081521140.21354@dingo.iwr.uni-heidelberg.de>
- <1126190554.4805.68.camel@tsc-6.cph.tpack.net>
- <Pine.LNX.4.63.0509081713500.22954@dingo.iwr.uni-heidelberg.de>
- <62AA8EFA-7D65-4E87-B71F-55A07321011E@freescale.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 9 Sep 2005 06:17:11 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:51483
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S1030216AbVIIKRK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 06:17:10 -0400
+Message-Id: <43217D8C02000078000248DF@emea1-mh.id2.novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0 
+Date: Fri, 09 Sep 2005 12:18:20 +0200
+From: "Jan Beulich" <JBeulich@novell.com>
+To: "Andi Kleen" <ak@suse.de>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] new kallsyms approach
+References: <43206DBB0200007800024447@emea1-mh.id2.novell.com> <p733boe52c0.fsf@verdi.suse.de>
+In-Reply-To: <p733boe52c0.fsf@verdi.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Sep 2005, Andy Fleming wrote:
+>I don't think it's a good idea to have two different ways
+>to do kallsyms. Either we should always use your new
+>way in standard KALLSYMS or not do it at all.
 
-> The new PHY Layer (drivers/net/phy/*) can provide all these features 
-> for you without much difficulty, I suspect.
+I agree, but I wanted to retain the old mechanism not the least because
+of the space constraints you mention.
 
-As pointed to be Andrew a few days ago, this driver supports a lot of 
-chips - for most of them the test hardware would be hard to come by 
-and the documentation even more. Unless you'd like to do it based on 
-"whoever is interested should cry loud"...
+>The major decision factor is how much bloat it adds.
+>Can you post before/after numbers of binary size? 
 
-> The layer supports handling the interrupts for you, or (if it's 
-> shared with your controller's interrupt)
+i386 vmlinux KALLSYMS_ALL=n: old=5782934 new=6106675 (5.60% increase)
+i386 vmlinux KALLSYMS_ALL=y: old=6049118 new=6524411 (7.85% increase)
+x86-64 vmlinux KALLSYMS_ALL=n: old=8593125 new=8962128 (4.30%
+increase)
+x86-64 vmlinux KALLSYMS_ALL=y: old=8797853 new=9117704 (3.64%
+increase)
 
-Yes, there is only one interrupt that for data transmission (both Tx 
-and Rx), statistics, errors and (for those chips that support it) link 
-state change.
+I shall note additionally that not using KALLSYMS_ALL with the new
+approach increases the build time somewhat because the stripping of the
+data symbols in this scheme is rather inefficient (a binutils limitation
+as I would call it). KALLSYMS_ALL=y, however, is mostly suited for
+kernel debugging, while KALLSYMS_ALL=n seems the best choice if just
+caring about symbolic stack traces, which seems to be another argument
+for keeping both mechanisms.
 
-> Is the cost of an extra read every minute really too high?
+>If the difference is >5% or so - are there ways to recover
+>the difference? 
 
-You probably didn't look at the code. The MII registers are not 
-exposed in the PCI space, they need to be accessed through a serial 
-protocol, such that each MII register read is in fact about 200 (in 
-total) of outw and inw/inl operations.
+There are certainly ways, but I'm not sure how much they would cost.
+One thing would be to teach the linker to not only optimize the section
+string table, but also the (normal) symbol string one. Decreasing the
+symbol table size might be more difficult - only st_size and only on
+64-bit archs seems to lend itself to reduction (as any symbol's size can
+clearly be expected to be less than 4G). But that would result in
+alignment problems, so I don't think that'd be a good idea either.
 
--- 
-Bogdan Costescu
-
-IWR - Interdisziplinaeres Zentrum fuer Wissenschaftliches Rechnen
-Universitaet Heidelberg, INF 368, D-69120 Heidelberg, GERMANY
-Telephone: +49 6221 54 8869, Telefax: +49 6221 54 8868
-E-mail: Bogdan.Costescu@IWR.Uni-Heidelberg.De
+Jan

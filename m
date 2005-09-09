@@ -1,50 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbVIIQTU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030218AbVIIQZp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750745AbVIIQTU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 12:19:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751387AbVIIQTU
+	id S1030218AbVIIQZp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 12:25:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbVIIQZp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 12:19:20 -0400
-Received: from vulpecula.futurs.inria.fr ([195.83.212.5]:10171 "EHLO
-	vulpecula.futurs.inria.fr") by vger.kernel.org with ESMTP
-	id S1750745AbVIIQTT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 12:19:19 -0400
-Message-ID: <4321B5F6.4040707@lifl.fr>
-Date: Fri, 09 Sep 2005 18:19:02 +0200
-From: Eric Piel <Eric.Piel@lifl.fr>
-User-Agent: Mozilla Thunderbird 1.0.6-5mdk (X11/20050322)
-X-Accept-Language: fr, en
+	Fri, 9 Sep 2005 12:25:45 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:9155 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751422AbVIIQZp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 12:25:45 -0400
+Date: Fri, 9 Sep 2005 18:25:00 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: "Brown, Len" <len.brown@intel.com>
+cc: Andi Kleen <ak@suse.de>, akpm@osdl.org,
+       Borislav Petkov <petkov@uni-muenster.de>,
+       acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: RE: [PATCH] [2.6.13-mm2] set IBM ThinkPad extras to default n in
+ Kconfig
+In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B30048FA292@hdsmsx401.amr.corp.intel.com>
+Message-ID: <Pine.LNX.4.61.0509091817220.3743@scrub.home>
+References: <F7DC2337C7631D4386A2DF6E8FB22B30048FA292@hdsmsx401.amr.corp.intel.com>
 MIME-Version: 1.0
-To: viro@zeniv.linux.org.uk
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] bogus #if (acpi/blacklist)
-References: <20050909160723.GI9623@ZenIV.linux.org.uk>
-In-Reply-To: <20050909160723.GI9623@ZenIV.linux.org.uk>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-09/09/2005 06:07 PM, viro@zeniv.linux.org.uk wrote/a écrit:
-> Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-> ----
-> diff -urN RC13-git8-base/drivers/acpi/blacklist.c current/drivers/acpi/blacklist.c
-> --- RC13-git8-base/drivers/acpi/blacklist.c	2005-09-08 23:42:49.000000000 -0400
-> +++ current/drivers/acpi/blacklist.c	2005-09-09 11:28:44.000000000 -0400
-> @@ -73,7 +73,7 @@
->  	{""}
->  };
->  
-> -#if	CONFIG_ACPI_BLACKLIST_YEAR
-> +#ifdef	CONFIG_ACPI_BLACKLIST_YEAR
->  
->  static int __init blacklist_by_year(void)
->  {
+Hi,
 
-Are you sure about this? IIRC, CONFIG_ACPI_BLACKLIST_YEAR is defined to 
-0 when it should not be blacklisted. In drivers/acpi/Kconfig :
-     Enter 0 to disable this mechanism and allow ACPI to
-     run by default no matter what the year.  (default)
+On Fri, 9 Sep 2005, Brown, Len wrote:
 
+> >--- drivers/acpi/Kconfig.orig	2005-09-09 09:46:26.000000000 +0200
+> >+++ drivers/acpi/Kconfig	2005-09-09 09:46:46.000000000 +0200
+> >@@ -197,7 +197,7 @@ config ACPI_ASUS
+> > config ACPI_IBM
+> > 	tristate "IBM ThinkPad Laptop Extras"
+> > 	depends on X86
+> >-	default y
+> >+	default n
+> > 	---help---
+> > 	  This is a Linux ACPI driver for the IBM ThinkPad 
+> 
+> Before we had "default m", since that is how a distro
+> is expected to compile this, and other, "ACPI drivers".
+> 
+> But we got complaits that _nothing_ should be "default m",
+> so I changed it to "default y".  Maybe that was simplistic --
+> button should be "default y", but the platform drivers should
+> all be "default n"?
+> 
+> I'm not sure what to do here -- what use-model
+> should we tune default Kconfig for?
 
-Eric
+The best would be to avoid using defaults completely, unless the resulting 
+kernel is non-functional (e.g. it doesn't compile or boot).
+So far it's still the responsibility of the user to explicitly turn 
+everything on he needs (at least until we have a functional autoconfig).
+BTW distros are not the only users, from them I would expect how to 
+configure a kernel.
+
+bye, Roman

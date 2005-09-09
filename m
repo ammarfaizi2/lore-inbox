@@ -1,77 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932483AbVIIMJE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932520AbVIIMO5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932483AbVIIMJE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 08:09:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932520AbVIIMJE
+	id S932520AbVIIMO5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 08:14:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932557AbVIIMO5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 08:09:04 -0400
-Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:13279 "EHLO
-	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S932483AbVIIMJD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 08:09:03 -0400
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Subject: Re: [PATCH 2/25] NTFS: Allow
-	highmem	kmalloc()	in	ntfs_malloc_nofs() and add _nofail() version.
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Pekka J Enberg <penberg@cs.Helsinki.FI>
-Cc: linux-ntfs-dev@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0509091453050.29168@sbz-30.cs.Helsinki.FI>
-References: <Pine.LNX.4.60.0509090950100.11051@hermes-1.csi.cam.ac.uk>
-	 <Pine.LNX.4.60.0509091019290.26845@hermes-1.csi.cam.ac.uk>
-	 <84144f0205090903366454da6@mail.gmail.com>
-	 <1126263740.24291.16.camel@imp.csi.cam.ac.uk>
-	 <Pine.LNX.4.58.0509091407220.27527@sbz-30.cs.Helsinki.FI>
-	 <1126265138.24291.21.camel@imp.csi.cam.ac.uk>
-	 <Pine.LNX.4.58.0509091426510.28121@sbz-30.cs.Helsinki.FI>
-	 <1126266508.32261.3.camel@imp.csi.cam.ac.uk>
-	 <1126266702.32261.5.camel@imp.csi.cam.ac.uk>
-	 <Pine.LNX.4.58.0509091453050.29168@sbz-30.cs.Helsinki.FI>
-Content-Type: text/plain
-Organization: Computing Service, University of Cambridge, UK
-Date: Fri, 09 Sep 2005 13:08:58 +0100
-Message-Id: <1126267738.32261.10.camel@imp.csi.cam.ac.uk>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 9 Sep 2005 08:14:57 -0400
+Received: from pne-smtpout1-sn2.hy.skanova.net ([81.228.8.83]:12501 "EHLO
+	pne-smtpout1-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S932520AbVIIMO5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 08:14:57 -0400
+Message-ID: <43217C7E.7060809@fulhack.info>
+Date: Fri, 09 Sep 2005 14:13:50 +0200
+From: Henrik Persson <root@fulhack.info>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050727)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Chris Wright <chrisw@osdl.org>
+CC: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH 0/9] -stable review
+References: <20050908012842.299637000@localhost.localdomain>
+In-Reply-To: <20050908012842.299637000@localhost.localdomain>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigEA257A0F67D4108C8B345568"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-09-09 at 15:02 +0300, Pekka J Enberg wrote:
-> On Fri, 9 Sep 2005, Anton Altaparmakov wrote:
-> > > I completely disagree with you given that this is not "inventing [...]
-> > > own memory allocators", it is just a convenient short hand.  I am sure a
-> > > lot of people would agree with you though.  It is just a matter of
-> > > personal preference.
-> > 
-> > I should add that this is not ntfs only, the idea is from another file
-> > system which uses it, too.  Can't remember which one it was, though (xfs
-> > maybe?).
-> 
-> Indeed. It is not just a matter of personal preference but also a matter 
-> of subsystems introducing duplicate code like this. Quick grepping shows 
-> UDF doing same thing  and XFS doing slightly differently but I am pretty 
-> sure I've seen it elsewhere too.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigEA257A0F67D4108C8B345568
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Yes, that is usually a good indication that a generic function should be
-provided.  However having a generic function with complicated and long
-arguments is no use as everyone will want their own shorter one anyway.
-And given the function is static inline it actually makes no difference
-to the generated code size.  Also calling it __vmalloc_fast makes no
-sense as it doesn't always use vmalloc...  Given we have kmalloc and
-vmalloc maybe it should be just malloc?
+Chris Wright wrote:
+> This is the start of the stable review cycle for the 2.6.13.1 release.
+> There are 9 patches in this series, all will be posted as a response to
+> this one.  If anyone has any issues with these being applied, please let
+> us know.  If anyone is a maintainer of the proper subsystem, and wants
+> to add a signed-off-by: line to the patch, please respond with it.
+*snip*
 
-Obviously if there were a suitable generic function I would use it but I
-and I imagine all the other users would still wrap it with the old name.
+I didn't see the patch from Ivan Kokshaysky ( 
+http://marc.theaimsgroup.com/?l=linux-kernel&m=112541348008047&w=2 ) 
+included.. Without this one my laptop will freeze and die when inserting 
+a something into the cardbus slot, so I would say that it would kind of 
+fit in there.
 
-Best regards,
+Any reason why it's not included?
 
-        Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+--
+Henrik
 
+--------------enigEA257A0F67D4108C8B345568
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFDIXyDp5uk1YPOcmcRAjqEAJ90sdLlw+KKR+Z2RUKNgYcAhTmwVQCgnbuN
+CTvYw05pCflwNP5KajDnP+A=
+=h3Ww
+-----END PGP SIGNATURE-----
+
+--------------enigEA257A0F67D4108C8B345568--

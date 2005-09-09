@@ -1,91 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751384AbVIIMcR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751389AbVIIMkb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751384AbVIIMcR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 08:32:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751388AbVIIMcR
+	id S1751389AbVIIMkb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 08:40:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751396AbVIIMkb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 08:32:17 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:23567 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S1751384AbVIIMcR convert rfc822-to-8bit (ORCPT
+	Fri, 9 Sep 2005 08:40:31 -0400
+Received: from zproxy.gmail.com ([64.233.162.192]:43971 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751389AbVIIMka (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 08:32:17 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <20050909132725.C23462@pixie.comlab>
-References: <20050909132725.C23462@pixie.comlab>
-X-OriginalArrivalTime: 09 Sep 2005 12:32:15.0610 (UTC) FILETIME=[82BD45A0:01C5B53A]
-Content-class: urn:content-classes:message
-Subject: Re: 2.6.13: loop ioctl crashes
-Date: Fri, 9 Sep 2005 08:32:10 -0400
-Message-ID: <Pine.LNX.4.61.0509090829260.8368@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.13: loop ioctl crashes
-Thread-Index: AcW1OoLEWatBqdWJTlGpoxWH0oyS6g==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Ian Collier" <Ian.Collier@comlab.ox.ac.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Fri, 9 Sep 2005 08:40:30 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:subject:from:to:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+        b=Ak+cJ1paaZb64YKENDANx0vP1s3Xrhw7Y6BN7CDNyV5jb71PeT81pD0ixaIYC/575+uhyzjOhO9/ZRQ1FBK7vNbrjLVn+r7sFbZooEJNDDprmiapGnypq6i5rJQHMcorfXa7V29kaL83Z49wIdtAu48se80z4vxxUzBGGyEtHxY=
+Subject: Debugging
+From: Lares Moreau <lares.moreau@gmail.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Fri, 09 Sep 2005 06:40:25 -0600
+Message-Id: <1126269625.9305.2.camel@jove>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+OKay this is a noobie question,
 
-On Fri, 9 Sep 2005, Ian Collier wrote:
+I have all the kernel debugging options turned.  Now how do I change the
+kernel logging level from prompt?  Or do I?
 
-> I'm trying out PPDD from https://retiisi.dyndns.org/~sailus/ppdd/
-> because I have some old stuff in that format.  However, the crash
-> seems to occur in code that isn't touched by the PPDD patch.  It
-> happens while I'm trying to set up the loop device - I haven't got
-> as far as actually using it yet.
->
-> If I'm lucky then when I issue the losetup command and successfully
-> type in the passphrase then losetup says something of the form
-> ioctl: LOOP_SET_STATUS: Bad address
-> and the kernel says:
->
-> Debug: sleeping function called from invalid context at arch/i386/lib/usercopy.c:634
-> in_atomic():1, irqs_disabled():0
->  [<c011f8eb>] __might_sleep+0xab/0xc0
->  [<c0211aa3>] copy_from_user+0x23/0x90
->  [<d0a9fe80>] loop_set_status_old+0x30/0x70 [loop]
->
-> However, it often seems to panic in a variety of horrible ways while
-> trying to print the above message.
->
-> Clearly I have CONFIG_DEBUG_SPINLOCK_SLEEP set (as my config is
-> based on Fedora's), and I suppose I could just try unsetting it to
-> make the message go away.  That wouldn't make the underlying bug go
-> away, though.  If it makes any difference, loop and all the crypto
-> algorithms are compiled as modules.
->
-> I don't understand why it's an invalid context.  I also don't understand
-> why the traceback stops at loop_set_status_old given that it must have
-> been called from lo_ioctl.  (But maybe the answer to the latter would
-> explain the former.)
->
-> I may try just moving the copy_from_user() out to the beginning of
-> lo_ioctl and see what happens.  Any other suggestions?  In case it's
-> not obvious by now, I'm not really a kernel hacker.
->
-> imc
+I have 'loglevel=7' appended to my kernel line in grub.  Is that all I
+need or is there more to it?
 
-I guess you are trying to do a copy_from_user() with a spin-lock
-being held or the interrupts otherwise disabled. You can hold
-a semaphore, to prevent somebody else from interfering with
-you, but you cannot hold a spin-lock during copy/to/from/user().
+Worry not I have syslog-ng setup properly
 
+-Lares
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13 on an i686 machine (5589.54 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
-I apologize for the following. I tried to kill it with the above dot :
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.

@@ -1,40 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030237AbVIILDM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030239AbVIILOu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030237AbVIILDM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 07:03:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030238AbVIILDM
+	id S1030239AbVIILOu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 07:14:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030240AbVIILOu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 07:03:12 -0400
-Received: from smtp11.wanadoo.fr ([193.252.22.31]:561 "EHLO smtp11.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S1030237AbVIILDK (ORCPT
+	Fri, 9 Sep 2005 07:14:50 -0400
+Received: from gold.veritas.com ([143.127.12.110]:30040 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1030239AbVIILOt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 07:03:10 -0400
-X-ME-UUID: 20050909110309419.667EB1C00061@mwinf1112.wanadoo.fr
-Date: Fri, 9 Sep 2005 13:07:02 +0200
-From: Philippe Elie <phil.el@wanadoo.fr>
+	Fri, 9 Sep 2005 07:14:49 -0400
+Date: Fri, 9 Sep 2005 12:14:38 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
 To: Andi Kleen <ak@suse.de>
-Cc: Jan Beulich <JBeulich@novell.com>, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org
+cc: Jan Beulich <JBeulich@novell.com>, linux-kernel@vger.kernel.org,
+       discuss@x86-64.org
 Subject: Re: [discuss] [PATCH] allow CONFIG_FRAME_POINTER for x86-64
-Message-ID: <20050909110702.GA787@zaniah>
-References: <43207D28020000780002451E@emea1-mh.id2.novell.com> <200509091054.11932.ak@suse.de> <43216EFB020000780002489B@emea1-mh.id2.novell.com> <200509091123.59205.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200509091123.59205.ak@suse.de>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <200509091258.13300.ak@suse.de>
+Message-ID: <Pine.LNX.4.61.0509091208350.6247@goblin.wat.veritas.com>
+References: <43207D28020000780002451E@emea1-mh.id2.novell.com>
+ <4321749202000078000248C5@emea1-mh.id2.novell.com>
+ <Pine.LNX.4.61.0509091133180.5937@goblin.wat.veritas.com> <200509091258.13300.ak@suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 09 Sep 2005 11:14:49.0371 (UTC) FILETIME=[B15D76B0:01C5B52F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 09 Sep 2005 at 11:23 +0000, Andi Kleen wrote:
+On Fri, 9 Sep 2005, Andi Kleen wrote:
+> 
+> It won't give more accurate backtraces, not even on i386 because show_stack
+> doesn't have any code to follow frame pointers.
 
- 
-> Indeed. Someone must have fixed it.  But why would anyone want frame pointers
-> on x86-64?
+Ah, right.  I'm using kdb with it.  (And my recollection of when
+show_stack did have a framepointer version, is that it was hopelessly
+broken on interrupt frames, and we're much better off without it.)
 
-Oprofile can use it, I though it was already used but apparently only
-to backtrace userspace actually.
+> The only reason to use them would be external debuggers, but those
+> don't need them on x86-64 neither.
 
--- 
-Philippe Elie
+Don't need them, but find them as useful on x86_64 as on i386?
 
+Certainly, I can go on patching in FRAME_POINTERs for x86_64
+as I have done, no problem with that.  But it seems both bogus
+and unhelpful to have that "&& !X86_64" in lib/Kconfig.debug -
+framepointers are as helpful/useless on x86_64 as the rest.
+
+Hugh

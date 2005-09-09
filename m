@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030471AbVIIWlj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030463AbVIIWkz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030471AbVIIWlj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 18:41:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030469AbVIIWli
+	id S1030463AbVIIWkz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 18:40:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030465AbVIIWkd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 18:41:38 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:36119 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S1030460AbVIIWkZ
+	Fri, 9 Sep 2005 18:40:33 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:29473 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S932624AbVIIWkW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 18:40:25 -0400
+	Fri, 9 Sep 2005 18:40:22 -0400
 Cc: Sam Ravnborg <sam@mars (none)>, Sam Ravnborg <sam@ravnborg.org>
-Subject: [PATCH 9/12] kbuild: mips use generic asm-offsets.h support
-In-Reply-To: <11263057062211-git-send-email-sam@ravnborg.org>
+Subject: [PATCH 5/12] kbuild: arm - use generic asm-offsets.h support
+In-Reply-To: <11263057063978-git-send-email-sam@ravnborg.org>
 X-Mailer: git-send-email
 Date: Sat, 10 Sep 2005 00:41:46 +0200
-Message-Id: <11263057061465-git-send-email-sam@ravnborg.org>
+Message-Id: <11263057061819-git-send-email-sam@ravnborg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Sam Ravnborg <sam@ravnborg.org>
@@ -24,322 +24,400 @@ From: Sam Ravnborg <sam@ravnborg.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Removed obsolete stuff from arch makefile.
-mips had a special rule for generating asm-offsets.h so preserved it
-using an architecture specific hook in top-level Kbuild file.
-Renamed .h file to asm-offsets.h
+Delete obsoleted stuff from arch Makefile and rename
+constants.h to asm-offsets.h
 
 Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
 
 ---
 
- Kbuild                          |    9 ++++++++-
- arch/mips/Makefile              |   33 +--------------------------------
- arch/mips/kernel/r2300_fpu.S    |    2 +-
- arch/mips/kernel/r2300_switch.S |    2 +-
- arch/mips/kernel/r4k_fpu.S      |    2 +-
- arch/mips/kernel/r4k_switch.S   |    2 +-
- arch/mips/kernel/r6000_fpu.S    |    2 +-
- arch/mips/kernel/scall32-o32.S  |    2 +-
- arch/mips/kernel/scall64-64.S   |    2 +-
- arch/mips/kernel/syscall.c      |    2 +-
- arch/mips/lib-32/memset.S       |    2 +-
- arch/mips/lib-64/memset.S       |    2 +-
- arch/mips/lib/memcpy.S          |    2 +-
- arch/mips/lib/strlen_user.S     |    2 +-
- arch/mips/lib/strncpy_user.S    |    2 +-
- arch/mips/lib/strnlen_user.S    |    2 +-
- include/asm-mips/asmmacro-32.h  |    2 +-
- include/asm-mips/asmmacro-64.h  |    2 +-
- include/asm-mips/sim.h          |    2 +-
- include/asm-mips/stackframe.h   |    2 +-
- 20 files changed, 27 insertions(+), 51 deletions(-)
+ arch/arm/Makefile                  |    9 ++-------
+ arch/arm/kernel/entry-header.S     |    2 +-
+ arch/arm/kernel/head.S             |    2 +-
+ arch/arm/kernel/iwmmxt.S           |    2 +-
+ arch/arm/lib/copy_page.S           |    2 +-
+ arch/arm/lib/csumpartialcopyuser.S |    2 +-
+ arch/arm/lib/getuser.S             |    2 +-
+ arch/arm/lib/putuser.S             |    2 +-
+ arch/arm/mm/copypage-v3.S          |    2 +-
+ arch/arm/mm/copypage-v4wb.S        |    2 +-
+ arch/arm/mm/copypage-v4wt.S        |    2 +-
+ arch/arm/mm/proc-arm1020.S         |    2 +-
+ arch/arm/mm/proc-arm1020e.S        |    2 +-
+ arch/arm/mm/proc-arm1022.S         |    2 +-
+ arch/arm/mm/proc-arm1026.S         |    2 +-
+ arch/arm/mm/proc-arm6_7.S          |    2 +-
+ arch/arm/mm/proc-arm720.S          |    2 +-
+ arch/arm/mm/proc-macros.S          |    2 +-
+ arch/arm/mm/proc-sa110.S           |    2 +-
+ arch/arm/mm/proc-sa1100.S          |    2 +-
+ arch/arm/mm/proc-v6.S              |    2 +-
+ arch/arm/mm/tlb-v3.S               |    2 +-
+ arch/arm/mm/tlb-v4.S               |    2 +-
+ arch/arm/mm/tlb-v4wb.S             |    2 +-
+ arch/arm/mm/tlb-v4wbi.S            |    2 +-
+ arch/arm/mm/tlb-v6.S               |    2 +-
+ arch/arm/nwfpe/entry26.S           |    2 +-
+ arch/arm/vfp/entry.S               |    2 +-
+ 28 files changed, 29 insertions(+), 34 deletions(-)
 
-048eb582f3f89737d4a29668de9935e6feea7c36
-diff --git a/Kbuild b/Kbuild
---- a/Kbuild
-+++ b/Kbuild
-@@ -13,6 +13,13 @@ always  := $(offsets-file)
- targets := $(offsets-file)
- targets += arch/$(ARCH)/kernel/asm-offsets.s
+e6ae744dd2eae8e00af328b11b1fe77cb0931136
+diff --git a/arch/arm/Makefile b/arch/arm/Makefile
+--- a/arch/arm/Makefile
++++ b/arch/arm/Makefile
+@@ -178,7 +178,7 @@ endif
+ prepare: maketools include/asm-arm/.arch
  
-+# Default sed regexp - multiline due to syntax constraints
-+define sed-y
-+	"/^->/{s:^->\([^ ]*\) [\$$#]*\([^ ]*\) \(.*\):#define \1 \2 /* \3 */:; s:->::; p;}"
-+endef
-+# Override default regexp for specific architectures
-+sed-$(CONFIG_MIPS) := "/^@@@/s///p"
-+
- quiet_cmd_offsets = GEN     $@
- define cmd_offsets
- 	cat $< | \
-@@ -26,7 +33,7 @@ define cmd_offsets
- 	 echo " *"; \
- 	 echo " */"; \
- 	 echo ""; \
--	 sed -ne "/^->/{s:^->\([^ ]*\) [\$$#]*\([^ ]*\) \(.*\):#define \1 \2 /* \3 */:; s:->::; p;}"; \
-+	 sed -ne $(sed-y); \
- 	 echo ""; \
- 	 echo "#endif" ) > $@
- endef
-diff --git a/arch/mips/Makefile b/arch/mips/Makefile
---- a/arch/mips/Makefile
-+++ b/arch/mips/Makefile
-@@ -720,38 +720,7 @@ archclean:
- 	@$(MAKE) $(clean)=arch/mips/boot
- 	@$(MAKE) $(clean)=arch/mips/lasat
+ .PHONY: maketools FORCE
+-maketools: include/asm-arm/constants.h include/linux/version.h FORCE
++maketools: include/linux/version.h FORCE
+ 	$(Q)$(MAKE) $(build)=arch/arm/tools include/asm-arm/mach-types.h
  
--# Generate <asm/offset.h
--#
--# The default rule is suffering from funny problems on MIPS so we using our
--# own ...
--#
--# ---------------------------------------------------------------------------
+ # Convert bzImage to zImage
+@@ -190,7 +190,7 @@ zImage Image xipImage bootpImage uImage:
+ zinstall install: vmlinux
+ 	$(Q)$(MAKE) $(build)=$(boot) MACHINE=$(MACHINE) $@
  
--define filechk_gen-asm-offset.h
--	(set -e; \
--	 echo "#ifndef _ASM_OFFSET_H"; \
--	 echo "#define _ASM_OFFSET_H"; \
--	 echo "/*"; \
--	 echo " * DO NOT MODIFY."; \
--	 echo " *"; \
--	 echo " * This file was generated by arch/$(ARCH)/Makefile"; \
--	 echo " *"; \
--	 echo " */"; \
--	 echo ""; \
--	 sed -ne "/^@@@/s///p"; \
--	 echo "#endif /* _ASM_OFFSET_H */" )
--endef
+-CLEAN_FILES += include/asm-arm/constants.h* include/asm-arm/mach-types.h \
++CLEAN_FILES += include/asm-arm/mach-types.h \
+ 	       include/asm-arm/arch include/asm-arm/.arch
+ 
+ # We use MRPROPER_FILES and CLEAN_FILES now
+@@ -201,11 +201,6 @@ archclean:
+ bp:;	$(Q)$(MAKE) $(build)=$(boot) MACHINE=$(MACHINE) $(boot)/bootpImage
+ i zi:;	$(Q)$(MAKE) $(build)=$(boot) MACHINE=$(MACHINE) $@
+ 
+-arch/$(ARCH)/kernel/asm-offsets.s: include/asm include/linux/version.h \
+-				   include/asm-arm/.arch
 -
--prepare: include/asm-$(ARCH)/offset.h
--
--arch/$(ARCH)/kernel/offset.s: include/asm include/linux/version.h \
--				   include/config/MARKER
--
--include/asm-$(ARCH)/offset.h: arch/$(ARCH)/kernel/offset.s
--	$(call filechk,gen-asm-offset.h)
--
--CLEAN_FILES += include/asm-$(ARCH)/offset.h.tmp \
--	       include/asm-$(ARCH)/offset.h \
--	       vmlinux.32 \
-+CLEAN_FILES += vmlinux.32 \
- 	       vmlinux.64 \
- 	       vmlinux.ecoff
-diff --git a/arch/mips/kernel/r2300_fpu.S b/arch/mips/kernel/r2300_fpu.S
---- a/arch/mips/kernel/r2300_fpu.S
-+++ b/arch/mips/kernel/r2300_fpu.S
-@@ -15,7 +15,7 @@
+-include/asm-$(ARCH)/constants.h: arch/$(ARCH)/kernel/asm-offsets.s
+-	$(call filechk,gen-asm-offsets)
+ 
+ define archhelp
+   echo  '* zImage        - Compressed kernel image (arch/$(ARCH)/boot/zImage)'
+diff --git a/arch/arm/kernel/entry-header.S b/arch/arm/kernel/entry-header.S
+--- a/arch/arm/kernel/entry-header.S
++++ b/arch/arm/kernel/entry-header.S
+@@ -3,7 +3,7 @@
+ #include <linux/linkage.h>
+ 
+ #include <asm/assembler.h>
+-#include <asm/constants.h>
++#include <asm/asm-offsets.h>
  #include <asm/errno.h>
- #include <asm/fpregdef.h>
- #include <asm/mipsregs.h>
--#include <asm/offset.h>
-+#include <asm/asm-offsets.h>
- #include <asm/regdef.h>
+ #include <asm/thread_info.h>
  
- #define EX(a,b)							\
-diff --git a/arch/mips/kernel/r2300_switch.S b/arch/mips/kernel/r2300_switch.S
---- a/arch/mips/kernel/r2300_switch.S
-+++ b/arch/mips/kernel/r2300_switch.S
-@@ -15,7 +15,7 @@
- #include <asm/cachectl.h>
- #include <asm/fpregdef.h>
- #include <asm/mipsregs.h>
--#include <asm/offset.h>
+diff --git a/arch/arm/kernel/head.S b/arch/arm/kernel/head.S
+--- a/arch/arm/kernel/head.S
++++ b/arch/arm/kernel/head.S
+@@ -20,7 +20,7 @@
+ #include <asm/mach-types.h>
+ #include <asm/procinfo.h>
+ #include <asm/ptrace.h>
+-#include <asm/constants.h>
 +#include <asm/asm-offsets.h>
- #include <asm/page.h>
- #include <asm/regdef.h>
- #include <asm/stackframe.h>
-diff --git a/arch/mips/kernel/r4k_fpu.S b/arch/mips/kernel/r4k_fpu.S
---- a/arch/mips/kernel/r4k_fpu.S
-+++ b/arch/mips/kernel/r4k_fpu.S
+ #include <asm/thread_info.h>
+ #include <asm/system.h>
+ 
+diff --git a/arch/arm/kernel/iwmmxt.S b/arch/arm/kernel/iwmmxt.S
+--- a/arch/arm/kernel/iwmmxt.S
++++ b/arch/arm/kernel/iwmmxt.S
 @@ -17,7 +17,7 @@
- #include <asm/errno.h>
- #include <asm/fpregdef.h>
- #include <asm/mipsregs.h>
--#include <asm/offset.h>
+ #include <linux/linkage.h>
+ #include <asm/ptrace.h>
+ #include <asm/thread_info.h>
+-#include <asm/constants.h>
 +#include <asm/asm-offsets.h>
- #include <asm/regdef.h>
  
- 	.macro	EX insn, reg, src
-diff --git a/arch/mips/kernel/r4k_switch.S b/arch/mips/kernel/r4k_switch.S
---- a/arch/mips/kernel/r4k_switch.S
-+++ b/arch/mips/kernel/r4k_switch.S
+ #define MMX_WR0		 	(0x00)
+ #define MMX_WR1		 	(0x08)
+diff --git a/arch/arm/lib/copy_page.S b/arch/arm/lib/copy_page.S
+--- a/arch/arm/lib/copy_page.S
++++ b/arch/arm/lib/copy_page.S
+@@ -11,7 +11,7 @@
+  */
+ #include <linux/linkage.h>
+ #include <asm/assembler.h>
+-#include <asm/constants.h>
++#include <asm/asm-offsets.h>
+ 
+ #define COPY_COUNT (PAGE_SZ/64 PLD( -1 ))
+ 
+diff --git a/arch/arm/lib/csumpartialcopyuser.S b/arch/arm/lib/csumpartialcopyuser.S
+--- a/arch/arm/lib/csumpartialcopyuser.S
++++ b/arch/arm/lib/csumpartialcopyuser.S
+@@ -13,7 +13,7 @@
+ #include <linux/linkage.h>
+ #include <asm/assembler.h>
+ #include <asm/errno.h>
+-#include <asm/constants.h>
++#include <asm/asm-offsets.h>
+ 
+ 		.text
+ 
+diff --git a/arch/arm/lib/getuser.S b/arch/arm/lib/getuser.S
+--- a/arch/arm/lib/getuser.S
++++ b/arch/arm/lib/getuser.S
+@@ -26,7 +26,7 @@
+  * Note that ADDR_LIMIT is either 0 or 0xc0000000.
+  * Note also that it is intended that __get_user_bad is not global.
+  */
+-#include <asm/constants.h>
++#include <asm/asm-offsets.h>
+ #include <asm/thread_info.h>
+ #include <asm/errno.h>
+ 
+diff --git a/arch/arm/lib/putuser.S b/arch/arm/lib/putuser.S
+--- a/arch/arm/lib/putuser.S
++++ b/arch/arm/lib/putuser.S
+@@ -26,7 +26,7 @@
+  * Note that ADDR_LIMIT is either 0 or 0xc0000000
+  * Note also that it is intended that __put_user_bad is not global.
+  */
+-#include <asm/constants.h>
++#include <asm/asm-offsets.h>
+ #include <asm/thread_info.h>
+ #include <asm/errno.h>
+ 
+diff --git a/arch/arm/mm/copypage-v3.S b/arch/arm/mm/copypage-v3.S
+--- a/arch/arm/mm/copypage-v3.S
++++ b/arch/arm/mm/copypage-v3.S
+@@ -12,7 +12,7 @@
+ #include <linux/linkage.h>
+ #include <linux/init.h>
+ #include <asm/assembler.h>
+-#include <asm/constants.h>
++#include <asm/asm-offsets.h>
+ 
+ 		.text
+ 		.align	5
+diff --git a/arch/arm/mm/copypage-v4wb.S b/arch/arm/mm/copypage-v4wb.S
+--- a/arch/arm/mm/copypage-v4wb.S
++++ b/arch/arm/mm/copypage-v4wb.S
+@@ -11,7 +11,7 @@
+  */
+ #include <linux/linkage.h>
+ #include <linux/init.h>
+-#include <asm/constants.h>
++#include <asm/asm-offsets.h>
+ 
+ 	.text
+ 	.align	5
+diff --git a/arch/arm/mm/copypage-v4wt.S b/arch/arm/mm/copypage-v4wt.S
+--- a/arch/arm/mm/copypage-v4wt.S
++++ b/arch/arm/mm/copypage-v4wt.S
+@@ -14,7 +14,7 @@
+  */
+ #include <linux/linkage.h>
+ #include <linux/init.h>
+-#include <asm/constants.h>
++#include <asm/asm-offsets.h>
+ 
+ 	.text
+ 	.align	5
+diff --git a/arch/arm/mm/proc-arm1020.S b/arch/arm/mm/proc-arm1020.S
+--- a/arch/arm/mm/proc-arm1020.S
++++ b/arch/arm/mm/proc-arm1020.S
+@@ -28,7 +28,7 @@
+ #include <linux/config.h>
+ #include <linux/init.h>
+ #include <asm/assembler.h>
+-#include <asm/constants.h>
++#include <asm/asm-offsets.h>
+ #include <asm/pgtable.h>
+ #include <asm/procinfo.h>
+ #include <asm/ptrace.h>
+diff --git a/arch/arm/mm/proc-arm1020e.S b/arch/arm/mm/proc-arm1020e.S
+--- a/arch/arm/mm/proc-arm1020e.S
++++ b/arch/arm/mm/proc-arm1020e.S
+@@ -28,7 +28,7 @@
+ #include <linux/config.h>
+ #include <linux/init.h>
+ #include <asm/assembler.h>
+-#include <asm/constants.h>
++#include <asm/asm-offsets.h>
+ #include <asm/pgtable.h>
+ #include <asm/procinfo.h>
+ #include <asm/ptrace.h>
+diff --git a/arch/arm/mm/proc-arm1022.S b/arch/arm/mm/proc-arm1022.S
+--- a/arch/arm/mm/proc-arm1022.S
++++ b/arch/arm/mm/proc-arm1022.S
+@@ -17,7 +17,7 @@
+ #include <linux/config.h>
+ #include <linux/init.h>
+ #include <asm/assembler.h>
+-#include <asm/constants.h>
++#include <asm/asm-offsets.h>
+ #include <asm/pgtable.h>
+ #include <asm/procinfo.h>
+ #include <asm/ptrace.h>
+diff --git a/arch/arm/mm/proc-arm1026.S b/arch/arm/mm/proc-arm1026.S
+--- a/arch/arm/mm/proc-arm1026.S
++++ b/arch/arm/mm/proc-arm1026.S
+@@ -17,7 +17,7 @@
+ #include <linux/config.h>
+ #include <linux/init.h>
+ #include <asm/assembler.h>
+-#include <asm/constants.h>
++#include <asm/asm-offsets.h>
+ #include <asm/pgtable.h>
+ #include <asm/procinfo.h>
+ #include <asm/ptrace.h>
+diff --git a/arch/arm/mm/proc-arm6_7.S b/arch/arm/mm/proc-arm6_7.S
+--- a/arch/arm/mm/proc-arm6_7.S
++++ b/arch/arm/mm/proc-arm6_7.S
+@@ -13,7 +13,7 @@
+ #include <linux/linkage.h>
+ #include <linux/init.h>
+ #include <asm/assembler.h>
+-#include <asm/constants.h>
++#include <asm/asm-offsets.h>
+ #include <asm/pgtable.h>
+ #include <asm/procinfo.h>
+ #include <asm/ptrace.h>
+diff --git a/arch/arm/mm/proc-arm720.S b/arch/arm/mm/proc-arm720.S
+--- a/arch/arm/mm/proc-arm720.S
++++ b/arch/arm/mm/proc-arm720.S
+@@ -33,7 +33,7 @@
+ #include <linux/linkage.h>
+ #include <linux/init.h>
+ #include <asm/assembler.h>
+-#include <asm/constants.h>
++#include <asm/asm-offsets.h>
+ #include <asm/pgtable.h>
+ #include <asm/procinfo.h>
+ #include <asm/ptrace.h>
+diff --git a/arch/arm/mm/proc-macros.S b/arch/arm/mm/proc-macros.S
+--- a/arch/arm/mm/proc-macros.S
++++ b/arch/arm/mm/proc-macros.S
+@@ -4,7 +4,7 @@
+  *  VMA_VM_FLAGS
+  *  VM_EXEC
+  */
+-#include <asm/constants.h>
++#include <asm/asm-offsets.h>
+ #include <asm/thread_info.h>
+ 
+ /*
+diff --git a/arch/arm/mm/proc-sa110.S b/arch/arm/mm/proc-sa110.S
+--- a/arch/arm/mm/proc-sa110.S
++++ b/arch/arm/mm/proc-sa110.S
 @@ -15,7 +15,7 @@
- #include <asm/cachectl.h>
- #include <asm/fpregdef.h>
- #include <asm/mipsregs.h>
--#include <asm/offset.h>
+ #include <linux/linkage.h>
+ #include <linux/init.h>
+ #include <asm/assembler.h>
+-#include <asm/constants.h>
++#include <asm/asm-offsets.h>
+ #include <asm/procinfo.h>
+ #include <asm/hardware.h>
+ #include <asm/pgtable.h>
+diff --git a/arch/arm/mm/proc-sa1100.S b/arch/arm/mm/proc-sa1100.S
+--- a/arch/arm/mm/proc-sa1100.S
++++ b/arch/arm/mm/proc-sa1100.S
+@@ -20,7 +20,7 @@
+ #include <linux/linkage.h>
+ #include <linux/init.h>
+ #include <asm/assembler.h>
+-#include <asm/constants.h>
++#include <asm/asm-offsets.h>
+ #include <asm/procinfo.h>
+ #include <asm/hardware.h>
+ #include <asm/pgtable.h>
+diff --git a/arch/arm/mm/proc-v6.S b/arch/arm/mm/proc-v6.S
+--- a/arch/arm/mm/proc-v6.S
++++ b/arch/arm/mm/proc-v6.S
+@@ -11,7 +11,7 @@
+  */
+ #include <linux/linkage.h>
+ #include <asm/assembler.h>
+-#include <asm/constants.h>
++#include <asm/asm-offsets.h>
+ #include <asm/procinfo.h>
+ #include <asm/pgtable.h>
+ 
+diff --git a/arch/arm/mm/tlb-v3.S b/arch/arm/mm/tlb-v3.S
+--- a/arch/arm/mm/tlb-v3.S
++++ b/arch/arm/mm/tlb-v3.S
+@@ -13,7 +13,7 @@
+  */
+ #include <linux/linkage.h>
+ #include <linux/init.h>
+-#include <asm/constants.h>
++#include <asm/asm-offsets.h>
+ #include <asm/tlbflush.h>
+ #include "proc-macros.S"
+ 
+diff --git a/arch/arm/mm/tlb-v4.S b/arch/arm/mm/tlb-v4.S
+--- a/arch/arm/mm/tlb-v4.S
++++ b/arch/arm/mm/tlb-v4.S
+@@ -14,7 +14,7 @@
+  */
+ #include <linux/linkage.h>
+ #include <linux/init.h>
+-#include <asm/constants.h>
++#include <asm/asm-offsets.h>
+ #include <asm/tlbflush.h>
+ #include "proc-macros.S"
+ 
+diff --git a/arch/arm/mm/tlb-v4wb.S b/arch/arm/mm/tlb-v4wb.S
+--- a/arch/arm/mm/tlb-v4wb.S
++++ b/arch/arm/mm/tlb-v4wb.S
+@@ -14,7 +14,7 @@
+  */
+ #include <linux/linkage.h>
+ #include <linux/init.h>
+-#include <asm/constants.h>
++#include <asm/asm-offsets.h>
+ #include <asm/tlbflush.h>
+ #include "proc-macros.S"
+ 
+diff --git a/arch/arm/mm/tlb-v4wbi.S b/arch/arm/mm/tlb-v4wbi.S
+--- a/arch/arm/mm/tlb-v4wbi.S
++++ b/arch/arm/mm/tlb-v4wbi.S
+@@ -14,7 +14,7 @@
+  */
+ #include <linux/linkage.h>
+ #include <linux/init.h>
+-#include <asm/constants.h>
++#include <asm/asm-offsets.h>
+ #include <asm/tlbflush.h>
+ #include "proc-macros.S"
+ 
+diff --git a/arch/arm/mm/tlb-v6.S b/arch/arm/mm/tlb-v6.S
+--- a/arch/arm/mm/tlb-v6.S
++++ b/arch/arm/mm/tlb-v6.S
+@@ -11,7 +11,7 @@
+  *  These assume a split I/D TLB.
+  */
+ #include <linux/linkage.h>
+-#include <asm/constants.h>
 +#include <asm/asm-offsets.h>
  #include <asm/page.h>
- #include <asm/pgtable-bits.h>
- #include <asm/regdef.h>
-diff --git a/arch/mips/kernel/r6000_fpu.S b/arch/mips/kernel/r6000_fpu.S
---- a/arch/mips/kernel/r6000_fpu.S
-+++ b/arch/mips/kernel/r6000_fpu.S
-@@ -13,7 +13,7 @@
- #include <asm/asm.h>
- #include <asm/fpregdef.h>
- #include <asm/mipsregs.h>
--#include <asm/offset.h>
-+#include <asm/asm-offsets.h>
- #include <asm/regdef.h>
+ #include <asm/tlbflush.h>
+ #include "proc-macros.S"
+diff --git a/arch/arm/nwfpe/entry26.S b/arch/arm/nwfpe/entry26.S
+--- a/arch/arm/nwfpe/entry26.S
++++ b/arch/arm/nwfpe/entry26.S
+@@ -20,7 +20,7 @@
+     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
  
- 	.set	noreorder
-diff --git a/arch/mips/kernel/scall32-o32.S b/arch/mips/kernel/scall32-o32.S
---- a/arch/mips/kernel/scall32-o32.S
-+++ b/arch/mips/kernel/scall32-o32.S
-@@ -19,7 +19,7 @@
- #include <asm/thread_info.h>
- #include <asm/unistd.h>
- #include <asm/war.h>
--#include <asm/offset.h>
+-#include <asm/constants.h>
 +#include <asm/asm-offsets.h>
  
- /* Highest syscall used of any syscall flavour */
- #define MAX_SYSCALL_NO	__NR_O32_Linux + __NR_O32_Linux_syscalls
-diff --git a/arch/mips/kernel/scall64-64.S b/arch/mips/kernel/scall64-64.S
---- a/arch/mips/kernel/scall64-64.S
-+++ b/arch/mips/kernel/scall64-64.S
-@@ -14,7 +14,7 @@
- #include <asm/mipsregs.h>
- #include <asm/regdef.h>
- #include <asm/stackframe.h>
--#include <asm/offset.h>
-+#include <asm/asm-offsets.h>
- #include <asm/sysmips.h>
- #include <asm/thread_info.h>
- #include <asm/unistd.h>
-diff --git a/arch/mips/kernel/syscall.c b/arch/mips/kernel/syscall.c
---- a/arch/mips/kernel/syscall.c
-+++ b/arch/mips/kernel/syscall.c
-@@ -31,7 +31,7 @@
- #include <asm/cachectl.h>
- #include <asm/cacheflush.h>
- #include <asm/ipc.h>
--#include <asm/offset.h>
-+#include <asm/asm-offsets.h>
- #include <asm/signal.h>
- #include <asm/sim.h>
- #include <asm/shmparam.h>
-diff --git a/arch/mips/lib-32/memset.S b/arch/mips/lib-32/memset.S
---- a/arch/mips/lib-32/memset.S
-+++ b/arch/mips/lib-32/memset.S
-@@ -7,7 +7,7 @@
-  * Copyright (C) 1999, 2000 Silicon Graphics, Inc.
+ /* This is the kernel's entry point into the floating point emulator.
+ It is called from the kernel with code similar to this:
+diff --git a/arch/arm/vfp/entry.S b/arch/arm/vfp/entry.S
+--- a/arch/arm/vfp/entry.S
++++ b/arch/arm/vfp/entry.S
+@@ -17,7 +17,7 @@
   */
- #include <asm/asm.h>
--#include <asm/offset.h>
+ #include <linux/linkage.h>
+ #include <linux/init.h>
+-#include <asm/constants.h>
 +#include <asm/asm-offsets.h>
- #include <asm/regdef.h>
+ #include <asm/vfpmacros.h>
  
- #define EX(insn,reg,addr,handler)			\
-diff --git a/arch/mips/lib-64/memset.S b/arch/mips/lib-64/memset.S
---- a/arch/mips/lib-64/memset.S
-+++ b/arch/mips/lib-64/memset.S
-@@ -7,7 +7,7 @@
-  * Copyright (C) 1999, 2000 Silicon Graphics, Inc.
-  */
- #include <asm/asm.h>
--#include <asm/offset.h>
-+#include <asm/asm-offsets.h>
- #include <asm/regdef.h>
- 
- #define EX(insn,reg,addr,handler)			\
-diff --git a/arch/mips/lib/memcpy.S b/arch/mips/lib/memcpy.S
---- a/arch/mips/lib/memcpy.S
-+++ b/arch/mips/lib/memcpy.S
-@@ -14,7 +14,7 @@
-  */
- #include <linux/config.h>
- #include <asm/asm.h>
--#include <asm/offset.h>
-+#include <asm/asm-offsets.h>
- #include <asm/regdef.h>
- 
- #define dst a0
-diff --git a/arch/mips/lib/strlen_user.S b/arch/mips/lib/strlen_user.S
---- a/arch/mips/lib/strlen_user.S
-+++ b/arch/mips/lib/strlen_user.S
-@@ -7,7 +7,7 @@
-  * Copyright (c) 1999 Silicon Graphics, Inc.
-  */
- #include <asm/asm.h>
--#include <asm/offset.h>
-+#include <asm/asm-offsets.h>
- #include <asm/regdef.h>
- 
- #define EX(insn,reg,addr,handler)			\
-diff --git a/arch/mips/lib/strncpy_user.S b/arch/mips/lib/strncpy_user.S
---- a/arch/mips/lib/strncpy_user.S
-+++ b/arch/mips/lib/strncpy_user.S
-@@ -7,7 +7,7 @@
-  */
- #include <linux/errno.h>
- #include <asm/asm.h>
--#include <asm/offset.h>
-+#include <asm/asm-offsets.h>
- #include <asm/regdef.h>
- 
- #define EX(insn,reg,addr,handler)			\
-diff --git a/arch/mips/lib/strnlen_user.S b/arch/mips/lib/strnlen_user.S
---- a/arch/mips/lib/strnlen_user.S
-+++ b/arch/mips/lib/strnlen_user.S
-@@ -7,7 +7,7 @@
-  * Copyright (c) 1999 Silicon Graphics, Inc.
-  */
- #include <asm/asm.h>
--#include <asm/offset.h>
-+#include <asm/asm-offsets.h>
- #include <asm/regdef.h>
- 
- #define EX(insn,reg,addr,handler)			\
-diff --git a/include/asm-mips/asmmacro-32.h b/include/asm-mips/asmmacro-32.h
---- a/include/asm-mips/asmmacro-32.h
-+++ b/include/asm-mips/asmmacro-32.h
-@@ -7,7 +7,7 @@
- #ifndef _ASM_ASMMACRO_32_H
- #define _ASM_ASMMACRO_32_H
- 
--#include <asm/offset.h>
-+#include <asm/asm-offsets.h>
- #include <asm/regdef.h>
- #include <asm/fpregdef.h>
- #include <asm/mipsregs.h>
-diff --git a/include/asm-mips/asmmacro-64.h b/include/asm-mips/asmmacro-64.h
---- a/include/asm-mips/asmmacro-64.h
-+++ b/include/asm-mips/asmmacro-64.h
-@@ -8,7 +8,7 @@
- #ifndef _ASM_ASMMACRO_64_H
- #define _ASM_ASMMACRO_64_H
- 
--#include <asm/offset.h>
-+#include <asm/asm-offsets.h>
- #include <asm/regdef.h>
- #include <asm/fpregdef.h>
- #include <asm/mipsregs.h>
-diff --git a/include/asm-mips/sim.h b/include/asm-mips/sim.h
---- a/include/asm-mips/sim.h
-+++ b/include/asm-mips/sim.h
-@@ -11,7 +11,7 @@
- 
- #include <linux/config.h>
- 
--#include <asm/offset.h>
-+#include <asm/asm-offsets.h>
- 
- #define __str2(x) #x
- #define __str(x) __str2(x)
-diff --git a/include/asm-mips/stackframe.h b/include/asm-mips/stackframe.h
---- a/include/asm-mips/stackframe.h
-+++ b/include/asm-mips/stackframe.h
-@@ -15,7 +15,7 @@
- 
- #include <asm/asm.h>
- #include <asm/mipsregs.h>
--#include <asm/offset.h>
-+#include <asm/asm-offsets.h>
- 
- 		.macro	SAVE_AT
- 		.set	push
+ 	.globl	do_vfp
 
 

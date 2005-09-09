@@ -1,38 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030368AbVIIThe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030365AbVIITgr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030368AbVIIThe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 15:37:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030369AbVIIThc
+	id S1030365AbVIITgr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 15:36:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030359AbVIITgW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 15:37:32 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:58053 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S1030360AbVIIThP (ORCPT
+	Fri, 9 Sep 2005 15:36:22 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:39109 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S1030341AbVIITgF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 15:37:15 -0400
-Message-ID: <4321E465.2060100@adaptec.com>
-Date: Fri, 09 Sep 2005 15:37:09 -0400
+	Fri, 9 Sep 2005 15:36:05 -0400
+Message-ID: <4321E41F.20900@adaptec.com>
+Date: Fri, 09 Sep 2005 15:35:59 -0400
 From: Luben Tuikov <luben_tuikov@adaptec.com>
 User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: [PATCH 2.6.13 19/20] aic94xx: aic94xx_task.c Implements the Execute
- Task SCSI RPC
+Subject: [PATCH 2.6.13 15/20] aic94xx: aic94x_sds.c Shared Data Structures
+ and memory
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Sep 2005 19:37:14.0424 (UTC) FILETIME=[E1378380:01C5B575]
+X-OriginalArrivalTime: 09 Sep 2005 19:36:04.0094 (UTC) FILETIME=[B74C01E0:01C5B575]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Signed-off-by: Luben Tuikov <luben_tuikov@adaptec.com>
 
-diff -X linux-2.6.13/Documentation/dontdiff -Naur linux-2.6.13-orig/drivers/scsi/aic94xx/aic94xx_task.c linux-2.6.13/drivers/scsi/aic94xx/aic94xx_task.c
---- linux-2.6.13-orig/drivers/scsi/aic94xx/aic94xx_task.c	1969-12-31 19:00:00.000000000 -0500
-+++ linux-2.6.13/drivers/scsi/aic94xx/aic94xx_task.c	2005-09-09 11:21:23.000000000 -0400
-@@ -0,0 +1,645 @@
+diff -X linux-2.6.13/Documentation/dontdiff -Naur linux-2.6.13-orig/drivers/scsi/aic94xx/aic94xx_sds.c linux-2.6.13/drivers/scsi/aic94xx/aic94xx_sds.c
+--- linux-2.6.13-orig/drivers/scsi/aic94xx/aic94xx_sds.c	1969-12-31 19:00:00.000000000 -0500
++++ linux-2.6.13/drivers/scsi/aic94xx/aic94xx_sds.c	2005-09-09 11:21:23.000000000 -0400
+@@ -0,0 +1,964 @@
 +/*
-+ * Aic94xx SAS/SATA Tasks
++ * Aic94xx SAS/SATA driver access to shared data structures and memory
++ * maps.
 + *
 + * Copyright (C) 2005 Adaptec, Inc.  All rights reserved.
 + * Copyright (C) 2005 Luben Tuikov <luben_tuikov@adaptec.com>
@@ -55,625 +56,943 @@ diff -X linux-2.6.13/Documentation/dontdiff -Naur linux-2.6.13-orig/drivers/scsi
 + * along with the aic94xx driver; if not, write to the Free Software
 + * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 + *
-+ * $Id: //depot/aic94xx/aic94xx_task.c#50 $
++ * $Id: //depot/aic94xx/aic94xx_sds.c#34 $
 + */
 +
-+#include <linux/spinlock.h>
-+#include <scsi/sas/sas_task.h>
-+#include <scsi/sas/sas_frames.h>
++#include <linux/pci.h>
++#include <linux/delay.h>
++
 +#include "aic94xx.h"
-+#include "aic94xx_sas.h"
-+#include "aic94xx_hwi.h"
++#include "aic94xx_reg.h"
 +
-+static void asd_unbuild_ata_ascb(struct asd_ascb *a);
-+static void asd_unbuild_smp_ascb(struct asd_ascb *a);
-+static void asd_unbuild_ssp_ascb(struct asd_ascb *a);
++/* ---------- OCM stuff ---------- */
 +
-+static inline void asd_can_dequeue(struct asd_ha_struct *asd_ha, int num)
++struct asd_ocm_dir_ent {
++	u8 type;
++	u8 offs[3];
++	u8 _r1;
++	u8 size[3];
++} __attribute__ ((packed));
++
++struct asd_ocm_dir {
++	char sig[2];
++	u8   _r1[2];
++	u8   major;          /* 0 */
++	u8   minor;          /* 0 */
++	u8   _r2;
++	u8   num_de;
++	struct asd_ocm_dir_ent entry[15];
++} __attribute__ ((packed));
++
++struct asd_bios_chim_struct {
++	char sig[4];
++	u8   major;          /* 1 */
++	u8   minor;          /* 0 */
++	u8   bios_major;
++	u8   bios_minor;
++	__le32  bios_build;
++	u8   flags;
++	u8   pci_slot;
++	__le16  ue_num;
++	__le16  ue_size;
++	u8  _r[14];
++	/* The unit element array is right here.
++	 */
++} __attribute__ ((packed));
++
++/**
++ * asd_read_ocm_seg - read an on chip memory (OCM) segment
++ * @asd_ha: pointer to the host adapter structure
++ * @buffer: where to write the read data
++ * @offs: offset into OCM where to read from
++ * @size: how many bytes to read
++ *
++ * Return the number of bytes not read. Return 0 on success.
++ */
++static int asd_read_ocm_seg(struct asd_ha_struct *asd_ha, void *buffer,
++			    u32 offs, int size)
 +{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&asd_ha->seq.pend_q_lock, flags);
-+	asd_ha->seq.can_queue += num;
-+	spin_unlock_irqrestore(&asd_ha->seq.pend_q_lock, flags);
++	u8 *p = buffer;
++	if (unlikely(asd_ha->iospace))
++		asd_read_reg_string(asd_ha, buffer, offs+OCM_BASE_ADDR, size);
++	else {
++		for ( ; size > 0; size--, offs++, p++)
++			*p = asd_read_ocm_byte(asd_ha, offs);
++	}
++	return size;
 +}
 +
-+/* PCI_DMA_... to our direction translation.
++static int asd_read_ocm_dir(struct asd_ha_struct *asd_ha,
++			    struct asd_ocm_dir *dir, u32 offs)
++{
++	int err = asd_read_ocm_seg(asd_ha, (void *)dir, offs, sizeof(*dir));
++	if (err) {
++		ASD_DPRINTK("couldn't read ocm segment\n");
++		return err;
++	}
++	if (dir->sig[0] != 'M' || dir->sig[1] != 'O') {
++		ASD_DPRINTK("no valid dir signature(%c%c) at start of OCM\n",
++			    dir->sig[0], dir->sig[1]);
++		return -ENOENT;
++	}
++	if (dir->major != 0) {
++		asd_printk("unsupported major version of ocm dir:0x%x\n",
++			   dir->major);
++		return -ENOENT;
++	}
++	dir->num_de &= 0xf;
++	return 0;
++}
++
++#define THREE_TO_NUM(X) ((X)[0] | ((X)[1] << 8) | ((X)[2] << 16))
++
++static int asd_find_dir_entry(struct asd_ocm_dir *dir, u8 type,
++			      u32 *offs, u32 *size)
++{
++	int i;
++	struct asd_ocm_dir_ent *ent;
++
++	for (i = 0; i < dir->num_de; i++) {
++		if (dir->entry[i].type == type)
++			break;
++	}
++	if (i >= dir->num_de)
++		return -ENOENT;
++	ent = &dir->entry[i];
++	*offs = (u32) THREE_TO_NUM(ent->offs);
++	*size = (u32) THREE_TO_NUM(ent->size);
++	return 0;
++}
++
++#define OCM_BIOS_CHIM_DE  2
++#define BC_BIOS_PRESENT   1
++
++static int asd_get_bios_chim(struct asd_ha_struct *asd_ha,
++			     struct asd_ocm_dir *dir)
++{
++	int err;
++	struct asd_bios_chim_struct *bc_struct;
++	u32 offs, size;
++
++	err = asd_find_dir_entry(dir, OCM_BIOS_CHIM_DE, &offs, &size);
++	if (err) {
++		ASD_DPRINTK("couldn't find BIOS_CHIM dir ent\n");
++		goto out;
++	}
++	err = -ENOMEM;
++	bc_struct = kmalloc(sizeof(*bc_struct), GFP_KERNEL);
++	if (!bc_struct) {
++		asd_printk("no memory for bios_chim struct\n");
++		goto out;
++	}
++	err = asd_read_ocm_seg(asd_ha, (void *)bc_struct, offs,
++			       sizeof(*bc_struct));
++	if (err) {
++		ASD_DPRINTK("couldn't read ocm segment\n");
++		goto out2;
++	}
++	if (strncmp(bc_struct->sig, "SOIB", 4)
++	    && strncmp(bc_struct->sig, "IPSA", 4)) {
++		ASD_DPRINTK("BIOS_CHIM entry has no valid sig(%c%c%c%c)\n",
++			    bc_struct->sig[0], bc_struct->sig[1],
++			    bc_struct->sig[2], bc_struct->sig[3]);
++		err = -ENOENT;
++		goto out2;
++	}
++	if (bc_struct->major != 1) {
++		asd_printk("BIOS_CHIM unsupported major version:0x%x\n",
++			   bc_struct->major);
++		err = -ENOENT;
++		goto out2;
++	}
++	if (bc_struct->flags & BC_BIOS_PRESENT) {
++		asd_ha->hw_prof.bios.present = 1;
++		asd_ha->hw_prof.bios.maj = bc_struct->bios_major;
++		asd_ha->hw_prof.bios.min = bc_struct->bios_minor;
++		asd_ha->hw_prof.bios.bld = le32_to_cpu(bc_struct->bios_build);
++		ASD_DPRINTK("BIOS present (%d,%d), %d\n",
++			    asd_ha->hw_prof.bios.maj,
++			    asd_ha->hw_prof.bios.min,
++			    asd_ha->hw_prof.bios.bld);
++	}
++	asd_ha->hw_prof.ue.num = le16_to_cpu(bc_struct->ue_num);
++	asd_ha->hw_prof.ue.size= le16_to_cpu(bc_struct->ue_size);
++	ASD_DPRINTK("ue num:%d, ue size:%d\n", asd_ha->hw_prof.ue.num,
++		    asd_ha->hw_prof.ue.size);
++	size = asd_ha->hw_prof.ue.num * asd_ha->hw_prof.ue.size;
++	if (size > 0) {
++		err = -ENOMEM;
++		asd_ha->hw_prof.ue.area = kmalloc(size, GFP_KERNEL);
++		if (!asd_ha->hw_prof.ue.area)
++			goto out2;
++		err = asd_read_ocm_seg(asd_ha, (void *)asd_ha->hw_prof.ue.area,
++				       offs + sizeof(*bc_struct), size);
++		if (err) {
++			kfree(asd_ha->hw_prof.ue.area);
++			asd_ha->hw_prof.ue.area = NULL;
++			asd_ha->hw_prof.ue.num  = 0;
++			asd_ha->hw_prof.ue.size = 0;
++			ASD_DPRINTK("couldn't read ue entries(%d)\n", err);
++		}
++	}
++out2:
++	kfree(bc_struct);
++out:
++	return err;
++}
++
++/**
++ * asd_read_ocm - read on chip memory (OCM)
++ * @asd_ha: pointer to the host adapter structure
 + */
-+static const u8 data_dir_flags[] = {
-+	[PCI_DMA_BIDIRECTIONAL] = DATA_DIR_BYRECIPIENT,	/* UNSPECIFIED */
-+	[PCI_DMA_TODEVICE]      = DATA_DIR_OUT, /* OUTBOUND */
-+	[PCI_DMA_FROMDEVICE]    = DATA_DIR_IN, /* INBOUND */
-+	[PCI_DMA_NONE]          = DATA_DIR_NONE, /* NO TRANSFER */
++int asd_read_ocm(struct asd_ha_struct *asd_ha)
++{
++	int err;
++	struct asd_ocm_dir *dir;
++	
++	dir = kmalloc(sizeof(*dir), GFP_KERNEL);
++	if (!dir) {
++		asd_printk("no memory for ocm dir\n");
++		return -ENOMEM;
++	}
++	
++	err = asd_read_ocm_dir(asd_ha, dir, 0);
++	if (err)
++		goto out;
++
++	err = asd_get_bios_chim(asd_ha, dir);
++out:
++	kfree(dir);
++	return err;
++}
++
++/* ---------- FLASH stuff ---------- */
++
++#define FLASH_RESET			0xF0
++#define FLASH_MANUF_AMD                 1
++
++#define FLASH_SIZE                      0x200000
++#define FLASH_DIR_COOKIE                "*** ADAPTEC FLASH DIRECTORY *** "
++#define FLASH_NEXT_ENTRY_OFFS		0x2000
++#define FLASH_MAX_DIR_ENTRIES		32
++
++#define FLASH_DE_TYPE_MASK              0x3FFFFFFF
++#define FLASH_DE_MS                     0x120
++#define FLASH_DE_CTRL_A_USER            0xE0
++
++struct asd_flash_de {
++	__le32   type;
++	__le32   offs;
++	__le32   pad_size;
++	__le32   image_size;
++	__le32   chksum;
++	u8       _r[12];
++	u8       version[32];
++} __attribute__ ((packed));
++
++struct asd_flash_dir {
++	u8    cookie[32];
++	__le32   rev;		  /* 2 */
++	__le32   chksum;
++	__le32   chksum_antidote;
++	__le32   bld;
++	u8    bld_id[32];	  /* build id data */
++	u8    ver_data[32];	  /* date and time of build */
++	__le32   ae_mask;
++	__le32   v_mask;
++	__le32   oc_mask;
++	u8    _r[20];
++	struct asd_flash_de dir_entry[FLASH_MAX_DIR_ENTRIES];
++} __attribute__ ((packed));
++
++struct asd_manuf_sec {
++	char  sig[2];		  /* 'S', 'M' */
++	u16   offs_next;
++	u8    maj;           /* 0 */
++	u8    min;           /* 0 */
++	u16   chksum;
++	u16   size;
++	u8    _r[6];
++	u8    sas_addr[SAS_ADDR_SIZE];
++	u8    pcba_sn[ASD_PCBA_SN_SIZE];
++	/* Here start the other segments */
++	u8    linked_list[0];
++} __attribute__ ((packed));
++
++struct asd_manuf_phy_desc {
++	u8    state;         /* low 4 bits */
++#define MS_PHY_STATE_ENABLEABLE 0
++#define MS_PHY_STATE_REPORTED   1
++#define MS_PHY_STATE_HIDDEN     2
++	u8    phy_id;
++	u16   _r;
++	u8    phy_control_0; /* mode 5 reg 0x160 */
++	u8    phy_control_1; /* mode 5 reg 0x161 */
++	u8    phy_control_2; /* mode 5 reg 0x162 */
++	u8    phy_control_3; /* mode 5 reg 0x163 */
++} __attribute__ ((packed));
++
++struct asd_manuf_phy_param {
++	char  sig[2];		  /* 'P', 'M' */
++	u16   next;
++	u8    maj;           /* 0 */
++	u8    min;           /* 2 */
++	u8    num_phy_desc;  /* 8 */
++	u8    phy_desc_size; /* 8 */
++	u8    _r[3];
++	u8    usage_model_id;
++	u32   _r2;
++	struct asd_manuf_phy_desc phy_desc[ASD_MAX_PHYS];
++} __attribute__ ((packed));
++
++#if 0
++static const char *asd_sb_type[] = {
++	"unknown",
++	"SGPIO",
++	[2 ... 0x7F] = "unknown",
++	[0x80] = "ADPT_I2C",
++	[0x81 ... 0xFF] = "VENDOR_UNIQUExx"
++};
++#endif
++
++struct asd_ms_sb_desc {
++	u8    type;
++	u8    node_desc_index;
++	u8    conn_desc_index;
++	u8    _recvd[0];
++} __attribute__ ((packed));
++
++#if 0
++static const char *asd_conn_type[] = {
++	[0 ... 7] = "unknown",
++	"SFF8470",
++	"SFF8482",
++	"SFF8484",
++	[0x80] = "PCIX_DAUGHTER0",
++	[0x81] = "SAS_DAUGHTER0",
++	[0x82 ... 0xFF] = "VENDOR_UNIQUExx"
 +};
 +
-+static inline int asd_map_scatterlist(struct sas_task *task,
-+				      struct sg_el *sg_arr,
-+				      unsigned long gfp_flags)
++static const char *asd_conn_location[] = {
++	"unknown",
++	"internal",
++	"external",
++	"board_to_board",
++};
++#endif
++
++struct asd_ms_conn_desc {
++	u8    type;
++	u8    location;
++	u8    num_sideband_desc;
++	u8    size_sideband_desc;
++	u32   _resvd;
++	u8    name[16];
++	struct asd_ms_sb_desc sb_desc[0];
++} __attribute__ ((packed));
++
++struct asd_nd_phy_desc {
++	u8    vp_attch_type;
++	u8    attch_specific[0];
++} __attribute__ ((packed));
++
++#if 0
++static const char *asd_node_type[] = {
++	"IOP",
++	"IO_CONTROLLER",
++	"EXPANDER",
++	"PORT_MULTIPLIER",
++	"PORT_MULTIPLEXER",
++	"MULTI_DROP_I2C_BUS",
++};
++#endif
++
++struct asd_ms_node_desc {
++	u8    type;
++	u8    num_phy_desc;
++	u8    size_phy_desc;
++	u8    _resvd;
++	u8    name[16];
++	struct asd_nd_phy_desc phy_desc[0];
++} __attribute__ ((packed));
++
++struct asd_ms_conn_map {
++	char  sig[2];		  /* 'M', 'C' */
++	__le16 next;
++	u8    maj;		  /* 0 */
++	u8    min;		  /* 0 */
++	__le16 cm_size;		  /* size of this struct */
++	u8    num_conn;
++	u8    conn_size;
++	u8    num_nodes;
++	u8    usage_model_id;
++	u32   _resvd;
++	struct asd_ms_conn_desc conn_desc[0];
++	struct asd_ms_node_desc node_desc[0];
++} __attribute__ ((packed));
++
++struct asd_ctrla_phy_entry {
++	u8    sas_addr[SAS_ADDR_SIZE];
++	u8    sas_link_rates;  /* max in hi bits, min in low bits */
++	u8    flags;
++	u8    sata_link_rates;
++	u8    _r[5];
++} __attribute__ ((packed));
++
++struct asd_ctrla_phy_settings {
++	u8    id0;		  /* P'h'y */
++	u8    _r;
++	u16   next;
++	u8    num_phys;	      /* number of PHYs in the PCI function */
++	u8    _r2[3];
++	struct asd_ctrla_phy_entry phy_ent[ASD_MAX_PHYS];
++} __attribute__ ((packed));
++
++struct asd_ll_el {
++	u8   id0;
++	u8   id1;
++	__le16  next;
++	u8   something_here[0];
++} __attribute__ ((packed));
++
++static int asd_poll_flash(struct asd_ha_struct *asd_ha)
 +{
-+	struct asd_ascb *ascb = task->lldd_task;
-+	struct asd_ha_struct *asd_ha = ascb->ha;
-+	struct scatterlist *sc;
-+	int num_sg, res;
++	int c;
++	u8 d;
 +
-+	if (task->data_dir == PCI_DMA_NONE)
-+		return 0;
++	for (c = 5000; c > 0; c--) {
++		d  = asd_read_reg_byte(asd_ha, asd_ha->hw_prof.flash.bar);
++		d ^= asd_read_reg_byte(asd_ha, asd_ha->hw_prof.flash.bar);
++		if (!d)
++			return 0;
++		udelay(5);
++	}
++	return -ENOENT;
++}
 +
-+	if (task->num_scatter == 0) {
-+		void *p = task->scatter;
-+		dma_addr_t dma = pci_map_single(asd_ha->pcidev, p,
-+						task->total_xfer_len,
-+						task->data_dir);
-+		sg_arr[0].bus_addr = cpu_to_le64((u64)dma);
-+		sg_arr[0].size = cpu_to_le32(task->total_xfer_len);
-+		sg_arr[0].flags |= ASD_SG_EL_LIST_EOL;
++static int asd_reset_flash(struct asd_ha_struct *asd_ha)
++{
++	int err;
++
++	err = asd_poll_flash(asd_ha);
++	if (err)
++		return err;
++	asd_write_reg_byte(asd_ha, asd_ha->hw_prof.flash.bar, FLASH_RESET);
++	err = asd_poll_flash(asd_ha);
++
++	return err;
++}
++
++static inline int asd_read_flash_seg(struct asd_ha_struct *asd_ha,
++				     void *buffer, u32 offs, int size)
++{
++	asd_read_reg_string(asd_ha, buffer, asd_ha->hw_prof.flash.bar+offs,
++			    size);
++	return 0;
++}
++
++/**
++ * asd_find_flash_dir - finds and reads the flash directory
++ * @asd_ha: pointer to the host adapter structure
++ * @flash_dir: pointer to flash directory structure
++ *
++ * If found, the flash directory segment will be copied to
++ * @flash_dir.  Return 1 if found, 0 if not.
++ */
++static int asd_find_flash_dir(struct asd_ha_struct *asd_ha,
++			      struct asd_flash_dir *flash_dir)
++{
++	u32 v;
++	for (v = 0; v < FLASH_SIZE; v += FLASH_NEXT_ENTRY_OFFS) {
++		asd_read_flash_seg(asd_ha, flash_dir, v,
++				   sizeof(FLASH_DIR_COOKIE)-1);
++		if (memcmp(flash_dir->cookie, FLASH_DIR_COOKIE,
++			   sizeof(FLASH_DIR_COOKIE)-1) == 0) {
++			asd_ha->hw_prof.flash.dir_offs = v;
++			asd_read_flash_seg(asd_ha, flash_dir, v,
++					   sizeof(*flash_dir));
++			return 1;
++		}
++	}
++	return 0;
++}
++
++static int asd_flash_getid(struct asd_ha_struct *asd_ha)
++{
++	int err = 0;
++	u32 reg, inc;
++
++	reg = asd_read_reg_dword(asd_ha, EXSICNFGR);
++
++	if (!(reg & FLASHEX)) {
++		ASD_DPRINTK("flash doesn't exist\n");
++		return -ENOENT;
++	}
++	if (pci_read_config_dword(asd_ha->pcidev, PCI_CONF_FLSH_BAR,
++				  &asd_ha->hw_prof.flash.bar)) {
++		asd_printk("couldn't read PCI_CONF_FLSH_BAR of %s\n",
++			   pci_name(asd_ha->pcidev));
++		return -ENOENT;
++	}
++	asd_ha->hw_prof.flash.present = 1;
++	asd_ha->hw_prof.flash.wide = reg & FLASHW ? 1 : 0;
++	err = asd_reset_flash(asd_ha);
++	if (err) {
++		ASD_DPRINTK("couldn't reset flash(%d)\n", err);
++		return err;
++	}
++	/* Get flash info. This would most likely be AMD Am29LV family flash.
++	 * First try the sequence for word mode.  It is the same as for
++	 * 008B (byte mode only), 160B (word mode) and 800D (word mode).
++	 */
++	reg = asd_ha->hw_prof.flash.bar;
++	inc = asd_ha->hw_prof.flash.wide ? 2 : 1;
++	asd_write_reg_byte(asd_ha, reg + 0x555, 0xAA);
++	asd_write_reg_byte(asd_ha, reg + 0x2AA, 0x55);
++	asd_write_reg_byte(asd_ha, reg + 0x555, 0x90);
++	asd_ha->hw_prof.flash.manuf = asd_read_reg_byte(asd_ha, reg);
++	asd_ha->hw_prof.flash.dev_id= asd_read_reg_byte(asd_ha,reg+inc);
++	asd_ha->hw_prof.flash.sec_prot = asd_read_reg_byte(asd_ha,reg+inc+inc);
++	/* Get out of autoselect mode. */
++	err = asd_reset_flash(asd_ha);
++
++	if (asd_ha->hw_prof.flash.manuf == FLASH_MANUF_AMD) {
++		ASD_DPRINTK("0Found FLASH(%d) manuf:%d, dev_id:0x%x, "
++			    "sec_prot:%d\n",
++			    asd_ha->hw_prof.flash.wide ? 16 : 8,
++			    asd_ha->hw_prof.flash.manuf,
++			    asd_ha->hw_prof.flash.dev_id,
++			    asd_ha->hw_prof.flash.sec_prot);
 +		return 0;
 +	}
 +
-+	num_sg = pci_map_sg(asd_ha->pcidev, task->scatter, task->num_scatter,
-+			    task->data_dir);
-+	if (num_sg == 0)
++	/* Ok, try the sequence for byte mode of 160B and 800D.
++	 * We may actually never need this.
++	 */
++	asd_write_reg_byte(asd_ha, reg + 0xAAA, 0xAA);
++	asd_write_reg_byte(asd_ha, reg + 0x555, 0x55);
++	asd_write_reg_byte(asd_ha, reg + 0xAAA, 0x90);
++	asd_ha->hw_prof.flash.manuf = asd_read_reg_byte(asd_ha, reg);
++	asd_ha->hw_prof.flash.dev_id = asd_read_reg_byte(asd_ha, reg + 2);
++	asd_ha->hw_prof.flash.sec_prot = asd_read_reg_byte(asd_ha, reg + 4);
++	err = asd_reset_flash(asd_ha);
++
++	if (asd_ha->hw_prof.flash.manuf == FLASH_MANUF_AMD) {
++		ASD_DPRINTK("1Found FLASH(%d) manuf:%d, dev_id:0x%x, "
++			    "sec_prot:%d\n",
++			    asd_ha->hw_prof.flash.wide ? 16 : 8,
++			    asd_ha->hw_prof.flash.manuf,
++			    asd_ha->hw_prof.flash.dev_id,
++			    asd_ha->hw_prof.flash.sec_prot);
++		return 0;
++	}
++
++	return -ENOENT;
++}
++
++static u16 asd_calc_flash_chksum(u16 *p, int size)
++{
++	u16 chksum = 0;
++	
++	while (size-- > 0)
++		chksum += *p++;
++
++	return chksum;
++}
++
++
++static int asd_find_flash_de(struct asd_flash_dir *flash_dir, u32 entry_type,
++			     u32 *offs, u32 *size)
++{
++	int i;
++	struct asd_flash_de *de;
++	
++	for (i = 0; i < FLASH_MAX_DIR_ENTRIES; i++) {
++		u32 type = le32_to_cpu(flash_dir->dir_entry[i].type);
++
++		type &= FLASH_DE_TYPE_MASK;
++		if (type == entry_type)
++			break;
++	}
++	if (i >= FLASH_MAX_DIR_ENTRIES)
++		return -ENOENT;
++	de = &flash_dir->dir_entry[i];
++	*offs = le32_to_cpu(de->offs);
++	*size = le32_to_cpu(de->pad_size);
++	return 0;
++}
++
++static int asd_validate_ms(struct asd_manuf_sec *ms)
++{
++	if (ms->sig[0] != 'S' || ms->sig[1] != 'M') {
++		ASD_DPRINTK("manuf sec: no valid sig(%c%c)\n",
++			    ms->sig[0], ms->sig[1]);
++		return -ENOENT;
++	}
++	if (ms->maj != 0) {
++		asd_printk("unsupported manuf. sector. major version:%x\n",
++			   ms->maj);
++		return -ENOENT;
++	}
++	ms->offs_next = le16_to_cpu((__force __le16) ms->offs_next);
++	ms->chksum = le16_to_cpu((__force __le16) ms->chksum);
++	ms->size = le16_to_cpu((__force __le16) ms->size);
++
++	if (asd_calc_flash_chksum((u16 *)ms, ms->size/2)) {
++		ASD_DPRINTK("failed manuf sector checksum\n");
++		return -EINVAL;
++	}
++	return 0;
++}
++
++static int asd_ms_get_sas_addr(struct asd_ha_struct *asd_ha,
++			       struct asd_manuf_sec *ms)
++{
++	memcpy(asd_ha->hw_prof.sas_addr, ms->sas_addr, SAS_ADDR_SIZE);
++	return 0;
++}
++
++static int asd_ms_get_pcba_sn(struct asd_ha_struct *asd_ha,
++			      struct asd_manuf_sec *ms)
++{
++	memcpy(asd_ha->hw_prof.pcba_sn, ms->pcba_sn, ASD_PCBA_SN_SIZE);
++	asd_ha->hw_prof.pcba_sn[ASD_PCBA_SN_SIZE] = '\0';
++	return 0;
++}
++
++/**
++ * asd_find_ll_by_id - find a linked list entry by its id
++ * @start: void pointer to the first element in the linked list
++ * @id0: the first byte of the id  (offs 0)
++ * @id1: the second byte of the id (offs 1)
++ *
++ * @start has to be the _base_ element start, since the
++ * linked list entries's offset is from this pointer.
++ * Some linked list entries use only the first id, in which case
++ * you can pass 0xFF for the second.
++ */
++static void *asd_find_ll_by_id(void * const start, const u8 id0, const u8 id1)
++{
++	struct asd_ll_el *el = start;
++
++	do {
++		switch (id1) {
++		default:
++			if (el->id1 == id1)
++		case 0xFF:
++				if (el->id0 == id0)
++					return el;
++		}
++		el = start + le16_to_cpu(el->next);
++	} while (el != start);
++
++	return NULL;
++}
++
++/**
++ * asd_ms_get_phy_params - get phy parameters from the manufacturing sector
++ * @asd_ha: pointer to the host adapter structure
++ * @manuf_sec: pointer to the manufacturing sector
++ *
++ * The manufacturing sector contans also the linked list of sub-segments,
++ * since when it was read, its size was taken from the flash directory,
++ * not from the structure size.
++ *
++ * HIDDEN phys do not count in the total count.  REPORTED phys cannot
++ * be enabled but are reported and counted towards the total.
++ * ENEBLEABLE phys are enabled by default and count towards the total.
++ * The absolute total phy number is ASD_MAX_PHYS.  hw_prof->num_phys
++ * merely specifies the number of phys the host adapter decided to
++ * report.  E.g., it is possible for phys 0, 1 and 2 to be HIDDEN,
++ * phys 3, 4 and 5 to be REPORTED and phys 6 and 7 to be ENEBLEABLE.
++ * In this case ASD_MAX_PHYS is 8, hw_prof->num_phys is 5, and only 2
++ * are actually enabled (enabled by default, max number of phys
++ * enableable in this case).
++ */
++static int asd_ms_get_phy_params(struct asd_ha_struct *asd_ha,
++				 struct asd_manuf_sec *manuf_sec)
++{
++	int i;
++	int en_phys = 0;
++	int rep_phys = 0;
++	struct asd_manuf_phy_param *phy_param;
++
++	phy_param = asd_find_ll_by_id(manuf_sec, 'P', 'M');
++	if (!phy_param) {
++		ASD_DPRINTK("ms: no phy parameters found\n");
++		return -ENOENT;
++	}
++
++	if (phy_param->maj != 0) {
++		asd_printk("unsupported manuf. phy param major version:0x%x\n",
++			   phy_param->maj);
++		return -ENOENT;
++	}
++
++	ASD_DPRINTK("ms: num_phy_desc: %d\n", phy_param->num_phy_desc);
++	asd_ha->hw_prof.enabled_phys = 0;
++	for (i = 0; i < phy_param->num_phy_desc; i++) {
++		struct asd_manuf_phy_desc *pd = &phy_param->phy_desc[i];
++		switch (pd->state & 0xF) {
++		case MS_PHY_STATE_HIDDEN:
++			ASD_DPRINTK("ms: phy%d: HIDDEN\n", i);
++			continue;
++		case MS_PHY_STATE_REPORTED:
++			ASD_DPRINTK("ms: phy%d: REPORTED\n", i);
++			asd_ha->hw_prof.enabled_phys &= ~(1 << i);
++			rep_phys++;
++			continue;
++		case MS_PHY_STATE_ENABLEABLE:
++			ASD_DPRINTK("ms: phy%d: ENEBLEABLE\n", i);
++			asd_ha->hw_prof.enabled_phys |= (1 << i);
++			en_phys++;
++			break;
++		}
++		asd_ha->hw_prof.phy_desc[i].phy_control_0 = pd->phy_control_0;
++		asd_ha->hw_prof.phy_desc[i].phy_control_1 = pd->phy_control_1;
++		asd_ha->hw_prof.phy_desc[i].phy_control_2 = pd->phy_control_2;
++		asd_ha->hw_prof.phy_desc[i].phy_control_3 = pd->phy_control_3;
++	}
++	asd_ha->hw_prof.max_phys = rep_phys + en_phys;
++	asd_ha->hw_prof.num_phys = en_phys;
++	ASD_DPRINTK("ms: max_phys:0x%x, num_phys:0x%x\n",
++		    asd_ha->hw_prof.max_phys, asd_ha->hw_prof.num_phys);
++	ASD_DPRINTK("ms: enabled_phys:0x%x\n", asd_ha->hw_prof.enabled_phys);
++	return 0;	
++}
++
++static int asd_ms_get_connector_map(struct asd_ha_struct *asd_ha,
++				    struct asd_manuf_sec *manuf_sec)
++{
++	struct asd_ms_conn_map *cm;
++
++	cm = asd_find_ll_by_id(manuf_sec, 'M', 'C');
++	if (!cm) {
++		ASD_DPRINTK("ms: no connector map found\n");
++		return -ENOENT;
++	}
++
++	if (cm->maj != 0) {
++		ASD_DPRINTK("ms: unsupported: connector map major version 0x%x"
++			    "\n", cm->maj);
++		return -ENOENT;
++	}
++
++	/* XXX */
++
++	return 0;
++}
++
++
++/**
++ * asd_process_ms - find and extract information from the manufacturing sector
++ * @asd_ha: pointer to the host adapter structure
++ * @flash_dir: pointer to the flash directory
++ */
++static int asd_process_ms(struct asd_ha_struct *asd_ha,
++			  struct asd_flash_dir *flash_dir)
++{
++	int err;
++	struct asd_manuf_sec *manuf_sec;
++	u32 offs, size;
++
++	err = asd_find_flash_de(flash_dir, FLASH_DE_MS, &offs, &size);
++	if (err) {
++		ASD_DPRINTK("Couldn't find the manuf. sector\n");
++		goto out;
++	}
++
++	if (size == 0)
++		goto out;
++
++	err = -ENOMEM;
++	manuf_sec = kmalloc(size, GFP_KERNEL);
++	if (!manuf_sec) {
++		ASD_DPRINTK("no mem for manuf sector\n");
++		goto out;
++	}
++
++	err = asd_read_flash_seg(asd_ha, (void *)manuf_sec, offs, size);
++	if (err) {
++		ASD_DPRINTK("couldn't read manuf sector at 0x%x, size 0x%x\n",
++			    offs, size);
++		goto out2;
++	}
++
++	err = asd_validate_ms(manuf_sec);
++	if (err) {
++		ASD_DPRINTK("couldn't validate manuf sector\n");
++		goto out2;
++	}
++
++	err = asd_ms_get_sas_addr(asd_ha, manuf_sec);
++	if (err) {
++		ASD_DPRINTK("couldn't read the SAS_ADDR\n");
++		goto out2;
++	}
++	ASD_DPRINTK("manuf sect SAS_ADDR %llx\n",
++		    SAS_ADDR(asd_ha->hw_prof.sas_addr));
++
++	err = asd_ms_get_pcba_sn(asd_ha, manuf_sec);
++	if (err) {
++		ASD_DPRINTK("couldn't read the PCBA SN\n");
++		goto out2;
++	}
++	ASD_DPRINTK("manuf sect PCBA SN %s\n", asd_ha->hw_prof.pcba_sn);
++
++	err = asd_ms_get_phy_params(asd_ha, manuf_sec);
++	if (err) {
++		ASD_DPRINTK("ms: couldn't get phy parameters\n");
++		goto out2;
++	}
++
++	err = asd_ms_get_connector_map(asd_ha, manuf_sec);
++	if (err) {
++		ASD_DPRINTK("ms: couldn't get connector map\n");
++		goto out2;
++	}
++
++out2:
++	kfree(manuf_sec);
++out:
++	return err;
++}
++
++static int asd_process_ctrla_phy_settings(struct asd_ha_struct *asd_ha,
++					  struct asd_ctrla_phy_settings *ps)
++{
++	int i;
++	for (i = 0; i < ps->num_phys; i++) {
++		struct asd_ctrla_phy_entry *pe = &ps->phy_ent[i];
++
++		if (!PHY_ENABLED(asd_ha, i))
++			continue;
++		if (*(u64 *)pe->sas_addr == 0) {
++			asd_ha->hw_prof.enabled_phys &= ~(1 << i);
++			continue;
++		}
++		/* This is the SAS address which should be sent in IDENTIFY. */
++		memcpy(asd_ha->hw_prof.phy_desc[i].sas_addr, pe->sas_addr,
++		       SAS_ADDR_SIZE);
++		asd_ha->hw_prof.phy_desc[i].max_sas_lrate =
++			(pe->sas_link_rates & 0xF0) >> 4;
++		asd_ha->hw_prof.phy_desc[i].min_sas_lrate =
++			(pe->sas_link_rates & 0x0F);
++		asd_ha->hw_prof.phy_desc[i].max_sata_lrate =
++			(pe->sata_link_rates & 0xF0) >> 4;
++		asd_ha->hw_prof.phy_desc[i].min_sata_lrate =
++			(pe->sata_link_rates & 0x0F);
++		asd_ha->hw_prof.phy_desc[i].flags = pe->flags;
++		ASD_DPRINTK("ctrla: phy%d: sas_addr: %llx, sas rate:0x%x-0x%x,"
++			    " sata rate:0x%x-0x%x, flags:0x%x\n",
++			    i,
++			    SAS_ADDR(asd_ha->hw_prof.phy_desc[i].sas_addr),
++			    asd_ha->hw_prof.phy_desc[i].max_sas_lrate,
++			    asd_ha->hw_prof.phy_desc[i].min_sas_lrate,
++			    asd_ha->hw_prof.phy_desc[i].max_sata_lrate,
++			    asd_ha->hw_prof.phy_desc[i].min_sata_lrate,
++			    asd_ha->hw_prof.phy_desc[i].flags);
++	}
++	
++	return 0;
++}
++
++/**
++ * asd_process_ctrl_a_user - process CTRL-A user settings
++ * @asd_ha: pointer to the host adapter structure
++ * @flash_dir: pointer to the flash directory
++ */
++static int asd_process_ctrl_a_user(struct asd_ha_struct *asd_ha,
++				   struct asd_flash_dir *flash_dir)
++{
++	int err;
++	u32 offs, size;
++	struct asd_ll_el *el;
++	struct asd_ctrla_phy_settings *ps;
++
++	err = asd_find_flash_de(flash_dir, FLASH_DE_CTRL_A_USER, &offs, &size);
++	if (err) {
++		ASD_DPRINTK("couldn't find CTRL-A user settings section\n");
++		goto out;
++	}
++
++	if (size == 0)
++		goto out;
++
++	err = -ENOMEM;
++	el = kmalloc(size, GFP_KERNEL);
++	if (!el) {
++		ASD_DPRINTK("no mem for ctrla user settings section\n");
++		goto out;
++	}
++
++	err = asd_read_flash_seg(asd_ha, (void *)el, offs, size);
++	if (err) {
++		ASD_DPRINTK("couldn't read ctrla phy settings section\n");
++		goto out2;
++	}
++
++	err = -ENOENT;
++	ps = asd_find_ll_by_id(el, 'h', 0xFF);
++	if (!ps) {
++		ASD_DPRINTK("couldn't find ctrla phy settings struct\n");
++		goto out2;
++	}
++
++	err = asd_process_ctrla_phy_settings(asd_ha, ps);
++	if (err) {
++		ASD_DPRINTK("couldn't process ctrla phy settings\n");
++		goto out2;
++	}
++out2:
++	kfree(el);
++out:
++	return err;
++}
++
++/**
++ * asd_read_flash - read flash memory
++ * @asd_ha: pointer to the host adapter structure
++ */
++int asd_read_flash(struct asd_ha_struct *asd_ha)
++{
++	int err;
++	struct asd_flash_dir *flash_dir;
++
++	err = asd_flash_getid(asd_ha);
++	if (err)
++		return err;
++
++	flash_dir = kmalloc(sizeof(*flash_dir), GFP_KERNEL);
++	if (!flash_dir)
 +		return -ENOMEM;
 +
-+	if (num_sg > 3) {
-+		int i;
-+
-+		ascb->sg_arr = asd_alloc_coherent(asd_ha,
-+						  num_sg*sizeof(struct sg_el),
-+						  gfp_flags);
-+		if (!ascb->sg_arr) {
-+			res = -ENOMEM;
-+			goto err_unmap;
-+		}
-+		for (sc = task->scatter, i = 0; i < num_sg; i++, sc++) {
-+			struct sg_el *sg =
-+				&((struct sg_el *)ascb->sg_arr->vaddr)[i];
-+			sg->bus_addr = cpu_to_le64((u64)sg_dma_address(sc));
-+			sg->size = cpu_to_le32((u32)sg_dma_len(sc));
-+			if (i == num_sg-1)
-+				sg->flags |= ASD_SG_EL_LIST_EOL;
-+		}
-+
-+		for (sc = task->scatter, i = 0; i < 2; i++, sc++) {
-+			sg_arr[i].bus_addr =
-+				cpu_to_le64((u64)sg_dma_address(sc));
-+			sg_arr[i].size = cpu_to_le32((u32)sg_dma_len(sc));
-+		}
-+		sg_arr[1].next_sg_offs = 2 * sizeof(*sg_arr);
-+		sg_arr[1].flags |= ASD_SG_EL_LIST_EOS;
-+
-+		memset(&sg_arr[2], 0, sizeof(*sg_arr));
-+		sg_arr[2].bus_addr=cpu_to_le64((u64)ascb->sg_arr->dma_handle);
-+	} else {
-+		int i;
-+		for (sc = task->scatter, i = 0; i < num_sg; i++, sc++) {
-+			sg_arr[i].bus_addr =
-+				cpu_to_le64((u64)sg_dma_address(sc));
-+			sg_arr[i].size = cpu_to_le32((u32)sg_dma_len(sc));
-+		}
-+		sg_arr[i-1].flags |= ASD_SG_EL_LIST_EOL;
-+	}
-+	
-+	return 0;
-+err_unmap:
-+	pci_unmap_sg(asd_ha->pcidev, task->scatter, task->num_scatter,
-+		     task->data_dir);
-+	return res;
-+}
-+
-+static inline void asd_unmap_scatterlist(struct asd_ascb *ascb)
-+{
-+	struct asd_ha_struct *asd_ha = ascb->ha;
-+	struct sas_task *task = ascb->uldd_task;
-+
-+	if (task->data_dir == PCI_DMA_NONE)
-+		return;
-+
-+	if (task->num_scatter == 0) {
-+		dma_addr_t dma = (dma_addr_t)
-+		       le64_to_cpu(ascb->scb->ssp_task.sg_element[0].bus_addr);
-+		pci_unmap_single(ascb->ha->pcidev, dma, task->total_xfer_len,
-+				 task->data_dir);
-+		return;
-+	}
-+	
-+	asd_free_coherent(asd_ha, ascb->sg_arr);
-+	pci_unmap_sg(asd_ha->pcidev, task->scatter, task->num_scatter,
-+		     task->data_dir);
-+}
-+
-+/* ---------- Task complete tasklet ---------- */
-+
-+static void asd_get_response_tasklet(struct asd_ascb *ascb,
-+				     struct done_list_struct *dl)
-+{
-+	struct asd_ha_struct *asd_ha = ascb->ha;
-+	struct sas_task *task = ascb->uldd_task;
-+	struct task_status_struct *ts = &task->task_status;
-+	unsigned long flags;
-+	struct tc_resp_sb_struct {
-+		__le16 index_escb;
-+		u8     len_lsb;
-+		u8     flags;
-+	} __attribute__ ((packed)) *resp_sb = (void *) dl->status_block;
-+
-+/* 	int  size   = ((resp_sb->flags & 7) << 8) | resp_sb->len_lsb; */
-+	int  edb_id = ((resp_sb->flags & 0x70) >> 4)-1;
-+	struct asd_ascb *escb;
-+	struct asd_dma_tok *edb;
-+	void *r;
-+
-+	spin_lock_irqsave(&asd_ha->seq.tc_index_lock, flags);
-+	escb = asd_tc_index_find(&asd_ha->seq,
-+				 (int)le16_to_cpu(resp_sb->index_escb));
-+	spin_unlock_irqrestore(&asd_ha->seq.tc_index_lock, flags);
-+
-+	if (!escb) {
-+		ASD_DPRINTK("Uh-oh! No escb for this dl?!\n");
-+		return;
-+	}
-+	
-+	ts->buf_valid_size = 0;
-+	edb = asd_ha->seq.edb_arr[edb_id + escb->edb_index];
-+	r = edb->vaddr;
-+	if (task->task_proto == SAS_PROTO_SSP) {
-+		struct ssp_response_iu *iu =
-+			r + 16 + sizeof(struct ssp_frame_hdr);
-+
-+		ts->residual = le32_to_cpu(*(__le32 *)r);
-+		ts->resp = SAS_TASK_COMPLETE;
-+		if (iu->datapres == 0)
-+			ts->stat = iu->status;
-+		else if (iu->datapres == 1)
-+			ts->stat = iu->resp_data[3];
-+		else if (iu->datapres == 2) {
-+			ts->stat = SAM_CHECK_COND;
-+			ts->buf_valid_size = min((u32) SAS_STATUS_BUF_SIZE,
-+					 be32_to_cpu(iu->sense_data_len));
-+			memcpy(ts->buf, iu->sense_data, ts->buf_valid_size);
-+			if (iu->status != SAM_CHECK_COND) {
-+				ASD_DPRINTK("device %llx sent sense data, but "
-+					    "stat(0x%x) is not CHECK_CONDITION"
-+					    "\n",
-+					    SAS_ADDR(task->dev->sas_addr),
-+					    ts->stat);
-+			}
-+		}
-+	}  else {
-+		struct ata_task_resp *resp = (void *) &ts->buf[0];
-+		
-+		ts->residual = le32_to_cpu(*(__le32 *)r);
-+
-+		if (SAS_STATUS_BUF_SIZE >= sizeof(*resp)) {
-+			resp->frame_len = le16_to_cpu(*(__le16 *)(r+6));
-+			memcpy(&resp->ending_fis[0], r+16, 24);
-+			ts->buf_valid_size = sizeof(*resp);
-+		}
++	err = -ENOENT;
++	if (!asd_find_flash_dir(asd_ha, flash_dir)) {
++		ASD_DPRINTK("couldn't find flash directory\n");
++		goto out;
 +	}
 +
-+	asd_invalidate_edb(escb, edb_id);
-+}
-+
-+static void asd_task_tasklet_complete(struct asd_ascb *ascb,
-+				      struct done_list_struct *dl)
-+{
-+	struct sas_task *task = ascb->uldd_task;
-+	struct task_status_struct *ts = &task->task_status;
-+	unsigned long flags;
-+	u8 opcode = dl->opcode;
-+
-+	asd_can_dequeue(ascb->ha, 1);
-+
-+Again:
-+	switch (opcode) {
-+	case TC_NO_ERROR:
-+		ts->resp = SAS_TASK_COMPLETE;
-+		ts->stat = SAM_GOOD;
-+		break;
-+	case TC_UNDERRUN:
-+		ts->resp = SAS_TASK_COMPLETE;
-+		ts->stat = SAS_DATA_UNDERRUN;
-+		ts->residual = le32_to_cpu(*(__le32 *)dl->status_block);
-+		break;
-+	case TC_OVERRUN:
-+		ts->resp = SAS_TASK_COMPLETE;
-+		ts->stat = SAS_DATA_OVERRUN;
-+		ts->residual = 0;
-+		break;
-+	case TC_SSP_RESP:
-+	case TC_ATA_RESP:
-+		ts->resp = SAS_TASK_COMPLETE;
-+		ts->stat = SAS_PROTO_RESPONSE;
-+		asd_get_response_tasklet(ascb, dl);
-+		break;
-+	case TF_OPEN_REJECT:
-+		ts->resp = SAS_TASK_UNDELIVERED;
-+		ts->stat = SAS_OPEN_REJECT;
-+		if (dl->status_block[1] & 2)
-+			ts->open_rej_reason = 1 + dl->status_block[2];
-+		else if (dl->status_block[1] & 1)
-+			ts->open_rej_reason = (dl->status_block[2] >> 4)+10;
-+		else
-+			ts->open_rej_reason = SAS_OREJ_UNKNOWN;
-+		break;
-+	case TF_OPEN_TO:
-+		ts->resp = SAS_TASK_UNDELIVERED;
-+		ts->stat = SAS_OPEN_TO;
-+		break;
-+	case TF_PHY_DOWN:
-+	case TU_PHY_DOWN:
-+		ts->resp = SAS_TASK_UNDELIVERED;
-+		ts->stat = SAS_PHY_DOWN;
-+		break;
-+	case TI_PHY_DOWN:
-+		ts->resp = SAS_TASK_COMPLETE;
-+		ts->stat = SAS_PHY_DOWN;
-+		break;
-+	case TI_BREAK:
-+	case TI_PROTO_ERR:
-+	case TI_NAK:
-+	case TI_ACK_NAK_TO:
-+	case TF_SMP_XMIT_RCV_ERR:
-+	case TC_ATA_R_ERR_RECV:
-+		ts->resp = SAS_TASK_COMPLETE;
-+		ts->stat = SAS_INTERRUPTED;
-+		break;
-+	case TF_BREAK:
-+	case TU_BREAK:		
-+	case TU_ACK_NAK_TO:
-+	case TF_SMPRSP_TO:
-+		ts->resp = SAS_TASK_UNDELIVERED;
-+		ts->stat = SAS_DEV_NO_RESPONSE;
-+		break;
-+	case TF_NAK_RECV:
-+		ts->resp = SAS_TASK_COMPLETE;
-+		ts->stat = SAS_NAK_R_ERR;
-+		break;
-+	case TA_I_T_NEXUS_LOSS:
-+		opcode = dl->status_block[0];
-+		goto Again;
-+		break;
-+	case TF_INV_CONN_HANDLE:
-+		ts->resp = SAS_TASK_UNDELIVERED;
-+		ts->stat = SAS_DEVICE_UNKNOWN;
-+		break;
-+	case TF_REQUESTED_N_PENDING:
-+		ts->resp = SAS_TASK_UNDELIVERED;
-+		ts->stat = SAS_PENDING;
-+		break;
-+	case TC_TASK_CLEARED:
-+	case TA_ON_REQ:
-+		ts->resp = SAS_TASK_COMPLETE;
-+		ts->stat = SAS_ABORTED_TASK;
-+		break;
-+
-+	case TF_NO_SMP_CONN:
-+	case TF_TMF_NO_CTX:
-+	case TF_TMF_NO_TAG:
-+	case TF_TMF_TAG_FREE:
-+	case TF_TMF_TASK_DONE:
-+	case TF_TMF_NO_CONN_HANDLE:
-+	case TF_IRTT_TO:
-+	case TF_IU_SHORT:
-+	case TF_DATA_OFFS_ERR:
-+		ts->resp = SAS_TASK_UNDELIVERED;
-+		ts->stat = SAS_DEV_NO_RESPONSE;
-+		break;
-+
-+	case TC_LINK_ADM_RESP:
-+	case TC_CONTROL_PHY:
-+	case TC_RESUME:
-+	case TC_PARTIAL_SG_LIST:
-+	default:
-+		ASD_DPRINTK("%s: dl opcode: 0x%x?\n", __FUNCTION__, opcode);
-+		break;
++	if (le32_to_cpu(flash_dir->rev) != 2) {
++		asd_printk("unsupported flash dir version:0x%x\n",
++			   le32_to_cpu(flash_dir->rev));
++		goto out;
 +	}
 +
-+	switch (task->task_proto) {
-+	case SATA_PROTO:
-+	case SAS_PROTO_STP:
-+		asd_unbuild_ata_ascb(ascb);
-+		break;
-+	case SAS_PROTO_SMP:
-+		asd_unbuild_smp_ascb(ascb);
-+		break;
-+	case SAS_PROTO_SSP:
-+		asd_unbuild_ssp_ascb(ascb);
-+	default:
-+		break;
++	err = asd_process_ms(asd_ha, flash_dir);
++	if (err) {
++		ASD_DPRINTK("couldn't process manuf sector settings\n");
++		goto out;
 +	}
 +
-+	spin_lock_irqsave(&task->task_state_lock, flags);
-+	task->task_state_flags &= ~SAS_TASK_STATE_PENDING;
-+	task->task_state_flags |= SAS_TASK_STATE_DONE;
-+	if (unlikely((task->task_state_flags & SAS_TASK_STATE_ABORTED))) {
-+		spin_unlock_irqrestore(&task->task_state_lock, flags);
-+		ASD_DPRINTK("task 0x%p done with opcode 0x%x resp 0x%x "
-+			    "stat 0x%x but aborted by upper layer!\n",
-+			    task, opcode, ts->resp, ts->stat);
-+		complete(&ascb->completion);
-+	} else {
-+		spin_unlock_irqrestore(&task->task_state_lock, flags);
-+		task->lldd_task = NULL;
-+		asd_ascb_free(ascb);
-+		mb();
-+		task->task_done(task);
-+	}
-+}
-+
-+/* ---------- ATA ---------- */
-+
-+static int asd_build_ata_ascb(struct asd_ascb *ascb, struct sas_task *task,
-+			      unsigned long gfp_flags)
-+{
-+	struct domain_device *dev = task->dev;
-+	struct scb *scb;
-+	u8     flags;
-+	int    res = 0;
-+	
-+	scb = ascb->scb;
-+
-+	if (unlikely(task->ata_task.device_control_reg_update))
-+		scb->header.opcode = CONTROL_ATA_DEV;
-+	else if (dev->sata_dev.command_set == ATA_COMMAND_SET)
-+		scb->header.opcode = INITIATE_ATA_TASK;
-+	else
-+		scb->header.opcode = INITIATE_ATAPI_TASK;
-+	
-+	scb->ata_task.proto_conn_rate = (1 << 5); /* STP */
-+	if (dev->port->oob_mode == SAS_OOB_MODE)
-+		scb->ata_task.proto_conn_rate |= dev->linkrate;
-+
-+	scb->ata_task.total_xfer_len = cpu_to_le32(task->total_xfer_len);
-+	scb->ata_task.fis = task->ata_task.fis;
-+	scb->ata_task.fis.fis_type = 0x27;
-+	if (likely(!task->ata_task.device_control_reg_update))
-+		scb->ata_task.fis.flags |= 0x80; /* C=1: update ATA cmd reg */
-+	scb->ata_task.fis.flags &= 0xF0; /* PM_PORT field shall be 0 */
-+	if (dev->sata_dev.command_set == ATAPI_COMMAND_SET)
-+		memcpy(scb->ata_task.atapi_packet, task->ata_task.atapi_packet,
-+		       16);
-+	scb->ata_task.sister_scb = cpu_to_le16(0xFFFF);
-+	scb->ata_task.conn_handle = cpu_to_le16(
-+		(u16)(unsigned long)dev->lldd_dev);
-+
-+	if (likely(!task->ata_task.device_control_reg_update)) {
-+		flags = 0;
-+		if (task->ata_task.dma_xfer)
-+			flags |= DATA_XFER_MODE_DMA;
-+		if (task->ata_task.use_ncq &&
-+		    dev->sata_dev.command_set != ATAPI_COMMAND_SET)
-+			flags |= ATA_Q_TYPE_NCQ;
-+		flags |= data_dir_flags[task->data_dir];
-+		scb->ata_task.ata_flags = flags;
-+	
-+		scb->ata_task.retry_count = task->ata_task.retry_count;
-+
-+		flags = 0;
-+		if (task->ata_task.set_affil_pol)
-+			flags |= SET_AFFIL_POLICY;
-+		if (task->ata_task.stp_affil_pol)
-+			flags |= STP_AFFIL_POLICY;
-+		scb->ata_task.flags = flags;
-+	}
-+	ascb->tasklet_complete = asd_task_tasklet_complete;
-+
-+	if (likely(!task->ata_task.device_control_reg_update))
-+		res = asd_map_scatterlist(task, scb->ata_task.sg_element,
-+					  gfp_flags);
-+
-+	return res;
-+}
-+
-+static void asd_unbuild_ata_ascb(struct asd_ascb *a)
-+{
-+	asd_unmap_scatterlist(a);
-+}
-+
-+/* ---------- SMP ---------- */
-+
-+static int asd_build_smp_ascb(struct asd_ascb *ascb, struct sas_task *task,
-+			      unsigned long gfp_flags)
-+{
-+	struct asd_ha_struct *asd_ha = ascb->ha;
-+	struct domain_device *dev = task->dev;
-+	struct scb *scb;
-+
-+	pci_map_sg(asd_ha->pcidev, &task->smp_task.smp_req, 1,
-+		   PCI_DMA_FROMDEVICE);
-+	pci_map_sg(asd_ha->pcidev, &task->smp_task.smp_resp, 1,
-+		   PCI_DMA_FROMDEVICE);
-+
-+	scb = ascb->scb;
-+
-+	scb->header.opcode = INITIATE_SMP_TASK;
-+
-+	scb->smp_task.proto_conn_rate = dev->linkrate;
-+	
-+	scb->smp_task.smp_req.bus_addr =
-+		cpu_to_le64((u64)sg_dma_address(&task->smp_task.smp_req));
-+	scb->smp_task.smp_req.size =
-+		cpu_to_le32((u32)sg_dma_len(&task->smp_task.smp_req)-4);
-+
-+	scb->smp_task.smp_resp.bus_addr =
-+		cpu_to_le64((u64)sg_dma_address(&task->smp_task.smp_resp));
-+	scb->smp_task.smp_resp.size =
-+		cpu_to_le32((u32)sg_dma_len(&task->smp_task.smp_resp)-4);
-+
-+	scb->smp_task.sister_scb = cpu_to_le16(0xFFFF);
-+	scb->smp_task.conn_handle = cpu_to_le16((u16)
-+						(unsigned long)dev->lldd_dev);
-+
-+	ascb->tasklet_complete = asd_task_tasklet_complete;
-+	
-+	return 0;
-+}
-+
-+static void asd_unbuild_smp_ascb(struct asd_ascb *a)
-+{
-+	struct sas_task *task = a->uldd_task;
-+
-+	BUG_ON(!task);
-+	pci_unmap_sg(a->ha->pcidev, &task->smp_task.smp_req, 1,
-+		     PCI_DMA_FROMDEVICE);
-+	pci_unmap_sg(a->ha->pcidev, &task->smp_task.smp_resp, 1,
-+		     PCI_DMA_FROMDEVICE);
-+}
-+
-+/* ---------- SSP ---------- */
-+
-+static int asd_build_ssp_ascb(struct asd_ascb *ascb, struct sas_task *task,
-+			      unsigned long gfp_flags)
-+{
-+	struct domain_device *dev = task->dev;
-+	struct scb *scb;
-+	int    res = 0;
-+	
-+	scb = ascb->scb;
-+
-+	scb->header.opcode = INITIATE_SSP_TASK;
-+
-+	scb->ssp_task.proto_conn_rate  = (1 << 4); /* SSP */
-+	scb->ssp_task.proto_conn_rate |= dev->linkrate;
-+	scb->ssp_task.total_xfer_len = cpu_to_le32(task->total_xfer_len);
-+	scb->ssp_task.ssp_frame.frame_type = SSP_DATA;
-+	memcpy(scb->ssp_task.ssp_frame.hashed_dest_addr, dev->hashed_sas_addr,
-+	       HASHED_SAS_ADDR_SIZE);
-+	memcpy(scb->ssp_task.ssp_frame.hashed_src_addr,
-+	       dev->port->ha->hashed_sas_addr, HASHED_SAS_ADDR_SIZE);
-+	scb->ssp_task.ssp_frame.tptt = cpu_to_be16(0xFFFF);
-+
-+	memcpy(scb->ssp_task.ssp_cmd.lun, task->ssp_task.LUN, 8);
-+	if (task->ssp_task.enable_first_burst)
-+		scb->ssp_task.ssp_cmd.efb_prio_attr |= EFB_MASK;
-+	scb->ssp_task.ssp_cmd.efb_prio_attr |= (task->ssp_task.task_prio << 3);
-+	scb->ssp_task.ssp_cmd.efb_prio_attr |= (task->ssp_task.task_attr & 7);
-+	memcpy(scb->ssp_task.ssp_cmd.cdb, task->ssp_task.cdb, 16);
-+
-+	scb->ssp_task.sister_scb = cpu_to_le16(0xFFFF);
-+	scb->ssp_task.conn_handle = cpu_to_le16(
-+		(u16)(unsigned long)dev->lldd_dev);
-+	scb->ssp_task.data_dir = data_dir_flags[task->data_dir];
-+	scb->ssp_task.retry_count = scb->ssp_task.retry_count;
-+
-+	ascb->tasklet_complete = asd_task_tasklet_complete;
-+
-+	res = asd_map_scatterlist(task, scb->ssp_task.sg_element, gfp_flags);
-+
-+	return res;
-+}
-+
-+static void asd_unbuild_ssp_ascb(struct asd_ascb *a)
-+{
-+	asd_unmap_scatterlist(a);
-+}
-+
-+/* ---------- Execute Task ---------- */
-+
-+static inline int asd_can_queue(struct asd_ha_struct *asd_ha, int num)
-+{
-+	int res = 0;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&asd_ha->seq.pend_q_lock, flags);
-+	if ((asd_ha->seq.can_queue - num) < 0)
-+		res = -SAS_QUEUE_FULL;
-+	else
-+		asd_ha->seq.can_queue -= num;
-+	spin_unlock_irqrestore(&asd_ha->seq.pend_q_lock, flags);
-+	
-+	return res;
-+}
-+
-+int asd_execute_task(struct sas_task *task, const int num,
-+		     unsigned long gfp_flags)
-+{
-+	int res = 0;
-+	LIST_HEAD(alist);
-+	struct sas_task *t = task;
-+	struct asd_ascb *ascb = NULL, *a;
-+	struct asd_ha_struct *asd_ha = task->dev->port->ha->lldd_ha;
-+
-+	res = asd_can_queue(asd_ha, num);
-+	if (res)
-+		return res;
-+
-+	res = num;
-+	ascb = asd_ascb_alloc_list(asd_ha, &res, gfp_flags);
-+	if (res) {
-+		res = -ENOMEM;
-+		goto out_err;
++	err = asd_process_ctrl_a_user(asd_ha, flash_dir);
++	if (err) {
++		ASD_DPRINTK("couldn't process CTRL-A user settings\n");
++		goto out;
 +	}
 +
-+	__list_add(&alist, ascb->list.prev, &ascb->list);
-+	list_for_each_entry(a, &alist, list) {
-+		a->uldd_task = t;
-+		t->lldd_task = a;
-+		t = list_entry(t->list.next, struct sas_task, list);
-+	}
-+	list_for_each_entry(a, &alist, list) {
-+		t = a->uldd_task;
-+		a->uldd_timer = 1;
-+		if (t->task_proto & SAS_PROTO_STP)
-+			t->task_proto = SAS_PROTO_STP;
-+		switch (t->task_proto) {
-+		case SATA_PROTO:
-+		case SAS_PROTO_STP:
-+			res = asd_build_ata_ascb(a, t, gfp_flags);
-+			break;
-+		case SAS_PROTO_SMP:
-+			res = asd_build_smp_ascb(a, t, gfp_flags);
-+			break;
-+		case SAS_PROTO_SSP:
-+			res = asd_build_ssp_ascb(a, t, gfp_flags);
-+			break;
-+		default:
-+			asd_printk("unknown sas_task proto: 0x%x\n",
-+				   t->task_proto);
-+			res = -ENOMEM;
-+			break;
-+		}
-+		if (res)
-+			goto out_err_unmap;
-+	}
-+	list_del_init(&alist);
-+
-+	res = asd_post_ascb_list(asd_ha, ascb, num);
-+	if (unlikely(res)) {
-+		a = NULL;
-+		__list_add(&alist, ascb->list.prev, &ascb->list);
-+		goto out_err_unmap;
-+	}
-+
-+	return 0;
-+out_err_unmap:
-+	{
-+		struct asd_ascb *b = a;
-+		list_for_each_entry(a, &alist, list) {
-+			if (a == b)
-+				break;
-+			t = a->uldd_task;
-+			switch (t->task_proto) {
-+			case SATA_PROTO:
-+			case SAS_PROTO_STP:
-+				asd_unbuild_ata_ascb(a);
-+				break;
-+			case SAS_PROTO_SMP:
-+				asd_unbuild_smp_ascb(a);
-+				break;
-+			case SAS_PROTO_SSP:
-+				asd_unbuild_ssp_ascb(a);
-+			default:
-+				break;
-+			}
-+			t->lldd_task = NULL;
-+		}
-+	}			
-+	list_del_init(&alist);
-+out_err:
-+	if (ascb)
-+		asd_ascb_free_list(ascb);
-+	asd_can_dequeue(asd_ha, num);
-+	return res;
++out:
++	kfree(flash_dir);
++	return err;
 +}
 

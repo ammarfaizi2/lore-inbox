@@ -1,64 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964810AbVIIOIq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964899AbVIIOOU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964810AbVIIOIq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 10:08:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964889AbVIIOIq
+	id S964899AbVIIOOU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 10:14:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964902AbVIIOOU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 10:08:46 -0400
-Received: from main.gmane.org ([80.91.229.2]:11149 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S964810AbVIIOIp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 10:08:45 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Ed L Cashin <ecashin@coraid.com>
-Subject: Re: aoe fails on sparc64
-Date: Fri, 09 Sep 2005 10:06:12 -0400
-Message-ID: <87r7bygwtn.fsf@coraid.com>
-References: <3afbacad0508310630797f397d@mail.gmail.com>
-	<87vf1mm7fk.fsf@coraid.com>
-	<20050831.232430.50551657.davem@davemloft.net>
-	<87k6i0bnyn.fsf@coraid.com>
-	<3afbacad05090309064b3cad87@mail.gmail.com>
-	<87ll2agcq0.fsf@coraid.com>
-Mime-Version: 1.0
+	Fri, 9 Sep 2005 10:14:20 -0400
+Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:30942 "EHLO
+	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S964899AbVIIOOU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 10:14:20 -0400
+From: Grant Coady <grant_lkml@dodo.com.au>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: PATCH net-Kconfig-pocket_adapter-ISA-to-PARPORT
+Date: Sat, 10 Sep 2005 00:14:05 +1000
+Organization: http://bugsplatter.mine.nu/
+Message-ID: <n063i1tj2s2nlqkkt9qb0c2effjpu0date@4ax.com>
+X-Mailer: Forte Agent 2.0/32.652
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-Cc: "David S. Miller" <davem@davemloft.net>,
-       Jim MacBaine <jmacbaine@gmail.com>
-X-Gmane-NNTP-Posting-Host: adsl-19-26-204.asm.bellsouth.net
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-Cancel-Lock: sha1:p7Q/2D2JrceJ048+LILnG5ur23o=
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed L Cashin <ecashin@coraid.com> writes:
+Hi Jeff,
 
-...
-> Let's take this discussion off the lkml, because I doubt there's a
-> problem with the aoe driver in the kernel, and I can easily follow up
-> to the lkml with a synopsis if it turns out I'm wrong.
 
-It looks like I was probably wrong.  I need to do some debugging, but
-the only sparc64 machine here at hand is in use.
+This patch changes pocket and parallel adaptors to depend on PARPORT 
+instead of ISA in order to get the option in newer SuperIO based systems.
 
-If anybody would be up for running 2.6.13 on a sparc64 host and
-running tests with a patched aoe driver, please let me know.  A test
-would look something like this, using an x86 host and a sparc64 host
-on the same LAN.
+Tested on x86 (AMD K7).  Also applies to 2.6.13-git8 cleanly.
 
-  x86$ dd if=/dev/zero of=/tmp/0x1234567 bs=1k count=1 seek=19088742
-  x86$ vblade 0 1 eth0 /tmp/0x1234567
+Signed-off-by: Grant Coady <gcoady@gmail.com>
 
-  sparc64$ rmmod aoe
-  sparc64$ cd ~/linux-2.6.13
-  sparc64$ patch -p1 < aoe.diff
-  sparc64$ make && make modules_install
-  sparc64$ modprobe aoe
+---
+ Kconfig |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
-I'd email you patches, and you'd email me the printk messages that
-show up in the logs.  Such help would be much appreciated.
-
--- 
-  Ed L Cashin <ecashin@coraid.com>
-
+--- linux-2.6.13-mm2/drivers/net/Kconfig	2005-09-09 23:18:28.000000000 +1000
++++ linux-2.6.13-mm2b/drivers/net/Kconfig	2005-09-09 23:58:46.000000000 +1000
+@@ -1647,7 +1647,7 @@
+ 
+ config NET_POCKET
+ 	bool "Pocket and portable adapters"
+-	depends on NET_ETHERNET && ISA
++	depends on NET_ETHERNET && PARPORT
+ 	---help---
+ 	  Cute little network (Ethernet) devices which attach to the parallel
+ 	  port ("pocket adapters"), commonly used with laptops. If you have
+@@ -1671,7 +1671,7 @@
+ 
+ config ATP
+ 	tristate "AT-LAN-TEC/RealTek pocket adapter support"
+-	depends on NET_POCKET && ISA && X86
++	depends on NET_POCKET && PARPORT && X86
+ 	select CRC32
+ 	---help---
+ 	  This is a network (Ethernet) device which attaches to your parallel
+@@ -1686,7 +1686,7 @@
+ 
+ config DE600
+ 	tristate "D-Link DE600 pocket adapter support"
+-	depends on NET_POCKET && ISA
++	depends on NET_POCKET && PARPORT
+ 	---help---
+ 	  This is a network (Ethernet) device which attaches to your parallel
+ 	  port. Read <file:Documentation/networking/DLINK.txt> as well as the
+@@ -1701,7 +1701,7 @@
+ 
+ config DE620
+ 	tristate "D-Link DE620 pocket adapter support"
+-	depends on NET_POCKET && ISA
++	depends on NET_POCKET && PARPORT
+ 	---help---
+ 	  This is a network (Ethernet) device which attaches to your parallel
+ 	  port. Read <file:Documentation/networking/DLINK.txt> as well as the

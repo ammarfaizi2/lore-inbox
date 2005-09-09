@@ -1,52 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030256AbVIILiI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030259AbVIILl5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030256AbVIILiI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 07:38:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030258AbVIILiI
+	id S1030259AbVIILl5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 07:41:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030260AbVIILl5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 07:38:08 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:19947 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
-	id S1030256AbVIILiH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 07:38:07 -0400
-Date: Fri, 9 Sep 2005 14:38:03 +0300 (EEST)
-From: Pekka J Enberg <penberg@cs.Helsinki.FI>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-ntfs-dev@lists.sourceforge.net
-Subject: Re: [PATCH 2/25] NTFS: Allow highmem kmalloc()	in	ntfs_malloc_nofs()
- and add _nofail() version.
-In-Reply-To: <1126265138.24291.21.camel@imp.csi.cam.ac.uk>
-Message-ID: <Pine.LNX.4.58.0509091426510.28121@sbz-30.cs.Helsinki.FI>
-References: <Pine.LNX.4.60.0509090950100.11051@hermes-1.csi.cam.ac.uk> 
- <Pine.LNX.4.60.0509091019290.26845@hermes-1.csi.cam.ac.uk> 
- <84144f0205090903366454da6@mail.gmail.com>  <1126263740.24291.16.camel@imp.csi.cam.ac.uk>
-  <Pine.LNX.4.58.0509091407220.27527@sbz-30.cs.Helsinki.FI>
- <1126265138.24291.21.camel@imp.csi.cam.ac.uk>
+	Fri, 9 Sep 2005 07:41:57 -0400
+Received: from sv1.valinux.co.jp ([210.128.90.2]:46218 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S1030259AbVIILl5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 07:41:57 -0400
+Date: Fri, 09 Sep 2005 20:38:49 +0900 (JST)
+Message-Id: <20050909.203849.33293224.taka@valinux.co.jp>
+To: pj@sgi.com
+Cc: magnus.damm@gmail.com, kurosawa@valinux.co.jp, dino@in.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/5] SUBCPUSETS: a resource control functionality using
+ CPUSETS
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+In-Reply-To: <20050908225539.0bc1acf6.pj@sgi.com>
+References: <20050909013804.1B64B70037@sv1.valinux.co.jp>
+	<aec7e5c305090821126cea6b57@mail.gmail.com>
+	<20050908225539.0bc1acf6.pj@sgi.com>
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Sep 2005, Anton Altaparmakov wrote:
-> They could be but I would rather not.  What if one day I decide to
-> change how ntfs_malloc_nofs() works?  Then it would be needed to
-> carefully go through the whole driver looking for places where kmalloc
-> is used and change those, too.
-> 
-> From a software design point of view you should never mix interfaces
-> when accessing an object if you want clean and maintainable code.  And
-> using kmalloc() sometimes and ntfs_malloc_nofs() at other times for the
-> same object would violate that.
-> 
-> The wrapper is a static inline so I would assume gcc can optimize away
-> everything when a constant size is passed in like in the example you
-> point out above.
+Hi,
 
-Hey, I am not worried about performance. It's just that filesystems (or 
-any other subsystem for that matter) should not invent their own memory 
-allocators. Perhaps should provide a generic __vmalloc_fast() if this is 
-really required?
+> magnus wrote:
+> > Maybe it is possible to have an hierarchical model and keep the
+> > framework simple and easy to understand while providing guarantees,
+> 
+> Dinakar's patches to use cpu_exclusive cpusets to define dynamic
+> sched domains accomplish something like this.
+> 
+> What scheduler domains and resource control domains both need
+> are non-overlapping subsets of the CPUs and/or Memory Nodes.
+> 
+> In the case of sched domains, you normally want the subsets
+> to cover all the CPUs.  You want every CPU to have exactly
+> one scheduler that is responsible for its scheduling.
+> 
+> In the case of resource control domains, you perhaps don't
+> care if some CPUs or Memory Nodes have no particular resources
+> constraints defined for them.  In that case, every CPU and
+> every Memory Node maps to _either_ zero or one resource control
+> domain.
+> 
+> Either way, a 'flat model' non-overlapping partitioning of the
+> CPUs and/or Memory Nodes can be obtained from a hierarchical
+> model (nested sets of subsets) by selecting some of the subsets
+> that don't overlap ;).  In /dev/cpuset, this selection is normally
+> made by specifying another boolean file (contains '0' or '1')
+> that controls whether that cpuset is one of the selected subsets.
 
-				Pekka
+What do you think if you make cpusets for sched domain be able to
+have their siblings, which have the same attribute and share
+their resources between them.
+
+I guess it would be simple.
+
+Thanks,
+Hirokazu Takahashi.

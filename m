@@ -1,154 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964922AbVIIDMM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751392AbVIID1N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964922AbVIIDMM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Sep 2005 23:12:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751392AbVIIDMM
+	id S1751392AbVIID1N (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Sep 2005 23:27:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751395AbVIID1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Sep 2005 23:12:12 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:2541 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1751251AbVIIDMK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Sep 2005 23:12:10 -0400
-Date: Thu, 8 Sep 2005 23:12:07 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [git patch] libata fixes
-Message-ID: <20050909031207.GA25014@havoc.gtf.org>
-Mime-Version: 1.0
+	Thu, 8 Sep 2005 23:27:13 -0400
+Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:47543 "EHLO
+	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP
+	id S1751392AbVIID1M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Sep 2005 23:27:12 -0400
+X-ORBL: [69.107.75.50]
+Date: Thu, 08 Sep 2005 20:27:09 -0700
+From: David Brownell <david-b@pacbell.net>
+To: lkml@rtr.ca, gregkh@suse.de
+Subject: Re: [linux-usb-devel] Re: [GIT PATCH] USB patches for 2.6.13
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+References: <20050908235024.GA8159@kroah.com> <4320F661.2010706@rtr.ca>
+In-Reply-To: <4320F661.2010706@rtr.ca>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-Id: <20050909032709.5695DE9DCC@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Mark,
 
-Please pull from 'upstream' branch of
-master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
+> Is someone actively working on USB Suspend/Resume support yet?
 
-to obtain fixes for last-minute problems noticed in current build,
-following GregKH's PCI merge.
+I've got some patches that need refreshing and splitting-out that
+don't seem like 2.6.14 material in the "new world", but maybe a
+few of them are.
 
-
- drivers/scsi/sata_mv.c  |   16 ----------------
- drivers/scsi/sata_sis.c |   20 +++++++++++---------
- 2 files changed, 11 insertions(+), 25 deletions(-)
-
-
-
-commit 8add788574694c5aed04fcb281a5c999e40cd8f6
-Author: Jeff Garzik <jgarzik@pobox.com>
-Date:   Thu Sep 8 23:07:29 2005 -0400
-
-    [libata] minor fixes
-    
-    * sata_mv: remove pci_intx(), now that the same function is in PCI core
-    * sata_sis: fix variable initialization bug, trim trailing whitespace
+There are also a handful of EHCI and OHCI fixes pending for 2.6.14
+which aren't in Greg's latest batch, some of which affect USB PM.
+I understand they'll get into the MM tree soon.
 
 
+> I ask because this is becoming more and more important as people
+> shift more to portable notebook computers with Linux.
+>
+> Enabling CONFIG_USB_SUSPEND is currently a surefire way to
+> guarantee crashing my own notebook on suspend/resume,
+> whereas it *usually* (but not always) survives when that
+> config option is left unset.
 
-diff --git a/drivers/scsi/sata_mv.c b/drivers/scsi/sata_mv.c
---- a/drivers/scsi/sata_mv.c
-+++ b/drivers/scsi/sata_mv.c
-@@ -699,22 +699,6 @@ static int mv_host_init(struct ata_probe
- 	return rc;
- }
- 
--/* move to PCI layer, integrate w/ MSI stuff */
--static void pci_intx(struct pci_dev *pdev, int enable)
--{
--	u16 pci_command, new;
--
--	pci_read_config_word(pdev, PCI_COMMAND, &pci_command);
--
--	if (enable)
--		new = pci_command & ~PCI_COMMAND_INTX_DISABLE;
--	else
--		new = pci_command | PCI_COMMAND_INTX_DISABLE;
--
--	if (new != pci_command)
--		pci_write_config_word(pdev, PCI_COMMAND, pci_command);
--}
--
- static int mv_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
- {
- 	static int printed_version = 0;
-diff --git a/drivers/scsi/sata_sis.c b/drivers/scsi/sata_sis.c
---- a/drivers/scsi/sata_sis.c
-+++ b/drivers/scsi/sata_sis.c
-@@ -55,7 +55,7 @@ enum {
- 	SIS180_SATA1_OFS	= 0x10, /* offset from sata0->sata1 phy regs */
- 	SIS182_SATA1_OFS	= 0x20, /* offset from sata0->sata1 phy regs */
- 	SIS_PMR			= 0x90, /* port mapping register */
--	SIS_PMR_COMBINED	= 0x30, 
-+	SIS_PMR_COMBINED	= 0x30,
- 
- 	/* random bits */
- 	SIS_FLAG_CFGSCR		= (1 << 30), /* host flag: SCRs via PCI cfg */
-@@ -147,11 +147,13 @@ static unsigned int get_scr_cfg_addr(uns
- {
- 	unsigned int addr = SIS_SCR_BASE + (4 * sc_reg);
- 
--	if (port_no) 
-+	if (port_no)  {
- 		if (device == 0x182)
- 			addr += SIS182_SATA1_OFS;
- 		else
- 			addr += SIS180_SATA1_OFS;
-+	}
-+
- 	return addr;
- }
- 
-@@ -166,10 +168,10 @@ static u32 sis_scr_cfg_read (struct ata_
- 		return 0xffffffff;
- 
- 	pci_read_config_byte(pdev, SIS_PMR, &pmr);
--	
-+
- 	pci_read_config_dword(pdev, cfg_addr, &val);
- 
--	if ((pdev->device == 0x182) || (pmr & SIS_PMR_COMBINED)) 
-+	if ((pdev->device == 0x182) || (pmr & SIS_PMR_COMBINED))
- 		pci_read_config_dword(pdev, cfg_addr+0x10, &val2);
- 
- 	return val|val2;
-@@ -185,7 +187,7 @@ static void sis_scr_cfg_write (struct at
- 		return;
- 
- 	pci_read_config_byte(pdev, SIS_PMR, &pmr);
--	
-+
- 	pci_write_config_dword(pdev, cfg_addr, val);
- 
- 	if ((pdev->device == 0x182) || (pmr & SIS_PMR_COMBINED))
-@@ -195,7 +197,7 @@ static void sis_scr_cfg_write (struct at
- static u32 sis_scr_read (struct ata_port *ap, unsigned int sc_reg)
- {
- 	struct pci_dev *pdev = to_pci_dev(ap->host_set->dev);
--	u32 val,val2;
-+	u32 val, val2 = 0;
- 	u8 pmr;
- 
- 	if (sc_reg > SCR_CONTROL)
-@@ -209,9 +211,9 @@ static u32 sis_scr_read (struct ata_port
- 	val = inl(ap->ioaddr.scr_addr + (sc_reg * 4));
- 
- 	if ((pdev->device == 0x182) || (pmr & SIS_PMR_COMBINED))
--		val2 = inl(ap->ioaddr.scr_addr + (sc_reg * 4)+0x10);
-+		val2 = inl(ap->ioaddr.scr_addr + (sc_reg * 4) + 0x10);
- 
--	return val|val2;
-+	return val | val2;
- }
- 
- static void sis_scr_write (struct ata_port *ap, unsigned int sc_reg, u32 val)
-@@ -223,7 +225,7 @@ static void sis_scr_write (struct ata_po
- 		return;
- 
- 	pci_read_config_byte(pdev, SIS_PMR, &pmr);
--	
-+
- 	if (ap->flags & SIS_FLAG_CFGSCR)
- 		sis_scr_cfg_write(ap, sc_reg, val);
- 	else {
+That's strange.  For me it's been closer to the other way around,
+except that things never crash for me.  Something tells me your
+hardware and/or BIOS is different...
+
+Some of the PM and usbcore changes have been tweaking assumptions;
+which of course makes some of the more sensitive code paths unhappy.
+
+
+> Nothing complicated in the configuration -- just a USB mouse,
+> but that's enough to nuke it.
+>
+> Anyone looking at that stuff right now?
+
+I don't know that anyone's looking specifically at the issue that
+the HID (mouse) driver has; I'm not.
+
+If your system behaves OK without that mouse connected, it ought
+to be easy to fix that one bug.  If not, forward details to
+linux-usb-devel (separate thread).
+
+- Dave
+

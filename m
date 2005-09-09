@@ -1,97 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965248AbVIIEMN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965253AbVIIE5M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965248AbVIIEMN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 00:12:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965249AbVIIEMN
+	id S965253AbVIIE5M (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 00:57:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965255AbVIIE5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 00:12:13 -0400
-Received: from zproxy.gmail.com ([64.233.162.195]:30168 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965248AbVIIEML convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 00:12:11 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=BwETPN7edvxcQcqr7vxPE+msu318u29Z+7XZbA6dYKBAbgnA9M51NGSsSsqmDNAanUlDYbBKCe7YY9hIK4uCVhKUAPYqiSyVqaHnBMdj+vFu/hyvonGs+4DxcUsCIT2Vfgh8I8RpJufocAFl23n2KOdbwpg3DqbB1CRgDSi8t40=
-Message-ID: <aec7e5c305090821126cea6b57@mail.gmail.com>
-Date: Fri, 9 Sep 2005 13:12:08 +0900
-From: Magnus Damm <magnus.damm@gmail.com>
-Reply-To: magnus.damm@gmail.com
-To: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
-Subject: Re: [PATCH 0/5] SUBCPUSETS: a resource control functionality using CPUSETS
-Cc: Paul Jackson <pj@sgi.com>, dino@in.ibm.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20050909013804.1B64B70037@sv1.valinux.co.jp>
+	Fri, 9 Sep 2005 00:57:12 -0400
+Received: from xenotime.net ([66.160.160.81]:21967 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S965253AbVIIE5L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 00:57:11 -0400
+Date: Thu, 8 Sep 2005 21:56:06 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: "J. Bruce Fields" <bfields@fieldses.org>
+Cc: magnade@gmail.com, jesper.juhl@gmail.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] Doc: update oops-tracing.txt (Tainted flags)
+Message-Id: <20050908215606.6c31790f.rdunlap@xenotime.net>
+In-Reply-To: <20050906183008.GG10632@fieldses.org>
+References: <dda83e78050904124454fc675a@mail.gmail.com>
+	<dda83e78050904135113b95c4a@mail.gmail.com>
+	<20050904215219.GA9812@fieldses.org>
+	<dda83e780509042008294fbe26@mail.gmail.com>
+	<20050905031825.GA22209@fieldses.org>
+	<dda83e78050905134420f06fbf@mail.gmail.com>
+	<9a87484905090513481118e67b@mail.gmail.com>
+	<dda83e7805090520407aefb4d1@mail.gmail.com>
+	<20050906181327.GE10632@fieldses.org>
+	<Pine.LNX.4.50.0509061119380.19596-100000@shark.he.net>
+	<20050906183008.GG10632@fieldses.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050908053912.1352770031@sv1.valinux.co.jp>
-	 <20050908002323.181fd7d5.pj@sgi.com>
-	 <20050908081819.2EA4E70031@sv1.valinux.co.jp>
-	 <20050908050232.3681cf0c.pj@sgi.com>
-	 <20050909013804.1B64B70037@sv1.valinux.co.jp>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/9/05, KUROSAWA Takahiro <kurosawa@valinux.co.jp> wrote:
-> On Thu, 8 Sep 2005 05:02:32 -0700
-> Paul Jackson <pj@sgi.com> wrote:
-> > One of my passions is to avoid special cases across API boundaries.
-> >
-> > I am proposing that you don't do subcpusets like this.
-> >
-> > Consider the following alternative I will call 'cpuset meters'.
-> >
-> > For each resource named 'R' (cpu and mem, for instance):
-> >  * Add a boolean flag 'meter_R' to each cpuset.  If set, that R is
-> >    metered, for the tasks in that cpuset or any descendent cpuset.
-> >  * If a cpuset is metered, then files named meter_R_guar, meter_R_lim
-> >    and meter_R_cur appear in that cpuset to manage R's usage by tasks
-> >    in that cpuset and descendents.
-> >  * There are no additional rules that restrict the ability to change
-> >    various other cpuset properties such as cpus, mems, cpu_exclusive,
-> >    mem_exclusive, or notify_on_release, when a cpuset is metered.
-> >  * It might be that some (or by design all) resource controllers do
-> >    not allow nesting metered cpusets.  I don't know.  But one should
-> >    (if one has permission) be able to make child cpusets of a metered
-> >    cpuset, just like one can of any other cpuset.
-> >  * A metered cpuset might well have cpus or mems that are not the
-> >    same as its parent, just like an unmetered cpuset ordinarly does.
-> 
-> Jackson-san's idea looks good for me because users don't need
-> to create special cpusets (parents of subcpusets or subcpusets).
-> From the point of users, maybe they wouldn't like to create
-> special cpusets.
 
-Yes, from the user POV it must be good to keep the hierarchical model.
-Ckrm and cpusets both provide a tree with descendents, children and
-parents. This hierarchical model is very nice IMO and provides a
-powerful API for the user.
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-> As for the resource controller that I've posted, it assumes
-> that there are groups of tasks that share the same cpumasks/nodemasks,
-> and that there are no hierarchy in that groups in order to make
-> things easier.  I'll investigate how I can attach the resource
-> controller to the cpuset meters.
+Update Documentation/oops-tracing.txt:
+- add descriptions of 3 more "Tainted" flags;
+- fix some typos;
 
-Subcpusets, compared to cpusets and ckrm, gives the user a flat model.
-No hierarchy. Limited functionality compared to the hierachical model.
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
 
-But what I think is important to keep in mind here is that cpusets and
-subcpusets do very different things. If I understand cpusets
-correctly, each cpuset may share processors or memory nodes with other
-cpusets. One task running on a shared processor may starve other
-cpusets using the same processor. This design works well with cpusets,
-but for resource controllers that must provide some kind of guarantee,
-this starvation is unsuitable.
+ Documentation/oops-tracing.txt |   25 +++++++++++++++++--------
+ 1 files changed, 17 insertions(+), 8 deletions(-)
 
-And we already have an hierarchical alternative: ckrm. But look at the
-complexity and the amount of code. I believe that the complexity in
-ckrm mainly comes from the hierarchical model.
+diff -Naurp linux-2613-work/Documentation/oops-tracing.txt~doc_taint_update linux-2613-work/Documentation/oops-tracing.txt
+--- linux-2613-work/Documentation/oops-tracing.txt~doc_taint_update	2005-08-28 16:41:01.000000000 -0700
++++ linux-2613-work/Documentation/oops-tracing.txt	2005-09-08 21:43:02.000000000 -0700
+@@ -205,8 +205,8 @@ Phone: 701-234-7556
+ Tainted kernels:
+ 
+ Some oops reports contain the string 'Tainted: ' after the program
+-counter, this indicates that the kernel has been tainted by some
+-mechanism.  The string is followed by a series of position sensitive
++counter. This indicates that the kernel has been tainted by some
++mechanism.  The string is followed by a series of position-sensitive
+ characters, each representing a particular tainted value.
+ 
+   1: 'G' if all modules loaded have a GPL or compatible license, 'P' if
+@@ -214,16 +214,25 @@ characters, each representing a particul
+      MODULE_LICENSE or with a MODULE_LICENSE that is not recognised by
+      insmod as GPL compatible are assumed to be proprietary.
+ 
+-  2: 'F' if any module was force loaded by insmod -f, ' ' if all
++  2: 'F' if any module was force loaded by "insmod -f", ' ' if all
+      modules were loaded normally.
+ 
+   3: 'S' if the oops occurred on an SMP kernel running on hardware that
+-      hasn't been certified as safe to run multiprocessor.
+-	  Currently this occurs only on various Athlons that are not
+-	  SMP capable.
++     hasn't been certified as safe to run multiprocessor.
++     Currently this occurs only on various Athlons that are not
++     SMP capable.
++
++  4: 'R' if a module was force unloaded by "rmmod -f", ' ' if all
++     modules were unloaded normally.
++
++  5: 'M' if any processor has reported a Machine Check Exception,
++     ' ' if no Machine Check Exceptions have occurred.
++
++  6: 'B' if a page-release function has found a bad page reference or
++     some unexpected page flags.
+ 
+ The primary reason for the 'Tainted: ' string is to tell kernel
+ debuggers if this is a clean kernel or if anything unusual has
+-occurred.  Tainting is permanent, even if an offending module is
+-unloading the tainted value remains to indicate that the kernel is not
++occurred.  Tainting is permanent: even if an offending module is
++unloaded, the tainted value remains to indicate that the kernel is not
+ trustworthy.
 
-Maybe it is possible to have an hierarchical model and keep the
-framework simple and easy to understand while providing guarantees,
-I'm not sure. But until that happens, I'm quite happy with a simple,
-limited flat model.
 
-/ magnus
+---

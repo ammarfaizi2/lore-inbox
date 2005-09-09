@@ -1,59 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030233AbVIIQ5w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030247AbVIIRBr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030233AbVIIQ5w (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 12:57:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030247AbVIIQ5w
+	id S1030247AbVIIRBr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 13:01:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030254AbVIIRBq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 12:57:52 -0400
-Received: from ns1.lanforge.com ([66.165.47.210]:61397 "EHLO www.lanforge.com")
-	by vger.kernel.org with ESMTP id S1030233AbVIIQ5v (ORCPT
+	Fri, 9 Sep 2005 13:01:46 -0400
+Received: from fsmlabs.com ([168.103.115.128]:38077 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S1030247AbVIIRBq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 12:57:51 -0400
-Message-ID: <4321BF0C.2000007@candelatech.com>
-Date: Fri, 09 Sep 2005 09:57:48 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.10) Gecko/20050719 Fedora/1.7.10-1.3.1
-X-Accept-Language: en-us, en
+	Fri, 9 Sep 2005 13:01:46 -0400
+Date: Fri, 9 Sep 2005 10:07:28 -0700 (PDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Ashok Raj <ashok.raj@intel.com>
+cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 13/14] x86_64: Use common functions in cluster and physflat
+ mode
+In-Reply-To: <20050906161215.B19592@unix-os.sc.intel.com>
+Message-ID: <Pine.LNX.4.61.0509091003490.978@montezuma.fsmlabs.com>
+References: <200509032135.j83LZ8gX020554@shell0.pdx.osdl.net>
+ <20050905231628.GA16476@muc.de> <20050906161215.B19592@unix-os.sc.intel.com>
 MIME-Version: 1.0
-To: Al Boldi <a1426z@gawab.com>
-CC: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Physical device to Kernel-netlink mapper
-References: <200509091538.27605.a1426z@gawab.com>
-In-Reply-To: <200509091538.27605.a1426z@gawab.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Boldi wrote:
-> Is there a virtual device that would allow to connect the communication paths 
-> from the physical devs into the kernel netlink subsystem in a way that would 
-> be more flexible than what is currently avaible?
-> 
-> Something like this:
-> 
->     Kernel-netlink
->         |
->     virtual dev
->         |
-> --> mapper/conf <--
->         |
->     physical dev(s)
-> 
-> tun/tap,bridge,bond... are devs that incorporate this idea, but don't allow 
-> for a flexible configuration.
+On Tue, 6 Sep 2005, Ashok Raj wrote:
 
-I have some other types of virtual (ethernet-ish) interfaces, but I have
-no idea what you are really asking....
+> On Tue, Sep 06, 2005 at 01:16:28AM +0200, Andi Kleen wrote:
+> > On Sat, Sep 03, 2005 at 02:33:30PM -0700, akpm@osdl.org wrote:
+> > > 
+> > > From: Ashok Raj <ashok.raj@intel.com>
+> > > 
+> > > Newly introduced physflat_* shares way too much with cluster with only a very
+> > > differences.  So we introduce some common functions in that can be reused in
+> > > both cases.
 
-Please explain in more detail.
+On a slightly different topic, how come we're using physflat for hotplug 
+cpu?
+
+-#ifndef CONFIG_CPU_HOTPLUG
+ 		/* In the CPU hotplug case we cannot use broadcast mode
+ 		   because that opens a race when a CPU is removed.
+-		   Stay at physflat mode in this case.
+-		   It is bad to do this unconditionally though. Once
+-		   we have ACPI platform support for CPU hotplug
+-		   we should detect hotplug capablity from ACPI tables and
+-		   only do this when really needed. -AK */
++		   Stay at physflat mode in this case. - AK */
++#ifdef CONFIG_HOTPLUG_CPU
+ 		if (num_cpus <= 8)
+ 			genapic = &apic_flat;
 
 Thanks,
-Ben
-
-
--- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
+	Zwane
 

@@ -1,130 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030384AbVIIWA5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030429AbVIIWDB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030384AbVIIWA5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 18:00:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030386AbVIIWA5
+	id S1030429AbVIIWDB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 18:03:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030428AbVIIWDA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 18:00:57 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:63109 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1030384AbVIIWA4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 18:00:56 -0400
-Date: Sat, 10 Sep 2005 01:58:14 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Greg KH <greg@kroah.com>
-Cc: Greg KH <gregkh@suse.de>, Marcel Holtmann <marcel@holtmann.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [GIT PATCH] W1 patches for 2.6.13
-Message-ID: <20050909215814.GA6022@2ka.mipt.ru>
-References: <20050908222105.GA6633@kroah.com> <1126222209.5286.74.camel@blade> <20050909033036.GB11369@suse.de> <20050909050825.GA16668@2ka.mipt.ru> <20050909211619.GA28696@kroah.com>
+	Fri, 9 Sep 2005 18:03:00 -0400
+Received: from ccerelbas04.cce.hp.com ([161.114.21.107]:41683 "EHLO
+	ccerelbas04.cce.hp.com") by vger.kernel.org with ESMTP
+	id S1030426AbVIIWC6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 18:02:58 -0400
+Date: Fri, 9 Sep 2005 17:02:34 -0500
+From: mike.miller@hp.com
+To: akpm@osdl.org, axboe@suse.de
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: [PATCH 2/8] cciss:busy_initializing flag
+Message-ID: <20050909220234.GB4616@beardog.cca.cpqcorp.net>
+Reply-To: mikem@beardog.cca.cpqcorp.net
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050909211619.GA28696@kroah.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Sat, 10 Sep 2005 02:00:39 +0400 (MSD)
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 09, 2005 at 02:16:19PM -0700, GregKH (greg@kroah.com) wrote:
-> On Fri, Sep 09, 2005 at 09:08:25AM +0400, Evgeniy Polyakov wrote:
-> > On Thu, Sep 08, 2005 at 08:30:36PM -0700, Greg KH (gregkh@suse.de) wrote:
-> > > On Fri, Sep 09, 2005 at 01:30:09AM +0200, Marcel Holtmann wrote:
-> > > > Hi Greg,
-> > > > 
-> > > > > Here are some w1 patches that have been in the -mm tree for a while.
-> > > > > They add a new driver, and fix up the netlink logic a lot.  They also
-> > > > > add a crc16 implementation that is needed.
-> > > > 
-> > > > adding the CRC-16 is very cool. I was just about to submit one by my
-> > > > own, because it is also needed for the Bluetooth L2CAP retransmission
-> > > > and flow control support.
-> > > > 
-> > > > What about the 1-Wire notes inside the CRC-16 code. This suppose to be
-> > > > generic code and so this doesn't belong there.
-> > > 
-> > > Yes, those comments don't belong there.  Evgeniy, want to fix this?
-> > 
-> > No problem. Patch attached.
-> > 
-> > > thanks,
-> > > 
-> > > greg k-h
-> > 
-> > Remove w1 specific comments from generic crc16 implementation.
-> > 
-> > Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-> > 
-> > diff --git a/include/linux/crc16.h b/include/linux/crc16.h
-> > --- a/include/linux/crc16.h
-> > +++ b/include/linux/crc16.h
-> > @@ -1,22 +1,11 @@
-> >  /*
-> >   *	crc16.h - CRC-16 routine
-> >   *
-> > - * Implements the standard CRC-16, as used with 1-wire devices:
-> > + * Implements the standard CRC-16:
-> >   *   Width 16
-> >   *   Poly  0x8005 (x^16 + x^15 + x^2 + 1)
-> >   *   Init  0
-> >   *
-> > - * For 1-wire devices, the CRC is stored inverted, LSB-first
-> > - *
-> > - * Example buffer with the CRC attached:
-> > - *   31 32 33 34 35 36 37 38 39 C2 44
-> > - *
-> > - * The CRC over a buffer with the CRC attached is 0xB001.
-> > - * So, if (crc16(0, buf, size) == 0xB001) then the buffer is valid.
-> > - *
-> > - * Refer to "Application Note 937: Book of iButton Standards" for details.
-> > - * http://www.maxim-ic.com/appnotes.cfm/appnote_number/937
-> > - *
-> >   * Copyright (c) 2005 Ben Gardner <bgardner@wabtec.com>
-> >   *
-> >   * This source code is licensed under the GNU General Public License,
-> > @@ -28,9 +17,6 @@
-> >  
-> >  #include <linux/types.h>
-> >  
-> > -#define CRC16_INIT		0
-> > -#define CRC16_VALID		0xb001
-> > -
-> 
-> This breaks your w1 code:
-> 	    CC [M]  drivers/w1/w1_ds2433.o
-> 	  drivers/w1/w1_ds2433.c: In function `w1_f23_refresh_block':
-> 	  drivers/w1/w1_ds2433.c:84: error: `CRC16_INIT' undeclared (first use in this function)
-> 	  drivers/w1/w1_ds2433.c:84: error: (Each undeclared identifier is reported only once
-> 	  drivers/w1/w1_ds2433.c:84: error: for each function it appears in.)
-> 	  drivers/w1/w1_ds2433.c:84: error: `CRC16_VALID' undeclared (first use in this function)
-> 	  drivers/w1/w1_ds2433.c: In function `w1_f23_write_bin':
-> 	  drivers/w1/w1_ds2433.c:224: error: `CRC16_INIT' undeclared (first use in this function)
-> 	  drivers/w1/w1_ds2433.c:224: error: `CRC16_VALID' undeclared (first use in this function)
-> 
-> 
-> So I'm not going to apply this :(
+Patch 2 of 8
+This patch adds a flag called busy_initializing. If there are multiple
+controllers in a server AND the HP agents are running it's possible
+the agents may try to poll a card that is still initializing if the 
+driver is removed and then added again.
+Please consider this for inclusion.
 
-I'm sorry - quite far from testing machines...
-Here is additional patch for ds_2433.c - it adds two missing defines.
+Signed-off-by: Don Brace <dab@hp.com>
+Signed-of-by: Mike Miller <mike.miller@hp.com>
 
---- ./drivers/w1/w1_ds2433.c.orig	2005-09-10 01:59:41.000000000 +0400
-+++ ./drivers/w1/w1_ds2433.c	2005-09-10 01:57:41.000000000 +0400
-@@ -15,6 +15,10 @@
- #include <linux/delay.h>
- #ifdef CONFIG_W1_F23_CRC
- #include <linux/crc16.h>
-+
-+#define CRC16_INIT		0
-+#define CRC16_VALID		0xb001
-+
- #endif
+ cciss.c |    8 ++++++++
+ cciss.h |    1 +
+ 2 files changed, 9 insertions(+)
+--------------------------------------------------------------------------------
+diff -burNp lx2613-p001/drivers/block/cciss.c lx2613/drivers/block/cciss.c
+--- lx2613-p001/drivers/block/cciss.c	2005-09-07 13:27:05.390086000 -0500
++++ lx2613/drivers/block/cciss.c	2005-09-07 14:27:13.573559656 -0500
+@@ -468,6 +468,9 @@ static int cciss_open(struct inode *inod
+ 	printk(KERN_DEBUG "cciss_open %s\n", inode->i_bdev->bd_disk->disk_name);
+ #endif /* CCISS_DEBUG */ 
  
- #include "w1.h"
-
-> thanks,
-> 
-> greg k-h
-
--- 
-	Evgeniy Polyakov
++	if (host->busy_initializing)
++		return -EBUSY;
++
+ 	/*
+ 	 * Root is allowed to open raw volume zero even if it's not configured
+ 	 * so array config can still work. Root is also allowed to open any
+@@ -2743,6 +2746,9 @@ static int __devinit cciss_init_one(stru
+ 	i = alloc_cciss_hba();
+ 	if(i < 0)
+ 		return (-1);
++
++	hba[i]->busy_initializing = 1;
++
+ 	if (cciss_pci_init(hba[i], pdev) != 0)
+ 		goto clean1;
+ 
+@@ -2865,6 +2871,7 @@ static int __devinit cciss_init_one(stru
+ 		add_disk(disk);
+ 	}
+ 
++	hba[i]->busy_initializing = 0;
+ 	return(1);
+ 
+ clean4:
+@@ -2885,6 +2892,7 @@ clean2:
+ clean1:
+ 	release_io_mem(hba[i]);
+ 	free_hba(i);
++	hba[i]->busy_initializing = 0;
+ 	return(-1);
+ }
+ 
+diff -burNp lx2613-p001/drivers/block/cciss.h lx2613/drivers/block/cciss.h
+--- lx2613-p001/drivers/block/cciss.h	2005-08-28 18:41:01.000000000 -0500
++++ lx2613/drivers/block/cciss.h	2005-09-07 14:24:55.174599496 -0500
+@@ -83,6 +83,7 @@ struct ctlr_info 
+ 	int			nr_allocs;
+ 	int			nr_frees; 
+ 	int			busy_configuring;
++	int			busy_initializing;
+ 
+ 	/* This element holds the zero based queue number of the last
+ 	 * queue to be started.  It is used for fairness.

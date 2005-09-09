@@ -1,669 +1,474 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030359AbVIITiN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030379AbVIITjZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030359AbVIITiN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 15:38:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030362AbVIIThn
+	id S1030379AbVIITjZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 15:39:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030362AbVIITjW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 15:37:43 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:60613 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S1030359AbVIITh3 (ORCPT
+	Fri, 9 Sep 2005 15:39:22 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:42182 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S1030377AbVIITjP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 15:37:29 -0400
-Message-ID: <4321E473.2020002@adaptec.com>
-Date: Fri, 09 Sep 2005 15:37:23 -0400
+	Fri, 9 Sep 2005 15:39:15 -0400
+Message-ID: <4321E4DD.7070405@adaptec.com>
+Date: Fri, 09 Sep 2005 15:39:09 -0400
 From: Luben Tuikov <luben_tuikov@adaptec.com>
 User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: [PATCH 2.6.13 20/20] aic94xx: aic94xx_tmf.c Implements the Task Management
- Funcions defined by SAS
+Subject: [PATCH 2.6.13 2/14] sas-class: README
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Sep 2005 19:37:28.0049 (UTC) FILETIME=[E9568610:01C5B575]
+X-OriginalArrivalTime: 09 Sep 2005 19:39:14.0130 (UTC) FILETIME=[28913320:01C5B576]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Signed-off-by: Luben Tuikov <luben_tuikov@adaptec.com>
 
-diff -X linux-2.6.13/Documentation/dontdiff -Naur linux-2.6.13-orig/drivers/scsi/aic94xx/aic94xx_tmf.c linux-2.6.13/drivers/scsi/aic94xx/aic94xx_tmf.c
---- linux-2.6.13-orig/drivers/scsi/aic94xx/aic94xx_tmf.c	1969-12-31 19:00:00.000000000 -0500
-+++ linux-2.6.13/drivers/scsi/aic94xx/aic94xx_tmf.c	2005-09-09 11:21:23.000000000 -0400
-@@ -0,0 +1,634 @@
-+/*
-+ * Aic94xx Task Management Functions
-+ *
-+ * Copyright (C) 2005 Adaptec, Inc.  All rights reserved.
-+ * Copyright (C) 2005 Luben Tuikov <luben_tuikov@adaptec.com>
-+ *
-+ * This file is licensed under GPLv2.
-+ * 
-+ * This file is part of the aic94xx driver.
-+ *
-+ * The aic94xx driver is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License as
-+ * published by the Free Software Foundation; version 2 of the
-+ * License.
-+ *
-+ * The aic94xx driver is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ * General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with the aic94xx driver; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-+ *
-+ * $Id: //depot/aic94xx/aic94xx_tmf.c#34 $
-+ */
+diff -X linux-2.6.13/Documentation/dontdiff -Naur linux-2.6.13-orig/drivers/scsi/sas-class/README linux-2.6.13/drivers/scsi/sas-class/README
+--- linux-2.6.13-orig/drivers/scsi/sas-class/README	1969-12-31 19:00:00.000000000 -0500
++++ linux-2.6.13/drivers/scsi/sas-class/README	2005-09-09 12:22:32.000000000 -0400
+@@ -0,0 +1,440 @@
++SAS Layer
++---------
 +
-+#include <linux/spinlock.h>
-+#include <scsi/sas/sas_task.h>
-+#include "aic94xx.h"
-+#include "aic94xx_sas.h"
-+#include "aic94xx_hwi.h"
++The SAS Layer is a management infrastructure which manages
++SAS LLDDs.  It sits between SCSI Core and SAS LLDDs.  The
++layout is as follows: while SCSI Core is concerned with
++SAM/SPC issues, and a SAS LLDD+sequencer is concerned with
++phy/OOB/link management, the SAS layer is concerned with:
 +
-+/* ---------- Internal enqueue ---------- */
++      * SAS Phy/Port/HA event management (LLDD generates,
++        SAS Layer processes),
++      * SAS Port management (creation/destruction),
++      * SAS Domain discovery and revalidation,
++      * SAS Domain device management,
++      * SCSI Host registration/unregistration,
++      * Device registration with SCSI Core (SAS) or libata
++        (SATA), and
++      * Expander management and exporting expander control
++        to user space.
 +
-+static int asd_enqueue_internal(struct asd_ascb *ascb,
-+		void (*tasklet_complete)(struct asd_ascb *,
-+					 struct done_list_struct *),
-+				void (*timed_out)(unsigned long))
++A SAS LLDD is a PCI device driver.  It is concerned with
++phy/OOB management, and vendor specific tasks and generates
++events to the SAS layer.
++
++The SAS Layer does most SAS tasks as outlined in the SAS 1.1
++spec.
++
++The sas_ha_struct describes the SAS LLDD to the SAS layer.
++Most of it is used by the SAS Layer but a few fields need to
++be initialized by the LLDDs.
++
++After initializing your hardware, from the probe() function
++you call sas_register_ha(). It will register your LLDD with
++the SCSI subsystem, creating a SCSI host and it will
++register your SAS driver with the sysfs SAS tree it creates.
++It will then return.  Then you enable your phys to actually
++start OOB (at which point your driver will start calling the
++notify_* event callbacks).
++
++Structure descriptions:
++
++struct sas_phy --------------------
++Normally this is statically embedded to your driver's
++phy structure:
++	struct my_phy {
++	       blah;
++	       struct sas_phy sas_phy;
++	       bleh;
++	};
++And then all the phys are an array of my_phy in your HA
++struct (shown below).
++
++Then as you go along and initialize your phys you also
++initialize the sas_phy struct, along with your own
++phy structure.
++
++In general, the phys are managed by the LLDD and the ports
++are managed by the SAS layer.  So the phys are initialized
++and updated by the LLDD and the ports are initialized and
++updated by the SAS layer.
++
++There is a scheme where the LLDD can RW certain fields,
++and the SAS layer can only read such ones, and vice versa.
++The idea is to avoid unnecessary locking.
++
++enabled -- must be set (0/1)
++id -- must be set [0,MAX_PHYS)
++class, proto, type, role, oob_mode, linkrate -- must be set
++oob_mode --  you set this when OOB has finished and then notify
++the SAS Layer.
++
++sas_addr -- this normally points to an array holding the sas
++address of the phy, possibly somewhere in your my_phy
++struct.
++
++attached_sas_addr -- set this when you (LLDD) receive an
++IDENTIFY frame or a FIS frame, _before_ notifying the SAS
++layer.  The idea is that sometimes the LLDD may want to fake
++or provide a different SAS address on that phy/port and this
++allows it to do this.  At best you should copy the sas
++address from the IDENTIFY frame or maybe generate a SAS
++address for SATA directly attached devices.  The Discover
++process may later change this.
++
++frame_rcvd -- this is where you copy the IDENTIFY/FIS frame
++when you get it; you lock, copy, set frame_rcvd_size and
++unlock the lock, and then call the event.  It is a pointer
++since there's no way to know your hw frame size _exactly_,
++so you define the actual array in your phy struct and let
++this pointer point to it.  You copy the frame from your
++DMAable memory to that area holding the lock.
++
++sas_prim -- this is where primitives go when they're
++received.  See sas.h. Grab the lock, set the primitive,
++release the lock, notify.
++
++port -- this points to the sas_port if the phy belongs
++to a port -- the LLDD only reads this. It points to the
++sas_port this phy is part of.  Set by the SAS Layer.
++
++ha -- may be set; the SAS layer sets it anyway.
++
++lldd_phy -- you should set this to point to your phy so you
++can find your way around faster when the SAS layer calls one
++of your callbacks and passes you a phy.  If the sas_phy is
++embedded you can also use container_of -- whatever you
++prefer.
++
++
++struct sas_port --------------------
++The LLDD doesn't set any fields of this struct -- it only
++reads them.  They should be self explanatory.
++
++phy_mask is 32 bit, this should be enough for now, as I
++haven't heard of a HA having more than 8 phys.
++
++lldd_port -- I haven't found use for that -- maybe other
++LLDD who wish to have internal port representation can make
++use of this.
++
++
++struct sas_ha_struct --------------------
++It normally is statically declared in your own LLDD
++structure describing your adapter: 
++struct my_sas_ha {
++       blah;
++       struct sas_ha_struct sas_ha;
++       struct my_phy phys[MAX_PHYS];
++       struct sas_port sas_ports[MAX_PHYS]; /* (1) */
++       bleh;
++};
++
++(1) If your LLDD doesn't have its own port representation.
++
++What needs to be initialized (sample function given below).
++
++pcidev
++sas_addr -- since the SAS layer doesn't want to mess with
++	 memory allocation, etc, this points to statically
++	 allocated array somewhere (say in your host adapter
++	 structure) and holds the SAS address of the host
++	 adapter as given by you or the manufacturer, etc.
++sas_port
++sas_phy -- an array of pointers to structures. (see
++	note above on sas_addr).
++	These must be set.  See more notes below.
++num_phys -- the number of phys present in the sas_phy array,
++	 and the number of ports present in the sas_port
++	 array.  There can be a maximum num_phys ports (one per
++	 port) so we drop the num_ports, and only use
++	 num_phys.
++
++The event interface:
++
++	/* LLDD calls these to notify the class of an event. */
++	void (*notify_ha_event)(struct sas_ha_struct *, enum ha_event);
++	void (*notify_port_event)(struct sas_phy *, enum port_event);
++	void (*notify_phy_event)(struct sas_phy *, enum phy_event);
++
++When sas_register_ha() returns, those are set and can be
++called by the LLDD to notify the SAS layer of such events
++the SAS layer.
++
++The port notification:
++
++	/* The class calls these to notify the LLDD of an event. */
++	void (*lldd_port_formed)(struct sas_phy *);
++	void (*lldd_port_deformed)(struct sas_phy *);
++
++If the LLDD wants notification when a port has been formed
++or deformed it sets those to a function satisfying the type.
++
++A SAS LLDD should also implement at least one of the Task
++Management Functions (TMFs) described in SAM:
++
++	/* Task Management Functions. Must be called from process context. */
++	int (*lldd_abort_task)(struct sas_task *);
++	int (*lldd_abort_task_set)(struct domain_device *, u8 *lun);
++	int (*lldd_clear_aca)(struct domain_device *, u8 *lun);
++	int (*lldd_clear_task_set)(struct domain_device *, u8 *lun);
++	int (*lldd_I_T_nexus_reset)(struct domain_device *);
++	int (*lldd_lu_reset)(struct domain_device *, u8 *lun);
++	int (*lldd_query_task)(struct sas_task *);
++
++For more information please read SAM from T10.org.
++
++Port and Adapter management:
++
++	/* Port and Adapter management */
++	int (*lldd_clear_nexus_port)(struct sas_port *);
++	int (*lldd_clear_nexus_ha)(struct sas_ha_struct *);
++
++A SAS LLDD should implement at least one of those.
++
++Phy management:
++
++	/* Phy management */
++	int (*lldd_control_phy)(struct sas_phy *, enum phy_func);
++
++lldd_ha -- set this to point to your HA struct. You can also
++use container_of if you embedded it as shown above.
++
++A sample initialization and registration function
++can look like this (called last thing from probe())
++*but* before you enable the phys to do OOB:	
++
++static int register_sas_ha(struct my_sas_ha *my_ha)
 +{
-+	int res;
++	int i;
++	static struct sas_phy   *sas_phys[MAX_PHYS];
++	static struct sas_port  *sas_ports[MAX_PHYS];
 +	
-+	ascb->tasklet_complete = tasklet_complete;
-+	ascb->uldd_timer = 1;
++	my_ha->sas_ha.sas_addr = &my_ha->sas_addr[0];
++
++	for (i = 0; i < MAX_PHYS; i++) {
++		sas_phys[i] = &my_ha->phys[i].sas_phy;
++		sas_ports[i] = &my_ha->sas_ports[i];
++	}
++
++	my_ha->sas_ha.sas_phy  = sas_phys;
++	my_ha->sas_ha.sas_port = sas_ports;
++	my_ha->sas_ha.num_phys = MAX_PHYS;
++
++	my_ha->sas_ha.lldd_port_formed = my_port_formed;
++
++	return sas_register_ha(&my_ha->sas_ha);
++}
++
++
++Events
++------
++
++Events are _the only way_ a SAS LLDD notifies the SAS layer
++of anything.  There is no other method or way a LLDD to tell
++the SAS layer of anything happening internally or on the SAS
++domain.
++
++Phy events: 
++	PHYE_LOSS_OF_SIGNAL, (C)
++	PHYE_OOB_DONE,
++	PHYE_OOB_ERROR,      (C)
++	PHYE_SPINUP_HOLD.
++
++Port events, passed on a _phy_:
++	PORTE_BYTES_DMAED,      (M)
++	PORTE_BROADCAST_RCVD,   (E)
++	PORTE_LINK_RESET_ERR,   (C)
++	PORTE_TIMER_EVENT,      (C)
++	PORTE_HARD_RESET.
++
++Host Adapter event:
++	HAE_RESET
++
++A SAS LLDD should be able to generate
++	- at least one event from group C (choice),
++	- events marked M (mandatory) are mandatory (only one),
++	- events marked E (expander) if it wants the SAS layer
++	  to handle domain revalidation (only one such).
++	- Unmarked events are optional.
++
++Meaning:
++
++HAE_RESET -- when your HA got internal error and was reset.
++
++PORTE_BYTES_DMAED -- on receiving an IDENTIFY/FIS frame
++PORTE_BROADCAST_RCVD -- on receiving a primitive
++PORTE_LINK_RESET_ERR -- timer expired, loss of signal, loss
++of DWS, etc. (*)
++PORTE_TIMER_EVENT -- DWS reset timeout timer expired (*)
++PORTE_HARD_RESET -- Hard Reset primitive received.
++
++PHYE_LOSS_OF_SIGNAL -- the device is gone (*)
++PHYE_OOB_DONE -- OOB went fine and oob_mode is valid
++PHYE_OOB_ERROR -- Error while doing OOB, the device probably
++got disconnected. (*)
++PHYE_SPINUP_HOLD -- SATA is present, COMWAKE not sent.
++
++(*) should set/clear the appropriate fields in the phy,
++    or alternatively call the inlined sas_phy_disconnected()
++    which is just a helper, from their tasklet.
++
++The Execute Command SCSI RPC:
++
++	int (*lldd_execute_task)(struct sas_task *, int num,
++				 unsigned long gfp_flags);
++
++Used to queue a task to the SAS LLDD.  @task is the tasks to
++be executed.  @num should be the number of tasks being
++queued at this function call (they are linked listed via
++task::list), @gfp_mask should be the gfp_mask defining the
++context of the caller.
++
++This function should implement the Execute Command SCSI RPC,
++or if you're sending a SCSI Task as linked commands, you
++should also use this function.
++
++That is, when lldd_execute_task() is called, the command(s)
++go out on the transport *immediately*.  There is *no*
++queuing of any sort and at any level in a SAS LLDD.
++
++The use of task::list is two-fold, one for linked commands,
++the other discussed below.
 +	
-+	ascb->timer.data = (unsigned long) ascb;
-+	ascb->timer.function = timed_out;
-+	ascb->timer.expires = jiffies + AIC94XX_SCB_TIMEOUT;
-+
-+	add_timer(&ascb->timer);
-+
-+	res = asd_post_ascb_list(ascb->ha, ascb, 1);
-+	if (unlikely(res))
-+		del_timer(&ascb->timer);
-+	return res;
-+}
-+
-+static inline void asd_timedout_common(unsigned long data)
-+{
-+	struct asd_ascb *ascb = (void *) data;
-+	struct asd_seq_data *seq = &ascb->ha->seq;
-+        unsigned long flags;
-+
-+	spin_lock_irqsave(&seq->pend_q_lock, flags);
-+        seq->pending--;
-+        list_del_init(&ascb->list);
-+        spin_unlock_irqrestore(&seq->pend_q_lock, flags);
-+}
-+
-+/* ---------- CLEAR NEXUS ---------- */
-+
-+static void asd_clear_nexus_tasklet_complete(struct asd_ascb *ascb,
-+					     struct done_list_struct *dl)
-+{
-+	ASD_DPRINTK("%s: here\n", __FUNCTION__);
-+	if (!del_timer(&ascb->timer)) {
-+		ASD_DPRINTK("%s: couldn't delete timer\n", __FUNCTION__);
-+		return;
-+	}
-+	ASD_DPRINTK("%s: opcode: 0x%x\n", __FUNCTION__, dl->opcode);
-+	ascb->uldd_task = (void *) (unsigned long) dl->opcode;
-+	complete(&ascb->completion);
-+}
-+
-+static void asd_clear_nexus_timedout(unsigned long data)
-+{
-+	struct asd_ascb *ascb = (void *) data;
-+
-+	ASD_DPRINTK("%s: here\n", __FUNCTION__);
-+	asd_timedout_common(data);
-+	ascb->uldd_task = (void *) TMF_RESP_FUNC_FAILED;
-+	complete(&ascb->completion);
-+}
-+
-+#define CLEAR_NEXUS_PRE         \
-+	ASD_DPRINTK("%s: PRE\n", __FUNCTION__); \
-+        res = 1;                \
-+	ascb = asd_ascb_alloc_list(asd_ha, &res, GFP_KERNEL); \
-+	if (!ascb)              \
-+		return -ENOMEM; \
-+                                \
-+	scb = ascb->scb;        \
-+	scb->header.opcode = CLEAR_NEXUS
-+
-+#define CLEAR_NEXUS_POST        \
-+	ASD_DPRINTK("%s: POST\n", __FUNCTION__); \
-+	res = asd_enqueue_internal(ascb, asd_clear_nexus_tasklet_complete, \
-+				   asd_clear_nexus_timedout);              \
-+	if (res)                \
-+		goto out_err;   \
-+	ASD_DPRINTK("%s: clear nexus posted, waiting...\n", __FUNCTION__); \
-+	wait_for_completion(&ascb->completion); \
-+	res = (int) (unsigned long) ascb->uldd_task; \
-+	if (res == TC_NO_ERROR) \
-+		res = TMF_RESP_FUNC_COMPLETE;   \
-+out_err:                        \
-+	asd_ascb_free(ascb);    \
-+	return res
-+
-+int asd_clear_nexus_ha(struct sas_ha_struct *sas_ha)
-+{
-+	struct asd_ha_struct *asd_ha = sas_ha->lldd_ha;
-+	struct asd_ascb *ascb;
-+	struct scb *scb;
-+	int res;
-+
-+	CLEAR_NEXUS_PRE;
-+	scb->clear_nexus.nexus = NEXUS_ADAPTER;
-+	CLEAR_NEXUS_POST;
-+}
-+
-+int asd_clear_nexus_port(struct sas_port *port)
-+{
-+	struct asd_ha_struct *asd_ha = port->ha->lldd_ha;
-+	struct asd_ascb *ascb;
-+	struct scb *scb;
-+	int res;
++It is possible to queue up more than one task at a time, by
++initializing the list element of struct sas_task, and
++passing the number of tasks enlisted in this manner in num.
 +	
-+	CLEAR_NEXUS_PRE;
-+	scb->clear_nexus.nexus = NEXUS_PORT;
-+	scb->clear_nexus.conn_mask = port->phy_mask;
-+	CLEAR_NEXUS_POST;
-+}
++Returns: -SAS_QUEUE_FULL, -ENOMEM, nothing was queued;
++	 0, the task(s) were queued.
 +
-+#if 0
-+static int asd_clear_nexus_I_T(struct domain_device *dev)
-+{
-+	struct asd_ha_struct *asd_ha = dev->port->ha->lldd_ha;
-+	struct asd_ascb *ascb;
-+	struct scb *scb;
-+	int res;
++If you want to pass num > 1, then either
++A) you're the only caller of this function and keep track
++   of what you've queued to the LLDD, or
++B) you know what you're doing and have a strategy of
++   retrying.
++
++As opposed to queuing one task at a time (function call),
++batch queuing of tasks, by having num > 1, greatly
++simplifies LLDD code, sequencer code, and _hardware design_,
++and has some performance advantages in certain situations
++(DBMS).
++
++The LLDD advertises if it can take more than one command at
++a time at lldd_execute_task(), by setting the
++lldd_max_execute_num parameter (controlled by "collector"
++module parameter in aic94xx SAS LLDD).
++
++You should leave this to the default 1, unless you know what
++you're doing.
++
++This is a function of the LLDD, to which the SAS layer can
++cater to.
++
++int lldd_queue_size
++	The host adapter's queue size.  This is the maximum
++number of commands the lldd can have pending to domain
++devices on behalf of all upper layers submitting through
++lldd_execute_task().
 +	
-+	CLEAR_NEXUS_PRE;
-+	scb->clear_nexus.nexus = NEXUS_I_T;
-+	scb->clear_nexus.flags = SEND_Q | EXEC_Q | NOTINQ;
-+	if (dev->tproto)
-+		scb->clear_nexus.flags |= SUSPEND_TX;
-+	scb->clear_nexus.conn_handle = cpu_to_le16((u16)(unsigned long)
-+						   dev->lldd_dev);
-+	CLEAR_NEXUS_POST;
-+}
-+#endif
++You really want to set this to something (much) larger than
++1.
 +
-+static int asd_clear_nexus_I_T_L(struct domain_device *dev, u8 *lun)
-+{
-+	struct asd_ha_struct *asd_ha = dev->port->ha->lldd_ha;
-+	struct asd_ascb *ascb;
-+	struct scb *scb;
-+	int res;
-+	
-+	CLEAR_NEXUS_PRE;
-+	scb->clear_nexus.nexus = NEXUS_I_T_L;
-+	scb->clear_nexus.flags = SEND_Q | EXEC_Q | NOTINQ;
-+	if (dev->tproto)
-+		scb->clear_nexus.flags |= SUSPEND_TX;
-+	memcpy(scb->clear_nexus.ssp_task.lun, lun, 8);
-+	scb->clear_nexus.conn_handle = cpu_to_le16((u16)(unsigned long)
-+						   dev->lldd_dev);
-+	CLEAR_NEXUS_POST;
-+}
++This _really_ has absolutely nothing to do with queuing.
++There is no queuing in SAS LLDDs.
 +
-+static int asd_clear_nexus_tag(struct sas_task *task)
-+{
-+	struct asd_ha_struct *asd_ha = task->dev->port->ha->lldd_ha;
-+	struct asd_ascb *tascb = task->lldd_task;
-+	struct asd_ascb *ascb;
-+	struct scb *scb;
-+	int res;
-+	
-+	CLEAR_NEXUS_PRE;
-+	scb->clear_nexus.nexus = NEXUS_TAG;
-+	memcpy(scb->clear_nexus.ssp_task.lun, task->ssp_task.LUN, 8);
-+	scb->clear_nexus.ssp_task.tag = tascb->tag;
-+	if (task->dev->tproto)
-+		scb->clear_nexus.conn_handle = cpu_to_le16((u16)(unsigned long)
-+							  task->dev->lldd_dev);
-+	CLEAR_NEXUS_POST;
-+}
++struct sas_task {
++	dev -- the device this task is destined to
++	list -- must be initialized (INIT_LIST_HEAD)
++	task_proto -- _one_ of enum sas_proto
++	scatter -- pointer to scatter gather list array
++	num_scatter -- number of elements in scatter
++	total_xfer_len -- total number of bytes expected to be transfered
++	data_dir -- PCI_DMA_...
++	task_done -- callback when the task has finished execution
++};
 +
-+static int asd_clear_nexus_index(struct sas_task *task)
-+{
-+	struct asd_ha_struct *asd_ha = task->dev->port->ha->lldd_ha;
-+	struct asd_ascb *tascb = task->lldd_task;
-+	struct asd_ascb *ascb;
-+	struct scb *scb;
-+	int res;
-+	
-+	CLEAR_NEXUS_PRE;
-+	scb->clear_nexus.nexus = NEXUS_TRANS_CX;
-+	if (task->dev->tproto)
-+		scb->clear_nexus.conn_handle = cpu_to_le16((u16)(unsigned long)
-+							  task->dev->lldd_dev);
-+	scb->clear_nexus.index = cpu_to_le16(tascb->tc_index);
-+	CLEAR_NEXUS_POST;
-+}
++When an external entity, entity other than the LLDD or the
++SAS Layer, wants to work with a struct domain_device, it
++_must_ call kobject_get() when getting a handle on the
++device and kobject_put() when it is done with the device.
 +
-+/* ---------- TMFs ---------- */
++This does two things:
++     A) implements proper kfree() for the device;
++     B) increments/decrements the kref for all players:
++     domain_device
++	all domain_device's ... (if past an expander)
++	    port
++		host adapter
++		     pci device
++			 and up the ladder, etc.
 +
-+static void asd_tmf_timedout(unsigned long data)
-+{
-+	struct asd_ascb *ascb = (void *) data;
++DISCOVERY
++---------
 +
-+	ASD_DPRINTK("tmf timed out\n");
-+	asd_timedout_common(data);
-+	ascb->uldd_task = (void *) TMF_RESP_FUNC_FAILED;
-+	complete(&ascb->completion);
-+}
++The sysfs tree has the following purposes:
++    a) It shows you the physical layout of the SAS domain at
++       the current time, i.e. how the domain looks in the
++       physical world right now.
++    b) Shows some device parameters _at_discovery_time_.
 +
-+static int asd_get_tmf_resp_tasklet(struct asd_ascb *ascb,
-+				    struct done_list_struct *dl)
-+{
-+	struct asd_ha_struct *asd_ha = ascb->ha;
-+	unsigned long flags;
-+	struct tc_resp_sb_struct {
-+		__le16 index_escb;
-+		u8     len_lsb;
-+		u8     flags;
-+	} __attribute__ ((packed)) *resp_sb = (void *) dl->status_block;
++This is a link to the tree(1) program, very useful in
++viewing the SAS domain:
++ftp://mama.indstate.edu/linux/tree/
++I expect user space applications to actually create a
++graphical interface of this.
 +
-+	int  edb_id = ((resp_sb->flags & 0x70) >> 4)-1;
-+	struct asd_ascb *escb;
-+	struct asd_dma_tok *edb;
-+	struct ssp_frame_hdr *fh;
-+	struct ssp_response_iu   *ru;
-+	int res = TMF_RESP_FUNC_FAILED;
++That is, the sysfs domain tree doesn't show or keep state if
++you e.g., change the meaning of the READY LED MEANING
++setting, but it does show you the current connection status
++of the domain device.
 +
-+	ASD_DPRINTK("tmf resp tasklet\n");
++Keeping internal device state changes is responsibility of
++upper layers (Command set drivers) and user space.
 +
-+	spin_lock_irqsave(&asd_ha->seq.tc_index_lock, flags);
-+	escb = asd_tc_index_find(&asd_ha->seq,
-+				 (int)le16_to_cpu(resp_sb->index_escb));
-+	spin_unlock_irqrestore(&asd_ha->seq.tc_index_lock, flags);
++When a device or devices are unplugged from the domain, this
++is reflected in the sysfs tree immediately, and the device(s)
++removed from the system.
 +
-+	if (!escb) {
-+		ASD_DPRINTK("Uh-oh! No escb for this dl?!\n");
-+		return res;
-+	}
++The structure domain_device describes any device in the SAS
++domain.  It is completely managed by the SAS layer.  A task
++points to a domain device, this is how the SAS LLDD knows
++where to send the task(s) to.  A SAS LLDD only reads the
++contents of the domain_device structure, but it never creates
++or destroys one.
 +
-+	edb = asd_ha->seq.edb_arr[edb_id + escb->edb_index];
-+	ascb->tag = *(__be16 *)(edb->vaddr+4);
-+	fh = edb->vaddr + 16;
-+	ru = edb->vaddr + 16 + sizeof(*fh);
-+	res = ru->status;
-+	if (ru->datapres == 1)	  /* Response data present */
-+		res = ru->resp_data[3];
-+#if 0
-+	ascb->tag = fh->tag;
-+#endif	
-+	ascb->tag_valid = 1;
++Expander management from User Space
++-----------------------------------
 +
-+	asd_invalidate_edb(escb, edb_id);
-+	return res;
-+}
++In each expander directory in sysfs, there is a file called
++"smp_portal".  It is a binary sysfs attribute file, which
++implements an SMP portal (Note: this is *NOT* an SMP port),
++to which user space applications can send SMP requests and
++receive SMP responses.
 +
-+static void asd_tmf_tasklet_complete(struct asd_ascb *ascb,
-+				     struct done_list_struct *dl)
-+{
-+	if (!del_timer(&ascb->timer))
-+		return;
++Functionality is deceptively simple:
 +
-+	ASD_DPRINTK("tmf tasklet complete\n");
-+	
-+	if (dl->opcode == TC_SSP_RESP)
-+		ascb->uldd_task = (void *) (unsigned long)
-+			asd_get_tmf_resp_tasklet(ascb, dl);
-+	else
-+		ascb->uldd_task = (void *) 0xFF00 + (unsigned long) dl->opcode;
++1. Build the SMP frame you want to send. The format and layout
++   is described in the SAS spec.  Leave the CRC field equal 0.
++open(2)
++2. Open the expander's SMP portal sysfs file in RW mode.
++write(2)
++3. Write the frame you built in 1.
++read(2)
++4. Read the amount of data you expect to receive for the frame you built.
++   If you receive different amount of data you expected to receive,
++   then there was some kind of error.
++close(2)
++All this process is shown in detail in the function do_smp_func()
++and its callers, in the file "expander_conf.c".
 +
-+	complete(&ascb->completion);
-+}
++The kernel functionality is implemented in the file
++"sas_expander.c".
 +
-+static inline int asd_clear_nexus(struct sas_task *task)
-+{
-+	int res = TMF_RESP_FUNC_FAILED;
-+	struct asd_ascb *tascb = task->lldd_task;
-+	unsigned long flags;
++The program "expander_conf.c" implements this. It takes one
++argument, the sysfs file name of the SMP portal to the
++expander, and gives expander information, including routing
++tables.
 +
-+	ASD_DPRINTK("task not done, clearing nexus\n");
-+	if (tascb->tag_valid)
-+		res = asd_clear_nexus_tag(task);
-+	else
-+		res = asd_clear_nexus_index(task);
-+	wait_for_completion_timeout(&tascb->completion,
-+				    AIC94XX_SCB_TIMEOUT);
-+	ASD_DPRINTK("came back from clear nexus\n");
-+	spin_lock_irqsave(&task->task_state_lock, flags);
-+	if (task->task_state_flags & SAS_TASK_STATE_DONE)
-+		res = TMF_RESP_FUNC_COMPLETE;
-+	spin_unlock_irqrestore(&task->task_state_lock, flags);
-+
-+	return res;
-+}
-+
-+/**
-+ * asd_abort_task -- ABORT TASK TMF
-+ * @task: the task to be aborted
-+ *
-+ * Before calling ABORT TASK the task state flags should be ORed with
-+ * SAS_TASK_STATE_ABORTED (unless SAS_TASK_STATE_DONE is set) under
-+ * the task_state_lock IRQ spinlock, then ABORT TASK *must* be called.
-+ * 
-+ * Implements the ABORT TASK TMF, I_T_L_Q nexus.
-+ * Returns: SAS TMF responses (see sas_task.h),
-+ *          -ENOMEM,
-+ *          -SAS_QUEUE_FULL.
-+ *
-+ * When ABORT TASK returns, the caller of ABORT TASK checks first the
-+ * task->task_state_flags, and then the return value of ABORT TASK.
-+ * 
-+ * If the task has task state bit SAS_TASK_STATE_DONE set, then the
-+ * task was completed successfully prior to it being aborted.  The
-+ * caller of ABORT TASK has responsibility to call task->task_done()
-+ * xor free the task, depending on their framework.  The return code
-+ * is TMF_RESP_FUNC_FAILED in this case.
-+ * 
-+ * Else the SAS_TASK_STATE_DONE bit is not set,
-+ * 	If the return code is TMF_RESP_FUNC_COMPLETE, then
-+ * 		the task was aborted successfully.  The caller of
-+ * 		ABORT TASK has responsibility to call task->task_done()
-+ *              to finish the task, xor free the task depending on their
-+ *		framework.
-+ *	else
-+ * 		the ABORT TASK returned some kind of error. The task
-+ *              was _not_ cancelled.  Nothing can be assumed.
-+ *		The caller of ABORT TASK may wish to retry.
-+ */
-+int asd_abort_task(struct sas_task *task)
-+{
-+	struct asd_ascb *tascb = task->lldd_task;
-+	struct asd_ha_struct *asd_ha = tascb->ha;
-+	int res = 1;
-+	unsigned long flags;
-+	struct asd_ascb *ascb = NULL;
-+	struct scb *scb;
-+
-+	spin_lock_irqsave(&task->task_state_lock, flags);
-+	if (task->task_state_flags & SAS_TASK_STATE_DONE) {
-+		spin_unlock_irqrestore(&task->task_state_lock, flags);
-+		res = TMF_RESP_FUNC_COMPLETE;
-+		ASD_DPRINTK("%s: task 0x%p done\n", __FUNCTION__, task);
-+		goto out_done;
-+	}
-+	spin_unlock_irqrestore(&task->task_state_lock, flags);
-+
-+	ascb = asd_ascb_alloc_list(asd_ha, &res, GFP_KERNEL);
-+	if (!ascb)
-+		return -ENOMEM;
-+	scb = ascb->scb;
-+
-+	scb->header.opcode = ABORT_TASK;
-+
-+	switch (task->task_proto) {
-+	case SATA_PROTO:
-+	case SAS_PROTO_STP:
-+		scb->abort_task.proto_conn_rate = (1 << 5); /* STP */
-+		break;
-+	case SAS_PROTO_SSP:
-+		scb->abort_task.proto_conn_rate  = (1 << 4); /* SSP */
-+		scb->abort_task.proto_conn_rate |= task->dev->linkrate;
-+		break;
-+	case SAS_PROTO_SMP:
-+		break;
-+	default:
-+		break;
-+	}
-+	
-+	if (task->task_proto == SAS_PROTO_SSP) {
-+		scb->abort_task.ssp_frame.frame_type = SSP_TASK;
-+		memcpy(scb->abort_task.ssp_frame.hashed_dest_addr,
-+		       task->dev->hashed_sas_addr, HASHED_SAS_ADDR_SIZE);
-+		memcpy(scb->abort_task.ssp_frame.hashed_src_addr,
-+		       task->dev->port->ha->hashed_sas_addr,
-+		       HASHED_SAS_ADDR_SIZE);
-+		scb->abort_task.ssp_frame.tptt = cpu_to_be16(0xFFFF);
-+
-+		memcpy(scb->abort_task.ssp_task.lun, task->ssp_task.LUN, 8);
-+		scb->abort_task.ssp_task.tmf = TMF_ABORT_TASK;
-+		scb->abort_task.ssp_task.tag = cpu_to_be16(0xFFFF);
-+	}
-+
-+	scb->abort_task.sister_scb = cpu_to_le16(0xFFFF);
-+	scb->abort_task.conn_handle = cpu_to_le16(
-+		(u16)(unsigned long)task->dev->lldd_dev);
-+	scb->abort_task.retry_count = 1;
-+	scb->abort_task.index = cpu_to_le16((u16)tascb->tc_index);
-+	scb->abort_task.itnl_to = cpu_to_le16(ITNL_TIMEOUT_CONST);
-+
-+	res = asd_enqueue_internal(ascb, asd_tmf_tasklet_complete,
-+				   asd_tmf_timedout);
-+	if (res)
-+		goto out;
-+	wait_for_completion(&ascb->completion);
-+	ASD_DPRINTK("tmf came back\n");
-+
-+	res = (int) (unsigned long) ascb->uldd_task;
-+	tascb->tag = ascb->tag;
-+	tascb->tag_valid = ascb->tag_valid;
-+
-+	spin_lock_irqsave(&task->task_state_lock, flags);
-+	if (task->task_state_flags & SAS_TASK_STATE_DONE) {
-+		spin_unlock_irqrestore(&task->task_state_lock, flags);
-+		res = TMF_RESP_FUNC_COMPLETE;
-+		ASD_DPRINTK("%s: task 0x%p done\n", __FUNCTION__, task);
-+		goto out_done;
-+	}
-+	spin_unlock_irqrestore(&task->task_state_lock, flags);
-+
-+	switch (res) {
-+	/* The task to be aborted has been sent to the device.
-+	 * We got a Response IU for the ABORT TASK TMF. */
-+	case TC_NO_ERROR + 0xFF00:
-+	case TMF_RESP_FUNC_COMPLETE:
-+	case TMF_RESP_FUNC_FAILED:
-+		res = asd_clear_nexus(task);
-+		break;
-+	case TMF_RESP_INVALID_FRAME:
-+	case TMF_RESP_OVERLAPPED_TAG:
-+	case TMF_RESP_FUNC_ESUPP:
-+	case TMF_RESP_NO_LUN:
-+		goto out_done; break;
-+	}
-+	/* In the following we assume that the managing layer
-+	 * will _never_ make a mistake, when issuing ABORT TASK.
-+	 */
-+	switch (res) {
-+	default:
-+		res = asd_clear_nexus(task);
-+		/* fallthrough */
-+	case TC_NO_ERROR + 0xFF00:
-+	case TMF_RESP_FUNC_COMPLETE:
-+		break;
-+	/* The task hasn't been sent to the device xor we never got
-+	 * a (sane) Response IU for the ABORT TASK TMF.
-+	 */
-+	case TF_NAK_RECV + 0xFF00:
-+		res = TMF_RESP_INVALID_FRAME;
-+		break;
-+	case TF_TMF_TASK_DONE + 0xFF00:	/* done but not reported yet */
-+		res = TMF_RESP_FUNC_FAILED;
-+		wait_for_completion_timeout(&tascb->completion,
-+					    AIC94XX_SCB_TIMEOUT);
-+		spin_lock_irqsave(&task->task_state_lock, flags);
-+		if (task->task_state_flags & SAS_TASK_STATE_DONE)
-+			res = TMF_RESP_FUNC_COMPLETE;
-+		spin_unlock_irqrestore(&task->task_state_lock, flags);
-+		goto out_done; break;
-+	case TF_TMF_NO_TAG + 0xFF00:
-+	case TF_TMF_TAG_FREE + 0xFF00: /* the tag is in the free list */
-+	case TF_TMF_NO_CTX + 0xFF00: /* not in seq, or proto != SSP */
-+	case TF_TMF_NO_CONN_HANDLE + 0xFF00: /* no such device */
-+		res = TMF_RESP_FUNC_COMPLETE;
-+		goto out_done; break;
-+	}
-+out_done:
-+	if (res == TMF_RESP_FUNC_COMPLETE) {
-+		task->lldd_task = NULL;
-+		mb();
-+		asd_ascb_free(tascb);
-+	}
-+out:
-+	asd_ascb_free(ascb);
-+	ASD_DPRINTK("task 0x%p aborted, res: 0x%x\n", task, res);
-+	return res;
-+}
-+
-+/**
-+ * asd_initiate_ssp_tmf -- send a TMF to an I_T_L or I_T_L_Q nexus
-+ * @dev: pointer to struct domain_device of interest
-+ * @lun: pointer to u8[8] which is the LUN
-+ * @tmf: the TMF to be performed (see sas_task.h or the SAS spec)
-+ * @index: the transaction context of the task to be queried if QT TMF
-+ *
-+ * This function is used to send ABORT TASK SET, CLEAR ACA,
-+ * CLEAR TASK SET, LU RESET and QUERY TASK TMFs.
-+ *
-+ * No SCBs should be queued to the I_T_L nexus when this SCB is
-+ * pending.
-+ *
-+ * Returns: TMF response code (see sas_task.h or the SAS spec)
-+ */
-+static int asd_initiate_ssp_tmf(struct domain_device *dev, u8 *lun,
-+				int tmf, int index)
-+{
-+	struct asd_ha_struct *asd_ha = dev->port->ha->lldd_ha;
-+	struct asd_ascb *ascb;
-+	int res = 1;
-+	struct scb *scb;
-+
-+	if (!(dev->tproto & SAS_PROTO_SSP))
-+		return TMF_RESP_FUNC_ESUPP;
-+
-+	ascb = asd_ascb_alloc_list(asd_ha, &res, GFP_KERNEL);
-+	if (!ascb)
-+		return -ENOMEM;
-+	scb = ascb->scb;
-+
-+	if (tmf == TMF_QUERY_TASK)
-+		scb->header.opcode = QUERY_SSP_TASK;
-+	else
-+		scb->header.opcode = INITIATE_SSP_TMF;
-+	
-+	scb->ssp_tmf.proto_conn_rate  = (1 << 4); /* SSP */
-+	scb->ssp_tmf.proto_conn_rate |= dev->linkrate;
-+	/* SSP frame header */
-+	scb->ssp_tmf.ssp_frame.frame_type = SSP_TASK;
-+	memcpy(scb->ssp_tmf.ssp_frame.hashed_dest_addr,
-+	       dev->hashed_sas_addr, HASHED_SAS_ADDR_SIZE);
-+	memcpy(scb->ssp_tmf.ssp_frame.hashed_src_addr,
-+	       dev->port->ha->hashed_sas_addr, HASHED_SAS_ADDR_SIZE);
-+	scb->ssp_tmf.ssp_frame.tptt = cpu_to_be16(0xFFFF);
-+	/* SSP Task IU */
-+	memcpy(scb->ssp_tmf.ssp_task.lun, lun, 8);
-+	scb->ssp_tmf.ssp_task.tmf = tmf;
-+
-+	scb->ssp_tmf.sister_scb = cpu_to_le16(0xFFFF);
-+	scb->ssp_tmf.conn_handle= cpu_to_le16((u16)(unsigned long)
-+					      dev->lldd_dev);
-+	scb->ssp_tmf.retry_count = 1;
-+	scb->ssp_tmf.itnl_to = cpu_to_le16(ITNL_TIMEOUT_CONST);
-+	if (tmf == TMF_QUERY_TASK)
-+		scb->ssp_tmf.index = cpu_to_le16(index);
-+
-+	res = asd_enqueue_internal(ascb, asd_tmf_tasklet_complete,
-+				   asd_tmf_timedout);
-+	if (res)
-+		goto out_err;
-+	wait_for_completion(&ascb->completion);
-+	res = (int) (unsigned long) ascb->uldd_task;
-+
-+	switch (res) {
-+	case TC_NO_ERROR + 0xFF00:
-+		res = TMF_RESP_FUNC_COMPLETE;
-+		break;
-+	case TF_NAK_RECV + 0xFF00:
-+		res = TMF_RESP_INVALID_FRAME;
-+		break;
-+	case TF_TMF_TASK_DONE + 0xFF00:
-+		res = TMF_RESP_FUNC_FAILED;
-+		break;
-+	case TF_TMF_NO_TAG + 0xFF00:
-+	case TF_TMF_TAG_FREE + 0xFF00: /* the tag is in the free list */
-+	case TF_TMF_NO_CTX + 0xFF00: /* not in seq, or proto != SSP */
-+	case TF_TMF_NO_CONN_HANDLE + 0xFF00: /* no such device */
-+		res = TMF_RESP_FUNC_COMPLETE;
-+		break;
-+	default:
-+		ASD_DPRINTK("%s: converting result 0x%x to TMF_RESP_FUNC_FAILED\n",
-+			    __FUNCTION__, res);
-+		res = TMF_RESP_FUNC_FAILED;
-+		break;
-+	}
-+out_err:
-+	asd_ascb_free(ascb);
-+	return res;
-+}
-+
-+int asd_abort_task_set(struct domain_device *dev, u8 *lun)
-+{
-+	int res = asd_initiate_ssp_tmf(dev, lun, TMF_ABORT_TASK_SET, 0);
-+
-+	if (res == TMF_RESP_FUNC_COMPLETE)
-+		asd_clear_nexus_I_T_L(dev, lun);
-+	return res;
-+}
-+
-+int asd_clear_aca(struct domain_device *dev, u8 *lun)
-+{
-+	int res = asd_initiate_ssp_tmf(dev, lun, TMF_CLEAR_ACA, 0);
-+
-+	if (res == TMF_RESP_FUNC_COMPLETE)
-+		asd_clear_nexus_I_T_L(dev, lun);
-+	return res;
-+}
-+
-+int asd_clear_task_set(struct domain_device *dev, u8 *lun)
-+{
-+	int res = asd_initiate_ssp_tmf(dev, lun, TMF_CLEAR_TASK_SET, 0);
-+
-+	if (res == TMF_RESP_FUNC_COMPLETE)
-+		asd_clear_nexus_I_T_L(dev, lun);
-+	return res;
-+}
-+
-+int asd_lu_reset(struct domain_device *dev, u8 *lun)
-+{
-+	int res = asd_initiate_ssp_tmf(dev, lun, TMF_LU_RESET, 0);
-+
-+	if (res == TMF_RESP_FUNC_COMPLETE)
-+		asd_clear_nexus_I_T_L(dev, lun);
-+	return res;	
-+}
-+
-+/**
-+ * asd_query_task -- send a QUERY TASK TMF to an I_T_L_Q nexus
-+ * task: pointer to sas_task struct of interest
-+ *
-+ * Returns: TMF_RESP_FUNC_COMPLETE if the task is not in the task set,
-+ * or TMF_RESP_FUNC_SUCC if the task is in the task set.
-+ *
-+ * Normally the management layer sets the task to aborted state,
-+ * and then calls query task and then abort task.
-+ */
-+int asd_query_task(struct sas_task *task)
-+{
-+	struct asd_ascb *ascb = task->lldd_task;
-+	int index;
-+
-+	if (ascb) {
-+		index = ascb->tc_index;
-+		return asd_initiate_ssp_tmf(task->dev, task->ssp_task.LUN,
-+					    TMF_QUERY_TASK, index);
-+	}
-+	return TMF_RESP_FUNC_COMPLETE;
-+}
++The SMP portal gives you complete control of the expander,
++so please be careful.
 
 

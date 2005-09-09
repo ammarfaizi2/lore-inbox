@@ -1,76 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030509AbVIIUqI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030329AbVIIUrr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030509AbVIIUqI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 16:46:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030510AbVIIUqI
+	id S1030329AbVIIUrr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 16:47:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030335AbVIIUrr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 16:46:08 -0400
-Received: from fmr24.intel.com ([143.183.121.16]:27316 "EHLO
-	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1030509AbVIIUqG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 16:46:06 -0400
-Date: Fri, 9 Sep 2005 13:45:03 -0700
-From: Ashok Raj <ashok.raj@intel.com>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Ashok Raj <ashok.raj@intel.com>, Andi Kleen <ak@muc.de>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 13/14] x86_64: Use common functions in cluster and physflat mode
-Message-ID: <20050909134503.A29351@unix-os.sc.intel.com>
-References: <200509032135.j83LZ8gX020554@shell0.pdx.osdl.net> <20050905231628.GA16476@muc.de> <20050906161215.B19592@unix-os.sc.intel.com> <Pine.LNX.4.61.0509091003490.978@montezuma.fsmlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.61.0509091003490.978@montezuma.fsmlabs.com>; from zwane@arm.linux.org.uk on Fri, Sep 09, 2005 at 10:07:28AM -0700
+	Fri, 9 Sep 2005 16:47:47 -0400
+Received: from mail-out1.fuse.net ([216.68.8.174]:30451 "EHLO smtp1.fuse.net")
+	by vger.kernel.org with ESMTP id S1030329AbVIIUrr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 16:47:47 -0400
+Message-ID: <43214CEB.2070702@fuse.net>
+Date: Fri, 09 Sep 2005 04:50:51 -0400
+From: rob <rob.rice@fuse.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041221
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: kernel <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp
+References: <431E97E5.1080506@fuse.net> <200509072201.13268.rjw@sisk.pl> <4321190E.2030804@fuse.net> <200509092035.29884.rjw@sisk.pl>
+In-Reply-To: <200509092035.29884.rjw@sisk.pl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 09, 2005 at 10:07:28AM -0700, Zwane Mwaikambo wrote:
-> On a slightly different topic, how come we're using physflat for hotplug 
-> cpu?
-> 
-> -#ifndef CONFIG_CPU_HOTPLUG
->  		/* In the CPU hotplug case we cannot use broadcast mode
->  		   because that opens a race when a CPU is removed.
-> -		   Stay at physflat mode in this case.
-> -		   It is bad to do this unconditionally though. Once
-> -		   we have ACPI platform support for CPU hotplug
-> -		   we should detect hotplug capablity from ACPI tables and
-> -		   only do this when really needed. -AK */
-> +		   Stay at physflat mode in this case. - AK */
-> +#ifdef CONFIG_HOTPLUG_CPU
->  		if (num_cpus <= 8)
->  			genapic = &apic_flat;
+Rafael J. Wysocki wrote:
 
-What you say was true before this patch, (Although now that you point out i 
-realize the ifdef CONFIG_HOTPLUG_CPU is not required). 
-
-Think Andi is fixing this in his next drop to -mm*
-
-When physflat was introduced, it also  switched to use physflat mode for 
-#cpus <=8 when hotplug is enabled, since it doesnt use shortcuts and 
-so is also safer (although slower). 
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=112317686712929&w=2
-
-The link above made using genapic_flat safer by using the
-flat_send_IPI_mask(), and hence i switched back to using
-logical flat mode when #cpus <=8, since that a little more efficient than
-the send_IPI_mask_sequence() used in physflat mode.
-
-In general we need
-
-flat_mode - #cpus <= 8 (Hotplug defined or not, so we use mask version 
-                       for safety)
-
-physflat or cluster_mode when #cpus >8.
-
-If we choose physflat as default for #cpus <=8 (with hotplug) would make
-IPI performance worse, since it would do one cpu at a time, and requires 2 
-writes per cpu for each IPI v.s just 2 for a flat mode mask version of the API.
-
--- 
-Cheers,
-Ashok Raj
-- Open Source Technology Center
+>On Friday, 9 of September 2005 07:09, you wrote:
+>  
+>
+>>Rafael J. Wysocki wrote:
+>>
+>>    
+>>
+>>>Hi,
+>>>
+>>>On Wednesday, 7 of September 2005 09:33, rob wrote:
+>>> 
+>>>
+>>>      
+>>>
+>>>>I singed up to this mailing list just to ask this question
+>>>>I have built a 2.6.13 kernel for a toshiba  tecra 500cdt
+>>>>this computer uses the pci buss for the sound card
+>>>>and pcmcia bridge
+>>>>I have writen a script to unload all the pci buss modules amd go to sleep
+>>>>it works up to this point
+>>>>now how do I get the modules put back when ever I add the lines to
+>>>>rerun the " /etc/rc.d/rc.hotplug /etc/rc.d/rc.pcmcia and 
+>>>>/etc/rc.d/rcmodules "
+>>>>I get a kernel crash befor it gose to sleep
+>>>>I have been al over the net and the olny info I can find is about 
+>>>>software suspend2
+>>>>Is there some way to change the sowftware suspend2 scripts to work with the
+>>>>unpatched kernel software suspend or where can I get the path to init
+>>>>talked about in the menuconfig file
+>>>>   
+>>>>
+>>>>        
+>>>>
+>>>Could you just try
+>>>
+>>># echo shutdown > /sys/power/disk && echo disk > /sys/power/state
+>>>
+>>>without unloading any modules and see what happens (it should suspend
+>>>to disk)?
+>>>
+>>>If it craches, could you boot the kernel with the init=/bin/bash option and try
+>>>
+>>># mount /sys
+>>># mount /proc
+>>># /sbin/swapon -a
+>>># echo shutdown > /sys/power/disk && echo disk > /sys/power/state
+>>>
+>>>and see what happens?
+>>>
+>>>Rafael
+>>>
+>>>
+>>> 
+>>>
+>>>      
+>>>
+>>yes I did try this it just crashes and tacks out my file system with it
+>>and I have to reinstall to recover from it it chops up files like bash
+>>and every thing on the path the error codes scroll by so fast there is
+>>no hope ov finding out what errors are tacking place
+>>    
+>>
+>
+>Then I guess your swap partition is on a logcal volume.  Is it?
+>
+>Rafael
+>
+>
+>  
+>
+I sould have sed more than just where my syap parttion is
+in linux2.6.13/Doucumentation /power/deviecs.txt it says
+somethhing about pci bus devices causing problems
+with just my sound card modules it just halts with an oops
+with pcmcia modules loaded it eats the file system
+with the pci bus mouldes unloaded ALL of them it suspends fine
+and resumes just fine
+this works I can live with this I dont mind that all the pci bus devices
+have to be turned off and restarted after resume
+what I need is a safe way to reload them
+I tryed sleep 5 (this may have been too short ) then rerunning the /etc/rc.d
+scripts to reload them it ate my file system
+I have an extra file parttion with minum install and  a  tat.bz2 of a fresh
+install to recover from  Note (all of this was done from a fresh install 
+of slackware 10.1

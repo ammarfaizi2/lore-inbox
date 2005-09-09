@@ -1,113 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030329AbVIIUrr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030512AbVIIUsj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030329AbVIIUrr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 16:47:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030335AbVIIUrr
+	id S1030512AbVIIUsj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 16:48:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030335AbVIIUsi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 16:47:47 -0400
-Received: from mail-out1.fuse.net ([216.68.8.174]:30451 "EHLO smtp1.fuse.net")
-	by vger.kernel.org with ESMTP id S1030329AbVIIUrr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 16:47:47 -0400
-Message-ID: <43214CEB.2070702@fuse.net>
-Date: Fri, 09 Sep 2005 04:50:51 -0400
-From: rob <rob.rice@fuse.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041221
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: kernel <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp
-References: <431E97E5.1080506@fuse.net> <200509072201.13268.rjw@sisk.pl> <4321190E.2030804@fuse.net> <200509092035.29884.rjw@sisk.pl>
-In-Reply-To: <200509092035.29884.rjw@sisk.pl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 9 Sep 2005 16:48:38 -0400
+Received: from zproxy.gmail.com ([64.233.162.204]:8050 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030512AbVIIUsi convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 16:48:38 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=I3lKxn4DBamA4HzLRUXV813ZSCJwzLbgGdKc6Xc8Tc6GtYq/4sfzdOPPZK/RaaVjBkTHitpwserKRhFKWtj+GB8GQcg7f1SmpwXxZwZ/tgGDQnBg5Kd5g18+SNrw76ktAJBtdzayOiKi9msKOZoM6Owiticsw5cyddKT2VXQo9g=
+Message-ID: <29495f1d050909134834da4a57@mail.gmail.com>
+Date: Fri, 9 Sep 2005 13:48:35 -0700
+From: Nish Aravamudan <nish.aravamudan@gmail.com>
+Reply-To: nish.aravamudan@gmail.com
+To: Hans Reiser <reiser@namesys.com>
+Subject: Re: List of things requested by lkml for reiser4 inclusion (to review)
+Cc: Chris Shoemaker <c.shoemaker@cox.net>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+In-Reply-To: <4321F3AB.4070701@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200509091817.39726.zam@namesys.com> <4321C806.60404@namesys.com>
+	 <20050909175739.GA32503@pe.Belkin> <4321F3AB.4070701@namesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rafael J. Wysocki wrote:
+On 9/9/05, Hans Reiser <reiser@namesys.com> wrote:
+> Chris Shoemaker wrote:
+> 
+> >On Fri, Sep 09, 2005 at 10:36:06AM -0700, Hans Reiser wrote:
+> >
+> >
+> >>If we lose every remaining point of this list, we can generate a patch
+> >>in a few days, because the VFS work was the only substantive (in coding
+> >>hours) task, and it is done.  Do I remember right that the submission
+> >>deadline is a week from Monday for 2.6.14 inclusion?
+> >>
+> >>
+> >
+> >No.  14 days from release date of 2.6.13, which was 8/29, so deadline
+> >is 9/12, this coming Monday.
+> >
+> >-chris
+> >
+> >
+> >
+> >
+> IIRC, Linus announced that since he was going on vacation for 7 days,
+> this release only it would be 3 weeks, so it is a week from Monday that
+> we must submit by, yes?
 
->On Friday, 9 of September 2005 07:09, you wrote:
->  
->
->>Rafael J. Wysocki wrote:
->>
->>    
->>
->>>Hi,
->>>
->>>On Wednesday, 7 of September 2005 09:33, rob wrote:
->>> 
->>>
->>>      
->>>
->>>>I singed up to this mailing list just to ask this question
->>>>I have built a 2.6.13 kernel for a toshiba  tecra 500cdt
->>>>this computer uses the pci buss for the sound card
->>>>and pcmcia bridge
->>>>I have writen a script to unload all the pci buss modules amd go to sleep
->>>>it works up to this point
->>>>now how do I get the modules put back when ever I add the lines to
->>>>rerun the " /etc/rc.d/rc.hotplug /etc/rc.d/rc.pcmcia and 
->>>>/etc/rc.d/rcmodules "
->>>>I get a kernel crash befor it gose to sleep
->>>>I have been al over the net and the olny info I can find is about 
->>>>software suspend2
->>>>Is there some way to change the sowftware suspend2 scripts to work with the
->>>>unpatched kernel software suspend or where can I get the path to init
->>>>talked about in the menuconfig file
->>>>   
->>>>
->>>>        
->>>>
->>>Could you just try
->>>
->>># echo shutdown > /sys/power/disk && echo disk > /sys/power/state
->>>
->>>without unloading any modules and see what happens (it should suspend
->>>to disk)?
->>>
->>>If it craches, could you boot the kernel with the init=/bin/bash option and try
->>>
->>># mount /sys
->>># mount /proc
->>># /sbin/swapon -a
->>># echo shutdown > /sys/power/disk && echo disk > /sys/power/state
->>>
->>>and see what happens?
->>>
->>>Rafael
->>>
->>>
->>> 
->>>
->>>      
->>>
->>yes I did try this it just crashes and tacks out my file system with it
->>and I have to reinstall to recover from it it chops up files like bash
->>and every thing on the path the error codes scroll by so fast there is
->>no hope ov finding out what errors are tacking place
->>    
->>
->
->Then I guess your swap partition is on a logcal volume.  Is it?
->
->Rafael
->
->
->  
->
-I sould have sed more than just where my syap parttion is
-in linux2.6.13/Doucumentation /power/deviecs.txt it says
-somethhing about pci bus devices causing problems
-with just my sound card modules it just halts with an oops
-with pcmcia modules loaded it eats the file system
-with the pci bus mouldes unloaded ALL of them it suspends fine
-and resumes just fine
-this works I can live with this I dont mind that all the pci bus devices
-have to be turned off and restarted after resume
-what I need is a safe way to reload them
-I tryed sleep 5 (this may have been too short ) then rerunning the /etc/rc.d
-scripts to reload them it ate my file system
-I have an extra file parttion with minum install and  a  tat.bz2 of a fresh
-install to recover from  Note (all of this was done from a fresh install 
-of slackware 10.1
+According to his mail (http://lkml.org/lkml/2005/9/8/208):
+
+"As per the new merge policies that were discussed during LKS in Ottawa 
+earlier during the summer, I'm going to accept new stuff for 2.6.14 only 
+during the first two weeks after 2.6.13 was released.
+
+That release was ten days ago, so you've got four more days before I don't 
+want any big merges."
+
+Thanks,
+Nish

@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932286AbVIJUea@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932289AbVIJUfG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932286AbVIJUea (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 16:34:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932290AbVIJUea
+	id S932289AbVIJUfG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 16:35:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbVIJUfF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 16:34:30 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:11322 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S932289AbVIJUe1
+	Sat, 10 Sep 2005 16:35:05 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:59242 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S932289AbVIJUfD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 16:34:27 -0400
-Date: Sat, 10 Sep 2005 22:36:05 +0200
+	Sat, 10 Sep 2005 16:35:03 -0400
+Date: Sat, 10 Sep 2005 22:36:41 +0200
 From: Sam Ravnborg <sam@ravnborg.org>
 To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH 4/7] kbuild: fix split-include dependency
-Message-ID: <20050910203605.GD29334@mars.ravnborg.org>
+Subject: [PATCH 5/7] kbuild: ignore all debugging info sections in scripts/reference_discarded.pl
+Message-ID: <20050910203641.GE29334@mars.ravnborg.org>
 References: <20050910200347.GA3762@mars.ravnborg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -23,55 +23,36 @@ User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Splitting of autoconf.h requires that split-include was built before,
-and
-needs to be-re-done when split-include changes. This dependency was
-previously missing. Additionally, since autoconf.h is (suppoosed to
-be)
-generated as a side effect of executing config targets, include/linux
-should be created prior to running the respective sub-make.
+GCC 4 emits more DWARF debugging information than before and there is now a
+.debug_loc section as well.  This causes "make buildcheck" to fail.  Rather
+than just add that one to the special case list, I used a regexp to ignore
+any .debug_ANYTHING sections in case more show up in the future.
 
-Signed-off-by: Jan Beulich <jbeulich@novell.com>
+Signed-off-by: Roland McGrath <roland@redhat.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
 
 ---
 
- Makefile |   10 ++++++----
- 1 files changed, 6 insertions(+), 4 deletions(-)
+ scripts/reference_discarded.pl |    7 +------
+ 1 files changed, 1 insertions(+), 6 deletions(-)
 
-cd05e6bdc6001ac6e8ab13720693b7e1302d9848
-diff --git a/Makefile b/Makefile
---- a/Makefile
-+++ b/Makefile
-@@ -382,6 +382,9 @@ RCS_TAR_IGNORE := --exclude SCCS --exclu
- scripts_basic:
- 	$(Q)$(MAKE) $(build)=scripts/basic
- 
-+# To avoid any implicit rule to kick in, define an empty command.
-+scripts/basic/%: scripts_basic ;
-+
- .PHONY: outputmakefile
- # outputmakefile generate a Makefile to be placed in output directory, if
- # using a seperate output directory. This allows convinient use
-@@ -444,9 +447,8 @@ ifeq ($(config-targets),1)
- include $(srctree)/arch/$(ARCH)/Makefile
- export KBUILD_DEFCONFIG
- 
--config: scripts_basic outputmakefile FORCE
--	$(Q)$(MAKE) $(build)=scripts/kconfig $@
--%config: scripts_basic outputmakefile FORCE
-+config %config: scripts_basic outputmakefile FORCE
-+	$(Q)mkdir -p include/linux
- 	$(Q)$(MAKE) $(build)=scripts/kconfig $@
- 
- else
-@@ -854,7 +856,7 @@ include/asm:
- 
- # 	Split autoconf.h into include/linux/config/*
- 
--include/config/MARKER: include/linux/autoconf.h
-+include/config/MARKER: scripts/basic/split-include include/linux/autoconf.h
- 	@echo '  SPLIT   include/linux/autoconf.h -> include/config/*'
- 	@scripts/basic/split-include include/linux/autoconf.h include/config
- 	@touch $@
+caba0233bc85ec311159a35f138d957d05cf2fe8
+diff --git a/scripts/reference_discarded.pl b/scripts/reference_discarded.pl
+--- a/scripts/reference_discarded.pl
++++ b/scripts/reference_discarded.pl
+@@ -91,12 +91,7 @@ foreach $object (keys(%object)) {
+ 		     $from !~ /\.exit\.data$/ &&
+ 		     $from !~ /\.altinstructions$/ &&
+ 		     $from !~ /\.pdr$/ &&
+-		     $from !~ /\.debug_info$/ &&
+-		     $from !~ /\.debug_aranges$/ &&
+-		     $from !~ /\.debug_ranges$/ &&
+-		     $from !~ /\.debug_line$/ &&
+-		     $from !~ /\.debug_frame$/ &&
+-		     $from !~ /\.debug_loc$/ &&
++		     $from !~ /\.debug_.*$/ &&
+ 		     $from !~ /\.exitcall\.exit$/ &&
+ 		     $from !~ /\.eh_frame$/ &&
+ 		     $from !~ /\.stab$/)) {
 

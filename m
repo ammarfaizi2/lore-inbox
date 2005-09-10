@@ -1,39 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750778AbVIJMVf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbVIJMYW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750778AbVIJMVf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 08:21:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750784AbVIJMVP
+	id S1750787AbVIJMYW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 08:24:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750789AbVIJMYW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 08:21:15 -0400
-Received: from wscnet.wsc.cz ([212.80.64.118]:40839 "EHLO wscnet.wsc.cz")
-	by vger.kernel.org with ESMTP id S1750779AbVIJMVN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 08:21:13 -0400
-Date: Sat, 10 Sep 2005 14:21:09 +0200
-Message-Id: <200509101221.j8ACL92n017254@localhost.localdomain>
-In-reply-to: <200509101219.j8ACJHeb017063@localhost.localdomain>
-Subject: [PATCH 7/10] drivers/char: pci_find_device remove (drivers/char/sx.c)
-From: Jiri Slaby <jirislaby@gmail.com>
-To: Greg KH <gregkh@suse.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz
+	Sat, 10 Sep 2005 08:24:22 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:17495 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S1750787AbVIJMYV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Sep 2005 08:24:21 -0400
+Date: Sat, 10 Sep 2005 14:25:54 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Jan Beulich <JBeulich@novell.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] adjust .version updating
+Message-ID: <20050910122554.GC18845@mars.ravnborg.org>
+References: <43206FD70200007800024459@emea1-mh.id2.novell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43206FD70200007800024459@emea1-mh.id2.novell.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Jiri Slaby <xslaby@fi.muni.cz>
+On Thu, Sep 08, 2005 at 05:07:35PM +0200, Jan Beulich wrote:
+> (Note: Patch also attached because the inline version is certain to get
+> line wrapped.)
+> 
+> In order to maintain a more correct build number, updates to the
+> version
+> number should only be commited after a successful link of vmlinux, not
+> before (so that errors in the link process don't lead to pointless
+> increments).
 
- sx.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/char/sx.c b/drivers/char/sx.c
---- a/drivers/char/sx.c
-+++ b/drivers/char/sx.c
-@@ -2434,7 +2434,7 @@ static int __init sx_init(void) 
- 	}
- 
- #ifdef CONFIG_PCI
--	while ((pdev = pci_find_device (PCI_VENDOR_ID_SPECIALIX, 
-+	while ((pdev = pci_get_device (PCI_VENDOR_ID_SPECIALIX, 
- 					PCI_DEVICE_ID_SPECIALIX_SX_XIO_IO8, 
- 					      pdev))) {
- 		if (pci_enable_device(pdev))
+Applied - thanks.
+	
+	Sam

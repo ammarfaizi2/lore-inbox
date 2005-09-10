@@ -1,66 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbVIJSHn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932226AbVIJSHz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932222AbVIJSHn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 14:07:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbVIJSHk
+	id S932226AbVIJSHz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 14:07:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932245AbVIJSHn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 14:07:40 -0400
-Received: from ppp-62-11-72-160.dialup.tiscali.it ([62.11.72.160]:32424 "EHLO
-	zion.home.lan") by vger.kernel.org with ESMTP id S932173AbVIJSEa
+	Sat, 10 Sep 2005 14:07:43 -0400
+Received: from ppp-62-11-72-160.dialup.tiscali.it ([62.11.72.160]:31656 "EHLO
+	zion.home.lan") by vger.kernel.org with ESMTP id S932228AbVIJSE1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 14:04:30 -0400
-Message-Id: <20050910174628.104571000@zion.home.lan>
+	Sat, 10 Sep 2005 14:04:27 -0400
+Message-Id: <20050910174626.850521000@zion.home.lan>
 References: <20050910174452.907256000@zion.home.lan>
-Date: Sat, 10 Sep 2005 19:44:55 +0200
+Date: Sat, 10 Sep 2005 19:44:53 +0200
 From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jeff Dike <jdike@addtoit.com>, Sam Ravnborg <sam@ravnborg.org>,
+Cc: Jeff Dike <jdike@addtoit.com>,
        Paolo Blaisorblade Giarrusso <blaisorblade@yahoo.it>
 Cc: LKML <linux-kernel@vger.kernel.org>
 Cc: user-mode-linux-devel@lists.sourceforge.net
-Subject: [patch 3/7] x86_64 linker script cleanups for debug sections
-Content-Disposition: inline; filename=x86-64-link-script-cleanup
+Subject: [patch 1/7] Uml: more cleaning
+Content-Disposition: inline; filename=uml-more-clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Use the new macros for x86_64 too.
+We must remove even arch/um/os-Linux/util/mk_user_constants, which we don't do.
+Also, Kconfig_arch must be listed only once, between CLEAN_FILES.
 
-Note that the current scripts includes different definitions; more exactly,
-it only contains part of the DWARF2 sections and the .comment one from
-Stabs. Shouldn't be a problem, anyway.
-
-Cc: Sam Ravnborg <sam@ravnborg.org>
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- arch/x86_64/kernel/vmlinux.lds.S |   17 ++---------------
- 1 files changed, 2 insertions(+), 15 deletions(-)
+ arch/um/Makefile |    7 +++----
+ 1 files changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86_64/kernel/vmlinux.lds.S b/arch/x86_64/kernel/vmlinux.lds.S
---- a/arch/x86_64/kernel/vmlinux.lds.S
-+++ b/arch/x86_64/kernel/vmlinux.lds.S
-@@ -194,20 +194,7 @@ SECTIONS
- #endif
- 	}
+diff --git a/arch/um/Makefile b/arch/um/Makefile
+--- a/arch/um/Makefile
++++ b/arch/um/Makefile
+@@ -103,7 +103,6 @@ endef
  
--  /* DWARF 2 */
--  .debug_info     0 : { *(.debug_info) }
--  .debug_abbrev   0 : { *(.debug_abbrev) }
--  .debug_line     0 : { *(.debug_line) }
--  .debug_frame    0 : { *(.debug_frame) }
--  .debug_str      0 : { *(.debug_str) }
--  .debug_loc      0 : { *(.debug_loc) }
--  .debug_macinfo  0 : { *(.debug_macinfo) }
--  /* SGI/MIPS DWARF 2 extensions */
--  .debug_weaknames 0 : { *(.debug_weaknames) }
--  .debug_funcnames 0 : { *(.debug_funcnames) }
--  .debug_typenames 0 : { *(.debug_typenames) }
--  .debug_varnames  0 : { *(.debug_varnames) }
-+  STABS_DEBUG
+ ifneq ($(KBUILD_SRC),)
+ $(shell mkdir -p $(ARCH_DIR) && ln -fsn $(srctree)/$(ARCH_DIR)/Kconfig.$(SUBARCH) $(ARCH_DIR)/Kconfig.arch)
+-CLEAN_FILES += $(ARCH_DIR)/Kconfig.arch
+ else
+ $(shell cd $(ARCH_DIR) && ln -sf Kconfig.$(SUBARCH) Kconfig.arch)
+ endif
+@@ -144,14 +143,14 @@ endef
+ #TT or skas makefiles and don't clean skas_ptregs.h.
+ CLEAN_FILES += linux x.i gmon.out $(ARCH_DIR)/include/uml-config.h \
+ 	$(GEN_HEADERS) $(ARCH_DIR)/include/skas_ptregs.h \
+-	$(ARCH_DIR)/include/user_constants.h
++	$(ARCH_DIR)/include/user_constants.h $(ARCH_DIR)/Kconfig.arch
  
--
--  .comment 0 : { *(.comment) }
-+  DWARF_DEBUG
- }
+ MRPROPER_FILES += $(SYMLINK_HEADERS) $(ARCH_SYMLINKS) \
+-	$(addprefix $(ARCH_DIR)/kernel/,$(KERN_SYMLINKS)) $(ARCH_DIR)/os \
+-	$(ARCH_DIR)/Kconfig.arch
++	$(addprefix $(ARCH_DIR)/kernel/,$(KERN_SYMLINKS)) $(ARCH_DIR)/os
+ 
+ archclean:
+ 	$(Q)$(MAKE) $(clean)=$(ARCH_DIR)/util
++	$(Q)$(MAKE) $(clean)=$(ARCH_DIR)/os-$(OS)/util
+ 	@find . \( -name '*.bb' -o -name '*.bbg' -o -name '*.da' \
+ 		-o -name '*.gcov' \) -type f -print | xargs rm -f
+ 
 
 --

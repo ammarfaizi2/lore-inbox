@@ -1,113 +1,216 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030409AbVIJBDH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932657AbVIJBDq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030409AbVIJBDH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 21:03:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030410AbVIJBDH
+	id S932657AbVIJBDq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 21:03:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932160AbVIJBDq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 21:03:07 -0400
-Received: from ppp59-167.lns1.cbr1.internode.on.net ([59.167.59.167]:7955 "EHLO
-	triton.bird.org") by vger.kernel.org with ESMTP id S1030409AbVIJBDG
+	Fri, 9 Sep 2005 21:03:46 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:21228 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932657AbVIJBDp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 21:03:06 -0400
-Message-ID: <432231B7.2060200@acquerra.com.au>
-Date: Sat, 10 Sep 2005 11:07:03 +1000
-From: Anthony Wesley <awesley@acquerra.com.au>
-Reply-To: awesley@acquerra.com.au
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.8) Gecko/20050511
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: nate.diller@gmail.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.6.13 buffer strangeness
-References: <432151B0.7030603@acquerra.com.au>	 <EXCHG2003Zi71mrvoGd00000659@EXCHG2003.microtech-ks.com>	 <5c49b0ed05090914394dba42bf@mail.gmail.com>	 <432225E0.9030606@acquerra.com.au> <5c49b0ed0509091735436260bb@mail.gmail.com>
-In-Reply-To: <5c49b0ed0509091735436260bb@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 9 Sep 2005 21:03:45 -0400
+Subject: [RFC][PATCH] NTP shiftR cleanup
+From: john stultz <johnstul@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: ioe-lkml@rameria.de, George Anzinger <george@mvista.com>,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Roman Zippel <zippel@linux-m68k.org>
+Content-Type: text/plain
+Date: Fri, 09 Sep 2005 18:03:37 -0700
+Message-Id: <1126314217.3455.10.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Okay, just tested a couple of things, here's what I see...
+All,
+	Here is hopefully a fairly uncontroversial cleanup for the NTP code. It
+uses min/max to simplify some conditionals and creates a macro shiftR
+that avoids the numerous ugly conditionals in the NTP code that look
+like:
+	
+	if(a < 0)
+		b = -(-a >> shift);
+	else
+		b = a >> shift;
 
-I tested the write speed to the usb2 hard disk and got 21MBytes/sec. It's a laptop 
-hard drive, only 5400rpm so this is not surprising.
+Replacing it with:
 
-I did this test with my video capture app running, but just displaying data and not writing,
+	b = shiftR(a, shift);
 
-I have another laptop usb2 hard drive here which I just tested and got 17MBytes/sec - it's
-a 4200rpm drive so again not surprising numbers.
+This should have zero effect on the logic, however it should probably
+have a bit of testing just to be sure. I've compiled it for alpha, arm,
+i386, ppc, ppc64, and s390 and its been running fine on my laptop all
+day. It applies against Linus' tree from this morning.
 
-The video data is written as individual frames, so the efficiency is a bit below the raw throughput,
-but my tests were transferring 1.5Gb of data as raw frames - exactly the same way that Coriander would
-write its data.
+Also Thanks to Ingo Oeser for catching a bug earlier in the shiftR
+macro.
 
-I'd bet a large sum of money that these hard disk figures are correct to within a few percent.
-
-Also, when I am actually capturing I have timed by stopwatch how long the disk activity light
-is on, and reached about the same conclusion.
-
-Working the problem from the other direction, the only way to explain the early throttling that
-I see would be if *almost no data* is being written to the disk, and this is plainly not the case. Even if
-the disk were running at a greatly reduced rate of (say) 10MBytes/sec I would still see 86 seconds
-of buffering before the throttle kicks in, and so far I have managed only to get to about 65 or 70.
-
-regards, Anthony
-
-Nate Diller wrote:
+Please let me know if you have any comments or feedback.
 
 
->>Setting dirty_ratio and dirty_background_ratio to 90/10 puts me back at
->>around 50 seconds, i.e. where I started.
->>
-> 
-> this setting should do the trick, so there's something going on here
-> that isn't expected.
-> 
-> 
->>So as far as I can see there is *no way* to get 3 minutes worth of buffering
->>by adjusting these parameters.
->>
->>Just to remind everyone - I have video data coming in at 25MBytes/sec and I
->>am writing it out to a usb2 hard disk that can sustain 17MBytes/sec. I want
->>my video capture to run at full speed as long as possible by having the
->>7MBytes/sec deficit slowly eat up the available RAM in the machine. I have
->>1.5Gb of RAM, 1.3Gb available for buffers, so this should take 3 minutes to
->>consume at 7MBytes/sec.
->>
->>So, I've tried all the combinations on dirty_ratio and
->>dirty_background_ratio and they *do not help*.
->>
-> 
-> dirty_ratio is the tubable you want, if it's not working correctly,
-> either there's a problem with your setup, or a bug
-> 
-> 
->>Can anyone suggest something else that I might try? The goal is to have
->>25MBytes/sec streaming video for about 3 minutes. 
->>
-> 
-> how sure are you that you're getting 17MB/s during this test?  can you
-> run "vmstat 1" while this is running to verify?  which FS and
-> scheduler?
-> 
-> just for interest, what's the raw disk bandwidth (use hdparm, or run a
-> dd, or something)?  it would obviously be much better to sustain
-> 25MB/s to disk
-> 
-> 
->>Or is this simply not possible with the current kernel I/O setup? Do I have
->>to do something elaborate myself, like build a big RAM buffer, mount the
->>disk synchronous, do the buffering myself in userland...??
->>
-> 
-> this should be possible, although it could be considered a bit risky WRT OOM.
-> 
-> NATE
+thanks
+-john
 
--- 
-Anthony Wesley
-Director and IT/Network Consultant
-Smart Networks Pty Ltd
-Acquerra Pty Ltd
 
-Anthony.Wesley@acquerra.com.au
-Phone: (02) 62595404 or 0419409836
+diff --git a/include/linux/timex.h b/include/linux/timex.h
+--- a/include/linux/timex.h
++++ b/include/linux/timex.h
+@@ -282,6 +282,11 @@ static inline int ntp_synced(void)
+ 	return !(time_status & STA_UNSYNC);
+ }
+ 
++/* Required to safely shift negative values */
++#define shiftR(x, s) ({ __typeof__(x) __x = x;\
++		__typeof__(s) __s = s; \
++		(__x < 0) ? (-((-__x) >> (__s))) : ((__x) >> (__s));})
++
+ 
+ #ifdef CONFIG_TIME_INTERPOLATION
+ 
+diff --git a/kernel/time.c b/kernel/time.c
+--- a/kernel/time.c
++++ b/kernel/time.c
+@@ -338,30 +338,20 @@ int do_adjtimex(struct timex *txc)
+ 		        if (mtemp >= MINSEC) {
+ 			    ltemp = (time_offset / mtemp) << (SHIFT_USEC -
+ 							      SHIFT_UPDATE);
+-			    if (ltemp < 0)
+-			        time_freq -= -ltemp >> SHIFT_KH;
+-			    else
+-			        time_freq += ltemp >> SHIFT_KH;
++			    time_freq = shiftR(ltemp, SHIFT_KH);
+ 			} else /* calibration interval too short (p. 12) */
+ 				result = TIME_ERROR;
+ 		    } else {	/* PLL mode */
+ 		        if (mtemp < MAXSEC) {
+ 			    ltemp *= mtemp;
+-			    if (ltemp < 0)
+-			        time_freq -= -ltemp >> (time_constant +
+-							time_constant +
+-							SHIFT_KF - SHIFT_USEC);
+-			    else
+-			        time_freq += ltemp >> (time_constant +
++			    time_freq += shiftR(ltemp,(time_constant +
+ 						       time_constant +
+-						       SHIFT_KF - SHIFT_USEC);
++						       SHIFT_KF - SHIFT_USEC));
+ 			} else /* calibration interval too long (p. 12) */
+ 				result = TIME_ERROR;
+ 		    }
+-		    if (time_freq > time_tolerance)
+-		        time_freq = time_tolerance;
+-		    else if (time_freq < -time_tolerance)
+-		        time_freq = -time_tolerance;
++		    time_freq = min(time_freq, time_tolerance);
++		    time_freq = max(time_freq, -time_tolerance);
+ 		} /* STA_PLL || STA_PPSTIME */
+ 	    } /* txc->modes & ADJ_OFFSET */
+ 	    if (txc->modes & ADJ_TICK) {
+@@ -384,10 +374,7 @@ leave:	if ((time_status & (STA_UNSYNC|ST
+ 	if ((txc->modes & ADJ_OFFSET_SINGLESHOT) == ADJ_OFFSET_SINGLESHOT)
+ 	    txc->offset	   = save_adjust;
+ 	else {
+-	    if (time_offset < 0)
+-		txc->offset = -(-time_offset >> SHIFT_UPDATE);
+-	    else
+-		txc->offset = time_offset >> SHIFT_UPDATE;
++	    txc->offset = shiftR(time_offset, SHIFT_UPDATE);
+ 	}
+ 	txc->freq	   = time_freq + pps_freq;
+ 	txc->maxerror	   = time_maxerror;
+diff --git a/kernel/timer.c b/kernel/timer.c
+--- a/kernel/timer.c
++++ b/kernel/timer.c
+@@ -703,23 +703,13 @@ static void second_overflow(void)
+      * the adjustment over not more than the number of
+      * seconds between updates.
+      */
+-    if (time_offset < 0) {
+-	ltemp = -time_offset;
+-	if (!(time_status & STA_FLL))
+-	    ltemp >>= SHIFT_KG + time_constant;
+-	if (ltemp > (MAXPHASE / MINSEC) << SHIFT_UPDATE)
+-	    ltemp = (MAXPHASE / MINSEC) << SHIFT_UPDATE;
+-	time_offset += ltemp;
+-	time_adj = -ltemp << (SHIFT_SCALE - SHIFT_HZ - SHIFT_UPDATE);
+-    } else {
+ 	ltemp = time_offset;
+ 	if (!(time_status & STA_FLL))
+-	    ltemp >>= SHIFT_KG + time_constant;
++		ltemp = shiftR(ltemp, SHIFT_KG + time_constant);
+ 	if (ltemp > (MAXPHASE / MINSEC) << SHIFT_UPDATE)
+-	    ltemp = (MAXPHASE / MINSEC) << SHIFT_UPDATE;
++		ltemp = (MAXPHASE / MINSEC) << SHIFT_UPDATE;
+ 	time_offset -= ltemp;
+ 	time_adj = ltemp << (SHIFT_SCALE - SHIFT_HZ - SHIFT_UPDATE);
+-    }
+ 
+     /*
+      * Compute the frequency estimate and additional phase
+@@ -736,30 +726,19 @@ static void second_overflow(void)
+ 			 STA_PPSWANDER | STA_PPSERROR);
+     }
+     ltemp = time_freq + pps_freq;
+-    if (ltemp < 0)
+-	time_adj -= -ltemp >>
+-	    (SHIFT_USEC + SHIFT_HZ - SHIFT_SCALE);
+-    else
+-	time_adj += ltemp >>
+-	    (SHIFT_USEC + SHIFT_HZ - SHIFT_SCALE);
++    time_adj += shiftR(ltemp,(SHIFT_USEC + SHIFT_HZ - SHIFT_SCALE));
+ 
+ #if HZ == 100
+     /* Compensate for (HZ==100) != (1 << SHIFT_HZ).
+      * Add 25% and 3.125% to get 128.125; => only 0.125% error (p. 14)
+      */
+-    if (time_adj < 0)
+-	time_adj -= (-time_adj >> 2) + (-time_adj >> 5);
+-    else
+-	time_adj += (time_adj >> 2) + (time_adj >> 5);
++    time_adj += shiftR(time_adj, 2) + shiftR(time_adj, 5);
+ #endif
+ #if HZ == 1000
+     /* Compensate for (HZ==1000) != (1 << SHIFT_HZ).
+      * Add 1.5625% and 0.78125% to get 1023.4375; => only 0.05% error (p. 14)
+      */
+-    if (time_adj < 0)
+-	time_adj -= (-time_adj >> 6) + (-time_adj >> 7);
+-    else
+-	time_adj += (time_adj >> 6) + (time_adj >> 7);
++    time_adj += shiftR(time_adj, 6) + shiftR(time_adj, 7);
+ #endif
+ }
+ 
+@@ -778,10 +757,8 @@ static void update_wall_time_one_tick(vo
+ 	     * Limit the amount of the step to be in the range
+ 	     * -tickadj .. +tickadj
+ 	     */
+-	     if (time_adjust > tickadj)
+-		time_adjust_step = tickadj;
+-	     else if (time_adjust < -tickadj)
+-		time_adjust_step = -tickadj;
++	     time_adjust_step = min(time_adjust_step, (long)tickadj);
++	     time_adjust_step = max(time_adjust_step, (long)-tickadj);
+ 
+ 	    /* Reduce by this step the amount of time left  */
+ 	    time_adjust -= time_adjust_step;
+@@ -792,13 +769,8 @@ static void update_wall_time_one_tick(vo
+ 	 * advance the tick more.
+ 	 */
+ 	time_phase += time_adj;
+-	if (time_phase <= -FINENSEC) {
+-		long ltemp = -time_phase >> (SHIFT_SCALE - 10);
+-		time_phase += ltemp << (SHIFT_SCALE - 10);
+-		delta_nsec -= ltemp;
+-	}
+-	else if (time_phase >= FINENSEC) {
+-		long ltemp = time_phase >> (SHIFT_SCALE - 10);
++	if (abs(time_phase) >= FINENSEC) {
++		long ltemp = shiftR(time_phase, (SHIFT_SCALE - 10));
+ 		time_phase -= ltemp << (SHIFT_SCALE - 10);
+ 		delta_nsec += ltemp;
+ 	}
+
+

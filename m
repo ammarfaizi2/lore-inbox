@@ -1,63 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932205AbVIJF2U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030417AbVIJFmy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932205AbVIJF2U (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 01:28:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932612AbVIJF2U
+	id S1030417AbVIJFmy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 01:42:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932629AbVIJFmy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 01:28:20 -0400
-Received: from ppp59-167.lns1.cbr1.internode.on.net ([59.167.59.167]:51461
-	"EHLO triton.bird.org") by vger.kernel.org with ESMTP
-	id S932205AbVIJF2T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 01:28:19 -0400
-Message-ID: <43226FDA.4070607@acquerra.com.au>
-Date: Sat, 10 Sep 2005 15:32:10 +1000
-From: Anthony Wesley <awesley@acquerra.com.au>
-Reply-To: awesley@acquerra.com.au
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.8) Gecko/20050511
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: nate.diller@gmail.com
-CC: linux-kernel@vger.kernel.org
+	Sat, 10 Sep 2005 01:42:54 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:36267 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932612AbVIJFmx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Sep 2005 01:42:53 -0400
+Date: Fri, 9 Sep 2005 22:41:48 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: awesley@acquerra.com.au
+Cc: nate.diller@gmail.com, rheflin@atipa.com, linux-kernel@vger.kernel.org
 Subject: Re: kernel 2.6.13 buffer strangeness
-References: <432151B0.7030603@acquerra.com.au>	 <EXCHG2003Zi71mrvoGd00000659@EXCHG2003.microtech-ks.com>	 <5c49b0ed05090914394dba42bf@mail.gmail.com>	 <432225E0.9030606@acquerra.com.au>	 <5c49b0ed0509091735436260bb@mail.gmail.com>	 <432231B7.2060200@acquerra.com.au>	 <5c49b0ed0509091847135834c0@mail.gmail.com>	 <432243AA.4000508@acquerra.com.au> <5c49b0ed05090922021b8f8112@mail.gmail.com>
-In-Reply-To: <5c49b0ed05090922021b8f8112@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Message-Id: <20050909224148.3bf40856.akpm@osdl.org>
+In-Reply-To: <43222DC3.9080609@acquerra.com.au>
+References: <432151B0.7030603@acquerra.com.au>
+	<EXCHG2003Zi71mrvoGd00000659@EXCHG2003.microtech-ks.com>
+	<5c49b0ed05090914394dba42bf@mail.gmail.com>
+	<43222DC3.9080609@acquerra.com.au>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nate Diller wrote:
-> just found the culprit.  guess i should have read the code the first 
-> time.  get_dirty_limits() in drivers/block/page_writeback.c has a 
-> hard-coded upper limit to dirty_ratio.  it's capped to half of the 
-> unmapped pages, so maybe 30-40% of your system's memory.  so if you are 
-> brave, just remove the "/ 2" parts from the 'if (dirty_ratio > 
-> unmapped_ratio / 2) dirty_ratio = unmapped_ratio / 2;' check, and you 
-> can have all the OOM goodness you want.
+Anthony Wesley <awesley@acquerra.com.au> wrote:
+>
+>  How else can it take only 70 seconds to reach 95% dirty when I have 1.3Gb of available RAM and data coming in at 25MBytes/sec and out at 17MBytes/sec? It doesn't make any sense...
 
-Excellent. OOM here I come.
+What architecture?   x86?
 
-> i really recommend you focus on getting better disk bandwidth, you stand 
-> to gain a lot more from that approach.  i presume you're on ext3; 
-> perhaps you should try reiser4 or xfs, they are more likely to meet your 
-> disk bandwidth requirements.
+If so then bear in mind that your memory is split into 500MB highmem and
+800MB lowmem.  The kernel might be starting I/O due to the highmem zone
+being full of dirty pages.  That'd be wrong of it if so - it's supposed to
+just fall back to lowmem for the page allocations, but that code has
+changed quite a bit in the two years since I got all that working...
 
-Yep, pursuing this as well, also looking to add more RAM to the machine. At this stage
-I was just trying to understand the numbers that I was seeing, so I could work out the
-best way to proceed.
-
-I'm using ext2 at the moment, on the assumption that the journal would cost 
-me a bit of performance so I left it out :-)
-
-I'll certainly try the other filesystems as you suggest.
-
-Thanks again, Anthony
-
--- 
-Anthony Wesley
-Director and IT/Network Consultant
-Smart Networks Pty Ltd
-Acquerra Pty Ltd
-
-Anthony.Wesley@acquerra.com.au
-Phone: (02) 62595404 or 0419409836
+You need to run `watch -n1 cat /proc/meminfo' while doing these tests...

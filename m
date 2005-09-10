@@ -1,98 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932261AbVIJV6r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932267AbVIJV73@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932261AbVIJV6r (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 17:58:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932268AbVIJV6r
+	id S932267AbVIJV73 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 17:59:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932268AbVIJV73
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 17:58:47 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:29590 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932261AbVIJV6q (ORCPT
+	Sat, 10 Sep 2005 17:59:29 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:16856 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932267AbVIJV71 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 17:58:46 -0400
-Message-ID: <43235707.7050909@pobox.com>
-Date: Sat, 10 Sep 2005 17:58:31 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>, David Woodhouse <dwmw2@infradead.org>
-CC: Alan Stern <stern@rowland.harvard.edu>, Andrew Morton <akpm@osdl.org>,
-       Greg KH <greg@kroah.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: [GIT PATCH] More PCI patches for 2.6.13
-References: <Pine.LNX.4.44L0.0509101655520.7081-100000@netrider.rowland.org> <Pine.LNX.4.58.0509101410300.30958@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0509101410300.30958@g5.osdl.org>
-Content-Type: multipart/mixed;
- boundary="------------020004000003080803020203"
-X-Spam-Score: 0.0 (/)
+	Sat, 10 Sep 2005 17:59:27 -0400
+Date: Sat, 10 Sep 2005 14:58:48 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Akinobu Mita <mita@miraclelinux.com>
+Cc: linux-kernel@vger.kernel.org, sct@redhat.com, adilger@clusterfs.com,
+       ext3-users@redhat.com
+Subject: Re: [PATCH 0/6] jbd cleanup
+Message-Id: <20050910145848.51881e61.akpm@osdl.org>
+In-Reply-To: <20050910145525.GB7593@miraclelinux.com>
+References: <20050909084214.GB14205@miraclelinux.com>
+	<20050909021522.1a271e4b.akpm@osdl.org>
+	<20050910145525.GB7593@miraclelinux.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020004000003080803020203
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Linus Torvalds wrote:
-> Case closed. 
+Akinobu Mita <mita@miraclelinux.com> wrote:
+>
+> On Fri, Sep 09, 2005 at 02:15:22AM -0700, Andrew Morton wrote:
+> > Akinobu Mita <mita@miraclelinux.com> wrote:
+> > >
+> > > The following 6 patches cleanup the jbd code and kill about 200 lines. 
+> > >
+> > 
+> > Thanks, but I'm not inclined to apply them.
+> > 
+> > a) Maybe 70-80% of the Linux world uses this filesystem.  We need to be
+> >    very cautious in making changes to it.
 > 
-> Bogus warnings are a _bad_ thing. They cause people to write buggy code.
+> And we need many eyeballs.
+
+True.  And the only way to really learn code is to make changes to it.
+
+> (I've tried to understand how the jbd works several times.
+>  But I always failed.)
+
+It's very hard to reverse engineer the high-level design concepts from the
+implementation.  And the design concepts in JBD are really complex, which
+is a problem fo us.
+
+When I first had to learn the thing 4-5 years back I sat down for a solid
+week and wrote a 40-odd page how-it-works document for myself, just to
+force it into my head.  It was probably about 50% accurate, but it was a
+useful exercise.
+
+> About the debuggability of list_heads, how about adding the kind of
+> the following gdb macros in .gdbinit?
 > 
-> That drivers/pci/pci.c code should be simplified to not look at the error
-> return from pci_set_power_state() at all. Special-casing EIO is just
-> another bug waiting to happen.
+> ---
+> 
+> define list_entry
+> 	set $ptr=$arg0
+> 	p ($arg1 *)((char *)$ptr - (size_t) &(($arg1 *)0)->$arg2)
+> end
+> 
+> define list_entry_s
+> 	set $ptr=$arg0
+> 	p (struct $arg1 *)((char *)$ptr - (size_t) &((struct $arg1 *)0)->$arg2)
+> end
+> 
+> define to_journal_head
+> 	list_entry_s $arg0 journal_head b_list
+> end
 
-As a tangent, the 'foo is deprecated' warnings for pm_register() and 
-inter_module_register() annoy me, primarily because they never seem to 
-go away.
+Here's mine ;)
 
-The only user of inter_module_xxx is CONFIG_MTD -- thus the deprecated 
-warning is useless to 90% of us, who will never use MTD.  As for 
-pm_register(), there are tons of users remaining.  As such, for the 
-forseeable future, we will continue to see pm_register() warnings and 
-ignore them -- thus they are nothing but useless build noise.
+# list_entry list type member
+define list_entry
+	set $off = (int)&(((struct $arg1 *)0)->$arg2)
+	set $addr = (int)$arg0
+	set $res = $addr - $off
+	printf "0x%x\n", (struct $arg1 *)$res
+end
 
-I've attached a patch, just tested, which addresses inter_module_xxx by 
-making its build conditional on the last remaining user.  This solves 
-the deprecated warning problem for most of us, and makes the kernel 
-smaller for most of us, at the same time.
-
-	Jeff
-
-
-
---------------020004000003080803020203
-Content-Type: text/plain;
- name="patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch"
-
-diff --git a/kernel/Makefile b/kernel/Makefile
---- a/kernel/Makefile
-+++ b/kernel/Makefile
-@@ -6,7 +6,7 @@ obj-y     = sched.o fork.o exec_domain.o
- 	    exit.o itimer.o time.o softirq.o resource.o \
- 	    sysctl.o capability.o ptrace.o timer.o user.o \
- 	    signal.o sys.o kmod.o workqueue.o pid.o \
--	    rcupdate.o intermodule.o extable.o params.o posix-timers.o \
-+	    rcupdate.o extable.o params.o posix-timers.o \
- 	    kthread.o wait.o kfifo.o sys_ni.o posix-cpu-timers.o
- 
- obj-$(CONFIG_FUTEX) += futex.o
-@@ -32,6 +32,13 @@ obj-$(CONFIG_GENERIC_HARDIRQS) += irq/
- obj-$(CONFIG_CRASH_DUMP) += crash_dump.o
- obj-$(CONFIG_SECCOMP) += seccomp.o
- 
-+ifeq ($(CONFIG_MTD),y)
-+obj-y += intermodule.o
-+endif
-+ifeq ($(CONFIG_MTD),m)
-+obj-y += intermodule.o
-+endif
-+
- ifneq ($(CONFIG_SCHED_NO_NO_OMIT_FRAME_POINTER),y)
- # According to Alan Modra <alan@linuxcare.com.au>, the -fno-omit-frame-pointer is
- # needed for x86 only.  Why this used to be enabled for all architectures is beyond
-
---------------020004000003080803020203--

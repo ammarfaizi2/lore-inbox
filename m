@@ -1,62 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932223AbVIJV2y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932246AbVIJV1k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932223AbVIJV2y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 17:28:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932319AbVIJV2y
+	id S932246AbVIJV1k (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 17:27:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932320AbVIJV1j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 17:28:54 -0400
-Received: from wscnet.wsc.cz ([212.80.64.118]:21128 "EHLO wscnet.wsc.cz")
-	by vger.kernel.org with ESMTP id S932223AbVIJV2v (ORCPT
+	Sat, 10 Sep 2005 17:27:39 -0400
+Received: from zproxy.gmail.com ([64.233.162.203]:9066 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932287AbVIJV1j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 17:28:51 -0400
-Message-ID: <43234F18.8000000@gmail.com>
-Date: Sat, 10 Sep 2005 23:24:40 +0200
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: cs, en-us, en
+	Sat, 10 Sep 2005 17:27:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=rQ1NccDSUrDf0WkS6mPfI+gq0dp6LVW0+cHgiiVLMbFjijln2U5uGsgj6bBBWcR7cFP5jZb4x/YL8zi6ZJBp9dX7vsnfi8CSir9WbfoSQEvF5xTVZurcK2gODSQArEPl1UOc06mX6zSVTjXKYXv1I4lmcVLacxLRr5COgqlHejU=
+Message-ID: <43234F91.8070801@gmail.com>
+Date: Sun, 11 Sep 2005 05:26:41 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Jeff Garzik <jgarzik@pobox.com>, Greg KH <gregkh@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-ide@vger.kernel.org,
-       B.Zolnierkiewicz@elka.pw.edu.pl
-Subject: Re: [PATCH] include: pci_find_device remove (include/asm-i386/ide.h)
-References: <200509102032.j8AKWxMC006246@localhost.localdomain> <4323482E.2090409@pobox.com> <20050910211932.GA13679@kroah.com>
-In-Reply-To: <20050910211932.GA13679@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Manuel Lauss <mano@roarinelk.homelinux.net>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-mm2
+References: <20050908053042.6e05882f.akpm@osdl.org> <4322C741.9060808@roarinelk.homelinux.net> <4322D49D.5040506@pol.net> <4322E3A3.5010903@roarinelk.homelinux.net>
+In-Reply-To: <4322E3A3.5010903@roarinelk.homelinux.net>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH napsal(a):
-> On Sat, Sep 10, 2005 at 04:55:10PM -0400, Jeff Garzik wrote:
+Manuel Lauss wrote:
+> Console: switching to colour frame buffer device 80x25
+> I810FB: fb0         : Intel(R) 815 (Internal Graphics with AGP)
+> Framebuffer Device v0.9.0
+> I810FB: Video RAM   : 4096K
+> I810FB: Monitor     : H: 40-80 KHz V: 60-60 Hz
+> I810FB: Mode        : 640x400-8bpp@69Hz
 > 
->>Jiri Slaby wrote:
->>
->>>diff --git a/include/asm-i386/ide.h b/include/asm-i386/ide.h
->>>--- a/include/asm-i386/ide.h
->>>+++ b/include/asm-i386/ide.h
->>>@@ -41,7 +41,12 @@ static __inline__ int ide_default_irq(un
->>>
->>>static __inline__ unsigned long ide_default_io_base(int index)
->>>{
->>>-	if (pci_find_device(PCI_ANY_ID, PCI_ANY_ID, NULL) == NULL) {
->>>+	struct pci_dev *pdev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, NULL);
->>>+	unsigned int a = !pdev;
->>>+
->>>+	pci_dev_put(pdev);
->>
->>
->>Looks like we need to resurrect pci_present() from the ancient past.
-> 
-> 
-> Heh, ick, no :)
-> 
-> Jiri, any other way to do this instead?
-I have no idea, how to do it more elegant. So hint me a little bit...
 
-thanks,
--- 
-Jiri Slaby         www.fi.muni.cz/~xslaby
-~\-/~      jirislaby@gmail.com      ~\-/~
-241B347EC88228DE51EE A49C4A73A25004CB2A10
+One more thing, vfmin and vfmax are set to 60 and 60.  This does
+not give a lot of room for the calculation.  It's possible that
+the GTF might calculate for 59.9 Hz, but since calculation are done
+in integers it returns as 59.
+
+So, give a little room for vfmin and vfmax, such as 59 and 60.
+
+Tony

@@ -1,66 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932331AbVIJWii@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932370AbVIJWkE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932331AbVIJWii (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 18:38:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932357AbVIJWi2
+	id S932370AbVIJWkE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 18:40:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932347AbVIJWjy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 18:38:28 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:53991 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932331AbVIJWiX (ORCPT
+	Sat, 10 Sep 2005 18:39:54 -0400
+Received: from wscnet.wsc.cz ([212.80.64.118]:39554 "EHLO wscnet.wsc.cz")
+	by vger.kernel.org with ESMTP id S932345AbVIJWjr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 18:38:23 -0400
-Date: Sun, 11 Sep 2005 00:38:05 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: John Lenz <lenz@cs.wisc.edu>
-Cc: rpurdie@rpsys.net, kernel list <linux-kernel@vger.kernel.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [patch] Add suspend/resume support to locomo.c
-Message-ID: <20050910223805.GC1836@elf.ucw.cz>
-References: <20050721052558.GD7849@elf.ucw.cz> <20050904113600.C30509@flint.arm.linux.org.uk> <20050906075853.GA3883@elf.ucw.cz> <41294.192.168.0.13.1126222148.squirrel@192.168.0.2>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41294.192.168.0.13.1126222148.squirrel@192.168.0.2>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Sat, 10 Sep 2005 18:39:47 -0400
+Message-ID: <432360A2.7040608@gmail.com>
+Date: Sun, 11 Sep 2005 00:39:30 +0200
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: cs, en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Greg KH <gregkh@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH] (i)stallion remove
+References: <200509101221.j8ACL9XI017246@localhost.localdomain> <43234860.7050206@pobox.com> <43234972.3010003@gmail.com> <20050910211711.GA13660@suse.de> <4323518E.9060407@gmail.com> <432352F0.1080502@pobox.com>
+In-Reply-To: <432352F0.1080502@pobox.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Jeff Garzik wrote:
 
-> >> > From: John Lenz <lenz@cs.wisc.edu>
-> >> >
-> >> > This adds low-level suspend/resume support to locomo.c.
-> >> >
-> >> > Signed-off-by: Pavel Machek <pavel@suse.cz>
-> >>
-> >> Shouldn't this be signed off by John himself?  Not applied.
-> >
-> > Well, it would be nice if it was signed off by him, but John is
-> > nowhere to be reached.
-> 
-> Sorry.  I have been away from the internet (somewhat unexpectedly) the
-> past three weeks... so I am not up to date on what has been happening. 
-> For the near future as I try and come back up to speed, patches can be
-> applied from Pavel.
-> 
-> Pavel, perhaps you could send me an email about what you (and others) have
-> done the past few weeks?  The patches on my site and such are probably a
-> ways out of date.  What/where is the latest code located?   What progress
-> has been made...  Hopefully sometime next week I can start working on this
-> stuff again.
+> If the drivers aren't used or maintained, remove them from the kernel 
+> tree.
 
-[I have just came back from 3 days horse trip... you'll get replies to
-other mails later.]
+So, this as a first:
 
-There's git tree at www.kernel.org/git ... its called linux-z. It
-worked for before I got to 2.6.13, but it is now broken (IIRC, maybe
-its okay). PCMCIA never worked for me. linux-z is probably good start
-for new work. It should have all your patches IIRC.
+(I)stallion remove from the tree, it contains pci_find_device, it is 
+unmaintained and broken for a long time. Noone uses it.
 
-I started work on battery control, and it does something, but I do not
-dare enabling charging juts yet.
+Generated in 2.6.13-mm2 kernel version. [Applicable also on 2.6.13-git10]
 
-								Pavel
+Signed-off-by: Jiri Slaby <xslaby@fi.muni.cz>
+
+ Documentation/stallion.txt       |  392 --
+ Documentation/00-INDEX         |    2
+ Documentation/devices.txt      |   31
+ Documentation/magic-number.txt |    5
+ drivers/char/Kconfig           |   22
+ drivers/char/Makefile          |    2
+ drivers/char/istallion.c         | 5275 
+---------------------------------------
+ drivers/char/stallion.c          | 5197 
+--------------------------------------
+ include/linux/istallion.h        |  132
+ include/linux/stallion.h         |  154 -
+ 10 files changed, 11212 deletions(-)
+
+Patch is here for its size (300 KiB):
+http://www.fi.muni.cz/~xslaby/lnx/stallion.txt
+
 -- 
-if you have sharp zaurus hardware you don't need... you know my address
+Jiri Slaby         www.fi.muni.cz/~xslaby
+~\-/~      jirislaby@gmail.com      ~\-/~
+241B347EC88228DE51EE A49C4A73A25004CB2A10
+

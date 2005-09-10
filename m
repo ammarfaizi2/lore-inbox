@@ -1,85 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbVIJSb3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932138AbVIJSdz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932133AbVIJSb3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 14:31:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932138AbVIJSb3
+	id S932138AbVIJSdz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 14:33:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932149AbVIJSdy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 14:31:29 -0400
-Received: from mailout08.sul.t-online.com ([194.25.134.20]:24721 "EHLO
-	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S932133AbVIJSb2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 14:31:28 -0400
-Message-ID: <43232660.5070504@t-online.de>
-Date: Sat, 10 Sep 2005 20:30:56 +0200
-From: Harald Dunkel <harald.dunkel@t-online.de>
-User-Agent: Debian Thunderbird 1.0.6 (X11/20050803)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jim Gifford <maillist@jg555.com>
-CC: Jeff Garzik <jgarzik@pobox.com>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Pure 64 bootloaders
-References: <43228E4E.4050103@jg555.com> <p73k6hp2up7.fsf@verdi.suse.de> <43229BA4.4010306@pobox.com>
-In-Reply-To: <43229BA4.4010306@pobox.com>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig2D8A3413F32F2A4D113E8D9F"
-X-ID: VUNPhYZZweUYcXQ2xirLJHbmoY-evy0XNIry6rer5cV61wzx7jzEsV
-X-TOI-MSGID: 8ad84b1a-5fdd-4ee7-b555-c3fd56748e6d
+	Sat, 10 Sep 2005 14:33:54 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:59403 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S932138AbVIJSdy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Sep 2005 14:33:54 -0400
+Date: Sat, 10 Sep 2005 14:33:04 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Greg KH <gregkh@suse.de>, davej@codemonkey.org.uk, arjan@infradead.org,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [GIT PATCH] More PCI patches for 2.6.13
+Message-ID: <20050910183302.GA6311@tuxdriver.com>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Greg KH <gregkh@suse.de>, davej@codemonkey.org.uk,
+	arjan@infradead.org, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+References: <20050909220758.GA29746@kroah.com> <Pine.LNX.4.58.0509091535180.3051@g5.osdl.org> <20050909225421.GA31433@suse.de> <Pine.LNX.4.58.0509091613310.3051@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0509091613310.3051@g5.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig2D8A3413F32F2A4D113E8D9F
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On Fri, Sep 09, 2005 at 04:22:25PM -0700, Linus Torvalds wrote:
 
-Jeff Garzik wrote:
-> Andi Kleen wrote:
+> the return value of "pci_enable_wake()" for example. There's really no
+> real reason to ever care, as far as I can tell - if it fails, there's 
+> nothing you can really do about it anyway.
 > 
->> Jim Gifford <maillist@jg555.com> writes:
->>
->>
->>> I have been working on a project to create a Pure 64 bit distro of
->>> linux, nothing 32 bit in the system. I can accomplish that with no
->>
->>
->>
->> Hopefully you're using /lib64 for that, otherwise your
->> packages will be incompatible to everybody else and not FHS compliant.
->> If you don't please don't submit any patches to hardcode this to
->> upstream packages.
-> 
-> 
-> /lib64 is an awful scheme.  I'd avoid it.
-> 
+> Also, in general, the fact is that things like "pci_set_power_state()" 
+> might fail in _theory_, but we just don't care. A driver that doesn't 
 
-Indeed. It just helps to keep unclean 32bit applications
-alive.
+But, aren't these arguments for changing the functions to return void?
+If there is never any point in checking the results, then why have
+results at all?
 
-Maybe you would like to check Debian for amd64? The 32bit
-stuff is purely optional (except for the boot loaders, AFAIK).
-
-http://www.debian.org/ports/amd64/
-
-
-Regards
-
-Harri
-
---------------enig2D8A3413F32F2A4D113E8D9F
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFDIyZkUTlbRTxpHjcRAmYsAJ9FVluR2vbHNOH3DhFJ7+L27dCuCgCfRj3y
-FKHig76Q65AxCOt7XI2yfDU=
-=ePbq
------END PGP SIGNATURE-----
-
---------------enig2D8A3413F32F2A4D113E8D9F--
+John
+-- 
+John W. Linville
+linville@tuxdriver.com

@@ -1,59 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932311AbVIJVNF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbVIJVRv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932311AbVIJVNF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 17:13:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932312AbVIJVNF
+	id S932127AbVIJVRv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 17:17:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932209AbVIJVRv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 17:13:05 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:47314 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932311AbVIJVNE (ORCPT
+	Sat, 10 Sep 2005 17:17:51 -0400
+Received: from mail.kroah.org ([69.55.234.183]:9446 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932127AbVIJVRv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 17:13:04 -0400
-Date: Sat, 10 Sep 2005 14:12:53 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Alan Stern <stern@rowland.harvard.edu>
-cc: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: [GIT PATCH] More PCI patches for 2.6.13
-In-Reply-To: <Pine.LNX.4.44L0.0509101655520.7081-100000@netrider.rowland.org>
-Message-ID: <Pine.LNX.4.58.0509101410300.30958@g5.osdl.org>
-References: <Pine.LNX.4.44L0.0509101655520.7081-100000@netrider.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 10 Sep 2005 17:17:51 -0400
+Date: Sat, 10 Sep 2005 14:17:11 -0700
+From: Greg KH <gregkh@suse.de>
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH 5/10] drivers/char: pci_find_device remove (drivers/char/specialix.c)
+Message-ID: <20050910211711.GA13660@suse.de>
+References: <200509101221.j8ACL9XI017246@localhost.localdomain> <43234860.7050206@pobox.com> <43234972.3010003@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43234972.3010003@gmail.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Sep 10, 2005 at 11:00:34PM +0200, Jiri Slaby wrote:
+> Jeff Garzik napsal(a):
+> >Jiri Slaby wrote:
+> >
+> >>Signed-off-by: Jiri Slaby <xslaby@fi.muni.cz>
+> >>
+> >> specialix.c |    9 ++++++---
+> >> 1 files changed, 6 insertions(+), 3 deletions(-)
+> >>
+> >>diff --git a/drivers/char/specialix.c b/drivers/char/specialix.c
+> >>--- a/drivers/char/specialix.c
+> >>+++ b/drivers/char/specialix.c
+> >>@@ -2502,9 +2502,9 @@ static int __init specialix_init(void)
+> >>                 i++;
+> >>                 continue;
+> >>             }
+> >>-            pdev = pci_find_device (PCI_VENDOR_ID_SPECIALIX, 
+> >>-                                    PCI_DEVICE_ID_SPECIALIX_IO8, 
+> >>-                                    pdev);
+> >>+            pdev = pci_get_device (PCI_VENDOR_ID_SPECIALIX,
+> >>+                    PCI_DEVICE_ID_SPECIALIX_IO8,
+> >>+                    pdev);
+> >>             if (!pdev) break;
+> >> 
+> >>             if (pci_enable_device(pdev))
+> >>@@ -2517,7 +2517,10 @@ static int __init specialix_init(void)
+> >>             sx_board[i].flags |= SX_BOARD_IS_PCI;
+> >>             if (!sx_probe(&sx_board[i]))
+> >>                 found ++;
+> >>+
+> >>         }
+> >>+        if (i >= SX_NBOARD)
+> >>+            pci_dev_put(pdev);
+> >
+> >
+> >should be converted to PCI probing, rather than this.
+> I won't do that, i did that for 2 drivers and nobody was interested in 
+> that (and its much time left for nothing). These (unrewritten) drivers 
+> would be deleted in some time. Greg wants simply wipe this function out.
 
+No, I want it done correctly.  If I simply wanted the function removed,
+I would have done this kind of wholesale conversion a long time ago.
 
-On Sat, 10 Sep 2005, Alan Stern wrote:
+If the code needs to be converted to the proper pci probing logic,
+that's the better way to do it, and that's what should be done.
 
-> On Fri, 9 Sep 2005, Linus Torvalds wrote:
-> > 
-> > In other words, there's nothing you can or should do about it. Testing the 
-> > return value is pointless. And thus adding a "must_check" is really really 
-> > wrong: it might make people do
-> > 
-> > 	if (pci_set_power_state(pdev, 0))
-> > 		return -ENODEV
-> > 
-> > which is actually actively the _wrong_ thing to do, and would just cause 
-> > old revisions of the chip that might not support PM capabilities to no 
-> > longer work.
-> 
-> Funny you should say this -- exactly that problem _did_ arise.  See
-> 
-> http://marc.theaimsgroup.com/?l=linux-pci&m=112621842604724&w=2
-> 
-> pci_enable_device_bars() would an error when trying to initialize 
-> devices without PM support, because it started checking the return value
-> from pci_set_power_state().
+thanks,
 
-Case closed. 
-
-Bogus warnings are a _bad_ thing. They cause people to write buggy code.
-
-That drivers/pci/pci.c code should be simplified to not look at the error
-return from pci_set_power_state() at all. Special-casing EIO is just
-another bug waiting to happen.
-
-			Linus
+greg k-h

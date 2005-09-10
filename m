@@ -1,51 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbVIJKLk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbVIJKOz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750743AbVIJKLk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 06:11:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbVIJKLk
+	id S1750741AbVIJKOz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 06:14:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbVIJKOz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 06:11:40 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:2960 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750736AbVIJKLj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 06:11:39 -0400
-Subject: Re: GFS, what's remaining
-From: Arjan van de Ven <arjan@infradead.org>
-To: David Teigland <teigland@redhat.com>
-Cc: linux-fsdevel@vger.kernel.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       linux-cluster@redhat.com
-In-Reply-To: <20050905054348.GC11337@redhat.com>
-References: <20050901104620.GA22482@redhat.com>
-	 <1125574523.5025.10.camel@laptopd505.fenrus.org>
-	 <20050905054348.GC11337@redhat.com>
-Content-Type: text/plain
-Date: Sat, 10 Sep 2005 12:11:29 +0200
-Message-Id: <1126347089.3222.138.camel@laptopd505.fenrus.org>
+	Sat, 10 Sep 2005 06:14:55 -0400
+Received: from nproxy.gmail.com ([64.233.182.205]:46249 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750741AbVIJKOz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Sep 2005 06:14:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=FEmrTfAVIXcN8J0if7EdrxqAF/ukm2POEIJjUkcxfNoDhL/d7x7G1ca1ge6RojS85TGg5dK/KSfTPPiFmX5dZ1CBZ9AbnSCPp5LAsqxGMP492r3gHH8tktjYgoZoCaplWGByZXGS9vDhNH3JuzLtOYkvdXl+FY4wiFjWfrTBMmc=
+Message-ID: <84144f0205091003147c15711@mail.gmail.com>
+Date: Sat, 10 Sep 2005 13:14:53 +0300
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+Reply-To: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Hans Reiser <reiser@namesys.com>
+Subject: Re: List of things requested by lkml for reiser4 inclusion (to review)
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+In-Reply-To: <4321C806.60404@namesys.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200509091817.39726.zam@namesys.com> <4321C806.60404@namesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 9/9/05, Hans Reiser <reiser@namesys.com> wrote:
+> 8.  Remove all assertions because they clutter the code and make it hard to read
 
-> 
-> You removed the comment stating exactly why, see below.  If that's not a
-> accepted technique in the kernel, say so and I'll be happy to change it
-> here and elsewhere.
-> Thanks,
-> Dave
+I don't think anyone suggested to remove _all_ assertions. I did,
+however, suggested to tone down some of the ones that seem overly
+defensive and clutter the code. If that is unacceptable to you and
+maintainers can live with that then I have no problem with it either.
 
-entirely useless wrapping is not acceptable indeed.
-
-
+                                        Pekka

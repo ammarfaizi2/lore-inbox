@@ -1,51 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932278AbVIJUTc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbVIJUUG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932278AbVIJUTc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 16:19:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932279AbVIJUTc
+	id S932279AbVIJUUG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 16:20:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbVIJUUF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 16:19:32 -0400
-Received: from tarjoilu.luukku.com ([194.215.205.232]:58776 "EHLO
-	tarjoilu.luukku.com") by vger.kernel.org with ESMTP id S932278AbVIJUTb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 16:19:31 -0400
-Date: Sat, 10 Sep 2005 23:19:13 +0300
-From: mikukkon@iki.fi
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix allnoconfig build with gcc4
-Message-ID: <20050910201913.GA6179@miku.homelinux.net>
-Reply-To: mikukkon@iki.fi
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Sat, 10 Sep 2005 16:20:05 -0400
+Received: from wscnet.wsc.cz ([212.80.64.118]:4224 "EHLO wscnet.wsc.cz")
+	by vger.kernel.org with ESMTP id S932279AbVIJUUE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Sep 2005 16:20:04 -0400
+Message-ID: <43233FEC.2020802@gmail.com>
+Date: Sat, 10 Sep 2005 22:19:56 +0200
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: cs, en-us, en
+MIME-Version: 1.0
+To: Jiri Slaby <jirislaby@gmail.com>
+CC: Greg KH <gregkh@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, R.E.Wolff@BitWizard.nl
+Subject: Re: [PATCH 5/10] drivers/char: pci_find_device remove (drivers/char/specialix.c)
+References: <200509101221.j8ACL9XI017246@localhost.localdomain>
+In-Reply-To: <200509101221.j8ACL9XI017246@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems that git commit 20380731bc2897f2952ae055420972ded4cd786e breaks
-allnoconfig build with gcc4:
+Cc: R.E.Wolff@BitWizard.nl [maintainer]
 
-  CC      init/main.o
-In file included from include/linux/netdevice.h:29,
-		   from include/net/sock.h:48,
-		   from init/main.c:50:
-include/linux/if_ether.h:114: error: array type has incomplete element type
+Jiri Slaby napsal(a):
 
-The "normal" fix of replacing foo[] with *foo would is not trivial, but
-simply removing the offending line is.
-
-Signed-off-by: Mika Kukkonen <mikukkon@iki.fi>
-
-Index: linux-2.6/include/linux/if_ether.h
-===================================================================
---- linux-2.6.orig/include/linux/if_ether.h
-+++ linux-2.6/include/linux/if_ether.h
-@@ -111,7 +111,6 @@ static inline struct ethhdr *eth_hdr(con
- 	return (struct ethhdr *)skb->mac.raw;
- }
- 
--extern struct ctl_table ether_table[];
- #endif
- 
- #endif	/* _LINUX_IF_ETHER_H */
+>Signed-off-by: Jiri Slaby <xslaby@fi.muni.cz>
+>
+> specialix.c |    9 ++++++---
+> 1 files changed, 6 insertions(+), 3 deletions(-)
+>
+>diff --git a/drivers/char/specialix.c b/drivers/char/specialix.c
+>--- a/drivers/char/specialix.c
+>+++ b/drivers/char/specialix.c
+>@@ -2502,9 +2502,9 @@ static int __init specialix_init(void)
+> 				i++;
+> 				continue;
+> 			}
+>-			pdev = pci_find_device (PCI_VENDOR_ID_SPECIALIX, 
+>-			                        PCI_DEVICE_ID_SPECIALIX_IO8, 
+>-			                        pdev);
+>+			pdev = pci_get_device (PCI_VENDOR_ID_SPECIALIX,
+>+					PCI_DEVICE_ID_SPECIALIX_IO8,
+>+					pdev);
+> 			if (!pdev) break;
+> 
+> 			if (pci_enable_device(pdev))
+>@@ -2517,7 +2517,10 @@ static int __init specialix_init(void)
+> 			sx_board[i].flags |= SX_BOARD_IS_PCI;
+> 			if (!sx_probe(&sx_board[i]))
+> 				found ++;
+>+
+> 		}
+>+		if (i >= SX_NBOARD)
+>+			pci_dev_put(pdev);
+> 	}
+> #endif
+> 
+>  
+>

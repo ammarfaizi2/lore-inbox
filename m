@@ -1,55 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932665AbVIJBN4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030412AbVIJBRx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932665AbVIJBN4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 21:13:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932667AbVIJBN4
+	id S1030412AbVIJBRx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 21:17:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030411AbVIJBRw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 21:13:56 -0400
-Received: from yue.linux-ipv6.org ([203.178.140.15]:30220 "EHLO
-	yue.st-paulia.net") by vger.kernel.org with ESMTP id S932665AbVIJBNz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 21:13:55 -0400
-Date: Sat, 10 Sep 2005 10:15:27 +0900 (JST)
-Message-Id: <20050910.101527.70689095.yoshfuji@linux-ipv6.org>
-To: johnstul@us.ibm.com
-Cc: linux-kernel@vger.kernel.org, ioe-lkml@rameria.de, george@mvista.com,
-       ulrich.windl@rz.uni-regensburg.de, zippel@linux-m68k.org,
-       yoshfuji@linux-ipv6.org
-Subject: Re: [RFC][PATCH] NTP shiftR cleanup
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <1126314217.3455.10.camel@cog.beaverton.ibm.com>
-References: <1126314217.3455.10.camel@cog.beaverton.ibm.com>
-Organization: USAGI/WIDE Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+	Fri, 9 Sep 2005 21:17:52 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:58771 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1030395AbVIJBRw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 21:17:52 -0400
+Date: Fri, 9 Sep 2005 18:17:48 -0700
+From: Paul Jackson <pj@sgi.com>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, mm-commits@vger.kernel.org
+Subject: Re: cpuset-semaphore-depth-check-deadlock-fix-rename.patch added to
+ -mm tree
+Message-Id: <20050909181748.68204ecc.pj@sgi.com>
+In-Reply-To: <200509100034.j8A0Ya5r021479@shell0.pdx.osdl.net>
+References: <200509100034.j8A0Ya5r021479@shell0.pdx.osdl.net>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <1126314217.3455.10.camel@cog.beaverton.ibm.com> (at Fri, 09 Sep 2005 18:03:37 -0700), john stultz <johnstul@us.ibm.com> says:
+> cpuset-semaphore-depth-check-deadlock-fix-rename.patch
 
-> diff --git a/kernel/time.c b/kernel/time.c
-> --- a/kernel/time.c
-> +++ b/kernel/time.c
-> @@ -338,30 +338,20 @@ int do_adjtimex(struct timex *txc)
->  		        if (mtemp >= MINSEC) {
->  			    ltemp = (time_offset / mtemp) << (SHIFT_USEC -
->  							      SHIFT_UPDATE);
-> -			    if (ltemp < 0)
-> -			        time_freq -= -ltemp >> SHIFT_KH;
-> -			    else
-> -			        time_freq += ltemp >> SHIFT_KH;
-> +			    time_freq = shiftR(ltemp, SHIFT_KH);
->  			} else /* calibration interval too short (p. 12) */
->  				result = TIME_ERROR;
+Acked-by: Paul Jackson <pj@sgi.com>
 
-Maybe, "time_freq += shiftR(ltemp, SHIFT_KH);"?
+(thanks, Andrew)
 
---yoshfuji
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

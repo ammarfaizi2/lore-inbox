@@ -1,55 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030478AbVIJCvT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030479AbVIJCxo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030478AbVIJCvT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 22:51:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932605AbVIJCvT
+	id S1030479AbVIJCxo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 22:53:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932605AbVIJCxo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 22:51:19 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:1958 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932601AbVIJCvS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 22:51:18 -0400
-Date: Fri, 9 Sep 2005 19:31:00 -0700
-From: Paul Jackson <pj@sgi.com>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: stable@kernel.org, chrisw@osdl.org, akpm@osdl.org, Simon.Derr@bull.net,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH 2.6.13-stable] cpuset semaphore double trip fix
-Message-Id: <20050909193100.068c6b22.pj@sgi.com>
-In-Reply-To: <20050909185605.0f8e53e6.rdunlap@xenotime.net>
-References: <20050910004403.29717.51121.sendpatchset@jackhammer.engr.sgi.com>
-	<20050909185605.0f8e53e6.rdunlap@xenotime.net>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 9 Sep 2005 22:53:44 -0400
+Received: from mailrly05.isp.novis.pt ([195.23.133.215]:3793 "EHLO
+	mailrly05.isp.novis.pt") by vger.kernel.org with ESMTP
+	id S932601AbVIJCxn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 22:53:43 -0400
+Message-ID: <43224ABB.3030002@vgertech.com>
+Date: Sat, 10 Sep 2005 03:53:47 +0100
+From: Nuno Silva <nuno.silva@vgertech.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+CC: list linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: RAID resync speed
+References: <432240E9.9010400@eyal.emu.id.au>
+In-Reply-To: <432240E9.9010400@eyal.emu.id.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Documentation/stable_kernel_rules.txt 
 
-Aha - that's the stable documentation that I missed.  Thanks, Randy.
+Hi,
 
-I figured that there was an explanation somewhere.  And there it is,
-right in plain view.
+Eyal Lebedinsky wrote:
+> I noticed that my 3-disk RAID was syncing at about 40MB/s, now that I
+> added a fourth disk it goes at only 20+MB/s. This is on an idle machine.
 
-Reading ...
+3*40=120
 
-My patch does pass the following criteria:
+4*20=80
 
- - No "theoretical race condition" issues, unless an explanation of how
-   the race can be exploited.
 
-The conditions to trigger the race are too delicate to exploit
-quickly.  I don't have a coded exploit.
+> Individually, each disk measures 60+MB/s with hdparm.
 
-Apparently I did the right thing by _not_ sending this patch to
-stable@kernel.org <grin>.
 
-This patch is dead.
+And concurrent hdparms? Or some dd's concurrently?
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+
+> kernel: 2.6.13 on ia32
+> Controller: Promise SATAII150 TX4
+> Disks: WD 320GB SATA
+> 
+> Q: Is this the way the raid code works? The way the disk-io is managed? Or
+> could it be due to the SATA controller?
+
+You can isolate the performance drop with some dd's. Maybe this card is 
+in a pci32/33mhz and you're hitting the pci bus' limits? (120~130MB/sec).
+
+Regards,
+Nuno Silva
+

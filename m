@@ -1,40 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030447AbVIJGNI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932612AbVIJGcZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030447AbVIJGNI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 02:13:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030497AbVIJGNI
+	id S932612AbVIJGcZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 02:32:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932650AbVIJGcZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 02:13:08 -0400
-Received: from ns2.suse.de ([195.135.220.15]:55994 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1030447AbVIJGNH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 02:13:07 -0400
-From: Andi Kleen <ak@suse.de>
-To: discuss@x86-64.org
-Subject: Re: [discuss] [PATCH] allow CONFIG_FRAME_POINTER for x86-64
-Date: Sat, 10 Sep 2005 08:12:54 +0200
-User-Agent: KMail/1.8
-Cc: Andrew Morton <akpm@osdl.org>, Alexander Nyberg <alexn@telia.com>,
-       hugh@veritas.com, JBeulich@novell.com, linux-kernel@vger.kernel.org
-References: <43207D28020000780002451E@emea1-mh.id2.novell.com> <20050909171929.GA4155@localhost.localdomain> <20050909221320.6b53a030.akpm@osdl.org>
-In-Reply-To: <20050909221320.6b53a030.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 10 Sep 2005 02:32:25 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:58002 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S932612AbVIJGcZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Sep 2005 02:32:25 -0400
+Date: Sat, 10 Sep 2005 08:33:52 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Jan Beulich <JBeulich@novell.com>
+Cc: Andreas Gruenbacher <agruen@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] kbuild: building with a mostly-clean /usr/src/linux and O=
+Message-ID: <20050910063352.GA17177@mars.ravnborg.org>
+References: <200509062213.52989.agruen@suse.de> <20050906202552.GA17931@mars.ravnborg.org> <200509070303.45009.agruen@suse.de> <431EB0AF02000078000241C0@emea1-mh.id2.novell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200509100812.55384.ak@suse.de>
+In-Reply-To: <431EB0AF02000078000241C0@emea1-mh.id2.novell.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 10 September 2005 07:13, Andrew Morton wrote:
+On Wed, Sep 07, 2005 at 09:19:43AM +0200, Jan Beulich wrote:
+> Unfortunately this isn't sufficient, yet. In the architecture-specific
+> makefiles asm-offsets.s (or however the specific architectures call
+> this) now need their dependencies on include/linux/version.h changed (I
+> wonder whether it wouldn't be more efficient to centralize these
+> dependencies into an architecture-independent file, perhaps at once
+> applying consistent naming across all architectures)
 
-> show_trace() uses print_context_stack(), but show_stack() just does a
-> dump-everything.  I wondered why the CONFIG_FRAME_POINTER oops traces were
-> still so crappy.   TIA ;)
+This topic has been on my mind to implment over a long time.
+So I took a stamp on it and it hit -linus this night.
 
-It's a good thing - it wouldn't have any chance to get beyond the exception
-frame.
+Dependencies on arch/$(ARCH)/kernel/asm-offsets.s is now tracked
+like any other dependency - so we now at last have full dependency
+checks for asm-offsets.h.
+Take a look at the Kbuild file in the top-level directory.
 
--Andi
+With respect to the patch posted below I recall I had to zap
+two $(objtree) to fix alpha build.
+Patch by Jan Dittmer - see 946dc121d7d1c606f6bbeb8ae778963a1e2ff59c
 
+But that may have changed now after introducing generic asm-offsets.h
+support.
+
+	Sam

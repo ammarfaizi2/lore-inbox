@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932294AbVIJU4G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932298AbVIJUz0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932294AbVIJU4G (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 16:56:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932296AbVIJU4G
+	id S932298AbVIJUz0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 16:55:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932296AbVIJUz0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 16:56:06 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:405 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932294AbVIJU4E (ORCPT
+	Sat, 10 Sep 2005 16:55:26 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:63636 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932178AbVIJUzZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 16:56:04 -0400
-Message-ID: <43234860.7050206@pobox.com>
-Date: Sat, 10 Sep 2005 16:56:00 -0400
+	Sat, 10 Sep 2005 16:55:25 -0400
+Message-ID: <4323482E.2090409@pobox.com>
+Date: Sat, 10 Sep 2005 16:55:10 -0400
 From: Jeff Garzik <jgarzik@pobox.com>
 User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
 X-Accept-Language: en-us, en
@@ -18,10 +18,11 @@ MIME-Version: 1.0
 To: Jiri Slaby <jirislaby@gmail.com>
 CC: Greg KH <gregkh@suse.de>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH 5/10] drivers/char: pci_find_device remove (drivers/char/specialix.c)
-References: <200509101221.j8ACL9XI017246@localhost.localdomain>
-In-Reply-To: <200509101221.j8ACL9XI017246@localhost.localdomain>
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-ide@vger.kernel.org,
+       B.Zolnierkiewicz@elka.pw.edu.pl
+Subject: Re: [PATCH] include: pci_find_device remove (include/asm-i386/ide.h)
+References: <200509102032.j8AKWxMC006246@localhost.localdomain>
+In-Reply-To: <200509102032.j8AKWxMC006246@localhost.localdomain>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 X-Spam-Score: 0.0 (/)
@@ -29,39 +30,22 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Jiri Slaby wrote:
-> Signed-off-by: Jiri Slaby <xslaby@fi.muni.cz>
-> 
->  specialix.c |    9 ++++++---
->  1 files changed, 6 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/char/specialix.c b/drivers/char/specialix.c
-> --- a/drivers/char/specialix.c
-> +++ b/drivers/char/specialix.c
-> @@ -2502,9 +2502,9 @@ static int __init specialix_init(void)
->  				i++;
->  				continue;
->  			}
-> -			pdev = pci_find_device (PCI_VENDOR_ID_SPECIALIX, 
-> -			                        PCI_DEVICE_ID_SPECIALIX_IO8, 
-> -			                        pdev);
-> +			pdev = pci_get_device (PCI_VENDOR_ID_SPECIALIX,
-> +					PCI_DEVICE_ID_SPECIALIX_IO8,
-> +					pdev);
->  			if (!pdev) break;
+> diff --git a/include/asm-i386/ide.h b/include/asm-i386/ide.h
+> --- a/include/asm-i386/ide.h
+> +++ b/include/asm-i386/ide.h
+> @@ -41,7 +41,12 @@ static __inline__ int ide_default_irq(un
 >  
->  			if (pci_enable_device(pdev))
-> @@ -2517,7 +2517,10 @@ static int __init specialix_init(void)
->  			sx_board[i].flags |= SX_BOARD_IS_PCI;
->  			if (!sx_probe(&sx_board[i]))
->  				found ++;
+>  static __inline__ unsigned long ide_default_io_base(int index)
+>  {
+> -	if (pci_find_device(PCI_ANY_ID, PCI_ANY_ID, NULL) == NULL) {
+> +	struct pci_dev *pdev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, NULL);
+> +	unsigned int a = !pdev;
 > +
->  		}
-> +		if (i >= SX_NBOARD)
-> +			pci_dev_put(pdev);
+> +	pci_dev_put(pdev);
 
-should be converted to PCI probing, rather than this.
+
+Looks like we need to resurrect pci_present() from the ancient past.
 
 	Jeff
-
 
 

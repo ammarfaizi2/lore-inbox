@@ -1,48 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932301AbVIJU6z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbVIJVAo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932301AbVIJU6z (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 16:58:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932303AbVIJU6y
+	id S932307AbVIJVAo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 17:00:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbVIJVAo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 16:58:54 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:9877 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932301AbVIJU6y (ORCPT
+	Sat, 10 Sep 2005 17:00:44 -0400
+Received: from wscnet.wsc.cz ([212.80.64.118]:4737 "EHLO wscnet.wsc.cz")
+	by vger.kernel.org with ESMTP id S932304AbVIJVAk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 16:58:54 -0400
-Message-ID: <43234909.8040707@pobox.com>
-Date: Sat, 10 Sep 2005 16:58:49 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
+	Sat, 10 Sep 2005 17:00:40 -0400
+Message-ID: <43234972.3010003@gmail.com>
+Date: Sat, 10 Sep 2005 23:00:34 +0200
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: cs, en-us, en
 MIME-Version: 1.0
-To: Jiri Slaby <jirislaby@gmail.com>
+To: Jeff Garzik <jgarzik@pobox.com>
 CC: Greg KH <gregkh@suse.de>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH 10/10] drivers/char: pci_find_device remove (drivers/char/watchdog/i8xx_tco.c)
-References: <200509101221.j8ACLAOV017267@localhost.localdomain>
-In-Reply-To: <200509101221.j8ACLAOV017267@localhost.localdomain>
+Subject: Re: [PATCH 5/10] drivers/char: pci_find_device remove (drivers/char/specialix.c)
+References: <200509101221.j8ACL9XI017246@localhost.localdomain> <43234860.7050206@pobox.com>
+In-Reply-To: <43234860.7050206@pobox.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jiri Slaby wrote:
-> diff --git a/drivers/char/watchdog/i8xx_tco.c b/drivers/char/watchdog/i8xx_tco.c
-> --- a/drivers/char/watchdog/i8xx_tco.c
-> +++ b/drivers/char/watchdog/i8xx_tco.c
-> -	while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
-> +	for_each_pci_dev(dev)
->  		if (pci_match_id(i8xx_tco_pci_tbl, dev)) {
->  			i8xx_tco_pci = dev;
->  			break;
->  		}
-> -	}
+Jeff Garzik napsal(a):
+> Jiri Slaby wrote:
+> 
+>> Signed-off-by: Jiri Slaby <xslaby@fi.muni.cz>
+>>
+>>  specialix.c |    9 ++++++---
+>>  1 files changed, 6 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/drivers/char/specialix.c b/drivers/char/specialix.c
+>> --- a/drivers/char/specialix.c
+>> +++ b/drivers/char/specialix.c
+>> @@ -2502,9 +2502,9 @@ static int __init specialix_init(void)
+>>                  i++;
+>>                  continue;
+>>              }
+>> -            pdev = pci_find_device (PCI_VENDOR_ID_SPECIALIX, 
+>> -                                    PCI_DEVICE_ID_SPECIALIX_IO8, 
+>> -                                    pdev);
+>> +            pdev = pci_get_device (PCI_VENDOR_ID_SPECIALIX,
+>> +                    PCI_DEVICE_ID_SPECIALIX_IO8,
+>> +                    pdev);
+>>              if (!pdev) break;
+>>  
+>>              if (pci_enable_device(pdev))
+>> @@ -2517,7 +2517,10 @@ static int __init specialix_init(void)
+>>              sx_board[i].flags |= SX_BOARD_IS_PCI;
+>>              if (!sx_probe(&sx_board[i]))
+>>                  found ++;
+>> +
+>>          }
+>> +        if (i >= SX_NBOARD)
+>> +            pci_dev_put(pdev);
+> 
+> 
+> should be converted to PCI probing, rather than this.
+I won't do that, i did that for 2 drivers and nobody was interested in 
+that (and its much time left for nothing). These (unrewritten) drivers 
+would be deleted in some time. Greg wants simply wipe this function out.
 
-
-Surely there is a better way to handle bridge matching?
-
-	Jeff
-
-
+regards,
+-- 
+Jiri Slaby         www.fi.muni.cz/~xslaby
+~\-/~      jirislaby@gmail.com      ~\-/~
+241B347EC88228DE51EE A49C4A73A25004CB2A10

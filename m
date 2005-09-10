@@ -1,84 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932292AbVIJUqJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932293AbVIJUqn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932292AbVIJUqJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 16:46:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbVIJUqJ
+	id S932293AbVIJUqn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 16:46:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932294AbVIJUqm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 16:46:09 -0400
-Received: from dns.kernelconcepts.de ([212.60.202.194]:50693 "EHLO
-	gateway.kernelconcepts.de") by vger.kernel.org with ESMTP
-	id S932292AbVIJUqI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 16:46:08 -0400
-Message-ID: <432345CB.4010402@kernelconcepts.de>
-Date: Sat, 10 Sep 2005 22:44:59 +0200
-From: Nils Faerber <nils.faerber@kernelconcepts.de>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050727)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jiri Slaby <jirislaby@gmail.com>
-CC: Greg KH <gregkh@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, nils@kernelconcepts.de
-Subject: Re: [PATCH 10/10] drivers/char: pci_find_device remove (drivers/char/watchdog/i8xx_tco.c)
-References: <200509101221.j8ACLAOV017267@localhost.localdomain> <43233ED6.2080101@gmail.com>
-In-Reply-To: <43233ED6.2080101@gmail.com>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: 7bit
+	Sat, 10 Sep 2005 16:46:42 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:42089 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S932293AbVIJUqm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Sep 2005 16:46:42 -0400
+Date: Sat, 10 Sep 2005 22:48:17 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 9/12] kbuild: mips use generic asm-offsets.h support
+Message-ID: <20050910204817.GH29334@mars.ravnborg.org>
+References: <11263057061465-git-send-email-sam@ravnborg.org> <Pine.LNX.4.61.0509101949240.3743@scrub.home> <20050910193033.GA31516@mars.ravnborg.org> <Pine.LNX.4.61.0509102217270.3743@scrub.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0509102217270.3743@scrub.home>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks, looks fine to me so I added my signed-off.
+Hi Roman.
 
-Jiri Slaby wrote:
-> Cc: nils@kernelconcepts.de [maintainer]
+> > kbuild looks for the Kbuild file before it looks for Makefile.
+> > In a desire to move some of the functionality away form the top-level
+> > Makefile and in to a kbuild file this is needed.
 > 
-> Jiri Slaby napsal(a):
+> Why don't you put it into scripts/Makefile...?
+Because it does not build a build-support program.
+That would be the last place where one would look for
+rules to build asm-offsets.h for example.
+When the functionalty to start the recursive build of all kernel
+directories are moved to top-level Kbuild the location in the
+top-level directory makes even more sense.
+
+Same goes when the post processing steps are moved to the top-level
+Kbuild file. Here we again will benefit form having the full kbuild
+funtionality available.
+
+> > The Kbuild file in the top-level directory will take
+> > over more and more functionality from the top-level
+> > Makefile to the extent that I hope to end up with two
+> > readable files.
 > 
->> Signed-off-by: Jiri Slaby <xslaby@fi.muni.cz>
+> If the top-level Makefile gets to big, we can move things into scripts/,
+> that's really no reason to start using Kbuild, in the end it's still a 
+> Makefile and I'd prefer to call it like that.
+A makefile is a file that does something intelligent when used as input
+to make. It is long time since this property did not hold for the
+kernel.
+The Kbuild name is a much more natural name in the respect that it
+tells you this file contain kbuild info. So one know when browsing
+a directory structure that a Kbuild file is input to kbuild, and follow
+a much more strict syntax than ordinary Makefiles.
 
-Signed-off-by: Nils Faerber <nils@kernelconcepts.de>
-
->> i8xx_tco.c |    5 +++--
->> 1 files changed, 3 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/char/watchdog/i8xx_tco.c
->> b/drivers/char/watchdog/i8xx_tco.c
->> --- a/drivers/char/watchdog/i8xx_tco.c
->> +++ b/drivers/char/watchdog/i8xx_tco.c
->> @@ -414,12 +414,11 @@ static unsigned char __init i8xx_tco_get
->>      *      Find the PCI device
->>      */
->>
->> -    while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) !=
->> NULL) {
->> +    for_each_pci_dev(dev)
->>         if (pci_match_id(i8xx_tco_pci_tbl, dev)) {
->>             i8xx_tco_pci = dev;
->>             break;
->>         }
->> -    }
->>
->>     if (i8xx_tco_pci) {
->>         /*
->> @@ -535,6 +534,8 @@ static void __exit watchdog_cleanup (voi
->>     misc_deregister (&i8xx_tco_miscdev);
->>     unregister_reboot_notifier(&i8xx_tco_notifier);
->>     release_region (TCOBASE, 0x10);
->> +
->> +    pci_dev_put(i8xx_tco_pci);
->> }
->>
->> module_init(watchdog_init);
->>  
->>
-> 
-
-Cheers
-  nils faerber
-
--- 
-kernel concepts          Tel: +49-271-771091-12
-Dreisbachstr. 24         Fax: +49-271-771091-19
-D-57250 Netphen          Mob: +49-176-21024535
---
+	Sam

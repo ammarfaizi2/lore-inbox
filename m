@@ -1,67 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750980AbVIJOgx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750981AbVIJOpF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750980AbVIJOgx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 10:36:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750981AbVIJOgx
+	id S1750981AbVIJOpF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 10:45:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751010AbVIJOpF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 10:36:53 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:64186 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1750959AbVIJOgw (ORCPT
+	Sat, 10 Sep 2005 10:45:05 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:23006 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750981AbVIJOpD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 10:36:52 -0400
-Date: Sat, 10 Sep 2005 23:36:04 +0900
-From: Akinobu Mita <mita@miraclelinux.com>
-To: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org,
-       sct@redhat.com, akpm@osdl.org, adilger@clusterfs.com,
-       ext3-users@redhat.com
-Subject: Re: [PATCH 1/6] jbd: remove duplicated debug print
-Message-ID: <20050910143604.GA7593@miraclelinux.com>
-References: <20050909084214.GB14205@miraclelinux.com> <20050909084342.GC14205@miraclelinux.com> <20050909181649.GC24228@thunk.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 10 Sep 2005 10:45:03 -0400
+From: Andi Kleen <ak@suse.de>
+To: Hugh Dickins <hugh@veritas.com>
+Subject: Re: [2/2] Change p[gum]d_clear_* inlines to macros to fix p?d_ERROR
+Date: Sat, 10 Sep 2005 16:44:55 +0200
+User-Agent: KMail/1.8
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <4322CBD9.mailE1P118OD2@suse.de> <Pine.LNX.4.61.0509101440420.14979@goblin.wat.veritas.com>
+In-Reply-To: <Pine.LNX.4.61.0509101440420.14979@goblin.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050909181649.GC24228@thunk.org>
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200509101644.55887.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 09, 2005 at 02:16:49PM -0400, Theodore Ts'o wrote:
-> On Fri, Sep 09, 2005 at 05:43:42PM +0900, Akinobu Mita wrote:
-> > remove duplicated debug print
-> 
-> > -	jbd_debug(3, "JBD: commit phase 2\n");
-> > -
-> 
-> If you're going to do this, please renumber the rest of the "commit
-> phase n" messages.  Or the debugging messages will look very funny.
+On Saturday 10 September 2005 16:15, Hugh Dickins wrote:
+> On Sat, 10 Sep 2005, Andi Kleen wrote:
+> > Change p[gum]d_clear_* inlines to macros to fix p?d_ERROR
+> >
+> > When this code was refactored by Hugh it was moved out of the actual
+> > functions into these inlines. The problem is that pgd_ERROR
+> > uses __FUNCTION__ and __LINE__ to show where the error happened,
+> > and with the inline that is pretty meaningless now because
+> > it's the same for all callers.
+> >
+> > Change them to be macros to avoid this problem
+>
+> Please don't.  It adds much less than I misremember (only 550 bytes
+> to my i386 PAE config), but even so it's a waste of space. 
 
-The second duplicated "commit phase 2" only does:
+Hmm? Macros and inlines take the same amount of space. 
 
- 	J_ASSERT (commit_transaction->t_sync_datalist == NULL);
 
-So I thought it might be accidentaly inserted.
-diff -U 9 :
+>
+> (Of course, I was emboldened to make those changes because the messages
+> had never been seen in living memory, beyond our own private development
+> screwups.  They started appearing just around the time I changed them.)
 
---- ./fs/jbd/commit.c.orig	2005-09-10 22:09:05.000000000 +0900
-+++ ./fs/jbd/commit.c	2005-09-10 22:09:25.000000000 +0900
-@@ -419,20 +419,18 @@ write_out_data:
- 		cond_resched_lock(&journal->j_list_lock);
- 	}
- 	spin_unlock(&journal->j_list_lock);
- 
- 	if (err)
- 		__journal_abort_hard(journal);
- 
- 	journal_write_revoke_records(journal, commit_transaction);
- 
--	jbd_debug(3, "JBD: commit phase 2\n");
--
- 	/*
- 	 * If we found any dirty or locked buffers, then we should have
- 	 * looped back up to the write_out_data label.  If there weren't
- 	 * any then journal_clean_data_list should have wiped the list
- 	 * clean by now, so check that it is in fact empty.
- 	 */
- 	J_ASSERT (commit_transaction->t_sync_datalist == NULL);
- 
- 	jbd_debug (3, "JBD: commit phase 3\n");
+I have actually seen them while debugging something. But it was useless. That 
+is why I made the change.
+
+-Andi

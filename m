@@ -1,66 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030427AbVIJBkS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030454AbVIJBoq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030427AbVIJBkS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 21:40:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030428AbVIJBkS
+	id S1030454AbVIJBoq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 21:44:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030468AbVIJBoq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 21:40:18 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:55749 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1030427AbVIJBkQ (ORCPT
+	Fri, 9 Sep 2005 21:44:46 -0400
+Received: from fsmlabs.com ([168.103.115.128]:59525 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S1030454AbVIJBop (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 21:40:16 -0400
-Date: Sat, 10 Sep 2005 03:39:48 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: john stultz <johnstul@us.ibm.com>
-cc: lkml <linux-kernel@vger.kernel.org>, ioe-lkml@rameria.de,
-       George Anzinger <george@mvista.com>,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
-Subject: Re: [RFC][PATCH] NTP shiftR cleanup
-In-Reply-To: <1126314217.3455.10.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.61.0509100329270.3743@scrub.home>
-References: <1126314217.3455.10.camel@cog.beaverton.ibm.com>
+	Fri, 9 Sep 2005 21:44:45 -0400
+Date: Fri, 9 Sep 2005 18:51:08 -0700 (PDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Andi Kleen <ak@muc.de>
+cc: Ashok Raj <ashok.raj@intel.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 13/14] x86_64: Use common functions in cluster and physflat
+ mode
+In-Reply-To: <20050910003022.GB61151@muc.de>
+Message-ID: <Pine.LNX.4.61.0509091849310.978@montezuma.fsmlabs.com>
+References: <200509032135.j83LZ8gX020554@shell0.pdx.osdl.net>
+ <20050905231628.GA16476@muc.de> <20050906161215.B19592@unix-os.sc.intel.com>
+ <Pine.LNX.4.61.0509091003490.978@montezuma.fsmlabs.com> <20050910003022.GB61151@muc.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 10 Sep 2005, Andi Kleen wrote:
 
-On Fri, 9 Sep 2005, john stultz wrote:
+> On Fri, Sep 09, 2005 at 10:07:28AM -0700, Zwane Mwaikambo wrote:
+> > On Tue, 6 Sep 2005, Ashok Raj wrote:
+> > 
+> > > On Tue, Sep 06, 2005 at 01:16:28AM +0200, Andi Kleen wrote:
+> > > > On Sat, Sep 03, 2005 at 02:33:30PM -0700, akpm@osdl.org wrote:
+> > > > > 
+> > > > > From: Ashok Raj <ashok.raj@intel.com>
+> > > > > 
+> > > > > Newly introduced physflat_* shares way too much with cluster with only a very
+> > > > > differences.  So we introduce some common functions in that can be reused in
+> > > > > both cases.
+> > 
+> > On a slightly different topic, how come we're using physflat for hotplug 
+> > cpu?
+> 
+> The original idea was to always use physflat mode for hotplug because
+> that does all the sequencing stuff and avoids the shortcut races.
+> But then Ashok decided it was better to add more ifdefs to flat mode
+> instead and I gave up protesting at some point.
 
-> +/* Required to safely shift negative values */
-> +#define shiftR(x, s) ({ __typeof__(x) __x = x;\
-> +		__typeof__(s) __s = s; \
-> +		(__x < 0) ? (-((-__x) >> (__s))) : ((__x) >> (__s));})
-> +
+Ok so you wanted to segragate them, i can understand that, but didn't we 
+have a version which worked around the races by doing the same thing, 
+hotplug or not? Is this the one where you weren't pleased with the 
+supposed execution penalty?
 
-Some parenthesis are missing and some are redundant. Formatting it so it 
-looks more like normal function makes it more readable:
+Thanks,
+	Zwane
 
-#define shiftR(x, s) ({				\
-	__typeof__(x) __x = (x);		\
-	__typeof__(s) __s = (s);		\
-	__x < 0 ? -(-__x >> __s) : __x >> __s;	\
-})
-
-> @@ -792,13 +769,8 @@ static void update_wall_time_one_tick(vo
->  	 * advance the tick more.
->  	 */
->  	time_phase += time_adj;
-> -	if (time_phase <= -FINENSEC) {
-> -		long ltemp = -time_phase >> (SHIFT_SCALE - 10);
-> -		time_phase += ltemp << (SHIFT_SCALE - 10);
-> -		delta_nsec -= ltemp;
-> -	}
-> -	else if (time_phase >= FINENSEC) {
-> -		long ltemp = time_phase >> (SHIFT_SCALE - 10);
-> +	if (abs(time_phase) >= FINENSEC) {
-> +		long ltemp = shiftR(time_phase, (SHIFT_SCALE - 10));
->  		time_phase -= ltemp << (SHIFT_SCALE - 10);
->  		delta_nsec += ltemp;
->  	}
-
-It would be interesting to check, whether gcc produces the same code here.
-
-bye, Roman

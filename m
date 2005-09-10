@@ -1,44 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932646AbVIJAWd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030373AbVIJAaY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932646AbVIJAWd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 20:22:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932638AbVIJAWd
+	id S1030373AbVIJAaY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 20:30:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932649AbVIJAaY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 20:22:33 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:478 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030404AbVIJAWc (ORCPT
+	Fri, 9 Sep 2005 20:30:24 -0400
+Received: from colin.muc.de ([193.149.48.1]:57358 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S932648AbVIJAaY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 20:22:32 -0400
-Date: Fri, 9 Sep 2005 17:22:17 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: gregkh@suse.de, davej@codemonkey.org.uk, arjan@infradead.org,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [GIT PATCH] More PCI patches for 2.6.13
-In-Reply-To: <20050909163634.21afe4ca.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0509091644050.30958@g5.osdl.org>
-References: <20050909220758.GA29746@kroah.com> <Pine.LNX.4.58.0509091535180.3051@g5.osdl.org>
- <20050909225421.GA31433@suse.de> <Pine.LNX.4.58.0509091613310.3051@g5.osdl.org>
- <20050909163634.21afe4ca.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 9 Sep 2005 20:30:24 -0400
+Date: 10 Sep 2005 02:30:22 +0200
+Date: Sat, 10 Sep 2005 02:30:22 +0200
+From: Andi Kleen <ak@muc.de>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Ashok Raj <ashok.raj@intel.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 13/14] x86_64: Use common functions in cluster and physflat mode
+Message-ID: <20050910003022.GB61151@muc.de>
+References: <200509032135.j83LZ8gX020554@shell0.pdx.osdl.net> <20050905231628.GA16476@muc.de> <20050906161215.B19592@unix-os.sc.intel.com> <Pine.LNX.4.61.0509091003490.978@montezuma.fsmlabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0509091003490.978@montezuma.fsmlabs.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 9 Sep 2005, Andrew Morton wrote:
+On Fri, Sep 09, 2005 at 10:07:28AM -0700, Zwane Mwaikambo wrote:
+> On Tue, 6 Sep 2005, Ashok Raj wrote:
 > 
-> If something like a PCI power management function fails then it will likely
-> cause suspend or resume to malfunction, and we have a lot of such problems.
+> > On Tue, Sep 06, 2005 at 01:16:28AM +0200, Andi Kleen wrote:
+> > > On Sat, Sep 03, 2005 at 02:33:30PM -0700, akpm@osdl.org wrote:
+> > > > 
+> > > > From: Ashok Raj <ashok.raj@intel.com>
+> > > > 
+> > > > Newly introduced physflat_* shares way too much with cluster with only a very
+> > > > differences.  So we introduce some common functions in that can be reused in
+> > > > both cases.
+> 
+> On a slightly different topic, how come we're using physflat for hotplug 
+> cpu?
 
-No, for several reasons.
+The original idea was to always use physflat mode for hotplug because
+that does all the sequencing stuff and avoids the shortcut races.
+But then Ashok decided it was better to add more ifdefs to flat mode
+instead and I gave up protesting at some point.
 
-First off, some of those functions can't fail in normal usage. Thus 
-telling people that they have to check the return code is insane.
+-Andi
 
-Secondly, at least some of the suspend failures have historically been
-because drivers returned errors for no good reason. Adding yet another 
-broken reason to return error is not going to help.
-
-		Linus
+> 
+> -#ifndef CONFIG_CPU_HOTPLUG
+>  		/* In the CPU hotplug case we cannot use broadcast mode
+>  		   because that opens a race when a CPU is removed.
+> -		   Stay at physflat mode in this case.
+> -		   It is bad to do this unconditionally though. Once
+> -		   we have ACPI platform support for CPU hotplug
+> -		   we should detect hotplug capablity from ACPI tables and
+> -		   only do this when really needed. -AK */
+> +		   Stay at physflat mode in this case. - AK */
+> +#ifdef CONFIG_HOTPLUG_CPU
+>  		if (num_cpus <= 8)
+>  			genapic = &apic_flat;
+> 
+> Thanks,
+> 	Zwane
+> 

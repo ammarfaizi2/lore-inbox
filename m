@@ -1,102 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030505AbVIJBs3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030514AbVIJCAG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030505AbVIJBs3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 21:48:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030515AbVIJBs2
+	id S1030514AbVIJCAG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 22:00:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030516AbVIJCAG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 21:48:28 -0400
-Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:28040 "EHLO
-	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP
-	id S1030511AbVIJBs1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 21:48:27 -0400
-X-ORBL: [69.107.75.50]
-DomainKey-Signature: a=rsa-sha1; s=sbc01; d=pacbell.net; c=nofws; q=dns;
-	h=received:date:from:to:subject:cc:references:in-reply-to:
-	mime-version:content-type:content-transfer-encoding:message-id;
-	b=luvRanEGjzany1W9D15sKtxG00wyouol8JqPYG3GtZSjgOgne0+PogptWV3QXAEc8
-	4LEaAvI8KxzmUOY328fsw==
-Date: Fri, 09 Sep 2005 18:48:21 -0700
-From: David Brownell <david-b@pacbell.net>
-To: linux-kernel@vger.kernel.org, basicmark@yahoo.com
-Subject: Re: SPI redux ... driver model support
-Cc: dpervushin@ru.mvista.com
-References: <20050909103353.69687.qmail@web30311.mail.mud.yahoo.com>
-In-Reply-To: <20050909103353.69687.qmail@web30311.mail.mud.yahoo.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 9 Sep 2005 22:00:06 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:26498 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030514AbVIJCAD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 22:00:03 -0400
+Date: Fri, 9 Sep 2005 18:59:25 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: mikem@beardog.cca.cpqcorp.ne
+Cc: mike.miller@hp.com, axboe@suse.de, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: [PATCH 3/8] cciss: new disk register/deregister routines
+Message-Id: <20050909185925.2ae69954.akpm@osdl.org>
+In-Reply-To: <20050909220435.GC4616@beardog.cca.cpqcorp.net>
+References: <20050909220435.GC4616@beardog.cca.cpqcorp.net>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <20050910014821.62D26E9DF1@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Date: Fri, 9 Sep 2005 11:33:52 +0100 (BST)
-> From: Mark Underwood <basicmark@yahoo.com>
+mike.miller@hp.com wrote:
 >
+> Patch 3 of 8
+> This patch removes a couple of functions dealing  with configuration and
+> replaces them with new functions. This implementation fixes some bugs
+> associated with the ACUXE. It also allows a logical volume to be removed
+> from the middle without deleting all volumes behind it.
+> If a user has 5 logical volumes and decides he wants to reconfigure volume
+> number 3, he can now do that without removing volumes 4 & 5 first. This
+> code has been tested in our labs against all application software.
+> Please consider this for inclusion.
+> 
 > ...
-> > That implies whoever is registering is actually
-> > going and creating the
-> > SPI devices ... and doing it AFTER the controller
-> > driver is registered.
-> > I actually have issues with each of those
-> > implications.
 >
-> But how can you have a device that has no connection
-> to the system (i.e. no registered adapter) :(. Why
-> would you want to add SPI devices to adapters which
-> aren't yet in the system?
+> +static void cciss_update_drive_info(int ctlr, int drv_index)
+> +  {
+> +	ctlr_info_t *h = hba[ctlr];
+> +	struct gendisk *disk;
+> +	ReadCapdata_struct *size_buff = NULL;
+> +	InquiryData_struct *inq_buff = NULL;
+> +	unsigned int block_size;
+> +	unsigned int total_size;
+> +	unsigned long flags = 0;
+> +	int ret = 0;
+> +
+> +	/* if the disk already exists then deregister it before proceeding*/
+> +	if (h->drv[drv_index].raid_level != -1){
+> +		spin_lock_irqsave(CCISS_LOCK(h->ctlr), flags);
+> +		h->drv[drv_index].busy_configuring = 1;
+> +		spin_unlock_irqrestore(CCISS_LOCK(h->ctlr), flags);
 
-The devices and adapters certainly are in the system;
-that's hardware!  Do you maybe mean "before the driver
-for an SPI adapter is bound to its device", and are
-you maybe talking about driver model data structures?
+I always get worried when I see a spinlock around a simple assignment like
+this - it often doesn't make a lot of sense and can indicate that
+something's wrong.
 
-The thing which exists before the SPI adapter driver is
-bound to its device node is just a table.  It lists the
-SPI devices, and holds information needed later to set
-up the hardware.  Way simpler than ACPI or BIOS tables.
+> ...
+> +
+> +	/* Get information about the disk and modify the driver sturcture */
+> +	size_buff = kmalloc(sizeof( ReadCapdata_struct), GFP_KERNEL);
+> +        if (size_buff == NULL)
+> +		goto mem_msg;
+> +	inq_buff = kmalloc(sizeof( InquiryData_struct), GFP_KERNEL);
+> +       	if (inq_buff == NULL)
+> +		goto mem_msg;
 
+Indenting went wrong.
 
-> > However, I was also aiming to support the model
-> > where the controller
-> > drivers are modular, and the "add driver" and
-> > "declare hardware" steps
-> > can go in any order.  That way things can work "just
-> > like other busses"
->
-> My subsystem does that. Once you have registered the
-> core layer you can add SPI device drivers before or
-> after registering SPI devices the only restriction is
-> the you have to register a SPI adapter before
-> registering any SPI devices which use that adapter.
+urgh, maybe it just looks wrong because someone's being inserting spaces
+instead of tabs.
 
-That "only restriction" is the one I was talking about!!
+> +		ld_buff = kmalloc(sizeof(ReportLunData_struct), GFP_KERNEL);
+> +		if (ld_buff == NULL)
+> +			goto mem_msg;
+> +		memset(ld_buff, 0, sizeof(ReportLunData_struct));
 
-It contorts the normal roles and responsiblities of the
-adapter drivers; and it's not necessary.
+We have kzalloc() now.
 
+>  	/* make sure logical volume is NOT is use */
+> -	if( drv->usage_count > 1) {
+> -		spin_unlock_irqrestore(CCISS_LOCK(ctlr), flags);
+> +	if(clear_all || (h->gendisk[0] == disk)) {
+> +                if (drv->usage_count > 1)
+>                  return -EBUSY;
 
-> I think this is sensible as otherwise you have to keep a
-> list of all SPI devices that have been registered and
-> didn't have an adapter at that time and go through
-> this list every time you register an adapter.
+Again, it looks wrong but is probably OK due to broken tab key.
 
-Lots of systems have their earliest boot code provide a
-table of devices that exist (but which can't be probed).
-That's how my patch approaches SPI.
-
-As for that "every time" ... I don't know about you, but
-the systems I've seen will register at most a handful of
-devices and adapters; and adapters register just once.
-For those numbers, even linear search is just fine.
-
-
-> I have built your spi_init.c for an ARM946EJS and I
-> get a .ko object of 5.1K
-
-... but the ".text" size is MUCH less; and what I sent
-was not built as a ".so", so there's other oddness too.
-I got something on the order of 0x04d0 bytes with the
-refresh I just posted (call it 1200 bytes text).
-
-- Dave
-
+Do you want the code to go in like this or do you want to clean it up?

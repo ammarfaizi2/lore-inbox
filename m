@@ -1,43 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbVIJNEh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750815AbVIJNO6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750808AbVIJNEh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 09:04:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750812AbVIJNEh
+	id S1750815AbVIJNO6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 09:14:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750816AbVIJNO6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 09:04:37 -0400
-Received: from rproxy.gmail.com ([64.233.170.204]:53740 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750808AbVIJNEg convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 09:04:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=rWSNAJEWHk6PFIA7RZr0SAveopZw5JTiC4Za4GbN064l0WPAUcGSEHndYTmMnByiy5Vtre3DHBCS7avN8p9TxKiNUOqcd+KTBq0qlCARaPUzfU0al7TScSPNkEJ4LeaEa/NaZoDEOTeVQiN/KmAvmvxW8GVoys2ueAVAUlVYIFk=
-Message-ID: <21d7e9970509100604244f489@mail.gmail.com>
-Date: Sat, 10 Sep 2005 23:04:28 +1000
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: airlied@gmail.com
-To: Frank van Maarseveen <frankvm@frankvm.com>
-Subject: Re: 2.6.13: kernel: [drm:radeon_cp_init] *ERROR* radeon_cp_init called without lock held
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050910120252.GA31522@janus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sat, 10 Sep 2005 09:14:58 -0400
+Received: from mail.metronet.co.uk ([213.162.97.75]:22144 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP
+	id S1750815AbVIJNO6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Sep 2005 09:14:58 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: [2.6-GIT] NTFS: Release 2.1.24.
+Date: Sat, 10 Sep 2005 14:15:11 +0100
+User-Agent: KMail/1.8.90
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-ntfs-dev@lists.sourceforge.net
+References: <Pine.LNX.4.60.0509090950100.11051@hermes-1.csi.cam.ac.uk>
+In-Reply-To: <Pine.LNX.4.60.0509090950100.11051@hermes-1.csi.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20050910120252.GA31522@janus>
+Message-Id: <200509101415.12039.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Sep 10 13:55:37 iapetus kernel: [drm] Initialized drm 1.0.0 20040925
-> Sep 10 13:55:37 iapetus kernel: [drm] Initialized radeon 1.16.0 20050311 on minor 0: ATI Technologies Inc RV280 [Radeon 9200 PRO]
-> 
-> Starting Xorg:
-> Sep 10 13:56:14 iapetus kernel: [drm:radeon_cp_init] *ERROR* radeon_cp_init called without lock held
-> Sep 10 13:56:14 iapetus kernel: [drm:drm_unlock] *ERROR* Process 2170 using kernel context 0
-> 
+On Friday 09 September 2005 10:18, Anton Altaparmakov wrote:
+> Hi Linus, please pull from
+>
+> rsync://rsync.kernel.org/pub/scm/linux/kernel/git/aia21/ntfs-2.6.git/HEAD
+>
+> This is the next NTFS update containing a ton of bug fixes several of
+> which fix bugs people actually hit in the big bad world...
+>
+> Please apply.  Thanks!
+>
+> I am sending the changesets as actual patches generated using git
+> format-patch for non-git users in follow up emails (in reply to this one).
+>
 
-Your missing your AGP backend.... its either not compiled in or not
-being loaded before  the drm..
+Anton,
 
-Dave.
+Do these changes allow us to mount an NTFS volume created by Windows 
+Vista/Longhorn beta 1 yet? I tried the driver in 2.6.13, and it complains 
+about these $LogFile states, and ntfscp refuses to work.
+
+If you're unaware of the problem, I'm happy to help debug it.
+
+-- 
+Cheers,
+Alistair.
+
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

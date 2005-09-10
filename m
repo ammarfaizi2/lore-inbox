@@ -1,93 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030487AbVIJDWI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751012AbVIJDUp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030487AbVIJDWI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 23:22:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932606AbVIJDWI
+	id S1751012AbVIJDUp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 23:20:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932601AbVIJDUp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 23:22:08 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:64397 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932601AbVIJDWH (ORCPT
+	Fri, 9 Sep 2005 23:20:45 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:61928 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1751012AbVIJDUo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 23:22:07 -0400
-Date: Fri, 9 Sep 2005 20:22:02 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, torvalds@osdl.org, stable@kernel.org
-Subject: Linux 2.6.13.1
-Message-ID: <20050910032202.GF7762@shell0.pdx.osdl.net>
+	Fri, 9 Sep 2005 23:20:44 -0400
+Date: Fri, 9 Sep 2005 20:20:30 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Chris Wright <chrisw@osdl.org>
+Cc: chrisw@osdl.org, akpm@osdl.org, Simon.Derr@bull.net,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, stable@kernel.org
+Subject: Re: [PATCH 2.6.13-stable] cpuset semaphore double trip fix
+Message-Id: <20050909202030.541049a7.pj@sgi.com>
+In-Reply-To: <20050910030127.GE7762@shell0.pdx.osdl.net>
+References: <20050910004403.29717.51121.sendpatchset@jackhammer.engr.sgi.com>
+	<20050910030127.GE7762@shell0.pdx.osdl.net>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We (the -stable team) are announcing the release of the 2.6.13.1 kernel.
+Chris wrote:
+> Another 'by inspection' patch, perhaps we'll need to update the stable
+> rules, since these can be quite valid fixes, yet typically trigger
+> review replies asking if it's necessary for -stable.
 
-The diffstat and short summary of the fixes are below.
+I'm scratching my head here, trying to figure out what is the
+bottom line of this comment.
 
-I'll also be replying to this message with a copy of the patch between
-2.6.13 and 2.6.13.1, as it is small enough to do so.
+I'm guessing you're saying:
 
-The updated 2.6.13.y git tree can be found at:
-	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/chrisw/linux-2.6.13.y.git
-and can be browsed at the normal kernel.org git web browser:
-	www.kernel.org/git/
+	"By inspection" patches, unless they have something further
+	to recommend their inclusion, are not candidates for -stable.
 
-thanks,
--chris
+But intent of your phrase "yet typically trigger review replies ..."
+went right past me ...
 
-----------
 
- Makefile                      |    2 -
- arch/i386/pci/common.c        |    1 
- arch/i386/pci/i386.c          |   49 +++++++++++++-----------------------------
- crypto/cipher.c               |   12 +++++++---
- drivers/char/rtc.c            |    5 +---
- drivers/media/video/Kconfig   |    1 
- drivers/pci/rom.c             |   24 ++++++++++++++------
- drivers/pci/setup-bus.c       |    2 -
- drivers/scsi/aacraid/aachba.c |    2 -
- include/net/compat.h          |    5 ++--
- net/compat.c                  |   44 ++++++++++++++++++++++---------------
- net/core/filter.c             |    6 ++---
- net/ipv4/ip_fragment.c        |    2 -
- net/ipv4/raw.c                |    2 -
- net/ipv6/raw.c                |    2 -
- net/socket.c                  |    3 +-
- 16 files changed, 85 insertions(+), 77 deletions(-)
+> How unlikely?  So unlikely that it's more a theoreitical race, or did
+> you find ways to trigger? 
 
-Summary of changes from v2.6.13 to v2.6.13.1
-============================================
+I don't have a way to trigger it.  My guess is that someday, some
+customer will find the right combination of calls, and be able to
+trigger this once every few hours or days.  The odds are quite good
+that 2.6.13.* will live out its life before that happens.  When it
+happens, it will be a customer doing some serious cpuset manipulations
+on serious big iron.
 
-Al Viro:
-  raw_sendmsg DoS (CAN-2005-2492)
 
-Benjamin Herrenschmidt:
-  Fix PCI ROM mapping
+> Is this one well-tested, since the fix diverges from upstream?
 
-Chris Wright:
-  Linux 2.6.13.1
+Yes - I have a stress test, and some custom kernel tracing, that
+could see the conditions needed to trigger this occurring, just not
+all simultaneously in the necessary small window of vulnerability.
 
-David S. Miller:
-  Use SA_SHIRQ in sparc specific code.
 
-David Woodhouse:
-  32bit sendmsg() flaw (CAN-2005-2490)
+> And one minor nit, let's just do a real forward declaration of
+> refresh_mems() instead of local to check_for_release().
 
-Herbert Xu:
-  2.6.13 breaks libpcap (and tcpdump)
-  Fix boundary check in standard multi-block cipher processors
+Normally, yes.  In this case, I was coding to keep the patch as
+localized as possible, and less to optimize the resulting organization
+of the kernel/cpuset.c source file after the patch was applied.
 
-Ivan Kokshaysky:
-  x86: pci_assign_unassigned_resources() update
+Given that this patch is unlikely to ever have a life beyond a briefly
+discussed patch today, I guessed right ;)  Coding for clarity of the
+patch, not of the source, was arguably the right choice this time.
 
-Mark Haverkamp:
-  aacraid: 2.6.13 aacraid bad BUG_ON fix
+Thanks.
 
-Michael Krufky:
-  Kconfig: saa7134-dvb must select tda1004x
-
-Stephen Hemminger:
-  Reassembly trim not clearing CHECKSUM_HW
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

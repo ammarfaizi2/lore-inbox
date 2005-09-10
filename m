@@ -1,111 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932316AbVIJVlK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932252AbVIJV4T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932316AbVIJVlK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 17:41:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbVIJVlK
+	id S932252AbVIJV4T (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 17:56:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932257AbVIJV4T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 17:41:10 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:22165 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932316AbVIJVlJ (ORCPT
+	Sat, 10 Sep 2005 17:56:19 -0400
+Received: from mail.kroah.org ([69.55.234.183]:16775 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932252AbVIJV4S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 17:41:09 -0400
-Message-ID: <432352F0.1080502@pobox.com>
-Date: Sat, 10 Sep 2005 17:41:04 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jiri Slaby <jirislaby@gmail.com>
-CC: Greg KH <gregkh@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH 5/10] drivers/char: pci_find_device remove (drivers/char/specialix.c)
-References: <200509101221.j8ACL9XI017246@localhost.localdomain> <43234860.7050206@pobox.com> <43234972.3010003@gmail.com> <20050910211711.GA13660@suse.de> <4323518E.9060407@gmail.com>
-In-Reply-To: <4323518E.9060407@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Sat, 10 Sep 2005 17:56:18 -0400
+Date: Sat, 10 Sep 2005 14:55:40 -0700
+From: Greg KH <gregkh@suse.de>
+To: Michael Thonke <iogl64nx@gmail.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [GIT PATCH] Remove devfs from 2.6.13
+Message-ID: <20050910215540.GB15645@suse.de>
+References: <20050909214542.GA29200@kroah.com> <4322A160.1060809@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4322A160.1060809@gmail.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jiri Slaby wrote:
-> Greg KH napsal(a):
+On Sat, Sep 10, 2005 at 11:03:28AM +0200, Michael Thonke wrote:
+> Hello Greg,
 > 
->> On Sat, Sep 10, 2005 at 11:00:34PM +0200, Jiri Slaby wrote:
->>
->>> Jeff Garzik napsal(a):
->>>
->>>> Jiri Slaby wrote:
->>>>
->>>>
->>>>> Signed-off-by: Jiri Slaby <xslaby@fi.muni.cz>
->>>>>
->>>>> specialix.c |    9 ++++++---
->>>>> 1 files changed, 6 insertions(+), 3 deletions(-)
->>>>>
->>>>> diff --git a/drivers/char/specialix.c b/drivers/char/specialix.c
->>>>> --- a/drivers/char/specialix.c
->>>>> +++ b/drivers/char/specialix.c
->>>>> @@ -2502,9 +2502,9 @@ static int __init specialix_init(void)
->>>>>                i++;
->>>>>                continue;
->>>>>            }
->>>>> -            pdev = pci_find_device (PCI_VENDOR_ID_SPECIALIX, 
->>>>> -                                    PCI_DEVICE_ID_SPECIALIX_IO8, 
->>>>> -                                    pdev);
->>>>> +            pdev = pci_get_device (PCI_VENDOR_ID_SPECIALIX,
->>>>> +                    PCI_DEVICE_ID_SPECIALIX_IO8,
->>>>> +                    pdev);
->>>>>            if (!pdev) break;
->>>>>
->>>>>            if (pci_enable_device(pdev))
->>>>> @@ -2517,7 +2517,10 @@ static int __init specialix_init(void)
->>>>>            sx_board[i].flags |= SX_BOARD_IS_PCI;
->>>>>            if (!sx_probe(&sx_board[i]))
->>>>>                found ++;
->>>>> +
->>>>>        }
->>>>> +        if (i >= SX_NBOARD)
->>>>> +            pci_dev_put(pdev);
->>>>
->>>>
->>>>
->>>> should be converted to PCI probing, rather than this.
->>>
->>>
->>> I won't do that, i did that for 2 drivers and nobody was interested 
->>> in that (and its much time left for nothing). These (unrewritten) 
->>> drivers would be deleted in some time. Greg wants simply wipe this 
->>> function out.
->>
->>
->>
->> No, I want it done correctly.  If I simply wanted the function removed,
->> I would have done this kind of wholesale conversion a long time ago.
->>
->> If the code needs to be converted to the proper pci probing logic,
->> that's the better way to do it, and that's what should be done.
+> just for understanding the problem right. Some questions.
+> Greg KH schrieb:
 > 
-> I think so too, but some drivers, that uses pci_find_device are broken 
-> for a long time and nobody uses it at all.
+> >Here are the same "delete devfs" patches that I submitted for 2.6.12.
+> >It rips out all of devfs from the kernel and ends up saving a lot of
+> >space.  Since 2.6.13 came out, I have seen no complaints about the fact
+> >that devfs was not able to be enabled anymore, and in fact, a lot of
+> >different subsystems have already been deleting devfs support for a
+> >while now, with apparently no complaints (due to the lack of users.)
+> > 
+> >
+> How could users really say/complain what brakage they have, in fact they
+> don't even know the relationship between all that
+> ( e.g drivers -> devfs -> sysfs or other programs that rely on devfs)?
+
+Their machines would not boot.  :)
+
+> They aren't all developers to encrypt the "magic" bug reports/debug messages
+> spreading over the screen.
+
+What do you mean?
+
+> >I mean, how can you go wrong with deleting over 8000 lines of kernel
+> >code :)
+> > 
+> >
+> Right, it's a good/right work to remove dispensable code from kernel.
+> Even it makes it easier to maintain the code but what happen if
+> there is an "for now" an unresolved/unknown problem which no one notice 
+> so far?
 > 
-> So what should I do? I want others not to use pci_find_device 
-> furthermore, so I sent patch that marks it deprecated. Greg sent, that 
-> he wants to remove them and wants to kill 'em all from the tree. When I 
-> rewrote the 2 drivers, nobody wanted to test them and nobody acked them, 
-> nobody did anything. So:
-> a) rewrite non-broken drivers, the rest kill (or not to kill, only mark 
-> find as deprecated and let them live for some next time)
-> b) rewrite all
-> c) change find to get + dev_put
-> d) others: ................
-> [What about oss drivers?]
+> Devfs is in for many years, why removing it in just some weeks?
+
+It's been told and widly known that it was going to be removed last
+July.  In July 2004 this happened, so people have known for over a year.
+How much longer do you expect me to give people?
+
+> I think this is a bad solution because on the one hand you "force" to 
+> remove devfs due it's crappy naming sheme and on the other hand
+> offering to add such thing again which brakes ALSA and other.
+> *confused* Even if it has only 300 lines of code.
 > 
-> So, Greg and Jeff, your opinions?
+> This is not consistent with the intention to remove devfs forever.
+> Either say "live with it or die" or leave it as it is.
 
+"die."  :)
 
-If the drivers aren't used or maintained, remove them from the kernel tree.
+I never said that ndevfs was to be a solution for anyone, just for
+people who really complained about Linux not having an in-kernel
+devfs-like solution.  And if they worry about this, then they can keep
+that patch outside of the main kernel tree for their distros quite
+easily.
 
-	Jeff
+thanks,
 
-
+greg k-h

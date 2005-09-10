@@ -1,122 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030541AbVIJHCa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932262AbVIJHO5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030541AbVIJHCa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 03:02:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030543AbVIJHCa
+	id S932262AbVIJHO5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 03:14:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932711AbVIJHO4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 03:02:30 -0400
-Received: from zproxy.gmail.com ([64.233.162.207]:54467 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030541AbVIJHC3 (ORCPT
+	Sat, 10 Sep 2005 03:14:56 -0400
+Received: from sv1.valinux.co.jp ([210.128.90.2]:34728 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S932262AbVIJHO4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 03:02:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
-        b=W7o3NlY3tqMlQKaYVbCeU3SM3C2QWS34KdP7VCUHgfPecL16p5nT41csIySMPLA8ptNgbC7zMo30i4fEtozsSsDNOl/psXmwYJhorsaZBvNgbJ07bgiqPdlewbz86jMPVjdfdx6JjZgnaRFil/emdGwM1GFhvlWthg2rl3vQywI=
-Message-ID: <4322850B.4060801@gmail.com>
-Date: Sat, 10 Sep 2005 09:02:35 +0200
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050823)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-mm2
-References: <20050908053042.6e05882f.akpm@osdl.org>	<432072C5.8020200@gmail.com> <20050908123930.5a28f3ff.akpm@osdl.org>
-In-Reply-To: <20050908123930.5a28f3ff.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 10 Sep 2005 03:14:56 -0400
+Date: Sat, 10 Sep 2005 16:11:45 +0900 (JST)
+Message-Id: <20050910.161145.74742186.taka@valinux.co.jp>
+To: pj@sgi.com
+Cc: magnus.damm@gmail.com, kurosawa@valinux.co.jp, dino@in.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/5] SUBCPUSETS: a resource control functionality using
+ CPUSETS
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+In-Reply-To: <20050909063131.64dc8155.pj@sgi.com>
+References: <20050908225539.0bc1acf6.pj@sgi.com>
+	<20050909.203849.33293224.taka@valinux.co.jp>
+	<20050909063131.64dc8155.pj@sgi.com>
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-From: Michael Thonke <iogl64nx@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Andrew,
+Hi,
 
->There are changes to both sata_nv and to md in 2.6.13-mm2.  To isolate them
->
->it would be great of you could apply 
->
->ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13/2.6.13-mm2/broken-out/linus.patch
->
-I applied and tested it with 2.6.13 vanilla kernel + linux.patch as suggested, but so far no problem as with 2.6.13-mm2.
+> > What do you think if you make cpusets for sched domain be able to
+> > have their siblings, which have the same attribute and share
+> > their resources between them.
+> 
+> I do not understand this question.  I guess "cpusets for sched
+> domains" means "cpusets whose 'cpu_exclusive' attribute is
+> marked true, but which have no child cpusets so marked."
 
-I also played with the git-snapshots 2.6.13-git[1-9] no problem here. I think the problem is
+Yes.
 
-somewhere else we have to pay attention, too. MD Raidlevels [0,1] failed to start with 2.6.13-mm2.
+> But even that guess I am unsure of, and the rest of the sentence
+> "which have the same ..." I don't even have a guess what means.
 
-Raid0 config:
+Sorry for the poor explanation.
+I just thought that it wouldn't be bad to allow "each cpuset whose
+cpu_exclusive attribute is mark true" to have its clones like the
+figure below. In this case, cpu-2 and cpu-3 will be used exclusively
+for the clones --- CPUSET 1, 2, and 3 ---.
 
-2x 20GB Partitiontype 0xFD "Linux Raid autodetect"
-
-64k Chunksize, persistent superblock.
-
-little output from mdadm
-
-/dev/md2:
-
-        Version : 00.90.02
-
-  Creation Time : Sun Jun 26 19:14:45 2005
-
-     Raid Level : raid0
-
-     Array Size : 40001536 (38.15 GiB 40.96 GB)
-
-   Raid Devices : 2
-
-  Total Devices : 2
-
-Preferred Minor : 2
-
-    Persistence : Superblock is persistent
-
-    Update Time : Sun Jun 26 19:14:45 2005
-
-          State : clean
-
- Active Devices : 2
-
-Working Devices : 2
-
- Failed Devices : 0
-
-  Spare Devices : 0
-
-     Chunk Size : 64K
-
-           UUID : c53fa0d8:9d85875b:efb82dde:11c6617c
-
-         Events : 0.1
-
-    Number   Major   Minor   RaidDevice State
-
-       0       8       23        0      active sync   /dev/sdb7
-
-       1       8        6        1      active sync   /dev/sda6
-
-    
-
-Raid1 config.
-
-2x 15GB Partitiontype 0xFD "Linux Raid autodetect"
-
-        chunksize 128k.
+I guess it seems very similar to one of your ideas except for reusing
+cpu_exclusive flag. Do you think reusing the flag is good idea?
 
 
-I have no idea where I should look, to resolve this behavior.
+     +-------------------+----------------+----------------+
+     |                   |                |                |
+  CPUSET 0            CPUSET 1         CPUSET 2         CPUSET 3
+  sched domain A      sched domain B   sched domain B   sched domain B
+  cpus: 0, 1          cpus: 2, 3       cpus: 2, 3       cpus: 2, 3
+  cpu_exclusive       cpu_exclusive    cpu_exclusive    cpu_exclusive 
+                      meter_cpu        meter_cpu        meter_cpu
+                      <------should we call it resouce domain?------>
 
 
->to 2.6.13 and see if the problem still happens.  That will separate out the
->md changes which are still in -mm.
->
->Thanks.
->
->  
->
-As for all the time, I'm willing to test to glue the problem out.
-
-Thanks
-
-Best regards
-
---
-Michael Thonke
+Thanks,
+Hirokazu Takahashi.

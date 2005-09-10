@@ -1,65 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932247AbVIJUCL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932277AbVIJURT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932247AbVIJUCL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 16:02:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932275AbVIJUCL
+	id S932277AbVIJURT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 16:17:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932278AbVIJURT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 16:02:11 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:60571 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S932247AbVIJUCK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 16:02:10 -0400
-Date: Sat, 10 Sep 2005 22:03:47 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Subject: [GIT PATCHES] final kbuild update before fix-only period
-Message-ID: <20050910200347.GA3762@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+	Sat, 10 Sep 2005 16:17:19 -0400
+Received: from wscnet.wsc.cz ([212.80.64.118]:43136 "EHLO wscnet.wsc.cz")
+	by vger.kernel.org with ESMTP id S932277AbVIJURS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Sep 2005 16:17:18 -0400
+Message-ID: <43233F48.6060406@gmail.com>
+Date: Sat, 10 Sep 2005 22:17:12 +0200
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: cs, en-us, en
+MIME-Version: 1.0
+To: Jiri Slaby <jirislaby@gmail.com>
+CC: Greg KH <gregkh@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, mhw@wittsend.com
+Subject: Re: [PATCH 1/10] drivers/char: pci_find_device remove (drivers/char/ip2main.c)
+References: <200509101221.j8ACL8oq017230@localhost.localdomain>
+In-Reply-To: <200509101221.j8ACL8oq017230@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus.
+Cc: mhw@wittsend.com [maintainer]
 
-Please pull from:
-	rsync://sync.kernel.org/pub/scm/linux/kernel/git/sam/kbuild.git
+Jiri Slaby napsal(a):
 
-The updates are pushed to master.kernel.org - still waiting for
-mirroring to pick them up.
-
-This update contains a fix with make O= for generic asm-offsets.h, plus
-additional patches from my queue.
-This clears my queue of pending patches for 2.6.14.
-
-I will try to follow-up with all patches.
-
-	Sam
-
-
-Jan Beulich:
-  kbuild: adjust .version updating
-  kbuild: fix split-include dependency
-
-Roland McGrath:
-  kbuild: ignore all debugging info sections in scripts/reference_discarded.pl
-
-Sam Ravnborg:
-  kbuild: add objectify
-  kbuild: fix generic asm-offsets.h support
-
-viro@ZenIV.linux.org.uk:
-  kbuild: CF=<arguments> passes arguments to sparse
-
-Zach Brown:
-  kbuild: add kernelrelease to 'make help'
-
-
- Makefile                         |   23 ++++++++++++++++-------
- b/Kbuild                         |    5 +++--
- b/Makefile                       |    2 +-
- b/scripts/Kbuild.include         |    3 +++
- b/scripts/reference_discarded.pl |    7 +------
- 5 files changed, 24 insertions(+), 16 deletions(-)
+>Signed-off-by: Jiri Slaby <xslaby@fi.muni.cz>
+>
+> ip2main.c |    8 +++++---
+> 1 files changed, 5 insertions(+), 3 deletions(-)
+>
+>diff --git a/drivers/char/ip2main.c b/drivers/char/ip2main.c
+>--- a/drivers/char/ip2main.c
+>+++ b/drivers/char/ip2main.c
+>@@ -442,6 +442,7 @@ cleanup_module(void)
+> #ifdef CONFIG_PCI
+> 		if (ip2config.type[i] == PCI && ip2config.pci_dev[i]) {
+> 			pci_disable_device(ip2config.pci_dev[i]);
+>+			pci_dev_put(ip2config.pci_dev[i]);
+> 			ip2config.pci_dev[i] = NULL;
+> 		}
+> #endif
+>@@ -594,9 +595,10 @@ ip2_loadmain(int *iop, int *irqp, unsign
+> 		case PCI:
+> #ifdef CONFIG_PCI
+> 			{
+>-				struct pci_dev *pci_dev_i = NULL;
+>-				pci_dev_i = pci_find_device(PCI_VENDOR_ID_COMPUTONE,
+>-							  PCI_DEVICE_ID_COMPUTONE_IP2EX, pci_dev_i);
+>+				struct pci_dev *pci_dev_i;
+>+				pci_dev_i = pci_get_device(
+>+					PCI_VENDOR_ID_COMPUTONE,
+>+					PCI_DEVICE_ID_COMPUTONE_IP2EX, NULL);
+> 				if (pci_dev_i != NULL) {
+> 					unsigned int addr;
+> 
+>  
+>

@@ -1,94 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbVIJIfE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbVIJIjL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750703AbVIJIfE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 04:35:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750702AbVIJIfE
+	id S1750702AbVIJIjL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 04:39:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750704AbVIJIjL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 04:35:04 -0400
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:59275
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S1750700AbVIJIfC (ORCPT
+	Sat, 10 Sep 2005 04:39:11 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:50578 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750702AbVIJIjK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 04:35:02 -0400
-Subject: 2nd Try - [PATCH Linus Git] README.ipw2200 does not contain
-	firmware information.
-From: Alejandro Bonilla Beeche <abonilla@linuxwireless.org>
-Reply-To: abonilla@linuxwireless.org
-To: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Cc: netdev@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>,
-       jketreno@linux.intel.com
-In-Reply-To: <1126057717.5165.9.camel@localhost.localdomain>
-References: <1126057717.5165.9.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Sat, 10 Sep 2005 02:35:03 -0600
-Message-Id: <1126341303.6041.4.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Sat, 10 Sep 2005 04:39:10 -0400
+Message-ID: <43229BA4.4010306@pobox.com>
+Date: Sat, 10 Sep 2005 04:39:00 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: Jim Gifford <maillist@jg555.com>, linux-kernel@vger.kernel.org
+Subject: Re: Pure 64 bootloaders
+References: <43228E4E.4050103@jg555.com> <p73k6hp2up7.fsf@verdi.suse.de>
+In-Reply-To: <p73k6hp2up7.fsf@verdi.suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andi Kleen wrote:
+> Jim Gifford <maillist@jg555.com> writes:
+> 
+> 
+>>I have been working on a project to create a Pure 64 bit distro of
+>>linux, nothing 32 bit in the system. I can accomplish that with no
+> 
+> 
+> Hopefully you're using /lib64 for that, otherwise your
+> packages will be incompatible to everybody else and not 
+> FHS compliant. If you don't please don't submit any 
+> patches to hardcode this to upstream packages.
 
-	I was wondering why this change hasn't made it into the Linus Git so
-far.
+/lib64 is an awful scheme.  I'd avoid it.
 
-Thanks.
+Consider what happens in the existing scenario where you have capability 
+to run both IA64 and x86-64 binaries on the same system.
 
 
-On Tue, 2005-09-06 at 19:48 -0600, Alejandro Bonilla Beeche wrote:
-> Hi,
-> 
-> 	The kconfig from net/wireless says to look at the README.ipw2200 for
-> further installation of the firmware file. We have that information unde
-> INSTALL not under README.ipw2200, still I just added a part that talks
-> about installing the firmware file. This because README.ipw2200 is
-> already in the Documentation/networking/.
-> 
-> I'm still spamming everyone cause I have not been told where to send
-> this directly. :-)
-> 
-> Signed-off-by: Alejandro Bonilla <abonilla@linuxwireless.org>
-> 
-> Pasted and attached.
-> 
-> debian:~/linux-2.6# diff -usr Documentation/networking/README.ipw2200~
-> Documentation/networking/README.ipw2200
-> 
-> --- Documentation/networking/README.ipw2200~    2005-09-06
-> 19:33:24.000000000 -0600
-> +++ Documentation/networking/README.ipw2200     2005-09-06
-> 19:33:24.000000000 -0600
-> @@ -27,7 +27,8 @@
->  1.4. Sysfs Helper Files
->  2.   About the Version Numbers
->  3.   Support
-> -4.   License
-> +4.   Firmware installation
-> +5.   License
->  
-> 
->  1.   Introduction
-> @@ -272,7 +273,18 @@
->      http://ipw2200.sf.net/
->  
-> 
-> -4.  License
-> +4.  Firmware installation
-> +----------------------------------------------
-> +
-> +The driver requires a firmware image, download it and extract the files
-> +under /lib/firmware
-> +
-> +The firmware can be downloaded from the following URL:
-> +
-> +    http://ipw2200.sf.net/
-> +
-> +
-> +5.  License
->  -----------------------------------------------
->  
->    Copyright(c) 2003 - 2005 Intel Corporation. All rights reserved.
-> 
+> The problem is that there is currently no defined protocol
+> for passing data to the 64bit part of the kernel, so while
+> it would be possible to write a boot loader that starts
+> a 64bit kernel it would be very kernel version dependent.
+
+Good point.
+
+	Jeff
+
 

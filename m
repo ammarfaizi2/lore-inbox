@@ -1,70 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932338AbVIJWcj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932359AbVIJWeh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932338AbVIJWcj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 18:32:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbVIJWcj
+	id S932359AbVIJWeh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 18:34:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932362AbVIJWed
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 18:32:39 -0400
-Received: from mail.metronet.co.uk ([213.162.97.75]:57770 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S932338AbVIJWci
+	Sat, 10 Sep 2005 18:34:33 -0400
+Received: from styx.suse.cz ([82.119.242.94]:39588 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S932359AbVIJWdw convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 18:32:38 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [GIT PATCH] More PCI patches for 2.6.13
-Date: Sat, 10 Sep 2005 23:32:54 +0100
-User-Agent: KMail/1.8.90
-Cc: Linus Torvalds <torvalds@osdl.org>, David Woodhouse <dwmw2@infradead.org>,
-       Alan Stern <stern@rowland.harvard.edu>, Andrew Morton <akpm@osdl.org>,
-       Greg KH <greg@kroah.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44L0.0509101655520.7081-100000@netrider.rowland.org> <Pine.LNX.4.58.0509101410300.30958@g5.osdl.org> <43235707.7050909@pobox.com>
-In-Reply-To: <43235707.7050909@pobox.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509102332.54619.s0348365@sms.ed.ac.uk>
+	Sat, 10 Sep 2005 18:33:52 -0400
+Subject: [PATCH 21/26] HID - add the Trust Predator TH 400 gamepad to the badpad list
+In-Reply-To: <11263916532577@midnight.ucw.cz>
+X-Mailer: gregkh_patchbomb_levon_offspring
+Date: Sun, 11 Sep 2005 00:34:14 +0200
+Message-Id: <11263916541191@midnight.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: torvalds@osdl.org, dtor_core@ameritech.net, linux-kernel@vger.kernel.org,
+       vojtech@suse.cz
+Content-Transfer-Encoding: 7BIT
+From: Vojtech Pavlik <vojtech@suse.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 10 September 2005 22:58, Jeff Garzik wrote:
-> Linus Torvalds wrote:
-> > Case closed.
-> >
-> > Bogus warnings are a _bad_ thing. They cause people to write buggy code.
-> >
-> > That drivers/pci/pci.c code should be simplified to not look at the error
-> > return from pci_set_power_state() at all. Special-casing EIO is just
-> > another bug waiting to happen.
->
-> As a tangent, the 'foo is deprecated' warnings for pm_register() and
-> inter_module_register() annoy me, primarily because they never seem to
-> go away.
->
-> The only user of inter_module_xxx is CONFIG_MTD -- thus the deprecated
-> warning is useless to 90% of us, who will never use MTD.  As for
-> pm_register(), there are tons of users remaining.  As such, for the
-> forseeable future, we will continue to see pm_register() warnings and
-> ignore them -- thus they are nothing but useless build noise.
->
-> I've attached a patch, just tested, which addresses inter_module_xxx by
-> making its build conditional on the last remaining user.  This solves
-> the deprecated warning problem for most of us, and makes the kernel
-> smaller for most of us, at the same time.
+Subject: [PATCH] Input: HID - add the Trust Predator TH 400 gamepad to the badpad list
+From: Vojtech Pavlik <vojtech@suse.cz>
+Date: 1125897212 -0500
 
-Though external modules using these functions will be hung out to dry. But 
-only if you don't select CONFIG_MTD? That's not particularly intuitive.
+Reported-by: Karl Relton <karllinuxtest.relton@ntlworld.com>
+Signed-off-by: Vojtech Pavlik <vojtech@suse.cz>
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 
-It's better to mark it deprecated (which has been done), then officially 
-remove it (and all in-tree users) once and for all. Compiling the code 
-conditionally just to avoid a few warnings is a silly idea.
+---
 
--- 
-Cheers,
-Alistair.
+ drivers/usb/input/hid-core.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
 
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+61cdecd9f5f602775af1e89c200179d093a94ae2
+diff --git a/drivers/usb/input/hid-core.c b/drivers/usb/input/hid-core.c
+--- a/drivers/usb/input/hid-core.c
++++ b/drivers/usb/input/hid-core.c
+@@ -1370,8 +1370,9 @@ void hid_init_reports(struct hid_device 
+ #define USB_VENDOR_ID_A4TECH		0x09da
+ #define USB_DEVICE_ID_A4TECH_WCP32PU	0x0006
+ 
+-#define USB_VENDOR_ID_AASHIMA		0x06D6
++#define USB_VENDOR_ID_AASHIMA		0x06d6
+ #define USB_DEVICE_ID_AASHIMA_GAMEPAD	0x0025
++#define USB_DEVICE_ID_AASHIMA_PREDATOR	0x0026
+ 
+ #define USB_VENDOR_ID_CYPRESS		0x04b4
+ #define USB_DEVICE_ID_CYPRESS_MOUSE	0x0001
+@@ -1553,6 +1554,7 @@ static struct hid_blacklist {
+ 	{ USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_MOUSE, HID_QUIRK_2WHEEL_MOUSE_HACK_5 },
+ 
+ 	{ USB_VENDOR_ID_AASHIMA, USB_DEVICE_ID_AASHIMA_GAMEPAD, HID_QUIRK_BADPAD },
++	{ USB_VENDOR_ID_AASHIMA, USB_DEVICE_ID_AASHIMA_PREDATOR, HID_QUIRK_BADPAD },
+ 	{ USB_VENDOR_ID_ALPS, USB_DEVICE_ID_IBM_GAMEPAD, HID_QUIRK_BADPAD },
+ 	{ USB_VENDOR_ID_CHIC, USB_DEVICE_ID_CHIC_GAMEPAD, HID_QUIRK_BADPAD },
+ 	{ USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_DRIVING, HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
+

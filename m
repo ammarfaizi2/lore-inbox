@@ -1,53 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbVIJXq6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932391AbVIJXtq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932388AbVIJXq6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 19:46:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932390AbVIJXq5
+	id S932391AbVIJXtq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 19:49:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932392AbVIJXtq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 19:46:57 -0400
-Received: from smtp04.auna.com ([62.81.186.14]:47796 "EHLO smtp04.retemail.es")
-	by vger.kernel.org with ESMTP id S932388AbVIJXq5 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 19:46:57 -0400
-Date: Sat, 10 Sep 2005 23:46:55 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: 2.6.13-mm2
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-References: <20050908053042.6e05882f.akpm@osdl.org>
-In-Reply-To: <20050908053042.6e05882f.akpm@osdl.org> (from akpm@osdl.org on
-	Thu Sep  8 14:30:42 2005)
-X-Mailer: Balsa 2.3.4
-Message-Id: <1126396015l.6300l.1l@werewolf.able.es>
+	Sat, 10 Sep 2005 19:49:46 -0400
+Received: from liszt-12.ednet.co.uk ([212.20.226.36]:32206 "EHLO
+	liszt-12.ednet.co.uk") by vger.kernel.org with ESMTP
+	id S932391AbVIJXtp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Sep 2005 19:49:45 -0400
+Message-ID: <43237171.2080203@vtrl.co.uk>
+Date: Sun, 11 Sep 2005 00:51:13 +0100
+From: Andrew Smith <asmith@vtrl.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050721
+X-Accept-Language: en-gb, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-X-Auth-Info: Auth:LOGIN IP:[83.138.208.222] Login:jamagallon@able.es Fecha:Sun, 11 Sep 2005 01:46:55 +0200
+To: linux-kernel@vger.kernel.org
+Subject: kernel performance problem
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is my first ever posting  to this list, so please excuse me if I've 
+f**cked up and broken protocol.
+I use an IDE LG DVD-RW drive for backup(GSA-4081B).
+Back around 2.6.10 it wrote at typically 1.6-1.7x speed, but thereafter  
+it dropped to  around 0.6-0.7 x.
 
-On 09.08, Andrew Morton wrote:
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13/2.6.13-mm2/
-> 
-> (kernel.org propagation is slow.  There's a temp copy at
-> http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.13-mm2.bz2)
-> 
-> 
 
-I can not ifup an interface while iptables is using it.
-Is this expected behaviour ?
-There is a possible bug (IMHO) in Mandrake initscripts, that start iptables
-before network interfaces, but this had always worked.
+%hdparm -I /dev/hdd
 
-Any ideas ?
+/dev/hdd:
+
+ATAPI CD-ROM, with removable media
+        Model Number:       HL-DT-ST DVDRAM GSA-4081B              
+        Serial Number:      K2B3CFE4600        
+        Firmware Revision:  A100   
+Standards:
+        Likely used CD-ROM ATAPI-1
+Configuration:
+        DRQ response: 50us.
+        Packet size: 12 bytes
+Capabilities:
+        LBA, IORDY(can be disabled)
+        DMA: mdma0 mdma1 mdma2 udma0 udma1 *udma2
+             Cycle time: min=120ns recommended=120ns
+        PIO: pio0 pio1 pio2 pio3 pio4
+             Cycle time: no flow control=120ns  IORDY flow control=120ns
+HW reset results:
+        CBLID- below Vih
+        Device num = 1
+
 
 --
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandriva Linux release 2006.0 (Cooker) for i586
-Linux 2.6.13-jam3 (gcc 4.0.1 (4.0.1-5mdk for Mandriva Linux release 2006.0))
+Andrew
+
 
 

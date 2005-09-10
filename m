@@ -1,67 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932275AbVIJUQR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbVIJUWs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932275AbVIJUQR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 16:16:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbVIJUQR
+	id S932282AbVIJUWs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 16:22:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932281AbVIJUWs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 16:16:17 -0400
-Received: from wscnet.wsc.cz ([212.80.64.118]:37249 "EHLO wscnet.wsc.cz")
-	by vger.kernel.org with ESMTP id S932275AbVIJUQR (ORCPT
+	Sat, 10 Sep 2005 16:22:48 -0400
+Received: from zproxy.gmail.com ([64.233.162.200]:57523 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932280AbVIJUWr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 16:16:17 -0400
-Message-ID: <43233ED6.2080101@gmail.com>
-Date: Sat, 10 Sep 2005 22:15:18 +0200
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: cs, en-us, en
+	Sat, 10 Sep 2005 16:22:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=l9qP/ewZ7FIFdL/GSzcA1u2BrcCZvbxQnwwXqsTLLuEpTddq8wjd07s7X+4cU1iXUiG7Co0hSLmrSxXWRA6FQeZyZqHDzIt9Xy3TCyicCyz8K6lzvERgAYjhLBYXyQ9RZYCFqzzD7ccsw0HKEmF5gT4OIKo5/ev8l5pLZdb+QYo=
+Message-ID: <43234055.6060406@gmail.com>
+Date: Sun, 11 Sep 2005 04:21:41 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jiri Slaby <jirislaby@gmail.com>
-CC: Greg KH <gregkh@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, nils@kernelconcepts.de
-Subject: Re: [PATCH 10/10] drivers/char: pci_find_device remove (drivers/char/watchdog/i8xx_tco.c)
-References: <200509101221.j8ACLAOV017267@localhost.localdomain>
-In-Reply-To: <200509101221.j8ACLAOV017267@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+To: Manuel Lauss <mano@roarinelk.homelinux.net>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-mm2
+References: <20050908053042.6e05882f.akpm@osdl.org> <4322C741.9060808@roarinelk.homelinux.net> <4322D49D.5040506@pol.net> <4322E3A3.5010903@roarinelk.homelinux.net>
+In-Reply-To: <4322E3A3.5010903@roarinelk.homelinux.net>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cc: nils@kernelconcepts.de [maintainer]
-
-Jiri Slaby napsal(a):
-
->Signed-off-by: Jiri Slaby <xslaby@fi.muni.cz>
->
-> i8xx_tco.c |    5 +++--
-> 1 files changed, 3 insertions(+), 2 deletions(-)
->
->diff --git a/drivers/char/watchdog/i8xx_tco.c b/drivers/char/watchdog/i8xx_tco.c
->--- a/drivers/char/watchdog/i8xx_tco.c
->+++ b/drivers/char/watchdog/i8xx_tco.c
->@@ -414,12 +414,11 @@ static unsigned char __init i8xx_tco_get
-> 	 *      Find the PCI device
-> 	 */
+Manuel Lauss wrote:
 > 
->-	while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
->+	for_each_pci_dev(dev)
-> 		if (pci_match_id(i8xx_tco_pci_tbl, dev)) {
-> 			i8xx_tco_pci = dev;
-> 			break;
-> 		}
->-	}
+>> Ah, yes, sorry about that.  Can you try this patch?
+>>
+>> Fix kernel oops when CONFIG_FB_I810_I2C is set to 'n'.
+>>
+>> Signed-off-by: Antonino Daplas <adaplas@pol.net>
+>>
+>> diff --git a/drivers/video/i810/i810_main.c
+>> b/drivers/video/i810/i810_main.c
+>> --- a/drivers/video/i810/i810_main.c
+>> +++ b/drivers/video/i810/i810_main.c
+>> @@ -1830,7 +1830,7 @@ static void __devinit i810fb_find_init_m
+>>  {
+>>      struct fb_videomode mode;
+>>      struct fb_var_screeninfo var;
+>> -    struct fb_monspecs *specs = NULL;
+>> +    struct fb_monspecs *specs = &info->monspecs;
+>>      int found = 0;
+>>  #ifdef CONFIG_FB_I810_I2C
+>>      int i;
+>> @@ -1853,12 +1853,11 @@ static void __devinit i810fb_find_init_m
+>>      if (!err)
+>>          printk("i810fb_init_pci: DDC probe successful\n");
+>>  
+>> -    fb_edid_to_monspecs(par->edid, &info->monspecs);
+>> +    fb_edid_to_monspecs(par->edid, specs);
+>>  
+>> -    if (info->monspecs.modedb == NULL)
+>> +    if (specs->modedb == NULL)
+>>          printk("i810fb_init_pci: Unable to get Mode Database\n");
+>>  
+>> -    specs = &info->monspecs;
+>>      fb_videomode_to_modelist(specs->modedb, specs->modedb_len,
+>>                   &info->modelist);
+>>      if (specs->modedb != NULL) {
 > 
-> 	if (i8xx_tco_pci) {
-> 		/*
->@@ -535,6 +534,8 @@ static void __exit watchdog_cleanup (voi
-> 	misc_deregister (&i8xx_tco_miscdev);
-> 	unregister_reboot_notifier(&i8xx_tco_notifier);
-> 	release_region (TCOBASE, 0x10);
->+
->+	pci_dev_put(i8xx_tco_pci);
-> }
-> 
-> module_init(watchdog_init);
->  
->
+> Thanks, it boots now, but doesnt set video mode. Spews
+> a bunch of "i810fb: invalid video mode" lines and defaults
+> to 640x480.
 
+Set CONFIG_FB_I810_I2C to n.  Your display does not have an EDID block.
+Even getting the EDID from the BIOS failed.
+
+Tony

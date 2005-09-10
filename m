@@ -1,26 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932206AbVIJSy3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932213AbVIJTAO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932206AbVIJSy3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 14:54:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932209AbVIJSy3
+	id S932213AbVIJTAO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 15:00:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbVIJTAN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 14:54:29 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:44224 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932206AbVIJSy1 (ORCPT
+	Sat, 10 Sep 2005 15:00:13 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:30145 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932213AbVIJTAM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 14:54:27 -0400
-Date: Sat, 10 Sep 2005 11:53:59 -0700 (PDT)
+	Sat, 10 Sep 2005 15:00:12 -0400
+Date: Sat, 10 Sep 2005 12:00:01 -0700 (PDT)
 From: Linus Torvalds <torvalds@osdl.org>
-To: "John W. Linville" <linville@tuxdriver.com>
-cc: Greg KH <gregkh@suse.de>, davej@codemonkey.org.uk, arjan@infradead.org,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [GIT PATCH] More PCI patches for 2.6.13
-In-Reply-To: <20050910183302.GA6311@tuxdriver.com>
-Message-ID: <Pine.LNX.4.58.0509101152430.30958@g5.osdl.org>
-References: <20050909220758.GA29746@kroah.com> <Pine.LNX.4.58.0509091535180.3051@g5.osdl.org>
- <20050909225421.GA31433@suse.de> <Pine.LNX.4.58.0509091613310.3051@g5.osdl.org>
- <20050910183302.GA6311@tuxdriver.com>
+To: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
+cc: Jeff Dike <jdike@addtoit.com>, LKML <linux-kernel@vger.kernel.org>,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [patch 7/7] uml: retry host close() on EINTR
+In-Reply-To: <20050910174630.063774000@zion.home.lan>
+Message-ID: <Pine.LNX.4.58.0509101157170.30958@g5.osdl.org>
+References: <20050910174452.907256000@zion.home.lan> <20050910174630.063774000@zion.home.lan>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -28,17 +25,26 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Sat, 10 Sep 2005, John W. Linville wrote:
-> 
-> But, aren't these arguments for changing the functions to return void?
-> If there is never any point in checking the results, then why have
-> results at all?
+On Sat, 10 Sep 2005, Paolo 'Blaisorblade' Giarrusso wrote:
+>
+> When calling close() on the host, we must retry the operation when we get
+> EINTR.
 
-Trying to set other power states than D0 might return interesting values. 
-Also, you _can_ use the value to determine whether the device supports PM 
-states at all.
+Actually, no.
 
-There are tons of functions that return values. That doesn't mean that you 
-always have to check them.
+If close() return EINTR, the file descriptor _will_ have been closed. The
+error return just tells you that soem error happened on the file: for
+example, in the case of EINTR, the close() may not have flushed all the
+pending data synchronously.
 
-		Linus
+Re-doing the close() is the wrong thing to do, since in a threaded 
+environment, something else might have opened another file, gotten the 
+same file descriptor, and you now close _another_ file.
+
+(Normally, re-doing the close will just return EBADF, of course).
+
+I'm going to drop this patch, but in case you've ever seen a case where 
+EINTR actually means that the fd didn't get closed, please holler, and we 
+need to fix it.
+
+			Linus

@@ -1,66 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbVIJKUN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbVIJKt2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750739AbVIJKUN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 06:20:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbVIJKUN
+	id S1750744AbVIJKt2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 06:49:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbVIJKt2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 06:20:13 -0400
-Received: from ppp59-167.lns1.cbr1.internode.on.net ([59.167.59.167]:63238
-	"EHLO triton.bird.org") by vger.kernel.org with ESMTP
-	id S1750739AbVIJKUL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 06:20:11 -0400
-Message-ID: <4322B437.3010309@acquerra.com.au>
-Date: Sat, 10 Sep 2005 20:23:51 +1000
-From: Anthony Wesley <awesley@acquerra.com.au>
-Reply-To: awesley@acquerra.com.au
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.8) Gecko/20050511
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: nate.diller@gmail.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.6.13 buffer strangeness - ext2/3/reiser4/xfs comparison
-References: <432151B0.7030603@acquerra.com.au>	 <EXCHG2003Zi71mrvoGd00000659@EXCHG2003.microtech-ks.com>	 <5c49b0ed05090914394dba42bf@mail.gmail.com>	 <432225E0.9030606@acquerra.com.au>	 <5c49b0ed0509091735436260bb@mail.gmail.com>	 <432231B7.2060200@acquerra.com.au>	 <5c49b0ed0509091847135834c0@mail.gmail.com>	 <432243AA.4000508@acquerra.com.au> <5c49b0ed05090922021b8f8112@mail.gmail.com>
-In-Reply-To: <5c49b0ed05090922021b8f8112@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 10 Sep 2005 06:49:28 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:51395 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S1750744AbVIJKt1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Sep 2005 06:49:27 -0400
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
+From: Keith Owens <kaos@sgi.com>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Scheduler hooks to support separate ia64 MCA/INIT stacks 
+In-reply-to: Your message of "Fri, 09 Sep 2005 00:17:44 MST."
+             <Pine.LNX.4.61.0509082356390.978@montezuma.fsmlabs.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 10 Sep 2005 20:48:45 +1000
+Message-ID: <23761.1126349325@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nate Diller wrote:
-> i really recommend you focus on getting better disk bandwidth, you stand 
-> to gain a lot more from that approach.  i presume you're on ext3; 
-> perhaps you should try reiser4 or xfs, they are more likely to meet your 
-> disk bandwidth requirements.
-> 
-> NATE
+On Fri, 9 Sep 2005 00:17:44 -0700 (PDT), 
+Zwane Mwaikambo <zwane@arm.linux.org.uk> wrote:
+>On Fri, 9 Sep 2005, Keith Owens wrote:
+>
+>> The new ia64 MCA/INIT handlers[1] (think of them as super NMI) run on
+>> separate stacks.  99% of the changes for these new handlers is ia64
+>> only code, however they need a couple of scheduler hooks to support
+>> these extra stacks.  The complete patch set will be coming through the
+>> ia64 tree, this RFC covers just the scheduler changes, so they do not
+>> come as a surprise when the ia64 tree is rolled up.
+>> 
+>> [1] http://marc.theaimsgroup.com/?l=linux-ia64&m=112537827113545&w=2
+>>     and the following patches.
+>
+>Thanks that gave a lot of background.
+>
+>> This patch adds two small hooks that can be safely called from MCA/INIT
+>> context.  If other architectures want to support NMI on separate stacks
+>> then they can also use these functions.
+>
+>Well x86_64 already does this with NMI being setup as ISTs, the difference 
+>is that there we use a register to access current (via PDA/%gs). I might 
+>have missed this in the URL you posted, but how come IA64 can't do this 
+>via r13?
 
-While I have already solved the issue that was troubling me, I also spent some time comparing different
-filesystems as reccommended by Nate, with interesting results.
+Because of this possible event sequence: user space -> kernel -> SAL ->
+PAL -> physical mode -> MCA/INIT.  When MCA/INIT is delivered in
+physical mode, the contents of all registers are undefined.  PAL can
+use r13 for its own work, as long as r13 is restored before returning
+to the kernel.  MCA/INIT breaks the assumption that r13 is always valid.
 
-My method was simple - make a filesystem and the set it as the target for my video capture. With video
-coming in at 25MBytes/sec and going out to disk at about 15-20MBytes/sec it is an interesting test of the
-vm and filesystem.
-
-I compared ext2,ext3,xfs,vfat,reiser and reiser4.
-
-The hands-down winner was ext2. All the others showed problems of either lower disk throughput
-or dropped frames during video capture.
-
-Only ext2 went the full distance - no dropped frames until we run out of RAM, and good disk throughput.
-
-xfs,reiser and reiser4 had slightly higher disk write speed, but showed performance problems
-that caused lots of dropped frames so they must be ruled out at this stage.
-
-I know that xfs and reiser4 are supposed to be faster for some things, but it seems to me that they
-are not the best choice when you are predominantly writing lots and lots of 600k files :-)
-
-regards, Anthony
-
--- 
-Anthony Wesley
-Director and IT/Network Consultant
-Smart Networks Pty Ltd
-Acquerra Pty Ltd
-
-Anthony.Wesley@acquerra.com.au
-Phone: (02) 62595404 or 0419409836

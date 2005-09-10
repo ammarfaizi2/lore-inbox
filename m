@@ -1,76 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbVIJVAO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932306AbVIJVAP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932302AbVIJVAO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 17:00:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932307AbVIJVAO
+	id S932306AbVIJVAP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 17:00:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932307AbVIJVAP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 17:00:14 -0400
-Received: from smtp-106-saturday.noc.nerim.net ([62.4.17.106]:64525 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S932302AbVIJVAN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Sep 2005 17:00:15 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:11217 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932306AbVIJVAN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 10 Sep 2005 17:00:13 -0400
-Date: Sat, 10 Sep 2005 23:00:46 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Greg KH <greg@kroah.com>
-Cc: LM Sensors <lm-sensors@lm-sensors.org>,
-       LKML <linux-kernel@vger.kernel.org>, Denis Vlasenko <vda@ilport.com.ua>
-Subject: Re: [PATCH 2.6] hwmon: via686a: save 0.5k by long v[256] -> s16
- v[256]
-Message-Id: <20050910230046.724a3132.khali@linux-fr.org>
-In-Reply-To: <20050909213250.GA29011@kroah.com>
-References: <200509010910.14824.vda@ilport.com.ua>
-	<20050901155915.GB1235@kroah.com>
-	<200509020854.37192.vda@ilport.com.ua>
-	<20050903102227.03312247.khali@linux-fr.org>
-	<20050903161331.1c76153d.khali@linux-fr.org>
-	<20050909213250.GA29011@kroah.com>
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Date: Sat, 10 Sep 2005 14:00:04 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: mikukkon@iki.fi
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix allnoconfig build with gcc4
+In-Reply-To: <20050910201913.GA6179@miku.homelinux.net>
+Message-ID: <Pine.LNX.4.58.0509101356320.30958@g5.osdl.org>
+References: <20050910201913.GA6179@miku.homelinux.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
-
-> Unfortunatly, no one noticed that this patch adds a build warning :(
-
-I'm sorry about that, I though I had checked but now it seems not. A new
-patch addressing the issue follows.
-
-Thanks.
-
-----------------------
-
-We can save 0.5kB of data in the via686a driver.
-
-From: Denis Vlasenko <vda@ilport.com.ua>
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
-
- drivers/hwmon/via686a.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
---- linux-2.6.13-git7.orig/drivers/hwmon/via686a.c	2005-09-08 22:40:16.000000000 +0200
-+++ linux-2.6.13-git7/drivers/hwmon/via686a.c	2005-09-10 10:56:12.000000000 +0200
-@@ -198,7 +198,7 @@
-  but the function is very linear in the useful range (0-80 deg C), so
-  we'll just use linear interpolation for 10-bit readings.)  So, tempLUT
-  is the temp at via register values 0-255: */
--static const long tempLUT[] =
-+static const s16 tempLUT[] =
- { -709, -688, -667, -646, -627, -607, -589, -570, -553, -536, -519,
- 	-503, -487, -471, -456, -442, -428, -414, -400, -387, -375,
- 	-362, -350, -339, -327, -316, -305, -295, -285, -275, -265,
-@@ -270,7 +270,7 @@
- }
- 
- /* for 8-bit temperature hyst and over registers */
--#define TEMP_FROM_REG(val) (tempLUT[(val)] * 100)
-+#define TEMP_FROM_REG(val)	((long)tempLUT[val] * 100)
- 
- /* for 10-bit temperature readings */
- static inline long TEMP_FROM_REG10(u16 val)
 
 
--- 
-Jean Delvare
+On Sat, 10 Sep 2005 mikukkon@iki.fi wrote:
+>
+> It seems that git commit 20380731bc2897f2952ae055420972ded4cd786e breaks
+> allnoconfig build with gcc4:
+> 
+>   CC      init/main.o
+> In file included from include/linux/netdevice.h:29,
+> 		   from include/net/sock.h:48,
+> 		   from init/main.c:50:
+> include/linux/if_ether.h:114: error: array type has incomplete element type
+> 
+> The "normal" fix of replacing foo[] with *foo would is not trivial, but
+> simply removing the offending line is.
+> 
+> Signed-off-by: Mika Kukkonen <mikukkon@iki.fi>
+
+No, this would cause a compile error if CONFIG_NET and CONFIG_SYSCTL is
+enabled (because sysctl_net.c needs that declaration).
+
+So the correct solution is apparently either one of
+
+ - always declare an empty "struct ctl_table" regardless of whether SYSCTL 
+   is enabled or not.
+
+   This might be a good idea, since it probably allows more code to be 
+   compiled without checking for CONFIG_SYSCTL.
+
+ - put the ether_table[] declaration inside a #ifdef CONFIG_SYSCTL.
+
+Maybe somebody else has a stronger opinion than I do about which of these 
+is the right solution.
+
+		Linus

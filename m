@@ -1,81 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbVIJAoN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030409AbVIJBDH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932231AbVIJAoN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 20:44:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbVIJAoN
+	id S1030409AbVIJBDH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 21:03:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030410AbVIJBDH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 20:44:13 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:44970 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S932231AbVIJAoM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 20:44:12 -0400
-Date: Fri, 9 Sep 2005 17:44:03 -0700 (PDT)
-From: Paul Jackson <pj@sgi.com>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, Simon Derr <Simon.Derr@bull.net>,
-       Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Message-Id: <20050910004403.29717.51121.sendpatchset@jackhammer.engr.sgi.com>
-Subject: [PATCH 2.6.13-stable] cpuset semaphore double trip fix
+	Fri, 9 Sep 2005 21:03:07 -0400
+Received: from ppp59-167.lns1.cbr1.internode.on.net ([59.167.59.167]:7955 "EHLO
+	triton.bird.org") by vger.kernel.org with ESMTP id S1030409AbVIJBDG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 21:03:06 -0400
+Message-ID: <432231B7.2060200@acquerra.com.au>
+Date: Sat, 10 Sep 2005 11:07:03 +1000
+From: Anthony Wesley <awesley@acquerra.com.au>
+Reply-To: awesley@acquerra.com.au
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.8) Gecko/20050511
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: nate.diller@gmail.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.6.13 buffer strangeness
+References: <432151B0.7030603@acquerra.com.au>	 <EXCHG2003Zi71mrvoGd00000659@EXCHG2003.microtech-ks.com>	 <5c49b0ed05090914394dba42bf@mail.gmail.com>	 <432225E0.9030606@acquerra.com.au> <5c49b0ed0509091735436260bb@mail.gmail.com>
+In-Reply-To: <5c49b0ed0509091735436260bb@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Code reading uncovered a potential deadlock on the global cpuset
-semaphore, cpuset_sem.
+Okay, just tested a couple of things, here's what I see...
 
-==> This patch is only useful in the 2.6.13-stable series.
+I tested the write speed to the usb2 hard disk and got 21MBytes/sec. It's a laptop 
+hard drive, only 5400rpm so this is not surprising.
 
-    (It's harmless, and useless, in the pre 2.6.14 fork)
+I did this test with my video capture app running, but just displaying data and not writing,
 
-The pre-2.6.14 fork has already diverged, with an additional patch
-that further aggrevated this problem, and a more thorough overhaul
-of the cpuset locking, to fix the problems.
+I have another laptop usb2 hard drive here which I just tested and got 17MBytes/sec - it's
+a 4200rpm drive so again not surprising numbers.
 
-All code paths in kernel/cpuset.c (2.6.13 or earlier) that first
-grab cpuset_sem and then allocate memory _must_ call the routine
-'refresh_mems()', after getting cpuset_sem, before any possible
-allocation.
+The video data is written as individual frames, so the efficiency is a bit below the raw throughput,
+but my tests were transferring 1.5Gb of data as raw frames - exactly the same way that Coriander would
+write its data.
 
-If this refresh_mems() call is not done, then there is a risk that one
-of the cpuset_zone_allowed() calls made from within the page allocator
-(__alloc_pages) will find that the mems_generation of the current task
-doesn't match that of its cpuset, causing it to try to grab cpuset_sem.
-Since it already held cpuset_sem, this deadlocks that task, and any
-subsequent task wanting cpuset_sem.
+I'd bet a large sum of money that these hard disk figures are correct to within a few percent.
 
-==> The code paths leading to the kmalloc in check_for_release(), from
-    cpuset_exit, cpuset_rmdir and attach_task (for the detached cpuset),
-    fail to invoke refresh_mems() as required.
+Also, when I am actually capturing I have timed by stopwatch how long the disk activity light
+is on, and reached about the same conclusion.
 
-    The fix is easy enough - add the requisite refresh_mems() call.
+Working the problem from the other direction, the only way to explain the early throttling that
+I see would be if *almost no data* is being written to the disk, and this is plainly not the case. Even if
+the disk were running at a greatly reduced rate of (say) 10MBytes/sec I would still see 86 seconds
+of buffering before the throttle kicks in, and so far I have managed only to get to about 65 or 70.
 
-Unless someone is rapidly creating, modifying and destroying cpusets,
-they are unlikely to have any chance of encountering this deadlock.
-And even then, it is apparently difficult to do so.
+regards, Anthony
 
-In the case we got here from cpuset_exit(), we have already torn
-down the tasks connection to this cpuset and current->cpuset is NULL.
-Don't call refresh_mems() in that case - it oops the kernel.
+Nate Diller wrote:
 
-Signed-off-by: Paul Jackson <pj@sgi.com>
 
-Index: linux-2.6.13-mem_exclusive_oom/kernel/cpuset.c
-===================================================================
---- linux-2.6.13-mem_exclusive_oom.orig/kernel/cpuset.c
-+++ linux-2.6.13-mem_exclusive_oom/kernel/cpuset.c
-@@ -458,7 +458,10 @@ static void check_for_release(struct cpu
- 	if (notify_on_release(cs) && atomic_read(&cs->count) == 0 &&
- 	    list_empty(&cs->children)) {
- 		char *buf;
-+		static void refresh_mems(void);
- 
-+		if (current->cpuset)
-+			refresh_mems();
- 		buf = kmalloc(PAGE_SIZE, GFP_KERNEL);
- 		if (!buf)
- 			return;
+>>Setting dirty_ratio and dirty_background_ratio to 90/10 puts me back at
+>>around 50 seconds, i.e. where I started.
+>>
+> 
+> this setting should do the trick, so there's something going on here
+> that isn't expected.
+> 
+> 
+>>So as far as I can see there is *no way* to get 3 minutes worth of buffering
+>>by adjusting these parameters.
+>>
+>>Just to remind everyone - I have video data coming in at 25MBytes/sec and I
+>>am writing it out to a usb2 hard disk that can sustain 17MBytes/sec. I want
+>>my video capture to run at full speed as long as possible by having the
+>>7MBytes/sec deficit slowly eat up the available RAM in the machine. I have
+>>1.5Gb of RAM, 1.3Gb available for buffers, so this should take 3 minutes to
+>>consume at 7MBytes/sec.
+>>
+>>So, I've tried all the combinations on dirty_ratio and
+>>dirty_background_ratio and they *do not help*.
+>>
+> 
+> dirty_ratio is the tubable you want, if it's not working correctly,
+> either there's a problem with your setup, or a bug
+> 
+> 
+>>Can anyone suggest something else that I might try? The goal is to have
+>>25MBytes/sec streaming video for about 3 minutes. 
+>>
+> 
+> how sure are you that you're getting 17MB/s during this test?  can you
+> run "vmstat 1" while this is running to verify?  which FS and
+> scheduler?
+> 
+> just for interest, what's the raw disk bandwidth (use hdparm, or run a
+> dd, or something)?  it would obviously be much better to sustain
+> 25MB/s to disk
+> 
+> 
+>>Or is this simply not possible with the current kernel I/O setup? Do I have
+>>to do something elaborate myself, like build a big RAM buffer, mount the
+>>disk synchronous, do the buffering myself in userland...??
+>>
+> 
+> this should be possible, although it could be considered a bit risky WRT OOM.
+> 
+> NATE
 
 -- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Anthony Wesley
+Director and IT/Network Consultant
+Smart Networks Pty Ltd
+Acquerra Pty Ltd
+
+Anthony.Wesley@acquerra.com.au
+Phone: (02) 62595404 or 0419409836

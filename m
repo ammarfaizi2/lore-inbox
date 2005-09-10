@@ -1,37 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbVIJItb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750713AbVIJJHS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750709AbVIJItb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 04:49:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750710AbVIJItb
+	id S1750713AbVIJJHS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 05:07:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750715AbVIJJHR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 04:49:31 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:25291 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750709AbVIJIta (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 04:49:30 -0400
-Date: Sat, 10 Sep 2005 01:45:43 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: linux-kernel@vger.kernel.org, hpa@zytor.com, bunk@stusta.de
-Subject: Re: [RFC][MEGAPATCH] Change __ASSEMBLY__ to __ASSEMBLER__ (defined
- by GCC from 2.95 to current CVS)
-Message-Id: <20050910014543.1be53260.akpm@osdl.org>
-In-Reply-To: <97597F8E-DDCE-479F-AE8D-CC7DC75AB3C3@mac.com>
-References: <C670AD22-97CF-46AA-A527-965036D78667@mac.com>
-	<20050903064124.GA31400@codepoet.org>
-	<4319BEF5.2070000@zytor.com>
-	<B9E70F6F-CC0A-4053-AB34-A90836431358@mac.com>
-	<dfhs4u$1ld$1@terminus.zytor.com>
-	<5A37B032-9BBD-4AEA-A9BF-D42AFF79BC86@mac.com>
-	<9C47C740-86CF-48F1-8DB6-B547E5D098FF@mac.com>
-	<97597F8E-DDCE-479F-AE8D-CC7DC75AB3C3@mac.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 10 Sep 2005 05:07:17 -0400
+Received: from europa.telenet-ops.be ([195.130.137.75]:60064 "EHLO
+	europa.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S1750713AbVIJJHQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Sep 2005 05:07:16 -0400
+Date: Sat, 10 Sep 2005 11:07:02 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Andrew Morton <akpm@osdl.org>, "Ian E. Morgan" <imorgan@webcon.ca>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, tech@webcon.ca
+Subject: Re: [WATCHDOG] Push SBC8360 driver upstream
+Message-ID: <20050910090702.GV19487@infomag.infomag.iguana.be>
+References: <Pine.LNX.4.63.0509091556520.16138@light.int.webcon.net> <20050909133501.5cfb6591.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050909133501.5cfb6591.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Andrew, Ian,
 
-This patch seems to have a rather low value-to-noise ratio.  Why
-on earth do we want to do this?
+> >  I would like to ask that the SBC8360 watchdog driver be pushed upstream from
+> >  -mm in time for the 2.6.14-rc series.
+> 
+> That's in Wim's tree now.
+
+I'm preparing the tree for linus to pull from. Should be there by the end of the weekend.
+(Will probably contain 6 drivers + some updates of some other drivers).
+
+Greetings,
+Wim.
+

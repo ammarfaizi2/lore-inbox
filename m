@@ -1,50 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbVIJUdR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbVIJUdF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932284AbVIJUdR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 16:33:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932285AbVIJUdR
+	id S932283AbVIJUdF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 16:33:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932285AbVIJUdF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 16:33:17 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:61506 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S932284AbVIJUdP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 16:33:15 -0400
-Date: Sat, 10 Sep 2005 22:34:53 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH 2/7] kbuild: CF=<arguments> passes arguments to sparse
-Message-ID: <20050910203453.GB29334@mars.ravnborg.org>
-References: <20050910200347.GA3762@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050910200347.GA3762@mars.ravnborg.org>
-User-Agent: Mutt/1.5.8i
+	Sat, 10 Sep 2005 16:33:05 -0400
+Received: from wscnet.wsc.cz ([212.80.64.118]:19842 "EHLO wscnet.wsc.cz")
+	by vger.kernel.org with ESMTP id S932283AbVIJUdD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Sep 2005 16:33:03 -0400
+Date: Sat, 10 Sep 2005 22:32:59 +0200
+Message-Id: <200509102032.j8AKWxMC006246@localhost.localdomain>
+Subject: [PATCH] include: pci_find_device remove (include/asm-i386/ide.h)
+From: Jiri Slaby <jirislaby@gmail.com>
+To: Greg KH <gregkh@suse.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-ide@vger.kernel.org,
+       B.Zolnierkiewicz@elka.pw.edu.pl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Allows to add to sparse arguments without mutilating makefiles - just
-pass CF=<arguments> and they will be added to CHECKFLAGS.
+Generated in 2.6.13-mm2 kernel version.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Signed-off-by: Jiri Slaby <xslaby@fi.muni.cz>
 
----
+Repost, posted on:
+02 Sep 2005
 
- Makefile |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ ide.h |    7 ++++++-
+ 1 files changed, 6 insertions(+), 1 deletion(-)
 
-7b49bb9aff8b14d15da58111d8908c877c0a525e
-diff --git a/Makefile b/Makefile
---- a/Makefile
-+++ b/Makefile
-@@ -334,7 +334,7 @@ KALLSYMS	= scripts/kallsyms
- PERL		= perl
- CHECK		= sparse
+diff --git a/include/asm-i386/ide.h b/include/asm-i386/ide.h
+--- a/include/asm-i386/ide.h
++++ b/include/asm-i386/ide.h
+@@ -41,7 +41,12 @@ static __inline__ int ide_default_irq(un
  
--CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__
-+CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ $(CF)
- MODFLAGS	= -DMODULE
- CFLAGS_MODULE   = $(MODFLAGS)
- AFLAGS_MODULE   = $(MODFLAGS)
-
+ static __inline__ unsigned long ide_default_io_base(int index)
+ {
+-	if (pci_find_device(PCI_ANY_ID, PCI_ANY_ID, NULL) == NULL) {
++	struct pci_dev *pdev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, NULL);
++	unsigned int a = !pdev;
++
++	pci_dev_put(pdev);
++
++	if (a) {
+ 		switch(index) {
+ 			case 2: return 0x1e8;
+ 			case 3: return 0x168;

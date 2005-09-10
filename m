@@ -1,59 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932650AbVIJGdY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030541AbVIJHCa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932650AbVIJGdY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 02:33:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932667AbVIJGdY
+	id S1030541AbVIJHCa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 03:02:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030543AbVIJHCa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 02:33:24 -0400
-Received: from nproxy.gmail.com ([64.233.182.201]:58283 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932650AbVIJGdX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 02:33:23 -0400
+	Sat, 10 Sep 2005 03:02:30 -0400
+Received: from zproxy.gmail.com ([64.233.162.207]:54467 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030541AbVIJHC3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Sep 2005 03:02:29 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=F5PNgYRUPNK989D1y3KI3o1OxT9FPrvJFB7pPOXHaXzQBNTYY6JRgRdC0TMQCoTK6eFCjmVOxmHBY6p20IYEsEN/7Mx9//PLqblo0/NILg+l37wFeXcyADfgJH2vbsJ7YeEgDN3tQmbRy7Jsy/T9jJ3qgnvi+06DzbkuLWqis8s=
-Message-ID: <9cfa10eb05090923333e111457@mail.gmail.com>
-Date: Sat, 10 Sep 2005 09:33:20 +0300
-From: Marko Kohtala <marko.kohtala@gmail.com>
-Reply-To: marko.kohtala@gmail.com
-To: Grant Coady <grant_lkml@dodo.com.au>
+        h=received:message-id:date:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
+        b=W7o3NlY3tqMlQKaYVbCeU3SM3C2QWS34KdP7VCUHgfPecL16p5nT41csIySMPLA8ptNgbC7zMo30i4fEtozsSsDNOl/psXmwYJhorsaZBvNgbJ07bgiqPdlewbz86jMPVjdfdx6JjZgnaRFil/emdGwM1GFhvlWthg2rl3vQywI=
+Message-ID: <4322850B.4060801@gmail.com>
+Date: Sat, 10 Sep 2005 09:02:35 +0200
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050823)
+X-Accept-Language: de-DE, de, en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
 Subject: Re: 2.6.13-mm2
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <d243i19hk055rl5b5o5i9suofsvbmv5r8l@4ax.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050908053042.6e05882f.akpm@osdl.org>
-	 <m1q1i1lav2vl7k0lpposq0uj4uobsptnor@4ax.com>
-	 <20050909024336.01763521.akpm@osdl.org>
-	 <d243i19hk055rl5b5o5i9suofsvbmv5r8l@4ax.com>
+References: <20050908053042.6e05882f.akpm@osdl.org>	<432072C5.8020200@gmail.com> <20050908123930.5a28f3ff.akpm@osdl.org>
+In-Reply-To: <20050908123930.5a28f3ff.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+From: Michael Thonke <iogl64nx@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/9/05, Grant Coady <grant_lkml@dodo.com.au> wrote:
-> Hi Andrew, Marko,
-> On Fri, 9 Sep 2005 02:43:36 -0700, Andrew Morton <akpm@osdl.org> wrote:
-> >Grant Coady <grant_lkml@dodo.com.au> wrote:
-> >> On Thu, 8 Sep 2005 05:30:42 -0700, Andrew Morton <akpm@osdl.org> wrote:
-> >>
-> >> >ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13/2.6.13-mm2/
-> >>
-> >> Hi Andrew,
-> >>
-> >> After this error:
-> >>
-> >>   CC      drivers/parport/parport_pc.o
-> >> drivers/parport/parport_pc.c:2511: error: via_686a_data causes a section type conflict
-> >> drivers/parport/parport_pc.c:2520: error: via_8231_data causes a section type conflict
-> >> drivers/parport/parport_pc.c:2705: error: parport_pc_superio_info causes a section type conflict
-> >> drivers/parport/parport_pc.c:2782: error: cards causes a section type conflict
-> >> make[2]: *** [drivers/parport/parport_pc.o] Error 1
-> >> make[1]: *** [drivers/parport] Error 2
-> >> make: *** [drivers] Error 2
-> >
-> >Yes, gcc 4.x doesn't like the consts for some reason.
+Hello Andrew,
 
-And this was documented in linux/init.h: __devinitdata can not be
-const. My mistake. Thanks for fixing it.
+>There are changes to both sata_nv and to md in 2.6.13-mm2.  To isolate them
+>
+>it would be great of you could apply 
+>
+>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13/2.6.13-mm2/broken-out/linus.patch
+>
+I applied and tested it with 2.6.13 vanilla kernel + linux.patch as suggested, but so far no problem as with 2.6.13-mm2.
+
+I also played with the git-snapshots 2.6.13-git[1-9] no problem here. I think the problem is
+
+somewhere else we have to pay attention, too. MD Raidlevels [0,1] failed to start with 2.6.13-mm2.
+
+Raid0 config:
+
+2x 20GB Partitiontype 0xFD "Linux Raid autodetect"
+
+64k Chunksize, persistent superblock.
+
+little output from mdadm
+
+/dev/md2:
+
+        Version : 00.90.02
+
+  Creation Time : Sun Jun 26 19:14:45 2005
+
+     Raid Level : raid0
+
+     Array Size : 40001536 (38.15 GiB 40.96 GB)
+
+   Raid Devices : 2
+
+  Total Devices : 2
+
+Preferred Minor : 2
+
+    Persistence : Superblock is persistent
+
+    Update Time : Sun Jun 26 19:14:45 2005
+
+          State : clean
+
+ Active Devices : 2
+
+Working Devices : 2
+
+ Failed Devices : 0
+
+  Spare Devices : 0
+
+     Chunk Size : 64K
+
+           UUID : c53fa0d8:9d85875b:efb82dde:11c6617c
+
+         Events : 0.1
+
+    Number   Major   Minor   RaidDevice State
+
+       0       8       23        0      active sync   /dev/sdb7
+
+       1       8        6        1      active sync   /dev/sda6
+
+    
+
+Raid1 config.
+
+2x 15GB Partitiontype 0xFD "Linux Raid autodetect"
+
+        chunksize 128k.
+
+
+I have no idea where I should look, to resolve this behavior.
+
+
+>to 2.6.13 and see if the problem still happens.  That will separate out the
+>md changes which are still in -mm.
+>
+>Thanks.
+>
+>  
+>
+As for all the time, I'm willing to test to glue the problem out.
+
+Thanks
+
+Best regards
+
+--
+Michael Thonke

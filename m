@@ -1,79 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932291AbVIJUgd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932292AbVIJUqJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932291AbVIJUgd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 16:36:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbVIJUgd
+	id S932292AbVIJUqJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 16:46:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbVIJUqJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 16:36:33 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:48283 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S932291AbVIJUgc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 16:36:32 -0400
-Date: Sat, 10 Sep 2005 22:38:08 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH 7/7] kbuild: fix generic asm-offsets.h support
-Message-ID: <20050910203807.GG29334@mars.ravnborg.org>
-References: <20050910200347.GA3762@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050910200347.GA3762@mars.ravnborg.org>
-User-Agent: Mutt/1.5.8i
+	Sat, 10 Sep 2005 16:46:09 -0400
+Received: from dns.kernelconcepts.de ([212.60.202.194]:50693 "EHLO
+	gateway.kernelconcepts.de") by vger.kernel.org with ESMTP
+	id S932292AbVIJUqI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Sep 2005 16:46:08 -0400
+Message-ID: <432345CB.4010402@kernelconcepts.de>
+Date: Sat, 10 Sep 2005 22:44:59 +0200
+From: Nils Faerber <nils.faerber@kernelconcepts.de>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050727)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jiri Slaby <jirislaby@gmail.com>
+CC: Greg KH <gregkh@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, nils@kernelconcepts.de
+Subject: Re: [PATCH 10/10] drivers/char: pci_find_device remove (drivers/char/watchdog/i8xx_tco.c)
+References: <200509101221.j8ACLAOV017267@localhost.localdomain> <43233ED6.2080101@gmail.com>
+In-Reply-To: <43233ED6.2080101@gmail.com>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This fixes a bug where the generated asm-offsets.h file was saved in
-the source tree even with make O=.
-Thanks to Stephen Rothwell <sfr@canb.auug.org.au> for the report.
+Thanks, looks fine to me so I added my signed-off.
 
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Jiri Slaby wrote:
+> Cc: nils@kernelconcepts.de [maintainer]
+> 
+> Jiri Slaby napsal(a):
+> 
+>> Signed-off-by: Jiri Slaby <xslaby@fi.muni.cz>
 
----
+Signed-off-by: Nils Faerber <nils@kernelconcepts.de>
 
- Kbuild   |    5 +++--
- Makefile |    2 +-
- 2 files changed, 4 insertions(+), 3 deletions(-)
+>> i8xx_tco.c |    5 +++--
+>> 1 files changed, 3 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/char/watchdog/i8xx_tco.c
+>> b/drivers/char/watchdog/i8xx_tco.c
+>> --- a/drivers/char/watchdog/i8xx_tco.c
+>> +++ b/drivers/char/watchdog/i8xx_tco.c
+>> @@ -414,12 +414,11 @@ static unsigned char __init i8xx_tco_get
+>>      *      Find the PCI device
+>>      */
+>>
+>> -    while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) !=
+>> NULL) {
+>> +    for_each_pci_dev(dev)
+>>         if (pci_match_id(i8xx_tco_pci_tbl, dev)) {
+>>             i8xx_tco_pci = dev;
+>>             break;
+>>         }
+>> -    }
+>>
+>>     if (i8xx_tco_pci) {
+>>         /*
+>> @@ -535,6 +534,8 @@ static void __exit watchdog_cleanup (voi
+>>     misc_deregister (&i8xx_tco_miscdev);
+>>     unregister_reboot_notifier(&i8xx_tco_notifier);
+>>     release_region (TCOBASE, 0x10);
+>> +
+>> +    pci_dev_put(i8xx_tco_pci);
+>> }
+>>
+>> module_init(watchdog_init);
+>>  
+>>
+> 
 
-8d36a62364b6b04dc7b0e9fe09f6968f4e5a1f0a
-diff --git a/Kbuild b/Kbuild
---- a/Kbuild
-+++ b/Kbuild
-@@ -4,7 +4,7 @@
- # 1) Generate asm-offsets.h
- 
- #####
--# 1) Generate asm-offsets.h 
-+# 1) Generate asm-offsets.h
- #
- 
- offsets-file := include/asm-$(ARCH)/asm-offsets.h
-@@ -22,6 +22,7 @@ sed-$(CONFIG_MIPS) := "/^@@@/s///p"
- 
- quiet_cmd_offsets = GEN     $@
- define cmd_offsets
-+	mkdir -p $(dir $@); \
- 	cat $< | \
- 	(set -e; \
- 	 echo "#ifndef __ASM_OFFSETS_H__"; \
-@@ -43,6 +44,6 @@ arch/$(ARCH)/kernel/asm-offsets.s: arch/
- 	$(Q)mkdir -p $(dir $@)
- 	$(call if_changed_dep,cc_s_c)
- 
--$(srctree)/$(offsets-file): arch/$(ARCH)/kernel/asm-offsets.s Kbuild
-+$(obj)/$(offsets-file): arch/$(ARCH)/kernel/asm-offsets.s Kbuild
- 	$(call cmd,offsets)
- 
-diff --git a/Makefile b/Makefile
---- a/Makefile
-+++ b/Makefile
-@@ -814,7 +814,7 @@ ifneq ($(KBUILD_MODULES),)
- endif
- 
- prepare0: prepare prepare1 FORCE
--	$(Q)$(MAKE) $(build)=$(srctree)
-+	$(Q)$(MAKE) $(build)=.
- 
- # All the preparing..
- prepare-all: prepare0
+Cheers
+  nils faerber
 
+-- 
+kernel concepts          Tel: +49-271-771091-12
+Dreisbachstr. 24         Fax: +49-271-771091-19
+D-57250 Netphen          Mob: +49-176-21024535
+--

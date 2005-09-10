@@ -1,72 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750920AbVIJOP3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750962AbVIJOaO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750920AbVIJOP3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 10:15:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750928AbVIJOP3
+	id S1750962AbVIJOaO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 10:30:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750978AbVIJOaN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 10:15:29 -0400
-Received: from smtp06.auna.com ([62.81.186.16]:51639 "EHLO smtp06.retemail.es")
-	by vger.kernel.org with ESMTP id S1750917AbVIJOP2 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 10:15:28 -0400
-Date: Sat, 10 Sep 2005 14:15:28 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: [GIT PATCH] Remove devfs from 2.6.13
-To: Greg KH <gregkh@suse.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-References: <20050909214542.GA29200@kroah.com>
-In-Reply-To: <20050909214542.GA29200@kroah.com> (from gregkh@suse.de on Fri
-	Sep  9 23:45:42 2005)
-X-Mailer: Balsa 2.3.4
-Message-Id: <1126361728l.7832l.0l@werewolf.able.es>
+	Sat, 10 Sep 2005 10:30:13 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:56256 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750959AbVIJOaM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Sep 2005 10:30:12 -0400
+Date: Sat, 10 Sep 2005 10:30:01 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@cuia.boston.redhat.com
+To: Luben Tuikov <ltuikov@yahoo.com>
+cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Luben Tuikov <luben_tuikov@adaptec.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: [PATCH 2.6.13 14/14] sas-class: SCSI Host glue
+In-Reply-To: <20050910041218.29183.qmail@web51612.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.63.0509101028510.4630@cuia.boston.redhat.com>
+References: <20050910041218.29183.qmail@web51612.mail.yahoo.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-X-Auth-Info: Auth:LOGIN IP:[83.138.208.222] Login:jamagallon@able.es Fecha:Sat, 10 Sep 2005 16:15:26 +0200
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 9 Sep 2005, Luben Tuikov wrote:
 
-On 09.09, Greg KH wrote:
-> Here are the same "delete devfs" patches that I submitted for 2.6.12.
-> It rips out all of devfs from the kernel and ends up saving a lot of
-> space.  Since 2.6.13 came out, I have seen no complaints about the fact
-> that devfs was not able to be enabled anymore, and in fact, a lot of
-> different subsystems have already been deleting devfs support for a
-> while now, with apparently no complaints (due to the lack of users.)
+> No self respecting SAS chip would not do 64 bit DMA, or have an sg 
+> tablesize or any other limitation.
 > 
-> I mean, how can you go wrong with deleting over 8000 lines of kernel
-> code :)
-> 
-> So, please pull from:
-> 
-> Please pull from:
-> 	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/devfs-2.6.git/
-> or if master.kernel.org hasn't synced up yet:
-> 	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/devfs-2.6.git/
-> 
-> I've posted all of these patches before, but if people really want to look at them, they can be found at:
-> 	http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/gregkh-05-devfs/
-> 
-> Also, if people _really_ are in love with the idea of an in-kernel
-> devfs, I have posted a patch that does this in about 300 lines of code,
-> called ndevfs.  It is available in the archives if anyone wants to use
-> that instead (it is quite easy to maintain that patch outside of the
-> kernel tree, due to it only needing 3 hooks into the main kernel tree.)
-> 
+> Naturally, aic94xx has _no limitations_. :-)  But hey, our hardware just 
+> kicks a*s!
 
-I've been running kernel.org kernels on Mandrake since eons ago, and
-since many time without devfs, just with static /dev or with udev.
-I still have to find an application that has a devfs path hardcoded or
-even as default, everything is like /dev/dvd, not /dev/ide/0/7/disk3...
-Everythig works: sound, net, etc.
+That's very nice for you - but lets face it, a SAS layer
+that'll be unable to also deal with the El-Cheapo brand
+controllers isn't going to be very useful.
 
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandriva Linux release 2006.0 (Cooker) for i586
-Linux 2.6.13-jam3 (gcc 4.0.1 (4.0.1-5mdk for Mandriva Linux release 2006.0))
-
-
+-- 
+All Rights Reversed

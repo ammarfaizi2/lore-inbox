@@ -1,216 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932657AbVIJBDq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932665AbVIJBN4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932657AbVIJBDq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 21:03:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932160AbVIJBDq
+	id S932665AbVIJBN4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 21:13:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932667AbVIJBN4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 21:03:46 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:21228 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932657AbVIJBDp
+	Fri, 9 Sep 2005 21:13:56 -0400
+Received: from yue.linux-ipv6.org ([203.178.140.15]:30220 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S932665AbVIJBNz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 21:03:45 -0400
-Subject: [RFC][PATCH] NTP shiftR cleanup
-From: john stultz <johnstul@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: ioe-lkml@rameria.de, George Anzinger <george@mvista.com>,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Roman Zippel <zippel@linux-m68k.org>
-Content-Type: text/plain
-Date: Fri, 09 Sep 2005 18:03:37 -0700
-Message-Id: <1126314217.3455.10.camel@cog.beaverton.ibm.com>
+	Fri, 9 Sep 2005 21:13:55 -0400
+Date: Sat, 10 Sep 2005 10:15:27 +0900 (JST)
+Message-Id: <20050910.101527.70689095.yoshfuji@linux-ipv6.org>
+To: johnstul@us.ibm.com
+Cc: linux-kernel@vger.kernel.org, ioe-lkml@rameria.de, george@mvista.com,
+       ulrich.windl@rz.uni-regensburg.de, zippel@linux-m68k.org,
+       yoshfuji@linux-ipv6.org
+Subject: Re: [RFC][PATCH] NTP shiftR cleanup
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <1126314217.3455.10.camel@cog.beaverton.ibm.com>
+References: <1126314217.3455.10.camel@cog.beaverton.ibm.com>
+Organization: USAGI/WIDE Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
-	Here is hopefully a fairly uncontroversial cleanup for the NTP code. It
-uses min/max to simplify some conditionals and creates a macro shiftR
-that avoids the numerous ugly conditionals in the NTP code that look
-like:
-	
-	if(a < 0)
-		b = -(-a >> shift);
-	else
-		b = a >> shift;
+In article <1126314217.3455.10.camel@cog.beaverton.ibm.com> (at Fri, 09 Sep 2005 18:03:37 -0700), john stultz <johnstul@us.ibm.com> says:
 
-Replacing it with:
+> diff --git a/kernel/time.c b/kernel/time.c
+> --- a/kernel/time.c
+> +++ b/kernel/time.c
+> @@ -338,30 +338,20 @@ int do_adjtimex(struct timex *txc)
+>  		        if (mtemp >= MINSEC) {
+>  			    ltemp = (time_offset / mtemp) << (SHIFT_USEC -
+>  							      SHIFT_UPDATE);
+> -			    if (ltemp < 0)
+> -			        time_freq -= -ltemp >> SHIFT_KH;
+> -			    else
+> -			        time_freq += ltemp >> SHIFT_KH;
+> +			    time_freq = shiftR(ltemp, SHIFT_KH);
+>  			} else /* calibration interval too short (p. 12) */
+>  				result = TIME_ERROR;
 
-	b = shiftR(a, shift);
+Maybe, "time_freq += shiftR(ltemp, SHIFT_KH);"?
 
-This should have zero effect on the logic, however it should probably
-have a bit of testing just to be sure. I've compiled it for alpha, arm,
-i386, ppc, ppc64, and s390 and its been running fine on my laptop all
-day. It applies against Linus' tree from this morning.
-
-Also Thanks to Ingo Oeser for catching a bug earlier in the shiftR
-macro.
-
-Please let me know if you have any comments or feedback.
-
-
-thanks
--john
-
-
-diff --git a/include/linux/timex.h b/include/linux/timex.h
---- a/include/linux/timex.h
-+++ b/include/linux/timex.h
-@@ -282,6 +282,11 @@ static inline int ntp_synced(void)
- 	return !(time_status & STA_UNSYNC);
- }
- 
-+/* Required to safely shift negative values */
-+#define shiftR(x, s) ({ __typeof__(x) __x = x;\
-+		__typeof__(s) __s = s; \
-+		(__x < 0) ? (-((-__x) >> (__s))) : ((__x) >> (__s));})
-+
- 
- #ifdef CONFIG_TIME_INTERPOLATION
- 
-diff --git a/kernel/time.c b/kernel/time.c
---- a/kernel/time.c
-+++ b/kernel/time.c
-@@ -338,30 +338,20 @@ int do_adjtimex(struct timex *txc)
- 		        if (mtemp >= MINSEC) {
- 			    ltemp = (time_offset / mtemp) << (SHIFT_USEC -
- 							      SHIFT_UPDATE);
--			    if (ltemp < 0)
--			        time_freq -= -ltemp >> SHIFT_KH;
--			    else
--			        time_freq += ltemp >> SHIFT_KH;
-+			    time_freq = shiftR(ltemp, SHIFT_KH);
- 			} else /* calibration interval too short (p. 12) */
- 				result = TIME_ERROR;
- 		    } else {	/* PLL mode */
- 		        if (mtemp < MAXSEC) {
- 			    ltemp *= mtemp;
--			    if (ltemp < 0)
--			        time_freq -= -ltemp >> (time_constant +
--							time_constant +
--							SHIFT_KF - SHIFT_USEC);
--			    else
--			        time_freq += ltemp >> (time_constant +
-+			    time_freq += shiftR(ltemp,(time_constant +
- 						       time_constant +
--						       SHIFT_KF - SHIFT_USEC);
-+						       SHIFT_KF - SHIFT_USEC));
- 			} else /* calibration interval too long (p. 12) */
- 				result = TIME_ERROR;
- 		    }
--		    if (time_freq > time_tolerance)
--		        time_freq = time_tolerance;
--		    else if (time_freq < -time_tolerance)
--		        time_freq = -time_tolerance;
-+		    time_freq = min(time_freq, time_tolerance);
-+		    time_freq = max(time_freq, -time_tolerance);
- 		} /* STA_PLL || STA_PPSTIME */
- 	    } /* txc->modes & ADJ_OFFSET */
- 	    if (txc->modes & ADJ_TICK) {
-@@ -384,10 +374,7 @@ leave:	if ((time_status & (STA_UNSYNC|ST
- 	if ((txc->modes & ADJ_OFFSET_SINGLESHOT) == ADJ_OFFSET_SINGLESHOT)
- 	    txc->offset	   = save_adjust;
- 	else {
--	    if (time_offset < 0)
--		txc->offset = -(-time_offset >> SHIFT_UPDATE);
--	    else
--		txc->offset = time_offset >> SHIFT_UPDATE;
-+	    txc->offset = shiftR(time_offset, SHIFT_UPDATE);
- 	}
- 	txc->freq	   = time_freq + pps_freq;
- 	txc->maxerror	   = time_maxerror;
-diff --git a/kernel/timer.c b/kernel/timer.c
---- a/kernel/timer.c
-+++ b/kernel/timer.c
-@@ -703,23 +703,13 @@ static void second_overflow(void)
-      * the adjustment over not more than the number of
-      * seconds between updates.
-      */
--    if (time_offset < 0) {
--	ltemp = -time_offset;
--	if (!(time_status & STA_FLL))
--	    ltemp >>= SHIFT_KG + time_constant;
--	if (ltemp > (MAXPHASE / MINSEC) << SHIFT_UPDATE)
--	    ltemp = (MAXPHASE / MINSEC) << SHIFT_UPDATE;
--	time_offset += ltemp;
--	time_adj = -ltemp << (SHIFT_SCALE - SHIFT_HZ - SHIFT_UPDATE);
--    } else {
- 	ltemp = time_offset;
- 	if (!(time_status & STA_FLL))
--	    ltemp >>= SHIFT_KG + time_constant;
-+		ltemp = shiftR(ltemp, SHIFT_KG + time_constant);
- 	if (ltemp > (MAXPHASE / MINSEC) << SHIFT_UPDATE)
--	    ltemp = (MAXPHASE / MINSEC) << SHIFT_UPDATE;
-+		ltemp = (MAXPHASE / MINSEC) << SHIFT_UPDATE;
- 	time_offset -= ltemp;
- 	time_adj = ltemp << (SHIFT_SCALE - SHIFT_HZ - SHIFT_UPDATE);
--    }
- 
-     /*
-      * Compute the frequency estimate and additional phase
-@@ -736,30 +726,19 @@ static void second_overflow(void)
- 			 STA_PPSWANDER | STA_PPSERROR);
-     }
-     ltemp = time_freq + pps_freq;
--    if (ltemp < 0)
--	time_adj -= -ltemp >>
--	    (SHIFT_USEC + SHIFT_HZ - SHIFT_SCALE);
--    else
--	time_adj += ltemp >>
--	    (SHIFT_USEC + SHIFT_HZ - SHIFT_SCALE);
-+    time_adj += shiftR(ltemp,(SHIFT_USEC + SHIFT_HZ - SHIFT_SCALE));
- 
- #if HZ == 100
-     /* Compensate for (HZ==100) != (1 << SHIFT_HZ).
-      * Add 25% and 3.125% to get 128.125; => only 0.125% error (p. 14)
-      */
--    if (time_adj < 0)
--	time_adj -= (-time_adj >> 2) + (-time_adj >> 5);
--    else
--	time_adj += (time_adj >> 2) + (time_adj >> 5);
-+    time_adj += shiftR(time_adj, 2) + shiftR(time_adj, 5);
- #endif
- #if HZ == 1000
-     /* Compensate for (HZ==1000) != (1 << SHIFT_HZ).
-      * Add 1.5625% and 0.78125% to get 1023.4375; => only 0.05% error (p. 14)
-      */
--    if (time_adj < 0)
--	time_adj -= (-time_adj >> 6) + (-time_adj >> 7);
--    else
--	time_adj += (time_adj >> 6) + (time_adj >> 7);
-+    time_adj += shiftR(time_adj, 6) + shiftR(time_adj, 7);
- #endif
- }
- 
-@@ -778,10 +757,8 @@ static void update_wall_time_one_tick(vo
- 	     * Limit the amount of the step to be in the range
- 	     * -tickadj .. +tickadj
- 	     */
--	     if (time_adjust > tickadj)
--		time_adjust_step = tickadj;
--	     else if (time_adjust < -tickadj)
--		time_adjust_step = -tickadj;
-+	     time_adjust_step = min(time_adjust_step, (long)tickadj);
-+	     time_adjust_step = max(time_adjust_step, (long)-tickadj);
- 
- 	    /* Reduce by this step the amount of time left  */
- 	    time_adjust -= time_adjust_step;
-@@ -792,13 +769,8 @@ static void update_wall_time_one_tick(vo
- 	 * advance the tick more.
- 	 */
- 	time_phase += time_adj;
--	if (time_phase <= -FINENSEC) {
--		long ltemp = -time_phase >> (SHIFT_SCALE - 10);
--		time_phase += ltemp << (SHIFT_SCALE - 10);
--		delta_nsec -= ltemp;
--	}
--	else if (time_phase >= FINENSEC) {
--		long ltemp = time_phase >> (SHIFT_SCALE - 10);
-+	if (abs(time_phase) >= FINENSEC) {
-+		long ltemp = shiftR(time_phase, (SHIFT_SCALE - 10));
- 		time_phase -= ltemp << (SHIFT_SCALE - 10);
- 		delta_nsec += ltemp;
- 	}
-
-
+--yoshfuji

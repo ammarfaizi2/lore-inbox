@@ -1,49 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932303AbVIJVGU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932304AbVIJVHJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932303AbVIJVGU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 17:06:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbVIJVGU
+	id S932304AbVIJVHJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 17:07:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932311AbVIJVHJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 17:06:20 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:54993 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932303AbVIJVGT (ORCPT
+	Sat, 10 Sep 2005 17:07:09 -0400
+Received: from mx1.rowland.org ([192.131.102.7]:9489 "HELO mx1.rowland.org")
+	by vger.kernel.org with SMTP id S932304AbVIJVHH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 17:06:19 -0400
-Date: Sat, 10 Sep 2005 14:06:11 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Miguel <frankpoole@terra.es>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: PCI bug in 2.6.13
-In-Reply-To: <Pine.LNX.4.58.0509100949370.30958@g5.osdl.org>
-Message-ID: <Pine.LNX.4.58.0509101401490.30958@g5.osdl.org>
-References: <20050909180405.3e356c2a.frankpoole@terra.es>
- <20050909225956.42021440.akpm@osdl.org> <20050910113658.178a7711.frankpoole@terra.es>
- <Pine.LNX.4.58.0509100949370.30958@g5.osdl.org>
+	Sat, 10 Sep 2005 17:07:07 -0400
+Date: Sat, 10 Sep 2005 17:07:04 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: [GIT PATCH] More PCI patches for 2.6.13
+Message-ID: <Pine.LNX.4.44L0.0509101655520.7081-100000@netrider.rowland.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 10 Sep 2005, Linus Torvalds wrote:
+On Fri, 9 Sep 2005, Linus Torvalds wrote:
 > 
-> Can you show the differences in "/sbin/lspci -vvx" with and without that 
-> patch? It really makes no sense for so many reasons that it's not even 
-> funny.
+> On Fri, 9 Sep 2005, Linus Torvalds wrote:
+> > 
+> > There are functions where it is really _important_ to check the error 
+> > return, because they return errors often enough - and the error case is 
+> > something you have to do something about - that it's good to force people 
+> > to be aware.
+> > 
+> > But "pci_set_power_state()"?
+> > 
+> > I don't think so.
 > 
-> Also, what disk controller is this happening on?
+> Btw, a perfect example of this is
+> 
+> 	pci_set_power_state(pdev, 0);
+> 
+> which is a very common thing to do in a driver init routine. And it has
+> absolutely _no_ valid return values: it either succeeds, or it doesn't,
+> and the only reason it wouldn't succeed is because the device doesn't
+> support power management in the first place (in which case it already
+> effectively is in state 0).
+> 
+> In other words, there's nothing you can or should do about it. Testing the 
+> return value is pointless. And thus adding a "must_check" is really really 
+> wrong: it might make people do
+> 
+> 	if (pci_set_power_state(pdev, 0))
+> 		return -ENODEV
+> 
+> which is actually actively the _wrong_ thing to do, and would just cause 
+> old revisions of the chip that might not support PM capabilities to no 
+> longer work.
 
-Oh, one more thing: the pci_map_rom() bug might have mapped some ROM image
-in your system at a bogus address, and that might cause problems.
+Funny you should say this -- exactly that problem _did_ arise.  See
 
-Now, not many drivers use pci_map_rom(), and for video ROMs this bug
-should be hidden by the fact that video ROMs end up using the shadow
-system rom on x86, but it's possible that you had something that used the
-sysfs rom code to enable a ROM and that causes problems.
+http://marc.theaimsgroup.com/?l=linux-pci&m=112621842604724&w=2
 
-If so, the bug should be fixed in the 2.6.13.1 -stable release and/or in 
-the current -git snapshots, so it would be very nice if you could test one 
-of those..
+pci_enable_device_bars() would an error when trying to initialize 
+devices without PM support, because it started checking the return value
+from pci_set_power_state().
 
-		Linus
+Alan Stern
+

@@ -1,75 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbVIJKUz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbVIJKUN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750742AbVIJKUz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 06:20:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbVIJKUz
+	id S1750739AbVIJKUN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 06:20:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbVIJKUN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 06:20:55 -0400
-Received: from mx1.suse.de ([195.135.220.2]:30888 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750742AbVIJKUy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 06:20:54 -0400
-From: Andi Kleen <ak@suse.de>
-To: Borislav Petkov <petkov@uni-muenster.de>
-Subject: Re: [PATCH] [2.6.13-mm2] set IBM ThinkPad extras to default n in Kconfig
-Date: Sat, 10 Sep 2005 12:20:39 +0200
-User-Agent: KMail/1.8
-Cc: Roman Zippel <zippel@linux-m68k.org>, "Brown, Len" <len.brown@intel.com>,
-       akpm@osdl.org, acpi-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-References: <F7DC2337C7631D4386A2DF6E8FB22B30048FA292@hdsmsx401.amr.corp.intel.com> <Pine.LNX.4.61.0509091817220.3743@scrub.home> <20050910094259.GA16051@gollum.tnic>
-In-Reply-To: <20050910094259.GA16051@gollum.tnic>
+	Sat, 10 Sep 2005 06:20:13 -0400
+Received: from ppp59-167.lns1.cbr1.internode.on.net ([59.167.59.167]:63238
+	"EHLO triton.bird.org") by vger.kernel.org with ESMTP
+	id S1750739AbVIJKUL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Sep 2005 06:20:11 -0400
+Message-ID: <4322B437.3010309@acquerra.com.au>
+Date: Sat, 10 Sep 2005 20:23:51 +1000
+From: Anthony Wesley <awesley@acquerra.com.au>
+Reply-To: awesley@acquerra.com.au
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.8) Gecko/20050511
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: nate.diller@gmail.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.6.13 buffer strangeness - ext2/3/reiser4/xfs comparison
+References: <432151B0.7030603@acquerra.com.au>	 <EXCHG2003Zi71mrvoGd00000659@EXCHG2003.microtech-ks.com>	 <5c49b0ed05090914394dba42bf@mail.gmail.com>	 <432225E0.9030606@acquerra.com.au>	 <5c49b0ed0509091735436260bb@mail.gmail.com>	 <432231B7.2060200@acquerra.com.au>	 <5c49b0ed0509091847135834c0@mail.gmail.com>	 <432243AA.4000508@acquerra.com.au> <5c49b0ed05090922021b8f8112@mail.gmail.com>
+In-Reply-To: <5c49b0ed05090922021b8f8112@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509101220.40008.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 10 September 2005 11:42, Borislav Petkov wrote:
-> On Fri, Sep 09, 2005 at 06:25:00PM +0200, Roman Zippel wrote:
-> > The best would be to avoid using defaults completely, unless the
-> > resulting kernel is non-functional (e.g. it doesn't compile or boot).
-> > So far it's still the responsibility of the user to explicitly turn
-> > everything on he needs (at least until we have a functional autoconfig).
-> > BTW distros are not the only users, from them I would expect how to
-> > configure a kernel.
->
-> Actually, this sounds pretty sane and IMHO is somehow the biggest common
-> denominator concerning linux users and their kernel configuration
-> recreational activities :); but seriously, going all over the menus of
-> Kbuild and turning everything off is a lot of work compared to turning on
-> the several things I need on my system. "default m" is also not a good
-> thing since compiling of unnecessary modules is simply dumb for a system
-> that's just not going to use them.
+Nate Diller wrote:
+> i really recommend you focus on getting better disk bandwidth, you stand 
+> to gain a lot more from that approach.  i presume you're on ext3; 
+> perhaps you should try reiser4 or xfs, they are more likely to meet your 
+> disk bandwidth requirements.
+> 
+> NATE
 
-The new driver dcdbas driver in -git9 seems to have inherited that bad habit 
-too. Grr ... Patch appended.
+While I have already solved the issue that was troubling me, I also spent some time comparing different
+filesystems as reccommended by Nate, with interesting results.
 
-Roman - can you perhaps just forbod default m in Kconfig? I don't think it 
-makes any sense.
+My method was simple - make a filesystem and the set it as the target for my video capture. With video
+coming in at 25MBytes/sec and going out to disk at about 15-20MBytes/sec it is an interesting test of the
+vm and filesystem.
 
--Andi
+I compared ext2,ext3,xfs,vfat,reiser and reiser4.
 
-Don't set dcdbas driver to default m
+The hands-down winner was ext2. All the others showed problems of either lower disk throughput
+or dropped frames during video capture.
 
-It's nasty to set random drivers to default m because people
-who just press enter on make oldconfig get these.
-Remove the default m
+Only ext2 went the full distance - no dropped frames until we run out of RAM, and good disk throughput.
 
-Signed-off-by: Andi Kleen <ak@suse.de>
+xfs,reiser and reiser4 had slightly higher disk write speed, but showed performance problems
+that caused lots of dropped frames so they must be ruled out at this stage.
 
-Index: linux/drivers/firmware/Kconfig
-===================================================================
---- linux.orig/drivers/firmware/Kconfig
-+++ linux/drivers/firmware/Kconfig
-@@ -71,7 +71,6 @@ config DELL_RBU
- config DCDBAS
- 	tristate "Dell Systems Management Base Driver"
- 	depends on X86 || X86_64
--	default m
- 	help
- 	  The Dell Systems Management Base Driver provides a sysfs interface
- 	  for systems management software to perform System Management
+I know that xfs and reiser4 are supposed to be faster for some things, but it seems to me that they
+are not the best choice when you are predominantly writing lots and lots of 600k files :-)
+
+regards, Anthony
+
+-- 
+Anthony Wesley
+Director and IT/Network Consultant
+Smart Networks Pty Ltd
+Acquerra Pty Ltd
+
+Anthony.Wesley@acquerra.com.au
+Phone: (02) 62595404 or 0419409836

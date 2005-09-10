@@ -1,76 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932653AbVIJAq3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbVIJAoN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932653AbVIJAq3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 20:46:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932657AbVIJAq3
+	id S932231AbVIJAoN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 20:44:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbVIJAoN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 20:46:29 -0400
-Received: from ppp59-167.lns1.cbr1.internode.on.net ([59.167.59.167]:6675 "EHLO
-	triton.bird.org") by vger.kernel.org with ESMTP id S932653AbVIJAq2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 20:46:28 -0400
-Message-ID: <43222DC3.9080609@acquerra.com.au>
-Date: Sat, 10 Sep 2005 10:50:11 +1000
-From: Anthony Wesley <awesley@acquerra.com.au>
-Reply-To: awesley@acquerra.com.au
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.8) Gecko/20050511
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: nate.diller@gmail.com
-CC: Roger Heflin <rheflin@atipa.com>, linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.6.13 buffer strangeness
-References: <432151B0.7030603@acquerra.com.au>	 <EXCHG2003Zi71mrvoGd00000659@EXCHG2003.microtech-ks.com> <5c49b0ed05090914394dba42bf@mail.gmail.com>
-In-Reply-To: <5c49b0ed05090914394dba42bf@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 9 Sep 2005 20:44:13 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:44970 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S932231AbVIJAoM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 20:44:12 -0400
+Date: Fri, 9 Sep 2005 17:44:03 -0700 (PDT)
+From: Paul Jackson <pj@sgi.com>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, Simon Derr <Simon.Derr@bull.net>,
+       Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>
+Message-Id: <20050910004403.29717.51121.sendpatchset@jackhammer.engr.sgi.com>
+Subject: [PATCH 2.6.13-stable] cpuset semaphore double trip fix
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Based on a better understanding of dirty_ratio and dirty_background ratio (thanks Nate) I just tried
-the following test:
+Code reading uncovered a potential deadlock on the global cpuset
+semaphore, cpuset_sem.
 
-dirty_ratio set to 95
-dirty_background_ratio set to 1
+==> This patch is only useful in the 2.6.13-stable series.
 
->From Nate's description of these parameters, this should mean that the disk writes
-start almost immediately, and the kernel will allow 95% of RAM to become dirty before
-applying the throttle.
+    (It's harmless, and useless, in the pre 2.6.14 fork)
 
-Ok, so with 25Mbytes/s coming in, and 17Mbytes/sec going out to disk, the dirty pages should be growing
-at 7Mbytes/sec. With these parameters set as above I should see about 3 minutes of full speed
-video before the throttle is applied since I have about 1.3Gb of RAM free for buffering..
+The pre-2.6.14 fork has already diverged, with an additional patch
+that further aggrevated this problem, and a more thorough overhaul
+of the cpuset locking, to fix the problems.
 
-*But* when I try this experiment I hit the throttle after only 65 seconds - an improvement to 
-be sure, but still a long way short of the 180 seconds that it ought to take.
+All code paths in kernel/cpuset.c (2.6.13 or earlier) that first
+grab cpuset_sem and then allocate memory _must_ call the routine
+'refresh_mems()', after getting cpuset_sem, before any possible
+allocation.
 
-Part of the test works as expected - the disk writes begin almost immediately due to the low
-value for dirty_background_ratio, but the rest is a mystery.
+If this refresh_mems() call is not done, then there is a risk that one
+of the cpuset_zone_allowed() calls made from within the page allocator
+(__alloc_pages) will find that the mems_generation of the current task
+doesn't match that of its cpuset, causing it to try to grab cpuset_sem.
+Since it already held cpuset_sem, this deadlocks that task, and any
+subsequent task wanting cpuset_sem.
 
-It really looks as if the pages aren't being marked as clean fast enough after they're written.
+==> The code paths leading to the kmalloc in check_for_release(), from
+    cpuset_exit, cpuset_rmdir and attach_task (for the detached cpuset),
+    fail to invoke refresh_mems() as required.
 
-How else can it take only 70 seconds to reach 95% dirty when I have 1.3Gb of available RAM and data coming in at 25MBytes/sec and out at 17MBytes/sec? It doesn't make any sense...
+    The fix is easy enough - add the requisite refresh_mems() call.
 
-regards, Anthony
+Unless someone is rapidly creating, modifying and destroying cpusets,
+they are unlikely to have any chance of encountering this deadlock.
+And even then, it is apparently difficult to do so.
 
-Nate Diller wrote:
-> yes, on 2.6 there are two tunables which are important here. 
-> dirty_background_ratio is the threshold where the kernel will begin
-> flushing dirty buffers, so it should change how soon the disk becomes
-> active.  dirty_ratio changes when the write-throttling code kicks in,
-> which is what Anthony is seeing.  The purpose of the write throttling
-> code is to limit the dirtying process to disk bandwidth, so that is a
-> Feature.  Anthony, try *increasing* dirty_ratio, you can go up to 100,
-> but you could trigger an OOM if you let it get too high, so maybe try
-> setting it at 85 or so.  This should effectively disable the write
-> throttling and give you the bandwidth you want.
-> 
-> NATE
+In the case we got here from cpuset_exit(), we have already torn
+down the tasks connection to this cpuset and current->cpuset is NULL.
+Don't call refresh_mems() in that case - it oops the kernel.
+
+Signed-off-by: Paul Jackson <pj@sgi.com>
+
+Index: linux-2.6.13-mem_exclusive_oom/kernel/cpuset.c
+===================================================================
+--- linux-2.6.13-mem_exclusive_oom.orig/kernel/cpuset.c
++++ linux-2.6.13-mem_exclusive_oom/kernel/cpuset.c
+@@ -458,7 +458,10 @@ static void check_for_release(struct cpu
+ 	if (notify_on_release(cs) && atomic_read(&cs->count) == 0 &&
+ 	    list_empty(&cs->children)) {
+ 		char *buf;
++		static void refresh_mems(void);
+ 
++		if (current->cpuset)
++			refresh_mems();
+ 		buf = kmalloc(PAGE_SIZE, GFP_KERNEL);
+ 		if (!buf)
+ 			return;
 
 -- 
-Anthony Wesley
-Director and IT/Network Consultant
-Smart Networks Pty Ltd
-Acquerra Pty Ltd
-
-Anthony.Wesley@acquerra.com.au
-Phone: (02) 62595404 or 0419409836
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

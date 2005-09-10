@@ -1,44 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932256AbVIJT5Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932247AbVIJUCL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932256AbVIJT5Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 15:57:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932252AbVIJT5Y
+	id S932247AbVIJUCL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 16:02:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932275AbVIJUCL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 15:57:24 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:19160 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932246AbVIJT5X
+	Sat, 10 Sep 2005 16:02:11 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:60571 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S932247AbVIJUCK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 15:57:23 -0400
-Subject: Re: [PATCH 2.6.13 14/14] sas-class: SCSI Host glue
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Rik van Riel <riel@redhat.com>
-Cc: Luben Tuikov <ltuikov@yahoo.com>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       Luben Tuikov <luben_tuikov@adaptec.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.63.0509101028510.4630@cuia.boston.redhat.com>
-References: <20050910041218.29183.qmail@web51612.mail.yahoo.com>
-	 <Pine.LNX.4.63.0509101028510.4630@cuia.boston.redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Sat, 10 Sep 2005 21:20:05 +0100
-Message-Id: <1126383605.30449.12.camel@localhost.localdomain>
+	Sat, 10 Sep 2005 16:02:10 -0400
+Date: Sat, 10 Sep 2005 22:03:47 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Subject: [GIT PATCHES] final kbuild update before fix-only period
+Message-ID: <20050910200347.GA3762@mars.ravnborg.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2005-09-10 at 10:30 -0400, Rik van Riel wrote:
-> That's very nice for you - but lets face it, a SAS layer
-> that'll be unable to also deal with the El-Cheapo brand
-> controllers isn't going to be very useful.
+Hi Linus.
 
-If future cheap SAS controllers are like cheap anything else controllers
-then it is better IMHO to deal with it once the problems are visible. We
-*know* from experience that hardware limits will be weirder than the
-anticipated.
+Please pull from:
+	rsync://sync.kernel.org/pub/scm/linux/kernel/git/sam/kbuild.git
+
+The updates are pushed to master.kernel.org - still waiting for
+mirroring to pick them up.
+
+This update contains a fix with make O= for generic asm-offsets.h, plus
+additional patches from my queue.
+This clears my queue of pending patches for 2.6.14.
+
+I will try to follow-up with all patches.
+
+	Sam
 
 
-Alan
+Jan Beulich:
+  kbuild: adjust .version updating
+  kbuild: fix split-include dependency
 
+Roland McGrath:
+  kbuild: ignore all debugging info sections in scripts/reference_discarded.pl
+
+Sam Ravnborg:
+  kbuild: add objectify
+  kbuild: fix generic asm-offsets.h support
+
+viro@ZenIV.linux.org.uk:
+  kbuild: CF=<arguments> passes arguments to sparse
+
+Zach Brown:
+  kbuild: add kernelrelease to 'make help'
+
+
+ Makefile                         |   23 ++++++++++++++++-------
+ b/Kbuild                         |    5 +++--
+ b/Makefile                       |    2 +-
+ b/scripts/Kbuild.include         |    3 +++
+ b/scripts/reference_discarded.pl |    7 +------
+ 5 files changed, 24 insertions(+), 16 deletions(-)

@@ -1,62 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbVIJVJt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932311AbVIJVNF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932309AbVIJVJt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 17:09:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932311AbVIJVJt
+	id S932311AbVIJVNF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 17:13:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932312AbVIJVNF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 17:09:49 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:59594 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932309AbVIJVJs (ORCPT
+	Sat, 10 Sep 2005 17:13:05 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:47314 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932311AbVIJVNE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 17:09:48 -0400
-Date: Sat, 10 Sep 2005 23:09:47 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 9/12] kbuild: mips use generic asm-offsets.h support
-In-Reply-To: <20050910204817.GH29334@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.61.0509102303080.3728@scrub.home>
-References: <11263057061465-git-send-email-sam@ravnborg.org>
- <Pine.LNX.4.61.0509101949240.3743@scrub.home> <20050910193033.GA31516@mars.ravnborg.org>
- <Pine.LNX.4.61.0509102217270.3743@scrub.home> <20050910204817.GH29334@mars.ravnborg.org>
+	Sat, 10 Sep 2005 17:13:04 -0400
+Date: Sat, 10 Sep 2005 14:12:53 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Alan Stern <stern@rowland.harvard.edu>
+cc: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: [GIT PATCH] More PCI patches for 2.6.13
+In-Reply-To: <Pine.LNX.4.44L0.0509101655520.7081-100000@netrider.rowland.org>
+Message-ID: <Pine.LNX.4.58.0509101410300.30958@g5.osdl.org>
+References: <Pine.LNX.4.44L0.0509101655520.7081-100000@netrider.rowland.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Sat, 10 Sep 2005, Sam Ravnborg wrote:
 
-> > Why don't you put it into scripts/Makefile...?
-> Because it does not build a build-support program.
-> That would be the last place where one would look for
-> rules to build asm-offsets.h for example.
+On Sat, 10 Sep 2005, Alan Stern wrote:
 
-Weird, why are the rules to build *.o files in scripts/Makefile.build?
+> On Fri, 9 Sep 2005, Linus Torvalds wrote:
+> > 
+> > In other words, there's nothing you can or should do about it. Testing the 
+> > return value is pointless. And thus adding a "must_check" is really really 
+> > wrong: it might make people do
+> > 
+> > 	if (pci_set_power_state(pdev, 0))
+> > 		return -ENODEV
+> > 
+> > which is actually actively the _wrong_ thing to do, and would just cause 
+> > old revisions of the chip that might not support PM capabilities to no 
+> > longer work.
+> 
+> Funny you should say this -- exactly that problem _did_ arise.  See
+> 
+> http://marc.theaimsgroup.com/?l=linux-pci&m=112621842604724&w=2
+> 
+> pci_enable_device_bars() would an error when trying to initialize 
+> devices without PM support, because it started checking the return value
+> from pci_set_power_state().
 
-> Same goes when the post processing steps are moved to the top-level
-> Kbuild file. Here we again will benefit form having the full kbuild
-> funtionality available.
+Case closed. 
 
-So why is this benefit only available via Kbuild?
-If the toplevel Makefile is to crowded, why don't you move things into 
-scripts/?
+Bogus warnings are a _bad_ thing. They cause people to write buggy code.
 
-> > If the top-level Makefile gets to big, we can move things into scripts/,
-> > that's really no reason to start using Kbuild, in the end it's still a 
-> > Makefile and I'd prefer to call it like that.
-> A makefile is a file that does something intelligent when used as input
-> to make. It is long time since this property did not hold for the
-> kernel.
-> The Kbuild name is a much more natural name in the respect that it
-> tells you this file contain kbuild info. So one know when browsing
-> a directory structure that a Kbuild file is input to kbuild, and follow
-> a much more strict syntax than ordinary Makefiles.
+That drivers/pci/pci.c code should be simplified to not look at the error
+return from pci_set_power_state() at all. Special-casing EIO is just
+another bug waiting to happen.
 
-If we continue in this direction, it would be even more natural to merge 
-the Makefile with Kconfig, so I don't see the point in introducing Kbuild 
-in first place, if we later remove it again anyway.
-
-bye, Roman
+			Linus

@@ -1,55 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751018AbVIJPDl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbVIJPGV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751018AbVIJPDl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 11:03:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751014AbVIJPDl
+	id S932079AbVIJPGV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 11:06:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751025AbVIJPGV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 11:03:41 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:21187 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1750728AbVIJPDk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 11:03:40 -0400
-Date: Sat, 10 Sep 2005 16:02:20 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Andi Kleen <ak@suse.de>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [2/2] Change p[gum]d_clear_* inlines to macros to fix p?d_ERROR
-In-Reply-To: <200509101644.55887.ak@suse.de>
-Message-ID: <Pine.LNX.4.61.0509101556460.15994@goblin.wat.veritas.com>
-References: <4322CBD9.mailE1P118OD2@suse.de> <Pine.LNX.4.61.0509101440420.14979@goblin.wat.veritas.com>
- <200509101644.55887.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 10 Sep 2005 15:02:30.0421 (UTC) FILETIME=[AA660450:01C5B618]
+	Sat, 10 Sep 2005 11:06:21 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:47282 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1751014AbVIJPGU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Sep 2005 11:06:20 -0400
+Subject: Re: aic79xx oops
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: bernd-schubert@gmx.de
+Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200509091325.45620.bernd.schubert@pci.uni-heidelberg.de>
+References: <200509091325.45620.bernd.schubert@pci.uni-heidelberg.de>
+Content-Type: text/plain
+Date: Sat, 10 Sep 2005 10:06:05 -0500
+Message-Id: <1126364765.4813.16.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-6) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 10 Sep 2005, Andi Kleen wrote:
-> On Saturday 10 September 2005 16:15, Hugh Dickins wrote:
-> > On Sat, 10 Sep 2005, Andi Kleen wrote:
-> > > Change p[gum]d_clear_* inlines to macros to fix p?d_ERROR
-> > >
-> > > When this code was refactored by Hugh it was moved out of the actual
-> > > functions into these inlines. The problem is that pgd_ERROR
-> > > uses __FUNCTION__ and __LINE__ to show where the error happened,
-> > > and with the inline that is pretty meaningless now because
-> > > it's the same for all callers.
-> > >
-> > > Change them to be macros to avoid this problem
-> >
-> > Please don't.  It adds much less than I misremember (only 550 bytes
-> > to my i386 PAE config), but even so it's a waste of space. 
-> 
-> Hmm? Macros and inlines take the same amount of space. 
+On Fri, 2005-09-09 at 13:25 +0200, Bernd Schubert wrote:
+>   Vendor: transtec  Model: T5008             Rev: 0001
+>   Type:   Direct-Access                      ANSI SCSI revision: 03
+> scsi4:A:0:0: Tagged Queuing enabled.  Depth 32
+> SCSI device sdc: 4101521408 512-byte hdwr sectors (2099979 MB)
+> SCSI device sdc: drive cache: write back
+> SCSI device sdc: 4101521408 512-byte hdwr sectors (2099979 MB)
+> SCSI device sdc: drive cache: write back
+>  sdc: sdc1 sdc2 sdc3 < sdc5 sdc6 sdc7 sdc8 >
+> Attached scsi disk sdc at scsi4, channel 0, id 0, lun 0
+> Attached scsi generic sg2 at scsi4, channel 0, id 0, lun 0,  type 0
+> scsi: host 4 channel 0 id 0 lun 0x00000200080c0400 has a LUN larger than 
+> currently supported.
+> scsi: host 4 channel 0 id 0 lun1002486961 has a LUN larger than allowed by the 
+> host adapter
+> scsi: host 4 channel 0 id 0 lun 0x01000000407a27c0 has a LUN larger than 
+> currently supported.
+> scsi: host 4 channel 0 id 0 lun 0x007a27c0d05d27c0 has a LUN larger than 
+> currently supported.
+> scsi: host 4 channel 0 id 0 lun 0x305e27c0907b27c0 has a LUN larger than 
+> currently supported.
+> scsi: host 4 channel 0 id 0 lun 0xf08227c0b08d27c0 has a LUN larger than 
+> currently supported.
+> scsi: host 4 channel 0 id 0 lun 0x307827c0008527c0 has a LUN larger than 
+> currently supported.
+> scsi: host 4 channel 0 id 0 lun 0x00000000b06727c0 has a LUN larger than 
+> currently supported.
+> scsi: host 4 channel 0 id 0 lun 0x306727c0706727c0 has a LUN larger than 
+> currently supported.
 
-I expect they do, but that's not the issue.  You're moving
-mm/memory.c's out-of-line p?d_clear_bad code inline (or into macro).
+This looks symptomatic of a report luns failure
 
-> I have actually seen them while debugging something. But it was useless.
-> That is why I made the change.
+> EIP is at ahd_send_async+0xde/0x2a0 [aic79xx]
 
-If you've found their __FUNCTION__ and __LINE__ useful,
-then I think you'll find the WARN_ON(1) backtrace even more so.
+This I'm not sure about.  There are some fixes that may correct this in
+the current kernel tree head (i.e. beyond 2.6.13), if you could give
+that a go.
 
-Hugh
+James
+
+
+

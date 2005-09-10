@@ -1,95 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750824AbVIJNIv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbVIJNEh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750824AbVIJNIv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 09:08:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750815AbVIJNIt
+	id S1750808AbVIJNEh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 09:04:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750812AbVIJNEh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 09:08:49 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:12494 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750813AbVIJNIs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 09:08:48 -0400
-Subject: Re: [PATCH 2.6.13 14/14] sas-class: SCSI Host glue
-From: Arjan van de Ven <arjan@infradead.org>
-To: luben_tulkov@adaptec.com
-Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Luben Tuikov <luben_tuikov@adaptec.com>,
-       James Bottomley <James.Bottomley@SteelEye.com>
-In-Reply-To: <20050910041218.29183.qmail@web51612.mail.yahoo.com>
-References: <20050910041218.29183.qmail@web51612.mail.yahoo.com>
-Content-Type: text/plain
-Date: Sat, 10 Sep 2005 15:08:33 +0200
-Message-Id: <1126357713.3222.149.camel@laptopd505.fenrus.org>
+	Sat, 10 Sep 2005 09:04:37 -0400
+Received: from rproxy.gmail.com ([64.233.170.204]:53740 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750808AbVIJNEg convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Sep 2005 09:04:36 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=rWSNAJEWHk6PFIA7RZr0SAveopZw5JTiC4Za4GbN064l0WPAUcGSEHndYTmMnByiy5Vtre3DHBCS7avN8p9TxKiNUOqcd+KTBq0qlCARaPUzfU0al7TScSPNkEJ4LeaEa/NaZoDEOTeVQiN/KmAvmvxW8GVoys2ueAVAUlVYIFk=
+Message-ID: <21d7e9970509100604244f489@mail.gmail.com>
+Date: Sat, 10 Sep 2005 23:04:28 +1000
+From: Dave Airlie <airlied@gmail.com>
+Reply-To: airlied@gmail.com
+To: Frank van Maarseveen <frankvm@frankvm.com>
+Subject: Re: 2.6.13: kernel: [drm:radeon_cp_init] *ERROR* radeon_cp_init called without lock held
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050910120252.GA31522@janus>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050910120252.GA31522@janus>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> No self respecting SAS chip would not do 64 bit DMA, or have an sg tablesize
-> or any other limitation.
-
-yet... there will be :)
+> Sep 10 13:55:37 iapetus kernel: [drm] Initialized drm 1.0.0 20040925
+> Sep 10 13:55:37 iapetus kernel: [drm] Initialized radeon 1.16.0 20050311 on minor 0: ATI Technologies Inc RV280 [Radeon 9200 PRO]
 > 
-> Naturally, aic94xx has _no limitations_. :-)  But hey, our hardware just
-> kicks a*s!
-
-if it has no such limits then it indeed does!
-
-
-> (Oh, I know, the solution you're paid to push into the kernel
-> doesn't need those since it does all SAS in the firmware.)
-
-I think you are way out of line here. James is very prudent in
-separating his job at SteelEye and his maintainership.
-
-
-> Hmm, lets see:
-> I posted today, a _complete_ solution, 1000 years ahead of this
-> "embryonic SAS class" you speak of.
-
-yet you post this without having had ANY discussion or earlier reviews
-in the recent months. IN fact to the outside world it looks like you sat
-on this code for a long time for competative reasons and just posted it
-now that Christoph is getting his layer finished.
-
-
-> Furthermore, why do you want to use a downgrade solution?
+> Starting Xorg:
+> Sep 10 13:56:14 iapetus kernel: [drm:radeon_cp_init] *ERROR* radeon_cp_init called without lock held
+> Sep 10 13:56:14 iapetus kernel: [drm:drm_unlock] *ERROR* Process 2170 using kernel context 0
 > 
-> The answer is simple:
->    After "emd", Dell (Hi Matt!) learned quickly that if they want something
-> in SCSI Core, they have to hire the people who _make_the_decisions_ what
-> goes in and stays out of SCSI Core, to write that something, irrespectively
 
-well EMD's failure was 100% Adaptecs fault. Adaptec was warned EARLY ON
-that a dmraid like solution was going to be needed. It was just that
-Adaptec decided to ignore this advice (and focus only on 2.4 and ignore
-2.6 entirely) that caused Adaptec to waste all the time and money on it.
- 
+Your missing your AGP backend.... its either not compiled in or not
+being loaded before  the drm..
 
-> So as long as *you are on their payroll*, what are you discussing here
-
-James is paid by SteelEye. Not by Dell or LSI.
-
-> with me?  *You have an agenda*!
-
-so do you.
-
-> I long for the days of the previous maintainer.
-
-What previous maintainer?
-
-
+Dave.

@@ -1,67 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932262AbVIJHO5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbVIJH1d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932262AbVIJHO5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 03:14:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932711AbVIJHO4
+	id S932263AbVIJH1d (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 03:27:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932712AbVIJH1d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 03:14:56 -0400
-Received: from sv1.valinux.co.jp ([210.128.90.2]:34728 "EHLO sv1.valinux.co.jp")
-	by vger.kernel.org with ESMTP id S932262AbVIJHO4 (ORCPT
+	Sat, 10 Sep 2005 03:27:33 -0400
+Received: from [80.71.243.242] ([80.71.243.242]:45999 "EHLO tau.rusteko.ru")
+	by vger.kernel.org with ESMTP id S932263AbVIJH1c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 03:14:56 -0400
-Date: Sat, 10 Sep 2005 16:11:45 +0900 (JST)
-Message-Id: <20050910.161145.74742186.taka@valinux.co.jp>
-To: pj@sgi.com
-Cc: magnus.damm@gmail.com, kurosawa@valinux.co.jp, dino@in.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/5] SUBCPUSETS: a resource control functionality using
- CPUSETS
-From: Hirokazu Takahashi <taka@valinux.co.jp>
-In-Reply-To: <20050909063131.64dc8155.pj@sgi.com>
-References: <20050908225539.0bc1acf6.pj@sgi.com>
-	<20050909.203849.33293224.taka@valinux.co.jp>
-	<20050909063131.64dc8155.pj@sgi.com>
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Sat, 10 Sep 2005 03:27:32 -0400
+From: Nikita Danilov <nikita@clusterfs.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17186.35554.43089.674075@gargle.gargle.HOWL>
+Date: Sat, 10 Sep 2005 11:27:30 +0400
+To: Paul Jackson <pj@sgi.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Simon Derr <Simon.Derr@bull.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cpuset semaphore depth check deadlock fix
+Newsgroups: gmane.linux.kernel
+In-Reply-To: <20050909220116.26993.9674.sendpatchset@jackhammer.engr.sgi.com>
+References: <20050909220116.26993.9674.sendpatchset@jackhammer.engr.sgi.com>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Paul Jackson writes:
+ > The cpusets-formalize-intermediate-gfp_kernel-containment patch
+ > has a deadlock problem.
 
-> > What do you think if you make cpusets for sched domain be able to
-> > have their siblings, which have the same attribute and share
-> > their resources between them.
-> 
-> I do not understand this question.  I guess "cpusets for sched
-> domains" means "cpusets whose 'cpu_exclusive' attribute is
-> marked true, but which have no child cpusets so marked."
+[...]
 
-Yes.
+ >  
+ >  /*
+ > + * The global cpuset semaphore cpuset_sem can be needed by the
+ > + * memory allocator to update a tasks mems_allowed (see the calls
+ > + * to cpuset_update_current_mems_allowed()) or to walk up the
+ > + * cpuset hierarchy to find a mem_exclusive cpuset see the calls
+ > + * to cpuset_excl_nodes_overlap()).
+ > + *
+ > + * But if the memory allocation is being done by cpuset.c code, it
+ > + * usually already holds cpuset_sem.  Double tripping on a kernel
+ > + * semaphore deadlocks the current task, and any other task that
+ > + * subsequently tries to obtain the lock.
+ > + *
+ > + * Run all up's and down's on cpuset_sem through the following
+ > + * wrappers, which will detect this nested locking, and avoid
+ > + * deadlocking.
+ > + */
+ > +
+ > +static inline void cs_down(struct semaphore *psem)
+ > +{
+ > +	if (current->cpuset_sem_nest_depth == 0)
+ > +		down(psem);
+ > +	current->cpuset_sem_nest_depth++;
+ > +}
+ > +
+ > +static inline void cs_up(struct semaphore *psem)
+ > +{
+ > +	current->cpuset_sem_nest_depth--;
+ > +	if (current->cpuset_sem_nest_depth == 0)
+ > +		up(psem);
+ > +}
 
-> But even that guess I am unsure of, and the rest of the sentence
-> "which have the same ..." I don't even have a guess what means.
+I am somewhat concerned that new fields are added to the struct
+task_struct all the time: it's already over 1.3KB.
 
-Sorry for the poor explanation.
-I just thought that it wouldn't be bad to allow "each cpuset whose
-cpu_exclusive attribute is mark true" to have its clones like the
-figure below. In this case, cpu-2 and cpu-3 will be used exclusively
-for the clones --- CPUSET 1, 2, and 3 ---.
+In that particular case, it seems that cs_{up,down}() (or however they
+end up being named), are used only on &cpuset_sem, and adding new field
+to the thread struct can be avoided by doing:
 
-I guess it seems very similar to one of your ideas except for reusing
-cpu_exclusive flag. Do you think reusing the flag is good idea?
+static DECLARE_MUTEX(cpuset_sem);
+static struct task_struct *cpuset_sem_owner = NULL;
+static int cpuset_sem_depth = 0;
 
+static void cpusets_lock(void)
+{
+	if (cpuset_sem_owner != current) {
+		down(&cpuset_sem);
+		cpuset_sem_owner = current;
+	}
+	cpuset_sem_depth ++;
+}
 
-     +-------------------+----------------+----------------+
-     |                   |                |                |
-  CPUSET 0            CPUSET 1         CPUSET 2         CPUSET 3
-  sched domain A      sched domain B   sched domain B   sched domain B
-  cpus: 0, 1          cpus: 2, 3       cpus: 2, 3       cpus: 2, 3
-  cpu_exclusive       cpu_exclusive    cpu_exclusive    cpu_exclusive 
-                      meter_cpu        meter_cpu        meter_cpu
-                      <------should we call it resouce domain?------>
+static void cpusets_unlock(void)
+{
+	if (-- cpuset_sem_depth == 0) {
+		cpuset_sem_owner = NULL;
+		up(&cpuset_sem);
+	}
+}
 
-
-Thanks,
-Hirokazu Takahashi.
+Nikita.

@@ -1,69 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbVIJPGV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751019AbVIJPUZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932079AbVIJPGV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 11:06:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751025AbVIJPGV
+	id S1751019AbVIJPUZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 11:20:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751023AbVIJPUZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 11:06:21 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:47282 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1751014AbVIJPGU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 11:06:20 -0400
-Subject: Re: aic79xx oops
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: bernd-schubert@gmx.de
-Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200509091325.45620.bernd.schubert@pci.uni-heidelberg.de>
-References: <200509091325.45620.bernd.schubert@pci.uni-heidelberg.de>
-Content-Type: text/plain
-Date: Sat, 10 Sep 2005 10:06:05 -0500
-Message-Id: <1126364765.4813.16.camel@mulgrave>
+	Sat, 10 Sep 2005 11:20:25 -0400
+Received: from chilli.pcug.org.au ([203.10.76.44]:56041 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S1750982AbVIJPUY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Sep 2005 11:20:24 -0400
+Date: Sun, 11 Sep 2005 01:20:33 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: asm-offsets.h is generated in the source tree
+Message-Id: <20050911012033.5632152f.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i486-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-6) 
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Sun__11_Sep_2005_01_20_33_+1000_yAulPjZAGtgL1Skq"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-09-09 at 13:25 +0200, Bernd Schubert wrote:
->   Vendor: transtec  Model: T5008             Rev: 0001
->   Type:   Direct-Access                      ANSI SCSI revision: 03
-> scsi4:A:0:0: Tagged Queuing enabled.  Depth 32
-> SCSI device sdc: 4101521408 512-byte hdwr sectors (2099979 MB)
-> SCSI device sdc: drive cache: write back
-> SCSI device sdc: 4101521408 512-byte hdwr sectors (2099979 MB)
-> SCSI device sdc: drive cache: write back
->  sdc: sdc1 sdc2 sdc3 < sdc5 sdc6 sdc7 sdc8 >
-> Attached scsi disk sdc at scsi4, channel 0, id 0, lun 0
-> Attached scsi generic sg2 at scsi4, channel 0, id 0, lun 0,  type 0
-> scsi: host 4 channel 0 id 0 lun 0x00000200080c0400 has a LUN larger than 
-> currently supported.
-> scsi: host 4 channel 0 id 0 lun1002486961 has a LUN larger than allowed by the 
-> host adapter
-> scsi: host 4 channel 0 id 0 lun 0x01000000407a27c0 has a LUN larger than 
-> currently supported.
-> scsi: host 4 channel 0 id 0 lun 0x007a27c0d05d27c0 has a LUN larger than 
-> currently supported.
-> scsi: host 4 channel 0 id 0 lun 0x305e27c0907b27c0 has a LUN larger than 
-> currently supported.
-> scsi: host 4 channel 0 id 0 lun 0xf08227c0b08d27c0 has a LUN larger than 
-> currently supported.
-> scsi: host 4 channel 0 id 0 lun 0x307827c0008527c0 has a LUN larger than 
-> currently supported.
-> scsi: host 4 channel 0 id 0 lun 0x00000000b06727c0 has a LUN larger than 
-> currently supported.
-> scsi: host 4 channel 0 id 0 lun 0x306727c0706727c0 has a LUN larger than 
-> currently supported.
+--Signature=_Sun__11_Sep_2005_01_20_33_+1000_yAulPjZAGtgL1Skq
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This looks symptomatic of a report luns failure
+The latest Linus-git tree generates asm-offsets.h in the source tree even
+if you use O=3D... I don't know how to fix this, but it means that the
+source tree cannot be read only.
 
-> EIP is at ahd_send_async+0xde/0x2a0 [aic79xx]
+--=20
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-This I'm not sure about.  There are some fixes that may correct this in
-the current kernel tree head (i.e. beyond 2.6.13), if you could give
-that a go.
+--Signature=_Sun__11_Sep_2005_01_20_33_+1000_yAulPjZAGtgL1Skq
+Content-Type: application/pgp-signature
 
-James
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
+iD8DBQFDIvnJFdBgD/zoJvwRAgX1AJ0dPQ5v/mAiLnOP4RDDh3fAMuIWBwCgiUC1
+ijpwtx/u6hIR2VVmvGlwUmA=
+=o7D1
+-----END PGP SIGNATURE-----
 
-
+--Signature=_Sun__11_Sep_2005_01_20_33_+1000_yAulPjZAGtgL1Skq--

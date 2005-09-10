@@ -1,38 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932375AbVIJXYe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932374AbVIJXYM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932375AbVIJXYe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 19:24:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbVIJXYe
+	id S932374AbVIJXYM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 19:24:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932376AbVIJXYM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 19:24:34 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:5579 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932375AbVIJXYd
+	Sat, 10 Sep 2005 19:24:12 -0400
+Received: from smtp05.auna.com ([62.81.186.15]:58001 "EHLO smtp05.retemail.es")
+	by vger.kernel.org with ESMTP id S932374AbVIJXYL convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 19:24:33 -0400
-Date: Sun, 11 Sep 2005 00:24:27 +0100
-From: Al Viro <viro@ZenIV.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] uml spinlock breakage
-Message-ID: <20050910232427.GG25261@ZenIV.linux.org.uk>
-Mime-Version: 1.0
+	Sat, 10 Sep 2005 19:24:11 -0400
+Date: Sat, 10 Sep 2005 23:24:12 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: [GIT PATCH] Remove devfs from 2.6.13
+To: Greg KH <gregkh@suse.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+References: <20050909214542.GA29200@kroah.com>
+In-Reply-To: <20050909214542.GA29200@kroah.com> (from gregkh@suse.de on Fri
+	Sep  9 23:45:42 2005)
+X-Mailer: Balsa 2.3.4
+Message-Id: <1126394652l.6738l.0l@werewolf.able.es>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8BIT
+X-Auth-Info: Auth:LOGIN IP:[83.138.208.222] Login:jamagallon@able.es Fecha:Sun, 11 Sep 2005 01:24:10 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mingo missed that one...
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-----
-diff -urN RC13-git10-base/include/asm-um/spinlock_types.h current/include/asm-um/spinlock_types.h
---- RC13-git10-base/include/asm-um/spinlock_types.h	1969-12-31 19:00:00.000000000 -0500
-+++ current/include/asm-um/spinlock_types.h	2005-09-10 19:08:33.000000000 -0400
-@@ -0,0 +1,6 @@
-+#ifndef __UM_SPINLOCK_TYPES_H
-+#define __UM_SPINLOCK_TYPES_H
-+
-+#include "asm/arch/spinlock_types.h"
-+
-+#endif
+On 09.09, Greg KH wrote:
+> Here are the same "delete devfs" patches that I submitted for 2.6.12.
+
+Would this be accompained with deleting all the devfs compat scripts in
+udev (for 069) ? ;)
+
+Or at least a split in a different package ?
+
+Thanks.
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandriva Linux release 2006.0 (Cooker) for i586
+Linux 2.6.13-jam3 (gcc 4.0.1 (4.0.1-5mdk for Mandriva Linux release 2006.0))
+
+

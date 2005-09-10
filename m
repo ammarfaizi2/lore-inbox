@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932285AbVIJUd4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932286AbVIJUea@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932285AbVIJUd4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 16:33:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932286AbVIJUd4
+	id S932286AbVIJUea (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 16:34:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932290AbVIJUea
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 16:33:56 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:43621 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S932285AbVIJUdz
+	Sat, 10 Sep 2005 16:34:30 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:11322 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S932289AbVIJUe1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 16:33:55 -0400
-Date: Sat, 10 Sep 2005 22:35:32 +0200
+	Sat, 10 Sep 2005 16:34:27 -0400
+Date: Sat, 10 Sep 2005 22:36:05 +0200
 From: Sam Ravnborg <sam@ravnborg.org>
 To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH 3/7] kbuild: adjust .version updating
-Message-ID: <20050910203531.GC29334@mars.ravnborg.org>
+Subject: [PATCH 4/7] kbuild: fix split-include dependency
+Message-ID: <20050910203605.GD29334@mars.ravnborg.org>
 References: <20050910200347.GA3762@mars.ravnborg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -23,46 +23,55 @@ User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In order to maintain a more correct build number, updates to the
-version
-number should only be commited after a successful link of vmlinux, not
-before (so that errors in the link process don't lead to pointless
-increments).
+Splitting of autoconf.h requires that split-include was built before,
+and
+needs to be-re-done when split-include changes. This dependency was
+previously missing. Additionally, since autoconf.h is (suppoosed to
+be)
+generated as a side effect of executing config targets, include/linux
+should be created prior to running the respective sub-make.
 
 Signed-off-by: Jan Beulich <jbeulich@novell.com>
 Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
 
 ---
 
- Makefile |   10 ++++++++--
- 1 files changed, 8 insertions(+), 2 deletions(-)
+ Makefile |   10 ++++++----
+ 1 files changed, 6 insertions(+), 4 deletions(-)
 
-4e25d8bb9550fb5912165196fe8502cdb831a336
+cd05e6bdc6001ac6e8ab13720693b7e1302d9848
 diff --git a/Makefile b/Makefile
 --- a/Makefile
 +++ b/Makefile
-@@ -641,8 +641,13 @@ quiet_cmd_vmlinux__ ?= LD      $@
- # Generate new vmlinux version
- quiet_cmd_vmlinux_version = GEN     .version
-       cmd_vmlinux_version = set -e;                     \
--	. $(srctree)/scripts/mkversion > .tmp_version;	\
--	mv -f .tmp_version .version;			\
-+	if [ ! -r .version ]; then			\
-+	  rm -f .version;				\
-+	  echo 1 >.version;				\
-+	else						\
-+	  mv .version .old_version;			\
-+	  expr 0$$(cat .old_version) + 1 >.version;	\
-+	fi;						\
- 	$(MAKE) $(build)=init
+@@ -382,6 +382,9 @@ RCS_TAR_IGNORE := --exclude SCCS --exclu
+ scripts_basic:
+ 	$(Q)$(MAKE) $(build)=scripts/basic
  
- # Generate System.map
-@@ -756,6 +761,7 @@ endif # ifdef CONFIG_KALLSYMS
- # vmlinux image - including updated kernel symbols
- vmlinux: $(vmlinux-lds) $(vmlinux-init) $(vmlinux-main) $(kallsyms.o) FORCE
- 	$(call if_changed_rule,vmlinux__)
-+	$(Q)rm -f .old_version
++# To avoid any implicit rule to kick in, define an empty command.
++scripts/basic/%: scripts_basic ;
++
+ .PHONY: outputmakefile
+ # outputmakefile generate a Makefile to be placed in output directory, if
+ # using a seperate output directory. This allows convinient use
+@@ -444,9 +447,8 @@ ifeq ($(config-targets),1)
+ include $(srctree)/arch/$(ARCH)/Makefile
+ export KBUILD_DEFCONFIG
  
- # The actual objects are generated when descending, 
- # make sure no implicit rule kicks in
+-config: scripts_basic outputmakefile FORCE
+-	$(Q)$(MAKE) $(build)=scripts/kconfig $@
+-%config: scripts_basic outputmakefile FORCE
++config %config: scripts_basic outputmakefile FORCE
++	$(Q)mkdir -p include/linux
+ 	$(Q)$(MAKE) $(build)=scripts/kconfig $@
+ 
+ else
+@@ -854,7 +856,7 @@ include/asm:
+ 
+ # 	Split autoconf.h into include/linux/config/*
+ 
+-include/config/MARKER: include/linux/autoconf.h
++include/config/MARKER: scripts/basic/split-include include/linux/autoconf.h
+ 	@echo '  SPLIT   include/linux/autoconf.h -> include/config/*'
+ 	@scripts/basic/split-include include/linux/autoconf.h include/config
+ 	@touch $@
 

@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbVIJJUZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbVIJJdI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750716AbVIJJUZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 05:20:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750718AbVIJJUZ
+	id S1750720AbVIJJdI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 05:33:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbVIJJdI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 05:20:25 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:41157 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750716AbVIJJUZ (ORCPT
+	Sat, 10 Sep 2005 05:33:08 -0400
+Received: from main.gmane.org ([80.91.229.2]:30647 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1750720AbVIJJdH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 05:20:25 -0400
-From: Andi Kleen <ak@suse.de>
-To: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org
-Subject: NUMA mempolicy /proc code in mainline shouldn't have been merged
-Date: Sat, 10 Sep 2005 11:20:18 +0200
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Sat, 10 Sep 2005 05:33:07 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Giuseppe Bilotta <bilotta78@hotpop.com>
+Subject: Re: 2.6.13 psmouse: problem wheel detection: AlpsPS/2 versus ImPS/2
+Date: Sat, 10 Sep 2005 11:29:52 +0200
+Message-ID: <1n8tk1hehvpm0$.1leys9nqogxod$.dlg@40tude.net>
+References: <200509021327.j82DRJK18844@irsamc.ups-tlse.fr> <20050902141546.GA11506@midnight.suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509101120.19236.ak@suse.de>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: adsl-ull-147-119.44-151.net24.it
+User-Agent: 40tude_Dialog/2.0.15.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 2 Sep 2005 16:15:46 +0200, Vojtech Pavlik wrote:
 
-Just noticed the ugly SGI /proc/*/numa_maps code got merged.  I argued
-several times against it and I very deliberately didn't include
-a similar facility when I wrote the NUMA policy code because it's a bad
-idea.
+> Unfortunately, the ALPS passthrough doesn't allow for imps/2, only ps/2,
+> as far as we know. Unfortunately we haven't been able to find a notebook
+> with touchpad, touchpoint, *and* an external port, to try to make it
+> work.
 
+I have a Dell Inspiron 8200. Like the Latitude of the OP, it has the
+DualPoint ALPS and a PS/2 port, so I can help testing, if needed.
 
-- it's a lot of ugly code.
-- it's basically only a debugging hack right now
-- it presents lots of kernel internal information and mempolicy
-internals (like how many people have a page mapped) etc.
-to userland that shouldn't be exposed to this.
-- the format is very complicated and the chance of bug free
-userland parsers of this is near zero.
-- there is no demonstrated application that needs it
-(there was a theoretical usecase where it might be needed,
-but there were better solutions proposed for this) 
+I can also get my hands on a 4-button Logitech Trackball (no
+scrollwheels or anything, just four buttons), if it can help the
+testing.
 
+> I don't think it's possible to have both the ALPS touchpad and an
+> external mouse with full functionality. It's one or the other - a
+> limitation of the PS/2 protocol, which is designed for one (not three)
+> device only
 
-Can the patch please be removed? 
+One thing that I noticed under 'the other OS' is that, when an
+external PS/2 device is inserted and then disconnected, the 'internal'
+ones (keyboard, touchpad) seem to lose sync. It has been some time
+since I tried it the last time, so I should probably check again to
+see if the extended protocols do work, somehow.
 
-Thanks,
+-- 
+Giuseppe "Oblomov" Bilotta
 
--Andi
+Hic manebimus optime
+

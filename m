@@ -1,56 +1,229 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbVIJKt2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbVIJKzk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750744AbVIJKt2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 06:49:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbVIJKt2
+	id S1750747AbVIJKzk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 06:55:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750748AbVIJKzk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 06:49:28 -0400
-Received: from mail.ocs.com.au ([202.147.117.210]:51395 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S1750744AbVIJKt1 (ORCPT
+	Sat, 10 Sep 2005 06:55:40 -0400
+Received: from [85.21.88.2] ([85.21.88.2]:34011 "HELO mail.dev.rtsoft.ru")
+	by vger.kernel.org with SMTP id S1750747AbVIJKzj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 06:49:27 -0400
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
-From: Keith Owens <kaos@sgi.com>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Scheduler hooks to support separate ia64 MCA/INIT stacks 
-In-reply-to: Your message of "Fri, 09 Sep 2005 00:17:44 MST."
-             <Pine.LNX.4.61.0509082356390.978@montezuma.fsmlabs.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 10 Sep 2005 20:48:45 +1000
-Message-ID: <23761.1126349325@ocs3.ocs.com.au>
+	Sat, 10 Sep 2005 06:55:39 -0400
+Message-ID: <4322BB9E.5020309@rbcmail.ru>
+Date: Sat, 10 Sep 2005 14:55:26 +0400
+From: Vital <vitalhome@rbcmail.ru>
+User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mark Underwood <basicmark@yahoo.com>
+CC: David Brownell <david-b@pacbell.net>, linux-kernel@vger.kernel.org,
+       dpervushin@ru.mvista.com
+Subject: Re: [RFC][PATCH] SPI subsystem
+References: <20050903101341.23080.qmail@web30307.mail.mud.yahoo.com>
+In-Reply-To: <20050903101341.23080.qmail@web30307.mail.mud.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Sep 2005 00:17:44 -0700 (PDT), 
-Zwane Mwaikambo <zwane@arm.linux.org.uk> wrote:
->On Fri, 9 Sep 2005, Keith Owens wrote:
->
->> The new ia64 MCA/INIT handlers[1] (think of them as super NMI) run on
->> separate stacks.  99% of the changes for these new handlers is ia64
->> only code, however they need a couple of scheduler hooks to support
->> these extra stacks.  The complete patch set will be coming through the
->> ia64 tree, this RFC covers just the scheduler changes, so they do not
->> come as a surprise when the ia64 tree is rolled up.
->> 
->> [1] http://marc.theaimsgroup.com/?l=linux-ia64&m=112537827113545&w=2
->>     and the following patches.
->
->Thanks that gave a lot of background.
->
->> This patch adds two small hooks that can be safely called from MCA/INIT
->> context.  If other architectures want to support NMI on separate stacks
->> then they can also use these functions.
->
->Well x86_64 already does this with NMI being setup as ISTs, the difference 
->is that there we use a register to access current (via PDA/%gs). I might 
->have missed this in the URL you posted, but how come IA64 can't do this 
->via r13?
+Mark Underwood wrote:
 
-Because of this possible event sequence: user space -> kernel -> SAL ->
-PAL -> physical mode -> MCA/INIT.  When MCA/INIT is delivered in
-physical mode, the contents of all registers are undefined.  PAL can
-use r13 for its own work, as long as r13 is restored before returning
-to the kernel.  MCA/INIT breaks the assumption that r13 is always valid.
+<snip>
+
+>+static int spi_test_probe(struct device *dev)
+>+{
+>+	struct spi_adapter *sadap;
+>+	struct platform_device *pdev = to_platform_device(dev);	
+>+	int stat;
+>+	
+>+	printk("spi_test_probe\n");
+>+
+>+	sadap = kmalloc(sizeof(struct spi_adapter), GFP_KERNEL);
+>+	if(!sadap)
+>+	{
+>+		return -ENOMEM;
+>+	}
+>+	memset(sadap, 0, sizeof(struct spi_adapter));
+>+
+>+	sadap->spi_adap_cs = NULL;
+>+	sadap->cs_table = ((struct spi_platform_data*) (pdev->dev.platform_data))->cs_table;
+>+	sadap->max_cs = ((struct spi_platform_data*) (pdev->dev.platform_data))->max_cs;
+>  
+>
+What if pdev->dev.platform_data is NULL?
+
+<snip>
+
+>diff -uprN -X dontdiff linux-2.6.10.orig/drivers/spi/chips/spi-bar.c linux-2.6.10/drivers/spi/chips/spi-bar.c
+>--- linux-2.6.10.orig/drivers/spi/chips/spi-bar.c	1970-01-01 01:00:00.000000000 +0100
+>+++ linux-2.6.10/drivers/spi/chips/spi-bar.c	2005-09-02 17:29:16.000000000 +0100
+>  
+>
+I'm afraid the example provided can not give any idea on the intended usage.
+
+>diff -uprN -X dontdiff linux-2.6.10.orig/drivers/spi/spi-core.c linux-2.6.10/drivers/spi/spi-core.c
+>--- linux-2.6.10.orig/drivers/spi/spi-core.c	1970-01-01 01:00:00.000000000 +0100
+>+++ linux-2.6.10/drivers/spi/spi-core.c	2005-09-02 17:29:50.000000000 +0100
+>@@ -0,0 +1,613 @@
+>+/*
+>+ *  linux/driver/spi/spi-core.c - The spi subsystem core layer
+>+ *
+>+ *  Copyright (C) 2005 Philips Semicondutors, All Rights Reserved.
+>+ *
+>+ * This program is free software; you can redistribute it and/or modify
+>+ * it under the terms of the GNU General Public License version 2 as
+>+ * published by the Free Software Foundation.
+>+ *
+>+ * Authors:
+>+ *	Mark Underwood
+>+ */
+>+
+>+#include <linux/device.h>
+>+#include <linux/module.h>
+>+#include <linux/init.h>
+>+#include <linux/err.h>
+>+#include <linux/spi.h>
+>+#include <linux/idr.h>
+>+
+>+#define SPI_CORE_NONE	0
+>+#define SPI_CORE_BUS	1
+>+#define SPI_CORE_DRIVER	2
+>+#define SPI_CORE_CLASS	3
+>+#define SPI_CORE_DONE	4
+>+
+>+static DEFINE_IDR(spi_adapter_idr);
+>+
+>+void __spi_device_unregister(struct spi_device * sdev);
+>+int __spi_device_register(struct spi_device * sdev);
+>  
+>
+Shouldn't those be static?
+
+<snip>
+
+>+
+>+		memset(new_device,0,sizeof(struct spi_device));
+>  
+>
+Spaces after semicolon please.
+
+<snip>
+
+>+fail1:
+>+	for (j=0;j<(i-1);j++)
+>  
+>
+Spaces again. How about using lindent?
+
+<snip>
+
+>+        flush_workqueue(adap->work_queue);
+>  
+>
+Indentation/tabs.
+
+<snip>
+
+>+static int spi_suspend(struct device * dev, u32 state)
+>+{
+>+	struct device *child;
+>+	int ret = 0;
+>+
+>+	/* First suspend all the children */
+>+	list_for_each_entry(child, &dev->children, node) {
+>+		if (child->driver && child->driver->suspend) {
+>+			ret = child->driver->suspend(child, state, SUSPEND_DISABLE);
+>+			if (ret == 0)
+>+				ret = child->driver->suspend(child, state, SUSPEND_SAVE_STATE);
+>+			if (ret == 0)
+>+				ret = child->driver->suspend(child, state, SUSPEND_POWER_DOWN);
+>+		}
+>+	}
+>  
+>
+Oh my God. It will be called 3 times for each child entry, isn't it?!
+
+>+
+>+	if (ret)
+>+		return ret;
+>+
+>+	/* Then the adapter */
+>+	if (dev->driver && dev->driver->suspend) {
+>+		ret = dev->driver->suspend(dev, state, SUSPEND_DISABLE);
+>+		if (ret == 0)
+>+			ret = dev->driver->suspend(dev, state, SUSPEND_SAVE_STATE);
+>+		if (ret == 0)
+>+			ret = dev->driver->suspend(dev, state, SUSPEND_POWER_DOWN);
+>+	}
+>+
+>+	return ret;
+>+}
+>  
+>
+Can you please clarify what is 'adapter' here: is it a bus or what?
+
+>+
+>+static int spi_resume(struct device * dev)
+>+{
+>+	int ret = 0;
+>+	struct device *child;
+>+
+>+	/* First resume the adapter */
+>+	if (dev->driver && dev->driver->resume) {
+>+		ret = dev->driver->resume(dev, RESUME_POWER_ON);
+>+		if (ret == 0)
+>+			ret = dev->driver->resume(dev, RESUME_RESTORE_STATE);
+>+		if (ret == 0)
+>+			ret = dev->driver->resume(dev, RESUME_ENABLE);
+>+	}
+>+
+>+	if (ret)
+>+		return ret;
+>+
+>+	/* Then all the children */
+>+	list_for_each_entry(child, &dev->children, node) {
+>+		if (child->driver && child->driver->resume) {
+>+			ret = child->driver->resume(child, RESUME_POWER_ON);
+>+			if (ret == 0)
+>+				ret = child->driver->resume(child, RESUME_RESTORE_STATE);
+>+			if (ret == 0)
+>+				ret = child->driver->resume(child, RESUME_ENABLE);
+>+			if (ret)
+>+				break;
+>+		}
+>+	}
+>+
+>  
+>
+Same as for suspend.
+
+And the basic idea anyway looks wrong and not LDM'ish.
+What if your driver
+
++static struct device_driver spi_adapter_driver = {
++	.name =	"spi_adapter",
++	.bus = &spi_bus_type,
++	.probe = spi_adapter_probe,
++	.remove = spi_adapter_remove,
++};
+
+presents also suspend/resume functions (what it should have done anyway).
+
+Won't it be in a clash with your suspend/resume technique?
+
+Also:
+
+Can you please specify what is the difference between 'bus' and 'chip' 
+in your model?
+It's not clear to me how the following situation is handled. Suppose you 
+have two SPI 'busses' with same devices (for instance, 2 SD card 
+adapters) attached to different busses.
+The work queues approach is also not quite clear.
+
+But the main thing that seems to be not thought about at all is power 
+management for the SPI busses/devices.
+I'm afraid your approach needs serious rework in this area.
+
+Best regards,
+   Vitaly
 

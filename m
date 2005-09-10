@@ -1,52 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932324AbVIJViN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932329AbVIJVkA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932324AbVIJViN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 17:38:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932326AbVIJViN
+	id S932329AbVIJVkA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 17:40:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932328AbVIJVkA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 17:38:13 -0400
-Received: from wscnet.wsc.cz ([212.80.64.118]:51590 "EHLO wscnet.wsc.cz")
-	by vger.kernel.org with ESMTP id S932324AbVIJViM (ORCPT
+	Sat, 10 Sep 2005 17:40:00 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:19861 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932325AbVIJVj7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 17:38:12 -0400
-Message-ID: <4323523A.30901@gmail.com>
-Date: Sat, 10 Sep 2005 23:38:02 +0200
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: cs, en-us, en
+	Sat, 10 Sep 2005 17:39:59 -0400
+Message-ID: <432352A8.3010605@pobox.com>
+Date: Sat, 10 Sep 2005 17:39:52 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Greg KH <gregkh@suse.de>
-CC: Jeff Garzik <jgarzik@pobox.com>,
+To: Greg KH <greg@kroah.com>
+CC: Jiri Slaby <jirislaby@gmail.com>, Greg KH <gregkh@suse.de>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH 5/10] drivers/char: pci_find_device remove (drivers/char/specialix.c)
-References: <200509101221.j8ACL9XI017246@localhost.localdomain> <43234860.7050206@pobox.com> <43234972.3010003@gmail.com> <20050910211711.GA13660@suse.de>
-In-Reply-To: <20050910211711.GA13660@suse.de>
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-ide@vger.kernel.org,
+       B.Zolnierkiewicz@elka.pw.edu.pl
+Subject: Re: [PATCH] include: pci_find_device remove (include/asm-i386/ide.h)
+References: <200509102032.j8AKWxMC006246@localhost.localdomain> <4323482E.2090409@pobox.com> <20050910211932.GA13679@kroah.com>
+In-Reply-To: <20050910211932.GA13679@kroah.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH napsal(a):
-
->>I won't do that, i did that for 2 drivers and nobody was interested in 
->>that (and its much time left for nothing). These (unrewritten) drivers 
->>would be deleted in some time. Greg wants simply wipe this function out.
->>    
+Greg KH wrote:
+> On Sat, Sep 10, 2005 at 04:55:10PM -0400, Jeff Garzik wrote:
+> 
+>>Jiri Slaby wrote:
 >>
->No, I want it done correctly.  If I simply wanted the function removed,
->I would have done this kind of wholesale conversion a long time ago.
->
->If the code needs to be converted to the proper pci probing logic,
->that's the better way to do it, and that's what should be done.
->  
->
-Okay, could you reply the letter i posted a few seconds ago.
+>>>diff --git a/include/asm-i386/ide.h b/include/asm-i386/ide.h
+>>>--- a/include/asm-i386/ide.h
+>>>+++ b/include/asm-i386/ide.h
+>>>@@ -41,7 +41,12 @@ static __inline__ int ide_default_irq(un
+>>>
+>>>static __inline__ unsigned long ide_default_io_base(int index)
+>>>{
+>>>-	if (pci_find_device(PCI_ANY_ID, PCI_ANY_ID, NULL) == NULL) {
+>>>+	struct pci_dev *pdev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, NULL);
+>>>+	unsigned int a = !pdev;
+>>>+
+>>>+	pci_dev_put(pdev);
+>>
+>>
+>>Looks like we need to resurrect pci_present() from the ancient past.
+> 
+> 
+> Heh, ick, no :)
+> 
+> Jiri, any other way to do this instead?
 
-thanks,
+Look at what the IDE code is trying to do.  All it cares about is 
+whether -any PCI device at all- is present, a boolean value.
 
--- 
-Jiri Slaby         www.fi.muni.cz/~xslaby
-~\-/~      jirislaby@gmail.com      ~\-/~
-241B347EC88228DE51EE A49C4A73A25004CB2A10
+	Jeff
+
 

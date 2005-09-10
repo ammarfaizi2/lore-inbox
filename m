@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932289AbVIJUfG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932290AbVIJUfh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932289AbVIJUfG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 16:35:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbVIJUfF
+	id S932290AbVIJUfh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 16:35:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932294AbVIJUfg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 16:35:05 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:59242 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S932289AbVIJUfD
+	Sat, 10 Sep 2005 16:35:36 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:33039 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S932290AbVIJUff
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 16:35:03 -0400
-Date: Sat, 10 Sep 2005 22:36:41 +0200
+	Sat, 10 Sep 2005 16:35:35 -0400
+Date: Sat, 10 Sep 2005 22:37:13 +0200
 From: Sam Ravnborg <sam@ravnborg.org>
 To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH 5/7] kbuild: ignore all debugging info sections in scripts/reference_discarded.pl
-Message-ID: <20050910203641.GE29334@mars.ravnborg.org>
+Subject: [PATCH 6/7] kbuild: add objectify
+Message-ID: <20050910203713.GF29334@mars.ravnborg.org>
 References: <20050910200347.GA3762@mars.ravnborg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -23,36 +23,29 @@ User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-GCC 4 emits more DWARF debugging information than before and there is now a
-.debug_loc section as well.  This causes "make buildcheck" to fail.  Rather
-than just add that one to the special case list, I used a regexp to ignore
-any .debug_ANYTHING sections in case more show up in the future.
+Use foo := $(call objectify, $(foo)) to prefix $(foo) with $(obj)/ unless
+$(foo) is an absolute path.
+For now no in-tree users - soon to come.
 
-Signed-off-by: Roland McGrath <roland@redhat.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
 
 ---
 
- scripts/reference_discarded.pl |    7 +------
- 1 files changed, 1 insertions(+), 6 deletions(-)
+ scripts/Kbuild.include |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
 
-caba0233bc85ec311159a35f138d957d05cf2fe8
-diff --git a/scripts/reference_discarded.pl b/scripts/reference_discarded.pl
---- a/scripts/reference_discarded.pl
-+++ b/scripts/reference_discarded.pl
-@@ -91,12 +91,7 @@ foreach $object (keys(%object)) {
- 		     $from !~ /\.exit\.data$/ &&
- 		     $from !~ /\.altinstructions$/ &&
- 		     $from !~ /\.pdr$/ &&
--		     $from !~ /\.debug_info$/ &&
--		     $from !~ /\.debug_aranges$/ &&
--		     $from !~ /\.debug_ranges$/ &&
--		     $from !~ /\.debug_line$/ &&
--		     $from !~ /\.debug_frame$/ &&
--		     $from !~ /\.debug_loc$/ &&
-+		     $from !~ /\.debug_.*$/ &&
- 		     $from !~ /\.exitcall\.exit$/ &&
- 		     $from !~ /\.eh_frame$/ &&
- 		     $from !~ /\.stab$/)) {
+0a504f259c90fb41d3495d490fc9dbe2530c8749
+diff --git a/scripts/Kbuild.include b/scripts/Kbuild.include
+--- a/scripts/Kbuild.include
++++ b/scripts/Kbuild.include
+@@ -49,6 +49,9 @@ build := -f $(if $(KBUILD_SRC),$(srctree
+ cmd = @$(if $($(quiet)cmd_$(1)),\
+       echo '  $(subst ','\'',$($(quiet)cmd_$(1)))' &&) $(cmd_$(1))
+ 
++# Add $(obj)/ for paths that is not absolute
++objectify = $(foreach o,$(1),$(if $(filter /%,$(o)),$(o),$(obj)/$(o)))
++
+ ###
+ # if_changed      - execute command if any prerequisite is newer than 
+ #                   target, or command line has changed
 

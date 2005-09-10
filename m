@@ -1,58 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030479AbVIJCxo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030482AbVIJCzj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030479AbVIJCxo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 22:53:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932605AbVIJCxo
+	id S1030482AbVIJCzj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 22:55:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932605AbVIJCzj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 22:53:44 -0400
-Received: from mailrly05.isp.novis.pt ([195.23.133.215]:3793 "EHLO
-	mailrly05.isp.novis.pt") by vger.kernel.org with ESMTP
-	id S932601AbVIJCxn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 22:53:43 -0400
-Message-ID: <43224ABB.3030002@vgertech.com>
-Date: Sat, 10 Sep 2005 03:53:47 +0100
-From: Nuno Silva <nuno.silva@vgertech.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-CC: list linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: RAID resync speed
-References: <432240E9.9010400@eyal.emu.id.au>
-In-Reply-To: <432240E9.9010400@eyal.emu.id.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 9 Sep 2005 22:55:39 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:37002 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932601AbVIJCzi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 22:55:38 -0400
+Date: Fri, 9 Sep 2005 19:55:34 -0700
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: dwmw2@infradead.org, bunk@stusta.de, johnstul@us.ibm.com,
+       drepper@redhat.com, Franz.Fischer@goyellow.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [UPDATE PATCH][Bug 5132] fix sys_poll() large timeout handling
+Message-ID: <20050910025534.GE24225@us.ibm.com>
+References: <20050831200109.GB3017@us.ibm.com> <20050906212514.GB3038@us.ibm.com> <20050910003525.GC24225@us.ibm.com> <20050909181658.221eb6f9.akpm@osdl.org> <20050910022330.GD24225@us.ibm.com> <20050909193621.5d578583.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050909193621.5d578583.akpm@osdl.org>
+X-Operating-System: Linux 2.6.13 (i686)
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Hi,
-
-Eyal Lebedinsky wrote:
-> I noticed that my 3-disk RAID was syncing at about 40MB/s, now that I
-> added a fourth disk it goes at only 20+MB/s. This is on an idle machine.
-
-3*40=120
-
-4*20=80
-
-
-> Individually, each disk measures 60+MB/s with hdparm.
-
-
-And concurrent hdparms? Or some dd's concurrently?
-
-
-> kernel: 2.6.13 on ia32
-> Controller: Promise SATAII150 TX4
-> Disks: WD 320GB SATA
+On 09.09.2005 [19:36:21 -0700], Andrew Morton wrote:
+> Nishanth Aravamudan <nacc@us.ibm.com> wrote:
+> >
+> > +	/*
+> >  +	 * We compare HZ with 1000 to work out which side of the
+> >  +	 * expression needs conversion.  Because we want to avoid
+> >  +	 * converting any value to a numerically higher value, which
+> >  +	 * could overflow.
+> >  +	 */
+> >  +#if HZ > 1000
+> >  +	overflow = timeout_msecs >= jiffies_to_msecs(MAX_SCHEDULE_TIMEOUT);
+> >  +#else
+> >  +	overflow = msecs_to_jiffies(timeout_msecs) >= MAX_SCHEDULE_TIMEOUT;
+> >  +#endif
+> >  +
+> >  +	/*
+> >  +	 * If we would overflow in the conversion or a negative timeout
+> >  +	 * is requested, sleep indefinitely.
+> >  +	 */
+> >  +	if (overflow || timeout_msecs < 0)
+> >  +		timeout_jiffies = MAX_SCHEDULE_TIMEOUT;
 > 
-> Q: Is this the way the raid code works? The way the disk-io is managed? Or
-> could it be due to the SATA controller?
+> Do we need to test (timeout_msecs < 0) here?  If we make timeout_msecs
+> unsigned long then I think `overflow' will always be correct.
 
-You can isolate the performance drop with some dd's. Maybe this card is 
-in a pci32/33mhz and you're hitting the pci bus' limits? (120~130MB/sec).
+Even though poll is explicitly allowed to take negative values, as per
+my man-page:
 
-Regards,
-Nuno Silva
+"#include <sys/poll.h>
 
+int poll(struct pollfd *ufds, unsigned int nfds, int timeout);
+
+...
+
+A negative value means infinite timeout."
+
+Would we have a local variable to store timeout_msecs as well? Or do we
+want to make a userspace-visible change like this? I don't have a
+preference, I just want to make sure I understand.
+
+Thanks,
+Nish

@@ -1,71 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030482AbVIJCzj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030484AbVIJDCI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030482AbVIJCzj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Sep 2005 22:55:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932605AbVIJCzj
+	id S1030484AbVIJDCI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Sep 2005 23:02:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932605AbVIJDCI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Sep 2005 22:55:39 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:37002 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932601AbVIJCzi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Sep 2005 22:55:38 -0400
-Date: Fri, 9 Sep 2005 19:55:34 -0700
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: dwmw2@infradead.org, bunk@stusta.de, johnstul@us.ibm.com,
-       drepper@redhat.com, Franz.Fischer@goyellow.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [UPDATE PATCH][Bug 5132] fix sys_poll() large timeout handling
-Message-ID: <20050910025534.GE24225@us.ibm.com>
-References: <20050831200109.GB3017@us.ibm.com> <20050906212514.GB3038@us.ibm.com> <20050910003525.GC24225@us.ibm.com> <20050909181658.221eb6f9.akpm@osdl.org> <20050910022330.GD24225@us.ibm.com> <20050909193621.5d578583.akpm@osdl.org>
+	Fri, 9 Sep 2005 23:02:08 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:32907 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932601AbVIJDCH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Sep 2005 23:02:07 -0400
+Date: Fri, 9 Sep 2005 20:01:27 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Paul Jackson <pj@sgi.com>
+Cc: Chris Wright <chrisw@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Simon Derr <Simon.Derr@bull.net>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>, stable@kernel.org
+Subject: Re: [PATCH 2.6.13-stable] cpuset semaphore double trip fix
+Message-ID: <20050910030127.GE7762@shell0.pdx.osdl.net>
+References: <20050910004403.29717.51121.sendpatchset@jackhammer.engr.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050909193621.5d578583.akpm@osdl.org>
-X-Operating-System: Linux 2.6.13 (i686)
-User-Agent: Mutt/1.5.10i
+In-Reply-To: <20050910004403.29717.51121.sendpatchset@jackhammer.engr.sgi.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 09.09.2005 [19:36:21 -0700], Andrew Morton wrote:
-> Nishanth Aravamudan <nacc@us.ibm.com> wrote:
-> >
-> > +	/*
-> >  +	 * We compare HZ with 1000 to work out which side of the
-> >  +	 * expression needs conversion.  Because we want to avoid
-> >  +	 * converting any value to a numerically higher value, which
-> >  +	 * could overflow.
-> >  +	 */
-> >  +#if HZ > 1000
-> >  +	overflow = timeout_msecs >= jiffies_to_msecs(MAX_SCHEDULE_TIMEOUT);
-> >  +#else
-> >  +	overflow = msecs_to_jiffies(timeout_msecs) >= MAX_SCHEDULE_TIMEOUT;
-> >  +#endif
-> >  +
-> >  +	/*
-> >  +	 * If we would overflow in the conversion or a negative timeout
-> >  +	 * is requested, sleep indefinitely.
-> >  +	 */
-> >  +	if (overflow || timeout_msecs < 0)
-> >  +		timeout_jiffies = MAX_SCHEDULE_TIMEOUT;
+Thanks Paul.  As Randy mentioned, please send these to stable@kernel.org
+in the future.
+
+* Paul Jackson (pj@sgi.com) wrote:
+> Code reading uncovered a potential deadlock on the global cpuset
+> semaphore, cpuset_sem.
+
+Another 'by inspection' patch, perhaps we'll need to update the stable
+rules, since these can be quite valid fixes, yet typically trigger
+review replies asking if it's necessary for -stable.
+
+> ==> This patch is only useful in the 2.6.13-stable series.
 > 
-> Do we need to test (timeout_msecs < 0) here?  If we make timeout_msecs
-> unsigned long then I think `overflow' will always be correct.
+>     (It's harmless, and useless, in the pre 2.6.14 fork)
+> 
+> The pre-2.6.14 fork has already diverged, with an additional patch
+> that further aggrevated this problem, and a more thorough overhaul
+> of the cpuset locking, to fix the problems.
+> 
+> All code paths in kernel/cpuset.c (2.6.13 or earlier) that first
+> grab cpuset_sem and then allocate memory _must_ call the routine
+> 'refresh_mems()', after getting cpuset_sem, before any possible
+> allocation.
+> 
+> If this refresh_mems() call is not done, then there is a risk that one
+> of the cpuset_zone_allowed() calls made from within the page allocator
+> (__alloc_pages) will find that the mems_generation of the current task
+> doesn't match that of its cpuset, causing it to try to grab cpuset_sem.
+> Since it already held cpuset_sem, this deadlocks that task, and any
+> subsequent task wanting cpuset_sem.
+> 
+> ==> The code paths leading to the kmalloc in check_for_release(), from
+>     cpuset_exit, cpuset_rmdir and attach_task (for the detached cpuset),
+>     fail to invoke refresh_mems() as required.
+> 
+>     The fix is easy enough - add the requisite refresh_mems() call.
+> 
+> Unless someone is rapidly creating, modifying and destroying cpusets,
+> they are unlikely to have any chance of encountering this deadlock.
+> And even then, it is apparently difficult to do so.
 
-Even though poll is explicitly allowed to take negative values, as per
-my man-page:
+How unlikely?  So unlikely that it's more a theoreitical race, or did
+you find ways to trigger?  If it's purely theoretical then it's not a
+good candidiate for -stable.
 
-"#include <sys/poll.h>
+> In the case we got here from cpuset_exit(), we have already torn
+> down the tasks connection to this cpuset and current->cpuset is NULL.
+> Don't call refresh_mems() in that case - it oops the kernel.
 
-int poll(struct pollfd *ufds, unsigned int nfds, int timeout);
+Is this one well-tested, since the fix diverges from upstream?  And one
+minor nit, let's just do a real forward declaration of refresh_mems() 
+instead of local to check_for_release().
 
-...
-
-A negative value means infinite timeout."
-
-Would we have a local variable to store timeout_msecs as well? Or do we
-want to make a userspace-visible change like this? I don't have a
-preference, I just want to make sure I understand.
-
-Thanks,
-Nish
+thanks,
+-chris

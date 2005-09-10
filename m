@@ -1,85 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750710AbVIJIwV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbVIJItb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750710AbVIJIwV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 04:52:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750701AbVIJIwV
+	id S1750709AbVIJItb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 04:49:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750710AbVIJItb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 04:52:21 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:15830 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750710AbVIJIwV (ORCPT
+	Sat, 10 Sep 2005 04:49:31 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:25291 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750709AbVIJIta (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 04:52:21 -0400
-Date: Sat, 10 Sep 2005 01:52:09 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Hirokazu Takahashi <taka@valinux.co.jp>
-Cc: magnus.damm@gmail.com, kurosawa@valinux.co.jp, dino@in.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/5] SUBCPUSETS: a resource control functionality using
- CPUSETS
-Message-Id: <20050910015209.4f581b8a.pj@sgi.com>
-In-Reply-To: <20050910.161145.74742186.taka@valinux.co.jp>
-References: <20050908225539.0bc1acf6.pj@sgi.com>
-	<20050909.203849.33293224.taka@valinux.co.jp>
-	<20050909063131.64dc8155.pj@sgi.com>
-	<20050910.161145.74742186.taka@valinux.co.jp>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Sat, 10 Sep 2005 04:49:30 -0400
+Date: Sat, 10 Sep 2005 01:45:43 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: linux-kernel@vger.kernel.org, hpa@zytor.com, bunk@stusta.de
+Subject: Re: [RFC][MEGAPATCH] Change __ASSEMBLY__ to __ASSEMBLER__ (defined
+ by GCC from 2.95 to current CVS)
+Message-Id: <20050910014543.1be53260.akpm@osdl.org>
+In-Reply-To: <97597F8E-DDCE-479F-AE8D-CC7DC75AB3C3@mac.com>
+References: <C670AD22-97CF-46AA-A527-965036D78667@mac.com>
+	<20050903064124.GA31400@codepoet.org>
+	<4319BEF5.2070000@zytor.com>
+	<B9E70F6F-CC0A-4053-AB34-A90836431358@mac.com>
+	<dfhs4u$1ld$1@terminus.zytor.com>
+	<5A37B032-9BBD-4AEA-A9BF-D42AFF79BC86@mac.com>
+	<9C47C740-86CF-48F1-8DB6-B547E5D098FF@mac.com>
+	<97597F8E-DDCE-479F-AE8D-CC7DC75AB3C3@mac.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, I suspect I don't understand yet.
 
-Nice picture though - that gives me some idea what you mean.
-
-Do notice that the basic rule of cpu_exclusive cpusets is that their
-CPUs don't overlap their siblings.  Your Cpusets 1, 2, and 3 seem to be
-marked cpu_exclusive in your picture, but all contain the same CPUs 2
-and 3, overlapping each other.
-
-I'm guessing what you are trying to draw is:
-
-  Tasks on CPUs 0 and 1 have no resource control limits.
-
-  Tasks on CPUs 2 and 3 have resource control limits specifying
-	what percentage of the CPUs 2 and 3 is available to them.
-
-I might draw my solution to that as:
-
-     +-----------------------------------+
-     |                                   |
-  CPUSET 0                            CPUSET 1         
-  sched domain A                      sched domain B   
-  cpus: 0, 1                          cpus: 2, 3       
-  cpu_exclusive=1                     cpu_exclusive=1
-  meter_cpu=0                         meter_cpu=0
-                                         |
-                        +----------------+----------------+
-                        |                |                |
-                     CPUSET 1a        CPUSET 1b        CPUSET 1c
-                     cpus: 2, 3       cpus: 2, 3       cpus: 2, 3
-		     cpu_exclusive=0  cpu_exclusive=0  cpu_exclusive=0
-                     meter_cpu=1      meter_cpu=1      meter_cpu=1
-                     meter_cpu_*      meter_cpu_*      meter_cpu_*
-
-The meter_cpu_* files in each of Cpusets 1a, 1b, and 1c control what
-proportion of the CPU resources in that Cpuset can be used by the tasks
-in that Cpuset.
-
-If meter_cpu is false (0) then the meter_cpu_* files do not appear,
-which is equivalent to allowing 100% of the CPUs in that Cpuset to
-be used by the tasks in that Cpuset (and descendents, of course.)
-
-Don't forget - this all seems like it has significant mission overlap
-with CKRM.  I hate to repeat this, but the relation of your work to
-CKRM needs to be understood before I am likely to agree to accepting
-your work into the kernel (not that my acceptance is required; you
-really just need Linus to agree, though he of course considers the
-positions of others to some inscrutable degree.)
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+This patch seems to have a rather low value-to-noise ratio.  Why
+on earth do we want to do this?

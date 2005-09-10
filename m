@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932277AbVIJURT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932278AbVIJUTc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932277AbVIJURT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 16:17:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932278AbVIJURT
+	id S932278AbVIJUTc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 16:19:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932279AbVIJUTc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 16:17:19 -0400
-Received: from wscnet.wsc.cz ([212.80.64.118]:43136 "EHLO wscnet.wsc.cz")
-	by vger.kernel.org with ESMTP id S932277AbVIJURS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 16:17:18 -0400
-Message-ID: <43233F48.6060406@gmail.com>
-Date: Sat, 10 Sep 2005 22:17:12 +0200
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: cs, en-us, en
-MIME-Version: 1.0
-To: Jiri Slaby <jirislaby@gmail.com>
-CC: Greg KH <gregkh@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, mhw@wittsend.com
-Subject: Re: [PATCH 1/10] drivers/char: pci_find_device remove (drivers/char/ip2main.c)
-References: <200509101221.j8ACL8oq017230@localhost.localdomain>
-In-Reply-To: <200509101221.j8ACL8oq017230@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 10 Sep 2005 16:19:32 -0400
+Received: from tarjoilu.luukku.com ([194.215.205.232]:58776 "EHLO
+	tarjoilu.luukku.com") by vger.kernel.org with ESMTP id S932278AbVIJUTb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Sep 2005 16:19:31 -0400
+Date: Sat, 10 Sep 2005 23:19:13 +0300
+From: mikukkon@iki.fi
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix allnoconfig build with gcc4
+Message-ID: <20050910201913.GA6179@miku.homelinux.net>
+Reply-To: mikukkon@iki.fi
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cc: mhw@wittsend.com [maintainer]
+It seems that git commit 20380731bc2897f2952ae055420972ded4cd786e breaks
+allnoconfig build with gcc4:
 
-Jiri Slaby napsal(a):
+  CC      init/main.o
+In file included from include/linux/netdevice.h:29,
+		   from include/net/sock.h:48,
+		   from init/main.c:50:
+include/linux/if_ether.h:114: error: array type has incomplete element type
 
->Signed-off-by: Jiri Slaby <xslaby@fi.muni.cz>
->
-> ip2main.c |    8 +++++---
-> 1 files changed, 5 insertions(+), 3 deletions(-)
->
->diff --git a/drivers/char/ip2main.c b/drivers/char/ip2main.c
->--- a/drivers/char/ip2main.c
->+++ b/drivers/char/ip2main.c
->@@ -442,6 +442,7 @@ cleanup_module(void)
-> #ifdef CONFIG_PCI
-> 		if (ip2config.type[i] == PCI && ip2config.pci_dev[i]) {
-> 			pci_disable_device(ip2config.pci_dev[i]);
->+			pci_dev_put(ip2config.pci_dev[i]);
-> 			ip2config.pci_dev[i] = NULL;
-> 		}
-> #endif
->@@ -594,9 +595,10 @@ ip2_loadmain(int *iop, int *irqp, unsign
-> 		case PCI:
-> #ifdef CONFIG_PCI
-> 			{
->-				struct pci_dev *pci_dev_i = NULL;
->-				pci_dev_i = pci_find_device(PCI_VENDOR_ID_COMPUTONE,
->-							  PCI_DEVICE_ID_COMPUTONE_IP2EX, pci_dev_i);
->+				struct pci_dev *pci_dev_i;
->+				pci_dev_i = pci_get_device(
->+					PCI_VENDOR_ID_COMPUTONE,
->+					PCI_DEVICE_ID_COMPUTONE_IP2EX, NULL);
-> 				if (pci_dev_i != NULL) {
-> 					unsigned int addr;
-> 
->  
->
+The "normal" fix of replacing foo[] with *foo would is not trivial, but
+simply removing the offending line is.
+
+Signed-off-by: Mika Kukkonen <mikukkon@iki.fi>
+
+Index: linux-2.6/include/linux/if_ether.h
+===================================================================
+--- linux-2.6.orig/include/linux/if_ether.h
++++ linux-2.6/include/linux/if_ether.h
+@@ -111,7 +111,6 @@ static inline struct ethhdr *eth_hdr(con
+ 	return (struct ethhdr *)skb->mac.raw;
+ }
+ 
+-extern struct ctl_table ether_table[];
+ #endif
+ 
+ #endif	/* _LINUX_IF_ETHER_H */

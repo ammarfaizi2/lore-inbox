@@ -1,44 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbVIJX1a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbVIJXbb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932376AbVIJX1a (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 19:27:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbVIJX13
+	id S932377AbVIJXbb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 19:31:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932380AbVIJXbb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 19:27:29 -0400
-Received: from zproxy.gmail.com ([64.233.162.200]:5048 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932376AbVIJX13 (ORCPT
+	Sat, 10 Sep 2005 19:31:31 -0400
+Received: from mail.kroah.org ([69.55.234.183]:63148 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932377AbVIJXba (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 19:27:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=W54hVgpUBb481nLMNllylep1xmHWD/b9ljsf629SeIFEpStPfZsHH4C+HSHt1tz5YzseF88t/WZ8mUA1kDzYcphV/rWDJarbYOsDAOHdn7rRcBcuRrQd+339rlgGVCYa9jVbXaFCp7kguFCRQdcA+CtQxiBbbHMwNGsSi0AAF7o=
-Message-ID: <43236BA1.30005@gmail.com>
-Date: Sun, 11 Sep 2005 07:26:25 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alexey Dobriyan <adobriyan@gmail.com>
-CC: Antonino Daplas <adaplas@pol.net>, Al Viro <viro@zeniv.linux.org.uk>,
+	Sat, 10 Sep 2005 19:31:30 -0400
+Date: Sat, 10 Sep 2005 16:30:56 -0700
+From: Greg KH <gregkh@suse.de>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix breakage on ppc{,64} by "nvidiafb: Fallback to firmware
- EDID"
-References: <20050910225307.GA7654@mipter.zuzino.mipt.ru>
-In-Reply-To: <20050910225307.GA7654@mipter.zuzino.mipt.ru>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Subject: Re: [GIT PATCH] Remove devfs from 2.6.13
+Message-ID: <20050910233056.GA17892@suse.de>
+References: <20050909214542.GA29200@kroah.com> <1126394652l.6738l.0l@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1126394652l.6738l.0l@werewolf.able.es>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexey Dobriyan wrote:
-> Fix
+On Sat, Sep 10, 2005 at 11:24:12PM +0000, J.A. Magallon wrote:
 > 
-> drivers/video/nvidia/nv_of.c:34: error: conflicting types for 'nvidia_probe_i2c_connector'
-> drivers/video/nvidia/nv_proto.h:38: error: previous declaration of 'nvidia_probe_i2c_connector' was here
+> On 09.09, Greg KH wrote:
+> > Here are the same "delete devfs" patches that I submitted for 2.6.12.
 > 
-> Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+> Would this be accompained with deleting all the devfs compat scripts in
+> udev (for 069) ? ;)
 
-Thanks.
+That is only 1 file, which starts out with the following statement:
+	# The use of these rules is not recommended or supported.
 
-Acked-by: Antonino Daplas <adaplas@pol.net>
+how much more obvious do you want us udev developers to make it?  :)
+
+thanks,
+
+greg k-h

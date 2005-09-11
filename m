@@ -1,51 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750837AbVIKT4T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750841AbVIKUDr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750837AbVIKT4T (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 15:56:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750829AbVIKT4T
+	id S1750841AbVIKUDr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 16:03:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbVIKUDr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 15:56:19 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:6028 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750712AbVIKT4S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 15:56:18 -0400
-Date: Sun, 11 Sep 2005 12:56:12 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: Peter Osterlund <petero2@telia.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>
-Subject: Re: What's up with the GIT archive on www.kernel.org?
-In-Reply-To: <20050911194630.GB22951@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.58.0509111251150.3242@g5.osdl.org>
-References: <m3mzmjvbh7.fsf@telia.com> <Pine.LNX.4.58.0509110908590.4912@g5.osdl.org>
- <20050911185711.GA22556@mars.ravnborg.org> <Pine.LNX.4.58.0509111157360.3242@g5.osdl.org>
- <20050911194630.GB22951@mars.ravnborg.org>
+	Sun, 11 Sep 2005 16:03:47 -0400
+Received: from silver.veritas.com ([143.127.12.111]:12459 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S1750780AbVIKUDr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Sep 2005 16:03:47 -0400
+Date: Sun, 11 Sep 2005 21:03:26 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Andrew Morton <akpm@osdl.org>
+cc: "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org,
+       Daniel Ritz <daniel.ritz@gmx.ch>
+Subject: Re: 2.6.13-mm2
+In-Reply-To: <20050911123627.2551a057.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0509112055530.3611@goblin.wat.veritas.com>
+References: <20050908053042.6e05882f.akpm@osdl.org> <200509111903.38938.rjw@sisk.pl>
+ <20050911123627.2551a057.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 11 Sep 2005 20:03:40.0471 (UTC) FILETIME=[E7669470:01C5B70B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sun, 11 Sep 2005, Sam Ravnborg wrote:
+On Sun, 11 Sep 2005, Andrew Morton wrote:
+> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> > 
+> >  Could you please reintroduce the yenta-free_irq-on-suspend.patch (attached)
+> >  into -mm?  My box does not resume from disk without it.
 > 
-> I had to specify both GIT_DIR and GIT_OBJECT_DIRECTORY to make
-> git-prune-packed behave as expected. I assume this is normal when I
-> rename the .git directory like in this case.
+> No probs.
+> 
+> Daniel, do you remember why we decided to drop it?  What should we do about
+> this?  Thanks.
 
-You should only need to specify GIT_DIR - it should figure out that the 
-object directory follows GIT_DIR on its own.
+I remember well.  My laptop does not APM resume from RAM with it.
+I've just rechecked and that's still the case.  I did try various patches
+from Rafael to help him work it out, but it remained a puzzle.
+And I admit, it is his turn to resume this month.
 
-Also, I forget what version of git is installed on kernel.org. The
-"alternates" support has been around for a while, and looking at the date
-of "/usr/bin/git" it _seems_ recent (Sep 7), but I haven't seen any
-announcement of updating since the last one (which was git-0.99.4, which
-is too old).
-
-You can try removing all the packs in your .git/objects/packs directory. 
-Everything _should_ still work fine.
-
-Famous last words.
-
-		Linus
+Hugh

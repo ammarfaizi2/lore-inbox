@@ -1,48 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbVIKHGQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964795AbVIKHLp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964791AbVIKHGQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 03:06:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964792AbVIKHGQ
+	id S964795AbVIKHLp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 03:11:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964796AbVIKHLo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 03:06:16 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:16328 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964791AbVIKHGQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 03:06:16 -0400
-Subject: Re: [GIT PATCH] Remove devfs from 2.6.13
-From: Arjan van de Ven <arjan@infradead.org>
-To: David Lang <david.lang@digitalinsight.com>
-Cc: Greg KH <gregkh@suse.de>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.62.0509102257290.29141@qynat.qvtvafvgr.pbz>
-References: <20050909214542.GA29200@kroah.com>
-	 <Pine.LNX.4.62.0509101742300.28852@qynat.qvtvafvgr.pbz>
-	 <20050911030726.GA20462@suse.de>
-	 <Pine.LNX.4.62.0509102257290.29141@qynat.qvtvafvgr.pbz>
-Content-Type: text/plain
-Date: Sun, 11 Sep 2005 09:05:44 +0200
-Message-Id: <1126422344.3224.4.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+	Sun, 11 Sep 2005 03:11:44 -0400
+Received: from mx2.suse.de ([195.135.220.15]:12715 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964795AbVIKHLo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Sep 2005 03:11:44 -0400
+From: Andi Kleen <ak@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: NUMA mempolicy /proc code in mainline shouldn't have been merged
+Date: Sun, 11 Sep 2005 09:11:20 +0200
+User-Agent: KMail/1.8
+Cc: Christoph Lameter <clameter@engr.sgi.com>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+References: <200509101120.19236.ak@suse.de> <Pine.LNX.4.62.0509101904070.20145@schroedinger.engr.sgi.com> <20050910235139.4a8865c2.akpm@osdl.org>
+In-Reply-To: <20050910235139.4a8865c2.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+Message-Id: <200509110911.22212.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-09-10 at 23:08 -0700, David Lang wrote:
-> 
-> remember that the distros don't package every kernel
+On Sunday 11 September 2005 08:51, Andrew Morton wrote:
 
-nor do distros use devfs :)
+> Certainly I can see value in that.  How can a developer test his
+> code without any form of runtime feedback?
 
+There are already several ways to do that: first the counters output
+by numastat (local_node, other_node, interleave_hit etc.), which tells you 
+exactly how the allocation strategy ended up. And a process can find out
+on which node a specific page is using get_mempolicy()
 
+If you really want to know what's going on you can use performance counters
+of the machine to tell you the amount of cross node traffic
+(e.g. see numamon in the numactl source tree as an example) 
+
+I don't think the /proc information gives additional information
+to the programmers. Externally you shouldn't know about the 
+individual addresses anyways.
+
+All it does is to open the flood gates of external mempolicy management, which 
+is wrong.
+
+> It's easy to parse and it is extensible.  It needs documenting though.
+
+Extensible yes, but I have my doubts on easy to parse. User processes
+very likely will get it wrong like they traditionally did with anything
+more complicated in /proc. /proc/*/maps has been a similar disaster too.
+
+-Andi

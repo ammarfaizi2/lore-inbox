@@ -1,54 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750990AbVIKWtn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751004AbVIKWy5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750990AbVIKWtn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 18:49:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750996AbVIKWtn
+	id S1751004AbVIKWy5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 18:54:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751005AbVIKWy5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 18:49:43 -0400
-Received: from nproxy.gmail.com ([64.233.182.204]:28699 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750990AbVIKWtm convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 18:49:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=tk3psom7I6neCWYQGuEgOxAIWy65Us09xzkQtvCcElySwpy7Y/s66ECxsBdH3+prdw+5yiYYIOK4uazuUBM7NlVCwxnV7fKnaPvUkCKEGsr04Fws6fVOvIipdJoI5MCVVTAeHkGgtWFDf7OIiNIEB5JZbYHLsBhxrr3LqqBe1WI=
-Message-ID: <81b0412b050911154931d87ca9@mail.gmail.com>
-Date: Mon, 12 Sep 2005 00:49:33 +0200
-From: Alex Riesen <raa.lkml@gmail.com>
-Reply-To: raa.lkml@gmail.com
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: What's up with the GIT archive on www.kernel.org?
-Cc: Linus Torvalds <torvalds@osdl.org>, petero2@telia.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050911151240.478006e0.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <m3mzmjvbh7.fsf@telia.com>
-	 <Pine.LNX.4.58.0509110908590.4912@g5.osdl.org>
-	 <20050911151240.478006e0.akpm@osdl.org>
+	Sun, 11 Sep 2005 18:54:57 -0400
+Received: from wscnet.wsc.cz ([212.80.64.118]:1924 "EHLO wscnet.wsc.cz")
+	by vger.kernel.org with ESMTP id S1751003AbVIKWy4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Sep 2005 18:54:56 -0400
+Message-ID: <4324B5B3.6080703@gmail.com>
+Date: Mon, 12 Sep 2005 00:54:43 +0200
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: cs, en-us, en
+MIME-Version: 1.0
+To: Jiri Slaby <jirislaby@gmail.com>
+CC: Greg KH <gregkh@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, mhw@wittsend.com
+Subject: Re: [PATCH 1/10] drivers/char: pci_find_device remove (drivers/char/ip2main.c)
+References: <200509101221.j8ACL8oq017230@localhost.localdomain> <43233F48.6060406@gmail.com>
+In-Reply-To: <43233F48.6060406@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/12/05, Andrew Morton <akpm@osdl.org> wrote:
-> > Does anyone else see this? "host www.kernel.org" gives me two IP
-> > addresses:
-> >
-> >          www.kernel.org is an alias for zeus-pub.kernel.org.
-> >          zeus-pub.kernel.org has address 204.152.191.5
-> >          zeus-pub.kernel.org has address 204.152.191.37
-> >
-> > Is it possible that one of those computers hasn't received the latest
-> > changes for some reason?
-> 
-> Yes, I'd say that's the problem.
+Jiri Slaby napsal(a):
 
-Could this be reason I'm getting this from cogito trying to update git:
+> Cc: mhw@wittsend.com [maintainer]
 
-Applying changes...
-error: unable to find 720d150c48fc35fca13c6dfb3c76d60e4ee83b87
-fatal: git-cat-file 720d150c48fc35fca13c6dfb3c76d60e4ee83b87: bad file
-usage: git-cat-file [-t | -s | <type>] <sha1>
-Invalid commit id: 720d150c48fc35fca13c6dfb3c76d60e4ee83b87
+Hello.
+
+Is drivers/char/ip2main.c still maintained? Are you going to rewrite 
+this driver to 2.6 API (PCI probing etc.)?
+
+thanks,
+
+-- 
+Jiri Slaby         www.fi.muni.cz/~xslaby
+~\-/~      jirislaby@gmail.com      ~\-/~
+241B347EC88228DE51EE A49C4A73A25004CB2A10
+

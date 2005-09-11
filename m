@@ -1,44 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbVIKQyN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751077AbVIKQ7V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750754AbVIKQyN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 12:54:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750791AbVIKQyN
+	id S1751077AbVIKQ7V (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 12:59:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751074AbVIKQ7V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 12:54:13 -0400
-Received: from tartu.cyber.ee ([193.40.6.68]:19218 "EHLO tartu.cyber.ee")
-	by vger.kernel.org with ESMTP id S1750754AbVIKQyN (ORCPT
+	Sun, 11 Sep 2005 12:59:21 -0400
+Received: from cantor.suse.de ([195.135.220.2]:28094 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750791AbVIKQ7U (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 12:54:13 -0400
-From: Meelis Roos <mroos@linux.ee>
-To: castet.matthieu@free.fr, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH - Resend] PNPACPI: only parse device that have CRS method
-In-Reply-To: <4324030F.3090406@free.fr>
-User-Agent: tin/1.7.10-20050815 ("Grimsay") (UNIX) (Linux/2.6.13 (i686))
-Message-Id: <20050911165410.6383314168@rhn.tartu-labor>
-Date: Sun, 11 Sep 2005 19:54:10 +0300 (EEST)
+	Sun, 11 Sep 2005 12:59:20 -0400
+Date: Sun, 11 Sep 2005 18:59:19 +0200
+From: "Andi Kleen" <ak@suse.de>
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
+Subject: [3/3] Use the DMA32 zone for 
+ dma_alloc_coherent()/pci_alloc_consistent on x86-64
+Message-ID: <43246267.mailL4Y1GM1RI@suse.de>
+User-Agent: nail 10.6 11/15/03
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mc> this patch blacklist device that don't have CRS method as there are
-mc> useless for pnp layer as they don't provide any resource.
+Use the DMA32 zone for dma_alloc_coherent()/pci_alloc_consistent on x86-64
 
-I tried it on my laptop (Toshiba Satellite 1800-314). It removed one
-device from PNP bus, 00:0c, id = TOS6200, no options (as shown by 2.6.13).
+Signed-off-by: Andi Kleen <ak@suse.de>
 
-I hoped it will notice something different about my SMCf010. It's
-onboard IRDA that is disabled by BIOS. But the device is still there
-with your patch and still does not work.
-
-The background: it's disabled by BIOS. PNPBIOS could activate it
-(haven't tried since PNPACPI came). PNPACPI could not activate it -
-activate worked, resources showed resources but smsc-ircc2 got still no
-configuration (chip itself was not reprogrammed?). The speculation was
-that it's because of missing CRS in ACPI tables but this device did not
-disappear with your current patch.
-
-Any ideas about getting it to work with PNPACPI - or should I just
-declare my ACPI BIOS broken and revert to PNPBIOS on this laptop? Do you
-want seome more ACPI debug info than last time?
-
--- 
-Meelis Roos
+Index: linux/arch/x86_64/kernel/pci-gart.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/pci-gart.c
++++ linux/arch/x86_64/kernel/pci-gart.c
+@@ -219,6 +219,8 @@ dma_alloc_coherent(struct device *dev, s
+ 	/* Kludge to make it bug-to-bug compatible with i386. i386
+ 	   uses the normal dma_mask for alloc_coherent. */
+ 	dma_mask &= *dev->dma_mask;
++	if (dma_mask <= 0xffffffff)
++		gfp |= GFP_DMA32;
+ 
+  again:
+ 	memory = dma_alloc_pages(dev, gfp, get_order(size));
+@@ -245,7 +247,7 @@ dma_alloc_coherent(struct device *dev, s
+ 				}
+ 
+ 				if (!(gfp & GFP_DMA)) { 
+-					gfp |= GFP_DMA; 
++					gfp = (gfp & ~GFP_DMA32) | GFP_DMA;
+ 					goto again;
+ 				}
+ 				return NULL;

@@ -1,63 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932730AbVIKAeT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932731AbVIKAdw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932730AbVIKAeT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 20:34:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932734AbVIKAeT
+	id S932731AbVIKAdw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 20:33:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932733AbVIKAdw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 20:34:19 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:7405 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932733AbVIKAeR (ORCPT
+	Sat, 10 Sep 2005 20:33:52 -0400
+Received: from smtpout.mac.com ([17.250.248.73]:19406 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S932734AbVIKAdv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 20:34:17 -0400
-Date: Sat, 10 Sep 2005 17:27:55 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-Subject: Re: [GIT PATCH] More PCI patches for 2.6.13
-In-Reply-To: <432377A3.5070805@pobox.com>
-Message-ID: <Pine.LNX.4.58.0509101723550.30958@g5.osdl.org>
-References: <Pine.LNX.4.44L0.0509101655520.7081-100000@netrider.rowland.org>
- <Pine.LNX.4.58.0509101410300.30958@g5.osdl.org> <43235707.7050909@pobox.com>
- <20050910153110.36a44eba.akpm@osdl.org> <Pine.LNX.4.58.0509101548230.30958@g5.osdl.org>
- <43236FD2.6010501@pobox.com> <Pine.LNX.4.58.0509101658080.30958@g5.osdl.org>
- <432377A3.5070805@pobox.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 10 Sep 2005 20:33:51 -0400
+In-Reply-To: <20050910150446.116dd261.akpm@osdl.org>
+References: <C670AD22-97CF-46AA-A527-965036D78667@mac.com> <20050903064124.GA31400@codepoet.org> <4319BEF5.2070000@zytor.com> <B9E70F6F-CC0A-4053-AB34-A90836431358@mac.com> <dfhs4u$1ld$1@terminus.zytor.com> <5A37B032-9BBD-4AEA-A9BF-D42AFF79BC86@mac.com> <9C47C740-86CF-48F1-8DB6-B547E5D098FF@mac.com> <97597F8E-DDCE-479F-AE8D-CC7DC75AB3C3@mac.com> <20050910014543.1be53260.akpm@osdl.org> <4FAE9F58-7153-4574-A2C3-A586C9C3CFF1@mac.com> <20050910150446.116dd261.akpm@osdl.org>
+Mime-Version: 1.0 (Apple Message framework v734)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <E352D8E3-771F-4A0D-9403-DBAA0C8CBB83@mac.com>
+Cc: linux-kernel@vger.kernel.org, hpa@zytor.com, bunk@stusta.de
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [RFC][MEGAPATCH] Change __ASSEMBLY__ to __ASSEMBLER__ (defined by GCC from 2.95 to current CVS)
+Date: Sat, 10 Sep 2005 20:33:18 -0400
+To: Andrew Morton <akpm@osdl.org>
+X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sep 10, 2005, at 18:04:46, Andrew Morton wrote:
+> Kyle Moffett <mrmacman_g4@mac.com> wrote:
+>> When I started trying to split out the userspace<=>kernelspace ABI
+>> headers, I found a number of things (such as __ASSEMBLY__) that
+>> would not operate properly in userspace.
+>
+> Oh, OK.
+
+[questions reordered to fit the answers better :-D]
+
+> What's the status of this userspace ABI project?  How far along is it?
+
+It's just getting started.  This is patch #1 :-D  Unfortunately, this
+project will basically touch most or all of the header files, because
+anything that userspace wants to use (IOCTLs, structs, etc) needs to
+be put into a separate directory tree.  We've kind of tentatively
+assigned "kabi" and "kcore" to that, but it's still really preliminary.
+
+> Is it a thing we want to do?
+
+The UML people really want this, because it would mean that UML could
+completely ignore libc for most of its code and just use the ABI and
+kcore headers.  Since these headers would have a specially defined
+private namespace, they would be trivially useable from various libc
+implementations as well.  (IE: everything begins with __kabi_ or
+__kcore_, except for macros which begin with __KABI_ or __KCORE_).
+The target for this is to also provide (in <kcore/*.h>) some optimized
+inline routines for user programs to use, some LGPL and others GPL.
+One example would be list.h, which I've copied and hacked on several
+times for various other GPL projects I've done work on.
+
+> Have we worked out how it is to be done?
+
+Here's what we've got so far:
+
+1)  At some point the arch/driver/etc maintainers (for anything that
+interacts with userspace), need to start converting things on their
+own (such as moving ioctl and struct declarations to a <kabi/*.h>
+header file), because the people working on it certainly don't have
+all the varieties of hardware and userspace programs that would be
+affected by this change.
+
+2)  The goal is to minimize changes to kernel code.  I'm not out to
+rename "struct list_head", that would be silly!  Instead, the header
+<linux/list.h>  would be basically reduced to this:
+
+#ifndef  __LINUX_LIST_H
+# define __LINUX_LIST_H 1
+# ifdef __KERNEL__
+
+#  define __kcore_list_item list_head
+#  include <kcore/list.h>
+#  define list_add(x,y) __kcore_list_add(x,y)
+
+[...etc...]
+
+# endif /* __KERNEL__ */
+#endif /* not __LINUX_LIST_H */
+
+3)  Another side effect of this project will be that we will have
+the chance to clean up and merge some of the stuff currently in
+the asm-* directories.  For example, the posix_types.h headers on
+most of the architectures have the same sizes for each type, only
+a few are different.  With this we have a chance to have the few
+weird architectures do:
+   #define __KABI_ARCH_TYPE_*_T __kabi_[su][0-9]+_t
+Then all the rest just use the default.  This would make it much
+easier and less error-prone to add a new architecture, because
+you would have a really small set of structs, types, definitions,
+etc in <kabi/arch-*/*.h> that are _required_ across all
+architectures, and most of the stuff in asm-*/*.h would be header
+files for code that exists only on a _single_ architecture.
+
+Cheers,
+Kyle Moffett
+
+--
+Unix was not designed to stop people from doing stupid things,  
+because that
+would also stop them from doing clever things.
+   -- Doug Gwyn
 
 
-On Sat, 10 Sep 2005, Jeff Garzik wrote:
-> 
-> > happen, but still.. Relying on the legacy-value of the IO port instead of
-> > relying on whether you did a legacy request_region() is definitely at
-> > least conceptually wrong).
-> 
-> Its not that simple.  grep for ____request_region in both libata and the 
-> PCI quirks code.  libata grabs the SATA port on ICH boxes in combined 
-> mode... but has to do so before built-in IDE driver grabs them.
-
-That's not what I'm talking about.
-
-The _request_ side is fine, and yes, it needs to be done early.
-
-It's the module unload time that is broken - it doesn't remember whether
-it requested the legacy mode addresses, so instead it uses the address
-_values_ to determine if it did so or not, and that's broken: it is
-conceivable at least in theory that a PCI BAR would contain the legacy
-mode address value, without the legacy mode bit being set. In that case we 
-have _not_ done the legacy-mode "request_region()", but we _will_ do the 
-"release_region()".
-
-Exactly because the code checks the wrong thing. That's also the thing 
-that makes for problems for iomap. What used to be the wrong thing to test 
-now becomes _impossible_ to test.
-
-If the code had just saved the value of "legacy_mode" from the probing 
-phase, the release phase wouldn't have any ambiguous cases, and the iomap 
-code wouldn't have any issues either..
-
-		Linus

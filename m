@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751107AbVIKRU3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751144AbVIKRXr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751107AbVIKRU3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 13:20:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751113AbVIKRU2
+	id S1751144AbVIKRXr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 13:23:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751113AbVIKRXo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 13:20:28 -0400
-Received: from mail.kroah.org ([69.55.234.183]:27786 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751107AbVIKRU1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 13:20:27 -0400
-Date: Sun, 11 Sep 2005 10:15:08 -0700
-From: Greg KH <gregkh@suse.de>
-To: David Lang <david.lang@digitalinsight.com>
-Cc: Valdis.Kletnieks@vt.edu, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [GIT PATCH] Remove devfs from 2.6.13
-Message-ID: <20050911171508.GA12106@suse.de>
-References: <20050909214542.GA29200@kroah.com> <Pine.LNX.4.62.0509101742300.28852@qynat.qvtvafvgr.pbz> <200509110713.j8B7DsNR021781@turing-police.cc.vt.edu> <Pine.LNX.4.62.0509110016110.29141@qynat.qvtvafvgr.pbz>
+	Sun, 11 Sep 2005 13:23:44 -0400
+Received: from xproxy.gmail.com ([66.249.82.192]:49186 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751081AbVIKRXn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Sep 2005 13:23:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=TQ7N63bOIcw/R+oox3QD49WXPEpnGhmTwgM/DnhGWrRbSpntGn1BWrAeqCI0bqvxlvGN7uVB8WMDaGSH8U0pzoesoq0/ytJbsN6hbLztMot8VEg0rqyL2LQvdur25EZj2gk+n968sgXh8o0HML1goIS/yOsx7xV9CnYFPSA8Jgo=
+Message-ID: <4301cff60509111023787cdaf1@mail.gmail.com>
+Date: Sun, 11 Sep 2005 20:23:37 +0300
+From: Mika Kukkonen <mikukkon@iki.fi>
+Reply-To: Mika Kukkonen <mikukkon@iki.fi>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] Fix allnoconfig build with gcc4
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0509101356320.30958@g5.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0509110016110.29141@qynat.qvtvafvgr.pbz>
-User-Agent: Mutt/1.5.10i
+References: <20050910201913.GA6179@miku.homelinux.net>
+	 <Pine.LNX.4.58.0509101356320.30958@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 11, 2005 at 12:20:06AM -0700, David Lang wrote:
-> On Sun, 11 Sep 2005 Valdis.Kletnieks@vt.edu wrote:
+On 9/11/05, Linus Torvalds <torvalds@osdl.org> wrote:
 > 
-> >On Sat, 10 Sep 2005 23:08:36 PDT, David Lang said:
-> >
-> >>remember that the distros don't package every kernel, they skip several
-> >>between releases and it's not going to be until they go to try them that
-> >>all the kinks will get worked out.
-> >
-> >I'll bite - what distros are shipping a kernel 2.6.10 or later and still
-> >using devfs?
-> >
-> I'll admit I don't keep track of the distros and what kernels and features 
-> they are useing. I think I've heard people mention gentoo, but I 
-> haven't verified this.
+> 
+(...)
+> No, this would cause a compile error if CONFIG_NET and CONFIG_SYSCTL
+> is enabled (because sysctl_net.c needs that declaration).
 
-Haha, no, Gentoo does not use devfs for it's 2.6 kernels at all.  I
-should know, I'm a Gentoo developer too :)
+Ah yes. I got confused by googling which showed that there are some issues
+with these declarations and gcc4 (see for example this thread:
+http://gcc.gnu.org/ml/gcc/2005-02/msg00053.html).
 
-thanks,
+> So the correct solution is apparently either one of
+> 
+>  - always declare an empty "struct ctl_table" regardless of whether SYSCTL
+>    is enabled or not.
+> 
+>    This might be a good idea, since it probably allows more code to be
+>    compiled without checking for CONFIG_SYSCTL.
+> 
+>  - put the ether_table[] declaration inside a #ifdef CONFIG_SYSCTL.
 
-greg k-h
+core_table in include/net/sock.h uses the latter option, so I'll send
+you a patch
+for that (with better email client).
+
+--MiKu

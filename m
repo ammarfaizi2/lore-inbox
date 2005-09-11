@@ -1,60 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751065AbVIKQd7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964852AbVIKQaV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751065AbVIKQd7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 12:33:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751068AbVIKQd7
+	id S964852AbVIKQaV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 12:30:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751034AbVIKQaV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 12:33:59 -0400
-Received: from 64-30-195-78.dsl.linkline.com ([64.30.195.78]:61569 "EHLO
-	jg555.com") by vger.kernel.org with ESMTP id S1751034AbVIKQd6 (ORCPT
+	Sun, 11 Sep 2005 12:30:21 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:19865 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750737AbVIKQaV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 12:33:58 -0400
-Message-ID: <43245C56.5000905@jg555.com>
-Date: Sun, 11 Sep 2005 09:33:26 -0700
-From: Jim Gifford <maillist@jg555.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+	Sun, 11 Sep 2005 12:30:21 -0400
+Message-ID: <43245B8F.1070703@pobox.com>
+Date: Sun, 11 Sep 2005 12:30:07 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "David S. Miller" <davem@davemloft.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Pure 64 bootloaders
-References: <43228E4E.4050103@jg555.com> <20050910.010114.28468998.davem@davemloft.net>
-In-Reply-To: <20050910.010114.28468998.davem@davemloft.net>
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Miguel <frankpoole@terra.es>, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Subject: Re: PCI bug in 2.6.13
+References: <20050909180405.3e356c2a.frankpoole@terra.es> <20050909225956.42021440.akpm@osdl.org> <20050910113658.178a7711.frankpoole@terra.es> <Pine.LNX.4.58.0509100949370.30958@g5.osdl.org> <Pine.LNX.4.58.0509101401490.30958@g5.osdl.org> <20050911030814.08cbe74c.frankpoole@terra.es> <Pine.LNX.4.58.0509101817590.3314@g5.osdl.org> <20050911161058.481d1a75.frankpoole@terra.es> <Pine.LNX.4.58.0509110903050.4912@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0509110903050.4912@g5.osdl.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
+Linus Torvalds wrote:
+> 
+> On Sun, 11 Sep 2005, Miguel wrote:
+> 
+>>After applying this patch I don't see anything new so I have added the
+>>same WARN_ON in pci_write_config_byte and pci_write_config_word and now
+>>dmesg shows this:
+> 
+> 
+> Thanks. Nobody should ever do a byte write to that offset, but clearly 
+> something does.
+> 
+> And yes, that's what I missed even though I quoted it from the hpt366
+> driver (heh, and nobody else noticed either):
+> 
+>         /* FIXME: Not portable */
+>         if (dev->resource[PCI_ROM_RESOURCE].start)
+>                 pci_write_config_byte(dev, PCI_ROM_ADDRESS,
+>                         dev->resource[PCI_ROM_RESOURCE].start | PCI_ROM_ADDRESS_ENABLE);
+> 
+> I wonder how long that has been like that.
+> 
+> Change the pci_write_config_byte() into a pci_write_config_dword(), and I 
+> bet it works. 
+> 
+> However, I _also_ suspect it works if you remove those lines entirely. I 
+> don't see why it tries to enable the ROM in the first place - it doesn't 
+> seem to be _using_ it.
 
->You can make SILO 64-bit, but it would just be a lot
->of work and would just result in a SILO that, unlike
->current SILO, would only work on UltraSPARC machines.
->
->There really is no advantage, and known disadvantages, to
->making SILO 64-bit.
->  
->
-If I have a system that is a Pure64 environment, I try to compile Silo, 
-it will not function. Since there is no support for 32 bit, how would I 
-be able to use it.
+I can't figure out what's going on in hpt driver, either.  Just checked 
+in 2.2 (not present) and 2.4 (same write-byte code).
 
-Isn't there a way to compile the programs necessary as 64bit but the 
-actual mbr or .b files depending on your architecture be 32 bit. I
+Maybe Alan or Bart has details?
 
-In the case of Silo, it compiles, but when you run silo -f, when you 
-reboot, it Starts Silo, then gives, Program Terminiated in OBP. Which 
-now makes the computer useless, unless you have a 32 bit build of silo 
-standing around.
+	Jeff
 
-Also in the case of Silo, if you try to compile it on a modern tool 
-chain, the .b files it generates don't work, which I have reported 
-upstream. Modern toolchain = binutils 2.16.1, gcc 3.4.4, and glibc 2.3.5.
 
-For the Sparc64 builds, I'm starting to look at using OBP to do the booting.
-
--- 
-----
-Jim Gifford
-maillist@jg555.com
 

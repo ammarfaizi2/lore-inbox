@@ -1,124 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932332AbVIKHNP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932413AbVIKHO2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932332AbVIKHNP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 03:13:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbVIKHNP
+	id S932413AbVIKHO2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 03:14:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932426AbVIKHO2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 03:13:15 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:10259 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S932332AbVIKHNO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 03:13:14 -0400
-Date: Sun, 11 Sep 2005 09:04:07 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       davem@davemloft.net
-Subject: Re: sungem driver patch testing..
-Message-ID: <20050911070407.GF30279@alpha.home.local>
-References: <Pine.LNX.4.58.0509102008540.4912@g5.osdl.org>
+	Sun, 11 Sep 2005 03:14:28 -0400
+Received: from h80ad2452.async.vt.edu ([128.173.36.82]:54422 "EHLO
+	h80ad2452.async.vt.edu") by vger.kernel.org with ESMTP
+	id S932413AbVIKHO1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Sep 2005 03:14:27 -0400
+Message-Id: <200509110713.j8B7DsNR021781@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: David Lang <david.lang@digitalinsight.com>
+Cc: Greg KH <gregkh@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [GIT PATCH] Remove devfs from 2.6.13 
+In-Reply-To: Your message of "Sat, 10 Sep 2005 23:08:36 PDT."
+             <Pine.LNX.4.62.0509102257290.29141@qynat.qvtvafvgr.pbz> 
+From: Valdis.Kletnieks@vt.edu
+References: <20050909214542.GA29200@kroah.com> <Pine.LNX.4.62.0509101742300.28852@qynat.qvtvafvgr.pbz> <20050911030726.GA20462@suse.de>
+            <Pine.LNX.4.62.0509102257290.29141@qynat.qvtvafvgr.pbz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0509102008540.4912@g5.osdl.org>
-User-Agent: Mutt/1.5.10i
+Content-Type: multipart/signed; boundary="==_Exmh_1126422832_12093P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sun, 11 Sep 2005 03:13:53 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+--==_Exmh_1126422832_12093P
+Content-Type: text/plain; charset=us-ascii
 
-On Sat, Sep 10, 2005 at 08:11:22PM -0700, Linus Torvalds wrote:
-> 
-> I've been grepping around for things that do their own PCI ROM mapping and 
-> do it badly, and one thing that matches that description is the sungem 
-> ethernet driver on PC's.
-> 
-> If anybody has such a beast, can you please try this patch and report 
-> whether it works for you? 
+On Sat, 10 Sep 2005 23:08:36 PDT, David Lang said:
 
-I've ported it to sunhme (which uses the same PCI ROM mapping code).
-Without the patch, I get NULL MAC addresses for all 4 ports (it's a SUN
-QFE). With the patch, I get the correct addresses (the ones printed on
-the label on the card).
+> remember that the distros don't package every kernel, they skip several 
+> between releases and it's not going to be until they go to try them that 
+> all the kinks will get worked out.
 
-I attach the patch for sunhme, and Cc: Davem so that he updates his tree.
+I'll bite - what distros are shipping a kernel 2.6.10 or later and still
+using devfs?
 
-Thanks,
-Willy
+--==_Exmh_1126422832_12093P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
---- linux-2.6.13.1.orig/drivers/net/sunhme.c	Wed Aug 24 22:51:25 2005
-+++ linux-2.6.13.1/drivers/net/sunhme.c	Sun Sep 11 09:06:26 2005
-@@ -2954,7 +2954,7 @@ static int is_quattro_p(struct pci_dev *
- }
- 
- /* Fetch MAC address from vital product data of PCI ROM. */
--static void find_eth_addr_in_vpd(void __iomem *rom_base, int len, int index, unsigned char *dev_addr)
-+static int find_eth_addr_in_vpd(void __iomem *rom_base, int len, int index, unsigned char *dev_addr)
- {
- 	int this_offset;
- 
-@@ -2977,42 +2977,33 @@ static void find_eth_addr_in_vpd(void __
- 
- 			for (i = 0; i < 6; i++)
- 				dev_addr[i] = readb(p + i);
--			break;
-+			return 1;
- 		}
- 		index--;
- 	}
-+	return 0;
- }
- 
- static void get_hme_mac_nonsparc(struct pci_dev *pdev, unsigned char *dev_addr)
- {
--	u32 rom_reg_orig;
--	void __iomem *p;
--	int index;
--
--	index = 0;
--	if (is_quattro_p(pdev))
--		index = PCI_SLOT(pdev->devfn);
--
--	if (pdev->resource[PCI_ROM_RESOURCE].parent == NULL) {
--		if (pci_assign_resource(pdev, PCI_ROM_RESOURCE) < 0)
--			goto use_random;
--	}
--
--	pci_read_config_dword(pdev, pdev->rom_base_reg, &rom_reg_orig);
--	pci_write_config_dword(pdev, pdev->rom_base_reg,
--			       rom_reg_orig | PCI_ROM_ADDRESS_ENABLE);
--
--	p = ioremap(pci_resource_start(pdev, PCI_ROM_RESOURCE), (64 * 1024));
--	if (p != NULL && readb(p) == 0x55 && readb(p + 1) == 0xaa)
--		find_eth_addr_in_vpd(p, (64 * 1024), index, dev_addr);
-+	size_t size;
-+	void __iomem *p = pci_map_rom(pdev, &size);
- 
--	if (p != NULL)
--		iounmap(p);
--
--	pci_write_config_dword(pdev, pdev->rom_base_reg, rom_reg_orig);
--	return;
-+	if (p) {
-+		int index = 0;
-+		int found;
-+
-+		if (is_quattro_p(pdev))
-+			index = PCI_SLOT(pdev->devfn);
-+
-+		found = readb(p) == 0x55 &&
-+			readb(p + 1) == 0xaa &&
-+			find_eth_addr_in_vpd(p, (64 * 1024), index, dev_addr);
-+		pci_unmap_rom(pdev, p);
-+		if (found)
-+			return;
-+	}
- 
--use_random:
- 	/* Sun MAC prefix then 3 random bytes. */
- 	dev_addr[0] = 0x08;
- 	dev_addr[1] = 0x00;
+iD8DBQFDI9kwcC3lWbTT17ARAng9AKCHqTqE7U5KHbcKJjF5O7UY0Jf9VQCgjqcJ
+ZGQSHworTNRqobRKbgTstjE=
+=lFX6
+-----END PGP SIGNATURE-----
 
-
-
+--==_Exmh_1126422832_12093P--

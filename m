@@ -1,67 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965002AbVIKSPh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965009AbVIKSTc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965002AbVIKSPh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 14:15:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965005AbVIKSPh
+	id S965009AbVIKSTc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 14:19:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965010AbVIKSTc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 14:15:37 -0400
-Received: from main.gmane.org ([80.91.229.2]:7340 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S965002AbVIKSPh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 14:15:37 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Kalin KOZHUHAROV <kalin@thinrope.net>
-Subject: Re: Very strange Marvell/Yukon Gigabit NIC networking problems
-Date: Mon, 12 Sep 2005 03:12:10 +0900
-Message-ID: <dg1s37$kd4$1@sea.gmane.org>
-References: <20050901212110.19192.qmail@web53605.mail.yahoo.com> <43244C33.1050502@gentoo.org>
+	Sun, 11 Sep 2005 14:19:32 -0400
+Received: from tarjoilu.luukku.com ([194.215.205.232]:52674 "EHLO
+	tarjoilu.luukku.com") by vger.kernel.org with ESMTP id S965009AbVIKSTc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Sep 2005 14:19:32 -0400
+Date: Sun, 11 Sep 2005 21:19:19 +0300
+From: mikukkon@iki.fi
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix allnoconfig compile with gcc 4 (take 2)
+Message-ID: <20050911181919.GA1096@miku.homelinux.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: s175249.ppp.asahi-net.or.jp
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050804)
-X-Accept-Language: en-us, en
-In-Reply-To: <43244C33.1050502@gentoo.org>
-X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Drake wrote:
-> Hi,
-> 
-> Steve Kieu wrote:
-> 
->> If run 2.6.13 and up the NIC, it is working. Shuttdown
->> or reboot using /sbin/halt (means power completely off
->> and on) or /sbin/reboot all other OSs failed to enable
->> the NIC except 2.6.13.
->>
->> to restore the normal working of the NIC, boot 2.6.13
->> and do a hot power reset. (press the reset button)
-> 
-> 
-> Stephen recently posted a patch which looks like it might solve this issue.
-> 
-> Steve, maybe you could test it out? I have attached it to this Gentoo bug:
-> 
->     http://bugs.gentoo.org/100258
-> 
-> Stephen, thanks for your hard work!
+With allnoconfig and gcc 4 from SUSE 10 RC1:
+	gcc version 4.0.2 20050901 (prerelease) (SUSE Linux)
+I get following error:
+  CC      init/main.o
+In file included from include/linux/netdevice.h:29,
+		 from include/net/sock.h:48,
+		 from init/main.c:50:
+include/linux/if_ether.h:114: error: array type has incomplete element type
 
-I will try this one on a problematic ASUS board than now runs on 
-2.11.11 with sk98lin-8.18.2.2.patch
+Fixed by surrounding offending line with #ifdef CONFIG_SYSCTL as
+discussed.
 
-Applied the patch from #100258 to 2.6.13.1 successfully (some lines 
-offset) and recompiled. Will try it tomorrow when I am at the machine.
+When I turned CONFIG_NET and CONFIG_SYSCTL on, I noticed also that
+net/sysctl_net.c should #include <net/sock.h> unconditionally to avoid
+similar error with core_table[] (also fixed in following patch).
 
-BTW, is this patch submitted to the Linus or -mm tree already?
+Signed-of-by: Mika Kukkonen <mikukkon@iki.fi>
 
-Kalin.
-
--- 
-|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
-+-> http://ThinRope.net/ <-+
-|[ ______________________ ]|
-
+Index: linux-2.6/net/sysctl_net.c
+===================================================================
+--- linux-2.6.orig/net/sysctl_net.c
++++ linux-2.6/net/sysctl_net.c
+@@ -15,6 +15,7 @@
+ #include <linux/config.h>
+ #include <linux/mm.h>
+ #include <linux/sysctl.h>
++#include <net/sock.h>
+ 
+ #ifdef CONFIG_INET
+ #include <net/ip.h>
+Index: linux-2.6/include/linux/if_ether.h
+===================================================================
+--- linux-2.6.orig/include/linux/if_ether.h
++++ linux-2.6/include/linux/if_ether.h
+@@ -111,7 +111,10 @@ static inline struct ethhdr *eth_hdr(con
+ 	return (struct ethhdr *)skb->mac.raw;
+ }
+ 
++#ifdef CONFIG_SYSCTL
+ extern struct ctl_table ether_table[];
+ #endif
+ 
++#endif
++
+ #endif	/* _LINUX_IF_ETHER_H */

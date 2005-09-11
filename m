@@ -1,69 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932728AbVIKARo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932732AbVIKA2I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932728AbVIKARo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 20:17:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932727AbVIKARo
+	id S932732AbVIKA2I (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 20:28:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932731AbVIKA2H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 20:17:44 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:57238 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932393AbVIKARn (ORCPT
+	Sat, 10 Sep 2005 20:28:07 -0400
+Received: from colo.lackof.org ([198.49.126.79]:44184 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S932729AbVIKA2G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 20:17:43 -0400
-Message-ID: <432377A3.5070805@pobox.com>
-Date: Sat, 10 Sep 2005 20:17:39 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Andrew Morton <akpm@osdl.org>,
+	Sat, 10 Sep 2005 20:28:06 -0400
+Date: Sat, 10 Sep 2005 18:34:09 -0600
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Matthew Wilcox <matthew@wil.cx>, Greg KH <greg@kroah.com>,
+       Jiri Slaby <jirislaby@gmail.com>, Greg KH <gregkh@suse.de>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-Subject: Re: [GIT PATCH] More PCI patches for 2.6.13
-References: <Pine.LNX.4.44L0.0509101655520.7081-100000@netrider.rowland.org> <Pine.LNX.4.58.0509101410300.30958@g5.osdl.org> <43235707.7050909@pobox.com> <20050910153110.36a44eba.akpm@osdl.org> <Pine.LNX.4.58.0509101548230.30958@g5.osdl.org> <43236FD2.6010501@pobox.com> <Pine.LNX.4.58.0509101658080.30958@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0509101658080.30958@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-ide@vger.kernel.org,
+       B.Zolnierkiewicz@elka.pw.edu.pl
+Subject: Re: [PATCH] include: pci_find_device remove (include/asm-i386/ide.h)
+Message-ID: <20050911003409.GB25282@colo.lackof.org>
+References: <200509102032.j8AKWxMC006246@localhost.localdomain> <4323482E.2090409@pobox.com> <20050910211932.GA13679@kroah.com> <432352A8.3010605@pobox.com> <20050910223333.GF4770@parisc-linux.org> <43236DAE.8000802@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43236DAE.8000802@pobox.com>
+X-Home-Page: http://www.parisc-linux.org/
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Sat, Sep 10, 2005 at 07:35:10PM -0400, Jeff Garzik wrote:
+> >Why not change it to query whether any IDE device is present, perhaps
+> >using pci_get_class()?
 > 
-> On Sat, 10 Sep 2005, Jeff Garzik wrote:
-> 
->>I -do- want to use iomap.  The problem is that no one has yet come up 
->>with a few that does all the proper resource reservation.  Everybody 
->>(including myself) did the ioread/iowrite part, but gave up before 
->>handling all cases of (a) legacy ISA iomap, (b) native PCI IDE iomap, 
->>and (c) non-standard MMIO iomap.
-> 
-> 
-> It should all be trivial. The only ugly issue in the patch I just sent out 
-> is that it needs to save the "legacy_mode" bits that were calculated at 
-> initialization time somewhere in the ap structure. Then the 
-> release_regions should match the request_regions.
+> Because that's not what the code is attempting to discover.
 
-More ugly issues abound, see below :)
+If ide_scan_pcibus() finds any pci device, it calls ide_scan_pcidev().
+ide_scan_pcidev() only seems to handle PCI devices.
+Are you saying there are PCI IDE devices out there that
+don't advertise PCI_CLASS_STORAGE_IDE?
 
-
-> That's a cleanup, the current code is literally buggy. It may end up
-> releasing IO address 0x1f0 twice, if somebody wasn't marked legacy, but
-> actually had 0x1f0 in the PCI resource pointers (maybe that doesn't ever
-
-Haven't run into anything yet that trips up the legacy/native detection 
-in libata except for mixed mode (1 port legacy, 1 port native).  But 
-those bugs aren't in the area of code we're discussing.
-
-
-> happen, but still.. Relying on the legacy-value of the IO port instead of
-> relying on whether you did a legacy request_region() is definitely at
-> least conceptually wrong).
-
-Its not that simple.  grep for ____request_region in both libata and the 
-PCI quirks code.  libata grabs the SATA port on ICH boxes in combined 
-mode... but has to do so before built-in IDE driver grabs them.
-
-	Jeff
-
-
+thanks,
+grant

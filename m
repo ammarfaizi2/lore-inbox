@@ -1,50 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750916AbVIKVYz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750924AbVIKV3p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750916AbVIKVYz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 17:24:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750922AbVIKVYz
+	id S1750924AbVIKV3p (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 17:29:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750925AbVIKV3p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 17:24:55 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:57751 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750881AbVIKVYy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 17:24:54 -0400
-Date: Sun, 11 Sep 2005 14:24:48 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Roland Dreier <rolandd@cisco.com>
-cc: Sam Ravnborg <sam@ravnborg.org>, Peter Osterlund <petero2@telia.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>
-Subject: Re: What's up with the GIT archive on www.kernel.org?
-In-Reply-To: <52irx7cnw5.fsf@cisco.com>
-Message-ID: <Pine.LNX.4.58.0509111422510.3242@g5.osdl.org>
-References: <m3mzmjvbh7.fsf@telia.com> <Pine.LNX.4.58.0509110908590.4912@g5.osdl.org>
- <20050911185711.GA22556@mars.ravnborg.org> <Pine.LNX.4.58.0509111157360.3242@g5.osdl.org>
- <20050911194630.GB22951@mars.ravnborg.org> <Pine.LNX.4.58.0509111251150.3242@g5.osdl.org>
- <52irx7cnw5.fsf@cisco.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 11 Sep 2005 17:29:45 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:26076 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750923AbVIKV3p
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Sep 2005 17:29:45 -0400
+Date: Sun, 11 Sep 2005 22:29:42 +0100
+From: Al Viro <viro@ZenIV.linux.org.uk>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>,
+       LKML <linux-kernel@vger.kernel.org>, jdike@addtoit.com
+Subject: Re: asm-offsets.h is generated in the source tree
+Message-ID: <20050911212942.GK25261@ZenIV.linux.org.uk>
+References: <20050911012033.5632152f.sfr@canb.auug.org.au> <20050910161917.GA22113@mars.ravnborg.org> <20050911023203.GH25261@ZenIV.linux.org.uk> <20050911083153.GA24176@mars.ravnborg.org> <20050911154550.GJ25261@ZenIV.linux.org.uk> <20050911170425.GA8049@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050911170425.GA8049@mars.ravnborg.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sun, 11 Sep 2005, Roland Dreier wrote:
+On Sun, Sep 11, 2005 at 07:04:25PM +0200, Sam Ravnborg wrote:
+> prepare
+>   +-prepare0
+>      +-archprepare
+>         +-prepare1
+>            +-prepare2
+>               +-prepare3
 > 
-> Does "everything" include someone doing
 > 
->     git clone rsync://rsync.kernel.org/pub/scm/linux/kernel/git/roland/whatever.git
+> prepare0 needs archprepare, but archprepare may need prepare1.
+> So this should be OK on all architectures.
+> And you can go back relying solely on prepare in um Makefile.
 
-Nope. Only server-side smart protocols will handle this.
+OK...  Once that goes in, I'm doing s/prepare1/archprepare/ in there.
+Note that kern-offsets.c expects to find user_constants.h and symlinks
+already in place - it assumes that all kernel headers are usable.
+kern_constants.h is used only by userland glue, task.h and thread.h and
+these, in turn, are used only by userland glue.
 
-There is such an anonymous server, btw: "git-daemon" implements anonymous 
-access much more efficient than rsync/http. Sadly, kernel.org still 
-doesn't offer it (but it's now used in the wild, ie I've done a couple of 
-merges with people running the git daemon).
+So ordering constraints are
+	symlinks and user_constants.h are needed to get kernel headers usable
+	kern_constants.h needs kernel headers
+	kernel code needs kernel headers
+	parts of userland glue need kern_constants.h
 
-> In other words, is the git network transport smart enough to handle
-> the alternates path?
+FWIW, we could rename user-offsets.c to asm-offsets.c and let the regular
+mechanism take care of them (renaming user_constants.h at the same time,
+obviously).  Critical part here is "kernel-offsets.c expects kernel headers
+usable", everything else could be trivially dealt with...
+ 
+Note that kern_constants.h must *NOT* go into include/asm-um - we need it
+in userland glue which doesn't get include/ in its search path.  So reducing
+the number of symlinks won't be trivial.  We could, in principle, move
+kern_constants.h to e.g. include/asm-um/user/, include that in userland
+glue search path and try to fight the rest, but that won't be fun.
 
-The _git_ network transport is. rsync and http aren't.
+One particulary nasty bit: we have both per-subarch headers in asm-um _and_
+headers in there that do something and proceed to include corresponding
+header from asm-<subarch>.  Currently we do that with
+	include/asm-um/arch ----> include/asm-<subarch>
+	include/asm-um/foo.h ---> include/asm-um/foo-<subarch>.h for
+the first kind and
+	#include <asm/arch/foo.h> in foo.h for the second one.
 
-		Linus
+We also have arch/um/include/sysdep -> sysdep-<subarch>, but that's easier
+to deal with...
+
+Any ideas?
+
+> > -$(ARCH_DIR)/kernel-offsets.h: $(ARCH_DIR)/kernel-offsets.s
+> > +$(ARCH_DIR)/include/kern_constants.h: $(ARCH_DIR)/kernel-offsets.s
+> >  	$(call filechk,gen-asm-offsets)
+> 
+> Same comment as above.
+
+kernel-offsets.c might actually pick a stray dependency on version.h.
+user-offsets.c comment applies, indeed.

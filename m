@@ -1,100 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750988AbVIKWdV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750991AbVIKWfX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750988AbVIKWdV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 18:33:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750990AbVIKWdV
+	id S1750991AbVIKWfX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 18:35:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750992AbVIKWfX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 18:33:21 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:60623 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1750987AbVIKWdV
+	Sun, 11 Sep 2005 18:35:23 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:61391 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1750990AbVIKWfX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 18:33:21 -0400
-Date: Mon, 12 Sep 2005 00:34:14 +0200
-To: Zoltan Szecsei <zoltans@geograph.co.za>
-Cc: linux-kernel@vger.kernel.org
+	Sun, 11 Sep 2005 18:35:23 -0400
+Date: Mon, 12 Sep 2005 00:36:19 +0200
+To: Martin Mares <mj@ucw.cz>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Zoltan Szecsei <zoltans@geograph.co.za>,
+       linux-kernel@vger.kernel.org
 Subject: Re: multiple independent keyboard kernel support
-Message-ID: <20050911223414.GA19403@aitel.hist.no>
-References: <4316E5D9.8050107@geograph.co.za>
+Message-ID: <20050911223619.GB19403@aitel.hist.no>
+References: <4316E5D9.8050107@geograph.co.za> <20050901122253.GA11787@midnight.suse.cz> <4316FD08.1070505@geograph.co.za> <20050901132409.GA29134@midnight.suse.cz> <20050901144812.GA3483@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4316E5D9.8050107@geograph.co.za>
+In-Reply-To: <20050901144812.GA3483@atrey.karlin.mff.cuni.cz>
 User-Agent: Mutt/1.5.9i
 From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 01, 2005 at 01:28:25PM +0200, Zoltan Szecsei wrote:
-> Hi All,
-> The archives & FAQs on this subject stop at December 2003. Google not 
-> much help either (prob. due to my keyword choices)
+On Thu, Sep 01, 2005 at 04:48:12PM +0200, Martin Mares wrote:
+> Hello!
 > 
-> I gather the only way to do this is via the ruby patch.
+> > Btw, Aivils Stoss created a nice way to make several X instances have
+> > separate keyboards - see the linux-console archives for the faketty
+> > driver.
 > 
-> (When) Will there ever be native kernel (and maybe XFree) support for 
-> multiple independent keyboards?
+> I haven't looked recently, but when I tried that several years ago,
+> the biggest problem was to make two simultaneously running X servers
+> not switch off each other's video card I/O ports off :)
 > 
+Look again.  X config files now have "IsolateDevice" and "BusID"
+to deal with this.  At least iff you get your X from ubuntu or
+debian testing . . .
 
-xorg from debian testing or from ubuntu already support multiple
-independent keyboards.  I'm using that right now for my
-two-user single-pc setup.
+> All other things looked solvable with a reasonably small effort.
 
-Each independent xserver have a section like this in the xorg.conf:
-Section "InputDevice"
-        Identifier      "Generic Keyboard"
-        Driver          "kbd"
-        Option          "Protocol"      "evdev"
-        Option          "Dev Phys"      "isa0060/serio0/input0"
-        Option          "CoreKeyboard"
-        Option          "XkbRules"      "xfree86"
-        Option          "XkbModel"      "pc102"
-        Option          "XkbLayout"     "no"
-EndSection
-
-In the serverlayout section, use the IsolateDevice option so
-the independent xservers don't stomp on each other's cards.
-
-In the screen section, set the "InitPrimary" option for cards that
-doesn't get initialized by the bios at bootup.
-
-In the device section, use the BusID option to be safe.
-
-Start your xserver with the -sharevts option.
-
-
-I have only one _console_, but multiple xservers with
-separate keyboards works with plain 2.6.13.
-
-Multiple consoles are also doable, if someone writes a "getty"
-that uses the evdev interface for input (instead of tty's)
-and the framebuffer interfaces for output (instead of tty's).
-
-> The ruby patch seems to also only have discussions older than 18 months.
-> 
-> Has there really been no progress in the last 18 months?
-> 
-Looks  like much of the interest in ruby work disappeared as the evdev
-option for X became widespread.  X is what most people use for desktops,
-and that works well enough without ruby now.
-
-> I would prefer to see "official and permanent" support for this as then 
-> when HW & drivers & kernels develop in the future, this capability will 
-> always be (immediately) available - and not have to wait for patches.
-> 
-
-"evdev" in the kernel already separates out independent keyboards.
-Isolatedevice lets several xservers run indepenmdently.  There isn't
-much missing, although there are minor troubles where starting one
-xserver might mess up the video timing for another.  (Solution:
-start xserver in an appropriate order, to be found by experimentation)
-Another minor problem - it won't work with every combination of video cards,
-only some.
-Still - when it works you even get to run accelerated 3D on
-the independent heads.  Nice for game parties.
-
-> Can someone please refer me to recent archives on this subject, or 
-> update me on this issue if possible.
-> 
-I hope this helps.
+It works quite well. :-)
 
 Helge Hafting

@@ -1,54 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbVIKM10@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbVIKMlF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964930AbVIKM10 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 08:27:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964938AbVIKM10
+	id S1750736AbVIKMlF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 08:41:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbVIKMlF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 08:27:26 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:23712 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S964930AbVIKM10 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 08:27:26 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: [GIT PATCHES] final kbuild update before fix-only period
-Date: Sun, 11 Sep 2005 15:26:57 +0300
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org
-References: <20050910200347.GA3762@mars.ravnborg.org>
-In-Reply-To: <20050910200347.GA3762@mars.ravnborg.org>
+	Sun, 11 Sep 2005 08:41:05 -0400
+Received: from mailserv.aei.mpg.de ([194.94.224.6]:32687 "EHLO
+	mailserv.aei.mpg.de") by vger.kernel.org with ESMTP
+	id S1750736AbVIKMlE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Sep 2005 08:41:04 -0400
+From: Kasper Peeters <kasper.peeters@aei.mpg.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509111526.58010.vda@ilport.com.ua>
+Message-ID: <17188.9683.311780.197075@sbox13.aei.mpg.de>
+Date: Sun, 11 Sep 2005 14:40:51 +0200
+To: linux-kernel@vger.kernel.org
+Subject: crash upon rmmod aic7xxx (pcmcia)
+X-Mailer: VM 7.07 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 10 September 2005 23:03, Sam Ravnborg wrote:
-> Hi Linus.
-> 
-> Please pull from:
-> 	rsync://sync.kernel.org/pub/scm/linux/kernel/git/sam/kbuild.git
-> 
-> The updates are pushed to master.kernel.org - still waiting for
-> mirroring to pick them up.
-> 
-> This update contains a fix with make O= for generic asm-offsets.h, plus
-> additional patches from my queue.
-> This clears my queue of pending patches for 2.6.14.
-> 
-> I will try to follow-up with all patches.
+Hi,
 
-Hi Sam,
+Since the early 2.6.x kernels, removing the aic7xxx module (either by
+doing a 'rmmod' by hand or by ejecting the pcmcia aic7xxx card) locks
+the system hard after about 2 seconds, leaving no trace in syslog. 
+Just checked with kernel 2.6.13 (and pcmcia-tools 3.2.8).
 
-BUG()s etc which are using __FILE__ to get source filename
-print horribly long names like
+Upon insertion of the pcmcia card, this appears in syslog:
 
-/.share/usr/src2/kernel/linux-2.6.13-mm2.src/drivers/net/.../some.c
+Sep 11 14:36:05 whiteroom2 kernel: PCI: Enabling device 0000:03:00.0 (0000 -> 0003)
+Sep 11 14:36:05 whiteroom2 kernel: ACPI: PCI Interrupt 0000:03:00.0[A] -> Link [LNKA] -> GSI 11 (level, low
+) -> IRQ 11
+Sep 11 14:36:05 whiteroom2 kernel: aic7xxx: PCI Device 3:0:0 failed memory mapped test.  Using PIO.
+Sep 11 14:36:05 whiteroom2 kernel: ahc_pci:3:0:0: Host Adapter Bios disabled.  Using default SCSI device pa
+rameters
+Sep 11 14:36:05 whiteroom2 kernel: scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
+Sep 11 14:36:05 whiteroom2 kernel:         <Adaptec 1480A Ultra SCSI adapter>
+Sep 11 14:36:05 whiteroom2 kernel:         aic7860: Ultra Single Channel A, SCSI Id=7, 3/253 SCBs
+Sep 11 14:36:05 whiteroom2 kernel: 
+Sep 11 14:36:12 whiteroom2 kernel: scsi0: PCI error Interrupt at seqaddr = 0x8
+Sep 11 14:36:12 whiteroom2 kernel: scsi0: Signaled a Target Abort
+Sep 11 14:36:21 whiteroom2 kernel:   Vendor: HP        Model: CD-Writer+ 9200   Rev: 1.0c
+Sep 11 14:36:21 whiteroom2 kernel:   Type:   CD-ROM                             ANSI SCSI revision: 04
+Sep 11 14:36:21 whiteroom2 kernel:  target0:0:4: asynchronous.
+Sep 11 14:36:21 whiteroom2 kernel:  target0:0:4: Beginning Domain Validation
+Sep 11 14:36:21 whiteroom2 kernel:  target0:0:4: Domain Validation skipping write tests
+Sep 11 14:36:21 whiteroom2 kernel:  target0:0:4: FAST-10 SCSI 10.0 MB/s ST (100 ns, offset 15)
+Sep 11 14:36:21 whiteroom2 kernel:  target0:0:4: Ending Domain Validation
+Sep 11 14:36:21 whiteroom2 kernel: sr0: scsi3-mmc drive: 32x/32x writer cd/rw xa/form2 cdda tray
+Sep 11 14:36:21 whiteroom2 kernel: Attached scsi generic sg0 at scsi0, channel 0, id 4, lun 0,  type 5
+Sep 11 14:36:22 whiteroom2 scsi.agent[3014]: cdrom at /devices/pci0000:00/0000:00:1e.0/0000:02:0a.0/0000:03
+:00.0/host0/target0:0:4/0:0:4:0
 
-if one builds kernel in separate object dir.
-This is ugly and wastes space in kernel image. Any ideas how to fix this?
---
-vda
+
+Can someone give me a hand pinning down this bug?
+
+(Please CC replies to me directly).
+
+Kasper
+

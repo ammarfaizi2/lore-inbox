@@ -1,24 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751008AbVIKW4k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751016AbVIKW7a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751008AbVIKW4k (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 18:56:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751016AbVIKW4k
+	id S1751016AbVIKW7a (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 18:59:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751021AbVIKW7a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 18:56:40 -0400
-Received: from xenotime.net ([66.160.160.81]:25264 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751005AbVIKW4k (ORCPT
+	Sun, 11 Sep 2005 18:59:30 -0400
+Received: from xenotime.net ([66.160.160.81]:5553 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751011AbVIKW73 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 18:56:40 -0400
-Date: Sun, 11 Sep 2005 15:56:37 -0700
+	Sun, 11 Sep 2005 18:59:29 -0400
+Date: Sun, 11 Sep 2005 15:59:27 -0700
 From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Kyle Moffett <mrmacman_g4@mac.com>
+To: Alexey Dobriyan <adobriyan@gmail.com>
 Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [RFC] [PATCH] make add_taint() inline
-Message-Id: <20050911155637.3839db5c.rdunlap@xenotime.net>
-In-Reply-To: <8244F3CF-9EF7-44BB-B3DA-B46A1FF39E1C@mac.com>
-References: <20050911103757.7cc1f50f.rdunlap@xenotime.net>
-	<20050911104437.6445ff20.donate@madrone.org>
-	<8244F3CF-9EF7-44BB-B3DA-B46A1FF39E1C@mac.com>
+Subject: Re: [PATCH] use add_taint() for setting tainted bit flags
+Message-Id: <20050911155927.721ed2b9.rdunlap@xenotime.net>
+In-Reply-To: <20050911183353.GA4353@mipter.zuzino.mipt.ru>
+References: <20050911104431.1d755c4e.rdunlap@xenotime.net>
+	<20050911183353.GA4353@mipter.zuzino.mipt.ru>
 Organization: YPO4
 X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
@@ -27,34 +26,61 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 Sep 2005 14:22:08 -0400 Kyle Moffett wrote:
+On Sun, 11 Sep 2005 22:33:53 +0400 Alexey Dobriyan wrote:
 
-> On Sep 11, 2005, at 13:44:37, donate wrote:
-> > From: Randy Dunlap <rdunlap@xenotime.net>
-> >
-> > add_taint() is a trivial function.
-> > No need to call it out-of-line, just make it inline and
-> > remove its export.
+> On Sun, Sep 11, 2005 at 10:44:31AM -0700, Randy.Dunlap wrote:
+> > Use the add_taint() interface for setting tainted bit flags
+> > instead of doing it manually.
 > 
-> Actually, in this case it might be better to leave add_taint
-> exported, add and export a new function get_taint(), and then
-> remove all export of the variable "tainted".  I've actually
-> seen one case where some module removed taint bits.  I don't
+> > --- linux-2613-git10/kernel/module.c~use_add_taint
+> > +++ linux-2613-git10/kernel/module.c
+> > @@ -20,6 +20,7 @@
+> >  #include <linux/module.h>
+> >  #include <linux/moduleloader.h>
+> >  #include <linux/init.h>
+> > +#include <linux/kernel.h>
+>    ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 
+> Will something like this be accepted? Not even boot-tested yet.
 
-some in-tree module?
+Makes sense to me.
 
-> remember where or why, but it seemed really bad at the time,
-> and still does.  Also, does the tainted variable need any
-> kind of locking?  What happens if two CPUs try to taint the
-> kernel simultaneously?
+> [PATCH] Separate tainted code.
+> 
+> include/linux/kernel.h is overcrowded. kernel/panic.c has nothing to do
+> with tainting.
+> 
+>  arch/i386/kernel/smpboot.c |    1 +
+>  arch/x86_64/kernel/mce.c   |    1 +
+>  include/linux/kernel.h     |   10 ----------
+>  include/linux/tainted.h    |   15 +++++++++++++++
+>  kernel/Makefile            |    2 +-
+>  kernel/module.c            |    1 +
+>  kernel/panic.c             |   37 -------------------------------------
+>  kernel/sysctl.c            |    1 +
+>  kernel/tainted.c           |   41 +++++++++++++++++++++++++++++++++++++++++
+>  mm/page_alloc.c            |    1 +
+>  10 files changed, 62 insertions(+), 48 deletions(-)
+> 
 
-Good question.  one wins?
+> +/**
+> + * print_tainted - return a string to represent the kernel taint state.
+> + *
+> + * 'P' - Proprietary module has been loaded.
+> + * 'F' - Module has been forcibly loaded.
+> + * 'S' - SMP with CPUs not designed for SMP.
+> + * 'R' - User forced a module unload.
+> + * 'M' - Machine had a machine check experience.
+> + * 'B' - System has hit bad_page.
+> + *
+> + * The string is overwritten by the next call to print_taint().
+                                                    ~~~~~~~~~~~
+Please change that to 'print_tainted' too.
 
-It sure looks like a problem in theory.  I don't know that
-we have ever seen a bug report related to it though.
-
-Maybe Dave Jones's modprobe/insmod killer test on a big
-multiprocessor system could do that one day.
+> + */
+> +
+> +const char * print_tainted(void)
+> +{
 
 ---
 ~Randy

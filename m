@@ -1,26 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932419AbVIKFPE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932416AbVIKFMq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932419AbVIKFPE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 01:15:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbVIKFPE
+	id S932416AbVIKFMq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 01:12:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932419AbVIKFMq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 01:15:04 -0400
-Received: from smtp3.brturbo.com.br ([200.199.201.164]:28346 "EHLO
-	smtp3.brturbo.com.br") by vger.kernel.org with ESMTP
-	id S932419AbVIKFPC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 01:15:02 -0400
-Date: Sun, 11 Sep 2005 02:14:57 -0300
-From: mchehab@brturbo.com.br
-To: linux-kernel@vger.kernel.org
-Cc: video4linux-list@redhat.com, akpm@osdl.org
-Subject: [PATCH] V4L: Fixup on cx88_dvb for Dvico HDTV5 Gold
-Message-ID: <4323bd51.u1gt4fmaZUkbvfDP%mchehab@brturbo.com.br>
-User-Agent: nail 11.25 7/29/05
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Sun, 11 Sep 2005 01:12:46 -0400
+Received: from smtp4.brturbo.com.br ([200.199.201.180]:7262 "EHLO
+	smtp4.brturbo.com.br") by vger.kernel.org with ESMTP
+	id S932416AbVIKFMq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Sep 2005 01:12:46 -0400
+Subject: [PATCH - Resend] V4L: Fixup on cx88_dvb for Dvico HDTV5 Gold
+From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux and Kernel Video <video4linux-list@redhat.com>
+Content-Type: multipart/mixed; boundary="=-fM/thou0W2xk6+nhFTmB"
+Date: Sun, 11 Sep 2005 02:12:46 -0300
+Message-Id: <1126415566.6807.67.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3-8mdk 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+
+--=-fM/thou0W2xk6+nhFTmB
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+
+
+--=-fM/thou0W2xk6+nhFTmB
+Content-Disposition: attachment; filename=v4l_cx88_dvb_fixup_for_dvico_hdtv5_gold.diff
+Content-Type: text/x-patch; name=v4l_cx88_dvb_fixup_for_dvico_hdtv5_gold.diff; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
 - Bug fix for DViCO FusionHDTV5 Gold to avoid noise after board init.
 
@@ -95,4 +107,7 @@ diff -u /tmp/dst.25413 linux/drivers/media/video/cx88/cx88-dvb.c
  	/* register everything */
  	return videobuf_dvb_register(&dev->dvb, THIS_MODULE, dev);
  }
+
+
+--=-fM/thou0W2xk6+nhFTmB--
 

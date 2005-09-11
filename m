@@ -1,91 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932280AbVIKOLK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932221AbVIKOTT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932280AbVIKOLK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 10:11:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932320AbVIKOLJ
+	id S932221AbVIKOTT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 10:19:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932320AbVIKOTS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 10:11:09 -0400
-Received: from smtp.telecable.es ([212.89.0.18]:37509 "EHLO smtp.telecable.es")
-	by vger.kernel.org with ESMTP id S932280AbVIKOLI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 10:11:08 -0400
-Date: Sun, 11 Sep 2005 16:10:58 +0200
-From: Miguel <frankpoole@terra.es>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: PCI bug in 2.6.13
-Message-Id: <20050911161058.481d1a75.frankpoole@terra.es>
-In-Reply-To: <Pine.LNX.4.58.0509101817590.3314@g5.osdl.org>
-References: <20050909180405.3e356c2a.frankpoole@terra.es>
-	<20050909225956.42021440.akpm@osdl.org>
-	<20050910113658.178a7711.frankpoole@terra.es>
-	<Pine.LNX.4.58.0509100949370.30958@g5.osdl.org>
-	<Pine.LNX.4.58.0509101401490.30958@g5.osdl.org>
-	<20050911030814.08cbe74c.frankpoole@terra.es>
-	<Pine.LNX.4.58.0509101817590.3314@g5.osdl.org>
-X-Mailer: Sylpheed version 2.0.1 (GTK+ 2.8.3; i686-pc-linux-gnu)
+	Sun, 11 Sep 2005 10:19:18 -0400
+Received: from wproxy.gmail.com ([64.233.184.204]:44127 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932221AbVIKOTS convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Sep 2005 10:19:18 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=L/Y/f6kQe5ELDX9bzdR4MO70Z08stakOZ2frSo/lFjufDNvEU7D2aUnWJ0d2WwKClEW7P4bKp5wcOwkYmNnCRTNVbCwXg0xmh8rmkfPYH218atCMpLExd73AQWXUvRcZ0kVNrmGM1+4GYSRBDUt1cGbNM6Xw2rNxTpM/IPjAHAQ=
+Message-ID: <6cf16f1305091107197130534a@mail.gmail.com>
+Date: Sun, 11 Sep 2005 10:19:17 -0400
+From: kpowerinfinity <kpowerinfinity@gmail.com>
+Reply-To: kpowerinfinity@gmail.com
+To: linux-kernel@vger.kernel.org
+Subject: Compilation error -- UML on 2.6.13.1
+In-Reply-To: <6cf16f1305091107172d3e9db6@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <6cf16f1305091106542283377b@mail.gmail.com>
+	 <6cf16f1305091107172d3e9db6@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus:
+Hi,
 
-> Can you double-check this same thing with the git snapshot (or 2.6.13.1) 
-> that should have the pci_map_rom() thing fixed?
+I am unable to compile UML on 2.6.13.1. It exits with the following error:
 
-The diff between the working 2.6.13 and 2.6.13.1 is the same:
+  CC      arch/um/sys-i386/unmap.o
+  LD      arch/um/sys-i386/unmap_fin.o
+ld: cannot open libc.a: No such file or directory
+make[1]: *** [arch/um/sys-i386/unmap_fin.o] Error 1
+make: *** [arch/um/sys-i386] Error 2
 
-00:0b.0 Mass storage controller: Triones Technologies, Inc.
-HPT366/368/370/370A/372/372N (rev 04)
-...
--30: 01 00 00 40 60 00 00 00 00 00 00 00 0b 01 08 08
-+30: 01 00 00 00 60 00 00 00 00 00 00 00 0b 01 08 08
+I got this error while doing "make linux ARCH=um"
+Pls help.
 
-Between 2.6.13 and 2.6.13-git10:
-
-00:0b.0 Mass storage controller: Triones Technologies, Inc.
-HPT366/368/370/370A/372/372N (rev 04)
-...
--       Expansion ROM at 40000000 [disabled] [size=128K]
-+       Expansion ROM at 50000000 [disabled] [size=128K]
-        Capabilities: [60] Power Management version 2
-                Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA PME
-(D0-,D1-,D2-,D3hot-,D3cold-) Status: D0 PME-Enable- DSel=0 DScale=0 PME-
- 00: 03 11 04 00 07 00 30 02 04 00 80 01 08 78 00 00
- 10: 01 d0 00 00 01 d4 00 00 01 d8 00 00 01 dc 00 00
- 20: 01 e0 00 00 00 00 00 00 00 00 00 00 03 11 01 00
--30: 01 00 00 40 60 00 00 00 00 00 00 00 0b 01 08 08
-+30: 01 00 00 00 60 00 00 00 00 00 00 00 0b 01 08 08
-
-> Can you try this _truly_ cheezy patch that should generate a stack trace 
-> for the offending place? Btw, only do this with the 2.6.13.1 or git 
-> kernels that have the fixed pci_map_rom(), otherwise you'll probably get 
-> bogus traps for that case..
-
-After applying this patch I don't see anything new so I have added the
-same WARN_ON in pci_write_config_byte and pci_write_config_word and now
-dmesg shows this:
-
-HPT370A: chipset revision 4
-Badness in pci_write_config_byte at include/linux/pci.h:800
- [<c025c519>]
- [<c0269280>]
- [<c02abbb9>]
- [<c02692a7>]
- [<c025ccf2>]
- [<c0188043>]
- [<c025cd48>]
- [<c039e242>]
- [<c039e278>]
- [<c039e1e8>]
- [<c03889c4>]
- [<c0100383>]
- [<c0100310>]
- [<c0101125>]
-HPT370A: 100% native mode on irq 11
-HPT37X: using 33MHz PCI clock
-    ide2: BM-DMA at 0xe000-0xe007, BIOS settings: hde:DMA, hdf:pio
-HPT37X: using 33MHz PCI clock
-    ide3: BM-DMA at 0xe008-0xe00f, BIOS settings: hdg:pio, hdh:pio
+rgds,
+KK Mehra

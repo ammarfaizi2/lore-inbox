@@ -1,66 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964788AbVIKA7d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964802AbVIKBDX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964788AbVIKA7d (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 20:59:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964787AbVIKA7d
+	id S964802AbVIKBDX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 21:03:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964801AbVIKBDX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 20:59:33 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:30337 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964788AbVIKA7c (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 20:59:32 -0400
-Date: Sat, 10 Sep 2005 17:59:01 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: ak@suse.de, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: NUMA mempolicy /proc code in mainline shouldn't have been
- merged
-Message-Id: <20050910175901.7af1e437.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.62.0509100921260.17110@schroedinger.engr.sgi.com>
-References: <200509101120.19236.ak@suse.de>
-	<20050910023337.7b79db9a.akpm@osdl.org>
-	<Pine.LNX.4.62.0509100921260.17110@schroedinger.engr.sgi.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 10 Sep 2005 21:03:23 -0400
+Received: from mail.collax.com ([213.164.67.137]:46510 "EHLO
+	kaber.coreworks.de") by vger.kernel.org with ESMTP id S964799AbVIKBDW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Sep 2005 21:03:22 -0400
+Message-ID: <43238259.505@trash.net>
+Date: Sun, 11 Sep 2005 03:03:21 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.10) Gecko/20050803 Debian/1.7.10-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "J.A. Magallon" <jamagallon@able.es>
+CC: Linux-Kernel Lista <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, netdev@vger.kernel.org
+Subject: Re: 2.6.13-mm2
+References: <20050908053042.6e05882f.akpm@osdl.org>	<1126396015l.6300l.1l@werewolf.able.es>	<20050910165659.5eea90d0.akpm@osdl.org> <4323753D.9030007@trash.net>	<1126399776l.6300l.2l@werewolf.able.es> <1126400288l.6300l.3l@werewolf.able.es>
+In-Reply-To: <1126400288l.6300l.3l@werewolf.able.es>
+Content-Type: multipart/mixed;
+ boundary="------------080006010201020805040502"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter <clameter@engr.sgi.com> wrote:
->
-> On Sat, 10 Sep 2005, Andrew Morton wrote:
+This is a multi-part message in MIME format.
+--------------080006010201020805040502
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+J.A. Magallon wrote:
+> And I also get this on syslog:
 > 
-> > Andi Kleen <ak@suse.de> wrote:
-> > >
-> > >  Just noticed the ugly SGI /proc/*/numa_maps code got merged.
-> 
-> Well its ugly because you said that the fixes to make it less ugly were 
-> "useless". I can still submit those fixes that make numa_maps a part of 
-> smaps and that cleanup the way policies are displayed.
+> Sep 11 02:56:58 werewolf kernel: MASQUERADE: eth0 ate my IP address
+> Sep 11 02:56:58 werewolf kernel: MASQUERADE: eth0 ate my IP address
 
-It would be useful to see these.
+Thanks, I'm pretty sure its caused by this patch. The problem is that
+pump uses a regular UDP socket (some other dhcp clients use AF_PACKET
+sockets), and packet sent by it are also handled by iptables. The
+MASQUERADE rule can't find a local IP address and drops the packet.
+I'm not sure how to fix it yet, reverting the patch is not a good
+option.
 
-> > >  - it presents lots of kernel internal information and mempolicy
-> > >  internals (like how many people have a page mapped) etc.
-> > >  to userland that shouldn't be exposed to this.
-> 
-> Very important information.
->
 
-Important to whom?  Kernel developers or userspace developers?  If the
-latter, what use do they actually make of it?  Shouldn't it be documented?
+--------------080006010201020805040502
+Content-Type: text/plain;
+ name="x"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="x"
 
-> > >  - there is no demonstrated application that needs it
-> > >  (there was a theoretical usecase where it might be needed,
-> > >  but there were better solutions proposed for this) 
-> 
-> Could you be more specific? The application is to figure out how memory is 
-> placed. Just to cat /proc/<pid>/numa_maps. Seems to be a favorite with 
-> some people.
+[NETFILTER]: Don't exclude local packets from MASQUERADING
 
-If it's useful to application developers then fine.  It it's only useful to
-kernel developers then the argument is weakened.  However there's still
-quite a lot of development going on in this area, so there's still some
-argument for having the monitoring ability in the mainline tree.
+Increases consistency in source-address selection.
 
+Signed-off-by: Patrick McHardy <kaber@trash.net>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+---
+commit 9baa5c67ff4ce57b6b9f68c90714a1bb876fccd7
+tree 27f2c48e12e1bb5e3e6d5f8320651c213892ed20
+parent fb13ab2849074244a51ae5147483610529a29ced
+author Patrick McHardy <kaber@trash.net> Sun, 14 Aug 2005 17:32:50 -0700
+committer David S. Miller <davem@sunset.davemloft.net> Mon, 29 Aug 2005 15:58:36 -0700
+
+ net/ipv4/netfilter/ipt_MASQUERADE.c |    5 -----
+ 1 files changed, 0 insertions(+), 5 deletions(-)
+
+diff --git a/net/ipv4/netfilter/ipt_MASQUERADE.c b/net/ipv4/netfilter/ipt_MASQUERADE.c
+--- a/net/ipv4/netfilter/ipt_MASQUERADE.c
++++ b/net/ipv4/netfilter/ipt_MASQUERADE.c
+@@ -86,11 +86,6 @@ masquerade_target(struct sk_buff **pskb,
+ 
+ 	IP_NF_ASSERT(hooknum == NF_IP_POST_ROUTING);
+ 
+-	/* FIXME: For the moment, don't do local packets, breaks
+-	   testsuite for 2.3.49 --RR */
+-	if ((*pskb)->sk)
+-		return NF_ACCEPT;
+-
+ 	ct = ip_conntrack_get(*pskb, &ctinfo);
+ 	IP_NF_ASSERT(ct && (ctinfo == IP_CT_NEW || ctinfo == IP_CT_RELATED
+ 	                    || ctinfo == IP_CT_RELATED + IP_CT_IS_REPLY));
+
+--------------080006010201020805040502--

@@ -1,81 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964987AbVIKRoo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965007AbVIKSAG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964987AbVIKRoo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 13:44:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964988AbVIKRoo
+	id S965007AbVIKSAG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 14:00:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965013AbVIKSAG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 13:44:44 -0400
-Received: from mout.perfora.net ([217.160.230.41]:9680 "EHLO mout.perfora.net")
-	by vger.kernel.org with ESMTP id S964987AbVIKRon (ORCPT
+	Sun, 11 Sep 2005 14:00:06 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:15596 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965007AbVIKSAB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 13:44:43 -0400
-Date: Sun, 11 Sep 2005 10:44:37 -0700
-From: donate <donate@madrone.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>
-Subject: [RFC] [PATCH] make add_taint() inline
-Message-Id: <20050911104437.6445ff20.donate@madrone.org>
-In-Reply-To: <20050911103757.7cc1f50f.rdunlap@xenotime.net>
-References: <20050911103757.7cc1f50f.rdunlap@xenotime.net>
-Organization: nil
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Provags-ID: perfora.net abuse@perfora.net login:e4dbf5087eeb6d426001e537f1b78e1a
+	Sun, 11 Sep 2005 14:00:01 -0400
+Date: Sun, 11 Sep 2005 10:59:57 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Miguel <frankpoole@terra.es>
+cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: PCI bug in 2.6.13
+In-Reply-To: <20050911191532.7aa81b11.frankpoole@terra.es>
+Message-ID: <Pine.LNX.4.58.0509111058450.3242@g5.osdl.org>
+References: <20050909180405.3e356c2a.frankpoole@terra.es>
+ <20050909225956.42021440.akpm@osdl.org> <20050910113658.178a7711.frankpoole@terra.es>
+ <Pine.LNX.4.58.0509100949370.30958@g5.osdl.org> <Pine.LNX.4.58.0509101401490.30958@g5.osdl.org>
+ <20050911030814.08cbe74c.frankpoole@terra.es> <Pine.LNX.4.58.0509101817590.3314@g5.osdl.org>
+ <20050911161058.481d1a75.frankpoole@terra.es> <Pine.LNX.4.58.0509110903050.4912@g5.osdl.org>
+ <20050911191532.7aa81b11.frankpoole@terra.es>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
 
-add_taint() is a trivial function.
-No need to call it out-of-line, just make it inline and
-remove its export.
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
+On Sun, 11 Sep 2005, Miguel wrote:
+> 
+> I have also tried that and it works too.
+> 
+> Thank you.
 
- arch/x86_64/kernel/mce_intel.c |    1 +
- include/linux/kernel.h         |    5 ++++-
- kernel/panic.c                 |    6 ------
- 3 files changed, 5 insertions(+), 7 deletions(-)
+No, thank _you_. Disk corruption is a nasty nasty bug, and often very hard 
+to track down. The fact that you could pin-point it so well and were 
+willing to test different things out found a rather strange and subtle 
+bug.
 
-diff -Naurp linux-2613-git10/arch/x86_64/kernel/mce_intel.c~add_taint_inline linux-2613-git10/arch/x86_64/kernel/mce_intel.c
---- linux-2613-git10/arch/x86_64/kernel/mce_intel.c~add_taint_inline	2005-09-10 21:58:37.000000000 -0700
-+++ linux-2613-git10/arch/x86_64/kernel/mce_intel.c	2005-09-10 21:58:55.000000000 -0700
-@@ -5,6 +5,7 @@
- 
- #include <linux/init.h>
- #include <linux/interrupt.h>
-+#include <linux/kernel.h>
- #include <linux/percpu.h>
- #include <asm/processor.h>
- #include <asm/msr.h>
-diff -Naurp linux-2613-git10/include/linux/kernel.h~add_taint_inline linux-2613-git10/include/linux/kernel.h
---- linux-2613-git10/include/linux/kernel.h~add_taint_inline	2005-08-28 16:41:01.000000000 -0700
-+++ linux-2613-git10/include/linux/kernel.h	2005-09-10 21:54:13.000000000 -0700
-@@ -172,7 +172,10 @@ extern int panic_timeout;
- extern int panic_on_oops;
- extern int tainted;
- extern const char *print_tainted(void);
--extern void add_taint(unsigned);
-+static inline void add_taint(unsigned flag)
-+{
-+	tainted |= flag;
-+}
- 
- /* Values used for system_state */
- extern enum system_states {
-diff -Naurp linux-2613-git10/kernel/panic.c~add_taint_inline linux-2613-git10/kernel/panic.c
---- linux-2613-git10/kernel/panic.c~add_taint_inline	2005-08-28 16:41:01.000000000 -0700
-+++ linux-2613-git10/kernel/panic.c	2005-09-10 21:55:04.000000000 -0700
-@@ -167,9 +167,3 @@ const char *print_tainted(void)
- 		snprintf(buf, sizeof(buf), "Not tainted");
- 	return(buf);
- }
--
--void add_taint(unsigned flag)
--{
--	tainted |= flag;
--}
--EXPORT_SYMBOL(add_taint);
+This deserves to go into the -stable tree.
+
+		Linus

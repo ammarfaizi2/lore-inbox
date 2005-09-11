@@ -1,50 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750966AbVIKWHr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750964AbVIKWK2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750966AbVIKWHr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 18:07:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750969AbVIKWHr
+	id S1750964AbVIKWK2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 18:10:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750965AbVIKWK2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 18:07:47 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:63132 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750966AbVIKWHq (ORCPT
+	Sun, 11 Sep 2005 18:10:28 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:19101 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750960AbVIKWK1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 18:07:46 -0400
-Date: Sun, 11 Sep 2005 15:07:37 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [GIT PATCHES] kbuild fixes
-In-Reply-To: <20050911214850.GA2177@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.58.0509111505190.3242@g5.osdl.org>
-References: <20050911214850.GA2177@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 11 Sep 2005 18:10:27 -0400
+Date: Sun, 11 Sep 2005 15:09:45 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Trilight <trilight@ns666.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: oops occured by dentry being passed in is NULL
+Message-Id: <20050911150945.3fc2ea35.akpm@osdl.org>
+In-Reply-To: <432454B5.8040307@ns666.com>
+References: <432454B5.8040307@ns666.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Trilight <trilight@ns666.com> wrote:
+>
+> I justed installed 2.6.13.1 (vanilla) on several laptops and a desktop,
+>  the result is an Oops during boot.
 
-
-On Sun, 11 Sep 2005, Sam Ravnborg wrote:
-> 
-> I've started suing the alternate format as you described.
-> So I cannot pull from that respository myself.
-
-Btw, it works for me, so your archive looks ok.
-
-Your diffstat is broken, though:
-
->  Makefile                             |    1 
->  b/Makefile                           |   23 +-
-
-Notice how "Makefile" shows up twice, because you didn't use "-p1" to
-diffstat (or just use "git-apply --stat", which should get it right).
-
->  13 files changed, 345 insertions(+), 337 deletions(-)
-
-The real stats are:
-
- 12 files changed, 345 insertions(+), 337 deletions(-)
-
-according to git, thanks to that.
-
-		Linus
+Please send .config.

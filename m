@@ -1,59 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932458AbVIKI6E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932466AbVIKJAn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932458AbVIKI6E (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 04:58:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932461AbVIKI6D
+	id S932466AbVIKJAn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 05:00:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbVIKJAn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 04:58:03 -0400
-Received: from main.gmane.org ([80.91.229.2]:16359 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932458AbVIKI6C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 04:58:02 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Kalin KOZHUHAROV <kalin@thinrope.net>
-Subject: Re: read-from-all-disks support for RAID1?
-Date: Sun, 11 Sep 2005 17:55:26 +0900
-Message-ID: <dg0rfb$vf9$1@sea.gmane.org>
-References: <20050910123902.GA9461@xi.wantstofly.org>
+	Sun, 11 Sep 2005 05:00:43 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:55949 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932466AbVIKJAn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Sep 2005 05:00:43 -0400
+Date: Sun, 11 Sep 2005 10:00:22 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Roland Dreier <rolandd@cisco.com>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [git pull] InfiniBand updates
+Message-ID: <20050911090022.GA4841@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Chris Wedgwood <cw@f00f.org>, Roland Dreier <rolandd@cisco.com>,
+	torvalds@osdl.org, linux-kernel@vger.kernel.org,
+	openib-general@openib.org
+References: <523bocedcb.fsf@cisco.com> <20050911030345.GA14593@taniwha.stupidest.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: s175249.ppp.asahi-net.or.jp
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050804)
-X-Accept-Language: en-us, en
-In-Reply-To: <20050910123902.GA9461@xi.wantstofly.org>
-X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050911030345.GA14593@taniwha.stupidest.org>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lennert Buytenhek wrote:
-> (please CC on replies)
+On Sat, Sep 10, 2005 at 08:03:45PM -0700, Chris Wedgwood wrote:
+> On Sat, Sep 10, 2005 at 04:02:12PM -0700, Roland Dreier wrote:
 > 
-> Hi!
+> >  include/rdma/ib_cm.h                      |    1
+> >  include/rdma/ib_mad.h                     |   21 ++
+> >  include/rdma/ib_sa.h                      |   31 +++
+> >  include/rdma/ib_user_cm.h                 |   72 +++++++
+> >  include/rdma/ib_user_verbs.h              |   21 ++
 > 
-> I recently had a case where one disk in a two-disk RAID1 array went
-> subtly bad, effectively refusing to write to certain sectors without
-> reporting an error.  Basically, parts of the disk went undetectably
-> read-only, causing file system corruption that wouldn't go away after
-> fsck, and all kinds of other fun.
-> 
-> Would it be hard/wise to add an option for RAID1 mode to read from all
-> devices on a read, and report an error to syslog or simply return an
-> I/O error if there is a mismatch?  (Or use majority voting and tell
-> people to use 3-disk RAID1 arrays from now on ;-)
+> Do these really need to be here?  if we really must merge RDMA can we
+> not hide these headers in drivers/inifiniband for now?
 
-Well, an option might be good for debugging, but it will lower performance
-a lot, IMHO.
-
-As log as 3-drive RAID1 is concerned :-) You'd better get RAID3 or 2
-more drives and RAID5.
-
-Kalin.
-
--- 
-|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
-+-> http://ThinRope.net/ <-+
-|[ ______________________ ]|
-
+No.  They've been there before, but it's just wrong.  This stuff is
+kernel-wide interfaces and having them under drivers/ was wrong to start
+with.

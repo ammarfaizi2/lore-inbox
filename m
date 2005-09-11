@@ -1,100 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964827AbVIKQFp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964823AbVIKQAm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964827AbVIKQFp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 12:05:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964845AbVIKQFp
+	id S964823AbVIKQAm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 12:00:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964825AbVIKQAm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 12:05:45 -0400
-Received: from sv1.valinux.co.jp ([210.128.90.2]:18890 "EHLO sv1.valinux.co.jp")
-	by vger.kernel.org with ESMTP id S964827AbVIKQFo (ORCPT
+	Sun, 11 Sep 2005 12:00:42 -0400
+Received: from ns666.com ([203.98.189.71]:21975 "EHLO bear.ns666.com")
+	by vger.kernel.org with ESMTP id S964823AbVIKQAl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 12:05:44 -0400
-Date: Mon, 12 Sep 2005 01:02:24 +0900 (JST)
-Message-Id: <20050912.010224.112611776.taka@valinux.co.jp>
-To: pj@sgi.com
-Cc: magnus.damm@gmail.com, kurosawa@valinux.co.jp, dino@in.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/5] SUBCPUSETS: a resource control functionality using
- CPUSETS
-From: Hirokazu Takahashi <taka@valinux.co.jp>
-In-Reply-To: <20050910015209.4f581b8a.pj@sgi.com>
-References: <20050909063131.64dc8155.pj@sgi.com>
-	<20050910.161145.74742186.taka@valinux.co.jp>
-	<20050910015209.4f581b8a.pj@sgi.com>
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Sun, 11 Sep 2005 12:00:41 -0400
+Message-ID: <432454B5.8040307@ns666.com>
+Date: Sun, 11 Sep 2005 18:00:53 +0200
+From: Trilight <trilight@ns666.com>
+User-Agent: The X
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: oops occured by dentry being passed in is NULL
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi all,
 
-> Well, I suspect I don't understand yet.
-> 
-> Nice picture though - that gives me some idea what you mean.
-> 
-> Do notice that the basic rule of cpu_exclusive cpusets is that their
-> CPUs don't overlap their siblings.  Your Cpusets 1, 2, and 3 seem to be
-> marked cpu_exclusive in your picture, but all contain the same CPUs 2
-> and 3, overlapping each other.
+I justed installed 2.6.13.1 (vanilla) on several laptops and a desktop,
+the result is an Oops during boot. This is the information after running
+ksymoops on the data:
 
-Yes, I know the current design of cpu_exclusive.
-I just thought if I could enhance cpu_exclusive to cover a group of
-cpusets to make the hierarchy as flat as possible.
 
-> I'm guessing what you are trying to draw is:
-> 
->   Tasks on CPUs 0 and 1 have no resource control limits.
+>>EIP; c01dd9d3 <create_dir+13/1b0>   <=====
 
-I thought CPU 1 could have resource control limits.
+>>ebx; f7d7ce8c <__crc_pci_request_region+4b951/14beab>
+>>edx; f7d7ce8c <__crc_pci_request_region+4b951/14beab>
+>>esi; f7d7ce88 <__crc_pci_request_region+4b94d/14beab>
+>>edi; f7c4169c <__crc_netlink_register_notifier+3711f1/3dbb2e>
+>>ebp; c195fe3c <__crc_unregister_chrdev+329ab/422fd3>
+>>esp; c195fe04 <__crc_unregister_chrdev+32973/422fd3>
 
->   Tasks on CPUs 2 and 3 have resource control limits specifying
-> 	what percentage of the CPUs 2 and 3 is available to them.
-> 
-> I might draw my solution to that as:
+Trace; c0170a0e <__kernel_text_address+2e/40>
+Trace; c013d56b <show_trace+3b/80>
+Trace; c01ddbd9 <sysfs_create_dir+39/80>
+Trace; c027065f <create_dir+1f/50>
+Trace; c02708a0 <kobject_add+50/d0>
+Trace; c02db815 <class_device_add+85/1e0>
+Trace; c02dba38 <class_device_create+98/c0>
+Trace; c02ba278 <vcs_make_devfs+38/80>
+Trace; c02c1313 <con_open+83/b0>
+Trace; c02b1d9d <tty_open+25d/300>
+Trace; c02b1b40 <tty_open+0/300>
+Trace; c01aa6a6 <chrdev_open+c6/180>
+Trace; c019fbfa <dentry_open+13a/200>
+Trace; c019fab8 <filp_open+68/70>
+Trace; c019feaf <sys_open+4f/e0>
+Trace; c01393d8 <init+d8/1c0>
+Trace; c0139300 <init+0/1c0>
+Trace; c013a1cd <kernel_thread_helper+5/18>
 
-I understand your idea clearly, which is essentially the same as
-Korosawa's design. Your design looks very straight and I have
-no objection to it.
+Code;  c01dd9d3 <create_dir+13/1b0>
+00000000 <_EIP>:
+Code;  c01dd9d3 <create_dir+13/1b0>   <=====
+   0:   c0 89 88 98 00 00 00      rorb   $0x0,0x9888(%ecx)   <=====
+Code;  c01dd9da <create_dir+1a/1b0>
+   7:   31 c0                     xor    %eax,%eax
+Code;  c01dd9dc <create_dir+1c/1b0>
+   9:   c3                        ret
+Code;  c01dd9dd <create_dir+1d/1b0>
+   a:   8d b4 26 00 00 00 00      lea    0x0(%esi),%esi
+Code;  c01dd9e4 <create_dir+24/1b0>
+  11:   8d bc 27 00 00 00 00      lea    0x0(%edi),%edi
+Code;  c01dd9eb <create_dir+2b/1b0>
+  18:   55                        push   %ebp
 
-My only concern is that it would become harder to control resources
-between CPUSET 1a,1b and 1c if some processes are assigned to CPUSET 1
-directly. But I just get an idea that it would be OK if CPUSET 1 can
-have meter_cpu=1 to share the resources.
+ <0>Kernel panic - not syncing: Attempted to kill init!
 
->      +-----------------------------------+
->      |                                   |
->   CPUSET 0                            CPUSET 1         
->   sched domain A                      sched domain B   
->   cpus: 0, 1                          cpus: 2, 3       
->   cpu_exclusive=1                     cpu_exclusive=1
->   meter_cpu=0                         meter_cpu=0
->                                          |
->                         +----------------+----------------+
->                         |                |                |
->                      CPUSET 1a        CPUSET 1b        CPUSET 1c
->                      cpus: 2, 3       cpus: 2, 3       cpus: 2, 3
-> 		     cpu_exclusive=0  cpu_exclusive=0  cpu_exclusive=0
->                      meter_cpu=1      meter_cpu=1      meter_cpu=1
->                      meter_cpu_*      meter_cpu_*      meter_cpu_*
-> 
-> The meter_cpu_* files in each of Cpusets 1a, 1b, and 1c control what
-> proportion of the CPU resources in that Cpuset can be used by the tasks
-> in that Cpuset.
-> 
-> If meter_cpu is false (0) then the meter_cpu_* files do not appear,
-> which is equivalent to allowing 100% of the CPUs in that Cpuset to
-> be used by the tasks in that Cpuset (and descendents, of course.)
-> 
-> Don't forget - this all seems like it has significant mission overlap
-> with CKRM.  I hate to repeat this, but the relation of your work to
-> CKRM needs to be understood before I am likely to agree to accepting
-> your work into the kernel (not that my acceptance is required; you
-> really just need Linus to agree, though he of course considers the
-> positions of others to some inscrutable degree.)
 
-OK.
+After a lot of help from spender (grsecurity) it seems that the oops
+occurs when a NULL dentry is passed. After adding a line of code to
+dir.c , recompile and reboot, a bit more detail is seen:
 
-Thanks,
-Hirokazu Takahashi.
+"create_dir passed NULL dentry!" , kernel BUG at fs/sysfs/file.c:383! ,
+invalid operand: 0000 [#1] ...
+
+The line of coded we added in dir.c (line 101) was:
+
+if (p == NULL) { printk(KERN_ALERT "create_dir passed NULL dentry!\n");
+return 0; }
+
+This happened on a laptop, dell inspiron 5150, p4 w/ht, and a similar
+crash happened on a remote server running 2.6.13.1 but i'll get that
+information when i can go to the location.
+
+So it seems it's sysfs, where a dir is being created and some how goes
+wrong.
+
+I'm not expert at all in kernel debugging or a programmer but if more
+info is needed i'll try to gather it.
+
+Thank you !
+
+Trilight

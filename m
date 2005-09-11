@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750934AbVIKVod@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750948AbVIKVsM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750934AbVIKVod (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 17:44:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750937AbVIKVod
+	id S1750948AbVIKVsM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 17:48:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750943AbVIKVsM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 17:44:33 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:1982 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1750933AbVIKVod (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 17:44:33 -0400
-Subject: Re: Elimination of klists
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Kernel development list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44L0.0509111531470.25522-100000@netrider.rowland.org>
-References: <Pine.LNX.4.44L0.0509111531470.25522-100000@netrider.rowland.org>
-Content-Type: text/plain
-Date: Sun, 11 Sep 2005 16:44:19 -0500
-Message-Id: <1126475059.4831.44.camel@mulgrave>
+	Sun, 11 Sep 2005 17:48:12 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:46631 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S1750940AbVIKVsK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Sep 2005 17:48:10 -0400
+Date: Sun, 11 Sep 2005 23:50:03 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 2/3] kbuild: fix silentoldconfig with make O=
+Message-ID: <20050911215003.GC2177@mars.ravnborg.org>
+References: <20050911214850.GA2177@mars.ravnborg.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-6) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050911214850.GA2177@mars.ravnborg.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-09-11 at 15:35 -0400, Alan Stern wrote:
-> I noticed that you recently posted some updates to the klist code, 
-> although I haven't looked to see how you are using the klists.
+Subject: [PATCH 2/3] kbuild: fix silentoldconfig with make O=
 
-Yes, that was mainly to tie their reference counting model back to the
-objects they actually embed.  It was just fixing a thinko in the
-implementation rather than changing anything fundamental about them.
+Al Viro reported that sometimes silentoldconfig failed because
+output directory was missing.
+So create it unconditionally before executing conf
 
-> What do you think about eliminating klists entirely, and instead using 
-> regular lists protected by either a mutex or an rwsem?  It would remove a 
-> good deal of overhead, and I think it wouldn't be hard to convert the 
-> driver core.  Would this be feasible for the things you're doing?
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
 
-Actually, the concept of a klist is quite nice, and the beauty is that
-all the locking is internal to them, so users can't actually get it
-wrong (I like interfaces like this).
+---
 
-Originally the driver model did precisely use an ordinary list and a
-mutex.  The problem was that we entangled the mutex in the actions taken
-by things like device_for_each_child() which caused deadlocks ... most
-noticeably in the transport classes; klists got us out of this.
+ Makefile |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-James
-
-
+5011cdd01bedd66b314e330a638c97984c71b53d
+diff --git a/Makefile b/Makefile
+--- a/Makefile
++++ b/Makefile
+@@ -491,6 +491,7 @@ include .config
+ # If .config is newer than include/linux/autoconf.h, someone tinkered
+ # with it and forgot to run make oldconfig
+ include/linux/autoconf.h: .config
++	$(Q)mkdir -p include/linux
+ 	$(Q)$(MAKE) -f $(srctree)/Makefile silentoldconfig
+ else
+ # Dummy target needed, because used as prerequisite

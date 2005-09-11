@@ -1,69 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965009AbVIKSTc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965010AbVIKSW2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965009AbVIKSTc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 14:19:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965010AbVIKSTc
+	id S965010AbVIKSW2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 14:22:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965013AbVIKSW2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 14:19:32 -0400
-Received: from tarjoilu.luukku.com ([194.215.205.232]:52674 "EHLO
-	tarjoilu.luukku.com") by vger.kernel.org with ESMTP id S965009AbVIKSTc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 14:19:32 -0400
-Date: Sun, 11 Sep 2005 21:19:19 +0300
-From: mikukkon@iki.fi
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix allnoconfig compile with gcc 4 (take 2)
-Message-ID: <20050911181919.GA1096@miku.homelinux.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Sun, 11 Sep 2005 14:22:28 -0400
+Received: from smtpout.mac.com ([17.250.248.46]:23011 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S965010AbVIKSW2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Sep 2005 14:22:28 -0400
+In-Reply-To: <20050911104437.6445ff20.donate@madrone.org>
+References: <20050911103757.7cc1f50f.rdunlap@xenotime.net> <20050911104437.6445ff20.donate@madrone.org>
+Mime-Version: 1.0 (Apple Message framework v734)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <8244F3CF-9EF7-44BB-B3DA-B46A1FF39E1C@mac.com>
+Cc: LKML Kernel <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [RFC] [PATCH] make add_taint() inline
+Date: Sun, 11 Sep 2005 14:22:08 -0400
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With allnoconfig and gcc 4 from SUSE 10 RC1:
-	gcc version 4.0.2 20050901 (prerelease) (SUSE Linux)
-I get following error:
-  CC      init/main.o
-In file included from include/linux/netdevice.h:29,
-		 from include/net/sock.h:48,
-		 from init/main.c:50:
-include/linux/if_ether.h:114: error: array type has incomplete element type
+On Sep 11, 2005, at 13:44:37, donate wrote:
+> From: Randy Dunlap <rdunlap@xenotime.net>
+>
+> add_taint() is a trivial function.
+> No need to call it out-of-line, just make it inline and
+> remove its export.
 
-Fixed by surrounding offending line with #ifdef CONFIG_SYSCTL as
-discussed.
+Actually, in this case it might be better to leave add_taint
+exported, add and export a new function get_taint(), and then
+remove all export of the variable "tainted".  I've actually
+seen one case where some module removed taint bits.  I don't
+remember where or why, but it seemed really bad at the time,
+and still does.  Also, does the tainted variable need any
+kind of locking?  What happens if two CPUs try to taint the
+kernel simultaneously?
 
-When I turned CONFIG_NET and CONFIG_SYSCTL on, I noticed also that
-net/sysctl_net.c should #include <net/sock.h> unconditionally to avoid
-similar error with core_table[] (also fixed in following patch).
+Cheers,
+Kyle Moffett
 
-Signed-of-by: Mika Kukkonen <mikukkon@iki.fi>
+--
+Premature optimization is the root of all evil in programming
+   -- C.A.R. Hoare
 
-Index: linux-2.6/net/sysctl_net.c
-===================================================================
---- linux-2.6.orig/net/sysctl_net.c
-+++ linux-2.6/net/sysctl_net.c
-@@ -15,6 +15,7 @@
- #include <linux/config.h>
- #include <linux/mm.h>
- #include <linux/sysctl.h>
-+#include <net/sock.h>
- 
- #ifdef CONFIG_INET
- #include <net/ip.h>
-Index: linux-2.6/include/linux/if_ether.h
-===================================================================
---- linux-2.6.orig/include/linux/if_ether.h
-+++ linux-2.6/include/linux/if_ether.h
-@@ -111,7 +111,10 @@ static inline struct ethhdr *eth_hdr(con
- 	return (struct ethhdr *)skb->mac.raw;
- }
- 
-+#ifdef CONFIG_SYSCTL
- extern struct ctl_table ether_table[];
- #endif
- 
-+#endif
-+
- #endif	/* _LINUX_IF_ETHER_H */
+
+

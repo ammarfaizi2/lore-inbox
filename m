@@ -1,35 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965028AbVIKSss@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965027AbVIKSsN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965028AbVIKSss (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 14:48:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965030AbVIKSss
+	id S965027AbVIKSsN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 14:48:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965028AbVIKSsN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 14:48:48 -0400
-Received: from mail4.ewetel.de ([212.6.122.28]:1714 "EHLO mail4.ewetel.de")
-	by vger.kernel.org with ESMTP id S965028AbVIKSsr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 14:48:47 -0400
-To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: sungem driver patch testing..
-In-Reply-To: <Pine.LNX.4.58.0509110940220.4912@g5.osdl.org>
-References: <Pine.LNX.4.58.0509102008540.4912@g5.osdl.org> <20050911120332.GA7627@infradead.org>
-Date: Sun, 11 Sep 2005 20:48:32 +0200
-Message-Id: <E1EEWsS-0000HC-TT@localhost>
-From: Pascal Schmidt <pascal.schmidt@email.de>
-X-CheckCompat: OK
+	Sun, 11 Sep 2005 14:48:13 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:6379
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S965027AbVIKSsN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Sep 2005 14:48:13 -0400
+Date: Sun, 11 Sep 2005 11:48:07 -0700 (PDT)
+Message-Id: <20050911.114807.124745035.davem@davemloft.net>
+To: maillist@jg555.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Pure 64 bootloaders
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <43245C56.5000905@jg555.com>
+References: <43228E4E.4050103@jg555.com>
+	<20050910.010114.28468998.davem@davemloft.net>
+	<43245C56.5000905@jg555.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 Sep 2005 19:10:06 +0200, you wrote:
+From: Jim Gifford <maillist@jg555.com>
+Date: Sun, 11 Sep 2005 09:33:26 -0700
 
-> Here's a patch (on top of the previous PCI ROM mapping fix) that does
-> that. It seems to work for me, but I can't really test it, and it's mostly
-> just cleanup, so I'm not going to apply it.
+> David S. Miller wrote:
+> 
+> >You can make SILO 64-bit, but it would just be a lot
+> >of work and would just result in a SILO that, unlike
+> >current SILO, would only work on UltraSPARC machines.
+> >
+> >There really is no advantage, and known disadvantages, to
+> >making SILO 64-bit.
+> >  
+>
+> If I have a system that is a Pure64 environment, I try to compile Silo, 
+> it will not function. Since there is no support for 32 bit, how would I 
+> be able to use it.
 
-I can confirm that it doesn't break the Sun GEM in my iBook G4,
-but then that probably also doesn't trigger the changed code.
+You'll need some minimal 32-bit libraries sitting around in order
+to build it, sorry.
 
--- 
-Ciao,
-Pascal
+For performance reasons alone I would _never_ condone a purely
+64-bit userland.  It's simply a total lose from a performance
+perspective, unlike some other platforms such as amd64 which
+eradicate most of the 64-bit performance loss due to the gain
+in available cpu registers compared to 32-bit x86.

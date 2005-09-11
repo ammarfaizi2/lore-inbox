@@ -1,118 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964934AbVIKMQE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964941AbVIKMaH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964934AbVIKMQE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 08:16:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964930AbVIKMQE
+	id S964941AbVIKMaH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 08:30:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964947AbVIKMaH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 08:16:04 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:684 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S964934AbVIKMQC convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 08:16:02 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: rl@hellgate.ch, Jeff Garzik <jgarzik@pobox.com>, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: 2.6.13: "via-rhine + link loss + autoneg off" bug is still not fixed
-Date: Sun, 11 Sep 2005 15:15:13 +0300
-User-Agent: KMail/1.8.2
+	Sun, 11 Sep 2005 08:30:07 -0400
+Received: from dialup-63-108-131-22.nehp.net ([63.108.131.22]:10919 "EHLO
+	waltsathlon.localhost.net") by vger.kernel.org with ESMTP
+	id S964941AbVIKMaF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Sep 2005 08:30:05 -0400
+Message-ID: <43242339.1000205@lorettotel.net>
+Date: Sun, 11 Sep 2005 07:29:45 -0500
+From: Walt H <walt_h@lorettotel.net>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050723)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200509111515.13986.vda@ilport.com.ua>
+To: asmith@vtrl.co.uk
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: kernel performance problem
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just a heads-up.
+>
+>
+>This is my first ever posting  to this list, so please excuse me if I've 
+>f**cked up and broken protocol.
+>I use an IDE LG DVD-RW drive for backup(GSA-4081B).
+>Back around 2.6.10 it wrote at typically 1.6-1.7x speed, but thereafter  
+>it dropped to  around 0.6-0.7 x.
+>
+>
+>%hdparm -I /dev/hdd
+>
+>/dev/hdd:
+>
+>ATAPI CD-ROM, with removable media
+>        Model Number:       HL-DT-ST DVDRAM GSA-4081B              
+>        Serial Number:      K2B3CFE4600        
+>        Firmware Revision:  A100   
+>Standards:
+>        Likely used CD-ROM ATAPI-1
+>Configuration:
+>        DRQ response: 50us.
+>        Packet size: 12 bytes
+>Capabilities:
+>        LBA, IORDY(can be disabled)
+>        DMA: mdma0 mdma1 mdma2 udma0 udma1 *udma2
+>             Cycle time: min=120ns recommended=120ns
+>        PIO: pio0 pio1 pio2 pio3 pio4
+>             Cycle time: no flow control=120ns  IORDY flow control=120ns
+>HW reset results:
+>        CBLID- below Vih
+>        Device num = 1
+>
 
-The recipe:
-* have via-rhine NIC
-* unplug network cable
-* reboot box
-* force HDX (I do in with ethtool -s if autoneg off duplex half)
-* plug cable back
-* kernel still thinks that carrier is off despite "ethtool if"
-  saying that link is detected.
+Hi Andrew,
 
-Why:
+I know that hdparm shows udma2 mode selected for data transfers, but 
+check that dma is *actually* turned on.  ie:  hdparm -d1 /dev/hdd
 
-...
-        if (intr_status & IntrLinkChange)
-                rhine_check_media(dev, 0);
-...
+I don't remember exactly when this went in, but there were some IDE 
+patches around the 2.6.11 or so timeframe that seemed to change the way 
+these devices get setup at boot.  I believe this happened when the 
+autotune= syntax was deprecated.  HTH,
 
-static void rhine_check_media(struct net_device *dev, unsigned int init_media)
-{
-        struct rhine_private *rp = netdev_priv(dev);
-        void __iomem *ioaddr = rp->base;
+-Walt
 
-        mii_check_media(&rp->mii_if, debug, init_media);
-...
 
-unsigned int mii_check_media (struct mii_if_info *mii,
-                              unsigned int ok_to_print,
-                              unsigned int init_media)
-{
-        unsigned int old_carrier, new_carrier;
-        int advertise, lpa, media, duplex;
-        int lpa2 = 0;
 
-        /* if forced media, go no further */
-        if (mii->force_media)   <============================ HERE
-                return 0; /* duplex did not change */
-
-        /* check current and old link status */
-        old_carrier = netif_carrier_ok(mii->dev) ? 1 : 0;
-        new_carrier = (unsigned int) mii_link_ok(mii);
-
-        /* if carrier state did not change, this is a "bounce",
-         * just exit as everything is already set correctly
-         */
-        if ((!init_media) && (old_carrier == new_carrier))
-                return 0; /* duplex did not change */
-
-        /* no carrier, nothing much to do */
-        if (!new_carrier) {
-                netif_carrier_off(mii->dev);
-                if (ok_to_print)
-                        printk(KERN_INFO "%s: link down\n", mii->dev->name);
-                return 0; /* duplex did not change */
-        }
-
-        /*
-         * we have carrier, see who's on the other end
-         */
-        netif_carrier_on(mii->dev);
-...
-
-We can never reach netif_carrier_on if mii->force_media == TRUE!
-
-If I disable that "if(...) return 0;" it works.
-Instrumented log:
-
-17:54:20.07751 kern.info: qdisc_restart: start, q->dequeue=c03e86c6 <== noop_dequeue
-17:54:21.07736 kern.info: qdisc_restart: start, q->dequeue=c03e86c6
-17:54:23.14445 kern.info: rhine_check_media(init_media:0)
-17:54:23.14454 kern.info: mii_check_media
-17:54:23.14457 kern.info: mii_check_media: mii->force_media == TRUE, bailing DISABLED --vda
-
-Would bail out, but I killed that if, and we proceed:
-
-17:54:23.14462 kern.info: mii_check_media: old_carrier:0 new_carrier:1
-17:54:23.14466 kern.info: mii_check_media: netif_carrier_on
-17:54:23.14469 kern.info: if: link up, 10Mbps, half-duplex, lpa 0x0000
-17:54:23.14474 kern.info: dev_activate(if);
-17:54:23.14477 kern.info: dev_activate(): dev->qdisc = dev->qdisc_sleeping
-17:54:24.64489 kern.info: pfifo_fast_enqueue returns 0
-17:54:24.64496 kern.info: pfifo_fast_dequeue returns a skb
-17:54:24.64499 kern.info: pfifo_fast_dequeue returns NULL
-17:54:24.64584 kern.info: pfifo_fast_enqueue returns 0
-17:54:24.64588 kern.info: qdisc_restart: start, q->dequeue=c03e87b6 <== pfifo_fast_dequeue
-17:54:24.64597 kern.info: pfifo_fast_dequeue returns a skb
-17:54:24.64601 kern.info: qdisc_restart: skb!=NULL
-
-Patch is not made because I suspect that this isn't a proper fix.
---
-vda

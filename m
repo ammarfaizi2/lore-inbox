@@ -1,51 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965010AbVIKSW2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965017AbVIKSYY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965010AbVIKSW2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 14:22:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965013AbVIKSW2
+	id S965017AbVIKSYY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 14:24:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965022AbVIKSYX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 14:22:28 -0400
-Received: from smtpout.mac.com ([17.250.248.46]:23011 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S965010AbVIKSW2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 14:22:28 -0400
-In-Reply-To: <20050911104437.6445ff20.donate@madrone.org>
-References: <20050911103757.7cc1f50f.rdunlap@xenotime.net> <20050911104437.6445ff20.donate@madrone.org>
-Mime-Version: 1.0 (Apple Message framework v734)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <8244F3CF-9EF7-44BB-B3DA-B46A1FF39E1C@mac.com>
-Cc: LKML Kernel <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
+	Sun, 11 Sep 2005 14:24:23 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:15052
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S965017AbVIKSYX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Sep 2005 14:24:23 -0400
+Date: Sun, 11 Sep 2005 11:24:08 -0700 (PDT)
+Message-Id: <20050911.112408.19208990.davem@davemloft.net>
+To: torvalds@osdl.org
+Cc: hch@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: sungem driver patch testing..
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.58.0509110940220.4912@g5.osdl.org>
+References: <Pine.LNX.4.58.0509102008540.4912@g5.osdl.org>
+	<20050911120332.GA7627@infradead.org>
+	<Pine.LNX.4.58.0509110940220.4912@g5.osdl.org>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [RFC] [PATCH] make add_taint() inline
-Date: Sun, 11 Sep 2005 14:22:08 -0400
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 11, 2005, at 13:44:37, donate wrote:
-> From: Randy Dunlap <rdunlap@xenotime.net>
->
-> add_taint() is a trivial function.
-> No need to call it out-of-line, just make it inline and
-> remove its export.
+From: Linus Torvalds <torvalds@osdl.org>
+Date: Sun, 11 Sep 2005 10:07:14 -0700 (PDT)
 
-Actually, in this case it might be better to leave add_taint
-exported, add and export a new function get_taint(), and then
-remove all export of the variable "tainted".  I've actually
-seen one case where some module removed taint bits.  I don't
-remember where or why, but it seemed really bad at the time,
-and still does.  Also, does the tainted variable need any
-kind of locking?  What happens if two CPUs try to taint the
-kernel simultaneously?
+> On Sun, 11 Sep 2005, Christoph Hellwig wrote:
+> > 
+> > While we're at it the cpp conditioal looks bogus.  We definitly needs this
+> > when plugging a SUN card into a mac.  I'd suggest compiling this
+> > unconditionally and fall back to it when whatever firmware method to get
+> > the mac address fails.
+> 
+> Here's a patch (on top of the previous PCI ROM mapping fix) that does
+> that.
 
-Cheers,
-Kyle Moffett
+The Apple firmware actually is the same kind of FORTH firmware the
+SUN cards use too.  Apple bought the FORTH firmware technology from
+Sun so they could use it in their machines.
 
---
-Premature optimization is the root of all evil in programming
-   -- C.A.R. Hoare
+Whether it actually _works_ I do not know, but in theory it is very
+possible that it does.
 
+Just something to keep in mind. :-)
 
+> Maybe the PCI rom mapping code should report when it just makes up a
+> random address?
 
+I agree that it should.

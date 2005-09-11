@@ -1,57 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964795AbVIKHLp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932332AbVIKHNP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964795AbVIKHLp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 03:11:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964796AbVIKHLo
+	id S932332AbVIKHNP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 03:13:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbVIKHNP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 03:11:44 -0400
-Received: from mx2.suse.de ([195.135.220.15]:12715 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964795AbVIKHLo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 03:11:44 -0400
-From: Andi Kleen <ak@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: NUMA mempolicy /proc code in mainline shouldn't have been merged
-Date: Sun, 11 Sep 2005 09:11:20 +0200
-User-Agent: KMail/1.8
-Cc: Christoph Lameter <clameter@engr.sgi.com>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-References: <200509101120.19236.ak@suse.de> <Pine.LNX.4.62.0509101904070.20145@schroedinger.engr.sgi.com> <20050910235139.4a8865c2.akpm@osdl.org>
-In-Reply-To: <20050910235139.4a8865c2.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 11 Sep 2005 03:13:15 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:10259 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S932332AbVIKHNO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Sep 2005 03:13:14 -0400
+Date: Sun, 11 Sep 2005 09:04:07 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       davem@davemloft.net
+Subject: Re: sungem driver patch testing..
+Message-ID: <20050911070407.GF30279@alpha.home.local>
+References: <Pine.LNX.4.58.0509102008540.4912@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200509110911.22212.ak@suse.de>
+In-Reply-To: <Pine.LNX.4.58.0509102008540.4912@g5.osdl.org>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 11 September 2005 08:51, Andrew Morton wrote:
+Hi Linus,
 
-> Certainly I can see value in that.  How can a developer test his
-> code without any form of runtime feedback?
+On Sat, Sep 10, 2005 at 08:11:22PM -0700, Linus Torvalds wrote:
+> 
+> I've been grepping around for things that do their own PCI ROM mapping and 
+> do it badly, and one thing that matches that description is the sungem 
+> ethernet driver on PC's.
+> 
+> If anybody has such a beast, can you please try this patch and report 
+> whether it works for you? 
 
-There are already several ways to do that: first the counters output
-by numastat (local_node, other_node, interleave_hit etc.), which tells you 
-exactly how the allocation strategy ended up. And a process can find out
-on which node a specific page is using get_mempolicy()
+I've ported it to sunhme (which uses the same PCI ROM mapping code).
+Without the patch, I get NULL MAC addresses for all 4 ports (it's a SUN
+QFE). With the patch, I get the correct addresses (the ones printed on
+the label on the card).
 
-If you really want to know what's going on you can use performance counters
-of the machine to tell you the amount of cross node traffic
-(e.g. see numamon in the numactl source tree as an example) 
+I attach the patch for sunhme, and Cc: Davem so that he updates his tree.
 
-I don't think the /proc information gives additional information
-to the programmers. Externally you shouldn't know about the 
-individual addresses anyways.
+Thanks,
+Willy
 
-All it does is to open the flood gates of external mempolicy management, which 
-is wrong.
 
-> It's easy to parse and it is extensible.  It needs documenting though.
+--- linux-2.6.13.1.orig/drivers/net/sunhme.c	Wed Aug 24 22:51:25 2005
++++ linux-2.6.13.1/drivers/net/sunhme.c	Sun Sep 11 09:06:26 2005
+@@ -2954,7 +2954,7 @@ static int is_quattro_p(struct pci_dev *
+ }
+ 
+ /* Fetch MAC address from vital product data of PCI ROM. */
+-static void find_eth_addr_in_vpd(void __iomem *rom_base, int len, int index, unsigned char *dev_addr)
++static int find_eth_addr_in_vpd(void __iomem *rom_base, int len, int index, unsigned char *dev_addr)
+ {
+ 	int this_offset;
+ 
+@@ -2977,42 +2977,33 @@ static void find_eth_addr_in_vpd(void __
+ 
+ 			for (i = 0; i < 6; i++)
+ 				dev_addr[i] = readb(p + i);
+-			break;
++			return 1;
+ 		}
+ 		index--;
+ 	}
++	return 0;
+ }
+ 
+ static void get_hme_mac_nonsparc(struct pci_dev *pdev, unsigned char *dev_addr)
+ {
+-	u32 rom_reg_orig;
+-	void __iomem *p;
+-	int index;
+-
+-	index = 0;
+-	if (is_quattro_p(pdev))
+-		index = PCI_SLOT(pdev->devfn);
+-
+-	if (pdev->resource[PCI_ROM_RESOURCE].parent == NULL) {
+-		if (pci_assign_resource(pdev, PCI_ROM_RESOURCE) < 0)
+-			goto use_random;
+-	}
+-
+-	pci_read_config_dword(pdev, pdev->rom_base_reg, &rom_reg_orig);
+-	pci_write_config_dword(pdev, pdev->rom_base_reg,
+-			       rom_reg_orig | PCI_ROM_ADDRESS_ENABLE);
+-
+-	p = ioremap(pci_resource_start(pdev, PCI_ROM_RESOURCE), (64 * 1024));
+-	if (p != NULL && readb(p) == 0x55 && readb(p + 1) == 0xaa)
+-		find_eth_addr_in_vpd(p, (64 * 1024), index, dev_addr);
++	size_t size;
++	void __iomem *p = pci_map_rom(pdev, &size);
+ 
+-	if (p != NULL)
+-		iounmap(p);
+-
+-	pci_write_config_dword(pdev, pdev->rom_base_reg, rom_reg_orig);
+-	return;
++	if (p) {
++		int index = 0;
++		int found;
++
++		if (is_quattro_p(pdev))
++			index = PCI_SLOT(pdev->devfn);
++
++		found = readb(p) == 0x55 &&
++			readb(p + 1) == 0xaa &&
++			find_eth_addr_in_vpd(p, (64 * 1024), index, dev_addr);
++		pci_unmap_rom(pdev, p);
++		if (found)
++			return;
++	}
+ 
+-use_random:
+ 	/* Sun MAC prefix then 3 random bytes. */
+ 	dev_addr[0] = 0x08;
+ 	dev_addr[1] = 0x00;
 
-Extensible yes, but I have my doubts on easy to parse. User processes
-very likely will get it wrong like they traditionally did with anything
-more complicated in /proc. /proc/*/maps has been a similar disaster too.
 
--Andi
+

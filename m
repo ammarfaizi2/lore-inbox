@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932397AbVIJX53@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932460AbVIKACL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932397AbVIJX53 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 19:57:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932399AbVIJX53
+	id S932460AbVIKACL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 20:02:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932458AbVIKACK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 19:57:29 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:1767 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932395AbVIJX52 (ORCPT
+	Sat, 10 Sep 2005 20:02:10 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:1256 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932457AbVIKACJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 19:57:28 -0400
-Date: Sat, 10 Sep 2005 16:56:59 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: 2.6.13-mm2
-Message-Id: <20050910165659.5eea90d0.akpm@osdl.org>
-In-Reply-To: <1126396015l.6300l.1l@werewolf.able.es>
-References: <20050908053042.6e05882f.akpm@osdl.org>
-	<1126396015l.6300l.1l@werewolf.able.es>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 10 Sep 2005 20:02:09 -0400
+Date: Sat, 10 Sep 2005 17:02:02 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+Subject: Re: [GIT PATCH] More PCI patches for 2.6.13
+In-Reply-To: <43236FD2.6010501@pobox.com>
+Message-ID: <Pine.LNX.4.58.0509101658080.30958@g5.osdl.org>
+References: <Pine.LNX.4.44L0.0509101655520.7081-100000@netrider.rowland.org>
+ <Pine.LNX.4.58.0509101410300.30958@g5.osdl.org> <43235707.7050909@pobox.com>
+ <20050910153110.36a44eba.akpm@osdl.org> <Pine.LNX.4.58.0509101548230.30958@g5.osdl.org>
+ <43236FD2.6010501@pobox.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"J.A. Magallon" <jamagallon@able.es> wrote:
->
-> 
-> On 09.08, Andrew Morton wrote:
-> > 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13/2.6.13-mm2/
-> > 
-> > (kernel.org propagation is slow.  There's a temp copy at
-> > http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.13-mm2.bz2)
-> > 
-> > 
-> 
-> I can not ifup an interface while iptables is using it.
-> Is this expected behaviour ?
 
-Maybe it's expected, but breaking existing userspace is a serious issue.
 
-> There is a possible bug (IMHO) in Mandrake initscripts, that start iptables
-> before network interfaces, but this had always worked.
+On Sat, 10 Sep 2005, Jeff Garzik wrote:
 > 
-> Any ideas ?
+> I -do- want to use iomap.  The problem is that no one has yet come up 
+> with a few that does all the proper resource reservation.  Everybody 
+> (including myself) did the ioread/iowrite part, but gave up before 
+> handling all cases of (a) legacy ISA iomap, (b) native PCI IDE iomap, 
+> and (c) non-standard MMIO iomap.
 
-Please always cc netdev@vger.kernel.org on networking matters.
+It should all be trivial. The only ugly issue in the patch I just sent out 
+is that it needs to save the "legacy_mode" bits that were calculated at 
+initialization time somewhere in the ap structure. Then the 
+release_regions should match the request_regions.
+
+That's a cleanup, the current code is literally buggy. It may end up
+releasing IO address 0x1f0 twice, if somebody wasn't marked legacy, but
+actually had 0x1f0 in the PCI resource pointers (maybe that doesn't ever
+happen, but still.. Relying on the legacy-value of the IO port instead of
+relying on whether you did a legacy request_region() is definitely at
+least conceptually wrong).
+
+			Linus

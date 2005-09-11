@@ -1,164 +1,251 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbVIKRHg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964959AbVIKRL1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751104AbVIKRHg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 13:07:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751107AbVIKRHf
+	id S964959AbVIKRL1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 13:11:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751113AbVIKRL1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 13:07:35 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:42981 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751104AbVIKRHf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 13:07:35 -0400
-Date: Sun, 11 Sep 2005 10:07:14 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Christoph Hellwig <hch@infradead.org>,
-       "David S. Miller" <davem@davemloft.net>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: sungem driver patch testing..
-In-Reply-To: <20050911120332.GA7627@infradead.org>
-Message-ID: <Pine.LNX.4.58.0509110940220.4912@g5.osdl.org>
-References: <Pine.LNX.4.58.0509102008540.4912@g5.osdl.org>
- <20050911120332.GA7627@infradead.org>
+	Sun, 11 Sep 2005 13:11:27 -0400
+Received: from pne-smtpout2-sn2.hy.skanova.net ([81.228.8.164]:35973 "EHLO
+	pne-smtpout2-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S1751107AbVIKRL1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Sep 2005 13:11:27 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Remove unnecessary check_region references in comments
+From: Peter Osterlund <petero2@telia.com>
+Date: 11 Sep 2005 19:11:09 +0200
+Message-ID: <m3wtlnttqq.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Remove check_region references from comments and printk statements so
+that searching for real users of this deprecated function gets
+easier.
 
-
-On Sun, 11 Sep 2005, Christoph Hellwig wrote:
-> 
-> While we're at it the cpp conditioal looks bogus.  We definitly needs this
-> when plugging a SUN card into a mac.  I'd suggest compiling this
-> unconditionally and fall back to it when whatever firmware method to get
-> the mac address fails.
-
-Here's a patch (on top of the previous PCI ROM mapping fix) that does
-that. It seems to work for me, but I can't really test it, and it's mostly
-just cleanup, so I'm not going to apply it.
-
-David can decide to apply it or not as he sees fit (I applied the ROM
-mapping fix, since the same fix was already reported to fix a real problem
-on the happy-meal ethernet).
-
-David: my G5 doesn't trigger the code, since it finds the MAC address in 
-the OF tables. However, if I force that to fail (and add a few printk's), 
-I get:
-
-	OF prom reports MAC 00:0d:93:5a:8c:2c
-	sungem: no MAC info in OF - falling back to PCI ROM code
-	PCI ROM reports MAC 08:00:20:b6:cf:93
-
-so the code seems to work (but because it's an Apple ROM, it doesn't
-actually find the magic sequence, so it will have selected a random
-address - the three last bytes will change every boot - but the thing does
-work..).
-
-Maybe the PCI rom mapping code should report when it just makes up a
-random address?
-
-		Linus
-----
-sungem: fall back on PCI ROM code on PMAC
-
-This falls back to finding the MAC address from the PCI expansion ROM if 
-the card information cannot be found in the Mac OF tables.
-
-Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+Signed-off-by: Peter Osterlund <petero2@telia.com>
 ---
-diff --git a/drivers/net/sungem.c b/drivers/net/sungem.c
---- a/drivers/net/sungem.c
-+++ b/drivers/net/sungem.c
-@@ -2815,7 +2815,33 @@ static int gem_ioctl(struct net_device *
- 	return rc;
- }
+
+ drivers/char/amiserial.c             |    4 ----
+ drivers/isdn/sc/init.c               |    4 ++--
+ drivers/media/radio/radio-aimslab.c  |    2 +-
+ drivers/media/radio/radio-aztech.c   |    2 +-
+ drivers/media/radio/radio-cadet.c    |    2 +-
+ drivers/media/radio/radio-gemtek.c   |    2 +-
+ drivers/media/radio/radio-rtrack2.c  |    2 +-
+ drivers/media/radio/radio-sf16fmi.c  |    2 +-
+ drivers/media/radio/radio-sf16fmr2.c |    2 +-
+ drivers/media/radio/radio-terratec.c |    2 +-
+ drivers/media/radio/radio-typhoon.c  |    2 +-
+ drivers/media/radio/radio-zoltrix.c  |    2 +-
+ drivers/net/arcnet/com90io.c         |    4 ++--
+ drivers/sbus/char/display7seg.c      |    2 +-
+ drivers/tc/zs.c                      |    2 +-
+ 15 files changed, 16 insertions(+), 20 deletions(-)
+
+diff --git a/drivers/char/amiserial.c b/drivers/char/amiserial.c
+--- a/drivers/char/amiserial.c
++++ b/drivers/char/amiserial.c
+@@ -2053,10 +2053,6 @@ static int __init rs_init(void)
+ 	state->icount.rx = state->icount.tx = 0;
+ 	state->icount.frame = state->icount.parity = 0;
+ 	state->icount.overrun = state->icount.brk = 0;
+-	/*
+-	if(state->port && check_region(state->port,REGION_LENGTH(state)))
+-	  continue;
+-	*/
  
--#if (!defined(__sparc__) && !defined(CONFIG_PPC_PMAC))
-+/*
-+ * On Sparc, we get the MAC address from the Sun prom property tables
-+ */
-+#ifdef __sparc__
-+
-+static int __devinit gem_get_device_address(struct gem *gp)
-+{
-+	struct net_device *dev = gp->dev;
-+	struct pci_dev *pdev = gp->pdev;
-+	struct pcidev_cookie *pcp = pdev->sysdata;
-+	int node = -1;
-+
-+	if (pcp != NULL) {
-+		node = pcp->prom_node;
-+		if (prom_getproplen(node, "local-mac-address") == 6)
-+			prom_getproperty(node, "local-mac-address",
-+					 dev->dev_addr, 6);
-+		else
-+			node = -1;
-+	}
-+	if (node == -1)
-+		memcpy(dev->dev_addr, idprom->id_ethaddr, 6);
-+	return 0;
-+}
-+
-+#else /* Not __sparc__ */
-+
- /* Fetch MAC address from vital product data of PCI ROM. */
- static int find_eth_addr_in_vpd(void __iomem *rom_base, int len, unsigned char *dev_addr)
- {
-@@ -2866,45 +2892,30 @@ static void get_gem_mac_nonobp(struct pc
- 	get_random_bytes(dev_addr + 3, 3);
- 	return;
- }
--#endif /* not Sparc and not PPC */
+ 	printk(KERN_INFO "ttyS%d is the amiga builtin serial port\n",
+ 		       state->line);
+diff --git a/drivers/isdn/sc/init.c b/drivers/isdn/sc/init.c
+--- a/drivers/isdn/sc/init.c
++++ b/drivers/isdn/sc/init.c
+@@ -87,7 +87,7 @@ static int __init sc_init(void)
+ 			 */
+ 			for (i = 0 ; i < MAX_IO_REGS - 1 ; i++) {
+ 				if(!request_region(io[b] + i * 0x400, 1, "sc test")) {
+-					pr_debug("check_region for 0x%x failed\n", io[b] + i * 0x400);
++					pr_debug("request_region for 0x%x failed\n", io[b] + i * 0x400);
+ 					io[b] = 0;
+ 					break;
+ 				} else
+@@ -181,7 +181,7 @@ static int __init sc_init(void)
+ 			for (i = SRAM_MIN ; i < SRAM_MAX ; i += SRAM_PAGESIZE) {
+ 				pr_debug("Checking RAM address 0x%x...\n", i);
+ 				if(request_region(i, SRAM_PAGESIZE, "sc test")) {
+-					pr_debug("  check_region succeeded\n");
++					pr_debug("  request_region succeeded\n");
+ 					model = identify_board(i, io[b]);
+ 					release_region(i, SRAM_PAGESIZE);
+ 					if (model >= 0) {
+diff --git a/drivers/media/radio/radio-aimslab.c b/drivers/media/radio/radio-aimslab.c
+--- a/drivers/media/radio/radio-aimslab.c
++++ b/drivers/media/radio/radio-aimslab.c
+@@ -29,7 +29,7 @@
  
-+/*
-+ * On PPC PMAC, we try the OF first, then fall back to searching
-+ * the PCI ROM.
-+ */
- static int __devinit gem_get_device_address(struct gem *gp)
- {
--#if defined(__sparc__) || defined(CONFIG_PPC_PMAC)
-+#if defined(CONFIG_PPC_PMAC)
- 	struct net_device *dev = gp->dev;
--#endif
--
--#if defined(__sparc__)
--	struct pci_dev *pdev = gp->pdev;
--	struct pcidev_cookie *pcp = pdev->sysdata;
--	int node = -1;
--
--	if (pcp != NULL) {
--		node = pcp->prom_node;
--		if (prom_getproplen(node, "local-mac-address") == 6)
--			prom_getproperty(node, "local-mac-address",
--					 dev->dev_addr, 6);
--		else
--			node = -1;
--	}
--	if (node == -1)
--		memcpy(dev->dev_addr, idprom->id_ethaddr, 6);
--#elif defined(CONFIG_PPC_PMAC)
- 	unsigned char *addr;
+ #include <linux/module.h>	/* Modules 			*/
+ #include <linux/init.h>		/* Initdata			*/
+-#include <linux/ioport.h>	/* check_region, request_region	*/
++#include <linux/ioport.h>	/* request_region		*/
+ #include <linux/delay.h>	/* udelay			*/
+ #include <asm/io.h>		/* outb, outb_p			*/
+ #include <asm/uaccess.h>	/* copy to/from user		*/
+diff --git a/drivers/media/radio/radio-aztech.c b/drivers/media/radio/radio-aztech.c
+--- a/drivers/media/radio/radio-aztech.c
++++ b/drivers/media/radio/radio-aztech.c
+@@ -26,7 +26,7 @@
  
- 	addr = get_property(gp->of_node, "local-mac-address", NULL);
--	if (addr == NULL) {
--		printk("\n");
--		printk(KERN_ERR "%s: can't get mac-address\n", dev->name);
--		return -1;
-+	if (addr) {
-+		memcpy(dev->dev_addr, addr, 6);
-+		return 0;
+ #include <linux/module.h>	/* Modules 			*/
+ #include <linux/init.h>		/* Initdata			*/
+-#include <linux/ioport.h>	/* check_region, request_region	*/
++#include <linux/ioport.h>	/* request_region		*/
+ #include <linux/delay.h>	/* udelay			*/
+ #include <asm/io.h>		/* outb, outb_p			*/
+ #include <asm/uaccess.h>	/* copy to/from user		*/
+diff --git a/drivers/media/radio/radio-cadet.c b/drivers/media/radio/radio-cadet.c
+--- a/drivers/media/radio/radio-cadet.c
++++ b/drivers/media/radio/radio-cadet.c
+@@ -29,7 +29,7 @@
+ 
+ #include <linux/module.h>	/* Modules 			*/
+ #include <linux/init.h>		/* Initdata			*/
+-#include <linux/ioport.h>	/* check_region, request_region	*/
++#include <linux/ioport.h>	/* request_region		*/
+ #include <linux/delay.h>	/* udelay			*/
+ #include <asm/io.h>		/* outb, outb_p			*/
+ #include <asm/uaccess.h>	/* copy to/from user		*/
+diff --git a/drivers/media/radio/radio-gemtek.c b/drivers/media/radio/radio-gemtek.c
+--- a/drivers/media/radio/radio-gemtek.c
++++ b/drivers/media/radio/radio-gemtek.c
+@@ -17,7 +17,7 @@
+ 
+ #include <linux/module.h>	/* Modules 			*/
+ #include <linux/init.h>		/* Initdata			*/
+-#include <linux/ioport.h>	/* check_region, request_region	*/
++#include <linux/ioport.h>	/* request_region		*/
+ #include <linux/delay.h>	/* udelay			*/
+ #include <asm/io.h>		/* outb, outb_p			*/
+ #include <asm/uaccess.h>	/* copy to/from user		*/
+diff --git a/drivers/media/radio/radio-rtrack2.c b/drivers/media/radio/radio-rtrack2.c
+--- a/drivers/media/radio/radio-rtrack2.c
++++ b/drivers/media/radio/radio-rtrack2.c
+@@ -10,7 +10,7 @@
+ 
+ #include <linux/module.h>	/* Modules 			*/
+ #include <linux/init.h>		/* Initdata			*/
+-#include <linux/ioport.h>	/* check_region, request_region	*/
++#include <linux/ioport.h>	/* request_region		*/
+ #include <linux/delay.h>	/* udelay			*/
+ #include <asm/io.h>		/* outb, outb_p			*/
+ #include <asm/uaccess.h>	/* copy to/from user		*/
+diff --git a/drivers/media/radio/radio-sf16fmi.c b/drivers/media/radio/radio-sf16fmi.c
+--- a/drivers/media/radio/radio-sf16fmi.c
++++ b/drivers/media/radio/radio-sf16fmi.c
+@@ -18,7 +18,7 @@
+ #include <linux/kernel.h>	/* __setup			*/
+ #include <linux/module.h>	/* Modules 			*/
+ #include <linux/init.h>		/* Initdata			*/
+-#include <linux/ioport.h>	/* check_region, request_region	*/
++#include <linux/ioport.h>	/* request_region		*/
+ #include <linux/delay.h>	/* udelay			*/
+ #include <linux/videodev.h>	/* kernel radio structs		*/
+ #include <linux/isapnp.h>
+diff --git a/drivers/media/radio/radio-sf16fmr2.c b/drivers/media/radio/radio-sf16fmr2.c
+--- a/drivers/media/radio/radio-sf16fmr2.c
++++ b/drivers/media/radio/radio-sf16fmr2.c
+@@ -14,7 +14,7 @@
+ 
+ #include <linux/module.h>	/* Modules 			*/
+ #include <linux/init.h>		/* Initdata			*/
+-#include <linux/ioport.h>	/* check_region, request_region	*/
++#include <linux/ioport.h>	/* request_region		*/
+ #include <linux/delay.h>	/* udelay			*/
+ #include <asm/io.h>		/* outb, outb_p			*/
+ #include <asm/uaccess.h>	/* copy to/from user		*/
+diff --git a/drivers/media/radio/radio-terratec.c b/drivers/media/radio/radio-terratec.c
+--- a/drivers/media/radio/radio-terratec.c
++++ b/drivers/media/radio/radio-terratec.c
+@@ -25,7 +25,7 @@
+ 
+ #include <linux/module.h>	/* Modules 			*/
+ #include <linux/init.h>		/* Initdata			*/
+-#include <linux/ioport.h>	/* check_region, request_region	*/
++#include <linux/ioport.h>	/* request_region		*/
+ #include <linux/delay.h>	/* udelay			*/
+ #include <asm/io.h>		/* outb, outb_p			*/
+ #include <asm/uaccess.h>	/* copy to/from user		*/
+diff --git a/drivers/media/radio/radio-typhoon.c b/drivers/media/radio/radio-typhoon.c
+--- a/drivers/media/radio/radio-typhoon.c
++++ b/drivers/media/radio/radio-typhoon.c
+@@ -31,7 +31,7 @@
+ 
+ #include <linux/module.h>	/* Modules                        */
+ #include <linux/init.h>		/* Initdata                       */
+-#include <linux/ioport.h>	/* check_region, request_region   */
++#include <linux/ioport.h>	/* request_region		  */
+ #include <linux/proc_fs.h>	/* radio card status report	  */
+ #include <asm/io.h>		/* outb, outb_p                   */
+ #include <asm/uaccess.h>	/* copy to/from user              */
+diff --git a/drivers/media/radio/radio-zoltrix.c b/drivers/media/radio/radio-zoltrix.c
+--- a/drivers/media/radio/radio-zoltrix.c
++++ b/drivers/media/radio/radio-zoltrix.c
+@@ -28,7 +28,7 @@
+ 
+ #include <linux/module.h>	/* Modules                        */
+ #include <linux/init.h>		/* Initdata                       */
+-#include <linux/ioport.h>	/* check_region, request_region   */
++#include <linux/ioport.h>	/* request_region		  */
+ #include <linux/delay.h>	/* udelay, msleep                 */
+ #include <asm/io.h>		/* outb, outb_p                   */
+ #include <asm/uaccess.h>	/* copy to/from user              */
+diff --git a/drivers/net/arcnet/com90io.c b/drivers/net/arcnet/com90io.c
+--- a/drivers/net/arcnet/com90io.c
++++ b/drivers/net/arcnet/com90io.c
+@@ -160,7 +160,7 @@ static int __init com90io_probe(struct n
+ 		return -ENODEV;
  	}
--	memcpy(dev->dev_addr, addr, 6);
--#else
--	get_gem_mac_nonobp(gp->pdev, gp->dev->dev_addr);
-+	printk("sungem: no MAC info in OF - falling back to PCI ROM code\n");
- #endif
-+	get_gem_mac_nonobp(gp->pdev, gp->dev->dev_addr);
- 	return 0;
- }
- 
-+#endif /* Not sparc */
-+
- static void __devexit gem_remove_one(struct pci_dev *pdev)
- {
- 	struct net_device *dev = pci_get_drvdata(pdev);
+ 	if (!request_region(ioaddr, ARCNET_TOTAL_SIZE, "com90io probe")) {
+-		BUGMSG(D_INIT_REASONS, "IO check_region %x-%x failed.\n",
++		BUGMSG(D_INIT_REASONS, "IO request_region %x-%x failed.\n",
+ 		       ioaddr, ioaddr + ARCNET_TOTAL_SIZE - 1);
+ 		return -ENXIO;
+ 	}
+@@ -242,7 +242,7 @@ static int __init com90io_found(struct n
+ 		BUGMSG(D_NORMAL, "Can't get IRQ %d!\n", dev->irq);
+ 		return -ENODEV;
+ 	}
+-	/* Reserve the I/O region - guaranteed to work by check_region */
++	/* Reserve the I/O region */
+ 	if (!request_region(dev->base_addr, ARCNET_TOTAL_SIZE, "arcnet (COM90xx-IO)")) {
+ 		free_irq(dev->irq, dev);
+ 		return -EBUSY;
+diff --git a/drivers/sbus/char/display7seg.c b/drivers/sbus/char/display7seg.c
+--- a/drivers/sbus/char/display7seg.c
++++ b/drivers/sbus/char/display7seg.c
+@@ -14,7 +14,7 @@
+ #include <linux/major.h>
+ #include <linux/init.h>
+ #include <linux/miscdevice.h>
+-#include <linux/ioport.h>		/* request_region, check_region */
++#include <linux/ioport.h>		/* request_region */
+ #include <asm/atomic.h>
+ #include <asm/ebus.h>			/* EBus device					*/
+ #include <asm/oplib.h>			/* OpenProm Library 			*/
+diff --git a/drivers/tc/zs.c b/drivers/tc/zs.c
+--- a/drivers/tc/zs.c
++++ b/drivers/tc/zs.c
+@@ -1683,7 +1683,7 @@ static void __init probe_sccs(void)
+ #ifndef CONFIG_SERIAL_DEC_CONSOLE
+ 			/*
+ 			 * We're called early and memory managment isn't up, yet.
+-			 * Thus check_region would fail.
++			 * Thus request_region would fail.
+ 			 */
+ 			if (!request_region((unsigned long)
+ 					 zs_channels[n_channels].control,
+
+-- 
+Peter Osterlund - petero2@telia.com
+http://web.telia.com/~u89404340

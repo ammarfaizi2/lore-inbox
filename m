@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbVIKNlc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932215AbVIKN6N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932075AbVIKNlc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 09:41:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751034AbVIKNlc
+	id S932215AbVIKN6N (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 09:58:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbVIKN6N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 09:41:32 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:3003 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1750817AbVIKNlb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 09:41:31 -0400
-Subject: Re: [PATCH 2.6.13 14/14] sas-class: SCSI Host glue
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: ak@muc.de
-Cc: Rik van Riel <riel@redhat.com>, Luben Tuikov <luben_tuikov@adaptec.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <20050911035621.87661.qmail@mail.muc.de>
-References: <20050910041218.29183.qmail@web51612.mail.yahoo.com>
-	 <Pine.LNX.4.63.0509101028510.4630@cuia.boston.redhat.com>
-	 <20050911035621.87661.qmail@mail.muc.de>
-Content-Type: text/plain
-Date: Sun, 11 Sep 2005 08:41:10 -0500
-Message-Id: <1126446071.4831.5.camel@mulgrave>
+	Sun, 11 Sep 2005 09:58:13 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:22061 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S932215AbVIKN6M
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Sep 2005 09:58:12 -0400
+Date: Sun, 11 Sep 2005 16:00:01 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Denis Vlasenko <vda@ilport.com.ua>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [GIT PATCHES] final kbuild update before fix-only period
+Message-ID: <20050911140001.GA7544@mars.ravnborg.org>
+References: <20050910200347.GA3762@mars.ravnborg.org> <200509111526.58010.vda@ilport.com.ua>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-6) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200509111526.58010.vda@ilport.com.ua>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-09-11 at 05:56 +0200, ak@muc.de wrote:
-> >> Naturally, aic94xx has _no limitations_. :-)  But hey, our hardware just 
-> >> kicks a*s!
-> >
-> > That's very nice for you - but lets face it, a SAS layer
-> > that'll be unable to also deal with the El-Cheapo brand
-> > controllers isn't going to be very useful.
+> Hi Sam,
 > 
-> Nobody knows what these bu^wlimitations will be though. So you cannot
-> really plan for them in advance.  When someone writes drivers for such 
-> limited hardware they can add code to handle the limitations. But it 
-> seems reasonable to start with a clean hardware model, and only
-> add the hacks later when they are really needed and the requirements
-> are understood.
+> BUG()s etc which are using __FILE__ to get source filename
+> print horribly long names like
+> 
+> /.share/usr/src2/kernel/linux-2.6.13-mm2.src/drivers/net/.../some.c
+> 
+> if one builds kernel in separate object dir.
+> This is ugly and wastes space in kernel image. Any ideas how to fix this?
 
-But my point was that we already have a mechanism for coping with this:
-The scsi template parameterises some of these things (max sector size,
-sg table elements, clustering, etc).  For less standard things it
-doesn't cover the driver uses the blk_ adjustors directly from
-slave_alloc/slave_configure (This is currently how USB and firewire
-communicate their alignment requirements).
+I have once experimenting with this on request from Olaf.
+The only way I could fine was to pass a new define:
+-DKBUILD_FILE='short-file-name' to gcc.
+This has the sideeffect that we always accuse the main .c file for
+being the culprint.
+gcc warns if we override __FILE__
 
-By wrappering both the template and the slave_alloc/slave_configure
-methods in the SAS class and not providing the driver access, it can't
-use existing methods to make any adjustments that may be necessary.
+__FILE__ is used in 123 files of wich 26 is within arch/
+so it will take a while to change...
 
-James
+I can cook up something if there is interest.
 
-
+	Sam

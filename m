@@ -1,82 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964786AbVIKPBG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964803AbVIKPPt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964786AbVIKPBG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 11:01:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964799AbVIKPBG
+	id S964803AbVIKPPt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 11:15:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964806AbVIKPPt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 11:01:06 -0400
-Received: from mail20.syd.optusnet.com.au ([211.29.132.201]:16592 "EHLO
-	mail20.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S964786AbVIKPBF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 11:01:05 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: 2.6.13-ck3
-Date: Mon, 12 Sep 2005 01:01:00 +1000
-User-Agent: KMail/1.8.2
-Cc: ck list <ck@vds.kolivas.org>
+	Sun, 11 Sep 2005 11:15:49 -0400
+Received: from ams-iport-1.cisco.com ([144.254.224.140]:55970 "EHLO
+	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S964803AbVIKPPt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Sep 2005 11:15:49 -0400
+To: Chris Wedgwood <cw@f00f.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [git pull] InfiniBand updates
+X-Message-Flag: Warning: May contain useful information
+References: <523bocedcb.fsf@cisco.com>
+	<20050911030345.GA14593@taniwha.stupidest.org>
+From: Roland Dreier <rolandd@cisco.com>
+Date: Sun, 11 Sep 2005 08:15:42 -0700
+In-Reply-To: <20050911030345.GA14593@taniwha.stupidest.org> (Chris
+ Wedgwood's message of "Sat, 10 Sep 2005 20:03:45 -0700")
+Message-ID: <52u0grd49t.fsf@cisco.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509120101.00649.kernel@kolivas.org>
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 11 Sep 2005 15:15:43.0653 (UTC) FILETIME=[AD9D5D50:01C5B6E3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-These are patches designed to improve system responsiveness and interactivity. 
-It is configurable to any workload but the default ck* patch is aimed at the 
-desktop and ck*-server is available with more emphasis on serverspace.
+> >  include/rdma/ib_cm.h                      |    1
+> >  include/rdma/ib_mad.h                     |   21 ++
+> >  include/rdma/ib_sa.h                      |   31 +++
+> >  include/rdma/ib_user_cm.h                 |   72 +++++++
+> >  include/rdma/ib_user_verbs.h              |   21 ++
 
+> Do these really need to be here?  if we really must merge RDMA can we
+> not hide these headers in drivers/inifiniband for now?
 
-Apply to 2.6.13
-http://ck.kolivas.org/patches/2.6/2.6.13/2.6.13-ck3/patch-2.6.13-ck3.bz2
+The includes were moved from drivers/infiniband a few weeks ago for
+various good reasons.
 
-or server version (still no new version this release):
-http://ck.kolivas.org/patches/2.6/2.6.13/2.6.13-ck1/patch-2.6.13-ck1-server.bz2
+I really wish you had replied to the initial RFC
+(http://lkml.org/lkml/2005/8/4/191) or the merge where the headers
+were actually moved (http://lkml.org/lkml/2005/8/29/105).  I don't
+think there's much point in moving the files back now.
 
-
-web:
-http://kernel.kolivas.org
-all patches:
-http://ck.kolivas.org/patches/
-Split patches available.
-
-
-Changes:
-
-Added:
- +vm-sp2_sp5.patch
-Updated the swap prefetch code to make it even gentler at deciding when to 
-start prefetching.
-
- +patch-2.6.13.1.bz2
-Latest stable version
-
-
-Full patchlist:
-
-sched-run_normal_with_rt_on_sibling.diff
-2.6.13_to_staircase12.diff
-schedrange.diff
-schedbatch2.9.diff
-sched-iso3.1.patch
-smp-nice-support7.diff
-1g_lowmem1_i386.diff
-defaultcfq.diff
-isobatch_ionice2.diff
-rt_ionice.diff
-pdflush-tweaks.patch
-hz-default_values.patch
-vm-mapped.diff
-vm-lots_watermark.diff
-vm-background_scan.diff
-vm-swap_prefetch-2.patch
-sched-staircase12_tweak.patch
-vm-sp2_sp5.patch
-patch-2.6.13.1.bz2
-2613ck3-version.diff
-
-
-Cheers,
-Con
+ - R.

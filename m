@@ -1,43 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750828AbVIKTpK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750837AbVIKT4T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750828AbVIKTpK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 15:45:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750829AbVIKTpK
+	id S1750837AbVIKT4T (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 15:56:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750829AbVIKT4T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 15:45:10 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:48522 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750828AbVIKTpI (ORCPT
+	Sun, 11 Sep 2005 15:56:19 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:6028 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750712AbVIKT4S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 15:45:08 -0400
-Date: Sun, 11 Sep 2005 12:44:34 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: donate <donate@madrone.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH] make add_taint() inline
-Message-Id: <20050911124434.1967ac6e.akpm@osdl.org>
-In-Reply-To: <20050911104437.6445ff20.donate@madrone.org>
-References: <20050911103757.7cc1f50f.rdunlap@xenotime.net>
-	<20050911104437.6445ff20.donate@madrone.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 11 Sep 2005 15:56:18 -0400
+Date: Sun, 11 Sep 2005 12:56:12 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: Peter Osterlund <petero2@telia.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>
+Subject: Re: What's up with the GIT archive on www.kernel.org?
+In-Reply-To: <20050911194630.GB22951@mars.ravnborg.org>
+Message-ID: <Pine.LNX.4.58.0509111251150.3242@g5.osdl.org>
+References: <m3mzmjvbh7.fsf@telia.com> <Pine.LNX.4.58.0509110908590.4912@g5.osdl.org>
+ <20050911185711.GA22556@mars.ravnborg.org> <Pine.LNX.4.58.0509111157360.3242@g5.osdl.org>
+ <20050911194630.GB22951@mars.ravnborg.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-donate <donate@madrone.org> wrote:
->
-> From: donate <donate@madrone.org>
 
-Who is this?
 
-> From: Randy Dunlap <rdunlap@xenotime.net>
+On Sun, 11 Sep 2005, Sam Ravnborg wrote:
+> 
+> I had to specify both GIT_DIR and GIT_OBJECT_DIRECTORY to make
+> git-prune-packed behave as expected. I assume this is normal when I
+> rename the .git directory like in this case.
 
->  add_taint() is a trivial function.
->  No need to call it out-of-line, just make it inline and
->  remove its export.
+You should only need to specify GIT_DIR - it should figure out that the 
+object directory follows GIT_DIR on its own.
 
-Well, presumably add_taint() was exported to modules for a reason.  If that
-reason was valid then this patch requires that `tainted' be exported to
-modules too.  And that allows naughty modules to trivially zero it out.
+Also, I forget what version of git is installed on kernel.org. The
+"alternates" support has been around for a while, and looking at the date
+of "/usr/bin/git" it _seems_ recent (Sep 7), but I haven't seen any
+announcement of updating since the last one (which was git-0.99.4, which
+is too old).
 
+You can try removing all the packs in your .git/objects/packs directory. 
+Everything _should_ still work fine.
+
+Famous last words.
+
+		Linus

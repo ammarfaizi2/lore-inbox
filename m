@@ -1,72 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932422AbVIKBdj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932736AbVIKBlG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932422AbVIKBdj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 21:33:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932443AbVIKBdi
+	id S932736AbVIKBlG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 21:41:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932743AbVIKBlG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 21:33:38 -0400
-Received: from omta03ps.mx.bigpond.com ([144.140.82.155]:43165 "EHLO
-	omta03ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S932422AbVIKBdi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 21:33:38 -0400
-Message-ID: <4323896F.5050703@bigpond.net.au>
-Date: Sun, 11 Sep 2005 11:33:35 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
+	Sat, 10 Sep 2005 21:41:06 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:27782 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932736AbVIKBlF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Sep 2005 21:41:05 -0400
+Date: Sat, 10 Sep 2005 18:41:01 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Miguel <frankpoole@terra.es>
+cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PCI bug in 2.6.13
+In-Reply-To: <20050911030814.08cbe74c.frankpoole@terra.es>
+Message-ID: <Pine.LNX.4.58.0509101817590.3314@g5.osdl.org>
+References: <20050909180405.3e356c2a.frankpoole@terra.es>
+ <20050909225956.42021440.akpm@osdl.org> <20050910113658.178a7711.frankpoole@terra.es>
+ <Pine.LNX.4.58.0509100949370.30958@g5.osdl.org> <Pine.LNX.4.58.0509101401490.30958@g5.osdl.org>
+ <20050911030814.08cbe74c.frankpoole@terra.es>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Jake Moilanen <moilanen@austin.ibm.com>
-Subject: [ANNOUNCE][RFC] PlugSched-6.1.1 for 2.6.13 and 2.6.13-mm2
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta03ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sun, 11 Sep 2005 01:33:35 +0000
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This version contains minor code cleanups and more modifications to the 
-spa_ws scheduler to improve its interactive responsiveness.  This 
-modification includes control parameters for the identification of 
-"media streaming" tasks.  The default values for these parameters are 
-set based on observations of RealPlayer and the parameters of the video 
-and audio benchmarks in Con Kolivas's interbench test and, therefore, 
-may need adjusting for other programs.
 
-A patch for 2.6.13-mm2 is available at:
 
-<http://prdownloads.sourceforge.net/cpuse/plugsched-6.1.1-for-2.6.13-mm2.patch?download>
+On Sun, 11 Sep 2005, Miguel wrote:
+> 
+> > > Also, what disk controller is this happening on?
+> 
+> I'm not sure because I have a software RAID0 of 3x20GB, two hard disks
+> are in the VIA controller and the other is in the onboard HPT370
+> controller. Doing a diff between the lspci outputs there are some bytes
+> different in the data of the HPT370 controller, maybe there is the
+> problem.
 
-and a patch to upgrade the 6.1 for 2.6.13 to 6.1.1 is available at:
+It looks like your HPT controller.
 
-<http://prdownloads.sourceforge.net/cpuse/plugsched-6.1-to-6.1.1-for-2.6.13.patch?download>
+	 00:0b.0 Mass storage controller: Triones Technologies, Inc. HPT366/368/370/370A/372/372N (rev 04)
+	 ...
+	-30: 01 00 00 40 60 00 00 00 00 00 00 00 0b 01 08 08
+	+30: 01 00 00 00 60 00 00 00 00 00 00 00 0b 01 08 08
 
-Very Brief Documentation:
+That's a _really_ bad value. It's "enabled" (low bit set) but at address 
+zero in the bad case. 
 
-You can select a default scheduler at kernel build time.  If you wish to
-boot with a scheduler other than the default it can be selected at boot
-time by adding:
+Can you double-check this same thing with the git snapshot (or 2.6.13.1) 
+that should have the pci_map_rom() thing fixed?
 
-cpusched=<scheduler>
+My problem is that I don't see what writes that invalid enable bit. The 
+patch that broke things for you explicitly avoids writing any value at 
+_all_, much less one with the rom enabled bit set (in fact, if the enabled 
+bit had been set, the patch wouldn't have made any difference at all for 
+you).
 
-to the boot command line where <scheduler> is one of: ingosched,
-nicksched, staircase, spa_no_frills, spa_ws or zaphod.  If you don't
-change the default when you build the kernel the default scheduler will
-be ingosched (which is the normal scheduler).
+The HPT driver does some strange things:
 
-The scheduler in force on a running system can be determined by the
-contents of:
+        /* FIXME: Not portable */
+        if (dev->resource[PCI_ROM_RESOURCE].start)
+                pci_write_config_byte(dev, PCI_ROM_ADDRESS,
+                        dev->resource[PCI_ROM_RESOURCE].start | PCI_ROM_ADDRESS_ENABLE);
 
-/proc/scheduler
+but that one too _explicitly_ only does so for non-zero resource start
+values. But something clearly wrote 00000001 to your ROM address..
 
-Control parameters for the scheduler can be read/set via files in:
+Can you try this _truly_ cheezy patch that should generate a stack trace 
+for the offending place? Btw, only do this with the 2.6.13.1 or git 
+kernels that have the fixed pci_map_rom(), otherwise you'll probably get 
+bogus traps for that case..
 
-/sys/cpusched/<scheduler>/
+		Linus
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+----
+diff --git a/include/linux/pci.h b/include/linux/pci.h
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -377,6 +377,7 @@ static inline int pci_write_config_word(
+ }
+ static inline int pci_write_config_dword(struct pci_dev *dev, int where, u32 val)
+ {
++	WARN_ON(where == PCI_ROM_ADDRESS && val == 1);
+ 	return pci_bus_write_config_dword (dev->bus, dev->devfn, where, val);
+ }
+ 

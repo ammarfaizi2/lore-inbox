@@ -1,78 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932325AbVIKGrO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932427AbVIKGwM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932325AbVIKGrO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 02:47:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932401AbVIKGrO
+	id S932427AbVIKGwM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 02:52:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932453AbVIKGwM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 02:47:14 -0400
-Received: from mail.metronet.co.uk ([213.162.97.75]:44722 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S932325AbVIKGrO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 02:47:14 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Greg KH <greg@kroah.com>
-Subject: Re: [GIT PATCH] More PCI patches for 2.6.13
-Date: Sun, 11 Sep 2005 07:47:21 +0100
-User-Agent: KMail/1.8.90
-Cc: Jeff Garzik <jgarzik@pobox.com>, Linus Torvalds <torvalds@osdl.org>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Alan Stern <stern@rowland.harvard.edu>, Andrew Morton <akpm@osdl.org>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44L0.0509101655520.7081-100000@netrider.rowland.org> <200509102332.54619.s0348365@sms.ed.ac.uk> <20050911044106.GA6611@kroah.com>
-In-Reply-To: <20050911044106.GA6611@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 11 Sep 2005 02:52:12 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:30627 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932427AbVIKGwL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Sep 2005 02:52:11 -0400
+Date: Sat, 10 Sep 2005 23:51:39 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: ak@suse.de, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: NUMA mempolicy /proc code in mainline shouldn't have been
+ merged
+Message-Id: <20050910235139.4a8865c2.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.62.0509101904070.20145@schroedinger.engr.sgi.com>
+References: <200509101120.19236.ak@suse.de>
+	<20050910023337.7b79db9a.akpm@osdl.org>
+	<Pine.LNX.4.62.0509100921260.17110@schroedinger.engr.sgi.com>
+	<20050910175901.7af1e437.akpm@osdl.org>
+	<Pine.LNX.4.62.0509101904070.20145@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509110747.21747.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 11 September 2005 05:41, Greg KH wrote:
-> On Sat, Sep 10, 2005 at 11:32:54PM +0100, Alistair John Strachan wrote:
-> > On Saturday 10 September 2005 22:58, Jeff Garzik wrote:
-> > > Linus Torvalds wrote:
-> > > > Case closed.
-> > > >
-> > > > Bogus warnings are a _bad_ thing. They cause people to write buggy
-> > > > code.
-> > > >
-> > > > That drivers/pci/pci.c code should be simplified to not look at the
-> > > > error return from pci_set_power_state() at all. Special-casing EIO is
-> > > > just another bug waiting to happen.
-> > >
-> > > As a tangent, the 'foo is deprecated' warnings for pm_register() and
-> > > inter_module_register() annoy me, primarily because they never seem to
-> > > go away.
-> > >
-> > > The only user of inter_module_xxx is CONFIG_MTD -- thus the deprecated
-> > > warning is useless to 90% of us, who will never use MTD.  As for
-> > > pm_register(), there are tons of users remaining.  As such, for the
-> > > forseeable future, we will continue to see pm_register() warnings and
-> > > ignore them -- thus they are nothing but useless build noise.
-> > >
-> > > I've attached a patch, just tested, which addresses inter_module_xxx by
-> > > making its build conditional on the last remaining user.  This solves
-> > > the deprecated warning problem for most of us, and makes the kernel
-> > > smaller for most of us, at the same time.
-> >
-> > Though external modules using these functions will be hung out to dry.
+Christoph Lameter <clameter@engr.sgi.com> wrote:
 >
-> External modules are always hung out to dry.  Seriously, you don't have
-> code using those functions, do you?  If so, it's not like you haven't
-> been warned...
+> On Sat, 10 Sep 2005, Andrew Morton wrote:
+> 
+> > > Well its ugly because you said that the fixes to make it less ugly were 
+> > > "useless". I can still submit those fixes that make numa_maps a part of 
+> > > smaps and that cleanup the way policies are displayed.
+> > 
+> > It would be useful to see these.
+> 
+> URLs (these are not up to date and in particular the conversion
+> functions are much simpler in recent versions thanks to some help by
+> Paul Jackson since then)
+> 
+> http://www.uwsg.iu.edu/hypermail/linux/kernel/0507.3/1662.html
+> http://www.uwsg.iu.edu/hypermail/linux/kernel/0507.3/1663.html
+> http://www.uwsg.iu.edu/hypermail/linux/kernel/0507.3/1665.html
+> 
 
-I don't care, and no I don't. I was just making the point before somebody 
-makes the mistake of doing something that isn't 100% clear cut.
+That doesn't looks like a great improvement.  The code you have there now
+is quite straightforward.
 
-Either you remove it, or you don't. You don't leave it there for some distros 
-to enable with CONFIG_MTD and some not.
+> 
+> > > > >  - it presents lots of kernel internal information and mempolicy
+> > > > >  internals (like how many people have a page mapped) etc.
+> > > > >  to userland that shouldn't be exposed to this.
+> > > Very important information.
+> > Important to whom?  Kernel developers or userspace developers?  If the
+> > latter, what use do they actually make of it?  Shouldn't it be documented?
+> 
+> Both. System administrators would like to know on which node an 
+> application has allocated memory. They would also like to change the way 
+> applications do allocate memory while they are running but Andi has 
+> philosophical concerns about that and will not even discuss methods to fix 
+> the design issues in order to make that possible. Got a couple here ready 
+> pull out if an opportunity arises.
 
--- 
-Cheers,
-Alistair.
+Well I can understand concerns about externally fiddling with a process's
+allocation policies, but that's a separate issue from the one at hand.
 
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+I'd expect that the ability to know "on which node an application has
+allocated memory" would be more valuable to a developer than to a sysadmin.
+Can you provide an example usage?
+
+> I still have a hard time to see how people can accept the line of 
+> reasoning that says:
+> 
+>  Users are not allowed to know on which nodes the operating system 
+>  allocated resources for a process
+
+This would only be useful if the process wasn't explicitly setting memory
+policies, yes?  It's "hey, where is did all my memory end up".
+
+> and are also not allowed to see the 
+>  memory policies in effect for the memory areas
+
+And this is the case where the process _has_ set some memory allocation
+policies.
+
+Certainly I can see value in that.  How can a developer test his
+code without any form of runtime feedback?
+
+> Then the application developers have to guess the effect that the memory 
+> policies have on memory allocation. For memory alloc debugging the poor 
+> app guys must today simply imagine what the operating system is doing. 
+> They can see the amount of total memory allocated on a node via other proc 
+> entries and then guess based on that which application has taken it. Then 
+> they modify their apps and do another run. 
+
+Agree.
+
+What does Andi mean by "there was a theoretical usecase where it might be
+needed, but there were better solutions proposed for this"?  The
+application developer's problem here seems very real to me.  Maybe the
+"theoretical usecase" was something different?
+
+> My thinking today is that I'd rather leave /proc/<pid>/numa_stats 
+> instead of using smaps because the smaps format is a bit verbose and 
+> will make it difficult to see the allocation distribution.
+
+We don't want /proc/pid/smaps to have different formats on NUMA versus !NUMA.
+
+> I have a new series of patches here that does a gradual thing with
+> the policy layer:
+
+That's off-topic.
+
+
+
+Andi, I don't understand the objection.  If I was developing the memory
+policy tuning component of some honking number-crunching app I'd sure as
+heck want to have some way of seeing the results of my efforts.  How do I
+do that without numa_maps?
+
+And the content doesn't look too bad:
+
+2000000000000000 default MaxRef=43 Pages=11 Mapped=11 N0=4 N1=3 N2=2 N3=2
+2000000000038000 default MaxRef=1 Pages=2 Mapped=2 Anon=2 N0=2
+2000000000040000 default MaxRef=1 Pages=1 Mapped=1 Anon=1 N0=1
+2000000000058000 default MaxRef=43 Pages=61 Mapped=61 N0=14 N1=15 N2=16 N3=16
+2000000000268000 default MaxRef=1 Pages=2 Mapped=2 Anon=2 N0=2
+
+It's easy to parse and it is extensible.  It needs documenting though.
+

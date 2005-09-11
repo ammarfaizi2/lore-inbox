@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750947AbVIKVrq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750949AbVIKVsp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750947AbVIKVrq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 17:47:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750940AbVIKVrq
+	id S1750949AbVIKVsp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 17:48:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750951AbVIKVsp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 17:47:46 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:45953 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S1750939AbVIKVrp
+	Sun, 11 Sep 2005 17:48:45 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:6200 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S1750949AbVIKVso
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 17:47:45 -0400
-Date: Sun, 11 Sep 2005 23:49:38 +0200
+	Sun, 11 Sep 2005 17:48:44 -0400
+Date: Sun, 11 Sep 2005 23:50:36 +0200
 From: Sam Ravnborg <sam@ravnborg.org>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 1/3] kbuild: rename prepare to archprepare to fix dependency chain
-Message-ID: <20050911214938.GB2177@mars.ravnborg.org>
+Subject: [PATCH 3/3] mips: rename offsets.c to asm-offsets.c
+Message-ID: <20050911215036.GD2177@mars.ravnborg.org>
 References: <20050911214850.GA2177@mars.ravnborg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -23,241 +23,658 @@ User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject: [PATCH 1/3] kbuild: rename prepare to archprepare to fix dependency chain
+Subject: [PATCH 3/3] mips: rename offsets.c to asm-offsets.c
 
-When introducing the generic asm-offsets.h support the dependency
-chain for the prepare targets was changed. All build scripts expecting
-include/asm/asm-offsets.h to be made when using the prepare target would broke.
-With the limited number of prepare targets left in arch Makefiles
-the trivial solution was to introduce a new arch specific target: archprepare
+Cannot build MIPS now.
+We need to change offset.c to asm-offsets.c
 
-The dependency chain looks like this now:
-
-prepare
-  |
-  +--> prepare0
-         |
-         +--> archprepare
-                |
-		+--> scripts_basic
-                +--> prepare1
-                       |
-                       +---> prepare2
-                               |
-                               +--> prepare3
-
-So prepare 3 is processed before prepare2 etc.
-This guaantees that the asm symlink, version.h, scripts_basic
-are all updated before archprepare is processed.
-
-prepare0 which build the asm-offsets.h file will need the
-actions performed by archprepare.
-
-The head target is now named prepare, because users scripts will most
-likely use that target, but prepare-all has been kept for compatibility.
-Updated Documentation/kbuild/makefiles.txt.
-
+Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
 Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
 
 ---
 
- Documentation/kbuild/makefiles.txt |   14 +++++++-------
- Makefile                           |   23 +++++++++++++++--------
- arch/arm/Makefile                  |    2 +-
- arch/cris/Makefile                 |    2 +-
- arch/ia64/Makefile                 |    2 +-
- arch/ppc/Makefile                  |    2 +-
- arch/sh/Makefile                   |    2 +-
- arch/sh64/Makefile                 |    2 +-
- arch/um/Makefile                   |    2 +-
- arch/xtensa/Makefile               |    2 +-
- 10 files changed, 30 insertions(+), 23 deletions(-)
+ arch/mips/kernel/asm-offsets.c |  314 ++++++++++++++++++++++++++++++++++++++++
+ arch/mips/kernel/offset.c      |  314 ----------------------------------------
+ 2 files changed, 314 insertions(+), 314 deletions(-)
+ create mode 100644 arch/mips/kernel/asm-offsets.c
+ delete mode 100644 arch/mips/kernel/offset.c
 
-5bb78269000cf326bfdfa19f79449c02a9158020
-diff --git a/Documentation/kbuild/makefiles.txt b/Documentation/kbuild/makefiles.txt
---- a/Documentation/kbuild/makefiles.txt
-+++ b/Documentation/kbuild/makefiles.txt
-@@ -31,7 +31,7 @@ This document describes the Linux kernel
- 
- 	=== 6 Architecture Makefiles
- 	   --- 6.1 Set variables to tweak the build to the architecture
--	   --- 6.2 Add prerequisites to prepare:
-+	   --- 6.2 Add prerequisites to archprepare:
- 	   --- 6.3 List directories to visit when descending
- 	   --- 6.4 Architecture specific boot images
- 	   --- 6.5 Building non-kbuild targets
-@@ -734,18 +734,18 @@ When kbuild executes the following steps
- 	for loadable kernel modules.
- 
-  
----- 6.2 Add prerequisites to prepare:
-+--- 6.2 Add prerequisites to archprepare:
- 
--	The prepare: rule is used to list prerequisites that needs to be
-+	The archprepare: rule is used to list prerequisites that needs to be
- 	built before starting to descend down in the subdirectories.
- 	This is usual header files containing assembler constants.
- 
- 		Example:
--		#arch/s390/Makefile
--		prepare: include/asm-$(ARCH)/offsets.h
-+		#arch/arm/Makefile
-+		archprepare: maketools
- 
--	In this example the file include/asm-$(ARCH)/offsets.h will
--	be built before descending down in the subdirectories.
-+	In this example the file target maketools will be processed
-+	before descending down in the subdirectories.
- 	See also chapter XXX-TODO that describe how kbuild supports
- 	generating offset header files.
- 
-diff --git a/Makefile b/Makefile
---- a/Makefile
-+++ b/Makefile
-@@ -776,15 +776,20 @@ $(sort $(vmlinux-init) $(vmlinux-main)) 
- # Error messages still appears in the original language
- 
- .PHONY: $(vmlinux-dirs)
--$(vmlinux-dirs): prepare-all scripts
-+$(vmlinux-dirs): prepare scripts
- 	$(Q)$(MAKE) $(build)=$@
- 
- # Things we need to do before we recursively start building the kernel
--# or the modules are listed in "prepare-all".
--# A multi level approach is used. prepare1 is updated first, then prepare0.
--# prepare-all is the collection point for the prepare targets.
-+# or the modules are listed in "prepare".
-+# A multi level approach is used. prepareN is processed before prepareN-1.
-+# archprepare is used in arch Makefiles and when processed asm symlink,
-+# version.h and scripts_basic is processed / created.
- 
--.PHONY: prepare-all prepare prepare0 prepare1 prepare2 prepare3
-+# Listed in dependency order
-+.PHONY: prepare archprepare prepare0 prepare1 prepare2 prepare3
+e6c69bd39199656a8bbd0569edaff60574ff9cac
+diff --git a/arch/mips/kernel/asm-offsets.c b/arch/mips/kernel/asm-offsets.c
+new file mode 100644
+--- /dev/null
++++ b/arch/mips/kernel/asm-offsets.c
+@@ -0,0 +1,314 @@
++/*
++ * offset.c: Calculate pt_regs and task_struct offsets.
++ *
++ * Copyright (C) 1996 David S. Miller
++ * Copyright (C) 1997, 1998, 1999, 2000, 2001, 2002, 2003 Ralf Baechle
++ * Copyright (C) 1999, 2000 Silicon Graphics, Inc.
++ *
++ * Kevin Kissell, kevink@mips.com and Carsten Langgaard, carstenl@mips.com
++ * Copyright (C) 2000 MIPS Technologies, Inc.
++ */
++#include <linux/config.h>
++#include <linux/compat.h>
++#include <linux/types.h>
++#include <linux/sched.h>
++#include <linux/mm.h>
++#include <linux/interrupt.h>
 +
-+# prepare-all is deprecated, use prepare as valid replacement
-+.PHONY: prepare-all
- 
- # prepare3 is used to check if we are building in a separate output directory,
- # and if so do:
-@@ -813,11 +818,13 @@ ifneq ($(KBUILD_MODULES),)
- 	$(Q)mkdir -p $(MODVERDIR)
- endif
- 
--prepare0: prepare prepare1 FORCE
-+archprepare: prepare1 scripts_basic
++#include <asm/ptrace.h>
++#include <asm/processor.h>
 +
-+prepare0: archprepare FORCE
- 	$(Q)$(MAKE) $(build)=.
- 
- # All the preparing..
--prepare-all: prepare0
-+prepare prepare-all: prepare0
- 
- #	Leave this as default for preprocessing vmlinux.lds.S, which is now
- #	done in arch/$(ARCH)/kernel/Makefile
-@@ -908,7 +915,7 @@ modules: $(vmlinux-dirs) $(if $(KBUILD_B
- 
- # Target to prepare building external modules
- .PHONY: modules_prepare
--modules_prepare: prepare-all scripts
-+modules_prepare: prepare scripts
- 
- # Target to install modules
- .PHONY: modules_install
-diff --git a/arch/arm/Makefile b/arch/arm/Makefile
---- a/arch/arm/Makefile
-+++ b/arch/arm/Makefile
-@@ -175,7 +175,7 @@ else
- endif
- 	@touch $@
- 
--prepare: maketools include/asm-arm/.arch
-+archprepare: maketools include/asm-arm/.arch
- 
- .PHONY: maketools FORCE
- maketools: include/linux/version.h FORCE
-diff --git a/arch/cris/Makefile b/arch/cris/Makefile
---- a/arch/cris/Makefile
-+++ b/arch/cris/Makefile
-@@ -107,7 +107,7 @@ archclean:
- 	rm -f timage vmlinux.bin decompress.bin rescue.bin cramfs.img
- 	rm -rf $(LD_SCRIPT).tmp
- 
--prepare: $(SRC_ARCH)/.links $(srctree)/include/asm-$(ARCH)/.arch
-+archprepare: $(SRC_ARCH)/.links $(srctree)/include/asm-$(ARCH)/.arch
- 
- # Create some links to make all tools happy
- $(SRC_ARCH)/.links:
-diff --git a/arch/ia64/Makefile b/arch/ia64/Makefile
---- a/arch/ia64/Makefile
-+++ b/arch/ia64/Makefile
-@@ -82,7 +82,7 @@ unwcheck: vmlinux
- archclean:
- 	$(Q)$(MAKE) $(clean)=$(boot)
- 
--prepare:  include/asm-ia64/.offsets.h.stamp
-+archprepare:  include/asm-ia64/.offsets.h.stamp
- 
- include/asm-ia64/.offsets.h.stamp:
- 	mkdir -p include/asm-ia64
-diff --git a/arch/ppc/Makefile b/arch/ppc/Makefile
---- a/arch/ppc/Makefile
-+++ b/arch/ppc/Makefile
-@@ -107,7 +107,7 @@ archclean:
- 	# Temporary hack until we have migrated to asm-powerpc
- 	$(Q)rm -rf arch/$(ARCH)/include
- 
--prepare: checkbin
-+archprepare: checkbin
- 
- # Temporary hack until we have migrated to asm-powerpc
- include/asm: arch/$(ARCH)/include/asm
-diff --git a/arch/sh/Makefile b/arch/sh/Makefile
---- a/arch/sh/Makefile
-+++ b/arch/sh/Makefile
-@@ -152,7 +152,7 @@ endif
- 	@touch $@
- 
- 
--prepare: maketools include/asm-sh/.cpu include/asm-sh/.mach
-+archprepare: maketools include/asm-sh/.cpu include/asm-sh/.mach
- 
- .PHONY: maketools FORCE
- maketools:  include/linux/version.h FORCE
-diff --git a/arch/sh64/Makefile b/arch/sh64/Makefile
---- a/arch/sh64/Makefile
-+++ b/arch/sh64/Makefile
-@@ -73,7 +73,7 @@ compressed: zImage
- archclean:
- 	$(Q)$(MAKE) $(clean)=$(boot)
- 
--prepare: arch/$(ARCH)/lib/syscalltab.h
-+archprepare: arch/$(ARCH)/lib/syscalltab.h
- 
- define filechk_gen-syscalltab
-        (set -e; \
-diff --git a/arch/um/Makefile b/arch/um/Makefile
---- a/arch/um/Makefile
-+++ b/arch/um/Makefile
-@@ -107,7 +107,7 @@ else
- $(shell cd $(ARCH_DIR) && ln -sf Kconfig.$(SUBARCH) Kconfig.arch)
- endif
- 
--prepare: $(ARCH_SYMLINKS) $(SYS_HEADERS) $(GEN_HEADERS)
-+archprepare: $(ARCH_SYMLINKS) $(SYS_HEADERS) $(GEN_HEADERS)
- 
- LINK-$(CONFIG_LD_SCRIPT_STATIC) += -static
- LINK-$(CONFIG_LD_SCRIPT_DYN) += -Wl,-rpath,/lib
-diff --git a/arch/xtensa/Makefile b/arch/xtensa/Makefile
---- a/arch/xtensa/Makefile
-+++ b/arch/xtensa/Makefile
-@@ -66,7 +66,7 @@ boot		:= arch/xtensa/boot
- 
- archinc		:= include/asm-xtensa
- 
--prepare: $(archinc)/.platform
-+archprepare: $(archinc)/.platform
- 
- # Update machine cpu and platform symlinks if something which affects
- # them changed.
++#define text(t) __asm__("\n@@@" t)
++#define _offset(type, member) (&(((type *)NULL)->member))
++#define offset(string, ptr, member) \
++	__asm__("\n@@@" string "%0" : : "i" (_offset(ptr, member)))
++#define constant(string, member) \
++	__asm__("\n@@@" string "%x0" : : "ri" (member))
++#define size(string, size) \
++	__asm__("\n@@@" string "%0" : : "i" (sizeof(size)))
++#define linefeed text("")
++
++void output_ptreg_defines(void)
++{
++	text("/* MIPS pt_regs offsets. */");
++	offset("#define PT_R0     ", struct pt_regs, regs[0]);
++	offset("#define PT_R1     ", struct pt_regs, regs[1]);
++	offset("#define PT_R2     ", struct pt_regs, regs[2]);
++	offset("#define PT_R3     ", struct pt_regs, regs[3]);
++	offset("#define PT_R4     ", struct pt_regs, regs[4]);
++	offset("#define PT_R5     ", struct pt_regs, regs[5]);
++	offset("#define PT_R6     ", struct pt_regs, regs[6]);
++	offset("#define PT_R7     ", struct pt_regs, regs[7]);
++	offset("#define PT_R8     ", struct pt_regs, regs[8]);
++	offset("#define PT_R9     ", struct pt_regs, regs[9]);
++	offset("#define PT_R10    ", struct pt_regs, regs[10]);
++	offset("#define PT_R11    ", struct pt_regs, regs[11]);
++	offset("#define PT_R12    ", struct pt_regs, regs[12]);
++	offset("#define PT_R13    ", struct pt_regs, regs[13]);
++	offset("#define PT_R14    ", struct pt_regs, regs[14]);
++	offset("#define PT_R15    ", struct pt_regs, regs[15]);
++	offset("#define PT_R16    ", struct pt_regs, regs[16]);
++	offset("#define PT_R17    ", struct pt_regs, regs[17]);
++	offset("#define PT_R18    ", struct pt_regs, regs[18]);
++	offset("#define PT_R19    ", struct pt_regs, regs[19]);
++	offset("#define PT_R20    ", struct pt_regs, regs[20]);
++	offset("#define PT_R21    ", struct pt_regs, regs[21]);
++	offset("#define PT_R22    ", struct pt_regs, regs[22]);
++	offset("#define PT_R23    ", struct pt_regs, regs[23]);
++	offset("#define PT_R24    ", struct pt_regs, regs[24]);
++	offset("#define PT_R25    ", struct pt_regs, regs[25]);
++	offset("#define PT_R26    ", struct pt_regs, regs[26]);
++	offset("#define PT_R27    ", struct pt_regs, regs[27]);
++	offset("#define PT_R28    ", struct pt_regs, regs[28]);
++	offset("#define PT_R29    ", struct pt_regs, regs[29]);
++	offset("#define PT_R30    ", struct pt_regs, regs[30]);
++	offset("#define PT_R31    ", struct pt_regs, regs[31]);
++	offset("#define PT_LO     ", struct pt_regs, lo);
++	offset("#define PT_HI     ", struct pt_regs, hi);
++	offset("#define PT_EPC    ", struct pt_regs, cp0_epc);
++	offset("#define PT_BVADDR ", struct pt_regs, cp0_badvaddr);
++	offset("#define PT_STATUS ", struct pt_regs, cp0_status);
++	offset("#define PT_CAUSE  ", struct pt_regs, cp0_cause);
++	size("#define PT_SIZE   ", struct pt_regs);
++	linefeed;
++}
++
++void output_task_defines(void)
++{
++	text("/* MIPS task_struct offsets. */");
++	offset("#define TASK_STATE         ", struct task_struct, state);
++	offset("#define TASK_THREAD_INFO   ", struct task_struct, thread_info);
++	offset("#define TASK_FLAGS         ", struct task_struct, flags);
++	offset("#define TASK_MM            ", struct task_struct, mm);
++	offset("#define TASK_PID           ", struct task_struct, pid);
++	size(  "#define TASK_STRUCT_SIZE   ", struct task_struct);
++	linefeed;
++}
++
++void output_thread_info_defines(void)
++{
++	text("/* MIPS thread_info offsets. */");
++	offset("#define TI_TASK            ", struct thread_info, task);
++	offset("#define TI_EXEC_DOMAIN     ", struct thread_info, exec_domain);
++	offset("#define TI_FLAGS           ", struct thread_info, flags);
++	offset("#define TI_CPU             ", struct thread_info, cpu);
++	offset("#define TI_PRE_COUNT       ", struct thread_info, preempt_count);
++	offset("#define TI_ADDR_LIMIT      ", struct thread_info, addr_limit);
++	offset("#define TI_RESTART_BLOCK   ", struct thread_info, restart_block);
++	constant("#define _THREAD_SIZE_ORDER ", THREAD_SIZE_ORDER);
++	constant("#define _THREAD_SIZE       ", THREAD_SIZE);
++	constant("#define _THREAD_MASK       ", THREAD_MASK);
++	linefeed;
++}
++
++void output_thread_defines(void)
++{
++	text("/* MIPS specific thread_struct offsets. */");
++	offset("#define THREAD_REG16   ", struct task_struct, thread.reg16);
++	offset("#define THREAD_REG17   ", struct task_struct, thread.reg17);
++	offset("#define THREAD_REG18   ", struct task_struct, thread.reg18);
++	offset("#define THREAD_REG19   ", struct task_struct, thread.reg19);
++	offset("#define THREAD_REG20   ", struct task_struct, thread.reg20);
++	offset("#define THREAD_REG21   ", struct task_struct, thread.reg21);
++	offset("#define THREAD_REG22   ", struct task_struct, thread.reg22);
++	offset("#define THREAD_REG23   ", struct task_struct, thread.reg23);
++	offset("#define THREAD_REG29   ", struct task_struct, thread.reg29);
++	offset("#define THREAD_REG30   ", struct task_struct, thread.reg30);
++	offset("#define THREAD_REG31   ", struct task_struct, thread.reg31);
++	offset("#define THREAD_STATUS  ", struct task_struct,
++	       thread.cp0_status);
++	offset("#define THREAD_FPU     ", struct task_struct, thread.fpu);
++
++	offset("#define THREAD_BVADDR  ", struct task_struct, \
++	       thread.cp0_badvaddr);
++	offset("#define THREAD_BUADDR  ", struct task_struct, \
++	       thread.cp0_baduaddr);
++	offset("#define THREAD_ECODE   ", struct task_struct, \
++	       thread.error_code);
++	offset("#define THREAD_TRAPNO  ", struct task_struct, thread.trap_no);
++	offset("#define THREAD_MFLAGS  ", struct task_struct, thread.mflags);
++	offset("#define THREAD_TRAMP   ", struct task_struct, \
++	       thread.irix_trampoline);
++	offset("#define THREAD_OLDCTX  ", struct task_struct, \
++	       thread.irix_oldctx);
++	linefeed;
++}
++
++void output_thread_fpu_defines(void)
++{
++	offset("#define THREAD_FPR0    ",
++	       struct task_struct, thread.fpu.hard.fpr[0]);
++	offset("#define THREAD_FPR1    ",
++	       struct task_struct, thread.fpu.hard.fpr[1]);
++	offset("#define THREAD_FPR2    ",
++	       struct task_struct, thread.fpu.hard.fpr[2]);
++	offset("#define THREAD_FPR3    ",
++	       struct task_struct, thread.fpu.hard.fpr[3]);
++	offset("#define THREAD_FPR4    ",
++	       struct task_struct, thread.fpu.hard.fpr[4]);
++	offset("#define THREAD_FPR5    ",
++	       struct task_struct, thread.fpu.hard.fpr[5]);
++	offset("#define THREAD_FPR6    ",
++	       struct task_struct, thread.fpu.hard.fpr[6]);
++	offset("#define THREAD_FPR7    ",
++	       struct task_struct, thread.fpu.hard.fpr[7]);
++	offset("#define THREAD_FPR8    ",
++	       struct task_struct, thread.fpu.hard.fpr[8]);
++	offset("#define THREAD_FPR9    ",
++	       struct task_struct, thread.fpu.hard.fpr[9]);
++	offset("#define THREAD_FPR10   ",
++	       struct task_struct, thread.fpu.hard.fpr[10]);
++	offset("#define THREAD_FPR11   ",
++	       struct task_struct, thread.fpu.hard.fpr[11]);
++	offset("#define THREAD_FPR12   ",
++	       struct task_struct, thread.fpu.hard.fpr[12]);
++	offset("#define THREAD_FPR13   ",
++	       struct task_struct, thread.fpu.hard.fpr[13]);
++	offset("#define THREAD_FPR14   ",
++	       struct task_struct, thread.fpu.hard.fpr[14]);
++	offset("#define THREAD_FPR15   ",
++	       struct task_struct, thread.fpu.hard.fpr[15]);
++	offset("#define THREAD_FPR16   ",
++	       struct task_struct, thread.fpu.hard.fpr[16]);
++	offset("#define THREAD_FPR17   ",
++	       struct task_struct, thread.fpu.hard.fpr[17]);
++	offset("#define THREAD_FPR18   ",
++	       struct task_struct, thread.fpu.hard.fpr[18]);
++	offset("#define THREAD_FPR19   ",
++	       struct task_struct, thread.fpu.hard.fpr[19]);
++	offset("#define THREAD_FPR20   ",
++	       struct task_struct, thread.fpu.hard.fpr[20]);
++	offset("#define THREAD_FPR21   ",
++	       struct task_struct, thread.fpu.hard.fpr[21]);
++	offset("#define THREAD_FPR22   ",
++	       struct task_struct, thread.fpu.hard.fpr[22]);
++	offset("#define THREAD_FPR23   ",
++	       struct task_struct, thread.fpu.hard.fpr[23]);
++	offset("#define THREAD_FPR24   ",
++	       struct task_struct, thread.fpu.hard.fpr[24]);
++	offset("#define THREAD_FPR25   ",
++	       struct task_struct, thread.fpu.hard.fpr[25]);
++	offset("#define THREAD_FPR26   ",
++	       struct task_struct, thread.fpu.hard.fpr[26]);
++	offset("#define THREAD_FPR27   ",
++	       struct task_struct, thread.fpu.hard.fpr[27]);
++	offset("#define THREAD_FPR28   ",
++	       struct task_struct, thread.fpu.hard.fpr[28]);
++	offset("#define THREAD_FPR29   ",
++	       struct task_struct, thread.fpu.hard.fpr[29]);
++	offset("#define THREAD_FPR30   ",
++	       struct task_struct, thread.fpu.hard.fpr[30]);
++	offset("#define THREAD_FPR31   ",
++	       struct task_struct, thread.fpu.hard.fpr[31]);
++
++	offset("#define THREAD_FCR31   ",
++	       struct task_struct, thread.fpu.hard.fcr31);
++	linefeed;
++}
++
++void output_mm_defines(void)
++{
++	text("/* Size of struct page  */");
++	size("#define STRUCT_PAGE_SIZE   ", struct page);
++	linefeed;
++	text("/* Linux mm_struct offsets. */");
++	offset("#define MM_USERS      ", struct mm_struct, mm_users);
++	offset("#define MM_PGD        ", struct mm_struct, pgd);
++	offset("#define MM_CONTEXT    ", struct mm_struct, context);
++	linefeed;
++	constant("#define _PAGE_SIZE     ", PAGE_SIZE);
++	constant("#define _PAGE_SHIFT    ", PAGE_SHIFT);
++	linefeed;
++	constant("#define _PGD_T_SIZE    ", sizeof(pgd_t));
++	constant("#define _PMD_T_SIZE    ", sizeof(pmd_t));
++	constant("#define _PTE_T_SIZE    ", sizeof(pte_t));
++	linefeed;
++	constant("#define _PGD_T_LOG2    ", PGD_T_LOG2);
++	constant("#define _PMD_T_LOG2    ", PMD_T_LOG2);
++	constant("#define _PTE_T_LOG2    ", PTE_T_LOG2);
++	linefeed;
++	constant("#define _PMD_SHIFT     ", PMD_SHIFT);
++	constant("#define _PGDIR_SHIFT   ", PGDIR_SHIFT);
++	linefeed;
++	constant("#define _PGD_ORDER     ", PGD_ORDER);
++	constant("#define _PMD_ORDER     ", PMD_ORDER);
++	constant("#define _PTE_ORDER     ", PTE_ORDER);
++	linefeed;
++	constant("#define _PTRS_PER_PGD  ", PTRS_PER_PGD);
++	constant("#define _PTRS_PER_PMD  ", PTRS_PER_PMD);
++	constant("#define _PTRS_PER_PTE  ", PTRS_PER_PTE);
++	linefeed;
++}
++
++void output_sc_defines(void)
++{
++	text("/* Linux sigcontext offsets. */");
++	offset("#define SC_REGS       ", struct sigcontext, sc_regs);
++	offset("#define SC_FPREGS     ", struct sigcontext, sc_fpregs);
++	offset("#define SC_MDHI       ", struct sigcontext, sc_mdhi);
++	offset("#define SC_MDLO       ", struct sigcontext, sc_mdlo);
++	offset("#define SC_PC         ", struct sigcontext, sc_pc);
++	offset("#define SC_STATUS     ", struct sigcontext, sc_status);
++	offset("#define SC_FPC_CSR    ", struct sigcontext, sc_fpc_csr);
++	offset("#define SC_FPC_EIR    ", struct sigcontext, sc_fpc_eir);
++	offset("#define SC_CAUSE      ", struct sigcontext, sc_cause);
++	offset("#define SC_BADVADDR   ", struct sigcontext, sc_badvaddr);
++	linefeed;
++}
++
++#ifdef CONFIG_MIPS32_COMPAT
++void output_sc32_defines(void)
++{
++	text("/* Linux 32-bit sigcontext offsets. */");
++	offset("#define SC32_FPREGS     ", struct sigcontext32, sc_fpregs);
++	offset("#define SC32_FPC_CSR    ", struct sigcontext32, sc_fpc_csr);
++	offset("#define SC32_FPC_EIR    ", struct sigcontext32, sc_fpc_eir);
++	linefeed;
++}
++#endif
++
++void output_signal_defined(void)
++{
++	text("/* Linux signal numbers. */");
++	constant("#define _SIGHUP     ", SIGHUP);
++	constant("#define _SIGINT     ", SIGINT);
++	constant("#define _SIGQUIT    ", SIGQUIT);
++	constant("#define _SIGILL     ", SIGILL);
++	constant("#define _SIGTRAP    ", SIGTRAP);
++	constant("#define _SIGIOT     ", SIGIOT);
++	constant("#define _SIGABRT    ", SIGABRT);
++	constant("#define _SIGEMT     ", SIGEMT);
++	constant("#define _SIGFPE     ", SIGFPE);
++	constant("#define _SIGKILL    ", SIGKILL);
++	constant("#define _SIGBUS     ", SIGBUS);
++	constant("#define _SIGSEGV    ", SIGSEGV);
++	constant("#define _SIGSYS     ", SIGSYS);
++	constant("#define _SIGPIPE    ", SIGPIPE);
++	constant("#define _SIGALRM    ", SIGALRM);
++	constant("#define _SIGTERM    ", SIGTERM);
++	constant("#define _SIGUSR1    ", SIGUSR1);
++	constant("#define _SIGUSR2    ", SIGUSR2);
++	constant("#define _SIGCHLD    ", SIGCHLD);
++	constant("#define _SIGPWR     ", SIGPWR);
++	constant("#define _SIGWINCH   ", SIGWINCH);
++	constant("#define _SIGURG     ", SIGURG);
++	constant("#define _SIGIO      ", SIGIO);
++	constant("#define _SIGSTOP    ", SIGSTOP);
++	constant("#define _SIGTSTP    ", SIGTSTP);
++	constant("#define _SIGCONT    ", SIGCONT);
++	constant("#define _SIGTTIN    ", SIGTTIN);
++	constant("#define _SIGTTOU    ", SIGTTOU);
++	constant("#define _SIGVTALRM  ", SIGVTALRM);
++	constant("#define _SIGPROF    ", SIGPROF);
++	constant("#define _SIGXCPU    ", SIGXCPU);
++	constant("#define _SIGXFSZ    ", SIGXFSZ);
++	linefeed;
++}
++
++void output_irq_cpustat_t_defines(void)
++{
++	text("/* Linux irq_cpustat_t offsets. */");
++	offset("#define IC_SOFTIRQ_PENDING ", irq_cpustat_t, __softirq_pending);
++	size("#define IC_IRQ_CPUSTAT_T   ", irq_cpustat_t);
++	linefeed;
++}
+diff --git a/arch/mips/kernel/offset.c b/arch/mips/kernel/offset.c
+deleted file mode 100644
+--- a/arch/mips/kernel/offset.c
++++ /dev/null
+@@ -1,314 +0,0 @@
+-/*
+- * offset.c: Calculate pt_regs and task_struct offsets.
+- *
+- * Copyright (C) 1996 David S. Miller
+- * Copyright (C) 1997, 1998, 1999, 2000, 2001, 2002, 2003 Ralf Baechle
+- * Copyright (C) 1999, 2000 Silicon Graphics, Inc.
+- *
+- * Kevin Kissell, kevink@mips.com and Carsten Langgaard, carstenl@mips.com
+- * Copyright (C) 2000 MIPS Technologies, Inc.
+- */
+-#include <linux/config.h>
+-#include <linux/compat.h>
+-#include <linux/types.h>
+-#include <linux/sched.h>
+-#include <linux/mm.h>
+-#include <linux/interrupt.h>
+-
+-#include <asm/ptrace.h>
+-#include <asm/processor.h>
+-
+-#define text(t) __asm__("\n@@@" t)
+-#define _offset(type, member) (&(((type *)NULL)->member))
+-#define offset(string, ptr, member) \
+-	__asm__("\n@@@" string "%0" : : "i" (_offset(ptr, member)))
+-#define constant(string, member) \
+-	__asm__("\n@@@" string "%x0" : : "ri" (member))
+-#define size(string, size) \
+-	__asm__("\n@@@" string "%0" : : "i" (sizeof(size)))
+-#define linefeed text("")
+-
+-void output_ptreg_defines(void)
+-{
+-	text("/* MIPS pt_regs offsets. */");
+-	offset("#define PT_R0     ", struct pt_regs, regs[0]);
+-	offset("#define PT_R1     ", struct pt_regs, regs[1]);
+-	offset("#define PT_R2     ", struct pt_regs, regs[2]);
+-	offset("#define PT_R3     ", struct pt_regs, regs[3]);
+-	offset("#define PT_R4     ", struct pt_regs, regs[4]);
+-	offset("#define PT_R5     ", struct pt_regs, regs[5]);
+-	offset("#define PT_R6     ", struct pt_regs, regs[6]);
+-	offset("#define PT_R7     ", struct pt_regs, regs[7]);
+-	offset("#define PT_R8     ", struct pt_regs, regs[8]);
+-	offset("#define PT_R9     ", struct pt_regs, regs[9]);
+-	offset("#define PT_R10    ", struct pt_regs, regs[10]);
+-	offset("#define PT_R11    ", struct pt_regs, regs[11]);
+-	offset("#define PT_R12    ", struct pt_regs, regs[12]);
+-	offset("#define PT_R13    ", struct pt_regs, regs[13]);
+-	offset("#define PT_R14    ", struct pt_regs, regs[14]);
+-	offset("#define PT_R15    ", struct pt_regs, regs[15]);
+-	offset("#define PT_R16    ", struct pt_regs, regs[16]);
+-	offset("#define PT_R17    ", struct pt_regs, regs[17]);
+-	offset("#define PT_R18    ", struct pt_regs, regs[18]);
+-	offset("#define PT_R19    ", struct pt_regs, regs[19]);
+-	offset("#define PT_R20    ", struct pt_regs, regs[20]);
+-	offset("#define PT_R21    ", struct pt_regs, regs[21]);
+-	offset("#define PT_R22    ", struct pt_regs, regs[22]);
+-	offset("#define PT_R23    ", struct pt_regs, regs[23]);
+-	offset("#define PT_R24    ", struct pt_regs, regs[24]);
+-	offset("#define PT_R25    ", struct pt_regs, regs[25]);
+-	offset("#define PT_R26    ", struct pt_regs, regs[26]);
+-	offset("#define PT_R27    ", struct pt_regs, regs[27]);
+-	offset("#define PT_R28    ", struct pt_regs, regs[28]);
+-	offset("#define PT_R29    ", struct pt_regs, regs[29]);
+-	offset("#define PT_R30    ", struct pt_regs, regs[30]);
+-	offset("#define PT_R31    ", struct pt_regs, regs[31]);
+-	offset("#define PT_LO     ", struct pt_regs, lo);
+-	offset("#define PT_HI     ", struct pt_regs, hi);
+-	offset("#define PT_EPC    ", struct pt_regs, cp0_epc);
+-	offset("#define PT_BVADDR ", struct pt_regs, cp0_badvaddr);
+-	offset("#define PT_STATUS ", struct pt_regs, cp0_status);
+-	offset("#define PT_CAUSE  ", struct pt_regs, cp0_cause);
+-	size("#define PT_SIZE   ", struct pt_regs);
+-	linefeed;
+-}
+-
+-void output_task_defines(void)
+-{
+-	text("/* MIPS task_struct offsets. */");
+-	offset("#define TASK_STATE         ", struct task_struct, state);
+-	offset("#define TASK_THREAD_INFO   ", struct task_struct, thread_info);
+-	offset("#define TASK_FLAGS         ", struct task_struct, flags);
+-	offset("#define TASK_MM            ", struct task_struct, mm);
+-	offset("#define TASK_PID           ", struct task_struct, pid);
+-	size(  "#define TASK_STRUCT_SIZE   ", struct task_struct);
+-	linefeed;
+-}
+-
+-void output_thread_info_defines(void)
+-{
+-	text("/* MIPS thread_info offsets. */");
+-	offset("#define TI_TASK            ", struct thread_info, task);
+-	offset("#define TI_EXEC_DOMAIN     ", struct thread_info, exec_domain);
+-	offset("#define TI_FLAGS           ", struct thread_info, flags);
+-	offset("#define TI_CPU             ", struct thread_info, cpu);
+-	offset("#define TI_PRE_COUNT       ", struct thread_info, preempt_count);
+-	offset("#define TI_ADDR_LIMIT      ", struct thread_info, addr_limit);
+-	offset("#define TI_RESTART_BLOCK   ", struct thread_info, restart_block);
+-	constant("#define _THREAD_SIZE_ORDER ", THREAD_SIZE_ORDER);
+-	constant("#define _THREAD_SIZE       ", THREAD_SIZE);
+-	constant("#define _THREAD_MASK       ", THREAD_MASK);
+-	linefeed;
+-}
+-
+-void output_thread_defines(void)
+-{
+-	text("/* MIPS specific thread_struct offsets. */");
+-	offset("#define THREAD_REG16   ", struct task_struct, thread.reg16);
+-	offset("#define THREAD_REG17   ", struct task_struct, thread.reg17);
+-	offset("#define THREAD_REG18   ", struct task_struct, thread.reg18);
+-	offset("#define THREAD_REG19   ", struct task_struct, thread.reg19);
+-	offset("#define THREAD_REG20   ", struct task_struct, thread.reg20);
+-	offset("#define THREAD_REG21   ", struct task_struct, thread.reg21);
+-	offset("#define THREAD_REG22   ", struct task_struct, thread.reg22);
+-	offset("#define THREAD_REG23   ", struct task_struct, thread.reg23);
+-	offset("#define THREAD_REG29   ", struct task_struct, thread.reg29);
+-	offset("#define THREAD_REG30   ", struct task_struct, thread.reg30);
+-	offset("#define THREAD_REG31   ", struct task_struct, thread.reg31);
+-	offset("#define THREAD_STATUS  ", struct task_struct,
+-	       thread.cp0_status);
+-	offset("#define THREAD_FPU     ", struct task_struct, thread.fpu);
+-
+-	offset("#define THREAD_BVADDR  ", struct task_struct, \
+-	       thread.cp0_badvaddr);
+-	offset("#define THREAD_BUADDR  ", struct task_struct, \
+-	       thread.cp0_baduaddr);
+-	offset("#define THREAD_ECODE   ", struct task_struct, \
+-	       thread.error_code);
+-	offset("#define THREAD_TRAPNO  ", struct task_struct, thread.trap_no);
+-	offset("#define THREAD_MFLAGS  ", struct task_struct, thread.mflags);
+-	offset("#define THREAD_TRAMP   ", struct task_struct, \
+-	       thread.irix_trampoline);
+-	offset("#define THREAD_OLDCTX  ", struct task_struct, \
+-	       thread.irix_oldctx);
+-	linefeed;
+-}
+-
+-void output_thread_fpu_defines(void)
+-{
+-	offset("#define THREAD_FPR0    ",
+-	       struct task_struct, thread.fpu.hard.fpr[0]);
+-	offset("#define THREAD_FPR1    ",
+-	       struct task_struct, thread.fpu.hard.fpr[1]);
+-	offset("#define THREAD_FPR2    ",
+-	       struct task_struct, thread.fpu.hard.fpr[2]);
+-	offset("#define THREAD_FPR3    ",
+-	       struct task_struct, thread.fpu.hard.fpr[3]);
+-	offset("#define THREAD_FPR4    ",
+-	       struct task_struct, thread.fpu.hard.fpr[4]);
+-	offset("#define THREAD_FPR5    ",
+-	       struct task_struct, thread.fpu.hard.fpr[5]);
+-	offset("#define THREAD_FPR6    ",
+-	       struct task_struct, thread.fpu.hard.fpr[6]);
+-	offset("#define THREAD_FPR7    ",
+-	       struct task_struct, thread.fpu.hard.fpr[7]);
+-	offset("#define THREAD_FPR8    ",
+-	       struct task_struct, thread.fpu.hard.fpr[8]);
+-	offset("#define THREAD_FPR9    ",
+-	       struct task_struct, thread.fpu.hard.fpr[9]);
+-	offset("#define THREAD_FPR10   ",
+-	       struct task_struct, thread.fpu.hard.fpr[10]);
+-	offset("#define THREAD_FPR11   ",
+-	       struct task_struct, thread.fpu.hard.fpr[11]);
+-	offset("#define THREAD_FPR12   ",
+-	       struct task_struct, thread.fpu.hard.fpr[12]);
+-	offset("#define THREAD_FPR13   ",
+-	       struct task_struct, thread.fpu.hard.fpr[13]);
+-	offset("#define THREAD_FPR14   ",
+-	       struct task_struct, thread.fpu.hard.fpr[14]);
+-	offset("#define THREAD_FPR15   ",
+-	       struct task_struct, thread.fpu.hard.fpr[15]);
+-	offset("#define THREAD_FPR16   ",
+-	       struct task_struct, thread.fpu.hard.fpr[16]);
+-	offset("#define THREAD_FPR17   ",
+-	       struct task_struct, thread.fpu.hard.fpr[17]);
+-	offset("#define THREAD_FPR18   ",
+-	       struct task_struct, thread.fpu.hard.fpr[18]);
+-	offset("#define THREAD_FPR19   ",
+-	       struct task_struct, thread.fpu.hard.fpr[19]);
+-	offset("#define THREAD_FPR20   ",
+-	       struct task_struct, thread.fpu.hard.fpr[20]);
+-	offset("#define THREAD_FPR21   ",
+-	       struct task_struct, thread.fpu.hard.fpr[21]);
+-	offset("#define THREAD_FPR22   ",
+-	       struct task_struct, thread.fpu.hard.fpr[22]);
+-	offset("#define THREAD_FPR23   ",
+-	       struct task_struct, thread.fpu.hard.fpr[23]);
+-	offset("#define THREAD_FPR24   ",
+-	       struct task_struct, thread.fpu.hard.fpr[24]);
+-	offset("#define THREAD_FPR25   ",
+-	       struct task_struct, thread.fpu.hard.fpr[25]);
+-	offset("#define THREAD_FPR26   ",
+-	       struct task_struct, thread.fpu.hard.fpr[26]);
+-	offset("#define THREAD_FPR27   ",
+-	       struct task_struct, thread.fpu.hard.fpr[27]);
+-	offset("#define THREAD_FPR28   ",
+-	       struct task_struct, thread.fpu.hard.fpr[28]);
+-	offset("#define THREAD_FPR29   ",
+-	       struct task_struct, thread.fpu.hard.fpr[29]);
+-	offset("#define THREAD_FPR30   ",
+-	       struct task_struct, thread.fpu.hard.fpr[30]);
+-	offset("#define THREAD_FPR31   ",
+-	       struct task_struct, thread.fpu.hard.fpr[31]);
+-
+-	offset("#define THREAD_FCR31   ",
+-	       struct task_struct, thread.fpu.hard.fcr31);
+-	linefeed;
+-}
+-
+-void output_mm_defines(void)
+-{
+-	text("/* Size of struct page  */");
+-	size("#define STRUCT_PAGE_SIZE   ", struct page);
+-	linefeed;
+-	text("/* Linux mm_struct offsets. */");
+-	offset("#define MM_USERS      ", struct mm_struct, mm_users);
+-	offset("#define MM_PGD        ", struct mm_struct, pgd);
+-	offset("#define MM_CONTEXT    ", struct mm_struct, context);
+-	linefeed;
+-	constant("#define _PAGE_SIZE     ", PAGE_SIZE);
+-	constant("#define _PAGE_SHIFT    ", PAGE_SHIFT);
+-	linefeed;
+-	constant("#define _PGD_T_SIZE    ", sizeof(pgd_t));
+-	constant("#define _PMD_T_SIZE    ", sizeof(pmd_t));
+-	constant("#define _PTE_T_SIZE    ", sizeof(pte_t));
+-	linefeed;
+-	constant("#define _PGD_T_LOG2    ", PGD_T_LOG2);
+-	constant("#define _PMD_T_LOG2    ", PMD_T_LOG2);
+-	constant("#define _PTE_T_LOG2    ", PTE_T_LOG2);
+-	linefeed;
+-	constant("#define _PMD_SHIFT     ", PMD_SHIFT);
+-	constant("#define _PGDIR_SHIFT   ", PGDIR_SHIFT);
+-	linefeed;
+-	constant("#define _PGD_ORDER     ", PGD_ORDER);
+-	constant("#define _PMD_ORDER     ", PMD_ORDER);
+-	constant("#define _PTE_ORDER     ", PTE_ORDER);
+-	linefeed;
+-	constant("#define _PTRS_PER_PGD  ", PTRS_PER_PGD);
+-	constant("#define _PTRS_PER_PMD  ", PTRS_PER_PMD);
+-	constant("#define _PTRS_PER_PTE  ", PTRS_PER_PTE);
+-	linefeed;
+-}
+-
+-void output_sc_defines(void)
+-{
+-	text("/* Linux sigcontext offsets. */");
+-	offset("#define SC_REGS       ", struct sigcontext, sc_regs);
+-	offset("#define SC_FPREGS     ", struct sigcontext, sc_fpregs);
+-	offset("#define SC_MDHI       ", struct sigcontext, sc_mdhi);
+-	offset("#define SC_MDLO       ", struct sigcontext, sc_mdlo);
+-	offset("#define SC_PC         ", struct sigcontext, sc_pc);
+-	offset("#define SC_STATUS     ", struct sigcontext, sc_status);
+-	offset("#define SC_FPC_CSR    ", struct sigcontext, sc_fpc_csr);
+-	offset("#define SC_FPC_EIR    ", struct sigcontext, sc_fpc_eir);
+-	offset("#define SC_CAUSE      ", struct sigcontext, sc_cause);
+-	offset("#define SC_BADVADDR   ", struct sigcontext, sc_badvaddr);
+-	linefeed;
+-}
+-
+-#ifdef CONFIG_MIPS32_COMPAT
+-void output_sc32_defines(void)
+-{
+-	text("/* Linux 32-bit sigcontext offsets. */");
+-	offset("#define SC32_FPREGS     ", struct sigcontext32, sc_fpregs);
+-	offset("#define SC32_FPC_CSR    ", struct sigcontext32, sc_fpc_csr);
+-	offset("#define SC32_FPC_EIR    ", struct sigcontext32, sc_fpc_eir);
+-	linefeed;
+-}
+-#endif
+-
+-void output_signal_defined(void)
+-{
+-	text("/* Linux signal numbers. */");
+-	constant("#define _SIGHUP     ", SIGHUP);
+-	constant("#define _SIGINT     ", SIGINT);
+-	constant("#define _SIGQUIT    ", SIGQUIT);
+-	constant("#define _SIGILL     ", SIGILL);
+-	constant("#define _SIGTRAP    ", SIGTRAP);
+-	constant("#define _SIGIOT     ", SIGIOT);
+-	constant("#define _SIGABRT    ", SIGABRT);
+-	constant("#define _SIGEMT     ", SIGEMT);
+-	constant("#define _SIGFPE     ", SIGFPE);
+-	constant("#define _SIGKILL    ", SIGKILL);
+-	constant("#define _SIGBUS     ", SIGBUS);
+-	constant("#define _SIGSEGV    ", SIGSEGV);
+-	constant("#define _SIGSYS     ", SIGSYS);
+-	constant("#define _SIGPIPE    ", SIGPIPE);
+-	constant("#define _SIGALRM    ", SIGALRM);
+-	constant("#define _SIGTERM    ", SIGTERM);
+-	constant("#define _SIGUSR1    ", SIGUSR1);
+-	constant("#define _SIGUSR2    ", SIGUSR2);
+-	constant("#define _SIGCHLD    ", SIGCHLD);
+-	constant("#define _SIGPWR     ", SIGPWR);
+-	constant("#define _SIGWINCH   ", SIGWINCH);
+-	constant("#define _SIGURG     ", SIGURG);
+-	constant("#define _SIGIO      ", SIGIO);
+-	constant("#define _SIGSTOP    ", SIGSTOP);
+-	constant("#define _SIGTSTP    ", SIGTSTP);
+-	constant("#define _SIGCONT    ", SIGCONT);
+-	constant("#define _SIGTTIN    ", SIGTTIN);
+-	constant("#define _SIGTTOU    ", SIGTTOU);
+-	constant("#define _SIGVTALRM  ", SIGVTALRM);
+-	constant("#define _SIGPROF    ", SIGPROF);
+-	constant("#define _SIGXCPU    ", SIGXCPU);
+-	constant("#define _SIGXFSZ    ", SIGXFSZ);
+-	linefeed;
+-}
+-
+-void output_irq_cpustat_t_defines(void)
+-{
+-	text("/* Linux irq_cpustat_t offsets. */");
+-	offset("#define IC_SOFTIRQ_PENDING ", irq_cpustat_t, __softirq_pending);
+-	size("#define IC_IRQ_CPUSTAT_T   ", irq_cpustat_t);
+-	linefeed;
+-}

@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750835AbVIKToj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750828AbVIKTpK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750835AbVIKToj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 15:44:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750828AbVIKToj
+	id S1750828AbVIKTpK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 15:45:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750829AbVIKTpK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 15:44:39 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:54395 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S1750826AbVIKToi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 15:44:38 -0400
-Date: Sun, 11 Sep 2005 21:46:30 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Peter Osterlund <petero2@telia.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>
-Subject: Re: What's up with the GIT archive on www.kernel.org?
-Message-ID: <20050911194630.GB22951@mars.ravnborg.org>
-References: <m3mzmjvbh7.fsf@telia.com> <Pine.LNX.4.58.0509110908590.4912@g5.osdl.org> <20050911185711.GA22556@mars.ravnborg.org> <Pine.LNX.4.58.0509111157360.3242@g5.osdl.org>
+	Sun, 11 Sep 2005 15:45:10 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:48522 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750828AbVIKTpI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Sep 2005 15:45:08 -0400
+Date: Sun, 11 Sep 2005 12:44:34 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: donate <donate@madrone.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] make add_taint() inline
+Message-Id: <20050911124434.1967ac6e.akpm@osdl.org>
+In-Reply-To: <20050911104437.6445ff20.donate@madrone.org>
+References: <20050911103757.7cc1f50f.rdunlap@xenotime.net>
+	<20050911104437.6445ff20.donate@madrone.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0509111157360.3242@g5.osdl.org>
-User-Agent: Mutt/1.5.8i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 
-> > Can you post a small description how to utilize this method?
-> 
-> Just do
-> 
-> 	echo /pub/scm/linux/kernel/git/torvalds/linux-2.6.git/objects > objects/info/alternates
-> 
-> in your tree, and that will tell git that your tree can use my object 
-> directory as an "alternate" source of objects. At that point, you can 
-> remove all objects that I have.
+donate <donate@madrone.org> wrote:
+>
+> From: donate <donate@madrone.org>
 
-OK - what I did:
+Who is this?
 
-cd /pub/scm/linux/kernel/git/sam
-rm -rf kbuild.git
-git clone /pub/scm/linux/kernel/git/torvalds/linux-2.6.git kbuild.git
-rename to .git to kbuild.git
+> From: Randy Dunlap <rdunlap@xenotime.net>
 
-I had to specify both GIT_DIR and GIT_OBJECT_DIRECTORY to make
-git-prune-packed behave as expected. I assume this is normal when I
-rename the .git directory like in this case.
+>  add_taint() is a trivial function.
+>  No need to call it out-of-line, just make it inline and
+>  remove its export.
 
-I will se if any pullers complins (mostly/only Andrew I think).
+Well, presumably add_taint() was exported to modules for a reason.  If that
+reason was valid then this patch requires that `tainted' be exported to
+modules too.  And that allows naughty modules to trivially zero it out.
 
-	Sam

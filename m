@@ -1,139 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750969AbVIKWUn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750988AbVIKWdV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750969AbVIKWUn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 18:20:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750972AbVIKWUn
+	id S1750988AbVIKWdV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 18:33:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750990AbVIKWdV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 18:20:43 -0400
-Received: from zproxy.gmail.com ([64.233.162.202]:22552 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750969AbVIKWUm convert rfc822-to-8bit
+	Sun, 11 Sep 2005 18:33:21 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:60623 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1750987AbVIKWdV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 18:20:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=h5gXAHId3FRddCiwSKYAm+M/CCgCTFkp5tVIMGf78BNccruFpyqPpWDYFpM2OFqjohCp/ZFViHkmKmagntPPNHOeCB5d9C/K/UK6FNTYWoyN0Gc7wIrI2CmNPj08F0l6XG6PYlU3ixfBpKDchpK6RakepXiJ1f9pNRLwCHZK6eE=
-Message-ID: <9a8748490509111520186dcf0c@mail.gmail.com>
-Date: Mon, 12 Sep 2005 00:20:41 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Reply-To: jesper.juhl@gmail.com
-To: Tom Watson <tsw@johana.com>
-Subject: Re: Pruning the source tree (idea)
+	Sun, 11 Sep 2005 18:33:21 -0400
+Date: Mon, 12 Sep 2005 00:34:14 +0200
+To: Zoltan Szecsei <zoltans@geograph.co.za>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4324A817.8050004@johana.com>
+Subject: Re: multiple independent keyboard kernel support
+Message-ID: <20050911223414.GA19403@aitel.hist.no>
+References: <4316E5D9.8050107@geograph.co.za>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <4324A817.8050004@johana.com>
+In-Reply-To: <4316E5D9.8050107@geograph.co.za>
+User-Agent: Mutt/1.5.9i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/11/05, Tom Watson <tsw@johana.com> wrote:
-> In downloading the whole source tree for the 2.6 kernel, I note that
-> there is quite a bit of code relating to architectures other than the
-> one I'm using.  While this is a "good thing", it does take up space and if
-> I search for something in the kernel (grep, or some such), the non-used
-> architectures can take up additional time.
+On Thu, Sep 01, 2005 at 01:28:25PM +0200, Zoltan Szecsei wrote:
+> Hi All,
+> The archives & FAQs on this subject stop at December 2003. Google not 
+> much help either (prob. due to my keyword choices)
+> 
+> I gather the only way to do this is via the ruby patch.
+> 
+> (When) Will there ever be native kernel (and maybe XFree) support for 
+> multiple independent keyboards?
 > 
 
-The arch specifics don't take up /that/ much space : 
+xorg from debian testing or from ubuntu already support multiple
+independent keyboards.  I'm using that right now for my
+two-user single-pc setup.
 
-juhl@dragon:~/download/kernel/linux-2.6.13/arch$ du -hc --max-depth=1
-1.7M    ./sh
-1.7M    ./um
-4.6M    ./arm
-722K    ./frv
-5.7M    ./ppc
-2.7M    ./i386
-1.5M    ./cris
-801K    ./m32r
-2.5M    ./ia64
-4.3M    ./m68k
-4.7M    ./mips
-901K    ./s390
-474K    ./v850
-637K    ./sh64
-1.6M    ./alpha
-930K    ./arm26
-333K    ./h8300
-2.5M    ./ppc64
-1.3M    ./sparc
-1.7M    ./sparc64
-1.7M    ./parisc
-1.2M    ./x86_64
-505K    ./xtensa
-745K    ./m68knommu
-45M     .
-45M     total
+Each independent xserver have a section like this in the xorg.conf:
+Section "InputDevice"
+        Identifier      "Generic Keyboard"
+        Driver          "kbd"
+        Option          "Protocol"      "evdev"
+        Option          "Dev Phys"      "isa0060/serio0/input0"
+        Option          "CoreKeyboard"
+        Option          "XkbRules"      "xfree86"
+        Option          "XkbModel"      "pc102"
+        Option          "XkbLayout"     "no"
+EndSection
 
-juhl@dragon:~/download/kernel/linux-2.6.13/include$ du -hc --max-depth=0 asm-*
-763K    asm-alpha
-3.1M    asm-arm
-515K    asm-arm26
-2.4M    asm-cris
-551K    asm-frv
-177K    asm-generic
-447K    asm-h8300
-1.1M    asm-i386
-1.2M    asm-ia64
-583K    asm-m32r
-881K    asm-m68k
-832K    asm-m68knommu
-2.7M    asm-mips
-687K    asm-parisc
-1.3M    asm-ppc
-884K    asm-ppc64
-631K    asm-s390
-960K    asm-sh
-443K    asm-sh64
-900K    asm-sparc
-880K    asm-sparc64
-540K    asm-um
-535K    asm-v850
-768K    asm-x86_64
-723K    asm-xtensa
-24M     total
+In the serverlayout section, use the IsolateDevice option so
+the independent xservers don't stomp on each other's cards.
 
-So we are talking about less than 100MB, and it's even fairly simple
-for you to clean it out by hand if you want. I must admit I don't see
-the point of having to maintain such a makefile target.  If you want
-to delete the archs that don't matter to you, fine, just do that by
-hand then or write a small script for it.
+In the screen section, set the "InitPrimary" option for cards that
+doesn't get initialized by the bios at bootup.
+
+In the device section, use the BusID option to be safe.
+
+Start your xserver with the -sharevts option.
 
 
-> A proposal:
-> Have a top level make target that prunes (deletes summarily) the
-> unwanted architectures from the source tree.  This should be able to be
-> done before, or after a config step, but might not be allowed after the
-> first make.  Of course, this step is optional, but for those of us who
-> only have a single machine type, it would save a bunch of time.
+I have only one _console_, but multiple xservers with
+separate keyboards works with plain 2.6.13.
+
+Multiple consoles are also doable, if someone writes a "getty"
+that uses the evdev interface for input (instead of tty's)
+and the framebuffer interfaces for output (instead of tty's).
+
+> The ruby patch seems to also only have discussions older than 18 months.
 > 
-Submit a patch to implement it then.
+> Has there really been no progress in the last 18 months?
+> 
+Looks  like much of the interest in ruby work disappeared as the evdev
+option for X became widespread.  X is what most people use for desktops,
+and that works well enough without ruby now.
 
+> I would prefer to see "official and permanent" support for this as then 
+> when HW & drivers & kernels develop in the future, this capability will 
+> always be (immediately) available - and not have to wait for patches.
+> 
 
-Personally I don't think this matters or is a good idea.
+"evdev" in the kernel already separates out independent keyboards.
+Isolatedevice lets several xservers run indepenmdently.  There isn't
+much missing, although there are minor troubles where starting one
+xserver might mess up the video timing for another.  (Solution:
+start xserver in an appropriate order, to be found by experimentation)
+Another minor problem - it won't work with every combination of video cards,
+only some.
+Still - when it works you even get to run accelerated 3D on
+the independent heads.  Nice for game parties.
 
-It doesn't save that much space (<100MB doesn't matter much with the
-several hundred gigabyte HD's of today), and it's easy for someone to
-delete locally, by hand, if they want to.
+> Can someone please refer me to recent archives on this subject, or 
+> update me on this issue if possible.
+> 
+I hope this helps.
 
-As for the "it speeds up grep" argument, that doesn't hold water, you
-can just use the --include and --exclude arguments for grep to only
-search relevant dirs.
-
-Including a makefile target that does this would also add one more
-thing to maintain and keep working for little gain.
-
-There's also the issue of patching the kernel post-pruning. When you
-want to upgrade the source of a pruned kernel, lots of the patch for
-the next kernel version won't apply any longer.
-
-
-No, let's not do this, is my oppinion..
-
-
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Helge Hafting

@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965027AbVIKSsN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965030AbVIKStm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965027AbVIKSsN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 14:48:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965028AbVIKSsN
+	id S965030AbVIKStm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 14:49:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965034AbVIKStm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 14:48:13 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:6379
+	Sun, 11 Sep 2005 14:49:42 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:6891
 	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S965027AbVIKSsN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 14:48:13 -0400
-Date: Sun, 11 Sep 2005 11:48:07 -0700 (PDT)
-Message-Id: <20050911.114807.124745035.davem@davemloft.net>
+	id S965030AbVIKStl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Sep 2005 14:49:41 -0400
+Date: Sun, 11 Sep 2005 11:49:43 -0700 (PDT)
+Message-Id: <20050911.114943.73157389.davem@davemloft.net>
 To: maillist@jg555.com
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: Pure 64 bootloaders
@@ -29,25 +29,14 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 From: Jim Gifford <maillist@jg555.com>
 Date: Sun, 11 Sep 2005 09:33:26 -0700
 
-> David S. Miller wrote:
-> 
-> >You can make SILO 64-bit, but it would just be a lot
-> >of work and would just result in a SILO that, unlike
-> >current SILO, would only work on UltraSPARC machines.
-> >
-> >There really is no advantage, and known disadvantages, to
-> >making SILO 64-bit.
-> >  
->
-> If I have a system that is a Pure64 environment, I try to compile Silo, 
-> it will not function. Since there is no support for 32 bit, how would I 
-> be able to use it.
+> For the Sparc64 builds, I'm starting to look at using OBP to do the booting.
 
-You'll need some minimal 32-bit libraries sitting around in order
-to build it, sorry.
+OBP cannot boot because it doesn't understand the ext2
+filesystem, and therefore cannot get at the image.
 
-For performance reasons alone I would _never_ condone a purely
-64-bit userland.  It's simply a total lose from a performance
-perspective, unlike some other platforms such as amd64 which
-eradicate most of the 64-bit performance loss due to the gain
-in available cpu registers compared to 32-bit x86.
+The only thing you can do is netboot kernel images converted
+to a.out format using the elf2aout tool.
+
+Stop fighting city hall and work on fixing SILO to support
+a 64-bit build if you want, instead of all of these hacks.
+:-)

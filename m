@@ -1,49 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964857AbVIKQhu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964872AbVIKQmM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964857AbVIKQhu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 12:37:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964855AbVIKQht
+	id S964872AbVIKQmM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 12:42:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964871AbVIKQmM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 12:37:49 -0400
-Received: from fsmlabs.com ([168.103.115.128]:20918 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S964857AbVIKQht (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 12:37:49 -0400
-Date: Sun, 11 Sep 2005 09:44:16 -0700 (PDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Ashok Raj <ashok.raj@intel.com>
-cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 13/14] x86_64: Use common functions in cluster and physflat
- mode
-In-Reply-To: <20050909134503.A29351@unix-os.sc.intel.com>
-Message-ID: <Pine.LNX.4.61.0509091439110.978@montezuma.fsmlabs.com>
-References: <200509032135.j83LZ8gX020554@shell0.pdx.osdl.net>
- <20050905231628.GA16476@muc.de> <20050906161215.B19592@unix-os.sc.intel.com>
- <Pine.LNX.4.61.0509091003490.978@montezuma.fsmlabs.com>
- <20050909134503.A29351@unix-os.sc.intel.com>
+	Sun, 11 Sep 2005 12:42:12 -0400
+Received: from pne-smtpout1-sn1.fre.skanova.net ([81.228.11.98]:43673 "EHLO
+	pne-smtpout1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S964872AbVIKQmM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Sep 2005 12:42:12 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 1/5] Fix bogus BUG_ON in pktcdvd
+From: Peter Osterlund <petero2@telia.com>
+Date: 11 Sep 2005 18:42:01 +0200
+Message-ID: <m3irx7v9nq.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Sep 2005, Ashok Raj wrote:
+In the packet writing driver, if the drive reports a packet size
+larger than the driver can handle, bail out safely instead of
+triggering a BUG_ON.
 
-> In general we need
-> 
-> flat_mode - #cpus <= 8 (Hotplug defined or not, so we use mask version 
->                        for safety)
-> 
-> physflat or cluster_mode when #cpus >8.
+Signed-off-by: Peter Osterlund <petero2@telia.com>
+---
 
-I agree there.
+ drivers/block/pktcdvd.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletions(-)
 
-> If we choose physflat as default for #cpus <=8 (with hotplug) would make
-> IPI performance worse, since it would do one cpu at a time, and requires 2 
-> writes per cpu for each IPI v.s just 2 for a flat mode mask version of the API.
+diff --git a/drivers/block/pktcdvd.c b/drivers/block/pktcdvd.c
+--- a/drivers/block/pktcdvd.c
++++ b/drivers/block/pktcdvd.c
+@@ -946,7 +946,6 @@ try_next_bio:
+ 	pd->current_sector = zone + pd->settings.size;
+ 	pkt->sector = zone;
+ 	pkt->frames = pd->settings.size >> 2;
+-	BUG_ON(pkt->frames > PACKET_MAX_SIZE);
+ 	pkt->write_size = 0;
+ 
+ 	/*
+@@ -1636,6 +1635,10 @@ static int pkt_probe_settings(struct pkt
+ 		printk("pktcdvd: detected zero packet size!\n");
+ 		pd->settings.size = 128;
+ 	}
++	if (pd->settings.size > PACKET_MAX_SECTORS) {
++		printk("pktcdvd: packet size is too big\n");
++		return -ENXIO;
++	}
+ 	pd->settings.fp = ti.fp;
+ 	pd->offset = (be32_to_cpu(ti.track_start) << 2) & (pd->settings.size - 1);
+ 
 
-I don't see the benefit then :/ I certainly hope we don't go that route.
-
-Thanks,
-	Zwane
-
+-- 
+Peter Osterlund - petero2@telia.com
+http://web.telia.com/~u89404340

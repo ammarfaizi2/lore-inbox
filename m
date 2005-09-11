@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964803AbVIKPPt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964814AbVIKPYj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964803AbVIKPPt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 11:15:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964806AbVIKPPt
+	id S964814AbVIKPYj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 11:24:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964809AbVIKPYj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 11:15:49 -0400
-Received: from ams-iport-1.cisco.com ([144.254.224.140]:55970 "EHLO
-	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S964803AbVIKPPt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 11:15:49 -0400
-To: Chris Wedgwood <cw@f00f.org>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [git pull] InfiniBand updates
-X-Message-Flag: Warning: May contain useful information
-References: <523bocedcb.fsf@cisco.com>
-	<20050911030345.GA14593@taniwha.stupidest.org>
-From: Roland Dreier <rolandd@cisco.com>
-Date: Sun, 11 Sep 2005 08:15:42 -0700
-In-Reply-To: <20050911030345.GA14593@taniwha.stupidest.org> (Chris
- Wedgwood's message of "Sat, 10 Sep 2005 20:03:45 -0700")
-Message-ID: <52u0grd49t.fsf@cisco.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
+	Sun, 11 Sep 2005 11:24:39 -0400
+Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:49354 "EHLO
+	mta08-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S964806AbVIKPYi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Sep 2005 11:24:38 -0400
+Message-ID: <43244C33.1050502@gentoo.org>
+Date: Sun, 11 Sep 2005 16:24:35 +0100
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050820)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 11 Sep 2005 15:15:43.0653 (UTC) FILETIME=[AD9D5D50:01C5B6E3]
+To: Steve Kieu <haiquy@yahoo.com>
+Cc: Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org,
+       Netdev List <netdev@vger.kernel.org>
+Subject: Re: Very strange Marvell/Yukon Gigabit NIC networking problems
+References: <20050901212110.19192.qmail@web53605.mail.yahoo.com>
+In-Reply-To: <20050901212110.19192.qmail@web53605.mail.yahoo.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >  include/rdma/ib_cm.h                      |    1
-> >  include/rdma/ib_mad.h                     |   21 ++
-> >  include/rdma/ib_sa.h                      |   31 +++
-> >  include/rdma/ib_user_cm.h                 |   72 +++++++
-> >  include/rdma/ib_user_verbs.h              |   21 ++
+Hi,
 
-> Do these really need to be here?  if we really must merge RDMA can we
-> not hide these headers in drivers/inifiniband for now?
+Steve Kieu wrote:
+> If run 2.6.13 and up the NIC, it is working. Shuttdown
+> or reboot using /sbin/halt (means power completely off
+> and on) or /sbin/reboot all other OSs failed to enable
+> the NIC except 2.6.13.
+> 
+> to restore the normal working of the NIC, boot 2.6.13
+> and do a hot power reset. (press the reset button)
 
-The includes were moved from drivers/infiniband a few weeks ago for
-various good reasons.
+Stephen recently posted a patch which looks like it might solve this issue.
 
-I really wish you had replied to the initial RFC
-(http://lkml.org/lkml/2005/8/4/191) or the merge where the headers
-were actually moved (http://lkml.org/lkml/2005/8/29/105).  I don't
-think there's much point in moving the files back now.
+Steve, maybe you could test it out? I have attached it to this Gentoo bug:
 
- - R.
+	http://bugs.gentoo.org/100258
+
+Stephen, thanks for your hard work!
+Daniel

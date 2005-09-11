@@ -1,77 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932257AbVIKCQY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932424AbVIKCRM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932257AbVIKCQY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 22:16:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932408AbVIKCQX
+	id S932424AbVIKCRM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 22:17:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932427AbVIKCRM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 22:16:23 -0400
-Received: from omta03sl.mx.bigpond.com ([144.140.92.155]:35572 "EHLO
-	omta03sl.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S932257AbVIKCQX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 22:16:23 -0400
-Message-ID: <43239374.8010604@eyal.emu.id.au>
-Date: Sun, 11 Sep 2005 12:16:20 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050817)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nuno Silva <nuno.silva@vgertech.com>
-CC: list linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: RAID resync speed
-References: <432240E9.9010400@eyal.emu.id.au> <43224ABB.3030002@vgertech.com> <4322506A.1010303@eyal.emu.id.au> <43226701.1000606@vgertech.com>
-In-Reply-To: <43226701.1000606@vgertech.com>
-X-Enigmail-Version: 0.91.0.0
+	Sat, 10 Sep 2005 22:17:12 -0400
+Received: from smtp4.brturbo.com.br ([200.199.201.180]:35673 "EHLO
+	smtp4.brturbo.com.br") by vger.kernel.org with ESMTP
+	id S932424AbVIKCRK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Sep 2005 22:17:10 -0400
+Subject: Re: V4L: Experimental Sliced VBI API support
+From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, video4linux-list@redhat.com
+In-Reply-To: <20050910184419.53267837.akpm@osdl.org>
+References: <1126401293.6807.33.camel@localhost>
+	 <20050910184419.53267837.akpm@osdl.org>
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Date: Sat, 10 Sep 2005 23:17:11 -0300
+Message-Id: <1126405031.6807.53.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3-8mdk 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nuno Silva wrote:
-> Eyal Lebedinsky wrote:
+Em Sáb, 2005-09-10 às 18:44 -0700, Andrew Morton escreveu:
+> Mauro Carvalho Chehab <mchehab@brturbo.com.br> wrote:
+> >
+> > - adds all defines, ioctls and structs needed for the sliced VBI API
+> >
 > 
->> Nuno Silva wrote:
->>
->>> Hi,
->>> Eyal Lebedinsky wrote:
->>>
->>>> I noticed that my 3-disk RAID was syncing at about 40MB/s, now that I
->>>> added a fourth disk it goes at only 20+MB/s. This is on an idle
->>>> machine.
->>>
->>> 3*40=120
->>> 4*20=80
->>
->> What does this mean? The raid is syncing at 20MB/s, not each disk, so
->> I do
->> not see what the multiplication is about.
+> What is "sliced VBI"?
+	Sorry for this... it is too much video jargon :-)
+	VBI = Vertical Blank Interval.
+	It is related with the way TV signals does work. It sends a line, then,
+it has a retrace time to allow the tube to move electrons to the
+beginning of the next line. This was the main reason at the beginning of
+analog B&W TV.
+	There are a lot of bandwidth lost on VBI. So, lots of TV systems uses
+it to send other informations, like Closed Capture and Teletext. Also,
+broadcasters uses this as a channel to exchange information from the
+content producer to their subsidiaries at each city.
+	There's already a raw VBI interface on V4L2 api, used for Closed
+Captions and Teletext. The decoding is doing at userlevel space and it
+is mostly for analog TV signals, non encoded.
+	Encoded signals (MPEG, for example), may need also to transmit other
+informations (like, for example, display aspect, i.e. 4x3,
+widescreen...). Sliced VBI interface is a method to allow the video
+stream to transmit this kind of information.
 > 
-> Yes, you're correct :-)
+Cheers, 
+Mauro.
 
-Actually, I took another look at this matter and I now think that you
-had the correct approach.
 
-The rebuild speed is the speed at which the new disk is being built, not
-the total rebuild i/o. This means that it does not contain the read
-operations. So the PCI limit is a limiting factor. On a 32-bit 33MHz PCI
-controller (132MB/s theoretical bandwidth) a 2->3 rebuild cannot be
-faster 44MB/s and a 3->4 is limited to 33MB/s.
-
-I think this is true.
-
-The same limit will also apply to any raid i/o as we read/write to all
-the disks for any data.
-
-To use 5 60MB/s disks I will need 300MB/s bandwidth which a 64-bit 66MHz
-PCI can deliver. A 32-bit/66MHz will come close - what can PCIe do?.
-A proper RAID card will alleviate the PCI limitation as it will have
-dedicated channels for each disk (well, a good controller should) with
-full bandwidth and the PCI will only need to go at the one-disk speed
-(for raid-5).
-
-On-board SATA controllers will have better bandwidth if they sit on a
-better than PCI bus (or on more than one PCI bus).
-
--- 
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
-	attach .zip as .dat

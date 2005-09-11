@@ -1,60 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932391AbVIJXtq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932392AbVIJXvR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932391AbVIJXtq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 19:49:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932392AbVIJXtq
+	id S932392AbVIJXvR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 19:51:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbVIJXvR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 19:49:46 -0400
-Received: from liszt-12.ednet.co.uk ([212.20.226.36]:32206 "EHLO
-	liszt-12.ednet.co.uk") by vger.kernel.org with ESMTP
-	id S932391AbVIJXtp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 19:49:45 -0400
-Message-ID: <43237171.2080203@vtrl.co.uk>
-Date: Sun, 11 Sep 2005 00:51:13 +0100
-From: Andrew Smith <asmith@vtrl.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050721
-X-Accept-Language: en-gb, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: kernel performance problem
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 10 Sep 2005 19:51:17 -0400
+Received: from wproxy.gmail.com ([64.233.184.192]:59123 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932392AbVIJXvQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Sep 2005 19:51:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=qfRm7XLNYzwky6ytFI7DfLAXAGkrO6DsMZ3Ee177fZ2cLtPwavEBtg0mBvIB55nfh8osV49bs6OIfKHyr1vSwATbLLjT5YzI+TntCZpgfMKu+/Plf6/Zk+1jivyPBd9fAtnaoW5zd6vjlulacovkM/lEceZTwlIgxhwqsbjZj1Q=
+Date: Sun, 11 Sep 2005 04:01:09 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix breakage on ppc{,64} by "nvidiafb: Fallback to firmware EDID"
+Message-ID: <20050911000109.GB32299@mipter.zuzino.mipt.ru>
+References: <20050910225307.GA7654@mipter.zuzino.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050910225307.GA7654@mipter.zuzino.mipt.ru>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is my first ever posting  to this list, so please excuse me if I've 
-f**cked up and broken protocol.
-I use an IDE LG DVD-RW drive for backup(GSA-4081B).
-Back around 2.6.10 it wrote at typically 1.6-1.7x speed, but thereafter  
-it dropped to  around 0.6-0.7 x.
+Fix
 
+drivers/video/nvidia/nv_of.c:34: error: conflicting types for 'nvidia_probe_i2c_connector'
+drivers/video/nvidia/nv_proto.h:38: error: previous declaration of 'nvidia_probe_i2c_connector' was here
 
-%hdparm -I /dev/hdd
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+Acked-by: Al Viro <viro@ZenIV.linux.org.uk>
+Acked-by: Antonino Daplas <adaplas@pol.net>
+---
 
-/dev/hdd:
+ drivers/video/nvidia/nv_of.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
 
-ATAPI CD-ROM, with removable media
-        Model Number:       HL-DT-ST DVDRAM GSA-4081B              
-        Serial Number:      K2B3CFE4600        
-        Firmware Revision:  A100   
-Standards:
-        Likely used CD-ROM ATAPI-1
-Configuration:
-        DRQ response: 50us.
-        Packet size: 12 bytes
-Capabilities:
-        LBA, IORDY(can be disabled)
-        DMA: mdma0 mdma1 mdma2 udma0 udma1 *udma2
-             Cycle time: min=120ns recommended=120ns
-        PIO: pio0 pio1 pio2 pio3 pio4
-             Cycle time: no flow control=120ns  IORDY flow control=120ns
-HW reset results:
-        CBLID- below Vih
-        Device num = 1
-
-
---
-Andrew
-
-
+--- linux-vanilla/drivers/video/nvidia/nv_of.c
++++ linux-nvidia/drivers/video/nvidia/nv_of.c
+@@ -30,8 +30,9 @@
+ void nvidia_create_i2c_busses(struct nvidia_par *par) {}
+ void nvidia_delete_i2c_busses(struct nvidia_par *par) {}
+ 
+-int nvidia_probe_i2c_connector(struct nvidia_par *par, int conn, u8 **out_edid)
++int nvidia_probe_i2c_connector(struct fb_info *info, int conn, u8 **out_edid)
+ {
++	struct nvidia_par *par = info->par;
+ 	struct device_node *dp;
+ 	unsigned char *pedid = NULL;
+ 	unsigned char *disptype = NULL;
 

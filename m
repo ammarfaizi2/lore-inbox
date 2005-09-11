@@ -1,71 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932410AbVIKCcG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932439AbVIKCem@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932410AbVIKCcG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 22:32:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932439AbVIKCcG
+	id S932439AbVIKCem (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 22:34:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932450AbVIKCem
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 22:32:06 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:23431 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932410AbVIKCcF
+	Sat, 10 Sep 2005 22:34:42 -0400
+Received: from mail.tor.primus.ca ([216.254.136.21]:15754 "EHLO
+	smtp-01.primus.ca") by vger.kernel.org with ESMTP id S932439AbVIKCel
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 22:32:05 -0400
-Date: Sun, 11 Sep 2005 03:32:03 +0100
-From: Al Viro <viro@ZenIV.linux.org.uk>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: asm-offsets.h is generated in the source tree
-Message-ID: <20050911023203.GH25261@ZenIV.linux.org.uk>
-References: <20050911012033.5632152f.sfr@canb.auug.org.au> <20050910161917.GA22113@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 10 Sep 2005 22:34:41 -0400
+From: "Gabriel A. Devenyi" <ace@staticwave.ca>
+To: akpm@osdl.org
+Subject: Re: [GIT PATCH] More PCI patches for 2.6.13
+Date: Sat, 10 Sep 2005 22:34:28 -0400
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050910161917.GA22113@mars.ravnborg.org>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200509102234.28659.ace@staticwave.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 10, 2005 at 06:19:17PM +0200, Sam Ravnborg wrote:
-> On Sun, Sep 11, 2005 at 01:20:33AM +1000, Stephen Rothwell wrote:
-> > The latest Linus-git tree generates asm-offsets.h in the source tree even
-> > if you use O=... I don't know how to fix this, but it means that the
-> > source tree cannot be read only.
-> My bad. I checked it compiled, not where it saved the file.
-> I will have a fix tonight.
+Hi Andrew,
 
-BTW, early build stages on uml with O= are still broken, even with that
-patch.  The following fixes them, but first chunk is a bad kludge.
+I noticed your mail about this bug in a discussion on PCI patches for 2.6.13, I emailed the list with some info
+about this bug, so here it is again, perhaps this can clear up what the problem is, sorry I don't have a patch,
+I don't understand the kernel well enough for that.
 
-What happens:
-	a) silentconfig expects to have include/linux in build tree already
-created.  Normally that happens earlier, but only by accident.  We need to
-force that somehow and the way I'd done it is almost certainly wrong - it
-should be in top-level makefile, to start with.  Suggestions?
-	b) kernel-offsets.h needs symlinks already in place.  prepare1 does
-everything we need, so that dependency is probably the right thing (the second
-chunk).
+drivers/pci/probe.c: In function `pci_read_bases':
+drivers/pci/probe.c:166: warning: large integer implicitly truncated to unsigned type
+drivers/pci/probe.c:216: warning: large integer implicitly truncated to unsigned type
 
-diff -urN RC13-git10-base/arch/um/Makefile current/arch/um/Makefile
---- RC13-git10-base/arch/um/Makefile	2005-09-10 19:28:53.000000000 -0400
-+++ current/arch/um/Makefile	2005-09-10 18:34:51.000000000 -0400
-@@ -213,6 +213,8 @@
-          echo "#endif" )
- endef
- 
-+include/linux/autoconf.h : include/linux/version.h
-+
- $(ARCH_DIR)/include/uml-config.h : include/linux/autoconf.h
- 	$(call filechk,umlconfig)
- 
-@@ -227,9 +229,8 @@
- $(ARCH_DIR)/kernel-offsets.s: $(ARCH_DIR)/sys-$(SUBARCH)/kernel-offsets.c \
- 				   $(ARCH_SYMLINKS) \
- 				   $(SYS_DIR)/sc.h \
--				   include/asm include/linux/version.h \
--				   include/config/MARKER \
--				   $(ARCH_DIR)/include/user_constants.h
-+				   $(ARCH_DIR)/include/user_constants.h \
-+				   prepare1
- 	$(CC) $(CFLAGS) $(NOSTDINC_FLAGS) $(CPPFLAGS) -S -o $@ $<
- 
- $(ARCH_DIR)/kernel-offsets.h: $(ARCH_DIR)/kernel-offsets.s
+I've tracked this down to pci_size, and two #define's in include/linux/pci.h
+
+#define  PCI_BASE_ADDRESS_MEM_MASK      (~0x0fUL)
+#define PCI_ROM_ADDRESS_MASK    (~0x7ffUL)
+
+pci_size expects 3 u32 arguments,but from what I can tell, on 64 bit arch's the two above 
+defines expand to 64bit values, and are truncated when being passed.
+
+I'm not sure how to go about fixing this, if pci_size should accept a u64 or if the defines should
+be changed. Is this bug dangerous? What should be done to fix it?
+
+-- 
+Gabriel A. Devenyi
+ace@staticwave.ca

@@ -1,45 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751004AbVIKWy5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751001AbVIKWxA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751004AbVIKWy5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 18:54:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751005AbVIKWy5
+	id S1751001AbVIKWxA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 18:53:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751004AbVIKWxA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 18:54:57 -0400
-Received: from wscnet.wsc.cz ([212.80.64.118]:1924 "EHLO wscnet.wsc.cz")
-	by vger.kernel.org with ESMTP id S1751003AbVIKWy4 (ORCPT
+	Sun, 11 Sep 2005 18:53:00 -0400
+Received: from xenotime.net ([66.160.160.81]:52142 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751000AbVIKWw7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 18:54:56 -0400
-Message-ID: <4324B5B3.6080703@gmail.com>
-Date: Mon, 12 Sep 2005 00:54:43 +0200
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: cs, en-us, en
-MIME-Version: 1.0
-To: Jiri Slaby <jirislaby@gmail.com>
-CC: Greg KH <gregkh@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, mhw@wittsend.com
-Subject: Re: [PATCH 1/10] drivers/char: pci_find_device remove (drivers/char/ip2main.c)
-References: <200509101221.j8ACL8oq017230@localhost.localdomain> <43233F48.6060406@gmail.com>
-In-Reply-To: <43233F48.6060406@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+	Sun, 11 Sep 2005 18:52:59 -0400
+Date: Sun, 11 Sep 2005 15:52:56 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] make add_taint() inline
+Message-Id: <20050911155256.48bf15cb.rdunlap@xenotime.net>
+In-Reply-To: <20050911124434.1967ac6e.akpm@osdl.org>
+References: <20050911103757.7cc1f50f.rdunlap@xenotime.net>
+	<20050911104437.6445ff20.donate@madrone.org>
+	<20050911124434.1967ac6e.akpm@osdl.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jiri Slaby napsal(a):
+On Sun, 11 Sep 2005 12:44:34 -0700 Andrew Morton wrote:
 
-> Cc: mhw@wittsend.com [maintainer]
+> donate <donate@madrone.org> wrote:
+> >
+> > From: donate <donate@madrone.org>
+> 
+> Who is this?
 
-Hello.
+Just some little mistake that I have since corrected.
+Sorry about that.
 
-Is drivers/char/ip2main.c still maintained? Are you going to rewrite 
-this driver to 2.6 API (PCI probing etc.)?
+> > From: Randy Dunlap <rdunlap@xenotime.net>
+> 
+> >  add_taint() is a trivial function.
+> >  No need to call it out-of-line, just make it inline and
+> >  remove its export.
+> 
+> Well, presumably add_taint() was exported to modules for a reason.  If that
+> reason was valid then this patch requires that `tainted' be exported to
+> modules too.  And that allows naughty modules to trivially zero it out.
 
-thanks,
+Got it, thanks.  That's why it said [RFC].
 
--- 
-Jiri Slaby         www.fi.muni.cz/~xslaby
-~\-/~      jirislaby@gmail.com      ~\-/~
-241B347EC88228DE51EE A49C4A73A25004CB2A10
-
+---
+~Randy

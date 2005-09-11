@@ -1,37 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750888AbVIKVFV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750869AbVIKVJh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750888AbVIKVFV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 17:05:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750890AbVIKVFV
+	id S1750869AbVIKVJh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 17:09:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750899AbVIKVJh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 17:05:21 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:15335 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750887AbVIKVFV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 17:05:21 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Luck, Tony" <tony.luck@intel.com>
-Subject: Re: [2/3] Set compatibility flag for 4GB zone on IA64
-Date: Sun, 11 Sep 2005 23:05:27 +0200
-User-Agent: KMail/1.8
-Cc: torvalds@osdl.org, "Greg Edwards" <edwardsg@sgi.com>,
-       linux-kernel@vger.kernel.org, discuss@x86-64.org
-References: <B8E391BBE9FE384DAA4C5C003888BE6F045A8E72@scsmsx401.amr.corp.intel.com>
-In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F045A8E72@scsmsx401.amr.corp.intel.com>
+	Sun, 11 Sep 2005 17:09:37 -0400
+Received: from ams-iport-1.cisco.com ([144.254.224.140]:31410 "EHLO
+	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S1750867AbVIKVJg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Sep 2005 17:09:36 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Sam Ravnborg <sam@ravnborg.org>, Peter Osterlund <petero2@telia.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>
+Subject: Re: What's up with the GIT archive on www.kernel.org?
+X-Message-Flag: Warning: May contain useful information
+References: <m3mzmjvbh7.fsf@telia.com>
+	<Pine.LNX.4.58.0509110908590.4912@g5.osdl.org>
+	<20050911185711.GA22556@mars.ravnborg.org>
+	<Pine.LNX.4.58.0509111157360.3242@g5.osdl.org>
+	<20050911194630.GB22951@mars.ravnborg.org>
+	<Pine.LNX.4.58.0509111251150.3242@g5.osdl.org>
+From: Roland Dreier <rolandd@cisco.com>
+Date: Sun, 11 Sep 2005 14:09:30 -0700
+In-Reply-To: <Pine.LNX.4.58.0509111251150.3242@g5.osdl.org> (Linus
+ Torvalds's message of "Sun, 11 Sep 2005 12:56:12 -0700 (PDT)")
+Message-ID: <52irx7cnw5.fsf@cisco.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509112305.28304.ak@suse.de>
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 11 Sep 2005 21:09:31.0534 (UTC) FILETIME=[1A6AF2E0:01C5B715]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 11 September 2005 22:44, Luck, Tony wrote:
+    Linus> You can try removing all the packs in your
+    Linus> .git/objects/packs directory. Everything _should_ still
+    Linus> work fine.
 
-> What does this ZONE_DMA_IS_DMA32 thing do?
+Does "everything" include someone doing
 
-It just gives you the same behaviour as before when the DMA32 patchkit
-from l-k is applied.
+    git clone rsync://rsync.kernel.org/pub/scm/linux/kernel/git/roland/whatever.git
 
--Andi
+How about http:// instead of rsync://?
+
+In other words, is the git network transport smart enough to handle
+the alternates path?
+
+Or is the idea that everyone will clone your tree and then pull extra
+stuff from other trees?
+
+ - R.

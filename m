@@ -1,88 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964866AbVIKK2h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964883AbVIKLCZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964866AbVIKK2h (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 06:28:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932504AbVIKK2h
+	id S964883AbVIKLCZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 07:02:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932492AbVIKLCZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 06:28:37 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:134 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932467AbVIKK2g (ORCPT
+	Sun, 11 Sep 2005 07:02:25 -0400
+Received: from THUNK.ORG ([69.25.196.29]:15815 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S932467AbVIKLCY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 06:28:36 -0400
-Date: Sun, 11 Sep 2005 12:26:49 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Luben Tuikov <luben_tuikov@adaptec.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH 2.6.13 10/20] aic94xx: aic94xx_reg.c Register access
-Message-ID: <20050911102649.GA2742@elf.ucw.cz>
-References: <4321E3CB.2060806@adaptec.com>
+	Sun, 11 Sep 2005 07:02:24 -0400
+Date: Sun, 11 Sep 2005 07:02:14 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: David Lang <david.lang@digitalinsight.com>
+Cc: Valdis.Kletnieks@vt.edu, Greg KH <gregkh@suse.de>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [GIT PATCH] Remove devfs from 2.6.13
+Message-ID: <20050911110214.GA16408@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	David Lang <david.lang@digitalinsight.com>, Valdis.Kletnieks@vt.edu,
+	Greg KH <gregkh@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20050909214542.GA29200@kroah.com> <Pine.LNX.4.62.0509101742300.28852@qynat.qvtvafvgr.pbz> <200509110713.j8B7DsNR021781@turing-police.cc.vt.edu> <Pine.LNX.4.62.0509110016110.29141@qynat.qvtvafvgr.pbz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4321E3CB.2060806@adaptec.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <Pine.LNX.4.62.0509110016110.29141@qynat.qvtvafvgr.pbz>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, Sep 11, 2005 at 12:20:06AM -0700, David Lang wrote:
+> >I'll bite - what distros are shipping a kernel 2.6.10 or later and still
+> >using devfs?
+> >
+> I'll admit I don't keep track of the distros and what kernels and features 
+> they are useing. I think I've heard people mention gentoo, but I 
+> haven't verified this.
 
-> +/* We know that the register wanted is in the range
-> + * of the sliding window.
-> + */
-> +#define ASD_READ_SW(ww, type, ord)                                     \
-> +static inline type asd_read_##ww##_##ord (struct asd_ha_struct *asd_ha,\
-> +					  u32 reg)                     \
-> +{                                                                      \
-> +	struct asd_ha_addrspace *io_handle = &asd_ha->io_handle[0];    \
-> +	u32 map_offs=(reg - io_handle-> ww##_base )+asd_mem_offs_##ww ();\
-> +	return asd_read_##ord (asd_ha, (unsigned long) map_offs);      \
-> +}
-> +
-> +#define ASD_WRITE_SW(ww, type, ord)                                    \
-> +static inline void asd_write_##ww##_##ord (struct asd_ha_struct *asd_ha,\
-> +				  u32 reg, type val)                   \
-> +{                                                                      \
-> +	struct asd_ha_addrspace *io_handle = &asd_ha->io_handle[0];    \
-> +	u32 map_offs=(reg - io_handle-> ww##_base )+asd_mem_offs_##ww ();\
-> +	asd_write_##ord (asd_ha, (unsigned long) map_offs, val);       \
-> +}
-> +
-> +ASD_READ_SW(swa, u8,  byte);
-> +ASD_READ_SW(swa, u16, word);
-> +ASD_READ_SW(swa, u32, dword);
-> +
-> +ASD_READ_SW(swb, u8,  byte);
-> +ASD_READ_SW(swb, u16, word);
-> +ASD_READ_SW(swb, u32, dword);
-> +
-> +ASD_READ_SW(swc, u8,  byte);
-> +ASD_READ_SW(swc, u16, word);
-> +ASD_READ_SW(swc, u32, dword);
-> +
-> +ASD_WRITE_SW(swa, u8,  byte);
-> +ASD_WRITE_SW(swa, u16, word);
-> +ASD_WRITE_SW(swa, u32, dword);
-> +
-> +ASD_WRITE_SW(swb, u8,  byte);
-> +ASD_WRITE_SW(swb, u16, word);
-> +ASD_WRITE_SW(swb, u32, dword);
-> +
-> +ASD_WRITE_SW(swc, u8,  byte);
-> +ASD_WRITE_SW(swc, u16, word);
-> +ASD_WRITE_SW(swc, u32, dword);
+Nope, not Gentoo --- Greg KH fixed gentoo a while ago.  :-)
 
-This is certainly nice entry into "best abuse of macros" contest. Do
-you really need all those inline functions?
+> however with the thousands of linux distros out there I'd lay odds that 
+> _someone_ is doing it ;-)
 
-> +static void __asd_write_reg_byte(struct asd_ha_struct *asd_ha, u32 reg, u8 val)
-> +{
-> +	struct asd_ha_addrspace *io_handle=&asd_ha->io_handle[0];
-> +	BUG_ON(reg >= 0xC0000000 || reg < ALL_BASE_ADDR);
+Yes, but if none of the major distributions are doing it, then past a
+certain point we should just pull the trigger and be done with it.
+C'mon, devfs's impending removal has been announced for a year.  It's
+not like anyone can complain that they didn't get enough warning.....
 
-Will this work correctly with 2GB/2GB split kernels?
-								Pavel
-
--- 
-if you have sharp zaurus hardware you don't need... you know my address
+							- Ted

@@ -1,43 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932738AbVIKBaK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932422AbVIKBdj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932738AbVIKBaK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 21:30:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932458AbVIKBaK
+	id S932422AbVIKBdj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 21:33:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932443AbVIKBdi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 21:30:10 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:9908 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S932407AbVIKBaJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 21:30:09 -0400
-Date: Sat, 10 Sep 2005 19:30:04 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Grant Grundler <grundler@parisc-linux.org>,
-       Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
-       Jiri Slaby <jirislaby@gmail.com>, Greg KH <gregkh@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-ide@vger.kernel.org,
-       B.Zolnierkiewicz@elka.pw.edu.pl
-Subject: Re: [PATCH] include: pci_find_device remove (include/asm-i386/ide.h)
-Message-ID: <20050911013004.GI4770@parisc-linux.org>
-References: <200509102032.j8AKWxMC006246@localhost.localdomain> <4323482E.2090409@pobox.com> <20050910211932.GA13679@kroah.com> <432352A8.3010605@pobox.com> <20050910223333.GF4770@parisc-linux.org> <43236DAE.8000802@pobox.com> <20050911003409.GB25282@colo.lackof.org> <1126400817.30449.22.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1126400817.30449.22.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
+	Sat, 10 Sep 2005 21:33:38 -0400
+Received: from omta03ps.mx.bigpond.com ([144.140.82.155]:43165 "EHLO
+	omta03ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S932422AbVIKBdi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Sep 2005 21:33:38 -0400
+Message-ID: <4323896F.5050703@bigpond.net.au>
+Date: Sun, 11 Sep 2005 11:33:35 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Jake Moilanen <moilanen@austin.ibm.com>
+Subject: [ANNOUNCE][RFC] PlugSched-6.1.1 for 2.6.13 and 2.6.13-mm2
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta03ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sun, 11 Sep 2005 01:33:35 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 11, 2005 at 02:06:56AM +0100, Alan Cox wrote:
-> On Sad, 2005-09-10 at 18:34 -0600, Grant Grundler wrote:
-> > If ide_scan_pcibus() finds any pci device, it calls ide_scan_pcidev().
-> > ide_scan_pcidev() only seems to handle PCI devices.
-> > Are you saying there are PCI IDE devices out there that
-> > don't advertise PCI_CLASS_STORAGE_IDE?
-> 
-> Lots of them. We also want to know if PCI is present so we can know
-> whether to do the IDE tertiary scan which isn't safe on a PCI bus box.
+This version contains minor code cleanups and more modifications to the 
+spa_ws scheduler to improve its interactive responsiveness.  This 
+modification includes control parameters for the identification of 
+"media streaming" tasks.  The default values for these parameters are 
+set based on observations of RealPlayer and the parameters of the video 
+and audio benchmarks in Con Kolivas's interbench test and, therefore, 
+may need adjusting for other programs.
 
-surely this is worthy of a comment in the code.  there's at least 3
-people on the cc who're confused bby what it's for.
+A patch for 2.6.13-mm2 is available at:
+
+<http://prdownloads.sourceforge.net/cpuse/plugsched-6.1.1-for-2.6.13-mm2.patch?download>
+
+and a patch to upgrade the 6.1 for 2.6.13 to 6.1.1 is available at:
+
+<http://prdownloads.sourceforge.net/cpuse/plugsched-6.1-to-6.1.1-for-2.6.13.patch?download>
+
+Very Brief Documentation:
+
+You can select a default scheduler at kernel build time.  If you wish to
+boot with a scheduler other than the default it can be selected at boot
+time by adding:
+
+cpusched=<scheduler>
+
+to the boot command line where <scheduler> is one of: ingosched,
+nicksched, staircase, spa_no_frills, spa_ws or zaphod.  If you don't
+change the default when you build the kernel the default scheduler will
+be ingosched (which is the normal scheduler).
+
+The scheduler in force on a running system can be determined by the
+contents of:
+
+/proc/scheduler
+
+Control parameters for the scheduler can be read/set via files in:
+
+/sys/cpusched/<scheduler>/
+
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

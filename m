@@ -1,38 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932446AbVIKBZS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932738AbVIKBaK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932446AbVIKBZS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 21:25:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932427AbVIKBZS
+	id S932738AbVIKBaK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 21:30:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932458AbVIKBaK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 21:25:18 -0400
-Received: from mail.collax.com ([213.164.67.137]:13481 "EHLO
-	kaber.coreworks.de") by vger.kernel.org with ESMTP id S932385AbVIKBZR
+	Sat, 10 Sep 2005 21:30:10 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:9908 "EHLO
+	palinux.hppa") by vger.kernel.org with ESMTP id S932407AbVIKBaJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 21:25:17 -0400
-Message-ID: <4323877A.4050309@trash.net>
-Date: Sun, 11 Sep 2005 03:25:14 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.10) Gecko/20050803 Debian/1.7.10-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "J.A. Magallon" <jamagallon@able.es>
-CC: Linux-Kernel Lista <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, netdev@vger.kernel.org
-Subject: Re: 2.6.13-mm2
-References: <20050908053042.6e05882f.akpm@osdl.org>	<1126396015l.6300l.1l@werewolf.able.es>	<20050910165659.5eea90d0.akpm@osdl.org> <4323753D.9030007@trash.net>	<1126399776l.6300l.2l@werewolf.able.es>	<1126400288l.6300l.3l@werewolf.able.es> <43238259.505@trash.net> <1126401757l.6556l.0l@werewolf.able.es>
-In-Reply-To: <1126401757l.6556l.0l@werewolf.able.es>
+	Sat, 10 Sep 2005 21:30:09 -0400
+Date: Sat, 10 Sep 2005 19:30:04 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Grant Grundler <grundler@parisc-linux.org>,
+       Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
+       Jiri Slaby <jirislaby@gmail.com>, Greg KH <gregkh@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-ide@vger.kernel.org,
+       B.Zolnierkiewicz@elka.pw.edu.pl
+Subject: Re: [PATCH] include: pci_find_device remove (include/asm-i386/ide.h)
+Message-ID: <20050911013004.GI4770@parisc-linux.org>
+References: <200509102032.j8AKWxMC006246@localhost.localdomain> <4323482E.2090409@pobox.com> <20050910211932.GA13679@kroah.com> <432352A8.3010605@pobox.com> <20050910223333.GF4770@parisc-linux.org> <43236DAE.8000802@pobox.com> <20050911003409.GB25282@colo.lackof.org> <1126400817.30449.22.camel@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <1126400817.30449.22.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J.A. Magallon wrote:
-> On 09.11, Patrick McHardy wrote:
+On Sun, Sep 11, 2005 at 02:06:56AM +0100, Alan Cox wrote:
+> On Sad, 2005-09-10 at 18:34 -0600, Grant Grundler wrote:
+> > If ide_scan_pcibus() finds any pci device, it calls ide_scan_pcidev().
+> > ide_scan_pcidev() only seems to handle PCI devices.
+> > Are you saying there are PCI IDE devices out there that
+> > don't advertise PCI_CLASS_STORAGE_IDE?
 > 
->>[NETFILTER]: Don't exclude local packets from MASQUERADING
->>
-> Thanks, reverting this made things work again.
-> 
-> Are you confident in fixing this shortly, or should I just drop pump ?
+> Lots of them. We also want to know if PCI is present so we can know
+> whether to do the IDE tertiary scan which isn't safe on a PCI bus box.
 
-I should have a fix within the next couple of days.
+surely this is worthy of a comment in the code.  there's at least 3
+people on the cc who're confused bby what it's for.

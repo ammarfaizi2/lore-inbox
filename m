@@ -1,84 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750924AbVIKV3p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750929AbVIKVeM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750924AbVIKV3p (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 17:29:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750925AbVIKV3p
+	id S1750929AbVIKVeM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 17:34:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750930AbVIKVeM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 17:29:45 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:26076 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750923AbVIKV3p
+	Sun, 11 Sep 2005 17:34:12 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:12059 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S1750925AbVIKVeK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 17:29:45 -0400
-Date: Sun, 11 Sep 2005 22:29:42 +0100
-From: Al Viro <viro@ZenIV.linux.org.uk>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>,
-       LKML <linux-kernel@vger.kernel.org>, jdike@addtoit.com
-Subject: Re: asm-offsets.h is generated in the source tree
-Message-ID: <20050911212942.GK25261@ZenIV.linux.org.uk>
-References: <20050911012033.5632152f.sfr@canb.auug.org.au> <20050910161917.GA22113@mars.ravnborg.org> <20050911023203.GH25261@ZenIV.linux.org.uk> <20050911083153.GA24176@mars.ravnborg.org> <20050911154550.GJ25261@ZenIV.linux.org.uk> <20050911170425.GA8049@mars.ravnborg.org>
+	Sun, 11 Sep 2005 17:34:10 -0400
+Date: Sun, 11 Sep 2005 23:36:03 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Luck, Tony" <tony.luck@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: new asm-offsets.h patch problems
+Message-ID: <20050911213603.GA31190@mars.ravnborg.org>
+References: <B8E391BBE9FE384DAA4C5C003888BE6F045A8E70@scsmsx401.amr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050911170425.GA8049@mars.ravnborg.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F045A8E70@scsmsx401.amr.corp.intel.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 11, 2005 at 07:04:25PM +0200, Sam Ravnborg wrote:
-> prepare
->   +-prepare0
->      +-archprepare
->         +-prepare1
->            +-prepare2
->               +-prepare3
+On Sun, Sep 11, 2005 at 01:39:07PM -0700, Luck, Tony wrote:
 > 
+> >I'll try it.  Hunk#2 of the change to Makefile didn't apply with
+> >patch ... I had to apply it by hand.
 > 
-> prepare0 needs archprepare, but archprepare may need prepare1.
-> So this should be OK on all architectures.
-> And you can go back relying solely on prepare in um Makefile.
-
-OK...  Once that goes in, I'm doing s/prepare1/archprepare/ in there.
-Note that kern-offsets.c expects to find user_constants.h and symlinks
-already in place - it assumes that all kernel headers are usable.
-kern_constants.h is used only by userland glue, task.h and thread.h and
-these, in turn, are used only by userland glue.
-
-So ordering constraints are
-	symlinks and user_constants.h are needed to get kernel headers usable
-	kern_constants.h needs kernel headers
-	kernel code needs kernel headers
-	parts of userland glue need kern_constants.h
-
-FWIW, we could rename user-offsets.c to asm-offsets.c and let the regular
-mechanism take care of them (renaming user_constants.h at the same time,
-obviously).  Critical part here is "kernel-offsets.c expects kernel headers
-usable", everything else could be trivially dealt with...
- 
-Note that kern_constants.h must *NOT* go into include/asm-um - we need it
-in userland glue which doesn't get include/ in its search path.  So reducing
-the number of symlinks won't be trivial.  We could, in principle, move
-kern_constants.h to e.g. include/asm-um/user/, include that in userland
-glue search path and try to fight the rest, but that won't be fun.
-
-One particulary nasty bit: we have both per-subarch headers in asm-um _and_
-headers in there that do something and proceed to include corresponding
-header from asm-<subarch>.  Currently we do that with
-	include/asm-um/arch ----> include/asm-<subarch>
-	include/asm-um/foo.h ---> include/asm-um/foo-<subarch>.h for
-the first kind and
-	#include <asm/arch/foo.h> in foo.h for the second one.
-
-We also have arch/um/include/sysdep -> sysdep-<subarch>, but that's easier
-to deal with...
-
-Any ideas?
-
-> > -$(ARCH_DIR)/kernel-offsets.h: $(ARCH_DIR)/kernel-offsets.s
-> > +$(ARCH_DIR)/include/kern_constants.h: $(ARCH_DIR)/kernel-offsets.s
-> >  	$(call filechk,gen-asm-offsets)
+> Either I goofed on the hand application of this patch, or it isn't
+> working.  Curious thing is that it works with some config files, but
+> not with others.  When I first reported this problem, all my builds
+> had worked except for the sn2_defconfig one.  With this patch applied
+> I'm seeing bigsur_defconfig fail quite regularly.
 > 
-> Same comment as above.
+> E.g. this sequence (starting from a clean tree):
+> 
+>  $ cp arch/ia64/configs/bigsur_defconfig .config
+>  $ yes '' | make oldconfig
 
-kernel-offsets.c might actually pick a stray dependency on version.h.
-user-offsets.c comment applies, indeed.
+You can just do:
+make bigsur_defconfig
+
+>  $ make prepare
+> 
+> leaves me with an include/asm-ia64/asm-offsets.h that only has the
+> definition of IA64_TASK_SIZE at 0.
+
+I could reproduce this as well.
+Did you actually look at the output of the compile?
+
+It looks like the more comprehensive dependency checking hits you now.
+What happens is that the compilation of asm-offsets.c fails due to
+consistency checks in a few places.
+
+First we have in page.h:
+#error Unsupported page size!
+Because CONFIG_IA64_PAGE_SIZE_4KB (8KB, 16KB, 32KB) is not defined.
+
+Then next we have in same file:
+include/asm/page.h:162: error: `PAGE_SHIFT' undeclared
+That's because CONFIG__HUGETLB_PAGE is set
+
+etc etc.
+
+The only real fix is to fix the dependencies or provide
+enough defines in your hack.
+
+I wonder why so many errors occurs with ia64 but not others.
+Do you have a much different .h files layout?
+
+To give you an indication that this is not mission impossible
+I played a bit with the invloved .h files.
+
+Following patch (cut'n'pasted) let bigsur + defconfig succeed
+a make prepare.
+
+diff --git a/arch/ia64/kernel/asm-offsets.c
+b/arch/ia64/kernel/asm-offsets.c
+--- a/arch/ia64/kernel/asm-offsets.c
++++ b/arch/ia64/kernel/asm-offsets.c
+@@ -8,10 +8,6 @@
+
+ #include <linux/sched.h>
+
+-#include <asm-ia64/processor.h>
+-#include <asm-ia64/ptrace.h>
+-#include <asm-ia64/siginfo.h>
+-#include <asm-ia64/sigcontext.h>
+ #include <asm-ia64/mca.h>
+
+ #include "../kernel/sigframe.h"
+ diff --git a/include/asm-ia64/mca.h b/include/asm-ia64/mca.h
+ --- a/include/asm-ia64/mca.h
+ +++ b/include/asm-ia64/mca.h
+ @@ -15,12 +15,6 @@
+
+ #if !defined(__ASSEMBLY__)
+
+-#include <linux/interrupt.h>
+-#include <linux/types.h>
+-
+-#include <asm/param.h>
+-#include <asm/sal.h>
+-#include <asm/processor.h>
+ #include <asm/mca_asm.h>
+
+     
+And since the header files did compile in my case I would say that
+most if not all of the includes are wrong.
+A .h file shall be selfcontained, but not a convinient placeholder
+for including a lot of .h files.
+
+It still leaves of with the original offending IA64_TASK_SIZE,
+but grep did no tell me where task_struct was defined??
+So I could not try to give that one  spin.
+
+PS. the include of sigframe.h in asm-offsets.c is bad. Please do:
+#include "sigframe.h"
+
+	Sam

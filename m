@@ -1,36 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750963AbVIKWFi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750966AbVIKWHr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750963AbVIKWFi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 18:05:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750965AbVIKWFi
+	id S1750966AbVIKWHr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 18:07:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750969AbVIKWHr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 18:05:38 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:64137 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S1750957AbVIKWFi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 18:05:38 -0400
-Date: Mon, 12 Sep 2005 00:07:31 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "Luck, Tony" <tony.luck@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: new asm-offsets.h patch problems
-Message-ID: <20050911220731.GF2177@mars.ravnborg.org>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F045A8E7E@scsmsx401.amr.corp.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F045A8E7E@scsmsx401.amr.corp.intel.com>
-User-Agent: Mutt/1.5.8i
+	Sun, 11 Sep 2005 18:07:47 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:63132 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750966AbVIKWHq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Sep 2005 18:07:46 -0400
+Date: Sun, 11 Sep 2005 15:07:37 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [GIT PATCHES] kbuild fixes
+In-Reply-To: <20050911214850.GA2177@mars.ravnborg.org>
+Message-ID: <Pine.LNX.4.58.0509111505190.3242@g5.osdl.org>
+References: <20050911214850.GA2177@mars.ravnborg.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- >
-> >It still leaves of with the original offending IA64_TASK_SIZE,
-> >but grep did no tell me where task_struct was defined??
+
+
+On Sun, 11 Sep 2005, Sam Ravnborg wrote:
 > 
-> It is in include/linux/sched.h
+> I've started suing the alternate format as you described.
+> So I cannot pull from that respository myself.
 
-Obviously - thanks.
-I was so focussed that this was a ia64 typedef for some reasons.
+Btw, it works for me, so your archive looks ok.
 
-	Sam
+Your diffstat is broken, though:
+
+>  Makefile                             |    1 
+>  b/Makefile                           |   23 +-
+
+Notice how "Makefile" shows up twice, because you didn't use "-p1" to
+diffstat (or just use "git-apply --stat", which should get it right).
+
+>  13 files changed, 345 insertions(+), 337 deletions(-)
+
+The real stats are:
+
+ 12 files changed, 345 insertions(+), 337 deletions(-)
+
+according to git, thanks to that.
+
+		Linus

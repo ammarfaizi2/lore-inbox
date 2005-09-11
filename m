@@ -1,63 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbVIKMlF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750805AbVIKNWq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750736AbVIKMlF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 08:41:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbVIKMlF
+	id S1750805AbVIKNWq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 09:22:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750813AbVIKNWq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 08:41:05 -0400
-Received: from mailserv.aei.mpg.de ([194.94.224.6]:32687 "EHLO
-	mailserv.aei.mpg.de") by vger.kernel.org with ESMTP
-	id S1750736AbVIKMlE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 08:41:04 -0400
-From: Kasper Peeters <kasper.peeters@aei.mpg.de>
+	Sun, 11 Sep 2005 09:22:46 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:63165 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S1750805AbVIKNWq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Sep 2005 09:22:46 -0400
+Message-ID: <43242FA4.9010303@vc.cvut.cz>
+Date: Sun, 11 Sep 2005 15:22:44 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686 (x86_64); en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Christoph Lameter <clameter@engr.sgi.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: BUG at mm/slab.c:662 - current 2.6.13-git (commit 87fc...) crashes
+ on x86-64
+References: <4322DF10.9080204@vc.cvut.cz> <Pine.LNX.4.62.0509101023120.18771@schroedinger.engr.sgi.com> <43232E65.4000504@vc.cvut.cz> <Pine.LNX.4.62.0509101948230.20145@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.62.0509101948230.20145@schroedinger.engr.sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17188.9683.311780.197075@sbox13.aei.mpg.de>
-Date: Sun, 11 Sep 2005 14:40:51 +0200
-To: linux-kernel@vger.kernel.org
-Subject: crash upon rmmod aic7xxx (pcmcia)
-X-Mailer: VM 7.07 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Christoph Lameter wrote:
+> On Sat, 10 Sep 2005, Petr Vandrovec wrote:
+> 
+> 
+>>Christoph Lameter wrote:
+>>
+>>>Actually the kernel configuration you mentioned (SMP with K8 NUMA support
+>>>booted on single processor) was the primary development platform for the
+>>>patch. 
+>>>CONFIG_DEBUG_SLAB=y
+>>
+>>Strange...  I had to apply patch below - after doing that everything seems to
+>>be happy and running.  Though it is not right fix, it seems to work fine
+>>here...
+> 
+> 
+> Hmmm. That is strange indeed and would mean that one of the initial caches 
+> has not correctly been initialized or we are using a smaller cache size 
+> than the management caches. With your patch the system fell 
+> back to a larger size slab (which seems to be present). Weird.
+> 
+> What is your setting for L1_CACHE_BYTES?
 
-Since the early 2.6.x kernels, removing the aic7xxx module (either by
-doing a 'rmmod' by hand or by ejecting the pcmcia aic7xxx card) locks
-the system hard after about 2 seconds, leaving no trace in syslog. 
-Just checked with kernel 2.6.13 (and pcmcia-tools 3.2.8).
+64.  Well, at least CONFIG_X86_L1_CACHE_BYTES has this value.  Last few lines in 
+/proc/slabinfo in reverse order are:
 
-Upon insertion of the pcmcia card, this appears in syslog:
+kmem_cache
+size-64
+size-128
+size-32
+size-32(DMA)
+size-64(DMA)
+size-128(DMA)
 
-Sep 11 14:36:05 whiteroom2 kernel: PCI: Enabling device 0000:03:00.0 (0000 -> 0003)
-Sep 11 14:36:05 whiteroom2 kernel: ACPI: PCI Interrupt 0000:03:00.0[A] -> Link [LNKA] -> GSI 11 (level, low
-) -> IRQ 11
-Sep 11 14:36:05 whiteroom2 kernel: aic7xxx: PCI Device 3:0:0 failed memory mapped test.  Using PIO.
-Sep 11 14:36:05 whiteroom2 kernel: ahc_pci:3:0:0: Host Adapter Bios disabled.  Using default SCSI device pa
-rameters
-Sep 11 14:36:05 whiteroom2 kernel: scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
-Sep 11 14:36:05 whiteroom2 kernel:         <Adaptec 1480A Ultra SCSI adapter>
-Sep 11 14:36:05 whiteroom2 kernel:         aic7860: Ultra Single Channel A, SCSI Id=7, 3/253 SCBs
-Sep 11 14:36:05 whiteroom2 kernel: 
-Sep 11 14:36:12 whiteroom2 kernel: scsi0: PCI error Interrupt at seqaddr = 0x8
-Sep 11 14:36:12 whiteroom2 kernel: scsi0: Signaled a Target Abort
-Sep 11 14:36:21 whiteroom2 kernel:   Vendor: HP        Model: CD-Writer+ 9200   Rev: 1.0c
-Sep 11 14:36:21 whiteroom2 kernel:   Type:   CD-ROM                             ANSI SCSI revision: 04
-Sep 11 14:36:21 whiteroom2 kernel:  target0:0:4: asynchronous.
-Sep 11 14:36:21 whiteroom2 kernel:  target0:0:4: Beginning Domain Validation
-Sep 11 14:36:21 whiteroom2 kernel:  target0:0:4: Domain Validation skipping write tests
-Sep 11 14:36:21 whiteroom2 kernel:  target0:0:4: FAST-10 SCSI 10.0 MB/s ST (100 ns, offset 15)
-Sep 11 14:36:21 whiteroom2 kernel:  target0:0:4: Ending Domain Validation
-Sep 11 14:36:21 whiteroom2 kernel: sr0: scsi3-mmc drive: 32x/32x writer cd/rw xa/form2 cdda tray
-Sep 11 14:36:21 whiteroom2 kernel: Attached scsi generic sg0 at scsi0, channel 0, id 4, lun 0,  type 5
-Sep 11 14:36:22 whiteroom2 scsi.agent[3014]: cdrom at /devices/pci0000:00/0000:00:1e.0/0000:02:0a.0/0000:03
-:00.0/host0/target0:0:4/0:0:4:0
+so 64 (INDEX_AC) & 128 (INDEX_L3) slabs were created first.  But 
+__find_general_cachep BUGs on *first* entry, which is 32 byte one on systems 
+with 4KB pages.
 
+It seems to me that problem is CONFIG_DEBUG_SLAB together with 
+CONFIG_DEBUG_SPINLOCK and/or CONFIG_PREEMPT - in your configuration spinlock_t 
+has 4 bytes, and whole arraycache_init 32 bytes - so it fits into size-32 slab, 
+and you do not hit BUG that size-32 slab does not exist.
 
-Can someone give me a hand pinning down this bug?
+On SMP systems with CONFIG_DEBUG_SPINLOCK or CONFIG_PREEMPT spinlock_t is 8 
+bytes, and so arraycache_init has 36 bytes, and it no longer fits into 
+size-32...  And if you'll enable both SPINLOCK debugging and PREEMPT, you get 12 
+bytes spinlock_t and 40 byte arraycache_init...
 
-(Please CC replies to me directly).
-
-Kasper
+So I believe that if you'll rebuild your kernel with PREEMPT or DEBUG_SPINLOCK 
+(or both), you'll get crash I'm seeing.  Probably size-32 slab needs to be 
+special cased same way INDEX_AC and INDEX_L3 arrays are.
+								Petr Vandrovec
 

@@ -1,47 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932322AbVIKD42@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932415AbVIKFDY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932322AbVIKD42 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 23:56:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932406AbVIKD42
+	id S932415AbVIKFDY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 01:03:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932416AbVIKFDY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 23:56:28 -0400
-Received: from colin.muc.de ([193.149.48.1]:55303 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S932322AbVIKD41 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 23:56:27 -0400
-Message-ID: <20050911035621.87661.qmail@mail.muc.de>
-From: ak@muc.de
-Date: 11 Sep 2005 05:56:21 +0200
-To: Rik van Riel <riel@redhat.com>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Luben Tuikov <luben_tuikov@adaptec.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH 2.6.13 14/14] sas-class: SCSI Host glue
-In-Reply-To: <Pine.LNX.4.63.0509101028510.4630@cuia.boston.redhat.com>
-References: <20050910041218.29183.qmail@web51612.mail.yahoo.com> <Pine.LNX.4.63.0509101028510.4630@cuia.boston.redhat.com>
-Date: Sun, 11 Sep 2005 05:56:21 +0200
+	Sun, 11 Sep 2005 01:03:24 -0400
+Received: from smtp2.brturbo.com.br ([200.199.201.158]:40892 "EHLO
+	smtp2.brturbo.com.br") by vger.kernel.org with ESMTP
+	id S932415AbVIKFDX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Sep 2005 01:03:23 -0400
+Date: Sun, 11 Sep 2005 02:03:15 -0300
+From: mchehab@brturbo.com.br
+To: linux-kernel@vger.kernel.org
+Cc: video4linux-list@redhat.com, akpm@osdl.org
+Subject: [PATCH] V4L: Fixup on cx88_dvb for Dvico HDTV5 Gold
+Message-ID: <4323ba93.zoEGOa04LiLwQSK0%mchehab@brturbo.com.br>
+User-Agent: nail 11.25 7/29/05
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In gmane.linux.scsi, you wrote:
-> On Fri, 9 Sep 2005, Luben Tuikov wrote:
->
->> No self respecting SAS chip would not do 64 bit DMA, or have an sg 
->> tablesize or any other limitation.
->> 
->> Naturally, aic94xx has _no limitations_. :-)  But hey, our hardware just 
->> kicks a*s!
->
-> That's very nice for you - but lets face it, a SAS layer
-> that'll be unable to also deal with the El-Cheapo brand
-> controllers isn't going to be very useful.
+- Bug fix for DViCO FusionHDTV5 Gold to avoid noise after board init.
 
-Nobody knows what these bu^wlimitations will be though. So you cannot
-really plan for them in advance.  When someone writes drivers for such 
-limited hardware they can add code to handle the limitations. But it 
-seems reasonable to start with a clean hardware model, and only
-add the hacks later when they are really needed and the requirements
-are understood.
+Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
 
--Andi
+ linux/drivers/media/video/cx88/cx88-dvb.c |    7 ++++---
+ 1 files changed, 4 insertions(+), 3 deletions(-)
+
+diff -u /tmp/dst.25413 linux/drivers/media/video/cx88/cx88-dvb.c
+--- /tmp/dst.25413	2005-09-11 01:44:00.000000000 -0300
++++ linux/drivers/media/video/cx88/cx88-dvb.c	2005-09-11 01:44:00.000000000 -0300
+@@ -221,9 +221,7 @@ static int lgdt330x_pll_set(struct dvb_f
+ 	int err;
+ 
+ 	/* Put the analog decoder in standby to keep it quiet */
+-	if (core->tda9887_conf) {
+-		cx88_call_i2c_clients (dev->core, TUNER_SET_STANDBY, NULL);
+-	}
++	cx88_call_i2c_clients (dev->core, TUNER_SET_STANDBY, NULL);
+ 
+ 	dvb_pll_configure(core->pll_desc, buf, params->frequency, 0);
+ 	dprintk(1, "%s: tuner at 0x%02x bytes: 0x%02x 0x%02x 0x%02x 0x%02x\n",
+@@ -402,6 +400,9 @@ static int dvb_register(struct cx8802_de
+ 		dev->dvb.frontend->ops->info.frequency_max = dev->core->pll_desc->max;
+ 	}
+ 
++	/* Put the analog decoder in standby to keep it quiet */
++	cx88_call_i2c_clients (dev->core, TUNER_SET_STANDBY, NULL);
++
+ 	/* register everything */
+ 	return videobuf_dvb_register(&dev->dvb, THIS_MODULE, dev);
+ }
+>From mchehab Sun Sep 11 02:02:19 2005
+Date: Sun, 11 Sep 2005 02:02:19 -0300
+To: cat, video4linux-list@redhat.com, akpm@osdl.org, -c,
+ mchehab@brturbo.com.br, -r, -a s
+User-Agent: nail 11.25 7/29/05
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+- Bug fix for DViCO FusionHDTV5 Gold to avoid noise after board init.
+
+Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+ linux/drivers/media/video/cx88/cx88-dvb.c |    7 ++++---
+ 1 files changed, 4 insertions(+), 3 deletions(-)
+
+diff -u /tmp/dst.25413 linux/drivers/media/video/cx88/cx88-dvb.c
+--- /tmp/dst.25413	2005-09-11 01:44:00.000000000 -0300
++++ linux/drivers/media/video/cx88/cx88-dvb.c	2005-09-11 01:44:00.000000000 -0300
+@@ -221,9 +221,7 @@ static int lgdt330x_pll_set(struct dvb_f
+ 	int err;
+ 
+ 	/* Put the analog decoder in standby to keep it quiet */
+-	if (core->tda9887_conf) {
+-		cx88_call_i2c_clients (dev->core, TUNER_SET_STANDBY, NULL);
+-	}
++	cx88_call_i2c_clients (dev->core, TUNER_SET_STANDBY, NULL);
+ 
+ 	dvb_pll_configure(core->pll_desc, buf, params->frequency, 0);
+ 	dprintk(1, "%s: tuner at 0x%02x bytes: 0x%02x 0x%02x 0x%02x 0x%02x\n",
+@@ -402,6 +400,9 @@ static int dvb_register(struct cx8802_de
+ 		dev->dvb.frontend->ops->info.frequency_max = dev->core->pll_desc->max;
+ 	}
+ 
++	/* Put the analog decoder in standby to keep it quiet */
++	cx88_call_i2c_clients (dev->core, TUNER_SET_STANDBY, NULL);
++
+ 	/* register everything */
+ 	return videobuf_dvb_register(&dev->dvb, THIS_MODULE, dev);
+ }
+

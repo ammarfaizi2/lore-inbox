@@ -1,57 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932436AbVIKHU2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964796AbVIKH1J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932436AbVIKHU2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 03:20:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932442AbVIKHU2
+	id S964796AbVIKH1J (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 03:27:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932433AbVIKH1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 03:20:28 -0400
-Received: from warden3-p.diginsite.com ([208.147.64.186]:17900 "HELO
-	warden3.diginsite.com") by vger.kernel.org with SMTP
-	id S932436AbVIKHU1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 03:20:27 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Valdis.Kletnieks@vt.edu
-Cc: Greg KH <gregkh@suse.de>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-X-X-Sender: dlang@dlang.diginsite.com
-Date: Sun, 11 Sep 2005 00:20:06 -0700 (PDT)
-X-X-Sender: dlang@dlang.diginsite.com
-Subject: Re: [GIT PATCH] Remove devfs from 2.6.13 
-In-Reply-To: <200509110713.j8B7DsNR021781@turing-police.cc.vt.edu>
-Message-ID: <Pine.LNX.4.62.0509110016110.29141@qynat.qvtvafvgr.pbz>
-References: <20050909214542.GA29200@kroah.com> <Pine.LNX.4.62.0509101742300.28852@qynat.qvtvafvgr.pbz>
- <20050911030726.GA20462@suse.de><Pine.LNX.4.62.0509102257290.29141@qynat.qvtvafvgr.pbz>
- <200509110713.j8B7DsNR021781@turing-police.cc.vt.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sun, 11 Sep 2005 03:27:09 -0400
+Received: from ms004msg.fastwebnet.it ([213.140.2.58]:4270 "EHLO
+	ms004msg.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S932426AbVIKH1H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Sep 2005 03:27:07 -0400
+Date: Sun, 11 Sep 2005 09:28:02 +0200
+From: Paolo Ornati <ornati@fastwebnet.it>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>,
+       Jeff Dike <jdike@addtoit.com>, LKML <linux-kernel@vger.kernel.org>,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [patch 7/7] uml: retry host close() on EINTR
+Message-ID: <20050911092802.1ab931ac@localhost>
+In-Reply-To: <Pine.LNX.4.58.0509101157170.30958@g5.osdl.org>
+References: <20050910174452.907256000@zion.home.lan>
+	<20050910174630.063774000@zion.home.lan>
+	<Pine.LNX.4.58.0509101157170.30958@g5.osdl.org>
+X-Mailer: Sylpheed-Claws 1.9.13 (GTK+ 2.6.7; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 Sep 2005 Valdis.Kletnieks@vt.edu wrote:
+On Sat, 10 Sep 2005 12:00:01 -0700 (PDT)
+Linus Torvalds <torvalds@osdl.org> wrote:
 
-> On Sat, 10 Sep 2005 23:08:36 PDT, David Lang said:
->
->> remember that the distros don't package every kernel, they skip several
->> between releases and it's not going to be until they go to try them that
->> all the kinks will get worked out.
->
-> I'll bite - what distros are shipping a kernel 2.6.10 or later and still
-> using devfs?
->
-I'll admit I don't keep track of the distros and what kernels and features 
-they are useing. I think I've heard people mention gentoo, but I 
-haven't verified this.
+> Re-doing the close() is the wrong thing to do, since in a threaded 
+> environment, something else might have opened another file, gotten
+> the same file descriptor, and you now close _another_ file.
 
-however with the thousands of linux distros out there I'd lay odds that 
-_someone_ is doing it ;-)
+So glibc doc is wrong here:
 
-That said, my comments about the schedule should apply to any significant 
-feature, not just devfs, it just happens to be the current patch being 
-discussed. If Greg hadn't asked me how long I thought he needed to wait I 
-would have dropped out after my initial post, but he asked so I answered.
+http://www.gnu.org/software/libc/manual/html_node/Opening-and-Closing-Files.html#index-close-1197
 
-David Lang
+-----------------------------------------------------------------------
+The normal return value from close is 0; a value of -1 is returned in
+case of failure. The following errno error conditions are defined for
+this function:
+
+...
+
+EINTR
+    The close call was interrupted by a signal. See Interrupted
+Primitives. Here is an example of how to handle EINTR properly:
+
+               TEMP_FAILURE_RETRY (close (desc));
+-----------------------------------------------------------------------
+
+
+And: /usr/include/unistd.h
+
+# define TEMP_FAILURE_RETRY(expression)		\
+  (__extension__				\
+    ({ long int __result;			\
+       do __result = (long int) (expression);	\
+       while (__result == -1L && errno == EINTR); \
+       __result; }))
+#endif
+
+
+SUSV3:
+-------------------------------------------------------------
+If close() is interrupted by a signal that is to be caught, it shall
+return -1 with errno set to [EINTR] and the state of fildes is
+unspecified
+-------------------------------------------------------------
+
+Unspecified! ;-)
 
 -- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
+	Paolo Ornati
+	Linux 2.6.13.1 on x86_64

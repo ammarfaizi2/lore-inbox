@@ -1,118 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964776AbVIKAtk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964778AbVIKAv7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964776AbVIKAtk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Sep 2005 20:49:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964777AbVIKAtj
+	id S964778AbVIKAv7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Sep 2005 20:51:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964780AbVIKAv7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Sep 2005 20:49:39 -0400
-Received: from smtp06.auna.com ([62.81.186.16]:56245 "EHLO smtp06.retemail.es")
-	by vger.kernel.org with ESMTP id S964776AbVIKAti convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Sep 2005 20:49:38 -0400
-Date: Sun, 11 Sep 2005 00:49:36 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: 2.6.13-mm2
-To: Patrick McHardy <kaber@trash.net>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-References: <20050908053042.6e05882f.akpm@osdl.org>
-	<1126396015l.6300l.1l@werewolf.able.es>
-	<20050910165659.5eea90d0.akpm@osdl.org> <4323753D.9030007@trash.net>
-In-Reply-To: <4323753D.9030007@trash.net> (from kaber@trash.net on Sun Sep
-	11 02:07:25 2005)
-X-Mailer: Balsa 2.3.4
-Message-Id: <1126399776l.6300l.2l@werewolf.able.es>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-X-Auth-Info: Auth:LOGIN IP:[83.138.208.222] Login:jamagallon@able.es Fecha:Sun, 11 Sep 2005 02:49:37 +0200
+	Sat, 10 Sep 2005 20:51:59 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:50048 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964778AbVIKAv6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Sep 2005 20:51:58 -0400
+Date: Sat, 10 Sep 2005 17:48:18 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: linux-kernel@vger.kernel.org, hpa@zytor.com, bunk@stusta.de
+Subject: Re: [RFC][MEGAPATCH] Change __ASSEMBLY__ to __ASSEMBLER__ (defined
+ by GCC from 2.95 to current CVS)
+Message-Id: <20050910174818.579bc287.akpm@osdl.org>
+In-Reply-To: <E352D8E3-771F-4A0D-9403-DBAA0C8CBB83@mac.com>
+References: <C670AD22-97CF-46AA-A527-965036D78667@mac.com>
+	<20050903064124.GA31400@codepoet.org>
+	<4319BEF5.2070000@zytor.com>
+	<B9E70F6F-CC0A-4053-AB34-A90836431358@mac.com>
+	<dfhs4u$1ld$1@terminus.zytor.com>
+	<5A37B032-9BBD-4AEA-A9BF-D42AFF79BC86@mac.com>
+	<9C47C740-86CF-48F1-8DB6-B547E5D098FF@mac.com>
+	<97597F8E-DDCE-479F-AE8D-CC7DC75AB3C3@mac.com>
+	<20050910014543.1be53260.akpm@osdl.org>
+	<4FAE9F58-7153-4574-A2C3-A586C9C3CFF1@mac.com>
+	<20050910150446.116dd261.akpm@osdl.org>
+	<E352D8E3-771F-4A0D-9403-DBAA0C8CBB83@mac.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 09.11, Patrick McHardy wrote:
-> Andrew Morton wrote:
-> > "J.A. Magallon" <jamagallon@able.es> wrote:
-> > 
-> >>I can not ifup an interface while iptables is using it.
-> >>Is this expected behaviour ?
-> > 
-> > Maybe it's expected, but breaking existing userspace is a serious issue.
+Kyle Moffett <mrmacman_g4@mac.com> wrote:
+>
+> > Have we worked out how it is to be done?
 > 
-> No, its not expected.
+>  Here's what we've got so far:
 > 
-> >>There is a possible bug (IMHO) in Mandrake initscripts, that start iptables
-> >>before network interfaces, but this had always worked.
-> >>
-> >>Any ideas ?
+>  1)  At some point the arch/driver/etc maintainers (for anything that
+>  interacts with userspace), need to start converting things on their
+>  own (such as moving ioctl and struct declarations to a <kabi/*.h>
+>  header file), because the people working on it certainly don't have
+>  all the varieties of hardware and userspace programs that would be
+>  affected by this change.
+
+This will be very disruptive.
+
+>  2)  The goal is to minimize changes to kernel code.  I'm not out to
+>  rename "struct list_head", that would be silly!  Instead, the header
+>  <linux/list.h>  would be basically reduced to this:
 > 
-> What's happening when you try to set the interface up? Please
-> provide output of ifup and strace of the failing command. Thanks.
+>  #ifndef  __LINUX_LIST_H
+>  # define __LINUX_LIST_H 1
+>  # ifdef __KERNEL__
+> 
+>  #  define __kcore_list_item list_head
+>  #  include <kcore/list.h>
+>  #  define list_add(x,y) __kcore_list_add(x,y)
+> 
+>  [...etc...]
+> 
+>  # endif /* __KERNEL__ */
+>  #endif /* not __LINUX_LIST_H */
 
-werewolf:~# ifdown eth0
-werewolf:~# service iptables start
-Applying iptables firewall rules: 
-                                                                [  OK  ]
-werewolf:~# iptables -v -t nat -L
-Chain PREROUTING (policy ACCEPT 2 packets, 156 bytes)
- pkts bytes target     prot opt in     out     source               destination         
+I hope list.h was a poorly-chosen example, and that there are no plans to
+actually do anything like the above to list.h.
 
-Chain POSTROUTING (policy ACCEPT 5 packets, 300 bytes)
- pkts bytes target     prot opt in     out     source               destination         
-    0     0 MASQUERADE  all  --  any    eth0    anywhere             anywhere            
+Surely the only files which need to be altered are those which we can
+reasonably expect userspace to actually include.
 
-Chain OUTPUT (policy ACCEPT 5 packets, 300 bytes)
- pkts bytes target     prot opt in     out     source               destination         
-werewolf:~# iptables -v -t filter -L
-Chain INPUT (policy ACCEPT 257 packets, 51631 bytes)
- pkts bytes target     prot opt in     out     source               destination         
+>  3)  Another side effect of this project will be that we will have
+>  the chance to clean up and merge some of the stuff currently in
+>  the asm-* directories.
 
-Chain FORWARD (policy DROP 0 packets, 0 bytes)
- pkts bytes target     prot opt in     out     source               destination         
-    0     0 ACCEPT     all  --  eth0   eth1    anywhere             anywhere            state RELATED,ESTABLISHED 
-    0     0 ACCEPT     all  --  eth1   eth0    anywhere             anywhere            
+I'd suggest that you avoid side-effects.  Unrelated cleanups are unrelated
+- do it as a separate project.
 
-Chain OUTPUT (policy ACCEPT 251 packets, 51163 bytes)
- pkts bytes target     prot opt in     out     source               destination         
-
-werewolf:~# ifup eth0
-
-Determining IP information for eth0...Operation failed.
- failed.
-
-I traced the problem to pump, and I did a diff between strace of pump
-when it works and when it doesnt (witout and with iptables started):
-
- socket(PF_FILE, SOCK_STREAM, 0)         = 3
- connect(3, {sa_family=AF_FILE, path="/var/run/pump.sock"}, 20) = 0
- write(3, "\0\0\0\0eth0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\300"..., 4280) = 4280
--read(3, "\1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 4280) = 4280
--exit_group(0)                           = ?
--Process 7931 detached
-+read(3, "\1\0\0\0\1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 4280) = 4280
-+socket(PF_FILE, SOCK_STREAM, 0)         = 4
-+connect(4, {sa_family=AF_FILE, path="/var/run/pump.sock"}, 20) = 0
-+write(4, "\0\0\0\0eth0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\300"..., 4280) = 4280
-+read(4, "\1\0\0\0\1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 4280) = 4280
-+write(2, "Operation failed.\n", 18Operation failed.
-+)     = 18
-+exit_group(1)                           = ?
-+Process 7822 detached
-
-pump seems to write something in the socket, try to read it again and gets
-different results.
-
-Note, my iptables are modular and I did not unload the modules, just stopped
-them with 'service iptables stop'. Digging further, if I just do
-iptables -t nat -F, pump works again.
-
-Hope this helps.
-
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandriva Linux release 2006.0 (Cooker) for i586
-Linux 2.6.13-jam3 (gcc 4.0.1 (4.0.1-5mdk for Mandriva Linux release 2006.0))
-
-
+I'm very dubious about the whole idea, frankly.

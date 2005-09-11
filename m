@@ -1,67 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932400AbVIKOwn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964786AbVIKPBG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932400AbVIKOwn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 10:52:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbVIKOwn
+	id S964786AbVIKPBG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 11:01:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964799AbVIKPBG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 10:52:43 -0400
-Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:27613 "EHLO
-	mta08-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S932320AbVIKOwm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 10:52:42 -0400
-Message-ID: <432444B6.7070309@gentoo.org>
-Date: Sun, 11 Sep 2005 15:52:38 +0100
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050820)
-X-Accept-Language: en-us, en
+	Sun, 11 Sep 2005 11:01:06 -0400
+Received: from mail20.syd.optusnet.com.au ([211.29.132.201]:16592 "EHLO
+	mail20.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S964786AbVIKPBF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Sep 2005 11:01:05 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: 2.6.13-ck3
+Date: Mon, 12 Sep 2005 01:01:00 +1000
+User-Agent: KMail/1.8.2
+Cc: ck list <ck@vds.kolivas.org>
 MIME-Version: 1.0
-To: Kasper Peeters <kasper.peeters@aei.mpg.de>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: crash upon rmmod aic7xxx (pcmcia)
-References: <17188.9683.311780.197075@sbox13.aei.mpg.de>
-In-Reply-To: <17188.9683.311780.197075@sbox13.aei.mpg.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509120101.00649.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kasper Peeters wrote:
-> Since the early 2.6.x kernels, removing the aic7xxx module (either by
-> doing a 'rmmod' by hand or by ejecting the pcmcia aic7xxx card) locks
-> the system hard after about 2 seconds, leaving no trace in syslog. 
-> Just checked with kernel 2.6.13 (and pcmcia-tools 3.2.8).
+These are patches designed to improve system responsiveness and interactivity. 
+It is configurable to any workload but the default ck* patch is aimed at the 
+desktop and ck*-server is available with more emphasis on serverspace.
 
-Try enabling magic sysrq and press Alt+sysrq+9 then Alt+SysRq+P when the 
-freeze occurs, and write down the call trace which hopefully appears on the 
-console.
 
-On a sidenote, this might be related to a Gentoo bug that I'm working on 
-getting full details of:
+Apply to 2.6.13
+http://ck.kolivas.org/patches/2.6/2.6.13/2.6.13-ck3/patch-2.6.13-ck3.bz2
 
-http://bugs.gentoo.org/show_bug.cgi?id=102636
+or server version (still no new version this release):
+http://ck.kolivas.org/patches/2.6/2.6.13/2.6.13-ck1/patch-2.6.13-ck1-server.bz2
 
-> Upon insertion of the pcmcia card, this appears in syslog:
-> 
-> Sep 11 14:36:05 whiteroom2 kernel: PCI: Enabling device 0000:03:00.0 (0000 -> 0003)
-> Sep 11 14:36:05 whiteroom2 kernel: ACPI: PCI Interrupt 0000:03:00.0[A] -> Link [LNKA] -> GSI 11 (level, low
-> ) -> IRQ 11
-> Sep 11 14:36:05 whiteroom2 kernel: aic7xxx: PCI Device 3:0:0 failed memory mapped test.  Using PIO.
-> Sep 11 14:36:05 whiteroom2 kernel: ahc_pci:3:0:0: Host Adapter Bios disabled.  Using default SCSI device pa
-> rameters
-> Sep 11 14:36:05 whiteroom2 kernel: scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
-> Sep 11 14:36:05 whiteroom2 kernel:         <Adaptec 1480A Ultra SCSI adapter>
-> Sep 11 14:36:05 whiteroom2 kernel:         aic7860: Ultra Single Channel A, SCSI Id=7, 3/253 SCBs
-> Sep 11 14:36:05 whiteroom2 kernel: 
-> Sep 11 14:36:12 whiteroom2 kernel: scsi0: PCI error Interrupt at seqaddr = 0x8
-> Sep 11 14:36:12 whiteroom2 kernel: scsi0: Signaled a Target Abort
-> Sep 11 14:36:21 whiteroom2 kernel:   Vendor: HP        Model: CD-Writer+ 9200   Rev: 1.0c
-> Sep 11 14:36:21 whiteroom2 kernel:   Type:   CD-ROM                             ANSI SCSI revision: 04
-> Sep 11 14:36:21 whiteroom2 kernel:  target0:0:4: asynchronous.
-> Sep 11 14:36:21 whiteroom2 kernel:  target0:0:4: Beginning Domain Validation
-> Sep 11 14:36:21 whiteroom2 kernel:  target0:0:4: Domain Validation skipping write tests
-> Sep 11 14:36:21 whiteroom2 kernel:  target0:0:4: FAST-10 SCSI 10.0 MB/s ST (100 ns, offset 15)
-> Sep 11 14:36:21 whiteroom2 kernel:  target0:0:4: Ending Domain Validation
-> Sep 11 14:36:21 whiteroom2 kernel: sr0: scsi3-mmc drive: 32x/32x writer cd/rw xa/form2 cdda tray
-> Sep 11 14:36:21 whiteroom2 kernel: Attached scsi generic sg0 at scsi0, channel 0, id 4, lun 0,  type 5
-> Sep 11 14:36:22 whiteroom2 scsi.agent[3014]: cdrom at /devices/pci0000:00/0000:00:1e.0/0000:02:0a.0/0000:03
-> :00.0/host0/target0:0:4/0:0:4:0
+
+web:
+http://kernel.kolivas.org
+all patches:
+http://ck.kolivas.org/patches/
+Split patches available.
+
+
+Changes:
+
+Added:
+ +vm-sp2_sp5.patch
+Updated the swap prefetch code to make it even gentler at deciding when to 
+start prefetching.
+
+ +patch-2.6.13.1.bz2
+Latest stable version
+
+
+Full patchlist:
+
+sched-run_normal_with_rt_on_sibling.diff
+2.6.13_to_staircase12.diff
+schedrange.diff
+schedbatch2.9.diff
+sched-iso3.1.patch
+smp-nice-support7.diff
+1g_lowmem1_i386.diff
+defaultcfq.diff
+isobatch_ionice2.diff
+rt_ionice.diff
+pdflush-tweaks.patch
+hz-default_values.patch
+vm-mapped.diff
+vm-lots_watermark.diff
+vm-background_scan.diff
+vm-swap_prefetch-2.patch
+sched-staircase12_tweak.patch
+vm-sp2_sp5.patch
+patch-2.6.13.1.bz2
+2613ck3-version.diff
+
+
+Cheers,
+Con

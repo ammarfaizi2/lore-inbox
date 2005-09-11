@@ -1,68 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932442AbVIKIv2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932453AbVIKIwv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932442AbVIKIv2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 04:51:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbVIKIv2
+	id S932453AbVIKIwv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 04:52:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbVIKIwv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 04:51:28 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:21144 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932442AbVIKIv1 (ORCPT
+	Sun, 11 Sep 2005 04:52:51 -0400
+Received: from styx.suse.cz ([82.119.242.94]:22987 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S932453AbVIKIwu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 04:51:27 -0400
-Message-ID: <4323EFFE.2040102@pobox.com>
-Date: Sun, 11 Sep 2005 04:51:10 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Grant Coady <grant_lkml@dodo.com.au>
-CC: Greg KH <greg@kroah.com>, Grant Coady <lkml@dodo.com.au>,
-       "Gaston, Jason D" <jason.d.gaston@intel.com>, mj@ucw.cz, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, Greg KH <gregkh@suse.de>
-Subject: Re: [PATCH 2.6.13-rc4 1/1] pci_ids: patch for Intel ICH7R
-References: <26CEE2C804D7BE47BC4686CDE863D0F5046EA44B@orsmsx410> <42EAABD1.8050903@pobox.com> <n4ple1haga8eano2vt2ipl17mrrmmi36jr@4ax.com> <42EAF987.7020607@pobox.com> <6f0me1p2q3g9ralg4a2k2mcra21lhpg6ij@4ax.com> <20050911031150.GA20536@kroah.com> <pfn7i1ll7g5bs8sm8kq0md33f8khsujrbf@4ax.com>
-In-Reply-To: <pfn7i1ll7g5bs8sm8kq0md33f8khsujrbf@4ax.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Sun, 11 Sep 2005 04:52:50 -0400
+Date: Sun, 11 Sep 2005 10:53:12 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Miguel <frankpoole@terra.es>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PCI bug in 2.6.13
+Message-ID: <20050911085312.GA13732@midnight.suse.cz>
+References: <20050909180405.3e356c2a.frankpoole@terra.es> <20050909225956.42021440.akpm@osdl.org> <20050910113658.178a7711.frankpoole@terra.es> <Pine.LNX.4.58.0509100949370.30958@g5.osdl.org> <Pine.LNX.4.58.0509101401490.30958@g5.osdl.org> <20050911030814.08cbe74c.frankpoole@terra.es> <Pine.LNX.4.58.0509101817590.3314@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0509101817590.3314@g5.osdl.org>
+X-Bounce-Cookie: It's a lemmon tree, dear Watson!
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grant Coady wrote:
-> Just ran the discovery script on 2.6.13.mm2, there's roughly 1609 
-> symbols unused in pci_ids.h, another 1030 are defined throughout the 
-> source tree, leaving 729 in pci_ids.h.  Total unique symbols is 1030.
-> Not counted are macro defined symbols: 
+On Sat, Sep 10, 2005 at 06:41:01PM -0700, Linus Torvalds wrote:
+
+> It looks like your HPT controller.
 > 
-> PCI_DEVICE_ID_##id
-> PCI_DEVICE_ID_##v##_##d
-> PCI_DEVICE_ID_BROOKTREE_##chip
-> PCI_VENDOR_ID_##v
+> 	 00:0b.0 Mass storage controller: Triones Technologies, Inc. HPT366/368/370/370A/372/372N (rev 04)
+> 	 ...
+> 	-30: 01 00 00 40 60 00 00 00 00 00 00 00 0b 01 08 08
+> 	+30: 01 00 00 00 60 00 00 00 00 00 00 00 0b 01 08 08
 > 
-> from:
+> That's a _really_ bad value. It's "enabled" (low bit set) but at address 
+> zero in the bad case. 
 > 
-> linux-2.6.13-mm2/drivers/video/cirrusfb.c
-> linux-2.6.13-mm2/sound/oss/ymfpci.c
-> linux-2.6.13-mm2/sound/pci/bt87x.c
+> My problem is that I don't see what writes that invalid enable bit. The 
+> patch that broke things for you explicitly avoids writing any value at 
+> _all_, much less one with the rom enabled bit set (in fact, if the enabled 
+> bit had been set, the patch wouldn't have made any difference at all for 
+> you).
 > 
+> The HPT driver does some strange things:
 > 
-> What is the goal here?  Is a comment stripped, non-duplicate pci_ids.h 
-> with a reference to source site okay? 
+>         /* FIXME: Not portable */
+>         if (dev->resource[PCI_ROM_RESOURCE].start)
+>                 pci_write_config_byte(dev, PCI_ROM_ADDRESS,
+>                         dev->resource[PCI_ROM_RESOURCE].start | PCI_ROM_ADDRESS_ENABLE);
+> 
+> but that one too _explicitly_ only does so for non-zero resource start
+> values. But something clearly wrote 00000001 to your ROM address..
 
-Not sure what your last question is asking.  The current goal is to 
-remove completely unused symbols from pci_ids.h, nothing more.
-
-
-> Should the various distributed defines be collected to the one header 
-> file and that header be include'd to those files?  It seems pci_ids.h 
-> is redundant.
-
-pci_ids.h should be the place where PCI IDs (class, vendor, device) are 
-collected.
-
-Long term, we should be able to trim a lot of device ids, since they are 
-usually only used in one place.
-
-	Jeff
+This is interesting. The 0x00000001 means that it's supposed to be an
+unassigned I/O (!) space resource ... which obviously fools the if()
+statement.
 
 
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

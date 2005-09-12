@@ -1,56 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751128AbVILBjx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751127AbVILBmt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751128AbVILBjx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 21:39:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751127AbVILBjw
+	id S1751127AbVILBmt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 21:42:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751129AbVILBmt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 21:39:52 -0400
-Received: from fed1rmmtao09.cox.net ([68.230.241.30]:8890 "EHLO
-	fed1rmmtao09.cox.net") by vger.kernel.org with ESMTP
-	id S1751124AbVILBjw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 21:39:52 -0400
-From: Junio C Hamano <junkio@cox.net>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Sam Ravnborg <sam@ravnborg.org>, Peter Osterlund <petero2@telia.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>
-Subject: Re: What's up with the GIT archive on www.kernel.org?
-References: <m3mzmjvbh7.fsf@telia.com>
-	<Pine.LNX.4.58.0509110908590.4912@g5.osdl.org>
-	<20050911185711.GA22556@mars.ravnborg.org>
-	<Pine.LNX.4.58.0509111157360.3242@g5.osdl.org>
-	<20050911194630.GB22951@mars.ravnborg.org>
-	<Pine.LNX.4.58.0509111251150.3242@g5.osdl.org>
-	<52irx7cnw5.fsf@cisco.com>
-	<Pine.LNX.4.58.0509111422510.3242@g5.osdl.org>
-	<Pine.LNX.4.58.0509111431400.3242@g5.osdl.org>
-Date: Sun, 11 Sep 2005 18:39:45 -0700
-In-Reply-To: <Pine.LNX.4.58.0509111431400.3242@g5.osdl.org> (Linus Torvalds's
-	message of "Sun, 11 Sep 2005 14:33:19 -0700 (PDT)")
-Message-ID: <7virx7njxa.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 11 Sep 2005 21:42:49 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:32652 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751127AbVILBms (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Sep 2005 21:42:48 -0400
+Subject: Re: [Alsa-devel] Re: Brand-new notebook useless with Linux...
+From: Lee Revell <rlrevell@joe-job.com>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       alsa-devel <alsa-devel@alsa-project.org>
+In-Reply-To: <200509091411_MC3-1-A9B0-1C0C@compuserve.com>
+References: <200509091411_MC3-1-A9B0-1C0C@compuserve.com>
+Content-Type: text/plain
+Date: Sun, 11 Sep 2005 21:42:44 -0400
+Message-Id: <1126489364.5619.7.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> writes:
+On Fri, 2005-09-09 at 14:09 -0400, Chuck Ebbert wrote:
+> In-Reply-To: <1126207905.12697.20.camel@mindpipe>
+> 
+> On Thu, 08 Sep 2005 at 15:31:44 -0400, Lee Revell wrote:
+> 
+> > Wait, that sounds like the modem, not the AC97 audio codec.
+> >
+> > You might be able to get the modem to work with the (proprietary)
+> > slmodem software modem, or something.  I wouldn't count on it though.
+> > 
+> > Does your sound work?
+> 
+> 
+>  Well I'll be...
+> 
+>  I'd assumed from the (confusing) messages that the sound card was
+> not working, but it seems fine.  Shouldn't the error messages from
+> atiixp-modem be prefixed with that name instead of "atiixp"?
+> 
+> Untested patch follows.
+> 
+> Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
 
-> Btw, there's no reason why a client-side thing couldn't just parse the 
-> "alternates" thing, and if it doesn't find the objects in the main object 
-> directory, go and fetch them from the alternates itself.
+This should be applied IMO.  Can we get it in CVS?
 
-There is.
-
-For kernel.org, you could say '/pub/scm/blah' in your alternates
-and expect it to work, only because http://kernel.org/pub
-hierarchy happens to match the absolute path /pub on the
-filesystem, but for most people's default HTTP server
-installation, they would need to say /var/www/scm/blah to have
-alternate work locally, but somebody has to know that the named
-directory is served as http://machine.xz/pub/scm/blah somewhere.
-
-Client side smarts need some help from the user here to know
-that '/var/www/scm/blah' read off of objects/info/alternates
-match that URL.
+Lee
 

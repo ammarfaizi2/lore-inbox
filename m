@@ -1,98 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbVILLXu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbVILLXk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750743AbVILLXu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 07:23:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbVILLXu
+	id S1750744AbVILLXk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 07:23:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbVILLXk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 07:23:50 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:56500 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750743AbVILLXt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 07:23:49 -0400
-From: Andi Kleen <ak@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [1/3] Add 4GB DMA32 zone
-Date: Mon, 12 Sep 2005 13:22:08 +0200
-User-Agent: KMail/1.8
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, discuss@x86-64.org
-References: <43246267.mailL4R11PXCB@suse.de> <200509121242.20910.ak@suse.de> <1126524787.30449.56.camel@localhost.localdomain>
-In-Reply-To: <1126524787.30449.56.camel@localhost.localdomain>
+	Mon, 12 Sep 2005 07:23:40 -0400
+Received: from gort.metaparadigm.com ([203.117.131.12]:7334 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id S1750744AbVILLXj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 07:23:39 -0400
+Message-ID: <432564F2.3080605@metaparadigm.com>
+Date: Mon, 12 Sep 2005 19:22:26 +0800
+From: Michael Clark <michael@metaparadigm.com>
+User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: Denis Vlasenko <vda@ilport.com.ua>
+Cc: Brad Tilley <rtilley@vt.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Universal method to start a script at boot
+References: <1126462329.4324737923c2d@wmtest.cc.vt.edu> <1126462467.43247403c2e1c@wmtest.cc.vt.edu> <43250150.20308@metaparadigm.com> <200509121249.40467.vda@ilport.com.ua>
+In-Reply-To: <200509121249.40467.vda@ilport.com.ua>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509121322.09138.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 12 September 2005 13:33, Alan Cox wrote:
-> On Llu, 2005-09-12 at 12:42 +0200, Andi Kleen wrote:
-> > (I cannot in fact remember a report of someone running especially
-> > into this problem)  And the cards seem to be essentially dead in the
-> > market now. So it's really more a theoretical problem than a practical
-> > one. [Proof of it: the current sources don't seem to handle it, so
-> > it cannot be that bad ;-]
+Denis Vlasenko wrote:
+
+>On Monday 12 September 2005 07:17, Michael Clark wrote:
+>  
 >
-> Current sources don't handle DMA32, so that can't be bad either. Can we
-> stick to sensible discussion, its quicker.
-
-Well discussing broken hardware that is rarely used on 64bit systems
-with enough memory doesn't seem very sensible to me.
-
-But ok:
-
-Even a 2GB DMA32 wouldn't magically fix it anyways.
-
-
+>>>>Is there a standard way to start a script or program at boot that will work
+>>>>on any Linux kernel/distro no matter which init system is being used or how it
+>>>>has been configured? Probably not, but I thought someone here could possibly
+>>>>answer this.
+>>>>        
+>>>>
+>>You could use the LSB conforming method of writing and installing
+>>an init script:
+>>
+>>http://refspecs.freestandards.org/LSB_3.0.0/LSB-Core-generic/LSB-Core-generic/iniscrptact.html
+>>http://refspecs.freestandards.org/LSB_3.0.0/LSB-Core-generic/LSB-Core-generic/iniscrptfunc.html
+>>http://refspecs.freestandards.org/LSB_3.0.0/LSB-Core-generic/LSB-Core-generic/initscrcomconv.html
+>>http://refspecs.freestandards.org/LSB_3.0.0/LSB-Core-generic/LSB-Core-generic/initsrcinstrm.html
+>>    
+>>
 >
-> There have been various reports over time, quite a few early on when we
-> had a long series of on list discussions trying to debug what appeared
-> to be an iommu bug but was in fact a kernel bug.
+>Awful. This codifies ages-old Unix traditional SysV-like init
+>and its derivatives, which should be get rid of instead.
 >
-> You hit it on any size AMD64 with iommu, but since most aacraid users
-> are intel boxes it doesn't hurt too many, and the rest all know about
-> turning the iommu off on the box (but that hurts the rest), or just run
-> something else because Linux "doesn't work".
-
-You need essentially the same code to fix it with GFP_DMA32 as with
-GFP_DMA. Some bounce code that allocates low memory and does
-the necessary bounces.
-
-The only difference with GFP_DMA is that the bounce pool is smaller
-
-Limiting everybody else just to get a bigger bounce pool on a single
-broken device that isn't even shipping anymore doesn't seem like sensible 
-design approach to me.
-
+>  
 >
-> > That is why I essentially ignored the b44. AFAIK the driver
-> > has a GFP_DMA bounce workaround anyways, so it would work
-> > anyways.
->
-> Usually - the DMA zone at 16MB is too small so allocations sometimes
-> fail. It btw would want 1GB limits.
+Actually if you look closer it is a bit smarter than sysvinit and
+includes latent functionality that the distros will eventually pick up
+on to increase boot speed and allow parallel starting of services (it
+codifies boot dependencies with provides and requires - not just boot
+order like svsvinit).
 
-mempool - sleep on a waitqueue until someone frees. In fact the kernel's 
-normal allocator is already quite good at that so you might not even
-need that.
+http://refspecs.freestandards.org/LSB_3.0.0/LSB-Core-generic/LSB-Core-generic/initscrcomconv.html
 
 
->
-> Doesn't work. The DMA area is way too small with all the users already
-> and the aacraid can and does want a lot of outstanding I/O. Using a 1GB
-> or 2GB boundary line hurts nobody doing "allocate me some memory below
-> 4Gb" because nobody asks for .5GB chunks. A 4GB zone means we need to
-> either increase the 16MB zone or add yet another one.
+For example an extract from /etc/init.d/vmware
 
-This is really only a problem if a significant fraction of your memory
-is beyond the limit (otherwise most buffers can go directly). 
+# Basic support for the Linux Standard Base Specification 1.3
+# Used by insserv and other LSB compliant tools.
+### BEGIN INIT INFO
+# Provides: VMware
+# Required-Start: $network $syslog
+# Required-Stop:
+# Default-Start: 2 3 5
+# Default-Stop: 0 6
+# Short-Description: Manages the services needed to run VMware software
+# Description: Manages the services needed to run VMware software
+### END INIT INFO
 
-And with the mempool sleep approach they will just get small queues. Yes
-that will be slower, but if you want performance on boxes with a lot of memory 
-you should not buy broken hardware.
+And whether you think it is awful or not - it is the closest thing we
+have to universal in Linux land (which is what the original poster was
+asking) ie. all of the major distros are aiming for LSB conformance.
 
-Basically aacraid was always broken and it is not more or not less broken
-than it was before with DMA32.
-
--Andi
+~mc

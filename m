@@ -1,40 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932185AbVILTzs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbVILT5W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932185AbVILTzs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 15:55:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932182AbVILTzs
+	id S932182AbVILT5W (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 15:57:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbVILT5W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 15:55:48 -0400
-Received: from orb.pobox.com ([207.8.226.5]:63655 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S932185AbVILTzq (ORCPT
+	Mon, 12 Sep 2005 15:57:22 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:8388 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932182AbVILT5V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 15:55:46 -0400
-Message-ID: <4325DD38.3050208@rtr.ca>
-Date: Mon, 12 Sep 2005 15:55:36 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050728
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, discuss@x86-64.org
-Subject: Re: [1/3] Add 4GB DMA32 zone
-References: <43246267.mailL4R11PXCB@suse.de> <1126520900.30449.48.camel@localhost.localdomain> <200509121242.20910.ak@suse.de>
-In-Reply-To: <200509121242.20910.ak@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 12 Sep 2005 15:57:21 -0400
+Date: Mon, 12 Sep 2005 12:56:41 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Sonny Rao <sonny@burdell.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-mm3
+Message-Id: <20050912125641.4b53553d.akpm@osdl.org>
+In-Reply-To: <20050912145435.GA4722@kevlar.burdell.org>
+References: <20050912024350.60e89eb1.akpm@osdl.org>
+	<20050912145435.GA4722@kevlar.burdell.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
+Sonny Rao <sonny@burdell.org> wrote:
 >
-> And the probability of someone using a b44 in a machine with >2GB
-> of memory is small at best. Usually they are in really lowend
-> boxes where you couldn't even plug in more memory than that.
+> On Mon, Sep 12, 2005 at 02:43:50AM -0700, Andrew Morton wrote:
+> <snip>
+> > - There are several performance tuning patches here which need careful
+> >   attention and testing.  (Does anyone do performance testing any more?)
+> <snip>
+> > 
+> >   - The size of the page allocator per-cpu magazines has been increased
+> > 
+> >   - The page allocator has been changed to use higher-order allocations
+> >     when batch-loading the per-cpu magazines.  This is intended to give
+> >     improved cache colouring effects however it might have the downside of
+> >     causing extra page allocator fragmentation.
+> > 
+> >   - The page allocator's per-cpu magazines have had their lower threshold
+> >     set to zero.  And we can't remember why it ever had a lower threshold.
+> > 
+> 
+> What would you like? The usual suspects:  SDET, dbench, kernbench ?
+> 
 
-Data point:
+That would be a good start, thanks.  The higher-order-allocations thing is
+mainly targeted at big-iron numerical computing I believe.
 
-My current model Dell notebook as b44 and 2GB RAM.
-The 2GB is the limit only until >1GB SODIMMs become available.
+I've already had one report of fragmentation-derived page allocator
+failures (http://bugzilla.kernel.org/show_bug.cgi?id=5229).
 
-Cheers

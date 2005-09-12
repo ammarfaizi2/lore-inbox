@@ -1,54 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932297AbVILWM0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932296AbVILWOe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932297AbVILWM0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 18:12:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932296AbVILWM0
+	id S932296AbVILWOe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 18:14:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbVILWOe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 18:12:26 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:55977
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932294AbVILWMY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 18:12:24 -0400
-Date: Mon, 12 Sep 2005 15:12:30 -0700 (PDT)
-Message-Id: <20050912.151230.100651236.davem@davemloft.net>
-To: joebob@spamtest.viacore.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Pure 64 bootloaders
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <4325FADB.4090804@spamtest.viacore.net>
-References: <4325F3D5.9040109@spamtest.viacore.net>
-	<20050912.144107.37064900.davem@davemloft.net>
-	<4325FADB.4090804@spamtest.viacore.net>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Mon, 12 Sep 2005 18:14:34 -0400
+Received: from 66-23-228-155.clients.speedfactory.net ([66.23.228.155]:45293
+	"EHLO kevlar.burdell.org") by vger.kernel.org with ESMTP
+	id S932296AbVILWOd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 18:14:33 -0400
+Date: Mon, 12 Sep 2005 18:10:23 -0400
+From: Sonny Rao <sonny@burdell.org>
+To: Jiri Slaby <jirislaby@gmail.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org
+Cc: brking@us.ibm.com
+Subject: Re: 2.6.13-mm3
+Message-ID: <20050912221023.GB18215@kevlar.burdell.org>
+Mail-Followup-To: Sonny Rao <sonny@burdell.org>,
+	Jiri Slaby <jirislaby@gmail.com>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org,
+	brking@us.ibm.com
+References: <20050912194032.GA12426@kevlar.burdell.org> <200509122106.j8CL6WPk006092@wscnet.wsc.cz> <20050912214945.GA17729@kevlar.burdell.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050912214945.GA17729@kevlar.burdell.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Joe Bob Spamtest <joebob@spamtest.viacore.net>
-Date: Mon, 12 Sep 2005 15:02:03 -0700
-
-> David S. Miller wrote:
-> >>agreed -- as far as i'm concerned the 32 bit libraries are there for 
-> >>compatibility's sake and should be in /lib/compat/<subarch> instead of 
-> >>/lib. the native libraries should be in /lib instead of /lib64. lib64 
-> >>should just go away!
+On Mon, Sep 12, 2005 at 05:49:45PM -0400, Sonny Rao wrote:
+> On Mon, Sep 12, 2005 at 11:06:32PM +0200, Jiri Slaby wrote:
+> > > I'm getting some build errors on ppc64 in drivers/char/hvc_console.c
+> > > 
+> > > 
+> > >   CC      drivers/char/hvc_console.o
+> > > drivers/char/hvc_console.c: In function `hvc_poll':
+> > > drivers/char/hvc_console.c:600: error: `count' undeclared (first use in this
+> > > function)
+> > > drivers/char/hvc_console.c:600: error: (Each undeclared identifier is reported
+> > > only once
+> > > drivers/char/hvc_console.c:600: error: for each function it appears in.)
+> > > drivers/char/hvc_console.c:636: error: structure has no member named `flip'
+> > > make[1]: *** [drivers/char/hvc_console.o] Error 1
+> > > make: *** [_module_drivers/char] Error 2
+> > > 
+> > > The count undeclared one was easy to fix but I coldn't fix the filp
+> > > structure element in 2-3 minutes so I'm punting.
+> > > 
+> > > Anyone have a patch to fix this driver?
 > > 
-> > 64-bit isn't any more "native" than 32-bit on some 64-bit platforms.
-> > 32-bit is the default and most desirable userland binary format on
-> > sparc64 for example.  So 32-bit programs on sparc64 are as "native" as
-> > 64-bit ones might be considered.
+> > Try this:
+> > ---
 > 
-> that's true, i had forgotten about the sparc64 case. it really does slow 
-> down tremendously when used in pure 64 bit mode
+> Hmm, that didn't build.  I made my own version based on yours,
+> unfortunately I don't know if it boots because all my network just went
+> down.  Hopefully, someone will confirm that the fix is correct.
+> 
+> 
+> --- linux-2.6.13-mm3/drivers/char/hvc_console.c~orig	2005-09-12 16:37:14.434077464 -0500
+> +++ linux-2.6.13-mm3/drivers/char/hvc_console.c	2005-09-12 16:37:25.466998360 -0500
+> @@ -597,7 +597,7 @@ static int hvc_poll(struct hvc_struct *h
+>  
+>  	/* Read data if any */
+>  	for (;;) {
+> -		count = tty_buffer_request_room(tty, N_INBUF);
+> +		int count = tty_buffer_request_room(tty, N_INBUF);
+>  
+>  		/* If flip is full, just reschedule a later read */
+>  		if (count == 0) {
+> @@ -633,7 +633,7 @@ static int hvc_poll(struct hvc_struct *h
+>  			tty_insert_flip_char(tty, buf[i], 0);
+>  		}
+>  
+> -		if (tty->flip.count)
+> +		if (tty->buf.tail->used)
+>  			tty_schedule_flip(tty);
+>  
+>  		/*
 
-PPC64 is the same, as well as a few others are likely to
-be in this boat as well.  The only known exception where
-64-bit is a true win is x86_64.
+Ok so that at least started to boot (i.e. I got output to the virtual
+console), now my SCSI controller won't come up:  
 
-> i would imagine this not to be the case for most architectures though. 
-> possibly hppa is the same way. anyone with mips64 and ppc64 hardware out 
-> there have any input?
+ipr: IBM Power RAID SCSI Device Driver version: 2.0.14 (May 2, 2005)
+ipr 0001:c0:01.0: Found IOA with IRQ: 337
+PCI: Unable to reserve mem region #3:8000000@400b8000000 for device
+0001:c0:01.0
+ipr 0001:c0:01.0: Couldn't map memory range of registers
+Trying to free nonexistent resource <400b8000000-400bfffffff>
 
-See above.
+
+I've seen it get hang right there or try to mount root fs and then
+fail.  Not sure if this is a PCI issue or an IPR issue, Brian?
+
+(Adding brking to cc)

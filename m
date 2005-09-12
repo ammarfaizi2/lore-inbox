@@ -1,67 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbVILRkk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751095AbVILRmO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750718AbVILRkk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 13:40:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbVILRkk
+	id S1751095AbVILRmO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 13:42:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbVILRmO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 13:40:40 -0400
-Received: from main.gmane.org ([80.91.229.2]:56231 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750718AbVILRkk (ORCPT
+	Mon, 12 Sep 2005 13:42:14 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:35040 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751095AbVILRmN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 13:40:40 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Kalin KOZHUHAROV <kalin@thinrope.net>
-Subject: Re: Very strange Marvell/Yukon Gigabit NIC networking problems
-Date: Tue, 13 Sep 2005 02:34:04 +0900
-Message-ID: <dg4e7t$cu4$1@sea.gmane.org>
-References: <20050901212110.19192.qmail@web53605.mail.yahoo.com> <43244C33.1050502@gentoo.org> <dg1s37$kd4$1@sea.gmane.org> <dg48qi$p96$1@sea.gmane.org> <4325B1C0.80405@gentoo.org>
+	Mon, 12 Sep 2005 13:42:13 -0400
+Date: Mon, 12 Sep 2005 19:42:09 +0200
+From: Olaf Hering <olh@suse.de>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Andreas Koch <koch@esa.informatik.tu-darmstadt.de>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Greg KH <greg@kroah.com>, Olaf Hering <olh@suse.de>
+Subject: Re: 2.6.13: Crash in Yenta initialization
+Message-ID: <20050912174209.GA3965@suse.de>
+References: <200509030138.11905.koch@esa.informatik.tu-darmstadt.de> <200509030245.12610.koch@esa.informatik.tu-darmstadt.de> <20050903223401.A7470@jurassic.park.msu.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: s175249.ppp.asahi-net.or.jp
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050804)
-X-Accept-Language: en-us, en
-In-Reply-To: <4325B1C0.80405@gentoo.org>
-X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20050903223401.A7470@jurassic.park.msu.ru>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Drake wrote:
-> Kalin KOZHUHAROV wrote:
+ On Sat, Sep 03, Ivan Kokshaysky wrote:
+
+> On Sat, Sep 03, 2005 at 02:45:08AM +0200, Andreas Koch wrote:
+> > crucial part seem to be the different bridge initialization sections:
 > 
->> Well, I did test it, but skge didn't even find the hardware :-(
->> No device was created, no dmesg output on load.
->> Instead I am running 2.6.13.1 with sk98lin-8.23.1.3.patch
->> The MB is ASUS P5GDC-V-Deluxe and the the on-board NIC:
->>
->> # lspci -v  -s 02:00.0
->> 0000:02:00.0 Ethernet controller: Marvell Technology Group Ltd. 
->> 88E8053 Gigabit Ethernet Controller (rev 15)
+> Indeed.
 > 
+> > 2.6.12-rc6 + Ivan's patches:
+> ...
+> >           PCI: Bus 7, cardbus bridge: 0000:06:09.0
+> >             IO window: 00006000-00006fff
+> >             IO window: 00007000-00007fff
+> >             PREFETCH window: 82000000-83ffffff
+> >             MEM window: 8c000000-8dffffff
+> >           PCI: Bus 11, cardbus bridge: 0000:06:09.1
+> >             IO window: 00008000-00008fff
+> >             IO window: 00009000-00009fff
+> >             PREFETCH window: 84000000-85ffffff
+> >             MEM window: 8e000000-8fffffff
+> >           PCI: Bus 15, cardbus bridge: 0000:06:09.3
+> ...
+> > ... Versus the much shorter output from 2.6.13
+> ...
+> >           PCI: Bus 7, cardbus bridge: 0000:06:09.0
+> >             IO window: 00004000-000040ff
+> >             IO window: 00004400-000044ff
+> >             PREFETCH window: 82000000-83ffffff
+> >             MEM window: 88000000-89ffffff
+> >           PCI: Bridge: 0000:00:1e.0
 > 
-> This patch was to solve an issue in skge, a driver for Marvell Yukon 
-> network adapters.
-> 
-> Your hardware is a yukon-2 adapter, you want to use the sky2 driver from 
-> the netdev tree.
-Ok, that makes the things clear, thank you.
+> It's mysterious.
+> So 2.6.13 doesn't see cardbus bridge functions 06:09.1 and 06:09.3,
+> which means that these devices are not on the per-bus device list.
+> OTOH, they are still visible on the global device list, since yenta
+> driver found them. No surprise that it crashes with some uninitialized
+> pointer.
 
-After quite a lot of fiddling iwth google and git, I found what you 
-are talking about here:
-http://www.mail-archive.com/netdev@vger.kernel.org/msg01592.html
-http://www.kernel.org/git/?p=linux/kernel/git/jgarzik/netdev-2.6.git;a=commitdiff;h=cd28ab6a4e50a7601d22752aa7ce0c8197b10bdf
-
-Somehow I missed it on LKML.
-Unfortunately the machine with this chipset is  heavily used, so I 
-am not very likely to get it off-line for testing.
-Will have it in mind and try it if possible.
-
-Kalin.
-
--- 
-|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
-+-> http://ThinRope.net/ <-+
-|[ ______________________ ]|
-
+Did you find the reason for this already?
+We have a similar report:
+https://bugzilla.novell.com/show_bug.cgi?id=113778
+...
+It dies in yenta_config_init because dev->subordinate is NULL.  
+...

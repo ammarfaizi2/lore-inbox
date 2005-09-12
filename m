@@ -1,41 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750919AbVILTUv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750926AbVILTUs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750919AbVILTUv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 15:20:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750953AbVILTUu
+	id S1750926AbVILTUs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 15:20:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750931AbVILTUr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 15:20:50 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:64203 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750919AbVILTUu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 15:20:50 -0400
-Date: Mon, 12 Sep 2005 20:20:49 +0100
-From: Al Viro <viro@ZenIV.linux.org.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCHSET] 2.6.13-git12-bird1
-Message-ID: <20050912192049.GO25261@ZenIV.linux.org.uk>
-References: <20050905035848.GG5155@ZenIV.linux.org.uk> <20050905155522.GA8057@mipter.zuzino.mipt.ru> <20050905160313.GH5155@ZenIV.linux.org.uk> <20050905164712.GI5155@ZenIV.linux.org.uk> <20050905212026.GL5155@ZenIV.linux.org.uk> <20050907183131.GF5155@ZenIV.linux.org.uk> <20050912191744.GN25261@ZenIV.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050912191744.GN25261@ZenIV.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+	Mon, 12 Sep 2005 15:20:47 -0400
+Received: from mail-gw2.turkuamk.fi ([195.148.208.126]:29911 "EHLO
+	mail-gw2.turkuamk.fi") by vger.kernel.org with ESMTP
+	id S1750919AbVILTUr convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 15:20:47 -0400
+Message-ID: <4325D55E.1000707@kolumbus.fi>
+Date: Mon, 12 Sep 2005 22:22:06 +0300
+From: =?ISO-8859-1?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050909 Fedora/1.7.10-1.5.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>
+Subject: Re: [RFC][PATCH 1/2] i386: consolidate discontig functions into	normal
+ ones
+References: <20050912175319.7C51CF96@kernel.beaverton.ibm.com>	 <4325D150.6040505@kolumbus.fi> <1126552121.5892.28.camel@localhost>
+In-Reply-To: <1126552121.5892.28.camel@localhost>
+X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release 5.0.13a
+  |April 8, 2004) at 12.09.2005 22:20:38,
+	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 6.5.4FP1|June
+ 19, 2005) at 12.09.2005 22:21:10,
+	Serialize complete at 12.09.2005 22:21:10
+Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 12, 2005 at 08:17:44PM +0100, Al Viro wrote:
-> Patchset moved to -git12.  News:
-> 	* playing catch-up with spinlock changes (m68k build got broken)
-> 	* playing catch-up with kbuild changes (arm, uml)
-> 	* usual assorted build fixes
-> 	* assorted sparse annotations
-> 	* beginning of endianness annotations merge: RPC patches from Alexey
-> 	* beginning of linux/irq.h work
-> 
-> Patch is in usual place.  Patch itself is patch-2.6.13-git12-bird1.bz2,
-> splitup is in patchset/, logs in logs/*/*log21c.
-> 
-> Shortlog follows.
+Dave Hansen wrote:
 
-... Actually, that would be "Shortlog of additions since the last posted
-version".
+>On Mon, 2005-09-12 at 22:04 +0300, Mika Penttilä wrote:
+>  
+>
+>>I think you allocate remap pages for nothing in the flatmem case for 
+>>node0...those aren't used for the mem map in !NUMA.
+>>    
+>>
+>
+>I believe that is fixed up in the second patch.  It should compile a
+>do{}while(0) version instead of doing a real call.  
+>
+>-- Dave
+>
+>
+>  
+>
+Oh, yes, indeend it is.
+Thanks,
+Mika
+
+

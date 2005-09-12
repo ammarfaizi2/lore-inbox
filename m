@@ -1,46 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750846AbVILNs7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750847AbVILNxN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750846AbVILNs7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 09:48:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750842AbVILNs7
+	id S1750847AbVILNxN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 09:53:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750842AbVILNxM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 09:48:59 -0400
-Received: from wproxy.gmail.com ([64.233.184.197]:55209 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750838AbVILNs6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 09:48:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=FZt4rHiesAkPK+XCS7uRsJzPgRkIjgzQh1/McR1K1felEKj3G+8H+wL4DpRBGbgobiIJRgEmrOfdvqzOVKOVmuyvRem3CPOZ4sLW2XeM0coX6wuCYPxR+PxZW5qarmwxMXTWDWcAkOnH/i1DDJPi0yIEOqVeuaaWzbSN17BCBUk=
-Date: Mon, 12 Sep 2005 17:58:47 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Greg Kroah-Hartman <gregkh@suse.de>
+	Mon, 12 Sep 2005 09:53:12 -0400
+Received: from lennier.cc.vt.edu ([198.82.162.213]:54991 "EHLO
+	lennier.cc.vt.edu") by vger.kernel.org with ESMTP id S1750838AbVILNxM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 09:53:12 -0400
+Subject: Re: Universal method to start a script at boot
+From: Brad Tilley <rtilley@vt.edu>
+To: Michael Clark <michael@metaparadigm.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] drivers/base/class.c: fix swapped memset() arguments
-Message-ID: <20050912135847.GA9673@mipter.zuzino.mipt.ru>
+In-Reply-To: <43250150.20308@metaparadigm.com>
+References: <1126462329.4324737923c2d@wmtest.cc.vt.edu>
+	 <1126462467.43247403c2e1c@wmtest.cc.vt.edu>
+	 <43250150.20308@metaparadigm.com>
+Content-Type: text/plain
+Organization: Virginia Tech Athletics
+Date: Mon, 12 Sep 2005 09:52:45 -0400
+Message-Id: <1126533165.7503.0.camel@athop1.ath.vt.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
+On Mon, 2005-09-12 at 12:17 +0800, Michael Clark wrote:
+> Brad Tilley wrote:
+> 
+> >This is off-topic and I apologize. However, I think some here could answer
+> >this.
+> >
+> >  
+> >
+> >>Is there a standard way to start a script or program at boot that will work
+> >>on any Linux kernel/distro no matter which init system is being used or how it
+> >>has been configured? Probably not, but I thought someone here could possibly
+> >>answer this.
+> >>    
+> >>
+> 
+> You could use the LSB conforming method of writing and installing
+> an init script:
+> 
+> http://refspecs.freestandards.org/LSB_3.0.0/LSB-Core-generic/LSB-Core-generic/iniscrptact.html
+> http://refspecs.freestandards.org/LSB_3.0.0/LSB-Core-generic/LSB-Core-generic/iniscrptfunc.html
+> http://refspecs.freestandards.org/LSB_3.0.0/LSB-Core-generic/LSB-Core-generic/initscrcomconv.html
+> http://refspecs.freestandards.org/LSB_3.0.0/LSB-Core-generic/LSB-Core-generic/initsrcinstrm.html
+> 
+> Most of the main distros support this (Fedora, RHEL, SuSE,
+> Mandriva, Debian, ...). Not to say all of them ship with the
+> LSB support packages installed by default. Some do some don't.
+> 
+> On Debian I need to do an "apt-get install lsb".
+> 
+> ~mc
+> 
 
- drivers/base/class.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
---- linux-vanilla/drivers/base/class.c
-+++ linux-memset/drivers/base/class.c
-@@ -506,7 +506,7 @@ int class_device_add(struct class_device
- 			kobject_del(&class_dev->kobj);
- 			goto register_done;
- 		}
--		memset(attr, sizeof(*attr), 0x00);
-+		memset(attr, 0x00, sizeof(*attr));
- 		attr->attr.name = "dev";
- 		attr->attr.mode = S_IRUGO;
- 		attr->attr.owner = parent->owner;
+Thank you. I think this is the best approach for me.
 

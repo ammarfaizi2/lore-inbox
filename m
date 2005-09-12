@@ -1,55 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbVILNqz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750846AbVILNs7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750834AbVILNqz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 09:46:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750836AbVILNqz
+	id S1750846AbVILNs7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 09:48:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750842AbVILNs7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 09:46:55 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:43727 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750834AbVILNqz (ORCPT
+	Mon, 12 Sep 2005 09:48:59 -0400
+Received: from wproxy.gmail.com ([64.233.184.197]:55209 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750838AbVILNs6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 09:46:55 -0400
-Date: Mon, 12 Sep 2005 15:47:24 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: dwalker@mvista.com, linux-kernel@vger.kernel.org,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH] RT: Invert some TRACE_BUG_ON_LOCKED tests
-Message-ID: <20050912134724.GA6344@elte.hu>
-References: <1125691250.2709.2.camel@c-67-188-6-232.hsd1.ca.comcast.net> <20050902200856.GY3966@smtp.west.cox.net> <20050912134358.GA5033@elte.hu>
+	Mon, 12 Sep 2005 09:48:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=FZt4rHiesAkPK+XCS7uRsJzPgRkIjgzQh1/McR1K1felEKj3G+8H+wL4DpRBGbgobiIJRgEmrOfdvqzOVKOVmuyvRem3CPOZ4sLW2XeM0coX6wuCYPxR+PxZW5qarmwxMXTWDWcAkOnH/i1DDJPi0yIEOqVeuaaWzbSN17BCBUk=
+Date: Mon, 12 Sep 2005 17:58:47 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Greg Kroah-Hartman <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] drivers/base/class.c: fix swapped memset() arguments
+Message-ID: <20050912135847.GA9673@mipter.zuzino.mipt.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050912134358.GA5033@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+ drivers/base/class.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-> 
-> * Tom Rini <trini@kernel.crashing.org> wrote:
-> 
-> > With 2.6.13-rt4 I had to do the following in order to get my paired 
-> > down config booting on my x86 whitebox (defconfig works fine, after I 
-> > enable enet/8250_console/nfsroot).  Daniel Walker helped me trace this 
-> > down.
-> > 
-> > Signed-off-by: Tom Rini <trini@kernel.crashing.org>
-> 
-> thanks, applied.
+--- linux-vanilla/drivers/base/class.c
++++ linux-memset/drivers/base/class.c
+@@ -506,7 +506,7 @@ int class_device_add(struct class_device
+ 			kobject_del(&class_dev->kobj);
+ 			goto register_done;
+ 		}
+-		memset(attr, sizeof(*attr), 0x00);
++		memset(attr, 0x00, sizeof(*attr));
+ 		attr->attr.name = "dev";
+ 		attr->attr.mode = S_IRUGO;
+ 		attr->attr.owner = parent->owner;
 
-actually - the inversion of the tests is incorrect on SMP. The right 
-solution is Steven Rostedt's patch. (i took another variant of that 
-approach, from Thomas Gleixner)
-
-	Ingo

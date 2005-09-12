@@ -1,73 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751097AbVILRw3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751112AbVILRxA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751097AbVILRw3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 13:52:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbVILRw3
+	id S1751112AbVILRxA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 13:53:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751111AbVILRw7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 13:52:29 -0400
-Received: from smtpout.mac.com ([17.250.248.71]:56573 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1751097AbVILRw3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 13:52:29 -0400
-In-Reply-To: <20050912084756.4fa2bd07.pj@sgi.com>
-References: <C670AD22-97CF-46AA-A527-965036D78667@mac.com> <20050903064124.GA31400@codepoet.org> <4319BEF5.2070000@zytor.com> <B9E70F6F-CC0A-4053-AB34-A90836431358@mac.com> <dfhs4u$1ld$1@terminus.zytor.com> <5A37B032-9BBD-4AEA-A9BF-D42AFF79BC86@mac.com> <9C47C740-86CF-48F1-8DB6-B547E5D098FF@mac.com> <97597F8E-DDCE-479F-AE8D-CC7DC75AB3C3@mac.com> <20050910014543.1be53260.akpm@osdl.org> <4FAE9F58-7153-4574-A2C3-A586C9C3CFF1@mac.com> <20050910150446.116dd261.akpm@osdl.org> <E352D8E3-771F-4A0D-9403-DBAA0C8CBB83@mac.com> <20050910174818.579bc287.akpm@osdl.org> <93E9C5F9-A083-4322-A580-236E2232CCC0@mac.com> <20050912010954.70ac90e2.pj@sgi.com> <43259C9E.1040300@zytor.com> <20050912084756.4fa2bd07.pj@sgi.com>
-Mime-Version: 1.0 (Apple Message framework v734)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <67DD59DE-B7B3-43EC-A241-670ACD4C0322@mac.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, bunk@stusta.de
+	Mon, 12 Sep 2005 13:52:59 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:30152 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1751110AbVILRw6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 13:52:58 -0400
+Subject: Re: [PATCH 2.6.13 5/14] sas-class: sas_discover.c Discover process
+	(end devices)
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Luben Tuikov <luben_tuikov@adaptec.com>
+Cc: ltuikov@yahoo.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <4325997D.3050103@adaptec.com>
+References: <20050910024454.20602.qmail@web51613.mail.yahoo.com>
+	 <1126368081.4813.46.camel@mulgrave>  <4325997D.3050103@adaptec.com>
+Content-Type: text/plain
+Date: Mon, 12 Sep 2005 12:52:45 -0500
+Message-Id: <1126547565.4825.52.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-6) 
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [RFC][MEGAPATCH] Change __ASSEMBLY__ to __ASSEMBLER__ (defined by GCC from 2.95 to current CVS)
-Date: Mon, 12 Sep 2005 13:51:51 -0400
-To: Paul Jackson <pj@sgi.com>
-X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 12, 2005, at 11:47:56, Paul Jackson wrote:
-> hpa wrote:
->
->> The only sane thing is to have a set of ABI headers with a clean,
->> specific set of rules, which is included by the kernel private  
->> headers,
->> as well as userspace.
->>
->
-> Why must the ABI headers be included by both kernel and user  
-> headers to
-> be sane?
->
-> Hmmm ... I'm not sure I want to ask that, actually.  I have this  
-> feeling
-> from the tone of your assertion that you can explain to me why such a
-> header organization is the only one that fits your mental model of how
-> these things are structured, but that communication between us may
-> break down when you try to convince me that your mental model for this
-> is the only correct one.
+On Mon, 2005-09-12 at 11:06 -0400, Luben Tuikov wrote:
+> On 09/10/05 12:01, James Bottomley wrote:
+> > On Fri, 2005-09-09 at 19:44 -0700, Luben Tuikov wrote:
+> > 
+> >>>this one completely duplicates the
+> >>>mid-layer infrastructure for handling devices with Logical Units.
+> >>
+> >>No, it does *not*.  James, you have _stop_ spreading FUD, relying
+> >>that other people have not read the SCSI Core code.
+> > 
+> > 
+> > We have an infrastructure in the mid-layer for doing report lun scans.
+> > You have a parallel one in your code.  In my book, that's duplication.
+> 
+> This infrastructure is broken.  Its interface is broken.  It is a horrible
+> excuse of LUN scanning written initially to support a certain hardware.
+> 
+> LUN scanning is done a tad bit differently with a tad bit different
+> interface.  Read the specs, study the code I submitted.
+> 
+> It is poinless for you to argue back just with a sentence and for
+> me to reply back to you with *code*.
+> 
+> Again, unless you point out code, you're spreading FUD!
+> 
+> Here is excerpt from my previous message to the list:
+> ---cut-start----
+> Look at scsi_scan_target() declaration:
+> 
+> void scsi_scan_target(struct device *parent, unsigned int channel,
+> 		      unsigned int id, unsigned int lun, int rescan);
+> 
+> Channel, id, lun, rescan?  WTF?
+> 
+> Do you see any of this in the proprely implemented LU discovery
+> code in the SAS discovery code I submitted?
 
-If we acknowledge the fact that syncing the release dates of two  
-projects
-is basically futile, especially given that under your system the kernel
-headers would not change much/at-all to make the user-headers project
-easier, then any feature X that appears in a new release of the kernel
-will not be accessible from userspace tools without ignoring the  
-point of
-the user-headers project all together and having separate headers.   
-Given
-this, as well as the maintenance burden for those who would need to
-maintain the user-headers (which would be nearly nil if the current
-kernel headers could be cleaned up to the point which they could be used
-instead), this project is lots of messy work either way, but in the long
-run, if included into the upstream kernel, it will result in much less
-duplication of effort and much cleaner code.
+Well there is this in sas_discover.h:
 
-Cheers,
-Kyle Moffett
+struct scsi_core_mapping {
+	int  channel;
+	int  id;
+};
 
---
-Premature optimization is the root of all evil in programming
-   -- C.A.R. Hoare
+struct LU {
+[...]
+	struct scsi_core_mapping map;
 
+
+so if you use channel, id and scsilun_to_int() (or your SCSI_LUN
+reimplementation of that) on your LUN structure, you have everything
+necessary to interface to scsi_scan_target, yes.
+
+You have to have this, otherwise you wouldn't be able to use
+scsi_add_device in sas_scsi_host.c:sas_register_with_scsi().
+
+Based on this it does look like your refusal to use scsi_scan_target is
+based on ideological rather than technical objections.
+
+It also looks like you have a bug in your id mapping code: you allocate
+one id per lun, not per target, so you're going to run out pretty
+quickly when you meet a device with actual logical units, since you hard
+code max_ids to 128 in sas_port.c
+
+James
 
 

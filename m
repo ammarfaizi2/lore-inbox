@@ -1,100 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750870AbVILQGd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750880AbVILQHA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750870AbVILQGd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 12:06:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750877AbVILQGd
+	id S1750880AbVILQHA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 12:07:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750902AbVILQHA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 12:06:33 -0400
-Received: from main.gmane.org ([80.91.229.2]:61838 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750870AbVILQGd (ORCPT
+	Mon, 12 Sep 2005 12:07:00 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:26499 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750877AbVILQG7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 12:06:33 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Kalin KOZHUHAROV <kalin@thinrope.net>
-Subject: Re: Very strange Marvell/Yukon Gigabit NIC networking problems
-Date: Tue, 13 Sep 2005 01:01:39 +0900
-Message-ID: <dg48qi$p96$1@sea.gmane.org>
-References: <20050901212110.19192.qmail@web53605.mail.yahoo.com> <43244C33.1050502@gentoo.org> <dg1s37$kd4$1@sea.gmane.org>
+	Mon, 12 Sep 2005 12:06:59 -0400
+Date: Mon, 12 Sep 2005 09:06:45 -0700
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: Peter Staubach <staubach@redhat.com>, g@joust
+Cc: Andrew Morton <akpm@osdl.org>, dwmw2@infradead.org, bunk@stusta.de,
+       johnstul@us.ibm.com, drepper@redhat.com, Franz.Fischer@goyellow.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [UPDATE PATCH][Bug 5132] fix sys_poll() large timeout handling
+Message-ID: <20050912160645.GB25471@us.ibm.com>
+References: <20050831200109.GB3017@us.ibm.com> <20050906212514.GB3038@us.ibm.com> <20050910003525.GC24225@us.ibm.com> <20050909181658.221eb6f9.akpm@osdl.org> <20050910022330.GD24225@us.ibm.com> <20050909193621.5d578583.akpm@osdl.org> <20050910025534.GE24225@us.ibm.com> <4325910E.8080707@redhat.com> <20050912150541.GA25471@us.ibm.com> <43259C84.5020209@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: s175249.ppp.asahi-net.or.jp
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050804)
-X-Accept-Language: en-us, en
-In-Reply-To: <dg1s37$kd4$1@sea.gmane.org>
-X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43259C84.5020209@redhat.com>
+X-Operating-System: Linux 2.6.13 (i686)
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kalin KOZHUHAROV wrote:
-> Daniel Drake wrote:
+On 12.09.2005 [11:19:32 -0400], Peter Staubach wrote:
+> Nishanth Aravamudan wrote:
 > 
->> Hi,
->> 
->> Steve Kieu wrote:
->> 
->>> If run 2.6.13 and up the NIC, it is working. Shuttdown or 
->>> reboot using /sbin/halt (means power completely off and on) 
->>> or /sbin/reboot all other OSs failed to enable the NIC except
->>>  2.6.13.
->>> 
->>> to restore the normal working of the NIC, boot 2.6.13 and do 
->>> a hot power reset. (press the reset button)
->> 
->> 
->> 
->> Stephen recently posted a patch which looks like it might solve
->>  this issue.
->> 
->> Steve, maybe you could test it out? I have attached it to this 
->> Gentoo bug:
->> 
->> http://bugs.gentoo.org/100258
->> 
->> Stephen, thanks for your hard work!
+> >
+> >I don't think the embedded folks are going to be ok with adding a 64-bit
+> >div in the poll() common-path... But otherwise the patch looks pretty
+> >sane, except I think you want s64, not int64_t? I can't ever remember
+> >myself :)
+> > 
+> >
 > 
+> Oops, I missed an include which is required.  The updated patch is attached.
+
+Could you update your patch against 2.6.13-mm3? Andrew has aleady pulled
+in the patch I sent with his changes. It should make your pactch a
+little smaller (and only need to touch fs/select.c).
+
+> A 64 bit quantity divided by a 32 bit quantity seems to be a standard
+> interface in the kernel and is used fairly widely, so I suspect that
+> the embedded folks have already done the work.
+
+I understand that the interface is common enough, but I'm not sure how
+appreciated it is :)
+
+> I don't know which should be used, s64 or int64_t.  I chose int64_t
+> because then it would (more or less) match the interface of do_div().
+
+Yes, I'll leave this to someone else to figure out...
+
+> >I agree the interface mght be mis-defined. And changing timeout_msecs()
+> >to an integer is consistent with the size of millisecond-unit variables
+> >used elsewhere in the kernel.
+> >
 > 
-> I will try this one on a problematic ASUS board than now runs on 
-> 2.11.11 with sk98lin-8.18.2.2.patch.
-> 
-> Applied the patch from #100258 to 2.6.13.1 successfully (some
-> lines offset) and recompiled. Will try it tomorrow when I am at
-> the machine.
+> Yes, it also makes the kernel definition for sys_poll() match the user level
+> definition for poll(2) found in <poll.h>.
 
-Well, I did test it, but skge didn't even find the hardware :-(
-No device was created, no dmesg output on load.
-Instead I am running 2.6.13.1 with sk98lin-8.23.1.3.patch
-The MB is ASUS P5GDC-V-Deluxe and the the on-board NIC:
+Yup, sounds good to me.
 
-# lspci -v  -s 02:00.0
-0000:02:00.0 Ethernet controller: Marvell Technology Group Ltd. 
-88E8053 Gigabit Ethernet Controller (rev 15)
-         Subsystem: ASUSTeK Computer Inc. Marvell 88E8053 Gigabit 
-Ethernet Controller (Asus)
-         Flags: bus master, fast devsel, latency 0, IRQ 17
-         Memory at cfffc000 (64-bit, non-prefetchable) [size=16K]
-         I/O ports at d800 [size=256]
-         Expansion ROM at cffc0000 [disabled] [size=128K]
-         Capabilities: [48] Power Management version 2
-         Capabilities: [50] Vital Product Data
-         Capabilities: [5c] Message Signalled Interrupts: 64bit+ 
-Queue=0/1 Enable-
-         Capabilities: [e0] #10 [0011]
-
-
-I am not sure it is supposed to be used with the skge driver, but I
-thought it will work... Some ASUS boards apparently have problems 
-with the VPD being broken, but I am not sure how to check that.
-
-> BTW, is this patch submitted to the Linus or -mm tree already?
-??
-
-Kalin.
-
--- 
-|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
-+-> http://ThinRope.net/ <-+
-|[ ______________________ ]|
-
+Thanks,
+Nish

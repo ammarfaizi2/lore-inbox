@@ -1,59 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbVILTaG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932165AbVILTbq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932161AbVILTaG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 15:30:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932165AbVILTaF
+	id S932165AbVILTbq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 15:31:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932162AbVILTbq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 15:30:05 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:37526 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932161AbVILTaC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 15:30:02 -0400
-Date: Mon, 12 Sep 2005 12:29:48 -0700
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: James.Smart@Emulex.Com
-Cc: James.Bottomley@SteelEye.com, dougg@torque.net, hch@infradead.org,
-       ltuikov@yahoo.com, luben_tuikov@adaptec.com,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH 2.6.13 5/14] sas-class: sas_discover.c Discover process (end devices)
-Message-ID: <20050912192948.GA14699@us.ibm.com>
-References: <9BB4DECD4CFE6D43AA8EA8D768ED51C20F459D@xbl3.ma.emulex.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9BB4DECD4CFE6D43AA8EA8D768ED51C20F459D@xbl3.ma.emulex.com>
-User-Agent: Mutt/1.4.2.1i
+	Mon, 12 Sep 2005 15:31:46 -0400
+Received: from ppsw-7.csi.cam.ac.uk ([131.111.8.137]:48098 "EHLO
+	ppsw-7.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S932165AbVILTbp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 15:31:45 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Mon, 12 Sep 2005 20:31:42 +0100 (BST)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
+Subject: [1/2] NTFS: Change the mount options {u,f,d}mask to always parse
+ the number as an octal
+In-Reply-To: <Pine.LNX.4.60.0509122027430.4649@hermes-1.csi.cam.ac.uk>
+Message-ID: <Pine.LNX.4.60.0509122030110.4649@hermes-1.csi.cam.ac.uk>
+References: <Pine.LNX.4.60.0509122027430.4649@hermes-1.csi.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 12, 2005 at 03:04:03PM -0400, James.Smart@Emulex.Com wrote:
-> 
-> 
-> > Though we still have problems with scsi_report_lun_scan code like:
-> > 
-> >                 } else if (lun > sdev->host->max_lun) {
-> > 
-> > max_lun just has to be large, at least greater than 0xc001 
-> > (49153), maybe
-> > even 0xffffffff, correct?
-> 
-> right...
+NTFS: Change the mount options {u,f,d}mask to always parse the number as
+      an octal number to conform to how chmod(1) works, too.  Thanks to
+      Giuseppe Bilotta and Horst von Brand for pointing out the errors of
+      my ways.
 
-> > 
-> > But then some sequential scanning could take a while. Maybe the above
-> > check is not needed.
-> > 
-> > lpfc has max_luns set to 256, with max limited to 32768, I 
-> > don't know how
-> > it could be working OK here. (Has James S or anyone tested this?)
-> 
-> Yes we did test this (actually, we tested out to 64k). Time to perform all
-> this looping, plus impacts due on sg devices (some configs generate huge
-> numbers - outside of sg's range), made us pull back to 256 - although it's
-> tunable.
+Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
 
-I meant did you test many (even a few) LUNs with non 00b addressing mode?
-
-sg (scsi generic) had fixed limits removed some time ago (in 2.6.x).
-
--- Patrick Mansfield
+diff --git a/fs/ntfs/ChangeLog b/fs/ntfs/ChangeLog
+--- a/fs/ntfs/ChangeLog
++++ b/fs/ntfs/ChangeLog
+@@ -90,7 +90,11 @@ ToDo/Notes:
+ 	  in the first buffer head instead of a driver global spin lock to
+ 	  improve scalability.
+ 	- Minor fix to error handling and error message display in
+-	  fs/ntfs/aops.c::ntfs_prepare_nonresident_write(). 
++	  fs/ntfs/aops.c::ntfs_prepare_nonresident_write().
++	- Change the mount options {u,f,d}mask to always parse the number as
++	  an octal number to conform to how chmod(1) works, too.  Thanks to
++	  Giuseppe Bilotta and Horst von Brand for pointing out the errors of
++	  my ways.
+ 
+ 2.1.23 - Implement extension of resident files and make writing safe as well as
+ 	 many bug fixes, cleanups, and enhancements...
+diff --git a/fs/ntfs/super.c b/fs/ntfs/super.c
+--- a/fs/ntfs/super.c
++++ b/fs/ntfs/super.c
+@@ -126,6 +126,14 @@ static BOOL parse_options(ntfs_volume *v
+ 		if (*v)							\
+ 			goto needs_val;					\
+ 	}
++#define NTFS_GETOPT_OCTAL(option, variable)				\
++	if (!strcmp(p, option)) {					\
++		if (!v || !*v)						\
++			goto needs_arg;					\
++		variable = simple_strtoul(ov = v, &v, 8);		\
++		if (*v)							\
++			goto needs_val;					\
++	}
+ #define NTFS_GETOPT_BOOL(option, variable)				\
+ 	if (!strcmp(p, option)) {					\
+ 		BOOL val;						\
+@@ -157,9 +165,9 @@ static BOOL parse_options(ntfs_volume *v
+ 			*v++ = 0;
+ 		NTFS_GETOPT("uid", uid)
+ 		else NTFS_GETOPT("gid", gid)
+-		else NTFS_GETOPT("umask", fmask = dmask)
+-		else NTFS_GETOPT("fmask", fmask)
+-		else NTFS_GETOPT("dmask", dmask)
++		else NTFS_GETOPT_OCTAL("umask", fmask = dmask)
++		else NTFS_GETOPT_OCTAL("fmask", fmask)
++		else NTFS_GETOPT_OCTAL("dmask", dmask)
+ 		else NTFS_GETOPT("mft_zone_multiplier", mft_zone_multiplier)
+ 		else NTFS_GETOPT_WITH_DEFAULT("sloppy", sloppy, TRUE)
+ 		else NTFS_GETOPT_BOOL("show_sys_files", show_sys_files)

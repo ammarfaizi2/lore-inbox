@@ -1,54 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751127AbVILBmt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751131AbVILCKU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751127AbVILBmt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 21:42:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751129AbVILBmt
+	id S1751131AbVILCKU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 22:10:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751132AbVILCKU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 21:42:49 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:32652 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751127AbVILBms (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 21:42:48 -0400
-Subject: Re: [Alsa-devel] Re: Brand-new notebook useless with Linux...
-From: Lee Revell <rlrevell@joe-job.com>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       alsa-devel <alsa-devel@alsa-project.org>
-In-Reply-To: <200509091411_MC3-1-A9B0-1C0C@compuserve.com>
-References: <200509091411_MC3-1-A9B0-1C0C@compuserve.com>
-Content-Type: text/plain
-Date: Sun, 11 Sep 2005 21:42:44 -0400
-Message-Id: <1126489364.5619.7.camel@mindpipe>
+	Sun, 11 Sep 2005 22:10:20 -0400
+Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:49316 "EHLO
+	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP
+	id S1751131AbVILCKT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Sep 2005 22:10:19 -0400
+X-ORBL: [67.124.117.85]
+Date: Sun, 11 Sep 2005 19:09:59 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: "Luck, Tony" <tony.luck@intel.com>, ak@suse.de, torvalds@osdl.org,
+       Greg Edwards <edwardsg@sgi.com>, linux-kernel@vger.kernel.org,
+       discuss@x86-64.org
+Subject: Re: [2/3] Set compatibility flag for 4GB zone on IA64
+Message-ID: <20050912020959.GB15881@taniwha.stupidest.org>
+References: <B8E391BBE9FE384DAA4C5C003888BE6F045A8E72@scsmsx401.amr.corp.intel.com> <4324BCBB.90407@pobox.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4324BCBB.90407@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-09-09 at 14:09 -0400, Chuck Ebbert wrote:
-> In-Reply-To: <1126207905.12697.20.camel@mindpipe>
-> 
-> On Thu, 08 Sep 2005 at 15:31:44 -0400, Lee Revell wrote:
-> 
-> > Wait, that sounds like the modem, not the AC97 audio codec.
-> >
-> > You might be able to get the modem to work with the (proprietary)
-> > slmodem software modem, or something.  I wouldn't count on it though.
-> > 
-> > Does your sound work?
-> 
-> 
->  Well I'll be...
-> 
->  I'd assumed from the (confusing) messages that the sound card was
-> not working, but it seems fine.  Shouldn't the error messages from
-> atiixp-modem be prefixed with that name instead of "atiixp"?
-> 
-> Untested patch follows.
-> 
-> Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+On Sun, Sep 11, 2005 at 07:24:43PM -0400, Jeff Garzik wrote:
 
-This should be applied IMO.  Can we get it in CVS?
+> SGI machines support random PCI cards, right?
 
-Lee
+Technically the hardware does but I doubt SGI will help you if your
+ne2k doesn't work.
 
+> If so, you cannot presume I/O devices have no 32-bit limits.
+
+The IO busses have IOMMUs on them anyhow.

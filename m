@@ -1,85 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750779AbVILMXi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750783AbVILM2q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750779AbVILMXi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 08:23:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbVILMXi
+	id S1750783AbVILM2q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 08:28:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750784AbVILM2q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 08:23:38 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:47878 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S1750779AbVILMXh convert rfc822-to-8bit (ORCPT
+	Mon, 12 Sep 2005 08:28:46 -0400
+Received: from mail.suse.de ([195.135.220.2]:9900 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750783AbVILM2p (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 08:23:37 -0400
+	Mon, 12 Sep 2005 08:28:45 -0400
+From: Andi Kleen <ak@suse.de>
+To: discuss@x86-64.org
+Subject: Re: [discuss] Re: [1/3] Add 4GB DMA32 zone
+Date: Mon, 12 Sep 2005 14:28:39 +0200
+User-Agent: KMail/1.8
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+References: <43246267.mailL4R11PXCB@suse.de> <200509121322.09138.ak@suse.de> <1126528473.30449.59.camel@localhost.localdomain>
+In-Reply-To: <1126528473.30449.59.camel@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <20050912110712.GA287@DervishD>
-References: <1126462329.4324737923c2d@wmtest.cc.vt.edu> <1126462467.43247403c2e1c@wmtest.cc.vt.edu> <43250150.20308@metaparadigm.com> <200509121249.40467.vda@ilport.com.ua> <20050912110712.GA287@DervishD>
-X-OriginalArrivalTime: 12 Sep 2005 12:23:36.0143 (UTC) FILETIME=[CC5A25F0:01C5B794]
-Content-class: urn:content-classes:message
-Subject: Re: Universal method to start a script at boot
-Date: Mon, 12 Sep 2005 08:23:29 -0400
-Message-ID: <Pine.LNX.4.61.0509120817440.22714@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Universal method to start a script at boot
-Thread-Index: AcW3lMxj7sCvqfrgSmmJmW/xeuCHUA==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "DervishD" <lkml@dervishd.net>
-Cc: "Denis Vlasenko" <vda@ilport.com.ua>,
-       "Michael Clark" <michael@metaparadigm.com>,
-       "Brad Tilley" <rtilley@vt.edu>, <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509121428.40127.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Mon, 12 Sep 2005, DervishD wrote:
-
->    Hi Denis :)
+On Monday 12 September 2005 14:34, Alan Cox wrote:
+> On Llu, 2005-09-12 at 13:22 +0200, Andi Kleen wrote:
+> > And with the mempool sleep approach they will just get small queues. Yes
+> > that will be slower, but if you want performance on boxes with a lot of
+> > memory you should not buy broken hardware.
 >
-> * Denis Vlasenko <vda@ilport.com.ua> dixit:
->> Awful. This codifies ages-old Unix traditional SysV-like init
->> and its derivatives, which should be get rid of instead.
->
->    I'm with you in this, in fact I use my own init system, but...
->
->> daemontools are absolutely wonderful way of controlling daemons.
->
->    How the heck you make sure that svscan starts the services in the
-> correct order? Does it run the services in /services in any
-> particular order or just in the order resulting for a simple
-> globbing? How you make sure the services are shut down in any
-> particular order?
->
->    All this seems like requiring scripts to do the job (that is,
-> ensuring a particular order of startup/shutdown), while sysvinit
-> gets this info from filenames. Obviously, dictating the order using a
-> script is far more flexible than using filenames but it's not as
-> simple, and that cannot be seen in the comparisons D.J.B. does in the
-> homepage of daemontools (which, BTW, is the only source of
-> documentation, and a very poor one). LSB, on the other hand, is
-> better structured and although I don't like sysvinit at all, the
-> system is better documented. And I hate runlevels...
->
->    Raúl Núñez de Arenas Coronado
+> Ironically its broken hardware it works best with. AMD64 is problematic
+> but Intel with the swiotlb works ;)
 
-The embedded systems we use have a "home-made" `init` that
-does everything in the coded order. This means that there is
-no shell so the system can't be hacked in the usual ways.
-Also, some technician in "final test" can't forget to do
-something that results in a disaster once a system is in
-the field. If the system runs, it's running in its intended
-manner.
+Actually the swiotlb code currently doesn't attempt to handle dma masks
+<4GB even when the bounce pool happens to be located lower - it will just fail 
+or use GFP_DMA. It could be fixed in theory, but it would be pretty 
+unreliable and sometimes work on one system and sometimes not, so I would be 
+reluctant to go down that path.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13 on an i686 machine (5589.53 BogoMips).
-Warning : 98.36% of all statistics are fiction.
+Also BTW on many systems which don't allocate the IOMMU aperture in BIOS and 
+Linux has to allocate it over memory it tends to be as low (or high) as the 
+swiotlb pool - it is bootmem allocated at roughly the same place in boot.
+But again the code doesn't attempt to handle that, it just uses hardcoded
+0xffffffff masks.
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+-Andi

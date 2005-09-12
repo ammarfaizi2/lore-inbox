@@ -1,22 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751230AbVILOy6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751289AbVILO4l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751230AbVILOy6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 10:54:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751238AbVILOy5
+	id S1751289AbVILO4l (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 10:56:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbVILOzw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 10:54:57 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:775 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1751230AbVILOy4 (ORCPT
+	Mon, 12 Sep 2005 10:55:52 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:3591 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1751286AbVILOzs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 10:54:56 -0400
-Date: Mon, 12 Sep 2005 10:48:51 -0400
+	Mon, 12 Sep 2005 10:55:48 -0400
+Date: Mon, 12 Sep 2005 10:48:52 -0400
 From: "John W. Linville" <linville@tuxdriver.com>
-To: linux-kernel@vger.kernel.org, discuss@x86-64.org,
-       linux-ia64@vger.kernel.org
-Cc: ak@suse.de, tony.luck@intel.com, Asit.K.Mallick@intel.com
-Subject: [patch 2.6.13 4/6] swiotlb: support syncing DMA_BIDIRECTIONAL mappings
-Message-ID: <09122005104851.31120@bilbo.tuxdriver.com>
-In-Reply-To: <09122005104851.31056@bilbo.tuxdriver.com>
+To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Cc: akpm@osdl.org, jgarzik@pobox.com
+Subject: [patch 2.6.13] 3c59x: enable use of memory-mapped PCI I/O
+Message-ID: <09122005104852.31405@bilbo.tuxdriver.com>
+In-Reply-To: <20050906161330.0138f5a2.akpm@osdl.org>
 User-Agent: PatchPost/0.1
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -24,177 +23,87 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The current implementation of sync_single in swiotlb.c chokes on
-DMA_BIDIRECTIONAL mappings. This patch adds the capability to sync
-those mappings, and optimizes other syncs by accounting for the
-sync target (i.e. cpu or device) in addition to the DMA direction of
-the mapping.
+Add capability for 3c59x driver to use memory-mapped PCI I/O
+resources. This may improve performance for those devices so
+equipped. This will be the default behaviour for IS_CYCLONE
+and IS_TORNADO devices. Additionally, it can be enabled/disabled
+individually for up to MAX_UNITS number of devices via the use_mmio
+module option or for all units via the global_use_mmio option. The
+use_mmio option overrides the global_use_mmio option for those
+devices specified.
 
 Signed-off-by: John W. Linville <linville@tuxdriver.com>
 ---
 
- lib/swiotlb.c |   62 +++++++++++++++++++++++++++++++++++++---------------------
- 1 files changed, 40 insertions(+), 22 deletions(-)
+ drivers/net/3c59x.c |   29 ++++++++++++++++++++++++++---
+ 1 files changed, 26 insertions(+), 3 deletions(-)
 
-diff --git a/lib/swiotlb.c b/lib/swiotlb.c
---- a/lib/swiotlb.c
-+++ b/lib/swiotlb.c
-@@ -49,6 +49,14 @@
-  */
- #define IO_TLB_SHIFT 11
+diff --git a/drivers/net/3c59x.c b/drivers/net/3c59x.c
+--- a/drivers/net/3c59x.c
++++ b/drivers/net/3c59x.c
+@@ -908,9 +908,11 @@ static int full_duplex[MAX_UNITS] = {-1,
+ static int hw_checksums[MAX_UNITS] = {-1, -1, -1, -1, -1, -1, -1, -1};
+ static int flow_ctrl[MAX_UNITS] = {-1, -1, -1, -1, -1, -1, -1, -1};
+ static int enable_wol[MAX_UNITS] = {-1, -1, -1, -1, -1, -1, -1, -1};
++static int use_mmio[MAX_UNITS] = {-1, -1, -1, -1, -1, -1, -1, -1};
+ static int global_options = -1;
+ static int global_full_duplex = -1;
+ static int global_enable_wol = -1;
++static int global_use_mmio = -1;
  
-+/*
-+ * Enumeration for sync targets
-+ */
-+enum dma_sync_target {
-+	SYNC_FOR_CPU = 0,
-+	SYNC_FOR_DEVICE = 1,
-+};
+ /* #define dev_alloc_skb dev_alloc_skb_debug */
+ 
+@@ -935,6 +937,8 @@ module_param(compaq_ioaddr, int, 0);
+ module_param(compaq_irq, int, 0);
+ module_param(compaq_device_id, int, 0);
+ module_param(watchdog, int, 0);
++module_param(global_use_mmio, int, 0);
++module_param_array(use_mmio, int, NULL, 0);
+ MODULE_PARM_DESC(debug, "3c59x debug level (0-6)");
+ MODULE_PARM_DESC(options, "3c59x: Bits 0-3: media type, bit 4: bus mastering, bit 9: full duplex");
+ MODULE_PARM_DESC(global_options, "3c59x: same as options, but applies to all NICs if options is unset");
+@@ -950,6 +954,8 @@ MODULE_PARM_DESC(compaq_ioaddr, "3c59x P
+ MODULE_PARM_DESC(compaq_irq, "3c59x PCI IRQ number (Compaq BIOS problem workaround)");
+ MODULE_PARM_DESC(compaq_device_id, "3c59x PCI device ID (Compaq BIOS problem workaround)");
+ MODULE_PARM_DESC(watchdog, "3c59x transmit timeout in milliseconds");
++MODULE_PARM_DESC(global_use_mmio, "3c59x: same as use_mmio, but applies to all NICs if options is unset");
++MODULE_PARM_DESC(use_mmio, "3c59x: use memory-mapped PCI I/O resource (0-1)");
+ 
+ #ifdef CONFIG_NET_POLL_CONTROLLER
+ static void poll_vortex(struct net_device *dev)
+@@ -1109,15 +1115,32 @@ static int __init vortex_eisa_init (void
+ static int __devinit vortex_init_one (struct pci_dev *pdev,
+ 				      const struct pci_device_id *ent)
+ {
+-	int rc;
++	int rc, unit, pci_bar;
++	struct vortex_chip_info *vci;
++	void __iomem *ioaddr;
+ 
+ 	/* wake up and enable device */		
+ 	rc = pci_enable_device (pdev);
+ 	if (rc < 0)
+ 		goto out;
+ 
+-	rc = vortex_probe1 (&pdev->dev, pci_iomap(pdev, 0, 0),
+-			    pdev->irq, ent->driver_data, vortex_cards_found);
++	unit = vortex_cards_found;
 +
- int swiotlb_force;
- 
- /*
-@@ -295,21 +303,28 @@ unmap_single(struct device *hwdev, char 
- }
- 
- static void
--sync_single(struct device *hwdev, char *dma_addr, size_t size, int dir)
-+sync_single(struct device *hwdev, char *dma_addr, size_t size,
-+	    int dir, int target)
- {
- 	int index = (dma_addr - io_tlb_start) >> IO_TLB_SHIFT;
- 	char *buffer = io_tlb_orig_addr[index];
- 
--	/*
--	 * bounce... copy the data back into/from the original buffer
--	 * XXX How do you handle DMA_BIDIRECTIONAL here ?
--	 */
--	if (dir == DMA_FROM_DEVICE)
--		memcpy(buffer, dma_addr, size);
--	else if (dir == DMA_TO_DEVICE)
--		memcpy(dma_addr, buffer, size);
--	else
-+	switch (target) {
-+	case SYNC_FOR_CPU:
-+		if (likely(dir == DMA_FROM_DEVICE || dir == DMA_BIDIRECTIONAL))
-+			memcpy(buffer, dma_addr, size);
-+		else if (dir != DMA_TO_DEVICE && dir != DMA_NONE)
-+			BUG();
-+		break;
-+	case SYNC_FOR_DEVICE:
-+		if (likely(dir == DMA_TO_DEVICE || dir == DMA_BIDIRECTIONAL))
-+			memcpy(dma_addr, buffer, size);
-+		else if (dir != DMA_FROM_DEVICE && dir != DMA_NONE)
-+			BUG();
-+		break;
-+	default:
- 		BUG();
-+	}
- }
- 
- void *
-@@ -494,14 +509,14 @@ swiotlb_unmap_single(struct device *hwde
-  */
- static inline void
- swiotlb_sync_single(struct device *hwdev, dma_addr_t dev_addr,
--		    size_t size, int dir)
-+		    size_t size, int dir, int target)
- {
- 	char *dma_addr = phys_to_virt(dev_addr);
- 
- 	if (dir == DMA_NONE)
- 		BUG();
- 	if (dma_addr >= io_tlb_start && dma_addr < io_tlb_end)
--		sync_single(hwdev, dma_addr, size, dir);
-+		sync_single(hwdev, dma_addr, size, dir, target);
- 	else if (dir == DMA_FROM_DEVICE)
- 		mark_clean(dma_addr, size);
- }
-@@ -510,14 +525,14 @@ void
- swiotlb_sync_single_for_cpu(struct device *hwdev, dma_addr_t dev_addr,
- 			    size_t size, int dir)
- {
--	swiotlb_sync_single(hwdev, dev_addr, size, dir);
-+	swiotlb_sync_single(hwdev, dev_addr, size, dir, SYNC_FOR_CPU);
- }
- 
- void
- swiotlb_sync_single_for_device(struct device *hwdev, dma_addr_t dev_addr,
- 			       size_t size, int dir)
- {
--	swiotlb_sync_single(hwdev, dev_addr, size, dir);
-+	swiotlb_sync_single(hwdev, dev_addr, size, dir, SYNC_FOR_DEVICE);
- }
- 
- /*
-@@ -525,14 +540,15 @@ swiotlb_sync_single_for_device(struct de
-  */
- static inline void
- swiotlb_sync_single_range(struct device *hwdev, dma_addr_t dev_addr,
--			  unsigned long offset, size_t size, int dir)
-+			  unsigned long offset, size_t size,
-+			  int dir, int target)
- {
- 	char *dma_addr = phys_to_virt(dev_addr) + offset;
- 
- 	if (dir == DMA_NONE)
- 		BUG();
- 	if (dma_addr >= io_tlb_start && dma_addr < io_tlb_end)
--		sync_single(hwdev, dma_addr, size, dir);
-+		sync_single(hwdev, dma_addr, size, dir, target);
- 	else if (dir == DMA_FROM_DEVICE)
- 		mark_clean(dma_addr, size);
- }
-@@ -541,14 +557,16 @@ void
- swiotlb_sync_single_range_for_cpu(struct device *hwdev, dma_addr_t dev_addr,
- 				  unsigned long offset, size_t size, int dir)
- {
--	swiotlb_sync_single_range(hwdev, dev_addr, offset, size, dir);
-+	swiotlb_sync_single_range(hwdev, dev_addr, offset, size, dir,
-+				  SYNC_FOR_CPU);
- }
- 
- void
- swiotlb_sync_single_range_for_device(struct device *hwdev, dma_addr_t dev_addr,
- 				     unsigned long offset, size_t size, int dir)
- {
--	swiotlb_sync_single_range(hwdev, dev_addr, offset, size, dir);
-+	swiotlb_sync_single_range(hwdev, dev_addr, offset, size, dir,
-+				  SYNC_FOR_DEVICE);
- }
- 
- /*
-@@ -627,7 +645,7 @@ swiotlb_unmap_sg(struct device *hwdev, s
-  */
- static inline void
- swiotlb_sync_sg(struct device *hwdev, struct scatterlist *sg,
--		int nelems, int dir)
-+		int nelems, int dir, int target)
- {
- 	int i;
- 
-@@ -637,21 +655,21 @@ swiotlb_sync_sg(struct device *hwdev, st
- 	for (i = 0; i < nelems; i++, sg++)
- 		if (sg->dma_address != SG_ENT_PHYS_ADDRESS(sg))
- 			sync_single(hwdev, (void *) sg->dma_address,
--				    sg->dma_length, dir);
-+				    sg->dma_length, dir, target);
- }
- 
- void
- swiotlb_sync_sg_for_cpu(struct device *hwdev, struct scatterlist *sg,
- 			int nelems, int dir)
- {
--	swiotlb_sync_sg(hwdev, sg, nelems, dir);
-+	swiotlb_sync_sg(hwdev, sg, nelems, dir, SYNC_FOR_CPU);
- }
- 
- void
- swiotlb_sync_sg_for_device(struct device *hwdev, struct scatterlist *sg,
- 			   int nelems, int dir)
- {
--	swiotlb_sync_sg(hwdev, sg, nelems, dir);
-+	swiotlb_sync_sg(hwdev, sg, nelems, dir, SYNC_FOR_DEVICE);
- }
- 
- int
++	if (global_use_mmio < 0 && (unit >= MAX_UNITS || use_mmio[unit] < 0)) {
++		/* Determine the default if the user didn't override us */
++		vci = &vortex_info_tbl[ent->driver_data];
++		pci_bar = vci->drv_flags & (IS_CYCLONE | IS_TORNADO) ? 1 : 0;
++	} else if (unit < MAX_UNITS && use_mmio[unit] >= 0) 
++		pci_bar = use_mmio[unit] ? 1 : 0;
++	else
++		pci_bar = global_use_mmio ? 1 : 0;
++
++	ioaddr = pci_iomap(pdev, pci_bar, 0);
++	if (!ioaddr) /* If mapping fails, fall-back to BAR 0... */
++		ioaddr = pci_iomap(pdev, 0, 0);
++
++	rc = vortex_probe1(&pdev->dev, ioaddr, pdev->irq,
++			   ent->driver_data, unit);
+ 	if (rc < 0) {
+ 		pci_disable_device (pdev);
+ 		goto out;

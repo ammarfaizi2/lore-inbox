@@ -1,79 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932246AbVILVHR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932244AbVILVIb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932246AbVILVHR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 17:07:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbVILVHR
+	id S932244AbVILVIb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 17:08:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932249AbVILVIb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 17:07:17 -0400
-Received: from zproxy.gmail.com ([64.233.162.192]:20562 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932246AbVILVHQ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 17:07:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=lrtB1q+B1SyD0Te0A0ofKFTvad/en/zotZRwOJo9q2oWQKrH6CRaLsx8nt3k00O53sHkaAJOEM/B2zAKtEfSZ9sVktHguY9tG/qvU1tn5aV6glpBlU+XGsjOOb5KYtgGBxFDNXgsjCHmShdHW3n+E5eGX6YBE0exc/KpG/0QTE4=
-Message-ID: <29495f1d05091214077bc49908@mail.gmail.com>
-Date: Mon, 12 Sep 2005 14:07:15 -0700
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-Reply-To: nish.aravamudan@gmail.com
-To: paolo.ciarrocchi@gmail.com
-Subject: Re: 2.6.13-mm3
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <4d8e3fd3050912140439c14518@mail.gmail.com>
+	Mon, 12 Sep 2005 17:08:31 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:59506
+	"EHLO opteron.random") by vger.kernel.org with ESMTP
+	id S932244AbVILVIa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 17:08:30 -0400
+Date: Mon, 12 Sep 2005 23:08:36 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: dtor_core@ameritech.net
+Cc: linux-kernel@vger.kernel.org, klive@cpushare.com
+Subject: git tag in localversion
+Message-ID: <20050912210836.GL13439@opteron.random>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20050912024350.60e89eb1.akpm@osdl.org>
-	 <4d8e3fd305091208191fbbe804@mail.gmail.com>
-	 <29495f1d05091213134d917bd7@mail.gmail.com>
-	 <4d8e3fd3050912140439c14518@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/12/05, Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com> wrote:
-> On 9/12/05, Nish Aravamudan <nish.aravamudan@gmail.com> wrote:
-> > On 9/12/05, Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com> wrote:
-> > > On 9/12/05, Andrew Morton <akpm@osdl.org> wrote:
-> [...]
-> > > >
-> > > > - There are several performance tuning patches here which need careful
-> > > >  attention and testing.  (Does anyone do performance testing any more?)
-> > >
-> > > How about the tool announced months ago by Martin J. Bligh ?
-> > >
-> > > http://ftp.kernel.org/pub/linux/kernel/people/mbligh/abat/regression_matrix.html
-> >
-> > Preferred location is: test.kernel.org (much shorter too!)
-> 
-> I wasn't aware of that, thank you! Now I won't forget anymore that URL ;-)
+Hello,
 
-That was the idea, I think :)
- 
-> > Also, the problem for -mm3 is that -mm2 did not build on most
-> > machines. -mm1 did on 4/6. Probably some determination could be made
-> > from those.
-> 
-> I see. But I still think that automated testing is a great opportunity
-> for the community to pinpoint problems.
+The patch that adds the git tag in the localversion is screwing klive a
+bit, see the 2.6.13-g* entries in
+http://klive.cpushare.com/?branch=unknown
 
-Wasn't arguing that point by any means.
+Those are supposed to go in the homepage but they're not recognized
+anymore due the git tag and so they go in the unknown page.
 
-> Is there anything we can do to make thinks work better ?
+So either we add a branch name in /proc/branch (for mainline that will
+be "2.6.13 mainline", that tells the release number and the branch, or I
+shall do a bit more of regexp on the localversion). The branch tag has
+the advantage of being able to more reliably recognize non-mainline
+kernels as well, klive was made for mainline, I didn't expect so many
+users with vendor kernels, but that's ok as long as the regexp on uname
+-r works ;). The regexp is already falling apart with distro like
+debian, so the sort of /proc/branch was suggested by them infact.
 
-See why the builds failed (the logs should say), e.g. for elm3b6, the
-x86-64 box:
+Yet another way would be to remove the git tag from the localversion ;),
+but I doubt that it would be ok with you since it'd pratically backout
+the feature. I don't think it would be enough for you to have the git
+tag in /proc, the way I understand it you want it in the uts_release to
+avoid overwriting system.map.
 
-arch/x86_64/pci/built-in.o(.init.text+0xa88): In function `pci_acpi_scan_root':
-: undefined reference to `pxm_to_node'
-
-and try to fix 'em. Buildable kernels (which has been a problem for
--mm lately, I guess, with certain .configs at least) mean testable
-kernels.
-
-Might be fixed in -mm3, I dunno (those jobs haven't been spawned yet,
-it would seem).
-
-Thanks,
-Nish
+Suggestions welcome thanks.

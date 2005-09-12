@@ -1,96 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751210AbVILHwN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751201AbVILH7E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751210AbVILHwN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 03:52:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751214AbVILHwN
+	id S1751201AbVILH7E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 03:59:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751203AbVILH7D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 03:52:13 -0400
-Received: from [85.8.12.41] ([85.8.12.41]:8834 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S1751213AbVILHwL (ORCPT
+	Mon, 12 Sep 2005 03:59:03 -0400
+Received: from ns.suse.de ([195.135.220.2]:34960 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751201AbVILH7B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 03:52:11 -0400
-Message-ID: <432533A6.7010506@drzeus.cx>
-Date: Mon, 12 Sep 2005 09:52:06 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 1.0.6-5 (X11/20050818)
-X-Accept-Language: en-us, en
+	Mon, 12 Sep 2005 03:59:01 -0400
+From: Andi Kleen <ak@suse.de>
+To: "Jan Beulich" <JBeulich@novell.com>
+Subject: Re: [discuss] [1/3] Add 4GB DMA32 zone
+Date: Mon, 12 Sep 2005 09:58:55 +0200
+User-Agent: KMail/1.8
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, discuss@x86-64.org
+References: <43246267.mailL4R11PXCB@suse.de> <43254DF40200007800024E0D@emea1-mh.id2.novell.com>
+In-Reply-To: <43254DF40200007800024E0D@emea1-mh.id2.novell.com>
 MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Clean up wbsd detection handling
-References: <43249574.8000807@drzeus.cx>
-In-Reply-To: <43249574.8000807@drzeus.cx>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509120958.55936.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The wbsd driver's card detection routing is a bit of a mess. This
-patch cleans up the routine and makes it a bit more comprihensible.
+On Monday 12 September 2005 09:44, Jan Beulich wrote:
+> It seems a little strange to add individual zones one by one. I remember
+> from an OS project I previously worked on that at some time our driver
+> developers ran into one or more devices that were able to consume 31-bit
+> physical addresses
 
-Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
----
+That's likely the unnamed RAID controller with the broken firmware refered to 
+below (they might actually have fixed the firmware now) But for block
+devices it's not really needed anyways. From my experience and those
+of other folks (IA64) the 4GB zone + a small fallback zone is a good 
+compromise.
 
-(updated to current tree)
+> (but not 32-bit ones, and don't ask me for details on 
+> what exact devices these were, I never knew). I thus wonder whether it
+> wouldn't make more sense to generalize the logic and allow drivers to
+> specify to the allocator how many physical address bits they can deal
+> with.
 
- drivers/mmc/wbsd.c |   29 ++++++++++++-----------------
- 1 files changed, 12 insertions(+), 17 deletions(-)
+Because that would likely either impact the page allocation fast path
+by having unsuited data structures for the normal case or make the code to 
+allocate pages with arbitary boundaries really slow because the allocation
+wouldn't be O(1). Didn't seem like a good tradeoff.
 
-diff --git a/drivers/mmc/wbsd.c b/drivers/mmc/wbsd.c
---- a/drivers/mmc/wbsd.c
-+++ b/drivers/mmc/wbsd.c
-@@ -1136,6 +1136,7 @@ static void wbsd_tasklet_card(unsigned l
- {
- 	struct wbsd_host* host = (struct wbsd_host*)param;
- 	u8 csr;
-+	int delay = -1;
-
- 	spin_lock(&host->lock);
-
-@@ -1155,16 +1156,8 @@ static void wbsd_tasklet_card(unsigned l
- 			DBG("Card inserted\n");
- 			host->flags |= WBSD_FCARD_PRESENT;
-
--			spin_unlock(&host->lock);
--
--			/*
--			 * Delay card detection to allow electrical connections
--			 * to stabilise.
--			 */
--			mmc_detect_change(host->mmc, msecs_to_jiffies(500));
-+			delay = 500;
- 		}
--		else
--			spin_unlock(&host->lock);
- 	}
- 	else if (host->flags & WBSD_FCARD_PRESENT)
- 	{
-@@ -1181,15 +1174,17 @@ static void wbsd_tasklet_card(unsigned l
- 			tasklet_schedule(&host->finish_tasklet);
- 		}
-
--		/*
--		 * Unlock first since we might get a call back.
--		 */
--		spin_unlock(&host->lock);
--
--		mmc_detect_change(host->mmc, 0);
-+		delay = 0;
- 	}
--	else
--		spin_unlock(&host->lock);
-+
-+	/*
-+	 * Unlock first since we might get a call back.
-+	 */
-+
-+	spin_unlock(&host->lock);
-+
-+	if (delay != -1)
-+		mmc_detect_change(host->mmc, msecs_to_jiffies(delay));
- }
-
- static void wbsd_tasklet_fifo(unsigned long param)
+-Andi
 

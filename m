@@ -1,58 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932200AbVILUNv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932197AbVILUN1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932200AbVILUNv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 16:13:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932199AbVILUNu
+	id S932197AbVILUN1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 16:13:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932199AbVILUN1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 16:13:50 -0400
-Received: from zproxy.gmail.com ([64.233.162.196]:48521 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750840AbVILUNt convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 16:13:49 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=PteC4UpCi5gv42buk7ivbF9uvSNbuYStSDR67vJKvBiVen424O9bcYGfoLDBE0ijIQ/nQUY/6gwSNUg2G5DWMgGTa/s6wblZk4Zps8hBiLtV6tC5Wt+i4bxuQpidaoh7ZdQVbpHJfPxULhp1XKds5cmY9FxgfFV0x2FPYkLH7zY=
-Message-ID: <29495f1d05091213134d917bd7@mail.gmail.com>
-Date: Mon, 12 Sep 2005 13:13:46 -0700
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-Reply-To: nish.aravamudan@gmail.com
-To: paolo.ciarrocchi@gmail.com
+	Mon, 12 Sep 2005 16:13:27 -0400
+Received: from 66-23-228-155.clients.speedfactory.net ([66.23.228.155]:63636
+	"EHLO kevlar.burdell.org") by vger.kernel.org with ESMTP
+	id S932197AbVILUN0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 16:13:26 -0400
+Date: Mon, 12 Sep 2005 16:09:14 -0400
+From: Sonny Rao <sonny@burdell.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: 2.6.13-mm3
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <4d8e3fd305091208191fbbe804@mail.gmail.com>
+Message-ID: <20050912200914.GA13962@kevlar.burdell.org>
+References: <20050912024350.60e89eb1.akpm@osdl.org> <20050912145435.GA4722@kevlar.burdell.org> <20050912125641.4b53553d.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20050912024350.60e89eb1.akpm@osdl.org>
-	 <4d8e3fd305091208191fbbe804@mail.gmail.com>
+In-Reply-To: <20050912125641.4b53553d.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/12/05, Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com> wrote:
-> On 9/12/05, Andrew Morton <akpm@osdl.org> wrote:
+On Mon, Sep 12, 2005 at 12:56:41PM -0700, Andrew Morton wrote:
+> Sonny Rao <sonny@burdell.org> wrote:
 > >
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13/2.6.13-mm3/
-> >
-> > (temp copy at http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.13-mm3.gz)
-> >
-> > - perfctr was dropped.  Mikael has ceased development and recommends that
-> >  the focus be upon perfmon.  See
-> >  http://sourceforge.net/mailarchive/forum.php?thread_id=8102899&forum_id=2237
-> >
-> > - There are several performance tuning patches here which need careful
-> >  attention and testing.  (Does anyone do performance testing any more?)
+> > On Mon, Sep 12, 2005 at 02:43:50AM -0700, Andrew Morton wrote:
+> > <snip>
+> > > - There are several performance tuning patches here which need careful
+> > >   attention and testing.  (Does anyone do performance testing any more?)
+> > <snip>
+> > > 
+> > >   - The size of the page allocator per-cpu magazines has been increased
+> > > 
+> > >   - The page allocator has been changed to use higher-order allocations
+> > >     when batch-loading the per-cpu magazines.  This is intended to give
+> > >     improved cache colouring effects however it might have the downside of
+> > >     causing extra page allocator fragmentation.
+> > > 
+> > >   - The page allocator's per-cpu magazines have had their lower threshold
+> > >     set to zero.  And we can't remember why it ever had a lower threshold.
+> > > 
+> > 
+> > What would you like? The usual suspects:  SDET, dbench, kernbench ?
+> > 
 > 
-> How about the tool announced months ago by Martin J. Bligh ?
-> 
-> http://ftp.kernel.org/pub/linux/kernel/people/mbligh/abat/regression_matrix.html
+> That would be a good start, thanks.  The higher-order-allocations thing is
+> mainly targeted at big-iron numerical computing I believe.
 
-Preferred location is: test.kernel.org (much shorter too!)
+I assume you're referring to allocating huge pages?  I'm not sure how
+one would test this other than allocating N huge pages, releasing,
+runing something intensive (like SDET), and then trying to allocate
+N huge pages again?  Or am I off base here?
 
-Also, the problem for -mm3 is that -mm2 did not build on most
-machines. -mm1 did on 4/6. Probably some determination could be made
-from those.
-
-Thanks,
-Nish
+Sonny

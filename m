@@ -1,103 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbVILUSk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932212AbVILUUo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932190AbVILUSk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 16:18:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932208AbVILUSk
+	id S932212AbVILUUo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 16:20:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbVILUUo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 16:18:40 -0400
-Received: from bay105-f42.bay105.hotmail.com ([65.54.224.52]:36010 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S932190AbVILUSi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 16:18:38 -0400
-Message-ID: <BAY105-F4274DB38813EE55D238942C09D0@phx.gbl>
-X-Originating-IP: [84.191.235.136]
-X-Originating-Email: [wegner3000@hotmail.com]
-From: "Marcus Wegner" <wegner3000@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13: Crash in Yenta initialization
-Date: Mon, 12 Sep 2005 22:17:40 +0200
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="----=_NextPart_000_3ce5_6e03_7e0f"
-X-OriginalArrivalTime: 12 Sep 2005 20:17:40.0374 (UTC) FILETIME=[066F5B60:01C5B7D7]
+	Mon, 12 Sep 2005 16:20:44 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:21385 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S932066AbVILUUm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 16:20:42 -0400
+Message-ID: <4325E312.10108@adaptec.com>
+Date: Mon, 12 Sep 2005 16:20:34 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: James Bottomley <James.Bottomley@SteelEye.com>
+CC: Patrick Mansfield <patmans@us.ibm.com>, Douglas Gilbert <dougg@torque.net>,
+       Christoph Hellwig <hch@infradead.org>, Luben Tuikov <ltuikov@yahoo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: [PATCH 2.6.13 5/14] sas-class: sas_discover.c Discover process
+ (end devices)
+References: <1126308304.4799.45.camel@mulgrave>	 <20050910024454.20602.qmail@web51613.mail.yahoo.com>	 <20050911094656.GC5429@infradead.org> <43251D8C.7020409@torque.net>	 <1126537041.4825.28.camel@mulgrave>  <20050912164548.GB11455@us.ibm.com> <1126545680.4825.40.camel@mulgrave>
+In-Reply-To: <1126545680.4825.40.camel@mulgrave>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 12 Sep 2005 20:20:40.0431 (UTC) FILETIME=[71C1DFF0:01C5B7D7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On 09/12/05 13:21, James Bottomley wrote:
+>>So some storage devices that want to use addressing methods other than 00b
+>>don't because we do not have 8 byte LUN support in linux, and then we have
+>>other problems because of this.
+> 
+> Well, as long as we represent the u32 (or u64) as
+> 
+> scsilun[1] | (scsilun[0] << 8) | (scsilun[3] << 16) | (scsilun[2] << 24)
+> 
+> I think we cover all 2 level lun bases, don't we (obviously we ignore
+> levels 3 and 4 [and 6 and 8 byte extended luns])?
 
-------=_NextPart_000_3ce5_6e03_7e0f
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
+I fail to see why do you want to interpret LUNs?  If you want
+to be "future-proof", SCSI Core should use it transparently,
+a la, memcpy().
 
->  On Sat, Sep 03, Ivan Kokshaysky wrote:
->
->>On Sat, Sep 03, 2005 at 02:45:08AM +0200, Andreas Koch wrote:
->> > crucial part seem to be the different bridge initialization sections:
->>
->>Indeed.
->>
->> > 2.6.12-rc6 + Ivan's patches:
->>...
->> >           PCI: Bus 7, cardbus bridge: 0000:06:09.0
->> >             IO window: 00006000-00006fff
->> >             IO window: 00007000-00007fff
->> >             PREFETCH window: 82000000-83ffffff
->> >             MEM window: 8c000000-8dffffff
->> >           PCI: Bus 11, cardbus bridge: 0000:06:09.1
->> >             IO window: 00008000-00008fff
->> >             IO window: 00009000-00009fff
->> >             PREFETCH window: 84000000-85ffffff
->> >             MEM window: 8e000000-8fffffff
->> >           PCI: Bus 15, cardbus bridge: 0000:06:09.3
->>...
->> > ... Versus the much shorter output from 2.6.13
->>...
->> >           PCI: Bus 7, cardbus bridge: 0000:06:09.0
->> >             IO window: 00004000-000040ff
->> >             IO window: 00004400-000044ff
->> >             PREFETCH window: 82000000-83ffffff
->> >             MEM window: 88000000-89ffffff
->> >           PCI: Bridge: 0000:00:1e.0
->>
->>It's mysterious.
->>So 2.6.13 doesn't see cardbus bridge functions 06:09.1 and 06:09.3,
->>which means that these devices are not on the per-bus device list.
->>OTOH, they are still visible on the global device list, since yenta
->>driver found them. No surprise that it crashes with some uninitialized
->>pointer.
->
->Did you find the reason for this already?
->We have a similar report:
->https://bugzilla.novell.com/show_bug.cgi?id=113778
->...
->It dies in yenta_config_init because dev->subordinate is NULL.
->...
-I had the same problem with an ACER 8101 WLMI. I reverted the initialization
-partly and it works now, but I don't know if it really fixes the bug.
-Something seems to wrong in the pci initcode.
+If you want to print it you can use "%016llx", be64_to_cpu(*(u64 *)...),
+just like WWN.  _That_ will have a meaning to the application client/user,
+but SCSI Core should treat it as a transparent token.
 
-But other hardware errors with the acer notebook still remain. The detection
-of the ioapic results in a deadlock in the boot process (the
-multiple-ioapic-fix or "noapic" solved this).
+> That representation works transparently for type 00b which is what SPI
+> and other legacy expects, since our lun variable is equal to the actual
+> numeric lun.  Although SAM allows type 01b for arrays with < 256 LUNs it
+> does strongly suggest you use type 00b which hopefully will cover us for
+> a while longer...
 
-yenta related:
-- pccard hardware is working now
-- O2 Micro 4-1 cardreader is not working
+Why do you care about any of this if you support 64 bit luns?
 
-Does someone have ideas, configs or patches for the cardreader? Do you need 
-more info? Let me know.
-
-Marcus
+	Luben
 
 
-------=_NextPart_000_3ce5_6e03_7e0f
-Content-Type: application/octet-stream; name="pci-assign-res-fix"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="pci-assign-res-fix"
+> fc already uses int_to_scsilun and 8 byte LUN addressing, so it will
+> work even in the 01b case (the numbers that the mid-layer prints will
+> look odd, but at least the driver will work).
 
-
-------=_NextPart_000_3ce5_6e03_7e0f
-Content-Type: application/octet-stream; name="multiple-ioapic-fix"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="multiple-ioapic-fix"
-
-
-------=_NextPart_000_3ce5_6e03_7e0f--

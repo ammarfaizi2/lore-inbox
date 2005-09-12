@@ -1,135 +1,815 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932346AbVILXKx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932347AbVILXNs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932346AbVILXKx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 19:10:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932345AbVILXKx
+	id S932347AbVILXNs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 19:13:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932345AbVILXNs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 19:10:53 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:39840 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932342AbVILXKw (ORCPT
+	Mon, 12 Sep 2005 19:13:48 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:61132
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932342AbVILXNq convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 19:10:52 -0400
-Date: Mon, 12 Sep 2005 16:10:13 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: serue@us.ibm.com
-Cc: linux-kernel@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
-       Paul Mackerras <paulus@samba.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Anton Blanchard <anton@samba.org>, Andi Kleen <ak@muc.de>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       Dave C Boutcher <sleddog@us.ibm.com>
-Subject: Re: ibmvscsi badness (Re: 2.6.13-mm3)
-Message-Id: <20050912161013.76ef833f.akpm@osdl.org>
-In-Reply-To: <20050912222437.GA13124@sergelap.austin.ibm.com>
-References: <20050912024350.60e89eb1.akpm@osdl.org>
-	<20050912222437.GA13124@sergelap.austin.ibm.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Mon, 12 Sep 2005 19:13:46 -0400
+Date: Mon, 12 Sep 2005 16:13:26 -0700 (PDT)
+Message-Id: <20050912.161326.131841878.davem@davemloft.net>
+To: kloczek@rudy.mif.pg.gda.pl
+Cc: linux-kernel@vger.kernel.org, davem@redhat.com, sparclinux@vger.kernel.org,
+       aurora-sparc-devel@lists.auroralinux.org
+Subject: Re: [2.6.13-rc6-git13/sparc64]: Slab corruption (possible stack or
+ buffer-cache corruption)
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <Pine.BSO.4.62.0509121604360.5000@rudy.mif.pg.gda.pl>
+References: <Pine.BSO.4.62.0509121604360.5000@rudy.mif.pg.gda.pl>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: Text/Plain; charset=iso-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-serue@us.ibm.com wrote:
->
-> Trying to get 2.6.13-mm running on a power5 lpar, I'm
-> having scsi problems.
+From: Tomasz K³oczko <kloczek@rudy.mif.pg.gda.pl>
+Date: Mon, 12 Sep 2005 16:37:04 +0200 (CEST)
 
-You should have cc'ed the scsi mailing list, no?
-
-> With -mm2, I only get things like:
-> 	sd 0:0:0:0: SCSI error: return code = 0x8000002
-> 	sda: Current: sense key: Aborted Command
-> 	    Additional sense: No additional sense information
-> 	Info fld=0x0
-> 	end_request: I/O error, dev sda, sector 10468770
-> 	sd 0:0:0:0: SCSI error: return code = 0x8000002
-> 	sda: Current: sense key: Aborted Command
-> 	    Additional sense: No additional sense information
-> 	Info fld=0x0
-> 	end_request: I/O error, dev sda, sector 10468778
-> 	sd 0:0:0:0: SCSI error: return code = 0x8000002
-> 	sda: Current: sense key: Aborted Command
-> 	    Additional sense: No additional sense information
-> 	Info fld=0x0
-> 	end_request: I/O error, dev sda, sector 10468786
-> 	sd 0:0:0:0: SCSI error: return code = 0x8000002
-> 	sda: Current: sense key: Aborted Command
-> 	    Additional sense: No additional sense information
-> 	Info fld=0x0
-> 	end_request: I/O error, dev sda, sector 10468794
+> On first it looks like stack or buffer-cache corruption.
 > 
-> When I copy the 2.6.13-rc6-mm2's drivers/scsi/ibmvscsi/ibmvscsi.{c,h}
-> back (just changing the static vio_device_id initializer as per
-> 
-> @@ -1442,7 +1531,7 @@ static int ibmvscsi_remove(struct vio_de
->   */    
->  static struct vio_device_id ibmvscsi_device_table[] __devinitdata = {
->         {"vscsi", "IBM,v-scsi"},
-> -       {0,}
-> +       { "", "" } 
->  };                     
-> 
-> then this kernel boots fine.
+>   Slab corruption: (Not tainted) start=fffff8005d9be708, len=808
+>   Redzone: 0x5a2cf071/0x5a2cf071.
+>   Last user: [destroy_inode+100/144](destroy_inode+0x64/0x90)
+>   Call Trace:
+>    [00000000004759f4] free_block+0x160/0x1b4
+>    [0000000000475bb8] cache_flusharray+0x98/0x128
+>    [0000000000475704] kmem_cache_free+0x68/0x94
+>    [00000000004a56c4] destroy_inode+0x64/0x90
 
-There have been quite a lot of ibmvscsi changes since 2.6.13-rc6-mm2.
+One way for destroy_inode() to be called twice on the same
+inode would be if atomic_dec_and_test() was buggy in some way.
+I think it might be on sparc64.
 
->  The same thing does not work for
-> 2.6.13-mm3.  The console output of an attempted boot follows.
-> (Seems the same with either version of ibmvscsi.{c,h}, so the
-> problem appears to be elsewhere)
-> 
-> ...
-> Remounting root filesystem in read-write mode:  [  OK  ]
-> Oops: Kernel access of bad area, sig: 11 [#1]
-> SMP NR_CPUS=128 NUMA PSERIES LPAR
-> Modules linked in:
-> NIP: C000000000087C1C XER: 20000010 LR: C000000000087D70 CTR: C0000000000830A4
-> REGS: c0000000021dec00 TRAP: 0300   Not tainted  (2.6.13-mm3)
-> MSR: 8000000000009032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11 CR: 24044042
-> DAR: c000000103c23c58 DSISR: 0000000040010000
-> TASK: c00000000700d050[2236] 'hotplug' THREAD: c0000000021dc000 CPU: 0
-> GPR00: 0000000000000001 C0000000021DEE80 C00000000056B0E8 0000000000000000
-> GPR04: 0000000000000000 616C746976656300 0000000020713DFA 0000000000000000
-> GPR08: 0000000000000000 C000000103C23C38 3C4E554C4C3E0000 C000000000384C68
-> GPR12: C000000000384C68 C00000000043C800 C0000000021BB600 0000000000000006
-> GPR16: 00000000F800F958 00000000F800FA88 0000000010000000 0000000000000010
-> GPR20: 0000000002000000 0000000000000000 0000000000000000 C00000000700D050
-> GPR24: 0000000020713DFA C000000087FF7D88 00000000800400D2 0000000000000001
-> GPR28: 0000000000000000 C000000000384C68 C0000000004ABC38 0000000000000000
-> NIP [c000000000087c1c] .zone_watermark_ok+0x50/0xac
-> LR [c000000000087d70] .__alloc_pages+0xf8/0x5fc
-> Call Trace:
-> [c0000000021dee80] [c0000000021def20] 0xc0000000021def20 (unreliable)
-> [c0000000021def70] [c0000000000aa1b4] .alloc_page_interleave+0x3c/0xb8
-> [c0000000021deff0] [c00000000009af70] .do_no_page+0x5f8/0x710
-> [c0000000021df0e0] [c00000000009b2b8] .__handle_mm_fault+0x230/0x694
-> [c0000000021df1c0] [c00000000035be38] .do_page_fault+0x4e0/0x7e8
-> [c0000000021df340] [c000000000004760] .handle_page_fault+0x20/0x54
-> --- Exception: 301 at .__clear_user+0x14/0x7c
->     LR = .padzero+0x34/0x5c
-> [c0000000021df630] [0000000000000000] .__start+0x4000000000000000/0x8 (unreliable)
-> [c0000000021df6a0] [c00000000001441c] .load_elf_binary+0x171c/0x1abc
-> [c0000000021df830] [c0000000000c3c80] .search_binary_handler+0x184/0x4bc
-> [c0000000021df8e0] [c0000000000f20c4] .load_script+0x2d0/0x314
-> [c0000000021dfa10] [c0000000000c3c80] .search_binary_handler+0x184/0x4bc
-> [c0000000021dfac0] [c0000000000c41cc] .do_execve+0x214/0x394
-> [c0000000021dfb70] [c00000000000de64] .sys_execve+0x74/0xf8
-> [c0000000021dfc10] [c000000000009c00] syscall_exit+0x0/0x18
-> --- Exception: c01 at .____call_usermodehelper+0xcc/0xf8
->     LR = .____call_usermodehelper+0x9c/0xf8
-> [c0000000021dff90] [c000000000010060] .kernel_thread+0x4c/0x68
-> Instruction dump:
-> 419e0010 7ca00e74 7c000194 7ca02850 2fa70000 419e0010 7ca01674 7c000194
-> 7ca02850 78c91f24 38600000 7d296214 <e8090020> 7c002a14 7faa0040 4c9d0020
->  Oops: Kernel access of bad area, sig: 11 [#2]
-> SMP NR_CPUS=128 NUMA PSERIES LPAR
-> Modules linked in: dm_mod
+Therefore, would you mind giving this patch a test?
 
-Interesting.  It could be Andi's recent mempolicy.c changes
-(convert-mempolicies-to-nodemask_t.patch) or it could be some recent ppc64
-change or it could be something else ;)
-
-Could the ppc64 guys please take a look?  In particular, it would be good
-to know if convert-mempolicies-to-nodemask_t.patch is innocent - I was
-planning on merging that upstream today.
+diff --git a/arch/alpha/Kconfig b/arch/alpha/Kconfig
+--- a/arch/alpha/Kconfig
++++ b/arch/alpha/Kconfig
+@@ -501,11 +501,6 @@ config SMP
+ 
+ 	  If you don't know what to do here, say N.
+ 
+-config HAVE_DEC_LOCK
+-	bool
+-	depends on SMP
+-	default y
+-
+ config NR_CPUS
+ 	int "Maximum number of CPUs (2-64)"
+ 	range 2 64
+diff --git a/arch/alpha/kernel/alpha_ksyms.c b/arch/alpha/kernel/alpha_ksyms.c
+--- a/arch/alpha/kernel/alpha_ksyms.c
++++ b/arch/alpha/kernel/alpha_ksyms.c
+@@ -184,7 +184,6 @@ EXPORT_SYMBOL(cpu_data);
+ EXPORT_SYMBOL(smp_num_cpus);
+ EXPORT_SYMBOL(smp_call_function);
+ EXPORT_SYMBOL(smp_call_function_on_cpu);
+-EXPORT_SYMBOL(_atomic_dec_and_lock);
+ EXPORT_SYMBOL(cpu_present_mask);
+ #endif /* CONFIG_SMP */
+ 
+diff --git a/arch/alpha/lib/Makefile b/arch/alpha/lib/Makefile
+--- a/arch/alpha/lib/Makefile
++++ b/arch/alpha/lib/Makefile
+@@ -40,8 +40,6 @@ lib-y =	__divqu.o __remqu.o __divlu.o __
+ 	fpreg.o \
+ 	callback_srm.o srm_puts.o srm_printk.o
+ 
+-lib-$(CONFIG_SMP) += dec_and_lock.o
+-
+ # The division routines are built from single source, with different defines.
+ AFLAGS___divqu.o = -DDIV
+ AFLAGS___remqu.o =       -DREM
+diff --git a/arch/alpha/lib/dec_and_lock.c b/arch/alpha/lib/dec_and_lock.c
+deleted file mode 100644
+--- a/arch/alpha/lib/dec_and_lock.c
++++ /dev/null
+@@ -1,42 +0,0 @@
+-/*
+- * arch/alpha/lib/dec_and_lock.c
+- *
+- * ll/sc version of atomic_dec_and_lock()
+- * 
+- */
+-
+-#include <linux/spinlock.h>
+-#include <asm/atomic.h>
+-
+-  asm (".text					\n\
+-	.global _atomic_dec_and_lock		\n\
+-	.ent _atomic_dec_and_lock		\n\
+-	.align	4				\n\
+-_atomic_dec_and_lock:				\n\
+-	.prologue 0				\n\
+-1:	ldl_l	$1, 0($16)			\n\
+-	subl	$1, 1, $1			\n\
+-	beq	$1, 2f				\n\
+-	stl_c	$1, 0($16)			\n\
+-	beq	$1, 4f				\n\
+-	mb					\n\
+-	clr	$0				\n\
+-	ret					\n\
+-2:	br	$29, 3f				\n\
+-3:	ldgp	$29, 0($29)			\n\
+-	br	$atomic_dec_and_lock_1..ng	\n\
+-	.subsection 2				\n\
+-4:	br	1b				\n\
+-	.previous				\n\
+-	.end _atomic_dec_and_lock");
+-
+-static int __attribute_used__
+-atomic_dec_and_lock_1(atomic_t *atomic, spinlock_t *lock)
+-{
+-	/* Slow path */
+-	spin_lock(lock);
+-	if (atomic_dec_and_test(atomic))
+-		return 1;
+-	spin_unlock(lock);
+-	return 0;
+-}
+diff --git a/arch/i386/Kconfig b/arch/i386/Kconfig
+--- a/arch/i386/Kconfig
++++ b/arch/i386/Kconfig
+@@ -908,11 +908,6 @@ config IRQBALANCE
+  	  The default yes will allow the kernel to do irq load balancing.
+ 	  Saying no will keep the kernel from doing irq load balancing.
+ 
+-config HAVE_DEC_LOCK
+-	bool
+-	depends on (SMP || PREEMPT) && X86_CMPXCHG
+-	default y
+-
+ # turning this on wastes a bunch of space.
+ # Summit needs it only when NUMA is on
+ config BOOT_IOREMAP
+diff --git a/arch/i386/lib/Makefile b/arch/i386/lib/Makefile
+--- a/arch/i386/lib/Makefile
++++ b/arch/i386/lib/Makefile
+@@ -7,4 +7,3 @@ lib-y = checksum.o delay.o usercopy.o ge
+ 	bitops.o
+ 
+ lib-$(CONFIG_X86_USE_3DNOW) += mmx.o
+-lib-$(CONFIG_HAVE_DEC_LOCK) += dec_and_lock.o
+diff --git a/arch/i386/lib/dec_and_lock.c b/arch/i386/lib/dec_and_lock.c
+deleted file mode 100644
+--- a/arch/i386/lib/dec_and_lock.c
++++ /dev/null
+@@ -1,42 +0,0 @@
+-/*
+- * x86 version of "atomic_dec_and_lock()" using
+- * the atomic "cmpxchg" instruction.
+- *
+- * (For CPU's lacking cmpxchg, we use the slow
+- * generic version, and this one never even gets
+- * compiled).
+- */
+-
+-#include <linux/spinlock.h>
+-#include <linux/module.h>
+-#include <asm/atomic.h>
+-
+-int _atomic_dec_and_lock(atomic_t *atomic, spinlock_t *lock)
+-{
+-	int counter;
+-	int newcount;
+-
+-repeat:
+-	counter = atomic_read(atomic);
+-	newcount = counter-1;
+-
+-	if (!newcount)
+-		goto slow_path;
+-
+-	asm volatile("lock; cmpxchgl %1,%2"
+-		:"=a" (newcount)
+-		:"r" (newcount), "m" (atomic->counter), "0" (counter));
+-
+-	/* If the above failed, "eax" will have changed */
+-	if (newcount != counter)
+-		goto repeat;
+-	return 0;
+-
+-slow_path:
+-	spin_lock(lock);
+-	if (atomic_dec_and_test(atomic))
+-		return 1;
+-	spin_unlock(lock);
+-	return 0;
+-}
+-EXPORT_SYMBOL(_atomic_dec_and_lock);
+diff --git a/arch/ia64/Kconfig b/arch/ia64/Kconfig
+--- a/arch/ia64/Kconfig
++++ b/arch/ia64/Kconfig
+@@ -298,11 +298,6 @@ config PREEMPT
+ 
+ source "mm/Kconfig"
+ 
+-config HAVE_DEC_LOCK
+-	bool
+-	depends on (SMP || PREEMPT)
+-	default y
+-
+ config IA32_SUPPORT
+ 	bool "Support for Linux/x86 binaries"
+ 	help
+diff --git a/arch/ia64/lib/Makefile b/arch/ia64/lib/Makefile
+--- a/arch/ia64/lib/Makefile
++++ b/arch/ia64/lib/Makefile
+@@ -15,7 +15,6 @@ lib-$(CONFIG_ITANIUM)	+= copy_page.o cop
+ lib-$(CONFIG_MCKINLEY)	+= copy_page_mck.o memcpy_mck.o
+ lib-$(CONFIG_PERFMON)	+= carta_random.o
+ lib-$(CONFIG_MD_RAID5)	+= xor.o
+-lib-$(CONFIG_HAVE_DEC_LOCK) += dec_and_lock.o
+ 
+ AFLAGS___divdi3.o	=
+ AFLAGS___udivdi3.o	= -DUNSIGNED
+diff --git a/arch/ia64/lib/dec_and_lock.c b/arch/ia64/lib/dec_and_lock.c
+deleted file mode 100644
+--- a/arch/ia64/lib/dec_and_lock.c
++++ /dev/null
+@@ -1,42 +0,0 @@
+-/*
+- * Copyright (C) 2003 Jerome Marchand, Bull S.A.
+- *	Cleaned up by David Mosberger-Tang <davidm@hpl.hp.com>
+- *
+- * This file is released under the GPLv2, or at your option any later version.
+- *
+- * ia64 version of "atomic_dec_and_lock()" using the atomic "cmpxchg" instruction.  This
+- * code is an adaptation of the x86 version of "atomic_dec_and_lock()".
+- */
+-
+-#include <linux/compiler.h>
+-#include <linux/module.h>
+-#include <linux/spinlock.h>
+-#include <asm/atomic.h>
+-
+-/*
+- * Decrement REFCOUNT and if the count reaches zero, acquire the spinlock.  Both of these
+- * operations have to be done atomically, so that the count doesn't drop to zero without
+- * acquiring the spinlock first.
+- */
+-int
+-_atomic_dec_and_lock (atomic_t *refcount, spinlock_t *lock)
+-{
+-	int old, new;
+-
+-	do {
+-		old = atomic_read(refcount);
+-		new = old - 1;
+-
+-		if (unlikely (old == 1)) {
+-			/* oops, we may be decrementing to zero, do it the slow way... */
+-			spin_lock(lock);
+-			if (atomic_dec_and_test(refcount))
+-				return 1;
+-			spin_unlock(lock);
+-			return 0;
+-		}
+-	} while (cmpxchg(&refcount->counter, old, new) != old);
+-	return 0;
+-}
+-
+-EXPORT_SYMBOL(_atomic_dec_and_lock);
+diff --git a/arch/m32r/Kconfig b/arch/m32r/Kconfig
+--- a/arch/m32r/Kconfig
++++ b/arch/m32r/Kconfig
+@@ -220,11 +220,6 @@ config PREEMPT
+ 	  Say Y here if you are building a kernel for a desktop, embedded
+ 	  or real-time system.  Say N if you are unsure.
+ 
+-config HAVE_DEC_LOCK
+-	bool
+-	depends on (SMP || PREEMPT)
+-	default n
+-
+ config SMP
+ 	bool "Symmetric multi-processing support"
+ 	---help---
+diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
+--- a/arch/mips/Kconfig
++++ b/arch/mips/Kconfig
+@@ -1009,10 +1009,6 @@ config GENERIC_CALIBRATE_DELAY
+ 	bool
+ 	default y
+ 
+-config HAVE_DEC_LOCK
+-	bool
+-	default y
+-
+ #
+ # Select some configuration options automatically based on user selections.
+ #
+diff --git a/arch/mips/lib/Makefile b/arch/mips/lib/Makefile
+--- a/arch/mips/lib/Makefile
++++ b/arch/mips/lib/Makefile
+@@ -2,7 +2,7 @@
+ # Makefile for MIPS-specific library files..
+ #
+ 
+-lib-y	+= csum_partial_copy.o dec_and_lock.o memcpy.o promlib.o \
++lib-y	+= csum_partial_copy.o memcpy.o promlib.o \
+ 	   strlen_user.o strncpy_user.o strnlen_user.o
+ 
+ obj-y	+= iomap.o
+diff --git a/arch/mips/lib/dec_and_lock.c b/arch/mips/lib/dec_and_lock.c
+deleted file mode 100644
+--- a/arch/mips/lib/dec_and_lock.c
++++ /dev/null
+@@ -1,47 +0,0 @@
+-/*
+- * MIPS version of atomic_dec_and_lock() using cmpxchg
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License
+- * as published by the Free Software Foundation; either version
+- * 2 of the License, or (at your option) any later version.
+- */
+-
+-#include <linux/module.h>
+-#include <linux/spinlock.h>
+-#include <asm/atomic.h>
+-#include <asm/system.h>
+-
+-/*
+- * This is an implementation of the notion of "decrement a
+- * reference count, and return locked if it decremented to zero".
+- *
+- * This implementation can be used on any architecture that
+- * has a cmpxchg, and where atomic->value is an int holding
+- * the value of the atomic (i.e. the high bits aren't used
+- * for a lock or anything like that).
+- */
+-int _atomic_dec_and_lock(atomic_t *atomic, spinlock_t *lock)
+-{
+-	int counter;
+-	int newcount;
+-
+-	for (;;) {
+-		counter = atomic_read(atomic);
+-		newcount = counter - 1;
+-		if (!newcount)
+-			break;		/* do it the slow way */
+-
+-		newcount = cmpxchg(&atomic->counter, counter, newcount);
+-		if (newcount == counter)
+-			return 0;
+-	}
+-
+-	spin_lock(lock);
+-	if (atomic_dec_and_test(atomic))
+-		return 1;
+-	spin_unlock(lock);
+-	return 0;
+-}
+-
+-EXPORT_SYMBOL(_atomic_dec_and_lock);
+diff --git a/arch/ppc/Kconfig b/arch/ppc/Kconfig
+--- a/arch/ppc/Kconfig
++++ b/arch/ppc/Kconfig
+@@ -26,10 +26,6 @@ config GENERIC_CALIBRATE_DELAY
+ 	bool
+ 	default y
+ 
+-config HAVE_DEC_LOCK
+-	bool
+-	default y
+-
+ config PPC
+ 	bool
+ 	default y
+diff --git a/arch/ppc/lib/Makefile b/arch/ppc/lib/Makefile
+--- a/arch/ppc/lib/Makefile
++++ b/arch/ppc/lib/Makefile
+@@ -2,7 +2,7 @@
+ # Makefile for ppc-specific library files..
+ #
+ 
+-obj-y			:= checksum.o string.o strcase.o dec_and_lock.o div64.o
++obj-y			:= checksum.o string.o strcase.o div64.o
+ 
+ obj-$(CONFIG_8xx)	+= rheap.o
+ obj-$(CONFIG_CPM2)	+= rheap.o
+diff --git a/arch/ppc/lib/dec_and_lock.c b/arch/ppc/lib/dec_and_lock.c
+deleted file mode 100644
+--- a/arch/ppc/lib/dec_and_lock.c
++++ /dev/null
+@@ -1,38 +0,0 @@
+-#include <linux/module.h>
+-#include <linux/spinlock.h>
+-#include <asm/atomic.h>
+-#include <asm/system.h>
+-
+-/*
+- * This is an implementation of the notion of "decrement a
+- * reference count, and return locked if it decremented to zero".
+- *
+- * This implementation can be used on any architecture that
+- * has a cmpxchg, and where atomic->value is an int holding
+- * the value of the atomic (i.e. the high bits aren't used
+- * for a lock or anything like that).
+- */
+-int _atomic_dec_and_lock(atomic_t *atomic, spinlock_t *lock)
+-{
+-	int counter;
+-	int newcount;
+-
+-	for (;;) {
+-		counter = atomic_read(atomic);
+-		newcount = counter - 1;
+-		if (!newcount)
+-			break;		/* do it the slow way */
+-
+-		newcount = cmpxchg(&atomic->counter, counter, newcount);
+-		if (newcount == counter)
+-			return 0;
+-	}
+-
+-	spin_lock(lock);
+-	if (atomic_dec_and_test(atomic))
+-		return 1;
+-	spin_unlock(lock);
+-	return 0;
+-}
+-
+-EXPORT_SYMBOL(_atomic_dec_and_lock);
+diff --git a/arch/ppc64/Kconfig b/arch/ppc64/Kconfig
+--- a/arch/ppc64/Kconfig
++++ b/arch/ppc64/Kconfig
+@@ -28,10 +28,6 @@ config GENERIC_ISA_DMA
+ 	bool
+ 	default y
+ 
+-config HAVE_DEC_LOCK
+-	bool
+-	default y
+-
+ config EARLY_PRINTK
+ 	bool
+ 	default y
+diff --git a/arch/ppc64/lib/Makefile b/arch/ppc64/lib/Makefile
+--- a/arch/ppc64/lib/Makefile
++++ b/arch/ppc64/lib/Makefile
+@@ -2,7 +2,7 @@
+ # Makefile for ppc64-specific library files..
+ #
+ 
+-lib-y := checksum.o dec_and_lock.o string.o strcase.o
++lib-y := checksum.o string.o strcase.o
+ lib-y += copypage.o memcpy.o copyuser.o usercopy.o
+ 
+ # Lock primitives are defined as no-ops in include/linux/spinlock.h
+diff --git a/arch/ppc64/lib/dec_and_lock.c b/arch/ppc64/lib/dec_and_lock.c
+deleted file mode 100644
+--- a/arch/ppc64/lib/dec_and_lock.c
++++ /dev/null
+@@ -1,47 +0,0 @@
+-/*
+- * ppc64 version of atomic_dec_and_lock() using cmpxchg
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License
+- * as published by the Free Software Foundation; either version
+- * 2 of the License, or (at your option) any later version.
+- */
+-
+-#include <linux/module.h>
+-#include <linux/spinlock.h>
+-#include <asm/atomic.h>
+-#include <asm/system.h>
+-
+-/*
+- * This is an implementation of the notion of "decrement a
+- * reference count, and return locked if it decremented to zero".
+- *
+- * This implementation can be used on any architecture that
+- * has a cmpxchg, and where atomic->value is an int holding
+- * the value of the atomic (i.e. the high bits aren't used
+- * for a lock or anything like that).
+- */
+-int _atomic_dec_and_lock(atomic_t *atomic, spinlock_t *lock)
+-{
+-	int counter;
+-	int newcount;
+-
+-	for (;;) {
+-		counter = atomic_read(atomic);
+-		newcount = counter - 1;
+-		if (!newcount)
+-			break;		/* do it the slow way */
+-
+-		newcount = cmpxchg(&atomic->counter, counter, newcount);
+-		if (newcount == counter)
+-			return 0;
+-	}
+-
+-	spin_lock(lock);
+-	if (atomic_dec_and_test(atomic))
+-		return 1;
+-	spin_unlock(lock);
+-	return 0;
+-}
+-
+-EXPORT_SYMBOL(_atomic_dec_and_lock);
+diff --git a/arch/sparc64/Kconfig.debug b/arch/sparc64/Kconfig.debug
+--- a/arch/sparc64/Kconfig.debug
++++ b/arch/sparc64/Kconfig.debug
+@@ -33,14 +33,6 @@ config DEBUG_BOOTMEM
+ 	depends on DEBUG_KERNEL
+ 	bool "Debug BOOTMEM initialization"
+ 
+-# We have a custom atomic_dec_and_lock() implementation but it's not
+-# compatible with spinlock debugging so we need to fall back on
+-# the generic version in that case.
+-config HAVE_DEC_LOCK
+-	bool
+-	depends on SMP && !DEBUG_SPINLOCK
+-	default y
+-
+ config MCOUNT
+ 	bool
+ 	depends on STACK_DEBUG
+diff --git a/arch/sparc64/kernel/sparc64_ksyms.c b/arch/sparc64/kernel/sparc64_ksyms.c
+--- a/arch/sparc64/kernel/sparc64_ksyms.c
++++ b/arch/sparc64/kernel/sparc64_ksyms.c
+@@ -163,9 +163,6 @@ EXPORT_SYMBOL(atomic64_add);
+ EXPORT_SYMBOL(atomic64_add_ret);
+ EXPORT_SYMBOL(atomic64_sub);
+ EXPORT_SYMBOL(atomic64_sub_ret);
+-#ifdef CONFIG_SMP
+-EXPORT_SYMBOL(_atomic_dec_and_lock);
+-#endif
+ 
+ /* Atomic bit operations. */
+ EXPORT_SYMBOL(test_and_set_bit);
+diff --git a/arch/sparc64/lib/Makefile b/arch/sparc64/lib/Makefile
+--- a/arch/sparc64/lib/Makefile
++++ b/arch/sparc64/lib/Makefile
+@@ -14,6 +14,4 @@ lib-y := PeeCeeI.o copy_page.o clear_pag
+ 	 copy_in_user.o user_fixup.o memmove.o \
+ 	 mcount.o ipcsum.o rwsem.o xor.o find_bit.o delay.o
+ 
+-lib-$(CONFIG_HAVE_DEC_LOCK) += dec_and_lock.o
+-
+ obj-y += iomap.o
+diff --git a/arch/sparc64/lib/dec_and_lock.S b/arch/sparc64/lib/dec_and_lock.S
+deleted file mode 100644
+--- a/arch/sparc64/lib/dec_and_lock.S
++++ /dev/null
+@@ -1,80 +0,0 @@
+-/* $Id: dec_and_lock.S,v 1.5 2001/11/18 00:12:56 davem Exp $
+- * dec_and_lock.S: Sparc64 version of "atomic_dec_and_lock()"
+- *                 using cas and ldstub instructions.
+- *
+- * Copyright (C) 2000 David S. Miller (davem@redhat.com)
+- */
+-#include <linux/config.h>
+-#include <asm/thread_info.h>
+-
+-	.text
+-	.align	64
+-
+-	/* CAS basically works like this:
+-	 *
+-	 * void CAS(MEM, REG1, REG2)
+-	 * {
+-	 *   START_ATOMIC();
+-	 *   if (*(MEM) == REG1) {
+-	 *     TMP = *(MEM);
+-	 *     *(MEM) = REG2;
+-	 *     REG2 = TMP;
+-	 *   } else
+-	 *     REG2 = *(MEM);
+-	 *   END_ATOMIC();
+-	 * }
+-	 */
+-
+-	.globl	_atomic_dec_and_lock
+-_atomic_dec_and_lock:	/* %o0 = counter, %o1 = lock */
+-loop1:	lduw	[%o0], %g2
+-	subcc	%g2, 1, %g7
+-	be,pn	%icc, start_to_zero
+-	 nop
+-nzero:	cas	[%o0], %g2, %g7
+-	cmp	%g2, %g7
+-	bne,pn	%icc, loop1
+-	 mov	0, %g1
+-
+-out:
+-	membar	#StoreLoad | #StoreStore
+-	retl
+-	 mov	%g1, %o0
+-start_to_zero:
+-#ifdef CONFIG_PREEMPT
+-	ldsw	[%g6 + TI_PRE_COUNT], %g3
+-	add	%g3, 1, %g3
+-	stw	%g3, [%g6 + TI_PRE_COUNT]
+-#endif
+-to_zero:
+-	ldstub	[%o1], %g3
+-	membar	#StoreLoad | #StoreStore
+-	brnz,pn	%g3, spin_on_lock
+-	 nop
+-loop2:	cas	[%o0], %g2, %g7		/* ASSERT(g7 == 0) */
+-	cmp	%g2, %g7
+-
+-	be,pt	%icc, out
+-	 mov	1, %g1
+-	lduw	[%o0], %g2
+-	subcc	%g2, 1, %g7
+-	be,pn	%icc, loop2
+-	 nop
+-	membar	#StoreStore | #LoadStore
+-	stb	%g0, [%o1]
+-#ifdef CONFIG_PREEMPT
+-	ldsw	[%g6 + TI_PRE_COUNT], %g3
+-	sub	%g3, 1, %g3
+-	stw	%g3, [%g6 + TI_PRE_COUNT]
+-#endif
+-
+-	b,pt	%xcc, nzero
+-	 nop
+-spin_on_lock:
+-	ldub	[%o1], %g3
+-	membar	#LoadLoad
+-	brnz,pt	%g3, spin_on_lock
+-	 nop
+-	ba,pt	%xcc, to_zero
+-	 nop
+-	nop
+diff --git a/arch/x86_64/Kconfig b/arch/x86_64/Kconfig
+--- a/arch/x86_64/Kconfig
++++ b/arch/x86_64/Kconfig
+@@ -277,11 +277,6 @@ source "mm/Kconfig"
+ config HAVE_ARCH_EARLY_PFN_TO_NID
+ 	def_bool y
+ 
+-config HAVE_DEC_LOCK
+-	bool
+-	depends on SMP
+-	default y
+-
+ config NR_CPUS
+ 	int "Maximum number of CPUs (2-256)"
+ 	range 2 256
+diff --git a/arch/x86_64/kernel/x8664_ksyms.c b/arch/x86_64/kernel/x8664_ksyms.c
+--- a/arch/x86_64/kernel/x8664_ksyms.c
++++ b/arch/x86_64/kernel/x8664_ksyms.c
+@@ -178,10 +178,6 @@ EXPORT_SYMBOL(rwsem_down_write_failed_th
+ 
+ EXPORT_SYMBOL(empty_zero_page);
+ 
+-#ifdef CONFIG_HAVE_DEC_LOCK
+-EXPORT_SYMBOL(_atomic_dec_and_lock);
+-#endif
+-
+ EXPORT_SYMBOL(die_chain);
+ EXPORT_SYMBOL(register_die_notifier);
+ 
+diff --git a/arch/x86_64/lib/Makefile b/arch/x86_64/lib/Makefile
+--- a/arch/x86_64/lib/Makefile
++++ b/arch/x86_64/lib/Makefile
+@@ -10,5 +10,3 @@ lib-y := csum-partial.o csum-copy.o csum
+ 	usercopy.o getuser.o putuser.o  \
+ 	thunk.o clear_page.o copy_page.o bitstr.o bitops.o
+ lib-y += memcpy.o memmove.o memset.o copy_user.o
+-
+-lib-$(CONFIG_HAVE_DEC_LOCK) += dec_and_lock.o
+diff --git a/arch/x86_64/lib/dec_and_lock.c b/arch/x86_64/lib/dec_and_lock.c
+deleted file mode 100644
+--- a/arch/x86_64/lib/dec_and_lock.c
++++ /dev/null
+@@ -1,40 +0,0 @@
+-/*
+- * x86 version of "atomic_dec_and_lock()" using
+- * the atomic "cmpxchg" instruction.
+- *
+- * (For CPU's lacking cmpxchg, we use the slow
+- * generic version, and this one never even gets
+- * compiled).
+- */
+-
+-#include <linux/spinlock.h>
+-#include <asm/atomic.h>
+-
+-int _atomic_dec_and_lock(atomic_t *atomic, spinlock_t *lock)
+-{
+-	int counter;
+-	int newcount;
+-
+-repeat:
+-	counter = atomic_read(atomic);
+-	newcount = counter-1;
+-
+-	if (!newcount)
+-		goto slow_path;
+-
+-	asm volatile("lock; cmpxchgl %1,%2"
+-		:"=a" (newcount)
+-		:"r" (newcount), "m" (atomic->counter), "0" (counter));
+-
+-	/* If the above failed, "eax" will have changed */
+-	if (newcount != counter)
+-		goto repeat;
+-	return 0;
+-
+-slow_path:
+-	spin_lock(lock);
+-	if (atomic_dec_and_test(atomic))
+-		return 1;
+-	spin_unlock(lock);
+-	return 0;
+-}
+diff --git a/arch/xtensa/Kconfig b/arch/xtensa/Kconfig
+--- a/arch/xtensa/Kconfig
++++ b/arch/xtensa/Kconfig
+@@ -26,10 +26,6 @@ config RWSEM_XCHGADD_ALGORITHM
+ 	bool
+ 	default y
+ 
+-config HAVE_DEC_LOCK
+-	bool
+-	default y
+-
+ config GENERIC_HARDIRQS
+ 	bool
+ 	default y
+diff --git a/lib/Makefile b/lib/Makefile
+--- a/lib/Makefile
++++ b/lib/Makefile
+@@ -5,7 +5,7 @@
+ lib-y := errno.o ctype.o string.o vsprintf.o cmdline.o \
+ 	 bust_spinlocks.o rbtree.o radix-tree.o dump_stack.o \
+ 	 idr.o div64.o int_sqrt.o bitmap.o extable.o prio_tree.o \
+-	 sha1.o
++	 sha1.o dec_and_lock.o
+ 
+ lib-y	+= kobject.o kref.o kobject_uevent.o klist.o
+ 
+@@ -24,10 +24,6 @@ lib-$(CONFIG_GENERIC_FIND_NEXT_BIT) += f
+ obj-$(CONFIG_LOCK_KERNEL) += kernel_lock.o
+ obj-$(CONFIG_DEBUG_PREEMPT) += smp_processor_id.o
+ 
+-ifneq ($(CONFIG_HAVE_DEC_LOCK),y)
+-  lib-y += dec_and_lock.o
+-endif
+-
+ obj-$(CONFIG_CRC_CCITT)	+= crc-ccitt.o
+ obj-$(CONFIG_CRC16)	+= crc16.o
+ obj-$(CONFIG_CRC32)	+= crc32.o
+diff --git a/lib/dec_and_lock.c b/lib/dec_and_lock.c
+--- a/lib/dec_and_lock.c
++++ b/lib/dec_and_lock.c
+@@ -1,7 +1,41 @@
+ #include <linux/module.h>
+ #include <linux/spinlock.h>
+ #include <asm/atomic.h>
++#include <asm/system.h>
+ 
++#ifdef __HAVE_ARCH_CMPXCHG
++/*
++ * This is an implementation of the notion of "decrement a
++ * reference count, and return locked if it decremented to zero".
++ *
++ * This implementation can be used on any architecture that
++ * has a cmpxchg, and where atomic->value is an int holding
++ * the value of the atomic (i.e. the high bits aren't used
++ * for a lock or anything like that).
++ */
++int _atomic_dec_and_lock(atomic_t *atomic, spinlock_t *lock)
++{
++	int counter;
++	int newcount;
++
++	for (;;) {
++		counter = atomic_read(atomic);
++		newcount = counter - 1;
++		if (!newcount)
++			break;		/* do it the slow way */
++
++		newcount = cmpxchg(&atomic->counter, counter, newcount);
++		if (newcount == counter)
++			return 0;
++	}
++
++	spin_lock(lock);
++	if (atomic_dec_and_test(atomic))
++		return 1;
++	spin_unlock(lock);
++	return 0;
++}
++#else
+ /*
+  * This is an architecture-neutral, but slow,
+  * implementation of the notion of "decrement
+@@ -33,5 +67,6 @@ int _atomic_dec_and_lock(atomic_t *atomi
+ 	spin_unlock(lock);
+ 	return 0;
+ }
++#endif
+ 
+ EXPORT_SYMBOL(_atomic_dec_and_lock);

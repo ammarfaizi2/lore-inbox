@@ -1,100 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932240AbVILVCe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbVILVEk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932240AbVILVCe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 17:02:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbVILVCe
+	id S932241AbVILVEk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 17:04:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932243AbVILVEk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 17:02:34 -0400
-Received: from fmr22.intel.com ([143.183.121.14]:25535 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S932240AbVILVCd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 17:02:33 -0400
-Date: Mon, 12 Sep 2005 14:02:29 -0700
-Message-Id: <200509122102.j8CL2TW1021292@agluck-lia64.sc.intel.com>
-From: "Luck, Tony" <tony.luck@intel.com>
-To: sam@ravnborg.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: new asm-offsets.h patch problems
+	Mon, 12 Sep 2005 17:04:40 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:62406 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932241AbVILVEj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 17:04:39 -0400
+Date: Mon, 12 Sep 2005 14:04:12 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: hpa@zytor.com, akpm@osdl.org, linux-kernel@vger.kernel.org, bunk@stusta.de
+Subject: Re: [RFC][MEGAPATCH] Change __ASSEMBLY__ to __ASSEMBLER__ (defined
+ by GCC from 2.95 to current CVS)
+Message-Id: <20050912140412.7c7ab794.pj@sgi.com>
+In-Reply-To: <67DD59DE-B7B3-43EC-A241-670ACD4C0322@mac.com>
+References: <C670AD22-97CF-46AA-A527-965036D78667@mac.com>
+	<20050903064124.GA31400@codepoet.org>
+	<4319BEF5.2070000@zytor.com>
+	<B9E70F6F-CC0A-4053-AB34-A90836431358@mac.com>
+	<dfhs4u$1ld$1@terminus.zytor.com>
+	<5A37B032-9BBD-4AEA-A9BF-D42AFF79BC86@mac.com>
+	<9C47C740-86CF-48F1-8DB6-B547E5D098FF@mac.com>
+	<97597F8E-DDCE-479F-AE8D-CC7DC75AB3C3@mac.com>
+	<20050910014543.1be53260.akpm@osdl.org>
+	<4FAE9F58-7153-4574-A2C3-A586C9C3CFF1@mac.com>
+	<20050910150446.116dd261.akpm@osdl.org>
+	<E352D8E3-771F-4A0D-9403-DBAA0C8CBB83@mac.com>
+	<20050910174818.579bc287.akpm@osdl.org>
+	<93E9C5F9-A083-4322-A580-236E2232CCC0@mac.com>
+	<20050912010954.70ac90e2.pj@sgi.com>
+	<43259C9E.1040300@zytor.com>
+	<20050912084756.4fa2bd07.pj@sgi.com>
+	<67DD59DE-B7B3-43EC-A241-670ACD4C0322@mac.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I ran a loop of:
-	$ make mrproper
-	$ cp arch/ia64/configs/bigsur_defconfig .config
-	$ yes '' | make oldconfig
-	$ make -d V=1 prepare
-until I had a success and a fail case.  Then diffed the output from the
-make -d V=1 prepare part.  The successful one has the "<", the failed
-one has the ">".
+Kyle wrote:
+> it will result in much less
+> duplication of effort and much cleaner code.
 
-I editted off the start of the diff, where the only differences are the
-process ids and addresses.  Here's the output from "prepare0" to the
-end of file.  Note the stuttering "Putting childPutting child" in the
-successful case, and that two processes 5577 and 5578 were forked in
-the succesful case, while only one was started in the failing case.
+It is not a foregone conclusion that combining two jobs into
+one is less effort - that depends on how well the two jobs
+merge.
 
-Then after the reaping, the successful case decides that it must do
-a remake of include/asm-ia64/asm-offsets.h, while the failing case
-doesn't.  The immediately preceeding lines to this pronouncement in
-both cases are:
+Your comments remind me a little bit of the reassurance that
+one hear's from a CEO justifying big merger.
 
-   Finished prerequisites of target file `include/asm-ia64/asm-offsets.h'.
-   Prerequisite `arch/ia64/kernel/asm-offsets.s' is newer than target `include/asm-ia64/asm-offsets.h'.
-   Prerequisite `Kbuild' is older than target `include/asm-ia64/asm-offsets.h'.
+Sometimes there's enough synergy to pay for the merger, sometimes
+not.  The devil is in the details.
 
+The devil really is in the details.
 
-Just in case this is a "make" issue, here's the version information:
-	$ make --version
-	GNU Make 3.80
-	Copyright (C) 2002  Free Software Foundation, Inc.
-	This is free software; see the source for copying conditions.
-	There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
-	PARTICULAR PURPOSE.
+Since there is nothing further I have to contribute to these
+details, I will return to my regularly scheduled cpuset programming.
 
-85410,85411c85408,85409
-< Putting child 0x60000000001549d0 (prepare0) PID 5576 on the chain.
-< Live child 0x60000000001549d0 (prepare0) PID 5576 
----
-> Putting child 0x6000000000155b60 (prepare0) PID 6366 on the chain.
-> Live child 0x6000000000155b60 (prepare0) PID 6366 
-87593c87591,87592
-< Putting childPutting child 0x600000000003ad40 (arch/ia64/kernel/asm-offsets.s) PID 5577 on the chain.
----
-> Putting child 0x600000000003adb0 (arch/ia64/kernel/asm-offsets.s) PID 6367 on the chain.
-> Live child 0x600000000003adb0 (arch/ia64/kernel/asm-offsets.s) PID 6367 
-87595,87598c87594,87595
-<  0x600000000003ad40 (arch/ia64/kernel/asm-offsets.s) PID 5577 on the chain.
-< Live child 0x600000000003ad40 (arch/ia64/kernel/asm-offsets.s) PID 5577 
-< Reaping winning child 0x600000000003ad40 PID 5577 
-< Live child 0x600000000003ad40 (arch/ia64/kernel/asm-offsets.s) PID 5578 
----
-> Reaping winning child 0x600000000003adb0 PID 6367 
-> Live child 0x600000000003adb0 (arch/ia64/kernel/asm-offsets.s) PID 6368 
-87601,87602c87598,87599
-< Reaping winning child 0x600000000003ad40 PID 5578 
-< Removing child 0x600000000003ad40 PID 5578 from chain.
----
-> Reaping winning child 0x600000000003adb0 PID 6368 
-> Removing child 0x600000000003adb0 PID 6368 from chain.
-87650,87657c87647
-<   Must remake target `include/asm-ia64/asm-offsets.h'.
-< Putting child 0x600000000003ad40 (include/asm-ia64/asm-offsets.h) PID 5584 on the chain.
-< Live child 0x600000000003ad40 (include/asm-ia64/asm-offsets.h) PID 5584 
-<   	mkdir -p include/asm-ia64/; cat arch/ia64/kernel/asm-offsets.s | (set -e; echo "#ifndef __ASM_OFFSETS_H__"; echo "#define __ASM_OFFSETS_H__"; echo "/*"; echo " * DO NOT MODIFY."; echo " *"; echo " * This file was generated by /home/aegl/bigsur/Kbuild"; echo " *"; echo " */"; echo ""; sed -ne 	"/^->/{s:^->\([^ ]*\) [\$#]*\([^ ]*\) \(.*\):#define \1 \2 /* \3 */:; s:->::; p;}"; echo ""; echo "#endif" ) > include/asm-ia64/asm-offsets.h
-< Got a SIGCHLD; 1 unreaped children.
-< Reaping winning child 0x600000000003ad40 PID 5584 
-< Removing child 0x600000000003ad40 PID 5584 from chain.
-<   Successfully remade target file `include/asm-ia64/asm-offsets.h'.
----
->   No need to remake target `include/asm-ia64/asm-offsets.h'.
-87662,87663c87652,87653
-< Reaping winning child 0x60000000001549d0 PID 5576 
-< Removing child 0x60000000001549d0 PID 5576 from chain.
----
-> Reaping winning child 0x6000000000155b60 PID 6366 
-> Removing child 0x6000000000155b60 PID 6366 from chain.
-87668,87671d87657
-< ]0;aegl@linux-t10:~/bigsur[aegl@linux-t10 bigsur]$ w 
-< ]0;aegl@linux-t10:~/bigsur[aegl@linux-t10 bigsur]$ exit
-< 
-< Script done on Mon 12 Sep 2005 11:37:57 AM PDT
+Take care.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

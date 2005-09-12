@@ -1,52 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751287AbVILJxs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751272AbVILJyz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751287AbVILJxs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 05:53:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbVILJxs
+	id S1751272AbVILJyz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 05:54:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751282AbVILJyy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 05:53:48 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:21438 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751283AbVILJxr (ORCPT
+	Mon, 12 Sep 2005 05:54:54 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:4267 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1751272AbVILJyy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 05:53:47 -0400
-Date: Mon, 12 Sep 2005 11:53:24 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, akpm@zip.com.au, torvalds@osdl.org,
-       vojtech@suse.cz, dwmw2@infradead.org, netdev@vger.kernel.org,
-       benjamin_kong@ali.com.tw, dagb@cs.uit.no, jgarzik@pobox.com,
-       davidm@snapgear.com, twoller@crystal.cirrus.com, alan@redhat.com,
-       mm@caldera.de, scott@spiteful.org, jsimmons@transvirtual.com
-Subject: Re: pm_register should die
-Message-ID: <20050912095323.GD27583@elf.ucw.cz>
-References: <20050912093456.GA29205@elf.ucw.cz> <20050912024145.3c4298ec.akpm@osdl.org>
+	Mon, 12 Sep 2005 05:54:54 -0400
+Date: Mon, 12 Sep 2005 02:54:25 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: nikita@clusterfs.com, torvalds@osdl.org, Simon.Derr@bull.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cpuset semaphore depth check deadlock fix
+Message-Id: <20050912025425.332fa8ba.pj@sgi.com>
+In-Reply-To: <20050912024747.2ba6d39b.pj@sgi.com>
+References: <20050909220116.26993.9674.sendpatchset@jackhammer.engr.sgi.com>
+	<17186.35554.43089.674075@gargle.gargle.HOWL>
+	<20050912024747.2ba6d39b.pj@sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050912024145.3c4298ec.akpm@osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> The global owner was insufficient because it wasn't
 
-> > +#ifdef CONFIG_OLD_PM
-> >   	if (pm_send_all(PM_SUSPEND, (void *)3)) {
-> 
-> Can we not do this without ifdefs?
-> 
-> #define pm_send_all(foo, bar) 0
+Oops - meant to say:
 
-Okay, we probably can, but the ifdefs make very nice/easy markers
-"this is going away". I'd prefer to actually delete all the code
-inside those ifdefs...
-
-I agree this patch can be improved... I hope I can get people to fix
-those 13 occurences and be able to just drop everything in #ifdef
-_OLD_PM.
-
-								Pavel
+> The global depth was insufficient because it wasn't
 
 -- 
-if you have sharp zaurus hardware you don't need... you know my address
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

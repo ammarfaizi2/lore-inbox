@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbVILNkl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750832AbVILNnW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750831AbVILNkl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 09:40:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750832AbVILNkk
+	id S1750832AbVILNnW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 09:43:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750834AbVILNnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 09:40:40 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:18115 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1750831AbVILNkk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 09:40:40 -0400
-Subject: Re: [GIT PATCH] Remove devfs from 2.6.13
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Greg KH <gregkh@suse.de>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, Mike Bell <mike@mikebell.org>
-In-Reply-To: <20050911050906.GA6635@suse.de>
-References: <20050909214542.GA29200@kroah.com>
-	 <20050910082732.GR13742@mikebell.org> <20050910215254.GA15645@suse.de>
-	 <20050910230310.GS13742@mikebell.org>  <20050911050906.GA6635@suse.de>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Mon, 12 Sep 2005 09:40:26 -0400
-Message-Id: <1126532426.8652.13.camel@localhost.localdomain>
+	Mon, 12 Sep 2005 09:43:22 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:27089 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750832AbVILNnV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 09:43:21 -0400
+Date: Mon, 12 Sep 2005 15:43:58 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: dwalker@mvista.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] RT: Invert some TRACE_BUG_ON_LOCKED tests
+Message-ID: <20050912134358.GA5033@elte.hu>
+References: <1125691250.2709.2.camel@c-67-188-6-232.hsd1.ca.comcast.net> <20050902200856.GY3966@smtp.west.cox.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050902200856.GY3966@smtp.west.cox.net>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-09-10 at 22:09 -0700, Greg KH wrote:
 
+* Tom Rini <trini@kernel.crashing.org> wrote:
+
+> With 2.6.13-rt4 I had to do the following in order to get my paired 
+> down config booting on my x86 whitebox (defconfig works fine, after I 
+> enable enet/8250_console/nfsroot).  Daniel Walker helped me trace this 
+> down.
 > 
-> Hm, ok, ALSA will not work.  Can you point to anything else?  Who cares
-> about sound on embedded systems anyway...
+> Signed-off-by: Tom Rini <trini@kernel.crashing.org>
 
-Hmm, a quiet PS2?  I don't think people would go for that ;-)
+thanks, applied.
 
-Not that the PS2 runs Linux, but yes there are embedded systems that do
-require sound.
-
--- Steve
-
-
+	Ingo

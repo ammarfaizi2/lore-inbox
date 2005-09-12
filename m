@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932326AbVILWqS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932329AbVILWrx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932326AbVILWqS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 18:46:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932328AbVILWqR
+	id S932329AbVILWrx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 18:47:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbVILWrx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 18:46:17 -0400
-Received: from dvhart.com ([64.146.134.43]:60801 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S932326AbVILWqR (ORCPT
+	Mon, 12 Sep 2005 18:47:53 -0400
+Received: from dvhart.com ([64.146.134.43]:61057 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S932329AbVILWrw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 18:46:17 -0400
-Date: Mon, 12 Sep 2005 15:46:10 -0700
+	Mon, 12 Sep 2005 18:47:52 -0400
+Date: Mon, 12 Sep 2005 15:47:49 -0700
 From: "Martin J. Bligh" <mbligh@mbligh.org>
 Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Andi Kleen <ak@muc.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-mm2
-Message-ID: <210290000.1126565170@flay>
-In-Reply-To: <20050912185120.GA78614@muc.de>
-References: <20050908053042.6e05882f.akpm@osdl.org> <201750000.1126494444@[10.10.2.4]> <20050912050122.GA3830@muc.de> <150330000.1126548402@flay> <20050912185120.GA78614@muc.de>
+To: Sonny Rao <sonny@burdell.org>, Danny ter Haar <dth@cistron.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-mm3
+Message-ID: <211430000.1126565269@flay>
+In-Reply-To: <20050912220617.GA18215@kevlar.burdell.org>
+References: <20050912024350.60e89eb1.akpm@osdl.org> <20050912145435.GA4722@kevlar.burdell.org> <20050912125641.4b53553d.akpm@osdl.org> <20050912200914.GA13962@kevlar.burdell.org> <dg4qeg$27m$1@news.cistron.nl> <20050912220617.GA18215@kevlar.burdell.org>
 X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -28,17 +28,24 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
---On Monday, September 12, 2005 20:51:20 +0200 Andi Kleen <ak@muc.de> wrote:
+--On Monday, September 12, 2005 18:06:17 -0400 Sonny Rao <sonny@burdell.org> wrote:
 
->> Crashes on boot
+> On Mon, Sep 12, 2005 at 09:03:12PM +0000, Danny ter Haar wrote:
+>> Sonny Rao  <sonny@burdell.org> wrote:
+>> > I assume you're referring to allocating huge pages?  I'm not sure how
+>> > one would test this other than allocating N huge pages, releasing,
+>> > runing something intensive (like SDET), and then trying to allocate
+>> > N huge pages again?  Or am I off base here?
 >> 
->> http://test.kernel.org/12589/debug/console.log
->> 
->> May or may not be anything to do with what you were doing.
+>> Run a full-feed usenet server ? ;-)
+>> I recommend INN ....
 > 
-> Easily tested by reverting dma32*. Does it help?
+> Are you using jumbo frames or anything like that?  I can probably
+> replicate order > 0 allocation failures pretty easily using that, but
+> I don't know if that's really the issue.
 
-No. Yet *another* bug. Sigh.
+Jumbo frames, 8K kernel stacks, CIFS, and possibly NFS (though people dispute
+that) tend to be the main culprits, in my experience.
 
 M.
 

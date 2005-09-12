@@ -1,82 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932165AbVILTbq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbVILTdP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932165AbVILTbq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 15:31:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932162AbVILTbq
+	id S932162AbVILTdP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 15:33:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbVILTdP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 15:31:46 -0400
-Received: from ppsw-7.csi.cam.ac.uk ([131.111.8.137]:48098 "EHLO
-	ppsw-7.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S932165AbVILTbp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 15:31:45 -0400
+	Mon, 12 Sep 2005 15:33:15 -0400
+Received: from ppsw-9.csi.cam.ac.uk ([131.111.8.139]:37787 "EHLO
+	ppsw-9.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S932162AbVILTdO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 15:33:14 -0400
 X-Cam-SpamDetails: Not scanned
 X-Cam-AntiVirus: No virus found
 X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Date: Mon, 12 Sep 2005 20:31:42 +0100 (BST)
+Date: Mon, 12 Sep 2005 20:33:12 +0100 (BST)
 From: Anton Altaparmakov <aia21@cam.ac.uk>
 To: Linus Torvalds <torvalds@osdl.org>
 cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
-Subject: [1/2] NTFS: Change the mount options {u,f,d}mask to always parse
- the number as an octal
+Subject: [2/2] NTFS: Mask out __GFP_HIGHMEM when doing kmalloc() in
+ __ntfs_malloc()
 In-Reply-To: <Pine.LNX.4.60.0509122027430.4649@hermes-1.csi.cam.ac.uk>
-Message-ID: <Pine.LNX.4.60.0509122030110.4649@hermes-1.csi.cam.ac.uk>
+Message-ID: <Pine.LNX.4.60.0509122031530.4649@hermes-1.csi.cam.ac.uk>
 References: <Pine.LNX.4.60.0509122027430.4649@hermes-1.csi.cam.ac.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-NTFS: Change the mount options {u,f,d}mask to always parse the number as
-      an octal number to conform to how chmod(1) works, too.  Thanks to
-      Giuseppe Bilotta and Horst von Brand for pointing out the errors of
-      my ways.
+NTFS: Mask out __GFP_HIGHMEM when doing kmalloc() in __ntfs_malloc() as it
+      otherwise causes a BUG().
 
 Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
 
 diff --git a/fs/ntfs/ChangeLog b/fs/ntfs/ChangeLog
 --- a/fs/ntfs/ChangeLog
 +++ b/fs/ntfs/ChangeLog
-@@ -90,7 +90,11 @@ ToDo/Notes:
- 	  in the first buffer head instead of a driver global spin lock to
- 	  improve scalability.
- 	- Minor fix to error handling and error message display in
--	  fs/ntfs/aops.c::ntfs_prepare_nonresident_write(). 
-+	  fs/ntfs/aops.c::ntfs_prepare_nonresident_write().
-+	- Change the mount options {u,f,d}mask to always parse the number as
-+	  an octal number to conform to how chmod(1) works, too.  Thanks to
-+	  Giuseppe Bilotta and Horst von Brand for pointing out the errors of
-+	  my ways.
- 
- 2.1.23 - Implement extension of resident files and make writing safe as well as
- 	 many bug fixes, cleanups, and enhancements...
-diff --git a/fs/ntfs/super.c b/fs/ntfs/super.c
---- a/fs/ntfs/super.c
-+++ b/fs/ntfs/super.c
-@@ -126,6 +126,14 @@ static BOOL parse_options(ntfs_volume *v
- 		if (*v)							\
- 			goto needs_val;					\
+@@ -34,9 +34,6 @@ ToDo/Notes:
+ 	  journals with two different restart pages.  We sanity check both and
+ 	  either use the only sane one or the more recent one of the two in the
+ 	  case that both are valid.
+-	- Modify fs/ntfs/malloc.h::ntfs_malloc_nofs() to do the kmalloc() based
+-	  allocations with __GFP_HIGHMEM, analogous to how the vmalloc() based
+-	  allocations are done.
+ 	- Add fs/ntfs/malloc.h::ntfs_malloc_nofs_nofail() which is analogous to
+ 	  ntfs_malloc_nofs() but it performs allocations with __GFP_NOFAIL and
+ 	  hence cannot fail.
+diff --git a/fs/ntfs/malloc.h b/fs/ntfs/malloc.h
+--- a/fs/ntfs/malloc.h
++++ b/fs/ntfs/malloc.h
+@@ -45,7 +45,7 @@ static inline void *__ntfs_malloc(unsign
+ 	if (likely(size <= PAGE_SIZE)) {
+ 		BUG_ON(!size);
+ 		/* kmalloc() has per-CPU caches so is faster for now. */
+-		return kmalloc(PAGE_SIZE, gfp_mask);
++		return kmalloc(PAGE_SIZE, gfp_mask & ~__GFP_HIGHMEM);
+ 		/* return (void *)__get_free_page(gfp_mask); */
  	}
-+#define NTFS_GETOPT_OCTAL(option, variable)				\
-+	if (!strcmp(p, option)) {					\
-+		if (!v || !*v)						\
-+			goto needs_arg;					\
-+		variable = simple_strtoul(ov = v, &v, 8);		\
-+		if (*v)							\
-+			goto needs_val;					\
-+	}
- #define NTFS_GETOPT_BOOL(option, variable)				\
- 	if (!strcmp(p, option)) {					\
- 		BOOL val;						\
-@@ -157,9 +165,9 @@ static BOOL parse_options(ntfs_volume *v
- 			*v++ = 0;
- 		NTFS_GETOPT("uid", uid)
- 		else NTFS_GETOPT("gid", gid)
--		else NTFS_GETOPT("umask", fmask = dmask)
--		else NTFS_GETOPT("fmask", fmask)
--		else NTFS_GETOPT("dmask", dmask)
-+		else NTFS_GETOPT_OCTAL("umask", fmask = dmask)
-+		else NTFS_GETOPT_OCTAL("fmask", fmask)
-+		else NTFS_GETOPT_OCTAL("dmask", dmask)
- 		else NTFS_GETOPT("mft_zone_multiplier", mft_zone_multiplier)
- 		else NTFS_GETOPT_WITH_DEFAULT("sloppy", sloppy, TRUE)
- 		else NTFS_GETOPT_BOOL("show_sys_files", show_sys_files)
+ 	if (likely(size >> PAGE_SHIFT < num_physpages))

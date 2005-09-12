@@ -1,58 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750824AbVILSIh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932115AbVILSJj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750824AbVILSIh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 14:08:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750826AbVILSIg
+	id S932115AbVILSJj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 14:09:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932116AbVILSJj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 14:08:36 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:38333 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S1750824AbVILSIg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 14:08:36 -0400
-Message-ID: <4325C425.4030002@namesys.com>
-Date: Mon, 12 Sep 2005 11:08:37 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, Reiserfs-Dev@namesys.com,
-       reiserfs-list@namesys.com
-Subject: Re: List of things requested by lkml for reiser4 inclusion (to review)
-References: <200509091817.39726.zam@namesys.com>	<4321C806.60404@namesys.com> <20050909144142.0f96802f.akpm@osdl.org>
-In-Reply-To: <20050909144142.0f96802f.akpm@osdl.org>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 12 Sep 2005 14:09:39 -0400
+Received: from s1.mailresponder.info ([193.24.237.10]:52238 "EHLO
+	s1.mailresponder.info") by vger.kernel.org with ESMTP
+	id S932115AbVILSJi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 14:09:38 -0400
+Subject: Re: 2.6.13 brings buffer underruns when burning DVDs at high
+	speeds (16x)
+From: Mathieu Fluhr <mfluhr@nero.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1126527113.2169.6.camel@localhost.localdomain>
+References: <1126527113.2169.6.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: Nero AG
+Date: Mon, 12 Sep 2005 20:07:56 +0200
+Message-Id: <1126548476.1991.4.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Hummm Okay. After making some ugly changes (I basically reverted all
+the /drivers/block subdir to version 2.6.12.6), I still have buffer
+underruns.
 
->
->
->The type-unsafety of existing list_heads gives me conniptions too.  Yes,
->it'd be nice to have a type-safe version available.
->
->That being said, I don't see why such a thing cannot be a wrapper around
->the existing list_head functions.  Yes, there will be some ghastly
->C-templates-via-CPP stuff, best avoided by not looking at the file ;)
->
->We should aim for a complete 1:1 relationship between list_heads and
->type-safe lists.  So people know what they're called, know how they work,
->etc.  We shouldn't go adding things called rx_event_list_pop_back() when
->everyone has learned the existing list API.
->
->Of course, it would have been better to do this work as a completely
->separate kernel feature rather than bundling it with a filesystem.  If this
->isn't a thing your team wants to take on now then yes, I'd be inclined to
->switch reiser4 to list_heads.
->
->  
->
-Vladimir spent 24 hours straight unsafing the lists in reiser4, and
-didn't finish yet.  We need 1-2 more days to address this before we can
-submit reiser4.  I hope this delay will not be too much of a problem.
+Does anyone know where it could come from ? I would say that I am a
+little bit stuck now. I am quite sure that it is also not comming from
+the devices driver (ide-cd, usb-storage...) as I tried with different
+devices on different ports (mostly IDE and emulated SCSI via USB) with
+the same result.
 
-Hans
+Note: This is also happening with k3b ;-)
+
+On Mon, 2005-09-12 at 14:11 +0200, Mathieu Fluhr wrote:
+> Hello all,
+> 
+> It seems that something has been broken when passing from 2.6.12 to
+> 2.6.13 regarding the SCSI burning engine. When burning a DVD at 16x
+> (with ide-cd SEND_PACKET command, or with the SG interface, no matter
+> the driver used), you get tons of buffer underruns. This was not
+> appearing in 2.6.12.
+> 
+> I would suspect something in the block devices driver, but I am not
+> really sure... and I did not have enough time yet to look deeply in the
+> source code ;-)
+> 
+> Best Regards,
+> Mathieu
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

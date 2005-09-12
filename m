@@ -1,70 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbVILVEk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932243AbVILVEt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932241AbVILVEk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 17:04:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932243AbVILVEk
+	id S932243AbVILVEt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 17:04:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbVILVEt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 17:04:40 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:62406 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932241AbVILVEj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 17:04:39 -0400
-Date: Mon, 12 Sep 2005 14:04:12 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: hpa@zytor.com, akpm@osdl.org, linux-kernel@vger.kernel.org, bunk@stusta.de
-Subject: Re: [RFC][MEGAPATCH] Change __ASSEMBLY__ to __ASSEMBLER__ (defined
- by GCC from 2.95 to current CVS)
-Message-Id: <20050912140412.7c7ab794.pj@sgi.com>
-In-Reply-To: <67DD59DE-B7B3-43EC-A241-670ACD4C0322@mac.com>
-References: <C670AD22-97CF-46AA-A527-965036D78667@mac.com>
-	<20050903064124.GA31400@codepoet.org>
-	<4319BEF5.2070000@zytor.com>
-	<B9E70F6F-CC0A-4053-AB34-A90836431358@mac.com>
-	<dfhs4u$1ld$1@terminus.zytor.com>
-	<5A37B032-9BBD-4AEA-A9BF-D42AFF79BC86@mac.com>
-	<9C47C740-86CF-48F1-8DB6-B547E5D098FF@mac.com>
-	<97597F8E-DDCE-479F-AE8D-CC7DC75AB3C3@mac.com>
-	<20050910014543.1be53260.akpm@osdl.org>
-	<4FAE9F58-7153-4574-A2C3-A586C9C3CFF1@mac.com>
-	<20050910150446.116dd261.akpm@osdl.org>
-	<E352D8E3-771F-4A0D-9403-DBAA0C8CBB83@mac.com>
-	<20050910174818.579bc287.akpm@osdl.org>
-	<93E9C5F9-A083-4322-A580-236E2232CCC0@mac.com>
-	<20050912010954.70ac90e2.pj@sgi.com>
-	<43259C9E.1040300@zytor.com>
-	<20050912084756.4fa2bd07.pj@sgi.com>
-	<67DD59DE-B7B3-43EC-A241-670ACD4C0322@mac.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Mon, 12 Sep 2005 17:04:49 -0400
+Received: from rproxy.gmail.com ([64.233.170.200]:17728 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932243AbVILVEs convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 17:04:48 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=alsIQez8LTxf3VeYjD/CkpbWwv0iyJDubVfxurIVN2XufpUABK3uDaXfGWtdH93Gqh1OPOGVdhmI7BnOh2kvZcVlVclQoVckWgLWhJaWkZXifA0fmGdH2+rRTpzlyIfgxDIby6bS6nds7MXn0XB4KcWmFbanjyVsAzd5kuFi7CU=
+Message-ID: <4d8e3fd3050912140439c14518@mail.gmail.com>
+Date: Mon, 12 Sep 2005 23:04:47 +0200
+From: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+Reply-To: paolo.ciarrocchi@gmail.com
+To: nish.aravamudan@gmail.com
+Subject: Re: 2.6.13-mm3
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <29495f1d05091213134d917bd7@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050912024350.60e89eb1.akpm@osdl.org>
+	 <4d8e3fd305091208191fbbe804@mail.gmail.com>
+	 <29495f1d05091213134d917bd7@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kyle wrote:
-> it will result in much less
-> duplication of effort and much cleaner code.
+On 9/12/05, Nish Aravamudan <nish.aravamudan@gmail.com> wrote:
+> On 9/12/05, Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com> wrote:
+> > On 9/12/05, Andrew Morton <akpm@osdl.org> wrote:
+[...]
+> > >
+> > > - There are several performance tuning patches here which need careful
+> > >  attention and testing.  (Does anyone do performance testing any more?)
+> >
+> > How about the tool announced months ago by Martin J. Bligh ?
+> >
+> > http://ftp.kernel.org/pub/linux/kernel/people/mbligh/abat/regression_matrix.html
+> 
+> Preferred location is: test.kernel.org (much shorter too!)
 
-It is not a foregone conclusion that combining two jobs into
-one is less effort - that depends on how well the two jobs
-merge.
+I wasn't aware of that, thank you! Now I won't forget anymore that URL ;-)
+ 
+> Also, the problem for -mm3 is that -mm2 did not build on most
+> machines. -mm1 did on 4/6. Probably some determination could be made
+> from those.
 
-Your comments remind me a little bit of the reassurance that
-one hear's from a CEO justifying big merger.
+I see. But I still think that automated testing is a great opportunity
+for the community to pinpoint problems.
 
-Sometimes there's enough synergy to pay for the merger, sometimes
-not.  The devil is in the details.
-
-The devil really is in the details.
-
-Since there is nothing further I have to contribute to these
-details, I will return to my regularly scheduled cpuset programming.
-
-Take care.
+Is there anything we can do to make thinks work better ?
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+paoloc.blogspot.com

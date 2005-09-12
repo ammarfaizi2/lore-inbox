@@ -1,85 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932310AbVILWYH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750876AbVILWja@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932310AbVILWYH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 18:24:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932311AbVILWYH
+	id S1750876AbVILWja (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 18:39:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbVILWj3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 18:24:07 -0400
-Received: from fmr23.intel.com ([143.183.121.15]:51432 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S932310AbVILWYF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 18:24:05 -0400
-Date: Mon, 12 Sep 2005 15:23:08 -0700
-From: Ashok Raj <ashok.raj@intel.com>
-To: Andi Kleen <ak@muc.de>
-Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>, Ashok Raj <ashok.raj@intel.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 13/14] x86_64: Use common functions in cluster and physflat mode
-Message-ID: <20050912152308.A18649@unix-os.sc.intel.com>
-References: <200509032135.j83LZ8gX020554@shell0.pdx.osdl.net> <20050905231628.GA16476@muc.de> <20050906161215.B19592@unix-os.sc.intel.com> <Pine.LNX.4.61.0509091003490.978@montezuma.fsmlabs.com> <20050909134503.A29351@unix-os.sc.intel.com> <Pine.LNX.4.61.0509091439110.978@montezuma.fsmlabs.com> <20050911230220.GA73228@muc.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050911230220.GA73228@muc.de>; from ak@muc.de on Mon, Sep 12, 2005 at 01:02:20AM +0200
+	Mon, 12 Sep 2005 18:39:29 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:47785 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S1750876AbVILWj3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 18:39:29 -0400
+Message-ID: <43260399.3000405@adaptec.com>
+Date: Mon, 12 Sep 2005 18:39:21 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: Luben Tuikov <ltuikov@yahoo.com>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: [PATCH 2.6.13 5/14] sas-class: sas_discover.c Discover process
+ (end devices)
+References: <1126308304.4799.45.camel@mulgrave> <20050910024454.20602.qmail@web51613.mail.yahoo.com> <20050911094656.GC5429@infradead.org>
+In-Reply-To: <20050911094656.GC5429@infradead.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 12 Sep 2005 22:39:27.0582 (UTC) FILETIME=[D52047E0:01C5B7EA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 12, 2005 at 01:02:20AM +0200, Andi Kleen wrote:
-> On Sun, Sep 11, 2005 at 09:44:16AM -0700, Zwane Mwaikambo wrote:
-> > On Fri, 9 Sep 2005, Ashok Raj wrote:
-> > 
-> > > IPI performance worse, since it would do one cpu at a time, and requires 2 
-> > > writes per cpu for each IPI v.s just 2 for a flat mode mask version of the API.
-> > 
-> > I don't see the benefit then :/ I certainly hope we don't go that route.
+On 09/11/05 05:46, Christoph Hellwig wrote:
+> On Fri, Sep 09, 2005 at 07:44:54PM -0700, Luben Tuikov wrote:
 > 
-> I originally made that objection, but Ashok then did some benchmarks
-> that showed essentially no difference. I can see the point - it's 
-
-
-Just a minor difference is that for a 8 CPU system
-
-Using IPI shortcut uses just 1 write to local apic
-Using mask version of broadcast uses 2 writes to local apic
-
-The stat showed no significant difference when we do the 1 extra write. But
-that is for the whole system.
-
-When we use send_IPI_mask_sequence() we use 14 writes to (two writes
-for each CPU that we need to target a IPI). 
-
-Using the same stats i used earlier, i see about 0x200 - 0x1000 extra cycles 
-when using mask_sequence() on certain long runs about 100K samples.
-
-We should probably remove the !HOTPLUG case and just use the mask version
-for all cases <=8 CPUS, use physflat or the cluster mode for >8cpus as 
-the case may be, instead of defaulting to sequence_IPI which seems
-a little overkill for the intended purpose.
-
-> likely that an access to the local APIC (which is in the CPU) is fast
-> (we know it is) and all the time is dominated by sending the 
-> requests over the wires between the CPUs. So it shouldn't matter 
-> much if you use sequence mode or masks.
+>>>this one completely duplicates the
+>>>mid-layer infrastructure for handling devices with Logical Units.
+>>
+>>No, it does *not*.  James, you have _stop_ spreading FUD, relying
+>>that other people have not read the SCSI Core code.
+>>
+>>See here:
+>>    SCSI Core has *no representation* of a SCSI Device with a
+>>SCSI Target Port.
 > 
-> That is why I changed my mind and just made physflat default for the hotplug
-> case (which will be essentially everywhere because I expect most kernels
-> to have hotplug enabled in the future) 
 > 
-> It's a bit of a mess in mm right now because me and Ashok have been fixing 
-> similar problems in a different way (e.g. the patch in flat to
-> use the sequence sending path is also not needed anymore with that) 
-> Need to clean this up a bit.
+> struct scsi_target
 > 
-> Handling it properly for i386 is also still needed e.g. the older physflat
-> patch I did needs to be merged with bigsmp and cleaned up a bit.
-> But I don't have time to do it before monday so it'll miss the 2.6.14
-> window anyways.
 > 
-> -Andi
+>>I've _clearly_ outlined that in the comments of the code,
+>>which you _conveniently_ did _not_ cut and paste here.
+> 
+> 
+>  * Discover logical units present in the SCSI device.  I'd like this
+>  * to be moved to SCSI Core, but SCSI Core has no concept of a "SCSI
+>  * device with a SCSI Target port".  A SCSI device with a SCSI Target
+>  * port is a device which the _transport_ found, but other than that,
+>  * the transport has little or _no_ knowledge about the device.
+>  * Ideally, a LLDD would register a "SCSI device with a SCSI Target
+>  * port" with SCSI Core and then SCSI Core would do LU discovery of
+>  * that device.
+> 
+> So what does this mean except "Luben tries to impress everyone with
+> standards gibberish, at the same time ignoring we soluitions that
+> work despite maybe not 100% elegant".
 
--- 
-Cheers,
-Ashok Raj
-- Open Source Technology Center
+Yes, that "maybe not 100% elegant" is what makes code survive
+long years, being maintainable and not spaghetti like (as new
+functionality is added).
+
+> Sure, we'd like to move away from needing the ->id target id specifier.
+> But right now we need it, even you're code sets it in over-complicated
+
+It is not "over-complicated".  The functionality which is there Christoph,
+is there for a reason.  Mainly this is experience and knowlege, but
+you canot _shortcut_ code, since you're eliminating an abstraction
+layer: one thing is done at a time at a logical layer.  When
+all tasks are done at a logical layer, then we move onto the next.
+
+E.g. an SES device may want to do something before you transition
+from one stage to the next, to all devices on the same level as
+that SES device. (This is a topic for another thread, no intentions
+to mention it.)
+
+> ways.  But if you send a nice patch to get rid everyone will be happy.
+
+You and I share the same passion: to improve SCSI Core.
+
+I'm not sure that a patch to get rid of id in the current SCSI Core
+is quite possible without major heart-attacks of quite a few
+LLDDs, etc.
+
+Instead, maybe, we should write a few new functions in SCSI Core which
+could accomodate new, improved "standards gibberish" as you call
+it, behaviour.
+
+Newer code would use those new functions.  Older one, would use
+old ones.
+
+As SPI is slowly dying away, there'd be less and less need and support
+for the current SCSI Core, and the "new" one will emerge.  Granted,
+in the beginning that "new" one would be one or two functions, but
+a start nevertheless.
+
+E.g. create a new scsi_domain_device structure and just move
+sas_do_lu_discovery(struct domain_device *) into SCSI Core
+as scsi_do_lu_discovery(struct scsi_domain_device *).
+
+Note the declaration of this new function: the decision to call
+it is done by the transport _layer_ since it knows whether a
+target port is supported or not.  Then it will send a task
+to the scsi_domain_device, which the LLDD knows how to
+address.  Etc.
+
+	Luben
+

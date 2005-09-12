@@ -1,77 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbVILLIS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbVILLDj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750731AbVILLIS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 07:08:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750733AbVILLIS
+	id S1750700AbVILLDj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 07:03:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbVILLDi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 07:08:18 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:2253 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750731AbVILLIR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 07:08:17 -0400
-Subject: Re: [1/3] Add 4GB DMA32 zone
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andi Kleen <ak@suse.de>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, discuss@x86-64.org
-In-Reply-To: <200509121242.20910.ak@suse.de>
-References: <43246267.mailL4R11PXCB@suse.de>
-	 <1126520900.30449.48.camel@localhost.localdomain>
-	 <200509121242.20910.ak@suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 12 Sep 2005 12:33:06 +0100
-Message-Id: <1126524787.30449.56.camel@localhost.localdomain>
+	Mon, 12 Sep 2005 07:03:38 -0400
+Received: from ns9.hostinglmi.net ([213.194.149.146]:62414 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S1750700AbVILLDi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 07:03:38 -0400
+Date: Mon, 12 Sep 2005 13:07:12 +0200
+From: DervishD <lkml@dervishd.net>
+To: Denis Vlasenko <vda@ilport.com.ua>
+Cc: Michael Clark <michael@metaparadigm.com>, Brad Tilley <rtilley@vt.edu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Universal method to start a script at boot
+Message-ID: <20050912110712.GA287@DervishD>
+Mail-Followup-To: Denis Vlasenko <vda@ilport.com.ua>,
+	Michael Clark <michael@metaparadigm.com>,
+	Brad Tilley <rtilley@vt.edu>, linux-kernel@vger.kernel.org
+References: <1126462329.4324737923c2d@wmtest.cc.vt.edu> <1126462467.43247403c2e1c@wmtest.cc.vt.edu> <43250150.20308@metaparadigm.com> <200509121249.40467.vda@ilport.com.ua>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200509121249.40467.vda@ilport.com.ua>
+User-Agent: Mutt/1.4.2.1i
+Organization: DervishD
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2005-09-12 at 12:42 +0200, Andi Kleen wrote:
-> (I cannot in fact remember a report of someone running especially
-> into this problem)  And the cards seem to be essentially dead in the market 
-> now. So it's really more a theoretical problem than a practical one.
-> [Proof of it: the current sources don't seem to handle it, so
-> it cannot be that bad ;-]
+    Hi Denis :)
 
-Current sources don't handle DMA32, so that can't be bad either. Can we
-stick to sensible discussion, its quicker.
+ * Denis Vlasenko <vda@ilport.com.ua> dixit:
+> Awful. This codifies ages-old Unix traditional SysV-like init
+> and its derivatives, which should be get rid of instead.
 
-There have been various reports over time, quite a few early on when we
-had a long series of on list discussions trying to debug what appeared
-to be an iommu bug but was in fact a kernel bug. 
+    I'm with you in this, in fact I use my own init system, but...
 
-You hit it on any size AMD64 with iommu, but since most aacraid users
-are intel boxes it doesn't hurt too many, and the rest all know about
-turning the iommu off on the box (but that hurts the rest), or just run
-something else because Linux "doesn't work".
+> daemontools are absolutely wonderful way of controlling daemons.
 
-> That is why I essentially ignored the b44. AFAIK the driver
-> has a GFP_DMA bounce workaround anyways, so it would work
-> anyways.
+    How the heck you make sure that svscan starts the services in the
+correct order? Does it run the services in /services in any
+particular order or just in the order resulting for a simple
+globbing? How you make sure the services are shut down in any
+particular order?
 
-Usually - the DMA zone at 16MB is too small so allocations sometimes
-fail. It btw would want 1GB limits.
+    All this seems like requiring scripts to do the job (that is,
+ensuring a particular order of startup/shutdown), while sysvinit
+gets this info from filenames. Obviously, dictating the order using a
+script is far more flexible than using filenames but it's not as
+simple, and that cannot be seen in the comparisons D.J.B. does in the
+homepage of daemontools (which, BTW, is the only source of
+documentation, and a very poor one). LSB, on the other hand, is
+better structured and although I don't like sysvinit at all, the
+system is better documented. And I hate runlevels...
 
-> Yes I know some soundcards have similar limits, but for all
-> these we still have GFP_DMA and they always have been quite happy
-> with that.
+    Raúl Núñez de Arenas Coronado
 
-No current shipping card, also those that need it typically need small
-amounts (they'll live with 8K)
-
-> > Old aacraid actually cannot use IOMMU. It isn't alone in that
-> > limitation. Most hardware that has a 30/31bit limit can't go via the
-> > IOMMU because IOMMU space appears on the bus above 2GB so is itself
-> > invisible to the hardware.
-> 
-> Yes, true. Use GFP_DMA then.
-
-Doesn't work. The DMA area is way too small with all the users already
-and the aacraid can and does want a lot of outstanding I/O. Using a 1GB
-or 2GB boundary line hurts nobody doing "allocate me some memory below
-4Gb" because nobody asks for .5GB chunks. A 4GB zone means we need to
-either increase the 16MB zone or add yet another one.
-
-
-Alan
-
+-- 
+Linux Registered User 88736 | http://www.dervishd.net
+http://www.pleyades.net & http://www.gotesdelluna.net
+It's my PC and I'll cry if I want to...

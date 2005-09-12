@@ -1,41 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932287AbVILWKb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932293AbVILWMD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932287AbVILWKb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 18:10:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbVILWKb
+	id S932293AbVILWMD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 18:12:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932297AbVILWMD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 18:10:31 -0400
-Received: from 66-23-228-155.clients.speedfactory.net ([66.23.228.155]:42733
-	"EHLO kevlar.burdell.org") by vger.kernel.org with ESMTP
-	id S932287AbVILWKb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 18:10:31 -0400
-Date: Mon, 12 Sep 2005 18:06:17 -0400
-From: Sonny Rao <sonny@burdell.org>
-To: Danny ter Haar <dth@cistron.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-mm3
-Message-ID: <20050912220617.GA18215@kevlar.burdell.org>
-References: <20050912024350.60e89eb1.akpm@osdl.org> <20050912145435.GA4722@kevlar.burdell.org> <20050912125641.4b53553d.akpm@osdl.org> <20050912200914.GA13962@kevlar.burdell.org> <dg4qeg$27m$1@news.cistron.nl>
+	Mon, 12 Sep 2005 18:12:03 -0400
+Received: from nproxy.gmail.com ([64.233.182.194]:27723 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932293AbVILWMA convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 18:12:00 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=shYSB8rtD6JB5BP20+ba+wlnBr10kLxMVRZjLmnbM9cO9ZusZlKEAPyIwtLOkUrAIENSOaUPOlOi0A19CDx2nrYK7EmfeJypDbXUc40p6sTGLoWS+09etjXTHCvN8D/+73w4W+MKUIMqqm6wL6nV7yvmT2jxmYLFCBv2mjt/REo=
+Message-ID: <81b0412b0509121511ddde8ab@mail.gmail.com>
+Date: Tue, 13 Sep 2005 00:11:59 +0200
+From: Alex Riesen <raa.lkml@gmail.com>
+Reply-To: raa.lkml@gmail.com
+To: "thomas.mey3r@arcor.de" <thomas.mey3r@arcor.de>
+Subject: Re: 2.6.13-git 2ade81473636b33aaac64495f89a7dc572c529f0 - acpi/earlyquirk.c doesn't compile
+Cc: linux-kernel@vger.kernel.org, 76306.1226@compuserve.com
+In-Reply-To: <20280934.1126555480946.JavaMail.ngmail@webmail-07.arcor-online.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <dg4qeg$27m$1@news.cistron.nl>
-User-Agent: Mutt/1.4.2.1i
+References: <20280934.1126555480946.JavaMail.ngmail@webmail-07.arcor-online.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 12, 2005 at 09:03:12PM +0000, Danny ter Haar wrote:
-> Sonny Rao  <sonny@burdell.org> wrote:
-> >I assume you're referring to allocating huge pages?  I'm not sure how
-> >one would test this other than allocating N huge pages, releasing,
-> >runing something intensive (like SDET), and then trying to allocate
-> >N huge pages again?  Or am I off base here?
-> 
-> Run a full-feed usenet server ? ;-)
-> I recommend INN ....
+On 9/12/05, thomas.mey3r@arcor.de <thomas.mey3r@arcor.de> wrote:
+> arch/i386/kernel/acpi/earlyquirk.c: In function `check_bridge':
+> arch/i386/kernel/acpi/earlyquirk.c:24: error: `disable_timer_pin_1' undeclared (first use in this function)
+> arch/i386/kernel/acpi/earlyquirk.c:24: error: (Each undeclared identifier is reported only once
+> arch/i386/kernel/acpi/earlyquirk.c:24: error: for each function it appears in.)
 
-Are you using jumbo frames or anything like that?  I can probably
-replicate order > 0 allocation failures pretty easily using that, but
-I don't know if that's really the issue.
-
-Sonny
+missing #include <asm/apic.h> in that file.

@@ -1,65 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932348AbVILXQZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932351AbVILXRt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932348AbVILXQZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 19:16:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932349AbVILXQZ
+	id S932351AbVILXRt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 19:17:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932352AbVILXRt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 19:16:25 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:12962 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932348AbVILXQY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 19:16:24 -0400
-Date: Mon, 12 Sep 2005 16:16:17 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: linux-kernel@vger.kernel.org, alexn@telia.com
-Subject: Re: 2.6.13-mm3 [OOPS] vfs, page_owner, full reproductively, badness
- in vsnprintf
-Message-Id: <20050912161617.192c5f97.akpm@osdl.org>
-In-Reply-To: <432607B4.6080009@gmail.com>
-References: <20050912024350.60e89eb1.akpm@osdl.org>
-	<6bffcb0e050912044856628995@mail.gmail.com>
-	<20050912175433.GA8574@localhost.localdomain>
-	<6bffcb0e05091214133c189d05@mail.gmail.com>
-	<20050912154428.7026eff7.akpm@osdl.org>
-	<432607B4.6080009@gmail.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Mon, 12 Sep 2005 19:17:49 -0400
+Received: from zproxy.gmail.com ([64.233.162.207]:28108 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932351AbVILXRs convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 19:17:48 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=iPw5ucjRQhKssos40Z8ZQTab5yR26+JKu/Z4zB1kn8bFrBUnDvlPyjMStPzzWqOAvAk+5JHk6ZxwINDqNz2hBgWOmPTgPjA6xHOpUUF2OQ4amAzh0KBofzv5av9Ynn+yZl+k+AJ0hzmFGKKTHxUw/m+AZVfl/h36TF+buqwaT64=
+Message-ID: <12c511ca050912161732e1e3d7@mail.gmail.com>
+Date: Mon, 12 Sep 2005 16:17:43 -0700
+From: Tony Luck <tony.luck@gmail.com>
+Reply-To: tony.luck@gmail.com
+To: sam@ravnborg.org
+Subject: Re: new asm-offsets.h patch problems
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200509122102.j8CL2TW1021292@agluck-lia64.sc.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200509122102.j8CL2TW1021292@agluck-lia64.sc.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
->
-> Andrew Morton napisa__(a):
-> > Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
-> > 
-> >>Hi,
-> 
-> >>Thanks, patch solved problem.
-> > 
-> > 
-> > Thanks.
-> > 
-> > 
-> >>Here is version, that clean apply on 2.6.13-mm3. Can you review it?
-> > 
-> > 
-> > That patch is all wordwrapped.
-> 
-> Ups, sorry. This should be good.
+Adding a small delay to arch/ia64/Makefile (caution cut&pasted patch, will
+be mangled) gets rid of the non-determinism. I tried "make prepare" 50
+times, and all of them generated the asm-offsets.h file correctly.
 
-Still wordwrapped.  Email test patches to yourself, make sure they still
-apply.
+Without the sleep the score was 9 successes to 21 failures in 30 trials.
 
-> > 
-> > How doe sit differe from Alex's patch?
-> > 
-> > 
-> 
-> Alex's patch doesn't apply clean on 2.6.13-mm3.
+-Tony
 
-Well if you made no functional changes then I'll just apply Alex's patch,
-thanks.
-
+--- a/arch/ia64/Makefile       2005-09-12 16:02:41.000000000 -0700
++++ b/arch/ia64/Makefile  2005-09-12 15:54:31.000000000 -0700
+@@ -88,6 +88,7 @@
+        mkdir -p include/asm-ia64
+        [ -s include/asm-ia64/asm-offsets.h ] \
+        || echo "#define IA64_TASK_SIZE 0" > include/asm-ia64/asm-offsets.h
++       sleep 2
+        touch $@

@@ -1,43 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbVILNdi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbVILNkl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750825AbVILNdi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 09:33:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750830AbVILNdi
+	id S1750831AbVILNkl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 09:40:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750832AbVILNkk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 09:33:38 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:38124 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750825AbVILNdi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 09:33:38 -0400
-Date: Mon, 12 Sep 2005 15:34:15 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] RT: trace_irqs_on in raw_local_irq_restore
-Message-ID: <20050912133415.GA4332@elte.hu>
-References: <1125719249.2709.17.camel@c-67-188-6-232.hsd1.ca.comcast.net>
+	Mon, 12 Sep 2005 09:40:40 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:18115 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750831AbVILNkk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 09:40:40 -0400
+Subject: Re: [GIT PATCH] Remove devfs from 2.6.13
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Greg KH <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, Mike Bell <mike@mikebell.org>
+In-Reply-To: <20050911050906.GA6635@suse.de>
+References: <20050909214542.GA29200@kroah.com>
+	 <20050910082732.GR13742@mikebell.org> <20050910215254.GA15645@suse.de>
+	 <20050910230310.GS13742@mikebell.org>  <20050911050906.GA6635@suse.de>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Mon, 12 Sep 2005 09:40:26 -0400
+Message-Id: <1126532426.8652.13.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1125719249.2709.17.camel@c-67-188-6-232.hsd1.ca.comcast.net>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2005-09-10 at 22:09 -0700, Greg KH wrote:
 
-* Daniel Walker <dwalker@mvista.com> wrote:
+> 
+> Hm, ok, ALSA will not work.  Can you point to anything else?  Who cares
+> about sound on embedded systems anyway...
 
-> 	Add trace_irqs_on() to raw_local_irq_restore() .
->
-> Signed-Off-By: Daniel Walker <dwalker@mvista.com>
+Hmm, a quiet PS2?  I don't think people would go for that ;-)
 
-thanks, applied.
+Not that the PS2 runs Linux, but yes there are embedded systems that do
+require sound.
 
-	Ingo
+-- Steve
+
+

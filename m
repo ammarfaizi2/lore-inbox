@@ -1,81 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751060AbVIKXwU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751093AbVILACq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751060AbVIKXwU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 19:52:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbVIKXwT
+	id S1751093AbVILACq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 20:02:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751095AbVILACq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 19:52:19 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.59]:39110 "EHLO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S1751060AbVIKXwT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 19:52:19 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Lennert Buytenhek <buytenh@wantstofly.org>
-Date: Mon, 12 Sep 2005 09:52:09 +1000
+	Sun, 11 Sep 2005 20:02:46 -0400
+Received: from web53602.mail.yahoo.com ([206.190.37.35]:23996 "HELO
+	web53602.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S1751093AbVILACp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Sep 2005 20:02:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=svSmrc7uyWXpsvpcKLCnJNibXjns+SwuVJ0+1mEXvpVoVAnozZGtvTB3QhUBoDxnxH41wx95A6Hm477KSuymocjo8F8tWDqqDAtwH7ddz+zrfjTAn0mscjzwVUKoOeH6ya2iz2cv+Nq8vI4qDZj0M4zwvWaEiUOyuvjZZ8FkYOw=  ;
+Message-ID: <20050912000234.44429.qmail@web53602.mail.yahoo.com>
+Date: Mon, 12 Sep 2005 10:02:33 +1000 (EST)
+From: Steve Kieu <haiquy@yahoo.com>
+Subject: Re: Very strange Marvell/Yukon Gigabit NIC networking problems
+To: Daniel Drake <dsd@gentoo.org>
+Cc: Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org,
+       Netdev List <netdev@vger.kernel.org>
+In-Reply-To: <43244C33.1050502@gentoo.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17188.49961.268818.355923@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: read-from-all-disks support for RAID1?
-In-Reply-To: message from Lennert Buytenhek on Saturday September 10
-References: <20050910123902.GA9461@xi.wantstofly.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday September 10, buytenh@wantstofly.org wrote:
-> (please CC on replies)
+
+> Steve, maybe you could test it out? I have attached
+> it to this Gentoo bug:
 > 
-> Hi!
-> 
-> I recently had a case where one disk in a two-disk RAID1 array went
-> subtly bad, effectively refusing to write to certain sectors without
-> reporting an error.  Basically, parts of the disk went undetectably
-> read-only, causing file system corruption that wouldn't go away after
-> fsck, and all kinds of other fun.
+> 	http://bugs.gentoo.org/100258
 
-That really isn't something that a drive should do.  If a write fails,
-you need to be told that it failed.  If anything else happens, maybe
-you should consider boycotting that manufacturer, or at least buying
-more expensive drives (do I guess right that there were fairly
-cheap??).
+Have tested it and it does *not* solve the problem for
+me.
+
+Besides lots of other problem with 2.6.13 for me, like
+modem device not work, lots of extra modules not
+compiled  (ov511 ; unionfs etc..) so even it works I
+still need to revet back to 2.6.12.
+
+Cheers,
 
 
-> 
-> Would it be hard/wise to add an option for RAID1 mode to read from all
-> devices on a read, and report an error to syslog or simply return an
-> I/O error if there is a mismatch?  (Or use majority voting and tell
-> people to use 3-disk RAID1 arrays from now on ;-)
-> 
+S.KIEU
 
-No, I don't think so.  The overhead would be substantial, so people
-would be very unlikely to use it.
-Checking of the correctness of the data is really best done in
-hardware - in the drive itself.  That's what CRC fields (or whatever
-they use today) in the physical sectors are for...
-
-Sun's new ZFS file system (don't know if it's released yet) has a
-fairly cute idea.  Instead of just storing the address of each data
-block in a files index information, they also store a checksum and
-potentially multiple physical addresses.   When loading the data, they
-(maybe optionally) check the checksum (it would be nice if that could
-be hardware accelerated!).  If the check fails, either flag an error,
-or try to read from another location.
-I think doing this in the filesystem is a much better idea than trying
-to do it in the raid layer.
-
-The only raid-layer option that I can think of that makes much sense
-is to have a regular background scan that reads all blocks and makes
-sure all mirrors are consistent.  If an error is found, you generate a
-warning and possibly fix it.  This wouldn't report errors immediately,
-but at least you would find out proactively instead of through weird
-data corruption.
-
-I'm working towards this functionality, but it is still a little way
-off.
-
-NeilBrown
+Send instant messages to your online friends http://au.messenger.yahoo.com 

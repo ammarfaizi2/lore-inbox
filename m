@@ -1,46 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932089AbVILQp6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbVILQuJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932089AbVILQp6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 12:45:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932088AbVILQp6
+	id S932088AbVILQuJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 12:50:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932086AbVILQuJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 12:45:58 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:17619 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932087AbVILQp5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 12:45:57 -0400
-Date: Mon, 12 Sep 2005 09:45:48 -0700
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Douglas Gilbert <dougg@torque.net>, Christoph Hellwig <hch@infradead.org>,
-       Luben Tuikov <ltuikov@yahoo.com>,
-       Luben Tuikov <luben_tuikov@adaptec.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH 2.6.13 5/14] sas-class: sas_discover.c Discover process (end devices)
-Message-ID: <20050912164548.GB11455@us.ibm.com>
-References: <1126308304.4799.45.camel@mulgrave> <20050910024454.20602.qmail@web51613.mail.yahoo.com> <20050911094656.GC5429@infradead.org> <43251D8C.7020409@torque.net> <1126537041.4825.28.camel@mulgrave>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1126537041.4825.28.camel@mulgrave>
-User-Agent: Mutt/1.4.2.1i
+	Mon, 12 Sep 2005 12:50:09 -0400
+Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:28824 "EHLO
+	mta08-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S932076AbVILQuI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 12:50:08 -0400
+Message-ID: <4325B1C0.80405@gentoo.org>
+Date: Mon, 12 Sep 2005 17:50:08 +0100
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050820)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kalin KOZHUHAROV <kalin@thinrope.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Very strange Marvell/Yukon Gigabit NIC networking problems
+References: <20050901212110.19192.qmail@web53605.mail.yahoo.com> <43244C33.1050502@gentoo.org> <dg1s37$kd4$1@sea.gmane.org> <dg48qi$p96$1@sea.gmane.org>
+In-Reply-To: <dg48qi$p96$1@sea.gmane.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 12, 2005 at 09:57:21AM -0500, James Bottomley wrote:
+Kalin KOZHUHAROV wrote:
+> Well, I did test it, but skge didn't even find the hardware :-(
+> No device was created, no dmesg output on load.
+> Instead I am running 2.6.13.1 with sk98lin-8.23.1.3.patch
+> The MB is ASUS P5GDC-V-Deluxe and the the on-board NIC:
+> 
+> # lspci -v  -s 02:00.0
+> 0000:02:00.0 Ethernet controller: Marvell Technology Group Ltd. 88E8053 
+> Gigabit Ethernet Controller (rev 15)
 
-> be free to increase it if necessary.  Note: you do actually need either
-> an array with more than two levels of nesting actually to need the
-> increase and no-one actually seems to have one of these yet.
+This patch was to solve an issue in skge, a driver for Marvell Yukon network 
+adapters.
 
-That is not correct, I posted before on this, the address method is in the
-high bits of the 8 byte LUN and tells how to "interpret" the LUN value.
-You can't convert from an int to 8 byte LUN (without any other
-information) and set these bits. See SAM-4 in (or near) section 4.9.7.
+Your hardware is a yukon-2 adapter, you want to use the sky2 driver from the 
+netdev tree.
 
-So some storage devices that want to use addressing methods other than 00b
-don't because we do not have 8 byte LUN support in linux, and then we have
-other problems because of this.
-
--- Patrick Mansfield
+Daniel

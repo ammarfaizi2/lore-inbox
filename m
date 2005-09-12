@@ -1,62 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751391AbVILPG5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751335AbVILPH5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751391AbVILPG5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 11:06:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbVILPGd
+	id S1751335AbVILPH5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 11:07:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbVILPHz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 11:06:33 -0400
-Received: from pop.gmx.net ([213.165.64.20]:38340 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751389AbVILPGW (ORCPT
+	Mon, 12 Sep 2005 11:07:55 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:20743 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1751335AbVILO6Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 11:06:22 -0400
-X-Authenticated: #271361
-Date: Mon, 12 Sep 2005 17:06:18 +0200
-From: Edgar Toernig <froese@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: [udev/vcs] tons of creating/removing /dev/vcs* during boot
-Message-Id: <20050912170618.69e18341.froese@gmx.de>
+	Mon, 12 Sep 2005 10:58:24 -0400
+Date: Mon, 12 Sep 2005 10:48:57 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Cc: tsbogend@alpha.franken.de, jgarzik@pobox.com, Jon_Wetzel@Dell.com
+Subject: [patch 2.6.13 11/16] pcnet32: support ETHTOOL_GPERMADDR
+Message-ID: <09122005104857.32412@bilbo.tuxdriver.com>
+In-Reply-To: <09122005104857.32349@bilbo.tuxdriver.com>
+User-Agent: PatchPost/0.1
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Add support for ETHTOOL_GPERMADDR to pcnet32.
 
-switching from SuSE's 2.6.11.4 to vanilla 2.6.13 I noticed
-that I get tons of these lines in the log during boot:
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
 
-udev[2124]: configured rule in '/etc/udev/rules.d/50-udev.rules[98]' ...
-udev[2121]: creating device node '/dev/vcs5'
-udev[2124]: creating device node '/dev/vcsa3'
-udev[2140]: configured rule in '/etc/udev/rules.d/50-udev.rules[98]' ...
-udev[2144]: configured rule in '/etc/udev/rules.d/50-udev.rules[98]' ...
-udev[2140]: creating device node '/dev/vcs3'
-udev[2144]: creating device node '/dev/vcsa6'
-udev[2147]: removing device node '/dev/vcs6'
-udev[2149]: configured rule in '/etc/udev/rules.d/50-udev.rules[98]' ...
-udev[2158]: removing device node '/dev/vcs4'
-udev[2157]: removing device node '/dev/vcsa3'
-udev[2149]: creating device node '/dev/vcsa5'
-udev[2172]: configured rule in '/etc/udev/rules.d/50-udev.rules[98]' ....
-udev[2171]: removing device node '/dev/vcsa2'
-udev[2172]: creating device node '/dev/vcs5'
+ drivers/net/pcnet32.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletion(-)
 
-It's caused by various loadkeys, setleds, etc performed early in an
-init script.  It seems, that every open/close of a tty generates
-a hotplug event for the appropriate vcs/vcsa device.  It stops at
-the moment gettys are spawned.
-
-Looking at the 2.6.11.4 source of drivers/char/vc_screen.c I see
-that hotplug events are explicitly disabled for the vcs and vcsa
-devices (not sure whether this was done by SuSE).  In 2.6.13 all
-of that code is gone, including the class_simple that was used to
-disable hotplug events.
-
-How can I avoid all of these hotplug events?  Best would be of
-course to generate only a single event at the same time the
-tty device is create.  But I could also live with no hotplug
-events for vcs* at all.
-
-Ciao, ET.
+diff --git a/drivers/net/pcnet32.c b/drivers/net/pcnet32.c
+--- a/drivers/net/pcnet32.c
++++ b/drivers/net/pcnet32.c
+@@ -957,6 +957,7 @@ static struct ethtool_ops pcnet32_ethtoo
+     .phys_id		= pcnet32_phys_id,
+     .get_regs_len	= pcnet32_get_regs_len,
+     .get_regs		= pcnet32_get_regs,
++    .get_perm_addr	= ethtool_op_get_perm_addr,
+ };
+ 
+ /* only probes for non-PCI devices, the rest are handled by
+@@ -1185,9 +1186,10 @@ pcnet32_probe1(unsigned long ioaddr, int
+ 	    memcpy(dev->dev_addr, promaddr, 6);
+ 	}
+     }
++    memcpy(dev->perm_addr, dev->dev_addr, dev->addr_len);
+ 
+     /* if the ethernet address is not valid, force to 00:00:00:00:00:00 */
+-    if (!is_valid_ether_addr(dev->dev_addr))
++    if (!is_valid_ether_addr(dev->perm_addr))
+ 	memset(dev->dev_addr, 0, sizeof(dev->dev_addr));
+ 
+     if (pcnet32_debug & NETIF_MSG_PROBE) {

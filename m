@@ -1,52 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751115AbVILBRT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751123AbVILBcS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751115AbVILBRT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 21:17:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751116AbVILBRT
+	id S1751123AbVILBcS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 21:32:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbVILBcS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 21:17:19 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:10650 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751115AbVILBRT (ORCPT
+	Sun, 11 Sep 2005 21:32:18 -0400
+Received: from quechua.inka.de ([193.197.184.2]:46286 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S1751123AbVILBcR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 21:17:19 -0400
-Message-ID: <4324D70C.3090109@pobox.com>
-Date: Sun, 11 Sep 2005 21:17:00 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Luck, Tony" <tony.luck@intel.com>
-CC: ak@suse.de, torvalds@osdl.org, Greg Edwards <edwardsg@sgi.com>,
-       linux-kernel@vger.kernel.org, discuss@x86-64.org
-Subject: Re: [2/3] Set compatibility flag for 4GB zone on IA64
-References: <B8E391BBE9FE384DAA4C5C003888BE6F045A8EA0@scsmsx401.amr.corp.intel.com>
-In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F045A8EA0@scsmsx401.amr.corp.intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Sun, 11 Sep 2005 21:32:17 -0400
+From: Bernd Eckenfels <ecki@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: read-from-all-disks support for RAID1?
+Organization: Private Site running Debian GNU/Linux
+In-Reply-To: <17188.52623.351989.468493@cse.unsw.edu.au>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.8.1 (i686))
+Message-Id: <E1EEdB9-000374-00@calista.inka.de>
+Date: Mon, 12 Sep 2005 03:32:15 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luck, Tony wrote:
->>Luck, Tony wrote:
->>
->>>ia64 isn't all that homogeneous.  SGI systems stuff *all* memory
->>>into the DMA zone as their I/O devices have no 32-bit limits (just
->>>as well really as there is no memory below 4G on an Altix!).
->>
->>SGI machines support random PCI cards, right?  If so, you 
->>cannot presume 
->>I/O devices have no 32-bit limits.
-> 
-> 
-> No, SGI machines don't support random PCI cards.  The lowest
-> possible physical address in an Altix is 192GB.  Cards that
-> can only DMA to addresses below 4G aren't going to be very
-> useful, are they?
+In article <17188.52623.351989.468493@cse.unsw.edu.au> you wrote:
+> However, I'm not 100% certain that WV would really be useful.  Modern
+> drives will almost certainly return a read-after-write request out of
+> the drive's cache rather than going to the media.  We would need some
+> way to tell the drive to ignore the cache for this read.  I suspect
+> this is possible, but might not be trivial...
 
-Do the boxes have IOMMUs?
+I too think an background disk scrubbing job to detect bit errors
+(expecially usefull for raid5, but also helpfull todetect bad hardware)
+would be good. Some user mode API is needed to address parts of mirrors or
+parity sets.
 
-	Jeff
-
-
-
+Gruss
+Bernd

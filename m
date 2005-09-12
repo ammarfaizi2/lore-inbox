@@ -1,59 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751150AbVILJO0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbVILJXc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751150AbVILJO0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 05:14:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbVILJO0
+	id S1751212AbVILJXc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 05:23:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751252AbVILJXc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 05:14:26 -0400
-Received: from mail.gmx.de ([213.165.64.20]:39583 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751150AbVILJOZ (ORCPT
+	Mon, 12 Sep 2005 05:23:32 -0400
+Received: from wscnet.wsc.cz ([212.80.64.118]:1669 "EHLO wscnet.wsc.cz")
+	by vger.kernel.org with ESMTP id S1751212AbVILJXb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 05:14:25 -0400
-X-Authenticated: #4399952
-Date: Mon, 12 Sep 2005 11:14:24 +0200
-From: Florian Schmidt <mista.tapas@gmx.net>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: "linux-kernel @ vger. kernel. org" <linux-kernel@vger.kernel.org>,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: possible bug in RP kernel
-Message-ID: <20050912111424.1ae2f93e@mango.fruits.de>
-In-Reply-To: <20050912090115.GA5731@elte.hu>
-References: <20050912105010.701a822f@mango.fruits.de>
-	<20050912090115.GA5731@elte.hu>
-X-Mailer: Sylpheed-Claws 1.0.5 (GTK+ 1.2.10; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 12 Sep 2005 05:23:31 -0400
+Message-ID: <432548EA.1090808@gmail.com>
+Date: Mon, 12 Sep 2005 11:22:50 +0200
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: cs, en-us, en
+MIME-Version: 1.0
+To: Peter Chubb <peterc@gelato.unsw.edu.au>
+CC: Jeff Garzik <jgarzik@pobox.com>, Greg KH <gregkh@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] (i)stallion remove
+References: <200509101221.j8ACL9XI017246@localhost.localdomain>	<43234860.7050206@pobox.com>	<43234972.3010003@gmail.com>	<20050910211711.GA13660@suse.de>	<4323518E.9060407@gmail.com>	<432352F0.1080502@pobox.com>	<432360A2.7040608@gmail.com> <17188.56404.274267.432393@wombat.chubb.wattle.id.au>
+In-Reply-To: <17188.56404.274267.432393@wombat.chubb.wattle.id.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Sep 2005 11:01:15 +0200
-Ingo Molnar <mingo@elte.hu> wrote:
-
-> > 23 seconds gap between two wakeups
-> > 
-> > Maybe my understanding of how sched fifo works is wrong, but i assumed 
-> > a higher prio thread shold get woken up from a sleep by the scheduler 
-> > which gets run by the timer interrupt [which is still non 
-> > preemptible].
+Peter Chubb napsal(a):
+>>>>>>"Jiri" == Jiri Slaby <jirislaby@gmail.com> writes:
 > 
-> depending on what type of timeout you are using you'll also need to chrt 
-> the softirq-timer kernel thread(s) to prio 99. Otherwise the timer fn 
-> will have no chance to be executed. There's work going on by Thomas to 
-> make such things automatic, by prioritizing timers. If you have HRT 
-> enabled in the .config then it should mostly be automatic already 
-> though.
+> 
+> Jiri> (I)stallion remove from the tree, it contains pci_find_device,
+> Jiri> it is unmaintained and broken for a long time. Noone uses it.
+> 
+> Arrrg!  We're using it!  It works on UP ia64.  If you want to remove
+> it, please send us a supported 8-port serial card :-)
+> 
+No, i don't want to do it (neither remove, nor send :) ).
 
-Ah,
-
-thanks for the info. So it is a user (me) bug in the end :) This has
-helped. Actually the code i had attached had another bug in it. But that
-wasn't the responsible one.
-
-Thanks again, and sorry for the multiple mails,
-Florian Schmidt
-
+regards,
 -- 
-Palimm Palimm!
-http://tapas.affenbande.org
+Jiri Slaby         www.fi.muni.cz/~xslaby
+~\-/~      jirislaby@gmail.com      ~\-/~
+241B347EC88228DE51EE A49C4A73A25004CB2A10

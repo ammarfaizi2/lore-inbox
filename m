@@ -1,54 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932196AbVILUJl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932193AbVILUKM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932196AbVILUJl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 16:09:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932195AbVILUJl
+	id S932193AbVILUKM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 16:10:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932195AbVILUKM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 16:09:41 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:39046 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S932191AbVILUJj (ORCPT
+	Mon, 12 Sep 2005 16:10:12 -0400
+Received: from mail.kroah.org ([69.55.234.183]:24003 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932193AbVILUKL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 16:09:39 -0400
-Message-ID: <4325E077.3000103@adaptec.com>
-Date: Mon, 12 Sep 2005 16:09:27 -0400
-From: Luben Tuikov <luben_tuikov@adaptec.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Patrick Mansfield <patmans@us.ibm.com>
-CC: James Bottomley <James.Bottomley@SteelEye.com>,
-       Douglas Gilbert <dougg@torque.net>,
-       Christoph Hellwig <hch@infradead.org>, Luben Tuikov <ltuikov@yahoo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH 2.6.13 5/14] sas-class: sas_discover.c Discover process
- (end devices)
-References: <1126308304.4799.45.camel@mulgrave> <20050910024454.20602.qmail@web51613.mail.yahoo.com> <20050911094656.GC5429@infradead.org> <43251D8C.7020409@torque.net> <1126537041.4825.28.camel@mulgrave> <20050912164548.GB11455@us.ibm.com>
-In-Reply-To: <20050912164548.GB11455@us.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 12 Sep 2005 20:09:33.0461 (UTC) FILETIME=[E4365450:01C5B7D5]
+	Mon, 12 Sep 2005 16:10:11 -0400
+Date: Mon, 12 Sep 2005 13:04:42 -0700
+From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org
+Subject: [GIT PATCH] More I2C and hwmon patches for 2.6.13
+Message-ID: <20050912200441.GA22930@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 09/12/05 12:45, Patrick Mansfield wrote:
-> On Mon, Sep 12, 2005 at 09:57:21AM -0500, James Bottomley wrote:
-> 
-> 
->>be free to increase it if necessary.  Note: you do actually need either
->>an array with more than two levels of nesting actually to need the
->>increase and no-one actually seems to have one of these yet.
-> 
-> 
-> That is not correct, I posted before on this, the address method is in the
-> high bits of the 8 byte LUN and tells how to "interpret" the LUN value.
-> You can't convert from an int to 8 byte LUN (without any other
-> information) and set these bits. See SAM-4 in (or near) section 4.9.7.
-> 
-> So some storage devices that want to use addressing methods other than 00b
-> don't because we do not have 8 byte LUN support in linux, and then we have
-> other problems because of this.
+Here are some more i2c and hwmon patches.  They are all bugfixes, with
+the exception of the addition of the new hdaps driver.
 
-All true.
+Please pull from:
+	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/i2c-2.6.git/
+or from:
+	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/i2c-2.6.git/
+if it isn't synced up yet.
 
-	Luben
+The full patch series will sent to the sensors mailing lists, if anyone
+wants to see them.
+
+thanks,
+
+greg k-h
+
+ MAINTAINERS                      |    7 
+ drivers/hwmon/Kconfig            |   17 
+ drivers/hwmon/Makefile           |    1 
+ drivers/hwmon/hdaps.c            |  739 +++++++++++++++++++++++++++++++++++++++
+ drivers/hwmon/sis5595.c          |    5 
+ drivers/hwmon/smsc47m1.c         |    4 
+ drivers/hwmon/via686a.c          |    5 
+ drivers/hwmon/w83627hf.c         |   14 
+ drivers/i2c/busses/i2c-nforce2.c |    5 
+ 9 files changed, 779 insertions(+), 18 deletions(-)
+
+Jean Delvare:
+  hwmon: Update smsc47m1 head comment
+  hwmon: fix sis5595, via686a force_addr module parameter
+  hwmon: w83627hf: no reset by default
+  I2C: i2c-nforce2: drop unused define
+
+Robert Love:
+  updated hdaps driver.
+

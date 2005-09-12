@@ -1,71 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbVILHKp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750942AbVILHQz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751191AbVILHKp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 03:10:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbVILHKo
+	id S1750942AbVILHQz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 03:16:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751193AbVILHQz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 03:10:44 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:2794 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751193AbVILHKn (ORCPT
+	Mon, 12 Sep 2005 03:16:55 -0400
+Received: from colin.muc.de ([193.149.48.1]:523 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S1750942AbVILHQy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 03:10:43 -0400
-Date: Mon, 12 Sep 2005 00:10:15 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Jan Beulich" <JBeulich@novell.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rmmod notifier chain
-Message-Id: <20050912001015.1a8296c7.akpm@osdl.org>
-In-Reply-To: <4325412D0200007800024DE1@emea1-mh.id2.novell.com>
-References: <43206EFE0200007800024451@emea1-mh.id2.novell.com>
-	<20050908151624.GA11067@infradead.org>
-	<432073610200007800024489@emea1-mh.id2.novell.com>
-	<20050908184659.6aa5a136.akpm@osdl.org>
-	<43219FDF0200007800024975@emea1-mh.id2.novell.com>
-	<20050909112721.316f2dbb.akpm@osdl.org>
-	<4325412D0200007800024DE1@emea1-mh.id2.novell.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 12 Sep 2005 03:16:54 -0400
+Date: 12 Sep 2005 09:16:51 +0200
+Date: Mon, 12 Sep 2005 09:16:51 +0200
+From: Andi Kleen <ak@muc.de>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-mm2
+Message-ID: <20050912071651.GA13563@muc.de>
+References: <20050908053042.6e05882f.akpm@osdl.org> <201750000.1126494444@[10.10.2.4]> <20050912050122.GA3830@muc.de> <208180000.1126505399@[10.10.2.4]>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <208180000.1126505399@[10.10.2.4]>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jan Beulich" <JBeulich@novell.com> wrote:
->
-> >>  I'd be curious to know how you, considering yourself in my
->  position,
->  >>  would have approached breaking up and submitting that size a
->  patch.
->  >
->  >a) Patches which affect the main kernel but which aren't really
->  >   debugger-related
+On Sun, Sep 11, 2005 at 11:09:59PM -0700, Martin J. Bligh wrote:
+> >> Andi, does that need changing on ia32 as well as x86_64, or are you
+> >> just missing some ifdefs? Looks to me like the rest of the patch is
+> >> specific to x86_64.
+> > 
+> > It should be a straight forward fix - the new zone is empty on i386.
+> > Ok I reviewed chunk_to_zone and it should be ok with the new empty
+> > zone. So just the appended patch should work. Can you test?
 > 
->  So it was right to start with those...
-> 
->  >b) Patches which affect the main kernel and which are
->  debugger-related
->  >   (adding hooks, generalising interfaces, refactoring functions,
->  etc).
-> 
->  ... and some of those. But you saying this was more or less the right
->  approach puts things in contradiction with the complaints from others
->  that consumers of some of the changes weren't immediately visible.
-> 
->  >c) Finally, one monster patch to add the debugger functionality. 
->  Maybe
->  >   split into in vger-sized chunks.
+> Will do. but did you actually mean to enable it on both arches? didn't
+> look like it, but maybe you did.
 
-There's confusion here between two separate concepts:
+The zone is just empty on i386. That could have been avoided
+with some ifdefs, but I didn't see any sense because an empty 
+zone shouldn't hurt anybody.
 
-a) How patches should be presented (ie: the splitup)
-
-b) When patches are to be merged into Linus's tree.
-
-I have been discussing a) and you've been discussing b).
-
-Regarding b): general cleanups/fixes/etc can of course go into Linus's tree
-in the usual manner.
-
-Preparatory patches for some large feature should be delivered as separate
-patches so we can see what they're doing to the kernel but they won't
-normally be merged until the same day as the large feature itself.
+-Andi

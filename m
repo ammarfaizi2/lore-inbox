@@ -1,58 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932204AbVILUPv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932211AbVILUPt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932204AbVILUPv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 16:15:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932210AbVILUPu
+	id S932211AbVILUPt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 16:15:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932203AbVILUP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 16:15:50 -0400
-Received: from mail.kroah.org ([69.55.234.183]:30149 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932205AbVILUP2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 16:15:28 -0400
-Date: Mon, 12 Sep 2005 13:10:35 -0700
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [GIT PATCH] More Driver patches for 2.6.13
-Message-ID: <20050912201035.GA20330@kroah.com>
+	Mon, 12 Sep 2005 16:15:27 -0400
+Received: from mail.kroah.org ([69.55.234.183]:26821 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932205AbVILUPY convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 16:15:24 -0400
+Cc: clucas@rotomalug.org
+Subject: [PATCH] printk : Documentation/firmware_class/firmware_sample_driver.c
+In-Reply-To: <11265558652786@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Mon, 12 Sep 2005 13:11:05 -0700
+Message-Id: <112655586576@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.10i
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are some more small driver patches for 2.6.13.  The fix up the
-comments in the crc16 code, update the aoe driver, and fix up some
-firmware documentation.
+[PATCH] printk : Documentation/firmware_class/firmware_sample_driver.c
 
-Please pull from:
-	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-2.6.git/
-or if master.kernel.org hasn't synced up yet:
-	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/driver-2.6.git/
+printk() calls should include appropriate KERN_* constant.
 
-The full patch set will be sent to the linux-kernel mailing lists, if
-anyone wants to see them.
+Signed-off-by: Christophe Lucas <clucas@rotomalug.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-thanks,
+---
+commit 20dd026d7f5a6972dc78b4928a99620001fa547d
+tree b2676a15c732f908bf85539d74fd36ee6cacf019
+parent 49a1fd60d2a8e671222515cf6055e91781278517
+author Christophe Lucas <clucas@rotomalug.org> Thu, 08 Sep 2005 08:55:53 +0200
+committer Greg Kroah-Hartman <gregkh@suse.de> Fri, 09 Sep 2005 14:23:29 -0700
 
-greg k-h
+ .../firmware_class/firmware_sample_driver.c        |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
- Documentation/aoe/mkshelf.sh                          |    6 ++++--
- Documentation/firmware_class/firmware_sample_driver.c |    8 ++++----
- drivers/block/aoe/aoe.h                               |   12 ++++++------
- drivers/w1/w1_ds2433.c                                |    6 +++++-
- include/linux/crc16.h                                 |   16 +---------------
- 5 files changed, 20 insertions(+), 28 deletions(-)
-
-
-Christophe Lucas:
-  printk : Documentation/firmware_class/firmware_sample_driver.c
-
-Ed L Cashin:
-  aoe [1/2]: support 16 AoE slot addresses per AoE shelf
-  aoe [2/2]: update driver version number to twelve
-
-Evgeniy Polyakov:
-  crc16: remove w1 specific comments.
+diff --git a/Documentation/firmware_class/firmware_sample_driver.c b/Documentation/firmware_class/firmware_sample_driver.c
+--- a/Documentation/firmware_class/firmware_sample_driver.c
++++ b/Documentation/firmware_class/firmware_sample_driver.c
+@@ -32,14 +32,14 @@ static void sample_firmware_load(char *f
+ 	u8 buf[size+1];
+ 	memcpy(buf, firmware, size);
+ 	buf[size] = '\0';
+-	printk("firmware_sample_driver: firmware: %s\n", buf);
++	printk(KERN_INFO "firmware_sample_driver: firmware: %s\n", buf);
+ }
+ 
+ static void sample_probe_default(void)
+ {
+ 	/* uses the default method to get the firmware */
+         const struct firmware *fw_entry;
+-	printk("firmware_sample_driver: a ghost device got inserted :)\n");
++	printk(KERN_INFO "firmware_sample_driver: a ghost device got inserted :)\n");
+ 
+         if(request_firmware(&fw_entry, "sample_driver_fw", &ghost_device)!=0)
+ 	{
+@@ -61,7 +61,7 @@ static void sample_probe_specific(void)
+ 
+ 	/* NOTE: This currently doesn't work */
+ 
+-	printk("firmware_sample_driver: a ghost device got inserted :)\n");
++	printk(KERN_INFO "firmware_sample_driver: a ghost device got inserted :)\n");
+ 
+         if(request_firmware(NULL, "sample_driver_fw", &ghost_device)!=0)
+ 	{
+@@ -83,7 +83,7 @@ static void sample_probe_async_cont(cons
+ 		return;
+ 	}
+ 
+-	printk("firmware_sample_driver: device pointer \"%s\"\n",
++	printk(KERN_INFO "firmware_sample_driver: device pointer \"%s\"\n",
+ 	       (char *)context);
+ 	sample_firmware_load(fw->data, fw->size);
+ }
 

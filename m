@@ -1,49 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932156AbVILSyz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbVILS5E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932156AbVILSyz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 14:54:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932151AbVILSyz
+	id S932148AbVILS5E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 14:57:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932150AbVILS5E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 14:54:55 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:11168 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932095AbVILSyy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 14:54:54 -0400
-Message-ID: <4325CEFA.6050307@pobox.com>
-Date: Mon, 12 Sep 2005 14:54:50 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: abonilla@linuxwireless.org
-CC: netdev@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       ieee80211-devel@lists.sourceforge.net,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Git broken for IPW2200
-References: <1126143695.5402.11.camel@localhost.localdomain>
-In-Reply-To: <1126143695.5402.11.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Mon, 12 Sep 2005 14:57:04 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:11131 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S932148AbVILS5D
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 14:57:03 -0400
+Date: Mon, 12 Sep 2005 20:59:09 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Luck, Tony" <tony.luck@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: new asm-offsets.h patch problems
+Message-ID: <20050912185909.GA13374@mars.ravnborg.org>
+References: <B8E391BBE9FE384DAA4C5C003888BE6F045A9188@scsmsx401.amr.corp.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F045A9188@scsmsx401.amr.corp.intel.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alejandro Bonilla Beeche wrote:
-> Hi,
+On Mon, Sep 12, 2005 at 09:00:06AM -0700, Luck, Tony wrote:
+> So I still don't understand what is really happening here.
 > 
-> 	Where does one report this? I was building Linus Git tree as per I
-> updated it at 09/07/2005 7:00PM PDT and got this while compiling.
+> I left my build script running overnight ... working on a
+> kernel at the 357d596bd... commit (where Linus merged in
+> my tree last night).  This one has your "archprepare" patch
+> already included.
 > 
-> Where do I report this?
+> Sometimes a build for a config succeeds, and sometimes it
+> fails. (tiger_defconfig for the last six builds has had a
+> GOOD, BAD, BAD, BAD, GOOD, GOOD sequence, while bigsur_defconfig
+> went GOOD, BAD, BAD, BAD, BAD, BAD).  This non-determinism
+> doesn't fit in well with your explanation of missing defines
+> for PAGE_SIZE etc.
+
+I have tried to reproduce it locally, but my gcc barfed out
+in namei.c with an internal error :-(
+I can explain why you see recompiles though.
+
+asm-offsets.c has a dependency on asm-offsets.h
+So in the cases where asm-offsets.c is build just before asm-offsets.h
+then no recompile happens - at least not if they get same timestamp.
+But in the cases where there is a command or two in betweem the two
+the timestamps differ so next time you execute 'make' it will see that
+asm-offsets.h is newe than asm-offsets.c and thus it will rebuild the
+asm-offsets.h file.
+
+But again this does not expalin why it sometimes goes bad, sometimes
+goes well. I need some compile output for good and bad cases to dig more
+into it.
+There is no chance this is unrealted to the asm-offsets changes?
+
+	Sam
+
 > 
-> Debian unstable updated at same time.
+> -Tony
 > 
-> it looks like ipw2200 is thinking that ieee80211 is not compiled in, but
-> I did select it as a module?
-
-Care to send your .config?
-
-	Jeff
-
-
-

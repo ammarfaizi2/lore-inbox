@@ -1,70 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751155AbVILOp2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751164AbVILOpr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751155AbVILOp2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 10:45:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751158AbVILOp2
+	id S1751164AbVILOpr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 10:45:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751198AbVILOpr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 10:45:28 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:13219 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751155AbVILOp1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 10:45:27 -0400
-Subject: Re: [Aurora-sparc-devel] [2.6.13-rc6-git13/sparc64]: Slab
-	corruption (possible stack or buffer-cache corruption)
-From: "Tom 'spot' Callaway" <tcallawa@redhat.com>
-To: Aurora development <aurora-sparc-devel@lists.auroralinux.org>
-Cc: linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>,
-       sparclinux@vger.kernel.org
-In-Reply-To: <Pine.BSO.4.62.0509121604360.5000@rudy.mif.pg.gda.pl>
-References: <Pine.BSO.4.62.0509121604360.5000@rudy.mif.pg.gda.pl>
-Content-Type: text/plain; charset=utf-8
-Organization: Red Hat
-Date: Mon, 12 Sep 2005 09:45:16 -0500
-Message-Id: <1126536316.25031.66.camel@localhost.localdomain>
+	Mon, 12 Sep 2005 10:45:47 -0400
+Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:23789 "EHLO
+	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1751158AbVILOpq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 10:45:46 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Subject: Re: 2.6.13-mm3 BUG in ntfs or slab
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200509121417.j8CEH7u5006138@wscnet.wsc.cz>
+References: <200509121417.j8CEH7u5006138@wscnet.wsc.cz>
+Content-Type: text/plain
+Organization: Computing Service, University of Cambridge, UK
+Date: Mon, 12 Sep 2005 15:45:28 +0100
+Message-Id: <1126536328.19902.9.camel@imp.csi.cam.ac.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 (2.4.0-1) 
-Content-Transfer-Encoding: 8bit
+X-Mailer: Evolution 2.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-09-12 at 16:37 +0200, Tomasz Kłoczko wrote:
-> Hardware: Sun E250 SMP (2x400MHz), 1.5GB RAM.
-> Kernel: 2.6.12-1.1505sp3 (from Aurora corona repo).
-> 
-> On first it looks like stack or buffer-cache corruption.
-> 
->   Slab corruption: (Not tainted) start=fffff8005d9be708, len=808
->   Redzone: 0x5a2cf071/0x5a2cf071.
->   Last user: [destroy_inode+100/144](destroy_inode+0x64/0x90)
->   Call Trace:
->    [00000000004759f4] free_block+0x160/0x1b4
->    [0000000000475bb8] cache_flusharray+0x98/0x128
->    [0000000000475704] kmem_cache_free+0x68/0x94
->    [00000000004a56c4] destroy_inode+0x64/0x90
->    [00000000004a68f4] dispose_list+0xf0/0x12c
->    [00000000004a6af8] shrink_icache_memory+0x1c8/0x22c
->    [0000000000478c74] shrink_slab+0xc8/0x148
->    [000000000047a298] kswapd+0x2ec/0x42c
->    [0000000000415800] kernel_thread+0x30/0x48
->   [0000000000714dc8] kswapd_init+0x24/0x6c
->   090: 6b 6b 6b 6b 6b 6b 6b 6b ff ff f8 00 5d 17 61 50
->   Prev obj: start=fffff8005d9be3c8, len=808
->   Redzone: 0x5a2cf071/0x5a2cf071.
->   Last user: [destroy_inode+100/144](destroy_inode+0x64/0x90)
->   000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
->   010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
->   Next obj: start=fffff8005d9bea48, len=808
->   Redzone: 0x5a2cf071/0x5a2cf071.
->   Last user: [destroy_inode+100/144](destroy_inode+0x64/0x90)
->   000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
->   010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+On Mon, 2005-09-12 at 16:17 +0200, Jiri Slaby wrote:
+> This BUG causes freeze of applications, such as beep-media-player (e.g.
+> uninterruptible sleep in futex with no wake), ls (un. sleep, i don't know
+> where), bash, when listing ntfs dirs.
 
-We've been seeing this intermittently on arthur since Aurora 1.0 (2.4).
+Ok, it is official.  I can't read.  All my fault.  Brown paperbag time.
 
-~spot
+This should fix it:
+
+diff --git a/fs/ntfs/malloc.h b/fs/ntfs/malloc.h
+--- a/fs/ntfs/malloc.h
++++ b/fs/ntfs/malloc.h
+@@ -45,7 +45,7 @@ static inline void *__ntfs_malloc(unsign
+ 	if (likely(size <= PAGE_SIZE)) {
+ 		BUG_ON(!size);
+ 		/* kmalloc() has per-CPU caches so is faster for now. */
+-		return kmalloc(PAGE_SIZE, gfp_mask);
++		return kmalloc(PAGE_SIZE, gfp_mask & ~__GFP_HIGHMEM);
+ 		/* return (void *)__get_free_page(gfp_mask); */
+ 	}
+ 	if (likely(size >> PAGE_SHIFT < num_physpages))
+
+Best regards,
+
+        Anton
 -- 
-Tom "spot" Callaway: Red Hat Senior Sales Engineer || GPG ID: 93054260
-Fedora Extras Steering Committee Member (RPM Standards and Practices)
-Aurora Linux Project Leader: http://auroralinux.org
-Lemurs, llamas, and sparcs, oh my!
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

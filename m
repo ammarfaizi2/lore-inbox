@@ -1,95 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932069AbVILQ32@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750986AbVILQ2Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932069AbVILQ32 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 12:29:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932070AbVILQ32
+	id S1750986AbVILQ2Z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 12:28:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751030AbVILQ2Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 12:29:28 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:56049 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932069AbVILQ31
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 12:29:27 -0400
-Date: Mon, 12 Sep 2005 09:27:39 -0700
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: Luben Tuikov <luben_tuikov@adaptec.com>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>, ltuikov@yahoo.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH 2.6.13 5/14] sas-class: sas_discover.c Discover process (end devices)
-Message-ID: <20050912162739.GA11455@us.ibm.com>
-References: <20050910024454.20602.qmail@web51613.mail.yahoo.com> <1126368081.4813.46.camel@mulgrave> <4325997D.3050103@adaptec.com>
+	Mon, 12 Sep 2005 12:28:25 -0400
+Received: from ns1.suse.de ([195.135.220.2]:20165 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750985AbVILQ2Z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 12:28:25 -0400
+Date: Mon, 12 Sep 2005 18:28:22 +0200
+From: Karsten Keil <kkeil@suse.de>
+To: akpm@osdl.org, torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Sedlbauer speed star II V 3.1 exist with various subversions
+Message-ID: <20050912162822.GA20594@pingi3.kke.suse.de>
+Mail-Followup-To: akpm@osdl.org, torvalds@osdl.org,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4325997D.3050103@adaptec.com>
-User-Agent: Mutt/1.4.2.1i
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 12, 2005 at 11:06:37AM -0400, Luben Tuikov wrote:
+Hi,
 
-> > We have an infrastructure in the mid-layer for doing report lun scans.
-> > You have a parallel one in your code.  In my book, that's duplication.
-> 
-> This infrastructure is broken.  Its interface is broken.  It is a horrible
-> excuse of LUN scanning written initially to support a certain hardware.
+this is my first try to submit a patch via the public isdn-2.6 git tree, hopefully I
+got it correct.
 
-That is not true of the report lun support, it was written initially for
-support of any hardware. Of course it was tested on certain hardware, but
-that was not the goal.
+You can fetch the patch from
+rsync:/rsync.kernel.org/pub/scm/linux/kernel/git/kkeil/isdn-2.6.git
 
-> And secondly, the routine which I've written is NOT duplication.
-> It is the _correct_ way to do it, while the one in SCSI Core
-> is *crap*, thus there is no duplication.
+Sedlbauer speed star II V 3.1 exist with various subversions
 
-What is wrong with the one in scsi core?
+- the 4th id field should be not used 
 
-Your implementation has problems for large numbers of LU the secondary
-kmalloc() will always fail. I do not see how it handles transient failures
-either, or (per below discussion) devices that return bogus data.
+Signed-off-by: Karsten Keil <kkeil@suse.de>
 
-> >>>>+ * REPORT LUNS is mandatory.  If a device doesn't support it,
-> [cut]
-> >>Second, SAS devices being very recent have their firmware written
-> >>to latest specs, and advertised as SPC-3 and SAM-3.
+---
 
-> > We have boatloads of devices that claim SCSI-n or SPC-n compliance then
-> > fail in various ways.  That's what the list in scsi_devinfo.c is all
-> > about.  I'm sure the manufacturers of those devices didn't intentionally
-> > set out to violate the specs; however, what they actually released does.
-> > I'm sure that SAS vendors will start out with the best of intentions
-> > too ...
-> 
-> I've run this code on pre-pre-pre-.... firmware and it handles
-> really broken REPORT LUNS devices.  It works *without the need* for
-> a blacklist lookup table.
+ drivers/isdn/hisax/sedlbauer_cs.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-There could (will?) be bridges from SAS to anything (like existing SPI to
-IDE bridges, or FC to SPI bridges), so it is likely it will have to
-handle not-so-new and potentially brain dead storage devices.
-
-> Second, I did ask for REPORT LUNS mechanism into SCSI Core before it
-> was there.
-
-That code was not written because anyone asked for it.
-
-> Are you asking me to submit a patch for SCSI Core to do proper
-> REPORT LUNS?   *This is ubelievable.*  I would like the whole
-> world to note it (for your sake).
-
-At least tell us what is wrong with it, I know it does not have well known
-LUN support, and we already know about 8 byte LUN support.
+953abba4c70dcf5ec73a0eb610860dacb738540b
+diff --git a/drivers/isdn/hisax/sedlbauer_cs.c b/drivers/isdn/hisax/sedlbauer_cs.c
+--- a/drivers/isdn/hisax/sedlbauer_cs.c
++++ b/drivers/isdn/hisax/sedlbauer_cs.c
+@@ -611,7 +611,7 @@ static int sedlbauer_event(event_t event
+ } /* sedlbauer_event */
+ 
+ static struct pcmcia_device_id sedlbauer_ids[] = {
+-	PCMCIA_DEVICE_PROD_ID1234("SEDLBAUER", "speed star II", "V 3.1", "(c) 93 - 98 cb ", 0x81fb79f5, 0xf3612e1d, 0x6b95c78a, 0x50d4149c),
++	PCMCIA_DEVICE_PROD_ID123("SEDLBAUER", "speed star II", "V 3.1", 0x81fb79f5, 0xf3612e1d, 0x6b95c78a),
+ 	PCMCIA_DEVICE_PROD_ID123("SEDLBAUER", "ISDN-Adapter", "4D67", 0x81fb79f5, 0xe4e9bc12, 0x397b7e90),
+ 	PCMCIA_DEVICE_PROD_ID123("SEDLBAUER", "ISDN-Adapter", "4D98", 0x81fb79f5, 0xe4e9bc12, 0x2e5c7fce),
+ 	PCMCIA_DEVICE_PROD_ID123("SEDLBAUER", "ISDN-Adapter", " (C) 93-94 VK", 0x81fb79f5, 0xe4e9bc12, 0x8db143fe),
 
 
-IMO adding well known LUNs at this point to the standard added nothing of
-value, the target firmware has to check for special paths no matter what,
-adding a well known LUN does not change that. And most vendors will
-(likely) have support for use without a well known LUN. (This does not
-mean we should not support it in linux, I just don't know why this went
-into the standard.)
-
-Using well known LUNs will be another code path that will have to live
-alongside existing ones, and will likely require further black listing
-(similar to REPORT LUN vs scanning for LUNs).
-
--- Patrick Mansfield
+-- 
+Karsten Keil
+SuSE Labs
+ISDN development

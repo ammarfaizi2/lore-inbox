@@ -1,102 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbVILRql@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751097AbVILRw3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750732AbVILRql (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 13:46:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbVILRql
+	id S1751097AbVILRw3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 13:52:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbVILRw3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 13:46:41 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:64157 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750732AbVILRqk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 13:46:40 -0400
-Message-ID: <4325BEF3.2070901@in.ibm.com>
-Date: Mon, 12 Sep 2005 12:46:27 -0500
-From: Sripathi Kodi <sripathik@in.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc3 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: akpm@osdl.org, patrics@interia.pl
-Subject: [PATCH 2.6.13.1] Patch for invisible threads
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 12 Sep 2005 13:52:29 -0400
+Received: from smtpout.mac.com ([17.250.248.71]:56573 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1751097AbVILRw3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 13:52:29 -0400
+In-Reply-To: <20050912084756.4fa2bd07.pj@sgi.com>
+References: <C670AD22-97CF-46AA-A527-965036D78667@mac.com> <20050903064124.GA31400@codepoet.org> <4319BEF5.2070000@zytor.com> <B9E70F6F-CC0A-4053-AB34-A90836431358@mac.com> <dfhs4u$1ld$1@terminus.zytor.com> <5A37B032-9BBD-4AEA-A9BF-D42AFF79BC86@mac.com> <9C47C740-86CF-48F1-8DB6-B547E5D098FF@mac.com> <97597F8E-DDCE-479F-AE8D-CC7DC75AB3C3@mac.com> <20050910014543.1be53260.akpm@osdl.org> <4FAE9F58-7153-4574-A2C3-A586C9C3CFF1@mac.com> <20050910150446.116dd261.akpm@osdl.org> <E352D8E3-771F-4A0D-9403-DBAA0C8CBB83@mac.com> <20050910174818.579bc287.akpm@osdl.org> <93E9C5F9-A083-4322-A580-236E2232CCC0@mac.com> <20050912010954.70ac90e2.pj@sgi.com> <43259C9E.1040300@zytor.com> <20050912084756.4fa2bd07.pj@sgi.com>
+Mime-Version: 1.0 (Apple Message framework v734)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <67DD59DE-B7B3-43EC-A241-670ACD4C0322@mac.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, bunk@stusta.de
 Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [RFC][MEGAPATCH] Change __ASSEMBLY__ to __ASSEMBLER__ (defined by GCC from 2.95 to current CVS)
+Date: Mon, 12 Sep 2005 13:51:51 -0400
+To: Paul Jackson <pj@sgi.com>
+X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sep 12, 2005, at 11:47:56, Paul Jackson wrote:
+> hpa wrote:
+>
+>> The only sane thing is to have a set of ABI headers with a clean,
+>> specific set of rules, which is included by the kernel private  
+>> headers,
+>> as well as userspace.
+>>
+>
+> Why must the ABI headers be included by both kernel and user  
+> headers to
+> be sane?
+>
+> Hmmm ... I'm not sure I want to ask that, actually.  I have this  
+> feeling
+> from the tone of your assertion that you can explain to me why such a
+> header organization is the only one that fits your mental model of how
+> these things are structured, but that communication between us may
+> break down when you try to convince me that your mental model for this
+> is the only correct one.
 
-When the main thread of a multi-threaded program calls 'pthread_exit' before
-other threads have exited, it results in the other threads becoming
-'invisible' to commands like 'ps'. This problem was discussed here :
-http://lkml.org/lkml/2004/10/5/234 and http://kerneltrap.org/node/3930, but
-I can't find a patch or explanation for it anywhere. This problem is only
-seen with NPTL and not with LinuxThreads, because Linuxthreads does not let
-the main thread exit (puts it to sleep) until all other threads have exited.
+If we acknowledge the fact that syncing the release dates of two  
+projects
+is basically futile, especially given that under your system the kernel
+headers would not change much/at-all to make the user-headers project
+easier, then any feature X that appears in a new release of the kernel
+will not be accessible from userspace tools without ignoring the  
+point of
+the user-headers project all together and having separate headers.   
+Given
+this, as well as the maintenance burden for those who would need to
+maintain the user-headers (which would be nearly nil if the current
+kernel headers could be cleaned up to the point which they could be used
+instead), this project is lots of messy work either way, but in the long
+run, if included into the upstream kernel, it will result in much less
+duplication of effort and much cleaner code.
 
-The problem can be easily recreated with this simple program:
-#include <pthread.h>
-#include <sys/types.h>
-#include <unistd.h>
-void *run(void *arg)
-{
-     sleep(60);
-     printf("Thread: Exiting\n");
-     pthread_exit(NULL);
-}
-int main()
-{
-     pthread_t t;
-     pthread_create(&t, NULL, run, NULL);
-     sleep(20);
-     printf("Main: exiting\n");
-     pthread_exit(NULL);
-}
+Cheers,
+Kyle Moffett
 
-After the main thread calls 'pthread_exit', it is shown to be defunct. We
-can still see the directory /proc/<pid_of_main_thread>/task using 'ls',
-'stat' on it returns success, but 'open' on that directory returns ENOENT.
-Hence though the other thread is still running, it can't be seen.
-
-The reason appears to be the call to __exit_fs from do_exit when the main
-thread exits. This sets the 'fs' pointer in the task struct to NULL. It also
-decrements the reference count on the fs structure, but does not release the
-memory because the other thread still holds a reference (__put_fs_struct).
-When we do open() on /proc/<pid>/task, proc_root_link() (flow is open_namei
-- may_open - proc_permission - proc_check_root - proc_root_link) tries to
-obtain the task_struct->fs of the main thread, which is now NULL. So it
-returns ENOENT.
-
-I think we can fix this problem by the following patch. We set the fs
-pointer to NULL only if either the thread is not a thread group leader or if
-the whole thread group has exited. If the main thread is the last to exit,
-it will set the fs pointer to NULL. However, if it is not the last, it won't
-set fs pointer to NULL so that other threads can still use it. Behavior of
-__put_fs_struct is not affected.
-
-Please let me know if this is reasonable or if there are other ways to fix
-the problem.
-
-Thanks and regards,
-Sripathi.
+--
+Premature optimization is the root of all evil in programming
+   -- C.A.R. Hoare
 
 
-Signed-off-by: Sripathi Kodi <sripathik@in.ibm.com>
 
---- linux-2.6.13.1/kernel/exit.c	2005-09-12 02:46:26.000000000 -0500
-+++ /home/sripathi/17794/patch_2.6.13.1/exit.c	2005-09-12 02:46:15.000000000 
--0500
-@@ -463,9 +463,11 @@ static inline void __exit_fs(struct task
-  	struct fs_struct * fs = tsk->fs;
-
-  	if (fs) {
--		task_lock(tsk);
--		tsk->fs = NULL;
--		task_unlock(tsk);
-+		if (!thread_group_leader(tsk) || !atomic_read(&tsk->signal->live)) {
-+			task_lock(tsk);
-+			tsk->fs = NULL;
-+			task_unlock(tsk);
-+		}
-  		__put_fs_struct(fs);
-  	}
-  }

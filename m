@@ -1,45 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932270AbVILVlF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932155AbVILVx6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932270AbVILVlF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 17:41:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbVILVlF
+	id S932155AbVILVx6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 17:53:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbVILVx6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 17:41:05 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:11981
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932270AbVILVlD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 17:41:03 -0400
-Date: Mon, 12 Sep 2005 14:41:07 -0700 (PDT)
-Message-Id: <20050912.144107.37064900.davem@davemloft.net>
-To: joebob@spamtest.viacore.net
-Cc: cw@f00f.org, linux-kernel@vger.kernel.org
-Subject: Re: Pure 64 bootloaders
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <4325F3D5.9040109@spamtest.viacore.net>
-References: <43229BA4.4010306@pobox.com>
-	<20050910163446.GA2232@taniwha.stupidest.org>
-	<4325F3D5.9040109@spamtest.viacore.net>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Mon, 12 Sep 2005 17:53:58 -0400
+Received: from 66-23-228-155.clients.speedfactory.net ([66.23.228.155]:51893
+	"EHLO kevlar.burdell.org") by vger.kernel.org with ESMTP
+	id S932155AbVILVx5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 17:53:57 -0400
+Date: Mon, 12 Sep 2005 17:49:45 -0400
+From: Sonny Rao <sonny@burdell.org>
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: "Andrew Morton <Andrew Morton" <akpm@osdl.org>, <""@osdl.org>,
+       linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org
+Subject: Re: 2.6.13-mm3
+Message-ID: <20050912214945.GA17729@kevlar.burdell.org>
+Mail-Followup-To: Sonny Rao <sonny@burdell.org>,
+	Jiri Slaby <jirislaby@gmail.com>,
+	"Andrew Morton <Andrew Morton" <akpm@osdl.org>, <""@osdl.org>,
+	linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org
+References: <20050912194032.GA12426@kevlar.burdell.org> <200509122106.j8CL6WPk006092@wscnet.wsc.cz>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200509122106.j8CL6WPk006092@wscnet.wsc.cz>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Joe Bob Spamtest <joebob@spamtest.viacore.net>
-Date: Mon, 12 Sep 2005 14:32:05 -0700
-
-> Chris Wedgwood wrote:
-> >> /lib64 is an awful scheme.  I'd avoid it.
-> > I'd like to see people move away from it before it gets too entrenched
-> > too.
+On Mon, Sep 12, 2005 at 11:06:32PM +0200, Jiri Slaby wrote:
+> > I'm getting some build errors on ppc64 in drivers/char/hvc_console.c
+> > 
+> > 
+> >   CC      drivers/char/hvc_console.o
+> > drivers/char/hvc_console.c: In function `hvc_poll':
+> > drivers/char/hvc_console.c:600: error: `count' undeclared (first use in this
+> > function)
+> > drivers/char/hvc_console.c:600: error: (Each undeclared identifier is reported
+> > only once
+> > drivers/char/hvc_console.c:600: error: for each function it appears in.)
+> > drivers/char/hvc_console.c:636: error: structure has no member named `flip'
+> > make[1]: *** [drivers/char/hvc_console.o] Error 1
+> > make: *** [_module_drivers/char] Error 2
+> > 
+> > The count undeclared one was easy to fix but I coldn't fix the filp
+> > structure element in 2-3 minutes so I'm punting.
+> > 
+> > Anyone have a patch to fix this driver?
 > 
-> agreed -- as far as i'm concerned the 32 bit libraries are there for 
-> compatibility's sake and should be in /lib/compat/<subarch> instead of 
-> /lib. the native libraries should be in /lib instead of /lib64. lib64 
-> should just go away!
+> Try this:
+> ---
 
-64-bit isn't any more "native" than 32-bit on some 64-bit platforms.
-32-bit is the default and most desirable userland binary format on
-sparc64 for example.  So 32-bit programs on sparc64 are as "native" as
-64-bit ones might be considered.
+Hmm, that didn't build.  I made my own version based on yours,
+unfortunately I don't know if it boots because all my network just went
+down.  Hopefully, someone will confirm that the fix is correct.
+
+
+--- linux-2.6.13-mm3/drivers/char/hvc_console.c~orig	2005-09-12 16:37:14.434077464 -0500
++++ linux-2.6.13-mm3/drivers/char/hvc_console.c	2005-09-12 16:37:25.466998360 -0500
+@@ -597,7 +597,7 @@ static int hvc_poll(struct hvc_struct *h
+ 
+ 	/* Read data if any */
+ 	for (;;) {
+-		count = tty_buffer_request_room(tty, N_INBUF);
++		int count = tty_buffer_request_room(tty, N_INBUF);
+ 
+ 		/* If flip is full, just reschedule a later read */
+ 		if (count == 0) {
+@@ -633,7 +633,7 @@ static int hvc_poll(struct hvc_struct *h
+ 			tty_insert_flip_char(tty, buf[i], 0);
+ 		}
+ 
+-		if (tty->flip.count)
++		if (tty->buf.tail->used)
+ 			tty_schedule_flip(tty);
+ 
+ 		/*
+

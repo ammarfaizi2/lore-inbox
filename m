@@ -1,60 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbVILKHi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbVILKJt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750701AbVILKHi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 06:07:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750711AbVILKHi
+	id S1750707AbVILKJt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 06:09:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750711AbVILKJt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 06:07:38 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:61854 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750701AbVILKHh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 06:07:37 -0400
-Date: Mon, 12 Sep 2005 03:03:06 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, vojtech@suse.cz,
-       dwmw2@infradead.org, netdev@vger.kernel.org, benjamin_kong@ali.com.tw,
-       dagb@cs.uit.no, jgarzik@pobox.com, davidm@snapgear.com,
-       twoller@crystal.cirrus.com, alan@redhat.com, mm@caldera.de,
-       scott@spiteful.org, jsimmons@transvirtual.com
-Subject: Re: pm_register should die
-Message-Id: <20050912030306.42a73f62.akpm@osdl.org>
-In-Reply-To: <20050912095532.GA27763@elf.ucw.cz>
-References: <20050912093456.GA29205@elf.ucw.cz>
-	<20050912024145.3c4298ec.akpm@osdl.org>
-	<20050912095323.GD27583@elf.ucw.cz>
-	<20050912095532.GA27763@elf.ucw.cz>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 12 Sep 2005 06:09:49 -0400
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:34024 "EHLO
+	ogre.sisk.pl") by vger.kernel.org with ESMTP id S1750707AbVILKJs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 06:09:48 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Daniel Ritz <daniel.ritz@gmx.ch>
+Subject: Re: 2.6.13-mm2
+Date: Mon, 12 Sep 2005 12:09:47 +0200
+User-Agent: KMail/1.8.2
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Hugh Dickins <hugh@veritas.com>
+References: <20050908053042.6e05882f.akpm@osdl.org> <200509112208.44422.daniel.ritz@gmx.ch> <200509121206.05450.rjw@sisk.pl>
+In-Reply-To: <200509121206.05450.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509121209.47736.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@suse.cz> wrote:
->
-> Hi!
+On Monday, 12 of September 2005 12:06, Rafael J. Wysocki wrote:
+> Hi,
 > 
-> > > > +#ifdef CONFIG_OLD_PM
-> > > >   	if (pm_send_all(PM_SUSPEND, (void *)3)) {
+> (continuing the unfinished message)
+> 
+> On Sunday, 11 of September 2005 22:08, Daniel Ritz wrote:
+> > On Sunday 11 September 2005 21.36, Andrew Morton wrote:
+> > > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> > > >
+> > > > > 
+> > > >  > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13/2.6.13-mm2/
+> > > >  > 
+> > > >  > (kernel.org propagation is slow.  There's a temp copy at
+> > > >  > http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.13-mm2.bz2)
+> > > > 
+> > > >  Could you please reintroduce the yenta-free_irq-on-suspend.patch (attached)
+> > > >  into -mm?  My box does not resume from disk without it.
 > > > 
-> > > Can we not do this without ifdefs?
+> > > No probs.
 > > > 
-> > > #define pm_send_all(foo, bar) 0
+> > > Daniel, do you remember why we decided to drop it?  What should we do about
+> > > this?  Thanks.
+> > > 
 > > 
-> > Okay, we probably can, but the ifdefs make very nice/easy markers
-> > "this is going away". I'd prefer to actually delete all the code
-> > inside those ifdefs...
+> > yeah, there was a long discussion about it. see:
+> > 	http://marc.theaimsgroup.com/?t=112275164900002&r=1&w=4
+> > the reason being that it breaks APM suspend on Hugh Dickins' (added to cc:) laptop.
+> > Linus was quite clear about why reverting...
+> > 	http://marc.theaimsgroup.com/?l=linux-kernel&m=112278810115252&w=4
 > > 
-> > I agree this patch can be improved... I hope I can get people to fix
-> > those 13 occurences and be able to just drop everything in #ifdef
-> > _OLD_PM.
+> > we should look at both problems in detail:
+> > - with APM it seems to break because the bridge gives interrupt before the
+> >   handler is installed.
+> > - with ACPI i think some _other_ device gives the interrupts too early. but
+> >   when all devices on the interrupt unregister the irq is disabled and the
+> >   problem is hidden.
+> > 
+> > i don't think we can do mutch about the APM case...
+> > 
+> > so Rafael, your /proc/interrupts, lspci -vvv and dmesg, please.
 > 
-> There's another reason: they are ifdef-ed out so that you don't see
-> "obsolete function called" warning. Breaking the function and hiding
-> the warning at same time would seem like a wrong thing to do. If
-> someone does pm_send_all in his code, we want him to see the warning.
-> 
+> rafael@albercik:~> cat /proc/interrupts
+]-- snip --[
 
-Fair enough.
+BTW, please have a look at:
+http://bugzilla.kernel.org/show_bug.cgi?id=4416#c36
+and
+http://bugzilla.kernel.org/show_bug.cgi?id=4416#c37
 
+Greetings,
+Rafael
+
+
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

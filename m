@@ -1,65 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932065AbVILQME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932069AbVILQ32@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932065AbVILQME (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 12:12:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932066AbVILQME
+	id S932069AbVILQ32 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 12:29:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932070AbVILQ32
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 12:12:04 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:12970 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932065AbVILQMC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 12:12:02 -0400
-Date: Mon, 12 Sep 2005 08:47:56 -0700
-From: Paul Jackson <pj@sgi.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: mrmacman_g4@mac.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       bunk@stusta.de
-Subject: Re: [RFC][MEGAPATCH] Change __ASSEMBLY__ to __ASSEMBLER__ (defined
- by GCC from 2.95 to current CVS)
-Message-Id: <20050912084756.4fa2bd07.pj@sgi.com>
-In-Reply-To: <43259C9E.1040300@zytor.com>
-References: <C670AD22-97CF-46AA-A527-965036D78667@mac.com>
-	<20050903064124.GA31400@codepoet.org>
-	<4319BEF5.2070000@zytor.com>
-	<B9E70F6F-CC0A-4053-AB34-A90836431358@mac.com>
-	<dfhs4u$1ld$1@terminus.zytor.com>
-	<5A37B032-9BBD-4AEA-A9BF-D42AFF79BC86@mac.com>
-	<9C47C740-86CF-48F1-8DB6-B547E5D098FF@mac.com>
-	<97597F8E-DDCE-479F-AE8D-CC7DC75AB3C3@mac.com>
-	<20050910014543.1be53260.akpm@osdl.org>
-	<4FAE9F58-7153-4574-A2C3-A586C9C3CFF1@mac.com>
-	<20050910150446.116dd261.akpm@osdl.org>
-	<E352D8E3-771F-4A0D-9403-DBAA0C8CBB83@mac.com>
-	<20050910174818.579bc287.akpm@osdl.org>
-	<93E9C5F9-A083-4322-A580-236E2232CCC0@mac.com>
-	<20050912010954.70ac90e2.pj@sgi.com>
-	<43259C9E.1040300@zytor.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Mon, 12 Sep 2005 12:29:28 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:56049 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932069AbVILQ31
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 12:29:27 -0400
+Date: Mon, 12 Sep 2005 09:27:39 -0700
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: Luben Tuikov <luben_tuikov@adaptec.com>
+Cc: James Bottomley <James.Bottomley@SteelEye.com>, ltuikov@yahoo.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: [PATCH 2.6.13 5/14] sas-class: sas_discover.c Discover process (end devices)
+Message-ID: <20050912162739.GA11455@us.ibm.com>
+References: <20050910024454.20602.qmail@web51613.mail.yahoo.com> <1126368081.4813.46.camel@mulgrave> <4325997D.3050103@adaptec.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4325997D.3050103@adaptec.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hpa wrote:
-> The only sane thing is to have a set of ABI headers with a clean, 
-> specific set of rules, which is included by the kernel private headers, 
-> as well as userspace.
+On Mon, Sep 12, 2005 at 11:06:37AM -0400, Luben Tuikov wrote:
 
-Why must the ABI headers be included by both kernel and user headers to
-be sane?
+> > We have an infrastructure in the mid-layer for doing report lun scans.
+> > You have a parallel one in your code.  In my book, that's duplication.
+> 
+> This infrastructure is broken.  Its interface is broken.  It is a horrible
+> excuse of LUN scanning written initially to support a certain hardware.
 
-Hmmm ... I'm not sure I want to ask that, actually.  I have this feeling
-from the tone of your assertion that you can explain to me why such a
-header organization is the only one that fits your mental model of how
-these things are structured, but that communication between us may
-break down when you try to convince me that your mental model for this
-is the only correct one.
+That is not true of the report lun support, it was written initially for
+support of any hardware. Of course it was tested on certain hardware, but
+that was not the goal.
 
-Oh well ... we'll see where this goes.
+> And secondly, the routine which I've written is NOT duplication.
+> It is the _correct_ way to do it, while the one in SCSI Core
+> is *crap*, thus there is no duplication.
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+What is wrong with the one in scsi core?
+
+Your implementation has problems for large numbers of LU the secondary
+kmalloc() will always fail. I do not see how it handles transient failures
+either, or (per below discussion) devices that return bogus data.
+
+> >>>>+ * REPORT LUNS is mandatory.  If a device doesn't support it,
+> [cut]
+> >>Second, SAS devices being very recent have their firmware written
+> >>to latest specs, and advertised as SPC-3 and SAM-3.
+
+> > We have boatloads of devices that claim SCSI-n or SPC-n compliance then
+> > fail in various ways.  That's what the list in scsi_devinfo.c is all
+> > about.  I'm sure the manufacturers of those devices didn't intentionally
+> > set out to violate the specs; however, what they actually released does.
+> > I'm sure that SAS vendors will start out with the best of intentions
+> > too ...
+> 
+> I've run this code on pre-pre-pre-.... firmware and it handles
+> really broken REPORT LUNS devices.  It works *without the need* for
+> a blacklist lookup table.
+
+There could (will?) be bridges from SAS to anything (like existing SPI to
+IDE bridges, or FC to SPI bridges), so it is likely it will have to
+handle not-so-new and potentially brain dead storage devices.
+
+> Second, I did ask for REPORT LUNS mechanism into SCSI Core before it
+> was there.
+
+That code was not written because anyone asked for it.
+
+> Are you asking me to submit a patch for SCSI Core to do proper
+> REPORT LUNS?   *This is ubelievable.*  I would like the whole
+> world to note it (for your sake).
+
+At least tell us what is wrong with it, I know it does not have well known
+LUN support, and we already know about 8 byte LUN support.
+
+
+IMO adding well known LUNs at this point to the standard added nothing of
+value, the target firmware has to check for special paths no matter what,
+adding a well known LUN does not change that. And most vendors will
+(likely) have support for use without a well known LUN. (This does not
+mean we should not support it in linux, I just don't know why this went
+into the standard.)
+
+Using well known LUNs will be another code path that will have to live
+alongside existing ones, and will likely require further black listing
+(similar to REPORT LUN vs scanning for LUNs).
+
+-- Patrick Mansfield

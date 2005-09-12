@@ -1,69 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932219AbVILUXg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbVILUZR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932219AbVILUXg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 16:23:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932218AbVILUXf
+	id S932214AbVILUZR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 16:25:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbVILUZR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 16:23:35 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:46991 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S932214AbVILUXd (ORCPT
+	Mon, 12 Sep 2005 16:25:17 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:30161 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932214AbVILUZP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 16:23:33 -0400
-Date: Mon, 12 Sep 2005 13:23:33 -0700
-From: Grant Grundler <iod00d@hp.com>
-To: linux-kernel@vger.kernel.org, discuss@x86-64.org,
-       linux-ia64@vger.kernel.org, ak@suse.de, tony.luck@intel.com,
-       Asit.K.Mallick@intel.com
-Subject: Re: [patch 2.6.13] swiotlb: BUG() for DMA_NONE in sync_single
-Message-ID: <20050912202333.GF21820@esmail.cup.hp.com>
-References: <09122005104851.31056@bilbo.tuxdriver.com> <09122005104851.31120@bilbo.tuxdriver.com> <20050912185120.GD21820@esmail.cup.hp.com> <20050912195110.GC19644@tuxdriver.com> <20050912195356.GD19644@tuxdriver.com>
+	Mon, 12 Sep 2005 16:25:15 -0400
+Date: Mon, 12 Sep 2005 13:23:52 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, xemul@sw.ru,
+       Hugh Dickins <hugh@veritas.com>
+Subject: Re: [PATCH] error path in setup_arg_pages() misses
+ vm_unacct_memory()
+Message-Id: <20050912132352.6d3a0e3a.akpm@osdl.org>
+In-Reply-To: <4325B188.10404@sw.ru>
+References: <4325B188.10404@sw.ru>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050912195356.GD19644@tuxdriver.com>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 12, 2005 at 03:53:56PM -0400, John W. Linville wrote:
-> Call BUG() if DMA_NONE is passed-in as direction for sync_single.
-> 
-> Signed-off-by: John W. Linville <linville@tuxdriver.com>
+Kirill Korotaev <dev@sw.ru> wrote:
+>
+>  This patch fixes error path in setup_arg_pages() functions, since it 
+>  misses vm_unacct_memory() after successful call of 
+>  security_vm_enough_memory(). Also it cleans up error path.
 
-Acked-by: Grant Grundler <iod00d@hp.com>
+Ugh.  The identifier `security_vm_enough_memory()' sounds like some
+predicate which has no side-effects.  Except it performs accounting.  Hence
+bugs like this.
 
-John,
-Sorry - I didn't realize the tests for DMA_NONE I pointed
-out were now redundant.  Can you respin this patch removing
-the redundant checks for DMA_NONE as well?
+It's a shame that you mixed a largeish cleanup along with a bugfix - please
+don't do that in future.
 
-thanks,
-grant
-
-> ---
-> 
->  lib/swiotlb.c |    4 ++--
->  1 files changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/lib/swiotlb.c b/lib/swiotlb.c
-> --- a/lib/swiotlb.c
-> +++ b/lib/swiotlb.c
-> @@ -315,13 +315,13 @@ sync_single(struct device *hwdev, char *
->  	case SYNC_FOR_CPU:
->  		if (likely(dir == DMA_FROM_DEVICE || dma == DMA_BIDIRECTIONAL))
->  			memcpy(buffer, dma_addr, size);
-> -		else if (dir != DMA_TO_DEVICE && dir != DMA_NONE)
-> +		else if (dir != DMA_TO_DEVICE)
->  			BUG();
->  		break;
->  	case SYNC_FOR_DEVICE:
->  		if (likely(dir == DMA_TO_DEVICE || dma == DMA_BIDIRECTIONAL))
->  			memcpy(dma_addr, buffer, size);
-> -		else if (dir != DMA_FROM_DEVICE && dir != DMA_NONE)
-> +		else if (dir != DMA_FROM_DEVICE)
->  			BUG();
->  		break;
->  	default:
-> -- 
-> John W. Linville
-> linville@tuxdriver.com
+Patch looks OK to me.  Hugh, could you please double-check sometime?

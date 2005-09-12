@@ -1,52 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbVILSUG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932126AbVILSXN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932119AbVILSUG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 14:20:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932120AbVILSUF
+	id S932126AbVILSXN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 14:23:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932127AbVILSXN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 14:20:05 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:12239 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932119AbVILSUE
+	Mon, 12 Sep 2005 14:23:13 -0400
+Received: from zproxy.gmail.com ([64.233.162.198]:46544 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932124AbVILSXM convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 14:20:04 -0400
-Subject: Re: 2.6.13-mm2
-From: Dave Hansen <haveblue@us.ibm.com>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <150330000.1126548402@flay>
-References: <20050908053042.6e05882f.akpm@osdl.org>
-	 <201750000.1126494444@[10.10.2.4]> <20050912050122.GA3830@muc.de>
-	 <150330000.1126548402@flay>
-Content-Type: text/plain
-Date: Mon, 12 Sep 2005 11:19:56 -0700
-Message-Id: <1126549196.5892.25.camel@localhost>
+	Mon, 12 Sep 2005 14:23:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=g7jz+SdceMelp/H/oY09LnYxEMx35X8KAHOLilQznCKGFYVxqbFVy1x/hZm9RCvbTpZRo6sCWiRaj5/sifvV3GCwS0/fvkq8Rl5R7/KE7/KqPc0jwx+2oj1bL2/AGMYrJfpEcvWlzF37yXCuSIg6z/ohsQrhkiuu2Jjwpg+w1Rg=
+Message-ID: <12c511ca050912112266470d8b@mail.gmail.com>
+Date: Mon, 12 Sep 2005 11:22:58 -0700
+From: Tony Luck <tony.luck@gmail.com>
+Reply-To: tony.luck@gmail.com
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: What's up with the GIT archive on www.kernel.org?
+Cc: Roland Dreier <rolandd@cisco.com>, Sam Ravnborg <sam@ravnborg.org>,
+       Peter Osterlund <petero2@telia.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0509111422510.3242@g5.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <m3mzmjvbh7.fsf@telia.com>
+	 <Pine.LNX.4.58.0509110908590.4912@g5.osdl.org>
+	 <20050911185711.GA22556@mars.ravnborg.org>
+	 <Pine.LNX.4.58.0509111157360.3242@g5.osdl.org>
+	 <20050911194630.GB22951@mars.ravnborg.org>
+	 <Pine.LNX.4.58.0509111251150.3242@g5.osdl.org>
+	 <52irx7cnw5.fsf@cisco.com>
+	 <Pine.LNX.4.58.0509111422510.3242@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-09-12 at 11:06 -0700, Martin J. Bligh wrote:
-> Crashes on boot
-> 
-> http://test.kernel.org/12589/debug/console.log
-> 
-> May or may not be anything to do with what you were doing.
+On 9/11/05, Linus Torvalds <torvalds@osdl.org> wrote:
+> There is such an anonymous server, btw: "git-daemon" implements anonymous
+> access much more efficient than rsync/http. Sadly, kernel.org still
+> doesn't offer it (but it's now used in the wild, ie I've done a couple of
+> merges with people running the git daemon).
 
-diff -puN arch/i386/mm/init.c~highmem-debug arch/i386/mm/init.c
---- memhotplug/arch/i386/mm/init.c~highmem-debug	2005-09-09 08:50:15.000000000 -0700
-+++ memhotplug-dave/arch/i386/mm/init.c	2005-09-09 08:50:15.000000000 -0700
-@@ -278,6 +278,7 @@ void __init add_one_highpage_init(struct
- {
- 	if (page_is_ram(pfn) && !(bad_ppro && page_kills_ppro(pfn))) {
- 		ClearPageReserved(page);
-+		free_new_highpage(page);
- 	} else
- 		SetPageReserved(page);
- }
-_
+Should the git daemon take a look at objects/info/alternates to check
+that if it exists, it
+points to a repository that also has a "git-daemon-export-ok" file?  
+I don't see that this
+could be used for anything nasty, but it does provide a loophole where
+the daemon may
+open files outside the initial repository ... so a sanity check seems in order.
 
-
--- Dave
-
+-Tony

@@ -1,53 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751201AbVILH7E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751203AbVILIBg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751201AbVILH7E (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 03:59:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751203AbVILH7D
+	id S1751203AbVILIBg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 04:01:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751211AbVILIBg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 03:59:03 -0400
-Received: from ns.suse.de ([195.135.220.2]:34960 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751201AbVILH7B (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 03:59:01 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Jan Beulich" <JBeulich@novell.com>
-Subject: Re: [discuss] [1/3] Add 4GB DMA32 zone
-Date: Mon, 12 Sep 2005 09:58:55 +0200
-User-Agent: KMail/1.8
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, discuss@x86-64.org
-References: <43246267.mailL4R11PXCB@suse.de> <43254DF40200007800024E0D@emea1-mh.id2.novell.com>
-In-Reply-To: <43254DF40200007800024E0D@emea1-mh.id2.novell.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509120958.55936.ak@suse.de>
+	Mon, 12 Sep 2005 04:01:36 -0400
+Received: from ctb-mesg8.saix.net ([196.25.240.88]:6903 "EHLO
+	ctb-mesg8.saix.net") by vger.kernel.org with ESMTP id S1751203AbVILIBf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 04:01:35 -0400
+Subject: Re: [GIT PATCH] Remove devfs from 2.6.13
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: azarah@nosferatu.za.org
+To: "Theodore Ts'o" <tytso@mit.edu>
+Cc: David Lang <david.lang@digitalinsight.com>, Valdis.Kletnieks@vt.edu,
+       Greg KH <gregkh@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050911110214.GA16408@thunk.org>
+References: <20050909214542.GA29200@kroah.com>
+	 <Pine.LNX.4.62.0509101742300.28852@qynat.qvtvafvgr.pbz>
+	 <200509110713.j8B7DsNR021781@turing-police.cc.vt.edu>
+	 <Pine.LNX.4.62.0509110016110.29141@qynat.qvtvafvgr.pbz>
+	 <20050911110214.GA16408@thunk.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-5bpolknXJX2nZ38/j1CB"
+Date: Mon, 12 Sep 2005 10:01:01 +0200
+Message-Id: <1126512061.14207.36.camel@lycan.lan>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 12 September 2005 09:44, Jan Beulich wrote:
-> It seems a little strange to add individual zones one by one. I remember
-> from an OS project I previously worked on that at some time our driver
-> developers ran into one or more devices that were able to consume 31-bit
-> physical addresses
 
-That's likely the unnamed RAID controller with the broken firmware refered to 
-below (they might actually have fixed the firmware now) But for block
-devices it's not really needed anyways. From my experience and those
-of other folks (IA64) the 4GB zone + a small fallback zone is a good 
-compromise.
+--=-5bpolknXJX2nZ38/j1CB
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> (but not 32-bit ones, and don't ask me for details on 
-> what exact devices these were, I never knew). I thus wonder whether it
-> wouldn't make more sense to generalize the logic and allow drivers to
-> specify to the allocator how many physical address bits they can deal
-> with.
+On Sun, 2005-09-11 at 07:02 -0400, Theodore Ts'o wrote:
+> On Sun, Sep 11, 2005 at 12:20:06AM -0700, David Lang wrote:
+> > >I'll bite - what distros are shipping a kernel 2.6.10 or later and sti=
+ll
+> > >using devfs?
+> > >
+> > I'll admit I don't keep track of the distros and what kernels and featu=
+res=20
+> > they are useing. I think I've heard people mention gentoo, but I=20
+> > haven't verified this.
+>=20
 
-Because that would likely either impact the page allocation fast path
-by having unsuited data structures for the normal case or make the code to 
-allocate pages with arbitary boundaries really slow because the allocation
-wouldn't be O(1). Didn't seem like a good tradeoff.
+Why do people always remember us as using devfs, instead of being one of
+the first distro's supporting it (if not the first) ? :(  I already
+added support for udev to the initscripts back in Sep 2003, and added
+the udev-0.2 package to the tree in Oct 2003.
 
--Andi
+> Nope, not Gentoo --- Greg KH fixed gentoo a while ago.  :-)
+>=20
+
+Not entirely true, but he did start to maintain the udev package around
+udev-022.
+
+
+--=20
+Martin Schlemmer
+
+
+--=-5bpolknXJX2nZ38/j1CB
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBDJTW9qburzKaJYLYRAhGbAJ0Xmow/eDUD3E5wZBo/TBj1mJNhuACfarQl
+OW0AjelLtoSDfpVq8T8/5CI=
+=9vbU
+-----END PGP SIGNATURE-----
+
+--=-5bpolknXJX2nZ38/j1CB--
 

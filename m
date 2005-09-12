@@ -1,86 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbVILKJt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbVILKP6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750707AbVILKJt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 06:09:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750711AbVILKJt
+	id S1750702AbVILKP6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 06:15:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750710AbVILKP6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 06:09:49 -0400
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:34024 "EHLO
-	ogre.sisk.pl") by vger.kernel.org with ESMTP id S1750707AbVILKJs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 06:09:48 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Daniel Ritz <daniel.ritz@gmx.ch>
-Subject: Re: 2.6.13-mm2
-Date: Mon, 12 Sep 2005 12:09:47 +0200
-User-Agent: KMail/1.8.2
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Hugh Dickins <hugh@veritas.com>
-References: <20050908053042.6e05882f.akpm@osdl.org> <200509112208.44422.daniel.ritz@gmx.ch> <200509121206.05450.rjw@sisk.pl>
-In-Reply-To: <200509121206.05450.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 12 Sep 2005 06:15:58 -0400
+Received: from koto.vergenet.net ([210.128.90.7]:43669 "EHLO koto.vergenet.net")
+	by vger.kernel.org with ESMTP id S1750702AbVILKP5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 06:15:57 -0400
+Date: Mon, 12 Sep 2005 18:48:30 +0900
+From: Horms <horms@debian.org>
+To: Anthony DeRobertis <anthony@derobert.net>, 327355@bugs.debian.org
+Cc: Gadi Oxman <gadio@netvision.net.il>, linux-kernel@vger.kernel.org
+Subject: Re: Bug#327355: linux-image-2.6.12-1-k7: amverify w/ ide-tape causes bug, then kernel panic
+Message-ID: <20050912094828.GP19201@verge.net.au>
+References: <E1EDiEU-0003Sa-00@Maxwell.derobert.net> <handler.327355.B.112626983510089.ack@bugs.debian.org> <43228009.30705@derobert.net> <E1EDiEU-0003Sa-00@Maxwell.derobert.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200509121209.47736.rjw@sisk.pl>
+In-Reply-To: <43228009.30705@derobert.net> <E1EDiEU-0003Sa-00@Maxwell.derobert.net>
+X-Cluestick: seven
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, 12 of September 2005 12:06, Rafael J. Wysocki wrote:
-> Hi,
-> 
-> (continuing the unfinished message)
-> 
-> On Sunday, 11 of September 2005 22:08, Daniel Ritz wrote:
-> > On Sunday 11 September 2005 21.36, Andrew Morton wrote:
-> > > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-> > > >
-> > > > > 
-> > > >  > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13/2.6.13-mm2/
-> > > >  > 
-> > > >  > (kernel.org propagation is slow.  There's a temp copy at
-> > > >  > http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.13-mm2.bz2)
-> > > > 
-> > > >  Could you please reintroduce the yenta-free_irq-on-suspend.patch (attached)
-> > > >  into -mm?  My box does not resume from disk without it.
-> > > 
-> > > No probs.
-> > > 
-> > > Daniel, do you remember why we decided to drop it?  What should we do about
-> > > this?  Thanks.
-> > > 
-> > 
-> > yeah, there was a long discussion about it. see:
-> > 	http://marc.theaimsgroup.com/?t=112275164900002&r=1&w=4
-> > the reason being that it breaks APM suspend on Hugh Dickins' (added to cc:) laptop.
-> > Linus was quite clear about why reverting...
-> > 	http://marc.theaimsgroup.com/?l=linux-kernel&m=112278810115252&w=4
-> > 
-> > we should look at both problems in detail:
-> > - with APM it seems to break because the bridge gives interrupt before the
-> >   handler is installed.
-> > - with ACPI i think some _other_ device gives the interrupts too early. but
-> >   when all devices on the interrupt unregister the irq is disabled and the
-> >   problem is hidden.
-> > 
-> > i don't think we can do mutch about the APM case...
-> > 
-> > so Rafael, your /proc/interrupts, lspci -vvv and dmesg, please.
-> 
-> rafael@albercik:~> cat /proc/interrupts
-]-- snip --[
+Hi Anthony,
 
-BTW, please have a look at:
-http://bugzilla.kernel.org/show_bug.cgi?id=4416#c36
-and
-http://bugzilla.kernel.org/show_bug.cgi?id=4416#c37
-
-Greetings,
-Rafael
-
+I am forwarding this to the IDE Tape maintainer for his consideration.
 
 -- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+Horms
+
+On Fri, Sep 09, 2005 at 08:43:54AM -0400, Anthony DeRobertis wrote:
+> Package: linux-image-2.6.12-1-k7
+> Version: 2.6.12-6
+> Severity: important
+> 
+> amverify started, then shortly later (after the first thing was done
+> verifying, I think) these managed to make it to syslog. As you can see,
+> it got the bug message, then rebooted itself a few minutes later:
+> 
+> Sep  9 01:12:27 Maxwell kernel: ide-tape: bug: tape->next_stage != NULL
+> Sep  9 01:16:14 Maxwell kernel: klogd 1.4.1#17, log source = /proc/kmsg started.
+> Sep  9 01:16:14 Maxwell kernel: Inspecting /boot/System.map-2.6.12-1-k7
+> 
+> This is quite repeatable, and I never saw it on 2.6.8 (sarge). I'll test
+> that particular tape on 2.6.8 just to be sure.
+> 
+> Shortly (as in a second at most) after that, it panics (with the "in the
+> interrupt handler, not syncing" message), which doesn't make it to the
+> log. If that info is imporant, I'll work on getting a serial console to
+> capture it.
+> 
+> -- System Information:
+> Debian Release: 3.1
+>   APT prefers unstable
+>   APT policy: (101, 'unstable')
+> Architecture: i386 (i686)
+> Kernel: Linux 2.6.12-1-k7
+> Locale: LANG=en_US.UTF-8, LC_CTYPE=en_US.UTF-8 (charmap=UTF-8)
+> 
+> Versions of packages linux-image-2.6.12-1-k7 depends on:
+> ii  coreutils [fileutils]         5.2.1-2    The GNU core utilities
+> ii  fileutils                     5.2.1-2    The GNU file management utilities 
+> ii  initrd-tools                  0.1.81.1   tools to create initrd image for p
+> ii  module-init-tools             3.2-pre1-2 tools for managing Linux kernel mo
+> 
+> -- no debconf information
+> 
+> 
+> -- 
+> To UNSUBSCRIBE, email to debian-kernel-REQUEST@lists.debian.org
+> with a subject of "unsubscribe". Trouble? Contact listmaster@lists.debian.org
+
+On Sat, Sep 10, 2005 at 02:41:13AM -0400, Anthony DeRobertis wrote:
+> Oh, btw, it just died on a different tape tonight... I rebooted to
+> 2.6.8, and it works fine there. So its definitely a regression from 2.6.8.
+> 
+> 
+> -- 
+> To UNSUBSCRIBE, email to debian-kernel-REQUEST@lists.debian.org
+> with a subject of "unsubscribe". Trouble? Contact listmaster@lists.debian.org

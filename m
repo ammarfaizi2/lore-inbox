@@ -1,119 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750995AbVILOVb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751015AbVILOWI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750995AbVILOVb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 10:21:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751015AbVILOVa
+	id S1751015AbVILOWI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 10:22:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751018AbVILOWI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 10:21:30 -0400
-Received: from [85.8.12.41] ([85.8.12.41]:26754 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S1750995AbVILOVa (ORCPT
+	Mon, 12 Sep 2005 10:22:08 -0400
+Received: from wscnet.wsc.cz ([212.80.64.118]:26761 "EHLO wscnet.wsc.cz")
+	by vger.kernel.org with ESMTP id S1751013AbVILOWH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 10:21:30 -0400
-Message-ID: <43258EDF.8070605@drzeus.cx>
-Date: Mon, 12 Sep 2005 16:21:19 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 1.0.6-5 (X11/20050818)
-X-Accept-Language: en-us, en
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_hermes.drzeus.cx-10729-1126534889-0001-2"
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Clean up wbsd detection handling
-References: <43249574.8000807@drzeus.cx> <432533A6.7010506@drzeus.cx>
-In-Reply-To: <432533A6.7010506@drzeus.cx>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+	Mon, 12 Sep 2005 10:22:07 -0400
+Message-ID: <43258F02.6060406@gmail.com>
+Date: Mon, 12 Sep 2005 16:21:54 +0200
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: cs, en-us, en
+MIME-Version: 1.0
+To: Jiri Slaby <jirislaby@gmail.com>
+CC: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.13-mm3 BUG in ntfs or slab
+References: <200509121417.j8CEH7u5006138@wscnet.wsc.cz>
+In-Reply-To: <200509121417.j8CEH7u5006138@wscnet.wsc.cz>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
+Jiri Slaby napsal(a):
 
---=_hermes.drzeus.cx-10729-1126534889-0001-2
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+>This BUG causes freeze of applications, such as beep-media-player (e.g.
+>uninterruptible sleep in futex with no wake), ls (un. sleep, i don't know
+>where), bash, when listing ntfs dirs.
+>  
+>
+[snip]
 
-Pierre Ossman wrote:
-> The wbsd driver's card detection routing is a bit of a mess. This
-> patch cleans up the routine and makes it a bit more comprihensible.
-> 
-> Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
-> ---
-> 
+>linux_ver:
+>Linux bellona 2.6.13-mm3-g856d0bcc #26 SMP PREEMPT Mon Sep 12 12:58:14 CEST 2005 i686 i686 i386 GNU/Linux
+>  
+>
+2.6.13-mm2 was maybe (i haven't get this BUG all over the time I used 
+it) OK. Now, I am getting it often.
 
-Resend as attachment.
+-- 
+Jiri Slaby         www.fi.muni.cz/~xslaby
+~\-/~      jirislaby@gmail.com      ~\-/~
+241B347EC88228DE51EE A49C4A73A25004CB2A10
 
---=_hermes.drzeus.cx-10729-1126534889-0001-2
-Content-Type: text/x-patch; name="wbsd-detect-cleanup.patch"; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="wbsd-detect-cleanup.patch"
-
-Clean up wbsd detection handling
-
-The wbsd driver's card detection routing is a bit of a mess. This
-patch cleans up the routine and makes it a bit more comprihensible.
-
-Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
----
-
- drivers/mmc/wbsd.c |   29 ++++++++++++-----------------
- 1 files changed, 12 insertions(+), 17 deletions(-)
-
-diff --git a/drivers/mmc/wbsd.c b/drivers/mmc/wbsd.c
---- a/drivers/mmc/wbsd.c
-+++ b/drivers/mmc/wbsd.c
-@@ -1136,6 +1136,7 @@ static void wbsd_tasklet_card(unsigned l
- {
- 	struct wbsd_host* host = (struct wbsd_host*)param;
- 	u8 csr;
-+	int delay = -1;
- 
- 	spin_lock(&host->lock);
- 
-@@ -1155,16 +1156,8 @@ static void wbsd_tasklet_card(unsigned l
- 			DBG("Card inserted\n");
- 			host->flags |= WBSD_FCARD_PRESENT;
- 
--			spin_unlock(&host->lock);
--
--			/*
--			 * Delay card detection to allow electrical connections
--			 * to stabilise.
--			 */
--			mmc_detect_change(host->mmc, msecs_to_jiffies(500));
-+			delay = 500;
- 		}
--		else
--			spin_unlock(&host->lock);
- 	}
- 	else if (host->flags & WBSD_FCARD_PRESENT)
- 	{
-@@ -1181,15 +1174,17 @@ static void wbsd_tasklet_card(unsigned l
- 			tasklet_schedule(&host->finish_tasklet);
- 		}
- 
--		/*
--		 * Unlock first since we might get a call back.
--		 */
--		spin_unlock(&host->lock);
--
--		mmc_detect_change(host->mmc, 0);
-+		delay = 0;
- 	}
--	else
--		spin_unlock(&host->lock);
-+
-+	/*
-+	 * Unlock first since we might get a call back.
-+	 */
-+
-+	spin_unlock(&host->lock);
-+
-+	if (delay != -1)
-+		mmc_detect_change(host->mmc, msecs_to_jiffies(delay));
- }
- 
- static void wbsd_tasklet_fifo(unsigned long param)
-
---=_hermes.drzeus.cx-10729-1126534889-0001-2--

@@ -1,58 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbVILM1L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750779AbVILMXi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750782AbVILM1L (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 08:27:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750783AbVILM1K
+	id S1750779AbVILMXi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 08:23:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbVILMXi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 08:27:10 -0400
-Received: from zproxy.gmail.com ([64.233.162.204]:26235 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750782AbVILM1J convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 08:27:09 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=eHeUo5pKZCuz27eTZ+NR7k/7tpTTap0Hz5eH0XlaMb1nT3fIRZotACd7T05YDcedIYyP2u7/dAgCnYdUN52Rfn1gKuRv0+8vBUlFTvidJ87gxHqEIhCISVU3CgMSJdMhRSLztrX7rpp254K5coQC3PCJNDkN9+S4ByaQ5CZ0Y2Q=
-Message-ID: <2c1942a7050912052759c7f730@mail.gmail.com>
-Date: Mon, 12 Sep 2005 15:27:00 +0300
-From: Levent Serinol <lserinol@gmail.com>
-Reply-To: lserinol@gmail.com
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] per process I/O statistics for userspace
-Cc: Andrew Morton <akpm@osdl.org>, jlan@engr.sgi.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Mon, 12 Sep 2005 08:23:38 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:47878 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S1750779AbVILMXh convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 08:23:37 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <20050912110712.GA287@DervishD>
+References: <1126462329.4324737923c2d@wmtest.cc.vt.edu> <1126462467.43247403c2e1c@wmtest.cc.vt.edu> <43250150.20308@metaparadigm.com> <200509121249.40467.vda@ilport.com.ua> <20050912110712.GA287@DervishD>
+X-OriginalArrivalTime: 12 Sep 2005 12:23:36.0143 (UTC) FILETIME=[CC5A25F0:01C5B794]
+Content-class: urn:content-classes:message
+Subject: Re: Universal method to start a script at boot
+Date: Mon, 12 Sep 2005 08:23:29 -0400
+Message-ID: <Pine.LNX.4.61.0509120817440.22714@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Universal method to start a script at boot
+Thread-Index: AcW3lMxj7sCvqfrgSmmJmW/xeuCHUA==
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "DervishD" <lkml@dervishd.net>
+Cc: "Denis Vlasenko" <vda@ilport.com.ua>,
+       "Michael Clark" <michael@metaparadigm.com>,
+       "Brad Tilley" <rtilley@vt.edu>, <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-with following patch, userspace processes/utilities will be able to
-access per process I/O statistics. for example, top like utilites can
-use this information.
 
+On Mon, 12 Sep 2005, DervishD wrote:
 
---- linux-2.6.13/fs/proc/array.c.org    2005-08-29 02:41:01.000000000 +0300
-+++ linux-2.6.13/fs/proc/array.c        2005-09-12 10:22:55.000000000 +0300
-@@ -408,7 +408,7 @@ static int do_task_stat(struct task_stru
+>    Hi Denis :)
+>
+> * Denis Vlasenko <vda@ilport.com.ua> dixit:
+>> Awful. This codifies ages-old Unix traditional SysV-like init
+>> and its derivatives, which should be get rid of instead.
+>
+>    I'm with you in this, in fact I use my own init system, but...
+>
+>> daemontools are absolutely wonderful way of controlling daemons.
+>
+>    How the heck you make sure that svscan starts the services in the
+> correct order? Does it run the services in /services in any
+> particular order or just in the order resulting for a simple
+> globbing? How you make sure the services are shut down in any
+> particular order?
+>
+>    All this seems like requiring scripts to do the job (that is,
+> ensuring a particular order of startup/shutdown), while sysvinit
+> gets this info from filenames. Obviously, dictating the order using a
+> script is far more flexible than using filenames but it's not as
+> simple, and that cannot be seen in the comparisons D.J.B. does in the
+> homepage of daemontools (which, BTW, is the only source of
+> documentation, and a very poor one). LSB, on the other hand, is
+> better structured and although I don't like sysvinit at all, the
+> system is better documented. And I hate runlevels...
+>
+>    Raúl Núñez de Arenas Coronado
 
-        res = sprintf(buffer,"%d (%s) %c %d %d %d %d %d %lu %lu \
- %lu %lu %lu %lu %lu %ld %ld %ld %ld %d %ld %llu %lu %ld %lu %lu %lu %lu %lu \
--%lu %lu %lu %lu %lu %lu %lu %lu %d %d %lu %lu\n",
-+%lu %lu %lu %lu %lu %lu %lu %lu %d %d %lu %lu %llu %llu\n",
-                task->pid,
-                tcomm,
-                state,
-@@ -453,7 +453,9 @@ static int do_task_stat(struct task_stru
-                task->exit_signal,
-                task_cpu(task),
-                task->rt_priority,
--               task->policy);
-+               task->policy,
-+               task->rchar,
-+               task->wchar);
-        if(mm)
-                mmput(mm);
-        return res;
---
-Signed-off-by: Levent Serinol <lserinol@gmail.com>
+The embedded systems we use have a "home-made" `init` that
+does everything in the coded order. This means that there is
+no shell so the system can't be hacked in the usual ways.
+Also, some technician in "final test" can't forget to do
+something that results in a disaster once a system is in
+the field. If the system runs, it's running in its intended
+manner.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.13 on an i686 machine (5589.53 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

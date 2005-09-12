@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932103AbVILRIK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751066AbVILRLh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932103AbVILRIK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 13:08:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932104AbVILRIK
+	id S1751066AbVILRLh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 13:11:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932104AbVILRLh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 13:08:10 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:53207 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932103AbVILRIJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 13:08:09 -0400
-Date: Mon, 12 Sep 2005 19:07:42 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Paul Jackson <pj@sgi.com>
-cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, Simon.Derr@bull.net,
-       linux-kernel@vger.kernel.org, nikita@clusterfs.com
-Subject: Re: [PATCH] cpuset semaphore depth check optimize
-In-Reply-To: <20050912075155.3854b6e3.pj@sgi.com>
-Message-ID: <Pine.LNX.4.61.0509121821270.3743@scrub.home>
-References: <20050912113030.15934.9433.sendpatchset@jackhammer.engr.sgi.com>
- <20050912043943.5795d8f8.akpm@osdl.org> <20050912075155.3854b6e3.pj@sgi.com>
+	Mon, 12 Sep 2005 13:11:37 -0400
+Received: from terminus.zytor.com ([209.128.68.124]:17334 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751063AbVILRLf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 13:11:35 -0400
+Message-ID: <4325B698.1050805@zytor.com>
+Date: Mon, 12 Sep 2005 10:10:48 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Junio C Hamano <junkio@cox.net>
+CC: Linus Torvalds <torvalds@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
+       Peter Osterlund <petero2@telia.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>
+Subject: Re: What's up with the GIT archive on www.kernel.org?
+References: <m3mzmjvbh7.fsf@telia.com>	<Pine.LNX.4.58.0509110908590.4912@g5.osdl.org>	<20050911185711.GA22556@mars.ravnborg.org>	<Pine.LNX.4.58.0509111157360.3242@g5.osdl.org>	<20050911194630.GB22951@mars.ravnborg.org>	<Pine.LNX.4.58.0509111251150.3242@g5.osdl.org>	<52irx7cnw5.fsf@cisco.com>	<Pine.LNX.4.58.0509111422510.3242@g5.osdl.org>	<Pine.LNX.4.58.0509111431400.3242@g5.osdl.org> <7virx7njxa.fsf@assigned-by-dhcp.cox.net>
+In-Reply-To: <7virx7njxa.fsf@assigned-by-dhcp.cox.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Junio C Hamano wrote:
+> 
+> For kernel.org, you could say '/pub/scm/blah' in your alternates
+> and expect it to work, only because http://kernel.org/pub
+> hierarchy happens to match the absolute path /pub on the
+> filesystem...
+ >
 
-On Mon, 12 Sep 2005, Paul Jackson wrote:
+Actually it doesn't.  /pub in the root directory on kernel.org is just a 
+convenience symlink.
 
-> I've got paths in __alloc_pages() and below that acquire cpuset_sem,
-> but only rarely.  I am not aware of any other global kernel lock
-> that routinely shows up both _above_ and _below_ __alloc_pages on
-> the stack.  Normally such would be a big problem for numa scaling.
-> This one avoids the scaling problem by only being on rare paths when
-> called within __alloc_pages.  But that means I can't test for bugs;
-> I have to code so it is obviously right in the first place (not a
-> bad idea in general ;).
-
-Maybe I'm missing something, but why don't you use two locks?
-One general management lock to create/insert/remove cpusets and a 
-low-level lock (maybe even a spinlock) which manages the state of an 
-active cpuset.
-For that you have to figure out (and document) how the fields in the 
-cpuset structure are used in various situations.
-
-bye, Roman
+	-hpa

@@ -1,64 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932234AbVILUyE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932235AbVILU4W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932234AbVILUyE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 16:54:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbVILUyE
+	id S932235AbVILU4W (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 16:56:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbVILU4W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 16:54:04 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:21144 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S932234AbVILUyD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 16:54:03 -0400
-Message-Id: <200509122053.j8CKrvxP032593@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Assar <assar@permabit.com>
-Cc: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com
-Subject: Re: [PATCH] nfs client, kernel 2.4.31: readlink result overflow 
-In-Reply-To: Your message of "Mon, 12 Sep 2005 16:41:19 EDT."
-             <788xy2qas0.fsf@sober-counsel.permabit.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <78irx6wh6j.fsf@sober-counsel.permabit.com> <200509121846.j8CIk5YE025124@turing-police.cc.vt.edu> <784q8qrsad.fsf@sober-counsel.permabit.com> <200509122001.j8CK1kpW028651@turing-police.cc.vt.edu>
-            <788xy2qas0.fsf@sober-counsel.permabit.com>
+	Mon, 12 Sep 2005 16:56:22 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:3037 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932235AbVILU4W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 16:56:22 -0400
+Date: Mon, 12 Sep 2005 13:55:50 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Sonny Rao <sonny@burdell.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-mm3
+Message-Id: <20050912135550.18be35c4.akpm@osdl.org>
+In-Reply-To: <20050912200914.GA13962@kevlar.burdell.org>
+References: <20050912024350.60e89eb1.akpm@osdl.org>
+	<20050912145435.GA4722@kevlar.burdell.org>
+	<20050912125641.4b53553d.akpm@osdl.org>
+	<20050912200914.GA13962@kevlar.burdell.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1126558436_2852P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Date: Mon, 12 Sep 2005 16:53:57 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1126558436_2852P
-Content-Type: text/plain; charset=us-ascii
-
-On Mon, 12 Sep 2005 16:41:19 EDT, Assar said:
-> Valdis.Kletnieks@vt.edu writes:
-> > > To my reading, the 2.6.13 code does not copy the 4 bytes of length to
-> > > rcvbuf.
+Sonny Rao <sonny@burdell.org> wrote:
+>
+> On Mon, Sep 12, 2005 at 12:56:41PM -0700, Andrew Morton wrote:
+> > Sonny Rao <sonny@burdell.org> wrote:
+> > >
+> > > On Mon, Sep 12, 2005 at 02:43:50AM -0700, Andrew Morton wrote:
+> > > <snip>
+> > > > - There are several performance tuning patches here which need careful
+> > > >   attention and testing.  (Does anyone do performance testing any more?)
+> > > <snip>
+> > > > 
+> > > >   - The size of the page allocator per-cpu magazines has been increased
+> > > > 
+> > > >   - The page allocator has been changed to use higher-order allocations
+> > > >     when batch-loading the per-cpu magazines.  This is intended to give
+> > > >     improved cache colouring effects however it might have the downside of
+> > > >     causing extra page allocator fragmentation.
+> > > > 
+> > > >   - The page allocator's per-cpu magazines have had their lower threshold
+> > > >     set to zero.  And we can't remember why it ever had a lower threshold.
+> > > > 
+> > > 
+> > > What would you like? The usual suspects:  SDET, dbench, kernbench ?
+> > > 
 > > 
-> > Hmm... it still does this:
-> > 	kaddr[len+rcvbuf->page_base] = '\0';
-> > which still has a possible off-by-one? (Was that why you have -1 -4?)
+> > That would be a good start, thanks.  The higher-order-allocations thing is
+> > mainly targeted at big-iron numerical computing I believe.
 > 
-> The check is different.  2.6.13 is using ">=" instead of ">", so hence
-> I think that's fine.
+> I assume you're referring to allocating huge pages?
 
-Argh.  Where's my reading glasses? ;)  Yes, a >= check works there....
+No.  I'm referring to ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13/2.6.13-mm3/broken-out/mm-try-to-allocate-higher-order-pages-in-rmqueue_bulk.patch
 
-> +	if (len > rcvbuf->page_len - sizeof(*strlen) - 1)
-> +		len = rcvbuf->page_len - sizeof(*strlen) - 1;
 
-OK, looks saner to me, but Trond and Marcelo probably get to make the final decision ;)
-
---==_Exmh_1126558436_2852P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFDJerkcC3lWbTT17ARAujnAJsFvO1dl4EQ++T+Qq5mXbQ1dku2mgCbBzjf
-i8y71rxxxxXODxa6/4JfYPg=
-=oa1T
------END PGP SIGNATURE-----
-
---==_Exmh_1126558436_2852P--

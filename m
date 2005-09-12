@@ -1,52 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932236AbVILVCd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932242AbVILVDP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932236AbVILVCd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 17:02:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbVILVCd
+	id S932242AbVILVDP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 17:03:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbVILVDP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 17:02:33 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:33247 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932236AbVILVCc (ORCPT
+	Mon, 12 Sep 2005 17:03:15 -0400
+Received: from news.cistron.nl ([62.216.30.38]:1770 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S932242AbVILVDO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 17:02:32 -0400
-Date: Mon, 12 Sep 2005 14:02:30 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [GIT PATCH] LSM update, add securityfs
-Message-ID: <20050912210230.GF7991@shell0.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Mon, 12 Sep 2005 17:03:14 -0400
+From: dth@cistron.nl (Danny ter Haar)
+Subject: Re: 2.6.13-mm3
+Date: Mon, 12 Sep 2005 21:03:12 +0000 (UTC)
+Organization: Cistron
+Message-ID: <dg4qeg$27m$1@news.cistron.nl>
+References: <20050912024350.60e89eb1.akpm@osdl.org> <20050912145435.GA4722@kevlar.burdell.org> <20050912125641.4b53553d.akpm@osdl.org> <20050912200914.GA13962@kevlar.burdell.org>
+X-Trace: ncc1701.cistron.net 1126558992 2294 62.216.30.70 (12 Sep 2005 21:03:12 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: dth@cistron.nl (Danny ter Haar)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's an LSM update for 2.6.14.  It's been in -mm for ages.
-This adds securityfs, and converts seclvl over.
+Sonny Rao  <sonny@burdell.org> wrote:
+>I assume you're referring to allocating huge pages?  I'm not sure how
+>one would test this other than allocating N huge pages, releasing,
+>runing something intensive (like SDET), and then trying to allocate
+>N huge pages again?  Or am I off base here?
 
-Please pull from:
-	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/chrisw/lsm-2.6.git/
-or if master.kernel.org hasn't synced up yet:
-	master.kernel.org:/pub/scm/linux/kernel/git/chrisw/lsm-2.6.git/
+Run a full-feed usenet server ? ;-)
+I recommend INN ....
 
-thanks,
--chris
---
+Danny
 
- include/linux/security.h |    5 
- security/Kconfig         |    1 
- security/Makefile        |    2 
- security/inode.c         |  347 +++++++++++++++++++++++++++++++++++++++++++++++
- security/seclvl.c        |  228 +++++++++---------------------
- 5 files changed, 424 insertions(+), 159 deletions(-)
-
-Adrian Bunk:
-  SECURITY must depend on SYSFS
-
-Greg KH:
-  add securityfs for all LSMs to use
-
-serue@us.ibm.com:
-  seclvl securityfs
 

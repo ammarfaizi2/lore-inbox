@@ -1,77 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751105AbVILAWN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751106AbVILAgl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751105AbVILAWN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Sep 2005 20:22:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbVILAWN
+	id S1751106AbVILAgl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Sep 2005 20:36:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751109AbVILAgl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Sep 2005 20:22:13 -0400
-Received: from zproxy.gmail.com ([64.233.162.206]:6293 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751105AbVILAWM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Sep 2005 20:22:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Wtr8GlkjiZXaRntA2SY583RWZIZTSC1b45nthITsXdAoEG6tTkEy1e4nn2CZZKj6eCy3aXDj/Qm8W1oTnSQeCznGELxGS+v9Tifhkei+n8w5lWKQCZ5pcbh+KGL09onCHIgqky1okNj6wxAc/jTPgAsiJFIdepNDmE9mnRx43kk=
-Message-ID: <9a87484905091117222d318f4@mail.gmail.com>
-Date: Mon, 12 Sep 2005 02:22:08 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Reply-To: jesper.juhl@gmail.com
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Subject: Re: read-from-all-disks support for RAID1?
+	Sun, 11 Sep 2005 20:36:41 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:23266 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S1751106AbVILAgk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Sep 2005 20:36:40 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: jesper.juhl@gmail.com
+Date: Mon, 12 Sep 2005 10:36:31 +1000
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17188.52623.351989.468493@cse.unsw.edu.au>
 Cc: Lennert Buytenhek <buytenh@wantstofly.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <17188.49961.268818.355923@cse.unsw.edu.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Subject: Re: read-from-all-disks support for RAID1?
+In-Reply-To: message from Jesper Juhl on Monday September 12
 References: <20050910123902.GA9461@xi.wantstofly.org>
-	 <17188.49961.268818.355923@cse.unsw.edu.au>
+	<17188.49961.268818.355923@cse.unsw.edu.au>
+	<9a87484905091117222d318f4@mail.gmail.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/12/05, Neil Brown <neilb@cse.unsw.edu.au> wrote:
-> On Saturday September 10, buytenh@wantstofly.org wrote:
-> > (please CC on replies)
-> >
-> > Hi!
-> >
-> > I recently had a case where one disk in a two-disk RAID1 array went
-> > subtly bad, effectively refusing to write to certain sectors without
-> > reporting an error.  Basically, parts of the disk went undetectably
-> > read-only, causing file system corruption that wouldn't go away after
-> > fsck, and all kinds of other fun.
+On Monday September 12, jesper.juhl@gmail.com wrote:
+> > No, I don't think so.  The overhead would be substantial, so people
+> > would be very unlikely to use it.
 > 
-> That really isn't something that a drive should do.  If a write fails,
-> you need to be told that it failed.  If anything else happens, maybe
-> you should consider boycotting that manufacturer, or at least buying
-> more expensive drives (do I guess right that there were fairly
-> cheap??).
+> There are situations where data integrity is far more important than speed.
+> On AIX I usually use the Mirror Write Consistency and Write Verify
+> options on my mirrored volumes that store data where integrity is more
+> important than speed.
+> I guess something like those options would also satisfy Lennert's
+> needs, but I don't know if it's currently possible with the Linux LVM
+> or elsewhere.
 > 
-> 
-> >
-> > Would it be hard/wise to add an option for RAID1 mode to read from all
-> > devices on a read, and report an error to syslog or simply return an
-> > I/O error if there is a mismatch?  (Or use majority voting and tell
-> > people to use 3-disk RAID1 arrays from now on ;-)
-> >
-> 
-> No, I don't think so.  The overhead would be substantial, so people
-> would be very unlikely to use it.
+> You can read a bit about the MWC and WV options in AIX at :
+> http://publib.boulder.ibm.com/infocenter/pseries/index.jsp?topic=/com.ibm.aix.doc/aixbman/prftungd/diskperf2.htm
 
-There are situations where data integrity is far more important than speed.
-On AIX I usually use the Mirror Write Consistency and Write Verify
-options on my mirrored volumes that store data where integrity is more
-important than speed.
-I guess something like those options would also satisfy Lennert's
-needs, but I don't know if it's currently possible with the Linux LVM
-or elsewhere.
+Thanks for the link.
 
-You can read a bit about the MWC and WV options in AIX at :
-http://publib.boulder.ibm.com/infocenter/pseries/index.jsp?topic=/com.ibm.aix.doc/aixbman/prftungd/diskperf2.htm
+If I understand the (fairly brief) descriptions correctly:
+ Passive mirror-write-constancy has always been part of md/raid1
+ Active mirror-write-constancy is equivalent to the new
+   bitmap-write-intent support.
+ WV  means read-after-write which we don't do, but might be useful.
 
+ However, I'm not 100% certain that WV would really be useful.  Modern
+ drives will almost certainly return a read-after-write request out of
+ the drive's cache rather than going to the media.  We would need some
+ way to tell the drive to ignore the cache for this read.  I suspect
+ this is possible, but might not be trivial...
+ 
+NeilBrown
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+ 

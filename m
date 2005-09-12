@@ -1,129 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932101AbVILRE3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932100AbVILREZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932101AbVILRE3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 13:04:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932102AbVILRE3
+	id S932100AbVILREZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 13:04:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbVILREZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 13:04:29 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:7330 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932101AbVILRE1 (ORCPT
+	Mon, 12 Sep 2005 13:04:25 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:60616 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S932099AbVILREX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 13:04:27 -0400
-Date: Mon, 12 Sep 2005 12:04:22 -0500
-From: serue@us.ibm.com
-To: Alan Cox <alan@redhat.com>
-Cc: Joel Schopp <jschopp@austin.ibm.com>,
-       "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-mm1
-Message-ID: <20050912170422.GB6119@sergelap.austin.ibm.com>
-References: <20050901035542.1c621af6.akpm@osdl.org> <6970000.1125584568@[10.10.2.4]> <20050901145006.GF5427@devserv.devel.redhat.com> <43176AE8.8060105@austin.ibm.com> <20050901211647.GC25405@devserv.devel.redhat.com> <431771EA.4030809@austin.ibm.com> <20050901214411.GD25405@devserv.devel.redhat.com>
-Mime-Version: 1.0
+	Mon, 12 Sep 2005 13:04:23 -0400
+Message-ID: <4325B510.4010205@adaptec.com>
+Date: Mon, 12 Sep 2005 13:04:16 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: [PATCH 2.6.13 10/20] aic94xx: aic94xx_reg.c Register access
+References: <4321E3CB.2060806@adaptec.com> <20050911102649.GA2742@elf.ucw.cz>
+In-Reply-To: <20050911102649.GA2742@elf.ucw.cz>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050901214411.GD25405@devserv.devel.redhat.com>
-User-Agent: Mutt/1.5.8i
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 12 Sep 2005 17:04:21.0926 (UTC) FILETIME=[0538A460:01C5B7BC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmm, this patch itself seems to have a few typos, but so does
-the 2.6.13-mm{1,2,3}.
+On 09/11/05 06:26, Pavel Machek wrote:
+> Hi!
+> 
+> 
+>>+/* We know that the register wanted is in the range
+>>+ * of the sliding window.
+>>+ */
+>>+#define ASD_READ_SW(ww, type, ord)                                     \
+>>+static inline type asd_read_##ww##_##ord (struct asd_ha_struct *asd_ha,\
+>>+					  u32 reg)                     \
+>>+{                                                                      \
+>>+	struct asd_ha_addrspace *io_handle = &asd_ha->io_handle[0];    \
+>>+	u32 map_offs=(reg - io_handle-> ww##_base )+asd_mem_offs_##ww ();\
+>>+	return asd_read_##ord (asd_ha, (unsigned long) map_offs);      \
+>>+}
+>>+
+>>+#define ASD_WRITE_SW(ww, type, ord)                                    \
+>>+static inline void asd_write_##ww##_##ord (struct asd_ha_struct *asd_ha,\
+>>+				  u32 reg, type val)                   \
+>>+{                                                                      \
+>>+	struct asd_ha_addrspace *io_handle = &asd_ha->io_handle[0];    \
+>>+	u32 map_offs=(reg - io_handle-> ww##_base )+asd_mem_offs_##ww ();\
+>>+	asd_write_##ord (asd_ha, (unsigned long) map_offs, val);       \
+>>+}
+>>+
+>>+ASD_READ_SW(swa, u8,  byte);
+>>+ASD_READ_SW(swa, u16, word);
+>>+ASD_READ_SW(swa, u32, dword);
+>>+
+>>+ASD_READ_SW(swb, u8,  byte);
+>>+ASD_READ_SW(swb, u16, word);
+>>+ASD_READ_SW(swb, u32, dword);
+>>+
+>>+ASD_READ_SW(swc, u8,  byte);
+>>+ASD_READ_SW(swc, u16, word);
+>>+ASD_READ_SW(swc, u32, dword);
+>>+
+>>+ASD_WRITE_SW(swa, u8,  byte);
+>>+ASD_WRITE_SW(swa, u16, word);
+>>+ASD_WRITE_SW(swa, u32, dword);
+>>+
+>>+ASD_WRITE_SW(swb, u8,  byte);
+>>+ASD_WRITE_SW(swb, u16, word);
+>>+ASD_WRITE_SW(swb, u32, dword);
+>>+
+>>+ASD_WRITE_SW(swc, u8,  byte);
+>>+ASD_WRITE_SW(swc, u16, word);
+>>+ASD_WRITE_SW(swc, u32, dword);
+> 
+> 
+> This is certainly nice entry into "best abuse of macros" contest. Do
+> you really need all those inline functions?
 
-Quoting Alan Cox (alan@redhat.com):
-> --- drivers/serial/icom.c~	2005-09-01 22:37:16.986829264 +0100
-> +++ drivers/serial/icom.c	2005-09-01 22:37:16.986829264 +0100
-> @@ -737,6 +737,7 @@
->  
->  	status = cpu_to_le16(icom_port->statStg->rcv[rcv_buff].flags);
->  	while (status & SA_FL_RCV_DONE) {
-> +		int first = -1;
->  
->  		trace(icom_port, "FID_STATUS", status);
->  		count = cpu_to_le16(icom_port->statStg->rcv[rcv_buff].leLength);
-> @@ -751,15 +752,17 @@
->  			icom_port->recv_buf_pci;
->  
->  		/* Block copy all but the last byte as this may have status */
-> -		if(count > 0)
-> +		if(count > 0) {
-> +			first = icon->recv_buf[offset];
-	s/icon/icom_port/ ?
+Hehehee, you may be right Pavel.  I just wanted to minimize bugs which
+could be introduced by syntax errors (not necessarily compilation errors).
 
->  			tty_insert_flip_string(tty, icon_port->recv_buf + offset, count - 1);
+Yes, reading byte/word/dword from HA memory is needed.
 
-	s/icon_port/icom_port/ ?
+>>+static void __asd_write_reg_byte(struct asd_ha_struct *asd_ha, u32 reg, u8 val)
+>>+{
+>>+	struct asd_ha_addrspace *io_handle=&asd_ha->io_handle[0];
+>>+	BUG_ON(reg >= 0xC0000000 || reg < ALL_BASE_ADDR);
+> 
+> 
+> Will this work correctly with 2GB/2GB split kernels?
 
-> +		}
->  
->  		icount = &icom_port->uart_port.icount;
->  		icount->rx += count;
->  
->  		/* Break detect logic */
->  		if ((status & SA_FLAGS_FRAME_ERROR)
-> -		    && (tty->flip.char_buf_ptr[0] == 0x00)) {
-> +		    && first == 0) {
->  			status &= ~SA_FLAGS_FRAME_ERROR;
->  			status |= SA_FLAGS_BREAK_DET;
->  			trace(icom_port, "BREAK_DET", 0);
+"reg" is an address in the host adapter's memory.  Will this matter?
 
-And in 2.6.13-mm3, we have:
+	Luben
 
-@@ -798,33 +792,26 @@ static void recv_interrupt(u16 port_int_
- 			status &= icom_port->read_status_mask;
- 
- 			if (status & SA_FLAGS_BREAK_DET) {
--				*tty->flip.flag_buf_ptr = TTY_BREAK;
-+				flag = TTY_BREAK;
- 			} else if (status & SA_FLAGS_PARITY_ERROR) {
- 				trace(icom_port, "PARITY_ERROR", 0);
--				*tty->flip.flag_buf_ptr = TTY_PARITY;
-+				flag = TTY_PARITY;
- 			} else if (status & SA_FLAGS_FRAME_ERROR)
--				*tty->flip.flag_buf_ptr = TTY_FRAME;
-+				flag = TTY_FRAME;
- 
--			if (status & SA_FLAGS_OVERRUN) {
--				/*
--				 * Overrun is special, since it's
--				 * reported immediately, and doesn't
--				 * affect the current character
--				 */
--				if (tty->flip.count < TTY_FLIPBUF_SIZE) {
--					tty->flip.count++;
--					tty->flip.flag_buf_ptr++;
--					tty->flip.char_buf_ptr++;
--					*tty->flip.flag_buf_ptr = TTY_OVERRUN;
--				}
--			}
- 		}
- 
--		tty->flip.flag_buf_ptr++;
--		tty->flip.char_buf_ptr++;
--		tty->flip.count++;
--		ignore_char:
--			icom_port->statStg->rcv[rcv_buff].flags = 0;
-+		tty_insert_flip_char(tty, icon_port->recv_buf + offset + count - 1, flag);
-		^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Is this meant to be
-	tty_insert_flip_char(tty, *(icon_port->recv_buf + offset + count - 1), flag);
-?
-
-+
-+		if (status & SA_FLAGS_OVERRUN)
-+			/*
-+			 * Overrun is special, since it's
-+			 * reported immediately, and doesn't
-+			 * affect the current character
-+			 */
-+			tty_insert_flip_char(tty, 0, TTY_OVERRUN);
-+ignore_char:
-+		icom_port->statStg->rcv[rcv_buff].flags = 0;
- 		icom_port->statStg->rcv[rcv_buff].leLength = 0;
- 		icom_port->statStg->rcv[rcv_buff].WorkingLength =
- 			(unsigned short int) cpu_to_le16(RCV_BUFF_SZ);
-
-Again, sorry I didn't catch this back in -mm1 or -mm2...
-
-thanks,
--serge

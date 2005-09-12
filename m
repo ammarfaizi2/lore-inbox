@@ -1,78 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750713AbVILKjF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750721AbVILKm1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750713AbVILKjF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 06:39:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbVILKjF
+	id S1750721AbVILKm1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 06:42:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbVILKm1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 06:39:05 -0400
-Received: from dsw2k3.info ([195.71.86.227]:50412 "EHLO dsw2k3.info")
-	by vger.kernel.org with ESMTP id S1750713AbVILKjE (ORCPT
+	Mon, 12 Sep 2005 06:42:27 -0400
+Received: from cantor.suse.de ([195.135.220.2]:15265 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750721AbVILKm1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 06:39:04 -0400
-Message-ID: <43255ABF.8080500@citd.de>
-Date: Mon, 12 Sep 2005 12:38:55 +0200
-From: Matthias Schniedermeyer <ms@citd.de>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
+	Mon, 12 Sep 2005 06:42:27 -0400
+From: Andi Kleen <ak@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [1/3] Add 4GB DMA32 zone
+Date: Mon, 12 Sep 2005 12:42:20 +0200
+User-Agent: KMail/1.8
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, discuss@x86-64.org
+References: <43246267.mailL4R11PXCB@suse.de> <1126520900.30449.48.camel@localhost.localdomain>
+In-Reply-To: <1126520900.30449.48.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: linux1394-devel@lists.sourceforge.net
-Subject: Re: eth1394 and sbp2 maintainers
-References: <43232875.4040702@s5r6.in-berlin.de> <20050911215504.17bc09a6.rdunlap@xenotime.net> <20050912074758.GB3863@ime.usp.br>
-In-Reply-To: <20050912074758.GB3863@ime.usp.br>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509121242.20910.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rogério Brito wrote:
-> On Sep 11 2005, Randy.Dunlap wrote:
-> 
->>Stefan,
->>
->>I want to say that I think that you are doing a very commendable
->>job on sbp2.  Much thanks for your efforts.
-> 
-> Let me add my voice to the choir here. I agree with Randy when he says
-> that Stefan does a superb job supporting firewire with Linux.
+On Monday 12 September 2005 12:28, Alan Cox wrote:
+> > One argument was still if the zone should be 4GB or 2GB. The main
+> > motivation for 2GB would be an unnamed not so unpopular hardware
+> > raid controller (mostly found in older machines from a particular four
+> > letter company) who has a strange 2GB restriction in firmware. But
+>
+> Adaptec AACRAID is one offender
 
-Then let me be the voice telling about the flip-side.
+Yes, that one was considered. Believe me we went over all
+the broken hardware cases quite a lot before comming up with this patch. 
 
-I've used Firewire with SBP2-driver for nearly 4 years and most of the
-time there was one problem or another (beginning from not-SMP-safe to
-"plainly not working" for nearly a year, where i had to downpatch
-Firewire (The nodemanager "desaster") for a very long time)
+I refuse to add unnecessary limits to everybody else just because of that 
+single broken firmware. 4GB limit is really common and the oddballs like 
+these have to use the same workarounds (custom bounce buffer in low GFP_DMA 
+memory) they always did on machines with enough memory.
 
-When the last problem crept up (sbp2-module couldn't be unloaded if only
-a none-HDD-device was connected) i was so feed up with the continuous
-hassle that i completly replaced my firewire hardware with USB2 Hardware.
+Also the aacraid is not really an big issue on x86-64, because
+afaik nobody shipped EM64T or AMD64 machines with these beasts.
+(most aacraid is older Xeons without 64bit capability). There
+are a few users who bought plugin cards later, but near all of these
+ran into other problems because they didn't have enough memory
+(I cannot in fact remember a report of someone running especially
+into this problem)  And the cards seem to be essentially dead in the market 
+now. So it's really more a theoretical problem than a practical one.
+[Proof of it: the current sources don't seem to handle it, so
+it cannot be that bad ;-]
 
-With USB pluging/unplugging works flawlessly (couldn't say that for 4
-years Firewire). Operating several devices concurrently works flawlessly
-(I was lucky when my 2 devices worked concurrently with Firewire. Most
-of the time only 1 device couldn't be connected without risking
-desaster), in constrast i've had 10 HDDs running concurrently connected
-via USB2 without a problem!
+And the probability of someone using a b44 in a machine with >2GB
+of memory is small at best. Usually they are in really lowend
+boxes where you couldn't even plug in more memory than that.
+That is why I essentially ignored the b44. AFAIK the driver
+has a GFP_DMA bounce workaround anyways, so it would work
+anyways.
 
-I know that i may have skipped the time where USB hasn't been mature to
-the time where USB was mature, but it got there. So forgive me when i'm
-too negative about firewire and too positive about USB.
+Yes I know some soundcards have similar limits, but for all
+these we still have GFP_DMA and they always have been quite happy
+with that.
 
-To say it short:
-- Firewire and especially SBP2 haven't been very mature in my 4 YEARS(!)
-using it.
-- As far as i see the userbase just isn't big enough to make it mature.
+Basically this a solution to make a lot of common hardware happy
+and the oddballs and really broken cases are not worse than
+they have been before.
 
-Taking aside some niche usages, i guess firewire WILL DIE because of USB
-sooner then later. For me firewire died 6 month ago. Rest in peace.
+> > that one works ok with swiotlb/IOMMU anyways, so it doesn't really
+>
+> Old aacraid actually cannot use IOMMU. It isn't alone in that
+> limitation. Most hardware that has a 30/31bit limit can't go via the
+> IOMMU because IOMMU space appears on the bus above 2GB so is itself
+> invisible to the hardware.
 
+Yes, true. Use GFP_DMA then.
 
+Actually swiotlb would work in theory because it tends to be pretty
+low, but that is not enabled on all machines and the code doesn't
+attempt to handle it (and I don't plan to do it)
 
+Hopefully the patch can go into 2.6.13.
 
-
--- 
-Real Programmers consider "what you see is what you get" to be just as
-bad a concept in Text Editors as it is in women. No, the Real Programmer
-wants a "you asked for it, you got it" text editor -- complicated,
-cryptic, powerful, unforgiving, dangerous.
+-Andi
 

@@ -1,96 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932203AbVILUPt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932210AbVILUQ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932203AbVILUPt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 16:15:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932204AbVILUP0
+	id S932210AbVILUQ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 16:16:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932208AbVILUQ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 16:15:26 -0400
-Received: from mail.kroah.org ([69.55.234.183]:25797 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932203AbVILUPX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 16:15:23 -0400
-Cc: ecashin@coraid.com
-Subject: [PATCH] aoe [1/2]: support 16 AoE slot addresses per AoE shelf
-In-Reply-To: <20050912201035.GA20330@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Mon, 12 Sep 2005 13:11:04 -0700
-Message-Id: <11265558641200@kroah.com>
+	Mon, 12 Sep 2005 16:16:59 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:21137 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S932212AbVILUQ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 16:16:57 -0400
+Message-Id: <200509122016.j8CKGjmY029390@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Hugh Dickins <hugh@veritas.com>
+Cc: "Randy.Dunlap" <rdunlap@xenotime.net>,
+       =?ISO-8859-1?Q?M=E1rcio_Oliveira?= <moliveira@latinsourcetech.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Tainted lsmod output 
+In-Reply-To: Your message of "Mon, 12 Sep 2005 20:58:01 BST."
+             <Pine.LNX.4.61.0509122055520.5255@goblin.wat.veritas.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <4325C713.6060908@latinsourcetech.com> <Pine.LNX.4.50.0509121129470.30198-100000@shark.he.net> <Pine.LNX.4.61.0509122039350.5019@goblin.wat.veritas.com> <Pine.LNX.4.50.0509121253300.30198-100000@shark.he.net>
+            <Pine.LNX.4.61.0509122055520.5255@goblin.wat.veritas.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <gregkh@suse.de>
+Content-Type: multipart/signed; boundary="==_Exmh_1126556205_2852P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 12 Sep 2005 16:16:45 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] aoe [1/2]: support 16 AoE slot addresses per AoE shelf
+--==_Exmh_1126556205_2852P
+Content-Type: text/plain; charset=us-ascii
 
-Change the number of supported AoE slot addresses per AoE shelf
-address to 16.
+On Mon, 12 Sep 2005 20:58:01 BST, Hugh Dickins said:
+> On Mon, 12 Sep 2005, Randy.Dunlap wrote:
+> > On Mon, 12 Sep 2005, Hugh Dickins wrote:
+> > >
+> > > The one that puzzles me greatly isn't listed there: 'G'
+> > 
+> > I guess it means GPL.
+> > 
+> > It's just the opposite of 'P', whereas all of the others
+> > have opposites of ' '.
+> 
+> I guess the same, but doesn't it seem a strange kind of taint?
 
-Signed-off-by: Ed L. Cashin <ecashin@coraid.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+Somebody had an automated log-parsing tool, and wanted to make sure there
+were guaranteed at least 2 non-whitespace tokens on the line so they wouldn't
+have to deal with parsing 'Tainted:       \n'?
 
----
-commit e39526e6e7a96904c9f1c85375d49ff437c18c44
-tree b90a15c53758c7ea625c874cd4044842a6039656
-parent 0a25e4d5647003a32ba5496f9d0f40ba9c1e3863
-author Ed L Cashin <ecashin@coraid.com> Fri, 19 Aug 2005 16:54:43 -0400
-committer Greg Kroah-Hartman <gregkh@suse.de> Fri, 09 Sep 2005 14:23:16 -0700
 
- Documentation/aoe/mkshelf.sh |    6 ++++--
- drivers/block/aoe/aoe.h      |   10 +++++-----
- 2 files changed, 9 insertions(+), 7 deletions(-)
+--==_Exmh_1126556205_2852P
+Content-Type: application/pgp-signature
 
-diff --git a/Documentation/aoe/mkshelf.sh b/Documentation/aoe/mkshelf.sh
---- a/Documentation/aoe/mkshelf.sh
-+++ b/Documentation/aoe/mkshelf.sh
-@@ -8,13 +8,15 @@ fi
- n_partitions=${n_partitions:-16}
- dir=$1
- shelf=$2
-+nslots=16
-+maxslot=`echo $nslots 1 - p | dc`
- MAJOR=152
- 
- set -e
- 
--minor=`echo 10 \* $shelf \* $n_partitions | bc`
-+minor=`echo $nslots \* $shelf \* $n_partitions | bc`
- endp=`echo $n_partitions - 1 | bc`
--for slot in `seq 0 9`; do
-+for slot in `seq 0 $maxslot`; do
- 	for part in `seq 0 $endp`; do
- 		name=e$shelf.$slot
- 		test "$part" != "0" && name=${name}p$part
-diff --git a/drivers/block/aoe/aoe.h b/drivers/block/aoe/aoe.h
---- a/drivers/block/aoe/aoe.h
-+++ b/drivers/block/aoe/aoe.h
-@@ -7,12 +7,12 @@
-  * default is 16, which is 15 partitions plus the whole disk
-  */
- #ifndef AOE_PARTITIONS
--#define AOE_PARTITIONS 16
-+#define AOE_PARTITIONS (16)
- #endif
- 
--#define SYSMINOR(aoemajor, aoeminor) ((aoemajor) * 10 + (aoeminor))
--#define AOEMAJOR(sysminor) ((sysminor) / 10)
--#define AOEMINOR(sysminor) ((sysminor) % 10)
-+#define SYSMINOR(aoemajor, aoeminor) ((aoemajor) * NPERSHELF + (aoeminor))
-+#define AOEMAJOR(sysminor) ((sysminor) / NPERSHELF)
-+#define AOEMINOR(sysminor) ((sysminor) % NPERSHELF)
- #define WHITESPACE " \t\v\f\n"
- 
- enum {
-@@ -83,7 +83,7 @@ enum {
- 
- enum {
- 	MAXATADATA = 1024,
--	NPERSHELF = 10,
-+	NPERSHELF = 16,		/* number of slots per shelf address */
- 	FREETAG = -1,
- 	MIN_BUFS = 8,
- };
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQFDJeItcC3lWbTT17ARAoI9AJ9PpOma1y6PsYsIhfiwh4D7oEHBdACgjE+1
+M39F8d47YVOa8bPH9p0OADI=
+=e9RQ
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1126556205_2852P--

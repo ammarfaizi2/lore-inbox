@@ -1,60 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751023AbVILO0t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751024AbVILO3E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751023AbVILO0t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 10:26:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751024AbVILO0t
+	id S1751024AbVILO3E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 10:29:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751045AbVILO3E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 10:26:49 -0400
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:34913 "HELO
-	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1751020AbVILO0s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 10:26:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=zEUy1yV7qSaQc8gJU+VZD5kQQex1asZ+9eiqMokLcBEekHRFsrD+JXRTpKduyJnZXBALzV337TsjqM+lyAy2P6n4e7vj35Wk6JPkxMV23uLo58r2wWR9v9w4gwRQnJ8rO1azofpRNphP1qlLLyX5QV0H29gXgnyvAi+WCmVmYFQ=  ;
-Message-ID: <43259022.3030603@yahoo.com.au>
-Date: Tue, 13 Sep 2005 00:26:42 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
-X-Accept-Language: en
+	Mon, 12 Sep 2005 10:29:04 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:24722 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1751024AbVILO3D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 10:29:03 -0400
+Date: Mon, 12 Sep 2005 10:29:01 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: James Bottomley <James.Bottomley@SteelEye.com>,
+       Andrew Morton <akpm@osdl.org>
+cc: Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: Elimination of klists
+In-Reply-To: <1126475059.4831.44.camel@mulgrave>
+Message-ID: <Pine.LNX.4.44L0.0509121014220.5309-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-To: Andrew Walrond <andrew@walrond.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-mm3
-References: <20050912024350.60e89eb1.akpm@osdl.org> <200509121517.31562.andrew@walrond.org>
-In-Reply-To: <200509121517.31562.andrew@walrond.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Walrond wrote:
-> On Monday 12 September 2005 10:43, Andrew Morton wrote:
+On Sun, 11 Sep 2005, James Bottomley wrote:
+
+> On Sun, 2005-09-11 at 15:35 -0400, Alan Stern wrote:
+> > I noticed that you recently posted some updates to the klist code, 
+> > although I haven't looked to see how you are using the klists.
 > 
+> Yes, that was mainly to tie their reference counting model back to the
+> objects they actually embed.  It was just fixing a thinko in the
+> implementation rather than changing anything fundamental about them.
+
+I'm not sure it was really a thinko.  Pat Mochel was well aware of the 
+problem and just decided not to do anything about it.
+
+> > What do you think about eliminating klists entirely, and instead using 
+> > regular lists protected by either a mutex or an rwsem?  It would remove a 
+> > good deal of overhead, and I think it wouldn't be hard to convert the 
+> > driver core.  Would this be feasible for the things you're doing?
 > 
->>  - An update to the anticipatory scheduler to fix a performance problem
->>    where processes do a single read then exit, in the presence of
->>competing I/O acticity.
-> 
-> 
-> Is there more discussion on this somewhere? When was the problem introduced? 
-> Bit of a long shot, but it fits the description of some problems I have 
-> noticed recently.
-> 
+> Actually, the concept of a klist is quite nice, and the beauty is that
+> all the locking is internal to them, so users can't actually get it
+> wrong (I like interfaces like this).
 
-It has been quite a while coming. The problem has been there for a long
-time, but there is no "regression" that would not exist in eg. deadline
-scheduler.
+It's possible to make the locking internal to normal lists as well, if 
+anyone wanted to do it.
 
-Basically it used to "miss" opportunities to do read anticipation where it
-should pay off, and now it misses less.
+> Originally the driver model did precisely use an ordinary list and a
+> mutex.  The problem was that we entangled the mutex in the actions taken
+> by things like device_for_each_child() which caused deadlocks ... most
+> noticeably in the transport classes; klists got us out of this.
 
-A description of / pointer to your problems would be interesting.
+There's a big difference.  Originally the driver model used a _single_
+rwsem that covered everything in a subsystem: all the devices, all the
+drivers, and all the lists.  What I'm suggesting is using lots of rwsems
+or mutexes, one for each list.  (The driver core has already added a
+semaphore for each device.)  Being much finer-grained, it would not lead
+to deadlock.
 
-Nick
 
--- 
-SUSE Labs, Novell Inc.
+On Sun, 11 Sep 2005, Andrew Morton wrote:
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+> You're a bit screwed if you want to use them from interrupts..
+
+Actually, in their original form klists could indeed be used in interrupt
+contexts, since they involved only spinlocks.  That's not quite true any 
+more.
+
+And certainly replacing them with rwsem-protected lists won't make them 
+any more interrupt-friendly.  On the other hand, as far as I know nobody 
+wants to use them in interrupt contexts.
+
+Alan Stern
+

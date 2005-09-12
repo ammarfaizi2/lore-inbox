@@ -1,38 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751083AbVILRUm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbVILRXE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751083AbVILRUm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 13:20:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbVILRUm
+	id S932113AbVILRXE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 13:23:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932112AbVILRXE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 13:20:42 -0400
-Received: from terminus.zytor.com ([209.128.68.124]:34695 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751081AbVILRUl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 13:20:41 -0400
-Message-ID: <4325B85C.2070402@zytor.com>
-Date: Mon, 12 Sep 2005 10:18:20 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Paul Jackson <pj@sgi.com>
-CC: mrmacman_g4@mac.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       bunk@stusta.de
-Subject: Re: [RFC][MEGAPATCH] Change __ASSEMBLY__ to __ASSEMBLER__ (defined
- by GCC from 2.95 to current CVS)
-References: <C670AD22-97CF-46AA-A527-965036D78667@mac.com>	<20050903064124.GA31400@codepoet.org>	<4319BEF5.2070000@zytor.com>	<B9E70F6F-CC0A-4053-AB34-A90836431358@mac.com>	<dfhs4u$1ld$1@terminus.zytor.com>	<5A37B032-9BBD-4AEA-A9BF-D42AFF79BC86@mac.com>	<9C47C740-86CF-48F1-8DB6-B547E5D098FF@mac.com>	<97597F8E-DDCE-479F-AE8D-CC7DC75AB3C3@mac.com>	<20050910014543.1be53260.akpm@osdl.org>	<4FAE9F58-7153-4574-A2C3-A586C9C3CFF1@mac.com>	<20050910150446.116dd261.akpm@osdl.org>	<E352D8E3-771F-4A0D-9403-DBAA0C8CBB83@mac.com>	<20050910174818.579bc287.akpm@osdl.org>	<93E9C5F9-A083-4322-A580-236E2232CCC0@mac.com>	<20050912010954.70ac90e2.pj@sgi.com>	<43259C9E.1040300@zytor.com> <20050912084756.4fa2bd07.pj@sgi.com>
-In-Reply-To: <20050912084756.4fa2bd07.pj@sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 12 Sep 2005 13:23:04 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:10184 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S932111AbVILRXC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 13:23:02 -0400
+Subject: Re: [PATCH 2.6.13 5/14] sas-class: sas_discover.c Discover process
+	(end devices)
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Patrick Mansfield <patmans@us.ibm.com>
+Cc: Douglas Gilbert <dougg@torque.net>, Christoph Hellwig <hch@infradead.org>,
+       Luben Tuikov <ltuikov@yahoo.com>,
+       Luben Tuikov <luben_tuikov@adaptec.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <20050912164548.GB11455@us.ibm.com>
+References: <1126308304.4799.45.camel@mulgrave>
+	 <20050910024454.20602.qmail@web51613.mail.yahoo.com>
+	 <20050911094656.GC5429@infradead.org> <43251D8C.7020409@torque.net>
+	 <1126537041.4825.28.camel@mulgrave>  <20050912164548.GB11455@us.ibm.com>
+Content-Type: text/plain
+Date: Mon, 12 Sep 2005 12:21:20 -0500
+Message-Id: <1126545680.4825.40.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-6) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson wrote:
+On Mon, 2005-09-12 at 09:45 -0700, Patrick Mansfield wrote:
+> On Mon, Sep 12, 2005 at 09:57:21AM -0500, James Bottomley wrote:
+> > be free to increase it if necessary.  Note: you do actually need either
+> > an array with more than two levels of nesting actually to need the
+> > increase and no-one actually seems to have one of these yet.
 > 
-> Why must the ABI headers be included by both kernel and user headers to
-> be sane?
+> That is not correct, I posted before on this, the address method is in the
+> high bits of the 8 byte LUN and tells how to "interpret" the LUN value.
+> You can't convert from an int to 8 byte LUN (without any other
+> information) and set these bits. See SAM-4 in (or near) section 4.9.7.
 > 
+> So some storage devices that want to use addressing methods other than 00b
+> don't because we do not have 8 byte LUN support in linux, and then we have
+> other problems because of this.
 
-Version creep.
+Well, as long as we represent the u32 (or u64) as
 
-	-hpa
+scsilun[1] | (scsilun[0] << 8) | (scsilun[3] << 16) | (scsilun[2] << 24)
+
+I think we cover all 2 level lun bases, don't we (obviously we ignore
+levels 3 and 4 [and 6 and 8 byte extended luns])?
+
+That representation works transparently for type 00b which is what SPI
+and other legacy expects, since our lun variable is equal to the actual
+numeric lun.  Although SAM allows type 01b for arrays with < 256 LUNs it
+does strongly suggest you use type 00b which hopefully will cover us for
+a while longer...
+
+fc already uses int_to_scsilun and 8 byte LUN addressing, so it will
+work even in the 01b case (the numbers that the mid-layer prints will
+look odd, but at least the driver will work).
+
+James
+
+

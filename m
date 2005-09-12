@@ -1,77 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbVILSvX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932152AbVILSxg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932144AbVILSvX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 14:51:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbVILSvX
+	id S932152AbVILSxg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 14:53:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932150AbVILSxg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 14:51:23 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:56022 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S932144AbVILSvW (ORCPT
+	Mon, 12 Sep 2005 14:53:36 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:8096 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932145AbVILSxf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 14:51:22 -0400
-Date: Mon, 12 Sep 2005 11:51:20 -0700
-From: Grant Grundler <iod00d@hp.com>
+	Mon, 12 Sep 2005 14:53:35 -0400
+Message-ID: <4325CEAB.2050600@pobox.com>
+Date: Mon, 12 Sep 2005 14:53:31 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: "John W. Linville" <linville@tuxdriver.com>
-Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org,
-       linux-ia64@vger.kernel.org, ak@suse.de, tony.luck@intel.com,
-       Asit.K.Mallick@intel.com
-Subject: Re: [patch 2.6.13 4/6] swiotlb: support syncing DMA_BIDIRECTIONAL mappings
-Message-ID: <20050912185120.GD21820@esmail.cup.hp.com>
-References: <09122005104851.31056@bilbo.tuxdriver.com> <09122005104851.31120@bilbo.tuxdriver.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <09122005104851.31120@bilbo.tuxdriver.com>
-User-Agent: Mutt/1.5.9i
+CC: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, akpm@osdl.org,
+       john.ronciak@intel.com, ganesh.venkatesan@intel.com, cramerj@intel.com,
+       jesse.brandeburg@intel.com, ayyappan.veeraiyan@intel.com,
+       mchan@broadcom.com, davem@davemloft.net
+Subject: Re: [patch 2.6.13 0/5] normalize calculations of rx_dropped
+References: <09122005104858.332@bilbo.tuxdriver.com>
+In-Reply-To: <09122005104858.332@bilbo.tuxdriver.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 12, 2005 at 10:48:51AM -0400, John W. Linville wrote:
-...
-> +	switch (target) {
-> +	case SYNC_FOR_CPU:
-> +		if (likely(dir == DMA_FROM_DEVICE || dir == DMA_BIDIRECTIONAL))
-> +			memcpy(buffer, dma_addr, size);
-> +		else if (dir != DMA_TO_DEVICE && dir != DMA_NONE)
-> +			BUG();
-> +		break;
-> +	case SYNC_FOR_DEVICE:
-> +		if (likely(dir == DMA_TO_DEVICE || dir == DMA_BIDIRECTIONAL))
-> +			memcpy(dma_addr, buffer, size);
-> +		else if (dir != DMA_FROM_DEVICE && dir != DMA_NONE)
-> +			BUG();
-> +		break;
-> +	default:
->  		BUG();
-> +	}
+John W. Linville wrote:
+> Some fixes to normalize how rx_dropped is calculated.  This is the
+> product of a discussion on netdev on or about 18 August 2005 w/
+> the subject '[RFC] stats: how to count "good" packets dropped by
+> hardware?'
+> 
+> Patches for 3c59x, e1000, e100, ixgb, and tg3 to follow.
 
-Isn't "DMA_NONE" expected to generate a warning or panic?
+For e.g. e1000, are we sure that packets dropped by hardware are 
+accounted elsewhere?
 
-Documentation/DMA-mapping.txt says:
-	The value PCI_DMA_NONE is to be used for debugging.  One can
-	hold this in a data structure before you come to know the
-	precise direction, and this will help catch cases where your
-	direction tracking logic has failed to set things up properly.
+	Jeff
 
 
-And it just seems wrong to sync a buffer if no DMA has taking place.
 
-...
-> @@ -525,14 +540,15 @@ swiotlb_sync_single_for_device(struct de
->   */
->  static inline void
->  swiotlb_sync_single_range(struct device *hwdev, dma_addr_t dev_addr,
-> -			  unsigned long offset, size_t size, int dir)
-> +			  unsigned long offset, size_t size,
-> +			  int dir, int target)
->  {
->  	char *dma_addr = phys_to_virt(dev_addr) + offset;
->  
->  	if (dir == DMA_NONE)
->  		BUG();
-
-This existing code seems to support the idea that DMA sync interfaces
-require the direction be set to something other than DMA_NONE.
-
-thanks,
-grant

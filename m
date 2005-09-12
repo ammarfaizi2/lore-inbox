@@ -1,59 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751038AbVILQIN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932065AbVILQME@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751038AbVILQIN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 12:08:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751049AbVILQIM
+	id S932065AbVILQME (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 12:12:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932066AbVILQME
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 12:08:12 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:14570 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S1750930AbVILQIK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 12:08:10 -0400
-Date: Mon, 12 Sep 2005 10:08:05 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: Luben Tuikov <ltuikov@yahoo.com>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       Luben Tuikov <luben_tuikov@adaptec.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH 2.6.13 14/14] sas-class: SCSI Host glue
-Message-ID: <20050912160805.GC32395@parisc-linux.org>
-References: <1126308949.4799.54.camel@mulgrave> <20050910041218.29183.qmail@web51612.mail.yahoo.com> <20050911093847.GA5429@infradead.org>
+	Mon, 12 Sep 2005 12:12:04 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:12970 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932065AbVILQMC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 12:12:02 -0400
+Date: Mon, 12 Sep 2005 08:47:56 -0700
+From: Paul Jackson <pj@sgi.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: mrmacman_g4@mac.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       bunk@stusta.de
+Subject: Re: [RFC][MEGAPATCH] Change __ASSEMBLY__ to __ASSEMBLER__ (defined
+ by GCC from 2.95 to current CVS)
+Message-Id: <20050912084756.4fa2bd07.pj@sgi.com>
+In-Reply-To: <43259C9E.1040300@zytor.com>
+References: <C670AD22-97CF-46AA-A527-965036D78667@mac.com>
+	<20050903064124.GA31400@codepoet.org>
+	<4319BEF5.2070000@zytor.com>
+	<B9E70F6F-CC0A-4053-AB34-A90836431358@mac.com>
+	<dfhs4u$1ld$1@terminus.zytor.com>
+	<5A37B032-9BBD-4AEA-A9BF-D42AFF79BC86@mac.com>
+	<9C47C740-86CF-48F1-8DB6-B547E5D098FF@mac.com>
+	<97597F8E-DDCE-479F-AE8D-CC7DC75AB3C3@mac.com>
+	<20050910014543.1be53260.akpm@osdl.org>
+	<4FAE9F58-7153-4574-A2C3-A586C9C3CFF1@mac.com>
+	<20050910150446.116dd261.akpm@osdl.org>
+	<E352D8E3-771F-4A0D-9403-DBAA0C8CBB83@mac.com>
+	<20050910174818.579bc287.akpm@osdl.org>
+	<93E9C5F9-A083-4322-A580-236E2232CCC0@mac.com>
+	<20050912010954.70ac90e2.pj@sgi.com>
+	<43259C9E.1040300@zytor.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050911093847.GA5429@infradead.org>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 11, 2005 at 10:38:47AM +0100, Christoph Hellwig wrote:
-> On Fri, Sep 09, 2005 at 09:12:18PM -0700, Luben Tuikov wrote:
-> > I long for the days of the previous maintainer.  Had it not been
-> > for him and Andi, we may have never had scsi commands from a slab,
-> > scsi_done queue, done_q softirq processing, scsi timer hook, etc.
-> > Of course back then Splentec wasn't your payrol company, but there
-> > was some common sense present in linux-scsi.
-> 
-> Could you please stop this bullshit spreading now, thanks?
+hpa wrote:
+> The only sane thing is to have a set of ABI headers with a clean, 
+> specific set of rules, which is included by the kernel private headers, 
+> as well as userspace.
 
-I meant to reply to Luben's original, but I deleted it in disgust.
-As the person who converted SCSI from the old bottom-half completion
-processing first to a tasklet and then to a softirq, I'd like to refute
-at least part of this allegation.  I didn't do it in order to improve
-SCSI particularly, satisfy Splentec (who are they?), or prove a point.
+Why must the ABI headers be included by both kernel and user headers to
+be sane?
 
-I did it because I wanted to remove the old bottom-half mechanism and
-SCSI was one of the remaining users.  That required me to learn a bit
-about the SCSI stack and I got sucked in.  BTW, I believe at that time,
-James had alreeady taken over maintenance.  I'm not actually sure who
-the previous maintainer was -- was it Eric Biederman?
+Hmmm ... I'm not sure I want to ask that, actually.  I have this feeling
+from the tone of your assertion that you can explain to me why such a
+header organization is the only one that fits your mental model of how
+these things are structured, but that communication between us may
+break down when you try to convince me that your mental model for this
+is the only correct one.
 
-A colleague asked me to summarise the current dispute.  I said that
-Luben's point was that nobody else understood SCSI.  Everybody else's
-point was that Luben doesn't understand Linux kernel development.  Luben,
-I think you need to shut up, accept advice, stop trying to do everything
-in your own driver, and stop trying to have private conversations.
-Just discuss things on linux-scsi dispassionately.  There's no hidden
-agenda to get you or your company.  But you are pissing people off,
-and very soon there *will* be because of your behaviour.
+Oh well ... we'll see where this goes.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

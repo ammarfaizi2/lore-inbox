@@ -1,109 +1,301 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932080AbVILQkN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932085AbVILQoO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932080AbVILQkN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 12:40:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932083AbVILQkN
+	id S932085AbVILQoO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 12:44:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932086AbVILQoN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 12:40:13 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:21416 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S932080AbVILQkL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 12:40:11 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <4325AFB9.1090304@s5r6.in-berlin.de>
-Date: Mon, 12 Sep 2005 18:41:29 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.6) Gecko/20050319
-X-Accept-Language: de, en
+	Mon, 12 Sep 2005 12:44:13 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:20286 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S932085AbVILQoN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 12:44:13 -0400
+Message-ID: <4325B188.10404@sw.ru>
+Date: Mon, 12 Sep 2005 20:49:12 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
-CC: Matthias Schniedermeyer <ms@citd.de>,
-       =?ISO-8859-1?Q?Rog=E9rio_Brit?= =?ISO-8859-1?Q?o?= 
-	<rbrito@ime.usp.br>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>
-Subject: Re: eth1394 and sbp2 maintainers
-References: <43232875.4040702@s5r6.in-berlin.de> <20050911215504.17bc09a6.rdunlap@xenotime.net> <20050912074758.GB3863@ime.usp.br> <43255ABF.8080500@citd.de>
-In-Reply-To: <43255ABF.8080500@citd.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Score: (0.305) AWL,BAYES_50
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, xemul@sw.ru
+Subject: [PATCH] error path in setup_arg_pages() misses vm_unacct_memory()
+Content-Type: multipart/mixed;
+ boundary="------------060209080807050209010000"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Schniedermeyer wrote:
-> Rogério Brito wrote:
->>Let me add my voice to the choir here. I agree with Randy when he says
->>that Stefan does a superb job supporting firewire with Linux.
-> 
-> Then let me be the voice telling about the flip-side.
+This is a multi-part message in MIME format.
+--------------060209080807050209010000
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-...or me, for that matter. :-) Firstly, maintenance is a different job 
-than answering questions on linux1394-user or posting a few patches.
+[PATCH] error path in setup_arg_pages() misses vm_unacct_memory()
 
-> I've used Firewire with SBP2-driver for nearly 4 years and most of the
-> time there was one problem or another (beginning from not-SMP-safe to
-> "plainly not working" for nearly a year, where i had to downpatch
-> Firewire (The nodemanager "desaster") for a very long time)
+This patch fixes error path in setup_arg_pages() functions, since it 
+misses vm_unacct_memory() after successful call of 
+security_vm_enough_memory(). Also it cleans up error path.
 
-Sbp2 has been working very well under many Linux 2.4 releases. But there 
-were some severe regressions under Linux 2.6.
+Signed-Off-By: Pavel Emelianov <xemul@sw.ru>
+Signed-Off-By: Kirill Korotaev <dev@sw.ru>
 
-> When the last problem crept up (sbp2-module couldn't be unloaded if only
-> a none-HDD-device was connected) i was so feed up with the continuous
-> hassle that i completly replaced my firewire hardware with USB2 Hardware.
+Kirill
+P.S. against 2.6.13
 
-This very old problem of Linux 2.6 was recently fixed. But the fix is 
-not yet available in any released kernel.
+--------------060209080807050209010000
+Content-Type: text/plain;
+ name="diff-ms-unacct-error-20050912"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff-ms-unacct-error-20050912"
 
-> With USB pluging/unplugging works flawlessly (couldn't say that for 4
-> years Firewire). Operating several devices concurrently works flawlessly
-> (I was lucky when my 2 devices worked concurrently with Firewire. Most
-> of the time only 1 device couldn't be connected without risking
-> desaster), in constrast i've had 10 HDDs running concurrently connected
-> via USB2 without a problem!
+--- linux-2.6.13.1/arch/ia64/ia32/binfmt_elf32.c.accterr	2005-09-12 13:59:50.000000000 +0400
++++ linux-2.6.13.1/arch/ia64/ia32/binfmt_elf32.c	2005-09-12 15:10:16.000000000 +0400
+@@ -199,7 +199,7 @@
+ int
+ ia32_setup_arg_pages (struct linux_binprm *bprm, int executable_stack)
+ {
+-	unsigned long stack_base;
++	unsigned long stack_base, vm_end, vm_start;
+ 	struct vm_area_struct *mpnt;
+ 	struct mm_struct *mm = current->mm;
+ 	int i, ret;
+@@ -212,23 +212,24 @@
+ 		bprm->loader += stack_base;
+ 	bprm->exec += stack_base;
+ 
++	ret = -ENOMEM;
+ 	mpnt = kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
+ 	if (!mpnt)
+-		return -ENOMEM;
++		goto out;
+ 
+-	if (security_vm_enough_memory((IA32_STACK_TOP - (PAGE_MASK & (unsigned long) bprm->p))
+-				      >> PAGE_SHIFT)) {
+-		kmem_cache_free(vm_area_cachep, mpnt);
+-		return -ENOMEM;
+-	}
++	vm_end = IA32_STACK_TOP;
++	vm_start = PAGE_MASK & (unsigned long)bprm->p;
++
++	if (security_vm_enough_memory((vm_end - vm_start) >> PAGE_SHIFT))
++		goto out_free;
+ 
+ 	memset(mpnt, 0, sizeof(*mpnt));
+ 
+ 	down_write(&current->mm->mmap_sem);
+ 	{
+ 		mpnt->vm_mm = current->mm;
+-		mpnt->vm_start = PAGE_MASK & (unsigned long) bprm->p;
+-		mpnt->vm_end = IA32_STACK_TOP;
++		mpnt->vm_start = vm_start;
++		mpnt->vm_end = vm_end;
+ 		if (executable_stack == EXSTACK_ENABLE_X)
+ 			mpnt->vm_flags = VM_STACK_FLAGS |  VM_EXEC;
+ 		else if (executable_stack == EXSTACK_DISABLE_X)
+@@ -237,11 +238,8 @@
+ 			mpnt->vm_flags = VM_STACK_FLAGS;
+ 		mpnt->vm_page_prot = (mpnt->vm_flags & VM_EXEC)?
+ 					PAGE_COPY_EXEC: PAGE_COPY;
+-		if ((ret = insert_vm_struct(current->mm, mpnt))) {
+-			up_write(&current->mm->mmap_sem);
+-			kmem_cache_free(vm_area_cachep, mpnt);
+-			return ret;
+-		}
++		if ((ret = insert_vm_struct(current->mm, mpnt)))
++			goto out_up;
+ 		current->mm->stack_vm = current->mm->total_vm = vma_pages(mpnt);
+ 	}
+ 
+@@ -260,6 +258,14 @@
+ 	current->thread.ppl = ia32_init_pp_list();
+ 
+ 	return 0;
++
++out_up:
++	up_write(&current->mm->mmap_sem);
++	vm_unacct_memory((vm_end - vm_start) >> PAGE_SHIFT);
++out_free:
++	kmem_cache_free(vm_area_cachep, mpnt);
++out:
++	return ret;
+ }
+ 
+ static void
+--- linux-2.6.13.1/arch/x86_64/ia32/ia32_binfmt.c.accterr	2005-09-12 14:00:30.000000000 +0400
++++ linux-2.6.13.1/arch/x86_64/ia32/ia32_binfmt.c	2005-09-12 15:18:45.000000000 +0400
+@@ -337,7 +337,7 @@
+ 
+ int setup_arg_pages(struct linux_binprm *bprm, unsigned long stack_top, int executable_stack)
+ {
+-	unsigned long stack_base;
++	unsigned long stack_base, vm_end, vm_start;
+ 	struct vm_area_struct *mpnt;
+ 	struct mm_struct *mm = current->mm;
+ 	int i, ret;
+@@ -350,22 +350,24 @@
+ 		bprm->loader += stack_base;
+ 	bprm->exec += stack_base;
+ 
++	ret = -ENOMEM;
+ 	mpnt = kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
+-	if (!mpnt) 
+-		return -ENOMEM; 
++	if (!mpnt)
++		goto out;
++
++	vm_end = IA32_STACK_TOP;
++	vm_start = PAGE_MASK & (unsigned long)bprm->p;
+ 	
+-	if (security_vm_enough_memory((IA32_STACK_TOP - (PAGE_MASK & (unsigned long) bprm->p))>>PAGE_SHIFT)) {
+-		kmem_cache_free(vm_area_cachep, mpnt);
+-		return -ENOMEM;
+-	}
++	if (security_vm_enough_memory((vm_end - vm_start)>>PAGE_SHIFT))
++		goto out_free;
+ 
+ 	memset(mpnt, 0, sizeof(*mpnt));
+ 
+ 	down_write(&mm->mmap_sem);
+ 	{
+ 		mpnt->vm_mm = mm;
+-		mpnt->vm_start = PAGE_MASK & (unsigned long) bprm->p;
+-		mpnt->vm_end = IA32_STACK_TOP;
++		mpnt->vm_start = vm_start;
++		mpnt->vm_end = vm_end;
+ 		if (executable_stack == EXSTACK_ENABLE_X)
+ 			mpnt->vm_flags = VM_STACK_FLAGS |  VM_EXEC;
+ 		else if (executable_stack == EXSTACK_DISABLE_X)
+@@ -374,11 +376,8 @@
+ 			mpnt->vm_flags = VM_STACK_FLAGS;
+  		mpnt->vm_page_prot = (mpnt->vm_flags & VM_EXEC) ? 
+  			PAGE_COPY_EXEC : PAGE_COPY;
+-		if ((ret = insert_vm_struct(mm, mpnt))) {
+-			up_write(&mm->mmap_sem);
+-			kmem_cache_free(vm_area_cachep, mpnt);
+-			return ret;
+-		}
++		if ((ret = insert_vm_struct(mm, mpnt)))
++			goto out_up;
+ 		mm->stack_vm = mm->total_vm = vma_pages(mpnt);
+ 	} 
+ 
+@@ -393,6 +392,14 @@
+ 	up_write(&mm->mmap_sem);
+ 	
+ 	return 0;
++
++out_up:
++	up_write(&mm->mmap_sem);
++	vm_unacct_memory((vm_end - vm_start) >> PAGE_SHIFT);
++out_free:
++	kmem_cache_free(vm_area_cachep, mpnt);
++out:
++	return ret;
+ }
+ 
+ static unsigned long
+--- linux-2.6.13.1/arch/x86_64/ia32/syscall32.c.accterr	2005-09-12 14:00:29.000000000 +0400
++++ linux-2.6.13.1/arch/x86_64/ia32/syscall32.c	2005-09-12 15:23:07.000000000 +0400
+@@ -10,6 +10,7 @@
+ #include <linux/init.h>
+ #include <linux/stringify.h>
+ #include <linux/security.h>
++#include <linux/mman.h>
+ #include <asm/proto.h>
+ #include <asm/tlbflush.h>
+ #include <asm/ia32_unistd.h>
+@@ -49,13 +50,12 @@
+ 	struct mm_struct *mm = current->mm;
+ 	int ret;
+ 
++	ret = -ENOMEM;
+ 	vma = kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
+ 	if (!vma)
+-		return -ENOMEM;
+-	if (security_vm_enough_memory(npages)) {
+-		kmem_cache_free(vm_area_cachep, vma);
+-		return -ENOMEM;
+-	}
++		goto out;
++	if (security_vm_enough_memory(npages))
++		goto out_free;
+ 
+ 	memset(vma, 0, sizeof(struct vm_area_struct));
+ 	/* Could randomize here */
+@@ -69,14 +69,19 @@
+ 	vma->vm_mm = mm;
+ 
+ 	down_write(&mm->mmap_sem);
+-	if ((ret = insert_vm_struct(mm, vma))) {
+-		up_write(&mm->mmap_sem);
+-		kmem_cache_free(vm_area_cachep, vma);
+-		return ret;
+-	}
++	if ((ret = insert_vm_struct(mm, vma)))
++		goto out_up;
+ 	mm->total_vm += npages;
+ 	up_write(&mm->mmap_sem);
+ 	return 0;
++
++out_up:
++	up_write(&mm->mmap_sem);
++	vm_unacct_memory(npages);
++out_free:
++	kmem_cache_free(vm_area_cachep, vma);
++out:
++	return ret;
+ }
+ 
+ static int __init init_syscall32(void)
+--- linux-2.6.13.1/fs/exec.c.accterr	2005-09-12 14:01:43.000000000 +0400
++++ linux-2.6.13.1/fs/exec.c	2005-09-12 15:20:38.000000000 +0400
+@@ -417,14 +417,13 @@
+ 		bprm->loader += stack_base;
+ 	bprm->exec += stack_base;
+ 
++	ret = -ENOMEM;
+ 	mpnt = kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
+ 	if (!mpnt)
+-		return -ENOMEM;
++		goto out;
+ 
+-	if (security_vm_enough_memory(arg_size >> PAGE_SHIFT)) {
+-		kmem_cache_free(vm_area_cachep, mpnt);
+-		return -ENOMEM;
+-	}
++	if (security_vm_enough_memory(arg_size >> PAGE_SHIFT))
++		goto out_free;
+ 
+ 	memset(mpnt, 0, sizeof(*mpnt));
+ 
+@@ -449,11 +448,8 @@
+ 			mpnt->vm_flags = VM_STACK_FLAGS;
+ 		mpnt->vm_flags |= mm->def_flags;
+ 		mpnt->vm_page_prot = protection_map[mpnt->vm_flags & 0x7];
+-		if ((ret = insert_vm_struct(mm, mpnt))) {
+-			up_write(&mm->mmap_sem);
+-			kmem_cache_free(vm_area_cachep, mpnt);
+-			return ret;
+-		}
++		if ((ret = insert_vm_struct(mm, mpnt)))
++			goto out_up;
+ 		mm->stack_vm = mm->total_vm = vma_pages(mpnt);
+ 	}
+ 
+@@ -468,6 +464,14 @@
+ 	up_write(&mm->mmap_sem);
+ 	
+ 	return 0;
++
++out_up:
++	up_write(&mm->mmap_sem);
++	vm_unacct_memory(arg_size >> PAGE_SHIFT);
++out_free:
++	kmem_cache_free(vm_area_cachep, mpnt);
++out:
++	return ret;
+ }
+ 
+ EXPORT_SYMBOL(setup_arg_pages);
 
-The hotunplug bugs made usage of multiple devices difficult or even 
-impossible, and they prevented implementation of some enhancements for 
-usage of multiple devices on the same bus. Fortunately these bugs are 
-out of the way now.
+--------------060209080807050209010000--
 
-But besides that, there are still big issues with SCSI command aborts 
-especially with soft RAID over sbp2 and with some firmwares, notably 
-those with firmware-"R"AID-0. There is no prognosis yet if and when 
-these more elusive problems will be sorted out.
-
-> I know that i may have skipped the time where USB hasn't been mature to
-> the time where USB was mature, but it got there. So forgive me when i'm
-> too negative about firewire and too positive about USB.
-
-On the other hand, there have also been positive reports about usage of 
-multiple SBP-2 devices. (I have several too, though mostly quality 
-brands...) But you are absolutely right that sbp2 has not been reliable 
-for a long time, and still isn't quite there.
-
-> To say it short:
-> - Firewire and especially SBP2 haven't been very mature in my 4 YEARS(!)
-> using it.
-> - As far as i see the userbase just isn't big enough to make it mature.
-
-Yes, there is a smaller user base than for usb-storage. Combine this 
-with the complexities of IEEE 1394 and SCSI and of their respective 
-Linux implementations, plus near absence of any commercial interest in 
-SBP-2 support for Linux. All this contributes to lack of manpower in 
-development and lack of maintenance routine, IMO.
-
-> Taking aside some niche usages, i guess firewire WILL DIE because of USB
-> sooner then later. For me firewire died 6 month ago. Rest in peace.
-
-FireWire won't die because of USB. There are fields of applications 
-which FireWire and USB do not share. Sure, FireWire for _storage_ 
-applications will definitively lose more of its already weak market 
-share to USB (cheap and slow) and to external SATA (cheap and fast). But 
-FireWire won't vanish from storage applications completely, thanks to a 
-few unique features like multiple initiator capability, the ability to 
-power even 5.25" drives by bus power, or choice of special-purpose cable 
-or fiber media.
--- 
-Stefan Richter
--=====-=-=-= =--= -==--
-http://arcgraph.de/sr/

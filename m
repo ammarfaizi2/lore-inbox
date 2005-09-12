@@ -1,48 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932358AbVILXoE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932362AbVILXqJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932358AbVILXoE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 19:44:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932362AbVILXoE
+	id S932362AbVILXqJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 19:46:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbVILXqI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 19:44:04 -0400
-Received: from tetsuo.zabbo.net ([207.173.201.20]:35976 "EHLO tetsuo.zabbo.net")
-	by vger.kernel.org with ESMTP id S932358AbVILXoB (ORCPT
+	Mon, 12 Sep 2005 19:46:08 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:18187 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S932362AbVILXqH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 19:44:01 -0400
-From: Zach Brown <zach.brown@oracle.com>
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Cc: linux-aio@kvack.org, Benjamin LaHaise <bcrl@kvack.org>,
-       Zach Brown <zach.brown@oracle.com>
-Message-Id: <20050912234406.31460.93241.89411@takashi.pdx.zabbo.net>
-Subject: [Patch] Add smp_mb__after_clear_bit() to unlock_kiocb()
-Date: Mon, 12 Sep 2005 16:43:44 -0700 (PDT)
+	Mon, 12 Sep 2005 19:46:07 -0400
+Date: Mon, 12 Sep 2005 19:45:34 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Grant Grundler <iod00d@hp.com>
+Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org,
+       linux-ia64@vger.kernel.org, ak@suse.de, tony.luck@intel.com,
+       Asit.K.Mallick@intel.com
+Subject: [patch 2.6.13 (take #2)] swiotlb: BUG() for DMA_NONE in sync_single
+Message-ID: <20050912234532.GH19644@tuxdriver.com>
+Mail-Followup-To: Grant Grundler <iod00d@hp.com>,
+	linux-kernel@vger.kernel.org, discuss@x86-64.org,
+	linux-ia64@vger.kernel.org, ak@suse.de, tony.luck@intel.com,
+	Asit.K.Mallick@intel.com
+References: <09122005104851.31056@bilbo.tuxdriver.com> <09122005104851.31120@bilbo.tuxdriver.com> <20050912185120.GD21820@esmail.cup.hp.com> <20050912195110.GC19644@tuxdriver.com> <20050912195356.GD19644@tuxdriver.com> <20050912202333.GF21820@esmail.cup.hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050912202333.GF21820@esmail.cup.hp.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add smp_mb__after_clear_bit() to unlock_kiocb()
+Call BUG() if DMA_NONE is passed-in as direction for sync_single.
+Also remove unnecessary checks for DMA_NONE in callers of sync_single.
 
-AIO's use of wait_on_bit_lock()/wake_up_bit() forgot to add a barrier between
-clearing its lock bit and calling wake_up_bit() so wake_up_bit()'s unlocked
-waitqueue_active() can race.  This puts AIO's use in line with the others
-and the comment above wake_up_bit().
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+This patch replaces the previous patch with (almost) the same subject.
 
-Please apply.
+ lib/swiotlb.c |   11 ++---------
+ 1 files changed, 2 insertions(+), 9 deletions(-)
 
-Signed-off-by: Zach Brown <zach.brown@oracle.com>
-
-Index: 2.6.13-git12-mb-lock-kiocb/fs/aio.c
-===================================================================
---- 2.6.13-git12-mb-lock-kiocb.orig/fs/aio.c
-+++ 2.6.13-git12-mb-lock-kiocb/fs/aio.c
-@@ -562,6 +562,7 @@ static inline void lock_kiocb(struct kio
- static inline void unlock_kiocb(struct kiocb *iocb)
+diff --git a/lib/swiotlb.c b/lib/swiotlb.c
+--- a/lib/swiotlb.c
++++ b/lib/swiotlb.c
+@@ -315,13 +315,13 @@ sync_single(struct device *hwdev, char *
+ 	case SYNC_FOR_CPU:
+ 		if (likely(dir == DMA_FROM_DEVICE || dma == DMA_BIDIRECTIONAL))
+ 			memcpy(buffer, dma_addr, size);
+-		else if (dir != DMA_TO_DEVICE && dir != DMA_NONE)
++		else if (dir != DMA_TO_DEVICE)
+ 			BUG();
+ 		break;
+ 	case SYNC_FOR_DEVICE:
+ 		if (likely(dir == DMA_TO_DEVICE || dma == DMA_BIDIRECTIONAL))
+ 			memcpy(dma_addr, buffer, size);
+-		else if (dir != DMA_FROM_DEVICE && dir != DMA_NONE)
++		else if (dir != DMA_FROM_DEVICE)
+ 			BUG();
+ 		break;
+ 	default:
+@@ -515,8 +515,6 @@ swiotlb_sync_single(struct device *hwdev
  {
- 	kiocbClearLocked(iocb);
-+	smp_mb__after_clear_bit();
- 	wake_up_bit(&iocb->ki_flags, KIF_LOCKED);
- }
+ 	char *dma_addr = phys_to_virt(dev_addr);
  
-  Signed-off-by: Zach Brown <zach.brown@oracle.com>
-
- aio.c |    1 +
- 1 files changed, 1 insertion(+)
+-	if (dir == DMA_NONE)
+-		BUG();
+ 	if (dma_addr >= io_tlb_start && dma_addr < io_tlb_end)
+ 		sync_single(hwdev, dma_addr, size, dir, target);
+ 	else if (dir == DMA_FROM_DEVICE)
+@@ -547,8 +545,6 @@ swiotlb_sync_single_range(struct device 
+ {
+ 	char *dma_addr = phys_to_virt(dev_addr) + offset;
+ 
+-	if (dir == DMA_NONE)
+-		BUG();
+ 	if (dma_addr >= io_tlb_start && dma_addr < io_tlb_end)
+ 		sync_single(hwdev, dma_addr, size, dir, target);
+ 	else if (dir == DMA_FROM_DEVICE)
+@@ -651,9 +647,6 @@ swiotlb_sync_sg(struct device *hwdev, st
+ {
+ 	int i;
+ 
+-	if (dir == DMA_NONE)
+-		BUG();
+-
+ 	for (i = 0; i < nelems; i++, sg++)
+ 		if (sg->dma_address != SG_ENT_PHYS_ADDRESS(sg))
+ 			sync_single(hwdev, (void *) sg->dma_address,
+-- 
+John W. Linville
+linville@tuxdriver.com

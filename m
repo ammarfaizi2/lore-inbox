@@ -1,37 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932226AbVILUl0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbVILUs0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932226AbVILUl0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 16:41:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932225AbVILUl0
+	id S932083AbVILUs0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 16:48:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932228AbVILUsZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 16:41:26 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:7836
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932129AbVILUlZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 16:41:25 -0400
-Date: Mon, 12 Sep 2005 13:41:22 -0700 (PDT)
-Message-Id: <20050912.134122.54246336.davem@davemloft.net>
-To: tcallawa@redhat.com
-Cc: aurora-sparc-devel@lists.auroralinux.org, linux-kernel@vger.kernel.org,
-       davem@redhat.com, sparclinux@vger.kernel.org
-Subject: Re: [Aurora-sparc-devel] [2.6.13-rc6-git13/sparc64]: Slab
- corruption (possible stack or buffer-cache corruption)
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <1126536316.25031.66.camel@localhost.localdomain>
-References: <Pine.BSO.4.62.0509121604360.5000@rudy.mif.pg.gda.pl>
-	<1126536316.25031.66.camel@localhost.localdomain>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Mon, 12 Sep 2005 16:48:25 -0400
+Received: from smtpout.mac.com ([17.250.248.46]:10690 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S932083AbVILUsZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 16:48:25 -0400
+In-Reply-To: <200509121003.11086.bjorn.helgaas@hp.com>
+References: <4316E5D9.8050107@geograph.co.za> <20050901144812.GA3483@atrey.karlin.mff.cuni.cz> <20050911223619.GB19403@aitel.hist.no> <200509121003.11086.bjorn.helgaas@hp.com>
+Mime-Version: 1.0 (Apple Message framework v734)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <F96CD1EB-5963-49CF-9B8B-7934925BE79D@mac.com>
+Cc: Helge Hafting <helgehaf@aitel.hist.no>, Martin Mares <mj@ucw.cz>,
+       Vojtech Pavlik <vojtech@suse.cz>,
+       Zoltan Szecsei <zoltans@geograph.co.za>, linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: multiple independent keyboard kernel support
+Date: Mon, 12 Sep 2005 16:47:28 -0400
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Tom 'spot' Callaway" <tcallawa@redhat.com>
-Date: Mon, 12 Sep 2005 09:45:16 -0500
+On Sep 12, 2005, at 12:03:11, Bjorn Helgaas wrote:
+> On Sunday 11 September 2005 4:36 pm, Helge Hafting wrote:
+>> Look again.  X config files now have "IsolateDevice" and "BusID"
+>> to deal with this.  At least iff you get your X from ubuntu or
+>> debian testing . . .
+>
+> Yes, but I think IsolateDevice still isn't quite enough if you
+> have VGA devices behind PCI-PCI bridges.  In other words, devices
+> behind bridges still get disabled, even with IsolateDevice.
+>
+> And the ideal situation would be if IsolateDevice could be the
+> *default*, but the X bugzilla[1] says some devices have problems
+> with that.
 
-> We've been seeing this intermittently on arthur since Aurora 1.0 (2.4).
+IIRC, someone was working on a VGA arbiter and some PCI-access kernel  
+code
+upon which X.org could be rebuilt.  Then all the messy /dev/mem issues
+relating to PCI bus smashing go away (including the need for iopl, root
+privts, etc), and a properly configured system could run X.org as a  
+normal
+user on any attached devices that user has permission to, including  
+video
+cards, displays, keyboards, mice, graphics tablets, joysticks, etc.
 
-That's amazing given that half of those SLAB functions in
-the backtrace simply do not exist in 2.4.x :-)  Can you quote
-a 2.4.x version of such a backtrace?  Thanks a lot.
+Unfortunately the project is not exactly small, so it wasn't moving very
+quickly last I remember...
+
+Cheers,
+Kyle Moffett
+
+--
+Unix was not designed to stop people from doing stupid things,  
+because that
+would also stop them from doing clever things.
+   -- Doug Gwyn
+
+

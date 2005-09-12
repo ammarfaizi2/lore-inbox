@@ -1,70 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750921AbVILGtD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751186AbVILHB1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750921AbVILGtD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 02:49:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750946AbVILGtD
+	id S1751186AbVILHB1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 03:01:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751187AbVILHB1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 02:49:03 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:27071
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S1750921AbVILGtB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 02:49:01 -0400
-Message-Id: <4325412D0200007800024DE1@emea1-mh.id2.novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Mon, 12 Sep 2005 08:49:49 +0200
-From: "Jan Beulich" <JBeulich@novell.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] rmmod notifier chain
-References: <43206EFE0200007800024451@emea1-mh.id2.novell.com> <20050908151624.GA11067@infradead.org> <432073610200007800024489@emea1-mh.id2.novell.com> <20050908184659.6aa5a136.akpm@osdl.org> <43219FDF0200007800024975@emea1-mh.id2.novell.com> <20050909112721.316f2dbb.akpm@osdl.org>
-In-Reply-To: <20050909112721.316f2dbb.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 12 Sep 2005 03:01:27 -0400
+Received: from ctb-mesg4.saix.net ([196.25.240.84]:26021 "EHLO
+	ctb-mesg4.saix.net") by vger.kernel.org with ESMTP id S1751186AbVILHB0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 03:01:26 -0400
+Message-ID: <432527B7.4070506@geograph.co.za>
+Date: Mon, 12 Sep 2005 09:01:11 +0200
+From: Zoltan Szecsei <zoltans@geograph.co.za>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: multiple independent keyboard kernel support
+References: <4316E5D9.8050107@geograph.co.za> <20050911223414.GA19403@aitel.hist.no>
+In-Reply-To: <20050911223414.GA19403@aitel.hist.no>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I cherrypicked five of your patches yesterday as ones which look like
-they
->should be in 2.6.14.
+Helge Hafting wrote:
+
+>>I would prefer to see "official and permanent" support for this as then 
+>>when HW & drivers & kernels develop in the future, this capability will 
+>>always be (immediately) available - and not have to wait for patches.
+>>
+>>    
+>>
 >
->	fix i386 cmpxchg
->	adjust .version updating
->	free initrd mem adjustment
->	constify font data
->	minor fbcon_scroll adjustment
+>"evdev" in the kernel already separates out independent keyboards.
+>Isolatedevice lets several xservers run indepenmdently.  There isn't
+>much missing, although there are minor troubles where starting one
+>xserver might mess up the video timing for another.  (Solution:
+>start xserver in an appropriate order, to be found by experimentation)
+>Another minor problem - it won't work with every combination of video cards,
+>only some.
+>Still - when it works you even get to run accelerated 3D on
+>the independent heads.  Nice for game parties.
 >
->But none of those are NMI-related.  Specifically which patch are you
->referring to?
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=112600003916210&w=2
-
->...
-
->>  I'd be curious to know how you, considering yourself in my
-position,
->>  would have approached breaking up and submitting that size a
-patch.
+>  
 >
->a) Patches which affect the main kernel but which aren't really
->   debugger-related
+This is by far the best news I could have hoped for.
 
-So it was right to start with those...
+>>    
+>>
+>I hope this helps.
+>  
+>
+Definitely yes.
+Helge, thank you very much for taking the time to respond to my 
+(lengthy) query. I will be away for a few weeks, but will try this in 
+full during early October.
 
->b) Patches which affect the main kernel and which are
-debugger-related
->   (adding hooks, generalising interfaces, refactoring functions,
-etc).
+I have in the meantime unsubscribed from linux-kernel so please use my 
+direct address if you need to discuss anything further.
 
-... and some of those. But you saying this was more or less the right
-approach puts things in contradiction with the complaints from others
-that consumers of some of the changes weren't immediately visible.
+Kind regards,
+Zoltan
 
->c) Finally, one monster patch to add the debugger functionality. 
-Maybe
->   split into in vger-sized chunks.
 
-That'll have to follow later.
+>Helge Hafting
+>
+>
+>  
+>
 
-Thanks, Jan
+
+-- 
+
+==================================
+Geograph (Pty) Ltd
+P.O. Box 31255
+Tokai
+7966
+Tel:    +27-21-7018492
+Fax:	+27-86-6115323
+Mobile: +27-83-6004028
+==================================
+
+

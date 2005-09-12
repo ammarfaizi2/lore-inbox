@@ -1,65 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbVILO5m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751353AbVILO7K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751315AbVILO5m (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 10:57:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbVILO5m
+	id S1751353AbVILO7K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 10:59:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751356AbVILO7D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 10:57:42 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:13063 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1751315AbVILO5h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 10:57:37 -0400
-Date: Mon, 12 Sep 2005 10:48:52 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Cc: akpm@osdl.org, jgarzik@pobox.com
-Subject: [patch 2.6.13 1/3] 3c59x: bounds checking for hw_checksums
-Message-ID: <09122005104852.31525@bilbo.tuxdriver.com>
-In-Reply-To: <09122005104852.31469@bilbo.tuxdriver.com>
-User-Agent: PatchPost/0.1
+	Mon, 12 Sep 2005 10:59:03 -0400
+Received: from 66-23-228-155.clients.speedfactory.net ([66.23.228.155]:9629
+	"EHLO kevlar.burdell.org") by vger.kernel.org with ESMTP
+	id S1751353AbVILO6n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 10:58:43 -0400
+Date: Mon, 12 Sep 2005 10:54:35 -0400
+From: Sonny Rao <sonny@burdell.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-mm3
+Message-ID: <20050912145435.GA4722@kevlar.burdell.org>
+References: <20050912024350.60e89eb1.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20050912024350.60e89eb1.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add bounds checking to usage of hw_checksums module parameter array.
+On Mon, Sep 12, 2005 at 02:43:50AM -0700, Andrew Morton wrote:
+<snip>
+> - There are several performance tuning patches here which need careful
+>   attention and testing.  (Does anyone do performance testing any more?)
+<snip>
+> 
+>   - The size of the page allocator per-cpu magazines has been increased
+> 
+>   - The page allocator has been changed to use higher-order allocations
+>     when batch-loading the per-cpu magazines.  This is intended to give
+>     improved cache colouring effects however it might have the downside of
+>     causing extra page allocator fragmentation.
+> 
+>   - The page allocator's per-cpu magazines have had their lower threshold
+>     set to zero.  And we can't remember why it ever had a lower threshold.
+> 
 
-Signed-off-by: John W. Linville <linville@tuxdriver.com>
----
+What would you like? The usual suspects:  SDET, dbench, kernbench ?
 
- drivers/net/3c59x.c |   15 +++++++++------
- 1 files changed, 9 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/net/3c59x.c b/drivers/net/3c59x.c
---- a/drivers/net/3c59x.c
-+++ b/drivers/net/3c59x.c
-@@ -1536,9 +1536,11 @@ static int __devinit vortex_probe1(struc
- 		dev->hard_start_xmit = boomerang_start_xmit;
- 		/* Actually, it still should work with iommu. */
- 		dev->features |= NETIF_F_SG;
--		if (((hw_checksums[card_idx] == -1) && (vp->drv_flags & HAS_HWCKSM)) ||
--					(hw_checksums[card_idx] == 1)) {
--				dev->features |= NETIF_F_IP_CSUM;
-+		if ((card_idx < MAX_UNITS) &&
-+		    (((hw_checksums[card_idx] == -1) &&
-+		      (vp->drv_flags & HAS_HWCKSM)) ||
-+		     (hw_checksums[card_idx] == 1))) {
-+			dev->features |= NETIF_F_IP_CSUM;
- 		}
- 	} else {
- 		dev->hard_start_xmit = vortex_start_xmit;
-@@ -2811,9 +2813,10 @@ vortex_close(struct net_device *dev)
- 	}
- 
- #if DO_ZEROCOPY
--	if (	vp->rx_csumhits &&
--			((vp->drv_flags & HAS_HWCKSM) == 0) &&
--			(hw_checksums[vp->card_idx] == -1)) {
-+	if (vp->rx_csumhits &&
-+	    ((vp->drv_flags & HAS_HWCKSM) == 0) &&
-+	    ((vp->card_idx >= MAX_UNITS) ||
-+	     (hw_checksums[vp->card_idx] == -1))) {
- 		printk(KERN_WARNING "%s supports hardware checksums, and we're not using them!\n", dev->name);
- 	}
- #endif
+Sonny

@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932254AbVILV1b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbVILV1V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932254AbVILV1b (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 17:27:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932259AbVILV1b
+	id S932248AbVILV1V (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 17:27:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932254AbVILV1V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 17:27:31 -0400
-Received: from wproxy.gmail.com ([64.233.184.204]:22137 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932254AbVILV1a convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 17:27:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=TOvMhxrtEV5GjTPO+/c9++T88cgqoXSqPs4FtgkZxu5nEG3aNxiTXvEviA/vMN+AALSVddA2yjuGmQargpl54zP0PgVHfWfXn4TslNRV9ogUWtaBWziJkfUaai8iyX8lHM/w6Ea6luxL6DqImOf8fc2fTEVYM8w1qxEzo/D1ATQ=
-Message-ID: <6bffcb0e050912142757f9aaa1@mail.gmail.com>
-Date: Mon, 12 Sep 2005 23:27:28 +0200
-From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Reply-To: michal.k.k.piotrowski@gmail.com
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.6.13-mm3 dontdiff - asm-offsets.*
-Cc: Andrew Morton <akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Mon, 12 Sep 2005 17:27:21 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:49097 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S932248AbVILV1U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 17:27:20 -0400
+Message-Id: <200509122127.j8CLR3n7025719@laptop11.inf.utfsm.cl>
+To: Valdis.Kletnieks@vt.edu
+cc: Hugh Dickins <hugh@veritas.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       =?ISO-8859-1?Q?M=E1rcio_Oliveira?= <moliveira@latinsourcetech.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Tainted lsmod output 
+In-Reply-To: Message from Valdis.Kletnieks@vt.edu 
+   of "Mon, 12 Sep 2005 16:16:45 -0400." <200509122016.j8CKGjmY029390@turing-police.cc.vt.edu> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
+Date: Mon, 12 Sep 2005 17:27:03 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.19.1]); Mon, 12 Sep 2005 17:27:04 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-here is my simple dontdiff patch.
+Valdis.Kletnieks@vt.edu wrote:
+> On Mon, 12 Sep 2005 20:58:01 BST, Hugh Dickins said:
+> > On Mon, 12 Sep 2005, Randy.Dunlap wrote:
+> > > On Mon, 12 Sep 2005, Hugh Dickins wrote:
+> > > > The one that puzzles me greatly isn't listed there: 'G'
 
-It maybe someone mistake, but there are two asm-offsets files in
-include/asm-i386/.
+> > > I guess it means GPL.
+> > > 
+> > > It's just the opposite of 'P', whereas all of the others
+> > > have opposites of ' '.
 
-ng02:/usr/src/linux-mm/include/asm-i386# ls | grep "asm"
-asm_offsets.h
-asm-offsets.h
+> > I guess the same, but doesn't it seem a strange kind of taint?
 
-Regards,
-Michal Piotrowski
+> Somebody had an automated log-parsing tool, and wanted to make sure there
+> were guaranteed at least 2 non-whitespace tokens on the line so they wouldn't
+> have to deal with parsing 'Tainted:       \n'?
 
-Signed-off-by: Michal K. K. Piotrowski <michal.k.k.piotrowski@gmail.com>
-
-diff -uprN -X linux-mm-clean/Documentation/dontdiff
-linux-mm-clean/Documentation/dontdiff linux-mm/Documentation/dontdiff
---- linux-mm-clean/Documentation/dontdiff	2005-09-12 23:01:28.000000000 +0200
-+++ linux-mm/Documentation/dontdiff	2005-09-12 23:18:42.000000000 +0200
-@@ -55,6 +55,7 @@ aic7*seq.h*
- aicasm
- aicdb.h*
- asm
-+asm-offsets.*
- asm_offsets.*
- autoconf.h*
- bbootsect
+That's a lame excuse for messing up the kernel and mistifying the heck out
+of users. Either "Tainted: <some gunk>" or "Not tainted" (or just nothing)?
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,123 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932143AbVILV40@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbVILWAX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932143AbVILV40 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 17:56:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbVILV40
+	id S932284AbVILWAX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 18:00:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbVILWAX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 17:56:26 -0400
-Received: from main.gmane.org ([80.91.229.2]:32442 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932143AbVILV4Z (ORCPT
+	Mon, 12 Sep 2005 18:00:23 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:53920 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S932277AbVILWAW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 17:56:25 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Nuutti Kotivuori <naked@iki.fi>
-Subject: netfilter QUEUE target and packet socket interactions buggy or not
-Date: Tue, 13 Sep 2005 01:12:26 +0300
-Organization: Ye 'Ol Disorganized NNTPCache groupie
-Message-ID: <87fysa9bqt.fsf@aka.i.naked.iki.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: naked.iki.fi
-User-Agent: Gnus/5.110004 (No Gnus v0.4) XEmacs/21.4.17 (linux)
-Cancel-Lock: sha1:J14O9A3LRgml30dl3o7X4Anu/A0=
-Cache-Post-Path: aka.i.naked.iki.fi!unknown@aka.i.naked.iki.fi
-X-Cache: nntpcache 3.0.1 (see http://www.nntpcache.org/)
+	Mon, 12 Sep 2005 18:00:22 -0400
+Message-ID: <4325FA6F.3060102@adaptec.com>
+Date: Mon, 12 Sep 2005 18:00:15 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: Luben Tuikov <ltuikov@yahoo.com>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: [PATCH 2.6.13 14/14] sas-class: SCSI Host glue
+References: <1126308949.4799.54.camel@mulgrave> <20050910041218.29183.qmail@web51612.mail.yahoo.com> <20050911093847.GA5429@infradead.org>
+In-Reply-To: <20050911093847.GA5429@infradead.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 12 Sep 2005 22:00:20.0928 (UTC) FILETIME=[5E694C00:01C5B7E5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am in the process of debugging a kernel panic manifested on a Red
-Hat Enterprise Linux 4 under rather difficult conditions. While
-investigating this, I came upon a few bits of code that I'd like some
-clarification on. However, I will start by describing the problem.
+On 09/11/05 05:38, Christoph Hellwig wrote:
+>>Hmm, lets see:
+>>I posted today, a _complete_ solution, 1000 years ahead of this
+>>"embryonic SAS class" you speak of.
+> 
+> 
+> They're actually serving different needs.  The host-bases SAS code you
+> wrote should be layering below my SAS transport class.
 
-I am getting a consistent kernel panic under specific high load, which
-involves heavy use of the netfilter QUEUE target and packet filter. I
-will paraphrase the important parts of the backtrace here:
+Yes, they are completely orthogonal and can co-exist.
 
-,----
-| Unable to handle kernel NULL pointer dereference at virtual address 00000018
-| ...
-|         __kfree_skb+0xf4/0xf7
-|  [<c02c3188>] packet_rcv+0x2ca/0x2d4
-|  [<f888f792>] bcm5700_start_xmit+0x477/0x4a5 [bcm5700]
-|  [<c01a3a02>] selinux_ipv4_postroute_last+0xf/0x13
-| ...
-|  [<c028cf66>] dst_output+0xf/0x1a
-|  [<c027cfdb>] nf_reinject+0x14d/0x1a9
-|  [<f894101e>] ipq_issue_verdict+0x1e/0x2b [ip_queue]
-| ...
-|  [<c028592c>] netlink_sendmsg+0x254/0x263
-|  [<c011dcf5>] __wake_up+0x29/0x3c
-|  [<c026b92d>] sock_sendmsg+0xdb/0xf7
-| ...
-|  [<c0133b04>] unqueue_me+0x73/0x79
-|  [<c011dcf5>] __wake_up+0x29/0x3c
-|  [<c026d465>] sys_socketcall+0x1c1/0x1dd
-|  [<c0125351>] sys_gettimeofday+0x53/0xac
-|  [<c02c7377>] syscall_call+0x7/0xb
-`----
+> What SPEC do you think a representation of SAS domains in the linux driver
+> model just adhere to?
 
-So what I gather is happening here is that we are in syscall context,
-inside that the nf_reinject stuff puts the queued packet decision
-received from userspace onwards and it ends up being captured by a
-packet socket. And for some reason, the packet ends up being
-kfree_skb'd twice.
+See figure 10, SAS Domain class diagram, in SAS1r09e.  It cross-links
+you to SAM-3 (you can also use SAM-4).
 
-Two things caught my attention. First of all, there was a relatively
-recent fix to ip_queue which had to do with the calling context. I
-will copy the rationale here:
+> There will be more SAS LLDDs that either do more things in firmware like
+> LSI Fusion and ones that do things in the Host like the Adaptec one.  And
+> we need to support both.  The best way to do that is to have a small top
+> layer that just unifies the SAS domain presentation, and a 'libsas' layer
+> below it for host-bases SAS implementations.
 
-,----[ Harald Welte <laforge at netfilter.org> ]
-| [NETFILTER]: Fix deadlock with ip_queue and tcp local input path.
-| 
-| When we have ip_queue being used from LOCAL_IN, then we end up with a
-| situation where the verdicts coming back from userspace traverse the TCP
-| input path from syscall context.  While this seems to work most of the
-| time, there's an ugly deadlock:
-| 
-| syscall context is interrupted by the timer interrupt.  When the timer
-| interrupt leaves, the timer softirq get's scheduled and calls
-| tcp_delack_timer() and alike.  They themselves do bh_lock_sock(sk),
-| which is already held from somewhere else -> boom.
-|
-| I've now tested the suggested solution by Patrick McHardy and Herbert
-| Xu to simply use local_bh_{en,dis}able().
-`----
+It is a _layer_ just like it is in SAM and SPC and SAS.
+It is a _layer_ by SCSI design, if you look in SAM.
 
-Second, I went looking at the packet socket code and found this
-comment:
+SAS is not libsas, but a transport _layer_ sitting between
+the interconnect (hardware) and SCSI Core (SAM/SPC).
 
-,----
-| This function makes lazy skb cloning in hope that most of packets
-| are discarded by BPF.
-| 
-| Note tricky part: we DO mangle shared skb! skb->data, skb->len
-| and skb->cb are mangled. It works because (and until) packets
-| falling here are owned by current CPU. Output packets are cloned
-| by dev_queue_xmit_nit(), input packets are processed by net_bh
-| sequencially, so that if we return skb to original state on exit,
-| we will not harm anyone.
-`----
+I wish I could do something to convince you, but you have
+to convince yourself of this reading SAM and trying
+to draw it out (literally) yourself.  Try it for
+an SPI domain, FC domain and SAS domain, and then you'll
+see it.
 
-But are those assumptions valid in the obscure case of us being in the
-syscall context, receiving a queued packet from userspace? In any
-case, by looking at the disassembly and at the stacktrace, it seems
-that the incoming skb is not shared and gets dropped by one of the
-goto clauses. The crashing call is the kfree_skb at the very end of
-the af_packet.c:packet_rcv function.
+The sysfs representation is just a perk of the transport
+layer, it is owned and operated by the transport layer.
 
-I am putting this mail here as a heads up if someone manages to
-instantly spot what's wrong with this setup. I will continue debugging
-the real cause, and eliminating all the possible variables, seeing
-whether this is an SMP problem, checking if it can be manifested with
-a vanilla kernel and such.
+"transport attribute class" is just an _attribute_ class, Christoph.
+"transport layer" is a lot more involved.  I sincerely hope
+you can see this.  E.g. domain discovery belongs in the transport
+layer.  In SPI, LLDDs did it; in MPT the firmware does it.
 
-A detailed dump of the crash can be found at:
+With SAS, the domain is passive, and the protocol has evolved
+enough (due to SAM) to yield to a common transport layer,
+where common routines are done, as the SAS code shows.
 
-  https://bugzilla.redhat.com/bugzilla/attachment.cgi?id=118541
+The _next_ new protocol after SAS, will also adhere to SAM.
+It will not happen tomorrow, but it will come around.
 
-Warm fuzzies,
--- Naked
+The less we invent our own stuff, and the more we adhere
+to a spec, the easier we'd support new techonologies, since
+they will adhere to SAM.
+
+	Luben
+
+P.S. You know when I mentioned "SCSI" above, I did _not_ mean
+SCSI-2 or SCSI (Parallel SCSI).  I meant SCSI-3 (SAM).
+
+
+
 

@@ -1,41 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932166AbVILTZ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932109AbVILT36@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932166AbVILTZ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 15:25:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932165AbVILTZ1
+	id S932109AbVILT36 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 15:29:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932161AbVILT36
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 15:25:27 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:7912 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932098AbVILTZ0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 15:25:26 -0400
-Date: Mon, 12 Sep 2005 20:25:24 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: "John W. Linville" <linville@tuxdriver.com>
-Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-       tony.luck@intel.com
-Subject: Re: [patch 2.6.13] ia64: add EXPORT_SYMBOL_GPL for ia64_max_cacheline_size
-Message-ID: <20050912192524.GA14360@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"John W. Linville" <linville@tuxdriver.com>,
-	linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-	tony.luck@intel.com
-References: <09122005104852.31327@bilbo.tuxdriver.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <09122005104852.31327@bilbo.tuxdriver.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 12 Sep 2005 15:29:58 -0400
+Received: from ppsw-9.csi.cam.ac.uk ([131.111.8.139]:19607 "EHLO
+	ppsw-9.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S932109AbVILT35 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 15:29:57 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Mon, 12 Sep 2005 20:29:55 +0100 (BST)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
+Subject: [2.6-BK] Two NTFS bugfixes.
+Message-ID: <Pine.LNX.4.60.0509122027430.4649@hermes-1.csi.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 12, 2005 at 10:48:52AM -0400, John W. Linville wrote:
-> The implementation of dma_get_cache_alignment for ia64 makes reference
-> to ia64_max_cacheline_size inside of a static inline. For this to
-> work for modules, this needs to be EXPORT_SYMBOL{,_GPL}.
+Hi Linus, please pull from
 
-This is not supposed to be a _GPL api.  best just move
-dma_get_cache_alignment out of line.
+rsync://rsync.kernel.org/pub/scm/linux/kernel/git/aia21/ntfs-2.6.git/HEAD
 
+This contains two bugfixes for NTFS that need to go in before 2.6.14 is 
+release.  -  Please apply.  Thanks!
+
+I am sending the changesets as actual diff format patches for non-git 
+users in follow up emails (in reply to this one).
+
+Best regards,
+
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

@@ -1,44 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751052AbVILQu7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751061AbVILQzq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751052AbVILQu7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 12:50:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751051AbVILQu7
+	id S1751061AbVILQzq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 12:55:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751063AbVILQzq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 12:50:59 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:9112 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751030AbVILQu6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 12:50:58 -0400
-Date: Mon, 12 Sep 2005 17:50:56 +0100
-From: Al Viro <viro@ZenIV.linux.org.uk>
-To: "Luck, Tony" <tony.luck@intel.com>
-Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-Subject: Re: new asm-offsets.h patch problems
-Message-ID: <20050912165056.GM25261@ZenIV.linux.org.uk>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F045A9188@scsmsx401.amr.corp.intel.com>
+	Mon, 12 Sep 2005 12:55:46 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:2688 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751061AbVILQzp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 12:55:45 -0400
+Subject: Re: PCI bug in 2.6.13
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Miguel <frankpoole@terra.es>, akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0509110903050.4912@g5.osdl.org>
+References: <20050909180405.3e356c2a.frankpoole@terra.es>
+	 <20050909225956.42021440.akpm@osdl.org>
+	 <20050910113658.178a7711.frankpoole@terra.es>
+	 <Pine.LNX.4.58.0509100949370.30958@g5.osdl.org>
+	 <Pine.LNX.4.58.0509101401490.30958@g5.osdl.org>
+	 <20050911030814.08cbe74c.frankpoole@terra.es>
+	 <Pine.LNX.4.58.0509101817590.3314@g5.osdl.org>
+	 <20050911161058.481d1a75.frankpoole@terra.es>
+	 <Pine.LNX.4.58.0509110903050.4912@g5.osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 12 Sep 2005 18:20:57 +0100
+Message-Id: <1126545657.30449.71.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F045A9188@scsmsx401.amr.corp.intel.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 12, 2005 at 09:00:06AM -0700, Luck, Tony wrote:
-> So I still don't understand what is really happening here.
+On Sul, 2005-09-11 at 09:08 -0700, Linus Torvalds wrote:
+>         if (dev->resource[PCI_ROM_RESOURCE].start)
+>                 pci_write_config_byte(dev, PCI_ROM_ADDRESS,
+>                         dev->resource[PCI_ROM_RESOURCE].start | PCI_ROM_ADDRESS_ENABLE);
 > 
-> I left my build script running overnight ... working on a
-> kernel at the 357d596bd... commit (where Linus merged in
-> my tree last night).  This one has your "archprepare" patch
-> already included.
-> 
-> Sometimes a build for a config succeeds, and sometimes it
-> fails. (tiger_defconfig for the last six builds has had a
-> GOOD, BAD, BAD, BAD, GOOD, GOOD sequence, while bigsur_defconfig
-> went GOOD, BAD, BAD, BAD, BAD, BAD).  This non-determinism
-> doesn't fit in well with your explanation of missing defines
-> for PAGE_SIZE etc.
+> I wonder how long that has been like that.
 
-There's more, apparently - I'm seeing
-make # successful full build
-make C=2 # triggering full rebuild, not just sparse run
+Since before 2.2. I've no docs on why it does it though
+

@@ -1,70 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbVILTN3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbVILTSA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932106AbVILTN3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 15:13:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932155AbVILTN3
+	id S932164AbVILTSA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 15:18:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932162AbVILTSA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 15:13:29 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:35858 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S932106AbVILTN2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 15:13:28 -0400
-Date: Mon, 12 Sep 2005 21:15:25 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Al Viro <viro@ZenIV.linux.org.uk>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>,
-       LKML <linux-kernel@vger.kernel.org>, jdike@addtoit.com
-Subject: Re: asm-offsets.h is generated in the source tree
-Message-ID: <20050912191525.GA13435@mars.ravnborg.org>
-References: <20050911012033.5632152f.sfr@canb.auug.org.au> <20050910161917.GA22113@mars.ravnborg.org> <20050911023203.GH25261@ZenIV.linux.org.uk> <20050911083153.GA24176@mars.ravnborg.org> <20050911154550.GJ25261@ZenIV.linux.org.uk> <20050911170425.GA8049@mars.ravnborg.org> <20050911212942.GK25261@ZenIV.linux.org.uk> <20050911220328.GE2177@mars.ravnborg.org> <20050911231601.GL25261@ZenIV.linux.org.uk>
+	Mon, 12 Sep 2005 15:18:00 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:30217 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S932155AbVILTR6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 15:17:58 -0400
+Date: Mon, 12 Sep 2005 15:14:21 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, akpm@osdl.org,
+       john.ronciak@intel.com, ganesh.venkatesan@intel.com, cramerj@intel.com,
+       jesse.brandeburg@intel.com, ayyappan.veeraiyan@intel.com,
+       mchan@broadcom.com, davem@davemloft.net
+Subject: Re: [patch 2.6.13 0/5] normalize calculations of rx_dropped
+Message-ID: <20050912191419.GB19644@tuxdriver.com>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org, akpm@osdl.org,
+	john.ronciak@intel.com, ganesh.venkatesan@intel.com,
+	cramerj@intel.com, jesse.brandeburg@intel.com,
+	ayyappan.veeraiyan@intel.com, mchan@broadcom.com,
+	davem@davemloft.net
+References: <09122005104858.332@bilbo.tuxdriver.com> <4325CEAB.2050600@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050911231601.GL25261@ZenIV.linux.org.uk>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <4325CEAB.2050600@pobox.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Al. 
- 
-> See what I mean?  _IF_ we just wanted subarch foo.h, your scheme would
-> work.  If we wanted subarch-dependent header that would be pulled by
-> foo.h - ditto (sysdep/blah.h from foo.h).  But we can't do that when
-> we want #include <asm/foo.h> (from arch-independent code) pull some
-> UML stuff *and* asm/foo.h of subarch.
-> 
-> That's the problem.  Everything else is reasonably easy to deal with.
-> That one is not.  And yes, I know about #include_next.  I'd rather
-> stick to C, though, TYVM...
-> 
-I got the picture. And you are right that there is no way to sort this
-out with a clever directory structure and a few -I options.
-The only two solutions I see you already pointed out:
+On Mon, Sep 12, 2005 at 02:53:31PM -0400, Jeff Garzik wrote:
 
-o Use symlinks
-  - With all their horror they do the job.
-  - The need special care with make O=
-  - We fail to detect when the point somewhere else, so make mrproper
-    is needed.
-  - They confuse people
-    
-o include_next
-  - gcc extension
-  - Give us correct dependencies
-  - Signal that something fishy is going on
+> For e.g. e1000, are we sure that packets dropped by hardware are 
+> accounted elsewhere?
 
-o Use some magic define trick like:
-  - #include "ARCHDIR##foo.h"
-  - I cannot recall correct syntax but something like this is doable
+The e100 and tg3 patches move the count of those frames to
+rx_missed_errors.  e1000 and ixgb were already counting them there in
+addition to rx_discards, so they were simply removed from rx_discards.
+3c59x was counting other errors in rx_discards, so they were removed
+from that count.
 
-Of the three possibilities the include_next is the better chocie. Why?
-Because we leave it to the build system to figure out what .h file to
-include, and thus letting the build system having full knowledge we make
-sure to recompile whatever is needed when we change subarch.
-Without the asm symlink in the kernel it would just work in many cases
-when you changed architecture.
-
-So to repaet. symlinks are evil when used to in sources.
-
-	Sam
-
+John
+-- 
+John W. Linville
+linville@tuxdriver.com

@@ -1,55 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751141AbVILFJv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbVILFwr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751141AbVILFJv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 01:09:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751169AbVILFJv
+	id S1750717AbVILFwr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 01:52:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbVILFwr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 01:09:51 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:42186 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S1751141AbVILFJv (ORCPT
+	Mon, 12 Sep 2005 01:52:47 -0400
+Received: from mx2.suse.de ([195.135.220.15]:20122 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750717AbVILFwq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 01:09:51 -0400
-Message-Id: <200509120213.j8C2DVTK014972@inti.inf.utfsm.cl>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-cc: Giuseppe Bilotta <bilotta78@hotpop.com>, linux-kernel@vger.kernel.org,
-       linux-ntfs-dev@lists.sourceforge.net
-Subject: Re: [2.6-GIT] NTFS: Release 2.1.24. 
-In-Reply-To: Message from Anton Altaparmakov <aia21@cam.ac.uk> 
-   of "Sat, 10 Sep 2005 14:28:49 +0100." <Pine.LNX.4.60.0509101424260.20200@hermes-1.csi.cam.ac.uk> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Sun, 11 Sep 2005 22:13:31 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Mon, 12 Sep 2005 01:52:46 -0400
+To: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
+Cc: Jeff Dike <jdike@addtoit.com>, Sam Ravnborg <sam@ravnborg.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 3/7] x86_64 linker script cleanups for debug sections
+References: <20050910174452.907256000@zion.home.lan>
+	<20050910174628.104571000@zion.home.lan>
+From: Andi Kleen <ak@suse.de>
+Date: 12 Sep 2005 07:52:42 +0200
+In-Reply-To: <20050910174628.104571000@zion.home.lan>
+Message-ID: <p738xy24ytx.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Altaparmakov <aia21@cam.ac.uk> wrote:
-> On Sat, 10 Sep 2005, Giuseppe Bilotta wrote:
+Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it> writes:
 
-[...]
+> Use the new macros for x86_64 too.
+> 
+> Note that the current scripts includes different definitions; more exactly,
+> it only contains part of the DWARF2 sections and the .comment one from
+> Stabs. Shouldn't be a problem, anyway.
 
-> > BTW Anton, while looking for the best permission masks to be used when
-> > mounting my NTFS paritions, I spotted what I think is a bug, or at
-> > least an inconsistency between the way all fs drivers I use handle
-> > umasks & friends, and the way NTFS does it. Basically, all the other
-> > fs drivers take an octal representation of the masks. NTFS, instead,
-> > seems to use _decimal_
+Can you please always cc me on any arch/x86_64,asm-x86_64 patches? 
 
-> NTFS takes any.  It is happy with octal, decimal, and hex.  The ntfs 
-> driver uses linux/lib/vsprintf.c::simple_strtoul() with a zero base which 
-> autodetects which base to use so if you use umask=0222 it will take this 
-> as octal and if you use umask=222 it will take this as decimal and if you 
-> use 0x222 it will take this as decimal.
+> Cc: Sam Ravnborg <sam@ravnborg.org>
+> Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+> ---
+> 
+>  arch/x86_64/kernel/vmlinux.lds.S |   17 ++---------------
+>  1 files changed, 2 insertions(+), 15 deletions(-)
+> 
+> diff --git a/arch/x86_64/kernel/vmlinux.lds.S b/arch/x86_64/kernel/vmlinux.lds.S
+> --- a/arch/x86_64/kernel/vmlinux.lds.S
+> +++ b/arch/x86_64/kernel/vmlinux.lds.S
+> @@ -194,20 +194,7 @@ SECTIONS
+>  #endif
+>  	}
+>  
+> -  /* DWARF 2 */
+> -  .debug_info     0 : { *(.debug_info) }
+> -  .debug_abbrev   0 : { *(.debug_abbrev) }
+> -  .debug_line     0 : { *(.debug_line) }
+> -  .debug_frame    0 : { *(.debug_frame) }
+> -  .debug_str      0 : { *(.debug_str) }
+> -  .debug_loc      0 : { *(.debug_loc) }
+> -  .debug_macinfo  0 : { *(.debug_macinfo) }
+> -  /* SGI/MIPS DWARF 2 extensions */
+> -  .debug_weaknames 0 : { *(.debug_weaknames) }
+> -  .debug_funcnames 0 : { *(.debug_funcnames) }
+> -  .debug_typenames 0 : { *(.debug_typenames) }
+> -  .debug_varnames  0 : { *(.debug_varnames) }
+> +  STABS_DEBUG
 
-> I do not see what is wrong with that.  It behaves exactly like I would 
-> expect it to.  Maybe I have strange expectations?  (-;
+There are no stabs sections on x86-64
 
-At least chmod(1) takes /only/ octal, so 666 isn't the number of the beast,
-but plain rw for everybody ;-)
+> -
+> -  .comment 0 : { *(.comment) }
+> +  DWARF_DEBUG
 
-I think this should be consistent with that.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
-
+-Andi

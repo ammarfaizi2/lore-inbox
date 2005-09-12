@@ -1,57 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932324AbVILWod@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932326AbVILWqS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932324AbVILWod (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 18:44:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932326AbVILWod
+	id S932326AbVILWqS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 18:46:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932328AbVILWqR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 18:44:33 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:33688 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932324AbVILWoc (ORCPT
+	Mon, 12 Sep 2005 18:46:17 -0400
+Received: from dvhart.com ([64.146.134.43]:60801 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S932326AbVILWqR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 18:44:32 -0400
-Date: Mon, 12 Sep 2005 15:44:28 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: michal.k.k.piotrowski@gmail.com
-Cc: alexn@telia.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13-mm3 [OOPS] vfs, page_owner, full reproductively, badness
- in vsnprintf
-Message-Id: <20050912154428.7026eff7.akpm@osdl.org>
-In-Reply-To: <6bffcb0e05091214133c189d05@mail.gmail.com>
-References: <20050912024350.60e89eb1.akpm@osdl.org>
-	<6bffcb0e050912044856628995@mail.gmail.com>
-	<20050912175433.GA8574@localhost.localdomain>
-	<6bffcb0e05091214133c189d05@mail.gmail.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 12 Sep 2005 18:46:17 -0400
+Date: Mon, 12 Sep 2005 15:46:10 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Andi Kleen <ak@muc.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-mm2
+Message-ID: <210290000.1126565170@flay>
+In-Reply-To: <20050912185120.GA78614@muc.de>
+References: <20050908053042.6e05882f.akpm@osdl.org> <201750000.1126494444@[10.10.2.4]> <20050912050122.GA3830@muc.de> <150330000.1126548402@flay> <20050912185120.GA78614@muc.de>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
->
-> Hi,
+
+
+--On Monday, September 12, 2005 20:51:20 +0200 Andi Kleen <ak@muc.de> wrote:
+
+>> Crashes on boot
+>> 
+>> http://test.kernel.org/12589/debug/console.log
+>> 
+>> May or may not be anything to do with what you were doing.
 > 
-> On 12/09/05, Alexander Nyberg <alexn@telia.com> wrote:
-> > 
-> > Gah, I'm such a fantastic programmer.
-> > 
-> > I don't know what mc is up to but the error checking in read_page_owner
-> > is flawed wrt snprintf which could cause the 'size' argument to snprintf
-> > to become negative and if so overwrite beyond 'buf'.
-> > 
-> > Again, I fail to see how mc causes this to happen, but this fixes it
-> > by proper error checking.
-> > 
-> > Signed-off-by: Alexander Nyberg <alexn@telia.com>
-> 
-> Thanks, patch solved problem.
+> Easily tested by reverting dma32*. Does it help?
 
-Thanks.
+No. Yet *another* bug. Sigh.
 
-> Here is version, that clean apply on 2.6.13-mm3. Can you review it?
-
-That patch is all wordwrapped.
-
-How doe sit differe from Alex's patch?
+M.
 

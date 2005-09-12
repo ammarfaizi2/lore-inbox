@@ -1,64 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751081AbVILReA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbVILRkk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751081AbVILReA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 13:34:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbVILRd7
+	id S1750718AbVILRkk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 13:40:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbVILRkk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 13:33:59 -0400
-Received: from ciistr2.ist.utl.pt ([193.136.128.2]:2007 "EHLO
-	ciistr2.ist.utl.pt") by vger.kernel.org with ESMTP id S1751081AbVILRd7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 13:33:59 -0400
-Message-ID: <4325BBFF.3010005@arrakis.dhis.org>
-Date: Mon, 12 Sep 2005 18:33:51 +0100
-From: Pedro Venda <pjvenda@arrakis.net.dhis.org>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050814)
+	Mon, 12 Sep 2005 13:40:40 -0400
+Received: from main.gmane.org ([80.91.229.2]:56231 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1750718AbVILRkk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 13:40:40 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Kalin KOZHUHAROV <kalin@thinrope.net>
+Subject: Re: Very strange Marvell/Yukon Gigabit NIC networking problems
+Date: Tue, 13 Sep 2005 02:34:04 +0900
+Message-ID: <dg4e7t$cu4$1@sea.gmane.org>
+References: <20050901212110.19192.qmail@web53605.mail.yahoo.com> <43244C33.1050502@gentoo.org> <dg1s37$kd4$1@sea.gmane.org> <dg48qi$p96$1@sea.gmane.org> <4325B1C0.80405@gentoo.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: s175249.ppp.asahi-net.or.jp
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050804)
 X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Roger Heflin <rheflin@atipa.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Bad I/O performance Highpoint Rocket 1520 SATA controller (kernel
- 2.6.11.12)
-References: <EXCHG2003xLDp7mvjkO000006bc@EXCHG2003.microtech-ks.com>
-In-Reply-To: <EXCHG2003xLDp7mvjkO000006bc@EXCHG2003.microtech-ks.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <4325B1C0.80405@gentoo.org>
+X-Enigmail-Version: 0.92.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roger Heflin wrote:
+Daniel Drake wrote:
+> Kalin KOZHUHAROV wrote:
+> 
+>> Well, I did test it, but skge didn't even find the hardware :-(
+>> No device was created, no dmesg output on load.
+>> Instead I am running 2.6.13.1 with sk98lin-8.23.1.3.patch
+>> The MB is ASUS P5GDC-V-Deluxe and the the on-board NIC:
+>>
+>> # lspci -v  -s 02:00.0
+>> 0000:02:00.0 Ethernet controller: Marvell Technology Group Ltd. 
+>> 88E8053 Gigabit Ethernet Controller (rev 15)
+> 
+> 
+> This patch was to solve an issue in skge, a driver for Marvell Yukon 
+> network adapters.
+> 
+> Your hardware is a yukon-2 adapter, you want to use the sky2 driver from 
+> the netdev tree.
+Ok, that makes the things clear, thank you.
 
->>hde: SAMSUNG SP0802N, ATA DISK drive
->>hde: max request size: 1024KiB
->>hde: 156368016 sectors (80060 MB) w/2048KiB Cache, CHS=16383/255/63,
->>UDMA(100) DISK drive
->>hdg: [same as hde]
+After quite a lot of fiddling iwth google and git, I found what you 
+are talking about here:
+http://www.mail-archive.com/netdev@vger.kernel.org/msg01592.html
+http://www.kernel.org/git/?p=linux/kernel/git/jgarzik/netdev-2.6.git;a=commitdiff;h=cd28ab6a4e50a7601d22752aa7ce0c8197b10bdf
 
->>HPT372A: IDE controller at PCI slot 0000:01:02.0
->>     ide4: BM-DMA at 0x8400-0x8407, BIOS settings: hdi:DMA, hdj:pio
->>     ide5: BM-DMA at 0x8408-0x840f, BIOS settings: hdk:DMA, hdl:pio
+Somehow I missed it on LKML.
+Unfortunately the machine with this chipset is  heavily used, so I 
+am not very likely to get it off-line for testing.
+Will have it in mind and try it if possible.
 
-> 1520/1640's are low end, Highpoint 1810, and 1820 are real raid
-> and quite fast, but need their extra driver to work.  The newer
-> 2220 are quite good also, they are probably also quite a bit
-> more money.
+Kalin.
 
-hi roger, thanks for the reply,
+-- 
+|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
++-> http://ThinRope.net/ <-+
+|[ ______________________ ]|
 
-besides being 100% true, it's irrelevant. I'm not using the card's raid 
-features. As a standalone drive controller, it should be no different 
-from a non-raid version (it's HPT302 instead of HPT372) and therefore 
-should do the job normally i.e. with proper I/O speeds.
-
-> I won't use a 1520/1640.   I think they are also fakeraid.
-
-yes, they are. I'd be interested in finding out decent and well 
-supported (linux opensource drivers, preferably in kernel tree) low-end 
-(cheap) non-raid SATA controllers for 2/4 drives.
-
-best regards,
-pedro venda.
---
-Pedro João Lopes Venda
-pjvenda < at > arrakis dhis org
-http://arrakis.dhis.org

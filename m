@@ -1,92 +1,221 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932362AbVILXqJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932213AbVILXvW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932362AbVILXqJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 19:46:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbVILXqI
+	id S932213AbVILXvW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 19:51:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932364AbVILXvW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 19:46:08 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:18187 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S932362AbVILXqH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 19:46:07 -0400
-Date: Mon, 12 Sep 2005 19:45:34 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: Grant Grundler <iod00d@hp.com>
-Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org,
-       linux-ia64@vger.kernel.org, ak@suse.de, tony.luck@intel.com,
-       Asit.K.Mallick@intel.com
-Subject: [patch 2.6.13 (take #2)] swiotlb: BUG() for DMA_NONE in sync_single
-Message-ID: <20050912234532.GH19644@tuxdriver.com>
-Mail-Followup-To: Grant Grundler <iod00d@hp.com>,
-	linux-kernel@vger.kernel.org, discuss@x86-64.org,
-	linux-ia64@vger.kernel.org, ak@suse.de, tony.luck@intel.com,
-	Asit.K.Mallick@intel.com
-References: <09122005104851.31056@bilbo.tuxdriver.com> <09122005104851.31120@bilbo.tuxdriver.com> <20050912185120.GD21820@esmail.cup.hp.com> <20050912195110.GC19644@tuxdriver.com> <20050912195356.GD19644@tuxdriver.com> <20050912202333.GF21820@esmail.cup.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 12 Sep 2005 19:51:22 -0400
+Received: from natnoddy.rzone.de ([81.169.145.166]:38554 "EHLO
+	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S932213AbVILXvV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 19:51:21 -0400
+From: Lion Vollnhals <lion.vollnhals@web.de>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] [v2] drivers/base/*: use kzalloc instead of kmalloc+memset
+Date: Tue, 13 Sep 2005 01:51:18 +0200
+User-Agent: KMail/1.8.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050912202333.GF21820@esmail.cup.hp.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200509130151.18867.lion.vollnhals@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Call BUG() if DMA_NONE is passed-in as direction for sync_single.
-Also remove unnecessary checks for DMA_NONE in callers of sync_single.
+This patch, against 2.6.13-mm3, replaces kmalloc and memset with kzalloc in drivers/base/* .
+My prior kzalloc patches are included in this patch.
+Jiri Slaby's hints / changes are also included.
 
-Signed-off-by: John W. Linville <linville@tuxdriver.com>
----
-This patch replaces the previous patch with (almost) the same subject.
+Furthermore this patch fixes actually two bugs in drivers/base/class.c:
+  The memset arguments were occasionally swaped and therefore wrong.
 
- lib/swiotlb.c |   11 ++---------
- 1 files changed, 2 insertions(+), 9 deletions(-)
+Usage of kzalloc makes this code shorter and more bugfree.
 
-diff --git a/lib/swiotlb.c b/lib/swiotlb.c
---- a/lib/swiotlb.c
-+++ b/lib/swiotlb.c
-@@ -315,13 +315,13 @@ sync_single(struct device *hwdev, char *
- 	case SYNC_FOR_CPU:
- 		if (likely(dir == DMA_FROM_DEVICE || dma == DMA_BIDIRECTIONAL))
- 			memcpy(buffer, dma_addr, size);
--		else if (dir != DMA_TO_DEVICE && dir != DMA_NONE)
-+		else if (dir != DMA_TO_DEVICE)
- 			BUG();
- 		break;
- 	case SYNC_FOR_DEVICE:
- 		if (likely(dir == DMA_TO_DEVICE || dma == DMA_BIDIRECTIONAL))
- 			memcpy(dma_addr, buffer, size);
--		else if (dir != DMA_FROM_DEVICE && dir != DMA_NONE)
-+		else if (dir != DMA_FROM_DEVICE)
- 			BUG();
- 		break;
- 	default:
-@@ -515,8 +515,6 @@ swiotlb_sync_single(struct device *hwdev
- {
- 	char *dma_addr = phys_to_virt(dev_addr);
+This patch is proof-read and compile-tested.
+
+Please apply.
+
+
+Signed-off-by: Lion Vollnhals <webmaster@schiggl.de>
+
+diff -Nurp 2.6.13-mm3/drivers/base/attribute_container.c 2.6.13-mm3-patched/drivers/base/attribute_container.c
+--- 2.6.13-mm3/drivers/base/attribute_container.c	2005-09-12 23:42:47.000000000 +0200
++++ 2.6.13-mm3-patched/drivers/base/attribute_container.c	2005-09-13 01:28:09.000000000 +0200
+@@ -152,12 +152,13 @@ attribute_container_add_device(struct de
  
--	if (dir == DMA_NONE)
--		BUG();
- 	if (dma_addr >= io_tlb_start && dma_addr < io_tlb_end)
- 		sync_single(hwdev, dma_addr, size, dir, target);
- 	else if (dir == DMA_FROM_DEVICE)
-@@ -547,8 +545,6 @@ swiotlb_sync_single_range(struct device 
- {
- 	char *dma_addr = phys_to_virt(dev_addr) + offset;
+ 		if (!cont->match(cont, dev))
+ 			continue;
+-		ic = kmalloc(sizeof(struct internal_container), GFP_KERNEL);
++		
++		ic = kzalloc(sizeof(*ic), GFP_KERNEL);
+ 		if (!ic) {
+ 			dev_printk(KERN_ERR, dev, "failed to allocate class container\n");
+ 			continue;
+ 		}
+-		memset(ic, 0, sizeof(struct internal_container));
++		
+ 		ic->cont = cont;
+ 		class_device_initialize(&ic->classdev);
+ 		ic->classdev.dev = get_device(dev);
+diff -Nurp 2.6.13-mm3/drivers/base/class.c 2.6.13-mm3-patched/drivers/base/class.c
+--- 2.6.13-mm3/drivers/base/class.c	2005-09-12 23:42:47.000000000 +0200
++++ 2.6.13-mm3-patched/drivers/base/class.c	2005-09-13 01:28:09.000000000 +0200
+@@ -190,12 +190,11 @@ struct class *class_create(struct module
+ 	struct class *cls;
+ 	int retval;
  
--	if (dir == DMA_NONE)
--		BUG();
- 	if (dma_addr >= io_tlb_start && dma_addr < io_tlb_end)
- 		sync_single(hwdev, dma_addr, size, dir, target);
- 	else if (dir == DMA_FROM_DEVICE)
-@@ -651,9 +647,6 @@ swiotlb_sync_sg(struct device *hwdev, st
+-	cls = kmalloc(sizeof(struct class), GFP_KERNEL);
++	cls = kzalloc(sizeof(*cls), GFP_KERNEL);
+ 	if (!cls) {
+ 		retval = -ENOMEM;
+ 		goto error;
+ 	}
+-	memset(cls, 0x00, sizeof(struct class));
+ 
+ 	cls->name = name;
+ 	cls->owner = owner;
+@@ -519,13 +518,13 @@ int class_device_add(struct class_device
+ 	/* add the needed attributes to this device */
+ 	if (MAJOR(class_dev->devt)) {
+ 		struct class_device_attribute *attr;
+-		attr = kmalloc(sizeof(*attr), GFP_KERNEL);
++		attr = kzalloc(sizeof(*attr), GFP_KERNEL);
+ 		if (!attr) {
+ 			error = -ENOMEM;
+ 			kobject_del(&class_dev->kobj);
+ 			goto register_done;
+ 		}
+-		memset(attr, sizeof(*attr), 0x00);
++		
+ 		attr->attr.name = "dev";
+ 		attr->attr.mode = S_IRUGO;
+ 		attr->attr.owner = parent->owner;
+@@ -534,13 +533,13 @@ int class_device_add(struct class_device
+ 		class_device_create_file(class_dev, attr);
+ 		class_dev->devt_attr = attr;
+ 
+-		attr = kmalloc(sizeof(*attr), GFP_KERNEL);
++		attr = kzalloc(sizeof(*attr), GFP_KERNEL);
+ 		if (!attr) {
+ 			error = -ENOMEM;
+ 			kobject_del(&class_dev->kobj);
+ 			goto register_done;
+ 		}
+-		memset(attr, sizeof(*attr), 0x00);
++		
+ 		attr->attr.name = "sample.sh";
+ 		attr->attr.mode = S_IRUSR | S_IXUSR | S_IRUGO;
+ 		attr->attr.owner = parent->owner;
+@@ -611,12 +610,11 @@ struct class_device *class_device_create
+ 	if (cls == NULL || IS_ERR(cls))
+ 		goto error;
+ 
+-	class_dev = kmalloc(sizeof(struct class_device), GFP_KERNEL);
++	class_dev = kzalloc(sizeof(*class_dev), GFP_KERNEL);
+ 	if (!class_dev) {
+ 		retval = -ENOMEM;
+ 		goto error;
+ 	}
+-	memset(class_dev, 0x00, sizeof(struct class_device));
+ 
+ 	class_dev->devt = devt;
+ 	class_dev->dev = device;
+diff -Nurp 2.6.13-mm3/drivers/base/firmware_class.c 2.6.13-mm3-patched/drivers/base/firmware_class.c
+--- 2.6.13-mm3/drivers/base/firmware_class.c	2005-09-12 23:42:47.000000000 +0200
++++ 2.6.13-mm3-patched/drivers/base/firmware_class.c	2005-09-13 01:28:09.000000000 +0200
+@@ -301,9 +301,9 @@ fw_register_class_device(struct class_de
+ 			 const char *fw_name, struct device *device)
  {
+ 	int retval;
+-	struct firmware_priv *fw_priv = kmalloc(sizeof (struct firmware_priv),
++	struct firmware_priv *fw_priv = kzalloc(sizeof(*fw_priv),
+ 						GFP_KERNEL);
+-	struct class_device *class_dev = kmalloc(sizeof (struct class_device),
++	struct class_device *class_dev = kzalloc(sizeof(*class_dev),
+ 						 GFP_KERNEL);
+ 
+ 	*class_dev_p = NULL;
+@@ -313,8 +313,6 @@ fw_register_class_device(struct class_de
+ 		retval = -ENOMEM;
+ 		goto error_kfree;
+ 	}
+-	memset(fw_priv, 0, sizeof (*fw_priv));
+-	memset(class_dev, 0, sizeof (*class_dev));
+ 
+ 	init_completion(&fw_priv->completion);
+ 	fw_priv->attr_data = firmware_attr_data_tmpl;
+@@ -402,14 +400,13 @@ _request_firmware(const struct firmware 
+ 	if (!firmware_p)
+ 		return -EINVAL;
+ 
+-	*firmware_p = firmware = kmalloc(sizeof (struct firmware), GFP_KERNEL);
++	*firmware_p = firmware = kzalloc(sizeof(*firmware), GFP_KERNEL);
+ 	if (!firmware) {
+ 		printk(KERN_ERR "%s: kmalloc(struct firmware) failed\n",
+ 		       __FUNCTION__);
+ 		retval = -ENOMEM;
+ 		goto out;
+ 	}
+-	memset(firmware, 0, sizeof (*firmware));
+ 
+ 	retval = fw_setup_class_device(firmware, &class_dev, name, device,
+ 		hotplug);
+diff -Nurp 2.6.13-mm3/drivers/base/map.c 2.6.13-mm3-patched/drivers/base/map.c
+--- 2.6.13-mm3/drivers/base/map.c	2005-09-12 23:42:47.000000000 +0200
++++ 2.6.13-mm3-patched/drivers/base/map.c	2005-09-13 01:28:09.000000000 +0200
+@@ -135,7 +135,7 @@ retry:
+ struct kobj_map *kobj_map_init(kobj_probe_t *base_probe, struct semaphore *sem)
+ {
+ 	struct kobj_map *p = kmalloc(sizeof(struct kobj_map), GFP_KERNEL);
+-	struct probe *base = kmalloc(sizeof(struct probe), GFP_KERNEL);
++	struct probe *base = kzalloc(sizeof(*base), GFP_KERNEL);
  	int i;
  
--	if (dir == DMA_NONE)
--		BUG();
+ 	if ((p == NULL) || (base == NULL)) {
+@@ -144,7 +144,6 @@ struct kobj_map *kobj_map_init(kobj_prob
+ 		return NULL;
+ 	}
+ 
+-	memset(base, 0, sizeof(struct probe));
+ 	base->dev = 1;
+ 	base->range = ~0;
+ 	base->get = base_probe;
+diff -Nurp 2.6.13-mm3/drivers/base/memory.c 2.6.13-mm3-patched/drivers/base/memory.c
+--- 2.6.13-mm3/drivers/base/memory.c	2005-09-12 23:42:47.000000000 +0200
++++ 2.6.13-mm3-patched/drivers/base/memory.c	2005-09-13 01:28:38.000000000 +0200
+@@ -340,15 +340,12 @@ static int memory_probe_init(void)
+ int add_memory_block(unsigned long node_id, struct mem_section *section,
+ 		     unsigned long state, int phys_device)
+ {
+-	size_t size = sizeof(struct memory_block);
+-	struct memory_block *mem = kmalloc(size, GFP_KERNEL);
++	struct memory_block *mem = kzalloc(sizeof(*mem), GFP_KERNEL);
+ 	int ret = 0;
+ 
+ 	if (!mem)
+ 		return -ENOMEM;
+ 
+-	memset(mem, 0, size);
 -
- 	for (i = 0; i < nelems; i++, sg++)
- 		if (sg->dma_address != SG_ENT_PHYS_ADDRESS(sg))
- 			sync_single(hwdev, (void *) sg->dma_address,
--- 
-John W. Linville
-linville@tuxdriver.com
+ 	mem->phys_index = __section_nr(section);
+ 	mem->state = state;
+ 	init_MUTEX(&mem->state_sem);
+diff -Nurp 2.6.13-mm3/drivers/base/platform.c 2.6.13-mm3-patched/drivers/base/platform.c
+--- 2.6.13-mm3/drivers/base/platform.c	2005-09-12 23:42:47.000000000 +0200
++++ 2.6.13-mm3-patched/drivers/base/platform.c	2005-09-13 01:28:09.000000000 +0200
+@@ -225,13 +225,12 @@ struct platform_device *platform_device_
+ 	struct platform_object *pobj;
+ 	int retval;
+ 
+-	pobj = kmalloc(sizeof(struct platform_object) + sizeof(struct resource) * num, GFP_KERNEL);
++	pobj = kzalloc(sizeof(struct platform_object) + sizeof(struct resource) * num, GFP_KERNEL);
+ 	if (!pobj) {
+ 		retval = -ENOMEM;
+ 		goto error;
+ 	}
+ 
+-	memset(pobj, 0, sizeof(*pobj));
+ 	pobj->pdev.name = name;
+ 	pobj->pdev.id = id;
+ 	pobj->pdev.dev.release = platform_device_release_simple;

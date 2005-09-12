@@ -1,87 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751186AbVILHB1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbVILHDZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751186AbVILHB1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 03:01:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751187AbVILHB1
+	id S1751188AbVILHDZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 03:03:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751187AbVILHDZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 03:01:27 -0400
-Received: from ctb-mesg4.saix.net ([196.25.240.84]:26021 "EHLO
-	ctb-mesg4.saix.net") by vger.kernel.org with ESMTP id S1751186AbVILHB0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 03:01:26 -0400
-Message-ID: <432527B7.4070506@geograph.co.za>
-Date: Mon, 12 Sep 2005 09:01:11 +0200
-From: Zoltan Szecsei <zoltans@geograph.co.za>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: multiple independent keyboard kernel support
-References: <4316E5D9.8050107@geograph.co.za> <20050911223414.GA19403@aitel.hist.no>
-In-Reply-To: <20050911223414.GA19403@aitel.hist.no>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 12 Sep 2005 03:03:25 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:27841
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S1751188AbVILHDY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 03:03:24 -0400
+Message-Id: <4325448C0200007800024DF5@emea1-mh.id2.novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0 
+Date: Mon, 12 Sep 2005 09:04:12 +0200
+From: "Jan Beulich" <JBeulich@novell.com>
+To: "Richard Henderson" <rth@twiddle.net>
+Cc: "Tom Rini" <trini@kernel.crashing.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] i386 CFI annotations
+References: <432070850200007800024465@emea1-mh.id2.novell.com>  <20050908154645.GN3966@smtp.west.cox.net>  <43207BA30200007800024502@emea1-mh.id2.novell.com>  <20050908161334.GP3966@smtp.west.cox.net>  <43214D2D02000078000247B5@emea1-mh.id2.novell.com> <20050910055836.GA28662@twiddle.net>
+In-Reply-To: <20050910055836.GA28662@twiddle.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting wrote:
-
->>I would prefer to see "official and permanent" support for this as then 
->>when HW & drivers & kernels develop in the future, this capability will 
->>always be (immediately) available - and not have to wait for patches.
->>
->>    
->>
+>>> Richard Henderson <rth@twiddle.net> 10.09.05 07:58:36 >>>
+>On Fri, Sep 09, 2005 at 08:51:57AM +0200, Jan Beulich wrote:
+>> >>> Tom Rini <trini@kernel.crashing.org> 08.09.05 18:13:34 >>>
+>> >On Thu, Sep 08, 2005 at 05:57:55PM +0200, Jan Beulich wrote:
+>> >
+>> >> >> +	CFI_ADJUST_CFA_OFFSET 4;\
+>> >> >> +	/*CFI_REL_OFFSET es, 0;*/\
+>> >> >>  	pushl %ds; \
+>> >> >> +	CFI_ADJUST_CFA_OFFSET 4;\
+>> >> >> +	/*CFI_REL_OFFSET ds, 0;*/\
+>> >> >
+>> >> >Adding new commented out code never wins new friends. :)
+>> >> 
+>> >> I know. But how would you indicate functionality belonging there
+>> but
+>> >> just not provided by the translating utilities. If that's really
+a
+>> >> problem, then I would need to teach the respective macros to
+ignore
+>> >> certain operands.
+>> >
+>> >Not provided by binutils or ?
+>> 
+>> Not provided for even by the spec; if it was just binutils missing
+them
+>> I'd have added this already.
 >
->"evdev" in the kernel already separates out independent keyboards.
->Isolatedevice lets several xservers run indepenmdently.  There isn't
->much missing, although there are minor troubles where starting one
->xserver might mess up the video timing for another.  (Solution:
->start xserver in an appropriate order, to be found by experimentation)
->Another minor problem - it won't work with every combination of video cards,
->only some.
->Still - when it works you even get to run accelerated 3D on
->the independent heads.  Nice for game parties.
->
->  
->
-This is by far the best news I could have hoped for.
+>You know this is just convention, right?  And that binutils allows
+>you to put any column numbers you like?  So all you have to do it
+>match whatever debugger you're planning to use.  Make something up.
 
->>    
->>
->I hope this helps.
->  
->
-Definitely yes.
-Helge, thank you very much for taking the time to respond to my 
-(lengthy) query. I will be away for a few weeks, but will try this in 
-full during early October.
+I know. But I don't like the idea of 'putting something in' that later
+might turn out incompatible with something else. The minimum support
+from the Dwarf spec I'd expect here would be an equivalent to IA64's
+.unwabi. But truly I think the processor-specific pieces of Dwarf's
+frame unwind spec should provide numbering for the complete set of
+registers.
 
-I have in the meantime unsubscribed from linux-kernel so please use my 
-direct address if you need to discuss anything further.
-
-Kind regards,
-Zoltan
-
-
->Helge Hafting
->
->
->  
->
-
-
--- 
-
-==================================
-Geograph (Pty) Ltd
-P.O. Box 31255
-Tokai
-7966
-Tel:    +27-21-7018492
-Fax:	+27-86-6115323
-Mobile: +27-83-6004028
-==================================
-
-
+Jan

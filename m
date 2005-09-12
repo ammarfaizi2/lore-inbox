@@ -1,117 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932149AbVILVN0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932261AbVILVPI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932149AbVILVN0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 17:13:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932245AbVILVNZ
+	id S932261AbVILVPI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 17:15:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932266AbVILVPI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 17:13:25 -0400
-Received: from wproxy.gmail.com ([64.233.184.195]:54317 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932149AbVILVNZ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 17:13:25 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ogRM1MgVv+uoHmZUuAGNBk5X2xQwGSdMBV5n4buBWVxxO9yfeSQQHVhKuovANKC6h45YybOnjf9YMIRST62MmiTXEEXAs8v6qKIU4oRk3dSBIXE0ZkWP8ZCnIWjYBK1RyMgpTF+vktTN1UiiELnAK3dxdeL67aTUWHTltzE3MdE=
-Message-ID: <6bffcb0e05091214133c189d05@mail.gmail.com>
-Date: Mon, 12 Sep 2005 23:13:21 +0200
-From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Reply-To: michal.k.k.piotrowski@gmail.com
-To: Alexander Nyberg <alexn@telia.com>
-Subject: Re: 2.6.13-mm3 [OOPS] vfs, page_owner, full reproductively, badness in vsnprintf
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050912175433.GA8574@localhost.localdomain>
+	Mon, 12 Sep 2005 17:15:08 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:11912 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S932301AbVILVPG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 17:15:06 -0400
+Date: Mon, 12 Sep 2005 14:14:26 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: hpa@zytor.com, mrmacman_g4@mac.com, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, bunk@stusta.de
+Subject: Re: [RFC][MEGAPATCH] Change __ASSEMBLY__ to __ASSEMBLER__ (defined
+ by GCC from 2.95 to current CVS)
+Message-Id: <20050912141426.1582827c.pj@sgi.com>
+In-Reply-To: <20050912171759.GA11973@mars.ravnborg.org>
+References: <97597F8E-DDCE-479F-AE8D-CC7DC75AB3C3@mac.com>
+	<20050910014543.1be53260.akpm@osdl.org>
+	<4FAE9F58-7153-4574-A2C3-A586C9C3CFF1@mac.com>
+	<20050910150446.116dd261.akpm@osdl.org>
+	<E352D8E3-771F-4A0D-9403-DBAA0C8CBB83@mac.com>
+	<20050910174818.579bc287.akpm@osdl.org>
+	<93E9C5F9-A083-4322-A580-236E2232CCC0@mac.com>
+	<20050912010954.70ac90e2.pj@sgi.com>
+	<43259C9E.1040300@zytor.com>
+	<20050912084756.4fa2bd07.pj@sgi.com>
+	<20050912171759.GA11973@mars.ravnborg.org>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050912024350.60e89eb1.akpm@osdl.org>
-	 <6bffcb0e050912044856628995@mail.gmail.com>
-	 <20050912175433.GA8574@localhost.localdomain>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Sam wrote:
+> ... for absolutely no gain.
 
-On 12/09/05, Alexander Nyberg <alexn@telia.com> wrote:
-> 
-> Gah, I'm such a fantastic programmer.
-> 
-> I don't know what mc is up to but the error checking in read_page_owner
-> is flawed wrt snprintf which could cause the 'size' argument to snprintf
-> to become negative and if so overwrite beyond 'buf'.
-> 
-> Again, I fail to see how mc causes this to happen, but this fixes it
-> by proper error checking.
-> 
-> Signed-off-by: Alexander Nyberg <alexn@telia.com>
+I hear the usual and reasonable arguments on one side,
+favoring consolidating the headers.
 
-Thanks, patch solved problem.
-Here is version, that clean apply on 2.6.13-mm3. Can you review it?
+The final phrase "absolutely no gain" suggests a lack
+of consideration for the usual and reasonable arguments
+that no doubt exist on the other side.
 
-Regards,
-Michal Piotrowski
+The devil is in the details.
 
-Signed-off-by: Michal K. K. Piotrowski <michal.k.k.piotrowski@gmail.com>
+Good luck.
 
-diff -uprN -X linux-mm-clean/Documentation/dontdiff
-linux-mm-clean/fs/proc/proc_misc.c linux-mm/fs/proc/proc_misc.c
---- linux-mm-clean/fs/proc/proc_misc.c	2005-09-12 23:02:10.000000000 +0200
-+++ linux-mm/fs/proc/proc_misc.c	2005-09-12 22:52:51.000000000 +0200
-@@ -567,6 +567,7 @@ read_page_owner(struct file *file, char 
-  	char namebuf[128];
-  	unsigned long offset = 0, symsize;
- 	int i;
-+	ssize_t num_written = 0;
- 
-  	pfn = min_low_pfn + *ppos;
-  	page = pfn_to_page(pfn);
-@@ -587,23 +588,41 @@ read_page_owner(struct file *file, char 
-  	kbuf = kmalloc(count, GFP_KERNEL);
-  	if (!kbuf)
-  		return -ENOMEM;
-+        ret = snprintf(kbuf, count, "Page allocated via order %d,
-mask 0x%x\n",                        page->order, page->gfp_mask);
-+        if (ret >= count) {
-+                ret = -ENOMEM;
-+                goto out;
-+        }
-+
-+        num_written = ret;
- 
--	ret = snprintf(kbuf, 1024, "Page allocated via order %d, mask 0x%x\n",
--			page->order, page->gfp_mask);
- 
- 	for (i = 0; i < 8; i++) {
- 		if (!page->trace[i])
- 			break;
-  		symname = kallsyms_lookup(page->trace[i], &symsize, &offset,
-&modname, namebuf);
--		ret += snprintf(kbuf + ret, count - ret, "[0x%lx] %s+%lu\n",
-+                ret = snprintf(kbuf + num_written, count -
-num_written, "[0x%lx] %s+%lu\n",
-  			page->trace[i], namebuf, offset);
-+                if (ret >= count - num_written) {
-+                        ret = -ENOMEM;
-+                        goto out;
-+                }
-+                num_written += ret;
-+
- 	}
-+        ret = snprintf(kbuf + num_written, count - num_written, "\n");
-+        if (ret >= count - num_written) {
-+                ret = -ENOMEM;
-+                goto out;
-+        }
- 
--	ret += snprintf(kbuf + ret, count -ret, "\n");
-+        num_written += ret;
-+        ret = num_written;
- 
-  	if (copy_to_user(buf, kbuf, ret))
-  		ret = -EFAULT;
- 
-+out:
-  	kfree(kbuf);
-  	return ret;
- }
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

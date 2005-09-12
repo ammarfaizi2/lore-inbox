@@ -1,98 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbVILNNL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbVILNP3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750810AbVILNNL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 09:13:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750815AbVILNNL
+	id S1750827AbVILNP3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 09:15:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750825AbVILNP2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 09:13:11 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:45739 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1750810AbVILNNK (ORCPT
+	Mon, 12 Sep 2005 09:15:28 -0400
+Received: from tornado.reub.net ([202.89.145.182]:17110 "EHLO tornado.reub.net")
+	by vger.kernel.org with ESMTP id S1750815AbVILNP2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 09:13:10 -0400
-Date: Mon, 12 Sep 2005 17:12:43 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Greg KH <greg@kroah.com>
-Cc: Greg KH <gregkh@suse.de>, Marcel Holtmann <marcel@holtmann.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: [1/1] crc16: remove w1 specific comments.
-Message-ID: <20050912131242.GA19896@2ka.mipt.ru>
-References: <20050908222105.GA6633@kroah.com> <1126222209.5286.74.camel@blade> <20050909033036.GB11369@suse.de> <20050909050825.GA16668@2ka.mipt.ru> <20050909211619.GA28696@kroah.com> <20050909215814.GA6022@2ka.mipt.ru> <20050909221158.GA30321@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <20050909221158.GA30321@kroah.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Mon, 12 Sep 2005 17:12:47 +0400 (MSD)
+	Mon, 12 Sep 2005 09:15:28 -0400
+Message-ID: <43257F6A.5060304@reub.net>
+Date: Tue, 13 Sep 2005 01:15:22 +1200
+From: Reuben Farrelly <reuben-lkml@reub.net>
+User-Agent: Thunderbird 1.6a1 (Windows/20050911)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: 2.6.13-mm3
+References: <20050912024350.60e89eb1.akpm@osdl.org>
+In-Reply-To: <20050912024350.60e89eb1.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove w1 comments from crc16.h and move 
-specific constants into w1_ds2433.c where they are used.
-Replace %d with %zd.
+Hi,
 
-Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+On 12/09/2005 9:43 p.m., Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.13/2.6.13-mm3/
+> 
+> (temp copy at http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.13-mm3.gz)
+> 
+> - perfctr was dropped.  Mikael has ceased development and recommends that
+>   the focus be upon perfmon.  See
+>   http://sourceforge.net/mailarchive/forum.php?thread_id=8102899&forum_id=2237
+> 
+> - There are several performance tuning patches here which need careful
+>   attention and testing.  (Does anyone do performance testing any more?)
+> 
+>   - An update to the anticipatory scheduler to fix a performance problem
+>     where processes do a single read then exit, in the presence of competing
+>     I/O acticity.
+> 
+>   - The size of the page allocator per-cpu magazines has been increased
+> 
+>   - The page allocator has been changed to use higher-order allocations
+>     when batch-loading the per-cpu magazines.  This is intended to give
+>     improved cache colouring effects however it might have the downside of
+>     causing extra page allocator fragmentation.
+> 
+>   - The page allocator's per-cpu magazines have had their lower threshold
+>     set to zero.  And we can't remember why it ever had a lower threshold.
+> 
+> - Dropped all the virtualisation preparatory patches.  Will later pick these
+>   up from a git tree which chrisw is running.
+> 
+> - There are still quite a few patches here for 2.6.14 (30-50, perhaps).
 
-diff --git a/drivers/w1/w1_ds2433.c b/drivers/w1/w1_ds2433.c
---- a/drivers/w1/w1_ds2433.c
-+++ b/drivers/w1/w1_ds2433.c
-@@ -15,6 +15,10 @@
- #include <linux/delay.h>
- #ifdef CONFIG_W1_F23_CRC
- #include <linux/crc16.h>
-+
-+#define CRC16_INIT		0
-+#define CRC16_VALID		0xb001
-+
- #endif
- 
- #include "w1.h"
-@@ -214,7 +218,7 @@ static ssize_t w1_f23_write_bin(struct k
- #ifdef CONFIG_W1_F23_CRC
- 	/* can only write full blocks in cached mode */
- 	if ((off & W1_PAGE_MASK) || (count & W1_PAGE_MASK)) {
--		dev_err(&sl->dev, "invalid offset/count off=%d cnt=%d\n",
-+		dev_err(&sl->dev, "invalid offset/count off=%d cnt=%zd\n",
- 			(int)off, count);
- 		return -EINVAL;
- 	}
-diff --git a/include/linux/crc16.h b/include/linux/crc16.h
---- a/include/linux/crc16.h
-+++ b/include/linux/crc16.h
-@@ -1,22 +1,11 @@
- /*
-  *	crc16.h - CRC-16 routine
-  *
-- * Implements the standard CRC-16, as used with 1-wire devices:
-+ * Implements the standard CRC-16:
-  *   Width 16
-  *   Poly  0x8005 (x^16 + x^15 + x^2 + 1)
-  *   Init  0
-  *
-- * For 1-wire devices, the CRC is stored inverted, LSB-first
-- *
-- * Example buffer with the CRC attached:
-- *   31 32 33 34 35 36 37 38 39 C2 44
-- *
-- * The CRC over a buffer with the CRC attached is 0xB001.
-- * So, if (crc16(0, buf, size) == 0xB001) then the buffer is valid.
-- *
-- * Refer to "Application Note 937: Book of iButton Standards" for details.
-- * http://www.maxim-ic.com/appnotes.cfm/appnote_number/937
-- *
-  * Copyright (c) 2005 Ben Gardner <bgardner@wabtec.com>
-  *
-  * This source code is licensed under the GNU General Public License,
-@@ -28,9 +17,6 @@
- 
- #include <linux/types.h>
- 
--#define CRC16_INIT		0
--#define CRC16_VALID		0xb001
--
- extern u16 const crc16_table[256];
- 
- extern u16 crc16(u16 crc, const u8 *buffer, size_t len);
+-mm2 and -mm3 seem good, at least compile and boot up :)
 
--- 
-	Evgeniy Polyakov
+However for both, I'm seeing this when making modules_install:
+
+if [ -r System.map -a -x /sbin/depmod ]; then /sbin/depmod -ae -F System.map 
+2.6.13-mm3; fi
+WARNING: /lib/modules/2.6.13-mm3/kernel/net/ipv6/netfilter/ip6t_NFQUEUE.ko 
+needs unknown symbol ip6t_unregister_target
+WARNING: /lib/modules/2.6.13-mm3/kernel/net/ipv6/netfilter/ip6t_NFQUEUE.ko 
+needs unknown symbol ip6t_register_target
+[root@tornado linux-2.6]#
+
+Seems to be caused by this option in .config set to 'm':
+
+<M>   Netfilter NFQUEUE over NFNETLINK interface
+Symbol: NETFILTER_NETLINK_QUEUE [=m]
+Prompt: Netfilter NFQUEUE over NFNETLINK interface
+Defined at net/netfilter/Kconfig:7
+
+Full .config up at http://www.reub.net/kernel/2.6.13-mm3-config.
+
+I suspect there is a dependency here on ip6_tables, which I am not currently 
+compiling in or building as a module?
+
+reuben

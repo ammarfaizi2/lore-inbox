@@ -1,82 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750750AbVILPxd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750748AbVILPxK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750750AbVILPxd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 11:53:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbVILPxd
+	id S1750748AbVILPxK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 11:53:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750750AbVILPxK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 11:53:33 -0400
-Received: from EXCHG2003.microtech-ks.com ([65.16.27.37]:61126 "EHLO
-	EXCHG2003.microtech-ks.com") by vger.kernel.org with ESMTP
-	id S1750750AbVILPxc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 11:53:32 -0400
-From: "Roger Heflin" <rheflin@atipa.com>
-To: "'Eyal Lebedinsky'" <eyal@eyal.emu.id.au>,
-       "'Nuno Silva'" <nuno.silva@vgertech.com>
-Cc: "'list linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: RE: RAID resync speed
-Date: Mon, 12 Sep 2005 10:57:55 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Thread-Index: AcW2dlisbjh0+R3MRUmrkDo4A5/KPABO1/Nw
-In-Reply-To: <43239374.8010604@eyal.emu.id.au>
-Message-ID: <EXCHG2003WpSWerOc0N000006b6@EXCHG2003.microtech-ks.com>
-X-OriginalArrivalTime: 12 Sep 2005 15:49:57.0480 (UTC) FILETIME=[A0343E80:01C5B7B1]
+	Mon, 12 Sep 2005 11:53:10 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:14045 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S1750748AbVILPxJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 11:53:09 -0400
+Date: Mon, 12 Sep 2005 11:53:08 -0400
+To: Giuseppe Bilotta <bilotta78@hotpop.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13 psmouse: problem wheel detection: AlpsPS/2 versus ImPS/2
+Message-ID: <20050912155307.GF28578@csclub.uwaterloo.ca>
+References: <200509021327.j82DRJK18844@irsamc.ups-tlse.fr> <20050902141546.GA11506@midnight.suse.cz> <1n8tk1hehvpm0$.1leys9nqogxod$.dlg@40tude.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1n8tk1hehvpm0$.1leys9nqogxod$.dlg@40tude.net>
+User-Agent: Mutt/1.5.9i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-
+On Sat, Sep 10, 2005 at 11:29:52AM +0200, Giuseppe Bilotta wrote:
+> I have a Dell Inspiron 8200. Like the Latitude of the OP, it has the
+> DualPoint ALPS and a PS/2 port, so I can help testing, if needed.
 > 
-> Actually, I took another look at this matter and I now think 
-> that you had the correct approach.
+> I can also get my hands on a 4-button Logitech Trackball (no
+> scrollwheels or anything, just four buttons), if it can help the
+> testing.
 > 
-> The rebuild speed is the speed at which the new disk is being 
-> built, not the total rebuild i/o. This means that it does not 
-> contain the read operations. So the PCI limit is a limiting 
-> factor. On a 32-bit 33MHz PCI controller (132MB/s theoretical 
-> bandwidth) a 2->3 rebuild cannot be faster 44MB/s and a 3->4 
-> is limited to 33MB/s.
-> 
-> I think this is true.
-> 
-> The same limit will also apply to any raid i/o as we 
-> read/write to all the disks for any data.
-> 
-> To use 5 60MB/s disks I will need 300MB/s bandwidth which a 
-> 64-bit 66MHz PCI can deliver. A 32-bit/66MHz will come close 
-> - what can PCIe do?.
-> A proper RAID card will alleviate the PCI limitation as it 
-> will have dedicated channels for each disk (well, a good 
-> controller should) with full bandwidth and the PCI will only 
-> need to go at the one-disk speed (for raid-5).
+> One thing that I noticed under 'the other OS' is that, when an
+> external PS/2 device is inserted and then disconnected, the 'internal'
+> ones (keyboard, touchpad) seem to lose sync. It has been some time
+> since I tried it the last time, so I should probably check again to
+> see if the extended protocols do work, somehow.
 
-You will need to carefully check the real raid controllers 
-as some have separate channels some do not, it is all very 
-much a mess, and you need to be very careful in checking
-them and very careful in testing them if you need
-real speed.
+I have always been under the impression that PS2 devices were not
+hotplugable at all.
 
-> 
-> On-board SATA controllers will have better bandwidth if they 
-> sit on a better than PCI bus (or on more than one PCI bus).
+Many machines stop responding on the ps2 mouse port if you disconnect
+and reconnect the mouse.  KVMs of course cause lots of trouble too for
+that if they don't somehow fake the mouse still being present.
 
-The all of on-board SATA controllers I have used have lots 
-of shared hardware and are very very bad if you use more
-than 1 disk per set of shared hardware, and  build in does
-not mean that they will have a better PCI connection than
-a card, it all depends on the sata chipset that they used,
-there is stuff build into motherboards with pcix slots that
-have the ide, sata, and network subsystems connected to 
-33mhz buses.
+It works on some systems, but in my experience you don't touch ps/2
+mice with the power on.
 
-Most of the stuff I have used is high end dual and quad
-cpu motherboards, and the build in stuff does have lots
-of corners cut, I would expect the desktop class stuff
-to be as bad or worse.
-
-                    Roger
-
+Len Sorensen

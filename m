@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750790AbVILMrS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750794AbVILMu5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750790AbVILMrS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 08:47:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750793AbVILMrS
+	id S1750794AbVILMu5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 08:50:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750795AbVILMu5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 08:47:18 -0400
-Received: from ns.suse.de ([195.135.220.2]:3502 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750790AbVILMrR (ORCPT
+	Mon, 12 Sep 2005 08:50:57 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:18390 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1750794AbVILMu5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 08:47:17 -0400
-From: Andi Kleen <ak@suse.de>
-To: Roman Zippel <zippel@linux-m68k.org>
+	Mon, 12 Sep 2005 08:50:57 -0400
+Date: Mon, 12 Sep 2005 14:50:54 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Andi Kleen <ak@suse.de>
+cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, discuss@x86-64.org
 Subject: Re: [1/3] Add 4GB DMA32 zone
-Date: Mon, 12 Sep 2005 14:46:56 +0200
-User-Agent: KMail/1.8
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, discuss@x86-64.org
+In-Reply-To: <200509121447.00373.ak@suse.de>
+Message-ID: <Pine.LNX.4.61.0509121449590.3728@scrub.home>
 References: <43246267.mailL4R11PXCB@suse.de> <Pine.LNX.4.61.0509121430510.3743@scrub.home>
-In-Reply-To: <Pine.LNX.4.61.0509121430510.3743@scrub.home>
+ <200509121447.00373.ak@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509121447.00373.ak@suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 12 September 2005 14:45, Roman Zippel wrote:
-> Hi,
->
-> On Sun, 11 Sep 2005, Andi Kleen wrote:
-> > -#define MAX_NR_ZONES		3	/* Sync this with ZONES_SHIFT */
-> > -#define ZONES_SHIFT		2	/* ceil(log2(MAX_NR_ZONES)) */
-> > +#define MAX_NR_ZONES		4	/* Sync this with ZONES_SHIFT */
-> > +#define ZONES_SHIFT		3	/* ceil(log2(MAX_NR_ZONES)) */
->
-> Why needs ZONES_SHIFT to be increased?
->
-> > -#define FLAGS_RESERVED		8
-> > +#define FLAGS_RESERVED		9
->
-> I would prefer to keep this at 8.
+Hi,
 
-sparsemem needs these two.
+On Mon, 12 Sep 2005, Andi Kleen wrote:
 
--Andi
+> > > -#define MAX_NR_ZONES		3	/* Sync this with ZONES_SHIFT */
+> > > -#define ZONES_SHIFT		2	/* ceil(log2(MAX_NR_ZONES)) */
+> > > +#define MAX_NR_ZONES		4	/* Sync this with ZONES_SHIFT */
+> > > +#define ZONES_SHIFT		3	/* ceil(log2(MAX_NR_ZONES)) */
+> >
+> > Why needs ZONES_SHIFT to be increased?
+> >
+> > > -#define FLAGS_RESERVED		8
+> > > +#define FLAGS_RESERVED		9
+> >
+> > I would prefer to keep this at 8.
+> 
+> sparsemem needs these two.
+
+What two? What are you talking about???
+
+bye, Roman

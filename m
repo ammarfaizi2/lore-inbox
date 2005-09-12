@@ -1,41 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932110AbVILVdO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932271AbVILVfN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932110AbVILVdO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 17:33:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932268AbVILVdO
+	id S932271AbVILVfN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 17:35:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932270AbVILVfN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 17:33:14 -0400
-Received: from [64.162.99.240] ([64.162.99.240]:35716 "EHLO
-	spamtest2.viacore.net") by vger.kernel.org with ESMTP
-	id S932110AbVILVdN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 17:33:13 -0400
-Message-ID: <4325F3D5.9040109@spamtest.viacore.net>
-Date: Mon, 12 Sep 2005 14:32:05 -0700
-From: Joe Bob Spamtest <joebob@spamtest.viacore.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050909 Fedora/1.7.10-1.5.2
+	Mon, 12 Sep 2005 17:35:13 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:46491 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S932268AbVILVfL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 17:35:11 -0400
+Message-ID: <4325F488.5040304@adaptec.com>
+Date: Mon, 12 Sep 2005 17:35:04 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Chris Wedgwood <cw@f00f.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Pure 64 bootloaders
-References: <43228E4E.4050103@jg555.com> <p73k6hp2up7.fsf@verdi.suse.de> <43229BA4.4010306@pobox.com> <20050910163446.GA2232@taniwha.stupidest.org>
-In-Reply-To: <20050910163446.GA2232@taniwha.stupidest.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Christoph Hellwig <hch@infradead.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: [ANNOUNCE 0/2] Serial Attached SCSI (SAS) support for the Linux
+ kernel
+References: <4321E2C1.7080507@adaptec.com> <20050911092030.GA5140@infradead.org>
+In-Reply-To: <20050911092030.GA5140@infradead.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 12 Sep 2005 21:35:09.0920 (UTC) FILETIME=[D9C7C600:01C5B7E1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood wrote:
->> /lib64 is an awful scheme.  I'd avoid it.
-> I'd like to see people move away from it before it gets too entrenched
-> too.
+On 09/11/05 05:20, Christoph Hellwig wrote:
+> Thanks for finally posting your code.
+> 
+> At the core it's some really nice code dealing with host-based SAS
+> implementations.
 
-agreed -- as far as i'm concerned the 32 bit libraries are there for 
-compatibility's sake and should be in /lib/compat/<subarch> instead of 
-/lib. the native libraries should be in /lib instead of /lib64. lib64 
-should just go away!
+Thank you Christoph.  Much appreciated.
 
-but then again, nobody asked for *my* input before this fhs spec came 
-out, so ...
+> What's not nice is that it's not intgerating with the
+> SAS transport class I posted,
 
--kelsey
+I wish there was something I could do.  HP and LSI
+were aware of my efforts since the beginning of the year.
+
+As well, you had a copy of my code July 14 this year,
+long before starting your work on your SAS class for LSI and
+HP (so its acceptance is guaranteed), after OLS.
+
+We did meet at OLS and we did have the SAS BOF.  I'm not sure
+why you didn't want to work together?
+
+> it's duplicating things like LUN disocvery
+
+This is a much more involved subject than meets the eye.
+
+> from the SCSI core code, and adding it's own sysfs representation that's
+> very different from the way the SCSI core and transport classes do it.
+
+Yes, it is time to evolve.
+
+I've pointed out many times the shortcomings of expanding the
+JB's "transport _attribute_ class" into a "transport layer" in
+recent threads.
+
+I'm sorry but over everything else, we need a common base,
+(what you call "techno-gibberish") in order to see eye to eye.
+
+> Are you willing to work with us to intgerate it with the infrastructure
+> we have?
+
+I'm sure you've already taken a closer look at the SAS code 
+I posted.   Study it, read the spec, read the code again.
+
+Let me know if I can help with anything.
+
+Overall, MPT is very different in design than a disclosed
+transport.  Talk to HP, LSI and Dell and see what they think.
+
+	Luben
+

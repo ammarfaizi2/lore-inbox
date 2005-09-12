@@ -1,96 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932296AbVILWOe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932299AbVILWPF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932296AbVILWOe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 18:14:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbVILWOe
+	id S932299AbVILWPF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 18:15:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932301AbVILWPF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 18:14:34 -0400
-Received: from 66-23-228-155.clients.speedfactory.net ([66.23.228.155]:45293
-	"EHLO kevlar.burdell.org") by vger.kernel.org with ESMTP
-	id S932296AbVILWOd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 18:14:33 -0400
-Date: Mon, 12 Sep 2005 18:10:23 -0400
-From: Sonny Rao <sonny@burdell.org>
-To: Jiri Slaby <jirislaby@gmail.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org
-Cc: brking@us.ibm.com
-Subject: Re: 2.6.13-mm3
-Message-ID: <20050912221023.GB18215@kevlar.burdell.org>
-Mail-Followup-To: Sonny Rao <sonny@burdell.org>,
-	Jiri Slaby <jirislaby@gmail.com>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org,
-	brking@us.ibm.com
-References: <20050912194032.GA12426@kevlar.burdell.org> <200509122106.j8CL6WPk006092@wscnet.wsc.cz> <20050912214945.GA17729@kevlar.burdell.org>
-Mime-Version: 1.0
+	Mon, 12 Sep 2005 18:15:05 -0400
+Received: from gw02.mail.saunalahti.fi ([195.197.172.116]:6849 "EHLO
+	gw02.mail.saunalahti.fi") by vger.kernel.org with ESMTP
+	id S932299AbVILWPC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Sep 2005 18:15:02 -0400
+From: Nuutti Kotivuori <naked@iki.fi>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: netfilter QUEUE target and packet socket interactions buggy or not
+References: <87fysa9bqt.fsf@aka.i.naked.iki.fi>
+	<20050912.151120.104514011.davem@davemloft.net>
+Date: Tue, 13 Sep 2005 01:34:59 +0300
+In-Reply-To: <20050912.151120.104514011.davem@davemloft.net> (David
+	S. Miller's message of "Mon, 12 Sep 2005 15:11:20 -0700 (PDT)")
+Message-ID: <87br2xap9o.fsf@aka.i.naked.iki.fi>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) XEmacs/21.4.17 (linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050912214945.GA17729@kevlar.burdell.org>
-User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 12, 2005 at 05:49:45PM -0400, Sonny Rao wrote:
-> On Mon, Sep 12, 2005 at 11:06:32PM +0200, Jiri Slaby wrote:
-> > > I'm getting some build errors on ppc64 in drivers/char/hvc_console.c
-> > > 
-> > > 
-> > >   CC      drivers/char/hvc_console.o
-> > > drivers/char/hvc_console.c: In function `hvc_poll':
-> > > drivers/char/hvc_console.c:600: error: `count' undeclared (first use in this
-> > > function)
-> > > drivers/char/hvc_console.c:600: error: (Each undeclared identifier is reported
-> > > only once
-> > > drivers/char/hvc_console.c:600: error: for each function it appears in.)
-> > > drivers/char/hvc_console.c:636: error: structure has no member named `flip'
-> > > make[1]: *** [drivers/char/hvc_console.o] Error 1
-> > > make: *** [_module_drivers/char] Error 2
-> > > 
-> > > The count undeclared one was easy to fix but I coldn't fix the filp
-> > > structure element in 2-3 minutes so I'm punting.
-> > > 
-> > > Anyone have a patch to fix this driver?
-> > 
-> > Try this:
-> > ---
-> 
-> Hmm, that didn't build.  I made my own version based on yours,
-> unfortunately I don't know if it boots because all my network just went
-> down.  Hopefully, someone will confirm that the fix is correct.
-> 
-> 
-> --- linux-2.6.13-mm3/drivers/char/hvc_console.c~orig	2005-09-12 16:37:14.434077464 -0500
-> +++ linux-2.6.13-mm3/drivers/char/hvc_console.c	2005-09-12 16:37:25.466998360 -0500
-> @@ -597,7 +597,7 @@ static int hvc_poll(struct hvc_struct *h
->  
->  	/* Read data if any */
->  	for (;;) {
-> -		count = tty_buffer_request_room(tty, N_INBUF);
-> +		int count = tty_buffer_request_room(tty, N_INBUF);
->  
->  		/* If flip is full, just reschedule a later read */
->  		if (count == 0) {
-> @@ -633,7 +633,7 @@ static int hvc_poll(struct hvc_struct *h
->  			tty_insert_flip_char(tty, buf[i], 0);
->  		}
->  
-> -		if (tty->flip.count)
-> +		if (tty->buf.tail->used)
->  			tty_schedule_flip(tty);
->  
->  		/*
+David S. Miller wrote:
+> From: Nuutti Kotivuori <naked@iki.fi>
+> Date: Tue, 13 Sep 2005 01:12:26 +0300
+>
+>> ,----
+>> | Unable to handle kernel NULL pointer dereference at virtual address 00000018
+>> | ...
+>> |         __kfree_skb+0xf4/0xf7
+>> |  [<c02c3188>] packet_rcv+0x2ca/0x2d4
+>> |  [<f888f792>] bcm5700_start_xmit+0x477/0x4a5 [bcm5700]
+>
+> Please use the tg3 driver that actually comes with
+> the kernel :-)
 
-Ok so that at least started to boot (i.e. I got output to the virtual
-console), now my SCSI controller won't come up:  
+The problem also appears with the tg3 driver. In some other crashes,
+the traceback looks like:
 
-ipr: IBM Power RAID SCSI Device Driver version: 2.0.14 (May 2, 2005)
-ipr 0001:c0:01.0: Found IOA with IRQ: 337
-PCI: Unable to reserve mem region #3:8000000@400b8000000 for device
-0001:c0:01.0
-ipr 0001:c0:01.0: Couldn't map memory range of registers
-Trying to free nonexistent resource <400b8000000-400bfffffff>
+,----
+|         __kfree_skb+0xf4/0xf7
+|  [<c02c3188>] packet_rcv+0x2ca/0x2d4
+|  [<c0273ca8>] dev_queue_xmit_nit+0xc1/0xd3
+|  [<c01a3a02>] selinux_ipv4_postroute_last+0xf/0x13
+`----
 
+I am doubtful the network card driver would be at fault here, but
+that'll be confirmed once I manage to narrow this down more.
 
-I've seen it get hang right there or try to mount root fs and then
-fail.  Not sure if this is a PCI issue or an IPR issue, Brian?
+-- Naked
 
-(Adding brking to cc)

@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932206AbVIMUWX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbVIMUWk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932206AbVIMUWX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 16:22:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbVIMUWX
+	id S932239AbVIMUWk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 16:22:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932262AbVIMUWk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 16:22:23 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:23430
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932206AbVIMUWW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 16:22:22 -0400
-Date: Tue, 13 Sep 2005 13:22:13 -0700 (PDT)
-Message-Id: <20050913.132213.01982680.davem@davemloft.net>
-To: torvalds@osdl.org
-Cc: akropel1@rochester.rr.com, nkiesel@tbdnetworks.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13.1 locks machine after some time, 2.6.12.5 work fine
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <Pine.LNX.4.58.0509130850550.3351@g5.osdl.org>
-References: <20050913120255.A16713@mail.kroptech.com>
-	<Pine.LNX.4.58.0509130850550.3351@g5.osdl.org>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 13 Sep 2005 16:22:40 -0400
+Received: from sycorax.lbl.gov ([128.3.5.196]:13968 "EHLO sycorax.lbl.gov")
+	by vger.kernel.org with ESMTP id S932239AbVIMUWj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 16:22:39 -0400
+From: Alex Romosan <romosan@sycorax.lbl.gov>
+To: linux-kernel@vger.kernel.org
+Subject: type in include/linux/mod_devicetable.h?
+Date: Tue, 13 Sep 2005 13:22:37 -0700
+Message-ID: <87irx4sooi.fsf@sycorax.lbl.gov>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Linus Torvalds <torvalds@osdl.org>
-Date: Tue, 13 Sep 2005 08:55:31 -0700 (PDT)
+there seems to be a small typo in the above mentioned file (or at
+least by gcc (GCC) 4.0.2 20050821 (prerelease) (Debian 4.0.1-6)
+doesn't like it). this patch fixes it for me:
 
-> >         /* Reset expansion ROM address decode enable */
-> >         pci_read_config_word(ha->pdev, PCI_ROM_ADDRESS, &w);
-> >         w &= ~PCI_ROM_ADDRESS_ENABLE;
-> >         pci_write_config_word(ha->pdev, PCI_ROM_ADDRESS, w);
- ...
-> So the above probably works fine, especially since it's just disabling the 
-> ROM (ie we don't end up caring at all about the upper bits even if they 
-> did get the wrong value). But it's definitely bad practice, and there are 
-> probably cards (for which that driver is irrelevant, of course ;) where 
-> doing something like the above might not work at all.
+--- mod_devicetable.h-orig      2005-09-13 13:15:41.000000000 -0700
++++ mod_devicetable.h   2005-09-13 13:15:54.000000000 -0700
+@@ -183,7 +183,7 @@
+        char    name[32];
+        char    type[32];
+        char    compatible[128];
+-#if __KERNEL__
++#ifdef __KERNEL__
+        void    *data;
+ #else
+        kernel_ulong_t data;
 
-I think for consistency the above driver case should still be fixed,
-however.  This way when people try to audit the tree for
-PCI_ROM_ADDRESS config space accesses, they won't come across this
-same instance again and again.
+--alex--
+
+-- 
+| I believe the moment is at hand when, by a paranoiac and active |
+|  advance of the mind, it will be possible (simultaneously with  |
+|  automatism and other passive states) to systematize confusion  |
+|  and thus to help to discredit completely the world of reality. |

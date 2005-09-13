@@ -1,69 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932617AbVIMLpr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932614AbVIMLwh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932617AbVIMLpr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 07:45:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932618AbVIMLpr
+	id S932614AbVIMLwh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 07:52:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932616AbVIMLwh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 07:45:47 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:49629 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S932617AbVIMLpq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 07:45:46 -0400
-Date: Tue, 13 Sep 2005 15:45:29 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Olaf Hering <olh@suse.de>
-Cc: Andreas Koch <koch@esa.informatik.tu-darmstadt.de>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Greg KH <greg@kroah.com>, Marcus Wegner <wegner3000@hotmail.com>
-Subject: Re: 2.6.13: Crash in Yenta initialization
-Message-ID: <20050913154529.C15709@jurassic.park.msu.ru>
-References: <200509030138.11905.koch@esa.informatik.tu-darmstadt.de> <200509030245.12610.koch@esa.informatik.tu-darmstadt.de> <20050903223401.A7470@jurassic.park.msu.ru> <20050912174209.GA3965@suse.de> <20050913000733.A14261@jurassic.park.msu.ru> <20050913063053.GA24158@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20050913063053.GA24158@suse.de>; from olh@suse.de on Tue, Sep 13, 2005 at 08:30:53AM +0200
+	Tue, 13 Sep 2005 07:52:37 -0400
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:1160 "EHLO
+	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S932614AbVIMLwh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 07:52:37 -0400
+Message-ID: <3974.192.168.6.50.1126612308.squirrel@simlinux>
+Date: Tue, 13 Sep 2005 13:51:48 +0200 (CEST)
+Subject: [patch 2.6.14-rc1] i386: Correct Pentium optimization
+From: simrw@sim-basis.de
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org
+User-Agent: SquirrelMail/1.4.5
+MIME-Version: 1.0
+Content-Type: multipart/mixed;boundary="----=_20050913135148_72863"
+X-Priority: 3 (Normal)
+Importance: Normal
+X-SIMBasis-MailScanner-Information: Please contact the ISP for more information
+X-SIMBasis-MailScanner: Found to be clean
+X-SIMBasis-MailScanner-From: simrw@sim-basis.de
+X-ID: VrMRYcZcreHDSHZz-auTnXIKztNad2PqRdizAmbGMEaVmMGOwfwLZ0@t-dialin.net
+X-TOI-MSGID: f33dabe8-a768-49c6-8b30-9200828c7031
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 13, 2005 at 08:30:53AM +0200, Olaf Hering wrote:
-> The reporter has updated the bug.
-> 
-> https://bugzilla.novell.com/attachment.cgi?id=49717
-> https://bugzilla.novell.com/attachment.cgi?id=49715
-> https://bugzilla.novell.com/attachment.cgi?id=49716
+------=_20050913135148_72863
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-Thanks, that helped.
+GCC 3.x apparently does not allow the -mtune option when specifying
+-march=i686. This means that P-2/3/4/M never get optimzed.
+Change the i386 Makefile to cater for this.
 
-The reason was that Acer BIOS left only _two_ bus numbers available
-for _three_ cardbus controllers, so pci_scan_bridge() assigns both
-numbers to the first controller and leaves two other ones uninitialized.
+Signed-off-by: Roger While <simrw@sim-basis.de>
 
-Please try the patch here, but note that you'll apparently have only
-one cardbus slot working. If you want more, use "pci=assign-busses"
-boot option.
+Patch also as attachment as Squirrel is sure to mangle.
 
-Ivan.
+Roger While
 
---- 2.6.14-rc1/drivers/pcmcia/yenta_socket.c	Tue Sep 13 14:16:34 2005
-+++ linux/drivers/pcmcia/yenta_socket.c	Tue Sep 13 14:40:40 2005
-@@ -1045,7 +1045,18 @@ static int __devinit yenta_probe (struct
- {
- 	struct yenta_socket *socket;
- 	int ret;
--	
-+
-+	/*
-+	 * If we failed to assign proper bus numbers for this cardbus
-+	 * controller during PCI probe, its subordinate pci_bus is NULL.
-+	 * Bail out if so.
-+	 */
-+	if (!dev->subordinate) {
-+		printk(KERN_ERROR "Yenta: no bus associated with %s!\n",
-+			pci_name(dev));
-+		return -ENODEV;
-+	}
-+
- 	socket = kmalloc(sizeof(struct yenta_socket), GFP_KERNEL);
- 	if (!socket)
- 		return -ENOMEM;
+diff -Naur linux-2.6.14/arch/i386/Makefile
+linux-2.6.14patch/arch/i386/Makefile
+--- linux-2.6.14/arch/i386/Makefile     2005-09-13 13:16:22.000000000 +0200
++++ linux-2.6.14patch/arch/i386/Makefile        2005-09-13
+13:11:47.000000000 +0200
+@@ -41,10 +41,10 @@
+ cflags-$(CONFIG_M586TSC)       += -march=i586
+ cflags-$(CONFIG_M586MMX)       += $(call
+cc-option,-march=pentium-mmx,-march=i586)
+ cflags-$(CONFIG_M686)          += -march=i686
+-cflags-$(CONFIG_MPENTIUMII)    += -march=i686 $(call
+cc-option,-mtune=pentium2)
+-cflags-$(CONFIG_MPENTIUMIII)   += -march=i686 $(call
+cc-option,-mtune=pentium3)
+-cflags-$(CONFIG_MPENTIUMM)     += -march=i686 $(call
+cc-option,-mtune=pentium3)
+-cflags-$(CONFIG_MPENTIUM4)     += -march=i686 $(call
+cc-option,-mtune=pentium4)
++cflags-$(CONFIG_MPENTIUMII)    += $(call
+cc-option,-march=pentium2,-march=i686)
++cflags-$(CONFIG_MPENTIUMIII)   += $(call
+cc-option,-march=pentium3,-march=i686)
++cflags-$(CONFIG_MPENTIUMM)     += $(call
+cc-option,-march=pentium-m,-march=i686)
++cflags-$(CONFIG_MPENTIUM4)     += $(call
+cc-option,-march=pentium4,-march=i686)
+ cflags-$(CONFIG_MK6)           += -march=k6
+ # Please note, that patches that add -march=athlon-xp and friends are
+pointless.
+ # They make zero difference whatsosever to performance at this time.
+------=_20050913135148_72863
+Content-Type: text/plain; name="pentiumgcc.patch"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: attachment; filename="pentiumgcc.patch"
+
+diff -Naur linux-2.6.14/arch/i386/Makefile linux-2.6.14patch/arch/i386/Makefile
+--- linux-2.6.14/arch/i386/Makefile	2005-09-13 13:16:22.000000000 +0200
++++ linux-2.6.14patch/arch/i386/Makefile	2005-09-13 13:11:47.000000000 +0200
+@@ -41,10 +41,10 @@
+ cflags-$(CONFIG_M586TSC)	+= -march=i586
+ cflags-$(CONFIG_M586MMX)	+= $(call cc-option,-march=pentium-mmx,-march=i586)
+ cflags-$(CONFIG_M686)		+= -march=i686
+-cflags-$(CONFIG_MPENTIUMII)	+= -march=i686 $(call cc-option,-mtune=pentium2)
+-cflags-$(CONFIG_MPENTIUMIII)	+= -march=i686 $(call cc-option,-mtune=pentium3)
+-cflags-$(CONFIG_MPENTIUMM)	+= -march=i686 $(call cc-option,-mtune=pentium3)
+-cflags-$(CONFIG_MPENTIUM4)	+= -march=i686 $(call cc-option,-mtune=pentium4)
++cflags-$(CONFIG_MPENTIUMII)	+= $(call cc-option,-march=pentium2,-march=i686)
++cflags-$(CONFIG_MPENTIUMIII)	+= $(call cc-option,-march=pentium3,-march=i686)
++cflags-$(CONFIG_MPENTIUMM)	+= $(call cc-option,-march=pentium-m,-march=i686)
++cflags-$(CONFIG_MPENTIUM4)	+= $(call cc-option,-march=pentium4,-march=i686)
+ cflags-$(CONFIG_MK6)		+= -march=k6
+ # Please note, that patches that add -march=athlon-xp and friends are pointless.
+ # They make zero difference whatsosever to performance at this time.
+------=_20050913135148_72863--
+
+

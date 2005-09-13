@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964802AbVIMOkW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964799AbVIMOnP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964802AbVIMOkW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 10:40:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964803AbVIMOkW
+	id S964799AbVIMOnP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 10:43:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964804AbVIMOnP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 10:40:22 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:35283 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964802AbVIMOkU (ORCPT
+	Tue, 13 Sep 2005 10:43:15 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:17317 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S964799AbVIMOnO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 10:40:20 -0400
-Subject: Re: Missing #include <config.h>
-From: Josh Boyer <jdub@us.ibm.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@infradead.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050913152831.B23643@flint.arm.linux.org.uk>
-References: <20050913135622.GA30675@phoenix.infradead.org>
-	 <1126620753.3209.3.camel@windu.rchland.ibm.com>
-	 <20050913152831.B23643@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=UTF-8
-Date: Tue, 13 Sep 2005 09:40:11 -0500
-Message-Id: <1126622411.3209.7.camel@windu.rchland.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 8bit
+	Tue, 13 Sep 2005 10:43:14 -0400
+Message-ID: <4326E576.1010204@pobox.com>
+Date: Tue, 13 Sep 2005 10:43:02 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: netdev@vger.kernel.org
+CC: Thomas Graf <tgraf@suug.ch>, Herbert Xu <herbert@gondor.apana.org.au>,
+       "David S. Miller" <davem@davemloft.net>, Dave Jones <davej@redhat.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: TCP oopsing continues
+References: <20050910113737.GZ22129@postel.suug.ch> <E1EE4Jh-0001iA-00@gondolin.me.apana.org.au> <20050910125010.GA22129@postel.suug.ch> <20050910194447.GA5725@gondor.apana.org.au> <20050910203131.GB22129@postel.suug.ch>
+In-Reply-To: <20050910203131.GB22129@postel.suug.ch>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-09-13 at 15:28 +0100, Russell King wrote:
-> On Tue, Sep 13, 2005 at 09:12:33AM -0500, Josh Boyer wrote:
-> > On Tue, 2005-09-13 at 14:56 +0100, JÃ¶rn Engel wrote:
-> > > After spending some hours last night and this morning hunting a bug,
-> > > I've found that a different include order made a difference.  Some
-> > > files don't work correctly, unless config.h is included before.
-> > > 
-> > > Here is a very stupid bug checker for the problem class:
-> > > $ rgrep CONFIG include/ | cut -d: -f1 | sort -u > g1
-> > > $ rgrep CONFIG include/ | cut -d: -f1 | sort -u | xargs grep "config.h" | cut -d: -f1 | sort -u > g2
-> > > $ diff -u g1 g2 | grep ^- > g3
-> > 
-> > Your checker doesn't quite test for nested includes.  E.g. if foo.h
-> > includes bar.h, and bar.h includes config.h, then foo.h doesn't need to
-> > include config.h explicitly.
-> 
-> Unfortunately, we don't operate like that.  If a file makes use of
-> CONFIG_xxx then it must include <linux/config.h>.
+Well, my oops continues in 2.6.14-rc1.  x86 SMP firewall box.
 
-Well, that rule makes things easier then, so Jörn's list would be pretty
-complete.
+I still haven't found my null modem cable, so I don't have the top of 
+the trace.  Here is everything that was on the screen:
 
-Your proposal of using -imacros is even better though.
+ip_local_deliver_finish
+tcp_v4_do_rcv
+tcp_v4_rcv
+ip_local_deliver
+ip_local_deliver_finish
+ip_rcv
+ip_rcv_finish
+netif_receive_skb
+e1000_clean_rx_irq
+rtl8139_isr_ack
+e1000_clean
+net_rx_action
+__do_softirq
+do_softirq
+do_IRQ
 
-josh
 

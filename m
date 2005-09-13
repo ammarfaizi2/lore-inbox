@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbVIMFdN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932322AbVIMFh7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932302AbVIMFdN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 01:33:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932317AbVIMFdN
+	id S932322AbVIMFh7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 01:37:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932320AbVIMFh7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 01:33:13 -0400
-Received: from smtp105.sbc.mail.re2.yahoo.com ([68.142.229.100]:685 "HELO
-	smtp105.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S932302AbVIMFdN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 01:33:13 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org, Pekka Enberg <penberg@cs.helsinki.fi>
-Subject: Re: [PATCH] use kzalloc instead of malloc+memset
-Date: Tue, 13 Sep 2005 00:33:10 -0500
-User-Agent: KMail/1.8.2
-Cc: Jiri Slaby <jirislaby@gmail.com>, Lion Vollnhals <lion.vollnhals@web.de>
-References: <200509130010.38483.lion.vollnhals@web.de> <43260817.7070907@gmail.com> <84144f0205091221431827b126@mail.gmail.com>
-In-Reply-To: <84144f0205091221431827b126@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 13 Sep 2005 01:37:59 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:46742
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932309AbVIMFh6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 01:37:58 -0400
+Date: Mon, 12 Sep 2005 22:37:55 -0700 (PDT)
+Message-Id: <20050912.223755.56102921.davem@davemloft.net>
+To: kaos@sgi.com
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: 2.6.14-rc1 breaks tg3 on ia64
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <22029.1126588937@kao2.melbourne.sgi.com>
+References: <22029.1126588937@kao2.melbourne.sgi.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509130033.11109.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 12 September 2005 23:43, Pekka Enberg wrote:
-> On 9/13/05, Jiri Slaby <jirislaby@gmail.com> wrote:
-> > >-      cls = kmalloc(sizeof(struct class), GFP_KERNEL);
-> > >+      cls = kzalloc(sizeof(struct class), GFP_KERNEL);
-> > >
-> > >
-> > maybe, the better way is to write `*cls' instead of `struct class',
-> > better for further changes
+From: Keith Owens <kaos@sgi.com>
+Date: Tue, 13 Sep 2005 15:22:17 +1000
+
+> 2.6.14-rc1 + kdb on ia64 (SGI Altix).
 > 
-> Please note that some maintainers don't like it. I at least could not
-> sneak in patches like these to drivers/usb/ because I had changed
-> sizeof.
+> tg3.c:v3.39 (September 5, 2005)
+> ACPI: PCI Interrupt 0001:01:04.0[A]: no GSI
+> BRIDGE ERR_STATUS 0x800
+> BRIDGE ERR_STATUS 0x800
+> PCI BRIDGE ERROR: int_status is 0x800 for 011c32:slab0:widget15:bus0
+>     Dumping relevant 011c32:slab0:widget15:bus0 registers for each bit set...
+>         11: PCI bus device select timeout
+>             PCI Error Address Register: 0x3000000316808
+>             PCI Error Address: 0x316808
+>     PIC Multiple Interrupt Register is 0x800
+>         11: PCI bus device select timeout
 > 
+> Followed by a machine check and reboot :(  2.6.13 worked fine.  Any
+> ideas which patch to backout this time?
 
-And given the fact that Greg maintains driver core it probably won't be
-accepted here either :)
-
-FWIW I also prefer spelling out the structure I am allocating.
-
--- 
-Dmitry
+Does copying over the 2.6.13 tg3.[ch] driver over into your
+2.6.14-rc1 tree make it work?

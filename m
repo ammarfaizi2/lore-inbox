@@ -1,46 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964863AbVIMQdx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964865AbVIMQfh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964863AbVIMQdx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 12:33:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964870AbVIMQdx
+	id S964865AbVIMQfh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 12:35:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964870AbVIMQfg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 12:33:53 -0400
-Received: from mail.collax.com ([213.164.67.137]:65501 "EHLO
-	kaber.coreworks.de") by vger.kernel.org with ESMTP id S964863AbVIMQdu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 12:33:50 -0400
-Message-ID: <4326FF69.9060004@trash.net>
-Date: Tue, 13 Sep 2005 18:33:45 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.10) Gecko/20050803 Debian/1.7.10-1
-X-Accept-Language: en
+	Tue, 13 Sep 2005 12:35:36 -0400
+Received: from ns1.lanforge.com ([66.165.47.210]:51683 "EHLO www.lanforge.com")
+	by vger.kernel.org with ESMTP id S964867AbVIMQff (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 12:35:35 -0400
+Message-ID: <4326FFC2.7030803@candelatech.com>
+Date: Tue, 13 Sep 2005 09:35:14 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.10) Gecko/20050719 Fedora/1.7.10-1.3.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Nuutti Kotivuori <naked@iki.fi>
-CC: linux-kernel@vger.kernel.org,
-       Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>
-Subject: Re: netfilter QUEUE target and packet socket interactions buggy or
- not
-References: <87fysa9bqt.fsf@aka.i.naked.iki.fi>	<20050912.151120.104514011.davem@davemloft.net>	<87br2xap9o.fsf@aka.i.naked.iki.fi> <877jdl9r1u.fsf@aka.i.naked.iki.fi>
-In-Reply-To: <877jdl9r1u.fsf@aka.i.naked.iki.fi>
-Content-Type: text/plain; charset=us-ascii
+To: Stephen Hemminger <shemminger@osdl.org>
+CC: Ravikiran G Thirumalai <kiran@scalex86.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, dipankar@in.ibm.com, bharata@in.ibm.com,
+       shai@scalex86.org, Rusty Russell <rusty@rustcorp.com.au>,
+       netdev@vger.kernel.org, davem@davemloft.net
+Subject: Re: [patch 7/11] net: Use bigrefs for net_device.refcount
+References: <20050913155112.GB3570@localhost.localdomain>	<20050913161012.GI3570@localhost.localdomain> <20050913092659.791bddec@localhost.localdomain>
+In-Reply-To: <20050913092659.791bddec@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nuutti Kotivuori wrote:
+Stephen Hemminger wrote:
+> On Tue, 13 Sep 2005 09:10:12 -0700
+> Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
 > 
-> Appended here is a backtrace with the tg3 driver. Also, it seems that
-> the bug cannot be reproduced with uniprocessor, only SMP.
 > 
-> Unable to handle kernel NULL pointer dereference at virtual address 00000018
+>>The net_device has a refcnt used to keep track of it's uses.
+>>This is used at the time of unregistering the network device
+>>(module unloading ..) (see netdev_wait_allrefs) .
+>>For loopback_dev , this refcnt increment/decrement  is causing
+>>unnecessary traffic on the interlink for NUMA system
+>>affecting it's performance.  This patch improves tbench numbers by 6% on a
+>>8way x86 Xeon (x445).
+>>
+> 
+> 
+> Since when is bringing a network device up/down performance critical?
 
-This means inode->i_security was NULL. AFAICT it is only set to NULL in
-inode_free_security() when the inode is freed. This shouldn't happen
-while the packet is queued since the skb should hold a reference to
-the socket on the output path. So it could be some protocol forgetting
-to increase the refcnt when taking a reference. What kind of packet
-is this? And what kernel version are you running? Until recently
-ip_conntrack did some fiddling with skb->sk which could lead to
-a packet on the output path with skb->sk set but no reference taken.
+We grab and drop a reference for each poll of a device, roughly.
+
+See dev_hold in _netif_rx_schedule(struct net_device *dev)
+in include/netdevice.h, for instance.
+
+Thanks,
+Ben
+
+-- 
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
 

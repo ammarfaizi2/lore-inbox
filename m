@@ -1,73 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932591AbVIMKdd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932596AbVIMKlQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932591AbVIMKdd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 06:33:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932594AbVIMKdd
+	id S932596AbVIMKlQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 06:41:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932594AbVIMKlQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 06:33:33 -0400
-Received: from s0003.shadowconnect.net ([213.239.201.226]:19132 "EHLO
-	mail.shadowconnect.com") by vger.kernel.org with ESMTP
-	id S932591AbVIMKdc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 06:33:32 -0400
-Message-ID: <4326AAF8.2060702@shadowconnect.com>
-Date: Tue, 13 Sep 2005 12:33:28 +0200
-From: Markus Lidel <Markus.Lidel@shadowconnect.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 0/2] Couple of I2O sysfs changes
-References: <200509122331.59554.dtor_core@ameritech.net>
-In-Reply-To: <200509122331.59554.dtor_core@ameritech.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 13 Sep 2005 06:41:16 -0400
+Received: from s1.mailresponder.info ([193.24.237.10]:48397 "EHLO
+	s1.mailresponder.info") by vger.kernel.org with ESMTP
+	id S932605AbVIMKlP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 06:41:15 -0400
+Subject: Re: "Read my lips: no more merges" - aka Linux 2.6.14-rc1
+From: Mathieu Fluhr <mfluhr@nero.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0509122019560.3351@g5.osdl.org>
+References: <Pine.LNX.4.58.0509122019560.3351@g5.osdl.org>
+Content-Type: text/plain
+Organization: Nero AG
+Date: Tue, 13 Sep 2005 12:40:30 +0200
+Message-Id: <1126608030.3455.23.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, 2005-09-12 at 20:34 -0700, Linus Torvalds wrote:
+> Ok, it's been two weeks (actually, two weeks and one day) since 2.6.13, 
+> and that means that the merge window is closed. I've released a 
+> 2.6.14-rc1, and we're now all supposed to help just clean up and fix 
+> everything, and aim for a really solid 2.6.14 release.
+> 
 
-Dmitry Torokhov wrote:
-> I was looking at the users of class_interfaces and stumbled across
-> I2O subsystem. As far as I understand the purpose of class interfaces
-> was to provide different 'views' on the hardware, not just to have
-> a callback to finish initialization of sysfs structures. I think it
-> woudl be better to remove i2o_device_class_interface and create
-> user/parent links right after class device registration.
+Sorry to bother you again and again with this stuff, but I got no answer
+from anyone... DVD burning is broken since 2.6.13-rc1 and I checked this
+morning the 2.6.14-rc1: Same status.
 
-OK, think i've misunderstood the description of the class interface :-(
+To be short, when burning a DVD at 16x with 2.6.12.6, no problem at all.
+With 2.6.13-rc1 and upper, lots of buffer underruns. (If someone wants
+to help, feel free to ask more details... I would be happy to help
+anyone). The only thing that I know is that it is not coming from the
+peripheral driver, as I have the same issue when using ide-cd with a
+CDROM_SEND_PACKET ioctl or usb-storage+sg with a SG_IO ioctl.
 
-> Also, it looks like i2o_device_class itself is not needed - correct
-> me if I am wrong, but all i2o devics reside on their own bus so
-> i2o_devices class simply mirrors iformation from the bus and can
-> also be safely removed.
+As far as I looked in the source code, it seems to be lots (and lots) of
+changes between these 2 versions, specially regarding block devices
+drivers. But the ChangeLog is so huge that it is quite impossible to
+make a step-by-step upgrade to see _where_ the problem is :-(
 
-Nope, there is one bus per controller not per device...
+> Both the diffstat and the shortlog are so big that I can't post them on 
+> the kernel mailing list without getting the email killed by the size 
+> restrictions, so there's not a lot to say. 
+> 
+> alpha, arm, x86, x86-64, ppc, ia64, mips, sparc, um.. Pretty much every
+> architecture got some updates. And an absolutely _huge_ ACPI diff, largely 
+> because of some re-indentation.
+> 
+> drm, watchdog, hwmon, i2c, infiniband, input layer, md, dvb, v4l, network,
+> pci, pcmcia, scsi, usb and sound driver updates. People may appreciate
+> that the most common wireless network drivers got merged - centrino
+> support is now in the standard kernel.
+> 
+> On the filesystem level, FUSE got merged, and ntfs and xfs got updated. In 
+> the core VFS layer, the "struct files" thing is now handled with RCU and 
+> has less expensive locking.
+> 
+> And networking changes.
+> 
+> In other words, a lot of stuff all over the place. Be nice now, and follow 
+> the rules: put away the new toys, and instead work on making sure the 
+> stuff that got merged is all solid. Ok?
+> 
+> Anybody with git can do the shortlog with
+> 
+> 	git-rev-list --no-merges --pretty=short v2.6.14-rc1 ^v2.6.13 |
+> 		git-shortlog | less -S
+> 
+> which is actually pretty informative.
+> 
+> 			Linus
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-> Please consider applying the 2 pathes below (just compile-tested,
-> don't have proper hardware).
-
-I'll try to merge the changes (and some other patches) in the near future 
-and provide a changed patch...
-
-Thank you very much.
-
-
-
-Best regards,
-
-
-Markus Lidel
-------------------------------------------
-Markus Lidel (Senior IT Consultant)
-
-Shadow Connect GmbH
-Carl-Reisch-Weg 12
-D-86381 Krumbach
-Germany
-
-Phone:  +49 82 82/99 51-0
-Fax:    +49 82 82/99 51-11
-
-E-Mail: Markus.Lidel@shadowconnect.com
-URL:    http://www.shadowconnect.com

@@ -1,52 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964798AbVIMO3k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964796AbVIMObX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964798AbVIMO3k (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 10:29:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964796AbVIMO3j
+	id S964796AbVIMObX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 10:31:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932650AbVIMObX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 10:29:39 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:15790 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S932648AbVIMO3i (ORCPT
+	Tue, 13 Sep 2005 10:31:23 -0400
+Received: from dvhart.com ([64.146.134.43]:15746 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S932648AbVIMObW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 10:29:38 -0400
-Message-ID: <4326E24B.6030000@adaptec.com>
-Date: Tue, 13 Sep 2005 10:29:31 -0400
-From: Luben Tuikov <luben_tuikov@adaptec.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
+	Tue, 13 Sep 2005 10:31:22 -0400
+Date: Tue, 13 Sep 2005 07:31:24 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Sonny Rao <sonny@burdell.org>, Danny ter Haar <dth@cistron.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13-mm3
+Message-ID: <268810000.1126621883@[10.10.2.4]>
+In-Reply-To: <20050913070204.GA30231@kevlar.burdell.org>
+References: <20050912024350.60e89eb1.akpm@osdl.org> <20050912200914.GA13962@kevlar.burdell.org> <dg4qeg$27m$1@news.cistron.nl> <20050912220617.GA18215@kevlar.burdell.org> <dg5n7q$daf$1@news.cistron.nl> <20050913070204.GA30231@kevlar.burdell.org>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: dougg@torque.net
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH 2.6.13 2/14] sas-class: README
-References: <4321E4DD.7070405@adaptec.com> <432543C6.1020403@torque.net> <4325CB10.1020902@adaptec.com> <4326A635.3020400@torque.net> <4326D48E.1080305@adaptec.com>
-In-Reply-To: <4326D48E.1080305@adaptec.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 Sep 2005 14:29:37.0581 (UTC) FILETIME=[91BBC5D0:01C5B86F]
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 09/13/05 09:30, Luben Tuikov wrote:
-> I cannot call it a "passthrough" since the SMP frame isn't
-> "passing though" (by passing) anything.  When userspace
-> does a read(2) to get the data they expect, the SMP
-> frame they wrote(2) is sent to the SDS immediately.
-> In effect there is no "passing through".
-> 
-> It is a _protocol_ interjection.
-> 
-> That is an SMP frame (submission) _instantiates_
-> at that layer/level, not lower, not higher.
-> 
-> 
->>one dispenses with a bit of metadata such as per command
->>timeouts and 3 levels of error messages (i.e. from the
 
-I forgot to mention -- SMP transport has a hardware timer
-as well as software one.  read(2) will never hang.
 
-If there's no one on the other end, we get an error,
-and read(2) less (or none) information than we requested.
+--Sonny Rao <sonny@burdell.org> wrote (on Tuesday, September 13, 2005 03:02:04 -0400):
 
-	Luben
+> On Tue, Sep 13, 2005 at 05:14:34AM +0000, Danny ter Haar wrote:
+>> Sonny Rao  <sonny@burdell.org> wrote:
+>> > Are you using jumbo frames or anything like that?
+>> 
+>> Not as far as i know.
+>> 
+>> I gave the kernel some more buffer as stated on
+>> http://home.cern.ch/~jes/gige/acenic.html
+>> 
+>> echo 256144 > /proc/sys/net/core/rmem_max
+>> echo 262144 > /proc/sys/net/core/wmem_max
+> 
+> Not sure if this could lead to higher order allocations -- the only
+> place I think it might happen is in sock_kmalloc() 
+> 
+> Dunno, Martin?
+
+Not sure. Throw a dump_stack in __alloc_pages conditional on if order > 0.
+If it spews too much output, ratelimit it by incrementing a static variable
+each time, and only printing if mod 100 or 1000 or something, but I suspect
+it'll be OK at full rate.
+
+M.
+

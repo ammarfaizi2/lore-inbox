@@ -1,83 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932439AbVIMIPU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932445AbVIMIRE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932439AbVIMIPU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 04:15:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932440AbVIMIPT
+	id S932445AbVIMIRE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 04:17:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932440AbVIMIRE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 04:15:19 -0400
-Received: from omta01ps.mx.bigpond.com ([144.140.82.153]:23689 "EHLO
-	omta01ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S932439AbVIMIPS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 04:15:18 -0400
-Message-ID: <43268A93.9010800@bigpond.net.au>
-Date: Tue, 13 Sep 2005 18:15:15 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
+	Tue, 13 Sep 2005 04:17:04 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:15902 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S932445AbVIMIRB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 04:17:01 -0400
+Message-ID: <43268C21.9090704@sw.ru>
+Date: Tue, 13 Sep 2005 12:21:53 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Jake Moilanen <moilanen@austin.ibm.com>
-Subject: Re: [ANNOUNCE][RFC] PlugSched-6.1.1 for 2.6.13 and 2.6.13-mm2
-References: <4323896F.5050703@bigpond.net.au>
-In-Reply-To: <4323896F.5050703@bigpond.net.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Andrew Morton <akpm@osdl.org>
+CC: torvalds@osdl.org, linux-kernel@vger.kernel.org, xemul@sw.ru,
+       Hugh Dickins <hugh@veritas.com>
+Subject: Re: [PATCH] error path in setup_arg_pages() misses vm_unacct_memory()
+References: <4325B188.10404@sw.ru> <20050912132352.6d3a0e3a.akpm@osdl.org>
+In-Reply-To: <20050912132352.6d3a0e3a.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 13 Sep 2005 08:15:15 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams wrote:
-> This version contains minor code cleanups and more modifications to the 
-> spa_ws scheduler to improve its interactive responsiveness.  This 
-> modification includes control parameters for the identification of 
-> "media streaming" tasks.  The default values for these parameters are 
-> set based on observations of RealPlayer and the parameters of the video 
-> and audio benchmarks in Con Kolivas's interbench test and, therefore, 
-> may need adjusting for other programs.
-> 
-> A patch for 2.6.13-mm2 is available at:
-> 
-> <http://prdownloads.sourceforge.net/cpuse/plugsched-6.1.1-for-2.6.13-mm2.patch?download> 
-> 
-> 
-> and a patch to upgrade the 6.1 for 2.6.13 to 6.1.1 is available at:
-> 
-> <http://prdownloads.sourceforge.net/cpuse/plugsched-6.1-to-6.1.1-for-2.6.13.patch?download> 
-> 
-> 
-> Very Brief Documentation:
-> 
-> You can select a default scheduler at kernel build time.  If you wish to
-> boot with a scheduler other than the default it can be selected at boot
-> time by adding:
-> 
-> cpusched=<scheduler>
-> 
-> to the boot command line where <scheduler> is one of: ingosched,
-> nicksched, staircase, spa_no_frills, spa_ws or zaphod.  If you don't
-> change the default when you build the kernel the default scheduler will
-> be ingosched (which is the normal scheduler).
-> 
-> The scheduler in force on a running system can be determined by the
-> contents of:
-> 
-> /proc/scheduler
-> 
-> Control parameters for the scheduler can be read/set via files in:
-> 
-> /sys/cpusched/<scheduler>/
-> 
-> Peter
+>> This patch fixes error path in setup_arg_pages() functions, since it 
+>> misses vm_unacct_memory() after successful call of 
+>> security_vm_enough_memory(). Also it cleans up error path.
+>
+> Ugh.  The identifier `security_vm_enough_memory()' sounds like some
+> predicate which has no side-effects.  Except it performs accounting.  Hence
+> bugs like this.
+yup, this is really done in a leading-to-bugs way... :(
+maybe it is worth moving vm_acct_memory() out of 
+security_vm_enough_memory()? what do you think?
 
-A patch for 2.6.14-rc1 is available at:
+> It's a shame that you mixed a largeish cleanup along with a bugfix - please
+> don't do that in future.
+not a problem :) thanks for your time and looking at the patches I sent.
 
-<http://prdownloads.sourceforge.net/cpuse/plugsched-6.1.1-for-2.6.14-rc1.patch?download>
+Kirill
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce

@@ -1,115 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932636AbVIMMrZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932637AbVIMMtT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932636AbVIMMrZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 08:47:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932639AbVIMMrZ
+	id S932637AbVIMMtT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 08:49:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932642AbVIMMtT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 08:47:25 -0400
-Received: from zorg.st.net.au ([203.16.233.9]:53704 "EHLO borg.st.net.au")
-	by vger.kernel.org with ESMTP id S932636AbVIMMrX (ORCPT
+	Tue, 13 Sep 2005 08:49:19 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:23443 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S932637AbVIMMtR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 08:47:23 -0400
-Message-ID: <4326CA76.6020504@torque.net>
-Date: Tue, 13 Sep 2005 22:47:50 +1000
-From: Douglas Gilbert <dougg@torque.net>
-Reply-To: dougg@torque.net
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+	Tue, 13 Sep 2005 08:49:17 -0400
+Message-ID: <4326CAC6.3050202@adaptec.com>
+Date: Tue, 13 Sep 2005 08:49:10 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: Luben Tuikov <ltuikov@yahoo.com>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       Luben Tuikov <luben_tuikov@adaptec.com>,
+To: James Bottomley <James.Bottomley@SteelEye.com>
+CC: ltuikov@yahoo.com,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        SCSI Mailing List <linux-scsi@vger.kernel.org>
 Subject: Re: [PATCH 2.6.13 5/14] sas-class: sas_discover.c Discover process
  (end devices)
-References: <1126308304.4799.45.camel@mulgrave> <20050910024454.20602.qmail@web51613.mail.yahoo.com> <20050911094656.GC5429@infradead.org> <43251D8C.7020409@torque.net> <20050913102555.GB30865@infradead.org>
-In-Reply-To: <20050913102555.GB30865@infradead.org>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=us-ascii
+References: <20050910024454.20602.qmail@web51613.mail.yahoo.com>	 <1126368081.4813.46.camel@mulgrave>  <4325997D.3050103@adaptec.com>	 <1126547565.4825.52.camel@mulgrave>  <4325E5AE.1080900@adaptec.com> <1126560191.4825.71.camel@mulgrave>
+In-Reply-To: <1126560191.4825.71.camel@mulgrave>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 13 Sep 2005 12:49:16.0661 (UTC) FILETIME=[8CFC4A50:01C5B861]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Mon, Sep 12, 2005 at 04:17:48PM +1000, Douglas Gilbert wrote:
+On 09/12/05 17:23, James Bottomley wrote:
+> On Mon, 2005-09-12 at 16:31 -0400, Luben Tuikov wrote:
 > 
->>FreeBSD threw out their original SCSI design and replaced it
->>with CAM circa 1998. CAM has its problems but I would guess
->>a modern SAS LLDD would have less "impedance mismatch" (sorry
->>about the gibberish) than what Luben is now facing.
-> 
-> 
-> Their code doesn't scale well to current needs at all.  Please look
-> at the freebsd-scsi list and all the problems they have with things
-> like FC or iSCSI.  Or no support for REPORT_LUNs at all.  While I
-> wouldn't say we have the best thing since slided bread it's certainly
-> not as bad as some people would like to make it.
-> 
-> 
->>If we look at our (im)famous <h:c:i:l> addressing string,
->>the first 2 elements (i.e. "h:c") are about kernel device
->>addressing (i.e. which (part of a) HBA to be initiator); the
->>contentious "i" is about addressing the target and is
->>transport dependent, and the "l" is for addressing within
->>the target. Only the last element is true SCSI and is
->>defined in SAM (to be 64 bits, not 32). In iSCSI the "i"
->>is actually an adorned IP address.
+>>On 09/12/05 13:52, James Bottomley wrote:
 >>
->>So the kernel "discovers" at the "h:c" level at powerup
->>(and at runtime with hotplug events); leaving the SCSI
->>subsystem to do discovery at the "i" and the "l" level.
+>>>Well there is this in sas_discover.h:
+>>>
+>>>struct scsi_core_mapping {
+>>>	int  channel;
+>>>	int  id;
+>>>};
+>>>
+>>>struct LU {
+>>>[...]
+>>>	struct scsi_core_mapping map;
+>>>
+>>>
+>>>so if you use channel, id and scsilun_to_int() (or your SCSI_LUN
+>>>reimplementation of that) on your LUN structure, you have everything
+>>>necessary to interface to scsi_scan_target, yes.
+>>>
+>>>You have to have this, otherwise you wouldn't be able to use
+>>>scsi_add_device in sas_scsi_host.c:sas_register_with_scsi().
+>>>
+>>>Based on this it does look like your refusal to use scsi_scan_target is
+>>>based on ideological rather than technical objections.
+>>
+>>Hmm, no.
+>>
+>>Channel and id are assigned _after_ the device has been scanned for
+>>LUs.  So I cannot just call scsi_scan_target() and say: "here is
+>>this SCSI Domain device, I know nothing about, other than
+>>the fact that it has a Target port, scan it".
 > 
 > 
-> That's not true at all.  Neither is 100% mandatory in the
+> In your code channel corresponds to an index in the ports array of the
+> host adapter and hence is known before you do any logical unit scanning.
+> Id is assigned from a bitmap in the port.  You could do that assignment
+> in sas_discover_end_dev() then you could use scsi_scan_target() in place
+> of sas_do_lu_discovery().  It would also mitigate your bug below since
+> now your id is one to one on the end devices rather than the logical
+> units of the end devices, so each port would support up to 128 end
+> devices rather than 128 logical units.
 
-By "SCSI susbsystem" I refer to: all active ULDs, the
-mid level, the active LLDs and associated parts of the
-block subsystem. Given that, what is "not true at all"?
+James, even Christoph understands this: no HCIL in SCSI Core is needed.
+The whole problem is not what you *keep grinding about over and over above*,
+but the fact that I have to _invent_ channel, id and emaciated LUN to give
+to the broken, outdated and Parallel SCSI-centric SCSI Core.
 
-Strangely, James Bottomley replied to the same
-line with: "Right, but we've already moved away ..."
+Christoph understand this, why cannot you?
 
-> scsi level.  As Luben's code shows you can just call scsi_add_device
-> and do everything yourself. 
+That bitmap was added in the last moment when I needed to register devices
+with SCSI Core.  There is a lot of other problems which I've pointed out
+int the scsi glue file, which do you not want to talk about or you do
+not bring up.
 
-I am proposing the minimalist option. That is, nothing in
-the SCSI (kernel) subsystem (including the LLD) does discovery
-at either the transport or the lu level. I'm not suggesting
-that should be the default setting.
+Concentrate on SCSI Core, _not_ IDR.
 
-Can you remember when doing device discovery in the user
-space was discussed on this list? I thought that people felt
-that it was a worthwhile goal. To do it at least
-the following is needed:
-  1) a way to stop the SCSI subsystem doing it
-  2) tools to allow the user space to do it, or,
-     skip discovery, address the device directly
+I hope that by the time people start plugging in hardware with more
+than one LU into a SAS domain, SCSI Core's new part would not need
+HCIL.  Currently SAS hardware is scarce at best.
 
-That way, if a user app wants to talk to a well know lu (or
-whatever), it doesn't matter if the mid level or the LLD
-in question decides that it is not a good idea to make it
-visible. LLDs know about their transport but not what is
-behind a target device, especially if it is a bridge.
-
-Of course, an LLD could have a backdoor through to the user
-space to accomplish this ...
-
-> fit into SAM at all like integrated RAID HBAs.  Besides that we
-> support a library function to do the "l" part that can be used by
-> transport classes or drivers.  There's a library function to do
-> the "i" part brute-force for SPI and modelled after SPI devices that
-> is still in scsi_mod.ko but isn't integrated with the core code
-> in any way.  Before 2.6 the predessor to this function
-> "scsi_scan_host" was called for every registered host, but we
-> fortunately got rid of that.
-
-You seem to suggest that I am pining after something in the
-past. You make the point that a one-fits-all discovery ("i"
-and "l") in the mid level is not a good idea; better to
-let the LLD do it (or have the option). I make the further
-point that a user app might be even better placed.
-
-Doug Gilbert
-
+	Luben

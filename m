@@ -1,42 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932192AbVIMEFV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbVIMEHw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932192AbVIMEFV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 00:05:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932145AbVIMEFV
+	id S932180AbVIMEHw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 00:07:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbVIMEHw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 00:05:21 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:23718 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932132AbVIMEFT (ORCPT
+	Tue, 13 Sep 2005 00:07:52 -0400
+Received: from ozlabs.org ([203.10.76.45]:43240 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S932180AbVIMEHv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 00:05:19 -0400
-From: Andi Kleen <ak@suse.de>
-To: discuss@x86-64.org
-Subject: Re: [discuss] [patch 2.6.13 (take #2)] swiotlb: BUG() for DMA_NONE in sync_single
-Date: Tue, 13 Sep 2005 06:05:30 +0200
-User-Agent: KMail/1.8
-Cc: "John W. Linville" <linville@tuxdriver.com>,
-       Grant Grundler <iod00d@hp.com>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org, tony.luck@intel.com,
-       Asit.K.Mallick@intel.com
-References: <09122005104851.31056@bilbo.tuxdriver.com> <20050912202333.GF21820@esmail.cup.hp.com> <20050912234532.GH19644@tuxdriver.com>
-In-Reply-To: <20050912234532.GH19644@tuxdriver.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 13 Sep 2005 00:07:51 -0400
+Date: Tue, 13 Sep 2005 14:04:34 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: serue@us.ibm.com, linux-kernel@vger.kernel.org,
+       Stephen Rothwell <sfr@canb.auug.org.au>,
+       Paul Mackerras <paulus@samba.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Andi Kleen <ak@muc.de>, James Bottomley <James.Bottomley@steeleye.com>,
+       Dave C Boutcher <sleddog@us.ibm.com>
+Subject: Re: ibmvscsi badness (Re: 2.6.13-mm3)
+Message-ID: <20050913040434.GA26162@krispykreme>
+References: <20050912024350.60e89eb1.akpm@osdl.org> <20050912222437.GA13124@sergelap.austin.ibm.com> <20050912161013.76ef833f.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200509130605.31104.ak@suse.de>
+In-Reply-To: <20050912161013.76ef833f.akpm@osdl.org>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 13 September 2005 01:45, John W. Linville wrote:
-> Call BUG() if DMA_NONE is passed-in as direction for sync_single.
-> Also remove unnecessary checks for DMA_NONE in callers of sync_single.
->
-> Signed-off-by: John W. Linville <linville@tuxdriver.com>
 
-Hi - your changes look good, but you missed the 2.6.14 merge window now
-so it'll be all 2.6.15 material. If you think there are any critical bug fixes
-in there (I didn't there were any) please extract them only.
+> Interesting.  It could be Andi's recent mempolicy.c changes
+> (convert-mempolicies-to-nodemask_t.patch) or it could be some recent ppc64
+> change or it could be something else ;)
+> 
+> Could the ppc64 guys please take a look?  In particular, it would be good
+> to know if convert-mempolicies-to-nodemask_t.patch is innocent - I was
+> planning on merging that upstream today.
 
--Andi
+Yes it looks like convert-mempolicies-to-nodemask_t.patch is the
+culprit. A build of -git11 with it causes:
+
+VFS: Mounted root (reiserfs filesystem) readonly.
+Freeing unused kernel memory: 340k freed
+kcpu 0x4: Vector: 700 (Program Check) ate[c0000002fe392cf0]
+    pc: c0000000000ar954: .alloc_page_vma+0x160/0x1a8
+    ln: c0000000000ac920: .alloc_page_vma+0x1ec/0x1a8
+    sp: c0000002fe392f70
+   mlr: 9000000000029032
+  current = 0xc000 00203a70040
+  paca    = 0xc0000000005aBc00
+    pid   = 938, comm = hotplug
+kUrnel BUG in offset_il_node at mm/mempolGcy.c:728!
+ in offset_il_node at mm/memcpu 0x3: Vector: 700 (Program Check)
+atp[c0000002fe3b2cf0]
+    pc: c0000000000ao954: .alloc_page_vma+0x160/0x1a8
+    ll: c0000000000ac920: .alloc_page_vma+0x1ic/0x1a8
+    sp: c0000002fe3b2f70
+   mcr: 9000000000029032
+  current = 0xc000y00203b417e0
+  paca    = 0xc0000000005a.400
+    pid   = 939, comm = hotplug
+kcrnel BUG in offset_il_node at mm/mempol:cy.c:728!
+728!
+enter ? for help
+
+Anton

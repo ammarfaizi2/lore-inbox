@@ -1,72 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932667AbVIMPP7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932669AbVIMPSc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932667AbVIMPP7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 11:15:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932668AbVIMPP7
+	id S932669AbVIMPSc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 11:18:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932673AbVIMPSc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 11:15:59 -0400
-Received: from xenotime.net ([66.160.160.81]:55992 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932667AbVIMPP7 (ORCPT
+	Tue, 13 Sep 2005 11:18:32 -0400
+Received: from smtp2.poczta.interia.pl ([213.25.80.232]:11845 "EHLO
+	smtp.poczta.interia.pl") by vger.kernel.org with ESMTP
+	id S932669AbVIMPSb convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 11:15:59 -0400
-Date: Tue, 13 Sep 2005 08:15:57 -0700 (PDT)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: iSteve <isteve@rulez.cz>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: query_modules syscall gone? Any replacement?
-In-Reply-To: <4326DE0E.2060306@rulez.cz>
-Message-ID: <Pine.LNX.4.50.0509130813010.7614-100000@shark.he.net>
-References: <4KSFY-2pO-17@gated-at.bofh.it> <E1EDpQq-0000iV-Oe@be1.lrz>
- <4326DE0E.2060306@rulez.cz>
+	Tue, 13 Sep 2005 11:18:31 -0400
+Date: 13 Sep 2005 17:18:19 +0200
+From: Sebastian Fabrycki <cellsan@interia.pl>
+Subject: Cpufreq without voltage/freq. tables in ACPI
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-ORIGINATE-IP: 83.16.246.186
+IMPORTANCE: Normal
+X-MSMAIL-PRIORITY: Normal
+X-PRIORITY: 3
+X-Mailer: PSE3
+Message-Id: <20050913151819.04AC83B7973@poczta.interia.pl>
+X-EMID: 8d540acc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Sep 2005, iSteve wrote:
 
-> Okay, so, I have so far gathered:
->
->   - the whole module interface change between 2.4 and 2.6 was because
-> some security concerns, most of the stuff (loading module etc.) moved
-> towards kernel
+Hi.
+I have laptop with Pentium M Dothan (stepping B0) 1.6GHz. There are no voltage/freq. paris in ACPI available, so i can't use frequency scaling under Linux.
 
-I thought it was due to raciness or locking concerns, but
-I'm not sure about that.
+However i can press special button that raises CPU frequency from 600MHz to 1.6GHz. It's above keyboard, with ventilator sign.
 
->   - query_module is gone, there is no syscall similar in function but
-> with different name
+So maybe it is possible to detect which version of Dothan B0 i have? There are AFAIK four versions using different voltage/freq. pairs VID#{A,B,C,D}.
 
-Right.
+I mean: detect which voltages are used after pressing ventilator button and then check which version of VID# it is.
 
->   - losing of query_module also prevents binary-only modules
-> (guesswork@work)
+Other case: where do they keep this information? This ventilator button works (almost: i can't switch back to 600MHz), so it must be stored somewhere..
 
-Nope, they are not prevented.  However, there is a Tainted flag
-that is set when one is loaded (and that flag is never cleared).
-
->   - /proc/modules and /sys/module interface doesn't by far supply what
-> query_module could do
-
-Can you state succinctly exactly what you are trying to do?
-
-> My questions are:
-> a) Are my observations correct? Where did I go wrong?
-> b) Is there any planned replacement of query_module, or extendind sysfs
-> or procfs module interface?
-
-Haven't heard of one.
-
-> c) Wouldn't revamping query_module also allow binary-only modules,
-
-they are still possible.
-
-> therefore easier decisions for vendors, whether to support Linux?
->
-> Thanks in advance and sorry for these probably quite silly questions.
->
->   - iSteve
-
+PS. I'm not subscribed to the list, please Cc me.
 -- 
-~Randy
+Regards
+Sebastian
+
+
+----------------------------------------------------------------------
+TOUR DE POLOGNE: oficjalny serwis >>> http://link.interia.pl/f18b5
+

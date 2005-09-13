@@ -1,81 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932531AbVIMVCo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932209AbVIMVMW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932531AbVIMVCo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 17:02:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932527AbVIMVCo
+	id S932209AbVIMVMW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 17:12:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932504AbVIMVMW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 17:02:44 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:1692 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S932338AbVIMVCn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 17:02:43 -0400
-Message-ID: <43273E6C.9050807@adaptec.com>
-Date: Tue, 13 Sep 2005 17:02:36 -0400
-From: Luben Tuikov <luben_tuikov@adaptec.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matthew Wilcox <matthew@wil.cx>
-CC: James Bottomley <James.Bottomley@SteelEye.com>,
-       Patrick Mansfield <patmans@us.ibm.com>,
-       Douglas Gilbert <dougg@torque.net>,
-       Christoph Hellwig <hch@infradead.org>, Luben Tuikov <ltuikov@yahoo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH 2.6.13 5/14] sas-class: sas_discover.c Discover process
- (end devices)
-References: <1126308304.4799.45.camel@mulgrave> <20050910024454.20602.qmail@web51613.mail.yahoo.com> <20050911094656.GC5429@infradead.org> <43251D8C.7020409@torque.net> <1126537041.4825.28.camel@mulgrave> <20050912164548.GB11455@us.ibm.com> <1126545680.4825.40.camel@mulgrave> <20050912184629.GA13489@us.ibm.com> <1126639342.4809.53.camel@mulgrave> <4327354E.7090409@adaptec.com> <20050913203611.GH32395@parisc-linux.org>
-In-Reply-To: <20050913203611.GH32395@parisc-linux.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 Sep 2005 21:02:42.0005 (UTC) FILETIME=[7B254850:01C5B8A6]
+	Tue, 13 Sep 2005 17:12:22 -0400
+Received: from ncc1701.cistron.net ([62.216.30.38]:31120 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S932209AbVIMVMV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 17:12:21 -0400
+From: dth@cistron.nl (Danny ter Haar)
+Subject: Q: why _less_ performance on machine with SMP then with UP kernel ?
+Date: Tue, 13 Sep 2005 21:12:15 +0000 (UTC)
+Organization: Cistron
+Message-ID: <dg7fbf$5df$1@news.cistron.nl>
+X-Trace: ncc1701.cistron.net 1126645935 5551 62.216.30.70 (13 Sep 2005 21:12:15 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: dth@cistron.nl (Danny ter Haar)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 09/13/05 16:36, Matthew Wilcox wrote:
-> On Tue, Sep 13, 2005 at 04:23:42PM -0400, Luben Tuikov wrote:
-> 
->>A SCSI LUN is not "u64 lun", it has never been and it will
->>never be.
->>
->>A SCSI LUN is "u8 LUN[8]" -- it is this from the Application
->>Layer down to the _transport layer_ (if you cared to look at
->>_any_ LL transport).
-> 
-> 
-> Could you explain the difference please?  Why is it preferable to keep
-> the LUN as an array of bytes instead of a single large integer?
+I've been posting here recently bout our newsgateway.
+For short:
 
-A LUN is at the same concept level as a CDB.
+If i enable both CPU's i get less performance than enabling both cpu's
 
-You can see this by reading SAM or looking at the definition
-of _any_ transport frame of _any_ transport (close your eyes and
-pick one).
+Long version:
 
-What you will see is that there is no "MSB" or "LSB" for
-things like CDB and LUN fields.
+Here is a description of the setup:
+---
+It's a tyan server /motherboard
+http://www.tyan.com/products/html/ta26b2882.html
+with 2 x OPTERON250 cpu's and 4 GIG of ECC ram.
+There is 8 x scsi disks for storage
+cupper gig-E for internal communication to spool/header servers etc.
+acenic FiberOptic Gig-E 64bit PCI card for link to the internet.
 
-SAM is very explicit on this, especially for LUN the language
-used is very affirmative.
+Bandwidth use is sampled from the ethernet switch and with mrtg
+visualised.
 
->>(It is also capitalized since it is an abbreviation.)
-> 
-> 
-> Well, we have two conflicting standards to follow here.  That of English
-> which insists that abbreviations be capitalised, and that of the kernel
-> which requires that all-caps identifiers be macros rather than structure
-> members.  We have to violate one.
+Take today for example:
+http://newsgate.newsserver.nl/kernel/2.6.14-rc1-ethernet-bandwidth.png
 
-I've never seen the symbols "lun".  In any spec
-"Logical Unit Number" and "LOGICAL UNIT NUMBER" have always
-been abbreviated "LUN".
+>From yesterday till 10:30am i ran 2.6.13.1 in UP mode.
+As you can see blue (==incoming traffic) is fairly constant.
+This morning i compiled/installed 2.6.14-rc1-smp.
+I let it ran till 12:15 but it's clear that it can't keep up
+with the flow of data. I rebooted to 2.6.14-rc1 (UP) and that 
+keeps up with the data just fine.
 
-As to code, it is completely clear which is which.  If you take
-a look at the SAS code you know immediately what 
-"task->ssp_task.LUN" is.  It is what you'd see in a spec, in the
-transport frame, the "LUN", "u8 LUN[8]" field.
+So what is the difference between UP & SMP ?
+shared memory , shared interrupts.
+I don't know _why_ it's living up to _my_ expectation.
+I hoped that the load would drop (it's between 4 to 5) op UP kernel
+because certain processes would be split over the processors.
 
-After a while, this becomes second nature to you.
+Anybody want to try and explain to me where i'm making an error ?
 
-	Luben
+Config file & kern.log output  can be found at :
+http://newsgate.newsserver.nl/kernel/
+
+A very confused
+
+Danny
 

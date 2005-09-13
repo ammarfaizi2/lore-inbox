@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964786AbVIMOLu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964789AbVIMOMy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964786AbVIMOLu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 10:11:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964788AbVIMOLu
+	id S964789AbVIMOMy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 10:12:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964790AbVIMOMx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 10:11:50 -0400
-Received: from smtp.dkm.cz ([62.24.64.34]:52484 "HELO smtp.dkm.cz")
-	by vger.kernel.org with SMTP id S964786AbVIMOLt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 10:11:49 -0400
-Message-ID: <4326DE0E.2060306@rulez.cz>
-Date: Tue, 13 Sep 2005 16:11:26 +0200
-From: iSteve <isteve@rulez.cz>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: query_modules syscall gone? Any replacement?
-References: <4KSFY-2pO-17@gated-at.bofh.it> <E1EDpQq-0000iV-Oe@be1.lrz>
-In-Reply-To: <E1EDpQq-0000iV-Oe@be1.lrz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 13 Sep 2005 10:12:53 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:62436 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964789AbVIMOMw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 10:12:52 -0400
+Date: Tue, 13 Sep 2005 15:12:46 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: J?rn Engel <joern@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: Missing #include <config.h>
+Message-ID: <20050913141246.GA3234@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	J?rn Engel <joern@infradead.org>, linux-kernel@vger.kernel.org
+References: <20050913135622.GA30675@phoenix.infradead.org> <20050913150825.A23643@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050913150825.A23643@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Okay, so, I have so far gathered:
+On Tue, Sep 13, 2005 at 03:08:26PM +0100, Russell King wrote:
+> On Tue, Sep 13, 2005 at 02:56:23PM +0100, J?rn Engel wrote:
+> > After spending some hours last night and this morning hunting a bug,
+> > I've found that a different include order made a difference.  Some
+> > files don't work correctly, unless config.h is included before.
+> 
+> I'm still of the opinion that we should add
+> 
+> 	-imacros include/linux/config.h
+> 
+> to the gcc command line and stop bothering with trying to get
+> linux/config.h included into the right files and not in others.
+> (which then means we can eliminate linux/config.h from all files.)
 
-  - the whole module interface change between 2.4 and 2.6 was because 
-some security concerns, most of the stuff (loading module etc.) moved 
-towards kernel
-  - query_module is gone, there is no syscall similar in function but 
-with different name
-  - losing of query_module also prevents binary-only modules 
-(guesswork@work)
-  - /proc/modules and /sys/module interface doesn't by far supply what 
-query_module could do
+Yes, absolutely.  That would help fixing lots of mess.
 
-My questions are:
-a) Are my observations correct? Where did I go wrong?
-b) Is there any planned replacement of query_module, or extendind sysfs 
-or procfs module interface?
-c) Wouldn't revamping query_module also allow binary-only modules, 
-therefore easier decisions for vendors, whether to support Linux?
-
-Thanks in advance and sorry for these probably quite silly questions.
-
-  - iSteve

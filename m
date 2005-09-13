@@ -1,70 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbVIMKQQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbVIMKRb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750736AbVIMKQQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 06:16:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbVIMKQQ
+	id S1750751AbVIMKRb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 06:17:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750775AbVIMKRb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 06:16:16 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:12228 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750751AbVIMKQP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 06:16:15 -0400
-Date: Tue, 13 Sep 2005 03:15:40 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: discuss@x86-64.org, zippel@linux-m68k.org, linux-kernel@vger.kernel.org
-Subject: Re: [discuss] Re: [1/3] Add 4GB DMA32 zone
-Message-Id: <20050913031540.0c732284.akpm@osdl.org>
-In-Reply-To: <200509131147.42140.ak@suse.de>
-References: <43246267.mailL4R11PXCB@suse.de>
-	<200509121447.00373.ak@suse.de>
-	<Pine.LNX.4.61.0509131107360.3728@scrub.home>
-	<200509131147.42140.ak@suse.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 13 Sep 2005 06:17:31 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:6027 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750751AbVIMKRa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 06:17:30 -0400
+Date: Tue, 13 Sep 2005 11:17:28 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Douglas Gilbert <dougg@torque.net>
+Cc: Luben Tuikov <luben_tuikov@adaptec.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: [PATCH 2.6.13 2/14] sas-class: README
+Message-ID: <20050913101727.GA30865@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Douglas Gilbert <dougg@torque.net>,
+	Luben Tuikov <luben_tuikov@adaptec.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	SCSI Mailing List <linux-scsi@vger.kernel.org>
+References: <4321E4DD.7070405@adaptec.com> <432543C6.1020403@torque.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <432543C6.1020403@torque.net>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> wrote:
->
-> Andrew do you still have the patch with 
->  the description? It must have been between 2.6.13mm1 and  2.6.13mm2.
+On Mon, Sep 12, 2005 at 07:00:54PM +1000, Douglas Gilbert wrote:
+> > +This is a link to the tree(1) program, very useful in
+> > +viewing the SAS domain:
+> > +ftp://mama.indstate.edu/linux/tree/
+> > +I expect user space applications to actually create a
+> > +graphical interface of this.
+> > +
+> > +That is, the sysfs domain tree doesn't show or keep state if
+> > +you e.g., change the meaning of the READY LED MEANING
+> > +setting, but it does show you the current connection status
+> > +of the domain device.
+> 
+> So in that case, user applications should ignore READY
+> LED MEANING in sysfs and ask the device directly.
+> For example:
+>     sdparm --get RLM --transport sas /dev/sda
+> 
+> > +Keeping internal device state changes is responsibility of
+> > +upper layers (Command set drivers) and user space.
+> 
+> ... and what about multiple initiators sitting on different
+> machines? Should they be responsible for:
+>   1) finding out about one another
+>   2) and keeping the sysfs tree in the other machine
+>      in sync when one changes READY LED MEANING
+>      (or anything else)?
+> 
+> Putting distributed state information in sysfs and then
+> passing off the responsibility for maintaining its state
+> (because it is a difficult problem) brings into question
+> the wisdom of the strategy.
 
-
-
-
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-
-Because 2.6.13-mm2  adds new zone DMA32, ZONES_SHIFT becomes 3.
-So, flags bits reserved for (SECTION | NODE | ZONE) should be increase.
-
-ZONE_SHIFT is increased, FLAGS_RESERVED should be.
-
-Signed-off-by Kamezawa Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: Andi Kleen <ak@muc.de>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- include/linux/mmzone.h |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
-
-diff -puN include/linux/mmzone.h~x86_64-dma32-fix include/linux/mmzone.h
---- 25/include/linux/mmzone.h~x86_64-dma32-fix	Fri Sep  9 17:13:41 2005
-+++ 25-akpm/include/linux/mmzone.h	Fri Sep  9 17:14:13 2005
-@@ -431,9 +431,10 @@ extern struct pglist_data contig_page_da
- #if BITS_PER_LONG == 32 || defined(ARCH_HAS_ATOMIC_UNSIGNED)
- /*
-  * with 32 bit page->flags field, we reserve 8 bits for node/zone info.
-- * there are 3 zones (2 bits) and this leaves 8-2=6 bits for nodes.
-+ * there are 4 zones (3 bits) and this leaves 8-2=6 bits for nodes.
-+ * +6bits for sections if CONFIG_SPARSEMEM
-  */
--#define FLAGS_RESERVED		8
-+#define FLAGS_RESERVED		9
- 
- #elif BITS_PER_LONG == 64
- /*
-_
-
+If you looks at what the other transport classes do is that they put
+information at discovery time into sysfs, but try to refresh it on
+every access.  IMHO that makes a lot of sense, and should be done
+that way in the final SAS transport class.

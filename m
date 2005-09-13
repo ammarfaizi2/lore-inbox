@@ -1,57 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932438AbVIMIPJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932439AbVIMIPU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932438AbVIMIPJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 04:15:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932439AbVIMIPJ
+	id S932439AbVIMIPU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 04:15:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932440AbVIMIPT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 04:15:09 -0400
-Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:39816 "EHLO
-	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S932438AbVIMIPI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 04:15:08 -0400
-From: Grant Coady <grant_lkml@dodo.com.au>
-To: Greg KH <gregkh@suse.de>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
-       "Gaston, Jason D" <jason.d.gaston@intel.com>, mj@ucw.cz, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.13-rc4 1/1] pci_ids: patch for Intel ICH7R
-Date: Tue, 13 Sep 2005 18:14:46 +1000
-Organization: http://bugsplatter.mine.nu/
-Message-ID: <n22di195igbdp9mc1vg9vq6056fsc7a7cl@4ax.com>
-References: <26CEE2C804D7BE47BC4686CDE863D0F5046EA44B@orsmsx410> <42EAABD1.8050903@pobox.com> <n4ple1haga8eano2vt2ipl17mrrmmi36jr@4ax.com> <42EAF987.7020607@pobox.com> <6f0me1p2q3g9ralg4a2k2mcra21lhpg6ij@4ax.com> <20050911031150.GA20536@kroah.com> <pfn7i1ll7g5bs8sm8kq0md33f8khsujrbf@4ax.com> <4323EFFE.2040102@pobox.com> <kctci1lqlgbr9ct7as48j551o6v9013504@4ax.com> <20050913070324.GA7968@suse.de>
-In-Reply-To: <20050913070324.GA7968@suse.de>
-X-Mailer: Forte Agent 2.0/32.652
+	Tue, 13 Sep 2005 04:15:19 -0400
+Received: from omta01ps.mx.bigpond.com ([144.140.82.153]:23689 "EHLO
+	omta01ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S932439AbVIMIPS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 04:15:18 -0400
+Message-ID: <43268A93.9010800@bigpond.net.au>
+Date: Tue, 13 Sep 2005 18:15:15 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Jake Moilanen <moilanen@austin.ibm.com>
+Subject: Re: [ANNOUNCE][RFC] PlugSched-6.1.1 for 2.6.13 and 2.6.13-mm2
+References: <4323896F.5050703@bigpond.net.au>
+In-Reply-To: <4323896F.5050703@bigpond.net.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 13 Sep 2005 08:15:15 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Sep 2005 00:03:24 -0700, Greg KH <gregkh@suse.de> wrote:
+Peter Williams wrote:
+> This version contains minor code cleanups and more modifications to the 
+> spa_ws scheduler to improve its interactive responsiveness.  This 
+> modification includes control parameters for the identification of 
+> "media streaming" tasks.  The default values for these parameters are 
+> set based on observations of RealPlayer and the parameters of the video 
+> and audio benchmarks in Con Kolivas's interbench test and, therefore, 
+> may need adjusting for other programs.
+> 
+> A patch for 2.6.13-mm2 is available at:
+> 
+> <http://prdownloads.sourceforge.net/cpuse/plugsched-6.1.1-for-2.6.13-mm2.patch?download> 
+> 
+> 
+> and a patch to upgrade the 6.1 for 2.6.13 to 6.1.1 is available at:
+> 
+> <http://prdownloads.sourceforge.net/cpuse/plugsched-6.1-to-6.1.1-for-2.6.13.patch?download> 
+> 
+> 
+> Very Brief Documentation:
+> 
+> You can select a default scheduler at kernel build time.  If you wish to
+> boot with a scheduler other than the default it can be selected at boot
+> time by adding:
+> 
+> cpusched=<scheduler>
+> 
+> to the boot command line where <scheduler> is one of: ingosched,
+> nicksched, staircase, spa_no_frills, spa_ws or zaphod.  If you don't
+> change the default when you build the kernel the default scheduler will
+> be ingosched (which is the normal scheduler).
+> 
+> The scheduler in force on a running system can be determined by the
+> contents of:
+> 
+> /proc/scheduler
+> 
+> Control parameters for the scheduler can be read/set via files in:
+> 
+> /sys/cpusched/<scheduler>/
+> 
+> Peter
 
->On Tue, Sep 13, 2005 at 04:46:45PM +1000, Grant wrote:
->> On Sun, 11 Sep 2005 04:51:10 -0400, Jeff Garzik <jgarzik@pobox.com> wrote:
->> >
->> >pci_ids.h should be the place where PCI IDs (class, vendor, device) are 
->> >collected.
->> 
->> Few files reference it.
->
->include/pci.h does, so pretty much every pci driver does because of
->that.
+A patch for 2.6.14-rc1 is available at:
 
-That's probably the little aspect I missed :)  Something wasn't making 
-sense to me.
->
->> >Long term, we should be able to trim a lot of device ids, since they are 
->> >usually only used in one place.
->> 
->> Well, they're not, and trimming a file marked for removal is pointless.
->
->Huh?  That file isn't marked for removal, that was the id database,
->which is now gone...
+<http://prdownloads.sourceforge.net/cpuse/plugsched-6.1.1-for-2.6.14-rc1.patch?download>
 
-Ahh, that explains my confusion, I'll have another look at it.
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-Grant.
-
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

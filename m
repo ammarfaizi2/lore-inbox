@@ -1,67 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964808AbVIMPoq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964810AbVIMPuE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964808AbVIMPoq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 11:44:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbVIMPoq
+	id S964810AbVIMPuE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 11:50:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964811AbVIMPuE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 11:44:46 -0400
-Received: from xenotime.net ([66.160.160.81]:22726 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S964808AbVIMPop (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 11:44:45 -0400
-Date: Tue, 13 Sep 2005 08:44:44 -0700 (PDT)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
+	Tue, 13 Sep 2005 11:50:04 -0400
+Received: from zproxy.gmail.com ([64.233.162.204]:42311 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964810AbVIMPuB convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 11:50:01 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Eqn9z07KFlP6jo07DGubBeB6P88XPs0+k9reNE2iN6/Cwhf7+lEw1VLFLR/djZWyUdn39ChaM79fJyZOaaX6jxYDljFaChNfA+tmBSaYFavAXxShNQG3VjZ0GDxV8ek/d7twKspWOGp+glZqhHPDtnfOlizGl9XfeaH/uLrSUw8=
+Message-ID: <9a8748490509130850672ab774@mail.gmail.com>
+Date: Tue, 13 Sep 2005 17:50:00 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: jesper.juhl@gmail.com
 To: iSteve <isteve@rulez.cz>
-cc: "Randy.Dunlap" <rdunlap@xenotime.net>, "" <linux-kernel@vger.kernel.org>
 Subject: Re: query_modules syscall gone? Any replacement?
+Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org
 In-Reply-To: <4326F093.80206@rulez.cz>
-Message-ID: <Pine.LNX.4.50.0509130835120.7614-100000@shark.he.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 References: <4KSFY-2pO-17@gated-at.bofh.it> <E1EDpQq-0000iV-Oe@be1.lrz>
- <4326DE0E.2060306@rulez.cz> <Pine.LNX.4.50.0509130813010.7614-100000@shark.he.net>
- <4326F093.80206@rulez.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	 <4326DE0E.2060306@rulez.cz>
+	 <Pine.LNX.4.50.0509130813010.7614-100000@shark.he.net>
+	 <4326F093.80206@rulez.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Sep 2005, iSteve wrote:
-
+On 9/13/05, iSteve <isteve@rulez.cz> wrote:
 > > Nope, they are not prevented.  However, there is a Tainted flag
 > > that is set when one is loaded (and that flag is never cleared).
 > >
->
+> 
 > Okay, I've been wrong in my conclusion and I gotta read some fine manual
 > about how the modules actually work -- could you recommend me some in
 > particular?
+> 
 
-Nope, there is precious little doc about modules, especially
-in 2.6.
+Well, the depmod(8), lsmod(8), insmod(8), modprobe(8), modules.dep(5),
+depmod.old(8) and modprobe.conf(5) man pages all have various bits of
+info.
 
-There is a FAQ, but I doubt that it answers many of your
-questions.
-  http://www.kernel.org/pub/linux/kernel/people/rusty/modules/FAQ
+There's also some info in chapter 2 of "Linux Device Drivers, Third
+Edition" - http://lwn.net/images/pdf/LDD3/ch02.pdf
 
-You could try LDD3, but I don't see much there that would help
-you either.
-  http://lwn.net/Kernel/LDD3/
+Then there's The Linux Kernel Module Programming Guide -
+http://www.tldp.org/LDP/lkmpg/2.6/html/
 
-> >>  - /proc/modules and /sys/module interface doesn't by far supply what
-> >>query_module could do
-> >
-> > Can you state succinctly exactly what you are trying to do?
->
-> I would like to be able to query symbols of a loaded module, get list of
-> and list of dependencies of loaded module from an app, preferably
-> without having to parse a file...
+As well as the Linux Loadable Kernel Module HOWTO -
+http://www.tldp.org/HOWTO/Module-HOWTO/
 
-No, no syscall to do that.  Looks like it will require reading
-and parsing files.
+Also take a look at the file Documentation/kbuild/modules.txt in your
+kernel source dir.
 
-And you answered my "what" question clearly, so I have one more.
-Why?  for what purpose, to what end?  What are you tring to
-accomplish?
 
-Thanks,
+That's just a little bit of reading material for you :)
+
+
 -- 
-~Randy
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

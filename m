@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964862AbVIMQcg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964863AbVIMQdx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964862AbVIMQcg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 12:32:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964864AbVIMQcg
+	id S964863AbVIMQdx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 12:33:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964870AbVIMQdx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 12:32:36 -0400
-Received: from wproxy.gmail.com ([64.233.184.204]:63887 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964862AbVIMQcf convert rfc822-to-8bit
+	Tue, 13 Sep 2005 12:33:53 -0400
+Received: from mail.collax.com ([213.164.67.137]:65501 "EHLO
+	kaber.coreworks.de") by vger.kernel.org with ESMTP id S964863AbVIMQdu
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 12:32:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=KSaouM4ZhfQlZrMRBfd5AB6OPxSNYNYSkL4mCyMxLGf+V+3xDWGhZfM2xt9ALaYk/rHETMzyMgpBwn0shtIqAhEgzNpPSUNh/ghMrv3PkUBPNTNTu4GyfBCq5d6jSjo/oVGOkK+i05Sh4YMQ66K9ZM1UkDnwhJub3yf60aWnZMo=
-Message-ID: <6bffcb0e050913093272dabea2@mail.gmail.com>
-Date: Tue, 13 Sep 2005 18:32:31 +0200
-From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Reply-To: michal.k.k.piotrowski@gmail.com
-To: Jean Delvare <khali@linux-fr.org>
-Subject: Re: Pending -stable patches
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050913182736.09b1bfcf.khali@linux-fr.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050913182736.09b1bfcf.khali@linux-fr.org>
+	Tue, 13 Sep 2005 12:33:50 -0400
+Message-ID: <4326FF69.9060004@trash.net>
+Date: Tue, 13 Sep 2005 18:33:45 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.10) Gecko/20050803 Debian/1.7.10-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Nuutti Kotivuori <naked@iki.fi>
+CC: linux-kernel@vger.kernel.org,
+       Netfilter Development Mailinglist 
+	<netfilter-devel@lists.netfilter.org>
+Subject: Re: netfilter QUEUE target and packet socket interactions buggy or
+ not
+References: <87fysa9bqt.fsf@aka.i.naked.iki.fi>	<20050912.151120.104514011.davem@davemloft.net>	<87br2xap9o.fsf@aka.i.naked.iki.fi> <877jdl9r1u.fsf@aka.i.naked.iki.fi>
+In-Reply-To: <877jdl9r1u.fsf@aka.i.naked.iki.fi>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Nuutti Kotivuori wrote:
+> 
+> Appended here is a backtrace with the tg3 driver. Also, it seems that
+> the bug cannot be reproduced with uniprocessor, only SMP.
+> 
+> Unable to handle kernel NULL pointer dereference at virtual address 00000018
 
-On 13/09/05, Jean Delvare <khali@linux-fr.org> wrote:
-> Hi all,
-> 
-> Is there a place where pending -stable patches can be seen?
-> 
-> Are mails sent to stable@kernel archived somewhere?
-> 
-> There seems to be a need for this. For example, there's a patch I would
-> like to see in 2.6.13.2, but I wouldn't want to report an already known
-> problem.
-> 
-> Thanks,
+This means inode->i_security was NULL. AFAICT it is only set to NULL in
+inode_free_security() when the inode is freed. This shouldn't happen
+while the packet is queued since the skb should hold a reference to
+the socket on the output path. So it could be some protocol forgetting
+to increase the refcnt when taking a reference. What kind of packet
+is this? And what kernel version are you running? Until recently
+ip_conntrack did some fiddling with skb->sk which could lead to
+a packet on the output path with skb->sk set but no reference taken.
 
-http://www.kernel.org/git/?p=linux/kernel/git/chrisw/stable-queue.git;a=shortlog
-
-Regards,
-Michal Piotrowski

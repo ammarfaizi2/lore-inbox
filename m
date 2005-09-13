@@ -1,138 +1,621 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964838AbVIMQO6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964843AbVIMQRR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964838AbVIMQO6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 12:14:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964839AbVIMQO6
+	id S964843AbVIMQRR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 12:17:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964844AbVIMQRR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 12:14:58 -0400
-Received: from advect.atmos.washington.edu ([128.95.89.50]:58504 "EHLO
-	advect.atmos.washington.edu") by vger.kernel.org with ESMTP
-	id S964838AbVIMQO5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 12:14:57 -0400
-Message-ID: <4326FAF3.7080901@atmos.washington.edu>
-Date: Tue, 13 Sep 2005 09:14:43 -0700
-From: Harry Edmon <harry@atmos.washington.edu>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050817)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.13.1 - Failed boot of "kdump" kernel
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -105.899 () ALL_TRUSTED,BAYES_00,USER_IN_WHITELIST
+	Tue, 13 Sep 2005 12:17:17 -0400
+Received: from serv01.siteground.net ([70.85.91.68]:41149 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S964842AbVIMQRO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 12:17:14 -0400
+Date: Tue, 13 Sep 2005 09:17:08 -0700
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, dipankar@in.ibm.com, bharata@in.ibm.com,
+       shai@scalex86.org, Rusty Russell <rusty@rustcorp.com.au>,
+       netdev@vger.kernel.org, davem@davemloft.net
+Subject: [patch 9/11] net: dst_entry.refcount, use, lastuse to use alloc_percpu
+Message-ID: <20050913161708.GK3570@localhost.localdomain>
+References: <20050913155112.GB3570@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050913155112.GB3570@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am using kexec and SYSRQ to boot up a "kdump" kernel on a Dual Xeon 
-system (and yes, I have SMP off on the second kernel per the 
-instructions in Documentation/kdump/kdump.txt).  The second kernel that 
-I loaded with kexec is crashing on boot.  Here is the output from the 
-serial console:
+Patch to use alloc_percpu for dst_entry.refcount.  This patch reduces the
+cacheline bouncing of the atomic_t dst_entry.__refcount.  This Patch gets us
+55% better tbench throughput, on a 8way x445 box.
 
-SysRq : Trigger a crashdump
-I'm in purgatory
-Linux version 2.6.13.1-kdump (root@freshair1) (gcc version 3.3.5 (Debian 
-1:3.3.5-13)) #5 Tue Sep 13 08:36:21 PDT 2005
-BIOS-provided physical RAM map:
- BIOS-e820: 0000000000000100 - 000000000009b000 (usable)
- BIOS-e820: 000000000009b000 - 00000000000a0000 (reserved)
- BIOS-e820: 0000000000100000 - 00000000bff70000 (usable)
- BIOS-e820: 00000000bff70000 - 00000000bff78000 (ACPI data)
- BIOS-e820: 00000000bff78000 - 00000000bff80000 (ACPI NVS)
- BIOS-e820: 00000000bff80000 - 00000000c0000000 (reserved)
- BIOS-e820: 00000000e0000000 - 00000000f0000000 (reserved)
- BIOS-e820: 00000000fec00000 - 00000000fec10000 (reserved)
- BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
- BIOS-e820: 00000000ff800000 - 00000000ffc00000 (reserved)
- BIOS-e820: 00000000fffffc00 - 0000000100000000 (reserved)
-user-defined physical RAM map:
- user: 0000000000000000 - 00000000000a0000 (usable)
- user: 0000000001000000 - 0000000001347000 (usable)
- user: 00000000013e7400 - 0000000005000000 (usable)
-0MB HIGHMEM available.
-80MB LOWMEM available.
-found SMP MP-table at 000f5d40
-DMI present.
-Intel MultiProcessor Specification v1.4
-    Virtual Wire compatibility mode.
-OEM ID: INTEL    Product ID: Lindenhurst  APIC at: 0xFEE00000
-Processor #0 15:3 APIC version 20
-Processor #6 15:3 APIC version 20
-WARNING: NR_CPUS limit of 1 reached.  Processor ignored.
-I/O APIC #2 Version 32 at 0xFEC00000.
-I/O APIC #3 Version 32 at 0xFEC10000.
-I/O APIC #4 Version 32 at 0xFEC80000.
-I/O APIC #5 Version 32 at 0xFEC80400.
-Enabling APIC mode:  Flat.  Using 4 I/O APICs
-Processors: 1
-Allocating PCI resources starting at 05000000 (gap: 05000000:fb000000)
-Built 1 zonelists
-Kernel command line: root=/dev/md0 init 1 irqpoll console=ttyS0,38400 
-memmap=exactmap memmap=640K@0K memmap=3356K@16384K memmap=61539K@20381K 
-elfcorehdr=20380K
-Misrouted IRQ fixup and polling support enabled
-This may significantly impact system performance
-Initializing CPU#0
-PID hash table entries: 512 (order: 9, 8192 bytes)
-Detected 3001.041 MHz processor.
-Using tsc for high-res timesource
-Console: colour VGA+ 80x25
-Dentry cache hash table entries: 16384 (order: 4, 65536 bytes)
-Inode-cache hash table entries: 8192 (order: 3, 32768 bytes)
-Memory: 61268k/81920k available (2134k kernel code, 4104k reserved, 808k 
-data, 160k init, 0k highmem)
-Checking if this processor honours the WP bit even in supervisor mode... Ok.
-Calibrating delay using timer specific routine.. 6008.19 BogoMIPS 
-(lpj=3004095)
-Security Framework v1.0.0 initialized
-Mount-cache hash table entries: 512
-monitor/mwait feature present.
-using mwait in idle threads.
-CPU: Trace cache: 12K uops, L1 D cache: 16K
-CPU: L2 cache: 1024K
-Intel machine check architecture supported.
-Intel machine check reporting enabled on CPU#0.
-CPU0: Intel P4/Xeon Extended MCE MSRs (24) available
-CPU0: Thermal monitoring enabled
-mtrr: v2.0 (20020519)
-CPU: Intel(R) Xeon(TM) CPU 3.00GHz stepping 04
-Enabling fast FPU save and restore... done.
-Enabling unmasked SIMD FPU exception support... done.
-Checking 'hlt' instruction... OK.
-------------[ cut here ]------------
-kernel BUG at <bad filename>:65464!
-invalid operand: 0000 [#1]
-Modules linked in:
-CPU:    0
-EIP:    0060:[<c100fde6>]    Not tainted VLI
-EFLAGS: 00010246   (2.6.13.1-kdump)
-EIP is at setup_local_APIC+0x26/0x180
-eax: 00000000   ebx: 00050014   ecx: 00000000   edx: ffffffff
-esi: 00000014   edi: c14c9fd4   ebp: 00000000   esp: c14c9f94
-ds: 007b   es: 007b   ss: 0068
-Process swapper (pid: 1, threadinfo=c14c8000 task=c14aba40)
-Stack: c12ed809 c10141dd c14ab530 c1000290 00000000 c12edf89 c101cc6a 
-c14ab530
-       00000001 00000000 00000000 00000000 00000000 00000000 00000000 
-00000000
-       00000000 c10002ab 0000007b ffffffff c1000f88 c1000f8d 00000000 
-00000000
-Call Trace:
- [<c12ed809>] verify_local_APIC+0x69/0x120
- [<c10141dd>] wake_up_process+0x1d/0x30
- [<c1000290>] init+0x0/0x110
- [<c12edf89>] APIC_init_uniprocessor+0xb9/0x120
- [<c101cc6a>] cpu_callback+0xaa/0xb0
- [<c10002ab>] init+0x1b/0x110
- [<c1000f88>] kernel_thread_helper+0x0/0x18
- [<c1000f8d>] kernel_thread_helper+0x5/0x18
-Code: c3 8d 74 26 00 56 53 83 ec 0c 8b 1d 30 d0 ff ff a1 20 d0 ff ff 0f 
-b6 f3 c1 e8 18 83 e0 0f 0f a3 05 60 07 31 c1 19 c0 85 c0 75 02 <0f> 0b 
-b8 ff ff ff ff a3 e0 d0 ff ff a1 d0 d0 ff ff 25 ff ff ff
- <0>Kernel panic - not syncing: Attempted to kill init!
+Signed-off by: Pravin B. Shelar <pravins@calsoftinc.com>
+Signed-off by: Shobhit Dayal <shobhit@calsoftinc.com>
+Signed-off by: Christoph Lameter <christoph@lameter.com>
+Signed-off by: Ravikiran Thirumalai <kirant@scalex86.org>
 
-Anyone have ideas why this is crashing?  kernel config file available 
-upon request.
-
-
-
+Index: alloc_percpu-2.6.13/include/net/dst.h
+===================================================================
+--- alloc_percpu-2.6.13.orig/include/net/dst.h	2005-09-12 12:23:37.000000000 -0700
++++ alloc_percpu-2.6.13/include/net/dst.h	2005-09-12 16:44:05.000000000 -0700
+@@ -35,11 +35,33 @@
+ 
+ struct sk_buff;
+ 
++#ifdef CONFIG_NUMA
++
++/*	A per cpu instance of this exist for every dst_entry.
++ *	These are the most written fields of dst_entry.
++ */
++struct per_cpu_cnt
++{
++	int 		refcnt;
++	int 		use;
++	unsigned long	lastuse;
++};
++
++#endif
++
+ struct dst_entry
+ {
+ 	struct dst_entry        *next;
++#ifdef CONFIG_NUMA
++	/* first cpu that should be checked for time-out */
++	int 			s_cpu;
++	/* per cpu client references   */
++	struct per_cpu_cnt	*pcc;
++#else
+ 	atomic_t		__refcnt;	/* client references	*/
+ 	int			__use;
++	unsigned long		lastuse;
++#endif
+ 	struct dst_entry	*child;
+ 	struct net_device       *dev;
+ 	short			error;
+@@ -50,7 +72,6 @@
+ #define DST_NOPOLICY		4
+ #define DST_NOHASH		8
+ #define DST_BALANCED            0x10
+-	unsigned long		lastuse;
+ 	unsigned long		expires;
+ 
+ 	unsigned short		header_len;	/* more space at head required */
+@@ -103,25 +124,94 @@
+ 
+ #ifdef __KERNEL__
+ 
++#ifdef CONFIG_NUMA
++
++static inline int dst_use(struct dst_entry *dst)
++{
++	int total = 0, cpu;
++
++	for_each_online_cpu(cpu)
++		total += per_cpu_ptr(dst->pcc, cpu)->use;
++	return total;
++}
++
++#define dst_use_inc(__dst) do {					\
++		per_cpu_ptr((__dst)->pcc, get_cpu())->use++ ;	\
++		put_cpu();					\
++	} while(0);
++
++static inline unsigned long dst_lastuse(struct dst_entry *dst)
++{
++	unsigned long max = 0;
++	int cpu;
++
++	for_each_online_cpu(cpu)
++		if (max < per_cpu_ptr(dst->pcc, cpu)->lastuse)
++			max = per_cpu_ptr(dst->pcc, cpu)->lastuse;
++	return max;
++}
++
++#define dst_lastuse_set(__dst)  do {					  \
++		per_cpu_ptr((__dst)->pcc, get_cpu())->lastuse = jiffies ; \
++		put_cpu();						  \
++	} while(0);
++
++static inline int dst_refcnt(struct dst_entry *dst)
++{
++	int cpu, sum = 0;
++
++	for_each_online_cpu(cpu)
++		sum += per_cpu_ptr(dst->pcc, cpu)->refcnt;
++
++	return sum;
++}
++
++#define dst_refcnt_one(__dst) do { 					  \
++			per_cpu_ptr((__dst)->pcc, get_cpu())->refcnt = 1; \
++			put_cpu();		  			  \
++		} while(0);
++
++#define dst_refcnt_dec(__dst) do { 					\
++			per_cpu_ptr((__dst)->pcc, get_cpu())->refcnt--;	\
++			put_cpu();					\
++		} while(0);
++#define dst_hold(__dst) do { 						 \
++			per_cpu_ptr((__dst)->pcc, get_cpu())->refcnt++ ; \
++			put_cpu();					 \
++		} while(0);
++
++#else
++
+ #define dst_use(__dst) (__dst)->__use
+ #define dst_use_inc(__dst) (__dst)->__use++
+ 
+ #define dst_lastuse(__dst) (__dst)->lastuse
+ #define dst_lastuse_set(__dst) (__dst)->lastuse = jiffies
+ 
+-#define dst_update_tu(__dst) do { dst_lastuse_set(__dst);dst_use_inc(__dst); } while (0)
+-#define dst_update_rtu(__dst) do { dst_lastuse_set(__dst);dst_hold(__dst);dst_use_inc(__dst); } while (0)
+-
+ #define dst_refcnt(__dst) atomic_read(&(__dst)->__refcnt)
+ #define dst_refcnt_one(__dst) atomic_set(&(__dst)->__refcnt, 1)
+ #define dst_refcnt_dec(__dst) atomic_dec(&(__dst)->__refcnt)
+ #define dst_hold(__dst) atomic_inc(&(__dst)->__refcnt)
+ 
++#endif
++#define dst_update_tu(__dst) do { 		\
++		dst_lastuse_set(__dst);		\
++		dst_use_inc(__dst); 		\
++	} while (0);
++
++#define dst_update_rtu(__dst) do { 		\
++		dst_lastuse_set(__dst);		\
++		dst_hold(__dst);		\
++		dst_use_inc(__dst); 		\
++	} while (0)
++
+ static inline
+ void dst_release(struct dst_entry * dst)
+ {
+ 	if (dst) {
++#if  (!defined (CONFIG_NUMA) || (RT_CACHE_DEBUG >= 2 ))
+ 		WARN_ON(dst_refcnt(dst) < 1);
++#endif
+ 		smp_mb__before_atomic_dec();
+ 		dst_refcnt_dec(dst);
+ 	}
+@@ -271,6 +361,48 @@
+ 
+ extern void		dst_init(void);
+ 
++/*	This function allocates and initializes rtu array of given dst-entry.
++ */
++static inline int dst_init_rtu_array(struct dst_entry *dst)
++{
++#ifdef CONFIG_NUMA
++	int cpu;
++	dst->pcc = alloc_percpu(struct per_cpu_cnt, GFP_ATOMIC);
++	if(!dst->pcc)
++		return -ENOMEM;
++
++	for_each_cpu(cpu) {
++		per_cpu_ptr(dst->pcc, cpu)->use = 0;
++		per_cpu_ptr(dst->pcc, cpu)->refcnt = 0;
++		per_cpu_ptr(dst->pcc, cpu)->lastuse = jiffies;
++	}
++	dst->s_cpu = smp_processor_id();
++#else
++	atomic_set(&dst->__refcnt, 0);
++	dst->lastuse = jiffies;
++#endif
++	return 0;
++}
++
++static inline void dst_free_rtu_array(struct dst_entry *dst)
++{
++#ifdef CONFIG_NUMA
++	free_percpu(dst->pcc);
++#endif
++}
++
++#if	defined (CONFIG_HOTPLUG_CPU) && defined (CONFIG_NUMA)
++inline static void dst_ref_xfr_cpu_down(struct dst_entry *__dst, int cpu)
++{
++	int refcnt = per_cpu_ptr((__dst)->pcc, cpu)->refcnt;
++	if (refcnt) {
++		per_cpu_ptr((__dst)->pcc, get_cpu())->refcnt += refcnt;
++		put_cpu();
++		per_cpu_ptr((__dst)->pcc, cpu)->refcnt = 0;
++	}
++}
++#endif
++
+ struct flowi;
+ #ifndef CONFIG_XFRM
+ static inline int xfrm_lookup(struct dst_entry **dst_p, struct flowi *fl,
+Index: alloc_percpu-2.6.13/net/bridge/br_netfilter.c
+===================================================================
+--- alloc_percpu-2.6.13.orig/net/bridge/br_netfilter.c	2005-09-12 12:23:37.000000000 -0700
++++ alloc_percpu-2.6.13/net/bridge/br_netfilter.c	2005-09-12 12:24:01.000000000 -0700
+@@ -85,7 +85,6 @@
+ static struct rtable __fake_rtable = {
+ 	.u = {
+ 		.dst = {
+-			.__refcnt		= ATOMIC_INIT(1),
+ 			.dev			= &__fake_net_device,
+ 			.path			= &__fake_rtable.u.dst,
+ 			.metrics		= {[RTAX_MTU - 1] = 1500},
+@@ -1010,6 +1009,10 @@
+ {
+ 	int i;
+ 
++	if (dst_init_rtu_array(&__fake_rtable.u.dst) < 0)
++		panic("br_netfilter : cannot allocate memory for dst-entry rtu array");
++	dst_refcnt_one(&__fake_rtable.u.dst);
++
+ 	for (i = 0; i < ARRAY_SIZE(br_nf_ops); i++) {
+ 		int ret;
+ 
+@@ -1046,4 +1049,5 @@
+ #ifdef CONFIG_SYSCTL
+ 	unregister_sysctl_table(brnf_sysctl_header);
+ #endif
++	dst_free_rtu_array(&__fake_rtable.u.dst);
+ }
+Index: alloc_percpu-2.6.13/net/core/dst.c
+===================================================================
+--- alloc_percpu-2.6.13.orig/net/core/dst.c	2005-09-12 12:23:37.000000000 -0700
++++ alloc_percpu-2.6.13/net/core/dst.c	2005-09-12 12:24:01.000000000 -0700
+@@ -131,9 +131,9 @@
+ 	if (!dst)
+ 		return NULL;
+ 	memset(dst, 0, ops->entry_size);
+-	atomic_set(&dst->__refcnt, 0);
++	if (dst_init_rtu_array(dst) < 0)
++		return NULL;
+ 	dst->ops = ops;
+-	dst->lastuse = jiffies;
+ 	dst->path = dst;
+ 	dst->input = dst_discard_in;
+ 	dst->output = dst_discard_out;
+@@ -200,6 +200,7 @@
+ #if RT_CACHE_DEBUG >= 2 
+ 	atomic_dec(&dst_total);
+ #endif
++	dst_free_rtu_array(dst);
+ 	kmem_cache_free(dst->ops->kmem_cachep, dst);
+ 
+ 	dst = child;
+Index: alloc_percpu-2.6.13/net/decnet/dn_route.c
+===================================================================
+--- alloc_percpu-2.6.13.orig/net/decnet/dn_route.c	2005-09-12 12:23:37.000000000 -0700
++++ alloc_percpu-2.6.13/net/decnet/dn_route.c	2005-09-12 12:24:01.000000000 -0700
+@@ -77,6 +77,7 @@
+ #include <linux/netfilter_decnet.h>
+ #include <linux/rcupdate.h>
+ #include <linux/times.h>
++#include <linux/cpu.h>
+ #include <asm/errno.h>
+ #include <net/neighbour.h>
+ #include <net/dst.h>
+@@ -157,7 +158,29 @@
+ 
+ static inline int dn_dst_useful(struct dn_route *rth, unsigned long now, unsigned long expire)
+ {
++#ifdef CONFIG_NUMA
++	{
++		int max, sum = 0, age, cpu;
++		struct dst_entry *dst = &rth->u.dst;
++
++		cpu = dst->s_cpu;
++		max = cpu + NR_CPUS;
++		for(sum = 0; cpu < max; cpu++) {
++			int cpu_ = cpu % NR_CPUS;
++			if (cpu_online(cpu_)) {
++				sum += per_cpu_ptr(dst->pcc, cpu_)->refcnt;
++				age = now - per_cpu_ptr(dst->pcc, cpu_)->lastuse;
++				if (age <= expire) {
++					dst->s_cpu = cpu_ ;
++					return 1;
++				}
++			}
++		}
++		return (sum != 0);
++	}
++#else
+ 	return  (atomic_read(&rth->u.dst.__refcnt) || (now - rth->u.dst.lastuse) < expire) ;
++#endif
+ }
+ 
+ static void dn_dst_check_expire(unsigned long dummy)
+@@ -1766,6 +1789,43 @@
+ 
+ #endif /* CONFIG_PROC_FS */
+ 
++#if defined(CONFIG_NUMA) && defined(CONFIG_HOTPLUG_CPU)
++static int __devinit dn_rtcache_cpu_callback(struct notifier_block *nfb,
++                                   unsigned long action,
++                                   void *hcpu)
++{
++	int cpu = (int) hcpu;
++
++	switch(action) {
++		int i;
++		struct dn_route *rt, *next;
++
++		case CPU_DEAD:
++
++		for(i = 0; i < dn_rt_hash_mask; i++) {
++			spin_lock_bh(&dn_rt_hash_table[i].lock);
++
++			if ((rt = dn_rt_hash_table[i].chain) == NULL)
++				goto nothing_to_do;
++
++			for(; rt; rt=next) {
++				dst_ref_xfr_cpu_down(&rt->u.dst, cpu);
++				next = rt->u.rt_next;
++			}
++nothing_to_do:
++			spin_unlock_bh(&dn_rt_hash_table[i].lock);
++		}
++
++		break;
++	}
++	return NOTIFY_OK;
++}
++
++static struct notifier_block dn_rtcache_cpu_notifier =
++			{ &dn_rtcache_cpu_callback, NULL, 0 };
++
++#endif
++
+ void __init dn_route_init(void)
+ {
+ 	int i, goal, order;
+@@ -1822,10 +1882,16 @@
+         dn_dst_ops.gc_thresh = (dn_rt_hash_mask + 1);
+ 
+ 	proc_net_fops_create("decnet_cache", S_IRUGO, &dn_rt_cache_seq_fops);
++#if	defined(CONFIG_NUMA) && defined(CONFIG_HOTPLUG_CPU)
++	register_cpu_notifier(&dn_rtcache_cpu_notifier);
++#endif
+ }
+ 
+ void __exit dn_route_cleanup(void)
+ {
++#if defined(CONFIG_NUMA) && defined(CONFIG_HOTPLUG_CPU)
++	unregister_cpu_notifier(&dn_rtcache_cpu_notifier);
++#endif
+ 	del_timer(&dn_route_timer);
+ 	dn_run_flush(0);
+ 
+Index: alloc_percpu-2.6.13/net/ipv4/route.c
+===================================================================
+--- alloc_percpu-2.6.13.orig/net/ipv4/route.c	2005-09-12 12:23:37.000000000 -0700
++++ alloc_percpu-2.6.13/net/ipv4/route.c	2005-09-12 12:24:01.000000000 -0700
+@@ -92,6 +92,7 @@
+ #include <linux/jhash.h>
+ #include <linux/rcupdate.h>
+ #include <linux/times.h>
++#include <linux/cpu.h>
+ #include <net/protocol.h>
+ #include <net/ip.h>
+ #include <net/route.h>
+@@ -507,6 +508,54 @@
+ 		rth->u.dst.expires;
+ }
+ 
++#ifdef CONFIG_NUMA
++
++/*
++ * For NUMA systems, we do not want to sum up all local cpu refcnts every
++ * time. So we consider lastuse element of the dst_entry and start loop
++ * with the cpu where this entry was allocated. If dst_entry is not timed
++ * out then update s_cpu of this dst_entry so that next time we can start from
++ * that cpu.
++ */
++static inline int rt_check_age(struct rtable *rth,
++			unsigned long tmo1, unsigned long tmo2)
++{
++	int max, sum = 0, age, idx;
++	struct dst_entry *dst = &rth->u.dst;
++	unsigned long now = jiffies;
++
++	idx = dst->s_cpu;
++	max = idx + NR_CPUS;
++	for(sum = 0; idx < max; idx++) {
++		int cpu_ = idx % NR_CPUS;
++		if (cpu_online(cpu_)) {
++			sum += per_cpu_ptr(dst->pcc, cpu_)->refcnt;
++			age = now - per_cpu_ptr(dst->pcc, cpu_)->lastuse;
++			if ((age <= tmo1 && !rt_fast_clean(rth)) ||
++					(age <= tmo2 && rt_valuable(rth))) {
++				dst->s_cpu = cpu_ ;
++				return 0;
++			}
++		}
++	}
++	return (sum == 0);
++}
++
++/*
++ * In this function order of examining three factors (ref_cnt, expires,
++ * lastuse) is changed, considering the cost of analyzing refcnt and lastuse
++ * which are localized for each cpu on NUMA.
++ */
++static int rt_may_expire(struct rtable *rth, unsigned long tmo1, unsigned long tmo2)
++{
++	if (rth->u.dst.expires && time_after_eq(jiffies, rth->u.dst.expires))
++		return (dst_refcnt(&rth->u.dst) == 0) ;
++
++	return rt_check_age(rth, tmo1, tmo2);
++}
++
++#else
++
+ static int rt_may_expire(struct rtable *rth, unsigned long tmo1, unsigned long tmo2)
+ {
+ 	unsigned long age;
+@@ -529,6 +578,8 @@
+ out:	return ret;
+ }
+ 
++#endif
++
+ /* Bits of score are:
+  * 31: very valuable
+  * 30: not quite useless
+@@ -1108,8 +1159,19 @@
+ 
+ void ip_rt_copy(struct rtable *to, struct rtable *from)
+ {
++#ifdef CONFIG_NUMA
++	struct per_cpu_cnt *tmp_pnc;
++	tmp_pnc = to->u.dst.pcc;
++
++	*to = *from;
++	to->u.dst.pcc = tmp_pnc;
++	per_cpu_ptr(to->u.dst.pcc,get_cpu())->use = 1;
++	to->u.dst.s_cpu = smp_processor_id();
++	put_cpu();
++#else
+ 	*to = *from;
+ 	to->u.dst.__use 	= 1;
++#endif
+ }
+ 
+ void ip_rt_redirect(u32 old_gw, u32 daddr, u32 new_gw,
+@@ -3108,6 +3170,33 @@
+ }
+ __setup("rhash_entries=", set_rhash_entries);
+ 
++#if defined(CONFIG_NUMA) && defined(CONFIG_HOTPLUG_CPU)
++static int __devinit rtcache_cpu_callback(struct notifier_block *nfb,
++                                   unsigned long action,
++				   void *hcpu)
++{
++	int cpu = (int) hcpu;
++
++	switch(action) {
++		int i ;
++		struct rtable *rth;
++		case CPU_DEAD:
++			for(i = rt_hash_mask; i >= 0; i--) {
++				spin_lock_irq(rt_hash_lock_addr(i));
++				rth = rt_hash_table[i].chain;
++				while(rth) {
++					dst_ref_xfr_cpu_down(&rth->u.dst, cpu);
++					rth = rth->u.rt_next;
++				}
++				spin_unlock_irq(rt_hash_lock_addr(i));
++			}
++			break;
++	}
++	return NOTIFY_OK;
++}
++static struct notifier_block rtcache_cpu_notifier = { &rtcache_cpu_callback, NULL, 0 };
++#endif
++
+ int __init ip_rt_init(void)
+ {
+ 	int rc = 0;
+@@ -3197,6 +3286,9 @@
+ 	xfrm_init();
+ 	xfrm4_init();
+ #endif
++#if defined(CONFIG_NUMA) && defined(CONFIG_HOTPLUG_CPU)
++	register_cpu_notifier(&rtcache_cpu_notifier);
++#endif
+ 	return rc;
+ }
+ 
+Index: alloc_percpu-2.6.13/net/ipv6/ip6_fib.c
+===================================================================
+--- alloc_percpu-2.6.13.orig/net/ipv6/ip6_fib.c	2005-09-12 12:23:37.000000000 -0700
++++ alloc_percpu-2.6.13/net/ipv6/ip6_fib.c	2005-09-12 12:24:01.000000000 -0700
+@@ -1209,6 +1209,35 @@
+ 	spin_unlock_bh(&fib6_gc_lock);
+ }
+ 
++#if defined(CONFIG_NUMA) && defined(CONFIG_HOTPLUG_CPU)
++#include <linux/cpu.h>
++inline static int rt6_ref_xfr_cpu_down(struct rt6_info *rt, void *arg)
++{
++	dst_ref_xfr_cpu_down(&rt->u.dst, (int)arg);
++	return 0;
++}
++
++static int __devinit ipv6_rtcache_cpu_callback(struct notifier_block *nfb,
++                                   unsigned long action,
++                                   void *hcpu)
++{
++	int cpu = (int) hcpu;
++
++	switch(action) {
++		case CPU_DEAD:
++			write_lock_bh(&rt6_lock);
++			fib6_clean_tree(&ip6_routing_table, rt6_ref_xfr_cpu_down,
++					0, (void *)cpu);
++			write_unlock_bh(&rt6_lock);
++			break;
++	}
++	return NOTIFY_OK;
++}
++
++static struct notifier_block ipv6_rtcache_cpu_notifier =
++				{ &ipv6_rtcache_cpu_callback, NULL, 0 };
++#endif
++
+ void __init fib6_init(void)
+ {
+ 	fib6_node_kmem = kmem_cache_create("fib6_nodes",
+@@ -1217,10 +1246,16 @@
+ 					   NULL, NULL);
+ 	if (!fib6_node_kmem)
+ 		panic("cannot create fib6_nodes cache");
++#if defined(CONFIG_NUMA) && defined(CONFIG_HOTPLUG_CPU)
++	register_cpu_notifier(&ipv6_rtcache_cpu_notifier);
++#endif
+ }
+ 
+ void fib6_gc_cleanup(void)
+ {
++#if defined(CONFIG_NUMA) && defined(CONFIG_HOTPLUG_CPU)
++	unregister_cpu_notifier(&ipv6_rtcache_cpu_notifier);
++#endif
+ 	del_timer(&ip6_fib_timer);
+ 	kmem_cache_destroy(fib6_node_kmem);
+ }
+Index: alloc_percpu-2.6.13/net/ipv6/route.c
+===================================================================
+--- alloc_percpu-2.6.13.orig/net/ipv6/route.c	2005-09-12 12:23:37.000000000 -0700
++++ alloc_percpu-2.6.13/net/ipv6/route.c	2005-09-12 12:24:01.000000000 -0700
+@@ -110,8 +110,6 @@
+ struct rt6_info ip6_null_entry = {
+ 	.u = {
+ 		.dst = {
+-			.__refcnt	= ATOMIC_INIT(1),
+-			.__use		= 1,
+ 			.dev		= &loopback_dev,
+ 			.obsolete	= -1,
+ 			.error		= -ENETUNREACH,
+@@ -2104,6 +2102,10 @@
+ 						     NULL, NULL);
+ 	if (!ip6_dst_ops.kmem_cachep)
+ 		panic("cannot create ip6_dst_cache");
++	if (dst_init_rtu_array(&ip6_null_entry.u.dst) < 0)
++		panic("ip6_route : can't allocate memory for dst-entry array");
++	dst_use_inc(&ipv6_null_entry.u.dist);
++	dst_refcnt_one(&ip6_null_entry.u.dst);
+ 
+ 	fib6_init();
+ #ifdef 	CONFIG_PROC_FS
+@@ -2130,4 +2132,5 @@
+ 	rt6_ifdown(NULL);
+ 	fib6_gc_cleanup();
+ 	kmem_cache_destroy(ip6_dst_ops.kmem_cachep);
++	dst_free_rtu_array(&ip6_null_entry.u.dst);
+ }

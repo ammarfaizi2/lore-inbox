@@ -1,139 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932308AbVIMLMA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932334AbVIMLOy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932308AbVIMLMA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 07:12:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932334AbVIMLL7
+	id S932334AbVIMLOy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 07:14:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932594AbVIMLOy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 07:11:59 -0400
-Received: from xproxy.gmail.com ([66.249.82.198]:52158 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932308AbVIMLL7 convert rfc822-to-8bit
+	Tue, 13 Sep 2005 07:14:54 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:62168 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S932334AbVIMLOx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 07:11:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=MWkMs6I5bv3xgqt0MS7DDSFIBy4nGNZyYCNKeX8XXMke85toe4rI48evlT+mDph3Rc7O5zf8QQ5HNA0y+Judk1SEdomVwtyCfwi8Z1MfXI7WpR/Ch2ykF6yHYbqILTzKsdDnJY0eItWynVBoEUkGFMwMa5HwZ4mBh/QkpGg8Au0=
-Message-ID: <1e33f5710509130411858a4ec@mail.gmail.com>
-Date: Tue, 13 Sep 2005 16:41:56 +0530
-From: Gaurav Dhiman <gaurav4lkg@gmail.com>
-Reply-To: gaurav4lkg@gmail.com
-To: manomugdha biswas <manomugdhab@yahoo.co.in>
-Subject: Re: how to use wait_event_interruptible_timeout
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050913094437.3252.qmail@web8501.mail.in.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1e33f571050913023042b4c109@mail.gmail.com>
-	 <20050913094437.3252.qmail@web8501.mail.in.yahoo.com>
+	Tue, 13 Sep 2005 07:14:53 -0400
+Message-ID: <4326B4E9.9060005@aitel.hist.no>
+Date: Tue, 13 Sep 2005 13:15:53 +0200
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mathieu Fluhr <mfluhr@nero.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: "Read my lips: no more merges" - aka Linux 2.6.14-rc1
+References: <Pine.LNX.4.58.0509122019560.3351@g5.osdl.org> <1126608030.3455.23.camel@localhost.localdomain>
+In-Reply-To: <1126608030.3455.23.camel@localhost.localdomain>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/13/05, manomugdha biswas <manomugdhab@yahoo.co.in> wrote:
-> Hi,
-> I am using the this function in the following way:
+Mathieu Fluhr wrote:
 
-you are using it wrong way ....
+>On Mon, 2005-09-12 at 20:34 -0700, Linus Torvalds wrote:
+>  
+>
+>>Ok, it's been two weeks (actually, two weeks and one day) since 2.6.13, 
+>>and that means that the merge window is closed. I've released a 
+>>2.6.14-rc1, and we're now all supposed to help just clean up and fix 
+>>everything, and aim for a really solid 2.6.14 release.
+>>
+>>    
+>>
+>
+>Sorry to bother you again and again with this stuff, but I got no answer
+>from anyone... DVD burning is broken since 2.6.13-rc1 and I checked this
+>morning the 2.6.14-rc1: Same status.
+>
+>To be short, when burning a DVD at 16x with 2.6.12.6, no problem at all.
+>With 2.6.13-rc1 and upper, lots of buffer underruns. (If someone wants
+>to help, feel free to ask more details... I would be happy to help
+>anyone). The only thing that I know is that it is not coming from the
+>peripheral driver, as I have the same issue when using ide-cd with a
+>CDROM_SEND_PACKET ioctl or usb-storage+sg with a SG_IO ioctl.
+>
+>As far as I looked in the source code, it seems to be lots (and lots) of
+>changes between these 2 versions, specially regarding block devices
+>drivers. But the ChangeLog is so huge that it is quite impossible to
+>make a step-by-step upgrade to see _where_ the problem is :-(
+>  
+>
+You can do a bisection search with git, that will pinpoint exactly
+which patch that cause trouble.  It is much easier to get a
+maintainer to fix it if you can point the finger at one particular patch.
 
-> 
-> wait_queue_head_t     VNICClientWQHead;
-> 
-> /* Initialise the wait q head */
-> init_waitqueue_head(&VNICClientWQHead);
-> 
-> init_waitqueue_entry(&waitQ, current);
-> add_wait_queue(sock->sk->sk_sleep, waitQ));
+The recipe for bisection search is in the mailing list archives,
+or send me an email, I've done it once.
 
-need not to do this at all, as all this is done by
-wait_event_interruptible_timepout() function. Just here you initialize
-the head of the list.
-
-> 
-> /*
->  my code, it reads data from socket
-> */
-> 
-> wait_event_interruptible_timeout(VNICClientWQHead, 0,
-> HZ * 100000);
-> 
-> if no activity is to be done then this process sleeps.
-> When some data comes in socket i.e socket becomes
-> readable this process should wake up. In kernel 2.4 it
-> was working fine using interruptible_sleep_on_time().
-> But it is not working in kernel 2.6 even if data
-> arrives in socket! The sleeping process never wake up.
-> Could you please tell me what is the problem?
-> 
-> Regards,
-> Mano
-> 
-> 
-> --- Gaurav Dhiman <gaurav4lkg@gmail.com> wrote:
-> 
-> > On 9/13/05, manomugdha biswas
-> > <manomugdhab@yahoo.co.in> wrote:
-> > > Hi,
-> > > I was using interruptible_sleep_on_timeout() in
-> > kernel
-> > > 2.4. In kernel 2.6 I have use
-> > > wait_event_interruptible_timeout. But it is now
-> > > working!!. interruptible_sleep_on_timeout() was
-> > > working fine. Could anyone please help me in this
-> > > regard.
-> >
-> > What problem are you facing with
-> > wait_event_interruptible_timeout() in 2.6
-> > Elaborate more on it.
-> >
-> > -Gaurav
-> >
-> > > Regards,
-> > > Mano
-> > >
-> > > Manomugdha Biswas
-> > >
-> > >
-> > >
-> > >
-> >
-> __________________________________________________________
-> > > Yahoo! India Matrimony: Find your partner now. Go
-> > to http://yahoo.shaadi.com
-> > > -
-> > > To unsubscribe from this list: send the line
-> > "unsubscribe linux-kernel" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at
-> > http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> > >
-> >
-> >
-> > --
-> > - Gaurav
-> > my blog: http://lkdp.blogspot.com/
-> > --
-> > -
-> > To unsubscribe from this list: send the line
-> > "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at
-> > http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> 
-> 
-> Manomugdha Biswas
-> 
-> 
-> 
-> __________________________________________________________
-> Yahoo! India Matrimony: Find your partner now. Go to http://yahoo.shaadi.com
-> 
-
-
--- 
-- Gaurav
-my blog: http://lkdp.blogspot.com/
---
+Helge Hafting

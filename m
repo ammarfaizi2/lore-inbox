@@ -1,49 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932429AbVIMHdD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932382AbVIMHe2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932429AbVIMHdD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 03:33:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932431AbVIMHdD
+	id S932382AbVIMHe2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 03:34:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932434AbVIMHe2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 03:33:03 -0400
-Received: from sinclair.provo.novell.com ([137.65.81.169]:7869 "EHLO
-	sinclair.provo.novell.com") by vger.kernel.org with ESMTP
-	id S932429AbVIMHdC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 03:33:02 -0400
-Message-Id: <43269D12.76F0.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Tue, 13 Sep 2005 01:34:10 -0600
-From: "Jan Beulich" <JBeulich@novell.com>
-To: "Stas Sergeev" <stsp@aknet.ru>
-Cc: <vandrove@vc.cvut.cz>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] x86: fix ESP corruption CPU bug (take 2)
-References: <431C20560200007800023E6F@emea1-mh.id2.novell.com>  <432438F0.4090003@aknet.ru>  <432546350200007800024DFF@emea1-mh.id2.novell.com> <4325B378.9080000@aknet.ru>
-In-Reply-To: <4325B378.9080000@aknet.ru>
+	Tue, 13 Sep 2005 03:34:28 -0400
+Received: from os.inf.tu-dresden.de ([141.76.48.99]:20959 "EHLO
+	os.inf.tu-dresden.de") by vger.kernel.org with ESMTP
+	id S932382AbVIMHe1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 03:34:27 -0400
+Date: Tue, 13 Sep 2005 09:34:36 +0200
+From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: "Read my lips: no more merges" - aka Linux 2.6.14-rc1
+Message-ID: <20050913093436.4ae3b2c4@laptop.hypervisor.org>
+In-Reply-To: <Pine.LNX.4.58.0509122019560.3351@g5.osdl.org>
+References: <Pine.LNX.4.58.0509122019560.3351@g5.osdl.org>
+X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
+X-Mailer: X-Mailer 5.0 Gold
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: multipart/signed;
+ boundary="Signature_Tue__13_Sep_2005_09_34_36_+0200_cLM2ENbCJC6/EVVS";
+ protocol="application/pgp-signature"; micalg=PGP-SHA1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>Do you mean, eg, this?
->>>http://www.ussg.iu.edu/hypermail/linux/kernel/0409.2/1533.html 
->> No, I don't. This talks about going through ring 1 intermediately,
->> which isn't what I have in mind.
->Well, like I said, 2 approaches do use the
->kernel stack for the 16bit stack. One approach
->uses ring-1 trampoline, the other one doesn't.
->The posting I pointed to, was explicit about
->the stack usage, but as for the ring-0 approach
->while still using the kernel stack - here it is:
->http://www.ussg.iu.edu/hypermail/linux/kernel/0410.0/1402.html 
->
->Is this what you mean? This is pretty much all
->about it, the third approach is in the kernel,
->and there were no more, even under discussion.
+--Signature_Tue__13_Sep_2005_09_34_36_+0200_cLM2ENbCJC6/EVVS
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-Yes, this comes close. Still, I'm more interested to understand why
-this approach was *not* chosen, which doesn't seem to be covered by any
-of the (only two) followups.
+On Mon, 12 Sep 2005 20:34:17 -0700 (PDT) Linus Torvalds (LT) wrote:
 
-Thanks again, Jan
+LT> Ok, it's been two weeks (actually, two weeks and one day) since 2.6.13,=
+=20
+LT> and that means that the merge window is closed. I've released a=20
+LT> 2.6.14-rc1, and we're now all supposed to help just clean up and fix=20
+LT> everything, and aim for a really solid 2.6.14 release.
 
+I'm getting a linker error due to disable_timer_pin_1, which is defined in
+io_apic.c as int disable_timer_pin_1 __initdata;
+
+but I'm building with
+
+CONFIG_X86_UP_APIC=3Dy
+# CONFIG_X86_UP_IOAPIC is not set
+CONFIG_X86_LOCAL_APIC=3Dy
+
+The error is in setup.c, which can't find the variable since io_apic.c isn't
+being compiled in.
+
+arch/i386/kernel/built-in.o(.init.text+0xd51): In function `parse_cmdline_e=
+arly':
+: undefined reference to `disable_timer_pin_1'
+make: *** [.tmp_vmlinux1] Error 1
+
+-Udo.
+
+--Signature_Tue__13_Sep_2005_09_34_36_+0200_cLM2ENbCJC6/EVVS
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.7 (GNU/Linux)
+
+iD8DBQFDJoEPnhRzXSM7nSkRAla5AJ9a3+gMha2VhdS6HW2lUJue78SBsACfcVmW
+bIog4AVUn+ewS1TdAhPqKSg=
+=PVUz
+-----END PGP SIGNATURE-----
+
+--Signature_Tue__13_Sep_2005_09_34_36_+0200_cLM2ENbCJC6/EVVS--

@@ -1,51 +1,176 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965056AbVIMTQE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965149AbVIMTQt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965056AbVIMTQE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 15:16:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965155AbVIMTQE
+	id S965149AbVIMTQt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 15:16:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965155AbVIMTQt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 15:16:04 -0400
-Received: from 216-54-166-16.gen.twtelecom.net ([216.54.166.16]:7134 "EHLO
-	mx1.compro.net") by vger.kernel.org with ESMTP id S965056AbVIMTQC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 15:16:02 -0400
-Message-ID: <4327256E.2000702@compro.net>
-Date: Tue, 13 Sep 2005 15:15:58 -0400
-From: Mark Hounschell <markh@compro.net>
-Reply-To: markh@compro.net
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041220
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: HZ question
-References: <4326CAB3.6020109@compro.net>	 <Pine.LNX.4.61.0509130919390.29445@chaos.analogic.com>	 <4326DB8A.7040109@compro.net>	 <Pine.LNX.4.53.0509131615160.13574@gockel.physik3.uni-rostock.de>	 <4326EAD7.50004@compro.net> <1126632856.3455.45.camel@cog.beaverton.ibm.com>
-In-Reply-To: <1126632856.3455.45.camel@cog.beaverton.ibm.com>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-PMX-Version: 5.0.3.165339, Antispam-Engine: 2.1.0.0, Antispam-Data: 2005.9.13.18
-X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='__CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0, __USER_AGENT 0'
-To: unlisted-recipients:; (no To-header on input)
+	Tue, 13 Sep 2005 15:16:49 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:57736 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965149AbVIMTQs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 15:16:48 -0400
+Date: Wed, 14 Sep 2005 00:41:17 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.14-rc1] files: fix preemption issues
+Message-ID: <20050913191117.GF4612@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john stultz wrote:
-
-> 
-> But you don't really want to know HZ, you want to know timer resolution.
-> That's a reasonable request and I believe the posix-timers
-> clock_getres() interface might provide what you need. Although I'd defer
-> to George (CC'ed) since he's more of an expert on those interfaces.
-> 
-> You might also want to check out his HRT patches.
-> 
-> thanks
-> -john
-
-Thanks John that does in fact seem to do what I needed. It gives me 
-enough info that I can tell the HZ of the running kernel. HaHa...
-I'm familiar with the HRT stuff as it was on the 2.4 kernel.
+I did a review of the existing lock-free fdtable code and found
+a few places that needed fixes for working correctly with preemption.
+Never had a problem while testing, but theoritically they are possible.
+This patch fixes those. I have tested this patch with some combinations
+of dbench, kernbench and ltp on x86, ppc64 and x86_64 with both
+preemption on and off.
 
 Thanks
-Mark
+Dipankar
+
+
+
+With the new fdtable locking rules, you have to protect
+fdtable with either ->file_lock or rcu_read_lock/unlock().
+There are some places where we aren't doing either. This
+patch fixes those places.
+
+Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
+--
+
+
+ arch/alpha/kernel/osf_sys.c |    8 +++++++-
+ arch/ia64/kernel/perfmon.c  |    3 ++-
+ fs/locks.c                  |    3 +++
+ fs/proc/array.c             |    3 +++
+ kernel/exit.c               |    6 ++++++
+ 5 files changed, 21 insertions(+), 2 deletions(-)
+
+diff -puN arch/alpha/kernel/osf_sys.c~files-preemption-fixes arch/alpha/kernel/osf_sys.c
+--- linux-2.6.14-rc1-fd/arch/alpha/kernel/osf_sys.c~files-preemption-fixes	2005-09-13 17:12:58.000000000 +0530
++++ linux-2.6.14-rc1-fd-dipankar/arch/alpha/kernel/osf_sys.c	2005-09-13 17:12:58.000000000 +0530
+@@ -37,6 +37,7 @@
+ #include <linux/namei.h>
+ #include <linux/uio.h>
+ #include <linux/vfs.h>
++#include <linux/rcupdate.h>
+ 
+ #include <asm/fpu.h>
+ #include <asm/io.h>
+@@ -975,6 +976,7 @@ osf_select(int n, fd_set __user *inp, fd
+ 	long timeout;
+ 	int ret = -EINVAL;
+ 	struct fdtable *fdt;
++	int max_fdset;
+ 
+ 	timeout = MAX_SCHEDULE_TIMEOUT;
+ 	if (tvp) {
+@@ -996,9 +998,13 @@ osf_select(int n, fd_set __user *inp, fd
+ 		}
+ 	}
+ 
++	rcu_read_lock();
+ 	fdt = files_fdtable(current->files);
+-	if (n < 0 || n > fdt->max_fdset)
++	max_fdset = fdt->max_fdset;
++	rcu_read_unlock();
++	if (n < 0 || n > max_fdset) {
+ 		goto out_nofds;
++	}
+ 
+ 	/*
+ 	 * We need 6 bitmaps (in/out/ex for both incoming and outgoing),
+diff -puN fs/locks.c~files-preemption-fixes fs/locks.c
+--- linux-2.6.14-rc1-fd/fs/locks.c~files-preemption-fixes	2005-09-13 17:12:58.000000000 +0530
++++ linux-2.6.14-rc1-fd-dipankar/fs/locks.c	2005-09-13 17:12:58.000000000 +0530
+@@ -124,6 +124,7 @@
+ #include <linux/smp_lock.h>
+ #include <linux/syscalls.h>
+ #include <linux/time.h>
++#include <linux/rcupdate.h>
+ 
+ #include <asm/semaphore.h>
+ #include <asm/uaccess.h>
+@@ -2205,6 +2206,7 @@ void steal_locks(fl_owner_t from)
+ 
+ 	lock_kernel();
+ 	j = 0;
++	rcu_read_lock();
+ 	fdt = files_fdtable(files);
+ 	for (;;) {
+ 		unsigned long set;
+@@ -2222,6 +2224,7 @@ void steal_locks(fl_owner_t from)
+ 			set >>= 1;
+ 		}
+ 	}
++	rcu_read_unlock();
+ 	unlock_kernel();
+ }
+ EXPORT_SYMBOL(steal_locks);
+diff -puN kernel/exit.c~files-preemption-fixes kernel/exit.c
+--- linux-2.6.14-rc1-fd/kernel/exit.c~files-preemption-fixes	2005-09-13 17:12:58.000000000 +0530
++++ linux-2.6.14-rc1-fd-dipankar/kernel/exit.c	2005-09-13 17:12:58.000000000 +0530
+@@ -371,6 +371,12 @@ static inline void close_files(struct fi
+ 	struct fdtable *fdt;
+ 
+ 	j = 0;
++
++	/*
++	 * It is safe to dereference the fd table without RCU or
++	 * ->file_lock because this is the last reference to the
++	 * files structure.
++	 */
+ 	fdt = files_fdtable(files);
+ 	for (;;) {
+ 		unsigned long set;
+diff -puN fs/proc/array.c~files-preemption-fixes fs/proc/array.c
+--- linux-2.6.14-rc1-fd/fs/proc/array.c~files-preemption-fixes	2005-09-13 17:12:58.000000000 +0530
++++ linux-2.6.14-rc1-fd-dipankar/fs/proc/array.c	2005-09-14 00:07:57.000000000 +0530
+@@ -74,6 +74,7 @@
+ #include <linux/file.h>
+ #include <linux/times.h>
+ #include <linux/cpuset.h>
++#include <linux/rcupdate.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/pgtable.h>
+@@ -180,12 +181,14 @@ static inline char * task_state(struct t
+ 		p->gid, p->egid, p->sgid, p->fsgid);
+ 	read_unlock(&tasklist_lock);
+ 	task_lock(p);
++	rcu_read_lock();
+ 	if (p->files)
+ 		fdt = files_fdtable(p->files);
+ 	buffer += sprintf(buffer,
+ 		"FDSize:\t%d\n"
+ 		"Groups:\t",
+ 		fdt ? fdt->max_fds : 0);
++	rcu_read_unlock();
+ 
+ 	group_info = p->group_info;
+ 	get_group_info(group_info);
+diff -puN arch/ia64/kernel/perfmon.c~files-preemption-fixes arch/ia64/kernel/perfmon.c
+--- linux-2.6.14-rc1-fd/arch/ia64/kernel/perfmon.c~files-preemption-fixes	2005-09-13 17:13:37.000000000 +0530
++++ linux-2.6.14-rc1-fd-dipankar/arch/ia64/kernel/perfmon.c	2005-09-13 17:14:12.000000000 +0530
+@@ -2218,12 +2218,13 @@ static void
+ pfm_free_fd(int fd, struct file *file)
+ {
+ 	struct files_struct *files = current->files;
+-	struct fdtable *fdt = files_fdtable(files);
++	struct fdtable *fdt;
+ 
+ 	/* 
+ 	 * there ie no fd_uninstall(), so we do it here
+ 	 */
+ 	spin_lock(&files->file_lock);
++	fdt = files_fdtable(files);
+ 	rcu_assign_pointer(fdt->fd[fd], NULL);
+ 	spin_unlock(&files->file_lock);
+ 
+
+_

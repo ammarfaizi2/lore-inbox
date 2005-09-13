@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964795AbVIMO2m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964798AbVIMO3k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964795AbVIMO2m (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 10:28:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932650AbVIMO2m
+	id S964798AbVIMO3k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 10:29:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964796AbVIMO3j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 10:28:42 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:37387 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932648AbVIMO2l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 10:28:41 -0400
-Date: Tue, 13 Sep 2005 15:28:31 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Josh Boyer <jdub@us.ibm.com>
-Cc: =?iso-8859-1?Q?J=F6rn_Engel?= <joern@infradead.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Missing #include <config.h>
-Message-ID: <20050913152831.B23643@flint.arm.linux.org.uk>
-Mail-Followup-To: Josh Boyer <jdub@us.ibm.com>,
-	=?iso-8859-1?Q?J=F6rn_Engel?= <joern@infradead.org>,
-	linux-kernel@vger.kernel.org
-References: <20050913135622.GA30675@phoenix.infradead.org> <1126620753.3209.3.camel@windu.rchland.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1126620753.3209.3.camel@windu.rchland.ibm.com>; from jdub@us.ibm.com on Tue, Sep 13, 2005 at 09:12:33AM -0500
+	Tue, 13 Sep 2005 10:29:39 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:15790 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S932648AbVIMO3i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 10:29:38 -0400
+Message-ID: <4326E24B.6030000@adaptec.com>
+Date: Tue, 13 Sep 2005 10:29:31 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: dougg@torque.net
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: [PATCH 2.6.13 2/14] sas-class: README
+References: <4321E4DD.7070405@adaptec.com> <432543C6.1020403@torque.net> <4325CB10.1020902@adaptec.com> <4326A635.3020400@torque.net> <4326D48E.1080305@adaptec.com>
+In-Reply-To: <4326D48E.1080305@adaptec.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 13 Sep 2005 14:29:37.0581 (UTC) FILETIME=[91BBC5D0:01C5B86F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 13, 2005 at 09:12:33AM -0500, Josh Boyer wrote:
-> On Tue, 2005-09-13 at 14:56 +0100, Jörn Engel wrote:
-> > After spending some hours last night and this morning hunting a bug,
-> > I've found that a different include order made a difference.  Some
-> > files don't work correctly, unless config.h is included before.
-> > 
-> > Here is a very stupid bug checker for the problem class:
-> > $ rgrep CONFIG include/ | cut -d: -f1 | sort -u > g1
-> > $ rgrep CONFIG include/ | cut -d: -f1 | sort -u | xargs grep "config.h" | cut -d: -f1 | sort -u > g2
-> > $ diff -u g1 g2 | grep ^- > g3
+On 09/13/05 09:30, Luben Tuikov wrote:
+> I cannot call it a "passthrough" since the SMP frame isn't
+> "passing though" (by passing) anything.  When userspace
+> does a read(2) to get the data they expect, the SMP
+> frame they wrote(2) is sent to the SDS immediately.
+> In effect there is no "passing through".
 > 
-> Your checker doesn't quite test for nested includes.  E.g. if foo.h
-> includes bar.h, and bar.h includes config.h, then foo.h doesn't need to
-> include config.h explicitly.
+> It is a _protocol_ interjection.
+> 
+> That is an SMP frame (submission) _instantiates_
+> at that layer/level, not lower, not higher.
+> 
+> 
+>>one dispenses with a bit of metadata such as per command
+>>timeouts and 3 levels of error messages (i.e. from the
 
-Unfortunately, we don't operate like that.  If a file makes use of
-CONFIG_xxx then it must include <linux/config.h>.
+I forgot to mention -- SMP transport has a hardware timer
+as well as software one.  read(2) will never hang.
 
-We have "make configcheck" to help us find <linux/config.h> screwups.
-Unfortunately, it seems from the output that no one runs it anymore.
+If there's no one on the other end, we get an error,
+and read(2) less (or none) information than we requested.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+	Luben

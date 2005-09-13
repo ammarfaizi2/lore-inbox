@@ -1,96 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964770AbVIMNM3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932646AbVIMNPI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964770AbVIMNM3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 09:12:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932648AbVIMNM3
+	id S932646AbVIMNPI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 09:15:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932647AbVIMNPI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 09:12:29 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:41391 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932647AbVIMNM2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 09:12:28 -0400
-Message-ID: <4326CFE2.6000908@in.ibm.com>
-Date: Tue, 13 Sep 2005 08:10:58 -0500
-From: Sripathi Kodi <sripathik@in.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc3 (X11/20050720)
-X-Accept-Language: en-us, en
+	Tue, 13 Sep 2005 09:15:08 -0400
+Received: from quechua.inka.de ([193.197.184.2]:13230 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S932646AbVIMNPG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 09:15:06 -0400
+From: Andreas Jellinghaus <aj@dungeon.inka.de>
+Subject: Re: [udev/vcs] tons of creating/removing /dev/vcs* during boot
+To: linux-kernel@vger.kernel.org
+Mail-Copies-To: aj@dungeon.inka.de
+Date: Tue, 13 Sep 2005 15:14:59 +0200
+References: <20050912170618.69e18341.froese@gmx.de> <20050913055533.GA7206@kroah.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, patrics@interia.pl,
-       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Roland McGrath <roland@redhat.com>
-Subject: Re: [PATCH 2.6.13.1] Patch for invisible threads
-References: <4325BEF3.2070901@in.ibm.com> <20050912134954.7bbd15b2.akpm@osdl.org>
-In-Reply-To: <20050912134954.7bbd15b2.akpm@osdl.org>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+Message-Id: <20050913131138.C5B07210BC@dungeon.inka.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+Greg KH wrote:
+>> Best would be of course to generate only a single event at the same
+>> time the tty device is create.
+> 
+> That's what you are seeing.  And then watching as it's being destroyed.
+> And then created.  And then destroyed.  And so on (virtual ttys are
+> nasty at times..)
 
-Andrew Morton wrote:
-> Sripathi Kodi <sripathik@in.ibm.com> wrote:
-> 
->>Hi,
->>
->>When the main thread of a multi-threaded program calls 'pthread_exit' before
->>other threads have exited, it results in the other threads becoming
->>'invisible' to commands like 'ps'.
-> 
-> 
-> This stuff is subtle.   Let me cc some subtle people.
-> 
-> 
->>Signed-off-by: Sripathi Kodi <sripathik@in.ibm.com>
->>
->>--- linux-2.6.13.1/kernel/exit.c	2005-09-12 02:46:26.000000000 -0500
->>+++ /home/sripathi/17794/patch_2.6.13.1/exit.c	2005-09-12 02:46:15.000000000 
->>-0500
->>@@ -463,9 +463,11 @@ static inline void __exit_fs(struct task
->>  	struct fs_struct * fs = tsk->fs;
->>
->>  	if (fs) {
->>-		task_lock(tsk);
->>-		tsk->fs = NULL;
->>-		task_unlock(tsk);
->>+		if (!thread_group_leader(tsk) || !atomic_read(&tsk->signal->live)) {
->>+			task_lock(tsk);
->>+			tsk->fs = NULL;
->>+			task_unlock(tsk);
->>+		}
->>  		__put_fs_struct(fs);
->>  	}
->>  }
-> 
-> 
-> A comment in there would be nice.
-> 
+wait a second, the kernel code opens /dev/console before running
+init. so that should trigger that first hotplug event. and if
+init is a process that does not close stdin/out/err, there should
+not be any additional hotplug event, right?
 
-Below is the patch with a comment.
+I know for sure that some gentoo machine created > 3000 hotplug
+events during bootup. I'm note sure if the init closed stdin/out/err,
+and that installation was replaced by debian anyway, but it sure
+killed the machine, if I hadn't disabled hotplugging (3000 bash
+processes need more ram than a normal machine has).
 
-Thanks and regards,
-Sripathi.
+init strarts processes and those sure have stdin/out/err open,
+so they can write to the console. so I somehow doubt it closes
+and opens those all the time, but I haven't checked the code.
+so I wonder: is or was there any bug in the kernel where hundreds
+or thousands of hotplug requests are created, simply because
+processed are executed? 
 
-Signed-off-by: Sripathi Kodi <sripathik@in.ibm.com>
+it is a fact I saw thousands of hotplug events during a boot sequence.
+I'd like to know why that happened, and whether it would happen again.
+rm -rf /sbin/hotplug and switching to udevd is once option to solve
+the problem, but not an explanation why it happened in the first place.
 
---- linux-2.6.13.1/kernel/exit.c	2005-09-13 15:39:48.738542872 -0500
-+++ /home/sripathi/17794/patch_2.6.13.1/exit.c	2005-09-13 15:39:27.367791720 
--0500
-@@ -463,9 +463,13 @@ static inline void __exit_fs(struct task
-  	struct fs_struct * fs = tsk->fs;
-
-  	if (fs) {
--		task_lock(tsk);
--		tsk->fs = NULL;
--		task_unlock(tsk);
-+		/* If tsk is thread group leader and if group still has alive
-+		 * threads, those threads may use tsk->fs */
-+		if (!thread_group_leader(tsk) || !atomic_read(&tsk->signal->live)) {
-+			task_lock(tsk);
-+			tsk->fs = NULL;
-+			task_unlock(tsk);
-+		}
-  		__put_fs_struct(fs);
-  	}
-  }
+Regards, Andreas
+p.a. I don't use udevd, but my initramfs disables hotplug and
+the last initscript enables it again. also works ok.

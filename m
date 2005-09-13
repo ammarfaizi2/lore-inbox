@@ -1,40 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932458AbVIMJaU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932464AbVIMJbB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932458AbVIMJaU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 05:30:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932461AbVIMJaU
+	id S932464AbVIMJbB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 05:31:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932466AbVIMJbB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 05:30:20 -0400
-Received: from webapps.arcom.com ([194.200.159.168]:41234 "EHLO
-	webapps.arcom.com") by vger.kernel.org with ESMTP id S932458AbVIMJaT
+	Tue, 13 Sep 2005 05:31:01 -0400
+Received: from xproxy.gmail.com ([66.249.82.205]:54007 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932464AbVIMJbA convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 05:30:19 -0400
-Message-ID: <43269C1B.4090608@cantab.net>
-Date: Tue, 13 Sep 2005 10:30:03 +0100
-From: David Vrabel <dvrabel@cantab.net>
-User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Tom Watson <tsw@johana.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Pruning the source tree (idea)
-References: <4324A817.8050004@johana.com>
-In-Reply-To: <4324A817.8050004@johana.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 Sep 2005 09:29:18.0515 (UTC) FILETIME=[9D888030:01C5B845]
+	Tue, 13 Sep 2005 05:31:00 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=XM+WhMKwXY3LVi0F4fZ8U9jZI7wqMQaGjpTrjUwgNucP+1WFAUvY9DqjnWNskAEr9itLPxczVEQBULql3XMy9qTW6Af/Ef5o4aYG+6tkE3Re1pgufJS9F+PvmDJ0hlZuPB4AXYLvrO2Kn7m6Q/dKrAQc2A+m2H+0OtOc75danWQ=
+Message-ID: <1e33f571050913023042b4c109@mail.gmail.com>
+Date: Tue, 13 Sep 2005 15:00:59 +0530
+From: Gaurav Dhiman <gaurav4lkg@gmail.com>
+Reply-To: gaurav4lkg@gmail.com
+To: manomugdha biswas <manomugdhab@yahoo.co.in>
+Subject: Re: how to use wait_event_interruptible_timeout
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050913092048.13490.qmail@web8503.mail.in.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050913092048.13490.qmail@web8503.mail.in.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Watson wrote:
+On 9/13/05, manomugdha biswas <manomugdhab@yahoo.co.in> wrote:
+> Hi,
+> I was using interruptible_sleep_on_timeout() in kernel
+> 2.4. In kernel 2.6 I have use
+> wait_event_interruptible_timeout. But it is now
+> working!!. interruptible_sleep_on_timeout() was
+> working fine. Could anyone please help me in this
+> regard.
+
+What problem are you facing with wait_event_interruptible_timeout() in 2.6
+Elaborate more on it.
+
+-Gaurav
+
+> Regards,
+> Mano
 > 
-> Have a top level make target that prunes (deletes summarily) the
-> unwanted architectures from the source tree.
+> Manomugdha Biswas
+> 
+> 
+> 
+> __________________________________________________________
+> Yahoo! India Matrimony: Find your partner now. Go to http://yahoo.shaadi.com
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-NAK.  I think you underestimate the number people who'd do something like:
 
-1. make prune ARCH=foo
-2. make oldconfig ARCH=bar
-3. Complain to l-k, their vendor etc. that the kernel is busted.
-
-David Vrabel
+-- 
+- Gaurav
+my blog: http://lkdp.blogspot.com/
+--

@@ -1,56 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932535AbVIMWQi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932532AbVIMWWM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932535AbVIMWQi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 18:16:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932534AbVIMWQi
+	id S932532AbVIMWWM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 18:22:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932534AbVIMWWM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 18:16:38 -0400
-Received: from serv01.siteground.net ([70.85.91.68]:54757 "EHLO
-	serv01.siteground.net") by vger.kernel.org with ESMTP
-	id S932496AbVIMWQh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 18:16:37 -0400
-Date: Tue, 13 Sep 2005 15:16:32 -0700
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: shemminger@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       dipankar@in.ibm.com, bharata@in.ibm.com, shai@scalex86.org,
-       rusty@rustcorp.com.au, netdev@vger.kernel.org
-Subject: Re: [patch 7/11] net: Use bigrefs for net_device.refcount
-Message-ID: <20050913221632.GB6249@localhost.localdomain>
-References: <20050913155112.GB3570@localhost.localdomain> <20050913161012.GI3570@localhost.localdomain> <20050913092659.791bddec@localhost.localdomain> <20050913.132607.113443001.davem@davemloft.net>
+	Tue, 13 Sep 2005 18:22:12 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:31649 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932532AbVIMWWL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 18:22:11 -0400
+Date: Tue, 13 Sep 2005 15:21:53 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: torvalds@osdl.org, akpm@osdl.org, Simon.Derr@bull.net,
+       linux-kernel@vger.kernel.org, nikita@clusterfs.com
+Subject: Re: [PATCH] cpuset semaphore depth check optimize
+Message-Id: <20050913152153.2013587b.pj@sgi.com>
+In-Reply-To: <20050913070442.GA5629@elte.hu>
+References: <20050912113030.15934.9433.sendpatchset@jackhammer.engr.sgi.com>
+	<20050912043943.5795d8f8.akpm@osdl.org>
+	<Pine.LNX.4.58.0509120732060.3242@g5.osdl.org>
+	<20050913070442.GA5629@elte.hu>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050913.132607.113443001.davem@davemloft.net>
-User-Agent: Mutt/1.4.2.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - serv01.siteground.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 13, 2005 at 01:26:07PM -0700, David S. Miller wrote:
-> From: Stephen Hemminger <shemminger@osdl.org>
-> Date: Tue, 13 Sep 2005 09:26:59 -0700
-> 
-> > Since when is bringing a network device up/down performance critical?
-> 
-> The issue is the dev_get()'s that occur all over the place
-> to during packet transmit/receive, that's what they are
-> trying to address.
-> 
-> I'm still against all of these invasive NUMA changes to the
-> networking though, they are simply too ugly and special cased
-> to consider seriously.
+Ingo, confirming Linus's suggestion:
+> btw., this is how the -rt tree implements (read-)nesting for rwsems and 
+> rwlocks. The more sharing and embedding of types and primitives, the 
+> more compact the whole code becomes, and the easier it is to change 
+> fundamental properties.
 
-All of them or the dst ones?  Hopefully the netdevice refcounter patch
-is not ugly or complicated as the dst ones? And why are they special cased?
-Are networking workloads with high route locality not interesting?
+I completely agree.
 
-Thanks,
-Kiran
+Such is the art of fine programming.
+
+My basic concern was that Linus was trying to put lipstick
+on a pig.
+
+If one gets the underlying structure right, then one should
+package it in the best way one can, such as you and Linus
+describe.
+
+If one has a hack, better to leave it naked to the world,
+with a minimum of artiface.
+
+That way it attracts attention from those who know better
+and are repulsed.  And that way, when something better
+comes along, it will be easy to remove the simple hack.
+
+It looks like Roman is on my case.  This is good.
+
+(Of course, if you have a barn full of hogs, maybe
+it's time to paint the barn ;).
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

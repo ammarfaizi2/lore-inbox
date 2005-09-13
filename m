@@ -1,64 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932454AbVIMTmt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932228AbVIMTqu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932454AbVIMTmt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 15:42:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932656AbVIMTmt
+	id S932228AbVIMTqu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 15:46:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932417AbVIMTqt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 15:42:49 -0400
-Received: from terminus.zytor.com ([209.128.68.124]:56210 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S932454AbVIMTms
-	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 15:42:48 -0400
-Message-ID: <43272B9D.1030301@zytor.com>
-Date: Tue, 13 Sep 2005 12:42:21 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
+	Tue, 13 Sep 2005 15:46:49 -0400
+Received: from iabervon.org ([66.92.72.58]:20489 "EHLO iabervon.org")
+	by vger.kernel.org with ESMTP id S932228AbVIMTqt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 15:46:49 -0400
+Date: Tue, 13 Sep 2005 15:50:55 -0400 (EDT)
+From: Daniel Barkalow <barkalow@iabervon.org>
+To: iSteve <isteve@rulez.cz>
+cc: "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org
+Subject: Re: query_modules syscall gone? Any replacement?
+In-Reply-To: <4326FDA2.90808@rulez.cz>
+Message-ID: <Pine.LNX.4.63.0509131522440.23242@iabervon.org>
+References: <4KSFY-2pO-17@gated-at.bofh.it> <E1EDpQq-0000iV-Oe@be1.lrz>
+ <4326DE0E.2060306@rulez.cz> <Pine.LNX.4.50.0509130813010.7614-100000@shark.he.net>
+ <4326F093.80206@rulez.cz> <Pine.LNX.4.50.0509130835120.7614-100000@shark.he.net>
+ <4326FDA2.90808@rulez.cz>
 MIME-Version: 1.0
-To: Frank Sorenson <frank@tuxrocks.com>
-CC: pascal.bellard@ads-lu.com, Riley@Williams.Name,
-       Linux-Kernel@vger.kernel.org
-Subject: Re: [i386 BOOT CODE] kernel bootable again
-References: <33542.85.68.36.53.1126619176.squirrel@212.11.36.192> <432722A1.8030302@tuxrocks.com>
-In-Reply-To: <432722A1.8030302@tuxrocks.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Frank Sorenson wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Pascal Bellard wrote:
-> 
->>Hello,
->>
->>Please find attached a patch to build i386/x86_64 kernel directly
->>bootable. It may be usefull for rescue floppies and installation
->>floppies.
-> 
-> 
-> Pascal,
-> 
-> In commit f8eeaaf4180334a8e5c3582fe62a5f8176a8c124, build.c has already
-> changed, and I don't believe it's very compatible with this change.
-> 
-> See
-> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=f8eeaaf4180334a8e5c3582fe62a5f8176a8c124
-> 
-> Also, we'll need to see comments from H. Peter Anvin on this patch.
-> CC'ing him.
-> 
+On Tue, 13 Sep 2005, iSteve wrote:
 
-Geometry detection by looking for error returns is fundamentally broken. 
-  Way too many non-traditional floppies (USB, IDE...) do not handle this 
-at all, they will return successfully, with the data being the data from 
-a sector from another track, and thus you end up with aliasing and a 
-corrupt boot.  You can do it with fingerprinting, but that's complex and 
-error-prone.
+> Part of the project I'm working on -- click-click ui for handling modules,
+> with some perks: in this case, getting info about loaded modules that I hoped
+> to obtain via query_module.
+> 
+> Oh, and one more question: There were no particular issues with query_module,
+> or were they? If there weren't, why wasn't it kept?
 
-In short, this made sense in 1991, but it hasn't made sense for a very 
-long time now.  Resurrecting bootsect.S is *NOT* a good idea.
+I think it wasn't kept because it would have had to get rewritten anyway, 
+and the only user (modutils) was going away. Most of the information was 
+only there because the old system needed it, and the new system didn't 
+need it, so nobody bothered. Also, the modern style is to avoid 
+special-purpose syscalls and use sysfs. It probably wouldn't be too hard 
+to get the information exported through the sysfs interface if you ask 
+Rusty and explain exactly what you need.
 
-	-hpa
+(Note that you can get module symbols by searching /proc/kallsyms for 
+<tab>[<name>], so that part is available from the kernel, although not 
+efficiently if you have a lot of symbols that you aren't interested in)
+
+	-Daniel
+*This .sig left intentionally blank*

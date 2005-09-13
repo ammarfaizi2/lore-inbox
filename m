@@ -1,87 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbVIMKON@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbVIMKQQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750754AbVIMKON (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 06:14:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbVIMKOM
+	id S1750736AbVIMKQQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 06:16:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbVIMKQQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 06:14:12 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:4235 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750730AbVIMKOK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 06:14:10 -0400
-Date: Tue, 13 Sep 2005 11:14:09 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Luben Tuikov <luben_tuikov@adaptec.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [ANNOUNCE 0/2] Serial Attached SCSI (SAS) support for the Linux kernel
-Message-ID: <20050913101409.GA30666@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Luben Tuikov <luben_tuikov@adaptec.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	SCSI Mailing List <linux-scsi@vger.kernel.org>
-References: <4321E2C1.7080507@adaptec.com> <20050911092030.GA5140@infradead.org> <4325F488.5040304@adaptec.com>
+	Tue, 13 Sep 2005 06:16:16 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:12228 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750751AbVIMKQP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 06:16:15 -0400
+Date: Tue, 13 Sep 2005 03:15:40 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andi Kleen <ak@suse.de>
+Cc: discuss@x86-64.org, zippel@linux-m68k.org, linux-kernel@vger.kernel.org
+Subject: Re: [discuss] Re: [1/3] Add 4GB DMA32 zone
+Message-Id: <20050913031540.0c732284.akpm@osdl.org>
+In-Reply-To: <200509131147.42140.ak@suse.de>
+References: <43246267.mailL4R11PXCB@suse.de>
+	<200509121447.00373.ak@suse.de>
+	<Pine.LNX.4.61.0509131107360.3728@scrub.home>
+	<200509131147.42140.ak@suse.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4325F488.5040304@adaptec.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 12, 2005 at 05:35:04PM -0400, Luben Tuikov wrote:
-> > What's not nice is that it's not intgerating with the
-> > SAS transport class I posted,
-> 
-> I wish there was something I could do.  HP and LSI
-> were aware of my efforts since the beginning of the year.
+Andi Kleen <ak@suse.de> wrote:
+>
+> Andrew do you still have the patch with 
+>  the description? It must have been between 2.6.13mm1 and  2.6.13mm2.
 
-As was I.  And the reason I wrote this upper layer is that you
-clearly stated multiple times (at the SAS BOF and in mail) that
-you're not interested in this upper layer.
 
-> As well, you had a copy of my code July 14 this year,
 
-That code didn't have anything that overlaps with the code I wrote.
 
-> long before starting your work on your SAS class for LSI and
-> HP (so its acceptance is guaranteed), after OLS.
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 
-Just in case it was clear:  I'm paid for this transport class by Dell.
-I don't have any contractural relationship with LSI or HP, although these
-companies (like most sucessfull hardware vendors) know that giving hardware
-to linux people active in the area they care about helps to get thos people
-actually fixing things about instead of just bitching around..
+Because 2.6.13-mm2  adds new zone DMA32, ZONES_SHIFT becomes 3.
+So, flags bits reserved for (SECTION | NODE | ZONE) should be increase.
 
-> We did meet at OLS and we did have the SAS BOF.  I'm not sure
-> why you didn't want to work together?
+ZONE_SHIFT is increased, FLAGS_RESERVED should be.
 
-I abosultely want to.  To quote from my first minimal transport class
-announcement mail:
+Signed-off-by Kamezawa Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: Andi Kleen <ak@muc.de>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
 
-"I hope this will integrate nicely with the top-down work Luben has done
-once he finally releases it publically, but for now I think we should have
-something so SAS drivers can go in the tree."
+ include/linux/mmzone.h |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
 
-> > from the SCSI core code, and adding it's own sysfs representation that's
-> > very different from the way the SCSI core and transport classes do it.
-> 
-> Yes, it is time to evolve.
-> 
-> I've pointed out many times the shortcomings of expanding the
-> JB's "transport _attribute_ class" into a "transport layer" in
-> recent threads.
-
-We need both a transport class in the original sense aswell as a library
-for host-based SAS HBAs, and they need to play together nicely - whatever
-term you give to them.
-
-> Overall, MPT is very different in design than a disclosed
-> transport.
-
-I know.  And we still want to cover it with a common base for what we
-can have common.
+diff -puN include/linux/mmzone.h~x86_64-dma32-fix include/linux/mmzone.h
+--- 25/include/linux/mmzone.h~x86_64-dma32-fix	Fri Sep  9 17:13:41 2005
++++ 25-akpm/include/linux/mmzone.h	Fri Sep  9 17:14:13 2005
+@@ -431,9 +431,10 @@ extern struct pglist_data contig_page_da
+ #if BITS_PER_LONG == 32 || defined(ARCH_HAS_ATOMIC_UNSIGNED)
+ /*
+  * with 32 bit page->flags field, we reserve 8 bits for node/zone info.
+- * there are 3 zones (2 bits) and this leaves 8-2=6 bits for nodes.
++ * there are 4 zones (3 bits) and this leaves 8-2=6 bits for nodes.
++ * +6bits for sections if CONFIG_SPARSEMEM
+  */
+-#define FLAGS_RESERVED		8
++#define FLAGS_RESERVED		9
+ 
+ #elif BITS_PER_LONG == 64
+ /*
+_
 

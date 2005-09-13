@@ -1,40 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932463AbVIMJY1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932458AbVIMJaU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932463AbVIMJY1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 05:24:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932461AbVIMJY1
+	id S932458AbVIMJaU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 05:30:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932461AbVIMJaU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 05:24:27 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:22438 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932459AbVIMJY0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 05:24:26 -0400
-Date: Tue, 13 Sep 2005 10:24:24 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org, tony.luck@intel.com
-Subject: Re: [patch 2.6.13] ia64: re-implement dma_get_cache_alignment to avoid EXPORT_SYMBOL
-Message-ID: <20050913092424.GB29552@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-	tony.luck@intel.com
-References: <09122005104852.31327@bilbo.tuxdriver.com> <20050912192524.GA14360@infradead.org> <20050913000611.GI19644@tuxdriver.com> <20050913001429.GJ19644@tuxdriver.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050913001429.GJ19644@tuxdriver.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 13 Sep 2005 05:30:20 -0400
+Received: from webapps.arcom.com ([194.200.159.168]:41234 "EHLO
+	webapps.arcom.com") by vger.kernel.org with ESMTP id S932458AbVIMJaT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 05:30:19 -0400
+Message-ID: <43269C1B.4090608@cantab.net>
+Date: Tue, 13 Sep 2005 10:30:03 +0100
+From: David Vrabel <dvrabel@cantab.net>
+User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Tom Watson <tsw@johana.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Pruning the source tree (idea)
+References: <4324A817.8050004@johana.com>
+In-Reply-To: <4324A817.8050004@johana.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 13 Sep 2005 09:29:18.0515 (UTC) FILETIME=[9D888030:01C5B845]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 12, 2005 at 08:14:29PM -0400, John W. Linville wrote:
-> The current ia64 implementation of dma_get_cache_alignment does not
-> work for modules because it relies on a symbol which is not exported.
-> Direct access to a global is a little ugly anyway, so this patch
-> re-implements dma_get_cache_alignment in a manner similar to what is
-> currently used for x86_64.
+Tom Watson wrote:
+> 
+> Have a top level make target that prunes (deletes summarily) the
+> unwanted architectures from the source tree.
 
-looks good to me.
+NAK.  I think you underestimate the number people who'd do something like:
 
+1. make prune ARCH=foo
+2. make oldconfig ARCH=bar
+3. Complain to l-k, their vendor etc. that the kernel is busted.
+
+David Vrabel

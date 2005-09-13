@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964799AbVIMOnP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932253AbVIMOqn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964799AbVIMOnP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 10:43:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964804AbVIMOnP
+	id S932253AbVIMOqn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 10:46:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932651AbVIMOqn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 10:43:15 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:17317 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S964799AbVIMOnO (ORCPT
+	Tue, 13 Sep 2005 10:46:43 -0400
+Received: from fsmlabs.com ([168.103.115.128]:63647 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S932253AbVIMOqn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 10:43:14 -0400
-Message-ID: <4326E576.1010204@pobox.com>
-Date: Tue, 13 Sep 2005 10:43:02 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: netdev@vger.kernel.org
-CC: Thomas Graf <tgraf@suug.ch>, Herbert Xu <herbert@gondor.apana.org.au>,
-       "David S. Miller" <davem@davemloft.net>, Dave Jones <davej@redhat.com>,
+	Tue, 13 Sep 2005 10:46:43 -0400
+Date: Tue, 13 Sep 2005 07:53:03 -0700 (PDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Andi Kleen <ak@muc.de>
+cc: Ashok Raj <ashok.raj@intel.com>, Andrew Morton <akpm@osdl.org>,
        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: TCP oopsing continues
-References: <20050910113737.GZ22129@postel.suug.ch> <E1EE4Jh-0001iA-00@gondolin.me.apana.org.au> <20050910125010.GA22129@postel.suug.ch> <20050910194447.GA5725@gondor.apana.org.au> <20050910203131.GB22129@postel.suug.ch>
-In-Reply-To: <20050910203131.GB22129@postel.suug.ch>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
-X-Spam-Score: 0.0 (/)
+Subject: Re: [patch 13/14] x86_64: Use common functions in cluster and physflat
+ mode
+In-Reply-To: <20050913081054.GB37889@muc.de>
+Message-ID: <Pine.LNX.4.61.0509130749210.1684@montezuma.fsmlabs.com>
+References: <200509032135.j83LZ8gX020554@shell0.pdx.osdl.net>
+ <20050905231628.GA16476@muc.de> <20050906161215.B19592@unix-os.sc.intel.com>
+ <Pine.LNX.4.61.0509091003490.978@montezuma.fsmlabs.com>
+ <20050909134503.A29351@unix-os.sc.intel.com> <Pine.LNX.4.61.0509091439110.978@montezuma.fsmlabs.com>
+ <20050911230220.GA73228@muc.de> <20050912152308.A18649@unix-os.sc.intel.com>
+ <20050913081054.GB37889@muc.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, my oops continues in 2.6.14-rc1.  x86 SMP firewall box.
+On Tue, 13 Sep 2005, Andi Kleen wrote:
 
-I still haven't found my null modem cable, so I don't have the top of 
-the trace.  Here is everything that was on the screen:
+> > We should probably remove the !HOTPLUG case and just use the mask version
+> > for all cases <=8 CPUS, use physflat or the cluster mode for >8cpus as 
+> > the case may be, instead of defaulting to sequence_IPI which seems
+> > a little overkill for the intended purpose.
+> 
+> Or just always use physflat and remove the logical flat case? 
+> That seems cleanest to me. Any objections? 
 
-ip_local_deliver_finish
-tcp_v4_do_rcv
-tcp_v4_rcv
-ip_local_deliver
-ip_local_deliver_finish
-ip_rcv
-ip_rcv_finish
-netif_receive_skb
-e1000_clean_rx_irq
-rtl8139_isr_ack
-e1000_clean
-net_rx_action
-__do_softirq
-do_softirq
-do_IRQ
+My objection is the number of APIC writes required to issue IPIs to a 
+group of processors, however i do understand that it would help 
+maintainability and testing coverage if we reduce the number of operating 
+modes, are you proposing physflat for _everything_ ?
 
+Thanks,
+	Zwane
 

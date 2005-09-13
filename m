@@ -1,78 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751056AbVIMVtK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932488AbVIMVyQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751056AbVIMVtK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 17:49:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751068AbVIMVtK
+	id S932488AbVIMVyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 17:54:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751070AbVIMVyQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 17:49:10 -0400
-Received: from sls-ce5p321.hostitnow.com ([72.9.236.50]:50331 "EHLO
-	sls-ce5p321.hostitnow.com") by vger.kernel.org with ESMTP
-	id S1751056AbVIMVtJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 17:49:09 -0400
-From: Chris White <chriswhite@gentoo.org>
-Reply-To: chriswhite@gentoo.org
-Organization: Gentoo
-To: linux-kernel@vger.kernel.org
-Subject: Re: Quick update on latest Linux kernel performance
-Date: Wed, 14 Sep 2005 15:17:28 +0900
-User-Agent: KMail/1.8.2
-References: <200509132132.j8DLWJg04553@unix-os.sc.intel.com>
-In-Reply-To: <200509132132.j8DLWJg04553@unix-os.sc.intel.com>
+	Tue, 13 Sep 2005 17:54:16 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:43178 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S1751053AbVIMVyP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 17:54:15 -0400
+Message-ID: <43274A7F.20002@adaptec.com>
+Date: Tue, 13 Sep 2005 17:54:07 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1146630.RvEIGnlmlX";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Matthew Wilcox <matthew@wil.cx>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Patrick Mansfield <patmans@us.ibm.com>,
+       Douglas Gilbert <dougg@torque.net>,
+       Christoph Hellwig <hch@infradead.org>, Luben Tuikov <ltuikov@yahoo.com>
+Subject: Re: [PATCH 2.6.13 5/14] sas-class: sas_discover.c Discover process
+ (end devices)
+References: <1126308304.4799.45.camel@mulgrave> <20050910024454.20602.qmail@web51613.mail.yahoo.com> <20050911094656.GC5429@infradead.org> <43251D8C.7020409@torque.net> <1126537041.4825.28.camel@mulgrave> <20050912164548.GB11455@us.ibm.com> <1126545680.4825.40.camel@mulgrave> <20050912184629.GA13489@us.ibm.com> <1126639342.4809.53.camel@mulgrave> <4327354E.7090409@adaptec.com> <20050913203611.GH32395@parisc-linux.org> <43273E6C.9050807@adaptec.com> <432746A0.50402@s5r6.in-berlin.de>
+In-Reply-To: <432746A0.50402@s5r6.in-berlin.de>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Message-Id: <200509141517.38985.chriswhite@gentoo.org>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - sls-ce5p321.hostitnow.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - gentoo.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+X-OriginalArrivalTime: 13 Sep 2005 21:54:13.0491 (UTC) FILETIME=[ADD09C30:01C5B8AD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1146630.RvEIGnlmlX
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On 09/13/05 17:37, Stefan Richter wrote:
+> Luben Tuikov wrote:
+> 
+>>I've never seen the symbols "lun".
+> 
+> 
+> It is merely an encoding of a variable name or struct member name 
+> according to the coding style spec.
 
-On Wednesday 14 September 2005 06:32, Chen, Kenneth W wrote:
-> New performance result are posted on http://kernel-perf.sourceforge.net
-> with latest data collected on kernel 2.6.13-git9.
+I appreciate your insight.
 
-[snip]
+I've never seen a "lun" in _any_ spec.  It is always abbreviated
+"LUN".
 
-> Take a look at the performance data.  Comments and suggestions are always
-> welcome and please post them to LKML.
+"lun" exists only in the SCSI Core.  Even other OSs use "LUN".
 
-The benchmarks here have a slight flaw in that the main hardware components=
-=20
-tested are not given.  About the only thing I can see regarding these tests=
-=20
-is what processor they run on.  Displaying network performance tests withou=
-t=20
-showing the network card or io tests without showing the disk controller=20
-seems rather odd.  I guess it comes down to requesting a full hardware=20
-rundown.  If this is displayed someplace on the site or elsewhere please=20
-provide the link.
+So after a while, after someone reads enough specs, they see
+only "LUN".  "lun" seems foreign.
 
-Chris White
+> 
+>>"task->ssp_task.LUN"
+> 
+> 
+> But SSP is a TLA too, isn't it? ;-)
 
---nextPart1146630.RvEIGnlmlX
-Content-Type: application/pgp-signature
+Not quite.  I can actually _see_ "LUN" in the frame.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
+As I said, after a while it becomes second nature to you,
+due to the layout of the frame you're working with.
 
-iD8DBQBDJ8CCFdQwWVoAgN4RAoRlAKCXQpel/i6eAhVXhytcrHY0mh5KIwCcDIrE
-Hi/VW5ofVclfweCvC2JjH4E=
-=mhtf
------END PGP SIGNATURE-----
+The pattern that the brain sees is "LUN": in the
+transport frame and in the code.
 
---nextPart1146630.RvEIGnlmlX--
+	Luben
+
+P.S. Trust me, using "lun" would be quite ugly and it would
+show that whoever coded it has had little experience reading
+SCSI specs.  What you want to use is "u8 LUN[8]".
+
+PPS. I hope I don't have to put up this sort of convincing
+emails back and forth for each and every little thing.  We'd
+get nowhere, no code will be written and no hardware would
+work.
+
+

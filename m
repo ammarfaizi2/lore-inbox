@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964784AbVIMOIc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750814AbVIMOHn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964784AbVIMOIc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 10:08:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964785AbVIMOIb
+	id S1750814AbVIMOHn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 10:07:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750820AbVIMOHn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 10:08:31 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:8969 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S964784AbVIMOIa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 10:08:30 -0400
-Date: Tue, 13 Sep 2005 15:08:26 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: =?iso-8859-1?Q?J=F6rn_Engel?= <joern@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Missing #include <config.h>
-Message-ID: <20050913150825.A23643@flint.arm.linux.org.uk>
-Mail-Followup-To: =?iso-8859-1?Q?J=F6rn_Engel?= <joern@infradead.org>,
-	linux-kernel@vger.kernel.org
-References: <20050913135622.GA30675@phoenix.infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050913135622.GA30675@phoenix.infradead.org>; from joern@infradead.org on Tue, Sep 13, 2005 at 02:56:23PM +0100
+	Tue, 13 Sep 2005 10:07:43 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:31422 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1750814AbVIMOHn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 10:07:43 -0400
+From: "ext3crypt" <ext3crypt@comcast.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Input Desired -- sorry if this is not the forum.
+Date: Tue, 13 Sep 2005 10:07:41 -0400
+Message-ID: <PFEILFFLMPNHAOBNBGPJIEFGCAAA.ext3crypt@comcast.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 13, 2005 at 02:56:23PM +0100, Jörn Engel wrote:
-> After spending some hours last night and this morning hunting a bug,
-> I've found that a different include order made a difference.  Some
-> files don't work correctly, unless config.h is included before.
+Hi,
 
-I'm still of the opinion that we should add
+I'm currently working on a kernel modification to extend the EXT3 file
+system to include encryption based on file ownership.
 
-	-imacros include/linux/config.h
+This is an experimental graduate project for Penn State that may result in a
+proposed patch.
 
-to the gcc command line and stop bothering with trying to get
-linux/config.h included into the right files and not in others.
-(which then means we can eliminate linux/config.h from all files.)
+Each user and group has an encryption key and files are encrypted with
+the key based on permissions.  The issues is what should I do about
+"root" access, since root has free access to everything.  There are two
+goals -- transparency (everything works like it did without encryption but
+slower)
+and security (for root it conflicts with transparency).
 
->From what you can see below, missing includes of it can remain
-for months, and it can cause bugs which are rather non-obvious.
+I can maintain free access -- but the overall security is weakened
+since an attacker will only need to gain the root encryption key to
+authenticate.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+I can disallow access to files for root based on the permissions --
+which may cause applications to stop working properly, since they may
+count on root's special privlages.
+
+I can allow access to files that are encrypted and root does not have
+permissions to as ciphertext and the files root does have access to as
+plaintext.
+
+Other ideas are welcome.
+
+

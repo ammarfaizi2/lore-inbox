@@ -1,82 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965095AbVIMTJb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965139AbVIMTLV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965095AbVIMTJb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 15:09:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965093AbVIMTJa
+	id S965139AbVIMTLV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 15:11:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965140AbVIMTLU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 15:09:30 -0400
-Received: from quark.didntduck.org ([69.55.226.66]:27603 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP id S965095AbVIMTJ2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 15:09:28 -0400
-Message-ID: <4327242B.5050806@didntduck.org>
-Date: Tue, 13 Sep 2005 15:10:35 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
-X-Accept-Language: en-us, en
+	Tue, 13 Sep 2005 15:11:20 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:63700 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965136AbVIMTLR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 15:11:17 -0400
+Date: Tue, 13 Sep 2005 12:11:11 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Mathieu Fluhr <mfluhr@nero.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: "Read my lips: no more merges" - aka Linux 2.6.14-rc1
+In-Reply-To: <1126635160.2183.6.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0509131210090.3351@g5.osdl.org>
+References: <Pine.LNX.4.58.0509122019560.3351@g5.osdl.org> 
+ <1126608030.3455.23.camel@localhost.localdomain>  <1126630878.2066.6.camel@localhost.localdomain>
+  <Pine.LNX.4.58.0509131010010.3351@g5.osdl.org> <1126635160.2183.6.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: Joern Engel <joern@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Permanently fix kernel configuration include mess
-References: <20050913135622.GA30675@phoenix.infradead.org> <20050913150825.A23643@flint.arm.linux.org.uk> <20050913155012.C23643@flint.arm.linux.org.uk> <20050913165954.GA31461@phoenix.infradead.org> <20050913190409.B26494@flint.arm.linux.org.uk>
-In-Reply-To: <20050913190409.B26494@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> On Tue, Sep 13, 2005 at 05:59:54PM +0100, Joern Engel wrote:
-> 
->>On Tue, 13 September 2005 15:50:12 +0100, Russell King wrote:
->>
->>>Subject: [KBUILD] Permanently fix kernel configuration include mess.
->>>
->>>Include autoconf.h into every kernel compilation via the gcc
->>>command line using -imacros.  This ensures that we have the
->>>kernel configuration included from the start, rather than
->>>relying on each file having #include <linux/config.h> as
->>>appropriate.  History has shown that this is something which
->>>is difficult to get right.
->>>
->>>Since we now include the kernel configuration automatically,
->>>make configcheck becomes meaningless, so remove it.
->>>
->>>Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
->>
->>If it helps:
->>Signed-off-by: Joern Engel <joern@wh.fh-wedel.de>
-> 
-> 
-> Might help more if I copied (or sent this to) akpm. 8)
-> 
-> diff --git a/Makefile b/Makefile
-> --- a/Makefile
-> +++ b/Makefile
-> @@ -346,7 +346,8 @@ AFLAGS_KERNEL	=
->  # Use LINUXINCLUDE when you must reference the include/ directory.
->  # Needed to be compatible with the O= option
->  LINUXINCLUDE    := -Iinclude \
-> -                   $(if $(KBUILD_SRC),-Iinclude2 -I$(srctree)/include)
-> +                   $(if $(KBUILD_SRC),-Iinclude2 -I$(srctree)/include) \
-> +		   -imacros include/linux/autoconf.h
->  
->  CPPFLAGS        := -D__KERNEL__ $(LINUXINCLUDE)
->  
-> @@ -1247,11 +1248,6 @@ tags: FORCE
->  # Scripts to check various things for consistency
->  # ---------------------------------------------------------------------------
->  
-> -configcheck:
-> -	find * $(RCS_FIND_IGNORE) \
-> -		-name '*.[hcS]' -type f -print | sort \
-> -		| xargs $(PERL) -w scripts/checkconfig.pl
-> -
->  includecheck:
->  	find * $(RCS_FIND_IGNORE) \
->  		-name '*.[hcS]' -type f -print | sort \
-> 
-> 
 
-The patch should also remove the checkconfig.pl script.
+
+On Tue, 13 Sep 2005, Mathieu Fluhr wrote:
+> 
+> Okay, here is the point: I will have these bloody buffer underruns
+> unless I select a 'Timer frequency' of 1000 Hz in 'Processor type and
+> features' section of the kernel configuration. That's quite
+> understandable, as recording a DVD at 16x requires a throughput of 22160
+> KB/s, which is quite fast.
+> 
+> I will have a deep look in the patch, and maybe write a patched patch
+> (Ooooo my god what am I writing ?) in the next few days.
+
+It may just be an application bug too. Too small a buffer, and depending 
+on 2.6.x with a 1kHz timer having timers that run faster...
+
+		Linus

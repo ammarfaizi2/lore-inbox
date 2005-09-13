@@ -1,33 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964783AbVIMOH5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964786AbVIMOLu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964783AbVIMOH5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 10:07:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964785AbVIMOH5
+	id S964786AbVIMOLu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 10:11:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964788AbVIMOLu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 10:07:57 -0400
-Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:35992 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S964783AbVIMOH4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 10:07:56 -0400
-Date: Tue, 13 Sep 2005 16:07:48 +0200 (CEST)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Mark Hounschell <markh@compro.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: HZ question
-In-Reply-To: <4326CAB3.6020109@compro.net>
-Message-ID: <Pine.LNX.4.53.0509131606300.13574@gockel.physik3.uni-rostock.de>
-References: <4326CAB3.6020109@compro.net>
+	Tue, 13 Sep 2005 10:11:50 -0400
+Received: from smtp.dkm.cz ([62.24.64.34]:52484 "HELO smtp.dkm.cz")
+	by vger.kernel.org with SMTP id S964786AbVIMOLt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 10:11:49 -0400
+Message-ID: <4326DE0E.2060306@rulez.cz>
+Date: Tue, 13 Sep 2005 16:11:26 +0200
+From: iSteve <isteve@rulez.cz>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: query_modules syscall gone? Any replacement?
+References: <4KSFY-2pO-17@gated-at.bofh.it> <E1EDpQq-0000iV-Oe@be1.lrz>
+In-Reply-To: <E1EDpQq-0000iV-Oe@be1.lrz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Sep 2005, Mark Hounschell wrote:
+Okay, so, I have so far gathered:
 
-> I need to know the kernels value of HZ in a userland app.
+  - the whole module interface change between 2.4 and 2.6 was because 
+some security concerns, most of the stuff (loading module etc.) moved 
+towards kernel
+  - query_module is gone, there is no syscall similar in function but 
+with different name
+  - losing of query_module also prevents binary-only modules 
+(guesswork@work)
+  - /proc/modules and /sys/module interface doesn't by far supply what 
+query_module could do
 
-Why?
-You are supposed _not_ to know it. If you think you need it, something's
-wrong.
+My questions are:
+a) Are my observations correct? Where did I go wrong?
+b) Is there any planned replacement of query_module, or extendind sysfs 
+or procfs module interface?
+c) Wouldn't revamping query_module also allow binary-only modules, 
+therefore easier decisions for vendors, whether to support Linux?
 
-Tim
+Thanks in advance and sorry for these probably quite silly questions.
+
+  - iSteve

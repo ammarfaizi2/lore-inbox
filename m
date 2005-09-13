@@ -1,573 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964782AbVIMN4c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750805AbVIMOAr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964782AbVIMN4c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 09:56:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750805AbVIMN4c
+	id S1750805AbVIMOAr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 10:00:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbVIMOAq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 09:56:32 -0400
-Received: from phoenix.infradead.org ([81.187.2.162]:28166 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S1750801AbVIMN4b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 09:56:31 -0400
-Date: Tue, 13 Sep 2005 14:56:23 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@infradead.org>
-To: linux-kernel@vger.kernel.org
-Subject: Missing #include <config.h>
-Message-ID: <20050913135622.GA30675@phoenix.infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4.1i
+	Tue, 13 Sep 2005 10:00:46 -0400
+Received: from 216-54-166-16.gen.twtelecom.net ([216.54.166.16]:52950 "EHLO
+	mx1.compro.net") by vger.kernel.org with ESMTP id S1750805AbVIMOAq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 10:00:46 -0400
+Message-ID: <4326DB8A.7040109@compro.net>
+Date: Tue, 13 Sep 2005 10:00:42 -0400
+From: Mark Hounschell <markh@compro.net>
+Reply-To: markh@compro.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041220
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: HZ question
+References: <4326CAB3.6020109@compro.net> <Pine.LNX.4.61.0509130919390.29445@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0509130919390.29445@chaos.analogic.com>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-PMX-Version: 5.0.3.165339, Antispam-Engine: 2.1.0.0, Antispam-Data: 2005.9.12.33
+X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='__CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0, __USER_AGENT 0'
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After spending some hours last night and this morning hunting a bug,
-I've found that a different include order made a difference.  Some
-files don't work correctly, unless config.h is included before.
+linux-os (Dick Johnson) wrote:
+> On Tue, 13 Sep 2005, Mark Hounschell wrote:
+> 
+>>I need to know the kernels value of HZ in a userland app.
+>>
+>>getconf CLK_TCK
+>>     and
+>>hz = sysconf (_SC_CLK_TCK)
+>>
+>>both seem to return CLOCKS_PER_SEC which is defined as USER_HZ which is
+>>defined as 100.
+>>
+>>include/asm/param.h:
+>>
+>>#ifdef __KERNEL__
+>># define HZ       1000   /* Internal kernel timer frequency */
+>># define USER_HZ  100    /* .. some user interfaces are in "ticks" */
+>># define CLOCKS_PER_SEC  (USER_HZ)       /* like times() */
+>>#endif
+>>
+>>Thanks in advance for any help
+>>Mark
+> 
+> You are not supposed to 'tear apart' user-mode headers. In particular
+> you are not supposed to use anything in /usr/include/bits, /usr/include/asm,
+> or /usr/include/linux in user-mode programs. These are not POSIX headers.
+>
 
-Here is a very stupid bug checker for the problem class:
-$ rgrep CONFIG include/ | cut -d: -f1 | sort -u > g1
-$ rgrep CONFIG include/ | cut -d: -f1 | sort -u | xargs grep "config.h" | cut -d: -f1 | sort -u > g2
-$ diff -u g1 g2 | grep ^- > g3
+This was a kernel header used for reference. I'm not including them.
 
-Result is quite a long list for 2.6.13.  include/config/* are false
-positives, ok.  But what should we do about the rest?
 
--include/acpi/acpi_bus.h
--include/acpi/acpi_drivers.h
--include/acpi/actypes.h
--include/acpi/amlcode.h
--include/asm-alpha/bug.h
--include/asm-alpha/core_polaris.h
--include/asm-alpha/ioctls.h
--include/asm-alpha/pci.h
--include/asm-alpha/processor.h
--include/asm-alpha/rwsem.h
--include/asm-alpha/semaphore.h
--include/asm-alpha/topology.h
--include/asm-arm/arch-clps711x/debug-macro.S
--include/asm-arm/arch-clps711x/time.h
--include/asm-arm/arch-ebsa285/debug-macro.S
--include/asm-arm/arch-epxa10db/excalibur.h
--include/asm-arm/arch-epxa10db/hardware.h
--include/asm-arm/arch-epxa10db/pld_conf00.h
--include/asm-arm/arch-h720x/boards.h
--include/asm-arm/arch-h720x/dma.h
--include/asm-arm/arch-h720x/entry-macro.S
--include/asm-arm/arch-h720x/hardware.h
--include/asm-arm/arch-h720x/irqs.h
--include/asm-arm/arch-imx/hardware.h
--include/asm-arm/arch-integrator/hardware.h
--include/asm-arm/arch-integrator/platform.h
--include/asm-arm/arch-iop3xx/debug-macro.S
--include/asm-arm/arch-iop3xx/entry-macro.S
--include/asm-arm/arch-iop3xx/iop321.h
--include/asm-arm/arch-iop3xx/iop331-irqs.h
--include/asm-arm/arch-iop3xx/iop331.h
--include/asm-arm/arch-iop3xx/irqs.h
--include/asm-arm/arch-iop3xx/system.h
--include/asm-arm/arch-ixp2000/io.h
--include/asm-arm/arch-ixp2000/platform.h
--include/asm-arm/arch-ixp4xx/entry-macro.S
--include/asm-arm/arch-ixp4xx/hardware.h
--include/asm-arm/arch-ixp4xx/io.h
--include/asm-arm/arch-ixp4xx/irqs.h
--include/asm-arm/arch-ixp4xx/ixp4xx-regs.h
--include/asm-arm/arch-l7200/time.h
--include/asm-arm/arch-lh7a40x/entry-macro.S
--include/asm-arm/arch-lh7a40x/memory.h
--include/asm-arm/arch-omap/board-innovator.h
--include/asm-arm/arch-omap/cpu.h
--include/asm-arm/arch-omap/debug-macro.S
--include/asm-arm/arch-omap/fpga.h
--include/asm-arm/arch-omap/memory.h
--include/asm-arm/arch-omap/mux.h
--include/asm-arm/arch-omap/omap16xx.h
--include/asm-arm/arch-omap/omap730.h
--include/asm-arm/arch-omap/param.h
--include/asm-arm/arch-omap/pm.h
--include/asm-arm/arch-omap/tc.h
--include/asm-arm/arch-omap/tps65010.h
--include/asm-arm/arch-pxa/dma.h
--include/asm-arm/arch-pxa/entry-macro.S
--include/asm-arm/arch-pxa/memory.h
--include/asm-arm/arch-s3c2410/debug-macro.S
--include/asm-arm/arch-s3c2410/hardware.h
--include/asm-arm/arch-s3c2410/memory.h
--include/asm-arm/arch-s3c2410/regs-clock.h
--include/asm-arm/arch-s3c2410/regs-dsc.h
--include/asm-arm/arch-versatile/platform.h
--include/asm-arm/arch-versatile/system.h
--include/asm-arm/bitops.h
--include/asm-arm/hardware/pci_v3.h
--include/asm-arm/ide.h
--include/asm-arm/ioctls.h
--include/asm-arm/mach/irq.h
--include/asm-arm/mach/time.h
--include/asm-arm/numnodes.h
--include/asm-arm/setup.h
--include/asm-arm/spinlock.h
--include/asm-arm26/ioctls.h
--include/asm-cris/arch-v10/pgtable.h
--include/asm-cris/arch-v10/processor.h
--include/asm-cris/arch-v10/sv_addr.agh
--include/asm-cris/arch-v10/sv_addr_ag.h
--include/asm-cris/arch-v32/atomic.h
--include/asm-cris/arch-v32/hwregs/asm/intr_vect.h
--include/asm-cris/arch-v32/hwregs/intr_vect.h
--include/asm-cris/arch-v32/juliette.h
--include/asm-cris/arch-v32/spinlock.h
--include/asm-cris/dma-mapping.h
--include/asm-cris/dma.h
--include/asm-cris/io.h
--include/asm-cris/ioctls.h
--include/asm-cris/system.h
--include/asm-frv/cacheflush.h
--include/asm-frv/cpu-irqs.h
--include/asm-frv/ioctls.h
--include/asm-frv/mb-regs.h
--include/asm-frv/mb86943a.h
--include/asm-frv/mem-layout.h
--include/asm-frv/mmu.h
--include/asm-frv/setup.h
--include/asm-frv/thread_info.h
--include/asm-frv/topology.h
--include/asm-frv/uaccess.h
--include/asm-generic/percpu.h
--include/asm-generic/rtc.h
--include/asm-h8300/ioctls.h
--include/asm-h8300/irq.h
--include/asm-h8300/ptrace.h
--include/asm-h8300/timex.h
--include/asm-i386/acpi.h
--include/asm-i386/cacheflush.h
--include/asm-i386/cpu.h
--include/asm-i386/ioctls.h
--include/asm-i386/kprobes.h
--include/asm-i386/linkage.h
--include/asm-i386/mach-default/do_timer.h
--include/asm-i386/mach-default/entry_arch.h
--include/asm-i386/mach-default/irq_vectors_limits.h
--include/asm-i386/mach-default/mach_apic.h
--include/asm-i386/mach-default/pci-functions.h
--include/asm-i386/mach-es7000/mach_apic.h
--include/asm-i386/mach-es7000/mach_wakecpu.h
--include/asm-i386/mach-summit/mach_mpparse.h
--include/asm-i386/mach-visws/cobalt.h
--include/asm-i386/mach-visws/do_timer.h
--include/asm-i386/mach-visws/entry_arch.h
--include/asm-i386/mach-visws/mach_apic.h
--include/asm-i386/mach-voyager/do_timer.h
--include/asm-i386/mach-voyager/setup_arch_post.h
--include/asm-i386/mmzone.h
--include/asm-i386/module.h
--include/asm-i386/mpspec.h
--include/asm-i386/msi.h
--include/asm-i386/numaq.h
--include/asm-i386/ptrace.h
--include/asm-i386/sparsemem.h
--include/asm-i386/srat.h
--include/asm-i386/suspend.h
--include/asm-i386/timer.h
--include/asm-i386/topology.h
--include/asm-i386/voyager.h
--include/asm-ia64/acpi.h
--include/asm-ia64/bug.h
--include/asm-ia64/cpu.h
--include/asm-ia64/cyclone.h
--include/asm-ia64/hw_irq.h
--include/asm-ia64/ioctls.h
--include/asm-ia64/iosapic.h
--include/asm-ia64/irq.h
--include/asm-ia64/kprobes.h
--include/asm-ia64/mmu_context.h
--include/asm-ia64/mmzone.h
--include/asm-ia64/numnodes.h
--include/asm-ia64/pci.h
--include/asm-ia64/sal.h
--include/asm-ia64/sn/shub_mmr.h
--include/asm-ia64/sn/sn2/sn_hwperf.h
--include/asm-ia64/sn/tioca.h
--include/asm-ia64/spinlock.h
--include/asm-ia64/topology.h
--include/asm-m32r/ioctls.h
--include/asm-m32r/m32102.h
--include/asm-m32r/mmzone.h
--include/asm-m32r/s1d13806.h
--include/asm-m32r/thread_info.h
--include/asm-m68k/amigayle.h
--include/asm-m68k/amipcmcia.h
--include/asm-m68k/bvme6000hw.h
--include/asm-m68k/ioctls.h
--include/asm-m68k/mvme16xhw.h
--include/asm-m68knommu/anchor.h
--include/asm-m68knommu/atomic.h
--include/asm-m68knommu/cacheflush.h
--include/asm-m68knommu/checksum.h
--include/asm-m68knommu/dbg.h
--include/asm-m68knommu/delay.h
--include/asm-m68knommu/m5249sim.h
--include/asm-m68knommu/m5307sim.h
--include/asm-m68knommu/pci.h
--include/asm-m68knommu/ptrace.h
--include/asm-m68knommu/string.h
--include/asm-m68knommu/thread_info.h
--include/asm-m68knommu/ucontext.h
--include/asm-mips/arc/hinv.h
--include/asm-mips/bug.h
--include/asm-mips/ddb5xxx/ddb5074.h
--include/asm-mips/ddb5xxx/ddb5476.h
--include/asm-mips/galileo-boards/gt96100.h
--include/asm-mips/gt64120.h
--include/asm-mips/gt64240.h
--include/asm-mips/ioctls.h
--include/asm-mips/ip32/mace.h
--include/asm-mips/jazz.h
--include/asm-mips/lasat/lasat.h
--include/asm-mips/mach-au1x00/au1000_usbdev.h
--include/asm-mips/mach-au1x00/au1100_mmc.h
--include/asm-mips/mach-au1x00/au1xxx_psc.h
--include/asm-mips/mach-pb1x00/pb1000.h
--include/asm-mips/mips-boards/bonito64.h
--include/asm-mips/mips-boards/malta.h
--include/asm-mips/mmzone.h
--include/asm-mips/pci/bridge.h
--include/asm-mips/sgi/mc.h
--include/asm-mips/sibyte/sb1250_dma.h
--include/asm-mips/sibyte/sb1250_mc.h
--include/asm-mips/sibyte/sb1250_regs.h
--include/asm-mips/sibyte/sb1250_scd.h
--include/asm-mips/sni.h
--include/asm-mips/titan_dep.h
--include/asm-mips/tx4927/smsc_fdc37m81x.h
--include/asm-mips/tx4927/tx4927.h
--include/asm-parisc/assembly.h
--include/asm-parisc/bug.h
--include/asm-parisc/ioctls.h
--include/asm-parisc/led.h
--include/asm-parisc/mmzone.h
--include/asm-parisc/pdcpat.h
--include/asm-parisc/rt_sigframe.h
--include/asm-parisc/spinlock.h
--include/asm-parisc/superio.h
--include/asm-ppc/atomic.h
--include/asm-ppc/bug.h
--include/asm-ppc/cpm2.h
--include/asm-ppc/gg2.h
--include/asm-ppc/gt64260_defs.h
--include/asm-ppc/hawk_defs.h
--include/asm-ppc/highmem.h
--include/asm-ppc/ibm_ocp.h
--include/asm-ppc/ioctls.h
--include/asm-ppc/kexec.h
--include/asm-ppc/macio.h
--include/asm-ppc/mpc52xx.h
--include/asm-ppc/mpc8260_pci9.h
--include/asm-ppc/mv64x60_defs.h
--include/asm-ppc/pci.h
--include/asm-ppc/perfmon.h
--include/asm-ppc/pnp.h
--include/asm-ppc/ppc_sys.h
--include/asm-ppc/ppcboot.h
--include/asm-ppc/ptrace.h
--include/asm-ppc/reg.h
--include/asm-ppc/reg_booke.h
--include/asm-ppc/residual.h
--include/asm-ppc/spinlock.h
--include/asm-ppc/termios.h
--include/asm-ppc/uninorth.h
--include/asm-ppc64/bug.h
--include/asm-ppc64/iSeries/HvLpConfig.h
--include/asm-ppc64/ioctls.h
--include/asm-ppc64/iommu.h
--include/asm-ppc64/kprobes.h
--include/asm-ppc64/pSeries_reconfig.h
--include/asm-ppc64/pci.h
--include/asm-ppc64/ptrace.h
--include/asm-ppc64/rtas.h
--include/asm-ppc64/sparsemem.h
--include/asm-ppc64/termios.h
--include/asm-s390/bug.h
--include/asm-s390/ioctls.h
--include/asm-s390/pci.h
--include/asm-s390/percpu.h
--include/asm-s390/spinlock.h
--include/asm-sh/cpu-sh3/cache.h
--include/asm-sh/cpu-sh3/cacheflush.h
--include/asm-sh/cpu-sh3/freq.h
--include/asm-sh/cpu-sh3/timer.h
--include/asm-sh/cpu-sh4/cacheflush.h
--include/asm-sh/cpu-sh4/freq.h
--include/asm-sh/cpu-sh4/timer.h
--include/asm-sh/dreamcast/pci.h
--include/asm-sh/harp/harp.h
--include/asm-sh/ioctls.h
--include/asm-sh/kgdb.h
--include/asm-sh/mc146818rtc.h
--include/asm-sh/microdev/io.h
--include/asm-sh/mmu.h
--include/asm-sh/mmu_context.h
--include/asm-sh/module.h
--include/asm-sh/mpc1211/m1543c.h
--include/asm-sh/overdrive/gt64111.h
--include/asm-sh/param.h
--include/asm-sh/pci.h
--include/asm-sh/pgalloc.h
--include/asm-sh/processor.h
--include/asm-sh/rts7751r2d/rts7751r2d.h
--include/asm-sh/se/se.h
--include/asm-sh/se/smc37c93x.h
--include/asm-sh/sigcontext.h
--include/asm-sh/snapgear/io.h
--include/asm-sh/spinlock.h
--include/asm-sh/timex.h
--include/asm-sh/uaccess.h
--include/asm-sh/ubc.h
--include/asm-sh64/dma.h
--include/asm-sh64/io.h
--include/asm-sh64/ioctls.h
--include/asm-sh64/keyboard.h
--include/asm-sh64/pci.h
--include/asm-sh64/pgalloc.h
--include/asm-sh64/processor.h
--include/asm-sh64/registers.h
--include/asm-sh64/types.h
--include/asm-sparc/bug.h
--include/asm-sparc/highmem.h
--include/asm-sparc/ioctls.h
--include/asm-sparc/pci.h
--include/asm-sparc/pcic.h
--include/asm-sparc/spinlock.h
--include/asm-sparc64/asi.h
--include/asm-sparc64/bug.h
--include/asm-sparc64/ioctls.h
--include/asm-sparc64/pci.h
--include/asm-sparc64/percpu.h
--include/asm-sparc64/ptrace.h
--include/asm-sparc64/thread_info.h
--include/asm-sparc64/upa.h
--include/asm-um/pgtable-3level.h
--include/asm-um/pgtable.h
--include/asm-um/processor-ppc.h
--include/asm-v850/anna.h
--include/asm-v850/as85ep1.h
--include/asm-v850/bug.h
--include/asm-v850/cacheflush.h
--include/asm-v850/dma.h
--include/asm-v850/entry.h
--include/asm-v850/ioctls.h
--include/asm-v850/ma.h
--include/asm-v850/me2.h
--include/asm-v850/pci.h
--include/asm-v850/rte_cb.h
--include/asm-v850/rte_ma1_cb.h
--include/asm-v850/rte_me2_cb.h
--include/asm-v850/rte_nb85e_cb.h
--include/asm-v850/teg.h
--include/asm-v850/v850e2_cache.h
--include/asm-v850/v850e_uarta.h
--include/asm-v850/v850e_uartb.h
--include/asm-x86_64/acpi.h
--include/asm-x86_64/bug.h
--include/asm-x86_64/hpet.h
--include/asm-x86_64/ioctls.h
--include/asm-x86_64/irq.h
--include/asm-x86_64/mce.h
--include/asm-x86_64/mpspec.h
--include/asm-x86_64/nmi.h
--include/asm-x86_64/percpu.h
--include/asm-x86_64/proto.h
--include/asm-x86_64/sparsemem.h
--include/asm-x86_64/suspend.h
--include/asm-xtensa/bitops.h
--include/asm-xtensa/bug.h
--include/asm-xtensa/fixmap.h
--include/asm-xtensa/ioctls.h
--include/asm-xtensa/pgtable.h
--include/asm-xtensa/ptrace.h
--include/asm-xtensa/timex.h
--include/asm-xtensa/xtensa/config-linux_be/core.h
--include/asm-xtensa/xtensa/config-linux_be/system.h
--include/asm-xtensa/xtensa/config-linux_be/tie.h
--include/asm-xtensa/xtensa/hal.h
--include/linux/ac97_codec.h
--include/linux/amifdreg.h
--include/linux/arcdevice.h
--include/linux/atalk.h
--include/linux/audit.h
--include/linux/b1lli.h
--include/linux/bio.h
--include/linux/bootmem.h
--include/linux/capability.h
--include/linux/cciss_ioctl.h
--include/linux/cdrom.h
--include/linux/com20020.h
--include/linux/compat_ioctl.h
--include/linux/config.h
--include/linux/cpu.h
--include/linux/cpumask.h
--include/linux/cpuset.h
--include/linux/crash_dump.h
--include/linux/cycx_x25.h
--include/linux/debugfs.h
--include/linux/devpts_fs.h
--include/linux/dio.h
--include/linux/divert.h
--include/linux/dm-ioctl.h
--include/linux/dmi.h
--include/linux/efi.h
--include/linux/eisa.h
--include/linux/elf-fdpic.h
--include/linux/eventpoll.h
--include/linux/ext3_fs.h
--include/linux/ext3_fs_i.h
--include/linux/ext3_fs_sb.h
--include/linux/ext3_jbd.h
--include/linux/fb.h
--include/linux/fdreg.h
--include/linux/flat.h
--include/linux/fsnotify.h
--include/linux/gameport.h
--include/linux/harrier_defs.h
--include/linux/hdreg.h
--include/linux/hiddev.h
--include/linux/hugetlb.h
--include/linux/i2c.h
--include/linux/i2o-dev.h
--include/linux/i2o.h
--include/linux/if_wanpipe_common.h
--include/linux/input.h
--include/linux/ioctl32.h
--include/linux/ipmi.h
--include/linux/jbd.h
--include/linux/jffs2_fs_sb.h
--include/linux/kernel.h
--include/linux/kexec.h
--include/linux/key.h
--include/linux/kmalloc_sizes.h
--include/linux/kobject.h
--include/linux/kobject_uevent.h
--include/linux/libata.h
--include/linux/mca.h
--include/linux/mii.h
--include/linux/mtd/cfi_endian.h
--include/linux/mtio.h
--include/linux/mv643xx.h
--include/linux/netfilter_bridge/ebt_stp.h
--include/linux/netfilter_ipv4/ip_conntrack_protocol.h
--include/linux/netpoll.h
--include/linux/nfs_fs_sb.h
--include/linux/nfs_xdr.h
--include/linux/nfsd/const.h
--include/linux/nfsd_idmap.h
--include/linux/page-flags.h
--include/linux/pagemap.h
--include/linux/parport_pc.h
--include/linux/pci-acpi.h
--include/linux/percpu.h
--include/linux/pkt_cls.h
--include/linux/pktcdvd.h
--include/linux/pnp.h
--include/linux/pnpbios.h
--include/linux/ps2esdi.h
--include/linux/qic117.h
--include/linux/raw.h
--include/linux/reboot_fixups.h
--include/linux/reiserfs_acl.h
--include/linux/reiserfs_fs.h
--include/linux/reiserfs_fs_sb.h
--include/linux/rslib.h
--include/linux/sdla.h
--include/linux/sdla_asy.h
--include/linux/sdla_chdlc.h
--include/linux/sdla_fr.h
--include/linux/sdla_ppp.h
--include/linux/sdla_x25.h
--include/linux/sdlapci.h
--include/linux/security.h
--include/linux/sem.h
--include/linux/shm.h
--include/linux/sysctl.h
--include/linux/sysfs.h
--include/linux/topology.h
--include/linux/usb_ch9.h
--include/linux/usb_gadget.h
--include/linux/usb_gadgetfs.h
--include/linux/usbdevice_fs.h
--include/linux/vermagic.h
--include/linux/via.h
--include/linux/wanrouter.h
--include/linux/watchdog.h
--include/linux/zorro.h
--include/media/audiochip.h
--include/media/saa7146.h
--include/media/tuner.h
--include/net/act_api.h
--include/net/bluetooth/bluetooth.h
--include/net/bluetooth/hci_core.h
--include/net/dn_fib.h
--include/net/ieee80211.h
--include/net/if_inet6.h
--include/net/ipx.h
--include/net/irda/irlan_event.h
--include/net/llc.h
--include/net/ndisc.h
--include/net/neighbour.h
--include/net/pkt_cls.h
--include/net/pkt_sched.h
--include/net/sctp/constants.h
--include/net/sctp/structs.h
--include/net/tc_act/tc_gact.h
--include/net/xfrm.h
--include/pcmcia/cisreg.h
--include/pcmcia/cistpl.h
--include/pcmcia/cs.h
--include/pcmcia/ds.h
--include/rxrpc/rxrpc.h
--include/scsi/scsi_host.h
--include/sound/ac97_codec.h
--include/sound/ad1816a.h
--include/sound/control.h
--include/sound/core.h
--include/sound/cs4231.h
--include/sound/cs46xx.h
--include/sound/emux_synth.h
--include/sound/gus.h
--include/sound/hdsp.h
--include/sound/hdspm.h
--include/sound/hwdep.h
--include/sound/info.h
--include/sound/initval.h
--include/sound/minors.h
--include/sound/mixer_oss.h
--include/sound/opl3.h
--include/sound/pcm.h
--include/sound/rawmidi.h
--include/sound/sb.h
--include/sound/seq_kernel.h
--include/sound/snd_wavefront.h
--include/sound/uda1341.h
--include/sound/version.h
--include/sound/vx_core.h
--include/sound/ymfpci.h
--include/video/aty128.h
--include/video/cvisionppc.h
--include/video/epson1355.h
--include/video/kyro.h
--include/video/mach64.h
--include/video/neomagic.h
--include/video/newport.h
--include/video/permedia2.h
--include/video/radeon.h
--include/video/s1d13xxxfb.h
--include/video/sgivw.h
--include/video/tdfx.h
+> If a user-mode program needs to know HZ, it is very, very, broken.
+> HZ is some kernel timeout tick which doesn't relate to anything
+> a user program needs to know.
+> 
 
-Jörn
+Most if not all userland delay calls rely on HZ value in some way or 
+another. The minimum reliable delay you can get is one (kernel)HZ. A 
+program that needs an acurrate delay for a time shorter that one 
+(kernel)HZ may have an alternative if it knows that HZ is greater the 
+the requested delay. So to say my program is broken because it wants to 
+know the limitations of my OS/kernel is kind of far fetched.
 
--- 
-The story so far:
-In the beginning the Universe was created.  This has made a lot
-of people very angry and been widely regarded as a bad move.
--- Douglas Adams?
+
+> This is a problem and is why we should have a kernel system-call
+> that returns the HZ value. I asked about this several years ago
+> and its inclusion was flatly refused because of what I quoted
+> above. Perhaps now that HZ are dynamic, it would be posasible to
+> add that system call.
+> 
+
+I'll second that. I thought sysconf(_SC_CLK_TCK) was supposed to be that 
+call.
+
+> Note, that on this particular kernel, at this phase of the moon...
+> This program returns the HZ value.
+> 
+> #include <stdio.h>
+> #include <unistd.h>
+> 
+> int main()
+> {
+>      printf("%d\n", sysconf(_SC_CLK_TCK));
+>      return 0;
+> }
+> 
+> 
+> 
+
+No it does not. It returns USER_HZ. At least on any 2.6.12 and <.
+
+Mark

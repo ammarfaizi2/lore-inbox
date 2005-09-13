@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932135AbVIMED1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932192AbVIMEFV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932135AbVIMED1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 00:03:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932145AbVIMED0
+	id S932192AbVIMEFV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 00:05:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932145AbVIMEFV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 00:03:26 -0400
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:62163
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S932135AbVIMED0 (ORCPT
+	Tue, 13 Sep 2005 00:05:21 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:23718 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932132AbVIMEFT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 00:03:26 -0400
-Subject: Re: "Read my lips: no more merges" - aka Linux 2.6.14-rc1
-From: Alejandro Bonilla Beeche <abonilla@linuxwireless.org>
-Reply-To: abonilla@linuxwireless.org
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <7255.1126583985@kao2.melbourne.sgi.com>
-References: <7255.1126583985@kao2.melbourne.sgi.com>
-Content-Type: text/plain
-Date: Mon, 12 Sep 2005 22:03:12 -0600
-Message-Id: <1126584192.5708.22.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Tue, 13 Sep 2005 00:05:19 -0400
+From: Andi Kleen <ak@suse.de>
+To: discuss@x86-64.org
+Subject: Re: [discuss] [patch 2.6.13 (take #2)] swiotlb: BUG() for DMA_NONE in sync_single
+Date: Tue, 13 Sep 2005 06:05:30 +0200
+User-Agent: KMail/1.8
+Cc: "John W. Linville" <linville@tuxdriver.com>,
+       Grant Grundler <iod00d@hp.com>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org, tony.luck@intel.com,
+       Asit.K.Mallick@intel.com
+References: <09122005104851.31056@bilbo.tuxdriver.com> <20050912202333.GF21820@esmail.cup.hp.com> <20050912234532.GH19644@tuxdriver.com>
+In-Reply-To: <20050912234532.GH19644@tuxdriver.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509130605.31104.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-09-13 at 13:59 +1000, Keith Owens wrote:
-> On Mon, 12 Sep 2005 21:54:29 -0600, 
-> Alejandro Bonilla Beeche <abonilla@linuxwireless.org> wrote:
-> >If I do make menuconfig, it still says 2.6.13 instead of 2.6.14-rc1.
-> 
-> rsync.kernel.org has not been updated from the master yet.  Give it an
-> hour and try again.
+On Tuesday 13 September 2005 01:45, John W. Linville wrote:
+> Call BUG() if DMA_NONE is passed-in as direction for sync_single.
+> Also remove unnecessary checks for DMA_NONE in callers of sync_single.
+>
+> Signed-off-by: John W. Linville <linville@tuxdriver.com>
 
-Bah, My bad! I always do something wrong so I had to ask. ;-)
+Hi - your changes look good, but you missed the 2.6.14 merge window now
+so it'll be all 2.6.15 material. If you think there are any critical bug fixes
+in there (I didn't there were any) please extract them only.
 
-Sorry for spam.
-
-.Alejandro
-
+-Andi

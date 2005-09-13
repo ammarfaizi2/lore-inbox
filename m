@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932692AbVIMUAR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932698AbVIMUBf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932692AbVIMUAR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 16:00:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932695AbVIMUAR
+	id S932698AbVIMUBf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 16:01:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932697AbVIMUBf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 16:00:17 -0400
-Received: from wproxy.gmail.com ([64.233.184.200]:3162 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932694AbVIMUAP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 16:00:15 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=TITsCt7XrS7gMrusrPRfNUsnJSvZKIaGn8suWw35uN8/Nrr88WJYFYIh69jX9zELHTK7rvPYPXMoI2VDLnIAg+Dreck5RGnLMwzaUxM0owUFZORHQz7uK7ardMsjrVQKmEXV1kBgGfZK4M4eKLWcT5rL07A0l2hatbBsnkWaEtk=
-Date: Wed, 14 Sep 2005 00:10:16 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Josh Boyer <jdub@us.ibm.com>
-Cc: Brian Gerst <bgerst@didntduck.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Joern Engel <joern@infradead.org>, Andrew Morton <akpm@osdl.org>,
+	Tue, 13 Sep 2005 16:01:35 -0400
+Received: from postage-due.permabit.com ([66.228.95.230]:38041 "EHLO
+	postage-due.permabit.com") by vger.kernel.org with ESMTP
+	id S932698AbVIMUBd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 16:01:33 -0400
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, Valdis.Kletnieks@vt.edu,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Permanently fix kernel configuration include mess
-Message-ID: <20050913201016.GA6776@mipter.zuzino.mipt.ru>
-References: <20050913135622.GA30675@phoenix.infradead.org> <20050913150825.A23643@flint.arm.linux.org.uk> <20050913155012.C23643@flint.arm.linux.org.uk> <20050913165954.GA31461@phoenix.infradead.org> <20050913190409.B26494@flint.arm.linux.org.uk> <4327242B.5050806@didntduck.org> <1126639985.3209.9.camel@windu.rchland.ibm.com>
-Mime-Version: 1.0
+Subject: Re: [PATCH] nfs client, kernel 2.4.31: readlink result overflow
+References: <78irx6wh6j.fsf@sober-counsel.permabit.com>
+	<200509121846.j8CIk5YE025124@turing-police.cc.vt.edu>
+	<784q8qrsad.fsf@sober-counsel.permabit.com>
+	<200509122001.j8CK1kpW028651@turing-police.cc.vt.edu>
+	<788xy2qas0.fsf@sober-counsel.permabit.com>
+	<20050913183948.GE14889@dmt.cnet>
+	<784q8okdfn.fsf@sober-counsel.permabit.com>
+	<20050913193539.GB17222@dmt.cnet>
+From: Assar <assar@permabit.com>
+Date: 13 Sep 2005 16:01:11 -0400
+In-Reply-To: <20050913193539.GB17222@dmt.cnet>
+Message-ID: <784q8oivp4.fsf@sober-counsel.permabit.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1126639985.3209.9.camel@windu.rchland.ibm.com>
-User-Agent: Mutt/1.5.8i
+X-Permabit-Spam: SKIPPED
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 13, 2005 at 02:33:04PM -0500, Josh Boyer wrote:
-> That could probably be done in a later cleanup patch that removes all
-> "#include <linux/config.h>" statements as well.  Sounds like a job for
-> the kernel janitors project.
+Marcelo Tosatti <marcelo.tosatti@cyclades.com> writes:
+> > That's one problem.
+> > 
+> > > If thats the reason, you don't need the "-1" there?
+> > 
+> > It also writes a 0 byte.  I think it looks like this:
+> > 
+> > ---- ------------ -
+> > len  string...    0
+> 
+> If an overflow happens (len > rcvbuf->page_len) the last character will get 
+> truncated anyway, so there is no need for the "-1" AFAICS.
 
-Only after -imacros will hit mainline. For now, it's a "cleanup "make
-checkconfig" output".
+I'm not sure I follow.
 
-BTW, somebody who'll send a final patch, please, ensure that "make C=1"
-doesn't blow up. Grepping for "macros" on sparse codebase show nothing.
-
+The code writes a 0 at rcvbuf->pages[0][sizeof(u32) + len], right?
+Doesn't that make the maximum allowed value of len should be
+'rcvbuf->page_len - sizeof(u32) - 1' ?

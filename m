@@ -1,51 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932652AbVIMOxF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932655AbVIMOyM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932652AbVIMOxF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 10:53:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932653AbVIMOxF
+	id S932655AbVIMOyM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 10:54:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932654AbVIMOyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 10:53:05 -0400
-Received: from cavan.codon.org.uk ([217.147.92.49]:13979 "EHLO
-	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S932652AbVIMOxE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 10:53:04 -0400
-Date: Tue, 13 Sep 2005 15:52:47 +0100
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: linux-kernel@vger.kernel.org
-Cc: alsa-devel@alsa-project.org
-Subject: [PATCH] - allow multiple ac97 quirks for one piece of hardware
-Message-ID: <20050913145247.GA8422@srcf.ucam.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@vavatch.codon.org.uk
-X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
+	Tue, 13 Sep 2005 10:54:12 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:49293 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932656AbVIMOyL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 10:54:11 -0400
+Date: Tue, 13 Sep 2005 07:53:40 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Sripathi Kodi <sripathik@in.ibm.com>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       patrics@interia.pl, Ingo Molnar <mingo@elte.hu>,
+       Roland McGrath <roland@redhat.com>
+Subject: Re: [PATCH 2.6.13.1] Patch for invisible threads
+In-Reply-To: <4326CFE2.6000908@in.ibm.com>
+Message-ID: <Pine.LNX.4.58.0509130744070.3351@g5.osdl.org>
+References: <4325BEF3.2070901@in.ibm.com> <20050912134954.7bbd15b2.akpm@osdl.org>
+ <4326CFE2.6000908@in.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-snd_ac97_tune_hardware currently exits after applying a single ac97 
-quirk. There are bits of hardware (current HPs, for instance) that 
-probably want two - MUTE_LED and HP_ONLY. The following trivial patch 
-only exits if a quirk fails to apply. I'll send patches adding the 
-quirks when I've made sure they work as expected on these machines.
 
---- sound/pci/ac97/ac97_codec.c.orig	2005-09-13 15:45:35.000000000 +0100
-+++ linux/sound/pci/ac97/ac97_codec.c	2005-09-13 15:46:05.000000000 +0100
-@@ -2551,9 +2551,10 @@ int snd_ac97_tune_hardware(ac97_t *ac97,
- 				continue;
- 			snd_printdd("ac97 quirk for %s (%04x:%04x)\n", quirk->name, ac97->subsystem_vendor, ac97->subsystem_device);
- 			result = apply_quirk(ac97, quirk->type);
--			if (result < 0)
-+			if (result < 0) {
- 				snd_printk(KERN_ERR "applying quirk type %d for %s failed (%d)\n", quirk->type, quirk->name, result);
--			return result;
-+				return result;
-+			}
- 		}
- 	}
- 	return 0;
 
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+On Tue, 13 Sep 2005, Sripathi Kodi wrote:
+> 
+> Thanks and regards,
+> Sripathi.
+> 
+> Signed-off-by: Sripathi Kodi <sripathik@in.ibm.com>
+> 
+> --- linux-2.6.13.1/kernel/exit.c	2005-09-13 15:39:48.738542872 -0500
+> +++ /home/sripathi/17794/patch_2.6.13.1/exit.c	2005-09-13 15:39:27.367791720 
+> -0500
+> @@ -463,9 +463,13 @@ static inline void __exit_fs(struct task
+>   	struct fs_struct * fs = tsk->fs;
+> 
+>   	if (fs) {
+> -		task_lock(tsk);
+> -		tsk->fs = NULL;
+> -		task_unlock(tsk);
+> +		/* If tsk is thread group leader and if group still has alive
+> +		 * threads, those threads may use tsk->fs */
+> +		if (!thread_group_leader(tsk) || !atomic_read(&tsk->signal->live)) {
+> +			task_lock(tsk);
+> +			tsk->fs = NULL;
+> +			task_unlock(tsk);
+> +		}
+>   		__put_fs_struct(fs);
+>   	}
+>   }
+
+This really is wrong. You "put" the fs without clearing it in that thread, 
+which means that now the reference counts no longer match the number of 
+pointers to it. This will inevitably result in using stale fs pointers in 
+/proc at some point. Not good. In fact, I almost guarantee that you can do 
+that by just having a thread group which doesn't share it's file 
+descriptors (which is possible, even though no _nice_ program does it. 
+Think DoS/security attack).
+
+The sub-threads have a "->fs" of their own, and they'll happily continue 
+to use their own versions.
+
+So this patch is _wrong_.
+
+I think the problem is "proc_check_root()", which just refuses to do a lot 
+of things without a fs. Many of those things are unnecessary, afaik - we 
+should allow it. But allowing it means that some other paths may need more 
+checking..
+
+So you can _try_ to just make proc_check_root() return 0 when 
+proc_root_link() returns an error...
+
+		Linus

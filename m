@@ -1,85 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932421AbVIMHC4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932412AbVIMHEP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932421AbVIMHC4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 03:02:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932422AbVIMHCz
+	id S932412AbVIMHEP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 03:04:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbVIMHEP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 03:02:55 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:7303 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932421AbVIMHCz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 03:02:55 -0400
-Date: Tue, 13 Sep 2005 10:02:38 +0300 (EEST)
-From: Pekka J Enberg <penberg@cs.Helsinki.FI>
-To: Andrew Morton <akpm@osdl.org>
-cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
-       jirislaby@gmail.com, lion.vollnhals@web.de
-Subject: Re: [PATCH] use kzalloc instead of malloc+memset
-In-Reply-To: <20050912234200.10b2abe7.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0509131001400.31456@sbz-30.cs.Helsinki.FI>
-References: <200509130010.38483.lion.vollnhals@web.de> <43260817.7070907@gmail.com>
- <84144f0205091221431827b126@mail.gmail.com> <200509130033.11109.dtor_core@ameritech.net>
- <20050912234200.10b2abe7.akpm@osdl.org>
+	Tue, 13 Sep 2005 03:04:15 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:54485 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932412AbVIMHEO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 03:04:14 -0400
+Date: Tue, 13 Sep 2005 09:04:42 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, Paul Jackson <pj@sgi.com>,
+       Simon.Derr@bull.net, linux-kernel@vger.kernel.org, nikita@clusterfs.com
+Subject: Re: [PATCH] cpuset semaphore depth check optimize
+Message-ID: <20050913070442.GA5629@elte.hu>
+References: <20050912113030.15934.9433.sendpatchset@jackhammer.engr.sgi.com> <20050912043943.5795d8f8.akpm@osdl.org> <Pine.LNX.4.58.0509120732060.3242@g5.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0509120732060.3242@g5.osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov <dtor_core@ameritech.net> wrote:
-> > FWIW I also prefer spelling out the structure I am allocating.
 
-On Mon, 12 Sep 2005, Andrew Morton wrote:
-> It hurts readability.  Quick question: is this code correct?
+* Linus Torvalds <torvalds@osdl.org> wrote:
+
+> Personally, the thing that makes me think the patch is ugly is the 
+> fact that the different parts of the nested semaphore are all 
+> separate. I'd prefer to see a
 > 
-> 	dev = kmalloc(sizeof(struct net_device), GFP_KERNEL);
+> 	struct nested_semaphore {
+> 		struct semaphore sem;
+> 		struct task_struct *owner;
+> 		unsigned int count;
+> 	};
 > 
-> you don't know.  You have to go hunting down the declaration of `dev' to
-> find out.
+> and then operate on _that_ level instead.
 
-Andrew, how about something like this?
+btw., this is how the -rt tree implements (read-)nesting for rwsems and 
+rwlocks. The more sharing and embedding of types and primitives, the 
+more compact the whole code becomes, and the easier it is to change 
+fundamental properties.
 
-			Pekka
-
-[PATCH] CodingStyle: memory allocation
-
-This patch adds a new chapter on memory allocation to Documentation/CodingStyle.
-
-Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
----
-
- CodingStyle |   21 ++++++++++++++++++++-
- 1 files changed, 20 insertions(+), 1 deletion(-)
-
-Index: 2.6-mm/Documentation/CodingStyle
-===================================================================
---- 2.6-mm.orig/Documentation/CodingStyle
-+++ 2.6-mm/Documentation/CodingStyle
-@@ -410,7 +410,26 @@ Kernel messages do not have to be termin
- Printing numbers in parentheses (%d) adds no value and should be avoided.
- 
- 
--		Chapter 13: References
-+		Chapter 13: Allocating memory
-+
-+The kernel provides the following general purpose memory allocators:
-+kmalloc(), kzalloc(), kcalloc(), and vmalloc().  Please refer to the API
-+documentation for further information about them.
-+
-+The preferred form for passing a size of a struct is the following:
-+
-+	p = kmalloc(sizeof(*p), ...);
-+
-+The alternative form where struct name is spelled out hurts readability and
-+introduces an opportunity for a bug when the pointer variable type is changed
-+but the corresponding sizeof that is passed to a memory allocator is not.
-+
-+Casting the return value which is a void pointer is redundant. The conversion
-+from void pointer to any other pointer type is guaranteed by the C programming
-+language.
-+
-+
-+		Chapter 14: References
- 
- The C Programming Language, Second Edition
- by Brian W. Kernighan and Dennis M. Ritchie.
+	Ingo

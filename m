@@ -1,50 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965057AbVIMTHA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965072AbVIMTID@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965057AbVIMTHA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 15:07:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965055AbVIMTHA
+	id S965072AbVIMTID (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 15:08:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965073AbVIMTID
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 15:07:00 -0400
-Received: from rproxy.gmail.com ([64.233.170.200]:41711 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965057AbVIMTG6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 15:06:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=V3JNFecgwNpu5eoE0qSzD0riyUObwWsSQ1wQzrDHkn8bn3nURr/W9N/+u0n/ENeSq9ZINRKdGRwxgUU3mm0A21z4Y1GKn8MNaZe7ogvvvdWvsY3bjolSn3TctXYvSf0QOnJAhvgqgZV/zoVuQY3LvqiP6tFNMU1UHQcyu60GA84=
-Message-ID: <d120d5000509131206635b04e2@mail.gmail.com>
-Date: Tue, 13 Sep 2005 14:06:54 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Markus Lidel <Markus.Lidel@shadowconnect.com>
-Subject: Re: [PATCH 0/2] Couple of I2O sysfs changes
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <4326AAF8.2060702@shadowconnect.com>
+	Tue, 13 Sep 2005 15:08:03 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:38611 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965072AbVIMTIA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 15:08:00 -0400
+Date: Tue, 13 Sep 2005 12:07:07 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: James Morris <jmorris@namei.org>
+Cc: linux-kernel@vger.kernel.org, sds@epoch.ncsc.mil
+Subject: Re: [PATCH] SELinux - convert to kzalloc
+Message-Id: <20050913120707.74a19800.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.63.0509131116280.3479@excalibur.intercode>
+References: <Pine.LNX.4.63.0509131116280.3479@excalibur.intercode>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200509122331.59554.dtor_core@ameritech.net>
-	 <4326AAF8.2060702@shadowconnect.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/13/05, Markus Lidel <Markus.Lidel@shadowconnect.com> wrote:
-> > Also, it looks like i2o_device_class itself is not needed - correct
-> > me if I am wrong, but all i2o devics reside on their own bus so
-> > i2o_devices class simply mirrors iformation from the bus and can
-> > also be safely removed.
+James Morris <jmorris@namei.org> wrote:
+>
+>  This patch converts SELinux code from kmalloc/memset to the new kazalloc 
+>  function.  On i386, this results in a text saving of over 1K.
 > 
-> Nope, there is one bus per controller not per device...
+>  Before:
+>  text    data     bss     dec     hex filename
+>  86319    4642   15236  106197   19ed5 security/selinux/built-in.o
+>      
+>  After:
+>  text    data     bss     dec     hex filename
+>  85278    4642   15236  105156   19ac4 security/selinux/built-in.o
 > 
 
-That is what I was trying to say. Well, not exactly... What I was
-really trying to say is AFAIKS I2O system registers only one sysfs bus
-object and all I2O devices reside on it. Unlike, for exaple input
-objects, that can appear on serio, gameport, usb buses and so on. So
-if one wants to see all I2O devices in sysfs he could just check
-/sys/bus/i2o/devices/ and see them all there.
+That's a nice size reduction.  If we had kzalloc_gfp_kernel(size_t) we
+could drop an argument and save even more, but I suspect Linus would come
+after me with a cattle prod.
 
--- 
-Dmitry
+Note that the use of kzalloc() will nullify kmalloc's compile-time
+optimisation where it determines which slab to use at compile time -
+kzalloc() won't know the size and will have to do the table search.  But
+the performance benefit from text size reductions will balance that.
+
+SELinux seems to do a lot of kzalloc(a * b, flags):
+
+ +	mysids = kzalloc(maxnel*sizeof(*mysids), GFP_ATOMIC);
+ +	*names = (char**)kzalloc(sizeof(char*) * *len, GFP_ATOMIC);
+ +	mysids2 = kzalloc(maxnel*sizeof(*mysids2), GFP_ATOMIC);
+
+Consider using kcalloc() here.

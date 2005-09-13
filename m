@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932225AbVIMAOO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932344AbVIMAej@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932225AbVIMAOO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 20:14:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932382AbVIMAON
+	id S932344AbVIMAej (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 20:34:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932384AbVIMAej
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 20:14:13 -0400
-Received: from fmr15.intel.com ([192.55.52.69]:458 "EHLO
-	fmsfmr005.fm.intel.com") by vger.kernel.org with ESMTP
-	id S932225AbVIMAON convert rfc822-to-8bit (ORCPT
+	Mon, 12 Sep 2005 20:34:39 -0400
+Received: from wscnet.wsc.cz ([212.80.64.118]:20356 "EHLO wscnet.wsc.cz")
+	by vger.kernel.org with ESMTP id S932344AbVIMAej (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 20:14:13 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: new asm-offsets.h patch problems
-Date: Mon, 12 Sep 2005 17:14:01 -0700
-Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F045EB0BC@scsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: new asm-offsets.h patch problems
-Thread-Index: AcW391YCpFLFOwvzTdmmqlesMiG2UgAAD7Pw
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "Peter Chubb" <peterc@gelato.unsw.edu.au>
-Cc: "Sam Ravnborg" <sam@ravnborg.org>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 13 Sep 2005 00:14:02.0312 (UTC) FILETIME=[0B875C80:01C5B7F8]
+	Mon, 12 Sep 2005 20:34:39 -0400
+Date: Tue, 13 Sep 2005 02:34:29 +0200
+Message-Id: <200509130034.j8D0YTvA010397@wscnet.wsc.cz>
+In-reply-to: <200509130202.57093.lion.vollnhals@web.de>
+Subject: [PATCH] usb: bluetty fix old tty buffer using
+From: Jiri Slaby <jirislaby@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Lion Vollnhals <lion.vollnhals@web.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->There's something else wrong too ... make rebuilds everything every
->time on IA64 now, rather than just the things that have changed (when
->compiling with -O)
+Fix bluetty, after tty conversion there was an error in compilation.
 
-I've added a "sleep 2" to the arch/ia64/Makefile ... and all my
-non-deterministic problems appear to have gone away.
+Generated in 2.6.13-mm3 kernel version.
 
-I don't seem this re-build everything problem.  I just tried
-a "touch arch/ia64/kernel/efi.c ; make" and it only recompiled
-that one file.  That's with the "sleep" in the Makefile, but I
-can't imagine it affects this case.
+Signed-off-by: Jiri Slaby <xslaby@fi.muni.cz>
+---
 
-Can you give more details on what you did?
+ bluetty.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
--Tony
+diff --git a/drivers/usb/class/bluetty.c b/drivers/usb/class/bluetty.c
+--- a/drivers/usb/class/bluetty.c
++++ b/drivers/usb/class/bluetty.c
+@@ -794,7 +794,7 @@ static void bluetooth_int_callback (stru
+ 	if (packet_size + EVENT_HDR_SIZE == bluetooth->int_packet_pos) {
+ 		for (i = 0; i < bluetooth->int_packet_pos; ++i) {
+ 			/* if we insert more than TTY_FLIPBUF_SIZE characters, we drop them */
+-			if (bluetooth->tty->flip.count >= TTY_FLIPBUF_SIZE) {
++			if (!tty_buffer_request_room(bluetooth->tty, 1)) {
+ 				tty_flip_buffer_push(bluetooth->tty);
+ 			}
+ 			tty_insert_flip_char(bluetooth->tty, bluetooth->int_buffer[i], 0);
+@@ -922,7 +922,7 @@ static void bluetooth_read_bulk_callback
+ 	if (packet_size + ACL_HDR_SIZE == bluetooth->bulk_packet_pos) {
+ 		for (i = 0; i < bluetooth->bulk_packet_pos; ++i) {
+ 			/* if we insert more than TTY_FLIPBUF_SIZE characters, we drop them. */
+-			if (bluetooth->tty->flip.count >= TTY_FLIPBUF_SIZE) {
++			if (!tty_buffer_request_room(bluetooth->tty, 1)) {
+ 				tty_flip_buffer_push(bluetooth->tty);
+ 			}
+ 			tty_insert_flip_char(bluetooth->tty, bluetooth->bulk_buffer[i], 0);

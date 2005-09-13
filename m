@@ -1,34 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932238AbVIMFTf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932250AbVIMFWX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932238AbVIMFTf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 01:19:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbVIMFTf
+	id S932250AbVIMFWX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 01:22:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932247AbVIMFWX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 01:19:35 -0400
-Received: from uucp.cistron.nl ([62.216.30.38]:40834 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S932238AbVIMFTe (ORCPT
+	Tue, 13 Sep 2005 01:22:23 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:42177 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932232AbVIMFWW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 01:19:34 -0400
-From: dth@cistron.nl (Danny ter Haar)
-Subject: Re: 2.6.13-mm3
-Date: Tue, 13 Sep 2005 05:19:33 +0000 (UTC)
-Organization: Cistron
-Message-ID: <dg5nh5$daf$2@news.cistron.nl>
-References: <20050912024350.60e89eb1.akpm@osdl.org> <dg4qeg$27m$1@news.cistron.nl> <20050912220617.GA18215@kevlar.burdell.org> <211430000.1126565269@flay>
-X-Trace: ncc1701.cistron.net 1126588773 13647 62.216.30.70 (13 Sep 2005 05:19:33 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: dth@cistron.nl (Danny ter Haar)
+	Tue, 13 Sep 2005 01:22:22 -0400
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
+From: Keith Owens <kaos@sgi.com>
 To: linux-kernel@vger.kernel.org
+Cc: linux-ia64@vger.kernel.org
+Subject: 2.6.14-rc1 breaks tg3 on ia64
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 13 Sep 2005 15:22:17 +1000
+Message-ID: <22029.1126588937@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh <mbligh@mbligh.org> wrote:
->Jumbo frames, 8K kernel stacks, CIFS, and possibly NFS (though people dispute
->that) tend to be the main culprits, in my experience.
+2.6.14-rc1 + kdb on ia64 (SGI Altix).
 
-In my case i'm not using jumbo frames, CIFS and NFS.
+tg3.c:v3.39 (September 5, 2005)
+ACPI: PCI Interrupt 0001:01:04.0[A]: no GSI
+BRIDGE ERR_STATUS 0x800
+BRIDGE ERR_STATUS 0x800
+PCI BRIDGE ERROR: int_status is 0x800 for 011c32:slab0:widget15:bus0
+    Dumping relevant 011c32:slab0:widget15:bus0 registers for each bit set...
+        11: PCI bus device select timeout
+            PCI Error Address Register: 0x3000000316808
+            PCI Error Address: 0x316808
+    PIC Multiple Interrupt Register is 0x800
+        11: PCI bus device select timeout
 
-Danny
-
+Followed by a machine check and reboot :(  2.6.13 worked fine.  Any
+ideas which patch to backout this time?
 

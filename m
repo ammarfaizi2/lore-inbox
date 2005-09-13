@@ -1,49 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932661AbVIMPOO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932667AbVIMPP7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932661AbVIMPOO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 11:14:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932667AbVIMPOO
+	id S932667AbVIMPP7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 11:15:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932668AbVIMPP7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 11:14:14 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:44435 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932661AbVIMPOO (ORCPT
+	Tue, 13 Sep 2005 11:15:59 -0400
+Received: from xenotime.net ([66.160.160.81]:55992 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932667AbVIMPP7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 11:14:14 -0400
-Date: Tue, 13 Sep 2005 08:14:07 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Mathieu Fluhr <mfluhr@nero.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: "Read my lips: no more merges" - aka Linux 2.6.14-rc1
-In-Reply-To: <1126608030.3455.23.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0509130805250.3351@g5.osdl.org>
-References: <Pine.LNX.4.58.0509122019560.3351@g5.osdl.org>
- <1126608030.3455.23.camel@localhost.localdomain>
+	Tue, 13 Sep 2005 11:15:59 -0400
+Date: Tue, 13 Sep 2005 08:15:57 -0700 (PDT)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: iSteve <isteve@rulez.cz>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: query_modules syscall gone? Any replacement?
+In-Reply-To: <4326DE0E.2060306@rulez.cz>
+Message-ID: <Pine.LNX.4.50.0509130813010.7614-100000@shark.he.net>
+References: <4KSFY-2pO-17@gated-at.bofh.it> <E1EDpQq-0000iV-Oe@be1.lrz>
+ <4326DE0E.2060306@rulez.cz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 13 Sep 2005, iSteve wrote:
 
-
-On Tue, 13 Sep 2005, Mathieu Fluhr wrote:
+> Okay, so, I have so far gathered:
 >
-> DVD burning is broken since 2.6.13-rc1 and I checked this
-> morning the 2.6.14-rc1: Same status.
+>   - the whole module interface change between 2.4 and 2.6 was because
+> some security concerns, most of the stuff (loading module etc.) moved
+> towards kernel
+
+I thought it was due to raciness or locking concerns, but
+I'm not sure about that.
+
+>   - query_module is gone, there is no syscall similar in function but
+> with different name
+
+Right.
+
+>   - losing of query_module also prevents binary-only modules
+> (guesswork@work)
+
+Nope, they are not prevented.  However, there is a Tainted flag
+that is set when one is loaded (and that flag is never cleared).
+
+>   - /proc/modules and /sys/module interface doesn't by far supply what
+> query_module could do
+
+Can you state succinctly exactly what you are trying to do?
+
+> My questions are:
+> a) Are my observations correct? Where did I go wrong?
+> b) Is there any planned replacement of query_module, or extendind sysfs
+> or procfs module interface?
+
+Haven't heard of one.
+
+> c) Wouldn't revamping query_module also allow binary-only modules,
+
+they are still possible.
+
+> therefore easier decisions for vendors, whether to support Linux?
 >
-> As far as I looked in the source code, it seems to be lots (and lots) of
-> changes between these 2 versions, specially regarding block devices
-> drivers. But the ChangeLog is so huge that it is quite impossible to
-> make a step-by-step upgrade to see _where_ the problem is :-(
+> Thanks in advance and sorry for these probably quite silly questions.
+>
+>   - iSteve
 
-Yes, 2.6.12..2.6.13-rc1 was pretty big, However, the IDE driver changes 
-aren't that big.
-
-None of your bug-reports seem to say even what driver you're using, 
-though, so it's a bit hard to make any judgement at all.
-
-We at a minimum need to know what driver, and see boot messages (both
-working and nonworking), and preferably things like "hdparm -I" output 
-(again, both working and nonworking) too. Often "lspci -vvx" is useful 
-too.
-
-		Linus
+-- 
+~Randy

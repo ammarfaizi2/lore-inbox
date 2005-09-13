@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932413AbVIMHEs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932426AbVIMHFd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932413AbVIMHEs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 03:04:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932416AbVIMHEr
+	id S932426AbVIMHFd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 03:05:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932428AbVIMHFd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 03:04:47 -0400
-Received: from mf00.sitadelle.com ([212.94.174.67]:43841 "EHLO
-	smtp.cegetel.net") by vger.kernel.org with ESMTP id S932413AbVIMHEq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 03:04:46 -0400
-Message-ID: <43267A00.1010405@cosmosbay.com>
-Date: Tue, 13 Sep 2005 09:04:32 +0200
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Sonny Rao <sonny@burdell.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: "Read my lips: no more merges" - aka Linux 2.6.14-rc1
-References: <Pine.LNX.4.58.0509122019560.3351@g5.osdl.org> <20050913063359.GA29715@kevlar.burdell.org>
-In-Reply-To: <20050913063359.GA29715@kevlar.burdell.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Tue, 13 Sep 2005 03:05:33 -0400
+Received: from mail.kroah.org ([69.55.234.183]:3263 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932426AbVIMHFc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 03:05:32 -0400
+Date: Tue, 13 Sep 2005 00:03:24 -0700
+From: Greg KH <gregkh@suse.de>
+To: Grant <lkml@dodo.com.au>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Grant Coady <grant_lkml@dodo.com.au>,
+       Greg KH <greg@kroah.com>, "Gaston, Jason D" <jason.d.gaston@intel.com>,
+       mj@ucw.cz, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.13-rc4 1/1] pci_ids: patch for Intel ICH7R
+Message-ID: <20050913070324.GA7968@suse.de>
+References: <26CEE2C804D7BE47BC4686CDE863D0F5046EA44B@orsmsx410> <42EAABD1.8050903@pobox.com> <n4ple1haga8eano2vt2ipl17mrrmmi36jr@4ax.com> <42EAF987.7020607@pobox.com> <6f0me1p2q3g9ralg4a2k2mcra21lhpg6ij@4ax.com> <20050911031150.GA20536@kroah.com> <pfn7i1ll7g5bs8sm8kq0md33f8khsujrbf@4ax.com> <4323EFFE.2040102@pobox.com> <kctci1lqlgbr9ct7as48j551o6v9013504@4ax.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <kctci1lqlgbr9ct7as48j551o6v9013504@4ax.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sonny Rao a écrit :
-> On Mon, Sep 12, 2005 at 08:34:17PM -0700, Linus Torvalds wrote:
-> <snip> 
+On Tue, Sep 13, 2005 at 04:46:45PM +1000, Grant wrote:
+> On Sun, 11 Sep 2005 04:51:10 -0400, Jeff Garzik <jgarzik@pobox.com> wrote:
+> >
+> >pci_ids.h should be the place where PCI IDs (class, vendor, device) are 
+> >collected.
 > 
->>On the filesystem level, FUSE got merged, and ntfs and xfs got updated. In 
->>the core VFS layer, the "struct files" thing is now handled with RCU and 
->>has less expensive locking.
+> Few files reference it.
+
+include/pci.h does, so pretty much every pci driver does because of
+that.
+
+> >Long term, we should be able to trim a lot of device ids, since they are 
+> >usually only used in one place.
 > 
-> 
-> I hope this means that people will be more accepting of multi-threaded
-> benchmarks (who needs real apps... ;-)) which do open() and close().
-> 
-> 
-> Yes, no?
+> Well, they're not, and trimming a file marked for removal is pointless.
 
-If you look at RCU change, you discover they impact read()/write()/... (no 
-more locking), but not open()/dup()/socket() and close() that still take a 
-spinlock to modify the state.
+Huh?  That file isn't marked for removal, that was the id database,
+which is now gone...
 
-And if your process has many files opened, the cost (read : latency) of open() 
-can be very high, finding a zero bit in a large bit array.
+thanks,
 
-So these RCU changes can help some benchmarks (or real apps... ;-) ), but not 
-some others :)
-
-I wish a process param could allow open() to take any free fd available, not 
-the lowest one. One can always use fcntl(fd, F_DUPFD, slot) to move a fd on a 
-specific high slot and always keep the 64 first fd slots free to speedup the 
-kernel part at open()/dup()/socket() time.
-
-
+greg k-h

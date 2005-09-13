@@ -1,43 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932573AbVIMT7y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932692AbVIMUAR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932573AbVIMT7y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 15:59:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932692AbVIMT7y
+	id S932692AbVIMUAR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 16:00:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932695AbVIMUAR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 15:59:54 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:48065 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932573AbVIMT7y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 15:59:54 -0400
-Subject: Re: 2.6.13-rt6, ktimer subsystem
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>, dwalker@mvista.com,
-       George Anzinger <george@mvista.com>
-In-Reply-To: <20050913100040.GA13103@elte.hu>
-References: <20050913100040.GA13103@elte.hu>
-Content-Type: text/plain
-Date: Tue, 13 Sep 2005 15:59:49 -0400
-Message-Id: <1126641589.13893.52.camel@mindpipe>
+	Tue, 13 Sep 2005 16:00:17 -0400
+Received: from wproxy.gmail.com ([64.233.184.200]:3162 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932694AbVIMUAP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 16:00:15 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=TITsCt7XrS7gMrusrPRfNUsnJSvZKIaGn8suWw35uN8/Nrr88WJYFYIh69jX9zELHTK7rvPYPXMoI2VDLnIAg+Dreck5RGnLMwzaUxM0owUFZORHQz7uK7ardMsjrVQKmEXV1kBgGfZK4M4eKLWcT5rL07A0l2hatbBsnkWaEtk=
+Date: Wed, 14 Sep 2005 00:10:16 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Josh Boyer <jdub@us.ibm.com>
+Cc: Brian Gerst <bgerst@didntduck.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Joern Engel <joern@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Permanently fix kernel configuration include mess
+Message-ID: <20050913201016.GA6776@mipter.zuzino.mipt.ru>
+References: <20050913135622.GA30675@phoenix.infradead.org> <20050913150825.A23643@flint.arm.linux.org.uk> <20050913155012.C23643@flint.arm.linux.org.uk> <20050913165954.GA31461@phoenix.infradead.org> <20050913190409.B26494@flint.arm.linux.org.uk> <4327242B.5050806@didntduck.org> <1126639985.3209.9.camel@windu.rchland.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1126639985.3209.9.camel@windu.rchland.ibm.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-09-13 at 12:00 +0200, Ingo Molnar wrote:
-> i have released the 2.6.13-rt6 tree, which can be downloaded from the 
-> usual place:
-> 
->   http://redhat.com/~mingo/realtime-preempt/
+On Tue, Sep 13, 2005 at 02:33:04PM -0500, Josh Boyer wrote:
+> That could probably be done in a later cleanup patch that removes all
+> "#include <linux/config.h>" statements as well.  Sounds like a job for
+> the kernel janitors project.
 
+Only after -imacros will hit mainline. For now, it's a "cleanup "make
+checkconfig" output".
 
-Ingo,
-
-Is this supposed to work on amd64?  Lots of people on linux-audio-user
-report that it just reboots immediately when booting the kernel.  I have
-the .configs if you want them.
-
-Lee
+BTW, somebody who'll send a final patch, please, ensure that "make C=1"
+doesn't blow up. Grepping for "macros" on sparse codebase show nothing.
 

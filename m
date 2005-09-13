@@ -1,104 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750805AbVIMOAr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964784AbVIMOIc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750805AbVIMOAr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 10:00:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbVIMOAq
+	id S964784AbVIMOIc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 10:08:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964785AbVIMOIb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 10:00:46 -0400
-Received: from 216-54-166-16.gen.twtelecom.net ([216.54.166.16]:52950 "EHLO
-	mx1.compro.net") by vger.kernel.org with ESMTP id S1750805AbVIMOAq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 10:00:46 -0400
-Message-ID: <4326DB8A.7040109@compro.net>
-Date: Tue, 13 Sep 2005 10:00:42 -0400
-From: Mark Hounschell <markh@compro.net>
-Reply-To: markh@compro.net
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041220
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Tue, 13 Sep 2005 10:08:31 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:8969 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S964784AbVIMOIa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 10:08:30 -0400
+Date: Tue, 13 Sep 2005 15:08:26 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: =?iso-8859-1?Q?J=F6rn_Engel?= <joern@infradead.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: HZ question
-References: <4326CAB3.6020109@compro.net> <Pine.LNX.4.61.0509130919390.29445@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0509130919390.29445@chaos.analogic.com>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-PMX-Version: 5.0.3.165339, Antispam-Engine: 2.1.0.0, Antispam-Data: 2005.9.12.33
-X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='__CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0, __USER_AGENT 0'
-To: unlisted-recipients:; (no To-header on input)
+Subject: Re: Missing #include <config.h>
+Message-ID: <20050913150825.A23643@flint.arm.linux.org.uk>
+Mail-Followup-To: =?iso-8859-1?Q?J=F6rn_Engel?= <joern@infradead.org>,
+	linux-kernel@vger.kernel.org
+References: <20050913135622.GA30675@phoenix.infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050913135622.GA30675@phoenix.infradead.org>; from joern@infradead.org on Tue, Sep 13, 2005 at 02:56:23PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os (Dick Johnson) wrote:
-> On Tue, 13 Sep 2005, Mark Hounschell wrote:
-> 
->>I need to know the kernels value of HZ in a userland app.
->>
->>getconf CLK_TCK
->>     and
->>hz = sysconf (_SC_CLK_TCK)
->>
->>both seem to return CLOCKS_PER_SEC which is defined as USER_HZ which is
->>defined as 100.
->>
->>include/asm/param.h:
->>
->>#ifdef __KERNEL__
->># define HZ       1000   /* Internal kernel timer frequency */
->># define USER_HZ  100    /* .. some user interfaces are in "ticks" */
->># define CLOCKS_PER_SEC  (USER_HZ)       /* like times() */
->>#endif
->>
->>Thanks in advance for any help
->>Mark
-> 
-> You are not supposed to 'tear apart' user-mode headers. In particular
-> you are not supposed to use anything in /usr/include/bits, /usr/include/asm,
-> or /usr/include/linux in user-mode programs. These are not POSIX headers.
->
+On Tue, Sep 13, 2005 at 02:56:23PM +0100, Jörn Engel wrote:
+> After spending some hours last night and this morning hunting a bug,
+> I've found that a different include order made a difference.  Some
+> files don't work correctly, unless config.h is included before.
 
-This was a kernel header used for reference. I'm not including them.
+I'm still of the opinion that we should add
 
+	-imacros include/linux/config.h
 
-> If a user-mode program needs to know HZ, it is very, very, broken.
-> HZ is some kernel timeout tick which doesn't relate to anything
-> a user program needs to know.
-> 
+to the gcc command line and stop bothering with trying to get
+linux/config.h included into the right files and not in others.
+(which then means we can eliminate linux/config.h from all files.)
 
-Most if not all userland delay calls rely on HZ value in some way or 
-another. The minimum reliable delay you can get is one (kernel)HZ. A 
-program that needs an acurrate delay for a time shorter that one 
-(kernel)HZ may have an alternative if it knows that HZ is greater the 
-the requested delay. So to say my program is broken because it wants to 
-know the limitations of my OS/kernel is kind of far fetched.
+>From what you can see below, missing includes of it can remain
+for months, and it can cause bugs which are rather non-obvious.
 
-
-> This is a problem and is why we should have a kernel system-call
-> that returns the HZ value. I asked about this several years ago
-> and its inclusion was flatly refused because of what I quoted
-> above. Perhaps now that HZ are dynamic, it would be posasible to
-> add that system call.
-> 
-
-I'll second that. I thought sysconf(_SC_CLK_TCK) was supposed to be that 
-call.
-
-> Note, that on this particular kernel, at this phase of the moon...
-> This program returns the HZ value.
-> 
-> #include <stdio.h>
-> #include <unistd.h>
-> 
-> int main()
-> {
->      printf("%d\n", sysconf(_SC_CLK_TCK));
->      return 0;
-> }
-> 
-> 
-> 
-
-No it does not. It returns USER_HZ. At least on any 2.6.12 and <.
-
-Mark
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

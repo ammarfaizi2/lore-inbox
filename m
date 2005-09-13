@@ -1,66 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965133AbVIMTLP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965056AbVIMTQE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965133AbVIMTLP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 15:11:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965135AbVIMTLO
+	id S965056AbVIMTQE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 15:16:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965155AbVIMTQE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 15:11:14 -0400
-Received: from silver.veritas.com ([143.127.12.111]:39029 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S965133AbVIMTLL
+	Tue, 13 Sep 2005 15:16:04 -0400
+Received: from 216-54-166-16.gen.twtelecom.net ([216.54.166.16]:7134 "EHLO
+	mx1.compro.net") by vger.kernel.org with ESMTP id S965056AbVIMTQC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 15:11:11 -0400
-Date: Tue, 13 Sep 2005 20:10:55 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Andrew Morton <akpm@osdl.org>
-cc: dev@sw.ru, torvalds@osdl.org, linux-kernel@vger.kernel.org, xemul@sw.ru
-Subject: Re: [PATCH] error path in setup_arg_pages() misses vm_unacct_memory()
-In-Reply-To: <20050913113703.53d53d6a.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0509131945470.19481@goblin.wat.veritas.com>
-References: <4325B188.10404@sw.ru> <20050912132352.6d3a0e3a.akpm@osdl.org>
- <43268C21.9090704@sw.ru> <20050913014008.0ee54c62.akpm@osdl.org>
- <Pine.LNX.4.61.0509131220540.7040@goblin.wat.veritas.com>
- <20050913113703.53d53d6a.akpm@osdl.org>
+	Tue, 13 Sep 2005 15:16:02 -0400
+Message-ID: <4327256E.2000702@compro.net>
+Date: Tue, 13 Sep 2005 15:15:58 -0400
+From: Mark Hounschell <markh@compro.net>
+Reply-To: markh@compro.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041220
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 13 Sep 2005 19:11:11.0249 (UTC) FILETIME=[E724F010:01C5B896]
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: HZ question
+References: <4326CAB3.6020109@compro.net>	 <Pine.LNX.4.61.0509130919390.29445@chaos.analogic.com>	 <4326DB8A.7040109@compro.net>	 <Pine.LNX.4.53.0509131615160.13574@gockel.physik3.uni-rostock.de>	 <4326EAD7.50004@compro.net> <1126632856.3455.45.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1126632856.3455.45.camel@cog.beaverton.ibm.com>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-PMX-Version: 5.0.3.165339, Antispam-Engine: 2.1.0.0, Antispam-Data: 2005.9.13.18
+X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='__CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0, __USER_AGENT 0'
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Sep 2005, Andrew Morton wrote:
+john stultz wrote:
+
 > 
-> I don't think that it's any racier to move the allocation to after the
-> check than to have it before the check.  If we're worried, take mmap_sem -
-> most place already do that, but not all.
-
-mmap_sem?  That locks a single mm, but here we're talking about
-making reservations from what /proc/meminfo calls CommitLimit,
-for the whole machine.  I really don't see any need to change
-the ordering of what's done at present.
-
-> > But change the naming by all means, it was never good,
-> > and grew worse when "security_" got stuck on the front.
+> But you don't really want to know HZ, you want to know timer resolution.
+> That's a reasonable request and I believe the posix-timers
+> clock_getres() interface might provide what you need. Although I'd defer
+> to George (CC'ed) since he's more of an expert on those interfaces.
 > 
-> Yes, renaming it to something like alloc_vm_space() would suit.
+> You might also want to check out his HRT patches.
+> 
+> thanks
+> -john
 
-Nor am I in any hurry to change the name, though I agree with
-you and Alan that a name change would be good, in due course.
+Thanks John that does in fact seem to do what I needed. It gives me 
+enough info that I can tell the HZ of the running kernel. HaHa...
+I'm familiar with the HRT stuff as it was on the 2.4 kernel.
 
-I'm more interested in fixing the bugs Kirill and co discovered,
-and those I'm additionally finding on the way to fixing them in
-insert_vm_struct.  Notice how running a 32-bit binary on x86_64
-leaks 4kB into Committed_AS each time?
-
-But I'm puzzled as to why the same leak into Committed_AS doesn't
-occur on ppc64, each time an ELF binary is run, if vDSO is enabled.
-Or is it indeed leaking, but nobody has noticed?  I don't have any
-ppc64, could someone please check and see?  Thanks.
-
-insert_vm_struct is certainly the way to go (it's not obvious to
-callers whether VM_ACCOUNT is set or not), and there won't be any 
-security_vm_enough_memory calls outside mm/ (and kernel/fork.c)
-once I'm done: just a matter of where to stop (should it also
-vm_stat_account? can we trust callers to maintain total_vm?
-what about locked_vm?  rlimits?).
-
-Hugh
+Thanks
+Mark

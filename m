@@ -1,53 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932546AbVIMW1T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964820AbVIMW2d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932546AbVIMW1T (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 18:27:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932545AbVIMW1T
+	id S964820AbVIMW2d (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 18:28:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932547AbVIMW2d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 18:27:19 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:49078 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932506AbVIMW1S
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 18:27:18 -0400
-Date: Tue, 13 Sep 2005 15:25:19 -0700
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: Luben Tuikov <luben_tuikov@adaptec.com>
-Cc: Matthew Wilcox <matthew@wil.cx>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       Douglas Gilbert <dougg@torque.net>,
-       Christoph Hellwig <hch@infradead.org>, Luben Tuikov <ltuikov@yahoo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH 2.6.13 5/14] sas-class: sas_discover.c Discover process (end devices)
-Message-ID: <20050913222519.GA1308@us.ibm.com>
-References: <20050911094656.GC5429@infradead.org> <43251D8C.7020409@torque.net> <1126537041.4825.28.camel@mulgrave> <20050912164548.GB11455@us.ibm.com> <1126545680.4825.40.camel@mulgrave> <20050912184629.GA13489@us.ibm.com> <1126639342.4809.53.camel@mulgrave> <4327354E.7090409@adaptec.com> <20050913203611.GH32395@parisc-linux.org> <43273E6C.9050807@adaptec.com>
+	Tue, 13 Sep 2005 18:28:33 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:28578 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932544AbVIMW2d (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 18:28:33 -0400
+Date: Tue, 13 Sep 2005 15:28:30 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Andy Stewart <andystewart@comcast.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel 2.6.13 BUG tg3.c:2805 = crash (this one isn't tainted)
+Message-ID: <20050913222830.GG7991@shell0.pdx.osdl.net>
+References: <43263CDC.1010604@comcast.net> <43264C1C.9030207@comcast.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43273E6C.9050807@adaptec.com>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <43264C1C.9030207@comcast.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 13, 2005 at 05:02:36PM -0400, Luben Tuikov wrote:
-> On 09/13/05 16:36, Matthew Wilcox wrote:
-> > On Tue, Sep 13, 2005 at 04:23:42PM -0400, Luben Tuikov wrote:
-> > 
-> >>A SCSI LUN is not "u64 lun", it has never been and it will
-> >>never be.
-> >>
-> >>A SCSI LUN is "u8 LUN[8]" -- it is this from the Application
-> >>Layer down to the _transport layer_ (if you cared to look at
-> >>_any_ LL transport).
+* Andy Stewart (andystewart@comcast.net) wrote:
+> I think I have an idea of what I can do to cause this to occur:
+> 
+> 1) Run setiathome(boinc) so both CPUs are at 100% (nice) utilization
+> 2) Run rsync to sync a few GB between machines on a 100 Mb ethernet network
+> 3) Notice puzzlingly slow interactive response time with high (8-10)
+> load average.
+> 4) Click the mouse a bunch of times here, there, everywhere in
+> frustration with 3(above)
+> 5) I caused the crash within about 5 minutes.  I may be able to
+> reproduce it - not sure.
 
-Not all HBA drivers implement a mapping to a SCSI transport, we have
-raid drivers and even an FC driver that has its own lun definition that
-does not fit any SAM or SCSI spec.
+Might help to copy netdev on the report.  Seems you've had a bit of luck
+in reproducing.  Any chance on narrowing down to last known good kernel?
+There's been a fair bit of change in that driver between 2.6.12 and
+2.6.13.
 
-I think the only HBA's today that can handle an 8 byte lun are lpfc and
-iscsi (plus new SAS ones).
-
-So, we can't have one "LUN" that fits all, and it makes no sense to call
-it a LUN when it is really a wtf.
-
--- Patrick Mansfield
+thanks,
+-chris

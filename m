@@ -1,45 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964907AbVIMRMW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964880AbVIMROL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964907AbVIMRMW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 13:12:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964906AbVIMRMW
+	id S964880AbVIMROL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 13:14:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964894AbVIMROL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 13:12:22 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:56044 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S964905AbVIMRMW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 13:12:22 -0400
-Date: Tue, 13 Sep 2005 18:12:15 +0100
-From: Al Viro <viro@ZenIV.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Sripathi Kodi <sripathik@in.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, patrics@interia.pl,
-       Ingo Molnar <mingo@elte.hu>, Roland McGrath <roland@redhat.com>
-Subject: Re: [PATCH 2.6.13.1] Patch for invisible threads
-Message-ID: <20050913171215.GS25261@ZenIV.linux.org.uk>
-References: <4325BEF3.2070901@in.ibm.com> <20050912134954.7bbd15b2.akpm@osdl.org> <4326CFE2.6000908@in.ibm.com> <Pine.LNX.4.58.0509130744070.3351@g5.osdl.org> <20050913165102.GR25261@ZenIV.linux.org.uk> <Pine.LNX.4.58.0509131000040.3351@g5.osdl.org>
+	Tue, 13 Sep 2005 13:14:11 -0400
+Received: from wavehammer.waldi.eu.org ([82.139.196.55]:59064 "EHLO
+	wavehammer.waldi.eu.org") by vger.kernel.org with ESMTP
+	id S964880AbVIMROK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 13:14:10 -0400
+Date: Tue, 13 Sep 2005 19:14:03 +0200
+From: Bastian Blank <bastian@waldi.eu.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Pure 64 bootloaders
+Message-ID: <20050913171403.GA3464@wavehammer.waldi.eu.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <43232660.5070504@t-online.de> <EXCHG2003Aj5p1Fjxe0000006ad@EXCHG2003.microtech-ks.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="PNTmBPCT7hxwcZjr"
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0509131000040.3351@g5.osdl.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <EXCHG2003Aj5p1Fjxe0000006ad@EXCHG2003.microtech-ks.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 13, 2005 at 10:01:58AM -0700, Linus Torvalds wrote:
-> 
-> 
-> On Tue, 13 Sep 2005, Al Viro wrote:
-> > 
-> > What we need is to decide what kind of access control do we really want on
-> > /proc/<pid>/task.  That's it.
-> 
-> I don't think any controls at all. The real control should then be on the
-> /proc/<pid>/task/<tid> access, which should be the same as the /proc/<pid>
-> controls (except for thread <tid> rather than thread <pid>, of course)
 
-Well...  If exposing the list of tasks in a group is OK, we can just leave
-->permission NULL for that sucker.  If it's not (and arguably it can be
-sensitive information), we have a bigger problem - right now chroot boundary
-is the only control we have there; normally anyone can ls /proc/<whatever>/task
-and see other threads.
+--PNTmBPCT7hxwcZjr
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Sep 12, 2005 at 09:50:20AM -0500, Roger Heflin wrote:
+> I guess I see 5 choices:
+
+6.
+
+> #1:
+> Use lib for whatever the standard os/arch size is.
+>=20
+> Use lib32 for the non-standard size.
+
+And what happens for machines with more than one 32 and one 64bit ABI?
+
+> #2:=20
+> Continue the current mess.
+>=20
+> #3:
+> Use both lib32 and lib64 and maybe put a link from lib to the
+> default one, probably lib64.
+>=20
+> #4:
+> Use both lib32 and lib64 and don't put a link.
+>=20
+> #5:
+> Designate the bit size in the name of the lib, ie libc.so64 or
+> libc.so32 or something similar and put them all in the same
+> directory and let the lib loading code take care of finding the
+> correct size.
+
+#6:
+Use /lib/$arch-$os or similar and forgot about /lib/*.so.
+
+Bastian
+
+--=20
+Beam me up, Scotty!  It ate my phaser!
+
+--PNTmBPCT7hxwcZjr
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iEYEARECAAYFAkMnCNsACgkQnw66O/MvCNHCAACfQnhCJo19+erNTZoK+NbNxwk6
+tooAn3vW+P5S5tCTfuwGbIQYh7jXtPR4
+=5mxm
+-----END PGP SIGNATURE-----
+
+--PNTmBPCT7hxwcZjr--

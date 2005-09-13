@@ -1,74 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932613AbVIMLnQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932617AbVIMLpr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932613AbVIMLnQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 07:43:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932614AbVIMLnQ
+	id S932617AbVIMLpr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 07:45:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932618AbVIMLpr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 07:43:16 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:63453 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932613AbVIMLnQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 07:43:16 -0400
-Date: Tue, 13 Sep 2005 13:42:55 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Paul Jackson <pj@sgi.com>
-cc: akpm@osdl.org, torvalds@osdl.org, Simon.Derr@bull.net,
-       linux-kernel@vger.kernel.org, nikita@clusterfs.com
-Subject: Re: [PATCH] cpuset semaphore depth check optimize
-In-Reply-To: <20050912153135.3812d8e2.pj@sgi.com>
-Message-ID: <Pine.LNX.4.61.0509131120020.3728@scrub.home>
-References: <20050912113030.15934.9433.sendpatchset@jackhammer.engr.sgi.com>
- <20050912043943.5795d8f8.akpm@osdl.org> <20050912075155.3854b6e3.pj@sgi.com>
- <Pine.LNX.4.61.0509121821270.3743@scrub.home> <20050912153135.3812d8e2.pj@sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 13 Sep 2005 07:45:47 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:49629 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S932617AbVIMLpq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 07:45:46 -0400
+Date: Tue, 13 Sep 2005 15:45:29 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Olaf Hering <olh@suse.de>
+Cc: Andreas Koch <koch@esa.informatik.tu-darmstadt.de>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Greg KH <greg@kroah.com>, Marcus Wegner <wegner3000@hotmail.com>
+Subject: Re: 2.6.13: Crash in Yenta initialization
+Message-ID: <20050913154529.C15709@jurassic.park.msu.ru>
+References: <200509030138.11905.koch@esa.informatik.tu-darmstadt.de> <200509030245.12610.koch@esa.informatik.tu-darmstadt.de> <20050903223401.A7470@jurassic.park.msu.ru> <20050912174209.GA3965@suse.de> <20050913000733.A14261@jurassic.park.msu.ru> <20050913063053.GA24158@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20050913063053.GA24158@suse.de>; from olh@suse.de on Tue, Sep 13, 2005 at 08:30:53AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Sep 13, 2005 at 08:30:53AM +0200, Olaf Hering wrote:
+> The reporter has updated the bug.
+> 
+> https://bugzilla.novell.com/attachment.cgi?id=49717
+> https://bugzilla.novell.com/attachment.cgi?id=49715
+> https://bugzilla.novell.com/attachment.cgi?id=49716
 
-On Mon, 12 Sep 2005, Paul Jackson wrote:
+Thanks, that helped.
 
-> There are two reasons a cpuset is accessed from within the
-> allocation code.
->  1) Update the per-task mems_allowed if the current tasks cpuset
->     has changed its memory placement due to some other task
->     independently modifying that cpuset.
->  2) Walk up the cpuset hierarchy, starting from the tasks
->     cpuset, looking for a cpuset that is marked mem_exclusive,
->     and using the mems_allowed from that exclusive cpuset.
+The reason was that Acer BIOS left only _two_ bus numbers available
+for _three_ cardbus controllers, so pci_scan_bridge() assigns both
+numbers to the first controller and leaves two other ones uninitialized.
 
-If I read the source correctly, a cpuset cannot be removed or moved while 
-it's attached to a task, which makes it a lot simpler.
+Please try the patch here, but note that you'll apparently have only
+one cardbus slot working. If you want more, use "pci=assign-busses"
+boot option.
 
-This means you have to take the second lock when accessing tsk->cpuset 
-(you can basically replace task_lock()). Any allocator callback can now 
-use the second lock to scan the cpusets. IOW as soon as count is different 
-from zero, the cpuset is active and certain members become read-only. 
-Activation/deactivation is controlled by the second lock.
+Ivan.
 
-You can BTW avoid locking in cpuset_exit() completely in the common case:
-
-	tsk->cpuset = NULL;
-	if (atomic_dec_and_test(&cs->count) && notify_on_release(cs)) {
-		...
-	}
-
-Here you only need to release the reference, noone else should use that 
-task anymore. You only have to check in attach_task() that you don't 
-change a dead task.
-
-There may be a subtle problem with cpuset_fork(), there is a window from 
-dup_task_struct() until cpuset_fork(), where we have two pointers to a 
-cpuset but only a single reference. Another process could now change the 
-cpuset of the parent process to a different cpuset and the child process 
-may end up with an invalid cpuset and I don't see how this protected. The 
-only (simple) solution I see is to do this:
-
-	lock();
-	tsk->cpuset = current->cpuset;
-	atomic_inc(&tsk->cpuset->count);
-	unlock();
-
-bye, Roman
+--- 2.6.14-rc1/drivers/pcmcia/yenta_socket.c	Tue Sep 13 14:16:34 2005
++++ linux/drivers/pcmcia/yenta_socket.c	Tue Sep 13 14:40:40 2005
+@@ -1045,7 +1045,18 @@ static int __devinit yenta_probe (struct
+ {
+ 	struct yenta_socket *socket;
+ 	int ret;
+-	
++
++	/*
++	 * If we failed to assign proper bus numbers for this cardbus
++	 * controller during PCI probe, its subordinate pci_bus is NULL.
++	 * Bail out if so.
++	 */
++	if (!dev->subordinate) {
++		printk(KERN_ERROR "Yenta: no bus associated with %s!\n",
++			pci_name(dev));
++		return -ENODEV;
++	}
++
+ 	socket = kmalloc(sizeof(struct yenta_socket), GFP_KERNEL);
+ 	if (!socket)
+ 		return -ENOMEM;

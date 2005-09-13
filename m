@@ -1,73 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751077AbVIMXPG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932497AbVIMXR1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751077AbVIMXPG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 19:15:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751078AbVIMXPG
+	id S932497AbVIMXR1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 19:17:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbVIMXR1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 19:15:06 -0400
-Received: from iabervon.org ([66.92.72.58]:27660 "EHLO iabervon.org")
-	by vger.kernel.org with ESMTP id S1751077AbVIMXPE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 19:15:04 -0400
-Date: Tue, 13 Sep 2005 19:19:11 -0400 (EDT)
-From: Daniel Barkalow <barkalow@iabervon.org>
-To: Mark Hounschell <markh@compro.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: HZ question
-In-Reply-To: <432725E3.70304@compro.net>
-Message-ID: <Pine.LNX.4.63.0509131855570.23242@iabervon.org>
-References: <4326CAB3.6020109@compro.net> <Pine.LNX.4.61.0509130919390.29445@chaos.analogic.com>
- <4326DB8A.7040109@compro.net> <Pine.LNX.4.53.0509131615160.13574@gockel.physik3.uni-rostock.de>
- <4326EAD7.50004@compro.net> <Pine.LNX.4.53.0509131750580.15000@gockel.physik3.uni-rostock.de>
- <43270294.9010509@compro.net> <43271CA3.7050706@stesmi.com> <432725E3.70304@compro.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 13 Sep 2005 19:17:27 -0400
+Received: from serv01.siteground.net ([70.85.91.68]:28819 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S1751078AbVIMXR0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 19:17:26 -0400
+Date: Tue, 13 Sep 2005 16:17:17 -0700
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, dipankar@in.ibm.com,
+       bharata@in.ibm.com, shai@scalex86.org, rusty@rustcorp.com.au,
+       netdev@vger.kernel.org
+Subject: Re: [patch 9/11] net: dst_entry.refcount, use, lastuse to use alloc_percpu
+Message-ID: <20050913231717.GC6249@localhost.localdomain>
+References: <20050913161708.GK3570@localhost.localdomain> <20050913.132442.53540386.davem@davemloft.net> <20050913220737.GA6249@localhost.localdomain> <20050913.151216.48124942.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050913.151216.48124942.davem@davemloft.net>
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Sep 2005, Mark Hounschell wrote:
-
-> Stefan Smietanowski wrote:
-> > Mark Hounschell wrote:
-> > > >Tim Schmielau wrote:
-> > > >
-> > > > >Do you also want to know about CONFIG_PREEMPT, SMP, current load,
-> > > > >future
-> > > > >load in order to estimate the delay you want to ask for?
-> > > >
-> > > >Are not CONFIG_PREEMPT, SMP, and current load, all determinable from
-> > > >userland anyway? Why not HZ?
-> > 
-> > And with dynamic HZ?
-> > 
-> > Do you want
-> > a) The HZ that was used when we booted
-> > b) The HZ that is currently used (say 22, but could be 573 in 0.1s)
-> > c) The MIN HZ (if there is such a thing and it is configured)
-> >    that the kernel will use.
-> > d) The MAX HZ (same) that the kernel will use.
-> > 
-> > Or do you want USER_HZ?
-> > 
-> > Or are you after something else entirely.
-> > 
-> > // Stefan
+On Tue, Sep 13, 2005 at 03:12:16PM -0700, David S. Miller wrote:
+> From: Ravikiran G Thirumalai <kiran@scalex86.org>
+> Date: Tue, 13 Sep 2005 15:07:37 -0700
+> ...
+> But using bigrefs, no way.  We have enough trouble making the data
+> structures small without adding bloat like that.  A busy server can
+> have hundreds of thousands of dst cache entries active on it, and they
+> chew up enough memory as is.
 > 
-> If dynamic HZ means dynamic timer resolutions I don't want it at all.
-> 
-> I guess the 'terms' John just used, ie timer resolutions, as opposed to
-> HZ was maybe what I really should have asked for to begin with.
-> 
-> However since they are both bascially the same or at least one derived
-> from the other......?
 
-There's nothing to say that the kernel couldn't have hardware programmed 
-to give an interrupt and schedule your process at some point that wouldn't 
-normally be a scheduler tick. So the HRT interface could give you better 
-than HZ. Also, there's the possibility that the kernel could slack off on 
-HZ when you're not using HRT, and then there are patches for "tickless", 
-where it just programs the timer for the next time something is scheduled 
-to happen, and there's no fixed rate outside of actual activity.
+But even 1 Million dst cache entries would be 16+4 MB additional for a 4 cpu 
+box....is that too much?  The alloc_percpu reimplementation interleaves
+objects on cache lines, unlike the existing implementation which pads per-cpu
+objects to cache lines...
 
-	-Daniel
-*This .sig left intentionally blank*
+If you are referring to embedded routing devices,
+would they use CONFIG_NUMA or CONFIG_SMP?? (bigrefs nicely fold back to
+regular atomic_t s on UPs)
+
+Thanks,
+Kiran

@@ -1,34 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932325AbVIMGI4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932339AbVIMGLw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932325AbVIMGI4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 02:08:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932338AbVIMGI4
+	id S932339AbVIMGLw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 02:11:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932343AbVIMGLv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 02:08:56 -0400
-Received: from pne-smtpout2-sn1.fre.skanova.net ([81.228.11.159]:35780 "EHLO
-	pne-smtpout2-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S932325AbVIMGI4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 02:08:56 -0400
-Date: Tue, 13 Sep 2005 08:07:32 +0200
-From: Voluspa <lista1@telia.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: "Read my lips: no more merges" - aka Linux 2.6.14-rc1
-Message-Id: <20050913080732.20600966.lista1@telia.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 13 Sep 2005 02:11:51 -0400
+Received: from smtpout.mac.com ([17.250.248.88]:31695 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S932339AbVIMGLv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 02:11:51 -0400
+Mime-Version: 1.0 (Apple Message framework v734)
 Content-Transfer-Encoding: 7bit
+Message-Id: <6789B04A-198A-4C08-9F95-BFDBCD2C0660@mac.com>
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+To: LKML Kernel <linux-kernel@vger.kernel.org>
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Kernel ABI headers step #1: Gathering information
+Date: Tue, 13 Sep 2005 02:11:28 -0400
+X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+As part of the kernel ABI headers project, I need to gather  
+information on what
+GCC provides on a variety of architectures and configurations.  I am  
+looking for
+people with a variety of architectures and distributions to run the  
+script below
+and (privately, please, no need to flood the list!) email me the  
+output.  I'm
+only interested in archs supported by linux, obviously :-D.  This  
+should help me
+to see if there are any global CPP features that can be relied upon  
+across the
+whole spectrum.  If you have any especially obtuse GCC/platform  
+combination, I
+would really appreciate it if you could do this, as otherwise I'm  
+unlikely to
+be able to locate all of said GCC combinations.  (The reason I get  
+the kernel
+version is so I'm able to tie GCC archs to kernel archs).  Once I've  
+got a
+decent database of per-arch features/macros/etc, I'll try to post it  
+online
+somewhere for all to access.  Thanks for all your help!
 
-root:sleipner:/usr/src/testing/linux-2.6.14-rc1# make modules_install
-[...]
-if [ -r System.map -a -x /sbin/depmod ]; then /sbin/depmod -ae -F
-System.map  2. 6.14-rc1; fi
-WARNING: /lib/modules/2.6.14-rc1/kernel/drivers/char/agp/amd64-agp.ko
-needs unknown symbol end_pfn
+Cheers,
+Kyle Moffett
 
-Mvh
-Mats Johannesson
 --
+There are two ways of constructing a software design. One way is to  
+make it so
+simple that there are obviously no deficiencies. And the other way is  
+to make
+it so complicated that there are no obvious deficiencies.  The first  
+method is
+far more difficult.
+   -- C.A.R. Hoare
+
+
+
+#! /bin/sh
+
+echo "Linux kernel version:"
+uname -a
+echo
+echo
+echo "GCC version:"
+gcc -v
+echo
+echo
+echo "GCC predefined macros:"
+echo | gcc -E - -dM | sort
+
+

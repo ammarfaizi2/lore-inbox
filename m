@@ -1,55 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932516AbVIMUJE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbVIMUJf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932516AbVIMUJE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 16:09:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932701AbVIMUJE
+	id S932075AbVIMUJf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 16:09:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932695AbVIMUJf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 16:09:04 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:30093
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932516AbVIMUJB convert rfc822-to-8bit (ORCPT
+	Tue, 13 Sep 2005 16:09:35 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:58598 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932075AbVIMUJe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 16:09:01 -0400
-Date: Tue, 13 Sep 2005 13:08:42 -0700 (PDT)
-Message-Id: <20050913.130842.52078742.davem@davemloft.net>
-To: kloczek@rudy.mif.pg.gda.pl
-Cc: linux-kernel@vger.kernel.org, davem@redhat.com, sparclinux@vger.kernel.org,
-       aurora-sparc-devel@lists.auroralinux.org
-Subject: Re: [2.6.13-rc6-git13/sparc64]: Slab corruption (possible stack or
- buffer-cache corruption)
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <Pine.BSO.4.62.0509131148020.5000@rudy.mif.pg.gda.pl>
-References: <Pine.BSO.4.62.0509121604360.5000@rudy.mif.pg.gda.pl>
-	<20050912.161326.131841878.davem@davemloft.net>
-	<Pine.BSO.4.62.0509131148020.5000@rudy.mif.pg.gda.pl>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Tue, 13 Sep 2005 16:09:34 -0400
+Date: Tue, 13 Sep 2005 22:10:04 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>, dwalker@mvista.com,
+       George Anzinger <george@mvista.com>
+Subject: Re: 2.6.13-rt6, ktimer subsystem
+Message-ID: <20050913201004.GA32608@elte.hu>
+References: <20050913100040.GA13103@elte.hu> <1126641589.13893.52.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-2
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1126641589.13893.52.camel@mindpipe>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Tomasz K³oczko <kloczek@rudy.mif.pg.gda.pl>
-Date: Tue, 13 Sep 2005 12:12:22 +0200 (CEST)
 
-> # grep "^Sep 12" /var/log/messages | grep kernel: | uniq | cut -d " " -f 6- | sort | uniq -c | sort -n | tail -n 2
->      509 svc: bad direction 268435456, dropping request
->      653 eth0: Happy Meal out of receive descriptors, packet dropped.
+* Lee Revell <rlrevell@joe-job.com> wrote:
+
+> On Tue, 2005-09-13 at 12:00 +0200, Ingo Molnar wrote:
+> > i have released the 2.6.13-rt6 tree, which can be downloaded from the 
+> > usual place:
+> > 
+> >   http://redhat.com/~mingo/realtime-preempt/
 > 
-> As you see one of this two messagess occures avarange one time per ~two 
-> minutes.
-> Second looks like some error in sunhme.c. eth0 it is:
+> 
+> Ingo,
+> 
+> Is this supposed to work on amd64?  Lots of people on linux-audio-user 
+> report that it just reboots immediately when booting the kernel.  I 
+> have the .configs if you want them.
 
-It's not a bug, per se, your system is simply receiving more
-network traffic than the kernel can receive.  So the network
-adapter runs out of receive descriptors in which to receive
-new packets, and starts dropping them until the kernel catches
-up again.  That's what that message means.
+it wont even build right now, due to the ktimer changes. I'll fix x64 up 
+once things have settled down a bit. (but if someone does patches i'll 
+sure apply them)
 
-The "svc: " one I've seen before, it looks like something is
-clobbering the sunrpc message, for example a freed up buffer is having
-some bit set in one of it's words.  This 268435456 value is
-"0x10000000" hexadecimal.  The code expects the value zero, and we
-have a stray bit being set in there, bit 28 to be exact.  This would
-actually be expected after you trigger something like that
-destroy_inode() bug as a buffer is being free'd up twice.
+	Ingo

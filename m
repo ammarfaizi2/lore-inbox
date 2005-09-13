@@ -1,51 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964876AbVIMQpl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964875AbVIMQrV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964876AbVIMQpl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 12:45:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964875AbVIMQpl
+	id S964875AbVIMQrV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 12:47:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964878AbVIMQrV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 12:45:41 -0400
-Received: from fmr16.intel.com ([192.55.52.70]:27087 "EHLO
-	fmsfmr006.fm.intel.com") by vger.kernel.org with ESMTP
-	id S964871AbVIMQpk convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 12:45:40 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Tue, 13 Sep 2005 12:47:21 -0400
+Received: from 216-54-166-16.gen.twtelecom.net ([216.54.166.16]:58330 "EHLO
+	mx1.compro.net") by vger.kernel.org with ESMTP id S964875AbVIMQrU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 12:47:20 -0400
+Message-ID: <43270294.9010509@compro.net>
+Date: Tue, 13 Sep 2005 12:47:16 -0400
+From: Mark Hounschell <markh@compro.net>
+Reply-To: markh@compro.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041220
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [patch 2.6.13] ia64: re-implement dma_get_cache_alignment to avoid EXPORT_SYMBOL
-Date: Tue, 13 Sep 2005 09:45:21 -0700
-Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F045EB564@scsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch 2.6.13] ia64: re-implement dma_get_cache_alignment to avoid EXPORT_SYMBOL
-Thread-Index: AcW4XmS7vGgETi1vR124/eLJsDxNXwAI3N8w
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "Lion Vollnhals" <lion.vollnhals@web.de>,
-       "John W. Linville" <linville@tuxdriver.com>
-Cc: "Christoph Hellwig" <hch@infradead.org>, <linux-kernel@vger.kernel.org>,
-       <linux-ia64@vger.kernel.org>
-X-OriginalArrivalTime: 13 Sep 2005 16:45:23.0687 (UTC) FILETIME=[8930E770:01C5B882]
+To: linux-kernel@vger.kernel.org
+Subject: Re: HZ question
+References: <4326CAB3.6020109@compro.net> <Pine.LNX.4.61.0509130919390.29445@chaos.analogic.com> <4326DB8A.7040109@compro.net> <Pine.LNX.4.53.0509131615160.13574@gockel.physik3.uni-rostock.de> <4326EAD7.50004@compro.net> <Pine.LNX.4.53.0509131750580.15000@gockel.physik3.uni-rostock.de>
+In-Reply-To: <Pine.LNX.4.53.0509131750580.15000@gockel.physik3.uni-rostock.de>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-PMX-Version: 5.0.3.165339, Antispam-Engine: 2.1.0.0, Antispam-Data: 2005.9.12.33
+X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='__CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0, __USER_AGENT 0'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>  unsigned long ia64_max_cacheline_size;
->> +
->> +int dma_get_cache_alignment(void)
->> +{
->> +        return ia64_max_cacheline_size;
->> +}
->> +EXPORT_SYMBOL(dma_get_cache_alignment);
->> +
->
->Are you intentionally returning an "int" instead of an "unsigned long"?
+Tim Schmielau wrote:
 
-The old version used to return int, as does the the version
-on other architectures.  The problem appears to be the
-definition "unsigned long ia64_max_cacheline_size;"
+> Do you also want to know about CONFIG_PREEMPT, SMP, current load, future
+> load in order to estimate the delay you want to ask for?
 
-I think an int should be plenty big enough :-)
+Are not CONFIG_PREEMPT, SMP, and current load, all determinable from 
+userland anyway? Why not HZ?
 
--Tony
+Mark
+

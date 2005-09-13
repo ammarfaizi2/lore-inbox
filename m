@@ -1,125 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932615AbVIMLoz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932613AbVIMLnQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932615AbVIMLoz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 07:44:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932617AbVIMLoz
+	id S932613AbVIMLnQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 07:43:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932614AbVIMLnQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 07:44:55 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:62648 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932615AbVIMLoy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 07:44:54 -0400
-Message-ID: <00b601c5b858$8a8c4ad0$dba0220a@CARREN>
-From: "Hironobu Ishii" <hishii@soft.fujitsu.com>
-To: "Russell King" <rmk+lkml@arm.linux.org.uk>,
-       "Taku Izumi" <izumi2005@soft.fujitsu.com>
-Cc: <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
-References: <200509072146.j87LkNv8004076@shell0.pdx.osdl.net> <20050907224911.H19199@flint.arm.linux.org.uk> <4394.10.124.102.246.1126165652.squirrel@dominion> <20050913091740.A8256@flint.arm.linux.org.uk>
-Subject: Re: performance-improvement-of-serial-console-via-virtual.patch added to -mm tree
-Date: Tue, 13 Sep 2005 20:44:37 +0900
+	Tue, 13 Sep 2005 07:43:16 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:63453 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932613AbVIMLnQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 07:43:16 -0400
+Date: Tue, 13 Sep 2005 13:42:55 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Paul Jackson <pj@sgi.com>
+cc: akpm@osdl.org, torvalds@osdl.org, Simon.Derr@bull.net,
+       linux-kernel@vger.kernel.org, nikita@clusterfs.com
+Subject: Re: [PATCH] cpuset semaphore depth check optimize
+In-Reply-To: <20050912153135.3812d8e2.pj@sgi.com>
+Message-ID: <Pine.LNX.4.61.0509131120020.3728@scrub.home>
+References: <20050912113030.15934.9433.sendpatchset@jackhammer.engr.sgi.com>
+ <20050912043943.5795d8f8.akpm@osdl.org> <20050912075155.3854b6e3.pj@sgi.com>
+ <Pine.LNX.4.61.0509121821270.3743@scrub.home> <20050912153135.3812d8e2.pj@sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2670
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Russel,
+Hi,
 
-I am working with Taku,
+On Mon, 12 Sep 2005, Paul Jackson wrote:
 
-> On Thu, Sep 08, 2005 at 04:47:32PM +0900, Taku Izumi wrote:
->> >I don't think we want this.  With early serial console, tx_loadsz is
->> >not guaranteed to be initialised, and may in fact be zero.
->> 
->> >Plus there's no guarantee that the FIFOs will actually be enabled, so
->> >I think it's better that this patch doesn't go to mainline.
->> 
->> Our server has a virtual serial port, but its performance seems to be poor.
->> It takes 10 seconds to output 4000 characters (from kernel) to serial
->> console. By applying my patch, its peformance could be improved. ( 0.4
->> seconds / 4000 characters output), so I think it is useful to use FIFO at
->> serial8250_console_write function like transmit_chars function. Where
->> should I correct in order to use FIFO?
-> 
-> The problem is that we don't know:
-> 
-> * if there is a FIFO
-> * what size the FIFO is
+> There are two reasons a cpuset is accessed from within the
+> allocation code.
+>  1) Update the per-task mems_allowed if the current tasks cpuset
+>     has changed its memory placement due to some other task
+>     independently modifying that cpuset.
+>  2) Walk up the cpuset hierarchy, starting from the tasks
+>     cpuset, looking for a cpuset that is marked mem_exclusive,
+>     and using the mems_allowed from that exclusive cpuset.
 
-I understand tx_loadsz is practical TX FIFO size. 
-If there is no FIFO, tx_loadsz becomes 1.
-Is it wrong?
-  
- - tx_loadsz is properly initilized in autoconfig().
- - FIFO is enabled in serial8250_clear_fifo() called from autoconfig(),
-   if FIFO exist.
- - autoconfig() is called from serial8250_isa_init_ports().
- - serial8250_isa_init_ports() is called from serial8250_console_init() etc.
- 
-I can't find the problem you are pointing out.
+If I read the source correctly, a cpuset cannot be removed or moved while 
+it's attached to a task, which makes it a lot simpler.
 
-> * if it has been initialised
-> * how much data is already contained in the FIFO
+This means you have to take the second lock when accessing tsk->cpuset 
+(you can basically replace task_lock()). Any allocator callback can now 
+use the second lock to scan the cpusets. IOW as soon as count is different 
+from zero, the cpuset is active and certain members become read-only. 
+Activation/deactivation is controlled by the second lock.
 
-Right, we can't know how many byte exist in the FIFO.
-So this patch is waiting the FIFO becomes empty at first
-by calling "wait_for_xmitr(up)".
-(This is the same logic with original.)
+You can BTW avoid locking in cpuset_exit() completely in the common case:
 
-After TX FIFO become empty, we can decide the available 
-TX FIFO depth by up->tx_loadsize.
+	tsk->cpuset = NULL;
+	if (atomic_dec_and_test(&cs->count) && notify_on_release(cs)) {
+		...
+	}
 
->        for (i = 0; i < count; ) {
->                int     fifo;
->
->                wait_for_xmitr(up);
->                fifo = up->tx_loadsz;
->                /*
->                 *      Send the character out using FIFO.
->                 *      If a LF, also do CR...
->                 */
->                do {
->                        serial_out(up, UART_TX, *s);
->                        fifo--;
->                        if (*s == 10) {
->                                if (fifo > 0) {
->                                        serial_out(up, UART_TX, 13);
->                                        fifo--;
->                                } else {
->                                        /* No room to add CR */
->                                        wait_for_xmitr(up);
->                                        fifo = up->tx_loadsz;
->                                        serial_out(up, UART_TX, 13);
->                                        fifo--;
->                                }
->                        }
->                        i++;
->                        s++;
->                } while (fifo > 0 && i < count );
->        }
+Here you only need to release the reference, noone else should use that 
+task anymore. You only have to check in attach_task() that you don't 
+change a dead task.
 
+There may be a subtle problem with cpuset_fork(), there is a window from 
+dup_task_struct() until cpuset_fork(), where we have two pointers to a 
+cpuset but only a single reference. Another process could now change the 
+cpuset of the parent process to a different cpuset and the child process 
+may end up with an invalid cpuset and I don't see how this protected. The 
+only (simple) solution I see is to do this:
 
-> 
-> So we can't really blindly initialise the FIFO in the console write
-> method.  Neither can we initialise it in the console setup.  If we
-> could initialise it, we can't blindly load 16 bytes into the FIFO
-> at a time.
-> 
-> I don't think it's technically practical to use the FIFO for the
-> console and still have a reliable serial port.
-> 
-> -- 
-> Russell King
-> Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
-> maintainer of:  2.6 Serial core
-> -
+	lock();
+	tsk->cpuset = current->cpuset;
+	atomic_inc(&tsk->cpuset->count);
+	unlock();
 
-Best regards,
-Hironobu Ishii
+bye, Roman

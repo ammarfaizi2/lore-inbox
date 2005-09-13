@@ -1,87 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932280AbVIMUpX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbVIMUrD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932280AbVIMUpX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 16:45:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750823AbVIMUpX
+	id S932231AbVIMUrD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 16:47:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932345AbVIMUrD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 16:45:23 -0400
-Received: from sls-ce5p321.hostitnow.com ([72.9.236.50]:53896 "EHLO
-	sls-ce5p321.hostitnow.com") by vger.kernel.org with ESMTP
-	id S1750820AbVIMUpW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 16:45:22 -0400
-From: Chris White <chriswhite@gentoo.org>
-Reply-To: chriswhite@gentoo.org
-Organization: Gentoo
-To: Margit Schubert-While <margitsw@t-online.de>
-Subject: Re: 2.6.13/14 x86 Makefile - Pentiums penalized ?
-Date: Wed, 14 Sep 2005 14:14:02 +0900
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org
-References: <5.1.0.14.2.20050913075517.0259c498@pop.t-online.de>
-In-Reply-To: <5.1.0.14.2.20050913075517.0259c498@pop.t-online.de>
+	Tue, 13 Sep 2005 16:47:03 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:61159 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932231AbVIMUrC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 16:47:02 -0400
+Message-ID: <4327386B.5050201@redhat.com>
+Date: Tue, 13 Sep 2005 16:36:59 -0400
+From: Peter Staubach <staubach@redhat.com>
+User-Agent: Mozilla Thunderbird  (X11/20050322)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2245454.KkMLN6mbIZ";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Assar <assar@permabit.com>
+CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] nfs client, kernel 2.4.31: readlink result overflow
+References: <78irx6wh6j.fsf@sober-counsel.permabit.com>	<200509121846.j8CIk5YE025124@turing-police.cc.vt.edu>	<784q8qrsad.fsf@sober-counsel.permabit.com>	<200509122001.j8CK1kpW028651@turing-police.cc.vt.edu>	<788xy2qas0.fsf@sober-counsel.permabit.com>	<20050913183948.GE14889@dmt.cnet> <784q8okdfn.fsf@sober-counsel.permabit.com>
+In-Reply-To: <784q8okdfn.fsf@sober-counsel.permabit.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200509141414.08343.chriswhite@gentoo.org>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - sls-ce5p321.hostitnow.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - gentoo.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2245454.KkMLN6mbIZ
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Assar wrote:
 
-On Tuesday 13 September 2005 15:04, Margit Schubert-While wrote:
-> In arch/i386/makefile we have :
-> cflags-$(CONFIG_MPENTIUMII) =A0 =A0 +=3D -march=3Di686 $(call
-> cc-option,-mtune=3Dpentium2)
-> cflags-$(CONFIG_MPENTIUMIII) =A0 =A0+=3D -march=3Di686 $(call
-> cc-option,-mtune=3Dpentium3)
-> cflags-$(CONFIG_MPENTIUMM) =A0 =A0 =A0+=3D -march=3Di686 $(call
-> cc-option,-mtune=3Dpentium3)
-> cflags-$(CONFIG_MPENTIUM4) =A0 =A0 =A0+=3D -march=3Di686 $(call
-> cc-option,-mtune=3Dpentium4)
+>>If thats the reason, you don't need the "-1" there?
+>>    
+>>
 >
-> According to the gcc 3.x doc, the -mtune is not avaliable for i686
-> and, indeed, with 3.3.5 no -mtune is generated/used (make V=3D1).
+>It also writes a 0 byte.  I think it looks like this:
+>
+>---- ------------ -
+>len  string...    0
+>
+>-
+>
 
-That's correct, gcc 3.4 started the -mtune flag.  Chances are if you really=
-=20
-want the -mtune optimizations you're going to have to upgrade to gcc 3.4 or=
-=20
-greater.
+NFS uses XDR to encode C strings.  They are encoded as counted byte arrays
+and are _not_ null terminated.  The space containing the string is rounded
+up to the next 4 byte boundary though and, usually, this space is zero 
+filled.
+The number of bytes in the string is encoded as a big endian integer in the
+first four bytes.
 
-> This, of course, heavily penalizes P4's (the notorious inc/dec).
+    Thanx...
 
-Are you referring to cpu cycle counts?  Is there certain code that causes t=
-he=20
-kernel to perform that unfavorably by a large scale?
-
-> Margit
-
-Chris White
-
---nextPart2245454.KkMLN6mbIZ
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBDJ7GgFdQwWVoAgN4RAs4lAJ9Lj3Nne7U1P1Dj6MvmZH8RKGMkIgCgq2fu
-8IEoDhvlAnbQhiS9WbDY93U=
-=Eby5
------END PGP SIGNATURE-----
-
---nextPart2245454.KkMLN6mbIZ--
+       ps

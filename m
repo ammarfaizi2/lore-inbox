@@ -1,54 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964882AbVIMQvN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964887AbVIMQww@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964882AbVIMQvN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 12:51:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964884AbVIMQvN
+	id S964887AbVIMQww (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 12:52:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964893AbVIMQww
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 12:51:13 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:32946 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S964882AbVIMQvL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 12:51:11 -0400
-Date: Tue, 13 Sep 2005 17:51:02 +0100
-From: Al Viro <viro@ZenIV.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Sripathi Kodi <sripathik@in.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, patrics@interia.pl,
-       Ingo Molnar <mingo@elte.hu>, Roland McGrath <roland@redhat.com>
-Subject: Re: [PATCH 2.6.13.1] Patch for invisible threads
-Message-ID: <20050913165102.GR25261@ZenIV.linux.org.uk>
-References: <4325BEF3.2070901@in.ibm.com> <20050912134954.7bbd15b2.akpm@osdl.org> <4326CFE2.6000908@in.ibm.com> <Pine.LNX.4.58.0509130744070.3351@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0509130744070.3351@g5.osdl.org>
-User-Agent: Mutt/1.4.1i
+	Tue, 13 Sep 2005 12:52:52 -0400
+Received: from xenotime.net ([66.160.160.81]:30692 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S964887AbVIMQwp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 12:52:45 -0400
+Date: Tue, 13 Sep 2005 09:52:41 -0700 (PDT)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: iSteve <isteve@rulez.cz>
+cc: "Randy.Dunlap" <rdunlap@xenotime.net>, "" <linux-kernel@vger.kernel.org>
+Subject: Re: query_modules syscall gone? Any replacement?
+In-Reply-To: <4326FDA2.90808@rulez.cz>
+Message-ID: <Pine.LNX.4.50.0509130943130.3527-100000@shark.he.net>
+References: <4KSFY-2pO-17@gated-at.bofh.it> <E1EDpQq-0000iV-Oe@be1.lrz>
+ <4326DE0E.2060306@rulez.cz> <Pine.LNX.4.50.0509130813010.7614-100000@shark.he.net>
+ <4326F093.80206@rulez.cz> <Pine.LNX.4.50.0509130835120.7614-100000@shark.he.net>
+ <4326FDA2.90808@rulez.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 13, 2005 at 07:53:40AM -0700, Linus Torvalds wrote:
+On Tue, 13 Sep 2005, iSteve wrote:
 
-> So this patch is _wrong_.
-
-Definitely.
- 
-> I think the problem is "proc_check_root()", which just refuses to do a lot 
-> of things without a fs. Many of those things are unnecessary, afaik - we 
-> should allow it. But allowing it means that some other paths may need more 
-> checking..
+> >>I would like to be able to query symbols of a loaded module, get list of
+> >>and list of dependencies of loaded module from an app, preferably
+> >>without having to parse a file...
+> >
+> >
+> > No, no syscall to do that.  Looks like it will require reading
+> > and parsing files.
+> >
+> > And you answered my "what" question clearly, so I have one more.
+> > Why?  for what purpose, to what end?  What are you tring to
+> > accomplish?
 >
-> So you can _try_ to just make proc_check_root() return 0 when 
-> proc_root_link() returns an error...
+> The files so far provided still do not seem to give these informations
+> though...
 
-I very much doubt the correctness of that.
+Right, I don't see dependency ("requires") info there, just "using" info.
 
-The real problem here is obvious: it's about permissions on /proc/<pid>/task.
-That's where the things go wrong - we use proc_permission() for it and we
-have group leader as associated task.
+> Part of the project I'm working on -- click-click ui for handling
+> modules, with some perks: in this case, getting info about loaded
+> modules that I hoped to obtain via query_module.
+>
+> Oh, and one more question: There were no particular issues with
+> query_module, or were they? If there weren't, why wasn't it kept?
 
-Note that stuff _in_ proc/<pid>/task will keep working just fine, if we
-manage to get to it - there we have other threads as associated tasks,
-so everything works as it should.
+I don't recall.
+You can try searching the lkml archives or asking Rusty Russell:
 
-What we need is to decide what kind of access control do we really want on
-/proc/<pid>/task.  That's it.
+MODULE SUPPORT
+P:	Rusty Russell
+M:	rusty@rustcorp.com.au
+L:	linux-kernel@vger.kernel.org
+S:	Maintained
+
+One quick search produced this, but it doesn't help you any:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=108355087015676&w=2
+
+-- 
+~Randy

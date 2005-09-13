@@ -1,60 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932645AbVIMNLc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932641AbVIMNIG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932645AbVIMNLc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 09:11:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932647AbVIMNLc
+	id S932641AbVIMNIG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 09:08:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932646AbVIMNIG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 09:11:32 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:9112 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S932645AbVIMNLb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 09:11:31 -0400
-Message-ID: <4326CFEF.2000005@adaptec.com>
-Date: Tue, 13 Sep 2005 09:11:11 -0400
-From: Luben Tuikov <luben_tuikov@adaptec.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
+	Tue, 13 Sep 2005 09:08:06 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:34213 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932641AbVIMNIE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 09:08:04 -0400
+Message-ID: <01ac01c5b864$291f1370$dba0220a@CARREN>
+From: "Hironobu Ishii" <hishii@soft.fujitsu.com>
+To: "Russell King" <rmk+lkml@arm.linux.org.uk>,
+       "Taku Izumi" <izumi2005@soft.fujitsu.com>, <akpm@osdl.org>,
+       <linux-kernel@vger.kernel.org>
+References: <200509072146.j87LkNv8004076@shell0.pdx.osdl.net> <20050907224911.H19199@flint.arm.linux.org.uk> <4394.10.124.102.246.1126165652.squirrel@dominion> <20050913091740.A8256@flint.arm.linux.org.uk> <00b601c5b858$8a8c4ad0$dba0220a@CARREN> <20050913125326.A14342@flint.arm.linux.org.uk> <20050913130229.B14342@flint.arm.linux.org.uk>
+Subject: Re: performance-improvement-of-serial-console-via-virtual.patch added to -mm tree
+Date: Tue, 13 Sep 2005 22:07:55 +0900
 MIME-Version: 1.0
-To: dougg@torque.net
-CC: Patrick Mansfield <patmans@us.ibm.com>,
-       James Bottomley <James.Bottomley@SteelEye.com>, ltuikov@yahoo.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH 2.6.13 5/14] sas-class: sas_discover.c Discover process
- (end devices)
-References: <20050910024454.20602.qmail@web51613.mail.yahoo.com> <1126368081.4813.46.camel@mulgrave> <4325997D.3050103@adaptec.com> <20050912162739.GA11455@us.ibm.com> <4326964B.9010503@torque.net>
-In-Reply-To: <4326964B.9010503@torque.net>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 Sep 2005 13:11:17.0633 (UTC) FILETIME=[A0589F10:01C5B864]
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2670
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 09/13/05 05:05, Douglas Gilbert wrote:
-> The technique of supporting REPORT_LUNS on lun 0 of
-> a target in the case where there is no such device
-> (logical unit) is a pretty ugly. It also indicates what
-> is really happening: the target device intercepts
-> REPORT_LUNS, builds the response and replies on behalf
-> of lun 0.
-> 
-> Turns out there are other reasons an application may want
-> to "talk" to a target device rather than one of its logical
-> units (e.g. access controls and log pages specific to
-> the target's transport). Well known lus can be seen with the
-> REPORT_LUNS (select_report=1) but there is no mechanism (that
-> I am aware of) that allows anyone to access them
-> from the user space with linux.
-> 
-> 
-> References at www.t10.org:
->    spc4r01a.pdf  [section 8]
->    bcc-r00.pdf   [bridge controller commands]
+Hi Russell,
 
-Well, I'm certainly glad that Doug is getting involved
-and on a SCSI professional level (quoting specs etc.).
+> Additionally, once all architectures convert to initialising their
+> serial ports via platform devices (which means include/asm-*/serial.h
+> becomes essentially empty) and we eliminate serial8250_console_init(),
+> the 8250 console code can start assuming that more of the uart_port
+> structure will be initialised.
+> 
+> At that point, we can start to think about using FIFOs for the
+> console.
 
-We need more SAM (SCSI-3) expertise in linux-scsi and
-linux-kernel.
+Thank you for FIFO consideration.
 
-	Luben
+me> Before initialization, does tx_loadsz left 0?
+me> If so, we can easily solve the problem:
+
+I confirmed this assumption is OK in current code,
+because seiral8250_ports[] is static variable.
+
+We will release revised patch later,
+please apply our patch until your serial driver 
+re-organization completes.
+
+Thank you.
+Hironobu Ishii
+

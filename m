@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964859AbVIMQb7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964862AbVIMQcg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964859AbVIMQb7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 12:31:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964862AbVIMQb7
+	id S964862AbVIMQcg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 12:32:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964864AbVIMQcg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 12:31:59 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:16275 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S964859AbVIMQb6
+	Tue, 13 Sep 2005 12:32:36 -0400
+Received: from wproxy.gmail.com ([64.233.184.204]:63887 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964862AbVIMQcf convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 12:31:58 -0400
-Subject: Re: [PATCH] use kzalloc instead of malloc+memset
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Nikita Danilov <nikita@clusterfs.com>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
-       jirislaby@gmail.com, lion.vollnhals@web.de
-In-Reply-To: <17190.33539.992902.463545@gargle.gargle.HOWL>
-References: <200509130010.38483.lion.vollnhals@web.de>
-	 <43260817.7070907@gmail.com> <84144f0205091221431827b126@mail.gmail.com>
-	 <200509130033.11109.dtor_core@ameritech.net>
-	 <20050912234200.10b2abe7.akpm@osdl.org>
-	 <Pine.LNX.4.58.0509131001400.31456@sbz-30.cs.Helsinki.FI>
-	 <17190.33539.992902.463545@gargle.gargle.HOWL>
-Date: Tue, 13 Sep 2005 19:31:53 +0300
-Message-Id: <1126629113.8494.0.camel@localhost>
+	Tue, 13 Sep 2005 12:32:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=KSaouM4ZhfQlZrMRBfd5AB6OPxSNYNYSkL4mCyMxLGf+V+3xDWGhZfM2xt9ALaYk/rHETMzyMgpBwn0shtIqAhEgzNpPSUNh/ghMrv3PkUBPNTNTu4GyfBCq5d6jSjo/oVGOkK+i05Sh4YMQ66K9ZM1UkDnwhJub3yf60aWnZMo=
+Message-ID: <6bffcb0e050913093272dabea2@mail.gmail.com>
+Date: Tue, 13 Sep 2005 18:32:31 +0200
+From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Reply-To: michal.k.k.piotrowski@gmail.com
+To: Jean Delvare <khali@linux-fr.org>
+Subject: Re: Pending -stable patches
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050913182736.09b1bfcf.khali@linux-fr.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution 2.2.3 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050913182736.09b1bfcf.khali@linux-fr.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pekka J Enberg writes:
->  > +The kernel provides the following general purpose memory allocators:
->  > +kmalloc(), kzalloc(), kcalloc(), and vmalloc().  Please refer to the API
->  > +documentation for further information about them.
->  > +
->  > +The preferred form for passing a size of a struct is the following:
->  > +
->  > +	p = kmalloc(sizeof(*p), ...);
+Hi,
 
-On Tue, 2005-09-13 at 11:42 +0400, Nikita Danilov wrote:
-> Parentheses around *p are superfluous. See
+On 13/09/05, Jean Delvare <khali@linux-fr.org> wrote:
+> Hi all,
+> 
+> Is there a place where pending -stable patches can be seen?
+> 
+> Are mails sent to stable@kernel archived somewhere?
+> 
+> There seems to be a need for this. For example, there's a patch I would
+> like to see in 2.6.13.2, but I wouldn't want to report an already known
+> problem.
+> 
+> Thanks,
 
-Sure but is it the preferred form for the kernel?
+http://www.kernel.org/git/?p=linux/kernel/git/chrisw/stable-queue.git;a=shortlog
 
-			Pekka
-
+Regards,
+Michal Piotrowski

@@ -1,113 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964977AbVIMSl5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964926AbVIMSpb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964977AbVIMSl5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 14:41:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964978AbVIMSl5
+	id S964926AbVIMSpb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 14:45:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964969AbVIMSpb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 14:41:57 -0400
-Received: from rproxy.gmail.com ([64.233.170.198]:54443 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964977AbVIMSl4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 14:41:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=HrPb5Xm1XxZZ6cZ4Hut/R6H3lMu76QwwkJMJhnt+ssSbf92uWIebjJltFP8ip6UtQek798i2qLRDQQb9c+VKcvQOO1FshCfT+KuqJ2LOWDdcDgwmblo6bF5qhiKD0G/FdmidICSz3oQPsjQXjBykmIh9yWgO/Uru4xPZQWrlkj0=
-Message-ID: <d120d50005091311412f31c5cf@mail.gmail.com>
-Date: Tue, 13 Sep 2005 13:41:53 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: roy.wood@gmail.com
-Subject: Re: [PATCH] drivers/input/joystick/interact.c ; Linux 2.6.13-1
-Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
-In-Reply-To: <e778aab0050913083656dc8c8f@mail.gmail.com>
+	Tue, 13 Sep 2005 14:45:31 -0400
+Received: from hera.kernel.org ([209.128.68.125]:8147 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S964926AbVIMSpa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 14:45:30 -0400
+Date: Tue, 13 Sep 2005 15:39:48 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Assar <assar@permabit.com>, Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] nfs client, kernel 2.4.31: readlink result overflow
+Message-ID: <20050913183948.GE14889@dmt.cnet>
+References: <78irx6wh6j.fsf@sober-counsel.permabit.com> <200509121846.j8CIk5YE025124@turing-police.cc.vt.edu> <784q8qrsad.fsf@sober-counsel.permabit.com> <200509122001.j8CK1kpW028651@turing-police.cc.vt.edu> <788xy2qas0.fsf@sober-counsel.permabit.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <e778aab0050913083656dc8c8f@mail.gmail.com>
+In-Reply-To: <788xy2qas0.fsf@sober-counsel.permabit.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/13/05, roy wood <roy.wood@gmail.com> wrote:
-> This patch to the Interact joystick driver adds support for the
-> "RaiderPro Digital" model of joystick from Interact.  The patch is
-> made against kernel version 2.6.13-1.
+Hi Assar,
 
-Cool, looks pretty nice.
-
-> Also, apparently I need to send this directly to Linus to get this
-> into the tree.  Anyone care to tell me the best email address to use
-> to do that?  I promise not to foreward it to recruiters at MS.  :-)
+On Mon, Sep 12, 2005 at 04:41:19PM -0400, Assar wrote:
+> Valdis.Kletnieks@vt.edu writes:
+> > > To my reading, the 2.6.13 code does not copy the 4 bytes of length to
+> > > rcvbuf.
+> > 
+> > Hmm... it still does this:
+> > 	kaddr[len+rcvbuf->page_base] = '\0';
+> > which still has a possible off-by-one? (Was that why you have -1 -4?)
 > 
-
-Actually that would be Vojtech Pavlik <vojtech@suse.cz> - input system
-maintainer.
-
-> + *
-> + *  History:
-> + *  --------
-> + *  2005-09-12: rrwood - Add support for RaiderPro
->  */
+> The check is different.  2.6.13 is using ">=" instead of ">", so hence
+> I think that's fine.
 > 
-
-We prefer keeping changelogs in SCM, when possible
-
->  struct interact {
-> -       struct gameport *gameport;
-> -       struct input_dev dev;
-> -       int bads;
-> -       int reads;
-> -       unsigned char type;
-> -       unsigned char length;
-> -       char phys[32];
-> +       struct gameport *gameport; /* Kernel gameport struct ptr */
-> +       struct input_dev dev;      /* Kernel input_dev struct ptr */
-
-And I don't think we should add comments like these - they don't tell
-you anything new. Especially when they wrong (dev is not a pointer
-[yet])
-
+> > sizeof(actual_var) is even better, as that way it's clear what you're allowing
+> > space for.
 > 
-> -static short interact_abs_hhfx[] =
-> +
-> +/* I think the original purpose of setting up lists of controller
-> + * axes/buttons was to provide a single location to maintain such
-> + * information.  Although the table-based approach certainly makes
-> + * the interact_connect() code below MUCH simpler and cleaner, the
-> + * interact_poll() code ends up being very hard to read, unfortunately.
-> + *
-> + * I was tempted to either rewrite interact_poll() in a clearer fashion,
-> + * or to implement a more comprehensive table-driven decoding approach
-> + * (with values for offset, masking, shifting of each value).  I'm a
-> + * bit leery of making such massive change though, since I don't have the
-> + * controllers to test the result.  Instead, I'll just add support
-> + * for the RaiderPro as clearly as I can.....
-> + */
+> diff -u linux-2.4.31.orig/fs/nfs/nfs2xdr.c linux-2.4.31/fs/nfs/nfs2xdr.c
+> --- linux-2.4.31.orig/fs/nfs/nfs2xdr.c	2002-11-28 18:53:15.000000000 -0500
+> +++ linux-2.4.31/fs/nfs/nfs2xdr.c	2005-09-12 16:12:30.000000000 -0400
+> @@ -571,8 +571,8 @@
+>  	strlen = (u32*)kmap(rcvbuf->pages[0]);
+>  	/* Convert length of symlink */
+>  	len = ntohl(*strlen);
+> -	if (len > rcvbuf->page_len)
+> -		len = rcvbuf->page_len;
+> +	if (len > rcvbuf->page_len - sizeof(*strlen) - 1)
+> +		len = rcvbuf->page_len - sizeof(*strlen) - 1;
 
-This is not a book, what one could have done but decided not to is not
-very interesting unless the solution is outlined as a future TODO
-item.
+So the problem is that the "len" variable encapsulated in (u32 *)rcvbuf->pages[0]
+does not account for its own length (4 bytes)? 
 
-> 
->        if (interact_read_packet(interact->gameport, interact->length, data)
-> < interact->length) {
-> +               /* Couldn't read a full packet, so update the bad-count,
-> +                * queue another read, and get out */
+If thats the reason, you don't need the "-1" there?
 
-Yes, that is what that "if" statement said. Why also comment it?
+Someone with better understanding to ACK this would be nice. Trond?
 
-> +       if (INTERACT_MAX_LENGTH - interact->length > 0) {
-> +               /* If data packets are less than max length, shift them
-> +                * for easier processing below (ProPad goofiness) */
-
-This one is a decent comment tough (IMHO).
-
-> +       /* Queue another read */
->        input_sync(dev);
-
-??? input_sync signals that the input event packet is complete. What
-is it about queueing another read stuff?
-
--- 
-Dmitry
+>  	*strlen = len;
+>  	/* NULL terminate the string we got */
+>  	string = (char *)(strlen + 1);
+> diff -u linux-2.4.31.orig/fs/nfs/nfs3xdr.c linux-2.4.31/fs/nfs/nfs3xdr.c
+> --- linux-2.4.31.orig/fs/nfs/nfs3xdr.c	2003-11-28 13:26:21.000000000 -0500
+> +++ linux-2.4.31/fs/nfs/nfs3xdr.c	2005-09-12 16:12:29.000000000 -0400
+> @@ -759,8 +759,8 @@
+>  	strlen = (u32*)kmap(rcvbuf->pages[0]);
+>  	/* Convert length of symlink */
+>  	len = ntohl(*strlen);
+> -	if (len > rcvbuf->page_len)
+> -		len = rcvbuf->page_len;
+> +	if (len > rcvbuf->page_len - sizeof(*strlen) - 1)
+> +		len = rcvbuf->page_len - sizeof(*strlen) - 1;
+>  	*strlen = len;
+>  	/* NULL terminate the string we got */
+>  	string = (char *)(strlen + 1);

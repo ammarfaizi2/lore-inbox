@@ -1,58 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbVIMDeY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932288AbVIMDUZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750724AbVIMDeY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 23:34:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbVIMDeY
+	id S932288AbVIMDUZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 23:20:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932338AbVIMDUZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 23:34:24 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:11749 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750724AbVIMDeX (ORCPT
+	Mon, 12 Sep 2005 23:20:25 -0400
+Received: from cantor.suse.de ([195.135.220.2]:59795 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932288AbVIMDUY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 23:34:23 -0400
-Date: Mon, 12 Sep 2005 20:34:17 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: "Read my lips: no more merges" - aka Linux 2.6.14-rc1
-Message-ID: <Pine.LNX.4.58.0509122019560.3351@g5.osdl.org>
+	Mon, 12 Sep 2005 23:20:24 -0400
+From: Andi Kleen <ak@suse.de>
+To: Bart Hartgers <bart@etpmod.phys.tue.nl>
+Subject: Re: [1/3] Add 4GB DMA32 zone
+Date: Tue, 13 Sep 2005 05:20:37 +0200
+User-Agent: KMail/1.8
+Cc: Jeff Garzik <jgarzik@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org, discuss@x86-64.org
+References: <43246267.mailL4R11PXCB@suse.de> <4325C67C.7070809@pobox.com> <4325FAE7.6030501@etpmod.phys.tue.nl>
+In-Reply-To: <4325FAE7.6030501@etpmod.phys.tue.nl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509130520.38712.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 13 September 2005 00:02, Bart Hartgers wrote:
 
-Ok, it's been two weeks (actually, two weeks and one day) since 2.6.13, 
-and that means that the merge window is closed. I've released a 
-2.6.14-rc1, and we're now all supposed to help just clean up and fix 
-everything, and aim for a really solid 2.6.14 release.
+> Yep. You're absolutely right about the card. Google doesn't find anyone
+> still selling them, though... Apart from ebay ;-)
+>
+> (Wrote the driver and got rid of the d*mn thing 2 weeks later...)
 
-Both the diffstat and the shortlog are so big that I can't post them on 
-the kernel mailing list without getting the email killed by the size 
-restrictions, so there's not a lot to say. 
+Just to avoid any misconceptions - it should just work great on x86-64
+because exactly for such hardware we kept the 16MB DMA zone.
+(unless of course the driver has other problems than just DMAing) 
 
-alpha, arm, x86, x86-64, ppc, ia64, mips, sparc, um.. Pretty much every
-architecture got some updates. And an absolutely _huge_ ACPI diff, largely 
-because of some re-indentation.
-
-drm, watchdog, hwmon, i2c, infiniband, input layer, md, dvb, v4l, network,
-pci, pcmcia, scsi, usb and sound driver updates. People may appreciate
-that the most common wireless network drivers got merged - centrino
-support is now in the standard kernel.
-
-On the filesystem level, FUSE got merged, and ntfs and xfs got updated. In 
-the core VFS layer, the "struct files" thing is now handled with RCU and 
-has less expensive locking.
-
-And networking changes.
-
-In other words, a lot of stuff all over the place. Be nice now, and follow 
-the rules: put away the new toys, and instead work on making sure the 
-stuff that got merged is all solid. Ok?
-
-Anybody with git can do the shortlog with
-
-	git-rev-list --no-merges --pretty=short v2.6.14-rc1 ^v2.6.13 |
-		git-shortlog | less -S
-
-which is actually pretty informative.
-
-			Linus
+-Andi

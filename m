@@ -1,83 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964880AbVIMROL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964894AbVIMRPb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964880AbVIMROL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 13:14:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964894AbVIMROL
+	id S964894AbVIMRPb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 13:15:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964901AbVIMRPb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 13:14:11 -0400
-Received: from wavehammer.waldi.eu.org ([82.139.196.55]:59064 "EHLO
-	wavehammer.waldi.eu.org") by vger.kernel.org with ESMTP
-	id S964880AbVIMROK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 13:14:10 -0400
-Date: Tue, 13 Sep 2005 19:14:03 +0200
-From: Bastian Blank <bastian@waldi.eu.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Pure 64 bootloaders
-Message-ID: <20050913171403.GA3464@wavehammer.waldi.eu.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <43232660.5070504@t-online.de> <EXCHG2003Aj5p1Fjxe0000006ad@EXCHG2003.microtech-ks.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="PNTmBPCT7hxwcZjr"
-Content-Disposition: inline
-In-Reply-To: <EXCHG2003Aj5p1Fjxe0000006ad@EXCHG2003.microtech-ks.com>
-User-Agent: Mutt/1.5.10i
+	Tue, 13 Sep 2005 13:15:31 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:44978 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964894AbVIMRPa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 13:15:30 -0400
+Date: Tue, 13 Sep 2005 10:15:22 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Mathieu Fluhr <mfluhr@nero.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Helge Hafting <helge.hafting@aitel.hist.no>
+Subject: Re: "Read my lips: no more merges" - aka Linux 2.6.14-rc1
+In-Reply-To: <1126630878.2066.6.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0509131010010.3351@g5.osdl.org>
+References: <Pine.LNX.4.58.0509122019560.3351@g5.osdl.org> 
+ <1126608030.3455.23.camel@localhost.localdomain> <1126630878.2066.6.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---PNTmBPCT7hxwcZjr
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, Sep 12, 2005 at 09:50:20AM -0500, Roger Heflin wrote:
-> I guess I see 5 choices:
+On Tue, 13 Sep 2005, Mathieu Fluhr wrote:
+>
+> Ok, after having performed a bisection of the kernel tree (took me the
+> whole afternoon.... 13 compilations needed ;-) I think I am able to give
+> the faulty patch for these buffer underruns: 
 
-6.
+Thanks, interesting.
 
-> #1:
-> Use lib for whatever the standard os/arch size is.
->=20
-> Use lib32 for the non-standard size.
+And hey, 13 compilations may sound like a lot, but considering that there
+were 2069 commits between 2.6.12 and 2.6.13-rc1, having to do "just" 13
+kernels to pinpoint the exact cause is pretty good, I think.
 
-And what happens for machines with more than one 32 and one 64bit ABI?
+Especially as I don't think anybody would really have expected the one you 
+found:
 
-> #2:=20
-> Continue the current mess.
->=20
-> #3:
-> Use both lib32 and lib64 and maybe put a link from lib to the
-> default one, probably lib64.
->=20
-> #4:
-> Use both lib32 and lib64 and don't put a link.
->=20
-> #5:
-> Designate the bit size in the name of the lib, ie libc.so64 or
-> libc.so32 or something similar and put them all in the same
-> directory and let the lib loading code take care of finding the
-> correct size.
+> [PATCH] i386: Selectable Frequency of the Timer Interrupt
+> 
+> So I would say that it is related to somehow some kind of timeout in
+> SCSI I/O (but really not sure...).
 
-#6:
-Use /lib/$arch-$os or similar and forgot about /lib/*.so.
+Interesting, and a bit scary. If it worked with 1kHz (old default value),
+it's not even any of the old Linux x86 timeouts (that were designed for
+100 Hz), so it's some _new_ HZ dependency.
 
-Bastian
+> As far as I saw, there is now an option in the kernel config file
+> related to this, so I will try to see what happens with 1000 Hz and 100
+> Hz (I left the default value of 250 Hz for my tests).
 
---=20
-Beam me up, Scotty!  It ate my phaser!
+Yes, that would be interesting.
 
---PNTmBPCT7hxwcZjr
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+Btw, what's the exact error message you get? (And is it the kernel or the
+burning app that complains?)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iEYEARECAAYFAkMnCNsACgkQnw66O/MvCNHCAACfQnhCJo19+erNTZoK+NbNxwk6
-tooAn3vW+P5S5tCTfuwGbIQYh7jXtPR4
-=5mxm
------END PGP SIGNATURE-----
-
---PNTmBPCT7hxwcZjr--
+			Linus

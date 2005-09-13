@@ -1,44 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964873AbVIMQl1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964874AbVIMQqL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964873AbVIMQl1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 12:41:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964874AbVIMQl0
+	id S964874AbVIMQqL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 12:46:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964879AbVIMQqL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 12:41:26 -0400
-Received: from 216-54-166-16.gen.twtelecom.net ([216.54.166.16]:51674 "EHLO
-	mx1.compro.net") by vger.kernel.org with ESMTP id S964873AbVIMQl0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 12:41:26 -0400
-Message-ID: <43270132.4010902@compro.net>
-Date: Tue, 13 Sep 2005 12:41:22 -0400
-From: Mark Hounschell <markh@compro.net>
-Reply-To: markh@compro.net
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041220
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: HZ question
-References: <4326CAB3.6020109@compro.net> <Pine.LNX.4.61.0509130919390.29445@chaos.analogic.com> <4326DB8A.7040109@compro.net> <Pine.LNX.4.53.0509131615160.13574@gockel.physik3.uni-rostock.de> <4326EAD7.50004@compro.net> <Pine.LNX.4.53.0509131750580.15000@gockel.physik3.uni-rostock.de>
-In-Reply-To: <Pine.LNX.4.53.0509131750580.15000@gockel.physik3.uni-rostock.de>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 13 Sep 2005 12:46:11 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:25771 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964874AbVIMQqJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 12:46:09 -0400
+Date: Tue, 13 Sep 2005 09:46:12 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Ben Greear <greearb@candelatech.com>
+Cc: Ravikiran G Thirumalai <kiran@scalex86.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, dipankar@in.ibm.com, bharata@in.ibm.com,
+       shai@scalex86.org, Rusty Russell <rusty@rustcorp.com.au>,
+       netdev@vger.kernel.org, davem@davemloft.net
+Subject: Re: [patch 7/11] net: Use bigrefs for net_device.refcount
+Message-ID: <20050913094612.7e8d611b@localhost.localdomain>
+In-Reply-To: <4326FFC2.7030803@candelatech.com>
+References: <20050913155112.GB3570@localhost.localdomain>
+	<20050913161012.GI3570@localhost.localdomain>
+	<20050913092659.791bddec@localhost.localdomain>
+	<4326FFC2.7030803@candelatech.com>
+X-Mailer: Sylpheed-Claws 1.9.13 (GTK+ 2.6.7; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-PMX-Version: 5.0.3.165339, Antispam-Engine: 2.1.0.0, Antispam-Data: 2005.9.12.33
-X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='__CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0, __USER_AGENT 0'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Schmielau wrote:
-.
-> Do you also want to know about CONFIG_PREEMPT, SMP, current load, future
-> load in order to estimate the delay you want to ask for?
+On Tue, 13 Sep 2005 09:35:14 -0700
+Ben Greear <greearb@candelatech.com> wrote:
+
+> Stephen Hemminger wrote:
+> > On Tue, 13 Sep 2005 09:10:12 -0700
+> > Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
+> > 
+> > 
+> >>The net_device has a refcnt used to keep track of it's uses.
+> >>This is used at the time of unregistering the network device
+> >>(module unloading ..) (see netdev_wait_allrefs) .
+> >>For loopback_dev , this refcnt increment/decrement  is causing
+> >>unnecessary traffic on the interlink for NUMA system
+> >>affecting it's performance.  This patch improves tbench numbers by 6% on a
+> >>8way x86 Xeon (x445).
+> >>
+> > 
+> > 
+> > Since when is bringing a network device up/down performance critical?
 > 
+> We grab and drop a reference for each poll of a device, roughly.
+> 
+> See dev_hold in _netif_rx_schedule(struct net_device *dev)
+> in include/netdevice.h, for instance.
 
-No. The delays I 'require' are not estimated. They are constant. What is 
-estimated is the kernels ability to give what I require. And that varies 
-greatly between a 100HZ kernel and a 1000HZ kernel.
-
-So what is the returned valu of sysconf(_SC_CLK_TCK) good for?
-
-Mark
+Yeah, that would be an issue, especially since the rest of that
+path is nicely per-cpu

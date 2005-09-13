@@ -1,57 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932451AbVIMI64@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751174AbVIMJE7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932451AbVIMI64 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 04:58:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932452AbVIMI64
+	id S1751174AbVIMJE7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 05:04:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751169AbVIMJE7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 04:58:56 -0400
-Received: from liaag2ad.mx.compuserve.com ([149.174.40.155]:39888 "EHLO
-	liaag2ad.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S932451AbVIMI6z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 04:58:55 -0400
-Date: Tue, 13 Sep 2005 04:55:41 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [patch 2.6.13] i386: Ignore masked FPU exceptions
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Ondrej Zary <linux@rainbow-software.org>
-Message-ID: <200509130458_MC3-1-AA03-D8AA@compuserve.com>
+	Tue, 13 Sep 2005 05:04:59 -0400
+Received: from zorg.st.net.au ([203.16.233.9]:15024 "EHLO borg.st.net.au")
+	by vger.kernel.org with ESMTP id S1751149AbVIMJE6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 05:04:58 -0400
+Message-ID: <4326964B.9010503@torque.net>
+Date: Tue, 13 Sep 2005 19:05:15 +1000
+From: Douglas Gilbert <dougg@torque.net>
+Reply-To: dougg@torque.net
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+To: Patrick Mansfield <patmans@us.ibm.com>
+CC: Luben Tuikov <luben_tuikov@adaptec.com>,
+       James Bottomley <James.Bottomley@SteelEye.com>, ltuikov@yahoo.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: [PATCH 2.6.13 5/14] sas-class: sas_discover.c Discover process
+ (end devices)
+References: <20050910024454.20602.qmail@web51613.mail.yahoo.com> <1126368081.4813.46.camel@mulgrave> <4325997D.3050103@adaptec.com> <20050912162739.GA11455@us.ibm.com>
+In-Reply-To: <20050912162739.GA11455@us.ibm.com>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think ignoring masked FPU exceptions on i386 is the right thing to do.
-Although there is no documentation available for Cyrix MII, I did find
-erratum F-7 for Winchip C6, "FPU instruction may result in spurious
-exception under certain conditions" which seems to indicate that this can
-happen.
+Patrick Mansfield wrote:
+> On Mon, Sep 12, 2005 at 11:06:37AM -0400, Luben Tuikov wrote:
 
-Ondrej, this patch on top of 2.6.13 should fix your Cyrix problems.
-Can you confirm?  There was another bug which was already fixed,
-so this should be all that's needed now.
+<snip>
 
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+> IMO adding well known LUNs at this point to the standard added nothing of
+> value, the target firmware has to check for special paths no matter what,
+> adding a well known LUN does not change that. And most vendors will
+> (likely) have support for use without a well known LUN. (This does not
+> mean we should not support it in linux, I just don't know why this went
+> into the standard.)
+> 
+> Using well known LUNs will be another code path that will have to live
+> alongside existing ones, and will likely require further black listing
+> (similar to REPORT LUN vs scanning for LUNs).
 
- arch/i386/kernel/traps.c |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
+Patrick,
+The technique of supporting REPORT_LUNS on lun 0 of
+a target in the case where there is no such device
+(logical unit) is a pretty ugly. It also indicates what
+is really happening: the target device intercepts
+REPORT_LUNS, builds the response and replies on behalf
+of lun 0.
 
---- 2.6.13a.orig/arch/i386/kernel/traps.c
-+++ 2.6.13a/arch/i386/kernel/traps.c
-@@ -804,8 +804,9 @@ void math_error(void __user *eip)
- 	cwd = get_fpu_cwd(task);
- 	swd = get_fpu_swd(task);
- 	switch (swd & ~cwd & 0x3f) {
--		case 0x000:
--		default:
-+		case 0x000: /* No unmasked exception */
-+			return;
-+		default:    /* Multiple exceptions */
- 			break;
- 		case 0x001: /* Invalid Op */
- 			/*
-__
-Chuck
+Turns out there are other reasons an application may want
+to "talk" to a target device rather than one of its logical
+units (e.g. access controls and log pages specific to
+the target's transport). Well known lus can be seen with the
+REPORT_LUNS (select_report=1) but there is no mechanism (that
+I am aware of) that allows anyone to access them
+from the user space with linux.
+
+
+References at www.t10.org:
+   spc4r01a.pdf  [section 8]
+   bcc-r00.pdf   [bridge controller commands]
+
+Doug Gilbert

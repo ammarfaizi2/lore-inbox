@@ -1,80 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932361AbVIMGac@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932370AbVIMGe1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932361AbVIMGac (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 02:30:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932364AbVIMGac
+	id S932370AbVIMGe1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 02:34:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932372AbVIMGe1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 02:30:32 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:7344 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932361AbVIMGab
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 02:30:31 -0400
-Date: Tue, 13 Sep 2005 07:30:28 +0100
-From: Al Viro <viro@ZenIV.linux.org.uk>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>,
-       LKML <linux-kernel@vger.kernel.org>, jdike@addtoit.com
-Subject: Re: asm-offsets.h is generated in the source tree
-Message-ID: <20050913063028.GQ25261@ZenIV.linux.org.uk>
-References: <20050911012033.5632152f.sfr@canb.auug.org.au> <20050910161917.GA22113@mars.ravnborg.org> <20050911023203.GH25261@ZenIV.linux.org.uk> <20050911083153.GA24176@mars.ravnborg.org> <20050911154550.GJ25261@ZenIV.linux.org.uk> <20050911170425.GA8049@mars.ravnborg.org> <20050911212942.GK25261@ZenIV.linux.org.uk> <20050911220328.GE2177@mars.ravnborg.org> <20050911231601.GL25261@ZenIV.linux.org.uk> <20050912191525.GA13435@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050912191525.GA13435@mars.ravnborg.org>
-User-Agent: Mutt/1.4.1i
+	Tue, 13 Sep 2005 02:34:27 -0400
+Received: from livid.absolutedigital.net ([66.92.46.173]:25014 "EHLO
+	mx2.absolutedigital.net") by vger.kernel.org with ESMTP
+	id S932370AbVIMGe0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 02:34:26 -0400
+Date: Tue, 13 Sep 2005 02:28:07 -0400 (EDT)
+From: Cal Peake <cp@absolutedigital.net>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: more fallout from ATI Xpress timer workaround (was: Linux
+ 2.6.14-rc1)
+In-Reply-To: <Pine.LNX.4.58.0509122019560.3351@g5.osdl.org>
+Message-ID: <Pine.LNX.4.61.0509130219330.9693@lancer.cnet.absolutedigital.net>
+References: <Pine.LNX.4.58.0509122019560.3351@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 12, 2005 at 09:15:25PM +0200, Sam Ravnborg wrote:
-> o Use symlinks
->   - With all their horror they do the job.
->   - The need special care with make O=
->   - We fail to detect when the point somewhere else, so make mrproper
->     is needed.
->   - They confuse people
->     
-> o include_next
->   - gcc extension
->   - Give us correct dependencies
->   - Signal that something fishy is going on
-> 
-> o Use some magic define trick like:
->   - #include "ARCHDIR##foo.h"
->   - I cannot recall correct syntax but something like this is doable
+Hi,
 
-* Provide a function that would
-	take target of form <directory>/.<link>
-	create a symlink at <directory>/<link> to argument of function,
-doing obvious changes for O=
-	touch the target
+More fallout from the change mentioned above.
 
-That would turn e.g. arm/Makefile rule into
+  LD      .tmp_vmlinux1
+arch/i386/kernel/built-in.o(.init.text+0xd3a): In function 
+`parse_cmdline_early':
+: undefined reference to `disable_timer_pin_1'
+arch/i386/kernel/built-in.o(.init.text+0xd3f): In function 
+`parse_cmdline_early':
+: undefined reference to `disable_timer_pin_1'
+arch/i386/kernel/built-in.o(.init.text+0xd49): In function 
+`parse_cmdline_early':
+: undefined reference to `disable_timer_pin_1'
+make: *** [.tmp_vmlinux1] Error 1
 
-include/asm-arm/.arch: $(wildcard include/config/arch/*.h) include/config/MARKER
-	$(call symlink, arch-$(incdir-y))
+This gets the kernel built:
 
-with all the guts handled by the function in question.  For O= build you'd
-get
-	include/asm-arm created if needed
-	include/asm-arm/arch -> $(srctree)/include/asm-arm/arch-....
-and for normal one
-	include/asm-arm/arch -> arch-....
-In either case include/asm-arm/.arch is touched and depends on the right
-config options.  Same for include/asm-sh/cpu and include/asm-sh/mach,
-etc.
+disable_timer_pin_1 needs IO-APIC, not just local APIC.
 
-The only case not handled by that scheme is when we create a symlink and
-then create files in its target.  Which, AFAICS, is the case only for
-include/asm - UML used to need that for arch/um/include/sysdep, but doesn't
-anymore (as the matter of fact, arch/um/include2/ is gone in my tree).
+Signed-off-by: Cal Peake <cp@absolutedigital.net>
 
-The reason why include_next blows is very simple: OK, so make can figure
-out what we mean.  But make is not the only thing that has to understand
-which file is refered to - people writing and reviewing code need the same
-and having to figure out what exactly do we have in search path is asking
-for trouble.  With symlinks (or bindings, etc.) you have #include argument
-that doesn't need that sort of lookups - <asm/arch/foo.h> is visibly
-different from <asm/foo.h> and one can immediately see what it's about.
+--- linux-2.6.14-rc1/arch/i386/kernel/setup.c~	2005-09-13 01:36:07.000000000 -0400
++++ linux-2.6.14-rc1/arch/i386/kernel/setup.c	2005-09-13 02:23:42.000000000 -0400
+@@ -848,9 +848,7 @@
+ #ifdef CONFIG_X86_IO_APIC
+ 		else if (!memcmp(from, "acpi_skip_timer_override", 24))
+ 			acpi_skip_timer_override = 1;
+-#endif
+ 
+-#ifdef CONFIG_X86_LOCAL_APIC
+ 		if (!memcmp(from, "disable_timer_pin_1", 19))
+ 			disable_timer_pin_1 = 1;
+ 		if (!memcmp(from, "enable_timer_pin_1", 18))
+@@ -859,7 +857,7 @@
+ 		/* disable IO-APIC */
+ 		else if (!memcmp(from, "noapic", 6))
+ 			disable_ioapic_setup();
+-#endif /* CONFIG_X86_LOCAL_APIC */
++#endif /* CONFIG_X86_IO_APIC */
+ #endif /* CONFIG_ACPI */
+ 
+ #ifdef CONFIG_X86_LOCAL_APIC
 
-IOW, playing tricks with search paths becomes wrong as soon as it becomes
-something you have to keep in mind while reading kernel code itself.
+-- 
+". . . tell 'em we use Linux." -- Dave Chappelle
+

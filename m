@@ -1,37 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbVIMD5L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbVIMD77@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932082AbVIMD5L (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Sep 2005 23:57:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932105AbVIMD5L
+	id S932105AbVIMD77 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Sep 2005 23:59:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932145AbVIMD77
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Sep 2005 23:57:11 -0400
-Received: from iucha.net ([209.98.146.184]:61132 "EHLO mail2.iucha.net")
-	by vger.kernel.org with ESMTP id S932082AbVIMD5K (ORCPT
+	Mon, 12 Sep 2005 23:59:59 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:691 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932105AbVIMD76 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Sep 2005 23:57:10 -0400
-Date: Mon, 12 Sep 2005 22:57:03 -0500
-To: Linul Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: recent (2.6.12+) config for power mac G5?
-Message-ID: <20050913035703.GE18079@iucha.net>
+	Mon, 12 Sep 2005 23:59:58 -0400
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
+From: Keith Owens <kaos@ocs.com.au>
+To: abonilla@linuxwireless.org
+cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: "Read my lips: no more merges" - aka Linux 2.6.14-rc1 
+In-reply-to: Your message of "Mon, 12 Sep 2005 21:54:29 CST."
+             <1126583669.5708.18.camel@localhost.localdomain> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-message-flag: Microsoft: Where do you want to go today? Nevermind, you are coming with us!
-X-gpg-key: http://iucha.net/florin_iucha.gpg
-X-gpg-fingerprint: 5E59 C2E7 941E B592 3BA4  7DCF 343D 2B14 2376 6F5B
-User-Agent: Mutt/1.5.9i
-From: florin@iucha.net (Florin Iucha)
+Date: Tue, 13 Sep 2005 13:59:45 +1000
+Message-ID: <7255.1126583985@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, 12 Sep 2005 21:54:29 -0600, 
+Alejandro Bonilla Beeche <abonilla@linuxwireless.org> wrote:
+>If I do make menuconfig, it still says 2.6.13 instead of 2.6.14-rc1.
 
-Does anybody have a working config for a recent power mac dual G5 box?
-I am trying to configure it, but I end up with unbootable kernels. As
-a recent "switcher" I have trouble making the .config transition from
-i386 to ppc64 ;)
+rsync.kernel.org has not been updated from the master yet.  Give it an
+hour and try again.
 
-Thank you,
-florin
-
-PS: Please send it directly, as I am not subscribed.

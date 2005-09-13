@@ -1,62 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964894AbVIMRPb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964913AbVIMRSK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964894AbVIMRPb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 13:15:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964901AbVIMRPb
+	id S964913AbVIMRSK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 13:18:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964906AbVIMRSK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 13:15:31 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:44978 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964894AbVIMRPa (ORCPT
+	Tue, 13 Sep 2005 13:18:10 -0400
+Received: from ozlabs.org ([203.10.76.45]:33700 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S964902AbVIMRSI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 13:15:30 -0400
-Date: Tue, 13 Sep 2005 10:15:22 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Mathieu Fluhr <mfluhr@nero.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Helge Hafting <helge.hafting@aitel.hist.no>
-Subject: Re: "Read my lips: no more merges" - aka Linux 2.6.14-rc1
-In-Reply-To: <1126630878.2066.6.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0509131010010.3351@g5.osdl.org>
-References: <Pine.LNX.4.58.0509122019560.3351@g5.osdl.org> 
- <1126608030.3455.23.camel@localhost.localdomain> <1126630878.2066.6.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 13 Sep 2005 13:18:08 -0400
+Date: Wed, 14 Sep 2005 02:47:27 +1000
+From: Anton Blanchard <anton@samba.org>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Dipankar Sarma <dipankar@in.ibm.com>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6.14-rc1] sym scsi boot hang
+Message-ID: <20050913164727.GA26353@krispykreme>
+References: <20050913124804.GA5008@in.ibm.com> <20050913131739.GD26162@krispykreme> <20050913142939.GE26162@krispykreme> <1126629345.4809.36.camel@mulgrave>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1126629345.4809.36.camel@mulgrave>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Hi,
 
-On Tue, 13 Sep 2005, Mathieu Fluhr wrote:
->
-> Ok, after having performed a bisection of the kernel tree (took me the
-> whole afternoon.... 13 compilations needed ;-) I think I am able to give
-> the faulty patch for these buffer underruns: 
+> If that's the cause, it's probably a double down of the host scan
+> semaphore somewhere in the code.  alt-sysrq-t should work in this case,
+> can you get a stack trace of the blocked process?
 
-Thanks, interesting.
+Good idea, I wonder why the IO isnt completing.
 
-And hey, 13 compilations may sound like a lot, but considering that there
-were 2069 commits between 2.6.12 and 2.6.13-rc1, having to do "just" 13
-kernels to pinpoint the exact cause is pretty good, I think.
+Anton
 
-Especially as I don't think anybody would really have expected the one you 
-found:
-
-> [PATCH] i386: Selectable Frequency of the Timer Interrupt
-> 
-> So I would say that it is related to somehow some kind of timeout in
-> SCSI I/O (but really not sure...).
-
-Interesting, and a bit scary. If it worked with 1kHz (old default value),
-it's not even any of the old Linux x86 timeouts (that were designed for
-100 Hz), so it's some _new_ HZ dependency.
-
-> As far as I saw, there is now an option in the kernel config file
-> related to this, so I will try to see what happens with 1000 Hz and 100
-> Hz (I left the default value of 250 Hz for my tests).
-
-Yes, that would be interesting.
-
-Btw, what's the exact error message you get? (And is it the kernel or the
-burning app that complains?)
-
-			Linus
+[c0000000004945fc] schedule+0x63c/0xf70
+[c0000000004954c8] wait_for_completion+0xb8/0x140
+[c0000000002a3800] blk_execute_rq+0xb0/0x120
+[c000000000338a98] scsi_execute+0xf8/0x150
+[c000000000338bc0] scsi_execute_req+0xd0/0x140
+[c00000000033bce4] scsi_probe_and_add_lun+0x204/0x9f0
+[c00000000033cfc4] __scsi_scan_target+0x164/0x4f0
+[c00000000033d430] scsi_scan_channel+0xe0/0x120
+[c00000000033d598] scsi_scan_host_selected+0x128/0x1d0
+[c000000000361c20] ibmvscsi_probe+0x270/0x400
+[c0000000000367fc] vio_bus_probe+0x7c/0x90
+[c000000000299a78] driver_probe_device+0x98/0x160
+[c000000000299ce8] __driver_attach+0xa8/0xd0
+[c000000000298938] bus_for_each_dev+0x88/0xe0
+[c000000000299738] driver_attach+0x28/0x40
+[c000000000299074] bus_add_driver+0xc4/0x200
+[c00000000029a1cc] driver_register+0x5c/0x80
+[c0000000000365b0] vio_register_driver+0x50/0x70
+[c000000000565bac] ibmvscsi_module_init+0x1c/0x40

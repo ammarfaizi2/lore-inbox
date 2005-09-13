@@ -1,37 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932437AbVIMILA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932438AbVIMIPJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932437AbVIMILA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 04:11:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932438AbVIMILA
+	id S932438AbVIMIPJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 04:15:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932439AbVIMIPJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 04:11:00 -0400
-Received: from colin.muc.de ([193.149.48.1]:269 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S932437AbVIMIK7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 04:10:59 -0400
-Date: 13 Sep 2005 10:10:54 +0200
-Date: Tue, 13 Sep 2005 10:10:54 +0200
-From: Andi Kleen <ak@muc.de>
-To: Ashok Raj <ashok.raj@intel.com>
-Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 13/14] x86_64: Use common functions in cluster and physflat mode
-Message-ID: <20050913081054.GB37889@muc.de>
-References: <200509032135.j83LZ8gX020554@shell0.pdx.osdl.net> <20050905231628.GA16476@muc.de> <20050906161215.B19592@unix-os.sc.intel.com> <Pine.LNX.4.61.0509091003490.978@montezuma.fsmlabs.com> <20050909134503.A29351@unix-os.sc.intel.com> <Pine.LNX.4.61.0509091439110.978@montezuma.fsmlabs.com> <20050911230220.GA73228@muc.de> <20050912152308.A18649@unix-os.sc.intel.com>
-Mime-Version: 1.0
+	Tue, 13 Sep 2005 04:15:09 -0400
+Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:39816 "EHLO
+	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S932438AbVIMIPI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 04:15:08 -0400
+From: Grant Coady <grant_lkml@dodo.com.au>
+To: Greg KH <gregkh@suse.de>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
+       "Gaston, Jason D" <jason.d.gaston@intel.com>, mj@ucw.cz, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.13-rc4 1/1] pci_ids: patch for Intel ICH7R
+Date: Tue, 13 Sep 2005 18:14:46 +1000
+Organization: http://bugsplatter.mine.nu/
+Message-ID: <n22di195igbdp9mc1vg9vq6056fsc7a7cl@4ax.com>
+References: <26CEE2C804D7BE47BC4686CDE863D0F5046EA44B@orsmsx410> <42EAABD1.8050903@pobox.com> <n4ple1haga8eano2vt2ipl17mrrmmi36jr@4ax.com> <42EAF987.7020607@pobox.com> <6f0me1p2q3g9ralg4a2k2mcra21lhpg6ij@4ax.com> <20050911031150.GA20536@kroah.com> <pfn7i1ll7g5bs8sm8kq0md33f8khsujrbf@4ax.com> <4323EFFE.2040102@pobox.com> <kctci1lqlgbr9ct7as48j551o6v9013504@4ax.com> <20050913070324.GA7968@suse.de>
+In-Reply-To: <20050913070324.GA7968@suse.de>
+X-Mailer: Forte Agent 2.0/32.652
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050912152308.A18649@unix-os.sc.intel.com>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> We should probably remove the !HOTPLUG case and just use the mask version
-> for all cases <=8 CPUS, use physflat or the cluster mode for >8cpus as 
-> the case may be, instead of defaulting to sequence_IPI which seems
-> a little overkill for the intended purpose.
+On Tue, 13 Sep 2005 00:03:24 -0700, Greg KH <gregkh@suse.de> wrote:
 
-Or just always use physflat and remove the logical flat case? 
-That seems cleanest to me. Any objections? 
+>On Tue, Sep 13, 2005 at 04:46:45PM +1000, Grant wrote:
+>> On Sun, 11 Sep 2005 04:51:10 -0400, Jeff Garzik <jgarzik@pobox.com> wrote:
+>> >
+>> >pci_ids.h should be the place where PCI IDs (class, vendor, device) are 
+>> >collected.
+>> 
+>> Few files reference it.
+>
+>include/pci.h does, so pretty much every pci driver does because of
+>that.
 
--Andi
+That's probably the little aspect I missed :)  Something wasn't making 
+sense to me.
+>
+>> >Long term, we should be able to trim a lot of device ids, since they are 
+>> >usually only used in one place.
+>> 
+>> Well, they're not, and trimming a file marked for removal is pointless.
+>
+>Huh?  That file isn't marked for removal, that was the id database,
+>which is now gone...
+
+Ahh, that explains my confusion, I'll have another look at it.
+
+Grant.
+

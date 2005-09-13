@@ -1,52 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932676AbVIMPbL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932675AbVIMPae@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932676AbVIMPbL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 11:31:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932677AbVIMPbL
+	id S932675AbVIMPae (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 11:30:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932676AbVIMPad
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 11:31:11 -0400
-Received: from colin.muc.de ([193.149.48.1]:47371 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S932676AbVIMPbK (ORCPT
+	Tue, 13 Sep 2005 11:30:33 -0400
+Received: from smtp.dkm.cz ([62.24.64.34]:10250 "HELO smtp.dkm.cz")
+	by vger.kernel.org with SMTP id S932675AbVIMPad (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 11:31:10 -0400
-Date: 13 Sep 2005 17:31:06 +0200
-Date: Tue, 13 Sep 2005 17:31:06 +0200
-From: Andi Kleen <ak@muc.de>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Ashok Raj <ashok.raj@intel.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 13/14] x86_64: Use common functions in cluster and physflat mode
-Message-ID: <20050913153106.GB14316@muc.de>
-References: <200509032135.j83LZ8gX020554@shell0.pdx.osdl.net> <20050905231628.GA16476@muc.de> <20050906161215.B19592@unix-os.sc.intel.com> <Pine.LNX.4.61.0509091003490.978@montezuma.fsmlabs.com> <20050909134503.A29351@unix-os.sc.intel.com> <Pine.LNX.4.61.0509091439110.978@montezuma.fsmlabs.com> <20050911230220.GA73228@muc.de> <20050912152308.A18649@unix-os.sc.intel.com> <20050913081054.GB37889@muc.de> <Pine.LNX.4.61.0509130749210.1684@montezuma.fsmlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0509130749210.1684@montezuma.fsmlabs.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 13 Sep 2005 11:30:33 -0400
+Message-ID: <4326F093.80206@rulez.cz>
+Date: Tue, 13 Sep 2005 17:30:27 +0200
+From: iSteve <isteve@rulez.cz>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org
+Subject: Re: query_modules syscall gone? Any replacement?
+References: <4KSFY-2pO-17@gated-at.bofh.it> <E1EDpQq-0000iV-Oe@be1.lrz> <4326DE0E.2060306@rulez.cz> <Pine.LNX.4.50.0509130813010.7614-100000@shark.he.net>
+In-Reply-To: <Pine.LNX.4.50.0509130813010.7614-100000@shark.he.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 13, 2005 at 07:53:03AM -0700, Zwane Mwaikambo wrote:
-> On Tue, 13 Sep 2005, Andi Kleen wrote:
+> Nope, they are not prevented.  However, there is a Tainted flag
+> that is set when one is loaded (and that flag is never cleared).
 > 
-> > > We should probably remove the !HOTPLUG case and just use the mask version
-> > > for all cases <=8 CPUS, use physflat or the cluster mode for >8cpus as 
-> > > the case may be, instead of defaulting to sequence_IPI which seems
-> > > a little overkill for the intended purpose.
-> > 
-> > Or just always use physflat and remove the logical flat case? 
-> > That seems cleanest to me. Any objections? 
+
+Okay, I've been wrong in my conclusion and I gotta read some fine manual 
+about how the modules actually work -- could you recommend me some in 
+particular?
+
+>>  - /proc/modules and /sys/module interface doesn't by far supply what
+>>query_module could do
 > 
-> My objection is the number of APIC writes required to issue IPIs to a 
-> group of processors, however i do understand that it would help 
+> Can you state succinctly exactly what you are trying to do?
 
-local APIC accesses are cheap, they don't go over any external bus.
-It's not like a PCI cycle.
-
-> maintainability and testing coverage if we reduce the number of operating 
-> modes, are you proposing physflat for _everything_ ?
-
-On everything that's currently run by flat yes. Possibly the others
-too when tested.
-
--Andi
+I would like to be able to query symbols of a loaded module, get list of 
+and list of dependencies of loaded module from an app, preferably 
+without having to parse a file...

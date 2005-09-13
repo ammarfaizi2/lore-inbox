@@ -1,39 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932612AbVIMLlG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932615AbVIMLoz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932612AbVIMLlG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 07:41:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932613AbVIMLlG
+	id S932615AbVIMLoz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 07:44:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932617AbVIMLoz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 07:41:06 -0400
-Received: from smtp08.web.de ([217.72.192.226]:20135 "EHLO smtp08.web.de")
-	by vger.kernel.org with ESMTP id S932612AbVIMLlF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 07:41:05 -0400
-From: Thomas Maguin <T.Maguin@web.de>
-Reply-To: T.Maguin@web.de
-To: linux-kernel@vger.kernel.org
-Subject: please add this to scsi_ioctl.c Basic writing commands
-User-Agent: KMail/1.8.1
+	Tue, 13 Sep 2005 07:44:55 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:62648 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932615AbVIMLoy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 07:44:54 -0400
+Message-ID: <00b601c5b858$8a8c4ad0$dba0220a@CARREN>
+From: "Hironobu Ishii" <hishii@soft.fujitsu.com>
+To: "Russell King" <rmk+lkml@arm.linux.org.uk>,
+       "Taku Izumi" <izumi2005@soft.fujitsu.com>
+Cc: <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+References: <200509072146.j87LkNv8004076@shell0.pdx.osdl.net> <20050907224911.H19199@flint.arm.linux.org.uk> <4394.10.124.102.246.1126165652.squirrel@dominion> <20050913091740.A8256@flint.arm.linux.org.uk>
+Subject: Re: performance-improvement-of-serial-console-via-virtual.patch added to -mm tree
+Date: Tue, 13 Sep 2005 20:44:37 +0900
 MIME-Version: 1.0
-Content-Disposition: inline
-Date: Tue, 13 Sep 2005 13:41:13 +0200
 Content-Type: text/plain;
-  charset="iso-8859-1"
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
-Message-Id: <200509131341.15191.T.Maguin@web.de>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2670
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-safe_for_write(WRITE_LONG_2)
-in the next kernel,
+Hi Russel,
 
-so that it is possible for non-root users to make a cxscan (c1, c2, cu) with 
-the extended readcd.c from Alexander Noe.
-http://www-user.tu-chemnitz.de/~noe/readcd/
+I am working with Taku,
 
-a complete package of cdrtools with the new readcd.c or just a patch against 
-cdrtools can be downloaded here:
-http://de.geocities.com/linux_piewie/download/
+> On Thu, Sep 08, 2005 at 04:47:32PM +0900, Taku Izumi wrote:
+>> >I don't think we want this.  With early serial console, tx_loadsz is
+>> >not guaranteed to be initialised, and may in fact be zero.
+>> 
+>> >Plus there's no guarantee that the FIFOs will actually be enabled, so
+>> >I think it's better that this patch doesn't go to mainline.
+>> 
+>> Our server has a virtual serial port, but its performance seems to be poor.
+>> It takes 10 seconds to output 4000 characters (from kernel) to serial
+>> console. By applying my patch, its peformance could be improved. ( 0.4
+>> seconds / 4000 characters output), so I think it is useful to use FIFO at
+>> serial8250_console_write function like transmit_chars function. Where
+>> should I correct in order to use FIFO?
+> 
+> The problem is that we don't know:
+> 
+> * if there is a FIFO
+> * what size the FIFO is
 
-so long
-Tom
+I understand tx_loadsz is practical TX FIFO size. 
+If there is no FIFO, tx_loadsz becomes 1.
+Is it wrong?
+  
+ - tx_loadsz is properly initilized in autoconfig().
+ - FIFO is enabled in serial8250_clear_fifo() called from autoconfig(),
+   if FIFO exist.
+ - autoconfig() is called from serial8250_isa_init_ports().
+ - serial8250_isa_init_ports() is called from serial8250_console_init() etc.
+ 
+I can't find the problem you are pointing out.
+
+> * if it has been initialised
+> * how much data is already contained in the FIFO
+
+Right, we can't know how many byte exist in the FIFO.
+So this patch is waiting the FIFO becomes empty at first
+by calling "wait_for_xmitr(up)".
+(This is the same logic with original.)
+
+After TX FIFO become empty, we can decide the available 
+TX FIFO depth by up->tx_loadsize.
+
+>        for (i = 0; i < count; ) {
+>                int     fifo;
+>
+>                wait_for_xmitr(up);
+>                fifo = up->tx_loadsz;
+>                /*
+>                 *      Send the character out using FIFO.
+>                 *      If a LF, also do CR...
+>                 */
+>                do {
+>                        serial_out(up, UART_TX, *s);
+>                        fifo--;
+>                        if (*s == 10) {
+>                                if (fifo > 0) {
+>                                        serial_out(up, UART_TX, 13);
+>                                        fifo--;
+>                                } else {
+>                                        /* No room to add CR */
+>                                        wait_for_xmitr(up);
+>                                        fifo = up->tx_loadsz;
+>                                        serial_out(up, UART_TX, 13);
+>                                        fifo--;
+>                                }
+>                        }
+>                        i++;
+>                        s++;
+>                } while (fifo > 0 && i < count );
+>        }
+
+
+> 
+> So we can't really blindly initialise the FIFO in the console write
+> method.  Neither can we initialise it in the console setup.  If we
+> could initialise it, we can't blindly load 16 bytes into the FIFO
+> at a time.
+> 
+> I don't think it's technically practical to use the FIFO for the
+> console and still have a reliable serial port.
+> 
+> -- 
+> Russell King
+> Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+> maintainer of:  2.6 Serial core
+> -
+
+Best regards,
+Hironobu Ishii

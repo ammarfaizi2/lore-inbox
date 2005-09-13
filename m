@@ -1,21 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964832AbVIMQEV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964835AbVIMQKV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964832AbVIMQEV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 12:04:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964837AbVIMQEU
+	id S964835AbVIMQKV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 12:10:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964837AbVIMQKV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 12:04:20 -0400
-Received: from serv01.siteground.net ([70.85.91.68]:31378 "EHLO
+	Tue, 13 Sep 2005 12:10:21 -0400
+Received: from serv01.siteground.net ([70.85.91.68]:31370 "EHLO
 	serv01.siteground.net") by vger.kernel.org with ESMTP
-	id S964832AbVIMQET (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 12:04:19 -0400
-Date: Tue, 13 Sep 2005 09:04:12 -0700
+	id S964835AbVIMQKU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 12:10:20 -0400
+Date: Tue, 13 Sep 2005 09:10:12 -0700
 From: Ravikiran G Thirumalai <kiran@scalex86.org>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, dipankar@in.ibm.com, bharata@in.ibm.com,
-       shai@scalex86.org, Rusty Russell <rusty@rustcorp.com.au>
-Subject: [patch 6/11] mm: Bigrefs -- distributed refcounters
-Message-ID: <20050913160412.GH3570@localhost.localdomain>
+       shai@scalex86.org, Rusty Russell <rusty@rustcorp.com.au>,
+       netdev@vger.kernel.org, davem@davemloft.net
+Subject: [patch 7/11] net: Use bigrefs for net_device.refcount
+Message-ID: <20050913161012.GI3570@localhost.localdomain>
 References: <20050913155112.GB3570@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -33,235 +34,163 @@ X-Source-Dir:
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Distributed refcounting infrastructure patch originally by Rusty Russel.  
-http://lkml.org/lkml/2005/1/14/47
-Changes from the original:
-- Rediffed and changed to use new alloc_percpu interface
-- Added bigref_set for some applications which initialize refcounters to 0
-- Donot call release at bigref_put if NULL
-- Use synchronize_sched instead of synchronize_kernel
+The net_device has a refcnt used to keep track of it's uses.
+This is used at the time of unregistering the network device
+(module unloading ..) (see netdev_wait_allrefs) .
+For loopback_dev , this refcnt increment/decrement  is causing
+unnecessary traffic on the interlink for NUMA system
+affecting it's performance.  This patch improves tbench numbers by 6% on a
+8way x86 Xeon (x445).
 
-Signed-off-by: Rusty Russel <rusty@rustcorp.com>
-Signed-off-by: Ravikiran Thirumalai <kiran@scalex86.org>
-Signed-off-by: Shai Fultheim <shai@scalex86.org>
+This patch is dependent on the bigref patch 
 
+Signed-off-by : Niraj Kumar <nirajk@calsoftinc.com>
+Signed-off-by : Shai Fultheim <shai@scalex86.org>
+Signed-off-by : Ravikiran Thirumalai <kiran@scalex86.org>
 
-Index: alloc_percpu-2.6.13-rc7/include/linux/bigref.h
+Index: alloc_percpu-2.6.13/drivers/net/loopback.c
 ===================================================================
---- alloc_percpu-2.6.13-rc7.orig/include/linux/bigref.h	2005-08-28 09:48:29.174802240 -0700
-+++ alloc_percpu-2.6.13-rc7/include/linux/bigref.h	2005-08-29 08:28:41.000000000 -0700
-@@ -0,0 +1,84 @@
-+#ifndef _LINUX_BIGREF_H
-+#define _LINUX_BIGREF_H
-+/* Per-cpu reference counters.  Useful when speed is important, and
-+   counter will only hit zero after some explicit event (such as being
-+   discarded from a list).
+--- alloc_percpu-2.6.13.orig/drivers/net/loopback.c	2005-08-28 16:41:01.000000000 -0700
++++ alloc_percpu-2.6.13/drivers/net/loopback.c	2005-09-12 12:04:25.000000000 -0700
+@@ -226,6 +226,12 @@
+ 		loopback_dev.priv = stats;
+ 		loopback_dev.get_stats = &get_stats;
+ 	}
 +
-+   (C) 2003 Rusty Russell, IBM Corporation.
-+*/
-+#include <linux/config.h>
-+#include <asm/atomic.h>
-+#include <asm/local.h>
-+
-+#ifdef CONFIG_SMP
-+struct bigref
-+{
-+	/* If this is zero, we use per-cpu counters. */
-+	atomic_t slow_ref;
-+	local_t *local_ref;
-+};
-+
-+/* Initialize reference to 1. */
-+void bigref_init(struct bigref *bigref);
-+/* Initialize reference to val */
-+void bigref_set(struct bigref *bigref, int val);
-+/* Disown reference: next bigref_put can hit zero */
-+void bigref_disown(struct bigref *bigref);
-+/* Grab reference */
-+void bigref_get(struct bigref *bigref);
-+/* Drop reference */
-+void bigref_put(struct bigref *bigref, void (*release)(struct bigref *bigref));
-+/* Destroy bigref prematurely (which might not have hit zero) */
-+void bigref_destroy(struct bigref *bigref);
-+
-+/* Get current value of reference, useful for debugging info. */
-+unsigned int bigref_val(struct bigref *bigref);
-+#else  /* ... !SMP */
-+struct bigref
-+{
-+	atomic_t ref;
-+};
-+
-+/* Initialize reference to 1. */
-+static inline void bigref_init(struct bigref *bigref)
-+{
-+	atomic_set(&bigref->ref, 1);
-+}
-+
-+/* Initialize reference to val */
-+static inline void bigref_set(struct bigref *bigref, int val)
-+{
-+	atomic_set(&bigref->ref, val);
-+}
-+
-+/* Disown reference: next bigref_put can hit zero */
-+static inline void bigref_disown(struct bigref *bigref)
-+{
-+}
-+
-+/* Grab reference */
-+static inline void bigref_get(struct bigref *bigref)
-+{
-+	atomic_inc(&bigref->ref);
-+}
-+
-+/* Drop reference */
-+static inline void bigref_put(struct bigref *bigref,
-+			      void (*release)(struct bigref *bigref))
-+{
-+	if (atomic_dec_and_test(&bigref->ref))
-+		release(bigref);
-+}
-+
-+/* Get current value of reference, useful for debugging info. */
-+static inline unsigned int bigref_val(struct bigref *bigref)
-+{
-+	return atomic_read(&bigref->ref);
-+}
-+
-+static inline void bigref_destroy(struct bigref *bigref)
-+{
-+}
-+#endif /* !SMP */
-+
-+#endif /* _LINUX_BIGREF_H */
-Index: alloc_percpu-2.6.13-rc7/kernel/Makefile
++	/* 
++	 * This is the only struct net_device not allocated by alloc_netdev
++	 * So explicitly init the bigref hanging off loopback_dev
++	 */
++	bigref_init(&loopback_dev.netdev_refcnt);
+ 	
+ 	return register_netdev(&loopback_dev);
+ };
+Index: alloc_percpu-2.6.13/include/linux/netdevice.h
 ===================================================================
---- alloc_percpu-2.6.13-rc7.orig/kernel/Makefile	2005-08-29 08:28:30.000000000 -0700
-+++ alloc_percpu-2.6.13-rc7/kernel/Makefile	2005-08-29 08:28:41.000000000 -0700
-@@ -11,7 +11,7 @@
- 
- obj-$(CONFIG_FUTEX) += futex.o
- obj-$(CONFIG_GENERIC_ISA_DMA) += dma.o
--obj-$(CONFIG_SMP) += cpu.o spinlock.o
-+obj-$(CONFIG_SMP) += cpu.o spinlock.o bigref.o
- obj-$(CONFIG_UID16) += uid16.o
- obj-$(CONFIG_MODULES) += module.o
- obj-$(CONFIG_KALLSYMS) += kallsyms.o
-Index: alloc_percpu-2.6.13-rc7/kernel/bigref.c
-===================================================================
---- alloc_percpu-2.6.13-rc7.orig/kernel/bigref.c	2005-08-28 09:48:29.174802240 -0700
-+++ alloc_percpu-2.6.13-rc7/kernel/bigref.c	2005-08-29 08:29:41.000000000 -0700
-@@ -0,0 +1,112 @@
+--- alloc_percpu-2.6.13.orig/include/linux/netdevice.h	2005-08-28 16:41:01.000000000 -0700
++++ alloc_percpu-2.6.13/include/linux/netdevice.h	2005-09-12 11:54:21.000000000 -0700
+@@ -37,6 +37,7 @@
+ #include <linux/config.h>
+ #include <linux/device.h>
+ #include <linux/percpu.h>
 +#include <linux/bigref.h>
-+#include <linux/compiler.h>
-+#include <linux/percpu.h>
-+#include <linux/rcupdate.h>
-+#include <linux/module.h>
-+#include <asm/system.h>
-+
-+static inline int is_slow_mode(const struct bigref *bigref)
-+{
-+	return atomic_read(&bigref->slow_ref) != 0;
-+}
-+
-+/* Initialize reference to 1. */
-+void bigref_init(struct bigref *bigref)
-+{
-+	bigref->local_ref = alloc_percpu(local_t, GFP_KERNEL);
-+
-+	/* If we can't allocate, we just stay in slow mode. */
-+	if (!bigref->local_ref)
-+		atomic_set(&bigref->slow_ref, 1);
-+	else {
-+		/* Bump any counter to 1. */
-+		local_set(__get_cpu_ptr(bigref->local_ref), 1);
-+		atomic_set(&bigref->slow_ref, 0);
-+	}
-+}
-+/* Initialize reference to val */
-+void bigref_set(struct bigref *bigref, int val)
-+{
-+
-+	if (!bigref->local_ref)
-+		atomic_set(&bigref->slow_ref, val);
-+	else {
-+		/* Bump any counter to val. */
-+		local_set(__get_cpu_ptr(bigref->local_ref), val);
-+		atomic_set(&bigref->slow_ref, 0);
-+	}
-+}
-+
-+
-+/* Disown reference: next bigref_put can hit zero */
-+void bigref_disown(struct bigref *bigref)
-+{
-+	int i, bias = 0x7FFFFFFF;
-+	if (unlikely(is_slow_mode(bigref))) {
-+		/* Must have been alloc fail, not double disown. */
-+		BUG_ON(bigref->local_ref);
-+		return;
-+	}
-+
-+	/* Insert high number so this doesn't go to zero now. */
-+	atomic_set(&bigref->slow_ref, bias);
-+
-+	/* Make sure everyone sees it and is using slow mode. */
-+	synchronize_sched();
-+
-+	/* Take away bias, and add sum of local counters. */
-+	for_each_cpu(i)
-+		bias -= local_read(per_cpu_ptr(bigref->local_ref, i));
-+	atomic_sub(bias, &bigref->slow_ref);
-+
-+	/* This caller should be holding one reference. */
-+	BUG_ON(atomic_read(&bigref->slow_ref) == 0);
-+}
-+
-+/* Grab reference */
-+void bigref_get(struct bigref *bigref)
-+{
-+	if (unlikely(is_slow_mode(bigref)))
-+		atomic_inc(&bigref->slow_ref);
-+	else
-+		local_inc(__get_cpu_ptr(bigref->local_ref));
-+}
-+
-+/* Drop reference */
-+void bigref_put(struct bigref *bigref, void (*release)(struct bigref *bigref))
-+{
-+	if (unlikely(is_slow_mode(bigref))) {
-+		if (atomic_dec_and_test(&bigref->slow_ref)) {
-+			free_percpu(bigref->local_ref);
-+			if (release)
-+				release(bigref);
-+		}
-+	} else
-+		local_dec(__get_cpu_ptr(bigref->local_ref));
-+}
-+
-+void bigref_destroy(struct bigref *bigref)
-+{
-+	if (bigref->local_ref)
-+		free_percpu(bigref->local_ref);
-+}
-+
-+/* Get current value of reference, useful for debugging info. */
-+unsigned int bigref_val(struct bigref *bigref)
-+{
-+	unsigned int sum = 0, i;
-+
-+	if (unlikely(is_slow_mode(bigref)))
-+		sum = atomic_read(&bigref->slow_ref);
-+	else
-+		for_each_cpu(i)
-+			sum += local_read(per_cpu_ptr(bigref->local_ref, i));
-+	return sum;
-+}
-+
-+EXPORT_SYMBOL(bigref_init);
-+EXPORT_SYMBOL(bigref_disown);
-+EXPORT_SYMBOL(bigref_get);
-+EXPORT_SYMBOL(bigref_put);
-+EXPORT_SYMBOL(bigref_destroy);
-+EXPORT_SYMBOL(bigref_val);
+ 
+ struct divert_blk;
+ struct vlan_group;
+@@ -377,7 +378,7 @@
+ 	/* device queue lock */
+ 	spinlock_t		queue_lock;
+ 	/* Number of references to this device */
+-	atomic_t		refcnt;
++	struct bigref	        netdev_refcnt;	
+ 	/* delayed register/unregister */
+ 	struct list_head	todo_list;
+ 	/* device name hash chain */
+@@ -677,11 +678,11 @@
+ 
+ static inline void dev_put(struct net_device *dev)
+ {
+-	atomic_dec(&dev->refcnt);
++	bigref_put(&dev->netdev_refcnt, NULL);
+ }
+ 
+-#define __dev_put(dev) atomic_dec(&(dev)->refcnt)
+-#define dev_hold(dev) atomic_inc(&(dev)->refcnt)
++#define __dev_put(dev) bigref_put(&(dev)->netdev_refcnt, NULL);
++#define dev_hold(dev) bigref_get(&(dev)->netdev_refcnt);
+ 
+ /* Carrier loss detection, dial on demand. The functions netif_carrier_on
+  * and _off may be called from IRQ context, but it is caller
+Index: alloc_percpu-2.6.13/net/core/dev.c
+===================================================================
+--- alloc_percpu-2.6.13.orig/net/core/dev.c	2005-08-28 16:41:01.000000000 -0700
++++ alloc_percpu-2.6.13/net/core/dev.c	2005-09-12 11:54:21.000000000 -0700
+@@ -2658,6 +2658,7 @@
+ 		goto out;
+ 
+ 	dev->iflink = -1;
++	bigref_set(&dev->netdev_refcnt, 0);
+ 
+ 	/* Init, if this function is available */
+ 	if (dev->init) {
+@@ -2808,7 +2809,7 @@
+ 	unsigned long rebroadcast_time, warning_time;
+ 
+ 	rebroadcast_time = warning_time = jiffies;
+-	while (atomic_read(&dev->refcnt) != 0) {
++	while ( bigref_val(&dev->netdev_refcnt) != 0) {
+ 		if (time_after(jiffies, rebroadcast_time + 1 * HZ)) {
+ 			rtnl_shlock();
+ 
+@@ -2838,7 +2839,7 @@
+ 			printk(KERN_EMERG "unregister_netdevice: "
+ 			       "waiting for %s to become free. Usage "
+ 			       "count = %d\n",
+-			       dev->name, atomic_read(&dev->refcnt));
++			       dev->name, bigref_val(&dev->netdev_refcnt));
+ 			warning_time = jiffies;
+ 		}
+ 	}
+@@ -2909,7 +2910,7 @@
+ 			netdev_wait_allrefs(dev);
+ 
+ 			/* paranoia */
+-			BUG_ON(atomic_read(&dev->refcnt));
++			BUG_ON(bigref_val(&dev->netdev_refcnt));
+ 			BUG_TRAP(!dev->ip_ptr);
+ 			BUG_TRAP(!dev->ip6_ptr);
+ 			BUG_TRAP(!dev->dn_ptr);
+@@ -2969,6 +2970,7 @@
+ 
+ 	setup(dev);
+ 	strcpy(dev->name, name);
++	bigref_init(&dev->netdev_refcnt);
+ 	return dev;
+ }
+ EXPORT_SYMBOL(alloc_netdev);
+@@ -2986,6 +2988,7 @@
+ #ifdef CONFIG_SYSFS
+ 	/*  Compatiablity with error handling in drivers */
+ 	if (dev->reg_state == NETREG_UNINITIALIZED) {
++		bigref_destroy(&dev->netdev_refcnt);
+ 		kfree((char *)dev - dev->padded);
+ 		return;
+ 	}
+@@ -2996,6 +2999,7 @@
+ 	/* will free via class release */
+ 	class_device_put(&dev->class_dev);
+ #else
++	bigref_destroy(&dev->netdev_refcnt);
+ 	kfree((char *)dev - dev->padded);
+ #endif
+ }
+@@ -3210,7 +3214,7 @@
+ 		set_bit(__LINK_STATE_START, &queue->backlog_dev.state);
+ 		queue->backlog_dev.weight = weight_p;
+ 		queue->backlog_dev.poll = process_backlog;
+-		atomic_set(&queue->backlog_dev.refcnt, 1);
++		bigref_init(&queue->backlog_dev.netdev_refcnt);
+ 	}
+ 
+ 	dev_boot_phase = 0;
+Index: alloc_percpu-2.6.13/net/core/net-sysfs.c
+===================================================================
+--- alloc_percpu-2.6.13.orig/net/core/net-sysfs.c	2005-08-28 16:41:01.000000000 -0700
++++ alloc_percpu-2.6.13/net/core/net-sysfs.c	2005-09-12 11:54:21.000000000 -0700
+@@ -16,6 +16,7 @@
+ #include <net/sock.h>
+ #include <linux/rtnetlink.h>
+ #include <linux/wireless.h>
++#include <linux/bigref.h>
+ 
+ #define to_class_dev(obj) container_of(obj,struct class_device,kobj)
+ #define to_net_dev(class) container_of(class, struct net_device, class_dev)
+@@ -400,6 +401,8 @@
+ 		= container_of(cd, struct net_device, class_dev);
+ 
+ 	BUG_ON(dev->reg_state != NETREG_RELEASED);
++	
++	bigref_destroy(&dev->netdev_refcnt);
+ 
+ 	kfree((char *)dev - dev->padded);
+ }

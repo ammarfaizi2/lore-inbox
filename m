@@ -1,58 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932646AbVIMNPI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964771AbVIMNUP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932646AbVIMNPI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 09:15:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932647AbVIMNPI
+	id S964771AbVIMNUP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 09:20:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964772AbVIMNUP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 09:15:08 -0400
-Received: from quechua.inka.de ([193.197.184.2]:13230 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S932646AbVIMNPG (ORCPT
+	Tue, 13 Sep 2005 09:20:15 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:21914 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S964771AbVIMNUN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 09:15:06 -0400
-From: Andreas Jellinghaus <aj@dungeon.inka.de>
-Subject: Re: [udev/vcs] tons of creating/removing /dev/vcs* during boot
-To: linux-kernel@vger.kernel.org
-Mail-Copies-To: aj@dungeon.inka.de
-Date: Tue, 13 Sep 2005 15:14:59 +0200
-References: <20050912170618.69e18341.froese@gmx.de> <20050913055533.GA7206@kroah.com>
+	Tue, 13 Sep 2005 09:20:13 -0400
+Message-ID: <4326D206.4050100@adaptec.com>
+Date: Tue, 13 Sep 2005 09:20:06 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <20050913131138.C5B07210BC@dungeon.inka.de>
+To: dougg@torque.net
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: [PATCH 2.6.13 2/14] sas-class: README
+References: <4321E4DD.7070405@adaptec.com> <43238C16.4010709@torque.net> <4325B333.3070301@adaptec.com> <43269A7A.3080602@torque.net>
+In-Reply-To: <43269A7A.3080602@torque.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 13 Sep 2005 13:20:12.0084 (UTC) FILETIME=[DEE75F40:01C5B865]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
->> Best would be of course to generate only a single event at the same
->> time the tty device is create.
+On 09/13/05 05:23, Douglas Gilbert wrote:
+> Luben Tuikov wrote:
+>>The questiong is _what_ to do on this event.  This is a complex
+>>answer and I'd rather have a _SES_ layer (or at least a logical
+>>module/library) to handle those as storage vendors want this,
+>>_right now_.
 > 
-> That's what you are seeing.  And then watching as it's being destroyed.
-> And then created.  And then destroyed.  And so on (virtual ttys are
-> nasty at times..)
+> 
+> Simple answer: generate a hotplug event and let a
+> user application that cares worry about it. No
+> need for a SES layer in the kernel.
 
-wait a second, the kernel code opens /dev/console before running
-init. so that should trigger that first hotplug event. and if
-init is a process that does not close stdin/out/err, there should
-not be any additional hotplug event, right?
+Well, that sounds ok, but it maybe the case that the SES
+device wants to say something about the SAS devices
+on the same level.  So even if userspace gets it, it would
+have nothing to do with it, because of the _type_ of SES
+device/event/etc.
+(User space can be notified anyway, which is perfectly fine).
 
-I know for sure that some gentoo machine created > 3000 hotplug
-events during bootup. I'm note sure if the init closed stdin/out/err,
-and that installation was replaced by debian anyway, but it sure
-killed the machine, if I hadn't disabled hotplugging (3000 bash
-processes need more ram than a normal machine has).
+>>In fact, I've some patches to submit regarding SES devices
+>>on the domain, but I wanted to _trim *down*_ the politics,
+>>_not_ escalate them.
+> 
+> 
+> Oh no, not a sysfs representation of SES abstractions :-)
 
-init strarts processes and those sure have stdin/out/err open,
-so they can write to the console. so I somehow doubt it closes
-and opens those all the time, but I haven't checked the code.
-so I wonder: is or was there any bug in the kernel where hundreds
-or thousands of hotplug requests are created, simply because
-processed are executed? 
+No, not that.
 
-it is a fact I saw thousands of hotplug events during a boot sequence.
-I'd like to know why that happened, and whether it would happen again.
-rm -rf /sbin/hotplug and switching to udevd is once option to solve
-the problem, but not an explanation why it happened in the first place.
+	Luben
 
-Regards, Andreas
-p.a. I don't use udevd, but my initramfs disables hotplug and
-the last initscript enables it again. also works ok.

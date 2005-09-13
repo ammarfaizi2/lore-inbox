@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751171AbVIMXwm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751165AbVIMXwj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751171AbVIMXwm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 19:52:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751172AbVIMXwm
+	id S1751165AbVIMXwj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 19:52:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751171AbVIMXwj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 19:52:42 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:44988 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751171AbVIMXwl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 19:52:41 -0400
-Date: Tue, 13 Sep 2005 16:52:30 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Markus F.X.J. Oberhumer" <markus@oberhumer.com>
-cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH] i386: fix stack alignment for signal handlers
-In-Reply-To: <4327611D.7@oberhumer.com>
-Message-ID: <Pine.LNX.4.58.0509131649060.26803@g5.osdl.org>
-References: <43273CB3.7090200@oberhumer.com> <Pine.LNX.4.58.0509131542510.26803@g5.osdl.org>
- <4327611D.7@oberhumer.com>
+	Tue, 13 Sep 2005 19:52:39 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:61649 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751165AbVIMXwi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 19:52:38 -0400
+Message-ID: <432765FC.7010204@jp.fujitsu.com>
+Date: Wed, 14 Sep 2005 08:51:24 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: ja, en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andi Kleen <ak@suse.de>
+CC: Roman Zippel <zippel@linux-m68k.org>, Andrew Morton <akpm@osdl.org>,
+       discuss@x86-64.org, linux-kernel@vger.kernel.org
+Subject: Re: [discuss] Re: [1/3] Add 4GB DMA32 zone
+References: <43246267.mailL4R11PXCB@suse.de> <200509131147.42140.ak@suse.de> <20050913031540.0c732284.akpm@osdl.org> <200509131332.17244.ak@suse.de> <Pine.LNX.4.61.0509131407580.3743@scrub.home>
+In-Reply-To: <Pine.LNX.4.61.0509131407580.3743@scrub.home>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 14 Sep 2005, Markus F.X.J. Oberhumer wrote:
->
-> > You seem to be expecting that the address be aligned "before the return 
-> > address push", which is a totally different thing. Quite frankly, I don't 
-> > know which one gcc prefers or whether there's an ABI specifying any 
-> > preferences.
+Roman Zippel wrote:
+>>Kamezawa-san, can you please explain why exactly you did that change?
 > 
-> I'm pretty sure that on both amd64 and i386 the alignment has to be 
-> _before_ the address push from the call, though I cannot find any exact ABI 
-> specs at the moment. Experts please advise.
 > 
-> What do you get when running this slightly modified version of your test 
-> program? My patch would fix the alignment of Aligned16 here.
+> Probably because it triggers this check:
+> 
+> #if SECTIONS_WIDTH+NODES_WIDTH+ZONES_WIDTH > FLAGS_RESERVED
+> #error SECTIONS_WIDTH+NODES_WIDTH+ZONES_WIDTH > FLAGS_RESERVED
+> #endif
+> 
+Yes, it was for this.
+If still ZONES_WIDTH = ZONES_SHIFT =2, I have no problem.
 
-Your test program does seems to imply that gcc wants the alignment before
-the return address (ie it prints out an address that is 4 bytes offset),
-but on the other hand I'm not even sure how careful gcc is about this
-alignment thing at all.
+Thanks,
+-- Kame
 
-In the "main()" function, gcc will actually generate a "andl $-16,%esp" to 
-force the alignment, but ot in the handler function. Just a gcc special 
-case? Random luck?
+> bye, Roman
+> 
 
-Andi - you know the gcc people, is there some documented rules somewhere? 
-How does gcc itself try to align the stack when it generates the calls?
 
-		Linus

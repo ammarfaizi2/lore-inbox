@@ -1,119 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932472AbVIMJol@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932468AbVIMJn4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932472AbVIMJol (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 05:44:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932473AbVIMJol
+	id S932468AbVIMJn4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 05:43:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932472AbVIMJn4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 05:44:41 -0400
-Received: from web8501.mail.in.yahoo.com ([202.43.219.163]:52840 "HELO
-	web8501.mail.in.yahoo.com") by vger.kernel.org with SMTP
-	id S932472AbVIMJok (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 05:44:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.co.in;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=nwuKksLaJlP/127SFiJN0J66ywlgYEnCAS0cCgvQjAChxPLbS+gf/iaLhgT4TXEpqrOiSye3GPqsy9SFknyuPn0xDOPmckE0OdoiXBaFlePpPU2j5ROxJOKDhRPC5Vx97Yh2Sz42ippCqwazz4TlVOy3qKex9B6NfhGqVSRMG88=  ;
-Message-ID: <20050913094437.3252.qmail@web8501.mail.in.yahoo.com>
-Date: Tue, 13 Sep 2005 10:44:37 +0100 (BST)
-From: manomugdha biswas <manomugdhab@yahoo.co.in>
-Subject: Re: how to use wait_event_interruptible_timeout
-To: gaurav4lkg@gmail.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1e33f571050913023042b4c109@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 13 Sep 2005 05:43:56 -0400
+Received: from metis.extern.pengutronix.de ([83.236.181.26]:61162 "EHLO
+	metis.extern.pengutronix.de") by vger.kernel.org with ESMTP
+	id S932468AbVIMJn4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 05:43:56 -0400
+Date: Tue, 13 Sep 2005 11:43:51 +0200
+From: Robert Schwebel <r.schwebel@pengutronix.de>
+To: linux-kernel@vger.kernel.org
+Cc: Ingo Molnar <mingo@elte.hu>
+Subject: Problems with 2.6.13-rt5
+Message-ID: <20050913094351.GX28883@pengutronix.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
-I am using the this function in the following way:
+Hi Ingo, 
 
-wait_queue_head_t     VNICClientWQHead;
+Time is somehow more broken with -rt5 than with -rt4: 
 
-/* Initialise the wait q head */
-init_waitqueue_head(&VNICClientWQHead);
+europa:~# date --set="Tue Sep 13 10:57:00 CEST 2005"
+Tue Sep 13 10:57:00 CEST 2005
+europa:~# date
+Thu Jan  1 01:03:49 CET 1970
 
-init_waitqueue_entry(&waitQ, current);
-add_wait_queue(sock->sk->sk_sleep, waitQ));
+Strange enough that KDE seems to have the time, although "date"
+doesn't. Touching a file does also give it the "right" time. 
 
-/*
- my code, it reads data from socket
-*/
+Running the hrttimers-support-dev tests shows several errors and
+enabling preempt debugging features in the kernel config floods me with
+preempt counts BUGs. 
 
-wait_event_interruptible_timeout(VNICClientWQHead, 0,
-HZ * 100000);
+Is there a known issue or should I try to reproduce the differences to
+-rt4? 
 
-if no activity is to be done then this process sleeps.
-When some data comes in socket i.e socket becomes
-readable this process should wake up. In kernel 2.4 it
-was working fine using interruptible_sleep_on_time().
-But it is not working in kernel 2.6 even if data
-arrives in socket! The sleeping process never wake up.
-Could you please tell me what is the problem?
+Robert
+-- 
+ Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de
+ Pengutronix - Linux Solutions for Science and Industry
+   Handelsregister:  Amtsgericht Hildesheim, HRA 2686
+     Hannoversche Str. 2, 31134 Hildesheim, Germany
+   Phone: +49-5121-206917-0 |  Fax: +49-5121-206917-9
 
-Regards,
-Mano
-
-
---- Gaurav Dhiman <gaurav4lkg@gmail.com> wrote:
-
-> On 9/13/05, manomugdha biswas
-> <manomugdhab@yahoo.co.in> wrote:
-> > Hi,
-> > I was using interruptible_sleep_on_timeout() in
-> kernel
-> > 2.4. In kernel 2.6 I have use
-> > wait_event_interruptible_timeout. But it is now
-> > working!!. interruptible_sleep_on_timeout() was
-> > working fine. Could anyone please help me in this
-> > regard.
-> 
-> What problem are you facing with
-> wait_event_interruptible_timeout() in 2.6
-> Elaborate more on it.
-> 
-> -Gaurav
-> 
-> > Regards,
-> > Mano
-> > 
-> > Manomugdha Biswas
-> > 
-> > 
-> > 
-> >
->
-__________________________________________________________
-> > Yahoo! India Matrimony: Find your partner now. Go
-> to http://yahoo.shaadi.com
-> > -
-> > To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> 
-> 
-> -- 
-> - Gaurav
-> my blog: http://lkdp.blogspot.com/
-> --
-> -
-> To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-
-Manomugdha Biswas
-
-
-		
-__________________________________________________________ 
-Yahoo! India Matrimony: Find your partner now. Go to http://yahoo.shaadi.com

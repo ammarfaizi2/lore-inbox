@@ -1,42 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932628AbVIMM0q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932633AbVIMMlo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932628AbVIMM0q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 08:26:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932470AbVIMM0q
+	id S932633AbVIMMlo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 08:41:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932632AbVIMMlo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 08:26:46 -0400
-Received: from natnoddy.rzone.de ([81.169.145.166]:40915 "EHLO
-	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S932414AbVIMM0p
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 08:26:45 -0400
-From: Lion Vollnhals <lion.vollnhals@web.de>
-To: "John W. Linville" <linville@tuxdriver.com>
-Subject: Re: [patch 2.6.13] ia64: re-implement dma_get_cache_alignment to avoid EXPORT_SYMBOL
-Date: Tue, 13 Sep 2005 14:25:23 +0200
-User-Agent: KMail/1.8.1
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org, tony.luck@intel.com
-References: <09122005104852.31327@bilbo.tuxdriver.com> <20050913000611.GI19644@tuxdriver.com> <20050913001429.GJ19644@tuxdriver.com>
-In-Reply-To: <20050913001429.GJ19644@tuxdriver.com>
+	Tue, 13 Sep 2005 08:41:44 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:51345 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S932470AbVIMMln (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 08:41:43 -0400
+Message-ID: <4326C8FF.8050400@adaptec.com>
+Date: Tue, 13 Sep 2005 08:41:35 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200509131425.23950.lion.vollnhals@web.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Christoph Hellwig <hch@infradead.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Rik van Riel <riel@redhat.com>,
+       Luben Tuikov <ltuikov@yahoo.com>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: [PATCH 2.6.13 14/14] sas-class: SCSI Host glue
+References: <20050910041218.29183.qmail@web51612.mail.yahoo.com> <Pine.LNX.4.63.0509101028510.4630@cuia.boston.redhat.com> <1126383605.30449.12.camel@localhost.localdomain> <20050911094007.GB5429@infradead.org>
+In-Reply-To: <20050911094007.GB5429@infradead.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 13 Sep 2005 12:41:41.0830 (UTC) FILETIME=[7DE29660:01C5B860]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  unsigned long ia64_max_cacheline_size;
-> +
-> +int dma_get_cache_alignment(void)
-> +{
-> +        return ia64_max_cacheline_size;
-> +}
-> +EXPORT_SYMBOL(dma_get_cache_alignment);
-> +
+On 09/11/05 05:40, Christoph Hellwig wrote:
+> 
+> Yes, absolutely.  This discussion is driving far off right now, no one
+> is asking Adaptec to add support for competing products here, we're just
+> asking to not declare the host_template in the common code, and supporting
+> limited controllers is one of the reasons.
 
-Are you intentionally returning an "int" instead of an "unsigned long"?
+Hi Christoph,
 
--- 
-Lion Vollnhals
+I cannot make something to be, something that it is not.
+
+That is, the SAS LLDD is not a "scsi host" and it will never be,
+because it is just not a "scsi host".
+
+What it is, is an access point to the transport, this is its
+sole function and existance.  E.g. it doesn't know about max_luns,
+etc, which are purely SCSI Core-into-scsi_host concepts.
+It does know about Execute Command SCSI RPC and TMFs.
+
+The "scsi_host" template is a SCSI Core concept, which
+mixes a software component (what it is) and a hardware component
+(what you're talking about).
+
+Now, see the layering infrastructure: SATA support:
+The sas_sata_host.c file would also declare a scsi_host, where
+it will define its own queuecommand(), eh_timed_out(),
+eh_strategy_handler(), etc. and do the _protocol_ part,
+whereby the SAS LLDD does the transport part.
+
+	Luben
+
+
+
+
+

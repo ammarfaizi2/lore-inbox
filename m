@@ -1,48 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751073AbVIMVz2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751053AbVIMVyS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751073AbVIMVz2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 17:55:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751086AbVIMVz2
+	id S1751053AbVIMVyS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 17:54:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932499AbVIMVyS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 17:55:28 -0400
-Received: from mail02.syd.optusnet.com.au ([211.29.132.183]:63398 "EHLO
-	mail02.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751070AbVIMVz0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 17:55:26 -0400
+	Tue, 13 Sep 2005 17:54:18 -0400
+Received: from host62-24-231-115.dsl.vispa.com ([62.24.231.115]:40145 "EHLO
+	orac.walrond.org") by vger.kernel.org with ESMTP id S1751068AbVIMVyQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 17:54:16 -0400
+From: Andrew Walrond <andrew@walrond.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Q: why _less_ performance on machine with SMP then with UP kernel ?
+Date: Tue, 13 Sep 2005 22:54:15 +0100
+User-Agent: KMail/1.8.2
+References: <dg7fbf$5df$1@news.cistron.nl>
+In-Reply-To: <dg7fbf$5df$1@news.cistron.nl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-6"
 Content-Transfer-Encoding: 7bit
-Message-ID: <17191.19125.826388.938552@wombat.chubb.wattle.id.au>
-Date: Wed, 14 Sep 2005 07:55:01 +1000
-From: Peter Chubb <peterc@gelato.unsw.edu.au>
-To: Burton Windle <bwindle@fint.org>
-Cc: linux-kernel@vger.kernel.org, James.Bottomley@steeleye.com
-Subject: Re: SCSI issue with 2.6.14-rc1
-In-Reply-To: <Pine.LNX.4.63.0509131202170.1684@postal>
-References: <Pine.LNX.4.63.0509131202170.1684@postal>
-X-Mailer: VM 7.17 under 21.4 (patch 17) "Jumbo Shrimp" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+Content-Disposition: inline
+Message-Id: <200509132254.15158.andrew@walrond.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Burton" == Burton Windle <bwindle@fint.org> writes:
+On Tuesday 13 September 2005 22:12, Danny ter Haar wrote:
+>
+> From yesterday till 10:30am i ran 2.6.13.1 in UP mode.
+> As you can see blue (==incoming traffic) is fairly constant.
+> This morning i compiled/installed 2.6.14-rc1-smp.
+> I let it ran till 12:15 but it's clear that it can't keep up
+> with the flow of data. I rebooted to 2.6.14-rc1 (UP) and that
+> keeps up with the data just fine.
+>
+> So what is the difference between UP & SMP ?
 
-Burton> Dell Poweredge 1300, MegaRAID SCSI with hardware RAID1. With
-Burton> 2.6.13, system was fine, but on 2.6.14-rc1, it sees the RAID
-Burton> array as a 0mb drive with 1 512-byte sector, and seems to have
-Burton> a bit of a problem mounting /
+Is there any indication in the system log that your userland (news?) software 
+was having problems? It may be entirely unrelated to your problem, but you 
+should anyway be aware of a nasty unresolved issue with all smp kernels >=  
+2.6.12 on smp x86_64 systems:
 
-This sounds like the same problem I saw with the IA64 simscsi driver
---- the READ_CAPACITY scsi command now generates a scatterlist, and
-some drivers don't cope.
+	http://bugzilla.kernel.org/show_bug.cgi?id=4851
 
-I don't know whether the right fix is to change all the drivers to
-understand a scatterlist, or to change sd_read_capacity() to not use 
-scsi_execute_command().
+If you have any indication of userland problems, you might try
+	echo 0 > /proc/sys/kernel/randomize_va_space
+which much reduces (but seemingly does not completely remove) this issue for 
+most people.
 
---
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-The technical we do immediately,  the political takes *forever*
+>
+> A very confused
+>
+
+One of the major symptoms of this particular bug ;)
+
+Andrew Walrond

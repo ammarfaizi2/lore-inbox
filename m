@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932499AbVIMV5L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932493AbVIMV5N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932499AbVIMV5L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 17:57:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932132AbVIMV5K
+	id S932493AbVIMV5N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 17:57:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932132AbVIMV5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 13 Sep 2005 17:57:12 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:10944 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932493AbVIMV5K
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 13 Sep 2005 17:57:10 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:13565 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932499AbVIMV5I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 17:57:08 -0400
-Date: Tue, 13 Sep 2005 18:25:50 -0400
-From: Adam Kropelin <akropel1@rochester.rr.com>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: torvalds@osdl.org, nkiesel@tbdnetworks.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13.1 locks machine after some time, 2.6.12.5 work fine
-Message-ID: <20050913182550.A10911@mail.kroptech.com>
-References: <20050913120255.A16713@mail.kroptech.com> <Pine.LNX.4.58.0509130850550.3351@g5.osdl.org> <20050913.132213.01982680.davem@davemloft.net>
+Date: Tue, 13 Sep 2005 22:57:04 +0100
+From: Al Viro <viro@ZenIV.linux.org.uk>
+To: Sripathi Kodi <sripathik@in.ibm.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, patrics@interia.pl,
+       Ingo Molnar <mingo@elte.hu>, Roland McGrath <roland@redhat.com>
+Subject: Re: [PATCH 2.6.13.1] Patch for invisible threads
+Message-ID: <20050913215704.GV25261@ZenIV.linux.org.uk>
+References: <4325BEF3.2070901@in.ibm.com> <20050912134954.7bbd15b2.akpm@osdl.org> <4326CFE2.6000908@in.ibm.com> <Pine.LNX.4.58.0509130744070.3351@g5.osdl.org> <20050913165102.GR25261@ZenIV.linux.org.uk> <Pine.LNX.4.58.0509131000040.3351@g5.osdl.org> <20050913171215.GS25261@ZenIV.linux.org.uk> <43274503.7090303@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050913.132213.01982680.davem@davemloft.net>; from davem@davemloft.net on Tue, Sep 13, 2005 at 01:22:13PM -0700
+In-Reply-To: <43274503.7090303@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 13, 2005 at 01:22:13PM -0700, David S. Miller wrote:
-> From: Linus Torvalds <torvalds@osdl.org>
-> Date: Tue, 13 Sep 2005 08:55:31 -0700 (PDT)
+On Tue, Sep 13, 2005 at 04:30:43PM -0500, Sripathi Kodi wrote:
+> Al Viro wrote:
+> >
+> >Well...  If exposing the list of tasks in a group is OK, we can just leave
+> >->permission NULL for that sucker.  If it's not (and arguably it can be
+> >sensitive information), we have a bigger problem - right now chroot 
+> >boundary
+> >is the only control we have there; normally anyone can ls 
+> >/proc/<whatever>/task
+> >and see other threads.
+> >
 > 
-> > >         /* Reset expansion ROM address decode enable */
-> > >         pci_read_config_word(ha->pdev, PCI_ROM_ADDRESS, &w);
-> > >         w &= ~PCI_ROM_ADDRESS_ENABLE;
-> > >         pci_write_config_word(ha->pdev, PCI_ROM_ADDRESS, w);
->  ...
-> > So the above probably works fine, especially since it's just disabling the 
-> > ROM (ie we don't end up caring at all about the upper bits even if they 
-> > did get the wrong value). But it's definitely bad practice, and there are 
-> > probably cards (for which that driver is irrelevant, of course ;) where 
-> > doing something like the above might not work at all.
-> 
-> I think for consistency the above driver case should still be fixed,
-> however.  This way when people try to audit the tree for
-> PCI_ROM_ADDRESS config space accesses, they won't come across this
-> same instance again and again.
+> Al, I understand that we can't set ->permission to NULL as it removes the 
+> chroot boundary check. If I understood you correctly, we need to put 
+> additional checks in proc_permission to ensure anyone doing ls 
+> /proc/<pid>/task won't be able to see other threads.
 
-Agreed. I'll follow up with patches for the relevant maintainers.
-
---Adam
-
+Wrong.  We need a separate function, _not_ modifying proc_permssion().
+If we need ->permission() at all, that is - note that anyone can do
+ls /proc/<pid>/task on other users' process.

@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964789AbVIMOMy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964788AbVIMOMu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964789AbVIMOMy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 10:12:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964790AbVIMOMx
+	id S964788AbVIMOMu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 10:12:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964789AbVIMOMu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 10:12:53 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:62436 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964789AbVIMOMw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 10:12:52 -0400
-Date: Tue, 13 Sep 2005 15:12:46 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: J?rn Engel <joern@infradead.org>, linux-kernel@vger.kernel.org
+	Tue, 13 Sep 2005 10:12:50 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:56554 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964788AbVIMOMt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 10:12:49 -0400
 Subject: Re: Missing #include <config.h>
-Message-ID: <20050913141246.GA3234@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	J?rn Engel <joern@infradead.org>, linux-kernel@vger.kernel.org
-References: <20050913135622.GA30675@phoenix.infradead.org> <20050913150825.A23643@flint.arm.linux.org.uk>
+From: Josh Boyer <jdub@us.ibm.com>
+To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050913135622.GA30675@phoenix.infradead.org>
+References: <20050913135622.GA30675@phoenix.infradead.org>
+Content-Type: text/plain; charset=utf-8
+Date: Tue, 13 Sep 2005 09:12:33 -0500
+Message-Id: <1126620753.3209.3.camel@windu.rchland.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050913150825.A23643@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 13, 2005 at 03:08:26PM +0100, Russell King wrote:
-> On Tue, Sep 13, 2005 at 02:56:23PM +0100, J?rn Engel wrote:
-> > After spending some hours last night and this morning hunting a bug,
-> > I've found that a different include order made a difference.  Some
-> > files don't work correctly, unless config.h is included before.
+On Tue, 2005-09-13 at 14:56 +0100, Jörn Engel wrote:
+> After spending some hours last night and this morning hunting a bug,
+> I've found that a different include order made a difference.  Some
+> files don't work correctly, unless config.h is included before.
 > 
-> I'm still of the opinion that we should add
-> 
-> 	-imacros include/linux/config.h
-> 
-> to the gcc command line and stop bothering with trying to get
-> linux/config.h included into the right files and not in others.
-> (which then means we can eliminate linux/config.h from all files.)
+> Here is a very stupid bug checker for the problem class:
+> $ rgrep CONFIG include/ | cut -d: -f1 | sort -u > g1
+> $ rgrep CONFIG include/ | cut -d: -f1 | sort -u | xargs grep "config.h" | cut -d: -f1 | sort -u > g2
+> $ diff -u g1 g2 | grep ^- > g3
 
-Yes, absolutely.  That would help fixing lots of mess.
+Your checker doesn't quite test for nested includes.  E.g. if foo.h
+includes bar.h, and bar.h includes config.h, then foo.h doesn't need to
+include config.h explicitly.
+
+For a more concrete example, take include/asm-i386/kprobes.h from your
+list.  That includes linux/types.h, which includes linux/config.h.
+
+Making a tool that takes that into account could be interesting.
+
+josh
 

@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932677AbVIMPcg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932678AbVIMPeN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932677AbVIMPcg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 11:32:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932678AbVIMPcg
+	id S932678AbVIMPeN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 11:34:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932679AbVIMPeN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 11:32:36 -0400
-Received: from ozlabs.org ([203.10.76.45]:56732 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S932677AbVIMPcf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 11:32:35 -0400
-Date: Wed, 14 Sep 2005 01:00:10 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Santiago Leon <santil@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       linuxppc64-dev@ozlabs.org, Linda Xie <lxiep@us.ibm.com>
-Subject: Re: [RFC] SCSI target for IBM Power5 LPAR
-Message-ID: <20050913150009.GG26162@krispykreme>
-References: <20050906212801.GB14057@cs.umn.edu> <20050907025932.GU6945@krispykreme> <431EFFE7.6070709@us.ibm.com>
+	Tue, 13 Sep 2005 11:34:13 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:42131 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932678AbVIMPeM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 11:34:12 -0400
+Date: Tue, 13 Sep 2005 12:02:55 -0400
+From: Adam Kropelin <akropel1@rochester.rr.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Norbert Kiesel <nkiesel@tbdnetworks.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13.1 locks machine after some time, 2.6.12.5 work fine
+Message-ID: <20050913120255.A16713@mail.kroptech.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <431EFFE7.6070709@us.ibm.com>
-User-Agent: Mutt/1.5.10i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.58.0509130755280.3351@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Hi,
-
-> We use MAX_SECTORS (which is actually 127.5kB) because that's the 
-> max_sectors of the loopback device (we have a lot of users that like the 
-> flexibility of using loopback with the ibmvscsis driver)... It can be 
-> bumped up without any problems because there is code that splits 
-> requests if they are larger than the target's max_sectors...
+On Tue, 13 Sep 2005, Linus Torvalds wrote:
+> On Tue, 13 Sep 2005, Linus Torvalds wrote:
+> > 
+> > I bet this will fix it..
 > 
-> What would you recommend? 256kB?
+> Btw, there's a third case of this in the hpt34x driver. I'll fix that
+> one too.
 
-~256kB sounds reasonable to me and I notice that other VIO server is
-setting it to 256kB :) 
+That made me do some grepping of my own. Nothing obvious, but this bit
+from drivers/scsi/qla2xxx/qla_init.c seems a little odd:
 
-Anton
+        uint16_t w, mwi;
+	...
+        /* Reset expansion ROM address decode enable */
+        pci_read_config_word(ha->pdev, PCI_ROM_ADDRESS, &w);
+        w &= ~PCI_ROM_ADDRESS_ENABLE;
+        pci_write_config_word(ha->pdev, PCI_ROM_ADDRESS, w);
+
+Is the address register really only 16 bits wide on some hw?
+
+--Adam
+

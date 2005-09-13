@@ -1,53 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932453AbVIMJXE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932463AbVIMJY1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932453AbVIMJXE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 05:23:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932459AbVIMJXC
+	id S932463AbVIMJY1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 05:24:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932461AbVIMJY1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 05:23:02 -0400
-Received: from relay.uni-heidelberg.de ([129.206.100.212]:14523 "EHLO
-	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
-	id S932453AbVIMJXB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 05:23:01 -0400
-From: Bernd Schubert <bernd.schubert@pci.uni-heidelberg.de>
-Reply-To: TC-ADMIN@listserv.uni-heidelberg.de
-To: netdev@oss.sgi.com
-Subject: Re: 2.613: network write socket problems
-Date: Tue, 13 Sep 2005 11:22:52 +0200
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
-References: <200509121739.46172.bernd.schubert@pci.uni-heidelberg.de>
-In-Reply-To: <200509121739.46172.bernd.schubert@pci.uni-heidelberg.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 13 Sep 2005 05:24:27 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:22438 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932459AbVIMJY0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 05:24:26 -0400
+Date: Tue, 13 Sep 2005 10:24:24 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org, tony.luck@intel.com
+Subject: Re: [patch 2.6.13] ia64: re-implement dma_get_cache_alignment to avoid EXPORT_SYMBOL
+Message-ID: <20050913092424.GB29552@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
+	tony.luck@intel.com
+References: <09122005104852.31327@bilbo.tuxdriver.com> <20050912192524.GA14360@infradead.org> <20050913000611.GI19644@tuxdriver.com> <20050913001429.GJ19644@tuxdriver.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200509131122.53286.bernd.schubert@pci.uni-heidelberg.de>
+In-Reply-To: <20050913001429.GJ19644@tuxdriver.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 12 September 2005 17:39, Bernd Schubert wrote:
-> Hello,
->
-> on last Friday  we switched on our server to 2.6.13 and today we are
-> experiencing problems with our nfs clients.
-> In particular I'm talking about the unfs3 daemon, not the kernel nfs
-> daemon. Both are running on the server but on different ports, of course. 
-> Both are also serving to the same clients, but different directories.
->
-> Today it already several times happend that the unfs3 daemon stalled.
-> Ethereal showed no network packages on the unfs3 daemon port during this
-> time. A strace to the proc-id of the daemon clearly shows that *some*
-> writes to some network sockets will take ages to finish
->
-> write(37, "\200\0\0x\203\326(\5\0\0\0\1\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 124)
-> = 124
+On Mon, Sep 12, 2005 at 08:14:29PM -0400, John W. Linville wrote:
+> The current ia64 implementation of dma_get_cache_alignment does not
+> work for modules because it relies on a symbol which is not exported.
+> Direct access to a global is a little ugly anyway, so this patch
+> re-implements dma_get_cache_alignment in a manner similar to what is
+> currently used for x86_64.
 
-Sorry for the noise, its not a kernel problem. Switching back to 2.6.11 didn't 
-help, so we investigated further. It turned out, that one of our clients was 
-in a kind of a zombie state and asking for filehandles, but not answering 
-request from the server. Since unfs3 is only single threaded, all other 
-clients had to wait for timeouts.
+looks good to me.
 
-Bernd

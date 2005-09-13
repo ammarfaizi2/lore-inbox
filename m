@@ -1,76 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932339AbVIMGLw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932360AbVIMGRm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932339AbVIMGLw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 02:11:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932343AbVIMGLv
+	id S932360AbVIMGRm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 02:17:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932361AbVIMGRl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 02:11:51 -0400
-Received: from smtpout.mac.com ([17.250.248.88]:31695 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S932339AbVIMGLv (ORCPT
+	Tue, 13 Sep 2005 02:17:41 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:55756 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932360AbVIMGRl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 02:11:51 -0400
-Mime-Version: 1.0 (Apple Message framework v734)
-Content-Transfer-Encoding: 7bit
-Message-Id: <6789B04A-198A-4C08-9F95-BFDBCD2C0660@mac.com>
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-To: LKML Kernel <linux-kernel@vger.kernel.org>
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Kernel ABI headers step #1: Gathering information
-Date: Tue, 13 Sep 2005 02:11:28 -0400
-X-Mailer: Apple Mail (2.734)
+	Tue, 13 Sep 2005 02:17:41 -0400
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
+From: Keith Owens <kaos@sgi.com>
+To: "David S. Miller" <davem@davemloft.net>
+cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: 2.6.14-rc1 breaks tg3 on ia64 
+In-reply-to: Your message of "Mon, 12 Sep 2005 22:37:55 MST."
+             <20050912.223755.56102921.davem@davemloft.net> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 13 Sep 2005 16:17:33 +1000
+Message-ID: <23056.1126592253@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As part of the kernel ABI headers project, I need to gather  
-information on what
-GCC provides on a variety of architectures and configurations.  I am  
-looking for
-people with a variety of architectures and distributions to run the  
-script below
-and (privately, please, no need to flood the list!) email me the  
-output.  I'm
-only interested in archs supported by linux, obviously :-D.  This  
-should help me
-to see if there are any global CPP features that can be relied upon  
-across the
-whole spectrum.  If you have any especially obtuse GCC/platform  
-combination, I
-would really appreciate it if you could do this, as otherwise I'm  
-unlikely to
-be able to locate all of said GCC combinations.  (The reason I get  
-the kernel
-version is so I'm able to tie GCC archs to kernel archs).  Once I've  
-got a
-decent database of per-arch features/macros/etc, I'll try to post it  
-online
-somewhere for all to access.  Thanks for all your help!
+On Mon, 12 Sep 2005 22:37:55 -0700 (PDT), 
+"David S. Miller" <davem@davemloft.net> wrote:
+>From: Keith Owens <kaos@sgi.com>
+>Date: Tue, 13 Sep 2005 15:22:17 +1000
+>
+>> 2.6.14-rc1 + kdb on ia64 (SGI Altix).
+>> 
+>> tg3.c:v3.39 (September 5, 2005)
+>> ACPI: PCI Interrupt 0001:01:04.0[A]: no GSI
+>> BRIDGE ERR_STATUS 0x800
+>> BRIDGE ERR_STATUS 0x800
+>> PCI BRIDGE ERROR: int_status is 0x800 for 011c32:slab0:widget15:bus0
+>>     Dumping relevant 011c32:slab0:widget15:bus0 registers for each bit set...
+>>         11: PCI bus device select timeout
+>>             PCI Error Address Register: 0x3000000316808
+>>             PCI Error Address: 0x316808
+>>     PIC Multiple Interrupt Register is 0x800
+>>         11: PCI bus device select timeout
+>> 
+>> Followed by a machine check and reboot :(  2.6.13 worked fine.  Any
+>> ideas which patch to backout this time?
+>
+>Does copying over the 2.6.13 tg3.[ch] driver over into your
+>2.6.14-rc1 tree make it work?
 
-Cheers,
-Kyle Moffett
+No, the 2.6.13 driver in 2.6.14-rc1 has exactly the same problem.
 
---
-There are two ways of constructing a software design. One way is to  
-make it so
-simple that there are obviously no deficiencies. And the other way is  
-to make
-it so complicated that there are no obvious deficiencies.  The first  
-method is
-far more difficult.
-   -- C.A.R. Hoare
+The last time that tg3 broke like this, it was because of the patch
+below, in 2.6.13-rc6.  That was backed out in 2.6.13-rc7.  Was the PCI
+patch (or equivalent) reinstated in 2.6.14-rc1?
 
-
-
-#! /bin/sh
-
-echo "Linux kernel version:"
-uname -a
-echo
-echo
-echo "GCC version:"
-gcc -v
-echo
-echo
-echo "GCC predefined macros:"
-echo | gcc -E - -dM | sort
-
+From: John W. Linville <linville@tuxdriver.com>
+Date: Fri, 5 Aug 2005 01:06:10 +0000 (-0700)
+Subject: [PATCH] PCI: restore BAR values after D3hot->D0 for devices that need it
+X-Git-Tag: v2.6.13-rc6
+X-Git-Url: http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=fec59a711eef002d4ef9eb8de09dd0a26986eb77
 

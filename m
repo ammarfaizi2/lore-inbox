@@ -1,95 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932428AbVIMTdO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932599AbVIMThr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932428AbVIMTdO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 15:33:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932681AbVIMTdO
+	id S932599AbVIMThr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 15:37:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932681AbVIMThq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 15:33:14 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:27337 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932656AbVIMTdM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 15:33:12 -0400
-Subject: Re: [PATCH] Permanently fix kernel configuration include mess
-From: Josh Boyer <jdub@us.ibm.com>
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Joern Engel <joern@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <4327242B.5050806@didntduck.org>
-References: <20050913135622.GA30675@phoenix.infradead.org>
-	 <20050913150825.A23643@flint.arm.linux.org.uk>
-	 <20050913155012.C23643@flint.arm.linux.org.uk>
-	 <20050913165954.GA31461@phoenix.infradead.org>
-	 <20050913190409.B26494@flint.arm.linux.org.uk>
-	 <4327242B.5050806@didntduck.org>
-Content-Type: text/plain
-Date: Tue, 13 Sep 2005 14:33:04 -0500
-Message-Id: <1126639985.3209.9.camel@windu.rchland.ibm.com>
+	Tue, 13 Sep 2005 15:37:46 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:33221 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S932599AbVIMThq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 15:37:46 -0400
+Date: Tue, 13 Sep 2005 15:37:45 -0400
+To: "Maciej W. Rozycki" <macro@linux-mips.org>
+Cc: Joe Bob Spamtest <joebob@spamtest.viacore.net>,
+       "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
+Subject: Re: Pure 64 bootloaders
+Message-ID: <20050913193745.GH28578@csclub.uwaterloo.ca>
+References: <4325F3D5.9040109@spamtest.viacore.net> <20050912.144107.37064900.davem@davemloft.net> <4325FADB.4090804@spamtest.viacore.net> <20050912.151230.100651236.davem@davemloft.net> <43260A8D.1090508@spamtest.viacore.net> <20050913165228.GG28578@csclub.uwaterloo.ca> <Pine.LNX.4.61L.0509131819140.4219@blysk.ds.pg.gda.pl>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61L.0509131819140.4219@blysk.ds.pg.gda.pl>
+User-Agent: Mutt/1.5.9i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-09-13 at 15:10 -0400, Brian Gerst wrote:
-> Russell King wrote:
-> > On Tue, Sep 13, 2005 at 05:59:54PM +0100, Joern Engel wrote:
-> > 
-> >>On Tue, 13 September 2005 15:50:12 +0100, Russell King wrote:
-> >>
-> >>>Subject: [KBUILD] Permanently fix kernel configuration include mess.
-> >>>
-> >>>Include autoconf.h into every kernel compilation via the gcc
-> >>>command line using -imacros.  This ensures that we have the
-> >>>kernel configuration included from the start, rather than
-> >>>relying on each file having #include <linux/config.h> as
-> >>>appropriate.  History has shown that this is something which
-> >>>is difficult to get right.
-> >>>
-> >>>Since we now include the kernel configuration automatically,
-> >>>make configcheck becomes meaningless, so remove it.
-> >>>
-> >>>Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
-> >>
-> >>If it helps:
-> >>Signed-off-by: Joern Engel <joern@wh.fh-wedel.de>
-> > 
-> > 
-> > Might help more if I copied (or sent this to) akpm. 8)
-> > 
-> > diff --git a/Makefile b/Makefile
-> > --- a/Makefile
-> > +++ b/Makefile
-> > @@ -346,7 +346,8 @@ AFLAGS_KERNEL	=
-> >  # Use LINUXINCLUDE when you must reference the include/ directory.
-> >  # Needed to be compatible with the O= option
-> >  LINUXINCLUDE    := -Iinclude \
-> > -                   $(if $(KBUILD_SRC),-Iinclude2 -I$(srctree)/include)
-> > +                   $(if $(KBUILD_SRC),-Iinclude2 -I$(srctree)/include) \
-> > +		   -imacros include/linux/autoconf.h
-> >  
-> >  CPPFLAGS        := -D__KERNEL__ $(LINUXINCLUDE)
-> >  
-> > @@ -1247,11 +1248,6 @@ tags: FORCE
-> >  # Scripts to check various things for consistency
-> >  # ---------------------------------------------------------------------------
-> >  
-> > -configcheck:
-> > -	find * $(RCS_FIND_IGNORE) \
-> > -		-name '*.[hcS]' -type f -print | sort \
-> > -		| xargs $(PERL) -w scripts/checkconfig.pl
-> > -
-> >  includecheck:
-> >  	find * $(RCS_FIND_IGNORE) \
-> >  		-name '*.[hcS]' -type f -print | sort \
-> > 
-> > 
+On Tue, Sep 13, 2005 at 06:21:23PM +0100, Maciej W. Rozycki wrote:
+> On Tue, 13 Sep 2005, Lennart Sorensen wrote:
 > 
-> The patch should also remove the checkconfig.pl script.
+> > Of course mips is extra fun in having two 32bit formats and one 64bit
+> > format.
+> 
+>  The reverse -- two 64-bit formats and one 32-bit one.  And don't forget 
+> to multiply by two endiannesses. ;-)
 
-That could probably be done in a later cleanup patch that removes all
-"#include <linux/config.h>" statements as well.  Sounds like a job for
-the kernel janitors project.
+I thought it was 32bit old, 32bit new (for using 32bit pointers on a 64bit
+cpu) and 64bit.  At least the names I have seen were 32o, 32n, 64.
 
-josh
-
+Len Sorensen

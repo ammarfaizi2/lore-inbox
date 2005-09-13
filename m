@@ -1,40 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964809AbVIMPkV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964808AbVIMPoq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964809AbVIMPkV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 11:40:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964808AbVIMPkV
+	id S964808AbVIMPoq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 11:44:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbVIMPoq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 11:40:21 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:9355 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S964805AbVIMPkU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 11:40:20 -0400
-Date: Tue, 13 Sep 2005 09:40:14 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: Luben Tuikov <luben_tuikov@adaptec.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Luben Tuikov <ltuikov@yahoo.com>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH 2.6.13 14/14] sas-class: SCSI Host glue
-Message-ID: <20050913154014.GE32395@parisc-linux.org>
-References: <1126308949.4799.54.camel@mulgrave> <20050910041218.29183.qmail@web51612.mail.yahoo.com> <20050911093847.GA5429@infradead.org> <4325FA6F.3060102@adaptec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4325FA6F.3060102@adaptec.com>
-User-Agent: Mutt/1.5.9i
+	Tue, 13 Sep 2005 11:44:46 -0400
+Received: from xenotime.net ([66.160.160.81]:22726 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S964808AbVIMPop (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 11:44:45 -0400
+Date: Tue, 13 Sep 2005 08:44:44 -0700 (PDT)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: iSteve <isteve@rulez.cz>
+cc: "Randy.Dunlap" <rdunlap@xenotime.net>, "" <linux-kernel@vger.kernel.org>
+Subject: Re: query_modules syscall gone? Any replacement?
+In-Reply-To: <4326F093.80206@rulez.cz>
+Message-ID: <Pine.LNX.4.50.0509130835120.7614-100000@shark.he.net>
+References: <4KSFY-2pO-17@gated-at.bofh.it> <E1EDpQq-0000iV-Oe@be1.lrz>
+ <4326DE0E.2060306@rulez.cz> <Pine.LNX.4.50.0509130813010.7614-100000@shark.he.net>
+ <4326F093.80206@rulez.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 12, 2005 at 06:00:15PM -0400, Luben Tuikov wrote:
-> "transport attribute class" is just an _attribute_ class, Christoph.
-> "transport layer" is a lot more involved.  I sincerely hope
-> you can see this.  E.g. domain discovery belongs in the transport
-> layer.  In SPI, LLDDs did it; in MPT the firmware does it.
+On Tue, 13 Sep 2005, iSteve wrote:
 
-LLDDs having their own domain discovery code is definitely a misfeature.
-As you know, stuff is being rearranged to move more of the SPI-specific
-code from both SCSI core and LLDDs into the SPI transport.  I suspect
-domain discovery will always be triggered by the LLDD for SPI, but at
-least a driver doesn't have to have its own code to do that any more.
+> > Nope, they are not prevented.  However, there is a Tainted flag
+> > that is set when one is loaded (and that flag is never cleared).
+> >
+>
+> Okay, I've been wrong in my conclusion and I gotta read some fine manual
+> about how the modules actually work -- could you recommend me some in
+> particular?
+
+Nope, there is precious little doc about modules, especially
+in 2.6.
+
+There is a FAQ, but I doubt that it answers many of your
+questions.
+  http://www.kernel.org/pub/linux/kernel/people/rusty/modules/FAQ
+
+You could try LDD3, but I don't see much there that would help
+you either.
+  http://lwn.net/Kernel/LDD3/
+
+> >>  - /proc/modules and /sys/module interface doesn't by far supply what
+> >>query_module could do
+> >
+> > Can you state succinctly exactly what you are trying to do?
+>
+> I would like to be able to query symbols of a loaded module, get list of
+> and list of dependencies of loaded module from an app, preferably
+> without having to parse a file...
+
+No, no syscall to do that.  Looks like it will require reading
+and parsing files.
+
+And you answered my "what" question clearly, so I have one more.
+Why?  for what purpose, to what end?  What are you tring to
+accomplish?
+
+Thanks,
+-- 
+~Randy

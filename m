@@ -1,77 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964920AbVIMRfE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964924AbVIMRht@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964920AbVIMRfE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 13:35:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964921AbVIMRfD
+	id S964924AbVIMRht (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 13:37:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964927AbVIMRht
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 13:35:03 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:36294 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S964920AbVIMRfA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 13:35:00 -0400
-Subject: Re: HZ question
-From: john stultz <johnstul@us.ibm.com>
-To: markh@compro.net
-Cc: George Anzinger <george@mvista.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <4326EAD7.50004@compro.net>
-References: <4326CAB3.6020109@compro.net>
-	 <Pine.LNX.4.61.0509130919390.29445@chaos.analogic.com>
-	 <4326DB8A.7040109@compro.net>
-	 <Pine.LNX.4.53.0509131615160.13574@gockel.physik3.uni-rostock.de>
-	 <4326EAD7.50004@compro.net>
-Content-Type: text/plain
-Date: Tue, 13 Sep 2005 10:34:16 -0700
-Message-Id: <1126632856.3455.45.camel@cog.beaverton.ibm.com>
+	Tue, 13 Sep 2005 13:37:49 -0400
+Received: from wproxy.gmail.com ([64.233.184.193]:12129 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964924AbVIMRhs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 13:37:48 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=gH60NBAs8ORX/hc4DYfEJw+DZ4SFIIfiqPGy2ddrNfM2S8nZF0yR4kzcnVdd4YBJUVcLi75wPsz4CarPmm1HmXGEd6xSG9KtqlSOjMq0xBUr53N/rIsllxdGPdoeDBB08jkDkobI7rwQ21FF58WrUiaRWtLMijEKmwOuyMTAtSs=
+Date: Tue, 13 Sep 2005 21:47:54 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: -git11 breaks parisc and sh even more
+Message-ID: <20050913174754.GA13132@mipter.zuzino.mipt.ru>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-09-13 at 11:05 -0400, Mark Hounschell wrote:
-> Tim Schmielau wrote:
-> > On Tue, 13 Sep 2005, Mark Hounschell wrote:
-> > 
-> >>Most if not all userland delay calls rely on HZ value in some way or
-> >>another. The minimum reliable delay you can get is one (kernel)HZ. A
-> >>program that needs an acurrate delay for a time shorter that one
-> >>(kernel)HZ may have an alternative if it knows that HZ is greater the
-> >>the requested delay.
-> > 
-> > Just assume that kernel HZ are USER_HZ and see anything else as an
-> > additional bonus that you cannot rely on.
-> > 
-> > What does 'acurrate delay' mean, anyways?
-> > 
-> > Tim
-> > 
-> 
-> But they are not the same. Why can I get USER_HZ but not HZ?
+2.6.13-git10 was OK (read: allmodconfig still broken, but not _that_
+early).
 
-Because USER_HZ is there only because HZ changes on various systems and
-we don't want to break userland apps that assume its value.
+If anybody want to see full logs, they are at
+ftp://ftp.berlios.de/pub/linux-sparse/logs/2.6.13-git11/W_sparse_{parisc,sh}.bz2
+-----------------------------------------------------------------------
+parisc:
 
+2.6.13-git11
+hppa-unknown-linux-gnu-gcc (GCC) 3.4.4 (Gentoo 3.4.4-r1)
+which: no palo in ($PATH)
+  CHK     include/linux/version.h
+  UPD     include/linux/version.h
+  SYMLINK include/asm -> include/asm-parisc
+which: no palo in ($PATH)
+scripts/kconfig/conf -s arch/parisc/Kconfig
+#
+# using defaults found in .config
+#
+  SPLIT   include/linux/autoconf.h -> include/config/*
+  CC      arch/parisc/kernel/asm-offsets.s
+In file included from include/asm/spinlock.h:4,
+                 from include/asm/bitops.h:5,
+                 from include/linux/bitops.h:77,
+                 from include/linux/thread_info.h:20,
+                 from include/linux/spinlock.h:53,
+                 from include/linux/capability.h:45,
+                 from include/linux/sched.h:7,
+                 from arch/parisc/kernel/asm-offsets.c:31:
+include/asm/system.h:174: error: parse error before "pa_tlb_lock"
+	...
+-----------------------------------------------------------------------
+sh:
 
-> On a 100HZ kernel ANY requested delay via udelay or 
-> pthread_cond_timedwait of less than 10000usecs is unreliable and the the 
-> actual results are totally unacceptable.
-> 
-> On a 1000HZ kernel the number is 1000 usecs.
-> 
-> I'm not asking the kernel running at 1000hz to actually give me 500 usec 
-> delay if I ask. I do expect it to be at least 500 usec and within +- a 
-> single HZ however. Oviously a 1000HZ machine is going to give me better 
-> resulution in any requested delay. Why is it unreasonable for userland 
-> to know the probable resolution of userland delay requests.
-
-But you don't really want to know HZ, you want to know timer resolution.
-That's a reasonable request and I believe the posix-timers
-clock_getres() interface might provide what you need. Although I'd defer
-to George (CC'ed) since he's more of an expert on those interfaces.
-
-You might also want to check out his HRT patches.
-
-thanks
--john
-
+2.6.13-git11
+sh-unknown-linux-gnu-gcc (GCC) 3.4.4 (Gentoo 3.4.4-r1)
+  CHK     include/linux/version.h
+  UPD     include/linux/version.h
+  Generating include/asm-sh/machtypes.h
+  SPLIT   include/linux/autoconf.h -> include/config/*
+  SYMLINK include/asm-sh/cpu -> include/asm-sh/cpu-sh4
+  SYMLINK include/asm-sh/mach -> include/asm-sh/unknown
+  SYMLINK include/asm -> include/asm-sh
+  CC      arch/sh/kernel/asm-offsets.s
+In file included from include/linux/spinlock_types.h:13,
+                 from include/linux/spinlock.h:80,
+                 from include/linux/capability.h:45,
+                 from include/linux/sched.h:7,
+                 from include/linux/mm.h:4,
+                 from arch/sh/kernel/asm-offsets.c:13:
+include/asm/spinlock_types.h:16: error: parse error before "atomic_t"
+	...
+-----------------------------------------------------------------------
 

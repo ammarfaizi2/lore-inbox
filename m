@@ -1,84 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932215AbVIMUOM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932206AbVIMUWX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932215AbVIMUOM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 16:14:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932263AbVIMUOM
+	id S932206AbVIMUWX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 16:22:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbVIMUWX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 16:14:12 -0400
-Received: from smtpauth01.mail.atl.earthlink.net ([209.86.89.61]:61382 "EHLO
-	smtpauth01.mail.atl.earthlink.net") by vger.kernel.org with ESMTP
-	id S932215AbVIMUOL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 16:14:11 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=dk20050327; d=earthlink.net;
-  b=tN1vOKcd/qAgWgLuO32dYoYxsrWB7I9sK3rpKLAii2MP9qgkdN7DdvVqhreUtLXF;
-  h=Received:Message-ID:From:To:Cc:References:Subject:Date:MIME-Version:Content-Type:Content-Transfer-Encoding:X-Priority:X-MSMail-Priority:X-Mailer:X-MIMEOLE:X-ELNK-Trace:X-Originating-IP;
-Message-ID: <02e201c5b89f$a3248e80$1925a8c0@Thing>
-From: "jdow" <jdow@earthlink.net>
-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>,
-       "Mark Hounschell" <markh@compro.net>
-Cc: <linux-kernel@vger.kernel.org>
-References: <4326CAB3.6020109@compro.net> <Pine.LNX.4.61.0509130919390.29445@chaos.analogic.com>
-Subject: Re: HZ question
-Date: Tue, 13 Sep 2005 13:13:41 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
+	Tue, 13 Sep 2005 16:22:23 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:23430
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932206AbVIMUWW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 16:22:22 -0400
+Date: Tue, 13 Sep 2005 13:22:13 -0700 (PDT)
+Message-Id: <20050913.132213.01982680.davem@davemloft.net>
+To: torvalds@osdl.org
+Cc: akropel1@rochester.rr.com, nkiesel@tbdnetworks.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13.1 locks machine after some time, 2.6.12.5 work fine
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.58.0509130850550.3351@g5.osdl.org>
+References: <20050913120255.A16713@mail.kroptech.com>
+	<Pine.LNX.4.58.0509130850550.3351@g5.osdl.org>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2670
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
-X-ELNK-Trace: bb89ecdb26a8f9f24d2b10475b5711201bfaba1a6d7a0eb879ae450543dd1a84c15434412965c95d350badd9bab72f9c350badd9bab72f9c350badd9bab72f9c
-X-Originating-IP: 71.116.177.219
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "linux-os (Dick Johnson)" <linux-os@analogic.com>
->
-> On Tue, 13 Sep 2005, Mark Hounschell wrote:
->
->> I need to know the kernels value of HZ in a userland app.
->>
->> getconf CLK_TCK
->>      and
->> hz = sysconf (_SC_CLK_TCK)
->>
->> both seem to return CLOCKS_PER_SEC which is defined as USER_HZ which is
->> defined as 100.
->>
->> include/asm/param.h:
->>
->> #ifdef __KERNEL__
->> # define HZ       1000   /* Internal kernel timer frequency */
->> # define USER_HZ  100    /* .. some user interfaces are in "ticks" */
->> # define CLOCKS_PER_SEC  (USER_HZ)       /* like times() */
->> #endif
->>
->> Thanks in advance for any help
->> Mark
->
-> You are not supposed to 'tear apart' user-mode headers. In particular
-> you are not supposed to use anything in /usr/include/bits, 
-> /usr/include/asm,
-> or /usr/include/linux in user-mode programs. These are not POSIX headers.
->
-> Therefore, HZ is not something that is defined for user-mode programs.
-> the ANSI spec requires that things like clock() return a value that
-> can be divided by CLOCKS_PER_SEC to get CPU time. Nothing in user-mode
-> uses HZ.  That's the reason why later versions of the kernel are
-> able to use dynamic HZ.
+From: Linus Torvalds <torvalds@osdl.org>
+Date: Tue, 13 Sep 2005 08:55:31 -0700 (PDT)
 
-That means Linux is not a suitable operating system for multimedia 
-applications.
-MIDI needs to schedule in 1 ms or smaller increments. The userland 
-application
-should be able to set this. It should be able to determine this. If it 
-cannot
-then it is useless. (It also explains why MIDI based applications are so
-absolutely dreadful on Linux.)
+> >         /* Reset expansion ROM address decode enable */
+> >         pci_read_config_word(ha->pdev, PCI_ROM_ADDRESS, &w);
+> >         w &= ~PCI_ROM_ADDRESS_ENABLE;
+> >         pci_write_config_word(ha->pdev, PCI_ROM_ADDRESS, w);
+ ...
+> So the above probably works fine, especially since it's just disabling the 
+> ROM (ie we don't end up caring at all about the upper bits even if they 
+> did get the wrong value). But it's definitely bad practice, and there are 
+> probably cards (for which that driver is irrelevant, of course ;) where 
+> doing something like the above might not work at all.
 
-{^_^}   Joanne Dow said that. 
-
+I think for consistency the above driver case should still be fixed,
+however.  This way when people try to audit the tree for
+PCI_ROM_ADDRESS config space accesses, they won't come across this
+same instance again and again.

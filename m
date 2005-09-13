@@ -1,59 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964981AbVIMSxQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964983AbVIMSzl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964981AbVIMSxQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 14:53:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964979AbVIMSxQ
+	id S964983AbVIMSzl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 14:55:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbVIMSzl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 14:53:16 -0400
-Received: from postage-due.permabit.com ([66.228.95.230]:49815 "EHLO
-	postage-due.permabit.com") by vger.kernel.org with ESMTP
-	id S964981AbVIMSxQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 14:53:16 -0400
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] nfs client, kernel 2.4.31: readlink result overflow
-References: <78irx6wh6j.fsf@sober-counsel.permabit.com>
-	<200509121846.j8CIk5YE025124@turing-police.cc.vt.edu>
-	<784q8qrsad.fsf@sober-counsel.permabit.com>
-	<200509122001.j8CK1kpW028651@turing-police.cc.vt.edu>
-	<788xy2qas0.fsf@sober-counsel.permabit.com>
-	<20050913183948.GE14889@dmt.cnet>
-From: Assar <assar@permabit.com>
-Date: 13 Sep 2005 14:52:44 -0400
-In-Reply-To: <20050913183948.GE14889@dmt.cnet>
-Message-ID: <784q8okdfn.fsf@sober-counsel.permabit.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
+	Tue, 13 Sep 2005 14:55:41 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:52027 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S964983AbVIMSzk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 14:55:40 -0400
+Date: Tue, 13 Sep 2005 20:57:59 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: -git11 breaks parisc and sh even more
+Message-ID: <20050913185759.GA17272@mars.ravnborg.org>
+References: <20050913174754.GA13132@mipter.zuzino.mipt.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Permabit-Spam: SKIPPED
+Content-Disposition: inline
+In-Reply-To: <20050913174754.GA13132@mipter.zuzino.mipt.ru>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Marcelo.
+Hi Alexey.
 
-Marcelo Tosatti <marcelo.tosatti@cyclades.com> writes:
-> > diff -u linux-2.4.31.orig/fs/nfs/nfs2xdr.c linux-2.4.31/fs/nfs/nfs2xdr.c
-> > --- linux-2.4.31.orig/fs/nfs/nfs2xdr.c	2002-11-28 18:53:15.000000000 -0500
-> > +++ linux-2.4.31/fs/nfs/nfs2xdr.c	2005-09-12 16:12:30.000000000 -0400
-> > @@ -571,8 +571,8 @@
-> >  	strlen = (u32*)kmap(rcvbuf->pages[0]);
-> >  	/* Convert length of symlink */
-> >  	len = ntohl(*strlen);
-> > -	if (len > rcvbuf->page_len)
-> > -		len = rcvbuf->page_len;
-> > +	if (len > rcvbuf->page_len - sizeof(*strlen) - 1)
-> > +		len = rcvbuf->page_len - sizeof(*strlen) - 1;
+On Tue, Sep 13, 2005 at 09:47:54PM +0400, Alexey Dobriyan wrote:
+> 2.6.13-git10 was OK (read: allmodconfig still broken, but not _that_
+> early).
 > 
-> So the problem is that the "len" variable encapsulated in (u32 *)rcvbuf->pages[0]
-> does not account for its own length (4 bytes)? 
+> If anybody want to see full logs, they are at
+> ftp://ftp.berlios.de/pub/linux-sparse/logs/2.6.13-git11/W_sparse_{parisc,sh}.bz2
+> -----------------------------------------------------------------------
+> parisc:
+> 
+> 2.6.13-git11
+> hppa-unknown-linux-gnu-gcc (GCC) 3.4.4 (Gentoo 3.4.4-r1)
+> which: no palo in ($PATH)
+>   CHK     include/linux/version.h
+>   UPD     include/linux/version.h
+>   SYMLINK include/asm -> include/asm-parisc
+> which: no palo in ($PATH)
+> scripts/kconfig/conf -s arch/parisc/Kconfig
+> #
+> # using defaults found in .config
+> #
+>   SPLIT   include/linux/autoconf.h -> include/config/*
+>   CC      arch/parisc/kernel/asm-offsets.s
+> In file included from include/asm/spinlock.h:4,
+>                  from include/asm/bitops.h:5,
+>                  from include/linux/bitops.h:77,
+>                  from include/linux/thread_info.h:20,
+>                  from include/linux/spinlock.h:53,
+>                  from include/linux/capability.h:45,
+>                  from include/linux/sched.h:7,
+>                  from arch/parisc/kernel/asm-offsets.c:31:
+> include/asm/system.h:174: error: parse error before "pa_tlb_lock"
+> 	...
+> -----------------------------------------------------------------------
+> sh:
+> 
+> 2.6.13-git11
+> sh-unknown-linux-gnu-gcc (GCC) 3.4.4 (Gentoo 3.4.4-r1)
+>   CHK     include/linux/version.h
+>   UPD     include/linux/version.h
+>   Generating include/asm-sh/machtypes.h
+>   SPLIT   include/linux/autoconf.h -> include/config/*
+>   SYMLINK include/asm-sh/cpu -> include/asm-sh/cpu-sh4
+>   SYMLINK include/asm-sh/mach -> include/asm-sh/unknown
+>   SYMLINK include/asm -> include/asm-sh
+>   CC      arch/sh/kernel/asm-offsets.s
+> In file included from include/linux/spinlock_types.h:13,
+>                  from include/linux/spinlock.h:80,
+>                  from include/linux/capability.h:45,
+>                  from include/linux/sched.h:7,
+>                  from include/linux/mm.h:4,
+>                  from arch/sh/kernel/asm-offsets.c:13:
+> include/asm/spinlock_types.h:16: error: parse error before "atomic_t"
+> 	...
+> -----------------------------------------------------------------------
 
-That's one problem.
+I have tried to understand why this happens with no success..
+Not much has changed in how we actually compile the .c -> .s files.
+In both cases it looks like gcc is warning that a sane typedef is not
+present.
 
-> If thats the reason, you don't need the "-1" there?
+Have you tried to dive more into this, or have you just reported the
+breakage?
 
-It also writes a 0 byte.  I think it looks like this:
-
----- ------------ -
-len  string...    0
-
+	Sam

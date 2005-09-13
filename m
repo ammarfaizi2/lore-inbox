@@ -1,68 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932209AbVIMVMW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932518AbVIMVSk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932209AbVIMVMW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 17:12:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932504AbVIMVMW
+	id S932518AbVIMVSk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 17:18:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932523AbVIMVSk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 17:12:22 -0400
-Received: from ncc1701.cistron.net ([62.216.30.38]:31120 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S932209AbVIMVMV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 17:12:21 -0400
-From: dth@cistron.nl (Danny ter Haar)
-Subject: Q: why _less_ performance on machine with SMP then with UP kernel ?
-Date: Tue, 13 Sep 2005 21:12:15 +0000 (UTC)
-Organization: Cistron
-Message-ID: <dg7fbf$5df$1@news.cistron.nl>
-X-Trace: ncc1701.cistron.net 1126645935 5551 62.216.30.70 (13 Sep 2005 21:12:15 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: dth@cistron.nl (Danny ter Haar)
-To: linux-kernel@vger.kernel.org
+	Tue, 13 Sep 2005 17:18:40 -0400
+Received: from zproxy.gmail.com ([64.233.162.193]:33435 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932518AbVIMVSj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 17:18:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=j0DV1QllPZ23dFKACkNcN9x2fbxJyZLycMGLa/KIv3x6KLmb9a8D9bOgmu81VHWWV2eU+MRHwMqXtG27y7YcCNmwcMS3+YlEdui4btbeU5cwDOfvrFu2AwjHhUfj+CvTcqI8yNtobW4bfxSmImLJE/D47CylDGHZ6+fBfyQG80k=
+Message-ID: <432741E9.2090401@gmail.com>
+Date: Wed, 14 Sep 2005 05:17:29 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Grant Wilson <gww@btinternet.com>
+CC: linux-kernel@vger.kernel.org, Antonino Daplas <adaplas@pol.net>
+Subject: Re: 2.6.14-rc1: oops during boot
+References: <1126643143.5170.11.camel@tlg.swandive.local>
+In-Reply-To: <1126643143.5170.11.camel@tlg.swandive.local>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been posting here recently bout our newsgateway.
-For short:
+Grant Wilson wrote:
+> 2.6.14-rc1 oops on boot as a result of the patch "nvidiafb: Fallback to
+> firmware EDID".
+> 
+> This is because the call to fb_firmware_edid added by the patch may
+> return NULL but this is not checked before trying to memcpy using this
+> pointer resulting in the following oops:
+> 
 
-If i enable both CPU's i get less performance than enabling both cpu's
+Thanks.  Try this patch.
 
-Long version:
-
-Here is a description of the setup:
+Signed-off-by: Antonino Daplas <adaplas@pol.net>
 ---
-It's a tyan server /motherboard
-http://www.tyan.com/products/html/ta26b2882.html
-with 2 x OPTERON250 cpu's and 4 GIG of ECC ram.
-There is 8 x scsi disks for storage
-cupper gig-E for internal communication to spool/header servers etc.
-acenic FiberOptic Gig-E 64bit PCI card for link to the internet.
 
-Bandwidth use is sampled from the ethernet switch and with mrtg
-visualised.
-
-Take today for example:
-http://newsgate.newsserver.nl/kernel/2.6.14-rc1-ethernet-bandwidth.png
-
->From yesterday till 10:30am i ran 2.6.13.1 in UP mode.
-As you can see blue (==incoming traffic) is fairly constant.
-This morning i compiled/installed 2.6.14-rc1-smp.
-I let it ran till 12:15 but it's clear that it can't keep up
-with the flow of data. I rebooted to 2.6.14-rc1 (UP) and that 
-keeps up with the data just fine.
-
-So what is the difference between UP & SMP ?
-shared memory , shared interrupts.
-I don't know _why_ it's living up to _my_ expectation.
-I hoped that the load would drop (it's between 4 to 5) op UP kernel
-because certain processes would be split over the processors.
-
-Anybody want to try and explain to me where i'm making an error ?
-
-Config file & kern.log output  can be found at :
-http://newsgate.newsserver.nl/kernel/
-
-A very confused
-
-Danny
-
+diff --git a/drivers/video/nvidia/nv_i2c.c b/drivers/video/nvidia/nv_i2c.c
+--- a/drivers/video/nvidia/nv_i2c.c
++++ b/drivers/video/nvidia/nv_i2c.c
+@@ -209,10 +209,13 @@ int nvidia_probe_i2c_connector(struct fb
+ 
+ 	if (!edid && conn == 1) {
+ 		/* try to get from firmware */
+-		edid = kmalloc(EDID_LENGTH, GFP_KERNEL);
+-		if (edid)
+-			memcpy(edid, fb_firmware_edid(info->device),
+-			       EDID_LENGTH);
++		const u8 *e = fb_firmware_edid(info->device);
++		
++		if (e != NULL) {
++			edid = kmalloc(EDID_LENGTH, GFP_KERNEL);
++			if (edid)
++				memcpy(edid, e, EDID_LENGTH);
++		}
+ 	}
+ 
+ 	if (out_edid)

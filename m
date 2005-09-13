@@ -1,71 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964943AbVIMR5Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964898AbVIMSCw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964943AbVIMR5Y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 13:57:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964946AbVIMR5Y
+	id S964898AbVIMSCw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 14:02:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964944AbVIMSCw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 13:57:24 -0400
-Received: from gw01.mail.saunalahti.fi ([195.197.172.115]:32897 "EHLO
-	gw01.mail.saunalahti.fi") by vger.kernel.org with ESMTP
-	id S964943AbVIMR5X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 13:57:23 -0400
-From: Nuutti Kotivuori <naked@iki.fi>
-To: Patrick McHardy <kaber@trash.net>
-Cc: linux-kernel@vger.kernel.org,
-       Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>
-Subject: Re: netfilter QUEUE target and packet socket interactions buggy or not
-References: <87fysa9bqt.fsf@aka.i.naked.iki.fi>
-	<20050912.151120.104514011.davem@davemloft.net>
-	<87br2xap9o.fsf@aka.i.naked.iki.fi>
-	<877jdl9r1u.fsf@aka.i.naked.iki.fi> <4326FF69.9060004@trash.net>
-Date: Tue, 13 Sep 2005 21:22:07 +0300
-In-Reply-To: <4326FF69.9060004@trash.net> (Patrick McHardy's message of "Tue,
-	13 Sep 2005 18:33:45 +0200")
-Message-ID: <873bo8akvk.fsf@aka.i.naked.iki.fi>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) XEmacs/21.4.17 (linux)
-MIME-Version: 1.0
+	Tue, 13 Sep 2005 14:02:52 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:61448 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S964898AbVIMSCv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 14:02:51 -0400
+Date: Tue, 13 Sep 2005 19:02:44 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Christoph Hellwig <hch@infradead.org>, J?rn Engel <joern@infradead.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Missing #include <config.h>
+Message-ID: <20050913190244.A26494@flint.arm.linux.org.uk>
+Mail-Followup-To: Geert Uytterhoeven <geert@linux-m68k.org>,
+	Christoph Hellwig <hch@infradead.org>,
+	J?rn Engel <joern@infradead.org>,
+	Linux Kernel Development <linux-kernel@vger.kernel.org>
+References: <20050913135622.GA30675@phoenix.infradead.org> <20050913150825.A23643@flint.arm.linux.org.uk> <20050913141246.GA3234@infradead.org> <Pine.LNX.4.62.0509131956030.24748@numbat.sonytel.be>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.62.0509131956030.24748@numbat.sonytel.be>; from geert@linux-m68k.org on Tue, Sep 13, 2005 at 07:57:30PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick McHardy wrote:
-> Nuutti Kotivuori wrote:
->>
->> Appended here is a backtrace with the tg3 driver. Also, it seems that
->> the bug cannot be reproduced with uniprocessor, only SMP.
->>
->> Unable to handle kernel NULL pointer dereference at virtual address 00000018
->
-> This means inode->i_security was NULL. AFAICT it is only set to NULL in
-> inode_free_security() when the inode is freed. This shouldn't happen
-> while the packet is queued since the skb should hold a reference to
-> the socket on the output path. So it could be some protocol forgetting
-> to increase the refcnt when taking a reference.
+On Tue, Sep 13, 2005 at 07:57:30PM +0200, Geert Uytterhoeven wrote:
+> On Tue, 13 Sep 2005, Christoph Hellwig wrote:
+> > On Tue, Sep 13, 2005 at 03:08:26PM +0100, Russell King wrote:
+> > > On Tue, Sep 13, 2005 at 02:56:23PM +0100, J?rn Engel wrote:
+> > > > After spending some hours last night and this morning hunting a bug,
+> > > > I've found that a different include order made a difference.  Some
+> > > > files don't work correctly, unless config.h is included before.
+> > > 
+> > > I'm still of the opinion that we should add
+> > > 
+> > > 	-imacros include/linux/config.h
+> > > 
+> > > to the gcc command line and stop bothering with trying to get
+> > > linux/config.h included into the right files and not in others.
+> > > (which then means we can eliminate linux/config.h from all files.)
+> > 
+> > Yes, absolutely.  That would help fixing lots of mess.
+> 
+> What about dependencies? Would it cause a recompile of everything if config.h
+> is changed?
 
-Right.
+-imacros include/linux/autoconf.h doesn't leak into the dependencies so
+it's fine.
 
-> What kind of packet is this? And what kernel version are you
-> running? Until recently ip_conntrack did some fiddling with skb->sk
-> which could lead to a packet on the output path with skb->sk set but
-> no reference taken.
+> Ah, I guess not, since config.h is filtered out of the deps anyway and
+> replaced by a smarter dependency on the correct CONFIG_*, right?
 
-This happens on Red Hat Enterprise Linux 4, with a 2.6.9 kernel (with
-a gazillion of Red Hat patches in it, latest ones being from 2.6.11)
-and the ip_queue patch that adds the bottom-half disabling. I will
-know for sure tomorrow, but it seems that it doesn't appear on vanilla
-2.6.13.1 or without SMP.
+According to my .*.cmd files, apparantly so.
 
-It is very hard to know which packet specifically triggers this. The
-machine is under heavy load in general, a lot of packets are handled
-via a QUEUE target, and some packets are captured via packet socket.
-
-I will post more details tomorrow, but if you could point me towards
-the changes in ip_conntrack that affected this, it would be very
-helpful. I could check if they are in the Red Hat kernel and if not,
-patch them manually and see if it makes a difference. The problem is
-now reproduciable in a couple hours, so it shouldn't be too hard.
-
-Thanks,
--- Naked
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

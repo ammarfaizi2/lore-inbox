@@ -1,58 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932641AbVIMNIG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964770AbVIMNM3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932641AbVIMNIG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 09:08:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932646AbVIMNIG
+	id S964770AbVIMNM3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 09:12:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932648AbVIMNM3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 09:08:06 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:34213 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932641AbVIMNIE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 09:08:04 -0400
-Message-ID: <01ac01c5b864$291f1370$dba0220a@CARREN>
-From: "Hironobu Ishii" <hishii@soft.fujitsu.com>
-To: "Russell King" <rmk+lkml@arm.linux.org.uk>,
-       "Taku Izumi" <izumi2005@soft.fujitsu.com>, <akpm@osdl.org>,
-       <linux-kernel@vger.kernel.org>
-References: <200509072146.j87LkNv8004076@shell0.pdx.osdl.net> <20050907224911.H19199@flint.arm.linux.org.uk> <4394.10.124.102.246.1126165652.squirrel@dominion> <20050913091740.A8256@flint.arm.linux.org.uk> <00b601c5b858$8a8c4ad0$dba0220a@CARREN> <20050913125326.A14342@flint.arm.linux.org.uk> <20050913130229.B14342@flint.arm.linux.org.uk>
-Subject: Re: performance-improvement-of-serial-console-via-virtual.patch added to -mm tree
-Date: Tue, 13 Sep 2005 22:07:55 +0900
+	Tue, 13 Sep 2005 09:12:29 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:41391 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932647AbVIMNM2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 09:12:28 -0400
+Message-ID: <4326CFE2.6000908@in.ibm.com>
+Date: Tue, 13 Sep 2005 08:10:58 -0500
+From: Sripathi Kodi <sripathik@in.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc3 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, patrics@interia.pl,
+       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Roland McGrath <roland@redhat.com>
+Subject: Re: [PATCH 2.6.13.1] Patch for invisible threads
+References: <4325BEF3.2070901@in.ibm.com> <20050912134954.7bbd15b2.akpm@osdl.org>
+In-Reply-To: <20050912134954.7bbd15b2.akpm@osdl.org>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2670
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Russell,
+Andrew,
 
-> Additionally, once all architectures convert to initialising their
-> serial ports via platform devices (which means include/asm-*/serial.h
-> becomes essentially empty) and we eliminate serial8250_console_init(),
-> the 8250 console code can start assuming that more of the uart_port
-> structure will be initialised.
+Andrew Morton wrote:
+> Sripathi Kodi <sripathik@in.ibm.com> wrote:
 > 
-> At that point, we can start to think about using FIFOs for the
-> console.
+>>Hi,
+>>
+>>When the main thread of a multi-threaded program calls 'pthread_exit' before
+>>other threads have exited, it results in the other threads becoming
+>>'invisible' to commands like 'ps'.
+> 
+> 
+> This stuff is subtle.   Let me cc some subtle people.
+> 
+> 
+>>Signed-off-by: Sripathi Kodi <sripathik@in.ibm.com>
+>>
+>>--- linux-2.6.13.1/kernel/exit.c	2005-09-12 02:46:26.000000000 -0500
+>>+++ /home/sripathi/17794/patch_2.6.13.1/exit.c	2005-09-12 02:46:15.000000000 
+>>-0500
+>>@@ -463,9 +463,11 @@ static inline void __exit_fs(struct task
+>>  	struct fs_struct * fs = tsk->fs;
+>>
+>>  	if (fs) {
+>>-		task_lock(tsk);
+>>-		tsk->fs = NULL;
+>>-		task_unlock(tsk);
+>>+		if (!thread_group_leader(tsk) || !atomic_read(&tsk->signal->live)) {
+>>+			task_lock(tsk);
+>>+			tsk->fs = NULL;
+>>+			task_unlock(tsk);
+>>+		}
+>>  		__put_fs_struct(fs);
+>>  	}
+>>  }
+> 
+> 
+> A comment in there would be nice.
+> 
 
-Thank you for FIFO consideration.
+Below is the patch with a comment.
 
-me> Before initialization, does tx_loadsz left 0?
-me> If so, we can easily solve the problem:
+Thanks and regards,
+Sripathi.
 
-I confirmed this assumption is OK in current code,
-because seiral8250_ports[] is static variable.
+Signed-off-by: Sripathi Kodi <sripathik@in.ibm.com>
 
-We will release revised patch later,
-please apply our patch until your serial driver 
-re-organization completes.
+--- linux-2.6.13.1/kernel/exit.c	2005-09-13 15:39:48.738542872 -0500
++++ /home/sripathi/17794/patch_2.6.13.1/exit.c	2005-09-13 15:39:27.367791720 
+-0500
+@@ -463,9 +463,13 @@ static inline void __exit_fs(struct task
+  	struct fs_struct * fs = tsk->fs;
 
-Thank you.
-Hironobu Ishii
-
+  	if (fs) {
+-		task_lock(tsk);
+-		tsk->fs = NULL;
+-		task_unlock(tsk);
++		/* If tsk is thread group leader and if group still has alive
++		 * threads, those threads may use tsk->fs */
++		if (!thread_group_leader(tsk) || !atomic_read(&tsk->signal->live)) {
++			task_lock(tsk);
++			tsk->fs = NULL;
++			task_unlock(tsk);
++		}
+  		__put_fs_struct(fs);
+  	}
+  }

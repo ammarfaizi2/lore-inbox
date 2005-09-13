@@ -1,50 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932426AbVIMHFd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932427AbVIMHGR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932426AbVIMHFd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 03:05:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932428AbVIMHFd
+	id S932427AbVIMHGR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 03:06:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932425AbVIMHGR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 03:05:33 -0400
-Received: from mail.kroah.org ([69.55.234.183]:3263 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932426AbVIMHFc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 03:05:32 -0400
-Date: Tue, 13 Sep 2005 00:03:24 -0700
-From: Greg KH <gregkh@suse.de>
-To: Grant <lkml@dodo.com.au>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Grant Coady <grant_lkml@dodo.com.au>,
-       Greg KH <greg@kroah.com>, "Gaston, Jason D" <jason.d.gaston@intel.com>,
-       mj@ucw.cz, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.13-rc4 1/1] pci_ids: patch for Intel ICH7R
-Message-ID: <20050913070324.GA7968@suse.de>
-References: <26CEE2C804D7BE47BC4686CDE863D0F5046EA44B@orsmsx410> <42EAABD1.8050903@pobox.com> <n4ple1haga8eano2vt2ipl17mrrmmi36jr@4ax.com> <42EAF987.7020607@pobox.com> <6f0me1p2q3g9ralg4a2k2mcra21lhpg6ij@4ax.com> <20050911031150.GA20536@kroah.com> <pfn7i1ll7g5bs8sm8kq0md33f8khsujrbf@4ax.com> <4323EFFE.2040102@pobox.com> <kctci1lqlgbr9ct7as48j551o6v9013504@4ax.com>
+	Tue, 13 Sep 2005 03:06:17 -0400
+Received: from 66-23-228-155.clients.speedfactory.net ([66.23.228.155]:18880
+	"EHLO kevlar.burdell.org") by vger.kernel.org with ESMTP
+	id S932427AbVIMHGQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 03:06:16 -0400
+Date: Tue, 13 Sep 2005 03:02:04 -0400
+From: Sonny Rao <sonny@burdell.org>
+To: Danny ter Haar <dth@cistron.nl>
+Cc: linux-kernel@vger.kernel.org, mbligh@mbligh.org
+Subject: Re: 2.6.13-mm3
+Message-ID: <20050913070204.GA30231@kevlar.burdell.org>
+References: <20050912024350.60e89eb1.akpm@osdl.org> <20050912200914.GA13962@kevlar.burdell.org> <dg4qeg$27m$1@news.cistron.nl> <20050912220617.GA18215@kevlar.burdell.org> <dg5n7q$daf$1@news.cistron.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <kctci1lqlgbr9ct7as48j551o6v9013504@4ax.com>
-User-Agent: Mutt/1.5.10i
+In-Reply-To: <dg5n7q$daf$1@news.cistron.nl>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 13, 2005 at 04:46:45PM +1000, Grant wrote:
-> On Sun, 11 Sep 2005 04:51:10 -0400, Jeff Garzik <jgarzik@pobox.com> wrote:
-> >
-> >pci_ids.h should be the place where PCI IDs (class, vendor, device) are 
-> >collected.
+On Tue, Sep 13, 2005 at 05:14:34AM +0000, Danny ter Haar wrote:
+> Sonny Rao  <sonny@burdell.org> wrote:
+> >Are you using jumbo frames or anything like that?
 > 
-> Few files reference it.
-
-include/pci.h does, so pretty much every pci driver does because of
-that.
-
-> >Long term, we should be able to trim a lot of device ids, since they are 
-> >usually only used in one place.
+> Not as far as i know.
 > 
-> Well, they're not, and trimming a file marked for removal is pointless.
+> I gave the kernel some more buffer as stated on
+> http://home.cern.ch/~jes/gige/acenic.html
+> 
+> echo 256144 > /proc/sys/net/core/rmem_max
+> echo 262144 > /proc/sys/net/core/wmem_max
 
-Huh?  That file isn't marked for removal, that was the id database,
-which is now gone...
+Not sure if this could lead to higher order allocations -- the only
+place I think it might happen is in sock_kmalloc() 
 
-thanks,
+Dunno, Martin?
 
-greg k-h

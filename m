@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932145AbVIMEns@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbVIMFFX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932145AbVIMEns (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 00:43:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbVIMEns
+	id S932222AbVIMFFX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 01:05:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751134AbVIMFFW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 00:43:48 -0400
-Received: from nproxy.gmail.com ([64.233.182.202]:4231 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932145AbVIMEnr convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 00:43:47 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=s3uBX+ushsor1m/FPOIpnDW0QpFu1+ltfgZSKmsUebVi8q/eKAmZw4gf/cuCX8DAGugLg8SJFYG1S/uvRRDuO9PV191fsJb7Y+Iz5niMABQhHgvHLFeYhN0wT370UyfHbgNBVgPGMYk0JEOk8cIl+C7db1nOHscW2dT1M60kAhM=
-Message-ID: <84144f0205091221431827b126@mail.gmail.com>
-Date: Tue, 13 Sep 2005 07:43:42 +0300
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-Reply-To: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Jiri Slaby <jirislaby@gmail.com>
-Subject: Re: [PATCH] use kzalloc instead of malloc+memset
-Cc: Lion Vollnhals <lion.vollnhals@web.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <43260817.7070907@gmail.com>
+	Tue, 13 Sep 2005 01:05:22 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:28873 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1751130AbVIMFFW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 01:05:22 -0400
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
+From: Keith Owens <kaos@sgi.com>
+To: linux-kernel@vger.kernel.org
+Subject: [patch 2.6.14-rc1] Correct xircom_cb use of CONFIG_NET_POLL_CONTROLLER
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200509130010.38483.lion.vollnhals@web.de>
-	 <43260817.7070907@gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 13 Sep 2005 15:05:13 +1000
+Message-ID: <21546.1126587913@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/13/05, Jiri Slaby <jirislaby@gmail.com> wrote:
-> >-      cls = kmalloc(sizeof(struct class), GFP_KERNEL);
-> >+      cls = kzalloc(sizeof(struct class), GFP_KERNEL);
-> >
-> >
-> maybe, the better way is to write `*cls' instead of `struct class',
-> better for further changes
+xircom_cb.c does #if CONFIG_NET_POLL_CONTROLLER instead of #ifdef,
+resulting in drivers/net/tulip/xircom_cb.c:120:5: warning:
+"CONFIG_NET_POLL_CONTROLLER" is not defined.
 
-Please note that some maintainers don't like it. I at least could not
-sneak in patches like these to drivers/usb/ because I had changed
-sizeof.
+Signed-off-by: Keith Owens <kaos@sgi.com>
 
-                                 Pekka
+---
+
+ xircom_cb.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+Index: linux/drivers/net/tulip/xircom_cb.c
+===================================================================
+--- linux.orig/drivers/net/tulip/xircom_cb.c	2005-09-13 15:01:30.667784502 +1000
++++ linux/drivers/net/tulip/xircom_cb.c	2005-09-13 15:02:02.246401717 +1000
+@@ -117,7 +117,7 @@ static int xircom_open(struct net_device
+ static int xircom_close(struct net_device *dev);
+ static void xircom_up(struct xircom_private *card);
+ static struct net_device_stats *xircom_get_stats(struct net_device *dev);
+-#if CONFIG_NET_POLL_CONTROLLER
++#ifdef CONFIG_NET_POLL_CONTROLLER
+ static void xircom_poll_controller(struct net_device *dev);
+ #endif
+ 
+

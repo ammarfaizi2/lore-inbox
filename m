@@ -1,59 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964874AbVIMQqL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964876AbVIMQpl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964874AbVIMQqL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 12:46:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964879AbVIMQqL
+	id S964876AbVIMQpl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 12:45:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964875AbVIMQpl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 12:46:11 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:25771 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964874AbVIMQqJ (ORCPT
+	Tue, 13 Sep 2005 12:45:41 -0400
+Received: from fmr16.intel.com ([192.55.52.70]:27087 "EHLO
+	fmsfmr006.fm.intel.com") by vger.kernel.org with ESMTP
+	id S964871AbVIMQpk convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 12:46:09 -0400
-Date: Tue, 13 Sep 2005 09:46:12 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Ben Greear <greearb@candelatech.com>
-Cc: Ravikiran G Thirumalai <kiran@scalex86.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, dipankar@in.ibm.com, bharata@in.ibm.com,
-       shai@scalex86.org, Rusty Russell <rusty@rustcorp.com.au>,
-       netdev@vger.kernel.org, davem@davemloft.net
-Subject: Re: [patch 7/11] net: Use bigrefs for net_device.refcount
-Message-ID: <20050913094612.7e8d611b@localhost.localdomain>
-In-Reply-To: <4326FFC2.7030803@candelatech.com>
-References: <20050913155112.GB3570@localhost.localdomain>
-	<20050913161012.GI3570@localhost.localdomain>
-	<20050913092659.791bddec@localhost.localdomain>
-	<4326FFC2.7030803@candelatech.com>
-X-Mailer: Sylpheed-Claws 1.9.13 (GTK+ 2.6.7; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
+	Tue, 13 Sep 2005 12:45:40 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [patch 2.6.13] ia64: re-implement dma_get_cache_alignment to avoid EXPORT_SYMBOL
+Date: Tue, 13 Sep 2005 09:45:21 -0700
+Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F045EB564@scsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch 2.6.13] ia64: re-implement dma_get_cache_alignment to avoid EXPORT_SYMBOL
+Thread-Index: AcW4XmS7vGgETi1vR124/eLJsDxNXwAI3N8w
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "Lion Vollnhals" <lion.vollnhals@web.de>,
+       "John W. Linville" <linville@tuxdriver.com>
+Cc: "Christoph Hellwig" <hch@infradead.org>, <linux-kernel@vger.kernel.org>,
+       <linux-ia64@vger.kernel.org>
+X-OriginalArrivalTime: 13 Sep 2005 16:45:23.0687 (UTC) FILETIME=[8930E770:01C5B882]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Sep 2005 09:35:14 -0700
-Ben Greear <greearb@candelatech.com> wrote:
+>>  unsigned long ia64_max_cacheline_size;
+>> +
+>> +int dma_get_cache_alignment(void)
+>> +{
+>> +        return ia64_max_cacheline_size;
+>> +}
+>> +EXPORT_SYMBOL(dma_get_cache_alignment);
+>> +
+>
+>Are you intentionally returning an "int" instead of an "unsigned long"?
 
-> Stephen Hemminger wrote:
-> > On Tue, 13 Sep 2005 09:10:12 -0700
-> > Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
-> > 
-> > 
-> >>The net_device has a refcnt used to keep track of it's uses.
-> >>This is used at the time of unregistering the network device
-> >>(module unloading ..) (see netdev_wait_allrefs) .
-> >>For loopback_dev , this refcnt increment/decrement  is causing
-> >>unnecessary traffic on the interlink for NUMA system
-> >>affecting it's performance.  This patch improves tbench numbers by 6% on a
-> >>8way x86 Xeon (x445).
-> >>
-> > 
-> > 
-> > Since when is bringing a network device up/down performance critical?
-> 
-> We grab and drop a reference for each poll of a device, roughly.
-> 
-> See dev_hold in _netif_rx_schedule(struct net_device *dev)
-> in include/netdevice.h, for instance.
+The old version used to return int, as does the the version
+on other architectures.  The problem appears to be the
+definition "unsigned long ia64_max_cacheline_size;"
 
-Yeah, that would be an issue, especially since the rest of that
-path is nicely per-cpu
+I think an int should be plenty big enough :-)
+
+-Tony

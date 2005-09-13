@@ -1,47 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964853AbVIMQ0M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964856AbVIMQ0t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964853AbVIMQ0M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 12:26:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964855AbVIMQ0M
+	id S964856AbVIMQ0t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 12:26:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964854AbVIMQ0t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 12:26:12 -0400
-Received: from smtp.dkm.cz ([62.24.64.34]:30218 "HELO smtp.dkm.cz")
-	by vger.kernel.org with SMTP id S964853AbVIMQ0L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 12:26:11 -0400
-Message-ID: <4326FDA2.90808@rulez.cz>
-Date: Tue, 13 Sep 2005 18:26:10 +0200
-From: iSteve <isteve@rulez.cz>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org
-Subject: Re: query_modules syscall gone? Any replacement?
-References: <4KSFY-2pO-17@gated-at.bofh.it> <E1EDpQq-0000iV-Oe@be1.lrz> <4326DE0E.2060306@rulez.cz> <Pine.LNX.4.50.0509130813010.7614-100000@shark.he.net> <4326F093.80206@rulez.cz> <Pine.LNX.4.50.0509130835120.7614-100000@shark.he.net>
-In-Reply-To: <Pine.LNX.4.50.0509130835120.7614-100000@shark.he.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 13 Sep 2005 12:26:49 -0400
+Received: from smtp-102-tuesday.nerim.net ([62.4.16.102]:64785 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S964849AbVIMQ0s
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 12:26:48 -0400
+Date: Tue, 13 Sep 2005 18:27:36 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Pending -stable patches
+Message-Id: <20050913182736.09b1bfcf.khali@linux-fr.org>
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>I would like to be able to query symbols of a loaded module, get list of
->>and list of dependencies of loaded module from an app, preferably
->>without having to parse a file...
-> 
-> 
-> No, no syscall to do that.  Looks like it will require reading
-> and parsing files.
-> 
-> And you answered my "what" question clearly, so I have one more.
-> Why?  for what purpose, to what end?  What are you tring to
-> accomplish?
+Hi all,
 
-The files so far provided still do not seem to give these informations 
-though...
+Is there a place where pending -stable patches can be seen?
 
-Part of the project I'm working on -- click-click ui for handling 
-modules, with some perks: in this case, getting info about loaded 
-modules that I hoped to obtain via query_module.
+Are mails sent to stable@kernel archived somewhere?
 
-Oh, and one more question: There were no particular issues with 
-query_module, or were they? If there weren't, why wasn't it kept?
+There seems to be a need for this. For example, there's a patch I would
+like to see in 2.6.13.2, but I wouldn't want to report an already known
+problem.
+
+Thanks,
+-- 
+Jean Delvare

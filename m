@@ -1,66 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965059AbVINWHi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030197AbVINWIw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965059AbVINWHi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 18:07:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965042AbVINWHh
+	id S1030197AbVINWIw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 18:08:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030200AbVINWIv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 18:07:37 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:42150 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965058AbVINWHg (ORCPT
+	Wed, 14 Sep 2005 18:08:51 -0400
+Received: from cramus.icglink.com ([66.179.92.18]:61058 "EHLO mx03.icglink.com")
+	by vger.kernel.org with ESMTP id S1030197AbVINWIu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 18:07:36 -0400
-Date: Thu, 15 Sep 2005 03:32:05 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, akpm@osdl.org
-Subject: Re: [PATCH] reorder struct files_struct
-Message-ID: <20050914220205.GC6237@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20050914191842.GA6315@in.ibm.com> <20050914.125750.05416211.davem@davemloft.net> <20050914201550.GB6315@in.ibm.com> <20050914.132936.105214487.davem@davemloft.net> <43289376.7050205@cosmosbay.com>
+	Wed, 14 Sep 2005 18:08:50 -0400
+Date: Wed, 14 Sep 2005 17:08:48 -0500
+From: Phil Dier <phil@icglink.com>
+To: linux-kernel@vger.kernel.org
+Cc: ziggy@icglink.com, jack@icglink.com, scott@icglink.com
+Subject: Re: Slow I/O with SMP, Fusion-MPT and u160 SCSI JBOD
+Message-Id: <20050914170848.5ba812b8.phil@icglink.com>
+In-Reply-To: <43289926.1080108@rtr.ca>
+References: <20050914150109.232c6765.phil@icglink.com>
+	<43289926.1080108@rtr.ca>
+Organization: ICGLink
+X-Mailer: Sylpheed version 2.0.0 (GTK+ 2.4.4; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43289376.7050205@cosmosbay.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 14, 2005 at 11:17:42PM +0200, Eric Dumazet wrote:
-> In SMP (and NUMA) environnements, each time a thread wants to open or close 
-> a file, it has to acquire the spinlock, thus invalidating the cache line 
-> containing this spinlock on other CPUS. So other threads doing 
-> read()/write()/... calls that use RCU to access the file table are going to 
-> ask further memory (possibly NUMA) transactions to read again this memory 
-> line.
+On Wed, 14 Sep 2005 17:41:58 -0400
+Mark Lord <lkml@rtr.ca> wrote:
+
+> Phil Dier wrote:
+> > Hi,
+> > 
+> > I just tried the 2.6.14-rc1 kernel to see if it exhibits the behaviour
+> > I have described before[0]. It still does. Briefly, I have a dual Xeon
+> ..
 > 
-> Please consider applying this patch. It moves the spinlock to another cache 
-> line, so that concurrent threads can share the cache line containing 
-> 'count' and 'fdt' fields.
-> 
-> --- linux-2.6.14-rc1/include/linux/file.h	2005-09-13 05:12:09.000000000 +0200
-> +++ linux-2.6.14-rc1-ed/include/linux/file.h	2005-09-15 01:09:13.000000000 +0200
-> @@ -34,12 +34,12 @@
->   */
->  struct files_struct {
->          atomic_t count;
-> -        spinlock_t file_lock;     /* Protects all the below members.  Nests inside tsk->alloc_lock */
->  	struct fdtable *fdt;
->  	struct fdtable fdtab;
->          fd_set close_on_exec_init;
->          fd_set open_fds_init;
->          struct file * fd_array[NR_OPEN_DEFAULT];
-> +	spinlock_t file_lock;     /* Protects concurrent writers.  Nests inside tsk->alloc_lock */
->  };
->  
->  #define files_fdtable(files) (rcu_dereference((files)->fdt))
-
-For most apps without too many open fds, the embedded fd_sets
-are going to be used. Wouldn't that mean that open()/close() will
-invalidate the cache line containing fdt, fdtab by updating
-the fd_sets ? If so, you optimization really doesn't help.
+> Do you still have HZ set to 1000 in your .config file? (as per 2.6.12)
 
 
-Thanks
-Dipankar
+With HZ at 1000, the speeds seem to be fine.  Why would this occur with
+just this one controller?  Just driver differences?
 
+
+-- 
+
+Phil Dier (ICGLink.com -- 615 370-1530 x733)
+
+/* vim:set noai nocindent ts=8 sw=8: */

@@ -1,73 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030285AbVINRBn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030284AbVINRBj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030285AbVINRBn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 13:01:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030286AbVINRBn
+	id S1030284AbVINRBj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 13:01:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030285AbVINRBj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 13:01:43 -0400
-Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:7796 "HELO
-	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1030285AbVINRBm (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 13:01:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=VvCLBxcE6O4rn+2Qn7AhebfX8nOdpiPxmWrsNS//RQroCSor0T8PVWoeID5LmtUeVil9XEyj+5aqasVs+Klufto3n1J/mRmo4a/K38ity+DcQ0BqwsYBv/CSjAU20XpKXtb+28a6Trpm+kyolV9AK4/4ISmxbr2kICN7FfJzakc=  ;
-Message-ID: <43285374.3020806@yahoo.com.au>
-Date: Thu, 15 Sep 2005 02:44:36 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
-X-Accept-Language: en
+	Wed, 14 Sep 2005 13:01:39 -0400
+Received: from paleosilicon.orionmulti.com ([209.128.68.66]:59614 "EHLO
+	paleosilicon.orionmulti.com") by vger.kernel.org with ESMTP
+	id S1030284AbVINRBi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 13:01:38 -0400
+X-Envelope-From: hpa@zytor.com
+Message-ID: <43285762.7070300@zytor.com>
+Date: Wed, 14 Sep 2005 10:01:22 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-CC: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>,
-       Dipankar Sarma <dipankar@in.ibm.com>
-Subject: Re: [PATCH 2/5] atomic: introduce atomic_inc_not_zero
-References: <43283825.7070309@yahoo.com.au> <4328387E.6050701@yahoo.com.au> <Pine.LNX.4.61.0509141814220.3743@scrub.home>
-In-Reply-To: <Pine.LNX.4.61.0509141814220.3743@scrub.home>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Sam Ravnborg <sam@ravnborg.org>
+CC: Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Splitting out kernel<=>userspace ABI headers
+References: <C670AD22-97CF-46AA-A527-965036D78667@mac.com> <20050902134108.GA16374@codepoet.org> <22D79100-00B5-44F6-992C-FFFEACA49E66@mac.com> <20050902235833.GA28238@codepoet.org> <dfapgu$dln$1@terminus.zytor.com> <4328299C.9020904@tmr.com> <20050914170107.GB9096@mars.ravnborg.org>
+In-Reply-To: <20050914170107.GB9096@mars.ravnborg.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel wrote:
-> Hi,
+Sam Ravnborg wrote:
+>  
 > 
-> On Thu, 15 Sep 2005, Nick Piggin wrote:
+>>The kernel predates C99, sort of, and it would be a massive but valuable 
+>> task to figure out where a type is really, for instance, 32 bits 
+>>rather than "size of default int" in length, etc, and use POSIX types 
+>>where they are correct. Fewer things to maintain, and would make it 
+>>clear when something is 32 bits by default and when it really must be 32 
+>>bits.
 > 
-> 
->>Also needs work on those same architectures. Other architectures
->>might want to look at providing a more optimal implementation.
-> 
-> 
-> IMO a rather pointless primitive, unless there is a cpu architecture which 
-> has a inc_not_zero instruction, otherwise it will always be the same as 
-> using cmpxchg.
+> This has been discussed several times on lkml.
+> Ask google...
+> In short - the kernel provide its own namespace, and here __u32 etc is
+> used. And starting to change that would be a noisy effort with no or
+> limited gain neither for the kernel nor userspace.
 > 
 
-It will always be *implemented* with cmpxchg you mean, which is a
-bit different. But even then, no, you definitely don't need an
-inc_not_zero instruction to make this primitive faster than the
-cmpxchg version. Just look at all the !SMP architectures that just
-turn off interrupts while doing the op. Look at the architectures
-that use hashed spinlocks.
+More specifically, replacing u32 with uint32_t as the kernel-internal 
+type would be fine and arguably useful; in fact, a handful of drivers I 
+believe already use it.
 
-Or here is possible pseudo code for an architecture with ll/sc
-instructions:
+Replacing __u32 with uint32_t would be wrong, because it would require 
+some user space headers that cannot include <stdint.h> to have to do so. 
+  POSIX has *very* specific rules for namespace pollution, and most 
+libcs have to care about that (klibc doesn't, but it's an exception, not 
+the rule.)
 
-   do {
-     tmp = load_locked(v);
-     if (!tmp)
-       break;
-     tmp++;
-   } while (!store_cond(v, tmp));
-
-   return tmp;
-
-As opposed to using the cmpxchg version, which would have more
-loads and conditional branches, AFAIKS.
-
--- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+	-hpa

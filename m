@@ -1,53 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965101AbVINJOZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965098AbVINJRv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965101AbVINJOZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 05:14:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965102AbVINJOZ
+	id S965098AbVINJRv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 05:17:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965102AbVINJRv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 05:14:25 -0400
-Received: from gold.veritas.com ([143.127.12.110]:23423 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S965101AbVINJOY (ORCPT
+	Wed, 14 Sep 2005 05:17:51 -0400
+Received: from dbl.q-ag.de ([213.172.117.3]:62668 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S965098AbVINJRv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 05:14:24 -0400
-Date: Wed, 14 Sep 2005 10:14:08 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Kirill Korotaev <dev@sw.ru>
-cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, xemul@sw.ru
-Subject: Re: [PATCH] error path in setup_arg_pages() misses vm_unacct_memory()
-In-Reply-To: <4327E24E.8040200@sw.ru>
-Message-ID: <Pine.LNX.4.61.0509141006480.5965@goblin.wat.veritas.com>
-References: <4325B188.10404@sw.ru> <20050912132352.6d3a0e3a.akpm@osdl.org>
- <Pine.LNX.4.61.0509131217200.7040@goblin.wat.veritas.com>
- <Pine.LNX.4.61.0509140605320.3433@goblin.wat.veritas.com> <4327E24E.8040200@sw.ru>
+	Wed, 14 Sep 2005 05:17:51 -0400
+Message-ID: <4327EA6B.6090102@colorfullife.com>
+Date: Wed, 14 Sep 2005 11:16:27 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.10) Gecko/20050909 Fedora/1.7.10-1.5.2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 14 Sep 2005 09:14:24.0134 (UTC) FILETIME=[B2DA8A60:01C5B90C]
+To: Andi Kleen <ak@suse.de>
+CC: David Chinner <dgc@sgi.com>, Bharata B Rao <bharata@in.ibm.com>,
+       "Theodore Ts'o" <tytso@mit.edu>, Dipankar Sarma <dipankar@in.ibm.com>,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: VM balancing issues on 2.6.13: dentry cache not getting shrunk
+ enough
+References: <20050911105709.GA16369@thunk.org> <20050913084752.GC4474@in.ibm.com> <20050913215932.GA1654338@melbourne.sgi.com> <200509141101.16781.ak@suse.de>
+In-Reply-To: <200509141101.16781.ak@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Sep 2005, Kirill Korotaev wrote:
-> 
-> is vma accounting in arch/x86_64/ia32/syscall32.c and arch/ppc64/kernel/vdso.c
-> removed due to fixed size of vma (vsyscall/vdso mappings)?
-> in other respects it looks ok.
+Andi Kleen wrote:
 
-It's removed because without VM_ACCOUNT it was steadily leaking:
-the main path was wrong, never mind the error path.  We could add
-VM_ACCOUNT to the flags to fix that, but in 99.999% of cases we
-should not be accounting these - all mms are sharing the same page.
+>The slab datastructures are not completely suited for this right now,
+>but it could be done by using one more of the list_heads in struct page
+>for slab backing pages.
+>
+>  
+>
+I agree, I even started prototyping something a year ago, but ran out of 
+time.
+One tricky point are directory dentries: As far as I see, they are 
+pinned and unfreeable if a (freeable) directory entry is in the cache.
 
-Ben designed it to allow for gdb setting breakpoints in the vDSO
-page (COW then giving a private page), but that's an very unusual
-case, which isn't handled quite right anyway: we need to take a
-separate look at that sometime - we account for what's VM_WRITE,
-not for what ptrace might write to by the backdoor.
-
-> > So x86_64 32-bit and ppc64 vDSO ELFs have been leaking memory into
-> > Committed_AS each time they're run.  But don't add VM_ACCOUNT to them,
-> > it's inappropriate to reserve against the very unlikely case that gdb
-> > be used to COW a vDSO page - we ought to do something about that in
-> > do_wp_page, but there are yet other inconsistencies to be resolved.
-
-Hugh
+--
+    Manfred

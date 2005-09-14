@@ -1,58 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965122AbVINJnl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965124AbVINJoO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965122AbVINJnl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 05:43:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965123AbVINJnl
+	id S965124AbVINJoO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 05:44:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965123AbVINJoN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 05:43:41 -0400
-Received: from mail.permas.de ([195.143.204.226]:41406 "EHLO mail-gw.local")
-	by vger.kernel.org with ESMTP id S965122AbVINJnk (ORCPT
+	Wed, 14 Sep 2005 05:44:13 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:10205 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965124AbVINJoL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 05:43:40 -0400
-From: Hartmut Manz <manz@intes.de>
-Reply-To: manz@intes.de
-Organization: INTES GmbH
-To: Con Kolivas <kernel@kolivas.org>
-Subject: Re: Another 2.6.13-ck3 locks machine after some time, 2.6.12.5 work fine
-Date: Wed, 14 Sep 2005 11:43:30 +0200
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org
-References: <200509141125.00971.manz@intes.de> <200509141935.19749.kernel@kolivas.org>
-In-Reply-To: <200509141935.19749.kernel@kolivas.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 14 Sep 2005 05:44:11 -0400
+Date: Wed, 14 Sep 2005 02:43:13 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: ak@suse.de, dgc@sgi.com, bharata@in.ibm.com, tytso@mit.edu,
+       dipankar@in.ibm.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: VM balancing issues on 2.6.13: dentry cache not getting shrunk
+ enough
+Message-Id: <20050914024313.1e70f2a3.akpm@osdl.org>
+In-Reply-To: <4327EA6B.6090102@colorfullife.com>
+References: <20050911105709.GA16369@thunk.org>
+	<20050913084752.GC4474@in.ibm.com>
+	<20050913215932.GA1654338@melbourne.sgi.com>
+	<200509141101.16781.ak@suse.de>
+	<4327EA6B.6090102@colorfullife.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509141143.31011.manz@intes.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 14. September 2005 11:35, Con Kolivas wrote:
-> On Wed, 14 Sep 2005 19:25, Hartmut Manz wrote:
-> > I have also tried to switch to kernel 2.6.13-ck3 and after about 2 hours
-> > the machine is completely frozen. I have than applied the proposed patch
-> > from Linus for a simmilar problem on 2.6.13.1 but it didn't help.
+Manfred Spraul <manfred@colorfullife.com> wrote:
 >
-> -ck currently has a unique problem with 250HZ as well. Try 1000 if you are
-> using 250.
+> One tricky point are directory dentries: As far as I see, they are 
+>  pinned and unfreeable if a (freeable) directory entry is in the cache.
 >
-Yes I was using 250 HZ.  
-So I will recompile the Kernel now and come back with an answer later
 
-Thank You
+Well.  That's the whole problem.
 
-Hartmut
+I don't think it's been demonstrated that Ted's problem was caused by
+internal fragementation, btw.  Ted, could you run slabtop, see what the
+dcache occupancy is?  Monitor it as you start to manually apply pressure? 
+If the occupancy falls to 10% and not many slab pages are freed up yet then
+yup, it's internal fragmentation.
 
-> Cheers,
-> Con
+I've found that internal fragmentation due to pinned directory dentries can
+be very high if you're running silly benchmarks which create some
+regular-shaped directory tree which can easily create pathological
+patterns.  For real-world things with irregular creation and access
+patterns and irregular directory sizes the fragmentation isn't as easy to
+demonstrate.
 
--- 
------------------------------------------------------------------------------
-Hartmut Manz                                      WWW:    http://www.intes.de
-INTES GmbH                                        Phone:  +49-711-78499-29
-Schulze-Delitzsch-Str. 16                         Fax:    +49-711-78499-10
-D-70565 Stuttgart                                 E-mail: manz@intes.de
-   Himmel und Erde werden vergehen; meine Worte aber werden nicht vergehen.
-------------------------------------------------------  Markus 13,31 --------
-
+Another approach would be to do an aging round on a directory's children
+when an unfreeable dentry is encountered on the LRU.  Something like that. 
+If internal fragmentation is indeed the problem.

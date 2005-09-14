@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030239AbVINQWS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030244AbVINQYI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030239AbVINQWS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 12:22:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030240AbVINQWS
+	id S1030244AbVINQYI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 12:24:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030240AbVINQYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 12:22:18 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:59910 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP
-	id S1030239AbVINQWF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 12:22:05 -0400
-Message-ID: <43284FA9.3030507@tmr.com>
-Date: Wed, 14 Sep 2005 12:28:25 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
+	Wed, 14 Sep 2005 12:24:07 -0400
+Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:53415 "HELO
+	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1030244AbVINQYG (ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Wed, 14 Sep 2005 12:24:06 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=jLK/QCH2iigVrgyMGv5QS/RsYm1rBjMPGdTq8Ibz/NUnrB9kXGd1ysS4cTInprGgemTbdtobrhR9Eq4C2DRa+eSxz/vfOtvk5OkVz478wx7WW99cdjoLzlsJj89lDKJPH8cKG7RGWvqEEUudfFW25afex1GJzar9I0ZF3vHtGJw=  ;
+Message-ID: <43284030.1030905@yahoo.com.au>
+Date: Thu, 15 Sep 2005 01:22:24 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: David Sanchez <david.sanchez@lexbox.fr>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Corrupted file on a copy
-References: <17AB476A04B7C842887E0EB1F268111E026F9B@xpserver.intra.lexbox.org>
-In-Reply-To: <17AB476A04B7C842887E0EB1F268111E026F9B@xpserver.intra.lexbox.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+CC: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>,
+       Dipankar Sarma <dipankar@in.ibm.com>
+Subject: Re: [PATCH 1/5] atomic: introduce atomic_cmpxchg
+References: <43283825.7070309@yahoo.com.au> <20050914161700.A30746@flint.arm.linux.org.uk>
+In-Reply-To: <20050914161700.A30746@flint.arm.linux.org.uk>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Sanchez wrote:
-> Hi,
+Russell King wrote:
+> On Thu, Sep 15, 2005 at 12:48:05AM +1000, Nick Piggin wrote:
 > 
-> I'm using the linux kernel 2.6.10 and busybox 1.0 on a AMD AU1550 board.
+>>This patch still needs work on arm (v6) and m32r. I would
+>>just be shooting in the dark if I attempted either myself.
 > 
-> When I copy a big file (around 300M) within an ext2 filesystem (even on
-> ext3 filesystem) then the output file is sometime "corrupted" (I mean
-> that the source and the destination files are different and thus
-> generate a different SHA1).
+> 
+> ARMv6, something like:
+> 
 
-That's likely to be hardware. Have you tried memtest86 or similar? Are 
-you overclocked, or running aggressive memory timing?
-
-Similar kernel+bbox installs seem stable on other hardware.
-
+Thanks very much, I've updated the patchset.
 
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+SUSE Labs, Novell Inc.
 
+Send instant messages to your online friends http://au.messenger.yahoo.com 

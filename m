@@ -1,51 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030290AbVINRXo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965253AbVINR1I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030290AbVINRXo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 13:23:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030292AbVINRXo
+	id S965253AbVINR1I (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 13:27:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965249AbVINR1I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 13:23:44 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:41490 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S1030290AbVINRXn
+	Wed, 14 Sep 2005 13:27:08 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:16134 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S965253AbVINR1G
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 13:23:43 -0400
-Date: Wed, 14 Sep 2005 19:26:14 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Coywolf Qi Hunt <coywolf@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: kbuild-permanently-fix-kernel-configuration-include-mess.patch added to -mm tree
-Message-ID: <20050914172613.GB7480@mars.ravnborg.org>
-References: <200509140841.j8E8fG1w022954@shell0.pdx.osdl.net> <2cd57c900509140205572f19b7@mail.gmail.com> <20050914102016.B30672@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050914102016.B30672@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.8i
+	Wed, 14 Sep 2005 13:27:06 -0400
+Message-ID: <43285EF1.1040003@tmr.com>
+Date: Wed, 14 Sep 2005 13:33:37 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: "Read my lips: no more merges" - aka Linux 2.6.14-rc1
+References: <Pine.LNX.4.58.0509122019560.3351@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0509122019560.3351@g5.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> That is a small price to pay, rather than having to continually maintain
-> "does this file need config.h included" - which I think can conclusively
-> be shown to be a total lost cause.  There are about 3450 configuration
-> include errors in the kernel as of -git last night.
-Depends on how you count...
-If all .h files followed the rule - they should be selfcontained. In
-other words they should all include what they need this is correct.
+Linus Torvalds wrote:
+> Ok, it's been two weeks (actually, two weeks and one day) since 2.6.13, 
+> and that means that the merge window is closed. I've released a 
+> 2.6.14-rc1, and we're now all supposed to help just clean up and fix 
+> everything, and aim for a really solid 2.6.14 release.
 
-The correct figure is much less.
-I did a check with defconfig for i386.
-There are 7 .o files where config.h is not included - all are correct.
-lib/errno.c, arch/ia386/boot/bootsect.S + a few more.
-That was out of 983 .o files.
+I can bore the list with a config, but this seems pretty common over x86 
+configs, similar happened on desktop (this one), laptop, and server builds.
+========================
 
-There will be no slowdown introducing -iinclude (or -imacros) keeping
-these figures in mind.
+   CHK     include/linux/compile.h
+   UPD     include/linux/compile.h
+   CC      init/version.o
+   LD      init/built-in.o
+   LD      .tmp_vmlinux1
+arch/i386/kernel/built-in.o(.init.text+0xe5e): In function 
+`parse_cmdline_early':
+: undefined reference to `disable_timer_pin_1'
+arch/i386/kernel/built-in.o(.init.text+0xe7e): In function 
+`parse_cmdline_early':
+: undefined reference to `disable_timer_pin_1'
+make[2]: *** [.tmp_vmlinux1] Error 1
+error: Bad exit status from /var/tmp/rpm-tmp.82653 (%build)
 
 
+RPM build errors:
+     Bad exit status from /var/tmp/rpm-tmp.82653 (%build)
+make[1]: *** [rpm] Error 1
+make: *** [rpm] Error 2
 
-find -name '.*.o.cmd' | xargs grep __KERNEL__ to find number of .o files
-build.
 
-added grep -l 'include/linux/config.h' to find .o files build and where
-config-h was included. Then a simple diff..
-
-	Sam
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

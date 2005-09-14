@@ -1,58 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030238AbVINQVz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030241AbVINQWA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030238AbVINQVz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 12:21:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030237AbVINQVz
+	id S1030241AbVINQWA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 12:22:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030240AbVINQWA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 12:21:55 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:43012 "EHLO
+	Wed, 14 Sep 2005 12:22:00 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:48645 "EHLO
 	oddball.prodigy.com") by vger.kernel.org with ESMTP
-	id S1030238AbVINQVy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 12:21:54 -0400
-Message-ID: <43284B61.50509@tmr.com>
-Date: Wed, 14 Sep 2005 12:10:09 -0400
+	id S1030237AbVINQV6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 12:21:58 -0400
+Message-ID: <43284DD0.5080709@tmr.com>
+Date: Wed, 14 Sep 2005 12:20:32 -0400
 From: Bill Davidsen <davidsen@tmr.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: chriswhite@gentoo.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Quick update on latest Linux kernel performance
-References: <200509132132.j8DLWJg04553@unix-os.sc.intel.com> <200509141517.38985.chriswhite@gentoo.org>
-In-Reply-To: <200509141517.38985.chriswhite@gentoo.org>
+To: "liyu@WAN" <liyu@ccoss.com.cn>
+CC: Linux-newbie@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Problem booting 2.6.13 on RHEL 4
+References: <b115cb5f05091321082a3ffc24@mail.gmail.com> <4327DBBB.7090108@ccoss.com.cn>
+In-Reply-To: <4327DBBB.7090108@ccoss.com.cn>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris White wrote:
-> On Wednesday 14 September 2005 06:32, Chen, Kenneth W wrote:
+liyu@WAN wrote:
 > 
->>New performance result are posted on http://kernel-perf.sourceforge.net
->>with latest data collected on kernel 2.6.13-git9.
+> It seem that kernel have no time to probe your disk, and do not
+> read parttion table.
 > 
+> I use kernel 2.6.12 and SATA disk on FC3, also failed to boot.
+> but after some experiment, I found if we place 'sleep 5'
+> statement between insmod commands in linuxrc or init, it will
+> boot up!
 > 
-> [snip]
-> 
-> 
->>Take a look at the performance data.  Comments and suggestions are always
->>welcome and please post them to LKML.
-> 
-> 
-> The benchmarks here have a slight flaw in that the main hardware components 
-> tested are not given.  About the only thing I can see regarding these tests 
-> is what processor they run on.  Displaying network performance tests without 
-> showing the network card or io tests without showing the disk controller 
-> seems rather odd.  I guess it comes down to requesting a full hardware 
-> rundown.  If this is displayed someplace on the site or elsewhere please 
-> provide the link.
+> However, this idea is too HACK.
 
-Unless the hardware was changed, this is not particularly relevant. It's 
-good testing to change only one thing, so you know that's what caused 
-the change in results.
+It would have been nice, back in the 2.5.46 timeframe when modules were 
+complete reinvented, to have provided a hook by which modprobe could 
+have waited until insertion init was complete.
 
-I think the config was posted at least once, you can probably find it in 
-the archives if not on the site.
+The sleep is a hack indeed, as is the slightly more reliable solution to 
+tail the log and look for init messages to appear. Perhaps look for the 
+devices in /proc/scsi/scsi or something?
+
+There doesn't seem to be a "right way" for this, particularly if you 
+have both warm and cold boots, which may differ by minutes depending on 
+disk spin-up already being done.
 
 -- 
     -bill davidsen (davidsen@tmr.com)

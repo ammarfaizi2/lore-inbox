@@ -1,71 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932688AbVINIi1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965090AbVINIk2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932688AbVINIi1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 04:38:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932694AbVINIi1
+	id S965090AbVINIk2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 04:40:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965077AbVINIk2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 04:38:27 -0400
-Received: from livid.absolutedigital.net ([66.92.46.173]:29847 "EHLO
-	mx2.absolutedigital.net") by vger.kernel.org with ESMTP
-	id S932688AbVINIi0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 04:38:26 -0400
-Date: Wed, 14 Sep 2005 04:38:07 -0400 (EDT)
-From: Cal Peake <cp@absolutedigital.net>
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org, paolo.ciarrocchi@gmail.com,
-       paultt@bilug.linux.it, rdunlap@xenotime.net, jesper.juhl@gmail.com
-Subject: Re: [PATCH] 2.6.13-mm3 ort v.b6 (OOPS Reporting Tool), try2
-In-Reply-To: <43276366.80304@gmail.com>
-Message-ID: <Pine.LNX.4.61.0509140436090.4846@lancer.cnet.absolutedigital.net>
-References: <43276366.80304@gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 14 Sep 2005 04:40:28 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:10702 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965090AbVINIk1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 04:40:27 -0400
+Date: Wed, 14 Sep 2005 01:39:44 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: joern@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Permanently fix kernel configuration include mess (was:
+ Missing #include <config.h>)
+Message-Id: <20050914013944.5ee4efa7.akpm@osdl.org>
+In-Reply-To: <20050913155012.C23643@flint.arm.linux.org.uk>
+References: <20050913135622.GA30675@phoenix.infradead.org>
+	<20050913150825.A23643@flint.arm.linux.org.uk>
+	<20050913155012.C23643@flint.arm.linux.org.uk>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Sep 2005, Michal Piotrowski wrote:
+Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+>
+>  LINUXINCLUDE    := -Iinclude \
+>  -                   $(if $(KBUILD_SRC),-Iinclude2 -I$(srctree)/include)
+>  +                   $(if $(KBUILD_SRC),-Iinclude2 -I$(srctree)/include) \
+>  +		   -imacros include/linux/autoconf.h
 
-> Hi Andrew,
-> I think, that this maybe useful for oops hunters :)
-> 
-> Paolo, Paul, Randy, Jesper, Cal please sign it.
-> 
-> Regards,
-> Michal Piotrowski
-> 
-> Signed-off-by: Michal K. K. Piotrowski <michal.k.k.piotrowski@gmail.com>
+This means that over time the kernel will fail to compile correctly without
+`-imacros include/linux/autoconf.h'.
 
-Signed-off-by: Cal Peake <cp@absolutedigital.net>
+That's OK for the kernel, but not for out-of-tree stuff.  Those drivers
+will need to add the new gcc commandline option too.
 
-> diff -uprN -X linux-mm-clean/Documentation/dontdiff
-> linux-mm-clean/scripts/ort.sh linux-mm/scripts/ort.sh
-> --- linux-mm-clean/scripts/ort.sh    1970-01-01 01:00:00.000000000 +0100
-> +++ linux-mm/scripts/ort.sh    2005-09-14 01:21:01.000000000 +0200
-> @@ -0,0 +1,1089 @@
-> +#!/bin/sh
-> +
-> +# Copyright (C) 2005  Michal Piotrowski <piotrowskim@trex.wsi.edu.pl>
-> +#                                       <michal.k.k.piotrowski@gmail.com>
-> +# Copyright (C) 2005  Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-> +# Copyright (C) 2005  Paul TT <paultt@bilug.linux.it>
-> +# Copyright (C) 2005  Randy Dunlap <rdunlap@xenotime.net>
-> +# Copyright (C) 2005  Jesper Juhl <jesper.juhl@gmail.com>
-> +# Copyright (C) 2005  Cal Peake <cp@absolutedigital.net>
-> +#
-> +# This program is free software; you can redistribute it and/or modify
-> +# it under the terms of the GNU General Public License as published by
-> +# the Free Software Foundation; either version 2 of the License, or
-> +# (at your option) any later version.
-> +#
-> +# This program is distributed in the hope that it will be useful,
-> +# but WITHOUT ANY WARRANTY; without even the implied warranty of
-> +# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> +# GNU General Public License for more details.
-> +#
-> +# You should have received a copy of the GNU General Public License
-> +# along with this program; if not, write to the Free Software
-> +# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
--- 
-". . . tell 'em we use Linux." -- Dave Chappelle
-
+Not that I'm saying it's a terrible thing.  It's just a thing.

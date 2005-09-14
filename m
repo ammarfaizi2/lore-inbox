@@ -1,66 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965188AbVINNNG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965192AbVINNNr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965188AbVINNNG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 09:13:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965189AbVINNNG
+	id S965192AbVINNNr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 09:13:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965194AbVINNNr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 09:13:06 -0400
-Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:37041 "EHLO
-	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S965188AbVINNNF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 09:13:05 -0400
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Subject: Re: 2.6.13: More on drivers/block/loop.c
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Ian Collier <Ian.Collier@comlab.ox.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050914135118.A25087@pixie.comlab>
-References: <20050909132725.C23462@pixie.comlab>
-	 <20050914135118.A25087@pixie.comlab>
-Content-Type: text/plain
-Organization: Computing Service, University of Cambridge, UK
-Date: Wed, 14 Sep 2005 14:12:48 +0100
-Message-Id: <1126703569.331.30.camel@imp.csi.cam.ac.uk>
+	Wed, 14 Sep 2005 09:13:47 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:15022 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S965191AbVINNNq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 09:13:46 -0400
+Date: Wed, 14 Sep 2005 09:13:43 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [git patches] libata fixes
+Message-ID: <20050914131343.GA1080@havoc.gtf.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-09-14 at 13:51 +0100, Ian Collier wrote:
-> Vanilla 2.6.13 doesn't crash.
-> 
-> However, unpack a fresh copy of 2.6.13, edit include/linux/loop.h to
-> change LO_KEY_SIZE from 32 to 1844, and *boom*.  [Don't ask me why
-> 1844... that's just what PPDD wants.]
-> 
-> It's crashing somewhere in loop_set_status_old, probably during the
-> call to copy_from_user, but the crash messages aren't that helpful as
-> they are different each time, often seem to happen during an interrupt,
-> and usually contain pages of recursive calls to do_page_fault and
-> error_code.
-> 
-> The loop_set_status_old function has two local variables, each of which
-> is now 1812 bytes longer than it was, and I'm wondering if it's a stack
-> overflow problem.  How much stack is a kernel function allowed to use,
-> anyway?
-> 
-> Replacing these variables with kmalloc'd pointers seems to stop the crashes
-> anyway, so I'll pass that tip on to the PPDD folks.
 
-Not surprising.  The _entirety_ of the kernel, i.e. not just each
-function, has either 4k or 8k of stack (depending on a .config option)
-so having two local variables of 1812 bytes each is _guaranteed_ to blow
-the stack.
+Please pull from 'upstream-fixes' branch of
+rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
 
-Best regards,
+to obtain the following fixes:
 
-        Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 
+ drivers/scsi/sata_sis.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+
+Arnaud Patard:
+  sata_sis: Fix typo in sata port2 initialisation
+
+Uwe Koziolek:
+  sata_sis: uninitialized variable
+
+
+diff --git a/drivers/scsi/sata_sis.c b/drivers/scsi/sata_sis.c
+--- a/drivers/scsi/sata_sis.c
++++ b/drivers/scsi/sata_sis.c
+@@ -161,7 +161,7 @@ static u32 sis_scr_cfg_read (struct ata_
+ {
+ 	struct pci_dev *pdev = to_pci_dev(ap->host_set->dev);
+ 	unsigned int cfg_addr = get_scr_cfg_addr(ap->port_no, sc_reg, pdev->device);
+-	u32 val, val2;
++	u32 val, val2 = 0;
+ 	u8 pmr;
+ 
+ 	if (sc_reg == SCR_ERROR) /* doesn't exist in PCI cfg space */
+@@ -289,7 +289,7 @@ static int sis_init_one (struct pci_dev 
+ 	if (ent->device != 0x182) {
+ 		if ((pmr & SIS_PMR_COMBINED) == 0) {
+ 			printk(KERN_INFO "sata_sis: Detected SiS 180/181 chipset in SATA mode\n");
+-			port2_start=0x64;
++			port2_start = 64;
+ 		}
+ 		else {
+ 			printk(KERN_INFO "sata_sis: Detected SiS 180/181 chipset in combined mode\n");

@@ -1,86 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965089AbVINW5o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965033AbVINXO2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965089AbVINW5o (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 18:57:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965091AbVINW5o
+	id S965033AbVINXO2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 19:14:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965091AbVINXO2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 18:57:44 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:65489 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S965089AbVINW5n
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 18:57:43 -0400
-Date: Thu, 15 Sep 2005 04:20:43 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, akpm@osdl.org
-Subject: Re: [PATCH] reorder struct files_struct
-Message-ID: <20050914225043.GD6237@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20050914191842.GA6315@in.ibm.com> <20050914.125750.05416211.davem@davemloft.net> <20050914201550.GB6315@in.ibm.com> <20050914.132936.105214487.davem@davemloft.net> <43289376.7050205@cosmosbay.com> <20050914220205.GC6237@in.ibm.com> <4328A73B.1080801@cosmosbay.com>
+	Wed, 14 Sep 2005 19:14:28 -0400
+Received: from hera.kernel.org ([209.128.68.125]:16838 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S965033AbVINXO1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 19:14:27 -0400
+Date: Wed, 14 Sep 2005 20:08:43 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Bharata B Rao <bharata@in.ibm.com>
+Cc: "Theodore Ts'o" <tytso@mit.edu>, Dipankar Sarma <dipankar@in.ibm.com>,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: VM balancing issues on 2.6.13: dentry cache not getting shrunk enough
+Message-ID: <20050914230843.GA11748@dmt.cnet>
+References: <20050911105709.GA16369@thunk.org> <20050911120045.GA4477@in.ibm.com> <20050912031636.GB16758@thunk.org> <20050913084752.GC4474@in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4328A73B.1080801@cosmosbay.com>
+In-Reply-To: <20050913084752.GC4474@in.ibm.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 15, 2005 at 12:42:03AM +0200, Eric Dumazet wrote:
-> Dipankar Sarma a écrit :
-> >On Wed, Sep 14, 2005 at 11:17:42PM +0200, Eric Dumazet wrote:
-> >
-> >>--- linux-2.6.14-rc1/include/linux/file.h	2005-09-13 
-> >>05:12:09.000000000 +0200
-> >>+++ linux-2.6.14-rc1-ed/include/linux/file.h	2005-09-15 
-> >>01:09:13.000000000 +0200
-> >>@@ -34,12 +34,12 @@
-> >> */
-> >>struct files_struct {
-> >>        atomic_t count;
-> >>-        spinlock_t file_lock;     /* Protects all the below members.  
-> >>Nests inside tsk->alloc_lock */
-> >>	struct fdtable *fdt;
-> >>	struct fdtable fdtab;
-> >>        fd_set close_on_exec_init;
-> >>        fd_set open_fds_init;
-> >>        struct file * fd_array[NR_OPEN_DEFAULT];
-> >>+	spinlock_t file_lock;     /* Protects concurrent writers.  Nests 
-> >>inside tsk->alloc_lock */
-> >>};
-> >>
-> >>#define files_fdtable(files) (rcu_dereference((files)->fdt))
-> >
-> >
-> >For most apps without too many open fds, the embedded fd_sets
-> >are going to be used. Wouldn't that mean that open()/close() will
-> >invalidate the cache line containing fdt, fdtab by updating
-> >the fd_sets ? If so, you optimization really doesn't help.
-> >
+On Tue, Sep 13, 2005 at 02:17:52PM +0530, Bharata B Rao wrote:
+> On Sun, Sep 11, 2005 at 11:16:36PM -0400, Theodore Ts'o wrote:
+> > On Sun, Sep 11, 2005 at 05:30:46PM +0530, Dipankar Sarma wrote:
+> > > Do you have the /proc/sys/fs/dentry-state output when such lowmem
+> > > shortage happens ?
+> > 
+> > Not yet, but the situation occurs on my laptop about 2 or 3 times
+> > (when I'm not travelling and so it doesn't get rebooted).  So
+> > reproducing it isn't utterly trivial, but it's does happen often
+> > enough that it should be possible to get the necessary data.
+> > 
+> > > This is a problem that Bharata has been investigating at the moment.
+> > > But he hasn't seen anything that can't be cured by a small memory
+> > > pressure - IOW, dentries do get freed under memory pressure. So
+> > > your case might be very useful. Bharata is maintaing an instrumentation
+> > > patch to collect more information and an alternative dentry aging patch 
+> > > (using rbtree). Perhaps you could try with those.
+> > 
+> > Send it to me, and I'd be happy to try either the instrumentation
+> > patch or the dentry aging patch.
+> > 
 > 
-> If the embedded struct fdtable is used, then the only touched field is 
-> 'next_fd', so we could also move this field at the end of 'struct fdtable'
+> Ted,
 > 
-
-Not just embedded fdtable, but also the embedded fdsets. I would expect
-count, fdt, fdtab and the fdsets to fit into one cache line in 
-some archs.
-
-
-> But I wonder if 'next_fd' really has to be in 'struct fdtable', maybe it 
-> could be moved to 'struct files_struct' close to file_lock ?
-
-next_fd has to be in struct fdtable. It needs to be consistent
-with whichever fdtable a lock-free reader sees.
-
+> I am sending two patches here.
 > 
-> If yes, the whole embedded struct fdtable is readonly.
+> First is dentry_stats patch which collects some dcache statistics
+> and puts it into /proc/meminfo. This patch provides information 
+> about how dentries are distributed in dcache slab pages, how many
+> free and in use dentries are present in dentry_unused lru list and
+> how prune_dcache() performs with respect to freeing the requested
+> number of dentries.
 
-But not close_on_exec_init or open_fds_init. We would update them
-on open/close.
+Bharata, 
 
-Some benchmarking would be useful here.
+Ideally one should move the "nr_requested/nr_freed" counters from your
+stats patch into "struct shrinker" (or somewhere else more appropriate
+in which per-shrinkable-cache stats are maintained), and use the
+"mod_page_state" infrastructure to do lockless per-CPU accounting. ie.
+break /proc/vmstats's "slabs_scanned" apart in meaningful pieces.
 
-Thanks
-Dipankar
+IMO something along that line should be merged into mainline to walk
+away from the "what the fuck is going on" state of things.
+ 

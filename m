@@ -1,72 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030283AbVINQx6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030277AbVINQzh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030283AbVINQx6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 12:53:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030280AbVINQx5
+	id S1030277AbVINQzh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 12:55:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030280AbVINQzh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 12:53:57 -0400
-Received: from sabe.cs.wisc.edu ([128.105.6.20]:2754 "EHLO sabe.cs.wisc.edu")
-	by vger.kernel.org with ESMTP id S1030279AbVINQx4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 12:53:56 -0400
-Message-ID: <43285599.9040002@cs.wisc.edu>
-Date: Wed, 14 Sep 2005 11:53:45 -0500
-From: Mike Christie <michaelc@cs.wisc.edu>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mike Christie <michaelc@cs.wisc.edu>
-CC: Alan Stern <stern@rowland.harvard.edu>, Anton Blanchard <anton@samba.org>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       Dipankar Sarma <dipankar@in.ibm.com>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6.14-rc1] sym scsi boot hang
-References: <Pine.LNX.4.44L0.0509141052410.5064-100000@iolanthe.rowland.org> <4328553D.10501@cs.wisc.edu>
-In-Reply-To: <4328553D.10501@cs.wisc.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Sep 2005 12:55:37 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:56613 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S1030277AbVINQzg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 12:55:36 -0400
+Date: Wed, 14 Sep 2005 18:58:12 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: kbuild-permanently-fix-kernel-configuration-include-mess.patch added to -mm tree
+Message-ID: <20050914165812.GA9096@mars.ravnborg.org>
+References: <200509140841.j8E8fG1w022954@shell0.pdx.osdl.net> <20050914164953.GA7480@mars.ravnborg.org> <20050914175326.C30746@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050914175326.C30746@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Christie wrote:
-> Alan Stern wrote:
+On Wed, Sep 14, 2005 at 05:53:26PM +0100, Russell King wrote:
+> On Wed, Sep 14, 2005 at 06:49:53PM +0200, Sam Ravnborg wrote:
+> > >  # Use LINUXINCLUDE when you must reference the include/ directory.
+> > >  # Needed to be compatible with the O= option
+> > >  LINUXINCLUDE    := -Iinclude \
+> > > -                   $(if $(KBUILD_SRC),-Iinclude2 -I$(srctree)/include)
+> > > +                   $(if $(KBUILD_SRC),-Iinclude2 -I$(srctree)/include) \
+> > > +		   -imacros include/linux/autoconf.h
+> > >  
+> > What is the purpose of using -imacros instead of -iinclude
+> > 
+> > o -iinclude is much more commonly used for this purpose.
+> > o sparse has limited support(*) for -iinclude today
+> > o -imacros will silently ignore any output caused by the file
 > 
->> On Wed, 14 Sep 2005, Anton Blanchard wrote:
->>
->>
->>> Hi,
->>>
->>>
->>>> If that's the cause, it's probably a double down of the host scan
->>>> semaphore somewhere in the code.  alt-sysrq-t should work in this case,
->>>> can you get a stack trace of the blocked process?
->>>
->>>
->>> It appears to be this patch:
->>>
->>>  [SCSI] SCSI core: fix leakage of scsi_cmnd's
->>>
->>>  From:         Alan Stern <stern@rowland.harvard.edu>
->>
->>
->>
->>> And in particular it looks like the scsi_unprep_request in
->>> scsi_queue_insert is causing it. The following patch fixes the boot
->>> problems on the vscsi machine:
->>
->>
->>
->> In general the scsi_unprep_request routine is correct and needs to be
->> there.  The one part that might be questionable is the assignment to
->> req->special.  It may turn out that the real solution is to have
->> scsi_execute set req->special to NULL; I assumed it would be NULL already
->> but perhaps I was wrong.
-> 
-> 
-> I think we have scsi_execute and friends setting REQ_SPECIAL. This is 
-> could cause a problem becuase it does not have a scsi_request.
-> 
+> autoconf.h should only be macro definitions and should not contain
+> any code, so -imacros seemed to be the correct tool for the job.
 
-well now actually it won't becuase sc_request should be null for those 
-scsi_execute block pc commands I think.
+I will use -iinclude for a start. When sparse has supported -imacros
+in a few weeks we can change it if we like. I will update the patch.
+
+	Sam

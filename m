@@ -1,36 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030226AbVINQLA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030233AbVINQQA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030226AbVINQLA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 12:11:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030227AbVINQLA
+	id S1030233AbVINQQA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 12:16:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030232AbVINQP7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 12:11:00 -0400
-Received: from gold.veritas.com ([143.127.12.110]:27919 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1030226AbVINQK7 (ORCPT
+	Wed, 14 Sep 2005 12:15:59 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:6833 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1030230AbVINQP6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 12:10:59 -0400
-Date: Wed, 14 Sep 2005 17:10:37 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Torsten Foertsch <torsten.foertsch@gmx.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: COW pages and paging question
-In-Reply-To: <200509141214.32946.torsten.foertsch@gmx.net>
-Message-ID: <Pine.LNX.4.61.0509141709520.7477@goblin.wat.veritas.com>
-References: <200509141214.32946.torsten.foertsch@gmx.net>
+	Wed, 14 Sep 2005 12:15:58 -0400
+Message-ID: <43284CB7.8090808@pobox.com>
+Date: Wed, 14 Sep 2005 12:15:51 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 14 Sep 2005 16:10:53.0273 (UTC) FILETIME=[E18A8C90:01C5B946]
+To: Frank Pavlic <pavlic@de.ibm.com>
+CC: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch 3/4] s390: TSO related fixes in qeth driver
+References: <20050914160326.GA3458@pavlic>
+In-Reply-To: <20050914160326.GA3458@pavlic>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Sep 2005, Torsten Foertsch wrote:
-> 
-> when a process forks it's pages become shared by COW. Now one or both 
-> processes are written partially to the swap space. Later some pages are paged 
-> in.
-> 
-> Are they still shared between the 2 processes? (Assuming they are not written 
-> to and cover the same address range)
+applied patch #3 and #4, thanks for resending.
 
-Yes.
+	Jeff
+
+
+

@@ -1,102 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932582AbVINUTv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932575AbVINUVa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932582AbVINUTv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 16:19:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932763AbVINUTu
+	id S932575AbVINUVa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 16:21:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932765AbVINUV3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 16:19:50 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:33716 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932523AbVINUTt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 16:19:49 -0400
-Date: Wed, 14 Sep 2005 16:19:45 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: James Bottomley <James.Bottomley@SteelEye.com>
-cc: Anton Blanchard <anton@samba.org>, Dipankar Sarma <dipankar@in.ibm.com>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6.14-rc1] sym scsi boot hang
-In-Reply-To: <1126717062.4584.4.camel@mulgrave>
-Message-ID: <Pine.LNX.4.44L0.0509141610480.8011-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 14 Sep 2005 16:21:29 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:26037 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932575AbVINUV2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 16:21:28 -0400
+Date: Thu, 15 Sep 2005 01:45:50 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org
+Subject: Re: [PATCH]: Brown paper bag in fs/file.c?
+Message-ID: <20050914201550.GB6315@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20050914.113133.78024310.davem@davemloft.net> <20050914191842.GA6315@in.ibm.com> <20050914.125750.05416211.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050914.125750.05416211.davem@davemloft.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Sep 2005, James Bottomley wrote:
-
-> OK, my fault.  Your fix is almost correct .. I was going to do this
-> eventually, honest, because there's no need to unprep and reprep a
-> command that comes in through scsi_queue_insert().
+On Wed, Sep 14, 2005 at 12:57:50PM -0700, David S. Miller wrote:
+> From: Dipankar Sarma <dipankar@in.ibm.com>
+> Date: Thu, 15 Sep 2005 00:48:42 +0530
 > 
-> However, I decided to leave it in to exercise the scsi_unprep_request()
-> path just to make sure it was working.  What's happening, I think, is
-> that we also use this path for retries.  Since we kill and reget the
-> command each time, the retries decrement is never seen, so we're
-> retrying forever.
+> > __free_fdtable() is used only when the fdarray/fdset are vmalloced
+> > (use of the workqueue) or there is a race between two expand_files().
+> > That might be why we haven't seen this cause any explicit problem
+> > so far.
+> > 
+> > This would be an appropriate patch - (untested). I will update
+> > as soon as testing is done.
 > 
-> This should be the correct reversal.
+> Thanks.
+> 
+> I still can't figure out what causes my sparc64 bug.  Somehow a
+> kmalloc() chunk of file pointers gets freed too early, the SLAB is
+> shrunk due to memory pressure so the page containing that object gets
+> freed, that page ends up as an anonymous page in userspace, but filp
+> writes from the older usage occurs and corrupts the page.
+> 
+> I wonder if we simply leave a stale pointer around to the older
+> fd array in some case.
 
-Then shouldn't you also avoid unprepping and reprepping a command that is
-deferred because the host isn't ready?
+Are you running with preemption enabled ? If so, fyi, I had sent
+out a patch earlier that fixes locking for preemption.
+Also, what triggers this in your machine ? I can try to reproduce
+this albeit on a non-sparc64 box.
 
-And isn't it necessary to make sure that req->special is NULL when
-submitting a special request with no scsi_request, and that
-cmd->sc_request is NULL when associating a command block to a special
-request with no scsi_request?
-
-In short, is this patch needed?
-
-Alan Stern
-
-
-
-Index: usb-2.6/drivers/scsi/scsi_lib.c
-===================================================================
---- usb-2.6.orig/drivers/scsi/scsi_lib.c
-+++ usb-2.6/drivers/scsi/scsi_lib.c
-@@ -343,6 +343,7 @@ int scsi_execute(struct scsi_device *sde
- 	req->sense_len = 0;
- 	req->timeout = timeout;
- 	req->flags |= flags | REQ_BLOCK_PC | REQ_SPECIAL | REQ_QUIET;
-+	req->special = NULL;
- 
- 	/*
- 	 * head injection *required* here otherwise quiesce won't work
-@@ -1072,9 +1073,6 @@ static int scsi_init_io(struct scsi_cmnd
- 	printk(KERN_ERR "req nr_sec %lu, cur_nr_sec %u\n", req->nr_sectors,
- 			req->current_nr_sectors);
- 
--	/* release the command and kill it */
--	scsi_release_buffers(cmd);
--	scsi_put_command(cmd);
- 	return BLKPREP_KILL;
- }
- 
-@@ -1205,6 +1203,7 @@ static int scsi_prep_fn(struct request_q
- 				goto defer;
- 		} else
- 			cmd = req->special;
-+		cmd->sc_request = NULL;
- 		
- 		/* pull a tag out of the request if we have one */
- 		cmd->tag = req->tag;
-@@ -1250,7 +1249,7 @@ static int scsi_prep_fn(struct request_q
- 		ret = scsi_init_io(cmd);
- 		switch(ret) {
- 		case BLKPREP_KILL:
--			/* BLKPREP_KILL return also releases the command */
-+			scsi_unprep_request(req);
- 			goto kill;
- 		case BLKPREP_DEFER:
- 			goto defer;
-@@ -1514,7 +1513,6 @@ static void scsi_request_fn(struct reque
- 	 * cases (host limits or settings) should run the queue at some
- 	 * later time.
- 	 */
--	scsi_unprep_request(req);
- 	spin_lock_irq(q->queue_lock);
- 	blk_requeue_request(q, req);
- 	sdev->device_busy--;
-
+Thanks
+Dipankar

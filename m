@@ -1,64 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965243AbVINRfT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965258AbVINRiu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965243AbVINRfT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 13:35:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965256AbVINRfS
+	id S965258AbVINRiu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 13:38:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965256AbVINRiu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 13:35:18 -0400
-Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:20146 "HELO
-	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S965243AbVINRfR (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 13:35:17 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=l6EvFjQgJirXQ2Jt5VARI/6ac5PfstsobITK9UT2TxY0BH0cXN646pgi5L+fEkqVmmt8gENHaDPzMFfqDe2GVrzzik5llI5ueljqyqwquc7xbxz2F5kQkg6iKsEdq9J9Sz/2H8bD4VauKYTHfimZmBqcaEYwz2boO5/xa6zn9c0=  ;
-Message-ID: <43285818.9060805@yahoo.com.au>
-Date: Thu, 15 Sep 2005 03:04:24 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
-X-Accept-Language: en
+	Wed, 14 Sep 2005 13:38:50 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:11025 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id S1030250AbVINRiu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 13:38:50 -0400
+Message-ID: <432861B0.9070800@tmr.com>
+Date: Wed, 14 Sep 2005 13:45:20 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-CC: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>,
-       Dipankar Sarma <dipankar@in.ibm.com>
-Subject: Re: [PATCH 2/5] atomic: introduce atomic_inc_not_zero
-References: <43283825.7070309@yahoo.com.au> <4328387E.6050701@yahoo.com.au> <Pine.LNX.4.61.0509141814220.3743@scrub.home> <43285374.3020806@yahoo.com.au>
-In-Reply-To: <43285374.3020806@yahoo.com.au>
+To: Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: "Read my lips: no more merges" - aka Linux 2.6.14-rc1
+References: <Pine.LNX.4.58.0509122019560.3351@g5.osdl.org> <43285EF1.1040003@tmr.com>
+In-Reply-To: <43285EF1.1040003@tmr.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> Roman Zippel wrote:
+Bill Davidsen wrote:
+> Linus Torvalds wrote:
 > 
->> Hi,
->>
->> On Thu, 15 Sep 2005, Nick Piggin wrote:
->>
->>
->>> Also needs work on those same architectures. Other architectures
->>> might want to look at providing a more optimal implementation.
->>
->>
->>
->> IMO a rather pointless primitive, unless there is a cpu architecture 
->> which has a inc_not_zero instruction, otherwise it will always be the 
->> same as using cmpxchg.
->>
+>> Ok, it's been two weeks (actually, two weeks and one day) since 
+>> 2.6.13, and that means that the merge window is closed. I've released 
+>> a 2.6.14-rc1, and we're now all supposed to help just clean up and fix 
+>> everything, and aim for a really solid 2.6.14 release.
+> 
+> 
+> I can bore the list with a config, but this seems pretty common over x86 
+> configs, similar happened on desktop (this one), laptop, and server builds.
+
+Ah, I see it, config needs to note that IOAPIC is now required. That's 
+probably not desirable, there are systems with broken ioapic which 
+should not be used.
+
+> ========================
+> 
+>   CHK     include/linux/compile.h
+>   UPD     include/linux/compile.h
+>   CC      init/version.o
+>   LD      init/built-in.o
+>   LD      .tmp_vmlinux1
+> arch/i386/kernel/built-in.o(.init.text+0xe5e): In function 
+> `parse_cmdline_early':
+> : undefined reference to `disable_timer_pin_1'
+> arch/i386/kernel/built-in.o(.init.text+0xe7e): In function 
+> `parse_cmdline_early':
+> : undefined reference to `disable_timer_pin_1'
+> make[2]: *** [.tmp_vmlinux1] Error 1
+> error: Bad exit status from /var/tmp/rpm-tmp.82653 (%build)
+> 
+> 
+> RPM build errors:
+>     Bad exit status from /var/tmp/rpm-tmp.82653 (%build)
+> make[1]: *** [rpm] Error 1
+> make: *** [rpm] Error 2
+> 
 > 
 
-[snip]
-
-But even supposing the cmpxchg variant was the highest
-performing implementation available on any architecture, I
-would still consider exporting the inc_not_zero instruction.
-
-The reason is that cmpxchg is not nearly so readable as
-inc_not_zero when used inline in the code.
-
--- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 

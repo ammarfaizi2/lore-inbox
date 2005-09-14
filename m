@@ -1,78 +1,220 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030219AbVINP5K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030208AbVINQA0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030219AbVINP5K (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 11:57:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030218AbVINP5K
+	id S1030208AbVINQA0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 12:00:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030217AbVINQAZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 11:57:10 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:47846 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1030219AbVINP5I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 11:57:08 -0400
-Date: Wed, 14 Sep 2005 17:56:46 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Paul Jackson <pj@sgi.com>
-cc: akpm@osdl.org, torvalds@osdl.org, Simon.Derr@bull.net,
-       linux-kernel@vger.kernel.org, nikita@clusterfs.com
-Subject: Re: [PATCH] cpuset semaphore depth check optimize
-In-Reply-To: <20050913103724.19ac5efa.pj@sgi.com>
-Message-ID: <Pine.LNX.4.61.0509141446590.3728@scrub.home>
-References: <20050912113030.15934.9433.sendpatchset@jackhammer.engr.sgi.com>
- <20050912043943.5795d8f8.akpm@osdl.org> <20050912075155.3854b6e3.pj@sgi.com>
- <Pine.LNX.4.61.0509121821270.3743@scrub.home> <20050912153135.3812d8e2.pj@sgi.com>
- <Pine.LNX.4.61.0509131120020.3728@scrub.home> <20050913103724.19ac5efa.pj@sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 14 Sep 2005 12:00:25 -0400
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:10494 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1030208AbVINQAY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 12:00:24 -0400
+Date: Wed, 14 Sep 2005 18:03:26 +0200
+From: Frank Pavlic <pavlic@de.ibm.com>
+To: jgarzik@pobox.com
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [patch 3/4] s390: TSO related fixes in qeth driver
+Message-ID: <20050914160326.GA3458@pavlic>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Jeff, 
+I'm sorry seems that they have not been sent out either ...
+ok here they come ...
 
-On Tue, 13 Sep 2005, Paul Jackson wrote:
+[patch 3/4] s390: TSO related fixes in qeth driver 
 
-> > If I read the source correctly, a cpuset cannot be removed or moved while 
-> > it's attached to a task, which makes it a lot simpler.
-> 
-> Yes - a cpuset cannot be removed while attached (count > 0).  And there
-> is no 'move' that I know of.  A rename(2) system call on a cpuset in
-> the cpuset filesystem gets the vfs default -EINVAL response.
-> 
-> So, yes, if I can pin a cpuset with a per-cpuset spinlock on it, then
-> its parent chain (and whatever else I take care to guard with that
-> spinlock) is held as well (the cpuset->parent chain is pinned).  I
-> guess this some of what you meant by your phrase "makes it a lot
-> simpler".
+From: Frank Pavlic <pavlic@de.ibm.com>
+	TSO related fixes :
+	  - changing value of large_send attribute while network traffic
+	    is running caused program check and thus device recovery.
+	  - Due to hardware restriction discard packet when it exceeds 60K
+	    otherwise qeth will cause program checks and thus traffic stall 
+	    when trying to send such huge packets.
 
-I don't think a per-cpuset spinlock will be necessary (at least 
-initially).
-The complete active condition is actually (atomic_read(&cs->count) || 
-!list_empty(&cs->children)). These means if any child is possibly active 
-so is the parent. 
-Modifications in the cpuset hierarchy require the cpuset_sem and an 
-inactive cpuset, (de)activating a cpuset requires the cpuset_sem and 
-(let's call it) cpuset_tasklock.
-Callbacks from the allocator now only need cpuset_tasklock to access the 
-cpuset via tsk->cpuset and to keep it active and an active cpuset can't be 
-removed from the hierarchy.
+Signed-off-by: Frank Pavlic <pavlic@de.ibm.com>
 
-> You also wrote:
-> > You can BTW avoid locking in cpuset_exit() completely in the common case:
-> > 
-> > 	tsk->cpuset = NULL;
-> > 	if (atomic_dec_and_test(&cs->count) && notify_on_release(cs)) {
-> 
-> I don't think that works.  And I suspect you are proposing the same bug
-> that I had, and fixed with the following patch:
+diffstat:
+ qeth.h      |    4 ++--
+ qeth_main.c |   33 +++++++++++++++++++++------------
+ qeth_sys.c  |   10 +++-------
+ 3 files changed, 26 insertions(+), 21 deletions(-)
 
-You're right, it should better look like this:
-
-	tsk->cpuset = NULL;
-	if (atomic_read(&cs->count) == 1 && notify_on_release(cs)) {
-		...
-	}
-	atomic_dec(&cs->count);
-
-This way it only may happen that two notifaction are sent.
-
-bye, Roman
+diff -Naupr linux-2.6-orig/drivers/s390/net/qeth.h linux-2.6-patched/drivers/s390/net/qeth.h
+--- linux-2.6-orig/drivers/s390/net/qeth.h	2005-09-05 11:46:56.000000000 +0200
++++ linux-2.6-patched/drivers/s390/net/qeth.h	2005-09-05 12:16:08.000000000 +0200
+@@ -24,7 +24,7 @@
+ 
+ #include "qeth_mpc.h"
+ 
+-#define VERSION_QETH_H 		"$Revision: 1.139 $"
++#define VERSION_QETH_H 		"$Revision: 1.141 $"
+ 
+ #ifdef CONFIG_QETH_IPV6
+ #define QETH_VERSION_IPV6 	":IPv6"
+@@ -1172,7 +1172,7 @@ extern int
+ qeth_realloc_buffer_pool(struct qeth_card *, int);
+ 
+ extern int
+-qeth_set_large_send(struct qeth_card *);
++qeth_set_large_send(struct qeth_card *, enum qeth_large_send_types);
+ 
+ extern void
+ qeth_fill_header(struct qeth_card *, struct qeth_hdr *,
+diff -Naupr linux-2.6-orig/drivers/s390/net/qeth_main.c linux-2.6-patched/drivers/s390/net/qeth_main.c
+--- linux-2.6-orig/drivers/s390/net/qeth_main.c	2005-09-05 11:46:56.000000000 +0200
++++ linux-2.6-patched/drivers/s390/net/qeth_main.c	2005-09-05 12:17:38.000000000 +0200
+@@ -1,6 +1,6 @@
+ /*
+  *
+- * linux/drivers/s390/net/qeth_main.c ($Revision: 1.214 $)
++ * linux/drivers/s390/net/qeth_main.c ($Revision: 1.219 $)
+  *
+  * Linux on zSeries OSA Express and HiperSockets support
+  *
+@@ -12,7 +12,7 @@
+  *			  Frank Pavlic (pavlic@de.ibm.com) and
+  *		 	  Thomas Spatzier <tspat@de.ibm.com>
+  *
+- *    $Revision: 1.214 $	 $Date: 2005/05/04 20:19:18 $
++ *    $Revision: 1.219 $	 $Date: 2005/05/04 20:19:18 $
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -80,7 +80,7 @@ qeth_eyecatcher(void)
+ #include "qeth_eddp.h"
+ #include "qeth_tso.h"
+ 
+-#define VERSION_QETH_C "$Revision: 1.214 $"
++#define VERSION_QETH_C "$Revision: 1.219 $"
+ static const char *version = "qeth S/390 OSA-Express driver";
+ 
+ /**
+@@ -3795,12 +3795,16 @@ static inline int
+ qeth_prepare_skb(struct qeth_card *card, struct sk_buff **skb,
+ 		 struct qeth_hdr **hdr, int ipv)
+ {
++	int rc;
+ #ifdef CONFIG_QETH_VLAN
+ 	u16 *tag;
+ #endif
+ 
+ 	QETH_DBF_TEXT(trace, 6, "prepskb");
+ 
++        rc = qeth_realloc_headroom(card, skb, sizeof(struct qeth_hdr));
++        if (rc)
++                return rc;
+ #ifdef CONFIG_QETH_VLAN
+ 	if (card->vlangrp && vlan_tx_tag_present(*skb) &&
+ 	    ((ipv == 6) || card->options.layer2) ) {
+@@ -4251,7 +4255,8 @@ out:
+ }
+ 
+ static inline int
+-qeth_get_elements_no(struct qeth_card *card, void *hdr, struct sk_buff *skb)
++qeth_get_elements_no(struct qeth_card *card, void *hdr, 
++		     struct sk_buff *skb, int elems)
+ {
+ 	int elements_needed = 0;
+ 
+@@ -4261,9 +4266,10 @@ qeth_get_elements_no(struct qeth_card *c
+         if (elements_needed == 0 )
+                 elements_needed = 1 + (((((unsigned long) hdr) % PAGE_SIZE)
+                                         + skb->len) >> PAGE_SHIFT);
+-        if (elements_needed > QETH_MAX_BUFFER_ELEMENTS(card)){
++	if ((elements_needed + elems) > QETH_MAX_BUFFER_ELEMENTS(card)){
+                 PRINT_ERR("qeth_do_send_packet: invalid size of "
+-                          "IP packet. Discarded.");
++                          "IP packet (Number=%d / Length=%d). Discarded.\n",
++                          (elements_needed+elems), skb->len);
+                 return 0;
+         }
+         return elements_needed;
+@@ -4337,9 +4343,11 @@ qeth_send_packet(struct qeth_card *card,
+ 			return -EINVAL;
+ 		}
+ 	} else {
+-		elements_needed += qeth_get_elements_no(card,(void*) hdr, skb);
+-		if (!elements_needed)
++		int elems = qeth_get_elements_no(card,(void*) hdr, skb,
++						 elements_needed);
++		if (!elems)
+ 			return -EINVAL;
++		elements_needed += elems;
+ 	}
+ 
+ 	if (card->info.type != QETH_CARD_TYPE_IQD)
+@@ -7038,14 +7046,16 @@ qeth_setrouting_v6(struct qeth_card *car
+ }
+ 
+ int
+-qeth_set_large_send(struct qeth_card *card)
++qeth_set_large_send(struct qeth_card *card, enum qeth_large_send_types type)
+ {
+ 	int rc = 0;
+ 
+-	if (card->dev == NULL)
++	if (card->dev == NULL) {
++		card->options.large_send = type;
+ 		return 0;
+-
++	}
+ 	netif_stop_queue(card->dev);
++	card->options.large_send = type;
+ 	switch (card->options.large_send) {
+ 	case QETH_LARGE_SEND_EDDP:
+ 		card->dev->features |= NETIF_F_TSO | NETIF_F_SG;
+@@ -7066,7 +7076,6 @@ qeth_set_large_send(struct qeth_card *ca
+ 		card->dev->features &= ~(NETIF_F_TSO | NETIF_F_SG);
+ 		break;
+ 	}
+-
+ 	netif_wake_queue(card->dev);
+ 	return rc;
+ }
+diff -Naupr linux-2.6-orig/drivers/s390/net/qeth_sys.c linux-2.6-patched/drivers/s390/net/qeth_sys.c
+--- linux-2.6-orig/drivers/s390/net/qeth_sys.c	2005-09-05 11:46:56.000000000 +0200
++++ linux-2.6-patched/drivers/s390/net/qeth_sys.c	2005-09-05 12:14:30.000000000 +0200
+@@ -1,6 +1,6 @@
+ /*
+  *
+- * linux/drivers/s390/net/qeth_sys.c ($Revision: 1.51 $)
++ * linux/drivers/s390/net/qeth_sys.c ($Revision: 1.53 $)
+  *
+  * Linux on zSeries OSA Express and HiperSockets support
+  * This file contains code related to sysfs.
+@@ -20,7 +20,7 @@
+ #include "qeth_mpc.h"
+ #include "qeth_fs.h"
+ 
+-const char *VERSION_QETH_SYS_C = "$Revision: 1.51 $";
++const char *VERSION_QETH_SYS_C = "$Revision: 1.53 $";
+ 
+ /*****************************************************************************/
+ /*                                                                           */
+@@ -771,9 +771,7 @@ qeth_dev_large_send_store(struct device 
+ 
+ 	if (!card)
+ 		return -EINVAL;
+-
+ 	tmp = strsep((char **) &buf, "\n");
+-
+ 	if (!strcmp(tmp, "no")){
+ 		type = QETH_LARGE_SEND_NO;
+ 	} else if (!strcmp(tmp, "EDDP")) {
+@@ -786,10 +784,8 @@ qeth_dev_large_send_store(struct device 
+ 	}
+ 	if (card->options.large_send == type)
+ 		return count;
+-	card->options.large_send = type;
+-	if ((rc = qeth_set_large_send(card)))
++	if ((rc = qeth_set_large_send(card, type)))	
+ 		return rc;
+-
+ 	return count;
+ }
+ 

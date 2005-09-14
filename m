@@ -1,252 +1,187 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964816AbVINLTO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932733AbVINLkn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964816AbVINLTO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 07:19:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964921AbVINLTO
+	id S932733AbVINLkn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 07:40:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932732AbVINLkn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 07:19:14 -0400
-Received: from cpanel02.rubas.net ([62.216.182.2]:6604 "EHLO
-	cpanel02.rubas.net") by vger.kernel.org with ESMTP id S964816AbVINLTN
+	Wed, 14 Sep 2005 07:40:43 -0400
+Received: from rudy.mif.pg.gda.pl ([153.19.42.16]:15154 "EHLO
+	rudy.mif.pg.gda.pl") by vger.kernel.org with ESMTP id S932729AbVINLkm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 07:19:13 -0400
-Subject: Re: [ANNOUNCE] udev 069 release
-From: =?ISO-8859-1?Q?J=FCrg?= Billeter <j@bitron.ch>
-To: Greg KH <greg@kroah.com>
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20050913174848.GA6702@kroah.com>
-References: <20050913174848.GA6702@kroah.com>
-Content-Type: multipart/mixed; boundary="=-JuNeNYYhXJj+mgLNAisv"
-Date: Wed, 14 Sep 2005 13:18:47 +0200
-Message-Id: <1126696727.3983.2.camel@juerg-pd.bitron.ch>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - cpanel02.rubas.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - bitron.ch
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Wed, 14 Sep 2005 07:40:42 -0400
+Date: Wed, 14 Sep 2005 13:40:39 +0200 (CEST)
+From: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
+To: "David S. Miller" <davem@davemloft.net>
+cc: linux-kernel@vger.kernel.org, davem@redhat.com, sparclinux@vger.kernel.org,
+       aurora-sparc-devel@lists.auroralinux.org
+Subject: Re: [2.6.13-rc6-git13/sparc64]: Slab corruption (possible stack or
+ buffer-cache corruption)
+In-Reply-To: <Pine.BSO.4.62.0509141252050.5000@rudy.mif.pg.gda.pl>
+Message-ID: <Pine.BSO.4.62.0509141333000.5000@rudy.mif.pg.gda.pl>
+References: <Pine.BSO.4.62.0509121604360.5000@rudy.mif.pg.gda.pl>
+ <20050912.161326.131841878.davem@davemloft.net>
+ <Pine.BSO.4.62.0509131148020.5000@rudy.mif.pg.gda.pl>
+ <20050913.130842.52078742.davem@davemloft.net> <Pine.BSO.4.62.0509141252050.5000@rudy.mif.pg.gda.pl>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="0-307547128-1126698039=:5000"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
---=-JuNeNYYhXJj+mgLNAisv
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+--0-307547128-1126698039=:5000
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8BIT
 
-On Die, 2005-09-13 at 10:48 -0700, Greg KH wrote:
->   Makefile: cleanup install targets
+On Wed, 14 Sep 2005, Tomasz K³oczko wrote:
+[..]
+> Dave you touch core of problems .. messages occures constantly but high 
+> network activity occures only at night on this interface (backup). In 
+> attachment is weekly graph network acivity measured on SNMP agent on switch 
+> on this port.
+> At day usualaly on this interface activity is is very low (5-40Kb/s in/out).
 
-The extras Makefiles haven't been updated and thus break the install
-targets. Something like the attached patch should help.
+In attachemnt is filtered kernel log with timestamps which shows all 
+"eth0: Happy Meal .." and "hw tcp/udp v4 csum failed" which was occure 
+after yesterday boot on kernel 2.6.13-1.1552sp1 (which bases on 
+2.6.14-rc1).
+Backup was between 1:00 am and 4:00 am.
+As you see there is no corelation between messages and high/low network 
+activity.
 
-Regards,
+kloczek
+-- 
+-----------------------------------------------------------
+*Ludzie nie maj± problemów, tylko sobie sami je stwarzaj±*
+-----------------------------------------------------------
+Tomasz K³oczko, sys adm @zie.pg.gda.pl|*e-mail: kloczek@rudy.mif.pg.gda.pl*
+--0-307547128-1126698039=:5000
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=kernel
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.BSO.4.62.0509141340390.5000@rudy.mif.pg.gda.pl>
+Content-Description: 
+Content-Disposition: attachment; filename=kernel
 
-J=C3=BCrg
+U2VwIDEzIDIxOjU4OjIyIGJvc3Mga2VybmVsOiBkZXZpY2UgZXRoMCBlbnRl
+cmVkIHByb21pc2N1b3VzIG1vZGUNClNlcCAxMyAyMjowNjo1MyBib3NzIGtl
+cm5lbDogaHcgdGNwIHY0IGNzdW0gZmFpbGVkDQpTZXAgMTMgMjI6MTY6NDQg
+Ym9zcyBrZXJuZWw6IGV0aDA6IEhhcHB5IE1lYWwgb3V0IG9mIHJlY2VpdmUg
+ZGVzY3JpcHRvcnMsIHBhY2tldCBkcm9wcGVkLg0KU2VwIDEzIDIyOjIxOjAw
+IGJvc3MgbGFzdCBtZXNzYWdlIHJlcGVhdGVkIDMgdGltZXMNClNlcCAxMyAy
+Mjo1MToxMCBib3NzIGxhc3QgbWVzc2FnZSByZXBlYXRlZCAzIHRpbWVzDQpT
+ZXAgMTMgMjI6NTE6MTEgYm9zcyBrZXJuZWw6IGV0aDA6IEhhcHB5IE1lYWwg
+b3V0IG9mIHJlY2VpdmUgZGVzY3JpcHRvcnMsIHBhY2tldCBkcm9wcGVkLg0K
+U2VwIDEzIDIyOjU4OjA2IGJvc3Mga2VybmVsOiBodyB0Y3AgdjQgY3N1bSBm
+YWlsZWQNClNlcCAxMyAyMjo1ODowNyBib3NzIGtlcm5lbDogaHcgdGNwIHY0
+IGNzdW0gZmFpbGVkDQpTZXAgMTMgMjI6NTg6NTAgYm9zcyBrZXJuZWw6IGV0
+aDA6IEhhcHB5IE1lYWwgb3V0IG9mIHJlY2VpdmUgZGVzY3JpcHRvcnMsIHBh
+Y2tldCBkcm9wcGVkLg0KU2VwIDEzIDIzOjAyOjE2IGJvc3MgbGFzdCBtZXNz
+YWdlIHJlcGVhdGVkIDMgdGltZXMNClNlcCAxMyAyMzowODowMiBib3NzIGxh
+c3QgbWVzc2FnZSByZXBlYXRlZCAzIHRpbWVzDQpTZXAgMTMgMjM6Mjc6MDMg
+Ym9zcyBsYXN0IG1lc3NhZ2UgcmVwZWF0ZWQgMyB0aW1lcw0KU2VwIDEzIDIz
+OjU1OjQ1IGJvc3MgbGFzdCBtZXNzYWdlIHJlcGVhdGVkIDIgdGltZXMNClNl
+cCAxNCAwMDoxMDo1OCBib3NzIGxhc3QgbWVzc2FnZSByZXBlYXRlZCA2IHRp
+bWVzDQpTZXAgMTQgMDA6MTE6MDggYm9zcyBsYXN0IG1lc3NhZ2UgcmVwZWF0
+ZWQgMyB0aW1lcw0KU2VwIDE0IDAwOjIzOjA5IGJvc3Mga2VybmVsOiBodyB0
+Y3AgdjQgY3N1bSBmYWlsZWQNClNlcCAxNCAwMDoyNDoxNiBib3NzIGtlcm5l
+bDogZXRoMDogSGFwcHkgTWVhbCBvdXQgb2YgcmVjZWl2ZSBkZXNjcmlwdG9y
+cywgcGFja2V0IGRyb3BwZWQuDQpTZXAgMTQgMDA6MjQ6MjYgYm9zcyBsYXN0
+IG1lc3NhZ2UgcmVwZWF0ZWQgNCB0aW1lcw0KU2VwIDE0IDAwOjUwOjMxIGJv
+c3Mga2VybmVsOiBodyB0Y3AgdjQgY3N1bSBmYWlsZWQNClNlcCAxNCAwMDo1
+MzozNiBib3NzIGtlcm5lbDogaHcgdGNwIHY0IGNzdW0gZmFpbGVkDQpTZXAg
+MTQgMDA6NTM6MzcgYm9zcyBrZXJuZWw6IGh3IHRjcCB2NCBjc3VtIGZhaWxl
+ZA0KU2VwIDE0IDAxOjEwOjMxIGJvc3Mga2VybmVsOiBldGgwOiBIYXBweSBN
+ZWFsIG91dCBvZiByZWNlaXZlIGRlc2NyaXB0b3JzLCBwYWNrZXQgZHJvcHBl
+ZC4NClNlcCAxNCAwMToxMjoyMyBib3NzIGtlcm5lbDogaHcgdGNwIHY0IGNz
+dW0gZmFpbGVkDQpTZXAgMTQgMDE6Mjk6MjIgYm9zcyBsYXN0IG1lc3NhZ2Ug
+cmVwZWF0ZWQgNyB0aW1lcw0KU2VwIDE0IDAxOjMzOjIyIGJvc3MgbGFzdCBt
+ZXNzYWdlIHJlcGVhdGVkIDMgdGltZXMNClNlcCAxNCAwMTozNToxOCBib3Nz
+IGxhc3QgbWVzc2FnZSByZXBlYXRlZCA0IHRpbWVzDQpTZXAgMTQgMDE6MzU6
+MzcgYm9zcyBrZXJuZWw6IGh3IHRjcCB2NCBjc3VtIGZhaWxlZA0KU2VwIDE0
+IDAxOjQwOjQ5IGJvc3Mga2VybmVsOiBldGgwOiBIYXBweSBNZWFsIG91dCBv
+ZiByZWNlaXZlIGRlc2NyaXB0b3JzLCBwYWNrZXQgZHJvcHBlZC4NClNlcCAx
+NCAwMTo0MDo1MSBib3NzIGxhc3QgbWVzc2FnZSByZXBlYXRlZCAyIHRpbWVz
+DQpTZXAgMTQgMDE6NDM6MTYgYm9zcyBrZXJuZWw6IGh3IHRjcCB2NCBjc3Vt
+IGZhaWxlZA0KU2VwIDE0IDAxOjU3OjM3IGJvc3Mga2VybmVsOiBodyB0Y3Ag
+djQgY3N1bSBmYWlsZWQNClNlcCAxNCAwMjowNjozMCBib3NzIGtlcm5lbDog
+ZXRoMDogSGFwcHkgTWVhbCBvdXQgb2YgcmVjZWl2ZSBkZXNjcmlwdG9ycywg
+cGFja2V0IGRyb3BwZWQuDQpTZXAgMTQgMDI6MTQ6MzQgYm9zcyBsYXN0IG1l
+c3NhZ2UgcmVwZWF0ZWQgMyB0aW1lcw0KU2VwIDE0IDAyOjE0OjM2IGJvc3Mg
+bGFzdCBtZXNzYWdlIHJlcGVhdGVkIDIgdGltZXMNClNlcCAxNCAwMjozMDo1
+NiBib3NzIGtlcm5lbDogaHcgdGNwIHY0IGNzdW0gZmFpbGVkDQpTZXAgMTQg
+MDI6MzY6MDQgYm9zcyBrZXJuZWw6IGh3IHRjcCB2NCBjc3VtIGZhaWxlZA0K
+U2VwIDE0IDAyOjU5OjA2IGJvc3Mga2VybmVsOiBldGgwOiBIYXBweSBNZWFs
+IG91dCBvZiByZWNlaXZlIGRlc2NyaXB0b3JzLCBwYWNrZXQgZHJvcHBlZC4N
+ClNlcCAxNCAwMzoxMjozNyBib3NzIGxhc3QgbWVzc2FnZSByZXBlYXRlZCAy
+IHRpbWVzDQpTZXAgMTQgMDM6NDk6MDggYm9zcyBsYXN0IG1lc3NhZ2UgcmVw
+ZWF0ZWQgMyB0aW1lcw0KU2VwIDE0IDA0OjQzOjU1IGJvc3MgbGFzdCBtZXNz
+YWdlIHJlcGVhdGVkIDMgdGltZXMNClNlcCAxNCAwNToxMDowMCBib3NzIGxh
+c3QgbWVzc2FnZSByZXBlYXRlZCAzIHRpbWVzDQpTZXAgMTQgMDU6NDQ6NDQg
+Ym9zcyBsYXN0IG1lc3NhZ2UgcmVwZWF0ZWQgMyB0aW1lcw0KU2VwIDE0IDA1
+OjUyOjE4IGJvc3MgbGFzdCBtZXNzYWdlIHJlcGVhdGVkIDMgdGltZXMNClNl
+cCAxNCAwNTo1Njo0NSBib3NzIGxhc3QgbWVzc2FnZSByZXBlYXRlZCAzIHRp
+bWVzDQpTZXAgMTQgMDY6MDk6NDEgYm9zcyBsYXN0IG1lc3NhZ2UgcmVwZWF0
+ZWQgMyB0aW1lcw0KU2VwIDE0IDA2OjA5OjQ2IGJvc3MgbGFzdCBtZXNzYWdl
+IHJlcGVhdGVkIDQgdGltZXMNClNlcCAxNCAwNjoyNDoyOCBib3NzIGtlcm5l
+bDogZXRoMDogSGFwcHkgTWVhbCBvdXQgb2YgcmVjZWl2ZSBkZXNjcmlwdG9y
+cywgcGFja2V0IGRyb3BwZWQuDQpTZXAgMTQgMDY6MjQ6MzAgYm9zcyBsYXN0
+IG1lc3NhZ2UgcmVwZWF0ZWQgMiB0aW1lcw0KU2VwIDE0IDA3OjA1OjU5IGJv
+c3Mga2VybmVsOiBldGgwOiBIYXBweSBNZWFsIG91dCBvZiByZWNlaXZlIGRl
+c2NyaXB0b3JzLCBwYWNrZXQgZHJvcHBlZC4NClNlcCAxNCAwNzo0MjoxNiBi
+b3NzIGxhc3QgbWVzc2FnZSByZXBlYXRlZCAzIHRpbWVzDQpTZXAgMTQgMDc6
+NDI6MTggYm9zcyBsYXN0IG1lc3NhZ2UgcmVwZWF0ZWQgMiB0aW1lcw0KU2Vw
+IDE0IDA4OjA4OjM4IGJvc3Mga2VybmVsOiBodyB0Y3AgdjQgY3N1bSBmYWls
+ZWQNClNlcCAxNCAwOTowMzoxOSBib3NzIGtlcm5lbDogZXRoMDogSGFwcHkg
+TWVhbCBvdXQgb2YgcmVjZWl2ZSBkZXNjcmlwdG9ycywgcGFja2V0IGRyb3Bw
+ZWQuDQpTZXAgMTQgMDk6NTM6NTggYm9zcyBsYXN0IG1lc3NhZ2UgcmVwZWF0
+ZWQgMyB0aW1lcw0KU2VwIDE0IDA5OjU4OjQ4IGJvc3MgbGFzdCBtZXNzYWdl
+IHJlcGVhdGVkIDMgdGltZXMNClNlcCAxNCAwOTo1ODo1MCBib3NzIGxhc3Qg
+bWVzc2FnZSByZXBlYXRlZCAyIHRpbWVzDQpTZXAgMTQgMTA6MDE6MjEgYm9z
+cyBrZXJuZWw6IGh3IHRjcCB2NCBjc3VtIGZhaWxlZA0KU2VwIDE0IDEwOjA1
+OjI5IGJvc3Mga2VybmVsOiBodyB0Y3AgdjQgY3N1bSBmYWlsZWQNClNlcCAx
+NCAxMDoyNTowOCBib3NzIGtlcm5lbDogZXRoMDogSGFwcHkgTWVhbCBvdXQg
+b2YgcmVjZWl2ZSBkZXNjcmlwdG9ycywgcGFja2V0IGRyb3BwZWQuDQpTZXAg
+MTQgMTA6MjU6MTAgYm9zcyBsYXN0IG1lc3NhZ2UgcmVwZWF0ZWQgMiB0aW1l
+cw0KU2VwIDE0IDEwOjUwOjM1IGJvc3Mga2VybmVsOiBodyB0Y3AgdjQgY3N1
+bSBmYWlsZWQNClNlcCAxNCAxMDo1MzoyNSBib3NzIGtlcm5lbDogaHcgdGNw
+IHY0IGNzdW0gZmFpbGVkDQpTZXAgMTQgMTE6MDA6NTMgYm9zcyBsYXN0IG1l
+c3NhZ2UgcmVwZWF0ZWQgMiB0aW1lcw0KU2VwIDE0IDExOjA1OjQ5IGJvc3Mg
+a2VybmVsOiBodyB0Y3AgdjQgY3N1bSBmYWlsZWQNClNlcCAxNCAxMToxMTo0
+NSBib3NzIGtlcm5lbDogZXRoMDogSGFwcHkgTWVhbCBvdXQgb2YgcmVjZWl2
+ZSBkZXNjcmlwdG9ycywgcGFja2V0IGRyb3BwZWQuDQpTZXAgMTQgMTE6MTE6
+NDcgYm9zcyBsYXN0IG1lc3NhZ2UgcmVwZWF0ZWQgMiB0aW1lcw0KU2VwIDE0
+IDExOjEyOjA0IGJvc3Mga2VybmVsOiB1ZHAgdjQgaHcgY3N1bSBmYWlsdXJl
+Lg0KU2VwIDE0IDExOjEyOjEyIGJvc3Mga2VybmVsOiBodyB0Y3AgdjQgY3N1
+bSBmYWlsZWQNClNlcCAxNCAxMToyNjo1MiBib3NzIGtlcm5lbDogaHcgdGNw
+IHY0IGNzdW0gZmFpbGVkDQpTZXAgMTQgMTE6Mjc6NTIgYm9zcyBrZXJuZWw6
+IHVkcCB2NCBodyBjc3VtIGZhaWx1cmUuDQpTZXAgMTQgMTE6MzE6MzggYm9z
+cyBrZXJuZWw6IGh3IHRjcCB2NCBjc3VtIGZhaWxlZA0KU2VwIDE0IDExOjM3
+OjQwIGJvc3Mga2VybmVsOiBldGgwOiBIYXBweSBNZWFsIG91dCBvZiByZWNl
+aXZlIGRlc2NyaXB0b3JzLCBwYWNrZXQgZHJvcHBlZC4NClNlcCAxNCAxMTo0
+MzozNSBib3NzIGxhc3QgbWVzc2FnZSByZXBlYXRlZCAzIHRpbWVzDQpTZXAg
+MTQgMTE6NTg6MDkgYm9zcyBsYXN0IG1lc3NhZ2UgcmVwZWF0ZWQgMyB0aW1l
+cw0KU2VwIDE0IDExOjU4OjExIGJvc3MgbGFzdCBtZXNzYWdlIHJlcGVhdGVk
+IDIgdGltZXMNClNlcCAxNCAxMjowMzozOSBib3NzIGtlcm5lbDogaHcgdGNw
+IHY0IGNzdW0gZmFpbGVkDQpTZXAgMTQgMTI6MTA6NDggYm9zcyBrZXJuZWw6
+IGV0aDA6IEhhcHB5IE1lYWwgb3V0IG9mIHJlY2VpdmUgZGVzY3JpcHRvcnMs
+IHBhY2tldCBkcm9wcGVkLg0KU2VwIDE0IDEyOjEwOjU0IGJvc3MgbGFzdCBt
+ZXNzYWdlIHJlcGVhdGVkIDMgdGltZXMNClNlcCAxNCAxMjoxNTowMCBib3Nz
+IGtlcm5lbDogaHcgdGNwIHY0IGNzdW0gZmFpbGVkDQpTZXAgMTQgMTI6MTk6
+MDIgYm9zcyBrZXJuZWw6IGV0aDA6IEhhcHB5IE1lYWwgb3V0IG9mIHJlY2Vp
+dmUgZGVzY3JpcHRvcnMsIHBhY2tldCBkcm9wcGVkLg0KU2VwIDE0IDEyOjE5
+OjAzIGJvc3Mga2VybmVsOiBldGgwOiBIYXBweSBNZWFsIG91dCBvZiByZWNl
+aXZlIGRlc2NyaXB0b3JzLCBwYWNrZXQgZHJvcHBlZC4NClNlcCAxNCAxMjoz
+MTozOSBib3NzIGtlcm5lbDogaHcgdGNwIHY0IGNzdW0gZmFpbGVkDQpTZXAg
+MTQgMTI6NDQ6NTAgYm9zcyBrZXJuZWw6IGV0aDA6IEhhcHB5IE1lYWwgb3V0
+IG9mIHJlY2VpdmUgZGVzY3JpcHRvcnMsIHBhY2tldCBkcm9wcGVkLg0KU2Vw
+IDE0IDEzOjA1OjI3IGJvc3MgbGFzdCBtZXNzYWdlIHJlcGVhdGVkIDMgdGlt
+ZXMNClNlcCAxNCAxMzoxNzowNiBib3NzIGxhc3QgbWVzc2FnZSByZXBlYXRl
+ZCAzIHRpbWVzDQpTZXAgMTQgMTM6MjM6MTcgYm9zcyBsYXN0IG1lc3NhZ2Ug
+cmVwZWF0ZWQgMyB0aW1lcw0KU2VwIDE0IDEzOjIzOjE5IGJvc3MgbGFzdCBt
+ZXNzYWdlIHJlcGVhdGVkIDIgdGltZXMNClNlcCAxNCAxMzoyNDozNCBib3Nz
+IGtlcm5lbDogaHcgdGNwIHY0IGNzdW0gZmFpbGVkDQpTZXAgMTQgMTM6Mjc6
+MjYgYm9zcyBrZXJuZWw6IGV0aDA6IEhhcHB5IE1lYWwgb3V0IG9mIHJlY2Vp
+dmUgZGVzY3JpcHRvcnMsIHBhY2tldCBkcm9wcGVkLg0K
 
---=20
-J=C3=BCrg Billeter <j@bitron.ch>
-
---=-JuNeNYYhXJj+mgLNAisv
-Content-Disposition: attachment; filename=udev-069-makefile-1.patch
-Content-Type: text/x-patch; name=udev-069-makefile-1.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-diff -puNr udev-069.orig/extras/ata_id/Makefile udev-069/extras/ata_id/Makefile
---- udev-069.orig/extras/ata_id/Makefile	2005-09-13 19:24:51.000000000 +0200
-+++ udev-069/extras/ata_id/Makefile	2005-09-14 11:57:13.000000000 +0200
-@@ -43,8 +43,8 @@ clean:
- 
- spotless: clean
- 
--install: all
-+install-bin: all
- 	$(INSTALL_PROGRAM) $(PROG) $(DESTDIR)$(sbindir)/$(PROG)
- 
--uninstall:
-+uninstall-bin:
- 	- rm $(DESTDIR)$(sbindir)/$(PROG)
-diff -puNr udev-069.orig/extras/cdrom_id/Makefile udev-069/extras/cdrom_id/Makefile
---- udev-069.orig/extras/cdrom_id/Makefile	2005-09-13 19:24:51.000000000 +0200
-+++ udev-069/extras/cdrom_id/Makefile	2005-09-14 11:57:13.000000000 +0200
-@@ -44,8 +44,8 @@ clean:
- 
- spotless: clean
- 
--install: all
-+install-bin: all
- 	$(INSTALL_PROGRAM) $(PROG) $(DESTDIR)$(sbindir)/$(PROG)
- 
--uninstall:
-+uninstall-bin:
- 	- rm $(DESTDIR)$(sbindir)/$(PROG)
-diff -puNr udev-069.orig/extras/dasd_id/Makefile udev-069/extras/dasd_id/Makefile
---- udev-069.orig/extras/dasd_id/Makefile	2005-09-13 19:24:51.000000000 +0200
-+++ udev-069/extras/dasd_id/Makefile	2005-09-14 11:57:13.000000000 +0200
-@@ -43,8 +43,8 @@ clean:
- 
- spotless: clean
- 
--install: all
-+install-bin: all
- 	$(INSTALL_PROGRAM) $(PROG) $(DESTDIR)$(sbindir)/$(PROG)
- 
--uninstall:
-+uninstall-bin:
- 	- rm $(DESTDIR)$(sbindir)/$(PROG)
-diff -puNr udev-069.orig/extras/edd_id/Makefile udev-069/extras/edd_id/Makefile
---- udev-069.orig/extras/edd_id/Makefile	2005-09-13 19:24:51.000000000 +0200
-+++ udev-069/extras/edd_id/Makefile	2005-09-14 11:57:13.000000000 +0200
-@@ -43,8 +43,8 @@ clean:
- 
- spotless: clean
- 
--install: all
-+install-bin: all
- 	$(INSTALL_PROGRAM) $(PROG) $(DESTDIR)$(sbindir)/$(PROG)
- 
--uninstall:
-+uninstall-bin:
- 	- rm $(DESTDIR)$(sbindir)/$(PROG)
-diff -puNr udev-069.orig/extras/firmware/Makefile udev-069/extras/firmware/Makefile
---- udev-069.orig/extras/firmware/Makefile	2005-09-13 19:24:51.000000000 +0200
-+++ udev-069/extras/firmware/Makefile	2005-09-14 11:57:13.000000000 +0200
-@@ -44,8 +44,8 @@ clean:
- 
- spotless: clean
- 
--install: all
-+install-bin: all
- 	$(INSTALL_PROGRAM) $(PROG) $(DESTDIR)$(sbindir)/$(PROG)
- 
--uninstall:
-+uninstall-bin:
- 	- rm $(DESTDIR)$(sbindir)/$(PROG)
-diff -puNr udev-069.orig/extras/floppy/Makefile udev-069/extras/floppy/Makefile
---- udev-069.orig/extras/floppy/Makefile	2005-09-13 19:24:51.000000000 +0200
-+++ udev-069/extras/floppy/Makefile	2005-09-14 11:57:13.000000000 +0200
-@@ -43,8 +43,8 @@ clean:
- 
- spotless: clean
- 
--install: all
-+install-bin: all
- 	$(INSTALL_PROGRAM) $(PROG) $(DESTDIR)$(sbindir)/$(PROG)
- 
--uninstall:
-+uninstall-bin:
- 	- rm $(DESTDIR)$(sbindir)/$(PROG)
-diff -puNr udev-069.orig/extras/run_directory/Makefile udev-069/extras/run_directory/Makefile
---- udev-069.orig/extras/run_directory/Makefile	2005-09-13 19:24:51.000000000 +0200
-+++ udev-069/extras/run_directory/Makefile	2005-09-14 11:57:13.000000000 +0200
-@@ -45,9 +45,9 @@ clean:
- 
- spotless: clean
- 
--install: all
-+install-bin: all
- 	$(INSTALL_PROGRAM) $(DEVD) $(DESTDIR)$(sbindir)/$(DEVD)
- 	$(INSTALL_PROGRAM) $(HOTPLUGD) $(DESTDIR)$(sbindir)/$(HOTPLUGD)
- 
--uninstall:
-+uninstall-bin:
- 	- rm $(DESTDIR)$(sbindir)/$(DEVD)
-diff -puNr udev-069.orig/extras/scsi_id/Makefile udev-069/extras/scsi_id/Makefile
---- udev-069.orig/extras/scsi_id/Makefile	2005-09-13 19:24:51.000000000 +0200
-+++ udev-069/extras/scsi_id/Makefile	2005-09-14 11:57:55.000000000 +0200
-@@ -46,18 +46,23 @@ all:	$(PROG)
- 
- # XXX use a compressed man page?
- 
--install: all
-+install-bin: all
- 	$(INSTALL_PROGRAM) -D $(PROG) $(DESTDIR)$(sbindir)/$(PROG)
-+
-+install-man:
- 	$(INSTALL_DATA) -D scsi_id.8 $(DESTDIR)$(mandir)/man8/scsi_id.8
-+
-+install-config:
- 	@if [ ! -r $(DESTDIR)$(etcdir)/scsi_id.config ]; then \
- 		echo $(INSTALL_DATA) -D ./scsi_id.config  $(DESTDIR)$(etcdir); \
- 		$(INSTALL_DATA) -D ./scsi_id.config $(DESTDIR)$(etcdir)/scsi_id.config; \
- 	fi
- 	
--uninstall:
-+uninstall-bin:
- 	-rm $(DESTDIR)$(sbindir)/$(PROG)
-+
-+uninstall-man:
- 	-rm $(DESTDIR)$(mandir)/man8/scsi_id.8
--	-rm $(DESTDIR)$(etcdir)/scsi_id.config
- 
- GEN_HEADER=scsi_id_version.h
- 
-diff -puNr udev-069.orig/extras/usb_id/Makefile udev-069/extras/usb_id/Makefile
---- udev-069.orig/extras/usb_id/Makefile	2005-09-13 19:24:51.000000000 +0200
-+++ udev-069/extras/usb_id/Makefile	2005-09-14 11:57:13.000000000 +0200
-@@ -44,8 +44,8 @@ clean:
- 
- spotless: clean
- 
--install: all
-+install-bin: all
- 	$(INSTALL_PROGRAM) $(PROG) $(DESTDIR)$(sbindir)/$(PROG)
- 
--uninstall:
-+uninstall-bin:
- 	- rm $(DESTDIR)$(sbindir)/$(PROG)
-diff -puNr udev-069.orig/extras/volume_id/Makefile udev-069/extras/volume_id/Makefile
---- udev-069.orig/extras/volume_id/Makefile	2005-09-13 19:24:51.000000000 +0200
-+++ udev-069/extras/volume_id/Makefile	2005-09-14 11:57:13.000000000 +0200
-@@ -47,8 +47,8 @@ clean:
- 
- spotless: clean
- 
--install: all
-+install-bin: all
- 	$(INSTALL_PROGRAM) $(PROG) $(DESTDIR)$(sbindir)/$(PROG)
- 
--uninstall:
-+uninstall-bin:
- 	- rm $(DESTDIR)$(sbindir)/$(PROG)
-diff -puNr udev-069.orig/Makefile udev-069/Makefile
---- udev-069.orig/Makefile	2005-09-13 19:24:51.000000000 +0200
-+++ udev-069/Makefile	2005-09-14 11:59:07.000000000 +0200
-@@ -333,6 +333,10 @@ install-config: $(GEN_CONFIGS)
- 		echo "pick a udev rules file from the etc/udev directory that matches your distribution"; \
- 		echo; \
- 	fi
-+	@extras="$(EXTRAS)"; for target in $$extras; do \
-+		echo $$target; \
-+		$(MAKE) prefix=$(prefix) -C $$target $@; \
-+	done;
- .PHONY: install-config
- 
- install-man:
-@@ -344,6 +348,10 @@ install-man:
- 	$(INSTALL_DATA) -D udevsend.8 $(DESTDIR)$(mandir)/man8/udevsend.8
- 	$(INSTALL_DATA) -D udevmonitor.8 $(DESTDIR)$(mandir)/man8/udevmonitor.8
- 	- ln -f -s udevd.8 $(DESTDIR)$(mandir)/man8/udevcontrol.8
-+	@extras="$(EXTRAS)"; for target in $$extras; do \
-+		echo $$target; \
-+		$(MAKE) prefix=$(prefix) -C $$target $@; \
-+	done;
- .PHONY: install-man
- 
- uninstall-man:
-@@ -355,6 +363,10 @@ uninstall-man:
- 	- rm $(mandir)/man8/udevmonitor.8
- 	- rm $(mandir)/man8/udevsend.8
- 	- rm $(mandir)/man8/udevcontrol.8
-+	@extras="$(EXTRAS)"; for target in $$extras; do \
-+		echo $$target; \
-+		$(MAKE) prefix=$(prefix) -C $$target $@; \
-+	done;
- .PHONY: uninstall-man
- 
- install-bin:
-
---=-JuNeNYYhXJj+mgLNAisv--
-
+--0-307547128-1126698039=:5000--

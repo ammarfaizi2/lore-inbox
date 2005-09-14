@@ -1,47 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964813AbVINUfW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964929AbVINUf6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964813AbVINUfW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 16:35:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964929AbVINUfV
+	id S964929AbVINUf6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 16:35:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964979AbVINUf5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 16:35:21 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:37602 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S964813AbVINUfT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 16:35:19 -0400
-Subject: Re: [2.6.14-rc1] sym scsi boot hang
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Anton Blanchard <anton@samba.org>, Dipankar Sarma <dipankar@in.ibm.com>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44L0.0509141052410.5064-100000@iolanthe.rowland.org>
-References: <Pine.LNX.4.44L0.0509141052410.5064-100000@iolanthe.rowland.org>
-Content-Type: text/plain
-Date: Wed, 14 Sep 2005 16:35:13 -0400
-Message-Id: <1126730113.4825.12.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-6) 
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Sep 2005 16:35:57 -0400
+Received: from juno.lps.ele.puc-rio.br ([139.82.40.34]:21670 "EHLO
+	juno.lps.ele.puc-rio.br") by vger.kernel.org with ESMTP
+	id S964929AbVINUf4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 16:35:56 -0400
+Message-ID: <60703.200.141.106.169.1126730160.squirrel@correio.lps.ele.puc-rio.br>
+In-Reply-To: <60519.200.141.106.169.1126727337.squirrel@correio.lps.ele.puc-rio.br>
+References: <61637.200.141.106.169.1126660632.squirrel@correio.lps.ele.puc-rio.br>
+    <60519.200.141.106.169.1126727337.squirrel@correio.lps.ele.puc-rio.br>
+Date: Wed, 14 Sep 2005 17:36:00 -0300 (BRT)
+Subject: Re: libata sata_sil broken on 2.6.13.1
+From: izvekov@lps.ele.puc-rio.br
+To: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.3a-6.FC2
+X-Mailer: SquirrelMail/1.4.3a-6.FC2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-09-14 at 11:49 -0400, Alan Stern wrote:
-> (James, I see a possible problem with scsi_insert_special_req.  It adds to
-> the queue a request with REQ_DONTPREP set.  How can such a request, with
-> no associated scsi_cmnd, ever work?  Also, won't scsi_end_request and 
-> __scsi_release_request end up putting the same scsi_command twice?)
+> So that means the irq triggered, but there where no handlers? Also, this
+> seems a non-critical fault, why whould the machine lock?
 
-It's a historical anomaly which will hopefully die when we finally
-manage to get sg and st converted to the generic request infrastructure.
-Then scsi_request can be killed and this along with it.
-
-What used to happen (as the comment implies) is that drivers would
-allocate a single request and then reuse it for multiple independent
-commands.  Since they weren't too picky about cleaning it up after each
-use, we had to reset the DONTPREP flag to ensure each new invocation was
-actually correctly prepared.
-
-James
-
+If i use the irqpoll boot option, then it is fine, it boots with no errors
+at all, and i can even mount a filesystem on that PATA hd.
 

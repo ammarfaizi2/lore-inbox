@@ -1,73 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965114AbVINJgb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965118AbVINJj3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965114AbVINJgb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 05:36:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965118AbVINJgb
+	id S965118AbVINJj3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 05:39:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965119AbVINJj3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 05:36:31 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:20699 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965114AbVINJga (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 05:36:30 -0400
-Date: Wed, 14 Sep 2005 02:35:29 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: dgc@sgi.com, bharata@in.ibm.com, tytso@mit.edu, dipankar@in.ibm.com,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       manfred@colorfullife.com
-Subject: Re: VM balancing issues on 2.6.13: dentry cache not getting shrunk
- enough
-Message-Id: <20050914023529.4eabf014.akpm@osdl.org>
-In-Reply-To: <200509141101.16781.ak@suse.de>
-References: <20050911105709.GA16369@thunk.org>
-	<20050913084752.GC4474@in.ibm.com>
-	<20050913215932.GA1654338@melbourne.sgi.com>
-	<200509141101.16781.ak@suse.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Sep 2005 05:39:29 -0400
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:55303 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S965118AbVINJj2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 05:39:28 -0400
+Date: Wed, 14 Sep 2005 10:39:25 +0100 (BST)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+Cc: Joe Bob Spamtest <joebob@spamtest.viacore.net>,
+       "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
+Subject: Re: Pure 64 bootloaders
+In-Reply-To: <20050913193745.GH28578@csclub.uwaterloo.ca>
+Message-ID: <Pine.LNX.4.61L.0509141031110.22533@blysk.ds.pg.gda.pl>
+References: <4325F3D5.9040109@spamtest.viacore.net> <20050912.144107.37064900.davem@davemloft.net>
+ <4325FADB.4090804@spamtest.viacore.net> <20050912.151230.100651236.davem@davemloft.net>
+ <43260A8D.1090508@spamtest.viacore.net> <20050913165228.GG28578@csclub.uwaterloo.ca>
+ <Pine.LNX.4.61L.0509131819140.4219@blysk.ds.pg.gda.pl>
+ <20050913193745.GH28578@csclub.uwaterloo.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> wrote:
->
-> On Tuesday 13 September 2005 23:59, David Chinner wrote:
-> > On Tue, Sep 13, 2005 at 02:17:52PM +0530, Bharata B Rao wrote:
-> > > Second is Sonny Rao's rbtree dentry reclaim patch which is an attempt
-> > > to improve this dcache fragmentation problem.
-> >
-> > FYI, in the past I've tried this patch to reduce dcache fragmentation on
-> > an Altix (16k pages, 62 dentries to a slab page) under heavy
-> > fileserver workloads and it had no measurable effect. It appeared
-> > that there was almost always at least one active dentry on each page
-> > in the slab.  The story may very well be different on 4k page
-> > machines, however.
+On Tue, 13 Sep 2005, Lennart Sorensen wrote:
+
+> >  The reverse -- two 64-bit formats and one 32-bit one.  And don't forget 
+> > to multiply by two endiannesses. ;-)
 > 
-> I always thought dentry freeing would work much better if it
-> was turned upside down.
-> 
-> Instead of starting from the high level dcache lists it could
-> be driven by slab: on memory pressure slab tries to return pages with unused 
-> cache objects. In that case it should check if there are only
-> a small number of pinned objects on the page set left, and if 
-> yes use a new callback to the higher level user (=dcache) and ask them
-> to free the object.
+> I thought it was 32bit old, 32bit new (for using 32bit pointers on a 64bit
+> cpu) and 64bit.  At least the names I have seen were 32o, 32n, 64.
 
-Considered doing that with buffer_heads a few years ago.  It's impossible
-unless you have a global lock, which bh's don't have.  dentries _do_ have a
-global lock, and we'd be tied to having it for ever more.
+ Well, n32 requires a 64-bit CPU and uses 64-bit registers.  For C/C++ 
+64-bit registers can be referred to with the "long long" types; I can't 
+comment ABIs for other languages.  Pointers are indeed 32-bit.  Therefore 
+for everything except ELF loaders the format can be considered 64-bit.
 
-The shrinking code would have be able to deal with a dentry which is going
-through destruction by other call paths, so dcache_lock coverage would have
-to be extended considerably - it would have to cover the kmem_cache_free(),
-for example.   Or we put some i_am_alive flag into the dentry.
-
-> The slab datastructures are not completely suited for this right now,
-> but it could be done by using one more of the list_heads in struct page
-> for slab backing pages.
-
-Yes, some help would be needed in the slab code.
-
-There's only one list_head in struct page and slab is already using it.
-
+  Maciej

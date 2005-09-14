@@ -1,103 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932754AbVINTQ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932756AbVINTUs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932754AbVINTQ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 15:16:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932755AbVINTQ5
+	id S932756AbVINTUs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 15:20:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932757AbVINTUs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 15:16:57 -0400
-Received: from wscnet.wsc.cz ([212.80.64.118]:32133 "EHLO wscnet.wsc.cz")
-	by vger.kernel.org with ESMTP id S932754AbVINTQ4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 15:16:56 -0400
-Message-ID: <43287712.3040503@gmail.com>
-Date: Wed, 14 Sep 2005 21:16:34 +0200
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: cs, en-us, en
+	Wed, 14 Sep 2005 15:20:48 -0400
+Received: from terminus.zytor.com ([209.128.68.124]:10974 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S932756AbVINTUr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 15:20:47 -0400
+Message-ID: <43287800.3040108@zytor.com>
+Date: Wed, 14 Sep 2005 12:20:32 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Manu Abraham <manu@kromtek.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PCI driver
-References: <4327EE94.2040405@kromtek.com> <4327F586.3030901@gmail.com> <4327F551.6070903@kromtek.com> <4327FB6C.3070708@gmail.com> <43280F2F.2060708@gmail.com> <432815FA.5040202@gmail.com> <43281C27.1060305@kromtek.com> <43284CE6.3080302@gmail.com> <43285951.7050702@kromtek.com> <4328734E.2080607@gmail.com> <4328735B.70800@kromtek.com>
-In-Reply-To: <4328735B.70800@kromtek.com>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+CC: Kyle Moffett <mrmacman_g4@mac.com>, Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Splitting out kernel<=>userspace ABI headers
+References: <C670AD22-97CF-46AA-A527-965036D78667@mac.com> <20050902134108.GA16374@codepoet.org> <22D79100-00B5-44F6-992C-FFFEACA49E66@mac.com> <20050902235833.GA28238@codepoet.org> <dfapgu$dln$1@terminus.zytor.com> <4328299C.9020904@tmr.com> <BB99A175-9BC7-4004-896D-7A5A22349861@mac.com> <Pine.LNX.4.61.0509141458380.19578@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0509141458380.19578@chaos.analogic.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manu Abraham napsal(a):
-> Jiri Slaby wrote:
+linux-os (Dick Johnson) wrote:
 > 
->> Manu Abraham napsal(a):
->>
->>> Jiri Slaby wrote:
->>>
->>>> you do NOT do this at all, because you have pdev already (the param 
->>>> of the probe function)
->>>>
->>>
->>> I rewrote the entire thing like this including the pci_remove 
->>> function too, but now it so seems that in the remove function, 
->>> pci_get_drvdata(pdev) returns NULL, and hence i get an Oops at module 
->>> removal.
->>
->>
->> Maybe because this is badly written driver.
+> No No. The solution is to do it right. If the standard says that
+> the header file can't include a header file defining the types used
+> within that header file (and I don't think the "standard" says that
+> at all), then the correct solution is to include the correct header file
+> in the user program. It is truly just that simple.
 > 
-> 
-> I have not written the driver, but this is my first go at it ..
-> 
->>
->>> static int mantis_pci_probe(struct pci_dev *pdev, const struct 
->>> pci_device_id *mantis_pci_table)
->>> {
->>>     struct mantis_pci *mantis;
->>>     struct mantis_eeprom eeprom;
->>>     u8 revision, latency;
->>>     u8 data[2];      if (pci_enable_device(pdev)) {               
->>> dprintk(verbose, MANTIS_DEBUG, 1, "Found a mantis chip");
->>>         if ((mantis = (struct mantis_pci *) kmalloc(sizeof (struct 
->>> mantis_pci), GFP_KERNEL)) == NULL) {
->>>             dprintk(verbose, MANTIS_ERROR, 1, "Out of memory");
->>>             return -ENOMEM;
->>>         }
->>>         pci_set_master(pdev);
->>>         mantis->mantis_addr = pci_resource_start(pdev, 0);
->>>         if (!request_mem_region(pci_resource_start(pdev, 0),
->>>             pci_resource_len(pdev, 0), DRIVER_NAME)) {
->>>             kfree(mantis);
->>>             return -EBUSY;
->>>         }
->>>         pci_read_config_byte(pdev, PCI_CLASS_REVISION, &revision);
->>>         pci_read_config_byte(pdev, PCI_LATENCY_TIMER, &latency);
->>>         mantis->mantis_mmio = ioremap(mantis->mantis_addr, 0x1000);
->>>         pci_set_drvdata(pdev, mantis);       
->>
->>
->> if pci_enable_device fails, you set this?? Maybe you haven't read the 
->> doc enough.
-> 
-> 
-> 
-> I just found that, pci_enable_device() fails. So what's the way to go 
-> ahead ?
-JESUS.
-int retval = 0;
 
-if ((retval = pci_enable_device()))
-	goto end;
+Dear Wrongbot,
 
-...
-pci_set_drvdata(pdev, mantis);
-...
+No, it's not that simple.
 
-end:
-	return retval;
-
-not
-if (pci_enable_device())
-	do something
--- 
-Jiri Slaby         www.fi.muni.cz/~xslaby
-~\-/~      jirislaby@gmail.com      ~\-/~
-241B347EC88228DE51EE A49C4A73A25004CB2A10
+	-hpa

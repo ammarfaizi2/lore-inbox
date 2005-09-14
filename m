@@ -1,83 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965043AbVINWDk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965059AbVINWHi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965043AbVINWDk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 18:03:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965027AbVINWD2
+	id S965059AbVINWHi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 18:07:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965042AbVINWHh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 18:03:28 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:54971 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S965042AbVINWDY (ORCPT
+	Wed, 14 Sep 2005 18:07:37 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:42150 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965058AbVINWHg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 18:03:24 -0400
-Date: Thu, 15 Sep 2005 08:02:22 +1000
-From: David Chinner <dgc@sgi.com>
-To: Sonny Rao <sonny@burdell.org>
-Cc: Bharata B Rao <bharata@in.ibm.com>, "Theodore Ts'o" <tytso@mit.edu>,
-       Dipankar Sarma <dipankar@in.ibm.com>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: VM balancing issues on 2.6.13: dentry cache not getting shrunk enough
-Message-ID: <20050914220222.GA2265486@melbourne.sgi.com>
-References: <20050911105709.GA16369@thunk.org> <20050911120045.GA4477@in.ibm.com> <20050912031636.GB16758@thunk.org> <20050913084752.GC4474@in.ibm.com> <20050913215932.GA1654338@melbourne.sgi.com> <20050914154852.GB6172@kevlar.burdell.org>
+	Wed, 14 Sep 2005 18:07:36 -0400
+Date: Thu, 15 Sep 2005 03:32:05 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, akpm@osdl.org
+Subject: Re: [PATCH] reorder struct files_struct
+Message-ID: <20050914220205.GC6237@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20050914191842.GA6315@in.ibm.com> <20050914.125750.05416211.davem@davemloft.net> <20050914201550.GB6315@in.ibm.com> <20050914.132936.105214487.davem@davemloft.net> <43289376.7050205@cosmosbay.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050914154852.GB6172@kevlar.burdell.org>
+In-Reply-To: <43289376.7050205@cosmosbay.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 14, 2005 at 11:48:52AM -0400, Sonny Rao wrote:
-> On Wed, Sep 14, 2005 at 07:59:32AM +1000, David Chinner wrote:
-> > On Tue, Sep 13, 2005 at 02:17:52PM +0530, Bharata B Rao wrote:
-> > > 
-> > > Second is Sonny Rao's rbtree dentry reclaim patch which is an attempt
-> > > to improve this dcache fragmentation problem.
-> > 
-> > FYI, in the past I've tried this patch to reduce dcache fragmentation on
-> > an Altix (16k pages, 62 dentries to a slab page) under heavy
-> > fileserver workloads and it had no measurable effect. It appeared
-> > that there was almost always at least one active dentry on each page
-> > in the slab.  The story may very well be different on 4k page
-> > machines, however.
-
-....
-
-> I'm not surprised... With 62 dentrys per page, the likelyhood of
-> success is very small, and in fact performance could degrade since we
-> are holding the dcache lock more often and doing less useful work.
+On Wed, Sep 14, 2005 at 11:17:42PM +0200, Eric Dumazet wrote:
+> In SMP (and NUMA) environnements, each time a thread wants to open or close 
+> a file, it has to acquire the spinlock, thus invalidating the cache line 
+> containing this spinlock on other CPUS. So other threads doing 
+> read()/write()/... calls that use RCU to access the file table are going to 
+> ask further memory (possibly NUMA) transactions to read again this memory 
+> line.
 > 
-> It has been over a year and my memory is hazy, but I think I did see
-> about a 10% improvement on my workload (some sort of SFS simulation
-> with millions of files being randomly accessed)  on an x86 machine but CPU
-> utilization also went way up which I think was the dcache lock.
+> Please consider applying this patch. It moves the spinlock to another cache 
+> line, so that concurrent threads can share the cache line containing 
+> 'count' and 'fdt' fields.
+> 
+> --- linux-2.6.14-rc1/include/linux/file.h	2005-09-13 05:12:09.000000000 +0200
+> +++ linux-2.6.14-rc1-ed/include/linux/file.h	2005-09-15 01:09:13.000000000 +0200
+> @@ -34,12 +34,12 @@
+>   */
+>  struct files_struct {
+>          atomic_t count;
+> -        spinlock_t file_lock;     /* Protects all the below members.  Nests inside tsk->alloc_lock */
+>  	struct fdtable *fdt;
+>  	struct fdtable fdtab;
+>          fd_set close_on_exec_init;
+>          fd_set open_fds_init;
+>          struct file * fd_array[NR_OPEN_DEFAULT];
+> +	spinlock_t file_lock;     /* Protects concurrent writers.  Nests inside tsk->alloc_lock */
+>  };
+>  
+>  #define files_fdtable(files) (rcu_dereference((files)->fdt))
 
-Hmmm - can't say that I've had the same experience. I did not notice
-any decrease in fragmentation or increase in CPU usage...
+For most apps without too many open fds, the embedded fd_sets
+are going to be used. Wouldn't that mean that open()/close() will
+invalidate the cache line containing fdt, fdtab by updating
+the fd_sets ? If so, you optimization really doesn't help.
 
-FWIW, SFS is just one workload that produces fragmentation.  Any
-load that mixes or switches repeatedly between filesystem traversals
-to producing memory pressure via the page cache tends to result in
-fragmentation of the inode and dentry slabs...
 
-> Whatever happened to the  vfs_cache_pressue  band-aid/sledgehammer ?  
-> Is it not considered an option ?
+Thanks
+Dipankar
 
-All that did was increase the fragmentation levels. Instead of
-seeing a 4-5:1 free/used ratio in the dcache, it would push out to
-10-15:1 if vfs_cache_pressue was used to prefer reclaiming dentries
-over page cache pages. Going the other way and prefering reclaim of
-page cache pages did nothing to change the level of fragmentation.
-Reclaim still freed most of the dentries in the working set but it
-took a little longer to do it.
-
-Right now our only solution to prevent fragmentation on reclaim is
-to throw more memory at the machine to prevent reclaim from
-happening as the workload changes.
-
-Cheers,
-
-Dave.
--- 
-Dave Chinner
-R&D Software Enginner
-SGI Australian Software Group

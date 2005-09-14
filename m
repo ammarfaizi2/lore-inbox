@@ -1,83 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965026AbVINF4l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965019AbVINGBl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965026AbVINF4l (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 01:56:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965025AbVINF4l
+	id S965019AbVINGBl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 02:01:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965028AbVINGBl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 01:56:41 -0400
-Received: from rwcrmhc14.comcast.net ([216.148.227.89]:44784 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S965022AbVINF4k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 01:56:40 -0400
-Subject: Re: [PATCH 2.6.13 5/14] sas-class: sas_discover.c Discover process
-	(end devices)
-From: Sergey Panov <sipan@sipan.org>
-To: Patrick Mansfield <patmans@us.ibm.com>
-Cc: Luben Tuikov <luben_tuikov@adaptec.com>, Matthew Wilcox <matthew@wil.cx>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       Douglas Gilbert <dougg@torque.net>,
-       Christoph Hellwig <hch@infradead.org>, Luben Tuikov <ltuikov@yahoo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <20050913222519.GA1308@us.ibm.com>
-References: <20050911094656.GC5429@infradead.org>
-	 <43251D8C.7020409@torque.net> <1126537041.4825.28.camel@mulgrave>
-	 <20050912164548.GB11455@us.ibm.com> <1126545680.4825.40.camel@mulgrave>
-	 <20050912184629.GA13489@us.ibm.com> <1126639342.4809.53.camel@mulgrave>
-	 <4327354E.7090409@adaptec.com> <20050913203611.GH32395@parisc-linux.org>
-	 <43273E6C.9050807@adaptec.com>  <20050913222519.GA1308@us.ibm.com>
-Content-Type: text/plain
-Organization: Home
-Date: Wed, 14 Sep 2005 01:22:46 -0400
-Message-Id: <1126675366.26050.41.camel@sipan.sipan.org>
+	Wed, 14 Sep 2005 02:01:41 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:61661 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S965019AbVINGBk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 02:01:40 -0400
+Date: Tue, 13 Sep 2005 23:01:19 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: zippel@linux-m68k.org, akpm@osdl.org, torvalds@osdl.org,
+       Simon.Derr@bull.net, linux-kernel@vger.kernel.org, nikita@clusterfs.com
+Subject: Re: [PATCH] cpuset semaphore depth check optimize
+Message-Id: <20050913230119.13be3fed.pj@sgi.com>
+In-Reply-To: <20050913103724.19ac5efa.pj@sgi.com>
+References: <20050912113030.15934.9433.sendpatchset@jackhammer.engr.sgi.com>
+	<20050912043943.5795d8f8.akpm@osdl.org>
+	<20050912075155.3854b6e3.pj@sgi.com>
+	<Pine.LNX.4.61.0509121821270.3743@scrub.home>
+	<20050912153135.3812d8e2.pj@sgi.com>
+	<Pine.LNX.4.61.0509131120020.3728@scrub.home>
+	<20050913103724.19ac5efa.pj@sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-09-13 at 15:25 -0700, Patrick Mansfield wrote:
-> On Tue, Sep 13, 2005 at 05:02:36PM -0400, Luben Tuikov wrote:
-> > On 09/13/05 16:36, Matthew Wilcox wrote:
-> > > On Tue, Sep 13, 2005 at 04:23:42PM -0400, Luben Tuikov wrote:
-> > > 
-> > >>A SCSI LUN is not "u64 lun", it has never been and it will
-> > >>never be.
-> > >>
-> > >>A SCSI LUN is "u8 LUN[8]" -- it is this from the Application
-> > >>Layer down to the _transport layer_ (if you cared to look at
-> > >>_any_ LL transport).
+pj wrote:
+> I'd expect the spinlocks to get taken
+> and released in the following order on these cpusets:
 > 
-> Not all HBA drivers implement a mapping to a SCSI transport, we have
-> raid drivers and even an FC driver that has its own lun definition that
-> does not fit any SAM or SCSI spec.
+> 	    lock /A/B/C
+> 	    lock /A/B
+> 	    lock /A
+> 	    lock /
+> 	      ==> found what I was searching for
+> 	    unlock /
+> 	    unlock /A
+> 	    unlock /A/B
+> 	    unlock /A/B/C
 
-May I ask you to name those drivers/HBAs, it would be interesting to
-look at how REPORT_LUN results are interpreted there. Actually, the data
-from the  REPORT_LUN response is always treated as proper  8 byte LUN
-and it is converted to int by scsilun_to_int(). What is interesting is
-how those derivers/HBA treat integer "lun" in queuecommand or EH calls.
+The appropriate condition required to prevent deadlock is weaker than
+stated above.  The condition should be:
 
-> I think the only HBA's today that can handle an 8 byte lun are lpfc and
-> iscsi (plus new SAS ones).
+     * A task can hold the spinlocks for multiple cpusets, but only
+     * if it acquires in bottom up order.  That is, whenever a task
+     * tries to lock a cpuset, the only cpusets it may already have
+     * locked must be descendents of the one it is going for.
 
-I am not aware of any SCSI/FC/SAS/etc hardware which uses more then just
-first two bytes, but all drivers I looked at to proper bytes
-rearrangement for those two bytes, and, as a result they do support 00b
-and 01b addressing modes.  
+With this, the following sequence of lock operations would also
+be acceptable, holding the bottom lock, while walking up the tree,
+locking and unlocking each ancestor in turn, until one is found
+that satisfies the present query.  Only the bottom most lock has
+to be held in this approach, for the duration.
 
-> So, we can't have one "LUN" that fits all, and it makes no sense to call
-> it a LUN when it is really a wtf.
+ 	    lock /A/B/C
+ 	    lock /A/B
+ 	    unlock /A/B
+ 	    lock /A
+ 	    unlock /A
+ 	    lock /
+ 	      ==> found what I was searching for
+ 	    unlock /
+ 	    unlock /A/B/C
 
-IMHO one 8 byte LUN is better then wtf. I's kinda obvious :)
+This sequence is a little easier to implement, because there is no need
+to keep a variable length queue of locks to be undone.  At most two
+locks are held at anytime.
 
-Sergey Panov
+If a variable length queue of locks to be undone had been needed, it
+could have been implemented using one more field in each cpuset,
+forming a LIFO linked list of cpusets to be unlocked.
 
-========================================================================
-Any opinions are personal and not necessarily those of my former,
-present, or future employers.
-
-
-
-
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

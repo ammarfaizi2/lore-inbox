@@ -1,47 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932580AbVINU1m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932587AbVINU1F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932580AbVINU1m (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 16:27:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932767AbVINU1l
+	id S932587AbVINU1F (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 16:27:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932768AbVINU1E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 16:27:41 -0400
-Received: from [66.228.95.230] ([66.228.95.230]:56760 "EHLO
-	postage-due.permabit.com") by vger.kernel.org with ESMTP
-	id S932580AbVINU1k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 16:27:40 -0400
-To: Peter Staubach <staubach@redhat.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] nfs client, kernel 2.4.31: readlink result overflow
-References: <78irx6wh6j.fsf@sober-counsel.permabit.com>
-	<200509121846.j8CIk5YE025124@turing-police.cc.vt.edu>
-	<784q8qrsad.fsf@sober-counsel.permabit.com>
-	<200509122001.j8CK1kpW028651@turing-police.cc.vt.edu>
-	<788xy2qas0.fsf@sober-counsel.permabit.com>
-	<20050913183948.GE14889@dmt.cnet>
-	<784q8okdfn.fsf@sober-counsel.permabit.com>
-	<20050913193539.GB17222@dmt.cnet>
-	<784q8oivp4.fsf@sober-counsel.permabit.com>
-	<43287221.8020602@redhat.com>
-	<7864t3h1xw.fsf@sober-counsel.permabit.com>
-	<432884CE.9060506@redhat.com>
-From: Assar <assar@permabit.com>
-Date: 14 Sep 2005 16:26:11 -0400
-In-Reply-To: <432884CE.9060506@redhat.com>
-Message-ID: <78r7brflb0.fsf@sober-counsel.permabit.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Permabit-Spam: SKIPPED
+	Wed, 14 Sep 2005 16:27:04 -0400
+Received: from smtp-103-wednesday.noc.nerim.net ([62.4.17.103]:43019 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S932587AbVINU1C
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 16:27:02 -0400
+Date: Wed, 14 Sep 2005 22:27:54 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Pending -stable patches
+Message-Id: <20050914222754.09c31fe3.khali@linux-fr.org>
+In-Reply-To: <6bffcb0e050913093272dabea2@mail.gmail.com>
+References: <20050913182736.09b1bfcf.khali@linux-fr.org>
+	<6bffcb0e050913093272dabea2@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Staubach <staubach@redhat.com> writes:
-> One other thing -- it doesn't seem particularly correct to me to just
-> silently truncate the symbolic link contents.
+Hi Michal,
 
-Sure, and 2.6 indeed returns ENAMETOOLONG.  I was just trying to close
-the problem and not change the functionality in 2.4.  If the consensus
-is that we should change it to return an error, I can certainly cook
-up patches for that.
+> > Is there a place where pending -stable patches can be seen?
+>
+> http://www.kernel.org/git/?p=linux/kernel/git/chrisw/stable-queue.git;a=shortlog
+
+Exactly what I needed. It's bookmarked now. Thanks!
+
+-- 
+Jean Delvare

@@ -1,58 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932752AbVINSX4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932750AbVINS0Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932752AbVINSX4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 14:23:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932751AbVINSX4
+	id S932750AbVINS0Z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 14:26:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932751AbVINS0Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 14:23:56 -0400
-Received: from er-systems.de ([217.172.180.163]:50948 "EHLO er-systems.de")
-	by vger.kernel.org with ESMTP id S932750AbVINSX4 (ORCPT
+	Wed, 14 Sep 2005 14:26:24 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:39635 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932750AbVINS0Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 14:23:56 -0400
-Date: Wed, 14 Sep 2005 20:23:58 +0200 (CEST)
-From: Thomas Voegtle <tv@lio96.de>
-To: Karel Kulhavy <clock@twibright.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB digital camera erroneously says "no medium found"
-In-Reply-To: <20050909091502.GB27699@kestrel>
-Message-ID: <Pine.LNX.4.61.0509142020500.22437@er-systems.de>
-References: <20050909091502.GB27699@kestrel>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1395022924-987365614-1126722238=:22437"
+	Wed, 14 Sep 2005 14:26:24 -0400
+Subject: Re: [RFC][PATCH] NTP shift_right cleanup (v. A1)
+From: john stultz <johnstul@us.ibm.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, yoshfuji@linux-ipv6.org,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       George Anzinger <george@mvista.com>, joe-lkml@rameria.de
+In-Reply-To: <Pine.LNX.4.61.0509142010030.3728@scrub.home>
+References: <1126720091.3455.56.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0509142010030.3728@scrub.home>
+Content-Type: text/plain
+Date: Wed, 14 Sep 2005 11:25:03 -0700
+Message-Id: <1126722303.3455.61.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-
----1395022924-987365614-1126722238=:22437
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
-
-On Fri, 9 Sep 2005, Karel Kulhavy wrote:
-
-> Hello
+On Wed, 2005-09-14 at 20:13 +0200, Roman Zippel wrote:
+> > @@ -792,13 +769,8 @@ static void update_wall_time_one_tick(vo
+> >  	 * advance the tick more.
+> >  	 */
+> >  	time_phase += time_adj;
+> > -	if (time_phase <= -FINENSEC) {
+> > -		long ltemp = -time_phase >> (SHIFT_SCALE - 10);
+> > -		time_phase += ltemp << (SHIFT_SCALE - 10);
+> > -		delta_nsec -= ltemp;
+> > -	}
+> > -	else if (time_phase >= FINENSEC) {
+> > -		long ltemp = time_phase >> (SHIFT_SCALE - 10);
+> > +	if (abs(time_phase) >= FINENSEC) {
+> > +		long ltemp = shift_right(time_phase, (SHIFT_SCALE - 10));
+> >  		time_phase -= ltemp << (SHIFT_SCALE - 10);
+> >  		delta_nsec += ltemp;
+> >  	}
 > 
-> I have Nikon Coolpix 2000 digital camera which was working well on my
-> old Linux 2.6.? machine. After moving to a different one while the old
-> one is not accessible, where the new one has Linux version 2.6.13, I
-> found it doesn't work anymore. When compact flash is inside the camera,
-> camera turned on and connected, cat /dev/sda says no media found.  cat
-> /dev/sdb, /dev/sdc, /dev/sdd say no such file or directory.
-> 
+> I checked and this actually generates worse code.
 
-I have the same camera and long time ago I found this mail:
+Well, if I drop the abs() and use:
+	if ((time_phase >= FINENSEC) || (time_phase <= -FINENSEC))
 
-http://www.mail-archive.com/linux-usb-users@lists.sourceforge.net/msg12504.html
+It looks pretty close in my test. Is that cool with you?
+
+thanks
+-john
 
 
-This worked for me. Please try it out.
-
-
-
-      Thomas
-
--- 
- Thomas Vögtle    email: thomas@voegtle-clan.de
- ----- http://www.voegtle-clan.de/thomas ------
----1395022924-987365614-1126722238=:22437--

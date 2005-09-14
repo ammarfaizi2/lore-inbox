@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965061AbVINWNX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030196AbVINWQX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965061AbVINWNX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 18:13:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965069AbVINWNX
+	id S1030196AbVINWQX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 18:16:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030199AbVINWQX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 18:13:23 -0400
-Received: from zproxy.gmail.com ([64.233.162.206]:47478 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965061AbVINWNW convert rfc822-to-8bit
+	Wed, 14 Sep 2005 18:16:23 -0400
+Received: from dsl-253-122.monet.no ([62.128.253.122]:13800 "EHLO
+	postkontor.mopo.no") by vger.kernel.org with ESMTP id S1030196AbVINWQW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 18:13:22 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=WwWXMh0FrBiyh/uup+5R9r8YxqILvYy8Bow7tYcGImnV2OzcqWty24e2Vq5YWEbr5BaD9QMrsz09Q1xmctlb3cImNRW+TQIEf9xmY43KOL9NQFYVuvobVxHhts1qhSrFmx/EsAoZaLsbU5lNhLNW3bskIjDdbsS2elBXvTCjUBY=
-Message-ID: <6bffcb0e0509141457450c9376@mail.gmail.com>
-Date: Wed, 14 Sep 2005 23:57:19 +0200
-From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Reply-To: michal.k.k.piotrowski@gmail.com
-To: ereslibre@gmail.com
-Subject: Re: [OT] Starting studying linux kernel
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <93f85fee0509141449a0b702c@mail.gmail.com>
+	Wed, 14 Sep 2005 18:16:22 -0400
+Subject: Help porting wireless InProComm IPN 2220 driver to 2.6
+From: Runar Ingebrigtsen <runar@mopo.no>
+Reply-To: runar@mopo.no
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: mopo as
+Date: Thu, 15 Sep 2005 00:15:59 +0200
+Message-Id: <1126736159.19667.49.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-References: <93f85fee0509141449a0b702c@mail.gmail.com>
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On 14/09/05, Rafael Fernández López <ereslibre@gmail.com> wrote:
-> Hi,
-> 
-> First of all, sorry if this e-mail is taking your time out. I'm a
-> computer science student. I love GNU/Linux and I've been using Gentoo
-> for a long time.
-> 
-> Now, I am starting to read linux kernel, but it is so big that I
-> cannot understand lots of things. I'd like to know if there is a
-> website or something that can introduce me into the kernel internals.
-> 
-> Maybe long time ago I could have understood it, but today it's so big...
-> 
-> Thank you very much, and my apologies for this e-mail.
+D-Link made a GPL driver for the InProComm IPN 2220 wireless chipset
+found in Linksys cards.
 
-http://www.kernelnewbies.org/
-http://lwn.net/Kernel/LDD3/ - very good book, you can download pdf's
-http://rlove.org/kernel_book/ - another very good book
+Source: ftp://ftp.dlink.com/GPL/di624M/di624m_fw10_source.tar.gz
 
-http://www.kernelnewbies.org/books.php3 - other books
+I really need this driver in the 2.6 kernel, as my current setup with
+ndiswrapper and the neti2220.inf is unusable due to bad throughput.
 
-Regards,
-Michal Piotrowski
+If anyone would help me I'd be willing to pay an amount for a working
+driver in the 2.6 tree. I would also need to get help using the driver
+with Ubuntu.
+
+The hardware is a Packard Bell EasyNote A5560 laptop:
+https://wiki.ubuntu.com/HardwareSupportMachinesLaptopsPackardBell?highlight=%28packard%29%7C%28bell%29
+
+-- 
+Runar Ingebrigtsen <runar@mopo.no>
+mopo as
+

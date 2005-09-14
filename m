@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030296AbVINXnE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030299AbVINXqr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030296AbVINXnE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 19:43:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030299AbVINXnD
+	id S1030299AbVINXqr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 19:46:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030300AbVINXqr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 19:43:03 -0400
-Received: from tuminfo2.informatik.tu-muenchen.de ([131.159.0.81]:443 "EHLO
-	tuminfo2.informatik.tu-muenchen.de") by vger.kernel.org with ESMTP
-	id S1030296AbVINXnC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 19:43:02 -0400
-Message-ID: <4328B710.5080503@in.tum.de>
-Date: Thu, 15 Sep 2005 01:49:36 +0200
-From: Daniel Thaler <thalerd@in.tum.de>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050803)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: michal.k.k.piotrowski@gmail.com
-Cc: Ahmad Reza Cheraghi <a_r_cheraghi@yahoo.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Automatic Configuration of a Kernel
-References: <20050914223836.53814.qmail@web51011.mail.yahoo.com> <6bffcb0e05091415533d563c5a@mail.gmail.com>
-In-Reply-To: <6bffcb0e05091415533d563c5a@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 14 Sep 2005 19:46:47 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:59569 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030299AbVINXqr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 19:46:47 -0400
+Date: Wed, 14 Sep 2005 16:46:37 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: izvekov@lps.ele.puc-rio.br
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: libata sata_sil broken on 2.6.13.1
+Message-Id: <20050914164637.01f0fff5.akpm@osdl.org>
+In-Reply-To: <60703.200.141.106.169.1126730160.squirrel@correio.lps.ele.puc-rio.br>
+References: <61637.200.141.106.169.1126660632.squirrel@correio.lps.ele.puc-rio.br>
+	<60519.200.141.106.169.1126727337.squirrel@correio.lps.ele.puc-rio.br>
+	<60703.200.141.106.169.1126730160.squirrel@correio.lps.ele.puc-rio.br>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michal Piotrowski wrote:
-> Hi,
+izvekov@lps.ele.puc-rio.br wrote:
+>
+> > So that means the irq triggered, but there where no handlers? Also, this
+> > seems a non-critical fault, why whould the machine lock?
 > 
-> On 15/09/05, Ahmad Reza Cheraghi <a_r_cheraghi@yahoo.com> wrote:
+> If i use the irqpoll boot option, then it is fine, it boots with no errors
+> at all, and i can even mount a filesystem on that PATA hd.
 > 
->>Hi
->>
->>I wrote this Framework for making a .config based on
->>the System Hardwares. It would be a great help if some
->>people would give me their opinion about it.
->>
->>Regards
-> 
-> 
-> It's for new linux users? They should use distributions kernels.
-> It's for "power users"? They just do make menuconfig...
-> It's for kernel developers? They just do vi .config.
 
-I like the idea.
-I'm a power user and of course I can do make menuconfig, but it would be
-useful when building a kernel for new hardware for example.
+Good.  Now can you please generate the output from `dmesg -s 1000000' for
+both good and bad kernels, then do
 
-Currently that involves looking at dmesg output to figure out the correct
-options; this would provide a nice base config to work with and reduce the
-amount of effort.
+	diff -u dmesg.good dmesg.bad
 
-Daniel
+and send the result?  Make sure to identify both kernel versions.
+
+Thanks.

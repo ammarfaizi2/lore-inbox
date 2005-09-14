@@ -1,127 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932757AbVINTcF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964803AbVINTdy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932757AbVINTcF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 15:32:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932758AbVINTcF
+	id S964803AbVINTdy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 15:33:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964804AbVINTdx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 15:32:05 -0400
-Received: from penta.pentaserver.com ([216.74.97.66]:43733 "EHLO
-	penta.pentaserver.com") by vger.kernel.org with ESMTP
-	id S932757AbVINTcD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 15:32:03 -0400
-Message-ID: <4328780E.5020305@kromtek.com>
-Date: Wed, 14 Sep 2005 23:20:46 +0400
-From: Manu Abraham <manu@kromtek.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jiri Slaby <jirislaby@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PCI driver
-References: <4327EE94.2040405@kromtek.com> <4327F586.3030901@gmail.com> <4327F551.6070903@kromtek.com> <4327FB6C.3070708@gmail.com> <43280F2F.2060708@gmail.com> <432815FA.5040202@gmail.com> <43281C27.1060305@kromtek.com> <43284CE6.3080302@gmail.com> <43285951.7050702@kromtek.com> <4328734E.2080607@gmail.com> <4328735B.70800@kromtek.com> <43287712.3040503@gmail.com>
-In-Reply-To: <43287712.3040503@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 14 Sep 2005 15:33:53 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:53729 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S964803AbVINTdw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 15:33:52 -0400
+Subject: Re: [2.6.14-rc1] sym scsi boot hang
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Anton Blanchard <anton@samba.org>
+Cc: Dipankar Sarma <dipankar@in.ibm.com>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, stern@rowland.harvard.edu
+In-Reply-To: <20050914080629.GB19051@krispykreme>
+References: <20050913124804.GA5008@in.ibm.com>
+	 <20050913131739.GD26162@krispykreme> <20050913142939.GE26162@krispykreme>
+	 <1126629345.4809.36.camel@mulgrave>  <20050914080629.GB19051@krispykreme>
+Content-Type: text/plain
+Date: Wed, 14 Sep 2005 12:57:42 -0400
+Message-Id: <1126717062.4584.4.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-6) 
 Content-Transfer-Encoding: 7bit
-X-PopBeforeSMTPSenders: manu@kromtek.com
-X-Antivirus-Scanner: Clean mail though you should still use an Antivirus
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - penta.pentaserver.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - kromtek.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jiri Slaby wrote:
-> Manu Abraham napsal(a):
-> 
->> Jiri Slaby wrote:
->>
->>> Manu Abraham napsal(a):
->>>
->>>> Jiri Slaby wrote:
->>>>
->>>>> you do NOT do this at all, because you have pdev already (the param 
->>>>> of the probe function)
->>>>>
->>>>
->>>> I rewrote the entire thing like this including the pci_remove 
->>>> function too, but now it so seems that in the remove function, 
->>>> pci_get_drvdata(pdev) returns NULL, and hence i get an Oops at 
->>>> module removal.
->>>
->>>
->>>
->>> Maybe because this is badly written driver.
->>
->>
->>
->> I have not written the driver, but this is my first go at it ..
->>
->>>
->>>> static int mantis_pci_probe(struct pci_dev *pdev, const struct 
->>>> pci_device_id *mantis_pci_table)
->>>> {
->>>>     struct mantis_pci *mantis;
->>>>     struct mantis_eeprom eeprom;
->>>>     u8 revision, latency;
->>>>     u8 data[2];      if (pci_enable_device(pdev)) {               
->>>> dprintk(verbose, MANTIS_DEBUG, 1, "Found a mantis chip");
->>>>         if ((mantis = (struct mantis_pci *) kmalloc(sizeof (struct 
->>>> mantis_pci), GFP_KERNEL)) == NULL) {
->>>>             dprintk(verbose, MANTIS_ERROR, 1, "Out of memory");
->>>>             return -ENOMEM;
->>>>         }
->>>>         pci_set_master(pdev);
->>>>         mantis->mantis_addr = pci_resource_start(pdev, 0);
->>>>         if (!request_mem_region(pci_resource_start(pdev, 0),
->>>>             pci_resource_len(pdev, 0), DRIVER_NAME)) {
->>>>             kfree(mantis);
->>>>             return -EBUSY;
->>>>         }
->>>>         pci_read_config_byte(pdev, PCI_CLASS_REVISION, &revision);
->>>>         pci_read_config_byte(pdev, PCI_LATENCY_TIMER, &latency);
->>>>         mantis->mantis_mmio = ioremap(mantis->mantis_addr, 0x1000);
->>>>         pci_set_drvdata(pdev, mantis);       
->>>
->>>
->>>
->>> if pci_enable_device fails, you set this?? Maybe you haven't read the 
->>> doc enough.
->>
->>
->>
->>
->> I just found that, pci_enable_device() fails. So what's the way to go 
->> ahead ?
-> 
-> JESUS.
+On Wed, 2005-09-14 at 18:06 +1000, Anton Blanchard wrote:
+> And in particular it looks like the scsi_unprep_request in
+> scsi_queue_insert is causing it. The following patch fixes the boot
+> problems on the vscsi machine:
+
+OK, my fault.  Your fix is almost correct .. I was going to do this
+eventually, honest, because there's no need to unprep and reprep a
+command that comes in through scsi_queue_insert().
+
+However, I decided to leave it in to exercise the scsi_unprep_request()
+path just to make sure it was working.  What's happening, I think, is
+that we also use this path for retries.  Since we kill and reget the
+command each time, the retries decrement is never seen, so we're
+retrying forever.
+
+This should be the correct reversal.
+
+James
+diff --git a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
+--- a/drivers/scsi/scsi_lib.c
++++ b/drivers/scsi/scsi_lib.c
+@@ -140,14 +140,12 @@ static void scsi_unprep_request(struct r
+  *              commands.
+  * Notes:       This could be called either from an interrupt context or a
+  *              normal process context.
+- * Notes:	Upon return, cmd is a stale pointer.
+  */
+ int scsi_queue_insert(struct scsi_cmnd *cmd, int reason)
+ {
+ 	struct Scsi_Host *host = cmd->device->host;
+ 	struct scsi_device *device = cmd->device;
+ 	struct request_queue *q = device->request_queue;
+-	struct request *req = cmd->request;
+ 	unsigned long flags;
+ 
+ 	SCSI_LOG_MLQUEUE(1,
+@@ -188,9 +186,8 @@ int scsi_queue_insert(struct scsi_cmnd *
+ 	 * function.  The SCSI request function detects the blocked condition
+ 	 * and plugs the queue appropriately.
+          */
+-	scsi_unprep_request(req);
+ 	spin_lock_irqsave(q->queue_lock, flags);
+-	blk_requeue_request(q, req);
++	blk_requeue_request(q, cmd->request);
+ 	spin_unlock_irqrestore(q->queue_lock, flags);
+ 
+ 	scsi_run_queue(q);
 
 
-What i meant is i do have to enable the device, not just exit.
-I understood that i have to exit if pci_enable_device() fails, but what 
-i am looking for is why i can't enable it in the first place.
-
-
-> int retval = 0;
-> 
-> if ((retval = pci_enable_device()))
->     goto end;
-> 
-> ...
-> pci_set_drvdata(pdev, mantis);
-> ...
-> 
-> end:
->     return retval;
-> 
-> not
-> if (pci_enable_device())
->     do something
-
-
-Regards,
-Manu

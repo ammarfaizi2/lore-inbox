@@ -1,84 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965205AbVINOcP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965204AbVINObj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965205AbVINOcP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 10:32:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965210AbVINOcP
+	id S965204AbVINObj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 10:31:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965205AbVINObj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 10:32:15 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:65293 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S965205AbVINOcP
+	Wed, 14 Sep 2005 10:31:39 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:63501 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S965204AbVINObi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 10:32:15 -0400
-Message-ID: <43282BF5.5080101@tmr.com>
-Date: Wed, 14 Sep 2005 09:56:05 -0400
+	Wed, 14 Sep 2005 10:31:38 -0400
+Message-ID: <432835B4.7070405@tmr.com>
+Date: Wed, 14 Sep 2005 10:37:40 -0400
 From: Bill Davidsen <davidsen@tmr.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Kyle Moffett <mrmacman_g4@mac.com>
-CC: "H. Peter Anvin" <hpa@zytor.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, bunk@stusta.de
-Subject: Re: [RFC][MEGAPATCH] Change __ASSEMBLY__ to __ASSEMBLER__ (defined
- by GCC from 2.95 to current CVS)
-References: <C670AD22-97CF-46AA-A527-965036D78667@mac.com> <20050903064124.GA31400@codepoet.org> <4319BEF5.2070000@zytor.com> <B9E70F6F-CC0A-4053-AB34-A90836431358@mac.com> <dfhs4u$1ld$1@terminus.zytor.com> <5A37B032-9BBD-4AEA-A9BF-D42AFF79BC86@mac.com> <9C47C740-86CF-48F1-8DB6-B547E5D098FF@mac.com> <97597F8E-DDCE-479F-AE8D-CC7DC75AB3C3@mac.com> <20050910014543.1be53260.akpm@osdl.org> <4FAE9F58-7153-4574-A2C3-A586C9C3CFF1@mac.com> <20050910150446.116dd261.akpm@osdl.org> <E352D8E3-771F-4A0D-9403-DBAA0C8CBB83@mac.com> <20050910174818.579bc287.akpm@osdl.org> <93E9C5F9-A083-4322-A580-236E2232CCC0@mac.com> <20050912010954.70ac90e2.pj@sgi.com> <43259C9E.1040300@zytor.com> <20050912084756.4fa2bd07.pj@sgi.com> <67DD59DE-B7B3-43EC-A241-670ACD4C0322@mac.com>
-In-Reply-To: <67DD59DE-B7B3-43EC-A241-670ACD4C0322@mac.com>
+To: Sripathi Kodi <sripathik@in.ibm.com>
+CC: Al Viro <viro@ZenIV.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, patrics@interia.pl,
+       Ingo Molnar <mingo@elte.hu>, Roland McGrath <roland@redhat.com>
+Subject: Re: [PATCH 2.6.13.1] Patch for invisible threads
+References: <4325BEF3.2070901@in.ibm.com> <20050912134954.7bbd15b2.akpm@osdl.org> <4326CFE2.6000908@in.ibm.com> <Pine.LNX.4.58.0509130744070.3351@g5.osdl.org> <20050913165102.GR25261@ZenIV.linux.org.uk> <Pine.LNX.4.58.0509131000040.3351@g5.osdl.org> <20050913171215.GS25261@ZenIV.linux.org.uk> <43274503.7090303@in.ibm.com> <Pine.LNX.4.58.0509131601400.26803@g5.osdl.org> <43278116.8020403@in.ibm.com>
+In-Reply-To: <43278116.8020403@in.ibm.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kyle Moffett wrote:
-> On Sep 12, 2005, at 11:47:56, Paul Jackson wrote:
+Sripathi Kodi wrote:
+> Linus Torvalds wrote:
 > 
->> hpa wrote:
->>
->>> The only sane thing is to have a set of ABI headers with a clean,
->>> specific set of rules, which is included by the kernel private  headers,
->>> as well as userspace.
->>>
->>
->> Why must the ABI headers be included by both kernel and user  headers to
->> be sane?
->>
->> Hmmm ... I'm not sure I want to ask that, actually.  I have this  feeling
->> from the tone of your assertion that you can explain to me why such a
->> header organization is the only one that fits your mental model of how
->> these things are structured, but that communication between us may
->> break down when you try to convince me that your mental model for this
->> is the only correct one.
+>> I don't think this is wrong per se, but you shouldn't take the 
+>> tasklist lock normally. You're better off just doing
 > 
 > 
-> If we acknowledge the fact that syncing the release dates of two  projects
-> is basically futile, especially given that under your system the kernel
-> headers would not change much/at-all to make the user-headers project
-> easier, then any feature X that appears in a new release of the kernel
-> will not be accessible from userspace tools without ignoring the  point of
-> the user-headers project all together and having separate headers.   Given
-> this, as well as the maintenance burden for those who would need to
-> maintain the user-headers (which would be nearly nil if the current
-> kernel headers could be cleaned up to the point which they could be used
-> instead), this project is lots of messy work either way, but in the long
-> run, if included into the upstream kernel, it will result in much less
-> duplication of effort and much cleaner code.
+> Linus,
+> 
+> I incarporated the path that doesn't hold tasklist lock unnecessarily. 
+> The patch is below. This seems to work without any problems for me.
+> 
+> If the decision is to remove ->permission, I can send a small patch I 
+> have that removes .permission entry from proc_task_inode_operations. 
+> Either way fixes the problem I found.
 
-The issue, as I see it, is not that the nifty new ioctl doesn't become 
-instantly available, although that's not a small benefit of having one 
-and only one set of user headers. The real benefit is avoiding the case 
-where some part of the API *changes* and some feature stops working.
+Let me say that this solution, and any other which loops through all 
+threads of a task, isn't going to scale well. I don't have a magic O(1) 
+solution, if it were easy someone would have done that instead of the 
+while loop, just noting that a clever solution would be a win on servers.
 
-This is obviously uncommon, but not unheard of.
-
-I see the greatest benefit from just not having two sets of headers, I 
-believe all that stuff I learned in CS classes about not having two 
-copies of stuff and assuming that they're the same. It would be less 
-work to clean up the headers once, and let the folks who now maintain 
-the separate headers become the "kernel janitors" to keep it clean.
-
-Not my job, but we have someone offering to do the first cut at it, and 
-it seems a desirable end result.
-
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+> 
+> Thanks and regards,
+> Sripathi.
+> 
+> Signed-off-by: Sripathi Kodi <sripathik@in.ibm.com>
+> 
+> --- linux-2.6.13.1-orig/fs/proc/base.c    2005-09-14 03:46:22.000000000 
+> -0500
+> +++ linux-2.6.13.1/fs/proc/base.c    2005-09-14 03:48:35.000000000 -0500
+> @@ -275,11 +275,33 @@ static int proc_root_link(struct inode *
+>  {
+>      struct fs_struct *fs;
+>      int result = -ENOENT;
+> -    task_lock(proc_task(inode));
+> -    fs = proc_task(inode)->fs;
+> -    if(fs)
+> +    struct task_struct *leader = proc_task(inode);
+> +
+> +    task_lock(leader);
+> +    fs = leader->fs;
+> +    if (fs) {
+>          atomic_inc(&fs->count);
+> -    task_unlock(proc_task(inode));
+> +        task_unlock(leader);
+> +    } else {
+> +        /* Try to get fs from sub-threads */
+> +        task_unlock(leader);
+> +        struct task_struct *task = leader;
+> +        read_lock(&tasklist_lock);
+> +        if (pid_alive(task)) {
+> +            while ((task = next_thread(task)) != leader) {
+> +                task_lock(task);
+> +                fs = task->fs;
+> +                if (fs) {
+> +                    atomic_inc(&fs->count);
+> +                    task_unlock(task);
+> +                    break;
+> +                }
+> +                task_unlock(task);
+> +            }
+> +        }
+> +        read_unlock(&tasklist_lock);
+> +    }
+> +
+>      if (fs) {
+>          read_lock(&fs->lock);
+>          *mnt = mntget(fs->rootmnt);
+> 
 

@@ -1,50 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965215AbVINOCv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965183AbVINOWL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965215AbVINOCv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 10:02:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965216AbVINOCv
+	id S965183AbVINOWL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 10:22:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965189AbVINOWL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 10:02:51 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:46269 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965215AbVINOCu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 10:02:50 -0400
-Date: Wed, 14 Sep 2005 15:02:45 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>, joern@infradead.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Permanently fix kernel configuration include mess (was: Missing #include <config.h>)
-Message-ID: <20050914140245.GA1530@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>,
-	Russell King <rmk+lkml@arm.linux.org.uk>, joern@infradead.org,
-	linux-kernel@vger.kernel.org
-References: <20050913135622.GA30675@phoenix.infradead.org> <20050913150825.A23643@flint.arm.linux.org.uk> <20050913155012.C23643@flint.arm.linux.org.uk> <20050914013944.5ee4efa7.akpm@osdl.org>
+	Wed, 14 Sep 2005 10:22:11 -0400
+Received: from nevyn.them.org ([66.93.172.17]:5068 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S965183AbVINOWJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 10:22:09 -0400
+Date: Wed, 14 Sep 2005 10:22:04 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: "Markus F.X.J. Oberhumer" <markus@oberhumer.com>,
+       linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH] i386: fix stack alignment for signal handlers
+Message-ID: <20050914142204.GA19731@nevyn.them.org>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	"Markus F.X.J. Oberhumer" <markus@oberhumer.com>,
+	linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
+References: <43273CB3.7090200@oberhumer.com> <Pine.LNX.4.58.0509131542510.26803@g5.osdl.org> <4327611D.7@oberhumer.com> <Pine.LNX.4.58.0509131649060.26803@g5.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050914013944.5ee4efa7.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <Pine.LNX.4.58.0509131649060.26803@g5.osdl.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 14, 2005 at 01:39:44AM -0700, Andrew Morton wrote:
-> Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> >
-> >  LINUXINCLUDE    := -Iinclude \
-> >  -                   $(if $(KBUILD_SRC),-Iinclude2 -I$(srctree)/include)
-> >  +                   $(if $(KBUILD_SRC),-Iinclude2 -I$(srctree)/include) \
-> >  +		   -imacros include/linux/autoconf.h
-> 
-> This means that over time the kernel will fail to compile correctly without
-> `-imacros include/linux/autoconf.h'.
-> 
-> That's OK for the kernel, but not for out-of-tree stuff.  Those drivers
-> will need to add the new gcc commandline option too.
+On Tue, Sep 13, 2005 at 04:52:30PM -0700, Linus Torvalds wrote:
+> Your test program does seems to imply that gcc wants the alignment before
+> the return address (ie it prints out an address that is 4 bytes offset),
+> but on the other hand I'm not even sure how careful gcc is about this
+> alignment thing at all.
 
-The only supported way to compile out of tree drivers for 2.6.x is
-to use the kbuild framework, which will automatically add it.
+Very, on architectures where the ABI requires alignment.  E.G. for
+vector register loads that require 16-byte alignment to avoid a trap.
 
+The comment for the relevant bits of the GCC configuration says it
+won't assume this for x86, but I believe that comment is out of date.
+I think it'll assume 16-byte alignment on entrance to non-main()
+functions.
+
+> In the "main()" function, gcc will actually generate a "andl $-16,%esp" to 
+> force the alignment, but ot in the handler function. Just a gcc special 
+> case? Random luck?
+
+Special case.  This is only done for main().
+
+-- 
+Daniel Jacobowitz
+CodeSourcery, LLC

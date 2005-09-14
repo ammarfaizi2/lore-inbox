@@ -1,43 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965086AbVINIrH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965087AbVINIsm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965086AbVINIrH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 04:47:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965087AbVINIrH
+	id S965087AbVINIsm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 04:48:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965088AbVINIsm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 04:47:07 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:65195 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S965086AbVINIrF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 04:47:05 -0400
-Date: Wed, 14 Sep 2005 10:46:21 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net,
-       Jan De Luyck <lkml@kcore.org>
-Subject: Re: ACPI S3 and ieee1394 don't get along
-Message-ID: <20050914084621.GA1941@elf.ucw.cz>
-References: <200509131156.31914.lkml@kcore.org> <20050913102049.GA1876@elf.ucw.cz> <43276CC3.20105@s5r6.in-berlin.de>
+	Wed, 14 Sep 2005 04:48:42 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:64528 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S965087AbVINIsm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 04:48:42 -0400
+Date: Wed, 14 Sep 2005 09:48:36 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: joern@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Permanently fix kernel configuration include mess (was: Missing #include <config.h>)
+Message-ID: <20050914094835.A30672@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>, joern@infradead.org,
+	linux-kernel@vger.kernel.org
+References: <20050913135622.GA30675@phoenix.infradead.org> <20050913150825.A23643@flint.arm.linux.org.uk> <20050913155012.C23643@flint.arm.linux.org.uk> <20050914013944.5ee4efa7.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43276CC3.20105@s5r6.in-berlin.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050914013944.5ee4efa7.akpm@osdl.org>; from akpm@osdl.org on Wed, Sep 14, 2005 at 01:39:44AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> >Last time I checked, you could still break ohci1394 be repeatedly
-> >loading it and unloading it.
+On Wed, Sep 14, 2005 at 01:39:44AM -0700, Andrew Morton wrote:
+> Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> >
+> >  LINUXINCLUDE    := -Iinclude \
+> >  -                   $(if $(KBUILD_SRC),-Iinclude2 -I$(srctree)/include)
+> >  +                   $(if $(KBUILD_SRC),-Iinclude2 -I$(srctree)/include) \
+> >  +		   -imacros include/linux/autoconf.h
 > 
-> Do you have details available on that?
+> This means that over time the kernel will fail to compile correctly without
+> `-imacros include/linux/autoconf.h'.
 > 
-> I never saw such a bug with the two PCI OHCI controllers I can currently 
-> test. I'm not running any isochronous applications though.
+> That's OK for the kernel, but not for out-of-tree stuff.  Those drivers
+> will need to add the new gcc commandline option too.
+> 
+> Not that I'm saying it's a terrible thing.  It's just a thing.
 
-I asked around and it seems to be gone in recent kernels. So sorry
-about the noise.
-								Pavel
+Well I don't really understand all the kbuild complexities, so I just
+did a "what works for me in the setups I have" patch.  Maybe someone
+who properly understands the kbuild complexity should have a look.
+
 -- 
-if you have sharp zaurus hardware you don't need... you know my address
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

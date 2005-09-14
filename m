@@ -1,48 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932565AbVINT5z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbVINUAB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932565AbVINT5z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 15:57:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932568AbVINT5y
+	id S932263AbVINUAB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 16:00:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932568AbVINUAB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 15:57:54 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:64709
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932565AbVINT5x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 15:57:53 -0400
-Date: Wed, 14 Sep 2005 12:57:50 -0700 (PDT)
-Message-Id: <20050914.125750.05416211.davem@davemloft.net>
-To: dipankar@in.ibm.com
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org
-Subject: Re: [PATCH]: Brown paper bag in fs/file.c?
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20050914191842.GA6315@in.ibm.com>
-References: <20050914.113133.78024310.davem@davemloft.net>
-	<20050914191842.GA6315@in.ibm.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Wed, 14 Sep 2005 16:00:01 -0400
+Received: from nome.ca ([65.61.200.81]:61617 "HELO gobo.nome.ca")
+	by vger.kernel.org with SMTP id S932263AbVINUAA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 16:00:00 -0400
+Date: Wed, 14 Sep 2005 13:00:49 -0700
+From: Mike Bell <mike@mikebell.org>
+To: Greg KH <gregkh@suse.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [GIT PATCH] Remove devfs from 2.6.13
+Message-ID: <20050914200048.GB15017@mikebell.org>
+Mail-Followup-To: Mike Bell <mike@mikebell.org>, Greg KH <gregkh@suse.de>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20050909214542.GA29200@kroah.com> <20050910082732.GR13742@mikebell.org> <20050910215254.GA15645@suse.de> <20050910230310.GS13742@mikebell.org> <20050911050906.GA6635@suse.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050911050906.GA6635@suse.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Dipankar Sarma <dipankar@in.ibm.com>
-Date: Thu, 15 Sep 2005 00:48:42 +0530
+On Sat, Sep 10, 2005 at 10:09:06PM -0700, Greg KH wrote:
+> Said people who like devfs are lazy and don't like running userspace
+> programs. 
 
-> __free_fdtable() is used only when the fdarray/fdset are vmalloced
-> (use of the workqueue) or there is a race between two expand_files().
-> That might be why we haven't seen this cause any explicit problem
-> so far.
-> 
-> This would be an appropriate patch - (untested). I will update
-> as soon as testing is done.
+I hardly consider myself lazy or a hater of user space programs. I've
+been an early adopter running unstable series kernels and testing out
+new features since long before devfs went into the kernel. In the past
+I've been quick to switch over to new ways of doing things as they came
+into the kernel, even when it required a fair bit of time and effort to
+migrate.
 
-Thanks.
+What I don't like is when someone arbitrarily declares that their
+half-finished project obsoletes a working one, and yet even a full year
+later with a massive development community using the latest kernel
+features (sometimes added specifically for that project) it isn't a full
+replacement for a project that has been - in your own words -
+unmaintained for years and years.
 
-I still can't figure out what causes my sparc64 bug.  Somehow a
-kmalloc() chunk of file pointers gets freed too early, the SLAB is
-shrunk due to memory pressure so the page containing that object gets
-freed, that page ends up as an anonymous page in userspace, but filp
-writes from the older usage occurs and corrupts the page.
+> They pretty much also are pretty restricted to embedded systems.
+> That's all I have been able to determine so far.  Care to help flush
+> this profile out some?
 
-I wonder if we simply leave a stale pointer around to the older
-fd array in some case.
+Probably because they're the people building linux systems from scratch
+and caring about the size and speed of the result?
+
+> My applogies, I used the OSS compatible module for ALSA when I tested
+> this out. 
+
+And while some input subsystem users force you to specify a device node,
+this method is incompatible with hotplugging so the more advanced ones
+rely on finding the input device nodes where they're supposed to be, as
+they should.
+
+> Hm, ok, ALSA will not work.  Can you point to anything else? 
+
+See above. And of course ndevfs doesn't create the device nodes that udev
+doesn't support (yes, even in 2.6.12 devfs still supported more devices
+than udev on my test system). Those are just the things that bit me on
+the one system I tried ndevfs on before deciding there was no way to
+make it work without adding sysfs attributes.
+
+> Who cares about sound on embedded systems anyway...
+
+People who make audio players, SIP phones, PMPs, multimedia displays,
+information kiosks, set top boxes, security monitoring devices and PA
+systems, to give just a few examples of embedded systems that need sound
+and are currently made with linux. And even though embedded linux is
+still in its infancy, I would guess that it's responsible for more linux
+systems in people's hands than most distributions.
+
+> I'm claiming that the people who insisted that keeping the devfs
+> patchset outside of the mainline kernel was impossible.  I show how to
+> do this with 3 calls to "add a node" and three calls to "remove a node",
+> in a total of only 2 different kernel files.  Such a patch is _easily_
+> maintainable for pretty much forever outside the kernel tree.  Distros
+> maintain patches _way_ more complex and rough than that all the time.
+
+How is that anything of the sort? ndevfs doesn't work, and isn't even
+remotely compatible with devfs. Yes, ndevfs is easy to maintain out of
+the kernel tree. But since ndevfs has absolutely nothing to do with
+devfs, that doesn't change the fact that devfs can't be maintained out
+of the kernel tree. Your reasoning makes no sense.
+
+Anyway, if things continue the way they are with intentional
+devfs-breakage having moved from out-of-tree drivers to in-tree drivers,
+you'll get your wish soon enough when backhanded devfs removal makes the
+in-tree version useless.

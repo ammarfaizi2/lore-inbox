@@ -1,48 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965065AbVINHoN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965066AbVINHsz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965065AbVINHoN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 03:44:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965066AbVINHoN
+	id S965066AbVINHsz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 03:48:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965071AbVINHsz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 03:44:13 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:649 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S965065AbVINHoN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 03:44:13 -0400
-Date: Wed, 14 Sep 2005 09:44:48 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Grant Grundler <grundler@parisc-linux.org>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>, Sam Ravnborg <sam@ravnborg.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: -git11 breaks parisc and sh even more
-Message-ID: <20050914074448.GA14259@elte.hu>
-References: <20050913174754.GA13132@mipter.zuzino.mipt.ru> <20050913185759.GA17272@mars.ravnborg.org> <20050913203720.GA12868@mipter.zuzino.mipt.ru> <20050914074248.GA21436@colo.lackof.org> <20050914074309.GA14116@elte.hu>
+	Wed, 14 Sep 2005 03:48:55 -0400
+Received: from mailout11.sul.t-online.com ([194.25.134.85]:15766 "EHLO
+	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S965066AbVINHsy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 03:48:54 -0400
+Message-Id: <5.1.0.14.2.20050914092308.025ca630@pop.t-online.de>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 14 Sep 2005 09:48:31 +0200
+To: Denis Vlasenko <vda@ilport.com.ua>
+From: Margit Schubert-While <margitsw@t-online.de>
+Subject: Re: 2.6.13/14 x86 Makefile - Pentiums penalized ?
+Cc: chriswhite@gentoo.org, linux-kernel@vger.kernel.org,
+       zwane@arm.linux.org.uk
+In-Reply-To: <200509140959.05902.vda@ilport.com.ua>
+References: <Pine.LNX.4.61.0509132345050.13185@montezuma.fsmlabs.com>
+ <5.1.0.14.2.20050913075517.0259c498@pop.t-online.de>
+ <200509141414.08343.chriswhite@gentoo.org>
+ <Pine.LNX.4.61.0509132345050.13185@montezuma.fsmlabs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050914074309.GA14116@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-ID: JbQYSiZVgeZMYuQwgziF9fFSivtMMf0KOpDAeCk9oVaQQA0NOF7CEa
+X-TOI-MSGID: cfb74a65-8cab-4430-8956-c73a24b94e82
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 09:59 14.09.2005 +0300, Denis Vlasenko wrote:
+>On Wednesday 14 September 2005 09:48, Zwane Mwaikambo wrote:
+> > On Wed, 14 Sep 2005, Chris White wrote:
+> >
+> > > That's correct, gcc 3.4 started the -mtune flag.  Chances are if you 
+> really
+> > > want the -mtune optimizations you're going to have to upgrade to gcc 
+> 3.4 or
+> > > greater.
+> > >
+> > > > This, of course, heavily penalizes P4's (the notorious inc/dec).
+> > >
+> > > Are you referring to cpu cycle counts?  Is there certain code that 
+> causes the
+> > > kernel to perform that unfavorably by a large scale?
+> >
+> > It's documented as being suboptimal to use inc/dec due to it modifying all
+> > of eflags resulting in dependency related stalls. add/sub only modifies
+> > one bit of eflags so is more optimal. However there is a problem of
+>
+>?! add/sub doesn't modify "only one bit in eflags", it modifies all.
+>In fact, it's dec/inc which does not modify all bits.
+>It doesn't touch 'carry' bit (IIRC).
+>
+>If inc/dec is slower on P4, it must be just another P4 quirk.
+>
+> > increased code size with add/sub.
+> >
+> > But i've never benchmarked all of this ;)
+>
+>I don't even have one to test this.
 
-* Ingo Molnar <mingo@elte.hu> wrote:
 
-> git snapshots dont seem to be working right now, [...]
+In the Intel Architecture Optimization document it specifically states 
+(Chapter 2.6) :
+"Avoid instructions that unnecessarily introduce dependence-related
+stalls: inc and dec instructions, .....".
+And again on page 2-11 :
+"The inc and dec instructions should always be avoided. Using add and
+sub instructions instead avoids data dependence and improves performance".
+And on page 2-71 :
+"The inc and dec instructions modify only a subset of flags in the flag 
+register.
+This creates a dependence on all previous writes of the flag register.
+This is especially problematic when these instructions are on the critical
+path because they are used to change an address for a load on which
+many other instructions depend. "
 
-looked into the wrong place. You can get -git11 from:
+However, the kernel include and arch have a liberal sprinkling of inc/dec,
+and AFAICT some of these in hot-path.
 
- http://kernel.org/pub/linux/kernel/v2.6/snapshots/patch-2.6.13-git11.bz2
+Margit
 
-or -git12 (the latest Linus tree) from:
 
- http://kernel.org/pub/linux/kernel/v2.6/snapshots/patch-2.6.13-git12.bz2
 
-	Ingo
+
+
+
+

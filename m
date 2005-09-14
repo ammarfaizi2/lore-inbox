@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965127AbVINJzy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965138AbVINJ6P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965127AbVINJzy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 05:55:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965129AbVINJzy
+	id S965138AbVINJ6P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 05:58:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965134AbVINJ6P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 05:55:54 -0400
-Received: from albireo.ucw.cz ([84.242.65.108]:52664 "EHLO albireo.ucw.cz")
-	by vger.kernel.org with ESMTP id S965127AbVINJzy (ORCPT
+	Wed, 14 Sep 2005 05:58:15 -0400
+Received: from wscnet.wsc.cz ([212.80.64.118]:30599 "EHLO wscnet.wsc.cz")
+	by vger.kernel.org with ESMTP id S965131AbVINJ6N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 05:55:54 -0400
-Date: Wed, 14 Sep 2005 11:55:48 +0200
-From: Martin Mares <mj@ucw.cz>
-To: Pascal Bellard <pascal.bellard@ads-lu.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Frank Sorenson <frank@tuxrocks.com>,
-       riley@williams.name, linux-kernel@vger.kernel.org
-Subject: Re: [i386 BOOT CODE] kernel bootable again
-Message-ID: <20050914095548.GA5831@ucw.cz>
-References: <33542.85.68.36.53.1126619176.squirrel@212.11.36.192> <432722A1.8030302@tuxrocks.com> <43272B9D.1030301@zytor.com> <33296.85.68.36.53.1126690932.squirrel@212.11.36.192>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <33296.85.68.36.53.1126690932.squirrel@212.11.36.192>
-User-Agent: Mutt/1.3.28i
+	Wed, 14 Sep 2005 05:58:13 -0400
+Message-ID: <4327F41B.6080008@gmail.com>
+Date: Wed, 14 Sep 2005 11:57:47 +0200
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: cs, en-us, en
+MIME-Version: 1.0
+To: Timothy Thelin <Timothy.Thelin@wdc.com>
+CC: James Bottomley <James.Bottomley@SteelEye.com>,
+       Mike Christie <michaelc@cs.wisc.edu>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [RESEND][PATCH 2.6.14-rc1] scsi: sd, sr, st, and scsi_lib all
+ fail to copy cmd_len to new cmd
+References: <CA45571DE57E1C45BF3552118BA92C9D69BDE9@WDSCEXBECL03.sc.wdc.com>
+In-Reply-To: <CA45571DE57E1C45BF3552118BA92C9D69BDE9@WDSCEXBECL03.sc.wdc.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Timothy Thelin napsal(a):
 
-> Now two solutions:
-> 
-> - without this patch = linux kernel are never directly bootable
-> - with this patch = linux kernel is directly bootable with some
->   devices.
-> 
-> What is the better idea ?
+>Sorry it wrapped.  It's now an attachment.
+>
+>This fixes an issue in scsi command initialization from a request
+>where sd, sr, st, and scsi_lib all fail to copy the request's
+>cmd_len to the scsi command's cmd_len field.
+>
+>Signed-off-by: Timothy Thelin <timothy.thelin@wdc.com>
+>  
+>
+Mime is hell, include patch in e-mail's body, please.
 
-The first, as long as nobody really needs direct booting. Code bloat.
+thanks,
 
-				Have a nice fortnight
 -- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-The first myth of management is that it exists.
+Jiri Slaby         www.fi.muni.cz/~xslaby
+~\-/~      jirislaby@gmail.com      ~\-/~
+241B347EC88228DE51EE A49C4A73A25004CB2A10
+

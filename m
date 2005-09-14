@@ -1,84 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965019AbVINGBl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965032AbVINGMQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965019AbVINGBl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 02:01:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965028AbVINGBl
+	id S965032AbVINGMQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 02:12:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965033AbVINGMQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 02:01:41 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:61661 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S965019AbVINGBk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 02:01:40 -0400
-Date: Tue, 13 Sep 2005 23:01:19 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: zippel@linux-m68k.org, akpm@osdl.org, torvalds@osdl.org,
-       Simon.Derr@bull.net, linux-kernel@vger.kernel.org, nikita@clusterfs.com
-Subject: Re: [PATCH] cpuset semaphore depth check optimize
-Message-Id: <20050913230119.13be3fed.pj@sgi.com>
-In-Reply-To: <20050913103724.19ac5efa.pj@sgi.com>
-References: <20050912113030.15934.9433.sendpatchset@jackhammer.engr.sgi.com>
-	<20050912043943.5795d8f8.akpm@osdl.org>
-	<20050912075155.3854b6e3.pj@sgi.com>
-	<Pine.LNX.4.61.0509121821270.3743@scrub.home>
-	<20050912153135.3812d8e2.pj@sgi.com>
-	<Pine.LNX.4.61.0509131120020.3728@scrub.home>
-	<20050913103724.19ac5efa.pj@sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Wed, 14 Sep 2005 02:12:16 -0400
+Received: from qproxy.gmail.com ([72.14.204.195]:56021 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965032AbVINGMP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 02:12:15 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=JiJzTZgj82hQATAOUlYWKI3JjuRIQHH71unnOHF/u/6+hhh7/Vwp9VP1BFvEtYPjRKEZaboG6MlPVJJdl2k+HcB1GB87gp6ki7zy9hXcqCcEmBt2XvTqTkpivbr2bufyPtmrmDYIndr1QNSItYOkYB/3ICTzKo6a9yVeqnnWaSo=
+Message-ID: <cb57165a050913231210fa2b42@mail.gmail.com>
+Date: Tue, 13 Sep 2005 23:12:06 -0700
+From: Lee Nicks <allinux@gmail.com>
+Reply-To: allinux@gmail.com
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.14-rc1] ppc: prevent GCC 4 from generating AltiVec instructions in kernel
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-pj wrote:
-> I'd expect the spinlocks to get taken
-> and released in the following order on these cpusets:
-> 
-> 	    lock /A/B/C
-> 	    lock /A/B
-> 	    lock /A
-> 	    lock /
-> 	      ==> found what I was searching for
-> 	    unlock /
-> 	    unlock /A
-> 	    unlock /A/B
-> 	    unlock /A/B/C
+Depending on how GCC is built, GCC 4 may generate altivec instructions
+without user explicitly requesting vector operations in the code.
+Although this is a performance booster for user applications, it is a
+problem for kernel.
+This patch explicitly instruct GCC to NOT generate altivec
+instructions while building the kernel.
+Here are some test cases I ran.
+(1) build gcc 4.0.1 with '--with-cpu=7450 --enable-altivec
+--enable-cxx-flags=-mcpu=7450', and use this gcc to build kernel
+WITHOUT this kernel patch. Kernel fail to boot up on a 7450 board
+because of altivec instructions in kernel.
+(2) build gcc 4.0.1 with "--with-cpu=7450 --enable-altivec
+--enable-cxx-flags=-mcpu=7450", and use this gcc to build kernel WITH
+this kernel patch. Kernel boot up on a 7450 board without any problem.
+(3) build gcc 4.0.1 with "--with-cpu=750
+--enable-cxx-flags=-mcpu=750", and use this gcc to build kernel with
+or without this kernel patch. Kernel boot up on a 7450 board without
+any problem.
+This patch should also work with GCC 3 or even earlier GCC 2.95.3.
+Please review and apply it.
 
-The appropriate condition required to prevent deadlock is weaker than
-stated above.  The condition should be:
+Signed-off-by: Lee Nicks <allinux@gmail.com>
+======================================
 
-     * A task can hold the spinlocks for multiple cpusets, but only
-     * if it acquires in bottom up order.  That is, whenever a task
-     * tries to lock a cpuset, the only cpusets it may already have
-     * locked must be descendents of the one it is going for.
+diff -ruN linux-2.6.14-rc1-original/arch/ppc/Makefile
+linux-2.6.14-rc1/arch/ppc/Makefile
+--- linux-2.6.14-rc1-original/arch/ppc/Makefile 2005-09-13
+20:00:34.000000000 -0700
++++ linux-2.6.14-rc1/arch/ppc/Makefile  2005-09-13 20:09:36.000000000 -0700
+@@ -26,6 +26,12 @@
+ AFLAGS         += -Iarch/$(ARCH)
+ CFLAGS         += -Iarch/$(ARCH) -msoft-float -pipe \
+                -ffixed-r2 -mmultiple
++
++# No AltiVec instruction when building kernel
++ifeq ($(call cc-option-yn, -mno-altivec), y)
++CFLAGS          += -mno-altivec
++endif
++
+ CPP            = $(CC) -E $(CFLAGS)
+ # Temporary hack until we have migrated to asm-powerpc
+ LINUXINCLUDE    += -Iarch/$(ARCH)/include
+diff -ruN linux-2.6.14-rc1-original/arch/ppc64/Makefile
+linux-2.6.14-rc1/arch/ppc64/Makefile
+--- linux-2.6.14-rc1-original/arch/ppc64/Makefile       2005-09-13
+20:00:36.000000000 -0700
++++ linux-2.6.14-rc1/arch/ppc64/Makefile        2005-09-13
+20:08:41.000000000 -0700
+@@ -75,6 +75,11 @@
+        CFLAGS += $(call cc-option,-mtune=power4)
+ endif
 
-With this, the following sequence of lock operations would also
-be acceptable, holding the bottom lock, while walking up the tree,
-locking and unlocking each ancestor in turn, until one is found
-that satisfies the present query.  Only the bottom most lock has
-to be held in this approach, for the duration.
-
- 	    lock /A/B/C
- 	    lock /A/B
- 	    unlock /A/B
- 	    lock /A
- 	    unlock /A
- 	    lock /
- 	      ==> found what I was searching for
- 	    unlock /
- 	    unlock /A/B/C
-
-This sequence is a little easier to implement, because there is no need
-to keep a variable length queue of locks to be undone.  At most two
-locks are held at anytime.
-
-If a variable length queue of locks to be undone had been needed, it
-could have been implemented using one more field in each cpuset,
-forming a LIFO linked list of cpusets to be unlocked.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
++# No AltiVec instruction when building kernel
++ifeq ($(call cc-option-yn, -mno-altivec), y)
++CFLAGS          += -mno-altivec
++endif
++
+ # Enable unit-at-a-time mode when possible. It shrinks the
+ # kernel considerably.
+ CFLAGS += $(call cc-option,-funit-at-a-time)

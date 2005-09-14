@@ -1,57 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932179AbVINULc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932543AbVINUOM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932179AbVINULc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 16:11:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932543AbVINULc
+	id S932543AbVINUOM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 16:14:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932558AbVINUOL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 16:11:32 -0400
-Received: from smtp04.auna.com ([62.81.186.14]:10940 "EHLO smtp04.retemail.es")
-	by vger.kernel.org with ESMTP id S932179AbVINULb convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 16:11:31 -0400
-Date: Wed, 14 Sep 2005 20:11:27 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: [PATCH] i386: fix stack alignment for signal handlers
-To: "Markus F.X.J. Oberhumer" <markus@oberhumer.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Andi Kleen <ak@suse.de>
-References: <43273CB3.7090200@oberhumer.com>
-	<Pine.LNX.4.58.0509131542510.26803@g5.osdl.org> <4327611D.7@oberhumer.com>
-In-Reply-To: <4327611D.7@oberhumer.com> (from markus@oberhumer.com on Wed
-	Sep 14 01:30:37 2005)
-X-Mailer: Balsa 2.3.4
-Message-Id: <1126728687l.6759l.0l@werewolf.able.es>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-X-Auth-Info: Auth:LOGIN IP:[83.138.213.114] Login:jamagallon@able.es Fecha:Wed, 14 Sep 2005 22:11:28 +0200
+	Wed, 14 Sep 2005 16:14:11 -0400
+Received: from smtpout.mac.com ([17.250.248.47]:27344 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S932543AbVINUOK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 16:14:10 -0400
+In-Reply-To: <20050914200123.GC15017@mikebell.org>
+References: <20050911114435.5990.qmail@science.horizon.com> <808CC4DC-15F3-4F6E-A9C6-6CBEC3D5415F@mac.com> <20050914200123.GC15017@mikebell.org>
+Mime-Version: 1.0 (Apple Message framework v734)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <EE790043-4D94-4B5D-B8C9-E4C1718291E7@mac.com>
+Cc: linux@horizon.com, linux-kernel@vger.kernel.org, Valdis.Kletnieks@vt.edu
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [GIT PATCH] Remove devfs from 2.6.13
+Date: Wed, 14 Sep 2005 16:13:45 -0400
+To: Mike Bell <mike@mikebell.org>
+X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sep 14, 2005, at 16:01:24, Mike Bell wrote:
+> On Sun, Sep 11, 2005 at 11:43:02AM -0400, Kyle Moffett wrote:
+>> That sounds like _exactly_ the case where the Debian folks could  
+>> maintain the out-of-tree ndevfs patch for a while until they got  
+>> their installer floppies and such migrated to udev.
+>
+> Then you know nothing about the subject at hand. Moving from devfs  
+> to ndevfs is dramatically /harder/ than moving from devfs to udev.  
+> ndevfs is not devfs compatible in any way, shape or form.
 
-On 09.14, Markus F.X.J. Oberhumer wrote:
-...
-> 
-> #include <stdio.h>
-> #include <signal.h>
-> #include <unistd.h>
-> #include <assert.h>
-> 
-> typedef struct { double x,y; } Aligned16 __attribute__((__aligned__(16)));
-> 
-> void *saved_esp;
-> void handler(int unused) {
->          Aligned16 a;
->          assert(__alignof(a) >= 16),
+The debian installer has devfs paths coded into it, ok, sure.  The  
+reason it used devfs was so it didn't need extra userspace stuff to  
+create device nodes.  It seems like the installer could be reasonably  
+easily converted to use different path names without changing any  
+_real_ code at all, and from there all you need to do is add the  
+ndevfs patch to the kernel.  It's probably about as difficult to add  
+the udev userspace stuff at the right point in the boot process (you  
+still need to change all the pathnames), as it is to add the ndevfs  
+patch to the kernel.  On the other hand, the latter _might_ result in  
+a smaller floppy image, which is what the Debian developers really  
+wanted/needed.  I suppose it would be nice if the busybox people  
+added basic udev-type functionality, but it's not really all that  
+necessary.
 
-errr...   assert(__alignof(a) < 16), ???
-
+Cheers,
+Kyle Moffett
 
 --
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandriva Linux release 2006.0 (Cooker) for i586
-Linux 2.6.13-jam4 (gcc 4.0.1 (4.0.1-5mdk for Mandriva Linux release 2006.0))
+I lost interest in "blade servers" when I found they didn't throw  
+knives at people who weren't supposed to be in your machine room.
+   -- Anthony de Boer
 
 

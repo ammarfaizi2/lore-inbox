@@ -1,48 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751165AbVIMXwj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964870AbVINAD1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751165AbVIMXwj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 19:52:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751171AbVIMXwj
+	id S964870AbVINAD1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 20:03:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964852AbVINAD1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 19:52:39 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:61649 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751165AbVIMXwi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 19:52:38 -0400
-Message-ID: <432765FC.7010204@jp.fujitsu.com>
-Date: Wed, 14 Sep 2005 08:51:24 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
-X-Accept-Language: ja, en-us, en
+	Tue, 13 Sep 2005 20:03:27 -0400
+Received: from wdscexfe01.sc.wdc.com ([129.253.170.53]:4787 "EHLO
+	wdscexfe01.sc.wdc.com") by vger.kernel.org with ESMTP
+	id S1751182AbVINAD0 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 20:03:26 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Roman Zippel <zippel@linux-m68k.org>, Andrew Morton <akpm@osdl.org>,
-       discuss@x86-64.org, linux-kernel@vger.kernel.org
-Subject: Re: [discuss] Re: [1/3] Add 4GB DMA32 zone
-References: <43246267.mailL4R11PXCB@suse.de> <200509131147.42140.ak@suse.de> <20050913031540.0c732284.akpm@osdl.org> <200509131332.17244.ak@suse.de> <Pine.LNX.4.61.0509131407580.3743@scrub.home>
-In-Reply-To: <Pine.LNX.4.61.0509131407580.3743@scrub.home>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: [PATCH 2.6.14-rc1] scsi: sd, sr, st, and scsi_lib all fail to copy cmd_len to new cmd
+Date: Tue, 13 Sep 2005 17:03:27 -0700
+Message-ID: <CA45571DE57E1C45BF3552118BA92C9D69BDE2@WDSCEXBECL03.sc.wdc.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 2.6.14-rc1] scsi: sd, sr, st, and scsi_lib all fail to copy cmd_len to new cmd
+Thread-Index: AcW4v7oRdreQAaYMTVCvuZCzLZPHIw==
+From: "Timothy Thelin" <Timothy.Thelin@wdc.com>
+To: "James Bottomley" <James.Bottomley@SteelEye.com>,
+       "Mike Christie" <michaelc@cs.wisc.edu>,
+       "SCSI Mailing List" <linux-scsi@vger.kernel.org>
+Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>,
+       "Andrew Morton" <akpm@osdl.org>
+X-OriginalArrivalTime: 14 Sep 2005 00:03:22.0357 (UTC) FILETIME=[B87FBA50:01C5B8BF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel wrote:
->>Kamezawa-san, can you please explain why exactly you did that change?
-> 
-> 
-> Probably because it triggers this check:
-> 
-> #if SECTIONS_WIDTH+NODES_WIDTH+ZONES_WIDTH > FLAGS_RESERVED
-> #error SECTIONS_WIDTH+NODES_WIDTH+ZONES_WIDTH > FLAGS_RESERVED
-> #endif
-> 
-Yes, it was for this.
-If still ZONES_WIDTH = ZONES_SHIFT =2, I have no problem.
+This fixes an issue in scsi command initialization from a request
+where sd, sr, st, and scsi_lib all fail to copy the request's
+cmd_len to the scsi command's cmd_len field.
 
-Thanks,
--- Kame
+Signed-off-by: Timothy Thelin <timothy.thelin@wdc.com>
 
-> bye, Roman
-> 
-
-
+diff -pu linux-2.6.14-rc1.orig/drivers/scsi/scsi_lib.c
+linux-2.6.14-rc1/drivers/scsi/scsi_lib.c
+--- linux-2.6.14-rc1.orig/drivers/scsi/scsi_lib.c	2005-09-12
+20:12:09.000000000 -0700
++++ linux-2.6.14-rc1/drivers/scsi/scsi_lib.c	2005-09-13
+16:28:58.000000000 -0700
+@@ -1268,6 +1268,7 @@ static int scsi_prep_fn(struct request_q
+ 			}
+ 		} else {
+ 			memcpy(cmd->cmnd, req->cmd, sizeof(cmd->cmnd));
++			cmd->cmd_len = req->cmd_len;
+ 			if (rq_data_dir(req) == WRITE)
+ 				cmd->sc_data_direction = DMA_TO_DEVICE;
+ 			else if (req->data_len)
+diff -pu linux-2.6.14-rc1.orig/drivers/scsi/sd.c
+linux-2.6.14-rc1/drivers/scsi/sd.c
+--- linux-2.6.14-rc1.orig/drivers/scsi/sd.c	2005-09-12
+20:12:09.000000000 -0700
++++ linux-2.6.14-rc1/drivers/scsi/sd.c	2005-09-13 16:03:20.000000000 -0700
+@@ -235,6 +235,7 @@ static int sd_init_command(struct scsi_c
+ 			return 0;
+ 
+ 		memcpy(SCpnt->cmnd, rq->cmd, sizeof(SCpnt->cmnd));
++		SCpnt->cmd_len = rq->cmd_len;
+ 		if (rq_data_dir(rq) == WRITE)
+ 			SCpnt->sc_data_direction = DMA_TO_DEVICE;
+ 		else if (rq->data_len)
+diff -pu linux-2.6.14-rc1.orig/drivers/scsi/sr.c
+linux-2.6.14-rc1/drivers/scsi/sr.c
+--- linux-2.6.14-rc1.orig/drivers/scsi/sr.c	2005-09-12
+20:12:09.000000000 -0700
++++ linux-2.6.14-rc1/drivers/scsi/sr.c	2005-09-13 16:05:47.000000000 -0700
+@@ -326,6 +326,7 @@ static int sr_init_command(struct scsi_c
+ 			return 0;
+ 
+ 		memcpy(SCpnt->cmnd, rq->cmd, sizeof(SCpnt->cmnd));
++		SCpnt->cmd_len = rq->cmd_len;
+ 		if (!rq->data_len)
+ 			SCpnt->sc_data_direction = DMA_NONE;
+ 		else if (rq_data_dir(rq) == WRITE)
+diff -pu linux-2.6.14-rc1.orig/drivers/scsi/st.c
+linux-2.6.14-rc1/drivers/scsi/st.c
+--- linux-2.6.14-rc1.orig/drivers/scsi/st.c	2005-09-12
+20:12:09.000000000 -0700
++++ linux-2.6.14-rc1/drivers/scsi/st.c	2005-09-13 16:04:10.000000000 -0700
+@@ -4206,6 +4206,7 @@ static int st_init_command(struct scsi_c
+ 		return 0;
+ 
+ 	memcpy(SCpnt->cmnd, rq->cmd, sizeof(SCpnt->cmnd));
++	SCpnt->cmd_len = rq->cmd_len;
+ 
+ 	if (rq_data_dir(rq) == WRITE)
+ 		SCpnt->sc_data_direction = DMA_TO_DEVICE;

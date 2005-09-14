@@ -1,58 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932541AbVINV3p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932747AbVINVdl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932541AbVINV3p (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 17:29:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932561AbVINV3p
+	id S932747AbVINVdl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 17:33:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932775AbVINVdl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 17:29:45 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:27405 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932541AbVINV3p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 17:29:45 -0400
-Date: Wed, 14 Sep 2005 22:29:39 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: adobriyan@gmail.com, spyro@f2s.com, domen@coderock.org,
-       linux-kernel@vger.kernel.org, philb@gnu.org
-Subject: Re: [PATCH] Remove drivers/parport/parport_arc.c
-Message-ID: <20050914222938.E30746@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>, adobriyan@gmail.com,
-	spyro@f2s.com, domen@coderock.org, linux-kernel@vger.kernel.org,
-	philb@gnu.org
-References: <20050914202420.GK19491@mipter.zuzino.mipt.ru> <20050914220837.D30746@flint.arm.linux.org.uk> <20050914141631.1567758b.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050914141631.1567758b.akpm@osdl.org>; from akpm@osdl.org on Wed, Sep 14, 2005 at 02:16:31PM -0700
+	Wed, 14 Sep 2005 17:33:41 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:48052 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932747AbVINVdk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 17:33:40 -0400
+Date: Wed, 14 Sep 2005 17:33:38 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: James Bottomley <James.Bottomley@SteelEye.com>
+cc: Anton Blanchard <anton@samba.org>, Dipankar Sarma <dipankar@in.ibm.com>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6.14-rc1] sym scsi boot hang
+In-Reply-To: <1126730659.4825.18.camel@mulgrave>
+Message-ID: <Pine.LNX.4.44L0.0509141716410.8011-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 14, 2005 at 02:16:31PM -0700, Andrew Morton wrote:
-> Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> >
-> > On Thu, Sep 15, 2005 at 12:24:20AM +0400, Alexey Dobriyan wrote:
-> > > From: Domen Puncer <domen@coderock.org>
-> > > 
-> > > Remove nowhere referenced file (grep "parport_arc\." didn't find anything).
-> > 
-> > Maybe Ian Molton might like to ensure that this is linked in to the
-> > build.
-> > 
+On Wed, 14 Sep 2005, James Bottomley wrote:
+
+> On Wed, 2005-09-14 at 16:19 -0400, Alan Stern wrote:
+> > On Wed, 14 Sep 2005, James Bottomley wrote:
+> > Then shouldn't you also avoid unprepping and reprepping a command that is
+> > deferred because the host isn't ready?
 > 
-> Yeah, except it's also unused in 2.4 and includes non-existent header
-> files.  Probably it's an ex-parrot but it'd be worth an attempt to get
-> it to compile before we remove it.
+> Yes ... really the only case for unprep is when we've partially released
+> the command (like in scsi_io_completion) where we need to tear the rest
+> of it down.
 
-True - I never had a machine which parport_arc was used on, so it
-existed from the time when parport was initially written and remained
-in that rather sad state.  The only person I know who may have tinkered
-with it would be Dave Gilbert.
+In other words, in scsi_requeue_command and nowhere else.
 
-However, it's now within the set of machines which Ian looks after, so
-Ian should at least know of its impending demise.
+> The rule should be that if it needs preparing, then it's in the same
+> state as the block layer would send it to us in (with no appendages).
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+That's what the unprep routine was supposed to accomplish.
+
+> For most requeues, we have all the prepared resources attached, so they
+> don't need tearing down and repreparing.
+> 
+> > And isn't it necessary to make sure that req->special is NULL when
+> > submitting a special request with no scsi_request, and that
+> 
+> Yes, but only if the command will be prepared again.
+
+Or will be prepared for the first time, as in scsi_execute.  As far as I 
+can tell, a new struct request is not set to all 0's.  So if you queue a 
+request with REQ_SPECIAL set and you fail to clear req->special, you're in 
+trouble.  Do you have any idea why this hasn't been causing errors all 
+along?
+
+> > cmd->sc_request is NULL when associating a command block to a special
+> > request with no scsi_request?
+> 
+> No, that's zeroed out when the command is allocated.  It's only set in
+> the path that sends down a scsi_request.
+
+Oops, yes.  I must have been reading __scsi_get_command instead of 
+scsi_get_command.
+
+Okay, then how does this patch look (moved the routine over to where it 
+gets used, plus two real changes)?
+
+Alan Stern
+
+
+
+Index: usb-2.6/drivers/scsi/scsi_lib.c
+===================================================================
+--- usb-2.6.orig/drivers/scsi/scsi_lib.c
++++ usb-2.6/drivers/scsi/scsi_lib.c
+@@ -100,29 +100,6 @@ static void scsi_run_queue(struct reques
+ static void scsi_release_buffers(struct scsi_cmnd *cmd);
+ 
+ /*
+- * Function:	scsi_unprep_request()
+- *
+- * Purpose:	Remove all preparation done for a request, including its
+- *		associated scsi_cmnd, so that it can be requeued.
+- *
+- * Arguments:	req	- request to unprepare
+- *
+- * Lock status:	Assumed that no locks are held upon entry.
+- *
+- * Returns:	Nothing.
+- */
+-static void scsi_unprep_request(struct request *req)
+-{
+-	struct scsi_cmnd *cmd = req->special;
+-
+-	req->flags &= ~REQ_DONTPREP;
+-	req->special = (req->flags & REQ_SPECIAL) ? cmd->sc_request : NULL;
+-
+-	scsi_release_buffers(cmd);
+-	scsi_put_command(cmd);
+-}
+-
+-/*
+  * Function:    scsi_queue_insert()
+  *
+  * Purpose:     Insert a command in the midlevel queue.
+@@ -343,6 +320,7 @@ int scsi_execute(struct scsi_device *sde
+ 	req->sense_len = 0;
+ 	req->timeout = timeout;
+ 	req->flags |= flags | REQ_BLOCK_PC | REQ_SPECIAL | REQ_QUIET;
++	req->special = NULL;
+ 
+ 	/*
+ 	 * head injection *required* here otherwise quiesce won't work
+@@ -564,6 +542,29 @@ static void scsi_run_queue(struct reques
+ }
+ 
+ /*
++ * Function:	scsi_unprep_request()
++ *
++ * Purpose:	Remove all preparation done for a request, including its
++ *		associated scsi_cmnd, so that it can be requeued.
++ *
++ * Arguments:	req	- request to unprepare
++ *
++ * Lock status:	Assumed that no locks are held upon entry.
++ *
++ * Returns:	Nothing.
++ */
++static void scsi_unprep_request(struct request *req)
++{
++	struct scsi_cmnd *cmd = req->special;
++
++	req->flags &= ~REQ_DONTPREP;
++	req->special = (req->flags & REQ_SPECIAL) ? cmd->sc_request : NULL;
++
++	scsi_release_buffers(cmd);
++	scsi_put_command(cmd);
++}
++
++/*
+  * Function:	scsi_requeue_command()
+  *
+  * Purpose:	Handle post-processing of completed commands.
+@@ -1514,7 +1515,6 @@ static void scsi_request_fn(struct reque
+ 	 * cases (host limits or settings) should run the queue at some
+ 	 * later time.
+ 	 */
+-	scsi_unprep_request(req);
+ 	spin_lock_irq(q->queue_lock);
+ 	blk_requeue_request(q, req);
+ 	sdev->device_busy--;
+
+

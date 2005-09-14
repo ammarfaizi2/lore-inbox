@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965074AbVINHyv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965075AbVINHzp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965074AbVINHyv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 03:54:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965076AbVINHyu
+	id S965075AbVINHzp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 03:55:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965076AbVINHzp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 03:54:50 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:45779 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S965074AbVINHyu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 03:54:50 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Margit Schubert-While <margitsw@t-online.de>
-Subject: Re: 2.6.13/14 x86 Makefile - Pentiums penalized ?
-Date: Wed, 14 Sep 2005 10:54:08 +0300
-User-Agent: KMail/1.8.2
-Cc: chriswhite@gentoo.org, linux-kernel@vger.kernel.org,
-       zwane@arm.linux.org.uk
-References: <Pine.LNX.4.61.0509132345050.13185@montezuma.fsmlabs.com> <5.1.0.14.2.20050914092308.025ca630@pop.t-online.de>
-In-Reply-To: <5.1.0.14.2.20050914092308.025ca630@pop.t-online.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Sep 2005 03:55:45 -0400
+Received: from wproxy.gmail.com ([64.233.184.203]:62619 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965075AbVINHzo convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 03:55:44 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=pZHgIXiBZLgs1d2dREP6G48vOaHg2Mg6cTr4Kb7MSK/ftmnxr5sWR9+9AZIiU+w56jCgPcgywdkaEehXPLFzbK2+EFZ/Yr/mZSYHuTr2u87Z2LOxjUMuowE9wNNIm533vBLMVUg/1EjOB1Dv6Zadm8Wq9iyC3O7mAfPoBkxcGx8=
+Message-ID: <bae323a50509140055589e843e@mail.gmail.com>
+Date: Wed, 14 Sep 2005 09:55:41 +0200
+From: Carlos Ojea Castro <nuudoo.fb@gmail.com>
+Reply-To: nuudoo.fb@gmail.com
+To: linux-kernel@vger.kernel.org
+Subject: compulab's SB-i686 VIP demo application I2C problem
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200509141054.08975.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> In the Intel Architecture Optimization document it specifically states 
-> (Chapter 2.6) :
-> "Avoid instructions that unnecessarily introduce dependence-related
-> stalls: inc and dec instructions, .....".
-> And again on page 2-11 :
-> "The inc and dec instructions should always be avoided. Using add and
-> sub instructions instead avoids data dependence and improves performance".
-> And on page 2-71 :
-> "The inc and dec instructions modify only a subset of flags in the flag 
-> register.
-> This creates a dependence on all previous writes of the flag register.
-> This is especially problematic when these instructions are on the critical
-> path because they are used to change an address for a load on which
-> many other instructions depend. "
+Hello! I am using a compulab's SB-i686 and I am trying the VIP (Video
+Input Port) support and demo application.
+When I load the saa7113 driver, I think I must be able to see with an
+oscilloscope the i2c bus working at pins GP12 and GP13 trying to
+connect to the saa7113h, but there is no signal at these pins.
+Does it mean that the demo application is made for compulab's
+ATX-i686? I am considering the change to the compulab's ATX-i686.
+How can I make the demo application's i2c working at pins SGP12 and SGP13?
 
-Well it sounds dramatic but in reality I doubt it is such a big deal.
+Please, reply me to nuudoo.fb@gmail.com. I am not currently subscribed
+to this list becouse I am not sure if this is the correct list to post
+to. Please, tell me if I should post to another list.
 
-Anyone to bench it?
-
-> However, the kernel include and arch have a liberal sprinkling of inc/dec,
-> and AFAICT some of these in hot-path.
---
-vda
+Regards,
+Carlos

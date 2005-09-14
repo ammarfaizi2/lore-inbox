@@ -1,52 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965087AbVINIsm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965088AbVINIvF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965087AbVINIsm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 04:48:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965088AbVINIsm
+	id S965088AbVINIvF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 04:51:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965092AbVINIvF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 04:48:42 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:64528 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S965087AbVINIsm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 04:48:42 -0400
-Date: Wed, 14 Sep 2005 09:48:36 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: joern@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Permanently fix kernel configuration include mess (was: Missing #include <config.h>)
-Message-ID: <20050914094835.A30672@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>, joern@infradead.org,
-	linux-kernel@vger.kernel.org
-References: <20050913135622.GA30675@phoenix.infradead.org> <20050913150825.A23643@flint.arm.linux.org.uk> <20050913155012.C23643@flint.arm.linux.org.uk> <20050914013944.5ee4efa7.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 14 Sep 2005 04:51:05 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:56778 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965088AbVINIvD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 04:51:03 -0400
+From: Andi Kleen <ak@suse.de>
+To: Hugh Dickins <hugh@veritas.com>
+Subject: Re: ARCH_FREE_PTE_NR 5350
+Date: Wed, 14 Sep 2005 10:50:51 +0200
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.61.0509131631140.16498@goblin.wat.veritas.com>
+In-Reply-To: <Pine.LNX.4.61.0509131631140.16498@goblin.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050914013944.5ee4efa7.akpm@osdl.org>; from akpm@osdl.org on Wed, Sep 14, 2005 at 01:39:44AM -0700
+Message-Id: <200509141050.51492.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 14, 2005 at 01:39:44AM -0700, Andrew Morton wrote:
-> Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> >
-> >  LINUXINCLUDE    := -Iinclude \
-> >  -                   $(if $(KBUILD_SRC),-Iinclude2 -I$(srctree)/include)
-> >  +                   $(if $(KBUILD_SRC),-Iinclude2 -I$(srctree)/include) \
-> >  +		   -imacros include/linux/autoconf.h
-> 
-> This means that over time the kernel will fail to compile correctly without
-> `-imacros include/linux/autoconf.h'.
-> 
-> That's OK for the kernel, but not for out-of-tree stuff.  Those drivers
-> will need to add the new gcc commandline option too.
-> 
-> Not that I'm saying it's a terrible thing.  It's just a thing.
+On Tuesday 13 September 2005 17:54, Hugh Dickins wrote:
 
-Well I don't really understand all the kbuild complexities, so I just
-did a "what works for me in the setups I have" patch.  Maybe someone
-who properly understands the kbuild complexity should have a look.
+> Partly because all the PTE->PTR typos in include/asm-generic/tlb.h
+>
+>   #ifdef ARCH_FREE_PTR_NR
+>     #define FREE_PTR_NR   ARCH_FREE_PTR_NR
+>   #else
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Yuck. The initial prototype did something, but a later cleanup broke it :/
+
+> I do think we need to sort this out, but maybe wait until after I've
+> done my page_table_lock changes - which do change the picture here
+> (the lock is taken lower down), but not solve it (per-cpu mmu_gather
+> still needs preemption disabled).
+
+Ok.
+
+-Andi
+

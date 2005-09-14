@@ -1,25 +1,22 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932233AbVIMLQH (ORCPT <rfc822;ralf@linux-mips.org>);
-	Tue, 13 Sep 2005 07:16:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932594AbVIMLQG
+	id S965020AbVINFse (ORCPT <rfc822;ralf@linux-mips.org>);
+	Wed, 14 Sep 2005 01:48:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965023AbVINFse
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 07:16:06 -0400
-Received: from rproxy.gmail.com ([64.233.170.205]:45499 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932233AbVIMLQF convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 07:16:05 -0400
-Message-ID: <673ac0640509130416363cc27f@mail.gmail.com>
-Date: Tue, 13 Sep 2005 16:46:05 +0530
-From: Prabhat Hegde <pubs.hegde@gmail.com>
-Reply-To: pubs.hegde@gmail.com
+	Wed, 14 Sep 2005 01:48:34 -0400
+Received: from host209-35.pool21757.interbusiness.it ([217.57.35.209]:4868
+	"EHLO linux.system5.it") by vger.kernel.org with ESMTP
+	id S965020AbVINFsd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 01:48:33 -0400
+Subject: E' stato respinto un messaggio indirizzato a dtrabucco
 To: linux-kernel@vger.kernel.org
-Subject: hi
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Message-Id: <20050914055035.A50F554090@linux.system5.it>
+Date: Wed, 14 Sep 2005 07:50:35 +0200 (CEST)
+From: dtrabucco@sile.it
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932233AbVIMLQH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S965020AbVINFse@vger.kernel.org>
 
-hi
+E' stato respinto un messaggio indirizzato a dtrabucco: conteneva virus
+
+(AVVISO GENERATO AUTOMATICAMENTE DA mail.sile.it).

@@ -1,54 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932725AbVINK4B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932719AbVINK7Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932725AbVINK4B (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 06:56:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932724AbVINK4B
+	id S932719AbVINK7Q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 06:59:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932722AbVINK7P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 06:56:01 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:50604 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932717AbVINK4A (ORCPT
+	Wed, 14 Sep 2005 06:59:15 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:50923 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932719AbVINK7P (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 06:56:00 -0400
-Message-ID: <43280123.1020700@pobox.com>
-Date: Wed, 14 Sep 2005 06:53:23 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Sergey Panov <sipan@sipan.org>
-CC: Matthew Wilcox <matthew@wil.cx>, Luben Tuikov <luben_tuikov@adaptec.com>,
-       Christoph Hellwig <hch@infradead.org>, Luben Tuikov <ltuikov@yahoo.com>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH 2.6.13 14/14] sas-class: SCSI Host glue
-References: <1126308949.4799.54.camel@mulgrave>	 <20050910041218.29183.qmail@web51612.mail.yahoo.com>	 <20050911093847.GA5429@infradead.org> <4325FA6F.3060102@adaptec.com>	 <20050913154014.GE32395@parisc-linux.org> <1126677387.26050.71.camel@sipan.sipan.org>
-In-Reply-To: <1126677387.26050.71.camel@sipan.sipan.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 14 Sep 2005 06:59:15 -0400
+Date: Wed, 14 Sep 2005 03:58:40 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Mathieu Fluhr <mfluhr@nero.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13 brings buffer underruns when recording DVDs in 16x (was
+ Re: "Read my lips: no more merges" - aka Linux 2.6.14-rc1)
+Message-Id: <20050914035840.3fbd6b95.akpm@osdl.org>
+In-Reply-To: <1126693960.2061.8.camel@localhost.localdomain>
+References: <Pine.LNX.4.58.0509122019560.3351@g5.osdl.org>
+	<1126608030.3455.23.camel@localhost.localdomain>
+	<1126630878.2066.6.camel@localhost.localdomain>
+	<Pine.LNX.4.58.0509131010010.3351@g5.osdl.org>
+	<1126635160.2183.6.camel@localhost.localdomain>
+	<Pine.LNX.4.58.0509131210090.3351@g5.osdl.org>
+	<1126685479.2010.14.camel@localhost.localdomain>
+	<20050914013053.0c2b302c.akpm@osdl.org>
+	<1126693960.2061.8.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sergey Panov wrote:
-> On Tue, 2005-09-13 at 09:40 -0600, Matthew Wilcox wrote:
+Mathieu Fluhr <mfluhr@nero.com> wrote:
+>
+> On Wed, 2005-09-14 at 01:30 -0700, Andrew Morton wrote:
+> > Mathieu Fluhr <mfluhr@nero.com> wrote:
+> > >
+> > > According to the MMC documentation, you can thoeriticaly send at most
+> > >  65535 (16 bits int) blocks in one WRITE(10) CDB. This would means
+> > >  sending a buffer of ~127 MB on case of writing a mode 1 data track (2048
+> > >  bytes per block)...
+> > > 
+> > >  Now, practically, it is really not safe to send more than 64 KB per CDB
+> > >  (Mostly device related). And with such values, you have the following:
+> > >   - at 100 Hz  -> 64 KB * 100  = 6400 KB/s  <=> ~4.62x  DVD 
+> > >   - at 250 Hz  -> 64 KB * 250  = 16000 KB/s <=> ~11.55x DVD 
+> > >   - at 1000 Hz -> 64 KB * 1000 = 64000 KB/s <=> ~46.20x DVD
+> > 
+> > But that implies that there's some piece of code somewhere (could be
+> > userspace, could be kernel) which is doing a timer-based sleep() in between
+> > each CDB.  It shouldn't do that - it should be using the disk
+> > controller's completion interrupt for synchronisation.
+> > 
+> 
+> Hummm... you are definitly right. So forget my calculations. I does not
+> mean anything. Honestly, I was just trying to find an explanation why it
+> was working with HZ set to 1000 and not with HZ set to 250 or 100.
+> 
+> > What userspace application are you using to write the DVDs, and is it
+> > possible to test a different one?
+> 
+> I am using NeroLINUX to make my tests. I also tried out
+> cdrecord/growisofs, but I was not even able to burn at 16x (I get some
+> error message that max speed is 10x... and nothing more).
+> 
+> But there seems to be somehow some I/O limitation: I configured a pure
+> 2.6.13.1 to have HZ set to 100. I then made a 3 GB compilation with
+> small files (about 3 to 5 MB each).
+>  - If you burn this directly without creating a temp ISO image in 4x
+> (5440 KB/s), you will get buffer underruns soon or later... (about 2%)
+>  - If you create an ISO image out of the compilation (using mkisofs or
+> other tool), and then burn this image, then no buffer underruns occurs.
+> 
+> After that, you speed up your recorder with this image (for example at
+> 8x), you will have these buffer underruns back again.
+> And as I tell you, no such stuff is happening when HZ is set to 1000.
+> 
 
->>As you know, stuff is being rearranged to move more of the SPI-specific
->>code from both SCSI core and LLDDs into the SPI transport.  I suspect
->>domain discovery will always be triggered by the LLDD for SPI, but at
->>least a driver doesn't have to have its own code to do that any more.
+OK, so you get underruns with NeroLINUX at 8x, and it should be possible to
+test cdrecord at 8x, yes?  If that works then it's time to take a look at
+what NeroLINUX is doing..
 
-> Only if it can be turned into a some sort of library LLDD may use if it
-> needs it. But it is only makes sense to move that code out of the LLDD
-> and into the transport module, if more then one LLDD can make use of it.
-
-
-...and in this thread, SAS, more than one LLDD -should- be able to make 
-use it of.
-
-ServerWorks/Broadcom SAS+SATA hardware, for which I will soon be writing 
-a driver, has exactly the same needs as Adaptec SAS+SATA hardware.
-
-	Jeff
-
-
+erp, it's payware.   strace, maybe?

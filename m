@@ -1,71 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965033AbVINXO2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965105AbVINXUi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965033AbVINXO2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 19:14:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965091AbVINXO2
+	id S965105AbVINXUi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 19:20:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965106AbVINXUi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 19:14:28 -0400
-Received: from hera.kernel.org ([209.128.68.125]:16838 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S965033AbVINXO1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 19:14:27 -0400
-Date: Wed, 14 Sep 2005 20:08:43 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Bharata B Rao <bharata@in.ibm.com>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Dipankar Sarma <dipankar@in.ibm.com>,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: VM balancing issues on 2.6.13: dentry cache not getting shrunk enough
-Message-ID: <20050914230843.GA11748@dmt.cnet>
-References: <20050911105709.GA16369@thunk.org> <20050911120045.GA4477@in.ibm.com> <20050912031636.GB16758@thunk.org> <20050913084752.GC4474@in.ibm.com>
+	Wed, 14 Sep 2005 19:20:38 -0400
+Received: from zproxy.gmail.com ([64.233.162.202]:47603 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965105AbVINXUh convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 19:20:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=HPy2hOvLa99msNAqvCRAD35CS+6hxgOXLrPFeS2O1AYmboo54quKcydOn9zH1SJVUTjcvK2MVZ9sbc2WjMg/HkvJTf6nqjLVeq5ESzALCkNYlXfOYZl3DZhn9fVDCTzd/Y1F0iIMdD27Mw0CwiTwJvdl6iQev2GTmQhlpbavjZ4=
+Message-ID: <9a874849050914162069c0296f@mail.gmail.com>
+Date: Thu, 15 Sep 2005 01:20:33 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: jesper.juhl@gmail.com
+To: Henrik Persson <root@fulhack.info>
+Subject: Re: "Read my lips: no more merges" - aka Linux 2.6.14-rc1
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <43289A7E.1080307@fulhack.info>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050913084752.GC4474@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+References: <Pine.LNX.4.58.0509122019560.3351@g5.osdl.org>
+	 <43289A7E.1080307@fulhack.info>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 13, 2005 at 02:17:52PM +0530, Bharata B Rao wrote:
-> On Sun, Sep 11, 2005 at 11:16:36PM -0400, Theodore Ts'o wrote:
-> > On Sun, Sep 11, 2005 at 05:30:46PM +0530, Dipankar Sarma wrote:
-> > > Do you have the /proc/sys/fs/dentry-state output when such lowmem
-> > > shortage happens ?
-> > 
-> > Not yet, but the situation occurs on my laptop about 2 or 3 times
-> > (when I'm not travelling and so it doesn't get rebooted).  So
-> > reproducing it isn't utterly trivial, but it's does happen often
-> > enough that it should be possible to get the necessary data.
-> > 
-> > > This is a problem that Bharata has been investigating at the moment.
-> > > But he hasn't seen anything that can't be cured by a small memory
-> > > pressure - IOW, dentries do get freed under memory pressure. So
-> > > your case might be very useful. Bharata is maintaing an instrumentation
-> > > patch to collect more information and an alternative dentry aging patch 
-> > > (using rbtree). Perhaps you could try with those.
-> > 
-> > Send it to me, and I'd be happy to try either the instrumentation
-> > patch or the dentry aging patch.
-> > 
+On 9/14/05, Henrik Persson <root@fulhack.info> wrote:
+> Linus Torvalds wrote:
+> > Ok, it's been two weeks (actually, two weeks and one day) since 2.6.13,
+> > and that means that the merge window is closed. I've released a
+> > 2.6.14-rc1, and we're now all supposed to help just clean up and fix
+> > everything, and aim for a really solid 2.6.14 release.
 > 
-> Ted,
+> My cardbus is acting funny. When I insert my netgear wg511 (prism54) the
+> first time after booting 2.6.14-rc1 nothing happens. Nothing in dmesg,
+> nothing nowhere. I remove it. Still nothing. Oh well. Inserting again.
+> THEN it initializes and is working like it usually does.
 > 
-> I am sending two patches here.
+> 2.6.13+Ivan's PCI resource patch worked allright.
 > 
-> First is dentry_stats patch which collects some dcache statistics
-> and puts it into /proc/meminfo. This patch provides information 
-> about how dentries are distributed in dcache slab pages, how many
-> free and in use dentries are present in dentry_unused lru list and
-> how prune_dcache() performs with respect to freeing the requested
-> number of dentries.
+> I can live with this, but this is a regression.. I remember having
+> exactly the same problem with some 2.4 kernel a few years back..
+> 
+> Any patch I should try backing out? Or some patch I should try?
+> 
+Somebody who's familliar with the code (as opposed to me) might be
+able to point to a specific patch, but you could also try doing a
+bisection search with  git bisect  to try and find the patch between
+2.6.13 and 2.6.14-rc1 that broke it for you. A few handfuls of kernel
+compiles/boots usually does the trick.
+Search the archives for details, it's been described numerous times.
 
-Bharata, 
-
-Ideally one should move the "nr_requested/nr_freed" counters from your
-stats patch into "struct shrinker" (or somewhere else more appropriate
-in which per-shrinkable-cache stats are maintained), and use the
-"mod_page_state" infrastructure to do lockless per-CPU accounting. ie.
-break /proc/vmstats's "slabs_scanned" apart in meaningful pieces.
-
-IMO something along that line should be merged into mainline to walk
-away from the "what the fuck is going on" state of things.
- 
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

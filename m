@@ -1,45 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965038AbVINGSl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965040AbVINGY2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965038AbVINGSl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 02:18:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965039AbVINGSl
+	id S965040AbVINGY2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 02:24:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965043AbVINGY2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 02:18:41 -0400
-Received: from 203-217-18-166.perm.iinet.net.au ([203.217.18.166]:60038 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S965038AbVINGSk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 02:18:40 -0400
-Message-ID: <4327C0EB.9040403@knobbits.org>
-Date: Wed, 14 Sep 2005 16:19:23 +1000
-From: "Michael (Micksa) Slade" <micksa@knobbits.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050820 Debian/1.7.11-0ubuntu2
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6 breaks my KVM?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Sep 2005 02:24:28 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:57322 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S965040AbVINGY2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 02:24:28 -0400
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
+From: Keith Owens <kaos@ocs.com.au>
+To: allinux@gmail.com
+cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.14-rc1] ppc: prevent GCC 4 from generating AltiVec instructions in kernel 
+In-reply-to: Your message of "Tue, 13 Sep 2005 23:12:06 MST."
+             <cb57165a050913231210fa2b42@mail.gmail.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 14 Sep 2005 16:24:12 +1000
+Message-ID: <10057.1126679052@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have an "intelligent" (but cheap) KVM which was working fine for me 
-until I moved to a 2.6 linux kernel.
+On Tue, 13 Sep 2005 23:12:06 -0700, 
+Lee Nicks <allinux@gmail.com> wrote:
+>Depending on how GCC is built, GCC 4 may generate altivec instructions
+>...
+>+# No AltiVec instruction when building kernel
+>+ifeq ($(call cc-option-yn, -mno-altivec), y)
+>+CFLAGS          += -mno-altivec
+>+endif
 
-Not sure exactly where it started, but the issue happens with 2.6 
-kernels (I've tried several) and not 2.4 kernels.
+Use the standard format, one line instead of three.
 
-The mouse misbehaves.  touching the mouse causes the pointer to go 
-haywire and jump everywhere, and there's the occasional button click too 
-I think.
-
-It happens with both my older logitech mouse and a newer MS 
-intellimouse.  Both work fine with 2.6 when plugged in directly.
-
-The keyboard is fine.
-
-The same KVM works fine with windows ME and XP.
-
-Anyone know what's causing this?
-
-Mick.
+cflags-y += $(call cc-option, -mno-altivec)
 

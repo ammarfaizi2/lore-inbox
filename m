@@ -1,91 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932547AbVINTkf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964852AbVINTl6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932547AbVINTkf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 15:40:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932548AbVINTkf
+	id S964852AbVINTl6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 15:41:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964806AbVINTl6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 15:40:35 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:28664 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S932547AbVINTke
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 15:40:34 -0400
-Message-ID: <43287C52.7050002@mvista.com>
-Date: Wed, 14 Sep 2005 12:38:58 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>, dwalker@mvista.com,
-       "'high-res-timers-discourse@lists.sourceforge.net'" 
-	<high-res-timers-discourse@lists.sourceforge.net>
-Subject: Re: 2.6.13-rt6, ktimer subsystem
-References: <20050913100040.GA13103@elte.hu>
-In-Reply-To: <20050913100040.GA13103@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 14 Sep 2005 15:41:58 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:62177 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S932694AbVINTl5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 15:41:57 -0400
+Subject: Re: [PATCH 2.6.13 5/14] sas-class: sas_discover.c Discover process
+	(end devices)
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Sergey Panov <sipan@sipan.org>
+Cc: Matthew Wilcox <matthew@wil.cx>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Luben Tuikov <ltuikov@yahoo.com>, Christoph Hellwig <hch@infradead.org>,
+       Douglas Gilbert <dougg@torque.net>,
+       Patrick Mansfield <patmans@us.ibm.com>,
+       Luben Tuikov <luben_tuikov@adaptec.com>
+In-Reply-To: <1126673844.26050.24.camel@sipan.sipan.org>
+References: <1126308304.4799.45.camel@mulgrave>
+	 <20050910024454.20602.qmail@web51613.mail.yahoo.com>
+	 <20050911094656.GC5429@infradead.org> <43251D8C.7020409@torque.net>
+	 <1126537041.4825.28.camel@mulgrave> <20050912164548.GB11455@us.ibm.com>
+	 <1126545680.4825.40.camel@mulgrave> <20050912184629.GA13489@us.ibm.com>
+	 <1126639342.4809.53.camel@mulgrave> <4327354E.7090409@adaptec.com>
+	 <20050913203611.GH32395@parisc-linux.org>
+	 <1126673844.26050.24.camel@sipan.sipan.org>
+Content-Type: text/plain
+Date: Wed, 14 Sep 2005 14:43:15 -0400
+Message-Id: <1126723396.4588.3.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-6) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> i have released the 2.6.13-rt6 tree, which can be downloaded from the 
-> usual place:
+On Wed, 2005-09-14 at 00:57 -0400, Sergey Panov wrote: 
+> Because set of valid LUN id represented by 8 byte combinations is not
+> isomorphic to the set of unsigned int values from 0 to UINT64_MAX. While
+
+The transformation we're using is an isomorphism that happens to have
+the important property that single level type 00b LUNs are numerically
+equal to the legacy uses of the lun value.
+
+> scsilun_to_int() will convert legal LUN id into some integer, the
+> int_to_scsilun() function will not produce legal  LUN id for any
+> arbitrary integer lun value. 
+
+No that's what I said.  We limit the integer scanned luns to < 256 and
+use representation 00b
+
+> For example, sequential LUN scanning should be stopped at int lun = 255
+> because result of converting value 256 by int_to_scsilun() will be
+> either illegal(best case) or equivalent to int lun  = 0.
+
+It is.  That's this bit of the code:
+
+@@ -965,6 +964,13 @@ static void scsi_sequential_lun_scan(str
+                max_dev_lun = min(8U, max_dev_lun);
+ 
+        /*
++        * regardless of what parameters we derived above, on no
++        * account scan further than SCSI_SCAN_LIMIT_LUNS
++        */
++       if (max_dev_lun > SCSI_SCAN_LIMIT_LUNS + 1)
++               max_dev_lun = SCSI_SCAN_LIMIT_LUNS + 1;
++
+
+
+> LUN id should be presented to the management layers in a way similar to
+> MAC addresses or FC/SAS/... WWN . E.g. the usual LUN 4  on some FC
+> device will be identified by something like (in 00b, or "Peripheral
+> device addressing"):
 > 
->   http://redhat.com/~mingo/realtime-preempt/
+> WWPN = 22:00:00:0c:50:05:df:6d
+> LUN  = 00:04:00:00:00:00:00:00
 > 
-> there are lots of small updates all across and there's a big feature as 
-> well in this release: a complete rework of the high-resolution timers 
-> framework, from Thomas Gleixner, called 'ktimers'.
 > 
-> under the ktimer framework the HR (and posix) timers live in a separate 
-> domain, have their own (per-CPU) rbtree to stay scalable and 
-> deterministic even with a high number of timers. Another positive effect 
-> of the introduction of separate ktimers is that kernel/timer.c is now 
-> using preemptible locks again, removing the cascade() worst-case 
-> latency. The cleanup factor is high as well: the ktimer framework 
-> slashes 1300+ lines off the HRT code. See kernel/ktimer.c for details.
+> Interestingly enough, the following is also LUN = 4 device, but in a
+> different addressing mode (01b, AKA "Logical unit addressing"):
 > 
-> the end-effect of ktimers is a much more deterministic HRT engine. The 
-> original merging of HR timers into the stock timer wheel was a Bad Idea 
-> (tm). We intend to push the ktimer subsystem upstream as well.
+> WWPN = 22:00:00:0c:50:05:df:6d
+> LUN  = 40:04:00:00:00:00:00:00
 
-Well, having spent a bit of time looking at the code it appears that a 
-lot of the ideas we looked at and discarded (see 
-high-res-timers-discourse@lists.sourceforge.net) are in this.  Shame it 
-was all done with out reference or comment to that list, anyone on it or 
-even the lkml.
+Firstly, those two LUNs are actually not equivalent (according to SAM-3
+section 4.9.1) because two luns are defined to be different if expressed
+in different representations.
 
-I DO agree that it _looks_ nicer, cleaner and so on.  But there are a 
-lot of things we rejected in here and they really do need, at least, a 
-hard look.
+Secondly, The idea of using u64 is that all transports that don't use
+hierarchical LUNs can simply copy the number as they do today.  This
+idea rests on the assumption that arrays responding to REPORT_LUNS on
+these transports always reply with type 00b.  This assumption is
+suggested (but not mandated) in SAM. If they violate this assumption,
+we'll just reject all the LUNs and I'll get a bug report.
 
-A few of the top issues:
+James
 
-time in nanoseconds 64-bits, requires a divide to do much of anything 
-with it.  Divides are slow and should be avoided if possible.  This is 
-especially true in the embedded market.
-
-
-The rbtree is a high overhead tree.  I suspect performance problems 
-here.  If it is the right answer here, then why not use it for normal 
-timers?  A list of timers is a rather unique thing and, I think, 
-deserves a management structure that accounts for the fact that the 
-elements in the tree are perishable.
-
-It appears that the "monotonic_clock" is being used to drive ktimers. 
-The "monotonic_clock" was NEVER meant to poke outside of the kernel.  It 
-is a raw kernel clock that is only required to be monotonic with nothing 
-said about accuracy.  It should NOT be confused with CLOCK_MONOTONIC 
-which is directly tied to xtime and therefor is ntp corrected.
-
-These are only the concerns I have from having a rather quick look at 
-the code.  I am sure that there are other issues...
-
-
-
--- 
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/

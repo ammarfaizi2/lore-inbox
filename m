@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964840AbVINUh4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964997AbVINUlo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964840AbVINUh4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 16:37:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964980AbVINUh4
+	id S964997AbVINUlo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 16:41:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965006AbVINUlo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 16:37:56 -0400
-Received: from [64.162.99.240] ([64.162.99.240]:33874 "EHLO
-	spamtest2.viacore.net") by vger.kernel.org with ESMTP
-	id S964899AbVINUhz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 16:37:55 -0400
-Message-ID: <432889E3.1060800@spamtest.viacore.net>
-Date: Wed, 14 Sep 2005 13:36:51 -0700
-From: Joe Bob Spamtest <joebob@spamtest.viacore.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050909 Fedora/1.7.10-1.5.2
-X-Accept-Language: en-us, en
+	Wed, 14 Sep 2005 16:41:44 -0400
+Received: from NS6.Sony.CO.JP ([137.153.0.32]:30948 "EHLO ns6.sony.co.jp")
+	by vger.kernel.org with ESMTP id S964997AbVINUln (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 16:41:43 -0400
+Message-ID: <43288A84.2090107@sm.sony.co.jp>
+Date: Thu, 15 Sep 2005 05:39:32 +0900
+From: "Machida, Hiroyuki" <machida@sm.sony.co.jp>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: ja, en-us, en
 MIME-Version: 1.0
-To: Alaa Dalghan <alaadalghan@hotmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: VPN server over windows XP
-References: <BAY106-F29965CB20274069D3A5BA5AB9F0@phx.gbl>
-In-Reply-To: <BAY106-F29965CB20274069D3A5BA5AB9F0@phx.gbl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: hirofumi@mail.parknet.co.jp
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH 2/2][FAT] miss-sync issues on sync mount (miss-sync on utime)
+Content-Type: multipart/mixed;
+ boundary="------------060005040904030809010903"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Um, i hate to be a dick, but:
+This is a multi-part message in MIME format.
+--------------060005040904030809010903
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
 
-Does this look like a windows XP mailing list to you? Call Microsoft 
-support.
+The 2nd patch fixes miss-sync issue on attribute operations,
+like utime.
 
-> 1- I need to set the vpn server on windows XP (not windows 2000 server, 
-> nor 2003, nor ISA server, etc.)
-> The first problem I faced is that windows xp does not support ipsec 
-> tunnel mode between 2 xp machines. It only supports transport mode which 
-> is not what I want.
-> To overcome this lack of IP tunneling I tried to use the built-in 
-> tunneling capabilities such as PPTP and L2TP/ipsec, and it worked. But 
-> the problem here is that a windows xp can not accept more than ONE 
-> SINGLE incoming connection at a time, and I need multiple connections.
+---
+Hiroyuki Machida
 
-Sounds like your software/OS is deficient (in more ways than one).
+--------------060005040904030809010903
+Content-Type: text/plain;
+ name="fat-sync-attr.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="fat-sync-attr.patch"
 
-> I think the solution could be one of the following:
-> 
-> 1-Installing a third party FREE vpn server (or L2TP server) on windows 
-> XP. If you know one please tell me.
-
-I've got an idea. Stop using a playskool operating system where you need 
-something industrial-grade. Hey, this is a Linux-related mailing list: 
-Why not install some version of Linux instead?
-
-To make it short and sweet, you're using a screwdriver where you need a 
-hammer. Sure, if you beat on it enough, you *might* be able to get 
-something half-assed working, but don't start crying when it falls 
-apart. Most importantly, this discussion is *grossly* off-topic for this 
-list
+U2lnbmVkLW9mZi1ieTogSGlyb3l1a2kgTWFjaGlkYSA8bWFjaGRpYUBzbS5zb255LmNvLmpw
+PgotLS0KIGZpbGUuYyB8ICAgIDQgKysrKwogMSBmaWxlcyBjaGFuZ2VkLCA0IGluc2VydGlv
+bnMoKykKCi0tLSBsaW51eC0yLjYuMTMvZnMvZmF0L2ZpbGUuYwkyMDA1LTA4LTI5IDA4OjQx
+OjAxLjAwMDAwMDAwMCArMDkwMAorKysgbGludXgtMi42LjEzLm5ldy9mcy9mYXQvZmlsZS5j
+CTIwMDUtMDktMTEgMTI6MjY6NTEuMDMxNzQzNzUwICswOTAwCkBAIC0yMDEsNiArMTgzLDEw
+IEBAIGludCBmYXRfbm90aWZ5X2NoYW5nZShzdHJ1Y3QgZGVudHJ5ICpkZW4KIAllbHNlCiAJ
+CW1hc2sgPSBzYmktPm9wdGlvbnMuZnNfZm1hc2s7CiAJaW5vZGUtPmlfbW9kZSAmPSBTX0lG
+TVQgfCAoU19JUldYVUdPICYgfm1hc2spOworCisJaWYgKCAoIWVycm9yKSAmJiBJU19TWU5D
+KGlub2RlKSkgeworCQllcnJvciA9IHdyaXRlX2lub2RlX25vdyhpbm9kZSwgMSk7CisJfQog
+b3V0OgogCXVubG9ja19rZXJuZWwoKTsKIAlyZXR1cm4gZXJyb3I7Cg==
+--------------060005040904030809010903--

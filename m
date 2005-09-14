@@ -1,71 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965097AbVINRN0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965247AbVINRO5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965097AbVINRN0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 13:13:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965247AbVINRNZ
+	id S965247AbVINRO5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 13:14:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965250AbVINRO4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 13:13:25 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:49105 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S965097AbVINRNY
+	Wed, 14 Sep 2005 13:14:56 -0400
+Received: from rproxy.gmail.com ([64.233.170.198]:21355 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965247AbVINRO4 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 13:13:24 -0400
-Date: Wed, 14 Sep 2005 10:13:07 -0700
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: Luben Tuikov <luben_tuikov@adaptec.com>
-Cc: Douglas Gilbert <dougg@torque.net>,
-       James Bottomley <James.Bottomley@SteelEye.com>, ltuikov@yahoo.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH 2.6.13 5/14] sas-class: sas_discover.c Discover process (end devices)
-Message-ID: <20050914171307.GA10044@us.ibm.com>
-References: <20050910024454.20602.qmail@web51613.mail.yahoo.com> <1126368081.4813.46.camel@mulgrave> <4325997D.3050103@adaptec.com> <20050912162739.GA11455@us.ibm.com> <4326964B.9010503@torque.net> <20050913224215.GB1308@us.ibm.com> <4328176D.80307@adaptec.com>
+	Wed, 14 Sep 2005 13:14:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=PJfeapUsEIC9z9OcLWQTwD7/IqdPuaZnJwmxyLPbxRROc31tREPa1uOglqfmZXve0STvpEsbKzvFscNGLCdhGbu0EJPXiD0AuriMPTmsEPoE4MJPYJ4jPoOz9hKMKk0jXq/W7k9lXbnFB+MBE7HfPVfTdigT2ksQ95A9W4ZY4hU=
+Message-ID: <d120d500050914101436201a71@mail.gmail.com>
+Date: Wed, 14 Sep 2005 12:14:55 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Robert Love <rml@novell.com>
+Subject: Re: [patch] hdaps driver update.
+Cc: Greg KH <greg@kroah.com>, Mr Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1126715517.5738.35.camel@molly>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <4328176D.80307@adaptec.com>
-User-Agent: Mutt/1.4.2.1i
+References: <1126713453.5738.7.camel@molly> <20050914160527.GA22352@kroah.com>
+	 <1126714175.5738.21.camel@molly> <20050914161622.GA22875@kroah.com>
+	 <1126715517.5738.35.camel@molly>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 14, 2005 at 08:28:29AM -0400, Luben Tuikov wrote:
-> On 09/13/05 18:42, Patrick Mansfield wrote:
-
-> > What I mean is that the target has to intercept the command whether it is
-> > a REPORT LUN or for the well known (W_LUN).
-> > 
-> > The target (firmware) code has to have code today like:
-> > 
-> > 	if (cmd == REPORT_LUN) {
-> > 		do_report_lun();
-> > 	}
-> > 
-> > For only W_LUN support, the code might be something like:
-> > 
-> > 	if (lun == W_LUN) {
-> > 		if (cmd == REPORT_LUN) {
-> > 			do_report_lun();
-> > 		}
-> > 	}
-> > 
-> > But the first case above already covers even the W_LUN case.
+On 9/14/05, Robert Love <rml@novell.com> wrote:
+> On Wed, 2005-09-14 at 09:16 -0700, Greg KH wrote:
 > 
-> _Except_, that what the firmware actually does is, it routes
-> the tasks by LUN first, _before_ looking up with what the command
-> is.*  This is crucial.
-
-That is what the second code snippet above is meant to show.
-
-> > So adding a W_LUN at this point does not add any value ... maybe it looks
-> > nice in the spec and in someones firmware, but it does not add anything
-> > that I can see.
+> > But you are reference counting a static object, right?  Which
+> > isn't the nicest thing to have done.
 > 
-> I wonder if the maintainer of the SCSI Core would listen or ignore your
-> opinion here.
+> I would not say it is not "the nicest thing", it is just not necessary
+> to do the reference counting.  But we want the ref counting for other
+> reasons, so it seems sensible.
+> 
+> > Why not just dynamically create it?
+> 
+> Seems silly to dynamically create something that we know a priori we
+> only have one of.  E.g., why dynamically create something that is not
+> dynamic.
+> 
+> But it is not a big deal.  If this is some rule of yours, I can
+> kmalloc() the device_driver structure and kfree() it in my release()
+> function.  Is that what you want?
+> 
 
-> I wonder _who_ decides here where speculation ends and industry
-> opinion starts?
+Just use platform_device_register_simple, it will allocate a platform
+device for you and it has a release function.
 
-I am talking about the scsi spec, not the code. IMO linux scsi code should
-support W_LUN and 64 bit LUN.
+> > No, if you have that .owner field in your driver, you get a symlink in
+> > sysfs that points from your driver to the module that controls it.  You
+> > just removed that symlink, which is not what I think you wanted to have
+> > happen :(
+> 
+> But device release == module unload.
+> 
 
--- Patrick Mansfield
+For now. But I could see one changing device structure to create some
+attribute that could keep the object pinned in memory even after
+module is unloaded. It seems that we have settled on the rule that
+driver_unregister waits for the last refrence to drop off but devices
+can live longer.
+
+-- 
+Dmitry

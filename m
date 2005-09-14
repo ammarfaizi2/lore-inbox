@@ -1,114 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932574AbVINURZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932766AbVINUSX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932574AbVINURZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 16:17:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932576AbVINURZ
+	id S932766AbVINUSX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 16:18:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932761AbVINUSX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 16:17:25 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:26784 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S932568AbVINURY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 16:17:24 -0400
-Message-ID: <43288545.3090207@adaptec.com>
-Date: Wed, 14 Sep 2005 16:17:09 -0400
-From: Luben Tuikov <luben_tuikov@adaptec.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@SteelEye.com>
-CC: Sergey Panov <sipan@sipan.org>, Matthew Wilcox <matthew@wil.cx>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Luben Tuikov <ltuikov@yahoo.com>, Christoph Hellwig <hch@infradead.org>,
-       Douglas Gilbert <dougg@torque.net>,
-       Patrick Mansfield <patmans@us.ibm.com>
-Subject: Re: [PATCH 2.6.13 5/14] sas-class: sas_discover.c Discover process
- (end devices)
-References: <1126308304.4799.45.camel@mulgrave>	 <20050910024454.20602.qmail@web51613.mail.yahoo.com>	 <20050911094656.GC5429@infradead.org> <43251D8C.7020409@torque.net>	 <1126537041.4825.28.camel@mulgrave> <20050912164548.GB11455@us.ibm.com>	 <1126545680.4825.40.camel@mulgrave> <20050912184629.GA13489@us.ibm.com>	 <1126639342.4809.53.camel@mulgrave> <4327354E.7090409@adaptec.com>	 <20050913203611.GH32395@parisc-linux.org>	 <1126673844.26050.24.camel@sipan.sipan.org> <1126723396.4588.3.camel@mulgrave>
-In-Reply-To: <1126723396.4588.3.camel@mulgrave>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Sep 2005 20:17:15.0874 (UTC) FILETIME=[4CA87420:01C5B969]
+	Wed, 14 Sep 2005 16:18:23 -0400
+Received: from bay106-f29.bay106.hotmail.com ([65.54.161.39]:21734 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S932716AbVINUSV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 16:18:21 -0400
+Message-ID: <BAY106-F29965CB20274069D3A5BA5AB9F0@phx.gbl>
+X-Originating-IP: [65.54.161.206]
+X-Originating-Email: [alaadalghan@hotmail.com]
+From: "Alaa Dalghan" <alaadalghan@hotmail.com>
+To: linux-crypto@nl.linux.org, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org, linux-security-module@mail.wirex.com,
+       netdev@vger.kernel.org
+Subject: VPN server over windows XP
+Date: Wed, 14 Sep 2005 20:18:20 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 14 Sep 2005 20:18:21.0193 (UTC) FILETIME=[73975790:01C5B969]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 09/14/05 14:43, James Bottomley wrote:
-> On Wed, 2005-09-14 at 00:57 -0400, Sergey Panov wrote: 
-> 
->>Because set of valid LUN id represented by 8 byte combinations is not
->>isomorphic to the set of unsigned int values from 0 to UINT64_MAX. While
-> 
-> 
-> The transformation we're using is an isomorphism that happens to have
-> the important property that single level type 00b LUNs are numerically
-> equal to the legacy uses of the lun value.
-> 
-> 
->>scsilun_to_int() will convert legal LUN id into some integer, the
->>int_to_scsilun() function will not produce legal  LUN id for any
->>arbitrary integer lun value. 
-> 
-> 
-> No that's what I said.  We limit the integer scanned luns to < 256 and
-> use representation 00b
-> 
-> 
->>For example, sequential LUN scanning should be stopped at int lun = 255
->>because result of converting value 256 by int_to_scsilun() will be
->>either illegal(best case) or equivalent to int lun  = 0.
-> 
-> 
-> It is.  That's this bit of the code:
-> 
-> @@ -965,6 +964,13 @@ static void scsi_sequential_lun_scan(str
->                 max_dev_lun = min(8U, max_dev_lun);
->  
->         /*
-> +        * regardless of what parameters we derived above, on no
-> +        * account scan further than SCSI_SCAN_LIMIT_LUNS
-> +        */
-> +       if (max_dev_lun > SCSI_SCAN_LIMIT_LUNS + 1)
-> +               max_dev_lun = SCSI_SCAN_LIMIT_LUNS + 1;
-> +
-> 
-> 
-> 
->>LUN id should be presented to the management layers in a way similar to
->>MAC addresses or FC/SAS/... WWN . E.g. the usual LUN 4  on some FC
->>device will be identified by something like (in 00b, or "Peripheral
->>device addressing"):
->>
->>WWPN = 22:00:00:0c:50:05:df:6d
->>LUN  = 00:04:00:00:00:00:00:00
->>
->>
->>Interestingly enough, the following is also LUN = 4 device, but in a
->>different addressing mode (01b, AKA "Logical unit addressing"):
->>
->>WWPN = 22:00:00:0c:50:05:df:6d
->>LUN  = 40:04:00:00:00:00:00:00
-> 
-> 
-> Firstly, those two LUNs are actually not equivalent (according to SAM-3
-> section 4.9.1) because two luns are defined to be different if expressed
-> in different representations.
-> 
-> Secondly, The idea of using u64 is that all transports that don't use
-> hierarchical LUNs can simply copy the number as they do today.  This
-> idea rests on the assumption that arrays responding to REPORT_LUNS on
-> these transports always reply with type 00b.  This assumption is
-> suggested (but not mandated) in SAM. If they violate this assumption,
-> we'll just reject all the LUNs and I'll get a bug report.
+hello everyone,
 
-I was actually going to reply to this email and write something
-sensible, but on second thought I see that it would be 
-a _complete_ waste of time, effort and keystrokes.
+I am trying to setup a windows xp machine as a vpn server that accepts 
+multiple ipsec tunnels from other windows xp machines.
 
-  "If they violate this assumption, we'll just reject all the LUNs"
-and
-  "I'll get a bug report"
-tops it all off.
+My restrictions are the following:
 
-	Luben
+1- I need to set the vpn server on windows XP (not windows 2000 server, nor 
+2003, nor ISA server, etc.)
 
+2- I need to use tunnel mode ipsec
+
+3- The vpn server should accept MULTIPLE vpn tunnels.
+
+The first problem I faced is that windows xp does not support ipsec tunnel 
+mode between 2 xp machines. It only supports transport mode which is not 
+what I want.
+To overcome this lack of IP tunneling I tried to use the built-in tunneling 
+capabilities such as PPTP and L2TP/ipsec, and it worked. But the problem 
+here is that a windows xp can not accept more than ONE SINGLE incoming 
+connection at a time, and I need multiple connections.
+
+I think the solution could be one of the following:
+
+1-Installing a third party FREE vpn server (or L2TP server) on windows XP. 
+If you know one please tell me.
+
+2-Importing some features from windows 2000 server or 2003 server (some 
+executables or services or plugins that enable xp to run as a vpn server and 
+accept multiple connections). If you know what to import please tell me.
+
+3- Installing a pure IP tunneling solution on windows xp so that it can be 
+combined with ipsec encryption to yield tunnel mode encryption.
+
+I appreciate any help,
+
+Alaadin
+
+_________________________________________________________________
+Express yourself instantly with MSN Messenger! Download today - it's FREE! 
+http://messenger.msn.click-url.com/go/onm00200471ave/direct/01/
 

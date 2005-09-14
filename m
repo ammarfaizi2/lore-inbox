@@ -1,53 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030269AbVINWxu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030268AbVINW43@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030269AbVINWxu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 18:53:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030274AbVINWxu
+	id S1030268AbVINW43 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 18:56:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965091AbVINW43
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 18:53:50 -0400
-Received: from zproxy.gmail.com ([64.233.162.192]:63927 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030269AbVINWxt convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 18:53:49 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=K/6bjXPPbZ3BdmobLijvpP4f+tAowN3A1Y6zxL9eA4rbDIGvPM7YHi1ZxlM2bXE3Wj5HdsZAxqdBtoDEskWmxEluqLf3rYNRIyT0V9+dZ/LeALWFOFhsGSkVsEnaSLWsTue+13Xs4lNk2th4Njsjjx2pFWTRqLvY+1eT9pf7uNE=
-Message-ID: <6bffcb0e05091415533d563c5a@mail.gmail.com>
-Date: Thu, 15 Sep 2005 00:53:43 +0200
-From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Reply-To: michal.k.k.piotrowski@gmail.com
-To: Ahmad Reza Cheraghi <a_r_cheraghi@yahoo.com>
-Subject: Re: Automatic Configuration of a Kernel
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050914223836.53814.qmail@web51011.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050914223836.53814.qmail@web51011.mail.yahoo.com>
+	Wed, 14 Sep 2005 18:56:29 -0400
+Received: from chiark.greenend.org.uk ([193.201.200.170]:18108 "EHLO
+	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
+	id S965089AbVINW43 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 18:56:29 -0400
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: "Read my lips: no more merges" - aka Linux 2.6.14-rc1
+In-Reply-To: <4328425C.10803@tmr.com>
+References: <Pine.LNX.4.58.0509122019560.3351@g5.osdl.org> <Pine.LNX.4.58.0509122019560.3351@g5.osdl.org> <4328425C.10803@tmr.com>
+Date: Wed, 14 Sep 2005 23:56:27 +0100
+Message-Id: <E1EFgB1-00015L-00@chiark.greenend.org.uk>
+From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Bill Davidsen <davidsen@tmr.com> wrote:
 
-On 15/09/05, Ahmad Reza Cheraghi <a_r_cheraghi@yahoo.com> wrote:
-> Hi
-> 
-> I wrote this Framework for making a .config based on
-> the System Hardwares. It would be a great help if some
-> people would give me their opinion about it.
-> 
-> Regards
+> And is the Centrino "modem" now working? Or just the wireless?
 
-It's for new linux users? They should use distributions kernels.
-It's for "power users"? They just do make menuconfig...
-It's for kernel developers? They just do vi .config.
+There is no Centrino modem, as such. Vendors can put a variety of codecs
+on the board. Most of them are supported with the snd-intel8x0m driver
+and the (closed) slmodem userspace binary, but Conexant ones (as used by
+IBM) require binary drivers from Linuxant.
 
-I'll try it later, but I'm a bit sceptical.
-
-How about networking options? It can detect what protocols are needed?
-Filesystems?
-
-Regards,
-Michal Piotrowski
+-- 
+Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org

@@ -1,73 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965212AbVINN54@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965215AbVINOCv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965212AbVINN54 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 09:57:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965213AbVINN54
+	id S965215AbVINOCv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 10:02:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965216AbVINOCv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 09:57:56 -0400
-Received: from dvhart.com ([64.146.134.43]:17027 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S965212AbVINN5z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 09:57:55 -0400
-Date: Wed, 14 Sep 2005 06:57:56 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Andi Kleen <ak@suse.de>, David Chinner <dgc@sgi.com>
-Cc: Bharata B Rao <bharata@in.ibm.com>, "Theodore Ts'o" <tytso@mit.edu>,
-       Dipankar Sarma <dipankar@in.ibm.com>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, manfred@colorfullife.com
-Subject: Re: VM balancing issues on 2.6.13: dentry cache not getting shrunk enough
-Message-ID: <313480000.1126706276@[10.10.2.4]>
-In-Reply-To: <200509141101.16781.ak@suse.de>
-References: <20050911105709.GA16369@thunk.org> <20050913084752.GC4474@in.ibm.com> <20050913215932.GA1654338@melbourne.sgi.com> <200509141101.16781.ak@suse.de>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Wed, 14 Sep 2005 10:02:51 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:46269 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S965215AbVINOCu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 10:02:50 -0400
+Date: Wed, 14 Sep 2005 15:02:45 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, joern@infradead.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Permanently fix kernel configuration include mess (was: Missing #include <config.h>)
+Message-ID: <20050914140245.GA1530@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>,
+	Russell King <rmk+lkml@arm.linux.org.uk>, joern@infradead.org,
+	linux-kernel@vger.kernel.org
+References: <20050913135622.GA30675@phoenix.infradead.org> <20050913150825.A23643@flint.arm.linux.org.uk> <20050913155012.C23643@flint.arm.linux.org.uk> <20050914013944.5ee4efa7.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20050914013944.5ee4efa7.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > Second is Sonny Rao's rbtree dentry reclaim patch which is an attempt
->> > to improve this dcache fragmentation problem.
->> 
->> FYI, in the past I've tried this patch to reduce dcache fragmentation on
->> an Altix (16k pages, 62 dentries to a slab page) under heavy
->> fileserver workloads and it had no measurable effect. It appeared
->> that there was almost always at least one active dentry on each page
->> in the slab.  The story may very well be different on 4k page
->> machines, however.
+On Wed, Sep 14, 2005 at 01:39:44AM -0700, Andrew Morton wrote:
+> Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> >
+> >  LINUXINCLUDE    := -Iinclude \
+> >  -                   $(if $(KBUILD_SRC),-Iinclude2 -I$(srctree)/include)
+> >  +                   $(if $(KBUILD_SRC),-Iinclude2 -I$(srctree)/include) \
+> >  +		   -imacros include/linux/autoconf.h
 > 
-> I always thought dentry freeing would work much better if it
-> was turned upside down.
+> This means that over time the kernel will fail to compile correctly without
+> `-imacros include/linux/autoconf.h'.
 > 
-> Instead of starting from the high level dcache lists it could
-> be driven by slab: on memory pressure slab tries to return pages with unused 
-> cache objects. In that case it should check if there are only
-> a small number of pinned objects on the page set left, and if 
-> yes use a new callback to the higher level user (=dcache) and ask them
-> to free the object.
-> 
-> The slab datastructures are not completely suited for this right now,
-> but it could be done by using one more of the list_heads in struct page
-> for slab backing pages.
-> 
-> It would probably not be very LRU but a simple hack of having slowly 
-> increasing dcache generations. Each dentry use updates the generation.
-> First slab memory freeing pass only frees objects with older generations.
+> That's OK for the kernel, but not for out-of-tree stuff.  Those drivers
+> will need to add the new gcc commandline option too.
 
-If they're freeable, we should easily be able to move them, and therefore 
-compact a fragmented slab. That way we can preserve the LRU'ness of it.
-Stage 1: free the oldest entries. Stage 2: compact the slab into whole
-pages. Stage 3: free whole pages back to teh page allocator.
+The only supported way to compile out of tree drivers for 2.6.x is
+to use the kbuild framework, which will automatically add it.
 
-> Using slowly increasing generations has the advantage of timestamps
-> that you can avoid dirtying cache lines in the common case when 
-> the generation doesn't change on access (= no additional cache line bouncing)
-> and it would easily allow to tune the aging rate under stress by changing the 
-> length of the generation.
-
-LRU algorithm may need general tweaking like this anyway ... strict LRU
-is expensive to keep.
-
-M.

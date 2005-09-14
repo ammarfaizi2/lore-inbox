@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030208AbVINQA0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030215AbVINQCa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030208AbVINQA0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 12:00:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030217AbVINQAZ
+	id S1030215AbVINQCa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 12:02:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030217AbVINQCa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 12:00:25 -0400
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:10494 "EHLO
+	Wed, 14 Sep 2005 12:02:30 -0400
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:36607 "EHLO
 	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1030208AbVINQAY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 12:00:24 -0400
-Date: Wed, 14 Sep 2005 18:03:26 +0200
+	id S1030215AbVINQC3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 12:02:29 -0400
+Date: Wed, 14 Sep 2005 18:05:31 +0200
 From: Frank Pavlic <pavlic@de.ibm.com>
 To: jgarzik@pobox.com
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [patch 3/4] s390: TSO related fixes in qeth driver
-Message-ID: <20050914160326.GA3458@pavlic>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: [patch 4/4] s390: qeth driver fixes
+Message-ID: <20050914160531.GB3458@pavlic>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,57 +22,44 @@ User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff, 
-I'm sorry seems that they have not been sent out either ...
-ok here they come ...
 
-[patch 3/4] s390: TSO related fixes in qeth driver 
+[patch 4/4] s390: qeth driver fixes .
 
 From: Frank Pavlic <pavlic@de.ibm.com>
-	TSO related fixes :
-	  - changing value of large_send attribute while network traffic
-	    is running caused program check and thus device recovery.
-	  - Due to hardware restriction discard packet when it exceeds 60K
-	    otherwise qeth will cause program checks and thus traffic stall 
-	    when trying to send such huge packets.
+	- Clear read channel first prior to using ccw_device_set_offline.
+	- use QETH_DBF_TEXT instead of QETH_DBF_SPRINTF
+	- invoke qeth_halt_channel and qeth_clear_channel for all channels,
+	  even if halt/clear for one of the channel fails.
+	- enable qeth_arp_query function for GuestLAN devices
 
 Signed-off-by: Frank Pavlic <pavlic@de.ibm.com>
 
 diffstat:
- qeth.h      |    4 ++--
- qeth_main.c |   33 +++++++++++++++++++++------------
- qeth_sys.c  |   10 +++-------
- 3 files changed, 26 insertions(+), 21 deletions(-)
+ qeth.h      |    2 -
+ qeth_main.c |  106 +++++++++++++++++++++++++-----------------------------------
+ qeth_sys.c  |   11 +++---
+ 3 files changed, 53 insertions(+), 66 deletions(-)
 
 diff -Naupr linux-2.6-orig/drivers/s390/net/qeth.h linux-2.6-patched/drivers/s390/net/qeth.h
---- linux-2.6-orig/drivers/s390/net/qeth.h	2005-09-05 11:46:56.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/net/qeth.h	2005-09-05 12:16:08.000000000 +0200
+--- linux-2.6-orig/drivers/s390/net/qeth.h	2005-09-05 13:53:40.000000000 +0200
++++ linux-2.6-patched/drivers/s390/net/qeth.h	2005-09-05 14:00:46.000000000 +0200
 @@ -24,7 +24,7 @@
  
  #include "qeth_mpc.h"
  
--#define VERSION_QETH_H 		"$Revision: 1.139 $"
-+#define VERSION_QETH_H 		"$Revision: 1.141 $"
+-#define VERSION_QETH_H 		"$Revision: 1.141 $"
++#define VERSION_QETH_H 		"$Revision: 1.142 $"
  
  #ifdef CONFIG_QETH_IPV6
  #define QETH_VERSION_IPV6 	":IPv6"
-@@ -1172,7 +1172,7 @@ extern int
- qeth_realloc_buffer_pool(struct qeth_card *, int);
- 
- extern int
--qeth_set_large_send(struct qeth_card *);
-+qeth_set_large_send(struct qeth_card *, enum qeth_large_send_types);
- 
- extern void
- qeth_fill_header(struct qeth_card *, struct qeth_hdr *,
 diff -Naupr linux-2.6-orig/drivers/s390/net/qeth_main.c linux-2.6-patched/drivers/s390/net/qeth_main.c
---- linux-2.6-orig/drivers/s390/net/qeth_main.c	2005-09-05 11:46:56.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/net/qeth_main.c	2005-09-05 12:17:38.000000000 +0200
+--- linux-2.6-orig/drivers/s390/net/qeth_main.c	2005-09-05 13:53:40.000000000 +0200
++++ linux-2.6-patched/drivers/s390/net/qeth_main.c	2005-09-05 14:05:43.000000000 +0200
 @@ -1,6 +1,6 @@
  /*
   *
-- * linux/drivers/s390/net/qeth_main.c ($Revision: 1.214 $)
-+ * linux/drivers/s390/net/qeth_main.c ($Revision: 1.219 $)
+- * linux/drivers/s390/net/qeth_main.c ($Revision: 1.219 $)
++ * linux/drivers/s390/net/qeth_main.c ($Revision: 1.224 $)
   *
   * Linux on zSeries OSA Express and HiperSockets support
   *
@@ -80,110 +67,241 @@ diff -Naupr linux-2.6-orig/drivers/s390/net/qeth_main.c linux-2.6-patched/driver
   *			  Frank Pavlic (pavlic@de.ibm.com) and
   *		 	  Thomas Spatzier <tspat@de.ibm.com>
   *
-- *    $Revision: 1.214 $	 $Date: 2005/05/04 20:19:18 $
-+ *    $Revision: 1.219 $	 $Date: 2005/05/04 20:19:18 $
+- *    $Revision: 1.219 $	 $Date: 2005/05/04 20:19:18 $
++ *    $Revision: 1.224 $	 $Date: 2005/05/04 20:19:18 $
   *
   * This program is free software; you can redistribute it and/or modify
   * it under the terms of the GNU General Public License as published by
-@@ -80,7 +80,7 @@ qeth_eyecatcher(void)
+@@ -29,14 +29,6 @@
+  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  */
+ 
+-/***
+- * eye catcher; just for debugging purposes
+- */
+-void volatile
+-qeth_eyecatcher(void)
+-{
+-	return;
+-}
+ 
+ #include <linux/config.h>
+ #include <linux/module.h>
+@@ -80,7 +72,7 @@ qeth_eyecatcher(void)
  #include "qeth_eddp.h"
  #include "qeth_tso.h"
  
--#define VERSION_QETH_C "$Revision: 1.214 $"
-+#define VERSION_QETH_C "$Revision: 1.219 $"
+-#define VERSION_QETH_C "$Revision: 1.219 $"
++#define VERSION_QETH_C "$Revision: 1.224 $"
  static const char *version = "qeth S/390 OSA-Express driver";
  
  /**
-@@ -3795,12 +3795,16 @@ static inline int
- qeth_prepare_skb(struct qeth_card *card, struct sk_buff **skb,
- 		 struct qeth_hdr **hdr, int ipv)
- {
-+	int rc;
- #ifdef CONFIG_QETH_VLAN
- 	u16 *tag;
+@@ -2759,11 +2751,9 @@ qeth_flush_buffers(struct qeth_qdio_out_
+ 		queue->card->perf_stats.outbound_do_qdio_start_time;
  #endif
+ 	if (rc){
+-		QETH_DBF_SPRINTF(trace, 0, "qeth_flush_buffers: do_QDIO "
+-				 "returned error (%i) on device %s.",
+-				 rc, CARD_DDEV_ID(queue->card));
+ 		QETH_DBF_TEXT(trace, 2, "flushbuf");
+ 		QETH_DBF_TEXT_(trace, 2, " err%d", rc);
++		QETH_DBF_TEXT_(trace, 2, "%s", CARD_DDEV_ID(queue->card));
+ 		queue->card->stats.tx_errors += count;
+ 		/* this must not happen under normal circumstances. if it
+ 		 * happens something is really wrong -> recover */
+@@ -2909,11 +2899,8 @@ qeth_qdio_output_handler(struct ccw_devi
+ 	QETH_DBF_TEXT(trace, 6, "qdouhdl");
+ 	if (status & QDIO_STATUS_LOOK_FOR_ERROR) {
+ 		if (status & QDIO_STATUS_ACTIVATE_CHECK_CONDITION){
+-			QETH_DBF_SPRINTF(trace, 2, "On device %s: "
+-					 "received active check "
+-				         "condition (0x%08x).",
+-					 CARD_BUS_ID(card), status);
+-			QETH_DBF_TEXT(trace, 2, "chkcond");
++			QETH_DBF_TEXT(trace, 2, "achkcond");
++			QETH_DBF_TEXT_(trace, 2, "%s", CARD_BUS_ID(card));
+ 			QETH_DBF_TEXT_(trace, 2, "%08x", status);
+ 			netif_stop_queue(card->dev);
+ 			qeth_schedule_recovery(card);
+@@ -3356,26 +3343,32 @@ qeth_halt_channel(struct qeth_channel *c
+ static int
+ qeth_halt_channels(struct qeth_card *card)
+ {
+-	int rc = 0;
++	int rc1 = 0, rc2=0, rc3 = 0;
  
- 	QETH_DBF_TEXT(trace, 6, "prepskb");
+ 	QETH_DBF_TEXT(trace,3,"haltchs");
+-	if ((rc = qeth_halt_channel(&card->read)))
+-		return rc;
+-	if ((rc = qeth_halt_channel(&card->write)))
+-		return rc;
+-	return  qeth_halt_channel(&card->data);
++	rc1 = qeth_halt_channel(&card->read);
++	rc2 = qeth_halt_channel(&card->write);
++	rc3 = qeth_halt_channel(&card->data);
++	if (rc1)
++		return rc1;
++	if (rc2) 
++		return rc2;
++	return rc3;
+ }
+ static int
+ qeth_clear_channels(struct qeth_card *card)
+ {
+-	int rc = 0;
++	int rc1 = 0, rc2=0, rc3 = 0;
  
-+        rc = qeth_realloc_headroom(card, skb, sizeof(struct qeth_hdr));
-+        if (rc)
-+                return rc;
- #ifdef CONFIG_QETH_VLAN
- 	if (card->vlangrp && vlan_tx_tag_present(*skb) &&
- 	    ((ipv == 6) || card->options.layer2) ) {
-@@ -4251,7 +4255,8 @@ out:
+ 	QETH_DBF_TEXT(trace,3,"clearchs");
+-	if ((rc = qeth_clear_channel(&card->read)))
+-		return rc;
+-	if ((rc = qeth_clear_channel(&card->write)))
+-		return rc;
+-	return  qeth_clear_channel(&card->data);
++	rc1 = qeth_clear_channel(&card->read);
++	rc2 = qeth_clear_channel(&card->write);
++	rc3 = qeth_clear_channel(&card->data);
++	if (rc1)
++		return rc1;
++	if (rc2) 
++		return rc2;
++	return rc3;
  }
  
- static inline int
--qeth_get_elements_no(struct qeth_card *card, void *hdr, struct sk_buff *skb)
-+qeth_get_elements_no(struct qeth_card *card, void *hdr, 
-+		     struct sk_buff *skb, int elems)
- {
+ static int
+@@ -3445,23 +3438,23 @@ qeth_mpc_initialize(struct qeth_card *ca
+ 	}
+ 	if ((rc = qeth_cm_enable(card))){
+ 		QETH_DBF_TEXT_(setup, 2, "2err%d", rc);
+-		return rc;
++		goto out_qdio;
+ 	}
+ 	if ((rc = qeth_cm_setup(card))){
+ 		QETH_DBF_TEXT_(setup, 2, "3err%d", rc);
+-		return rc;
++		goto out_qdio;
+ 	}
+ 	if ((rc = qeth_ulp_enable(card))){
+ 		QETH_DBF_TEXT_(setup, 2, "4err%d", rc);
+-		return rc;
++		goto out_qdio;
+ 	}
+ 	if ((rc = qeth_ulp_setup(card))){
+ 		QETH_DBF_TEXT_(setup, 2, "5err%d", rc);
+-		return rc;
++		goto out_qdio;
+ 	}
+ 	if ((rc = qeth_alloc_qdio_buffers(card))){
+ 		QETH_DBF_TEXT_(setup, 2, "5err%d", rc);
+-		return rc;
++		goto out_qdio;
+ 	}
+ 	if ((rc = qeth_qdio_establish(card))){
+ 		QETH_DBF_TEXT_(setup, 2, "6err%d", rc);
+@@ -4281,7 +4274,7 @@ qeth_send_packet(struct qeth_card *card,
+ 	int ipv = 0;
+ 	int cast_type;
+ 	struct qeth_qdio_out_q *queue;
+-	struct qeth_hdr *hdr;
++	struct qeth_hdr *hdr = NULL;
  	int elements_needed = 0;
+ 	enum qeth_large_send_types large_send = QETH_LARGE_SEND_NO;
+ 	struct qeth_eddp_context *ctx = NULL;
+@@ -4512,7 +4505,11 @@ qeth_arp_set_no_entries(struct qeth_card
  
-@@ -4261,9 +4266,10 @@ qeth_get_elements_no(struct qeth_card *c
-         if (elements_needed == 0 )
-                 elements_needed = 1 + (((((unsigned long) hdr) % PAGE_SIZE)
-                                         + skb->len) >> PAGE_SHIFT);
--        if (elements_needed > QETH_MAX_BUFFER_ELEMENTS(card)){
-+	if ((elements_needed + elems) > QETH_MAX_BUFFER_ELEMENTS(card)){
-                 PRINT_ERR("qeth_do_send_packet: invalid size of "
--                          "IP packet. Discarded.");
-+                          "IP packet (Number=%d / Length=%d). Discarded.\n",
-+                          (elements_needed+elems), skb->len);
-                 return 0;
-         }
-         return elements_needed;
-@@ -4337,9 +4343,11 @@ qeth_send_packet(struct qeth_card *card,
- 			return -EINVAL;
- 		}
- 	} else {
--		elements_needed += qeth_get_elements_no(card,(void*) hdr, skb);
--		if (!elements_needed)
-+		int elems = qeth_get_elements_no(card,(void*) hdr, skb,
-+						 elements_needed);
-+		if (!elems)
- 			return -EINVAL;
-+		elements_needed += elems;
- 	}
+ 	QETH_DBF_TEXT(trace,3,"arpstnoe");
  
- 	if (card->info.type != QETH_CARD_TYPE_IQD)
-@@ -7038,14 +7046,16 @@ qeth_setrouting_v6(struct qeth_card *car
- }
+-	/* TODO: really not supported by GuestLAN? */
++	/*
++	 * currently GuestLAN only supports the ARP assist function
++	 * IPA_CMD_ASS_ARP_QUERY_INFO, but not IPA_CMD_ASS_ARP_SET_NO_ENTRIES;
++	 * thus we say EOPNOTSUPP for this ARP function
++	 */
+ 	if (card->info.guestlan)
+ 		return -EOPNOTSUPP;
+ 	if (!qeth_is_supported(card,IPA_ARP_PROCESSING)) {
+@@ -4689,14 +4686,6 @@ qeth_arp_query(struct qeth_card *card, c
  
- int
--qeth_set_large_send(struct qeth_card *card)
-+qeth_set_large_send(struct qeth_card *card, enum qeth_large_send_types type)
+ 	QETH_DBF_TEXT(trace,3,"arpquery");
+ 
+-	/*
+-	 * currently GuestLAN  does only deliver all zeros on query arp,
+-	 * even though arp processing is supported (according to IPA supp.
+-	 * funcs flags); since all zeros is no valueable information,
+-	 * we say EOPNOTSUPP for all ARP functions
+-	 */
+-	/*if (card->info.guestlan)
+-		return -EOPNOTSUPP; */
+ 	if (!qeth_is_supported(card,/*IPA_QUERY_ARP_ADDR_INFO*/
+ 			       IPA_ARP_PROCESSING)) {
+ 		PRINT_WARN("ARP processing not supported "
+@@ -4902,10 +4891,9 @@ qeth_arp_add_entry(struct qeth_card *car
+ 	QETH_DBF_TEXT(trace,3,"arpadent");
+ 
+ 	/*
+-	 * currently GuestLAN  does only deliver all zeros on query arp,
+-	 * even though arp processing is supported (according to IPA supp.
+-	 * funcs flags); since all zeros is no valueable information,
+-	 * we say EOPNOTSUPP for all ARP functions
++	 * currently GuestLAN only supports the ARP assist function
++	 * IPA_CMD_ASS_ARP_QUERY_INFO, but not IPA_CMD_ASS_ARP_ADD_ENTRY;
++	 * thus we say EOPNOTSUPP for this ARP function
+ 	 */
+ 	if (card->info.guestlan)
+ 		return -EOPNOTSUPP;
+@@ -4945,10 +4933,9 @@ qeth_arp_remove_entry(struct qeth_card *
+ 	QETH_DBF_TEXT(trace,3,"arprment");
+ 
+ 	/*
+-	 * currently GuestLAN  does only deliver all zeros on query arp,
+-	 * even though arp processing is supported (according to IPA supp.
+-	 * funcs flags); since all zeros is no valueable information,
+-	 * we say EOPNOTSUPP for all ARP functions
++	 * currently GuestLAN only supports the ARP assist function
++	 * IPA_CMD_ASS_ARP_QUERY_INFO, but not IPA_CMD_ASS_ARP_REMOVE_ENTRY;
++	 * thus we say EOPNOTSUPP for this ARP function
+ 	 */
+ 	if (card->info.guestlan)
+ 		return -EOPNOTSUPP;
+@@ -4986,11 +4973,10 @@ qeth_arp_flush_cache(struct qeth_card *c
+ 	QETH_DBF_TEXT(trace,3,"arpflush");
+ 
+ 	/*
+-	 * currently GuestLAN  does only deliver all zeros on query arp,
+-	 * even though arp processing is supported (according to IPA supp.
+-	 * funcs flags); since all zeros is no valueable information,
+-	 * we say EOPNOTSUPP for all ARP functions
+-	 */
++	 * currently GuestLAN only supports the ARP assist function
++	 * IPA_CMD_ASS_ARP_QUERY_INFO, but not IPA_CMD_ASS_ARP_FLUSH_CACHE;
++	 * thus we say EOPNOTSUPP for this ARP function
++	*/
+ 	if (card->info.guestlan || (card->info.type == QETH_CARD_TYPE_IQD))
+ 		return -EOPNOTSUPP;
+ 	if (!qeth_is_supported(card,IPA_ARP_PROCESSING)) {
+@@ -8266,7 +8252,6 @@ qeth_init(void)
  {
- 	int rc = 0;
+ 	int rc=0;
  
--	if (card->dev == NULL)
-+	if (card->dev == NULL) {
-+		card->options.large_send = type;
- 		return 0;
--
-+	}
- 	netif_stop_queue(card->dev);
-+	card->options.large_send = type;
- 	switch (card->options.large_send) {
- 	case QETH_LARGE_SEND_EDDP:
- 		card->dev->features |= NETIF_F_TSO | NETIF_F_SG;
-@@ -7066,7 +7076,6 @@ qeth_set_large_send(struct qeth_card *ca
- 		card->dev->features &= ~(NETIF_F_TSO | NETIF_F_SG);
- 		break;
- 	}
--
- 	netif_wake_queue(card->dev);
- 	return rc;
+-	qeth_eyecatcher();
+ 	PRINT_INFO("loading %s (%s/%s/%s/%s/%s/%s/%s %s %s)\n",
+ 		   version, VERSION_QETH_C, VERSION_QETH_H,
+ 		   VERSION_QETH_MPC_H, VERSION_QETH_MPC_C,
+@@ -8347,7 +8332,6 @@ again:
+ 	printk("qeth: removed\n");
  }
+ 
+-EXPORT_SYMBOL(qeth_eyecatcher);
+ module_init(qeth_init);
+ module_exit(qeth_exit);
+ MODULE_AUTHOR("Frank Pavlic <pavlic@de.ibm.com>");
 diff -Naupr linux-2.6-orig/drivers/s390/net/qeth_sys.c linux-2.6-patched/drivers/s390/net/qeth_sys.c
---- linux-2.6-orig/drivers/s390/net/qeth_sys.c	2005-09-05 11:46:56.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/net/qeth_sys.c	2005-09-05 12:14:30.000000000 +0200
+--- linux-2.6-orig/drivers/s390/net/qeth_sys.c	2005-09-05 13:53:40.000000000 +0200
++++ linux-2.6-patched/drivers/s390/net/qeth_sys.c	2005-09-05 14:00:46.000000000 +0200
 @@ -1,6 +1,6 @@
  /*
   *
-- * linux/drivers/s390/net/qeth_sys.c ($Revision: 1.51 $)
-+ * linux/drivers/s390/net/qeth_sys.c ($Revision: 1.53 $)
+- * linux/drivers/s390/net/qeth_sys.c ($Revision: 1.53 $)
++ * linux/drivers/s390/net/qeth_sys.c ($Revision: 1.54 $)
   *
   * Linux on zSeries OSA Express and HiperSockets support
   * This file contains code related to sysfs.
@@ -191,30 +309,24 @@ diff -Naupr linux-2.6-orig/drivers/s390/net/qeth_sys.c linux-2.6-patched/drivers
  #include "qeth_mpc.h"
  #include "qeth_fs.h"
  
--const char *VERSION_QETH_SYS_C = "$Revision: 1.51 $";
-+const char *VERSION_QETH_SYS_C = "$Revision: 1.53 $";
+-const char *VERSION_QETH_SYS_C = "$Revision: 1.53 $";
++const char *VERSION_QETH_SYS_C = "$Revision: 1.54 $";
  
  /*****************************************************************************/
  /*                                                                           */
-@@ -771,9 +771,7 @@ qeth_dev_large_send_store(struct device 
+@@ -722,10 +722,13 @@ qeth_dev_layer2_store(struct device *dev
  
  	if (!card)
  		return -EINVAL;
--
- 	tmp = strsep((char **) &buf, "\n");
--
- 	if (!strcmp(tmp, "no")){
- 		type = QETH_LARGE_SEND_NO;
- 	} else if (!strcmp(tmp, "EDDP")) {
-@@ -786,10 +784,8 @@ qeth_dev_large_send_store(struct device 
- 	}
- 	if (card->options.large_send == type)
- 		return count;
--	card->options.large_send = type;
--	if ((rc = qeth_set_large_send(card)))
-+	if ((rc = qeth_set_large_send(card, type)))	
- 		return rc;
--
- 	return count;
- }
++	if (card->info.type == QETH_CARD_TYPE_IQD) {
++                PRINT_WARN("Layer2 on Hipersockets is not supported! \n");
++                return -EPERM;
++        }
  
+ 	if (((card->state != CARD_STATE_DOWN) &&
+-	     (card->state != CARD_STATE_RECOVER)) ||
+-	    (card->info.type != QETH_CARD_TYPE_OSAE))
++	     (card->state != CARD_STATE_RECOVER)))
+ 		return -EPERM;
+ 
+ 	i = simple_strtoul(buf, &tmp, 16);

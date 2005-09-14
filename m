@@ -1,67 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965258AbVINRiu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030250AbVINRjt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965258AbVINRiu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 13:38:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965256AbVINRiu
+	id S1030250AbVINRjt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 13:39:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030258AbVINRjs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 13:38:50 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:11025 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP
-	id S1030250AbVINRiu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 13:38:50 -0400
-Message-ID: <432861B0.9070800@tmr.com>
-Date: Wed, 14 Sep 2005 13:45:20 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: "Read my lips: no more merges" - aka Linux 2.6.14-rc1
-References: <Pine.LNX.4.58.0509122019560.3351@g5.osdl.org> <43285EF1.1040003@tmr.com>
-In-Reply-To: <43285EF1.1040003@tmr.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Sep 2005 13:39:48 -0400
+Received: from mail.kroah.org ([69.55.234.183]:42976 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1030250AbVINRjs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 13:39:48 -0400
+Date: Wed, 14 Sep 2005 10:39:18 -0700
+From: Greg KH <greg@kroah.com>
+To: dtor_core@ameritech.net
+Cc: Robert Love <rml@novell.com>, Mr Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] hdaps driver update.
+Message-ID: <20050914173918.GB24058@kroah.com>
+References: <1126713453.5738.7.camel@molly> <20050914160527.GA22352@kroah.com> <1126714175.5738.21.camel@molly> <20050914161622.GA22875@kroah.com> <d120d5000509141028252d060c@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d120d5000509141028252d060c@mail.gmail.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
-> Linus Torvalds wrote:
+On Wed, Sep 14, 2005 at 12:28:15PM -0500, Dmitry Torokhov wrote:
+> On 9/14/05, Greg KH <greg@kroah.com> wrote:
+> > 
+> > No, if you have that .owner field in your driver, you get a symlink in
+> > sysfs that points from your driver to the module that controls it.  You
+> > just removed that symlink, which is not what I think you wanted to have
+> > happen :(
+> > 
 > 
->> Ok, it's been two weeks (actually, two weeks and one day) since 
->> 2.6.13, and that means that the merge window is closed. I've released 
->> a 2.6.14-rc1, and we're now all supposed to help just clean up and fix 
->> everything, and aim for a really solid 2.6.14 release.
-> 
-> 
-> I can bore the list with a config, but this seems pretty common over x86 
-> configs, similar happened on desktop (this one), laptop, and server builds.
+> Hmm, i have a concern WRT to that link - it is only present if driver
+> is registered from a code compiled as a module. If driver is built-in
+> THIS_MODULE is NULL and symlink will not be created. Hovewer
+> /sys/modules/<module> is created regardless of whether module is a
+> module or built-in. So the behavior is inconsistent and it looks like
+> a replacement is needed.
 
-Ah, I see it, config needs to note that IOAPIC is now required. That's 
-probably not desirable, there are systems with broken ioapic which 
-should not be used.
+Ok, care to come up with a suggestion of how to fix this?
 
-> ========================
-> 
->   CHK     include/linux/compile.h
->   UPD     include/linux/compile.h
->   CC      init/version.o
->   LD      init/built-in.o
->   LD      .tmp_vmlinux1
-> arch/i386/kernel/built-in.o(.init.text+0xe5e): In function 
-> `parse_cmdline_early':
-> : undefined reference to `disable_timer_pin_1'
-> arch/i386/kernel/built-in.o(.init.text+0xe7e): In function 
-> `parse_cmdline_early':
-> : undefined reference to `disable_timer_pin_1'
-> make[2]: *** [.tmp_vmlinux1] Error 1
-> error: Bad exit status from /var/tmp/rpm-tmp.82653 (%build)
-> 
-> 
-> RPM build errors:
->     Bad exit status from /var/tmp/rpm-tmp.82653 (%build)
-> make[1]: *** [rpm] Error 1
-> make: *** [rpm] Error 2
-> 
-> 
+thanks,
 
+greg k-h

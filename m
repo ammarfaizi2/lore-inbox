@@ -1,33 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965198AbVINNP6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965200AbVINNRy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965198AbVINNP6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 09:15:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965202AbVINNP5
+	id S965200AbVINNRy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 09:17:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965202AbVINNRx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 09:15:57 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:17289 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S965200AbVINNP5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 09:15:57 -0400
-From: Mikael Pettersson <mikpe@user.it.uu.se>
+	Wed, 14 Sep 2005 09:17:53 -0400
+Received: from laf31-5-82-235-130-100.fbx.proxad.net ([82.235.130.100]:54255
+	"EHLO lexbox.fr") by vger.kernel.org with ESMTP id S965200AbVINNRx convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 09:17:53 -0400
+Subject: Corrupted file on a copy
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17192.8799.432221.729771@alkaid.it.uu.se>
-Date: Wed, 14 Sep 2005 15:15:11 +0200
-To: ak@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.6.14-rc1: end_pfn undefined in amd64-agp.ko
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Date: Wed, 14 Sep 2005 15:14:58 +0200
+Content-class: urn:content-classes:message
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Message-ID: <17AB476A04B7C842887E0EB1F268111E026F9B@xpserver.intra.lexbox.org>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Corrupted file on a copy
+thread-index: AcW5Lk46hBAimb6ZQvG+LkZwtKW2oA==
+From: "David Sanchez" <david.sanchez@lexbox.fr>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Building amd64-agp as module in 2.6.14-rc1 for x86_64
-results in an error about "end_pfn" being undefined.
+Hi,
 
-Looks like someone did s/max_mapnr/end_pfn/ in x86_64's
-page.h, but forgot to export end_pfn.
+I'm using the linux kernel 2.6.10 and busybox 1.0 on a AMD AU1550 board.
 
-Should I stick the EXPORT_SYMBOL in mm/memory.c or
-somewhere down in arch/x86_64/ ?
+When I copy a big file (around 300M) within an ext2 filesystem (even on
+ext3 filesystem) then the output file is sometime "corrupted" (I mean
+that the source and the destination files are different and thus
+generate a different SHA1).
+Does somebody have a same behaviour?
 
-/Mikael
+Thanks,
+David
+

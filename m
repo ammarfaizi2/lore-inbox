@@ -1,84 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932729AbVINMEt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932727AbVINMBj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932729AbVINMEt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 08:04:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932732AbVINMEt
+	id S932727AbVINMBj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 08:01:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932737AbVINMBj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 08:04:49 -0400
-Received: from penta.pentaserver.com ([216.74.97.66]:63655 "EHLO
-	penta.pentaserver.com") by vger.kernel.org with ESMTP
-	id S932729AbVINMEs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 08:04:48 -0400
-Message-ID: <43280F2F.2060708@gmail.com>
-Date: Wed, 14 Sep 2005 15:53:19 +0400
-From: Manu Abraham <abraham.manu@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jiri Slaby <jirislaby@gmail.com>
-CC: Manu Abraham <manu@kromtek.com>, linux-kernel@vger.kernel.org
-Subject: Re: PCI driver
-References: <4327EE94.2040405@kromtek.com> <4327F586.3030901@gmail.com> <4327F551.6070903@kromtek.com> <4327FB6C.3070708@gmail.com>
-In-Reply-To: <4327FB6C.3070708@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Antivirus-Scanner: Clean mail though you should still use an Antivirus
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - penta.pentaserver.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - gmail.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Wed, 14 Sep 2005 08:01:39 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:18669 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S932727AbVINMBi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 08:01:38 -0400
+Date: Wed, 14 Sep 2005 14:03:22 +0200
+From: Jan Kara <jack@suse.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: sct@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix commit of ordered data buffers
+Message-ID: <20050914120322.GE15582@atrey.karlin.mff.cuni.cz>
+References: <20050913153024.GL30108@atrey.karlin.mff.cuni.cz> <20050913184305.24705a98.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050913184305.24705a98.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jiri Slaby wrote:
+> Jan Kara <jack@suse.cz> wrote:
+> >
+> > When a buffer is locked it does not mean that write-out is in progress. We
+> >  have to check if the buffer is dirty and if it is we have to submit it
+> >  for write-out. We unconditionally move the buffer to t_locked_list so
+> >  that we don't mistake unprocessed buffer and buffer not yet given to
+> >  ll_rw_block(). This subtly changes the meaning of buffer states in
+> >  t_locked_list - unlock buffer (for list users different from
+> >  journal_commit_transaction()) does not mean it has been written. But
+> >  only journal_unmap_buffer() cares and it now checks if the buffer
+> >  is not dirty.
+> 
+> Seems complex.  It means that t_locked_list takes on an additional (and
+> undocumented!) meaning.
+  Sorry, if we agree on some final form I'll add the appropriate
+comment to the header file.
 
-> Manu Abraham napsal(a):
->
->> Jiri Slaby wrote:
->>
->>> Manu Abraham napsal(a):
->>>
->>>> Now that i have been trying to implement the driver using the new 
->>>> PCI API, i feel a bit lost at the different changes gone into the 
->>>> PCI API. So if someone could give me a brief idea how a minimal PCI 
->>>> probe routine should consist of, that would be quite helpful.
->>>
->>>
->>>
->>>
->>> Maybe, you want to read http://lwn.net/Kernel/LDD3/, chapter 12, 
->>> pages 311+.
->>>
->>
->> I have been updating myself from LDD2 to LDD3. What i was wondering 
->> was in what order should i be calling the functions.
->
->
-> You won't call anything, kernel does. You only register driver.
-> struct pcitbl {venids, devids}
->
-> struct driver ... = {probe=a, remove=b, tbl=pcitbl};
-> a() { if device from pcitbl is in the system (or has been added before 
-> some little time) this function is called}
-> b() {if the device was removed from system: modules and hotplug: never 
-> called; modules: so if modules unload; if both: if the device was 
-> removed on the fly, or module unload}
->
-> module_init() { register_driver(driver)}
-> module_exit() { unregister_driver(driver); }
->
+> Also, I don't think it works.  See ll_rw_block()'s handling of
+> already-locked buffers..
+  We send it to disk with SWRITE - hence ll_rw_block() wait for the buffer
+lock for us. Or do you have something else in mind?
 
-I was wondering whether pci_enable_device() should come first or 
-pci_dev_put() in the probe routine.
+> An alternative is to just lock the buffer in journal_commit_transaction(),
+> if it was locked-and-dirty.  And remove the call to ll_rw_block() and
+> submit the locked buffers by hand.
+  Yes, this has the advantage that we can move the buffer to t_locked_list
+in the right time and so we don't change the semantics of t_locked_list.
+OTOH the locking will be a bit more complicated (we'd need to acquire and
+drop j_list_lock almost for every bh while currently we do it only once
+per batch) - the code would have to be like:
 
+spin_lock(&journal->j_list_lock);
+while (commit_transaction->t_sync_datalist) {
+	jh = commit_transaction->t_sync_datalist;
+	bh = jh2bh(jh);
+	journal_grab_journal_head(bh);
+	if (buffer_dirty(bh)) {
+		get_bh(bh);
+		spin_unlock(&journal->j_list_lock);
+                lock_buffer(bh);
+		if (buffer_dirty(bh))
+			/* submit the buffer */
+		jbd_lock_bh_state(bh);
+		spin_lock(&journal->j_list_lock);
+		/* Check that somebody did not move the jh elsewhere */
+	}
+	else {
+		if (!inverted_lock(journal, bh))
+			goto write_out_data;
+	}
+	__journal_temp_unlink_buffer(jh);
+	__journal_file_buffer(jh, commit_transaction, BJ_Locked);
+	journal_put_journal_head(bh);
+	jbd_unlock_bh_state(bh);
+}
 
-Thanks,
-Manu
+If you prefer something like this I can code it up...
 
+> That would mean that if someone had redirtied a buffer which was on
+> t_sync_datalist *while* it was under writeout, we'd end up waiting on that
+> writeout to complete before submitting more I/O.  But I suspect that's
+> pretty rare.
+> 
+> One thing which concerns me with your approach is livelocks: if some process
+> sits in a tight loop writing to the same part of the same file, will it
+> cause kjournald to get stuck?
+  No, because as soon as we find the buffer in t_sync_datalist we move
+it to t_locked_list and submit it for IO - this case is one reason why I
+introduced that new meaning to t_locked_list.
 
+> The problem we have here is "was the buffer dirtied before this commit
+> started, or after?".  In the former case we are obliged to write it.  In
+> the later case we are not, and in trying to do this we risk livelocking.
 
-
+								Honza
+-- 
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

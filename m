@@ -1,46 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030264AbVINQit@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030270AbVINQla@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030264AbVINQit (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 12:38:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030267AbVINQit
+	id S1030270AbVINQla (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 12:41:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030271AbVINQla
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 12:38:49 -0400
-Received: from paleosilicon.orionmulti.com ([209.128.68.66]:31454 "EHLO
-	paleosilicon.orionmulti.com") by vger.kernel.org with ESMTP
-	id S1030264AbVINQit (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 12:38:49 -0400
-X-Envelope-From: hpa@zytor.com
-Message-ID: <43285204.6000504@zytor.com>
-Date: Wed, 14 Sep 2005 09:38:28 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
+	Wed, 14 Sep 2005 12:41:30 -0400
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:54749
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S1030269AbVINQl3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 12:41:29 -0400
+Reply-To: <abonilla@linuxwireless.org>
+From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
+To: "'Jeff Garzik'" <jgarzik@pobox.com>
+Cc: "'Keith Owens'" <kaos@ocs.com.au>, "'Linus Torvalds'" <torvalds@osdl.org>,
+       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: RE: "Read my lips: no more merges" - aka Linux 2.6.14-rc1
+Date: Wed, 14 Sep 2005 10:40:51 -0600
+Message-ID: <008c01c5b94b$11f71b60$a20cc60a@amer.sykes.com>
 MIME-Version: 1.0
-To: pascal.bellard@ads-lu.com
-CC: Frank Sorenson <frank@tuxrocks.com>, riley@williams.name,
-       linux-kernel@vger.kernel.org
-Subject: Re: [i386 BOOT CODE] kernel bootable again
-References: <33542.85.68.36.53.1126619176.squirrel@212.11.36.192>    <432722A1.8030302@tuxrocks.com> <43272B9D.1030301@zytor.com> <33296.85.68.36.53.1126690932.squirrel@212.11.36.192>
-In-Reply-To: <33296.85.68.36.53.1126690932.squirrel@212.11.36.192>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <43284F94.3070704@pobox.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1506
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pascal Bellard wrote:
-> 
-> Now two solutions:
-> 
-> - without this patch = linux kernel are never directly bootable
-> - with this patch = linux kernel is directly bootable with some
->   devices.
-> 
-> What is the better idea ?
-> 
+> Alejandro Bonilla Beeche wrote:
+> > 	Is Linus git tree the one used for the rc's and the
+> final release?
+>
+> Yes.
 
-The former, based on the *huge* number of emails of "it doesn't work on 
-my platform" we kept getting, and getting, and getting.
 
-It would be another matter if it was a high-value feature, but it's not.
+Jeff, Thanks for answering. ;-) I think Linus has me in his spam List ;(.
 
-	-hpa
+dunno.
+
+>
+>
+> > I keep updating and it still says 2.6.13 instead of
+> 2.6.14-rc1. I don't
+> > really care if that is cosmetic, is fine, I just want to
+> make sure that
+> > I'm up to date?
+>
+> Is your git up to date?
+
+I don't know. How can I tell? I did run those commands, which BTW are from
+your How-To.
+
+I think it is up to date, but it still doesn't say 2.6.14-rc1. That's the
+only confusing part.
+
+>
+> > git checkout
+>
+> Try 'git checkout -f'
+
+Will do. Thanks again.
+
+.Alejandro
+
+>
+> 	Jeff
+>
+>
+

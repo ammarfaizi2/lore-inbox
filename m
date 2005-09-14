@@ -1,34 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030233AbVINQQA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030232AbVINQRE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030233AbVINQQA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 12:16:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030232AbVINQP7
+	id S1030232AbVINQRE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 12:17:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030234AbVINQRE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 12:15:59 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:6833 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1030230AbVINQP6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 12:15:58 -0400
-Message-ID: <43284CB7.8090808@pobox.com>
-Date: Wed, 14 Sep 2005 12:15:51 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
+	Wed, 14 Sep 2005 12:17:04 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:55526 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1030232AbVINQQ7 (ORCPT
+	<rfc822;Linux-Kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 12:16:59 -0400
+Date: Wed, 14 Sep 2005 18:16:47 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>,
+       Dipankar Sarma <dipankar@in.ibm.com>
+Subject: Re: [PATCH 2/5] atomic: introduce atomic_inc_not_zero
+In-Reply-To: <4328387E.6050701@yahoo.com.au>
+Message-ID: <Pine.LNX.4.61.0509141814220.3743@scrub.home>
+References: <43283825.7070309@yahoo.com.au> <4328387E.6050701@yahoo.com.au>
 MIME-Version: 1.0
-To: Frank Pavlic <pavlic@de.ibm.com>
-CC: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch 3/4] s390: TSO related fixes in qeth driver
-References: <20050914160326.GA3458@pavlic>
-In-Reply-To: <20050914160326.GA3458@pavlic>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-applied patch #3 and #4, thanks for resending.
+Hi,
 
-	Jeff
+On Thu, 15 Sep 2005, Nick Piggin wrote:
 
+> Also needs work on those same architectures. Other architectures
+> might want to look at providing a more optimal implementation.
 
+IMO a rather pointless primitive, unless there is a cpu architecture which 
+has a inc_not_zero instruction, otherwise it will always be the same as 
+using cmpxchg.
 
+bye, Roman

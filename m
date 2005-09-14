@@ -1,73 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965103AbVINJUY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965102AbVINJUV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965103AbVINJUY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 05:20:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965104AbVINJUY
+	id S965102AbVINJUV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 05:20:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965103AbVINJUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 05:20:24 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:24339 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S965103AbVINJUX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 05:20:23 -0400
-Date: Wed, 14 Sep 2005 10:20:16 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Coywolf Qi Hunt <coywolf@gmail.com>
-Cc: linux-kernel@vger.kernel.org, sam@ravnborg.org
-Subject: Re: kbuild-permanently-fix-kernel-configuration-include-mess.patch added to -mm tree
-Message-ID: <20050914102016.B30672@flint.arm.linux.org.uk>
-Mail-Followup-To: Coywolf Qi Hunt <coywolf@gmail.com>,
-	linux-kernel@vger.kernel.org, sam@ravnborg.org
-References: <200509140841.j8E8fG1w022954@shell0.pdx.osdl.net> <2cd57c900509140205572f19b7@mail.gmail.com>
+	Wed, 14 Sep 2005 05:20:21 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:33494 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965102AbVINJUV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 05:20:21 -0400
+Date: Wed, 14 Sep 2005 02:19:43 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Harald Welte <laforge@gnumonks.org>
+Cc: nish.aravamudan@gmail.com, linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH 1/2] New Omnikey Cardman 4040 driver
+Message-Id: <20050914021943.681d8f05.akpm@osdl.org>
+In-Reply-To: <20050913163951.GA29695@sunbeam.de.gnumonks.org>
+References: <20050913155116.GY29695@sunbeam.de.gnumonks.org>
+	<29495f1d050913090219cc44fa@mail.gmail.com>
+	<20050913163951.GA29695@sunbeam.de.gnumonks.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <2cd57c900509140205572f19b7@mail.gmail.com>; from coywolf@gmail.com on Wed, Sep 14, 2005 at 05:05:57PM +0800
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 14, 2005 at 05:05:57PM +0800, Coywolf Qi Hunt wrote:
-> On 9/14/05, akpm@osdl.org <akpm@osdl.org> wrote:
-> > 
-> > The patch titled
-> > 
-> >      kbuild: permanently fix kernel configuration include mess.
-> > 
-> > has been added to the -mm tree.  Its filename is
-> > 
-> >      kbuild-permanently-fix-kernel-configuration-include-mess.patch
-> > 
-> > 
-> > From: Russell King <rmk+lkml@arm.linux.org.uk>
-> > 
-> > Include autoconf.h into every kernel compilation via the gcc command line
-> > using -imacros.  This ensures that we have the kernel configuration
-> > included from the start, rather than relying on each file having #include
-> > <linux/config.h> as appropriate.  History has shown that this is something
-> > which is difficult to get right.
-> 
-> Not all compilations need config.h included and this slows down gratuitously.
+Harald Welte <laforge@gnumonks.org> wrote:
+>
+> Add new Omnikey Cardman 4040 smartcard reader driver
+>
 
-That is a small price to pay, rather than having to continually maintain
-"does this file need config.h included" - which I think can conclusively
-be shown to be a total lost cause.  There are about 3450 configuration
-include errors in the kernel as of -git last night.
+I see a timer, but I see no del_timer_sync() anywhere.  Cannot the timer be
+left pending after device shutdown or rmmod?
 
-Getting config.h includes wrong causes subtle bugs - for instance, one
-file may be built with some feature enabled which changes a structure
-size, and another filfe may be built with it disabled.
+Plus:
 
-I put forward that maintaining correct config.h include across all
-files is demonstratably impossible in such a large source base without
-considerable work.
 
-I also put forward that the percentage of compilations which do not need
-config.h is small and probably realistically zero.
+- Work around gcc-2.95.x macro expansion bug
 
-Therefore, I think that a small slowdown for the few (if any) files which
-don't need linux/config.h including is a good tradeoff.
+- unneded void* cast
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+- use kzalloc()
+
+
+diff -puN drivers/char/pcmcia/cm4040_cs.c~new-omnikey-cardman-4040-driver-fixes drivers/char/pcmcia/cm4040_cs.c
+--- devel/drivers/char/pcmcia/cm4040_cs.c~new-omnikey-cardman-4040-driver-fixes	2005-09-14 02:05:46.000000000 -0700
++++ devel-akpm/drivers/char/pcmcia/cm4040_cs.c	2005-09-14 02:05:46.000000000 -0700
+@@ -46,7 +46,7 @@ module_param(pc_debug, int, 0600);
+ #define DEBUGP(n, rdr, x, args...) do { 				\
+ 	if (pc_debug >= (n)) 						\
+ 		dev_printk(KERN_DEBUG, reader_to_dev(rdr), "%s:" x, 	\
+-			   __FUNCTION__, ##args); 			\
++			   __FUNCTION__ , ##args); 			\
+ 	} while (0)
+ #else
+ #define DEBUGP(n, rdr, x, args...)
+@@ -453,7 +453,7 @@ static int cm4040_open(struct inode *ino
+ 	if (link->open)
+ 		return -EBUSY;
+ 
+-	dev = (struct reader_dev *)link->priv;
++	dev = link->priv;
+ 	filp->private_data = dev;
+ 
+ 	if (filp->f_flags & O_NONBLOCK) {
+@@ -705,11 +705,10 @@ static dev_link_t *reader_attach(void)
+ 	if (i == CM_MAX_DEV)
+ 		return NULL;
+ 
+-	dev = kmalloc(sizeof(struct reader_dev), GFP_KERNEL);
++	dev = kzalloc(sizeof(struct reader_dev), GFP_KERNEL);
+ 	if (dev == NULL)
+ 		return NULL;
+ 
+-	memset(dev, 0, sizeof(struct reader_dev));
+ 	dev->timeout = CCID_DRIVER_MINIMUM_TIMEOUT;
+ 	dev->buffer_status = 0;
+ 
+_
+

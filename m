@@ -1,72 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030261AbVINWtP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965089AbVINW5o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030261AbVINWtP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 18:49:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030268AbVINWtP
+	id S965089AbVINW5o (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 18:57:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965091AbVINW5o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 18:49:15 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:16514 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S1030261AbVINWtP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 18:49:15 -0400
-Date: Thu, 15 Sep 2005 08:48:05 +1000
-From: David Chinner <dgc@sgi.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Bharata B Rao <bharata@in.ibm.com>, "Theodore Ts'o" <tytso@mit.edu>,
-       Dipankar Sarma <dipankar@in.ibm.com>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, manfred@colorfullife.com
-Subject: Re: VM balancing issues on 2.6.13: dentry cache not getting shrunk enough
-Message-ID: <20050914224805.GB2265486@melbourne.sgi.com>
-References: <20050911105709.GA16369@thunk.org> <20050913084752.GC4474@in.ibm.com> <20050913215932.GA1654338@melbourne.sgi.com> <200509141101.16781.ak@suse.de>
+	Wed, 14 Sep 2005 18:57:44 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:65489 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S965089AbVINW5n
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 18:57:43 -0400
+Date: Thu, 15 Sep 2005 04:20:43 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, akpm@osdl.org
+Subject: Re: [PATCH] reorder struct files_struct
+Message-ID: <20050914225043.GD6237@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20050914191842.GA6315@in.ibm.com> <20050914.125750.05416211.davem@davemloft.net> <20050914201550.GB6315@in.ibm.com> <20050914.132936.105214487.davem@davemloft.net> <43289376.7050205@cosmosbay.com> <20050914220205.GC6237@in.ibm.com> <4328A73B.1080801@cosmosbay.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <200509141101.16781.ak@suse.de>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <4328A73B.1080801@cosmosbay.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 14, 2005 at 11:01:15AM +0200, Andi Kleen wrote:
-> On Tuesday 13 September 2005 23:59, David Chinner wrote:
-> > On Tue, Sep 13, 2005 at 02:17:52PM +0530, Bharata B Rao wrote:
-> > > Second is Sonny Rao's rbtree dentry reclaim patch which is an attempt
-> > > to improve this dcache fragmentation problem.
+On Thu, Sep 15, 2005 at 12:42:03AM +0200, Eric Dumazet wrote:
+> Dipankar Sarma a écrit :
+> >On Wed, Sep 14, 2005 at 11:17:42PM +0200, Eric Dumazet wrote:
 > >
-> > FYI, in the past I've tried this patch to reduce dcache fragmentation on
-> > an Altix (16k pages, 62 dentries to a slab page) under heavy
-> > fileserver workloads and it had no measurable effect. It appeared
-> > that there was almost always at least one active dentry on each page
-> > in the slab.  The story may very well be different on 4k page
-> > machines, however.
+> >>--- linux-2.6.14-rc1/include/linux/file.h	2005-09-13 
+> >>05:12:09.000000000 +0200
+> >>+++ linux-2.6.14-rc1-ed/include/linux/file.h	2005-09-15 
+> >>01:09:13.000000000 +0200
+> >>@@ -34,12 +34,12 @@
+> >> */
+> >>struct files_struct {
+> >>        atomic_t count;
+> >>-        spinlock_t file_lock;     /* Protects all the below members.  
+> >>Nests inside tsk->alloc_lock */
+> >>	struct fdtable *fdt;
+> >>	struct fdtable fdtab;
+> >>        fd_set close_on_exec_init;
+> >>        fd_set open_fds_init;
+> >>        struct file * fd_array[NR_OPEN_DEFAULT];
+> >>+	spinlock_t file_lock;     /* Protects concurrent writers.  Nests 
+> >>inside tsk->alloc_lock */
+> >>};
+> >>
+> >>#define files_fdtable(files) (rcu_dereference((files)->fdt))
+> >
+> >
+> >For most apps without too many open fds, the embedded fd_sets
+> >are going to be used. Wouldn't that mean that open()/close() will
+> >invalidate the cache line containing fdt, fdtab by updating
+> >the fd_sets ? If so, you optimization really doesn't help.
+> >
 > 
-> I always thought dentry freeing would work much better if it
-> was turned upside down.
+> If the embedded struct fdtable is used, then the only touched field is 
+> 'next_fd', so we could also move this field at the end of 'struct fdtable'
 > 
-> Instead of starting from the high level dcache lists it could
-> be driven by slab: on memory pressure slab tries to return pages with unused 
-> cache objects. In that case it should check if there are only
-> a small number of pinned objects on the page set left, and if 
-> yes use a new callback to the higher level user (=dcache) and ask them
-> to free the object.
 
-If you add a slab free object callback, then you have the beginnings
-of a more flexible solution to memory reclaim from the slabs.
+Not just embedded fdtable, but also the embedded fdsets. I would expect
+count, fdt, fdtab and the fdsets to fit into one cache line in 
+some archs.
 
-For example, you can easily implement a reclaim-not-allocate method
-for new slab allocations for when there is no memory available or the
-size of the slab is passed some configurable high water mark...
 
-Right now these is no way to control the size of a slab cache.  Part
-of the reason for the fragmentation I have seen is the massive
-changes in size of the caches due to the OS making wrong decisions
-about memory reclaim when small changes in the workload occur. We
-currently have no way to provide hints to help the OS make the right
-decision for a given workload....
+> But I wonder if 'next_fd' really has to be in 'struct fdtable', maybe it 
+> could be moved to 'struct files_struct' close to file_lock ?
 
-Cheers,
+next_fd has to be in struct fdtable. It needs to be consistent
+with whichever fdtable a lock-free reader sees.
 
-Dave.
--- 
-Dave Chinner
-R&D Software Enginner
-SGI Australian Software Group
+> 
+> If yes, the whole embedded struct fdtable is readonly.
+
+But not close_on_exec_init or open_fds_init. We would update them
+on open/close.
+
+Some benchmarking would be useful here.
+
+Thanks
+Dipankar

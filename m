@@ -1,86 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030228AbVINWV0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030234AbVINWYg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030228AbVINWV0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 18:21:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030229AbVINWV0
+	id S1030234AbVINWYg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 18:24:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030236AbVINWYg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 18:21:26 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:787 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1030228AbVINWVY (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 18:21:24 -0400
-Date: Wed, 14 Sep 2005 23:21:06 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>,
-       Dipankar Sarma <dipankar@in.ibm.com>
-Subject: Re: [PATCH 2/5] atomic: introduce atomic_inc_not_zero
-Message-ID: <20050914232106.H30746@flint.arm.linux.org.uk>
-Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
-	Nick Piggin <nickpiggin@yahoo.com.au>,
-	Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>,
-	Dipankar Sarma <dipankar@in.ibm.com>
-References: <43283825.7070309@yahoo.com.au> <4328387E.6050701@yahoo.com.au> <Pine.LNX.4.61.0509141814220.3743@scrub.home> <43285374.3020806@yahoo.com.au> <Pine.LNX.4.61.0509141906040.3728@scrub.home> <20050914230049.F30746@flint.arm.linux.org.uk> <Pine.LNX.4.61.0509150010100.3728@scrub.home>
+	Wed, 14 Sep 2005 18:24:36 -0400
+Received: from cpc1-cmbg6-5-0-cust20.cmbg.cable.ntl.com ([81.104.210.20]:37578
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id S1030235AbVINWYg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 18:24:36 -0400
+Subject: Re: [PATCH] Remove drivers/parport/parport_arc.c
+From: Phil Blundell <philb@gnu.org>
+To: Ian Molton <spyro@f2s.com>
+Cc: Andrew Morton <akpm@osdl.org>, Russell King <rmk+lkml@arm.linux.org.uk>,
+       adobriyan@gmail.com, domen@coderock.org, linux-kernel@vger.kernel.org
+In-Reply-To: <43289932.7090604@f2s.com>
+References: <20050914202420.GK19491@mipter.zuzino.mipt.ru>
+	 <20050914220837.D30746@flint.arm.linux.org.uk>
+	 <20050914141631.1567758b.akpm@osdl.org>  <43289932.7090604@f2s.com>
+Content-Type: text/plain
+Date: Wed, 14 Sep 2005 23:24:11 +0100
+Message-Id: <1126736651.11120.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.61.0509150010100.3728@scrub.home>; from zippel@linux-m68k.org on Thu, Sep 15, 2005 at 12:10:56AM +0200
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 15, 2005 at 12:10:56AM +0200, Roman Zippel wrote:
-> Hi,
-> 
-> On Wed, 14 Sep 2005, Russell King wrote:
-> 
-> > > 	do {
-> > > 		old = atomic_load_locked(v);
-> > > 		if (!old)
-> > > 			break;
-> > > 		new = old + 1;
-> > > 	} while (!atomic_store_lock(v, old, new));
-> > 
-> > How do you propose architectures which don't have locked loads implement
-> > this, where the only atomic instruction is an unconditional atomic swap
-> > between memory and CPU register?
-> 
-> #define atomic_store_lock atomic_cmpxchg
+On Wed, 2005-09-14 at 22:42 +0100, Ian Molton wrote:
+> Well unless the parport stuff changed to support ports where one cant 
+> read the data latch, its still needed. 
 
-No.  "unconditional atomic swap" does not mean cmpxchg - it means that
-atomic_cmpxchg itself would have to be open coded, which is inefficient.
+I'm not sure I understand what you mean by that.  Can you explain what
+sort of potential changes to the "parport stuff" you were thinking of?
 
-What you're asking architectures to do is:
+p.
 
-retry:
-	load
-	operation
-	save interrupts
-	load
-	compare
-	store if equal
-	restore interrupts
-	goto retry if not equal
 
-whereas they could have done the far simpler version of:
-
-	save interrupts
-	load
-	operation
-	store
-	restore interrupts
-
-which they do today.
-
-The whole point about architecture specific includes is not to provide
-a frenzied feeding ground for folk who like to "clean code up" but to
-allow architectures to do things in the most efficient way for them
-without polluting the kernel too much.
-
-It seems that aspect is being lost sight of here.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core

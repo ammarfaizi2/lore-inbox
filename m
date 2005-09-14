@@ -1,57 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964993AbVINEA2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964994AbVINEII@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964993AbVINEA2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 00:00:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932585AbVINEA1
+	id S964994AbVINEII (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 00:08:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932585AbVINEIH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 00:00:27 -0400
-Received: from nproxy.gmail.com ([64.233.182.192]:9710 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932584AbVINEA1 convert rfc822-to-8bit
+	Wed, 14 Sep 2005 00:08:07 -0400
+Received: from wproxy.gmail.com ([64.233.184.203]:60230 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932584AbVINEIG convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 00:00:27 -0400
+	Wed, 14 Sep 2005 00:08:06 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=CCfXy8oOTZudm9Nj1Mu6hUNOxaScjHv9duQKHBkmhNBjj5u1Vv6tIDyPzj/qTakE8ICgFGPzvLZQNcGfOO9s/a3TUMWwoMvX5v8uCn5BDsJCqHFYGPek7GjwKEQC7vn5cA8FM2Ceq3Uqn3L1bow+Rz+b32qBl3VDTMdqGPBp6n4=
-Message-ID: <2cd57c9005091321006825540@mail.gmail.com>
-Date: Wed, 14 Sep 2005 12:00:23 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-Reply-To: coywolf@gmail.com
-To: markh@compro.net
-Subject: Re: HZ question
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4326CAB3.6020109@compro.net>
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=k9EK26LGb5CM/cg5Sw7q+INEIGtOIeccdymmtkju/n2LT5ybyM+ZDAEtFGQOME62uFiWzrdKFGWGMavW85a5HzuA2yqm6HeeEUv6wmcKCqETZk2e1++cXN9IbXB7+axAZdpu+KWAoaLBJpPFRqICVSUtz+PdtMOWx4tM6Tsx29M=
+Message-ID: <b115cb5f05091321082a3ffc24@mail.gmail.com>
+Date: Wed, 14 Sep 2005 13:08:05 +0900
+From: Rajat Jain <rajat.noida.india@gmail.com>
+Reply-To: rajat.noida.india@gmail.com
+To: Linux-newbie@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Problem booting 2.6.13 on RHEL 4
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <4326CAB3.6020109@compro.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/13/05, Mark Hounschell <markh@compro.net> wrote:
-> I need to know the kernels value of HZ in a userland app.
-> 
-> getconf CLK_TCK
->       and
-> hz = sysconf (_SC_CLK_TCK)
-> 
-> both seem to return CLOCKS_PER_SEC which is defined as USER_HZ which is
-> defined as 100.
-> 
-> include/asm/param.h:
-> 
-> #ifdef __KERNEL__
-> # define HZ       1000   /* Internal kernel timer frequency */
-> # define USER_HZ  100    /* .. some user interfaces are in "ticks" */
-> # define CLOCKS_PER_SEC  (USER_HZ)       /* like times() */
-> #endif
-> 
-> Thanks in advance for any help
-> Mark
+Hi list,
 
-simply zgrep HZ= /proc/config.gz
-on my box, I get CONFIG_HZ=1000
--- 
-Coywolf Qi Hunt
-http://sosdg.org/~coywolf/
+I am using RHEL4 distribution, and am trying to boot with vanilla
+2.6.13 stock kernel. My system has two onboard Adaptec SCSI
+controllers. I am booting using initrd, and passing the correct
+"root=" option. The following message pops up while trying to boot
+with 2.6.13:
+
+Loading scsi_mod.ko module
+Loading sd_mod.ko module
+Loading scsi_transport_spi.ko module
+SCSI subsystem initialized
+Loading aic7xxx.ko module
+Creating root device
+umount /sys failed: 16
+Mounting root filesystem
+Mount: error 6 mounting ext3
+Mount: error 2 mounting none
+Switching to new root
+switchroot: mount failed: 22
+umount /initrd/dev failed: 2
+Kernel panic - not syncing: Attempted to kill init!
+
+When I boot the default kernel supplied with RHEL 4, it boots successfully:
+
+Loading scsi_mod.ko module
+SCSI subsystem initialized
+Loading sd_mod.ko module
+Loading scsi_transport_spi.ko module
+Loading aic7xxx.ko module
+ACPI: PCI interrupt 0000:05:09.0[A] -> GSI 18 (level, low) -> IRQ 201
+ACPI: PCI interrupt 0000:05:09.1[B] -> GSI 19 (level, low) -> IRQ 169
+scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
+        <Adaptec aic7899 Ultra160 SCSI adapter>
+        aic7899: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
+
+(scsi0:A:0): 160.000MB/s transfers (80.000MHz DT, offset 126, 16bit)
+  Vendor: HITACHI   Model: DK32CJ-18MW       Rev: JTN1
+  Type:   Direct-Access                      ANSI SCSI revision: 03
+scsi0:A:0:0: Tagged Queuing enabled.  Depth 4
+SCSI device sda: 35520512 512-byte hdwr sectors (18187 MB)
+SCSI device sda: drive cache: write back
+ sda: sda1 sda2 sda3 sda4 < sda5 >
+Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
+scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
+        <Adaptec aic7899 Ultra160 SCSI adapter>
+        aic7899: Ultra160 Wide Channel B, SCSI Id=7, 32/253 SCBs
+
+Can some one please suggest me what could be the problem? I doubt if
+there is any option I need to enable in the kernel configuration?
+
+Any pointers are welcome,
+
+TIA,
+
+Rajat Jain

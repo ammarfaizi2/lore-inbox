@@ -1,76 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965211AbVINNxZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965212AbVINN54@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965211AbVINNxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 09:53:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965212AbVINNxZ
+	id S965212AbVINN54 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 09:57:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965213AbVINN54
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 09:53:25 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:23558 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S965211AbVINNxY (ORCPT
+	Wed, 14 Sep 2005 09:57:56 -0400
+Received: from dvhart.com ([64.146.134.43]:17027 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S965212AbVINN5z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 09:53:24 -0400
-Date: Wed, 14 Sep 2005 09:52:42 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-pm@lists.osdl.org
-Cc: torvalds@osdl.org, akpm@osdl.org, ink@jurassic.park.msu.ru, kaos@sgi.com,
-       greg@kroah.com, davem@davemloft.net, rmk+lkml@arm.linux.org.uk,
-       matthew@wil.cx, grundler@parisc-linux.org, ambx1@neo.rr.com
-Subject: [patch 2.6.14-rc1] pci: only call pci_restore_bars at boot
-Message-ID: <09142005095242.32027@bilbo.tuxdriver.com>
-In-Reply-To: <20050727141942.GB22686@tuxdriver.com>
-User-Agent: PatchPost/0.1
-Mime-Version: 1.0
+	Wed, 14 Sep 2005 09:57:55 -0400
+Date: Wed, 14 Sep 2005 06:57:56 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Andi Kleen <ak@suse.de>, David Chinner <dgc@sgi.com>
+Cc: Bharata B Rao <bharata@in.ibm.com>, "Theodore Ts'o" <tytso@mit.edu>,
+       Dipankar Sarma <dipankar@in.ibm.com>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, manfred@colorfullife.com
+Subject: Re: VM balancing issues on 2.6.13: dentry cache not getting shrunk enough
+Message-ID: <313480000.1126706276@[10.10.2.4]>
+In-Reply-To: <200509141101.16781.ak@suse.de>
+References: <20050911105709.GA16369@thunk.org> <20050913084752.GC4474@in.ibm.com> <20050913215932.GA1654338@melbourne.sgi.com> <200509141101.16781.ak@suse.de>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Certain (SGI?) ia64 boxes object to having their PCI BARs
-restored unless absolutely necessary. This patch restricts calling
-pci_restore_bars from pci_set_power_state unless the current state
-is PCI_UNKNOWN, the actual (i.e. physical) state of the device is
-PCI_D3hot, and the device indicates that it will lose its configuration
-when transitioning to PCI_D0.
+>> > Second is Sonny Rao's rbtree dentry reclaim patch which is an attempt
+>> > to improve this dcache fragmentation problem.
+>> 
+>> FYI, in the past I've tried this patch to reduce dcache fragmentation on
+>> an Altix (16k pages, 62 dentries to a slab page) under heavy
+>> fileserver workloads and it had no measurable effect. It appeared
+>> that there was almost always at least one active dentry on each page
+>> in the slab.  The story may very well be different on 4k page
+>> machines, however.
+> 
+> I always thought dentry freeing would work much better if it
+> was turned upside down.
+> 
+> Instead of starting from the high level dcache lists it could
+> be driven by slab: on memory pressure slab tries to return pages with unused 
+> cache objects. In that case it should check if there are only
+> a small number of pinned objects on the page set left, and if 
+> yes use a new callback to the higher level user (=dcache) and ask them
+> to free the object.
+> 
+> The slab datastructures are not completely suited for this right now,
+> but it could be done by using one more of the list_heads in struct page
+> for slab backing pages.
+> 
+> It would probably not be very LRU but a simple hack of having slowly 
+> increasing dcache generations. Each dentry use updates the generation.
+> First slab memory freeing pass only frees objects with older generations.
 
-Signed-off-by: John W. Linville <linville@tuxdriver.com>
----
-Many thanks to Keith Owens <kaos@sgi.com> for a) narrowing-down the
-problem; and, b) quickly testing the fix and reporting the results.
+If they're freeable, we should easily be able to move them, and therefore 
+compact a fragmented slab. That way we can preserve the LRU'ness of it.
+Stage 1: free the oldest entries. Stage 2: compact the slab into whole
+pages. Stage 3: free whole pages back to teh page allocator.
 
- drivers/pci/pci.c |   16 ++++++++++++----
- 1 files changed, 12 insertions(+), 4 deletions(-)
+> Using slowly increasing generations has the advantage of timestamps
+> that you can avoid dirtying cache lines in the common case when 
+> the generation doesn't change on access (= no additional cache line bouncing)
+> and it would easily allow to tune the aging rate under stress by changing the 
+> length of the generation.
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -309,17 +309,25 @@ pci_set_power_state(struct pci_dev *dev,
- 
- 	pci_read_config_word(dev, pm + PCI_PM_CTRL, &pmcsr);
- 
--	/* If we're in D3, force entire word to 0.
-+	/* If we're (effectively) in D3, force entire word to 0.
- 	 * This doesn't affect PME_Status, disables PME_En, and
- 	 * sets PowerState to 0.
- 	 */
--	if (dev->current_state >= PCI_D3hot) {
--		if (!(pmcsr & PCI_PM_CTRL_NO_SOFT_RESET))
-+	switch (dev->current_state) {
-+	case PCI_UNKNOWN: /* Boot-up */
-+		if ((pmcsr & PCI_PM_CTRL_STATE_MASK) == PCI_D3hot
-+		 && !(pmcsr & PCI_PM_CTRL_NO_SOFT_RESET))
- 			need_restore = 1;
-+		/* Fall-through: force to D0 */
-+	case PCI_D3hot:
-+	case PCI_D3cold:
-+	case PCI_POWER_ERROR:
- 		pmcsr = 0;
--	} else {
-+		break;
-+	default:
- 		pmcsr &= ~PCI_PM_CTRL_STATE_MASK;
- 		pmcsr |= state;
-+		break;
- 	}
- 
- 	/* enter specified state */
+LRU algorithm may need general tweaking like this anyway ... strict LRU
+is expensive to keep.
+
+M.

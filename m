@@ -1,51 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932707AbVINKhX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932709AbVINKil@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932707AbVINKhX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 06:37:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932709AbVINKhX
+	id S932709AbVINKil (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 06:38:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932710AbVINKil
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 06:37:23 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:14481 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932707AbVINKhW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 06:37:22 -0400
-Date: Wed, 14 Sep 2005 11:37:12 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Sergey Panov <sipan@sipan.org>
-Cc: Matthew Wilcox <matthew@wil.cx>, Luben Tuikov <luben_tuikov@adaptec.com>,
-       Christoph Hellwig <hch@infradead.org>, Luben Tuikov <ltuikov@yahoo.com>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH 2.6.13 14/14] sas-class: SCSI Host glue
-Message-ID: <20050914103712.GA30503@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Sergey Panov <sipan@sipan.org>, Matthew Wilcox <matthew@wil.cx>,
-	Luben Tuikov <luben_tuikov@adaptec.com>,
-	Luben Tuikov <ltuikov@yahoo.com>,
-	James Bottomley <James.Bottomley@SteelEye.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	SCSI Mailing List <linux-scsi@vger.kernel.org>
-References: <1126308949.4799.54.camel@mulgrave> <20050910041218.29183.qmail@web51612.mail.yahoo.com> <20050911093847.GA5429@infradead.org> <4325FA6F.3060102@adaptec.com> <20050913154014.GE32395@parisc-linux.org> <1126677387.26050.71.camel@sipan.sipan.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1126677387.26050.71.camel@sipan.sipan.org>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 14 Sep 2005 06:38:41 -0400
+Received: from host178-119.pool8172.interbusiness.it ([81.72.119.178]:487 "EHLO
+	bobafett.paultt.org") by vger.kernel.org with ESMTP id S932709AbVINKil
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 06:38:41 -0400
+Message-ID: <4327FD7B.1040300@bilug.linux.it>
+Date: Wed, 14 Sep 2005 12:37:47 +0200
+From: Paul TT <paultt@bilug.linux.it>
+User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
+X-Accept-Language: it
+MIME-Version: 1.0
+To: Cal Peake <cp@absolutedigital.net>
+CC: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, paolo.ciarrocchi@gmail.com,
+       rdunlap@xenotime.net, jesper.juhl@gmail.com
+Subject: Re: [PATCH] 2.6.13-mm3 ort v.b6 (OOPS Reporting Tool), try2
+References: <43276366.80304@gmail.com> <Pine.LNX.4.61.0509140436090.4846@lancer.cnet.absolutedigital.net>
+In-Reply-To: <Pine.LNX.4.61.0509140436090.4846@lancer.cnet.absolutedigital.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 14, 2005 at 01:56:27AM -0400, Sergey Panov wrote:
-> > As you know, stuff is being rearranged to move more of the SPI-specific
-> > code from both SCSI core and LLDDs into the SPI transport.  I suspect
-> > domain discovery will always be triggered by the LLDD for SPI, but at
-> > least a driver doesn't have to have its own code to do that any more.
-> 
-> Only if it can be turned into a some sort of library LLDD may use if it
-> needs it. But it is only makes sense to move that code out of the LLDD
-> and into the transport module, if more then one LLDD can make use of it.
+Cal Peake wrote:
 
-Umm, that's exactly what we are doing.
+>On Wed, 14 Sep 2005, Michal Piotrowski wrote:
+>
+>  
+>
+>>Hi Andrew,
+>>I think, that this maybe useful for oops hunters :)
+>>
+>>Paolo, Paul, Randy, Jesper, Cal please sign it.
+>>
+>>Regards,
+>>Michal Piotrowski
+>>
+>>Signed-off-by: Michal K. K. Piotrowski <michal.k.k.piotrowski@gmail.com>
+>>    
+>>
+>
+>Signed-off-by: Cal Peake <cp@absolutedigital.net>
+>  
+>
+Signed-off-by: Paul TT <paultt@bilug.linux.it>
+
+>>diff -uprN -X linux-mm-clean/Documentation/dontdiff
+>>linux-mm-clean/scripts/ort.sh linux-mm/scripts/ort.sh
+>>--- linux-mm-clean/scripts/ort.sh    1970-01-01 01:00:00.000000000 +0100
+>>+++ linux-mm/scripts/ort.sh    2005-09-14 01:21:01.000000000 +0200
+>>@@ -0,0 +1,1089 @@
+>>+#!/bin/sh
+>>+
+>>+# Copyright (C) 2005  Michal Piotrowski <piotrowskim@trex.wsi.edu.pl>
+>>+#                                       <michal.k.k.piotrowski@gmail.com>
+>>+# Copyright (C) 2005  Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+>>+# Copyright (C) 2005  Paul TT <paultt@bilug.linux.it>
+>>+# Copyright (C) 2005  Randy Dunlap <rdunlap@xenotime.net>
+>>+# Copyright (C) 2005  Jesper Juhl <jesper.juhl@gmail.com>
+>>+# Copyright (C) 2005  Cal Peake <cp@absolutedigital.net>
+>>+#
+>>+# This program is free software; you can redistribute it and/or modify
+>>+# it under the terms of the GNU General Public License as published by
+>>+# the Free Software Foundation; either version 2 of the License, or
+>>+# (at your option) any later version.
+>>+#
+>>+# This program is distributed in the hope that it will be useful,
+>>+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+>>+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+>>+# GNU General Public License for more details.
+>>+#
+>>+# You should have received a copy of the GNU General Public License
+>>+# along with this program; if not, write to the Free Software
+>>+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+>>    
+>>
+>
+>  
+>
+
+
+-- 
+Gli uomini non sospettano
+quale terribile carico stiano
+trasportando a valle.
+
+public gpg key: gpg --keyserver pgp.mit.edu --recv-key 2E61343C
 

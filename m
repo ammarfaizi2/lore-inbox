@@ -1,43 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932572AbVINTLk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932751AbVINTMN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932572AbVINTLk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 15:11:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932578AbVINTLk
+	id S932751AbVINTMN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 15:12:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932753AbVINTMM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 15:11:40 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:54247 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932572AbVINTLj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 15:11:39 -0400
-Date: Wed, 14 Sep 2005 21:11:16 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: john stultz <johnstul@us.ibm.com>
-cc: lkml <linux-kernel@vger.kernel.org>, yoshfuji@linux-ipv6.org,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       George Anzinger <george@mvista.com>, joe-lkml@rameria.de
-Subject: Re: [RFC][PATCH] NTP shift_right cleanup (v. A1)
-In-Reply-To: <1126722303.3455.61.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.61.0509142100410.3728@scrub.home>
-References: <1126720091.3455.56.camel@cog.beaverton.ibm.com> 
- <Pine.LNX.4.61.0509142010030.3728@scrub.home> <1126722303.3455.61.camel@cog.beaverton.ibm.com>
+	Wed, 14 Sep 2005 15:12:12 -0400
+Received: from penta.pentaserver.com ([216.74.97.66]:1466 "EHLO
+	penta.pentaserver.com") by vger.kernel.org with ESMTP
+	id S932751AbVINTML (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 15:12:11 -0400
+Message-ID: <4328735B.70800@kromtek.com>
+Date: Wed, 14 Sep 2005 23:00:43 +0400
+From: Manu Abraham <manu@kromtek.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jiri Slaby <jirislaby@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PCI driver
+References: <4327EE94.2040405@kromtek.com> <4327F586.3030901@gmail.com> <4327F551.6070903@kromtek.com> <4327FB6C.3070708@gmail.com> <43280F2F.2060708@gmail.com> <432815FA.5040202@gmail.com> <43281C27.1060305@kromtek.com> <43284CE6.3080302@gmail.com> <43285951.7050702@kromtek.com> <4328734E.2080607@gmail.com>
+In-Reply-To: <4328734E.2080607@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-PopBeforeSMTPSenders: manu@kromtek.com
+X-Antivirus-Scanner: Clean mail though you should still use an Antivirus
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - penta.pentaserver.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - kromtek.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Wed, 14 Sep 2005, john stultz wrote:
-
-> > I checked and this actually generates worse code.
+Jiri Slaby wrote:
+> Manu Abraham napsal(a):
 > 
-> Well, if I drop the abs() and use:
-> 	if ((time_phase >= FINENSEC) || (time_phase <= -FINENSEC))
+>> Jiri Slaby wrote:
+>>
+>>> you do NOT do this at all, because you have pdev already (the param 
+>>> of the probe function)
+>>>
+>>
+>> I rewrote the entire thing like this including the pci_remove function 
+>> too, but now it so seems that in the remove function, 
+>> pci_get_drvdata(pdev) returns NULL, and hence i get an Oops at module 
+>> removal.
 > 
-> It looks pretty close in my test. Is that cool with you?
+> Maybe because this is badly written driver.
 
-I think it doesn't hurt to keep it for now, there are other ways to get 
-rid of it (e.g. reducing tick_nsec so time_adj is always positive).
+I have not written the driver, but this is my first go at it ..
 
-bye, Roman
+> 
+>> static int mantis_pci_probe(struct pci_dev *pdev, const struct 
+>> pci_device_id *mantis_pci_table)
+>> {
+>>     struct mantis_pci *mantis;
+>>     struct mantis_eeprom eeprom;
+>>     u8 revision, latency;
+>>     u8 data[2];  
+>>     if (pci_enable_device(pdev)) {               dprintk(verbose, 
+>> MANTIS_DEBUG, 1, "Found a mantis chip");
+>>         if ((mantis = (struct mantis_pci *) kmalloc(sizeof (struct 
+>> mantis_pci), GFP_KERNEL)) == NULL) {
+>>             dprintk(verbose, MANTIS_ERROR, 1, "Out of memory");
+>>             return -ENOMEM;
+>>         }
+>>         pci_set_master(pdev);
+>>         mantis->mantis_addr = pci_resource_start(pdev, 0);
+>>         if (!request_mem_region(pci_resource_start(pdev, 0),
+>>             pci_resource_len(pdev, 0), DRIVER_NAME)) {
+>>             kfree(mantis);
+>>             return -EBUSY;
+>>         }
+>>         pci_read_config_byte(pdev, PCI_CLASS_REVISION, &revision);
+>>         pci_read_config_byte(pdev, PCI_LATENCY_TIMER, &latency);
+>>         mantis->mantis_mmio = ioremap(mantis->mantis_addr, 0x1000);
+>>         pci_set_drvdata(pdev, mantis);       
+> 
+> if pci_enable_device fails, you set this?? Maybe you haven't read the 
+> doc enough.
+
+
+I just found that, pci_enable_device() fails. So what's the way to go 
+ahead ?
+
+
+Manu

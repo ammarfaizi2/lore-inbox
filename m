@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965167AbVINMvW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965062AbVINMx4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965167AbVINMvW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 08:51:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965169AbVINMvV
+	id S965062AbVINMx4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 08:53:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965168AbVINMxz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 08:51:21 -0400
-Received: from relay3.mail.ox.ac.uk ([163.1.2.165]:7553 "EHLO
-	relay3.mail.ox.ac.uk") by vger.kernel.org with ESMTP
-	id S965167AbVINMvU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 08:51:20 -0400
-Date: Wed, 14 Sep 2005 13:51:18 +0100
-From: Ian Collier <Ian.Collier@comlab.ox.ac.uk>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.13: More on drivers/block/loop.c
-Message-ID: <20050914135118.A25087@pixie.comlab>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20050909132725.C23462@pixie.comlab>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20050909132725.C23462@pixie.comlab>; from Ian.Collier@comlab.ox.ac.uk on Fri, Sep 09, 2005 at 01:27:26PM +0100
+	Wed, 14 Sep 2005 08:53:55 -0400
+Received: from quark.didntduck.org ([69.55.226.66]:31172 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP id S965062AbVINMxz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 08:53:55 -0400
+Message-ID: <43281D3A.9080407@didntduck.org>
+Date: Wed, 14 Sep 2005 08:53:14 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla Thunderbird 1.0.6-5 (X11/20050818)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bernhard Ager <ager@in.tum.de>
+CC: vojtech@suse.cz, linux-joystick@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Joystick on amd64 for 32bit programs
+References: <20050914100244.GC9770@in.tum.de>
+In-Reply-To: <20050914100244.GC9770@in.tum.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vanilla 2.6.13 doesn't crash.
+Bernhard Ager wrote:
+> Hi,
+> 
+> the patch below makes the joystick on amd64 work for 32bit
+> applications. It was successfully tested by myself with X-Plane [1],
+> SilentWings [2], Quake 3 [3] and quite some other applications. 
+> 
+> How it works: as the parameters in 32bit userspace ioctl are
+> compatible with the 64bit kernel, it is sufficient to declare them
+> compatible in ia32_ioctl.c. The JSIOCGNAME ioctl causes a problem as
+> it encodes the length of the return buffer into the ioctl number. This
+> is solved by mapping all of the JSIOCGNAME ioctls to JSIOCGNAME(0).
+> 
+> Patch is below and works for vanilla kernels at least up to
+> 2.6.13.
 
-However, unpack a fresh copy of 2.6.13, edit include/linux/loop.h to
-change LO_KEY_SIZE from 32 to 1844, and *boom*.  [Don't ask me why
-1844... that's just what PPDD wants.]
+This patch uses the obsolete method of defining compat ioctls.  The 
+joydev ioctls are already fixed (using ->compat_ioctl) in more recent 
+kernels.
 
-It's crashing somewhere in loop_set_status_old, probably during the
-call to copy_from_user, but the crash messages aren't that helpful as
-they are different each time, often seem to happen during an interrupt,
-and usually contain pages of recursive calls to do_page_fault and
-error_code.
-
-The loop_set_status_old function has two local variables, each of which
-is now 1812 bytes longer than it was, and I'm wondering if it's a stack
-overflow problem.  How much stack is a kernel function allowed to use,
-anyway?
-
-Replacing these variables with kmalloc'd pointers seems to stop the crashes
-anyway, so I'll pass that tip on to the PPDD folks.
-
-imc
+--
+				Brian Gerst

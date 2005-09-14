@@ -1,44 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965227AbVINO4J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965225AbVINO5L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965227AbVINO4J (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 10:56:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965232AbVINO4J
+	id S965225AbVINO5L (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 10:57:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965230AbVINO5L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 10:56:09 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:55724 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965229AbVINO4H (ORCPT
+	Wed, 14 Sep 2005 10:57:11 -0400
+Received: from xenotime.net ([66.160.160.81]:20382 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S965225AbVINO5J (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 10:56:07 -0400
-Date: Wed, 14 Sep 2005 07:55:53 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Daniel Jacobowitz <dan@debian.org>
-cc: "Markus F.X.J. Oberhumer" <markus@oberhumer.com>,
-       linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH] i386: fix stack alignment for signal handlers
-In-Reply-To: <20050914142204.GA19731@nevyn.them.org>
-Message-ID: <Pine.LNX.4.58.0509140753260.26803@g5.osdl.org>
-References: <43273CB3.7090200@oberhumer.com> <Pine.LNX.4.58.0509131542510.26803@g5.osdl.org>
- <4327611D.7@oberhumer.com> <Pine.LNX.4.58.0509131649060.26803@g5.osdl.org>
- <20050914142204.GA19731@nevyn.them.org>
+	Wed, 14 Sep 2005 10:57:09 -0400
+Date: Wed, 14 Sep 2005 07:56:59 -0700 (PDT)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Cal Peake <cp@absolutedigital.net>
+cc: Karel Kulhavy <clock@twibright.com>, "" <linux-kernel@vger.kernel.org>
+Subject: Re: Search in make menuconfig doesn't work properly
+In-Reply-To: <Pine.LNX.4.61.0509140524490.4846@lancer.cnet.absolutedigital.net>
+Message-ID: <Pine.LNX.4.50.0509140754360.11686-100000@shark.he.net>
+References: <20050914065010.GA8430@kestrel.twibright.com>
+ <Pine.LNX.4.61.0509140524490.4846@lancer.cnet.absolutedigital.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 14 Sep 2005, Cal Peake wrote:
 
+> On Wed, 14 Sep 2005, Karel Kulhavy wrote:
+>
+> > I have 2.6.13 and if I press '/' in make menuconfig (Search
+> > Configuration Parameter, Enter Keyword) and enther "emulation", it
+> > doesn't find
+> > CONFIG_BLK_DEV_IDESCSI -  SCSI emulation support.
+>
+> AFAIK it only matches against the CONFIG_ symbols. If you want it to do
+> more cook up a patch ;)
 
-On Wed, 14 Sep 2005, Daniel Jacobowitz wrote:
-> 
-> The comment for the relevant bits of the GCC configuration says it won't
-> assume this for x86, but I believe that comment is out of date. I think
-> it'll assume 16-byte alignment on entrance to non-main() functions.
+IOW, entering:
 
-Well, that's kind of the point. We _do_ have the stack aligned on
-entrance, but it looks like gcc wants it _non-aligned_. It seems to want
-it offset by the "return address push" - ie it seems to expect that it was
-aligned before the "call", but entry into the next function will thus
-_never_ be aligned.
+/BLK_DEV_IDESCSI
 
-So the kernel actually seems to have it _too_ aligned right now. 
+does produce the expected (but maybe not the desired?) results.
 
-			Linus
+WFM.
+-- 
+~Randy

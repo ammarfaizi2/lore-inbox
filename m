@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932314AbVINRzE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030297AbVINRz0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932314AbVINRzE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 13:55:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932423AbVINRzE
+	id S1030297AbVINRz0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 13:55:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030303AbVINRzY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 13:55:04 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:34541 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S932314AbVINRzC
+	Wed, 14 Sep 2005 13:55:24 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:27900 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030297AbVINRzX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 13:55:02 -0400
-Subject: Re: [patch] hdaps driver update.
-From: Robert Love <rml@novell.com>
-To: dtor_core@ameritech.net
-Cc: Greg KH <greg@kroah.com>, Mr Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <d120d500050914101436201a71@mail.gmail.com>
-References: <1126713453.5738.7.camel@molly>
-	 <20050914160527.GA22352@kroah.com> <1126714175.5738.21.camel@molly>
-	 <20050914161622.GA22875@kroah.com> <1126715517.5738.35.camel@molly>
-	 <d120d500050914101436201a71@mail.gmail.com>
+	Wed, 14 Sep 2005 13:55:23 -0400
+Subject: Re: [RFC][PATCH] NTP shift_right cleanup (v. A1)
+From: john stultz <johnstul@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: yoshfuji@linux-ipv6.org, Roman Zippel <zippel@linux-m68k.org>,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       George Anzinger <george@mvista.com>, joe-lkml@rameria.de
+In-Reply-To: <1126720091.3455.56.camel@cog.beaverton.ibm.com>
+References: <1126720091.3455.56.camel@cog.beaverton.ibm.com>
 Content-Type: text/plain
-Date: Wed, 14 Sep 2005 13:55:36 -0400
-Message-Id: <1126720536.5738.36.camel@molly>
+Date: Wed, 14 Sep 2005 10:53:14 -0700
+Message-Id: <1126720398.3455.58.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-09-14 at 12:14 -0500, Dmitry Torokhov wrote:
+On Wed, 2005-09-14 at 10:48 -0700, john stultz wrote:
+> +/* Required to safely shift negative values */
+> +#define shift_right(x, s) ({	\
+> +	__typeof__(x) __x = x;	\
+> +	__typeof__(s) __s = s;	\
+> +	(__x < 0) ? (-((-__x) >> (__s))) : ((__x) >> (__s));	\
+> +})
+> +
 
-> For now. But I could see one changing device structure to create some
-> attribute that could keep the object pinned in memory even after
-> module is unloaded. It seems that we have settled on the rule that
-> driver_unregister waits for the last refrence to drop off but devices
-> can live longer.
+Ah, crud. Scratch that. I forgot to check in the paren change suggested
+by Roman. A new patch will follow shortly.
 
-Sold.
-
-I'll use platform_device_register_simple ().
-
-	Robert Love
+thanks
+-john
 
 

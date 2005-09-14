@@ -1,67 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932765AbVINU3o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932769AbVINUdh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932765AbVINU3o (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 16:29:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932767AbVINU3o
+	id S932769AbVINUdh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 16:33:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932721AbVINUdh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 16:29:44 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:24775
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932765AbVINU3n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 16:29:43 -0400
-Date: Wed, 14 Sep 2005 13:29:36 -0700 (PDT)
-Message-Id: <20050914.132936.105214487.davem@davemloft.net>
-To: dipankar@in.ibm.com
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org
-Subject: Re: [PATCH]: Brown paper bag in fs/file.c?
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20050914201550.GB6315@in.ibm.com>
-References: <20050914191842.GA6315@in.ibm.com>
-	<20050914.125750.05416211.davem@davemloft.net>
-	<20050914201550.GB6315@in.ibm.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Wed, 14 Sep 2005 16:33:37 -0400
+Received: from zproxy.gmail.com ([64.233.162.203]:261 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932769AbVINUdg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 16:33:36 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=lYUhwcC6P5NCpkUV4wB02c+ARcIgJ9ZtOJrifLGJZsJr5HNGjPl/V6p6er9oSUz2/uzD/RMt9bjMLUSk38D9emxlDB6Ry+8lMvGgDsY1vtjxt8F8Yo82FtGZ81P5peqYsJ1oarv4cxq8w4d8V8mmKPq7OCsLqSh29a8Moc76cAk=
+Date: Thu, 15 Sep 2005 00:43:39 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Domen Puncer <domen@coderock.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH] Remove include/asm-arm/hardware/linkup-l1110.h
+Message-ID: <20050914204339.GM19491@mipter.zuzino.mipt.ru>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Dipankar Sarma <dipankar@in.ibm.com>
-Date: Thu, 15 Sep 2005 01:45:50 +0530
+From: Domen Puncer <domen@coderock.org>
 
-> Are you running with preemption enabled ? If so, fyi, I had sent
-> out a patch earlier that fixes locking for preemption.
-> Also, what triggers this in your machine ? I can try to reproduce
-> this albeit on a non-sparc64 box.
+Remove nowhere referenced file (grep "linkup-l1110" didn't find
+anything).
 
-No PREEMPT enabled.
+Signed-off-by: Domen Puncer <domen@coderock.org>
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-I believe this bug has been around since before your RCU
-changes, I've been seeing it for about half a year.
+ include/asm-arm/hardware/linkup-l1110.h |   48 --------------------------------
+ 1 files changed, 48 deletions(-)
 
-My test case is, on a uniprocessor with 1GB of ram, run the
-following in parallel:
+--- a/include/asm-arm/hardware/linkup-l1110.h	2005-09-15 00:36:56.000000000 +0400
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
+@@ -1,48 +0,0 @@
+-/*
+-*
+-* Definitions for H3600 Handheld Computer
+-*
+-* Copyright 2001 Compaq Computer Corporation.
+-*
+-* Use consistent with the GNU GPL is permitted,
+-* provided that this copyright notice is
+-* preserved in its entirety in all copies and derived works.
+-*
+-* COMPAQ COMPUTER CORPORATION MAKES NO WARRANTIES, EXPRESSED OR IMPLIED,
+-* AS TO THE USEFULNESS OR CORRECTNESS OF THIS CODE OR ITS
+-* FITNESS FOR ANY PARTICULAR PURPOSE.
+-*
+-* Author: Jamey Hicks.
+-*
+-*/
+-
+-/* LinkUp Systems PCCard/CompactFlash Interface for SA-1100 */
+-
+-/* PC Card Status Register */
+-#define LINKUP_PRS_S1	(1 << 0) /* voltage control bits S1-S4 */
+-#define LINKUP_PRS_S2	(1 << 1)
+-#define LINKUP_PRS_S3	(1 << 2)
+-#define LINKUP_PRS_S4	(1 << 3)
+-#define LINKUP_PRS_BVD1	(1 << 4)
+-#define LINKUP_PRS_BVD2	(1 << 5)
+-#define LINKUP_PRS_VS1	(1 << 6)
+-#define LINKUP_PRS_VS2	(1 << 7)
+-#define LINKUP_PRS_RDY	(1 << 8)
+-#define LINKUP_PRS_CD1	(1 << 9)
+-#define LINKUP_PRS_CD2	(1 << 10)
+-
+-/* PC Card Command Register */
+-#define LINKUP_PRC_S1	(1 << 0)
+-#define LINKUP_PRC_S2	(1 << 1)
+-#define LINKUP_PRC_S3	(1 << 2)
+-#define LINKUP_PRC_S4	(1 << 3)
+-#define LINKUP_PRC_RESET (1 << 4)
+-#define LINKUP_PRC_APOE	(1 << 5) /* Auto Power Off Enable: clears S1-S4 when either nCD goes high */
+-#define LINKUP_PRC_CFE	(1 << 6) /* CompactFlash mode Enable: addresses A[10:0] only, A[25:11] high */
+-#define LINKUP_PRC_SOE	(1 << 7) /* signal output driver enable */
+-#define LINKUP_PRC_SSP	(1 << 8) /* sock select polarity: 0 for socket 0, 1 for socket 1 */
+-#define LINKUP_PRC_MBZ	(1 << 15) /* must be zero */
+-
+-struct linkup_l1110 {
+-	volatile short prc;
+-};
 
-1) In one window, do a plain kernel build of 2.6.x
-
-2) In another window, in a temporary directory, run this shell code:
-
-	while [ 1 ]
-        do
-            rm -rf .git *
-	    cp -a ../linux-2.6/.git .
-	    git-checkout-cache -a
-	    git-update-cache --refresh
-	    echo "Finished one pass..."
-	done
-
-Adjust the path to a vanilla 2.6.x ".git" directory in #2 as needed.
-
-Sometimes this can trigger in less than a minute.  Other times it
-takes 5 or 6 minutes, but other than this variance it is rather
-reliable.
-
-I think the key is to make sure you don't have any more than 1GB of
-ram for this on a 64-bit box, so that there is sufficient memory
-pressure from all of the ext3 writebacks and other fs activity in
-order to shrink the file table SLABs and thus liberate the pages.

@@ -1,75 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965189AbVINO1s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965205AbVINOcP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965189AbVINO1s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 10:27:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965195AbVINO1s
+	id S965205AbVINOcP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 10:32:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965210AbVINOcP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 10:27:48 -0400
-Received: from isilmar.linta.de ([213.239.214.66]:34984 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S965189AbVINO1s (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 10:27:48 -0400
-Date: Wed, 14 Sep 2005 16:27:46 +0200
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-ppc-embedded <linuxppc-embedded@ozlabs.org>,
-       linux-kernel@vger.kernel.org, Pantelis Antoniou <panto@intracom.gr>,
-       Dan Malek <dan@embeddededge.com>
-Subject: Re: [PATCH] MPC8xx PCMCIA driver
-Message-ID: <20050914142746.GA14742@isilmar.linta.de>
-Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	linux-ppc-embedded <linuxppc-embedded@ozlabs.org>,
-	linux-kernel@vger.kernel.org, Pantelis Antoniou <panto@intracom.gr>,
-	Dan Malek <dan@embeddededge.com>
-References: <20050830024840.GA5381@dmt.cnet> <20050901085319.GB6285@isilmar.linta.de> <20050914141131.GA6830@dmt.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050914141131.GA6830@dmt.cnet>
-User-Agent: Mutt/1.5.9i
+	Wed, 14 Sep 2005 10:32:15 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:65293 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S965205AbVINOcP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 10:32:15 -0400
+Message-ID: <43282BF5.5080101@tmr.com>
+Date: Wed, 14 Sep 2005 09:56:05 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kyle Moffett <mrmacman_g4@mac.com>
+CC: "H. Peter Anvin" <hpa@zytor.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, bunk@stusta.de
+Subject: Re: [RFC][MEGAPATCH] Change __ASSEMBLY__ to __ASSEMBLER__ (defined
+ by GCC from 2.95 to current CVS)
+References: <C670AD22-97CF-46AA-A527-965036D78667@mac.com> <20050903064124.GA31400@codepoet.org> <4319BEF5.2070000@zytor.com> <B9E70F6F-CC0A-4053-AB34-A90836431358@mac.com> <dfhs4u$1ld$1@terminus.zytor.com> <5A37B032-9BBD-4AEA-A9BF-D42AFF79BC86@mac.com> <9C47C740-86CF-48F1-8DB6-B547E5D098FF@mac.com> <97597F8E-DDCE-479F-AE8D-CC7DC75AB3C3@mac.com> <20050910014543.1be53260.akpm@osdl.org> <4FAE9F58-7153-4574-A2C3-A586C9C3CFF1@mac.com> <20050910150446.116dd261.akpm@osdl.org> <E352D8E3-771F-4A0D-9403-DBAA0C8CBB83@mac.com> <20050910174818.579bc287.akpm@osdl.org> <93E9C5F9-A083-4322-A580-236E2232CCC0@mac.com> <20050912010954.70ac90e2.pj@sgi.com> <43259C9E.1040300@zytor.com> <20050912084756.4fa2bd07.pj@sgi.com> <67DD59DE-B7B3-43EC-A241-670ACD4C0322@mac.com>
+In-Reply-To: <67DD59DE-B7B3-43EC-A241-670ACD4C0322@mac.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 14, 2005 at 11:11:31AM -0300, Marcelo Tosatti wrote:
-> On Thu, Sep 01, 2005 at 10:53:19AM +0200, Dominik Brodowski wrote:
+Kyle Moffett wrote:
+> On Sep 12, 2005, at 11:47:56, Paul Jackson wrote:
 > 
-> > > +typedef struct  {
-> > > +	u_int regbit;
-> > > +	u_int eventbit;
-> > > +} event_table_t;
-> > 
-> > No typedefs, please.
+>> hpa wrote:
+>>
+>>> The only sane thing is to have a set of ABI headers with a clean,
+>>> specific set of rules, which is included by the kernel private  headers,
+>>> as well as userspace.
+>>>
+>>
+>> Why must the ABI headers be included by both kernel and user  headers to
+>> be sane?
+>>
+>> Hmmm ... I'm not sure I want to ask that, actually.  I have this  feeling
+>> from the tone of your assertion that you can explain to me why such a
+>> header organization is the only one that fits your mental model of how
+>> these things are structured, but that communication between us may
+>> break down when you try to convince me that your mental model for this
+>> is the only correct one.
 > 
-> OK, I've converted it to a plain "struct".
-
-Thanks.
-
-> I think this code is just following PCMCIA style:
 > 
-> typedef struct pccard_mem_map { 
-> 	u_char	map;
-> 	u_char	flags;
-> 	u_short	speed;
-> 	u_long	static_start;
-> 	u_int	card_start;
-> 	struct resource *res;
-> } pccard_mem_map;
->
-> Any reason why this typedef and similar ones in ss.h 
-> are wanted? 
+> If we acknowledge the fact that syncing the release dates of two  projects
+> is basically futile, especially given that under your system the kernel
+> headers would not change much/at-all to make the user-headers project
+> easier, then any feature X that appears in a new release of the kernel
+> will not be accessible from userspace tools without ignoring the  point of
+> the user-headers project all together and having separate headers.   Given
+> this, as well as the maintenance burden for those who would need to
+> maintain the user-headers (which would be nearly nil if the current
+> kernel headers could be cleaned up to the point which they could be used
+> instead), this project is lots of messy work either way, but in the long
+> run, if included into the upstream kernel, it will result in much less
+> duplication of effort and much cleaner code.
 
-There's no reason for this being typedef'ed, and it is contrary to the
-kernel source CodingStyle. However, all pcmcia code was external at first,
-that's why the CodingStyle differs.
+The issue, as I see it, is not that the nifty new ioctl doesn't become 
+instantly available, although that's not a small benefit of having one 
+and only one set of user headers. The real benefit is avoiding the case 
+where some part of the API *changes* and some feature stops working.
 
-> PCMCIA is also using u_xxx "weird data types" extensively.
+This is obviously uncommon, but not unheard of.
 
-Unfortunately, yes. However, I'm in the process of adapting it to the kernel
-CodingStyle. I don't change something from "u_int" to "unsigned int" just for
-the naming of it, though, but when I'm in the same area fixing one thing or
-another, I try to take care of it. New structs, like struct pcmcia_device, 
-already adhere the normal kernel policy on structs and typedefs.
+I see the greatest benefit from just not having two sets of headers, I 
+believe all that stuff I learned in CS classes about not having two 
+copies of stuff and assuming that they're the same. It would be less 
+work to clean up the headers once, and let the folks who now maintain 
+the separate headers become the "kernel janitors" to keep it clean.
 
-Thanks,
-	Dominik
+Not my job, but we have someone offering to do the first cut at it, and 
+it seems a desirable end result.
+
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me
+

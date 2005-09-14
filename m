@@ -1,41 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932704AbVINKdJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932707AbVINKhX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932704AbVINKdJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 06:33:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932705AbVINKdJ
+	id S932707AbVINKhX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 06:37:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932709AbVINKhX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 06:33:09 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:35496 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932704AbVINKdI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 06:33:08 -0400
-Subject: Re: kbuild-permanently-fix-kernel-configuration-include-mess.patch
-	added to -mm tree
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Coywolf Qi Hunt <coywolf@gmail.com>, linux-kernel@vger.kernel.org,
-       sam@ravnborg.org
-In-Reply-To: <20050914102016.B30672@flint.arm.linux.org.uk>
-References: <200509140841.j8E8fG1w022954@shell0.pdx.osdl.net>
-	 <2cd57c900509140205572f19b7@mail.gmail.com>
-	 <20050914102016.B30672@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 14 Sep 2005 11:58:17 +0100
-Message-Id: <1126695497.19133.1.camel@localhost.localdomain>
+	Wed, 14 Sep 2005 06:37:23 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:14481 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932707AbVINKhW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 06:37:22 -0400
+Date: Wed, 14 Sep 2005 11:37:12 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Sergey Panov <sipan@sipan.org>
+Cc: Matthew Wilcox <matthew@wil.cx>, Luben Tuikov <luben_tuikov@adaptec.com>,
+       Christoph Hellwig <hch@infradead.org>, Luben Tuikov <ltuikov@yahoo.com>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: [PATCH 2.6.13 14/14] sas-class: SCSI Host glue
+Message-ID: <20050914103712.GA30503@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Sergey Panov <sipan@sipan.org>, Matthew Wilcox <matthew@wil.cx>,
+	Luben Tuikov <luben_tuikov@adaptec.com>,
+	Luben Tuikov <ltuikov@yahoo.com>,
+	James Bottomley <James.Bottomley@SteelEye.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	SCSI Mailing List <linux-scsi@vger.kernel.org>
+References: <1126308949.4799.54.camel@mulgrave> <20050910041218.29183.qmail@web51612.mail.yahoo.com> <20050911093847.GA5429@infradead.org> <4325FA6F.3060102@adaptec.com> <20050913154014.GE32395@parisc-linux.org> <1126677387.26050.71.camel@sipan.sipan.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1126677387.26050.71.camel@sipan.sipan.org>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2005-09-14 at 10:20 +0100, Russell King wrote:
-> That is a small price to pay, rather than having to continually maintain
-> "does this file need config.h included" - which I think can conclusively
-> be shown to be a total lost cause.  There are about 3450 configuration
-> include errors in the kernel as of -git last night.
+On Wed, Sep 14, 2005 at 01:56:27AM -0400, Sergey Panov wrote:
+> > As you know, stuff is being rearranged to move more of the SPI-specific
+> > code from both SCSI core and LLDDs into the SPI transport.  I suspect
+> > domain discovery will always be triggered by the LLDD for SPI, but at
+> > least a driver doesn't have to have its own code to do that any more.
+> 
+> Only if it can be turned into a some sort of library LLDD may use if it
+> needs it. But it is only makes sense to move that code out of the LLDD
+> and into the transport module, if more then one LLDD can make use of it.
 
-I think your proposal makes sense. The alternative is to do a config
-check each build for a while after the config pass and refuse to build
-if the header check fails 8). That I suspect would rapidly see config.h
-directly or indirectly in every file.
+Umm, that's exactly what we are doing.
 

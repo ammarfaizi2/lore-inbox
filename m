@@ -1,50 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932584AbVINEKu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932467AbVINEPq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932584AbVINEKu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 00:10:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932585AbVINEKu
+	id S932467AbVINEPq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 00:15:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932585AbVINEPq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 00:10:50 -0400
-Received: from cantor.suse.de ([195.135.220.2]:62127 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932584AbVINEKt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 00:10:49 -0400
-Date: Wed, 14 Sep 2005 06:10:46 +0200
-From: Olaf Hering <olh@suse.de>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Andreas Koch <koch@esa.informatik.tu-darmstadt.de>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Greg KH <greg@kroah.com>, Marcus Wegner <wegner3000@hotmail.com>
-Subject: Re: 2.6.13: Crash in Yenta initialization
-Message-ID: <20050914041046.GA4512@suse.de>
-References: <200509030138.11905.koch@esa.informatik.tu-darmstadt.de> <200509030245.12610.koch@esa.informatik.tu-darmstadt.de> <20050903223401.A7470@jurassic.park.msu.ru> <20050912174209.GA3965@suse.de> <20050913000733.A14261@jurassic.park.msu.ru> <20050913063053.GA24158@suse.de> <20050913154529.C15709@jurassic.park.msu.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20050913154529.C15709@jurassic.park.msu.ru>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+	Wed, 14 Sep 2005 00:15:46 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:37616 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S932467AbVINEPq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 00:15:46 -0400
+Message-ID: <4327A3CA.5000700@mvista.com>
+Date: Tue, 13 Sep 2005 21:15:06 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: john stultz <johnstul@us.ibm.com>
+CC: markh@compro.net, linux-kernel@vger.kernel.org
+Subject: Re: HZ question
+References: <4326CAB3.6020109@compro.net>	 <Pine.LNX.4.61.0509130919390.29445@chaos.analogic.com>	 <4326DB8A.7040109@compro.net>	 <Pine.LNX.4.53.0509131615160.13574@gockel.physik3.uni-rostock.de>	 <4326EAD7.50004@compro.net> <1126632856.3455.45.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1126632856.3455.45.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Tue, Sep 13, Ivan Kokshaysky wrote:
+john stultz wrote:
+> On Tue, 2005-09-13 at 11:05 -0400, Mark Hounschell wrote:
+> 
+>>Tim Schmielau wrote:
+>>
+>>>On Tue, 13 Sep 2005, Mark Hounschell wrote:
+>>>
+>>>
+>>>>Most if not all userland delay calls rely on HZ value in some way or
+>>>>another. The minimum reliable delay you can get is one (kernel)HZ. A
+>>>>program that needs an acurrate delay for a time shorter that one
+>>>>(kernel)HZ may have an alternative if it knows that HZ is greater the
+>>>>the requested delay.
+>>>
+>>>Just assume that kernel HZ are USER_HZ and see anything else as an
+>>>additional bonus that you cannot rely on.
+>>>
+>>>What does 'acurrate delay' mean, anyways?
+>>>
+>>>Tim
+>>>
+>>
+>>But they are not the same. Why can I get USER_HZ but not HZ?
+> 
+> 
+> Because USER_HZ is there only because HZ changes on various systems and
+> we don't want to break userland apps that assume its value.
+> 
+> 
+> 
+>>On a 100HZ kernel ANY requested delay via udelay or 
+>>pthread_cond_timedwait of less than 10000usecs is unreliable and the the 
+>>actual results are totally unacceptable.
+>>
+>>On a 1000HZ kernel the number is 1000 usecs.
+>>
+>>I'm not asking the kernel running at 1000hz to actually give me 500 usec 
+>>delay if I ask. I do expect it to be at least 500 usec and within +- a 
+>>single HZ however. Oviously a 1000HZ machine is going to give me better 
+>>resulution in any requested delay. Why is it unreasonable for userland 
+>>to know the probable resolution of userland delay requests.
+> 
+> 
+> But you don't really want to know HZ, you want to know timer resolution.
+> That's a reasonable request and I believe the posix-timers
+> clock_getres() interface might provide what you need. Although I'd defer
+> to George (CC'ed) since he's more of an expert on those interfaces.
 
-> On Tue, Sep 13, 2005 at 08:30:53AM +0200, Olaf Hering wrote:
-> > The reporter has updated the bug.
-> > 
-> > https://bugzilla.novell.com/attachment.cgi?id=49717
-> > https://bugzilla.novell.com/attachment.cgi?id=49715
-> > https://bugzilla.novell.com/attachment.cgi?id=49716
+Exactly.  clock_getres() on CLOCK_REALTIME will get the resolution of 
+timers (itimers or posix timers on CLOCK_REALTIME.  You can also get the 
+res using the old itimer interface by programing a repeating time of 1 
+usec and then reading back the timer (get_timer ?).  Set a longish 
+initial time so you can delete the timer prior to its expiring and look 
+at the repeat time returned.  Do be aware that this will be rounded up, 
+however, and will likely show, e.g. 1000 usec for 999849 ns (as returned 
+by clock_getres()).  Either of these interfaces is in the 2.6 kernel 
+these days.
 > 
-> Thanks, that helped.
-> 
-> The reason was that Acer BIOS left only _two_ bus numbers available
-> for _three_ cardbus controllers, so pci_scan_bridge() assigns both
-> numbers to the first controller and leaves two other ones uninitialized.
-> 
-> Please try the patch here, but note that you'll apparently have only
-> one cardbus slot working. If you want more, use "pci=assign-busses"
-> boot option.
+> You might also want to check out his HRT patches.
 
-Yes, this patch fixes the oops. The pci= option doesnt help.
+Thanks for the plug :)
+-- 
+George Anzinger   george@mvista.com
+HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/

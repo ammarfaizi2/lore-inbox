@@ -1,50 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030197AbVINWIw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965049AbVINWJV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030197AbVINWIw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 18:08:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030200AbVINWIv
+	id S965049AbVINWJV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 18:09:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965061AbVINWJU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 18:08:51 -0400
-Received: from cramus.icglink.com ([66.179.92.18]:61058 "EHLO mx03.icglink.com")
-	by vger.kernel.org with ESMTP id S1030197AbVINWIu (ORCPT
+	Wed, 14 Sep 2005 18:09:20 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:48811 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965049AbVINWJT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 18:08:50 -0400
-Date: Wed, 14 Sep 2005 17:08:48 -0500
-From: Phil Dier <phil@icglink.com>
-To: linux-kernel@vger.kernel.org
-Cc: ziggy@icglink.com, jack@icglink.com, scott@icglink.com
-Subject: Re: Slow I/O with SMP, Fusion-MPT and u160 SCSI JBOD
-Message-Id: <20050914170848.5ba812b8.phil@icglink.com>
-In-Reply-To: <43289926.1080108@rtr.ca>
-References: <20050914150109.232c6765.phil@icglink.com>
-	<43289926.1080108@rtr.ca>
-Organization: ICGLink
-X-Mailer: Sylpheed version 2.0.0 (GTK+ 2.4.4; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 14 Sep 2005 18:09:19 -0400
+Message-ID: <43289F8C.4050004@us.ibm.com>
+Date: Wed, 14 Sep 2005 15:09:16 -0700
+From: Darren Hart <dvhltc@us.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050727)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>, dwalker@mvista.com,
+       George Anzinger <george@mvista.com>
+Subject: Re: 2.6.13-rt6, ktimer subsystem
+References: <20050913100040.GA13103@elte.hu> <43284816.8010501@dvhart.com>
+In-Reply-To: <43284816.8010501@dvhart.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Sep 2005 17:41:58 -0400
-Mark Lord <lkml@rtr.ca> wrote:
+Darren Hart wrote:
 
-> Phil Dier wrote:
-> > Hi,
-> > 
-> > I just tried the 2.6.14-rc1 kernel to see if it exhibits the behaviour
-> > I have described before[0]. It still does. Briefly, I have a dual Xeon
-> ..
-> 
-> Do you still have HZ set to 1000 in your .config file? (as per 2.6.12)
+ > Ingo Molnar wrote:
+ >  > i have released the 2.6.13-rt6 tree, which can be downloaded from the
+ >  > usual place:
+ >  >
+ >  >   http://redhat.com/~mingo/realtime-preempt/
+ >
+ > I haven't been able to get 2.6.13-rt6 to compile on a 16 way x440 
+(SUMMIT) with gcc-2.95.  Is there a known minimum compiler version?  The 
+same config builds fine on a P3 8 way with gcc-3.3.5.
 
 
-With HZ at 1000, the speeds seem to be fine.  Why would this occur with
-just this one controller?  Just driver differences?
+Update: I was able to build the same config on the SUMMIT box with 
+gcc-3.3.5, so the compiler version does seem to be the issue.
 
 
 -- 
-
-Phil Dier (ICGLink.com -- 615 370-1530 x733)
-
-/* vim:set noai nocindent ts=8 sw=8: */
+Darren Hart
+IBM Linux Technology Center
+Linux Kernel Team
+Phone: 503 578 3185
+   T/L: 775 3185

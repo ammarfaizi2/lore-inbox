@@ -1,73 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965169AbVINM74@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965176AbVINNAc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965169AbVINM74 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 08:59:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965173AbVINM74
+	id S965176AbVINNAc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 09:00:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965175AbVINNAc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 08:59:56 -0400
-Received: from [139.30.44.16] ([139.30.44.16]:27266 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S965169AbVINM7z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 08:59:55 -0400
-Date: Wed, 14 Sep 2005 14:59:08 +0200 (CEST)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Andrew Morton <akpm@osdl.org>, shemminger@osdl.org,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: SKGE Kconfig help text typo fix
-In-Reply-To: <432819E2.6010506@pobox.com>
-Message-ID: <Pine.LNX.4.53.0509141455130.7058@gockel.physik3.uni-rostock.de>
-References: <Pine.LNX.4.61.0509081102500.19683@gans.physik3.uni-rostock.de>
- <432819E2.6010506@pobox.com>
+	Wed, 14 Sep 2005 09:00:32 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:13988 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S965173AbVINNAE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 09:00:04 -0400
+Message-ID: <43281EC9.5070804@adaptec.com>
+Date: Wed, 14 Sep 2005 08:59:53 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="512430124-636400625-1126702748=:7058"
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Sergey Panov <sipan@sipan.org>, Matthew Wilcox <matthew@wil.cx>,
+       Christoph Hellwig <hch@infradead.org>, Luben Tuikov <ltuikov@yahoo.com>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: [PATCH 2.6.13 14/14] sas-class: SCSI Host glue
+References: <1126308949.4799.54.camel@mulgrave>	 <20050910041218.29183.qmail@web51612.mail.yahoo.com>	 <20050911093847.GA5429@infradead.org> <4325FA6F.3060102@adaptec.com>	 <20050913154014.GE32395@parisc-linux.org> <1126677387.26050.71.camel@sipan.sipan.org> <43280123.1020700@pobox.com>
+In-Reply-To: <43280123.1020700@pobox.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 14 Sep 2005 12:59:59.0608 (UTC) FILETIME=[369FF780:01C5B92C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On 09/14/05 06:53, Jeff Garzik wrote:
+> ...and in this thread, SAS, more than one LLDD -should- be able to make 
+> use it of.
+> 
+> ServerWorks/Broadcom SAS+SATA hardware, for which I will soon be writing 
+> a driver, has exactly the same needs as Adaptec SAS+SATA hardware.
 
---512430124-636400625-1126702748=:7058
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Hi Jeff,
 
-On Wed, 14 Sep 2005, Jeff Garzik wrote:
+Nice of you to finally join us.
 
-> Tim Schmielau wrote:
-> > SKGE surely isn't a meta driver. Not that this is relevant at all...
-> >
-> > Signed-off-by: Tim Schmielau <tim@physik3.uni-rostock.de>
->
-> patch doesn't apply, please resend
+I'm sure you've looked at the SAS code.  If SW/Broadcom has the same
+open transport architecture, as we do, as you say they do, then you
+should have no problem generating 4 events (link up/down, BYTES_DMAED,
+BROADCAST(x)) to plug right into the SAS Layer, and have it do port
+management, discovery, expander configuration, etc, for you.
 
-Here it is, rediffed against latest netdev-2.6 git tree on kernel.org.
-However, it differs from the previous one only in the offset, so I've
-attached it to rule out mangling by the mailer.
+Please let me know how it goes.  I'm very curious.
+If there's any concerns with the SAS Layer, I'm willing to help
+in anywhich way I can.
 
-Please holler if it still does not apply.
+	Luben
 
-Tim
---512430124-636400625-1126702748=:7058
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="kconfig-skge.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.53.0509141459080.7058@gockel.physik3.uni-rostock.de>
-Content-Description: 
-Content-Disposition: attachment; filename="kconfig-skge.patch"
-
-LS0tIGxpbnV4LTIuNi4xMy1uZXRkZXYvZHJpdmVycy9uZXQvS2NvbmZpZwky
-MDA1LTA4LTI5IDAxOjQxOjAxLjAwMDAwMDAwMCArMDIwMA0KKysrIGxpbnV4
-LTIuNi4xMy1uZXRkZXYtc2tnZS9kcml2ZXJzL25ldC9LY29uZmlnCTIwMDUt
-MDktMDggMTA6NTc6MzguMDAwMDAwMDAwICswMjAwDQpAQCAtMTk0NCw3ICsx
-OTQ0LDcgQEAgY29uZmlnIFNLR0UNCiAJLS0taGVscC0tLQ0KIAkgIFRoaXMg
-ZHJpdmVyIHN1cHBvcnQgdGhlIE1hcnZlbGwgWXVrb24gb3IgU3lzS29ubmVj
-dCBTSy05OHh4L1NLLTk1eHgNCiAJICBhbmQgcmVsYXRlZCBHaWdhYml0IEV0
-aGVybmV0IGFkYXB0ZXJzLiBJdCBpcyBhIG5ldyBzbWFsbGVyIGRyaXZlcg0K
-LQkgIGRyaXZlciB3aXRoIGJldHRlciBwZXJmb3JtYW5jZSBhbmQgbW9yZSBj
-b21wbGV0ZSBldGh0b29sIHN1cHBvcnQuDQorCSAgd2l0aCBiZXR0ZXIgcGVy
-Zm9ybWFuY2UgYW5kIG1vcmUgY29tcGxldGUgZXRodG9vbCBzdXBwb3J0Lg0K
-IA0KIAkgIEl0IGRvZXMgbm90IHN1cHBvcnQgdGhlIGxpbmsgZmFpbG92ZXIg
-YW5kIG5ldHdvcmsgbWFuYWdlbWVudCANCiAJICBmZWF0dXJlcyB0aGF0ICJw
-b3J0YWJsZSIgdmVuZG9yIHN1cHBsaWVkIHNrOThsaW4gZHJpdmVyIGRvZXMu
-DQo=
-
---512430124-636400625-1126702748=:7058--

@@ -1,64 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030252AbVINQ26@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030259AbVINQbV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030252AbVINQ26 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 12:28:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030254AbVINQ25
+	id S1030259AbVINQbV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 12:31:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030260AbVINQbV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 12:28:57 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:48066 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030253AbVINQ2z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 12:28:55 -0400
-Date: Wed, 14 Sep 2005 09:28:35 -0700
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: Sergey Panov <sipan@sipan.org>
-Cc: Luben Tuikov <luben_tuikov@adaptec.com>, Matthew Wilcox <matthew@wil.cx>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       Douglas Gilbert <dougg@torque.net>,
-       Christoph Hellwig <hch@infradead.org>, Luben Tuikov <ltuikov@yahoo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH 2.6.13 5/14] sas-class: sas_discover.c Discover process (end devices)
-Message-ID: <20050914162835.GA9409@us.ibm.com>
-References: <1126537041.4825.28.camel@mulgrave> <20050912164548.GB11455@us.ibm.com> <1126545680.4825.40.camel@mulgrave> <20050912184629.GA13489@us.ibm.com> <1126639342.4809.53.camel@mulgrave> <4327354E.7090409@adaptec.com> <20050913203611.GH32395@parisc-linux.org> <43273E6C.9050807@adaptec.com> <20050913222519.GA1308@us.ibm.com> <1126675366.26050.41.camel@sipan.sipan.org>
+	Wed, 14 Sep 2005 12:31:21 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:9453 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S1030259AbVINQbU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 12:31:20 -0400
+Subject: Re: [patch] hdaps driver update.
+From: Robert Love <rml@novell.com>
+To: Greg KH <greg@kroah.com>
+Cc: Mr Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050914161622.GA22875@kroah.com>
+References: <1126713453.5738.7.camel@molly>
+	 <20050914160527.GA22352@kroah.com> <1126714175.5738.21.camel@molly>
+	 <20050914161622.GA22875@kroah.com>
+Content-Type: text/plain
+Date: Wed, 14 Sep 2005 12:31:57 -0400
+Message-Id: <1126715517.5738.35.camel@molly>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1126675366.26050.41.camel@sipan.sipan.org>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 14, 2005 at 01:22:46AM -0400, Sergey Panov wrote:
-> On Tue, 2005-09-13 at 15:25 -0700, Patrick Mansfield wrote:
+On Wed, 2005-09-14 at 09:16 -0700, Greg KH wrote:
 
-> > Not all HBA drivers implement a mapping to a SCSI transport, we have
-> > raid drivers and even an FC driver that has its own lun definition that
-> > does not fit any SAM or SCSI spec.
-> 
-> May I ask you to name those drivers/HBAs, it would be interesting to
-> look at how REPORT_LUN results are interpreted there. Actually, the data
-> from the  REPORT_LUN response is always treated as proper  8 byte LUN
-> and it is converted to int by scsilun_to_int(). What is interesting is
-> how those derivers/HBA treat integer "lun" in queuecommand or EH calls.
+> But you are reference counting a static object, right?  Which
+> isn't the nicest thing to have done.
 
-I didn't look at raid driver code, I mean they can setup and use luns
-however they want, as they are not following any scsi transport specs.
+I would not say it is not "the nicest thing", it is just not necessary
+to do the reference counting.  But we want the ref counting for other
+reasons, so it seems sensible.
 
-In drivers/scsi/qla2xxx/qla_iocb.c qla2x00_start_scsi(), it is swapped as
-firmware wants le, and then the firmware has to convert it to a proper 8
-byte LUN:
+> Why not just dynamically create it?
 
-	cmd_pkt->lun = cpu_to_le16(sp->cmd->device->lun);
+Seems silly to dynamically create something that we know a priori we
+only have one of.  E.g., why dynamically create something that is not
+dynamic.
 
-(I'm not sure where or how they handle 8 byte LUN for qla24xx per Ravin's
-email).
+But it is not a big deal.  If this is some rule of yours, I can
+kmalloc() the device_driver structure and kfree() it in my release()
+function.  Is that what you want?
 
-> > So, we can't have one "LUN" that fits all, and it makes no sense to call
-> > it a LUN when it is really a wtf.
-> 
-> IMHO one 8 byte LUN is better then wtf. I's kinda obvious :)
+> No, if you have that .owner field in your driver, you get a symlink in
+> sysfs that points from your driver to the module that controls it.  You
+> just removed that symlink, which is not what I think you wanted to have
+> happen :(
 
-Yes :)
+But device release == module unload.
 
--- Patrick Mansfield
+I am not following, sadly.
+
+> I also think you don't get the module reference counting for your
+> driver's and devices sysfs files but haven't looked deep enough to see
+> if this is true for your code or not.  Should be easy for you to test,
+> just open a sysfs file for your device and see if the module reference
+> is incremented or not.
+
+The module reference counting is fine.
+
+The count is elevated while one of the sysfs files is open, decremented
+when it closes.
+
+	Robert Love
+
+

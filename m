@@ -1,70 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030259AbVINQbV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030260AbVINQcK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030259AbVINQbV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 12:31:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030260AbVINQbV
+	id S1030260AbVINQcK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 12:32:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030261AbVINQcK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 12:31:21 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:9453 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S1030259AbVINQbU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 12:31:20 -0400
-Subject: Re: [patch] hdaps driver update.
-From: Robert Love <rml@novell.com>
-To: Greg KH <greg@kroah.com>
-Cc: Mr Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050914161622.GA22875@kroah.com>
-References: <1126713453.5738.7.camel@molly>
-	 <20050914160527.GA22352@kroah.com> <1126714175.5738.21.camel@molly>
-	 <20050914161622.GA22875@kroah.com>
-Content-Type: text/plain
-Date: Wed, 14 Sep 2005 12:31:57 -0400
-Message-Id: <1126715517.5738.35.camel@molly>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Sep 2005 12:32:10 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:57318 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1030260AbVINQcI (ORCPT
+	<rfc822;Linux-Kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 12:32:08 -0400
+Date: Wed, 14 Sep 2005 18:31:53 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>,
+       Dipankar Sarma <dipankar@in.ibm.com>,
+       "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH 5/5] remove HAVE_ARCH_CMPXCHG
+In-Reply-To: <43283B66.8080005@yahoo.com.au>
+Message-ID: <Pine.LNX.4.61.0509141829050.3743@scrub.home>
+References: <43283825.7070309@yahoo.com.au> <4328387E.6050701@yahoo.com.au>
+ <432838E8.5030302@yahoo.com.au> <432839F1.5020907@yahoo.com.au>
+ <43283B66.8080005@yahoo.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-09-14 at 09:16 -0700, Greg KH wrote:
+Hi,
 
-> But you are reference counting a static object, right?  Which
-> isn't the nicest thing to have done.
+On Thu, 15 Sep 2005, Nick Piggin wrote:
 
-I would not say it is not "the nicest thing", it is just not necessary
-to do the reference counting.  But we want the ref counting for other
-reasons, so it seems sensible.
+> Is there any point in keeping this around?
 
-> Why not just dynamically create it?
+Yes, for drivers which want to use it to synchronize with userspace.
+Alternatively it could be changed into a Kconfig definition.
 
-Seems silly to dynamically create something that we know a priori we
-only have one of.  E.g., why dynamically create something that is not
-dynamic.
-
-But it is not a big deal.  If this is some rule of yours, I can
-kmalloc() the device_driver structure and kfree() it in my release()
-function.  Is that what you want?
-
-> No, if you have that .owner field in your driver, you get a symlink in
-> sysfs that points from your driver to the module that controls it.  You
-> just removed that symlink, which is not what I think you wanted to have
-> happen :(
-
-But device release == module unload.
-
-I am not following, sadly.
-
-> I also think you don't get the module reference counting for your
-> driver's and devices sysfs files but haven't looked deep enough to see
-> if this is true for your code or not.  Should be easy for you to test,
-> just open a sysfs file for your device and see if the module reference
-> is incremented or not.
-
-The module reference counting is fine.
-
-The count is elevated while one of the sysfs files is open, decremented
-when it closes.
-
-	Robert Love
-
-
+bye, Roman

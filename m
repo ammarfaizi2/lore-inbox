@@ -1,92 +1,176 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932552AbVINTqv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932301AbVINTrJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932552AbVINTqv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 15:46:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932301AbVINTqv
+	id S932301AbVINTrJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 15:47:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932568AbVINTrJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 15:46:51 -0400
-Received: from smtpout.mac.com ([17.250.248.72]:40391 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S932552AbVINTqu (ORCPT
+	Wed, 14 Sep 2005 15:47:09 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:29857 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932392AbVINTrH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 15:46:50 -0400
-In-Reply-To: <Pine.LNX.4.61.0509141458380.19578@chaos.analogic.com>
-References: <C670AD22-97CF-46AA-A527-965036D78667@mac.com> <20050902134108.GA16374@codepoet.org> <22D79100-00B5-44F6-992C-FFFEACA49E66@mac.com> <20050902235833.GA28238@codepoet.org> <dfapgu$dln$1@terminus.zytor.com> <4328299C.9020904@tmr.com> <BB99A175-9BC7-4004-896D-7A5A22349861@mac.com> <Pine.LNX.4.61.0509141458380.19578@chaos.analogic.com>
-Mime-Version: 1.0 (Apple Message framework v734)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <C6194C86-1879-4C18-9C3C-2EF86C8E6046@mac.com>
-Cc: Bill Davidsen <davidsen@tmr.com>, "H. Peter Anvin" <hpa@zytor.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Wed, 14 Sep 2005 15:47:07 -0400
+Date: Wed, 14 Sep 2005 12:46:42 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: akpm@osdl.org, torvalds@osdl.org, Simon.Derr@bull.net,
+       linux-kernel@vger.kernel.org, nikita@clusterfs.com
+Subject: Re: [PATCH] cpuset semaphore depth check optimize
+Message-Id: <20050914124642.1b19dd73.pj@sgi.com>
+In-Reply-To: <Pine.LNX.4.61.0509141446590.3728@scrub.home>
+References: <20050912113030.15934.9433.sendpatchset@jackhammer.engr.sgi.com>
+	<20050912043943.5795d8f8.akpm@osdl.org>
+	<20050912075155.3854b6e3.pj@sgi.com>
+	<Pine.LNX.4.61.0509121821270.3743@scrub.home>
+	<20050912153135.3812d8e2.pj@sgi.com>
+	<Pine.LNX.4.61.0509131120020.3728@scrub.home>
+	<20050913103724.19ac5efa.pj@sgi.com>
+	<Pine.LNX.4.61.0509141446590.3728@scrub.home>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [RFC] Splitting out kernel<=>userspace ABI headers
-Date: Wed, 14 Sep 2005 15:46:28 -0400
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 14, 2005, at 15:09:09, linux-os (Dick Johnson) wrote:
-> No No. The solution is to do it right. If the standard says that
-> the header file can't include a header file defining the types used
-> within that header file (and I don't think the "standard" says that
-> at all), then the correct solution is to include the correct header  
-> file
-> in the user program. It is truly just that simple.
->
+Roman wrote:
+> I don't think a per-cpuset spinlock will be necessary ...
 
-I don't even have to say anything substantial in my response to this  
-flame, because I've already said everything substantial that needs to  
-be said, but just for clarity, let me repeat myself.
+Arghh.  I'm still playing 'pin the tail on the donkey' guessing games
+here, trying to guess what you think is necessary.
 
-First, let me be repetitious and say this again:
-> On Wed, 14 Sep 2005, Kyle Moffett wrote:
->> Argh, it seems I'm going to be giving this example forever!
+So, if a per-cpuset spinlock isn't necessary, then are you saying that
+going from one global local to two global locks (where the second one
+might be a spinlock) might work?  Or are you saying just the current
+one global semaphore should work?  I'm guessing the former, as you can
+see from my further replies below.
 
-Then:
->> If it [sys/types.h] used stdint.h types, such as uint32_t, then it  
->> would need to #include <stdint.h> or provide the stdint.h types  
->> itself.
+Could you please be a little more verbose?  Thanks.
 
-Finally (with extra emphasis added):
->> In order to remain POSIX compliant, sys/stat.h _*MUST*_*NOT*_ not  
->> include stdint.h or
->> assume that stdint.h is included.
+And could you answer a couple of my previous questions, on the same
+area:
 
-This means that the stat structure *CANNOT* use stdint.h types. Those  
-are absolutely forbidden by the standard, because they have been used  
-and reused, defined and redefined by userspace programs since the  
-dawn of time.  There are standard definitions provided by libc if a  
-program wants them, but libc _*MUST*_*NOT*_ force those definitions  
-on anybody.  If you don't believe me, quit flaming and go read the  
-standards yourself, that's exactly what they say, and for good reason  
-too.
+Question 1:
 
-PS: This crap apology doesn't cut it, please use a different email  
-service that does not append such garbage to your emails when sending  
-stuff to the LKML:
+    Roman: This means you have to take the second lock ...
 
-> .
-> I apologize for the following. I tried to kill it with the above dot :
->
-> ****************************************************************
-> The information transmitted in this message is confidential and may  
-> be privileged.  Any review, retransmission, dissemination, or other  
-> use of this information by persons or entities other than the  
-> intended recipient is prohibited.  If you are not the intended  
-> recipient, please notify Analogic Corporation immediately - by  
-> replying to this message or by sending an email to  
-> DeliveryErrors@analogic.com - and destroy all copies of this  
-> information, including any attachments, without reading or  
-> disclosing them.
+    Paul: By "second lock", did you mean what you described in your
+	  earlier message as:
+    	  > low-level lock (maybe even a spinlock) which manages the
+	  > state of an active cpuset.
 
-Cheers,
-Kyle Moffett
+    [Aside - note your phrase 'manages the state of an active cpuset'.
+	It doesn't surprise me that I thought from this you had in
+	mind a per-cpuset lock, not just a second global lock.]
 
---
-There are two ways of constructing a software design. One way is to  
-make it so simple that there are obviously no deficiencies. And the  
-other way is to make it so complicated that there are no obvious  
-deficiencies.  The first method is far more difficult.
-   -- C.A.R. Hoare
+Question 2:
+
+    Roman: There may be a subtle problem with cpuset_fork()
+
+    Paul: Hmmm ... interesting.  I will think about this some more.
+
+    Roman:
+    > The only (simple) solution I see is to do this:
+    > 
+    > 	lock();
+    > 	tsk->cpuset = current->cpuset;
+    > 	atomic_inc(&tsk->cpuset->count);
+    > 	unlock();
+
+    Paul: What "lock()" and "unlock()" is this?  Your "second lock",
+    	  aka "low-level lock (maybe even a spinlock)" ?
+
+Back to new comments ...
+
+Roman wrote:
+> The complete active condition is actually (atomic_read(&cs->count) || 
+> !list_empty(&cs->children)). These means if any child is possibly active 
+> so is the parent. 
+
+Yes - agreed.
 
 
+Roman wrote:
+> Modifications in the cpuset hierarchy require the cpuset_sem and an 
+> inactive cpuset, (de)activating a cpuset requires the cpuset_sem and 
+> (let's call it) cpuset_tasklock.
+
+Is this 'cpuset_tasklock' the same as the earlier 'second lock'
+and the 'lock()/unlock()'?  My current guess is yes - same.
+
+I suspect, though I haven't gotten it clear enough yet in my
+mind to be confident, that something like I guess you're describing
+would be sufficient to keep a cpuset from evaporating out from under
+us.
+
+And from this last comment of yours, I am guessing that 'cpuset_tasklock'
+is one global lock, not per cpuset, and that the answer to my first
+question above is that you are suggesting going from one global lock
+to two global locks.
+
+But I don't see what, in your proposal, ensures that it is safe to
+read out the mems_allowed vector (multi-word, perhaps).  I need to
+do more than make sure cpusets don't evaporate out from under me
+at inopportune times.  I also need to freeze their values, so I
+can do non atomic reads of multiple distinct values, or of multiword
+values, out of them.  What does that?
+
+And I am also still confused as to how this second cpuset_tasklock
+works, though that might be more due to my stupidity than any lack of
+clarity in your explanations.  I'll probably need a little more
+tutorial there, before we're done.
+
+I'm also inclined, if I see that it is within reach, to prefer a
+per-cpuset lock, rather than just global locks.  If I could get
+the locks that are required by the callbacks, such as from beneath
+__alloc_pages(), to only need per-cpuset locks, then this would reduce
+the risk that these turn into performance and scalability issues
+someday on really large systems.  I've got a nice hierarchy to the
+cpusets, so imposing the partial order on per-cpuset locks necessary
+to avoid deadlock should be easy enough.
+
+
+Roman wrote [modified to reinsert some ellided code - pj]:
+> You're right, it should better look like this:
+> 
+> 	tsk->cpuset = NULL;
+> 	if (atomic_read(&cs->count) == 1 && notify_on_release(cs)) {
+>                 char *pathbuf = NULL;
+> 
+>                 cpuset_down(&cpuset_sem);
+>                 if (atomic_dec_and_test(&cs->count))
+>                         check_for_release(cs, &pathbuf);
+>                 cpuset_up(&cpuset_sem);
+>                 cpuset_release_agent(pathbuf);
+> 	}
+> 	atomic_dec(&cs->count);
+> 
+> This way it only may happen that two notifaction are sent.
+
+I don't think that works at all.  Consider the following sequence:
+	1) The first 'atomic_read' returns 2
+	2) [ The other task holding a reference drops out. ]
+		(so count is 1 now)
+	3) The atomic_dec() moves the count from 1 to 0.
+	4) Oops - we just missed doing a release.
+
+Your comment "This way it only may happen that two notifaction are
+sent." went whizzing right past me ...
+
+
+==> I suspect that I am actually close to understanding what you're
+    suggesting, and having an informal agreement with you on what
+    to do.
+
+    When I get to that point, I will need to put this aside for a
+    week, and spend more time on another task my manager needs.
+
+    Then I should be able to return to this, and code up a polished
+    version of what we agreed to, and present it for review.
+
+Once again, thanks for you assistance.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

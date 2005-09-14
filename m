@@ -1,98 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965121AbVINJmk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965119AbVINJnj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965121AbVINJmk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 05:42:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965122AbVINJmj
+	id S965119AbVINJnj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 05:43:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965123AbVINJnj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 05:42:39 -0400
-Received: from easyconnect2121136-192.clients.easynet.fr ([212.11.36.192]:8070
-	"EHLO mail.aerostyle.com") by vger.kernel.org with ESMTP
-	id S965121AbVINJmi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 05:42:38 -0400
-Message-ID: <33296.85.68.36.53.1126690932.squirrel@212.11.36.192>
-In-Reply-To: <43272B9D.1030301@zytor.com>
-References: <33542.85.68.36.53.1126619176.squirrel@212.11.36.192>
-    <432722A1.8030302@tuxrocks.com> <43272B9D.1030301@zytor.com>
-Date: Wed, 14 Sep 2005 11:42:12 +0200 (CEST)
-Subject: Re: [i386 BOOT CODE] kernel bootable again
-From: "Pascal Bellard" <pascal.bellard@ads-lu.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: "Frank Sorenson" <frank@tuxrocks.com>, pascal.bellard@ads-lu.com,
-       riley@williams.name, linux-kernel@vger.kernel.org
-Reply-To: pascal.bellard@ads-lu.com
-User-Agent: SquirrelMail/1.4.2
-X-Priority: 3
-Importance: Normal
-X-Sanitizer: Advosys mail filter
+	Wed, 14 Sep 2005 05:43:39 -0400
+Received: from femail.waymark.net ([206.176.148.84]:42968 "EHLO
+	femail.waymark.net") by vger.kernel.org with ESMTP id S965119AbVINJni convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 05:43:38 -0400
+Date: 14 Sep 2005 09:22:34 GMT
+From: Kenneth Parrish <Kenneth.Parrish@family-bbs.org>
+Subject: Re: [PROBLEM] mtrr's not set, 2.6.13
+To: linux-kernel@vger.kernel.org
+Message-ID: <603fb7.2e22d1@family-bbs.org>
+Organization: FamilyNet HQ
+X-Mailer: BBBS/NT v4.01 Flag-5
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Frank Sorenson wrote:
->> -----BEGIN PGP SIGNED MESSAGE-----
->> Hash: SHA1
->>
->> Pascal Bellard wrote:
->>
->>>Hello,
->>>
->>>Please find attached a patch to build i386/x86_64 kernel directly
->>>bootable. It may be usefull for rescue floppies and installation
->>>floppies.
->>
->>
->> Pascal,
->>
->> In commit f8eeaaf4180334a8e5c3582fe62a5f8176a8c124, build.c has already
->> changed, and I don't believe it's very compatible with this change.
->>
->> See
->> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=f8eeaaf4180334a8e5c3582fe62a5f8176a8c124
->>
->> Also, we'll need to see comments from H. Peter Anvin on this patch.
->> CC'ing him.
->>
->
-> Geometry detection by looking for error returns is fundamentally broken.
->   Way too many non-traditional floppies (USB, IDE...) do not handle this
-> at all, they will return successfully, with the data being the data from
-> a sector from another track, and thus you end up with aliasing and a
-> corrupt boot.  You can do it with fingerprinting, but that's complex and
-> error-prone.
->
-The bootblock code is 497 bytes long. It must as simple as possible.
-Complex algorithms like fingerprinting can't be used.
+-=> In 13 Sep 05  15:30:16 article, Dave Jones wrote to All and Jim <=-
 
-Geometry detection works with usual floppies. This patch goal is to
-support them like < 2.6 bootblocks did and fix 1M limitation and
-special formatting like 1.68M floppies.
+[...]
 
-Geometry detection may work with non-traditional floppies but is not
-designed to.
+ JM> /proc/mtrr:
+ JM>
+ JM> reg00: base=0x00000000 (   0MB), size=983552MB: write-back, count=1
 
-BTW, if this kind of floppies doesn't handle error, it's a bug in the
-firmware, but not in bootblock code !
+ DJ> That's an incredibly huge amount of system ram :)
+ DJ> Have you done a BIOS update between the kernel upgrades by any
+ chance ?
+ DJ> Or altered any options in the BIOS ?
 
-> In short, this made sense in 1991, but it hasn't made sense for a very
-> long time now.  Resurrecting bootsect.S is *NOT* a good idea.
->
-1.44M floppies are told dead for more than 10 years. In 2005 most of
-computers are sold with these drives. Sometime I have to boot with
-a floppy when nothing works (blush).
+ DJ> Does booting the older kernel definitly still work ?
 
-Kernel code is always growing. The bootblock spares filesystem and
-external kernel loader overhead.
+ DJ> AFAIR, we don't touch the first MTRR, that's typically set up by
+ DJ> the BIOS before we even boot.
 
-While linux kernel has a floppy driver the bootblock is usefull.
+not sure when this changed, but this computer, a 99 e-machines cyrix m
+ii and via mvp3 unit, is showing more than the 512 megas pc 100 ram it
+actually has, apparently, in the first line of /proc/mtrr quoted below
 
-Now two solutions:
+ 3 Wed Sep 14 03:44:18 0 ~/build/kernel/linux-2.6.14-rc1 $ cat /proc/mtrr
+reg00: base=0xfd000000 (4048MB), size=   4MB: write-combining, count=1
+reg01: base=0x000c0000 (   0MB), size= 256KB: uncachable, count=1
+reg07: base=0x00000000 (   0MB), size= 512MB: write-back, count=1
 
-- without this patch = linux kernel are never directly bootable
-- with this patch = linux kernel is directly bootable with some
-  devices.
+X shows the video with four MB, lspci shows 16MB -- been that
+way for awhile..
 
-What is the better idea ?
+01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage IIC AGP (rev
+7a) (prog-if 00 [VGA])
+        Subsystem: ATI Technologies Inc Rage IIC AGP
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Ste
+SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbor
+<MAbort- >SERR- <PERR-
+        Latency: 64 (2000ns min), cache line size 08
+        Region 0: Memory at fd000000 (32-bit, non-prefetchable) [size=16M]
+        Region 1: I/O ports at d800 [size=256]
+        Region 2: Memory at feaff000 (32-bit, non-prefetchable) [size=4K]
+        Expansion ROM at feac0000 [disabled] [size=128K]
+        Capabilities: [5c] Power Management version 1
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3ho
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
--pascal
+Linux fret 2.6.14-rc1 #6 Wed Sep 14 01:05:11 CDT 2005 i686 unknown unknown
+GNU/Linux
+
+p.s. this 2.6.14-rc1 kernel shows four lines plus one or two
+pixels of the next line, at the bottom of each text console, filled with
+what looks like earlier buffer.  and it scrolls, with new output. ??
+
+--- MultiMail/Linux v0.46

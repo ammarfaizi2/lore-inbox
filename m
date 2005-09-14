@@ -1,43 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965090AbVINIk2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965086AbVINIrH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965090AbVINIk2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 04:40:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965077AbVINIk2
+	id S965086AbVINIrH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 04:47:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965087AbVINIrH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 04:40:28 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:10702 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965090AbVINIk1 (ORCPT
+	Wed, 14 Sep 2005 04:47:07 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:65195 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S965086AbVINIrF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 04:40:27 -0400
-Date: Wed, 14 Sep 2005 01:39:44 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: joern@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Permanently fix kernel configuration include mess (was:
- Missing #include <config.h>)
-Message-Id: <20050914013944.5ee4efa7.akpm@osdl.org>
-In-Reply-To: <20050913155012.C23643@flint.arm.linux.org.uk>
-References: <20050913135622.GA30675@phoenix.infradead.org>
-	<20050913150825.A23643@flint.arm.linux.org.uk>
-	<20050913155012.C23643@flint.arm.linux.org.uk>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 14 Sep 2005 04:47:05 -0400
+Date: Wed, 14 Sep 2005 10:46:21 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net,
+       Jan De Luyck <lkml@kcore.org>
+Subject: Re: ACPI S3 and ieee1394 don't get along
+Message-ID: <20050914084621.GA1941@elf.ucw.cz>
+References: <200509131156.31914.lkml@kcore.org> <20050913102049.GA1876@elf.ucw.cz> <43276CC3.20105@s5r6.in-berlin.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43276CC3.20105@s5r6.in-berlin.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
->
->  LINUXINCLUDE    := -Iinclude \
->  -                   $(if $(KBUILD_SRC),-Iinclude2 -I$(srctree)/include)
->  +                   $(if $(KBUILD_SRC),-Iinclude2 -I$(srctree)/include) \
->  +		   -imacros include/linux/autoconf.h
+Hi!
 
-This means that over time the kernel will fail to compile correctly without
-`-imacros include/linux/autoconf.h'.
+> >Last time I checked, you could still break ohci1394 be repeatedly
+> >loading it and unloading it.
+> 
+> Do you have details available on that?
+> 
+> I never saw such a bug with the two PCI OHCI controllers I can currently 
+> test. I'm not running any isochronous applications though.
 
-That's OK for the kernel, but not for out-of-tree stuff.  Those drivers
-will need to add the new gcc commandline option too.
-
-Not that I'm saying it's a terrible thing.  It's just a thing.
+I asked around and it seems to be gone in recent kernels. So sorry
+about the noise.
+								Pavel
+-- 
+if you have sharp zaurus hardware you don't need... you know my address

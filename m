@@ -1,54 +1,233 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965085AbVINIb0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932654AbVINIgv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965085AbVINIb0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 04:31:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965086AbVINIb0
+	id S932654AbVINIgv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 04:36:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932686AbVINIgv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 04:31:26 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:24780 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965085AbVINIb0 (ORCPT
+	Wed, 14 Sep 2005 04:36:51 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:46204 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S932654AbVINIgu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 04:31:26 -0400
-Date: Wed, 14 Sep 2005 01:30:53 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Mathieu Fluhr <mfluhr@nero.com>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13 brings buffer underruns when recording DVDs in 16x (was
- Re: "Read my lips: no more merges" - aka Linux 2.6.14-rc1)
-Message-Id: <20050914013053.0c2b302c.akpm@osdl.org>
-In-Reply-To: <1126685479.2010.14.camel@localhost.localdomain>
-References: <Pine.LNX.4.58.0509122019560.3351@g5.osdl.org>
-	<1126608030.3455.23.camel@localhost.localdomain>
-	<1126630878.2066.6.camel@localhost.localdomain>
-	<Pine.LNX.4.58.0509131010010.3351@g5.osdl.org>
-	<1126635160.2183.6.camel@localhost.localdomain>
-	<Pine.LNX.4.58.0509131210090.3351@g5.osdl.org>
-	<1126685479.2010.14.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 14 Sep 2005 04:36:50 -0400
+Message-ID: <4327E24E.8040200@sw.ru>
+Date: Wed, 14 Sep 2005 12:41:50 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
+MIME-Version: 1.0
+To: Hugh Dickins <hugh@veritas.com>
+CC: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, xemul@sw.ru
+Subject: Re: [PATCH] error path in setup_arg_pages() misses vm_unacct_memory()
+References: <4325B188.10404@sw.ru> <20050912132352.6d3a0e3a.akpm@osdl.org> <Pine.LNX.4.61.0509131217200.7040@goblin.wat.veritas.com> <Pine.LNX.4.61.0509140605320.3433@goblin.wat.veritas.com>
+In-Reply-To: <Pine.LNX.4.61.0509140605320.3433@goblin.wat.veritas.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mathieu Fluhr <mfluhr@nero.com> wrote:
->
-> According to the MMC documentation, you can thoeriticaly send at most
->  65535 (16 bits int) blocks in one WRITE(10) CDB. This would means
->  sending a buffer of ~127 MB on case of writing a mode 1 data track (2048
->  bytes per block)...
+Hugh,
+
+is vma accounting in arch/x86_64/ia32/syscall32.c and 
+arch/ppc64/kernel/vdso.c removed due to fixed size of vma (vsyscall/vdso 
+mappings)?
+in other respects it looks ok.
+
+Signed-Off-By: Kirill Korotaev <dev@sw.ru>
+
+Kirill
+
+> On Tue, 13 Sep 2005, Hugh Dickins wrote:
 > 
->  Now, practically, it is really not safe to send more than 64 KB per CDB
->  (Mostly device related). And with such values, you have the following:
->   - at 100 Hz  -> 64 KB * 100  = 6400 KB/s  <=> ~4.62x  DVD 
->   - at 250 Hz  -> 64 KB * 250  = 16000 KB/s <=> ~11.55x DVD 
->   - at 1000 Hz -> 64 KB * 1000 = 64000 KB/s <=> ~46.20x DVD
+>>On Mon, 12 Sep 2005, Andrew Morton wrote:
+>>
+>>>Patch looks OK to me.  Hugh, could you please double-check sometime?
+>>
+>>It's a good find, and the patch looks correct to me, so far as it goes.
+>>But I think it's the wrong patch, and incomplete: it can be done more
+>>appropriately, more simply and more completely in insert_vm_struct itself.
+>>I'll post a replacement patch (or admit I'm wrong) in a little while.
+> 
+> 
+> Many thanks, Andrew, for confirming that ppc64 does indeed leak into
+> Committed_AS, as it looked to me.  Here's my version of Pavel/Kirill's
+> patches: sorry if it seems "weird" to Kirill, perhaps we need to change
+> the name of insert_vm_struct too; but it seems safer and easier to get
+> right this way.  And I prefer deleting code to adding it...
+> 
+> 
+> Pavel Emelianov and Kirill Korotaev observe that fs and arch users of
+> security_vm_enough_memory tend to forget to vm_unacct_memory when a
+> failure occurs further down (typically in setup_arg_pages variants).
+> 
+> These are all users of insert_vm_struct, and that reservation will only
+> be unaccounted on exit if the vma is marked VM_ACCOUNT: which in some
+> cases it is (hidden inside VM_STACK_FLAGS) and in some cases it isn't.
+> 
+> So x86_64 32-bit and ppc64 vDSO ELFs have been leaking memory into
+> Committed_AS each time they're run.  But don't add VM_ACCOUNT to them,
+> it's inappropriate to reserve against the very unlikely case that gdb
+> be used to COW a vDSO page - we ought to do something about that in
+> do_wp_page, but there are yet other inconsistencies to be resolved.
+> 
+> The safe and economical way to fix this is to let insert_vm_struct do
+> the security_vm_enough_memory check when it finds VM_ACCOUNT is set.
+> 
+> And the MIPS irix_brk has been calling security_vm_enough_memory before
+> calling do_brk which repeats it, doubly accounting and so also leaking.
+> Remove that, and all the fs and arch calls to security_vm_enough_memory:
+> give it a less misleading name later on.
+> 
+> Signed-off-by: Hugh Dickins <hugh@veritas.com>
+> ---
+> 
+>  arch/ia64/ia32/binfmt_elf32.c  |    6 ------
+>  arch/mips/kernel/sysirix.c     |    9 ++-------
+>  arch/ppc64/kernel/vdso.c       |   15 +++++++++------
+>  arch/x86_64/ia32/ia32_binfmt.c |    5 -----
+>  arch/x86_64/ia32/syscall32.c   |    6 +-----
+>  fs/exec.c                      |    5 -----
+>  mm/mmap.c                      |    3 +++
+>  7 files changed, 15 insertions(+), 34 deletions(-)
+> 
+> --- 2.6.14-rc1/arch/ia64/ia32/binfmt_elf32.c	2005-03-02 07:39:16.000000000 +0000
+> +++ linux/arch/ia64/ia32/binfmt_elf32.c	2005-09-13 17:58:28.000000000 +0100
+> @@ -216,12 +216,6 @@ ia32_setup_arg_pages (struct linux_binpr
+>  	if (!mpnt)
+>  		return -ENOMEM;
+>  
+> -	if (security_vm_enough_memory((IA32_STACK_TOP - (PAGE_MASK & (unsigned long) bprm->p))
+> -				      >> PAGE_SHIFT)) {
+> -		kmem_cache_free(vm_area_cachep, mpnt);
+> -		return -ENOMEM;
+> -	}
+> -
+>  	memset(mpnt, 0, sizeof(*mpnt));
+>  
+>  	down_write(&current->mm->mmap_sem);
+> --- 2.6.14-rc1/arch/mips/kernel/sysirix.c	2005-09-13 15:22:15.000000000 +0100
+> +++ linux/arch/mips/kernel/sysirix.c	2005-09-13 18:51:43.000000000 +0100
+> @@ -581,18 +581,13 @@ asmlinkage int irix_brk(unsigned long br
+>  	}
+>  
+>  	/*
+> -	 * Check if we have enough memory..
+> +	 * Ok, looks good - let it rip.
+>  	 */
+> -	if (security_vm_enough_memory((newbrk-oldbrk) >> PAGE_SHIFT)) {
+> +	if (do_brk(oldbrk, newbrk-oldbrk) != oldbrk) {
+>  		ret = -ENOMEM;
+>  		goto out;
+>  	}
+> -
+> -	/*
+> -	 * Ok, looks good - let it rip.
+> -	 */
+>  	mm->brk = brk;
+> -	do_brk(oldbrk, newbrk-oldbrk);
+>  	ret = 0;
+>  
+>  out:
+> --- 2.6.14-rc1/arch/ppc64/kernel/vdso.c	2005-06-17 20:48:29.000000000 +0100
+> +++ linux/arch/ppc64/kernel/vdso.c	2005-09-13 20:50:02.000000000 +0100
+> @@ -224,10 +224,7 @@ int arch_setup_additional_pages(struct l
+>  	vma = kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
+>  	if (vma == NULL)
+>  		return -ENOMEM;
+> -	if (security_vm_enough_memory(vdso_pages)) {
+> -		kmem_cache_free(vm_area_cachep, vma);
+> -		return -ENOMEM;
+> -	}
+> +
+>  	memset(vma, 0, sizeof(*vma));
+>  
+>  	/*
+> @@ -237,8 +234,10 @@ int arch_setup_additional_pages(struct l
+>  	 */
+>  	vdso_base = get_unmapped_area(NULL, vdso_base,
+>  				      vdso_pages << PAGE_SHIFT, 0, 0);
+> -	if (vdso_base & ~PAGE_MASK)
+> +	if (vdso_base & ~PAGE_MASK) {
+> +		kmem_cache_free(vm_area_cachep, vma);
+>  		return (int)vdso_base;
+> +	}
+>  
+>  	current->thread.vdso_base = vdso_base;
+>  
+> @@ -266,7 +265,11 @@ int arch_setup_additional_pages(struct l
+>  	vma->vm_ops = &vdso_vmops;
+>  
+>  	down_write(&mm->mmap_sem);
+> -	insert_vm_struct(mm, vma);
+> +	if (insert_vm_struct(mm, vma)) {
+> +		up_write(&mm->mmap_sem);
+> +		kmem_cache_free(vm_area_cachep, vma);
+> +		return -ENOMEM;
+> +	}
+>  	mm->total_vm += (vma->vm_end - vma->vm_start) >> PAGE_SHIFT;
+>  	up_write(&mm->mmap_sem);
+>  
+> --- 2.6.14-rc1/arch/x86_64/ia32/ia32_binfmt.c	2005-08-29 00:41:01.000000000 +0100
+> +++ linux/arch/x86_64/ia32/ia32_binfmt.c	2005-09-13 18:05:20.000000000 +0100
+> @@ -353,11 +353,6 @@ int setup_arg_pages(struct linux_binprm 
+>  	mpnt = kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
+>  	if (!mpnt) 
+>  		return -ENOMEM; 
+> -	
+> -	if (security_vm_enough_memory((IA32_STACK_TOP - (PAGE_MASK & (unsigned long) bprm->p))>>PAGE_SHIFT)) {
+> -		kmem_cache_free(vm_area_cachep, mpnt);
+> -		return -ENOMEM;
+> -	}
+>  
+>  	memset(mpnt, 0, sizeof(*mpnt));
+>  
+> --- 2.6.14-rc1/arch/x86_64/ia32/syscall32.c	2005-08-29 00:41:01.000000000 +0100
+> +++ linux/arch/x86_64/ia32/syscall32.c	2005-09-13 18:53:32.000000000 +0100
+> @@ -52,17 +52,13 @@ int syscall32_setup_pages(struct linux_b
+>  	vma = kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
+>  	if (!vma)
+>  		return -ENOMEM;
+> -	if (security_vm_enough_memory(npages)) {
+> -		kmem_cache_free(vm_area_cachep, vma);
+> -		return -ENOMEM;
+> -	}
+>  
+>  	memset(vma, 0, sizeof(struct vm_area_struct));
+>  	/* Could randomize here */
+>  	vma->vm_start = VSYSCALL32_BASE;
+>  	vma->vm_end = VSYSCALL32_END;
+>  	/* MAYWRITE to allow gdb to COW and set breakpoints */
+> -	vma->vm_flags = VM_READ|VM_EXEC|VM_MAYREAD|VM_MAYEXEC|VM_MAYEXEC|VM_MAYWRITE;
+> +	vma->vm_flags = VM_READ|VM_EXEC|VM_MAYREAD|VM_MAYEXEC|VM_MAYWRITE;
+>  	vma->vm_flags |= mm->def_flags;
+>  	vma->vm_page_prot = protection_map[vma->vm_flags & 7];
+>  	vma->vm_ops = &syscall32_vm_ops;
+> --- 2.6.14-rc1/fs/exec.c	2005-09-13 15:22:37.000000000 +0100
+> +++ linux/fs/exec.c	2005-09-13 17:50:46.000000000 +0100
+> @@ -421,11 +421,6 @@ int setup_arg_pages(struct linux_binprm 
+>  	if (!mpnt)
+>  		return -ENOMEM;
+>  
+> -	if (security_vm_enough_memory(arg_size >> PAGE_SHIFT)) {
+> -		kmem_cache_free(vm_area_cachep, mpnt);
+> -		return -ENOMEM;
+> -	}
+> -
+>  	memset(mpnt, 0, sizeof(*mpnt));
+>  
+>  	down_write(&mm->mmap_sem);
+> --- 2.6.14-rc1/mm/mmap.c	2005-09-13 15:22:47.000000000 +0100
+> +++ linux/mm/mmap.c	2005-09-13 18:59:59.000000000 +0100
+> @@ -1993,6 +1993,9 @@ int insert_vm_struct(struct mm_struct * 
+>  	__vma = find_vma_prepare(mm,vma->vm_start,&prev,&rb_link,&rb_parent);
+>  	if (__vma && __vma->vm_start < vma->vm_end)
+>  		return -ENOMEM;
+> +	if ((vma->vm_flags & VM_ACCOUNT) &&
+> +	     security_vm_enough_memory(vma_pages(vma)))
+> +		return -ENOMEM;
+>  	vma_link(mm, vma, prev, rb_link, rb_parent);
+>  	return 0;
+>  }
+> 
 
-But that implies that there's some piece of code somewhere (could be
-userspace, could be kernel) which is doing a timer-based sleep() in between
-each CDB.  It shouldn't do that - it should be using the disk
-controller's completion interrupt for synchronisation.
-
-What userspace application are you using to write the DVDs, and is it
-possible to test a different one?
 

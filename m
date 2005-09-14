@@ -1,53 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932779AbVINVmW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932781AbVINVnA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932779AbVINVmW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 17:42:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932781AbVINVmW
+	id S932781AbVINVnA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 17:43:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932782AbVINVnA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 17:42:22 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:11429 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932780AbVINVmV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 17:42:21 -0400
-Message-ID: <432897BB.6040303@redhat.com>
-Date: Wed, 14 Sep 2005 17:35:55 -0400
-From: Peter Staubach <staubach@redhat.com>
-User-Agent: Mozilla Thunderbird  (X11/20050322)
+	Wed, 14 Sep 2005 17:43:00 -0400
+Received: from outmail1.freedom2surf.net ([194.106.33.237]:60556 "EHLO
+	outmail.freedom2surf.net") by vger.kernel.org with ESMTP
+	id S932781AbVINVm7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 17:42:59 -0400
+Message-ID: <43289932.7090604@f2s.com>
+Date: Wed, 14 Sep 2005 22:42:10 +0100
+From: Ian Molton <spyro@f2s.com>
+Organization: The Dragon Roost
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Eric Dumazet <dada1@cosmosbay.com>
-CC: dipankar@in.ibm.com, "David S. Miller" <davem@davemloft.net>,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org
-Subject: Re: [PATCH] reorder struct files_struct
-References: <20050914191842.GA6315@in.ibm.com>	<20050914.125750.05416211.davem@davemloft.net>	<20050914201550.GB6315@in.ibm.com> <20050914.132936.105214487.davem@davemloft.net> <43289376.7050205@cosmosbay.com>
-In-Reply-To: <43289376.7050205@cosmosbay.com>
+To: Andrew Morton <akpm@osdl.org>
+CC: Russell King <rmk+lkml@arm.linux.org.uk>, adobriyan@gmail.com,
+       domen@coderock.org, linux-kernel@vger.kernel.org, philb@gnu.org
+Subject: Re: [PATCH] Remove drivers/parport/parport_arc.c
+References: <20050914202420.GK19491@mipter.zuzino.mipt.ru>	<20050914220837.D30746@flint.arm.linux.org.uk> <20050914141631.1567758b.akpm@osdl.org>
+In-Reply-To: <20050914141631.1567758b.akpm@osdl.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Dumazet wrote:
-
-> Hi
+Andrew Morton wrote:
+> Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> 
+>>On Thu, Sep 15, 2005 at 12:24:20AM +0400, Alexey Dobriyan wrote:
+>>
+>>>From: Domen Puncer <domen@coderock.org>
+>>>
+>>>Remove nowhere referenced file (grep "parport_arc\." didn't find anything).
+>>
+>>Maybe Ian Molton might like to ensure that this is linked in to the
+>>build.
 >
-> Browsing (and using) the excellent RCU infrastructure for files that 
-> was adopted for 2.6.14-rc1, I noticed that the file_lock spinlock sit 
-> close to mostly read fields of 'struct files_struct'
->
-> In SMP (and NUMA) environnements, each time a thread wants to open or 
-> close a file, it has to acquire the spinlock, thus invalidating the 
-> cache line containing this spinlock on other CPUS. So other threads 
-> doing read()/write()/... calls that use RCU to access the file table 
-> are going to ask further memory (possibly NUMA) transactions to read 
-> again this memory line.
->
-> Please consider applying this patch. It moves the spinlock to another 
-> cache line, so that concurrent threads can share the cache line 
-> containing 'count' and 'fdt' fields. 
+> Yeah, except it's also unused in 2.4 and includes non-existent header
+> files.  Probably it's an ex-parrot but it'd be worth an attempt to get it
+> to compile before we remove it.
 
+Well unless the parport stuff changed to support ports where one cant 
+read the data latch, its still needed. It is true this hasnt ever 
+*worked* although the code looks ok (with the exception of the ECP/EPP 
+stuff thats in there).
 
-How was the performance impact of this change measured?
-
-    Thanx...
-
-       ps
+I'll see if I can find some time for a bit of arm26 TLC once I've move 
+house (could be 6 months though) as I'll actually have enough space to 
+get the machine out of its packing box again...

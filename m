@@ -1,92 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964949AbVINUg4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964840AbVINUh4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964949AbVINUg4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 16:36:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964982AbVINUg4
+	id S964840AbVINUh4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 16:37:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964980AbVINUh4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 16:36:56 -0400
-Received: from NS6.Sony.CO.JP ([137.153.0.32]:25825 "EHLO ns6.sony.co.jp")
-	by vger.kernel.org with ESMTP id S964949AbVINUgz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 16:36:55 -0400
-Message-ID: <43288964.7020307@sm.sony.co.jp>
-Date: Thu, 15 Sep 2005 05:34:44 +0900
-From: "Machida, Hiroyuki" <machida@sm.sony.co.jp>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
-X-Accept-Language: ja, en-us, en
+	Wed, 14 Sep 2005 16:37:56 -0400
+Received: from [64.162.99.240] ([64.162.99.240]:33874 "EHLO
+	spamtest2.viacore.net") by vger.kernel.org with ESMTP
+	id S964899AbVINUhz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 16:37:55 -0400
+Message-ID: <432889E3.1060800@spamtest.viacore.net>
+Date: Wed, 14 Sep 2005 13:36:51 -0700
+From: Joe Bob Spamtest <joebob@spamtest.viacore.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050909 Fedora/1.7.10-1.5.2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: hirofumi@mail.parknet.co.jp
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH 1/2][FAT] miss-sync issues on sync mount (miss-sync on write)
-Content-Type: multipart/mixed;
- boundary="------------010405060400050301050908"
+To: Alaa Dalghan <alaadalghan@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: VPN server over windows XP
+References: <BAY106-F29965CB20274069D3A5BA5AB9F0@phx.gbl>
+In-Reply-To: <BAY106-F29965CB20274069D3A5BA5AB9F0@phx.gbl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010405060400050301050908
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+Um, i hate to be a dick, but:
 
-This patch fixes miss-sync issue on write() system call.
-This updates inode attrs flags, mtime and ctime on every
-comit_write call, due to locking.
+Does this look like a windows XP mailing list to you? Call Microsoft 
+support.
 
----
-Hiroyuki Machida
+> 1- I need to set the vpn server on windows XP (not windows 2000 server, 
+> nor 2003, nor ISA server, etc.)
+> The first problem I faced is that windows xp does not support ipsec 
+> tunnel mode between 2 xp machines. It only supports transport mode which 
+> is not what I want.
+> To overcome this lack of IP tunneling I tried to use the built-in 
+> tunneling capabilities such as PPTP and L2TP/ipsec, and it worked. But 
+> the problem here is that a windows xp can not accept more than ONE 
+> SINGLE incoming connection at a time, and I need multiple connections.
 
+Sounds like your software/OS is deficient (in more ways than one).
 
---------------010405060400050301050908
-Content-Type: text/plain;
- name="fat-sync-write.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="fat-sync-write.patch"
+> I think the solution could be one of the following:
+> 
+> 1-Installing a third party FREE vpn server (or L2TP server) on windows 
+> XP. If you know one please tell me.
 
-U2lnbmVkLW9mZi1ieTogSGlyb3l1a2kgTWFjaGlkYSA8bWFjaGlkYUBzbS5zb255LmNvLmpw
-PgogLS0tCgogZmlsZS5jICB8ICAgMjAgKy0tLS0tLS0tLS0tLS0tLS0tLS0KIGlub2RlLmMg
-fCAgIDIxICsrKysrKysrKysrKysrKysrKysrLQogMiBmaWxlcyBjaGFuZ2VkLCAyMSBpbnNl
-cnRpb25zKCspLCAyMCBkZWxldGlvbnMoLSkKCgotLS0gbGludXgtMi42LjEzLm9yZy9mcy9m
-YXQvaW5vZGUuYwkyMDA1LTA4LTI5IDA4OjQxOjAxLjAwMDAwMDAwMCArMDkwMAorKysgbGlu
-dXgtMi42LjEzL2ZzL2ZhdC9pbm9kZS5jCTIwMDUtMDktMDkgMTc6MjI6NDQuMzA1MTg5MTEx
-ICswOTAwCkBAIC0xMDcsMTIgKzEwNywzMSBAQCBzdGF0aWMgc2VjdG9yX3QgX2ZhdF9ibWFw
-KHN0cnVjdCBhZGRyZXNzCiAJcmV0dXJuIGdlbmVyaWNfYmxvY2tfYm1hcChtYXBwaW5nLCBi
-bG9jaywgZmF0X2dldF9ibG9jayk7CiB9CiAKK3N0YXRpYyBpbnQgZmF0X2NvbW1pdF93cml0
-ZShzdHJ1Y3QgZmlsZSAqZmlsZSwgc3RydWN0IHBhZ2UgKnBhZ2UsCisJCXVuc2lnbmVkIGZy
-b20sIHVuc2lnbmVkIHRvKQoreworCXN0cnVjdCBpbm9kZSAqaW5vZGUgPSBwYWdlLT5tYXBw
-aW5nLT5ob3N0OworCWxvZmZfdCBwb3MgPSAoKGxvZmZfdClwYWdlLT5pbmRleCA8PCBQQUdF
-X0NBQ0hFX1NISUZUKSArIHRvOworCWJsb2NrX2NvbW1pdF93cml0ZShwYWdlLGZyb20sdG8p
-OworCS8qCisJICogTm8gbmVlZCB0byB1c2UgaV9zaXplX3JlYWQoKSBoZXJlLCB0aGUgaV9z
-aXplCisJICogY2Fubm90IGNoYW5nZSB1bmRlciB1cyBiZWNhdXNlIHdlIGhvbGQgaV9zZW0u
-CisJICovCisJaWYgKHBvcyA+IGlub2RlLT5pX3NpemUpIHsKKwkJaV9zaXplX3dyaXRlKGlu
-b2RlLCBwb3MpOworCX0KKwlpbm9kZS0+aV9tdGltZSA9IGlub2RlLT5pX2N0aW1lID0gQ1VS
-UkVOVF9USU1FX1NFQzsKKwlNU0RPU19JKGlub2RlKS0+aV9hdHRycyB8PSBBVFRSX0FSQ0g7
-CisJbWFya19pbm9kZV9kaXJ0eShpbm9kZSk7CisJcmV0dXJuIDA7Cit9CisKIHN0YXRpYyBz
-dHJ1Y3QgYWRkcmVzc19zcGFjZV9vcGVyYXRpb25zIGZhdF9hb3BzID0gewogCS5yZWFkcGFn
-ZQk9IGZhdF9yZWFkcGFnZSwKIAkud3JpdGVwYWdlCT0gZmF0X3dyaXRlcGFnZSwKIAkuc3lu
-Y19wYWdlCT0gYmxvY2tfc3luY19wYWdlLAogCS5wcmVwYXJlX3dyaXRlCT0gZmF0X3ByZXBh
-cmVfd3JpdGUsCi0JLmNvbW1pdF93cml0ZQk9IGdlbmVyaWNfY29tbWl0X3dyaXRlLAorCS5j
-b21taXRfd3JpdGUJPSBmYXRfY29tbWl0X3dyaXRlLAogCS5ibWFwCQk9IF9mYXRfYm1hcAog
-fTsKIAotLS0gbGludXgtMi42LjEzLm9yZy9mcy9mYXQvZmlsZS5jCTIwMDUtMDgtMjkgMDg6
-NDE6MDEuMDAwMDAwMDAwICswOTAwCisrKyBsaW51eC0yLjYuMTMvZnMvZmF0L2ZpbGUuYwky
-MDA1LTA5LTA4IDE3OjEzOjAzLjAwMDAwMDAwMCArMDkwMApAQCAtMTIsMjQgKzEyLDYgQEAK
-ICNpbmNsdWRlIDxsaW51eC9zbXBfbG9jay5oPgogI2luY2x1ZGUgPGxpbnV4L2J1ZmZlcl9o
-ZWFkLmg+CiAKLXN0YXRpYyBzc2l6ZV90IGZhdF9maWxlX2Fpb193cml0ZShzdHJ1Y3Qga2lv
-Y2IgKmlvY2IsIGNvbnN0IGNoYXIgX191c2VyICpidWYsCi0JCQkJICBzaXplX3QgY291bnQs
-IGxvZmZfdCBwb3MpCi17Ci0Jc3RydWN0IGlub2RlICppbm9kZSA9IGlvY2ItPmtpX2ZpbHAt
-PmZfZGVudHJ5LT5kX2lub2RlOwotCWludCByZXR2YWw7Ci0KLQlyZXR2YWwgPSBnZW5lcmlj
-X2ZpbGVfYWlvX3dyaXRlKGlvY2IsIGJ1ZiwgY291bnQsIHBvcyk7Ci0JaWYgKHJldHZhbCA+
-IDApIHsKLQkJaW5vZGUtPmlfbXRpbWUgPSBpbm9kZS0+aV9jdGltZSA9IENVUlJFTlRfVElN
-RV9TRUM7Ci0JCU1TRE9TX0koaW5vZGUpLT5pX2F0dHJzIHw9IEFUVFJfQVJDSDsKLQkJbWFy
-a19pbm9kZV9kaXJ0eShpbm9kZSk7Ci0vLwkJY2hlY2sgdGhlIGxvY2tpbmcgcnVsZXMKLS8v
-CQlpZiAoSVNfU1lOQyhpbm9kZSkpCi0vLwkJCWZhdF9zeW5jX2lub2RlKGlub2RlKTsKLQl9
-Ci0JcmV0dXJuIHJldHZhbDsKLX0KLQogc3RhdGljIHNzaXplX3QgZmF0X2ZpbGVfd3JpdGV2
-KHN0cnVjdCBmaWxlICpmaWxwLCBjb25zdCBzdHJ1Y3QgaW92ZWMgKmlvdiwKIAkJCSAgICAg
-ICB1bnNpZ25lZCBsb25nIG5yX3NlZ3MsIGxvZmZfdCAqcHBvcykKIHsKQEAgLTE1MCw3ICsx
-MzIsNyBAQCBzdHJ1Y3QgZmlsZV9vcGVyYXRpb25zIGZhdF9maWxlX29wZXJhdGlvCiAJLnJl
-YWR2CQk9IGdlbmVyaWNfZmlsZV9yZWFkdiwKIAkud3JpdGV2CQk9IGZhdF9maWxlX3dyaXRl
-diwKIAkuYWlvX3JlYWQJPSBnZW5lcmljX2ZpbGVfYWlvX3JlYWQsCi0JLmFpb193cml0ZQk9
-IGZhdF9maWxlX2Fpb193cml0ZSwKKwkuYWlvX3dyaXRlCT0gZ2VuZXJpY19maWxlX2Fpb193
-cml0ZSwKIAkubW1hcAkJPSBnZW5lcmljX2ZpbGVfbW1hcCwKIAkuaW9jdGwJCT0gZmF0X2dl
-bmVyaWNfaW9jdGwsCiAJLmZzeW5jCQk9IGZpbGVfZnN5bmMsCg==
---------------010405060400050301050908--
+I've got an idea. Stop using a playskool operating system where you need 
+something industrial-grade. Hey, this is a Linux-related mailing list: 
+Why not install some version of Linux instead?
+
+To make it short and sweet, you're using a screwdriver where you need a 
+hammer. Sure, if you beat on it enough, you *might* be able to get 
+something half-assed working, but don't start crying when it falls 
+apart. Most importantly, this discussion is *grossly* off-topic for this 
+list

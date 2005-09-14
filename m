@@ -1,35 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965180AbVINNSz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965201AbVINNUs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965180AbVINNSz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 09:18:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965202AbVINNSz
+	id S965201AbVINNUs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 09:20:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965202AbVINNUr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 09:18:55 -0400
-Received: from mail.suse.de ([195.135.220.2]:20198 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S965180AbVINNSy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 09:18:54 -0400
-Date: Wed, 14 Sep 2005 15:18:53 +0200
-From: Andi Kleen <ak@suse.de>
-To: Mikael Pettersson <mikpe@user.it.uu.se>
-Cc: ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-rc1: end_pfn undefined in amd64-agp.ko
-Message-ID: <20050914131853.GG11338@wotan.suse.de>
-References: <17192.8799.432221.729771@alkaid.it.uu.se>
+	Wed, 14 Sep 2005 09:20:47 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:39895 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S965201AbVINNUr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 09:20:47 -0400
+Date: Wed, 14 Sep 2005 09:20:45 -0400
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Joe Bob Spamtest <joebob@spamtest.viacore.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Pure 64 bootloaders
+Message-ID: <20050914132045.GS28551@csclub.uwaterloo.ca>
+References: <4325F3D5.9040109@spamtest.viacore.net> <20050912.144107.37064900.davem@davemloft.net> <4325FADB.4090804@spamtest.viacore.net> <20050912.151230.100651236.davem@davemloft.net> <43260A8D.1090508@spamtest.viacore.net> <20050913165228.GG28578@csclub.uwaterloo.ca> <432705A0.1070407@spamtest.viacore.net> <5A770DA0-A30F-45B1-A47A-2FD21714FA3C@mac.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <17192.8799.432221.729771@alkaid.it.uu.se>
+In-Reply-To: <5A770DA0-A30F-45B1-A47A-2FD21714FA3C@mac.com>
+User-Agent: Mutt/1.5.9i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 14, 2005 at 03:15:11PM +0200, Mikael Pettersson wrote:
-> Building amd64-agp as module in 2.6.14-rc1 for x86_64
-> results in an error about "end_pfn" being undefined.
-> 
-> Looks like someone did s/max_mapnr/end_pfn/ in x86_64's
-> page.h, but forgot to export end_pfn.
+On Tue, Sep 13, 2005 at 11:44:55PM -0400, Kyle Moffett wrote:
+> PowerPC was designed 64-bit from the start too!  It's just that the  
+> architecture design group also realized that there would be a demand  
+> for 32-bit CPUs, and so from the _64-bit_ system, they designed a 32- 
+> bit system whose entire instruction set would be forward-compatible  
+> to 64-bit systems when they came out.  That's why 32-bit PowerPC  
+> machine code and 64-bit PowerPC machine code are completely identical  
+> except that 64-bit CPUs also have a few opcodes to process 64-bit  
+> data and a few extra kernel-mode registers.
 
-It's already fixed.
+Hmm, so how does that fit with needing both 32 and 64bit libraries on a
+ppc system?  It seems apple forgot the 64bit part of a library recently
+in a security fix, or is that something more to do with their os than
+the cpu?
 
--Andi
+Len Sorensen

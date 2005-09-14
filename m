@@ -1,114 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932510AbVIMUjD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932280AbVIMUpX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932510AbVIMUjD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Sep 2005 16:39:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932511AbVIMUjB
+	id S932280AbVIMUpX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Sep 2005 16:45:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750823AbVIMUpX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Sep 2005 16:39:01 -0400
-Received: from spirit.analogic.com ([208.224.221.4]:36617 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP id S932489AbVIMUjA convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Sep 2005 16:39:00 -0400
+	Tue, 13 Sep 2005 16:45:23 -0400
+Received: from sls-ce5p321.hostitnow.com ([72.9.236.50]:53896 "EHLO
+	sls-ce5p321.hostitnow.com") by vger.kernel.org with ESMTP
+	id S1750820AbVIMUpW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Sep 2005 16:45:22 -0400
+From: Chris White <chriswhite@gentoo.org>
+Reply-To: chriswhite@gentoo.org
+Organization: Gentoo
+To: Margit Schubert-While <margitsw@t-online.de>
+Subject: Re: 2.6.13/14 x86 Makefile - Pentiums penalized ?
+Date: Wed, 14 Sep 2005 14:14:02 +0900
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org
+References: <5.1.0.14.2.20050913075517.0259c498@pop.t-online.de>
+In-Reply-To: <5.1.0.14.2.20050913075517.0259c498@pop.t-online.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <02e201c5b89f$a3248e80$1925a8c0@Thing>
-References: <4326CAB3.6020109@compro.net> <Pine.LNX.4.61.0509130919390.29445@chaos.analogic.com> <02e201c5b89f$a3248e80$1925a8c0@Thing>
-X-OriginalArrivalTime: 13 Sep 2005 20:38:58.0628 (UTC) FILETIME=[2ABF3040:01C5B8A3]
-Content-class: urn:content-classes:message
-Subject: Re: HZ question
-Date: Tue, 13 Sep 2005 16:38:58 -0400
-Message-ID: <Pine.LNX.4.61.0509131615450.8516@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: HZ question
-Thread-Index: AcW4oyrIEeggBklFQoqURMFiNpxRfg==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "jdow" <jdow@earthlink.net>
-Cc: "Mark Hounschell" <markh@compro.net>, <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Type: multipart/signed;
+  boundary="nextPart2245454.KkMLN6mbIZ";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200509141414.08343.chriswhite@gentoo.org>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - sls-ce5p321.hostitnow.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - gentoo.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--nextPart2245454.KkMLN6mbIZ
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-On Tue, 13 Sep 2005, jdow wrote:
-
-> From: "linux-os (Dick Johnson)" <linux-os@analogic.com>
->>
->> On Tue, 13 Sep 2005, Mark Hounschell wrote:
->>
->>> I need to know the kernels value of HZ in a userland app.
->>>
->>> getconf CLK_TCK
->>>      and
->>> hz = sysconf (_SC_CLK_TCK)
->>>
->>> both seem to return CLOCKS_PER_SEC which is defined as USER_HZ which is
->>> defined as 100.
->>>
->>> include/asm/param.h:
->>>
->>> #ifdef __KERNEL__
->>> # define HZ       1000   /* Internal kernel timer frequency */
->>> # define USER_HZ  100    /* .. some user interfaces are in "ticks" */
->>> # define CLOCKS_PER_SEC  (USER_HZ)       /* like times() */
->>> #endif
->>>
->>> Thanks in advance for any help
->>> Mark
->>
->> You are not supposed to 'tear apart' user-mode headers. In particular
->> you are not supposed to use anything in /usr/include/bits,
->> /usr/include/asm,
->> or /usr/include/linux in user-mode programs. These are not POSIX headers.
->>
->> Therefore, HZ is not something that is defined for user-mode programs.
->> the ANSI spec requires that things like clock() return a value that
->> can be divided by CLOCKS_PER_SEC to get CPU time. Nothing in user-mode
->> uses HZ.  That's the reason why later versions of the kernel are
->> able to use dynamic HZ.
+On Tuesday 13 September 2005 15:04, Margit Schubert-While wrote:
+> In arch/i386/makefile we have :
+> cflags-$(CONFIG_MPENTIUMII) =A0 =A0 +=3D -march=3Di686 $(call
+> cc-option,-mtune=3Dpentium2)
+> cflags-$(CONFIG_MPENTIUMIII) =A0 =A0+=3D -march=3Di686 $(call
+> cc-option,-mtune=3Dpentium3)
+> cflags-$(CONFIG_MPENTIUMM) =A0 =A0 =A0+=3D -march=3Di686 $(call
+> cc-option,-mtune=3Dpentium3)
+> cflags-$(CONFIG_MPENTIUM4) =A0 =A0 =A0+=3D -march=3Di686 $(call
+> cc-option,-mtune=3Dpentium4)
 >
-> That means Linux is not a suitable operating system for multimedia
-> applications.
-> MIDI needs to schedule in 1 ms or smaller increments. The userland
-> application
-> should be able to set this. It should be able to determine this. If it
-> cannot
-> then it is useless. (It also explains why MIDI based applications are so
-> absolutely dreadful on Linux.)
->
-> {^_^}   Joanne Dow said that.
->
->
+> According to the gcc 3.x doc, the -mtune is not avaliable for i686
+> and, indeed, with 3.3.5 no -mtune is generated/used (make V=3D1).
 
-Well no. MIDI stuff has drivers that interface with precision timers
-in your audio board such as Creative Labs Soundblaster. They have
-a serial connection that, with a simple adapter becomes MIDI I/O.
-These boards, and even the ones built into motherboards can (do)
-generate and receive precision MIDI.
+That's correct, gcc 3.4 started the -mtune flag.  Chances are if you really=
+=20
+want the -mtune optimizations you're going to have to upgrade to gcc 3.4 or=
+=20
+greater.
 
-Although I use Cakewalk Home Studio for my MIDI stuff, there is
-similar software and drivers for Linux. Search on "MIDI Linux".
-In any event, the MIDI stuff could care less about the usual user-
-mode timers. That's now how MIDI works. If you intend to make some
-MIDI stuff in user-mode, not using hardware timing, your code is
-broken from the start. Note that M$ has worse timer resolution
-than Linux and the Cakewalk stuff is superb.
+> This, of course, heavily penalizes P4's (the notorious inc/dec).
 
-If there are MIDI programs that are, as you say, dreadful on
-linux, then it's because the programs suck, not because of any
-kernel timers.
+Are you referring to cpu cycle counts?  Is there certain code that causes t=
+he=20
+kernel to perform that unfavorably by a large scale?
 
+> Margit
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13 on an i686 machine (5589.53 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
-I apologize for the following. I tried to kill it with the above dot :
+Chris White
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+--nextPart2245454.KkMLN6mbIZ
+Content-Type: application/pgp-signature
 
-Thank you.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBDJ7GgFdQwWVoAgN4RAs4lAJ9Lj3Nne7U1P1Dj6MvmZH8RKGMkIgCgq2fu
+8IEoDhvlAnbQhiS9WbDY93U=
+=Eby5
+-----END PGP SIGNATURE-----
+
+--nextPart2245454.KkMLN6mbIZ--

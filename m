@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965117AbVINJeh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965116AbVINJfP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965117AbVINJeh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 05:34:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965114AbVINJeg
+	id S965116AbVINJfP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 05:35:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965118AbVINJfO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 05:34:36 -0400
-Received: from ns.firmix.at ([62.141.48.66]:36077 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S965117AbVINJeg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 05:34:36 -0400
-Subject: Re: [PATCH] use kzalloc instead of malloc+memset
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Paul Jackson <pj@sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, dtor_core@ameritech.net,
-       linux-kernel@vger.kernel.org, penberg@cs.helsinki.fi,
-       jirislaby@gmail.com, lion.vollnhals@web.de
-In-Reply-To: <20050913162851.7467b52d.pj@sgi.com>
-References: <200509130010.38483.lion.vollnhals@web.de>
-	 <43260817.7070907@gmail.com> <84144f0205091221431827b126@mail.gmail.com>
-	 <200509130033.11109.dtor_core@ameritech.net>
-	 <20050912234200.10b2abe7.akpm@osdl.org>
-	 <20050913162851.7467b52d.pj@sgi.com>
-Content-Type: text/plain
-Organization: Firmix Software GmbH
-Date: Wed, 14 Sep 2005 11:33:53 +0200
-Message-Id: <1126690433.11423.9.camel@tara.firmix.at>
+	Wed, 14 Sep 2005 05:35:14 -0400
+Received: from nproxy.gmail.com ([64.233.182.207]:28605 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965115AbVINJfM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 05:35:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=FbVPsos0diF+4pydaBrVeXB9bg36X85nczRlDv3/AfScxJvalnlBkZf8gjKI+eBP5kKm/QZ3Kjr/g/MrHRWu+bQpqzesjDTcu+f+jC8eUrN6Q1hyVfsQmD+g8rn9K3UIrwQovw8+FdL+1nV88SV1A/L/2sGYwQw8kEaIYduPw6w=
+Message-ID: <2cd57c90050914023512213c1f@mail.gmail.com>
+Date: Wed, 14 Sep 2005 17:35:11 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+Reply-To: coywolf@gmail.com
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: suggest mm-commits subjects
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <2cd57c9005091402337fee047d@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <2cd57c9005091402337fee047d@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-09-13 at 16:28 -0700, Paul Jackson wrote:
-> Andrew wrote:
-> > It hurts readability.  Quick question: is this code correct?
-> > 
-> > 	dev = kmalloc(sizeof(struct net_device), GFP_KERNEL);
+On 9/14/05, Coywolf Qi Hunt <coywolf@gmail.com> wrote:
+> Hi,
 > 
-> And it hurts maintainability.  If someone changes 'dev' so
-> that it is no longer of type 'struct net_device', then they
-                                'struct net_device *'
-> risk missing this allocation, and introducing what could be
-> a nasty memory corruption kernel bug.
+> I'd like to suggest mm-commits subjects in these forms:
+> 
+> [added] foo.patch added to -mm tree
+> [removed] foo.patch removed from -mm tree
+> 
+> or
+> 
+> [A] foo.patch added to -mm tree
+> [R] foo.patch removed from -mm tree
 
-SCNR,
-	Bernd
+or
+
+[+] foo.patch added to -mm tree
+[-] foo.patch removed from -mm tree
+
 -- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
-
+Coywolf Qi Hunt
+http://sosdg.org/~coywolf/

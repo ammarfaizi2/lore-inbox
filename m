@@ -1,39 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932749AbVINSWv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932752AbVINSX4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932749AbVINSWv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 14:22:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932750AbVINSWv
+	id S932752AbVINSX4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 14:23:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932751AbVINSX4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 14:22:51 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:10719 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S932749AbVINSWv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 14:22:51 -0400
-Date: Wed, 14 Sep 2005 22:22:24 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: jgarzik@pobox.com, linville@tuxdriver.com, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-pm@lists.osdl.org,
-       torvalds@osdl.org, akpm@osdl.org, kaos@sgi.com, greg@kroah.com,
-       rmk+lkml@arm.linux.org.uk, matthew@wil.cx, grundler@parisc-linux.org,
-       ambx1@neo.rr.com
-Subject: Re: [patch 2.6.14-rc1] pci: only call pci_restore_bars at boot
-Message-ID: <20050914222224.A22319@jurassic.park.msu.ru>
-References: <09142005095242.32027@bilbo.tuxdriver.com> <43283CDC.3070603@pobox.com> <20050914.092650.99910742.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20050914.092650.99910742.davem@davemloft.net>; from davem@davemloft.net on Wed, Sep 14, 2005 at 09:26:50AM -0700
+	Wed, 14 Sep 2005 14:23:56 -0400
+Received: from er-systems.de ([217.172.180.163]:50948 "EHLO er-systems.de")
+	by vger.kernel.org with ESMTP id S932750AbVINSX4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 14:23:56 -0400
+Date: Wed, 14 Sep 2005 20:23:58 +0200 (CEST)
+From: Thomas Voegtle <tv@lio96.de>
+To: Karel Kulhavy <clock@twibright.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB digital camera erroneously says "no medium found"
+In-Reply-To: <20050909091502.GB27699@kestrel>
+Message-ID: <Pine.LNX.4.61.0509142020500.22437@er-systems.de>
+References: <20050909091502.GB27699@kestrel>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1395022924-987365614-1126722238=:22437"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 14, 2005 at 09:26:50AM -0700, David S. Miller wrote:
-> Why in the world can a PCI device not handle it's BARs being
-> rewritten, especially if we're just rewriting the same exact
-> values it had when we probed it beforehand?
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Definitely. I wonder whether pci_resource_to_bus() works
-correctly on this platform.
+---1395022924-987365614-1126722238=:22437
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 
-Ivan.
+On Fri, 9 Sep 2005, Karel Kulhavy wrote:
+
+> Hello
+> 
+> I have Nikon Coolpix 2000 digital camera which was working well on my
+> old Linux 2.6.? machine. After moving to a different one while the old
+> one is not accessible, where the new one has Linux version 2.6.13, I
+> found it doesn't work anymore. When compact flash is inside the camera,
+> camera turned on and connected, cat /dev/sda says no media found.  cat
+> /dev/sdb, /dev/sdc, /dev/sdd say no such file or directory.
+> 
+
+I have the same camera and long time ago I found this mail:
+
+http://www.mail-archive.com/linux-usb-users@lists.sourceforge.net/msg12504.html
+
+
+This worked for me. Please try it out.
+
+
+
+      Thomas
+
+-- 
+ Thomas Vögtle    email: thomas@voegtle-clan.de
+ ----- http://www.voegtle-clan.de/thomas ------
+---1395022924-987365614-1126722238=:22437--

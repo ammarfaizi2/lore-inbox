@@ -1,51 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964806AbVINUeP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964813AbVINUfW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964806AbVINUeP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 16:34:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964813AbVINUeP
+	id S964813AbVINUfW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 16:35:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964929AbVINUfV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 16:34:15 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:13784 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964806AbVINUeO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 16:34:14 -0400
-Message-ID: <432887C8.2000607@redhat.com>
-Date: Wed, 14 Sep 2005 16:27:52 -0400
-From: Peter Staubach <staubach@redhat.com>
-User-Agent: Mozilla Thunderbird  (X11/20050322)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Assar <assar@permabit.com>
-CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] nfs client, kernel 2.4.31: readlink result overflow
-References: <78irx6wh6j.fsf@sober-counsel.permabit.com>	<200509121846.j8CIk5YE025124@turing-police.cc.vt.edu>	<784q8qrsad.fsf@sober-counsel.permabit.com>	<200509122001.j8CK1kpW028651@turing-police.cc.vt.edu>	<788xy2qas0.fsf@sober-counsel.permabit.com>	<20050913183948.GE14889@dmt.cnet>	<784q8okdfn.fsf@sober-counsel.permabit.com>	<20050913193539.GB17222@dmt.cnet>	<784q8oivp4.fsf@sober-counsel.permabit.com>	<43287221.8020602@redhat.com>	<7864t3h1xw.fsf@sober-counsel.permabit.com>	<432884CE.9060506@redhat.com> <78r7brflb0.fsf@sober-counsel.permabit.com>
-In-Reply-To: <78r7brflb0.fsf@sober-counsel.permabit.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 14 Sep 2005 16:35:21 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:37602 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S964813AbVINUfT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 16:35:19 -0400
+Subject: Re: [2.6.14-rc1] sym scsi boot hang
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Anton Blanchard <anton@samba.org>, Dipankar Sarma <dipankar@in.ibm.com>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44L0.0509141052410.5064-100000@iolanthe.rowland.org>
+References: <Pine.LNX.4.44L0.0509141052410.5064-100000@iolanthe.rowland.org>
+Content-Type: text/plain
+Date: Wed, 14 Sep 2005 16:35:13 -0400
+Message-Id: <1126730113.4825.12.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-6) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Assar wrote:
+On Wed, 2005-09-14 at 11:49 -0400, Alan Stern wrote:
+> (James, I see a possible problem with scsi_insert_special_req.  It adds to
+> the queue a request with REQ_DONTPREP set.  How can such a request, with
+> no associated scsi_cmnd, ever work?  Also, won't scsi_end_request and 
+> __scsi_release_request end up putting the same scsi_command twice?)
 
->Peter Staubach <staubach@redhat.com> writes:
->  
->
->>One other thing -- it doesn't seem particularly correct to me to just
->>silently truncate the symbolic link contents.
->>    
->>
->
->Sure, and 2.6 indeed returns ENAMETOOLONG.  I was just trying to close
->the problem and not change the functionality in 2.4.  If the consensus
->is that we should change it to return an error, I can certainly cook
->up patches for that.
->
+It's a historical anomaly which will hopefully die when we finally
+manage to get sg and st converted to the generic request infrastructure.
+Then scsi_request can be killed and this along with it.
 
-Understand.  I would recommend that the 2.4 kernel be modified to return
-an error, since we are already modifying the area anyway.
+What used to happen (as the comment implies) is that drivers would
+allocate a single request and then reuse it for multiple independent
+commands.  Since they weren't too picky about cleaning it up after each
+use, we had to reset the DONTPREP flag to ensure each new invocation was
+actually correctly prepared.
 
-    Thanx...
+James
 
-       ps
+

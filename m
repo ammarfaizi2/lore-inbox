@@ -1,48 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964903AbVINHQT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965060AbVINHVF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964903AbVINHQT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 03:16:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965076AbVINHQT
+	id S965060AbVINHVF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 03:21:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932654AbVINHVF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 03:16:19 -0400
-Received: from fsmlabs.com ([168.103.115.128]:59333 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S964903AbVINHQT (ORCPT
+	Wed, 14 Sep 2005 03:21:05 -0400
+Received: from ozlabs.org ([203.10.76.45]:38608 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S932480AbVINHVD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 03:16:19 -0400
-Date: Wed, 14 Sep 2005 00:21:51 -0700 (PDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Denis Vlasenko <vda@ilport.com.ua>
-cc: Chris White <chriswhite@gentoo.org>,
-       Margit Schubert-While <margitsw@t-online.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.13/14 x86 Makefile - Pentiums penalized ?
-In-Reply-To: <200509140959.05902.vda@ilport.com.ua>
-Message-ID: <Pine.LNX.4.61.0509140015250.13185@montezuma.fsmlabs.com>
-References: <5.1.0.14.2.20050913075517.0259c498@pop.t-online.de>
- <200509141414.08343.chriswhite@gentoo.org> <Pine.LNX.4.61.0509132345050.13185@montezuma.fsmlabs.com>
- <200509140959.05902.vda@ilport.com.ua>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 14 Sep 2005 03:21:03 -0400
+Subject: Re: [patch 9/11] net: dst_entry.refcount, use, lastuse to use
+	alloc_percpu
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: kiran@scalex86.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       dipankar@in.ibm.com, bharata@in.ibm.com, shai@scalex86.org,
+       netdev@vger.kernel.org
+In-Reply-To: <20050913.162748.86496945.davem@davemloft.net>
+References: <20050913220737.GA6249@localhost.localdomain>
+	 <20050913.151216.48124942.davem@davemloft.net>
+	 <20050913231717.GC6249@localhost.localdomain>
+	 <20050913.162748.86496945.davem@davemloft.net>
+Content-Type: text/plain
+Date: Wed, 14 Sep 2005 17:21:02 +1000
+Message-Id: <1126682462.7896.103.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Sep 2005, Denis Vlasenko wrote:
-
-> > It's documented as being suboptimal to use inc/dec due to it modifying all 
-> > of eflags resulting in dependency related stalls. add/sub only modifies 
-> > one bit of eflags so is more optimal. However there is a problem of 
+On Tue, 2005-09-13 at 16:27 -0700, David S. Miller wrote:
+> From: Ravikiran G Thirumalai <kiran@scalex86.org>
+> Date: Tue, 13 Sep 2005 16:17:17 -0700
 > 
-> ?! add/sub doesn't modify "only one bit in eflags", it modifies all.
-> In fact, it's dec/inc which does not modify all bits.
-> It doesn't touch 'carry' bit (IIRC).
+> > But even 1 Million dst cache entries would be 16+4 MB additional for
+> > a 4 cpu box....is that too much?
 > 
-> If inc/dec is slower on P4, it must be just another P4 quirk.
+> Absolutely.
+> 
+> Per-cpu counters are great for things like single instance
+> statistics et al.  But once you start doing them per-object
+> that's out of control bloat as far as I'm concerned.
 
-You're right about the add and the number of modified bits. The documented 
-part is found in the P4 optimisation manual;
+This is why my original per-cpu allocator patch was damn slow, and
+GFP_KERNEL only.  I wasn't convinced that high-churn objects are a good
+fit for spreading across cpus.
 
-"The inc and dec instructions should always be avoided. Using add
- and sub instructions instead avoids data dependence and improves
- performance."
+I thought that net devices and modules (which uses a primitive
+hard-coded "bigref" currently) were a fair uses for bigrefs, though I'd
+like to see some stats.
 
- -- 2-12 IA-32 Intel Architecture Optimization Reference Manual
+Cheers,
+Rusty.
+-- 
+A bad analogy is like a leaky screwdriver -- Richard Braakman
+

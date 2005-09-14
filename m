@@ -1,52 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932551AbVINS73@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932553AbVINTAi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932551AbVINS73 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 14:59:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932552AbVINS73
+	id S932553AbVINTAi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 15:00:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932556AbVINTAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 14:59:29 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:12940 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S932551AbVINS72
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 14:59:28 -0400
-Date: Wed, 14 Sep 2005 20:59:22 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Thomas Voegtle <tv@lio96.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: forced to CONFIG_PM=y
-Message-ID: <20050914185922.GA7516@mars.ravnborg.org>
-References: <Pine.LNX.4.61.0509142002130.22437@er-systems.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0509142002130.22437@er-systems.de>
-User-Agent: Mutt/1.5.8i
+	Wed, 14 Sep 2005 15:00:38 -0400
+Received: from wscnet.wsc.cz ([212.80.64.118]:6533 "EHLO wscnet.wsc.cz")
+	by vger.kernel.org with ESMTP id S932553AbVINTAh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 15:00:37 -0400
+Message-ID: <4328734E.2080607@gmail.com>
+Date: Wed, 14 Sep 2005 21:00:30 +0200
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: cs, en-us, en
+MIME-Version: 1.0
+To: Manu Abraham <manu@kromtek.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PCI driver
+References: <4327EE94.2040405@kromtek.com> <4327F586.3030901@gmail.com> <4327F551.6070903@kromtek.com> <4327FB6C.3070708@gmail.com> <43280F2F.2060708@gmail.com> <432815FA.5040202@gmail.com> <43281C27.1060305@kromtek.com> <43284CE6.3080302@gmail.com> <43285951.7050702@kromtek.com>
+In-Reply-To: <43285951.7050702@kromtek.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 14, 2005 at 08:16:10PM +0200, Thomas Voegtle wrote:
+Manu Abraham napsal(a):
+> Jiri Slaby wrote:
 > 
-> Hello,
+>> you do NOT do this at all, because you have pdev already (the param of 
+>> the probe function)
+>>
 > 
-> on one computer, which I wanted to switch from 2.6.13 to 2.6.14-rc1 I was
-> forced to use CONFIG_PM, look:
-> 
-> thomas@tv2:~/linux-2.6.14-rc1> zgrep CONFIG_PM /proc/config.gz 
-> # CONFIG_PM is not set
-> thomas@tv2:~/linux-2.6.14-rc1> zcat /proc/config.gz > .config 
-> thomas@tv2:~/linux-2.6.14-rc1> make oldconfig
-> ...
-> *
-> * Power management options (ACPI, APM)
-> *
-> Power Management support (PM) [Y/?] y
->   Power Management Debug Support (PM_DEBUG) [N/y/?] (NEW) 
-> 
-> 
-> I never had question if I want to have CONFIG_PM, the "y" was already 
-> there.
-Something else selected CONFIG_PM for you.
-Try to see help in menuconfig, here you can see what symbol selected
-CONFIG_PM.
+> I rewrote the entire thing like this including the pci_remove function 
+> too, but now it so seems that in the remove function, 
+> pci_get_drvdata(pdev) returns NULL, and hence i get an Oops at module 
+> removal.
+Maybe because this is badly written driver.
 
-	Sam
+> static int mantis_pci_probe(struct pci_dev *pdev, const struct 
+> pci_device_id *mantis_pci_table)
+> {
+>     struct mantis_pci *mantis;
+>     struct mantis_eeprom eeprom;
+>     u8 revision, latency;
+>     u8 data[2];   
+> 
+>     if (pci_enable_device(pdev)) {       
+>         dprintk(verbose, MANTIS_DEBUG, 1, "Found a mantis chip");
+>         if ((mantis = (struct mantis_pci *) kmalloc(sizeof (struct 
+> mantis_pci), GFP_KERNEL)) == NULL) {
+>             dprintk(verbose, MANTIS_ERROR, 1, "Out of memory");
+>             return -ENOMEM;
+>         }
+>         pci_set_master(pdev);
+>         mantis->mantis_addr = pci_resource_start(pdev, 0);
+>         if (!request_mem_region(pci_resource_start(pdev, 0),
+>             pci_resource_len(pdev, 0), DRIVER_NAME)) {
+>             kfree(mantis);
+>             return -EBUSY;
+>         }
+>         pci_read_config_byte(pdev, PCI_CLASS_REVISION, &revision);
+>         pci_read_config_byte(pdev, PCI_LATENCY_TIMER, &latency);
+>         mantis->mantis_mmio = ioremap(mantis->mantis_addr, 0x1000);
+>         pci_set_drvdata(pdev, mantis);       
+if pci_enable_device fails, you set this?? Maybe you haven't read the doc enough.
+-- 
+Jiri Slaby         www.fi.muni.cz/~xslaby
+~\-/~      jirislaby@gmail.com      ~\-/~
+241B347EC88228DE51EE A49C4A73A25004CB2A10

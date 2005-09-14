@@ -1,93 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932670AbVINTYX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932757AbVINTcF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932670AbVINTYX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 15:24:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932731AbVINTYX
+	id S932757AbVINTcF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 15:32:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932758AbVINTcF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 15:24:23 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:38569 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932670AbVINTYW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 15:24:22 -0400
-Date: Thu, 15 Sep 2005 00:48:42 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org
-Subject: Re: [PATCH]: Brown paper bag in fs/file.c?
-Message-ID: <20050914191842.GA6315@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20050914.113133.78024310.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050914.113133.78024310.davem@davemloft.net>
-User-Agent: Mutt/1.4.1i
+	Wed, 14 Sep 2005 15:32:05 -0400
+Received: from penta.pentaserver.com ([216.74.97.66]:43733 "EHLO
+	penta.pentaserver.com") by vger.kernel.org with ESMTP
+	id S932757AbVINTcD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 15:32:03 -0400
+Message-ID: <4328780E.5020305@kromtek.com>
+Date: Wed, 14 Sep 2005 23:20:46 +0400
+From: Manu Abraham <manu@kromtek.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jiri Slaby <jirislaby@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PCI driver
+References: <4327EE94.2040405@kromtek.com> <4327F586.3030901@gmail.com> <4327F551.6070903@kromtek.com> <4327FB6C.3070708@gmail.com> <43280F2F.2060708@gmail.com> <432815FA.5040202@gmail.com> <43281C27.1060305@kromtek.com> <43284CE6.3080302@gmail.com> <43285951.7050702@kromtek.com> <4328734E.2080607@gmail.com> <4328735B.70800@kromtek.com> <43287712.3040503@gmail.com>
+In-Reply-To: <43287712.3040503@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-PopBeforeSMTPSenders: manu@kromtek.com
+X-Antivirus-Scanner: Clean mail though you should still use an Antivirus
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - penta.pentaserver.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - kromtek.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 14, 2005 at 11:31:33AM -0700, David S. Miller wrote:
+Jiri Slaby wrote:
+> Manu Abraham napsal(a):
 > 
-> The bug is that free_fd_array() takes a "num" argument, but when
-> calling it from __free_fdtable() we're instead passing in the size in
-> bytes (ie. "num * sizeof(struct file *)").
-
-Yes it is a bug. I think I messed it up while merging newer
-changes with an older version where I was using size in bytes
-to optimize.
-
+>> Jiri Slaby wrote:
+>>
+>>> Manu Abraham napsal(a):
+>>>
+>>>> Jiri Slaby wrote:
+>>>>
+>>>>> you do NOT do this at all, because you have pdev already (the param 
+>>>>> of the probe function)
+>>>>>
+>>>>
+>>>> I rewrote the entire thing like this including the pci_remove 
+>>>> function too, but now it so seems that in the remove function, 
+>>>> pci_get_drvdata(pdev) returns NULL, and hence i get an Oops at 
+>>>> module removal.
+>>>
+>>>
+>>>
+>>> Maybe because this is badly written driver.
+>>
+>>
+>>
+>> I have not written the driver, but this is my first go at it ..
+>>
+>>>
+>>>> static int mantis_pci_probe(struct pci_dev *pdev, const struct 
+>>>> pci_device_id *mantis_pci_table)
+>>>> {
+>>>>     struct mantis_pci *mantis;
+>>>>     struct mantis_eeprom eeprom;
+>>>>     u8 revision, latency;
+>>>>     u8 data[2];      if (pci_enable_device(pdev)) {               
+>>>> dprintk(verbose, MANTIS_DEBUG, 1, "Found a mantis chip");
+>>>>         if ((mantis = (struct mantis_pci *) kmalloc(sizeof (struct 
+>>>> mantis_pci), GFP_KERNEL)) == NULL) {
+>>>>             dprintk(verbose, MANTIS_ERROR, 1, "Out of memory");
+>>>>             return -ENOMEM;
+>>>>         }
+>>>>         pci_set_master(pdev);
+>>>>         mantis->mantis_addr = pci_resource_start(pdev, 0);
+>>>>         if (!request_mem_region(pci_resource_start(pdev, 0),
+>>>>             pci_resource_len(pdev, 0), DRIVER_NAME)) {
+>>>>             kfree(mantis);
+>>>>             return -EBUSY;
+>>>>         }
+>>>>         pci_read_config_byte(pdev, PCI_CLASS_REVISION, &revision);
+>>>>         pci_read_config_byte(pdev, PCI_LATENCY_TIMER, &latency);
+>>>>         mantis->mantis_mmio = ioremap(mantis->mantis_addr, 0x1000);
+>>>>         pci_set_drvdata(pdev, mantis);       
+>>>
+>>>
+>>>
+>>> if pci_enable_device fails, you set this?? Maybe you haven't read the 
+>>> doc enough.
+>>
+>>
+>>
+>>
+>> I just found that, pci_enable_device() fails. So what's the way to go 
+>> ahead ?
 > 
-> How come this doesn't crash things for people?  Perhaps I'm missing
-> something.  fs/vmalloc.c should bark very loudly if we call it with a
-> non-vmalloc area address, since that is what would happen if we pass a
-> kmalloc() SLAB object address to vfree().
+> JESUS.
+
+
+What i meant is i do have to enable the device, not just exit.
+I understood that i have to exit if pci_enable_device() fails, but what 
+i am looking for is why i can't enable it in the first place.
+
+
+> int retval = 0;
 > 
-> I think I know what might be happening.  If the miscalculation means
-> that we kfree() the embedded fdarray, that would actually work just
-> fine, and free up the fdtable.  I guess if the SLAB redzone stuff were
-> enabled for these caches, it would trigger when something like this
-> happens.
-
-__free_fdtable() is used only when the fdarray/fdset are vmalloced
-(use of the workqueue) or there is a race between two expand_files().
-That might be why we haven't seen this cause any explicit problem
-so far.
-
-This would be an appropriate patch - (untested). I will update
-as soon as testing is done.
-
-Thanks
-Dipankar
+> if ((retval = pci_enable_device()))
+>     goto end;
+> 
+> ...
+> pci_set_drvdata(pdev, mantis);
+> ...
+> 
+> end:
+>     return retval;
+> 
+> not
+> if (pci_enable_device())
+>     do something
 
 
-
-Fixes the fdtable freeing in the case of vmalloced fdset/arrays.
-
-Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
---
-
-
- fs/file.c |   10 +++-------
- 1 files changed, 3 insertions(+), 7 deletions(-)
-
-diff -puN fs/file.c~files-fix-fdtable-free fs/file.c
---- linux-2.6.14-rc1-fd/fs/file.c~files-fix-fdtable-free	2005-09-15 00:36:03.000000000 +0530
-+++ linux-2.6.14-rc1-fd-dipankar/fs/file.c	2005-09-15 00:39:46.000000000 +0530
-@@ -69,13 +69,9 @@ void free_fd_array(struct file **array, 
- 
- static void __free_fdtable(struct fdtable *fdt)
- {
--	int fdset_size, fdarray_size;
--
--	fdset_size = fdt->max_fdset / 8;
--	fdarray_size = fdt->max_fds * sizeof(struct file *);
--	free_fdset(fdt->open_fds, fdset_size);
--	free_fdset(fdt->close_on_exec, fdset_size);
--	free_fd_array(fdt->fd, fdarray_size);
-+	free_fdset(fdt->open_fds, fdt->max_fdset);
-+	free_fdset(fdt->close_on_exec, fdt->max_fdset);
-+	free_fd_array(fdt->fd, fdt->max_fds);
- 	kfree(fdt);
- }
- 
-
-_
+Regards,
+Manu

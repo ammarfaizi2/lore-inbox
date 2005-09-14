@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965124AbVINJoO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965123AbVINJpe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965124AbVINJoO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 05:44:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965123AbVINJoN
+	id S965123AbVINJpe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 05:45:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965125AbVINJpe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 05:44:13 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:10205 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965124AbVINJoL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 05:44:11 -0400
-Date: Wed, 14 Sep 2005 02:43:13 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: ak@suse.de, dgc@sgi.com, bharata@in.ibm.com, tytso@mit.edu,
-       dipankar@in.ibm.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: VM balancing issues on 2.6.13: dentry cache not getting shrunk
- enough
-Message-Id: <20050914024313.1e70f2a3.akpm@osdl.org>
-In-Reply-To: <4327EA6B.6090102@colorfullife.com>
-References: <20050911105709.GA16369@thunk.org>
-	<20050913084752.GC4474@in.ibm.com>
-	<20050913215932.GA1654338@melbourne.sgi.com>
-	<200509141101.16781.ak@suse.de>
-	<4327EA6B.6090102@colorfullife.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 14 Sep 2005 05:45:34 -0400
+Received: from penta.pentaserver.com ([216.74.97.66]:36995 "EHLO
+	penta.pentaserver.com") by vger.kernel.org with ESMTP
+	id S965123AbVINJpd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 05:45:33 -0400
+Message-ID: <4327EE94.2040405@kromtek.com>
+Date: Wed, 14 Sep 2005 13:34:12 +0400
+From: Manu Abraham <manu@kromtek.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: PCI driver
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Antivirus-Scanner: Clean mail though you should still use an Antivirus
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - penta.pentaserver.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - kromtek.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Spraul <manfred@colorfullife.com> wrote:
->
-> One tricky point are directory dentries: As far as I see, they are 
->  pinned and unfreeable if a (freeable) directory entry is in the cache.
->
+Hi,
 
-Well.  That's the whole problem.
+I have been in the process of trying to write a new PCI driver. The 
+hardware is Memory Mapped IO device similar to the Fusion 878, but not 
+that complicated, but simpler
 
-I don't think it's been demonstrated that Ted's problem was caused by
-internal fragementation, btw.  Ted, could you run slabtop, see what the
-dcache occupancy is?  Monitor it as you start to manually apply pressure? 
-If the occupancy falls to 10% and not many slab pages are freed up yet then
-yup, it's internal fragmentation.
+Now that i have been trying to implement the driver using the new PCI 
+API, i feel a bit lost at the different changes gone into the PCI API. 
+So if someone could give me a brief idea how a minimal PCI probe routine 
+should consist of, that would be quite helpful.
 
-I've found that internal fragmentation due to pinned directory dentries can
-be very high if you're running silly benchmarks which create some
-regular-shaped directory tree which can easily create pathological
-patterns.  For real-world things with irregular creation and access
-patterns and irregular directory sizes the fragmentation isn't as easy to
-demonstrate.
-
-Another approach would be to do an aging round on a directory's children
-when an unfreeable dentry is encountered on the LRU.  Something like that. 
-If internal fragmentation is indeed the problem.
+Thanks,
+Manu

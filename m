@@ -1,70 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932353AbVINT5y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932565AbVINT5z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932353AbVINT5y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 15:57:54 -0400
+	id S932565AbVINT5z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 15:57:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932568AbVINT5y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 	Wed, 14 Sep 2005 15:57:54 -0400
-Received: from ext-nj2ut-2.online-age.net ([64.14.54.231]:21176 "EHLO
-	ext-nj2ut-2.online-age.net") by vger.kernel.org with ESMTP
-	id S932353AbVINT5x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:64709
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932565AbVINT5x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 14 Sep 2005 15:57:53 -0400
-Date: Wed, 14 Sep 2005 14:57:38 -0500
-From: Rich Coe <Richard.Coe@med.ge.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: linux 2.6.13.1 (and 2.6.13) missing Fusion mpt devices
-Message-ID: <20050914145738.36b57e21@godzilla>
-In-Reply-To: <20050913092251.1bb0a871@godzilla>
-References: <20050913092251.1bb0a871@godzilla>
-Organization: CSE
-X-Mailer: Sylpheed-Claws 0.9.13 (GTK+ 1.2.8; i686-pc-linux-gnu)
+Date: Wed, 14 Sep 2005 12:57:50 -0700 (PDT)
+Message-Id: <20050914.125750.05416211.davem@davemloft.net>
+To: dipankar@in.ibm.com
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org
+Subject: Re: [PATCH]: Brown paper bag in fs/file.c?
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20050914191842.GA6315@in.ibm.com>
+References: <20050914.113133.78024310.davem@davemloft.net>
+	<20050914191842.GA6315@in.ibm.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Sep 2005 09:22:51 -0500
-Rich Coe <Richard.Coe@med.ge.com> wrote:
-> Cannot boot with Fusion-mpt attached scsi
-> I think it's because of this:
-> > PCI: Cannot allocate resource region 3 of device 0000:02:05.0
-> > PCI: Cannot allocate resource region 1 of device 0000:02:05.1
-> > PCI: Cannot allocate resource region 3 of device 0000:02:05.1
-> 
-> I'm still trying to track down what the error means and how to fix it. 
-> Thanks.
-> 
+From: Dipankar Sarma <dipankar@in.ibm.com>
+Date: Thu, 15 Sep 2005 00:48:42 +0530
 
-This is due to a change in the Fusion mpt driver.
+> __free_fdtable() is used only when the fdarray/fdset are vmalloced
+> (use of the workqueue) or there is a race between two expand_files().
+> That might be why we haven't seen this cause any explicit problem
+> so far.
+> 
+> This would be an appropriate patch - (untested). I will update
+> as soon as testing is done.
 
-As found on a previous LKML entry:
-> From	"Moore, Eric Dean" <>
-> Subject	RE: can't boot 2.6.13
-> Date	Thu, 8 Sep 2005 16:51:45 -0600
-> 
-> On Thursday, September 08, 2005 3:19 PM, Mike Miller(HP) wrote:
-> > I am not able to boot the 2.6.13 version of the kernel. I've 
-> > tried different systems, tried downloading again, still 
-> > nothing. Here's the last thing I see from the serial port:
-> > 
-[ ... ]
-> > Fusion MPT base driver 3.03.02
-> > Copyright (c) 1999-2005 LSI Logic Corporation
-> > 
-> 
-> We introduced split drivers for 2.6.13.  There are new layer drivers
-> that sit ontop of mptscsih.ko.  These drivers are split along bus
-> protocal, so there is mptspi.ko, mptfc.ko, and mptsas.ko.  This is
-> to tie into the scsi transport layers that are split the same.
-> 
-> For 1030(a SPI controller)
-> If your using RedHat, you need to change mptscish to mptspi in
-> /etc/modprobe.conf.
-> If your using SuSE, you need to change mptscish to mptspi in
-> /etc/sysconfig/kernel
+Thanks.
 
--- 
-Rich Coe		richard.coe@med.ge.com
-General Electric Healthcare Technologies
-Global Software Platforms, Computer Technology Team
+I still can't figure out what causes my sparc64 bug.  Somehow a
+kmalloc() chunk of file pointers gets freed too early, the SLAB is
+shrunk due to memory pressure so the page containing that object gets
+freed, that page ends up as an anonymous page in userspace, but filp
+writes from the older usage occurs and corrupts the page.
+
+I wonder if we simply leave a stale pointer around to the older
+fd array in some case.

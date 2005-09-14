@@ -1,92 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932769AbVINUdh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964806AbVINUeP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932769AbVINUdh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 16:33:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932721AbVINUdh
+	id S964806AbVINUeP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 16:34:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964813AbVINUeP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 16:33:37 -0400
-Received: from zproxy.gmail.com ([64.233.162.203]:261 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932769AbVINUdg (ORCPT
+	Wed, 14 Sep 2005 16:34:15 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:13784 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964806AbVINUeO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 16:33:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=lYUhwcC6P5NCpkUV4wB02c+ARcIgJ9ZtOJrifLGJZsJr5HNGjPl/V6p6er9oSUz2/uzD/RMt9bjMLUSk38D9emxlDB6Ry+8lMvGgDsY1vtjxt8F8Yo82FtGZ81P5peqYsJ1oarv4cxq8w4d8V8mmKPq7OCsLqSh29a8Moc76cAk=
-Date: Thu, 15 Sep 2005 00:43:39 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Domen Puncer <domen@coderock.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] Remove include/asm-arm/hardware/linkup-l1110.h
-Message-ID: <20050914204339.GM19491@mipter.zuzino.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+	Wed, 14 Sep 2005 16:34:14 -0400
+Message-ID: <432887C8.2000607@redhat.com>
+Date: Wed, 14 Sep 2005 16:27:52 -0400
+From: Peter Staubach <staubach@redhat.com>
+User-Agent: Mozilla Thunderbird  (X11/20050322)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Assar <assar@permabit.com>
+CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] nfs client, kernel 2.4.31: readlink result overflow
+References: <78irx6wh6j.fsf@sober-counsel.permabit.com>	<200509121846.j8CIk5YE025124@turing-police.cc.vt.edu>	<784q8qrsad.fsf@sober-counsel.permabit.com>	<200509122001.j8CK1kpW028651@turing-police.cc.vt.edu>	<788xy2qas0.fsf@sober-counsel.permabit.com>	<20050913183948.GE14889@dmt.cnet>	<784q8okdfn.fsf@sober-counsel.permabit.com>	<20050913193539.GB17222@dmt.cnet>	<784q8oivp4.fsf@sober-counsel.permabit.com>	<43287221.8020602@redhat.com>	<7864t3h1xw.fsf@sober-counsel.permabit.com>	<432884CE.9060506@redhat.com> <78r7brflb0.fsf@sober-counsel.permabit.com>
+In-Reply-To: <78r7brflb0.fsf@sober-counsel.permabit.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Domen Puncer <domen@coderock.org>
+Assar wrote:
 
-Remove nowhere referenced file (grep "linkup-l1110" didn't find
-anything).
+>Peter Staubach <staubach@redhat.com> writes:
+>  
+>
+>>One other thing -- it doesn't seem particularly correct to me to just
+>>silently truncate the symbolic link contents.
+>>    
+>>
+>
+>Sure, and 2.6 indeed returns ENAMETOOLONG.  I was just trying to close
+>the problem and not change the functionality in 2.4.  If the consensus
+>is that we should change it to return an error, I can certainly cook
+>up patches for that.
+>
 
-Signed-off-by: Domen Puncer <domen@coderock.org>
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
+Understand.  I would recommend that the 2.4 kernel be modified to return
+an error, since we are already modifying the area anyway.
 
- include/asm-arm/hardware/linkup-l1110.h |   48 --------------------------------
- 1 files changed, 48 deletions(-)
+    Thanx...
 
---- a/include/asm-arm/hardware/linkup-l1110.h	2005-09-15 00:36:56.000000000 +0400
-+++ /dev/null	1970-01-01 00:00:00.000000000 +0000
-@@ -1,48 +0,0 @@
--/*
--*
--* Definitions for H3600 Handheld Computer
--*
--* Copyright 2001 Compaq Computer Corporation.
--*
--* Use consistent with the GNU GPL is permitted,
--* provided that this copyright notice is
--* preserved in its entirety in all copies and derived works.
--*
--* COMPAQ COMPUTER CORPORATION MAKES NO WARRANTIES, EXPRESSED OR IMPLIED,
--* AS TO THE USEFULNESS OR CORRECTNESS OF THIS CODE OR ITS
--* FITNESS FOR ANY PARTICULAR PURPOSE.
--*
--* Author: Jamey Hicks.
--*
--*/
--
--/* LinkUp Systems PCCard/CompactFlash Interface for SA-1100 */
--
--/* PC Card Status Register */
--#define LINKUP_PRS_S1	(1 << 0) /* voltage control bits S1-S4 */
--#define LINKUP_PRS_S2	(1 << 1)
--#define LINKUP_PRS_S3	(1 << 2)
--#define LINKUP_PRS_S4	(1 << 3)
--#define LINKUP_PRS_BVD1	(1 << 4)
--#define LINKUP_PRS_BVD2	(1 << 5)
--#define LINKUP_PRS_VS1	(1 << 6)
--#define LINKUP_PRS_VS2	(1 << 7)
--#define LINKUP_PRS_RDY	(1 << 8)
--#define LINKUP_PRS_CD1	(1 << 9)
--#define LINKUP_PRS_CD2	(1 << 10)
--
--/* PC Card Command Register */
--#define LINKUP_PRC_S1	(1 << 0)
--#define LINKUP_PRC_S2	(1 << 1)
--#define LINKUP_PRC_S3	(1 << 2)
--#define LINKUP_PRC_S4	(1 << 3)
--#define LINKUP_PRC_RESET (1 << 4)
--#define LINKUP_PRC_APOE	(1 << 5) /* Auto Power Off Enable: clears S1-S4 when either nCD goes high */
--#define LINKUP_PRC_CFE	(1 << 6) /* CompactFlash mode Enable: addresses A[10:0] only, A[25:11] high */
--#define LINKUP_PRC_SOE	(1 << 7) /* signal output driver enable */
--#define LINKUP_PRC_SSP	(1 << 8) /* sock select polarity: 0 for socket 0, 1 for socket 1 */
--#define LINKUP_PRC_MBZ	(1 << 15) /* must be zero */
--
--struct linkup_l1110 {
--	volatile short prc;
--};
-
+       ps

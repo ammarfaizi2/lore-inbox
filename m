@@ -1,77 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932742AbVINMWd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965135AbVINM2o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932742AbVINMWd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 08:22:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932741AbVINMWd
+	id S965135AbVINM2o (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 08:28:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965132AbVINM2o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 08:22:33 -0400
-Received: from wscnet.wsc.cz ([212.80.64.118]:19079 "EHLO wscnet.wsc.cz")
-	by vger.kernel.org with ESMTP id S932740AbVINMWd (ORCPT
+	Wed, 14 Sep 2005 08:28:44 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:22189 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S965071AbVINM2n (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 08:22:33 -0400
-Message-ID: <432815FA.5040202@gmail.com>
-Date: Wed, 14 Sep 2005 14:22:18 +0200
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: cs, en-us, en
+	Wed, 14 Sep 2005 08:28:43 -0400
+Message-ID: <43281775.2060207@pobox.com>
+Date: Wed, 14 Sep 2005 08:28:37 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Manu Abraham <abraham.manu@gmail.com>
-CC: Manu Abraham <manu@kromtek.com>, linux-kernel@vger.kernel.org
-Subject: Re: PCI driver
-References: <4327EE94.2040405@kromtek.com> <4327F586.3030901@gmail.com> <4327F551.6070903@kromtek.com> <4327FB6C.3070708@gmail.com> <43280F2F.2060708@gmail.com>
-In-Reply-To: <43280F2F.2060708@gmail.com>
+To: Hubert WS Lin <wslin@tw.ibm.com>
+CC: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, fubar@us.ibm.com,
+       donf@us.ibm.com, jklewis@us.ibm.com
+Subject: Re: [PATCH 2.6.13] pcnet32: set min ring size to 4
+References: <4325298D.1010600@tw.ibm.com>
+In-Reply-To: <4325298D.1010600@tw.ibm.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manu Abraham napsal(a):
-> Jiri Slaby wrote:
+Hubert WS Lin wrote:
+> Hi,
 > 
->> Manu Abraham napsal(a):
->>
->>> Jiri Slaby wrote:
->>>
->>>> Manu Abraham napsal(a):
->>>>
->>>>> Now that i have been trying to implement the driver using the new 
->>>>> PCI API, i feel a bit lost at the different changes gone into the 
->>>>> PCI API. So if someone could give me a brief idea how a minimal PCI 
->>>>> probe routine should consist of, that would be quite helpful.
->>>>
->>>>
->>>>
->>>>
->>>>
->>>> Maybe, you want to read http://lwn.net/Kernel/LDD3/, chapter 12, 
->>>> pages 311+.
->>>>
->>>
->>> I have been updating myself from LDD2 to LDD3. What i was wondering 
->>> was in what order should i be calling the functions.
->>
->>
->>
->> You won't call anything, kernel does. You only register driver.
->> struct pcitbl {venids, devids}
->>
->> struct driver ... = {probe=a, remove=b, tbl=pcitbl};
->> a() { if device from pcitbl is in the system (or has been added before 
->> some little time) this function is called}
->> b() {if the device was removed from system: modules and hotplug: never 
->> called; modules: so if modules unload; if both: if the device was 
->> removed on the fly, or module unload}
->>
->> module_init() { register_driver(driver)}
->> module_exit() { unregister_driver(driver); }
->>
+> Don Fry reminded me that the pcnet32_loopback_test() asssumes the ring 
+> size is no less than 4. The minimum ring size was changed to 4 in 
+> pcnet32_set_ringparam() to allow the loopback test to work unchanged.
 > 
-> I was wondering whether pci_enable_device() should come first or 
-> pci_dev_put() in the probe routine.
-pci_dev_put? No, it counts down reference count, so you would loose the 
-structure. You do NOT do pci_dev_put anymore with pci probing (but some very 
-very specific cases).
--- 
-Jiri Slaby         www.fi.muni.cz/~xslaby
-~\-/~      jirislaby@gmail.com      ~\-/~
-241B347EC88228DE51EE A49C4A73A25004CB2A10
+> Changelog:
+> - Set minimum ring size to 4 to allow loopback test to work unchanged
+> - Moved variable init_block to first field in struct pcnet32_private
+> 
+> Signed-off-by: Hubert WS Lin <wslin@tw.ibm.com>
+
+Patch OK, but:
+
+Applying 'pcnet32: set min ring size to 4'
+
+error: patch failed: drivers/net/pcnet32.c:22
+error: drivers/net/pcnet32.c: patch does not apply
+
+
+Please resend, without MIME attachments.
+
+	Jeff
+
+

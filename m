@@ -1,33 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965187AbVINNpa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965209AbVINNsi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965187AbVINNpa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 09:45:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965209AbVINNpa
+	id S965209AbVINNsi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 09:48:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965210AbVINNsi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 09:45:30 -0400
-Received: from ptb-relay01.plus.net ([212.159.14.212]:225 "EHLO
-	ptb-relay01.plus.net") by vger.kernel.org with ESMTP
-	id S965187AbVINNp3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 09:45:29 -0400
-Date: Wed, 14 Sep 2005 14:45:45 +0100
-From: Ash Milsted <thatistosayiseenem@gawab.com>
-To: linux-kernel@vger.kernel.org
-Subject: Voluntary Preempt blocks mount events from HAL
-Message-Id: <20050914144545.38b14abf.thatistosayiseenem@gawab.com>
-X-Mailer: Sylpheed version 2.0.0 (GTK+ 2.8.3; i686-pc-linux-gnu)
+	Wed, 14 Sep 2005 09:48:38 -0400
+Received: from mivlgu.ru ([81.18.140.87]:48585 "EHLO mail.mivlgu.ru")
+	by vger.kernel.org with ESMTP id S965209AbVINNsi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 09:48:38 -0400
+Date: Wed, 14 Sep 2005 17:48:31 +0400
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, joern@infradead.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Permanently fix kernel configuration include mess (was:
+   Missing #include <config.h>)
+Message-Id: <20050914174831.578d9f4c.vsu@altlinux.ru>
+In-Reply-To: <20050914013944.5ee4efa7.akpm@osdl.org>
+References: <20050913135622.GA30675@phoenix.infradead.org>
+	<20050913150825.A23643@flint.arm.linux.org.uk>
+	<20050913155012.C23643@flint.arm.linux.org.uk>
+	<20050914013944.5ee4efa7.akpm@osdl.org>
+X-Mailer: Sylpheed version 1.0.0beta4 (GTK+ 1.2.10; i586-alt-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Wed__14_Sep_2005_17_48_31_+0400_MA=nhylV3oBuXeyo"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi. 
-With the 2.6.14-rc1 and 2.6.13 kernels, voluntary preempt seems to
-prevent HAL from detecting changes in the mount state of any given
-volume. Changing the preempt option to None or Full fixes the problem.
+--Signature=_Wed__14_Sep_2005_17_48_31_+0400_MA=nhylV3oBuXeyo
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-I have tested this on my Athlon XP system with HAL 0.5.4. This issue
-screws up desktop environments that use HAL to test mount states.
-Anyone else seeing this?
+On Wed, 14 Sep 2005 01:39:44 -0700 Andrew Morton wrote:
 
--Ash
+> Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> >
+> >  LINUXINCLUDE    := -Iinclude \
+> >  -                   $(if $(KBUILD_SRC),-Iinclude2 -I$(srctree)/include)
+> >  +                   $(if $(KBUILD_SRC),-Iinclude2 -I$(srctree)/include) \
+> >  +		   -imacros include/linux/autoconf.h
+> 
+> This means that over time the kernel will fail to compile correctly without
+> `-imacros include/linux/autoconf.h'.
+> 
+> That's OK for the kernel, but not for out-of-tree stuff.  Those drivers
+> will need to add the new gcc commandline option too.
+
+You mean out-of-tree drivers which don't use the kernel makefiles when
+compiling for 2.6?  Are there such beasts, and do we care about them?
+
+(For 2.4 such crap was almost everywhere; for 2.6 the situation seems
+to be better.)
+
+--Signature=_Wed__14_Sep_2005_17_48_31_+0400_MA=nhylV3oBuXeyo
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFDKCoxW82GfkQfsqIRAgOnAJwNAG/BPbmBrhvXTLkB/q2vyJvLhgCeOURI
+NUAK5unVfHBuCgnrPGru/i4=
+=ac2G
+-----END PGP SIGNATURE-----
+
+--Signature=_Wed__14_Sep_2005_17_48_31_+0400_MA=nhylV3oBuXeyo--

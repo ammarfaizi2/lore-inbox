@@ -1,176 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932301AbVINTrJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932392AbVINTsz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932301AbVINTrJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 15:47:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932568AbVINTrJ
+	id S932392AbVINTsz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 15:48:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932513AbVINTsy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 15:47:09 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:29857 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932392AbVINTrH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 15:47:07 -0400
-Date: Wed, 14 Sep 2005 12:46:42 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: akpm@osdl.org, torvalds@osdl.org, Simon.Derr@bull.net,
-       linux-kernel@vger.kernel.org, nikita@clusterfs.com
-Subject: Re: [PATCH] cpuset semaphore depth check optimize
-Message-Id: <20050914124642.1b19dd73.pj@sgi.com>
-In-Reply-To: <Pine.LNX.4.61.0509141446590.3728@scrub.home>
-References: <20050912113030.15934.9433.sendpatchset@jackhammer.engr.sgi.com>
-	<20050912043943.5795d8f8.akpm@osdl.org>
-	<20050912075155.3854b6e3.pj@sgi.com>
-	<Pine.LNX.4.61.0509121821270.3743@scrub.home>
-	<20050912153135.3812d8e2.pj@sgi.com>
-	<Pine.LNX.4.61.0509131120020.3728@scrub.home>
-	<20050913103724.19ac5efa.pj@sgi.com>
-	<Pine.LNX.4.61.0509141446590.3728@scrub.home>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	Wed, 14 Sep 2005 15:48:54 -0400
+Received: from juno.lps.ele.puc-rio.br ([139.82.40.34]:12966 "EHLO
+	juno.lps.ele.puc-rio.br") by vger.kernel.org with ESMTP
+	id S932392AbVINTsy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 15:48:54 -0400
+Message-ID: <60519.200.141.106.169.1126727337.squirrel@correio.lps.ele.puc-rio.br>
+In-Reply-To: <61637.200.141.106.169.1126660632.squirrel@correio.lps.ele.puc-rio.br>
+References: <61637.200.141.106.169.1126660632.squirrel@correio.lps.ele.puc-rio.br>
+Date: Wed, 14 Sep 2005 16:48:57 -0300 (BRT)
+Subject: Re: libata sata_sil broken on 2.6.13.1
+From: izvekov@lps.ele.puc-rio.br
+To: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.3a-6.FC2
+X-Mailer: SquirrelMail/1.4.3a-6.FC2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman wrote:
-> I don't think a per-cpuset spinlock will be necessary ...
+I managed to get a serial cable. Now follows the dmesg, from where libata
+starts until it dies.
 
-Arghh.  I'm still playing 'pin the tail on the donkey' guessing games
-here, trying to guess what you think is necessary.
-
-So, if a per-cpuset spinlock isn't necessary, then are you saying that
-going from one global local to two global locks (where the second one
-might be a spinlock) might work?  Or are you saying just the current
-one global semaphore should work?  I'm guessing the former, as you can
-see from my further replies below.
-
-Could you please be a little more verbose?  Thanks.
-
-And could you answer a couple of my previous questions, on the same
-area:
-
-Question 1:
-
-    Roman: This means you have to take the second lock ...
-
-    Paul: By "second lock", did you mean what you described in your
-	  earlier message as:
-    	  > low-level lock (maybe even a spinlock) which manages the
-	  > state of an active cpuset.
-
-    [Aside - note your phrase 'manages the state of an active cpuset'.
-	It doesn't surprise me that I thought from this you had in
-	mind a per-cpuset lock, not just a second global lock.]
-
-Question 2:
-
-    Roman: There may be a subtle problem with cpuset_fork()
-
-    Paul: Hmmm ... interesting.  I will think about this some more.
-
-    Roman:
-    > The only (simple) solution I see is to do this:
-    > 
-    > 	lock();
-    > 	tsk->cpuset = current->cpuset;
-    > 	atomic_inc(&tsk->cpuset->count);
-    > 	unlock();
-
-    Paul: What "lock()" and "unlock()" is this?  Your "second lock",
-    	  aka "low-level lock (maybe even a spinlock)" ?
-
-Back to new comments ...
-
-Roman wrote:
-> The complete active condition is actually (atomic_read(&cs->count) || 
-> !list_empty(&cs->children)). These means if any child is possibly active 
-> so is the parent. 
-
-Yes - agreed.
+ata1: SATA max UDMA/100 cmd 0xF881E080 ctl 0xF881E08A bmdma 0xF881E000 irq 11
+ata2: SATA max UDMA/100 cmd 0xF881E0C0 ctl 0xF881E0CA bmdma 0xF881E008 irq 11
+ata1: dev 0 ATA, max UDMA/133, 234441648 sectors: lba48
+ata1(0): applying Seagate errata fix
+ata1: dev 0 configured for UDMA/100
+scsi0 : sata_sil
+irq 11: nobody cared (try booting with the "irqpoll" option)
+ [<c01421fa>] __report_bad_irq+0x2a/0x90
+ [<c01419c9>] handle_IRQ_event+0x39/0x70
+ [<c0142320>] note_interrupt+0xa0/0x100
+ [<c0141b28>] __do_IRQ+0x128/0x140
+ [<c010506e>] do_IRQ+0x3e/0x60
+ =======================
+ [<c01034b2>] common_interrupt+0x1a/0x20
+ [<c0122950>] __do_softirq+0x30/0x90
+ [<c0105181>] do_softirq+0x41/0x50
+ =======================
+ [<c0122a65>] irq_exit+0x35/0x40
+ [<c0105075>] do_IRQ+0x45/0x60
+ [<c01034b2>] common_interrupt+0x1a/0x20
+ [<c010f544>] delay_tsc+0x14/0x20
+ [<c039fa6f>] ata_pio_complete+0x15f/0x220
+ [<c03a02c0>] ata_pio_task+0x50/0x80
+ [<c012e2a0>] worker_thread+0x200/0x2f0
+ [<c03a0270>] ata_pio_task+0x0/0x80
+ [<c0119960>] default_wake_function+0x0/0x20
+ [<c0119960>] default_wake_function+0x0/0x20
+ [<c012e0a0>] worker_thread+0x0/0x2f0
+ [<c0132948>] kthread+0xa8/0xe0
+ [<c01328a0>] kthread+0x0/0xe0
+ [<c0101395>] kernel_thread_helper+0x5/0x10
+handlers:
+[<c03a0cc0>] (ata_interrupt+0x0/0x120)
+Disabling IRQ #11
+ata2: dev 0 ATA, max UDMA/100, 39102336 sectors:
+ata2(0): applying bridge limits
 
 
-Roman wrote:
-> Modifications in the cpuset hierarchy require the cpuset_sem and an 
-> inactive cpuset, (de)activating a cpuset requires the cpuset_sem and 
-> (let's call it) cpuset_tasklock.
+So that means the irq triggered, but there where no handlers? Also, this
+seems a non-critical fault, why whould the machine lock?
 
-Is this 'cpuset_tasklock' the same as the earlier 'second lock'
-and the 'lock()/unlock()'?  My current guess is yes - same.
+Here is lspci -vvx of the sata controller in kernel 2.6.12.6
 
-I suspect, though I haven't gotten it clear enough yet in my
-mind to be confident, that something like I guess you're describing
-would be sufficient to keep a cpuset from evaporating out from under
-us.
+0000:01:0b.0 RAID bus controller: Silicon Image, Inc. SiI 3112
+[SATALink/SATARaid] Serial ATA Controller (rev 02)
+	Subsystem: Silicon Image, Inc. SiI 3112 SATARaid Controller
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort-
+<MAbort- >SERR- <PERR-
+	Latency: 32, cache line size 08
+	Interrupt: pin A routed to IRQ 11
+	Region 0: I/O ports at 9c00 [size=8]
+	Region 1: I/O ports at a000 [size=4]
+	Region 2: I/O ports at a400 [size=8]
+	Region 3: I/O ports at a800 [size=4]
+	Region 4: I/O ports at ac00 [size=16]
+	Region 5: Memory at df001000 (32-bit, non-prefetchable) [size=512]
+	Capabilities: [60] Power Management version 2
+		Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=2 PME-
+00: 95 10 12 31 07 00 b0 02 02 00 04 01 08 20 00 00
+10: 01 9c 00 00 01 a0 00 00 01 a4 00 00 01 a8 00 00
+20: 01 ac 00 00 00 10 00 df 00 00 00 00 95 10 12 61
+30: 00 00 00 00 60 00 00 00 00 00 00 00 0b 01 00 00
 
-And from this last comment of yours, I am guessing that 'cpuset_tasklock'
-is one global lock, not per cpuset, and that the answer to my first
-question above is that you are suggesting going from one global lock
-to two global locks.
+and here is the same thing, but for kernel 2.6.13.1
+0000:01:0b.0 RAID bus controller: Silicon Image, Inc. SiI 3112
+[SATALink/SATARaid] Serial ATA Controller (rev 02)
+	Subsystem: Silicon Image, Inc. SiI 3112 SATARaid Controller
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort-
+<MAbort- >SERR- <PERR-
+	Latency: 32, cache line size 08
+	Interrupt: pin A routed to IRQ 11
+	Region 0: I/O ports at 9c00 [size=8]
+	Region 1: I/O ports at a000 [size=4]
+	Region 2: I/O ports at a400 [size=8]
+	Region 3: I/O ports at a800 [size=4]
+	Region 4: I/O ports at ac00 [size=16]
+	Region 5: Memory at df001000 (32-bit, non-prefetchable) [size=512]
+	Expansion ROM at de000000 [disabled] [size=512K]
+	Capabilities: [60] Power Management version 2
+		Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=2 PME-
+00: 95 10 12 31 07 00 b0 02 02 00 04 01 08 20 00 00
+10: 01 9c 00 00 01 a0 00 00 01 a4 00 00 01 a8 00 00
+20: 01 ac 00 00 00 10 00 df 00 00 00 00 95 10 12 61
+30: 00 00 00 00 60 00 00 00 00 00 00 00 0b 01 00 00
 
-But I don't see what, in your proposal, ensures that it is safe to
-read out the mems_allowed vector (multi-word, perhaps).  I need to
-do more than make sure cpusets don't evaporate out from under me
-at inopportune times.  I also need to freeze their values, so I
-can do non atomic reads of multiple distinct values, or of multiword
-values, out of them.  What does that?
+The only difference i can see is the presence of the line
+Expansion ROM at de000000 [disabled] [size=512K]
+in the latter.
 
-And I am also still confused as to how this second cpuset_tasklock
-works, though that might be more due to my stupidity than any lack of
-clarity in your explanations.  I'll probably need a little more
-tutorial there, before we're done.
+Now, the dmesg output for 2.6.13.1, with the pata hd disconnected,
+but the bridge connected and powered:
 
-I'm also inclined, if I see that it is within reach, to prefer a
-per-cpuset lock, rather than just global locks.  If I could get
-the locks that are required by the callbacks, such as from beneath
-__alloc_pages(), to only need per-cpuset locks, then this would reduce
-the risk that these turn into performance and scalability issues
-someday on really large systems.  I've got a nice hierarchy to the
-cpusets, so imposing the partial order on per-cpuset locks necessary
-to avoid deadlock should be easy enough.
+libata version 1.12 loaded.
+sata_sil version 0.9
+ACPI: PCI Interrupt Link [LNK3] enabled at IRQ 11
+PCI: setting IRQ 11 as level-triggered
+ACPI: PCI Interrupt 0000:01:0b.0[A] -> Link [LNK3] -> GSI 11 (level, low)
+-> IRQ 11
+ata1: SATA max UDMA/100 cmd 0xF881E080 ctl 0xF881E08A bmdma 0xF881E000 irq 11
+ata2: SATA max UDMA/100 cmd 0xF881E0C0 ctl 0xF881E0CA bmdma 0xF881E008 irq 11
+ata1: dev 0 cfg 49:2f00 82:346b 83:7d01 84:4003 85:3469 86:3c01 87:4003
+88:207f
+ata1: dev 0 ATA, max UDMA/133, 234441648 sectors: lba48
+ata1(0): applying Seagate errata fix
+ata1: dev 0 configured for UDMA/100
+scsi0 : sata_sil
+ata2 is slow to respond, please be patient
+ata2 failed to respond (30 secs)
+scsi1 : sata_sil
+  Vendor: ATA       Model: ST3120026AS       Rev: 3.18
+  Type:   Direct-Access                      ANSI SCSI revision: 05
+SCSI device sda: 234441648 512-byte hdwr sectors (120034 MB)
+SCSI device sda: drive cache: write back
+SCSI device sda: 234441648 512-byte hdwr sectors (120034 MB)
+SCSI device sda: drive cache: write back
+ sda: sda1 sda2 sda3
+Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
+Attached scsi generic sg0 at scsi0, channel 0, id 0, lun 0,  type 0
 
-
-Roman wrote [modified to reinsert some ellided code - pj]:
-> You're right, it should better look like this:
-> 
-> 	tsk->cpuset = NULL;
-> 	if (atomic_read(&cs->count) == 1 && notify_on_release(cs)) {
->                 char *pathbuf = NULL;
-> 
->                 cpuset_down(&cpuset_sem);
->                 if (atomic_dec_and_test(&cs->count))
->                         check_for_release(cs, &pathbuf);
->                 cpuset_up(&cpuset_sem);
->                 cpuset_release_agent(pathbuf);
-> 	}
-> 	atomic_dec(&cs->count);
-> 
-> This way it only may happen that two notifaction are sent.
-
-I don't think that works at all.  Consider the following sequence:
-	1) The first 'atomic_read' returns 2
-	2) [ The other task holding a reference drops out. ]
-		(so count is 1 now)
-	3) The atomic_dec() moves the count from 1 to 0.
-	4) Oops - we just missed doing a release.
-
-Your comment "This way it only may happen that two notifaction are
-sent." went whizzing right past me ...
-
-
-==> I suspect that I am actually close to understanding what you're
-    suggesting, and having an informal agreement with you on what
-    to do.
-
-    When I get to that point, I will need to put this aside for a
-    week, and spend more time on another task my manager needs.
-
-    Then I should be able to return to this, and code up a polished
-    version of what we agreed to, and present it for review.
-
-Once again, thanks for you assistance.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Nothing seems wrong here (except for Vendor "ATA" instead of Seagate,
+but that doesnt matter anyway)

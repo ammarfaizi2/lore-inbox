@@ -1,45 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750945AbVIOIKf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750944AbVIOIMR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750945AbVIOIKf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 04:10:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932081AbVIOIKf
+	id S1750944AbVIOIMR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 04:12:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751026AbVIOIMR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 04:10:35 -0400
-Received: from zproxy.gmail.com ([64.233.162.207]:56413 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750945AbVIOIKe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 04:10:34 -0400
+	Thu, 15 Sep 2005 04:12:17 -0400
+Received: from web51005.mail.yahoo.com ([206.190.38.136]:11605 "HELO
+	web51005.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S1750913AbVIOIMP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 04:12:15 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=OhxIGEi2Mr44tFYloFYSS3BXar8lhSpxLgYxNU/uKSO2HF69nCrv8UQaIiB9KOO+WnAdD9C3D744GYCxEYqN94unahVWafoJTtot76ATOSVQV1W3rNhfqbYcY6Xdj/uzDGOZsDipVN1FoaeRhp4nymuLP27vuJF3waWQ/f9kmE8=
-Date: Thu, 15 Sep 2005 12:20:50 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Separate tainted code from panic code
-Message-ID: <20050915082049.GA29266@mipter.zuzino.mipt.ru>
-References: <20050913230718.GA14867@mipter.zuzino.mipt.ru> <20050913172816.35835b66.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050913172816.35835b66.akpm@osdl.org>
-User-Agent: Mutt/1.5.8i
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=bVmst/BquEgFewhyzIO5miuxKE85d1MzhFjW+2PpkVvPp3OAHW5rN+9ge7j05NgumCRgzDRGLhP87+C9m2eHmjvZyQ/xY3Kb33U8hVtRqefzQJxEWMTSjePdryY34JIJwK3XcAgedIjjXamDQt6nHC1KEUQOWfyl7+AbtbmGfUk=  ;
+Message-ID: <20050915081214.53141.qmail@web51005.mail.yahoo.com>
+Date: Thu, 15 Sep 2005 01:12:14 -0700 (PDT)
+From: Ahmad Reza Cheraghi <a_r_cheraghi@yahoo.com>
+Subject: Re: Automatic Configuration of a Kernel
+To: Lee Revell <rlrevell@joe-job.com>, Daniel Thaler <thalerd@in.tum.de>
+Cc: David Lang <dlang@digitalinsight.com>, Hua Zhong <hzhong@gmail.com>,
+       marekw1977@yahoo.com.au, linux-kernel@vger.kernel.org
+In-Reply-To: <1126757808.13893.125.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 13, 2005 at 05:28:16PM -0700, Andrew Morton wrote:
-> Alexey Dobriyan <adobriyan@gmail.com> wrote:
-> > * Create kernel/tainted.c and include/linux/tainted.h
-> >  * Move all tainted-related stuff from kernel/panic.c and
-> >    include/linux/kernel.h there.
-> >  * #include <linux/tainted.h> where needed.
-> >  * Switch #include <linux/kernel.h> to #include <linux/tainted.h> in
-> >    kernel/module.c and mm/page_alloc.c . Said includes were added during
-> >    add_taint() propagation and tainted stuff was in kernel.h back then.
+
+
+--- Lee Revell <rlrevell@joe-job.com> wrote:
+
+> On Thu, 2005-09-15 at 05:37 +0200, Daniel Thaler
+> wrote:
+> > Lee Revell wrote:
+> > > Why does this have to be in the kernel again? 
+> Isn't this exactly what
+> > > you get with a fully modular config and hotplug?
+> > 
+> > It doesn't go in the kernel. If I understand
+> correctly, it's a script that is 
+> > invoked by 'make autoconfig'. Note that I didn't
+> read the patch, because it's a 
+> > .tgz on a website and I couldn't be bothered to
+> download it.
 > 
-> Why?  What reason is there for making these changes?
+> Oh, sorry.  Then read that as "what's the point"?
+> 
+> Lee
+> 
+It does go in the Kernel. The files are all kept in
+the directory <KERNEL>/scripts/kconfig/.
+And I changed a little bit the Makefile and the conf.c
+in the <KERNEl>/scrips/kconfig. 
 
-Most tainted users are in arch/$ARCH/kernel/. The rest including
-kernel.h don't want tainted stuff. And kernel.h is used often.
 
+
+
+		
+__________________________________ 
+Yahoo! Mail - PC Magazine Editors' Choice 2005 
+http://mail.yahoo.com

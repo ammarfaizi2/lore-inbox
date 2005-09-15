@@ -1,173 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030477AbVIOO7A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030481AbVIOPAL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030477AbVIOO7A (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 10:59:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030480AbVIOO67
+	id S1030481AbVIOPAL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 11:00:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030488AbVIOPAK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 10:58:59 -0400
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:50706 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1030477AbVIOO67
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 10:58:59 -0400
-To: David Lang <david.lang@digitalinsight.com>
-Cc: Lee Revell <rlrevell@joe-job.com>, Hua Zhong <hzhong@gmail.com>,
-       marekw1977@yahoo.com.au, linux-kernel@vger.kernel.org
-Subject: Re: Automatic Configuration of a Kernel
-References: <20050914223836.53814.qmail@web51011.mail.yahoo.com>
-	<6bffcb0e05091415533d563c5a@mail.gmail.com>
-	<4328B710.5080503@in.tum.de>
-	<200509151009.59981.marekw1977@yahoo.com.au>
-	<924c288305091417375fea4ec2@mail.gmail.com>
-	<Pine.LNX.4.62.0509141900280.8469@qynat.qvtvafvgr.pbz>
-	<1126753444.13893.123.camel@mindpipe>
-	<Pine.LNX.4.62.0509150313500.9384@qynat.qvtvafvgr.pbz>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: it's all fun and games, until somebody tries to edit a file.
-Date: Thu, 15 Sep 2005 15:58:38 +0100
-In-Reply-To: <Pine.LNX.4.62.0509150313500.9384@qynat.qvtvafvgr.pbz> (David
- Lang's message of "15 Sep 2005 11:30:52 +0100")
-Message-ID: <87zmqextr5.fsf@amaterasu.srvr.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 15 Sep 2005 11:00:10 -0400
+Received: from zproxy.gmail.com ([64.233.162.207]:61636 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030486AbVIOPAH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 11:00:07 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:references;
+        b=M5q4GbLwdacbADKM7LL81E3CXNRxYHWvFIKgdWr4k7YMN+Xd7mFWEDwCLnegSyFVOG46WgFEaZVi3L21/+gZHP3JQfJl9rl57UOD6jvoEuJ66YzIp8GaAANlfSXa6fJMQjv/TOPuYAloUodxRsoTdLIBc5weF9TvQwW+fsWwyrA=
+Message-ID: <355e5e5e0509150800c364c7f@mail.gmail.com>
+Date: Thu, 15 Sep 2005 11:00:04 -0400
+From: Lukasz Kosewski <lkosewsk@gmail.com>
+Reply-To: lkosewsk@gmail.com
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH 2.6.14-rc1 3/3] Add disk hotswap support to libata RESEND #3
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+In-Reply-To: <355e5e5e05091507077e4b6dfb@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_7280_5814997.1126796404201"
+References: <355e5e5e05091422117157ea45@mail.gmail.com>
+	 <355e5e5e05091507077e4b6dfb@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15 Sep 2005, David Lang yowled:
-> 5. once kmem and mem can be made read-only there is a security
-> advantage in not having kernel modules available (yes the machine can
-> be rebooted into a new kernel, but that's easier to detect then a
-> module getting loaded)
+------=_Part_7280_5814997.1126796404201
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Here, have a small patch (against 2.6.12.x, but easily forward-portable)
-that eliminates that advantage:
+RESEND #2!  Nobody should trust me with anything ever.  This ACTUALLY
+fixes the patch so it... errrm... compiles.  I really should never
+have added comments.  Or should have patched after adding comments.
 
-diff -durN linux-2.6.12.1-seal-orig/include/linux/kernel.h linux-2.6.12.1-seal/include/linux/kernel.h
---- linux-2.6.12.1-seal-orig/include/linux/kernel.h	2005-06-27 19:28:54.000000000 +0100
-+++ linux-2.6.12.1-seal/include/linux/kernel.h	2005-06-27 22:21:48.000000000 +0100
-@@ -165,6 +165,9 @@
- extern int tainted;
- extern const char *print_tainted(void);
- extern void add_taint(unsigned);
-+#ifdef CONFIG_MODULE_SEAL
-+extern int module_seal;
-+#endif
- 
- /* Values used for system_state */
- extern enum system_states {
-diff -durN linux-2.6.12.1-seal-orig/include/linux/sysctl.h linux-2.6.12.1-seal/include/linux/sysctl.h
---- linux-2.6.12.1-seal-orig/include/linux/sysctl.h	2005-06-27 19:28:57.000000000 +0100
-+++ linux-2.6.12.1-seal/include/linux/sysctl.h	2005-06-27 22:26:12.000000000 +0100
-@@ -136,6 +136,7 @@
- 	KERN_UNKNOWN_NMI_PANIC=66, /* int: unknown nmi panic flag */
- 	KERN_BOOTLOADER_TYPE=67, /* int: boot loader type */
- 	KERN_RANDOMIZE=68, /* int: randomize virtual address space */
-+	KERN_MODULE_SEAL=69,	/* int: module loading forbidden */
- };
- 
- 
-@@ -801,6 +802,8 @@
- 			 void __user *, size_t *, loff_t *);
- extern int proc_dointvec_bset(ctl_table *, int, struct file *,
- 			      void __user *, size_t *, loff_t *);
-+extern int proc_dointvec_seal(ctl_table *table, int write, struct file *filp,
-+			      void __user *buffer, size_t *lenp, loff_t *ppos);
- extern int proc_dointvec_minmax(ctl_table *, int, struct file *,
- 				void __user *, size_t *, loff_t *);
- extern int proc_dointvec_jiffies(ctl_table *, int, struct file *,
-diff -durN linux-2.6.12.1-seal-orig/init/Kconfig linux-2.6.12.1-seal/init/Kconfig
---- linux-2.6.12.1-seal-orig/init/Kconfig	2005-06-27 19:28:59.000000000 +0100
-+++ linux-2.6.12.1-seal/init/Kconfig	2005-06-27 22:21:49.000000000 +0100
-@@ -463,6 +463,16 @@
- 	  the version).  With this option, such a "srcversion" field
- 	  will be created for all modules.  If unsure, say N.
- 
-+config MODULE_SEAL
-+	bool "Module sealing support"
-+	depends on MODULES && PROC_FS
-+	help
-+	  This option provides a file /proc/sys/kernel/module_seal,
-+	  initially containing the value 0. If it is set to a non-zero
-+	  value, all module loading and unloading will be prohibited
-+	  until the next reboot: further changes to the flag will be
-+	  ignored.
-+
- config KMOD
- 	bool "Automatic kernel module loading"
- 	depends on MODULES
-diff -durN linux-2.6.12.1-seal-orig/kernel/module.c linux-2.6.12.1-seal/kernel/module.c
---- linux-2.6.12.1-seal-orig/kernel/module.c	2005-06-27 19:28:59.000000000 +0100
-+++ linux-2.6.12.1-seal/kernel/module.c	2005-06-27 22:21:49.000000000 +0100
-@@ -49,6 +49,10 @@
- #define ARCH_SHF_SMALL 0
- #endif
- 
-+#ifdef CONFIG_MODULE_SEAL
-+int module_seal = 0;
-+#endif
-+
- /* If this is set, the section belongs in the init part of the module */
- #define INIT_OFFSET_MASK (1UL << (BITS_PER_LONG-1))
- 
-@@ -1765,6 +1769,12 @@
- 	if (!capable(CAP_SYS_MODULE))
- 		return -EPERM;
- 
-+#ifdef CONFIG_MODULE_SEAL
-+	/* Must not be sealed */
-+	if (module_seal)
-+		return -EPERM;
-+#endif
-+
- 	/* Only one module load at a time, please */
- 	if (down_interruptible(&module_mutex) != 0)
- 		return -EINTR;
-diff -durN linux-2.6.12.1-seal-orig/kernel/sysctl.c linux-2.6.12.1-seal/kernel/sysctl.c
---- linux-2.6.12.1-seal-orig/kernel/sysctl.c	2005-06-27 19:29:00.000000000 +0100
-+++ linux-2.6.12.1-seal/kernel/sysctl.c	2005-06-27 22:21:49.000000000 +0100
-@@ -589,6 +589,16 @@
- 		.mode		= 0644,
- 		.proc_handler	= &proc_dointvec,
- 	},
-+#ifdef CONFIG_MODULE_SEAL
-+        {
-+		.ctl_name	= KERN_MODULE_SEAL,
-+		.procname	= "module_seal",
-+		.data		= &module_seal,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0600,
-+		.proc_handler	= &proc_dointvec_seal,
-+	},
-+#endif
- 	{
- 		.ctl_name	= KERN_PRINTK_RATELIMIT,
- 		.procname	= "printk_ratelimit",
-@@ -1663,6 +1673,22 @@
- 				do_proc_dointvec_bset_conv,&op);
- }
- 
-+#ifdef CONFIG_MODULE_SEAL
-+/*
-+ *	You can't change the seal unless it's zero.
-+ */
-+
-+int proc_dointvec_seal(ctl_table *table, int write, struct file *filp,
-+		       void __user *buffer, size_t *lenp, loff_t *ppos)
-+{
-+	if (module_seal != 0) {
-+		return -EPERM;
-+	}
-+
-+	return do_proc_dointvec(table,write,filp,buffer,lenp,ppos,NULL,NULL);
-+}
-+#endif
-+
- struct do_proc_dointvec_minmax_conv_param {
- 	int *min;
- 	int *max;
+Luke Kosewski
 
+On 9/15/05, Lukasz Kosewski <lkosewsk@gmail.com> wrote:
+> On 9/15/05, Lukasz Kosewski <lkosewsk@gmail.com> wrote:
+> > Patch 3/3 for libata hotswapping.  The sata_promise driver caught red
+> > handed using the new hotswapping API.  Depends on patches 1 and 2.
+> > More comments in patch header.
+> >
+> > Luke Kosewski
+>=20
+> RESEND!  Pulled out the broken comment.  Thanks to Robin Johnson for
+> pointing this out.
+>=20
+> Luke Kosewski
+>=20
+>=20
+>
 
--- 
-`One cannot, after all, be expected to read every single word
- of a book whose author one wishes to insult.' --- Richard Dawkins
+------=_Part_7280_5814997.1126796404201
+Content-Type: text/x-patch; name="03-promise_hotswap_support-2.6.14-rc1-FIXED-2.diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="03-promise_hotswap_support-2.6.14-rc1-FIXED-2.diff"
+
+MTUuMDkuMDUgICAgTHVrZSBLb3Nld3NraSAgIDxsa29zZXdza0BuaXQuY2E+CgoJKiBBIHBhdGNo
+IHRvIHNhdGFfcHJvbWlzZS5jIChkZXBlbmRlbnQgb24gcGF0Y2hlcyAxIGFuZCAyIGluIHRoaXMK
+CSAgc2VyaWVzKSB3aGljaCBtYWtlcyBpdCB1c2UgdGhlIGhvdHN3YXAgQVBJIGluIHBhdGNoIDIu
+ICBUaGUgUHJvbWlzZQoJICBjb250cm9sbGVycyBhcmUgZmFpcmx5IHNpbXBsZSBpbiB0ZXJtcyBv
+ZiB0aGVpciBob3RwbHVnIG1lY2hhbmlzbSwKCSAgc28gbm9uZSBvZiB0aGUgZnVua3kgJ2phbml0
+b3InIGZ1bmN0aW9ucyBhcmUgdXNlZCBoZXJlLgoJICBhdGFfaG90cGx1Z19wbHVnIGlzIGNhbGxl
+ZCBvbiBhIHBsdWcgZXZlbnQsIGFuZCBhdGFfaG90cGx1Z191bnBsdWcgb24KCSAgYW4gdW5wbHVn
+LiAgU2ltcGxlLCBzaW1wbGUuCgkqIFBlbmRpbmcgc29tZSBjb25maXJtYXRpb24gYW5kIHN1Z2dl
+c3Rpb25zIGZyb20gSmltIFJhbXNheQoJICAoamltLnJhbXNheUBnbWFpbC5jb20pIHRoZSBpbnRl
+cnJ1cHQgaGFuZGxlciBtaWdodCBjaGFuZ2UgdG8gY2hlY2sgZm9yCgkgIERNQSBjb21tYW5kcyBj
+b21wbGV0aW5nIGFzIFdFTEwgYXMgaG90cGx1ZyBldmVudHMgaW4gdGhlIHNhbWUgcGFzcy4KCmRp
+ZmYgLXJwdU4gbGludXgtMi42LjE0LXJjMS9kcml2ZXJzL3Njc2kvc2F0YV9wcm9taXNlLmMgbGlu
+dXgtMi42LjE0LXJjMS1uZXcvZHJpdmVycy9zY3NpL3NhdGFfcHJvbWlzZS5jCi0tLSBsaW51eC0y
+LjYuMTQtcmMxL2RyaXZlcnMvc2NzaS9zYXRhX3Byb21pc2UuYwkyMDA1LTA5LTE0IDE5OjU3OjU0
+LjAwMDAwMDAwMCAtMDQwMAorKysgbGludXgtMi42LjE0LXJjMS1uZXcvZHJpdmVycy9zY3NpL3Nh
+dGFfcHJvbWlzZS5jCTIwMDUtMDktMTQgMjA6MTY6MDkuMDAwMDAwMDAwIC0wNDAwCkBAIC0zMzIs
+MTAgKzMzMiw0MyBAQCBzdGF0aWMgdm9pZCBwZGNfcmVzZXRfcG9ydChzdHJ1Y3QgYXRhX3BvCiAJ
+cmVhZGwobW1pbyk7CS8qIGZsdXNoICovCiB9CiAKKy8qIE1hc2sgaG90cGx1ZyBpbnRlcnJ1cHRz
+IGZvciBvbmUgY2hhbm5lbCAoYXApICovCitzdGF0aWMgaW5saW5lIHZvaWQgcGRjX2Rpc2FibGVf
+Y2hhbm5lbF9ob3RwbHVnX2ludGVycnVwdHMoc3RydWN0IGF0YV9wb3J0ICphcCkKK3sKKwlzdHJ1
+Y3QgcGRjX2hvc3RfcHJpdiAqaHAgPSBhcC0+aG9zdF9zZXQtPnByaXZhdGVfZGF0YTsKKwl2b2lk
+ICptbWlvID0gYXAtPmhvc3Rfc2V0LT5tbWlvX2Jhc2UgKyBocC0+aG90cGx1Z19vZmZzZXQgKyAy
+OworCisJdTggbWFza2ZsYWdzID0gcmVhZGIobW1pbyk7CisJbWFza2ZsYWdzIHw9ICgweDExIDw8
+ICh1OClhcC0+aGFyZF9wb3J0X25vKTsKKwl3cml0ZWIobWFza2ZsYWdzLCBtbWlvKTsKK30KKwor
+LyogQ2xlYXIgYW5kIHVubWFzayBob3RwbHVnIGludGVycnVwdHMgZm9yIG9uZSBjaGFubmVsIChh
+cCkgKi8KK3N0YXRpYyBpbmxpbmUgdm9pZCBwZGNfZW5hYmxlX2NoYW5uZWxfaG90cGx1Z19pbnRl
+cnJ1cHRzKHN0cnVjdCBhdGFfcG9ydCAqYXApCit7CisJc3RydWN0IHBkY19ob3N0X3ByaXYgKmhw
+ID0gYXAtPmhvc3Rfc2V0LT5wcml2YXRlX2RhdGE7CisJdm9pZCAqbW1pbyA9IGFwLT5ob3N0X3Nl
+dC0+bW1pb19iYXNlICsgaHAtPmhvdHBsdWdfb2Zmc2V0OworCisJLy9DbGVhciBjaGFubmVsIGhv
+dHBsdWcgaW50ZXJydXB0cworCXU4IG1hc2tmbGFncyA9IHJlYWRiKG1taW8pOworCW1hc2tmbGFn
+cyB8PSAoMHgxMSA8PCAodTgpYXAtPmhhcmRfcG9ydF9ubyk7CisJd3JpdGViKG1hc2tmbGFncywg
+bW1pbyk7CisKKwkvL1VubWFzayBjaGFubmVsIGhvdHBsdWcgaW50ZXJydXB0cworCW1hc2tmbGFn
+cyA9IHJlYWRiKG1taW8gKyAyKTsKKwltYXNrZmxhZ3MgJj0gfigweDExIDw8ICh1OClhcC0+aGFy
+ZF9wb3J0X25vKTsKKwl3cml0ZWIobWFza2ZsYWdzLCBtbWlvICsgMik7Cit9CisKIHN0YXRpYyB2
+b2lkIHBkY19zYXRhX3BoeV9yZXNldChzdHJ1Y3QgYXRhX3BvcnQgKmFwKQogewogCXBkY19yZXNl
+dF9wb3J0KGFwKTsKLQlzYXRhX3BoeV9yZXNldChhcCk7CisJaWYgKGFwLT5mbGFncyAmIEFUQV9G
+TEFHX1NBVEFfUkVTRVQpIHsKKwkJcGRjX2Rpc2FibGVfY2hhbm5lbF9ob3RwbHVnX2ludGVycnVw
+dHMoYXApOworCQlzYXRhX3BoeV9yZXNldChhcCk7CisJCXBkY19lbmFibGVfY2hhbm5lbF9ob3Rw
+bHVnX2ludGVycnVwdHMoYXApOworCX0gZWxzZQorCQlzYXRhX3BoeV9yZXNldChhcCk7CiB9CiAK
+IHN0YXRpYyB2b2lkIHBkY19wYXRhX3BoeV9yZXNldChzdHJ1Y3QgYXRhX3BvcnQgKmFwKQpAQCAt
+NDg1LDExICs1MTgsMTMgQEAgc3RhdGljIHZvaWQgcGRjX2lycV9jbGVhcihzdHJ1Y3QgYXRhX3Bv
+cgogc3RhdGljIGlycXJldHVybl90IHBkY19pbnRlcnJ1cHQgKGludCBpcnEsIHZvaWQgKmRldl9p
+bnN0YW5jZSwgc3RydWN0IHB0X3JlZ3MgKnJlZ3MpCiB7CiAJc3RydWN0IGF0YV9ob3N0X3NldCAq
+aG9zdF9zZXQgPSBkZXZfaW5zdGFuY2U7CisJc3RydWN0IHBkY19ob3N0X3ByaXYgKmhwID0gaG9z
+dF9zZXQtPnByaXZhdGVfZGF0YTsKIAlzdHJ1Y3QgYXRhX3BvcnQgKmFwOwogCXUzMiBtYXNrID0g
+MDsKIAl1bnNpZ25lZCBpbnQgaSwgdG1wOwotCXVuc2lnbmVkIGludCBoYW5kbGVkID0gMDsKKwl1
+bnNpZ25lZCBpbnQgaGFuZGxlZCA9IDAsIGhvdHBsdWdfb2Zmc2V0ID0gaHAtPmhvdHBsdWdfb2Zm
+c2V0OwogCXZvaWQgX19pb21lbSAqbW1pb19iYXNlOworCXU4IHBsdWdkYXRhLCBtYXNrZmxhZ3M7
+CiAKIAlWUFJJTlRLKCJFTlRFUlxuIik7CiAKQEAgLTUxMyw3ICs1NDgsNyBAQCBzdGF0aWMgaXJx
+cmV0dXJuX3QgcGRjX2ludGVycnVwdCAoaW50IGlyCiAJbWFzayAmPSAweGZmZmY7CQkvKiBvbmx5
+IDE2IHRhZ3MgcG9zc2libGUgKi8KIAlpZiAoIW1hc2spIHsKIAkJVlBSSU5USygiUVVJQ0sgRVhJ
+VCAzXG4iKTsKLQkJZ290byBkb25lX2lycTsKKwkJZ290byB0cnlfaG90cGx1ZzsKIAl9CiAKIAl3
+cml0ZWwobWFzaywgbW1pb19iYXNlICsgUERDX0lOVF9TRVFNQVNLKTsKQEAgLTUzMiw3ICs1Njcs
+MzYgQEAgc3RhdGljIGlycXJldHVybl90IHBkY19pbnRlcnJ1cHQgKGludCBpcgogCQl9CiAJfQog
+Ci0JVlBSSU5USygiRVhJVFxuIik7CisJaWYgKGhhbmRsZWQpIHsKKwkJVlBSSU5USygiRVhJVCA0
+XG4iKTsKKwkJZ290byBkb25lX2lycTsKKwl9CisKK3RyeV9ob3RwbHVnOgorCXBsdWdkYXRhID0g
+cmVhZGIobW1pb19iYXNlICsgaG90cGx1Z19vZmZzZXQpOworCW1hc2tmbGFncyA9IHJlYWRiKG1t
+aW9fYmFzZSArIGhvdHBsdWdfb2Zmc2V0ICsgMik7CisJcGx1Z2RhdGEgJj0gfm1hc2tmbGFnczsK
+KwlpZiAocGx1Z2RhdGEpIHsKKwkJd3JpdGViKHBsdWdkYXRhLCBtbWlvX2Jhc2UgKyBob3RwbHVn
+X29mZnNldCk7CisJCWZvciAoaSA9IDA7IGkgPCBob3N0X3NldC0+bl9wb3J0czsgKytpKSB7CisJ
+CQlhcCA9IGhvc3Rfc2V0LT5wb3J0c1tpXTsKKwkJCWlmICghKGFwLT5mbGFncyAmIEFUQV9GTEFH
+X1NBVEEpKQorCQkJCWNvbnRpbnVlOyAgLy9ObyBQQVRBIHN1cHBvcnQgaGVyZS4uLiB5ZXQKKwkJ
+CS8vIENoZWNrIHVucGx1ZyBmbGFnCisJCQlpZiAocGx1Z2RhdGEgJiAweDEpIHsKKwkJCQkvKiBE
+byBzdHVmZiByZWxhdGVkIHRvIHVucGx1Z2dpbmcgYSBkZXZpY2UgKi8KKwkJCQlhdGFfaG90cGx1
+Z191bnBsdWcoYXApOworCQkJCWhhbmRsZWQgPSAxOworCQkJfSBlbHNlIGlmICgocGx1Z2RhdGEg
+Pj4gNCkgJiAweDEpIHsgIC8vQ2hlY2sgcGx1ZyBmbGFnCisJCQkJLyogRG8gc3R1ZmYgcmVsYXRl
+ZCB0byBwbHVnZ2luZyBpbiBhIGRldmljZSAqLworCQkJCWF0YV9ob3RwbHVnX3BsdWcoYXApOwor
+CQkJCWhhbmRsZWQgPSAxOworCQkJfQorCQkJcGx1Z2RhdGEgPj49IDE7CisJCX0KKwl9CisKKwlW
+UFJJTlRLKCJFWElUIDVcbiIpOwogCiBkb25lX2lycToKIAlzcGluX3VubG9jaygmaG9zdF9zZXQt
+PmxvY2spOwpAQCAtNjMyLDkgKzY5Niw5IEBAIHN0YXRpYyB2b2lkIHBkY19ob3N0X2luaXQodW5z
+aWduZWQgaW50IGMKIAl0bXAgPSByZWFkbChtbWlvICsgaG90cGx1Z19vZmZzZXQpOwogCXdyaXRl
+bCh0bXAgfCAweGZmLCBtbWlvICsgaG90cGx1Z19vZmZzZXQpOwogCi0JLyogbWFzayBwbHVnL3Vu
+cGx1ZyBpbnRzICovCisJLyogdW5tYXNrIHBsdWcvdW5wbHVnIGludHMgKi8KIAl0bXAgPSByZWFk
+bChtbWlvICsgaG90cGx1Z19vZmZzZXQpOwotCXdyaXRlbCh0bXAgfCAweGZmMDAwMCwgbW1pbyAr
+IGhvdHBsdWdfb2Zmc2V0KTsKKwl3cml0ZWwodG1wICYgfjB4ZmYwMDAwLCBtbWlvICsgaG90cGx1
+Z19vZmZzZXQpOwogCiAJLyogcmVkdWNlIFRCRyBjbG9jayB0byAxMzMgTWh6LiAqLwogCXRtcCA9
+IHJlYWRsKG1taW8gKyBQRENfVEJHX01PREUpOwo=
+------=_Part_7280_5814997.1126796404201--

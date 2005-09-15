@@ -1,53 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965034AbVIOEMp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965260AbVIOEQv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965034AbVIOEMp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 00:12:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965257AbVIOEMp
+	id S965260AbVIOEQv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 00:16:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965261AbVIOEQv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 00:12:45 -0400
-Received: from nome.ca ([65.61.200.81]:19131 "HELO gobo.nome.ca")
-	by vger.kernel.org with SMTP id S965034AbVIOEMp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 00:12:45 -0400
-Date: Wed, 14 Sep 2005 21:13:34 -0700
-From: Mike Bell <mike@mikebell.org>
-To: Robert Love <rml@novell.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: devfs vs udev FAQ from the other side
-Message-ID: <20050915041334.GJ15017@mikebell.org>
-Mail-Followup-To: Mike Bell <mike@mikebell.org>,
-	Robert Love <rml@novell.com>, linux-kernel@vger.kernel.org
-References: <20050915005105.GD15017@mikebell.org> <1126746518.9652.60.camel@phantasy> <20050915020935.GF15017@mikebell.org> <1126754270.9652.64.camel@phantasy>
+	Thu, 15 Sep 2005 00:16:51 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:52364 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S965260AbVIOEQv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 00:16:51 -0400
+Subject: Re: Automatic Configuration of a Kernel
+From: Lee Revell <rlrevell@joe-job.com>
+To: Daniel Thaler <thalerd@in.tum.de>
+Cc: David Lang <dlang@digitalinsight.com>, Hua Zhong <hzhong@gmail.com>,
+       marekw1977@yahoo.com.au, linux-kernel@vger.kernel.org
+In-Reply-To: <4328EC72.6050507@in.tum.de>
+References: <20050914223836.53814.qmail@web51011.mail.yahoo.com>
+	 <6bffcb0e05091415533d563c5a@mail.gmail.com><4328B710.5080503@in.tum.de>
+	 <200509151009.59981.marekw1977@yahoo.com.au>
+	 <924c288305091417375fea4ec2@mail.gmail.com>
+	 <Pine.LNX.4.62.0509141900280.8469@qynat.qvtvafvgr.pbz>
+	 <1126753444.13893.123.camel@mindpipe>  <4328EC72.6050507@in.tum.de>
+Content-Type: text/plain
+Date: Thu, 15 Sep 2005 00:16:48 -0400
+Message-Id: <1126757808.13893.125.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1126754270.9652.64.camel@phantasy>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 14, 2005 at 11:17:50PM -0400, Robert Love wrote:
-> If you can survive without modernism,
+On Thu, 2005-09-15 at 05:37 +0200, Daniel Thaler wrote:
+> Lee Revell wrote:
+> > Why does this have to be in the kernel again?  Isn't this exactly what
+> > you get with a fully modular config and hotplug?
+> 
+> It doesn't go in the kernel. If I understand correctly, it's a script that is 
+> invoked by 'make autoconfig'. Note that I didn't read the patch, because it's a 
+> .tgz on a website and I couldn't be bothered to download it.
 
-Features I don't need are "modernism"? Who defines what's "modern" and
-what's merely "useless"? Some things in newer kernels are very, very
-useful. Even sysfs is useful on some of my systems. But no, I generally
-try to avoid turning on features that I'm not even going to use on a
-given system. Do you install things you're not going to use on your
-machines? Maybe two or three different SQL servers, just to be
-extra-modern? Especially when I'm paying for every megabyte of flash x1k
-or x10k, I don't want to waste it on a bunch of unused kernel->userspace
-interfaces just to prove how incredibly hip to the latest linux fads I
-am.
+Oh, sorry.  Then read that as "what's the point"?
 
-> why can't you survive without devfs?  Why do you need it?
+Lee
 
-Why can't you read any of the many threads on this subject where I
-explained this already? :)
-
-devfs's removal from the kernel isn't going to end my life, no. In fact
-it won't even stop me using linux. But it makes my job harder and more
-expensive, and as my little FAQ explains I don't feel I'm getting
-anything out of the deal (remember, udev's naming features are different
-to udev's device node creation, there's no reason you can't have one
-without the other).

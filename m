@@ -1,77 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030326AbVIOB36@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030329AbVIOBjG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030326AbVIOB36 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 21:29:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030324AbVIOB36
+	id S1030329AbVIOBjG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 21:39:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030330AbVIOBjF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 21:29:58 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:44416 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1030326AbVIOB36 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 21:29:58 -0400
-Subject: Re: HZ question
-From: Lee Revell <rlrevell@joe-job.com>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: jdow <jdow@earthlink.net>, Mark Hounschell <markh@compro.net>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0509131615450.8516@chaos.analogic.com>
-References: <4326CAB3.6020109@compro.net>
-	 <Pine.LNX.4.61.0509130919390.29445@chaos.analogic.com>
-	 <02e201c5b89f$a3248e80$1925a8c0@Thing>
-	 <Pine.LNX.4.61.0509131615450.8516@chaos.analogic.com>
-Content-Type: text/plain
-Date: Wed, 14 Sep 2005 21:29:49 -0400
-Message-Id: <1126747789.13893.118.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+	Wed, 14 Sep 2005 21:39:05 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:30895 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030329AbVIOBjE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 21:39:04 -0400
+Message-ID: <4328D0A8.90504@in.ibm.com>
+Date: Wed, 14 Sep 2005 20:38:48 -0500
+From: Sripathi Kodi <sripathik@in.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc3 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Roland McGrath <roland@redhat.com>
+CC: Al Viro <viro@ZenIV.linux.org.uk>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       patrics@interia.pl, Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH 2.6.13.1] Patch for invisible threads
+References: <20050915005552.38626180A1A@magilla.sf.frob.com>
+In-Reply-To: <20050915005552.38626180A1A@magilla.sf.frob.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-09-13 at 16:38 -0400, linux-os (Dick Johnson) wrote:
-> > That means Linux is not a suitable operating system for multimedia
-> > applications.
-> > MIDI needs to schedule in 1 ms or smaller increments. The userland
-> > application
-> > should be able to set this. It should be able to determine this. If it
-> > cannot
-> > then it is useless. (It also explains why MIDI based applications are so
-> > absolutely dreadful on Linux.)
-> >
-> > {^_^}   Joanne Dow said that.
-> >
-> >
+Roland McGrath wrote:
+>>If you don't like this idea at all, please let me know if there any other 
+>>way of solving the invisible threads problem, short of taking out 
+>>->permission() altogether from proc_task_inode_operations.
 > 
-> Well no. MIDI stuff has drivers that interface with precision timers
-> in your audio board such as Creative Labs Soundblaster. They have
-> a serial connection that, with a simple adapter becomes MIDI I/O.
-> These boards, and even the ones built into motherboards can (do)
-> generate and receive precision MIDI.
+> 
+> Have you investigated my suggestion to move __exit_fs from do_exit to
+> release_task?
 
-Um, we know how MIDI interfaces work, thanks very much.
+Roland,
 
-Yes, ideally all MIDI would use the soundcard's interval timer for
-timing.  The problem is that so many of the soundcard drivers are
-reverse engineered and we don't always know how to use it.  Currently
-only the emu10k1 and ymfpci ALSA drivers support the soudn cards
-hardware timer.  The emu10k1's interval timer was not supported at all
-until ALSA 1.0.8 or so (I added the support).  And the ALSA sequencer
-still does not use the soundcard timer by default, you have to pass
-module options.  By default we have to use itimers because it works
-everywhere.
+No, I had missed this completely. Sorry.
 
-And what if you're playing back a MIDI file from a sequencer into a
-softsynth and sending the audio out through your cheap soundcard?  No
-MIDI ports or timers available.  For example the intel8x0 doesn't have
-an interval timer at all.
+I just gave it a quick try and it seems to be working fine. I have only 
+moved __exit_fs to the top of release_task, not moved exit_namespace after 
+it. I will try to run some tests to see if this is working fine. Thanks a lot.
 
-Userspace DOES need to know the timer resolution (but as others pointed
-out you don't need to know HZ).  If HZ is 100 then the best itimers can
-do is ~10ms which is unacceptable for MIDI, so the program uses /dev/rtc
-for timing instead.
-
-If you had checked the linux-audio-dev archives before spouting off
-you'd find TONS of apps that do just this.
-
-Lee
-
+Thanks and regards,
+Sripathi.

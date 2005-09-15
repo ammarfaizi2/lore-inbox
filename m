@@ -1,1456 +1,1707 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750818AbVIOIF7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750843AbVIOIGB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750818AbVIOIF7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 04:05:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750910AbVIOIF6
+	id S1750843AbVIOIGB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 04:06:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750910AbVIOIGB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 04:05:58 -0400
-Received: from smtp112.sbc.mail.re2.yahoo.com ([68.142.229.93]:34652 "HELO
-	smtp112.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1750818AbVIOIF5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 04:06:01 -0400
+Received: from smtp111.sbc.mail.re2.yahoo.com ([68.142.229.94]:25953 "HELO
+	smtp111.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1750843AbVIOIF5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 15 Sep 2005 04:05:57 -0400
-Message-Id: <20050915070303.511611000.dtor_core@ameritech.net>
+Message-Id: <20050915070303.684452000.dtor_core@ameritech.net>
 References: <20050915070131.813650000.dtor_core@ameritech.net>
-Date: Thu, 15 Sep 2005 02:01:44 -0500
+Date: Thu, 15 Sep 2005 02:01:45 -0500
 From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: linux-kernel@vger.kernel.org
 Cc: Andrew Morton <akpm@osdl.org>, Greg KH <gregkh@suse.de>,
        Kay Sievers <kay.sievers@vrfy.org>, Vojtech Pavlik <vojtech@suse.cz>,
        Hannes Reinecke <hare@suse.de>
-Subject: [patch 13/28] drivers/input/mouse: convert to dynamic input_dev allocation
-Content-Disposition: inline; filename=input-dynalloc-mice.patch
+Subject: [patch 14/28] drivers/input/keyboard: convert to dynamic input_dev allocation
+Content-Disposition: inline; filename=input-dynalloc-keyboard.patch
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Input: convert drivers/input/mouse to dynamic input_dev allocation
+Input: convert drivers/input/keyboard to dynamic input_dev allocation
 
 This is required for input_dev sysfs integration
 
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
 
- drivers/input/mouse/alps.c         |   67 +++++++++++++------------
- drivers/input/mouse/alps.h         |    2 
- drivers/input/mouse/amimouse.c     |   51 +++++++++----------
- drivers/input/mouse/inport.c       |   96 ++++++++++++++++++-----------------
- drivers/input/mouse/lifebook.c     |   16 +++--
- drivers/input/mouse/logibm.c       |   88 ++++++++++++++++----------------
- drivers/input/mouse/logips2pp.c    |   20 ++++---
- drivers/input/mouse/maplemouse.c   |   10 +--
- drivers/input/mouse/pc110pad.c     |   70 ++++++++++++--------------
- drivers/input/mouse/psmouse-base.c |   99 +++++++++++++++++++------------------
- drivers/input/mouse/psmouse.h      |    2 
- drivers/input/mouse/rpcmouse.c     |   43 +++++++---------
- drivers/input/mouse/sermouse.c     |   84 ++++++++++++++-----------------
- drivers/input/mouse/synaptics.c    |    6 +-
- drivers/input/mouse/vsxxxaa.c      |   84 ++++++++++++++-----------------
- 15 files changed, 370 insertions(+), 368 deletions(-)
+ drivers/input/keyboard/amikbd.c     |   59 +++++------
+ drivers/input/keyboard/atkbd.c      |  188 +++++++++++++++++++-----------------
+ drivers/input/keyboard/corgikbd.c   |   74 +++++++-------
+ drivers/input/keyboard/lkkbd.c      |  126 ++++++++++++------------
+ drivers/input/keyboard/maple_keyb.c |   76 ++++++--------
+ drivers/input/keyboard/newtonkbd.c  |   83 +++++++--------
+ drivers/input/keyboard/spitzkbd.c   |   77 ++++++++------
+ drivers/input/keyboard/sunkbd.c     |  117 +++++++++++-----------
+ drivers/input/keyboard/xtkbd.c      |   82 +++++++--------
+ 9 files changed, 450 insertions(+), 432 deletions(-)
 
-Index: work/drivers/input/mouse/amimouse.c
+Index: work/drivers/input/keyboard/atkbd.c
 ===================================================================
---- work.orig/drivers/input/mouse/amimouse.c
-+++ work/drivers/input/mouse/amimouse.c
-@@ -34,10 +34,7 @@ MODULE_DESCRIPTION("Amiga mouse driver")
- MODULE_LICENSE("GPL");
+--- work.orig/drivers/input/keyboard/atkbd.c
++++ work/drivers/input/keyboard/atkbd.c
+@@ -185,12 +185,12 @@ static struct {
  
- static int amimouse_lastx, amimouse_lasty;
--static struct input_dev amimouse_dev;
--
--static char *amimouse_name = "Amiga mouse";
--static char *amimouse_phys = "amimouse/input0";
-+static struct input_dev *amimouse_dev;
+ struct atkbd {
  
- static irqreturn_t amimouse_interrupt(int irq, void *dummy, struct pt_regs *fp)
- {
-@@ -62,16 +59,16 @@ static irqreturn_t amimouse_interrupt(in
- 
- 	potgor = custom.potgor;
- 
--	input_regs(&amimouse_dev, fp);
-+	input_regs(amimouse_dev, fp);
- 
--	input_report_rel(&amimouse_dev, REL_X, dx);
--	input_report_rel(&amimouse_dev, REL_Y, dy);
-+	input_report_rel(amimouse_dev, REL_X, dx);
-+	input_report_rel(amimouse_dev, REL_Y, dy);
- 
--	input_report_key(&amimouse_dev, BTN_LEFT,   ciaa.pra & 0x40);
--	input_report_key(&amimouse_dev, BTN_MIDDLE, potgor & 0x0100);
--	input_report_key(&amimouse_dev, BTN_RIGHT,  potgor & 0x0400);
-+	input_report_key(amimouse_dev, BTN_LEFT,   ciaa.pra & 0x40);
-+	input_report_key(amimouse_dev, BTN_MIDDLE, potgor & 0x0100);
-+	input_report_key(amimouse_dev, BTN_RIGHT,  potgor & 0x0400);
- 
--	input_sync(&amimouse_dev);
-+	input_sync(amimouse_dev);
- 
- 	return IRQ_HANDLED;
- }
-@@ -103,28 +100,30 @@ static int __init amimouse_init(void)
- 	if (!MACH_IS_AMIGA || !AMIGAHW_PRESENT(AMI_MOUSE))
- 		return -ENODEV;
- 
--	amimouse_dev.evbit[0] = BIT(EV_KEY) | BIT(EV_REL);
--	amimouse_dev.relbit[0] = BIT(REL_X) | BIT(REL_Y);
--	amimouse_dev.keybit[LONG(BTN_LEFT)] = BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT);
--	amimouse_dev.open = amimouse_open;
--	amimouse_dev.close = amimouse_close;
--
--	amimouse_dev.name = amimouse_name;
--	amimouse_dev.phys = amimouse_phys;
--	amimouse_dev.id.bustype = BUS_AMIGA;
--	amimouse_dev.id.vendor = 0x0001;
--	amimouse_dev.id.product = 0x0002;
--	amimouse_dev.id.version = 0x0100;
-+	if (!(amimouse_dev = input_allocate_device()))
-+		return -ENOMEM;
-+
-+	amimouse_dev->name = "Amiga mouse";
-+	amimouse_dev->phys = "amimouse/input0";
-+	amimouse_dev->id.bustype = BUS_AMIGA;
-+	amimouse_dev->id.vendor = 0x0001;
-+	amimouse_dev->id.product = 0x0002;
-+	amimouse_dev->id.version = 0x0100;
-+
-+	amimouse_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REL);
-+	amimouse_dev->relbit[0] = BIT(REL_X) | BIT(REL_Y);
-+	amimouse_dev->keybit[LONG(BTN_LEFT)] = BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT);
-+	amimouse_dev->open = amimouse_open;
-+	amimouse_dev->close = amimouse_close;
- 
--	input_register_device(&amimouse_dev);
-+	input_register_device(amimouse_dev);
- 
--        printk(KERN_INFO "input: %s at joy0dat\n", amimouse_name);
- 	return 0;
- }
- 
- static void __exit amimouse_exit(void)
- {
--        input_unregister_device(&amimouse_dev);
-+        input_unregister_device(amimouse_dev);
- }
- 
- module_init(amimouse_init);
-Index: work/drivers/input/mouse/inport.c
-===================================================================
---- work.orig/drivers/input/mouse/inport.c
-+++ work/drivers/input/mouse/inport.c
-@@ -87,40 +87,7 @@ MODULE_PARM_DESC(irq, "IRQ number (5=def
- 
- __obsolete_setup("inport_irq=");
- 
--static irqreturn_t inport_interrupt(int irq, void *dev_id, struct pt_regs *regs);
--
--static int inport_open(struct input_dev *dev)
--{
--	if (request_irq(inport_irq, inport_interrupt, 0, "inport", NULL))
--		return -EBUSY;
--	outb(INPORT_REG_MODE, INPORT_CONTROL_PORT);
--	outb(INPORT_MODE_IRQ | INPORT_MODE_BASE, INPORT_DATA_PORT);
--
--	return 0;
--}
--
--static void inport_close(struct input_dev *dev)
--{
--	outb(INPORT_REG_MODE, INPORT_CONTROL_PORT);
--	outb(INPORT_MODE_BASE, INPORT_DATA_PORT);
--	free_irq(inport_irq, NULL);
--}
--
--static struct input_dev inport_dev = {
--	.evbit	= { BIT(EV_KEY) | BIT(EV_REL) },
--	.keybit	= { [LONG(BTN_LEFT)] = BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT) },
--	.relbit	= { BIT(REL_X) | BIT(REL_Y) },
--	.open	= inport_open,
--	.close	= inport_close,
--	.name	= INPORT_NAME,
--	.phys	= "isa023c/input0",
--	.id = {
--		.bustype = BUS_ISA,
--		.vendor  = INPORT_VENDOR,
--		.product = 0x0001,
--		.version = 0x0100,
--	},
--};
-+static struct input_dev *inport_dev;
- 
- static irqreturn_t inport_interrupt(int irq, void *dev_id, struct pt_regs *regs)
- {
-@@ -129,31 +96,48 @@ static irqreturn_t inport_interrupt(int 
- 	outb(INPORT_REG_MODE, INPORT_CONTROL_PORT);
- 	outb(INPORT_MODE_HOLD | INPORT_MODE_IRQ | INPORT_MODE_BASE, INPORT_DATA_PORT);
- 
--	input_regs(&inport_dev, regs);
-+	input_regs(inport_dev, regs);
- 
- 	outb(INPORT_REG_X, INPORT_CONTROL_PORT);
--	input_report_rel(&inport_dev, REL_X, inb(INPORT_DATA_PORT));
-+	input_report_rel(inport_dev, REL_X, inb(INPORT_DATA_PORT));
- 
- 	outb(INPORT_REG_Y, INPORT_CONTROL_PORT);
--	input_report_rel(&inport_dev, REL_Y, inb(INPORT_DATA_PORT));
-+	input_report_rel(inport_dev, REL_Y, inb(INPORT_DATA_PORT));
- 
- 	outb(INPORT_REG_BTNS, INPORT_CONTROL_PORT);
- 	buttons = inb(INPORT_DATA_PORT);
- 
--	input_report_key(&inport_dev, BTN_MIDDLE, buttons & 1);
--	input_report_key(&inport_dev, BTN_LEFT,   buttons & 2);
--	input_report_key(&inport_dev, BTN_RIGHT,  buttons & 4);
-+	input_report_key(inport_dev, BTN_MIDDLE, buttons & 1);
-+	input_report_key(inport_dev, BTN_LEFT,   buttons & 2);
-+	input_report_key(inport_dev, BTN_RIGHT,  buttons & 4);
- 
- 	outb(INPORT_REG_MODE, INPORT_CONTROL_PORT);
- 	outb(INPORT_MODE_IRQ | INPORT_MODE_BASE, INPORT_DATA_PORT);
- 
--	input_sync(&inport_dev);
-+	input_sync(inport_dev);
- 	return IRQ_HANDLED;
- }
- 
-+static int inport_open(struct input_dev *dev)
-+{
-+	if (request_irq(inport_irq, inport_interrupt, 0, "inport", NULL))
-+		return -EBUSY;
-+	outb(INPORT_REG_MODE, INPORT_CONTROL_PORT);
-+	outb(INPORT_MODE_IRQ | INPORT_MODE_BASE, INPORT_DATA_PORT);
-+
-+	return 0;
-+}
-+
-+static void inport_close(struct input_dev *dev)
-+{
-+	outb(INPORT_REG_MODE, INPORT_CONTROL_PORT);
-+	outb(INPORT_MODE_BASE, INPORT_DATA_PORT);
-+	free_irq(inport_irq, NULL);
-+}
-+
- static int __init inport_init(void)
- {
--	unsigned char a,b,c;
-+	unsigned char a, b, c;
- 
- 	if (!request_region(INPORT_BASE, INPORT_EXTENT, "inport")) {
- 		printk(KERN_ERR "inport.c: Can't allocate ports at %#x\n", INPORT_BASE);
-@@ -163,26 +147,44 @@ static int __init inport_init(void)
- 	a = inb(INPORT_SIGNATURE_PORT);
- 	b = inb(INPORT_SIGNATURE_PORT);
- 	c = inb(INPORT_SIGNATURE_PORT);
--	if (( a == b ) || ( a != c )) {
-+	if (a == b || a != c) {
- 		release_region(INPORT_BASE, INPORT_EXTENT);
- 		printk(KERN_ERR "inport.c: Didn't find InPort mouse at %#x\n", INPORT_BASE);
- 		return -ENODEV;
- 	}
- 
-+	if (!(inport_dev = input_allocate_device())) {
-+		printk(KERN_ERR "inport.c: Not enough memory for input device\n");
-+		release_region(INPORT_BASE, INPORT_EXTENT);
-+		return -ENOMEM;
-+	}
-+
-+	inport_dev->name = INPORT_NAME;
-+	inport_dev->phys = "isa023c/input0";
-+	inport_dev->id.bustype = BUS_ISA;
-+	inport_dev->id.vendor  = INPORT_VENDOR;
-+	inport_dev->id.product = 0x0001;
-+	inport_dev->id.version = 0x0100;
-+
-+	inport_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REL);
-+	inport_dev->keybit[LONG(BTN_LEFT)] = BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT);
-+	inport_dev->relbit[0] = BIT(REL_X) | BIT(REL_Y);
-+
-+	inport_dev->open  = inport_open;
-+	inport_dev->close = inport_close;
-+
- 	outb(INPORT_RESET, INPORT_CONTROL_PORT);
- 	outb(INPORT_REG_MODE, INPORT_CONTROL_PORT);
- 	outb(INPORT_MODE_BASE, INPORT_DATA_PORT);
- 
--	input_register_device(&inport_dev);
--
--	printk(KERN_INFO "input: " INPORT_NAME " at %#x irq %d\n", INPORT_BASE, inport_irq);
-+	input_register_device(inport_dev);
- 
- 	return 0;
- }
- 
- static void __exit inport_exit(void)
- {
--	input_unregister_device(&inport_dev);
-+	input_unregister_device(inport_dev);
- 	release_region(INPORT_BASE, INPORT_EXTENT);
- }
- 
-Index: work/drivers/input/mouse/logibm.c
-===================================================================
---- work.orig/drivers/input/mouse/logibm.c
-+++ work/drivers/input/mouse/logibm.c
-@@ -77,39 +77,7 @@ MODULE_PARM_DESC(irq, "IRQ number (5=def
- 
- __obsolete_setup("logibm_irq=");
- 
--static irqreturn_t logibm_interrupt(int irq, void *dev_id, struct pt_regs *regs);
--
--static int logibm_open(struct input_dev *dev)
--{
--	if (request_irq(logibm_irq, logibm_interrupt, 0, "logibm", NULL)) {
--		printk(KERN_ERR "logibm.c: Can't allocate irq %d\n", logibm_irq);
--		return -EBUSY;
--	}
--	outb(LOGIBM_ENABLE_IRQ, LOGIBM_CONTROL_PORT);
--	return 0;
--}
--
--static void logibm_close(struct input_dev *dev)
--{
--	outb(LOGIBM_DISABLE_IRQ, LOGIBM_CONTROL_PORT);
--	free_irq(logibm_irq, NULL);
--}
--
--static struct input_dev logibm_dev = {
--	.evbit	= { BIT(EV_KEY) | BIT(EV_REL) },
--	.keybit = { [LONG(BTN_LEFT)] = BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT) },
--	.relbit	= { BIT(REL_X) | BIT(REL_Y) },
--	.open	= logibm_open,
--	.close	= logibm_close,
--	.name	= "Logitech bus mouse",
--	.phys	= "isa023c/input0",
--	.id	= {
--		.bustype = BUS_ISA,
--		.vendor  = 0x0003,
--		.product = 0x0001,
--		.version = 0x0100,
--	},
--};
-+static struct input_dev *logibm_dev;
- 
- static irqreturn_t logibm_interrupt(int irq, void *dev_id, struct pt_regs *regs)
- {
-@@ -127,18 +95,34 @@ static irqreturn_t logibm_interrupt(int 
- 	dy |= (buttons & 0xf) << 4;
- 	buttons = ~buttons >> 5;
- 
--	input_regs(&logibm_dev, regs);
--	input_report_rel(&logibm_dev, REL_X, dx);
--	input_report_rel(&logibm_dev, REL_Y, dy);
--	input_report_key(&logibm_dev, BTN_RIGHT,  buttons & 1);
--	input_report_key(&logibm_dev, BTN_MIDDLE, buttons & 2);
--	input_report_key(&logibm_dev, BTN_LEFT,   buttons & 4);
--	input_sync(&logibm_dev);
-+	input_regs(logibm_dev, regs);
-+	input_report_rel(logibm_dev, REL_X, dx);
-+	input_report_rel(logibm_dev, REL_Y, dy);
-+	input_report_key(logibm_dev, BTN_RIGHT,  buttons & 1);
-+	input_report_key(logibm_dev, BTN_MIDDLE, buttons & 2);
-+	input_report_key(logibm_dev, BTN_LEFT,   buttons & 4);
-+	input_sync(logibm_dev);
- 
- 	outb(LOGIBM_ENABLE_IRQ, LOGIBM_CONTROL_PORT);
- 	return IRQ_HANDLED;
- }
- 
-+static int logibm_open(struct input_dev *dev)
-+{
-+	if (request_irq(logibm_irq, logibm_interrupt, 0, "logibm", NULL)) {
-+		printk(KERN_ERR "logibm.c: Can't allocate irq %d\n", logibm_irq);
-+		return -EBUSY;
-+	}
-+	outb(LOGIBM_ENABLE_IRQ, LOGIBM_CONTROL_PORT);
-+	return 0;
-+}
-+
-+static void logibm_close(struct input_dev *dev)
-+{
-+	outb(LOGIBM_DISABLE_IRQ, LOGIBM_CONTROL_PORT);
-+	free_irq(logibm_irq, NULL);
-+}
-+
- static int __init logibm_init(void)
- {
- 	if (!request_region(LOGIBM_BASE, LOGIBM_EXTENT, "logibm")) {
-@@ -159,16 +143,34 @@ static int __init logibm_init(void)
- 	outb(LOGIBM_DEFAULT_MODE, LOGIBM_CONFIG_PORT);
- 	outb(LOGIBM_DISABLE_IRQ, LOGIBM_CONTROL_PORT);
- 
--	input_register_device(&logibm_dev);
-+	if (!(logibm_dev = input_allocate_device())) {
-+		printk(KERN_ERR "logibm.c: Not enough memory for input device\n");
-+		release_region(LOGIBM_BASE, LOGIBM_EXTENT);
-+		return -ENOMEM;
-+	}
-+
-+	logibm_dev->name = "Logitech bus mouse";
-+	logibm_dev->phys = "isa023c/input0";
-+	logibm_dev->id.bustype = BUS_ISA;
-+	logibm_dev->id.vendor  = 0x0003;
-+	logibm_dev->id.product = 0x0001;
-+	logibm_dev->id.version = 0x0100;
-+
-+	logibm_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REL);
-+	logibm_dev->keybit[LONG(BTN_LEFT)] = BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT);
-+	logibm_dev->relbit[0] = BIT(REL_X) | BIT(REL_Y);
-+
-+	logibm_dev->open  = logibm_open;
-+	logibm_dev->close = logibm_close;
- 
--	printk(KERN_INFO "input: Logitech bus mouse at %#x irq %d\n", LOGIBM_BASE, logibm_irq);
-+	input_register_device(logibm_dev);
- 
- 	return 0;
- }
- 
- static void __exit logibm_exit(void)
- {
--	input_unregister_device(&logibm_dev);
-+	input_unregister_device(logibm_dev);
- 	release_region(LOGIBM_BASE, LOGIBM_EXTENT);
- }
- 
-Index: work/drivers/input/mouse/maplemouse.c
-===================================================================
---- work.orig/drivers/input/mouse/maplemouse.c
-+++ work/drivers/input/mouse/maplemouse.c
-@@ -41,13 +41,12 @@ static int dc_mouse_connect(struct maple
- 	unsigned long data = be32_to_cpu(dev->devinfo.function_data[0]);
- 	struct input_dev *input_dev;
- 
--	if (!(input_dev = kmalloc(sizeof(struct input_dev), GFP_KERNEL)))
--		return -1;
-+	dev->private_data = input_dev = input_allocate_device();
-+	if (!input_dev)
-+		return -ENOMEM;
- 
- 	dev->private_data = input_dev;
- 
--	memset(input_dev, 0, sizeof(struct dc_mouse));
--	init_input_dev(input_dev);
- 	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REL);
- 	input_dev->keybit[LONG(BTN_MOUSE)] = BIT(BTN_LEFT) | BIT(BTN_RIGHT) | BIT(BTN_MIDDLE);
- 	input_dev->relbit[0] = BIT(REL_X) | BIT(REL_Y) | BIT(REL_WHEEL);
-@@ -59,8 +58,6 @@ static int dc_mouse_connect(struct maple
- 
- 	maple_getcond_callback(dev, dc_mouse_callback, 1, MAPLE_FUNC_MOUSE);
- 
--	printk(KERN_INFO "input: mouse(0x%lx): %s\n", data, input_dev->name);
--
- 	return 0;
- }
- 
-@@ -70,7 +67,6 @@ static void dc_mouse_disconnect(struct m
- 	struct input_dev *input_dev = dev->private_data;
- 
- 	input_unregister_device(input_dev);
--	kfree(input_dev);
- }
- 
- 
-Index: work/drivers/input/mouse/pc110pad.c
-===================================================================
---- work.orig/drivers/input/mouse/pc110pad.c
-+++ work/drivers/input/mouse/pc110pad.c
-@@ -53,13 +53,10 @@ MODULE_LICENSE("GPL");
- static int pc110pad_irq = 10;
- static int pc110pad_io = 0x15e0;
- 
--static struct input_dev pc110pad_dev;
-+static struct input_dev *pc110pad_dev;
- static int pc110pad_data[3];
- static int pc110pad_count;
- 
--static char *pc110pad_name = "IBM PC110 TouchPad";
--static char *pc110pad_phys = "isa15e0/input0";
--
- static irqreturn_t pc110pad_interrupt(int irq, void *ptr, struct pt_regs *regs)
- {
- 	int value     = inb_p(pc110pad_io);
-@@ -74,14 +71,14 @@ static irqreturn_t pc110pad_interrupt(in
- 	if (pc110pad_count < 3)
- 		return IRQ_HANDLED;
- 
--	input_regs(&pc110pad_dev, regs);
--	input_report_key(&pc110pad_dev, BTN_TOUCH,
-+	input_regs(pc110pad_dev, regs);
-+	input_report_key(pc110pad_dev, BTN_TOUCH,
- 		pc110pad_data[0] & 0x01);
--	input_report_abs(&pc110pad_dev, ABS_X,
-+	input_report_abs(pc110pad_dev, ABS_X,
- 		pc110pad_data[1] | ((pc110pad_data[0] << 3) & 0x80) | ((pc110pad_data[0] << 1) & 0x100));
--	input_report_abs(&pc110pad_dev, ABS_Y,
-+	input_report_abs(pc110pad_dev, ABS_Y,
- 		pc110pad_data[2] | ((pc110pad_data[0] << 4) & 0x80));
--	input_sync(&pc110pad_dev);
-+	input_sync(pc110pad_dev);
- 
- 	pc110pad_count = 0;
- 	return IRQ_HANDLED;
-@@ -94,9 +91,9 @@ static void pc110pad_close(struct input_
- 
- static int pc110pad_open(struct input_dev *dev)
- {
--	pc110pad_interrupt(0,NULL,NULL);
--	pc110pad_interrupt(0,NULL,NULL);
--	pc110pad_interrupt(0,NULL,NULL);
-+	pc110pad_interrupt(0, NULL, NULL);
-+	pc110pad_interrupt(0, NULL, NULL);
-+	pc110pad_interrupt(0, NULL, NULL);
- 	outb(PC110PAD_ON, pc110pad_io + 2);
- 	pc110pad_count = 0;
- 
-@@ -127,45 +124,46 @@ static int __init pc110pad_init(void)
- 
- 	outb(PC110PAD_OFF, pc110pad_io + 2);
- 
--	if (request_irq(pc110pad_irq, pc110pad_interrupt, 0, "pc110pad", NULL))
--	{
-+	if (request_irq(pc110pad_irq, pc110pad_interrupt, 0, "pc110pad", NULL)) {
- 		release_region(pc110pad_io, 4);
- 		printk(KERN_ERR "pc110pad: Unable to get irq %d.\n", pc110pad_irq);
- 		return -EBUSY;
- 	}
- 
--        pc110pad_dev.evbit[0] = BIT(EV_KEY) | BIT(EV_ABS);
--        pc110pad_dev.absbit[0] = BIT(ABS_X) | BIT(ABS_Y);
--        pc110pad_dev.keybit[LONG(BTN_TOUCH)] = BIT(BTN_TOUCH);
--
--	pc110pad_dev.absmax[ABS_X] = 0x1ff;
--	pc110pad_dev.absmax[ABS_Y] = 0x0ff;
--
--	pc110pad_dev.open = pc110pad_open;
--        pc110pad_dev.close = pc110pad_close;
--
--	pc110pad_dev.name = pc110pad_name;
--	pc110pad_dev.phys = pc110pad_phys;
--	pc110pad_dev.id.bustype = BUS_ISA;
--	pc110pad_dev.id.vendor = 0x0003;
--	pc110pad_dev.id.product = 0x0001;
--	pc110pad_dev.id.version = 0x0100;
-+	if (!(pc110pad_dev = input_allocate_device())) {
-+		free_irq(pc110pad_irq, NULL);
-+		release_region(pc110pad_io, 4);
-+		printk(KERN_ERR "pc110pad: Not enough memory.\n");
-+		return -ENOMEM;
-+	}
-+
-+	pc110pad_dev->name = "IBM PC110 TouchPad";
-+	pc110pad_dev->phys = "isa15e0/input0";
-+	pc110pad_dev->id.bustype = BUS_ISA;
-+	pc110pad_dev->id.vendor = 0x0003;
-+	pc110pad_dev->id.product = 0x0001;
-+	pc110pad_dev->id.version = 0x0100;
-+
-+	pc110pad_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_ABS);
-+	pc110pad_dev->absbit[0] = BIT(ABS_X) | BIT(ABS_Y);
-+	pc110pad_dev->keybit[LONG(BTN_TOUCH)] = BIT(BTN_TOUCH);
- 
--	input_register_device(&pc110pad_dev);
-+	pc110pad_dev->absmax[ABS_X] = 0x1ff;
-+	pc110pad_dev->absmax[ABS_Y] = 0x0ff;
- 
--	printk(KERN_INFO "input: %s at %#x irq %d\n",
--		pc110pad_name, pc110pad_io, pc110pad_irq);
-+	pc110pad_dev->open = pc110pad_open;
-+	pc110pad_dev->close = pc110pad_close;
-+
-+	input_register_device(pc110pad_dev);
- 
- 	return 0;
- }
- 
- static void __exit pc110pad_exit(void)
- {
--	input_unregister_device(&pc110pad_dev);
--
- 	outb(PC110PAD_OFF, pc110pad_io + 2);
--
- 	free_irq(pc110pad_irq, NULL);
-+	input_unregister_device(pc110pad_dev);
- 	release_region(pc110pad_io, 4);
- }
- 
-Index: work/drivers/input/mouse/rpcmouse.c
-===================================================================
---- work.orig/drivers/input/mouse/rpcmouse.c
-+++ work/drivers/input/mouse/rpcmouse.c
-@@ -34,20 +34,7 @@ MODULE_DESCRIPTION("Acorn RiscPC mouse d
- MODULE_LICENSE("GPL");
- 
- static short rpcmouse_lastx, rpcmouse_lasty;
--
--static struct input_dev rpcmouse_dev = {
--	.evbit	= { BIT(EV_KEY) | BIT(EV_REL) },
--	.keybit = { [LONG(BTN_LEFT)] = BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT) },
--	.relbit	= { BIT(REL_X) | BIT(REL_Y) },
--	.name	= "Acorn RiscPC Mouse",
--	.phys	= "rpcmouse/input0",
--	.id	= {
--		.bustype = BUS_HOST,
--		.vendor  = 0x0005,
--		.product = 0x0001,
--		.version = 0x0100,
--	},
--};
-+static struct input_dev *rpcmouse_dev;
- 
- static irqreturn_t rpcmouse_irq(int irq, void *dev_id, struct pt_regs *regs)
- {
-@@ -78,29 +65,41 @@ static irqreturn_t rpcmouse_irq(int irq,
- 	return IRQ_HANDLED;
- }
- 
-+
- static int __init rpcmouse_init(void)
- {
--	init_input_dev(&rpcmouse_dev);
-+	if (!(rpcmouse_dev = input_allocate_device()))
-+		return -ENOMEM;
-+
-+	rpcmouse_dev->name = "Acorn RiscPC Mouse";
-+	rpcmouse_dev->phys = "rpcmouse/input0";
-+	rpcmouse_dev->id.bustype = BUS_HOST;
-+	rpcmouse_dev->id.vendor  = 0x0005;
-+	rpcmouse_dev->id.product = 0x0001;
-+	rpcmouse_dev->id.version = 0x0100;
-+
-+	rpcmouse_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REL);
-+	rpcmouse_dev->keybit[LONG(BTN_LEFT)] = BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT);
-+	rpcmouse_dev->relbit[0]	= BIT(REL_X) | BIT(REL_Y);
- 
- 	rpcmouse_lastx = (short) iomd_readl(IOMD_MOUSEX);
- 	rpcmouse_lasty = (short) iomd_readl(IOMD_MOUSEY);
- 
--	if (request_irq(IRQ_VSYNCPULSE, rpcmouse_irq, SA_SHIRQ, "rpcmouse", &rpcmouse_dev)) {
-+	if (request_irq(IRQ_VSYNCPULSE, rpcmouse_irq, SA_SHIRQ, "rpcmouse", rpcmouse_dev)) {
- 		printk(KERN_ERR "rpcmouse: unable to allocate VSYNC interrupt\n");
--		return -1;
-+		input_free_device(rpcmouse_dev);
-+		return -EBUSY;
- 	}
- 
--	input_register_device(&rpcmouse_dev);
--
--	printk(KERN_INFO "input: Acorn RiscPC mouse\n");
-+	input_register_device(rpcmouse_dev);
- 
- 	return 0;
- }
- 
- static void __exit rpcmouse_exit(void)
- {
--	input_unregister_device(&rpcmouse_dev);
--	free_irq(IRQ_VSYNCPULSE, &rpcmouse_dev);
-+	free_irq(IRQ_VSYNCPULSE, rpcmouse_dev);
-+	input_unregister_device(rpcmouse_dev);
- }
- 
- module_init(rpcmouse_init);
-Index: work/drivers/input/mouse/sermouse.c
-===================================================================
---- work.orig/drivers/input/mouse/sermouse.c
-+++ work/drivers/input/mouse/sermouse.c
-@@ -48,7 +48,7 @@ static char *sermouse_protocols[] = { "N
- 					"Logitech MZ++ Mouse"};
- 
- struct sermouse {
--	struct input_dev dev;
+-	struct ps2dev	ps2dev;
++	struct ps2dev ps2dev;
 +	struct input_dev *dev;
- 	signed char buf[8];
- 	unsigned char count;
- 	unsigned char type;
-@@ -64,7 +64,7 @@ struct sermouse {
  
- static void sermouse_process_msc(struct sermouse *sermouse, signed char data, struct pt_regs *regs)
- {
--	struct input_dev *dev = &sermouse->dev;
-+	struct input_dev *dev = sermouse->dev;
- 	signed char *buf = sermouse->buf;
+ 	/* Written only during init */
+ 	char name[64];
+ 	char phys[32];
+-	struct input_dev dev;
  
- 	input_regs(dev, regs);
-@@ -107,7 +107,7 @@ static void sermouse_process_msc(struct 
+ 	unsigned short id;
+ 	unsigned char keycode[512];
+@@ -290,7 +290,7 @@ static irqreturn_t atkbd_interrupt(struc
+ 	if (!atkbd->enabled)
+ 		goto out;
  
- static void sermouse_process_ms(struct sermouse *sermouse, signed char data, struct pt_regs *regs)
- {
--	struct input_dev *dev = &sermouse->dev;
-+	struct input_dev *dev = sermouse->dev;
- 	signed char *buf = sermouse->buf;
+-	input_event(&atkbd->dev, EV_MSC, MSC_RAW, code);
++	input_event(atkbd->dev, EV_MSC, MSC_RAW, code);
  
- 	if (data & 0x40) sermouse->count = 0;
-@@ -230,9 +230,9 @@ static void sermouse_disconnect(struct s
- {
- 	struct sermouse *sermouse = serio_get_drvdata(serio);
+ 	if (atkbd->translated) {
  
--	input_unregister_device(&sermouse->dev);
+@@ -326,10 +326,10 @@ static irqreturn_t atkbd_interrupt(struc
+ 			atkbd->release = 1;
+ 			goto out;
+ 		case ATKBD_RET_HANGUEL:
+-			atkbd_report_key(&atkbd->dev, regs, KEY_HANGUEL, 3);
++			atkbd_report_key(atkbd->dev, regs, KEY_HANGUEL, 3);
+ 			goto out;
+ 		case ATKBD_RET_HANJA:
+-			atkbd_report_key(&atkbd->dev, regs, KEY_HANJA, 3);
++			atkbd_report_key(atkbd->dev, regs, KEY_HANJA, 3);
+ 			goto out;
+ 		case ATKBD_RET_ERR:
+ 			printk(KERN_DEBUG "atkbd.c: Keyboard on %s reports too many keys pressed.\n", serio->phys);
+@@ -345,7 +345,7 @@ static irqreturn_t atkbd_interrupt(struc
+ 	}
+ 
+ 	if (atkbd->keycode[code] != ATKBD_KEY_NULL)
+-		input_event(&atkbd->dev, EV_MSC, MSC_SCAN, code);
++		input_event(atkbd->dev, EV_MSC, MSC_SCAN, code);
+ 
+ 	switch (atkbd->keycode[code]) {
+ 		case ATKBD_KEY_NULL:
+@@ -365,7 +365,7 @@ static irqreturn_t atkbd_interrupt(struc
+ 				       "to make it known.\n",
+ 				       code & 0x80 ? "e0" : "", code & 0x7f);
+ 			}
+-			input_sync(&atkbd->dev);
++			input_sync(atkbd->dev);
+ 			break;
+ 		case ATKBD_SCR_1:
+ 			scroll = 1 - atkbd->release * 2;
+@@ -390,7 +390,7 @@ static irqreturn_t atkbd_interrupt(struc
+ 			break;
+ 		default:
+ 			value = atkbd->release ? 0 :
+-				(1 + (!atkbd->softrepeat && test_bit(atkbd->keycode[code], atkbd->dev.key)));
++				(1 + (!atkbd->softrepeat && test_bit(atkbd->keycode[code], atkbd->dev->key)));
+ 
+ 			switch (value) {	/* Workaround Toshiba laptop multiple keypress */
+ 				case 0:
+@@ -398,7 +398,7 @@ static irqreturn_t atkbd_interrupt(struc
+ 					break;
+ 				case 1:
+ 					atkbd->last = code;
+-					atkbd->time = jiffies + msecs_to_jiffies(atkbd->dev.rep[REP_DELAY]) / 2;
++					atkbd->time = jiffies + msecs_to_jiffies(atkbd->dev->rep[REP_DELAY]) / 2;
+ 					break;
+ 				case 2:
+ 					if (!time_after(jiffies, atkbd->time) && atkbd->last == code)
+@@ -406,16 +406,16 @@ static irqreturn_t atkbd_interrupt(struc
+ 					break;
+ 			}
+ 
+-			atkbd_report_key(&atkbd->dev, regs, atkbd->keycode[code], value);
++			atkbd_report_key(atkbd->dev, regs, atkbd->keycode[code], value);
+ 	}
+ 
+ 	if (atkbd->scroll) {
+-		input_regs(&atkbd->dev, regs);
++		input_regs(atkbd->dev, regs);
+ 		if (click != -1)
+-			input_report_key(&atkbd->dev, BTN_MIDDLE, click);
+-		input_report_rel(&atkbd->dev, REL_WHEEL, scroll);
+-		input_report_rel(&atkbd->dev, REL_HWHEEL, hscroll);
+-		input_sync(&atkbd->dev);
++			input_report_key(atkbd->dev, BTN_MIDDLE, click);
++		input_report_rel(atkbd->dev, REL_WHEEL, scroll);
++		input_report_rel(atkbd->dev, REL_HWHEEL, hscroll);
++		input_sync(atkbd->dev);
+ 	}
+ 
+ 	atkbd->release = 0;
+@@ -463,7 +463,6 @@ static int atkbd_event(struct input_dev 
+ 
+ 			return 0;
+ 
+-
+ 		case EV_REP:
+ 
+ 			if (atkbd->softrepeat) return 0;
+@@ -693,7 +692,7 @@ static void atkbd_disconnect(struct seri
+ 	device_remove_file(&serio->dev, &atkbd_attr_softrepeat);
+ 	device_remove_file(&serio->dev, &atkbd_attr_softraw);
+ 
+-	input_unregister_device(&atkbd->dev);
++	input_unregister_device(atkbd->dev);
  	serio_close(serio);
  	serio_set_drvdata(serio, NULL);
-+	input_unregister_device(sermouse->dev);
- 	kfree(sermouse);
+ 	kfree(atkbd);
+@@ -701,7 +700,7 @@ static void atkbd_disconnect(struct seri
+ 
+ 
+ /*
+- * atkbd_set_device_attrs() initializes keyboard's keycode table
++ * atkbd_set_keycode_table() initializes keyboard's keycode table
+  * according to the selected scancode set
+  */
+ 
+@@ -737,53 +736,58 @@ static void atkbd_set_keycode_table(stru
+ 
+ static void atkbd_set_device_attrs(struct atkbd *atkbd)
+ {
++	struct input_dev *input_dev = atkbd->dev;
+ 	int i;
+ 
+-	memset(&atkbd->dev, 0, sizeof(struct input_dev));
++	if (atkbd->extra)
++		sprintf(atkbd->name, "AT Set 2 Extra keyboard");
++	else
++		sprintf(atkbd->name, "AT %s Set %d keyboard",
++			atkbd->translated ? "Translated" : "Raw", atkbd->set);
+ 
+-	init_input_dev(&atkbd->dev);
++	sprintf(atkbd->phys, "%s/input0", atkbd->ps2dev.serio->phys);
+ 
+-	atkbd->dev.name = atkbd->name;
+-	atkbd->dev.phys = atkbd->phys;
+-	atkbd->dev.id.bustype = BUS_I8042;
+-	atkbd->dev.id.vendor = 0x0001;
+-	atkbd->dev.id.product = atkbd->translated ? 1 : atkbd->set;
+-	atkbd->dev.id.version = atkbd->id;
+-	atkbd->dev.event = atkbd_event;
+-	atkbd->dev.private = atkbd;
+-	atkbd->dev.dev = &atkbd->ps2dev.serio->dev;
++	input_dev->name = atkbd->name;
++	input_dev->phys = atkbd->phys;
++	input_dev->id.bustype = BUS_I8042;
++	input_dev->id.vendor = 0x0001;
++	input_dev->id.product = atkbd->translated ? 1 : atkbd->set;
++	input_dev->id.version = atkbd->id;
++	input_dev->event = atkbd_event;
++	input_dev->private = atkbd;
++	input_dev->cdev.dev = &atkbd->ps2dev.serio->dev;
+ 
+-	atkbd->dev.evbit[0] = BIT(EV_KEY) | BIT(EV_REP) | BIT(EV_MSC);
++	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP) | BIT(EV_MSC);
+ 
+ 	if (atkbd->write) {
+-		atkbd->dev.evbit[0] |= BIT(EV_LED);
+-		atkbd->dev.ledbit[0] = BIT(LED_NUML) | BIT(LED_CAPSL) | BIT(LED_SCROLLL);
++		input_dev->evbit[0] |= BIT(EV_LED);
++		input_dev->ledbit[0] = BIT(LED_NUML) | BIT(LED_CAPSL) | BIT(LED_SCROLLL);
+ 	}
+ 
+ 	if (atkbd->extra)
+-		atkbd->dev.ledbit[0] |= BIT(LED_COMPOSE) | BIT(LED_SUSPEND) |
++		input_dev->ledbit[0] |= BIT(LED_COMPOSE) | BIT(LED_SUSPEND) |
+ 					BIT(LED_SLEEP) | BIT(LED_MUTE) | BIT(LED_MISC);
+ 
+ 	if (!atkbd->softrepeat) {
+-		atkbd->dev.rep[REP_DELAY] = 250;
+-		atkbd->dev.rep[REP_PERIOD] = 33;
++		input_dev->rep[REP_DELAY] = 250;
++		input_dev->rep[REP_PERIOD] = 33;
+ 	}
+ 
+-	atkbd->dev.mscbit[0] = atkbd->softraw ? BIT(MSC_SCAN) : BIT(MSC_RAW) | BIT(MSC_SCAN);
++	input_dev->mscbit[0] = atkbd->softraw ? BIT(MSC_SCAN) : BIT(MSC_RAW) | BIT(MSC_SCAN);
+ 
+ 	if (atkbd->scroll) {
+-		atkbd->dev.evbit[0] |= BIT(EV_REL);
+-		atkbd->dev.relbit[0] = BIT(REL_WHEEL) | BIT(REL_HWHEEL);
+-		set_bit(BTN_MIDDLE, atkbd->dev.keybit);
++		input_dev->evbit[0] |= BIT(EV_REL);
++		input_dev->relbit[0] = BIT(REL_WHEEL) | BIT(REL_HWHEEL);
++		set_bit(BTN_MIDDLE, input_dev->keybit);
+ 	}
+ 
+-	atkbd->dev.keycode = atkbd->keycode;
+-	atkbd->dev.keycodesize = sizeof(unsigned char);
+-	atkbd->dev.keycodemax = ARRAY_SIZE(atkbd_set2_keycode);
++	input_dev->keycode = atkbd->keycode;
++	input_dev->keycodesize = sizeof(unsigned char);
++	input_dev->keycodemax = ARRAY_SIZE(atkbd_set2_keycode);
+ 
+ 	for (i = 0; i < 512; i++)
+ 		if (atkbd->keycode[i] && atkbd->keycode[i] < ATKBD_SPECIAL)
+-			set_bit(atkbd->keycode[i], atkbd->dev.keybit);
++			set_bit(atkbd->keycode[i], input_dev->keybit);
  }
  
-@@ -244,56 +244,52 @@ static void sermouse_disconnect(struct s
- static int sermouse_connect(struct serio *serio, struct serio_driver *drv)
+ /*
+@@ -796,13 +800,15 @@ static void atkbd_set_device_attrs(struc
+ static int atkbd_connect(struct serio *serio, struct serio_driver *drv)
  {
- 	struct sermouse *sermouse;
--	unsigned char c;
+ 	struct atkbd *atkbd;
 -	int err;
 -
--	if (!serio->id.proto || serio->id.proto > SERIO_MZPP)
--		return -ENODEV;
--
--	if (!(sermouse = kmalloc(sizeof(struct sermouse), GFP_KERNEL)))
--		return -ENOMEM;
--
--	memset(sermouse, 0, sizeof(struct sermouse));
--
--	init_input_dev(&sermouse->dev);
--	sermouse->dev.evbit[0] = BIT(EV_KEY) | BIT(EV_REL);
--	sermouse->dev.keybit[LONG(BTN_MOUSE)] = BIT(BTN_LEFT) | BIT(BTN_RIGHT);
--	sermouse->dev.relbit[0] = BIT(REL_X) | BIT(REL_Y);
--	sermouse->dev.private = sermouse;
--
--	sermouse->type = serio->id.proto;
--	c = serio->id.extra;
--
--	if (c & 0x01) set_bit(BTN_MIDDLE, sermouse->dev.keybit);
--	if (c & 0x02) set_bit(BTN_SIDE, sermouse->dev.keybit);
--	if (c & 0x04) set_bit(BTN_EXTRA, sermouse->dev.keybit);
--	if (c & 0x10) set_bit(REL_WHEEL, sermouse->dev.relbit);
--	if (c & 0x20) set_bit(REL_HWHEEL, sermouse->dev.relbit);
-+	struct input_dev *input_dev;
-+	unsigned char c = serio->id.extra;
+-	if (!(atkbd = kmalloc(sizeof(struct atkbd), GFP_KERNEL)))
+-		return - ENOMEM;
++	struct input_dev *dev;
 +	int err = -ENOMEM;
-+
-+	sermouse = kzalloc(sizeof(struct sermouse), GFP_KERNEL);
-+	input_dev = input_allocate_device();
-+	if (!sermouse || !input_dev)
+ 
+-	memset(atkbd, 0, sizeof(struct atkbd));
++	atkbd = kzalloc(sizeof(struct atkbd), GFP_KERNEL);
++	dev = input_allocate_device();
++	if (!atkbd || !dev)
 +		goto fail;
  
-+	sermouse->dev = input_dev;
- 	sprintf(sermouse->phys, "%s/input0", serio->phys);
-+	sermouse->type = serio->id.proto;
++	atkbd->dev = dev;
+ 	ps2_init(&atkbd->ps2dev, serio);
  
--	sermouse->dev.name = sermouse_protocols[sermouse->type];
--	sermouse->dev.phys = sermouse->phys;
--	sermouse->dev.id.bustype = BUS_RS232;
--	sermouse->dev.id.vendor = sermouse->type;
--	sermouse->dev.id.product = c;
--	sermouse->dev.id.version = 0x0100;
--	sermouse->dev.dev = &serio->dev;
-+	input_dev->name = sermouse_protocols[sermouse->type];
-+	input_dev->phys = sermouse->phys;
-+	input_dev->id.bustype = BUS_RS232;
-+	input_dev->id.vendor  = sermouse->type;
-+	input_dev->id.product = c;
-+	input_dev->id.version = 0x0100;
-+	input_dev->cdev.dev = &serio->dev;
-+
-+	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REL);
-+	input_dev->keybit[LONG(BTN_MOUSE)] = BIT(BTN_LEFT) | BIT(BTN_RIGHT);
-+	input_dev->relbit[0] = BIT(REL_X) | BIT(REL_Y);
-+	input_dev->private = sermouse;
-+
-+	if (c & 0x01) set_bit(BTN_MIDDLE, input_dev->keybit);
-+	if (c & 0x02) set_bit(BTN_SIDE, input_dev->keybit);
-+	if (c & 0x04) set_bit(BTN_EXTRA, input_dev->keybit);
-+	if (c & 0x10) set_bit(REL_WHEEL, input_dev->relbit);
-+	if (c & 0x20) set_bit(REL_HWHEEL, input_dev->relbit);
- 
- 	serio_set_drvdata(serio, sermouse);
+ 	switch (serio->id.type) {
+@@ -828,19 +834,15 @@ static int atkbd_connect(struct serio *s
+ 	serio_set_drvdata(serio, atkbd);
  
  	err = serio_open(serio, drv);
 -	if (err) {
 -		serio_set_drvdata(serio, NULL);
--		kfree(sermouse);
+-		kfree(atkbd);
 -		return err;
 -	}
--
--	input_register_device(&sermouse->dev);
 +	if (err)
 +		goto fail;
  
--	printk(KERN_INFO "input: %s on %s\n", sermouse_protocols[sermouse->type], serio->phys);
-+	input_register_device(sermouse->dev);
+ 	if (atkbd->write) {
+ 
+ 		if (atkbd_probe(atkbd)) {
+ 			serio_close(serio);
+-			serio_set_drvdata(serio, NULL);
+-			kfree(atkbd);
+-			return -ENODEV;
++			err = -ENODEV;
++			goto fail;
+ 		}
+ 
+ 		atkbd->set = atkbd_select_set(atkbd, atkbd_set, atkbd_extra);
+@@ -851,19 +853,9 @@ static int atkbd_connect(struct serio *s
+ 		atkbd->id = 0xab00;
+ 	}
+ 
+-	if (atkbd->extra)
+-		sprintf(atkbd->name, "AT Set 2 Extra keyboard");
+-	else
+-		sprintf(atkbd->name, "AT %s Set %d keyboard",
+-			atkbd->translated ? "Translated" : "Raw", atkbd->set);
+-
+-	sprintf(atkbd->phys, "%s/input0", serio->phys);
+-
+ 	atkbd_set_keycode_table(atkbd);
+ 	atkbd_set_device_attrs(atkbd);
+ 
+-	input_register_device(&atkbd->dev);
+-
+ 	device_create_file(&serio->dev, &atkbd_attr_extra);
+ 	device_create_file(&serio->dev, &atkbd_attr_scroll);
+ 	device_create_file(&serio->dev, &atkbd_attr_set);
+@@ -872,9 +864,14 @@ static int atkbd_connect(struct serio *s
+ 
+ 	atkbd_enable(atkbd);
+ 
+-	printk(KERN_INFO "input: %s on %s\n", atkbd->name, serio->phys);
++	input_register_device(atkbd->dev);
  
  	return 0;
 +
 + fail:	serio_set_drvdata(serio, NULL);
-+	input_free_device(input_dev);
-+	kfree(sermouse);
++	input_free_device(dev);
++	kfree(atkbd);
 +	return err;
  }
  
- static struct serio_device_id sermouse_serio_ids[] = {
-Index: work/drivers/input/mouse/vsxxxaa.c
+ /*
+@@ -896,9 +893,9 @@ static int atkbd_reconnect(struct serio 
+ 	atkbd_disable(atkbd);
+ 
+ 	if (atkbd->write) {
+-		param[0] = (test_bit(LED_SCROLLL, atkbd->dev.led) ? 1 : 0)
+-		         | (test_bit(LED_NUML,    atkbd->dev.led) ? 2 : 0)
+-		         | (test_bit(LED_CAPSL,   atkbd->dev.led) ? 4 : 0);
++		param[0] = (test_bit(LED_SCROLLL, atkbd->dev->led) ? 1 : 0)
++		         | (test_bit(LED_NUML,    atkbd->dev->led) ? 2 : 0)
++		         | (test_bit(LED_CAPSL,   atkbd->dev->led) ? 4 : 0);
+ 
+ 		if (atkbd_probe(atkbd))
+ 			return -1;
+@@ -1008,6 +1005,7 @@ static ssize_t atkbd_show_extra(struct a
+ 
+ static ssize_t atkbd_set_extra(struct atkbd *atkbd, const char *buf, size_t count)
+ {
++	struct input_dev *new_dev;
+ 	unsigned long value;
+ 	char *rest;
+ 
+@@ -1019,12 +1017,19 @@ static ssize_t atkbd_set_extra(struct at
+ 		return -EINVAL;
+ 
+ 	if (atkbd->extra != value) {
+-		/* unregister device as it's properties will change */
+-		input_unregister_device(&atkbd->dev);
++		/*
++		 * Since device's properties will change we need to
++		 * unregister old device. But allocate new one first
++		 * to make sure we have it.
++		 */
++		if (!(new_dev = input_allocate_device()))
++			return -ENOMEM;
++		input_unregister_device(atkbd->dev);
++		atkbd->dev = new_dev;
+ 		atkbd->set = atkbd_select_set(atkbd, atkbd->set, value);
+ 		atkbd_activate(atkbd);
+ 		atkbd_set_device_attrs(atkbd);
+-		input_register_device(&atkbd->dev);
++		input_register_device(atkbd->dev);
+ 	}
+ 	return count;
+ }
+@@ -1036,6 +1041,7 @@ static ssize_t atkbd_show_scroll(struct 
+ 
+ static ssize_t atkbd_set_scroll(struct atkbd *atkbd, const char *buf, size_t count)
+ {
++	struct input_dev *new_dev;
+ 	unsigned long value;
+ 	char *rest;
+ 
+@@ -1044,12 +1050,14 @@ static ssize_t atkbd_set_scroll(struct a
+ 		return -EINVAL;
+ 
+ 	if (atkbd->scroll != value) {
+-		/* unregister device as it's properties will change */
+-		input_unregister_device(&atkbd->dev);
++		if (!(new_dev = input_allocate_device()))
++			return -ENOMEM;
++		input_unregister_device(atkbd->dev);
++		atkbd->dev = new_dev;
+ 		atkbd->scroll = value;
+ 		atkbd_set_keycode_table(atkbd);
+ 		atkbd_set_device_attrs(atkbd);
+-		input_register_device(&atkbd->dev);
++		input_register_device(atkbd->dev);
+ 	}
+ 	return count;
+ }
+@@ -1061,6 +1069,7 @@ static ssize_t atkbd_show_set(struct atk
+ 
+ static ssize_t atkbd_set_set(struct atkbd *atkbd, const char *buf, size_t count)
+ {
++	struct input_dev *new_dev;
+ 	unsigned long value;
+ 	char *rest;
+ 
+@@ -1072,13 +1081,15 @@ static ssize_t atkbd_set_set(struct atkb
+ 		return -EINVAL;
+ 
+ 	if (atkbd->set != value) {
+-		/* unregister device as it's properties will change */
+-		input_unregister_device(&atkbd->dev);
++		if (!(new_dev = input_allocate_device()))
++			return -ENOMEM;
++		input_unregister_device(atkbd->dev);
++		atkbd->dev = new_dev;
+ 		atkbd->set = atkbd_select_set(atkbd, value, atkbd->extra);
+ 		atkbd_activate(atkbd);
+ 		atkbd_set_keycode_table(atkbd);
+ 		atkbd_set_device_attrs(atkbd);
+-		input_register_device(&atkbd->dev);
++		input_register_device(atkbd->dev);
+ 	}
+ 	return count;
+ }
+@@ -1090,6 +1101,7 @@ static ssize_t atkbd_show_softrepeat(str
+ 
+ static ssize_t atkbd_set_softrepeat(struct atkbd *atkbd, const char *buf, size_t count)
+ {
++	struct input_dev *new_dev;
+ 	unsigned long value;
+ 	char *rest;
+ 
+@@ -1101,15 +1113,16 @@ static ssize_t atkbd_set_softrepeat(stru
+ 		return -EINVAL;
+ 
+ 	if (atkbd->softrepeat != value) {
+-		/* unregister device as it's properties will change */
+-		input_unregister_device(&atkbd->dev);
++		if (!(new_dev = input_allocate_device()))
++			return -ENOMEM;
++		input_unregister_device(atkbd->dev);
++		atkbd->dev = new_dev;
+ 		atkbd->softrepeat = value;
+ 		if (atkbd->softrepeat)
+ 			atkbd->softraw = 1;
+ 		atkbd_set_device_attrs(atkbd);
+-		input_register_device(&atkbd->dev);
++		input_register_device(atkbd->dev);
+ 	}
+-
+ 	return count;
+ }
+ 
+@@ -1121,6 +1134,7 @@ static ssize_t atkbd_show_softraw(struct
+ 
+ static ssize_t atkbd_set_softraw(struct atkbd *atkbd, const char *buf, size_t count)
+ {
++	struct input_dev *new_dev;
+ 	unsigned long value;
+ 	char *rest;
+ 
+@@ -1129,11 +1143,13 @@ static ssize_t atkbd_set_softraw(struct 
+ 		return -EINVAL;
+ 
+ 	if (atkbd->softraw != value) {
+-		/* unregister device as it's properties will change */
+-		input_unregister_device(&atkbd->dev);
++		if (!(new_dev = input_allocate_device()))
++			return -ENOMEM;
++		input_unregister_device(atkbd->dev);
++		atkbd->dev = new_dev;
+ 		atkbd->softraw = value;
+ 		atkbd_set_device_attrs(atkbd);
+-		input_register_device(&atkbd->dev);
++		input_register_device(atkbd->dev);
+ 	}
+ 	return count;
+ }
+Index: work/drivers/input/keyboard/amikbd.c
 ===================================================================
---- work.orig/drivers/input/mouse/vsxxxaa.c
-+++ work/drivers/input/mouse/vsxxxaa.c
-@@ -112,7 +112,7 @@ MODULE_LICENSE ("GPL");
+--- work.orig/drivers/input/keyboard/amikbd.c
++++ work/drivers/input/keyboard/amikbd.c
+@@ -155,10 +155,7 @@ static const char *amikbd_messages[8] = 
+ 	[7] = KERN_WARNING "amikbd: keyboard interrupt\n"
+ };
  
+-static struct input_dev amikbd_dev;
+-
+-static char *amikbd_name = "Amiga keyboard";
+-static char *amikbd_phys = "amikbd/input0";
++static struct input_dev *amikbd_dev;
  
- struct vsxxxaa {
+ static irqreturn_t amikbd_interrupt(int irq, void *dummy, struct pt_regs *fp)
+ {
+@@ -176,16 +173,16 @@ static irqreturn_t amikbd_interrupt(int 
+ 
+ 		scancode = amikbd_keycode[scancode];
+ 
+-		input_regs(&amikbd_dev, fp);
++		input_regs(amikbd_dev, fp);
+ 
+ 		if (scancode == KEY_CAPSLOCK) {	/* CapsLock is a toggle switch key on Amiga */
+-			input_report_key(&amikbd_dev, scancode, 1);
+-			input_report_key(&amikbd_dev, scancode, 0);
+-			input_sync(&amikbd_dev);
++			input_report_key(amikbd_dev, scancode, 1);
++			input_report_key(amikbd_dev, scancode, 0);
+ 		} else {
+-			input_report_key(&amikbd_dev, scancode, down);
+-			input_sync(&amikbd_dev);
++			input_report_key(amikbd_dev, scancode, down);
+ 		}
++
++		input_sync(amikbd_dev);
+ 	} else				/* scancodes >= 0x78 are error codes */
+ 		printk(amikbd_messages[scancode - 0x78]);
+ 
+@@ -202,39 +199,41 @@ static int __init amikbd_init(void)
+ 	if (!request_mem_region(CIAA_PHYSADDR-1+0xb00, 0x100, "amikeyb"))
+ 		return -EBUSY;
+ 
+-	init_input_dev(&amikbd_dev);
+-
+-	amikbd_dev.evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
+-	amikbd_dev.keycode = amikbd_keycode;
+-	amikbd_dev.keycodesize = sizeof(unsigned char);
+-	amikbd_dev.keycodemax = ARRAY_SIZE(amikbd_keycode);
++	amikbd_dev = input_dev_allocate();
++	if (!amikbd_dev) {
++		printk(KERN_ERR "amikbd: not enough memory for input device\n");
++		release_mem_region(CIAA_PHYSADDR - 1 + 0xb00, 0x100);
++		return -ENOMEM;
++	}
++
++	amikbd_dev->name = "Amiga Keyboard";
++	amikbd_dev->phys = "amikbd/input0";
++	amikbd_dev->id.bustype = BUS_AMIGA;
++	amikbd_dev->id.vendor = 0x0001;
++	amikbd_dev->id.product = 0x0001;
++	amikbd_dev->id.version = 0x0100;
++
++	amikbd_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
++	amikbd_dev->keycode = amikbd_keycode;
++	amikbd_dev->keycodesize = sizeof(unsigned char);
++	amikbd_dev->keycodemax = ARRAY_SIZE(amikbd_keycode);
+ 
+ 	for (i = 0; i < 0x78; i++)
+ 		if (amikbd_keycode[i])
+-			set_bit(amikbd_keycode[i], amikbd_dev.keybit);
++			set_bit(amikbd_keycode[i], amikbd_dev->keybit);
+ 
+ 	ciaa.cra &= ~0x41;	 /* serial data in, turn off TA */
+ 	request_irq(IRQ_AMIGA_CIAA_SP, amikbd_interrupt, 0, "amikbd", amikbd_interrupt);
+ 
+-	amikbd_dev.name = amikbd_name;
+-	amikbd_dev.phys = amikbd_phys;
+-	amikbd_dev.id.bustype = BUS_AMIGA;
+-	amikbd_dev.id.vendor = 0x0001;
+-	amikbd_dev.id.product = 0x0001;
+-	amikbd_dev.id.version = 0x0100;
+-
+-	input_register_device(&amikbd_dev);
+-
+-	printk(KERN_INFO "input: %s\n", amikbd_name);
+-
++	input_register_device(amikbd_dev);
+ 	return 0;
+ }
+ 
+ static void __exit amikbd_exit(void)
+ {
+-	input_unregister_device(&amikbd_dev);
+ 	free_irq(IRQ_AMIGA_CIAA_SP, amikbd_interrupt);
+-	release_mem_region(CIAA_PHYSADDR-1+0xb00, 0x100);
++	input_unregister_device(amikbd_dev);
++	release_mem_region(CIAA_PHYSADDR - 1 + 0xb00, 0x100);
+ }
+ 
+ module_init(amikbd_init);
+Index: work/drivers/input/keyboard/lkkbd.c
+===================================================================
+--- work.orig/drivers/input/keyboard/lkkbd.c
++++ work/drivers/input/keyboard/lkkbd.c
+@@ -102,7 +102,7 @@ static int ctrlclick_volume = 100; /* % 
+ module_param (ctrlclick_volume, int, 0);
+ MODULE_PARM_DESC (ctrlclick_volume, "Ctrlclick volume (in %), default is 100%");
+ 
+-static int lk201_compose_is_alt = 0;
++static int lk201_compose_is_alt;
+ module_param (lk201_compose_is_alt, int, 0);
+ MODULE_PARM_DESC (lk201_compose_is_alt, "If set non-zero, LK201' Compose key "
+ 		"will act as an Alt key");
+@@ -274,7 +274,7 @@ static lk_keycode_t lkkbd_keycode[LK_NUM
+ };
+ 
+ #define CHECK_LED(LED, BITS) do {		\
+-	if (test_bit (LED, lk->dev.led))	\
++	if (test_bit (LED, lk->dev->led))	\
+ 		leds_on |= BITS;		\
+ 	else					\
+ 		leds_off |= BITS;		\
+@@ -287,7 +287,7 @@ struct lkkbd {
+ 	lk_keycode_t keycode[LK_NUM_KEYCODES];
+ 	int ignore_bytes;
+ 	unsigned char id[LK_NUM_IGNORE_BYTES];
 -	struct input_dev dev;
 +	struct input_dev *dev;
  	struct serio *serio;
- #define BUFLEN 15 /* At least 5 is needed for a full tablet packet */
- 	unsigned char buf[BUFLEN];
-@@ -211,7 +211,7 @@ vsxxxaa_smells_like_packet (struct vsxxx
- static void
- vsxxxaa_handle_REL_packet (struct vsxxxaa *mouse, struct pt_regs *regs)
- {
--	struct input_dev *dev = &mouse->dev;
-+	struct input_dev *dev = mouse->dev;
- 	unsigned char *buf = mouse->buf;
- 	int left, middle, right;
- 	int dx, dy;
-@@ -269,7 +269,7 @@ vsxxxaa_handle_REL_packet (struct vsxxxa
- static void
- vsxxxaa_handle_ABS_packet (struct vsxxxaa *mouse, struct pt_regs *regs)
- {
--	struct input_dev *dev = &mouse->dev;
-+	struct input_dev *dev = mouse->dev;
- 	unsigned char *buf = mouse->buf;
- 	int left, middle, right, touch;
- 	int x, y;
-@@ -323,7 +323,7 @@ vsxxxaa_handle_ABS_packet (struct vsxxxa
- static void
- vsxxxaa_handle_POR_packet (struct vsxxxaa *mouse, struct pt_regs *regs)
- {
--	struct input_dev *dev = &mouse->dev;
-+	struct input_dev *dev = mouse->dev;
- 	unsigned char *buf = mouse->buf;
- 	int left, middle, right;
- 	unsigned char error;
-@@ -483,9 +483,9 @@ vsxxxaa_disconnect (struct serio *serio)
- {
- 	struct vsxxxaa *mouse = serio_get_drvdata (serio);
+ 	struct work_struct tq;
+ 	char name[64];
+@@ -423,8 +423,7 @@ lkkbd_interrupt (struct serio *serio, un
+ 	DBG (KERN_INFO "Got byte 0x%02x\n", data);
  
--	input_unregister_device (&mouse->dev);
- 	serio_close (serio);
- 	serio_set_drvdata (serio, NULL);
-+	input_unregister_device (mouse->dev);
- 	kfree (mouse);
+ 	if (lk->ignore_bytes > 0) {
+-		DBG (KERN_INFO "Ignoring a byte on %s\n",
+-				lk->name);
++		DBG (KERN_INFO "Ignoring a byte on %s\n", lk->name);
+ 		lk->id[LK_NUM_IGNORE_BYTES - lk->ignore_bytes--] = data;
+ 
+ 		if (lk->ignore_bytes == 0)
+@@ -435,14 +434,14 @@ lkkbd_interrupt (struct serio *serio, un
+ 
+ 	switch (data) {
+ 		case LK_ALL_KEYS_UP:
+-			input_regs (&lk->dev, regs);
++			input_regs (lk->dev, regs);
+ 			for (i = 0; i < ARRAY_SIZE (lkkbd_keycode); i++)
+ 				if (lk->keycode[i] != KEY_RESERVED)
+-					input_report_key (&lk->dev, lk->keycode[i], 0);
+-			input_sync (&lk->dev);
++					input_report_key (lk->dev, lk->keycode[i], 0);
++			input_sync (lk->dev);
+ 			break;
+ 		case LK_METRONOME:
+-			DBG (KERN_INFO "Got LK_METRONOME and don't "
++			DBG (KERN_INFO "Got %#d and don't "
+ 					"know how to handle...\n");
+ 			break;
+ 		case LK_OUTPUT_ERROR:
+@@ -482,12 +481,12 @@ lkkbd_interrupt (struct serio *serio, un
+ 
+ 		default:
+ 			if (lk->keycode[data] != KEY_RESERVED) {
+-				input_regs (&lk->dev, regs);
+-				if (!test_bit (lk->keycode[data], lk->dev.key))
+-					input_report_key (&lk->dev, lk->keycode[data], 1);
++				input_regs (lk->dev, regs);
++				if (!test_bit (lk->keycode[data], lk->dev->key))
++					input_report_key (lk->dev, lk->keycode[data], 1);
+ 				else
+-					input_report_key (&lk->dev, lk->keycode[data], 0);
+-				input_sync (&lk->dev);
++					input_report_key (lk->dev, lk->keycode[data], 0);
++				input_sync (lk->dev);
+                         } else
+                                 printk (KERN_WARNING "%s: Unknown key with "
+ 						"scancode 0x%02x on %s.\n",
+@@ -605,7 +604,7 @@ lkkbd_reinit (void *data)
+ 	lk->serio->write (lk->serio, volume_to_hw (lk->bell_volume));
+ 
+ 	/* Enable/disable keyclick (and possibly set volume) */
+-	if (test_bit (SND_CLICK, lk->dev.snd)) {
++	if (test_bit (SND_CLICK, lk->dev->snd)) {
+ 		lk->serio->write (lk->serio, LK_CMD_ENABLE_KEYCLICK);
+ 		lk->serio->write (lk->serio, volume_to_hw (lk->keyclick_volume));
+ 		lk->serio->write (lk->serio, LK_CMD_ENABLE_CTRCLICK);
+@@ -616,7 +615,7 @@ lkkbd_reinit (void *data)
+ 	}
+ 
+ 	/* Sound the bell if needed */
+-	if (test_bit (SND_BELL, lk->dev.snd))
++	if (test_bit (SND_BELL, lk->dev->snd))
+ 		lk->serio->write (lk->serio, LK_CMD_SOUND_BELL);
  }
  
-@@ -493,61 +493,57 @@ static int
- vsxxxaa_connect (struct serio *serio, struct serio_driver *drv)
+@@ -627,71 +626,70 @@ static int
+ lkkbd_connect (struct serio *serio, struct serio_driver *drv)
  {
- 	struct vsxxxaa *mouse;
--	int err;
+ 	struct lkkbd *lk;
 +	struct input_dev *input_dev;
-+	int err = -ENOMEM;
+ 	int i;
+ 	int err;
  
--	if (!(mouse = kmalloc (sizeof (struct vsxxxaa), GFP_KERNEL)))
+-	if (!(lk = kmalloc (sizeof (struct lkkbd), GFP_KERNEL)))
 -		return -ENOMEM;
 -
--	memset (mouse, 0, sizeof (struct vsxxxaa));
+-	memset (lk, 0, sizeof (struct lkkbd));
 -
--	init_input_dev (&mouse->dev);
--	set_bit (EV_KEY, mouse->dev.evbit);		/* We have buttons */
--	set_bit (EV_REL, mouse->dev.evbit);
--	set_bit (EV_ABS, mouse->dev.evbit);
--	set_bit (BTN_LEFT, mouse->dev.keybit);		/* We have 3 buttons */
--	set_bit (BTN_MIDDLE, mouse->dev.keybit);
--	set_bit (BTN_RIGHT, mouse->dev.keybit);
--	set_bit (BTN_TOUCH, mouse->dev.keybit);		/* ...and Tablet */
--	set_bit (REL_X, mouse->dev.relbit);
--	set_bit (REL_Y, mouse->dev.relbit);
--	set_bit (ABS_X, mouse->dev.absbit);
--	set_bit (ABS_Y, mouse->dev.absbit);
--
--	mouse->dev.absmin[ABS_X] = 0;
--	mouse->dev.absmax[ABS_X] = 1023;
--	mouse->dev.absmin[ABS_Y] = 0;
--	mouse->dev.absmax[ABS_Y] = 1023;
--
--	mouse->dev.private = mouse;
-+	mouse = kzalloc (sizeof (struct vsxxxaa), GFP_KERNEL);
+-	init_input_dev (&lk->dev);
+-	set_bit (EV_KEY, lk->dev.evbit);
+-	set_bit (EV_LED, lk->dev.evbit);
+-	set_bit (EV_SND, lk->dev.evbit);
+-	set_bit (EV_REP, lk->dev.evbit);
+-	set_bit (LED_CAPSL, lk->dev.ledbit);
+-	set_bit (LED_SLEEP, lk->dev.ledbit);
+-	set_bit (LED_COMPOSE, lk->dev.ledbit);
+-	set_bit (LED_SCROLLL, lk->dev.ledbit);
+-	set_bit (SND_BELL, lk->dev.sndbit);
+-	set_bit (SND_CLICK, lk->dev.sndbit);
++	lk = kzalloc (sizeof (struct lkkbd), GFP_KERNEL);
 +	input_dev = input_allocate_device ();
-+	if (!mouse || !input_dev)
++	if (!lk || !input_dev) {
++		err = -ENOMEM;
 +		goto fail;
++	}
  
-+	mouse->dev = input_dev;
-+	mouse->serio = serio;
- 	sprintf (mouse->name, "DEC VSXXX-AA/-GA mouse or VSXXX-AB digitizer");
- 	sprintf (mouse->phys, "%s/input0", serio->phys);
--	mouse->dev.name = mouse->name;
--	mouse->dev.phys = mouse->phys;
--	mouse->dev.id.bustype = BUS_RS232;
--	mouse->dev.dev = &serio->dev;
--	mouse->serio = serio;
-+
-+	input_dev->name = mouse->name;
-+	input_dev->phys = mouse->phys;
+ 	lk->serio = serio;
+-
++	lk->dev = input_dev;
+ 	INIT_WORK (&lk->tq, lkkbd_reinit, lk);
+-
+ 	lk->bell_volume = bell_volume;
+ 	lk->keyclick_volume = keyclick_volume;
+ 	lk->ctrlclick_volume = ctrlclick_volume;
++	memcpy (lk->keycode, lkkbd_keycode, sizeof (lk_keycode_t) * LK_NUM_KEYCODES);
+ 
+-	lk->dev.keycode = lk->keycode;
+-	lk->dev.keycodesize = sizeof (lk_keycode_t);
+-	lk->dev.keycodemax = LK_NUM_KEYCODES;
++	strlcpy (lk->name, "DEC LK keyboard", sizeof(lk->name));
++	snprintf (lk->phys, sizeof(lk->phys), "%s/input0", serio->phys);
+ 
+-	lk->dev.event = lkkbd_event;
+-	lk->dev.private = lk;
++	input_dev->name = lk->name;
++	input_dev->phys = lk->phys;
 +	input_dev->id.bustype = BUS_RS232;
++	input_dev->id.vendor = SERIO_LKKBD;
++	input_dev->id.product = 0;
++	input_dev->id.version = 0x0100;
 +	input_dev->cdev.dev = &serio->dev;
-+	input_dev->private = mouse;
++	input_dev->event = lkkbd_event;
++	input_dev->private = lk;
 +
-+	set_bit (EV_KEY, input_dev->evbit);		/* We have buttons */
-+	set_bit (EV_REL, input_dev->evbit);
-+	set_bit (EV_ABS, input_dev->evbit);
-+	set_bit (BTN_LEFT, input_dev->keybit);		/* We have 3 buttons */
-+	set_bit (BTN_MIDDLE, input_dev->keybit);
-+	set_bit (BTN_RIGHT, input_dev->keybit);
-+	set_bit (BTN_TOUCH, input_dev->keybit);		/* ...and Tablet */
-+	set_bit (REL_X, input_dev->relbit);
-+	set_bit (REL_Y, input_dev->relbit);
-+	input_set_abs_params (input_dev, ABS_X, 0, 1023, 0, 0);
-+	input_set_abs_params (input_dev, ABS_Y, 0, 1023, 0, 0);
++	set_bit (EV_KEY, input_dev->evbit);
++	set_bit (EV_LED, input_dev->evbit);
++	set_bit (EV_SND, input_dev->evbit);
++	set_bit (EV_REP, input_dev->evbit);
++	set_bit (LED_CAPSL, input_dev->ledbit);
++	set_bit (LED_SLEEP, input_dev->ledbit);
++	set_bit (LED_COMPOSE, input_dev->ledbit);
++	set_bit (LED_SCROLLL, input_dev->ledbit);
++	set_bit (SND_BELL, input_dev->sndbit);
++	set_bit (SND_CLICK, input_dev->sndbit);
++
++	input_dev->keycode = lk->keycode;
++	input_dev->keycodesize = sizeof (lk_keycode_t);
++	input_dev->keycodemax = LK_NUM_KEYCODES;
++	for (i = 0; i < LK_NUM_KEYCODES; i++)
++		set_bit (lk->keycode[i], input_dev->keybit);
  
- 	serio_set_drvdata (serio, mouse);
+ 	serio_set_drvdata (serio, lk);
  
  	err = serio_open (serio, drv);
 -	if (err) {
 -		serio_set_drvdata (serio, NULL);
--		kfree (mouse);
+-		kfree (lk);
 -		return err;
 -	}
 +	if (err)
 +		goto fail;
  
- 	/*
- 	 * Request selftest. Standard packet format and differential
- 	 * mode will be requested after the device ID'ed successfully.
- 	 */
--	mouse->serio->write (mouse->serio, 'T'); /* Test */
+-	sprintf (lk->name, "DEC LK keyboard");
+-	sprintf (lk->phys, "%s/input0", serio->phys);
 -
--	input_register_device (&mouse->dev);
-+	serio->write (serio, 'T'); /* Test */
- 
--	printk (KERN_INFO "input: %s on %s\n", mouse->name, mouse->phys);
-+	input_register_device (input_dev);
+-	memcpy (lk->keycode, lkkbd_keycode, sizeof (lk_keycode_t) * LK_NUM_KEYCODES);
+-	for (i = 0; i < LK_NUM_KEYCODES; i++)
+-		set_bit (lk->keycode[i], lk->dev.keybit);
+-
+-	lk->dev.name = lk->name;
+-	lk->dev.phys = lk->phys;
+-	lk->dev.id.bustype = BUS_RS232;
+-	lk->dev.id.vendor = SERIO_LKKBD;
+-	lk->dev.id.product = 0;
+-	lk->dev.id.version = 0x0100;
+-	lk->dev.dev = &serio->dev;
+-
+-	input_register_device (&lk->dev);
+-
+-	printk (KERN_INFO "input: %s on %s, initiating reset\n", lk->name, serio->phys);
++	input_register_device (lk->dev);
+ 	lk->serio->write (lk->serio, LK_CMD_POWERCYCLE_RESET);
  
  	return 0;
 +
 + fail:	serio_set_drvdata (serio, NULL);
 +	input_free_device (input_dev);
-+	kfree (mouse);
++	kfree (lk);
 +	return err;
  }
  
- static struct serio_device_id vsxxaa_serio_ids[] = {
-Index: work/drivers/input/mouse/psmouse-base.c
-===================================================================
---- work.orig/drivers/input/mouse/psmouse-base.c
-+++ work/drivers/input/mouse/psmouse-base.c
-@@ -114,7 +114,7 @@ struct psmouse_protocol {
- 
- static psmouse_ret_t psmouse_process_byte(struct psmouse *psmouse, struct pt_regs *regs)
+ /*
+@@ -702,9 +700,11 @@ lkkbd_disconnect (struct serio *serio)
  {
--	struct input_dev *dev = &psmouse->dev;
-+	struct input_dev *dev = psmouse->dev;
- 	unsigned char *packet = psmouse->packet;
+ 	struct lkkbd *lk = serio_get_drvdata (serio);
  
- 	if (psmouse->pktcnt < psmouse->pktsize)
-@@ -333,12 +333,11 @@ static int genius_detect(struct psmouse 
- 		return -1;
- 
- 	if (set_properties) {
--		set_bit(BTN_EXTRA, psmouse->dev.keybit);
--		set_bit(BTN_SIDE, psmouse->dev.keybit);
--		set_bit(REL_WHEEL, psmouse->dev.relbit);
-+		set_bit(BTN_EXTRA, psmouse->dev->keybit);
-+		set_bit(BTN_SIDE, psmouse->dev->keybit);
-+		set_bit(REL_WHEEL, psmouse->dev->relbit);
- 
- 		psmouse->vendor = "Genius";
--		psmouse->name = "Wheel Mouse";
- 		psmouse->pktsize = 4;
- 	}
- 
-@@ -365,8 +364,8 @@ static int intellimouse_detect(struct ps
- 		return -1;
- 
- 	if (set_properties) {
--		set_bit(BTN_MIDDLE, psmouse->dev.keybit);
--		set_bit(REL_WHEEL, psmouse->dev.relbit);
-+		set_bit(BTN_MIDDLE, psmouse->dev->keybit);
-+		set_bit(REL_WHEEL, psmouse->dev->relbit);
- 
- 		if (!psmouse->vendor) psmouse->vendor = "Generic";
- 		if (!psmouse->name) psmouse->name = "Wheel Mouse";
-@@ -398,10 +397,10 @@ static int im_explorer_detect(struct psm
- 		return -1;
- 
- 	if (set_properties) {
--		set_bit(BTN_MIDDLE, psmouse->dev.keybit);
--		set_bit(REL_WHEEL, psmouse->dev.relbit);
--		set_bit(BTN_SIDE, psmouse->dev.keybit);
--		set_bit(BTN_EXTRA, psmouse->dev.keybit);
-+		set_bit(BTN_MIDDLE, psmouse->dev->keybit);
-+		set_bit(REL_WHEEL, psmouse->dev->relbit);
-+		set_bit(BTN_SIDE, psmouse->dev->keybit);
-+		set_bit(BTN_EXTRA, psmouse->dev->keybit);
- 
- 		if (!psmouse->vendor) psmouse->vendor = "Generic";
- 		if (!psmouse->name) psmouse->name = "Explorer Mouse";
-@@ -433,7 +432,7 @@ static int thinking_detect(struct psmous
- 		return -1;
- 
- 	if (set_properties) {
--		set_bit(BTN_EXTRA, psmouse->dev.keybit);
-+		set_bit(BTN_EXTRA, psmouse->dev->keybit);
- 
- 		psmouse->vendor = "Kensington";
- 		psmouse->name = "ThinkingMouse";
-@@ -839,9 +838,9 @@ static void psmouse_disconnect(struct se
- 
- 	psmouse_set_state(psmouse, PSMOUSE_IGNORE);
- 
--	input_unregister_device(&psmouse->dev);
- 	serio_close(serio);
- 	serio_set_drvdata(serio, NULL);
-+	input_unregister_device(psmouse->dev);
- 	kfree(psmouse);
- 
- 	if (parent)
-@@ -852,16 +851,14 @@ static void psmouse_disconnect(struct se
- 
- static int psmouse_switch_protocol(struct psmouse *psmouse, struct psmouse_protocol *proto)
- {
--	memset(&psmouse->dev, 0, sizeof(struct input_dev));
-+	struct input_dev *input_dev = psmouse->dev;
- 
--	init_input_dev(&psmouse->dev);
-+	input_dev->private = psmouse;
-+	input_dev->cdev.dev = &psmouse->ps2dev.serio->dev;
- 
--	psmouse->dev.private = psmouse;
--	psmouse->dev.dev = &psmouse->ps2dev.serio->dev;
--
--	psmouse->dev.evbit[0] = BIT(EV_KEY) | BIT(EV_REL);
--	psmouse->dev.keybit[LONG(BTN_MOUSE)] = BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT);
--	psmouse->dev.relbit[0] = BIT(REL_X) | BIT(REL_Y);
-+	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REL);
-+	input_dev->keybit[LONG(BTN_MOUSE)] = BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT);
-+	input_dev->relbit[0] = BIT(REL_X) | BIT(REL_Y);
- 
- 	psmouse->set_rate = psmouse_set_rate;
- 	psmouse->set_resolution = psmouse_set_resolution;
-@@ -883,12 +880,12 @@ static int psmouse_switch_protocol(struc
- 	sprintf(psmouse->devname, "%s %s %s",
- 		psmouse_protocol_by_type(psmouse->type)->name, psmouse->vendor, psmouse->name);
- 
--	psmouse->dev.name = psmouse->devname;
--	psmouse->dev.phys = psmouse->phys;
--	psmouse->dev.id.bustype = BUS_I8042;
--	psmouse->dev.id.vendor = 0x0002;
--	psmouse->dev.id.product = psmouse->type;
--	psmouse->dev.id.version = psmouse->model;
-+	input_dev->name = psmouse->devname;
-+	input_dev->phys = psmouse->phys;
-+	input_dev->id.bustype = BUS_I8042;
-+	input_dev->id.vendor = 0x0002;
-+	input_dev->id.product = psmouse->type;
-+	input_dev->id.version = psmouse->model;
- 
- 	return 0;
+-	input_unregister_device (&lk->dev);
++	input_get_device (lk->dev);
++	input_unregister_device (lk->dev);
+ 	serio_close (serio);
+ 	serio_set_drvdata (serio, NULL);
++	input_put_device (lk->dev);
+ 	kfree (lk);
  }
-@@ -900,7 +897,8 @@ static int psmouse_switch_protocol(struc
- static int psmouse_connect(struct serio *serio, struct serio_driver *drv)
+ 
+Index: work/drivers/input/keyboard/corgikbd.c
+===================================================================
+--- work.orig/drivers/input/keyboard/corgikbd.c
++++ work/drivers/input/keyboard/corgikbd.c
+@@ -70,8 +70,7 @@ static unsigned char corgikbd_keycode[NR
+ 
+ struct corgikbd {
+ 	unsigned char keycode[ARRAY_SIZE(corgikbd_keycode)];
+-	struct input_dev input;
+-	char phys[32];
++	struct input_dev *input;
+ 
+ 	spinlock_t lock;
+ 	struct timer_list timer;
+@@ -147,7 +146,7 @@ static void corgikbd_scankeyboard(struct
+ 	spin_lock_irqsave(&corgikbd_data->lock, flags);
+ 
+ 	if (regs)
+-		input_regs(&corgikbd_data->input, regs);
++		input_regs(corgikbd_data->input, regs);
+ 
+ 	num_pressed = 0;
+ 	for (col = 0; col < KB_COLS; col++) {
+@@ -169,14 +168,14 @@ static void corgikbd_scankeyboard(struct
+ 			scancode = SCANCODE(row, col);
+ 			pressed = rowd & KB_ROWMASK(row);
+ 
+-			input_report_key(&corgikbd_data->input, corgikbd_data->keycode[scancode], pressed);
++			input_report_key(corgikbd_data->input, corgikbd_data->keycode[scancode], pressed);
+ 
+ 			if (pressed)
+ 				num_pressed++;
+ 
+ 			if (pressed && (corgikbd_data->keycode[scancode] == CORGI_KEY_OFF)
+ 					&& time_after(jiffies, corgikbd_data->suspend_jiffies + HZ)) {
+-				input_event(&corgikbd_data->input, EV_PWR, CORGI_KEY_OFF, 1);
++				input_event(corgikbd_data->input, EV_PWR, CORGI_KEY_OFF, 1);
+ 				corgikbd_data->suspend_jiffies=jiffies;
+ 			}
+ 		}
+@@ -185,7 +184,7 @@ static void corgikbd_scankeyboard(struct
+ 
+ 	corgikbd_activate_all();
+ 
+-	input_sync(&corgikbd_data->input);
++	input_sync(corgikbd_data->input);
+ 
+ 	/* if any keys are pressed, enable the timer */
+ 	if (num_pressed)
+@@ -249,9 +248,9 @@ static void corgikbd_hinge_timer(unsigne
+ 		if (hinge_count >= HINGE_STABLE_COUNT) {
+ 			spin_lock_irqsave(&corgikbd_data->lock, flags);
+ 
+-			input_report_switch(&corgikbd_data->input, SW_0, ((sharpsl_hinge_state & CORGI_SCP_SWA) != 0));
+-			input_report_switch(&corgikbd_data->input, SW_1, ((sharpsl_hinge_state & CORGI_SCP_SWB) != 0));
+-			input_sync(&corgikbd_data->input);
++			input_report_switch(corgikbd_data->input, SW_0, ((sharpsl_hinge_state & CORGI_SCP_SWA) != 0));
++			input_report_switch(corgikbd_data->input, SW_1, ((sharpsl_hinge_state & CORGI_SCP_SWB) != 0));
++			input_sync(corgikbd_data->input);
+ 
+ 			spin_unlock_irqrestore(&corgikbd_data->lock, flags);
+ 		}
+@@ -287,16 +286,21 @@ static int corgikbd_resume(struct device
+ 
+ static int __init corgikbd_probe(struct device *dev)
  {
- 	struct psmouse *psmouse, *parent = NULL;
--	int retval;
+-	int i;
+ 	struct corgikbd *corgikbd;
 +	struct input_dev *input_dev;
-+	int retval = -ENOMEM;
++	int i;
  
- 	down(&psmouse_sem);
- 
-@@ -913,12 +911,13 @@ static int psmouse_connect(struct serio 
- 		psmouse_deactivate(parent);
- 	}
- 
--	if (!(psmouse = kzalloc(sizeof(struct psmouse), GFP_KERNEL))) {
--		retval = -ENOMEM;
-+	psmouse = kzalloc(sizeof(struct psmouse), GFP_KERNEL);
+ 	corgikbd = kzalloc(sizeof(struct corgikbd), GFP_KERNEL);
+-	if (!corgikbd)
 +	input_dev = input_allocate_device();
-+	if (!psmouse || !input_dev)
- 		goto out;
--	}
- 
- 	ps2_init(&psmouse->ps2dev, serio);
-+	psmouse->dev = input_dev;
- 	sprintf(psmouse->phys, "%s/input0", serio->phys);
- 
- 	psmouse_set_state(psmouse, PSMOUSE_INITIALIZING);
-@@ -926,16 +925,11 @@ static int psmouse_connect(struct serio 
- 	serio_set_drvdata(serio, psmouse);
- 
- 	retval = serio_open(serio, drv);
--	if (retval) {
--		serio_set_drvdata(serio, NULL);
--		kfree(psmouse);
-+	if (retval)
- 		goto out;
--	}
- 
- 	if (psmouse_probe(psmouse) < 0) {
- 		serio_close(serio);
--		serio_set_drvdata(serio, NULL);
--		kfree(psmouse);
- 		retval = -ENODEV;
- 		goto out;
- 	}
-@@ -947,13 +941,11 @@ static int psmouse_connect(struct serio 
- 
- 	psmouse_switch_protocol(psmouse, NULL);
- 
--	input_register_device(&psmouse->dev);
--	printk(KERN_INFO "input: %s on %s\n", psmouse->devname, serio->phys);
--
- 	psmouse_set_state(psmouse, PSMOUSE_CMD_MODE);
--
- 	psmouse_initialize(psmouse);
- 
-+	input_register_device(psmouse->dev);
-+
- 	if (parent && parent->pt_activate)
- 		parent->pt_activate(parent);
- 
-@@ -964,6 +956,12 @@ static int psmouse_connect(struct serio 
- 	retval = 0;
- 
- out:
-+	if (retval) {
-+		serio_set_drvdata(serio, NULL);
++	if (!corgikbd || !input_dev) {
++		kfree(corgikbd);
 +		input_free_device(input_dev);
-+		kfree(psmouse);
+ 		return -ENOMEM;
 +	}
-+
- 	/* If this is a pass-through port the parent needs to be re-activated */
- 	if (parent)
- 		psmouse_activate(parent);
-@@ -1161,6 +1159,7 @@ static ssize_t psmouse_attr_set_protocol
- {
- 	struct serio *serio = psmouse->ps2dev.serio;
- 	struct psmouse *parent = NULL;
-+	struct input_dev *new_dev;
- 	struct psmouse_protocol *proto;
- 	int retry = 0;
  
-@@ -1170,9 +1169,13 @@ static ssize_t psmouse_attr_set_protocol
- 	if (psmouse->type == proto->type)
- 		return count;
+-	dev_set_drvdata(dev,corgikbd);
+-	strcpy(corgikbd->phys, "corgikbd/input0");
++	dev_set_drvdata(dev, corgikbd);
  
-+	if (!(new_dev = input_allocate_device()))
-+		return -ENOMEM;
-+
- 	while (serio->child) {
- 		if (++retry > 3) {
- 			printk(KERN_WARNING "psmouse: failed to destroy child port, protocol change aborted.\n");
-+			input_free_device(new_dev);
- 			return -EIO;
- 		}
++	corgikbd->input = input_dev;
+ 	spin_lock_init(&corgikbd->lock);
  
-@@ -1182,11 +1185,15 @@ static ssize_t psmouse_attr_set_protocol
- 		serio_pin_driver_uninterruptible(serio);
- 		down(&psmouse_sem);
+ 	/* Init Keyboard rescan timer */
+@@ -311,28 +315,30 @@ static int __init corgikbd_probe(struct 
  
--		if (serio->drv != &psmouse_drv)
-+		if (serio->drv != &psmouse_drv) {
-+			input_free_device(new_dev);
- 			return -ENODEV;
-+		}
+ 	corgikbd->suspend_jiffies=jiffies;
  
--		if (psmouse->type == proto->type)
-+		if (psmouse->type == proto->type) {
-+			input_free_device(new_dev);
- 			return count; /* switched by other thread */
-+		}
- 	}
- 
- 	if (serio->parent && serio->id.type == SERIO_PS_PSTHRU) {
-@@ -1199,8 +1206,9 @@ static ssize_t psmouse_attr_set_protocol
- 		psmouse->disconnect(psmouse);
- 
- 	psmouse_set_state(psmouse, PSMOUSE_IGNORE);
--	input_unregister_device(&psmouse->dev);
-+	input_unregister_device(psmouse->dev);
- 
-+	psmouse->dev = new_dev;
- 	psmouse_set_state(psmouse, PSMOUSE_INITIALIZING);
- 
- 	if (psmouse_switch_protocol(psmouse, proto) < 0) {
-@@ -1212,8 +1220,7 @@ static ssize_t psmouse_attr_set_protocol
- 	psmouse_initialize(psmouse);
- 	psmouse_set_state(psmouse, PSMOUSE_CMD_MODE);
- 
--	input_register_device(&psmouse->dev);
--	printk(KERN_INFO "input: %s on %s\n", psmouse->devname, serio->phys);
-+	input_register_device(psmouse->dev);
- 
- 	if (parent && parent->pt_activate)
- 		parent->pt_activate(parent);
-Index: work/drivers/input/mouse/psmouse.h
-===================================================================
---- work.orig/drivers/input/mouse/psmouse.h
-+++ work/drivers/input/mouse/psmouse.h
-@@ -36,7 +36,7 @@ typedef enum {
- 
- struct psmouse {
- 	void *private;
--	struct input_dev dev;
-+	struct input_dev *dev;
- 	struct ps2dev ps2dev;
- 	char *vendor;
- 	char *name;
-Index: work/drivers/input/mouse/synaptics.c
-===================================================================
---- work.orig/drivers/input/mouse/synaptics.c
-+++ work/drivers/input/mouse/synaptics.c
-@@ -342,7 +342,7 @@ static void synaptics_parse_hw_state(uns
-  */
- static void synaptics_process_packet(struct psmouse *psmouse)
- {
--	struct input_dev *dev = &psmouse->dev;
-+	struct input_dev *dev = psmouse->dev;
- 	struct synaptics_data *priv = psmouse->private;
- 	struct synaptics_hw_state hw;
- 	int num_fingers;
-@@ -473,7 +473,7 @@ static unsigned char synaptics_detect_pk
- 
- static psmouse_ret_t synaptics_process_byte(struct psmouse *psmouse, struct pt_regs *regs)
- {
--	struct input_dev *dev = &psmouse->dev;
-+	struct input_dev *dev = psmouse->dev;
- 	struct synaptics_data *priv = psmouse->private;
- 
- 	input_regs(dev, regs);
-@@ -645,7 +645,7 @@ int synaptics_init(struct psmouse *psmou
- 		SYN_ID_MAJOR(priv->identity), SYN_ID_MINOR(priv->identity),
- 		priv->model_id, priv->capabilities, priv->ext_cap);
- 
--	set_input_params(&psmouse->dev, priv);
-+	set_input_params(psmouse->dev, priv);
- 
- 	psmouse->protocol_handler = synaptics_process_byte;
- 	psmouse->set_rate = synaptics_set_rate;
-Index: work/drivers/input/mouse/alps.c
-===================================================================
---- work.orig/drivers/input/mouse/alps.c
-+++ work/drivers/input/mouse/alps.c
-@@ -79,8 +79,8 @@ static void alps_process_packet(struct p
- {
- 	struct alps_data *priv = psmouse->private;
- 	unsigned char *packet = psmouse->packet;
--	struct input_dev *dev = &psmouse->dev;
--	struct input_dev *dev2 = &priv->dev2;
-+	struct input_dev *dev = psmouse->dev;
-+	struct input_dev *dev2 = priv->dev2;
- 	int x, y, z, ges, fin, left, right, middle;
- 	int back = 0, forward = 0;
- 
-@@ -379,20 +379,24 @@ static int alps_reconnect(struct psmouse
- static void alps_disconnect(struct psmouse *psmouse)
- {
- 	struct alps_data *priv = psmouse->private;
-+
- 	psmouse_reset(psmouse);
--	input_unregister_device(&priv->dev2);
-+	input_unregister_device(priv->dev2);
- 	kfree(priv);
- }
- 
- int alps_init(struct psmouse *psmouse)
- {
- 	struct alps_data *priv;
-+	struct input_dev *dev1 = psmouse->dev, *dev2;
- 	int version;
- 
--	psmouse->private = priv = kmalloc(sizeof(struct alps_data), GFP_KERNEL);
--	if (!priv)
-+	psmouse->private = priv = kzalloc(sizeof(struct alps_data), GFP_KERNEL);
-+	dev2 = input_allocate_device();
-+	if (!priv || !dev2)
- 		goto init_fail;
--	memset(priv, 0, sizeof(struct alps_data));
-+
-+	priv->dev2 = dev2;
- 
- 	if (!(priv->i = alps_get_model(psmouse, &version)))
- 		goto init_fail;
-@@ -411,41 +415,39 @@ int alps_init(struct psmouse *psmouse)
- 	if ((priv->i->flags & ALPS_PASS) && alps_passthrough_mode(psmouse, 0))
- 		goto init_fail;
- 
--	psmouse->dev.evbit[LONG(EV_KEY)] |= BIT(EV_KEY);
--	psmouse->dev.keybit[LONG(BTN_TOUCH)] |= BIT(BTN_TOUCH);
--	psmouse->dev.keybit[LONG(BTN_TOOL_FINGER)] |= BIT(BTN_TOOL_FINGER);
--	psmouse->dev.keybit[LONG(BTN_LEFT)] |= BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT);
+-	init_input_dev(&corgikbd->input);
+-	corgikbd->input.private = corgikbd;
+-	corgikbd->input.name = "Corgi Keyboard";
+-	corgikbd->input.dev = dev;
+-	corgikbd->input.phys = corgikbd->phys;
+-	corgikbd->input.id.bustype = BUS_HOST;
+-	corgikbd->input.id.vendor = 0x0001;
+-	corgikbd->input.id.product = 0x0001;
+-	corgikbd->input.id.version = 0x0100;
+-	corgikbd->input.evbit[0] = BIT(EV_KEY) | BIT(EV_REP) | BIT(EV_PWR) | BIT(EV_SW);
+-	corgikbd->input.keycode = corgikbd->keycode;
+-	corgikbd->input.keycodesize = sizeof(unsigned char);
+-	corgikbd->input.keycodemax = ARRAY_SIZE(corgikbd_keycode);
 -
--	psmouse->dev.evbit[LONG(EV_ABS)] |= BIT(EV_ABS);
--	input_set_abs_params(&psmouse->dev, ABS_X, 0, 1023, 0, 0);
--	input_set_abs_params(&psmouse->dev, ABS_Y, 0, 767, 0, 0);
--	input_set_abs_params(&psmouse->dev, ABS_PRESSURE, 0, 127, 0, 0);
-+	dev1->evbit[LONG(EV_KEY)] |= BIT(EV_KEY);
-+	dev1->keybit[LONG(BTN_TOUCH)] |= BIT(BTN_TOUCH);
-+	dev1->keybit[LONG(BTN_TOOL_FINGER)] |= BIT(BTN_TOOL_FINGER);
-+	dev1->keybit[LONG(BTN_LEFT)] |= BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT);
+ 	memcpy(corgikbd->keycode, corgikbd_keycode, sizeof(corgikbd->keycode));
 +
-+	dev1->evbit[LONG(EV_ABS)] |= BIT(EV_ABS);
-+	input_set_abs_params(dev1, ABS_X, 0, 1023, 0, 0);
-+	input_set_abs_params(dev1, ABS_Y, 0, 767, 0, 0);
-+	input_set_abs_params(dev1, ABS_PRESSURE, 0, 127, 0, 0);
- 
- 	if (priv->i->flags & ALPS_WHEEL) {
--		psmouse->dev.evbit[LONG(EV_REL)] |= BIT(EV_REL);
--		psmouse->dev.relbit[LONG(REL_WHEEL)] |= BIT(REL_WHEEL);
-+		dev1->evbit[LONG(EV_REL)] |= BIT(EV_REL);
-+		dev1->relbit[LONG(REL_WHEEL)] |= BIT(REL_WHEEL);
- 	}
- 
- 	if (priv->i->flags & (ALPS_FW_BK_1 | ALPS_FW_BK_2)) {
--		psmouse->dev.keybit[LONG(BTN_FORWARD)] |= BIT(BTN_FORWARD);
--		psmouse->dev.keybit[LONG(BTN_BACK)] |= BIT(BTN_BACK);
-+		dev1->keybit[LONG(BTN_FORWARD)] |= BIT(BTN_FORWARD);
-+		dev1->keybit[LONG(BTN_BACK)] |= BIT(BTN_BACK);
- 	}
- 
- 	sprintf(priv->phys, "%s/input1", psmouse->ps2dev.serio->phys);
--	priv->dev2.phys = priv->phys;
--	priv->dev2.name = (priv->i->flags & ALPS_DUALPOINT) ? "DualPoint Stick" : "PS/2 Mouse";
--	priv->dev2.id.bustype = BUS_I8042;
--	priv->dev2.id.vendor = 0x0002;
--	priv->dev2.id.product = PSMOUSE_ALPS;
--	priv->dev2.id.version = 0x0000;
--
--	priv->dev2.evbit[0] = BIT(EV_KEY) | BIT(EV_REL);
--	priv->dev2.relbit[LONG(REL_X)] |= BIT(REL_X) | BIT(REL_Y);
--	priv->dev2.keybit[LONG(BTN_LEFT)] |= BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT);
--
--	input_register_device(&priv->dev2);
-+	dev2->phys = priv->phys;
-+	dev2->name = (priv->i->flags & ALPS_DUALPOINT) ? "DualPoint Stick" : "PS/2 Mouse";
-+	dev2->id.bustype = BUS_I8042;
-+	dev2->id.vendor  = 0x0002;
-+	dev2->id.product = PSMOUSE_ALPS;
-+	dev2->id.version = 0x0000;
++	input_dev->name = "Corgi Keyboard";
++	input_dev->phys = "corgikbd/input0";
++	input_dev->id.bustype = BUS_HOST;
++	input_dev->id.vendor = 0x0001;
++	input_dev->id.product = 0x0001;
++	input_dev->id.version = 0x0100;
++	input_dev->cdev.dev = dev;
++	input_dev->private = corgikbd;
 +
-+	dev2->evbit[0] = BIT(EV_KEY) | BIT(EV_REL);
-+	dev2->relbit[LONG(REL_X)] |= BIT(REL_X) | BIT(REL_Y);
-+	dev2->keybit[LONG(BTN_LEFT)] |= BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT);
++	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP) | BIT(EV_PWR) | BIT(EV_SW);
++	input_dev->keycode = corgikbd->keycode;
++	input_dev->keycodesize = sizeof(unsigned char);
++	input_dev->keycodemax = ARRAY_SIZE(corgikbd_keycode);
++
+ 	for (i = 0; i < ARRAY_SIZE(corgikbd_keycode); i++)
+-		set_bit(corgikbd->keycode[i], corgikbd->input.keybit);
+-	clear_bit(0, corgikbd->input.keybit);
+-	set_bit(SW_0, corgikbd->input.swbit);
+-	set_bit(SW_1, corgikbd->input.swbit);
++		set_bit(corgikbd->keycode[i], input_dev->keybit);
++	clear_bit(0, input_dev->keybit);
++	set_bit(SW_0, input_dev->swbit);
++	set_bit(SW_1, input_dev->swbit);
++
++	input_register_device(corgikbd->input);
  
--	printk(KERN_INFO "input: %s on %s\n", priv->dev2.name, psmouse->ps2dev.serio->phys);
-+	input_register_device(priv->dev2);
+-	input_register_device(&corgikbd->input);
+ 	mod_timer(&corgikbd->htimer, jiffies + HINGE_SCAN_INTERVAL);
  
- 	psmouse->protocol_handler = alps_process_byte;
- 	psmouse->disconnect = alps_disconnect;
-@@ -455,6 +457,7 @@ int alps_init(struct psmouse *psmouse)
+ 	/* Setup sense interrupts - RisingEdge Detect, sense lines as inputs */
+@@ -349,8 +355,6 @@ static int __init corgikbd_probe(struct 
+ 	for (i = 0; i < CORGI_KEY_STROBE_NUM; i++)
+ 		pxa_gpio_mode(CORGI_GPIO_KEY_STROBE(i) | GPIO_OUT | GPIO_DFLT_HIGH);
+ 
+-	printk(KERN_INFO "input: Corgi Keyboard Registered\n");
+-
  	return 0;
- 
- init_fail:
-+	input_free_device(dev2);
- 	kfree(priv);
- 	return -1;
  }
-Index: work/drivers/input/mouse/logips2pp.c
+ 
+@@ -365,7 +369,7 @@ static int corgikbd_remove(struct device
+ 	del_timer_sync(&corgikbd->htimer);
+ 	del_timer_sync(&corgikbd->timer);
+ 
+-	input_unregister_device(&corgikbd->input);
++	input_unregister_device(corgikbd->input);
+ 
+ 	kfree(corgikbd);
+ 
+Index: work/drivers/input/keyboard/xtkbd.c
 ===================================================================
---- work.orig/drivers/input/mouse/logips2pp.c
-+++ work/drivers/input/mouse/logips2pp.c
-@@ -40,7 +40,7 @@ struct ps2pp_info {
- 
- static psmouse_ret_t ps2pp_process_byte(struct psmouse *psmouse, struct pt_regs *regs)
- {
--	struct input_dev *dev = &psmouse->dev;
-+	struct input_dev *dev = psmouse->dev;
- 	unsigned char *packet = psmouse->packet;
- 
- 	if (psmouse->pktcnt < 3)
-@@ -257,25 +257,27 @@ static struct ps2pp_info *get_model_info
- static void ps2pp_set_model_properties(struct psmouse *psmouse, struct ps2pp_info *model_info,
- 				       int using_ps2pp)
- {
-+	struct input_dev *input_dev = psmouse->dev;
-+
- 	if (model_info->features & PS2PP_SIDE_BTN)
--		set_bit(BTN_SIDE, psmouse->dev.keybit);
-+		set_bit(BTN_SIDE, input_dev->keybit);
- 
- 	if (model_info->features & PS2PP_EXTRA_BTN)
--		set_bit(BTN_EXTRA, psmouse->dev.keybit);
-+		set_bit(BTN_EXTRA, input_dev->keybit);
- 
- 	if (model_info->features & PS2PP_TASK_BTN)
--		set_bit(BTN_TASK, psmouse->dev.keybit);
-+		set_bit(BTN_TASK, input_dev->keybit);
- 
- 	if (model_info->features & PS2PP_NAV_BTN) {
--		set_bit(BTN_FORWARD, psmouse->dev.keybit);
--		set_bit(BTN_BACK, psmouse->dev.keybit);
-+		set_bit(BTN_FORWARD, input_dev->keybit);
-+		set_bit(BTN_BACK, input_dev->keybit);
- 	}
- 
- 	if (model_info->features & PS2PP_WHEEL)
--		set_bit(REL_WHEEL, psmouse->dev.relbit);
-+		set_bit(REL_WHEEL, input_dev->relbit);
- 
- 	if (model_info->features & PS2PP_HWHEEL)
--		set_bit(REL_HWHEEL, psmouse->dev.relbit);
-+		set_bit(REL_HWHEEL, input_dev->relbit);
- 
- 	switch (model_info->kind) {
- 		case PS2PP_KIND_WHEEL:
-@@ -387,7 +389,7 @@ int ps2pp_init(struct psmouse *psmouse, 
- 		}
- 
- 		if (buttons < 3)
--			clear_bit(BTN_MIDDLE, psmouse->dev.keybit);
-+			clear_bit(BTN_MIDDLE, psmouse->dev->keybit);
- 
- 		if (model_info)
- 			ps2pp_set_model_properties(psmouse, model_info, use_ps2pp);
-Index: work/drivers/input/mouse/alps.h
-===================================================================
---- work.orig/drivers/input/mouse/alps.h
-+++ work/drivers/input/mouse/alps.h
-@@ -22,7 +22,7 @@ struct alps_model_info {
+--- work.orig/drivers/input/keyboard/xtkbd.c
++++ work/drivers/input/keyboard/xtkbd.c
+@@ -56,11 +56,9 @@ static unsigned char xtkbd_keycode[256] 
+ 	106
  };
  
- struct alps_data {
--	struct input_dev dev2;		/* Relative device */
-+	struct input_dev *dev2;		/* Relative device */
- 	char name[32];			/* Name */
- 	char phys[32];			/* Phys */
- 	struct alps_model_info *i; 	/* Info */
-Index: work/drivers/input/mouse/lifebook.c
-===================================================================
---- work.orig/drivers/input/mouse/lifebook.c
-+++ work/drivers/input/mouse/lifebook.c
-@@ -34,7 +34,7 @@ static struct dmi_system_id lifebook_dmi
- static psmouse_ret_t lifebook_process_byte(struct psmouse *psmouse, struct pt_regs *regs)
- {
- 	unsigned char *packet = psmouse->packet;
--	struct input_dev *dev = &psmouse->dev;
-+	struct input_dev *dev = psmouse->dev;
+-static char *xtkbd_name = "XT Keyboard";
+-
+ struct xtkbd {
+ 	unsigned char keycode[256];
+-	struct input_dev dev;
++	struct input_dev *dev;
+ 	struct serio *serio;
+ 	char phys[32];
+ };
+@@ -77,9 +75,9 @@ static irqreturn_t xtkbd_interrupt(struc
+ 		default:
  
- 	if (psmouse->pktcnt != 3)
- 		return PSMOUSE_GOOD_DATA;
-@@ -113,15 +113,17 @@ int lifebook_detect(struct psmouse *psmo
- 
- int lifebook_init(struct psmouse *psmouse)
+ 			if (xtkbd->keycode[data & XTKBD_KEY]) {
+-				input_regs(&xtkbd->dev, regs);
+-				input_report_key(&xtkbd->dev, xtkbd->keycode[data & XTKBD_KEY], !(data & XTKBD_RELEASE));
+-				input_sync(&xtkbd->dev);
++				input_regs(xtkbd->dev, regs);
++				input_report_key(xtkbd->dev, xtkbd->keycode[data & XTKBD_KEY], !(data & XTKBD_RELEASE));
++				input_sync(xtkbd->dev);
+ 			} else {
+ 				printk(KERN_WARNING "xtkbd.c: Unknown key (scancode %#x) %s.\n",
+ 					data & XTKBD_KEY, data & XTKBD_RELEASE ? "released" : "pressed");
+@@ -91,62 +89,60 @@ static irqreturn_t xtkbd_interrupt(struc
+ static int xtkbd_connect(struct serio *serio, struct serio_driver *drv)
  {
-+	struct input_dev *input_dev = psmouse->dev;
+ 	struct xtkbd *xtkbd;
++	struct input_dev *input_dev;
++	int err = -ENOMEM;
+ 	int i;
+-	int err;
+-
+-	if (!(xtkbd = kmalloc(sizeof(struct xtkbd), GFP_KERNEL)))
+-		return -ENOMEM;
+-
+-	memset(xtkbd, 0, sizeof(struct xtkbd));
+ 
+-	xtkbd->dev.evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
++	xtkbd = kmalloc(sizeof(struct xtkbd), GFP_KERNEL);
++	input_dev = input_allocate_device();
++	if (!xtkbd || !input_dev)
++		goto fail;
+ 
+ 	xtkbd->serio = serio;
+-
+-	init_input_dev(&xtkbd->dev);
+-	xtkbd->dev.keycode = xtkbd->keycode;
+-	xtkbd->dev.keycodesize = sizeof(unsigned char);
+-	xtkbd->dev.keycodemax = ARRAY_SIZE(xtkbd_keycode);
+-	xtkbd->dev.private = xtkbd;
+-
+-	serio_set_drvdata(serio, xtkbd);
+-
+-	err = serio_open(serio, drv);
+-	if (err) {
+-		serio_set_drvdata(serio, NULL);
+-		kfree(xtkbd);
+-		return err;
+-	}
+-
++	xtkbd->dev = input_dev;
++	sprintf(xtkbd->phys, "%s/input0", serio->phys);
+ 	memcpy(xtkbd->keycode, xtkbd_keycode, sizeof(xtkbd->keycode));
+-	for (i = 0; i < 255; i++)
+-		set_bit(xtkbd->keycode[i], xtkbd->dev.keybit);
+-	clear_bit(0, xtkbd->dev.keybit);
+ 
+-	sprintf(xtkbd->phys, "%s/input0", serio->phys);
++	input_dev->name = "XT Keyboard";
++	input_dev->phys = xtkbd->phys;
++	input_dev->id.bustype = BUS_XTKBD;
++	input_dev->id.vendor  = 0x0001;
++	input_dev->id.product = 0x0001;
++	input_dev->id.version = 0x0100;
++	input_dev->cdev.dev = &serio->dev;
++	input_dev->private = xtkbd;
 +
- 	if (lifebook_absolute_mode(psmouse))
++	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
++	input_dev->keycode = xtkbd->keycode;
++	input_dev->keycodesize = sizeof(unsigned char);
++	input_dev->keycodemax = ARRAY_SIZE(xtkbd_keycode);
+ 
+-	xtkbd->dev.name = xtkbd_name;
+-	xtkbd->dev.phys = xtkbd->phys;
+-	xtkbd->dev.id.bustype = BUS_XTKBD;
+-	xtkbd->dev.id.vendor = 0x0001;
+-	xtkbd->dev.id.product = 0x0001;
+-	xtkbd->dev.id.version = 0x0100;
+-	xtkbd->dev.dev = &serio->dev;
++	for (i = 0; i < 255; i++)
++		set_bit(xtkbd->keycode[i], input_dev->keybit);
++	clear_bit(0, input_dev->keybit);
+ 
+-	input_register_device(&xtkbd->dev);
++	serio_set_drvdata(serio, xtkbd);
+ 
+-	printk(KERN_INFO "input: %s on %s\n", xtkbd_name, serio->phys);
++	err = serio_open(serio, drv);
++	if (err)
++		goto fail;
+ 
++	input_register_device(xtkbd->dev);
+ 	return 0;
++
++ fail:	serio_set_drvdata(serio, NULL);
++	input_free_device(input_dev);
++	kfree(xtkbd);
++	return err;
+ }
+ 
+ static void xtkbd_disconnect(struct serio *serio)
+ {
+ 	struct xtkbd *xtkbd = serio_get_drvdata(serio);
+ 
+-	input_unregister_device(&xtkbd->dev);
+ 	serio_close(serio);
+ 	serio_set_drvdata(serio, NULL);
++	input_unregister_device(xtkbd->dev);
+ 	kfree(xtkbd);
+ }
+ 
+Index: work/drivers/input/keyboard/newtonkbd.c
+===================================================================
+--- work.orig/drivers/input/keyboard/newtonkbd.c
++++ work/drivers/input/keyboard/newtonkbd.c
+@@ -57,11 +57,9 @@ static unsigned char nkbd_keycode[128] =
+ 	KEY_LEFT, KEY_RIGHT, KEY_DOWN, KEY_UP, 0
+ };
+ 
+-static char *nkbd_name = "Newton Keyboard";
+-
+ struct nkbd {
+ 	unsigned char keycode[128];
+-	struct input_dev dev;
++	struct input_dev *dev;
+ 	struct serio *serio;
+ 	char phys[32];
+ };
+@@ -73,13 +71,13 @@ static irqreturn_t nkbd_interrupt(struct
+ 
+ 	/* invalid scan codes are probably the init sequence, so we ignore them */
+ 	if (nkbd->keycode[data & NKBD_KEY]) {
+-		input_regs(&nkbd->dev, regs);
+-		input_report_key(&nkbd->dev, nkbd->keycode[data & NKBD_KEY], data & NKBD_PRESS);
+-		input_sync(&nkbd->dev);
++		input_regs(nkbd->dev, regs);
++		input_report_key(nkbd->dev, nkbd->keycode[data & NKBD_KEY], data & NKBD_PRESS);
++		input_sync(nkbd->dev);
+ 	}
+ 
+ 	else if (data == 0xe7) /* end of init sequence */
+-		printk(KERN_INFO "input: %s on %s\n", nkbd_name, serio->phys);
++		printk(KERN_INFO "input: %s on %s\n", nkbd->dev->name, serio->phys);
+ 	return IRQ_HANDLED;
+ 
+ }
+@@ -87,62 +85,59 @@ static irqreturn_t nkbd_interrupt(struct
+ static int nkbd_connect(struct serio *serio, struct serio_driver *drv)
+ {
+ 	struct nkbd *nkbd;
++	struct input_dev *input_dev;
++	int err = -ENOMEM;
+ 	int i;
+-	int err;
+-
+-	if (!(nkbd = kmalloc(sizeof(struct nkbd), GFP_KERNEL)))
+-		return -ENOMEM;
+-
+-	memset(nkbd, 0, sizeof(struct nkbd));
+ 
+-	nkbd->dev.evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
++	nkbd = kzalloc(sizeof(struct nkbd), GFP_KERNEL);
++	input_dev = input_allocate_device();
++	if (!nkbd || !input_dev)
++		goto fail;
+ 
+ 	nkbd->serio = serio;
++	nkbd->dev = input_dev;
++	sprintf(nkbd->phys, "%s/input0", serio->phys);
++	memcpy(nkbd->keycode, nkbd_keycode, sizeof(nkbd->keycode));
+ 
+-	init_input_dev(&nkbd->dev);
+-	nkbd->dev.keycode = nkbd->keycode;
+-	nkbd->dev.keycodesize = sizeof(unsigned char);
+-	nkbd->dev.keycodemax = ARRAY_SIZE(nkbd_keycode);
+-	nkbd->dev.private = nkbd;
++	input_dev->name = "Newton Keyboard";
++	input_dev->phys = nkbd->phys;
++	input_dev->id.bustype = BUS_RS232;
++	input_dev->id.vendor = SERIO_NEWTON;
++	input_dev->id.product = 0x0001;
++	input_dev->id.version = 0x0100;
++	input_dev->cdev.dev = &serio->dev;
++	input_dev->private = nkbd;
++
++	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
++	input_dev->keycode = nkbd->keycode;
++	input_dev->keycodesize = sizeof(unsigned char);
++	input_dev->keycodemax = ARRAY_SIZE(nkbd_keycode);
++	for (i = 0; i < 128; i++)
++		set_bit(nkbd->keycode[i], input_dev->keybit);
++	clear_bit(0, input_dev->keybit);
+ 
+ 	serio_set_drvdata(serio, nkbd);
+ 
+ 	err = serio_open(serio, drv);
+-	if (err) {
+-		serio_set_drvdata(serio, NULL);
+-		kfree(nkbd);
+-		return err;
+-	}
+-
+-	memcpy(nkbd->keycode, nkbd_keycode, sizeof(nkbd->keycode));
+-	for (i = 0; i < 128; i++)
+-		set_bit(nkbd->keycode[i], nkbd->dev.keybit);
+-	clear_bit(0, nkbd->dev.keybit);
+-
+-	sprintf(nkbd->phys, "%s/input0", serio->phys);
+-
+-	nkbd->dev.name = nkbd_name;
+-	nkbd->dev.phys = nkbd->phys;
+-	nkbd->dev.id.bustype = BUS_RS232;
+-	nkbd->dev.id.vendor = SERIO_NEWTON;
+-	nkbd->dev.id.product = 0x0001;
+-	nkbd->dev.id.version = 0x0100;
+-	nkbd->dev.dev = &serio->dev;
+-
+-	input_register_device(&nkbd->dev);
+-
+-	printk(KERN_INFO "input: %s on %s\n", nkbd_name, serio->phys);
++	if (err)
++		goto fail;
+ 
++	input_register_device(nkbd->dev);
+ 	return 0;
++
++ fail:	serio_set_drvdata(serio, NULL);
++	input_free_device(input_dev);
++	kfree(nkbd);
++	return err;
+ }
+ 
+ static void nkbd_disconnect(struct serio *serio)
+ {
+ 	struct nkbd *nkbd = serio_get_drvdata(serio);
+ 
+-	input_unregister_device(&nkbd->dev);
+ 	serio_close(serio);
+ 	serio_set_drvdata(serio, NULL);
++	input_unregister_device(nkbd->dev);
+ 	kfree(nkbd);
+ }
+ 
+Index: work/drivers/input/keyboard/sunkbd.c
+===================================================================
+--- work.orig/drivers/input/keyboard/sunkbd.c
++++ work/drivers/input/keyboard/sunkbd.c
+@@ -76,13 +76,14 @@ static unsigned char sunkbd_keycode[128]
+ 
+ struct sunkbd {
+ 	unsigned char keycode[128];
+-	struct input_dev dev;
++	struct input_dev *dev;
+ 	struct serio *serio;
+ 	struct work_struct tq;
+ 	wait_queue_head_t wait;
+ 	char name[64];
+ 	char phys[32];
+ 	char type;
++	unsigned char enabled;
+ 	volatile s8 reset;
+ 	volatile s8 layout;
+ };
+@@ -124,10 +125,13 @@ static irqreturn_t sunkbd_interrupt(stru
+ 			break;
+ 
+ 		default:
++			if (!sunkbd->enabled)
++				break;
++
+ 			if (sunkbd->keycode[data & SUNKBD_KEY]) {
+-				input_regs(&sunkbd->dev, regs);
+-                                input_report_key(&sunkbd->dev, sunkbd->keycode[data & SUNKBD_KEY], !(data & SUNKBD_RELEASE));
+-				input_sync(&sunkbd->dev);
++				input_regs(sunkbd->dev, regs);
++                                input_report_key(sunkbd->dev, sunkbd->keycode[data & SUNKBD_KEY], !(data & SUNKBD_RELEASE));
++				input_sync(sunkbd->dev);
+                         } else {
+                                 printk(KERN_WARNING "sunkbd.c: Unknown key (scancode %#x) %s.\n",
+                                         data & SUNKBD_KEY, data & SUNKBD_RELEASE ? "released" : "pressed");
+@@ -184,7 +188,7 @@ static int sunkbd_initialize(struct sunk
+ 	sunkbd->reset = -2;
+ 	sunkbd->serio->write(sunkbd->serio, SUNKBD_CMD_RESET);
+ 	wait_event_interruptible_timeout(sunkbd->wait, sunkbd->reset >= 0, HZ);
+-	if (sunkbd->reset <0)
++	if (sunkbd->reset < 0)
  		return -1;
  
--	psmouse->dev.evbit[0] = BIT(EV_ABS) | BIT(EV_KEY) | BIT(EV_REL);
--	psmouse->dev.keybit[LONG(BTN_LEFT)] = BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT);
--	psmouse->dev.keybit[LONG(BTN_TOUCH)] = BIT(BTN_TOUCH);
--	psmouse->dev.relbit[0] = BIT(REL_X) | BIT(REL_Y);
--	input_set_abs_params(&psmouse->dev, ABS_X, 0, 1024, 0, 0);
--	input_set_abs_params(&psmouse->dev, ABS_Y, 0, 1024, 0, 0);
-+	input_dev->evbit[0] = BIT(EV_ABS) | BIT(EV_KEY) | BIT(EV_REL);
-+	input_dev->keybit[LONG(BTN_LEFT)] = BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT);
-+	input_dev->keybit[LONG(BTN_TOUCH)] = BIT(BTN_TOUCH);
-+	input_dev->relbit[0] = BIT(REL_X) | BIT(REL_Y);
-+	input_set_abs_params(input_dev, ABS_X, 0, 1024, 0, 0);
-+	input_set_abs_params(input_dev, ABS_Y, 0, 1024, 0, 0);
+ 	sunkbd->type = sunkbd->reset;
+@@ -213,10 +217,17 @@ static void sunkbd_reinit(void *data)
  
- 	psmouse->protocol_handler = lifebook_process_byte;
- 	psmouse->set_resolution = lifebook_set_resolution;
+ 	sunkbd->serio->write(sunkbd->serio, SUNKBD_CMD_SETLED);
+ 	sunkbd->serio->write(sunkbd->serio,
+-		(!!test_bit(LED_CAPSL, sunkbd->dev.led) << 3) | (!!test_bit(LED_SCROLLL, sunkbd->dev.led) << 2) |
+-		(!!test_bit(LED_COMPOSE, sunkbd->dev.led) << 1) | !!test_bit(LED_NUML, sunkbd->dev.led));
+-	sunkbd->serio->write(sunkbd->serio, SUNKBD_CMD_NOCLICK - !!test_bit(SND_CLICK, sunkbd->dev.snd));
+-	sunkbd->serio->write(sunkbd->serio, SUNKBD_CMD_BELLOFF - !!test_bit(SND_BELL, sunkbd->dev.snd));
++		(!!test_bit(LED_CAPSL, sunkbd->dev->led) << 3) | (!!test_bit(LED_SCROLLL, sunkbd->dev->led) << 2) |
++		(!!test_bit(LED_COMPOSE, sunkbd->dev->led) << 1) | !!test_bit(LED_NUML, sunkbd->dev->led));
++	sunkbd->serio->write(sunkbd->serio, SUNKBD_CMD_NOCLICK - !!test_bit(SND_CLICK, sunkbd->dev->snd));
++	sunkbd->serio->write(sunkbd->serio, SUNKBD_CMD_BELLOFF - !!test_bit(SND_BELL, sunkbd->dev->snd));
++}
++
++static void sunkbd_enable(struct sunkbd *sunkbd, int enable)
++{
++	serio_pause_rx(sunkbd->serio);
++	sunkbd->enabled = 1;
++	serio_continue_rx(sunkbd->serio);
+ }
+ 
+ /*
+@@ -226,70 +237,64 @@ static void sunkbd_reinit(void *data)
+ static int sunkbd_connect(struct serio *serio, struct serio_driver *drv)
+ {
+ 	struct sunkbd *sunkbd;
++	struct input_dev *input_dev;
++	int err = -ENOMEM;
+ 	int i;
+-	int err;
+-
+-	if (!(sunkbd = kmalloc(sizeof(struct sunkbd), GFP_KERNEL)))
+-		return -ENOMEM;
+ 
+-	memset(sunkbd, 0, sizeof(struct sunkbd));
+-
+-	init_input_dev(&sunkbd->dev);
+-	init_waitqueue_head(&sunkbd->wait);
+-
+-	sunkbd->dev.evbit[0] = BIT(EV_KEY) | BIT(EV_LED) | BIT(EV_SND) | BIT(EV_REP);
+-	sunkbd->dev.ledbit[0] = BIT(LED_CAPSL) | BIT(LED_COMPOSE) | BIT(LED_SCROLLL) | BIT(LED_NUML);
+-	sunkbd->dev.sndbit[0] = BIT(SND_CLICK) | BIT(SND_BELL);
++	sunkbd = kzalloc(sizeof(struct sunkbd), GFP_KERNEL);
++	input_dev = input_allocate_device();
++	if (!sunkbd || !input_dev)
++		goto fail;
+ 
+ 	sunkbd->serio = serio;
+-
++	sunkbd->dev = input_dev;
++	init_waitqueue_head(&sunkbd->wait);
+ 	INIT_WORK(&sunkbd->tq, sunkbd_reinit, sunkbd);
+-
+-	sunkbd->dev.keycode = sunkbd->keycode;
+-	sunkbd->dev.keycodesize = sizeof(unsigned char);
+-	sunkbd->dev.keycodemax = ARRAY_SIZE(sunkbd_keycode);
+-
+-	sunkbd->dev.event = sunkbd_event;
+-	sunkbd->dev.private = sunkbd;
++	snprintf(sunkbd->phys, sizeof(sunkbd->phys), "%s/input0", serio->phys);
+ 
+ 	serio_set_drvdata(serio, sunkbd);
+ 
+ 	err = serio_open(serio, drv);
+-	if (err) {
+-		serio_set_drvdata(serio, NULL);
+-		kfree(sunkbd);
+-		return err;
+-	}
++	if (err)
++		goto fail;
+ 
+ 	if (sunkbd_initialize(sunkbd) < 0) {
+ 		serio_close(serio);
+-		serio_set_drvdata(serio, NULL);
+-		kfree(sunkbd);
+-		return -ENODEV;
++		goto fail;
+ 	}
+ 
+ 	sprintf(sunkbd->name, "Sun Type %d keyboard", sunkbd->type);
+-
+ 	memcpy(sunkbd->keycode, sunkbd_keycode, sizeof(sunkbd->keycode));
+-	for (i = 0; i < 128; i++)
+-		set_bit(sunkbd->keycode[i], sunkbd->dev.keybit);
+-	clear_bit(0, sunkbd->dev.keybit);
+-
+-	sprintf(sunkbd->phys, "%s/input0", serio->phys);
+-
+-	sunkbd->dev.name = sunkbd->name;
+-	sunkbd->dev.phys = sunkbd->phys;
+-	sunkbd->dev.id.bustype = BUS_RS232;
+-	sunkbd->dev.id.vendor = SERIO_SUNKBD;
+-	sunkbd->dev.id.product = sunkbd->type;
+-	sunkbd->dev.id.version = 0x0100;
+-	sunkbd->dev.dev = &serio->dev;
+ 
+-	input_register_device(&sunkbd->dev);
+-
+-	printk(KERN_INFO "input: %s on %s\n", sunkbd->name, serio->phys);
++	input_dev->name = sunkbd->name;
++	input_dev->phys = sunkbd->phys;
++	input_dev->id.bustype = BUS_RS232;
++	input_dev->id.vendor  = SERIO_SUNKBD;
++	input_dev->id.product = sunkbd->type;
++	input_dev->id.version = 0x0100;
++	input_dev->cdev.dev = &serio->dev;
++	input_dev->private = sunkbd;
++	input_dev->event = sunkbd_event;
++
++	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_LED) | BIT(EV_SND) | BIT(EV_REP);
++	input_dev->ledbit[0] = BIT(LED_CAPSL) | BIT(LED_COMPOSE) | BIT(LED_SCROLLL) | BIT(LED_NUML);
++	input_dev->sndbit[0] = BIT(SND_CLICK) | BIT(SND_BELL);
++
++	input_dev->keycode = sunkbd->keycode;
++	input_dev->keycodesize = sizeof(unsigned char);
++	input_dev->keycodemax = ARRAY_SIZE(sunkbd_keycode);
++	for (i = 0; i < 128; i++)
++		set_bit(sunkbd->keycode[i], input_dev->keybit);
++	clear_bit(0, input_dev->keybit);
+ 
++	sunkbd_enable(sunkbd, 1);
++	input_register_device(sunkbd->dev);
+ 	return 0;
++
++ fail:	serio_set_drvdata(serio, NULL);
++	input_free_device(input_dev);
++	kfree(sunkbd);
++	return err;
+ }
+ 
+ /*
+@@ -299,7 +304,9 @@ static int sunkbd_connect(struct serio *
+ static void sunkbd_disconnect(struct serio *serio)
+ {
+ 	struct sunkbd *sunkbd = serio_get_drvdata(serio);
+-	input_unregister_device(&sunkbd->dev);
++
++	sunkbd_enable(sunkbd, 0);
++	input_unregister_device(sunkbd->dev);
+ 	serio_close(serio);
+ 	serio_set_drvdata(serio, NULL);
+ 	kfree(sunkbd);
+Index: work/drivers/input/keyboard/maple_keyb.c
+===================================================================
+--- work.orig/drivers/input/keyboard/maple_keyb.c
++++ work/drivers/input/keyboard/maple_keyb.c
+@@ -37,7 +37,7 @@ static unsigned char dc_kbd_keycode[256]
+ 
+ 
+ struct dc_kbd {
+-	struct input_dev dev;
++	struct input_dev *dev;
+ 	unsigned char new[8];
+ 	unsigned char old[8];
+ };
+@@ -46,30 +46,24 @@ struct dc_kbd {
+ static void dc_scan_kbd(struct dc_kbd *kbd)
+ {
+ 	int i;
+-	struct input_dev *dev = &kbd->dev;
++	struct input_dev *dev = kbd->dev;
+ 
+-	for(i=0; i<8; i++)
+-		input_report_key(dev,
+-				 dc_kbd_keycode[i+224],
+-				 (kbd->new[0]>>i)&1);
+-
+-	for(i=2; i<8; i++) {
+-
+-		if(kbd->old[i]>3&&memscan(kbd->new+2, kbd->old[i], 6)==NULL) {
+-			if(dc_kbd_keycode[kbd->old[i]])
+-				input_report_key(dev,
+-						 dc_kbd_keycode[kbd->old[i]],
+-						 0);
++	for (i = 0; i < 8; i++)
++		input_report_key(dev, dc_kbd_keycode[i + 224], (kbd->new[0] >> i) & 1);
++
++	for (i = 2; i < 8; i++) {
++
++		if (kbd->old[i] > 3 && memscan(kbd->new + 2, kbd->old[i], 6) == NULL) {
++			if (dc_kbd_keycode[kbd->old[i]])
++				input_report_key(dev, dc_kbd_keycode[kbd->old[i]], 0);
+ 			else
+ 				printk("Unknown key (scancode %#x) released.",
+ 				       kbd->old[i]);
+ 		}
+ 
+-		if(kbd->new[i]>3&&memscan(kbd->old+2, kbd->new[i], 6)!=NULL) {
++		if (kbd->new[i] > 3 && memscan(kbd->old + 2, kbd->new[i], 6) != NULL) {
+ 			if(dc_kbd_keycode[kbd->new[i]])
+-				input_report_key(dev,
+-						 dc_kbd_keycode[kbd->new[i]],
+-						 1);
++				input_report_key(dev, dc_kbd_keycode[kbd->new[i]], 1);
+ 			else
+ 				printk("Unknown key (scancode %#x) pressed.",
+ 				       kbd->new[i]);
+@@ -89,43 +83,39 @@ static void dc_kbd_callback(struct maple
+ 	unsigned long *buf = mq->recvbuf;
+ 
+ 	if (buf[1] == mapledev->function) {
+-		memcpy(kbd->new, buf+2, 8);
++		memcpy(kbd->new, buf + 2, 8);
+ 		dc_scan_kbd(kbd);
+ 	}
+ }
+ 
+ static int dc_kbd_connect(struct maple_device *dev)
+ {
+-	int i;
+-	unsigned long data = be32_to_cpu(dev->devinfo.function_data[0]);
+ 	struct dc_kbd *kbd;
++	struct input_dev *input_dev;
++	unsigned long data = be32_to_cpu(dev->devinfo.function_data[0]);
++	int i;
+ 
+-	if (!(kbd = kmalloc(sizeof(struct dc_kbd), GFP_KERNEL)))
+-		return -1;
+-	memset(kbd, 0, sizeof(struct dc_kbd));
+-
+-	dev->private_data = kbd;
+-
+-	kbd->dev.evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
+-
+-	init_input_dev(&kbd->dev);
+-
+-	for (i=0; i<255; i++)
+-		set_bit(dc_kbd_keycode[i], kbd->dev.keybit);
+-
+-	clear_bit(0, kbd->dev.keybit);
++	dev->private_data = kbd = kzalloc(sizeof(struct dc_kbd), GFP_KERNEL);
++	input_dev = input_allocate_device();
++	if (!kbd || !input_dev) {
++		kfree(kbd);
++		input_free_device(input_dev);
++		return -ENOMEM;
++	}
+ 
+-	kbd->dev.private = kbd;
++	kbd->dev = input_dev;
+ 
+-	kbd->dev.name = dev->product_name;
+-	kbd->dev.id.bustype = BUS_MAPLE;
++	input_dev->name = dev->product_name;
++	input_dev->id.bustype = BUS_MAPLE;
++	input_dev->private = kbd;
++	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
++	for (i = 0; i < 255; i++)
++		set_bit(dc_kbd_keycode[i], input_dev->keybit);
++	clear_bit(0, input_dev->keybit);
+ 
+-	input_register_device(&kbd->dev);
++	input_register_device(kbd->dev);
+ 
+ 	maple_getcond_callback(dev, dc_kbd_callback, 1, MAPLE_FUNC_KEYBOARD);
+-
+-	printk(KERN_INFO "input: keyboard(0x%lx): %s\n", data, kbd->dev.name);
+-
+ 	return 0;
+ }
+ 
+@@ -134,7 +124,7 @@ static void dc_kbd_disconnect(struct map
+ {
+ 	struct dc_kbd *kbd = dev->private_data;
+ 
+-	input_unregister_device(&kbd->dev);
++	input_unregister_device(kbd->dev);
+ 	kfree(kbd);
+ }
+ 
+Index: work/drivers/input/keyboard/spitzkbd.c
+===================================================================
+--- work.orig/drivers/input/keyboard/spitzkbd.c
++++ work/drivers/input/keyboard/spitzkbd.c
+@@ -85,7 +85,7 @@ static int spitz_senses[] = {
+ 
+ struct spitzkbd {
+ 	unsigned char keycode[ARRAY_SIZE(spitzkbd_keycode)];
+-	struct input_dev input;
++	struct input_dev *input;
+ 	char phys[32];
+ 
+ 	spinlock_t lock;
+@@ -187,8 +187,7 @@ static void spitzkbd_scankeyboard(struct
+ 
+ 	spin_lock_irqsave(&spitzkbd_data->lock, flags);
+ 
+-	if (regs)
+-		input_regs(&spitzkbd_data->input, regs);
++	input_regs(spitzkbd_data->input, regs);
+ 
+ 	num_pressed = 0;
+ 	for (col = 0; col < KB_COLS; col++) {
+@@ -210,7 +209,7 @@ static void spitzkbd_scankeyboard(struct
+ 			scancode = SCANCODE(row, col);
+ 			pressed = rowd & KB_ROWMASK(row);
+ 
+-			input_report_key(&spitzkbd_data->input, spitzkbd_data->keycode[scancode], pressed);
++			input_report_key(spitzkbd_data->input, spitzkbd_data->keycode[scancode], pressed);
+ 
+ 			if (pressed)
+ 				num_pressed++;
+@@ -220,15 +219,15 @@ static void spitzkbd_scankeyboard(struct
+ 
+ 	spitzkbd_activate_all();
+ 
+-	input_report_key(&spitzkbd_data->input, SPITZ_KEY_SYNC, (GPLR(SPITZ_GPIO_SYNC) & GPIO_bit(SPITZ_GPIO_SYNC)) != 0 );
+-	input_report_key(&spitzkbd_data->input, KEY_SUSPEND, pwrkey);
++	input_report_key(spitzkbd_data->input, SPITZ_KEY_SYNC, (GPLR(SPITZ_GPIO_SYNC) & GPIO_bit(SPITZ_GPIO_SYNC)) != 0 );
++	input_report_key(spitzkbd_data->input, KEY_SUSPEND, pwrkey);
+ 
+ 	if (pwrkey && time_after(jiffies, spitzkbd_data->suspend_jiffies + msecs_to_jiffies(1000))) {
+-		input_event(&spitzkbd_data->input, EV_PWR, KEY_SUSPEND, 1);
++		input_event(spitzkbd_data->input, EV_PWR, KEY_SUSPEND, 1);
+ 		spitzkbd_data->suspend_jiffies = jiffies;
+ 	}
+ 
+-	input_sync(&spitzkbd_data->input);
++	input_sync(spitzkbd_data->input);
+ 
+ 	/* if any keys are pressed, enable the timer */
+ 	if (num_pressed)
+@@ -259,6 +258,7 @@ static irqreturn_t spitzkbd_interrupt(in
+ static void spitzkbd_timer_callback(unsigned long data)
+ {
+ 	struct spitzkbd *spitzkbd_data = (struct spitzkbd *) data;
++
+ 	spitzkbd_scankeyboard(spitzkbd_data, NULL);
+ }
+ 
+@@ -298,9 +298,9 @@ static void spitzkbd_hinge_timer(unsigne
+ 	if (hinge_count >= HINGE_STABLE_COUNT) {
+ 		spin_lock_irqsave(&spitzkbd_data->lock, flags);
+ 
+-		input_report_switch(&spitzkbd_data->input, SW_0, ((GPLR(SPITZ_GPIO_SWA) & GPIO_bit(SPITZ_GPIO_SWA)) != 0));
+-		input_report_switch(&spitzkbd_data->input, SW_1, ((GPLR(SPITZ_GPIO_SWB) & GPIO_bit(SPITZ_GPIO_SWB)) != 0));
+-		input_sync(&spitzkbd_data->input);
++		input_report_switch(spitzkbd_data->input, SW_0, ((GPLR(SPITZ_GPIO_SWA) & GPIO_bit(SPITZ_GPIO_SWA)) != 0));
++		input_report_switch(spitzkbd_data->input, SW_1, ((GPLR(SPITZ_GPIO_SWB) & GPIO_bit(SPITZ_GPIO_SWB)) != 0));
++		input_sync(spitzkbd_data->input);
+ 
+ 		spin_unlock_irqrestore(&spitzkbd_data->lock, flags);
+ 	} else {
+@@ -346,14 +346,21 @@ static int spitzkbd_resume(struct device
+ 
+ static int __init spitzkbd_probe(struct device *dev)
+ {
+-	int i;
+ 	struct spitzkbd *spitzkbd;
++	struct input_dev *input_dev;
++	int i;
+ 
+ 	spitzkbd = kzalloc(sizeof(struct spitzkbd), GFP_KERNEL);
+ 	if (!spitzkbd)
+ 		return -ENOMEM;
+ 
+-	dev_set_drvdata(dev,spitzkbd);
++	input_dev = input_allocate_device();
++	if (!input_dev) {
++		kfree(spitzkbd);
++		return -ENOMEM;
++	}
++
++	dev_set_drvdata(dev, spitzkbd);
+ 	strcpy(spitzkbd->phys, "spitzkbd/input0");
+ 
+ 	spin_lock_init(&spitzkbd->lock);
+@@ -368,30 +375,34 @@ static int __init spitzkbd_probe(struct 
+ 	spitzkbd->htimer.function = spitzkbd_hinge_timer;
+ 	spitzkbd->htimer.data = (unsigned long) spitzkbd;
+ 
+-	spitzkbd->suspend_jiffies=jiffies;
++	spitzkbd->suspend_jiffies = jiffies;
+ 
+-	init_input_dev(&spitzkbd->input);
+-	spitzkbd->input.private = spitzkbd;
+-	spitzkbd->input.name = "Spitz Keyboard";
+-	spitzkbd->input.dev = dev;
+-	spitzkbd->input.phys = spitzkbd->phys;
+-	spitzkbd->input.id.bustype = BUS_HOST;
+-	spitzkbd->input.id.vendor = 0x0001;
+-	spitzkbd->input.id.product = 0x0001;
+-	spitzkbd->input.id.version = 0x0100;
+-	spitzkbd->input.evbit[0] = BIT(EV_KEY) | BIT(EV_REP) | BIT(EV_PWR) | BIT(EV_SW);
+-	spitzkbd->input.keycode = spitzkbd->keycode;
+-	spitzkbd->input.keycodesize = sizeof(unsigned char);
+-	spitzkbd->input.keycodemax = ARRAY_SIZE(spitzkbd_keycode);
++	spitzkbd->input = input_dev;
++
++	input_dev->private = spitzkbd;
++	input_dev->name = "Spitz Keyboard";
++	input_dev->phys = spitzkbd->phys;
++	input_dev->cdev.dev = dev;
++
++	input_dev->id.bustype = BUS_HOST;
++	input_dev->id.vendor = 0x0001;
++	input_dev->id.product = 0x0001;
++	input_dev->id.version = 0x0100;
++
++	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP) | BIT(EV_PWR) | BIT(EV_SW);
++	input_dev->keycode = spitzkbd->keycode;
++	input_dev->keycodesize = sizeof(unsigned char);
++	input_dev->keycodemax = ARRAY_SIZE(spitzkbd_keycode);
+ 
+ 	memcpy(spitzkbd->keycode, spitzkbd_keycode, sizeof(spitzkbd->keycode));
+ 	for (i = 0; i < ARRAY_SIZE(spitzkbd_keycode); i++)
+-		set_bit(spitzkbd->keycode[i], spitzkbd->input.keybit);
+-	clear_bit(0, spitzkbd->input.keybit);
+-	set_bit(SW_0, spitzkbd->input.swbit);
+-	set_bit(SW_1, spitzkbd->input.swbit);
++		set_bit(spitzkbd->keycode[i], input_dev->keybit);
++	clear_bit(0, input_dev->keybit);
++	set_bit(SW_0, input_dev->swbit);
++	set_bit(SW_1, input_dev->swbit);
++
++	input_register_device(input_dev);
+ 
+-	input_register_device(&spitzkbd->input);
+ 	mod_timer(&spitzkbd->htimer, jiffies + msecs_to_jiffies(HINGE_SCAN_INTERVAL));
+ 
+ 	/* Setup sense interrupts - RisingEdge Detect, sense lines as inputs */
+@@ -444,7 +455,7 @@ static int spitzkbd_remove(struct device
+ 	del_timer_sync(&spitzkbd->htimer);
+ 	del_timer_sync(&spitzkbd->timer);
+ 
+-	input_unregister_device(&spitzkbd->input);
++	input_unregister_device(spitzkbd->input);
+ 
+ 	kfree(spitzkbd);
+ 
 

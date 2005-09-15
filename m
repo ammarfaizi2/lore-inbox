@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965039AbVIOFAm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965154AbVIOFEs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965039AbVIOFAm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 01:00:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965146AbVIOFAm
+	id S965154AbVIOFEs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 01:04:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965171AbVIOFEs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 01:00:42 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:49596 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S965039AbVIOFAl
+	Thu, 15 Sep 2005 01:04:48 -0400
+Received: from zproxy.gmail.com ([64.233.162.202]:6571 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965154AbVIOFEr convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 01:00:41 -0400
-Date: Thu, 15 Sep 2005 10:24:40 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, akpm@osdl.org
-Subject: Re: [PATCH] reorder struct files_struct
-Message-ID: <20050915045440.GE6237@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20050914191842.GA6315@in.ibm.com> <20050914.125750.05416211.davem@davemloft.net> <20050914201550.GB6315@in.ibm.com> <20050914.132936.105214487.davem@davemloft.net> <43289376.7050205@cosmosbay.com> <20050914220205.GC6237@in.ibm.com> <4328A73B.1080801@cosmosbay.com> <20050914225043.GD6237@in.ibm.com> <4328B013.1010400@cosmosbay.com>
+	Thu, 15 Sep 2005 01:04:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=gy0F/OS4sXKU3zJvNDOQaTEQH0kaJ48SpskGObDNcTY5hcggkVWMQiPpx3TSKUExmUngyijXgvXGB4k1+fT/jQEYffPIY1+TrWELWpgTjSqkdhZNGQJ2Ihdz5ccfyxWz444IBu18HBMpxFQv1AFHEiU1xKaPlPWh5bDoeiPUBJw=
+Message-ID: <355e5e5e050914220444505b09@mail.gmail.com>
+Date: Thu, 15 Sep 2005 01:04:42 -0400
+From: Lukasz Kosewski <lkosewsk@gmail.com>
+Reply-To: lkosewsk@gmail.com
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: [PATCH 2.6.14-rc1 0/3] Add disk hotswap support to libata RESEND #3
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4328B013.1010400@cosmosbay.com>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 15, 2005 at 01:19:47AM +0200, Eric Dumazet wrote:
-> Dipankar Sarma a écrit :
-> >On Thu, Sep 15, 2005 at 12:42:03AM +0200, Eric Dumazet wrote:
-> >
-> >>Dipankar Sarma a écrit :
-> 
-> >>If yes, the whole embedded struct fdtable is readonly.
-> >
-> >
-> >But not close_on_exec_init or open_fds_init. We would update them
-> >on open/close.
-> 
-> Yes, sure, but those fields are not part of the embedded struct fdtable
+Hello Jeff, all,
 
-Those fdsets would share a cache line with fdt, fdtable which would
-be invalidated on open/close. So, what is the point in moving
-file_lock ?
+Another attempt at hotswap support to libata... this would be attempt #3.
 
-Thanks
-Dipankar
+Lots of improvements... a cleaner API, clean straightforward code
+which is easy to customize (or generalize, when the desire to support
+ATA hotswap comes along), and a new feature; no longer kernel panics
+on any action!
+
+Some testing on x86 UP, minimal on SMP.  Please test, send questions,
+suggestions, and apply if you like it.  Patches apply cleanly to
+2.6.14-rc1.  I've got some hardware so if you discover problems I can
+probably reproduce them.
+
+Enjoy,
+
+Luke Kosewski

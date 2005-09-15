@@ -1,66 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030501AbVIOPdo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030493AbVIOPfC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030501AbVIOPdo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 11:33:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030500AbVIOPdo
+	id S1030493AbVIOPfC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 11:35:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030502AbVIOPfB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 11:33:44 -0400
-Received: from zproxy.gmail.com ([64.233.162.201]:63056 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030493AbVIOPdn convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 11:33:43 -0400
+	Thu, 15 Sep 2005 11:35:01 -0400
+Received: from zproxy.gmail.com ([64.233.162.205]:23914 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030493AbVIOPfB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 11:35:01 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=nx/J2cV2NqN15T5+ddJ7KzDvJ2ZQS8S4oNQPutOabLO/59rLZKEKMyNXOm1rlI0f3VwOBRsLszaCxTZRc8txnhjBkU+2Skk7krfmQExN1uwvKHOzIuLXmsSwGdDeIai9vImaZVrsJbTHfTPWvIuMe13tbVrFzmtvgkrRK3Lir/k=
-Message-ID: <1e62d137050915083396ae53@mail.gmail.com>
-Date: Thu, 15 Sep 2005 20:33:41 +0500
-From: Fawad Lateef <fawadlateef@gmail.com>
-Reply-To: fawadlateef@gmail.com
-To: "Budde, Marco" <budde@telos.de>
-Subject: Re: How to find "Unresolved Symbols"
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <809C13DD6142E74ABE20C65B11A2439809C4CA@www.telos.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=NvNAo94ZKFU/ajMTSQzXIgzIIwpBB4E4oJJ+aNFv5ohbn5gjnUgmaLLFzoIrH4xe582+mpbS7eG0jNT7j6oDv1wfHdC1RovDJGtdGx3FMtw7uNpig+vYy6kbUSfNP12//tveEUwEaNnl0y8ehrpHwK5v5R186g0UPgG2/f7mk1Q=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Subject: Re: [PATCH] 2.6.13-mm3 ort v.b6 (OOPS Reporting Tool), try2
+Date: Thu, 15 Sep 2005 17:36:34 +0200
+User-Agent: KMail/1.8.2
+Cc: Cal Peake <cp@absolutedigital.net>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, paolo.ciarrocchi@gmail.com,
+       rdunlap@xenotime.net, Paul TT <paultt@bilug.linux.it>
+References: <43276366.80304@gmail.com> <Pine.LNX.4.61.0509140436090.4846@lancer.cnet.absolutedigital.net> <4327FD7B.1040300@bilug.linux.it>
+In-Reply-To: <4327FD7B.1040300@bilug.linux.it>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <809C13DD6142E74ABE20C65B11A2439809C4CA@www.telos.de>
+Message-Id: <200509151736.35050.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/15/05, Budde, Marco <budde@telos.de> wrote:
-> Hi,
+On Wednesday 14 September 2005 12:37, Paul TT wrote:
+> Cal Peake wrote:
 > 
-> I am working on a larger kernel module.
-> This module will be based on a lot of
-> portable code, for which I have to implement
-> the OS depended code.
-> 
-
-Are you creating a module for multiple platforms or migrating an
-existing one to new version ?? And what do u mean by OS dependent code
-??? I think it might be Architecture dependent code !!!!
-
-> At the moment I can compile the complete
-> code into a module. Some of OS depended
-> code is still missing, but I do not get
-> any warnings from kbuild.
-> 
-> When I try to load the module, I can a really
-> strange error message:
-> 
->  insmod: error inserting 'foo.o': -795847932 Function not implemented
-> 
-> What does that mean? How can I get a list
-> of missing symbols?
-> 
-> cu, Marco
+> >On Wed, 14 Sep 2005, Michal Piotrowski wrote:
+> >
+> >  
+> >
+> >>Hi Andrew,
+> >>I think, that this maybe useful for oops hunters :)
+> >>
+> >>Paolo, Paul, Randy, Jesper, Cal please sign it.
+> >>
+> >>Regards,
+> >>Michal Piotrowski
+> >>
+> >>Signed-off-by: Michal K. K. Piotrowski <michal.k.k.piotrowski@gmail.com>
+> >>    
+> >>
+> >
+> >Signed-off-by: Cal Peake <cp@absolutedigital.net>
+> >  
+> >
+> Signed-off-by: Paul TT <paultt@bilug.linux.it>
 > 
 
-Plz tell which kernel version you are using and which distribution
-!!!! b/c there is a probability that you distro might have old
-modutils etc ......
+Apply the small patch below on top of it, and you can add 
 
--- 
-Fawad Lateef
+   Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+
+
+
+--- linux-2.6.14-rc1/scripts/ort.sh.orig	2005-09-15 17:32:02.000000000 +0200
++++ linux-2.6.14-rc1/scripts/ort.sh	2005-09-15 17:33:08.000000000 +0200
+@@ -98,12 +98,12 @@
+ }
+ 
+ check_which() {
+-        WHICH=`which $1`
++        WHICH=`which $1 2> /dev/null`
+         if [ "$WHICH" != "" ]
+         then
+                 echo -e " [available]"
+         else
+-                echo
++                echo -e " [not available]"
+         fi
+ }
+ 
+@@ -859,8 +859,7 @@
+ 
+ 
+ OOPS Reporting Tool $VER
+-www.wsi.edu.pl/~piotrowskim/
+-/files/ort/beta/
++http://www.wsi.edu.pl/~piotrowskim/files/ort/beta/
+ EOF
+ }
+ 

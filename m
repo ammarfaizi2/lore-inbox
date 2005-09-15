@@ -1,47 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161005AbVIOUQ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161011AbVIOUUE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161005AbVIOUQ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 16:16:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161006AbVIOUQ2
+	id S1161011AbVIOUUE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 16:20:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161009AbVIOUUE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 16:16:28 -0400
-Received: from k1.dinoex.de ([80.237.200.138]:5331 "EHLO k1.dinoex.de")
-	by vger.kernel.org with ESMTP id S1161005AbVIOUQ1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 16:16:27 -0400
-X-MDaemon-Deliver-To: <linux-kernel@vger.kernel.org>
-From: Jochen Hein <jochen@jochen.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [ACPI] suspend to RAM doesn't work
-X-Face: ""xJff<P[R~C67]V?J|X^Dr`YigXK|;1wX<rt^>%{>hr-{:QXl"Xk2O@@(+F]e{"%EYQiW@mUuvEsL>=mx96j12qW[%m;|:B^n{J8k?Mz[K1_+H;$v,nYx^1o_=4M,L+]FIU~[[`-w~~xsy-BX,?tAF_.8u&0y*@aCv;a}Y'{w@#*@iwAl?oZpvvv
-X-Message-Flag: This space is intentionally left blank
-X-Noad: Please don't send me ad's by mail.  I'm bored by this type of mail.
-X-Note: sending SPAM is a violation of both german and US law and will
-	at least trigger a complaint at your provider's postmaster.
-X-GPG: 1024D/77D4FC9B 2000-08-12 Jochen Hein (28 Jun 1967, Kassel, Germany) 
-     Key fingerprint = F5C5 1C20 1DFC DEC3 3107  54A4 2332 ADFC 77D4 FC9B
-X-BND-Spook: RAF Taliban BND BKA Bombe Waffen Terror AES GPG
-X-No-Archive: yes
-Date: Thu, 15 Sep 2005 22:04:49 +0200
-Message-ID: <87irx23xni.fsf@echidna.jochen.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 15 Sep 2005 16:20:04 -0400
+Received: from turing-police.cirt.vt.edu ([128.173.54.129]:18839 "EHLO
+	turing-police.cirt.vt.edu") by vger.kernel.org with ESMTP
+	id S1161008AbVIOUUD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 16:20:03 -0400
+Message-Id: <200509152019.j8FKJvAD025249@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Joe Bob Spamtest <joebob@spamtest.viacore.net>
+Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
+Subject: Re: HZ question 
+In-Reply-To: Your message of "Thu, 15 Sep 2005 09:16:25 PDT."
+             <43299E59.4060103@spamtest.viacore.net> 
+From: Valdis.Kletnieks@vt.edu
+References: <4326CAB3.6020109@compro.net> <2cd57c9005091321006825540@mail.gmail.com> <1126747237.13893.108.camel@mindpipe>
+            <43299E59.4060103@spamtest.viacore.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1126815596_3148P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 15 Sep 2005 16:19:57 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_1126815596_3148P
+Content-Type: text/plain; charset=us-ascii
 
-System is a Thinkpad R40, running debian/sarge with kernel 2.6.14-rc1.
-I do:
-root@hermes:/sys/power# echo mem > state
-root@hermes:/sys/power#
+On Thu, 15 Sep 2005 09:16:25 PDT, Joe Bob Spamtest said:
+> Lee Revell wrote:
+> > On Wed, 2005-09-14 at 12:00 +0800, Coywolf Qi Hunt wrote:
+> > 
+> >>simply zgrep HZ= /proc/config.gz
+> >>on my box, I get CONFIG_HZ=1000
+> > 
+> > 
+> > Many distros inexplicably disable that by default.
+> 
+> Their rationale is that knowing the kernel .config is a security threat. 
 
-dmesg shows:
-PM: Preparing system for mem sleep
+At least in Fedora, they ship a mode 644 config file in /boot:
 
-But the system doesn't suspend.  Suspend to disk works fine.
+% ls -l /boot/config-2.6.13-1.1555_FC5
+61 -rw-r--r--  1 root root 60135 Sep 14 15:55 /boot/config-2.6.13-1.1555_FC5
 
-Jochen
+No need to include that in the kernel if it's right there on disk.  Even Fedora
+doesn't believe in *that* much bloat. ;)
 
--- 
-#include <~/.signature>: permission denied
+--==_Exmh_1126815596_3148P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFDKddscC3lWbTT17ARAmAUAJ4oOmC5DX0SoH7DjvuA5MtYKui8+wCfUgXw
+caf5cEp3TUltiBDOJRLwBXA=
+=aq/G
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1126815596_3148P--

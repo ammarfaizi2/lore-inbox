@@ -1,71 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030305AbVIOBE5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030309AbVIOBHX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030305AbVIOBE5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 21:04:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030306AbVIOBEu
+	id S1030309AbVIOBHX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 21:07:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030312AbVIOBEy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 21:04:50 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:21185 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030307AbVIOBEh (ORCPT
+	Wed, 14 Sep 2005 21:04:54 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:27585 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030309AbVIOBEm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 21:04:37 -0400
-Message-Id: <20050915010412.142093000@localhost.localdomain>
+	Wed, 14 Sep 2005 21:04:42 -0400
+Message-Id: <20050915010407.117847000@localhost.localdomain>
 References: <20050915010343.577985000@localhost.localdomain>
-Date: Wed, 14 Sep 2005 18:03:53 -0700
+Date: Wed, 14 Sep 2005 18:03:50 -0700
 From: Chris Wright <chrisw@osdl.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
+To: linux-kernel@vger.kernel.org, stable@kernel.org,
+       "David S. Miller" <davem@davemloft.net>
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, Chris Wright <chrisw@osdl.org>
-Subject: [PATCH 10/11] Fix up more strange byte writes to the PCI_ROM_ADDRESS config word
-Content-Disposition: inline; filename=fix-more-byte-to-dword-writes-to-PCI_ROM_ADDRESS-config-word.patch
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       Patrick McHardy <kaber@trash.net>,
+       Netfilter Development Mailinglist 
+	<netfilter-devel@lists.netfilter.org>,
+       Chris Wright <chrisw@osdl.org>
+Subject: [PATCH 07/11] [NETFILTER]: Fix DHCP + MASQUERADE problem
+Content-Disposition: inline; filename=netfilter-fix-dhcp-masquerade-problem.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-It's a dword thing, and the value we write is a dword.  Doing a byte
-write to it is nonsensical, and writes only the low byte, which only
-contains the enable bit.  So we enable a nonsensical address (usually
-zero), which causes the controller no end of problems.
+In 2.6.13-rcX the MASQUERADE target was changed not to exclude local
+packets for better source address consistency. This breaks DHCP clients
+using UDP sockets when the DHCP requests are caught by a MASQUERADE rule
+because the MASQUERADE target drops packets when no address is configured
+on the outgoing interface. This patch makes it ignore packets with a
+source address of 0.
 
-Trivial fix, but nasty to find.
+Thanks to Rusty for this suggestion.
 
-Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+Signed-off-by: Patrick McHardy <kaber@trash.net>
 Signed-off-by: Chris Wright <chrisw@osdl.org>
 ---
- drivers/ide/pci/cmd64x.c |    2 +-
- drivers/ide/pci/hpt34x.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ net/ipv4/netfilter/ipt_MASQUERADE.c |    6 ++++++
+ 1 files changed, 6 insertions(+)
 
-Index: linux-2.6.13.y/drivers/ide/pci/cmd64x.c
+Index: linux-2.6.13.y/net/ipv4/netfilter/ipt_MASQUERADE.c
 ===================================================================
---- linux-2.6.13.y.orig/drivers/ide/pci/cmd64x.c
-+++ linux-2.6.13.y/drivers/ide/pci/cmd64x.c
-@@ -608,7 +608,7 @@ static unsigned int __devinit init_chips
+--- linux-2.6.13.y.orig/net/ipv4/netfilter/ipt_MASQUERADE.c
++++ linux-2.6.13.y/net/ipv4/netfilter/ipt_MASQUERADE.c
+@@ -95,6 +95,12 @@ masquerade_target(struct sk_buff **pskb,
+ 	IP_NF_ASSERT(ct && (ctinfo == IP_CT_NEW || ctinfo == IP_CT_RELATED
+ 	                    || ctinfo == IP_CT_RELATED + IP_CT_IS_REPLY));
  
- #ifdef __i386__
- 	if (dev->resource[PCI_ROM_RESOURCE].start) {
--		pci_write_config_byte(dev, PCI_ROM_ADDRESS, dev->resource[PCI_ROM_RESOURCE].start | PCI_ROM_ADDRESS_ENABLE);
-+		pci_write_config_dword(dev, PCI_ROM_ADDRESS, dev->resource[PCI_ROM_RESOURCE].start | PCI_ROM_ADDRESS_ENABLE);
- 		printk(KERN_INFO "%s: ROM enabled at 0x%08lx\n", name, dev->resource[PCI_ROM_RESOURCE].start);
- 	}
- #endif
-Index: linux-2.6.13.y/drivers/ide/pci/hpt34x.c
-===================================================================
---- linux-2.6.13.y.orig/drivers/ide/pci/hpt34x.c
-+++ linux-2.6.13.y/drivers/ide/pci/hpt34x.c
-@@ -173,7 +173,7 @@ static unsigned int __devinit init_chips
- 
- 	if (cmd & PCI_COMMAND_MEMORY) {
- 		if (pci_resource_start(dev, PCI_ROM_RESOURCE)) {
--			pci_write_config_byte(dev, PCI_ROM_ADDRESS,
-+			pci_write_config_dword(dev, PCI_ROM_ADDRESS,
- 				dev->resource[PCI_ROM_RESOURCE].start | PCI_ROM_ADDRESS_ENABLE);
- 			printk(KERN_INFO "HPT345: ROM enabled at 0x%08lx\n",
- 				dev->resource[PCI_ROM_RESOURCE].start);
++	/* Source address is 0.0.0.0 - locally generated packet that is
++	 * probably not supposed to be masqueraded.
++	 */
++	if (ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple.src.ip == 0)
++		return NF_ACCEPT;
++
+ 	mr = targinfo;
+ 	rt = (struct rtable *)(*pskb)->dst;
+ 	newsrc = inet_select_addr(out, rt->rt_gateway, RT_SCOPE_UNIVERSE);
 
 --

@@ -1,37 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751009AbVIODar@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030398AbVIOEDo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751009AbVIODar (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 23:30:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751034AbVIODar
+	id S1030398AbVIOEDo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 00:03:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030399AbVIOEDo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 23:30:47 -0400
-Received: from tuminfo2.informatik.tu-muenchen.de ([131.159.0.81]:19951 "EHLO
-	tuminfo2.informatik.tu-muenchen.de") by vger.kernel.org with ESMTP
-	id S1751009AbVIODaq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 23:30:46 -0400
-Message-ID: <4328EC72.6050507@in.tum.de>
-Date: Thu, 15 Sep 2005 05:37:22 +0200
-From: Daniel Thaler <thalerd@in.tum.de>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050803)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: David Lang <dlang@digitalinsight.com>, Hua Zhong <hzhong@gmail.com>,
-       marekw1977@yahoo.com.au, linux-kernel@vger.kernel.org
-Subject: Re: Automatic Configuration of a Kernel
-References: <20050914223836.53814.qmail@web51011.mail.yahoo.com>	 <6bffcb0e05091415533d563c5a@mail.gmail.com><4328B710.5080503@in.tum.de>	 <200509151009.59981.marekw1977@yahoo.com.au>	 <924c288305091417375fea4ec2@mail.gmail.com>	 <Pine.LNX.4.62.0509141900280.8469@qynat.qvtvafvgr.pbz> <1126753444.13893.123.camel@mindpipe>
-In-Reply-To: <1126753444.13893.123.camel@mindpipe>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 15 Sep 2005 00:03:44 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:14761
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1030398AbVIOEDo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 00:03:44 -0400
+Date: Wed, 14 Sep 2005 21:03:16 -0700 (PDT)
+Message-Id: <20050914.210316.32480446.davem@davemloft.net>
+To: shemminger@osdl.org
+Cc: jes@trained-monkey.org, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] hippi: change to not use skb private
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20050913113858.440d3a0f@localhost.localdomain>
+References: <20050913113858.440d3a0f@localhost.localdomain>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
-> Why does this have to be in the kernel again?  Isn't this exactly what
-> you get with a fully modular config and hotplug?
+From: Stephen Hemminger <shemminger@osdl.org>
+Date: Tue, 13 Sep 2005 11:38:58 -0700
 
-It doesn't go in the kernel. If I understand correctly, it's a script that is 
-invoked by 'make autoconfig'. Note that I didn't read the patch, because it's a 
-.tgz on a website and I couldn't be bothered to download it.
+> It looks like the following would fix hippi to not have to put
+> fields in sk_buff. The ifield looks appears to to be additional
+> header information that is being passed in the skb but could just
+> be put in the header.
 
-Daniel
+Stephen this patch is against 2.6.13 or something.  We already
+put this thing into a SKB control block for 2.6.14-rc1.  Do you
+want to keep things that way or update your patch for 2.6.14-rc1?

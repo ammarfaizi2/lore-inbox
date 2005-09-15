@@ -1,55 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030520AbVIOQdT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030522AbVIOQet@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030520AbVIOQdT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 12:33:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030523AbVIOQdT
+	id S1030522AbVIOQet (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 12:34:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030523AbVIOQet
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 12:33:19 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:13971 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S1030520AbVIOQdS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 12:33:18 -0400
-Date: Thu, 15 Sep 2005 18:33:24 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "Budde, Marco" <budde@telos.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to find "Unresolved Symbols"
-Message-ID: <20050915163324.GA7734@mars.ravnborg.org>
-References: <809C13DD6142E74ABE20C65B11A2439809C4CA@www.telos.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <809C13DD6142E74ABE20C65B11A2439809C4CA@www.telos.de>
-User-Agent: Mutt/1.5.8i
+	Thu, 15 Sep 2005 12:34:49 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:63161 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030522AbVIOQes (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 12:34:48 -0400
+Date: Thu, 15 Sep 2005 09:34:12 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Hugh Dickins <hugh@veritas.com>, Nick Piggin <npiggin@novell.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Roland McGrath <roland@redhat.com>
+Subject: Re: ptrace can't be transparent on readonly MAP_SHARED
+In-Reply-To: <20050915162347.GC4122@opteron.random>
+Message-ID: <Pine.LNX.4.58.0509150928030.26803@g5.osdl.org>
+References: <20050914212405.GD4966@opteron.random>
+ <Pine.LNX.4.61.0509151337260.16231@goblin.wat.veritas.com>
+ <Pine.LNX.4.58.0509150805150.26803@g5.osdl.org> <20050915154702.GA4122@opteron.random>
+ <Pine.LNX.4.58.0509150911180.26803@g5.osdl.org> <20050915162347.GC4122@opteron.random>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 15, 2005 at 02:47:02PM +0200, Budde, Marco wrote:
-> Hi,
-> 
-> I am working on a larger kernel module.
-> This module will be based on a lot of
-> portable code, for which I have to implement
-> the OS depended code.
-> 
-> At the moment I can compile the complete
-> code into a module. Some of OS depended
-> code is still missing, but I do not get
-> any warnings from kbuild.
-> 
-> When I try to load the module, I can a really
-> strange error message:
-> 
->  insmod: error inserting 'foo.o': -795847932 Function not implemented
-> 
-> What does that mean? How can I get a list
-> of missing symbols?
 
-How do you compile the module?
-I you use:
-make dir/file.ko
-then kbuild will warn you about undefined symbols.
-Here I assume you only use standard methods in your kbuild file, and do
-not play funny tricks with vermagic etc.
 
-	Sam
+On Thu, 15 Sep 2005, Andrea Arcangeli wrote:
+> 
+> I'll try again: what is the point of still getting page faults on writes
+> when the first read will contain the wrong data?
+
+What's the point of having the page AT ALL if the data is wrong?
+
+You are _still_ arguing that the "data" and the "page fault" are somehow 
+connected. They aren't.
+
+If you think the data is wrong, then you are arguing against the COW. Yes, 
+the COW will make the data "wrong", but you can't escape that. That's what 
+a "write" by ptrace does.
+
+Btw, that's true even if we didn't do the COW - the COW just makes it even 
+more so. But even without the COW, the ptrace has written data that the 
+process didn't expect, and the process didn't write. 
+
+Here's a big clue. A ptrace PTRACE_POKE-induced write WRITES DATA.
+
+Afterwards, the data is different from what if would have been if the
+ptrace hadn't written. It's "wrong". Tough titties. It's what ptrace does.
+Live with it. If you don't want wrong data, don't use ptrace to write 
+wrong data.
+
+However, you seem to confuse "write data" with "write data and make the
+page writable".
+
+And as long as you continue to mix the two, there's no point in talking
+about it. They are different.
+
+To recap: PTRACE_POKE _will_ write "wrong data" to the process. Part of it 
+directly (the actual data written), and part of it indirectly (the fact 
+that it has to break the COW connection in order to do the write). THAT IS 
+INESCAPABLE, AND IT IS A DIRECT RESULT OF PTRACE_POKE.
+
+And it has _nothing_ to do with whether we fault afterwards or not. 
+
+		Linus

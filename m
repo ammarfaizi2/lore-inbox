@@ -1,56 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030318AbVIOBIq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030316AbVIOBKT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030318AbVIOBIq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 21:08:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030319AbVIOBIp
+	id S1030316AbVIOBKT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 21:10:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030321AbVIOBKT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 21:08:45 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:23168 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S1030318AbVIOBIk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 21:08:40 -0400
-Subject: Re: devfs vs udev FAQ from the other side
-From: Robert Love <rml@novell.com>
-To: Mike Bell <mike@mikebell.org>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <gregkh@suse.de>
-In-Reply-To: <20050915005105.GD15017@mikebell.org>
-References: <20050915005105.GD15017@mikebell.org>
-Content-Type: text/plain
-Date: Wed, 14 Sep 2005 21:08:38 -0400
-Message-Id: <1126746518.9652.60.camel@phantasy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Sep 2005 21:10:19 -0400
+Received: from central-air-conditioning.toybox.cambridge.ma.us ([69.25.196.71]:32415
+	"EHLO central-air-conditioning.toybox.cambridge.ma.us")
+	by vger.kernel.org with ESMTP id S1030316AbVIOBKR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 21:10:17 -0400
+From: Marc Horowitz <marc@mit.edu>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Horms <horms@debian.org>, 328135@bugs.debian.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Bug#328135: kernel-image-2.6.11-1-686-smp: nfs reading process stuck in disk wait
+References: <20050913194707.8C8C28E6F0@ayer.connecterra.net>
+	<20050914025150.GR27828@verge.net.au>
+	<1126742335.8807.74.camel@lade.trondhjem.org>
+Date: Wed, 14 Sep 2005 21:10:02 -0400
+In-Reply-To: <1126742335.8807.74.camel@lade.trondhjem.org> (Trond Myklebust's
+	message of "Thu, 15 Sep 2005 00:58:55 +0100")
+Message-ID: <t533bo75e6t.fsf@central-air-conditioning.toybox.cambridge.ma.us>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-09-14 at 17:51 -0700, Mike Bell wrote:
+Trond Myklebust <trond.myklebust@fys.uio.no> writes:
 
-> devfs advantages over udev:
-> 1) devfs is smaller
->   Hey, I ran the benchmarks, I have numbers, something Greg never gave.
+>> on den 14.09.2005 Klokka 11:51 (+0900) skreiv Horms:
+>> > Hi Marc,
+>> > 
+>> > would is be possible to test linux-image-2.6.12-1-686-smp from 
+>> > unstable to see if this problem persists? I am CCing the NFS
+>> > maintainer and LKML as this looks reasonably nasty and they
+>> > may be interested in looking into it.
+>> > 
+>> 
+>> I doubt this has anything to do with NFS. We should no longer have a
+>> sync_page VFS method in the 2.6 kernels. What other filesystems is the
+>> user running?
 
-Actually, there are not many numbers in this email.
+In the stack trace I sent, from a running 2.6.11 kernel, vfs_read
+appears to be the vfs method, not sync_page.  sync_page is called much
+deeper in the stack trace.
 
->   Took an actual devfs system of mine and disabled devfs from the
->   kernel, then enabled hotplug and sysfs for udev to run.  make clean
->   and surprise surprise, kernel is much bigger. Enable netlink stuff and
->   it's bigger still. udev is only smaller if like Greg you don't count
->   its kernel components against it, even if they wouldn't otherwise need
->   to be enabled. Difference is to the tune of 604164 on udev and 588466
->   on devfs. Maybe not a lot in some people's books, but a huge
->   difference from the claims of other people that devfs is actually
->   bigger.
+I haven't had a chance to try a 2.6.12 kernel, but I should be able to
+this week.
 
-What modern system, though, could survive without hotplug and sysfs and
-netlink?  You need to have those components, you want those features,
-anyhow.
-
-So your comparison is unrealistic.
-
-Your user-space argument is better.  Is ndevfs not sufficient?
-
-	Robert Love
-
-
+                Marc

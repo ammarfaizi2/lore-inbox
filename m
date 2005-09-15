@@ -1,88 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030384AbVIOGyy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030354AbVIOG44@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030384AbVIOGyy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 02:54:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030358AbVIOGye
+	id S1030354AbVIOG44 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 02:56:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030371AbVIOG4y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 02:54:34 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:50339 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1030374AbVIOGyW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 02:54:22 -0400
-Date: Thu, 15 Sep 2005 08:54:12 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
-Subject: swsusp: fix comments
-Message-ID: <20050915065412.GC2726@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Thu, 15 Sep 2005 02:56:54 -0400
+Received: from smtp106.sbc.mail.re2.yahoo.com ([68.142.229.99]:41328 "HELO
+	smtp106.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1030354AbVIOGvk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 02:51:40 -0400
+Message-Id: <20050915064945.251103000.dtor_core@ameritech.net>
+References: <20050915064552.836273000.dtor_core@ameritech.net>
+Date: Thu, 15 Sep 2005 01:46:10 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix comments in swsusp.
+Greg KH <gregkh@suse.de>,
+Kay Sievers <kay.sievers@vrfy.org>,
+Vojtech Pavlik <vojtech@suse.cz>,
+Hannes Reinecke <hare@suse.de>
+Subject: [patch 18/28] Input: convert sound/ppc/beep to dynamic input_dev allocation
+Content-Disposition: inline; filename=input-dynalloc-sound-ppc-beep.patch
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: Pavel Machek <pavel@suse.cz>
+Input: convert sound/ppc/beep to dynamic input_dev allocation
 
+This is required for input_dev sysfs integration
+
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
-commit eda1a89e8ae458d17de4f876615cec4da88b72d0
-tree 44ec95702f549ba9570de6746c4eaad3e42091bb
-parent ec2999be998bb1981287b20dd656214956e45be8
-author <pavel@amd.(none)> Thu, 15 Sep 2005 08:53:30 +0200
-committer <pavel@amd.(none)> Thu, 15 Sep 2005 08:53:30 +0200
 
- kernel/power/power.h  |    2 +-
- kernel/power/swsusp.c |   10 +++++++---
- 2 files changed, 8 insertions(+), 4 deletions(-)
+ sound/ppc/beep.c |   68 ++++++++++++++++++++++++++++++-------------------------
+ 1 files changed, 38 insertions(+), 30 deletions(-)
 
-diff --git a/kernel/power/power.h b/kernel/power/power.h
---- a/kernel/power/power.h
-+++ b/kernel/power/power.h
-@@ -1,7 +1,7 @@
- #include <linux/suspend.h>
- #include <linux/utsname.h>
+Index: work/sound/ppc/beep.c
+===================================================================
+--- work.orig/sound/ppc/beep.c
++++ work/sound/ppc/beep.c
+@@ -31,14 +31,14 @@
+ #include "pmac.h"
  
--/* With SUSPEND_CONSOLE defined, it suspend looks *really* cool, but
-+/* With SUSPEND_CONSOLE defined suspend looks *really* cool, but
-    we probably do not take enough locks for switching consoles, etc,
-    so bad things might happen.
- */
-diff --git a/kernel/power/swsusp.c b/kernel/power/swsusp.c
---- a/kernel/power/swsusp.c
-+++ b/kernel/power/swsusp.c
-@@ -363,7 +363,7 @@ static void lock_swapdevices(void)
- }
+ struct snd_pmac_beep {
+-	int running;	/* boolean */
+-	int volume;	/* mixer volume: 0-100 */
++	int running;		/* boolean */
++	int volume;		/* mixer volume: 0-100 */
+ 	int volume_play;	/* currently playing volume */
+ 	int hz;
+ 	int nsamples;
+ 	short *buf;		/* allocated wave buffer */
+ 	dma_addr_t addr;	/* physical address of buffer */
+-	struct input_dev dev;
++	struct input_dev *dev;
+ };
  
- /**
-- *	write_swap_page - Write one page to a fresh swap location.
-+ *	write_page - Write one page to a fresh swap location.
-  *	@addr:	Address we're writing.
-  *	@loc:	Place to store the entry we used.
-  *
-@@ -863,6 +863,9 @@ static int alloc_image_pages(void)
- 	return 0;
- }
- 
-+/* Free pages we allocated for suspend. Suspend pages are alocated
-+ * before atomic copy, so we need to free them after resume.
-+ */
- void swsusp_free(void)
+ /*
+@@ -212,47 +212,55 @@ static snd_kcontrol_new_t snd_pmac_beep_
+ int __init snd_pmac_attach_beep(pmac_t *chip)
  {
- 	BUG_ON(PageNosave(virt_to_page(pagedir_save)));
-@@ -1213,8 +1216,9 @@ static struct pbe * swsusp_pagedir_reloc
- 		free_pagedir(pblist);
- 		free_eaten_memory();
- 		pblist = NULL;
--	}
--	else
-+		/* Is this even worth handling? It should never ever happen, and we 
-+		   have just lost user's state, anyway... */
-+	} else
- 		printk("swsusp: Relocated %d pages\n", rel);
+ 	pmac_beep_t *beep;
+-	int err;
+-
+-	beep = kmalloc(sizeof(*beep), GFP_KERNEL);
+-	if (! beep)
+-		return -ENOMEM;
+-
+-	memset(beep, 0, sizeof(*beep));
+-	beep->buf = dma_alloc_coherent(&chip->pdev->dev, BEEP_BUFLEN * 4,
+-					&beep->addr, GFP_KERNEL);
+-
+-	beep->dev.evbit[0] = BIT(EV_SND);
+-	beep->dev.sndbit[0] = BIT(SND_BELL) | BIT(SND_TONE);
+-	beep->dev.event = snd_pmac_beep_event;
+-	beep->dev.private = chip;
++	struct input_dev *input_dev;
++	void *dmabuf;
++	int err = -ENOMEM;
++
++	beep = kzalloc(sizeof(*beep), GFP_KERNEL);
++	dmabuf = dma_alloc_coherent(&chip->pdev->dev, BEEP_BUFLEN * 4,
++				    &beep->addr, GFP_KERNEL);
++	input_dev = input_allocate_device();
++	if (!beep || !dmabuf || !input_dev)
++		goto fail;
  
- 	return pblist;
+ 	/* FIXME: set more better values */
+-	beep->dev.name = "PowerMac Beep";
+-	beep->dev.phys = "powermac/beep";
+-	beep->dev.id.bustype = BUS_ADB;
+-	beep->dev.id.vendor = 0x001f;
+-	beep->dev.id.product = 0x0001;
+-	beep->dev.id.version = 0x0100;
++	input_dev->name = "PowerMac Beep";
++	input_dev->phys = "powermac/beep";
++	input_dev->id.bustype = BUS_ADB;
++	input_dev->id.vendor = 0x001f;
++	input_dev->id.product = 0x0001;
++	input_dev->id.version = 0x0100;
++
++	input_dev->evbit[0] = BIT(EV_SND);
++	input_dev->sndbit[0] = BIT(SND_BELL) | BIT(SND_TONE);
++	input_dev->event = snd_pmac_beep_event;
++	input_dev->private = chip;
++	input_dev->cdev.dev = &chip->pdev->dev;
+ 
++	beep->dev = input_dev;
++	beep->buf = dmabuf;
+ 	beep->volume = BEEP_VOLUME;
+ 	beep->running = 0;
+-	if ((err = snd_ctl_add(chip->card, snd_ctl_new1(&snd_pmac_beep_mixer, chip))) < 0) {
+-		kfree(beep->buf);
+-		kfree(beep);
+-		return err;
+-	}
++
++	err = snd_ctl_add(chip->card, snd_ctl_new1(&snd_pmac_beep_mixer, chip));
++	if (err < 0)
++		goto fail;
+ 
+ 	chip->beep = beep;
+-	input_register_device(&beep->dev);
++	input_register_device(beep->dev);
+ 
+ 	return 0;
++
++ fail:	input_free_device(input_dev);
++	kfree(dmabuf);
++	kfree(beep);
++	return err;
+ }
+ 
+ void snd_pmac_detach_beep(pmac_t *chip)
+ {
+ 	if (chip->beep) {
+-		input_unregister_device(&chip->beep->dev);
++		input_unregister_device(chip->beep->dev);
+ 		dma_free_coherent(&chip->pdev->dev, BEEP_BUFLEN * 4,
+ 				  chip->beep->buf, chip->beep->addr);
+ 		kfree(chip->beep);
 
--- 
-if you have sharp zaurus hardware you don't need... you know my address

@@ -1,44 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbVIOUi2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964869AbVIOUlW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932081AbVIOUi2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 16:38:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932160AbVIOUi1
+	id S964869AbVIOUlW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 16:41:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965282AbVIOUlW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 16:38:27 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:55243 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932081AbVIOUi1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 16:38:27 -0400
-Subject: inotify bug?
-From: Lee Revell <rlrevell@joe-job.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Robert Love <rml@novell.com>
-Content-Type: text/plain
-Date: Thu, 15 Sep 2005 16:12:51 -0400
-Message-Id: <1126815172.3185.8.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+	Thu, 15 Sep 2005 16:41:22 -0400
+Received: from mf00.sitadelle.com ([212.94.174.67]:54915 "EHLO
+	smtp.cegetel.net") by vger.kernel.org with ESMTP id S964869AbVIOUlW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 16:41:22 -0400
+Message-ID: <4329DC6B.2040803@cosmosbay.com>
+Date: Thu, 15 Sep 2005 22:41:15 +0200
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: Sonny Rao <sonny@burdell.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: "Read my lips: no more merges" - aka Linux 2.6.14-rc1
+References: <Pine.LNX.4.58.0509122019560.3351@g5.osdl.org> <20050913063359.GA29715@kevlar.burdell.org> <43267A00.1010405@cosmosbay.com> <20050915201356.GA20966@kvack.org>
+In-Reply-To: <20050915201356.GA20966@kvack.org>
+Content-Type: multipart/mixed;
+ boundary="------------030609060303080306080309"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got this in dmesg with 2.6.13-rc7-rt3 the other day.  Maybe it's
-useful.  There were no visible effects.
+This is a multi-part message in MIME format.
+--------------030609060303080306080309
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 
-idr_remove called for id=1024 which is not allocated.
- [sub_remove+157/272] sub_remove+0x9d/0x110 (8)
- [__wake_up+44/80] __wake_up+0x2c/0x50 (28) 
- [idr_remove+24/128] idr_remove+0x18/0x80 (28)
- [remove_watch_no_event+77/208] remove_watch_no_event+0x4d/0xd0 (12)
- [inotify_inode_is_dead+88/128] inotify_inode_is_dead+0x58/0x80 (12)
- [prune_dcache+222/480] prune_dcache+0xde/0x1e0 (28)
- [shrink_dcache_memory+56/64] shrink_dcache_memory+0x38/0x40 (28)
- [shrink_slab+277/416] shrink_slab+0x115/0x1a0 (4)
- [balance_pgdat+686/1024] balance_pgdat+0x2ae/0x400 (48)
- [kswapd+168/240] kswapd+0xa8/0xf0 (96)
- [autoremove_wake_function+0/48] autoremove_wake_function+0x0/0x30 (12)
- [kswapd+0/240] kswapd+0x0/0xf0 (16)
- [kernel_thread_helper+5/24] kernel_thread_helper+0x5/0x18 (16)
+Benjamin LaHaise a écrit :
+> On Tue, Sep 13, 2005 at 09:04:32AM +0200, Eric Dumazet wrote:
+> 
+>>I wish a process param could allow open() to take any free fd available, 
+>>not the lowest one. One can always use fcntl(fd, F_DUPFD, slot) to move a 
+>>fd on a specific high slot and always keep the 64 first fd slots free to 
+>>speedup the kernel part at open()/dup()/socket() time.
+> 
+> 
+> The overhead is easy to avoid by making use of dup2() and close() to keep 
+> the lowest file descriptors in the table free, allowing open() and socket() 
+> to always return 3 or 4.
 
-Lee
+Yes, this is what I described :) Maybe this was not clear.
 
+> 
+> Alternatively, the kernel could track available file descriptors using a 
+> tree to efficiently insert freed slots into an ordered list of free 
+> regions (something similar to the avl tree used in vmas).  Is it worth 
+> doing?
+
+Well no, since a user app can manage itself this part if it happens to be 
+performance critical.
+
+
+Sample of a user land lib : Each time a new fd is returned by 
+open()/socket()/pipe()/accept()... the thread should call
+
+fd = fdcache_dupfd(fd);
+
+And close the file using  fdcache_closefd(fd) instead of close(fd);
+
+Eric
+
+--------------030609060303080306080309
+Content-Type: text/plain;
+ name="fastfdlib.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="fastfdlib.c"
+
+/*
+ * Unix kernel has an expensive get_unused_fd() function :
+ * This is because semantics of Unix mandates that a open()/pipe()/socket()/ call always returns the lowest fd, not a random one.
+ * Linux use a linear scan of a table of bits.
+ * A program handling 1.000.000 files scans about 128 KB of ram, with a spinlock held : No other thread can get a fd.
+ *
+ * The trick is to use this library to make sure 64 low fds are available, so that the standard unix functions 
+ * dont have to scan a lot of fd before finding a free one.
+ * And remap them using fcntl(F_DUPFD) at precise slots we manage ourselfs.
+ */
+#include <pthread.h>
+#include <fcntl.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+# define MAXFDS 1500000
+
+struct {
+	pthread_mutex_t lock;
+	unsigned int cache_fd;
+	unsigned int next_alloc;
+	unsigned int *cache_tab;
+	} fdd;
+
+
+void fdcache_init()
+{
+	pthread_mutex_init(&fdd.lock, NULL);
+	fdd.cache_tab = calloc(MAXFDS, sizeof(unsigned int));
+	fdd.next_alloc = 64;
+}
+
+int fdcache_dupfd(int fd)
+{
+	int ret;
+	pthread_mutex_lock(&fdd.lock);
+	if (fdd.cache_fd == 0)
+		fdd.cache_fd = fdd.next_alloc++;
+	ret = fcntl(fd, F_DUPFD, fdd.cache_fd);
+	if (ret != -1) {
+		fdd.cache_fd = fdd.cache_tab[ret];
+		pthread_mutex_unlock(&fdd.lock);
+		close(fd);
+		return ret;
+	}
+	else {
+		pthread_mutex_unlock(&fdd.lock);
+		return fd;
+	}
+}
+
+void fdcache_closefd(int fd)
+{
+	if (fd == -1)
+		return;
+
+	close(fd);
+
+	pthread_mutex_lock(&fdd.lock);
+	fdd.cache_tab[fd] = fdd.cache_fd;
+	fdd.cache_fd = fd;
+	pthread_mutex_unlock(&fdd.lock);
+}
+
+--------------030609060303080306080309--

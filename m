@@ -1,44 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965006AbVIOAjh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965070AbVIOAlB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965006AbVIOAjh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 20:39:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932536AbVIOAjh
+	id S965070AbVIOAlB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 20:41:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932536AbVIOAlB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 20:39:37 -0400
-Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:42946 "EHLO
-	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S932495AbVIOAjg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 20:39:36 -0400
-From: Grant Coady <grant_lkml@dodo.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Query: DE-600 parallel port NIC
-Date: Thu, 15 Sep 2005 10:39:23 +1000
-Organization: http://bugsplatter.mine.nu/
-Message-ID: <k7fhi1tfivq2cb09q8ku14l79o2oi3dqiv@4ax.com>
-X-Mailer: Forte Agent 2.0/32.652
+	Wed, 14 Sep 2005 20:41:01 -0400
+Received: from mail13.syd.optusnet.com.au ([211.29.132.194]:50853 "EHLO
+	mail13.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932495AbVIOAlA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 20:41:00 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Subject: Re: [PATCH] per-task-predictive-write-throttling-1
+Date: Thu, 15 Sep 2005 10:44:23 +1000
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org
+References: <20050914220334.GF4966@opteron.random>
+In-Reply-To: <20050914220334.GF4966@opteron.random>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509151044.24002.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+On Thu, 15 Sep 2005 08:03 am, Andrea Arcangeli wrote:
+> I wrote a patch to try avoiding making dirty about half the ram of the
+> computer when a single task is writing to disk (like during untarring or
+> rsyncing). I try to detect how many pages this task wrote durign the
+> last dirty_ratio_centisecs (sysctl configurable), and I assume that
+> those pages are already dirty (since they'll be soon anyway).
+>
+> This way a write-hog task will not lock dirty half the cache for no good
+> reason and other tasks will be allowed to use the dirty cache to avoid
+> blocking during writes. It's not like the write will not be noticeable,
+> but it should become substantially more responsive.
+>
+> I did a basic test to verify that the performance of the write-hog task
+> didn't suffer, the bandwidth remains the same (difference of 2 seconds
+> over 1 min and 20sec of workload). [though this should be tested in
+> other configurations, it may not be stable yet, the dirty level can go
+> down to zero to the point of nr_reclaimable reaching 0, hence the check
+> needed to avoid locking up in blk_congestion_wait]
+>
+> /proc/<pid>/future_pages tells about the current prediction.
+> /proc/sys/vm/dirty_ratio_centisecs enables/disables the feature, setting
+> it to 0 makes the kernel behave like current mainline, no difference,
+> setting it close to zero means almost disabled, large values means very
+> enabled, a reasonable value is 5 sec, predicting too much in the future
+> may not lead the best results in real life as you can guess ;).
 
-Been trying to get D-Link DE-600 portable parallel port adaptor 
-going, on 2.4 it is detected but cannot claim the interrupt, on 
-2.6.13+ it says the port is busy.
+Nice idea!
 
+I suspect the reason 5 seconds is good is probably because it's the same value 
+as dirty_writeback_centisecs.
 
-On both kernels I need to turn on ISA to make the NIC visible, 
-that's easy to fix and a patch sent recently.  But I wonder what 
-other traps & pitfalls to expect?
+I think this patch will sit nicely in my tree thanks :).
 
-The DE-600 works under win98se in the target laptop[1] with win95 
-driver, is detected (minus irq) in another box [2] with 2.4.31-hf5.
-
-[1] http://bugsplatter.mine.nu/test/boxen/tosh/
-[2] http://bugsplatter.mine.nu/test/boxen/sempro/
-
-Thanks,
-Grant.
-
+Cheers,
+Con

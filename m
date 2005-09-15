@@ -1,57 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030417AbVION3p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030413AbVIONeq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030417AbVION3p (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 09:29:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030418AbVION3p
+	id S1030413AbVIONeq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 09:34:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030415AbVIONeq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 09:29:45 -0400
-Received: from smtp.cs.aau.dk ([130.225.194.6]:60887 "EHLO smtp.cs.aau.dk")
-	by vger.kernel.org with ESMTP id S1030417AbVION3o (ORCPT
+	Thu, 15 Sep 2005 09:34:46 -0400
+Received: from hera.kernel.org ([209.128.68.125]:27812 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1030413AbVIONep (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 09:29:44 -0400
-Message-ID: <432976E0.4030003@cs.aau.dk>
-Date: Thu, 15 Sep 2005 15:28:00 +0200
-From: Emmanuel Fleury <fleury@cs.aau.dk>
-User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: Automatic Configuration of a Kernel
-References: <20050915130201.95797.qmail@web51002.mail.yahoo.com>
-In-Reply-To: <20050915130201.95797.qmail@web51002.mail.yahoo.com>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 15 Sep 2005 09:34:45 -0400
+Date: Thu, 15 Sep 2005 10:29:10 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Bharata B Rao <bharata@in.ibm.com>
+Cc: "Theodore Ts'o" <tytso@mit.edu>, Dipankar Sarma <dipankar@in.ibm.com>,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: VM balancing issues on 2.6.13: dentry cache not getting shrunk enough
+Message-ID: <20050915132910.GA6806@dmt.cnet>
+References: <20050911105709.GA16369@thunk.org> <20050911120045.GA4477@in.ibm.com> <20050912031636.GB16758@thunk.org> <20050913084752.GC4474@in.ibm.com> <20050914230843.GA11748@dmt.cnet> <20050915093945.GD3869@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050915093945.GD3869@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ahmad Reza Cheraghi wrote:
+On Thu, Sep 15, 2005 at 03:09:45PM +0530, Bharata B Rao wrote:
+> On Wed, Sep 14, 2005 at 08:08:43PM -0300, Marcelo Tosatti wrote:
+> > On Tue, Sep 13, 2005 at 02:17:52PM +0530, Bharata B Rao wrote:
+> > > 
+> <snip>
+> > > First is dentry_stats patch which collects some dcache statistics
+> > > and puts it into /proc/meminfo. This patch provides information 
+> > > about how dentries are distributed in dcache slab pages, how many
+> > > free and in use dentries are present in dentry_unused lru list and
+> > > how prune_dcache() performs with respect to freeing the requested
+> > > number of dentries.
+> > 
+> > Bharata, 
+> > 
+> > Ideally one should move the "nr_requested/nr_freed" counters from your
+> > stats patch into "struct shrinker" (or somewhere else more appropriate
+> > in which per-shrinkable-cache stats are maintained), and use the
+> > "mod_page_state" infrastructure to do lockless per-CPU accounting. ie.
+> > break /proc/vmstats's "slabs_scanned" apart in meaningful pieces.
 > 
-> If the script want to ask some question, what will be
-> the difference if we write make config.
+> Yes, I agree that we should have the nr_requested and nr_freed type of
+> counters in appropriate place. And "struct shrinker" is probably right
+> place for it.
+> 
+> Essentially you are suggesting that we maintain per cpu statistics
+> of 'requested to free'(scanned) slab objects and actual freed objects.
+> And this should be on per shrinkable cache basis.
 
-The main difference will be that the options without "auto" flag
-or where the script said "n" will be skipped.
+Yep. 
 
-It will reduce quite considerably the number of questions.
+> Is it ok to maintain this requested/freed counters as growing counters
+> or would it make more sense to have them reflect the statistics from
+> the latest/last attempt of cache shrink ? 
 
-The algorithm is quite simple:
+It makes a lot more sense to account for all shrink attempts: it is necessary
+to know how the reclaiming process is behaving over time. Thats why I wondered
+about using "=" instead of "+=" in your patch.
 
-If (no "auto" field) ---> go for the default
+> And where would be right place to export this information ?
+> (/proc/slabinfo ?, since it already gives details of all caches)
 
-If ("auto" field) --->
-	script gives n  --->  go for "n"
-	script gives y  --->  ask for [y/n]
-	script gives y/m -->  ask for [y/m/n]
+My feeling is that changing /proc/slabinfo format might break userspace
+applications.
 
-That's all folks...
+> If I understand correctly, "slabs_scanned" is the sum total number
+> of objects from all shrinkable caches scanned for possible freeeing.
 
-Regards
--- 
-Emmanuel Fleury
+Yep.
 
-Assistant Professor          | Office: B1-201
-Computer Science Department, | Phone:  +45 96 35 72 23
-Aalborg University,          | Mobile: +45 26 22 98 03
-Fredriks Bajersvej 7E,       | E-mail: fleury@cs.aau.dk
-9220 Aalborg East, Denmark   | URL: www.cs.aau.dk/~fleury
+> I didn't get why this is part of page_state which mostly includes
+> page related statistics.
+
+Well, page_state contains most of the reclaiming statistics - its scope
+is broader than "struct page" information.
+
+To me it seems like the best place.

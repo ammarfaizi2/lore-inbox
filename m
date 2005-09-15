@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964960AbVIOTSU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964963AbVIOTVI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964960AbVIOTSU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 15:18:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964963AbVIOTSU
+	id S964963AbVIOTVI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 15:21:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965028AbVIOTVI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 15:18:20 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:8611 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S964960AbVIOTSU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 15:18:20 -0400
-Date: Thu, 15 Sep 2005 12:18:05 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: zippel@linux-m68k.org, akpm@osdl.org, torvalds@osdl.org,
-       Simon.Derr@bull.net, linux-kernel@vger.kernel.org, nikita@clusterfs.com
-Subject: Re: [PATCH] cpuset semaphore depth check optimize
-Message-Id: <20050915121805.66bfdcc9.pj@sgi.com>
-In-Reply-To: <20050915104535.6058bbda.pj@sgi.com>
-References: <20050912113030.15934.9433.sendpatchset@jackhammer.engr.sgi.com>
-	<20050912043943.5795d8f8.akpm@osdl.org>
-	<20050912075155.3854b6e3.pj@sgi.com>
-	<Pine.LNX.4.61.0509121821270.3743@scrub.home>
-	<20050912153135.3812d8e2.pj@sgi.com>
-	<Pine.LNX.4.61.0509131120020.3728@scrub.home>
-	<20050913103724.19ac5efa.pj@sgi.com>
-	<Pine.LNX.4.61.0509141446590.3728@scrub.home>
-	<20050914124642.1b19dd73.pj@sgi.com>
-	<Pine.LNX.4.61.0509150116150.3728@scrub.home>
-	<20050915104535.6058bbda.pj@sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 15 Sep 2005 15:21:08 -0400
+Received: from terminus.zytor.com ([209.128.68.124]:30685 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S964963AbVIOTVH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 15:21:07 -0400
+Message-ID: <4329C992.7030300@zytor.com>
+Date: Thu, 15 Sep 2005 12:20:50 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?=22Martin_v=2E_L=F6wis=22?= <martin@v.loewis.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [Patch] Support UTF-8 scripts
+References: <4B2ZV-2dl-7@gated-at.bofh.it> <4HKbZ-Cx-37@gated-at.bofh.it> <4329BC43.7030406@v.loewis.de> <4329BCAB.1090106@zytor.com> <4329BFDC.70600@v.loewis.de>
+In-Reply-To: <4329BFDC.70600@v.loewis.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul wrote:
-> if per chance the cs->count was one, then for an instant no other task
-> was using this cpuset, and it had no children. 
+Martin v. Löwis wrote:
+> 
+> We can do that now, or in five or ten years. I'm willing to wait that
+> long, but I'm certain that more people will find the UTF-8 signature
+> useful over time. It's the only sane way to get non-ASCII into script
+> source in a consistent way.
+> 
 
-Correction - a count of one means no other tasks using, period.
+No.  The sane way is to just use UTF-8.
 
-As you well know, whether there are children or not depends on
-the state of the cpuset->children list.
+In five or ten years, by the time you've gotten your idiotic BOM mess to 
+sort-of work, it will be completely pointless to have anything *but* 
+UTF-8, and thus it's pointless.
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Don't perpetuate the braindamage.
+
+	-hpa

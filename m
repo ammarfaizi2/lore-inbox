@@ -1,59 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932561AbVIOKoQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932579AbVIOKps@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932561AbVIOKoQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 06:44:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932579AbVIOKoQ
+	id S932579AbVIOKps (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 06:45:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932586AbVIOKps
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 06:44:16 -0400
-Received: from nproxy.gmail.com ([64.233.182.202]:25618 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932561AbVIOKoP convert rfc822-to-8bit
+	Thu, 15 Sep 2005 06:45:48 -0400
+Received: from warden-p.diginsite.com ([208.29.163.248]:15073 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP id S932579AbVIOKps
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 06:44:15 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=f8qeHYk9bGB/KodN6PeM9Ndn/T+4USLNCNqNqD1vKKe1k4MSdz99yj41NyRLXHZuEa8ec3sOdWhTCisk2Rpr0H6IyorsEIO6TvZ4/mEfMvEdTHi++psdyn2nJZiN6DQs08OKFnbEVrlx4PD/v5M/3864Gvtj7e2Pd2p3dGigtPE=
-Message-ID: <6278d22205091503442c3973d4@mail.gmail.com>
-Date: Thu, 15 Sep 2005 11:44:12 +0100
-From: Daniel J Blueman <daniel.blueman@gmail.com>
-Reply-To: daniel.blueman@gmail.com
-To: Runar Ingebrigtsen <runar@mopo.no>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Help porting wireless InProComm IPN 2220 driver to 2.6
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Thu, 15 Sep 2005 06:45:48 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: Valdis.Kletnieks@vt.edu
+Cc: marekw1977@yahoo.com.au, linux-kernel@vger.kernel.org
+X-X-Sender: dlang@dlang.diginsite.com
+Date: Thu, 15 Sep 2005 03:44:24 -0700 (PDT)
+X-X-Sender: dlang@dlang.diginsite.com
+Subject: Re: Automatic Configuration of a Kernel 
+In-Reply-To: <200509150618.j8F6I9ji020578@turing-police.cc.vt.edu>
+Message-ID: <Pine.LNX.4.62.0509150341290.9384@qynat.qvtvafvgr.pbz>
+References: <20050914223836.53814.qmail@web51011.mail.yahoo.com>
+ <Pine.LNX.4.62.0509141900280.8469@qynat.qvtvafvgr.pbz>
+ <1126753444.13893.123.camel@mindpipe><200509151418.13927.marekw1977@yahoo.com.au>
+ <200509150618.j8F6I9ji020578@turing-police.cc.vt.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The DI624M device is based on the Atheros 802.11g chipset, so should
-work fine with the madwifi driver
-[http://sourceforge.net/projects/madwifi/].
+On Thu, 15 Sep 2005 Valdis.Kletnieks@vt.edu wrote:
 
-The file D-Link has made available contains either this or a
-closed-source driver.
+> On Thu, 15 Sep 2005 14:18:13 +1000, Marek W said:
+>
+>> Not so much the kernel. When compiling the kernel I'd prefer not to waste time
+>> and space compiling the 100+ modules I will never ever use on my laptop.
+>
+> It's actually  a lot worse than that - here's my minimized custom kernel that
+> drives everything on my laptop and then some, and a recent Fedora kernel:
+>
+> [/lib/modules]2 find 2.6.13-mm1/kernel/drivers -name '*.ko' | wc -l
+> 37
+> [/lib/modules]2 find 2.6.12-1.1400_FC5/kernel/drivers/ -name '*.ko' | wc -l
+> 832
+>
+> (OK, so I *do* have a few builtins that Fedora builds as modules. That's gonna
+> change the numbers by half a dozen or so...)
+>
+>>                                                                          I'd
+>> prefer for something to select the modules necessary for my hardware. I can't
+>> afford the time to keep up to date with that's new and what isn't, what has
+>> changed, what has been superseded, which module works with which device,
+>> chipset even, etc...
+>
+> I'm of the opinion that if you don't have that much time, you should be using a
+> distro kernel where somebody *else* is taking the time.  If you're the type
+> that builds their own kernel, the *last* thing you want is a tool glossing over
+> the fact that a module has been superceded.  Who's going to take care of the
+> matching changes for /etc/modprobe.conf and similar userspace changes, and
+> other stuff like that? (I figure if 'make oldconfig' asks a question, I should
+> take notice, and any userspace changes that don't get made are my fault - and
+> if 'make oldconfig' switches drivers on me without asking, that's a *bug* that
+> lkml will hear about.. ;)
 
-Runar Ingebrigtsen wrote:
-> Hi,
-> 
-> D-Link made a GPL driver for the InProComm IPN 2220 wireless chipset
-> found in Linksys cards.
-> 
-> Source: ftp://ftp.dlink.com/GPL/di624M/di624m_fw10_source.tar.gz
-> 
-> I really need this driver in the 2.6 kernel, as my current setup with
-> ndiswrapper and the neti2220.inf is unusable due to bad throughput.
-> 
-> If anyone would help me I'd be willing to pay an amount for a working
-> driver in the 2.6 tree. I would also need to get help using the driver
-> with Ubuntu.
-> 
-> The hardware is a Packard Bell EasyNote A5560 laptop:
-> https://wiki.ubuntu.com/HardwareSupportMachinesLaptopsPackardBell?highlight=%28packard%29%7C%28bell%29
-> 
-> -- 
-> Runar Ingebrigtsen <runar@mopo.no>
-> mopo as
-___
-Daniel J Blueman
+sometimes tracking down exactly what options need to be enabled to let you 
+at other options that apply to your system can be quite a chore, a tool to 
+start from no .config file and get you one that is tailered to your system 
+could be useful.
+
+I agree that make oldconfig shouldn't do this type of thing, but that 
+requires that youhave an existing .config for the box. if you do a make 
+autoconfig you are explicitly asking the software to do this for you.
+
+David Lang
+
+
+-- 
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare

@@ -1,48 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965092AbVIOOjH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030422AbVIOOll@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965092AbVIOOjH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 10:39:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965264AbVIOOjH
+	id S1030422AbVIOOll (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 10:41:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030424AbVIOOll
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 10:39:07 -0400
-Received: from smtp.cs.aau.dk ([130.225.194.6]:22749 "EHLO smtp.cs.aau.dk")
-	by vger.kernel.org with ESMTP id S965092AbVIOOjF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 10:39:05 -0400
-Message-ID: <43298721.9010506@cs.aau.dk>
-Date: Thu, 15 Sep 2005 16:37:21 +0200
-From: Emmanuel Fleury <fleury@cs.aau.dk>
-User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: adding new lsm hooks
-References: <20050915143420.15569.qmail@web30713.mail.mud.yahoo.com>
-In-Reply-To: <20050915143420.15569.qmail@web30713.mail.mud.yahoo.com>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 15 Sep 2005 10:41:41 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:56508 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S1030422AbVIOOll
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 10:41:41 -0400
+Subject: Re: [patch 09/28] Input: convert net/bluetooth to dynamic
+	input_dev allocation
+From: Marcel Holtmann <marcel@holtmann.org>
+To: dtor_core@ameritech.net
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Greg KH <gregkh@suse.de>, Kay Sievers <kay.sievers@vrfy.org>,
+       Vojtech Pavlik <vojtech@suse.cz>, Hannes Reinecke <hare@suse.de>
+In-Reply-To: <d120d50005091507225659868e@mail.gmail.com>
+References: <20050915070131.813650000.dtor_core@ameritech.net>
+	 <20050915070302.931769000.dtor_core@ameritech.net>
+	 <1126770894.28510.10.camel@station6.example.com>
+	 <d120d50005091507225659868e@mail.gmail.com>
+Content-Type: text/plain
+Date: Thu, 15 Sep 2005 16:41:50 +0200
+Message-Id: <1126795310.3505.47.camel@station6.example.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-8) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-umesh chandak wrote:
-> hi 
->     i want to add new lsm hooks in linux kernel.
-> Can anybody tell me ,what steps should i follow to do
-> this. or a appropriate link .
+Hi Dmitry,
 
-What kind of hooks ?
+> > > Input: convert net/bluetooth to dynamic input_dev allocation
+> > >
+> > > This is required for input_dev sysfs integration
+> > >
+> > > Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> > 
+> > on the condition your stuff got merged, then this patch is ok with me.
+> > 
+> > Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+> > 
+> 
+> I was planning on getting patch 8 (preparation patch) into kernel ASAP
+> and then just sending individual subsystem patches to maintainers and
+> Andrew so they can merge at their leisure (but don't wait for too long
+> ;))
 
-I've been idling around the LSM hooks for quite a while and
-I never had the need to add any... So, I'm quite puzzled to
-know what kind of hooks do you need. :)
+I have no problem with you submitting the changes. If Vojtech is fine
+with the proposed way, I would say that we get all of these changes into
+mainline now. The device model integration is long overdue.
 
 Regards
--- 
-Emmanuel Fleury
 
-Assistant Professor          | Office: B1-201
-Computer Science Department, | Phone:  +45 96 35 72 23
-Aalborg University,          | Mobile: +45 26 22 98 03
-Fredriks Bajersvej 7E,       | E-mail: fleury@cs.aau.dk
-9220 Aalborg East, Denmark   | URL: www.cs.aau.dk/~fleury
+Marcel
+
+

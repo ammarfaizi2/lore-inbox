@@ -1,105 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932384AbVIOJjE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932387AbVIOJkJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932384AbVIOJjE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 05:39:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbVIOJjE
+	id S932387AbVIOJkJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 05:40:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbVIOJkI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 05:39:04 -0400
-Received: from [203.171.93.254] ([203.171.93.254]:62951 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S932384AbVIOJjD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 05:39:03 -0400
-Subject: Re: [linux-pm] swsusp3: push image reading/writing into userspace
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>
-In-Reply-To: <20050915073744.GA2725@elf.ucw.cz>
-References: <20050914223206.GA2376@elf.ucw.cz>
-	 <1126749596.3987.5.camel@localhost> <20050915063753.GA2691@elf.ucw.cz>
-	 <1126768581.3987.31.camel@localhost>  <20050915073744.GA2725@elf.ucw.cz>
-Content-Type: text/plain
-Organization: Cyclades
-Message-Id: <1126776726.4452.50.camel@localhost>
+	Thu, 15 Sep 2005 05:40:08 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:65416 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932387AbVIOJkG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 05:40:06 -0400
+Date: Thu, 15 Sep 2005 15:09:45 +0530
+From: Bharata B Rao <bharata@in.ibm.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: "Theodore Ts'o" <tytso@mit.edu>, Dipankar Sarma <dipankar@in.ibm.com>,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: VM balancing issues on 2.6.13: dentry cache not getting shrunk enough
+Message-ID: <20050915093945.GD3869@in.ibm.com>
+Reply-To: bharata@in.ibm.com
+References: <20050911105709.GA16369@thunk.org> <20050911120045.GA4477@in.ibm.com> <20050912031636.GB16758@thunk.org> <20050913084752.GC4474@in.ibm.com> <20050914230843.GA11748@dmt.cnet>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 15 Sep 2005 19:32:06 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050914230843.GA11748@dmt.cnet>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-On Thu, 2005-09-15 at 17:37, Pavel Machek wrote:
-> Hi!
-> 
-> > > > > Here's prototype code for swsusp3. It seems to work for me, but don't
-> > > > > try it... yet. Code is very ugly at places, sorry, I know and will fix
-> > > > > it. This is just proof that it can be done, and that it can be done
-> > > > > without excessive ammount of code.
-> > > > 
-> > > > No comments on the code sorry. Instead I want to ask, could you please
-> > > > find a different name? swsusp3 is going to make people think that it's
-> > > > Suspend2 redesigned. Since there hasn't been a swsusp2 (so far as I
-> > > > know), how about using that name instead? At least then we'll clearly
-> > > > differentiate the two implementations and you won't confuse/irritate
-> > > > users.
-> > > 
-> > > swsusp2 can't be used, it is already "taken" by suspend2 (25000 hits
-> > > on google). I was actually hoping that you would release suspend4
-> > > (using swsusp3 infrastructure) :-).
+On Wed, Sep 14, 2005 at 08:08:43PM -0300, Marcelo Tosatti wrote:
+> On Tue, Sep 13, 2005 at 02:17:52PM +0530, Bharata B Rao wrote:
 > > 
-> > You could reclaim it. There are 10 times as many hits (239,000) for
-> > suspend2, and I've never wanted it to be called swsusp2 anyway :). As
-> > for suspend4, at the moment, I'm not planning on ever progressing beyond
-> > 2.x.
+<snip>
+> > First is dentry_stats patch which collects some dcache statistics
+> > and puts it into /proc/meminfo. This patch provides information 
+> > about how dentries are distributed in dcache slab pages, how many
+> > free and in use dentries are present in dentry_unused lru list and
+> > how prune_dcache() performs with respect to freeing the requested
+> > number of dentries.
 > 
-> Sorry, have to ask...
+> Bharata, 
 > 
-> "not planning on progressing" == version number stays "2" no matter
-> what changes, or "not planning on progressing" == not plan to use
-> swsusp3/uswsusp infrastructure?
+> Ideally one should move the "nr_requested/nr_freed" counters from your
+> stats patch into "struct shrinker" (or somewhere else more appropriate
+> in which per-shrinkable-cache stats are maintained), and use the
+> "mod_page_state" infrastructure to do lockless per-CPU accounting. ie.
+> break /proc/vmstats's "slabs_scanned" apart in meaningful pieces.
 
-I'm not planning on ever progressing beyond 2.x because I'm seeing the
-code I have now as pretty much feature complete. There are a few small
-areas that I'd like to improve (reinstating module support being one -
-it was a mistake to remove it), but I don't see the need for a complete
-redesign. That said, I was careful to say 'at the moment'. I'm not
-denying for a second that things might change.
+Yes, I agree that we should have the nr_requested and nr_freed type of
+counters in appropriate place. And "struct shrinker" is probably right
+place for it.
 
-Regarding the 'swsusp3/uswsusp infrastructure': as I see it at the
-moment (feel free to correct me), your new revision is only moving as
-much code as you can to userspace (plus changes that are made necessary
-by that). Beyond maybe reducing the kernel size a little, I don't see
-any advantage to that - it just makes things more complicated and
-requires the user to set up more in the way of an initrd or initramfs in
-order to suspend and resume. You end up with more code to maintain to
-get the same functionality (same amount of kernel code or slightly less
-plus extra userland code to do all the reading and writing). I'm
-speaking from experience. Bernard and I moved the userinterface code to
-userspace to make others happy and that fact that we ended up with more
-code shouldn't surprise anyone. You need all the code you had before
-plus code for the interface (at least).
+Essentially you are suggesting that we maintain per cpu statistics
+of 'requested to free'(scanned) slab objects and actual freed objects.
+And this should be on per shrinkable cache basis.
 
-If the main impetus is seeking to reduce kernel code size, why not just
-provide the option of building your code as a module for those who are
-concerned about that statistic?
+Is it ok to maintain this requested/freed counters as growing counters
+or would it make more sense to have them reflect the statistics from
+the latest/last attempt of cache shrink ? And where would be right
+place to export this information ? (/proc/slabinfo ?,  since it already
+gives details of all caches)
 
-> > > I guess I could call it "uswsusp".
-> > 
-> > u as in micro?
-> 
-> Originaly I thought about it as "userland-swsusp", but micro-swsusp
-> sounds nice, too.
-
-I think people would think of micro more readily that userland, but it's
-your choice :)
+If I understand correctly, "slabs_scanned" is the sum total number
+of objects from all shrinkable caches scanned for possible freeeing.
+I didn't get why this is part of page_state which mostly includes
+page related statistics.
 
 Regards,
-
-Nigel
-								Pavel
--- 
-
-
+Bharata.

@@ -1,40 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030400AbVIOFOW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965144AbVIOFR0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030400AbVIOFOW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 01:14:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030411AbVIOFOW
+	id S965144AbVIOFR0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 01:17:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965196AbVIOFRZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 01:14:22 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:62086 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S1030392AbVIOFOU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 01:14:20 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Roland Dreier <rolandd@cisco.com>
-Subject: Re: [PATCH] Move GFP_KERNEL use out of line to shrink text
-Date: Thu, 15 Sep 2005 08:13:23 +0300
-User-Agent: KMail/1.8.2
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.63.0509131116280.3479@excalibur.intercode> <20050913223511.141e78c1.akpm@osdl.org> <52fys7ze6x.fsf_-_@cisco.com>
-In-Reply-To: <52fys7ze6x.fsf_-_@cisco.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 15 Sep 2005 01:17:25 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:35729 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965144AbVIOFRZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 01:17:25 -0400
+Date: Wed, 14 Sep 2005 22:16:50 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch 1/7] s390: default configuration.
+Message-Id: <20050914221650.0e5b8e49.akpm@osdl.org>
+In-Reply-To: <20050914155308.GA27169@skybase.boeblingen.de.ibm.com>
+References: <20050914155308.GA27169@skybase.boeblingen.de.ibm.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509150813.24041.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 14 September 2005 21:39, Roland Dreier wrote:
->        text    data     bss     dec     hex filename
->     24202272 7609162 1998512 33809946 203e61a vmlinux-before
->     24197561 7609474 1998512 33805547 203d4eb vmlinux-after
-> 
-> for a net savings of 4711 bytes of text (at a cost of 312 bytes of
-> data for some reason).  With my usual config, the patched kernel boots
-> and runs fine.
 
-FYI: "some reason" == KALLSYMS
---
-vda
+I'd propose that these:
+
+s390-default-configuration.patch
+s390-bl_dev-array-size.patch
+s390-crypto-driver-patch-take-2.patch
+s390-show_cpuinfo-fix.patch
+s390-diag-0x308-reipl.patch
+
+are 2.6.14 material whereas these:
+
+s390-3270-fullscreen-view.patch
+s390-ipl-device.patch
+
+aren't (at least, yet).  I've asked Greg to take a look at the sysfs stuff
+in the last two patches.
+
+OK?

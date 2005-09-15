@@ -1,56 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030304AbVIOAbQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964942AbVIOAhs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030304AbVIOAbQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 20:31:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932536AbVIOAbQ
+	id S964942AbVIOAhs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 20:37:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932536AbVIOAhs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 20:31:16 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:17142 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932495AbVIOAbP
+	Wed, 14 Sep 2005 20:37:48 -0400
+Received: from xproxy.gmail.com ([66.249.82.195]:2275 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932495AbVIOAhr convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 20:31:15 -0400
-Message-ID: <4328C0D0.6000909@in.ibm.com>
-Date: Wed, 14 Sep 2005 19:31:12 -0500
-From: Sripathi Kodi <sripathik@in.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc3 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Al Viro <viro@ZenIV.linux.org.uk>
-CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, patrics@interia.pl,
-       Ingo Molnar <mingo@elte.hu>, Roland McGrath <roland@redhat.com>
-Subject: Re: [PATCH 2.6.13.1] Patch for invisible threads
-References: <4325BEF3.2070901@in.ibm.com> <20050912134954.7bbd15b2.akpm@osdl.org> <4326CFE2.6000908@in.ibm.com> <Pine.LNX.4.58.0509130744070.3351@g5.osdl.org> <20050913165102.GR25261@ZenIV.linux.org.uk> <Pine.LNX.4.58.0509131000040.3351@g5.osdl.org> <20050913171215.GS25261@ZenIV.linux.org.uk> <43274503.7090303@in.ibm.com> <Pine.LNX.4.58.0509131601400.26803@g5.osdl.org> <20050914015003.GW25261@ZenIV.linux.org.uk>
-In-Reply-To: <20050914015003.GW25261@ZenIV.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Sep 2005 20:37:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lymHd4ixyKf5Rg8O0VdkjU/vH3VLHUEK8+mGzRmu+KrzyPJfFkyGcWofIyDfO8T0oJV3xLzwbcs0qqHwV9WRc+V/xdgHOAiOrXwgwyYMOXWFgozXoTBFPiakHCJZu/H3wJaBPSvuiN3QvRYrujYxaRQAbXU+T5TICiLcVx/wcXs=
+Message-ID: <924c288305091417375fea4ec2@mail.gmail.com>
+Date: Wed, 14 Sep 2005 17:37:41 -0700
+From: Hua Zhong <hzhong@gmail.com>
+Reply-To: hzhong@gmail.com
+To: marekw1977@yahoo.com.au
+Subject: Re: Automatic Configuration of a Kernel
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200509151009.59981.marekw1977@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050914223836.53814.qmail@web51011.mail.yahoo.com>
+	 <6bffcb0e05091415533d563c5a@mail.gmail.com>
+	 <4328B710.5080503@in.tum.de>
+	 <200509151009.59981.marekw1977@yahoo.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro wrote:
-> On Tue, Sep 13, 2005 at 04:10:21PM -0700, Linus Torvalds wrote:
-> 
->>I don't think this is wrong per se, but you shouldn't take the tasklist 
->>lock normally. You're better off just doing
-> 
-> 
-> Could you exlain why we might want to bother with that in the first place?
-> In any case, why would we want to put that stuff on the common codepath
-> instead of specialized ->permission()?
-> 
-Al,
+I concur.
 
-I can move this code from proc_root_link() to proc_check_root(), but it will 
-still not be completely limited to ->permission() path. I can create a 
-separate ->permission() for proc_task_inode_operations, and have this 
-additional code there. If I do that, I think I will have to duplicate much 
-of proc_check_root(). Or else, I will have to split proc_check_root() into 
-two functions to prevent code duplication. Please let me know if any of 
-these makes sense, and I will send another patch.
+There seems to be a trend that discourages normal users from running
+kernel.org kernels, but I rarely find myself agree with such mind set.
+Do we want more people to test vanilla kernels or not?
 
-If you don't like this idea at all, please let me know if there any other 
-way of solving the invisible threads problem, short of taking out 
-->permission() altogether from proc_task_inode_operations.
-
-Thanks,
-Sripathi.
+On 9/14/05, Marek W <marekw1977@yahoo.com.au> wrote:
+> On Thu, 15 Sep 2005 09:49, Daniel Thaler wrote:
+> > Michal Piotrowski wrote:
+> > > Hi,
+> > >
+> > > On 15/09/05, Ahmad Reza Cheraghi <a_r_cheraghi@yahoo.com> wrote:
+> > >>Hi
+> > >>
+> > >>I wrote this Framework for making a .config based on
+> > >>the System Hardwares. It would be a great help if some
+> > >>people would give me their opinion about it.
+> > >>
+> > >>Regards
+> > >
+> > > It's for new linux users? They should use distributions kernels.
+> > > It's for "power users"? They just do make menuconfig...
+> > > It's for kernel developers? They just do vi .config.
+> >
+> > I like the idea.
+> > I'm a power user and of course I can do make menuconfig, but it would be
+> > useful when building a kernel for new hardware for example.
+> >
+> > Currently that involves looking at dmesg output to figure out the correct
+> > options; this would provide a nice base config to work with and reduce the
+> > amount of effort.
+> 
+> I second that. Unlike majority of users I suppose, I upgrade the kernel often
+> and I am on the bleeding edge (laptop user with some drivers still being in
+> development). Even with oldconfig it's easy to miss a useful driver
+> (sometimes there's no help or the volume of new options is too large).
+> 
+> Something that can do the hardware detection, then maps that to drivers would
+> be very useful.
+> 
+> 
+> --
+> 
+> Marek W
+> Send instant messages to your online friends http://au.messenger.yahoo.com
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

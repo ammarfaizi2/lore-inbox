@@ -1,63 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965070AbVIOAlB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030272AbVIOAsb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965070AbVIOAlB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 20:41:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932536AbVIOAlB
+	id S1030272AbVIOAsb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 20:48:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932536AbVIOAsb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 20:41:01 -0400
-Received: from mail13.syd.optusnet.com.au ([211.29.132.194]:50853 "EHLO
-	mail13.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932495AbVIOAlA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 20:41:00 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Subject: Re: [PATCH] per-task-predictive-write-throttling-1
-Date: Thu, 15 Sep 2005 10:44:23 +1000
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org
-References: <20050914220334.GF4966@opteron.random>
-In-Reply-To: <20050914220334.GF4966@opteron.random>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 14 Sep 2005 20:48:31 -0400
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:9397
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S932495AbVIOAsa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 20:48:30 -0400
+Subject: Re: "Read my lips: no more merges" - aka Linux 2.6.14-rc1
+From: Alejandro Bonilla Beeche <abonilla@linuxwireless.org>
+Reply-To: abonilla@linuxwireless.org
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1126674993.5681.9.camel@localhost.localdomain>
+References: <7255.1126583985@kao2.melbourne.sgi.com>
+	 <1126674993.5681.9.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 14 Sep 2005 18:48:42 -0600
+Message-Id: <1126745323.7199.3.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509151044.24002.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Sep 2005 08:03 am, Andrea Arcangeli wrote:
-> I wrote a patch to try avoiding making dirty about half the ram of the
-> computer when a single task is writing to disk (like during untarring or
-> rsyncing). I try to detect how many pages this task wrote durign the
-> last dirty_ratio_centisecs (sysctl configurable), and I assume that
-> those pages are already dirty (since they'll be soon anyway).
->
-> This way a write-hog task will not lock dirty half the cache for no good
-> reason and other tasks will be allowed to use the dirty cache to avoid
-> blocking during writes. It's not like the write will not be noticeable,
-> but it should become substantially more responsive.
->
-> I did a basic test to verify that the performance of the write-hog task
-> didn't suffer, the bandwidth remains the same (difference of 2 seconds
-> over 1 min and 20sec of workload). [though this should be tested in
-> other configurations, it may not be stable yet, the dirty level can go
-> down to zero to the point of nr_reclaimable reaching 0, hence the check
-> needed to avoid locking up in blk_congestion_wait]
->
-> /proc/<pid>/future_pages tells about the current prediction.
-> /proc/sys/vm/dirty_ratio_centisecs enables/disables the feature, setting
-> it to 0 makes the kernel behave like current mainline, no difference,
-> setting it close to zero means almost disabled, large values means very
-> enabled, a reasonable value is 5 sec, predicting too much in the future
-> may not lead the best results in real life as you can guess ;).
+On Tue, 2005-09-13 at 23:16 -0600, Alejandro Bonilla Beeche wrote:
+> On Tue, 2005-09-13 at 13:59 +1000, Keith Owens wrote:
+> > On Mon, 12 Sep 2005 21:54:29 -0600, 
+> > Alejandro Bonilla Beeche <abonilla@linuxwireless.org> wrote:
+> > >If I do make menuconfig, it still says 2.6.13 instead of 2.6.14-rc1.
+> > 
+> > rsync.kernel.org has not been updated from the master yet.  Give it an
+> > hour and try again.
 
-Nice idea!
+Linus,
 
-I suspect the reason 5 seconds is good is probably because it's the same value 
-as dirty_writeback_centisecs.
+	Thanks for the tip. git checkout -f did it. I dunno but I always run
+it, anyway, it worked now that you mentioned it. ;-)
 
-I think this patch will sit nicely in my tree thanks :).
+Additionally,
 
-Cheers,
-Con
+debian:~# cd linux-2.6/
+debian:~/linux-2.6# git log
+/usr/local/bin/git-log-script: line 4: less: command not found
+
+Anyway! I can see how it is updated now.
+
+Thanks!
+
+.Alejandro
+

@@ -1,178 +1,364 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030449AbVIOHGB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030456AbVIOHEn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030449AbVIOHGB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 03:06:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030446AbVIOHEK
+	id S1030456AbVIOHEn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 03:04:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030433AbVIOHEh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 03:04:10 -0400
-Received: from smtp109.sbc.mail.re2.yahoo.com ([68.142.229.96]:15228 "HELO
-	smtp109.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1030430AbVIOHEB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 03:04:01 -0400
-Message-Id: <20050915070131.813650000.dtor_core@ameritech.net>
-Date: Thu, 15 Sep 2005 02:01:31 -0500
+	Thu, 15 Sep 2005 03:04:37 -0400
+Received: from smtp113.sbc.mail.re2.yahoo.com ([68.142.229.92]:37985 "HELO
+	smtp113.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1030448AbVIOHEL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 03:04:11 -0400
+Message-Id: <20050915070305.574517000.dtor_core@ameritech.net>
+References: <20050915070131.813650000.dtor_core@ameritech.net>
+Date: Thu, 15 Sep 2005 02:01:57 -0500
 From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: linux-kernel@vger.kernel.org
 Cc: Andrew Morton <akpm@osdl.org>, Greg KH <gregkh@suse.de>,
        Kay Sievers <kay.sievers@vrfy.org>, Vojtech Pavlik <vojtech@suse.cz>,
        Hannes Reinecke <hare@suse.de>
-Subject: [patch 00/28] RFC/RFT: Input - sysfs integration
+Subject: [patch 26/28] input core: remove custom-made hotplug handler
+Content-Disposition: inline; filename=input-sysfs-hotplug.patch
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Argh, resending with subjects and proper CCs]
+Input: remove custom-made hotplug handler
 
-Hi,
+Now that all input devices are registered with sysfs we can remove
+old custom-made hotplug handler and crate a standard one.
 
-The following set of patches deals with converting input subsystem
-to the driver model and intergrate it with sysfs. This allows us
-to remove custom-made input hotplug handler and finally have an
-option of netlink-only hotplug notifier.
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
 
-Some changes to the driver core were required. I decided that I did
-not want to add an additional class to /sys/class directory; instead
-class code was changed to allow nesting several classes. This way
-we can have:
+ drivers/input/input.c |  255 +++++++++++++++++++++-----------------------------
+ 1 files changed, 110 insertions(+), 145 deletions(-)
 
-/sys/class/input/
-|-- devices
-|   |-- input0
-|   |-- input1
-|   `-- input2
-`-- interfaces
-    |-- event0
-    ...
-    |-- mouse1
-    `-- ts0
-
-and not clutter the top-level directory. Top-level classes define
-individual subsystems, lower-level classes define individual parts.
-In this particular case 'devices' directory contains class devices
-corresponding to input_dev structures whereas 'interfaces' has
-class devices produced by input interfaces (handlers), such as
-evdev, mousedev, tsdev and joydev.
-
-I believe that other subsystems, such as firewire, SCSI, USB and
-I2C could also be moved to a hierarchy of classes to make /sys
-tree more organized.
-
-Although all this compatible with pre-udev hotplug scripts I was
-advised that having sub-classes will require some changes to udev.
-
-Class interface code was slightly changed to pass interface to
-add/remove methods. This way subsystem can have a generic handler
-and still call individual interfaces's methods if needed. There are
-couple if I2O patches that deal with class interface code, these are
-not directly related to this series, but required for compiling.
-The maintainer acked them and will push with the rest of I2O
-updates.
-
-When registering class devices hotplug event is now sent before
-adding interfaces, otherwise children's hotplug events would reach
-userspace (udev) first.
-
-The full sysfs input hierarchy on by laptop is the following:
-[dtor@core ~]$ tree /sys/class/input/
-/sys/class/input/
-|-- devices
-|   |-- input0
-|   |   |-- capabilities
-|   |   |   |-- abs
-|   |   |   |-- ev
-|   |   |   |-- ff
-|   |   |   |-- key
-|   |   |   |-- led
-|   |   |   |-- msc
-|   |   |   |-- rel
-|   |   |   |-- snd
-|   |   |   `-- sw
-|   |   |-- device -> ../../../../devices/platform/i8042/serio1
-|   |   |-- event0 -> ../../../../class/input/interfaces/event0
-|   |   |-- id
-|   |   |   |-- bustype
-|   |   |   |-- product
-|   |   |   |-- vendor
-|   |   |   `-- version
-|   |   |-- name
-|   |   |-- phys
-|   |   `-- uniq
-|   |-- input1
-|   |   |-- capabilities
-|   |   |   |-- abs
-|   |   |   |-- ev
-|   |   |   |-- ff
-|   |   |   |-- key
-|   |   |   |-- led
-|   |   |   |-- msc
-|   |   |   |-- rel
-|   |   |   |-- snd
-|   |   |   `-- sw
-|   |   |-- device -> ../../../../devices/platform/i8042/serio0
-|   |   |-- event1 -> ../../../../class/input/interfaces/event1
-|   |   |-- id
-|   |   |   |-- bustype
-|   |   |   |-- product
-|   |   |   |-- vendor
-|   |   |   `-- version
-|   |   |-- mouse0 -> ../../../../class/input/interfaces/mouse0
-|   |   |-- name
-|   |   |-- phys
-|   |   |-- ts0 -> ../../../../class/input/interfaces/ts0
-|   |   `-- uniq
-|   `-- input2
-|       |-- capabilities
-|       |   |-- abs
-|       |   |-- ev
-|       |   |-- ff
-|       |   |-- key
-|       |   |-- led
-|       |   |-- msc
-|       |   |-- rel
-|       |   |-- snd
-|       |   `-- sw
-|       |-- device -> ../../../../devices/platform/i8042/serio0/serio2
-|       |-- event2 -> ../../../../class/input/interfaces/event2
-|       |-- id
-|       |   |-- bustype
-|       |   |-- product
-|       |   |-- vendor
-|       |   `-- version
-|       |-- mouse1 -> ../../../../class/input/interfaces/mouse1
-|       |-- name
-|       |-- phys
-|       |-- ts1 -> ../../../../class/input/interfaces/ts1
-|       `-- uniq
-`-- interfaces
-    |-- event0
-    |   |-- dev
-    |   `-- device -> ../../../../class/input/devices/input0
-    |-- event1
-    |   |-- dev
-    |   `-- device -> ../../../../class/input/devices/input1
-    |-- event2
-    |   |-- dev
-    |   `-- device -> ../../../../class/input/devices/input2
-    |-- mice
-    |   `-- dev
-    |-- mouse0
-    |   |-- dev
-    |   `-- device -> ../../../../class/input/devices/input1
-    |-- mouse1
-    |   |-- dev
-    |   `-- device -> ../../../../class/input/devices/input2
-    |-- ts0
-    |   |-- dev
-    |   `-- device -> ../../../../class/input/devices/input1
-    `-- ts1
-        |-- dev
-        `-- device -> ../../../../class/input/devices/input2
-
-Review/comments/testing will be appreciated.
-
-Thank you.
-
---
-Dmitry
+Index: work/drivers/input/input.c
+===================================================================
+--- work.orig/drivers/input/input.c
++++ work/drivers/input/input.c
+@@ -322,125 +322,7 @@ static struct input_device_id *input_mat
+ 	return NULL;
+ }
+ 
+-
+-/*
+- * Input hotplugging interface - loading event handlers based on
+- * device bitfields.
+- */
+-
+-#ifdef CONFIG_HOTPLUG
+-
+-/*
+- * Input hotplugging invokes what /proc/sys/kernel/hotplug says
+- * (normally /sbin/hotplug) when input devices get added or removed.
+- *
+- * This invokes a user mode policy agent, typically helping to load driver
+- * or other modules, configure the device, and more.  Drivers can provide
+- * a MODULE_DEVICE_TABLE to help with module loading subtasks.
+- *
+- */
+-
+-#define SPRINTF_BIT_A(bit, name, max) \
+-	do { \
+-		envp[i++] = scratch; \
+-		scratch += sprintf(scratch, name); \
+-		for (j = NBITS(max) - 1; j >= 0; j--) \
+-			if (dev->bit[j]) break; \
+-		for (; j >= 0; j--) \
+-			scratch += sprintf(scratch, "%lx ", dev->bit[j]); \
+-		scratch++; \
+-	} while (0)
+-
+-#define SPRINTF_BIT_A2(bit, name, max, ev) \
+-	do { \
+-		if (test_bit(ev, dev->evbit)) \
+-			SPRINTF_BIT_A(bit, name, max); \
+-	} while (0)
+-
+-static void input_call_hotplug(char *verb, struct input_dev *dev)
+-{
+-	char *argv[3], **envp, *buf, *scratch;
+-	int i = 0, j, value;
+-
+-	if (!hotplug_path[0]) {
+-		printk(KERN_ERR "input.c: calling hotplug without a hotplug agent defined\n");
+-		return;
+-	}
+-	if (in_interrupt()) {
+-		printk(KERN_ERR "input.c: calling hotplug from interrupt\n");
+-		return;
+-	}
+-	if (!current->fs->root) {
+-		printk(KERN_WARNING "input.c: calling hotplug without valid filesystem\n");
+-		return;
+-	}
+-	if (!(envp = (char **) kmalloc(20 * sizeof(char *), GFP_KERNEL))) {
+-		printk(KERN_ERR "input.c: not enough memory allocating hotplug environment\n");
+-		return;
+-	}
+-	if (!(buf = kmalloc(1024, GFP_KERNEL))) {
+-		kfree (envp);
+-		printk(KERN_ERR "input.c: not enough memory allocating hotplug environment\n");
+-		return;
+-	}
+-
+-	argv[0] = hotplug_path;
+-	argv[1] = "input";
+-	argv[2] = NULL;
+-
+-	envp[i++] = "HOME=/";
+-	envp[i++] = "PATH=/sbin:/bin:/usr/sbin:/usr/bin";
+-
+-	scratch = buf;
+-
+-	envp[i++] = scratch;
+-	scratch += sprintf(scratch, "ACTION=%s", verb) + 1;
+-
+-	envp[i++] = scratch;
+-	scratch += sprintf(scratch, "PRODUCT=%x/%x/%x/%x",
+-		dev->id.bustype, dev->id.vendor, dev->id.product, dev->id.version) + 1;
+-
+-	if (dev->name) {
+-		envp[i++] = scratch;
+-		scratch += sprintf(scratch, "NAME=%s", dev->name) + 1;
+-	}
+-
+-	if (dev->phys) {
+-		envp[i++] = scratch;
+-		scratch += sprintf(scratch, "PHYS=%s", dev->phys) + 1;
+-	}
+-
+-	SPRINTF_BIT_A(evbit, "EV=", EV_MAX);
+-	SPRINTF_BIT_A2(keybit, "KEY=", KEY_MAX, EV_KEY);
+-	SPRINTF_BIT_A2(relbit, "REL=", REL_MAX, EV_REL);
+-	SPRINTF_BIT_A2(absbit, "ABS=", ABS_MAX, EV_ABS);
+-	SPRINTF_BIT_A2(mscbit, "MSC=", MSC_MAX, EV_MSC);
+-	SPRINTF_BIT_A2(ledbit, "LED=", LED_MAX, EV_LED);
+-	SPRINTF_BIT_A2(sndbit, "SND=", SND_MAX, EV_SND);
+-	SPRINTF_BIT_A2(ffbit,  "FF=",  FF_MAX, EV_FF);
+-	SPRINTF_BIT_A2(swbit,  "SW=",  SW_MAX, EV_SW);
+-
+-	envp[i++] = NULL;
+-
+-#ifdef INPUT_DEBUG
+-	printk(KERN_DEBUG "input.c: calling %s %s [%s %s %s %s %s]\n",
+-		argv[0], argv[1], envp[0], envp[1], envp[2], envp[3], envp[4]);
+-#endif
+-
+-	value = call_usermodehelper(argv [0], argv, envp, 0);
+-
+-	kfree(buf);
+-	kfree(envp);
+-
+-#ifdef INPUT_DEBUG
+-	if (value != 0)
+-		printk(KERN_DEBUG "input.c: hotplug returned %d\n", value);
+-#endif
+-}
+-
+-#endif
+-
+-static int input_print_bitmap(char *buf, unsigned long *bitmap, int max)
++static int input_print_bitmap(char *buf, int buf_size, unsigned long *bitmap, int max)
+ {
+ 	int i;
+ 	int len = 0;
+@@ -450,10 +332,8 @@ static int input_print_bitmap(char *buf,
+ 			break;
+ 
+ 	for (; i >= 0; i--)
+-		len += sprintf(buf + len, "%lx%s", bitmap[i], i > 0 ? " " : "");
+-
+-	len += sprintf(buf + len, "\n");
+-
++		len += snprintf(buf + len, max(buf_size - len, 0),
++				"%lx%s", bitmap[i], i > 0 ? " " : "");
+ 	return len;
+ }
+ 
+@@ -478,17 +358,18 @@ static unsigned int input_devices_poll(s
+ 	return 0;
+ }
+ 
+-#define SPRINTF_BIT_B(ev, bm)						\
++#define SPRINTF_BIT(ev, bm)						\
+ 	do {								\
+ 		len += sprintf(buf + len, "B: %s=", #ev);		\
+-		len += input_print_bitmap(buf + len,			\
++		len += input_print_bitmap(buf + len, INT_MAX,		\
+ 					dev->bm##bit, ev##_MAX);	\
++		len += sprintf(buf + len, "\n");			\
+ 	} while (0)
+ 
+-#define SPRINTF_BIT_B2(ev, bm)						\
++#define TEST_AND_SPRINTF_BIT(ev, bm)					\
+ 	do {								\
+ 		if (test_bit(EV_##ev, dev->evbit))			\
+-			SPRINTF_BIT_B(ev, bm);				\
++			SPRINTF_BIT(ev, bm);				\
+ 	} while (0)
+ 
+ static int input_devices_read(char *buf, char **start, off_t pos, int count, int *eof, void *data)
+@@ -517,15 +398,15 @@ static int input_devices_read(char *buf,
+ 
+ 		len += sprintf(buf + len, "\n");
+ 
+-		SPRINTF_BIT_B(EV, ev);
+-		SPRINTF_BIT_B2(KEY, key);
+-		SPRINTF_BIT_B2(REL, rel);
+-		SPRINTF_BIT_B2(ABS, abs);
+-		SPRINTF_BIT_B2(MSC, msc);
+-		SPRINTF_BIT_B2(LED, led);
+-		SPRINTF_BIT_B2(SND, snd);
+-		SPRINTF_BIT_B2(FF, ff);
+-		SPRINTF_BIT_B2(SW, sw);
++		SPRINTF_BIT(EV, ev);
++		TEST_AND_SPRINTF_BIT(KEY, key);
++		TEST_AND_SPRINTF_BIT(REL, rel);
++		TEST_AND_SPRINTF_BIT(ABS, abs);
++		TEST_AND_SPRINTF_BIT(MSC, msc);
++		TEST_AND_SPRINTF_BIT(LED, led);
++		TEST_AND_SPRINTF_BIT(SND, snd);
++		TEST_AND_SPRINTF_BIT(FF, ff);
++		TEST_AND_SPRINTF_BIT(SW, sw);
+ 
+ 		len += sprintf(buf + len, "\n");
+ 
+@@ -690,7 +571,7 @@ static struct attribute_group input_dev_
+ static ssize_t input_dev_show_cap_##bm(struct class_device *dev, char *buf)	\
+ {										\
+ 	struct input_dev *input_dev = to_input_dev(dev);			\
+-	return input_print_bitmap(buf, input_dev->bm##bit, ev##_MAX);		\
++	return input_print_bitmap(buf, PAGE_SIZE, input_dev->bm##bit, ev##_MAX);\
+ }										\
+ static CLASS_DEVICE_ATTR(bm, S_IRUGO, input_dev_show_cap_##bm, NULL);
+ 
+@@ -730,10 +611,102 @@ static void input_dev_release(struct cla
+ 	module_put(THIS_MODULE);
+ }
+ 
++#ifdef CONFIG_HOTPLUG
++
++/*
++ * Input hotplugging interface - loading event handlers based on
++ * device bitfields.
++ */
++
++static int input_add_hotplug_bm_var(char **envp, int num_envp, int *cur_index, char *buffer, int buffer_size,
++				    int *cur_len, const char *name, unsigned long *bitmap, int max)
++{
++	if (*cur_index >= num_envp - 1)
++		return -ENOMEM;
++
++	envp[*cur_index] = buffer + *cur_len;
++
++	*cur_len += snprintf(buffer + *cur_len, max(buffer_size - *cur_len, 0), name);
++	if (*cur_len > buffer_size)
++		return -ENOMEM;
++
++	*cur_len += input_print_bitmap(buffer + *cur_len, max(buffer_size - *cur_len, 0),
++					bitmap, max) + 1;
++	if (*cur_len > buffer_size)
++		return -ENOMEM;
++
++	(*cur_index)++;
++	return 0;
++}
++
++#define INPUT_ADD_HOTPLUG_VAR(fmt, val...)				\
++	do {								\
++		int err = add_hotplug_env_var(envp, num_envp, &i,	\
++					buffer, buffer_size, &len,	\
++					fmt, val);			\
++		if (err)						\
++			return err;					\
++	} while (0)
++
++#define INPUT_ADD_HOTPLUG_BM_VAR(name, bm, max)				\
++	do {								\
++		int err = input_add_hotplug_bm_var(envp, num_envp, &i,	\
++					buffer, buffer_size, &len,	\
++					name, bm, max);			\
++		if (err)						\
++			return err;					\
++	} while (0)
++
++static int input_dev_hotplug(struct class_device *cdev, char **envp, int num_envp, char *buffer, int buffer_size)
++{
++	struct input_dev *dev = to_input_dev(cdev);
++	int i = 0;
++	int len = 0;
++
++	INPUT_ADD_HOTPLUG_VAR("PRODUCT=%x/%x/%x/%x",
++				dev->id.bustype, dev->id.vendor, dev->id.product, dev->id.version);
++	if (dev->name)
++		INPUT_ADD_HOTPLUG_VAR("NAME=\"%s\"", dev->name);
++	if (dev->phys)
++		INPUT_ADD_HOTPLUG_VAR("PHYS=\"%s\"", dev->phys);
++	if (dev->phys)
++		INPUT_ADD_HOTPLUG_VAR("UNIQ=\"%s\"", dev->uniq);
++
++	INPUT_ADD_HOTPLUG_BM_VAR("EV=", dev->evbit, EV_MAX);
++	if (test_bit(EV_KEY, dev->evbit))
++		INPUT_ADD_HOTPLUG_BM_VAR("KEY=", dev->keybit, KEY_MAX);
++	if (test_bit(EV_REL, dev->evbit))
++		INPUT_ADD_HOTPLUG_BM_VAR("REL=", dev->relbit, REL_MAX);
++	if (test_bit(EV_ABS, dev->evbit))
++		INPUT_ADD_HOTPLUG_BM_VAR("ABS=", dev->absbit, ABS_MAX);
++	if (test_bit(EV_MSC, dev->evbit))
++		INPUT_ADD_HOTPLUG_BM_VAR("MSC=", dev->mscbit, MSC_MAX);
++	if (test_bit(EV_LED, dev->evbit))
++		INPUT_ADD_HOTPLUG_BM_VAR("LED=", dev->ledbit, LED_MAX);
++	if (test_bit(EV_SND, dev->evbit))
++		INPUT_ADD_HOTPLUG_BM_VAR("SND=", dev->sndbit, SND_MAX);
++	if (test_bit(EV_FF, dev->evbit))
++		INPUT_ADD_HOTPLUG_BM_VAR("FF=", dev->ffbit, FF_MAX);
++	if (test_bit(EV_SW, dev->evbit))
++		INPUT_ADD_HOTPLUG_BM_VAR("SW=", dev->swbit, SW_MAX);
++
++	envp[i] = NULL;
++
++	return 0;
++}
++
++#else
++static int input_dev_hotplug(struct class_device *cdev, char **envp, int num_envp, char *buffer, int buffer_size)
++{
++	return 0;
++}
++#endif
++
+ static struct class input_dev_class = {
+ 	.name			= "devices",
+ 	.parent			= &input_class,
+ 	.release		= input_dev_release,
++	.hotplug		= input_dev_hotplug,
+ 	.class_dev_attrs	= input_dev_attrs,
+ };
+ 
+@@ -813,10 +786,6 @@ int input_register_device(struct input_d
+ 		dev->name ? dev->name : "Unspecified device", path ? path : "N/A");
+ 	kfree(path);
+ 
+-#ifdef CONFIG_HOTPLUG
+-	input_call_hotplug("add", dev);
+-#endif
+-
+ 	input_wakeup_procfs_readers();
+ 
+ 	__module_get(THIS_MODULE);
+@@ -841,10 +810,6 @@ void input_unregister_device(struct inpu
+ 		handle->handler->disconnect(handle);
+ 	}
+ 
+-#ifdef CONFIG_HOTPLUG
+-	input_call_hotplug("remove", dev);
+-#endif
+-
+ 	list_del_init(&dev->node);
+ 
+ 	sysfs_remove_group(&dev->cdev.kobj, &input_dev_caps_attr_group);
 

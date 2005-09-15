@@ -1,42 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965246AbVIOEGq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965034AbVIOEMp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965246AbVIOEGq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 00:06:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965250AbVIOEGq
+	id S965034AbVIOEMp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 00:12:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965257AbVIOEMp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 00:06:46 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:19625
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S965246AbVIOEGp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 00:06:45 -0400
-Date: Wed, 14 Sep 2005 21:06:40 -0700 (PDT)
-Message-Id: <20050914.210640.63539596.davem@davemloft.net>
-To: dada1@cosmosbay.com
-Cc: sonny@burdell.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: "Read my lips: no more merges" - aka Linux 2.6.14-rc1
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <43267A00.1010405@cosmosbay.com>
-References: <Pine.LNX.4.58.0509122019560.3351@g5.osdl.org>
-	<20050913063359.GA29715@kevlar.burdell.org>
-	<43267A00.1010405@cosmosbay.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Thu, 15 Sep 2005 00:12:45 -0400
+Received: from nome.ca ([65.61.200.81]:19131 "HELO gobo.nome.ca")
+	by vger.kernel.org with SMTP id S965034AbVIOEMp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 00:12:45 -0400
+Date: Wed, 14 Sep 2005 21:13:34 -0700
+From: Mike Bell <mike@mikebell.org>
+To: Robert Love <rml@novell.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: devfs vs udev FAQ from the other side
+Message-ID: <20050915041334.GJ15017@mikebell.org>
+Mail-Followup-To: Mike Bell <mike@mikebell.org>,
+	Robert Love <rml@novell.com>, linux-kernel@vger.kernel.org
+References: <20050915005105.GD15017@mikebell.org> <1126746518.9652.60.camel@phantasy> <20050915020935.GF15017@mikebell.org> <1126754270.9652.64.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1126754270.9652.64.camel@phantasy>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Eric Dumazet <dada1@cosmosbay.com>
-Date: Tue, 13 Sep 2005 09:04:32 +0200
+On Wed, Sep 14, 2005 at 11:17:50PM -0400, Robert Love wrote:
+> If you can survive without modernism,
 
-> And if your process has many files opened, the cost (read : latency)
-> of open() can be very high, finding a zero bit in a large bit array.
- ...
-> I wish a process param could allow open() to take any free fd
-> available, not > the lowest one. One can always use fcntl(fd, F_DUPFD,
-> slot) to move a fd on a > specific high slot and always keep the 64
-> first fd slots free to speedup the > kernel part at
-> open()/dup()/socket() time.
+Features I don't need are "modernism"? Who defines what's "modern" and
+what's merely "useless"? Some things in newer kernels are very, very
+useful. Even sysfs is useful on some of my systems. But no, I generally
+try to avoid turning on features that I'm not even going to use on a
+given system. Do you install things you're not going to use on your
+machines? Maybe two or three different SQL servers, just to be
+extra-modern? Especially when I'm paying for every megabyte of flash x1k
+or x10k, I don't want to waste it on a bunch of unused kernel->userspace
+interfaces just to prove how incredibly hip to the latest linux fads I
+am.
 
-Why not just remember the lowest available free slot and start each
-bitmap search there?  This is a quite common technique.
+> why can't you survive without devfs?  Why do you need it?
+
+Why can't you read any of the many threads on this subject where I
+explained this already? :)
+
+devfs's removal from the kernel isn't going to end my life, no. In fact
+it won't even stop me using linux. But it makes my job harder and more
+expensive, and as my little FAQ explains I don't feel I'm getting
+anything out of the deal (remember, udev's naming features are different
+to udev's device node creation, there's no reason you can't have one
+without the other).

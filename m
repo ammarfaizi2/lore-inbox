@@ -1,63 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750896AbVIOXLK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750821AbVIOXLI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750896AbVIOXLK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 19:11:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751147AbVIOXLJ
+	id S1750821AbVIOXLI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 19:11:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751147AbVIOXLI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 19:11:09 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:9201 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S1750896AbVIOXLH
+	Thu, 15 Sep 2005 19:11:08 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:8689 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S1750821AbVIOXLH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 15 Sep 2005 19:11:07 -0400
-Subject: Re: 2.6.13-rt6, ktimer subsystem
-From: Daniel Walker <dwalker@mvista.com>
-Reply-To: dwalker@mvista.com
-To: george@mvista.com
-Cc: tglx@linutronix.de, john stultz <johnstul@us.ibm.com>,
+Message-ID: <4329FF58.5010709@mvista.com>
+Date: Thu, 15 Sep 2005 16:10:16 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: tglx@linutronix.de
+CC: john stultz <johnstul@us.ibm.com>,
        Nish Aravamudan <nish.aravamudan@gmail.com>,
        Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Steven Rostedt <rostedt@goodmis.org>,
+       Steven Rostedt <rostedt@goodmis.org>, dwalker@mvista.com,
        "'high-res-timers-discourse@lists.sourceforge.net'" 
 	<high-res-timers-discourse@lists.sourceforge.net>
-In-Reply-To: <4329F733.2090604@mvista.com>
-References: <20050913100040.GA13103@elte.hu>  <43287C52.7050002@mvista.com>
-	 <1126751140.6509.474.camel@tglx.tec.linutronix.de>
-	 <4329F733.2090604@mvista.com>
-Content-Type: text/plain
-Organization: MontaVista
-Date: Thu, 15 Sep 2005 16:09:56 -0700
-Message-Id: <1126825796.4576.31.camel@dhcp153.mvista.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Subject: Re: 2.6.13-rt6, ktimer subsystem
+References: <20050913100040.GA13103@elte.hu>  <43287C52.7050002@mvista.com>	 <1126751140.6509.474.camel@tglx.tec.linutronix.de>	 <4329F733.2090604@mvista.com> <1126824819.6509.540.camel@tglx.tec.linutronix.de>
+In-Reply-To: <1126824819.6509.540.camel@tglx.tec.linutronix.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-09-15 at 15:35 -0700, George Anzinger wrote:
+Thomas Gleixner wrote:
+~
+>>>- The posix timer tests run all successful, except the broken 2timertest
+>>>which fails on any other HRT kernel too and the sleep to long for real
+>>>timers when the clock is set backwards, which is easily solvable
+>>>(working on that).
+>>
+>>Your mileage seems to differ from mine.  Here is what I get from ./do_test:
+>>The following tests failed:
+>>clock_nanosleeptest
+>>abs_timer_test
+>>4-1
+>>clock_settimetest
+>>clock_gettimetest2
+>>2timer_test 
 > 
-> In the early HRT patches the whole timer list was replaced with a hashed 
-> list.  It was O(N/M) on insertion where we could easily choose M (for a 
-> while it was even a config option).  Removal was just an unlink, same as 
-> the cascade list.
 > 
-> To be clear on my take on this, as I understand it the rblist is 
-> something like O(N*somelog 2).  What is left out here is the fixed 
-> overhead of F which is there even if N = 1.  So we have something like 
-> (F+O(f(N)) for a list.  For the most part we don't look at F, but as 
-> list complexity grows, it gets larger thus pushing out the cross over 
-> point to a higher "N" when comparing two lists.  I considered the rbtree 
-> when doing the secondary list for HRT and concluded that "N" was small 
-> enough that a simple O(N/2) list would do just fine as it would only 
-> contain timers set to expire in the next jiffie.
+> Hmm. Except for the 2timer_test, where my source seems to be broken it
+> works here. 
 
-The fact that we know in advance that a system is only going to a very
-small number of these timers should be noted. You could just use a
-regular list , and limit the total number of timers . I would hesitate
-to stick a big data structure in when your only dealing with one or two
-timers on average..
+The latest support source is in the CVS tree on the HRT site.  It is no 
+longer a patch...
+> 
+> 
+>>Then, on the second run, it crashed in an attempt to get the monotonic 
+>>clock (a divide error).  System is a dual PIII, 800Mhz.  This from the 
+>>rt11 patch.
+> 
+> 
+> Hmm, divide error. I had one of those in the early phase due to some
+> strange 64/32 truncation problem, which was caused by nested
+> inline/macros. After unmingling the problem went away.
 
-George, what's largest number of highres timers that someone might
-need/want?
+I suspect that the 64/32 div resulted in a >32 bit result which is a 
+fault.  This was deep in monotonic_clock.  I would rather change to 
+clock_monotonic (i.e. xtime+offset+walltomonotonic) and work that code 
+patch.  monotonic_clock is just the wrong thing for this work.
+> 
+> tglx
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Daniel
-
+-- 
+George Anzinger   george@mvista.com
+HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/

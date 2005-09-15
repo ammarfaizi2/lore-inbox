@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030517AbVIOVRj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030534AbVIOVVX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030517AbVIOVRj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 17:17:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030516AbVIOVRi
+	id S1030534AbVIOVVX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 17:21:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030543AbVIOVVX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 17:17:38 -0400
-Received: from mail0.lsil.com ([147.145.40.20]:21756 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S1030517AbVIOVRh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 17:17:37 -0400
-Message-ID: <0E3FA95632D6D047BA649F95DAB60E57060CD194@exa-atlanta>
-From: "Bagalkote, Sreenivas" <Sreenivas.Bagalkote@engenio.com>
-To: "'Christoph Hellwig'" <hch@infradead.org>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>
-Subject: How to avoid "Trying to register duplicated ioctl32 handler"
-Date: Thu, 15 Sep 2005 17:17:29 -0400
+	Thu, 15 Sep 2005 17:21:23 -0400
+Received: from ppsw-9.csi.cam.ac.uk ([131.111.8.139]:7870 "EHLO
+	ppsw-9.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1030534AbVIOVVW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 17:21:22 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Thu, 15 Sep 2005 22:21:20 +0100 (BST)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Bas Vermeulen <bvermeul@blackstar.nl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-rc1 - kernel BUG at fs/ntfs/aops.c:403
+In-Reply-To: <1126812296.4776.2.camel@laptop.blackstar.nl>
+Message-ID: <Pine.LNX.4.60.0509152219260.21782@hermes-1.csi.cam.ac.uk>
+References: <1126769362.5358.3.camel@laptop.blackstar.nl> 
+ <Pine.LNX.4.60.0509150954290.29921@hermes-1.csi.cam.ac.uk>
+ <1126812296.4776.2.camel@laptop.blackstar.nl>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2658.27)
-Content-Type: text/plain
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In our MegaRAID driver, one of the IOCTLs is defined as
-#define MEGASAS_IOC_GET_AEN _IOW('M', 2, struct megasas_aen)
+On Thu, 15 Sep 2005, Bas Vermeulen wrote:
+> Sep 15 21:13:43 laptop kernel: [4295071.339000] NTFS volume version 3.1.
+> Sep 15 21:13:43 laptop kernel: [4295071.339000] NTFS-fs error (device
+> sda2): load_system_files(): Volume is dirty.  Mounting read-only.  Run
+> chkdsk and mount in Windows.
+> Sep 15 21:13:43 laptop kernel: [4295071.439000] NTFS-fs error (device
+> sda2): ntfs_readpage(): Eeek!  i_ino = 0x5, type = 0xa0, name_len = 0x4.
 
-This clashes with some other value in "built_in" ioctl table on x86_64
-kernels.
-How do I really avoid such problems in the future. Even if I search the
-length
-of the built_in table and pick a unique value, is it guaranteed to be unique
-in
-the future releases? The Documentation/ioctl-number.txt isn't of much help
-either.
-It lists multiple conflicts. Moreover, not all of them are listed there.
+Great, thanks!  I suspected this might be the case but I didn't think 
+that was possible.  )-:
 
-On a broader note, if the struct ioctl_trans inside ioctl32_hash_table could
-use the combination of cmd + major number instead of just cmd to determine
-the
-uniqueness, these conflicts could be avoided, right? I mean understand the
-reasons
-for system-wide unique ioctl numbers. But right now, only those platforms
-that
-need conversion are technically impeded for violating that guideline.
+Could you confirm for me that this ntfs volume is compressed?  (I.e. the 
+compression bit is enabled on the root directory.)
 
-Thanks,
-Sreenivas
+Best regards,
+
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

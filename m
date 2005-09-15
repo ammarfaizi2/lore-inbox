@@ -1,145 +1,346 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965266AbVIOT1s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965264AbVIOT1I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965266AbVIOT1s (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 15:27:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965269AbVIOT1s
+	id S965264AbVIOT1I (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 15:27:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965265AbVIOT1I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 15:27:48 -0400
-Received: from blackstar.xs4all.nl ([80.126.234.51]:47201 "EHLO blackstar.nl")
-	by vger.kernel.org with ESMTP id S965266AbVIOT1r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 15:27:47 -0400
-Subject: Re: 2.6.14-rc1 - kernel BUG at fs/ntfs/aops.c:403
-From: Bas Vermeulen <bvermeul@blackstar.nl>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.60.0509150954290.29921@hermes-1.csi.cam.ac.uk>
-References: <1126769362.5358.3.camel@laptop.blackstar.nl>
-	 <Pine.LNX.4.60.0509150954290.29921@hermes-1.csi.cam.ac.uk>
-Content-Type: text/plain
-Date: Thu, 15 Sep 2005 21:24:56 +0200
-Message-Id: <1126812296.4776.2.camel@laptop.blackstar.nl>
+	Thu, 15 Sep 2005 15:27:08 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:34793 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965264AbVIOT1H
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 15:27:07 -0400
+Date: Thu, 15 Sep 2005 20:27:04 +0100
+From: Al Viro <viro@ZenIV.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org, rmk+serial@arm.linux.org.uk
+Subject: [PATCH] epca iomem annotations + several missing readw()
+Message-ID: <20050915192704.GC25261@ZenIV.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-14.WB1) 
-Content-Transfer-Encoding: 7bit
-X-MailScanner-Information: Please contact the postmaster@blackstar.nl for more information
-X-MailScanner: No virus found
-X-MailScanner-From: bvermeul@blackstar.nl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-09-15 at 09:58 +0100, Anton Altaparmakov wrote:
-> Ouch.  )-:  Could you do two things for me so I can figure out what is 
-> going on?
-> 
-> 1) Apply this patch to fs/ntfs/aops.c:
+[originally sent to Alan, he had no problems with it]
+	* iomem pointers marked as such
+	* several direct dereferencings of such pointers replaced with
+read[bw]().
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+----
+diff -urN RC13-git8-base/drivers/char/epca.c current/drivers/char/epca.c
+--- RC13-git8-base/drivers/char/epca.c	2005-09-08 10:17:39.000000000 -0400
++++ current/drivers/char/epca.c	2005-09-08 23:53:33.000000000 -0400
+@@ -534,7 +534,7 @@
+ 
+ 	unsigned long flags;
+ 	struct tty_struct *tty;
+-	struct board_chan *bc;
++	struct board_chan __iomem *bc;
+ 
+ 	if (!(ch->asyncflags & ASYNC_INITIALIZED)) 
+ 		return;
+@@ -618,7 +618,7 @@
+ 	struct channel *ch;
+ 	unsigned long flags;
+ 	int remain;
+-	struct board_chan *bc;
++	struct board_chan __iomem *bc;
+ 
+ 	/* ----------------------------------------------------------------
+ 		pc_write is primarily called directly by the kernel routine
+@@ -685,7 +685,7 @@
+ 		------------------------------------------------------------------- */
+ 
+ 		dataLen = min(bytesAvailable, dataLen);
+-		memcpy(ch->txptr + head, buf, dataLen);
++		memcpy_toio(ch->txptr + head, buf, dataLen);
+ 		buf += dataLen;
+ 		head += dataLen;
+ 		amountCopied += dataLen;
+@@ -726,7 +726,7 @@
+ 	struct channel *ch;
+ 	unsigned long flags;
+ 	unsigned int head, tail;
+-	struct board_chan *bc;
++	struct board_chan __iomem *bc;
+ 
+ 	remain = 0;
+ 
+@@ -773,7 +773,7 @@
+ 	int remain;
+ 	unsigned long flags;
+ 	struct channel *ch;
+-	struct board_chan *bc;
++	struct board_chan __iomem *bc;
+ 
+ 	/* ---------------------------------------------------------
+ 		verifyChannel returns the channel from the tty struct
+@@ -830,7 +830,7 @@
+ 	unsigned int tail;
+ 	unsigned long flags;
+ 	struct channel *ch;
+-	struct board_chan *bc;
++	struct board_chan __iomem *bc;
+ 	/* ---------------------------------------------------------
+ 		verifyChannel returns the channel from the tty struct
+ 		if it is valid.  This serves as a sanity check.
+@@ -976,7 +976,7 @@
+ 	struct channel *ch;
+ 	unsigned long flags;
+ 	int line, retval, boardnum;
+-	struct board_chan *bc;
++	struct board_chan __iomem *bc;
+ 	unsigned int head;
+ 
+ 	line = tty->index;
+@@ -1041,7 +1041,7 @@
+ 	ch->statusflags = 0;
+ 
+ 	/* Save boards current modem status */
+-	ch->imodem = bc->mstat;
++	ch->imodem = readb(&bc->mstat);
+ 
+ 	/* ----------------------------------------------------------------
+ 	   Set receive head and tail ptrs to each other.  This indicates
+@@ -1399,10 +1399,10 @@
+ { /* Begin post_fep_init */
+ 
+ 	int i;
+-	unsigned char *memaddr;
+-	struct global_data *gd;
++	unsigned char __iomem *memaddr;
++	struct global_data __iomem *gd;
+ 	struct board_info *bd;
+-	struct board_chan *bc;
++	struct board_chan __iomem *bc;
+ 	struct channel *ch; 
+ 	int shrinkmem = 0, lowwater ; 
+  
+@@ -1461,7 +1461,7 @@
+ 		8 and 64 of these structures.
+ 	-------------------------------------------------------------------- */
+ 
+-	bc = (struct board_chan *)(memaddr + CHANSTRUCT);
++	bc = (struct board_chan __iomem *)(memaddr + CHANSTRUCT);
+ 
+ 	/* -------------------------------------------------------------------
+ 		The below assignment will set gd to point at the BEGINING of
+@@ -1470,7 +1470,7 @@
+ 		pointer begins at 0xd10.
+ 	---------------------------------------------------------------------- */
+ 
+-	gd = (struct global_data *)(memaddr + GLOBAL);
++	gd = (struct global_data __iomem *)(memaddr + GLOBAL);
+ 
+ 	/* --------------------------------------------------------------------
+ 		XEPORTS (address 0xc22) points at the number of channels the
+@@ -1493,6 +1493,7 @@
+ 
+ 	for (i = 0; i < bd->numports; i++, ch++, bc++)  { /* Begin for each port */
+ 		unsigned long flags;
++		u16 tseg, rseg;
+ 
+ 		ch->brdchan        = bc;
+ 		ch->mailbox        = gd; 
+@@ -1553,50 +1554,53 @@
+ 			shrinkmem = 0;
+ 		}
+ 
++		tseg = readw(&bc->tseg);
++		rseg = readw(&bc->rseg);
++
+ 		switch (bd->type) {
+ 
+ 			case PCIXEM:
+ 			case PCIXRJ:
+ 			case PCIXR:
+ 				/* Cover all the 2MEG cards */
+-				ch->txptr = memaddr + (((bc->tseg) << 4) & 0x1fffff);
+-				ch->rxptr = memaddr + (((bc->rseg) << 4) & 0x1fffff);
+-				ch->txwin = FEPWIN | ((bc->tseg) >> 11);
+-				ch->rxwin = FEPWIN | ((bc->rseg) >> 11);
++				ch->txptr = memaddr + ((tseg << 4) & 0x1fffff);
++				ch->rxptr = memaddr + ((rseg << 4) & 0x1fffff);
++				ch->txwin = FEPWIN | (tseg >> 11);
++				ch->rxwin = FEPWIN | (rseg >> 11);
+ 				break;
+ 
+ 			case PCXEM:
+ 			case EISAXEM:
+ 				/* Cover all the 32K windowed cards */
+ 				/* Mask equal to window size - 1 */
+-				ch->txptr = memaddr + (((bc->tseg) << 4) & 0x7fff);
+-				ch->rxptr = memaddr + (((bc->rseg) << 4) & 0x7fff);
+-				ch->txwin = FEPWIN | ((bc->tseg) >> 11);
+-				ch->rxwin = FEPWIN | ((bc->rseg) >> 11);
++				ch->txptr = memaddr + ((tseg << 4) & 0x7fff);
++				ch->rxptr = memaddr + ((rseg << 4) & 0x7fff);
++				ch->txwin = FEPWIN | (tseg >> 11);
++				ch->rxwin = FEPWIN | (rseg >> 11);
+ 				break;
+ 
+ 			case PCXEVE:
+ 			case PCXE:
+-				ch->txptr = memaddr + (((bc->tseg - bd->memory_seg) << 4) & 0x1fff);
+-				ch->txwin = FEPWIN | ((bc->tseg - bd->memory_seg) >> 9);
+-				ch->rxptr = memaddr + (((bc->rseg - bd->memory_seg) << 4) & 0x1fff);
+-				ch->rxwin = FEPWIN | ((bc->rseg - bd->memory_seg) >>9 );
++				ch->txptr = memaddr + (((tseg - bd->memory_seg) << 4) & 0x1fff);
++				ch->txwin = FEPWIN | ((tseg - bd->memory_seg) >> 9);
++				ch->rxptr = memaddr + (((rseg - bd->memory_seg) << 4) & 0x1fff);
++				ch->rxwin = FEPWIN | ((rseg - bd->memory_seg) >>9 );
+ 				break;
+ 
+ 			case PCXI:
+ 			case PC64XE:
+-				ch->txptr = memaddr + ((bc->tseg - bd->memory_seg) << 4);
+-				ch->rxptr = memaddr + ((bc->rseg - bd->memory_seg) << 4);
++				ch->txptr = memaddr + ((tseg - bd->memory_seg) << 4);
++				ch->rxptr = memaddr + ((rseg - bd->memory_seg) << 4);
+ 				ch->txwin = ch->rxwin = 0;
+ 				break;
+ 
+ 		} /* End switch bd->type */
+ 
+ 		ch->txbufhead = 0;
+-		ch->txbufsize = bc->tmax + 1;
++		ch->txbufsize = readw(&bc->tmax) + 1;
+ 	
+ 		ch->rxbufhead = 0;
+-		ch->rxbufsize = bc->rmax + 1;
++		ch->rxbufsize = readw(&bc->rmax) + 1;
+ 	
+ 		lowwater = ch->txbufsize >= 2000 ? 1024 : (ch->txbufsize / 2);
+ 
+@@ -1718,11 +1722,11 @@
+ static void doevent(int crd)
+ { /* Begin doevent */
+ 
+-	void *eventbuf;
++	void __iomem *eventbuf;
+ 	struct channel *ch, *chan0;
+ 	static struct tty_struct *tty;
+ 	struct board_info *bd;
+-	struct board_chan *bc;
++	struct board_chan __iomem *bc;
+ 	unsigned int tail, head;
+ 	int event, channel;
+ 	int mstat, lstat;
+@@ -1817,7 +1821,7 @@
+ static void fepcmd(struct channel *ch, int cmd, int word_or_byte,
+                    int byte2, int ncmds, int bytecmd)
+ { /* Begin fepcmd */
+-	unchar *memaddr;
++	unchar __iomem *memaddr;
+ 	unsigned int head, cmdTail, cmdStart, cmdMax;
+ 	long count;
+ 	int n;
+@@ -2000,7 +2004,7 @@
+ 
+ 	unsigned int cmdHead;
+ 	struct termios *ts;
+-	struct board_chan *bc;
++	struct board_chan __iomem *bc;
+ 	unsigned mval, hflow, cflag, iflag;
+ 
+ 	bc = ch->brdchan;
+@@ -2010,7 +2014,7 @@
+ 	ts = tty->termios;
+ 	if ((ts->c_cflag & CBAUD) == 0)  { /* Begin CBAUD detected */
+ 		cmdHead = readw(&bc->rin);
+-		bc->rout = cmdHead;
++		writew(cmdHead, &bc->rout);
+ 		cmdHead = readw(&bc->tin);
+ 		/* Changing baud in mid-stream transmission can be wonderful */
+ 		/* ---------------------------------------------------------------
+@@ -2116,7 +2120,7 @@
+ 	unchar *rptr;
+ 	struct termios *ts = NULL;
+ 	struct tty_struct *tty;
+-	struct board_chan *bc;
++	struct board_chan __iomem *bc;
+ 	int dataToRead, wrapgap, bytesAvailable;
+ 	unsigned int tail, head;
+ 	unsigned int wrapmask;
+@@ -2154,7 +2158,7 @@
+ 	--------------------------------------------------------------------- */
+ 
+ 	if (!tty || !ts || !(ts->c_cflag & CREAD))  {
+-		bc->rout = head;
++		writew(head, &bc->rout);
+ 		return;
+ 	}
+ 
+@@ -2270,7 +2274,7 @@
+ static int pc_tiocmget(struct tty_struct *tty, struct file *file)
+ {
+ 	struct channel *ch = (struct channel *) tty->driver_data;
+-	struct board_chan *bc;
++	struct board_chan __iomem *bc;
+ 	unsigned int mstat, mflag = 0;
+ 	unsigned long flags;
+ 
+@@ -2351,7 +2355,7 @@
+ 	unsigned long flags;
+ 	unsigned int mflag, mstat;
+ 	unsigned char startc, stopc;
+-	struct board_chan *bc;
++	struct board_chan __iomem *bc;
+ 	struct channel *ch = (struct channel *) tty->driver_data;
+ 	void __user *argp = (void __user *)arg;
+ 	
+@@ -2633,7 +2637,7 @@
+ 		spin_lock_irqsave(&epca_lock, flags);
+ 		/* Just in case output was resumed because of a change in Digi-flow */
+ 		if (ch->statusflags & TXSTOPPED)  { /* Begin transmit resume requested */
+-			struct board_chan *bc;
++			struct board_chan __iomem *bc;
+ 			globalwinon(ch);
+ 			bc = ch->brdchan;
+ 			if (ch->statusflags & LOWWAIT)
+@@ -2727,7 +2731,7 @@
+ static void setup_empty_event(struct tty_struct *tty, struct channel *ch)
+ { /* Begin setup_empty_event */
+ 
+-	struct board_chan *bc = ch->brdchan;
++	struct board_chan __iomem *bc = ch->brdchan;
+ 
+ 	globalwinon(ch);
+ 	ch->statusflags |= EMPTYWAIT;
+diff -urN RC13-git8-base/drivers/char/epca.h current/drivers/char/epca.h
+--- RC13-git8-base/drivers/char/epca.h	2005-09-08 10:17:39.000000000 -0400
++++ current/drivers/char/epca.h	2005-09-08 23:53:33.000000000 -0400
+@@ -128,17 +128,17 @@
+ 	unsigned long  c_cflag;
+ 	unsigned long  c_lflag;
+ 	unsigned long  c_oflag;
+-	unsigned char *txptr;
+-	unsigned char *rxptr;
++	unsigned char __iomem *txptr;
++	unsigned char __iomem *rxptr;
+ 	unsigned char *tmp_buf;
+ 	struct board_info           *board;
+-	struct board_chan	    *brdchan;
++	struct board_chan	    __iomem *brdchan;
+ 	struct digi_struct          digiext;
+ 	struct tty_struct           *tty;
+ 	wait_queue_head_t           open_wait;
+ 	wait_queue_head_t           close_wait;
+ 	struct work_struct          tqueue;
+-	struct global_data 	    *mailbox;
++	struct global_data 	    __iomem *mailbox;
+ };
+ 
+ struct board_info	
+@@ -150,7 +150,7 @@
+ 	unsigned long port;
+ 	unsigned long membase;
+ 	unsigned char __iomem *re_map_port;
+-	unsigned char *re_map_membase;
++	unsigned char __iomem *re_map_membase;
+ 	unsigned long  memory_seg;
+ 	void ( * memwinon )	(struct board_info *, unsigned int) ;
+ 	void ( * memwinoff ) 	(struct board_info *, unsigned int) ;
 
-done.
-
-> 2) Enable ntfs debugging in the kernel configuration.
-
-done.
-
-> Recompile the ntfs module (or the kernel if ntfs is built in).
-> 
-> Then load the new module (if not built in).
-> 
-> Then enable debug output (as root do):
-> 
-> 	echo 1 > /proc/sys/fs/ntfs-debug
-
-done.
-
-> Now do the mount and send me the resulting dmesg output.  That should 
-> hopefully enable me to fix it.
-
-The logs are below. The mount resulted in a segmentation fault.
-
-Sep 15 21:13:43 laptop kernel: [4295071.339000] NTFS volume version 3.1.
-Sep 15 21:13:43 laptop kernel: [4295071.339000] NTFS-fs error (device
-sda2): load_system_files(): Volume is dirty.  Mounting read-only.  Run
-chkdsk and mount in Windows.
-Sep 15 21:13:43 laptop kernel: [4295071.439000] NTFS-fs error (device
-sda2): ntfs_readpage(): Eeek!  i_ino = 0x5, type = 0xa0, name_len = 0x4.
-Sep 15 21:13:43 laptop kernel: [4295071.439000] ------------[ cut
-here ]------------
-Sep 15 21:13:43 laptop kernel: [4295071.439000] kernel BUG at
-fs/ntfs/aops.c:407!
-Sep 15 21:13:43 laptop kernel: [4295071.439000] invalid operand: 0000
-[#1]
-Sep 15 21:13:43 laptop kernel: [4295071.439000] PREEMPT 
-Sep 15 21:13:43 laptop kernel: [4295071.439000] Modules linked in:
-parport_pc lp parport nls_iso8859_1 yenta_socket rsrc_nonstatic uhci_hcd
-floppy
-Sep 15 21:13:43 laptop kernel: [4295071.439000] CPU:    0
-Sep 15 21:13:43 laptop kernel: [4295071.439000] EIP:    0060:
-[<c026a1ff>]    Not tainted VLI
-Sep 15 21:13:43 laptop kernel: [4295071.439000] EFLAGS: 00010202
-(2.6.14-rc1-g03055f0b) 
-Sep 15 21:13:43 laptop kernel: [4295071.439000] EIP is at ntfs_readpage
-+0x30f/0x320
-Sep 15 21:13:43 laptop kernel: [4295071.439000] eax: 00000000   ebx:
-c12c2220   ecx: 00000000   edx: 00000000
-Sep 15 21:13:43 laptop kernel: [4295071.439000] esi: c076cfa0   edi:
-c12c2220   ebp: d4b00220   esp: d8bc9bf4
-Sep 15 21:13:43 laptop kernel: [4295071.439000] ds: 007b   es: 007b
-ss: 0068
-Sep 15 21:13:43 laptop kernel: [4295071.439000] Process mount (pid:
-4398, threadinfo=d8bc8000 task=c649ea70)
-Sep 15 21:13:43 laptop kernel: [4295071.439000] Stack: c070690b cdc28600
-c076cfa0 00000005 000000a0 00000004 00000000 00000000 
-Sep 15 21:13:43 laptop kernel: [4295071.439000]        c12c2220 c12c2220
-c12c2220 c12c2220 00000000 c12c2220 d4b0035c c01476bc 
-Sep 15 21:13:43 laptop kernel: [4295071.439000]        000000d0 c0269ef0
-00000000 00000000 d4b0035c 00000000 00000000 c0273135 
-Sep 15 21:13:43 laptop kernel: [4295071.439000] Call Trace:
-Sep 15 21:13:43 laptop kernel: [4295071.439000]  [<c01476bc>]
-read_cache_page+0xac/0x270
-Sep 15 21:13:43 laptop kernel: [4295071.439000]  [<c0269ef0>]
-ntfs_readpage+0x0/0x320
-Sep 15 21:13:43 laptop kernel: [4295071.439000]  [<c0273135>]
-ntfs_lookup_inode_by_name+0x5d5/0xeb0
-Sep 15 21:13:43 laptop kernel: [4295071.439000]  [<c0276e0e>]
-ntfs_read_locked_inode+0x51e/0xf70
-Sep 15 21:13:43 laptop kernel: [4295071.439000]  [<c02729ed>]
-__ntfs_debug+0x8d/0xc0
-Sep 15 21:13:43 laptop kernel: [4295071.439000]  [<c028897b>]
-check_windows_hibernation_status+0x7b/0x450
-Sep 15 21:13:43 laptop kernel: [4295071.439000]  [<c0276330>] ntfs_iget
-+0x60/0x80
-Sep 15 21:13:43 laptop kernel: [4295071.439000]  [<c02761d0>]
-ntfs_init_locked_inode+0x0/0x100
-Sep 15 21:13:43 laptop kernel: [4295071.439000]  [<c028a614>]
-load_system_files+0x814/0xd70
-Sep 15 21:13:43 laptop kernel: [4295071.439000]  [<c028bfd1>]
-ntfs_fill_super+0x2a1/0x860
-Sep 15 21:13:43 laptop kernel: [4295071.439000]  [<c016d021>]
-get_sb_bdev+0xb1/0x110
-Sep 15 21:13:44 laptop kernel: [4295071.439000]  [<c0183409>]
-alloc_vfsmnt+0x89/0xc0
-Sep 15 21:13:44 laptop kernel: [4295071.439000]  [<c028c5c9>]
-ntfs_get_sb+0x19/0x1e
-Sep 15 21:13:44 laptop kernel: [4295071.439000]  [<c028bd30>]
-ntfs_fill_super+0x0/0x860
-Sep 15 21:13:44 laptop kernel: [4295071.439000]  [<c016d2ba>]
-do_kern_mount+0x9a/0x170
-Sep 15 21:13:44 laptop kernel: [4295071.439000]  [<c01845eb>]
-do_new_mount+0x6b/0xc0
-Sep 15 21:13:44 laptop kernel: [4295071.439000]  [<c0184d1f>] do_mount
-+0x1cf/0x1e0
-Sep 15 21:13:44 laptop kernel: [4295071.439000]  [<c0184a62>]
-exact_copy_from_user+0x32/0x70
-Sep 15 21:13:44 laptop kernel: [4295071.439000]  [<c0184af9>]
-copy_mount_options+0x59/0xb0
-Sep 15 21:13:44 laptop kernel: [4295071.439000]  [<c01850b9>] sys_mount
-+0x79/0xb0
-Sep 15 21:13:44 laptop kernel: [4295071.439000]  [<c010302b>]
-sysenter_past_esp+0x54/0x75
-Sep 15 21:13:44 laptop kernel: [4295071.439000] Code: ff 83 c1 80 75 0e
-bf f3 ff ff ff 89 7c 24 1c e9 ce fe ff ff 0f 0b 8d 01 8b 67 75 c0 eb e8
-0f 0b 98 01 8b 67 75 c0 e9 2a ff ff ff <0f> 0b 97 01 8b 67 75 c0 e9 12
-ff ff ff 8d 74 26 00 55 bd d4 cf 
-
--- 
-Bas Vermeulen <bvermeul@blackstar.nl>
-
+----- End forwarded message -----

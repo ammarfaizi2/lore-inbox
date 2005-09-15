@@ -1,98 +1,236 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932420AbVIOJsr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932385AbVIOJsO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932420AbVIOJsr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 05:48:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932425AbVIOJsr
+	id S932385AbVIOJsO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 05:48:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932420AbVIOJsO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 05:48:47 -0400
-Received: from web51003.mail.yahoo.com ([206.190.38.134]:13473 "HELO
-	web51003.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S932420AbVIOJsr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 05:48:47 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=fOedy6JCBDsCU4VGWNFzP1UD+5qLk3Ow9Vg6cwuRWq3uhoZGIzaK7XAPGh9kW4JhDFV0cfKIOkvR6w+bPmzEpc2jZiG0kI4SRTBsi76QtmQjLDFOLXNbYmeM+rdUaJyuBnYeRRfjghhgREJi/Kp/M2ijxZmPMYx4QIlIQHh7Nh8=  ;
-Message-ID: <20050915094842.31636.qmail@web51003.mail.yahoo.com>
-Date: Thu, 15 Sep 2005 02:48:42 -0700 (PDT)
-From: Ahmad Reza Cheraghi <a_r_cheraghi@yahoo.com>
-Subject: Re: Automatic Configuration of a Kernel
-To: marekw1977@yahoo.com.au, linux-kernel@vger.kernel.org
-In-Reply-To: <200509151733.16569.marekw1977@yahoo.com.au>
+	Thu, 15 Sep 2005 05:48:14 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:7898 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S932385AbVIOJsO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 05:48:14 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: Manu Abraham <manu@linuxtv.org>
+Subject: Re: PCI driver
+Date: Thu, 15 Sep 2005 11:48:51 +0200
+User-Agent: KMail/1.8.2
+Cc: Jiri Slaby <jirislaby@gmail.com>, linux-kernel@vger.kernel.org
+References: <4327EE94.2040405@kromtek.com> <200509151018.20322@bilbo.math.uni-mannheim.de> <4329362A.1030201@linuxtv.org>
+In-Reply-To: <4329362A.1030201@linuxtv.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: multipart/signed;
+  boundary="nextPart2584976.HShbx0PSjj";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200509151148.57779@bilbo.math.uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--nextPart2584976.HShbx0PSjj
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-
---- Marek W <marekw1977@yahoo.com.au> wrote:
-
-> On Thu, 15 Sep 2005 16:18, Valdis.Kletnieks@vt.edu
-> wrote:
-> 
-> Wasn't I being optimistic :) but hey, it's good to
-> see that many modules.
-> 
-> > > I'd prefer for something to select the modules
-> necessary for my hardware.
-> > > I can't afford the time to keep up to date with
-> that's new and what
-> > > isn't, what has changed, what has been
-> superseded, which module works
-> > > with which device, chipset even, etc...
-> >
-> > I'm of the opinion that if you don't have that
-> much time, you should be
-> > using a distro kernel where somebody *else* is
-> taking the time.  If you're
-> > the type that builds their own kernel, the *last*
-> thing you want is a tool
-> > glossing over the fact that a module has been
-> superceded.  Who's going to
-> > take care of the matching changes for
-> /etc/modprobe.conf and similar
-> > userspace changes, and other stuff like that? (I
-> figure if 'make oldconfig'
-> > asks a question, I should take notice, and any
-> userspace changes that don't
-> > get made are my fault - and if 'make oldconfig'
-> switches drivers on me
-> > without asking, that's a *bug* that lkml will hear
-> about.. ;)
-> 
-> This is exactly why I switched to Gentoo and use
-> gentoo-sources kernel.
+Manu Abraham wrote:
+>Rolf Eike Beer wrote:
+>>That is true, but you should not call pci_get_device() in this function at
+>>all.
 >
-As far as I know uses Gentoo the configuration that
-will be on the live-Cd. So 
-1. they might be alot of not needed modules 
-2. Some Hardware might be undetected.
+>I reworked the whole thing over  .. but i am feeling that something's a
+>bit wrong somewhere ..
+>
+>The log i get on a load - unload ..
+>
+>[  102.261264] mantis_pci_probe: Got a device
+>[  102.262852] mantis_pci_probe: We got an IRQ
+>[  102.264392] mantis_pci_probe: We finally enabled the device
+>[  102.266020] Mantis Rev 1, irq: 23, latency: 32
+>[  102.266118]          memory: 0xefeff000, mmio: f9218000
+>[  102.269162] Trying to free free IRQ23
+>[  110.297341] mantis_pci_remove: Removing -->Mantis irq: 23,
+>latency: 32
+>[  110.297344]  memory: 0xefeff000, mmio: 0xf9218000
+>[  110.301326] Trying to free free IRQ23
+>[  110.303445] Trying to free nonexistent resource <efeff000-efefffff>
+>
+>
+>#include <asm/io.h>
+>#include <asm/pgtable.h>
+>#include <asm/page.h>
+>#include <linux/interrupt.h>
+>#include <linux/kmod.h>
+>#include <linux/vmalloc.h>
+>#include <linux/init.h>
+>#include <linux/sched.h>
+>#include <linux/device.h>
+>#include "mantis_common.h"
+>#include "mantis_dma.h"
+>#include "mantis_i2c.h"
+>#include "mantis_eeprom.h"
+>
+>#define DRIVER_NAME                "Mantis"
+>
+>static struct pci_device_id mantis_pci_table[] =3D {
+>    { PCI_DEVICE(PCI_VENDOR_ID_MANTIS, PCI_DEVICE_ID_MANTIS_R11) },
+>    { 0 },
+>};
+>
+>MODULE_DEVICE_TABLE(pci, mantis_pci_table);
+>
+>static irqreturn_t mantis_pci_irq(int irq, void *dev_id, struct pt_regs
+>*regs)
+>{
+>    struct mantis_pci *mantis;
+>
+>    dprintk(verbose, MANTIS_DEBUG, 1, "Mantis PCI IRQ");
+>    mantis =3D (struct mantis_pci *) dev_id;
+>    if (mantis =3D=3D NULL)
+>        dprintk(verbose, MANTIS_DEBUG, 1, "Aeio, mantis ISR");
+>
+>    /*    Events
+>     *    (1) PCMCIA insert
+>     *    (2) PCMCIA extract
+>     *    (3) I2C complete
+>     */
+>
+>    return IRQ_HANDLED;
+>}
 
-> However, keep in mind that when I do 'make
-> oldconfig', more often then now the 
-> help on new options is insufficient to make a
-> decision on whether or not 
-> something should be included.
-> 
-> Secondly, I'd love to know exactly what sort of
-> hardware is inside my laptop, 
-> but funnily enough I find out the chipsets and
-> vendors by running lspci.
+You must check here if this interrupt was really from your device. If not, =
+you=20
+must return IRQ_NONE. You have requested your interrupt as a shared one so=
+=20
+this may happen at any time.
 
-The good thing about lspci (comparing to the others
-Hardware detection like kudzu or discovery) it not
-only uses the /proc files for getting the Hardware
-information it also grabs its information directly
-from the I/O of the Hardwares. But it lacks of getting
-alls the Hardwares e.g. CD-Rom, floppy... 
-It would be great if there is a Programm that gets all
-the Hardware information directyl from the I/O
-independent from the Kernel-installation.    
+>static int mantis_i2c_setup(struct mantis_pci *mantis)
+>{
+>    u32 config =3D 0;
 
+You don't need to set this here, you will overwrite it anyway before lookin=
+g=20
+at it.
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+>//    mmwrite(0x80, MANTIS_DMA_CTL); // MCU i2c read
+>    config =3D mmread(MANTIS_DMA_CTL);
+>    dprintk(verbose, MANTIS_DEBUG, 1, "Mantis Ctl reg=3D0x%04x", config);
+>
+>    return 0;
+>}
+
+>static int __devinit mantis_pci_probe(struct pci_dev *pdev,
+>                const struct pci_device_id *mantis_pci_table)
+>{
+>    u8 revision, latency;
+>//    u8 data[2];
+>    struct mantis_pci *mantis;
+
+Please insert a blank line here, this improves readability.
+
+>    mantis =3D (struct mantis_pci *)
+>                kmalloc(sizeof (struct mantis_pci), GFP_KERNEL);
+>    if (mantis =3D=3D NULL) {
+>        dprintk(verbose, MANTIS_ERROR, 1, "Out of memory");
+>        return -ENOMEM;
+>    }
+>    dprintk(verbose, MANTIS_ERROR, 1, "Got a device");
+>    mantis->mantis_addr =3D pci_resource_start(pdev, 0);
+>    if (!request_mem_region(pci_resource_start(pdev, 0),
+>        pci_resource_len(pdev, 0), DRIVER_NAME)) {
+>        dprintk(verbose, MANTIS_ERROR, 1, "Request mem region failed");
+>        goto err0;
+
+I would prefer to use more descriptive names for the labels, like err_memre=
+g,=20
+err_iomem, err_irq or something like that.
+
+Also you will get wrong assignements here. You must call pci_enable_device(=
+)=20
+_first_, it will set up the BARs of that device. Also I think=20
+pci_request_regions() might be a better way to get this assignements.
+
+>    }
+>    if ((mantis->mantis_mmio =3D
+>                ioremap(mantis->mantis_addr, 0x1000)) =3D=3D NULL) {
+>        dprintk(verbose, MANTIS_ERROR, 1, "IO remap failed");
+>        goto err1;
+>    }
+>    if (request_irq(pdev->irq, mantis_pci_irq, SA_SHIRQ |
+>                SA_INTERRUPT, DRIVER_NAME, mantis) < 0) {
+>        dprintk(verbose, MANTIS_ERROR, 1, "Mantis IRQ reg failed");
+>        goto err2;
+>    }
+>    dprintk(verbose, MANTIS_DEBUG, 1, "We got an IRQ");
+>    if (pci_enable_device(pdev)) {
+>        dprintk(verbose, MANTIS_ERROR, 1, "Mantis PCI enable failed");
+>        goto err3;
+>    }
+>    dprintk(verbose, MANTIS_DEBUG, 1, "We finally enabled the device");
+>    pci_set_master(pdev);
+>    pci_read_config_byte(pdev, PCI_LATENCY_TIMER, &latency);
+>    pci_read_config_byte(pdev, PCI_CLASS_REVISION, &revision);
+>    mantis->latency =3D latency;
+>    mantis->revision =3D revision;
+>    if (!latency) {
+>        pci_write_config_byte(pdev, PCI_LATENCY_TIMER, 32);
+>    }
+>    pci_set_drvdata(pdev, mantis);
+>    dprintk(verbose, MANTIS_ERROR, 0, "Mantis Rev %d, ", mantis->revision);
+>    dprintk(verbose, MANTIS_ERROR, 0, "irq: %d, latency: %d\n \
+>        memory: 0x%04x, mmio: %p\n", pdev->irq, mantis->latency,    \
+>        mantis->mantis_addr, mantis->mantis_mmio);
+>err3:
+>    free_irq(pdev->irq, pdev);
+>err2:
+>    if (mantis->mantis_mmio)
+>        iounmap(mantis->mantis_mmio);
+>err1:
+>    release_mem_region(pci_resource_start(pdev, 0),
+>                pci_resource_len(pdev, 0));
+>err0:
+>    kfree(mantis);
+>
+>    return 0;
+>}
+>
+>static void __devexit mantis_pci_remove(struct pci_dev *pdev)
+>{
+>    struct mantis_pci *mantis =3D pci_get_drvdata(pdev);
+>    if (mantis =3D=3D NULL) {
+>        dprintk(verbose, MANTIS_ERROR, 1, "Aeio, MAntis NULL ptr");
+>        return;
+>    }
+>    dprintk(verbose, MANTIS_ERROR, 1, "Removing -->Mantis irq: %d, \
+>        latency: %d\n memory: 0x%04x, mmio: 0x%p",
+>        pdev->irq, mantis->latency, mantis->mantis_addr,
+>        mantis->mantis_mmio);
+>
+>    free_irq(pdev->irq, pdev);
+>
+>    release_mem_region(pci_resource_start(pdev, 0),
+>        pci_resource_len(pdev, 0));
+
+pci_release_regions(pdev);
+
+>    pci_set_drvdata(pdev, NULL);
+>    pci_disable_device(pdev);
+>    kfree(mantis);
+>}
+
+HTH
+
+Eike
+
+--nextPart2584976.HShbx0PSjj
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQBDKUOJXKSJPmm5/E4RAsqHAJwMH2IyrbD6i72OOtEqrs2f5a3n9QCeJpKl
+y5M5AL31JAqjTGxvcnYB8y0=
+=cfNT
+-----END PGP SIGNATURE-----
+
+--nextPart2584976.HShbx0PSjj--

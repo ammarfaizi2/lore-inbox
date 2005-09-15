@@ -1,75 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751190AbVIOUeI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751223AbVIOUgP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751190AbVIOUeI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 16:34:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751213AbVIOUeI
+	id S1751223AbVIOUgP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 16:36:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbVIOUgP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 16:34:08 -0400
-Received: from zproxy.gmail.com ([64.233.162.202]:54397 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751190AbVIOUeG convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 16:34:06 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=SM8ZpaW/1LSYznpxSdHJHbcxJfFIZp1Jx5HJvG/YvFwKnfCdn6Vd2Y62twKM5/O1KV+17GLnpm6racYAs3C96cRK1umvdiFc2F6TjgeC9hZ4whKRe0XNROizykuf7PXR0CVWpR8hmgeHoJk2AA8Idk/MATO3FfPEQmlXos3mr/Y=
-Message-ID: <9a8748490509151334363cfd2d@mail.gmail.com>
-Date: Thu, 15 Sep 2005 22:34:06 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Reply-To: jesper.juhl@gmail.com
-To: "Valdis.Kletnieks@vt.edu" <Valdis.Kletnieks@vt.edu>
-Subject: Re: HZ question
-Cc: Joe Bob Spamtest <joebob@spamtest.viacore.net>,
-       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200509152019.j8FKJvAD025249@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <4326CAB3.6020109@compro.net>
-	 <2cd57c9005091321006825540@mail.gmail.com>
-	 <1126747237.13893.108.camel@mindpipe>
-	 <43299E59.4060103@spamtest.viacore.net>
-	 <200509152019.j8FKJvAD025249@turing-police.cc.vt.edu>
+	Thu, 15 Sep 2005 16:36:15 -0400
+Received: from beer.tclug.org ([71.36.145.29]:22160 "EHLO beer.tclug.org")
+	by vger.kernel.org with ESMTP id S1751218AbVIOUgO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 16:36:14 -0400
+Date: Thu, 15 Sep 2005 15:36:03 -0500 (CDT)
+From: Jima <jima@beer.tclug.org>
+To: "David S. Miller" <davem@davemloft.net>
+cc: kloczek@rudy.mif.pg.gda.pl, linux-kernel@vger.kernel.org,
+       sparclinux@vger.kernel.org, aurora-sparc-devel@lists.auroralinux.org,
+       davem@redhat.com
+Subject: Re: [2.6.14-rc1/sparc54]: BUG: soft lockup detected on CPU#0!
+In-Reply-To: <20050915.133026.21581824.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.63.0509151533530.26824@beer.tclug.org>
+References: <Pine.BSO.4.62.0509151929580.5000@rudy.mif.pg.gda.pl>
+ <20050915.133026.21581824.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: jima@beer.tclug.org
+X-SA-Exim-Scanned: No (on beer.tclug.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/15/05, Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> wrote:
-> On Thu, 15 Sep 2005 09:16:25 PDT, Joe Bob Spamtest said:
-> > Lee Revell wrote:
-> > > On Wed, 2005-09-14 at 12:00 +0800, Coywolf Qi Hunt wrote:
-> > >
-> > >>simply zgrep HZ= /proc/config.gz
-> > >>on my box, I get CONFIG_HZ=1000
-> > >
-> > >
-> > > Many distros inexplicably disable that by default.
-> >
-> > Their rationale is that knowing the kernel .config is a security threat.
-> 
-> At least in Fedora, they ship a mode 644 config file in /boot:
-> 
-> % ls -l /boot/config-2.6.13-1.1555_FC5
-> 61 -rw-r--r--  1 root root 60135 Sep 14 15:55 /boot/config-2.6.13-1.1555_FC5
-> 
-> No need to include that in the kernel if it's right there on disk.  Even Fedora
-> doesn't believe in *that* much bloat. ;)
-> 
+On Thu, 15 Sep 2005, David S. Miller wrote:
+> Where did you get that Cassini driver btw?  It's not upstream,
+> although if it exists it should be.
 
-Or delete it from disk and include it in the kernel instead.
+  Spot rolled it into the most recent Aurora kernel RPMs.  He got the 
+driver from me; I in turn got it from Sun's web site.  (It's tagged GPL.)
+  Neither Spot nor I care to 'own' the driver, due to both of us lacking 
+the hardware it supports, which makes maintenance difficult, at best.
 
-Having it in the kernel instead of as a sepperate file makes sense to
-me; you'll never loose it as long as you have the actual kernel
-around. Nothing like finding a problem with an older kernel and not
-being able to duplicate the config with a newer one because you
-deleted the .config at some point. With the config embedded in the
-kernel that never happens...
-
-As for the security issue with being able to read /proc/config.gz,
-couldn't that be solved easily if that file had mode 0400 ?
-
-
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+      Jima

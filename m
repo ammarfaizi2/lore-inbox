@@ -1,51 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030534AbVIOVVX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030542AbVIOVYK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030534AbVIOVVX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 17:21:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030543AbVIOVVX
+	id S1030542AbVIOVYK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 17:24:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030547AbVIOVYJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 17:21:23 -0400
-Received: from ppsw-9.csi.cam.ac.uk ([131.111.8.139]:7870 "EHLO
-	ppsw-9.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1030534AbVIOVVW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 17:21:22 -0400
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Date: Thu, 15 Sep 2005 22:21:20 +0100 (BST)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Bas Vermeulen <bvermeul@blackstar.nl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-rc1 - kernel BUG at fs/ntfs/aops.c:403
-In-Reply-To: <1126812296.4776.2.camel@laptop.blackstar.nl>
-Message-ID: <Pine.LNX.4.60.0509152219260.21782@hermes-1.csi.cam.ac.uk>
-References: <1126769362.5358.3.camel@laptop.blackstar.nl> 
- <Pine.LNX.4.60.0509150954290.29921@hermes-1.csi.cam.ac.uk>
- <1126812296.4776.2.camel@laptop.blackstar.nl>
+	Thu, 15 Sep 2005 17:24:09 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:404 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030542AbVIOVYI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 17:24:08 -0400
+Date: Thu, 15 Sep 2005 14:23:53 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Al Viro <viro@ZenIV.linux.org.uk>
+cc: linux-kernel@vger.kernel.org, rmk+serial@arm.linux.org.uk
+Subject: Re: [PATCH] epca iomem annotations + several missing readw()
+In-Reply-To: <20050915192704.GC25261@ZenIV.linux.org.uk>
+Message-ID: <Pine.LNX.4.58.0509151419160.26803@g5.osdl.org>
+References: <20050915192704.GC25261@ZenIV.linux.org.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Sep 2005, Bas Vermeulen wrote:
-> Sep 15 21:13:43 laptop kernel: [4295071.339000] NTFS volume version 3.1.
-> Sep 15 21:13:43 laptop kernel: [4295071.339000] NTFS-fs error (device
-> sda2): load_system_files(): Volume is dirty.  Mounting read-only.  Run
-> chkdsk and mount in Windows.
-> Sep 15 21:13:43 laptop kernel: [4295071.439000] NTFS-fs error (device
-> sda2): ntfs_readpage(): Eeek!  i_ino = 0x5, type = 0xa0, name_len = 0x4.
 
-Great, thanks!  I suspected this might be the case but I didn't think 
-that was possible.  )-:
+Gaah.
 
-Could you confirm for me that this ntfs volume is compressed?  (I.e. the 
-compression bit is enabled on the root directory.)
+On Thu, 15 Sep 2005, Al Viro wrote:
+>  { /* Begin post_fep_init */
+>  
+>  	int i;
+> -	unsigned char *memaddr;
+> -	struct global_data *gd;
+> +	unsigned char __iomem *memaddr;
+> +	struct global_data __iomem *gd;
 
-Best regards,
+Please don't use "[unsigned] char __iomem *".
 
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+Why? Two reasons:
+
+ - it's pointless. You can't dereference it anyway, and unlike a struct or 
+   an array, it has no addressing capabilities that "void __iomem *"  
+   doesn't have (gcc extension that the kernel uses widely).
+
+   Dereferencing needs "read/write[bwl]()" anyway.
+
+ - it results in horrors like this:
+
+	> -	bc = (struct board_chan *)(memaddr + CHANSTRUCT);
+	> +	bc = (struct board_chan __iomem *)(memaddr + CHANSTRUCT);
+
+  which could instead be nicely written as
+
+	bc = memaddr + CHANSTRUCT;
+
+  if "memaddr" were just a "void __iomem *".
+
+I bet the patch would look like a nice cleanup if you did that. Hint, 
+hint.
+
+		Linus

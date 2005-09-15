@@ -1,67 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030470AbVIOHh5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965174AbVIOHsy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030470AbVIOHh5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 03:37:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030468AbVIOHh4
+	id S965174AbVIOHsy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 03:48:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965228AbVIOHsy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 03:37:56 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:17354 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1030470AbVIOHh4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 03:37:56 -0400
-Date: Thu, 15 Sep 2005 09:37:44 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>
-Subject: Re: [linux-pm] swsusp3: push image reading/writing into userspace
-Message-ID: <20050915073744.GA2725@elf.ucw.cz>
-References: <20050914223206.GA2376@elf.ucw.cz> <1126749596.3987.5.camel@localhost> <20050915063753.GA2691@elf.ucw.cz> <1126768581.3987.31.camel@localhost>
+	Thu, 15 Sep 2005 03:48:54 -0400
+Received: from qproxy.gmail.com ([72.14.204.200]:20655 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965174AbVIOHsx convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 03:48:53 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=n6cpfArZmkgblTnvRROX1virL31WWotzrgN9BdpOBvlc6BM6GoWfs8SREuaDFqnBN4i7W2ncYUlNzibVakFuDuAplFAnIYLFX8foKcLeXhtCOjqYXUCyrMkp+arH6sPkOfG1WpqjLKG6aeMpPOxKW29mMm8Ka/C6+agZ5aOkruc=
+Message-ID: <a5986103050915004846d05841@mail.gmail.com>
+Date: Thu, 15 Sep 2005 09:48:50 +0200
+From: Ivan Korzakow <ivan.korzakow@gmail.com>
+Reply-To: ivan.korzakow@gmail.com
+To: linux-kernel@vger.kernel.org
+Subject: best way to access device driver functions
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1126768581.3987.31.camel@localhost>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
 
-> > > > Here's prototype code for swsusp3. It seems to work for me, but don't
-> > > > try it... yet. Code is very ugly at places, sorry, I know and will fix
-> > > > it. This is just proof that it can be done, and that it can be done
-> > > > without excessive ammount of code.
-> > > 
-> > > No comments on the code sorry. Instead I want to ask, could you please
-> > > find a different name? swsusp3 is going to make people think that it's
-> > > Suspend2 redesigned. Since there hasn't been a swsusp2 (so far as I
-> > > know), how about using that name instead? At least then we'll clearly
-> > > differentiate the two implementations and you won't confuse/irritate
-> > > users.
-> > 
-> > swsusp2 can't be used, it is already "taken" by suspend2 (25000 hits
-> > on google). I was actually hoping that you would release suspend4
-> > (using swsusp3 infrastructure) :-).
-> 
-> You could reclaim it. There are 10 times as many hits (239,000) for
-> suspend2, and I've never wanted it to be called swsusp2 anyway :). As
-> for suspend4, at the moment, I'm not planning on ever progressing beyond
-> 2.x.
+I have a number of functions that used to drive a device on an embedded
+system. Now that we are moving to Linux, these functions are part of the
+kernel space. My question is : what is the best way to access these
+from user space ?
+With a device driver, is it not a problem to implement about 15 commands through
+ioctl in addition to the usual open, close, read write ? It seems a bit
+awkward ...
 
-Sorry, have to ask...
+Any advice on this will help a lot. Thanks in advance,
 
-"not planning on progressing" == version number stays "2" no matter
-what changes, or "not planning on progressing" == not plan to use
-swsusp3/uswsusp infrastructure?
-
-> > I guess I could call it "uswsusp".
-> 
-> u as in micro?
-
-Originaly I thought about it as "userland-swsusp", but micro-swsusp
-sounds nice, too.
-								Pavel
-
--- 
-if you have sharp zaurus hardware you don't need... you know my address
+Ivan

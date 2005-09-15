@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030466AbVIOHSL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030465AbVIOHSM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030466AbVIOHSL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 03:18:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030465AbVIOHQs
+	id S1030465AbVIOHSM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 03:18:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030460AbVIOHQq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 03:16:48 -0400
-Received: from smtp101.sbc.mail.re2.yahoo.com ([68.142.229.104]:33960 "HELO
-	smtp101.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1030448AbVIOHQE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 03:16:46 -0400
+Received: from smtp114.sbc.mail.re2.yahoo.com ([68.142.229.91]:27571 "HELO
+	smtp114.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1030450AbVIOHQE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 15 Sep 2005 03:16:04 -0400
-Message-Id: <20050915064945.492268000.dtor_core@ameritech.net>
+Message-Id: <20050915064945.369493000.dtor_core@ameritech.net>
 References: <20050915064552.836273000.dtor_core@ameritech.net>
-Date: Thu, 15 Sep 2005 01:46:12 -0500
+Date: Thu, 15 Sep 2005 01:46:11 -0500
 From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: linux-kernel@vger.kernel.org
 Cc: Andrew Morton <akpm@osdl.org>
@@ -22,241 +22,165 @@ Greg KH <gregkh@suse.de>,
 Kay Sievers <kay.sievers@vrfy.org>,
 Vojtech Pavlik <vojtech@suse.cz>,
 Hannes Reinecke <hare@suse.de>
-Subject: [patch 20/28] Input: convert driver/input/misc to dynamic input_dev allocation
-Content-Disposition: inline; filename=input-dynalloc-misc.patch
+Subject: [patch 19/28] Input: convert sonypi to dynamic input_dev allocation
+Content-Disposition: inline; filename=input-dynalloc-sonypi.patch
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-Input: convert driver/input/misc to dynamic input_dev allocation
+Input: convert sonypi to dynamic input_dev allocation
 
 This is required for input_dev sysfs integration
 
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
 
- drivers/input/misc/m68kspkr.c  |   40 ++++++++++++++++++------------------
- drivers/input/misc/pcspkr.c    |   34 +++++++++++++++---------------
- drivers/input/misc/sparcspkr.c |   45 ++++++++++++++++++++---------------------
- 3 files changed, 59 insertions(+), 60 deletions(-)
+ drivers/char/sonypi.c |   92 ++++++++++++++++++++++++++++----------------------
+ 1 files changed, 53 insertions(+), 39 deletions(-)
 
-Index: work/drivers/input/misc/m68kspkr.c
+Index: work/drivers/char/sonypi.c
 ===================================================================
---- work.orig/drivers/input/misc/m68kspkr.c
-+++ work/drivers/input/misc/m68kspkr.c
-@@ -24,9 +24,7 @@ MODULE_AUTHOR("Richard Zidlicky <rz@linu
- MODULE_DESCRIPTION("m68k beeper driver");
- MODULE_LICENSE("GPL");
+--- work.orig/drivers/char/sonypi.c
++++ work/drivers/char/sonypi.c
+@@ -424,10 +424,6 @@ static struct sonypi_eventtypes {
  
--static char m68kspkr_name[] = "m68k beeper";
--static char m68kspkr_phys[] = "m68k/generic";
--static struct input_dev m68kspkr_dev;
-+static struct input_dev *m68kspkr_dev;
+ #define SONYPI_BUF_SIZE	128
  
- static int m68kspkr_event(struct input_dev *dev, unsigned int type, unsigned int code, int value)
- {
-@@ -51,32 +49,34 @@ static int m68kspkr_event(struct input_d
- 
- static int __init m68kspkr_init(void)
- {
--        if (!mach_beep){
--		printk("%s: no lowlevel beep support\n", m68kspkr_name);
--		return -1;
-+        if (!mach_beep) {
-+		printk(KERN_INFO "m68kspkr: no lowlevel beep support\n");
-+		return -ENODEV;
-         }
- 
--	m68kspkr_dev.evbit[0] = BIT(EV_SND);
--	m68kspkr_dev.sndbit[0] = BIT(SND_BELL) | BIT(SND_TONE);
--	m68kspkr_dev.event = m68kspkr_event;
+-/* The name of the devices for the input device drivers */
+-#define SONYPI_JOG_INPUTNAME	"Sony Vaio Jogdial"
+-#define SONYPI_KEY_INPUTNAME	"Sony Vaio Keys"
 -
--	m68kspkr_dev.name = m68kspkr_name;
--	m68kspkr_dev.phys = m68kspkr_phys;
--	m68kspkr_dev.id.bustype = BUS_HOST;
--	m68kspkr_dev.id.vendor = 0x001f;
--	m68kspkr_dev.id.product = 0x0001;
--	m68kspkr_dev.id.version = 0x0100;
--
--	input_register_device(&m68kspkr_dev);
-+	m68kspkr_dev = input_allocate_device();
-+	if (!m68kspkr_dev)
+ /* Correspondance table between sonypi events and input layer events */
+ static struct {
+ 	int sonypiev;
+@@ -490,8 +486,8 @@ static struct sonypi_device {
+ 	struct fasync_struct *fifo_async;
+ 	int open_count;
+ 	int model;
+-	struct input_dev input_jog_dev;
+-	struct input_dev input_key_dev;
++	struct input_dev *input_jog_dev;
++	struct input_dev *input_key_dev;
+ 	struct work_struct input_work;
+ 	struct kfifo *input_fifo;
+ 	spinlock_t input_fifo_lock;
+@@ -779,8 +775,8 @@ static void input_keyrelease(void *data)
+ 
+ static void sonypi_report_input_event(u8 event)
+ {
+-	struct input_dev *jog_dev = &sonypi_device.input_jog_dev;
+-	struct input_dev *key_dev = &sonypi_device.input_key_dev;
++	struct input_dev *jog_dev = sonypi_device.input_jog_dev;
++	struct input_dev *key_dev = sonypi_device.input_key_dev;
+ 	struct sonypi_keypress kp = { NULL };
+ 	int i;
+ 
+@@ -1203,6 +1199,47 @@ static struct device_driver sonypi_drive
+ 	.shutdown	= sonypi_shutdown,
+ };
+ 
++static int __devinit sonypi_create_input_devices(void)
++{
++	struct input_dev *jog_dev;
++	struct input_dev *key_dev;
++	int i;
++
++	sonypi_device.input_jog_dev = jog_dev = input_allocate_device();
++	if (!jog_dev)
 +		return -ENOMEM;
 +
-+	m68kspkr_dev->name = "m68k beeper";
-+	m68kspkr_dev->phys = "m68k/generic";
-+	m68kspkr_dev->id.bustype = BUS_HOST;
-+	m68kspkr_dev->id.vendor = 0x001f;
-+	m68kspkr_dev->id.product = 0x0001;
-+	m68kspkr_dev->id.version = 0x0100;
++	jog_dev->name = "Sony Vaio Jogdial";
++	jog_dev->id.bustype = BUS_ISA;
++	jog_dev->id.vendor = PCI_VENDOR_ID_SONY;
 +
-+	m68kspkr_dev->evbit[0] = BIT(EV_SND);
-+	m68kspkr_dev->sndbit[0] = BIT(SND_BELL) | BIT(SND_TONE);
-+	m68kspkr_dev->event = m68kspkr_event;
- 
--        printk(KERN_INFO "input: %s\n", m68kspkr_name);
-+	input_register_device(m68kspkr_dev);
- 
- 	return 0;
- }
- 
- static void __exit m68kspkr_exit(void)
- {
--        input_unregister_device(&m68kspkr_dev);
-+        input_unregister_device(m68kspkr_dev);
- }
- 
- module_init(m68kspkr_init);
-Index: work/drivers/input/misc/pcspkr.c
-===================================================================
---- work.orig/drivers/input/misc/pcspkr.c
-+++ work/drivers/input/misc/pcspkr.c
-@@ -23,9 +23,7 @@ MODULE_AUTHOR("Vojtech Pavlik <vojtech@u
- MODULE_DESCRIPTION("PC Speaker beeper driver");
- MODULE_LICENSE("GPL");
- 
--static char pcspkr_name[] = "PC Speaker";
--static char pcspkr_phys[] = "isa0061/input0";
--static struct input_dev pcspkr_dev;
-+static struct input_dev *pcspkr_dev;
- 
- static DEFINE_SPINLOCK(i8253_beep_lock);
- 
-@@ -68,27 +66,29 @@ static int pcspkr_event(struct input_dev
- 
- static int __init pcspkr_init(void)
- {
--	pcspkr_dev.evbit[0] = BIT(EV_SND);
--	pcspkr_dev.sndbit[0] = BIT(SND_BELL) | BIT(SND_TONE);
--	pcspkr_dev.event = pcspkr_event;
--
--	pcspkr_dev.name = pcspkr_name;
--	pcspkr_dev.phys = pcspkr_phys;
--	pcspkr_dev.id.bustype = BUS_ISA;
--	pcspkr_dev.id.vendor = 0x001f;
--	pcspkr_dev.id.product = 0x0001;
--	pcspkr_dev.id.version = 0x0100;
-+	pcspkr_dev = input_allocate_device();
-+	if (!pcspkr_dev)
++	jog_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REL);
++	jog_dev->keybit[LONG(BTN_MOUSE)] = BIT(BTN_MIDDLE);
++	jog_dev->relbit[0] = BIT(REL_WHEEL);
++
++	sonypi_device.input_key_dev = key_dev = input_allocate_device();
++	if (!key_dev) {
++		input_free_device(jog_dev);
++		sonypi_device.input_jog_dev = NULL;
 +		return -ENOMEM;
++	}
 +
-+	pcspkr_dev->name = "PC Speaker";
-+	pcspkr_dev->name = "isa0061/input0";
-+	pcspkr_dev->id.bustype = BUS_ISA;
-+	pcspkr_dev->id.vendor = 0x001f;
-+	pcspkr_dev->id.product = 0x0001;
-+	pcspkr_dev->id.version = 0x0100;
++	key_dev->name = "Sony Vaio Keys";
++	key_dev->id.bustype = BUS_ISA;
++	key_dev->id.vendor = PCI_VENDOR_ID_SONY;
 +
-+	pcspkr_dev->evbit[0] = BIT(EV_SND);
-+	pcspkr_dev->sndbit[0] = BIT(SND_BELL) | BIT(SND_TONE);
-+	pcspkr_dev->event = pcspkr_event;
++	/* Initialize the Input Drivers: special keys */
++	key_dev->evbit[0] = BIT(EV_KEY);
++	for (i = 0; sonypi_inputkeys[i].sonypiev; i++)
++		if (sonypi_inputkeys[i].inputev)
++			set_bit(sonypi_inputkeys[i].inputev, key_dev->keybit);
++
++	input_register_device(jog_dev);
++	input_register_device(key_dev);
++
++	return 0;
++}
++
+ static int __devinit sonypi_probe(void)
+ {
+ 	int i, ret;
+@@ -1298,34 +1335,10 @@ static int __devinit sonypi_probe(void)
+ 	}
  
--	input_register_device(&pcspkr_dev);
+ 	if (useinput) {
+-		/* Initialize the Input Drivers: jogdial */
+-		int i;
+-		sonypi_device.input_jog_dev.evbit[0] =
+-			BIT(EV_KEY) | BIT(EV_REL);
+-		sonypi_device.input_jog_dev.keybit[LONG(BTN_MOUSE)] =
+-			BIT(BTN_MIDDLE);
+-		sonypi_device.input_jog_dev.relbit[0] = BIT(REL_WHEEL);
+-		sonypi_device.input_jog_dev.name = SONYPI_JOG_INPUTNAME;
+-		sonypi_device.input_jog_dev.id.bustype = BUS_ISA;
+-		sonypi_device.input_jog_dev.id.vendor = PCI_VENDOR_ID_SONY;
 -
--        printk(KERN_INFO "input: %s\n", pcspkr_name);
-+	input_register_device(pcspkr_dev);
+-		input_register_device(&sonypi_device.input_jog_dev);
+-		printk(KERN_INFO "%s input method installed.\n",
+-		       sonypi_device.input_jog_dev.name);
  
- 	return 0;
- }
- 
- static void __exit pcspkr_exit(void)
- {
--        input_unregister_device(&pcspkr_dev);
-+        input_unregister_device(pcspkr_dev);
- 	/* turn off the speaker */
- 	pcspkr_event(NULL, EV_SND, SND_BELL, 0);
- }
-Index: work/drivers/input/misc/sparcspkr.c
-===================================================================
---- work.orig/drivers/input/misc/sparcspkr.c
-+++ work/drivers/input/misc/sparcspkr.c
-@@ -17,28 +17,24 @@
- #endif
- 
- MODULE_AUTHOR("David S. Miller <davem@redhat.com>");
--MODULE_DESCRIPTION("PC Speaker beeper driver");
-+MODULE_DESCRIPTION("Sparc Speaker beeper driver");
- MODULE_LICENSE("GPL");
- 
- static unsigned long beep_iobase;
+-		/* Initialize the Input Drivers: special keys */
+-		sonypi_device.input_key_dev.evbit[0] = BIT(EV_KEY);
+-		for (i = 0; sonypi_inputkeys[i].sonypiev; i++)
+-			if (sonypi_inputkeys[i].inputev)
+-				set_bit(sonypi_inputkeys[i].inputev,
+-					sonypi_device.input_key_dev.keybit);
+-		sonypi_device.input_key_dev.name = SONYPI_KEY_INPUTNAME;
+-		sonypi_device.input_key_dev.id.bustype = BUS_ISA;
+-		sonypi_device.input_key_dev.id.vendor = PCI_VENDOR_ID_SONY;
 -
--static char *sparcspkr_isa_name = "Sparc ISA Speaker";
--static char *sparcspkr_ebus_name = "Sparc EBUS Speaker";
--static char *sparcspkr_phys = "sparc/input0";
--static struct input_dev sparcspkr_dev;
-+static struct input_dev *sparcspkr_dev;
+-		input_register_device(&sonypi_device.input_key_dev);
+-		printk(KERN_INFO "%s input method installed.\n",
+-		       sonypi_device.input_key_dev.name);
++		ret = sonypi_create_input_devices();
++		if (ret)
++			goto out_inputdevices;
  
- DEFINE_SPINLOCK(beep_lock);
+ 		spin_lock_init(&sonypi_device.input_fifo_lock);
+ 		sonypi_device.input_fifo =
+@@ -1375,8 +1388,9 @@ static int __devinit sonypi_probe(void)
+ out_platformdev:
+ 	kfifo_free(sonypi_device.input_fifo);
+ out_infifo:
+-	input_unregister_device(&sonypi_device.input_key_dev);
+-	input_unregister_device(&sonypi_device.input_jog_dev);
++	input_unregister_device(sonypi_device.input_key_dev);
++	input_unregister_device(sonypi_device.input_jog_dev);
++out_inputdevices:
+ 	free_irq(sonypi_device.irq, sonypi_irq);
+ out_reqirq:
+ 	release_region(sonypi_device.ioport1, sonypi_device.region_size);
+@@ -1402,8 +1416,8 @@ static void __devexit sonypi_remove(void
+ 	platform_device_unregister(sonypi_device.pdev);
  
- static void __init init_sparcspkr_struct(void)
- {
--	sparcspkr_dev.evbit[0] = BIT(EV_SND);
--	sparcspkr_dev.sndbit[0] = BIT(SND_BELL) | BIT(SND_TONE);
-+	sparcspkr_dev->evbit[0] = BIT(EV_SND);
-+	sparcspkr_dev->sndbit[0] = BIT(SND_BELL) | BIT(SND_TONE);
+ 	if (useinput) {
+-		input_unregister_device(&sonypi_device.input_key_dev);
+-		input_unregister_device(&sonypi_device.input_jog_dev);
++		input_unregister_device(sonypi_device.input_key_dev);
++		input_unregister_device(sonypi_device.input_jog_dev);
+ 		kfifo_free(sonypi_device.input_fifo);
+ 	}
  
--	sparcspkr_dev.phys = sparcspkr_phys;
--	sparcspkr_dev.id.bustype = BUS_ISA;
--	sparcspkr_dev.id.vendor = 0x001f;
--	sparcspkr_dev.id.product = 0x0001;
--	sparcspkr_dev.id.version = 0x0100;
-+	sparcspkr_dev->phys = "sparc/input0";
-+	sparcspkr_dev->id.bustype = BUS_ISA;
-+	sparcspkr_dev->id.vendor = 0x001f;
-+	sparcspkr_dev->id.product = 0x0001;
-+	sparcspkr_dev->id.version = 0x0100;
- }
- 
- static int ebus_spkr_event(struct input_dev *dev, unsigned int type, unsigned int code, int value)
-@@ -84,14 +80,15 @@ static int __init init_ebus_beep(struct 
- {
- 	beep_iobase = edev->resource[0].start;
- 
--	init_sparcspkr_struct();
-+	sparcspkr_dev = input_allocate_device();
-+	if (!sparcspkr_dev)
-+		return -ENOMEM;
- 
--	sparcspkr_dev.name = sparcspkr_ebus_name;
--	sparcspkr_dev.event = ebus_spkr_event;
-+	sparcspkr_dev->name = "Sparc EBUS Speaker";
-+	sparcspkr_dev->event = ebus_spkr_event;
- 
--	input_register_device(&sparcspkr_dev);
-+	input_register_device(sparcspkr_dev);
- 
--        printk(KERN_INFO "input: %s\n", sparcspkr_ebus_name);
- 	return 0;
- }
- 
-@@ -137,15 +134,17 @@ static int __init init_isa_beep(struct s
- {
- 	beep_iobase = isa_dev->resource.start;
- 
-+	sparcspkr_dev = input_allocate_device();
-+	if (!sparcspkr_dev)
-+		return -ENOMEM;
-+
- 	init_sparcspkr_struct();
- 
--	sparcspkr_dev.name = sparcspkr_isa_name;
--	sparcspkr_dev.event = isa_spkr_event;
--	sparcspkr_dev.id.bustype = BUS_ISA;
-+	sparcspkr_dev->name = "Sparc ISA Speaker";
-+	sparcspkr_dev->event = isa_spkr_event;
- 
- 	input_register_device(&sparcspkr_dev);
- 
--        printk(KERN_INFO "input: %s\n", sparcspkr_isa_name);
- 	return 0;
- }
- #endif
-@@ -182,7 +181,7 @@ static int __init sparcspkr_init(void)
- 
- static void __exit sparcspkr_exit(void)
- {
--	input_unregister_device(&sparcspkr_dev);
-+	input_unregister_device(sparcspkr_dev);
- }
- 
- module_init(sparcspkr_init);
 

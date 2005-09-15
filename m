@@ -1,113 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030229AbVIOAYa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030303AbVIOAaY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030229AbVIOAYa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 20:24:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932536AbVIOAYa
+	id S1030303AbVIOAaY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 20:30:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932536AbVIOAaY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 20:24:30 -0400
-Received: from sls-ce5p321.hostitnow.com ([72.9.236.50]:17119 "EHLO
-	sls-ce5p321.hostitnow.com") by vger.kernel.org with ESMTP
-	id S932495AbVIOAY3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 20:24:29 -0400
-From: Chris White <chriswhite@gentoo.org>
-Reply-To: chriswhite@gentoo.org
-Organization: Gentoo
-To: marekw1977@yahoo.com.au
-Subject: Re: Automatic Configuration of a Kernel
-Date: Thu, 15 Sep 2005 17:53:17 +0900
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org
-References: <20050914223836.53814.qmail@web51011.mail.yahoo.com> <4328B710.5080503@in.tum.de> <200509151009.59981.marekw1977@yahoo.com.au>
-In-Reply-To: <200509151009.59981.marekw1977@yahoo.com.au>
+	Wed, 14 Sep 2005 20:30:24 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:5103 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932495AbVIOAaX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 20:30:23 -0400
+Message-ID: <4328C094.8060508@in.ibm.com>
+Date: Wed, 14 Sep 2005 19:30:12 -0500
+From: Sripathi Kodi <sripathik@in.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc3 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart4855049.OxLx6jn7Nu";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Bill Davidsen <davidsen@tmr.com>
+CC: Al Viro <viro@ZenIV.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, patrics@interia.pl,
+       Ingo Molnar <mingo@elte.hu>, Roland McGrath <roland@redhat.com>
+Subject: Re: [PATCH 2.6.13.1] Patch for invisible threads
+References: <4325BEF3.2070901@in.ibm.com> <20050912134954.7bbd15b2.akpm@osdl.org> <4326CFE2.6000908@in.ibm.com> <Pine.LNX.4.58.0509130744070.3351@g5.osdl.org> <20050913165102.GR25261@ZenIV.linux.org.uk> <Pine.LNX.4.58.0509131000040.3351@g5.osdl.org> <20050913171215.GS25261@ZenIV.linux.org.uk> <43274503.7090303@in.ibm.com> <Pine.LNX.4.58.0509131601400.26803@g5.osdl.org> <43278116.8020403@in.ibm.com> <432835B4.7070405@tmr.com>
+In-Reply-To: <432835B4.7070405@tmr.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200509151753.21971.chriswhite@gentoo.org>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - sls-ce5p321.hostitnow.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - gentoo.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart4855049.OxLx6jn7Nu
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Bill Davidsen wrote:
+> 
+> Let me say that this solution, and any other which loops through all 
+> threads of a task, isn't going to scale well. I don't have a magic O(1) 
+> solution, if it were easy someone would have done that instead of the 
+> while loop, just noting that a clever solution would be a win on servers.
 
-On Thursday 15 September 2005 09:09, Marek W wrote:
-> On Thu, 15 Sep 2005 09:49, Daniel Thaler wrote:
-> > Michal Piotrowski wrote:
-> > > Hi,
-> > >
-> > > On 15/09/05, Ahmad Reza Cheraghi <a_r_cheraghi@yahoo.com> wrote:
-> > >>Hi
-> > >>
-> > >>I wrote this Framework for making a .config based on
-> > >>the System Hardwares. It would be a great help if some
-> > >>people would give me their opinion about it.
+Bill,
 
-[tons of snipping]
+We will only have to go through the while loop in rare cases where main 
+thread has done pthread_exit() before other threads (and hence it's task->fs 
+is null). Also, even in most such cases, the very first iteration through 
+the while loop  will get us the 'fs' pointer, so we won't have to loop 
+through all threads. So I think this won't have scalability problem. Am I right?
 
-> Something that can do the hardware detection, then maps that to drivers
-> would be very useful.
-
-well, in theory this works as well.  If you do this in the kernel source=20
-directory:
-
-make allmodconfig
-
-that makes a kernel with all possible configure options that can be built a=
-s=20
-modules enabled.
-
-make install
-
-and you have a couple of nice files in /lib/modules/(version)/modules.*map
-
-=2Drw-r--r--  1 root root    73 Sep 14 23:15 modules.ieee1394map
-=2Drw-r--r--  1 root root   132 Sep 14 23:15 modules.inputmap
-=2Drw-r--r--  1 root root    81 Sep 14 23:15 modules.isapnpmap
-=2Drw-r--r--  1 root root  7834 Sep 14 23:15 modules.pcimap
-=2Drw-r--r--  1 root root    43 Sep 14 23:15 modules.seriomap
-=2Drw-r--r--  1 root root 80010 Sep 14 23:15 modules.usbmap
-
-the usual favorite of mine is modules.pcimap, which, when compined with lsp=
-ci=20
-can give you the proper module for your pci device.  Granted it has the fau=
-lt=20
-of a) how to figure out the configure option.  Sometimes it's CONFIG_[name]=
-,=20
-sometimes it's not (grepping maybe?) b) sometimes two drivers do the same=20
-thing, but if enabled together will cause kittens to cry and babies to pull=
-=20
-flowers.  Therein lies one of the main issues.  I'm going to assume by seei=
-ng=20
-the rules_file bit that you address it in that way.  However, seeing the=20
-development model of the kernel, trying to keep that updated may get a litt=
-le=20
-weird. =20
-
-My 1.5 $denomination
-Chris White
-
---nextPart4855049.OxLx6jn7Nu
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBDKTaBFdQwWVoAgN4RAogMAKDnOWRuNP04bZ2/GLZuLrKn8puzaACgyF7/
-qluAB1hNvFnvmzWflZdmcaI=
-=//fX
------END PGP SIGNATURE-----
-
---nextPart4855049.OxLx6jn7Nu--
+Thanks,
+Sripathi.

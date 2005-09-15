@@ -1,63 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030546AbVIORWI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030552AbVIORYz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030546AbVIORWI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 13:22:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030547AbVIORWI
+	id S1030552AbVIORYz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 13:24:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030548AbVIORYz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 13:22:08 -0400
-Received: from smtpout.mac.com ([17.250.248.46]:42471 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1030546AbVIORWH (ORCPT
+	Thu, 15 Sep 2005 13:24:55 -0400
+Received: from mail.kroah.org ([69.55.234.183]:4791 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1030552AbVIORYy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 13:22:07 -0400
-In-Reply-To: <43293591.19922.2890E4@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
-References: <43286E4B.1070809@mvista.com> <43293591.19922.2890E4@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
-Mime-Version: 1.0 (Apple Message framework v734)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <2088723E-06A0-40ED-A51D-19316AE57ECA@mac.com>
-Cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
-       yoshfuji@linux-ipv6.org, Roman Zippel <zippel@linux-m68k.org>,
-       joe-lkml@rameria.de
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: NTP leap second question
-Date: Thu, 15 Sep 2005 13:21:25 -0400
-To: Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
-X-Mailer: Apple Mail (2.734)
+	Thu, 15 Sep 2005 13:24:54 -0400
+Date: Thu, 15 Sep 2005 10:24:32 -0700
+From: Greg KH <greg@kroah.com>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Christoph Hellwig <hch@infradead.org>, akpm@osdl.org, rbh00@utsglobal.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 2/7] s390: 3270 fullscreen view.
+Message-ID: <20050915172432.GA9980@kroah.com>
+References: <20050914155345.GA11478@skybase.boeblingen.de.ibm.com> <20050914161022.GA4230@infradead.org> <1126719107.4908.29.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1126719107.4908.29.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 15, 2005, at 02:49:21, Ulrich Windl wrote:
-> On 14 Sep 2005 at 11:54, john stultz wrote:
->> If I recall, leapsecond implementations are a pretty contentious  
->> issue.  Some folks have suggested having the kernels note the  
->> leapsecond and slew the clock internally. This sounds nicer then  
->> just adding or
->
-> No! Never slew a leap second: It will take too long! It's all over  
-> after one second. If you slew, you time will be incorrect for an  
-> extended time.
+On Wed, Sep 14, 2005 at 07:31:46PM +0200, Martin Schwidefsky wrote:
+> +struct class *class3270;
 
-I think he said "It's a contentious issue", and "Some have  
-suggested".  No need to get your underwear in a bunch over it.  There  
-are arguments for both sides.  Besides, it's not like it matters much  
-in the grand scheme of things, it's only a second.  With the current  
-proposals, the leap-second-slewing would only be in effect for 1000  
-seconds, and you'd never be very far off true time (The simplest  
-implementation is one second off, if you add one bit of state you'll  
-only ever be a half-second off).  If you're willing to make it a bit  
-slower and a bit more code, you could even make the slewing nonlinear  
-with a continuous derivative, so it's only in place for ~20 seconds,  
-and only changes rapidly near the leapsecond boundary itself.  On the  
-other hand, if your box is running a nuclear reactor, you might want  
-to do a bit more verification, but Linux isn't certified for that  
-anyways!! :-D
+Isn't this a tty driver already?  If so, you don't need to create your
+own class, your devices will just show up in the /sys/class/tty/ area
+just fine.
 
-Cheers,
-Kyle Moffett
+Or am I missing something here?
 
---
-Simple things should be simple and complex things should be possible
-   -- Alan Kay
+thanks,
 
-
-
+greg k-h

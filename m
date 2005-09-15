@@ -1,82 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932629AbVIOGu5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965152AbVIOGuI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932629AbVIOGu5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 02:50:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932586AbVIOGu5
+	id S965152AbVIOGuI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 02:50:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932586AbVIOGuI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 02:50:57 -0400
-Received: from [210.76.114.20] ([210.76.114.20]:59281 "EHLO ccoss.com.cn")
-	by vger.kernel.org with ESMTP id S932527AbVIOGu4 (ORCPT
+	Thu, 15 Sep 2005 02:50:08 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:4782 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932527AbVIOGuH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 02:50:56 -0400
-Message-ID: <432919C3.7060708@ccoss.com.cn>
-Date: Thu, 15 Sep 2005 14:50:43 +0800
-From: "liyu@WAN" <liyu@ccoss.com.cn>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: [Question] Can we release vma that include code when one process
- is running?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 15 Sep 2005 02:50:07 -0400
+Date: Thu, 15 Sep 2005 08:49:29 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
+Subject: kill useless comment in tipar.c
+Message-ID: <20050915064929.GB2726@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, All:
+Kill useless comment in tipar.c.
 
-    I am writing a patch to swap process memory to swap partition or 
-swap file.
-We think this make system speed up on PC that more little memory. It have
-a bit like with page replacement algorithm depend application hit, but 
-ours idea is
-more easier.We found, if we try swap out openoffice.org, this way  can 
-save more
-than 50M memory, and when switch task to run openoffice.org again, it do 
-not read
-all data that did swapped from swap space at most time.
+Signed-off-by: Pavel Machek <pavel@suse.cz>
 
-    According to result of experimmnt, the anonymous memory of one 
-process are more than code
-and data, even, it look some shared library as private code.
+---
+commit ec2999be998bb1981287b20dd656214956e45be8
+tree bc713394190bebf63d25306d27281594b30f9405
+parent 174567894d7e3522de7bb92406bee3ea68091b33
+author <pavel@amd.(none)> Thu, 15 Sep 2005 08:48:59 +0200
+committer <pavel@amd.(none)> Thu, 15 Sep 2005 08:48:59 +0200
 
-    As general rule, we can only some swap anonymous memory. this's OK! 
-I also done that.
-However my question is if we release vma that include code when one 
-process is running?
-Of course, if the refcnt of vma is more than one, it can not be released 
-yet. In fact,
-I writing one patch to do this, some it do successfully on some simple 
-process, but
-in more time, I will get a SIGSEGV!
+ drivers/char/tipar.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-    I am running IA32 architecture, I used one little python script to 
-try this. and
-get SIGSEGV each time. I dump memory that include that code, they are 
-too simple:
-   
-    ...
-    nop
-    int $0x80
-    ret
-    nop
-    ...
+diff --git a/drivers/char/tipar.c b/drivers/char/tipar.c
+--- a/drivers/char/tipar.c
++++ b/drivers/char/tipar.c
+@@ -360,7 +360,7 @@ tipar_ioctl(struct inode *inode, struct 
+ 
+ 	switch (cmd) {
+ 	case IOCTL_TIPAR_DELAY:
+-		delay = (int)arg;    //get_user(delay, &arg);
++		delay = (int)arg;
+ 		break;
+ 	case IOCTL_TIPAR_TIMEOUT:
+ 		if (arg != 0)
 
-    It seem that code in other place jump here to enter kernel. this is 
-in a anonymous
-code area.
-    At first time, I think this SIGSEGV will trigger by anonymous code 
-that is swapped,
-but I wrote one specical condition check to filte out this sort of code, 
-IOW, I do
-not swap out it. but I still get SIGSEGV.
-
-    May be, we can not be release the vma that include code? or, Is 
-there have some errors
- in my words for page fault?
-
-   
-   
-sailor
-
-
+-- 
+if you have sharp zaurus hardware you don't need... you know my address

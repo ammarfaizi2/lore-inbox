@@ -1,70 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030301AbVIOAKq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030302AbVIOAOs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030301AbVIOAKq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 20:10:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030302AbVIOAKp
+	id S1030302AbVIOAOs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 20:14:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932536AbVIOAOs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 20:10:45 -0400
-Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:59054 "HELO
-	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1030301AbVIOAKo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 20:10:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:From:Reply-To:To:Subject:Date:User-Agent:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=bGFDgkIxYl304GNnRb5KCUdauH8K9O9sYr2B6rX5Q70e3L0Rf9laMF+8pOcqP6BC40p9aU3MFN/jB1qOIgky2oWNPjCgaiSB9L2LVcfZYgyDlZyx6tLE6EfiJgh3CYmuIHL0BRU9Ohdgi4vKV+HhjwyBnzKFz1IgHFIMQTvY1WY=  ;
-From: Marek W <marekw1977@yahoo.com.au>
-Reply-To: marekw1977@yahoo.com.au
-To: linux-kernel@vger.kernel.org
-Subject: Re: Automatic Configuration of a Kernel
-Date: Thu, 15 Sep 2005 10:09:59 +1000
-User-Agent: KMail/1.8.2
-References: <20050914223836.53814.qmail@web51011.mail.yahoo.com> <6bffcb0e05091415533d563c5a@mail.gmail.com> <4328B710.5080503@in.tum.de>
-In-Reply-To: <4328B710.5080503@in.tum.de>
+	Wed, 14 Sep 2005 20:14:48 -0400
+Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:21424 "EHLO
+	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S932495AbVIOAOs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 20:14:48 -0400
+X-ORBL: [69.107.75.50]
+DomainKey-Signature: a=rsa-sha1; s=sbc01; d=pacbell.net; c=nofws; q=dns;
+	h=received:date:from:to:subject:cc:references:in-reply-to:
+	mime-version:content-type:content-transfer-encoding:message-id;
+	b=KgGplMsbN5LW1fG6Xipei+sNoQXagOC2m+Gr2L9AF/ziQcJ4zoXLCjNa5wJDzmMxQ
+	GvyFc2DrlwvwJDpQHoq0g==
+Date: Wed, 14 Sep 2005 17:14:29 -0700
+From: David Brownell <david-b@pacbell.net>
+To: vitalhome@rbcmail.ru, basicmark@yahoo.com
+Subject: Re: [RFC][PATCH] SPI subsystem
+Cc: linux-kernel@vger.kernel.org, dpervushin@ru.mvista.com
+References: <20050910115434.32450.qmail@web30303.mail.mud.yahoo.com>
+In-Reply-To: <20050910115434.32450.qmail@web30303.mail.mud.yahoo.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509151009.59981.marekw1977@yahoo.com.au>
+Message-Id: <20050915001429.BC6E7EA55C@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Sep 2005 09:49, Daniel Thaler wrote:
-> Michal Piotrowski wrote:
-> > Hi,
-> >
-> > On 15/09/05, Ahmad Reza Cheraghi <a_r_cheraghi@yahoo.com> wrote:
-> >>Hi
-> >>
-> >>I wrote this Framework for making a .config based on
-> >>the System Hardwares. It would be a great help if some
-> >>people would give me their opinion about it.
-> >>
-> >>Regards
-> >
-> > It's for new linux users? They should use distributions kernels.
-> > It's for "power users"? They just do make menuconfig...
-> > It's for kernel developers? They just do vi .config.
+> > >+static int spi_suspend(struct device * dev, u32 state)
+> > >+{
+> > >...
+> > >+ list_for_each_entry(child, &dev->children, node) {
+
+That should probably use device_for_each_child() if you're
+going to do it that way ...
+
+
+> > >+  if (child->driver && child->driver->suspend) {
+> > >+   ret = child->driver->suspend(child, state, SUSPEND_DISABLE);
+> > >+   if (ret == 0)
+> > >+    ret = child->driver->suspend(child, state, SUSPEND_SAVE_STATE);
+> > >+   if (ret == 0)
+> > >+    ret = child->driver->suspend(child, state, SUSPEND_POWER_DOWN);
+> > >+  }
+> > >+ }
+> > >  
+> > >
+> > Oh my God. It will be called 3 times for each child
+> > entry, isn't it?!
 >
-> I like the idea.
-> I'm a power user and of course I can do make menuconfig, but it would be
-> useful when building a kernel for new hardware for example.
->
-> Currently that involves looking at dmesg output to figure out the correct
-> options; this would provide a nice base config to work with and reduce the
-> amount of effort.
+> OK. This stuff is probably wrong. I used the platform
+> subsystem as an example. I need to do more research
+> into how much work the driver core does for you.
 
-I second that. Unlike majority of users I suppose, I upgrade the kernel often 
-and I am on the bleeding edge (laptop user with some drivers still being in 
-development). Even with oldconfig it's easy to miss a useful driver 
-(sometimes there's no help or the volume of new options is too large).
+Most platform drivers I've seen just handle the power on/off
+requests.  I think there's some historical reason that the
+"reason" stuff exists ... but I suspect not many folk would
+get unhappy if that were removed, and those calls got simplified.
 
-Something that can do the hardware detection, then maps that to drivers would 
-be very useful.
+- Dave
 
-
---
-
-Marek W
-Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,78 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932601AbVIOGSR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030381AbVIOGRs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932601AbVIOGSR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 02:18:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932536AbVIOGSQ
+	id S1030381AbVIOGRs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 02:17:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932536AbVIOGRs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 02:18:16 -0400
-Received: from h80ad2507.async.vt.edu ([128.173.37.7]:31362 "EHLO
-	h80ad2507.async.vt.edu") by vger.kernel.org with ESMTP
-	id S932527AbVIOGSP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 02:18:15 -0400
-Message-Id: <200509150618.j8F6I9ji020578@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: marekw1977@yahoo.com.au
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Automatic Configuration of a Kernel 
-In-Reply-To: Your message of "Thu, 15 Sep 2005 14:18:13 +1000."
-             <200509151418.13927.marekw1977@yahoo.com.au> 
-From: Valdis.Kletnieks@vt.edu
-References: <20050914223836.53814.qmail@web51011.mail.yahoo.com> <Pine.LNX.4.62.0509141900280.8469@qynat.qvtvafvgr.pbz> <1126753444.13893.123.camel@mindpipe>
-            <200509151418.13927.marekw1977@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1126765087_2866P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 15 Sep 2005 02:18:08 -0400
+	Thu, 15 Sep 2005 02:17:48 -0400
+Received: from mf01.sitadelle.com ([212.94.174.68]:43408 "EHLO
+	smtp.cegetel.net") by vger.kernel.org with ESMTP id S932527AbVIOGRr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 02:17:47 -0400
+Message-ID: <43291204.9060208@cosmosbay.com>
+Date: Thu, 15 Sep 2005 08:17:40 +0200
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: dipankar@in.ibm.com
+Cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, akpm@osdl.org
+Subject: Re: [PATCH] reorder struct files_struct
+References: <20050914191842.GA6315@in.ibm.com> <20050914.125750.05416211.davem@davemloft.net> <20050914201550.GB6315@in.ibm.com> <20050914.132936.105214487.davem@davemloft.net> <43289376.7050205@cosmosbay.com> <20050914220205.GC6237@in.ibm.com> <4328A73B.1080801@cosmosbay.com> <20050914225043.GD6237@in.ibm.com> <4328B013.1010400@cosmosbay.com> <20050915045440.GE6237@in.ibm.com>
+In-Reply-To: <20050915045440.GE6237@in.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1126765087_2866P
-Content-Type: text/plain; charset=us-ascii
+Dipankar Sarma a écrit :
+> On Thu, Sep 15, 2005 at 01:19:47AM +0200, Eric Dumazet wrote:
+> 
+>>Dipankar Sarma a écrit :
+>>
+>>>On Thu, Sep 15, 2005 at 12:42:03AM +0200, Eric Dumazet wrote:
+>>>
+>>>
+>>>>Dipankar Sarma a écrit :
+>>
+>>>>If yes, the whole embedded struct fdtable is readonly.
+>>>
+>>>
+>>>But not close_on_exec_init or open_fds_init. We would update them
+>>>on open/close.
+>>
+>>Yes, sure, but those fields are not part of the embedded struct fdtable
+> 
+> 
+> Those fdsets would share a cache line with fdt, fdtable which would
+> be invalidated on open/close. So, what is the point in moving
+> file_lock ?
+> 
 
-On Thu, 15 Sep 2005 14:18:13 +1000, Marek W said:
+The point is that we gain nothing in this case for 32 bits platforms, but we 
+gain something on 64 bits platform. And for apps using more than 
+NR_OPEN_DEFAULT files we definitly win on both 32bits/64bits.
 
-> Not so much the kernel. When compiling the kernel I'd prefer not to waste time 
-> and space compiling the 100+ modules I will never ever use on my laptop.
+Maybe moving file_lock just before close_on_exec_init would be a better 
+choice, so that 32bits platform small apps touch one cache line instead of two.
 
-It's actually  a lot worse than that - here's my minimized custom kernel that
-drives everything on my laptop and then some, and a recent Fedora kernel:
+sizeof(struct fdtable) = 40/0x28 on 32bits, 72/0x48 on 64 bits
 
-[/lib/modules]2 find 2.6.13-mm1/kernel/drivers -name '*.ko' | wc -l
-37
-[/lib/modules]2 find 2.6.12-1.1400_FC5/kernel/drivers/ -name '*.ko' | wc -l
-832
+struct files_struct {
 
-(OK, so I *do* have a few builtins that Fedora builds as modules. That's gonna
-change the numbers by half a dozen or so...)
+/* mostly read */
+	atomic_t count; /* offset 0x00 */
+	struct fdtable *fdt; /* offset 0x04 (0x08 on 64 bits) */
+	struct fdtable fdtab; /* offset 0x08 (0x10 on 64 bits)*/
 
->                                                                          I'd
-> prefer for something to select the modules necessary for my hardware. I can't 
-> afford the time to keep up to date with that's new and what isn't, what has 
-> changed, what has been superseded, which module works with which device, 
-> chipset even, etc...
+/* read/written for apps using small number of files */
+	fd_set close_on_exec_init; /* offset 0x30 (0x58 on 64 bits) */
+	fd_set open_fds_init; /* offset 0x34 (0x60 on 64 bits) */
+	struct file * fd_array[NR_OPEN_DEFAULT]; /* offset 0x38 (0x68 on 64 bits */
+	spinlock_t file_lock; /* 0xB8 (0x268 on 64 bits) */
+	}; /* size = 0xBC (0x270 on 64 bits) */
 
-I'm of the opinion that if you don't have that much time, you should be using a
-distro kernel where somebody *else* is taking the time.  If you're the type
-that builds their own kernel, the *last* thing you want is a tool glossing over
-the fact that a module has been superceded.  Who's going to take care of the
-matching changes for /etc/modprobe.conf and similar userspace changes, and
-other stuff like that? (I figure if 'make oldconfig' asks a question, I should
-take notice, and any userspace changes that don't get made are my fault - and
-if 'make oldconfig' switches drivers on me without asking, that's a *bug* that
-lkml will hear about.. ;)
+Moving next_fd from 'struct fdtable' to 'struct files_struct' is also a win 
+for 64bits platforms since sizeof(struct fdtable) become 64 : a nice power of 
+two, so 64 bytes are allocated instead of 128.
 
-
---==_Exmh_1126765087_2866P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFDKRIfcC3lWbTT17ARAgXxAKDyXM+/cftAA/LlPaIFlufW3eS2ygCfZHyZ
-LbxW36CbqV/RP6H1OxMLHDM=
-=Szi1
------END PGP SIGNATURE-----
-
---==_Exmh_1126765087_2866P--
+Eric

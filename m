@@ -1,51 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964817AbVIOOBF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964995AbVIOOHt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964817AbVIOOBF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 10:01:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964960AbVIOOBF
+	id S964995AbVIOOHt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 10:07:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965159AbVIOOHt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 10:01:05 -0400
-Received: from NS6.Sony.CO.JP ([137.153.0.32]:43445 "EHLO ns6.sony.co.jp")
-	by vger.kernel.org with ESMTP id S964817AbVIOOBE (ORCPT
+	Thu, 15 Sep 2005 10:07:49 -0400
+Received: from zproxy.gmail.com ([64.233.162.192]:4464 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964988AbVIOOHs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 10:01:04 -0400
-Message-ID: <43297E1A.7040408@sm.sony.co.jp>
-Date: Thu, 15 Sep 2005 22:58:50 +0900
-From: "Machida, Hiroyuki" <machida@sm.sony.co.jp>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
-X-Accept-Language: ja, en-us, en
-MIME-Version: 1.0
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2][FAT] miss-sync issues on sync mount (miss-sync on
- utime)
-References: <43288A84.2090107@sm.sony.co.jp> <87oe6uwjy7.fsf@devron.myhome.or.jp>
-In-Reply-To: <87oe6uwjy7.fsf@devron.myhome.or.jp>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 15 Sep 2005 10:07:48 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:references;
+        b=SWJLA4RjY46q54cYfgnnihAydr3luK9tCiCMQMEpWppm709Tb60GNO/4GpVgIwtfIq8yieUgKqsTeiMVvLrRrh2xqnCyoOPo1KkgJ/aho0MngJG6ziW99KY9O/XDayUTFIEXpUmI0XnZ01ogTtdX352K/xqQICm35GAciafoa68=
+Message-ID: <355e5e5e05091507077e4b6dfb@mail.gmail.com>
+Date: Thu, 15 Sep 2005 10:07:42 -0400
+From: Lukasz Kosewski <lkosewsk@gmail.com>
+Reply-To: lkosewsk@gmail.com
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH 2.6.14-rc1 3/3] Add disk hotswap support to libata RESEND #3
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+In-Reply-To: <355e5e5e05091422117157ea45@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_6948_206727.1126793262316"
+References: <355e5e5e05091422117157ea45@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+------=_Part_6948_206727.1126793262316
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
+On 9/15/05, Lukasz Kosewski <lkosewsk@gmail.com> wrote:
+> Patch 3/3 for libata hotswapping.  The sata_promise driver caught red
+> handed using the new hotswapping API.  Depends on patches 1 and 2.
+> More comments in patch header.
+>=20
+> Luke Kosewski
 
-OGAWA Hirofumi wrote:
-> "Machida, Hiroyuki" <machida@sm.sony.co.jp> writes:
-> 
-> 
->>+	if ( (!error) && IS_SYNC(inode)) {
->>+		error = write_inode_now(inode, 1);
->>+	}
-> 
-> 
-> We don't need to sync the data pages at all here. And I think it is
-> not right place for doing this.  If we need this, since we need to see
-> O_SYNC for fchxxx() VFS would be right place to do it.
+RESEND!  Pulled out the broken comment.  Thanks to Robin Johnson for
+pointing this out.
 
-I see, I'll look into those.
+Luke Kosewski
 
-> But, personally, I'd like to kill the "-o sync" stuff for these
-> independent meta data rather. Then...
+------=_Part_6948_206727.1126793262316
+Content-Type: text/x-patch; name="03-promise_hotswap_support-2.6.14-rc1-FIXED.diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="03-promise_hotswap_support-2.6.14-rc1-FIXED.diff"
 
--- 
-Hiroyuki Machida		machida@sm.sony.co.jp		
-SSW Dept. HENC, Sony Corp.
+MTUuMDkuMDUgICAgTHVrZSBLb3Nld3NraSAgIDxsa29zZXdza0BuaXQuY2E+CgoJKiBBIHBhdGNo
+IHRvIHNhdGFfcHJvbWlzZS5jIChkZXBlbmRlbnQgb24gcGF0Y2hlcyAxIGFuZCAyIGluIHRoaXMK
+CSAgc2VyaWVzKSB3aGljaCBtYWtlcyBpdCB1c2UgdGhlIGhvdHN3YXAgQVBJIGluIHBhdGNoIDIu
+ICBUaGUgUHJvbWlzZQoJICBjb250cm9sbGVycyBhcmUgZmFpcmx5IHNpbXBsZSBpbiB0ZXJtcyBv
+ZiB0aGVpciBob3RwbHVnIG1lY2hhbmlzbSwKCSAgc28gbm9uZSBvZiB0aGUgZnVua3kgJ2phbml0
+b3InIGZ1bmN0aW9ucyBhcmUgdXNlZCBoZXJlLgoJICBhdGFfaG90cGx1Z19wbHVnIGlzIGNhbGxl
+ZCBvbiBhIHBsdWcgZXZlbnQsIGFuZCBhdGFfaG90cGx1Z191bnBsdWcgb24KCSAgYW4gdW5wbHVn
+LiAgU2ltcGxlLCBzaW1wbGUuCgkqIFBlbmRpbmcgc29tZSBjb25maXJtYXRpb24gYW5kIHN1Z2dl
+c3Rpb25zIGZyb20gSmltIFJhbXNheQoJICAoamltLnJhbXNheUBnbWFpbC5jb20pIHRoZSBpbnRl
+cnJ1cHQgaGFuZGxlciBtaWdodCBjaGFuZ2UgdG8gY2hlY2sgZm9yCgkgIERNQSBjb21tYW5kcyBj
+b21wbGV0aW5nIGFzIFdFTEwgYXMgaG90cGx1ZyBldmVudHMgaW4gdGhlIHNhbWUgcGFzcy4KCmRp
+ZmYgLXJwdU4gbGludXgtMi42LjE0LXJjMS9kcml2ZXJzL3Njc2kvc2F0YV9wcm9taXNlLmMgbGlu
+dXgtMi42LjE0LXJjMS1uZXcvZHJpdmVycy9zY3NpL3NhdGFfcHJvbWlzZS5jCi0tLSBsaW51eC0y
+LjYuMTQtcmMxL2RyaXZlcnMvc2NzaS9zYXRhX3Byb21pc2UuYwkyMDA1LTA5LTE0IDE5OjU3OjU0
+LjAwMDAwMDAwMCAtMDQwMAorKysgbGludXgtMi42LjE0LXJjMS1uZXcvZHJpdmVycy9zY3NpL3Nh
+dGFfcHJvbWlzZS5jCTIwMDUtMDktMTQgMjA6MTY6MDkuMDAwMDAwMDAwIC0wNDAwCkBAIC0zMzIs
+MTAgKzMzMiw0MyBAQCBzdGF0aWMgdm9pZCBwZGNfcmVzZXRfcG9ydChzdHJ1Y3QgYXRhX3BvCiAJ
+cmVhZGwobW1pbyk7CS8qIGZsdXNoICovCiB9CiAKKy8qIE1hc2sgaG90cGx1ZyBpbnRlcnJ1cHRz
+IGZvciBvbmUgY2hhbm5lbCAoYXApICovCitzdGF0aWMgaW5saW5lIHZvaWQgcGRjX2Rpc2FibGVf
+Y2hhbm5lbF9ob3RwbHVnX2ludGVycnVwdHMoc3RydWN0IGF0YV9wb3J0ICphcCkKK3sKKwlzdHJ1
+Y3QgcGRjX2hvc3RfcHJpdiAqaHAgPSBhcC0+aG9zdF9zZXQtPnByaXZhdGVfZGF0YTsKKwl2b2lk
+ICptbWlvID0gYXAtPmhvc3Rfc2V0LT5tbWlvX2Jhc2UgKyBocC0+aG90cGx1Z19vZmZzZXQgKyAy
+OworCisJdTggbWFza2ZsYWdzID0gcmVhZGIobW1pbyk7CisJbWFza2ZsYWdzIHw9ICgweDExIDw8
+ICh1OClhcC0+aGFyZF9wb3J0X25vKTsKKwl3cml0ZWIobWFza2ZsYWdzLCBtbWlvKTsKK30KKwor
+LyogQ2xlYXIgYW5kIHVubWFzayBob3RwbHVnIGludGVycnVwdHMgZm9yIG9uZSBjaGFubmVsIChh
+cCkgKi8KK3N0YXRpYyBpbmxpbmUgdm9pZCBwZGNfZW5hYmxlX2NoYW5uZWxfaG90cGx1Z19pbnRl
+cnJ1cHRzKHN0cnVjdCBhdGFfcG9ydCAqYXApCit7CisJc3RydWN0IHBkY19ob3N0X3ByaXYgKmhw
+ID0gYXAtPmhvc3Rfc2V0LT5wcml2YXRlX2RhdGE7CisJdm9pZCAqbW1pbyA9IGFwLT5ob3N0X3Nl
+dC0+bW1pb19iYXNlICsgaHAtPmhvdHBsdWdfb2Zmc2V0OworCisJLy9DbGVhciBjaGFubmVsIGhv
+dHBsdWcgaW50ZXJydXB0cworCXU4IG1hc2tmbGFncyA9IHJlYWRiKG1taW8pOworCW1hc2tmbGFn
+cyB8PSAoMHgxMSA8PCAodTgpYXAtPmhhcmRfcG9ydF9ubyk7CisJd3JpdGViKG1hc2tmbGFncywg
+bW1pbyk7CisKKy8qIENsZWFyIGFuZCB1bm1hc2sgaG90cGx1ZyBpbnRlcnJ1cHRzIGZvciBvbmUg
+Y2hhbm5lbCAoYXApICovCitzdGF0aWMgaW5saW5lIHZvaWQgcGRjX2VuYWJsZV9jaGFubmVsX2hv
+dHBsdWdfaW50ZXJydXB0cyhzdHJ1Y3QgYXRhX3BvcnQgKmFwKQoreworCXN0cnVjdCBwZGNfaG9z
+dF9wcml2ICpocCA9IGFwLT5ob3N0X3NldC0+cHJpdmF0ZV9kYXRhOworCXZvaWQgKm1taW8gPSBh
+cC0+aG9zdF9zZXQtPm1taW9fYmFzZSArIGhwLT5ob3RwbHVnX29mZnNldDsKKworCS8vQ2xlYXIg
+Y2hhbm5lbCBob3RwbHVnIGludGVycnVwdHMKKwl1OCBtYXNrZmxhZ3MgPSByZWFkYihtbWlvKTsK
+KwltYXNrZmxhZ3MgfD0gKDB4MTEgPDwgKHU4KWFwLT5oYXJkX3BvcnRfbm8pOworCXdyaXRlYiht
+YXNrZmxhZ3MsIG1taW8pOworCisJLy9Vbm1hc2sgY2hhbm5lbCBob3RwbHVnIGludGVycnVwdHMK
+KwltYXNrZmxhZ3MgPSByZWFkYihtbWlvICsgMik7CisJbWFza2ZsYWdzICY9IH4oMHgxMSA8PCAo
+dTgpYXAtPmhhcmRfcG9ydF9ubyk7CisJd3JpdGViKG1hc2tmbGFncywgbW1pbyArIDIpOworfQor
+CiBzdGF0aWMgdm9pZCBwZGNfc2F0YV9waHlfcmVzZXQoc3RydWN0IGF0YV9wb3J0ICphcCkKIHsK
+IAlwZGNfcmVzZXRfcG9ydChhcCk7Ci0Jc2F0YV9waHlfcmVzZXQoYXApOworCWlmIChhcC0+Zmxh
+Z3MgJiBBVEFfRkxBR19TQVRBX1JFU0VUKSB7CisJCXBkY19kaXNhYmxlX2NoYW5uZWxfaG90cGx1
+Z19pbnRlcnJ1cHRzKGFwKTsKKwkJc2F0YV9waHlfcmVzZXQoYXApOworCQlwZGNfZW5hYmxlX2No
+YW5uZWxfaG90cGx1Z19pbnRlcnJ1cHRzKGFwKTsKKwl9IGVsc2UKKwkJc2F0YV9waHlfcmVzZXQo
+YXApOwogfQogCiBzdGF0aWMgdm9pZCBwZGNfcGF0YV9waHlfcmVzZXQoc3RydWN0IGF0YV9wb3J0
+ICphcCkKQEAgLTQ4NSwxMSArNTE4LDEzIEBAIHN0YXRpYyB2b2lkIHBkY19pcnFfY2xlYXIoc3Ry
+dWN0IGF0YV9wb3IKIHN0YXRpYyBpcnFyZXR1cm5fdCBwZGNfaW50ZXJydXB0IChpbnQgaXJxLCB2
+b2lkICpkZXZfaW5zdGFuY2UsIHN0cnVjdCBwdF9yZWdzICpyZWdzKQogewogCXN0cnVjdCBhdGFf
+aG9zdF9zZXQgKmhvc3Rfc2V0ID0gZGV2X2luc3RhbmNlOworCXN0cnVjdCBwZGNfaG9zdF9wcml2
+ICpocCA9IGhvc3Rfc2V0LT5wcml2YXRlX2RhdGE7CiAJc3RydWN0IGF0YV9wb3J0ICphcDsKIAl1
+MzIgbWFzayA9IDA7CiAJdW5zaWduZWQgaW50IGksIHRtcDsKLQl1bnNpZ25lZCBpbnQgaGFuZGxl
+ZCA9IDA7CisJdW5zaWduZWQgaW50IGhhbmRsZWQgPSAwLCBob3RwbHVnX29mZnNldCA9IGhwLT5o
+b3RwbHVnX29mZnNldDsKIAl2b2lkIF9faW9tZW0gKm1taW9fYmFzZTsKKwl1OCBwbHVnZGF0YSwg
+bWFza2ZsYWdzOwogCiAJVlBSSU5USygiRU5URVJcbiIpOwogCkBAIC01MTMsNyArNTQ4LDcgQEAg
+c3RhdGljIGlycXJldHVybl90IHBkY19pbnRlcnJ1cHQgKGludCBpcgogCW1hc2sgJj0gMHhmZmZm
+OwkJLyogb25seSAxNiB0YWdzIHBvc3NpYmxlICovCiAJaWYgKCFtYXNrKSB7CiAJCVZQUklOVEso
+IlFVSUNLIEVYSVQgM1xuIik7Ci0JCWdvdG8gZG9uZV9pcnE7CisJCWdvdG8gdHJ5X2hvdHBsdWc7
+CiAJfQogCiAJd3JpdGVsKG1hc2ssIG1taW9fYmFzZSArIFBEQ19JTlRfU0VRTUFTSyk7CkBAIC01
+MzIsNyArNTY3LDM2IEBAIHN0YXRpYyBpcnFyZXR1cm5fdCBwZGNfaW50ZXJydXB0IChpbnQgaXIK
+IAkJfQogCX0KIAotCVZQUklOVEsoIkVYSVRcbiIpOworCWlmIChoYW5kbGVkKSB7CisJCVZQUklO
+VEsoIkVYSVQgNFxuIik7CisJCWdvdG8gZG9uZV9pcnE7CisJfQorCit0cnlfaG90cGx1ZzoKKwlw
+bHVnZGF0YSA9IHJlYWRiKG1taW9fYmFzZSArIGhvdHBsdWdfb2Zmc2V0KTsKKwltYXNrZmxhZ3Mg
+PSByZWFkYihtbWlvX2Jhc2UgKyBob3RwbHVnX29mZnNldCArIDIpOworCXBsdWdkYXRhICY9IH5t
+YXNrZmxhZ3M7CisJaWYgKHBsdWdkYXRhKSB7CisJCXdyaXRlYihwbHVnZGF0YSwgbW1pb19iYXNl
+ICsgaG90cGx1Z19vZmZzZXQpOworCQlmb3IgKGkgPSAwOyBpIDwgaG9zdF9zZXQtPm5fcG9ydHM7
+ICsraSkgeworCQkJYXAgPSBob3N0X3NldC0+cG9ydHNbaV07CisJCQlpZiAoIShhcC0+ZmxhZ3Mg
+JiBBVEFfRkxBR19TQVRBKSkKKwkJCQljb250aW51ZTsgIC8vTm8gUEFUQSBzdXBwb3J0IGhlcmUu
+Li4geWV0CisJCQkvLyBDaGVjayB1bnBsdWcgZmxhZworCQkJaWYgKHBsdWdkYXRhICYgMHgxKSB7
+CisJCQkJLyogRG8gc3R1ZmYgcmVsYXRlZCB0byB1bnBsdWdnaW5nIGEgZGV2aWNlICovCisJCQkJ
+YXRhX2hvdHBsdWdfdW5wbHVnKGFwKTsKKwkJCQloYW5kbGVkID0gMTsKKwkJCX0gZWxzZSBpZiAo
+KHBsdWdkYXRhID4+IDQpICYgMHgxKSB7ICAvL0NoZWNrIHBsdWcgZmxhZworCQkJCS8qIERvIHN0
+dWZmIHJlbGF0ZWQgdG8gcGx1Z2dpbmcgaW4gYSBkZXZpY2UgKi8KKwkJCQlhdGFfaG90cGx1Z19w
+bHVnKGFwKTsKKwkJCQloYW5kbGVkID0gMTsKKwkJCX0KKwkJCXBsdWdkYXRhID4+PSAxOworCQl9
+CisJfQorCisJVlBSSU5USygiRVhJVCA1XG4iKTsKIAogZG9uZV9pcnE6CiAJc3Bpbl91bmxvY2so
+Jmhvc3Rfc2V0LT5sb2NrKTsKQEAgLTYzMiw5ICs2OTYsOSBAQCBzdGF0aWMgdm9pZCBwZGNfaG9z
+dF9pbml0KHVuc2lnbmVkIGludCBjCiAJdG1wID0gcmVhZGwobW1pbyArIGhvdHBsdWdfb2Zmc2V0
+KTsKIAl3cml0ZWwodG1wIHwgMHhmZiwgbW1pbyArIGhvdHBsdWdfb2Zmc2V0KTsKIAotCS8qIG1h
+c2sgcGx1Zy91bnBsdWcgaW50cyAqLworCS8qIHVubWFzayBwbHVnL3VucGx1ZyBpbnRzICovCiAJ
+dG1wID0gcmVhZGwobW1pbyArIGhvdHBsdWdfb2Zmc2V0KTsKLQl3cml0ZWwodG1wIHwgMHhmZjAw
+MDAsIG1taW8gKyBob3RwbHVnX29mZnNldCk7CisJd3JpdGVsKHRtcCAmIH4weGZmMDAwMCwgbW1p
+byArIGhvdHBsdWdfb2Zmc2V0KTsKIAogCS8qIHJlZHVjZSBUQkcgY2xvY2sgdG8gMTMzIE1oei4g
+Ki8KIAl0bXAgPSByZWFkbChtbWlvICsgUERDX1RCR19NT0RFKTsK
+------=_Part_6948_206727.1126793262316--

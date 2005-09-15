@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030521AbVIOQ3h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030520AbVIOQdT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030521AbVIOQ3h (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 12:29:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030520AbVIOQ3h
+	id S1030520AbVIOQdT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 12:33:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030523AbVIOQdT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 12:29:37 -0400
-Received: from amdext4.amd.com ([163.181.251.6]:6117 "EHLO amdext4.amd.com")
-	by vger.kernel.org with ESMTP id S1030521AbVIOQ3g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 12:29:36 -0400
-X-Server-Uuid: 8C3DB987-180B-4465-9446-45C15473FD3E
-From: "Ray Bryant" <raybry@mpdtxmail.amd.com>
-To: "Michael (Micksa) Slade" <micksa@knobbits.org>
-Subject: Re: 2.6 breaks my KVM?
-Date: Thu, 15 Sep 2005 11:37:49 -0500
-User-Agent: KMail/1.8
-cc: "Linux Kernel" <linux-kernel@vger.kernel.org>
-References: <4327C0EB.9040403@knobbits.org>
-In-Reply-To: <4327C0EB.9040403@knobbits.org>
-MIME-Version: 1.0
-Message-ID: <200509151137.50103.raybry@mpdtxmail.amd.com>
-X-WSS-ID: 6F377EEB28G438764-01-01
-Content-Type: text/plain;
- charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 15 Sep 2005 12:33:19 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:13971 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S1030520AbVIOQdS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 12:33:18 -0400
+Date: Thu, 15 Sep 2005 18:33:24 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Budde, Marco" <budde@telos.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How to find "Unresolved Symbols"
+Message-ID: <20050915163324.GA7734@mars.ravnborg.org>
+References: <809C13DD6142E74ABE20C65B11A2439809C4CA@www.telos.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <809C13DD6142E74ABE20C65B11A2439809C4CA@www.telos.de>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 14 September 2005 01:19, Michael (Micksa) Slade wrote:
+On Thu, Sep 15, 2005 at 02:47:02PM +0200, Budde, Marco wrote:
+> Hi,
+> 
+> I am working on a larger kernel module.
+> This module will be based on a lot of
+> portable code, for which I have to implement
+> the OS depended code.
+> 
+> At the moment I can compile the complete
+> code into a module. Some of OS depended
+> code is still missing, but I do not get
+> any warnings from kbuild.
+> 
+> When I try to load the module, I can a really
+> strange error message:
+> 
+>  insmod: error inserting 'foo.o': -795847932 Function not implemented
+> 
+> What does that mean? How can I get a list
+> of missing symbols?
 
->
-> The mouse misbehaves.  touching the mouse causes the pointer to go
-> haywire and jump everywhere, and there's the occasional button click too
-> I think.
->
-> It happens with both my older logitech mouse and a newer MS
-> intellimouse.  Both work fine with 2.6 when plugged in directly.
->
-<snip>
+How do you compile the module?
+I you use:
+make dir/file.ko
+then kbuild will warn you about undefined symbols.
+Here I assume you only use standard methods in your kbuild file, and do
+not play funny tricks with vermagic etc.
 
-Try adding psmouse.proto=bare as a kernel parameter for your 2.6 kernels.
-
--- 
-Ray Bryant
-AMD Performance Labs                   Austin, Tx
-512-602-0038 (o)                 512-507-7807 (c)
-
+	Sam

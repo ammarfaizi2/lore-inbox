@@ -1,51 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030562AbVIOSJT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030563AbVIOSLH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030562AbVIOSJT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 14:09:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030563AbVIOSJT
+	id S1030563AbVIOSLH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 14:11:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030564AbVIOSLH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 14:09:19 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:28506
-	"EHLO opteron.random") by vger.kernel.org with ESMTP
-	id S1030562AbVIOSJT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 14:09:19 -0400
-Date: Thu, 15 Sep 2005 20:09:28 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Hugh Dickins <hugh@veritas.com>, Nick Piggin <npiggin@novell.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Roland McGrath <roland@redhat.com>
-Subject: Re: ptrace can't be transparent on readonly MAP_SHARED
-Message-ID: <20050915180928.GI4122@opteron.random>
-References: <20050914212405.GD4966@opteron.random> <Pine.LNX.4.61.0509151337260.16231@goblin.wat.veritas.com> <Pine.LNX.4.58.0509150805150.26803@g5.osdl.org> <20050915154702.GA4122@opteron.random> <Pine.LNX.4.58.0509150911180.26803@g5.osdl.org> <20050915162347.GC4122@opteron.random> <Pine.LNX.4.58.0509150928030.26803@g5.osdl.org> <20050915165117.GE4122@opteron.random> <Pine.LNX.4.58.0509151043370.26803@g5.osdl.org>
+	Thu, 15 Sep 2005 14:11:07 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:56250 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1030563AbVIOSLF convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 14:11:05 -0400
+Subject: Re: NTP leap second question
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       yoshfuji@linux-ipv6.org, Roman Zippel <zippel@linux-m68k.org>,
+       joe-lkml@rameria.de
+In-Reply-To: <2088723E-06A0-40ED-A51D-19316AE57ECA@mac.com>
+References: <43286E4B.1070809@mvista.com>
+	 <43293591.19922.2890E4@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
+	 <2088723E-06A0-40ED-A51D-19316AE57ECA@mac.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Date: Thu, 15 Sep 2005 19:35:50 +0100
+Message-Id: <1126809350.3813.28.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0509151043370.26803@g5.osdl.org>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 15, 2005 at 10:52:14AM -0700, Linus Torvalds wrote:
-> And the PTRACE_POKE is _exactly_ the same thing. There's _zero_ 
-> difference. The fact that PTRACE_POKE _changes_ the data instead of just 
-> reading it doesn't change anything at all - the fact that data got changed 
-> in NO WAY invalidates the fact that processes might still depend on 
-> getting a SIGSEGV.
+On Iau, 2005-09-15 at 13:21 -0400, Kyle Moffett wrote:
+> only ever be a half-second off).  If you're willing to make it a bit  
+> slower and a bit more code, you could even make the slewing nonlinear  
+> with a continuous derivative, so it's only in place for ~20 seconds,  
 
-And this process may as well depend to see the on-disk changes that
-other threads are doing on the shared memory, and that will break
-regardless of what Linus changes in the kernel.
+It all depends what time you are using and how you are using it. There
+isn't one time system and assuming there is makes all the mess.
 
-You also didn't make up any useful example where _writing_ (not reading
-like in your example) was involved. Your example is totally offtopic,
-since it only involved reading as far as I can tell.
+Your kernel time ticks along at a steady rate based on a fixed period
+second where that period hopefully is a passable approximation of the
+rate of progression of time measured by a big pile of cæsium atomic
+clocks and defined in terms of atomic radiation.
 
-I can't imagine where writing to a PROT_NONE is actually useful.
+UTC (civilian time) effectively follows rotations of the earth but using
+fixed interval seconds. The rotation is a bit variable so 'leap seconds'
+are inserted to keep the two within 1 second of one another.  A seperate
+standard (UT1) computes a 'universal' measure of earth rotation as UT0
+(true earth rotation) is dependant on where you are (because the poles
+wobble). And you can measure time with seconds defined as a fraction of
+an earth rotation (ie variable length seconds) which is what in reality
+most people use and think.
 
-> Now, if you have a technical reason why "maybe_mkwrite()" needs to go 
-> away, then that's a different thing. BUT IT HAS NOTHING TO DO WITH THE 
-> FACT THAT WE LOOKED AT OR CHANGED THE DATA!
+In other words, you need to decide what you are measuring before you
+decide how to measure it. If you wish to record the point at which an
+event occurred in civilian time then UTC is correct. If you wish to
+measure the duration elapsed between two points in time then TAI (or raw
+time_t) is probably more useful.
 
-It just looks unnecessary cruft, but I'll stick with kernel crashing
-bugs for my own safety.
+If you are recording events to some legally defined standard you have to
+go read what the government has inflicted on your radio station/telco
+etc and follow that.
+
+Glibc will do the conversion work for you providing your timezone
+database is kept up to date.
+
+Alan
+

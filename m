@@ -1,64 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965238AbVIOEFV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965246AbVIOEGq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965238AbVIOEFV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 00:05:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965240AbVIOEFV
+	id S965246AbVIOEGq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 00:06:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965250AbVIOEGq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 00:05:21 -0400
-Received: from lucius.provo.novell.com ([137.65.81.172]:25739 "EHLO
-	lucius.provo.novell.com") by vger.kernel.org with ESMTP
-	id S965238AbVIOEFT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 00:05:19 -0400
-Message-Id: <43297F8E0200008A000032AE@lucius.provo.novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Wed, 14 Sep 2005 22:05:02 -0600
-From: "Nick Piggin" <npiggin@novell.com>
-To: "Andrea Arcangeli" <andrea@suse.de>, "Hugh Dickins" <hugh@veritas.com>
-Cc: "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: ptrace can't be transparent on readonly MAP_SHARED
-References: <20050914212405.GD4966@opteron.random>
-In-Reply-To: <20050914212405.GD4966@opteron.random>
+	Thu, 15 Sep 2005 00:06:46 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:19625
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S965246AbVIOEGp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 00:06:45 -0400
+Date: Wed, 14 Sep 2005 21:06:40 -0700 (PDT)
+Message-Id: <20050914.210640.63539596.davem@davemloft.net>
+To: dada1@cosmosbay.com
+Cc: sonny@burdell.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: "Read my lips: no more merges" - aka Linux 2.6.14-rc1
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <43267A00.1010405@cosmosbay.com>
+References: <Pine.LNX.4.58.0509122019560.3351@g5.osdl.org>
+	<20050913063359.GA29715@kevlar.burdell.org>
+	<43267A00.1010405@cosmosbay.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Eric Dumazet <dada1@cosmosbay.com>
+Date: Tue, 13 Sep 2005 09:04:32 +0200
 
- 
- 
->>>Andrea Arcangeli <andrea@suse.de> 09/15/05 7:24 am >>> 
->
->About generating anonymous pages on top of map_shared that should be 
->fine with the vm, the way anon-vma works, it already happens for 
->map_private and it's not conceputally different for anon-vma to deal 
->with overlap with map-shared or map-private. So I don't think we need
-to 
->forbid ptrace (i.e. gdb) to write to a readonly map shared or stuff
-like 
->that. 
-> 
->Comments welcome. (especially if you see any bug in my simpler approach
+> And if your process has many files opened, the cost (read : latency)
+> of open() can be very high, finding a zero bit in a large bit array.
+ ...
+> I wish a process param could allow open() to take any free fd
+> available, not > the lowest one. One can always use fcntl(fd, F_DUPFD,
+> slot) to move a fd on a > specific high slot and always keep the 64
+> first fd slots free to speedup the > kernel part at
+> open()/dup()/socket() time.
 
->please let me know because that's how I fixed the DoS in some kernel ;)
-
->thanks! 
->
-
-I like the look of the patch.
-
-I would like to go one step further and simply disallow writing to
-MAP_SHARED memory full stop. It eliminates so many corner cases and
-weird behaviour (ie. after writing to a readonly MAP_SHARED, the process
-will no longer see updates to the file).
-
-Actually, maybe that's too much. I imagine on a shared memory
-application
-there would be use in changing writeable MAP_SHARED memory in a
-debugger.
-How about we disallow writing to readonly MAP_SHARED?
-
-However going back a step - I still think Andrea's patch is nicer than
-what we have now.
-
+Why not just remember the lowest available free slot and start each
+bitmap search there?  This is a quite common technique.

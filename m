@@ -1,90 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030397AbVIOMoN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030341AbVIOMne@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030397AbVIOMoN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 08:44:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030345AbVIOMoN
+	id S1030341AbVIOMne (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 08:43:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030345AbVIOMne
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 08:44:13 -0400
-Received: from dizz-a.telos.de ([212.63.141.211]:22152 "EHLO mail.telos.de")
-	by vger.kernel.org with ESMTP id S1030397AbVIOMoL convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 08:44:11 -0400
-Subject: RE: kbuild & C++
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Date: Thu, 15 Sep 2005 14:35:14 +0200
-Content-class: urn:content-classes:message
-X-MimeOLE: Produced By Microsoft Exchange V6.0.4417.0
-Message-ID: <809C13DD6142E74ABE20C65B11A2439802094E@www.telos.de>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: kbuild & C++
-Thread-Index: AcW2AyXLgjmyGYIATJaO8ItA+xsOowD7l+lA
-From: "Budde, Marco" <budde@telos.de>
-To: "Sam Ravnborg" <sam@ravnborg.org>
-Cc: <linux-kernel@vger.kernel.org>
-X-telosmf: done
+	Thu, 15 Sep 2005 08:43:34 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:21217 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1030341AbVIOMnd (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 08:43:33 -0400
+Subject: Re: [PATCH 5/5] remove HAVE_ARCH_CMPXCHG
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>,
+       Dipankar Sarma <dipankar@in.ibm.com>,
+       "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <43283B66.8080005@yahoo.com.au>
+References: <43283825.7070309@yahoo.com.au> <4328387E.6050701@yahoo.com.au>
+	 <432838E8.5030302@yahoo.com.au> <432839F1.5020907@yahoo.com.au>
+	 <43283B66.8080005@yahoo.com.au>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 15 Sep 2005 14:08:31 +0100
+Message-Id: <1126789711.19133.63.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Sam,
+On Iau, 2005-09-15 at 01:01 +1000, Nick Piggin wrote:
+> Is there any point in keeping this around?
+> 
 
->> How can I compile this code with kbuild? The C++ support
->> (I have tested with 2.6.11) of kbuild seems to be incomplete /
->> not working.
-> Since you did not send any sample code shall I assume this was not a
-> serious request?
-
-it is of course a serious request.
-
-At the moment we are using some additional rules for kbuild.
-They have worked for a previous project of our customer and I
-hope they will work for this project, too.
-
--------------------------------------------------------------------
-
-include $(SRC_ROOT)comps/Kbuild.includes
-
-EXTRA_CPPFLAGS += -fno-exceptions -fno-rtti \
-                  $(INCLUDE_DIRS)
-EXTRA_CFLAGS += $(INCLUDE_DIRS)
-
-
-%.o: %.cpp FORCE
-	$(call cmd,force_checksrc)
-	$(call if_changed_rule,cc_o_cpp)
-
-
-quiet_cmd_cc_o_cpp = C++ $(quiet_modtag)  $@
-
-
-ifndef CONFIG_MODVERSIONS
-cmd_cc_o_cpp = $(CXX) $(cpp_flags) -c -o $@ $<
-else
-cmd_cc_o_cpp = $(CXX) $(cpp_flags) -c -o $(@D)/.tmp_$(@F) $<
-endif
-
-
-
-define rule_cc_o_cpp
-        $(if $($(quiet)cmd_checksrc),echo '  $($(quiet)cmd_checksrc)';)
-\
-        $(cmd_checksrc)
-\
-        $(if $($(quiet)cmd_cc_o_cpp),echo '  $($(quiet)cmd_cc_o_cpp)';)
-\
-        $(cmd_cc_o_cpp);
-\
-        $(cmd_modversions)
-\
-        scripts/basic/fixdep $(depfile) $@ '$(cmd_cc_o_cpp)' >
-$(@D)/.$(@F).tmp;  \
-        rm -f $(depfile);
-\
-        mv -f $(@D)/.$(@F).tmp $(@D)/.$(@F).cmd
-endef
-
--------------------------------------------------------------------
-
+Not all platforms have CMPXCHG and some code wants to know about that -
+eg DRI
 

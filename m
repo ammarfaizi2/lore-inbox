@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932257AbVIOIxI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932218AbVIOIuq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932257AbVIOIxI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 04:53:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbVIOIxI
+	id S932218AbVIOIuq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 04:50:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932237AbVIOIuq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 04:53:08 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:47780 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932257AbVIOIxG (ORCPT
+	Thu, 15 Sep 2005 04:50:46 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:39108 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932218AbVIOIuq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 04:53:06 -0400
-Date: Thu, 15 Sep 2005 14:22:35 +0530
+	Thu, 15 Sep 2005 04:50:46 -0400
+Date: Thu, 15 Sep 2005 14:20:15 +0530
 From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
 To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: [PATCH 3/3] CONFIG_NO_IDLE_HZ support patches - Scheduler Load balance
-Message-ID: <20050915085235.GD10191@in.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, schwidefsky@de.ibm.com
+Subject: [PATCH 0/3] NO_IDLE_HZ support patches
+Message-ID: <20050915085015.GA10191@in.ibm.com>
 Reply-To: vatsa@in.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -24,25 +23,22 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is more of a place holder for a problem discussed here:
+CONFIG_NO_IDLE_HZ (supported on s390 and ARM currently, but also gaining
+x86 support very soon) lets timer ticks to be skipped on idle CPUs. This
+has several implications on core kernel, which are addressed in
+these patches sent in separate mails.
 
-http://lkml.org/lkml/2005/5/7/98
 
-I am sending out this patch as a record of the load balance problem that
-exists with NO_IDLE_HZ implementations.
-
-Ingo had mentioned at OLS that it would be nice for any 
-non-idle-cpu-waking-up-sleeping-cpu.patch to maintain the load
-balancing algorithms intact. Basically the algorithm is offloaded
-from a idle cpu to non-idle CPU and potentially lets the idle CPU
-sleep for longer periods.
-
-I have some ideas to guarantee that load balance algorithms are not
-changed and yet let idle CPUs sleep as long as they want. But I have
-been unable to implement them because of other pressing (read dyn-tick!)
-work. Plan to work on such a patch and send out for discussions (& flames :)
-as soon as possible.
-
+Patch 0/3	- 	This mail.
+Patch 1/3	-	Fix a RCU race condition
+Patch 2/3	- 	add_timer_on needs to check for wakeup of
+			sleeping CPU.
+Patch 3/3	- 	Take care of scheduler load imbalance because
+			rebalance does not happen when idle
+			CPU shuts of ticks for extended periods.
+			(This is more of place holder right now for
+			a real patch).
+			
 
 -- 
 

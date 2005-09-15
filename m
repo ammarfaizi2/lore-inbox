@@ -1,68 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030309AbVIOBHX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030312AbVIOBHY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030309AbVIOBHX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 21:07:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030312AbVIOBEy
+	id S1030312AbVIOBHY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 21:07:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030323AbVIOBHX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 21:04:54 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:27585 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030309AbVIOBEm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 21:04:42 -0400
-Message-Id: <20050915010407.117847000@localhost.localdomain>
-References: <20050915010343.577985000@localhost.localdomain>
-Date: Wed, 14 Sep 2005 18:03:50 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org,
-       "David S. Miller" <davem@davemloft.net>
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Patrick McHardy <kaber@trash.net>,
-       Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>,
-       Chris Wright <chrisw@osdl.org>
-Subject: [PATCH 07/11] [NETFILTER]: Fix DHCP + MASQUERADE problem
-Content-Disposition: inline; filename=netfilter-fix-dhcp-masquerade-problem.patch
+	Wed, 14 Sep 2005 21:07:23 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:21411 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030321AbVIOBHT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 21:07:19 -0400
+Date: Thu, 15 Sep 2005 02:07:14 +0100
+From: Al Viro <viro@ZenIV.linux.org.uk>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>,
+       LKML <linux-kernel@vger.kernel.org>, jdike@addtoit.com
+Subject: Re: asm-offsets.h is generated in the source tree
+Message-ID: <20050915010714.GY25261@ZenIV.linux.org.uk>
+References: <20050911012033.5632152f.sfr@canb.auug.org.au> <20050910161917.GA22113@mars.ravnborg.org> <20050911023203.GH25261@ZenIV.linux.org.uk> <20050911083153.GA24176@mars.ravnborg.org> <20050911154550.GJ25261@ZenIV.linux.org.uk> <20050911170425.GA8049@mars.ravnborg.org> <20050911212942.GK25261@ZenIV.linux.org.uk> <20050911220328.GE2177@mars.ravnborg.org> <20050911231601.GL25261@ZenIV.linux.org.uk> <20050912191525.GA13435@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050912191525.GA13435@mars.ravnborg.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--stable review patch.  If anyone has any objections, please let us know.
-------------------
+On Mon, Sep 12, 2005 at 09:15:25PM +0200, Sam Ravnborg wrote:
+> Because we leave it to the build system to figure out what .h file to
+> include, and thus letting the build system having full knowledge we make
+> sure to recompile whatever is needed when we change subarch.
+> Without the asm symlink in the kernel it would just work in many cases
+> when you changed architecture.
 
-In 2.6.13-rcX the MASQUERADE target was changed not to exclude local
-packets for better source address consistency. This breaks DHCP clients
-using UDP sockets when the DHCP requests are caught by a MASQUERADE rule
-because the MASQUERADE target drops packets when no address is configured
-on the outgoing interface. This patch makes it ignore packets with a
-source address of 0.
+Correct cross-toolchain would be picked by some miracle, presumably?
+Both for include/asm and for include/asm-um/arch...  And after that
+we win a stunning fraction of percent - some of the generated files
+do _not_ depend on any target .o, so we will avoid rebuilding them.
 
-Thanks to Rusty for this suggestion.
-
-Signed-off-by: Patrick McHardy <kaber@trash.net>
-Signed-off-by: Chris Wright <chrisw@osdl.org>
----
- net/ipv4/netfilter/ipt_MASQUERADE.c |    6 ++++++
- 1 files changed, 6 insertions(+)
-
-Index: linux-2.6.13.y/net/ipv4/netfilter/ipt_MASQUERADE.c
-===================================================================
---- linux-2.6.13.y.orig/net/ipv4/netfilter/ipt_MASQUERADE.c
-+++ linux-2.6.13.y/net/ipv4/netfilter/ipt_MASQUERADE.c
-@@ -95,6 +95,12 @@ masquerade_target(struct sk_buff **pskb,
- 	IP_NF_ASSERT(ct && (ctinfo == IP_CT_NEW || ctinfo == IP_CT_RELATED
- 	                    || ctinfo == IP_CT_RELATED + IP_CT_IS_REPLY));
- 
-+	/* Source address is 0.0.0.0 - locally generated packet that is
-+	 * probably not supposed to be masqueraded.
-+	 */
-+	if (ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple.src.ip == 0)
-+		return NF_ACCEPT;
-+
- 	mr = targinfo;
- 	rt = (struct rtable *)(*pskb)->dst;
- 	newsrc = inet_select_addr(out, rt->rt_gateway, RT_SCOPE_UNIVERSE);
-
---
+Note that in cases when rebuild involving symlink change _is_ possible
+(e.g. arm or sh subarch) we already get the right thing - change it in
+.config and symlinks will be flipped.

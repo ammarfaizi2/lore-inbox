@@ -1,68 +1,266 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965153AbVIOGug@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030382AbVIOGwz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965153AbVIOGug (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 02:50:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932586AbVIOGuf
+	id S1030382AbVIOGwz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 02:52:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030356AbVIOGvo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 02:50:35 -0400
-Received: from rrzmta2.rz.uni-regensburg.de ([132.199.1.17]:3564 "EHLO
-	rrzmta2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
-	id S932527AbVIOGue (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 02:50:34 -0400
-From: "Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de>
-Organization: Universitaet Regensburg, Klinikum
-To: john stultz <johnstul@us.ibm.com>
-Date: Thu, 15 Sep 2005 08:49:21 +0200
-MIME-Version: 1.0
-Subject: Re: NTP leap second question
-Cc: lkml <linux-kernel@vger.kernel.org>, yoshfuji@linux-ipv6.org,
-       Roman Zippel <zippel@linux-m68k.org>, joe-lkml@rameria.de
-Message-ID: <43293591.19922.2890E4@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
-In-reply-to: <1126724052.3455.80.camel@cog.beaverton.ibm.com>
-References: <43286E4B.1070809@mvista.com>
-X-mailer: Pegasus Mail for Windows (4.30 public beta 1)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
-X-Content-Conformance: HerringScan-0.26/Sophos-P=3.95.0+V=3.95+U=2.07.102+R=04 July 2005+T=108170@20050915.063549Z
+	Thu, 15 Sep 2005 02:51:44 -0400
+Received: from smtp107.sbc.mail.re2.yahoo.com ([68.142.229.98]:22444 "HELO
+	smtp107.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S965186AbVIOGvj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 02:51:39 -0400
+Message-Id: <20050915064943.009279000.dtor_core@ameritech.net>
+References: <20050915064552.836273000.dtor_core@ameritech.net>
+Date: Thu, 15 Sep 2005 01:45:54 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 14 Sep 2005 at 11:54, john stultz wrote:
+Greg KH <gregkh@suse.de>,
+Kay Sievers <kay.sievers@vrfy.org>,
+Vojtech Pavlik <vojtech@suse.cz>,
+Hannes Reinecke <hare@suse.de>
+Subject: [patch 02/28] I2O: remove i2o_device_class
+Content-Disposition: inline; filename=i2o-remove-class.patch
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-> On Wed, 2005-09-14 at 11:39 -0700, George Anzinger wrote:
-> > It appears that a leap second is scheduled.  One of our customers is 
-> > concerened about his application around this.  Could one of you NTP 
-> > wizards help me to understand NTP a bit better.
-> 
-> First: I'm not an NTP wizard by any means, but I'll see if I can't help.
-> 
-> > First, I wonder if we suppressed the leap second insert and time then 
-> > became out of sync by a second, would NTP "creap" the time back in sync 
-> > or would the one second out of sync cause it to quit?
-> 
-> The ntpd's slew-bound is .125s I believe, so a second offset would cause
-> ntpd to adjust the time using stime()/settimeofday(). You could run ntpd
-> with the -x option which forces it to always slew the clock. This
-> however could cause the initial sync to take quite some time.
-> 
-> 
-> > Assuming NTP would do the "creap" thing, is there a way to tell NTP not 
-> > to insert the leap second?
-> 
-> If I recall, leapsecond implementations are a pretty contentious issue.
-> Some folks have suggested having the kernels note the leapsecond and
-> slew the clock internally. This sounds nicer then just adding or
+I2O: cleanup - remove i2o_device_class
 
-No! Never slew a leap second: It will take too long! It's all over after one 
-second. If you slew, you time will be incorrect for an extended time.
+I2O devices reside on their own bus so there should be no reason
+to also have i2c_device class that mirros i2o bus.
 
-Ulrich
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
 
+ drivers/message/i2o/core.h   |    3 -
+ drivers/message/i2o/device.c |   71 +++++++------------------------------------
+ drivers/message/i2o/driver.c |    3 +
+ drivers/message/i2o/iop.c    |   10 ------
+ include/linux/i2o.h          |    2 -
+ 5 files changed, 17 insertions(+), 72 deletions(-)
 
-> removing a second, but I do not know how that would affect synchronizing
-> between a number of systems. So I'll defer the larger discussion to the
-> real NTP wizards.
-> 
-
+Index: work/drivers/message/i2o/device.c
+===================================================================
+--- work.orig/drivers/message/i2o/device.c
++++ work/drivers/message/i2o/device.c
+@@ -138,17 +138,6 @@ static void i2o_device_release(struct de
+ 	kfree(i2o_dev);
+ }
+ 
+-/**
+- *	i2o_device_class_release - I2O class device release function
+- *	@cd: I2O class device which is added to the I2O device class
+- *
+- *	The function is just a stub - memory will be freed when
+- *	associated I2O device is released.
+- */
+-static void i2o_device_class_release(struct class_device *cd)
+-{
+-	/* empty */
+-}
+ 
+ /**
+  *	i2o_device_class_show_class_id - Displays class id of I2O device
+@@ -157,12 +146,13 @@ static void i2o_device_class_release(str
+  *
+  *	Returns the number of bytes which are printed into the buffer.
+  */
+-static ssize_t i2o_device_class_show_class_id(struct class_device *cd,
+-					      char *buf)
++static ssize_t i2o_device_show_class_id(struct device *dev,
++					struct device_attribute *attr,
++					char *buf)
+ {
+-	struct i2o_device *dev = to_i2o_device(cd->dev);
++	struct i2o_device *i2o_dev = to_i2o_device(dev);
+ 
+-	sprintf(buf, "0x%03x\n", dev->lct_data.class_id);
++	sprintf(buf, "0x%03x\n", i2o_dev->lct_data.class_id);
+ 	return strlen(buf) + 1;
+ }
+ 
+@@ -173,27 +163,22 @@ static ssize_t i2o_device_class_show_cla
+  *
+  *	Returns the number of bytes which are printed into the buffer.
+  */
+-static ssize_t i2o_device_class_show_tid(struct class_device *cd, char *buf)
++static ssize_t i2o_device_show_tid(struct device *dev,
++				   struct device_attribute *attr,
++				   char *buf)
+ {
+-	struct i2o_device *dev = to_i2o_device(cd->dev);
++	struct i2o_device *i2o_dev = to_i2o_device(dev);
+ 
+-	sprintf(buf, "0x%03x\n", dev->lct_data.tid);
++	sprintf(buf, "0x%03x\n", i2o_dev->lct_data.tid);
+ 	return strlen(buf) + 1;
+ }
+ 
+-static struct class_device_attribute i2o_device_class_attrs[] = {
+-	__ATTR(class_id, S_IRUGO, i2o_device_class_show_class_id, NULL),
+-	__ATTR(tid, S_IRUGO, i2o_device_class_show_tid, NULL),
++struct device_attribute i2o_device_attrs[] = {
++	__ATTR(class_id, S_IRUGO, i2o_device_show_class_id, NULL),
++	__ATTR(tid, S_IRUGO, i2o_device_show_tid, NULL),
+ 	__ATTR_NULL
+ };
+ 
+-/* I2O device class */
+-static struct class i2o_device_class = {
+-	.name			= "i2o_device",
+-	.release		= i2o_device_class_release,
+-	.class_dev_attrs	= i2o_device_class_attrs,
+-};
+-
+ /**
+  *	i2o_device_alloc - Allocate a I2O device and initialize it
+  *
+@@ -217,8 +202,6 @@ static struct i2o_device *i2o_device_all
+ 
+ 	dev->device.bus = &i2o_bus_type;
+ 	dev->device.release = &i2o_device_release;
+-	dev->classdev.class = &i2o_device_class;
+-	dev->classdev.dev = &dev->device;
+ 
+ 	return dev;
+ }
+@@ -311,17 +294,12 @@ static struct i2o_device *i2o_device_add
+ 	snprintf(dev->device.bus_id, BUS_ID_SIZE, "%d:%03x", c->unit,
+ 		 dev->lct_data.tid);
+ 
+-	snprintf(dev->classdev.class_id, BUS_ID_SIZE, "%d:%03x", c->unit,
+-		 dev->lct_data.tid);
+-
+ 	dev->device.parent = &c->device;
+ 
+ 	device_register(&dev->device);
+ 
+ 	list_add_tail(&dev->list, &c->devices);
+ 
+-	class_device_register(&dev->classdev);
+-
+ 	i2o_setup_sysfs_links(dev);
+ 
+ 	i2o_driver_notify_device_add_all(dev);
+@@ -343,7 +321,6 @@ void i2o_device_remove(struct i2o_device
+ {
+ 	i2o_driver_notify_device_remove_all(i2o_dev);
+ 	i2o_remove_sysfs_links(i2o_dev);
+-	class_device_unregister(&i2o_dev->classdev);
+ 	list_del(&i2o_dev->list);
+ 	device_unregister(&i2o_dev->device);
+ }
+@@ -598,28 +575,6 @@ int i2o_parm_table_get(struct i2o_device
+ 	return size;
+ }
+ 
+-/**
+- *	i2o_device_init - Initialize I2O devices
+- *
+- *	Registers the I2O device class.
+- *
+- *	Returns 0 on success or negative error code on failure.
+- */
+-int i2o_device_init(void)
+-{
+-	return class_register(&i2o_device_class);
+-}
+-
+-/**
+- *	i2o_device_exit - I2O devices exit function
+- *
+- *	Unregisters the I2O device class.
+- */
+-void i2o_device_exit(void)
+-{
+-	class_unregister(&i2o_device_class);
+-}
+-
+ EXPORT_SYMBOL(i2o_device_claim);
+ EXPORT_SYMBOL(i2o_device_claim_release);
+ EXPORT_SYMBOL(i2o_parm_field_get);
+Index: work/drivers/message/i2o/driver.c
+===================================================================
+--- work.orig/drivers/message/i2o/driver.c
++++ work/drivers/message/i2o/driver.c
+@@ -58,9 +58,12 @@ static int i2o_bus_match(struct device *
+ };
+ 
+ /* I2O bus type */
++extern struct device_attribute i2o_device_attrs[];
++
+ struct bus_type i2o_bus_type = {
+ 	.name = "i2o",
+ 	.match = i2o_bus_match,
++	.dev_attrs = i2o_device_attrs,
+ };
+ 
+ /**
+Index: work/include/linux/i2o.h
+===================================================================
+--- work.orig/include/linux/i2o.h
++++ work/include/linux/i2o.h
+@@ -66,8 +66,6 @@ struct i2o_device {
+ 	struct device device;
+ 
+ 	struct semaphore lock;	/* device lock */
+-
+-	struct class_device classdev;	/* i2o device class */
+ };
+ 
+ /*
+Index: work/drivers/message/i2o/core.h
+===================================================================
+--- work.orig/drivers/message/i2o/core.h
++++ work/drivers/message/i2o/core.h
+@@ -36,9 +36,6 @@ extern void __exit i2o_pci_exit(void);
+ extern void i2o_device_remove(struct i2o_device *);
+ extern int i2o_device_parse_lct(struct i2o_controller *);
+ 
+-extern int i2o_device_init(void);
+-extern void i2o_device_exit(void);
+-
+ /* IOP */
+ extern struct i2o_controller *i2o_iop_alloc(void);
+ extern void i2o_iop_free(struct i2o_controller *);
+Index: work/drivers/message/i2o/iop.c
+===================================================================
+--- work.orig/drivers/message/i2o/iop.c
++++ work/drivers/message/i2o/iop.c
+@@ -1246,13 +1246,9 @@ static int __init i2o_iop_init(void)
+ 
+ 	printk(KERN_INFO OSM_DESCRIPTION " v" OSM_VERSION "\n");
+ 
+-	rc = i2o_device_init();
+-	if (rc)
+-		goto exit;
+-
+ 	if ((rc = class_register(&i2o_controller_class))) {
+ 		osm_err("can't register class i2o_controller\n");
+-		goto device_exit;
++		goto exit;
+ 	}
+ 
+ 	if ((rc = i2o_driver_init()))
+@@ -1275,9 +1271,6 @@ static int __init i2o_iop_init(void)
+       class_exit:
+ 	class_unregister(&i2o_controller_class);
+ 
+-      device_exit:
+-	i2o_device_exit();
+-
+       exit:
+ 	return rc;
+ }
+@@ -1293,7 +1286,6 @@ static void __exit i2o_iop_exit(void)
+ 	i2o_exec_exit();
+ 	i2o_driver_exit();
+ 	class_unregister(&i2o_controller_class);
+-	i2o_device_exit();
+ };
+ 
+ module_init(i2o_iop_init);
 

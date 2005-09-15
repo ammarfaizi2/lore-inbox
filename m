@@ -1,119 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030405AbVIOE24@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030407AbVIOEkc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030405AbVIOE24 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 00:28:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030407AbVIOE24
+	id S1030407AbVIOEkc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 00:40:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030409AbVIOEkc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 00:28:56 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:53128 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030405AbVIOE2y
+	Thu, 15 Sep 2005 00:40:32 -0400
+Received: from zproxy.gmail.com ([64.233.162.192]:11175 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030407AbVIOEka convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 00:28:54 -0400
-Date: Thu, 15 Sep 2005 09:58:38 +0530
-From: Bharata B Rao <bharata@in.ibm.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Dipankar Sarma <dipankar@in.ibm.com>,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: VM balancing issues on 2.6.13: dentry cache not getting shrunk enough
-Message-ID: <20050915042838.GB3869@in.ibm.com>
-Reply-To: bharata@in.ibm.com
-References: <20050911105709.GA16369@thunk.org> <20050911120045.GA4477@in.ibm.com> <20050912031636.GB16758@thunk.org> <20050913084752.GC4474@in.ibm.com> <20050914213404.GC9808@dmt.cnet>
+	Thu, 15 Sep 2005 00:40:30 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=BMVpUIEbkvI1uyL0IQ06djIGVhbrHrp69V2fyoJP86i1zDtpoz8jdVZqV8T1xx6xMCwVzQn/mxft7lF65TUYm6qRYXuvXRJaRkT4cHK1jmOcd0zwnQNkb0uk0W1bq7cKxTtbfGR/uMH+ojw9kyriD15i5+6gvHCdjeYkkTv87Kk=
+Message-ID: <355e5e5e050914214025feee82@mail.gmail.com>
+Date: Thu, 15 Sep 2005 00:40:27 -0400
+From: Lukasz Kosewski <lkosewsk@gmail.com>
+Reply-To: lkosewsk@gmail.com
+To: jim.ramsay@gmail.com
+Subject: Re: [PATCH 3/3] Add disk hotswap support to libata RESEND #2
+Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>,
+       Jeff Garzik <jgarzik@pobox.com>, linux-scsi@vger.kernel.org,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <4789af9e05090612023fb8517c@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050914213404.GC9808@dmt.cnet>
-User-Agent: Mutt/1.4.2.1i
+References: <355e5e5e05080103021a8239df@mail.gmail.com>
+	 <4789af9e050823124140eb924f@mail.gmail.com>
+	 <4789af9e050823154364c8e9eb@mail.gmail.com>
+	 <430BA990.9090807@mvista.com> <430BCB41.5070206@s5r6.in-berlin.de>
+	 <355e5e5e05082407031138120a@mail.gmail.com>
+	 <4789af9e05082408111c4a6294@mail.gmail.com>
+	 <4789af9e05082409121cc6870@mail.gmail.com>
+	 <4789af9e0508291223435f174@mail.gmail.com>
+	 <4789af9e05090612023fb8517c@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 14, 2005 at 06:34:04PM -0300, Marcelo Tosatti wrote:
-> On Tue, Sep 13, 2005 at 02:17:52PM +0530, Bharata B Rao wrote:
-> > On Sun, Sep 11, 2005 at 11:16:36PM -0400, Theodore Ts'o wrote:
-> > > On Sun, Sep 11, 2005 at 05:30:46PM +0530, Dipankar Sarma wrote:
-> > > > Do you have the /proc/sys/fs/dentry-state output when such lowmem
-> > > > shortage happens ?
-> > > 
-> > > Not yet, but the situation occurs on my laptop about 2 or 3 times
-> > > (when I'm not travelling and so it doesn't get rebooted).  So
-> > > reproducing it isn't utterly trivial, but it's does happen often
-> > > enough that it should be possible to get the necessary data.
-> > > 
-> > > > This is a problem that Bharata has been investigating at the moment.
-> > > > But he hasn't seen anything that can't be cured by a small memory
-> > > > pressure - IOW, dentries do get freed under memory pressure. So
-> > > > your case might be very useful. Bharata is maintaing an instrumentation
-> > > > patch to collect more information and an alternative dentry aging patch 
-> > > > (using rbtree). Perhaps you could try with those.
-> > > 
-> > > Send it to me, and I'd be happy to try either the instrumentation
-> > > patch or the dentry aging patch.
-> > > 
-> > 
-> > Ted,
-> > 
-> > I am sending two patches here.
-> > 
-> > First is dentry_stats patch which collects some dcache statistics
-> > and puts it into /proc/meminfo. This patch provides information 
-> > about how dentries are distributed in dcache slab pages, how many
-> > free and in use dentries are present in dentry_unused lru list and
-> > how prune_dcache() performs with respect to freeing the requested
-> > number of dentries.
+On 9/6/05, Jim Ramsay <jim.ramsay@gmail.com> wrote:
+> However, I have seen the occasion where a single IRQ is used to signal
+> both a DMA completion AND a hotplug event.  Of course in this case the
+> hotplug event itself would be ignored completely.
 > 
-> Hi Bharata,
-> 
-> +void get_dstat_info(void)
-> +{
-> +       struct dentry *dentry;
-> +
-> +       lru_dentry_stat.nr_total = lru_dentry_stat.nr_inuse = 0;
-> +       lru_dentry_stat.nr_ref = lru_dentry_stat.nr_free = 0;
-> +
-> +       spin_lock(&dcache_lock);
-> +       list_for_each_entry(dentry, &dentry_unused, d_lru) {
-> +               if (atomic_read(&dentry->d_count))
-> +                       lru_dentry_stat.nr_inuse++;
-> 
-> Dentries on dentry_unused list with d_count positive? Is that possible 
-> at all? As far as my limited understanding goes, only dentries with zero 
-> count can be part of the dentry_unused list.
+> So I would recommend getting rid of that check entirely.
 
-As Dipankar mentioned, its now possible to have positive d_count dentires
-on unused_list. BTW I think we need a better way to get this data than
-going through the entire unused_list linearly, which might not be 
-scalable with huge number of dentries.
+Hey Jim,
 
-> 
-> +               if (dentry->d_flags & DCACHE_REFERENCED)
-> +                       lru_dentry_stat.nr_ref++;
-> +       }
-> 
-> 
-> @@ -393,6 +430,9 @@ static inline void prune_one_dentry(stru
-> 
->  static void prune_dcache(int count)
->  {
-> +       int nr_requested = count;
-> +       int nr_freed = 0;
-> +
->         spin_lock(&dcache_lock);
->         for (; count ; count--) {
->                 struct dentry *dentry;
-> @@ -427,8 +467,13 @@ static void prune_dcache(int count)
->                         continue;
->                 }
->                 prune_one_dentry(dentry);
-> +               nr_freed++;
->         }
->         spin_unlock(&dcache_lock);
-> +       spin_lock(&prune_dcache_lock);
-> +       lru_dentry_stat.dprune_req = nr_requested;
-> +       lru_dentry_stat.dprune_freed = nr_freed;
-> 
-> Don't you mean "+=" ? 
+Not that I disbelieve you, but do you have an example of a controller
+where this happens?  I've done a lot of testing and never seen this...
 
-No. Actually here I am capturing the number of dentries freed
-per invocation of prune_dcache.
-
-Regards,
-Bharata.
+Luke Kosewski

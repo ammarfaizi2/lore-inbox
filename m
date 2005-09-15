@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030303AbVIOAaY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030304AbVIOAbQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030303AbVIOAaY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 20:30:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932536AbVIOAaY
+	id S1030304AbVIOAbQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 20:31:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932536AbVIOAbQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 20:30:24 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:5103 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932495AbVIOAaX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 20:30:23 -0400
-Message-ID: <4328C094.8060508@in.ibm.com>
-Date: Wed, 14 Sep 2005 19:30:12 -0500
+	Wed, 14 Sep 2005 20:31:16 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:17142 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932495AbVIOAbP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 20:31:15 -0400
+Message-ID: <4328C0D0.6000909@in.ibm.com>
+Date: Wed, 14 Sep 2005 19:31:12 -0500
 From: Sripathi Kodi <sripathik@in.ibm.com>
 User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc3 (X11/20050720)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: Al Viro <viro@ZenIV.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
+To: Al Viro <viro@ZenIV.linux.org.uk>
+CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org, patrics@interia.pl,
        Ingo Molnar <mingo@elte.hu>, Roland McGrath <roland@redhat.com>
 Subject: Re: [PATCH 2.6.13.1] Patch for invisible threads
-References: <4325BEF3.2070901@in.ibm.com> <20050912134954.7bbd15b2.akpm@osdl.org> <4326CFE2.6000908@in.ibm.com> <Pine.LNX.4.58.0509130744070.3351@g5.osdl.org> <20050913165102.GR25261@ZenIV.linux.org.uk> <Pine.LNX.4.58.0509131000040.3351@g5.osdl.org> <20050913171215.GS25261@ZenIV.linux.org.uk> <43274503.7090303@in.ibm.com> <Pine.LNX.4.58.0509131601400.26803@g5.osdl.org> <43278116.8020403@in.ibm.com> <432835B4.7070405@tmr.com>
-In-Reply-To: <432835B4.7070405@tmr.com>
+References: <4325BEF3.2070901@in.ibm.com> <20050912134954.7bbd15b2.akpm@osdl.org> <4326CFE2.6000908@in.ibm.com> <Pine.LNX.4.58.0509130744070.3351@g5.osdl.org> <20050913165102.GR25261@ZenIV.linux.org.uk> <Pine.LNX.4.58.0509131000040.3351@g5.osdl.org> <20050913171215.GS25261@ZenIV.linux.org.uk> <43274503.7090303@in.ibm.com> <Pine.LNX.4.58.0509131601400.26803@g5.osdl.org> <20050914015003.GW25261@ZenIV.linux.org.uk>
+In-Reply-To: <20050914015003.GW25261@ZenIV.linux.org.uk>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
+Al Viro wrote:
+> On Tue, Sep 13, 2005 at 04:10:21PM -0700, Linus Torvalds wrote:
 > 
-> Let me say that this solution, and any other which loops through all 
-> threads of a task, isn't going to scale well. I don't have a magic O(1) 
-> solution, if it were easy someone would have done that instead of the 
-> while loop, just noting that a clever solution would be a win on servers.
+>>I don't think this is wrong per se, but you shouldn't take the tasklist 
+>>lock normally. You're better off just doing
+> 
+> 
+> Could you exlain why we might want to bother with that in the first place?
+> In any case, why would we want to put that stuff on the common codepath
+> instead of specialized ->permission()?
+> 
+Al,
 
-Bill,
+I can move this code from proc_root_link() to proc_check_root(), but it will 
+still not be completely limited to ->permission() path. I can create a 
+separate ->permission() for proc_task_inode_operations, and have this 
+additional code there. If I do that, I think I will have to duplicate much 
+of proc_check_root(). Or else, I will have to split proc_check_root() into 
+two functions to prevent code duplication. Please let me know if any of 
+these makes sense, and I will send another patch.
 
-We will only have to go through the while loop in rare cases where main 
-thread has done pthread_exit() before other threads (and hence it's task->fs 
-is null). Also, even in most such cases, the very first iteration through 
-the while loop  will get us the 'fs' pointer, so we won't have to loop 
-through all threads. So I think this won't have scalability problem. Am I right?
+If you don't like this idea at all, please let me know if there any other 
+way of solving the invisible threads problem, short of taking out 
+->permission() altogether from proc_task_inode_operations.
 
 Thanks,
 Sripathi.

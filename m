@@ -1,38 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030497AbVIOPYx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030501AbVIOPdo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030497AbVIOPYx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 11:24:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030494AbVIOPYx
+	id S1030501AbVIOPdo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 11:33:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030500AbVIOPdo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 11:24:53 -0400
-Received: from fed1rmmtao11.cox.net ([68.230.241.28]:60586 "EHLO
-	fed1rmmtao11.cox.net") by vger.kernel.org with ESMTP
-	id S1030258AbVIOPYx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 11:24:53 -0400
-Date: Thu, 15 Sep 2005 08:24:51 -0700
-From: Matt Porter <mporter@kernel.crashing.org>
-To: Kumar Gala <kumar.gala@freescale.com>
-Cc: Matt Porter <mporter@kernel.crashing.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][MM] rapidio: message interface updates
-Message-ID: <20050915082451.A26921@cox.net>
-References: <20050907081312.B1925@cox.net> <5322C997-A1FD-47BB-B92B-17CBA627EC53@freescale.com>
+	Thu, 15 Sep 2005 11:33:44 -0400
+Received: from zproxy.gmail.com ([64.233.162.201]:63056 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030493AbVIOPdn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 11:33:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=nx/J2cV2NqN15T5+ddJ7KzDvJ2ZQS8S4oNQPutOabLO/59rLZKEKMyNXOm1rlI0f3VwOBRsLszaCxTZRc8txnhjBkU+2Skk7krfmQExN1uwvKHOzIuLXmsSwGdDeIai9vImaZVrsJbTHfTPWvIuMe13tbVrFzmtvgkrRK3Lir/k=
+Message-ID: <1e62d137050915083396ae53@mail.gmail.com>
+Date: Thu, 15 Sep 2005 20:33:41 +0500
+From: Fawad Lateef <fawadlateef@gmail.com>
+Reply-To: fawadlateef@gmail.com
+To: "Budde, Marco" <budde@telos.de>
+Subject: Re: How to find "Unresolved Symbols"
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <809C13DD6142E74ABE20C65B11A2439809C4CA@www.telos.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <5322C997-A1FD-47BB-B92B-17CBA627EC53@freescale.com>; from kumar.gala@freescale.com on Thu, Sep 15, 2005 at 10:05:43AM -0500
+References: <809C13DD6142E74ABE20C65B11A2439809C4CA@www.telos.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 15, 2005 at 10:05:43AM -0500, Kumar Gala wrote:
-> I'm guessing we are looking at a 2.6.15 timeframe now for getting the  
-> RapidIO subsystem in?  Are there any other changes beyond what is  
-> setting in -mm that need to be done?
+On 9/15/05, Budde, Marco <budde@telos.de> wrote:
+> Hi,
+> 
+> I am working on a larger kernel module.
+> This module will be based on a lot of
+> portable code, for which I have to implement
+> the OS depended code.
+> 
 
-Well, at least 2.6.15, 2.6.14 cutoff has passed. We are waiting on
-a review of of the rionet updates I reposted a week ago. I've held
-off on going too far with MMIO and 8548 support since the last rionet
-changes required changes to the messaging support.
+Are you creating a module for multiple platforms or migrating an
+existing one to new version ?? And what do u mean by OS dependent code
+??? I think it might be Architecture dependent code !!!!
 
--Matt
+> At the moment I can compile the complete
+> code into a module. Some of OS depended
+> code is still missing, but I do not get
+> any warnings from kbuild.
+> 
+> When I try to load the module, I can a really
+> strange error message:
+> 
+>  insmod: error inserting 'foo.o': -795847932 Function not implemented
+> 
+> What does that mean? How can I get a list
+> of missing symbols?
+> 
+> cu, Marco
+> 
+
+Plz tell which kernel version you are using and which distribution
+!!!! b/c there is a probability that you distro might have old
+modutils etc ......
+
+-- 
+Fawad Lateef

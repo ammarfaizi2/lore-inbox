@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030392AbVIONCL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030394AbVIONDl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030392AbVIONCL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 09:02:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030393AbVIONCL
+	id S1030394AbVIONDl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 09:03:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030395AbVIONDl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 09:02:11 -0400
-Received: from web51002.mail.yahoo.com ([206.190.38.133]:29581 "HELO
-	web51002.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S1030392AbVIONCJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 09:02:09 -0400
+	Thu, 15 Sep 2005 09:03:41 -0400
+Received: from web51013.mail.yahoo.com ([68.142.224.83]:63598 "HELO
+	web51013.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S1030394AbVIONDk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 09:03:40 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.com;
   h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=SPDrL7/EbcGGQRqh+A4cvKkvaKCfcS3oSafnswDMrB+zXQKC7gIIc6E46jHw2bXxxsedVEv9jZwQL117lVEI6WdrdmcITRaLFa9rOX9/1juzVBnwIMCrQsxquMX8H02Jw30rt7wvTChWhtn4VYIJG1iEwzj7t/BeRZOR+0MEDrc=  ;
-Message-ID: <20050915130201.95797.qmail@web51002.mail.yahoo.com>
-Date: Thu, 15 Sep 2005 06:02:01 -0700 (PDT)
+  b=qd+GREuNBbm3mQh1fc/xcvmTNTmlzuLFT1SsagLVCglRwxaSGBJ5SZOymwLNa8pA3RWKKrZulcsVwoyP098YpFAHtIj64O7glFZZNE9BUU1ohziKmhOpfdDMSykDiifMTGA82GYluZVKPNLW8sOooJ7n+hdKJnEkG60iXMd2kKQ=  ;
+Message-ID: <20050915130336.94851.qmail@web51013.mail.yahoo.com>
+Date: Thu, 15 Sep 2005 06:03:35 -0700 (PDT)
 From: Ahmad Reza Cheraghi <a_r_cheraghi@yahoo.com>
 Subject: Re: Automatic Configuration of a Kernel
 To: Emmanuel Fleury <fleury@cs.aau.dk>
@@ -67,6 +67,7 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 > auto field: auto "detect-foo-script card-XYZ
 > release-32-or-higher").
 
+
 To pass argument it is not a problem we do it like we
 passed the rules in the rules_list(see the function
 exec_rule in auto_conf.c ). The lex parser has to be
@@ -88,6 +89,7 @@ like that. Any suggestion??
 
 
 
+
 > This scheme seems much simpler to me (and yet not
 > restrictive at all).
 > Of course, each script might have to ask few
@@ -101,8 +103,7 @@ If the script want to ask some question, what will be
 the difference if we write make config.
 
 
-
-		
-__________________________________ 
-Yahoo! Mail - PC Magazine Editors' Choice 2005 
-http://mail.yahoo.com
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

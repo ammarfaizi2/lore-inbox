@@ -1,71 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965265AbVIOT1O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030328AbVIOTcJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965265AbVIOT1O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 15:27:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965266AbVIOT1O
+	id S1030328AbVIOTcJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 15:32:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965273AbVIOTcI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 15:27:14 -0400
-Received: from zproxy.gmail.com ([64.233.162.201]:59658 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965265AbVIOT1M (ORCPT
+	Thu, 15 Sep 2005 15:32:08 -0400
+Received: from mail.kroah.org ([69.55.234.183]:10624 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S965272AbVIOTcH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 15:27:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=ukgMNqJ3yV51K2x+TOofDHeF4hFyjYv/NMw2TRFEWVPSuW5qpGU3RZ25Kt2zg1dsKGdSGMRBAlfzO9LbA6dRYkw6u0urRsVsWEj435ZAlTugvVspfqwAeXIKHRkBlYrwldyvKQeCVawk+mpg9IKBpXlaG0Z65WvPbxAtwW5RQ34=
-Date: Thu, 15 Sep 2005 23:37:24 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: linux-kernel@vger.kernel.org, James Lamanna <jlamanna@gmail.com>
-Subject: [PATCH] agp: backend: vfree() checking cleanup
-Message-ID: <20050915193724.GA21565@mipter.zuzino.mipt.ru>
+	Thu, 15 Sep 2005 15:32:07 -0400
+Date: Thu, 15 Sep 2005 12:31:43 -0700
+From: Greg KH <gregkh@suse.de>
+To: dtor_core@ameritech.net
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Marcel Holtmann <marcel@holtmann.org>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Kay Sievers <kay.sievers@vrfy.org>, Hannes Reinecke <hare@suse.de>
+Subject: Re: [patch 09/28] Input: convert net/bluetooth to dynamic input_dev allocation
+Message-ID: <20050915193143.GA7199@suse.de>
+References: <20050915070131.813650000.dtor_core@ameritech.net> <20050915070302.931769000.dtor_core@ameritech.net> <1126770894.28510.10.camel@station6.example.com> <d120d50005091507225659868e@mail.gmail.com> <1126795310.3505.47.camel@station6.example.com> <20050915190700.GA3354@midnight.suse.cz> <d120d50005091512226a339890@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <d120d50005091512226a339890@mail.gmail.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: James Lamanna <jlamanna@gmail.com>
+On Thu, Sep 15, 2005 at 02:22:34PM -0500, Dmitry Torokhov wrote:
+> 
+> Anyway, I think if Greg gives up and agrees on nesting classes all of
+> it can go in -mm for now and I will contact other maintainers to
+> verify that changes work. IIRC video/dvb mainatiners prefered all
+> changes to go through them.
 
-Signed-off by: James Lamanna <jlamanna@gmail.com>
-Signed-off-by: Domen Puncer <domen@coderock.org>
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
+No, I don't agree with this.  Give me a day to write up what I think we
+should do instead (something along the lines of "subclasses")
 
- drivers/char/agp/backend.c |    9 +++------
- 1 files changed, 3 insertions(+), 6 deletions(-)
+> In any case I don't expect it reach Linus until after 2.6.14 released
+> - do you agree?
 
---- a/drivers/char/agp/backend.c
-+++ b/drivers/char/agp/backend.c
-@@ -135,7 +135,7 @@ static int agp_find_max(void)
- 
- static int agp_backend_initialize(struct agp_bridge_data *bridge)
- {
--	int size_value, rc, got_gatt=0, got_keylist=0;
-+	int size_value, rc, got_gatt=0;
- 
- 	bridge->max_memory_agp = agp_find_max();
- 	bridge->version = &agp_current_version;
-@@ -173,7 +173,6 @@ static int agp_backend_initialize(struct
- 		rc = -ENOMEM;
- 		goto err_out;
- 	}
--	got_keylist = 1;
- 
- 	/* FIXME vmalloc'd memory not guaranteed contiguous */
- 	memset(bridge->key_list, 0, PAGE_SIZE * 4);
-@@ -192,10 +191,8 @@ err_out:
- 				gart_to_virt(bridge->scratch_page_real));
- 	if (got_gatt)
- 		bridge->driver->free_gatt_table(bridge);
--	if (got_keylist) {
--		vfree(bridge->key_list);
--		bridge->key_list = NULL;
--	}
-+	vfree(bridge->key_list);
-+	bridge->key_list = NULL;
- 	return rc;
- }
- 
+Oh, I agree this isn't 2.6.14 material :)
 
+thanks,
+
+greg k-h

@@ -1,65 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030491AbVIOPNh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030489AbVIOPOO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030491AbVIOPNh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 11:13:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030489AbVIOPNh
+	id S1030489AbVIOPOO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 11:14:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030492AbVIOPOO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 11:13:37 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:31907 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030491AbVIOPNg (ORCPT
+	Thu, 15 Sep 2005 11:14:14 -0400
+Received: from smtp.cs.aau.dk ([130.225.194.6]:6880 "EHLO smtp.cs.aau.dk")
+	by vger.kernel.org with ESMTP id S1030489AbVIOPON (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 11:13:36 -0400
-Date: Thu, 15 Sep 2005 08:12:59 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Hugh Dickins <hugh@veritas.com>
-cc: Andrea Arcangeli <andrea@suse.de>, Nick Piggin <npiggin@novell.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Roland McGrath <roland@redhat.com>
-Subject: Re: ptrace can't be transparent on readonly MAP_SHARED
-In-Reply-To: <Pine.LNX.4.61.0509151337260.16231@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.58.0509150805150.26803@g5.osdl.org>
-References: <20050914212405.GD4966@opteron.random>
- <Pine.LNX.4.61.0509151337260.16231@goblin.wat.veritas.com>
+	Thu, 15 Sep 2005 11:14:13 -0400
+Message-ID: <43298F5C.10900@cs.aau.dk>
+Date: Thu, 15 Sep 2005 17:12:28 +0200
+From: Emmanuel Fleury <fleury@cs.aau.dk>
+User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: adding new lsm hooks
+References: <20050915145713.90231.qmail@web30704.mail.mud.yahoo.com>
+In-Reply-To: <20050915145713.90231.qmail@web30704.mail.mud.yahoo.com>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+umesh chandak wrote:
+> respected sir ,
 
+Hum, you should skip this or my ego will blow up.
 
-On Thu, 15 Sep 2005, Hugh Dickins wrote:
-> 
-> Just like you and Nick, I'd be happy to revert maybe_mkwrite, and our
-> recent patch to rescue it.  But I don't know the pressures which led
-> to its introduction in the first place.  CC'ed Roland who introduced
-> it in 2.6.4, and Linus who supported it in the recent discussions.
+> Basically i want to add hooks at mac layer .But for
+> time being as a practice i want to add new hooks of
+> any type for playing purpose .so can you tell me a
+> procedure or appropriate link
 
-It is clear that ptrace() _has_ to change semantics when it writes to a 
-shared page. That's fundamental. There's no way to avoid the COW, and yes, 
-that COW will have strange behaviour because it's semantically illegal (ie 
-the changed page will not be shared with anything else, including 
-necessarily subsequent fork()'ed children depending on if/how we change 
-that at some point).
+Sorry, but I don't see your point here...
 
-So the question is whether we do the _minimal_ semantic changes (just COW) 
-or whether we do even more semantic breakage.
+You want to be able to restrict the access to a network card on the
+basis of the MAC address ?
 
-Roland's patch tries to keep the semantic breakage to a minimum. The COW
-is forced upon us and there's no way we can avoid it, but the permission 
-change can be temporary and local to the ptrace, which is what we do now.
+But, why don't you consider using the socket_create (and more generally,
+the socket_* family) in place of adding new hooks ?
 
-I personally think that it's a pretty ugly thing, but all the real
-ugliness is in the COW part - which we can't avoid. Rolands change is less
-so. In fact, in many ways I think Roland's change is quite nice: you can
-have a PROT_READONLY/PROT_NONE area that is visible from the debugger, but
-continues to cause SIGSEGV's if the user process itself tries to access
-it. To me, that's good.
+The point of a hook is to insert check-points to prevent people to
+access features/data on the system. I hardly see the mac layer as a
+feature/data by itself as it is part of "can I access network or not ?".
 
-There would have to be some real advantage to _not_ doing what we're doing 
-now. And I don't see an advantage.
+I might as well have missed your point, respected Sir (may I call you
+respected Sir ?). :)
 
-The real complexity is not "maybe_mkwrite()", which is trivial. The real 
-complexity is the fact that we COW, but that's not something we can avoid, 
-and that's not something that has anything to do with maybe_mkwrite().
+Regards
+-- 
+Emmanuel Fleury
 
-			Linus
+Elegance is not optional.
+  -- Richard O'Keefe

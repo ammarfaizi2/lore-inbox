@@ -1,54 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030407AbVIOEkc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965221AbVIOEyh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030407AbVIOEkc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 00:40:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030409AbVIOEkc
+	id S965221AbVIOEyh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 00:54:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030355AbVIOEye
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 00:40:32 -0400
-Received: from zproxy.gmail.com ([64.233.162.192]:11175 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030407AbVIOEka convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 00:40:30 -0400
+	Thu, 15 Sep 2005 00:54:34 -0400
+Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:24755 "HELO
+	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S965039AbVIOEyc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 00:54:32 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=BMVpUIEbkvI1uyL0IQ06djIGVhbrHrp69V2fyoJP86i1zDtpoz8jdVZqV8T1xx6xMCwVzQn/mxft7lF65TUYm6qRYXuvXRJaRkT4cHK1jmOcd0zwnQNkb0uk0W1bq7cKxTtbfGR/uMH+ojw9kyriD15i5+6gvHCdjeYkkTv87Kk=
-Message-ID: <355e5e5e050914214025feee82@mail.gmail.com>
-Date: Thu, 15 Sep 2005 00:40:27 -0400
-From: Lukasz Kosewski <lkosewsk@gmail.com>
-Reply-To: lkosewsk@gmail.com
-To: jim.ramsay@gmail.com
-Subject: Re: [PATCH 3/3] Add disk hotswap support to libata RESEND #2
-Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>,
-       Jeff Garzik <jgarzik@pobox.com>, linux-scsi@vger.kernel.org,
-       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <4789af9e05090612023fb8517c@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+  s=s1024; d=yahoo.com.au;
+  h=Received:From:Reply-To:To:Subject:Date:User-Agent:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=CU2sHWRsda8HQJ9z9o5nI2hmvVQd5JUEmNDQHqi/4Do/M9PoTXDBALwtb3lTBqnmxangmCSvEujqfGaeCmBLFUpHARXtpaMGwutAmCGUt92POj5kbNAmUqV3fbxBbBBQy8wsIDwp1jkkKWJsbKOagP0dipnbPgxFFKuAW6D7Brs=  ;
+From: Marek W <marekw1977@yahoo.com.au>
+Reply-To: marekw1977@yahoo.com.au
+To: linux-kernel@vger.kernel.org
+Subject: Re: Automatic Configuration of a Kernel
+Date: Thu, 15 Sep 2005 14:18:13 +1000
+User-Agent: KMail/1.8.2
+References: <20050914223836.53814.qmail@web51011.mail.yahoo.com> <Pine.LNX.4.62.0509141900280.8469@qynat.qvtvafvgr.pbz> <1126753444.13893.123.camel@mindpipe>
+In-Reply-To: <1126753444.13893.123.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-6"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <355e5e5e05080103021a8239df@mail.gmail.com>
-	 <4789af9e050823124140eb924f@mail.gmail.com>
-	 <4789af9e050823154364c8e9eb@mail.gmail.com>
-	 <430BA990.9090807@mvista.com> <430BCB41.5070206@s5r6.in-berlin.de>
-	 <355e5e5e05082407031138120a@mail.gmail.com>
-	 <4789af9e05082408111c4a6294@mail.gmail.com>
-	 <4789af9e05082409121cc6870@mail.gmail.com>
-	 <4789af9e0508291223435f174@mail.gmail.com>
-	 <4789af9e05090612023fb8517c@mail.gmail.com>
+Message-Id: <200509151418.13927.marekw1977@yahoo.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/6/05, Jim Ramsay <jim.ramsay@gmail.com> wrote:
-> However, I have seen the occasion where a single IRQ is used to signal
-> both a DMA completion AND a hotplug event.  Of course in this case the
-> hotplug event itself would be ignored completely.
-> 
-> So I would recommend getting rid of that check entirely.
+On Thu, 15 Sep 2005 13:04, Lee Revell wrote:
+> On Wed, 2005-09-14 at 19:03 -0700, David Lang wrote:
+> > another advantage of having an auto-config for the kernel is that people
+> > who are experimenting may have the auto-config find hardware that they
+> > didn't realize they had (or they didn't realize that support had been
+> > added)
+> >
+> > I know that most of my kernels don't have support for everything the
+> > motherboards have on them (mostly I don't care much about the other
+> > features, but in some cases they weren't supported, or weren't worth the
+> > hassle of figureing the correct config for when I started, and I've never
+> > gone back to try and figure it out)
+>
+> Why does this have to be in the kernel again?  Isn't this exactly what
+> you get with a fully modular config and hotplug?
 
-Hey Jim,
+Not so much the kernel. When compiling the kernel I'd prefer not to waste time 
+and space compiling the 100+ modules I will never ever use on my laptop. I'd 
+prefer for something to select the modules necessary for my hardware. I can't 
+afford the time to keep up to date with that's new and what isn't, what has 
+changed, what has been superseded, which module works with which device, 
+chipset even, etc...
 
-Not that I disbelieve you, but do you have an example of a controller
-where this happens?  I've done a lot of testing and never seen this...
 
-Luke Kosewski
+-- 
+-
+Marek W
+
+--
+2b | !2b
+Send instant messages to your online friends http://au.messenger.yahoo.com 

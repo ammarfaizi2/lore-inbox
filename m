@@ -1,138 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964995AbVIOOHt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965161AbVIOONS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964995AbVIOOHt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 10:07:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965159AbVIOOHt
+	id S965161AbVIOONS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 10:13:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965196AbVIOONS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 10:07:49 -0400
-Received: from zproxy.gmail.com ([64.233.162.192]:4464 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964988AbVIOOHs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 10:07:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:references;
-        b=SWJLA4RjY46q54cYfgnnihAydr3luK9tCiCMQMEpWppm709Tb60GNO/4GpVgIwtfIq8yieUgKqsTeiMVvLrRrh2xqnCyoOPo1KkgJ/aho0MngJG6ziW99KY9O/XDayUTFIEXpUmI0XnZ01ogTtdX352K/xqQICm35GAciafoa68=
-Message-ID: <355e5e5e05091507077e4b6dfb@mail.gmail.com>
-Date: Thu, 15 Sep 2005 10:07:42 -0400
-From: Lukasz Kosewski <lkosewsk@gmail.com>
-Reply-To: lkosewsk@gmail.com
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH 2.6.14-rc1 3/3] Add disk hotswap support to libata RESEND #3
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-In-Reply-To: <355e5e5e05091422117157ea45@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_6948_206727.1126793262316"
-References: <355e5e5e05091422117157ea45@mail.gmail.com>
+	Thu, 15 Sep 2005 10:13:18 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:63640 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S965161AbVIOONR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 10:13:17 -0400
+Date: Thu, 15 Sep 2005 10:13:16 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: James Bottomley <James.Bottomley@SteelEye.com>
+cc: Anton Blanchard <anton@samba.org>, Dipankar Sarma <dipankar@in.ibm.com>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6.14-rc1] sym scsi boot hang
+In-Reply-To: <1126792573.4821.18.camel@mulgrave>
+Message-ID: <Pine.LNX.4.44L0.0509151006290.4942-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_6948_206727.1126793262316
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Thu, 15 Sep 2005, James Bottomley wrote:
 
-On 9/15/05, Lukasz Kosewski <lkosewsk@gmail.com> wrote:
-> Patch 3/3 for libata hotswapping.  The sata_promise driver caught red
-> handed using the new hotswapping API.  Depends on patches 1 and 2.
-> More comments in patch header.
->=20
-> Luke Kosewski
+> On Wed, 2005-09-14 at 17:33 -0400, Alan Stern wrote:
+> > On Wed, 14 Sep 2005, James Bottomley wrote:
+> > > Yes ... really the only case for unprep is when we've partially released
+> > > the command (like in scsi_io_completion) where we need to tear the rest
+> > > of it down.
+> > 
+> > In other words, in scsi_requeue_command and nowhere else.
+> 
+> Pretty much, yes.
+> 
+> > Or will be prepared for the first time, as in scsi_execute.  As far as I 
+> > can tell, a new struct request is not set to all 0's.  So if you queue a 
+> > request with REQ_SPECIAL set and you fail to clear req->special, you're in 
+> > trouble.  Do you have any idea why this hasn't been causing errors all 
+> > along?
+> 
+> That's true, it's not.  However ll_rq_blk.c:rq_init() clears req-
+> >special (and initialises all other important fields).
 
-RESEND!  Pulled out the broken comment.  Thanks to Robin Johnson for
-pointing this out.
+(*Sigh*...  I'm trying to do this too fast, not following up properly on 
+all the code paths.)  Okay, good, glad to hear it.
 
-Luke Kosewski
+> > Okay, then how does this patch look (moved the routine over to where it 
+> > gets used, plus two real changes)?
+> 
+> Well ... under pressure to fix this in -mm, I already commited a version
+> to rc-fixes.  What I did was fully reverse the changes to the
+> scsi_insert_queue() [the patch I sent Anton].  We can move the unprep
+> function if you feel strongly about it, but I'm also happy to keep it
+> where it is.
 
-------=_Part_6948_206727.1126793262316
-Content-Type: text/x-patch; name="03-promise_hotswap_support-2.6.14-rc1-FIXED.diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="03-promise_hotswap_support-2.6.14-rc1-FIXED.diff"
+I don't care where the function goes, so just leave it.
 
-MTUuMDkuMDUgICAgTHVrZSBLb3Nld3NraSAgIDxsa29zZXdza0BuaXQuY2E+CgoJKiBBIHBhdGNo
-IHRvIHNhdGFfcHJvbWlzZS5jIChkZXBlbmRlbnQgb24gcGF0Y2hlcyAxIGFuZCAyIGluIHRoaXMK
-CSAgc2VyaWVzKSB3aGljaCBtYWtlcyBpdCB1c2UgdGhlIGhvdHN3YXAgQVBJIGluIHBhdGNoIDIu
-ICBUaGUgUHJvbWlzZQoJICBjb250cm9sbGVycyBhcmUgZmFpcmx5IHNpbXBsZSBpbiB0ZXJtcyBv
-ZiB0aGVpciBob3RwbHVnIG1lY2hhbmlzbSwKCSAgc28gbm9uZSBvZiB0aGUgZnVua3kgJ2phbml0
-b3InIGZ1bmN0aW9ucyBhcmUgdXNlZCBoZXJlLgoJICBhdGFfaG90cGx1Z19wbHVnIGlzIGNhbGxl
-ZCBvbiBhIHBsdWcgZXZlbnQsIGFuZCBhdGFfaG90cGx1Z191bnBsdWcgb24KCSAgYW4gdW5wbHVn
-LiAgU2ltcGxlLCBzaW1wbGUuCgkqIFBlbmRpbmcgc29tZSBjb25maXJtYXRpb24gYW5kIHN1Z2dl
-c3Rpb25zIGZyb20gSmltIFJhbXNheQoJICAoamltLnJhbXNheUBnbWFpbC5jb20pIHRoZSBpbnRl
-cnJ1cHQgaGFuZGxlciBtaWdodCBjaGFuZ2UgdG8gY2hlY2sgZm9yCgkgIERNQSBjb21tYW5kcyBj
-b21wbGV0aW5nIGFzIFdFTEwgYXMgaG90cGx1ZyBldmVudHMgaW4gdGhlIHNhbWUgcGFzcy4KCmRp
-ZmYgLXJwdU4gbGludXgtMi42LjE0LXJjMS9kcml2ZXJzL3Njc2kvc2F0YV9wcm9taXNlLmMgbGlu
-dXgtMi42LjE0LXJjMS1uZXcvZHJpdmVycy9zY3NpL3NhdGFfcHJvbWlzZS5jCi0tLSBsaW51eC0y
-LjYuMTQtcmMxL2RyaXZlcnMvc2NzaS9zYXRhX3Byb21pc2UuYwkyMDA1LTA5LTE0IDE5OjU3OjU0
-LjAwMDAwMDAwMCAtMDQwMAorKysgbGludXgtMi42LjE0LXJjMS1uZXcvZHJpdmVycy9zY3NpL3Nh
-dGFfcHJvbWlzZS5jCTIwMDUtMDktMTQgMjA6MTY6MDkuMDAwMDAwMDAwIC0wNDAwCkBAIC0zMzIs
-MTAgKzMzMiw0MyBAQCBzdGF0aWMgdm9pZCBwZGNfcmVzZXRfcG9ydChzdHJ1Y3QgYXRhX3BvCiAJ
-cmVhZGwobW1pbyk7CS8qIGZsdXNoICovCiB9CiAKKy8qIE1hc2sgaG90cGx1ZyBpbnRlcnJ1cHRz
-IGZvciBvbmUgY2hhbm5lbCAoYXApICovCitzdGF0aWMgaW5saW5lIHZvaWQgcGRjX2Rpc2FibGVf
-Y2hhbm5lbF9ob3RwbHVnX2ludGVycnVwdHMoc3RydWN0IGF0YV9wb3J0ICphcCkKK3sKKwlzdHJ1
-Y3QgcGRjX2hvc3RfcHJpdiAqaHAgPSBhcC0+aG9zdF9zZXQtPnByaXZhdGVfZGF0YTsKKwl2b2lk
-ICptbWlvID0gYXAtPmhvc3Rfc2V0LT5tbWlvX2Jhc2UgKyBocC0+aG90cGx1Z19vZmZzZXQgKyAy
-OworCisJdTggbWFza2ZsYWdzID0gcmVhZGIobW1pbyk7CisJbWFza2ZsYWdzIHw9ICgweDExIDw8
-ICh1OClhcC0+aGFyZF9wb3J0X25vKTsKKwl3cml0ZWIobWFza2ZsYWdzLCBtbWlvKTsKK30KKwor
-LyogQ2xlYXIgYW5kIHVubWFzayBob3RwbHVnIGludGVycnVwdHMgZm9yIG9uZSBjaGFubmVsIChh
-cCkgKi8KK3N0YXRpYyBpbmxpbmUgdm9pZCBwZGNfZW5hYmxlX2NoYW5uZWxfaG90cGx1Z19pbnRl
-cnJ1cHRzKHN0cnVjdCBhdGFfcG9ydCAqYXApCit7CisJc3RydWN0IHBkY19ob3N0X3ByaXYgKmhw
-ID0gYXAtPmhvc3Rfc2V0LT5wcml2YXRlX2RhdGE7CisJdm9pZCAqbW1pbyA9IGFwLT5ob3N0X3Nl
-dC0+bW1pb19iYXNlICsgaHAtPmhvdHBsdWdfb2Zmc2V0OworCisJLy9DbGVhciBjaGFubmVsIGhv
-dHBsdWcgaW50ZXJydXB0cworCXU4IG1hc2tmbGFncyA9IHJlYWRiKG1taW8pOworCW1hc2tmbGFn
-cyB8PSAoMHgxMSA8PCAodTgpYXAtPmhhcmRfcG9ydF9ubyk7CisJd3JpdGViKG1hc2tmbGFncywg
-bW1pbyk7CisKKy8qIENsZWFyIGFuZCB1bm1hc2sgaG90cGx1ZyBpbnRlcnJ1cHRzIGZvciBvbmUg
-Y2hhbm5lbCAoYXApICovCitzdGF0aWMgaW5saW5lIHZvaWQgcGRjX2VuYWJsZV9jaGFubmVsX2hv
-dHBsdWdfaW50ZXJydXB0cyhzdHJ1Y3QgYXRhX3BvcnQgKmFwKQoreworCXN0cnVjdCBwZGNfaG9z
-dF9wcml2ICpocCA9IGFwLT5ob3N0X3NldC0+cHJpdmF0ZV9kYXRhOworCXZvaWQgKm1taW8gPSBh
-cC0+aG9zdF9zZXQtPm1taW9fYmFzZSArIGhwLT5ob3RwbHVnX29mZnNldDsKKworCS8vQ2xlYXIg
-Y2hhbm5lbCBob3RwbHVnIGludGVycnVwdHMKKwl1OCBtYXNrZmxhZ3MgPSByZWFkYihtbWlvKTsK
-KwltYXNrZmxhZ3MgfD0gKDB4MTEgPDwgKHU4KWFwLT5oYXJkX3BvcnRfbm8pOworCXdyaXRlYiht
-YXNrZmxhZ3MsIG1taW8pOworCisJLy9Vbm1hc2sgY2hhbm5lbCBob3RwbHVnIGludGVycnVwdHMK
-KwltYXNrZmxhZ3MgPSByZWFkYihtbWlvICsgMik7CisJbWFza2ZsYWdzICY9IH4oMHgxMSA8PCAo
-dTgpYXAtPmhhcmRfcG9ydF9ubyk7CisJd3JpdGViKG1hc2tmbGFncywgbW1pbyArIDIpOworfQor
-CiBzdGF0aWMgdm9pZCBwZGNfc2F0YV9waHlfcmVzZXQoc3RydWN0IGF0YV9wb3J0ICphcCkKIHsK
-IAlwZGNfcmVzZXRfcG9ydChhcCk7Ci0Jc2F0YV9waHlfcmVzZXQoYXApOworCWlmIChhcC0+Zmxh
-Z3MgJiBBVEFfRkxBR19TQVRBX1JFU0VUKSB7CisJCXBkY19kaXNhYmxlX2NoYW5uZWxfaG90cGx1
-Z19pbnRlcnJ1cHRzKGFwKTsKKwkJc2F0YV9waHlfcmVzZXQoYXApOworCQlwZGNfZW5hYmxlX2No
-YW5uZWxfaG90cGx1Z19pbnRlcnJ1cHRzKGFwKTsKKwl9IGVsc2UKKwkJc2F0YV9waHlfcmVzZXQo
-YXApOwogfQogCiBzdGF0aWMgdm9pZCBwZGNfcGF0YV9waHlfcmVzZXQoc3RydWN0IGF0YV9wb3J0
-ICphcCkKQEAgLTQ4NSwxMSArNTE4LDEzIEBAIHN0YXRpYyB2b2lkIHBkY19pcnFfY2xlYXIoc3Ry
-dWN0IGF0YV9wb3IKIHN0YXRpYyBpcnFyZXR1cm5fdCBwZGNfaW50ZXJydXB0IChpbnQgaXJxLCB2
-b2lkICpkZXZfaW5zdGFuY2UsIHN0cnVjdCBwdF9yZWdzICpyZWdzKQogewogCXN0cnVjdCBhdGFf
-aG9zdF9zZXQgKmhvc3Rfc2V0ID0gZGV2X2luc3RhbmNlOworCXN0cnVjdCBwZGNfaG9zdF9wcml2
-ICpocCA9IGhvc3Rfc2V0LT5wcml2YXRlX2RhdGE7CiAJc3RydWN0IGF0YV9wb3J0ICphcDsKIAl1
-MzIgbWFzayA9IDA7CiAJdW5zaWduZWQgaW50IGksIHRtcDsKLQl1bnNpZ25lZCBpbnQgaGFuZGxl
-ZCA9IDA7CisJdW5zaWduZWQgaW50IGhhbmRsZWQgPSAwLCBob3RwbHVnX29mZnNldCA9IGhwLT5o
-b3RwbHVnX29mZnNldDsKIAl2b2lkIF9faW9tZW0gKm1taW9fYmFzZTsKKwl1OCBwbHVnZGF0YSwg
-bWFza2ZsYWdzOwogCiAJVlBSSU5USygiRU5URVJcbiIpOwogCkBAIC01MTMsNyArNTQ4LDcgQEAg
-c3RhdGljIGlycXJldHVybl90IHBkY19pbnRlcnJ1cHQgKGludCBpcgogCW1hc2sgJj0gMHhmZmZm
-OwkJLyogb25seSAxNiB0YWdzIHBvc3NpYmxlICovCiAJaWYgKCFtYXNrKSB7CiAJCVZQUklOVEso
-IlFVSUNLIEVYSVQgM1xuIik7Ci0JCWdvdG8gZG9uZV9pcnE7CisJCWdvdG8gdHJ5X2hvdHBsdWc7
-CiAJfQogCiAJd3JpdGVsKG1hc2ssIG1taW9fYmFzZSArIFBEQ19JTlRfU0VRTUFTSyk7CkBAIC01
-MzIsNyArNTY3LDM2IEBAIHN0YXRpYyBpcnFyZXR1cm5fdCBwZGNfaW50ZXJydXB0IChpbnQgaXIK
-IAkJfQogCX0KIAotCVZQUklOVEsoIkVYSVRcbiIpOworCWlmIChoYW5kbGVkKSB7CisJCVZQUklO
-VEsoIkVYSVQgNFxuIik7CisJCWdvdG8gZG9uZV9pcnE7CisJfQorCit0cnlfaG90cGx1ZzoKKwlw
-bHVnZGF0YSA9IHJlYWRiKG1taW9fYmFzZSArIGhvdHBsdWdfb2Zmc2V0KTsKKwltYXNrZmxhZ3Mg
-PSByZWFkYihtbWlvX2Jhc2UgKyBob3RwbHVnX29mZnNldCArIDIpOworCXBsdWdkYXRhICY9IH5t
-YXNrZmxhZ3M7CisJaWYgKHBsdWdkYXRhKSB7CisJCXdyaXRlYihwbHVnZGF0YSwgbW1pb19iYXNl
-ICsgaG90cGx1Z19vZmZzZXQpOworCQlmb3IgKGkgPSAwOyBpIDwgaG9zdF9zZXQtPm5fcG9ydHM7
-ICsraSkgeworCQkJYXAgPSBob3N0X3NldC0+cG9ydHNbaV07CisJCQlpZiAoIShhcC0+ZmxhZ3Mg
-JiBBVEFfRkxBR19TQVRBKSkKKwkJCQljb250aW51ZTsgIC8vTm8gUEFUQSBzdXBwb3J0IGhlcmUu
-Li4geWV0CisJCQkvLyBDaGVjayB1bnBsdWcgZmxhZworCQkJaWYgKHBsdWdkYXRhICYgMHgxKSB7
-CisJCQkJLyogRG8gc3R1ZmYgcmVsYXRlZCB0byB1bnBsdWdnaW5nIGEgZGV2aWNlICovCisJCQkJ
-YXRhX2hvdHBsdWdfdW5wbHVnKGFwKTsKKwkJCQloYW5kbGVkID0gMTsKKwkJCX0gZWxzZSBpZiAo
-KHBsdWdkYXRhID4+IDQpICYgMHgxKSB7ICAvL0NoZWNrIHBsdWcgZmxhZworCQkJCS8qIERvIHN0
-dWZmIHJlbGF0ZWQgdG8gcGx1Z2dpbmcgaW4gYSBkZXZpY2UgKi8KKwkJCQlhdGFfaG90cGx1Z19w
-bHVnKGFwKTsKKwkJCQloYW5kbGVkID0gMTsKKwkJCX0KKwkJCXBsdWdkYXRhID4+PSAxOworCQl9
-CisJfQorCisJVlBSSU5USygiRVhJVCA1XG4iKTsKIAogZG9uZV9pcnE6CiAJc3Bpbl91bmxvY2so
-Jmhvc3Rfc2V0LT5sb2NrKTsKQEAgLTYzMiw5ICs2OTYsOSBAQCBzdGF0aWMgdm9pZCBwZGNfaG9z
-dF9pbml0KHVuc2lnbmVkIGludCBjCiAJdG1wID0gcmVhZGwobW1pbyArIGhvdHBsdWdfb2Zmc2V0
-KTsKIAl3cml0ZWwodG1wIHwgMHhmZiwgbW1pbyArIGhvdHBsdWdfb2Zmc2V0KTsKIAotCS8qIG1h
-c2sgcGx1Zy91bnBsdWcgaW50cyAqLworCS8qIHVubWFzayBwbHVnL3VucGx1ZyBpbnRzICovCiAJ
-dG1wID0gcmVhZGwobW1pbyArIGhvdHBsdWdfb2Zmc2V0KTsKLQl3cml0ZWwodG1wIHwgMHhmZjAw
-MDAsIG1taW8gKyBob3RwbHVnX29mZnNldCk7CisJd3JpdGVsKHRtcCAmIH4weGZmMDAwMCwgbW1p
-byArIGhvdHBsdWdfb2Zmc2V0KTsKIAogCS8qIHJlZHVjZSBUQkcgY2xvY2sgdG8gMTMzIE1oei4g
-Ki8KIAl0bXAgPSByZWFkbChtbWlvICsgUERDX1RCR19NT0RFKTsK
-------=_Part_6948_206727.1126793262316--
+That leaves only the question of the call to scsi_unprep_request near the 
+end of scsi_request_fn, in the not_ready: section.  Looks like that call 
+isn't needed and can be taken out also, do you agree?
+
+Alan Stern
+

@@ -1,179 +1,231 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030469AbVIOHc7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030461AbVIOHdG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030469AbVIOHc7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 03:32:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030447AbVIOHch
+	id S1030461AbVIOHdG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 03:33:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030468AbVIOHdA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 03:32:37 -0400
-Received: from smtp109.sbc.mail.re2.yahoo.com ([68.142.229.96]:35454 "HELO
-	smtp109.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S965228AbVIOHcf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 03:32:35 -0400
-Message-Id: <20050915070303.236124000.dtor_core@ameritech.net>
+	Thu, 15 Sep 2005 03:33:00 -0400
+Received: from smtp103.sbc.mail.re2.yahoo.com ([68.142.229.102]:46232 "HELO
+	smtp103.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1030467AbVIOHco (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 03:32:44 -0400
+Message-Id: <20050915070302.813567000.dtor_core@ameritech.net>
 References: <20050915070131.813650000.dtor_core@ameritech.net>
-Date: Thu, 15 Sep 2005 02:01:42 -0500
+Date: Thu, 15 Sep 2005 02:01:39 -0500
 From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: linux-kernel@vger.kernel.org
 Cc: Andrew Morton <akpm@osdl.org>, Greg KH <gregkh@suse.de>,
        Kay Sievers <kay.sievers@vrfy.org>, Vojtech Pavlik <vojtech@suse.cz>,
        Hannes Reinecke <hare@suse.de>
-Subject: [patch 11/28] Input: convert konicawc to dynamic input_dev allocation
-Content-Disposition: inline; filename=input-dynalloc-konicawc.patch
+Subject: [patch 08/28] Input: prepare to sysfs integration
+Content-Disposition: inline; filename=input-dynalloc-prepare.patch
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Input: convert konicawc to dynamic input_dev allocation
+Input: prepare to sysfs integration
 
-This is required for input_dev sysfs integration
+Add struct class_device to input_dev; add input_allocate_dev()
+to dynamically allocate input devices; dynamically allocated
+devices are automatically registered with sysfs.
 
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
 
- drivers/usb/media/konicawc.c |   89 +++++++++++++++++++++++++++++--------------
- 1 files changed, 61 insertions(+), 28 deletions(-)
+ drivers/input/input.c |   77 ++++++++++++++++++++++++++++++++++++++++++++++----
+ include/linux/input.h |   24 ++++++++++++++-
+ 2 files changed, 95 insertions(+), 6 deletions(-)
 
-Index: work/drivers/usb/media/konicawc.c
+Index: work/include/linux/input.h
 ===================================================================
---- work.orig/drivers/usb/media/konicawc.c
-+++ work/drivers/usb/media/konicawc.c
-@@ -119,7 +119,7 @@ struct konicawc {
- 	int yplanesz;		/* Number of bytes in the Y plane */
- 	unsigned int buttonsts:1;
- #ifdef CONFIG_INPUT
--	struct input_dev input;
-+	struct input_dev *input;
- 	char input_physname[64];
- #endif
+--- work.orig/include/linux/input.h
++++ work/include/linux/input.h
+@@ -12,6 +12,7 @@
+ #ifdef __KERNEL__
+ #include <linux/time.h>
+ #include <linux/list.h>
++#include <linux/device.h>
+ #else
+ #include <sys/time.h>
+ #include <sys/ioctl.h>
+@@ -889,11 +890,15 @@ struct input_dev {
+ 	struct semaphore sem;	/* serializes open and close operations */
+ 	unsigned int users;
+ 
+-	struct device *dev;
++	struct class_device cdev;
++	struct device *dev;	/* will be removed soon */
++
++	int dynalloc;	/* temporarily */
+ 
+ 	struct list_head	h_list;
+ 	struct list_head	node;
  };
-@@ -218,6 +218,57 @@ static void konicawc_adjust_picture(stru
- 	konicawc_camera_on(uvd);
++#define to_input_dev(d) container_of(d, struct input_dev, cdev)
+ 
+ /*
+  * Structure for hotplug & device<->driver matching.
+@@ -984,6 +989,23 @@ static inline void init_input_dev(struct
+ 	INIT_LIST_HEAD(&dev->node);
  }
  
-+#ifdef CONFIG_INPUT
++struct input_dev *input_allocate_device(void);
 +
-+static void konicawc_register_input(struct konicawc *cam, struct usb_device *dev)
++static inline void input_free_device(struct input_dev *dev)
 +{
-+	struct input_dev *input_dev;
-+
-+	usb_make_path(dev, cam->input_physname, sizeof(cam->input_physname));
-+	strncat(cam->input_physname, "/input0", sizeof(cam->input_physname));
-+
-+	cam->input = input_dev = input_allocate_device();
-+	if (!input_dev) {
-+		warn("Not enough memory for camera's input device\n");
-+		return;
-+	}
-+
-+	input_dev->name = "Konicawc snapshot button";
-+	input_dev->phys = cam->input_physname;
-+	usb_to_input_id(dev, &input_dev->id);
-+	input_dev->cdev.dev = &dev->dev;
-+
-+	input_dev->evbit[0] = BIT(EV_KEY);
-+	input_dev->keybit[LONG(BTN_0)] = BIT(BTN_0);
-+
-+	input_dev->private = cam;
-+
-+	input_register_device(cam->input);
++	kfree(dev);
 +}
 +
-+static void konicawc_unregister_input(struct konicawc *cam)
++static inline struct input_dev *input_get_device(struct input_dev *dev)
 +{
-+	if (cam->input) {
-+		input_unregister_device(cam->input);
-+		cam->input = NULL;
-+	}
++	return to_input_dev(class_device_get(&dev->cdev));
 +}
 +
-+static void konicawc_report_buttonstat(struct konicawc *cam)
++static inline void input_put_device(struct input_dev *dev)
 +{
-+	if (cam->input) {
-+		input_report_key(cam->input, BTN_0, cam->buttonsts);
-+		input_sync(cam->input);
-+	}
++	class_device_put(&dev->cdev);
 +}
 +
-+#else
-+
-+static inline void konicawc_register_input(struct konicawc *cam, struct usb_device *dev) { }
-+static inline void konicawc_unregister_input(struct konicawc *cam) { }
-+static inline void konicawc_report_buttonstat(struct konicawc *cam) { }
-+
-+#endif /* CONFIG_INPUT */
+ void input_register_device(struct input_dev *);
+ void input_unregister_device(struct input_dev *);
  
- static int konicawc_compress_iso(struct uvd *uvd, struct urb *dataurb, struct urb *stsurb)
+Index: work/drivers/input/input.c
+===================================================================
+--- work.orig/drivers/input/input.c
++++ work/drivers/input/input.c
+@@ -27,6 +27,7 @@ MODULE_AUTHOR("Vojtech Pavlik <vojtech@s
+ MODULE_DESCRIPTION("Input core");
+ MODULE_LICENSE("GPL");
+ 
++EXPORT_SYMBOL(input_allocate_device);
+ EXPORT_SYMBOL(input_register_device);
+ EXPORT_SYMBOL(input_unregister_device);
+ EXPORT_SYMBOL(input_register_handler);
+@@ -604,6 +605,56 @@ static inline int input_proc_init(void) 
+ static inline void input_proc_exit(void) { }
+ #endif
+ 
++static void input_dev_release(struct class_device *class_dev)
++{
++	struct input_dev *dev = to_input_dev(class_dev);
++
++	kfree(dev);
++	module_put(THIS_MODULE);
++}
++
++static struct class input_dev_class = {
++	.name			= "input_dev",
++	.release		= input_dev_release,
++};
++
++struct input_dev *input_allocate_device(void)
++{
++	struct input_dev *dev;
++
++	dev = kzalloc(sizeof(struct input_dev), GFP_KERNEL);
++	if (dev) {
++		dev->dynalloc = 1;
++		dev->cdev.class = &input_dev_class;
++		class_device_initialize(&dev->cdev);
++		INIT_LIST_HEAD(&dev->h_list);
++		INIT_LIST_HEAD(&dev->node);
++	}
++
++	return dev;
++}
++
++static void input_register_classdevice(struct input_dev *dev)
++{
++	static atomic_t input_no = ATOMIC_INIT(0);
++	const char *path;
++
++	__module_get(THIS_MODULE);
++
++	dev->dev = dev->cdev.dev;
++
++	snprintf(dev->cdev.class_id, sizeof(dev->cdev.class_id),
++		 "input%ld", (unsigned long) atomic_inc_return(&input_no) - 1);
++
++	path = kobject_get_path(&dev->cdev.class->subsys.kset.kobj, GFP_KERNEL);
++	printk(KERN_INFO "input: %s/%s as %s\n",
++		dev->name ? dev->name : "Unspecified device",
++		path ? path : "", dev->cdev.class_id);
++	kfree(path);
++
++	class_device_add(&dev->cdev);
++}
++
+ void input_register_device(struct input_dev *dev)
  {
-@@ -273,10 +324,7 @@ static int konicawc_compress_iso(struct 
- 		if(button != cam->buttonsts) {
- 			DEBUG(2, "button: %sclicked", button ? "" : "un");
- 			cam->buttonsts = button;
--#ifdef CONFIG_INPUT
--			input_report_key(&cam->input, BTN_0, cam->buttonsts);
--			input_sync(&cam->input);
--#endif
-+			konicawc_report_buttonstat(cam);
- 		}
+ 	struct input_handle *handle;
+@@ -636,6 +687,10 @@ void input_register_device(struct input_
+ 				if ((handle = handler->connect(handler, dev, id)))
+ 					input_link_handle(handle);
  
- 		if(sts == 0x01) { /* drop frame */
-@@ -645,9 +693,9 @@ static int konicawc_set_video_mode(struc
- 	RingQueue_Flush(&uvd->dp);
- 	cam->lastframe = -2;
- 	if(uvd->curframe != -1) {
--	  uvd->frame[uvd->curframe].curline = 0;
--	  uvd->frame[uvd->curframe].seqRead_Length = 0;
--	  uvd->frame[uvd->curframe].seqRead_Index = 0;
-+		uvd->frame[uvd->curframe].curline = 0;
-+		uvd->frame[uvd->curframe].seqRead_Length = 0;
-+		uvd->frame[uvd->curframe].seqRead_Index = 0;
- 	}
++
++	if (dev->dynalloc)
++		input_register_classdevice(dev);
++
+ #ifdef CONFIG_HOTPLUG
+ 	input_call_hotplug("add", dev);
+ #endif
+@@ -664,6 +719,9 @@ void input_unregister_device(struct inpu
  
- 	konicawc_start_data(uvd);
-@@ -718,7 +766,6 @@ static void konicawc_configure_video(str
- 	DEBUG(1, "setting initial values");
+ 	list_del_init(&dev->node);
+ 
++	if (dev->dynalloc)
++		class_device_unregister(&dev->cdev);
++
+ 	input_wakeup_procfs_readers();
  }
  
--
- static int konicawc_probe(struct usb_interface *intf, const struct usb_device_id *devid)
+@@ -752,26 +810,34 @@ static int __init input_init(void)
  {
- 	struct usb_device *dev = interface_to_usbdev(intf);
-@@ -839,21 +886,8 @@ static int konicawc_probe(struct usb_int
- 			err("usbvideo_RegisterVideoDevice() failed.");
- 			uvd = NULL;
- 		}
--#ifdef CONFIG_INPUT
--		/* Register input device for button */
--		memset(&cam->input, 0, sizeof(struct input_dev));
--		cam->input.name = "Konicawc snapshot button";
--		cam->input.private = cam;
--		cam->input.evbit[0] = BIT(EV_KEY);
--		cam->input.keybit[LONG(BTN_0)] = BIT(BTN_0);
--		usb_to_input_id(dev, &cam->input.id);
--		input_register_device(&cam->input);
--		
--		usb_make_path(dev, cam->input_physname, 56);
--		strcat(cam->input_physname, "/input0");
--		cam->input.phys = cam->input_physname;
--		info("konicawc: %s on %s\n", cam->input.name, cam->input.phys);
--#endif
+ 	int err;
+ 
++	err = class_register(&input_dev_class);
++	if (err) {
++		printk(KERN_ERR "input: unable to register input_dev class\n");
++		return err;
++	}
 +
-+		konicawc_register_input(cam, dev);
+ 	input_class = class_create(THIS_MODULE, "input");
+ 	if (IS_ERR(input_class)) {
+ 		printk(KERN_ERR "input: unable to register input class\n");
+-		return PTR_ERR(input_class);
++		err = PTR_ERR(input_class);
++		goto fail1;
  	}
  
- 	if (uvd) {
-@@ -869,10 +903,9 @@ static void konicawc_free_uvd(struct uvd
- 	int i;
- 	struct konicawc *cam = (struct konicawc *)uvd->user_data;
+ 	err = input_proc_init();
+ 	if (err)
+-		goto fail1;
++		goto fail2;
  
--#ifdef CONFIG_INPUT
--	input_unregister_device(&cam->input);
--#endif
--	for (i=0; i < USBVIDEO_NUMSBUF; i++) {
-+	konicawc_unregister_input(cam);
-+
-+	for (i = 0; i < USBVIDEO_NUMSBUF; i++) {
- 		usb_free_urb(cam->sts_urb[i]);
- 		cam->sts_urb[i] = NULL;
+ 	err = register_chrdev(INPUT_MAJOR, "input", &input_fops);
+ 	if (err) {
+ 		printk(KERN_ERR "input: unable to register char major %d", INPUT_MAJOR);
+-		goto fail2;
++		goto fail3;
  	}
+ 
+ 	return 0;
+ 
+- fail2:	input_proc_exit();
+- fail1:	class_destroy(input_class);
++ fail3:	input_proc_exit();
++ fail2:	class_destroy(input_class);
++ fail1:	class_unregister(&input_dev_class);
+ 	return err;
+ }
+ 
+@@ -780,6 +846,7 @@ static void __exit input_exit(void)
+ 	input_proc_exit();
+ 	unregister_chrdev(INPUT_MAJOR, "input");
+ 	class_destroy(input_class);
++	class_unregister(&input_dev_class);
+ }
+ 
+ subsys_initcall(input_init);
 

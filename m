@@ -1,38 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751129AbVIOMLv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964899AbVIOMSf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751129AbVIOMLv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 08:11:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbVIOMLv
+	id S964899AbVIOMSf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 08:18:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbVIOMSf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 08:11:51 -0400
-Received: from f48.mail.ru ([194.67.57.84]:33298 "EHLO f48.mail.ru")
-	by vger.kernel.org with ESMTP id S1751129AbVIOMLv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 08:11:51 -0400
-From: Serge Goodenko <s_goodenko@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: kernel networking - sys_socketcall() problem
+	Thu, 15 Sep 2005 08:18:35 -0400
+Received: from qproxy.gmail.com ([72.14.204.194]:21797 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751176AbVIOMSe convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 08:18:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=tz1t+fcVNoFlkJxVwqNdYNkr2WSYdjolZYR9cxM2hjQWt5LGOzrRMBrzUHzFwHQRrdXlKFDaNcydcHqFzcj3kMu/PFkTFl/HoyRPh0sx17iv2UcXhGUq7gml+XCMM1fzaHB6TxZ6IddCfXMKdA5ymKyUdnP+vtIsFEHYfv6eFA4=
+Message-ID: <a598610305091505184a8aa8fd@mail.gmail.com>
+Date: Thu, 15 Sep 2005 14:18:31 +0200
+From: Ivan Korzakow <ivan.korzakow@gmail.com>
+Reply-To: ivan.korzakow@gmail.com
+To: fawadlateef@gmail.com
+Subject: Re: best way to access device driver functions
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1e62d137050915010361d10139@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [194.85.70.42]
-Date: Thu, 15 Sep 2005 16:11:50 +0400
-Reply-To: Serge Goodenko <s_goodenko@mail.ru>
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Message-Id: <E1EFsak-000N8L-00.s_goodenko-mail-ru@f48.mail.ru>
+Content-Disposition: inline
+References: <a5986103050915004846d05841@mail.gmail.com>
+	 <1e62d137050915010361d10139@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello again!
+> 
+> Adding ioctl in driver is not a good idea especially for 2.6.x series
+> kernel, rather use sysfs which is in kernel 2.6.x to support
+> user/kernel interaction too with other usage .....
+> 
 
-continuing exploring linux kernel networking...
-in function sys_socketcall() why cannot I read using gdb the message being transmitted in args[] array (i suppose it must be in (char*)args[1])
-I cannot do it neither before copy_from_user() (directly from (char*)args[1])
-nor after (from a1 variable)
-at long last, where is that dear message??????
-using UML kernel 2.4.25 and gdb
 
-thank you
+Thanks for your answer. I started looking in sysfs and driver model.
 
-Serge
-MIPT, Russia
+Could you explain me why ioctl should be avoided ? Is it going to be
+deprecated in future kernel ?
+
+Regards,
+
+Ivan

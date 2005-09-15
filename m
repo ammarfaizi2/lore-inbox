@@ -1,142 +1,404 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030481AbVIOPAL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030480AbVIOPFe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030481AbVIOPAL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 11:00:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030488AbVIOPAK
+	id S1030480AbVIOPFe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 11:05:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030484AbVIOPFe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 11:00:10 -0400
-Received: from zproxy.gmail.com ([64.233.162.207]:61636 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030486AbVIOPAH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 11:00:07 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:references;
-        b=M5q4GbLwdacbADKM7LL81E3CXNRxYHWvFIKgdWr4k7YMN+Xd7mFWEDwCLnegSyFVOG46WgFEaZVi3L21/+gZHP3JQfJl9rl57UOD6jvoEuJ66YzIp8GaAANlfSXa6fJMQjv/TOPuYAloUodxRsoTdLIBc5weF9TvQwW+fsWwyrA=
-Message-ID: <355e5e5e0509150800c364c7f@mail.gmail.com>
-Date: Thu, 15 Sep 2005 11:00:04 -0400
-From: Lukasz Kosewski <lkosewsk@gmail.com>
-Reply-To: lkosewsk@gmail.com
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH 2.6.14-rc1 3/3] Add disk hotswap support to libata RESEND #3
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-In-Reply-To: <355e5e5e05091507077e4b6dfb@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_7280_5814997.1126796404201"
-References: <355e5e5e05091422117157ea45@mail.gmail.com>
-	 <355e5e5e05091507077e4b6dfb@mail.gmail.com>
+	Thu, 15 Sep 2005 11:05:34 -0400
+Received: from az33egw01.freescale.net ([192.88.158.102]:39882 "EHLO
+	az33egw01.freescale.net") by vger.kernel.org with ESMTP
+	id S1030480AbVIOPFd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 11:05:33 -0400
+In-Reply-To: <20050907081312.B1925@cox.net>
+References: <20050907081312.B1925@cox.net>
+Mime-Version: 1.0 (Apple Message framework v734)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <5322C997-A1FD-47BB-B92B-17CBA627EC53@freescale.com>
+Cc: <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+From: Kumar Gala <kumar.gala@freescale.com>
+Subject: Re: [PATCH][MM] rapidio: message interface updates
+Date: Thu, 15 Sep 2005 10:05:43 -0500
+To: Matt Porter <mporter@kernel.crashing.org>
+X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_7280_5814997.1126796404201
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Matt,
 
-RESEND #2!  Nobody should trust me with anything ever.  This ACTUALLY
-fixes the patch so it... errrm... compiles.  I really should never
-have added comments.  Or should have patched after adding comments.
+I'm guessing we are looking at a 2.6.15 timeframe now for getting the  
+RapidIO subsystem in?  Are there any other changes beyond what is  
+setting in -mm that need to be done?
 
-Luke Kosewski
+- kumar
 
-On 9/15/05, Lukasz Kosewski <lkosewsk@gmail.com> wrote:
-> On 9/15/05, Lukasz Kosewski <lkosewsk@gmail.com> wrote:
-> > Patch 3/3 for libata hotswapping.  The sata_promise driver caught red
-> > handed using the new hotswapping API.  Depends on patches 1 and 2.
-> > More comments in patch header.
-> >
-> > Luke Kosewski
->=20
-> RESEND!  Pulled out the broken comment.  Thanks to Robin Johnson for
-> pointing this out.
->=20
-> Luke Kosewski
->=20
->=20
+On Sep 7, 2005, at 10:13 AM, Matt Porter wrote:
+
+> Updates the RIO messaging interface to pass a device instance into
+> the event registeration and callbacks.
+>
+> Signed-off-by: Matt Porter <mporter@kernel.crashing.org>
+>
+> diff --git a/arch/ppc/syslib/ppc85xx_rio.c
+> b/arch/ppc/syslib/ppc85xx_rio.c
+> --- a/arch/ppc/syslib/ppc85xx_rio.c
+> +++ b/arch/ppc/syslib/ppc85xx_rio.c
+> @@ -135,6 +135,7 @@ static struct rio_msg_tx_ring {
+>      dma_addr_t phys_buffer[RIO_MAX_TX_RING_SIZE];
+>      int tx_slot;
+>      int size;
+> +    void *dev_id;
+>  } msg_tx_ring;
+>
+>  static struct rio_msg_rx_ring {
+> @@ -143,6 +144,7 @@ static struct rio_msg_rx_ring {
+>      void *virt_buffer[RIO_MAX_RX_RING_SIZE];
+>      int rx_slot;
+>      int size;
+> +    void *dev_id;
+>  } msg_rx_ring;
+>
+>  /**
+> @@ -376,7 +378,7 @@ mpc85xx_rio_tx_handler(int irq, void *de
+>      if (osr & RIO_MSG_OSR_EOMI) {
+>          u32 dqp = in_be32((void *)&msg_regs->odqdpar);
+>          int slot = (dqp - msg_tx_ring.phys) >> 5;
+> -        port->outb_msg[0].mcback(port, -1, slot);
+> +        port->outb_msg[0].mcback(port, msg_tx_ring.dev_id, -1,
+> slot);
+>
+>          /* Ack the end-of-message interrupt */
+>          out_be32((void *)&msg_regs->osr, RIO_MSG_OSR_EOMI);
+> @@ -389,6 +391,7 @@ mpc85xx_rio_tx_handler(int irq, void *de
+>  /**
+>   * rio_open_outb_mbox - Initialize MPC85xx outbound mailbox
+>   * @mport: Master port implementing the outbound message unit
+> + * @dev_id: Device specific pointer to pass on event
+>   * @mbox: Mailbox to open
+>   * @entries: Number of entries in the outbound mailbox ring
+>   *
+> @@ -396,7 +399,7 @@ mpc85xx_rio_tx_handler(int irq, void *de
+>   * and enables the outbound message unit. Returns %0 on success and
+>   * %-EINVAL or %-ENOMEM on failure.
+>   */
+> -int rio_open_outb_mbox(struct rio_mport *mport, int mbox, int  
+> entries)
+> +int rio_open_outb_mbox(struct rio_mport *mport, void *dev_id, int  
+> mbox,
+> int entries)
+>  {
+>      int i, j, rc = 0;
+>
+> @@ -407,6 +410,7 @@ int rio_open_outb_mbox(struct rio_mport
+>      }
+>
+>      /* Initialize shadow copy ring */
+> +    msg_tx_ring.dev_id = dev_id;
+>      msg_tx_ring.size = entries;
+>
+>      for (i = 0; i < msg_tx_ring.size; i++) {
+> @@ -541,7 +545,7 @@ mpc85xx_rio_rx_handler(int irq, void *de
+>           * make the callback with an unknown/invalid mailbox
+> number
+>           * argument.
+>           */
+> -        port->inb_msg[0].mcback(port, -1, -1);
+> +        port->inb_msg[0].mcback(port, msg_rx_ring.dev_id, -1,
+> -1);
+>
+>          /* Ack the queueing interrupt */
+>          out_be32((void *)&msg_regs->isr, RIO_MSG_ISR_DIQI);
+> @@ -554,6 +558,7 @@ mpc85xx_rio_rx_handler(int irq, void *de
+>  /**
+>   * rio_open_inb_mbox - Initialize MPC85xx inbound mailbox
+>   * @mport: Master port implementing the inbound message unit
+> + * @dev_id: Device specific pointer to pass on event
+>   * @mbox: Mailbox to open
+>   * @entries: Number of entries in the inbound mailbox ring
+>   *
+> @@ -561,7 +566,7 @@ mpc85xx_rio_rx_handler(int irq, void *de
+>   * and enables the inbound message unit. Returns %0 on success
+>   * and %-EINVAL or %-ENOMEM on failure.
+>   */
+> -int rio_open_inb_mbox(struct rio_mport *mport, int mbox, int entries)
+> +int rio_open_inb_mbox(struct rio_mport *mport, void *dev_id, int  
+> mbox,
+> int entries)
+>  {
+>      int i, rc = 0;
+>
+> @@ -572,6 +577,7 @@ int rio_open_inb_mbox(struct rio_mport *
+>      }
+>
+>      /* Initialize client buffer ring */
+> +    msg_rx_ring.dev_id = dev_id;
+>      msg_rx_ring.size = entries;
+>      msg_rx_ring.rx_slot = 0;
+>      for (i = 0; i < msg_rx_ring.size; i++)
+> @@ -777,7 +783,7 @@ mpc85xx_rio_dbell_handler(int irq, void
+>              }
+>          }
+>          if (found) {
+> -            dbell->dinb(port, DBELL_SID(dmsg),
+> DBELL_TID(dmsg),
+> +            dbell->dinb(port, dbell->dev_id,
+> DBELL_SID(dmsg), DBELL_TID(dmsg),
+>                      DBELL_INF(dmsg));
+>          } else {
+>              pr_debug
+> diff --git a/drivers/rapidio/rio-sysfs.c b/drivers/rapidio/rio-sysfs.c
+> --- a/drivers/rapidio/rio-sysfs.c
+> +++ b/drivers/rapidio/rio-sysfs.c
+> @@ -21,7 +21,7 @@
+>  /* Sysfs support */
+>  #define rio_config_attr(field, format_string)
+> \
+>  static ssize_t
+> \
+> -    field##_show(struct device *dev, char *buf)
+> \
+> +field##_show(struct device *dev, struct device_attribute *attr, char
+> *buf)            \
+>  {
+> \
+>      struct rio_dev *rdev = to_rio_dev(dev);
+> \
+>
+> \
+> @@ -35,7 +35,7 @@ rio_config_attr(asm_did, "0x%04x\n");
+>  rio_config_attr(asm_vid, "0x%04x\n");
+>  rio_config_attr(asm_rev, "0x%04x\n");
+>
+> -static ssize_t routes_show(struct device *dev, char *buf)
+> +static ssize_t routes_show(struct device *dev, struct  
+> device_attribute
+> *attr, char *buf)
+>  {
+>      struct rio_dev *rdev = to_rio_dev(dev);
+>      char *str = buf;
+> diff --git a/drivers/rapidio/rio.c b/drivers/rapidio/rio.c
+> --- a/drivers/rapidio/rio.c
+> +++ b/drivers/rapidio/rio.c
+> @@ -48,6 +48,7 @@ u16 rio_local_get_device_id(struct rio_m
+>  /**
+>   * rio_request_inb_mbox - request inbound mailbox service
+>   * @mport: RIO master port from which to allocate the mailbox  
+> resource
+> + * @dev_id: Device specific pointer to pass on event
+>   * @mbox: Mailbox number to claim
+>   * @entries: Number of entries in inbound mailbox queue
+>   * @minb: Callback to execute when inbound message is received
+> @@ -56,9 +57,10 @@ u16 rio_local_get_device_id(struct rio_m
+>   * a callback function to the resource. Returns %0 on success.
+>   */
+>  int rio_request_inb_mbox(struct rio_mport *mport,
+> +             void *dev_id,
+>               int mbox,
+>               int entries,
+> -             void (*minb) (struct rio_mport * mport, int
+> mbox,
+> +             void (*minb) (struct rio_mport * mport, void
+> *dev_id, int mbox,
+>                         int slot))
+>  {
+>      int rc = 0;
+> @@ -81,7 +83,7 @@ int rio_request_inb_mbox(struct rio_mpor
+>          /* Hook the inbound message callback */
+>          mport->inb_msg[mbox].mcback = minb;
+>
+> -        rc = rio_open_inb_mbox(mport, mbox, entries);
+> +        rc = rio_open_inb_mbox(mport, dev_id, mbox, entries);
+>      } else
+>          rc = -ENOMEM;
+>
+> @@ -108,6 +110,7 @@ int rio_release_inb_mbox(struct rio_mpor
+>  /**
+>   * rio_request_outb_mbox - request outbound mailbox service
+>   * @mport: RIO master port from which to allocate the mailbox  
+> resource
+> + * @dev_id: Device specific pointer to pass on event
+>   * @mbox: Mailbox number to claim
+>   * @entries: Number of entries in outbound mailbox queue
+>   * @moutb: Callback to execute when outbound message is sent
+> @@ -116,10 +119,10 @@ int rio_release_inb_mbox(struct rio_mpor
+>   * a callback function to the resource. Returns 0 on success.
+>   */
+>  int rio_request_outb_mbox(struct rio_mport *mport,
+> +              void *dev_id,
+>                int mbox,
+>                int entries,
+> -              void (*moutb) (struct rio_mport * mport, int
+> mbox,
+> -                     int slot))
+> +              void (*moutb) (struct rio_mport * mport, void
+> *dev_id, int mbox, int slot))
+>  {
+>      int rc = 0;
+>
+> @@ -141,7 +144,7 @@ int rio_request_outb_mbox(struct rio_mpo
+>          /* Hook the inbound message callback */
+>          mport->outb_msg[mbox].mcback = moutb;
+>
+> -        rc = rio_open_outb_mbox(mport, mbox, entries);
+> +        rc = rio_open_outb_mbox(mport, dev_id, mbox, entries);
+>      } else
+>          rc = -ENOMEM;
+>
+> @@ -168,6 +171,7 @@ int rio_release_outb_mbox(struct rio_mpo
+>  /**
+>   * rio_setup_inb_dbell - bind inbound doorbell callback
+>   * @mport: RIO master port to bind the doorbell callback
+> + * @dev_id: Device specific pointer to pass on event
+>   * @res: Doorbell message resource
+>   * @dinb: Callback to execute when doorbell is received
+>   *
+> @@ -176,8 +180,8 @@ int rio_release_outb_mbox(struct rio_mpo
+>   * satisfied.
+>   */
+>  static int
+> -rio_setup_inb_dbell(struct rio_mport *mport, struct resource *res,
+> -            void (*dinb) (struct rio_mport * mport, u16 src, u16
+> dst,
+> +rio_setup_inb_dbell(struct rio_mport *mport, void *dev_id, struct
+> resource *res,
+> +            void (*dinb) (struct rio_mport * mport, void
+> *dev_id, u16 src, u16 dst,
+>                    u16 info))
+>  {
+>      int rc = 0;
+> @@ -190,6 +194,7 @@ rio_setup_inb_dbell(struct rio_mport *mp
+>
+>      dbell->res = res;
+>      dbell->dinb = dinb;
+> +    dbell->dev_id = dev_id;
+>
+>      list_add_tail(&dbell->node, &mport->dbells);
+>
+> @@ -200,6 +205,7 @@ rio_setup_inb_dbell(struct rio_mport *mp
+>  /**
+>   * rio_request_inb_dbell - request inbound doorbell message service
+>   * @mport: RIO master port from which to allocate the doorbell  
+> resource
+> + * @dev_id: Device specific pointer to pass on event
+>   * @start: Doorbell info range start
+>   * @end: Doorbell info range end
+>   * @dinb: Callback to execute when doorbell is received
+> @@ -209,9 +215,10 @@ rio_setup_inb_dbell(struct rio_mport *mp
+>   * has been satisfied.
+>   */
+>  int rio_request_inb_dbell(struct rio_mport *mport,
+> +              void *dev_id,
+>                u16 start,
+>                u16 end,
+> -              void (*dinb) (struct rio_mport * mport, u16
+> src,
+> +              void (*dinb) (struct rio_mport * mport, void
+> *dev_id, u16 src,
+>                      u16 dst, u16 info))
+>  {
+>      int rc = 0;
+> @@ -230,7 +237,7 @@ int rio_request_inb_dbell(struct rio_mpo
+>          }
+>
+>          /* Hook the doorbell callback */
+> -        rc = rio_setup_inb_dbell(mport, res, dinb);
+> +        rc = rio_setup_inb_dbell(mport, dev_id, res, dinb);
+>      } else
+>          rc = -ENOMEM;
+>
+> diff --git a/include/linux/rio.h b/include/linux/rio.h
+> --- a/include/linux/rio.h
+> +++ b/include/linux/rio.h
+> @@ -132,7 +132,7 @@ struct rio_dev {
+>   */
+>  struct rio_msg {
+>      struct resource *res;
+> -    void (*mcback) (struct rio_mport * mport, int mbox, int slot);
+> +    void (*mcback) (struct rio_mport * mport, void *dev_id, int
+> mbox, int slot);
+>  };
+>
+>  /**
+> @@ -140,11 +140,13 @@ struct rio_msg {
+>   * @node: Node in list of doorbell events
+>   * @res: Doorbell resource
+>   * @dinb: Doorbell event callback
+> + * @dev_id: Device specific pointer to pass on event
+>   */
+>  struct rio_dbell {
+>      struct list_head node;
+>      struct resource *res;
+> -    void (*dinb) (struct rio_mport * mport, u16 src, u16 dst, u16
+> info);
+> +    void (*dinb) (struct rio_mport *mport, void *dev_id, u16 src,
+> u16 dst, u16 info);
+> +    void *dev_id;
+>  };
+>
+>  /**
+> @@ -314,9 +316,9 @@ extern int rio_hw_add_outb_message(struc
+>                     void *, size_t);
+>  extern int rio_hw_add_inb_buffer(struct rio_mport *, int, void *);
+>  extern void *rio_hw_get_inb_message(struct rio_mport *, int);
+> -extern int rio_open_inb_mbox(struct rio_mport *, int, int);
+> +extern int rio_open_inb_mbox(struct rio_mport *, void *, int, int);
+>  extern void rio_close_inb_mbox(struct rio_mport *, int);
+> -extern int rio_open_outb_mbox(struct rio_mport *, int, int);
+> +extern int rio_open_outb_mbox(struct rio_mport *, void *, int, int);
+>  extern void rio_close_outb_mbox(struct rio_mport *, int);
+>
+>  #endif                /* __KERNEL__ */
+> diff --git a/include/linux/rio_drv.h b/include/linux/rio_drv.h
+> --- a/include/linux/rio_drv.h
+> +++ b/include/linux/rio_drv.h
+> @@ -348,8 +348,8 @@ static inline void rio_init_dbell_res(st
+>      .asm_did = RIO_ANY_ID, .asm_vid = RIO_ANY_ID
+>
+>  /* Mailbox management */
+> -extern int rio_request_outb_mbox(struct rio_mport *, int, int,
+> -                 void (*)(struct rio_mport *, int,
+> int));
+> +extern int rio_request_outb_mbox(struct rio_mport *, void *, int,  
+> int,
+> +                 void (*)(struct rio_mport *, void
+> *,int, int));
+>  extern int rio_release_outb_mbox(struct rio_mport *, int);
+>
+>  /**
+> @@ -370,8 +370,8 @@ static inline int rio_add_outb_message(s
+>      return rio_hw_add_outb_message(mport, rdev, mbox, buffer, len);
+>  }
+>
+> -extern int rio_request_inb_mbox(struct rio_mport *, int, int,
+> -                void (*)(struct rio_mport *, int, int));
+> +extern int rio_request_inb_mbox(struct rio_mport *, void *, int, int,
+> +                void (*)(struct rio_mport *, void *,
+> int, int));
+>  extern int rio_release_inb_mbox(struct rio_mport *, int);
+>
+>  /**
+> @@ -403,8 +403,8 @@ static inline void *rio_get_inb_message(
+>  }
+>
+>  /* Doorbell management */
+> -extern int rio_request_inb_dbell(struct rio_mport *, u16, u16,
+> -                 void (*)(struct rio_mport *, u16, u16,
+> u16));
+> +extern int rio_request_inb_dbell(struct rio_mport *, void *, u16,  
+> u16,
+> +                 void (*)(struct rio_mport *, void *,
+> u16, u16, u16));
+>  extern int rio_release_inb_dbell(struct rio_mport *, u16, u16);
+>  extern struct resource *rio_request_outb_dbell(struct rio_dev *, u16,
+> u16);
+>  extern int rio_release_outb_dbell(struct rio_dev *, struct  
+> resource *);
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux- 
+> kernel"
+> in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 >
 
-------=_Part_7280_5814997.1126796404201
-Content-Type: text/x-patch; name="03-promise_hotswap_support-2.6.14-rc1-FIXED-2.diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="03-promise_hotswap_support-2.6.14-rc1-FIXED-2.diff"
-
-MTUuMDkuMDUgICAgTHVrZSBLb3Nld3NraSAgIDxsa29zZXdza0BuaXQuY2E+CgoJKiBBIHBhdGNo
-IHRvIHNhdGFfcHJvbWlzZS5jIChkZXBlbmRlbnQgb24gcGF0Y2hlcyAxIGFuZCAyIGluIHRoaXMK
-CSAgc2VyaWVzKSB3aGljaCBtYWtlcyBpdCB1c2UgdGhlIGhvdHN3YXAgQVBJIGluIHBhdGNoIDIu
-ICBUaGUgUHJvbWlzZQoJICBjb250cm9sbGVycyBhcmUgZmFpcmx5IHNpbXBsZSBpbiB0ZXJtcyBv
-ZiB0aGVpciBob3RwbHVnIG1lY2hhbmlzbSwKCSAgc28gbm9uZSBvZiB0aGUgZnVua3kgJ2phbml0
-b3InIGZ1bmN0aW9ucyBhcmUgdXNlZCBoZXJlLgoJICBhdGFfaG90cGx1Z19wbHVnIGlzIGNhbGxl
-ZCBvbiBhIHBsdWcgZXZlbnQsIGFuZCBhdGFfaG90cGx1Z191bnBsdWcgb24KCSAgYW4gdW5wbHVn
-LiAgU2ltcGxlLCBzaW1wbGUuCgkqIFBlbmRpbmcgc29tZSBjb25maXJtYXRpb24gYW5kIHN1Z2dl
-c3Rpb25zIGZyb20gSmltIFJhbXNheQoJICAoamltLnJhbXNheUBnbWFpbC5jb20pIHRoZSBpbnRl
-cnJ1cHQgaGFuZGxlciBtaWdodCBjaGFuZ2UgdG8gY2hlY2sgZm9yCgkgIERNQSBjb21tYW5kcyBj
-b21wbGV0aW5nIGFzIFdFTEwgYXMgaG90cGx1ZyBldmVudHMgaW4gdGhlIHNhbWUgcGFzcy4KCmRp
-ZmYgLXJwdU4gbGludXgtMi42LjE0LXJjMS9kcml2ZXJzL3Njc2kvc2F0YV9wcm9taXNlLmMgbGlu
-dXgtMi42LjE0LXJjMS1uZXcvZHJpdmVycy9zY3NpL3NhdGFfcHJvbWlzZS5jCi0tLSBsaW51eC0y
-LjYuMTQtcmMxL2RyaXZlcnMvc2NzaS9zYXRhX3Byb21pc2UuYwkyMDA1LTA5LTE0IDE5OjU3OjU0
-LjAwMDAwMDAwMCAtMDQwMAorKysgbGludXgtMi42LjE0LXJjMS1uZXcvZHJpdmVycy9zY3NpL3Nh
-dGFfcHJvbWlzZS5jCTIwMDUtMDktMTQgMjA6MTY6MDkuMDAwMDAwMDAwIC0wNDAwCkBAIC0zMzIs
-MTAgKzMzMiw0MyBAQCBzdGF0aWMgdm9pZCBwZGNfcmVzZXRfcG9ydChzdHJ1Y3QgYXRhX3BvCiAJ
-cmVhZGwobW1pbyk7CS8qIGZsdXNoICovCiB9CiAKKy8qIE1hc2sgaG90cGx1ZyBpbnRlcnJ1cHRz
-IGZvciBvbmUgY2hhbm5lbCAoYXApICovCitzdGF0aWMgaW5saW5lIHZvaWQgcGRjX2Rpc2FibGVf
-Y2hhbm5lbF9ob3RwbHVnX2ludGVycnVwdHMoc3RydWN0IGF0YV9wb3J0ICphcCkKK3sKKwlzdHJ1
-Y3QgcGRjX2hvc3RfcHJpdiAqaHAgPSBhcC0+aG9zdF9zZXQtPnByaXZhdGVfZGF0YTsKKwl2b2lk
-ICptbWlvID0gYXAtPmhvc3Rfc2V0LT5tbWlvX2Jhc2UgKyBocC0+aG90cGx1Z19vZmZzZXQgKyAy
-OworCisJdTggbWFza2ZsYWdzID0gcmVhZGIobW1pbyk7CisJbWFza2ZsYWdzIHw9ICgweDExIDw8
-ICh1OClhcC0+aGFyZF9wb3J0X25vKTsKKwl3cml0ZWIobWFza2ZsYWdzLCBtbWlvKTsKK30KKwor
-LyogQ2xlYXIgYW5kIHVubWFzayBob3RwbHVnIGludGVycnVwdHMgZm9yIG9uZSBjaGFubmVsIChh
-cCkgKi8KK3N0YXRpYyBpbmxpbmUgdm9pZCBwZGNfZW5hYmxlX2NoYW5uZWxfaG90cGx1Z19pbnRl
-cnJ1cHRzKHN0cnVjdCBhdGFfcG9ydCAqYXApCit7CisJc3RydWN0IHBkY19ob3N0X3ByaXYgKmhw
-ID0gYXAtPmhvc3Rfc2V0LT5wcml2YXRlX2RhdGE7CisJdm9pZCAqbW1pbyA9IGFwLT5ob3N0X3Nl
-dC0+bW1pb19iYXNlICsgaHAtPmhvdHBsdWdfb2Zmc2V0OworCisJLy9DbGVhciBjaGFubmVsIGhv
-dHBsdWcgaW50ZXJydXB0cworCXU4IG1hc2tmbGFncyA9IHJlYWRiKG1taW8pOworCW1hc2tmbGFn
-cyB8PSAoMHgxMSA8PCAodTgpYXAtPmhhcmRfcG9ydF9ubyk7CisJd3JpdGViKG1hc2tmbGFncywg
-bW1pbyk7CisKKwkvL1VubWFzayBjaGFubmVsIGhvdHBsdWcgaW50ZXJydXB0cworCW1hc2tmbGFn
-cyA9IHJlYWRiKG1taW8gKyAyKTsKKwltYXNrZmxhZ3MgJj0gfigweDExIDw8ICh1OClhcC0+aGFy
-ZF9wb3J0X25vKTsKKwl3cml0ZWIobWFza2ZsYWdzLCBtbWlvICsgMik7Cit9CisKIHN0YXRpYyB2
-b2lkIHBkY19zYXRhX3BoeV9yZXNldChzdHJ1Y3QgYXRhX3BvcnQgKmFwKQogewogCXBkY19yZXNl
-dF9wb3J0KGFwKTsKLQlzYXRhX3BoeV9yZXNldChhcCk7CisJaWYgKGFwLT5mbGFncyAmIEFUQV9G
-TEFHX1NBVEFfUkVTRVQpIHsKKwkJcGRjX2Rpc2FibGVfY2hhbm5lbF9ob3RwbHVnX2ludGVycnVw
-dHMoYXApOworCQlzYXRhX3BoeV9yZXNldChhcCk7CisJCXBkY19lbmFibGVfY2hhbm5lbF9ob3Rw
-bHVnX2ludGVycnVwdHMoYXApOworCX0gZWxzZQorCQlzYXRhX3BoeV9yZXNldChhcCk7CiB9CiAK
-IHN0YXRpYyB2b2lkIHBkY19wYXRhX3BoeV9yZXNldChzdHJ1Y3QgYXRhX3BvcnQgKmFwKQpAQCAt
-NDg1LDExICs1MTgsMTMgQEAgc3RhdGljIHZvaWQgcGRjX2lycV9jbGVhcihzdHJ1Y3QgYXRhX3Bv
-cgogc3RhdGljIGlycXJldHVybl90IHBkY19pbnRlcnJ1cHQgKGludCBpcnEsIHZvaWQgKmRldl9p
-bnN0YW5jZSwgc3RydWN0IHB0X3JlZ3MgKnJlZ3MpCiB7CiAJc3RydWN0IGF0YV9ob3N0X3NldCAq
-aG9zdF9zZXQgPSBkZXZfaW5zdGFuY2U7CisJc3RydWN0IHBkY19ob3N0X3ByaXYgKmhwID0gaG9z
-dF9zZXQtPnByaXZhdGVfZGF0YTsKIAlzdHJ1Y3QgYXRhX3BvcnQgKmFwOwogCXUzMiBtYXNrID0g
-MDsKIAl1bnNpZ25lZCBpbnQgaSwgdG1wOwotCXVuc2lnbmVkIGludCBoYW5kbGVkID0gMDsKKwl1
-bnNpZ25lZCBpbnQgaGFuZGxlZCA9IDAsIGhvdHBsdWdfb2Zmc2V0ID0gaHAtPmhvdHBsdWdfb2Zm
-c2V0OwogCXZvaWQgX19pb21lbSAqbW1pb19iYXNlOworCXU4IHBsdWdkYXRhLCBtYXNrZmxhZ3M7
-CiAKIAlWUFJJTlRLKCJFTlRFUlxuIik7CiAKQEAgLTUxMyw3ICs1NDgsNyBAQCBzdGF0aWMgaXJx
-cmV0dXJuX3QgcGRjX2ludGVycnVwdCAoaW50IGlyCiAJbWFzayAmPSAweGZmZmY7CQkvKiBvbmx5
-IDE2IHRhZ3MgcG9zc2libGUgKi8KIAlpZiAoIW1hc2spIHsKIAkJVlBSSU5USygiUVVJQ0sgRVhJ
-VCAzXG4iKTsKLQkJZ290byBkb25lX2lycTsKKwkJZ290byB0cnlfaG90cGx1ZzsKIAl9CiAKIAl3
-cml0ZWwobWFzaywgbW1pb19iYXNlICsgUERDX0lOVF9TRVFNQVNLKTsKQEAgLTUzMiw3ICs1Njcs
-MzYgQEAgc3RhdGljIGlycXJldHVybl90IHBkY19pbnRlcnJ1cHQgKGludCBpcgogCQl9CiAJfQog
-Ci0JVlBSSU5USygiRVhJVFxuIik7CisJaWYgKGhhbmRsZWQpIHsKKwkJVlBSSU5USygiRVhJVCA0
-XG4iKTsKKwkJZ290byBkb25lX2lycTsKKwl9CisKK3RyeV9ob3RwbHVnOgorCXBsdWdkYXRhID0g
-cmVhZGIobW1pb19iYXNlICsgaG90cGx1Z19vZmZzZXQpOworCW1hc2tmbGFncyA9IHJlYWRiKG1t
-aW9fYmFzZSArIGhvdHBsdWdfb2Zmc2V0ICsgMik7CisJcGx1Z2RhdGEgJj0gfm1hc2tmbGFnczsK
-KwlpZiAocGx1Z2RhdGEpIHsKKwkJd3JpdGViKHBsdWdkYXRhLCBtbWlvX2Jhc2UgKyBob3RwbHVn
-X29mZnNldCk7CisJCWZvciAoaSA9IDA7IGkgPCBob3N0X3NldC0+bl9wb3J0czsgKytpKSB7CisJ
-CQlhcCA9IGhvc3Rfc2V0LT5wb3J0c1tpXTsKKwkJCWlmICghKGFwLT5mbGFncyAmIEFUQV9GTEFH
-X1NBVEEpKQorCQkJCWNvbnRpbnVlOyAgLy9ObyBQQVRBIHN1cHBvcnQgaGVyZS4uLiB5ZXQKKwkJ
-CS8vIENoZWNrIHVucGx1ZyBmbGFnCisJCQlpZiAocGx1Z2RhdGEgJiAweDEpIHsKKwkJCQkvKiBE
-byBzdHVmZiByZWxhdGVkIHRvIHVucGx1Z2dpbmcgYSBkZXZpY2UgKi8KKwkJCQlhdGFfaG90cGx1
-Z191bnBsdWcoYXApOworCQkJCWhhbmRsZWQgPSAxOworCQkJfSBlbHNlIGlmICgocGx1Z2RhdGEg
-Pj4gNCkgJiAweDEpIHsgIC8vQ2hlY2sgcGx1ZyBmbGFnCisJCQkJLyogRG8gc3R1ZmYgcmVsYXRl
-ZCB0byBwbHVnZ2luZyBpbiBhIGRldmljZSAqLworCQkJCWF0YV9ob3RwbHVnX3BsdWcoYXApOwor
-CQkJCWhhbmRsZWQgPSAxOworCQkJfQorCQkJcGx1Z2RhdGEgPj49IDE7CisJCX0KKwl9CisKKwlW
-UFJJTlRLKCJFWElUIDVcbiIpOwogCiBkb25lX2lycToKIAlzcGluX3VubG9jaygmaG9zdF9zZXQt
-PmxvY2spOwpAQCAtNjMyLDkgKzY5Niw5IEBAIHN0YXRpYyB2b2lkIHBkY19ob3N0X2luaXQodW5z
-aWduZWQgaW50IGMKIAl0bXAgPSByZWFkbChtbWlvICsgaG90cGx1Z19vZmZzZXQpOwogCXdyaXRl
-bCh0bXAgfCAweGZmLCBtbWlvICsgaG90cGx1Z19vZmZzZXQpOwogCi0JLyogbWFzayBwbHVnL3Vu
-cGx1ZyBpbnRzICovCisJLyogdW5tYXNrIHBsdWcvdW5wbHVnIGludHMgKi8KIAl0bXAgPSByZWFk
-bChtbWlvICsgaG90cGx1Z19vZmZzZXQpOwotCXdyaXRlbCh0bXAgfCAweGZmMDAwMCwgbW1pbyAr
-IGhvdHBsdWdfb2Zmc2V0KTsKKwl3cml0ZWwodG1wICYgfjB4ZmYwMDAwLCBtbWlvICsgaG90cGx1
-Z19vZmZzZXQpOwogCiAJLyogcmVkdWNlIFRCRyBjbG9jayB0byAxMzMgTWh6LiAqLwogCXRtcCA9
-IHJlYWRsKG1taW8gKyBQRENfVEJHX01PREUpOwo=
-------=_Part_7280_5814997.1126796404201--

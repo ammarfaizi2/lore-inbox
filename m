@@ -1,57 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030419AbVIONpE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030429AbVION4o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030419AbVIONpE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 09:45:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030420AbVIONpE
+	id S1030429AbVION4o (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 09:56:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030421AbVION4o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 09:45:04 -0400
-Received: from mail.tmr.com ([64.65.253.246]:63117 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S1030419AbVIONpC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 09:45:02 -0400
-Message-ID: <43297F0C.4060404@tmr.com>
-Date: Thu, 15 Sep 2005 10:02:52 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates Inc, Schenectady NY
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: USB mass storage issue in 2.6.13
-References: <432867BA.1000700@tmr.com> <20050914221537.GA10943@taniwha.stupidest.org>
-In-Reply-To: <20050914221537.GA10943@taniwha.stupidest.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 15 Sep 2005 09:56:44 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:64746 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1030420AbVION4n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 09:56:43 -0400
+Subject: Re: [2.6.14-rc1] sym scsi boot hang
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Anton Blanchard <anton@samba.org>, Dipankar Sarma <dipankar@in.ibm.com>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44L0.0509141716410.8011-100000@iolanthe.rowland.org>
+References: <Pine.LNX.4.44L0.0509141716410.8011-100000@iolanthe.rowland.org>
+Content-Type: text/plain
+Date: Thu, 15 Sep 2005 09:56:13 -0400
+Message-Id: <1126792573.4821.18.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-6) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood wrote:
+On Wed, 2005-09-14 at 17:33 -0400, Alan Stern wrote:
+> On Wed, 14 Sep 2005, James Bottomley wrote:
+> > Yes ... really the only case for unprep is when we've partially released
+> > the command (like in scsi_io_completion) where we need to tear the rest
+> > of it down.
+> 
+> In other words, in scsi_requeue_command and nowhere else.
 
->On Wed, Sep 14, 2005 at 02:11:06PM -0400, Bill Davidsen wrote:
->
->  
->
->>Attached is a zip with the original dmesg and what somes out of
->>dmesg -s200000 now.
->>    
->>
->
->argh, why zip? it really blows for this sort of thing
->
->  
->
-So does sending the whole huge file without compression. The advantage
-of zip is that both relevant files can be put in one archive, and that
-both archive and per-file comments can be added to make it clear what
-each does. I could have done a compressed tar and an explanation, but
-then you have to uncompress it to read the explanation.
+Pretty much, yes.
 
-I didn't pick that without thinking about it, and it seems at least as
-useful as anything else which comes to mind, like multiple attachments.
+> Or will be prepared for the first time, as in scsi_execute.  As far as I 
+> can tell, a new struct request is not set to all 0's.  So if you queue a 
+> request with REQ_SPECIAL set and you fail to clear req->special, you're in 
+> trouble.  Do you have any idea why this hasn't been causing errors all 
+> along?
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO TMR Associates, Inc
-  Doing interesting things with small computers since 1979
+That's true, it's not.  However ll_rq_blk.c:rq_init() clears req-
+>special (and initialises all other important fields).
+
+> Okay, then how does this patch look (moved the routine over to where it 
+> gets used, plus two real changes)?
+
+Well ... under pressure to fix this in -mm, I already commited a version
+to rc-fixes.  What I did was fully reverse the changes to the
+scsi_insert_queue() [the patch I sent Anton].  We can move the unprep
+function if you feel strongly about it, but I'm also happy to keep it
+where it is.
+
+James
 
 

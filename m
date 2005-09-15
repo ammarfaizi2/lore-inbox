@@ -1,59 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030429AbVION4o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964817AbVIOOBF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030429AbVION4o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 09:56:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030421AbVION4o
+	id S964817AbVIOOBF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 10:01:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964960AbVIOOBF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 09:56:44 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:64746 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1030420AbVION4n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 09:56:43 -0400
-Subject: Re: [2.6.14-rc1] sym scsi boot hang
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Anton Blanchard <anton@samba.org>, Dipankar Sarma <dipankar@in.ibm.com>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44L0.0509141716410.8011-100000@iolanthe.rowland.org>
-References: <Pine.LNX.4.44L0.0509141716410.8011-100000@iolanthe.rowland.org>
-Content-Type: text/plain
-Date: Thu, 15 Sep 2005 09:56:13 -0400
-Message-Id: <1126792573.4821.18.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-6) 
+	Thu, 15 Sep 2005 10:01:05 -0400
+Received: from NS6.Sony.CO.JP ([137.153.0.32]:43445 "EHLO ns6.sony.co.jp")
+	by vger.kernel.org with ESMTP id S964817AbVIOOBE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 10:01:04 -0400
+Message-ID: <43297E1A.7040408@sm.sony.co.jp>
+Date: Thu, 15 Sep 2005 22:58:50 +0900
+From: "Machida, Hiroyuki" <machida@sm.sony.co.jp>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: ja, en-us, en
+MIME-Version: 1.0
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2][FAT] miss-sync issues on sync mount (miss-sync on
+ utime)
+References: <43288A84.2090107@sm.sony.co.jp> <87oe6uwjy7.fsf@devron.myhome.or.jp>
+In-Reply-To: <87oe6uwjy7.fsf@devron.myhome.or.jp>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-09-14 at 17:33 -0400, Alan Stern wrote:
-> On Wed, 14 Sep 2005, James Bottomley wrote:
-> > Yes ... really the only case for unprep is when we've partially released
-> > the command (like in scsi_io_completion) where we need to tear the rest
-> > of it down.
+
+
+OGAWA Hirofumi wrote:
+> "Machida, Hiroyuki" <machida@sm.sony.co.jp> writes:
 > 
-> In other words, in scsi_requeue_command and nowhere else.
+> 
+>>+	if ( (!error) && IS_SYNC(inode)) {
+>>+		error = write_inode_now(inode, 1);
+>>+	}
+> 
+> 
+> We don't need to sync the data pages at all here. And I think it is
+> not right place for doing this.  If we need this, since we need to see
+> O_SYNC for fchxxx() VFS would be right place to do it.
 
-Pretty much, yes.
+I see, I'll look into those.
 
-> Or will be prepared for the first time, as in scsi_execute.  As far as I 
-> can tell, a new struct request is not set to all 0's.  So if you queue a 
-> request with REQ_SPECIAL set and you fail to clear req->special, you're in 
-> trouble.  Do you have any idea why this hasn't been causing errors all 
-> along?
+> But, personally, I'd like to kill the "-o sync" stuff for these
+> independent meta data rather. Then...
 
-That's true, it's not.  However ll_rq_blk.c:rq_init() clears req-
->special (and initialises all other important fields).
-
-> Okay, then how does this patch look (moved the routine over to where it 
-> gets used, plus two real changes)?
-
-Well ... under pressure to fix this in -mm, I already commited a version
-to rc-fixes.  What I did was fully reverse the changes to the
-scsi_insert_queue() [the patch I sent Anton].  We can move the unprep
-function if you feel strongly about it, but I'm also happy to keep it
-where it is.
-
-James
-
-
+-- 
+Hiroyuki Machida		machida@sm.sony.co.jp		
+SSW Dept. HENC, Sony Corp.

@@ -1,85 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030475AbVIOO5Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030474AbVIOO5H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030475AbVIOO5Q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 10:57:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030477AbVIOO5Q
+	id S1030474AbVIOO5H (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 10:57:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030475AbVIOO5H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 10:57:16 -0400
-Received: from web30704.mail.mud.yahoo.com ([68.142.200.137]:59814 "HELO
-	web30704.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1030475AbVIOO5O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 10:57:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=CHTIs3PVlaWHURxx9wU95/G03aK1bbiF244FO4esIG4N+zP1CovxAmihlMOOfuhKnU2tI2emuTwIKgNEjFND89BibiomV7I7sE3UOa1AkAPDVPrv6uG170G1crzUMoNb1kPKEC+MYqJROqRZmA40Qbw5qHTOdCcCbMftqQ6cFfk=  ;
-Message-ID: <20050915145713.90231.qmail@web30704.mail.mud.yahoo.com>
-Date: Thu, 15 Sep 2005 07:57:13 -0700 (PDT)
-From: umesh chandak <chandak_umesh@yahoo.com>
-Subject: Re: adding new lsm hooks
-To: Emmanuel Fleury <fleury@cs.aau.dk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <43298721.9010506@cs.aau.dk>
+	Thu, 15 Sep 2005 10:57:07 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:63701 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S1030474AbVIOO5G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 10:57:06 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: Manu Abraham <manu@linuxtv.org>
+Subject: Re: PCI driver
+Date: Thu, 15 Sep 2005 16:57:55 +0200
+User-Agent: KMail/1.8.2
+Cc: Jiri Slaby <jirislaby@gmail.com>, linux-kernel@vger.kernel.org
+References: <4327EE94.2040405@kromtek.com> <200509151148.57779@bilbo.math.uni-mannheim.de> <4329877A.4090809@linuxtv.org>
+In-Reply-To: <4329877A.4090809@linuxtv.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: multipart/signed;
+  boundary="nextPart2009173.Zz0MyiG3F9";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200509151658.01793@bilbo.math.uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-respected sir ,
-          Thank you for reply.
-Basically i want to add hooks at mac layer .But for
-time being as a practice i want to add new hooks of
-any type for playing purpose .so can you tell me a
-procedure or appropriate link
-                                                      
+--nextPart2009173.Zz0MyiG3F9
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-                                          
-                 thank you !!!!!!                     
-   
+Manu Abraham wrote:
 
---- Emmanuel Fleury <fleury@cs.aau.dk> wrote:
+>So it now looks like this but i have another problem now, after
+>consecutive, load/unload, i get an oops ..
 
-> umesh chandak wrote:
-> > hi 
-> >     i want to add new lsm hooks in linux kernel.
-> > Can anybody tell me ,what steps should i follow to
-> do
-> > this. or a appropriate link .
-> 
-> What kind of hooks ?
-> 
-> I've been idling around the LSM hooks for quite a
-> while and
-> I never had the need to add any... So, I'm quite
-> puzzled to
-> know what kind of hooks do you need. :)
-> 
-> Regards
-> -- 
-> Emmanuel Fleury
-> 
-> Assistant Professor          | Office: B1-201
-> Computer Science Department, | Phone:  +45 96 35 72
-> 23
-> Aalborg University,          | Mobile: +45 26 22 98
-> 03
-> Fredriks Bajersvej 7E,       | E-mail:
-> fleury@cs.aau.dk
-> 9220 Aalborg East, Denmark   | URL:
-> www.cs.aau.dk/~fleury
-> -
-> To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+No idea, sorry.
 
+>static int __devinit mantis_pci_probe(struct pci_dev *pdev,
+>                const struct pci_device_id *mantis_pci_table)
+>{
+>    u8 revision, latency;
+>//    u8 data[2];
+>    struct mantis_pci *mantis;
+>
+>    dprintk(verbose, MANTIS_ERROR, 1, "<1:>IRQ=3D%d", pdev->irq);
+>    if (pci_enable_device(pdev)) {
+>        dprintk(verbose, MANTIS_ERROR, 1, "Mantis PCI enable failed");
+>        goto err;
+>    }
+>    dprintk(verbose, MANTIS_ERROR, 1, "<2:>IRQ=3D%d", pdev->irq);
+>
+>    mantis =3D (struct mantis_pci *)
+>                kmalloc(sizeof (struct mantis_pci), GFP_KERNEL);
 
+mantis =3D kmalloc(sizeof(*mantis), GFP_KERNEL);
 
-		
-__________________________________ 
-Yahoo! Mail - PC Magazine Editors' Choice 2005 
-http://mail.yahoo.com
+You don't have to cast a void* to any other pointer and this way you will=20
+always get the correct size of memory allocated, even if mantis will become=
+=20
+another pointer type.
+
+Eike
+
+--nextPart2009173.Zz0MyiG3F9
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQBDKYv5XKSJPmm5/E4RAkuKAKCLcQ6AbGT3zQ/cOliUW48gzVM2BACffMwh
+EMBSzMZ6s5FesuIzl7KMC8E=
+=zheP
+-----END PGP SIGNATURE-----
+
+--nextPart2009173.Zz0MyiG3F9--

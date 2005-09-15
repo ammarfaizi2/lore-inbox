@@ -1,40 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750866AbVIODRw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751009AbVIODar@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750866AbVIODRw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 23:17:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750891AbVIODRw
+	id S1751009AbVIODar (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 23:30:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751034AbVIODar
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 23:17:52 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:24704 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S1750840AbVIODRv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 23:17:51 -0400
-Subject: Re: devfs vs udev FAQ from the other side
-From: Robert Love <rml@novell.com>
-To: Mike Bell <mike@mikebell.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050915020935.GF15017@mikebell.org>
-References: <20050915005105.GD15017@mikebell.org>
-	 <1126746518.9652.60.camel@phantasy>  <20050915020935.GF15017@mikebell.org>
-Content-Type: text/plain
-Date: Wed, 14 Sep 2005 23:17:50 -0400
-Message-Id: <1126754270.9652.64.camel@phantasy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
+	Wed, 14 Sep 2005 23:30:47 -0400
+Received: from tuminfo2.informatik.tu-muenchen.de ([131.159.0.81]:19951 "EHLO
+	tuminfo2.informatik.tu-muenchen.de") by vger.kernel.org with ESMTP
+	id S1751009AbVIODaq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 23:30:46 -0400
+Message-ID: <4328EC72.6050507@in.tum.de>
+Date: Thu, 15 Sep 2005 05:37:22 +0200
+From: Daniel Thaler <thalerd@in.tum.de>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050803)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: David Lang <dlang@digitalinsight.com>, Hua Zhong <hzhong@gmail.com>,
+       marekw1977@yahoo.com.au, linux-kernel@vger.kernel.org
+Subject: Re: Automatic Configuration of a Kernel
+References: <20050914223836.53814.qmail@web51011.mail.yahoo.com>	 <6bffcb0e05091415533d563c5a@mail.gmail.com><4328B710.5080503@in.tum.de>	 <200509151009.59981.marekw1977@yahoo.com.au>	 <924c288305091417375fea4ec2@mail.gmail.com>	 <Pine.LNX.4.62.0509141900280.8469@qynat.qvtvafvgr.pbz> <1126753444.13893.123.camel@mindpipe>
+In-Reply-To: <1126753444.13893.123.camel@mindpipe>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-09-14 at 19:09 -0700, Mike Bell wrote:
+Lee Revell wrote:
+> Why does this have to be in the kernel again?  Isn't this exactly what
+> you get with a fully modular config and hotplug?
 
-> Nope, unfortunately. If you read my initial response I was quite
-> thrilled. But once I realized the limitations of ndevfs I changed my
-> tone. The devfs hooks are still required to provide appropriate names,
-> and it is these I'm most interested in saving.
+It doesn't go in the kernel. If I understand correctly, it's a script that is 
+invoked by 'make autoconfig'. Note that I didn't read the patch, because it's a 
+.tgz on a website and I couldn't be bothered to download it.
 
-If you can survive without modernism, why can't you survive without
-devfs?  Why do you need it?
-
-	Robert Love
-
-
+Daniel

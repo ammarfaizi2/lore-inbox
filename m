@@ -1,64 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932371AbVIOJax@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932384AbVIOJjE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932371AbVIOJax (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 05:30:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbVIOJax
+	id S932384AbVIOJjE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 05:39:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbVIOJjE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 05:30:53 -0400
-Received: from koto.vergenet.net ([210.128.90.7]:19889 "EHLO koto.vergenet.net")
-	by vger.kernel.org with ESMTP id S932371AbVIOJaw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 05:30:52 -0400
-Date: Thu, 15 Sep 2005 18:22:46 +0900
-From: Horms <horms@debian.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Marc Horowitz <marc@mit.edu>, 328135@bugs.debian.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Bug#328135: kernel-image-2.6.11-1-686-smp: nfs reading process stuck in disk wait
-Message-ID: <20050915092246.GE25382@verge.net.au>
-References: <20050913194707.8C8C28E6F0@ayer.connecterra.net> <20050914025150.GR27828@verge.net.au> <1126742335.8807.74.camel@lade.trondhjem.org> <t533bo75e6t.fsf@central-air-conditioning.toybox.cambridge.ma.us> <1126773168.12556.13.camel@lade.trondhjem.org>
+	Thu, 15 Sep 2005 05:39:04 -0400
+Received: from [203.171.93.254] ([203.171.93.254]:62951 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S932384AbVIOJjD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 05:39:03 -0400
+Subject: Re: [linux-pm] swsusp3: push image reading/writing into userspace
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>
+In-Reply-To: <20050915073744.GA2725@elf.ucw.cz>
+References: <20050914223206.GA2376@elf.ucw.cz>
+	 <1126749596.3987.5.camel@localhost> <20050915063753.GA2691@elf.ucw.cz>
+	 <1126768581.3987.31.camel@localhost>  <20050915073744.GA2725@elf.ucw.cz>
+Content-Type: text/plain
+Organization: Cyclades
+Message-Id: <1126776726.4452.50.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1126773168.12556.13.camel@lade.trondhjem.org>
-X-Cluestick: seven
-User-Agent: Mutt/1.5.10i
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 15 Sep 2005 19:32:06 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 15, 2005 at 09:32:47AM +0100, Trond Myklebust wrote:
-> on den 14.09.2005 Klokka 21:10 (-0400) skreiv Marc Horowitz:
-> > Trond Myklebust <trond.myklebust@fys.uio.no> writes:
-> > 
-> > >> on den 14.09.2005 Klokka 11:51 (+0900) skreiv Horms:
-> > >> > Hi Marc,
-> > >> > 
-> > >> > would is be possible to test linux-image-2.6.12-1-686-smp from 
-> > >> > unstable to see if this problem persists? I am CCing the NFS
-> > >> > maintainer and LKML as this looks reasonably nasty and they
-> > >> > may be interested in looking into it.
-> > >> > 
-> > >> 
-> > >> I doubt this has anything to do with NFS. We should no longer have a
-> > >> sync_page VFS method in the 2.6 kernels. What other filesystems is the
-> > >> user running?
-> > 
-> > In the stack trace I sent, from a running 2.6.11 kernel, vfs_read
-> > appears to be the vfs method, not sync_page.  sync_page is called much
-> > deeper in the stack trace.
-> 
-> So? It is clearly the call to sync_page that is Oopsing.
-> 
-> The NFS call is just trying to lock a page that appears to be owned by
-> someone else. That triggers a call to that filesystem's sync_page, which
-> then goes on to do a page allocation, which again Oopses.
+Hi.
 
-I take it from your initial remarks that the use of sync_page()
-in the VSF has changed recently. And in any case, it would
-be worth testing 2.6.12 or 2.6.13 before investigating any further
-as in your oppinion the problem is not NFS related, but related
-to somthing that NFS coincidently triggers (but could just as
-easily triggered by anything else).
+On Thu, 2005-09-15 at 17:37, Pavel Machek wrote:
+> Hi!
+> 
+> > > > > Here's prototype code for swsusp3. It seems to work for me, but don't
+> > > > > try it... yet. Code is very ugly at places, sorry, I know and will fix
+> > > > > it. This is just proof that it can be done, and that it can be done
+> > > > > without excessive ammount of code.
+> > > > 
+> > > > No comments on the code sorry. Instead I want to ask, could you please
+> > > > find a different name? swsusp3 is going to make people think that it's
+> > > > Suspend2 redesigned. Since there hasn't been a swsusp2 (so far as I
+> > > > know), how about using that name instead? At least then we'll clearly
+> > > > differentiate the two implementations and you won't confuse/irritate
+> > > > users.
+> > > 
+> > > swsusp2 can't be used, it is already "taken" by suspend2 (25000 hits
+> > > on google). I was actually hoping that you would release suspend4
+> > > (using swsusp3 infrastructure) :-).
+> > 
+> > You could reclaim it. There are 10 times as many hits (239,000) for
+> > suspend2, and I've never wanted it to be called swsusp2 anyway :). As
+> > for suspend4, at the moment, I'm not planning on ever progressing beyond
+> > 2.x.
+> 
+> Sorry, have to ask...
+> 
+> "not planning on progressing" == version number stays "2" no matter
+> what changes, or "not planning on progressing" == not plan to use
+> swsusp3/uswsusp infrastructure?
 
+I'm not planning on ever progressing beyond 2.x because I'm seeing the
+code I have now as pretty much feature complete. There are a few small
+areas that I'd like to improve (reinstating module support being one -
+it was a mistake to remove it), but I don't see the need for a complete
+redesign. That said, I was careful to say 'at the moment'. I'm not
+denying for a second that things might change.
+
+Regarding the 'swsusp3/uswsusp infrastructure': as I see it at the
+moment (feel free to correct me), your new revision is only moving as
+much code as you can to userspace (plus changes that are made necessary
+by that). Beyond maybe reducing the kernel size a little, I don't see
+any advantage to that - it just makes things more complicated and
+requires the user to set up more in the way of an initrd or initramfs in
+order to suspend and resume. You end up with more code to maintain to
+get the same functionality (same amount of kernel code or slightly less
+plus extra userland code to do all the reading and writing). I'm
+speaking from experience. Bernard and I moved the userinterface code to
+userspace to make others happy and that fact that we ended up with more
+code shouldn't surprise anyone. You need all the code you had before
+plus code for the interface (at least).
+
+If the main impetus is seeking to reduce kernel code size, why not just
+provide the option of building your code as a module for those who are
+concerned about that statistic?
+
+> > > I guess I could call it "uswsusp".
+> > 
+> > u as in micro?
+> 
+> Originaly I thought about it as "userland-swsusp", but micro-swsusp
+> sounds nice, too.
+
+I think people would think of micro more readily that userland, but it's
+your choice :)
+
+Regards,
+
+Nigel
+								Pavel
 -- 
-Horms
+
+

@@ -1,51 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751200AbVIOUch@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751190AbVIOUeI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751200AbVIOUch (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 16:32:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751213AbVIOUch
+	id S1751190AbVIOUeI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 16:34:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751213AbVIOUeI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 16:32:37 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:24197 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751200AbVIOUcg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 16:32:36 -0400
-Date: Thu, 15 Sep 2005 13:32:18 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Benjamin LaHaise <bcrl@kvack.org>
-cc: Eric Dumazet <dada1@cosmosbay.com>, Sonny Rao <sonny@burdell.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: "Read my lips: no more merges" - aka Linux 2.6.14-rc1
-In-Reply-To: <20050915201356.GA20966@kvack.org>
-Message-ID: <Pine.LNX.4.58.0509151328260.26803@g5.osdl.org>
-References: <Pine.LNX.4.58.0509122019560.3351@g5.osdl.org>
- <20050913063359.GA29715@kevlar.burdell.org> <43267A00.1010405@cosmosbay.com>
- <20050915201356.GA20966@kvack.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 15 Sep 2005 16:34:08 -0400
+Received: from zproxy.gmail.com ([64.233.162.202]:54397 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751190AbVIOUeG convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 16:34:06 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=SM8ZpaW/1LSYznpxSdHJHbcxJfFIZp1Jx5HJvG/YvFwKnfCdn6Vd2Y62twKM5/O1KV+17GLnpm6racYAs3C96cRK1umvdiFc2F6TjgeC9hZ4whKRe0XNROizykuf7PXR0CVWpR8hmgeHoJk2AA8Idk/MATO3FfPEQmlXos3mr/Y=
+Message-ID: <9a8748490509151334363cfd2d@mail.gmail.com>
+Date: Thu, 15 Sep 2005 22:34:06 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: jesper.juhl@gmail.com
+To: "Valdis.Kletnieks@vt.edu" <Valdis.Kletnieks@vt.edu>
+Subject: Re: HZ question
+Cc: Joe Bob Spamtest <joebob@spamtest.viacore.net>,
+       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <200509152019.j8FKJvAD025249@turing-police.cc.vt.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <4326CAB3.6020109@compro.net>
+	 <2cd57c9005091321006825540@mail.gmail.com>
+	 <1126747237.13893.108.camel@mindpipe>
+	 <43299E59.4060103@spamtest.viacore.net>
+	 <200509152019.j8FKJvAD025249@turing-police.cc.vt.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 15 Sep 2005, Benjamin LaHaise wrote:
+On 9/15/05, Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> wrote:
+> On Thu, 15 Sep 2005 09:16:25 PDT, Joe Bob Spamtest said:
+> > Lee Revell wrote:
+> > > On Wed, 2005-09-14 at 12:00 +0800, Coywolf Qi Hunt wrote:
+> > >
+> > >>simply zgrep HZ= /proc/config.gz
+> > >>on my box, I get CONFIG_HZ=1000
+> > >
+> > >
+> > > Many distros inexplicably disable that by default.
+> >
+> > Their rationale is that knowing the kernel .config is a security threat.
 > 
-> Alternatively, the kernel could track available file descriptors using a 
-> tree to efficiently insert freed slots into an ordered list of free 
-> regions (something similar to the avl tree used in vmas).  Is it worth 
-> doing?
+> At least in Fedora, they ship a mode 644 config file in /boot:
+> 
+> % ls -l /boot/config-2.6.13-1.1555_FC5
+> 61 -rw-r--r--  1 root root 60135 Sep 14 15:55 /boot/config-2.6.13-1.1555_FC5
+> 
+> No need to include that in the kernel if it's right there on disk.  Even Fedora
+> doesn't believe in *that* much bloat. ;)
+> 
 
-For file descriptors, even a few hundred is considered a _lot_ in almost 
-all settings. Yes, you can certainly have more, but it's unusual.
+Or delete it from disk and include it in the kernel instead.
 
-And we keep track of the fd reservations with a bitmap _and_ a "lowest
-possible" count. So we can check 32 fd's in one go (64 on modern setups),
-starting from the last one we allocated.
+Having it in the kernel instead of as a sepperate file makes sense to
+me; you'll never loose it as long as you have the actual kernel
+around. Nothing like finding a problem with an older kernel and not
+being able to duplicate the config with a newer one because you
+deleted the .config at some point. With the config embedded in the
+kernel that never happens...
 
-In other words, no. It's not worth doing anything more than we already do. 
+As for the security issue with being able to read /proc/config.gz,
+couldn't that be solved easily if that file had mode 0400 ?
 
-I bet all the expense in this area tends under heavy load to be the
-cacheline bouncing of the updates. Keeping the lock close to the bitmap is 
-probably advantageous, since the bitmap tends to be looked at only when we 
-need to change them (and we hold the lock).
 
-		Linus
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

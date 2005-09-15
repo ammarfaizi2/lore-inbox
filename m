@@ -1,52 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932595AbVIOXvP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030478AbVIOXw1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932595AbVIOXvP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 19:51:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932598AbVIOXvP
+	id S1030478AbVIOXw1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 19:52:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030506AbVIOXw1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 19:51:15 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:56205 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S932595AbVIOXvO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 19:51:14 -0400
-From: "Peter T. Breuer" <ptb@inv.it.uc3m.es>
-Message-Id: <200509152350.j8FNoTM17346@inv.it.uc3m.es>
-Subject: .o.cmd files wanted, static analysis
-To: "linux kernel" <linux-kernel@vger.kernel.org>
-Date: Fri, 16 Sep 2005 01:50:29 +0200 (MET DST)
-X-Anonymously-To: 
-Reply-To: ptb@inv.it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	Thu, 15 Sep 2005 19:52:27 -0400
+Received: from fed1rmmtao09.cox.net ([68.230.241.30]:36792 "EHLO
+	fed1rmmtao09.cox.net") by vger.kernel.org with ESMTP
+	id S1030478AbVIOXw0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 19:52:26 -0400
+From: Junio C Hamano <junkio@cox.net>
+To: git@vger.kernel.org
+Cc: Daniel Barkalow <barkalow@iabervon.org>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Current state of GIT fetch/pull clients
+References: <Pine.LNX.4.63.0509142319330.23242@iabervon.org>
+Date: Thu, 15 Sep 2005 16:52:20 -0700
+In-Reply-To: <Pine.LNX.4.63.0509142319330.23242@iabervon.org> (Daniel
+	Barkalow's message of "Wed, 14 Sep 2005 23:26:08 -0400 (EDT)")
+Message-ID: <7vbr2tx51n.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(was sent to Linux Testing Project list, but no answer there yet).
+After Linus suggested to use objects/info/alternates to point at
+his linux-2.6 tree so that the maintainer trees can borrow from
+it, there may be a bit of confusion.  Here is my attempt to
+clarify the current state of affairs.
 
+If you are a subsystem maintainer with an account $u at
+master.kernel.org and have your repository $tree derived from
+Linus' linux-2.6.git reopsitory, it would be at:
 
-G'day all
+      /pub/scm/linux/kernel/git/$u/$tree
 
-I'm looking for a set of .*.o.cmd files for the 2.6 kernel. These are
-generated when you compile the kernel. I have about 1600 of them from my
-standard compilation choices, but I want the full 6000 odd so that I can
-run static analysis tests.
+Of course, you may have more than one such $tree.  The
+suggestion by Linus was to do (please do not do this yet -- that
+is what this message is about):
 
-See ftp://oboe.it.uc3m.es/pub/Programs/c-1.2.*.tgz
+    $ cd /pub/scm/linux/kernel/git/$u/$tree
+    $ cat /pub/scm/linux/kernel/git/torvalds/linux-2.6/objects \
+        >objects/info/alternates
+    $ GIT_DIR=. git prune
 
-The currently enabled tests are for sleep under spinlock, double spinlock,
-and access to kfree'd memory. I'll add more according to suggestions
-received. About 3 errors in each class are detected for every 1000
-kernel source files, with about three times that many false alarms
-raised. It takes a few seconds per file, at about 10000 expanded lines
-of code per second.
+What this does is:
 
-Does somebody out there have a pretty complete kernel compilation,
-mainly all modules (though I don't care!), and could let me have their
- .*.o.cmd files? In fact, just the FIRST LINE of them.
- 
-That first line gives me the compile flags used.
+    * A process on master.kernel.org and its mirrors running in
+      your repository (i.e. /pub/scm/linux/kernel/git/$u/$tree)
+      can read objects not found in your repository from Linus'
+      repository.  This means that $u/$tree/objects/?? would
+      contain only your changes and practically 99% of the
+      objects are coming from Linus' repository for such
+      process.  You do not have to have any objects Linus'
+      repository has in your repository.
 
-Thanks.
+Sounds very nice, doesn't it?
 
-Peter
+However, there are currently certain issues around almost all
+git clients, and Cogito cg-pull shares this problem.
 
+Neither http nor rsync transports know about the 'alternates'
+mechanism yet, so if a downloader does:
+
+    $ git pull http://kernel.org/pub/scm/linux/kernel/git/$u/$tree
+    $ git pull rsync://kernel.org/pub/scm/linux/kernel/git/$u/$tree
+
+unless the downloader has already fetched from Linus'
+repository, this will not work.
+
+  * In the case of http transport, it would start from your branch
+    head, walking commits backwards, and as soon as it hits a commit
+    (or a tree/blob) that your repository is borrowing from Linus.
+
+  * In the case of rsync transport, it would slurp all objects
+    your repository has, but does not get objects from Linus'
+    repository.  Also, rsync will overwrite the
+    objects/info/alternates file the downloader has in his
+    repository with what you have in your repository, which is
+    not what we want.
+
+The only transport that works is what Linus uses himself.  If
+the downloader has an account on master.kernel.org:
+
+    $ git pull master.kernel.org:/pub/scm/linux/kernel/git/$u/$tree
+
+would work, because this transport runs git in your repository
+on the master.kernel.org side, and that knows how to use
+objects/info/alternates file you set up as Linus suggested.
+Another transport that _could_ work is git-daemon:
+
+    $ git pull git://kernel.org/pub/scm/linux/kernel/git/$u/$tree
+
+but unfortunately kernel.org servers do not run git-daemon yet.
+
+What this means is that using objects/info/alternates mechanism
+in your repository is a bit premature as things currently stand,
+if you intend your repository to be used by the general public.
+
+Daniel started working on teaching http transport to be able to
+read from objects/info/alternates last night, and I am expecting
+that would be proven stable and usable sometime next week at the
+latest.  HPA is helping us in the discussion to whip git-daemon
+into a shape usable on kernel.org to enable it there.  I'll be
+fixing rsync transport sometime over this weekend.
 

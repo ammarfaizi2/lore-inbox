@@ -1,63 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932194AbVIOIdL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932237AbVIOIv2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932194AbVIOIdL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 04:33:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932198AbVIOIdL
+	id S932237AbVIOIv2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 04:51:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932251AbVIOIv1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 04:33:11 -0400
-Received: from pat.uio.no ([129.240.130.16]:7555 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S932194AbVIOIdK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 04:33:10 -0400
-Subject: Re: Bug#328135: kernel-image-2.6.11-1-686-smp: nfs reading process
-	stuck in disk wait
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Marc Horowitz <marc@mit.edu>
-Cc: Horms <horms@debian.org>, 328135@bugs.debian.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <t533bo75e6t.fsf@central-air-conditioning.toybox.cambridge.ma.us>
-References: <20050913194707.8C8C28E6F0@ayer.connecterra.net>
-	 <20050914025150.GR27828@verge.net.au>
-	 <1126742335.8807.74.camel@lade.trondhjem.org>
-	 <t533bo75e6t.fsf@central-air-conditioning.toybox.cambridge.ma.us>
-Content-Type: text/plain
-Date: Thu, 15 Sep 2005 09:32:47 +0100
-Message-Id: <1126773168.12556.13.camel@lade.trondhjem.org>
+	Thu, 15 Sep 2005 04:51:27 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:30157 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932237AbVIOIv0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 04:51:26 -0400
+Date: Thu, 15 Sep 2005 14:21:10 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, george@mvista.com, johnstul@us.ibm.com,
+       nacc@us.ibm.com, schwidefsky@de.ibm.com
+Subject: [PATCH 2/3] NO_IDLE_HZ support patches - add_timer_on needs a check
+Message-ID: <20050915085110.GC10191@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.345, required 12,
-	autolearn=disabled, RCVD_IN_NJABL_DUL 1.66,
-	UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-on den 14.09.2005 Klokka 21:10 (-0400) skreiv Marc Horowitz:
-> Trond Myklebust <trond.myklebust@fys.uio.no> writes:
-> 
-> >> on den 14.09.2005 Klokka 11:51 (+0900) skreiv Horms:
-> >> > Hi Marc,
-> >> > 
-> >> > would is be possible to test linux-image-2.6.12-1-686-smp from 
-> >> > unstable to see if this problem persists? I am CCing the NFS
-> >> > maintainer and LKML as this looks reasonably nasty and they
-> >> > may be interested in looking into it.
-> >> > 
-> >> 
-> >> I doubt this has anything to do with NFS. We should no longer have a
-> >> sync_page VFS method in the 2.6 kernels. What other filesystems is the
-> >> user running?
-> 
-> In the stack trace I sent, from a running 2.6.11 kernel, vfs_read
-> appears to be the vfs method, not sync_page.  sync_page is called much
-> deeper in the stack trace.
+add_timer_on needs to check if the target CPU was sleeping. If
+so it should wakeup the CPU.
 
-So? It is clearly the call to sync_page that is Oopsing.
+Patch below is against 2.6.14-rc1.
 
-The NFS call is just trying to lock a page that appears to be owned by
-someone else. That triggers a call to that filesystem's sync_page, which
-then goes on to do a page allocation, which again Oopses.
 
-Cheers,
-  Trond
+Signed-off-by : Srivatsa Vaddagiri <vatsa@in.ibm.com>
 
+---
+
+ linux-2.6.14-rc1-root/kernel/timer.c |    5 +++++
+ 1 files changed, 5 insertions(+)
+
+diff -puN kernel/timer.c~add_timer_on kernel/timer.c
+--- linux-2.6.14-rc1/kernel/timer.c~add_timer_on	2005-09-15 12:48:47.000000000 +0530
++++ linux-2.6.14-rc1-root/kernel/timer.c	2005-09-15 13:33:34.000000000 +0530
+@@ -290,6 +290,11 @@ void add_timer_on(struct timer_list *tim
+ 	timer->base = &base->t_base;
+ 	internal_add_timer(base, timer);
+ 	spin_unlock_irqrestore(&base->t_base.lock, flags);
++#ifdef CONFIG_NO_IDLE_HZ
++	/* Wake up any sleeping CPU */
++	if (cpu_isset(cpu, nohz_cpu_mask))
++		smp_send_reschedule(cpu);
++#endif
+ }
+ 
+ 
+
+_
+-- 
+
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

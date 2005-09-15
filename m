@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030457AbVIOHR5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030448AbVIOHSr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030457AbVIOHR5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 03:17:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030448AbVIOHQv
+	id S1030448AbVIOHSr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 03:18:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030461AbVIOHQd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 03:16:51 -0400
-Received: from smtp113.sbc.mail.re2.yahoo.com ([68.142.229.92]:24418 "HELO
-	smtp113.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1030447AbVIOHQD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 03:16:03 -0400
-Message-Id: <20050915064944.416709000.dtor_core@ameritech.net>
+	Thu, 15 Sep 2005 03:16:33 -0400
+Received: from smtp109.sbc.mail.re2.yahoo.com ([68.142.229.96]:29565 "HELO
+	smtp109.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1030458AbVIOHQH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 03:16:07 -0400
+Message-Id: <20050915064945.911080000.dtor_core@ameritech.net>
 References: <20050915064552.836273000.dtor_core@ameritech.net>
-Date: Thu, 15 Sep 2005 01:46:05 -0500
+Date: Thu, 15 Sep 2005 01:46:14 -0500
 From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: linux-kernel@vger.kernel.org
 Cc: Andrew Morton <akpm@osdl.org>
@@ -22,1438 +22,1109 @@ Greg KH <gregkh@suse.de>,
 Kay Sievers <kay.sievers@vrfy.org>,
 Vojtech Pavlik <vojtech@suse.cz>,
 Hannes Reinecke <hare@suse.de>
-Subject: [patch 13/28] drivers/input/mouse: convert to dynamic input_dev allocation
-Content-Disposition: inline; filename=input-dynalloc-mice.patch
+Subject: [patch 22/28] drivers/media: convert to dynamic input_dev allocation
+Content-Disposition: inline; filename=input-dynalloc-media.patch
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-Input: convert drivers/input/mouse to dynamic input_dev allocation
+Input: convert drivers/media to dynamic input_dev allocation
 
 This is required for input_dev sysfs integration
 
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
 
- drivers/input/mouse/alps.c         |   67 +++++++++++++------------
- drivers/input/mouse/alps.h         |    2 
- drivers/input/mouse/amimouse.c     |   51 +++++++++----------
- drivers/input/mouse/inport.c       |   96 ++++++++++++++++++-----------------
- drivers/input/mouse/lifebook.c     |   16 +++--
- drivers/input/mouse/logibm.c       |   88 ++++++++++++++++----------------
- drivers/input/mouse/logips2pp.c    |   20 ++++---
- drivers/input/mouse/maplemouse.c   |   10 +--
- drivers/input/mouse/pc110pad.c     |   70 ++++++++++++--------------
- drivers/input/mouse/psmouse-base.c |   99 +++++++++++++++++++------------------
- drivers/input/mouse/psmouse.h      |    2 
- drivers/input/mouse/rpcmouse.c     |   43 +++++++---------
- drivers/input/mouse/sermouse.c     |   84 ++++++++++++++-----------------
- drivers/input/mouse/synaptics.c    |    6 +-
- drivers/input/mouse/vsxxxaa.c      |   84 ++++++++++++++-----------------
- 15 files changed, 370 insertions(+), 368 deletions(-)
+ drivers/media/common/ir-common.c            |    1 
+ drivers/media/dvb/cinergyT2/cinergyT2.c     |  108 ++++++++++++++++++----------
+ drivers/media/dvb/dvb-usb/dvb-usb-remote.c  |   50 +++++++-----
+ drivers/media/dvb/dvb-usb/dvb-usb.h         |    3 
+ drivers/media/dvb/ttpci/av7110_ir.c         |   37 +++++----
+ drivers/media/dvb/ttpci/budget-ci.c         |   24 +++---
+ drivers/media/dvb/ttusb-dec/ttusb_dec.c     |   51 ++++++++-----
+ drivers/media/video/bttvp.h                 |    2 
+ drivers/media/video/cx88/cx88-input.c       |   58 ++++++++-------
+ drivers/media/video/ir-kbd-gpio.c           |   52 +++++++------
+ drivers/media/video/ir-kbd-i2c.c            |   33 ++++----
+ drivers/media/video/saa7134/saa7134-input.c |   39 +++++-----
+ drivers/media/video/saa7134/saa7134.h       |    2 
+ 13 files changed, 268 insertions(+), 192 deletions(-)
 
-Index: work/drivers/input/mouse/amimouse.c
+Index: work/drivers/media/video/ir-kbd-i2c.c
 ===================================================================
---- work.orig/drivers/input/mouse/amimouse.c
-+++ work/drivers/input/mouse/amimouse.c
-@@ -34,10 +34,7 @@ MODULE_DESCRIPTION("Amiga mouse driver")
- MODULE_LICENSE("GPL");
+--- work.orig/drivers/media/video/ir-kbd-i2c.c
++++ work/drivers/media/video/ir-kbd-i2c.c
+@@ -121,10 +121,9 @@ static IR_KEYTAB_TYPE ir_codes_purpletv[
  
- static int amimouse_lastx, amimouse_lasty;
--static struct input_dev amimouse_dev;
--
--static char *amimouse_name = "Amiga mouse";
--static char *amimouse_phys = "amimouse/input0";
-+static struct input_dev *amimouse_dev;
+ };
  
- static irqreturn_t amimouse_interrupt(int irq, void *dummy, struct pt_regs *fp)
- {
-@@ -62,16 +59,16 @@ static irqreturn_t amimouse_interrupt(in
+-struct IR;
+ struct IR {
+ 	struct i2c_client      c;
+-	struct input_dev       input;
++	struct input_dev       *input;
+ 	struct ir_input_state  ir;
  
- 	potgor = custom.potgor;
+ 	struct work_struct     work;
+@@ -271,9 +270,9 @@ static void ir_key_poll(struct IR *ir)
+ 	}
  
--	input_regs(&amimouse_dev, fp);
-+	input_regs(amimouse_dev, fp);
- 
--	input_report_rel(&amimouse_dev, REL_X, dx);
--	input_report_rel(&amimouse_dev, REL_Y, dy);
-+	input_report_rel(amimouse_dev, REL_X, dx);
-+	input_report_rel(amimouse_dev, REL_Y, dy);
- 
--	input_report_key(&amimouse_dev, BTN_LEFT,   ciaa.pra & 0x40);
--	input_report_key(&amimouse_dev, BTN_MIDDLE, potgor & 0x0100);
--	input_report_key(&amimouse_dev, BTN_RIGHT,  potgor & 0x0400);
-+	input_report_key(amimouse_dev, BTN_LEFT,   ciaa.pra & 0x40);
-+	input_report_key(amimouse_dev, BTN_MIDDLE, potgor & 0x0100);
-+	input_report_key(amimouse_dev, BTN_RIGHT,  potgor & 0x0400);
- 
--	input_sync(&amimouse_dev);
-+	input_sync(amimouse_dev);
- 
- 	return IRQ_HANDLED;
+ 	if (0 == rc) {
+-		ir_input_nokey(&ir->input,&ir->ir);
++		ir_input_nokey(ir->input, &ir->ir);
+ 	} else {
+-		ir_input_keydown(&ir->input,&ir->ir, ir_key, ir_raw);
++		ir_input_keydown(ir->input, &ir->ir, ir_key, ir_raw);
+ 	}
  }
-@@ -103,28 +100,30 @@ static int __init amimouse_init(void)
- 	if (!MACH_IS_AMIGA || !AMIGAHW_PRESENT(AMI_MOUSE))
- 		return -ENODEV;
  
--	amimouse_dev.evbit[0] = BIT(EV_KEY) | BIT(EV_REL);
--	amimouse_dev.relbit[0] = BIT(REL_X) | BIT(REL_Y);
--	amimouse_dev.keybit[LONG(BTN_LEFT)] = BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT);
--	amimouse_dev.open = amimouse_open;
--	amimouse_dev.close = amimouse_close;
--
--	amimouse_dev.name = amimouse_name;
--	amimouse_dev.phys = amimouse_phys;
--	amimouse_dev.id.bustype = BUS_AMIGA;
--	amimouse_dev.id.vendor = 0x0001;
--	amimouse_dev.id.product = 0x0002;
--	amimouse_dev.id.version = 0x0100;
-+	if (!(amimouse_dev = input_allocate_device()))
-+		return -ENOMEM;
+@@ -318,11 +317,18 @@ static int ir_attach(struct i2c_adapter 
+ 	char *name;
+ 	int ir_type;
+         struct IR *ir;
++	struct input_dev *input_dev;
+ 
+-        if (NULL == (ir = kmalloc(sizeof(struct IR),GFP_KERNEL)))
++	ir = kzalloc(sizeof(struct IR), GFP_KERNEL);
++	input_dev = input_allocate_device();
++	if (!ir || !input_dev) {
++		kfree(ir);
++		input_free_device(input_dev);
+                 return -ENOMEM;
+-	memset(ir,0,sizeof(*ir));
++	}
 +
-+	amimouse_dev->name = "Amiga mouse";
-+	amimouse_dev->phys = "amimouse/input0";
-+	amimouse_dev->id.bustype = BUS_AMIGA;
-+	amimouse_dev->id.vendor = 0x0001;
-+	amimouse_dev->id.product = 0x0002;
-+	amimouse_dev->id.version = 0x0100;
+ 	ir->c = client_template;
++	ir->input = input_dev;
+ 
+ 	i2c_set_clientdata(&ir->c, ir);
+ 	ir->c.adapter = adap;
+@@ -375,13 +381,12 @@ static int ir_attach(struct i2c_adapter 
+ 		 ir->c.dev.bus_id);
+ 
+ 	/* init + register input device */
+-	ir_input_init(&ir->input,&ir->ir,ir_type,ir_codes);
+-	ir->input.id.bustype = BUS_I2C;
+-	ir->input.name       = ir->c.name;
+-	ir->input.phys       = ir->phys;
+-	input_register_device(&ir->input);
+-	printk(DEVNAME ": %s detected at %s [%s]\n",
+-	       ir->input.name,ir->input.phys,adap->name);
++	ir_input_init(input_dev, &ir->ir, ir_type, ir_codes);
++	input_dev->id.bustype	= BUS_I2C;
++	input_dev->name		= ir->c.name;
++	input_dev->phys		= ir->phys;
 +
-+	amimouse_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REL);
-+	amimouse_dev->relbit[0] = BIT(REL_X) | BIT(REL_Y);
-+	amimouse_dev->keybit[LONG(BTN_LEFT)] = BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT);
-+	amimouse_dev->open = amimouse_open;
-+	amimouse_dev->close = amimouse_close;
++	input_register_device(ir->input);
  
--	input_register_device(&amimouse_dev);
-+	input_register_device(amimouse_dev);
+ 	/* start polling via eventd */
+ 	INIT_WORK(&ir->work, ir_work, ir);
+@@ -402,7 +407,7 @@ static int ir_detach(struct i2c_client *
+ 	flush_scheduled_work();
  
--        printk(KERN_INFO "input: %s at joy0dat\n", amimouse_name);
- 	return 0;
- }
+ 	/* unregister devices */
+-	input_unregister_device(&ir->input);
++	input_unregister_device(ir->input);
+ 	i2c_detach_client(&ir->c);
  
- static void __exit amimouse_exit(void)
- {
--        input_unregister_device(&amimouse_dev);
-+        input_unregister_device(amimouse_dev);
- }
- 
- module_init(amimouse_init);
-Index: work/drivers/input/mouse/inport.c
+ 	/* free memory */
+Index: work/drivers/media/video/ir-kbd-gpio.c
 ===================================================================
---- work.orig/drivers/input/mouse/inport.c
-+++ work/drivers/input/mouse/inport.c
-@@ -87,40 +87,7 @@ MODULE_PARM_DESC(irq, "IRQ number (5=def
+--- work.orig/drivers/media/video/ir-kbd-gpio.c
++++ work/drivers/media/video/ir-kbd-gpio.c
+@@ -158,7 +158,7 @@ static IR_KEYTAB_TYPE ir_codes_apac_view
  
- __obsolete_setup("inport_irq=");
+ struct IR {
+ 	struct bttv_sub_device  *sub;
+-	struct input_dev        input;
++	struct input_dev        *input;
+ 	struct ir_input_state   ir;
+ 	char                    name[32];
+ 	char                    phys[32];
+@@ -217,23 +217,23 @@ static void ir_handle_key(struct IR *ir)
+ 	if (ir->mask_keydown) {
+ 		/* bit set on keydown */
+ 		if (gpio & ir->mask_keydown) {
+-			ir_input_keydown(&ir->input,&ir->ir,data,data);
++			ir_input_keydown(ir->input, &ir->ir, data, data);
+ 		} else {
+-			ir_input_nokey(&ir->input,&ir->ir);
++			ir_input_nokey(ir->input, &ir->ir);
+ 		}
  
--static irqreturn_t inport_interrupt(int irq, void *dev_id, struct pt_regs *regs);
--
--static int inport_open(struct input_dev *dev)
--{
--	if (request_irq(inport_irq, inport_interrupt, 0, "inport", NULL))
--		return -EBUSY;
--	outb(INPORT_REG_MODE, INPORT_CONTROL_PORT);
--	outb(INPORT_MODE_IRQ | INPORT_MODE_BASE, INPORT_DATA_PORT);
--
--	return 0;
--}
--
--static void inport_close(struct input_dev *dev)
--{
--	outb(INPORT_REG_MODE, INPORT_CONTROL_PORT);
--	outb(INPORT_MODE_BASE, INPORT_DATA_PORT);
--	free_irq(inport_irq, NULL);
--}
--
--static struct input_dev inport_dev = {
--	.evbit	= { BIT(EV_KEY) | BIT(EV_REL) },
--	.keybit	= { [LONG(BTN_LEFT)] = BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT) },
--	.relbit	= { BIT(REL_X) | BIT(REL_Y) },
--	.open	= inport_open,
--	.close	= inport_close,
--	.name	= INPORT_NAME,
--	.phys	= "isa023c/input0",
--	.id = {
--		.bustype = BUS_ISA,
--		.vendor  = INPORT_VENDOR,
--		.product = 0x0001,
--		.version = 0x0100,
--	},
--};
-+static struct input_dev *inport_dev;
+ 	} else if (ir->mask_keyup) {
+ 		/* bit cleared on keydown */
+ 		if (0 == (gpio & ir->mask_keyup)) {
+-			ir_input_keydown(&ir->input,&ir->ir,data,data);
++			ir_input_keydown(ir->input, &ir->ir, data, data);
+ 		} else {
+-			ir_input_nokey(&ir->input,&ir->ir);
++			ir_input_nokey(ir->input, &ir->ir);
+ 		}
  
- static irqreturn_t inport_interrupt(int irq, void *dev_id, struct pt_regs *regs)
- {
-@@ -129,31 +96,48 @@ static irqreturn_t inport_interrupt(int 
- 	outb(INPORT_REG_MODE, INPORT_CONTROL_PORT);
- 	outb(INPORT_MODE_HOLD | INPORT_MODE_IRQ | INPORT_MODE_BASE, INPORT_DATA_PORT);
- 
--	input_regs(&inport_dev, regs);
-+	input_regs(inport_dev, regs);
- 
- 	outb(INPORT_REG_X, INPORT_CONTROL_PORT);
--	input_report_rel(&inport_dev, REL_X, inb(INPORT_DATA_PORT));
-+	input_report_rel(inport_dev, REL_X, inb(INPORT_DATA_PORT));
- 
- 	outb(INPORT_REG_Y, INPORT_CONTROL_PORT);
--	input_report_rel(&inport_dev, REL_Y, inb(INPORT_DATA_PORT));
-+	input_report_rel(inport_dev, REL_Y, inb(INPORT_DATA_PORT));
- 
- 	outb(INPORT_REG_BTNS, INPORT_CONTROL_PORT);
- 	buttons = inb(INPORT_DATA_PORT);
- 
--	input_report_key(&inport_dev, BTN_MIDDLE, buttons & 1);
--	input_report_key(&inport_dev, BTN_LEFT,   buttons & 2);
--	input_report_key(&inport_dev, BTN_RIGHT,  buttons & 4);
-+	input_report_key(inport_dev, BTN_MIDDLE, buttons & 1);
-+	input_report_key(inport_dev, BTN_LEFT,   buttons & 2);
-+	input_report_key(inport_dev, BTN_RIGHT,  buttons & 4);
- 
- 	outb(INPORT_REG_MODE, INPORT_CONTROL_PORT);
- 	outb(INPORT_MODE_IRQ | INPORT_MODE_BASE, INPORT_DATA_PORT);
- 
--	input_sync(&inport_dev);
-+	input_sync(inport_dev);
- 	return IRQ_HANDLED;
+ 	} else {
+ 		/* can't disturgissh keydown/up :-/ */
+-		ir_input_keydown(&ir->input,&ir->ir,data,data);
+-		ir_input_nokey(&ir->input,&ir->ir);
++		ir_input_keydown(ir->input, &ir->ir, data, data);
++		ir_input_nokey(ir->input, &ir->ir);
+ 	}
  }
  
-+static int inport_open(struct input_dev *dev)
-+{
-+	if (request_irq(inport_irq, inport_interrupt, 0, "inport", NULL))
-+		return -EBUSY;
-+	outb(INPORT_REG_MODE, INPORT_CONTROL_PORT);
-+	outb(INPORT_MODE_IRQ | INPORT_MODE_BASE, INPORT_DATA_PORT);
-+
-+	return 0;
-+}
-+
-+static void inport_close(struct input_dev *dev)
-+{
-+	outb(INPORT_REG_MODE, INPORT_CONTROL_PORT);
-+	outb(INPORT_MODE_BASE, INPORT_DATA_PORT);
-+	free_irq(inport_irq, NULL);
-+}
-+
- static int __init inport_init(void)
+@@ -268,13 +268,17 @@ static int ir_probe(struct device *dev)
  {
--	unsigned char a,b,c;
-+	unsigned char a, b, c;
+ 	struct bttv_sub_device *sub = to_bttv_sub_dev(dev);
+ 	struct IR *ir;
++	struct input_dev *input_dev;
+ 	IR_KEYTAB_TYPE *ir_codes = NULL;
+ 	int ir_type = IR_TYPE_OTHER;
  
- 	if (!request_region(INPORT_BASE, INPORT_EXTENT, "inport")) {
- 		printk(KERN_ERR "inport.c: Can't allocate ports at %#x\n", INPORT_BASE);
-@@ -163,26 +147,44 @@ static int __init inport_init(void)
- 	a = inb(INPORT_SIGNATURE_PORT);
- 	b = inb(INPORT_SIGNATURE_PORT);
- 	c = inb(INPORT_SIGNATURE_PORT);
--	if (( a == b ) || ( a != c )) {
-+	if (a == b || a != c) {
- 		release_region(INPORT_BASE, INPORT_EXTENT);
- 		printk(KERN_ERR "inport.c: Didn't find InPort mouse at %#x\n", INPORT_BASE);
+-	ir = kmalloc(sizeof(*ir),GFP_KERNEL);
+-	if (NULL == ir)
++	ir = kzalloc(sizeof(*ir), GFP_KERNEL);
++	input_dev = input_allocate_device();
++	if (!ir || !input_dev) {
++		kfree(ir);
++		input_free_device(input_dev);
+ 		return -ENOMEM;
+-	memset(ir,0,sizeof(*ir));
++	}
+ 
+ 	/* detect & configure */
+ 	switch (sub->core->type) {
+@@ -328,6 +332,7 @@ static int ir_probe(struct device *dev)
+ 	}
+ 	if (NULL == ir_codes) {
+ 		kfree(ir);
++		input_free_device(input_dev);
  		return -ENODEV;
  	}
  
-+	if (!(inport_dev = input_allocate_device())) {
-+		printk(KERN_ERR "inport.c: Not enough memory for input device\n");
-+		release_region(INPORT_BASE, INPORT_EXTENT);
-+		return -ENOMEM;
-+	}
-+
-+	inport_dev->name = INPORT_NAME;
-+	inport_dev->phys = "isa023c/input0";
-+	inport_dev->id.bustype = BUS_ISA;
-+	inport_dev->id.vendor  = INPORT_VENDOR;
-+	inport_dev->id.product = 0x0001;
-+	inport_dev->id.version = 0x0100;
-+
-+	inport_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REL);
-+	inport_dev->keybit[LONG(BTN_LEFT)] = BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT);
-+	inport_dev->relbit[0] = BIT(REL_X) | BIT(REL_Y);
-+
-+	inport_dev->open  = inport_open;
-+	inport_dev->close = inport_close;
-+
- 	outb(INPORT_RESET, INPORT_CONTROL_PORT);
- 	outb(INPORT_REG_MODE, INPORT_CONTROL_PORT);
- 	outb(INPORT_MODE_BASE, INPORT_DATA_PORT);
+@@ -341,19 +346,19 @@ static int ir_probe(struct device *dev)
+ 	snprintf(ir->phys, sizeof(ir->phys), "pci-%s/ir0",
+ 		 pci_name(sub->core->pci));
  
--	input_register_device(&inport_dev);
--
--	printk(KERN_INFO "input: " INPORT_NAME " at %#x irq %d\n", INPORT_BASE, inport_irq);
-+	input_register_device(inport_dev);
+-	ir_input_init(&ir->input, &ir->ir, ir_type, ir_codes);
+-	ir->input.name = ir->name;
+-	ir->input.phys = ir->phys;
+-	ir->input.id.bustype = BUS_PCI;
+-	ir->input.id.version = 1;
++	ir_input_init(input_dev, &ir->ir, ir_type, ir_codes);
++	input_dev->name = ir->name;
++	input_dev->phys = ir->phys;
++	input_dev->id.bustype = BUS_PCI;
++	input_dev->id.version = 1;
+ 	if (sub->core->pci->subsystem_vendor) {
+-		ir->input.id.vendor  = sub->core->pci->subsystem_vendor;
+-		ir->input.id.product = sub->core->pci->subsystem_device;
++		input_dev->id.vendor  = sub->core->pci->subsystem_vendor;
++		input_dev->id.product = sub->core->pci->subsystem_device;
+ 	} else {
+-		ir->input.id.vendor  = sub->core->pci->vendor;
+-		ir->input.id.product = sub->core->pci->device;
++		input_dev->id.vendor  = sub->core->pci->vendor;
++		input_dev->id.product = sub->core->pci->device;
+ 	}
+-	ir->input.dev = &sub->core->pci->dev;
++	input_dev->cdev.dev = &sub->core->pci->dev;
  
- 	return 0;
- }
+ 	if (ir->polling) {
+ 		INIT_WORK(&ir->work, ir_work, ir);
+@@ -364,9 +369,8 @@ static int ir_probe(struct device *dev)
+ 	}
  
- static void __exit inport_exit(void)
- {
--	input_unregister_device(&inport_dev);
-+	input_unregister_device(inport_dev);
- 	release_region(INPORT_BASE, INPORT_EXTENT);
- }
- 
-Index: work/drivers/input/mouse/logibm.c
-===================================================================
---- work.orig/drivers/input/mouse/logibm.c
-+++ work/drivers/input/mouse/logibm.c
-@@ -77,39 +77,7 @@ MODULE_PARM_DESC(irq, "IRQ number (5=def
- 
- __obsolete_setup("logibm_irq=");
- 
--static irqreturn_t logibm_interrupt(int irq, void *dev_id, struct pt_regs *regs);
--
--static int logibm_open(struct input_dev *dev)
--{
--	if (request_irq(logibm_irq, logibm_interrupt, 0, "logibm", NULL)) {
--		printk(KERN_ERR "logibm.c: Can't allocate irq %d\n", logibm_irq);
--		return -EBUSY;
--	}
--	outb(LOGIBM_ENABLE_IRQ, LOGIBM_CONTROL_PORT);
--	return 0;
--}
--
--static void logibm_close(struct input_dev *dev)
--{
--	outb(LOGIBM_DISABLE_IRQ, LOGIBM_CONTROL_PORT);
--	free_irq(logibm_irq, NULL);
--}
--
--static struct input_dev logibm_dev = {
--	.evbit	= { BIT(EV_KEY) | BIT(EV_REL) },
--	.keybit = { [LONG(BTN_LEFT)] = BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT) },
--	.relbit	= { BIT(REL_X) | BIT(REL_Y) },
--	.open	= logibm_open,
--	.close	= logibm_close,
--	.name	= "Logitech bus mouse",
--	.phys	= "isa023c/input0",
--	.id	= {
--		.bustype = BUS_ISA,
--		.vendor  = 0x0003,
--		.product = 0x0001,
--		.version = 0x0100,
--	},
--};
-+static struct input_dev *logibm_dev;
- 
- static irqreturn_t logibm_interrupt(int irq, void *dev_id, struct pt_regs *regs)
- {
-@@ -127,18 +95,34 @@ static irqreturn_t logibm_interrupt(int 
- 	dy |= (buttons & 0xf) << 4;
- 	buttons = ~buttons >> 5;
- 
--	input_regs(&logibm_dev, regs);
--	input_report_rel(&logibm_dev, REL_X, dx);
--	input_report_rel(&logibm_dev, REL_Y, dy);
--	input_report_key(&logibm_dev, BTN_RIGHT,  buttons & 1);
--	input_report_key(&logibm_dev, BTN_MIDDLE, buttons & 2);
--	input_report_key(&logibm_dev, BTN_LEFT,   buttons & 4);
--	input_sync(&logibm_dev);
-+	input_regs(logibm_dev, regs);
-+	input_report_rel(logibm_dev, REL_X, dx);
-+	input_report_rel(logibm_dev, REL_Y, dy);
-+	input_report_key(logibm_dev, BTN_RIGHT,  buttons & 1);
-+	input_report_key(logibm_dev, BTN_MIDDLE, buttons & 2);
-+	input_report_key(logibm_dev, BTN_LEFT,   buttons & 4);
-+	input_sync(logibm_dev);
- 
- 	outb(LOGIBM_ENABLE_IRQ, LOGIBM_CONTROL_PORT);
- 	return IRQ_HANDLED;
- }
- 
-+static int logibm_open(struct input_dev *dev)
-+{
-+	if (request_irq(logibm_irq, logibm_interrupt, 0, "logibm", NULL)) {
-+		printk(KERN_ERR "logibm.c: Can't allocate irq %d\n", logibm_irq);
-+		return -EBUSY;
-+	}
-+	outb(LOGIBM_ENABLE_IRQ, LOGIBM_CONTROL_PORT);
-+	return 0;
-+}
-+
-+static void logibm_close(struct input_dev *dev)
-+{
-+	outb(LOGIBM_DISABLE_IRQ, LOGIBM_CONTROL_PORT);
-+	free_irq(logibm_irq, NULL);
-+}
-+
- static int __init logibm_init(void)
- {
- 	if (!request_region(LOGIBM_BASE, LOGIBM_EXTENT, "logibm")) {
-@@ -159,16 +143,34 @@ static int __init logibm_init(void)
- 	outb(LOGIBM_DEFAULT_MODE, LOGIBM_CONFIG_PORT);
- 	outb(LOGIBM_DISABLE_IRQ, LOGIBM_CONTROL_PORT);
- 
--	input_register_device(&logibm_dev);
-+	if (!(logibm_dev = input_allocate_device())) {
-+		printk(KERN_ERR "logibm.c: Not enough memory for input device\n");
-+		release_region(LOGIBM_BASE, LOGIBM_EXTENT);
-+		return -ENOMEM;
-+	}
-+
-+	logibm_dev->name = "Logitech bus mouse";
-+	logibm_dev->phys = "isa023c/input0";
-+	logibm_dev->id.bustype = BUS_ISA;
-+	logibm_dev->id.vendor  = 0x0003;
-+	logibm_dev->id.product = 0x0001;
-+	logibm_dev->id.version = 0x0100;
-+
-+	logibm_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REL);
-+	logibm_dev->keybit[LONG(BTN_LEFT)] = BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT);
-+	logibm_dev->relbit[0] = BIT(REL_X) | BIT(REL_Y);
-+
-+	logibm_dev->open  = logibm_open;
-+	logibm_dev->close = logibm_close;
- 
--	printk(KERN_INFO "input: Logitech bus mouse at %#x irq %d\n", LOGIBM_BASE, logibm_irq);
-+	input_register_device(logibm_dev);
+ 	/* all done */
+-	dev_set_drvdata(dev,ir);
+-	input_register_device(&ir->input);
+-	printk(DEVNAME ": %s detected at %s\n",ir->input.name,ir->input.phys);
++	dev_set_drvdata(dev, ir);
++	input_register_device(ir->input);
  
  	return 0;
  }
+@@ -380,7 +384,7 @@ static int ir_remove(struct device *dev)
+ 		flush_scheduled_work();
+ 	}
  
- static void __exit logibm_exit(void)
+-	input_unregister_device(&ir->input);
++	input_unregister_device(ir->input);
+ 	kfree(ir);
+ 	return 0;
+ }
+Index: work/drivers/media/video/saa7134/saa7134.h
+===================================================================
+--- work.orig/drivers/media/video/saa7134/saa7134.h
++++ work/drivers/media/video/saa7134/saa7134.h
+@@ -351,7 +351,7 @@ struct saa7134_oss {
+ 
+ /* IR input */
+ struct saa7134_ir {
+-	struct input_dev           dev;
++	struct input_dev           *dev;
+ 	struct ir_input_state      ir;
+ 	char                       name[32];
+ 	char                       phys[32];
+Index: work/drivers/media/video/saa7134/saa7134-input.c
+===================================================================
+--- work.orig/drivers/media/video/saa7134/saa7134-input.c
++++ work/drivers/media/video/saa7134/saa7134-input.c
+@@ -425,9 +425,9 @@ static int build_key(struct saa7134_dev 
+ 
+ 	if ((ir->mask_keydown  &&  (0 != (gpio & ir->mask_keydown))) ||
+ 	    (ir->mask_keyup    &&  (0 == (gpio & ir->mask_keyup)))) {
+-		ir_input_keydown(&ir->dev,&ir->ir,data,data);
++		ir_input_keydown(ir->dev, &ir->ir, data, data);
+ 	} else {
+-		ir_input_nokey(&ir->dev,&ir->ir);
++		ir_input_nokey(ir->dev, &ir->ir);
+ 	}
+ 	return 0;
+ }
+@@ -456,6 +456,7 @@ static void saa7134_input_timer(unsigned
+ int saa7134_input_init1(struct saa7134_dev *dev)
  {
--	input_unregister_device(&logibm_dev);
-+	input_unregister_device(logibm_dev);
- 	release_region(LOGIBM_BASE, LOGIBM_EXTENT);
+ 	struct saa7134_ir *ir;
++	struct input_dev *input_dev;
+ 	IR_KEYTAB_TYPE *ir_codes = NULL;
+ 	u32 mask_keycode = 0;
+ 	u32 mask_keydown = 0;
+@@ -535,10 +536,13 @@ int saa7134_input_init1(struct saa7134_d
+ 		return -ENODEV;
+ 	}
+ 
+-	ir = kmalloc(sizeof(*ir),GFP_KERNEL);
+-	if (NULL == ir)
++	ir = kzalloc(sizeof(*ir), GFP_KERNEL);
++	input_dev = input_allocate_device();
++	if (!ir || !input_dev) {
++		kfree(ir);
++		input_free_device(input_dev);
+ 		return -ENOMEM;
+-	memset(ir,0,sizeof(*ir));
++	}
+ 
+ 	/* init hardware-specific stuff */
+ 	ir->mask_keycode = mask_keycode;
+@@ -552,19 +556,19 @@ int saa7134_input_init1(struct saa7134_d
+ 	snprintf(ir->phys, sizeof(ir->phys), "pci-%s/ir0",
+ 		 pci_name(dev->pci));
+ 
+-	ir_input_init(&ir->dev, &ir->ir, ir_type, ir_codes);
+-	ir->dev.name = ir->name;
+-	ir->dev.phys = ir->phys;
+-	ir->dev.id.bustype = BUS_PCI;
+-	ir->dev.id.version = 1;
++	ir_input_init(input_dev, &ir->ir, ir_type, ir_codes);
++	input_dev->name = ir->name;
++	input_dev->phys = ir->phys;
++	input_dev->id.bustype = BUS_PCI;
++	input_dev->id.version = 1;
+ 	if (dev->pci->subsystem_vendor) {
+-		ir->dev.id.vendor  = dev->pci->subsystem_vendor;
+-		ir->dev.id.product = dev->pci->subsystem_device;
++		input_dev->id.vendor  = dev->pci->subsystem_vendor;
++		input_dev->id.product = dev->pci->subsystem_device;
+ 	} else {
+-		ir->dev.id.vendor  = dev->pci->vendor;
+-		ir->dev.id.product = dev->pci->device;
++		input_dev->id.vendor  = dev->pci->vendor;
++		input_dev->id.product = dev->pci->device;
+ 	}
+-	ir->dev.dev = &dev->pci->dev;
++	input_dev->cdev.dev = &dev->pci->dev;
+ 
+ 	/* all done */
+ 	dev->remote = ir;
+@@ -576,8 +580,7 @@ int saa7134_input_init1(struct saa7134_d
+ 		add_timer(&ir->timer);
+ 	}
+ 
+-	input_register_device(&dev->remote->dev);
+-	printk("%s: registered input device for IR\n",dev->name);
++	input_register_device(ir->dev);
+ 	return 0;
  }
  
-Index: work/drivers/input/mouse/maplemouse.c
-===================================================================
---- work.orig/drivers/input/mouse/maplemouse.c
-+++ work/drivers/input/mouse/maplemouse.c
-@@ -41,13 +41,12 @@ static int dc_mouse_connect(struct maple
- 	unsigned long data = be32_to_cpu(dev->devinfo.function_data[0]);
- 	struct input_dev *input_dev;
+@@ -586,9 +589,9 @@ void saa7134_input_fini(struct saa7134_d
+ 	if (NULL == dev->remote)
+ 		return;
  
--	if (!(input_dev = kmalloc(sizeof(struct input_dev), GFP_KERNEL)))
--		return -1;
-+	dev->private_data = input_dev = input_allocate_device();
+-	input_unregister_device(&dev->remote->dev);
+ 	if (dev->remote->polling)
+ 		del_timer_sync(&dev->remote->timer);
++	input_unregister_device(dev->remote->dev);
+ 	kfree(dev->remote);
+ 	dev->remote = NULL;
+ }
+Index: work/drivers/media/video/bttvp.h
+===================================================================
+--- work.orig/drivers/media/video/bttvp.h
++++ work/drivers/media/video/bttvp.h
+@@ -240,7 +240,7 @@ struct bttv_pll_info {
+ 
+ /* for gpio-connected remote control */
+ struct bttv_input {
+-	struct input_dev      dev;
++	struct input_dev      *dev;
+ 	struct ir_input_state ir;
+ 	char                  name[32];
+ 	char                  phys[32];
+Index: work/drivers/media/dvb/ttpci/budget-ci.c
+===================================================================
+--- work.orig/drivers/media/dvb/ttpci/budget-ci.c
++++ work/drivers/media/dvb/ttpci/budget-ci.c
+@@ -64,7 +64,7 @@
+ 
+ struct budget_ci {
+ 	struct budget budget;
+-	struct input_dev input_dev;
++	struct input_dev *input_dev;
+ 	struct tasklet_struct msp430_irq_tasklet;
+ 	struct tasklet_struct ciintf_irq_tasklet;
+ 	int slot_status;
+@@ -145,7 +145,7 @@ static void msp430_ir_debounce(unsigned 
+ static void msp430_ir_interrupt(unsigned long data)
+ {
+ 	struct budget_ci *budget_ci = (struct budget_ci *) data;
+-	struct input_dev *dev = &budget_ci->input_dev;
++	struct input_dev *dev = budget_ci->input_dev;
+ 	unsigned int code =
+ 		ttpci_budget_debiread(&budget_ci->budget, DEBINOSWAP, DEBIADDR_IR, 2, 1, 0) >> 8;
+ 
+@@ -181,25 +181,27 @@ static void msp430_ir_interrupt(unsigned
+ static int msp430_ir_init(struct budget_ci *budget_ci)
+ {
+ 	struct saa7146_dev *saa = budget_ci->budget.dev;
++	struct input_dev *input_dev;
+ 	int i;
+ 
+-	memset(&budget_ci->input_dev, 0, sizeof(struct input_dev));
++	budget_ci->input_dev = input_dev = input_allocate_device();
 +	if (!input_dev)
 +		return -ENOMEM;
  
- 	dev->private_data = input_dev;
+ 	sprintf(budget_ci->ir_dev_name, "Budget-CI dvb ir receiver %s", saa->name);
+-	budget_ci->input_dev.name = budget_ci->ir_dev_name;
  
--	memset(input_dev, 0, sizeof(struct dc_mouse));
--	init_input_dev(input_dev);
- 	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REL);
- 	input_dev->keybit[LONG(BTN_MOUSE)] = BIT(BTN_LEFT) | BIT(BTN_RIGHT) | BIT(BTN_MIDDLE);
- 	input_dev->relbit[0] = BIT(REL_X) | BIT(REL_Y) | BIT(REL_WHEEL);
-@@ -59,8 +58,6 @@ static int dc_mouse_connect(struct maple
+-	set_bit(EV_KEY, budget_ci->input_dev.evbit);
++	input_dev->name = budget_ci->ir_dev_name;
  
- 	maple_getcond_callback(dev, dc_mouse_callback, 1, MAPLE_FUNC_MOUSE);
+-	for (i = 0; i < sizeof(key_map) / sizeof(*key_map); i++)
++	set_bit(EV_KEY, input_dev->evbit);
++	for (i = 0; i < ARRAY_SIZE(key_map); i++)
+ 		if (key_map[i])
+-			set_bit(key_map[i], budget_ci->input_dev.keybit);
++			set_bit(key_map[i], input_dev->keybit);
  
--	printk(KERN_INFO "input: mouse(0x%lx): %s\n", data, input_dev->name);
+-	input_register_device(&budget_ci->input_dev);
++	input_register_device(budget_ci->input_dev);
+ 
+-	budget_ci->input_dev.timer.function = msp430_ir_debounce;
++	input_dev->timer.function = msp430_ir_debounce;
+ 
+ 	saa7146_write(saa, IER, saa7146_read(saa, IER) | MASK_06);
 -
- 	return 0;
- }
- 
-@@ -70,7 +67,6 @@ static void dc_mouse_disconnect(struct m
- 	struct input_dev *input_dev = dev->private_data;
- 
- 	input_unregister_device(input_dev);
--	kfree(input_dev);
- }
- 
- 
-Index: work/drivers/input/mouse/pc110pad.c
-===================================================================
---- work.orig/drivers/input/mouse/pc110pad.c
-+++ work/drivers/input/mouse/pc110pad.c
-@@ -53,13 +53,10 @@ MODULE_LICENSE("GPL");
- static int pc110pad_irq = 10;
- static int pc110pad_io = 0x15e0;
- 
--static struct input_dev pc110pad_dev;
-+static struct input_dev *pc110pad_dev;
- static int pc110pad_data[3];
- static int pc110pad_count;
- 
--static char *pc110pad_name = "IBM PC110 TouchPad";
--static char *pc110pad_phys = "isa15e0/input0";
--
- static irqreturn_t pc110pad_interrupt(int irq, void *ptr, struct pt_regs *regs)
- {
- 	int value     = inb_p(pc110pad_io);
-@@ -74,14 +71,14 @@ static irqreturn_t pc110pad_interrupt(in
- 	if (pc110pad_count < 3)
- 		return IRQ_HANDLED;
- 
--	input_regs(&pc110pad_dev, regs);
--	input_report_key(&pc110pad_dev, BTN_TOUCH,
-+	input_regs(pc110pad_dev, regs);
-+	input_report_key(pc110pad_dev, BTN_TOUCH,
- 		pc110pad_data[0] & 0x01);
--	input_report_abs(&pc110pad_dev, ABS_X,
-+	input_report_abs(pc110pad_dev, ABS_X,
- 		pc110pad_data[1] | ((pc110pad_data[0] << 3) & 0x80) | ((pc110pad_data[0] << 1) & 0x100));
--	input_report_abs(&pc110pad_dev, ABS_Y,
-+	input_report_abs(pc110pad_dev, ABS_Y,
- 		pc110pad_data[2] | ((pc110pad_data[0] << 4) & 0x80));
--	input_sync(&pc110pad_dev);
-+	input_sync(pc110pad_dev);
- 
- 	pc110pad_count = 0;
- 	return IRQ_HANDLED;
-@@ -94,9 +91,9 @@ static void pc110pad_close(struct input_
- 
- static int pc110pad_open(struct input_dev *dev)
- {
--	pc110pad_interrupt(0,NULL,NULL);
--	pc110pad_interrupt(0,NULL,NULL);
--	pc110pad_interrupt(0,NULL,NULL);
-+	pc110pad_interrupt(0, NULL, NULL);
-+	pc110pad_interrupt(0, NULL, NULL);
-+	pc110pad_interrupt(0, NULL, NULL);
- 	outb(PC110PAD_ON, pc110pad_io + 2);
- 	pc110pad_count = 0;
- 
-@@ -127,45 +124,46 @@ static int __init pc110pad_init(void)
- 
- 	outb(PC110PAD_OFF, pc110pad_io + 2);
- 
--	if (request_irq(pc110pad_irq, pc110pad_interrupt, 0, "pc110pad", NULL))
--	{
-+	if (request_irq(pc110pad_irq, pc110pad_interrupt, 0, "pc110pad", NULL)) {
- 		release_region(pc110pad_io, 4);
- 		printk(KERN_ERR "pc110pad: Unable to get irq %d.\n", pc110pad_irq);
- 		return -EBUSY;
- 	}
- 
--        pc110pad_dev.evbit[0] = BIT(EV_KEY) | BIT(EV_ABS);
--        pc110pad_dev.absbit[0] = BIT(ABS_X) | BIT(ABS_Y);
--        pc110pad_dev.keybit[LONG(BTN_TOUCH)] = BIT(BTN_TOUCH);
--
--	pc110pad_dev.absmax[ABS_X] = 0x1ff;
--	pc110pad_dev.absmax[ABS_Y] = 0x0ff;
--
--	pc110pad_dev.open = pc110pad_open;
--        pc110pad_dev.close = pc110pad_close;
--
--	pc110pad_dev.name = pc110pad_name;
--	pc110pad_dev.phys = pc110pad_phys;
--	pc110pad_dev.id.bustype = BUS_ISA;
--	pc110pad_dev.id.vendor = 0x0003;
--	pc110pad_dev.id.product = 0x0001;
--	pc110pad_dev.id.version = 0x0100;
-+	if (!(pc110pad_dev = input_allocate_device())) {
-+		free_irq(pc110pad_irq, NULL);
-+		release_region(pc110pad_io, 4);
-+		printk(KERN_ERR "pc110pad: Not enough memory.\n");
-+		return -ENOMEM;
-+	}
-+
-+	pc110pad_dev->name = "IBM PC110 TouchPad";
-+	pc110pad_dev->phys = "isa15e0/input0";
-+	pc110pad_dev->id.bustype = BUS_ISA;
-+	pc110pad_dev->id.vendor = 0x0003;
-+	pc110pad_dev->id.product = 0x0001;
-+	pc110pad_dev->id.version = 0x0100;
-+
-+	pc110pad_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_ABS);
-+	pc110pad_dev->absbit[0] = BIT(ABS_X) | BIT(ABS_Y);
-+	pc110pad_dev->keybit[LONG(BTN_TOUCH)] = BIT(BTN_TOUCH);
- 
--	input_register_device(&pc110pad_dev);
-+	pc110pad_dev->absmax[ABS_X] = 0x1ff;
-+	pc110pad_dev->absmax[ABS_Y] = 0x0ff;
- 
--	printk(KERN_INFO "input: %s at %#x irq %d\n",
--		pc110pad_name, pc110pad_io, pc110pad_irq);
-+	pc110pad_dev->open = pc110pad_open;
-+	pc110pad_dev->close = pc110pad_close;
-+
-+	input_register_device(pc110pad_dev);
+ 	saa7146_setgpio(saa, 3, SAA7146_GPIO_IRQHI);
  
  	return 0;
- }
- 
- static void __exit pc110pad_exit(void)
+@@ -208,7 +210,7 @@ static int msp430_ir_init(struct budget_
+ static void msp430_ir_deinit(struct budget_ci *budget_ci)
  {
--	input_unregister_device(&pc110pad_dev);
--
- 	outb(PC110PAD_OFF, pc110pad_io + 2);
--
- 	free_irq(pc110pad_irq, NULL);
-+	input_unregister_device(pc110pad_dev);
- 	release_region(pc110pad_io, 4);
- }
+ 	struct saa7146_dev *saa = budget_ci->budget.dev;
+-	struct input_dev *dev = &budget_ci->input_dev;
++	struct input_dev *dev = budget_ci->input_dev;
  
-Index: work/drivers/input/mouse/rpcmouse.c
+ 	saa7146_write(saa, IER, saa7146_read(saa, IER) & ~MASK_06);
+ 	saa7146_setgpio(saa, 3, SAA7146_GPIO_INPUT);
+Index: work/drivers/media/dvb/cinergyT2/cinergyT2.c
 ===================================================================
---- work.orig/drivers/input/mouse/rpcmouse.c
-+++ work/drivers/input/mouse/rpcmouse.c
-@@ -34,20 +34,7 @@ MODULE_DESCRIPTION("Acorn RiscPC mouse d
- MODULE_LICENSE("GPL");
- 
- static short rpcmouse_lastx, rpcmouse_lasty;
--
--static struct input_dev rpcmouse_dev = {
--	.evbit	= { BIT(EV_KEY) | BIT(EV_REL) },
--	.keybit = { [LONG(BTN_LEFT)] = BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT) },
--	.relbit	= { BIT(REL_X) | BIT(REL_Y) },
--	.name	= "Acorn RiscPC Mouse",
--	.phys	= "rpcmouse/input0",
--	.id	= {
--		.bustype = BUS_HOST,
--		.vendor  = 0x0005,
--		.product = 0x0001,
--		.version = 0x0100,
--	},
--};
-+static struct input_dev *rpcmouse_dev;
- 
- static irqreturn_t rpcmouse_irq(int irq, void *dev_id, struct pt_regs *regs)
- {
-@@ -78,29 +65,41 @@ static irqreturn_t rpcmouse_irq(int irq,
- 	return IRQ_HANDLED;
- }
- 
-+
- static int __init rpcmouse_init(void)
- {
--	init_input_dev(&rpcmouse_dev);
-+	if (!(rpcmouse_dev = input_allocate_device()))
-+		return -ENOMEM;
-+
-+	rpcmouse_dev->name = "Acorn RiscPC Mouse";
-+	rpcmouse_dev->phys = "rpcmouse/input0";
-+	rpcmouse_dev->id.bustype = BUS_HOST;
-+	rpcmouse_dev->id.vendor  = 0x0005;
-+	rpcmouse_dev->id.product = 0x0001;
-+	rpcmouse_dev->id.version = 0x0100;
-+
-+	rpcmouse_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REL);
-+	rpcmouse_dev->keybit[LONG(BTN_LEFT)] = BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT);
-+	rpcmouse_dev->relbit[0]	= BIT(REL_X) | BIT(REL_Y);
- 
- 	rpcmouse_lastx = (short) iomd_readl(IOMD_MOUSEX);
- 	rpcmouse_lasty = (short) iomd_readl(IOMD_MOUSEY);
- 
--	if (request_irq(IRQ_VSYNCPULSE, rpcmouse_irq, SA_SHIRQ, "rpcmouse", &rpcmouse_dev)) {
-+	if (request_irq(IRQ_VSYNCPULSE, rpcmouse_irq, SA_SHIRQ, "rpcmouse", rpcmouse_dev)) {
- 		printk(KERN_ERR "rpcmouse: unable to allocate VSYNC interrupt\n");
--		return -1;
-+		input_free_device(rpcmouse_dev);
-+		return -EBUSY;
- 	}
- 
--	input_register_device(&rpcmouse_dev);
--
--	printk(KERN_INFO "input: Acorn RiscPC mouse\n");
-+	input_register_device(rpcmouse_dev);
- 
- 	return 0;
- }
- 
- static void __exit rpcmouse_exit(void)
- {
--	input_unregister_device(&rpcmouse_dev);
--	free_irq(IRQ_VSYNCPULSE, &rpcmouse_dev);
-+	free_irq(IRQ_VSYNCPULSE, rpcmouse_dev);
-+	input_unregister_device(rpcmouse_dev);
- }
- 
- module_init(rpcmouse_init);
-Index: work/drivers/input/mouse/sermouse.c
-===================================================================
---- work.orig/drivers/input/mouse/sermouse.c
-+++ work/drivers/input/mouse/sermouse.c
-@@ -48,7 +48,7 @@ static char *sermouse_protocols[] = { "N
- 					"Logitech MZ++ Mouse"};
- 
- struct sermouse {
--	struct input_dev dev;
-+	struct input_dev *dev;
- 	signed char buf[8];
- 	unsigned char count;
- 	unsigned char type;
-@@ -64,7 +64,7 @@ struct sermouse {
- 
- static void sermouse_process_msc(struct sermouse *sermouse, signed char data, struct pt_regs *regs)
- {
--	struct input_dev *dev = &sermouse->dev;
-+	struct input_dev *dev = sermouse->dev;
- 	signed char *buf = sermouse->buf;
- 
- 	input_regs(dev, regs);
-@@ -107,7 +107,7 @@ static void sermouse_process_msc(struct 
- 
- static void sermouse_process_ms(struct sermouse *sermouse, signed char data, struct pt_regs *regs)
- {
--	struct input_dev *dev = &sermouse->dev;
-+	struct input_dev *dev = sermouse->dev;
- 	signed char *buf = sermouse->buf;
- 
- 	if (data & 0x40) sermouse->count = 0;
-@@ -230,9 +230,9 @@ static void sermouse_disconnect(struct s
- {
- 	struct sermouse *sermouse = serio_get_drvdata(serio);
- 
--	input_unregister_device(&sermouse->dev);
- 	serio_close(serio);
- 	serio_set_drvdata(serio, NULL);
-+	input_unregister_device(sermouse->dev);
- 	kfree(sermouse);
- }
- 
-@@ -244,56 +244,52 @@ static void sermouse_disconnect(struct s
- static int sermouse_connect(struct serio *serio, struct serio_driver *drv)
- {
- 	struct sermouse *sermouse;
--	unsigned char c;
--	int err;
--
--	if (!serio->id.proto || serio->id.proto > SERIO_MZPP)
--		return -ENODEV;
--
--	if (!(sermouse = kmalloc(sizeof(struct sermouse), GFP_KERNEL)))
--		return -ENOMEM;
--
--	memset(sermouse, 0, sizeof(struct sermouse));
--
--	init_input_dev(&sermouse->dev);
--	sermouse->dev.evbit[0] = BIT(EV_KEY) | BIT(EV_REL);
--	sermouse->dev.keybit[LONG(BTN_MOUSE)] = BIT(BTN_LEFT) | BIT(BTN_RIGHT);
--	sermouse->dev.relbit[0] = BIT(REL_X) | BIT(REL_Y);
--	sermouse->dev.private = sermouse;
--
--	sermouse->type = serio->id.proto;
--	c = serio->id.extra;
--
--	if (c & 0x01) set_bit(BTN_MIDDLE, sermouse->dev.keybit);
--	if (c & 0x02) set_bit(BTN_SIDE, sermouse->dev.keybit);
--	if (c & 0x04) set_bit(BTN_EXTRA, sermouse->dev.keybit);
--	if (c & 0x10) set_bit(REL_WHEEL, sermouse->dev.relbit);
--	if (c & 0x20) set_bit(REL_HWHEEL, sermouse->dev.relbit);
-+	struct input_dev *input_dev;
-+	unsigned char c = serio->id.extra;
-+	int err = -ENOMEM;
-+
-+	sermouse = kzalloc(sizeof(struct sermouse), GFP_KERNEL);
-+	input_dev = input_allocate_device();
-+	if (!sermouse || !input_dev)
-+		goto fail;
- 
-+	sermouse->dev = input_dev;
- 	sprintf(sermouse->phys, "%s/input0", serio->phys);
-+	sermouse->type = serio->id.proto;
- 
--	sermouse->dev.name = sermouse_protocols[sermouse->type];
--	sermouse->dev.phys = sermouse->phys;
--	sermouse->dev.id.bustype = BUS_RS232;
--	sermouse->dev.id.vendor = sermouse->type;
--	sermouse->dev.id.product = c;
--	sermouse->dev.id.version = 0x0100;
--	sermouse->dev.dev = &serio->dev;
-+	input_dev->name = sermouse_protocols[sermouse->type];
-+	input_dev->phys = sermouse->phys;
-+	input_dev->id.bustype = BUS_RS232;
-+	input_dev->id.vendor  = sermouse->type;
-+	input_dev->id.product = c;
-+	input_dev->id.version = 0x0100;
-+	input_dev->cdev.dev = &serio->dev;
-+
-+	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REL);
-+	input_dev->keybit[LONG(BTN_MOUSE)] = BIT(BTN_LEFT) | BIT(BTN_RIGHT);
-+	input_dev->relbit[0] = BIT(REL_X) | BIT(REL_Y);
-+	input_dev->private = sermouse;
-+
-+	if (c & 0x01) set_bit(BTN_MIDDLE, input_dev->keybit);
-+	if (c & 0x02) set_bit(BTN_SIDE, input_dev->keybit);
-+	if (c & 0x04) set_bit(BTN_EXTRA, input_dev->keybit);
-+	if (c & 0x10) set_bit(REL_WHEEL, input_dev->relbit);
-+	if (c & 0x20) set_bit(REL_HWHEEL, input_dev->relbit);
- 
- 	serio_set_drvdata(serio, sermouse);
- 
- 	err = serio_open(serio, drv);
--	if (err) {
--		serio_set_drvdata(serio, NULL);
--		kfree(sermouse);
--		return err;
--	}
--
--	input_register_device(&sermouse->dev);
-+	if (err)
-+		goto fail;
- 
--	printk(KERN_INFO "input: %s on %s\n", sermouse_protocols[sermouse->type], serio->phys);
-+	input_register_device(sermouse->dev);
- 
- 	return 0;
-+
-+ fail:	serio_set_drvdata(serio, NULL);
-+	input_free_device(input_dev);
-+	kfree(sermouse);
-+	return err;
- }
- 
- static struct serio_device_id sermouse_serio_ids[] = {
-Index: work/drivers/input/mouse/vsxxxaa.c
-===================================================================
---- work.orig/drivers/input/mouse/vsxxxaa.c
-+++ work/drivers/input/mouse/vsxxxaa.c
-@@ -112,7 +112,7 @@ MODULE_LICENSE ("GPL");
- 
- 
- struct vsxxxaa {
--	struct input_dev dev;
-+	struct input_dev *dev;
- 	struct serio *serio;
- #define BUFLEN 15 /* At least 5 is needed for a full tablet packet */
- 	unsigned char buf[BUFLEN];
-@@ -211,7 +211,7 @@ vsxxxaa_smells_like_packet (struct vsxxx
- static void
- vsxxxaa_handle_REL_packet (struct vsxxxaa *mouse, struct pt_regs *regs)
- {
--	struct input_dev *dev = &mouse->dev;
-+	struct input_dev *dev = mouse->dev;
- 	unsigned char *buf = mouse->buf;
- 	int left, middle, right;
- 	int dx, dy;
-@@ -269,7 +269,7 @@ vsxxxaa_handle_REL_packet (struct vsxxxa
- static void
- vsxxxaa_handle_ABS_packet (struct vsxxxaa *mouse, struct pt_regs *regs)
- {
--	struct input_dev *dev = &mouse->dev;
-+	struct input_dev *dev = mouse->dev;
- 	unsigned char *buf = mouse->buf;
- 	int left, middle, right, touch;
- 	int x, y;
-@@ -323,7 +323,7 @@ vsxxxaa_handle_ABS_packet (struct vsxxxa
- static void
- vsxxxaa_handle_POR_packet (struct vsxxxaa *mouse, struct pt_regs *regs)
- {
--	struct input_dev *dev = &mouse->dev;
-+	struct input_dev *dev = mouse->dev;
- 	unsigned char *buf = mouse->buf;
- 	int left, middle, right;
- 	unsigned char error;
-@@ -483,9 +483,9 @@ vsxxxaa_disconnect (struct serio *serio)
- {
- 	struct vsxxxaa *mouse = serio_get_drvdata (serio);
- 
--	input_unregister_device (&mouse->dev);
- 	serio_close (serio);
- 	serio_set_drvdata (serio, NULL);
-+	input_unregister_device (mouse->dev);
- 	kfree (mouse);
- }
- 
-@@ -493,61 +493,57 @@ static int
- vsxxxaa_connect (struct serio *serio, struct serio_driver *drv)
- {
- 	struct vsxxxaa *mouse;
--	int err;
-+	struct input_dev *input_dev;
-+	int err = -ENOMEM;
- 
--	if (!(mouse = kmalloc (sizeof (struct vsxxxaa), GFP_KERNEL)))
--		return -ENOMEM;
--
--	memset (mouse, 0, sizeof (struct vsxxxaa));
--
--	init_input_dev (&mouse->dev);
--	set_bit (EV_KEY, mouse->dev.evbit);		/* We have buttons */
--	set_bit (EV_REL, mouse->dev.evbit);
--	set_bit (EV_ABS, mouse->dev.evbit);
--	set_bit (BTN_LEFT, mouse->dev.keybit);		/* We have 3 buttons */
--	set_bit (BTN_MIDDLE, mouse->dev.keybit);
--	set_bit (BTN_RIGHT, mouse->dev.keybit);
--	set_bit (BTN_TOUCH, mouse->dev.keybit);		/* ...and Tablet */
--	set_bit (REL_X, mouse->dev.relbit);
--	set_bit (REL_Y, mouse->dev.relbit);
--	set_bit (ABS_X, mouse->dev.absbit);
--	set_bit (ABS_Y, mouse->dev.absbit);
--
--	mouse->dev.absmin[ABS_X] = 0;
--	mouse->dev.absmax[ABS_X] = 1023;
--	mouse->dev.absmin[ABS_Y] = 0;
--	mouse->dev.absmax[ABS_Y] = 1023;
--
--	mouse->dev.private = mouse;
-+	mouse = kzalloc (sizeof (struct vsxxxaa), GFP_KERNEL);
-+	input_dev = input_allocate_device ();
-+	if (!mouse || !input_dev)
-+		goto fail;
- 
-+	mouse->dev = input_dev;
-+	mouse->serio = serio;
- 	sprintf (mouse->name, "DEC VSXXX-AA/-GA mouse or VSXXX-AB digitizer");
- 	sprintf (mouse->phys, "%s/input0", serio->phys);
--	mouse->dev.name = mouse->name;
--	mouse->dev.phys = mouse->phys;
--	mouse->dev.id.bustype = BUS_RS232;
--	mouse->dev.dev = &serio->dev;
--	mouse->serio = serio;
-+
-+	input_dev->name = mouse->name;
-+	input_dev->phys = mouse->phys;
-+	input_dev->id.bustype = BUS_RS232;
-+	input_dev->cdev.dev = &serio->dev;
-+	input_dev->private = mouse;
-+
-+	set_bit (EV_KEY, input_dev->evbit);		/* We have buttons */
-+	set_bit (EV_REL, input_dev->evbit);
-+	set_bit (EV_ABS, input_dev->evbit);
-+	set_bit (BTN_LEFT, input_dev->keybit);		/* We have 3 buttons */
-+	set_bit (BTN_MIDDLE, input_dev->keybit);
-+	set_bit (BTN_RIGHT, input_dev->keybit);
-+	set_bit (BTN_TOUCH, input_dev->keybit);		/* ...and Tablet */
-+	set_bit (REL_X, input_dev->relbit);
-+	set_bit (REL_Y, input_dev->relbit);
-+	input_set_abs_params (input_dev, ABS_X, 0, 1023, 0, 0);
-+	input_set_abs_params (input_dev, ABS_Y, 0, 1023, 0, 0);
- 
- 	serio_set_drvdata (serio, mouse);
- 
- 	err = serio_open (serio, drv);
--	if (err) {
--		serio_set_drvdata (serio, NULL);
--		kfree (mouse);
--		return err;
--	}
-+	if (err)
-+		goto fail;
- 
- 	/*
- 	 * Request selftest. Standard packet format and differential
- 	 * mode will be requested after the device ID'ed successfully.
- 	 */
--	mouse->serio->write (mouse->serio, 'T'); /* Test */
--
--	input_register_device (&mouse->dev);
-+	serio->write (serio, 'T'); /* Test */
- 
--	printk (KERN_INFO "input: %s on %s\n", mouse->name, mouse->phys);
-+	input_register_device (input_dev);
- 
- 	return 0;
-+
-+ fail:	serio_set_drvdata (serio, NULL);
-+	input_free_device (input_dev);
-+	kfree (mouse);
-+	return err;
- }
- 
- static struct serio_device_id vsxxaa_serio_ids[] = {
-Index: work/drivers/input/mouse/psmouse-base.c
-===================================================================
---- work.orig/drivers/input/mouse/psmouse-base.c
-+++ work/drivers/input/mouse/psmouse-base.c
-@@ -114,7 +114,7 @@ struct psmouse_protocol {
- 
- static psmouse_ret_t psmouse_process_byte(struct psmouse *psmouse, struct pt_regs *regs)
- {
--	struct input_dev *dev = &psmouse->dev;
-+	struct input_dev *dev = psmouse->dev;
- 	unsigned char *packet = psmouse->packet;
- 
- 	if (psmouse->pktcnt < psmouse->pktsize)
-@@ -333,12 +333,11 @@ static int genius_detect(struct psmouse 
- 		return -1;
- 
- 	if (set_properties) {
--		set_bit(BTN_EXTRA, psmouse->dev.keybit);
--		set_bit(BTN_SIDE, psmouse->dev.keybit);
--		set_bit(REL_WHEEL, psmouse->dev.relbit);
-+		set_bit(BTN_EXTRA, psmouse->dev->keybit);
-+		set_bit(BTN_SIDE, psmouse->dev->keybit);
-+		set_bit(REL_WHEEL, psmouse->dev->relbit);
- 
- 		psmouse->vendor = "Genius";
--		psmouse->name = "Wheel Mouse";
- 		psmouse->pktsize = 4;
- 	}
- 
-@@ -365,8 +364,8 @@ static int intellimouse_detect(struct ps
- 		return -1;
- 
- 	if (set_properties) {
--		set_bit(BTN_MIDDLE, psmouse->dev.keybit);
--		set_bit(REL_WHEEL, psmouse->dev.relbit);
-+		set_bit(BTN_MIDDLE, psmouse->dev->keybit);
-+		set_bit(REL_WHEEL, psmouse->dev->relbit);
- 
- 		if (!psmouse->vendor) psmouse->vendor = "Generic";
- 		if (!psmouse->name) psmouse->name = "Wheel Mouse";
-@@ -398,10 +397,10 @@ static int im_explorer_detect(struct psm
- 		return -1;
- 
- 	if (set_properties) {
--		set_bit(BTN_MIDDLE, psmouse->dev.keybit);
--		set_bit(REL_WHEEL, psmouse->dev.relbit);
--		set_bit(BTN_SIDE, psmouse->dev.keybit);
--		set_bit(BTN_EXTRA, psmouse->dev.keybit);
-+		set_bit(BTN_MIDDLE, psmouse->dev->keybit);
-+		set_bit(REL_WHEEL, psmouse->dev->relbit);
-+		set_bit(BTN_SIDE, psmouse->dev->keybit);
-+		set_bit(BTN_EXTRA, psmouse->dev->keybit);
- 
- 		if (!psmouse->vendor) psmouse->vendor = "Generic";
- 		if (!psmouse->name) psmouse->name = "Explorer Mouse";
-@@ -433,7 +432,7 @@ static int thinking_detect(struct psmous
- 		return -1;
- 
- 	if (set_properties) {
--		set_bit(BTN_EXTRA, psmouse->dev.keybit);
-+		set_bit(BTN_EXTRA, psmouse->dev->keybit);
- 
- 		psmouse->vendor = "Kensington";
- 		psmouse->name = "ThinkingMouse";
-@@ -839,9 +838,9 @@ static void psmouse_disconnect(struct se
- 
- 	psmouse_set_state(psmouse, PSMOUSE_IGNORE);
- 
--	input_unregister_device(&psmouse->dev);
- 	serio_close(serio);
- 	serio_set_drvdata(serio, NULL);
-+	input_unregister_device(psmouse->dev);
- 	kfree(psmouse);
- 
- 	if (parent)
-@@ -852,16 +851,14 @@ static void psmouse_disconnect(struct se
- 
- static int psmouse_switch_protocol(struct psmouse *psmouse, struct psmouse_protocol *proto)
- {
--	memset(&psmouse->dev, 0, sizeof(struct input_dev));
-+	struct input_dev *input_dev = psmouse->dev;
- 
--	init_input_dev(&psmouse->dev);
-+	input_dev->private = psmouse;
-+	input_dev->cdev.dev = &psmouse->ps2dev.serio->dev;
- 
--	psmouse->dev.private = psmouse;
--	psmouse->dev.dev = &psmouse->ps2dev.serio->dev;
--
--	psmouse->dev.evbit[0] = BIT(EV_KEY) | BIT(EV_REL);
--	psmouse->dev.keybit[LONG(BTN_MOUSE)] = BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT);
--	psmouse->dev.relbit[0] = BIT(REL_X) | BIT(REL_Y);
-+	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REL);
-+	input_dev->keybit[LONG(BTN_MOUSE)] = BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT);
-+	input_dev->relbit[0] = BIT(REL_X) | BIT(REL_Y);
- 
- 	psmouse->set_rate = psmouse_set_rate;
- 	psmouse->set_resolution = psmouse_set_resolution;
-@@ -883,12 +880,12 @@ static int psmouse_switch_protocol(struc
- 	sprintf(psmouse->devname, "%s %s %s",
- 		psmouse_protocol_by_type(psmouse->type)->name, psmouse->vendor, psmouse->name);
- 
--	psmouse->dev.name = psmouse->devname;
--	psmouse->dev.phys = psmouse->phys;
--	psmouse->dev.id.bustype = BUS_I8042;
--	psmouse->dev.id.vendor = 0x0002;
--	psmouse->dev.id.product = psmouse->type;
--	psmouse->dev.id.version = psmouse->model;
-+	input_dev->name = psmouse->devname;
-+	input_dev->phys = psmouse->phys;
-+	input_dev->id.bustype = BUS_I8042;
-+	input_dev->id.vendor = 0x0002;
-+	input_dev->id.product = psmouse->type;
-+	input_dev->id.version = psmouse->model;
- 
- 	return 0;
- }
-@@ -900,7 +897,8 @@ static int psmouse_switch_protocol(struc
- static int psmouse_connect(struct serio *serio, struct serio_driver *drv)
- {
- 	struct psmouse *psmouse, *parent = NULL;
--	int retval;
-+	struct input_dev *input_dev;
-+	int retval = -ENOMEM;
- 
- 	down(&psmouse_sem);
- 
-@@ -913,12 +911,13 @@ static int psmouse_connect(struct serio 
- 		psmouse_deactivate(parent);
- 	}
- 
--	if (!(psmouse = kzalloc(sizeof(struct psmouse), GFP_KERNEL))) {
--		retval = -ENOMEM;
-+	psmouse = kzalloc(sizeof(struct psmouse), GFP_KERNEL);
-+	input_dev = input_allocate_device();
-+	if (!psmouse || !input_dev)
- 		goto out;
--	}
- 
- 	ps2_init(&psmouse->ps2dev, serio);
-+	psmouse->dev = input_dev;
- 	sprintf(psmouse->phys, "%s/input0", serio->phys);
- 
- 	psmouse_set_state(psmouse, PSMOUSE_INITIALIZING);
-@@ -926,16 +925,11 @@ static int psmouse_connect(struct serio 
- 	serio_set_drvdata(serio, psmouse);
- 
- 	retval = serio_open(serio, drv);
--	if (retval) {
--		serio_set_drvdata(serio, NULL);
--		kfree(psmouse);
-+	if (retval)
- 		goto out;
--	}
- 
- 	if (psmouse_probe(psmouse) < 0) {
- 		serio_close(serio);
--		serio_set_drvdata(serio, NULL);
--		kfree(psmouse);
- 		retval = -ENODEV;
- 		goto out;
- 	}
-@@ -947,13 +941,11 @@ static int psmouse_connect(struct serio 
- 
- 	psmouse_switch_protocol(psmouse, NULL);
- 
--	input_register_device(&psmouse->dev);
--	printk(KERN_INFO "input: %s on %s\n", psmouse->devname, serio->phys);
--
- 	psmouse_set_state(psmouse, PSMOUSE_CMD_MODE);
--
- 	psmouse_initialize(psmouse);
- 
-+	input_register_device(psmouse->dev);
-+
- 	if (parent && parent->pt_activate)
- 		parent->pt_activate(parent);
- 
-@@ -964,6 +956,12 @@ static int psmouse_connect(struct serio 
- 	retval = 0;
- 
- out:
-+	if (retval) {
-+		serio_set_drvdata(serio, NULL);
-+		input_free_device(input_dev);
-+		kfree(psmouse);
-+	}
-+
- 	/* If this is a pass-through port the parent needs to be re-activated */
- 	if (parent)
- 		psmouse_activate(parent);
-@@ -1161,6 +1159,7 @@ static ssize_t psmouse_attr_set_protocol
- {
- 	struct serio *serio = psmouse->ps2dev.serio;
- 	struct psmouse *parent = NULL;
-+	struct input_dev *new_dev;
- 	struct psmouse_protocol *proto;
- 	int retry = 0;
- 
-@@ -1170,9 +1169,13 @@ static ssize_t psmouse_attr_set_protocol
- 	if (psmouse->type == proto->type)
- 		return count;
- 
-+	if (!(new_dev = input_allocate_device()))
-+		return -ENOMEM;
-+
- 	while (serio->child) {
- 		if (++retry > 3) {
- 			printk(KERN_WARNING "psmouse: failed to destroy child port, protocol change aborted.\n");
-+			input_free_device(new_dev);
- 			return -EIO;
- 		}
- 
-@@ -1182,11 +1185,15 @@ static ssize_t psmouse_attr_set_protocol
- 		serio_pin_driver_uninterruptible(serio);
- 		down(&psmouse_sem);
- 
--		if (serio->drv != &psmouse_drv)
-+		if (serio->drv != &psmouse_drv) {
-+			input_free_device(new_dev);
- 			return -ENODEV;
-+		}
- 
--		if (psmouse->type == proto->type)
-+		if (psmouse->type == proto->type) {
-+			input_free_device(new_dev);
- 			return count; /* switched by other thread */
-+		}
- 	}
- 
- 	if (serio->parent && serio->id.type == SERIO_PS_PSTHRU) {
-@@ -1199,8 +1206,9 @@ static ssize_t psmouse_attr_set_protocol
- 		psmouse->disconnect(psmouse);
- 
- 	psmouse_set_state(psmouse, PSMOUSE_IGNORE);
--	input_unregister_device(&psmouse->dev);
-+	input_unregister_device(psmouse->dev);
- 
-+	psmouse->dev = new_dev;
- 	psmouse_set_state(psmouse, PSMOUSE_INITIALIZING);
- 
- 	if (psmouse_switch_protocol(psmouse, proto) < 0) {
-@@ -1212,8 +1220,7 @@ static ssize_t psmouse_attr_set_protocol
- 	psmouse_initialize(psmouse);
- 	psmouse_set_state(psmouse, PSMOUSE_CMD_MODE);
- 
--	input_register_device(&psmouse->dev);
--	printk(KERN_INFO "input: %s on %s\n", psmouse->devname, serio->phys);
-+	input_register_device(psmouse->dev);
- 
- 	if (parent && parent->pt_activate)
- 		parent->pt_activate(parent);
-Index: work/drivers/input/mouse/psmouse.h
-===================================================================
---- work.orig/drivers/input/mouse/psmouse.h
-+++ work/drivers/input/mouse/psmouse.h
-@@ -36,7 +36,7 @@ typedef enum {
- 
- struct psmouse {
- 	void *private;
--	struct input_dev dev;
-+	struct input_dev *dev;
- 	struct ps2dev ps2dev;
- 	char *vendor;
- 	char *name;
-Index: work/drivers/input/mouse/synaptics.c
-===================================================================
---- work.orig/drivers/input/mouse/synaptics.c
-+++ work/drivers/input/mouse/synaptics.c
-@@ -342,7 +342,7 @@ static void synaptics_parse_hw_state(uns
-  */
- static void synaptics_process_packet(struct psmouse *psmouse)
- {
--	struct input_dev *dev = &psmouse->dev;
-+	struct input_dev *dev = psmouse->dev;
- 	struct synaptics_data *priv = psmouse->private;
- 	struct synaptics_hw_state hw;
- 	int num_fingers;
-@@ -473,7 +473,7 @@ static unsigned char synaptics_detect_pk
- 
- static psmouse_ret_t synaptics_process_byte(struct psmouse *psmouse, struct pt_regs *regs)
- {
--	struct input_dev *dev = &psmouse->dev;
-+	struct input_dev *dev = psmouse->dev;
- 	struct synaptics_data *priv = psmouse->private;
- 
- 	input_regs(dev, regs);
-@@ -645,7 +645,7 @@ int synaptics_init(struct psmouse *psmou
- 		SYN_ID_MAJOR(priv->identity), SYN_ID_MINOR(priv->identity),
- 		priv->model_id, priv->capabilities, priv->ext_cap);
- 
--	set_input_params(&psmouse->dev, priv);
-+	set_input_params(psmouse->dev, priv);
- 
- 	psmouse->protocol_handler = synaptics_process_byte;
- 	psmouse->set_rate = synaptics_set_rate;
-Index: work/drivers/input/mouse/alps.c
-===================================================================
---- work.orig/drivers/input/mouse/alps.c
-+++ work/drivers/input/mouse/alps.c
-@@ -79,8 +79,8 @@ static void alps_process_packet(struct p
- {
- 	struct alps_data *priv = psmouse->private;
- 	unsigned char *packet = psmouse->packet;
--	struct input_dev *dev = &psmouse->dev;
--	struct input_dev *dev2 = &priv->dev2;
-+	struct input_dev *dev = psmouse->dev;
-+	struct input_dev *dev2 = priv->dev2;
- 	int x, y, z, ges, fin, left, right, middle;
- 	int back = 0, forward = 0;
- 
-@@ -379,20 +379,24 @@ static int alps_reconnect(struct psmouse
- static void alps_disconnect(struct psmouse *psmouse)
- {
- 	struct alps_data *priv = psmouse->private;
-+
- 	psmouse_reset(psmouse);
--	input_unregister_device(&priv->dev2);
-+	input_unregister_device(priv->dev2);
- 	kfree(priv);
- }
- 
- int alps_init(struct psmouse *psmouse)
- {
- 	struct alps_data *priv;
-+	struct input_dev *dev1 = psmouse->dev, *dev2;
- 	int version;
- 
--	psmouse->private = priv = kmalloc(sizeof(struct alps_data), GFP_KERNEL);
--	if (!priv)
-+	psmouse->private = priv = kzalloc(sizeof(struct alps_data), GFP_KERNEL);
-+	dev2 = input_allocate_device();
-+	if (!priv || !dev2)
- 		goto init_fail;
--	memset(priv, 0, sizeof(struct alps_data));
-+
-+	priv->dev2 = dev2;
- 
- 	if (!(priv->i = alps_get_model(psmouse, &version)))
- 		goto init_fail;
-@@ -411,41 +415,39 @@ int alps_init(struct psmouse *psmouse)
- 	if ((priv->i->flags & ALPS_PASS) && alps_passthrough_mode(psmouse, 0))
- 		goto init_fail;
- 
--	psmouse->dev.evbit[LONG(EV_KEY)] |= BIT(EV_KEY);
--	psmouse->dev.keybit[LONG(BTN_TOUCH)] |= BIT(BTN_TOUCH);
--	psmouse->dev.keybit[LONG(BTN_TOOL_FINGER)] |= BIT(BTN_TOOL_FINGER);
--	psmouse->dev.keybit[LONG(BTN_LEFT)] |= BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT);
--
--	psmouse->dev.evbit[LONG(EV_ABS)] |= BIT(EV_ABS);
--	input_set_abs_params(&psmouse->dev, ABS_X, 0, 1023, 0, 0);
--	input_set_abs_params(&psmouse->dev, ABS_Y, 0, 767, 0, 0);
--	input_set_abs_params(&psmouse->dev, ABS_PRESSURE, 0, 127, 0, 0);
-+	dev1->evbit[LONG(EV_KEY)] |= BIT(EV_KEY);
-+	dev1->keybit[LONG(BTN_TOUCH)] |= BIT(BTN_TOUCH);
-+	dev1->keybit[LONG(BTN_TOOL_FINGER)] |= BIT(BTN_TOOL_FINGER);
-+	dev1->keybit[LONG(BTN_LEFT)] |= BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT);
-+
-+	dev1->evbit[LONG(EV_ABS)] |= BIT(EV_ABS);
-+	input_set_abs_params(dev1, ABS_X, 0, 1023, 0, 0);
-+	input_set_abs_params(dev1, ABS_Y, 0, 767, 0, 0);
-+	input_set_abs_params(dev1, ABS_PRESSURE, 0, 127, 0, 0);
- 
- 	if (priv->i->flags & ALPS_WHEEL) {
--		psmouse->dev.evbit[LONG(EV_REL)] |= BIT(EV_REL);
--		psmouse->dev.relbit[LONG(REL_WHEEL)] |= BIT(REL_WHEEL);
-+		dev1->evbit[LONG(EV_REL)] |= BIT(EV_REL);
-+		dev1->relbit[LONG(REL_WHEEL)] |= BIT(REL_WHEEL);
- 	}
- 
- 	if (priv->i->flags & (ALPS_FW_BK_1 | ALPS_FW_BK_2)) {
--		psmouse->dev.keybit[LONG(BTN_FORWARD)] |= BIT(BTN_FORWARD);
--		psmouse->dev.keybit[LONG(BTN_BACK)] |= BIT(BTN_BACK);
-+		dev1->keybit[LONG(BTN_FORWARD)] |= BIT(BTN_FORWARD);
-+		dev1->keybit[LONG(BTN_BACK)] |= BIT(BTN_BACK);
- 	}
- 
- 	sprintf(priv->phys, "%s/input1", psmouse->ps2dev.serio->phys);
--	priv->dev2.phys = priv->phys;
--	priv->dev2.name = (priv->i->flags & ALPS_DUALPOINT) ? "DualPoint Stick" : "PS/2 Mouse";
--	priv->dev2.id.bustype = BUS_I8042;
--	priv->dev2.id.vendor = 0x0002;
--	priv->dev2.id.product = PSMOUSE_ALPS;
--	priv->dev2.id.version = 0x0000;
--
--	priv->dev2.evbit[0] = BIT(EV_KEY) | BIT(EV_REL);
--	priv->dev2.relbit[LONG(REL_X)] |= BIT(REL_X) | BIT(REL_Y);
--	priv->dev2.keybit[LONG(BTN_LEFT)] |= BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT);
--
--	input_register_device(&priv->dev2);
-+	dev2->phys = priv->phys;
-+	dev2->name = (priv->i->flags & ALPS_DUALPOINT) ? "DualPoint Stick" : "PS/2 Mouse";
-+	dev2->id.bustype = BUS_I8042;
-+	dev2->id.vendor  = 0x0002;
-+	dev2->id.product = PSMOUSE_ALPS;
-+	dev2->id.version = 0x0000;
-+
-+	dev2->evbit[0] = BIT(EV_KEY) | BIT(EV_REL);
-+	dev2->relbit[LONG(REL_X)] |= BIT(REL_X) | BIT(REL_Y);
-+	dev2->keybit[LONG(BTN_LEFT)] |= BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT);
- 
--	printk(KERN_INFO "input: %s on %s\n", priv->dev2.name, psmouse->ps2dev.serio->phys);
-+	input_register_device(priv->dev2);
- 
- 	psmouse->protocol_handler = alps_process_byte;
- 	psmouse->disconnect = alps_disconnect;
-@@ -455,6 +457,7 @@ int alps_init(struct psmouse *psmouse)
- 	return 0;
- 
- init_fail:
-+	input_free_device(dev2);
- 	kfree(priv);
- 	return -1;
- }
-Index: work/drivers/input/mouse/logips2pp.c
-===================================================================
---- work.orig/drivers/input/mouse/logips2pp.c
-+++ work/drivers/input/mouse/logips2pp.c
-@@ -40,7 +40,7 @@ struct ps2pp_info {
- 
- static psmouse_ret_t ps2pp_process_byte(struct psmouse *psmouse, struct pt_regs *regs)
- {
--	struct input_dev *dev = &psmouse->dev;
-+	struct input_dev *dev = psmouse->dev;
- 	unsigned char *packet = psmouse->packet;
- 
- 	if (psmouse->pktcnt < 3)
-@@ -257,25 +257,27 @@ static struct ps2pp_info *get_model_info
- static void ps2pp_set_model_properties(struct psmouse *psmouse, struct ps2pp_info *model_info,
- 				       int using_ps2pp)
- {
-+	struct input_dev *input_dev = psmouse->dev;
-+
- 	if (model_info->features & PS2PP_SIDE_BTN)
--		set_bit(BTN_SIDE, psmouse->dev.keybit);
-+		set_bit(BTN_SIDE, input_dev->keybit);
- 
- 	if (model_info->features & PS2PP_EXTRA_BTN)
--		set_bit(BTN_EXTRA, psmouse->dev.keybit);
-+		set_bit(BTN_EXTRA, input_dev->keybit);
- 
- 	if (model_info->features & PS2PP_TASK_BTN)
--		set_bit(BTN_TASK, psmouse->dev.keybit);
-+		set_bit(BTN_TASK, input_dev->keybit);
- 
- 	if (model_info->features & PS2PP_NAV_BTN) {
--		set_bit(BTN_FORWARD, psmouse->dev.keybit);
--		set_bit(BTN_BACK, psmouse->dev.keybit);
-+		set_bit(BTN_FORWARD, input_dev->keybit);
-+		set_bit(BTN_BACK, input_dev->keybit);
- 	}
- 
- 	if (model_info->features & PS2PP_WHEEL)
--		set_bit(REL_WHEEL, psmouse->dev.relbit);
-+		set_bit(REL_WHEEL, input_dev->relbit);
- 
- 	if (model_info->features & PS2PP_HWHEEL)
--		set_bit(REL_HWHEEL, psmouse->dev.relbit);
-+		set_bit(REL_HWHEEL, input_dev->relbit);
- 
- 	switch (model_info->kind) {
- 		case PS2PP_KIND_WHEEL:
-@@ -387,7 +389,7 @@ int ps2pp_init(struct psmouse *psmouse, 
- 		}
- 
- 		if (buttons < 3)
--			clear_bit(BTN_MIDDLE, psmouse->dev.keybit);
-+			clear_bit(BTN_MIDDLE, psmouse->dev->keybit);
- 
- 		if (model_info)
- 			ps2pp_set_model_properties(psmouse, model_info, use_ps2pp);
-Index: work/drivers/input/mouse/alps.h
-===================================================================
---- work.orig/drivers/input/mouse/alps.h
-+++ work/drivers/input/mouse/alps.h
-@@ -22,7 +22,7 @@ struct alps_model_info {
+--- work.orig/drivers/media/dvb/cinergyT2/cinergyT2.c
++++ work/drivers/media/dvb/cinergyT2/cinergyT2.c
+@@ -137,7 +137,8 @@ struct cinergyt2 {
+ 	struct urb *stream_urb [STREAM_URB_COUNT];
+ 
+ #ifdef ENABLE_RC
+-	struct input_dev rc_input_dev;
++	struct input_dev *rc_input_dev;
++	char phys[64];
+ 	struct work_struct rc_query_work;
+ 	int rc_input_event;
+ 	u32 rc_last_code;
+@@ -683,6 +684,7 @@ static struct dvb_device cinergyt2_fe_te
  };
  
- struct alps_data {
--	struct input_dev dev2;		/* Relative device */
-+	struct input_dev *dev2;		/* Relative device */
- 	char name[32];			/* Name */
- 	char phys[32];			/* Phys */
- 	struct alps_model_info *i; 	/* Info */
-Index: work/drivers/input/mouse/lifebook.c
-===================================================================
---- work.orig/drivers/input/mouse/lifebook.c
-+++ work/drivers/input/mouse/lifebook.c
-@@ -34,7 +34,7 @@ static struct dmi_system_id lifebook_dmi
- static psmouse_ret_t lifebook_process_byte(struct psmouse *psmouse, struct pt_regs *regs)
- {
- 	unsigned char *packet = psmouse->packet;
--	struct input_dev *dev = &psmouse->dev;
-+	struct input_dev *dev = psmouse->dev;
- 
- 	if (psmouse->pktcnt != 3)
- 		return PSMOUSE_GOOD_DATA;
-@@ -113,15 +113,17 @@ int lifebook_detect(struct psmouse *psmo
- 
- int lifebook_init(struct psmouse *psmouse)
- {
-+	struct input_dev *input_dev = psmouse->dev;
+ #ifdef ENABLE_RC
 +
- 	if (lifebook_absolute_mode(psmouse))
- 		return -1;
+ static void cinergyt2_query_rc (void *data)
+ {
+ 	struct cinergyt2 *cinergyt2 = data;
+@@ -703,7 +705,7 @@ static void cinergyt2_query_rc (void *da
+ 			/* stop key repeat */
+ 			if (cinergyt2->rc_input_event != KEY_MAX) {
+ 				dprintk(1, "rc_input_event=%d Up\n", cinergyt2->rc_input_event);
+-				input_report_key(&cinergyt2->rc_input_dev,
++				input_report_key(cinergyt2->rc_input_dev,
+ 						 cinergyt2->rc_input_event, 0);
+ 				cinergyt2->rc_input_event = KEY_MAX;
+ 			}
+@@ -722,7 +724,7 @@ static void cinergyt2_query_rc (void *da
+ 			/* keyrepeat bit -> just repeat last rc_input_event */
+ 		} else {
+ 			cinergyt2->rc_input_event = KEY_MAX;
+-			for (i = 0; i < sizeof(rc_keys) / sizeof(rc_keys[0]); i += 3) {
++			for (i = 0; i < ARRAY_SIZE(rc_keys); i += 3) {
+ 				if (rc_keys[i + 0] == rc_events[n].type &&
+ 				    rc_keys[i + 1] == le32_to_cpu(rc_events[n].value)) {
+ 					cinergyt2->rc_input_event = rc_keys[i + 2];
+@@ -736,11 +738,11 @@ static void cinergyt2_query_rc (void *da
+ 			    cinergyt2->rc_last_code != ~0) {
+ 				/* emit a key-up so the double event is recognized */
+ 				dprintk(1, "rc_input_event=%d UP\n", cinergyt2->rc_input_event);
+-				input_report_key(&cinergyt2->rc_input_dev,
++				input_report_key(cinergyt2->rc_input_dev,
+ 						 cinergyt2->rc_input_event, 0);
+ 			}
+ 			dprintk(1, "rc_input_event=%d\n", cinergyt2->rc_input_event);
+-			input_report_key(&cinergyt2->rc_input_dev,
++			input_report_key(cinergyt2->rc_input_dev,
+ 					 cinergyt2->rc_input_event, 1);
+ 			cinergyt2->rc_last_code = rc_events[n].value;
+ 		}
+@@ -752,7 +754,59 @@ out:
  
--	psmouse->dev.evbit[0] = BIT(EV_ABS) | BIT(EV_KEY) | BIT(EV_REL);
--	psmouse->dev.keybit[LONG(BTN_LEFT)] = BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT);
--	psmouse->dev.keybit[LONG(BTN_TOUCH)] = BIT(BTN_TOUCH);
--	psmouse->dev.relbit[0] = BIT(REL_X) | BIT(REL_Y);
--	input_set_abs_params(&psmouse->dev, ABS_X, 0, 1024, 0, 0);
--	input_set_abs_params(&psmouse->dev, ABS_Y, 0, 1024, 0, 0);
-+	input_dev->evbit[0] = BIT(EV_ABS) | BIT(EV_KEY) | BIT(EV_REL);
-+	input_dev->keybit[LONG(BTN_LEFT)] = BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT);
-+	input_dev->keybit[LONG(BTN_TOUCH)] = BIT(BTN_TOUCH);
-+	input_dev->relbit[0] = BIT(REL_X) | BIT(REL_Y);
-+	input_set_abs_params(input_dev, ABS_X, 0, 1024, 0, 0);
-+	input_set_abs_params(input_dev, ABS_Y, 0, 1024, 0, 0);
+ 	up(&cinergyt2->sem);
+ }
+-#endif
++
++static int cinergyt2_register_rc(struct cinergyt2 *cinergyt2)
++{
++	struct input_dev *input_dev;
++	int i;
++
++	cinergyt2->rc_input_dev = input_dev = input_allocate_device();
++	if (!input_dev)
++		return -ENOMEM;
++
++	usb_make_path(cinergyt2->udev, cinergyt2->phys, sizeof(cinergyt2->phys));
++	strlcat(cinergyt2->phys, "/input0", sizeof(cinergyt2->phys));
++	cinergyt2->rc_input_event = KEY_MAX;
++	cinergyt2->rc_last_code = ~0;
++	INIT_WORK(&cinergyt2->rc_query_work, cinergyt2_query_rc, cinergyt2);
++
++	input_dev->name = DRIVER_NAME " remote control";
++	input_dev->phys = cinergyt2->phys;
++	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
++	for (i = 0; ARRAY_SIZE(rc_keys); i += 3)
++		set_bit(rc_keys[i + 2], input_dev->keybit);
++	input_dev->keycodesize = 0;
++	input_dev->keycodemax = 0;
++
++	input_register_device(cinergyt2->rc_input_dev);
++	schedule_delayed_work(&cinergyt2->rc_query_work, HZ/2);
++}
++
++static void cinergyt2_unregister_rc(struct cinergyt2 *cinergyt2)
++{
++	cancel_delayed_work(&cinergyt2->rc_query_work);
++	flush_scheduled_work();
++	input_unregister_device(cinergyt2->rc_input_dev);
++}
++
++static inline void cinergyt2_suspend_rc(struct cinergyt2 *cinergyt2)
++{
++	cancel_delayed_work(&cinergyt2->rc_query_work);
++}
++
++static inline void cinergyt2_resume_rc(struct cinergyt2 *cinergyt2)
++{
++	schedule_delayed_work(&cinergyt2->rc_query_work, HZ/2);
++}
++
++#else
++
++static inline int cinergyt2_register_rc(struct cinergyt2 *cinergyt2) { return 0; }
++static inline void cinergyt2_unregister_rc(struct cinergyt2 *cinergyt2) { }
++static inline void cinergyt2_suspend_rc(struct cinergyt2 *cinergyt2) { }
++static inline void cinergyt2_resume_rc(struct cinergyt2 *cinergyt2) { }
++
++#endif /* ENABLE_RC */
  
- 	psmouse->protocol_handler = lifebook_process_byte;
- 	psmouse->set_resolution = lifebook_set_resolution;
+ static void cinergyt2_query (void *data)
+ {
+@@ -789,9 +843,6 @@ static int cinergyt2_probe (struct usb_i
+ {
+ 	struct cinergyt2 *cinergyt2;
+ 	int err;
+-#ifdef ENABLE_RC
+-	int i;
+-#endif
+ 
+ 	if (!(cinergyt2 = kmalloc (sizeof(struct cinergyt2), GFP_KERNEL))) {
+ 		dprintk(1, "out of memory?!?\n");
+@@ -846,30 +897,17 @@ static int cinergyt2_probe (struct usb_i
+ 			    &cinergyt2_fe_template, cinergyt2,
+ 			    DVB_DEVICE_FRONTEND);
+ 
+-#ifdef ENABLE_RC
+-	cinergyt2->rc_input_dev.evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
+-	cinergyt2->rc_input_dev.keycodesize = 0;
+-	cinergyt2->rc_input_dev.keycodemax = 0;
+-	cinergyt2->rc_input_dev.name = DRIVER_NAME " remote control";
+-
+-	for (i = 0; i < sizeof(rc_keys) / sizeof(rc_keys[0]); i += 3)
+-		set_bit(rc_keys[i + 2], cinergyt2->rc_input_dev.keybit);
+-
+-	input_register_device(&cinergyt2->rc_input_dev);
+-
+-	cinergyt2->rc_input_event = KEY_MAX;
+-	cinergyt2->rc_last_code = ~0;
++	err = cinergyt2_register_rc(cinergyt2);
++	if (err)
++		goto bailout;
+ 
+-	INIT_WORK(&cinergyt2->rc_query_work, cinergyt2_query_rc, cinergyt2);
+-	schedule_delayed_work(&cinergyt2->rc_query_work, HZ/2);
+-#endif
+ 	return 0;
+ 
+ bailout:
+ 	dvb_dmxdev_release(&cinergyt2->dmxdev);
+ 	dvb_dmx_release(&cinergyt2->demux);
+-	dvb_unregister_adapter (&cinergyt2->adapter);
+-	cinergyt2_free_stream_urbs (cinergyt2);
++	dvb_unregister_adapter(&cinergyt2->adapter);
++	cinergyt2_free_stream_urbs(cinergyt2);
+ 	kfree(cinergyt2);
+ 	return -ENOMEM;
+ }
+@@ -881,11 +919,7 @@ static void cinergyt2_disconnect (struct
+ 	if (down_interruptible(&cinergyt2->sem))
+ 		return;
+ 
+-#ifdef ENABLE_RC
+-	cancel_delayed_work(&cinergyt2->rc_query_work);
+-	flush_scheduled_work();
+-	input_unregister_device(&cinergyt2->rc_input_dev);
+-#endif
++	cinergyt2_unregister_rc(cinergyt2);
+ 
+ 	cinergyt2->demux.dmx.close(&cinergyt2->demux.dmx);
+ 	dvb_net_release(&cinergyt2->dvbnet);
+@@ -908,9 +942,8 @@ static int cinergyt2_suspend (struct usb
+ 
+ 	if (state.event > PM_EVENT_ON) {
+ 		struct cinergyt2 *cinergyt2 = usb_get_intfdata (intf);
+-#ifdef ENABLE_RC
+-		cancel_delayed_work(&cinergyt2->rc_query_work);
+-#endif
++
++		cinergyt2_suspend_rc(cinergyt2);
+ 		cancel_delayed_work(&cinergyt2->query_work);
+ 		if (cinergyt2->streaming)
+ 			cinergyt2_stop_stream_xfer(cinergyt2);
+@@ -938,9 +971,8 @@ static int cinergyt2_resume (struct usb_
+ 		schedule_delayed_work(&cinergyt2->query_work, HZ/2);
+ 	}
+ 
+-#ifdef ENABLE_RC
+-	schedule_delayed_work(&cinergyt2->rc_query_work, HZ/2);
+-#endif
++	cinergyt2_resume_rc(cinergyt2);
++
+ 	up(&cinergyt2->sem);
+ 	return 0;
+ }
+Index: work/drivers/media/common/ir-common.c
+===================================================================
+--- work.orig/drivers/media/common/ir-common.c
++++ work/drivers/media/common/ir-common.c
+@@ -252,7 +252,6 @@ void ir_input_init(struct input_dev *dev
+ 	if (ir_codes)
+ 		memcpy(ir->ir_codes, ir_codes, sizeof(ir->ir_codes));
+ 
+-        init_input_dev(dev);
+ 	dev->keycode     = ir->ir_codes;
+ 	dev->keycodesize = sizeof(IR_KEYTAB_TYPE);
+ 	dev->keycodemax  = IR_KEYTAB_SIZE;
+Index: work/drivers/media/dvb/dvb-usb/dvb-usb-remote.c
+===================================================================
+--- work.orig/drivers/media/dvb/dvb-usb/dvb-usb-remote.c
++++ work/drivers/media/dvb/dvb-usb/dvb-usb-remote.c
+@@ -39,9 +39,9 @@ static void dvb_usb_read_remote_control(
+ 			d->last_event = event;
+ 		case REMOTE_KEY_REPEAT:
+ 			deb_rc("key repeated\n");
+-			input_event(&d->rc_input_dev, EV_KEY, d->last_event, 1);
+-			input_event(&d->rc_input_dev, EV_KEY, d->last_event, 0);
+-			input_sync(&d->rc_input_dev);
++			input_event(d->rc_input_dev, EV_KEY, event, 1);
++			input_event(d->rc_input_dev, EV_KEY, d->last_event, 0);
++			input_sync(d->rc_input_dev);
+ 			break;
+ 		default:
+ 			break;
+@@ -53,8 +53,8 @@ static void dvb_usb_read_remote_control(
+ 			deb_rc("NO KEY PRESSED\n");
+ 			if (d->last_state != REMOTE_NO_KEY_PRESSED) {
+ 				deb_rc("releasing event %d\n",d->last_event);
+-				input_event(&d->rc_input_dev, EV_KEY, d->last_event, 0);
+-				input_sync(&d->rc_input_dev);
++				input_event(d->rc_input_dev, EV_KEY, d->last_event, 0);
++				input_sync(d->rc_input_dev);
+ 			}
+ 			d->last_state = REMOTE_NO_KEY_PRESSED;
+ 			d->last_event = 0;
+@@ -63,8 +63,8 @@ static void dvb_usb_read_remote_control(
+ 			deb_rc("KEY PRESSED\n");
+ 			deb_rc("pressing event %d\n",event);
+ 
+-			input_event(&d->rc_input_dev, EV_KEY, event, 1);
+-			input_sync(&d->rc_input_dev);
++			input_event(d->rc_input_dev, EV_KEY, event, 1);
++			input_sync(d->rc_input_dev);
+ 
+ 			d->last_event = event;
+ 			d->last_state = REMOTE_KEY_PRESSED;
+@@ -73,8 +73,8 @@ static void dvb_usb_read_remote_control(
+ 			deb_rc("KEY_REPEAT\n");
+ 			if (d->last_state != REMOTE_NO_KEY_PRESSED) {
+ 				deb_rc("repeating event %d\n",d->last_event);
+-				input_event(&d->rc_input_dev, EV_KEY, d->last_event, 2);
+-				input_sync(&d->rc_input_dev);
++				input_event(d->rc_input_dev, EV_KEY, d->last_event, 2);
++				input_sync(d->rc_input_dev);
+ 				d->last_state = REMOTE_KEY_REPEAT;
+ 			}
+ 		default:
+@@ -89,24 +89,30 @@ schedule:
+ int dvb_usb_remote_init(struct dvb_usb_device *d)
+ {
+ 	int i;
++
+ 	if (d->props.rc_key_map == NULL ||
+ 		d->props.rc_query == NULL ||
+ 		dvb_usb_disable_rc_polling)
+ 		return 0;
+ 
+-	/* Initialise the remote-control structures.*/
+-	init_input_dev(&d->rc_input_dev);
++	usb_make_path(d->udev, d->rc_phys, sizeof(d->rc_phys));
++	strlcpy(d->rc_phys, "/ir0", sizeof(d->rc_phys));
+ 
+-	d->rc_input_dev.evbit[0] = BIT(EV_KEY);
+-	d->rc_input_dev.keycodesize = sizeof(unsigned char);
+-	d->rc_input_dev.keycodemax = KEY_MAX;
+-	d->rc_input_dev.name = "IR-receiver inside an USB DVB receiver";
++	d->rc_input_dev = input_allocate_device();
++	if (!d->rc_input_dev)
++		return -ENOMEM;
++
++	d->rc_input_dev->evbit[0] = BIT(EV_KEY);
++	d->rc_input_dev->keycodesize = sizeof(unsigned char);
++	d->rc_input_dev->keycodemax = KEY_MAX;
++	d->rc_input_dev->name = "IR-receiver inside an USB DVB receiver";
++	d->rc_input_dev->phys = d->rc_phys;
+ 
+ 	/* set the bits for the keys */
+-	deb_rc("key map size: %d\n",d->props.rc_key_map_size);
++	deb_rc("key map size: %d\n", d->props.rc_key_map_size);
+ 	for (i = 0; i < d->props.rc_key_map_size; i++) {
+ 		deb_rc("setting bit for event %d item %d\n",d->props.rc_key_map[i].event, i);
+-		set_bit(d->props.rc_key_map[i].event, d->rc_input_dev.keybit);
++		set_bit(d->props.rc_key_map[i].event, d->rc_input_dev->keybit);
+ 	}
+ 
+ 	/* Start the remote-control polling. */
+@@ -114,14 +120,14 @@ int dvb_usb_remote_init(struct dvb_usb_d
+ 		d->props.rc_interval = 100; /* default */
+ 
+ 	/* setting these two values to non-zero, we have to manage key repeats */
+-	d->rc_input_dev.rep[REP_PERIOD] = d->props.rc_interval;
+-	d->rc_input_dev.rep[REP_DELAY]  = d->props.rc_interval + 150;
++	d->rc_input_dev->rep[REP_PERIOD] = d->props.rc_interval;
++	d->rc_input_dev->rep[REP_DELAY]  = d->props.rc_interval + 150;
+ 
+-	input_register_device(&d->rc_input_dev);
++	input_register_device(d->rc_input_dev);
+ 
+ 	INIT_WORK(&d->rc_query_work, dvb_usb_read_remote_control, d);
+ 
+-	info("schedule remote query interval to %d msecs.",d->props.rc_interval);
++	info("schedule remote query interval to %d msecs.", d->props.rc_interval);
+ 	schedule_delayed_work(&d->rc_query_work,msecs_to_jiffies(d->props.rc_interval));
+ 
+ 	d->state |= DVB_USB_STATE_REMOTE;
+@@ -134,7 +140,7 @@ int dvb_usb_remote_exit(struct dvb_usb_d
+ 	if (d->state & DVB_USB_STATE_REMOTE) {
+ 		cancel_delayed_work(&d->rc_query_work);
+ 		flush_scheduled_work();
+-		input_unregister_device(&d->rc_input_dev);
++		input_unregister_device(d->rc_input_dev);
+ 	}
+ 	d->state &= ~DVB_USB_STATE_REMOTE;
+ 	return 0;
+Index: work/drivers/media/dvb/dvb-usb/dvb-usb.h
+===================================================================
+--- work.orig/drivers/media/dvb/dvb-usb/dvb-usb.h
++++ work/drivers/media/dvb/dvb-usb/dvb-usb.h
+@@ -300,7 +300,8 @@ struct dvb_usb_device {
+ 	int (*fe_init)  (struct dvb_frontend *);
+ 
+ 	/* remote control */
+-	struct input_dev rc_input_dev;
++	struct input_dev *rc_input_dev;
++	char rc_phys[64];
+ 	struct work_struct rc_query_work;
+ 	u32 last_event;
+ 	int last_state;
+Index: work/drivers/media/dvb/ttpci/av7110_ir.c
+===================================================================
+--- work.orig/drivers/media/dvb/ttpci/av7110_ir.c
++++ work/drivers/media/dvb/ttpci/av7110_ir.c
+@@ -15,7 +15,7 @@
+ 
+ static int av_cnt;
+ static struct av7110 *av_list[4];
+-static struct input_dev input_dev;
++static struct input_dev *input_dev;
+ 
+ static u16 key_map [256] = {
+ 	KEY_0, KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7,
+@@ -43,10 +43,10 @@ static u16 key_map [256] = {
+ 
+ static void av7110_emit_keyup(unsigned long data)
+ {
+-	if (!data || !test_bit(data, input_dev.key))
++	if (!data || !test_bit(data, input_dev->key))
+ 		return;
+ 
+-	input_event(&input_dev, EV_KEY, data, !!0);
++	input_event(input_dev, EV_KEY, data, !!0);
+ }
+ 
+ 
+@@ -112,13 +112,13 @@ static void av7110_emit_key(unsigned lon
+ 	if (timer_pending(&keyup_timer)) {
+ 		del_timer(&keyup_timer);
+ 		if (keyup_timer.data != keycode || new_toggle != old_toggle) {
+-			input_event(&input_dev, EV_KEY, keyup_timer.data, !!0);
+-			input_event(&input_dev, EV_KEY, keycode, !0);
++			input_event(input_dev, EV_KEY, keyup_timer.data, !!0);
++			input_event(input_dev, EV_KEY, keycode, !0);
+ 		} else
+-			input_event(&input_dev, EV_KEY, keycode, 2);
++			input_event(input_dev, EV_KEY, keycode, 2);
+ 
+ 	} else
+-		input_event(&input_dev, EV_KEY, keycode, !0);
++		input_event(input_dev, EV_KEY, keycode, !0);
+ 
+ 	keyup_timer.expires = jiffies + UP_TIMEOUT;
+ 	keyup_timer.data = keycode;
+@@ -132,13 +132,13 @@ static void input_register_keys(void)
+ {
+ 	int i;
+ 
+-	memset(input_dev.keybit, 0, sizeof(input_dev.keybit));
++	memset(input_dev->keybit, 0, sizeof(input_dev->keybit));
+ 
+-	for (i = 0; i < sizeof(key_map) / sizeof(key_map[0]); i++) {
++	for (i = 0; i < ARRAY_SIZE(key_map); i++) {
+ 		if (key_map[i] > KEY_MAX)
+ 			key_map[i] = 0;
+ 		else if (key_map[i] > KEY_RESERVED)
+-			set_bit(key_map[i], input_dev.keybit);
++			set_bit(key_map[i], input_dev->keybit);
+ 	}
+ }
+ 
+@@ -216,12 +216,17 @@ int __init av7110_ir_init(struct av7110 
+ 		init_timer(&keyup_timer);
+ 		keyup_timer.data = 0;
+ 
+-		input_dev.name = "DVB on-card IR receiver";
+-		set_bit(EV_KEY, input_dev.evbit);
+-		set_bit(EV_REP, input_dev.evbit);
++		input_dev = input_allocate_device();
++		if (!input_dev)
++			return -ENOMEM;
++
++		input_dev->name = "DVB on-card IR receiver";
++
++		set_bit(EV_KEY, input_dev->evbit);
++		set_bit(EV_REP, input_dev->evbit);
+ 		input_register_keys();
+-		input_register_device(&input_dev);
+-		input_dev.timer.function = input_repeat_key;
++		input_register_device(input_dev);
++		input_dev->timer.function = input_repeat_key;
+ 
+ 		e = create_proc_entry("av7110_ir", S_IFREG | S_IRUGO | S_IWUSR, NULL);
+ 		if (e) {
+@@ -256,7 +261,7 @@ void __exit av7110_ir_exit(struct av7110
+ 	if (av_cnt == 1) {
+ 		del_timer_sync(&keyup_timer);
+ 		remove_proc_entry("av7110_ir", NULL);
+-		input_unregister_device(&input_dev);
++		input_unregister_device(input_dev);
+ 	}
+ 
+ 	av_cnt--;
+Index: work/drivers/media/dvb/ttusb-dec/ttusb_dec.c
+===================================================================
+--- work.orig/drivers/media/dvb/ttusb-dec/ttusb_dec.c
++++ work/drivers/media/dvb/ttusb-dec/ttusb_dec.c
+@@ -152,7 +152,8 @@ struct ttusb_dec {
+ 	struct list_head	filter_info_list;
+ 	spinlock_t		filter_info_list_lock;
+ 
+-	struct input_dev	rc_input_dev;
++	struct input_dev	*rc_input_dev;
++	char			rc_phys[64];
+ 
+ 	int			active; /* Loaded successfully */
+ };
+@@ -235,9 +236,9 @@ static void ttusb_dec_handle_irq( struct
+ 		 * this should/could be added later ...
+ 		 * for now lets report each signal as a key down and up*/
+ 		dprintk("%s:rc signal:%d\n", __FUNCTION__, buffer[4]);
+-		input_report_key(&dec->rc_input_dev,rc_keys[buffer[4]-1],1);
+-		input_report_key(&dec->rc_input_dev,rc_keys[buffer[4]-1],0);
+-		input_sync(&dec->rc_input_dev);
++		input_report_key(dec->rc_input_dev, rc_keys[buffer[4] - 1], 1);
++		input_report_key(dec->rc_input_dev, rc_keys[buffer[4] - 1], 0);
++		input_sync(dec->rc_input_dev);
+ 	}
+ 
+ exit:	retval = usb_submit_urb(urb, GFP_ATOMIC);
+@@ -1181,29 +1182,38 @@ static void ttusb_dec_init_tasklet(struc
+ 		     (unsigned long)dec);
+ }
+ 
+-static void ttusb_init_rc( struct ttusb_dec *dec)
++static int ttusb_init_rc(struct ttusb_dec *dec)
+ {
++	struct input_dev *input_dev;
+ 	u8 b[] = { 0x00, 0x01 };
+ 	int i;
+ 
+-	init_input_dev(&dec->rc_input_dev);
++	usb_make_path(dec->udev, dec->rc_phys, sizeof(dec->rc_phys));
++	strlcpy(dec->rc_phys, "/input0", sizeof(dec->rc_phys));
+ 
+-	dec->rc_input_dev.name = "ttusb_dec remote control";
+-	dec->rc_input_dev.evbit[0] = BIT(EV_KEY);
+-	dec->rc_input_dev.keycodesize = sizeof(u16);
+-	dec->rc_input_dev.keycodemax = 0x1a;
+-	dec->rc_input_dev.keycode = rc_keys;
++	dec->rc_input_dev = input_dev = input_allocate_device();
++	if (!input_dev)
++		return -ENOMEM;
++
++	input_dev->name = "ttusb_dec remote control";
++	input_dev->phys = dec->rc_phys;
++	input_dev->evbit[0] = BIT(EV_KEY);
++	input_dev->keycodesize = sizeof(u16);
++	input_dev->keycodemax = 0x1a;
++	input_dev->keycode = rc_keys;
+ 
+-	 for (i = 0; i < sizeof(rc_keys)/sizeof(rc_keys[0]); i++)
+-                set_bit(rc_keys[i], dec->rc_input_dev.keybit);
++	for (i = 0; i < ARRAY_SIZE(rc_keys); i++)
++                set_bit(rc_keys[i], input_dev->keybit);
+ 
+-	input_register_device(&dec->rc_input_dev);
++	input_register_device(input_dev);
+ 
+-	if(usb_submit_urb(dec->irq_urb,GFP_KERNEL)) {
++	if (usb_submit_urb(dec->irq_urb, GFP_KERNEL))
+ 		printk("%s: usb_submit_urb failed\n",__FUNCTION__);
+-	}
++
+ 	/* enable irq pipe */
+ 	ttusb_dec_send_command(dec,0xb0,sizeof(b),b,NULL,NULL);
++
++	return 0;
+ }
+ 
+ static void ttusb_dec_init_v_pes(struct ttusb_dec *dec)
+@@ -1513,7 +1523,7 @@ static void ttusb_dec_exit_rc(struct ttu
+ 	  * As the irq is submitted after the interface is changed,
+ 	  * this is the best method i figured out.
+ 	  * Any others?*/
+-	if(dec->interface == TTUSB_DEC_INTERFACE_IN)
++	if (dec->interface == TTUSB_DEC_INTERFACE_IN)
+ 		usb_kill_urb(dec->irq_urb);
+ 
+ 	usb_free_urb(dec->irq_urb);
+@@ -1521,7 +1531,10 @@ static void ttusb_dec_exit_rc(struct ttu
+ 	usb_buffer_free(dec->udev,IRQ_PACKET_SIZE,
+ 		           dec->irq_buffer, dec->irq_dma_handle);
+ 
+-	input_unregister_device(&dec->rc_input_dev);
++	if (dec->rc_input_dev) {
++		input_unregister_device(dec->rc_input_dev);
++		dec->rc_input_dev = NULL;
++	}
+ }
+ 
+ 
+@@ -1659,7 +1672,7 @@ static int ttusb_dec_probe(struct usb_in
+ 
+ 	ttusb_dec_set_interface(dec, TTUSB_DEC_INTERFACE_IN);
+ 
+-	if(enable_rc)
++	if (enable_rc)
+ 		ttusb_init_rc(dec);
+ 
+ 	return 0;
+Index: work/drivers/media/video/cx88/cx88-input.c
+===================================================================
+--- work.orig/drivers/media/video/cx88/cx88-input.c
++++ work/drivers/media/video/cx88/cx88-input.c
+@@ -260,7 +260,7 @@ static IR_KEYTAB_TYPE ir_codes_cinergy_1
+ 
+ struct cx88_IR {
+ 	struct cx88_core *core;
+-	struct input_dev input;
++	struct input_dev *input;
+ 	struct ir_input_state ir;
+ 	char name[32];
+ 	char phys[32];
+@@ -315,23 +315,23 @@ static void cx88_ir_handle_key(struct cx
+ 	if (ir->mask_keydown) {
+ 		/* bit set on keydown */
+ 		if (gpio & ir->mask_keydown) {
+-			ir_input_keydown(&ir->input, &ir->ir, data, data);
++			ir_input_keydown(ir->input, &ir->ir, data, data);
+ 		} else {
+-			ir_input_nokey(&ir->input, &ir->ir);
++			ir_input_nokey(ir->input, &ir->ir);
+ 		}
+ 
+ 	} else if (ir->mask_keyup) {
+ 		/* bit cleared on keydown */
+ 		if (0 == (gpio & ir->mask_keyup)) {
+-			ir_input_keydown(&ir->input, &ir->ir, data, data);
++			ir_input_keydown(ir->input, &ir->ir, data, data);
+ 		} else {
+-			ir_input_nokey(&ir->input, &ir->ir);
++			ir_input_nokey(ir->input, &ir->ir);
+ 		}
+ 
+ 	} else {
+ 		/* can't distinguish keydown/up :-/ */
+-		ir_input_keydown(&ir->input, &ir->ir, data, data);
+-		ir_input_nokey(&ir->input, &ir->ir);
++		ir_input_keydown(ir->input, &ir->ir, data, data);
++		ir_input_nokey(ir->input, &ir->ir);
+ 	}
+ }
+ 
+@@ -357,13 +357,19 @@ static void cx88_ir_work(void *data)
+ int cx88_ir_init(struct cx88_core *core, struct pci_dev *pci)
+ {
+ 	struct cx88_IR *ir;
++	struct input_dev *input_dev;
+ 	IR_KEYTAB_TYPE *ir_codes = NULL;
+ 	int ir_type = IR_TYPE_OTHER;
+ 
+-	ir = kmalloc(sizeof(*ir), GFP_KERNEL);
+-	if (NULL == ir)
++	ir = kzalloc(sizeof(*ir), GFP_KERNEL);
++	input_dev = input_allocate_device();
++	if (!ir || !input_dev) {
++		kfree(ir);
++		input_free_device(input_dev);
+ 		return -ENOMEM;
+-	memset(ir, 0, sizeof(*ir));
++	}
++
++	ir->input = input_dev;
+ 
+ 	/* detect & configure */
+ 	switch (core->board) {
+@@ -425,6 +431,7 @@ int cx88_ir_init(struct cx88_core *core,
+ 
+ 	if (NULL == ir_codes) {
+ 		kfree(ir);
++		input_free_device(input_dev);
+ 		return -ENODEV;
+ 	}
+ 
+@@ -433,19 +440,19 @@ int cx88_ir_init(struct cx88_core *core,
+ 		 cx88_boards[core->board].name);
+ 	snprintf(ir->phys, sizeof(ir->phys), "pci-%s/ir0", pci_name(pci));
+ 
+-	ir_input_init(&ir->input, &ir->ir, ir_type, ir_codes);
+-	ir->input.name = ir->name;
+-	ir->input.phys = ir->phys;
+-	ir->input.id.bustype = BUS_PCI;
+-	ir->input.id.version = 1;
++	ir_input_init(input_dev, &ir->ir, ir_type, ir_codes);
++	input_dev->name = ir->name;
++	input_dev->phys = ir->phys;
++	input_dev->id.bustype = BUS_PCI;
++	input_dev->id.version = 1;
+ 	if (pci->subsystem_vendor) {
+-		ir->input.id.vendor = pci->subsystem_vendor;
+-		ir->input.id.product = pci->subsystem_device;
++		input_dev->id.vendor = pci->subsystem_vendor;
++		input_dev->id.product = pci->subsystem_device;
+ 	} else {
+-		ir->input.id.vendor = pci->vendor;
+-		ir->input.id.product = pci->device;
++		input_dev->id.vendor = pci->vendor;
++		input_dev->id.product = pci->device;
+ 	}
+-	ir->input.dev = &pci->dev;
++	input_dev->cdev.dev = &pci->dev;
+ 
+ 	/* record handles to ourself */
+ 	ir->core = core;
+@@ -465,8 +472,7 @@ int cx88_ir_init(struct cx88_core *core,
+ 	}
+ 
+ 	/* all done */
+-	input_register_device(&ir->input);
+-	printk("%s: registered IR remote control\n", core->name);
++	input_register_device(ir->input);
+ 
+ 	return 0;
+ }
+@@ -484,7 +490,7 @@ int cx88_ir_fini(struct cx88_core *core)
+ 		flush_scheduled_work();
+ 	}
+ 
+-	input_unregister_device(&ir->input);
++	input_unregister_device(ir->input);
+ 	kfree(ir);
+ 
+ 	/* done */
+@@ -515,7 +521,7 @@ void cx88_ir_irq(struct cx88_core *core)
+ 	if (!ir->scount) {
+ 		/* nothing to sample */
+ 		if (ir->ir.keypressed && time_after(jiffies, ir->release))
+-			ir_input_nokey(&ir->input, &ir->ir);
++			ir_input_nokey(ir->input, &ir->ir);
+ 		return;
+ 	}
+ 
+@@ -557,7 +563,7 @@ void cx88_ir_irq(struct cx88_core *core)
+ 
+ 		ir_dprintk("Key Code: %x\n", (ircode >> 16) & 0x7f);
+ 
+-		ir_input_keydown(&ir->input, &ir->ir, (ircode >> 16) & 0x7f, (ircode >> 16) & 0xff);
++		ir_input_keydown(ir->input, &ir->ir, (ircode >> 16) & 0x7f, (ircode >> 16) & 0xff);
+ 		ir->release = jiffies + msecs_to_jiffies(120);
+ 		break;
+ 	case CX88_BOARD_HAUPPAUGE:
+@@ -566,7 +572,7 @@ void cx88_ir_irq(struct cx88_core *core)
+ 		ir_dprintk("biphase decoded: %x\n", ircode);
+ 		if ((ircode & 0xfffff000) != 0x3000)
+ 			break;
+-		ir_input_keydown(&ir->input, &ir->ir, ircode & 0x3f, ircode);
++		ir_input_keydown(ir->input, &ir->ir, ircode & 0x3f, ircode);
+ 		ir->release = jiffies + msecs_to_jiffies(120);
+ 		break;
+ 	}
 

@@ -1,75 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964986AbVIOOQl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965228AbVIOOVI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964986AbVIOOQl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 10:16:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965196AbVIOOQl
+	id S965228AbVIOOVI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 10:21:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965242AbVIOOVI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 10:16:41 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:42512 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S964986AbVIOOQk convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 10:16:40 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <809C13DD6142E74ABE20C65B11A2439809C4CA@www.telos.de>
-References: <809C13DD6142E74ABE20C65B11A2439809C4CA@www.telos.de>
-X-OriginalArrivalTime: 15 Sep 2005 14:16:38.0741 (UTC) FILETIME=[1655B850:01C5BA00]
-Content-class: urn:content-classes:message
-Subject: Re: How to find "Unresolved Symbols"
-Date: Thu, 15 Sep 2005 10:16:38 -0400
-Message-ID: <Pine.LNX.4.61.0509151015320.25657@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: How to find "Unresolved Symbols"
-Thread-Index: AcW6ABZ7h/JWKUd8Sh+bB/7WlgLQXA==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Budde, Marco" <budde@telos.de>
-Cc: <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Thu, 15 Sep 2005 10:21:08 -0400
+Received: from anubis.fi.muni.cz ([147.251.54.96]:46751 "EHLO
+	anubis.fi.muni.cz") by vger.kernel.org with ESMTP id S965228AbVIOOVH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 10:21:07 -0400
+Date: Thu, 15 Sep 2005 16:21:34 +0200
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: linux-kernel@vger.kernel.org
+Cc: jan@kcore.org
+Subject: Re: ACPI S3 and ieee1394 don't get along
+Message-ID: <20050915142134.GD2428@mail.muni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-On Thu, 15 Sep 2005, Budde, Marco wrote:
+I found, that if you insert module ohci1394 before S3, than everything is ok
+after resume.
 
-> Hi,
->
-> I am working on a larger kernel module.
-> This module will be based on a lot of
-> portable code, for which I have to implement
-> the OS depended code.
->
-> At the moment I can compile the complete
-> code into a module. Some of OS depended
-> code is still missing, but I do not get
-> any warnings from kbuild.
->
-> When I try to load the module, I can a really
-> strange error message:
->
-> insmod: error inserting 'foo.o': -795847932 Function not implemented
->
-> What does that mean? How can I get a list
-> of missing symbols?
->
-> cu, Marco
->
+Next, if you do not do that, then after resume modprobe ohci1394 fails:
+(I added dump_stack() to see what happened)
+ ohci1394: $Rev: 1299 $ Ben Collins <bcollins@debian.org>
+ ACPI: PCI Interrupt 0000:01:01.1[B] -> GSI 16 (level, low) -> IRQ 16
+ ohci1394: fw-host0: Set PHY Reg timeout [0xffffffff/0x00004000/100]
+  [pg0+526438805/1069020160] set_phy_reg+0xc5/0xe0 [ohci1394]
+  [pg0+526440116/1069020160] ohci_initialize+0xb4/0x330 [ohci1394]
+  [pg0+526449792/1069020160] ohci_irq_handler+0x0/0x850 [ohci1394]
+  [request_irq+142/192] request_irq+0x8e/0xc0
+  [pg0+526457413/1069020160] ohci1394_pci_probe+0x455/0x6b0 [ohci1394]
+  [pg0+526449792/1069020160] ohci_irq_handler+0x0/0x850 [ohci1394]
+  [__pci_device_probe+95/112] __pci_device_probe+0x5f/0x70
+  [pci_device_probe+47/96] pci_device_probe+0x2f/0x60
+  [driver_probe_device+56/208] driver_probe_device+0x38/0xd0
+  [__driver_attach+0/80] __driver_attach+0x0/0x50
+  [__driver_attach+65/80] __driver_attach+0x41/0x50
+  [bus_for_each_dev+93/128] bus_for_each_dev+0x5d/0x80
+  [driver_attach+37/48] driver_attach+0x25/0x30
+  [__driver_attach+0/80] __driver_attach+0x0/0x50
+  [bus_add_driver+132/240] bus_add_driver+0x84/0xf0
+  [pci_register_driver+109/128] pci_register_driver+0x6d/0x80
+  [pg0+524607503/1069020160] ohci1394_init+0xf/0x11 [ohci1394]
+  [sys_init_module+330/512] sys_init_module+0x14a/0x200
+  [syscall_call+7/11] syscall_call+0x7/0xb
+ ohci1394: fw-host0: Runaway loop while stopping context: ...
 
-Upgrade your module tools, probably also your build procedure.
+However, module is loaded but nonfunctional. BUT if you do S3 again, then after 
+resume module can be unloaded and next modprobe ohci1394 is now working! (Tested
+right now.)
 
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13 on an i686 machine (5589.53 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
-I apologize for the following. I tried to kill it with the above dot :
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+-- 
+Luká¹ Hejtmánek

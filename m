@@ -1,64 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751044AbVIOLh0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbVIOLms@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751044AbVIOLh0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 07:37:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751047AbVIOLh0
+	id S1751096AbVIOLms (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 07:42:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbVIOLms
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 07:37:26 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:33419 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751034AbVIOLh0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 07:37:26 -0400
-Date: Thu, 15 Sep 2005 13:37:53 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>, dwalker@mvista.com,
-       George Anzinger <george@mvista.com>
-Subject: Re: 2.6.13-rt6, ktimer subsystem
-Message-ID: <20050915113753.GA25219@elte.hu>
-References: <20050913100040.GA13103@elte.hu> <1126641589.13893.52.camel@mindpipe> <20050913201004.GA32608@elte.hu> <1126643809.13893.64.camel@mindpipe> <20050915075556.GA14567@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050915075556.GA14567@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Thu, 15 Sep 2005 07:42:48 -0400
+Received: from mail.portrix.net ([212.202.157.208]:4507 "EHLO
+	zoidberg.portrix.net") by vger.kernel.org with ESMTP
+	id S1751096AbVIOLmr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 07:42:47 -0400
+Message-ID: <43295E30.7030508@ppp0.net>
+Date: Thu, 15 Sep 2005 13:42:40 +0200
+From: Jan Dittmer <jdittmer@ppp0.net>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050817)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.6.14-rc1 load average calculation broken?
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Get a steady 2.00 there. I stopped unnecessary processes etc.
+load average seems to be invariant
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+top - 13:41:32 up  4:44,  2 users,  load average: 2.00, 2.00, 2.00
+Tasks: 108 total,   2 running, 105 sleeping,   0 stopped,   1 zombie
+Cpu(s):  0.0% us,  0.0% sy,  0.0% ni, 99.7% id,  0.3% wa,  0.0% hi,  0.0% si
+Mem:    515112k total,   319980k used,   195132k free,    58036k buffers
+Swap:  1991976k total,      600k used,  1991376k free,   183836k cached
 
-> 
-> * Lee Revell <rlrevell@joe-job.com> wrote:
-> 
-> > > it wont even build right now, due to the ktimer changes. I'll fix x64 up 
-> > > once things have settled down a bit. (but if someone does patches i'll 
-> > > sure apply them)
-> > 
-> > The problem apparently affected 2.6.13-rt4 too.  The users reported 
-> > that it built OK (as long as realtime preemption is enabled) but then 
-> > reboots as soon as grub loads the kernel.
-> > 
-> > Can this be worked around by disabling CONFIG_HIGH_RES_TIMERS?
-> 
-> on x64 HIGH_RES_TIMERS is disabled by default (no lowlevel support 
-> code integrated yet). Where did the problems start, rt4? (i.e. rt3 
-> works fine?)
+  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
 
-ok, fixed a couple of bugs on x64, it boots on my box now. The main 
-breakage was the elimination of the preemption-disabling soft irq flag 
-in -53-05, that unearthed an irq-flags 32-bitness bug in the spinlock 
-macros, which was there for ages. This resulted in the early reboot 
-during bootup.
+15234 root      16   0  2196 1116  844 R  0.7  0.2   0:00.02 top
 
-I've uploaded 2.6.13-rt12 with the fixes.
+ 8368 jdittmer  15   0  4104 2200 1512 S  0.3  0.4   0:00.05 ssh
 
-	Ingo
+    1 root      16   0  1796  628  532 S  0.0  0.1   0:01.11 init
+
+...
+
+-- 
+Jan

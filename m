@@ -1,54 +1,186 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030363AbVIOMzo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030390AbVIOM5X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030363AbVIOMzo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 08:55:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030390AbVIOMzo
+	id S1030390AbVIOM5X (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 08:57:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030392AbVIOM5X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 08:55:44 -0400
-Received: from dizz-a.telos.de ([212.63.141.211]:24712 "EHLO mail.telos.de")
-	by vger.kernel.org with ESMTP id S1030363AbVIOMzo convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 08:55:44 -0400
-Subject: How to find "Unresolved Symbols"
+	Thu, 15 Sep 2005 08:57:23 -0400
+Received: from web8410.mail.in.yahoo.com ([202.43.219.158]:62909 "HELO
+	web8410.mail.in.yahoo.com") by vger.kernel.org with SMTP
+	id S1030390AbVIOM5W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 08:57:22 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=sncS2NZEC2OU7NYQvsEQzjbpfh4ioVB/i2/tZn2qJddmFowhsme9ZOelCu+euQWZk0o//PTTXqid2+zmrosIvKt1ctUh51qlbBMeMXDfVku7XXL8Vqw4dzOYSuPCET5K7Je+TM5UfceYATh7LUSnJh0AK3SRjdvJ3gB9pK/V0tY=  ;
+Message-ID: <20050915125705.85750.qmail@web8410.mail.in.yahoo.com>
+Date: Thu, 15 Sep 2005 13:57:05 +0100 (BST)
+From: shashank kharche <shashank_pict@yahoo.com>
+Subject: Problem in writing block device driver ....
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Date: Thu, 15 Sep 2005 14:47:02 +0200
-Content-class: urn:content-classes:message
-X-MimeOLE: Produced By Microsoft Exchange V6.0.4417.0
-Message-ID: <809C13DD6142E74ABE20C65B11A2439809C4CA@www.telos.de>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: How to find "Unresolved Symbols"
-Thread-Index: AcW585H6Ys+a3yG1T9O3giM1FNptxQ==
-From: "Budde, Marco" <budde@telos.de>
-To: <linux-kernel@vger.kernel.org>
-X-telosmf: done
+Content-Type: multipart/mixed; boundary="0-1260817064-1126789025=:84873"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+--0-1260817064-1126789025=:84873
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Content-Id: 
+Content-Disposition: inline
 
-I am working on a larger kernel module.
-This module will be based on a lot of
-portable code, for which I have to implement
-the OS depended code.
+I have written a simple block device driver in which i
+m just displaying messages
+in read & write part e.g " Device Reading .... " &  "
+Device Writing .....".
+I have succesfully loaded that module in memory using
+"insmod" . 
+& then use " mknod " command ...as   : 
 
-At the moment I can compile the complete
-code into a module. Some of OS depended
-code is still missing, but I do not get
-any warnings from kbuild.
+                   mknod block_dev b 100 0 
+  where , block_dev : name of device
+                  b : as i m using block device driver
+                100 : major number
+                  0 : minor number
+   
+Even this is also working without error, now after
+this command device "block_dev" is created (i have
+checked it wit ls command ).
+But , now while using "cat" & "echo" i am getting
+error as :
 
-When I try to load the module, I can a really
-strange error message:
+                  [root@localhost root]# cat char_devc
+                  cat: char_devc: No such device or
+address
 
- insmod: error inserting 'foo.o': -795847932 Function not implemented
+                  [root@localhost root]# echo "hello"
+> char_devc
+                  bash: char_devc: No such device or
+address
 
-What does that mean? How can I get a list
-of missing symbols?
+Is it ok to use 'b' in mknod command while working
+with block device driver,
+as i hav used (shown above).
 
-cu, Marco
+Im attaching C-code also,so plz help me....if you have
+another simple code for block device driver please
+send me : shashank_pict@yahoo.com 
 
--- 
-telos EDV Systementwicklung GmbH
+Please tell me what is going wrong in this code.....
 
+
+	
+
+	
+		
+__________________________________________________________ 
+Yahoo! India Matrimony: Find your partner online. Go to http://yahoo.shaadi.com
+--0-1260817064-1126789025=:84873
+Content-Type: text/x-csrc; name="bdd.c"
+Content-Description: 2940518666-bdd.c
+Content-Disposition: inline; filename="bdd.c"
+
+#include <linux/config.h>
+#include <linux/module.h>
+#include <linux/moduleparam.h>
+#include <linux/init.h>
+#include <linux/sched.h>
+#include <linux/kernel.h>	
+#include <linux/slab.h>		
+#include <linux/fs.h>		
+#include <linux/errno.h>	
+#include <linux/types.h>	
+#include <linux/fcntl.h>	
+#include <linux/kdev_t.h>
+
+
+#define DEVICE_NAME "block_dev"
+#define MAJOR_NUM 100
+MODULE_LICENSE("GPL");
+atomic_t Device_Open = ATOMIC_INIT(0);
+
+struct block_dev
+{
+     struct request_queue *queue ;
+     spinlock_t lock;
+};
+
+struct block_dev *dev;
+
+static void bdd_request(request_queue_t *q)
+{
+	struct request *req;
+	int write ;
+        while ((req = elv_next_request(q)) != NULL) 
+	{
+		if (! blk_fs_request(req))
+	      {
+			printk (KERN_ALERT "Skip non-fs request\n");
+			end_request(req, 0);
+			continue;
+		}
+            write=rq_data_dir(req);
+            if(write==0)
+ 		      printk(KERN_ALERT "Reading Device .....");
+            else
+     		      printk(KERN_ALERT "Writing Device .....");
+        	end_request(req, 1);
+	}
+}
+
+static int device_open(struct inode *inode, struct file *file)
+{
+        printk(KERN_ALERT "OPENING DEVICE.....\n");  
+ 	atomic_inc(&Device_Open);
+	try_module_get(THIS_MODULE);
+	return 0;
+}
+
+static int device_release(struct inode *inode, struct file *file)
+{
+	printk(KERN_ALERT "RELEASING DEVICE....\n");
+        atomic_dec(&Device_Open);
+	module_put(THIS_MODULE);
+	return 0;
+}
+
+
+static struct block_device_operations bdd_ops = 
+{
+	.open     = device_open,
+	.release  = device_release,
+};
+
+static int init_function(void)
+{ 
+  int ret_val;
+  dev = (struct block_dev*)kmalloc(sizeof(struct block_dev),GFP_KERNEL);
+  ret_val=register_blkdev(MAJOR_NUM,DEVICE_NAME);
+  if(ret_val<0)
+  {	
+      printk(KERN_ALERT "Sorry, registering the block device");   
+      return ret_val;
+  } 
+  printk(KERN_ALERT "Initialization\n");
+  dev->queue=blk_init_queue(bdd_request,&dev->lock);
+  return 0;
+}
+
+static void exit_function(void)
+{
+  int ret_val;
+  ret_val=unregister_blkdev(MAJOR_NUM,DEVICE_NAME);
+  printk(KERN_ALERT "Exit\n");
+  if(ret_val<0)
+  {	
+      printk(KERN_ALERT "Sorry, Error in Unregistering the block device");   
+  } 
+}	
+
+module_init(init_function);
+module_exit(exit_function);
+ 
+
+
+--0-1260817064-1126789025=:84873--

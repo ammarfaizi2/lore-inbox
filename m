@@ -1,41 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161037AbVIOW47@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161036AbVIOXAt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161037AbVIOW47 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 18:56:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161036AbVIOW47
+	id S1161036AbVIOXAt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 19:00:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161040AbVIOXAt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 18:56:59 -0400
-Received: from juno.lps.ele.puc-rio.br ([139.82.40.34]:35752 "EHLO
-	juno.lps.ele.puc-rio.br") by vger.kernel.org with ESMTP
-	id S1161037AbVIOW46 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 18:56:58 -0400
-Message-ID: <60438.200.141.106.169.1126825014.squirrel@correio.lps.ele.puc-rio.br>
-In-Reply-To: <1126823405.7034.14.camel@localhost.localdomain>
-References: <61637.200.141.106.169.1126660632.squirrel@correio.lps.ele.puc-rio.br><60519.200.141.106.169.1126727337.squirrel@correio.lps.ele.puc-rio.br><43290893.7070207@pobox.com><1126790860.19133.75.camel@localhost.localdomain><61929.200.141.106.169.1126815191.squirrel@correio.lps.ele.puc-rio.br>
-    <1126823405.7034.14.camel@localhost.localdomain>
-Date: Thu, 15 Sep 2005 19:56:54 -0300 (BRT)
-Subject: Re: libata sata_sil broken on 2.6.13.1
-From: izvekov@lps.ele.puc-rio.br
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: izvekov@lps.ele.puc-rio.br, "Jeff Garzik" <jgarzik@pobox.com>,
-       linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.3a-6.FC2
-X-Mailer: SquirrelMail/1.4.3a-6.FC2
-MIME-Version: 1.0
+	Thu, 15 Sep 2005 19:00:49 -0400
+Received: from zproxy.gmail.com ([64.233.162.198]:8231 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161036AbVIOXAs convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 19:00:48 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=cxmiWyO8HUVyRI9OAtWIqtB+JVNGYBb7VFs/rGy/VxJXuu2x94/kCULxWAFYfkvdJdoAPKtd/xbRhd72GqClazqNLVa1HMuPT/k/Xsv1gwulbpel5tco6w8W9XPCz/3IZp7qKNMJhos0YmO7QBnkXaB+SEcwR/1HyScrVcZ7g+Q=
+Message-ID: <9a874849050915160027db1fe9@mail.gmail.com>
+Date: Fri, 16 Sep 2005 01:00:45 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: jesper.juhl@gmail.com
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Subject: Re: early printk timings way off
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0509151554450.29737@shark.he.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+Content-Disposition: inline
+References: <200509152342.24922.jesper.juhl@gmail.com>
+	 <Pine.LNX.4.58.0509151458330.1800@shark.he.net>
+	 <9a87484905091515072c7dd4a8@mail.gmail.com>
+	 <Pine.LNX.4.58.0509151537140.29737@shark.he.net>
+	 <9a87484905091515495f435db7@mail.gmail.com>
+	 <Pine.LNX.4.58.0509151554450.29737@shark.he.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Iau, 2005-09-15 at 17:13 -0300, izvekov@lps.ele.puc-rio.br wrote:
->> Just tried that, and it doesnt help. Doesnt change behaviour, at least
->> for
->> my problem.
->
-> What happens if you call the handler unconditionally ?
->
+On 9/16/05, Randy.Dunlap <rdunlap@xenotime.net> wrote:
+[snip]
+> > >
+> > > OK, thanks for the extended explanation.  Good luck.  8:)
+> > >
+> >
+> > Ok, I don't quite know how to interpret that comment, but I'm going to
+> > read it as "if you think this is a problem then go find a solution
+> > yourself" - would that be fairly accurate?
+> 
+> Yes, that's close.  I have "bigger fish to fry" is another way.
+> 
+Ok, thanks. English is not my native language and sometimes the actual
+meaning of sarcasm, slang etc escapes me...
 
-If by unconditionally you mean by just not checking tf.ctl for ATA_NIEN, then
-nothing changes at all again :(
+> > It doesn't really bother me much, I just find the behaviour odd. I
+> > haven't bothered to actually look at the code responsible for it yet
+> > (since it really is not that big of a deal), but I just wanted to
+> > point it out and hoped that maybe someone could give me a reason for
+> > why it is as it is...
+> 
+> ISTM that there have been a few other comments about it, but I'm
+> not sure.  Maybe Tim Bird (Sony, CELF) would recall.
+> 
+
+I'll just dig into it myself for now, but thank you, if I get really
+stuck I may ask him.
+
+
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

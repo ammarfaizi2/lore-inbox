@@ -1,63 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030342AbVIOCNj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030343AbVIOCSV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030342AbVIOCNj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 22:13:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030340AbVIOCNi
+	id S1030343AbVIOCSV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 22:18:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030345AbVIOCSU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 22:13:38 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:6651 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id S1030342AbVIOCNi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 22:13:38 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Robert Love <rml@novell.com>
-Cc: Mike Bell <mike@mikebell.org>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Greg KH <gregkh@suse.de>
+	Wed, 14 Sep 2005 22:18:20 -0400
+Received: from warden2-p.diginsite.com ([209.195.52.120]:37807 "HELO
+	warden2.diginsite.com") by vger.kernel.org with SMTP
+	id S1030343AbVIOCSU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 22:18:20 -0400
+Date: Wed, 14 Sep 2005 19:18:07 -0700 (PDT)
+From: David Lang <dlang@digitalinsight.com>
 X-X-Sender: dlang@dlang.diginsite.com
-Date: Wed, 14 Sep 2005 19:13:27 -0700 (PDT)
-X-X-Sender: dlang@dlang.diginsite.com
-Subject: Re: devfs vs udev FAQ from the other side
-In-Reply-To: <1126746518.9652.60.camel@phantasy>
-Message-ID: <Pine.LNX.4.62.0509141911530.8469@qynat.qvtvafvgr.pbz>
-References: <20050915005105.GD15017@mikebell.org> <1126746518.9652.60.camel@phantasy>
+To: Chris Wright <chrisw@osdl.org>
+cc: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Chuck Wolber <chuckw@quantumlinux.com>,
+       Linus Torvalds <torvalds@osdl.org>, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH 04/11] hpt366: write the full 4 bytes of ROM address,
+ not just low 1 byte
+In-Reply-To: <20050915010404.660502000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.62.0509141917070.8469@qynat.qvtvafvgr.pbz>
+References: <20050915010343.577985000@localhost.localdomain>
+ <20050915010404.660502000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Sep 2005, Robert Love wrote:
-
->>   Took an actual devfs system of mine and disabled devfs from the
->>   kernel, then enabled hotplug and sysfs for udev to run.  make clean
->>   and surprise surprise, kernel is much bigger. Enable netlink stuff and
->>   it's bigger still. udev is only smaller if like Greg you don't count
->>   its kernel components against it, even if they wouldn't otherwise need
->>   to be enabled. Difference is to the tune of 604164 on udev and 588466
->>   on devfs. Maybe not a lot in some people's books, but a huge
->>   difference from the claims of other people that devfs is actually
->>   bigger.
->
-> What modern system, though, could survive without hotplug and sysfs and
-> netlink?  You need to have those components, you want those features,
-> anyhow.
-
-most servers and embedded systems can survive just fine without hotplug 
-(in fact hotplug is frequently the slowest part of the boot).
-
-sysfs and netlink I would have to think about, I know I don't expliticitly 
-use either very much, but I'd have to check to see what may use them that 
-I don't think about.
+didn't Linus find similar bugs in a couple of the other hpt drivers as 
+well? if so can they be fixed at the same time?
 
 David Lang
 
-> So your comparison is unrealistic.
+On Wed, 14 Sep 2005, Chris Wright wrote:
+
+> Date: Wed, 14 Sep 2005 18:03:47 -0700
+> From: Chris Wright <chrisw@osdl.org>
+> To: linux-kernel@vger.kernel.org, stable@kernel.org
+> Cc: Justin Forbes <jmforbes@linuxtx.org>,
+>     Zwane Mwaikambo <zwane@arm.linux.org.uk>, Theodore Ts'o <tytso@mit.edu>,
+>     Randy Dunlap <rdunlap@xenotime.net>,
+>     Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org, akpm@osdl.org,
+>     alan@lxorguk.ukuu.org.uk, Linus Torvalds <torvalds@osdl.org>,
+>     Chris Wright <chrisw@osdl.org>
+> Subject: [PATCH 04/11] hpt366: write the full 4 bytes of ROM address,
+>     not just low 1 byte
+> 
+> -stable review patch.  If anyone has any objections, please let us know.
+> ------------------
 >
-> Your user-space argument is better.  Is ndevfs not sufficient?
+> This is one heck of a confused driver.  It uses a byte write to a dword
+> register to enable a ROM resource that it doesn't even seem to be using.
 >
-> 	Robert Love
+> "Lost and wandering in the desert of confusion"
 >
+> Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+> Signed-off-by: Chris Wright <chrisw@osdl.org>
+> ---
+> drivers/ide/pci/hpt366.c |    8 ++++++--
+> 1 files changed, 6 insertions(+), 2 deletions(-)
 >
+> Index: linux-2.6.13.y/drivers/ide/pci/hpt366.c
+> ===================================================================
+> --- linux-2.6.13.y.orig/drivers/ide/pci/hpt366.c
+> +++ linux-2.6.13.y/drivers/ide/pci/hpt366.c
+> @@ -1334,9 +1334,13 @@ static int __devinit init_hpt366(struct
+> static unsigned int __devinit init_chipset_hpt366(struct pci_dev *dev, const char *name)
+> {
+> 	int ret = 0;
+> -	/* FIXME: Not portable */
+> +
+> +	/*
+> +	 * FIXME: Not portable. Also, why do we enable the ROM in the first place?
+> +	 * We don't seem to be using it.
+> +	 */
+> 	if (dev->resource[PCI_ROM_RESOURCE].start)
+> -		pci_write_config_byte(dev, PCI_ROM_ADDRESS,
+> +		pci_write_config_dword(dev, PCI_ROM_ADDRESS,
+> 			dev->resource[PCI_ROM_RESOURCE].start | PCI_ROM_ADDRESS_ENABLE);
+>
+> 	pci_write_config_byte(dev, PCI_CACHE_LINE_SIZE, (L1_CACHE_BYTES / 4));
+>
+> --
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org

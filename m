@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965276AbVIOWPS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965287AbVIOWTP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965276AbVIOWPS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 18:15:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965287AbVIOWPS
+	id S965287AbVIOWTP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 18:19:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965289AbVIOWTO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 18:15:18 -0400
-Received: from blackstar.xs4all.nl ([80.126.234.51]:7524 "EHLO blackstar.nl")
-	by vger.kernel.org with ESMTP id S965276AbVIOWPR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 18:15:17 -0400
-Subject: Re: 2.6.14-rc1 - kernel BUG at fs/ntfs/aops.c:403
-From: Bas Vermeulen <bvermeul@blackstar.nl>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.60.0509152219260.21782@hermes-1.csi.cam.ac.uk>
-References: <1126769362.5358.3.camel@laptop.blackstar.nl>
-	 <Pine.LNX.4.60.0509150954290.29921@hermes-1.csi.cam.ac.uk>
-	 <1126812296.4776.2.camel@laptop.blackstar.nl>
-	 <Pine.LNX.4.60.0509152219260.21782@hermes-1.csi.cam.ac.uk>
-Content-Type: text/plain
-Date: Fri, 16 Sep 2005 00:14:03 +0200
-Message-Id: <1126822443.4776.3.camel@laptop.blackstar.nl>
+	Thu, 15 Sep 2005 18:19:14 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:15020 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965287AbVIOWTO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 18:19:14 -0400
+Date: Thu, 15 Sep 2005 23:19:14 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Al Viro <viro@ZenIV.linux.org.uk>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] epca iomem annotations + several missing readw()
+Message-ID: <20050915221914.GD19626@ftp.linux.org.uk>
+References: <20050915192704.GC25261@ZenIV.linux.org.uk> <20050915231014.C26124@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-14.WB1) 
-Content-Transfer-Encoding: 7bit
-X-MailScanner-Information: Please contact the postmaster@blackstar.nl for more information
-X-MailScanner: No virus found
-X-MailScanner-From: bvermeul@blackstar.nl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050915231014.C26124@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-09-15 at 22:21 +0100, Anton Altaparmakov wrote:
-> On Thu, 15 Sep 2005, Bas Vermeulen wrote:
-> > Sep 15 21:13:43 laptop kernel: [4295071.339000] NTFS volume version 3.1.
-> > Sep 15 21:13:43 laptop kernel: [4295071.339000] NTFS-fs error (device
-> > sda2): load_system_files(): Volume is dirty.  Mounting read-only.  Run
-> > chkdsk and mount in Windows.
-> > Sep 15 21:13:43 laptop kernel: [4295071.439000] NTFS-fs error (device
-> > sda2): ntfs_readpage(): Eeek!  i_ino = 0x5, type = 0xa0, name_len = 0x4.
+On Thu, Sep 15, 2005 at 11:10:14PM +0100, Russell King wrote:
+> On Thu, Sep 15, 2005 at 08:27:04PM +0100, Al Viro wrote:
+> > [originally sent to Alan, he had no problems with it]
+> > 	* iomem pointers marked as such
+> > 	* several direct dereferencings of such pointers replaced with
+> > read[bw]().
+> > Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 > 
-> Great, thanks!  I suspected this might be the case but I didn't think 
-> that was possible.  )-:
+> Thanks for copying me, but I have no interest in any serial driver
+> which doesn't use the serial core interface.
 > 
-> Could you confirm for me that this ntfs volume is compressed?  (I.e. the 
-> compression bit is enabled on the root directory.)
+> I don't want to act as "person to review any change just because the
+> driver says serial" - that's not the role I decided to get involved
+> with.
 
-Yes, it is compressed.
+Hey, seeing the intensity of your complaints about _not_ being Cc'd...
+Better safe than serial maintainer ;-)
 
-Regards,
-
--- 
-Bas Vermeulen <bvermeul@blackstar.nl>
-
+	OK, so what stuff do you want to be Cc'd on?  My current approximation
+would be arch/arm/*, include/asm-arm/*,drivers/serial/*,include/linux/serial*.
+Well, and any changes of tty interfaces, if I ever get involved in such...
+Any additions/removals?

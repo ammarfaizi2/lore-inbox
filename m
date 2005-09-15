@@ -1,66 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932432AbVIOJ7R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932455AbVIOKAI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932432AbVIOJ7R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 05:59:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932444AbVIOJ7R
+	id S932455AbVIOKAI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 06:00:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932444AbVIOKAI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 05:59:17 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:25014 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932432AbVIOJ7R (ORCPT
+	Thu, 15 Sep 2005 06:00:08 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:38350 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932455AbVIOKAB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 05:59:17 -0400
-Date: Thu, 15 Sep 2005 11:58:28 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Jeff Dike <jdike@addtoit.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net,
-       Allan Graves <allan.graves@gmail.com>
-Subject: Re: [PATCH 1/10] UML - _switch_to code consolidation
-Message-ID: <20050915095828.GE7880@elf.ucw.cz>
-References: <200509142155.j8ELtm5c012124@ccure.user-mode-linux.org>
+	Thu, 15 Sep 2005 06:00:01 -0400
+Date: Thu, 15 Sep 2005 19:59:59 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Ruben Rubio Rey <ruben@rentalia.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Question about page allocation failure
+Message-ID: <20050915195958.A4873589@wobbly.melbourne.sgi.com>
+References: <432914F1.4090001@rentalia.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200509142155.j8ELtm5c012124@ccure.user-mode-linux.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <432914F1.4090001@rentalia.com>; from ruben@rentalia.com on Thu, Sep 15, 2005 at 08:30:09AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> This patch moves code that is in both switch_to_tt and
-> switch_to_skas to the top level _switch_to function, keeping us from
-> duplicating code.  It is required for the stack trace patch to work
-> properly.
+On Thu, Sep 15, 2005 at 08:30:09AM +0200, Ruben Rubio Rey wrote:
+> Hi,
 > 
-> Signed-off-by: Allan Graves <allan.graves@gmail.com>
-> Signed-off-by: Jeff Dike <jdike@addtoit.com>
+> Im getting an error: "perl5.8.5: page allocation failure. order:4, 
+> mode:0x50".
 > 
-> Index: linux-2.6.13/arch/um/kernel/process_kern.c
-> ===================================================================
-> --- linux-2.6.13.orig/arch/um/kernel/process_kern.c	2005-09-13 16:04:11.000000000 -0400
-> +++ linux-2.6.13/arch/um/kernel/process_kern.c	2005-09-13 16:08:18.000000000 -0400
-> @@ -113,8 +113,16 @@
->  
->  void *_switch_to(void *prev, void *next, void *last)
->  {
-> -	return(CHOOSE_MODE(switch_to_tt(prev, next), 
-> -			   switch_to_skas(prev, next)));
-> +        struct task_struct *from = prev;
-> +        struct task_struct *to= next;
-> +
-> +        to->thread.prev_sched = from;
-> +        set_current(to);
-> +
-> +	CHOOSE_MODE_PROC(switch_to_tt, switch_to_skas, prev, next);
-> +
-> +        return(current->thread.prev_sched); 
-> +
->  }
+> What does it means?
+> Is it dangerous?
+> What may I do to fix it?
+> 
+> Im using kernel 2.6.9-1.667smp and XFS filesystem.
 
-I sense a whitespace damage here.
-								Pavel
+You have a _heavily_ fragmented file in an XFS filesystem...
+there's work underway to prevent this from happening, but for
+now you can run xfs_fsr to reduce fragmentation.  XFS retries
+the allocation until it succeeds, so its far from optimal but
+not dangerous.
+
+cheers.
 
 -- 
-if you have sharp zaurus hardware you don't need... you know my address
+Nathan

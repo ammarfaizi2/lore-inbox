@@ -1,79 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932430AbVIOJ5A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932432AbVIOJ7R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932430AbVIOJ5A (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 05:57:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932432AbVIOJ5A
+	id S932432AbVIOJ7R (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 05:59:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932444AbVIOJ7R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 05:57:00 -0400
-Received: from web51005.mail.yahoo.com ([206.190.38.136]:22106 "HELO
-	web51005.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S932430AbVIOJ47 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 05:56:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=K+dHOL8UNlCkCBnigt3JvIE/CDKI8Zb9KrVkr5nGOIi36QZYP2SCzVJgQDCwAqm+WuxuAYBZu7Tq2ddNb/ZuHVlwdMzGPTPFU0WARxRHfbhSvNtCeV52Wmw91xCNqKMDMJEOtKN0x0yvYljXBPE1LiX1zuZGFL6/wfpHIxQVcMc=  ;
-Message-ID: <20050915095658.68775.qmail@web51005.mail.yahoo.com>
-Date: Thu, 15 Sep 2005 02:56:58 -0700 (PDT)
-From: Ahmad Reza Cheraghi <a_r_cheraghi@yahoo.com>
-Subject: Re: Automatic Configuration of a Kernel
-To: michal.k.k.piotrowski@gmail.com
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <6bffcb0e05091415533d563c5a@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 15 Sep 2005 05:59:17 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:25014 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932432AbVIOJ7R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 05:59:17 -0400
+Date: Thu, 15 Sep 2005 11:58:28 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Jeff Dike <jdike@addtoit.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net,
+       Allan Graves <allan.graves@gmail.com>
+Subject: Re: [PATCH 1/10] UML - _switch_to code consolidation
+Message-ID: <20050915095828.GE7880@elf.ucw.cz>
+References: <200509142155.j8ELtm5c012124@ccure.user-mode-linux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200509142155.j8ELtm5c012124@ccure.user-mode-linux.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-
---- Michal Piotrowski
-<michal.k.k.piotrowski@gmail.com> wrote:
-
-> Hi,
+> This patch moves code that is in both switch_to_tt and
+> switch_to_skas to the top level _switch_to function, keeping us from
+> duplicating code.  It is required for the stack trace patch to work
+> properly.
 > 
-> On 15/09/05, Ahmad Reza Cheraghi
-> <a_r_cheraghi@yahoo.com> wrote:
-> > Hi
-> > 
-> > I wrote this Framework for making a .config based
-> on
-> > the System Hardwares. It would be a great help if
-> some
-> > people would give me their opinion about it.
-> > 
-> > Regards
+> Signed-off-by: Allan Graves <allan.graves@gmail.com>
+> Signed-off-by: Jeff Dike <jdike@addtoit.com>
 > 
-> It's for new linux users? They should use
-> distributions kernels.
-> It's for "power users"? They just do make
-> menuconfig...
-> It's for kernel developers? They just do vi .config.
-> 
-> I'll try it later, but I'm a bit sceptical.
-> 
-> How about networking options? It can detect what
-> protocols are needed?
-> Filesystems?
+> Index: linux-2.6.13/arch/um/kernel/process_kern.c
+> ===================================================================
+> --- linux-2.6.13.orig/arch/um/kernel/process_kern.c	2005-09-13 16:04:11.000000000 -0400
+> +++ linux-2.6.13/arch/um/kernel/process_kern.c	2005-09-13 16:08:18.000000000 -0400
+> @@ -113,8 +113,16 @@
+>  
+>  void *_switch_to(void *prev, void *next, void *last)
+>  {
+> -	return(CHOOSE_MODE(switch_to_tt(prev, next), 
+> -			   switch_to_skas(prev, next)));
+> +        struct task_struct *from = prev;
+> +        struct task_struct *to= next;
+> +
+> +        to->thread.prev_sched = from;
+> +        set_current(to);
+> +
+> +	CHOOSE_MODE_PROC(switch_to_tt, switch_to_skas, prev, next);
+> +
+> +        return(current->thread.prev_sched); 
+> +
+>  }
 
-The Network option or the Filesystes are choosen as a
-Standard. So it will be there without checking if they
-needed or not. Because I think Protocols like TCP-IP
-or Filesystems like NTFS or expt2 has to be installed
-on the now days Systems. But if they are any
-suggestion or ideas of detecting those thing. No
-problem just send me rule that does that and I will
-updated easily on the Framework.Thats the benefit of
-this Framework.;-)
+I sense a whitespace damage here.
+								Pavel
 
-> Regards,
-> Michal Piotrowski
-> 
-
-
-
-		
-__________________________________ 
-Yahoo! Mail - PC Magazine Editors' Choice 2005 
-http://mail.yahoo.com
+-- 
+if you have sharp zaurus hardware you don't need... you know my address

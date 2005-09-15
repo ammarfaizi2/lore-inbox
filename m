@@ -1,62 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030320AbVIOMhL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030282AbVIOMku@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030320AbVIOMhL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 08:37:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030325AbVIOMhL
+	id S1030282AbVIOMku (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 08:40:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030325AbVIOMkt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 08:37:11 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:17855 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030320AbVIOMhK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 08:37:10 -0400
-Subject: Re: Help porting wireless InProComm IPN 2220 driver to 2.6
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: daniel.blueman@gmail.com
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Runar Ingebrigtsen <runar@mopo.no>, Andreas Steinmetz <ast@domdv.de>
-In-Reply-To: <6278d22205091504232ac3d8c3@mail.gmail.com>
-References: <6278d22205091503442c3973d4@mail.gmail.com>
-	 <43295825.90205@domdv.de>  <6278d22205091504232ac3d8c3@mail.gmail.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-bGiUL/vZ1HabAgREkdAG"
-Organization: Red Hat, Inc.
-Date: Thu, 15 Sep 2005 08:36:52 -0400
-Message-Id: <1126787812.3014.2.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+	Thu, 15 Sep 2005 08:40:49 -0400
+Received: from mail.portrix.net ([212.202.157.208]:11440 "EHLO
+	zoidberg.portrix.net") by vger.kernel.org with ESMTP
+	id S1030282AbVIOMkt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 08:40:49 -0400
+Message-ID: <43296BCE.9020700@ppp0.net>
+Date: Thu, 15 Sep 2005 14:40:46 +0200
+From: Jan Dittmer <jdittmer@ppp0.net>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050817)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.14-rc1 load average calculation broken?
+References: <43295E30.7030508@ppp0.net>
+In-Reply-To: <43295E30.7030508@ppp0.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jan Dittmer wrote:
+> Get a steady 2.00 there. I stopped unnecessary processes etc.
+> load average seems to be invariant
+>
+> top - 13:41:32 up  4:44,  2 users,  load average: 2.00, 2.00, 2.00
+> Tasks: 108 total,   2 running, 105 sleeping,   0 stopped,   1 zombie
+> Cpu(s):  0.0% us,  0.0% sy,  0.0% ni, 99.7% id,  0.3% wa,  0.0% hi,  0.0% si
 
---=-bGiUL/vZ1HabAgREkdAG
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Hmm, reboot to 2.6.14-rc1-git1 cured it. Will see if it happens again.
+(btw. it was not invariant but the lower limit was 2 even after stopping
+everything but some essential processes (ssh, init, getty))
 
-
-> This depends if the module uses any symbols exported from the kernel
-> with EXPORT_SYMBOL_GPL(), and clearly the module license - 'strings'
-> should be enough do check this is you don't have a MIPS platform to
-> hand.
-
-actually it doesn't.
-
-For one, there is section 2 of the GPL which clearly forbids this
-For another, EXPORT_SYMBOL_GPL presence does NOT mean that it's ok to
-use EXPORT_SYMBOL symbols without any license/copyright considerations
-at all. The kernel is GPL licensed, without any exceptions.
-
-
---=-bGiUL/vZ1HabAgREkdAG
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDKWrkpv2rCoFn+CIRAt0/AJ0e1F3DUn/0rqt7USUIeT7p5vPnHACfb4LY
-WoHjG4pMe05jvuqv0Z6XZOI=
-=2IK1
------END PGP SIGNATURE-----
-
---=-bGiUL/vZ1HabAgREkdAG--
-
+Jan

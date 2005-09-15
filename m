@@ -1,63 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750944AbVIOIMR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751026AbVIOIRa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750944AbVIOIMR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 04:12:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751026AbVIOIMR
+	id S1751026AbVIOIRa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 04:17:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbVIOIRa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 04:12:17 -0400
-Received: from web51005.mail.yahoo.com ([206.190.38.136]:11605 "HELO
-	web51005.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S1750913AbVIOIMP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 04:12:15 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=bVmst/BquEgFewhyzIO5miuxKE85d1MzhFjW+2PpkVvPp3OAHW5rN+9ge7j05NgumCRgzDRGLhP87+C9m2eHmjvZyQ/xY3Kb33U8hVtRqefzQJxEWMTSjePdryY34JIJwK3XcAgedIjjXamDQt6nHC1KEUQOWfyl7+AbtbmGfUk=  ;
-Message-ID: <20050915081214.53141.qmail@web51005.mail.yahoo.com>
-Date: Thu, 15 Sep 2005 01:12:14 -0700 (PDT)
-From: Ahmad Reza Cheraghi <a_r_cheraghi@yahoo.com>
-Subject: Re: Automatic Configuration of a Kernel
-To: Lee Revell <rlrevell@joe-job.com>, Daniel Thaler <thalerd@in.tum.de>
-Cc: David Lang <dlang@digitalinsight.com>, Hua Zhong <hzhong@gmail.com>,
-       marekw1977@yahoo.com.au, linux-kernel@vger.kernel.org
-In-Reply-To: <1126757808.13893.125.camel@mindpipe>
+	Thu, 15 Sep 2005 04:17:30 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:52169 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S1751026AbVIOIR3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 04:17:29 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: Manu Abraham <manu@linuxtv.org>
+Subject: Re: PCI driver
+Date: Thu, 15 Sep 2005 10:18:13 +0200
+User-Agent: KMail/1.8.2
+Cc: Jiri Slaby <jirislaby@gmail.com>, linux-kernel@vger.kernel.org
+References: <4327EE94.2040405@kromtek.com> <200509150843.33849@bilbo.math.uni-mannheim.de> <4329269E.1060003@linuxtv.org>
+In-Reply-To: <4329269E.1060003@linuxtv.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: multipart/signed;
+  boundary="nextPart1144555.i5qzIo6RvQ";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200509151018.20322@bilbo.math.uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--nextPart1144555.i5qzIo6RvQ
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
+Manu Abraham wrote:
+>Rolf Eike Beer wrote:
+>>Manu Abraham wrote:
 
---- Lee Revell <rlrevell@joe-job.com> wrote:
+>>>static int __devinit mantis_pci_probe(struct pci_dev *pdev, const struct
+>>>pci_device_id *mantis_pci_table)
+>>>{
+>>>	u8 revision, latency;
+>>>	u8 data[2];
+>>>	struct mantis_pci *mantis;
+>>>	mantis =3D (struct mantis_pci *) kmalloc(sizeof (struct mantis_pci),
+>>>GFP_KERNEL);
+>>>	if (mantis =3D=3D NULL) {
+>>>		dprintk(verbose, MANTIS_ERROR, 1, "Out of memory");
+>>>		return -ENOMEM;
+>>>	}
+>>>
+>>>	pdev =3D pci_get_device(PCI_VENDOR_ID_MANTIS, PCI_DEVICE_ID_MANTIS_R11,
+>>>NULL);
+>>
+>>This is not needed anymore then. Your probe function will get called with
+>> for any pci dev your driver can handle.
+>
+>I will just check it up again to see what went wrong ..
+>
+>>>	if (pdev) {
+>>>		dprintk(verbose, MANTIS_ERROR, 1, "Got a device");
+>>>		mantis->mantis_addr =3D pci_resource_start(pdev, 0);
+>>>		if (!request_mem_region(pci_resource_start(pdev, 0),
+>>>			pci_resource_len(pdev, 0), DRIVER_NAME)) {
+>>>			dprintk(verbose, MANTIS_ERROR, 1, "Request for memory region failed");
 
-> On Thu, 2005-09-15 at 05:37 +0200, Daniel Thaler
-> wrote:
-> > Lee Revell wrote:
-> > > Why does this have to be in the kernel again? 
-> Isn't this exactly what
-> > > you get with a fully modular config and hotplug?
-> > 
-> > It doesn't go in the kernel. If I understand
-> correctly, it's a script that is 
-> > invoked by 'make autoconfig'. Note that I didn't
-> read the patch, because it's a 
-> > .tgz on a website and I couldn't be bothered to
-> download it.
-> 
-> Oh, sorry.  Then read that as "what's the point"?
-> 
-> Lee
-> 
-It does go in the Kernel. The files are all kept in
-the directory <KERNEL>/scripts/kconfig/.
-And I changed a little bit the Makefile and the conf.c
-in the <KERNEl>/scrips/kconfig. 
+[...]
 
+>>>		pci_set_drvdata(pdev, mantis);
+>>>		dprintk(verbose, MANTIS_ERROR, 0, "Mantis Rev %d, ", mantis->revision);
+>>>		dprintk(verbose, MANTIS_ERROR, 0, "irq: %d, latency: %d\nmemory:
+>>>0x%04x, mmio: %p\n", pdev->irq, mantis->latency,
+>>>			mantis->mantis_addr, mantis->mantis_mmio);
+>>>
+>>>		pci_dev_put(pdev);
+>>
+>>No, DON'T DO THAT! This will drop the a reference count from the struct
+>>pci_dev, which means it can get freed while your driver still wants to wo=
+rk
+>>with it.
+>
+>Hmm.. I thought after i make a call to pci_get_device(), i have to do a
+>pci_dev_put() after the usage ..
+>I was a bit lost when to use pci_dev_put() in this case.
 
+That is true, but you should not call pci_get_device() in this function at=
+=20
+all.
 
+Eike
 
-		
-__________________________________ 
-Yahoo! Mail - PC Magazine Editors' Choice 2005 
-http://mail.yahoo.com
+--nextPart1144555.i5qzIo6RvQ
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQBDKS5MXKSJPmm5/E4RAibuAJ9f/5fryF6kdfp4PRr6FVq3annRhwCfWk2M
+OX7SIVViTOeAXbdXrD3xq4M=
+=r9ck
+-----END PGP SIGNATURE-----
+
+--nextPart1144555.i5qzIo6RvQ--

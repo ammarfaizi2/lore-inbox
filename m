@@ -1,57 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161015AbVIOUvG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161019AbVIOUz0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161015AbVIOUvG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 16:51:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932602AbVIOUvF
+	id S1161019AbVIOUz0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 16:55:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932598AbVIOUz0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 16:51:05 -0400
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:51730 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S932597AbVIOUvE
+	Thu, 15 Sep 2005 16:55:26 -0400
+Received: from rproxy.gmail.com ([64.233.170.194]:22277 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932597AbVIOUzZ convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 16:51:04 -0400
-To: Valdis.Kletnieks@vt.edu
-Cc: David Lang <david.lang@digitalinsight.com>,
-       Lee Revell <rlrevell@joe-job.com>, Hua Zhong <hzhong@gmail.com>,
-       marekw1977@yahoo.com.au, linux-kernel@vger.kernel.org
-Subject: Re: Automatic Configuration of a Kernel
-References: <20050914223836.53814.qmail@web51011.mail.yahoo.com>
-	<6bffcb0e05091415533d563c5a@mail.gmail.com>
-	<4328B710.5080503@in.tum.de>
-	<200509151009.59981.marekw1977@yahoo.com.au>
-	<924c288305091417375fea4ec2@mail.gmail.com>
-	<Pine.LNX.4.62.0509141900280.8469@qynat.qvtvafvgr.pbz>
-	<1126753444.13893.123.camel@mindpipe>
-	<Pine.LNX.4.62.0509150313500.9384@qynat.qvtvafvgr.pbz>
-	<87zmqextr5.fsf@amaterasu.srvr.nix>
-	<200509152036.j8FKapjw025768@turing-police.cc.vt.edu>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: ed  ::  20-megaton hydrogen bomb : firecracker
-Date: Thu, 15 Sep 2005 21:50:48 +0100
-In-Reply-To: <200509152036.j8FKapjw025768@turing-police.cc.vt.edu> (Valdis
- Kletnieks's message of "Thu, 15 Sep 2005 16:36:51 -0400")
-Message-ID: <877jdixdg7.fsf@amaterasu.srvr.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 15 Sep 2005 16:55:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=GBwASRa5OQPcxccb7/vmfbqS6gvn6L+187cufbARIvuYhUnsKdSNkDXrRCVTFjHb1pmpTmdLlYABnD3MdiUbHIMTbWMKM41/6M4fDVgvhLdPknYm5XAoZaCKqRo3NnGlJ0i4myOT110eeOlzipsPqWHOR1Rjw2dQfmBVqmBZ0Rw=
+Message-ID: <d120d50005091513552688cd75@mail.gmail.com>
+Date: Thu, 15 Sep 2005 15:55:23 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [patch 09/28] Input: convert net/bluetooth to dynamic input_dev allocation
+Cc: Marcel Holtmann <marcel@holtmann.org>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Greg KH <gregkh@suse.de>,
+       Kay Sievers <kay.sievers@vrfy.org>, Hannes Reinecke <hare@suse.de>
+In-Reply-To: <20050915202553.GA3977@midnight.suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050915070131.813650000.dtor_core@ameritech.net>
+	 <20050915070302.931769000.dtor_core@ameritech.net>
+	 <1126770894.28510.10.camel@station6.example.com>
+	 <d120d50005091507225659868e@mail.gmail.com>
+	 <1126795310.3505.47.camel@station6.example.com>
+	 <20050915190700.GA3354@midnight.suse.cz>
+	 <d120d50005091512226a339890@mail.gmail.com>
+	 <20050915202553.GA3977@midnight.suse.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Sep 2005, Valdis Kletnieks murmured woefully:
-> 1) This patch is pointless without other kernel magic to guarantee that
-> even root can't open /dev/kmem - either SELinux and/or the 'devmem.patch'
-> that's in current Fedora kernels.  There's well-known ways to do the equivalent of
-> an insmod even if the kernel is built with 'CONFIG_MODULES=n'.
+On 9/15/05, Vojtech Pavlik <vojtech@suse.cz> wrote:
+> On Thu, Sep 15, 2005 at 02:22:34PM -0500, Dmitry Torokhov wrote:
+> > They are devices - class devices :). I have the following distinction
+> > in my head - "normal" devices (bus devices) are real hardware devices
+> > and their drivers need to do resource and/or power management. Class
+> > devices represent virtual devices - some kind of abstraction - that
+> > unify and combine "real" devices from several buses into one class.
+> 
+> Yes. While input drivers do need to care about power management usually,
+> the input device abstraction itself doesn't have to, which makes it
+> indeed a special kind of a device.
+> 
 
-Agreed; I use it in conjunction with a one-liner to remove CAP_RAWIO
-from the capability bounding set.
+Right. They just signal to underlying hardware driver when they are in
+use (open), but the actual power management is left to the specific
+bus/driver, not input core.
 
-> 2) Guess it's time to re-post my sysctl patch to provide a general-purpose
-> one-shot... (Diffed against 2.6.11-mm4, but applies cleanly to 2.6.13-mm1 as well).
+> I was always wondering whether the distinction between bus/class was
+> needed, as the border isn't very clear.
+> 
 
-Yes, much nicer. (My goal, to get a better patch by posting my ugly one,
-is achieved! ;) )
+Classes combine devices which are logically the same, i.e. they
+perform similar functions. Buses combine devices that are perform
+different functions but have similar hardware interface. For example a
+network cards - it is a class. You can have network card sit on a PCI,
+USB, ISA buses but for the rest of the kernel they are accesses
+through netdev abstraction. At least this is my understanding of our
+device model ;)
 
 -- 
-`One cannot, after all, be expected to read every single word
- of a book whose author one wishes to insult.' --- Richard Dawkins
+Dmitry

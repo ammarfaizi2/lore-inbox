@@ -1,66 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030325AbVIOMn7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030397AbVIOMoN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030325AbVIOMn7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 08:43:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030356AbVIOMn7
+	id S1030397AbVIOMoN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 08:44:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030345AbVIOMoN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 08:43:59 -0400
-Received: from penta.pentaserver.com ([216.74.97.66]:42687 "EHLO
-	penta.pentaserver.com") by vger.kernel.org with ESMTP
-	id S1030363AbVIOMn6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 08:43:58 -0400
-Message-ID: <432969D6.1040400@linuxtv.org>
-Date: Thu, 15 Sep 2005 16:32:22 +0400
-From: Manu Abraham <manu@linuxtv.org>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
+	Thu, 15 Sep 2005 08:44:13 -0400
+Received: from dizz-a.telos.de ([212.63.141.211]:22152 "EHLO mail.telos.de")
+	by vger.kernel.org with ESMTP id S1030397AbVIOMoL convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 08:44:11 -0400
+Subject: RE: kbuild & C++
 MIME-Version: 1.0
-To: "Antonino A. Daplas" <adaplas@gmail.com>
-CC: Ralph Metzler <rjkm@metzlerbros.de>,
-       Rolf Eike Beer <eike-kernel@sf-tec.de>,
-       Jiri Slaby <jirislaby@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: PCI driver
-References: <4327EE94.2040405@kromtek.com>	<200509150843.33849@bilbo.math.uni-mannheim.de>	<4329269E.1060003@linuxtv.org>	<200509151018.20322@bilbo.math.uni-mannheim.de>	<4329362A.1030201@linuxtv.org> <17193.19739.213773.593444@localhost.localdomain> <43295E41.8010808@linuxtv.org> <43296445.8040805@gmail.com>
-In-Reply-To: <43296445.8040805@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Antivirus-Scanner: Clean mail though you should still use an Antivirus
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - penta.pentaserver.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - linuxtv.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Date: Thu, 15 Sep 2005 14:35:14 +0200
+Content-class: urn:content-classes:message
+X-MimeOLE: Produced By Microsoft Exchange V6.0.4417.0
+Message-ID: <809C13DD6142E74ABE20C65B11A2439802094E@www.telos.de>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: kbuild & C++
+Thread-Index: AcW2AyXLgjmyGYIATJaO8ItA+xsOowD7l+lA
+From: "Budde, Marco" <budde@telos.de>
+To: "Sam Ravnborg" <sam@ravnborg.org>
+Cc: <linux-kernel@vger.kernel.org>
+X-telosmf: done
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Antonino A. Daplas wrote:
+Hi Sam,
 
->This is your failure path, return nonzero here, preferable describing the
->error condition.
->  
->
-Thanks a lot guys, I mean all of you. Otherwise i would have pulled out 
-my hair for some more time !
+>> How can I compile this code with kbuild? The C++ support
+>> (I have tested with 2.6.11) of kbuild seems to be incomplete /
+>> not working.
+> Since you did not send any sample code shall I assume this was not a
+> serious request?
 
-The IRQ issue still i don't feel a too comfortable though.
+it is of course a serious request.
 
-Thanks,
-Manu
+At the moment we are using some additional rules for kbuild.
+They have worked for a previous project of our customer and I
+hope they will work for this project, too.
+
+-------------------------------------------------------------------
+
+include $(SRC_ROOT)comps/Kbuild.includes
+
+EXTRA_CPPFLAGS += -fno-exceptions -fno-rtti \
+                  $(INCLUDE_DIRS)
+EXTRA_CFLAGS += $(INCLUDE_DIRS)
+
+
+%.o: %.cpp FORCE
+	$(call cmd,force_checksrc)
+	$(call if_changed_rule,cc_o_cpp)
+
+
+quiet_cmd_cc_o_cpp = C++ $(quiet_modtag)  $@
+
+
+ifndef CONFIG_MODVERSIONS
+cmd_cc_o_cpp = $(CXX) $(cpp_flags) -c -o $@ $<
+else
+cmd_cc_o_cpp = $(CXX) $(cpp_flags) -c -o $(@D)/.tmp_$(@F) $<
+endif
 
 
 
+define rule_cc_o_cpp
+        $(if $($(quiet)cmd_checksrc),echo '  $($(quiet)cmd_checksrc)';)
+\
+        $(cmd_checksrc)
+\
+        $(if $($(quiet)cmd_cc_o_cpp),echo '  $($(quiet)cmd_cc_o_cpp)';)
+\
+        $(cmd_cc_o_cpp);
+\
+        $(cmd_modversions)
+\
+        scripts/basic/fixdep $(depfile) $@ '$(cmd_cc_o_cpp)' >
+$(@D)/.$(@F).tmp;  \
+        rm -f $(depfile);
+\
+        mv -f $(@D)/.$(@F).tmp $(@D)/.$(@F).cmd
+endef
 
-[ 3689.479339] mantis_pci_probe: <1:>IRQ=23
-[ 3689.479518] mantis_pci_probe: <2:>IRQ=23
-[ 3689.479685] mantis_pci_probe: Got a device
-[ 3689.479869] mantis_pci_probe: We got an IRQ
-[ 3689.480036] mantis_pci_probe: We finally enabled the device
-[ 3689.480290] Mantis Rev 1, irq: 23, latency: 32
-[ 3689.480403]          memory: 0xefeff000, mmio: f92a4000
-[ 3695.984470] mantis_pci_remove: Removing -->Mantis irq: 23,         
-latency: 32
-[ 3695.984473]  memory: 0xefeff000, mmio: 0xf92a4000
-[ 3695.984934] Trying to free free IRQ23
+-------------------------------------------------------------------
+
+

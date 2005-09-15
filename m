@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751209AbVIOUai@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751200AbVIOUch@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751209AbVIOUai (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 16:30:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbVIOUah
+	id S1751200AbVIOUch (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 16:32:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751213AbVIOUch
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 16:30:37 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:37813
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751183AbVIOUah convert rfc822-to-8bit (ORCPT
+	Thu, 15 Sep 2005 16:32:37 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:24197 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751200AbVIOUcg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 16:30:37 -0400
-Date: Thu, 15 Sep 2005 13:30:26 -0700 (PDT)
-Message-Id: <20050915.133026.21581824.davem@davemloft.net>
-To: kloczek@rudy.mif.pg.gda.pl
-Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org,
-       aurora-sparc-devel@lists.auroralinux.org, davem@redhat.com
-Subject: Re: [2.6.14-rc1/sparc54]: BUG: soft lockup detected on CPU#0!
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <Pine.BSO.4.62.0509151929580.5000@rudy.mif.pg.gda.pl>
-References: <Pine.BSO.4.62.0509151929580.5000@rudy.mif.pg.gda.pl>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-2
-Content-Transfer-Encoding: 8BIT
+	Thu, 15 Sep 2005 16:32:36 -0400
+Date: Thu, 15 Sep 2005 13:32:18 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Benjamin LaHaise <bcrl@kvack.org>
+cc: Eric Dumazet <dada1@cosmosbay.com>, Sonny Rao <sonny@burdell.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: "Read my lips: no more merges" - aka Linux 2.6.14-rc1
+In-Reply-To: <20050915201356.GA20966@kvack.org>
+Message-ID: <Pine.LNX.4.58.0509151328260.26803@g5.osdl.org>
+References: <Pine.LNX.4.58.0509122019560.3351@g5.osdl.org>
+ <20050913063359.GA29715@kevlar.burdell.org> <43267A00.1010405@cosmosbay.com>
+ <20050915201356.GA20966@kvack.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Tomasz K³oczko <kloczek@rudy.mif.pg.gda.pl>
-Date: Thu, 15 Sep 2005 19:40:27 +0200 (CEST)
 
-> I'm just catch series of kernel messages with soft lockup detected reports 
-> (in attachment).
-> It occures during store big amout of data on NFS volume.
+
+On Thu, 15 Sep 2005, Benjamin LaHaise wrote:
 > 
-> As NIC I use now Sun Swift gigabit eth (cassini driver). Probably this is 
-> NFS related because I'm just browse yesterday logs and simillar was also 
-> on Sun Happy Meal.
+> Alternatively, the kernel could track available file descriptors using a 
+> tree to efficiently insert freed slots into an ordered list of free 
+> regions (something similar to the avl tree used in vmas).  Is it worth 
+> doing?
 
-Interesting.  Can you reproduce this with SLAB poisioning disabled?
-That debugging feature is extremely expensive, although it shouldn't
-make the CPU stop scheduling processes for more than 10 seconds.
+For file descriptors, even a few hundred is considered a _lot_ in almost 
+all settings. Yes, you can certainly have more, but it's unusual.
 
-I wonder if the NFS daemon code needs to have some limits put on
-how much cpu it consumes handling requests before it gives up the
-cpu.  Perhaps, it has such throttling already, I don't know.
+And we keep track of the fd reservations with a bitmap _and_ a "lowest
+possible" count. So we can check 32 fd's in one go (64 on modern setups),
+starting from the last one we allocated.
 
-I'll also try to see if there can be some kind of sparc64 specific
-issue which would cause this.
+In other words, no. It's not worth doing anything more than we already do. 
 
-Where did you get that Cassini driver btw?  It's not upstream,
-although if it exists it should be.
+I bet all the expense in this area tends under heavy load to be the
+cacheline bouncing of the updates. Keeping the lock close to the bitmap is 
+probably advantageous, since the bitmap tends to be looked at only when we 
+need to change them (and we hold the lock).
+
+		Linus

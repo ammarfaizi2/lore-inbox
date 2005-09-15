@@ -1,231 +1,218 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030461AbVIOHdG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965237AbVIOHcf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030461AbVIOHdG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 03:33:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030468AbVIOHdA
+	id S965237AbVIOHcf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 03:32:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965250AbVIOHcf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 03:33:00 -0400
-Received: from smtp103.sbc.mail.re2.yahoo.com ([68.142.229.102]:46232 "HELO
-	smtp103.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1030467AbVIOHco (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 03:32:44 -0400
-Message-Id: <20050915070302.813567000.dtor_core@ameritech.net>
+	Thu, 15 Sep 2005 03:32:35 -0400
+Received: from smtp102.sbc.mail.re2.yahoo.com ([68.142.229.103]:63384 "HELO
+	smtp102.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S965237AbVIOHce (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 03:32:34 -0400
+Message-Id: <20050915070302.693817000.dtor_core@ameritech.net>
 References: <20050915070131.813650000.dtor_core@ameritech.net>
-Date: Thu, 15 Sep 2005 02:01:39 -0500
+Date: Thu, 15 Sep 2005 02:01:38 -0500
 From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: linux-kernel@vger.kernel.org
 Cc: Andrew Morton <akpm@osdl.org>, Greg KH <gregkh@suse.de>,
        Kay Sievers <kay.sievers@vrfy.org>, Vojtech Pavlik <vojtech@suse.cz>,
        Hannes Reinecke <hare@suse.de>
-Subject: [patch 08/28] Input: prepare to sysfs integration
-Content-Disposition: inline; filename=input-dynalloc-prepare.patch
+Subject: [patch 07/28] Input: kill devfs references
+Content-Disposition: inline; filename=input-kill-devfs.patch
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Input: prepare to sysfs integration
-
-Add struct class_device to input_dev; add input_allocate_dev()
-to dynamically allocate input devices; dynamically allocated
-devices are automatically registered with sysfs.
+Input: remove references to devfs from input subsystem
 
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
 
- drivers/input/input.c |   77 ++++++++++++++++++++++++++++++++++++++++++++++----
- include/linux/input.h |   24 ++++++++++++++-
- 2 files changed, 95 insertions(+), 6 deletions(-)
+ drivers/input/evdev.c    |    4 ----
+ drivers/input/input.c    |    7 -------
+ drivers/input/joydev.c   |    4 ----
+ drivers/input/mousedev.c |    9 +--------
+ drivers/input/tsdev.c    |    7 -------
+ 5 files changed, 1 insertion(+), 30 deletions(-)
 
-Index: work/include/linux/input.h
+Index: work/drivers/input/evdev.c
 ===================================================================
---- work.orig/include/linux/input.h
-+++ work/include/linux/input.h
-@@ -12,6 +12,7 @@
- #ifdef __KERNEL__
- #include <linux/time.h>
- #include <linux/list.h>
-+#include <linux/device.h>
- #else
- #include <sys/time.h>
- #include <sys/ioctl.h>
-@@ -889,11 +890,15 @@ struct input_dev {
- 	struct semaphore sem;	/* serializes open and close operations */
- 	unsigned int users;
+--- work.orig/drivers/input/evdev.c
++++ work/drivers/input/evdev.c
+@@ -20,7 +20,6 @@
+ #include <linux/major.h>
+ #include <linux/smp_lock.h>
+ #include <linux/device.h>
+-#include <linux/devfs_fs_kernel.h>
+ #include <linux/compat.h>
  
--	struct device *dev;
-+	struct class_device cdev;
-+	struct device *dev;	/* will be removed soon */
-+
-+	int dynalloc;	/* temporarily */
+ struct evdev {
+@@ -687,8 +686,6 @@ static struct input_handle *evdev_connec
  
- 	struct list_head	h_list;
- 	struct list_head	node;
- };
-+#define to_input_dev(d) container_of(d, struct input_dev, cdev)
+ 	evdev_table[minor] = evdev;
  
- /*
-  * Structure for hotplug & device<->driver matching.
-@@ -984,6 +989,23 @@ static inline void init_input_dev(struct
- 	INIT_LIST_HEAD(&dev->node);
- }
+-	devfs_mk_cdev(MKDEV(INPUT_MAJOR, EVDEV_MINOR_BASE + minor),
+-			S_IFCHR|S_IRUGO|S_IWUSR, "input/event%d", minor);
+ 	class_device_create(input_class,
+ 			MKDEV(INPUT_MAJOR, EVDEV_MINOR_BASE + minor),
+ 			dev->dev, "event%d", minor);
+@@ -703,7 +700,6 @@ static void evdev_disconnect(struct inpu
  
-+struct input_dev *input_allocate_device(void);
-+
-+static inline void input_free_device(struct input_dev *dev)
-+{
-+	kfree(dev);
-+}
-+
-+static inline struct input_dev *input_get_device(struct input_dev *dev)
-+{
-+	return to_input_dev(class_device_get(&dev->cdev));
-+}
-+
-+static inline void input_put_device(struct input_dev *dev)
-+{
-+	class_device_put(&dev->cdev);
-+}
-+
- void input_register_device(struct input_dev *);
- void input_unregister_device(struct input_dev *);
+ 	class_device_destroy(input_class,
+ 			MKDEV(INPUT_MAJOR, EVDEV_MINOR_BASE + evdev->minor));
+-	devfs_remove("input/event%d", evdev->minor);
+ 	evdev->exist = 0;
  
+ 	if (evdev->open) {
 Index: work/drivers/input/input.c
 ===================================================================
 --- work.orig/drivers/input/input.c
 +++ work/drivers/input/input.c
-@@ -27,6 +27,7 @@ MODULE_AUTHOR("Vojtech Pavlik <vojtech@s
+@@ -22,7 +22,6 @@
+ #include <linux/interrupt.h>
+ #include <linux/poll.h>
+ #include <linux/device.h>
+-#include <linux/devfs_fs_kernel.h>
+ 
+ MODULE_AUTHOR("Vojtech Pavlik <vojtech@suse.cz>");
  MODULE_DESCRIPTION("Input core");
- MODULE_LICENSE("GPL");
- 
-+EXPORT_SYMBOL(input_allocate_device);
- EXPORT_SYMBOL(input_register_device);
- EXPORT_SYMBOL(input_unregister_device);
- EXPORT_SYMBOL(input_register_handler);
-@@ -604,6 +605,56 @@ static inline int input_proc_init(void) 
- static inline void input_proc_exit(void) { }
- #endif
- 
-+static void input_dev_release(struct class_device *class_dev)
-+{
-+	struct input_dev *dev = to_input_dev(class_dev);
-+
-+	kfree(dev);
-+	module_put(THIS_MODULE);
-+}
-+
-+static struct class input_dev_class = {
-+	.name			= "input_dev",
-+	.release		= input_dev_release,
-+};
-+
-+struct input_dev *input_allocate_device(void)
-+{
-+	struct input_dev *dev;
-+
-+	dev = kzalloc(sizeof(struct input_dev), GFP_KERNEL);
-+	if (dev) {
-+		dev->dynalloc = 1;
-+		dev->cdev.class = &input_dev_class;
-+		class_device_initialize(&dev->cdev);
-+		INIT_LIST_HEAD(&dev->h_list);
-+		INIT_LIST_HEAD(&dev->node);
-+	}
-+
-+	return dev;
-+}
-+
-+static void input_register_classdevice(struct input_dev *dev)
-+{
-+	static atomic_t input_no = ATOMIC_INIT(0);
-+	const char *path;
-+
-+	__module_get(THIS_MODULE);
-+
-+	dev->dev = dev->cdev.dev;
-+
-+	snprintf(dev->cdev.class_id, sizeof(dev->cdev.class_id),
-+		 "input%ld", (unsigned long) atomic_inc_return(&input_no) - 1);
-+
-+	path = kobject_get_path(&dev->cdev.class->subsys.kset.kobj, GFP_KERNEL);
-+	printk(KERN_INFO "input: %s/%s as %s\n",
-+		dev->name ? dev->name : "Unspecified device",
-+		path ? path : "", dev->cdev.class_id);
-+	kfree(path);
-+
-+	class_device_add(&dev->cdev);
-+}
-+
- void input_register_device(struct input_dev *dev)
- {
- 	struct input_handle *handle;
-@@ -636,6 +687,10 @@ void input_register_device(struct input_
- 				if ((handle = handler->connect(handler, dev, id)))
- 					input_link_handle(handle);
- 
-+
-+	if (dev->dynalloc)
-+		input_register_classdevice(dev);
-+
- #ifdef CONFIG_HOTPLUG
- 	input_call_hotplug("add", dev);
- #endif
-@@ -664,6 +719,9 @@ void input_unregister_device(struct inpu
- 
- 	list_del_init(&dev->node);
- 
-+	if (dev->dynalloc)
-+		class_device_unregister(&dev->cdev);
-+
- 	input_wakeup_procfs_readers();
- }
- 
-@@ -752,26 +810,34 @@ static int __init input_init(void)
- {
- 	int err;
- 
-+	err = class_register(&input_dev_class);
-+	if (err) {
-+		printk(KERN_ERR "input: unable to register input_dev class\n");
-+		return err;
-+	}
-+
- 	input_class = class_create(THIS_MODULE, "input");
- 	if (IS_ERR(input_class)) {
- 		printk(KERN_ERR "input: unable to register input class\n");
--		return PTR_ERR(input_class);
-+		err = PTR_ERR(input_class);
-+		goto fail1;
+@@ -769,13 +768,8 @@ static int __init input_init(void)
+ 		goto fail2;
  	}
  
- 	err = input_proc_init();
- 	if (err)
--		goto fail1;
-+		goto fail2;
- 
- 	err = register_chrdev(INPUT_MAJOR, "input", &input_fops);
- 	if (err) {
- 		printk(KERN_ERR "input: unable to register char major %d", INPUT_MAJOR);
--		goto fail2;
-+		goto fail3;
- 	}
- 
+-	err = devfs_mk_dir("input");
+-	if (err)
+-		goto fail3;
+-
  	return 0;
  
-- fail2:	input_proc_exit();
-- fail1:	class_destroy(input_class);
-+ fail3:	input_proc_exit();
-+ fail2:	class_destroy(input_class);
-+ fail1:	class_unregister(&input_dev_class);
+- fail3:	unregister_chrdev(INPUT_MAJOR, "input");
+  fail2:	input_proc_exit();
+  fail1:	class_destroy(input_class);
  	return err;
- }
- 
-@@ -780,6 +846,7 @@ static void __exit input_exit(void)
+@@ -784,7 +778,6 @@ static int __init input_init(void)
+ static void __exit input_exit(void)
+ {
  	input_proc_exit();
+-	devfs_remove("input");
  	unregister_chrdev(INPUT_MAJOR, "input");
  	class_destroy(input_class);
-+	class_unregister(&input_dev_class);
  }
+Index: work/drivers/input/joydev.c
+===================================================================
+--- work.orig/drivers/input/joydev.c
++++ work/drivers/input/joydev.c
+@@ -26,7 +26,6 @@
+ #include <linux/init.h>
+ #include <linux/smp_lock.h>
+ #include <linux/device.h>
+-#include <linux/devfs_fs_kernel.h>
  
- subsys_initcall(input_init);
+ MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>");
+ MODULE_DESCRIPTION("Joystick device interfaces");
+@@ -514,8 +513,6 @@ static struct input_handle *joydev_conne
+ 
+ 	joydev_table[minor] = joydev;
+ 
+-	devfs_mk_cdev(MKDEV(INPUT_MAJOR, JOYDEV_MINOR_BASE + minor),
+-			S_IFCHR|S_IRUGO|S_IWUSR, "input/js%d", minor);
+ 	class_device_create(input_class,
+ 			MKDEV(INPUT_MAJOR, JOYDEV_MINOR_BASE + minor),
+ 			dev->dev, "js%d", minor);
+@@ -529,7 +526,6 @@ static void joydev_disconnect(struct inp
+ 	struct joydev_list *list;
+ 
+ 	class_device_destroy(input_class, MKDEV(INPUT_MAJOR, JOYDEV_MINOR_BASE + joydev->minor));
+-	devfs_remove("input/js%d", joydev->minor);
+ 	joydev->exist = 0;
+ 
+ 	if (joydev->open) {
+Index: work/drivers/input/mousedev.c
+===================================================================
+--- work.orig/drivers/input/mousedev.c
++++ work/drivers/input/mousedev.c
+@@ -9,7 +9,7 @@
+  * the Free Software Foundation.
+  */
+ 
+-#define MOUSEDEV_MINOR_BASE 	32
++#define MOUSEDEV_MINOR_BASE	32
+ #define MOUSEDEV_MINORS		32
+ #define MOUSEDEV_MIX		31
+ 
+@@ -24,7 +24,6 @@
+ #include <linux/random.h>
+ #include <linux/major.h>
+ #include <linux/device.h>
+-#include <linux/devfs_fs_kernel.h>
+ #ifdef CONFIG_INPUT_MOUSEDEV_PSAUX
+ #include <linux/miscdevice.h>
+ #endif
+@@ -649,8 +648,6 @@ static struct input_handle *mousedev_con
+ 
+ 	mousedev_table[minor] = mousedev;
+ 
+-	devfs_mk_cdev(MKDEV(INPUT_MAJOR, MOUSEDEV_MINOR_BASE + minor),
+-			S_IFCHR|S_IRUGO|S_IWUSR, "input/mouse%d", minor);
+ 	class_device_create(input_class,
+ 			MKDEV(INPUT_MAJOR, MOUSEDEV_MINOR_BASE + minor),
+ 			dev->dev, "mouse%d", minor);
+@@ -665,7 +662,6 @@ static void mousedev_disconnect(struct i
+ 
+ 	class_device_destroy(input_class,
+ 			MKDEV(INPUT_MAJOR, MOUSEDEV_MINOR_BASE + mousedev->minor));
+-	devfs_remove("input/mouse%d", mousedev->minor);
+ 	mousedev->exist = 0;
+ 
+ 	if (mousedev->open) {
+@@ -738,8 +734,6 @@ static int __init mousedev_init(void)
+ 	mousedev_mix.exist = 1;
+ 	mousedev_mix.minor = MOUSEDEV_MIX;
+ 
+-	devfs_mk_cdev(MKDEV(INPUT_MAJOR, MOUSEDEV_MINOR_BASE + MOUSEDEV_MIX),
+-			S_IFCHR|S_IRUGO|S_IWUSR, "input/mice");
+ 	class_device_create(input_class,
+ 			MKDEV(INPUT_MAJOR, MOUSEDEV_MINOR_BASE + MOUSEDEV_MIX), NULL, "mice");
+ 
+@@ -759,7 +753,6 @@ static void __exit mousedev_exit(void)
+ 	if (psaux_registered)
+ 		misc_deregister(&psaux_mouse);
+ #endif
+-	devfs_remove("input/mice");
+ 	class_device_destroy(input_class,
+ 			MKDEV(INPUT_MAJOR, MOUSEDEV_MINOR_BASE + MOUSEDEV_MIX));
+ 	input_unregister_handler(&mousedev_handler);
+Index: work/drivers/input/tsdev.c
+===================================================================
+--- work.orig/drivers/input/tsdev.c
++++ work/drivers/input/tsdev.c
+@@ -53,7 +53,6 @@
+ #include <linux/random.h>
+ #include <linux/time.h>
+ #include <linux/device.h>
+-#include <linux/devfs_fs_kernel.h>
+ 
+ #ifndef CONFIG_INPUT_TSDEV_SCREEN_X
+ #define CONFIG_INPUT_TSDEV_SCREEN_X	240
+@@ -410,10 +409,6 @@ static struct input_handle *tsdev_connec
+ 
+ 	tsdev_table[minor] = tsdev;
+ 
+-	devfs_mk_cdev(MKDEV(INPUT_MAJOR, TSDEV_MINOR_BASE + minor),
+-			S_IFCHR|S_IRUGO|S_IWUSR, "input/ts%d", minor);
+-	devfs_mk_cdev(MKDEV(INPUT_MAJOR, TSDEV_MINOR_BASE + minor + TSDEV_MINORS/2),
+-			S_IFCHR|S_IRUGO|S_IWUSR, "input/tsraw%d", minor);
+ 	class_device_create(input_class,
+ 			MKDEV(INPUT_MAJOR, TSDEV_MINOR_BASE + minor),
+ 			dev->dev, "ts%d", minor);
+@@ -428,8 +423,6 @@ static void tsdev_disconnect(struct inpu
+ 
+ 	class_device_destroy(input_class,
+ 			MKDEV(INPUT_MAJOR, TSDEV_MINOR_BASE + tsdev->minor));
+-	devfs_remove("input/ts%d", tsdev->minor);
+-	devfs_remove("input/tsraw%d", tsdev->minor);
+ 	tsdev->exist = 0;
+ 
+ 	if (tsdev->open) {
 

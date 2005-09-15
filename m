@@ -1,62 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030350AbVIOCiZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030327AbVIOCs4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030350AbVIOCiZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 22:38:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030351AbVIOCiZ
+	id S1030327AbVIOCs4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 22:48:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030335AbVIOCs4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 22:38:25 -0400
-Received: from fmr19.intel.com ([134.134.136.18]:21965 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1030350AbVIOCiZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 22:38:25 -0400
-Subject: [PATCH]FPU context corrupted after resume
-From: Shaohua Li <shaohua.li@intel.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>
-Content-Type: text/plain
-Date: Thu, 15 Sep 2005 10:44:18 +0800
-Message-Id: <1126752258.11133.4.camel@linux-hp.sh.intel.com>
+	Wed, 14 Sep 2005 22:48:56 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:35289 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030327AbVIOCsz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 22:48:55 -0400
+Date: Wed, 14 Sep 2005 19:48:20 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Machida, Hiroyuki" <machida@sm.sony.co.jp>
+Cc: hirofumi@mail.parknet.co.jp, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2][FAT] miss-sync issues on sync mount (miss-sync on
+ write)
+Message-Id: <20050914194820.5bbddcb3.akpm@osdl.org>
+In-Reply-To: <43288964.7020307@sm.sony.co.jp>
+References: <43288964.7020307@sm.sony.co.jp>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-mxcsr_feature_mask_init isn't needed in suspend/resume time (we can use boot
-time mask). And actually it's harmful, as it clear task's saved fxsave in resume.
-This bug is widely seen by users using zsh.
+"Machida, Hiroyuki" <machida@sm.sony.co.jp> wrote:
+>
+> This patch fixes miss-sync issue on write() system call.
+>  This updates inode attrs flags, mtime and ctime on every
+>  comit_write call, due to locking.
 
+This all seems wrong.
 
-Signed-off-by: Shaohua Li<shaohua.li@intel.com>
----
+Why does fatfs have file_operations.write pointing at do_sync_write()
+rather than generic_file_write()?
 
- linux-2.6.13-root/arch/i386/power/cpu.c        |    1 -
- linux-2.6.13-root/arch/x86_64/kernel/suspend.c |    1 -
- 2 files changed, 2 deletions(-)
+Why does fatfs have a custom .aio_write() rather than using
+generic_file_aio_write()?
 
-diff -puN arch/i386/power/cpu.c~fpu_reinit_after_resume arch/i386/power/cpu.c
---- linux-2.6.13/arch/i386/power/cpu.c~fpu_reinit_after_resume	2005-09-14 09:35:13.000000000 +0800
-+++ linux-2.6.13-root/arch/i386/power/cpu.c	2005-09-14 11:00:55.000000000 +0800
-@@ -74,7 +74,6 @@ do_fpu_end(void)
-         /* restore FPU regs if necessary */
- 	/* Do it out of line so that gcc does not move cr0 load to some stupid place */
-         kernel_fpu_end();
--	mxcsr_feature_mask_init();
- }
- 
- 
-diff -puN arch/x86_64/kernel/suspend.c~fpu_reinit_after_resume arch/x86_64/kernel/suspend.c
---- linux-2.6.13/arch/x86_64/kernel/suspend.c~fpu_reinit_after_resume	2005-09-14 11:02:21.000000000 +0800
-+++ linux-2.6.13-root/arch/x86_64/kernel/suspend.c	2005-09-14 11:02:41.000000000 +0800
-@@ -82,7 +82,6 @@ do_fpu_end(void)
-         /* restore FPU regs if necessary */
- 	/* Do it out of line so that gcc does not move cr0 load to some stupid place */
-         kernel_fpu_end();
--	mxcsr_feature_mask_init();
- }
- 
- void __restore_processor_state(struct saved_context *ctxt)
-_
-
+If fatfs can use all the standard library functions, all this inode
+dirtying and O_SYNC/-o sync handling shoud just work.
 

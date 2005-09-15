@@ -1,65 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965229AbVIOV5y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965282AbVIOV7p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965229AbVIOV5y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 17:57:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965282AbVIOV5y
+	id S965282AbVIOV7p (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 17:59:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965283AbVIOV7p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 17:57:54 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:52539
-	"EHLO opteron.random") by vger.kernel.org with ESMTP
-	id S965229AbVIOV5x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 17:57:53 -0400
-Date: Thu, 15 Sep 2005 23:58:04 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>, Hugh Dickins <hugh@veritas.com>,
-       Nick Piggin <npiggin@novell.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Roland McGrath <roland@redhat.com>
-Subject: Re: ptrace can't be transparent on readonly MAP_SHARED
-Message-ID: <20050915215804.GN4122@opteron.random>
-References: <Pine.LNX.4.61.0509151337260.16231@goblin.wat.veritas.com> <Pine.LNX.4.58.0509150805150.26803@g5.osdl.org> <20050915154702.GA4122@opteron.random> <Pine.LNX.4.58.0509150911180.26803@g5.osdl.org> <20050915162347.GC4122@opteron.random> <Pine.LNX.4.58.0509150928030.26803@g5.osdl.org> <20050915165117.GE4122@opteron.random> <Pine.LNX.4.58.0509151043370.26803@g5.osdl.org> <20050915180928.GI4122@opteron.random> <20050915210931.GA14521@nevyn.them.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050915210931.GA14521@nevyn.them.org>
-User-Agent: Mutt/1.5.9i
+	Thu, 15 Sep 2005 17:59:45 -0400
+Received: from xenotime.net ([66.160.160.81]:1510 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S965282AbVIOV7p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 17:59:45 -0400
+Date: Thu, 15 Sep 2005 14:59:39 -0700 (PDT)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Jesper Juhl <jesper.juhl@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: early printk timings way off
+In-Reply-To: <200509152342.24922.jesper.juhl@gmail.com>
+Message-ID: <Pine.LNX.4.58.0509151458330.1800@shark.he.net>
+References: <200509152342.24922.jesper.juhl@gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 15, 2005 at 05:09:31PM -0400, Daniel Jacobowitz wrote:
-> Well, you won't like this example any better, then, but this was a
-> frequently reported GDB bug for a while:
-> 
-> const int x;
-> int main()
-> {
->   *x = 1;
->   return 0;
-> }
-> 
-> x goes in rodata -> text segment -> on the same page as main.  If you
-> run to main in GDB, the page becomes writable.  The store doesn't
-> crash.  If you run it out of GDB, it crashes.
-> 
-> Sure, the trivial example's uninteresting.  But you can construct a
-> larger example with, say, *foo() = x replaced by *foo = x.  That's not
-> legal in C for a function foo, of course.  But you could probably
-> manage it in some other language, or in asm.  So you debug right around
-> where you're getting a crash in your application, and it doesn't crash.
-> 
-> Ptrace needs to be as unintrusive as possible.  Having the page COW
-> unexpectedly is a lot less bad than having it COW _and_ remain
-> writable.
+On Thu, 15 Sep 2005, Jesper Juhl wrote:
 
-Well this is the first real life example that explains why having
-the pte marked readonly might actually make a difference in practice
-(debugging a segfault when overwriting .rodata makes sense), so I like
-it a lot better and infact I now for the first time can see why it can
-help.
+> Early during boot the printk timings are way off :
+>
+> [4294667.296000] Linux version 2.6.14-rc1-git1 (juhl@dragon) (gcc version 3.3.6) #1 PREEMPT Thu Sep 15 22:25:37 CEST 2005
+> [4294667.296000] BIOS-provided physical RAM map:
+> [4294667.296000]  BIOS-e820: 0000000000000000 - 000000000009f800 (usable)
+> [4294667.296000]  BIOS-e820: 000000000009f800 - 00000000000a0000 (reserved)
+> [4294667.296000]  BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
+> [4294667.296000]  BIOS-e820: 0000000000100000 - 000000001ffec000 (usable)
+> [4294667.296000]  BIOS-e820: 000000001ffec000 - 000000001ffef000 (ACPI data)
+> [4294667.296000]  BIOS-e820: 000000001ffef000 - 000000001ffff000 (reserved)
+> [4294667.296000]  BIOS-e820: 000000001ffff000 - 0000000020000000 (ACPI NVS)
+> [4294667.296000]  BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
+> [4294667.296000] 511MB LOWMEM available.
+> [4294667.296000] On node 0 totalpages: 131052
+> [4294667.296000]   DMA zone: 4096 pages, LIFO batch:1
+> [4294667.296000]   Normal zone: 126956 pages, LIFO batch:31
+> [4294667.296000]   HighMem zone: 0 pages, LIFO batch:1
+> [4294667.296000] DMI 2.3 present.
+> [4294667.296000] ACPI: RSDP (v000 ASUS                                  ) @ 0x000f69e0
+> [4294667.296000] ACPI: RSDT (v001 ASUS   A7M266   0x30303031 MSFT 0x31313031) @ 0x1ffec000
+> [4294667.296000] ACPI: FADT (v001 ASUS   A7M266   0x30303031 MSFT 0x31313031) @ 0x1ffec080
+> [4294667.296000] ACPI: BOOT (v001 ASUS   A7M266   0x30303031 MSFT 0x31313031) @ 0x1ffec040
+> [4294667.296000] ACPI: DSDT (v001   ASUS A7M266   0x00001000 MSFT 0x0100000b) @ 0x00000000
+> [4294667.296000] Allocating PCI resources starting at 30000000 (gap: 20000000:dfff0000)
+> [4294667.296000] Built 1 zonelists
+> [4294667.296000] Kernel command line: auto BOOT_IMAGE=2.6.14-rc1-git1 ro root=801 pci=usepirqmask
+> [4294667.296000] Initializing CPU#0
+> [4294667.296000] CPU 0 irqstacks, hard=c03d2000 soft=c03d1000
+> [4294667.296000] PID hash table entries: 2048 (order: 11, 32768 bytes)
+>
+> ^^^^^ These I can buy as the result of an uninitialized variable. Why are
+>       we not initializing this counter to zero?
+>
+> [    0.000000] Detected 1400.279 MHz processor.
+>
+> ^^^^^ Ok, we finally seem to have initialized the counter...
+>
+> [   27.121583] Using tsc for high-res timesource
+>
+> ^^^^^ 27 seconds??? Something is off here. It certainly doesn't take 27 sec
+>       to get from the previous message to this one during the actual boot.
+>       What's up with that?
+>
+> [   27.121620] Console: colour dummy device 80x25
+> [   27.122909] Dentry cache hash table entries: 131072 (order: 7, 524288 bytes)
+> ...
+>
+> No big deal, but it sure would look better (and be actually useful for the
+> first few messages) if things started out at zero and then actually
+> increased sanely from the very beginning.  :-)
 
-.text is not going to change on-disk, so the coherency loss for the
-pagecache is not significant but losing the readonly protection would
-prevent the segfault to trigger and so it makes debugging more fancy.
+For purposes of testing rollover and/or finding broken drivers etc.,
+jiffies is init to something like -5 seconds (or max_jiffies - 5)
+and then it rolls over soon.
 
-It certainly wasn't related to any PROT_NONE.
-
-Thanks.
+-- 
+~Randy

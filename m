@@ -1,63 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030202AbVIVDfW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030203AbVIVDi2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030202AbVIVDfW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Sep 2005 23:35:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030203AbVIVDfW
+	id S1030203AbVIVDi2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Sep 2005 23:38:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030204AbVIVDi2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Sep 2005 23:35:22 -0400
-Received: from h80ad24c8.async.vt.edu ([128.173.36.200]:49076 "EHLO
-	h80ad24c8.async.vt.edu") by vger.kernel.org with ESMTP
-	id S1030202AbVIVDfW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Sep 2005 23:35:22 -0400
-Message-Id: <200509220335.j8M3ZGEJ004230@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.14-rc1-mm1.5 - keyboard wierdness
-From: Valdis.Kletnieks@vt.edu
+	Wed, 21 Sep 2005 23:38:28 -0400
+Received: from rwcrmhc14.comcast.net ([216.148.227.89]:670 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1030203AbVIVDi2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Sep 2005 23:38:28 -0400
+Subject: Re: [PATCH] bogus #if (acpi/blacklist)
+From: Len Brown <len.brown@intel.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: viro@ZenIV.linux.org.uk, Eric Piel <Eric.Piel@lifl.fr>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0509091854500.3743@scrub.home>
+References: <Pine.LNX.4.61.0509091854500.3743@scrub.home>
+Content-Type: text/plain
+Date: Thu, 15 Sep 2005 18:05:15 -0400
+Message-Id: <1126821915.31252.10.camel@toshiba>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1127360115_2825P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Mailer: Evolution 2.2.1 
 Content-Transfer-Encoding: 7bit
-Date: Wed, 21 Sep 2005 23:35:16 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1127360115_2825P
-Content-Type: text/plain; charset=us-ascii
+On Fri, 2005-09-09 at 12:55 -0400, Roman Zippel wrote:
+> Hi,
+> 
+> On Fri, 9 Sep 2005 viro@ZenIV.linux.org.uk wrote:
+> 
+> > Sigh...  It should be left as #if, of course, but I suspect that
+> cleaner way to
+> > deal with that would be (in Kconfig)
+> >
+> > config ACPI_BLACKLIST_YEAR
+> >         int "Disable ACPI for systems before Jan 1st this year" if
+> X86
+> >         default 0
+> 
+> That would be indeed the better fix.
 
-I've had this happen twice now, running Andrew's "not quite -mm2" patch.
+The real bug is that drivers/acpi/blacklist.c (the only place
+CONFIG_ACPI_BLACLIST_YEAR is referenced) is compiled for non X86.
 
-Symptoms: After about 20-30 minutes uptime, a running gkrellm shows system mode
-suddenly shoot up to 99-100%, and the keyboard dies.  Oddly enough, a USB mouse
-continued working, and the X server was still quite responsive (I was able to
-close Firefox by opening a menu with the mouse and selecting 'quit', for
-example).
+-Len
 
-alt-sysrq-foo still worked, but ctl-alt-N to switch virtual consoles didn't.
-sysrq-t produced a trace with nothing obviously odd - klogd, syslog, and the
-disk were all working.
 
-Nothing interesting in the syslog - no oops, bug, etc..
-
-Another odd data point (I didn't notice if this part happened the first time):
-gkrellm reported that link ppp0 had inbound packets on the modem port of a
-Xircom ethernet/modem combo card.  At the rate of 3.5M/second - a neat trick
-for a 56K modem.  When I unplugged the RJ-11, gkrellm *kept* reporting the
-inbound traffic.  When I ejected the card, *then* the ppp0 (and the alleged
-inbound packets) stopped - but still sitting at 99% system and no keyboard.
-
-This ring any bells?  Any suggestions for instrumentation to help debug this?
-
---==_Exmh_1127360115_2825P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFDMiZzcC3lWbTT17ARAhwEAJ9Eon+lRBsi+40imt6PQ8UE6Q7ztQCeP3+q
-d5h+Dw9zlLMQjGiH+NMY41I=
-=B7EI
------END PGP SIGNATURE-----
-
---==_Exmh_1127360115_2825P--

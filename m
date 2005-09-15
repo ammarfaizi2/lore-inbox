@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030518AbVIOQZG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030521AbVIOQ3h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030518AbVIOQZG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 12:25:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030517AbVIOQZG
+	id S1030521AbVIOQ3h (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 12:29:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030520AbVIOQ3h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 12:25:06 -0400
-Received: from xenotime.net ([66.160.160.81]:53696 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1030518AbVIOQZF (ORCPT
+	Thu, 15 Sep 2005 12:29:37 -0400
+Received: from amdext4.amd.com ([163.181.251.6]:6117 "EHLO amdext4.amd.com")
+	by vger.kernel.org with ESMTP id S1030521AbVIOQ3g (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 12:25:05 -0400
-Date: Thu, 15 Sep 2005 09:25:02 -0700 (PDT)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Mark <marik@yandex.ru>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: COMPILATION BUG
-In-Reply-To: <43296031.000001.08694@tide.yandex.ru>
-Message-ID: <Pine.LNX.4.58.0509150923220.1137@shark.he.net>
-References: <43296031.000001.08694@tide.yandex.ru>
+	Thu, 15 Sep 2005 12:29:36 -0400
+X-Server-Uuid: 8C3DB987-180B-4465-9446-45C15473FD3E
+From: "Ray Bryant" <raybry@mpdtxmail.amd.com>
+To: "Michael (Micksa) Slade" <micksa@knobbits.org>
+Subject: Re: 2.6 breaks my KVM?
+Date: Thu, 15 Sep 2005 11:37:49 -0500
+User-Agent: KMail/1.8
+cc: "Linux Kernel" <linux-kernel@vger.kernel.org>
+References: <4327C0EB.9040403@knobbits.org>
+In-Reply-To: <4327C0EB.9040403@knobbits.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <200509151137.50103.raybry@mpdtxmail.amd.com>
+X-WSS-ID: 6F377EEB28G438764-01-01
+Content-Type: text/plain;
+ charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Sep 2005, Mark wrote:
+On Wednesday 14 September 2005 01:19, Michael (Micksa) Slade wrote:
 
-> PROBLEM: The kernel does not compile with my config and my versions.
-> see attached file.
+>
+> The mouse misbehaves.  touching the mouse causes the pointer to go
+> haywire and jump everywhere, and there's the occasional button click too
+> I think.
+>
+> It happens with both my older logitech mouse and a newer MS
+> intellimouse.  Both work fine with 2.6 when plugged in directly.
+>
+<snip>
 
-Please don't use zipped tarballs for bug reports.
-
-{standard input}: Assembler messages:
-{standard input}:840: Error: suffix or operands invalid for `mov'
-{standard input}:841: Error: suffix or operands invalid for `mov'
-{standard input}:935: Error: suffix or operands invalid for `mov'
-{standard input}:936: Error: suffix or operands invalid for `mov'
-{standard input}:986: Error: suffix or operands invalid for `mov'
-{standard input}:987: Error: suffix or operands invalid for `mov'
-{standard input}:989: Error: suffix or operands invalid for `mov'
-{standard input}:1001: Error: suffix or operands invalid for `mov'
-
-These are assembler ("as") error messages.
-'as' is part of binutils.
-It appears that you need to upgrade your binutils package.
+Try adding psmouse.proto=bare as a kernel parameter for your 2.6 kernels.
 
 -- 
-~Randy
+Ray Bryant
+AMD Performance Labs                   Austin, Tx
+512-602-0038 (o)                 512-507-7807 (c)
+

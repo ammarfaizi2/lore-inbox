@@ -1,159 +1,190 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965214AbVIOFUx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965262AbVIOF0k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965214AbVIOFUx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 01:20:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030411AbVIOFUx
+	id S965262AbVIOF0k (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 01:26:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965265AbVIOF0k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 01:20:53 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:50597 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S965214AbVIOFUw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 01:20:52 -0400
-Message-ID: <4356.10.124.102.246.1126761649.squirrel@dominion>
-In-Reply-To: <01ac01c5b864$291f1370$dba0220a@CARREN>
-References: <200509072146.j87LkNv8004076@shell0.pdx.osdl.net>
-    <20050907224911.H19199@flint.arm.linux.org.uk>
-    <4394.10.124.102.246.1126165652.squirrel@dominion>
-    <20050913091740.A8256@flint.arm.linux.org.uk>
-    <00b601c5b858$8a8c4ad0$dba0220a@CARREN>
-    <20050913125326.A14342@flint.arm.linux.org.uk>
-    <20050913130229.B14342@flint.arm.linux.org.uk>
-    <01ac01c5b864$291f1370$dba0220a@CARREN>
-Date: Thu, 15 Sep 2005 14:20:49 +0900 (JST)
-Subject: Re: performance-improvement-of-serial-console-via-virtual.patch
- added to -mm tree
-From: "Taku Izumi" <izumi2005@soft.fujitsu.com>
-To: rmk+lkml@arm.linux.org.uk
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, hishii@soft.fujitsu.com
-Reply-To: izumi2005@soft.fujitsu.com
-User-Agent: SquirrelMail/1.4.5-1_rh4
+	Thu, 15 Sep 2005 01:26:40 -0400
+Received: from mail2.sasken.com ([203.200.200.72]:54765 "EHLO mail2.sasken.com")
+	by vger.kernel.org with ESMTP id S965262AbVIOF0j (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 01:26:39 -0400
+From: "Mahesh" <mahesh@sasken.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: IPPPd  incoming channel bundling issue.
+Date: Thu, 15 Sep 2005 10:56:31 +0530
+Message-ID: <MGECKBKGMOMHMJKIKHAMIEPKCKAA.mahesh@sasken.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed;boundary="----=_20050915142049_51394"
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_07EA_01C5B9E4.212D5BF0"
 X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
 Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+X-imss-version: 2.030
+X-imss-result: Passed
+X-imss-scores: Clean:85.20626 C:2 M:3 S:5 R:5
+X-imss-settings: Baseline:3 C:3 M:3 S:3 R:3 (0.5000 0.5000)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
 
-------=_20050915142049_51394
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8bit
+------=_NextPart_000_07EA_01C5B9E4.212D5BF0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
-Dear Russel:
 
-I change my patch based on the result of discussion.
+Hi,
+We are using IPPPd open source package for ISDN connection and it is working
+fine. The problem we are facing is with channel bundling for incoming calls.
+I am adding ippp0 to ippp15 channels as Master interfaces. But when there is
+an incoming call to my system and the dial-in user wants to do channel
+bundling this is not happening. To support this I added the ippp14, ippp13,
+ippp12 as slave devices to ippp15 master device. This resolves the channel
+bundling issue for the 4 incoming calls which needs to be bundled but it is
+creating some other problem. Suppose one user is dialing in to my system and
+user is using two channels both the calls are answered and bundled(ippp15
+and ippp14). Now another user is dialing in to my system and ippp13
+answered. This call is not bundled(as expected) but it is assigning the same
+IP address of master interface(ippp15). So the IP address is same for the
+first call(with channel bundling) and for the second call. Can you please
+let me know whether IPPPd supports assigning different IP address if there
+is no channel bundling for the slave interface. This is really required
+feature for the IPPPd where it can act as server also and I hope this is
+already supporting. Please find the attached script file which I am using
+for adding the ippp12, ippp13, ippp14 as slave devices to ippp15 master
+device and the options file.
 
-The change is as follows:
 
-  - add a member to uart_8250_port structure in order to check if FIFO is
-    enable or not.
-  - use FIFO at serial8250_console_write function only when FIFO is enable.
+Thanks,
+Mahesh.
 
-I tested my patch on i386 and ia64 architecture.
 
-signed-off-by: Taku Izumi <izumi2005@soft.fujitsu.com>
+"SASKEN RATED THE BEST EMPLOYER IN THE COUNTRY by the BUSINESS TODAY Mercer Survey 2004"
 
-------=_20050915142049_51394
-Content-Type: text/plain; name="serial.patch"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: attachment; filename="serial.patch"
 
-diff -urNp linux-2.6.14-rc1.org/drivers/serial/8250.c linux-2.6.14-rc1/drivers/serial/8250.c
---- linux-2.6.14-rc1.org/drivers/serial/8250.c	2005-09-13 12:12:09.000000000 +0900
-+++ linux-2.6.14-rc1/drivers/serial/8250.c	2005-09-15 09:38:46.000000000 +0900
-@@ -128,6 +128,7 @@ struct uart_8250_port {
- 	unsigned char		mcr_mask;	/* mask of user bits */
- 	unsigned char		mcr_force;	/* mask of forced bits */
- 	unsigned char		lsr_break_flag;
-+	unsigned char		fcr;
- 
- 	/*
- 	 * We provide a per-port pm hook.
-@@ -332,6 +333,7 @@ static unsigned int serial_icr_read(stru
- static inline void serial8250_clear_fifos(struct uart_8250_port *p)
- {
- 	if (p->capabilities & UART_CAP_FIFO) {
-+		p->fcr = 0;
- 		serial_outp(p, UART_FCR, UART_FCR_ENABLE_FIFO);
- 		serial_outp(p, UART_FCR, UART_FCR_ENABLE_FIFO |
- 			       UART_FCR_CLEAR_RCVR | UART_FCR_CLEAR_XMIT);
-@@ -1809,8 +1811,10 @@ serial8250_set_termios(struct uart_port 
- 	 * LCR DLAB must be set to enable 64-byte FIFO mode. If the FCR
- 	 * is written without DLAB set, this mode will be disabled.
- 	 */
--	if (up->port.type == PORT_16750)
-+	if (up->port.type == PORT_16750) {
- 		serial_outp(up, UART_FCR, fcr);
-+		up->fcr = fcr;
-+	}
- 
- 	serial_outp(up, UART_LCR, cval);		/* reset DLAB */
- 	up->lcr = cval;					/* Save LCR */
-@@ -1820,6 +1824,7 @@ serial8250_set_termios(struct uart_port 
- 			serial_outp(up, UART_FCR, UART_FCR_ENABLE_FIFO);
- 		}
- 		serial_outp(up, UART_FCR, fcr);		/* set fcr */
-+		up->fcr = fcr;
- 	}
- 	serial8250_set_mctrl(&up->port, up->port.mctrl);
- 	spin_unlock_irqrestore(&up->port.lock, flags);
-@@ -2140,6 +2145,7 @@ serial8250_console_write(struct console 
- 	struct uart_8250_port *up = &serial8250_ports[co->index];
- 	unsigned int ier;
- 	int i;
-+	int tx_loadsz;
- 
- 	/*
- 	 *	First save the UER then disable the interrupts
-@@ -2152,20 +2158,39 @@ serial8250_console_write(struct console 
- 		serial_out(up, UART_IER, 0);
- 
- 	/*
-+	 *	Check whether FIFO is enabled
-+	 */ 
-+	tx_loadsz = (up->fcr & UART_FCR_ENABLE_FIFO ? up->tx_loadsz : 1);
-+	/*
- 	 *	Now, do each character
- 	 */
--	for (i = 0; i < count; i++, s++) {
--		wait_for_xmitr(up);
-+	for (i = 0; i < count; ) {
-+		int	fifo;
- 
-+		wait_for_xmitr(up);
-+		fifo = tx_loadsz;
- 		/*
--		 *	Send the character out.
-+		 *	Send the character out using FIFO.
- 		 *	If a LF, also do CR...
- 		 */
--		serial_out(up, UART_TX, *s);
--		if (*s == 10) {
--			wait_for_xmitr(up);
--			serial_out(up, UART_TX, 13);
--		}
-+		do {
-+			serial_out(up, UART_TX, *s);
-+			fifo--;
-+			if (*s == 10) {
-+				if (fifo > 0) {
-+					serial_out(up, UART_TX, 13);
-+					fifo--;
-+				} else {
-+					/* No room to add CR */
-+					wait_for_xmitr(up);
-+					fifo = tx_loadsz;
-+					serial_out(up, UART_TX, 13);
-+					fifo--;
-+				}
-+			}
-+			i++;
-+			s++;
-+		} while (fifo > 0 && i < count);
- 	}
- 
- 	/*
+                           SASKEN BUSINESS DISCLAIMER
+This message may contain confidential, proprietary or legally Privileged information. In case you are not the original intended Recipient of the message, you must not, directly or indirectly, use, Disclose, distribute, print, or copy any part of this message and you are requested to delete it and inform the sender. Any views expressed in this message are those of the individual sender unless otherwise stated. Nothing contained in this message shall be construed as an offer or acceptance of any offer by Sasken Communication Technologies Limited ("Sasken") unless sent with that express intent and with due authority of Sasken. Sasken has taken enough precautions to prevent the spread of viruses. However the company accepts no liability for any damage caused by any virus transmitted by this email
+------=_NextPart_000_07EA_01C5B9E4.212D5BF0
+Content-Type: application/octet-stream;
+	name="isdndialin15.up"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="isdndialin15.up"
 
-------=_20050915142049_51394--
+#!/bin/sh=0A=
+#=0A=
+# don't forget to edit the files=0A=
+#     /etc/ppp/pap-secrets or=0A=
+#     /etc/ppp/chap-secrets=0A=
+#=0A=
+=0A=
+DEVICE=3D"ippp15"=0A=
+=0A=
+# additional for channel bundling:=0A=
+DEVICE1=3D"ippp14"=0A=
+DEVICE2=3D"ippp13"=0A=
+DEVICE3=3D"ippp12"=0A=
+=0A=
+VERSION=3D`cat /proc/version | awk '{ print $3 }' `=0A=
+=0A=
+isdnctrl addif  $DEVICE                 # Create new interface 'DEVICE'=0A=
+isdnctrl eaz $DEVICE B***               #Set local EAZ ..=0A=
+isdnctrl l2_prot $DEVICE hdlc           # for sync PPP: set Level 2 to =
+HDLC=0A=
+isdnctrl l3_prot $DEVICE trans          # not really necessary, 'trans' =
+is default=0A=
+isdnctrl encap $DEVICE syncppp          # encap the IP Pakets in PPP =
+frames=0A=
+isdnctrl huptimeout $DEVICE 300         # Hangup-Timeout is 300 sec. -> =
+5 min=0A=
+isdnctrl chargehup $DEVICE off          # Hangup before next Charge-Info=0A=
+isdnctrl secure $DEVICE off             # Accept only configured =
+phone-number=0A=
+=0A=
+# additional for channel bundling:=0A=
+isdnctrl addslave $DEVICE $DEVICE1      # Create new slave interface =
+'DEVICE1'=0A=
+isdnctrl eaz $DEVICE1 B***              # Set local EAZ ..=0A=
+isdnctrl l2_prot $DEVICE1 hdlc          # for sync PPP: set Level 2 to =
+HDLC=0A=
+isdnctrl l3_prot $DEVICE1 trans         # not really necessary, 'trans' =
+is default=0A=
+isdnctrl encap $DEVICE1 syncppp         # encap the IP Pakets in PPP =
+frames=0A=
+isdnctrl huptimeout $DEVICE1 300        # Hangup-Timeout is 300 sec. -> =
+5 min=0A=
+isdnctrl chargehup $DEVICE1 off         # Hangup before next Charge-Info=0A=
+isdnctrl secure $DEVICE1 off            #Accept only configured =
+phone-number=0A=
+=0A=
+=0A=
+isdnctrl addslave $DEVICE $DEVICE2      # Create new slave interface =
+'DEVICE1'=0A=
+isdnctrl eaz $DEVICE2 B***              # Set local EAZ ..=0A=
+isdnctrl l2_prot $DEVICE2 hdlc          # for sync PPP: set Level 2 to =
+HDLC=0A=
+isdnctrl l3_prot $DEVICE2 trans         # not really necessary, 'trans' =
+is default=0A=
+isdnctrl encap $DEVICE2 syncppp         # encap the IP Pakets in PPP =
+frames=0A=
+isdnctrl huptimeout $DEVICE2 300        # Hangup-Timeout is 300 sec. -> =
+5 min=0A=
+isdnctrl chargehup $DEVICE2 off         # Hangup before next Charge-Info=0A=
+isdnctrl secure $DEVICE2 off            # Accept only configured =
+phone-number=0A=
+=0A=
+=0A=
+isdnctrl addslave $DEVICE $DEVICE3      # Create new slave interface =
+'DEVICE1'=0A=
+isdnctrl eaz $DEVICE3 B***              # Set local EAZ ..=0A=
+isdnctrl l2_prot $DEVICE3 hdlc          # for sync PPP: set Level 2 to =
+HDLC=0A=
+isdnctrl l3_prot $DEVICE3 trans         # not really necessary, 'trans' =
+is default=0A=
+isdnctrl encap $DEVICE3 syncppp         # encap the IP Pakets in PPP =
+frames=0A=
+isdnctrl huptimeout $DEVICE3 300        # Hangup-Timeout is 300 sec. -> =
+5 min=0A=
+isdnctrl chargehup $DEVICE3 off         # Hangup before next Charge-Info=0A=
+isdnctrl secure $DEVICE3 off            # Accept only configured =
+phone-number=0A=
+=0A=
+=0A=
+ifconfig ippp15 10.11.16.33 pointopoint 10.11.16.34  =0A=
+#route add default $DEVICE=0A=
+#route add default gw 10.11.11.3=0A=
+=0A=
+ipppd /dev/ippp15 /dev/ippp14 /dev/ippp13 /dev/ippp12 file =
+/nn/etc/ppp/isdn/DialIn_ioptions/ioptions.ippp15 pidfile =
+/var/run/ipppd.ippp15.pid &=0A=
+=0A=
+=0A=
+
+------=_NextPart_000_07EA_01C5B9E4.212D5BF0
+Content-Type: application/octet-stream;
+	name="ioptions.ippp15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="ioptions.ippp15"
+
++mp=0A=
+noipdefault =0A=
+auth =0A=
++pap=0A=
++chap=0A=
+-ac=0A=
+mru 1500=0A=
+mtu 1500=0A=
+10.11.16.33:10.11.16.34=0A=
+lock=0A=
+defaultroute=0A=
+netmask 255.255.255.255=0A=
+=0A=
+
+------=_NextPart_000_07EA_01C5B9E4.212D5BF0--
 
 

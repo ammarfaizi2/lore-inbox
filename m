@@ -1,55 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932485AbVIOKaA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932125AbVIOKjg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932485AbVIOKaA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 06:30:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932579AbVIOKaA
+	id S932125AbVIOKjg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 06:39:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932579AbVIOKjg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 06:30:00 -0400
-Received: from ip57.73.1311O-CUD12K-02.ish.de ([62.143.73.57]:36554 "EHLO
-	metzlerbros.de") by vger.kernel.org with ESMTP id S932485AbVIOK37
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 06:29:59 -0400
-From: Ralph Metzler <rjkm@metzlerbros.de>
+	Thu, 15 Sep 2005 06:39:36 -0400
+Received: from warden3-p.diginsite.com ([208.147.64.186]:48635 "HELO
+	warden3.diginsite.com") by vger.kernel.org with SMTP
+	id S932125AbVIOKjf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 06:39:35 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: Chris Wright <chrisw@osdl.org>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Chuck Wolber <chuckw@quantumlinux.com>,
+       Linus Torvalds <torvalds@osdl.org>, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk
+X-X-Sender: dlang@dlang.diginsite.com
+Date: Thu, 15 Sep 2005 03:39:21 -0700 (PDT)
+X-X-Sender: dlang@dlang.diginsite.com
+Subject: Re: [PATCH 04/11] hpt366: write the full 4 bytes of ROM address,
+ not just low 1 byte
+In-Reply-To: <20050915061136.GZ7762@shell0.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.62.0509150335520.9384@qynat.qvtvafvgr.pbz>
+References: <20050915010343.577985000@localhost.localdomain>
+ <20050915010404.660502000@localhost.localdomain>
+ <Pine.LNX.4.62.0509141917070.8469@qynat.qvtvafvgr.pbz>
+ <20050915061136.GZ7762@shell0.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17193.19739.213773.593444@localhost.localdomain>
-Date: Thu, 15 Sep 2005 12:29:47 +0200
-To: Manu Abraham <manu@linuxtv.org>
-Cc: Rolf Eike Beer <eike-kernel@sf-tec.de>, Jiri Slaby <jirislaby@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: PCI driver
-In-Reply-To: <4329362A.1030201@linuxtv.org>
-References: <4327EE94.2040405@kromtek.com>
-	<200509150843.33849@bilbo.math.uni-mannheim.de>
-	<4329269E.1060003@linuxtv.org>
-	<200509151018.20322@bilbo.math.uni-mannheim.de>
-	<4329362A.1030201@linuxtv.org>
-X-Mailer: VM 7.17 under 21.4 (patch 17) "Jumbo Shrimp" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Manu,
+On Wed, 14 Sep 2005, Chris Wright wrote:
 
-Manu Abraham writes:
- > [  102.261264] mantis_pci_probe: Got a device
- > [  102.262852] mantis_pci_probe: We got an IRQ
- > [  102.264392] mantis_pci_probe: We finally enabled the device
- > [  102.266020] Mantis Rev 1, irq: 23, latency: 32
- > [  102.266118]          memory: 0xefeff000, mmio: f9218000
- > [  102.269162] Trying to free free IRQ23
- > [  110.297341] mantis_pci_remove: Removing -->Mantis irq: 23,         
- > latency: 32
- > [  110.297344]  memory: 0xefeff000, mmio: 0xf9218000
- > [  110.301326] Trying to free free IRQ23
- > [  110.303445] Trying to free nonexistent resource <efeff000-efefffff>
+> * David Lang (dlang@digitalinsight.com) wrote:
+>> didn't Linus find similar bugs in a couple of the other hpt drivers as
+>> well? if so can they be fixed at the same time?
+>
+> Yes, and they're in this series.  This patch does:
+>
+> drivers/ide/pci/hpt366.c
+>
+> And patch 10/11 does:
+>
+> drivers/ide/pci/cmd64x.c
+> drivers/ide/pci/hpt34x.c
+>
+> Additionally, the sungem (5/11) and sunhme (6/11) changes are fallout
+> from PCI_ROM fixes.
+>
+> I believe the remainder of the PCI_ROM related patches were primarily
+> for consistency.
 
+sorry about the noise, I read through all the descriptions looking for 
+these, but I hadn't read all the patches.
 
-I think you should call pci_enable_device() before request_irq, etc. 
-AFAIK, the pci_enable_device() can change resources like IRQ.
-That's probably what causes these errors. Just print out the irq 
-number before and after pci_enable_device() to check if that's the 
-problem.
+David Lang
 
-
-Ralph
+P.S. thanks to the kernel team for catching this before I got a chance to 
+install .13 on my system that has a hpt374 controller :-)
+-- 
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare

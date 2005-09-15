@@ -1,78 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932579AbVIOKps@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932593AbVIOKq5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932579AbVIOKps (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 06:45:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932586AbVIOKps
+	id S932593AbVIOKq5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 06:46:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932592AbVIOKq5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 06:45:48 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:15073 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP id S932579AbVIOKps
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 06:45:48 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Valdis.Kletnieks@vt.edu
-Cc: marekw1977@yahoo.com.au, linux-kernel@vger.kernel.org
-X-X-Sender: dlang@dlang.diginsite.com
-Date: Thu, 15 Sep 2005 03:44:24 -0700 (PDT)
-X-X-Sender: dlang@dlang.diginsite.com
-Subject: Re: Automatic Configuration of a Kernel 
-In-Reply-To: <200509150618.j8F6I9ji020578@turing-police.cc.vt.edu>
-Message-ID: <Pine.LNX.4.62.0509150341290.9384@qynat.qvtvafvgr.pbz>
-References: <20050914223836.53814.qmail@web51011.mail.yahoo.com>
- <Pine.LNX.4.62.0509141900280.8469@qynat.qvtvafvgr.pbz>
- <1126753444.13893.123.camel@mindpipe><200509151418.13927.marekw1977@yahoo.com.au>
- <200509150618.j8F6I9ji020578@turing-police.cc.vt.edu>
+	Thu, 15 Sep 2005 06:46:57 -0400
+Received: from penta.pentaserver.com ([216.74.97.66]:7067 "EHLO
+	penta.pentaserver.com") by vger.kernel.org with ESMTP
+	id S932593AbVIOKq4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 06:46:56 -0400
+Message-ID: <43294E68.8080308@linuxtv.org>
+Date: Thu, 15 Sep 2005 14:35:20 +0400
+From: Manu Abraham <manu@linuxtv.org>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Ralph Metzler <rjkm@metzlerbros.de>
+CC: Rolf Eike Beer <eike-kernel@sf-tec.de>, Jiri Slaby <jirislaby@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: PCI driver
+References: <4327EE94.2040405@kromtek.com>	<200509150843.33849@bilbo.math.uni-mannheim.de>	<4329269E.1060003@linuxtv.org>	<200509151018.20322@bilbo.math.uni-mannheim.de>	<4329362A.1030201@linuxtv.org> <17193.19739.213773.593444@localhost.localdomain>
+In-Reply-To: <17193.19739.213773.593444@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Antivirus-Scanner: Clean mail though you should still use an Antivirus
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - penta.pentaserver.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - linuxtv.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Sep 2005 Valdis.Kletnieks@vt.edu wrote:
+Ralph Metzler wrote:
 
-> On Thu, 15 Sep 2005 14:18:13 +1000, Marek W said:
+>Hi Manu,
 >
->> Not so much the kernel. When compiling the kernel I'd prefer not to waste time
->> and space compiling the 100+ modules I will never ever use on my laptop.
+>  
 >
-> It's actually  a lot worse than that - here's my minimized custom kernel that
-> drives everything on my laptop and then some, and a recent Fedora kernel:
->
-> [/lib/modules]2 find 2.6.13-mm1/kernel/drivers -name '*.ko' | wc -l
-> 37
-> [/lib/modules]2 find 2.6.12-1.1400_FC5/kernel/drivers/ -name '*.ko' | wc -l
-> 832
->
-> (OK, so I *do* have a few builtins that Fedora builds as modules. That's gonna
-> change the numbers by half a dozen or so...)
->
->>                                                                          I'd
->> prefer for something to select the modules necessary for my hardware. I can't
->> afford the time to keep up to date with that's new and what isn't, what has
->> changed, what has been superseded, which module works with which device,
->> chipset even, etc...
->
-> I'm of the opinion that if you don't have that much time, you should be using a
-> distro kernel where somebody *else* is taking the time.  If you're the type
-> that builds their own kernel, the *last* thing you want is a tool glossing over
-> the fact that a module has been superceded.  Who's going to take care of the
-> matching changes for /etc/modprobe.conf and similar userspace changes, and
-> other stuff like that? (I figure if 'make oldconfig' asks a question, I should
-> take notice, and any userspace changes that don't get made are my fault - and
-> if 'make oldconfig' switches drivers on me without asking, that's a *bug* that
-> lkml will hear about.. ;)
+Hello Ralph,
 
-sometimes tracking down exactly what options need to be enabled to let you 
-at other options that apply to your system can be quite a chore, a tool to 
-start from no .config file and get you one that is tailered to your system 
-could be useful.
+It's been a long time since heard your voice. I thought you had been 
+damn busy.
+Nice to hear from you.
 
-I agree that make oldconfig shouldn't do this type of thing, but that 
-requires that youhave an existing .config for the box. if you do a make 
-autoconfig you are explicitly asking the software to do this for you.
+>Manu Abraham writes:
+> > [  102.261264] mantis_pci_probe: Got a device
+> > [  102.262852] mantis_pci_probe: We got an IRQ
+> > [  102.264392] mantis_pci_probe: We finally enabled the device
+> > [  102.266020] Mantis Rev 1, irq: 23, latency: 32
+> > [  102.266118]          memory: 0xefeff000, mmio: f9218000
+> > [  102.269162] Trying to free free IRQ23
+> > [  110.297341] mantis_pci_remove: Removing -->Mantis irq: 23,         
+> > latency: 32
+> > [  110.297344]  memory: 0xefeff000, mmio: 0xf9218000
+> > [  110.301326] Trying to free free IRQ23
+> > [  110.303445] Trying to free nonexistent resource <efeff000-efefffff>
+>
+>
+>I think you should call pci_enable_device() before request_irq, etc. 
+>  
+>
 
-David Lang
+Sure i will try that out..
+
+>AFAIK, the pci_enable_device() can change resources like IRQ.
+>That's probably what causes these errors. Just print out the irq 
+>number before and after pci_enable_device() to check if that's the 
+>problem.
+>
+>  
+>
+
+I will check this out. I will come back on this soon.
 
 
--- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
+Regards,
+Manu
+
+

@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030365AbVIOGyS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030357AbVIOGyT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030365AbVIOGyS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 02:54:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030370AbVIOGx4
+	id S1030357AbVIOGyT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 02:54:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030384AbVIOGxy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 02:53:56 -0400
-Received: from smtp106.sbc.mail.re2.yahoo.com ([68.142.229.99]:41584 "HELO
-	smtp106.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1030357AbVIOGvl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 02:53:54 -0400
+Received: from smtp105.sbc.mail.re2.yahoo.com ([68.142.229.100]:49764 "HELO
+	smtp105.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1030370AbVIOGvl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 15 Sep 2005 02:51:41 -0400
-Message-Id: <20050915064943.124653000.dtor_core@ameritech.net>
+Message-Id: <20050915064943.240901000.dtor_core@ameritech.net>
 References: <20050915064552.836273000.dtor_core@ameritech.net>
-Date: Thu, 15 Sep 2005 01:45:55 -0500
+Date: Thu, 15 Sep 2005 01:45:56 -0500
 From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: linux-kernel@vger.kernel.org
 Cc: Andrew Morton <akpm@osdl.org>
@@ -22,66 +22,63 @@ Greg KH <gregkh@suse.de>,
 Kay Sievers <kay.sievers@vrfy.org>,
 Vojtech Pavlik <vojtech@suse.cz>,
 Hannes Reinecke <hare@suse.de>
-Subject: [patch 03/28] Driver core: allow nesting classes
-Content-Disposition: inline; filename=nested-classes.patch
+Subject: [patch 04/28] Driver core: make parent class define subsystem
+Content-Disposition: inline; filename=parent-class-defines-subsystem.patch
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-Driver core: allow nesting classes
+Driver core: make parent class define subsystem for its children
 
-This will allow unclutter /sys/classes directory, combining
-classes related to the same subsystem "under one roof".
+When there is a hierarchy of classes make parent class define
+subsystem as reported in hotplug notifications. The full class
+path is reported in a new CLASS environment variable.
 
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
 
- drivers/base/class.c   |    8 +++++++-
- include/linux/device.h |    1 +
- 2 files changed, 8 insertions(+), 1 deletion(-)
+ drivers/base/class.c |   14 ++++++++++++--
+ 1 files changed, 12 insertions(+), 2 deletions(-)
 
 Index: work/drivers/base/class.c
 ===================================================================
 --- work.orig/drivers/base/class.c
 +++ work/drivers/base/class.c
-@@ -135,6 +135,7 @@ static void remove_class_attrs(struct cl
- 
- int class_register(struct class * cls)
+@@ -337,25 +337,35 @@ static int class_hotplug_filter(struct k
+ static const char *class_hotplug_name(struct kset *kset, struct kobject *kobj)
  {
-+	struct class *parent;
- 	int error;
+ 	struct class_device *class_dev = to_class_dev(kobj);
++	struct class *class = class_dev->class;
  
- 	pr_debug("device class '%s': registering\n", cls->name);
-@@ -146,7 +147,11 @@ int class_register(struct class * cls)
- 	if (error)
- 		return error;
- 
--	subsys_set_kset(cls, class_subsys);
-+	parent = class_get(cls->parent);
-+	if (parent)
-+		subsys_set_kset(cls, parent->subsys);
-+	else
-+		subsys_set_kset(cls, class_subsys);
- 
- 	error = subsystem_register(&cls->subsys);
- 	if (!error) {
-@@ -161,6 +166,7 @@ void class_unregister(struct class * cls
- 	pr_debug("device class '%s': unregistering\n", cls->name);
- 	remove_class_attrs(cls);
- 	subsystem_unregister(&cls->subsys);
-+	class_put(cls->parent);
+-	return class_dev->class->name;
++	while (class->parent)
++		class = class->parent;
++
++	return class->name;
  }
  
- static void class_create_release(struct class *cls)
-Index: work/include/linux/device.h
-===================================================================
---- work.orig/include/linux/device.h
-+++ work/include/linux/device.h
-@@ -157,6 +157,7 @@ struct class {
- 	struct module		* owner;
+ static int class_hotplug(struct kset *kset, struct kobject *kobj, char **envp,
+ 			 int num_envp, char *buffer, int buffer_size)
+ {
+ 	struct class_device *class_dev = to_class_dev(kobj);
++	const char *path;
+ 	int i = 0;
+ 	int length = 0;
+ 	int retval = 0;
  
- 	struct subsystem	subsys;
-+	struct class		* parent;
- 	struct list_head	children;
- 	struct list_head	interfaces;
- 	struct semaphore	sem;	/* locks both the children and interfaces lists */
+ 	pr_debug("%s - name = %s\n", __FUNCTION__, class_dev->class_id);
+ 
++	path = kobject_get_path(&class_dev->class->subsys.kset.kobj, GFP_KERNEL);
++	add_hotplug_env_var(envp, num_envp, &i, buffer, buffer_size,
++			    &length, "CLASS=%s", path);
++	kfree(path);
++
+ 	if (class_dev->dev) {
+ 		/* add physical device, backing this device  */
+ 		struct device *dev = class_dev->dev;
+-		char *path = kobject_get_path(&dev->kobj, GFP_KERNEL);
+ 
++		path = kobject_get_path(&dev->kobj, GFP_KERNEL);
+ 		add_hotplug_env_var(envp, num_envp, &i, buffer, buffer_size,
+ 				    &length, "PHYSDEVPATH=%s", path);
+ 		kfree(path);
 

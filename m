@@ -1,142 +1,225 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030450AbVIOHdi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030460AbVIOHdk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030450AbVIOHdi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 03:33:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030458AbVIOHdM
+	id S1030460AbVIOHdk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 03:33:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030447AbVIOHdI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 03:33:12 -0400
-Received: from smtp107.sbc.mail.re2.yahoo.com ([68.142.229.98]:5039 "HELO
-	smtp107.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1030450AbVIOHch (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 03:32:37 -0400
-Message-Id: <20050915070304.373499000.dtor_core@ameritech.net>
+	Thu, 15 Sep 2005 03:33:08 -0400
+Received: from smtp112.sbc.mail.re2.yahoo.com ([68.142.229.93]:15194 "HELO
+	smtp112.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1030460AbVIOHcj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 03:32:39 -0400
+Message-Id: <20050915070303.355810000.dtor_core@ameritech.net>
 References: <20050915070131.813650000.dtor_core@ameritech.net>
-Date: Thu, 15 Sep 2005 02:01:49 -0500
+Date: Thu, 15 Sep 2005 02:01:43 -0500
 From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: linux-kernel@vger.kernel.org
 Cc: Andrew Morton <akpm@osdl.org>, Greg KH <gregkh@suse.de>,
        Kay Sievers <kay.sievers@vrfy.org>, Vojtech Pavlik <vojtech@suse.cz>,
        Hannes Reinecke <hare@suse.de>
-Subject: [patch 18/28] Input: convert sound/ppc/beep to dynamic input_dev allocation
-Content-Disposition: inline; filename=input-dynalloc-sound-ppc-beep.patch
+Subject: [patch 12/28] Input: convert onetouch to dynamic input_dev allocation
+Content-Disposition: inline; filename=input-dynalloc-onetouch.patch
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Input: convert sound/ppc/beep to dynamic input_dev allocation
+Input: convert onetouch to dynamic input_dev allocation
 
 This is required for input_dev sysfs integration
 
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
 
- sound/ppc/beep.c |   68 ++++++++++++++++++++++++++++++-------------------------
- 1 files changed, 38 insertions(+), 30 deletions(-)
+ drivers/usb/storage/onetouch.c |  105 ++++++++++++++++++++---------------------
+ 1 files changed, 53 insertions(+), 52 deletions(-)
 
-Index: work/sound/ppc/beep.c
+Index: work/drivers/usb/storage/onetouch.c
 ===================================================================
---- work.orig/sound/ppc/beep.c
-+++ work/sound/ppc/beep.c
-@@ -31,14 +31,14 @@
- #include "pmac.h"
+--- work.orig/drivers/usb/storage/onetouch.c
++++ work/drivers/usb/storage/onetouch.c
+@@ -5,7 +5,7 @@
+  *	Copyright (c) 2005 Nick Sillik <n.sillik@temple.edu>
+  *
+  * Initial work by:
+- * 	Copyright (c) 2003 Erik Thyren <erth7411@student.uu.se>
++ *	Copyright (c) 2003 Erik Thyren <erth7411@student.uu.se>
+  *
+  * Based on usbmouse.c (Vojtech Pavlik) and xpad.c (Marko Friedemann)
+  *
+@@ -46,7 +46,7 @@ void onetouch_release_input(void *onetou
+ struct usb_onetouch {
+ 	char name[128];
+ 	char phys[64];
+-	struct input_dev dev;	/* input device interface */
++	struct input_dev *dev;	/* input device interface */
+ 	struct usb_device *udev;	/* usb device */
  
- struct snd_pmac_beep {
--	int running;	/* boolean */
--	int volume;	/* mixer volume: 0-100 */
-+	int running;		/* boolean */
-+	int volume;		/* mixer volume: 0-100 */
- 	int volume_play;	/* currently playing volume */
- 	int hz;
- 	int nsamples;
- 	short *buf;		/* allocated wave buffer */
- 	dma_addr_t addr;	/* physical address of buffer */
--	struct input_dev dev;
-+	struct input_dev *dev;
- };
- 
- /*
-@@ -212,47 +212,55 @@ static snd_kcontrol_new_t snd_pmac_beep_
- int __init snd_pmac_attach_beep(pmac_t *chip)
+ 	struct urb *irq;	/* urb for interrupt in report */
+@@ -58,7 +58,7 @@ static void usb_onetouch_irq(struct urb 
  {
- 	pmac_beep_t *beep;
--	int err;
+ 	struct usb_onetouch *onetouch = urb->context;
+ 	signed char *data = onetouch->data;
+-	struct input_dev *dev = &onetouch->dev;
++	struct input_dev *dev = onetouch->dev;
+ 	int status;
+ 
+ 	switch (urb->status) {
+@@ -74,11 +74,9 @@ static void usb_onetouch_irq(struct urb 
+ 	}
+ 
+ 	input_regs(dev, regs);
 -
--	beep = kmalloc(sizeof(*beep), GFP_KERNEL);
--	if (! beep)
--		return -ENOMEM;
+-	input_report_key(&onetouch->dev, ONETOUCH_BUTTON,
+-			 data[0] & 0x02);
 -
--	memset(beep, 0, sizeof(*beep));
--	beep->buf = dma_alloc_coherent(&chip->pdev->dev, BEEP_BUFLEN * 4,
--					&beep->addr, GFP_KERNEL);
--
--	beep->dev.evbit[0] = BIT(EV_SND);
--	beep->dev.sndbit[0] = BIT(SND_BELL) | BIT(SND_TONE);
--	beep->dev.event = snd_pmac_beep_event;
--	beep->dev.private = chip;
++	input_report_key(dev, ONETOUCH_BUTTON, data[0] & 0x02);
+ 	input_sync(dev);
++
+ resubmit:
+ 	status = usb_submit_urb (urb, SLAB_ATOMIC);
+ 	if (status)
+@@ -113,8 +111,8 @@ int onetouch_connect_input(struct us_dat
+ 	struct usb_host_interface *interface;
+ 	struct usb_endpoint_descriptor *endpoint;
+ 	struct usb_onetouch *onetouch;
 +	struct input_dev *input_dev;
-+	void *dmabuf;
-+	int err = -ENOMEM;
-+
-+	beep = kzalloc(sizeof(*beep), GFP_KERNEL);
-+	dmabuf = dma_alloc_coherent(&chip->pdev->dev, BEEP_BUFLEN * 4,
-+				    &beep->addr, GFP_KERNEL);
+ 	int pipe, maxp;
+-	char path[64];
+ 
+ 	interface = ss->pusb_intf->cur_altsetting;
+ 
+@@ -122,62 +120,62 @@ int onetouch_connect_input(struct us_dat
+ 		return -ENODEV;
+ 
+ 	endpoint = &interface->endpoint[2].desc;
+-	if(!(endpoint->bEndpointAddress & USB_DIR_IN))
++	if (!(endpoint->bEndpointAddress & USB_DIR_IN))
+ 		return -ENODEV;
+-	if((endpoint->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK)
++	if ((endpoint->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK)
+ 			!= USB_ENDPOINT_XFER_INT)
+ 		return -ENODEV;
+ 
+ 	pipe = usb_rcvintpipe(udev, endpoint->bEndpointAddress);
+ 	maxp = usb_maxpacket(udev, pipe, usb_pipeout(pipe));
+ 
+-	if (!(onetouch = kcalloc(1, sizeof(struct usb_onetouch), GFP_KERNEL)))
+-		return -ENOMEM;
++	onetouch = kzalloc(sizeof(struct usb_onetouch), GFP_KERNEL);
 +	input_dev = input_allocate_device();
-+	if (!beep || !dmabuf || !input_dev)
-+		goto fail;
++	if (!onetouch || !input_dev)
++		goto fail1;
  
- 	/* FIXME: set more better values */
--	beep->dev.name = "PowerMac Beep";
--	beep->dev.phys = "powermac/beep";
--	beep->dev.id.bustype = BUS_ADB;
--	beep->dev.id.vendor = 0x001f;
--	beep->dev.id.product = 0x0001;
--	beep->dev.id.version = 0x0100;
-+	input_dev->name = "PowerMac Beep";
-+	input_dev->phys = "powermac/beep";
-+	input_dev->id.bustype = BUS_ADB;
-+	input_dev->id.vendor = 0x001f;
-+	input_dev->id.product = 0x0001;
-+	input_dev->id.version = 0x0100;
-+
-+	input_dev->evbit[0] = BIT(EV_SND);
-+	input_dev->sndbit[0] = BIT(SND_BELL) | BIT(SND_TONE);
-+	input_dev->event = snd_pmac_beep_event;
-+	input_dev->private = chip;
-+	input_dev->cdev.dev = &chip->pdev->dev;
- 
-+	beep->dev = input_dev;
-+	beep->buf = dmabuf;
- 	beep->volume = BEEP_VOLUME;
- 	beep->running = 0;
--	if ((err = snd_ctl_add(chip->card, snd_ctl_new1(&snd_pmac_beep_mixer, chip))) < 0) {
--		kfree(beep->buf);
--		kfree(beep);
--		return err;
+ 	onetouch->data = usb_buffer_alloc(udev, ONETOUCH_PKT_LEN,
+ 					  SLAB_ATOMIC, &onetouch->data_dma);
+-	if (!onetouch->data){
+-		kfree(onetouch);
+-		return -ENOMEM;
 -	}
-+
-+	err = snd_ctl_add(chip->card, snd_ctl_new1(&snd_pmac_beep_mixer, chip));
-+	if (err < 0)
-+		goto fail;
++	if (!onetouch->data)
++		goto fail1;
  
- 	chip->beep = beep;
--	input_register_device(&beep->dev);
-+	input_register_device(beep->dev);
+ 	onetouch->irq = usb_alloc_urb(0, GFP_KERNEL);
+-	if (!onetouch->irq){
+-		kfree(onetouch);
+-		usb_buffer_free(udev, ONETOUCH_PKT_LEN,
+-				onetouch->data, onetouch->data_dma);
+-		return -ENODEV;
+-	}
+-
++	if (!onetouch->irq)
++		goto fail2;
+ 
+ 	onetouch->udev = udev;
+-
+-	set_bit(EV_KEY, onetouch->dev.evbit);
+-	set_bit(ONETOUCH_BUTTON, onetouch->dev.keybit);
+-	clear_bit(0, onetouch->dev.keybit);
+-
+-	onetouch->dev.private = onetouch;
+-	onetouch->dev.open = usb_onetouch_open;
+-	onetouch->dev.close = usb_onetouch_close;
+-
+-	usb_make_path(udev, path, sizeof(path));
+-	sprintf(onetouch->phys, "%s/input0", path);
+-
+-	onetouch->dev.name = onetouch->name;
+-	onetouch->dev.phys = onetouch->phys;
+-
+-	usb_to_input_id(udev, &onetouch->dev.id);
+-
+-	onetouch->dev.dev = &udev->dev;
++	onetouch->dev = input_dev;
+ 
+ 	if (udev->manufacturer)
+-		strcat(onetouch->name, udev->manufacturer);
+-	if (udev->product)
+-		sprintf(onetouch->name, "%s %s", onetouch->name,
+-			udev->product);
++		strlcpy(onetouch->name, udev->manufacturer,
++			sizeof(onetouch->name));
++	if (udev->product) {
++		if (udev->manufacturer)
++			strlcat(onetouch->name, " ", sizeof(onetouch->name));
++		strlcat(onetouch->name, udev->product, sizeof(onetouch->name));
++	}
++
+ 	if (!strlen(onetouch->name))
+-		sprintf(onetouch->name, "Maxtor Onetouch %04x:%04x",
+-			onetouch->dev.id.vendor, onetouch->dev.id.product);
++		snprintf(onetouch->name, sizeof(onetouch->name),
++			 "Maxtor Onetouch %04x:%04x",
++			 le16_to_cpu(udev->descriptor.idVendor),
++			 le16_to_cpu(udev->descriptor.idProduct));
++
++	usb_make_path(udev, onetouch->phys, sizeof(onetouch->phys));
++	strlcat(onetouch->phys, "/input0", sizeof(onetouch->phys));
++
++	input_dev->name = onetouch->name;
++	input_dev->phys = onetouch->phys;
++	usb_to_input_id(udev, &input_dev->id);
++	input_dev->cdev.dev = &udev->dev;
++
++	set_bit(EV_KEY, input_dev->evbit);
++	set_bit(ONETOUCH_BUTTON, input_dev->keybit);
++	clear_bit(0, input_dev->keybit);
++
++	input_dev->private = onetouch;
++	input_dev->open = usb_onetouch_open;
++	input_dev->close = usb_onetouch_close;
+ 
+ 	usb_fill_int_urb(onetouch->irq, udev, pipe, onetouch->data,
+ 			 (maxp > 8 ? 8 : maxp),
+@@ -188,10 +186,15 @@ int onetouch_connect_input(struct us_dat
+ 	ss->extra_destructor = onetouch_release_input;
+ 	ss->extra = onetouch;
+ 
+-	input_register_device(&onetouch->dev);
+-	printk(KERN_INFO "usb-input: %s on %s\n", onetouch->dev.name, path);
++	input_register_device(onetouch->dev);
  
  	return 0;
 +
-+ fail:	input_free_device(input_dev);
-+	kfree(dmabuf);
-+	kfree(beep);
-+	return err;
++ fail2:	usb_buffer_free(udev, ONETOUCH_PKT_LEN,
++			onetouch->data, onetouch->data_dma);
++ fail1:	kfree(onetouch);
++	input_free_device(input_dev);
++	return -ENOMEM;
  }
  
- void snd_pmac_detach_beep(pmac_t *chip)
- {
- 	if (chip->beep) {
--		input_unregister_device(&chip->beep->dev);
-+		input_unregister_device(chip->beep->dev);
- 		dma_free_coherent(&chip->pdev->dev, BEEP_BUFLEN * 4,
- 				  chip->beep->buf, chip->beep->addr);
- 		kfree(chip->beep);
+ void onetouch_release_input(void *onetouch_)
+@@ -200,11 +203,9 @@ void onetouch_release_input(void *onetou
+ 
+ 	if (onetouch) {
+ 		usb_kill_urb(onetouch->irq);
+-		input_unregister_device(&onetouch->dev);
++		input_unregister_device(onetouch->dev);
+ 		usb_free_urb(onetouch->irq);
+ 		usb_buffer_free(onetouch->udev, ONETOUCH_PKT_LEN,
+ 				onetouch->data, onetouch->data_dma);
+-		printk(KERN_INFO "usb-input: deregistering %s\n",
+-				onetouch->dev.name);
+ 	}
+ }
 

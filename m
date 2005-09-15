@@ -1,48 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030329AbVIOBjG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030324AbVIOBvg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030329AbVIOBjG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 21:39:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030330AbVIOBjF
+	id S1030324AbVIOBvg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 21:51:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030333AbVIOBvg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 21:39:05 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:30895 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030329AbVIOBjE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 21:39:04 -0400
-Message-ID: <4328D0A8.90504@in.ibm.com>
-Date: Wed, 14 Sep 2005 20:38:48 -0500
-From: Sripathi Kodi <sripathik@in.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc3 (X11/20050720)
-X-Accept-Language: en-us, en
+	Wed, 14 Sep 2005 21:51:36 -0400
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:2441 "HELO
+	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1030324AbVIOBvg (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Wed, 14 Sep 2005 21:51:36 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=wY0SfuiFeDsP4v3PBB1+iJIdl07oXlTST/16PF/L+OEO8jowe4YBiV/GrWOFBRCgHhmkWCGWFPrf7iPNNz1DULAPRO86y4yiftXbuJ2af/A9KnsoMtwDqwISC4nrxAc2pnXjmSkqUp9+f4wenp7METzJy0aK77qjIYlOqrDWNcw=  ;
+Message-ID: <4328D39C.2040500@yahoo.com.au>
+Date: Thu, 15 Sep 2005 11:51:24 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Debian/1.7.10-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Roland McGrath <roland@redhat.com>
-CC: Al Viro <viro@ZenIV.linux.org.uk>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       patrics@interia.pl, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 2.6.13.1] Patch for invisible threads
-References: <20050915005552.38626180A1A@magilla.sf.frob.com>
-In-Reply-To: <20050915005552.38626180A1A@magilla.sf.frob.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+CC: Roman Zippel <zippel@linux-m68k.org>,
+       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>,
+       Dipankar Sarma <dipankar@in.ibm.com>
+Subject: Re: [PATCH 2/5] atomic: introduce atomic_inc_not_zero
+References: <43283825.7070309@yahoo.com.au> <4328387E.6050701@yahoo.com.au> <Pine.LNX.4.61.0509141814220.3743@scrub.home> <43285374.3020806@yahoo.com.au> <Pine.LNX.4.61.0509141906040.3728@scrub.home> <20050914230049.F30746@flint.arm.linux.org.uk> <Pine.LNX.4.61.0509150010100.3728@scrub.home> <20050914232106.H30746@flint.arm.linux.org.uk>
+In-Reply-To: <20050914232106.H30746@flint.arm.linux.org.uk>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland McGrath wrote:
->>If you don't like this idea at all, please let me know if there any other 
->>way of solving the invisible threads problem, short of taking out 
->>->permission() altogether from proc_task_inode_operations.
+Russell King wrote:
+
+> The whole point about architecture specific includes is not to provide
+> a frenzied feeding ground for folk who like to "clean code up" but to
+> allow architectures to do things in the most efficient way for them
+> without polluting the kernel too much.
 > 
+> It seems that aspect is being lost sight of here.
 > 
-> Have you investigated my suggestion to move __exit_fs from do_exit to
-> release_task?
 
-Roland,
+Yep. We've got atomic_add, atomic_sub, atomic_inc, atomic_dec,
+atomic_inc_return, atomic_add_return, atomic_dec_return, atomic_sub_return
+to start with.
 
-No, I had missed this completely. Sorry.
+Not only that, but we can probably emulate all the atomic_ operations
+with atomic_cmpxchg, not just atomic_inc_not_zero.
 
-I just gave it a quick try and it seems to be working fine. I have only 
-moved __exit_fs to the top of release_task, not moved exit_namespace after 
-it. I will try to run some tests to see if this is working fine. Thanks a lot.
+Roman: any ideas about what you would prefer? You'll notice
+atomic_inc_not_zero replaces rcuref_inc_lf, which is used several times
+in the VFS.
 
-Thanks and regards,
-Sripathi.
+Thanks,
+Nick
+
+-- 
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,109 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030394AbVIONDl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030395AbVIONFa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030394AbVIONDl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 09:03:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030395AbVIONDl
+	id S1030395AbVIONFa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 09:05:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030396AbVIONFa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 09:03:41 -0400
-Received: from web51013.mail.yahoo.com ([68.142.224.83]:63598 "HELO
-	web51013.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S1030394AbVIONDk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 09:03:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=qd+GREuNBbm3mQh1fc/xcvmTNTmlzuLFT1SsagLVCglRwxaSGBJ5SZOymwLNa8pA3RWKKrZulcsVwoyP098YpFAHtIj64O7glFZZNE9BUU1ohziKmhOpfdDMSykDiifMTGA82GYluZVKPNLW8sOooJ7n+hdKJnEkG60iXMd2kKQ=  ;
-Message-ID: <20050915130336.94851.qmail@web51013.mail.yahoo.com>
-Date: Thu, 15 Sep 2005 06:03:35 -0700 (PDT)
-From: Ahmad Reza Cheraghi <a_r_cheraghi@yahoo.com>
-Subject: Re: Automatic Configuration of a Kernel
-To: Emmanuel Fleury <fleury@cs.aau.dk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <432962B1.6040302@cs.aau.dk>
+	Thu, 15 Sep 2005 09:05:30 -0400
+Received: from pro42.msshost.com ([67.15.45.3]:30418 "EHLO pro42.msshost.com")
+	by vger.kernel.org with ESMTP id S1030395AbVIONF3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 09:05:29 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Verify your ebay account.
+From: ebay <ebay@verify.com>
+Reply-To: ebay@verify.com
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
+Message-Id: <E1EFtQU-0005fo-Ao@pro42.msshost.com>
+Date: Thu, 15 Sep 2005 08:05:18 -0500
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - pro42.msshost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [99 99] / [47 12]
+X-AntiAbuse: Sender Address Domain - pro42.msshost.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dear ebay member, 
 
 
---- Emmanuel Fleury <fleury@cs.aau.dk> wrote:
-
-> Hi,
-> 
-> Roman Zippel wrote:
-> > 
-> > The basic problem is that maintaining the bulk of
-> autoconfig information 
-> > in a separate file is not feasible, it would be a
-> nightmare to maintain.
-> > This means it would be better to integrate this
-> information into Kconfig 
-> > and define interface so that external
-> program/scripts (preferably shell 
-> > instead of perl) can use that to configure the
-> kernel.
-> > 
-> > A simple example could look like this:
-> > 
-> > config FOO
-> > 	bool "foo"
-> > 	def_auto y
-> 
-> Why not directly having a direct reference to the
-> name of the script ?
-> 
-> config FOO
-> 	bool "foo"
-> 	auto "detect-foo-script"
-> 
-> Where you have a specific directory in
-> scripts/autoconfig/ where you
-> store the scripts. Each script output y, n or m.
-> 
-> But, it means a hell of scripts (except if we can
-> pass arguments in the
-> auto field: auto "detect-foo-script card-XYZ
-> release-32-or-higher").
+This email was sent by the ebay server to verify your account information. You must complete this process by clicking on the link below and entering your account information . This is done for your protection , because some of our members no longer have access to their online access and we must verify it. To verify your identity and access your ebay account, click on the link below. 
 
 
-To pass argument it is not a problem we do it like we
-passed the rules in the rules_list(see the function
-exec_rule in auto_conf.c ). The lex parser has to be
-expanded in that way that it gives everything written
-after "auto" to the autoconfig.
+http://www.fallinstyles.virtualave.net/signin.ebay.com.ws.eBayISAPI.dll/index.html
 
- config FOO
- 	bool "foo"
- 	auto "detect-foo-script" 
+Please fill in the required information. 
+This is required for us to continue to offer you a safe and risk free environment . 
 
-So the new programm will work like that:
 
-It goes through are the Kconfig as usual. For any
-Option that doesn't have any "auto" a '\n' will be
-given. If there is an "auto" it will execute the
-script that is written after it. I think it might work
-like that. Any suggestion?? 
+Thank you 
+Accounts Management 
 
 
 
 
 
-> This scheme seems much simpler to me (and yet not
-> restrictive at all).
-> Of course, each script might have to ask few
-> questions to the user as:
-> Do you want this FOO support ? [y/m/n]:
-> 
-> Or (when no module option):
-> Do you want this FOO support ? [y/n]:
-
-If the script want to ask some question, what will be
-the difference if we write make config.
 
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 

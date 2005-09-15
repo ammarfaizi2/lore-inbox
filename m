@@ -1,16 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965157AbVIOGvk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030386AbVIOGwG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965157AbVIOGvk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 02:51:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965208AbVIOGvj
+	id S1030386AbVIOGwG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 02:52:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030382AbVIOGvr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 15 Sep 2005 02:51:47 -0400
+Received: from smtp113.sbc.mail.re2.yahoo.com ([68.142.229.92]:53856 "HELO
+	smtp113.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S965203AbVIOGvj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 15 Sep 2005 02:51:39 -0400
-Received: from smtp108.sbc.mail.re2.yahoo.com ([68.142.229.97]:20668 "HELO
-	smtp108.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S965157AbVIOGvi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 02:51:38 -0400
-Message-Id: <20050915064552.836273000.dtor_core@ameritech.net>
-Date: Thu, 15 Sep 2005 01:45:52 -0500
+Message-Id: <20050915064943.853864000.dtor_core@ameritech.net>
+References: <20050915064552.836273000.dtor_core@ameritech.net>
+Date: Thu, 15 Sep 2005 01:46:01 -0500
 From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: linux-kernel@vger.kernel.org
 Cc: Andrew Morton <akpm@osdl.org>
@@ -21,159 +22,72 @@ Greg KH <gregkh@suse.de>,
 Kay Sievers <kay.sievers@vrfy.org>,
 Vojtech Pavlik <vojtech@suse.cz>,
 Hannes Reinecke <hare@suse.de>
-Subject: [patch 00/28] RFC/RFT: Input - sysfs integration
+Subject: [patch 09/28] Input: convert net/bluetooth to dynamic input_dev allocation
+Content-Disposition: inline; filename=input-dynalloc-bluetooth.patch
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-Hi,
+Input: convert net/bluetooth to dynamic input_dev allocation
 
-The following set of patches deals with converting input subsystem
-to the driver model and intergrate it with sysfs. This allows us
-to remove custom-made input hotplug handler and finally have an
-option of netlink-only hotplug notifier.
+This is required for input_dev sysfs integration
 
-Some changes to the driver core were required. I decided that I did
-not want to add an additional class to /sys/class directory; instead
-class code was changed to allow nesting several classes. This way
-we can have:
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
 
-/sys/class/input/
-|-- devices
-|   |-- input0
-|   |-- input1
-|   `-- input2
-`-- interfaces
-    |-- event0
-    ...
-    |-- mouse1
-    `-- ts0
+ net/bluetooth/hidp/core.c |   13 ++++++++-----
+ 1 files changed, 8 insertions(+), 5 deletions(-)
 
-and not clutter the top-level directory. Top-level classes define
-individual subsystems, lower-level classes define individual parts.
-In this particular case 'devices' directory contains class devices
-corresponding to input_dev structures whereas 'interfaces' has
-class devices produced by input interfaces (handlers), such as
-evdev, mousedev, tsdev and joydev.
-
-I believe that other subsystems, such as firewire, SCSI, USB and
-I2C could also be moved to a hierarchy of classes to make /sys
-tree more organized.
-
-Although all this compatible with pre-udev hotplug scripts I was
-advised that having sub-classes will require some changes to udev.
-
-Class interface code was slightly changed to pass interface to
-add/remove methods. This way subsystem can have a generic handler
-and still call individual interfaces's methods if needed. There are
-couple if I2O patches that deal with class interface code, these are
-not directly related to this series, but required for compiling.
-The maintainer acked them and will push with the rest of I2O
-updates.
-
-When registering class devices hotplug event is now sent before
-adding interfaces, otherwise children's hotplug events would reach
-userspace (udev) first.
-
-The full sysfs input hierarchy on by laptop is the following:
-[dtor@core ~]$ tree /sys/class/input/
-/sys/class/input/
-|-- devices
-|   |-- input0
-|   |   |-- capabilities
-|   |   |   |-- abs
-|   |   |   |-- ev
-|   |   |   |-- ff
-|   |   |   |-- key
-|   |   |   |-- led
-|   |   |   |-- msc
-|   |   |   |-- rel
-|   |   |   |-- snd
-|   |   |   `-- sw
-|   |   |-- device -> ../../../../devices/platform/i8042/serio1
-|   |   |-- event0 -> ../../../../class/input/interfaces/event0
-|   |   |-- id
-|   |   |   |-- bustype
-|   |   |   |-- product
-|   |   |   |-- vendor
-|   |   |   `-- version
-|   |   |-- name
-|   |   |-- phys
-|   |   `-- uniq
-|   |-- input1
-|   |   |-- capabilities
-|   |   |   |-- abs
-|   |   |   |-- ev
-|   |   |   |-- ff
-|   |   |   |-- key
-|   |   |   |-- led
-|   |   |   |-- msc
-|   |   |   |-- rel
-|   |   |   |-- snd
-|   |   |   `-- sw
-|   |   |-- device -> ../../../../devices/platform/i8042/serio0
-|   |   |-- event1 -> ../../../../class/input/interfaces/event1
-|   |   |-- id
-|   |   |   |-- bustype
-|   |   |   |-- product
-|   |   |   |-- vendor
-|   |   |   `-- version
-|   |   |-- mouse0 -> ../../../../class/input/interfaces/mouse0
-|   |   |-- name
-|   |   |-- phys
-|   |   |-- ts0 -> ../../../../class/input/interfaces/ts0
-|   |   `-- uniq
-|   `-- input2
-|       |-- capabilities
-|       |   |-- abs
-|       |   |-- ev
-|       |   |-- ff
-|       |   |-- key
-|       |   |-- led
-|       |   |-- msc
-|       |   |-- rel
-|       |   |-- snd
-|       |   `-- sw
-|       |-- device -> ../../../../devices/platform/i8042/serio0/serio2
-|       |-- event2 -> ../../../../class/input/interfaces/event2
-|       |-- id
-|       |   |-- bustype
-|       |   |-- product
-|       |   |-- vendor
-|       |   `-- version
-|       |-- mouse1 -> ../../../../class/input/interfaces/mouse1
-|       |-- name
-|       |-- phys
-|       |-- ts1 -> ../../../../class/input/interfaces/ts1
-|       `-- uniq
-`-- interfaces
-    |-- event0
-    |   |-- dev
-    |   `-- device -> ../../../../class/input/devices/input0
-    |-- event1
-    |   |-- dev
-    |   `-- device -> ../../../../class/input/devices/input1
-    |-- event2
-    |   |-- dev
-    |   `-- device -> ../../../../class/input/devices/input2
-    |-- mice
-    |   `-- dev
-    |-- mouse0
-    |   |-- dev
-    |   `-- device -> ../../../../class/input/devices/input1
-    |-- mouse1
-    |   |-- dev
-    |   `-- device -> ../../../../class/input/devices/input2
-    |-- ts0
-    |   |-- dev
-    |   `-- device -> ../../../../class/input/devices/input1
-    `-- ts1
-        |-- dev
-        `-- device -> ../../../../class/input/devices/input2
-
-Review/comments/testing will be appreciated.
-
-Thank you.
-
---
-Dmitry
+Index: work/net/bluetooth/hidp/core.c
+===================================================================
+--- work.orig/net/bluetooth/hidp/core.c
++++ work/net/bluetooth/hidp/core.c
+@@ -520,7 +520,7 @@ static int hidp_session(void *arg)
+ 
+ 	if (session->input) {
+ 		input_unregister_device(session->input);
+-		kfree(session->input);
++		session->input = NULL;
+ 	}
+ 
+ 	up_write(&hidp_session_sem);
+@@ -536,6 +536,8 @@ static inline void hidp_setup_input(stru
+ 
+ 	input->private = session;
+ 
++	input->name = "Bluetooth HID Boot Protocol Device";
++
+ 	input->id.bustype = BUS_BLUETOOTH;
+ 	input->id.vendor  = req->vendor;
+ 	input->id.product = req->product;
+@@ -582,16 +584,15 @@ int hidp_add_connection(struct hidp_conn
+ 		return -ENOTUNIQ;
+ 
+ 	session = kmalloc(sizeof(struct hidp_session), GFP_KERNEL);
+-	if (!session) 
++	if (!session)
+ 		return -ENOMEM;
+ 	memset(session, 0, sizeof(struct hidp_session));
+ 
+-	session->input = kmalloc(sizeof(struct input_dev), GFP_KERNEL);
++	session->input = input_allocate_device();
+ 	if (!session->input) {
+ 		kfree(session);
+ 		return -ENOMEM;
+ 	}
+-	memset(session->input, 0, sizeof(struct input_dev));
+ 
+ 	down_write(&hidp_session_sem);
+ 
+@@ -651,8 +652,10 @@ unlink:
+ 
+ 	__hidp_unlink_session(session);
+ 
+-	if (session->input)
++	if (session->input) {
+ 		input_unregister_device(session->input);
++		session->input = NULL; /* don't try to free it here */
++	}
+ 
+ failed:
+ 	up_write(&hidp_session_sem);
 

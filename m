@@ -1,38 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030398AbVIOEDo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965238AbVIOEFV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030398AbVIOEDo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 00:03:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030399AbVIOEDo
+	id S965238AbVIOEFV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 00:05:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965240AbVIOEFV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 00:03:44 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:14761
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1030398AbVIOEDo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 00:03:44 -0400
-Date: Wed, 14 Sep 2005 21:03:16 -0700 (PDT)
-Message-Id: <20050914.210316.32480446.davem@davemloft.net>
-To: shemminger@osdl.org
-Cc: jes@trained-monkey.org, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] hippi: change to not use skb private
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20050913113858.440d3a0f@localhost.localdomain>
-References: <20050913113858.440d3a0f@localhost.localdomain>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Thu, 15 Sep 2005 00:05:21 -0400
+Received: from lucius.provo.novell.com ([137.65.81.172]:25739 "EHLO
+	lucius.provo.novell.com") by vger.kernel.org with ESMTP
+	id S965238AbVIOEFT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 00:05:19 -0400
+Message-Id: <43297F8E0200008A000032AE@lucius.provo.novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0 
+Date: Wed, 14 Sep 2005 22:05:02 -0600
+From: "Nick Piggin" <npiggin@novell.com>
+To: "Andrea Arcangeli" <andrea@suse.de>, "Hugh Dickins" <hugh@veritas.com>
+Cc: "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: ptrace can't be transparent on readonly MAP_SHARED
+References: <20050914212405.GD4966@opteron.random>
+In-Reply-To: <20050914212405.GD4966@opteron.random>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Stephen Hemminger <shemminger@osdl.org>
-Date: Tue, 13 Sep 2005 11:38:58 -0700
 
-> It looks like the following would fix hippi to not have to put
-> fields in sk_buff. The ifield looks appears to to be additional
-> header information that is being passed in the skb but could just
-> be put in the header.
+ 
+ 
+>>>Andrea Arcangeli <andrea@suse.de> 09/15/05 7:24 am >>> 
+>
+>About generating anonymous pages on top of map_shared that should be 
+>fine with the vm, the way anon-vma works, it already happens for 
+>map_private and it's not conceputally different for anon-vma to deal 
+>with overlap with map-shared or map-private. So I don't think we need
+to 
+>forbid ptrace (i.e. gdb) to write to a readonly map shared or stuff
+like 
+>that. 
+> 
+>Comments welcome. (especially if you see any bug in my simpler approach
 
-Stephen this patch is against 2.6.13 or something.  We already
-put this thing into a SKB control block for 2.6.14-rc1.  Do you
-want to keep things that way or update your patch for 2.6.14-rc1?
+>please let me know because that's how I fixed the DoS in some kernel ;)
+
+>thanks! 
+>
+
+I like the look of the patch.
+
+I would like to go one step further and simply disallow writing to
+MAP_SHARED memory full stop. It eliminates so many corner cases and
+weird behaviour (ie. after writing to a readonly MAP_SHARED, the process
+will no longer see updates to the file).
+
+Actually, maybe that's too much. I imagine on a shared memory
+application
+there would be use in changing writeable MAP_SHARED memory in a
+debugger.
+How about we disallow writing to readonly MAP_SHARED?
+
+However going back a step - I still think Andrea's patch is nicer than
+what we have now.
+

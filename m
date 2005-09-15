@@ -1,42 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030274AbVIOBE0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030287AbVIOBEq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030274AbVIOBE0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Sep 2005 21:04:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030275AbVIOBEZ
+	id S1030287AbVIOBEq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Sep 2005 21:04:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030311AbVIOBEp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Sep 2005 21:04:25 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:5057 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030274AbVIOBEZ (ORCPT
+	Wed, 14 Sep 2005 21:04:45 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:13505 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030287AbVIOBEb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Sep 2005 21:04:25 -0400
-Message-Id: <20050915010343.577985000@localhost.localdomain>
-Date: Wed, 14 Sep 2005 18:03:43 -0700
+	Wed, 14 Sep 2005 21:04:31 -0400
+Message-Id: <20050915010409.018350000@localhost.localdomain>
+References: <20050915010343.577985000@localhost.localdomain>
+Date: Wed, 14 Sep 2005 18:03:51 -0700
 From: Chris Wright <chrisw@osdl.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk
-Subject: [PATCH 00/11] -stable review
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       Dave Kleikamp <shaggy@austin.ibm.com>, Chris Wright <chrisw@osdl.org>
+Subject: [PATCH 08/11] jfs: jfs_delete_inode must call clear_inode
+Content-Disposition: inline; filename=jfs_delete_inode-must-call-clear_inode.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the start of the stable review cycle for the 2.6.13.2 release.
-There are 11 patches in this series, all will be posted as a response to
-this one.  If anyone has any issues with these being applied, please let
-us know.  If anyone is a maintainer of the proper subsystem, and wants
-to add a signed-off-by: line to the patch, please respond with it.
+-stable review patch.  If anyone has any objections, please let us know.
+------------------
 
-These patches are sent out with a number of different people on the
-Cc: line.  If you wish to be a reviewer, please email stable@kernel.org
-to add your name to the list.  If you want to be off the reviewer list,
-also email us.
+> From Chuck Ebbert:
+I'm submitting this patch for -stable:
 
-Responses should be made by Sat Sep 17 01:00 2005 UTC.  Anything received
-after that time, might be too late.
+  - it reportedly fixes an oops
+  - it's already in 2.6.13-git
 
-thanks,
+JFS: jfs_delete_inode should always call clear_inode.
 
-the -stable release team
+Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
+Signed-off-by: Chris Wright <chrisw@osdl.org>
+---
+ fs/jfs/inode.c |   24 ++++++++++++------------
+ 1 files changed, 12 insertions(+), 12 deletions(-)
+
+Index: linux-2.6.13.y/fs/jfs/inode.c
+===================================================================
+--- linux-2.6.13.y.orig/fs/jfs/inode.c
++++ linux-2.6.13.y/fs/jfs/inode.c
+@@ -128,21 +128,21 @@ void jfs_delete_inode(struct inode *inod
+ {
+ 	jfs_info("In jfs_delete_inode, inode = 0x%p", inode);
+ 
+-	if (is_bad_inode(inode) ||
+-	    (JFS_IP(inode)->fileset != cpu_to_le32(FILESYSTEM_I)))
+-			return;
++	if (!is_bad_inode(inode) &&
++	    (JFS_IP(inode)->fileset == cpu_to_le32(FILESYSTEM_I))) {
+ 
+-	if (test_cflag(COMMIT_Freewmap, inode))
+-		jfs_free_zero_link(inode);
++		if (test_cflag(COMMIT_Freewmap, inode))
++			jfs_free_zero_link(inode);
+ 
+-	diFree(inode);
++		diFree(inode);
+ 
+-	/*
+-	 * Free the inode from the quota allocation.
+-	 */
+-	DQUOT_INIT(inode);
+-	DQUOT_FREE_INODE(inode);
+-	DQUOT_DROP(inode);
++		/*
++		 * Free the inode from the quota allocation.
++		 */
++		DQUOT_INIT(inode);
++		DQUOT_FREE_INODE(inode);
++		DQUOT_DROP(inode);
++	}
+ 
+ 	clear_inode(inode);
+ }
+
 --

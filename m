@@ -1,47 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030519AbVIOQVe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030514AbVIOQXk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030519AbVIOQVe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 12:21:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030518AbVIOQVe
+	id S1030514AbVIOQXk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 12:23:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030516AbVIOQXk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 12:21:34 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:24758 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030513AbVIOQVd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 12:21:33 -0400
-Date: Thu, 15 Sep 2005 09:21:45 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: jes@trained-monkey.org, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] hippi: change to not use skb private
-Message-ID: <20050915092145.4ea4d069@dxpl.pdx.osdl.net>
-In-Reply-To: <20050914.210316.32480446.davem@davemloft.net>
-References: <20050913113858.440d3a0f@localhost.localdomain>
-	<20050914.210316.32480446.davem@davemloft.net>
-X-Mailer: Sylpheed-Claws 1.9.14 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
+	Thu, 15 Sep 2005 12:23:40 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:22603
+	"EHLO opteron.random") by vger.kernel.org with ESMTP
+	id S1030514AbVIOQXk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 12:23:40 -0400
+Date: Thu, 15 Sep 2005 18:23:47 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Hugh Dickins <hugh@veritas.com>, Nick Piggin <npiggin@novell.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Roland McGrath <roland@redhat.com>
+Subject: Re: ptrace can't be transparent on readonly MAP_SHARED
+Message-ID: <20050915162347.GC4122@opteron.random>
+References: <20050914212405.GD4966@opteron.random> <Pine.LNX.4.61.0509151337260.16231@goblin.wat.veritas.com> <Pine.LNX.4.58.0509150805150.26803@g5.osdl.org> <20050915154702.GA4122@opteron.random> <Pine.LNX.4.58.0509150911180.26803@g5.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0509150911180.26803@g5.osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Sep 2005 21:03:16 -0700 (PDT)
-"David S. Miller" <davem@davemloft.net> wrote:
-
-> From: Stephen Hemminger <shemminger@osdl.org>
-> Date: Tue, 13 Sep 2005 11:38:58 -0700
+On Thu, Sep 15, 2005 at 09:13:02AM -0700, Linus Torvalds wrote:
 > 
-> > It looks like the following would fix hippi to not have to put
-> > fields in sk_buff. The ifield looks appears to to be additional
-> > header information that is being passed in the skb but could just
-> > be put in the header.
 > 
-> Stephen this patch is against 2.6.13 or something.  We already
-> put this thing into a SKB control block for 2.6.14-rc1.  Do you
-> want to keep things that way or update your patch for 2.6.14-rc1?
+> On Thu, 15 Sep 2005, Andrea Arcangeli wrote:
+> 
+> > On Thu, Sep 15, 2005 at 08:12:59AM -0700, Linus Torvalds wrote:
+> > > have a PROT_READONLY/PROT_NONE area that is visible from the debugger, but
+> > > continues to cause SIGSEGV's if the user process itself tries to access
+> > > it. To me, that's good.
+> > 
+> > Continue to cause sigsegv yes, but on the wrong page, when it will read
+> > the page it can contain different data compared to what is on
+> > disk/pagecache.
+> 
+> So? You're not making any sense.
 
-Sorry, I was cleaning up the old unfinished work pile. The new version
-(using header) is better than the cb version because it is cleaner
-and doesn't have the nasty error handling issues of reallocating
-header in the transmit routine.
+I'll try again: what is the point of still getting page faults on writes
+when the first read will contain the wrong data?
+
+And what is the point of writing to a prot_none with ptrace? That really
+makes no sense.
+
+I'm not saying the cow should go away, I'm saying that marking the pte
+readonly after writing to it makes no sense.
+
+I've said maybe_mkwrite makes no sense, I didn't say the cow makes no
+sense.
+
+> I repeat: we CANNOT AVOID the fact that we will do COW.
+> 
+> That COW is required. No way we can avoid it. It has _nothing_ to do with 
+> maybe_mkwrite().
+> 
+> So I don't know why you continually refuse to just admit that fact. Why do 
+> you mix up the COW semantics with the maybe_mkwrite() semantics.
+> 
+> If you can't argue against maybe_mkwrite() without involving the COW
+> argument, then stop arguing. They are two totally different thigns.
+
+I wasn't arguing about that, infact Hugh noticed that I suggested that
+avoiding the cow is not an option (he's the one that disagreed with you
+on this if something).

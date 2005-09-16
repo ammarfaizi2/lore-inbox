@@ -1,98 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751280AbVIPUsE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751283AbVIPUus@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751280AbVIPUsE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 16:48:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751283AbVIPUsE
+	id S1751283AbVIPUus (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 16:50:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbVIPUus
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 16:48:04 -0400
-Received: from keetweej.xs4all.nl ([213.84.46.114]:19127 "EHLO
-	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
-	id S1751280AbVIPUsB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 16:48:01 -0400
-Date: Fri, 16 Sep 2005 22:47:59 +0200
-From: Folkert van Heusden <folkert@vanheusden.com>
-To: linux-kernel@vger.kernel.org
-Subject: printk timings stay weird, also waaay after 5 seconds
-Message-ID: <20050916204759.GK17290@vanheusden.com>
+	Fri, 16 Sep 2005 16:50:48 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:3557 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S1751283AbVIPUur (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 16:50:47 -0400
+Date: Fri, 16 Sep 2005 16:50:45 -0400
+To: Hans Reiser <reiser@namesys.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: I request inclusion of reiser4 in the mainline kernel
+Message-ID: <20050916205045.GI28578@csclub.uwaterloo.ca>
+References: <432AFB44.9060707@namesys.com> <20050916174028.GA32745@infradead.org> <432B1F84.3000902@namesys.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Tv3+oRj6D9L8lW+H"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Organization: www.unixexpert.nl
-X-Chameleon-Return-To: folkert@vanheusden.com
-X-Xfmail-Return-To: folkert@vanheusden.com
-X-Phonenumber: +31-6-41278122
-X-URL: http://www.vanheusden.com/
-X-PGP-KeyID: 1F28D8AE
-X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
-X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
-Read-Receipt-To: <folkert@vanheusden.com>
-Reply-By: Sat Sep 17 17:31:08 CEST 2005
-X-MSMail-Priority: High
-X-Message-Flag: PGP key-id: 0x1f28d8ae - consider encrypting your e-mail to me
-	with PGP!
-User-Agent: Mutt/1.5.10i
+In-Reply-To: <432B1F84.3000902@namesys.com>
+User-Agent: Mutt/1.5.9i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Sep 16, 2005 at 12:39:48PM -0700, Hans Reiser wrote:
+> Most of my customers remark that Namesys code is head and shoulders
+> above the rest of the kernel code.  So yes, it is different.  In
+> particular, they cite the XFS code as being so incredibly hard to read
+> that its unreadability is worth hundreds of thousands of dollars in
+> license fees for me.  That's cash received, from persons who read it
+> all, not commentary made idly.
+> 
+> May I suggest that you work on the XFS code instead?  Surely with all of
+> this energy you have, you could improve XFS a lot before it gets
+> accepted into the kernel. 
+> 
+> As for the indirections, if you figure out how to make VFS indirections
+> easy to follow, the same technique should be applicable to Reiser4, and
+> I will be happy to fix it. 
+> 
+> (Note for the record: I actually think XFS acceptance was delayed too
+> long, and I think that XFS is a great filesystem, but a rhetorical point
+> needed to be made......)
 
---Tv3+oRj6D9L8lW+H
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Well my experience with XFS for about 6 months using 2.6 kernels has
+been about as good as my experience with reiserfs 3.6 back when 2.4
+was fairly new.
 
-Hi,
+That's why I run ext3.
 
-I have a pc with a VIA Nehemiah. It runs kernel 2.6.13.1.
-At boot of course the timings are high:
-thegate:/home/folkert/public_html# dmesg | more
-[42949372.960000] Linux version 2.6.13.1 (root@thegate) (gcc version 4.0.1 =
-(Debian 4.0.1-2)) #1 Wed Sep 14 11:56:45 CEST 2005
-[42949372.960000] BIOS-provided physical RAM map:
-[42949372.960000]  BIOS-e820: 0000000000000000 - 00000000000a0000 (usable)
-=2E..
-but stay high:
-[42949376.950000] NET: Registered protocol family 1
-[42949378.810000] Adding 497972k swap on /dev/hda1.  Priority:-1 extents:1
-[42949378.910000] EXT3 FS on hda2, internal journal
-[42949379.320000] Generic RTC Driver v1.07
-[42949383.180000] Probing IDE interface ide1...
-[42949385.100000] ACPI: PCI Interrupt Link [LNKC] enabled at IRQ 12
-[42949385.100000] PCI: setting IRQ 12 as level-triggered
-=2E..
-[42949626.430000] pwc Dumping frame 41 (last message).
-[43132475.940000] pwc Closing video device: 1829087 frames received, dumped=
- 554742 frames, 0 frames with errors.
-[43132482.400000] pwc set_video_mode(320x240 @ 10, palette 15).
-=2E..
-[43132483.920000] pwc Dumping frame 7.
-[43132484.120000] pwc Dumping frame 9.
+I don't need my filesystem locking up, leaking memory all over the
+place, causing processes to be killed byt the out of memory handler,
+etc.  I will stick with what works all the time.
 
-etc.
+Performance and nifty features are fun, but only when they don't break
+your system.
 
-
-Folkert van Heusden
-
---=20
-Try MultiTail! Multiple windows with logfiles, filtered with regular
-expressions, colored output, etc. etc. www.vanheusden.com/multitail/
-----------------------------------------------------------------------
-Get your PGP/GPG key signed at www.biglumber.com!
-----------------------------------------------------------------------
-Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com
-
---Tv3+oRj6D9L8lW+H
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iIMEARECAEMFAkMrL388Gmh0dHA6Ly93d3cudmFuaGV1c2Rlbi5jb20vZGF0YS1z
-aWduaW5nLXdpdGgtcGdwLXBvbGljeS5odG1sAAoJEDAZDowfKNiuRjsAnA+SkWcq
-Q5pAspbwT2EJUI0sN1VQAKCbdwHtvTf4wF0uiBsGL3d6y55CcQ==
-=2vPz
------END PGP SIGNATURE-----
-
---Tv3+oRj6D9L8lW+H--
+Len Sorensen

@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161237AbVIPS00@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161236AbVIPS1R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161237AbVIPS00 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 14:26:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161234AbVIPS0Z
+	id S1161236AbVIPS1R (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 14:27:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161242AbVIPS1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 14:26:25 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:47805 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1161227AbVIPS0X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 14:26:23 -0400
+	Fri, 16 Sep 2005 14:27:13 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:19390 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161236AbVIPS05
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 14:26:57 -0400
 Date: Fri, 16 Sep 2005 11:26:19 -0700
 To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
 Cc: linuxram@us.ibm.com, akpm@osdl.org, viro@ftp.linux.org.uk,
        miklos@szeredi.hu, mike@waychison.com, bfields@fieldses.org,
        serue@us.ibm.com
-Subject: [RFC PATCH 1/10] vfs: Lindentified namespace.c 
-Message-ID: <20050916182619.GA28428@RAM>
+Subject: [RFC PATCH 2/10] vfs: make mounts shared/slave/private 
+Message-ID: <20050916182619.GA28444@RAM>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,721 +24,421 @@ From: linuxram@us.ibm.com (Ram)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lindentified fs/namespace.c
+Patch that creates mounts that sets up 
+1. two-way propagation(shared) or
+2. only receives propagation(slave) or
+3. do not receive or forward propagation (private)
+
+A shared mount can be bind-mount to some mountpoint. And any mount/
+umount events within any of these mounts propagates to the other mount.
+
+Eg: 	mount --make-shared /mnt
+	mount --bind /mnt /tmp
+
+	The above two steps make the /mnt and /tmp propagation peers.
+
+	mount /dev/sda0 /mnt/1 
+
+	is mounted on both /mnt/1 as well as /tmp/1
+
+
+A slave mount, only receives mount/umount events from its master mount.
+But any mount/umount in the slave mount is not propagated to the
+master.
+
+Eg: 	Lets say /mnt ant /tmp are peers(shared mounts)
+
+	mount --make-slave /tmp
+
+	The above step makes /tmp a slave of /mnt
+
+	mount /dev/sda0 /mnt/1 
+
+	is mounted on both /mnt/1 as well as /tmp/1
+
+	but mount /dev/sda1 /tmp/1
+	is mounted only on /tmp/1 and not on /mnt/1
+
+
+A private mount does not receive or forward any mount/unmount event.
+This is the default mount.
+
 
 Signed by Ram Pai (linuxram@us.ibm.com)
 
- fs/namespace.c |  180 ++++++++++++++++++++++++++++-----------------------------
- 1 files changed, 91 insertions(+), 89 deletions(-)
+ fs/Makefile           |    2 
+ fs/namespace.c        |   50 +++++++++++++++++++++
+ fs/pnode.c            |  116 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/fs.h    |    3 +
+ include/linux/mount.h |   29 +++++++++---
+ include/linux/pnode.h |   47 ++++++++++++++++++++
+ 6 files changed, 239 insertions(+), 8 deletions(-)
 
 Index: 2.6.13.sharedsubtree/fs/namespace.c
 ===================================================================
 --- 2.6.13.sharedsubtree.orig/fs/namespace.c
 +++ 2.6.13.sharedsubtree/fs/namespace.c
-@@ -35,37 +35,37 @@ static inline int sysfs_init(void)
- 	return 0;
- }
- #endif
+@@ -20,10 +20,11 @@
+ #include <linux/seq_file.h>
+ #include <linux/namespace.h>
+ #include <linux/namei.h>
+ #include <linux/security.h>
+ #include <linux/mount.h>
++#include <linux/pnode.h>
+ #include <asm/uaccess.h>
+ #include <asm/unistd.h>
  
- /* spinlock for vfsmount related operations, inplace of dcache_lock */
-- __cacheline_aligned_in_smp DEFINE_SPINLOCK(vfsmount_lock);
-+__cacheline_aligned_in_smp DEFINE_SPINLOCK(vfsmount_lock);
+ extern int __init init_rootfs(void);
  
- static struct list_head *mount_hashtable;
- static int hash_mask, hash_bits;
--static kmem_cache_t *mnt_cache; 
-+static kmem_cache_t *mnt_cache;
- 
- static inline unsigned long hash(struct vfsmount *mnt, struct dentry *dentry)
- {
--	unsigned long tmp = ((unsigned long) mnt / L1_CACHE_BYTES);
--	tmp += ((unsigned long) dentry / L1_CACHE_BYTES);
-+	unsigned long tmp = ((unsigned long)mnt / L1_CACHE_BYTES);
-+	tmp += ((unsigned long)dentry / L1_CACHE_BYTES);
- 	tmp = tmp + (tmp >> hash_bits);
- 	return tmp & hash_mask;
- }
- 
- struct vfsmount *alloc_vfsmnt(const char *name)
- {
--	struct vfsmount *mnt = kmem_cache_alloc(mnt_cache, GFP_KERNEL); 
-+	struct vfsmount *mnt = kmem_cache_alloc(mnt_cache, GFP_KERNEL);
- 	if (mnt) {
- 		memset(mnt, 0, sizeof(struct vfsmount));
--		atomic_set(&mnt->mnt_count,1);
-+		atomic_set(&mnt->mnt_count, 1);
+@@ -60,10 +61,13 @@ struct vfsmount *alloc_vfsmnt(const char
  		INIT_LIST_HEAD(&mnt->mnt_hash);
  		INIT_LIST_HEAD(&mnt->mnt_child);
  		INIT_LIST_HEAD(&mnt->mnt_mounts);
  		INIT_LIST_HEAD(&mnt->mnt_list);
  		INIT_LIST_HEAD(&mnt->mnt_expire);
++		INIT_LIST_HEAD(&mnt->mnt_share);
++		INIT_LIST_HEAD(&mnt->mnt_slave_list);
++		INIT_LIST_HEAD(&mnt->mnt_slave);
  		if (name) {
--			int size = strlen(name)+1;
-+			int size = strlen(name) + 1;
+ 			int size = strlen(name) + 1;
  			char *newname = kmalloc(size, GFP_KERNEL);
  			if (newname) {
  				memcpy(newname, name, size);
- 				mnt->mnt_devname = newname;
- 			}
-@@ -84,12 +84,12 @@ void free_vfsmnt(struct vfsmount *mnt)
-  * Now, lookup_mnt increments the ref count before returning
-  * the vfsmount struct.
-  */
- struct vfsmount *lookup_mnt(struct vfsmount *mnt, struct dentry *dentry)
- {
--	struct list_head * head = mount_hashtable + hash(mnt, dentry);
--	struct list_head * tmp = head;
-+	struct list_head *head = mount_hashtable + hash(mnt, dentry);
-+	struct list_head *tmp = head;
- 	struct vfsmount *p, *found = NULL;
- 
- 	spin_lock(&vfsmount_lock);
- 	for (;;) {
- 		tmp = tmp->next;
-@@ -124,11 +124,11 @@ static void detach_mnt(struct vfsmount *
- 
- static void attach_mnt(struct vfsmount *mnt, struct nameidata *nd)
- {
- 	mnt->mnt_parent = mntget(nd->mnt);
- 	mnt->mnt_mountpoint = dget(nd->dentry);
--	list_add(&mnt->mnt_hash, mount_hashtable+hash(nd->mnt, nd->dentry));
-+	list_add(&mnt->mnt_hash, mount_hashtable + hash(nd->mnt, nd->dentry));
- 	list_add_tail(&mnt->mnt_child, &nd->mnt->mnt_mounts);
- 	nd->dentry->d_mounted++;
- }
- 
- static struct vfsmount *next_mnt(struct vfsmount *p, struct vfsmount *root)
-@@ -145,12 +145,11 @@ static struct vfsmount *next_mnt(struct 
- 		}
- 	}
- 	return list_entry(next, struct vfsmount, mnt_child);
- }
- 
--static struct vfsmount *
--clone_mnt(struct vfsmount *old, struct dentry *root)
-+static struct vfsmount *clone_mnt(struct vfsmount *old, struct dentry *root)
- {
- 	struct super_block *sb = old->mnt_sb;
- 	struct vfsmount *mnt = alloc_vfsmnt(old->mnt_devname);
- 
- 	if (mnt) {
-@@ -181,29 +180,29 @@ void __mntput(struct vfsmount *mnt)
- }
- 
- EXPORT_SYMBOL(__mntput);
- 
- /* iterator */
--static void *m_start(struct seq_file *m, loff_t *pos)
-+static void *m_start(struct seq_file *m, loff_t * pos)
- {
- 	struct namespace *n = m->private;
- 	struct list_head *p;
- 	loff_t l = *pos;
- 
- 	down_read(&n->sem);
- 	list_for_each(p, &n->list)
--		if (!l--)
--			return list_entry(p, struct vfsmount, mnt_list);
-+	    if (!l--)
-+		return list_entry(p, struct vfsmount, mnt_list);
- 	return NULL;
- }
- 
--static void *m_next(struct seq_file *m, void *v, loff_t *pos)
-+static void *m_next(struct seq_file *m, void *v, loff_t * pos)
- {
- 	struct namespace *n = m->private;
- 	struct list_head *p = ((struct vfsmount *)v)->mnt_list.next;
- 	(*pos)++;
--	return p==&n->list ? NULL : list_entry(p, struct vfsmount, mnt_list);
-+	return p == &n->list ? NULL : list_entry(p, struct vfsmount, mnt_list);
- }
- 
- static void m_stop(struct seq_file *m, void *v)
- {
- 	struct namespace *n = m->private;
-@@ -221,11 +220,11 @@ static int show_vfsmnt(struct seq_file *
- 	int err = 0;
- 	static struct proc_fs_info {
- 		int flag;
- 		char *str;
- 	} fs_info[] = {
--		{ MS_SYNCHRONOUS, ",sync" },
-+		{ MS_SYNCHRONOUS, ",sync" },
- 		{ MS_DIRSYNC, ",dirsync" },
- 		{ MS_MANDLOCK, ",mand" },
- 		{ MS_NOATIME, ",noatime" },
- 		{ MS_NODIRATIME, ",nodiratime" },
- 		{ 0, NULL }
-@@ -257,14 +256,14 @@ static int show_vfsmnt(struct seq_file *
- 	seq_puts(m, " 0 0\n");
- 	return err;
- }
- 
- struct seq_operations mounts_op = {
--	.start	= m_start,
--	.next	= m_next,
--	.stop	= m_stop,
--	.show	= show_vfsmnt
-+	.start = m_start,
-+	.next = m_next,
-+	.stop = m_stop,
-+	.show = show_vfsmnt
- };
- 
- /**
-  * may_umount_tree - check if a mount tree is busy
-  * @mnt: root of mount tree
-@@ -281,15 +280,16 @@ int may_umount_tree(struct vfsmount *mnt
- 	int minimum_refs;
- 
- 	spin_lock(&vfsmount_lock);
- 	actual_refs = atomic_read(&mnt->mnt_count);
- 	minimum_refs = 2;
--repeat:
-+      repeat:
- 	next = this_parent->mnt_mounts.next;
--resume:
-+      resume:
- 	while (next != &this_parent->mnt_mounts) {
--		struct vfsmount *p = list_entry(next, struct vfsmount, mnt_child);
-+		struct vfsmount *p =
-+		    list_entry(next, struct vfsmount, mnt_child);
- 
- 		next = next->next;
- 
- 		actual_refs += atomic_read(&p->mnt_count);
- 		minimum_refs += 2;
-@@ -365,11 +365,11 @@ static void umount_tree(struct vfsmount 
- 	}
- }
- 
- static int do_umount(struct vfsmount *mnt, int flags)
- {
--	struct super_block * sb = mnt->mnt_sb;
-+	struct super_block *sb = mnt->mnt_sb;
- 	int retval;
- 
- 	retval = security_sb_umount(mnt, flags);
- 	if (retval)
- 		return retval;
-@@ -401,11 +401,11 @@ static int do_umount(struct vfsmount *mn
- 	 * must return, and the like. Thats for the mount program to worry
- 	 * about for the moment.
- 	 */
- 
- 	lock_kernel();
--	if( (flags&MNT_FORCE) && sb->s_op->umount_begin)
-+	if ((flags & MNT_FORCE) && sb->s_op->umount_begin)
- 		sb->s_op->umount_begin(sb);
- 	unlock_kernel();
- 
- 	/*
- 	 * No sense to grab the lock for this test, but test itself looks
-@@ -483,25 +483,25 @@ asmlinkage long sys_umount(char __user *
- 	retval = -EPERM;
- 	if (!capable(CAP_SYS_ADMIN))
- 		goto dput_and_out;
- 
- 	retval = do_umount(nd.mnt, flags);
--dput_and_out:
-+      dput_and_out:
- 	path_release_on_umount(&nd);
--out:
-+      out:
- 	return retval;
- }
- 
- #ifdef __ARCH_WANT_SYS_OLDUMOUNT
- 
- /*
-- *	The 2.0 compatible umount. No flags. 
-+ *	The 2.0 compatible umount. No flags.
-  */
-- 
-+
- asmlinkage long sys_oldumount(char __user * name)
- {
--	return sys_umount(name,0);
-+	return sys_umount(name, 0);
- }
- 
- #endif
- 
- static int mount_is_safe(struct nameidata *nd)
-@@ -520,12 +520,11 @@ static int mount_is_safe(struct nameidat
- 		return -EPERM;
- 	return 0;
- #endif
- }
- 
--static int
--lives_below_in_same_fs(struct dentry *d, struct dentry *dentry)
-+static int lives_below_in_same_fs(struct dentry *d, struct dentry *dentry)
- {
- 	while (1) {
- 		if (d == dentry)
- 			return 1;
- 		if (d == NULL || d == d->d_parent)
-@@ -567,11 +566,11 @@ static struct vfsmount *copy_tree(struct
- 			attach_mnt(q, &nd);
- 			spin_unlock(&vfsmount_lock);
- 		}
- 	}
- 	return res;
-- Enomem:
-+      Enomem:
- 	if (res) {
- 		spin_lock(&vfsmount_lock);
- 		umount_tree(res);
- 		spin_unlock(&vfsmount_lock);
- 	}
-@@ -583,11 +582,11 @@ static int graft_tree(struct vfsmount *m
- 	int err;
- 	if (mnt->mnt_sb->s_flags & MS_NOUSER)
- 		return -EINVAL;
- 
- 	if (S_ISDIR(nd->dentry->d_inode->i_mode) !=
--	      S_ISDIR(mnt->mnt_root->d_inode->i_mode))
-+	    S_ISDIR(mnt->mnt_root->d_inode->i_mode))
- 		return -ENOTDIR;
- 
- 	err = -ENOENT;
- 	down(&nd->dentry->d_inode->i_sem);
- 	if (IS_DEADDIR(nd->dentry->d_inode))
-@@ -607,11 +606,11 @@ static int graft_tree(struct vfsmount *m
- 		list_splice(&head, current->namespace->list.prev);
- 		mntget(mnt);
- 		err = 0;
- 	}
- 	spin_unlock(&vfsmount_lock);
--out_unlock:
-+      out_unlock:
- 	up(&nd->dentry->d_inode->i_sem);
- 	if (!err)
+@@ -614,10 +618,54 @@ static int graft_tree(struct vfsmount *m
  		security_sb_post_addmount(mnt, nd);
  	return err;
  }
-@@ -665,16 +664,15 @@ static int do_loopback(struct nameidata 
+ 
  /*
-  * change filesystem flags. dir should be a physical root of filesystem.
-  * If you've mounted a non-root directory somewhere and want to do remount
-  * on it - tough luck.
-  */
--
- static int do_remount(struct nameidata *nd, int flags, int mnt_flags,
- 		      void *data)
- {
- 	int err;
--	struct super_block * sb = nd->mnt->mnt_sb;
-+	struct super_block *sb = nd->mnt->mnt_sb;
- 
- 	if (!capable(CAP_SYS_ADMIN))
- 		return -EPERM;
- 
- 	if (!check_mnt(nd->mnt))
-@@ -684,11 +682,11 @@ static int do_remount(struct nameidata *
- 		return -EINVAL;
- 
- 	down_write(&sb->s_umount);
- 	err = do_remount_sb(sb, flags, data, 0);
- 	if (!err)
--		nd->mnt->mnt_flags=mnt_flags;
-+		nd->mnt->mnt_flags = mnt_flags;
- 	up_write(&sb->s_umount);
- 	if (!err)
- 		security_sb_post_remount(nd->mnt, flags, data);
- 	return err;
- }
-@@ -705,12 +703,11 @@ static int do_move_mount(struct nameidat
- 	err = path_lookup(old_name, LOOKUP_FOLLOW, &old_nd);
- 	if (err)
- 		return err;
- 
- 	down_write(&current->namespace->sem);
--	while(d_mountpoint(nd->dentry) && follow_down(&nd->mnt, &nd->dentry))
--		;
-+	while (d_mountpoint(nd->dentry) && follow_down(&nd->mnt, &nd->dentry)) ;
- 	err = -EINVAL;
- 	if (!check_mnt(nd->mnt) || !check_mnt(old_nd.mnt))
- 		goto out;
- 
- 	err = -ENOENT;
-@@ -728,30 +725,30 @@ static int do_move_mount(struct nameidat
- 
- 	if (old_nd.mnt == old_nd.mnt->mnt_parent)
- 		goto out2;
- 
- 	if (S_ISDIR(nd->dentry->d_inode->i_mode) !=
--	      S_ISDIR(old_nd.dentry->d_inode->i_mode))
-+	    S_ISDIR(old_nd.dentry->d_inode->i_mode))
- 		goto out2;
- 
- 	err = -ELOOP;
--	for (p = nd->mnt; p->mnt_parent!=p; p = p->mnt_parent)
-+	for (p = nd->mnt; p->mnt_parent != p; p = p->mnt_parent)
- 		if (p == old_nd.mnt)
- 			goto out2;
- 	err = 0;
- 
- 	detach_mnt(old_nd.mnt, &parent_nd);
- 	attach_mnt(old_nd.mnt, nd);
- 
- 	/* if the mount is moved, it should no longer be expire
- 	 * automatically */
- 	list_del_init(&old_nd.mnt->mnt_expire);
--out2:
-+      out2:
- 	spin_unlock(&vfsmount_lock);
--out1:
-+      out1:
- 	up(&nd->dentry->d_inode->i_sem);
--out:
-+      out:
- 	up_write(&current->namespace->sem);
- 	if (!err)
- 		path_release(&parent_nd);
- 	path_release(&old_nd);
- 	return err;
-@@ -789,12 +786,11 @@ int do_add_mount(struct vfsmount *newmnt
- {
- 	int err;
- 
- 	down_write(&current->namespace->sem);
- 	/* Something was mounted here while we slept */
--	while(d_mountpoint(nd->dentry) && follow_down(&nd->mnt, &nd->dentry))
--		;
-+	while (d_mountpoint(nd->dentry) && follow_down(&nd->mnt, &nd->dentry)) ;
- 	err = -EINVAL;
- 	if (!check_mnt(nd->mnt))
- 		goto unlock;
- 
- 	/* Refuse the same filesystem on the same mount point */
-@@ -816,11 +812,11 @@ int do_add_mount(struct vfsmount *newmnt
- 		spin_lock(&vfsmount_lock);
- 		list_add_tail(&newmnt->mnt_expire, fslist);
- 		spin_unlock(&vfsmount_lock);
- 	}
- 
--unlock:
-+      unlock:
- 	up_write(&current->namespace->sem);
- 	mntput(newmnt);
- 	return err;
- }
- 
-@@ -943,11 +939,11 @@ EXPORT_SYMBOL_GPL(mark_mounts_for_expiry
-  * bytes remaining to copy on a fault.  But copy_mount_options() requires that.
-  * Note that this function differs from copy_from_user() in that it will oops
-  * on bad values of `to', rather than returning a short copy.
-  */
- static long
--exact_copy_from_user(void *to, const void __user *from, unsigned long n)
-+exact_copy_from_user(void *to, const void __user * from, unsigned long n)
- {
- 	char *t = to;
- 	const char __user *f = from;
- 	char c;
- 
-@@ -964,16 +960,16 @@ exact_copy_from_user(void *to, const voi
- 		n--;
- 	}
- 	return n;
- }
- 
--int copy_mount_options(const void __user *data, unsigned long *where)
-+int copy_mount_options(const void __user * data, unsigned long *where)
- {
- 	int i;
- 	unsigned long page;
- 	unsigned long size;
--	
++ * recursively change the type of the mountpoint.
++ */
++static int do_change_type(struct nameidata *nd, int flag)
++{
++	struct vfsmount *m, *mnt = nd->mnt;
++	int err = 0;
++	int recurse = flag & MS_REC;
 +
- 	*where = 0;
- 	if (!data)
- 		return 0;
- 
- 	if (!(page = __get_free_page(GFP_KERNEL)))
-@@ -988,11 +984,11 @@ int copy_mount_options(const void __user
- 	if (size > PAGE_SIZE)
- 		size = PAGE_SIZE;
- 
- 	i = size - exact_copy_from_user((void *)page, data, size);
- 	if (!i) {
--		free_page(page); 
-+		free_page(page);
- 		return -EFAULT;
- 	}
- 	if (i != PAGE_SIZE)
- 		memset((char *)page + i, 0, PAGE_SIZE - i);
- 	*where = page;
-@@ -1011,12 +1007,12 @@ int copy_mount_options(const void __user
-  * When the flags word was introduced its top half was required
-  * to have the magic value 0xC0ED, and this remained so until 2.4.0-test9.
-  * Therefore, if this magic number is present, it carries no information
-  * and must be discarded.
++	if (nd->dentry != nd->mnt->mnt_root)
++		return -EINVAL;
++
++	down_write(&namespace_sem);
++	spin_lock(&vfsmount_lock);
++	switch (flag & ~MS_REC) {
++	case MS_SHARED:
++		for (m = mnt; m; m = (recurse ? next_mnt(m, mnt) : NULL))
++			do_make_shared(m);
++		break;
++	case MS_SLAVE:
++		for (m = mnt; m; m = (recurse ? next_mnt(m, mnt) : NULL)) {
++			err = do_make_slave(m);
++			if (err && m == mnt)
++				goto out;
++			else
++				err = 0;
++			/*
++			 * note: The mount tree need not have all it mounts as
++			 * shared. Hence it is expected to have some failure
++			 * while slaving mounts down the tree.
++			 */
++		}
++		break;
++	case MS_PRIVATE:
++		for (m = mnt; m; m = (recurse ? next_mnt(m, mnt) : NULL))
++			do_make_private(m);
++		break;
++	}
++      out:
++	spin_unlock(&vfsmount_lock);
++	up_write(&namespace_sem);
++	return err;
++}
++
++/*
+  * do loopback mount.
   */
--long do_mount(char * dev_name, char * dir_name, char *type_page,
--		  unsigned long flags, void *data_page)
-+long do_mount(char *dev_name, char *dir_name, char *type_page,
-+	      unsigned long flags, void *data_page)
+ static int do_loopback(struct nameidata *nd, char *old_name, int recurse)
  {
- 	struct nameidata nd;
- 	int retval = 0;
- 	int mnt_flags = 0;
- 
-@@ -1039,11 +1035,11 @@ long do_mount(char * dev_name, char * di
- 		mnt_flags |= MNT_NOSUID;
- 	if (flags & MS_NODEV)
- 		mnt_flags |= MNT_NODEV;
- 	if (flags & MS_NOEXEC)
- 		mnt_flags |= MNT_NOEXEC;
--	flags &= ~(MS_NOSUID|MS_NOEXEC|MS_NODEV|MS_ACTIVE);
-+	flags &= ~(MS_NOSUID | MS_NOEXEC | MS_NODEV | MS_ACTIVE);
- 
- 	/* ... and get the mountpoint */
- 	retval = path_lookup(dir_name, LOOKUP_FOLLOW, &nd);
- 	if (retval)
- 		return retval;
-@@ -1060,11 +1056,11 @@ long do_mount(char * dev_name, char * di
+ 	struct nameidata old_nd;
+@@ -1051,10 +1099,12 @@ long do_mount(char *dev_name, char *dir_
+ 	if (flags & MS_REMOUNT)
+ 		retval = do_remount(&nd, flags & ~MS_REMOUNT, mnt_flags,
+ 				    data_page);
+ 	else if (flags & MS_BIND)
+ 		retval = do_loopback(&nd, dev_name, flags & MS_REC);
++	else if (flags & (MS_SHARED | MS_PRIVATE | MS_SLAVE))
++		retval = do_change_type(&nd, flags);
  	else if (flags & MS_MOVE)
  		retval = do_move_mount(&nd, dev_name);
  	else
  		retval = do_new_mount(&nd, type_page, flags, mnt_flags,
  				      dev_name, data_page);
--dput_out:
-+      dput_out:
- 	path_release(&nd);
- 	return retval;
- }
- 
- int copy_namespace(int flags, struct task_struct *tsk)
-@@ -1146,11 +1142,11 @@ int copy_namespace(int flags, struct tas
- 		mntput(altrootmnt);
- 
- 	put_namespace(namespace);
- 	return 0;
- 
--out:
+Index: 2.6.13.sharedsubtree/fs/pnode.c
+===================================================================
+--- /dev/null
++++ 2.6.13.sharedsubtree/fs/pnode.c
+@@ -0,0 +1,116 @@
++/*
++ *  linux/fs/pnode.c
++ *
++ * (C) Copyright IBM Corporation 2005.
++ *	Released under GPL v2.
++ *	Author : Ram Pai (linuxram@us.ibm.com)
++ *
++ */
++#include <linux/config.h>
++#include <linux/syscalls.h>
++#include <linux/slab.h>
++#include <linux/sched.h>
++#include <linux/smp_lock.h>
++#include <linux/init.h>
++#include <linux/quotaops.h>
++#include <linux/acct.h>
++#include <linux/module.h>
++#include <linux/seq_file.h>
++#include <linux/namespace.h>
++#include <linux/namei.h>
++#include <linux/security.h>
++#include <linux/mount.h>
++#include <linux/pnode.h>
++#include <asm/uaccess.h>
++#include <asm/unistd.h>
++#include <stdarg.h>
++
++/* spinlock for pnode related operations */
++__cacheline_aligned_in_smp DEFINE_SPINLOCK(vfspnode_lock);
++
++/*
++ * make @mnt the slave of @master
++ */
++static void make_slave_of(struct vfsmount *mnt, struct vfsmount *master)
++{
++	list_del_init(&mnt->mnt_slave);
++	if (master)
++		list_add(&mnt->mnt_slave, &master->mnt_slave_list);
++	mnt->mnt_master = master;
++}
++
++static int __do_make_slave(struct vfsmount *mnt)
++{
++	struct vfsmount *peer_mnt, *master = mnt->mnt_master;
++	struct vfsmount *slave_mnt, *t_slave_mnt;
++
++	peer_mnt = next_shared(mnt);
++	if (peer_mnt == mnt)
++		peer_mnt = NULL;
++
++	list_del_init(&mnt->mnt_share);
++	/*
++	 * first we will attempt to move 'mnt' and its slaves
++	 * under 'peer_mnt'. if that is not possible we will
++	 * try to move them under the 'master'. And if this
++	 * is also not possible than we make them all
++	 * independent(they can no more be slaves).
++	 */
++	if (peer_mnt) {
++		if (master) {
++			/*
++			 * switch the pivot to peer_mnt
++			 */
++			BUG_ON(peer_mnt->mnt_master);
++			BUG_ON(!list_empty(&peer_mnt->mnt_slave));
++			make_slave_of(peer_mnt, master);
++		}
++		master = peer_mnt;
++	}
++
++	list_for_each_entry_safe(slave_mnt, t_slave_mnt,
++				 &mnt->mnt_slave_list, mnt_slave)
++	    make_slave_of(slave_mnt, master);
++
++	make_slave_of(mnt, master);
++	CLEAR_MNT_SHARED(mnt);
++	INIT_LIST_HEAD(&mnt->mnt_slave_list);
++	return 0;
++}
++
++int do_make_shared(struct vfsmount *mnt)
++{
++	set_mnt_shared(mnt);
++	return 0;
++}
++
++int do_make_slave(struct vfsmount *mnt)
++{
++	int err = 0;
++
++	spin_lock(&vfspnode_lock);
++	if (!IS_MNT_SHARED(mnt)) {
++		err = -EINVAL;
++		goto out;
++	}
++	__do_make_slave(mnt);
 +      out:
- 	put_namespace(namespace);
- 	return -ENOMEM;
- }
- 
- asmlinkage long sys_mount(char __user * dev_name, char __user * dir_name,
-@@ -1161,38 +1157,38 @@ asmlinkage long sys_mount(char __user * 
- 	unsigned long data_page;
- 	unsigned long type_page;
- 	unsigned long dev_page;
- 	char *dir_page;
- 
--	retval = copy_mount_options (type, &type_page);
-+	retval = copy_mount_options(type, &type_page);
- 	if (retval < 0)
- 		return retval;
- 
- 	dir_page = getname(dir_name);
- 	retval = PTR_ERR(dir_page);
- 	if (IS_ERR(dir_page))
- 		goto out1;
- 
--	retval = copy_mount_options (dev_name, &dev_page);
-+	retval = copy_mount_options(dev_name, &dev_page);
- 	if (retval < 0)
- 		goto out2;
- 
--	retval = copy_mount_options (data, &data_page);
-+	retval = copy_mount_options(data, &data_page);
- 	if (retval < 0)
- 		goto out3;
- 
- 	lock_kernel();
--	retval = do_mount((char*)dev_page, dir_page, (char*)type_page,
--			  flags, (void*)data_page);
-+	retval = do_mount((char *)dev_page, dir_page, (char *)type_page,
-+			  flags, (void *)data_page);
- 	unlock_kernel();
- 	free_page(data_page);
- 
--out3:
-+      out3:
- 	free_page(dev_page);
--out2:
-+      out2:
- 	putname(dir_page);
--out1:
-+      out1:
- 	free_page(type_page);
- 	return retval;
- }
++	spin_unlock(&vfspnode_lock);
++	return err;
++}
++
++int do_make_private(struct vfsmount *mnt)
++{
++	/*
++	 * a private mount is nothing but a
++	 * slave mount with no incoming
++	 * propagations.
++	 */
++	spin_lock(&vfspnode_lock);
++	__do_make_slave(mnt);
++	list_del_init(&mnt->mnt_slave);
++	spin_unlock(&vfspnode_lock);
++	mnt->mnt_master = NULL;
++	set_mnt_private(mnt);
++	return 0;
++}
+Index: 2.6.13.sharedsubtree/include/linux/fs.h
+===================================================================
+--- 2.6.13.sharedsubtree.orig/include/linux/fs.h
++++ 2.6.13.sharedsubtree/include/linux/fs.h
+@@ -100,10 +100,13 @@ extern int dir_notify_enable;
+ #define MS_NODIRATIME	2048	/* Do not update directory access times */
+ #define MS_BIND		4096
+ #define MS_MOVE		8192
+ #define MS_REC		16384
+ #define MS_VERBOSE	32768
++#define MS_PRIVATE	(1<<18)	/* recursively change to private */
++#define MS_SLAVE	(1<<19)	/* recursively change to slave */
++#define MS_SHARED	(1<<20)	/* recursively change to shared */
+ #define MS_POSIXACL	(1<<16)	/* VFS does not apply the umask */
+ #define MS_ACTIVE	(1<<30)
+ #define MS_NOUSER	(1<<31)
  
  /*
-@@ -1249,18 +1245,21 @@ static void chroot_fs_refs(struct nameid
- 		task_lock(p);
- 		fs = p->fs;
- 		if (fs) {
- 			atomic_inc(&fs->count);
- 			task_unlock(p);
--			if (fs->root==old_nd->dentry&&fs->rootmnt==old_nd->mnt)
-+			if (fs->root == old_nd->dentry
-+			    && fs->rootmnt == old_nd->mnt)
- 				set_fs_root(fs, new_nd->mnt, new_nd->dentry);
--			if (fs->pwd==old_nd->dentry&&fs->pwdmnt==old_nd->mnt)
-+			if (fs->pwd == old_nd->dentry
-+			    && fs->pwdmnt == old_nd->mnt)
- 				set_fs_pwd(fs, new_nd->mnt, new_nd->dentry);
- 			put_fs_struct(fs);
- 		} else
- 			task_unlock(p);
--	} while_each_thread(g, p);
-+	}
-+	while_each_thread(g, p);
- 	read_unlock(&tasklist_lock);
- }
+Index: 2.6.13.sharedsubtree/include/linux/pnode.h
+===================================================================
+--- /dev/null
++++ 2.6.13.sharedsubtree/include/linux/pnode.h
+@@ -0,0 +1,47 @@
++/*
++ *  linux/fs/pnode.h
++ *
++ * (C) Copyright IBM Corporation 2005.
++ *	Released under GPL v2.
++ *
++ */
++#ifndef _LINUX_PNODE_H
++#define _LINUX_PNODE_H
++
++#include <linux/list.h>
++#include <linux/mount.h>
++#include <linux/spinlock.h>
++#include <asm/atomic.h>
++
++extern spinlock_t vfspnode_lock;
++
++static inline void set_mnt_shared(struct vfsmount *mnt)
++{
++	mnt->mnt_flags &= ~MNT_PNODE_MASK;
++	mnt->mnt_flags |= MNT_PNODE_MASK & MNT_SHARED;
++}
++
++static inline void set_mnt_private(struct vfsmount *mnt)
++{
++	mnt->mnt_flags &= ~MNT_PNODE_MASK;
++}
++
++static inline struct vfsmount *next_shared(struct vfsmount *p)
++{
++	return list_entry(p->mnt_share.next, struct vfsmount, mnt_share);
++}
++
++static inline struct vfsmount *first_slave(struct vfsmount *p)
++{
++	return list_entry(p->mnt_slave_list.next, struct vfsmount, mnt_slave);
++}
++
++static inline struct vfsmount *next_slave(struct vfsmount *p)
++{
++	return list_entry(p->mnt_slave.next, struct vfsmount, mnt_slave);
++}
++
++int do_make_slave(struct vfsmount *);
++int do_make_shared(struct vfsmount *);
++int do_make_private(struct vfsmount *);
++#endif				/* _LINUX_PNODE_H */
+Index: 2.6.13.sharedsubtree/include/linux/mount.h
+===================================================================
+--- 2.6.13.sharedsubtree.orig/include/linux/mount.h
++++ 2.6.13.sharedsubtree/include/linux/mount.h
+@@ -15,16 +15,27 @@
+ #include <linux/types.h>
+ #include <linux/list.h>
+ #include <linux/spinlock.h>
+ #include <asm/atomic.h>
  
- /*
-  * pivot_root Semantics:
-@@ -1281,30 +1280,31 @@ static void chroot_fs_refs(struct nameid
-  *  - it's okay to pick a root that isn't the root of a file system, e.g.
-  *    /nfs/my_root where /nfs is the mount point. It must be a mountpoint,
-  *    though, so you may need to say mount --bind /nfs/my_root /nfs/my_root
-  *    first.
-  */
--
--asmlinkage long sys_pivot_root(const char __user *new_root, const char __user *put_old)
-+asmlinkage long sys_pivot_root(const char __user * new_root,
-+			       const char __user * put_old)
+-#define MNT_NOSUID	1
+-#define MNT_NODEV	2
+-#define MNT_NOEXEC	4
++#define MNT_NOSUID	0x01
++#define MNT_NODEV	0x02
++#define MNT_NOEXEC	0x04
++#define MNT_SHARED	0x10	/* if the vfsmount is a shared mount */
++#define MNT_PNODE_MASK	0x30	/* propogation flag mask */
++
++#define IS_MNT_SHARED(mnt) (mnt->mnt_flags & MNT_SHARED)
++#define IS_MNT_SLAVE(mnt) (!list_empty(&mnt->mnt_slave))
++#define IS_MNT_PRIVATE(mnt) (!IS_MNT_SLAVE(mnt) && \
++			!(mnt->mnt_flags & MNT_PNODE_MASK))
++#define IS_MNT_UNCLONABLE(mnt) (mnt->mnt_flags & MNT_UNCLONABLE)
++#define GET_MNT_TYPE(mnt) (mnt->mnt_flags & MNT_PNODE_MASK)
++#define SET_MNT_TYPE(mnt, type) (mnt->mnt_flags &= ~MNT_PNODE_MASK, \
++			mnt->mnt_flags |= (type & MNT_PNODE_MASK))
++#define CLEAR_MNT_SHARED(mnt) (mnt->mnt_flags &= ~(MNT_PNODE_MASK & MNT_SHARED))
+ 
+-struct vfsmount
+-{
++struct vfsmount {
+ 	struct list_head mnt_hash;
+ 	struct vfsmount *mnt_parent;	/* fs we are mounted on */
+ 	struct dentry *mnt_mountpoint;	/* dentry of mountpoint */
+ 	struct dentry *mnt_root;	/* root of the mounted tree */
+ 	struct super_block *mnt_sb;	/* pointer to superblock */
+@@ -34,11 +45,15 @@ struct vfsmount
+ 	int mnt_flags;
+ 	int mnt_expiry_mark;		/* true if marked for expiry */
+ 	char *mnt_devname;		/* Name of device e.g. /dev/dsk/hda1 */
+ 	struct list_head mnt_list;
+ 	struct list_head mnt_expire;	/* link in fs-specific expiry list */
+-	struct namespace *mnt_namespace; /* containing namespace */
++	struct list_head mnt_share;	/* circular list of shared mounts */
++	struct list_head mnt_slave_list;	/* list of slave mounts */
++	struct list_head mnt_slave;	/* slave list entry */
++	struct vfsmount *mnt_master;	/* slave is on master->mnt_slave_list */
++	struct namespace *mnt_namespace;/* containing namespace */
+ };
+ 
+ static inline struct vfsmount *mntget(struct vfsmount *mnt)
  {
- 	struct vfsmount *tmp;
- 	struct nameidata new_nd, old_nd, parent_nd, root_parent, user_nd;
- 	int error;
+ 	if (mnt)
+@@ -78,6 +93,6 @@ extern void mark_mounts_for_expiry(struc
  
- 	if (!capable(CAP_SYS_ADMIN))
- 		return -EPERM;
+ extern spinlock_t vfsmount_lock;
+ extern dev_t name_to_dev_t(char *name);
  
- 	lock_kernel();
+ #endif
+-#endif /* _LINUX_MOUNT_H */
++#endif				/* _LINUX_MOUNT_H */
+Index: 2.6.13.sharedsubtree/fs/Makefile
+===================================================================
+--- 2.6.13.sharedsubtree.orig/fs/Makefile
++++ 2.6.13.sharedsubtree/fs/Makefile
+@@ -8,11 +8,11 @@
+ obj-y :=	open.o read_write.o file_table.o buffer.o  bio.o super.o \
+ 		block_dev.o char_dev.o stat.o exec.o pipe.o namei.o fcntl.o \
+ 		ioctl.o readdir.o select.o fifo.o locks.o dcache.o inode.o \
+ 		attr.o bad_inode.o file.o filesystems.o namespace.o aio.o \
+ 		seq_file.o xattr.o libfs.o fs-writeback.o mpage.o direct-io.o \
+-		ioprio.o
++		ioprio.o pnode.o
  
--	error = __user_walk(new_root, LOOKUP_FOLLOW|LOOKUP_DIRECTORY, &new_nd);
-+	error =
-+	    __user_walk(new_root, LOOKUP_FOLLOW | LOOKUP_DIRECTORY, &new_nd);
- 	if (error)
- 		goto out0;
- 	error = -EINVAL;
- 	if (!check_mnt(new_nd.mnt))
- 		goto out1;
+ obj-$(CONFIG_INOTIFY)		+= inotify.o
+ obj-$(CONFIG_EPOLL)		+= eventpoll.o
+ obj-$(CONFIG_COMPAT)		+= compat.o
  
--	error = __user_walk(put_old, LOOKUP_FOLLOW|LOOKUP_DIRECTORY, &old_nd);
-+	error = __user_walk(put_old, LOOKUP_FOLLOW | LOOKUP_DIRECTORY, &old_nd);
- 	if (error)
- 		goto out1;
- 
- 	error = security_sb_pivotroot(&old_nd, &new_nd);
- 	if (error) {
-@@ -1328,51 +1328,51 @@ asmlinkage long sys_pivot_root(const cha
- 		goto out2;
- 	if (d_unhashed(old_nd.dentry) && !IS_ROOT(old_nd.dentry))
- 		goto out2;
- 	error = -EBUSY;
- 	if (new_nd.mnt == user_nd.mnt || old_nd.mnt == user_nd.mnt)
--		goto out2; /* loop, on the same file system  */
-+		goto out2;	/* loop, on the same file system  */
- 	error = -EINVAL;
- 	if (user_nd.mnt->mnt_root != user_nd.dentry)
--		goto out2; /* not a mountpoint */
-+		goto out2;	/* not a mountpoint */
- 	if (new_nd.mnt->mnt_root != new_nd.dentry)
--		goto out2; /* not a mountpoint */
--	tmp = old_nd.mnt; /* make sure we can reach put_old from new_root */
-+		goto out2;	/* not a mountpoint */
-+	tmp = old_nd.mnt;	/* make sure we can reach put_old from new_root */
- 	spin_lock(&vfsmount_lock);
- 	if (tmp != new_nd.mnt) {
- 		for (;;) {
- 			if (tmp->mnt_parent == tmp)
--				goto out3; /* already mounted on put_old */
-+				goto out3;	/* already mounted on put_old */
- 			if (tmp->mnt_parent == new_nd.mnt)
- 				break;
- 			tmp = tmp->mnt_parent;
- 		}
- 		if (!is_subdir(tmp->mnt_mountpoint, new_nd.dentry))
- 			goto out3;
- 	} else if (!is_subdir(old_nd.dentry, new_nd.dentry))
- 		goto out3;
- 	detach_mnt(new_nd.mnt, &parent_nd);
- 	detach_mnt(user_nd.mnt, &root_parent);
--	attach_mnt(user_nd.mnt, &old_nd);     /* mount old root on put_old */
--	attach_mnt(new_nd.mnt, &root_parent); /* mount new_root on / */
-+	attach_mnt(user_nd.mnt, &old_nd);	/* mount old root on put_old */
-+	attach_mnt(new_nd.mnt, &root_parent);	/* mount new_root on / */
- 	spin_unlock(&vfsmount_lock);
- 	chroot_fs_refs(&user_nd, &new_nd);
- 	security_sb_post_pivotroot(&user_nd, &new_nd);
- 	error = 0;
- 	path_release(&root_parent);
- 	path_release(&parent_nd);
--out2:
-+      out2:
- 	up(&old_nd.dentry->d_inode->i_sem);
- 	up_write(&current->namespace->sem);
- 	path_release(&user_nd);
- 	path_release(&old_nd);
--out1:
-+      out1:
- 	path_release(&new_nd);
--out0:
-+      out0:
- 	unlock_kernel();
- 	return error;
--out3:
-+      out3:
- 	spin_unlock(&vfsmount_lock);
- 	goto out2;
- }
- 
- static void __init init_mount_tree(void)
-@@ -1397,11 +1397,12 @@ static void __init init_mount_tree(void)
- 	init_task.namespace = namespace;
- 	read_lock(&tasklist_lock);
- 	do_each_thread(g, p) {
- 		get_namespace(namespace);
- 		p->namespace = namespace;
--	} while_each_thread(g, p);
-+	}
-+	while_each_thread(g, p);
- 	read_unlock(&tasklist_lock);
- 
- 	set_fs_pwd(current->fs, namespace->root, namespace->root->mnt_root);
- 	set_fs_root(current->fs, namespace->root, namespace->root->mnt_root);
- }
-@@ -1411,14 +1412,15 @@ void __init mnt_init(unsigned long mempa
- 	struct list_head *d;
- 	unsigned int nr_hash;
- 	int i;
- 
- 	mnt_cache = kmem_cache_create("mnt_cache", sizeof(struct vfsmount),
--			0, SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
-+				      0, SLAB_HWCACHE_ALIGN | SLAB_PANIC, NULL,
-+				      NULL);
- 
- 	mount_hashtable = (struct list_head *)
--		__get_free_page(GFP_ATOMIC);
-+	    __get_free_page(GFP_ATOMIC);
- 
- 	if (!mount_hashtable)
- 		panic("Failed to allocate mount hash table\n");
- 
- 	/*
-@@ -1436,11 +1438,11 @@ void __init mnt_init(unsigned long mempa
- 	/*
- 	 * Re-calculate the actual number of entries and the mask
- 	 * from the number of bits we can fit.
- 	 */
- 	nr_hash = 1UL << hash_bits;
--	hash_mask = nr_hash-1;
-+	hash_mask = nr_hash - 1;
- 
- 	printk("Mount-cache hash table entries: %d\n", nr_hash);
- 
- 	/* And initialize the newly allocated array */
- 	d = mount_hashtable;

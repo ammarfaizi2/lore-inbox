@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161265AbVIPS5S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161268AbVIPS5i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161265AbVIPS5S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 14:57:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161266AbVIPS5S
+	id S1161268AbVIPS5i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 14:57:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161267AbVIPS5i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 14:57:18 -0400
-Received: from zproxy.gmail.com ([64.233.162.194]:1607 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161265AbVIPS5R convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 14:57:17 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=iLkmN/Pruhv7Q+CN/ISp3PxIwF/ZVAWg4U9AddCSvJ9bX4z7zhQGFzJRGfccppq0dAcxTE1QRR2jnUCfkAmSovamToeWfAbGwBhd21XcAAdRqEU2eIbxOzlKo+JJgHeSemWlme3pUOoazWv6pCGTAeol9GPifagbRLAW7Fk6Tu8=
-Message-ID: <4746469c0509161157bc762bc@mail.gmail.com>
-Date: Fri, 16 Sep 2005 11:57:16 -0700
-From: Mike Mohr <akihana@gmail.com>
-Reply-To: akihana@gmail.com
-To: linux-kernel@vger.kernel.org
-Subject: Reboot & ACPI suspend Laptop display initialization
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Fri, 16 Sep 2005 14:57:38 -0400
+Received: from mail-in-09.arcor-online.net ([151.189.21.49]:50561 "EHLO
+	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1161266AbVIPS5h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 14:57:37 -0400
+Date: Fri, 16 Sep 2005 20:57:31 +0200 (CEST)
+From: Bodo Eggert <7eggert@gmx.de>
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: 7eggert@gmx.de,
+       =?ISO-8859-1?Q?=22Martin_v=2E_L=F6wis=22?= <martin@v.loewis.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Patch] Support UTF-8 scripts
+In-Reply-To: <432B0A47.7060909@zytor.com>
+Message-ID: <Pine.LNX.4.58.0509162029470.5708@be1.lrz>
+References: <4N6EL-4Hq-3@gated-at.bofh.it> <4N6EL-4Hq-5@gated-at.bofh.it>
+ <4N6EK-4Hq-1@gated-at.bofh.it> <4N6EX-4Hq-27@gated-at.bofh.it>
+ <4N6Ox-4Ts-33@gated-at.bofh.it> <4N7AS-67L-3@gated-at.bofh.it>
+ <E1EGKXl-0001Sn-GA@be1.lrz> <432B0A47.7060909@zytor.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There seems to be an issue with the VESA driver for my laptop's video
-card.  I can install any version of the kernel (tested with
-2.4.{23,24}, 2.4.31, and various 2.6.XX > 2.6.8) and the system turns
-on and boots fine.  However, if I go into suspend to ram (which I
-think is ACPI S3) where the display is turned off -or- I reboot
-without shutting down first, the display is not re-initialized.
+On Fri, 16 Sep 2005, H. Peter Anvin wrote:
+> Bodo Eggert wrote:
 
-The system seems to come back on into a semi-usable state (i.e. if I
-reboot the kernel seems to boot and the system comes up), but the
-display remains solid black, so I have not been able to verify this. 
-Come to think of it, I could probably connect the laptop up to my home
-network and SSH into it after this happens, but I haven't yet done so.
+> > What's supposed to happen if you concatenate a script from your french
+> > user and from your russian user, both using localized text, into one file?
+> > Unless you can guarantee every editor to correctly handle this case, all
+> > usage of 8-bit-characters should be disabled - NOT!
+> 
+> Actually, it's quite easy to avoid problems by using UTF-8 consistently. 
+>    The 8-bit characters are oddballs and need to be treated specially, 
+> but look, guys, it's 2005 - UTF-8 should be the norm, not the exception.
 
-My laptop is a Toshiba Satellite 1800 S207 with a Trident XPAi1 video
-card.  If I use the tridentfb driver (at least as of kernel 2.4) at
-boot time, the screen turns various shades of gold immediately after
-the kernel loads. Can someone help me debug this issue so that a fix
-can be written?  The problem happens even with a pristine installation
-of Slackware 10.2 with the default bare 2.4.31 kernel.
+It should, but as long as old programs are still around, we'll have both 
+and need a marker to distinguish them. Otherwise we'll be stuck with
+legacy scripts for a long time.
 
-TIA
-
-Mike
+-- 
+I'm a member of DNA (National Assocciation of Dyslexics).
+	-- Storm in <5Z4Z7.52353$4x4.6445347@news2-win.server.ntlworld.com>

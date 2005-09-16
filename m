@@ -1,38 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161146AbVIPJpg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161148AbVIPJrv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161146AbVIPJpg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 05:45:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161148AbVIPJpg
+	id S1161148AbVIPJrv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 05:47:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161149AbVIPJrv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 05:45:36 -0400
-Received: from nproxy.gmail.com ([64.233.182.204]:42944 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161146AbVIPJpf convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 05:45:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=NfcQ9Kv9yEGy6vov5s5YbRmZr578H3luiyefjTex6sxfUN5O09CZzjXx1Vm5UwX0EUxI0Cc+yr+s3a71U6q7wNXr479EBgLQYTVEGyV7hqc2j6BSU4Uw3lCGou4Lt7KnagEgKMQPtlX3OF3fsE2VfKuFH/3cDAAVBB8ON2mz8io=
-Message-ID: <84144f020509160245445fc58a@mail.gmail.com>
-Date: Fri, 16 Sep 2005 12:45:34 +0300
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-Reply-To: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.14-rc1-mm1
-Cc: linux-kernel@vger.kernel.org, Hans Reiser <reiser@namesys.com>
-In-Reply-To: <20050916022319.12bf53f3.akpm@osdl.org>
+	Fri, 16 Sep 2005 05:47:51 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:50892 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161148AbVIPJru (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 05:47:50 -0400
+Date: Fri, 16 Sep 2005 02:47:10 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Roger Heflin" <rheflin@atipa.com>
+Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>,
+       Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: Machine does not find AT keyboard with 2.6.13.1
+Message-Id: <20050916024710.6a74efed.akpm@osdl.org>
+In-Reply-To: <EXCHG2003lkDTM9wGmA0000084b@EXCHG2003.microtech-ks.com>
+References: <EXCHG2003lkDTM9wGmA0000084b@EXCHG2003.microtech-ks.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050916022319.12bf53f3.akpm@osdl.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/16/05, Andrew Morton <akpm@osdl.org> wrote:
-> - Big reiser4 update which is said to address all review comments.
+"Roger Heflin" <rheflin@atipa.com> wrote:
+>
+> I have an older machine that fails to find the AT keyboard.   The machine is
+>  based
+>  on an Intel 7501 chipset.
+> 
+>  Under the default fedora core 4 kernel, it found the keyboard and that
+>  keyboard
+>  worked in UP mode, in SMP mode the machine crashed, but that is a different
+>  issue.
+> 
+>  Under 2.6.13.1 the machine boots under SMP and does not crash, dmesg does
+>  not report
+>  the keyboard being found, and the keyboard fails to work.  The .config file
+>  does have
+>  CONFIG_KEYBOARD_ATKBD set to Y.   The keyboard was being found was seen on
+>  the default
+>  fedora core 4 kernel.   There are no extra options on the boot cmdline.
+> 
+>  The important messages seem to be:
+> 
+>  Fedora Core 4 default UP kernel boot:
+>  Sep 15 19:55:12 node001 kernel: serio: i8042 AUX port at 0x60,0x64 irq 12
+>  Sep 15 19:55:12 node001 kernel: serio: i8042 KBD port at 0x60,0x64 irq 1
+>  Sep 15 19:55:12 node001 kernel: input: AT Translated Set 2 keyboard on
+>  isa0060/serio0
+> 
+>  New boot (2.6.13.1 smp boot)
+>  Sep 15 21:12:35 node001 kernel: i8042.c: Can't read CTR while initializing
+>  i8042.
+> 
+>  The i8042 is of course missing out of /proc/interrupts on the new boot.
 
-One relatively minor issue not addressed: type safe hash is in
-fs/reiser4/ and not in include/linux/.
+That I8042_CMD_CTL_WCTR write-and-test seems to be new.  Can you try taking
+it out?
 
-                                     Pekka
+--- devel/drivers/input/serio/i8042.c~a	2005-09-16 02:45:02.000000000 -0700
++++ devel-akpm/drivers/input/serio/i8042.c	2005-09-16 02:46:51.000000000 -0700
+@@ -305,11 +305,6 @@ static int i8042_activate_port(struct i8
+ 
+ 	i8042_ctr |= port->irqen;
+ 
+-	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR)) {
+-		i8042_ctr &= ~port->irqen;
+-		return -1;
+-	}
+-
+ 	return 0;
+ }
+ 
+_
+

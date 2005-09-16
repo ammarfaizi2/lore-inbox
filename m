@@ -1,60 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161081AbVIPM7c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161091AbVIPNZi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161081AbVIPM7c (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 08:59:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161087AbVIPM7c
+	id S1161091AbVIPNZi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 09:25:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161094AbVIPNZi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 08:59:32 -0400
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:5381 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1161081AbVIPM7b
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 08:59:31 -0400
-To: fawadlateef@gmail.com
-Cc: ivan.korzakow@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: best way to access device driver functions
-References: <a5986103050915004846d05841@mail.gmail.com>
-	<1e62d137050915010361d10139@mail.gmail.com>
-	<a598610305091505184a8aa8fd@mail.gmail.com>
-	<1e62d13705091508391832f897@mail.gmail.com>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: if it payed rent for disk space, you'd be rich.
-Date: Fri, 16 Sep 2005 13:59:22 +0100
-In-Reply-To: <1e62d13705091508391832f897@mail.gmail.com> (Fawad Lateef's
- message of "15 Sep 2005 16:39:51 +0100")
-Message-ID: <87mzmduq1h.fsf@amaterasu.srvr.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Fri, 16 Sep 2005 09:25:38 -0400
+Received: from host27-37.discord.birch.net ([65.16.27.37]:43865 "EHLO
+	EXCHG2003.microtech-ks.com") by vger.kernel.org with ESMTP
+	id S1161093AbVIPNZi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 09:25:38 -0400
+From: "Roger Heflin" <rheflin@atipa.com>
+To: "'Vojtech Pavlik'" <vojtech@suse.cz>, "'Andrew Morton'" <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>,
+       "'Dmitry Torokhov'" <dtor_core@ameritech.net>
+Subject: RE: Machine does not find AT keyboard with 2.6.13.1
+Date: Fri, 16 Sep 2005 08:30:12 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Thread-Index: AcW6s6M11MIKtYLKRUCKXCpO/IysFAADsMoA
+In-Reply-To: <20050916114534.GB1278@ucw.cz>
+Message-ID: <EXCHG2003mpcQABZTW500000858@EXCHG2003.microtech-ks.com>
+X-OriginalArrivalTime: 16 Sep 2005 13:21:53.0116 (UTC) FILETIME=[9A5CE1C0:01C5BAC1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15 Sep 2005, Fawad Lateef stated:
-> On 9/15/05, Ivan Korzakow <ivan.korzakow@gmail.com> wrote:
->> Could you explain me why ioctl should be avoided ? Is it going to be
->> deprecated in future kernel ?
+Vojtech,
+
+Adding usb-handoff fixed the problem, the keyboard/mouse is found
+and works correctly.
+
+I never would have guessed that a usb option would fix a ps2 issue.
+
+                       Thanks
+                       Roger 
+
+> -----Original Message-----
+> From: Vojtech Pavlik [mailto:vojtech@suse.cz] 
+> Sent: Friday, September 16, 2005 6:46 AM
+> To: Andrew Morton
+> Cc: Roger Heflin; linux-kernel@vger.kernel.org; Dmitry Torokhov
+> Subject: Re: Machine does not find AT keyboard with 2.6.13.1
 > 
-> No ioctl are not deprecated, but they are just avoided b/c its not
-> good to mess kernel with new system-calls as there is a different way
-> for that !!!!
+> On Fri, Sep 16, 2005 at 02:47:10AM -0700, Andrew Morton wrote:
+> > "Roger Heflin" <rheflin@atipa.com> wrote:
+> > >
+> > > I have an older machine that fails to find the AT 
+> keyboard.   The machine is
+> > >  based
+> > >  on an Intel 7501 chipset.
+> > > 
+> > >  Under the default fedora core 4 kernel, it found the 
+> keyboard and 
+> > > that  keyboard  worked in UP mode, in SMP mode the 
+> machine crashed, 
+> > > but that is a different  issue.
+> > > 
+> > >  Under 2.6.13.1 the machine boots under SMP and does not crash, 
+> > > dmesg does  not report  the keyboard being found, and the 
+> keyboard 
+> > > fails to work.  The .config file  does have
+> > >  CONFIG_KEYBOARD_ATKBD set to Y.   The keyboard was being 
+> found was seen on
+> > >  the default
+> > >  fedora core 4 kernel.   There are no extra options on 
+> the boot cmdline.
+> > > 
+> > >  The important messages seem to be:
+> > > 
+> > >  Fedora Core 4 default UP kernel boot:
+> > >  Sep 15 19:55:12 node001 kernel: serio: i8042 AUX port at 
+> 0x60,0x64 
+> > > irq 12  Sep 15 19:55:12 node001 kernel: serio: i8042 KBD port at 
+> > > 0x60,0x64 irq 1  Sep 15 19:55:12 node001 kernel: input: AT 
+> > > Translated Set 2 keyboard on  isa0060/serio0
+> > > 
+> > >  New boot (2.6.13.1 smp boot)
+> > >  Sep 15 21:12:35 node001 kernel: i8042.c: Can't read CTR while 
+> > > initializing  i8042.
+> 
+> "usb-handoff" on the kernel command line should solve this. I 
+> thought we already had that as a default, or was the patch to 
+> make it so dropped?
+> 
+> > >  The i8042 is of course missing out of /proc/interrupts 
+> on the new boot.
+> > 
+> > That I8042_CMD_CTL_WCTR write-and-test seems to be new.  
+> Can you try 
+> > taking it out?
+> 
+> It's not a test, it's enabling the port interrupt. It won't 
+> work without it at all.
+> 
+> > --- devel/drivers/input/serio/i8042.c~a	2005-09-16 
+> 02:45:02.000000000 -0700
+> > +++ devel-akpm/drivers/input/serio/i8042.c	2005-09-16 
+> 02:46:51.000000000 -0700
+> > @@ -305,11 +305,6 @@ static int i8042_activate_port(struct i8
+> >  
+> >  	i8042_ctr |= port->irqen;
+> >  
+> > -	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR)) {
+> > -		i8042_ctr &= ~port->irqen;
+> > -		return -1;
+> > -	}
+> > -
+> >  	return 0;
+> >  }
+> >  
+> > _
+> > 
+> > 
+> 
+> --
+> Vojtech Pavlik
+> SuSE Labs, SuSE CR
+> 
 
-Well, not really; ioctl() is only one system call. They're actually
-avoided because ioctl() has a horrible non-typesafe non-transparent
-interface. (Quick! What parameters does the CCISS_PASSTHRU32 ioctl()
-expect?)
-
-sysfs fixes all of these problems, and adds easy scriptability
-and interrogation from the command-line and a nice hierarchy
-as well.
-
-
-New *system calls* are generally avoided (especially if they might be
-useful to non-privileged code) because they come with a *very* high
-backward compatibility burden: it's pretty much the case that syscalls
-that normal programs rely on should never go away. (Syscalls used only
-by programs that you expect to change with the kernel, like modutils/
-module-init-tools, are a special case.)
-
--- 
-`One cannot, after all, be expected to read every single word
- of a book whose author one wishes to insult.' --- Richard Dawkins

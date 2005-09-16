@@ -1,60 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030476AbVIPCyt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030575AbVIPC5W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030476AbVIPCyt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 22:54:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030479AbVIPCyt
+	id S1030575AbVIPC5W (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 22:57:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030567AbVIPC5W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 22:54:49 -0400
-Received: from mail.kroah.org ([69.55.234.183]:39639 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1030476AbVIPCyt (ORCPT
+	Thu, 15 Sep 2005 22:57:22 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:32219 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1030543AbVIPC5V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 22:54:49 -0400
-Date: Thu, 15 Sep 2005 19:54:17 -0700
-From: Greg KH <greg@kroah.com>
-To: Ilia Mirkin <imirkin@MIT.EDU>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: pci detection on alpha fails to assign irq to on-board usb device
-Message-ID: <20050916025416.GA31585@kroah.com>
-References: <1126830006.7002.12.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1126830006.7002.12.camel@localhost>
-User-Agent: Mutt/1.5.10i
+	Thu, 15 Sep 2005 22:57:21 -0400
+Message-ID: <432A348D.40906@pobox.com>
+Date: Thu, 15 Sep 2005 22:57:17 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: lkosewsk@gmail.com
+CC: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: [PATCH 2.6.14-rc1 0/3] Add disk hotswap support to libata RESEND
+ #3
+References: <355e5e5e050914220444505b09@mail.gmail.com>
+In-Reply-To: <355e5e5e050914220444505b09@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 15, 2005 at 08:20:06PM -0400, Ilia Mirkin wrote:
-> This is on a Compaq Professional Workstation XP1000, which is a Tsunami
-> system, compiled with the DP264 system setting in the kernel:
+Lukasz Kosewski wrote:
+> Hello Jeff, all,
 > 
-> ohci_hcd: 2004 Nov 08 USB 1.1 'Open' Host Controller (OHCI) Driver (PCI)
-> ohci_hcd 0000:00:07.3: Found HC with no IRQ.  Check BIOS/PCI
-> 0000:00:07.3 setup!
-> ohci_hcd 0000:00:07.3: init 0000:00:07.3 fail, -19
+> Another attempt at hotswap support to libata... this would be attempt #3.
 > 
-> lspci -vvvx -s 00:07.3
-> 0000:00:07.3 USB Controller: Contaq Microsystems 82c693 (prog-if 10
-> [OHCI])
->         Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop-
-> ParErr- Stepping- SERR- FastB2B-
->         Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
-> <TAbort- <MAbort- >SERR- <PERR-
->         Interrupt: pin A routed to IRQ 0
->         Region 0: Memory at 0000000009018000 (32-bit, non-prefetchable)
-> 00: 80 10 93 c6 03 00 80 02 00 10 03 0c 08 f8 80 00
-> 10: 00 80 01 09 00 00 00 00 00 00 00 00 00 00 00 00
-> 20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 30: 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00
+> Lots of improvements... a cleaner API, clean straightforward code
+> which is easy to customize (or generalize, when the desire to support
+> ATA hotswap comes along), and a new feature; no longer kernel panics
+> on any action!
 > 
-> There was a fix that went into the miata system type a while back:
-> http://www.uwsg.iu.edu/hypermail/linux/kernel/0110.3/0849.html
-> 
-> I am using kernel 2.6.12.5, though the same problem occured with
-> 2.6.11.8.
+> Some testing on x86 UP, minimal on SMP.  Please test, send questions,
+> suggestions, and apply if you like it.  Patches apply cleanly to
+> 2.6.14-rc1.  I've got some hardware so if you discover problems I can
+> probably reproduce them.
 
-Can you try 2.6.13.1 or 2.6.14-rc1?
+At a really quick glance, looks positive to me.  Thanks for working on 
+this!  Once this is merged, I'm sure users will thank you too:  people 
+will be able to [literally] yank their disks, if they are failing, 
+without bringing down the system.
 
-thanks,
+I'm away this weekend, so won't be able to give it an in-depth look 
+until next week.
 
-greg k-h
+	Jeff
+
+
+

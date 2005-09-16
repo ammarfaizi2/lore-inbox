@@ -1,60 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965289AbVIPALt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030468AbVIPAUa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965289AbVIPALt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 20:11:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965296AbVIPALt
+	id S1030468AbVIPAUa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 20:20:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030476AbVIPAUa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 20:11:49 -0400
-Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:57057 "EHLO
-	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S965289AbVIPALs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 20:11:48 -0400
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Date: Fri, 16 Sep 2005 01:11:45 +0100 (BST)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Bas Vermeulen <bvermeul@blackstar.nl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-rc1 - kernel BUG at fs/ntfs/aops.c:403
-In-Reply-To: <1126822443.4776.3.camel@laptop.blackstar.nl>
-Message-ID: <Pine.LNX.4.60.0509160111150.3678@hermes-1.csi.cam.ac.uk>
-References: <1126769362.5358.3.camel@laptop.blackstar.nl> 
- <Pine.LNX.4.60.0509150954290.29921@hermes-1.csi.cam.ac.uk> 
- <1126812296.4776.2.camel@laptop.blackstar.nl> 
- <Pine.LNX.4.60.0509152219260.21782@hermes-1.csi.cam.ac.uk>
- <1126822443.4776.3.camel@laptop.blackstar.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 15 Sep 2005 20:20:30 -0400
+Received: from SOUTH-STATION-ANNEX.MIT.EDU ([18.72.1.2]:15502 "EHLO
+	south-station-annex.mit.edu") by vger.kernel.org with ESMTP
+	id S1030468AbVIPAU3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 20:20:29 -0400
+Subject: pci detection on alpha fails to assign irq to on-board usb device
+From: Ilia Mirkin <imirkin@MIT.EDU>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Thu, 15 Sep 2005 20:20:06 -0400
+Message-Id: <1126830006.7002.12.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 1.041
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Sep 2005, Bas Vermeulen wrote:
-> On Thu, 2005-09-15 at 22:21 +0100, Anton Altaparmakov wrote:
-> > On Thu, 15 Sep 2005, Bas Vermeulen wrote:
-> > > Sep 15 21:13:43 laptop kernel: [4295071.339000] NTFS volume version 3.1.
-> > > Sep 15 21:13:43 laptop kernel: [4295071.339000] NTFS-fs error (device
-> > > sda2): load_system_files(): Volume is dirty.  Mounting read-only.  Run
-> > > chkdsk and mount in Windows.
-> > > Sep 15 21:13:43 laptop kernel: [4295071.439000] NTFS-fs error (device
-> > > sda2): ntfs_readpage(): Eeek!  i_ino = 0x5, type = 0xa0, name_len = 0x4.
-> > 
-> > Great, thanks!  I suspected this might be the case but I didn't think 
-> > that was possible.  )-:
-> > 
-> > Could you confirm for me that this ntfs volume is compressed?  (I.e. the 
-> > compression bit is enabled on the root directory.)
-> 
-> Yes, it is compressed.
+This is on a Compaq Professional Workstation XP1000, which is a Tsunami
+system, compiled with the DP264 system setting in the kernel:
 
-Excellent, thanks.  I will try and do the fix tomorrow and send it to 
-Linus.
+ohci_hcd: 2004 Nov 08 USB 1.1 'Open' Host Controller (OHCI) Driver (PCI)
+ohci_hcd 0000:00:07.3: Found HC with no IRQ.  Check BIOS/PCI
+0000:00:07.3 setup!
+ohci_hcd 0000:00:07.3: init 0000:00:07.3 fail, -19
 
-Best regards,
+lspci -vvvx -s 00:07.3
+0000:00:07.3 USB Controller: Contaq Microsystems 82c693 (prog-if 10
+[OHCI])
+        Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Interrupt: pin A routed to IRQ 0
+        Region 0: Memory at 0000000009018000 (32-bit, non-prefetchable)
+00: 80 10 93 c6 03 00 80 02 00 10 03 0c 08 f8 80 00
+10: 00 80 01 09 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00
 
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+There was a fix that went into the miata system type a while back:
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0110.3/0849.html
+
+I am using kernel 2.6.12.5, though the same problem occured with
+2.6.11.8.
+
+Unfortunately I do not know enough about these systems to attempt to
+copy such a fix into the dp264 system type -- I made an attempt, but it
+had no effect.
+
+If you send me a patch to try out, I can do so as the system is not
+being used for anything serious at the moment. If you need more info
+about the system, just ask.
+
+Thanks,
+
+Ilia
+

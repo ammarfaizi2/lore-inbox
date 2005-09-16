@@ -1,103 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161169AbVIPQDE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161173AbVIPQLy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161169AbVIPQDE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 12:03:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161170AbVIPQDE
+	id S1161173AbVIPQLy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 12:11:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161174AbVIPQLy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 12:03:04 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:11532 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S1161169AbVIPQDC convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 12:03:02 -0400
+	Fri, 16 Sep 2005 12:11:54 -0400
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:23709 "EHLO
+	mail.rtr.ca") by vger.kernel.org with ESMTP id S1161173AbVIPQLx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 12:11:53 -0400
+Message-ID: <432AEEC8.3030800@rtr.ca>
+Date: Fri, 16 Sep 2005 12:11:52 -0400
+From: Mark Lord <liml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050728
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <87irx1ujc0.fsf@amaterasu.srvr.nix>
-References: <a5986103050915004846d05841@mail.gmail.com><1e62d137050915010361d10139@mail.gmail.com><a598610305091505184a8aa8fd@mail.gmail.com><1e62d13705091508391832f897@mail.gmail.com><87mzmduq1h.fsf@amaterasu.srvr.nix><1126879660.3103.6.camel@localhost.localdomain> <87irx1ujc0.fsf@amaterasu.srvr.nix>
-X-OriginalArrivalTime: 16 Sep 2005 16:03:00.0574 (UTC) FILETIME=[1C9DE7E0:01C5BAD8]
-Content-class: urn:content-classes:message
-Subject: Re: best way to access device driver functions
-Date: Fri, 16 Sep 2005 12:02:59 -0400
-Message-ID: <Pine.LNX.4.61.0509161133410.2041@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: best way to access device driver functions
-Thread-Index: AcW62BypDYg8eJHlQFeyOqODUiwsHQ==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Nix" <nix@esperi.org.uk>
-Cc: <arjanv@redhat.com>, <linux-kernel@vger.kernel.org>,
-       <ivan.korzakow@gmail.com>, <fawadlateef@gmail.com>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: lkosewsk@gmail.com
+Cc: jim.ramsay@gmail.com, Stefan Richter <stefanr@s5r6.in-berlin.de>,
+       linux-scsi@vger.kernel.org, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/3] Add disk hotswap support to libata RESEND #2
+References: <355e5e5e05080103021a8239df@mail.gmail.com>	 <4789af9e050823124140eb924f@mail.gmail.com>	 <4789af9e050823154364c8e9eb@mail.gmail.com>	 <430BA990.9090807@mvista.com> <430BCB41.5070206@s5r6.in-berlin.de>	 <355e5e5e05082407031138120a@mail.gmail.com>	 <4789af9e05082408111c4a6294@mail.gmail.com>	 <4789af9e05082409121cc6870@mail.gmail.com>	 <4789af9e0508291223435f174@mail.gmail.com>	 <4789af9e05090612023fb8517c@mail.gmail.com> <355e5e5e050914214025feee82@mail.gmail.com>
+In-Reply-To: <355e5e5e050914214025feee82@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 16 Sep 2005, Nix wrote:
-
-> On 16 Sep 2005, Arjan van de Ven noted:
+Lukasz Kosewski wrote:
+> On 9/6/05, Jim Ramsay <jim.ramsay@gmail.com> wrote:
+> 
+>>However, I have seen the occasion where a single IRQ is used to signal
+>>both a DMA completion AND a hotplug event.  Of course in this case the
+>>hotplug event itself would be ignored completely.
 >>
->>> New *system calls* are generally avoided (especially if they might be
->>> useful to non-privileged code) because they come with a *very* high
->>> backward compatibility burden
->>
->> ioctls come with the same burden though.
->
-> Well, sort of. A lot of ioctl()s are widely-known and surely can't be
-> changed, just like syscalls (e.g. the terminal control stuff) --- but
-> in the past even things like the HD geometry ioctls have changed,
-> and ioctl()s specific to, say, a single obscure block device could
-> probably change without requiring recompilation of more than one or
-> two userspace programs (and this has happened).
->
-> Indeed, one of the problems with ioctl()s is that there is no clear
-> delineation: some ioctl()s are heavily used and some are totally
-> unused, and it's never clear which is which in all cases.
->
-> (I suppose this is sort of true of syscalls too --- how many people call
-> sys_uselib()? --- but to a much lesser extent, because there's no such
-> thing as an `obscure device-specific syscall'.)
->
-> --
-> `One cannot, after all, be expected to read every single word
-> of a book whose author one wishes to insult.' --- Richard Dawkins
-> -
+>>So I would recommend getting rid of that check entirely.
+> 
+> 
+> Hey Jim,
+> 
+> Not that I disbelieve you, but do you have an example of a controller
+> where this happens?  I've done a lot of testing and never seen this...
 
-But an ioctl is supposed to be specific to your device. After all,
-you access it with a fd obtained by opening your device. To keep
-`strace` from "interpreting" your ioctl function-code, it was
-common to start device-specific ioctl function values higher than
-the ones used by common kernel devices.
+I missed the beginning of this discussion,
+but here's a data point:
 
-Using another interface to provide device-specific control is
-more "Sun-like", "BSD-like", or "Linux-like", not necessarily
-bad or good. The defacto "Unix" way is to use ioctl(). That's
-what it was provided for; "The ioctl() function manipilates the
-underlying device parameters of special files." -- from the
-AT&T System-V release 2 programmer's reference manual.
+The QStor SATA/RAID controller hardware fully supports hotplug
+(and NCQ, TCQ, Host-Queuing, RAID 0/1/10, PM, etc..).
 
-Somebody reported to me that there was some special "optimization"
-in Linux that interpreted ioctl() function calls without regard
-to the specific device that was open (gawd I hope not), and that
-if you used "already-used" function numbers for your device-specific
-ioctl(), then strange things would occur. If true, then that is
-a bug. Code inspection of fs/ioctl.c doesn't show this to be
-the case. However, the kernel is now LOCKED during an ioctl()
-call. Older Linux versions didn't lock the kernel. The upshot
-of this is that if you have some ioctl() function that takes
-some time, like testing the memory in your board, you will
-find the system unresponsive during that test! You can unlock
-the kernel in your ioctl() if this is a problem.
+It uses a single interrupt for all onboard events from the four channels.
+An internal "status FIFO" provides a readout for the interrupt handler
+of recent happenings, in sequence, mixing together DMA-completions
+with hotplug-events (insert, removal) and various fault-conditions.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13 on an i686 machine (5589.53 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
-I apologize for the following. I tried to kill it with the above dot :
+All of this is supported in the out-of-tree qstor driver,
+but only simple single-IO is supported by sata_qstor at present.
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+Dunno if that info is of any use to you in hotplug considerations.
+Once the libata infrastructure for hotplug is in place,
+I *may* experiment with adding that functionality to sata_qstor.
 
-Thank you.
+Cheers

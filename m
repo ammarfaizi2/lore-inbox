@@ -1,57 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751274AbVIPUlt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751280AbVIPUsE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751274AbVIPUlt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 16:41:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751266AbVIPUlt
+	id S1751280AbVIPUsE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 16:48:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751283AbVIPUsE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 16:41:49 -0400
-Received: from smtprelay03.ispgateway.de ([80.67.18.15]:6784 "EHLO
-	smtprelay03.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1751274AbVIPUls (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 16:41:48 -0400
-Message-ID: <432B2E09.9010407@v.loewis.de>
-Date: Fri, 16 Sep 2005 22:41:45 +0200
-From: =?ISO-8859-1?Q?=22Martin_v=2E_L=F6wis=22?= <martin@v.loewis.de>
-User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [Patch] Support UTF-8 scripts
-References: <4NsP0-3YF-11@gated-at.bofh.it> <4NsP0-3YF-13@gated-at.bofh.it> <4NsP0-3YF-15@gated-at.bofh.it> <4NsP0-3YF-17@gated-at.bofh.it> <4NsP1-3YF-19@gated-at.bofh.it> <4NsP1-3YF-21@gated-at.bofh.it> <4NsOZ-3YF-9@gated-at.bofh.it> <4NsYH-4bv-27@gated-at.bofh.it> <4NtBr-4WU-3@gated-at.bofh.it> <4Nu4p-5Js-3@gated-at.bofh.it>
-In-Reply-To: <4Nu4p-5Js-3@gated-at.bofh.it>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 16 Sep 2005 16:48:04 -0400
+Received: from keetweej.xs4all.nl ([213.84.46.114]:19127 "EHLO
+	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
+	id S1751280AbVIPUsB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 16:48:01 -0400
+Date: Fri, 16 Sep 2005 22:47:59 +0200
+From: Folkert van Heusden <folkert@vanheusden.com>
+To: linux-kernel@vger.kernel.org
+Subject: printk timings stay weird, also waaay after 5 seconds
+Message-ID: <20050916204759.GK17290@vanheusden.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Tv3+oRj6D9L8lW+H"
+Content-Disposition: inline
+Organization: www.unixexpert.nl
+X-Chameleon-Return-To: folkert@vanheusden.com
+X-Xfmail-Return-To: folkert@vanheusden.com
+X-Phonenumber: +31-6-41278122
+X-URL: http://www.vanheusden.com/
+X-PGP-KeyID: 1F28D8AE
+X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
+X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
+Read-Receipt-To: <folkert@vanheusden.com>
+Reply-By: Sat Sep 17 17:31:08 CEST 2005
+X-MSMail-Priority: High
+X-Message-Flag: PGP key-id: 0x1f28d8ae - consider encrypting your e-mail to me
+	with PGP!
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-> You don't have markers (although they're defined, see ISO 2022) for your
-> 8-bit encodings, and *THEY'RE THE ONES THAT NEED TO BE DISTINGUISHED.*
-> Flagging UTF-8, especially with the BOM (as opposed to the ISO 2022
-> signature, <ESC>%G) is pointless in the context, since you still can't
-> distinguish your arbitrary number of legacy encodings.
 
-In programming languages that support the notion of source encodings,
-you do have markers for 8-bit encodings. For example, in Python, you
-can specify
+--Tv3+oRj6D9L8lW+H
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-# -*- coding: iso-8859-1 -*-
+Hi,
 
-to denote the source encoding. In Perl, you write
+I have a pc with a VIA Nehemiah. It runs kernel 2.6.13.1.
+At boot of course the timings are high:
+thegate:/home/folkert/public_html# dmesg | more
+[42949372.960000] Linux version 2.6.13.1 (root@thegate) (gcc version 4.0.1 =
+(Debian 4.0.1-2)) #1 Wed Sep 14 11:56:45 CEST 2005
+[42949372.960000] BIOS-provided physical RAM map:
+[42949372.960000]  BIOS-e820: 0000000000000000 - 00000000000a0000 (usable)
+=2E..
+but stay high:
+[42949376.950000] NET: Registered protocol family 1
+[42949378.810000] Adding 497972k swap on /dev/hda1.  Priority:-1 extents:1
+[42949378.910000] EXT3 FS on hda2, internal journal
+[42949379.320000] Generic RTC Driver v1.07
+[42949383.180000] Probing IDE interface ide1...
+[42949385.100000] ACPI: PCI Interrupt Link [LNKC] enabled at IRQ 12
+[42949385.100000] PCI: setting IRQ 12 as level-triggered
+=2E..
+[42949626.430000] pwc Dumping frame 41 (last message).
+[43132475.940000] pwc Closing video device: 1829087 frames received, dumped=
+ 554742 frames, 0 frames with errors.
+[43132482.400000] pwc set_video_mode(320x240 @ 10, palette 15).
+=2E..
+[43132483.920000] pwc Dumping frame 7.
+[43132484.120000] pwc Dumping frame 9.
 
-use encoding "latin-1";
+etc.
 
-(with 'use utf8;' being a special-case shortcut).
 
-In Java, you can specify the encoding through the -encoding argument
-to javac. In gcc, you use -finput-charset (with the special case of
--fexec-charset and -fwide-exec-charset potentially being different).
+Folkert van Heusden
 
-So you *must* use encoding declarations in some languages; the UTF-8
-signature is a particularly convenient way of doing so, since it allows
-for uniformity across languages, with no need for the text editors to
-parse all the different programming languages.
+--=20
+Try MultiTail! Multiple windows with logfiles, filtered with regular
+expressions, colored output, etc. etc. www.vanheusden.com/multitail/
+----------------------------------------------------------------------
+Get your PGP/GPG key signed at www.biglumber.com!
+----------------------------------------------------------------------
+Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com
 
-Regards,
-Martin
+--Tv3+oRj6D9L8lW+H
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iIMEARECAEMFAkMrL388Gmh0dHA6Ly93d3cudmFuaGV1c2Rlbi5jb20vZGF0YS1z
+aWduaW5nLXdpdGgtcGdwLXBvbGljeS5odG1sAAoJEDAZDowfKNiuRjsAnA+SkWcq
+Q5pAspbwT2EJUI0sN1VQAKCbdwHtvTf4wF0uiBsGL3d6y55CcQ==
+=2vPz
+-----END PGP SIGNATURE-----
+
+--Tv3+oRj6D9L8lW+H--

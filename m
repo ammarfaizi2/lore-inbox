@@ -1,85 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751243AbVIPTgS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965311AbVIPTjp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751243AbVIPTgS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 15:36:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751245AbVIPTgS
+	id S965311AbVIPTjp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 15:39:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965312AbVIPTjp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 15:36:18 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:57014 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751243AbVIPTgS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 15:36:18 -0400
-Date: Fri, 16 Sep 2005 15:33:28 -0400
-From: Bill Nottingham <notting@redhat.com>
-To: linux-kernel@vger.kernel.org, greg@kroah.com
-Subject: [PATCH] fix class symlinks in sysfs
-Message-ID: <20050916193328.GC17181@nostromo.devel.redhat.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org, greg@kroah.com
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="X1bOJ3K7DJ5YkBrT"
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+	Fri, 16 Sep 2005 15:39:45 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:3777 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S965311AbVIPTjo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 15:39:44 -0400
+Message-ID: <432B1F84.3000902@namesys.com>
+Date: Fri, 16 Sep 2005 12:39:48 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: I request inclusion of reiser4 in the mainline kernel
+References: <432AFB44.9060707@namesys.com> <20050916174028.GA32745@infradead.org>
+In-Reply-To: <20050916174028.GA32745@infradead.org>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Christoph Hellwig wrote:
 
---X1bOJ3K7DJ5YkBrT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+>additinoal comment is that the code is very messy, very different
+>from normal kernel style, full of indirections and thus hard to read.
+>
 
-The class symlinks in sysfs don't properly handle changing device names.
+Most of my customers remark that Namesys code is head and shoulders
+above the rest of the kernel code.  So yes, it is different.  In
+particular, they cite the XFS code as being so incredibly hard to read
+that its unreadability is worth hundreds of thousands of dollars in
+license fees for me.  That's cash received, from persons who read it
+all, not commentary made idly.
 
-To demonstrate, rename your network device from eth0 to eth1. Your
-pci (or usb, or whatever) device will still have a 'net:eth0' link,
-except now it points to /sys/class/net/eth1.
+May I suggest that you work on the XFS code instead?  Surely with all of
+this energy you have, you could improve XFS a lot before it gets
+accepted into the kernel. 
 
-The attached patch makes sure the class symlink name changes when
-the class device name changes. It isn't 100% correct, it should be
-using sysfs_rename_link. Unfortunately, sysfs_rename_link doesn't exist.
+As for the indirections, if you figure out how to make VFS indirections
+easy to follow, the same technique should be applicable to Reiser4, and
+I will be happy to fix it. 
 
-Signed-off-by: Bill Nottingham <notting@redhat.com>
+Hans
 
-Bill
-
---X1bOJ3K7DJ5YkBrT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="linux-sysfs.patch"
-
-diff -ru linux/drivers/base/class.c linux/drivers/base/class.c
---- linux/drivers/base/class.c	2005-09-16 15:17:11.000000000 -0400
-+++ linux/drivers/base/class.c	2005-09-16 15:15:58.000000000 -0400
-@@ -669,6 +669,7 @@
- int class_device_rename(struct class_device *class_dev, char *new_name)
- {
- 	int error = 0;
-+	char *old_class_name = NULL, *new_class_name = NULL;
- 
- 	class_dev = class_device_get(class_dev);
- 	if (!class_dev)
-@@ -677,11 +678,24 @@
- 	pr_debug("CLASS: renaming '%s' to '%s'\n", class_dev->class_id,
- 		 new_name);
- 
-+	if (class_dev->dev) {
-+		old_class_name = make_class_name(class_dev);
-+	}
-+
- 	strlcpy(class_dev->class_id, new_name, KOBJ_NAME_LEN);
- 
- 	error = kobject_rename(&class_dev->kobj, new_name);
- 
-+	if (class_dev->dev) {
-+		new_class_name = make_class_name(class_dev);
-+		sysfs_create_link(&class_dev->dev->kobj, &class_dev->kobj,
-+				  new_class_name);
-+		sysfs_remove_link(&class_dev->dev->kobj, old_class_name);
-+	}
- 	class_device_put(class_dev);
-+	
-+	kfree(old_class_name);
-+	kfree(new_class_name);
- 
- 	return error;
- }
-
---X1bOJ3K7DJ5YkBrT--
+(Note for the record: I actually think XFS acceptance was delayed too
+long, and I think that XFS is a great filesystem, but a rhetorical point
+needed to be made......)

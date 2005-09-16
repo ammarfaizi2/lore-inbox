@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161232AbVIPS0c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161227AbVIPS0u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161232AbVIPS0c (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 14:26:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161227AbVIPS0c
+	id S1161227AbVIPS0u (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 14:26:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161233AbVIPS0h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 14:26:32 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:59070 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1161230AbVIPS0Y (ORCPT
+	Fri, 16 Sep 2005 14:26:37 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:34690 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1161236AbVIPS0Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 14:26:24 -0400
-Date: Fri, 16 Sep 2005 11:26:19 -0700
+	Fri, 16 Sep 2005 14:26:25 -0400
+Date: Fri, 16 Sep 2005 11:26:20 -0700
 To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
 Cc: linuxram@us.ibm.com, akpm@osdl.org, viro@ftp.linux.org.uk,
        miklos@szeredi.hu, mike@waychison.com, bfields@fieldses.org,
        serue@us.ibm.com
-Subject: [RFC PATCH 5/10] vfs: shared subtree aware bind mounts 
-Message-ID: <20050916182619.GA28489@RAM>
+Subject: [RFC PATCH 10/10] vfs: shared subtree documentation 
+Message-ID: <20050916182620.GA28560@RAM>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,1080 +24,1031 @@ From: linuxram@us.ibm.com (Ram)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch that help bind/rbind a mount tree. The tree can contain any combination of
-shared/slave/private/unclonable mounts.
 
-The semantics of these operations depend on the type of the source mount that
-is being bound to, and destination mount under which the new mount is mounted
-on. The table below define the semantics.
-  --------------------------------------------------------------------
-  |                          BIND MOUNT OPERATION                    |
-  |******************************************************************|
-  | dest --> | shared        |       private  |  slave   |unclonable |
-  | source   |               |                |          |           |
-  |   |      |               |                |          |           |
-  |   v      |               |                |          |           |
-  |******************************************************************|
-  |          |               |                |          |           |
-  |  shared  | shared (++)   |     shared (+*)|shared(+*)|shared (+*)|
-  |          |               |                |          |           |
-  |          |               |                |          |           |
-  | private  | shared (+)    |      private   | private  | private   |
-  |          |               |                |          |           |
-  |          |               |                |          |           |
-  | slave    | shared (+)    |      slave     | slave    | slave     |
-  |          |               |                |          |           |
-  |          |               |                |          |           |
-  |unclonable|     invalid   |       invalid  |  invalid | invalid   |
-  |          |               |                |          |           |
-  |          |               |                |          |           |
-   *******************************************************************
- (++)  the mount is propagated to all the mounts in the pnode tree
-       of the destination mount and the source mount is made
-       a peer mount of the mount from which it got cloned off.
- (+*)  a new shared mount is created under the destination mount
- (+)   the mount is propagated to the destination mount's
-       propagation tree.
-
+Complete description of shared subtrees.
 
 Signed by Ram Pai (linuxram@us.ibm.com)
 
- fs/namespace.c        |  316 ++++++++++++++++++++++++++++++++-
- fs/pnode.c            |  470 ++++++++++++++++++++++++++++++++++++++++++++++++--
- include/linux/fs.h    |    6 
- include/linux/pnode.h |   11 +
- 4 files changed, 775 insertions(+), 28 deletions(-)
+ Documentation/sharedsubtree.txt | 1015 ++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 1015 insertions(+)
 
-Index: 2.6.13.sharedsubtree/fs/namespace.c
+Index: 2.6.13.sharedsubtree/Documentation/sharedsubtree.txt
 ===================================================================
---- 2.6.13.sharedsubtree.orig/fs/namespace.c
-+++ 2.6.13.sharedsubtree/fs/namespace.c
-@@ -129,15 +129,48 @@ static void detach_mnt(struct vfsmount *
- 
- static void attach_mnt(struct vfsmount *mnt, struct nameidata *nd)
- {
- 	mnt->mnt_parent = mntget(nd->mnt);
- 	mnt->mnt_mountpoint = dget(nd->dentry);
-+	mnt->mnt_namespace = nd->mnt->mnt_namespace;
- 	list_add(&mnt->mnt_hash, mount_hashtable + hash(nd->mnt, nd->dentry));
- 	list_add_tail(&mnt->mnt_child, &nd->mnt->mnt_mounts);
- 	nd->dentry->d_mounted++;
- }
- 
-+void do_attach_commit_mnt(struct vfsmount *mnt)
-+{
-+	struct vfsmount *parent = mnt->mnt_parent;
-+	BUG_ON(parent == mnt);
-+	if (list_empty(&mnt->mnt_hash))
-+		list_add_tail(&mnt->mnt_hash,
-+			      mount_hashtable + hash(parent,
-+						     mnt->mnt_mountpoint));
-+	if (list_empty(&mnt->mnt_child))
-+		list_add_tail(&mnt->mnt_child, &parent->mnt_mounts);
-+	if (list_empty(&mnt->mnt_list)) {
-+		mnt->mnt_namespace = parent->mnt_namespace;
-+		list_add_tail(&mnt->mnt_list, &mnt->mnt_namespace->list);
-+	}
-+}
+--- /dev/null
++++ 2.6.13.sharedsubtree/Documentation/sharedsubtree.txt
+@@ -0,0 +1,1015 @@
++Shared Subtrees
++---------------
 +
-+void do_attach_prepare_mnt(struct vfsmount *mnt,
-+			   struct dentry *dentry, struct vfsmount *child_mnt)
-+{
-+	child_mnt->mnt_parent = mntget(mnt);
-+	child_mnt->mnt_mountpoint = dget(dentry);
-+	dentry->d_mounted++;
-+}
++Contents:
 +
-+void do_detach_prepare_mnt(struct vfsmount *mnt)
-+{
-+	mnt->mnt_mountpoint->d_mounted--;
-+	mntput(mnt->mnt_parent);
-+	dput(mnt->mnt_mountpoint);
-+	mnt->mnt_parent = mnt;
-+}
++	1) Overview
++	2) Features
++	3) smount command
++	4) Use-case
++	5) Detailed semantics
++	6) Quiz
++	7) FAQ
++	8) Bugs
++	9) Implementation
 +
- static struct vfsmount *next_mnt(struct vfsmount *p, struct vfsmount *root)
- {
- 	struct list_head *next = p->mnt_mounts.next;
- 	if (next == &p->mnt_mounts) {
- 		while (1) {
-@@ -150,11 +183,21 @@ static struct vfsmount *next_mnt(struct 
- 		}
- 	}
- 	return list_entry(next, struct vfsmount, mnt_child);
- }
- 
--static struct vfsmount *clone_mnt(struct vfsmount *old, struct dentry *root)
-+static struct vfsmount *skip_mnt_tree(struct vfsmount *p)
-+{
-+	struct list_head *prev = p->mnt_mounts.prev;
-+	while (prev != &p->mnt_mounts) {
-+		p = list_entry(prev, struct vfsmount, mnt_child);
-+		prev = p->mnt_mounts.prev;
-+	}
-+	return p;
-+}
 +
-+struct vfsmount *clone_mnt(struct vfsmount *old, struct dentry *root)
- {
- 	struct super_block *sb = old->mnt_sb;
- 	struct vfsmount *mnt = alloc_vfsmnt(old->mnt_devname);
- 
- 	if (mnt) {
-@@ -163,10 +206,11 @@ static struct vfsmount *clone_mnt(struct
- 		mnt->mnt_sb = sb;
- 		mnt->mnt_root = dget(root);
- 		mnt->mnt_mountpoint = mnt->mnt_root;
- 		mnt->mnt_parent = mnt;
- 		mnt->mnt_namespace = current->namespace;
-+		mnt->mnt_master = mntget(old);
- 
- 		/* stick the duplicate mount on the same expiry list
- 		 * as the original if that was on one */
- 		spin_lock(&vfsmount_lock);
- 		if (!list_empty(&old->mnt_expire))
-@@ -174,10 +218,18 @@ static struct vfsmount *clone_mnt(struct
- 		spin_unlock(&vfsmount_lock);
- 	}
- 	return mnt;
- }
- 
-+static void inline clean_propagation_reference(struct vfsmount *mnt)
-+{
-+	struct vfsmount *p;
-+	for (p = mnt; p; p = next_mnt(p, mnt))
-+		if (p->mnt_master)
-+			mntput(p->mnt_master);
-+}
++1) Overview
++-----------
 +
- void __mntput(struct vfsmount *mnt)
- {
- 	struct super_block *sb = mnt->mnt_sb;
- 	dput(mnt->mnt_root);
- 	free_vfsmnt(mnt);
-@@ -541,10 +593,12 @@ static struct vfsmount *copy_tree(struct
- {
- 	struct vfsmount *res, *p, *q, *r, *s;
- 	struct list_head *h;
- 	struct nameidata nd;
- 
-+	if (IS_MNT_UNCLONABLE(mnt))
-+		return NULL;
- 	res = q = clone_mnt(mnt, dentry);
- 	if (!q)
- 		goto Enomem;
- 	q->mnt_mountpoint = mnt->mnt_mountpoint;
- 
-@@ -553,10 +607,14 @@ static struct vfsmount *copy_tree(struct
- 		r = list_entry(h, struct vfsmount, mnt_child);
- 		if (!lives_below_in_same_fs(r->mnt_mountpoint, dentry))
- 			continue;
- 
- 		for (s = r; s; s = next_mnt(s, r)) {
-+			if (IS_MNT_UNCLONABLE(s)) {
-+				s = skip_mnt_tree(s);
-+				continue;
-+			}
- 			while (p != s->mnt_parent) {
- 				p = p->mnt_parent;
- 				q = q->mnt_parent;
- 			}
- 			p = s;
-@@ -573,16 +631,249 @@ static struct vfsmount *copy_tree(struct
- 	}
- 	return res;
-       Enomem:
- 	if (res) {
- 		spin_lock(&vfsmount_lock);
-+		clean_propagation_reference(res);
- 		umount_tree(res);
- 		spin_unlock(&vfsmount_lock);
- 	}
- 	return NULL;
- }
- 
-+static inline int tree_contains_propagation(struct vfsmount *mnt)
-+{
-+	struct vfsmount *p, *tmp;
-+	for (p = mnt; p; p = next_mnt(p, mnt)) {
-+		if (!(tmp = p->mnt_master))
-+			continue;
-+		if (IS_MNT_SHARED(tmp) || IS_MNT_SLAVE(tmp))
++Consider the following situation:
++
++A process wants to clone its own namespace, but still wants to access the CD
++that got mounted recently.  Shared subtree semantics provide the necessary
++mechanism to accomplish the above.
++
++It provides the necessary building blocks for features like per-user-namespace
++and versioned filesystem.
++
++2) Features
++-----------
++
++Shared subtree provides four different flavors of mounts; struct vfsmount to be
++precise
++
++	a. shared mount
++	b. slave mount
++	c. private mount
++	d. unclonable mount
++
++
++2a) A shared mount can be replicated to as many mountpoints and all the
++replicas continue to be exactly same.
++
++	Here is an example:
++
++	Lets say /mnt has a mount that is shared.
++	mount --make-shared /mnt
++
++	note: mount command does not yet support the --make-shared flag.
++	I have included a small C program which does the same by executing
++	'smount /mnt shared'
++
++	#mount --bind /mnt /tmp
++	The above command replicates the mount at /mnt to the mountpoint /tmp
++	and the contents of both the mounts remain identical.
++
++	#ls /mnt
++	a b c
++
++	#ls /tmp
++	a b c
++
++
++	Now lets say we mount a device at /tmp/a
++	#mount /dev/sd0  /tmp/a
++
++	#ls /tmp/a
++	t1 t2 t2
++
++	#ls /mnt/a
++	t1 t2 t2
++
++	Note that the mount has propagated to the mount at /mnt as well.
++
++	And the same is true even when /dev/sd0 is mounted on /mnt/a. The
++	contents will be visible under /tmp/a too.
++
++
++2b) A slave mount is like a shared mount except that mount and umount events
++	only propagate towards it.
++
++	All slave mounts have a master mount which is a shared mount.
++
++	Here is an example:
++
++	Lets say /mnt has a mount that is shared.
++	#mount --make-shared /mnt
++
++	Lets bind mount /mnt to /tmp
++	#mount --bind /mnt /tmp
++
++	the new mount at /tmp is also a shared mount and it is a replica of
++	the mount at /mnt.
++
++	Now lets make the mount at /tmp a slave of /mnt
++	#mount --make-slave /tmp
++	[or smount /tmp slave]
++
++	lets mount /dev/sd0 on /mnt/a
++	#mount /dev/sd0 /mnt/a
++
++	#ls /mnt/a
++	t1 t2 t3
++
++	#ls /tmp/a
++	t1 t2 t3
++
++	Note the mount event has propagated to the mount at /tmp
++
++	However lets see what happens if we mount something on the mount at /tmp
++
++	#mount /dev/sd1 /tmp/b
++
++	#ls /tmp/b
++	s1 s2 s3
++
++	#ls /mnt/b
++
++	Note how the mount event has not propagated to the mount at
++	/mnt
++
++
++2c) A private mount does not forward or receive propagation.
++
++	This is the mount we are familiar with. Its the default type.
++
++
++2d) A unclonable mount is a unreplicable private mount
++
++	lets say we have a mount at /mnt
++	and we make is unclonable
++
++	#mount --make-unclonable /mnt
++	 [ smount /mnt  unclonable ]
++
++	 Lets try to bind mount this mount somewhere else.
++	 # mount --bind /mnt /tmp
++	 mount: wrong fs type, bad option, bad superblock on /mnt,
++	        or too many mounted file systems
++
++	Replicating a unclonable mount is a invalid operation.
++
++
++3) smount command
++
++	Currently the mount command is not aware of shared subtree features.
++	Work is in progress to add the support in mount( util-linux package).
++	Till then use the following program.
++
++	------------------------------------------------------------------------
++	//
++	//this code was developed my Miklos Szeredi <miklos@szeredi.hu>
++	//and modified by Ram Pai <linuxram@us.ibm.com>
++	// sample usage:
++	//              smount /tmp shared
++	//
++	#include <stdio.h>
++	#include <stdlib.h>
++	#include <unistd.h>
++	#include <sys/mount.h>
++	#include <sys/fsuid.h>
++
++	#ifndef MS_REC
++	#define MS_REC		0x4000	/* 16384: Recursive loopback */
++	#endif
++
++	#ifndef MS_SHARED
++	#define MS_SHARED		1<<20	/* Shared */
++	#endif
++
++	#ifndef MS_PRIVATE
++	#define MS_PRIVATE		1<<18	/* Private */
++	#endif
++
++	#ifndef MS_SLAVE
++	#define MS_SLAVE		1<<19	/* Slave */
++	#endif
++
++	#ifndef MS_UNCLONE
++	#define MS_UNCLONE		1<<17	/* UNCLONE */
++	#endif
++
++	int main(int argc, char *argv[])
++	{
++		int type;
++		if(argc != 3) {
++			fprintf(stderr, "usage: %s dir "
++			"<rshared|rslave|rprivate|runclonable|shared|slave"
++			"|private|unclonable>\n" , argv[0]);
 +			return 1;
-+	}
-+	return 0;
-+}
-+
-+/*
-+ * commit the operations done in attach_recursive_mnt(). run through pnode list
-+ * headed at 'pnodehead', and commit the operation done in
-+ * attach_recursive_mnt();
-+ */
-+static void commit_attach_recursive_mnt(struct vfsmount *source_mnt)
-+{
-+	struct vfsmount *m, *master, *nextmnt;
-+	LIST_HEAD(mnt_list_head);
-+	LIST_HEAD(nextmnt_list_head);
-+
-+	spin_lock(&vfsmount_lock);
-+	for (m = source_mnt; m; m = next_mnt(m, source_mnt)) {
-+		/*
-+		 * note: mount 'm' heads all its propogation peers through the
-+		 * 'mnt_list' field.  But the same field 'mnt_list' is needed
-+		 * to group togather all the mounts in the mount-tree. Hence
-+		 * temporarily delink the propogation peers and accumulate them
-+		 * in a different list @nextmnt_list_head.
-+		 */
-+		if (!list_empty(&m->mnt_list)) {
-+			nextmnt = list_entry(m->mnt_list.next,
-+					     struct vfsmount, mnt_list);
-+			list_del_init(&m->mnt_list);
-+			list_add_tail(&nextmnt->mnt_mounts, &nextmnt_list_head);
-+		}
-+		list_add_tail(&m->mnt_list, &mnt_list_head);
-+	}
-+
-+	while (!list_empty(&mnt_list_head)) {
-+		m = list_entry(mnt_list_head.next, struct vfsmount, mnt_list);
-+		list_del_init(&m->mnt_list);
-+
-+		/*
-+		 * link back the propagation peers temporarily
-+		 * stored in nextmnt_list_head, to 'm'
-+		 */
-+		if (!list_empty(&nextmnt_list_head)) {
-+			nextmnt = list_entry(nextmnt_list_head.next,
-+					     struct vfsmount, mnt_mounts);
-+			list_del_init(&nextmnt->mnt_mounts);
-+			list_add_tail(&m->mnt_list, &nextmnt->mnt_list);
 +		}
 +
-+		spin_lock(&vfspnode_lock);
-+		propagate_commit_mount(m);
-+		spin_unlock(&vfspnode_lock);
++		fprintf(stdout, "%s %s %s\n", argv[0], argv[1], argv[2]);
 +
-+		if ((master = m->mnt_master)) {
-+			m->mnt_master = NULL;
-+			if (IS_MNT_SHARED(master))
-+				pnode_merge_mount(m, master);
-+			else if (IS_MNT_SLAVE(master)) {
-+				BUG_ON(!master->mnt_master);
-+				pnode_slave_mount(m, master);
-+			}
-+			/*
-+			 * release the reference held during clone_mnt()
-+			 */
-+			mntput(master);
-+		}
-+	}
-+	spin_unlock(&vfsmount_lock);
-+}
-+
-+/*
-+ * abort the operations done in attach_recursive_mnt(). run through the mount
-+ * tree, till vfsmount 'last' and undo the changes.  Ensure that all the mounts
-+ * in the tree are all back in the mnt_list headed at 'source_mnt'.
-+ * NOTE: This function is closely tied to the logic in
-+ * 'attach_recursive_mnt()'
-+ */
-+static void abort_attach_recursive_mnt(struct vfsmount *source_mnt, struct
-+				       vfsmount *last, struct list_head *head)
-+{
-+	struct vfsmount *m, *nextmnt;
-+	LIST_HEAD(mnt_list_head);
-+	LIST_HEAD(nextmnt_list_head);
-+	if (!last)
-+		return;
-+
-+	for (m = source_mnt; m; m = next_mnt(m, source_mnt)) {
-+		if (!list_empty(&m->mnt_list)) {
-+			nextmnt = list_entry(m->mnt_list.next,
-+					     struct vfsmount, mnt_list);
-+			list_del_init(&m->mnt_list);
-+			list_add_tail(&nextmnt->mnt_mounts, &nextmnt_list_head);
-+		}
-+		list_add(&m->mnt_list, &mnt_list_head);
-+		if (m == last)
-+			break;
-+	}
-+
-+	while (!list_empty(&mnt_list_head)) {
-+		m = list_entry(mnt_list_head.next, struct vfsmount, mnt_list);
-+		list_del_init(&m->mnt_list);
-+
-+		if (!list_empty(&nextmnt_list_head)) {
-+			nextmnt = list_entry(nextmnt_list_head.next,
-+					     struct vfsmount, mnt_mounts);
-+			list_del_init(&nextmnt->mnt_mounts);
-+			list_add_tail(&m->mnt_list, &nextmnt->mnt_list);
-+		}
-+		spin_lock(&vfspnode_lock);
-+		propagate_abort_mount(m);
-+		spin_unlock(&vfspnode_lock);
-+		list_add(&m->mnt_list, head);
-+	}
-+	do_detach_prepare_mnt(source_mnt);
-+	list_del_init(head);
-+	return;
-+}
-+
-+/*
-+ *  @source_mnt : mount tree to be attached
-+ *  @nd                : place the mount tree @source_mnt is attached
-+ *  @move      : use the move semantics if set, else use normal attach
-+ *             semantics as explained below
-+ *
-+ *  NOTE: in the table below explains the semantics when a source mount
-+ *  of a given type is attached to a destination mount of a given type.
-+ *  ---------------------------------------------------------------------
-+ *  |                          BIND MOUNT OPERATION                    |
-+ *  |******************************************************************|
-+ *  | dest --> |  shared       |       private  |  slave   |unclonable |
-+ *  | source   |               |                |          |           |
-+ *  |   |      |               |                |          |           |
-+ *  |   v      |               |                |          |           |
-+ *  |******************************************************************|
-+ *  |          |               |                |          |           |
-+ *  |  shared  | shared (++)   |     shared (+*)|shared(+*)|shared (+*)|
-+ *  |          |               |                |          |           |
-+ *  |          |               |                |          |           |
-+ *  | private  | shared (+)    |      private   | private  | private   |
-+ *  |          |               |                |          |           |
-+ *  |          |               |                |          |           |
-+ *  | slave    | shared (+)    |      slave     | slave    | slave     |
-+ *  |          |               |                |          |           |
-+ *  |          |               |                |          |           |
-+ *  |unclonable|    invalid    |       invalid  |  invalid | invalid   |
-+ *  |          |               |                |          |           |
-+ *  |          |               |                |          |           |
-+ *   ********************************************************************
-+ *
-+ * (++)  the mount is propagated to all the mounts in the pnode tree
-+ *       of the destination mount and the source mount is made
-+ *       a peer mount of the mount from which it got cloned off.
-+ * (+*)  a new shared mount is created under the destination mount
-+ * (+)   the mount is propagated to the destination mount's
-+ *       propagation tree.
-+ *
-+ * if the source mount is a tree, the operations explained above is
-+ * applied to each mount in the tree.
-+ *
-+ * Must be called without spinlocks held, since this function can sleep
-+ * in allocations.
-+ *
-+ */
-+static int attach_recursive_mnt(struct vfsmount *source_mnt,
-+				struct nameidata *nd)
-+{
-+	struct vfsmount *dest_mnt, *last, *m, *p;
-+	struct dentry *dest_dentry;
-+	int ret;
-+	LIST_HEAD(mnt_list_head);
-+
-+	/*
-+	 * if the source tree has no shared or slave mounts and
-+	 * the destination mount is not shared, fastpath.
-+	 */
-+	dest_mnt = nd->mnt;
-+	if (!IS_MNT_SHARED(dest_mnt) && !tree_contains_propagation(source_mnt)) {
-+		spin_lock(&vfsmount_lock);
-+		attach_mnt(source_mnt, nd);
-+		list_add_tail(&mnt_list_head, &source_mnt->mnt_list);
-+		list_splice(&mnt_list_head, dest_mnt->mnt_namespace->list.prev);
-+		clean_propagation_reference(source_mnt);
-+		spin_unlock(&vfsmount_lock);
-+		goto out;
-+	}
-+
-+	p = NULL;
-+	last = NULL;
-+	list_add_tail(&mnt_list_head, &source_mnt->mnt_list);
-+
-+	for (m = source_mnt; m; m = next_mnt(m, source_mnt)) {
-+
-+		BUG_ON(IS_MNT_UNCLONABLE(m));
-+
-+		while (p && p != m->mnt_parent)
-+			p = p->mnt_parent;
-+
-+		if (!p) {
-+			dest_dentry = nd->dentry;
-+			dest_mnt = nd->mnt;
-+		} else {
-+			dest_dentry = m->mnt_mountpoint;
-+			dest_mnt = p;
-+		}
-+		p = m;
-+
-+		list_del_init(&m->mnt_list);
-+		last = m;
-+		if ((ret = propagate_prepare_mount(dest_mnt, dest_dentry, m)))
-+			goto error;
-+	}
-+	commit_attach_recursive_mnt(source_mnt);
-+      out:
-+	mntget(source_mnt);
-+	return 0;
-+      error:
-+	/*
-+	 * ok we have errored out either because of memory exhaustion
-+	 * or something else not in our control. Gracefully return
-+	 * leaving no mess behind. Else it will haunt :(
-+	 */
-+	abort_attach_recursive_mnt(source_mnt, last, &mnt_list_head);
-+	return 1;
-+}
-+
- static int graft_tree(struct vfsmount *mnt, struct nameidata *nd)
- {
- 	int err;
- 	if (mnt->mnt_sb->s_flags & MS_NOUSER)
- 		return -EINVAL;
-@@ -599,21 +890,12 @@ static int graft_tree(struct vfsmount *m
- 	err = security_sb_check_sb(mnt, nd);
- 	if (err)
- 		goto out_unlock;
- 
- 	err = -ENOENT;
--	spin_lock(&vfsmount_lock);
--	if (IS_ROOT(nd->dentry) || !d_unhashed(nd->dentry)) {
--		struct list_head head;
--
--		attach_mnt(mnt, nd);
--		list_add_tail(&head, &mnt->mnt_list);
--		list_splice(&head, current->namespace->list.prev);
--		mntget(mnt);
--		err = 0;
--	}
--	spin_unlock(&vfsmount_lock);
-+	if (IS_ROOT(nd->dentry) || !d_unhashed(nd->dentry))
-+		err = attach_recursive_mnt(mnt, nd);
-       out_unlock:
- 	up(&nd->dentry->d_inode->i_sem);
- 	if (!err)
- 		security_sb_post_addmount(mnt, nd);
- 	return err;
-@@ -681,12 +963,16 @@ static int do_loopback(struct nameidata 
- 		return -EINVAL;
- 	err = path_lookup(old_name, LOOKUP_FOLLOW, &old_nd);
- 	if (err)
- 		return err;
- 
--	down_write(&namespace_sem);
- 	err = -EINVAL;
-+	if (IS_MNT_UNCLONABLE(old_nd.mnt))
-+		goto path_release;
-+
-+	down_write(&namespace_sem);
-+
- 	if (check_mnt(nd->mnt) && (!recurse || check_mnt(old_nd.mnt))) {
- 		err = -ENOMEM;
- 		if (recurse)
- 			mnt = copy_tree(old_nd.mnt, old_nd.dentry);
- 		else
-@@ -700,17 +986,19 @@ static int do_loopback(struct nameidata 
- 		spin_unlock(&vfsmount_lock);
- 
- 		err = graft_tree(mnt, nd);
- 		if (err) {
- 			spin_lock(&vfsmount_lock);
-+			clean_propagation_reference(mnt);
- 			umount_tree(mnt);
- 			spin_unlock(&vfsmount_lock);
- 		} else
- 			mntput(mnt);
- 	}
--
- 	up_write(&namespace_sem);
-+
-+      path_release:
- 	path_release(&old_nd);
- 	return err;
- }
- 
- /*
-Index: 2.6.13.sharedsubtree/fs/pnode.c
-===================================================================
---- 2.6.13.sharedsubtree.orig/fs/pnode.c
-+++ 2.6.13.sharedsubtree/fs/pnode.c
-@@ -39,18 +39,28 @@ static void make_slave_of(struct vfsmoun
- 	mnt->mnt_master = master;
- }
- 
- static int __do_make_slave(struct vfsmount *mnt)
- {
--	struct vfsmount *peer_mnt, *master = mnt->mnt_master;
--	struct vfsmount *slave_mnt, *t_slave_mnt;
-+	struct vfsmount *peer_mnt = mnt, *master = mnt->mnt_master;
-+	struct vfsmount *slave_mnt, *t_mnt;
- 
--	peer_mnt = next_shared(mnt);
--	if (peer_mnt == mnt)
--		peer_mnt = NULL;
-+	/*
-+	 * slave 'mnt' to a peer mount that has the
-+	 * same root dentry. If none is available than
-+	 * slave it to anything that is available.
-+	 */
-+	while ((peer_mnt = next_shared(peer_mnt)) != mnt &&
-+	       peer_mnt->mnt_root != mnt->mnt_root) ;
- 
-+	if (peer_mnt == mnt) {
-+		peer_mnt = next_shared(mnt);
-+		if (peer_mnt == mnt)
-+			peer_mnt = NULL;
-+	}
- 	list_del_init(&mnt->mnt_share);
-+
- 	/*
- 	 * first we will attempt to move 'mnt' and its slaves
- 	 * under 'peer_mnt'. if that is not possible we will
- 	 * try to move them under the 'master'. And if this
- 	 * is also not possible than we make them all
-@@ -66,11 +76,11 @@ static int __do_make_slave(struct vfsmou
- 			make_slave_of(peer_mnt, master);
- 		}
- 		master = peer_mnt;
- 	}
- 
--	list_for_each_entry_safe(slave_mnt, t_slave_mnt,
-+	list_for_each_entry_safe(slave_mnt, t_mnt,
- 				 &mnt->mnt_slave_list, mnt_slave)
- 	    make_slave_of(slave_mnt, master);
- 
- 	make_slave_of(mnt, master);
- 	CLEAR_MNT_SHARED(mnt);
-@@ -97,39 +107,471 @@ int do_make_slave(struct vfsmount *mnt)
-       out:
- 	spin_unlock(&vfspnode_lock);
- 	return err;
- }
- 
-+static void __do_make_private(struct vfsmount *mnt)
-+{
-+	__do_make_slave(mnt);
-+	list_del_init(&mnt->mnt_slave);
-+	mnt->mnt_master = NULL;
-+	set_mnt_private(mnt);
-+}
-+
- int do_make_private(struct vfsmount *mnt)
- {
- 	/*
- 	 * a private mount is nothing but a
- 	 * slave mount with no incoming
- 	 * propagations.
- 	 */
- 	spin_lock(&vfspnode_lock);
--	__do_make_slave(mnt);
--	list_del_init(&mnt->mnt_slave);
-+	__do_make_private(mnt);
- 	spin_unlock(&vfspnode_lock);
--	mnt->mnt_master = NULL;
--	set_mnt_private(mnt);
- 	return 0;
- }
- 
- /*
-  * a unclonable mount does not receive and forward
-  * propagations and cannot be cloned(bind mounted).
-  */
- int do_make_unclonable(struct vfsmount *mnt)
- {
- 	/*
--	 * a unclonable mount is nothing but a
-+	 * a unclonable mount is a
- 	 * private mount which is unclonnable.
- 	 */
- 	spin_lock(&vfspnode_lock);
--	__do_make_slave(mnt);
--	list_del_init(&mnt->mnt_slave);
-+	__do_make_private(mnt);
- 	spin_unlock(&vfspnode_lock);
--	mnt->mnt_master = NULL;
- 	set_mnt_unclonable(mnt);
- 	return 0;
- }
-+
-+/*
-+ * merge 'first' mount and the 'second' into being peers
-+ * of the propagation tree.
-+ * @first: the source mount
-+ * @second: the destination mount
-+ */
-+void pnode_merge_mount(struct vfsmount *first, struct vfsmount *second)
-+{
-+	LIST_HEAD(mnt_list_head);
-+	spin_lock(&vfspnode_lock);
-+	list_add_tail(&mnt_list_head, &first->mnt_share);
-+	list_splice(&mnt_list_head, second->mnt_share.prev);
-+	spin_unlock(&vfspnode_lock);
-+	set_mnt_shared(first);
-+	set_mnt_shared(second);
-+}
-+
-+/*
-+ * make 'first' mount a slave peer of the 'second' mount.
-+ * @first: the source mount
-+ * @second: the destination mount
-+ */
-+void pnode_slave_mount(struct vfsmount *first, struct vfsmount *second)
-+{
-+	spin_lock(&vfspnode_lock);
-+	first->mnt_master = second->mnt_master;
-+	list_add(&first->mnt_slave, &second->mnt_slave);
-+	spin_unlock(&vfspnode_lock);
-+}
-+
-+static int check_peer(struct vfsmount *start, struct vfsmount *orig)
-+{
-+	struct vfsmount *m = start;
-+	do {
-+		m = next_shared(m);
-+		if (m == orig)
++		if (strcmp(argv[2],"rshared")==0)
++			type=(MS_SHARED|MS_REC);
++		else if (strcmp(argv[2],"rslave")==0)
++			type=(MS_SLAVE|MS_REC);
++		else if (strcmp(argv[2],"rprivate")==0)
++			type=(MS_PRIVATE|MS_REC);
++		else if (strcmp(argv[2],"runclonable")==0)
++			type=(MS_UNCLONE|MS_REC);
++		else if (strcmp(argv[2],"shared")==0)
++			type=MS_SHARED;
++		else if (strcmp(argv[2],"slave")==0)
++			type=MS_SLAVE;
++		else if (strcmp(argv[2],"private")==0)
++			type=MS_PRIVATE;
++		else if (strcmp(argv[2],"unclonable")==0)
++			type=MS_UNCLONE;
++		else {
++			fprintf(stderr, "invalid operation: %s\n", argv[2]);
 +			return 1;
-+	} while (m != start);
-+	return 0;
-+}
-+
-+/*
-+ * get the next mount in the propagation tree.
-+ * @m: the mount seen last
-+ * @origin: the original mount from where the tree walk initiated
-+ */
-+static struct vfsmount *propagation_next(struct vfsmount *m,
-+					 struct vfsmount *origin)
-+{
-+	/* are there any slaves of this mount? */
-+	if (!list_empty(&m->mnt_slave_list))
-+		return first_slave(m);
-+
-+	while (1) {
-+		/* get the next mount belonging to the same pnode */
-+		m = next_shared(m);
-+
-+		if (m == origin)
-+			break;
-+
-+		if (!m->mnt_master)
-+			return m;
-+
-+		if (check_peer(m, origin))
-+			return m;
-+
-+		/* more slaves? */
-+		if (m->mnt_slave.next != &m->mnt_master->mnt_slave_list)
-+			return next_slave(m);
-+
-+		/* back at master */
-+		m = m->mnt_master;
-+	}
-+	return NULL;
-+}
-+
-+/*
-+ * skip the propagation subtree tree rooted at @m
-+ */
-+static struct vfsmount *skip_propagation_tree(struct vfsmount *m)
-+{
-+	struct list_head *prev = m->mnt_slave_list.prev;
-+	while (prev != &m->mnt_slave_list) {
-+		m = list_entry(prev, struct vfsmount, mnt_slave);
-+		m = prev_shared(m);
-+		prev = m->mnt_slave_list.prev;
-+	}
-+	return m;
-+}
-+
-+/*
-+ * commit the operations done by propagate_prepare_mount()
-+ * @mnt: the root of the mount tree.
-+ * 'vfspnode_lock' need not be held before calling this function, if the
-+ * propogation tree is local to the caller.
-+ */
-+int propagate_commit_mount(struct vfsmount *mnt)
-+{
-+	struct vfsmount *m;
-+	LIST_HEAD(mnt_list_head);
-+
-+	list_add_tail(&mnt_list_head, &mnt->mnt_list);
-+	while (!list_empty(&mnt_list_head)) {
-+		m = list_entry(mnt_list_head.next, struct vfsmount, mnt_list);
-+		list_del_init(&m->mnt_list);
-+		do_attach_commit_mnt(m);
-+
-+		if (IS_MNT_SHARED(m->mnt_parent))
-+			set_mnt_shared(m);
-+		else if (m != mnt)
-+			CLEAR_MNT_SHARED(m);
-+	}
-+
-+	return 0;
-+}
-+
-+/*
-+ * abort the operations done by propagate_prepare_mount()
-+ * @mnt: the root of the mount tree.
-+ * vfspnode_lock need not be held before calling this function, if the
-+ * propogation tree is local to the caller.
-+ */
-+int propagate_abort_mount(struct vfsmount *mnt)
-+{
-+	struct vfsmount *m;
-+	LIST_HEAD(mnt_list_head);
-+
-+	list_add_tail(&mnt_list_head, &mnt->mnt_list);
-+	while (!list_empty(&mnt_list_head)) {
-+		m = list_entry(mnt_list_head.next, struct vfsmount, mnt_list);
-+		list_del_init(&m->mnt_list);
-+		do_detach_prepare_mnt(m);
-+		BUG_ON(atomic_read(&m->mnt_count) != 1);
-+		list_del_init(&m->mnt_share);
-+		list_del_init(&m->mnt_slave);
-+		mntput(m);
-+	}
-+	return 0;
-+}
-+
-+/*
-+ * return the number of mounts in the propagation tree
-+ * starting at @mnt
-+ */
-+static int propagation_tree_size(struct vfsmount *mnt,
-+				 struct dentry *dest_dentry,
-+				 int use_propagation_tree)
-+{
-+	int i = 0;
-+	struct vfsmount *m;
-+	if (use_propagation_tree) {
-+		for (m = mnt; m; m = propagation_next(m, mnt))
-+			i++;
-+	} else {
-+		LIST_HEAD(mnt_list_head);
-+		/*
-+		 * here we know for sure that we are looping through
-+		 * mounts that are yet to be comitted. Hence their
-+		 * mnt_list field comes in handy.
-+		 */
-+		list_add_tail(&mnt_list_head, &mnt->mnt_list);
-+		list_for_each_entry(m, &mnt_list_head, mnt_list)
-+		    i++;
-+		list_del_init(&mnt_list_head);
-+	}
-+	return i;
-+}
-+
-+/*
-+ * release all the mounts held in the list headed
-+ * at @head
-+ */
-+static void free_mnt_list(struct list_head *head)
-+{
-+	while (!list_empty(head)) {
-+		struct vfsmount *child = list_entry(head->next,
-+						    struct vfsmount, mnt_list);
-+		list_del_init(&child->mnt_list);
-+		mntput(child);
-+	}
-+}
-+
-+/*
-+ *  allocate @total number of vfsmount structures and link them
-+ *  into a list headed at @list.
-+ *  note: @mnt is the first element of the linked list.
-+ */
-+static int dup_mnt(struct vfsmount *mnt, int total, struct list_head *list)
-+{
-+	while (total--) {
-+		struct vfsmount *child = clone_mnt(mnt, mnt->mnt_root);
-+		if (!child)
-+			goto child_error;
-+		if (child->mnt_master) {
-+			mntput(child->mnt_master);
-+			child->mnt_master = NULL;
 +		}
-+		list_add(&child->mnt_list, list);
-+	}
-+	INIT_LIST_HEAD(&mnt->mnt_list);
-+	list_add(&mnt->mnt_list, list);
-+	return 0;
-+
-+      child_error:
-+	free_mnt_list(list);
-+	return 1;
-+}
-+
-+/*
-+ * create a list of children headed at source_mnt.
-+ * Take the list of mounts linked togather through mnt_mounts, headed
-+ * at @head, and make a new list of the same mounts headed at source_mnt
-+ * linked togather through mnt_list.
-+ */
-+static void create_child_list(struct vfsmount *source_mnt,
-+			      struct list_head *head)
-+{
-+	struct vfsmount *m;
-+	INIT_LIST_HEAD(&source_mnt->mnt_list);
-+	while (!list_empty(head)) {
-+		m = list_entry(head->next, struct vfsmount, mnt_mounts);
-+		list_del_init(&m->mnt_mounts);
-+		list_add_tail(&m->mnt_list, &source_mnt->mnt_list);
-+	}
-+}
-+
-+static struct vfsmount *get_allocated_child(struct list_head *child_list_head)
-+{
-+	struct vfsmount *child;
-+	if (list_empty(child_list_head))
-+		return NULL;
-+	child = list_entry(child_list_head->next, struct vfsmount, mnt_list);
-+	list_del_init(&child->mnt_list);
-+	return child;
-+}
-+
-+/*
-+ * prepare to attach @child to @m at dentry @dest_dentry.
-+ * @root_mnt is the * first mount in parent's propagation tree.
-+ * @p contains the last processed child mount.
-+ *
-+ * NOTE: @slave_list_head keeps track of the child mount that forms the pivot
-+ * at each level of the newly constructed child propagation tree. The pivot
-+ * child mount links togather all the shared mounts at that level through
-+ * ->mnt_share and all slave mounts at that level through ->mnt_slave
-+ */
-+static void __propagate_prepare_mount(struct vfsmount *m,
-+				      struct dentry *dest_dentry,
-+				      struct vfsmount *child,
-+				      struct vfsmount *p,
-+				      struct vfsmount *root_mnt,
-+				      struct list_head *slave_list_head)
-+{
-+	struct vfsmount *c = m;
-+	struct vfsmount *pivot;
-+	int peer = check_peer(c, root_mnt);
-+	/*
-+	 * walk 'p' up the tree until it either becomes the master of 'c' or if
-+	 * 'c' does not have a master, until it becomes 'c'.  As 'p' is walked
-+	 * up the propagation tree through each level, the pivot mount at that
-+	 * level is trimmed off the slave_list_head.
-+	 */
-+	while ((peer && c != root_mnt) || (!peer && !c->mnt_master))
-+		c = next_shared(c);
-+	while (p && p != c && p != c->mnt_master) {
-+		peer = check_peer(p, root_mnt);
-+		while ((peer && p != root_mnt) || (!peer && !p->mnt_master))
-+			p = next_shared(p);
-+		if (p != c)
-+			list_del_init(slave_list_head->next);
-+		p = p->mnt_master;
-+	}
-+
-+	if ((m != root_mnt) || (child == child->mnt_parent)) {
-+		if (is_subdir(dest_dentry, m->mnt_root))
-+			do_attach_prepare_mnt(m, dest_dentry, child);
-+		else
-+			child->mnt_mountpoint = NULL;
-+	}
-+
-+	if ((m == root_mnt) || m->mnt_master) {
-+		if (!list_empty(slave_list_head)) {
-+			pivot = list_entry(slave_list_head->next,
-+					   struct vfsmount, mnt_list);
-+			BUG_ON(!pivot);
-+			child->mnt_master = pivot;
-+			list_add_tail(&child->mnt_slave,
-+				      &pivot->mnt_slave_list);
-+			if (pivot->mnt_parent->mnt_master == m->mnt_master)
-+				list_del_init(slave_list_head->next);
++		setfsuid(getuid());
++		if(mount("", argv[1], "ext2", type, "") == -1) {
++			perror("mount");
++			return 1;
 +		}
-+	} else {
-+		pivot = list_entry(slave_list_head->next, struct vfsmount,
-+				   mnt_list);
-+		list_add_tail(&child->mnt_share, &pivot->mnt_share);
-+		list_del_init(slave_list_head->next);
++		return 0;
 +	}
-+	list_add(&child->mnt_list, slave_list_head);
-+}
++	-----------------------------------------------------------------------
 +
-+/*
-+ * mount 'source_mnt' under the destination 'dest_mnt' at
-+ * dentry 'dest_dentry'. And propagate that mount to
-+ * all the peer and slave mounts of 'dest_mnt'.
-+ * Link all the new mounts into a propagation tree headed at
-+ * source_mnt. Also link all the new mounts using ->mnt_list
-+ * headed at source_mnt's ->mnt_list
-+ *
-+ * @dest_mnt: destination mount.
-+ * @dest_dentry: destination dentry.
-+ * @source_mnt: source mount.
-+ *
-+ * Steps:
-+ * 1) find the number of mounts residing in the propagation tree of 'dest_mnt'.
-+ * 2) Allocate that many number of new struct vfsmounts (without holding
-+ * 		the vfspnode_lock).
-+ * 3) walk through the propagation tree of 'dest_mnt' and for each mount P
-+ * 	a) attach a newly allocated struct vfsmount (mount C)
-+ * 	b) i)   if the mount P is shared and the shared list is pivoted at P'
-+ * 		put C in the ->mnt_share of C' where C' is the
-+ *		child mount of P'
-+ *	   ii)  if the mount P is a slave and resides in the slave list
-+ *   		pivoted at P', put C in the ->mnt_slave_list of C'
-+ *   		where C' is the child mount of P'
-+ */
-+int propagate_prepare_mount(struct vfsmount *dest_mnt,
-+			    struct dentry *dest_dentry,
-+			    struct vfsmount *source_mnt)
-+{
-+	struct vfsmount *p, *m, *child;
-+	int total;
-+	LIST_HEAD(slave_list_head);	/* the actively constructed propagation
-+					 * tree branch corresponding to child
-+					 * mounts */
-+	LIST_HEAD(child_list_head);
-+	LIST_HEAD(tmp_list);
++	Copy the above code snippet into smount.c
++	gcc -o smount smount.c
 +
-+	spin_lock(&vfspnode_lock);
-+	total = propagation_tree_size(dest_mnt, dest_dentry,
-+				      (source_mnt->mnt_parent == source_mnt));
-+	spin_unlock(&vfspnode_lock);
 +
-+	/*
-+	 * allocate enough number of child mounts to satisfy the request
-+	 * without holding locks.
-+	 */
-+	if (dup_mnt(source_mnt, --total, &child_list_head))
-+		goto error;
++	(i) To mark all the mounts under /mnt as shared execute the following
++	command:
 +
-+	p = NULL;
-+	spin_lock(&vfspnode_lock);
-+	if (source_mnt->mnt_parent == source_mnt) {
-+		for (m = dest_mnt; m; m = propagation_next(m, dest_mnt)) {
-+			/*
-+			 * restrict propagation only to existing mounts.  NOTE:
-+			 * a newly created child mount may end up being shared
-+			 * with the parent. This can lead to infinite loop.
-+			 * Ideally we should put all the mounts that receive
-+			 * propagation in a  list and than iterate over the
-+			 * list mounting the new child mounts. Because of lack
-+			 * of a suitable field in struct vfsmount which is not
-+			 * actively used; we use this approach.
-+			 */
-+			if (m != dest_mnt && m != source_mnt
-+			    && list_empty(&m->mnt_child)) {
-+				m = skip_propagation_tree(m);
-+				continue;
-+			}
-+			if (!(child = get_allocated_child(&child_list_head)))
-+				goto error;
-+			__propagate_prepare_mount(m, dest_dentry, child,
-+						  p, dest_mnt,
-+						  &slave_list_head);
-+			p = m;
-+			if (m != dest_mnt) {
-+				BUG_ON(child == source_mnt);
-+				list_add_tail(&child->mnt_mounts, &tmp_list);
-+			}
-+		}
-+		/*
-+		 * prune the mounts in the child propagation tree that do not
-+		 * have a dentry to mount. This can happen if the parent
-+		 * mount was cloned of some subdirectory of a shared/slave
-+		 * mount.
-+		 */
-+		list_for_each_entry_safe(child, p, &tmp_list, mnt_mounts) {
-+			if (!child->mnt_mountpoint) {
-+				list_del_init(&child->mnt_mounts);
-+				__do_make_private(child);
-+				mntput(child);
-+			}
-+		}
-+	} else {
-+		LIST_HEAD(head);
-+		/*
-+		 * here we know for sure that we are looping through
-+		 * mounts that are yet to be comitted. Hence their
-+		 * mnt_list field comes in handy.
-+		 */
-+		list_add_tail(&head, &dest_mnt->mnt_list);
-+		list_for_each_entry(m, &head, mnt_list) {
-+			if (!(child = get_allocated_child(&child_list_head)))
-+				goto error;
-+			__propagate_prepare_mount(m, dest_dentry, child,
-+						  p, dest_mnt,
-+						  &slave_list_head);
-+			p = m;
-+			if (m != dest_mnt) {
-+				BUG_ON(child == source_mnt);
-+				list_add_tail(&child->mnt_mounts, &tmp_list);
-+			}
-+		}
-+		list_del_init(&head);
-+	}
-+	list_del_init(slave_list_head.next);
-+	create_child_list(source_mnt, &tmp_list);
-+	spin_unlock(&vfspnode_lock);
-+	free_mnt_list(&child_list_head);
-+	return 0;
++	 	smount /mnt rshared
++		the corresponding syntax planned for mount command is
++		mount --make-rshared /mnt
 +
-+      error:
-+	while (!list_empty(&slave_list_head))
-+		list_del_init(slave_list_head.next);
-+	create_child_list(source_mnt, &tmp_list);
-+	propagate_abort_mount(source_mnt);
-+	spin_unlock(&vfspnode_lock);
-+	return -ENOMEM;
-+}
-Index: 2.6.13.sharedsubtree/include/linux/pnode.h
-===================================================================
---- 2.6.13.sharedsubtree.orig/include/linux/pnode.h
-+++ 2.6.13.sharedsubtree/include/linux/pnode.h
-@@ -35,10 +35,15 @@ static inline void set_mnt_unclonable(st
- static inline struct vfsmount *next_shared(struct vfsmount *p)
- {
- 	return list_entry(p->mnt_share.next, struct vfsmount, mnt_share);
- }
- 
-+static inline struct vfsmount *prev_shared(struct vfsmount *p)
-+{
-+	return list_entry(p->mnt_share.prev, struct vfsmount, mnt_share);
-+}
++	    just to mark a mount /mnt as shared, execute the following
++	    command:
++	 	smount /mnt shared
++		the corresponding syntax planned for mount command is
++		mount --make-shared /mnt
 +
- static inline struct vfsmount *first_slave(struct vfsmount *p)
- {
- 	return list_entry(p->mnt_slave_list.next, struct vfsmount, mnt_slave);
- }
- 
-@@ -49,6 +54,12 @@ static inline struct vfsmount *next_slav
- 
- int do_make_slave(struct vfsmount *);
- int do_make_shared(struct vfsmount *);
- int do_make_private(struct vfsmount *);
- int do_make_unclonable(struct vfsmount *);
-+void pnode_merge_mount(struct vfsmount *, struct vfsmount *);
-+void pnode_slave_mount(struct vfsmount *, struct vfsmount *);
-+int propagate_commit_mount(struct vfsmount *);
-+int propagate_abort_mount(struct vfsmount *);
-+int propagate_prepare_mount(struct vfsmount *, struct dentry *,
-+			    struct vfsmount *);
- #endif				/* _LINUX_PNODE_H */
-Index: 2.6.13.sharedsubtree/include/linux/fs.h
-===================================================================
---- 2.6.13.sharedsubtree.orig/include/linux/fs.h
-+++ 2.6.13.sharedsubtree/include/linux/fs.h
-@@ -1244,10 +1244,16 @@ extern int register_filesystem(struct fi
- extern int unregister_filesystem(struct file_system_type *);
- extern struct vfsmount *kern_mount(struct file_system_type *);
- extern int may_umount_tree(struct vfsmount *);
- extern int may_umount(struct vfsmount *);
- extern long do_mount(char *, char *, char *, unsigned long, void *);
-+extern struct vfsmount *clone_mnt(struct vfsmount *, struct dentry *);
-+extern void do_attach_prepare_mnt(struct vfsmount *, struct dentry *,
-+				  struct vfsmount *);
-+extern void do_attach_commit_mnt(struct vfsmount *);
-+extern void do_detach_prepare_mnt(struct vfsmount *);
-+extern void do_detach_mount(struct vfsmount *);
- 
- extern int vfs_statfs(struct super_block *, struct kstatfs *);
- 
- #define FLOCK_VERIFY_READ  1
- #define FLOCK_VERIFY_WRITE 2
++	(ii) To mark all the shared mounts under /mnt as slave execute the
++	following
++
++	     command:
++		smount /mnt rslave
++		the corresponding syntax planned for mount command is
++		mount --make-rslave /mnt
++
++	    just to mark a mount /mnt as slave, execute the following
++	    command:
++	 	smount /mnt slave
++		the corresponding syntax planned for mount command is
++		mount --make-slave /mnt
++
++	(iii) To mark all the mounts under /mnt as private execute the
++	following command:
++
++		smount /mnt rprivate
++		the corresponding syntax planned for mount command is
++		mount --make-rprivate /mnt
++
++	    just to mark a mount /mnt as private, execute the following
++	    command:
++	 	smount /mnt private
++		the corresponding syntax planned for mount command is
++		mount --make-private /mnt
++
++	      NOTE: by default all the mounts are created as private. But if
++	      you want to change some shared/slave/unclonable  mount as
++	      private at a later point in time, this command can help.
++
++	(iv) To mark all the mounts under /mnt as unclonable execute the
++	following
++
++	     command:
++		smount /mnt runclonable
++		the corresponding syntax planned for mount command is
++		mount --make-runclonable /mnt
++
++	    just to mark a mount /mnt as unclonable, execute the following
++	    command:
++	 	smount /mnt unclonable
++		the corresponding syntax planned for mount command is
++		mount --make-unclonable /mnt
++
++
++
++4) Use cases
++------------
++
++	A) A process wants to clone its own namespace, but still wants to
++	access the CD that got mounted recently.
++
++	Solution:
++
++	The system administrator can make the mount at /cdrom shared
++	mount --bind /cdrom /cdrom
++	mount --make-shared /cdrom
++
++	Now any process that clone off a new namespace will have a mount
++	at /cdrom which is a replica of the same mount in the parent namespace.
++
++	So when a CD is inserted and mounted at /cdrom that mount gets
++	propagated to the other mount at /cdrom in all the other clone
++	namespaces.
++
++	B) A process wants its mounts invisible to any other process, but
++	still be able to see the other system mounts.
++
++	Solution:
++
++	To begin with the administrator can mark the entire mount tree
++	as shareable.
++
++	mount --make-rshared /
++
++	A new process can clone off a new namespace. And mark some part of
++	its namespace as slave
++
++	mount --make-rslave /myprivatetree
++
++	Hence forth any mounts within the /myprivatetree done by the process
++	will not show up in any other namespace. However mounts done in the
++	parent namespace under /myprivatetree still shows up in the
++	process's namespace.
++
++
++	Apart from the above semantics this feature provides the building
++	blocks to solve the following problems:
++
++	C)  Per-user namespace
++	The above semantics allows a way to share mounts across namespaces.
++	But namespaces are associated with processes. If namespaces are made
++	first class objects with user API to associate/disassociate a namespace
++	with userid, then each user could have his/her own namespace and tailor
++	it to his/her requirements. Offcourse its needs support from PAM.
++
++	D)  Versioned files
++
++	If the entire mount tree is visible at multiple locations, then a
++	underlying versioning file system can return different version of the
++	file depending on the path used to access that file.
++
++	An example is:
++
++	mount --make-shared /
++	mount --rbind / /view/v1
++	mount --rbind / /view/v2
++	mount --rbind / /view/v3
++	mount --rbind / /view/v4
++
++	and if at /usr there is a versioning filesystem mounted, that mount
++	appears at /view/v1/usr, /view/v2/usr, /view/v3/usr and /view/v4/usr
++	too
++
++	A user can request v3 version of the file /usr/fs/namespace.c by
++	accessing /view/v3/usr/fs/namespace.c . The underlying versioning
++	filesystem can then decipher that v3 version of the filesystem is being
++	requested and return the corresponding inode.
++
++	E)  Information leakage
++
++	Many programs leave garbage in /tmp and other directories which
++	other users on the system can observe.(covert channels?)
++
++	The way to solve this is to have per-process-namespace and have
++	unclonable mounts at /tmp for each namespaces.
++
++
++
++5) Detailed semantics:
++-------------------
++	The section below explains the detailed semantics of
++	bind, rbind, move, mount, umount and clone-namespace operations.
++
++5A) Bind semantics
++
++	Consider the following command
++
++	mount --bind A/a  B/b
++
++	where 'A' is the source mount, 'a' is the dentry in the mount 'A', 'B'
++	is the destination mount and 'b' is the dentry in the destination mount.
++
++	The outcome depends on the type of mount of 'A' and 'B'. The table
++	below contains quick reference.
++     --------------------------------------------------------------------
++     |                          BIND MOUNT OPERATION                    |
++     |******************************************************************|
++     |dest(B)-->|  shared       |       private  |  slave   |unclonable |
++     | source(A)|               |                |          |           |
++     |   |      |               |                |          |           |
++     |   v      |               |                |          |           |
++     |******************************************************************|
++     |          |               |                |          |           |
++     |  shared  | shared        |     shared     |shared    |shared     |
++     |          |               |                |          |           |
++     |          |               |                |          |           |
++     | private  | shared        |      private   | private  | private   |
++     |          |               |                |          |           |
++     |          |               |                |          |           |
++     | slave    | shared        |      slave     | slave    | slave     |
++     |          |               |                |          |           |
++     |          |               |                |          |           |
++     |unclonable| invalid       |      invalid   | invalid  | invalid   |
++     |          |               |                |          |           |
++     |          |               |                |          |           |
++     ********************************************************************
++
++     	Details follow:
++
++	1. 'A' is a private mount and 'B' is a private mount. A new mount 'C'
++	which is clone of 'A', is created. Its root dentry is 'a'. 'C' is
++	mounted on mount 'B' at dentry 'b'.
++
++	2. 'A' is a shared mount and 'B' is a private mount. A new mount 'C'
++	which is a clone of 'A' is created. Its root dentry is 'a'. 'C' is
++	mounted on mount 'B' at dentry 'b'. Also 'C' is set for propagation
++	with 'A'.  In other words 'A' and 'C' propagate to each other.
++
++	3. 'A' is a slave mount of mount 'Z' and 'B' is a private mount. A new
++	mount 'C' which is a clone of 'A' is created. Its root dentry is 'a'.
++	'C' is mounted on mount 'B' at dentry 'b'. Also 'C' is set as a slave
++	mount of 'Z'. In other words 'A' and 'C' are both slave mounts of 'Z'.
++	All mount/unmount events on 'Z' propagates to 'A' and 'C'. But
++	mount/unmount on 'A' does not propagate anywhere else. Similarly
++	mount/unmount on 'C' does not propagate anywhere else.
++
++	4. 'A' is a unclonable mount and 'B' is a private mount. This is a
++	invalid operation. A unclonable mount cannot be bind mounted.
++
++	5. 'A' is a private mount and 'B' is a shared mount. A new mount 'C'
++	which is clone of 'A', is created. Its root dentry is 'a'. 'C' is
++	mounted on mount 'B' at dentry 'b'. Also new mount 'C1', 'C2', 'C3' ...
++	are created and mounted at the dentry 'b' on all mounts where 'B'
++	propagates to. A new propagation tree is set containing all new mounts
++	'C1', .., 'Cn' exactly with the same configuration as the propagation
++	tree of 'B'.
++
++	6. 'A' is a shared mount and 'B' is a shared mount. A new mount 'C'
++	which is clone of 'A', is created. Its root dentry is 'a' . 'C' is
++	mounted on mount 'B' at dentry 'b'. Also new mount 'C1', 'C2', 'C3' ...
++	are created and mounted at the dentry 'b' on all mounts where 'B'
++	propagates to. A new propagation tree is set for all the new mounts
++	'C1',..,'Cn' with exactly the same configuration as the propagation
++	tree of 'B'.  And finally the mount 'C' and 'A' are set to propagate to
++	each other.
++
++	7. 'A' is a slave mount of mount 'Z' and 'B' is a shared mount. A new
++	mount 'C' which is clone of 'A', is created. Its root dentry is 'a' .
++	'C' is mounted on mount 'B' at dentry 'b'. Also new mounts 'C1', 'C2',
++	'C3' ... are created and mounted at the dentry 'b' on all mounts where
++	'B' propagates to. A new propagation tree is set for all the new mounts
++	'C1',..  'Cn' with exactly the same configuration as the propagation
++	tree of 'B'.  And finally the mount 'C' is made the slave of mount 'Z'.
++
++	8. 'A' is a unclonable mount and 'B' is a shared mount. This is a
++	invalid operation.
++
++	9. 'A' is a private mount and 'B' is a slave mount. A new mount 'C'
++	which is clone of 'A', is created. Its root dentry is 'a' . 'C' is
++	mounted on mount 'B' at dentry 'b'.
++
++	10. 'A' is a shared mount and 'B' is a slave mount. A new mount 'C'
++	which is clone of 'A', is created. Its root dentry is 'a' . 'C' is
++	mounted on mount 'B' at dentry 'b'.  And finally the mount 'C' and 'A'
++	set to  propagate to each other.
++
++	11. 'A' is a slave mount of mount 'Z' and 'B' is a slave mount. A new
++	mount 'C' which is clone of 'A' is created. Its root dentry is 'a'. 'C'
++	is mounted on mount 'B' at dentry 'b'.  And finally the mount 'C' is
++	made the slave of mount 'Z'.
++
++	12. 'A' is a unclonable mount and 'B' is a slave mount. This is a
++	invalid operation.
++
++	13. 'A' is a private mount and 'B' is a unclonable mount. A new mount
++	'C' which is clone of 'A', is created. Its root dentry is 'a' . 'C' is
++	mounted on mount 'B' at dentry 'b'.
++
++	14. 'A' is a shared mount and 'B' is a unclonable mount. A new mount
++	'C' which is a clone of 'A' is created. Its root dentry is 'a'. 'C' is
++	mounted on mount 'B' at dentry 'b'. Also 'C' is set for propagation
++	with 'A'.  In other words 'A' and 'C' are propagation peers of each
++	other.
++
++	15. 'A' is a slave mount of mount 'Z' and 'B' is a unclonable mount. A
++	new mount 'C' which is a clone of 'A' is created. Its root dentry is
++	'a'. This mount is mounted on mount 'B' at dentry 'b'. Also 'C' is set
++	as a slave mount of 'Z'.
++
++	16. 'A' is a unclonable mount and 'B' is a unclonable mount. This is a
++	invalid operation.
++
++
++5B) Rbind semantics
++	rbind is same as bind. Bind replicates the specified mount.  Rbind
++	replicates all the mounts in the tree belonging to the specified mount.
++	Rbind mount is bind mount applied to all the mounts in the tree.
++
++	If the source tree that is rbind has some unclonable mounts,
++	then the subtree under the unclonable mount is pruned in the new
++	location.
++
++	eg: lets say we have the following mount tree.
++
++		A
++	      /   \
++	      B   C
++	     / \ / \
++	     D E F G
++
++	     Lets say all the mount except C mount in the tree are something
++	     other than unclonable.
++
++	     If this tree is rbound to say Z
++
++	     We will have the following tree at the new location.
++
++		Z
++		|
++		A'
++	       /
++	      B'		Note: how the tree under C is pruned
++	     / \ 		in the new location.
++	    D' E'
++
++
++
++5C) Move semantics
++
++	Consider the following command
++
++	mount --move A  B/b
++
++	where 'A' is the source mount, 'B' is the destination mount and 'b' is
++	the dentry in the destination mount.
++
++	The outcome depends on the type of the mount of 'A' and 'B'. The table
++	below is a quick reference.
++     --------------------------------------------------------------------
++     |                          MOVE MOUNT OPERATION                    |
++     |******************************************************************|
++     |dest(B)-->|  shared       |       private  |  slave   |unclonable |
++     | source(A)|               |                |          |           |
++     |   |      |               |                |          |           |
++     |   v      |               |                |          |           |
++     |******************************************************************|
++     |          |               |                |          |           |
++     |  shared  | shared        |     shared     |shared    | shared    |
++     |          |               |                |          |           |
++     |          |               |                |          |           |
++     | private  | shared        |      private   | private  | private   |
++     |          |               |                |          |           |
++     |          |               |                |          |           |
++     | slave    | shared        |      slave     | slave    | slave     |
++     |          |               |                |          |           |
++     |          |               |                |          |           |
++     |unclonable|  invalid      |     unclonable |unclonable| unclonable|
++     |          |               |                |          |           |
++     |          |               |                |          |           |
++      *******************************************************************
++	NOTE: moving a mount residing under a shared mount is invalid.
++
++      Details follow:
++
++	1. 'A' is a private mount and 'B' is a private mount. The mount 'A' is
++	mounted on mount 'B' at dentry 'b'.
++
++	2. 'A' is a shared mount and 'B' is a private mount.  The mount 'A' is
++	mounted on mount 'B' at dentry 'b'.  Mount 'A' continues to be a shared
++	mount.
++
++	3. 'A' is a slave mount of mount 'Z' and 'B' is a private mount.  The
++	mount 'A' is mounted on mount 'B' at dentry 'b'.  Mount 'A' continues
++	to be a slave mount of mount 'Z'.
++
++	4. 'A' is a unclonable mount and 'B' is a private mount. The mount 'A'
++	is mounted on mount 'B' at dentry 'b'. Mount 'A' continues to be a
++	unclonable mount.
++
++	5. 'A' is a private mount and 'B' is a shared mount. The mount 'A' is
++	mounted on mount 'B' at dentry 'b'. Also new mount 'A1', 'A2'... 'An'
++	are created and mounted at dentry 'b' on all mounts that receive
++	propagation from mount 'B'. The mount 'A' becomes a shared mount and a
++	propagation tree is created in the exact same configuration as that of
++	'B'. This new propagation tree contains all the new mounts 'A1',
++	'A2'...  'An'.
++
++	6. 'A' is a shared mount and 'B' is a shared mount.  The mount 'A' is
++	mounted on mount 'B' at dentry 'b'.  Also new mounts 'A1', 'A2'...'An'
++	are created and mounted at dentry 'b' on all mounts that receive
++	propagation from mount 'B'. A new propagation tree is created in the
++	exact same configuration as that of 'B'. This new propagation tree
++	contains all the new mounts 'A1', 'A2'...  'An'.  And this new
++	propagation tree is appended to the already existing propagation tree
++	of 'A'.
++
++	7. 'A' is a slave mount of mount 'Z' and 'B' is a shared mount.  The
++	mount 'A' is mounted on mount 'B' at dentry 'b'.  Also new mounts 'A1',
++	'A2'... 'An' are created and mounted at dentry 'b' on all mounts that
++	receive propagation from mount 'B'. A new propagation tree is created
++	in the exact same configuration as that of 'B'. This new propagation
++	tree contains all the new mounts 'A1', 'A2'...  'An'.  And this new
++	propagation tree is appended to the already existing propagation tree of
++	'A'.  Mount 'A' continues to be the slave mount of 'Z'.
++
++	8. 'A' is a unclonable mount and 'B' is a shared mount. The operation
++	is invalid. Because mounting anything on the shared mount 'B' can
++	create new mounts that get mounted on the mounts that receive
++	propagation from 'B'.  And since the mount 'A' is unclonable, cloning
++	it to mount at other mountpoints is not possible.
++
++	9. 'A' is a private mount and 'B' is a slave mount. The mount 'A' is
++	mounted on mount 'B' at dentry 'b'. Mount 'A' continues to be a private
++	mount.
++
++	10. 'A' is a shared mount and 'B' is a slave mount.  The mount 'A' is
++	mounted on mount 'B' at dentry 'b'.  Mount 'A' continues to be a shared
++	mount.
++
++	11. 'A' is a slave mount of mount 'Z' and 'B' is slave mount.  The
++	mount A is mounted on mount 'B' at dentry 'b'.  Mount 'A' continues to
++	be a slave mount of mount Z.
++
++	12. 'A' is a unclonable mount and 'B' is a slave mount. The mount 'A'
++	is mounted on mount 'B' at dentry 'b'. Mount 'A' continues to be a
++	unclonable mount.
++
++	13. 'A' is a private mount and 'B' is a unclonable mount. The mount 'A'
++	is mounted on mount 'B' at dentry 'b'. mount 'A' continues to be a
++	private mount.
++
++	14. 'A' is a shared mount and 'B' is a unclonable mount.  The mount 'A'
++	is mounted on mount 'B' at dentry 'b'.  Mount 'A' continues to be a
++	shared mount.
++
++	15. 'A' is a slave mount of mount 'Z' and 'B' is unclonable mount.  The
++	mount 'A' is mounted on mount 'B' at dentry 'b'.  Mount 'A' continues
++	to be a slave mount of mount Z.
++
++	16. 'A' is a unclonable mount and 'B' is a unclonable mount. The mount
++	'A' is mounted on mount 'B' at dentry 'b'. Mount 'A' continues to be a
++	unclonable mount.
++
++5D) Mount semantics
++
++	Consider the following command
++
++	mount device  B/b
++
++	'B' is the destination mount and 'b' is the dentry in the destination
++	mount.
++
++	The above operation is the same as bind operation with the exception
++	that the source mount is always a private mount.
++
++
++5E) Unmount semantics
++
++	Consider the following command
++
++	umount A
++
++	where 'A' is a mount mounted on mount 'B' at dentry 'b'.
++
++	If mount 'B' is shared, then all most-recently-mounted mounts at dentry
++	'b' on mounts that receive propagation from mount 'B' and does not have
++	sub-mounts within them are unmounted.
++
++	Example: Lets say 'B1', 'B2', 'B3' are shared mounts that propagate to
++	each other.
++
++	lets say 'A1', 'A2', 'A3' are first mounted at dentry 'b' on mount
++	'B1', 'B2' and 'B3' respectively.
++
++	lets say 'C1', 'C2', 'C3' are next mounted at the same dentry 'b' on
++	mount 'B1', 'B2' and 'B3' respectively.
++
++	if 'C1' is unmounted, all the mounts that are most-recently-mounted on
++	'B1' and on the mounts that 'B1' propagates-to are unmounted.
++
++	'B1' propagates to 'B2' and 'B3'. And the most recently mounted mount
++	on 'B2' at dentry 'b' is 'C2', and that of mount 'B3' is 'C3'.
++
++	So all 'C1', 'C2' and 'C3' should be unmounted.
++
++	If any of 'C2' or 'C3' has some child mounts, then that mount is not
++	unmounted, but all other mounts are unmounted. However if C1 is told to
++	be unmounted and C1 has some sub-mounts, the umount operation is failed
++	entirely.
++
++5F) Clone Namespace
++
++	A cloned namespace has all the mounts as that of the parent namespace,
++	except that it skips all the mounts under a unclonable mount.
++
++	Lets say 'A' and 'B' are the corresponding mounts in the parent and the
++	child namespace.
++
++	If 'A' is shared, then 'B' is also shared and 'A' and 'B' propagate to
++	each other.
++
++	If 'A' is a slave mount of 'Z', then 'B' is also the slave mount of
++	'Z'.
++
++	If 'A' is a private mount, then 'B' is a private mount too.
++
++	If 'A' is unclonable mount, 'B' does not exist.
++
++6F) Misc Semantics
++
++	A given mount can be in one of the states
++	1) shared
++	2) slave
++	3) shared and slave
++	4) private
++	5) unclonable
++
++	Note the state 'shared and slave'. This state indicates that the mount
++	is a slave of some master mount, and it is shared too.  This mount
++	receives propogation events from the master mount, and also forwards
++	propagation events to its shared peers and its slave mounts.
++
++	Only a shared mount can be made a slave by executing the following
++	command
++		mount --make-slave mount
++	A shared mount that is made as a slave will not be shared anymore.
++
++	Only a slave mount can be made as 'shared and slave' by executing
++	the following command
++		mount --make-shared mount
++
++6) Quiz
++
++	A. What happens when the following set of commands are executed?
++
++	mount --bind /mnt /mnt
++	mount --make-shared /mnt
++	mount --bind /mnt /tmp
++	mount --move /tmp /mnt/1
++
++	what should be the contents of /mnt /mnt/1 /mnt/1/1 should be?
++	Should they all be identical? or should /mnt and /mnt/1 be
++	identical only?
++
++	B. What happens when the following set of commands are executed?
++
++	mount --make-rshared /
++	mkdir -p /v/1
++	mount --rbind / /v/1
++
++	what should be the content of /v/1/v/1 be?
++
++
++	C. What happens when the following set of commands are executed
++		mount --bind /mnt /mnt
++		mount --make-shared /mnt
++		mkdir -p /mnt/1/2/3 /mnt/1/test
++		mount --bind /mnt/1 /tmp
++		mount --make-slave /mnt
++		mount --make-shared /mnt
++		mount --bind /mnt/1/2 /tmp1
++		mount --make-slave /mnt
++
++		At this point we have the first mount at /tmp and
++		its root dentry is 1. Lets call this mount 'A'
++		And then we have a second mount at /tmp1 with root
++		dentry 2. Lets call this mount 'B'
++		Next we have a third mount at /mnt with root dentry
++		mnt. Lets call this mount 'C'
++
++		'B' is the slave of 'A' and 'C' is a slave of 'B'
++		A -> B -> C
++
++		at this point if we execute the following command
++
++		mount --bind /bin /tmp/test
++
++		The mount is attempted on 'A'
++
++		will the mount propagate to 'B' and 'C' ?
++
++		what would be the contents of
++		/mnt/1/test be?
++
++
++	D. What happens when the following set of commands are executed?
++
++	mount --bind /mnt /mnt
++	mount --make-shared /mnt
++	mkdir -p /mnt/1 /mnt/2
++	mount --bind /usr  /mnt/1
++	mount --bind /mnt  /mnt/2
++
++		a) mount --bind /var /mnt/2
++		   what should be the contents of /mnt/1 and /mnt/2 be?
++
++		b) mount --bind /var /mnt/1
++		   what should the contents of /mnt/1 and /mnt/2 be?
++
++7) FAQ
++
++	Q1. Why is bind mount needed? How is it different from symbolic links?
++	symbolic links can get stale if the destination mount gets unmounted
++	or moved. Bind mounts continue to exist even if the other mount is
++	unmounted or moved.
++
++	Q2. Why can't the shared subtree be implemented using exportfs?
++	exportfs is a heavyweight way of accomplishing part of what shared
++	subtree can do. I cannot imagine a way to implement the semantics of
++	slave mount using exportfs?
++
++	Q3 Why is unclonable mount needed?
++	if one rbind mounts a tree within the same subtree 'n' times
++	the number of mounts created is a exponential function of 'n'.
++	Having unclonable mount can help prune the unneeded bind mounts.
++
++8) Bugs
++
++	Current VFS implementation makes the most-recent-mount visible
++	instead of making the top-most mount visible.
++
++	This edge-case shows up when multiple mounts are mounted on
++	the same dentry of a given mount.
++
++	consider the following command sequence
++
++	(1) cd /mnt
++	(2) mount --bind /usr /mnt
++	(3) mount --bind /bin /mnt
++	(4) mount --bind /var .
++
++	after step 1, the pwd of the process points to the 'mnt' dentry
++	of the root mount.  lets call the root mount as 'A'
++
++	after step 2, a new mount is laid on top of 'A' at the mountpoint
++	'mnt'.  lets call this mount 'B'
++
++	after step 3, a new mount is laid on top of 'B' on the root dentry of
++	'B'.  lets call this new overlaid mount as 'C'. At this point the
++	visible content of /mnt is the content of 'C'.
++
++	however at step 4, a new mount is laid on top of 'A' at the same
++	mountpoint 'mnt' as that of 'B'. Lets call the new mount 'D'.
++
++	Note mount 'B' resides on top of 'A', and mount 'C' is mounted on top
++	of 'A' at the same mountpoint as that of 'B'.
++
++	Since 'B' is above 'A' and 'C' is below 'B' but above 'A', one would
++	naturally expect 'B' to continue to be visible.
++
++	But that is not the case. 'C' becomes visible as per the current
++	implementation of VFS.
++
++	This semantics if extended to shared subtree can cause mind boggling
++	confusion.
++
++	Here is a scenario with shared subtree. Sorry it is complex.
++
++	mount --bind /mnt /mnt
++	mount --make-shared /mnt
++	mkdir -p /mnt/1 /mnt/2
++	mount --bind /usr  /mnt/1
++	mount --bind /mnt  /mnt/2
++
++	At this stage the mount at /mnt/2 and /mnt belong to the same pnode
++	which means mounts under them propagate to each other.
++
++	mount --bind /var /mnt/1
++
++	the contents of /var will be visible under /mnt/1 and not under /mnt/2
++	Instead if 'mount --bind /var /mnt/2' is executed, the contents of /var
++	is visible under /mnt/1 as well as /mnt/2 .
++
++	On analysis it turns out the culprit is the current rule which says
++	'expose the most-recent-mount and not the topmost mount'
++
++	The current implementation of shared subtree has not changed the
++	semantics for the normal case. But has implemented the
++	top-most-mount-visible semantics for mounts that happen in the context
++	of shared-subtree. This could be perceived as a bug!  This issue needs
++	some collective thought.
++
++
++9) Implementation
++
++	4 new fields are added to struct vfsmount
++	->mnt_share
++	->mnt_slave_list
++	->mnt_slave
++	->mnt_master
++
++	->mnt_share links together all the mount to/from which this mount
++	send/receives mount/umount propagations.
++
++	->mnt_slave_list links all the mounts to which this mount propagates to.
++
++	->mnt_slave links together all the slaves that its master mount
++	propagates to.
++
++	->mnt_master points to the master mount from which this mount receives
++	propagation.
++
++
++	->mnt_flags takes two more flags to indicate the propagation status of
++	the mount.  MNT_SHARE indicates that the mount is a shared mount.
++	MNT_UNCLONABLE indicates that the mount cannot be replicated.
++
++
++	A example propagation tree looks as shown in the figure below.
++	[ NOTE: Though it looks like a forest, if we consider all the shared
++	mounts as a conceptual entity called 'pnode', it becomes a tree]
++
++
++		        A <--> B <--> C <---> D
++		       /|\	      /|      |\
++		      / F G	     J K      H I
++		     /
++		    E<-->K
++			/|\
++		       M L N
++
++	In the above figure  A,B,C and D all are shared and propagate to each
++	other.   'A' has got 3 slave mounts 'E' 'F' and 'G' 'C' has got 2 slave
++	mounts 'J' and 'K'  and  'D' has got two slave mounts 'H' and 'I'.
++	'E' is also shared with 'K' and they propagate to each other.  And
++	'K' has 3 slaves 'M', 'L' and 'N'
++
++	A's ->mnt_share links with the ->mnt_share of 'B' 'C' and 'D'
++
++	A's ->mnt_slave_list links with ->mnt_slave of 'E', 'F' and 'G'
++
++	E's ->mnt_share links with ->mnt_share of K
++	'E', 'F', 'G' have their ->mnt_master point to struct vfsmount of 'A'
++	'M', 'L', 'N' have their ->mnt_master point to struct vfsmount of 'K'
++	K's ->mnt_slave_list links with ->mnt_slave of 'M', 'L' and 'N'
++
++	C's ->mnt_slave_list links with ->mnt_slave of 'J' and 'K'
++	J and K's ->mnt_master points to struct vfsmount of C
++	and finally D's ->mnt_slave_list links with ->mnt_slave of 'H' and 'I'
++	'H' and 'I' have their ->mnt_master pointing to struct vfsmount of 'D'.
++
++
++	The propagation tree is orthogonal to the mount tree.
++	One of the most complex operation is
++	mount --move A  B
++
++	where 'A' contains a mount tree.
++	'A' has its own propagation tree and 'B' has its own propagation tree.
++
++	The overall algorithm breaks the operation into 3 phases:
++	(look at attach_recursive_mnt() and propagate_prepare_mount())
++
++	1. prepare phase.
++	2. commit phases.
++	3. abort phases.
++
++	Prepare phase:
++
++		for each mount in the source tree:
++	1. unlink the mount from its ->mnt_list
++	2. a) attach that mount to the destination
++	   b) create the necessary number of clone mounts that propagate to
++	      all the mounts that the destination mount propagates to.
++	   c) do not attach the mount to destination, however note down
++	   	in its ->mnt_parent and ->mnt_mountpoint location
++		by holding a reference to them.
++	   c) link all the new mounts to form a propagation tree that is
++	   	identical to the propagation tree of the destination mount.
++	   d) link all these new mounts together through ->mnt_list
++
++	   If this phase is successful, there should be 'n' new propagation
++	   trees; where 'n' is the number of mounts in the source tree.
++	   Go to the commit phase
++
++	   if any memory allocation fails, or any thing else fails, go to the
++	   abort phase.
++
++	Commit phase
++		for each mount in the source tree (say A)
++	   	walk that mounts mnt_list and for each mount  (say B)
++	   	a) delink its ->mnt_list
++	   	a) attach the mount to its parent. (->mnt_child and ->mnt_hash
++							gets linked)
++		b) add the mount to the parent's namespace
++		c) mark the mount as MNT_SHARE if the parent mount is MNT_SHARE
++		d) add the ->mnt_expire to the list of that of 'A'
++
++	Abort phase
++		for each mount in the source tree (say A)
++		walk that mount's mnt_list and for each mount
++		a) delink it from its propagation tree
++		b) delete the mount if was newly cloned.
++		e) release any references it held to its parent mount and
++			the mountpoint.
++
++
++
++	mount --rbind A  B
++
++	is similar to --move operation. Here the source tree is not exactly
++	that of 'A', but a clone of the tree at A.  Hence the additional
++	operation is to link the propagation tree created in the prepare
++	phase to that of 'A's propagation tree.
++
++	All other operations are trivial and should be clear by looking at the
++	code.
++
++	NOTE: all the propagation related functionality resides in the file
++	pnode.c
++
++------------------------------------------------------------------------
++
++version 0.1  (created the initial document, Ram Pai linuxram@us.ibm.com)

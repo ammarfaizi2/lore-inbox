@@ -1,42 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965015AbVIPNfY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965303AbVIPNgK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965015AbVIPNfY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 09:35:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965298AbVIPNfY
+	id S965303AbVIPNgK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 09:36:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965302AbVIPNgK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 09:35:24 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:32598 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S965015AbVIPNfY
+	Fri, 16 Sep 2005 09:36:10 -0400
+Received: from bay106-f27.bay106.hotmail.com ([65.54.161.37]:58136 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S965298AbVIPNgI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 09:35:24 -0400
-Date: Fri, 16 Sep 2005 15:35:48 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Paul Jackson <pj@sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: empty kbuild rebuilding all 2.6.13-mm3 ia64 sn2
-Message-ID: <20050916133548.GA7663@mars.ravnborg.org>
-References: <20050916015412.002642a4.pj@sgi.com>
+	Fri, 16 Sep 2005 09:36:08 -0400
+Message-ID: <BAY106-F27CF4B237502C97B89C9B3AB910@phx.gbl>
+X-Originating-IP: [65.54.161.206]
+X-Originating-Email: [alaadalghan@hotmail.com]
+From: "Alaa Dalghan" <alaadalghan@hotmail.com>
+To: users@openswan.org, linux-crypto@nl.linux.org,
+       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       linux-security-module@mail.wirex.com, netdev@vger.kernel.org
+Subject: Double Encryption
+Date: Fri, 16 Sep 2005 13:36:04 +0000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050916015412.002642a4.pj@sgi.com>
-User-Agent: Mutt/1.5.8i
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 16 Sep 2005 13:36:04.0361 (UTC) FILETIME=[95BE8F90:01C5BAC3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 16, 2005 at 01:54:12AM -0700, Paul Jackson wrote:
-> Using 2.6.13-mm3, building for SN2 (an ia64 arch) using sn2_defconfig,
-> after doing a full successful build, if I just issue another 'make',
-> it builds more or less every file all over again.  When I am just
-> working in one *.c file, this causes make to be much more expensive
-> than it should, rebuilding everything, instead of just that one file
-> and relinking (or close to that).
+Hi everyone,
 
-You are hit by the circular dependency in asm-offsets.h.
-Tony Luck posted a fix for this to the ia64 list yesterday.
+I have an OpenSWAN (2.3.1) box accepting ipsec tunnels from wireless 
+(802.11) clients equipped with Linux and Windows XP.
+Wireless clients are using the openswan gateway to exchange data securely 
+between each other, so there are no direct tunnels between client 
+themselves.
+The gateway is doing the routing job fine but there is a security gap when 
+it has to decrypt data sent by a given client and then reencrypt it before 
+sending it to the ultimate destination. It may be better not to expose the 
+data in the clear at the gateway.
 
-The problem in short is that asm-offsets.c includes asm-offsets.h which it
-is also used to generate. So unless they get same timestamp the
-kernel will recompile.
+I know this can be solved by using double encryption (tunnel inside a  
+tunnel), but, I wonder if  there is a better alternative?
+I was thinking of using L2TP/IPSec tunnels instead of pure IPSec tunnels, 
+and then, maybe I can use L2TP encryption to encrypt end-to-end and IPSec 
+encryption to encrypt end-to-gateway. Would this work?
 
-	Sam
+I appreciate any help and advices.
+
+Alaadin
+
+_________________________________________________________________
+Don’t just search. Find. Check out the new MSN Search! 
+http://search.msn.click-url.com/go/onm00200636ave/direct/01/
+

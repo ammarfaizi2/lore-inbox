@@ -1,60 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161110AbVIPPYt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161152AbVIPPZR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161110AbVIPPYt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 11:24:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161152AbVIPPYt
+	id S1161152AbVIPPZR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 11:25:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161162AbVIPPZQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 11:24:49 -0400
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:56327 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1161110AbVIPPYt
+	Fri, 16 Sep 2005 11:25:16 -0400
+Received: from qproxy.gmail.com ([72.14.204.197]:60751 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161152AbVIPPZP convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 11:24:49 -0400
-To: arjanv@redhat.com
-Cc: linux-kernel@vger.kernel.org, ivan.korzakow@gmail.com,
-       fawadlateef@gmail.com
-Subject: Re: best way to access device driver functions
-References: <a5986103050915004846d05841@mail.gmail.com>
-	<1e62d137050915010361d10139@mail.gmail.com>
-	<a598610305091505184a8aa8fd@mail.gmail.com>
-	<1e62d13705091508391832f897@mail.gmail.com>
-	<87mzmduq1h.fsf@amaterasu.srvr.nix>
-	<1126879660.3103.6.camel@localhost.localdomain>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: resistance is futile; you will be assimilated and byte-compiled.
-Date: Fri, 16 Sep 2005 16:24:15 +0100
-In-Reply-To: <1126879660.3103.6.camel@localhost.localdomain> (Arjan van de
- Ven's message of "16 Sep 2005 15:10:20 +0100")
-Message-ID: <87irx1ujc0.fsf@amaterasu.srvr.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 16 Sep 2005 11:25:15 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=NFhmeAfSi5IZAlz4Psc+kaUR01lltia5Goy2wPRy0mlKXnSZbtwcymjsDHPxISz8it8e7Zjf/tw5ipRtQ0kRtGBB8xzTXeV1J816/9xbIGMXFxVpv8aP4Z3A3xkXHJwHLPkPT7WZH/DAwYjlsGsuEWFoNXLBZw/tGnS0uJm2reI=
+Message-ID: <d120d500050916082519c660e6@mail.gmail.com>
+Date: Fri, 16 Sep 2005 10:25:07 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: Lost keyboard on Inspiron 8200 at 2.6.13
+Cc: linux-kernel@vger.kernel.org, caphrim007@gmail.com
+In-Reply-To: <20050916025356.0d5189a6.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <432A4A1F.3040308@gmail.com>
+	 <200509152357.58921.dtor_core@ameritech.net>
+	 <20050916025356.0d5189a6.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 16 Sep 2005, Arjan van de Ven noted:
+On 9/16/05, Andrew Morton <akpm@osdl.org> wrote:
+> Dmitry Torokhov <dtor_core@ameritech.net> wrote:
+> >
+> > On Thursday 15 September 2005 23:29, Tim Rupp wrote:
+> > > I just recently went to upgrade to 2.6.13 from 2.6.12.3 and after
+> > > re-compiling with a clean .config, I've hit a snag.
+> > >
+> > > I'm pretty sure I've got the config script down right, but upon reboot,
+> > > I no longer have a keyboard.
+> > >
+> > > I checked to see if this had crept up between 2.6.12.3 and 2.6.13.1. It
+> > > seems that >2.6.13 are the versions that do this.
+> > >
+> > > Attached are dmesgs from my 2.6.13.1 and 2.6.12.3 kernels. In the
+> > > 2.6.13.1 kernel I noticed this line.
+> > >
+> > >     i8042.c: Can't read CTR while initializing i8042
+> > >
+> >
+> > The kernel failed to talk to your keyboard controller. Try booting with
+> > "usb-handoff" and also try "acpi=off"
+> >
 > 
->> New *system calls* are generally avoided (especially if they might be
->> useful to non-privileged code) because they come with a *very* high
->> backward compatibility burden
+> This is of course not an acceptable solution.  A machine which worked
+> without funky commandline parameters should continue to work in later
+> kernels.
 > 
-> ioctls come with the same burden though.
+> How come it broke?
+> 
 
-Well, sort of. A lot of ioctl()s are widely-known and surely can't be
-changed, just like syscalls (e.g. the terminal control stuff) --- but
-in the past even things like the HD geometry ioctls have changed,
-and ioctl()s specific to, say, a single obscure block device could
-probably change without requiring recompilation of more than one or
-two userspace programs (and this has happened).
-
-Indeed, one of the problems with ioctl()s is that there is no clear
-delineation: some ioctl()s are heavily used and some are totally
-unused, and it's never clear which is which in all cases.
-
-(I suppose this is sort of true of syscalls too --- how many people call
-sys_uselib()? --- but to a much lesser extent, because there's no such
-thing as an `obscure device-specific syscall'.)
+Interdependencies between ACPI, PNP, USB Legacy emulation and I8042 is
+very delicate and quite often changes in ACPI/PNP break that balance.
+USB legacy emulation is just evil. We need to have "usb-handoff" thing
+enabled by default, it fixes alot of problems.
 
 -- 
-`One cannot, after all, be expected to read every single word
- of a book whose author one wishes to insult.' --- Richard Dawkins
+Dmitry

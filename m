@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161224AbVIPSPG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161226AbVIPSYd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161224AbVIPSPG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 14:15:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161225AbVIPSPG
+	id S1161226AbVIPSYd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 14:24:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161227AbVIPSYd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 14:15:06 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:42375 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1161224AbVIPSPF
+	Fri, 16 Sep 2005 14:24:33 -0400
+Received: from zproxy.gmail.com ([64.233.162.207]:22797 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161226AbVIPSYc convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 14:15:05 -0400
-Date: Fri, 16 Sep 2005 19:14:58 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Sripathi Kodi <sripathik@in.ibm.com>, Al Viro <viro@ZenIV.linux.org.uk>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, patrics@interia.pl,
-       Ingo Molnar <mingo@elte.hu>, Roland McGrath <roland@redhat.com>
-Subject: Re: [PATCH 2.6.13.1] Patch for invisible threads
-Message-ID: <20050916181458.GG19626@ftp.linux.org.uk>
-References: <Pine.LNX.4.58.0509131000040.3351@g5.osdl.org> <20050913171215.GS25261@ZenIV.linux.org.uk> <43274503.7090303@in.ibm.com> <Pine.LNX.4.58.0509131601400.26803@g5.osdl.org> <20050914015003.GW25261@ZenIV.linux.org.uk> <4328C0D0.6000909@in.ibm.com> <20050915011850.GZ25261@ZenIV.linux.org.uk> <432A17E0.3060302@in.ibm.com> <20050916074606.GE19626@ftp.linux.org.uk> <20050916180535.GA10430@nevyn.them.org>
+	Fri, 16 Sep 2005 14:24:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ROj2Q4AxgZ5+4gqhkkhPRaS/hiHBhuJ/Wty3dR3l9n7rEiHUlq0X8mOsDhtw8MpbMVnqoX2qa2LB7E95Vb4ZA5vYmQkjfBYEFjd3YhMwc6VKxyJOMTCZIaf5ZU/Df4PAz1cy2oGyz3+UQaT1Sogzo8YaoJGNPc7WRoRwlONarwI=
+Message-ID: <12c511ca050916112428656d1@mail.gmail.com>
+Date: Fri, 16 Sep 2005 11:24:31 -0700
+From: Tony Luck <tony.luck@gmail.com>
+Reply-To: tony.luck@gmail.com
+To: Tim Bird <tim.bird@am.sony.com>
+Subject: Re: early printk timings way off
+Cc: Tim Schmielau <tim@physik3.uni-rostock.de>, jesper.juhl@gmail.com,
+       "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <432B0421.3060807@am.sony.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050916180535.GA10430@nevyn.them.org>
-User-Agent: Mutt/1.4.1i
+References: <9a87484905091515495f435db7@mail.gmail.com>
+	 <432AFB01.3050809@am.sony.com>
+	 <Pine.LNX.4.61.0509161909500.31820@gans.physik3.uni-rostock.de>
+	 <Pine.LNX.4.61.0509161920370.31820@gans.physik3.uni-rostock.de>
+	 <432B0421.3060807@am.sony.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 16, 2005 at 02:05:35PM -0400, Daniel Jacobowitz wrote:
-> On Fri, Sep 16, 2005 at 08:46:06AM +0100, Al Viro wrote:
-> > > Further, about actual permission checks that we are doing, can we say: "A 
-> > > process should be able to see /proc/<pid>/task/* of another process only if 
-> > > they both belong to same uid or reader is root"? But any such change will 
-> > > change the behavior of commands like 'ps', right?
-> > 
-> > Right.  The real question is whether the current behaviour makes any sense.
-> > I've no objections to your patch + modification above, but I really wonder
-> > if we should keep current rules in that area.
-> 
-> Why should there be any more restrictions on /proc/<pid>/task than
-> there are in /proc?  Threads are not listed in the latter, but that's
-> strictly for performance/usability; you can enumerate threads in /proc
-> by just trying all the valid PIDs.
+> Andrew's suggestion of a replaceable clock function would
+> satisfy me.  What do other's think?
 
-But we *do* see processes outside of chroot jail in /proc.  That's the
-point - we have seriously inconsistent rules here.
+Yes please! (on ia64 we cannot use early printk() because our implementation
+of sched_clock() accesses per-cpu memory, which is not mapped until long
+after the first call to printk()).
+
+-Tony

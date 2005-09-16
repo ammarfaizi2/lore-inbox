@@ -1,59 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161099AbVIPOHk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161056AbVIPOOr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161099AbVIPOHk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 10:07:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161101AbVIPOHk
+	id S1161056AbVIPOOr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 10:14:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161101AbVIPOOr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 10:07:40 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:5304 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161099AbVIPOHk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 10:07:40 -0400
-Subject: Re: best way to access device driver functions
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Nix <nix@esperi.org.uk>
-Cc: linux-kernel@vger.kernel.org, ivan.korzakow@gmail.com,
-       fawadlateef@gmail.com
-In-Reply-To: <87mzmduq1h.fsf@amaterasu.srvr.nix>
-References: <a5986103050915004846d05841@mail.gmail.com>
-	 <1e62d137050915010361d10139@mail.gmail.com>
-	 <a598610305091505184a8aa8fd@mail.gmail.com>
-	 <1e62d13705091508391832f897@mail.gmail.com>
-	 <87mzmduq1h.fsf@amaterasu.srvr.nix>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-XTEPud95lvgNBkVm3lhE"
-Organization: Red Hat, Inc.
-Date: Fri, 16 Sep 2005 10:07:40 -0400
-Message-Id: <1126879660.3103.6.camel@localhost.localdomain>
+	Fri, 16 Sep 2005 10:14:47 -0400
+Received: from frankvm.xs4all.nl ([80.126.170.174]:5791 "EHLO
+	janus.localdomain") by vger.kernel.org with ESMTP id S1161056AbVIPOOr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 10:14:47 -0400
+Date: Fri, 16 Sep 2005 16:14:45 +0200
+From: Frank van Maarseveen <frankvm@frankvm.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.13.1 Slab corruption during boot
+Message-ID: <20050916141445.GA32693@janus>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+stock 2.6.13.1 on a P4 with HT:
 
---=-XTEPud95lvgNBkVm3lhE
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+...
+Sep 16 16:02:00 espoo kernel: arp_tables: (C) 2002 David S. Miller
+Sep 16 16:02:00 espoo kernel: TCP bic registered
+Sep 16 16:02:01 espoo kernel: TCP westwood registered
+Sep 16 16:02:01 espoo kernel: TCP highspeed registered
+Sep 16 16:02:01 espoo kernel: TCP hybla registered
+Sep 16 16:02:01 espoo kernel: TCP htcp registered
+Sep 16 16:02:01 espoo kernel: TCP vegas registered
+Sep 16 16:02:01 espoo kernel: TCP scalable registered
+Sep 16 16:02:01 espoo kernel: NET: Registered protocol family 1
+Sep 16 16:02:01 espoo kernel: NET: Registered protocol family 17
+Sep 16 16:02:01 espoo kernel: Starting balanced_irq
+Sep 16 16:02:01 espoo kernel: Using IPI Shortcut mode
+Sep 16 16:02:01 espoo kernel: md: Autodetecting RAID arrays.
+Sep 16 16:02:01 espoo kernel: md: autorun ...
+Sep 16 16:02:01 espoo kernel: md: ... autorun DONE.
+Sep 16 16:02:01 espoo kernel: kjournald starting.  Commit interval 5 seconds
+Sep 16 16:02:01 espoo kernel: EXT3-fs: mounted filesystem with ordered data mode.
+Sep 16 16:02:01 espoo kernel: VFS: Mounted root (ext3 filesystem) readonly.
+Sep 16 16:02:01 espoo kernel: Freeing unused kernel memory: 252k freed
+Sep 16 16:02:01 espoo kernel: EXT3 FS on sda2, internal journal
+Sep 16 16:02:01 espoo kernel: Adding 1004052k swap on /dev/sda1.  Priority:-1 extents:1
+Sep 16 16:02:01 espoo kernel: program scsi_unique_id is using a deprecated SCSI ioctl, please convert it to SG_IO
+Sep 16 16:02:01 espoo last message repeated 3 times
+Sep 16 16:02:01 espoo kernel: kjournald starting.  Commit interval 5 seconds
+Sep 16 16:02:01 espoo kernel: EXT3 FS on sda4, internal journal
+Sep 16 16:02:01 espoo kernel: EXT3-fs: mounted filesystem with ordered data mode.
+Sep 16 16:02:01 espoo kernel: Slab corruption: start=f7f31000, len=4096
+Sep 16 16:02:01 espoo kernel: 0b0: 6b 6b 6b 6b 6b 6b 6b 6b ff ff ff ff 00 00 00 00
+Sep 16 16:02:01 espoo kernel: tg3: eth0: Link is up at 100 Mbps, full duplex.
+Sep 16 16:02:01 espoo kernel: tg3: eth0: Flow control is on for TX and on for RX.
+Sep 16 16:02:01 espoo ypbind: bound to NIS server xxx
+Sep 16 16:02:01 espoo rc: Starting pcmcia:  succeeded
+Sep 16 16:02:01 espoo netfs: Mounting NFS filesystems:  succeeded
+Sep 16 16:02:01 espoo netfs: Mounting other filesystems:  succeeded
+Sep 16 16:02:01 espoo identd: identd startup succeeded
+Sep 16 16:02:02 espoo sshd:  succeeded
 
 
-> New *system calls* are generally avoided (especially if they might be
-> useful to non-privileged code) because they come with a *very* high
-> backward compatibility burden
-
-ioctls come with the same burden though.
-
-
---=-XTEPud95lvgNBkVm3lhE
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDKtGspv2rCoFn+CIRAvhvAKCJ/1Q0UbfZZwh+xb3ogU4emXTaOACaAkp2
-KOslXHbgqNMxv19LTNqKUFc=
-=Uxed
------END PGP SIGNATURE-----
-
---=-XTEPud95lvgNBkVm3lhE--
-
+-- 
+Frank

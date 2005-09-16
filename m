@@ -1,90 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161028AbVIPBqz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161033AbVIPBtL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161028AbVIPBqz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 21:46:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161030AbVIPBqz
+	id S1161033AbVIPBtL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 21:49:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161034AbVIPBtL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 21:46:55 -0400
-Received: from soundwarez.org ([217.160.171.123]:49645 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S1161028AbVIPBqy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 21:46:54 -0400
-Date: Fri, 16 Sep 2005 03:46:52 +0200
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org,
-       Vojtech Pavlik <vojtech@suse.cz>, Hannes Reinecke <hare@suse.de>,
-       Patrick Mochel <mochel@digitalimplant.org>, airlied@linux.ie
-Subject: Re: [RFC] subclasses in sysfs to solve world peace
-Message-ID: <20050916014652.GA12920@vrfy.org>
-References: <20050916002036.GA6149@suse.de> <200509151958.45573.dtor_core@ameritech.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200509151958.45573.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.9i
+	Thu, 15 Sep 2005 21:49:11 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:29904 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1161033AbVIPBtJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 21:49:09 -0400
+Date: Fri, 16 Sep 2005 10:48:35 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Fix interface for memory hotplug in 2.6.13-mm3
+Cc: Dave Hansen <haveblue@us.ibm.com>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.050
+Message-Id: <20050916101541.D1B1.Y-GOTO@jp.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.21.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 15, 2005 at 07:58:44PM -0500, Dmitry Torokhov wrote:
-> On Thursday 15 September 2005 19:20, Greg KH wrote:
-> > I would like to add something called "subclasses" for lack of a better
-> > term.  These subclasses would have both drivers, and devices associated
-> > with them.  This would show up as the following tree of directories:
-> > 
-> > 	/sys/class/input/
-> > 	|-- input0
-> > 	|   |-- event0
-> > 	|   `-- mouse0
-> > 	|-- input1
-> > 	|   |-- event1
-> > 	|   `-- ts0
-> > 	|-- mice
-> > 	`-- drivers
-> > 	    |-- event
-> > 	    |-- mouse
-> > 	    `-- ts
-> > 
-> > Here we have 3 struct class_devices like today, input0, input1, and
-> > mice.  We also have struct subclass_drivers of event, mouse, and ts.
-> > These will create the struct subclass_devices event0, mouse0, event1,
-> > and ts0.  The "dev" node files will show up in the directories mice,
-> > event0, mouse0, event1, and ts0, like you would expect them too.
-> 
-> This proposed scheme does not answer the question: "what input interfaces
-> present in my system?".
 
-If this is really needed, we can just create a "interfaces" directory at
-every "class" top-level and put symlinks pointing to all interfaces of that
-class into it. How does that sound?
+Hi Andrew-san.
 
-> Input interfaces are objects in their own right
-> and deserve their own spot. Compare your picture with the one below:
-> 
-> [dtor@core ~]$ tree /sys/class/input/
-> /sys/class/input/
-> |-- devices
-> |   |-- input0
-> |   |   |-- device -> ../../../../devices/platform/i8042/serio1
-> |   |   `-- event0 -> ../../../../class/input/interfaces/event0
+I found old unsuitable interfaces for memory hotplug in 2.6.13-mm3.
 
-> `-- interfaces
->     |-- event0
->     |   |-- dev
->     |   `-- device -> ../../../../class/input/devices/input0
-> 
-> Here you have exactly the same information as in your picture plus you can
-> see the other class (input interfaces) as well.
+The third argument of sparse_add_one_section() was changed from mem_map
+to nr_pages. And the third argument of add/remove_memory() was removed.
+However, both still remain at a few place.
 
-Well, this is just putting two different classes into one subdirectory. :)
-We would better just add "/sys/class/input_device" and don't need to change
-any userspace software then.
-Sure there is the cosmetical difference that the two classes are just named
-input* and not live in the same directory, but that's not enough reason
-to start a complete different model in sysfs, I think.
+Could you apply this patch?
 
-I would like to have the option to move "block" into "class" some day
-and therefore prefer the "stacking class devices", compared to the "grouping
-and symlinking" classes model.
+Thanks.
 
-Kay
+Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
+
+Index: linux-2.6.13-mm3/mm/memory_hotplug.c
+===================================================================
+--- linux-2.6.13-mm3.orig/mm/memory_hotplug.c	2005-09-15 19:51:36.000000000 +0900
++++ linux-2.6.13-mm3/mm/memory_hotplug.c	2005-09-15 20:19:00.000000000 +0900
+@@ -39,15 +39,14 @@ static void __add_zone(struct zone *zone
+ }
+ 
+ extern int sparse_add_one_section(struct zone *zone, unsigned long start_pfn,
+-				  struct page *mem_map);
++				  int nr_pages);
+ int __add_section(struct zone *zone, unsigned long phys_start_pfn)
+ {
+ 	struct pglist_data *pgdat = zone->zone_pgdat;
+ 	int nr_pages = PAGES_PER_SECTION;
+-	struct page *memmap;
+ 	int ret;
+ 
+-	ret = sparse_add_one_section(zone, phys_start_pfn, memmap);
++	ret = sparse_add_one_section(zone, phys_start_pfn, nr_pages);
+ 
+ 	if (ret < 0)
+ 		return ret;
+Index: linux-2.6.13-mm3/drivers/acpi/acpi_memhotplug.c
+===================================================================
+--- linux-2.6.13-mm3.orig/drivers/acpi/acpi_memhotplug.c	2005-09-15 19:51:31.000000000 +0900
++++ linux-2.6.13-mm3/drivers/acpi/acpi_memhotplug.c	2005-09-15 20:21:21.000000000 +0900
+@@ -200,8 +200,7 @@ static int acpi_memory_enable_device(str
+ 	 * Note: Assume that this function returns zero on success
+ 	 */
+ 	result = add_memory(mem_device->start_addr,
+-			    (mem_device->end_addr - mem_device->start_addr) + 1,
+-			    mem_device->read_write_attribute);
++			    (mem_device->end_addr - mem_device->start_addr) + 1);
+ 	if (result) {
+ 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "\nadd_memory failed\n"));
+ 		mem_device->state = MEMORY_INVALID_STATE;
+@@ -259,7 +258,7 @@ static int acpi_memory_disable_device(st
+ 	 * Ask the VM to offline this memory range.
+ 	 * Note: Assume that this function returns zero on success
+ 	 */
+-	result = remove_memory(start, len, attr);
++	result = remove_memory(start, len);
+ 	if (result) {
+ 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Hot-Remove failed.\n"));
+ 		return_VALUE(result);
+
+-- 
+Yasunori Goto 
+

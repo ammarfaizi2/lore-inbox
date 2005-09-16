@@ -1,50 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161259AbVIPSpH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161257AbVIPSvC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161259AbVIPSpH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 14:45:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161261AbVIPSpH
+	id S1161257AbVIPSvC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 14:51:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161264AbVIPSvB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 14:45:07 -0400
-Received: from mail.kroah.org ([69.55.234.183]:30635 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1161259AbVIPSpG (ORCPT
+	Fri, 16 Sep 2005 14:51:01 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:45205 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1161257AbVIPSvB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 14:45:06 -0400
-Date: Fri, 16 Sep 2005 11:44:40 -0700
-From: Greg KH <greg@kroah.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: dtor_core@ameritech.net, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, caphrim007@gmail.com,
-       David Brownell <david-b@pacbell.net>,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: Lost keyboard on Inspiron 8200 at 2.6.13
-Message-ID: <20050916184440.GA11413@kroah.com>
-References: <432A4A1F.3040308@gmail.com> <200509152357.58921.dtor_core@ameritech.net> <20050916025356.0d5189a6.akpm@osdl.org> <d120d500050916082519c660e6@mail.gmail.com> <1126886449.17038.4.camel@localhost.localdomain>
+	Fri, 16 Sep 2005 14:51:01 -0400
+Subject: Re: mmap(2)ping of pci_alloc_consistent() allocated buffers on 2.4
+	kernels question/help
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Martin Drab <drab@kepler.fjfi.cvut.cz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.60.0509162009510.14084@kepler.fjfi.cvut.cz>
+References: <Pine.LNX.4.60.0509162009510.14084@kepler.fjfi.cvut.cz>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-aeIF/p6kIFHz0oc7mNtj"
+Organization: Red Hat, Inc.
+Date: Fri, 16 Sep 2005 14:50:52 -0400
+Message-Id: <1126896652.3103.10.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1126886449.17038.4.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.10i
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 16, 2005 at 05:00:49PM +0100, Alan Cox wrote:
-> On Gwe, 2005-09-16 at 10:25 -0500, Dmitry Torokhov wrote:
-> > Interdependencies between ACPI, PNP, USB Legacy emulation and I8042 is
-> > very delicate and quite often changes in ACPI/PNP break that balance.
-> > USB legacy emulation is just evil. We need to have "usb-handoff" thing
-> > enabled by default, it fixes alot of problems.
-> 
-> I would definitely agree with this. There are very few, if any, cases
-> usb handoff doesn't work now that the Nvidia problems are fixed.
 
-Are we sure?  Yeah, SuSE has shipped that code "enabled" for a while,
-but I'm still not comfortable making that the default.
+--=-aeIF/p6kIFHz0oc7mNtj
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Only if we merge the code that does the handoff, with the same code that
-does it in the usb core, would I feel more comfortable to enable this
-always.  I had a patch from David Brownell to do this, but it had some
-link errors at times, so I had to drop it :(
+On Fri, 2005-09-16 at 20:33 +0200, Martin Drab wrote:
+> Hi,
+>=20
+> can anyone explain me why it is not possible to mmap(2) a buffer=20
+> allocated in kernel by pci_alloc_consistent() to userspace on a 2.4=20
+> kernel?
+>=20
+> In kernel PCI device initialization function I do something like:
+>=20
+> ...
+> kladdr =3D pci_alloc_consistent (dev, BUFSIZE, &baddr);
+> ...
+>=20
+> Then I send the physical address (i.e. the value of phaddr =3D __pa(kladd=
+r))=20
+> to the userspace application, and then when in the userspace I do=20
+> something like
+>=20
+> ...
+> fd =3D fopen ("/dev/mem", O_RDWR);
+> buf =3D mmap (NULL, BUFSIZE, PROT_READ|PROT_WRITE, MAP_SHARED, fd, phaddr=
+);
+> ...
 
-thanks,
 
-greg k-h
+yuch.
+why don't you make your device have an mmap operation instead?
+(the device node that you use to get your physical address to userspace
+in the first place)
+
+--=-aeIF/p6kIFHz0oc7mNtj
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDKxQMpv2rCoFn+CIRAue8AJ9IrW69+iPhHlm4zMUjppHUd9VFUwCeIgg7
+gWtZE0Ea3DBwFnytvsev53M=
+=bG0o
+-----END PGP SIGNATURE-----
+
+--=-aeIF/p6kIFHz0oc7mNtj--
+

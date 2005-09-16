@@ -1,37 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161144AbVIPJkb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161145AbVIPJle@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161144AbVIPJkb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 05:40:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161145AbVIPJkb
+	id S1161145AbVIPJle (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 05:41:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161146AbVIPJld
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 05:40:31 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:41890 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1161144AbVIPJkb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 05:40:31 -0400
-Date: Thu, 15 Sep 2005 21:53:18 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Jan Dittmer <jdittmer@ppp0.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.14-rc1 load average calculation broken?
-Message-ID: <20050915195317.GE468@openzaurus.ucw.cz>
-References: <43295E30.7030508@ppp0.net>
+	Fri, 16 Sep 2005 05:41:33 -0400
+Received: from nproxy.gmail.com ([64.233.182.205]:37924 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161145AbVIPJld convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 05:41:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=bXjx/s8q1vl6RR8iHk+XlLALIMGh7falN7ipN+TwJSUmXbzXpqB8zHpNpuaT7YLJyr1Nr9taXV1Jt3DkAhFaVkXE2WcrqJBcBYCMUIlklO8kQyWN6movO36fdL19cEgLnljtW0eAOUyAQHQmwtUIvnP/sGnEej1AXwJfGnBxbg0=
+Message-ID: <5c43128e050916024110467f02@mail.gmail.com>
+Date: Fri, 16 Sep 2005 11:41:29 +0200
+From: Wim Vinckier <wimpunk@gmail.com>
+Reply-To: wimpunk@gmail.com
+To: linux-kernel@vger.kernel.org
+Subject: Trouble hotplugging on embedded system
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <43295E30.7030508@ppp0.net>
-User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Dear list,
 
-> Get a steady 2.00 there. I stopped unnecessary processes etc.
-> load average seems to be invariant
+I'm trying to get usb hotplugging working on a embedded system but it
+doesn't (seem to) work.  As far as i understand all the documents I've
+read, /sbin/hotplug (depending on /proc/sys/kernel/hotplug) should be
+called whenever plugging in a device.  I guess I've forgot to enable
+something in my kernel configuration but I can't find what went wrong.
+ I've tried 2.6.8 and 2.6.12 with busybox 1.01.
 
-So you probably have 2 processes in "D" state. Find a kernel bug which leaves
-them there...
-				Pavel
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+anyone any suggestion?
 
+wim.

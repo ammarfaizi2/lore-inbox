@@ -1,57 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751246AbVIPTqb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965315AbVIPTx1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751246AbVIPTqb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 15:46:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbVIPTqb
+	id S965315AbVIPTx1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 15:53:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965314AbVIPTx1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 15:46:31 -0400
-Received: from wscnet.wsc.cz ([212.80.64.118]:20104 "EHLO wscnet.wsc.cz")
-	by vger.kernel.org with ESMTP id S1751246AbVIPTqa (ORCPT
+	Fri, 16 Sep 2005 15:53:27 -0400
+Received: from smtpout.mac.com ([17.250.248.46]:1267 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S965316AbVIPTx0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 15:46:30 -0400
-Message-ID: <432B2101.9080806@gmail.com>
-Date: Fri, 16 Sep 2005 21:46:09 +0200
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: cs, en-us, en
-MIME-Version: 1.0
-To: Dominik Karall <dominik.karall@gmx.net>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       kay.sievers@vrfy.org
-Subject: Re: 2.6.14-rc1-mm1
-References: <20050916022319.12bf53f3.akpm@osdl.org> <200509162042.07376.dominik.karall@gmx.net>
-In-Reply-To: <200509162042.07376.dominik.karall@gmx.net>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+	Fri, 16 Sep 2005 15:53:26 -0400
+In-Reply-To: <432B1F84.3000902@namesys.com>
+References: <432AFB44.9060707@namesys.com> <20050916174028.GA32745@infradead.org> <432B1F84.3000902@namesys.com>
+Mime-Version: 1.0 (Apple Message framework v734)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <1C909C65-8B71-4817-AE13-519599D0B11A@mac.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       LKML Kernel <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
 Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: I request inclusion of reiser4 in the mainline kernel
+Date: Fri, 16 Sep 2005 15:52:45 -0400
+To: Hans Reiser <reiser@namesys.com>
+X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dominik Karall napsal(a):
+[CC list trimmed to relevant people, no need to spam Linus' and  
+Andrew's mailboxes, they have enough to do as it is]
 
->On Friday 16 September 2005 11:23, Andrew Morton wrote:
->  
+On Sep 16, 2005, at 15:39:48, Hans Reiser wrote:
+> Christoph Hellwig wrote:
+>> additinoal comment is that the code is very messy, very different
+>> from normal kernel style, full of indirections and thus hard to read.
 >
->>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14-rc1/2.
->>6.14-rc1-mm1/ (temp copy at
->>http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.14-rc1-mm1.gz)
->>    
->>
->
->I don't get a /dev/input/mice device with this kernel, so Xorg reports 
->following error (udev 070 in use):
->  
->
-[snip]
+> Most of my customers remark that Namesys code is head and shoulders
+> above the rest of the kernel code.  So yes, it is different.
 
-I have the same problem. Version 2.6.13-mm3 was OK and the new version 
-was only oldconfigured. When I create appropriate devices with mknod, it 
-is ok. So why does not udev (58 and 70) create that devices (event, 
-mice, mouse, wacom)?
+And yet thousands and thousands of people, businesses, etc, say that  
+the Linux kernel code is miles above all the commercial software out  
+there. Please leave the worthless rhetoric out of a technical  
+discussion.  The issue stands that in many ways the Reiser4 code does  
+not exactly follow Documentation/CodingStyle and does not match most  
+of the rest of the kernel, making it hard to read for other kernel  
+developers.  If you were just doing this forever as an external  
+kernel patch, nobody would give a damn.  On the other hand, you're  
+trying to get it included in the upstream kernel, which means that  
+those same "other kernel developers" for whom it is hard to read may  
+be expected to maintain it until the end of time.  Given this, it  
+seems perfectly reasonable to ask that it be cleaned up.
 
-thanks,
+> In particular, they cite the XFS code as being so incredibly hard  
+> to read that its unreadability is worth hundreds of thousands of  
+> dollars in license fees for me.
 
--- 
-Jiri Slaby         www.fi.muni.cz/~xslaby
-~\-/~      jirislaby@gmail.com      ~\-/~
-241B347EC88228DE51EE A49C4A73A25004CB2A10
+How does XFS have _anything_ to do with Reiser4?  A technical  
+discussion is no place for political pissing contest.
+
+> [more useless posturing snipped]
+
+> As for the indirections, if you figure out how to make VFS  
+> indirections easy to follow, the same technique should be  
+> applicable to Reiser4, and I will be happy to fix it.
+
+That's not his responsibility, it's _yours_.  If you want your stuff  
+included in the the kernel, you need to make sure it is sufficiently  
+acceptable.  Besides, this is just one complaint of the many he  
+made.  This may not be particularly solvable, but there are a number  
+of other points he made that you guys need to try to resolve.
+
+> (Note for the record: I actually think XFS acceptance was delayed  
+> too long, and I think that XFS is a great filesystem, but a  
+> rhetorical point needed to be made......)
+
+See above.  Rhetoric has little or no place here.  Such comments are  
+why Reiser4 typically triggers massive flamewars when it is mentioned  
+on the LKML.
+
+Cheers,
+Kyle Moffett
+
+--
+Somone asked me why I work on this free (http://www.fsf.org/ 
+philosophy/) software stuff and not get a real job. Charles Shultz  
+had the best answer:
+
+"Why do musicians compose symphonies and poets write poems? They do  
+it because life wouldn't have any meaning for them if they didn't.  
+That's why I draw cartoons. It's my life."
+   -- Charles Shultz
+
 

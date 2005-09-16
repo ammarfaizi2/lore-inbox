@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161135AbVIPImQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161136AbVIPIwJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161135AbVIPImQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 04:42:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161136AbVIPImQ
+	id S1161136AbVIPIwJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 04:52:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161137AbVIPIwJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 04:42:16 -0400
-Received: from aml46.internetdsl.tpnet.pl ([83.17.67.46]:59129 "HELO
-	aml46.internetdsl.tpnet.pl") by vger.kernel.org with SMTP
-	id S1161135AbVIPImP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 04:42:15 -0400
-Date: Fri, 16 Sep 2005 10:42:07 +0200
-From: Lukasz Stelmach <stlman@poczta.fm>
+	Fri, 16 Sep 2005 04:52:09 -0400
+Received: from smtp.cs.aau.dk ([130.225.194.6]:53421 "EHLO smtp.cs.aau.dk")
+	by vger.kernel.org with ESMTP id S1161136AbVIPIwI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 04:52:08 -0400
+Message-ID: <432A874F.7040806@cs.aau.dk>
+Date: Fri, 16 Sep 2005 10:50:23 +0200
+From: Emmanuel Fleury <fleury@cs.aau.dk>
+User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: resource limits does not work?
-Message-ID: <20050916084206.GA19606@vlana.p.telmark.waw.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4.2.1i
-X-Mail-Editor: Vim version 5.8.3
+Subject: Re: Automatic Configuration of a Kernel
+References: <20050916083200.28972.qmail@web51010.mail.yahoo.com>
+In-Reply-To: <20050916083200.28972.qmail@web51010.mail.yahoo.com>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings All.
+Ahmad, as far as I understood, your spirit is more or less to:
 
-Is there anything you think I should know about setrlimit that is not
-mentioned in setrlimit(2) manual that makes the malloc(3) succeed 
-in the code below? It fails when r.rlim_cur is less than 137840.
+- Drop automagically all the hardware which is for sure NOT here
+- Propose to the user to include the hardware which is detected
+- Leave as default the rest of the choices
+  (i.e. the choices that might be uncertain: fs, protocols, ...)
 
-#include <sys/time.h>
-#include <sys/resource.h>
-#include <unistd.h>
+Therefore, "make autoconfig" is a quick first run through the .config
+with the help of all the scripts stored in scripts/autoconfig/.
 
-int main(int ac, char* av[]) {
-        struct rlimit r;
-        r.rlim_cur = 137840;
-        r.rlim_max = RLIM_INFINITY;
-        setrlimit(RLIMIT_DATA, &r);
-
-        char* a=malloc(6000000);
-        perror("malloc");
-        return 0;
-}
-
-What is more interesting is that dnscache from djbdnspackage succeeds to start
-up with rlim_cur to be 0.
-
-$ uname -a
-Linux vlana 2.6.11 #1 SMP Fri Mar 4 17:35:07 CET 2005 i686 unknown unknown GNU/Linux
-
-cheers.
-PS. please CC, not a subscriber.
+Regards
 -- 
-Miłego dnia
->Łukasz<
+Emmanuel Fleury
+
+Step #1 in programming: understand people.
+  -- Linus Torvalds

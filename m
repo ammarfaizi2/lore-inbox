@@ -1,238 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbVIPXRh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbVIPX35@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750731AbVIPXRh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 19:17:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbVIPXRh
+	id S1750764AbVIPX35 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 19:29:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbVIPX35
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 19:17:37 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:18848 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750731AbVIPXRg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 19:17:36 -0400
-Date: Fri, 16 Sep 2005 16:17:01 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Abhay Salunke <Abhay_Salunke@dell.com>
-Cc: linux-kernel@vger.kernel.org, abhay_salunke@dell.com
-Subject: Re: [patch 2.6.14-rc1] Enhancements and fixes for dell_rbu driver
-Message-Id: <20050916161701.0a9beffd.akpm@osdl.org>
-In-Reply-To: <20050916221000.GA3454@abhays.us.dell.com>
-References: <20050916221000.GA3454@abhays.us.dell.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 16 Sep 2005 19:29:57 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:40421 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750764AbVIPX34 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 19:29:56 -0400
+Subject: Re: [linux-usb-devel] Re: Lost keyboard on Inspiron 8200 at 2.6.13
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: Greg KH <greg@kroah.com>, dtor_core@ameritech.net, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, caphrim007@gmail.com, david-b@pacbell.net,
+       linux-usb-devel@lists.sourceforge.net
+In-Reply-To: <20050916152432.5a05aeca.zaitcev@redhat.com>
+References: <432A4A1F.3040308@gmail.com>
+	 <200509152357.58921.dtor_core@ameritech.net>
+	 <20050916025356.0d5189a6.akpm@osdl.org>
+	 <d120d500050916082519c660e6@mail.gmail.com>
+	 <1126886449.17038.4.camel@localhost.localdomain>
+	 <20050916184440.GA11413@kroah.com>
+	 <20050916152432.5a05aeca.zaitcev@redhat.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Sat, 17 Sep 2005 00:54:51 +0100
+Message-Id: <1126914891.17038.30.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Abhay Salunke <Abhay_Salunke@dell.com> wrote:
->
-> -static __exit void dcdrbu_exit(void)
->  +static __exit void
->  +dcdrbu_exit(void)
+On Gwe, 2005-09-16 at 15:24 -0700, Pete Zaitcev wrote:
+> I see why you would want to merge them, but is it worth the trouble?
+> They are not identical. For one thing, early handoff installs its own
+> fake interrupt handlers (Alan Cox insisted on it in the RHEL
+> implementation).
 
-hm, all these extraneous whitespace changes actually take the driver
-further away from preferred coding style.
+You need them because an IRQ could be pending on the channel at the
+point you switch over or triggered on the switch and a few people saw
+this behaviour.
 
-How about we do this?
-
-
-diff -puN drivers/firmware/dell_rbu.c~dell_rbu-tidy drivers/firmware/dell_rbu.c
---- devel/drivers/firmware/dell_rbu.c~dell_rbu-tidy	2005-09-16 16:15:27.000000000 -0700
-+++ devel-akpm/drivers/firmware/dell_rbu.c	2005-09-16 16:15:27.000000000 -0700
-@@ -85,8 +85,7 @@ static struct platform_device *rbu_devic
- static int context;
- static dma_addr_t dell_rbu_dmaaddr;
- 
--static void
--init_packet_head(void)
-+static void init_packet_head(void)
- {
- 	INIT_LIST_HEAD(&packet_data_head.list);
- 	rbu_data.packet_write_count = 0;
-@@ -95,8 +94,7 @@ init_packet_head(void)
- 	rbu_data.packetsize = 0;
- }
- 
--static int
--fill_last_packet(void *data, size_t length)
-+static int fill_last_packet(void *data, size_t length)
- {
- 	struct list_head *ptemp_list;
- 	struct packet_data *packet = NULL;
-@@ -138,8 +136,7 @@ fill_last_packet(void *data, size_t leng
- 	return 0;
- }
- 
--static int
--create_packet(size_t length)
-+static int create_packet(size_t length)
- {
- 	struct packet_data *newpacket;
- 	int ordernum = 0;
-@@ -198,8 +195,7 @@ create_packet(size_t length)
- 	return 0;
- }
- 
--static int
--packetize_data(void *data, size_t length)
-+static int packetize_data(void *data, size_t length)
- {
- 	int rc = 0;
- 
-@@ -213,8 +209,7 @@ packetize_data(void *data, size_t length
- 	return rc;
- }
- 
--static int
--do_packet_read(char *data, struct list_head *ptemp_list,
-+static int do_packet_read(char *data, struct list_head *ptemp_list,
- 	int length, int bytes_read, int *list_read_count)
- {
- 	void *ptemp_buf;
-@@ -248,8 +243,7 @@ do_packet_read(char *data, struct list_h
- 	return bytes_copied;
- }
- 
--static int
--packet_read_list(char *data, size_t * pread_length)
-+static int packet_read_list(char *data, size_t *pread_length)
- {
- 	struct list_head *ptemp_list;
- 	int temp_count = 0;
-@@ -287,8 +281,7 @@ packet_read_list(char *data, size_t * pr
- 	return 0;
- }
- 
--static void
--packet_empty_list(void)
-+static void packet_empty_list(void)
- {
- 	struct list_head *ptemp_list;
- 	struct list_head *pnext_list;
-@@ -320,8 +313,7 @@ packet_empty_list(void)
-  * img_update_free: Frees the buffer allocated for storing BIOS image
-  * Always called with lock held and returned with lock held
-  */
--static void
--img_update_free(void)
-+static void img_update_free(void)
- {
- 	if (!rbu_data.image_update_buffer)
- 		return;
-@@ -358,8 +350,7 @@ img_update_free(void)
-  * already allocated size, then that memory is reused. This function is
-  * called with lock held and returns with lock held.
-  */
--static int
--img_update_realloc(unsigned long size)
-+static int img_update_realloc(unsigned long size)
- {
- 	unsigned char *image_update_buffer = NULL;
- 	unsigned long rc;
-@@ -428,8 +419,7 @@ img_update_realloc(unsigned long size)
- 	return rc;
- }
- 
--static ssize_t
--read_packet_data(char *buffer, loff_t pos, size_t count)
-+static ssize_t read_packet_data(char *buffer, loff_t pos, size_t count)
- {
- 	int retval;
- 	size_t bytes_left;
-@@ -470,8 +460,7 @@ read_packet_data(char *buffer, loff_t po
- 	return retval;
- }
- 
--static ssize_t
--read_rbu_mono_data(char *buffer, loff_t pos, size_t count)
-+static ssize_t read_rbu_mono_data(char *buffer, loff_t pos, size_t count)
- {
- 	unsigned char *ptemp = NULL;
- 	size_t bytes_left = 0;
-@@ -509,8 +498,8 @@ read_rbu_mono_data(char *buffer, loff_t 
- 	return ret_count;
- }
- 
--static ssize_t
--read_rbu_data(struct kobject *kobj, char *buffer, loff_t pos, size_t count)
-+static ssize_t read_rbu_data(struct kobject *kobj, char *buffer,
-+			loff_t pos, size_t count)
- {
- 	ssize_t ret_count = 0;
- 
-@@ -527,8 +516,7 @@ read_rbu_data(struct kobject *kobj, char
- 	return ret_count;
- }
- 
--static void
--callbackfn_rbu(const struct firmware *fw, void *context)
-+static void callbackfn_rbu(const struct firmware *fw, void *context)
- {
- 	int rc = 0;
- 
-@@ -564,9 +552,8 @@ callbackfn_rbu(const struct firmware *fw
- 		rbu_data.entry_created = 1;
- }
- 
--static ssize_t
--read_rbu_image_type(struct kobject *kobj, char *buffer, loff_t pos,
--	size_t count)
-+static ssize_t read_rbu_image_type(struct kobject *kobj, char *buffer,
-+			loff_t pos, size_t count)
- {
- 	int size = 0;
- 	if (!pos)
-@@ -574,9 +561,8 @@ read_rbu_image_type(struct kobject *kobj
- 	return size;
- }
- 
--static ssize_t
--write_rbu_image_type(struct kobject *kobj, char *buffer, loff_t pos,
--	size_t count)
-+static ssize_t write_rbu_image_type(struct kobject *kobj, char *buffer,
-+			loff_t pos, size_t count)
- {
- 	int rc = count;
- 	int req_firm_rc = 0;
-@@ -636,18 +622,25 @@ write_rbu_image_type(struct kobject *kob
- }
- 
- static struct bin_attribute rbu_data_attr = {
--	.attr = {.name = "data",.owner = THIS_MODULE,.mode = 0444},
-+	.attr = {
-+		.name = "data",
-+		.owner = THIS_MODULE,
-+		.mode = 0444,
-+	},
- 	.read = read_rbu_data,
- };
- 
- static struct bin_attribute rbu_image_type_attr = {
--	.attr = {.name = "image_type",.owner = THIS_MODULE,.mode = 0644},
-+	.attr = {
-+		.name = "image_type",
-+		.owner = THIS_MODULE,
-+		.mode = 0644,
-+	},
- 	.read = read_rbu_image_type,
- 	.write = write_rbu_image_type,
- };
- 
--static int __init
--dcdrbu_init(void)
-+static int __init dcdrbu_init(void)
- {
- 	int rc = 0;
- 	spin_lock_init(&rbu_data.lock);
-@@ -677,8 +670,7 @@ dcdrbu_init(void)
- 
- }
- 
--static __exit void
--dcdrbu_exit(void)
-+static __exit void dcdrbu_exit(void)
- {
- 	spin_lock(&rbu_data.lock);
- 	packet_empty_list();
-_
+I'd like to see it shared but that means handoff belongs in the input
+layer code and the USB layer needs to call into it if appropriate.
 

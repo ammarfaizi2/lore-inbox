@@ -1,42 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750907AbVIPV3g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751307AbVIPVi5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750907AbVIPV3g (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 17:29:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751304AbVIPV3g
+	id S1751307AbVIPVi5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 17:38:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751311AbVIPVi4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 17:29:36 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:27067 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750907AbVIPV3e (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 17:29:34 -0400
+	Fri, 16 Sep 2005 17:38:56 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:56994 "EHLO
+	palinux.hppa") by vger.kernel.org with ESMTP id S1751307AbVIPViz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 17:38:55 -0400
+Date: Fri, 16 Sep 2005 15:38:49 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ram <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, viro@ftp.linux.org.uk, miklos@szeredi.hu,
+       mike@waychison.com, bfields@fieldses.org, serue@us.ibm.com
 Subject: Re: [RFC PATCH 1/10] vfs: Lindentified namespace.c
-From: Ram Pai <linuxram@us.ibm.com>
-To: Benjamin LaHaise <bcrl@kvack.org>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, viro@ftp.linux.org.uk,
-       Miklos Szeredi <miklos@szeredi.hu>, mike@waychison.com,
-       bfields@fieldses.org, serue@us.ibm.com
-In-Reply-To: <20050916205533.GB20966@kvack.org>
-References: <20050916182619.GA28428@RAM>  <20050916205533.GB20966@kvack.org>
-Content-Type: text/plain
-Organization: IBM 
-Message-Id: <1126906164.4693.7.camel@localhost>
+Message-ID: <20050916213849.GI16698@parisc-linux.org>
+References: <20050916182619.GA28428@RAM> <20050916142557.691b055e.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 16 Sep 2005 14:29:25 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050916142557.691b055e.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-09-16 at 13:55, Benjamin LaHaise wrote:
-> On Fri, Sep 16, 2005 at 11:26:19AM -0700, Ram wrote:
-> > -static void *m_start(struct seq_file *m, loff_t *pos)
-> > +static void *m_start(struct seq_file *m, loff_t * pos)
+On Fri, Sep 16, 2005 at 02:25:57PM -0700, Andrew Morton wrote:
+> > -repeat:
+> > +      repeat:
 > 
-> This is wrong, probably an lindent bug.
+> Labels go in column zero.
 
-Yes it is a lindent bug. 
-Will fix manually.
-RP
-
-
+Column 1.  If you put them in column 0, it messes up diff -p.

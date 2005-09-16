@@ -1,80 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751297AbVIPVYV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750869AbVIPV1K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751297AbVIPVYV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 17:24:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751299AbVIPVYV
+	id S1750869AbVIPV1K (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 17:27:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750888AbVIPV1K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 17:24:21 -0400
-Received: from kepler.fjfi.cvut.cz ([147.32.6.11]:57762 "EHLO
-	kepler.fjfi.cvut.cz") by vger.kernel.org with ESMTP
-	id S1751297AbVIPVYV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 17:24:21 -0400
-Date: Fri, 16 Sep 2005 23:24:08 +0200 (CEST)
-From: Martin Drab <drab@kepler.fjfi.cvut.cz>
-To: Arjan van de Ven <arjanv@redhat.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: mmap(2)ping of pci_alloc_consistent() allocated buffers on 2.4
- kernels question/help
-In-Reply-To: <1126896652.3103.10.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.60.0509162302310.14757@kepler.fjfi.cvut.cz>
-References: <Pine.LNX.4.60.0509162009510.14084@kepler.fjfi.cvut.cz>
- <1126896652.3103.10.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 16 Sep 2005 17:27:10 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:41347 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750869AbVIPV1I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 17:27:08 -0400
+Date: Fri, 16 Sep 2005 14:25:57 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: linuxram@us.ibm.com (Ram)
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       linuxram@us.ibm.com, viro@ftp.linux.org.uk, miklos@szeredi.hu,
+       mike@waychison.com, bfields@fieldses.org, serue@us.ibm.com
+Subject: Re: [RFC PATCH 1/10] vfs: Lindentified namespace.c
+Message-Id: <20050916142557.691b055e.akpm@osdl.org>
+In-Reply-To: <20050916182619.GA28428@RAM>
+References: <20050916182619.GA28428@RAM>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+linuxram@us.ibm.com (Ram) wrote:
+>
+> Lindentified fs/namespace.c
 
+For something which is as already-close to CodingStyle as namespace.c it's
+probably better to tidy it up by hand.  Lindent breaks almost as much stuff
+as it fixes.
 
-On Fri, 16 Sep 2005, Arjan van de Ven wrote:
+> -static void *m_start(struct seq_file *m, loff_t *pos)
+> +static void *m_start(struct seq_file *m, loff_t * pos)
 
-> On Fri, 2005-09-16 at 20:33 +0200, Martin Drab wrote:
-> > Hi,
-> > 
-> > can anyone explain me why it is not possible to mmap(2) a buffer 
-> > allocated in kernel by pci_alloc_consistent() to userspace on a 2.4 
-> > kernel?
-> > 
-> > In kernel PCI device initialization function I do something like:
-> > 
-> > ...
-> > kladdr = pci_alloc_consistent (dev, BUFSIZE, &baddr);
-> > ...
-> > 
-> > Then I send the physical address (i.e. the value of phaddr = __pa(kladdr)) 
-> > to the userspace application, and then when in the userspace I do 
-> > something like
-> > 
-> > ...
-> > fd = fopen ("/dev/mem", O_RDWR);
-> > buf = mmap (NULL, BUFSIZE, PROT_READ|PROT_WRITE, MAP_SHARED, fd, phaddr);
-> > ...
-> 
-> 
-> yuch.
-> why don't you make your device have an mmap operation instead?
-> (the device node that you use to get your physical address to userspace
-> in the first place)
+As Ben said.
 
-And would that help anyhow?
+>  	list_for_each(p, &n->list)
+> -		if (!l--)
+> -			return list_entry(p, struct vfsmount, mnt_list);
+> +	    if (!l--)
+> +		return list_entry(p, struct vfsmount, mnt_list);
 
-Just a background:
+Indenting with four spaces is a bit of a pain.  Presumably because Lindent
+doesn't know what list_for_each() does.
 
-This is a RT driver for the RT Linux (that's why the 2.4 kernel). It is a 
-data acquisition card. What I would like to do is:
+> -static void *m_next(struct seq_file *m, void *v, loff_t *pos)
+> +static void *m_next(struct seq_file *m, void *v, loff_t * pos)
 
-Driver allocates a finite (predefined) number of DMA buffers with 
-pci_alloc_consistent() during the initialization. (This fixed alloc is 
-necessary, since when you switch the driver into RT you cannot do any 
-memory allocations anymore). And then I would like to fill a buffer via 
-DMA, send a notice to the app. via the RT FIFO device that a buffer is 
-filled, app. then calls the ioctl of the RT FIFO with the buffer number 
-(obtained via the RT FIFO) that he wants to mmap, the ioctl mmaps it to 
-the app., app. uses the data, and then calls another ioctl to unmap the 
-buffer and release it for next filling.
+Again.
 
-There's just a limited way to communicate between the RT and non-RT part 
-of the kernel/app. The RT-FIFOs and their IOCTLs are safe. I'm not 
-entirely sure a simple mmap would be safe here, but I may try that.
+>  struct seq_operations mounts_op = {
+> -	.start	= m_start,
+> -	.next	= m_next,
+> -	.stop	= m_stop,
+> -	.show	= show_vfsmnt
+> +	.start = m_start,
+> +	.next = m_next,
+> +	.stop = m_stop,
+> +	.show = show_vfsmnt
+>  };
 
-Martin
+Arguable.
+
+> -repeat:
+> +      repeat:
+
+Labels go in column zero.
+
+> -dput_and_out:
+> +      dput_and_out:
+
+ugh, here it went and inserted spaces.
+
+> -	while(d_mountpoint(nd->dentry) && follow_down(&nd->mnt, &nd->dentry))
+> -		;
+> +	while (d_mountpoint(nd->dentry) && follow_down(&nd->mnt, &nd->dentry)) ;
+
+Regression!
+
+> -	error = __user_walk(new_root, LOOKUP_FOLLOW|LOOKUP_DIRECTORY, &new_nd);
+> +	error =
+> +	    __user_walk(new_root, LOOKUP_FOLLOW | LOOKUP_DIRECTORY, &new_nd);
+
+ug.
+
+> ...
+
+etc.
+
+One approach is to run Lindent, then go through the diff and fix it up by
+hand.  Then apply the patch and fix up the remaining Lindent mistakes by
+hand.  But the raw output of Lindent isn't right.

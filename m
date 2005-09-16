@@ -1,70 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161228AbVIPSdi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161258AbVIPSh2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161228AbVIPSdi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 14:33:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161255AbVIPSdi
+	id S1161258AbVIPSh2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 14:37:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161259AbVIPSh2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 14:33:38 -0400
-Received: from kepler.fjfi.cvut.cz ([147.32.6.11]:56994 "EHLO
-	kepler.fjfi.cvut.cz") by vger.kernel.org with ESMTP
-	id S1161228AbVIPSdh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 14:33:37 -0400
-Date: Fri, 16 Sep 2005 20:33:36 +0200 (CEST)
-From: Martin Drab <drab@kepler.fjfi.cvut.cz>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: mmap(2)ping of pci_alloc_consistent() allocated buffers on 2.4
- kernels question/help
-Message-ID: <Pine.LNX.4.60.0509162009510.14084@kepler.fjfi.cvut.cz>
+	Fri, 16 Sep 2005 14:37:28 -0400
+Received: from mail.gmx.net ([213.165.64.20]:32134 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1161258AbVIPSh2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 14:37:28 -0400
+X-Authenticated: #8834078
+From: Dominik Karall <dominik.karall@gmx.net>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.14-rc1-mm1
+Date: Fri, 16 Sep 2005 20:41:58 +0200
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org
+References: <20050916022319.12bf53f3.akpm@osdl.org>
+In-Reply-To: <20050916022319.12bf53f3.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/signed;
+  boundary="nextPart5679153.gQJviRyZ5V";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200509162042.07376.dominik.karall@gmx.net>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+--nextPart5679153.gQJviRyZ5V
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-can anyone explain me why it is not possible to mmap(2) a buffer 
-allocated in kernel by pci_alloc_consistent() to userspace on a 2.4 
-kernel?
+On Friday 16 September 2005 11:23, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14-rc1/=
+2.
+>6.14-rc1-mm1/ (temp copy at
+> http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.14-rc1-mm1.gz)
 
-In kernel PCI device initialization function I do something like:
+I don't get a /dev/input/mice device with this kernel, so Xorg reports=20
+following error (udev 070 in use):
 
-...
-kladdr = pci_alloc_consistent (dev, BUFSIZE, &baddr);
-...
+(**) Option "Protocol" "ImPS/2"
+(**) Mouse1: Device: "/dev/input/mice"
+(**) Mouse1: Protocol: "ImPS/2"
+(**) Option "CorePointer"
+(**) Mouse1: Core Pointer
+(**) Option "Device" "/dev/input/mice"
+(EE) xf86OpenSerial: Cannot open device /dev/input/mice
+        No such file or directory.
+(EE) Mouse1: cannot open input device
+(EE) PreInit failed for input device "Mouse1"
 
-Then I send the physical address (i.e. the value of phaddr = __pa(kladdr)) 
-to the userspace application, and then when in the userspace I do 
-something like
 
-...
-fd = fopen ("/dev/mem", O_RDWR);
-buf = mmap (NULL, BUFSIZE, PROT_READ|PROT_WRITE, MAP_SHARED, fd, phaddr);
-...
+with other kernels:
+(**) Option "Protocol" "ImPS/2"
+(**) Mouse1: Device: "/dev/input/mice"
+(**) Mouse1: Protocol: "ImPS/2"
+(**) Option "CorePointer"
+(**) Mouse1: Core Pointer
+(**) Option "Device" "/dev/input/mice"
+(=3D=3D) Mouse1: Emulate3Buttons, Emulate3Timeout: 50
+(**) Option "ZAxisMapping" "4 5"
+(**) Mouse1: ZAxisMapping: buttons 4 and 5
+(**) Mouse1: Buttons: 5
+(**) Mouse1: SmartScroll: 1
 
-I get a mapping stated correctly in /proc/<pid>/maps as
 
-40016000-4001e000 rw-s 11ac0000 00:06 4       /dev/mem
+dominik
 
-which is all correct. But when I read the contents of the mmap(2)ped 
-memory within the application I get all zeroes, while the value of the 
-buffer when read from kernel space or by simply doing
+--nextPart5679153.gQJviRyZ5V
+Content-Type: application/pgp-signature
 
-dd if=/dev/mem of=temp.dat bs=65536 skip=4524 count=1
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2-ecc0.1.6 (GNU/Linux)
 
-I get the correct values (which are not all zeros). Something in the 
-process of mmap(2) system call seems to redirect the pages to /dev/zero it 
-seems. Is it intentional? Why?
+iQCVAwUAQysR/wvcoSHvsHMnAQKyzQP/aQzYu9OR6kd2vUzFxwLV4/FrFl+Q2kXL
+mLCJd+Q6bt9j0d8xGml/yN5/TT4/K39PS91um5FdNRDYPpD/ekC/5zcE7HeBa/At
+jmuN4dkea8J7HOBwZUozsDCbzPQD+AXChwH459KmDrTa9jU3llGTCdD1poW8mDFb
+a+YteP5CWqM=
+=M6My
+-----END PGP SIGNATURE-----
 
-Can I get around it somehow? The desired goal would be to mmap the buffer 
-directly from kernel upon an ioctl call to the driver of the PCI device. 
-(I do it by emmulating the mmap(2) call but initiated from the kernel by 
-calling the do_mmap_pgoff() with appropriate arguments, but (no surprise) 
-it does the same thing as the mmap(2) called from the userspace.
-
-Can the mmapping be done correctly at least from the kernel somehow? Or is 
-it not possible at all.
-
-Any hint would be much appreciated.
-
-Thanks,
-Martin.
+--nextPart5679153.gQJviRyZ5V--

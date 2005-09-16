@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161277AbVIPT7Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750809AbVIPUEd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161277AbVIPT7Z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 15:59:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161187AbVIPT7Z
+	id S1750809AbVIPUEd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 16:04:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbVIPUEd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 15:59:25 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:63174 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161274AbVIPT7X convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 15:59:23 -0400
-Date: Fri, 16 Sep 2005 15:59:19 -0400 (EDT)
-Message-Id: <20050916.155919.41629794.davem@redhat.com>
-To: kloczek@rudy.mif.pg.gda.pl
-Cc: davem@davemloft.net, linux-kernel@vger.kernel.org,
-       sparclinux@vger.kernel.org, aurora-sparc-devel@lists.auroralinux.org
-Subject: Re: [2.6.14-rc1/sparc54]: BUG: soft lockup detected on CPU#0!
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.BSO.4.62.0509161405550.5000@rudy.mif.pg.gda.pl>
-References: <Pine.BSO.4.62.0509151929580.5000@rudy.mif.pg.gda.pl>
-	<20050915.133026.21581824.davem@davemloft.net>
-	<Pine.BSO.4.62.0509161405550.5000@rudy.mif.pg.gda.pl>
-X-Mailer: Mew version 4.2.52 on Emacs 21.3 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-2
-Content-Transfer-Encoding: 8BIT
+	Fri, 16 Sep 2005 16:04:33 -0400
+Received: from wscnet.wsc.cz ([212.80.64.118]:10376 "EHLO wscnet.wsc.cz")
+	by vger.kernel.org with ESMTP id S1750809AbVIPUEc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 16:04:32 -0400
+Message-ID: <432B254C.209@gmail.com>
+Date: Fri, 16 Sep 2005 22:04:28 +0200
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: cs, en-us, en
+MIME-Version: 1.0
+To: Kay Sievers <kay.sievers@vrfy.org>
+CC: Dominik Karall <dominik.karall@gmx.net>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+Subject: Re: 2.6.14-rc1-mm1
+References: <20050916022319.12bf53f3.akpm@osdl.org> <200509162042.07376.dominik.karall@gmx.net> <432B2101.9080806@gmail.com> <20050916195903.GE22221@vrfy.org>
+In-Reply-To: <20050916195903.GE22221@vrfy.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Tomasz K³oczko <kloczek@rudy.mif.pg.gda.pl>
-Date: Fri, 16 Sep 2005 14:42:56 +0200 (CEST)
-
-> On Thu, 15 Sep 2005, David S. Miller wrote:
+Kay Sievers napsal(a):
+> On Fri, Sep 16, 2005 at 09:46:09PM +0200, Jiri Slaby wrote:
+>>I have the same problem. Version 2.6.13-mm3 was OK and the new version 
+>>was only oldconfigured. When I create appropriate devices with mknod, it 
+>>is ok. So why does not udev (58 and 70) create that devices (event, 
+>>mice, mouse, wacom)?
 > 
-> > I wonder if the NFS daemon code needs to have some limits put on
-> > how much cpu it consumes handling requests before it gives up the
-> > cpu.  Perhaps, it has such throttling already, I don't know.
 > 
-> But this not case NFS server but NSF client. During this lookups I observe 
-> rpciod takes 90-99% time of single processor. Load is between 10 and 20.
+> There is no userspace support(udev, libsysfs, HAL) for the experimental
+> sysfs layout of the input layer patches. We better remove them until we
+> all can agree on a sane layout. I don't expect it will make it into the
+> kernel it its current form.
+I see the changes now, thanks for your quick reply.
 
-After studying some code yesterday, NFS client has the same
-exact problem as NFS daemon, namely that if you give it enough
-work it will never give up the cpu so that other tasks can
-be scheduled.
-
-This is a serious bug, and can easily trigger those soft lockup
-messages.  Based upon some other reports seen on linux-kernel
-and elsewhere, things like the raid1 kernel daemon have a similar
-issue as well.
-
-I think you can help things _enormusly_ by turning off SLAB
-poisioning, as I said that debugging feature is _VERY_ expensive.
+-- 
+Jiri Slaby         www.fi.muni.cz/~xslaby
+~\-/~      jirislaby@gmail.com      ~\-/~
+241B347EC88228DE51EE A49C4A73A25004CB2A10

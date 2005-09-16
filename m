@@ -1,1171 +1,2125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161050AbVIPHEn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161076AbVIPHDV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161050AbVIPHEn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 03:04:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161074AbVIPHEL
+	id S1161076AbVIPHDV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 03:03:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161077AbVIPHBr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 03:04:11 -0400
-Received: from moutng.kundenserver.de ([212.227.126.186]:12007 "EHLO
+	Fri, 16 Sep 2005 03:01:47 -0400
+Received: from moutng.kundenserver.de ([212.227.126.177]:5881 "EHLO
 	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1161081AbVIPHBl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 03:01:41 -0400
-Message-Id: <20050916123313.373638000@localhost>
+	id S1161076AbVIPHBQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 03:01:16 -0400
+Message-Id: <20050916123313.540947000@localhost>
 References: <20050916121646.387617000@localhost>
-Date: Fri, 16 Sep 2005 08:16:48 -0400
+Date: Fri, 16 Sep 2005 08:16:49 -0400
 From: Arnd Bergmann <arnd@arndb.de>
 To: ppc64-dev <linuxppc64-dev@ozlabs.org>
 Cc: linux-kernel@vger.kernel.org, Paul Mackerras <paulus@samba.org>,
        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
        jordi_caubet@es.ibm.com, Hiroyuki Machida <machida@sm.sony.co.jp>,
        Geoff Levand <geoffrey.levand@am.sony.com>
-Subject: [patch 02/11] spufs: switchable spu contexts
-Content-Disposition: inline; filename=spufs-context-4.diff
+Subject: [patch 03/11] spufs: kernel-side context switch code
+Content-Disposition: inline; filename=spufs-context-3-part2.diff
 X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add some infrastructure for saving and restoring the context of an
-SPE. This patch creates a new structure that can hold the whole
-state of a physical SPE in memory. It also contains code that
-avoids races during the context switch and the binary code that
-is loaded to the SPU in order to access its registers.
-
-The actual PPE- and SPE-side context switch code are two separate
-patches.
+This adds the code needed to perform a context switch from
+spufs, following the recommended 76-step sequence.
 
 From: Mark Nutter <mnutter@us.ibm.com>
 Signed-off-by: Arnd Bergmann <arndb@de.ibm.com>
 
 --
 
- arch/ppc64/kernel/spu_base.c        |   27 ++
- fs/spufs/Makefile                   |    4 
- fs/spufs/context.c                  |   18 +
- fs/spufs/spu_restore_dump.h_shipped |  342 ++++++++++++++++++++++++++++++++++++
- fs/spufs/spu_save_dump.h_shipped    |  290 ++++++++++++++++++++++++++++++
- fs/spufs/spufs.h                    |    2 
- fs/spufs/switch.c                   |  174 ++++++++++++++++++
- include/asm-ppc64/spu.h             |   76 ++++++++
- include/asm-ppc64/spu_csa.h         |  256 ++++++++++++++++++++++++++
- 9 files changed, 1185 insertions(+), 4 deletions(-)
+ switch.c | 2052 ++++++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 files changed, 2046 insertions(+), 6 deletions(-)
 
-Index: linux-cg/arch/ppc64/kernel/spu_base.c
-===================================================================
---- linux-cg.orig/arch/ppc64/kernel/spu_base.c
-+++ linux-cg/arch/ppc64/kernel/spu_base.c
-@@ -62,7 +62,9 @@ static int __spu_trap_error(struct spu *
- static void spu_restart_dma(struct spu *spu)
- {
- 	struct spu_priv2 __iomem *priv2 = spu->priv2;
--	out_be64(&priv2->mfc_control_RW, MFC_CNTL_RESTART_DMA_COMMAND);
+--- linux-cg.orig/fs/spufs/switch.c	2005-08-17 19:15:27.324893240 -0400
++++ linux-cg/fs/spufs/switch.c	2005-08-17 19:22:16.112922576 -0400
+@@ -52,6 +52,2029 @@
+ #include "spu_save_dump.h"
+ #include "spu_restore_dump.h"
+ 
++#if 0
++#define POLL_WHILE_TRUE(_c) {				\
++    do {						\
++    } while (_c);					\
++  }
++#else
++#define RELAX_SPIN_COUNT				1000
++#define POLL_WHILE_TRUE(_c) {				\
++    do {						\
++	int _i;						\
++	for (_i=0; _i<RELAX_SPIN_COUNT && (_c); _i++) { \
++	    cpu_relax();				\
++	}						\
++	if (unlikely(_c)) yield();			\
++	else break;					\
++    } while (_c);					\
++  }
++#endif				/* debug */
 +
-+	if (!test_bit(SPU_CONTEXT_SWITCH_PENDING_nr, &spu->flags))
-+		out_be64(&priv2->mfc_control_RW, MFC_CNTL_RESTART_DMA_COMMAND);
- }
- 
- static int __spu_trap_data_seg(struct spu *spu, unsigned long ea)
-@@ -72,6 +74,11 @@ static int __spu_trap_data_seg(struct sp
- 
- 	pr_debug("%s\n", __FUNCTION__);
- 
-+	if (test_bit(SPU_CONTEXT_SWITCH_ACTIVE_nr, &spu->flags)) {
-+		printk("%s: invalid access during switch!\n", __func__);
-+		return 1;
-+	}
++#define POLL_WHILE_FALSE(_c) 	POLL_WHILE_TRUE(!(_c))
 +
- 	if (REGION_ID(ea) != USER_REGION_ID) {
- 		pr_debug("invalid region access at %016lx\n", ea);
- 		return 1;
-@@ -98,6 +105,7 @@ static int __spu_trap_data_seg(struct sp
- 	return 0;
- }
- 
-+extern int hash_page(unsigned long ea, unsigned long access, unsigned long trap); //XXX
- static int __spu_trap_data_map(struct spu *spu, unsigned long ea)
- {
- 	unsigned long dsisr;
-@@ -107,8 +115,21 @@ static int __spu_trap_data_map(struct sp
- 	priv1 = spu->priv1;
- 	dsisr = in_be64(&priv1->mfc_dsisr_RW);
- 
--	wake_up(&spu->stop_wq);
-+	/* Handle kernel space hash faults immediately.
-+	   User hash faults need to be deferred to process context. */
-+	if ((dsisr & MFC_DSISR_PTE_NOT_FOUND)
-+	    && REGION_ID(ea) != USER_REGION_ID
-+	    && hash_page(ea, _PAGE_PRESENT, 0x300) == 0) {
-+		spu_restart_dma(spu);
-+		return 0;
-+	}
-+
-+	if (test_bit(SPU_CONTEXT_SWITCH_ACTIVE_nr, &spu->flags)) {
-+		printk("%s: invalid access during switch!\n", __func__);
-+		return 1;
-+	}
- 
-+	wake_up(&spu->stop_wq);
- 	return 0;
- }
- 
-@@ -378,7 +399,6 @@ void spu_free(struct spu *spu)
- }
- EXPORT_SYMBOL(spu_free);
- 
--extern int hash_page(unsigned long ea, unsigned long access, unsigned long trap); //XXX
- static int spu_handle_mm_fault(struct spu *spu)
- {
- 	struct spu_priv1 __iomem *priv1;
-@@ -646,6 +666,7 @@ static int __init create_spu(struct devi
- 	spu->slb_replace = 0;
- 	spu->mm = NULL;
- 	spu->class_0_pending = 0;
-+	spu->flags = 0UL;
- 	spin_lock_init(&spu->register_lock);
- 
- 	out_be64(&spu->priv1->mfc_sdr_RW, mfspr(SPRN_SDR1));
-Index: linux-cg/fs/spufs/Makefile
-===================================================================
---- linux-cg.orig/fs/spufs/Makefile
-+++ linux-cg/fs/spufs/Makefile
-@@ -1,3 +1,5 @@
- obj-$(CONFIG_SPU_FS) += spufs.o
- 
--spufs-y += inode.o file.o context.o
-+spufs-y += inode.o file.o context.o switch.o
-+
-+$(obj)/switch.o: $(obj)/spu_save_dump.h $(obj)/spu_restore_dump.h
-Index: linux-cg/fs/spufs/context.c
-===================================================================
---- linux-cg.orig/fs/spufs/context.c
-+++ linux-cg/fs/spufs/context.c
-@@ -22,6 +22,7 @@
- 
- #include <linux/slab.h>
- #include <asm/spu.h>
-+#include <asm/spu_csa.h>
- #include "spufs.h"
- 
- struct spu_context *alloc_spu_context(void)
-@@ -30,9 +31,25 @@ struct spu_context *alloc_spu_context(vo
- 	ctx = kmalloc(sizeof *ctx, GFP_KERNEL);
- 	if (!ctx)
- 		goto out;
-+	/* Future enhancement: do not call spu_alloc()
-+	 * here.  This step should be deferred until
-+	 * spu_run()!!
-+	 *
-+	 * More work needs to be done to read(),
-+	 * write(), mmap(), etc., so that operations
-+	 * are performed on CSA when the context is
-+	 * not currently being run.  In this way we
-+	 * can support arbitrarily large number of
-+	 * entries in /spu, allow state queries, etc.
++static inline void acquire_spu_lock(struct spu *spu)
++{
++	/* Save, Step 1:
++	 * Restore, Step 1:
++	 *    Acquire SPU-specific mutual exclusion lock.
++	 *    TBD.
 +	 */
- 	ctx->spu = spu_alloc();
- 	if (!ctx->spu)
- 		goto out_free;
-+	spu_init_csa(&ctx->csa);
-+	if (!ctx->csa.lscsa) {
-+		spu_free(ctx->spu);
-+		goto out_free;
++}
++
++static inline void release_spu_lock(struct spu *spu)
++{
++	/* Restore, Step 76:
++	 *    Release SPU-specific mutual exclusion lock.
++	 *    TBD.
++	 */
++}
++
++static inline int check_spu_isolate(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++	u32 isolate_state;
++
++	/* Save, Step 2:
++	 * Save, Step 6:
++	 *     If SPU_Status[E,L,IS] any field is '1', this
++	 *     SPU is in isolate state and cannot be context
++	 *     saved at this time.
++	 */
++	isolate_state = SPU_STATUS_ISOLATED_STATE |
++	    SPU_STATUS_ISOLATED_LOAD_STAUTUS | SPU_STATUS_ISOLATED_EXIT_STAUTUS;
++	return (in_be32(&prob->spu_status_R) & isolate_state) ? 1 : 0;
++}
++
++static inline void disable_interrupts(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
++	unsigned long flags;
++
++	/* Save, Step 3:
++	 * Restore, Step 2:
++	 *     Save INT_Mask_class0 in CSA.
++	 *     Write INT_MASK_class0 with value of 0.
++	 *     Save INT_Mask_class1 in CSA.
++	 *     Write INT_MASK_class1 with value of 0.
++	 *     Save INT_Mask_class2 in CSA.
++	 *     Write INT_MASK_class2 with value of 0.
++	 */
++	local_irq_save(flags);
++	if (csa) {
++		csa->priv1.int_mask_class0_RW =
++		    in_be64(&priv1->int_mask_class0_RW);
++		csa->priv1.int_mask_class1_RW =
++		    in_be64(&priv1->int_mask_class1_RW);
++		csa->priv1.int_mask_class2_RW =
++		    in_be64(&priv1->int_mask_class2_RW);
 +	}
- 	init_rwsem(&ctx->backing_sema);
- 	spin_lock_init(&ctx->mmio_lock);
- 	kref_init(&ctx->kref);
-@@ -50,6 +67,7 @@ void destroy_spu_context(struct kref *kr
- 	ctx = container_of(kref, struct spu_context, kref);
- 	if (ctx->spu)
- 		spu_free(ctx->spu);
-+	spu_fini_csa(&ctx->csa);
- 	kfree(ctx);
++	out_be64(&priv1->int_mask_class0_RW, 0UL);
++	out_be64(&priv1->int_mask_class1_RW, 0UL);
++	out_be64(&priv1->int_mask_class2_RW, 0UL);
++	eieio();
++	local_irq_restore(flags);
++}
++
++static inline void set_watchdog_timer(struct spu_state *csa, struct spu *spu)
++{
++	/* Save, Step 4:
++	 * Restore, Step 25.
++	 *    Set a software watchdog timer, which specifies the
++	 *    maximum allowable time for a context save sequence.
++	 *
++	 *    For present, this implementation will not set a global
++	 *    watchdog timer, as virtualization & variable system load
++	 *    may cause unpredictable execution times.
++	 */
++}
++
++static inline void inhibit_user_access(struct spu_state *csa, struct spu *spu)
++{
++	/* Save, Step 5:
++	 * Restore, Step 3:
++	 *     Inhibit user-space access (if provided) to this
++	 *     SPU by unmapping the virtual pages assigned to
++	 *     the SPU memory-mapped I/O (MMIO) for problem
++	 *     state. TBD.
++	 */
++}
++
++static inline void set_switch_pending(struct spu_state *csa, struct spu *spu)
++{
++	/* Save, Step 7:
++	 * Restore, Step 5:
++	 *     Set a software context switch pending flag.
++	 */
++	set_bit(SPU_CONTEXT_SWITCH_PENDING_nr, &spu->flags);
++	mb();
++}
++
++static inline void save_mfc_cntl(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Save, Step 8:
++	 *     Read and save MFC_CNTL[Ss].
++	 */
++	if (csa) {
++		csa->priv2.mfc_control_RW = in_be64(&priv2->mfc_control_RW) &
++		    MFC_CNTL_SUSPEND_DMA_STATUS_MASK;
++	}
++}
++
++static inline void save_spu_runcntl(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++
++	/* Save, Step 9:
++	 *     Save SPU_Runcntl in the CSA.  This value contains
++	 *     the "Application Desired State".
++	 */
++	csa->prob.spu_runcntl_RW = in_be32(&prob->spu_runcntl_RW);
++}
++
++static inline void save_mfc_sr1(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
++
++	/* Save, Step 10:
++	 *     Save MFC_SR1 in the CSA.
++	 */
++	csa->priv1.mfc_sr1_RW = in_be64(&priv1->mfc_sr1_RW);
++}
++
++static inline void save_spu_status(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++
++	/* Save, Step 11:
++	 *     Read SPU_Status[R], and save to CSA.
++	 */
++	if ((in_be32(&prob->spu_status_R) & SPU_STATUS_RUNNING) == 0) {
++		csa->prob.spu_status_R = in_be32(&prob->spu_status_R);
++	} else {
++		u32 stopped;
++
++		out_be32(&prob->spu_runcntl_RW, SPU_RUNCNTL_STOP);
++		eieio();
++		POLL_WHILE_TRUE(in_be32(&prob->spu_status_R) &
++				SPU_STATUS_RUNNING);
++		stopped =
++		    SPU_STATUS_INVALID_INSTR | SPU_STATUS_SINGLE_STEP |
++		    SPU_STATUS_STOPPED_BY_HALT | SPU_STATUS_STOPPED_BY_STOP;
++		if ((in_be32(&prob->spu_status_R) & stopped) == 0)
++			csa->prob.spu_status_R = SPU_STATUS_RUNNING;
++		else
++			csa->prob.spu_status_R = in_be32(&prob->spu_status_R);
++	}
++}
++
++static inline void save_mfc_decr(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Save, Step 12:
++	 *     Read MFC_CNTL[Ds].  Update saved copy of
++	 *     CSA.MFC_CNTL[Ds].
++	 */
++	if (in_be64(&priv2->mfc_control_RW) & MFC_CNTL_DECREMENTER_RUNNING) {
++		csa->priv2.mfc_control_RW |= MFC_CNTL_DECREMENTER_RUNNING;
++		csa->suspend_time = get_cycles();
++		out_be64(&priv2->spu_chnlcntptr_RW, 7ULL);
++		eieio();
++		csa->spu_chnldata_RW[7] = in_be64(&priv2->spu_chnldata_RW);
++		eieio();
++	}
++}
++
++static inline void halt_mfc_decr(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Save, Step 13:
++	 *     Write MFC_CNTL[Dh] set to a '1' to halt
++	 *     the decrementer.
++	 */
++	out_be64(&priv2->mfc_control_RW, MFC_CNTL_DECREMENTER_HALTED);
++	eieio();
++}
++
++static inline void save_timebase(struct spu_state *csa, struct spu *spu)
++{
++	/* Save, Step 14:
++	 *    Read PPE Timebase High and Timebase low registers
++	 *    and save in CSA.  TBD.
++	 */
++	csa->suspend_time = get_cycles();
++}
++
++static inline void remove_other_spu_access(struct spu_state *csa,
++					   struct spu *spu)
++{
++	/* Save, Step 15:
++	 *     Remove other SPU access to this SPU by unmapping
++	 *     this SPU's pages from their address space.  TBD.
++	 */
++}
++
++static inline void do_mfc_mssync(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++
++	/* Save, Step 16:
++	 * Restore, Step 11.
++	 *     Write SPU_MSSync register. Poll SPU_MSSync[P]
++	 *     for a value of 0.
++	 */
++	out_be64(&prob->spc_mssync_RW, 1UL);
++	POLL_WHILE_TRUE(in_be64(&prob->spc_mssync_RW) & MS_SYNC_PENDING);
++}
++
++static inline void issue_mfc_tlbie(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
++
++	/* Save, Step 17:
++	 * Restore, Step 12.
++	 * Restore, Step 48.
++	 *     Write TLB_Invalidate_Entry[IS,VPN,L,Lp]=0 register.
++	 *     Then issue a PPE sync instruction.
++	 */
++	out_be64(&priv1->tlb_invalidate_entry_W, 0UL);
++	mb();
++}
++
++static inline void handle_pending_interrupts(struct spu_state *csa,
++					     struct spu *spu)
++{
++	/* Save, Step 18:
++	 *     Handle any pending interrupts from this SPU
++	 *     here.  This is OS or hypervisor specific.  One
++	 *     option is to re-enable interrupts to handle any
++	 *     pending interrupts, with the interrupt handlers
++	 *     recognizing the software Context Switch Pending
++	 *     flag, to ensure the SPU execution or MFC command
++	 *     queue is not restarted.  TBD.
++	 */
++}
++
++static inline void save_mfc_queues(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++	int i;
++
++	/* Save, Step 19:
++	 *     If MFC_Cntl[Se]=0 then save
++	 *     MFC command queues.
++	 */
++	if ((in_be64(&priv2->mfc_control_RW) & MFC_CNTL_DMA_QUEUES_EMPTY) == 0) {
++		for (i = 0; i < 8; i++) {
++			csa->priv2.puq[i].mfc_cq_data0_RW =
++			    in_be64(&priv2->puq[i].mfc_cq_data0_RW);
++			csa->priv2.puq[i].mfc_cq_data1_RW =
++			    in_be64(&priv2->puq[i].mfc_cq_data1_RW);
++			csa->priv2.puq[i].mfc_cq_data2_RW =
++			    in_be64(&priv2->puq[i].mfc_cq_data2_RW);
++			csa->priv2.puq[i].mfc_cq_data3_RW =
++			    in_be64(&priv2->puq[i].mfc_cq_data3_RW);
++		}
++		for (i = 0; i < 16; i++) {
++			csa->priv2.spuq[i].mfc_cq_data0_RW =
++			    in_be64(&priv2->spuq[i].mfc_cq_data0_RW);
++			csa->priv2.spuq[i].mfc_cq_data1_RW =
++			    in_be64(&priv2->spuq[i].mfc_cq_data1_RW);
++			csa->priv2.spuq[i].mfc_cq_data2_RW =
++			    in_be64(&priv2->spuq[i].mfc_cq_data2_RW);
++			csa->priv2.spuq[i].mfc_cq_data3_RW =
++			    in_be64(&priv2->spuq[i].mfc_cq_data3_RW);
++		}
++	}
++}
++
++static inline void save_ppu_querymask(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++
++	/* Save, Step 20:
++	 *     Save the PPU_QueryMask register
++	 *     in the CSA.
++	 */
++	csa->prob.dma_querymask_RW = in_be32(&prob->dma_querymask_RW);
++}
++
++static inline void save_ppu_querytype(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++
++	/* Save, Step 21:
++	 *     Save the PPU_QueryType register
++	 *     in the CSA.
++	 */
++	csa->prob.dma_querytype_RW = in_be32(&prob->dma_querytype_RW);
++}
++
++static inline void save_mfc_csr_tsq(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Save, Step 22:
++	 *     Save the MFC_CSR_TSQ register
++	 *     in the LSCSA.
++	 */
++	csa->priv2.spu_tag_status_query_RW =
++	    in_be64(&priv2->spu_tag_status_query_RW);
++}
++
++static inline void save_mfc_csr_cmd(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Save, Step 23:
++	 *     Save the MFC_CSR_CMD1 and MFC_CSR_CMD2
++	 *     registers in the CSA.
++	 */
++	csa->priv2.spu_cmd_buf1_RW = in_be64(&priv2->spu_cmd_buf1_RW);
++	csa->priv2.spu_cmd_buf2_RW = in_be64(&priv2->spu_cmd_buf2_RW);
++}
++
++static inline void save_mfc_csr_ato(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Save, Step 24:
++	 *     Save the MFC_CSR_ATO register in
++	 *     the CSA.
++	 */
++	csa->priv2.spu_atomic_status_RW = in_be64(&priv2->spu_atomic_status_RW);
++}
++
++static inline void save_mfc_tclass_id(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
++
++	/* Save, Step 25:
++	 *     Save the MFC_TCLASS_ID register in
++	 *     the CSA.
++	 */
++	csa->priv1.mfc_tclass_id_RW = in_be64(&priv1->mfc_tclass_id_RW);
++}
++
++static inline void set_mfc_tclass_id(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
++
++	/* Save, Step 26:
++	 * Restore, Step 23.
++	 *     Write the MFC_TCLASS_ID register with
++	 *     the value 0x10000000.
++	 */
++	out_be64(&priv1->mfc_tclass_id_RW, 0x10000000);
++	eieio();
++}
++
++static inline void purge_mfc_queue(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Save, Step 27:
++	 * Restore, Step 14.
++	 *     Write MFC_CNTL[Pc]=1 (purge queue).
++	 */
++	out_be64(&priv2->mfc_control_RW, MFC_CNTL_PURGE_DMA_REQUEST);
++	eieio();
++}
++
++static inline void wait_purge_complete(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Save, Step 28:
++	 *     Poll MFC_CNTL[Ps] until value '11' is read
++	 *     (purge complete).
++	 */
++	POLL_WHILE_FALSE(in_be64(&priv2->mfc_control_RW) &
++			 MFC_CNTL_PURGE_DMA_COMPLETE);
++}
++
++static inline void save_mfc_slbs(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++	int i;
++
++	/* Save, Step 29:
++	 *     If MFC_SR1[R]='1', save SLBs in CSA.
++	 */
++	if (in_be64(&priv1->mfc_sr1_RW) & MFC_STATE1_RELOCATE_MASK) {
++		csa->priv2.slb_index_W = in_be64(&priv2->slb_index_W);
++		for (i = 0; i < 8; i++) {
++			out_be64(&priv2->slb_index_W, i);
++			eieio();
++			csa->slb_esid_RW[i] = in_be64(&priv2->slb_esid_RW);
++			csa->slb_vsid_RW[i] = in_be64(&priv2->slb_vsid_RW);
++			eieio();
++		}
++	}
++}
++
++static inline void setup_mfc_sr1(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
++
++	/* Save, Step 30:
++	 * Restore, Step 18:
++	 *     Write MFC_SR1 with MFC_SR1[D=0,S=1] and
++	 *     MFC_SR1[TL,R,Pr,T] set correctly for the
++	 *     OS specific environment.
++	 *
++	 *     Implementation note: The SPU-side code
++	 *     for save/restore is privileged, so the
++	 *     MFC_SR1[Pr] bit is not set.
++	 *
++	 */
++	out_be64(&priv1->mfc_sr1_RW, (MFC_STATE1_MASTER_RUN_CONTROL_MASK |
++				      MFC_STATE1_RELOCATE_MASK |
++				      MFC_STATE1_BUS_TLBIE_MASK));
++}
++
++static inline void save_spu_npc(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++
++	/* Save, Step 31:
++	 *     Save SPU_NPC in the CSA.
++	 */
++	csa->prob.spu_npc_RW = in_be32(&prob->spu_npc_RW);
++}
++
++static inline void save_spu_privcntl(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Save, Step 32:
++	 *     Save SPU_PrivCntl in the CSA.
++	 */
++	csa->priv2.spu_privcntl_RW = in_be64(&priv2->spu_privcntl_RW);
++}
++
++static inline void reset_spu_privcntl(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Save, Step 33:
++	 * Restore, Step 16:
++	 *     Write SPU_PrivCntl[S,Le,A] fields reset to 0.
++	 */
++	out_be64(&priv2->spu_privcntl_RW, 0UL);
++	eieio();
++}
++
++static inline void save_spu_lslr(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Save, Step 34:
++	 *     Save SPU_LSLR in the CSA.
++	 */
++	csa->priv2.spu_lslr_RW = in_be64(&priv2->spu_lslr_RW);
++}
++
++static inline void reset_spu_lslr(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Save, Step 35:
++	 * Restore, Step 17.
++	 *     Reset SPU_LSLR.
++	 */
++	out_be64(&priv2->spu_lslr_RW, LS_ADDR_MASK);
++	eieio();
++}
++
++static inline void save_spu_cfg(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Save, Step 36:
++	 *     Save SPU_Cfg in the CSA.
++	 */
++	csa->priv2.spu_cfg_RW = in_be64(&priv2->spu_cfg_RW);
++}
++
++static inline void save_pm_trace(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Save, Step 37:
++	 *     Save PM_Trace_Tag_Wait_Mask in the CSA.
++	 */
++	csa->priv2.spu_pm_trace_tag_status_RW =
++	    in_be64(&priv2->spu_pm_trace_tag_status_RW);
++}
++
++static inline void save_mfc_rag(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
++
++	/* Save, Step 38:
++	 *     Save RA_GROUP_ID register and the
++	 *     RA_ENABLE reigster in the CSA.
++	 */
++	csa->priv1.resource_allocation_groupID_RW =
++	    in_be64(&priv1->resource_allocation_groupID_RW);
++	csa->priv1.resource_allocation_enable_RW =
++	    in_be64(&priv1->resource_allocation_enable_RW);
++}
++
++static inline void save_ppu_mb_stat(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++
++	/* Save, Step 39:
++	 *     Save MB_Stat register in the CSA.
++	 */
++	csa->prob.mb_stat_R = in_be32(&prob->mb_stat_R);
++}
++
++static inline void save_ppu_mb(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++
++	/* Save, Step 40:
++	 *     Save the PPU_MB register in the CSA.
++	 */
++	csa->prob.pu_mb_R = in_be32(&prob->pu_mb_R);
++}
++
++static inline void save_ppuint_mb(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Save, Step 41:
++	 *     Save the PPUINT_MB register in the CSA.
++	 */
++	csa->priv2.puint_mb_R = in_be64(&priv2->puint_mb_R);
++}
++
++static inline void save_ch_part1(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++	u64 idx, ch_indices[7] = { 0UL, 1UL, 3UL, 4UL, 24UL, 25UL, 27UL };
++	int i;
++
++	/* Save, Step 42:
++	 *     Save the following CH: [0,1,3,4,24,25,27]
++	 */
++	for (i = 0; i < 7; i++) {
++		idx = ch_indices[i];
++		out_be64(&priv2->spu_chnlcntptr_RW, idx);
++		eieio();
++		csa->spu_chnldata_RW[idx] = in_be64(&priv2->spu_chnldata_RW);
++		csa->spu_chnlcnt_RW[idx] = in_be64(&priv2->spu_chnlcnt_RW);
++		out_be64(&priv2->spu_chnldata_RW, 0UL);
++		out_be64(&priv2->spu_chnlcnt_RW, 0UL);
++		eieio();
++	}
++}
++
++static inline void save_spu_mb(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++	int i;
++
++	/* Save, Step 43:
++	 *     Save SPU Read Mailbox Channel.
++	 */
++	out_be64(&priv2->spu_chnlcntptr_RW, 29UL);
++	eieio();
++	csa->spu_chnlcnt_RW[29] = in_be64(&priv2->spu_chnlcnt_RW);
++	for (i = 0; i < 4; i++) {
++		csa->pu_mailbox_data[i] = in_be64(&priv2->spu_chnldata_RW);
++	}
++	out_be64(&priv2->spu_chnlcnt_RW, 0UL);
++	eieio();
++}
++
++static inline void save_mfc_cmd(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Save, Step 44:
++	 *     Save MFC_CMD Channel.
++	 */
++	out_be64(&priv2->spu_chnlcntptr_RW, 21UL);
++	eieio();
++	csa->spu_chnlcnt_RW[21] = in_be64(&priv2->spu_chnlcnt_RW);
++	eieio();
++}
++
++static inline void reset_ch(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++	u64 ch_indices[4] = { 21UL, 23UL, 28UL, 30UL };
++	u64 ch_counts[4] = { 16UL, 1UL, 1UL, 1UL };
++	u64 idx;
++	int i;
++
++	/* Save, Step 45:
++	 *     Reset the following CH: [21, 23, 28, 30]
++	 */
++	for (i = 0; i < 4; i++) {
++		idx = ch_indices[i];
++		out_be64(&priv2->spu_chnlcntptr_RW, idx);
++		eieio();
++		out_be64(&priv2->spu_chnlcnt_RW, ch_counts[i]);
++		eieio();
++	}
++}
++
++static inline void resume_mfc_queue(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Save, Step 46:
++	 * Restore, Step 25.
++	 *     Write MFC_CNTL[Sc]=0 (resume queue processing).
++	 */
++	out_be64(&priv2->mfc_control_RW, MFC_CNTL_RESUME_DMA_QUEUE);
++}
++
++static inline void invalidate_slbs(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Save, Step 45:
++	 * Restore, Step 19:
++	 *     If MFC_SR1[R]=1, write 0 to SLB_Invalidate_All.
++	 */
++	if (in_be64(&priv1->mfc_sr1_RW) & MFC_STATE1_RELOCATE_MASK) {
++		out_be64(&priv2->slb_invalidate_all_W, 0UL);
++		eieio();
++	}
++}
++
++static inline void get_kernel_slb(u64 ea, u64 slb[2])
++{
++	slb[0] = (get_kernel_vsid(ea) << SLB_VSID_SHIFT) | SLB_VSID_KERNEL;
++	slb[1] = (ea & ESID_MASK) | SLB_ESID_V;
++
++	/* Large pages are used for kernel text/data, but not vmalloc.  */
++	if (cpu_has_feature(CPU_FTR_16M_PAGE)
++	    && REGION_ID(ea) == KERNEL_REGION_ID)
++		slb[0] |= SLB_VSID_L;
++}
++
++static inline void load_mfc_slb(struct spu *spu, u64 slb[2], int slbe)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	out_be64(&priv2->slb_index_W, slbe);
++	eieio();
++	out_be64(&priv2->slb_vsid_RW, slb[0]);
++	out_be64(&priv2->slb_esid_RW, slb[1]);
++	eieio();
++}
++
++static inline void setup_mfc_slbs(struct spu_state *csa, struct spu *spu)
++{
++	u64 code_slb[2];
++	u64 lscsa_slb[2];
++
++	/* Save, Step 47:
++	 * Restore, Step 30.
++	 *     If MFC_SR1[R]=1, write 0 to SLB_Invalidate_All
++	 *     register, then initialize SLB_VSID and SLB_ESID
++	 *     to provide access to SPU context save code and
++	 *     LSCSA.
++	 *
++	 *     This implementation places both the context
++	 *     switch code and LSCSA in kernel address space.
++	 *
++	 *     Further this implementation assumes that the
++	 *     MFC_SR1[R]=1 (in other words, assume that
++	 *     translation is desired by OS environment).
++	 */
++	invalidate_slbs(csa, spu);
++	get_kernel_slb((unsigned long)&spu_save_code[0], code_slb);
++	get_kernel_slb((unsigned long)csa->lscsa, lscsa_slb);
++	load_mfc_slb(spu, code_slb, 0);
++	if ((lscsa_slb[0] != code_slb[0]) || (lscsa_slb[1] != code_slb[1]))
++		load_mfc_slb(spu, lscsa_slb, 1);
++}
++
++static inline void set_switch_active(struct spu_state *csa, struct spu *spu)
++{
++	/* Save, Step 48:
++	 * Restore, Step 23.
++	 *     Change the software context switch pending flag
++	 *     to context switch active.
++	 */
++	set_bit(SPU_CONTEXT_SWITCH_ACTIVE_nr, &spu->flags);
++	clear_bit(SPU_CONTEXT_SWITCH_PENDING_nr, &spu->flags);
++	mb();
++}
++
++static inline void enable_interrupts(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
++	unsigned long flags, class1_mask = CLASS1_ENABLE_SEGMENT_FAULT_INTR |
++	    CLASS1_ENABLE_STORAGE_FAULT_INTR;
++
++	/* Save, Step 49:
++	 * Restore, Step 22:
++	 *     Reset and then enable interrupts, as
++	 *     needed by OS.
++	 *
++	 *     This implementation enables only class1
++	 *     (translation) interrupts.
++	 */
++	local_irq_save(flags);
++	out_be64(&priv1->int_stat_class0_RW, ~(0UL));
++	out_be64(&priv1->int_stat_class1_RW, ~(0UL));
++	out_be64(&priv1->int_stat_class2_RW, ~(0UL));
++	out_be64(&priv1->int_mask_class0_RW, 0UL);
++	out_be64(&priv1->int_mask_class1_RW, class1_mask);
++	out_be64(&priv1->int_mask_class2_RW, 0UL);
++	local_irq_restore(flags);
++}
++
++static inline int send_mfc_dma(struct spu *spu, unsigned long ea,
++			       unsigned int ls_offset, unsigned int size,
++			       unsigned int tag, unsigned int rclass,
++			       unsigned int cmd)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++	union mfc_tag_size_class_cmd command;
++	unsigned int transfer_size;
++	volatile unsigned int status = 0x0;
++
++	while (size > 0) {
++		transfer_size =
++		    (size > MFC_MAX_DMA_SIZE) ? MFC_MAX_DMA_SIZE : size;
++		command.u.mfc_size = transfer_size;
++		command.u.mfc_tag = tag;
++		command.u.mfc_rclassid = rclass;
++		command.u.mfc_cmd = cmd;
++		do {
++			out_be32(&prob->mfc_lsa_W, ls_offset);
++			out_be64(&prob->mfc_ea_W, ea);
++			out_be64(&prob->mfc_union_W.all64, command.all64);
++			status =
++			    in_be32(&prob->mfc_union_W.by32.mfc_class_cmd32);
++			if (unlikely(status & 0x2)) {
++				cpu_relax();
++			}
++		} while (status & 0x3);
++		size -= transfer_size;
++		ea += transfer_size;
++		ls_offset += transfer_size;
++	}
++	return 0;
++}
++
++static inline void save_ls_16kb(struct spu_state *csa, struct spu *spu)
++{
++	unsigned long addr = (unsigned long)&csa->lscsa->ls[0];
++	unsigned int ls_offset = 0x0;
++	unsigned int size = 16384;
++	unsigned int tag = 0;
++	unsigned int rclass = 0;
++	unsigned int cmd = MFC_PUT_CMD;
++
++	/* Save, Step 50:
++	 *     Issue a DMA command to copy the first 16K bytes
++	 *     of local storage to the CSA.
++	 */
++	send_mfc_dma(spu, addr, ls_offset, size, tag, rclass, cmd);
++}
++
++static inline void set_spu_npc(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++
++	/* Save, Step 51:
++	 * Restore, Step 31.
++	 *     Write SPU_NPC[IE]=0 and SPU_NPC[LSA] to entry
++	 *     point address of context save code in local
++	 *     storage.
++	 *
++	 *     This implementation uses SPU-side save/restore
++	 *     programs with entry points at LSA of 0.
++	 */
++	out_be32(&prob->spu_npc_RW, 0);
++	eieio();
++}
++
++static inline void set_signot1(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++	union {
++		u64 ull;
++		u32 ui[2];
++	} addr64;
++
++	/* Save, Step 52:
++	 * Restore, Step 32:
++	 *    Write SPU_Sig_Notify_1 register with upper 32-bits
++	 *    of the CSA.LSCSA effective address.
++	 */
++	addr64.ull = (u64) csa->lscsa;
++	out_be32(&prob->signal_notify1, addr64.ui[0]);
++	eieio();
++}
++
++static inline void set_signot2(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++	union {
++		u64 ull;
++		u32 ui[2];
++	} addr64;
++
++	/* Save, Step 53:
++	 * Restore, Step 33:
++	 *    Write SPU_Sig_Notify_2 register with lower 32-bits
++	 *    of the CSA.LSCSA effective address.
++	 */
++	addr64.ull = (u64) csa->lscsa;
++	out_be32(&prob->signal_notify2, addr64.ui[1]);
++	eieio();
++}
++
++static inline void send_save_code(struct spu_state *csa, struct spu *spu)
++{
++	unsigned long addr = (unsigned long)&spu_save_code[0];
++	unsigned int ls_offset = 0x0;
++	unsigned int size = sizeof(spu_save_code);
++	unsigned int tag = 0;
++	unsigned int rclass = 0;
++	unsigned int cmd = MFC_GETFS_CMD;
++
++	/* Save, Step 54:
++	 *     Issue a DMA command to copy context save code
++	 *     to local storage and start SPU.
++	 */
++	send_mfc_dma(spu, addr, ls_offset, size, tag, rclass, cmd);
++}
++
++static inline void set_ppu_querymask(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++
++	/* Save, Step 55:
++	 * Restore, Step 38.
++	 *     Write PPU_QueryMask=1 (enable Tag Group 0)
++	 *     and issue eieio instruction.
++	 */
++	out_be32(&prob->dma_querymask_RW, MFC_TAGID_TO_TAGMASK(0));
++	eieio();
++}
++
++static inline void wait_tag_complete(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
++	struct spu_problem __iomem *prob = spu->problem;
++	u32 mask = MFC_TAGID_TO_TAGMASK(0);
++	unsigned long flags;
++
++	/* Save, Step 56:
++	 * Restore, Step 39.
++	 * Restore, Step 39.
++	 * Restore, Step 46.
++	 *     Poll PPU_TagStatus[gn] until 01 (Tag group 0 complete)
++	 *     or write PPU_QueryType[TS]=01 and wait for Tag Group
++	 *     Complete Interrupt.  Write INT_Stat_Class0 or
++	 *     INT_Stat_Class2 with value of 'handled'.
++	 */
++	POLL_WHILE_FALSE(in_be32(&prob->dma_tagstatus_R) & mask);
++
++	local_irq_save(flags);
++	out_be64(&priv1->int_stat_class0_RW, ~(0UL));
++	out_be64(&priv1->int_stat_class2_RW, ~(0UL));
++	local_irq_restore(flags);
++}
++
++static inline void wait_spu_stopped(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
++	struct spu_problem __iomem *prob = spu->problem;
++	unsigned long flags;
++
++	/* Save, Step 57:
++	 * Restore, Step 40.
++	 *     Poll until SPU_Status[R]=0 or wait for SPU Class 0
++	 *     or SPU Class 2 interrupt.  Write INT_Stat_class0
++	 *     or INT_Stat_class2 with value of handled.
++	 */
++	POLL_WHILE_TRUE(in_be32(&prob->spu_status_R) & SPU_STATUS_RUNNING);
++
++	local_irq_save(flags);
++	out_be64(&priv1->int_stat_class0_RW, ~(0UL));
++	out_be64(&priv1->int_stat_class2_RW, ~(0UL));
++	local_irq_restore(flags);
++}
++
++static inline int check_save_status(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++	u32 complete;
++
++	/* Save, Step 54:
++	 *     If SPU_Status[P]=1 and SPU_Status[SC] = "success",
++	 *     context save succeeded, otherwise context save
++	 *     failed.
++	 */
++	complete = ((SPU_SAVE_COMPLETE << SPU_STOP_STATUS_SHIFT) |
++		    SPU_STATUS_STOPPED_BY_STOP);
++	return (in_be32(&prob->spu_status_R) != complete) ? 1 : 0;
++}
++
++static inline void terminate_spu_app(struct spu_state *csa, struct spu *spu)
++{
++	/* Restore, Step 4:
++	 *    If required, notify the "using application" that
++	 *    the SPU task has been terminated.  TBD.
++	 */
++}
++
++static inline void suspend_mfc(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Restore, Step 7:
++	 * Restore, Step 47.
++	 *     Write MFC_Cntl[Dh,Sc]='1','1' to suspend
++	 *     the queue and halt the decrementer.
++	 */
++	out_be64(&priv2->mfc_control_RW, MFC_CNTL_SUSPEND_DMA_QUEUE |
++		 MFC_CNTL_DECREMENTER_HALTED);
++	eieio();
++}
++
++static inline void wait_suspend_mfc_complete(struct spu_state *csa,
++					     struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Restore, Step 8:
++	 * Restore, Step 47.
++	 *     Poll MFC_CNTL[Ss] until 11 is returned.
++	 */
++	POLL_WHILE_FALSE(in_be64(&priv2->mfc_control_RW) &
++			 MFC_CNTL_SUSPEND_COMPLETE);
++}
++
++static inline int suspend_spe(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++
++	/* Restore, Step 9:
++	 *    If SPU_Status[R]=1, stop SPU execution
++	 *    and wait for stop to complete.
++	 *
++	 *    Returns       1 if SPU_Status[R]=1 on entry.
++	 *                  0 otherwise
++	 */
++	if (in_be32(&prob->spu_status_R) & SPU_STATUS_RUNNING) {
++		if (in_be32(&prob->spu_status_R) &
++		    SPU_STATUS_ISOLATED_EXIT_STAUTUS) {
++			POLL_WHILE_TRUE(in_be32(&prob->spu_status_R) &
++					SPU_STATUS_RUNNING);
++		}
++		if ((in_be32(&prob->spu_status_R) &
++		     SPU_STATUS_ISOLATED_LOAD_STAUTUS)
++		    || (in_be32(&prob->spu_status_R) &
++			SPU_STATUS_ISOLATED_STATE)) {
++			out_be32(&prob->spu_runcntl_RW, SPU_RUNCNTL_STOP);
++			eieio();
++			POLL_WHILE_TRUE(in_be32(&prob->spu_status_R) &
++					SPU_STATUS_RUNNING);
++			out_be32(&prob->spu_runcntl_RW, 0x2);
++			eieio();
++			POLL_WHILE_TRUE(in_be32(&prob->spu_status_R) &
++					SPU_STATUS_RUNNING);
++		}
++		if (in_be32(&prob->spu_status_R) &
++		    SPU_STATUS_WAITING_FOR_CHANNEL) {
++			out_be32(&prob->spu_runcntl_RW, SPU_RUNCNTL_STOP);
++			eieio();
++			POLL_WHILE_TRUE(in_be32(&prob->spu_status_R) &
++					SPU_STATUS_RUNNING);
++		}
++		return 1;
++	}
++	return 0;
++}
++
++static inline void clear_spu_status(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
++
++	/* Restore, Step 10:
++	 *    If SPU_Status[R]=0 and SPU_Status[E,L,IS]=1,
++	 *    release SPU from isolate state.
++	 */
++	if (!(in_be32(&prob->spu_status_R) & SPU_STATUS_RUNNING)) {
++		if (in_be32(&prob->spu_status_R) &
++		    SPU_STATUS_ISOLATED_EXIT_STAUTUS) {
++			out_be64(&priv1->mfc_sr1_RW,
++				 MFC_STATE1_MASTER_RUN_CONTROL_MASK);
++			eieio();
++			out_be32(&prob->spu_runcntl_RW, SPU_RUNCNTL_RUNNABLE);
++			eieio();
++			POLL_WHILE_TRUE(in_be32(&prob->spu_status_R) &
++					SPU_STATUS_RUNNING);
++		}
++		if ((in_be32(&prob->spu_status_R) &
++		     SPU_STATUS_ISOLATED_LOAD_STAUTUS)
++		    || (in_be32(&prob->spu_status_R) &
++			SPU_STATUS_ISOLATED_STATE)) {
++			out_be64(&priv1->mfc_sr1_RW,
++				 MFC_STATE1_MASTER_RUN_CONTROL_MASK);
++			eieio();
++			out_be32(&prob->spu_runcntl_RW, 0x2);
++			eieio();
++			POLL_WHILE_TRUE(in_be32(&prob->spu_status_R) &
++					SPU_STATUS_RUNNING);
++		}
++	}
++}
++
++static inline void reset_ch_part1(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++	u64 ch_indices[7] = { 0UL, 1UL, 3UL, 4UL, 24UL, 25UL, 27UL };
++	u64 idx;
++	int i;
++
++	/* Restore, Step 20:
++	 *     Reset the following CH: [0,1,3,4,24,25,27]
++	 */
++	for (i = 0; i < 7; i++) {
++		idx = ch_indices[i];
++		out_be64(&priv2->spu_chnlcntptr_RW, idx);
++		eieio();
++		out_be64(&priv2->spu_chnldata_RW, 0UL);
++		out_be64(&priv2->spu_chnlcnt_RW, 0UL);
++		eieio();
++	}
++}
++
++static inline void reset_ch_part2(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++	u64 ch_indices[5] = { 21UL, 23UL, 28UL, 29UL, 30UL };
++	u64 ch_counts[5] = { 16UL, 1UL, 1UL, 0UL, 1UL };
++	u64 idx;
++	int i;
++
++	/* Restore, Step 21:
++	 *     Reset the following CH: [21, 23, 28, 29, 30]
++	 */
++	for (i = 0; i < 5; i++) {
++		idx = ch_indices[i];
++		out_be64(&priv2->spu_chnlcntptr_RW, idx);
++		eieio();
++		out_be64(&priv2->spu_chnlcnt_RW, ch_counts[i]);
++		eieio();
++	}
++}
++
++static inline void setup_spu_status_part1(struct spu_state *csa,
++					  struct spu *spu)
++{
++	u32 status_P = SPU_STATUS_STOPPED_BY_STOP;
++	u32 status_I = SPU_STATUS_INVALID_INSTR;
++	u32 status_H = SPU_STATUS_STOPPED_BY_HALT;
++	u32 status_S = SPU_STATUS_SINGLE_STEP;
++	u32 status_S_I = SPU_STATUS_SINGLE_STEP | SPU_STATUS_INVALID_INSTR;
++	u32 status_S_P = SPU_STATUS_SINGLE_STEP | SPU_STATUS_STOPPED_BY_STOP;
++	u32 status_P_H = SPU_STATUS_STOPPED_BY_HALT |SPU_STATUS_STOPPED_BY_STOP;
++	u32 status_P_I = SPU_STATUS_STOPPED_BY_STOP |SPU_STATUS_INVALID_INSTR;
++	u32 status_code;
++
++	/* Restore, Step 27:
++	 *     If the CSA.SPU_Status[I,S,H,P]=1 then add the correct
++	 *     instruction sequence to the end of the SPU based restore
++	 *     code (after the "context restored" stop and signal) to
++	 *     restore the correct SPU status.
++	 *
++	 *     NOTE: Rather than modifying the SPU executable, we
++	 *     instead add a new 'stopped_status' field to the
++	 *     LSCSA.  The SPU-side restore reads this field and
++	 *     takes the appropriate action when exiting.
++	 */
++
++	status_code =
++	    (csa->prob.spu_status_R >> SPU_STOP_STATUS_SHIFT) & 0xFFFF;
++	if (csa->prob.spu_status_R & status_P_I) {
++
++		/* SPU_Status[P,I]=1 - Illegal Instruction followed
++		 * by Stop and Signal instruction, followed by 'br -4'.
++		 *
++		 */
++		csa->lscsa->stopped_status.slot[0] = SPU_STOPPED_STATUS_P_I;
++		csa->lscsa->stopped_status.slot[1] = status_code;
++
++	} else if (csa->prob.spu_status_R & status_P_H) {
++
++		/* SPU_Status[P,H]=1 - Halt Conditional, followed
++		 * by Stop and Signal instruction, followed by
++		 * 'br -4'.
++		 */
++		csa->lscsa->stopped_status.slot[0] = SPU_STOPPED_STATUS_P_H;
++		csa->lscsa->stopped_status.slot[1] = status_code;
++
++	} else if (csa->prob.spu_status_R & status_S_P) {
++
++		/* SPU_Status[S,P]=1 - Stop and Signal instruction
++		 * followed by 'br -4'.
++		 */
++		csa->lscsa->stopped_status.slot[0] = SPU_STOPPED_STATUS_S_P;
++		csa->lscsa->stopped_status.slot[1] = status_code;
++
++	} else if (csa->prob.spu_status_R & status_S_I) {
++
++		/* SPU_Status[S,I]=1 - Illegal instruction followed
++		 * by 'br -4'.
++		 */
++		csa->lscsa->stopped_status.slot[0] = SPU_STOPPED_STATUS_S_I;
++		csa->lscsa->stopped_status.slot[1] = status_code;
++
++	} else if (csa->prob.spu_status_R & status_P) {
++
++		/* SPU_Status[P]=1 - Stop and Signal instruction
++		 * followed by 'br -4'.
++		 */
++		csa->lscsa->stopped_status.slot[0] = SPU_STOPPED_STATUS_P;
++		csa->lscsa->stopped_status.slot[1] = status_code;
++
++	} else if (csa->prob.spu_status_R & status_H) {
++
++		/* SPU_Status[H]=1 - Halt Conditional, followed
++		 * by 'br -4'.
++		 */
++		csa->lscsa->stopped_status.slot[0] = SPU_STOPPED_STATUS_H;
++
++	} else if (csa->prob.spu_status_R & status_S) {
++
++		/* SPU_Status[S]=1 - Two nop instructions.
++		 */
++		csa->lscsa->stopped_status.slot[0] = SPU_STOPPED_STATUS_S;
++
++	} else if (csa->prob.spu_status_R & status_I) {
++
++		/* SPU_Status[I]=1 - Illegal instruction followed
++		 * by 'br -4'.
++		 */
++		csa->lscsa->stopped_status.slot[0] = SPU_STOPPED_STATUS_I;
++
++	}
++}
++
++static inline void setup_spu_status_part2(struct spu_state *csa,
++					  struct spu *spu)
++{
++	u32 mask;
++
++	/* Restore, Step 28:
++	 *     If the CSA.SPU_Status[I,S,H,P,R]=0 then
++	 *     add a 'br *' instruction to the end of
++	 *     the SPU based restore code.
++	 *
++	 *     NOTE: Rather than modifying the SPU executable, we
++	 *     instead add a new 'stopped_status' field to the
++	 *     LSCSA.  The SPU-side restore reads this field and
++	 *     takes the appropriate action when exiting.
++	 */
++	mask = SPU_STATUS_INVALID_INSTR |
++	    SPU_STATUS_SINGLE_STEP |
++	    SPU_STATUS_STOPPED_BY_HALT |
++	    SPU_STATUS_STOPPED_BY_STOP | SPU_STATUS_RUNNING;
++	if (!(csa->prob.spu_status_R & mask)) {
++		csa->lscsa->stopped_status.slot[0] = SPU_STOPPED_STATUS_R;
++	}
++}
++
++static inline void restore_mfc_rag(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
++
++	/* Restore, Step 29:
++	 *     Restore RA_GROUP_ID register and the
++	 *     RA_ENABLE reigster from the CSA.
++	 */
++	out_be64(&priv1->resource_allocation_groupID_RW,
++		 csa->priv1.resource_allocation_groupID_RW);
++	out_be64(&priv1->resource_allocation_enable_RW,
++		 csa->priv1.resource_allocation_enable_RW);
++}
++
++static inline void send_restore_code(struct spu_state *csa, struct spu *spu)
++{
++	unsigned long addr = (unsigned long)&spu_restore_code[0];
++	unsigned int ls_offset = 0x0;
++	unsigned int size = sizeof(spu_restore_code);
++	unsigned int tag = 0;
++	unsigned int rclass = 0;
++	unsigned int cmd = MFC_GETFS_CMD;
++
++	/* Restore, Step 37:
++	 *     Issue MFC DMA command to copy context
++	 *     restore code to local storage.
++	 */
++	send_mfc_dma(spu, addr, ls_offset, size, tag, rclass, cmd);
++}
++
++static inline void setup_decr(struct spu_state *csa, struct spu *spu)
++{
++	/* Restore, Step 34:
++	 *     If CSA.MFC_CNTL[Ds]=1 (decrementer was
++	 *     running) then adjust decrementer, set
++	 *     decrementer running status in LSCSA,
++	 *     and set decrementer "wrapped" status
++	 *     in LSCSA.
++	 */
++	if (csa->priv2.mfc_control_RW & MFC_CNTL_DECREMENTER_RUNNING) {
++		cycles_t resume_time = get_cycles();
++		cycles_t delta_time = resume_time - csa->suspend_time;
++
++		csa->lscsa->decr.slot[0] = delta_time;
++	}
++}
++
++static inline void setup_ppu_mb(struct spu_state *csa, struct spu *spu)
++{
++	/* Restore, Step 35:
++	 *     Copy the CSA.PU_MB data into the LSCSA.
++	 */
++	csa->lscsa->ppu_mb.slot[0] = csa->prob.pu_mb_R;
++}
++
++static inline void setup_ppuint_mb(struct spu_state *csa, struct spu *spu)
++{
++	/* Restore, Step 36:
++	 *     Copy the CSA.PUINT_MB data into the LSCSA.
++	 */
++	csa->lscsa->ppuint_mb.slot[0] = csa->priv2.puint_mb_R;
++}
++
++static inline int check_restore_status(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++	u32 complete;
++
++	/* Restore, Step 40:
++	 *     If SPU_Status[P]=1 and SPU_Status[SC] = "success",
++	 *     context restore succeeded, otherwise context restore
++	 *     failed.
++	 */
++	complete = ((SPU_RESTORE_COMPLETE << SPU_STOP_STATUS_SHIFT) |
++		    SPU_STATUS_STOPPED_BY_STOP);
++	return (in_be32(&prob->spu_status_R) != complete) ? 1 : 0;
++}
++
++static inline void restore_spu_privcntl(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Restore, Step 41:
++	 *     Restore SPU_PrivCntl from the CSA.
++	 */
++	out_be64(&priv2->spu_privcntl_RW, csa->priv2.spu_privcntl_RW);
++	eieio();
++}
++
++static inline void restore_status_part1(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++	u32 mask;
++
++	/* Restore, Step 42:
++	 *     If any CSA.SPU_Status[I,S,H,P]=1, then
++	 *     restore the error or single step state.
++	 */
++	mask = SPU_STATUS_INVALID_INSTR |
++	    SPU_STATUS_SINGLE_STEP |
++	    SPU_STATUS_STOPPED_BY_HALT | SPU_STATUS_STOPPED_BY_STOP;
++	if (csa->prob.spu_status_R & mask) {
++		out_be32(&prob->spu_runcntl_RW, SPU_RUNCNTL_RUNNABLE);
++		eieio();
++		POLL_WHILE_TRUE(in_be32(&prob->spu_status_R) &
++				SPU_STATUS_RUNNING);
++	}
++}
++
++static inline void restore_status_part2(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++	u32 mask;
++
++	/* Restore, Step 43:
++	 *     If all CSA.SPU_Status[I,S,H,P,R]=0 then write
++	 *     SPU_RunCntl[R0R1]='01', wait for SPU_Status[R]=1,
++	 *     then write '00' to SPU_RunCntl[R0R1] and wait
++	 *     for SPU_Status[R]=0.
++	 */
++	mask = SPU_STATUS_INVALID_INSTR |
++	    SPU_STATUS_SINGLE_STEP |
++	    SPU_STATUS_STOPPED_BY_HALT |
++	    SPU_STATUS_STOPPED_BY_STOP | SPU_STATUS_RUNNING;
++	if (!(csa->prob.spu_status_R & mask)) {
++		out_be32(&prob->spu_runcntl_RW, SPU_RUNCNTL_RUNNABLE);
++		eieio();
++		POLL_WHILE_FALSE(in_be32(&prob->spu_status_R) &
++				 SPU_STATUS_RUNNING);
++		out_be32(&prob->spu_runcntl_RW, SPU_RUNCNTL_STOP);
++		eieio();
++		POLL_WHILE_TRUE(in_be32(&prob->spu_status_R) &
++				SPU_STATUS_RUNNING);
++	}
++}
++
++static inline void restore_ls_16kb(struct spu_state *csa, struct spu *spu)
++{
++	unsigned long addr = (unsigned long)&csa->lscsa->ls[0];
++	unsigned int ls_offset = 0x0;
++	unsigned int size = 16384;
++	unsigned int tag = 0;
++	unsigned int rclass = 0;
++	unsigned int cmd = MFC_GET_CMD;
++
++	/* Restore, Step 44:
++	 *     Issue a DMA command to restore the first
++	 *     16kb of local storage from CSA.
++	 */
++	send_mfc_dma(spu, addr, ls_offset, size, tag, rclass, cmd);
++}
++
++static inline void clear_interrupts(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
++	unsigned long flags;
++
++	/* Restore, Step 49:
++	 *     Write INT_MASK_class0 with value of 0.
++	 *     Write INT_MASK_class1 with value of 0.
++	 *     Write INT_MASK_class2 with value of 0.
++	 *     Write INT_STAT_class0 with value of -1.
++	 *     Write INT_STAT_class1 with value of -1.
++	 *     Write INT_STAT_class2 with value of -1.
++	 */
++	local_irq_save(flags);
++	out_be64(&priv1->int_mask_class0_RW, 0UL);
++	out_be64(&priv1->int_mask_class1_RW, 0UL);
++	out_be64(&priv1->int_mask_class2_RW, 0UL);
++	out_be64(&priv1->int_stat_class0_RW, ~(0UL));
++	out_be64(&priv1->int_stat_class1_RW, ~(0UL));
++	out_be64(&priv1->int_stat_class2_RW, ~(0UL));
++	local_irq_restore(flags);
++}
++
++static inline void restore_mfc_queues(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++	int i;
++
++	/* Restore, Step 50:
++	 *     If MFC_Cntl[Se]!=0 then restore
++	 *     MFC command queues.
++	 */
++	if ((csa->priv2.mfc_control_RW & MFC_CNTL_DMA_QUEUES_EMPTY_MASK) == 0) {
++		for (i = 0; i < 8; i++) {
++			out_be64(&priv2->puq[i].mfc_cq_data0_RW,
++				 csa->priv2.puq[i].mfc_cq_data0_RW);
++			out_be64(&priv2->puq[i].mfc_cq_data1_RW,
++				 csa->priv2.puq[i].mfc_cq_data1_RW);
++			out_be64(&priv2->puq[i].mfc_cq_data2_RW,
++				 csa->priv2.puq[i].mfc_cq_data2_RW);
++			out_be64(&priv2->puq[i].mfc_cq_data3_RW,
++				 csa->priv2.puq[i].mfc_cq_data3_RW);
++		}
++		for (i = 0; i < 16; i++) {
++			out_be64(&priv2->spuq[i].mfc_cq_data0_RW,
++				 csa->priv2.spuq[i].mfc_cq_data0_RW);
++			out_be64(&priv2->spuq[i].mfc_cq_data1_RW,
++				 csa->priv2.spuq[i].mfc_cq_data1_RW);
++			out_be64(&priv2->spuq[i].mfc_cq_data2_RW,
++				 csa->priv2.spuq[i].mfc_cq_data2_RW);
++			out_be64(&priv2->spuq[i].mfc_cq_data3_RW,
++				 csa->priv2.spuq[i].mfc_cq_data3_RW);
++		}
++	}
++	eieio();
++}
++
++static inline void restore_ppu_querymask(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++
++	/* Restore, Step 51:
++	 *     Restore the PPU_QueryMask register from CSA.
++	 */
++	out_be32(&prob->dma_querymask_RW, csa->prob.dma_querymask_RW);
++	eieio();
++}
++
++static inline void restore_ppu_querytype(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++
++	/* Restore, Step 52:
++	 *     Restore the PPU_QueryType register from CSA.
++	 */
++	out_be32(&prob->dma_querytype_RW, csa->prob.dma_querytype_RW);
++	eieio();
++}
++
++static inline void restore_mfc_csr_tsq(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Restore, Step 53:
++	 *     Restore the MFC_CSR_TSQ register from CSA.
++	 */
++	out_be64(&priv2->spu_tag_status_query_RW,
++		 csa->priv2.spu_tag_status_query_RW);
++	eieio();
++}
++
++static inline void restore_mfc_csr_cmd(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Restore, Step 54:
++	 *     Restore the MFC_CSR_CMD1 and MFC_CSR_CMD2
++	 *     registers from CSA.
++	 */
++	out_be64(&priv2->spu_cmd_buf1_RW, csa->priv2.spu_cmd_buf1_RW);
++	out_be64(&priv2->spu_cmd_buf2_RW, csa->priv2.spu_cmd_buf2_RW);
++	eieio();
++}
++
++static inline void restore_mfc_csr_ato(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Restore, Step 55:
++	 *     Restore the MFC_CSR_ATO register from CSA.
++	 */
++	out_be64(&priv2->spu_atomic_status_RW, csa->priv2.spu_atomic_status_RW);
++}
++
++static inline void restore_mfc_tclass_id(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
++
++	/* Restore, Step 56:
++	 *     Restore the MFC_TCLASS_ID register from CSA.
++	 */
++	out_be64(&priv1->mfc_tclass_id_RW, csa->priv1.mfc_tclass_id_RW);
++	eieio();
++}
++
++static inline void set_llr_event(struct spu_state *csa, struct spu *spu)
++{
++	u64 ch0_cnt, ch0_data;
++	u64 ch1_data;
++
++	/* Restore, Step 57:
++	 *    Set the Lock Line Reservation Lost Event by:
++	 *      1. OR CSA.SPU_Event_Status with bit 21 (Lr) set to 1.
++	 *      2. If CSA.SPU_Channel_0_Count=0 and
++	 *         CSA.SPU_Wr_Event_Mask[Lr]=1 and
++	 *         CSA.SPU_Event_Status[Lr]=0 then set
++	 *         CSA.SPU_Event_Status_Count=1.
++	 */
++	ch0_cnt = csa->spu_chnlcnt_RW[0];
++	ch0_data = csa->spu_chnldata_RW[0];
++	ch1_data = csa->spu_chnldata_RW[1];
++	csa->spu_chnldata_RW[0] |= MFC_LLR_LOST_EVENT;
++	if ((ch0_cnt == 0) && !(ch0_data & MFC_LLR_LOST_EVENT) &&
++	    (ch1_data & MFC_LLR_LOST_EVENT)) {
++		csa->spu_chnlcnt_RW[0] = 1;
++	}
++}
++
++static inline void restore_decr_wrapped(struct spu_state *csa, struct spu *spu)
++{
++	/* Restore, Step 58:
++	 *     If the status of the CSA software decrementer
++	 *     "wrapped" flag is set, OR in a '1' to
++	 *     CSA.SPU_Event_Status[Tm].
++	 */
++	if (csa->lscsa->decr_status.slot[0] == 1) {
++		csa->spu_chnldata_RW[0] |= 0x20;
++	}
++	if ((csa->lscsa->decr_status.slot[0] == 1) &&
++	    (csa->spu_chnlcnt_RW[0] == 0 &&
++	     ((csa->spu_chnldata_RW[2] & 0x20) == 0x0) &&
++	     ((csa->spu_chnldata_RW[0] & 0x20) != 0x1))) {
++		csa->spu_chnlcnt_RW[0] = 1;
++	}
++}
++
++static inline void restore_ch_part1(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++	u64 idx, ch_indices[7] = { 0UL, 1UL, 3UL, 4UL, 24UL, 25UL, 27UL };
++	int i;
++
++	/* Restore, Step 59:
++	 *     Restore the following CH: [0,1,3,4,24,25,27]
++	 */
++	for (i = 0; i < 7; i++) {
++		idx = ch_indices[i];
++		out_be64(&priv2->spu_chnlcntptr_RW, idx);
++		eieio();
++		out_be64(&priv2->spu_chnldata_RW, csa->spu_chnldata_RW[idx]);
++		out_be64(&priv2->spu_chnlcnt_RW, csa->spu_chnlcnt_RW[idx]);
++		eieio();
++	}
++}
++
++static inline void restore_ch_part2(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++	u64 ch_indices[3] = { 9UL, 21UL, 23UL };
++	u64 ch_counts[3] = { 1UL, 16UL, 1UL };
++	u64 idx;
++	int i;
++
++	/* Restore, Step 60:
++	 *     Restore the following CH: [9,21,23].
++	 */
++	ch_counts[0] = 1UL;
++	ch_counts[1] = csa->spu_chnlcnt_RW[21];
++	ch_counts[2] = 1UL;
++	for (i = 0; i < 3; i++) {
++		idx = ch_indices[i];
++		out_be64(&priv2->spu_chnlcntptr_RW, idx);
++		eieio();
++		out_be64(&priv2->spu_chnlcnt_RW, ch_counts[i]);
++		eieio();
++	}
++}
++
++static inline void restore_spu_lslr(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Restore, Step 61:
++	 *     Restore the SPU_LSLR register from CSA.
++	 */
++	out_be64(&priv2->spu_lslr_RW, csa->priv2.spu_lslr_RW);
++	eieio();
++}
++
++static inline void restore_spu_cfg(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Restore, Step 62:
++	 *     Restore the SPU_Cfg register from CSA.
++	 */
++	out_be64(&priv2->spu_cfg_RW, csa->priv2.spu_cfg_RW);
++	eieio();
++}
++
++static inline void restore_pm_trace(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Restore, Step 63:
++	 *     Restore PM_Trace_Tag_Wait_Mask from CSA.
++	 */
++	out_be64(&priv2->spu_pm_trace_tag_status_RW,
++		 csa->priv2.spu_pm_trace_tag_status_RW);
++	eieio();
++}
++
++static inline void restore_spu_npc(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++
++	/* Restore, Step 64:
++	 *     Restore SPU_NPC from CSA.
++	 */
++	out_be32(&prob->spu_npc_RW, csa->prob.spu_npc_RW);
++	eieio();
++}
++
++static inline void restore_spu_mb(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++	int i;
++
++	/* Restore, Step 65:
++	 *     Restore MFC_RdSPU_MB from CSA.
++	 */
++	out_be64(&priv2->spu_chnlcntptr_RW, 29UL);
++	eieio();
++	out_be64(&priv2->spu_chnlcnt_RW, csa->spu_chnlcnt_RW[29]);
++	for (i = 0; i < 4; i++) {
++		out_be64(&priv2->spu_chnldata_RW, csa->pu_mailbox_data[i]);
++	}
++	eieio();
++}
++
++static inline void check_ppu_mb_stat(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++	u32 dummy = 0;
++
++	/* Restore, Step 66:
++	 *     If CSA.MB_Stat[P]=0 (mailbox empty) then
++	 *     read from the PPU_MB register.
++	 */
++	if ((csa->prob.mb_stat_R & 0xFF) == 0) {
++		dummy = in_be32(&prob->pu_mb_R);
++		eieio();
++	}
++}
++
++static inline void check_ppuint_mb_stat(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++	u64 dummy = 0UL;
++
++	/* Restore, Step 66:
++	 *     If CSA.MB_Stat[I]=0 (mailbox empty) then
++	 *     read from the PPUINT_MB register.
++	 */
++	if ((csa->prob.mb_stat_R & 0xFF0000) == 0) {
++		dummy = in_be64(&priv2->puint_mb_R);
++		eieio();
++		out_be64(&priv1->int_stat_class2_RW,
++			 CLASS2_ENABLE_MAILBOX_INTR);
++		eieio();
++	}
++}
++
++static inline void restore_mfc_slbs(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++	int i;
++
++	/* Restore, Step 68:
++	 *     If MFC_SR1[R]='1', restore SLBs from CSA.
++	 */
++	if (csa->priv1.mfc_sr1_RW & MFC_STATE1_RELOCATE_MASK) {
++		for (i = 0; i < 8; i++) {
++			out_be64(&priv2->slb_index_W, i);
++			eieio();
++			out_be64(&priv2->slb_esid_RW, csa->slb_esid_RW[i]);
++			out_be64(&priv2->slb_vsid_RW, csa->slb_vsid_RW[i]);
++			eieio();
++		}
++		out_be64(&priv2->slb_index_W, csa->priv2.slb_index_W);
++		eieio();
++	}
++}
++
++static inline void restore_mfc_sr1(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
++
++	/* Restore, Step 69:
++	 *     Restore the MFC_SR1 register from CSA.
++	 */
++	out_be64(&priv1->mfc_sr1_RW, csa->priv1.mfc_sr1_RW);
++	eieio();
++}
++
++static inline void restore_other_spu_access(struct spu_state *csa,
++					    struct spu *spu)
++{
++	/* Restore, Step 70:
++	 *     Restore other SPU mappings to this SPU. TBD.
++	 */
++}
++
++static inline void restore_spu_runcntl(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++
++	/* Restore, Step 71:
++	 *     If CSA.SPU_Status[R]=1 then write
++	 *     SPU_RunCntl[R0R1]='01'.
++	 */
++	if (csa->prob.spu_status_R & SPU_STATUS_RUNNING) {
++		out_be32(&prob->spu_runcntl_RW, SPU_RUNCNTL_RUNNABLE);
++		eieio();
++	}
++}
++
++static inline void restore_mfc_cntl(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Restore, Step 72:
++	 *    Restore the MFC_CNTL register for the CSA.
++	 */
++	out_be64(&priv2->mfc_control_RW, csa->priv2.mfc_control_RW);
++	eieio();
++}
++
++static inline void enable_user_access(struct spu_state *csa, struct spu *spu)
++{
++	/* Restore, Step 73:
++	 *     Enable user-space access (if provided) to this
++	 *     SPU by mapping the virtual pages assigned to
++	 *     the SPU memory-mapped I/O (MMIO) for problem
++	 *     state. TBD.
++	 */
++}
++
++static inline void reset_switch_active(struct spu_state *csa, struct spu *spu)
++{
++	/* Restore, Step 74:
++	 *     Reset the "context switch active" flag.
++	 */
++	clear_bit(SPU_CONTEXT_SWITCH_ACTIVE_nr, &spu->flags);
++	mb();
++}
++
++static inline void reenable_interrupts(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
++	unsigned long flags;
++
++	/* Restore, Step 75:
++	 *     Re-enable SPU interrupts.
++	 */
++	local_irq_save(flags);
++	out_be64(&priv1->int_mask_class0_RW, csa->priv1.int_mask_class0_RW);
++	out_be64(&priv1->int_mask_class1_RW, csa->priv1.int_mask_class1_RW);
++	out_be64(&priv1->int_mask_class2_RW, csa->priv1.int_mask_class2_RW);
++	local_irq_restore(flags);
++}
++
++static int quiece_spu(struct spu_state *prev, struct spu *spu)
++{
++	/*
++	 * Combined steps 2-18 of SPU context save sequence, which
++	 * quiesce the SPU state (disable SPU execution, MFC command
++	 * queues, decrementer, SPU interrupts, etc.).
++	 *
++	 * Returns      0 on success.
++	 *              2 if failed step 2.
++	 *              6 if failed step 6.
++	 */
++
++	if (check_spu_isolate(prev, spu)) {	/* Step 2. */
++		return 2;
++	}
++	disable_interrupts(prev, spu);	        /* Step 3. */
++	set_watchdog_timer(prev, spu);	        /* Step 4. */
++	inhibit_user_access(prev, spu);	        /* Step 5. */
++	if (check_spu_isolate(prev, spu)) {	/* Step 6. */
++		return 6;
++	}
++	set_switch_pending(prev, spu);	        /* Step 7. */
++	save_mfc_cntl(prev, spu);		/* Step 8. */
++	save_spu_runcntl(prev, spu);	        /* Step 9. */
++	save_mfc_sr1(prev, spu);	        /* Step 10. */
++	save_spu_status(prev, spu);	        /* Step 11. */
++	save_mfc_decr(prev, spu);	        /* Step 12. */
++	halt_mfc_decr(prev, spu);	        /* Step 13. */
++	save_timebase(prev, spu);		/* Step 14. */
++	remove_other_spu_access(prev, spu);	/* Step 15. */
++	do_mfc_mssync(prev, spu);	        /* Step 16. */
++	issue_mfc_tlbie(prev, spu);	        /* Step 17. */
++	handle_pending_interrupts(prev, spu);	/* Step 18. */
++
++	return 0;
++}
++
++static void save_csa(struct spu_state *prev, struct spu *spu)
++{
++	/*
++	 * Combine steps 19-44 of SPU context save sequence, which
++	 * save regions of the privileged & problem state areas.
++	 */
++
++	save_mfc_queues(prev, spu);	/* Step 19. */
++	save_ppu_querymask(prev, spu);	/* Step 20. */
++	save_ppu_querytype(prev, spu);	/* Step 21. */
++	save_mfc_csr_tsq(prev, spu);	/* Step 22. */
++	save_mfc_csr_cmd(prev, spu);	/* Step 23. */
++	save_mfc_csr_ato(prev, spu);	/* Step 24. */
++	save_mfc_tclass_id(prev, spu);	/* Step 25. */
++	set_mfc_tclass_id(prev, spu);	/* Step 26. */
++	purge_mfc_queue(prev, spu);	/* Step 27. */
++	wait_purge_complete(prev, spu);	/* Step 28. */
++	save_mfc_slbs(prev, spu);	/* Step 29. */
++	setup_mfc_sr1(prev, spu);	/* Step 30. */
++	save_spu_npc(prev, spu);	/* Step 31. */
++	save_spu_privcntl(prev, spu);	/* Step 32. */
++	reset_spu_privcntl(prev, spu);	/* Step 33. */
++	save_spu_lslr(prev, spu);	/* Step 34. */
++	reset_spu_lslr(prev, spu);	/* Step 35. */
++	save_spu_cfg(prev, spu);	/* Step 36. */
++	save_pm_trace(prev, spu);	/* Step 37. */
++	save_mfc_rag(prev, spu);	/* Step 38. */
++	save_ppu_mb_stat(prev, spu);	/* Step 39. */
++	save_ppu_mb(prev, spu);	        /* Step 40. */
++	save_ppuint_mb(prev, spu);	/* Step 41. */
++	save_ch_part1(prev, spu);	/* Step 42. */
++	save_spu_mb(prev, spu);	        /* Step 43. */
++	save_mfc_cmd(prev, spu);	/* Step 44. */
++	reset_ch(prev, spu);	        /* Step 45. */
++}
++
++static void save_lscsa(struct spu_state *prev, struct spu *spu)
++{
++	/*
++	 * Perform steps 46-57 of SPU context save sequence,
++	 * which save regions of the local store and register
++	 * file.
++	 */
++
++	resume_mfc_queue(prev, spu);	/* Step 46. */
++	setup_mfc_slbs(prev, spu);	/* Step 47. */
++	set_switch_active(prev, spu);	/* Step 48. */
++	enable_interrupts(prev, spu);	/* Step 49. */
++	save_ls_16kb(prev, spu);	/* Step 50. */
++	set_spu_npc(prev, spu);	        /* Step 51. */
++	set_signot1(prev, spu);		/* Step 52. */
++	set_signot2(prev, spu);		/* Step 53. */
++	send_save_code(prev, spu);	/* Step 54. */
++	set_ppu_querymask(prev, spu);	/* Step 55. */
++	wait_tag_complete(prev, spu);	/* Step 56. */
++	wait_spu_stopped(prev, spu);	/* Step 57. */
++}
++
++static void harvest(struct spu_state *prev, struct spu *spu)
++{
++	/*
++	 * Perform steps 2-25 of SPU context restore sequence,
++	 * which resets an SPU either after a failed save, or
++	 * when using SPU for first time.
++	 */
++
++	disable_interrupts(prev, spu);	        /* Step 2.  */
++	inhibit_user_access(prev, spu);	        /* Step 3.  */
++	terminate_spu_app(prev, spu);	        /* Step 4.  */
++	set_switch_pending(prev, spu);	        /* Step 5.  */
++	remove_other_spu_access(prev, spu);	/* Step 6.  */
++	suspend_mfc(prev, spu);	                /* Step 7.  */
++	wait_suspend_mfc_complete(prev, spu);	/* Step 8.  */
++	if (!suspend_spe(prev, spu))	        /* Step 9.  */
++		clear_spu_status(prev, spu);	/* Step 10. */
++	do_mfc_mssync(prev, spu);	        /* Step 11. */
++	issue_mfc_tlbie(prev, spu);	        /* Step 12. */
++	handle_pending_interrupts(prev, spu);	/* Step 13. */
++	purge_mfc_queue(prev, spu);	        /* Step 14. */
++	wait_purge_complete(prev, spu);	        /* Step 15. */
++	reset_spu_privcntl(prev, spu);	        /* Step 16. */
++	reset_spu_lslr(prev, spu);              /* Step 17. */
++	setup_mfc_sr1(prev, spu);	        /* Step 18. */
++	invalidate_slbs(prev, spu);	        /* Step 19. */
++	reset_ch_part1(prev, spu);	        /* Step 20. */
++	reset_ch_part2(prev, spu);	        /* Step 21. */
++	enable_interrupts(prev, spu);	        /* Step 22. */
++	set_switch_active(prev, spu);	        /* Step 23. */
++	set_mfc_tclass_id(prev, spu);	        /* Step 24. */
++	resume_mfc_queue(prev, spu);	        /* Step 25. */
++}
++
++static void restore_lscsa(struct spu_state *next, struct spu *spu)
++{
++	/*
++	 * Perform steps 26-40 of SPU context restore sequence,
++	 * which restores regions of the local store and register
++	 * file.
++	 */
++
++	set_watchdog_timer(next, spu);	        /* Step 26. */
++	setup_spu_status_part1(next, spu);	/* Step 27. */
++	setup_spu_status_part2(next, spu);	/* Step 28. */
++	restore_mfc_rag(next, spu);	        /* Step 29. */
++	setup_mfc_slbs(next, spu);	        /* Step 30. */
++	set_spu_npc(next, spu);	                /* Step 31. */
++	set_signot1(next, spu);	                /* Step 32. */
++	set_signot2(next, spu);	                /* Step 33. */
++	setup_decr(next, spu);	                /* Step 34. */
++	setup_ppu_mb(next, spu);	        /* Step 35. */
++	setup_ppuint_mb(next, spu);	        /* Step 36. */
++	send_restore_code(next, spu);	        /* Step 37. */
++	set_ppu_querymask(next, spu);	        /* Step 38. */
++	wait_tag_complete(next, spu);	        /* Step 39. */
++	wait_spu_stopped(next, spu);	        /* Step 40. */
++}
++
++static void restore_csa(struct spu_state *next, struct spu *spu)
++{
++	/*
++	 * Combine steps 41-76 of SPU context restore sequence, which
++	 * restore regions of the privileged & problem state areas.
++	 */
++
++	restore_spu_privcntl(next, spu);	/* Step 41. */
++	restore_status_part1(next, spu);	/* Step 42. */
++	restore_status_part2(next, spu);	/* Step 43. */
++	restore_ls_16kb(next, spu);	        /* Step 44. */
++	wait_tag_complete(next, spu);	        /* Step 45. */
++	suspend_mfc(next, spu);	                /* Step 46. */
++	wait_suspend_mfc_complete(next, spu);	/* Step 47. */
++	issue_mfc_tlbie(next, spu);	        /* Step 48. */
++	clear_interrupts(next, spu);	        /* Step 49. */
++	restore_mfc_queues(next, spu);	        /* Step 50. */
++	restore_ppu_querymask(next, spu);	/* Step 51. */
++	restore_ppu_querytype(next, spu);	/* Step 52. */
++	restore_mfc_csr_tsq(next, spu);	        /* Step 53. */
++	restore_mfc_csr_cmd(next, spu);	        /* Step 54. */
++	restore_mfc_csr_ato(next, spu);	        /* Step 55. */
++	restore_mfc_tclass_id(next, spu);	/* Step 56. */
++	set_llr_event(next, spu);	        /* Step 57. */
++	restore_decr_wrapped(next, spu);	/* Step 58. */
++	restore_ch_part1(next, spu);	        /* Step 59. */
++	restore_ch_part2(next, spu);	        /* Step 60. */
++	restore_spu_lslr(next, spu);	        /* Step 61. */
++	restore_spu_cfg(next, spu);	        /* Step 62. */
++	restore_pm_trace(next, spu);	        /* Step 63. */
++	restore_spu_npc(next, spu);	        /* Step 64. */
++	restore_spu_mb(next, spu);	        /* Step 65. */
++	check_ppu_mb_stat(next, spu);	        /* Step 66. */
++	check_ppuint_mb_stat(next, spu);	/* Step 67. */
++	restore_mfc_slbs(next, spu);	        /* Step 68. */
++	restore_mfc_sr1(next, spu);	        /* Step 69. */
++	restore_other_spu_access(next, spu);	/* Step 70. */
++	restore_spu_runcntl(next, spu);	        /* Step 71. */
++	restore_mfc_cntl(next, spu);	        /* Step 72. */
++	enable_user_access(next, spu);	        /* Step 73. */
++	reset_switch_active(next, spu);	        /* Step 74. */
++	reenable_interrupts(next, spu);	        /* Step 75. */
++}
++
++static int __do_spu_save(struct spu_state *prev, struct spu *spu)
++{
++	int rc;
++
++	/*
++	 * SPU context save can be broken into three phases:
++	 *
++	 *     (a) quiesce [steps 2-16].
++	 *     (b) save of CSA, performed by PPE [steps 17-42]
++	 *     (c) save of LSCSA, mostly performed by SPU [steps 43-52].
++	 *
++	 * Returns      0 on success.
++	 *              2,6 if failed to quiece SPU
++	 *              53 if SPU-side of save failed.
++	 */
++
++	rc = quiece_spu(prev, spu);	        /* Steps 2-16. */
++	switch (rc) {
++	default:
++	case 2:
++	case 6:
++		harvest(prev, spu);
++		return rc;
++		break;
++	case 0:
++		break;
++	}
++	save_csa(prev, spu);	                /* Steps 17-43. */
++	save_lscsa(prev, spu);	                /* Steps 44-53. */
++	return check_save_status(prev, spu);	/* Step 54.     */
++}
++
++static int __do_spu_restore(struct spu_state *next, struct spu *spu)
++{
++	int rc;
++
++	/*
++	 * SPU context restore can be broken into three phases:
++	 *
++	 *    (a) harvest (or reset) SPU [steps 2-24].
++	 *    (b) restore LSCSA [steps 25-40], mostly performed by SPU.
++	 *    (c) restore CSA [steps 41-76], performed by PPE.
++	 *
++	 * The 'harvest' step is not performed here, but rather
++	 * as needed below.
++	 */
++
++	restore_lscsa(next, spu);	        /* Steps 24-39. */
++	rc = check_restore_status(next, spu);	/* Step 40.     */
++	switch (rc) {
++	default:
++		/* Failed. Return now. */
++		return rc;
++		break;
++	case 0:
++		/* Fall through to next step. */
++		break;
++	}
++	restore_csa(next, spu);
++
++	return 0;
++}
++
+ /**
+  * spu_save - SPU context save, with locking.
+  * @prev: pointer to SPU context save area, to be saved.
+@@ -61,9 +2084,13 @@
+  */
+ int spu_save(struct spu_state *prev, struct spu *spu)
+ {
+-	/* XXX missing */
++	int rc;
+ 
+-	return 0;
++	acquire_spu_lock(spu);	        /* Step 1.     */
++	rc = __do_spu_save(prev, spu);	/* Steps 2-53. */
++	release_spu_lock(spu);
++
++	return rc;
  }
  
-Index: linux-cg/fs/spufs/spu_restore_dump.h_shipped
-===================================================================
---- /dev/null
-+++ linux-cg/fs/spufs/spu_restore_dump.h_shipped
-@@ -0,0 +1,231 @@
-+/*
-+ * spu_restore_dump.h: Copyright (C) 2005 IBM.
-+ * Hex-dump auto generated from spu_restore.c.
-+ * Do not edit!
-+ */
-+static unsigned int spu_restore_code[] __page_aligned = {
-+0x40800000, 0x409ff801, 0x24000080, 0x24fd8081,
-+0x1cd80081, 0x33001180, 0x42030003, 0x33800284,
-+0x1c010204, 0x40200000, 0x40200000, 0x40200000,
-+0x34000190, 0x34004191, 0x34008192, 0x3400c193,
-+0x141fc205, 0x23fffd84, 0x1c100183, 0x217ffa85,
-+0x3080a000, 0x3080a201, 0x3080a402, 0x3080a603,
-+0x3080a804, 0x3080aa05, 0x3080ac06, 0x3080ae07,
-+0x3080b008, 0x3080b209, 0x3080b40a, 0x3080b60b,
-+0x3080b80c, 0x3080ba0d, 0x3080bc0e, 0x3080be0f,
-+0x00003ffc, 0x00000000, 0x00000000, 0x00000000,
-+0x01a00182, 0x3ec00083, 0xb0a14103, 0x01a00204,
-+0x3ec10082, 0x4202800e, 0x04000703, 0xb0a14202,
-+0x21a00803, 0x3fbf028d, 0x3f20068d, 0x3fbe0682,
-+0x3fe30102, 0x21a00882, 0x3f82028f, 0x3fe3078f,
-+0x3fbf0784, 0x3f200204, 0x3fbe0204, 0x3fe30204,
-+0x04000203, 0x21a00903, 0x40848002, 0x21a00982,
-+0x40800003, 0x21a00a03, 0x40802002, 0x21a00a82,
-+0x21a00083, 0x40800082, 0x21a00b02, 0x10002818,
-+0x40a80002, 0x32800007, 0x4207000c, 0x18008208,
-+0x40a0000b, 0x4080020a, 0x40800709, 0x00200000,
-+0x42070002, 0x3ac30384, 0x1cffc489, 0x00200000,
-+0x18008383, 0x38830382, 0x4cffc486, 0x3ac28185,
-+0xb0408584, 0x28830382, 0x1c020387, 0x38828182,
-+0xb0408405, 0x1802c408, 0x28828182, 0x217ff886,
-+0x04000583, 0x21a00803, 0x3fbe0682, 0x3fe30102,
-+0x04000106, 0x21a00886, 0x04000603, 0x21a00903,
-+0x40803c02, 0x21a00982, 0x40800003, 0x04000184,
-+0x21a00a04, 0x40802202, 0x21a00a82, 0x42028005,
-+0x34208702, 0x21002282, 0x21a00804, 0x21a00886,
-+0x3fbf0782, 0x3f200102, 0x3fbe0102, 0x3fe30102,
-+0x21a00902, 0x40804003, 0x21a00983, 0x21a00a04,
-+0x40805a02, 0x21a00a82, 0x40800083, 0x21a00b83,
-+0x01a00c02, 0x01a00d83, 0x3420c282, 0x21a00e02,
-+0x34210283, 0x21a00f03, 0x34200284, 0x77400200,
-+0x3421c282, 0x21a00702, 0x34218283, 0x21a00083,
-+0x34214282, 0x21a00b02, 0x4200480c, 0x00200000,
-+0x1c010286, 0x34220284, 0x34220302, 0x0f608203,
-+0x5c024204, 0x3b81810b, 0x42013c02, 0x00200000,
-+0x18008185, 0x38808183, 0x3b814182, 0x21004e84,
-+0x4020007f, 0x35000100, 0x000004e0, 0x000002a0,
-+0x000002e8, 0x00000428, 0x00000360, 0x000002e8,
-+0x000004a0, 0x00000468, 0x000003c8, 0x00000360,
-+0x409ffe02, 0x30801203, 0x40800204, 0x3ec40085,
-+0x10009c09, 0x3ac10606, 0xb060c105, 0x4020007f,
-+0x4020007f, 0x20801203, 0x38810602, 0xb0408586,
-+0x28810602, 0x32004180, 0x34204702, 0x21a00382,
-+0x4020007f, 0x327fdc80, 0x409ffe02, 0x30801203,
-+0x40800204, 0x3ec40087, 0x40800405, 0x00200000,
-+0x40800606, 0x3ac10608, 0x3ac14609, 0x3ac1860a,
-+0xb060c107, 0x20801203, 0x41004003, 0x38810602,
-+0x4020007f, 0xb0408188, 0x4020007f, 0x28810602,
-+0x41201002, 0x38814603, 0x10009c09, 0xb060c109,
-+0x4020007f, 0x28814603, 0x41193f83, 0x38818602,
-+0x60ffc003, 0xb040818a, 0x28818602, 0x32003080,
-+0x409ffe02, 0x30801203, 0x40800204, 0x3ec40087,
-+0x41201008, 0x10009c14, 0x40800405, 0x3ac10609,
-+0x40800606, 0x3ac1460a, 0xb060c107, 0x3ac1860b,
-+0x20801203, 0x38810602, 0xb0408409, 0x28810602,
-+0x38814603, 0xb060c40a, 0x4020007f, 0x28814603,
-+0x41193f83, 0x38818602, 0x60ffc003, 0xb040818b,
-+0x28818602, 0x32002380, 0x409ffe02, 0x30801204,
-+0x40800205, 0x3ec40083, 0x40800406, 0x3ac14607,
-+0x3ac18608, 0xb0810103, 0x41004002, 0x20801204,
-+0x4020007f, 0x38814603, 0x10009c0b, 0xb060c107,
-+0x4020007f, 0x4020007f, 0x28814603, 0x38818602,
-+0x4020007f, 0x4020007f, 0xb0408588, 0x28818602,
-+0x4020007f, 0x32001780, 0x409ffe02, 0x1000640e,
-+0x40800204, 0x30801203, 0x40800405, 0x3ec40087,
-+0x40800606, 0x3ac10608, 0x3ac14609, 0x3ac1860a,
-+0xb060c107, 0x20801203, 0x413d8003, 0x38810602,
-+0x4020007f, 0x327fd780, 0x409ffe02, 0x10007f0c,
-+0x40800205, 0x30801204, 0x40800406, 0x3ec40083,
-+0x3ac14607, 0x3ac18608, 0xb0810103, 0x413d8002,
-+0x20801204, 0x38814603, 0x4020007f, 0x327feb80,
-+0x409ffe02, 0x30801203, 0x40800204, 0x3ec40087,
-+0x40800405, 0x1000650a, 0x40800606, 0x3ac10608,
-+0x3ac14609, 0x3ac1860a, 0xb060c107, 0x20801203,
-+0x38810602, 0xb0408588, 0x4020007f, 0x327fc980,
-+0x00400000, 0x40800003, 0x4020007f, 0x35000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+};
-Index: linux-cg/fs/spufs/spu_save_dump.h_shipped
-===================================================================
---- /dev/null
-+++ linux-cg/fs/spufs/spu_save_dump.h_shipped
-@@ -0,0 +1,191 @@
-+/*
-+ * spu_save_dump.h: Copyright (C) 2005 IBM.
-+ * Hex-dump auto generated from spu_save.c.
-+ * Do not edit!
-+ */
-+static unsigned int spu_save_code[] __page_aligned = {
-+0x20805000, 0x20805201, 0x20805402, 0x20805603,
-+0x20805804, 0x20805a05, 0x20805c06, 0x20805e07,
-+0x20806008, 0x20806209, 0x2080640a, 0x2080660b,
-+0x2080680c, 0x20806a0d, 0x20806c0e, 0x20806e0f,
-+0x4201c003, 0x33800184, 0x1c010204, 0x40200000,
-+0x24000190, 0x24004191, 0x24008192, 0x2400c193,
-+0x141fc205, 0x23fffd84, 0x1c100183, 0x217ffb85,
-+0x40800000, 0x409ff801, 0x24000080, 0x24fd8081,
-+0x1cd80081, 0x33000180, 0x00000000, 0x00000000,
-+0x01a00182, 0x3ec00083, 0xb1c38103, 0x01a00204,
-+0x3ec10082, 0x4201400d, 0xb1c38202, 0x01a00583,
-+0x34218682, 0x3ed80684, 0xb0408184, 0x24218682,
-+0x01a00603, 0x00200000, 0x34214682, 0x3ed40684,
-+0xb0408184, 0x40800003, 0x24214682, 0x21a00083,
-+0x40800082, 0x21a00b02, 0x4020007f, 0x1000251e,
-+0x40a80002, 0x32800008, 0x4205c00c, 0x00200000,
-+0x40a0000b, 0x3f82070f, 0x4080020a, 0x40800709,
-+0x3fe3078f, 0x3fbf0783, 0x3f200183, 0x3fbe0183,
-+0x3fe30187, 0x18008387, 0x4205c002, 0x3ac30404,
-+0x1cffc489, 0x00200000, 0x18008403, 0x38830402,
-+0x4cffc486, 0x3ac28185, 0xb0408584, 0x28830402,
-+0x1c020408, 0x38828182, 0xb0408385, 0x1802c387,
-+0x28828182, 0x217ff886, 0x04000582, 0x32800007,
-+0x21a00802, 0x3fbf0705, 0x3f200285, 0x3fbe0285,
-+0x3fe30285, 0x21a00885, 0x04000603, 0x21a00903,
-+0x40803c02, 0x21a00982, 0x04000386, 0x21a00a06,
-+0x40801202, 0x21a00a82, 0x73000003, 0x24200683,
-+0x01a00404, 0x00200000, 0x34204682, 0x3ec40683,
-+0xb0408203, 0x24204682, 0x01a00783, 0x00200000,
-+0x3421c682, 0x3edc0684, 0xb0408184, 0x2421c682,
-+0x21a00806, 0x21a00885, 0x3fbf0784, 0x3f200204,
-+0x3fbe0204, 0x3fe30204, 0x21a00904, 0x40804002,
-+0x21a00982, 0x21a00a06, 0x40805a02, 0x21a00a82,
-+0x04000683, 0x21a00803, 0x21a00885, 0x21a00904,
-+0x40848002, 0x21a00982, 0x21a00a06, 0x40801002,
-+0x21a00a82, 0x21a00a06, 0x40806602, 0x00200000,
-+0x35800009, 0x21a00a82, 0x40800083, 0x21a00b83,
-+0x01a00c02, 0x01a00d83, 0x00003ffb, 0x40800003,
-+0x4020007f, 0x35000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+0x00000000, 0x00000000, 0x00000000, 0x00000000,
-+};
-Index: linux-cg/fs/spufs/spufs.h
-===================================================================
---- linux-cg.orig/fs/spufs/spufs.h
-+++ linux-cg/fs/spufs/spufs.h
-@@ -28,6 +28,7 @@
- #include <linux/fs.h>
+ /**
+@@ -77,9 +2104,14 @@ int spu_save(struct spu_state *prev, str
+  */
+ int spu_restore(struct spu_state *new, struct spu *spu)
+ {
+-	/* XXX missing */
++	int rc;
  
- #include <asm/spu.h>
-+#include <asm/spu_csa.h>
+-	return 0;
++	acquire_spu_lock(spu);
++	harvest(NULL, spu);
++	rc = __do_spu_restore(new, spu);
++	release_spu_lock(spu);
++
++	return rc;
+ }
  
- /* The magic number for our file system */
- enum {
-@@ -36,6 +37,7 @@ enum {
+ /**
+@@ -93,9 +2125,17 @@ int spu_restore(struct spu_state *new, s
+  */
+ int spu_switch(struct spu_state *prev, struct spu_state *new, struct spu *spu)
+ {
+-	/* XXX missing */
++	int rc;
  
- struct spu_context {
- 	struct spu *spu;		  /* pointer to a physical SPU */
-+	struct spu_state csa;		  /* SPU context save area. */
- 	struct rw_semaphore backing_sema; /* protects the above */
- 	spinlock_t mmio_lock;		  /* protects mmio access */
+-	return 0;
++	acquire_spu_lock(spu);	        /* Save, Step 1.     */
++	rc = __do_spu_save(prev, spu);	/* Save, Steps 2-53. */
++	if (rc != 0) {
++		harvest(prev, spu);
++	}
++	rc = __do_spu_restore(new, spu);
++	release_spu_lock(spu);
++
++	return rc;
+ }
  
-Index: linux-cg/fs/spufs/switch.c
-===================================================================
---- /dev/null
-+++ linux-cg/fs/spufs/switch.c
-@@ -0,0 +1,174 @@
-+/*
-+ * spu_switch.c
-+ *
-+ * (C) Copyright IBM Corp. 2005
-+ *
-+ * Author: Mark Nutter <mnutter@us.ibm.com>
-+ *
-+ * Host-side part of SPU context switch sequence outlined in
-+ * Synergistic Processor Element, Book IV.
-+ *
-+ * A fully premptive switch of an SPE is very expensive in terms
-+ * of time and system resources.  SPE Book IV indicates that SPE
-+ * allocation should follow a "serially reusable device" model,
-+ * in which the SPE is assigned a task until it completes.  When
-+ * this is not possible, this sequence may be used to premptively
-+ * save, and then later (optionally) restore the context of a
-+ * program executing on an SPE.
-+ *
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2, or (at your option)
-+ * any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/module.h>
-+#include <linux/errno.h>
-+#include <linux/sched.h>
-+#include <linux/kernel.h>
-+#include <linux/mm.h>
-+#include <linux/vmalloc.h>
-+#include <linux/smp.h>
-+#include <linux/smp_lock.h>
-+#include <linux/stddef.h>
-+#include <linux/unistd.h>
-+
-+#include <asm/io.h>
-+#include <asm/spu.h>
-+#include <asm/spu_csa.h>
-+#include <asm/mmu_context.h>
-+
-+#include "spu_save_dump.h"
-+#include "spu_restore_dump.h"
-+
-+/**
-+ * spu_save - SPU context save, with locking.
-+ * @prev: pointer to SPU context save area, to be saved.
-+ * @spu: pointer to SPU iomem structure.
-+ *
-+ * Acquire locks, perform the save operation then return.
-+ */
-+int spu_save(struct spu_state *prev, struct spu *spu)
-+{
-+	/* XXX missing */
-+
-+	return 0;
-+}
-+
-+/**
-+ * spu_restore - SPU context restore, with harvest and locking.
-+ * @new: pointer to SPU context save area, to be restored.
-+ * @spu: pointer to SPU iomem structure.
-+ *
-+ * Perform harvest + restore, as we may not be coming
-+ * from a previous succesful save operation, and the
-+ * hardware state is unknown.
-+ */
-+int spu_restore(struct spu_state *new, struct spu *spu)
-+{
-+	/* XXX missing */
-+
-+	return 0;
-+}
-+
-+/**
-+ * spu_switch - SPU context switch (save + restore).
-+ * @prev: pointer to SPU context save area, to be saved.
-+ * @new: pointer to SPU context save area, to be restored.
-+ * @spu: pointer to SPU iomem structure.
-+ *
-+ * Perform save, then restore.  Only harvest if the
-+ * save fails, as cleanup is otherwise not needed.
-+ */
-+int spu_switch(struct spu_state *prev, struct spu_state *new, struct spu *spu)
-+{
-+	/* XXX missing */
-+
-+	return 0;
-+}
-+
-+static void init_prob(struct spu_state *csa)
-+{
-+	csa->spu_chnlcnt_RW[9] = 1;
-+	csa->spu_chnlcnt_RW[21] = 16;
-+	csa->spu_chnlcnt_RW[23] = 1;
-+	csa->spu_chnlcnt_RW[28] = 1;
-+	csa->spu_chnlcnt_RW[30] = 1;
-+	csa->prob.spu_runcntl_RW = SPU_RUNCNTL_STOP;
-+}
-+
-+static void init_priv1(struct spu_state *csa)
-+{
-+	/* Enable decode, relocate, tlbie response, master runcntl. */
-+	csa->priv1.mfc_sr1_RW = MFC_STATE1_LOCAL_STORAGE_DECODE_MASK |
-+	    MFC_STATE1_MASTER_RUN_CONTROL_MASK |
-+	    MFC_STATE1_PROBLEM_STATE_MASK |
-+	    MFC_STATE1_RELOCATE_MASK | MFC_STATE1_BUS_TLBIE_MASK;
-+
-+	/* Set storage description.  */
-+	csa->priv1.mfc_sdr_RW = mfspr(SPRN_SDR1);
-+
-+	/* Enable OS-specific set of interrupts. */
-+	csa->priv1.int_mask_class0_RW = CLASS0_ENABLE_DMA_ALIGNMENT_INTR |
-+	    CLASS0_ENABLE_INVALID_DMA_COMMAND_INTR |
-+	    CLASS0_ENABLE_SPU_ERROR_INTR;
-+	csa->priv1.int_mask_class1_RW = CLASS1_ENABLE_SEGMENT_FAULT_INTR |
-+	    CLASS1_ENABLE_STORAGE_FAULT_INTR;
-+	csa->priv1.int_mask_class2_RW = CLASS2_ENABLE_MAILBOX_INTR |
-+	    CLASS2_ENABLE_SPU_STOP_INTR | CLASS2_ENABLE_SPU_HALT_INTR;
-+}
-+
-+static void init_priv2(struct spu_state *csa)
-+{
-+	csa->priv2.spu_lslr_RW = LS_ADDR_MASK;
-+	csa->priv2.mfc_control_RW = MFC_CNTL_RESUME_DMA_QUEUE |
-+	    MFC_CNTL_NORMAL_DMA_QUEUE_OPERATION |
-+	    MFC_CNTL_DMA_QUEUES_EMPTY_MASK;
-+}
-+
-+/**
-+ * spu_alloc_csa - allocate and initialize an SPU context save area.
-+ *
-+ * Allocate and initialize the contents of an SPU context save area.
-+ * This includes enabling address translation, interrupt masks, etc.,
-+ * as appropriate for the given OS environment.
-+ *
-+ * Note that storage for the 'lscsa' is allocated separately,
-+ * as it is by far the largest of the context save regions,
-+ * and may need to be pinned or otherwise specially aligned.
-+ */
-+void spu_init_csa(struct spu_state *csa)
-+{
-+	struct spu_lscsa *lscsa;
-+
-+	if (!csa)
-+		return;
-+	memset(csa, 0, sizeof(struct spu_state));
-+
-+	lscsa = vmalloc(sizeof(struct spu_lscsa));
-+	if (!lscsa)
-+		return;
-+
-+	memset(lscsa, 0, sizeof(struct spu_lscsa));
-+	csa->lscsa = lscsa;
-+
-+	init_prob(csa);
-+	init_priv1(csa);
-+	init_priv2(csa);
-+}
-+
-+void spu_fini_csa(struct spu_state *csa)
-+{
-+	vfree(csa->lscsa);
-+}
-Index: linux-cg/include/asm-ppc64/spu.h
-===================================================================
---- linux-cg.orig/include/asm-ppc64/spu.h
-+++ linux-cg/include/asm-ppc64/spu.h
-@@ -28,6 +28,81 @@
- #define LS_ORDER (6)		/* 256 kb */
- 
- #define LS_SIZE (PAGE_SIZE << LS_ORDER)
-+#define LS_ADDR_MASK (LS_SIZE - 1)
-+
-+#define MFC_PUT_CMD             0x20
-+#define MFC_PUTS_CMD            0x28
-+#define MFC_PUTR_CMD            0x30
-+#define MFC_PUTF_CMD            0x22
-+#define MFC_PUTB_CMD            0x21
-+#define MFC_PUTFS_CMD           0x2A
-+#define MFC_PUTBS_CMD           0x29
-+#define MFC_PUTRF_CMD           0x32
-+#define MFC_PUTRB_CMD           0x31
-+#define MFC_PUTL_CMD            0x24
-+#define MFC_PUTRL_CMD           0x34
-+#define MFC_PUTLF_CMD           0x26
-+#define MFC_PUTLB_CMD           0x25
-+#define MFC_PUTRLF_CMD          0x36
-+#define MFC_PUTRLB_CMD          0x35
-+
-+#define MFC_GET_CMD             0x40
-+#define MFC_GETS_CMD            0x48
-+#define MFC_GETF_CMD            0x42
-+#define MFC_GETB_CMD            0x41
-+#define MFC_GETFS_CMD           0x4A
-+#define MFC_GETBS_CMD           0x49
-+#define MFC_GETL_CMD            0x44
-+#define MFC_GETLF_CMD           0x46
-+#define MFC_GETLB_CMD           0x45
-+
-+#define MFC_SDCRT_CMD           0x80
-+#define MFC_SDCRTST_CMD         0x81
-+#define MFC_SDCRZ_CMD           0x89
-+#define MFC_SDCRS_CMD           0x8D
-+#define MFC_SDCRF_CMD           0x8F
-+
-+#define MFC_GETLLAR_CMD         0xD0
-+#define MFC_PUTLLC_CMD          0xB4
-+#define MFC_PUTLLUC_CMD         0xB0
-+#define MFC_PUTQLLUC_CMD        0xB8
-+#define MFC_SNDSIG_CMD          0xA0
-+#define MFC_SNDSIGB_CMD         0xA1
-+#define MFC_SNDSIGF_CMD         0xA2
-+#define MFC_BARRIER_CMD         0xC0
-+#define MFC_EIEIO_CMD           0xC8
-+#define MFC_SYNC_CMD            0xCC
-+
-+#define MFC_MIN_DMA_SIZE_SHIFT  4       /* 16 bytes */
-+#define MFC_MAX_DMA_SIZE_SHIFT  14      /* 16384 bytes */
-+#define MFC_MIN_DMA_SIZE        (1 << MFC_MIN_DMA_SIZE_SHIFT)
-+#define MFC_MAX_DMA_SIZE        (1 << MFC_MAX_DMA_SIZE_SHIFT)
-+#define MFC_MIN_DMA_SIZE_MASK   (MFC_MIN_DMA_SIZE - 1)
-+#define MFC_MAX_DMA_SIZE_MASK   (MFC_MAX_DMA_SIZE - 1)
-+#define MFC_MIN_DMA_LIST_SIZE   0x0008  /*   8 bytes */
-+#define MFC_MAX_DMA_LIST_SIZE   0x4000  /* 16K bytes */
-+
-+#define MFC_TAGID_TO_TAGMASK(tag_id)  (1 << (tag_id & 0x1F))
-+
-+/* Events for Channels 0-2 */
-+#define MFC_DMA_TAG_STATUS_UPDATE_EVENT     0x00000001
-+#define MFC_DMA_TAG_CMD_STALL_NOTIFY_EVENT  0x00000002
-+#define MFC_DMA_QUEUE_AVAILABLE_EVENT       0x00000008
-+#define MFC_SPU_MAILBOX_WRITTEN_EVENT       0x00000010
-+#define MFC_DECREMENTER_EVENT               0x00000020
-+#define MFC_PU_INT_MAILBOX_AVAILABLE_EVENT  0x00000040
-+#define MFC_PU_MAILBOX_AVAILABLE_EVENT      0x00000080
-+#define MFC_SIGNAL_2_EVENT                  0x00000100
-+#define MFC_SIGNAL_1_EVENT                  0x00000200
-+#define MFC_LLR_LOST_EVENT                  0x00000400
-+#define MFC_PRIV_ATTN_EVENT                 0x00000800
-+#define MFC_MULTI_SRC_EVENT                 0x00001000
-+
-+/* Flags indicating progress during context switch. */
-+#define SPU_CONTEXT_SWITCH_PENDING_nr	0UL
-+#define SPU_CONTEXT_SWITCH_ACTIVE_nr	1UL
-+#define SPU_CONTEXT_SWITCH_PENDING	(1UL << SPU_CONTEXT_SWITCH_PENDING_nr)
-+#define SPU_CONTEXT_SWITCH_ACTIVE	(1UL << SPU_CONTEXT_SWITCH_ACTIVE_nr)
- 
- struct spu {
- 	char *name;
-@@ -40,6 +115,7 @@ struct spu {
- 	int number;
- 	u32 isrc;
- 	u32 node;
-+	u64 flags;
- 	struct kref kref;
- 	size_t ls_size;
- 	unsigned int slb_replace;
-Index: linux-cg/include/asm-ppc64/spu_csa.h
-===================================================================
---- /dev/null
-+++ linux-cg/include/asm-ppc64/spu_csa.h
-@@ -0,0 +1,256 @@
-+/*
-+ * spu_csa.h: Definitions for SPU context save area (CSA).
-+ *
-+ * (C) Copyright IBM 2005
-+ *
-+ * Author: Mark Nutter <mnutter@us.ibm.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2, or (at your option)
-+ * any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ */
-+
-+#ifndef _SPU_CSA_H_
-+#define _SPU_CSA_H_
-+
-+/*
-+ * Total number of 128-bit registers.
-+ */
-+#define NR_SPU_GPRS         	128
-+#define NR_SPU_SPRS         	9
-+#define NR_SPU_REGS_PAD	    	7
-+#define NR_SPU_SPILL_REGS   	144	/* GPRS + SPRS + PAD */
-+#define SIZEOF_SPU_SPILL_REGS	NR_SPU_SPILL_REGS * 16
-+
-+#define SPU_SAVE_COMPLETE      	0x3FFB
-+#define SPU_RESTORE_COMPLETE   	0x3FFC
-+
-+/*
-+ * Definitions for various 'stopped' status conditions,
-+ * to be recreated during context restore.
-+ */
-+#define SPU_STOPPED_STATUS_P    1
-+#define SPU_STOPPED_STATUS_I    2
-+#define SPU_STOPPED_STATUS_H    3
-+#define SPU_STOPPED_STATUS_S    4
-+#define SPU_STOPPED_STATUS_S_I  5
-+#define SPU_STOPPED_STATUS_S_P  6
-+#define SPU_STOPPED_STATUS_P_H  7
-+#define SPU_STOPPED_STATUS_P_I  8
-+#define SPU_STOPPED_STATUS_R    9
-+
-+#ifndef  __ASSEMBLY__
-+/**
-+ * spu_reg128 - generic 128-bit register definition.
-+ */
-+struct spu_reg128 {
-+	u32 slot[4];
-+};
-+
-+/**
-+ * struct spu_lscsa - Local Store Context Save Area.
-+ * @gprs: Array of saved registers.
-+ * @fpcr: Saved floating point status control register.
-+ * @decr: Saved decrementer value.
-+ * @decr_status: Indicates decrementer run status.
-+ * @ppu_mb: Saved PPU mailbox data.
-+ * @ppuint_mb: Saved PPU interrupting mailbox data.
-+ * @tag_mask: Saved tag group mask.
-+ * @event_mask: Saved event mask.
-+ * @srr0: Saved SRR0.
-+ * @stopped_status: Conditions to be recreated by restore.
-+ * @ls: Saved contents of Local Storage Area.
-+ *
-+ * The LSCSA represents state that is primarily saved and
-+ * restored by SPU-side code.
-+ */
-+struct spu_lscsa {
-+	struct spu_reg128 gprs[128];
-+	struct spu_reg128 fpcr;
-+	struct spu_reg128 decr;
-+	struct spu_reg128 decr_status;
-+	struct spu_reg128 ppu_mb;
-+	struct spu_reg128 ppuint_mb;
-+	struct spu_reg128 tag_mask;
-+	struct spu_reg128 event_mask;
-+	struct spu_reg128 srr0;
-+	struct spu_reg128 stopped_status;
-+	struct spu_reg128 pad[119];	/* 'ls' must be page-aligned. */
-+	unsigned char ls[LS_SIZE];
-+};
-+
-+#ifdef __KERNEL__
-+
-+/*
-+ * struct spu_problem_collapsed - condensed problem state area, w/o pads.
-+ */
-+struct spu_problem_collapsed {
-+	u64 spc_mssync_RW;
-+	u32 mfc_lsa_W;
-+	u32 unused_pad0;
-+	u64 mfc_ea_W;
-+	union mfc_tag_size_class_cmd mfc_union_W;
-+	u32 dma_qstatus_R;
-+	u32 dma_querytype_RW;
-+	u32 dma_querymask_RW;
-+	u32 dma_tagstatus_R;
-+	u32 pu_mb_R;
-+	u32 spu_mb_W;
-+	u32 mb_stat_R;
-+	u32 spu_runcntl_RW;
-+	u32 spu_status_R;
-+	u32 spu_spc_R;
-+	u32 spu_npc_RW;
-+	u32 signal_notify1;
-+	u32 signal_notify2;
-+	u32 unused_pad1;
-+};
-+
-+/*
-+ * struct spu_priv1_collapsed - condensed privileged 1 area, w/o pads.
-+ */
-+struct spu_priv1_collapsed {
-+	u64 mfc_sr1_RW;
-+	u64 mfc_lpid_RW;
-+	u64 spu_idr_RW;
-+	u64 mfc_vr_RO;
-+	u64 spu_vr_RO;
-+	u64 int_mask_class0_RW;
-+	u64 int_mask_class1_RW;
-+	u64 int_mask_class2_RW;
-+	u64 int_stat_class0_RW;
-+	u64 int_stat_class1_RW;
-+	u64 int_stat_class2_RW;
-+	u64 int_route_RW;
-+	u64 mfc_atomic_flush_RW;
-+	u64 resource_allocation_groupID_RW;
-+	u64 resource_allocation_enable_RW;
-+	u64 mfc_fir_R;
-+	u64 mfc_fir_status_or_W;
-+	u64 mfc_fir_status_and_W;
-+	u64 mfc_fir_mask_R;
-+	u64 mfc_fir_mask_or_W;
-+	u64 mfc_fir_mask_and_W;
-+	u64 mfc_fir_chkstp_enable_RW;
-+	u64 smf_sbi_signal_sel;
-+	u64 smf_ato_signal_sel;
-+	u64 mfc_sdr_RW;
-+	u64 tlb_index_hint_RO;
-+	u64 tlb_index_W;
-+	u64 tlb_vpn_RW;
-+	u64 tlb_rpn_RW;
-+	u64 tlb_invalidate_entry_W;
-+	u64 tlb_invalidate_all_W;
-+	u64 smm_hid;
-+	u64 mfc_accr_RW;
-+	u64 mfc_dsisr_RW;
-+	u64 mfc_dar_RW;
-+	u64 rmt_index_RW;
-+	u64 rmt_data1_RW;
-+	u64 mfc_dsir_R;
-+	u64 mfc_lsacr_RW;
-+	u64 mfc_lscrr_R;
-+	u64 mfc_tclass_id_RW;
-+	u64 mfc_rm_boundary;
-+	u64 smf_dma_signal_sel;
-+	u64 smm_signal_sel;
-+	u64 mfc_cer_R;
-+	u64 pu_ecc_cntl_RW;
-+	u64 pu_ecc_stat_RW;
-+	u64 spu_ecc_addr_RW;
-+	u64 spu_err_mask_RW;
-+	u64 spu_trig0_sel;
-+	u64 spu_trig1_sel;
-+	u64 spu_trig2_sel;
-+	u64 spu_trig3_sel;
-+	u64 spu_trace_sel;
-+	u64 spu_event0_sel;
-+	u64 spu_event1_sel;
-+	u64 spu_event2_sel;
-+	u64 spu_event3_sel;
-+	u64 spu_trace_cntl;
-+};
-+
-+/*
-+ * struct spu_priv2_collapsed - condensed priviliged 2 area, w/o pads.
-+ */
-+struct spu_priv2_collapsed {
-+	u64 slb_index_W;
-+	u64 slb_esid_RW;
-+	u64 slb_vsid_RW;
-+	u64 slb_invalidate_entry_W;
-+	u64 slb_invalidate_all_W;
-+	struct mfc_cq_sr spuq[16];
-+	struct mfc_cq_sr puq[8];
-+	u64 mfc_control_RW;
-+	u64 puint_mb_R;
-+	u64 spu_privcntl_RW;
-+	u64 spu_lslr_RW;
-+	u64 spu_chnlcntptr_RW;
-+	u64 spu_chnlcnt_RW;
-+	u64 spu_chnldata_RW;
-+	u64 spu_cfg_RW;
-+	u64 spu_pm_trace_tag_status_RW;
-+	u64 spu_tag_status_query_RW;
-+	u64 spu_cmd_buf1_RW;
-+	u64 spu_cmd_buf2_RW;
-+	u64 spu_atomic_status_RW;
-+};
-+
-+/**
-+ * struct spu_state
-+ * @lscsa: Local Store Context Save Area.
-+ * @prob: Collapsed Problem State Area, w/o pads.
-+ * @priv1: Collapsed Privileged 1 Area, w/o pads.
-+ * @priv2: Collapsed Privileged 2 Area, w/o pads.
-+ * @spu_chnlcnt_RW: Array of saved channel counts.
-+ * @spu_chnldata_RW: Array of saved channel data.
-+ * @suspend_time: Time stamp when decrementer disabled.
-+ * @slb_esid_RW: Array of saved SLB esid entries.
-+ * @slb_vsid_RW: Array of saved SLB vsid entries.
-+ *
-+ * Structure representing the whole of the SPU
-+ * context save area (CSA).  This struct contains
-+ * all of the state necessary to suspend and then
-+ * later optionally resume execution of an SPU
-+ * context.
-+ *
-+ * The @lscsa region is by far the largest, and is
-+ * allocated separately so that it may either be
-+ * pinned or mapped to/from application memory, as
-+ * appropriate for the OS environment.
-+ */
-+struct spu_state {
-+	struct spu_lscsa *lscsa;
-+	struct spu_problem_collapsed prob;
-+	struct spu_priv1_collapsed priv1;
-+	struct spu_priv2_collapsed priv2;
-+	u64 spu_chnlcnt_RW[32];
-+	u64 spu_chnldata_RW[32];
-+	u32 spu_mailbox_data[4];
-+	u32 pu_mailbox_data[1];
-+	unsigned long suspend_time;
-+	u64 slb_esid_RW[8];
-+	u64 slb_vsid_RW[8];
-+};
-+
-+extern void spu_init_csa(struct spu_state *csa);
-+extern void spu_fini_csa(struct spu_state *csa);
-+extern int spu_save(struct spu_state *prev, struct spu *spu);
-+extern int spu_restore(struct spu_state *new, struct spu *spu);
-+extern int spu_switch(struct spu_state *prev, struct spu_state *new,
-+		      struct spu *spu);
-+
-+#endif /* __KERNEL__ */
-+#endif /* !__ASSEMBLY__ */
-+#endif /* _SPU_CSA_H_ */
+ static void init_prob(struct spu_state *csa)
 
 --
 

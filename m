@@ -1,107 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161060AbVIPMKz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161063AbVIPMUd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161060AbVIPMKz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 08:10:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161056AbVIPMKz
+	id S1161063AbVIPMUd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 08:20:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161067AbVIPMUd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 08:10:55 -0400
-Received: from smtp01.gra.de ([62.146.73.187]:54983 "EHLO minne.gra.de")
-	by vger.kernel.org with ESMTP id S1161047AbVIPMKy (ORCPT
+	Fri, 16 Sep 2005 08:20:33 -0400
+Received: from wscnet.wsc.cz ([212.80.64.118]:16512 "EHLO wscnet.wsc.cz")
+	by vger.kernel.org with ESMTP id S1161063AbVIPMUd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 08:10:54 -0400
-Date: Fri, 16 Sep 2005 14:11:16 +0200
-From: Mathias Adam <a2@adamis.de>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 8250.c: Fix to make 16C950 UARTs work
-Message-ID: <20050916121116.GA6195@adamis.de>
-Mail-Followup-To: Russell King <rmk+lkml@arm.linux.org.uk>,
-	linux-kernel@vger.kernel.org
-References: <20050909013144.GA6660@adamis.de> <4320EC45.1080108@stesmi.com> <20050909024926.GA13643@adamis.de> <20050909111835.D17575@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050909111835.D17575@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.9i
+	Fri, 16 Sep 2005 08:20:33 -0400
+Date: Fri, 16 Sep 2005 14:20:31 +0200
+Message-Id: <200509161220.j8GCKV37002454@localhost.localdomain>
+In-reply-to: <20050916022319.12bf53f3.akpm@osdl.org>
+Subject: [PATCH] drivers/base: a little speedup and cleanup
+From: Jiri Slaby <jirislaby@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've reworked the patch a little. Now it should enable both the 230400 and
-the 460800 baud rates on any serial port which is using a 16C95x UART.
-However as my 16C950 device is part of a Bluetooth dongle I couldn't
-test the 460800 baud rate myself (I am able to set this rate with stty
-though).
-Please, could someone who owns such a UART try this out?
-Any other comments?
+Generated in 2.6.14-rc1-mm1 kernel version.
 
-Regards
-Mathias
+Signed-off-by: Jiri Slaby <xslaby@fi.muni.cz>
+---
 
+ platform.c |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
 
+Performance improvement -- we don't need to zero all allocated memory, only a
+	few bytes from the beginning.
+sizeof cleanup -- we want struct a *b; sizeof(*b) rather than sizeof(struct a).
 
---- linux-2.6.13-org/drivers/serial/8250.c	2005-08-29 01:41:01.000000000 +0200
-+++ linux-2.6.13/drivers/serial/8250.c	2005-09-16 12:18:14.000000000 +0200
-@@ -7,6 +7,9 @@
-  *
-  *  Copyright (C) 2001 Russell King.
-  *
-+ *  2005/09/16: Enabled higher baud rates for 16C95x.
-+ *		(Mathias Adam <a2@adamis.de>)
-+ *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-  * the Free Software Foundation; either version 2 of the License, or
-@@ -1652,6 +1655,14 @@
- 	else if ((port->flags & UPF_MAGIC_MULTIPLIER) &&
- 		 baud == (port->uartclk/8))
- 		quot = 0x8002;
-+	/*
-+	 * For 16C950s UART_TCR is used in combination with divisor==1
-+	 * to achieve baud rates up to baud_base*4.
-+	 */
-+	else if ((port->type == PORT_16C950) &&
-+		 baud > (port->uartclk/16))
-+		quot = 1;
-+
- 	else
- 		quot = uart_get_divisor(port, baud);
+---
+commit 0173dea2b934339a62947115081483278c289d1d
+tree 3fb8fcd0afa14f636972d2fa7d0a6d136a12654e
+parent ee677410285dd60b28e9a5503365e7f0c961f01e
+author root <root@bellona.(none)> Fri, 16 Sep 2005 14:16:10 +0200
+committer root <root@bellona.(none)> Fri, 16 Sep 2005 14:16:10 +0200
+
+ drivers/base/platform.c |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/base/platform.c b/drivers/base/platform.c
+--- a/drivers/base/platform.c
++++ b/drivers/base/platform.c
+@@ -225,18 +225,19 @@ struct platform_device *platform_device_
+ 	struct platform_object *pobj;
+ 	int retval;
  
-@@ -1665,7 +1676,7 @@
- 	struct uart_8250_port *up = (struct uart_8250_port *)port;
- 	unsigned char cval, fcr = 0;
- 	unsigned long flags;
--	unsigned int baud, quot;
-+	unsigned int baud, quot, max_baud;
+-	pobj = kzalloc(sizeof(*pobj) + sizeof(struct resource) * num, GFP_KERNEL);
++	pobj = kmalloc(sizeof(*pobj) + sizeof(*res) * num, GFP_KERNEL);
+ 	if (!pobj) {
+ 		retval = -ENOMEM;
+ 		goto error;
+ 	}
++	memset(pobj, 0, sizeof(*pobj));
  
- 	switch (termios->c_cflag & CSIZE) {
- 	case CS5:
-@@ -1697,7 +1708,8 @@
- 	/*
- 	 * Ask the core to calculate the divisor for us.
- 	 */
--	baud = uart_get_baud_rate(port, termios, old, 0, port->uartclk/16); 
-+	max_baud = (up->port.type == PORT_16C950 ? port->uartclk/4 : port->uartclk/16);
-+	baud = uart_get_baud_rate(port, termios, old, 0, max_baud); 
- 	quot = serial8250_get_divisor(port, baud);
+ 	pobj->pdev.name = name;
+ 	pobj->pdev.id = id;
+ 	pobj->pdev.dev.release = platform_device_release_simple;
  
- 	/*
-@@ -1733,6 +1745,19 @@
- 	 */
- 	spin_lock_irqsave(&up->port.lock, flags);
- 
-+	/* 
-+	 * 16C950 supports additional prescaler ratios between 1:16 and 1:4
-+	 * thus increasing max baud rate to uartclk/4.
-+	 */
-+	if (up->port.type == PORT_16C950) {
-+		if (baud == port->uartclk/4)
-+			serial_icr_write(up, UART_TCR, 0x4);
-+		else if (baud == port->uartclk/8)
-+			serial_icr_write(up, UART_TCR, 0x8);
-+		else
-+			serial_icr_write(up, UART_TCR, 0);
-+	}
-+	
- 	/*
- 	 * Update the per-port timeout.
- 	 */
+ 	if (num) {
+-		memcpy(pobj->resources, res, sizeof(struct resource) * num);
++		memcpy(pobj->resources, res, sizeof(*res) * num);
+ 		pobj->pdev.resource = pobj->resources;
+ 		pobj->pdev.num_resources = num;
+ 	}

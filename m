@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161239AbVIPS0f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161233AbVIPS1t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161239AbVIPS0f (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 14:26:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161227AbVIPS0e
+	id S1161233AbVIPS1t (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 14:27:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161246AbVIPS1s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 14:26:34 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:29826 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1161231AbVIPS0Y (ORCPT
+	Fri, 16 Sep 2005 14:27:48 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:64173 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1161233AbVIPS1l (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 14:26:24 -0400
-Date: Fri, 16 Sep 2005 11:26:20 -0700
+	Fri, 16 Sep 2005 14:27:41 -0400
+Date: Fri, 16 Sep 2005 11:26:19 -0700
 To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
 Cc: linuxram@us.ibm.com, akpm@osdl.org, viro@ftp.linux.org.uk,
        miklos@szeredi.hu, mike@waychison.com, bfields@fieldses.org,
        serue@us.ibm.com
-Subject: [RFC PATCH 6/10] vfs: shared subtree aware move mounts 
-Message-ID: <20050916182620.GA28504@RAM>
+Subject: [RFC PATCH 4/10] vfs: global namespace semaphore 
+Message-ID: <20050916182619.GA28474@RAM>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,335 +24,292 @@ From: linuxram@us.ibm.com (Ram)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch that help move a mount tree to a different mountpoint. The tree can
-contain any combination of shared/slave/private/unclonable mounts.
+This patch removes the per-namespace semaphore in favor of a global
+semaphore.  This can have an effect on namespace scalability.
 
-The semantics of these operation depend on the type of the source mount that
-is being moved, and destination mount under which the tree shall be moved.  The
-table below defines the semantics.
-  --------------------------------------------------------------------
-  |                          MOVE MOUNT OPERATION                    |
-  |******************************************************************|
-  |  dest --> | shared       |       private  |  slave   |unclonable |
-  | source   |               |                |          |           |
-  |   |      |               |                |          |           |
-  |   v      |               |                |          |           |
-  |******************************************************************|
-  |          |               |                |          |           |
-  |  shared  | shared (++)   |     shared (+*)|shared(+*)| shared(+*)|
-  |          |               |                |          |           |
-  |          |               |                |          |           |
-  | private  | shared (+)    |      private   | private  | private   |
-  |          |               |                |          |           |
-  |          |               |                |          |           |
-  | slave    | shared (+++)  |      slave     | slave    | slave     |
-  |          |               |                |          |           |
-  |          |               |                |          |           |
-  | unclonable|  invalid     |     unclonable |unclonable| unclonable|
-  |          |               |                |          |           |
-  |          |               |                |          |           |
-   *******************************************************************
- (+++)  the mount is propagated to all the vfsmounts in the destination's
-       vfsmount's propagation tree. And the source mount will
-       continue to be a slave mount of whatever vfsmount it was
-       the slave off.
- (++)  the mount is propagated to all the mounts in the pnode tree
-       of the destination mount and the source mount is made
-       a peer mount of the mount from which it got cloned off.
- (+*)  a new shared mount is created under the destination mount
- (+)   the mount is propagated to the destination mount's
-       propagation tree.
 
-Signed by Ram Pai (linuxram@us.ibm.com)
+Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
 
- fs/namespace.c |  147 +++++++++++++++++++++++++++++++++++++++++++++++++++------
- 1 files changed, 132 insertions(+), 15 deletions(-)
+ fs/namespace.c            |   44 ++++++++++++++++++++++----------------------
+ include/linux/namespace.h |    1 -
+ 2 files changed, 22 insertions(+), 23 deletions(-)
 
+Index: 2.6.13.sharedsubtree/include/linux/namespace.h
+===================================================================
+--- 2.6.13.sharedsubtree.orig/include/linux/namespace.h
++++ 2.6.13.sharedsubtree/include/linux/namespace.h
+@@ -7,11 +7,10 @@
+ 
+ struct namespace {
+ 	atomic_t		count;
+ 	struct vfsmount *	root;
+ 	struct list_head	list;
+-	struct rw_semaphore	sem;
+ };
+ 
+ extern int copy_namespace(int, struct task_struct *);
+ extern void __put_namespace(struct namespace *namespace);
+ 
 Index: 2.6.13.sharedsubtree/fs/namespace.c
 ===================================================================
 --- 2.6.13.sharedsubtree.orig/fs/namespace.c
 +++ 2.6.13.sharedsubtree/fs/namespace.c
-@@ -655,11 +655,11 @@ static inline int tree_contains_propagat
- /*
-  * commit the operations done in attach_recursive_mnt(). run through pnode list
-  * headed at 'pnodehead', and commit the operation done in
-  * attach_recursive_mnt();
-  */
--static void commit_attach_recursive_mnt(struct vfsmount *source_mnt)
-+static void commit_attach_recursive_mnt(struct vfsmount *source_mnt, int move)
+@@ -41,10 +41,11 @@ static inline int sysfs_init(void)
+ __cacheline_aligned_in_smp DEFINE_SPINLOCK(vfsmount_lock);
+ 
+ static struct list_head *mount_hashtable;
+ static int hash_mask, hash_bits;
+ static kmem_cache_t *mnt_cache;
++static struct rw_semaphore namespace_sem;
+ 
+ static inline unsigned long hash(struct vfsmount *mnt, struct dentry *dentry)
  {
- 	struct vfsmount *m, *master, *nextmnt;
- 	LIST_HEAD(mnt_list_head);
- 	LIST_HEAD(nextmnt_list_head);
- 
-@@ -698,11 +698,11 @@ static void commit_attach_recursive_mnt(
- 
- 		spin_lock(&vfspnode_lock);
- 		propagate_commit_mount(m);
- 		spin_unlock(&vfspnode_lock);
- 
--		if ((master = m->mnt_master)) {
-+		if (!move && (master = m->mnt_master)) {
- 			m->mnt_master = NULL;
- 			if (IS_MNT_SHARED(master))
- 				pnode_merge_mount(m, master);
- 			else if (IS_MNT_SLAVE(master)) {
- 				BUG_ON(!master->mnt_master);
-@@ -801,36 +801,69 @@ static void abort_attach_recursive_mnt(s
-  *       a peer mount of the mount from which it got cloned off.
-  * (+*)  a new shared mount is created under the destination mount
-  * (+)   the mount is propagated to the destination mount's
-  *       propagation tree.
-  *
-+ *  ---------------------------------------------------------------------
-+ *  |                          MOVE MOUNT OPERATION                    |
-+ *  |*******************************************************************|
-+ *  |  dest --> | shared       |       private  |  slave   |unclonable |
-+ *  | source   |               |                |          |           |
-+ *  |   |      |               |                |          |           |
-+ *  |   v      |               |                |          |           |
-+ *  |*******************************************************************|
-+ *  |          |               |                |          |           |
-+ *  |  shared  | shared (++)   |     shared (+*)|shared(+*)| shared(+*)|
-+ *  |          |               |                |          |           |
-+ *  |          |               |                |          |           |
-+ *  | private  | shared (+)    |      private   | private  | private   |
-+ *  |          |               |                |          |           |
-+ *  |          |               |                |          |           |
-+ *  | slave    | shared (+++)  |      slave     | slave    | slave     |
-+ *  |          |               |                |          |           |
-+ *  |          |               |                |          |           |
-+ *  | unclonable|  invalid     |     unclonable |unclonable| unclonable|
-+ *  |          |               |                |          |           |
-+ *  |          |               |                |          |           |
-+ *   ********************************************************************
-+ *
-+ * (+++)  the mount is propagated to all the mounts in the destination's
-+ *       mount's propagation tree. And the source mount
-+ *       continues to be a slave mount of whichever mount it was
-+ *       the slave off.
-+ *
-  * if the source mount is a tree, the operations explained above is
-  * applied to each mount in the tree.
-  *
-  * Must be called without spinlocks held, since this function can sleep
-  * in allocations.
-  *
-  */
- static int attach_recursive_mnt(struct vfsmount *source_mnt,
--				struct nameidata *nd)
-+				struct nameidata *nd, int move)
+ 	unsigned long tmp = ((unsigned long)mnt / L1_CACHE_BYTES);
+ 	tmp += ((unsigned long)dentry / L1_CACHE_BYTES);
+@@ -190,11 +191,11 @@ static void *m_start(struct seq_file *m,
  {
- 	struct vfsmount *dest_mnt, *last, *m, *p;
- 	struct dentry *dest_dentry;
- 	int ret;
- 	LIST_HEAD(mnt_list_head);
+ 	struct namespace *n = m->private;
+ 	struct list_head *p;
+ 	loff_t l = *pos;
  
- 	/*
--	 * if the source tree has no shared or slave mounts and
--	 * the destination mount is not shared, fastpath.
-+	 * No special handling is needed if the destination mount is
-+	 * not shared and the source tree is moved into it.
-+	 * Similarly no special is needed if the destination mount is
-+	 * not shared and the source tree has no mounts that forward
-+	 * or receive propagation. So just take the fastpath.
- 	 */
- 	dest_mnt = nd->mnt;
--	if (!IS_MNT_SHARED(dest_mnt) && !tree_contains_propagation(source_mnt)) {
-+	if (!IS_MNT_SHARED(dest_mnt) &&
-+	    (move || !tree_contains_propagation(source_mnt))) {
- 		spin_lock(&vfsmount_lock);
- 		attach_mnt(source_mnt, nd);
- 		list_add_tail(&mnt_list_head, &source_mnt->mnt_list);
- 		list_splice(&mnt_list_head, dest_mnt->mnt_namespace->list.prev);
--		clean_propagation_reference(source_mnt);
-+		if (!move)
-+			clean_propagation_reference(source_mnt);
- 		spin_unlock(&vfsmount_lock);
- 		goto out;
- 	}
- 
- 	p = NULL;
-@@ -856,11 +889,11 @@ static int attach_recursive_mnt(struct v
- 		list_del_init(&m->mnt_list);
- 		last = m;
- 		if ((ret = propagate_prepare_mount(dest_mnt, dest_dentry, m)))
- 			goto error;
- 	}
--	commit_attach_recursive_mnt(source_mnt);
-+	commit_attach_recursive_mnt(source_mnt, move);
-       out:
- 	mntget(source_mnt);
- 	return 0;
-       error:
- 	/*
-@@ -870,10 +903,33 @@ static int attach_recursive_mnt(struct v
- 	 */
- 	abort_attach_recursive_mnt(source_mnt, last, &mnt_list_head);
- 	return 1;
+-	down_read(&n->sem);
++	down_read(&namespace_sem);
+ 	list_for_each(p, &n->list)
+ 	    if (!l--)
+ 		return list_entry(p, struct vfsmount, mnt_list);
+ 	return NULL;
+ }
+@@ -207,12 +208,11 @@ static void *m_next(struct seq_file *m, 
+ 	return p == &n->list ? NULL : list_entry(p, struct vfsmount, mnt_list);
  }
  
-+static void detach_recursive_mnt(struct vfsmount *source_mnt,
-+				 struct nameidata *nd)
-+{
-+	struct vfsmount *m;
-+
-+	detach_mnt(source_mnt, nd);
-+	for (m = source_mnt; m; m = next_mnt(m, source_mnt)) {
-+		list_del_init(&m->mnt_list);
-+		if (m != source_mnt)
-+			list_add_tail(&m->mnt_list, &source_mnt->mnt_list);
-+	}
-+}
-+
-+static void undo_detach_recursive_mnt(struct vfsmount *mnt,
-+				      struct nameidata *nd)
-+{
-+	LIST_HEAD(head);
-+
-+	attach_mnt(mnt, nd);
-+	list_add_tail(&head, &mnt->mnt_list);
-+	list_splice(&head, nd->mnt->mnt_namespace->list.prev);
-+}
-+
- static int graft_tree(struct vfsmount *mnt, struct nameidata *nd)
+ static void m_stop(struct seq_file *m, void *v)
+ {
+-	struct namespace *n = m->private;
+-	up_read(&n->sem);
++	up_read(&namespace_sem);
+ }
+ 
+ static inline void mangle(struct seq_file *m, const char *s)
+ {
+ 	seq_escape(m, s, " \t\n\\");
+@@ -434,11 +434,11 @@ static int do_umount(struct vfsmount *mn
+ 		}
+ 		up_write(&sb->s_umount);
+ 		return retval;
+ 	}
+ 
+-	down_write(&current->namespace->sem);
++	down_write(&namespace_sem);
+ 	spin_lock(&vfsmount_lock);
+ 
+ 	if (atomic_read(&sb->s_active) == 1) {
+ 		/* last instance - try to be smart */
+ 		spin_unlock(&vfsmount_lock);
+@@ -456,11 +456,11 @@ static int do_umount(struct vfsmount *mn
+ 		retval = 0;
+ 	}
+ 	spin_unlock(&vfsmount_lock);
+ 	if (retval)
+ 		security_sb_umount_busy(mnt);
+-	up_write(&current->namespace->sem);
++	up_write(&namespace_sem);
+ 	return retval;
+ }
+ 
+ /*
+  * Now umount can handle mount points as well as block devices.
+@@ -681,11 +681,11 @@ static int do_loopback(struct nameidata 
+ 		return -EINVAL;
+ 	err = path_lookup(old_name, LOOKUP_FOLLOW, &old_nd);
+ 	if (err)
+ 		return err;
+ 
+-	down_write(&current->namespace->sem);
++	down_write(&namespace_sem);
+ 	err = -EINVAL;
+ 	if (check_mnt(nd->mnt) && (!recurse || check_mnt(old_nd.mnt))) {
+ 		err = -ENOMEM;
+ 		if (recurse)
+ 			mnt = copy_tree(old_nd.mnt, old_nd.dentry);
+@@ -706,11 +706,11 @@ static int do_loopback(struct nameidata 
+ 			spin_unlock(&vfsmount_lock);
+ 		} else
+ 			mntput(mnt);
+ 	}
+ 
+-	up_write(&current->namespace->sem);
++	up_write(&namespace_sem);
+ 	path_release(&old_nd);
+ 	return err;
+ }
+ 
+ /*
+@@ -754,11 +754,11 @@ static int do_move_mount(struct nameidat
+ 		return -EINVAL;
+ 	err = path_lookup(old_name, LOOKUP_FOLLOW, &old_nd);
+ 	if (err)
+ 		return err;
+ 
+-	down_write(&current->namespace->sem);
++	down_write(&namespace_sem);
+ 	while (d_mountpoint(nd->dentry) && follow_down(&nd->mnt, &nd->dentry)) ;
+ 	err = -EINVAL;
+ 	if (!check_mnt(nd->mnt) || !check_mnt(old_nd.mnt))
+ 		goto out;
+ 
+@@ -797,11 +797,11 @@ static int do_move_mount(struct nameidat
+       out2:
+ 	spin_unlock(&vfsmount_lock);
+       out1:
+ 	up(&nd->dentry->d_inode->i_sem);
+       out:
+-	up_write(&current->namespace->sem);
++	up_write(&namespace_sem);
+ 	if (!err)
+ 		path_release(&parent_nd);
+ 	path_release(&old_nd);
+ 	return err;
+ }
+@@ -836,11 +836,11 @@ static int do_new_mount(struct nameidata
+ int do_add_mount(struct vfsmount *newmnt, struct nameidata *nd,
+ 		 int mnt_flags, struct list_head *fslist)
  {
  	int err;
- 	if (mnt->mnt_sb->s_flags & MS_NOUSER)
- 		return -EINVAL;
-@@ -891,11 +947,11 @@ static int graft_tree(struct vfsmount *m
- 	if (err)
- 		goto out_unlock;
  
- 	err = -ENOENT;
- 	if (IS_ROOT(nd->dentry) || !d_unhashed(nd->dentry))
--		err = attach_recursive_mnt(mnt, nd);
-+		err = attach_recursive_mnt(mnt, nd, 0);
-       out_unlock:
- 	up(&nd->dentry->d_inode->i_sem);
- 	if (!err)
- 		security_sb_post_addmount(mnt, nd);
- 	return err;
-@@ -1029,10 +1085,23 @@ static int do_remount(struct nameidata *
- 	if (!err)
- 		security_sb_post_remount(nd->mnt, flags, data);
+-	down_write(&current->namespace->sem);
++	down_write(&namespace_sem);
+ 	/* Something was mounted here while we slept */
+ 	while (d_mountpoint(nd->dentry) && follow_down(&nd->mnt, &nd->dentry)) ;
+ 	err = -EINVAL;
+ 	if (!check_mnt(nd->mnt))
+ 		goto unlock;
+@@ -865,11 +865,11 @@ int do_add_mount(struct vfsmount *newmnt
+ 		list_add_tail(&newmnt->mnt_expire, fslist);
+ 		spin_unlock(&vfsmount_lock);
+ 	}
+ 
+       unlock:
+-	up_write(&current->namespace->sem);
++	up_write(&namespace_sem);
+ 	mntput(newmnt);
  	return err;
  }
  
-+/*
-+ * return 1 if the mount tree contains a unclonable mount
-+ */
-+static inline int tree_contains_unclone(struct vfsmount *mnt)
-+{
-+	struct vfsmount *p;
-+	for (p = mnt; p; p = next_mnt(p, mnt)) {
-+		if (IS_MNT_UNCLONABLE(p))
-+			return 1;
-+	}
-+	return 0;
-+}
-+
- static int do_move_mount(struct nameidata *nd, char *old_name)
- {
- 	struct nameidata old_nd, parent_nd;
- 	struct vfsmount *p;
- 	int err = 0;
-@@ -1068,18 +1137,38 @@ static int do_move_mount(struct nameidat
+ EXPORT_SYMBOL_GPL(do_add_mount);
+@@ -969,13 +969,13 @@ void mark_mounts_for_expiry(struct list_
+ 		if (!namespace || !namespace->root)
+ 			continue;
+ 		get_namespace(namespace);
  
- 	if (S_ISDIR(nd->dentry->d_inode->i_mode) !=
- 	    S_ISDIR(old_nd.dentry->d_inode->i_mode))
- 		goto out2;
+ 		spin_unlock(&vfsmount_lock);
+-		down_write(&namespace->sem);
++		down_write(&namespace_sem);
+ 		expire_mount(mnt, mounts);
+-		up_write(&namespace->sem);
++		up_write(&namespace_sem);
  
-+	/*
-+	 * Don't move a mount in a shared parent.
-+	 */
-+	if (old_nd.mnt->mnt_parent && IS_MNT_SHARED(old_nd.mnt->mnt_parent))
-+		goto out2;
-+
-+	/*
-+	 * Don't move a mount tree having unclonable
-+	 * mounts, under a shared mount
-+	 */
-+	if (IS_MNT_SHARED(nd->mnt) && tree_contains_unclone(old_nd.mnt))
-+		goto out2;
-+
- 	err = -ELOOP;
- 	for (p = nd->mnt; p->mnt_parent != p; p = p->mnt_parent)
- 		if (p == old_nd.mnt)
- 			goto out2;
- 	err = 0;
+ 		mntput(mnt);
+ 		put_namespace(namespace);
  
--	detach_mnt(old_nd.mnt, &parent_nd);
--	attach_mnt(old_nd.mnt, nd);
-+	detach_recursive_mnt(old_nd.mnt, &parent_nd);
-+	spin_unlock(&vfsmount_lock);
-+	if ((err = attach_recursive_mnt(old_nd.mnt, nd, 1))) {
-+		spin_lock(&vfsmount_lock);
-+		undo_detach_recursive_mnt(old_nd.mnt, &parent_nd);
-+		goto out2;
-+	}
-+	spin_lock(&vfsmount_lock);
-+	mntput(old_nd.mnt);
+ 		spin_lock(&vfsmount_lock);
+@@ -1141,18 +1141,17 @@ int copy_namespace(int flags, struct tas
+ 	new_ns = kmalloc(sizeof(struct namespace), GFP_KERNEL);
+ 	if (!new_ns)
+ 		goto out;
  
- 	/* if the mount is moved, it should no longer be expire
- 	 * automatically */
- 	list_del_init(&old_nd.mnt->mnt_expire);
-       out2:
-@@ -1675,10 +1764,18 @@ asmlinkage long sys_pivot_root(const cha
- 	error = -EINVAL;
- 	if (user_nd.mnt->mnt_root != user_nd.dentry)
- 		goto out2;	/* not a mountpoint */
- 	if (new_nd.mnt->mnt_root != new_nd.dentry)
- 		goto out2;	/* not a mountpoint */
-+	/*
-+	 * Don't move a mount in a shared parent.
-+	 */
-+	if (user_nd.mnt->mnt_parent && IS_MNT_SHARED(user_nd.mnt->mnt_parent))
-+		goto out2;
-+	if (new_nd.mnt->mnt_parent && IS_MNT_SHARED(new_nd.mnt->mnt_parent))
-+		goto out2;
-+
- 	tmp = old_nd.mnt;	/* make sure we can reach put_old from new_root */
+ 	atomic_set(&new_ns->count, 1);
+-	init_rwsem(&new_ns->sem);
+ 	INIT_LIST_HEAD(&new_ns->list);
+ 
+-	down_write(&tsk->namespace->sem);
++	down_write(&namespace_sem);
+ 	/* First pass: copy the tree topology */
+ 	new_ns->root = copy_tree(namespace->root, namespace->root->mnt_root);
+ 	if (!new_ns->root) {
+-		up_write(&tsk->namespace->sem);
++		up_write(&namespace_sem);
+ 		kfree(new_ns);
+ 		goto out;
+ 	}
  	spin_lock(&vfsmount_lock);
- 	if (tmp != new_nd.mnt) {
- 		for (;;) {
- 			if (tmp->mnt_parent == tmp)
-@@ -1689,14 +1786,34 @@ asmlinkage long sys_pivot_root(const cha
+ 	list_add_tail(&new_ns->list, &new_ns->root->mnt_list);
+@@ -1182,11 +1181,11 @@ int copy_namespace(int flags, struct tas
+ 			}
  		}
- 		if (!is_subdir(tmp->mnt_mountpoint, new_nd.dentry))
- 			goto out3;
- 	} else if (!is_subdir(old_nd.dentry, new_nd.dentry))
- 		goto out3;
--	detach_mnt(new_nd.mnt, &parent_nd);
--	detach_mnt(user_nd.mnt, &root_parent);
--	attach_mnt(user_nd.mnt, &old_nd);	/* mount old root on put_old */
--	attach_mnt(new_nd.mnt, &root_parent);	/* mount new_root on / */
-+
-+	detach_recursive_mnt(user_nd.mnt, &root_parent);
-+	detach_recursive_mnt(new_nd.mnt, &parent_nd);
-+
-+	spin_unlock(&vfsmount_lock);
-+	if ((error = attach_recursive_mnt(new_nd.mnt, &root_parent, 1))) {
-+		spin_lock(&vfsmount_lock);
-+		undo_detach_recursive_mnt(new_nd.mnt, &parent_nd);
-+		undo_detach_recursive_mnt(user_nd.mnt, &root_parent);
-+		goto out3;
-+	}
-+	spin_lock(&vfsmount_lock);
-+	mntput(new_nd.mnt);
-+
-+	spin_unlock(&vfsmount_lock);
-+	if ((error = attach_recursive_mnt(user_nd.mnt, &old_nd, 1))) {
-+		spin_lock(&vfsmount_lock);
-+		undo_detach_recursive_mnt(new_nd.mnt, &parent_nd);
-+		undo_detach_recursive_mnt(user_nd.mnt, &root_parent);
-+		goto out3;
-+	}
-+	spin_lock(&vfsmount_lock);
-+	mntput(user_nd.mnt);
-+
- 	spin_unlock(&vfsmount_lock);
- 	chroot_fs_refs(&user_nd, &new_nd);
- 	security_sb_post_pivotroot(&user_nd, &new_nd);
+ 		p = next_mnt(p, namespace->root);
+ 		q = next_mnt(q, new_ns->root);
+ 	}
+-	up_write(&tsk->namespace->sem);
++	up_write(&namespace_sem);
+ 
+ 	tsk->namespace = new_ns;
+ 
+ 	if (rootmnt)
+ 		mntput(rootmnt);
+@@ -1368,11 +1367,11 @@ asmlinkage long sys_pivot_root(const cha
+ 
+ 	read_lock(&current->fs->lock);
+ 	user_nd.mnt = mntget(current->fs->rootmnt);
+ 	user_nd.dentry = dget(current->fs->root);
+ 	read_unlock(&current->fs->lock);
+-	down_write(&current->namespace->sem);
++	down_write(&namespace_sem);
+ 	down(&old_nd.dentry->d_inode->i_sem);
+ 	error = -EINVAL;
+ 	if (!check_mnt(user_nd.mnt))
+ 		goto out2;
+ 	error = -ENOENT;
+@@ -1414,11 +1413,11 @@ asmlinkage long sys_pivot_root(const cha
  	error = 0;
  	path_release(&root_parent);
+ 	path_release(&parent_nd);
+       out2:
+ 	up(&old_nd.dentry->d_inode->i_sem);
+-	up_write(&current->namespace->sem);
++	up_write(&namespace_sem);
+ 	path_release(&user_nd);
+ 	path_release(&old_nd);
+       out1:
+ 	path_release(&new_nd);
+       out0:
+@@ -1441,11 +1440,10 @@ static void __init init_mount_tree(void)
+ 	namespace = kmalloc(sizeof(*namespace), GFP_KERNEL);
+ 	if (!namespace)
+ 		panic("Can't allocate initial namespace");
+ 	atomic_set(&namespace->count, 1);
+ 	INIT_LIST_HEAD(&namespace->list);
+-	init_rwsem(&namespace->sem);
+ 	list_add(&mnt->mnt_list, &namespace->list);
+ 	namespace->root = mnt;
+ 	mnt->mnt_namespace = namespace;
+ 
+ 	init_task.namespace = namespace;
+@@ -1465,10 +1463,12 @@ void __init mnt_init(unsigned long mempa
+ {
+ 	struct list_head *d;
+ 	unsigned int nr_hash;
+ 	int i;
+ 
++	init_rwsem(&namespace_sem);
++
+ 	mnt_cache = kmem_cache_create("mnt_cache", sizeof(struct vfsmount),
+ 				      0, SLAB_HWCACHE_ALIGN | SLAB_PANIC, NULL,
+ 				      NULL);
+ 
+ 	mount_hashtable = (struct list_head *)
+@@ -1514,12 +1514,12 @@ void __init mnt_init(unsigned long mempa
+ void __put_namespace(struct namespace *namespace)
+ {
+ 	struct vfsmount *root = namespace->root;
+ 	namespace->root = NULL;
+ 	spin_unlock(&vfsmount_lock);
+-	down_write(&namespace->sem);
++	down_write(&namespace_sem);
+ 	spin_lock(&vfsmount_lock);
+ 	umount_tree(root);
+ 	spin_unlock(&vfsmount_lock);
+-	up_write(&namespace->sem);
++	up_write(&namespace_sem);
+ 	kfree(namespace);
+ }

@@ -1,96 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161256AbVIPSnV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161259AbVIPSpH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161256AbVIPSnV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 14:43:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161257AbVIPSnV
+	id S1161259AbVIPSpH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 14:45:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161261AbVIPSpH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 14:43:21 -0400
-Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:1224 "EHLO
-	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP
-	id S1161256AbVIPSnU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 14:43:20 -0400
-X-ORBL: [69.107.75.50]
-DomainKey-Signature: a=rsa-sha1; s=sbc01; d=pacbell.net; c=nofws; q=dns;
-	h=received:date:from:to:subject:cc:references:in-reply-to:
-	mime-version:content-type:content-transfer-encoding:message-id;
-	b=PKuo2HcDFZest/N4L8yTYUdmAERkSWXzaGv8Xsmcjnjp28cyuD7naUqO0tKc1jU+4
-	FB8s5HRCzFfLCl9VKni7Q==
-Date: Fri, 16 Sep 2005 11:43:02 -0700
-From: David Brownell <david-b@pacbell.net>
-To: linux-kernel@vger.kernel.org, basicmark@yahoo.com
-Subject: Re: [RFC][PATCH] SPI subsystem
-Cc: dpervushin@ru.mvista.com
-References: <20050916175536.87846.qmail@web30315.mail.mud.yahoo.com>
-In-Reply-To: <20050916175536.87846.qmail@web30315.mail.mud.yahoo.com>
-MIME-Version: 1.0
+	Fri, 16 Sep 2005 14:45:07 -0400
+Received: from mail.kroah.org ([69.55.234.183]:30635 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1161259AbVIPSpG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 14:45:06 -0400
+Date: Fri, 16 Sep 2005 11:44:40 -0700
+From: Greg KH <greg@kroah.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: dtor_core@ameritech.net, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, caphrim007@gmail.com,
+       David Brownell <david-b@pacbell.net>,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: Lost keyboard on Inspiron 8200 at 2.6.13
+Message-ID: <20050916184440.GA11413@kroah.com>
+References: <432A4A1F.3040308@gmail.com> <200509152357.58921.dtor_core@ameritech.net> <20050916025356.0d5189a6.akpm@osdl.org> <d120d500050916082519c660e6@mail.gmail.com> <1126886449.17038.4.camel@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <20050916184302.4C6B985EB8@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
+Content-Disposition: inline
+In-Reply-To: <1126886449.17038.4.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Thinking about it, for blocking transfers the core
-> could call the adapters transfer routine and then
-> start a wait on completeion. When the message has been
-> sent the adapter would finish the completeion and the
-> call to the core would then return (I think this is
-> how the mmc core layer does it). How do you feel about
-> that sugguestion? 
+On Fri, Sep 16, 2005 at 05:00:49PM +0100, Alan Cox wrote:
+> On Gwe, 2005-09-16 at 10:25 -0500, Dmitry Torokhov wrote:
+> > Interdependencies between ACPI, PNP, USB Legacy emulation and I8042 is
+> > very delicate and quite often changes in ACPI/PNP break that balance.
+> > USB legacy emulation is just evil. We need to have "usb-handoff" thing
+> > enabled by default, it fixes alot of problems.
+> 
+> I would definitely agree with this. There are very few, if any, cases
+> usb handoff doesn't work now that the Nvidia problems are fixed.
 
-It resembles some code in my patch, which you included in your reply.
-I've deleted the other parts; see at the end of this message.
+Are we sure?  Yeah, SuSE has shipped that code "enabled" for a while,
+but I'm still not comfortable making that the default.
 
-(By the way, you should trim down your email replies and stop re-wrapping
-things to 56-character borders... it breaks attribution prefixes as well
-as patches, and makes your posts hard to read.)
+Only if we merge the code that does the handoff, with the same code that
+does it in the usb core, would I feel more comfortable to enable this
+always.  I had a patch from David Brownell to do this, but it had some
+link errors at times, so I had to drop it :(
 
+thanks,
 
-> How would you feel about having a list head for
-> messages in the adapter structure? I think every
-> adapter driver would at least need this.
-
-It's just as simple to use:
-
-	struct my_spi_controller {
-		struct spi_master	master;
-		struct list_head	queue;
-		... register pointers
-		... and other controller-private state
-	};
-
-I prefer the information hiding approach.  In this case, no code
-outside the controller driver ever has any business looking at that
-queue; they shouldn't even be able to see it.  That way there will
-be no temptation to change it and break anything.
-
-
-> > As for MMC ... it'll be interesting to watch that
-> > play out; won't the mmc_block code need to change?
->
-> I don't know, I would hope not. If the mmc core is
-> completely generic then I think I should only have to
-> write a driver like mmci and not have to change the
-> mmc_block or mmc core layers.
-
-I seem to recall MMC/SD card specs showing different commands are
-used in SPI mode than MMC/SD mode.  I'd be (pleasantly) surprised if
-current mmc_block code already understood them.  (As I recall, the
-specs from SanDisk were pretty informative.)
-
-- Dave
-
-
-> > +int spi_sync(struct spi_device *spi, struct spi_message *message)
-> > +{
-> > +	DECLARE_COMPLETION(done);
-> > +	int status;
-> > +
-> > +	message->complete = spi_sync_complete;
-> > +	message->context = &done;
-> > +	status = spi_async(spi, message);
-> > +	if (status == 0)
-> > +		wait_for_completion(&done);
-> > +	message->context = NULL;
-> > +	return status;
-> > +}
-> > +EXPORT_SYMBOL(spi_sync);
+greg k-h

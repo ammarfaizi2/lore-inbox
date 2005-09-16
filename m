@@ -1,104 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161122AbVIPIGe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161123AbVIPIHJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161122AbVIPIGe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 04:06:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161123AbVIPIGd
+	id S1161123AbVIPIHJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 04:07:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161124AbVIPIHJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 04:06:33 -0400
-Received: from mail2.sasken.com ([203.200.200.72]:56319 "EHLO mail2.sasken.com")
-	by vger.kernel.org with ESMTP id S1161122AbVIPIGc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 04:06:32 -0400
-From: "Chikkali" <chikkali@sasken.com>
-Subject: Re: kernel
-Date: Fri, 16 Sep 2005 13:36:02 +0530
-Message-ID: <dgdudl$e22$1@ncc-t.sasken.com>
-References: <ddi2qu$74p$1@ncc-nt.nt.sasken.com> 
-	<dejie7$m6i$1@ncc-w.sasken.com>
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Newsreader: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-X-RFC2646: Format=Flowed; Response
-To: linux-kernel@vger.kernel.org
-X-News-Gateway: ncc-z.sasken.com
-X-imss-version: 2.030
-X-imss-result: Passed
-X-imss-scores: Clean:30.26860 C:2 M:3 S:5 R:5
-X-imss-settings: Baseline:3 C:3 M:3 S:3 R:3 (0.5000 0.5000)
+	Fri, 16 Sep 2005 04:07:09 -0400
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:13020 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1161123AbVIPIHG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 04:07:06 -0400
+Subject: Re: [patch 2/7] s390: 3270 fullscreen view.
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+To: Greg KH <greg@kroah.com>
+Cc: Christoph Hellwig <hch@infradead.org>, akpm@osdl.org, rbh00@utsglobal.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050915172432.GA9980@kroah.com>
+References: <20050914155345.GA11478@skybase.boeblingen.de.ibm.com>
+	 <20050914161022.GA4230@infradead.org>
+	 <1126719107.4908.29.camel@localhost.localdomain>
+	 <20050915172432.GA9980@kroah.com>
+Content-Type: text/plain
+Date: Fri, 16 Sep 2005 10:07:08 +0200
+Message-Id: <1126858028.4923.11.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-For beginners  "Understanding the Linux Kernel, 2nd Edition by Marco Cesati, 
-Daniel P. Bovet"  book is very good.
-
-Basavaraj C
-Ext 5769
-
-"Shwetha V" <shwethav@sasken.com> wrote in message 
-news:dejie7$m6i$1@ncc-w.sasken.com...
-> Could anyone inform which will be a good guide to start learning the linux 
-> kernel programming.
->
-> -- 
-> Shwetha V
-> Software Engineer - Networks Business Unit
-> Sasken Communication Technologies Ltd.
-> Gold Hill Square, Hosur Road, Bangalore.
-> Ph: +91-80-25355501 Ext: 5799
-> Web: www.sasken.com
->
->
-> "Srinivas K" <srinuk@sasken.com> wrote in message 
-> news:ddi2qu$74p$1@ncc-nt.nt.sasken.com...
->> hi friends,
->>
->> post concepts regarding linux kernel which will be useful
->>
->>
->> -- 
->> Srinivasa Rao K
->> Systems Engineer
->> Nortel Business Unit
->> Sasken Communication Technologies Ltd
->> 139/25, Ring Road, Domlur
->> Bangalore - 560 071
->> Ph: 2535 5501 Extn.:4804
->> mail : srinuk@sasken.com
->>
->> "SASKEN RATED THE BEST EMPLOYER IN THE COUNTRY by the BUSINESS TODAY 
->> Mercer
->> Survey 2004"
->>
->>
->> SASKEN BUSINESS DISCLAIMER
->> This message may contain confidential, proprietary or legally Privileged
->> information. In case you are not the original intended Recipient of the
->> message, you must not, directly or indirectly, use, Disclose, distribute,
->> print, or copy any part of this message and you are requested to delete 
->> it
->> and inform the sender. Any views expressed in this message are those of 
->> the
->> individual sender unless otherwise stated. Nothing contained in this 
->> message
->> shall be construed as an offer or acceptance of any offer by Sasken
->> Communication Technologies Limited ("Sasken") unless sent with that 
->> express
->> intent and with due authority of Sasken. Sasken has taken enough 
->> precautions
->> to prevent the spread of viruses. However the company accepts no 
->> liability
->> for any damage caused by any virus transmitted by this email
->>
->>
->
+On Thu, 2005-09-15 at 10:24 -0700, Greg KH wrote:
+> On Wed, Sep 14, 2005 at 07:31:46PM +0200, Martin Schwidefsky wrote:
+> > +struct class *class3270;
 > 
+> Isn't this a tty driver already?  If so, you don't need to create your
+> own class, your devices will just show up in the /sys/class/tty/ area
+> just fine.
+> 
+> Or am I missing something here?
+
+I don't think we can use the tty class for the 3270 driver. The reason
+is that there are several ways to access the 3270 device. One of them is
+the tty view. Another is the fullscreen view that has nothing to do with
+ttys. It allows an application to create its own 3270 data stream
+without the line discipline of the tty interfering. 3270 devices are
+strange beasts when you compare them to you standard terminal. You don't
+get an interrupt for every character you type, but only if special keys
+are pressed. One of them is <enter>. The current implementation of the
+tty view has an input line at the end of the 3270 screen and we get
+complete lines as input. That halfway works for normal command input
+although tab completion doesn't work. It completly breaks for editors,
+e.g. if you try to use vi on a 3270 tty you are in for nasty surprises.
+The only way to get an editor working on the 3270 is the fullscreen view
+where the editor itself can setup the complete screen. If you ever used
+an editor on an classic s390 operating system you know what I'm talking
+about.
+
+To cut the long story short, there is more to a 3270 device then the tty
+view. In fact you can compile the 3270 driver without the tty view and
+only with the fullscreen view. We still should have a class for the
+devices, do we not ?
+
+-- 
+blue skies,
+   Martin
+
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
 
 
-
-"SASKEN RATED THE BEST EMPLOYER IN THE COUNTRY by the BUSINESS TODAY Mercer Survey 2004"
-
-
-                           SASKEN BUSINESS DISCLAIMER
-This message may contain confidential, proprietary or legally Privileged information. In case you are not the original intended Recipient of the message, you must not, directly or indirectly, use, Disclose, distribute, print, or copy any part of this message and you are requested to delete it and inform the sender. Any views expressed in this message are those of the individual sender unless otherwise stated. Nothing contained in this message shall be construed as an offer or acceptance of any offer by Sasken Communication Technologies Limited ("Sasken") unless sent with that express intent and with due authority of Sasken. Sasken has taken enough precautions to prevent the spread of viruses. However the company accepts no liability for any damage caused by any virus transmitted by this email

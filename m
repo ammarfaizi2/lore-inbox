@@ -1,69 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161175AbVIPQQA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161176AbVIPQSq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161175AbVIPQQA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 12:16:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161176AbVIPQQA
+	id S1161176AbVIPQSq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 12:18:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161179AbVIPQSq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 12:16:00 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:42218 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1161175AbVIPQQA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 12:16:00 -0400
-Date: Fri, 16 Sep 2005 12:15:58 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Jan Dittmer <jdittmer@ppp0.net>
-cc: Pavel Machek <pavel@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>, <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] Re: 2.6.14-rc1 load average calculation broken?
-In-Reply-To: <432AE79B.80208@ppp0.net>
-Message-ID: <Pine.LNX.4.44L0.0509161214490.4972-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 16 Sep 2005 12:18:46 -0400
+Received: from mba.ocn.ne.jp ([210.190.142.172]:18625 "EHLO smtp.mba.ocn.ne.jp")
+	by vger.kernel.org with ESMTP id S1161176AbVIPQSp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 12:18:45 -0400
+Date: Sat, 17 Sep 2005 01:17:15 +0900 (JST)
+Message-Id: <20050917.011715.41182516.anemo@mba.ocn.ne.jp>
+To: linux-kernel@vger.kernel.org
+Cc: ralf@linux-mips.org, macro@linux-mips.org, akpm@osdl.org,
+       roland@redhat.com, dev@sw.ru, Heiko.Carstens@de.ibm.com
+Subject: Re: [PATCH] more sigkill priority fix
+From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+In-Reply-To: <20050908.012450.41200025.anemo@mba.ocn.ne.jp>
+References: <20050908.012450.41200025.anemo@mba.ocn.ne.jp>
+X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
+X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
+X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Sep 2005, Jan Dittmer wrote:
+Adding Kirill Korotaev and Heiko Carstens to CC.
 
-> > Can you post a stack dump for those two threads?  Normally they are idle,
-> > in an interruptible wait, so they shouldn't be in D state.  Since they
-> > are, maybe there's some sort of error recovery attempt going on.  Like
-> > hald doing its periodic checking of hotpluggable storage devices while
-> > your monitor is off.
-> 
-> They don't appear in lsusb or /proc/scsi/scsi anymore, so I don't know what
-> you mean.
-> 
-> [4327082.342000] usb-storage   D 000F4261     0  3308      1          4671
-> 2487 (L-TLB)
-> [4327082.342000] ded95f0c c9185a70 c04ae888 000f4261 00000010 ded94000
-> 00000000 cd393840
-> [4327082.342000]        000f4261 dfabcb98 dfabca70 ce5b2300 000f4261 ded94000
-> 09c67100 00000000
-> [4327082.342000]        c0410b24 00000286 c0410b2c dfabca70 c03adb5d 00000001
-> dfabca70 c011a2f0
-> [4327082.342000] Call Trace:
-> [4327082.342000]  [<c03adb5d>] __down+0xdd/0x140
-> [4327082.342000]  [<c011a2f0>] default_wake_function+0x0/0x20
-> [4327082.342000]  [<c03ac35f>] __down_failed+0x7/0xc
-> [4327082.342000]  [<c02c5050>] scsi_host_dev_release+0x0/0x90
-> [4327082.342000]  [<c0134dd4>] .text.lock.kthread+0xb/0x27
-> [4327082.342000]  [<c02c5087>] scsi_host_dev_release+0x37/0x90
-> [4327082.342000]  [<c020a4be>] kobject_cleanup+0x4e/0xa0
-> [4327082.342000]  [<c020a510>] kobject_release+0x0/0x10
-> [4327082.342000]  [<c020af3f>] kref_put+0x2f/0x80
-> [4327082.342000]  [<c020a53e>] kobject_put+0x1e/0x30
-> [4327082.342000]  [<c020a510>] kobject_release+0x0/0x10
-> [4327082.342000]  [<e0869288>] usb_stor_control_thread+0x68/0x240 [usb_storage]
-> [4327082.342000]  [<c010322e>] ret_from_fork+0x6/0x14
-> [4327082.342000]  [<e0869220>] usb_stor_control_thread+0x0/0x240 [usb_storage]
-> [4327082.342000]  [<e0869220>] usb_stor_control_thread+0x0/0x240 [usb_storage]
-> [4327082.342000]  [<c01013ad>] kernel_thread_helper+0x5/0x18
+>>>>> On Thu, 08 Sep 2005 01:24:50 +0900 (JST), Atsushi Nemoto <anemo@mba.ocn.ne.jp> said:
 
-I recognize the problem.  This experimental patch should fix it:
+anemo> On Linux/MIPS, a simple test program can create unkillable
+anemo> process.  The "sigkill priority fix" was introduced in 2.6.12,
+anemo> but it does not effective for signals sent by force_sig() in
+anemo> kernel.  For detailed behavior and testcase, please look at
+anemo> this thread in linux-mips ML:
 
-http://marc.theaimsgroup.com/?l=linux-scsi&m=112681273931290&w=2
+This is fixed by another way in 2.6.14-rc1 for i386 (Thanks, Roland).
+The changelog line is:
 
-Alan Stern
+>    [PATCH] i386: Don't miss pending signals returning to user mode after signal processing
+>    Signed-off-by: Roland McGrath <roland@redhat.com>
 
+And now similar fix for mips is already in Linux/MIPS CVS tree too.
+
+--- linux-mips/arch/mips/kernel/entry.S	2005-03-04 22:17:29.000000000 +0900
++++ linux/arch/mips/kernel/entry.S	2005-09-16 01:04:52.365022536 +0900
+@@ -105,7 +105,7 @@
+ 	move	a0, sp
+ 	li	a1, 0
+ 	jal	do_notify_resume	# a2 already loaded
+-	j	restore_all
++	j	resume_userspace
+ 
+ FEXPORT(syscall_exit_work_partial)
+ 	SAVE_STATIC
+
+
+I suppose the original problem on s390 (reported by Heiko Carstens)
+could be fixed same way.  Then 'sigkill priority fix' would be
+reverted safely.
+
+---
+Atsushi Nemoto

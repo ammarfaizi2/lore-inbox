@@ -1,68 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbVIPWsF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbVIPWwl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750742AbVIPWsF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 18:48:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbVIPWsF
+	id S1750745AbVIPWwl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 18:52:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbVIPWwk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 18:48:05 -0400
-Received: from ns.firmix.at ([62.141.48.66]:35203 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S1750742AbVIPWsE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 18:48:04 -0400
-Subject: Re: [Patch] Support UTF-8 scripts
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: "\"Martin v." =?ISO-8859-1?Q?L=F6wis=22?= <martin@v.loewis.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <432B2E09.9010407@v.loewis.de>
-References: <4NsP0-3YF-11@gated-at.bofh.it> <4NsP0-3YF-13@gated-at.bofh.it>
-	 <4NsP0-3YF-15@gated-at.bofh.it> <4NsP0-3YF-17@gated-at.bofh.it>
-	 <4NsP1-3YF-19@gated-at.bofh.it> <4NsP1-3YF-21@gated-at.bofh.it>
-	 <4NsOZ-3YF-9@gated-at.bofh.it> <4NsYH-4bv-27@gated-at.bofh.it>
-	 <4NtBr-4WU-3@gated-at.bofh.it> <4Nu4p-5Js-3@gated-at.bofh.it>
-	 <432B2E09.9010407@v.loewis.de>
-Content-Type: text/plain; charset=UTF-8
-Organization: http://www.firmix.at/
-Date: Sat, 17 Sep 2005 00:45:29 +0200
-Message-Id: <1126910730.3520.7.camel@gimli.at.home>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 8bit
+	Fri, 16 Sep 2005 18:52:40 -0400
+Received: from iris-63.mc.com ([63.96.239.141]:57289 "EHLO mc.com")
+	by vger.kernel.org with ESMTP id S1750745AbVIPWwk convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 18:52:40 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: inconsistent mmap and get_user_pages with hugetlbfs on ppc64
+Date: Fri, 16 Sep 2005 18:52:35 -0400
+Message-ID: <92CB67C83EE773499A7F2F6EA7E3FC940F0E99@ad-email1.ad.mc.com>
+Thread-Topic: inconsistent mmap and get_user_pages with hugetlbfs on ppc64
+Thread-Index: AcW7EVQISNtAnHF6Sru2TN5ezHcsjQ==
+From: "Sexton, Matt" <sexton@mc.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Sexton, Matt" <sexton@mc.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-09-16 at 22:41 +0200, "Martin v. Löwis" wrote:
-[ Language-specific examples ]
+On a ppc64 platform running 2.6.13-1, the virtual to physical mapping
+established by mmap'ing a hugetlbfs file does not seem to match the
+mapping described by get_user_pages().
 
-And that's the only working way - the programming languages can actually
-do it because it defines the syntax and semantics of the contents
-anyways.
-With this marker you are interferign with (at least) *all* text files.
-And thus with *all* tools which "handle" those text files.
+Specifically, I have written a driver for a PCI device that writes data
+into a user-allocated memory buffer.  The user passes the virtual
+address of the buffer to the driver, which calls get_user_pages() to
+lock the pages and to get the page information in order to be able to
+build a scatter list of contiguous physical blocks to pass to the DMA
+engine on the device. The device then writes a known pattern to the
+buffer, which the user space program can verify.
 
-> So you *must* use encoding declarations in some languages; the UTF-8
+This process works fine on ia32 and ppc64 using malloc'ed memory.  This
+process also works fine on ia32 when obtaining the memory by mmap'ing a
+file on a hugetlbfs filesystem.  The 2MB pages are used to reduce the
+number of entries in the scatter list.
 
-... if you absolutely want to use Non-ASCII characters in the source
-code. In most (if not all) of them exist a native gettext()
-interface ...
+The process doesn't work so well on ppc64 with hugetlbfs (and 16MB
+pages).  Often, the data is written to the wrong 16MB pages, from the
+perspective of the user space program.  The data is correct within a
+16MB page, it's just written to the wrong page. It seems that the
+information returned by  get_user_pages() doesn't match the virtual to
+physical mapping used by the user process.
 
-> signature is a particularly convenient way of doing so, since it allows
-> for uniformity across languages, with no need for the text editors to
-> parse all the different programming languages.
+Any suggestions on what I could be doing wrong in this specific case?
+Any known problems with the kernel in this case?
 
-And there are always tools out there which simply do not understand the
-generic marker and can not ignore it since these bytes are part of the
-file. And thus tools (and people) will kill those markers (for whatever
-reason and if it's simple ignorance) anyway.
+Please CC me on any replies.
 
-Or another example: (Try to) start a perl/shell/... script (without
-paranmeter on the first line) which was edited on Win* and binary copied
-to a Unix system. Or at least guess what will happen ....
-
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
-
-
+Thanks,
+Matt
 

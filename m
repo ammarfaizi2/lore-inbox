@@ -1,53 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161267AbVIPTAm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161272AbVIPTGu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161267AbVIPTAm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 15:00:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161269AbVIPTAm
+	id S1161272AbVIPTGu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 15:06:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161273AbVIPTGu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 15:00:42 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:63949 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1161267AbVIPTAl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 15:00:41 -0400
-Date: Fri, 16 Sep 2005 15:00:40 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Greg KH <greg@kroah.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <dtor_core@ameritech.net>,
-       Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
-       <caphrim007@gmail.com>, David Brownell <david-b@pacbell.net>,
-       <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] Re: Lost keyboard on Inspiron 8200 at 2.6.13
-In-Reply-To: <20050916184440.GA11413@kroah.com>
-Message-ID: <Pine.LNX.4.44L0.0509161455240.4433-100000@iolanthe.rowland.org>
+	Fri, 16 Sep 2005 15:06:50 -0400
+Received: from smtp007.mail.ukl.yahoo.com ([217.12.11.96]:63670 "HELO
+	smtp007.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1161272AbVIPTGt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 15:06:49 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=589bqg/fnZtbo2LOVm9/G1BCy6KlcBdViAdc42VJCaeviCliwy5gLm8OLMOdF8XKLDtGR7K8jcmF/3E4DLKjoM/qBqSZZaSp6c8nr/Qk98nVkUGxjP80+DtlTHZ5hmNyIssAP9vcthtMVBTT1zRcCNsg4uKy0T5i6hTastwA5dk=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] Re: [PATCH 1/10] UML - _switch_to code consolidation
+Date: Fri, 16 Sep 2005 20:55:08 +0200
+User-Agent: KMail/1.8.1
+Cc: Pavel Machek <pavel@suse.cz>, Jeff Dike <jdike@addtoit.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+References: <200509142155.j8ELtm5c012124@ccure.user-mode-linux.org> <20050915095828.GE7880@elf.ucw.cz>
+In-Reply-To: <20050915095828.GE7880@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509162055.08876.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Sep 2005, Greg KH wrote:
+On Thursday 15 September 2005 11:58, Pavel Machek wrote:
+> Hi!
+>
 
-> On Fri, Sep 16, 2005 at 05:00:49PM +0100, Alan Cox wrote:
-> > On Gwe, 2005-09-16 at 10:25 -0500, Dmitry Torokhov wrote:
-> > > Interdependencies between ACPI, PNP, USB Legacy emulation and I8042 is
-> > > very delicate and quite often changes in ACPI/PNP break that balance.
-> > > USB legacy emulation is just evil. We need to have "usb-handoff" thing
-> > > enabled by default, it fixes alot of problems.
-> > 
-> > I would definitely agree with this. There are very few, if any, cases
-> > usb handoff doesn't work now that the Nvidia problems are fixed.
-> 
-> Are we sure?  Yeah, SuSE has shipped that code "enabled" for a while,
-> but I'm still not comfortable making that the default.
-> 
-> Only if we merge the code that does the handoff, with the same code that
-> does it in the usb core, would I feel more comfortable to enable this
-> always.  I had a patch from David Brownell to do this, but it had some
-> link errors at times, so I had to drop it :(
+> I sense a whitespace damage here.
+Yes, it seems definitely that getting Jeff to use tabs consistently is a 
+daunting task, since when he started removing the Emacs annotations from the 
+files.
 
-Merging the code would be a good thing.  As it stands right now, bad
-interactions between the PCI handoff code and uhci-hcd will prevent UHCI
-controllers from retaining state across a suspend-to-disk.
+Apart for parentheses excess in return and missing spaces with if and such...
 
-Alan Stern
+Jeff, have you moved that to your emacs settings or not yet?
+-- 
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
+http://www.user-mode-linux.org/~blaisorblade
 
+
+	
+
+	
+		
+___________________________________ 
+Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
+http://mail.yahoo.it

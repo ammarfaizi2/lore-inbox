@@ -1,93 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965315AbVIPTx1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161119AbVIPTwf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965315AbVIPTx1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 15:53:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965314AbVIPTx1
+	id S1161119AbVIPTwf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 15:52:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965315AbVIPTwf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 15:53:27 -0400
-Received: from smtpout.mac.com ([17.250.248.46]:1267 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S965316AbVIPTx0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 15:53:26 -0400
-In-Reply-To: <432B1F84.3000902@namesys.com>
-References: <432AFB44.9060707@namesys.com> <20050916174028.GA32745@infradead.org> <432B1F84.3000902@namesys.com>
-Mime-Version: 1.0 (Apple Message framework v734)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <1C909C65-8B71-4817-AE13-519599D0B11A@mac.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       LKML Kernel <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: I request inclusion of reiser4 in the mainline kernel
-Date: Fri, 16 Sep 2005 15:52:45 -0400
-To: Hans Reiser <reiser@namesys.com>
-X-Mailer: Apple Mail (2.734)
+	Fri, 16 Sep 2005 15:52:35 -0400
+Received: from av8-1-sn3.vrr.skanova.net ([81.228.9.183]:42894 "EHLO
+	av8-1-sn3.vrr.skanova.net") by vger.kernel.org with ESMTP
+	id S965314AbVIPTwe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 15:52:34 -0400
+Message-ID: <432B2237.4090900@fulhack.info>
+Date: Fri, 16 Sep 2005 21:51:19 +0200
+From: Henrik Persson <root@fulhack.info>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050912)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: jesper.juhl@gmail.com
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: "Read my lips: no more merges" - aka Linux 2.6.14-rc1
+References: <Pine.LNX.4.58.0509122019560.3351@g5.osdl.org>	 <43289A7E.1080307@fulhack.info> <9a874849050914162069c0296f@mail.gmail.com>
+In-Reply-To: <9a874849050914162069c0296f@mail.gmail.com>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig5A821913AE6AE37A56382CF9"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[CC list trimmed to relevant people, no need to spam Linus' and  
-Andrew's mailboxes, they have enough to do as it is]
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig5A821913AE6AE37A56382CF9
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Sep 16, 2005, at 15:39:48, Hans Reiser wrote:
-> Christoph Hellwig wrote:
->> additinoal comment is that the code is very messy, very different
->> from normal kernel style, full of indirections and thus hard to read.
->
-> Most of my customers remark that Namesys code is head and shoulders
-> above the rest of the kernel code.  So yes, it is different.
+Jesper Juhl wrote:
+>>My cardbus is acting funny. When I insert my netgear wg511 (prism54) the
+>>first time after booting 2.6.14-rc1 nothing happens. Nothing in dmesg,
+>>nothing nowhere. I remove it. Still nothing. Oh well. Inserting again.
+>>THEN it initializes and is working like it usually does.
+>>
+>>2.6.13+Ivan's PCI resource patch worked allright.
 
-And yet thousands and thousands of people, businesses, etc, say that  
-the Linux kernel code is miles above all the commercial software out  
-there. Please leave the worthless rhetoric out of a technical  
-discussion.  The issue stands that in many ways the Reiser4 code does  
-not exactly follow Documentation/CodingStyle and does not match most  
-of the rest of the kernel, making it hard to read for other kernel  
-developers.  If you were just doing this forever as an external  
-kernel patch, nobody would give a damn.  On the other hand, you're  
-trying to get it included in the upstream kernel, which means that  
-those same "other kernel developers" for whom it is hard to read may  
-be expected to maintain it until the end of time.  Given this, it  
-seems perfectly reasonable to ask that it be cleaned up.
+Whops. I lied. 2.6.13+Ivan's patch behaves just the same.. Too bad I 
+didn't test that BEFORE I bisected and recompiled the kernel 12 times. ;/
 
-> In particular, they cite the XFS code as being so incredibly hard  
-> to read that its unreadability is worth hundreds of thousands of  
-> dollars in license fees for me.
-
-How does XFS have _anything_ to do with Reiser4?  A technical  
-discussion is no place for political pissing contest.
-
-> [more useless posturing snipped]
-
-> As for the indirections, if you figure out how to make VFS  
-> indirections easy to follow, the same technique should be  
-> applicable to Reiser4, and I will be happy to fix it.
-
-That's not his responsibility, it's _yours_.  If you want your stuff  
-included in the the kernel, you need to make sure it is sufficiently  
-acceptable.  Besides, this is just one complaint of the many he  
-made.  This may not be particularly solvable, but there are a number  
-of other points he made that you guys need to try to resolve.
-
-> (Note for the record: I actually think XFS acceptance was delayed  
-> too long, and I think that XFS is a great filesystem, but a  
-> rhetorical point needed to be made......)
-
-See above.  Rhetoric has little or no place here.  Such comments are  
-why Reiser4 typically triggers massive flamewars when it is mentioned  
-on the LKML.
-
-Cheers,
-Kyle Moffett
+So..I guess this has something to do with the PCI update in 2.6.13.. Any 
+pointers to where I should start bisecting this time?
 
 --
-Somone asked me why I work on this free (http://www.fsf.org/ 
-philosophy/) software stuff and not get a real job. Charles Shultz  
-had the best answer:
+Henrik Persson
 
-"Why do musicians compose symphonies and poets write poems? They do  
-it because life wouldn't have any meaning for them if they didn't.  
-That's why I draw cartoons. It's my life."
-   -- Charles Shultz
+--------------enig5A821913AE6AE37A56382CF9
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
+iD8DBQFDKyI9p5uk1YPOcmcRAgO3AJ0Z6XkEnweo2djHB2ktU64WbyY9RwCeOIYr
+N8rRXN1oKYjmaTkpqWMqzgc=
+=Hzle
+-----END PGP SIGNATURE-----
+
+--------------enig5A821913AE6AE37A56382CF9--

@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161128AbVIPIVf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161124AbVIPI3J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161128AbVIPIVf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 04:21:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161129AbVIPIVf
+	id S1161124AbVIPI3J (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 04:29:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161129AbVIPI3J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 04:21:35 -0400
-Received: from smtp.cs.aau.dk ([130.225.194.6]:60587 "EHLO smtp.cs.aau.dk")
-	by vger.kernel.org with ESMTP id S1161128AbVIPIVf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 04:21:35 -0400
-Message-ID: <432A8026.5060509@cs.aau.dk>
-Date: Fri, 16 Sep 2005 10:19:50 +0200
-From: Emmanuel Fleury <fleury@cs.aau.dk>
-User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Automatic Configuration of a Kernel
-References: <20050914223836.53814.qmail@web51011.mail.yahoo.com> <2cd57c9005091601112e215a1e@mail.gmail.com>
-In-Reply-To: <2cd57c9005091601112e215a1e@mail.gmail.com>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Fri, 16 Sep 2005 04:29:09 -0400
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:52697 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1161124AbVIPI3I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 04:29:08 -0400
+Subject: Re: [patch] s390: kernel stack corruption.
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+To: "Theodore Ts'o" <tytso@mit.edu>
+Cc: akpm@osdl.org, peter.oberparleiter@de.ibm.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050915151119.GB22503@thunk.org>
+References: <20050915145303.GA5959@skybase.boeblingen.de.ibm.com>
+	 <20050915151119.GB22503@thunk.org>
+Content-Type: text/plain
+Date: Fri, 16 Sep 2005 10:29:09 +0200
+Message-Id: <1126859349.4923.13.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Coywolf Qi Hunt wrote:
+On Thu, 2005-09-15 at 11:11 -0400, Theodore Ts'o wrote:
+> On Thu, Sep 15, 2005 at 04:53:03PM +0200, Martin Schwidefsky wrote:
+> > Hi Andrew,
+> > Peter discoverd another rather critical bug in entry.S.
+> > This should go into 2.6.14 if possible.
 > 
-> How about the idea that we have a .hwconfig file and we do `make
-> hwconfig' to generate it? So normal filesystems and network stack
-> stuff don't belong to hwconfig.
-> 
-> .hwconfig file merely stores the result from auto hardware detection.
+> This might be a good thing for the 2.6.13.x stable series.
 
-Well, at the end you just want to have one .config file with everything
-inside. If I follow your logic we also should have a .fsconfig, a
-.netconfig, a .audioconfig, ... and so on.
+Yes, that would be good. 
 
-So, working on the .config seems nice to me.
-
-Simplicity is good ! ^_^
-
-Regards
 -- 
-Emmanuel Fleury
+blue skies,
+   Martin
 
-A child of five could understand this. Fetch me a child of five.
-  -- Groucho Marx
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
+
+

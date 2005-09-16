@@ -1,98 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750792AbVIPTbj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751243AbVIPTgS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750792AbVIPTbj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 15:31:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751243AbVIPTbj
+	id S1751243AbVIPTgS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 15:36:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751245AbVIPTgS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 15:31:39 -0400
-Received: from ams-iport-1.cisco.com ([144.254.224.140]:56853 "EHLO
-	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S1750792AbVIPTbi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 15:31:38 -0400
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       rolandd@cisco.com
-Subject: Re: [RFC] utterly bogus userland API in infinibad
-X-Message-Flag: Warning: May contain useful information
-References: <20050916181132.GF19626@ftp.linux.org.uk>
-From: Roland Dreier <rolandd@cisco.com>
-Date: Fri, 16 Sep 2005 12:31:30 -0700
-In-Reply-To: <20050916181132.GF19626@ftp.linux.org.uk> (Al Viro's message of
- "Fri, 16 Sep 2005 19:11:32 +0100")
-Message-ID: <52fys4lsh9.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-X-OriginalArrivalTime: 16 Sep 2005 19:31:31.0196 (UTC) FILETIME=[3D8753C0:01C5BAF5]
+	Fri, 16 Sep 2005 15:36:18 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:57014 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751243AbVIPTgS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 15:36:18 -0400
+Date: Fri, 16 Sep 2005 15:33:28 -0400
+From: Bill Nottingham <notting@redhat.com>
+To: linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: [PATCH] fix class symlinks in sysfs
+Message-ID: <20050916193328.GC17181@nostromo.devel.redhat.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org, greg@kroah.com
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="X1bOJ3K7DJ5YkBrT"
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > Exhibit A:
- > 
- > 	opening uverbs... is done by ib_uverbs_open() (in
- > drivers/infinib*d/core/uverbs_main.c).   Aside of a number of obvious
- > leaks, it does a number of calls of ib_uverbs_event_init().  Each of
- > those does something amazingly bogus:
- > 	* allocates a descriptor
- > 	* allocates struct file
- > 	* associates that struct file with root of their pseudo-fs
- > 	* inserts it into caller's descriptor table
- > ... and leaves an unknown number of those if open() fails, while we
- > are at it.  With zero indications for caller and no way to find out.
 
-Sorry, but the obvious leaks aren't obvious to me.  Could you give
-more details?
+--X1bOJ3K7DJ5YkBrT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-It is a good point that we might leak file descriptors if open() fails
-halfway through.  I guess we should wait to do the fd_install()s until
-we're sure that everything has succeeded.
+The class symlinks in sysfs don't properly handle changing device names.
 
- > 	What's more, you _can_ get those descriptors afterwards, if open()
- > had succeeded.  All you need to do is...
+To demonstrate, rename your network device from eth0 to eth1. Your
+pci (or usb, or whatever) device will still have a 'net:eth0' link,
+except now it points to /sys/class/net/eth1.
 
-Not sure I follow this.  The intention is that those file descriptors
-be available to userspace for poll(), read(), etc.
+The attached patch makes sure the class symlink name changes when
+the class device name changes. It isn't 100% correct, it should be
+using sysfs_rename_link. Unfortunately, sysfs_rename_link doesn't exist.
 
- > Exibit B:
- > 	... write() to said descriptor.  Buffer should contain a struct
- > that will be interpreted.  Results will be written to user memory, at the
- > addresses contained in that struct.  Said results might include the
- > descriptors shat upon by open().  Nice way to hide an ioctl(), folks...
+Signed-off-by: Bill Nottingham <notting@redhat.com>
 
- > Note that this "interface" assumes that only original opener will write
- > to that file - for anybody else descriptors obviously will not make any
- > sense.
+Bill
 
- > BTW, due to the way we do opens, if another thread sharing descriptor
- > table will guess the number of first additional descriptor to be opened
- > and just loops doing close() on it, we'll actually get our ib_uverbs_file
- > kfreed right under us.  
+--X1bOJ3K7DJ5YkBrT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="linux-sysfs.patch"
 
-Good point.  What do other interfaces that create file descriptors do?
-For example, in fs/eventpoll.c, I don't see anything obvious in
-sys_epoll_create() that protects the file descriptor from being closed
-between ep_getfd() and ep_file_init().
+diff -ru linux/drivers/base/class.c linux/drivers/base/class.c
+--- linux/drivers/base/class.c	2005-09-16 15:17:11.000000000 -0400
++++ linux/drivers/base/class.c	2005-09-16 15:15:58.000000000 -0400
+@@ -669,6 +669,7 @@
+ int class_device_rename(struct class_device *class_dev, char *new_name)
+ {
+ 	int error = 0;
++	char *old_class_name = NULL, *new_class_name = NULL;
+ 
+ 	class_dev = class_device_get(class_dev);
+ 	if (!class_dev)
+@@ -677,11 +678,24 @@
+ 	pr_debug("CLASS: renaming '%s' to '%s'\n", class_dev->class_id,
+ 		 new_name);
+ 
++	if (class_dev->dev) {
++		old_class_name = make_class_name(class_dev);
++	}
++
+ 	strlcpy(class_dev->class_id, new_name, KOBJ_NAME_LEN);
+ 
+ 	error = kobject_rename(&class_dev->kobj, new_name);
+ 
++	if (class_dev->dev) {
++		new_class_name = make_class_name(class_dev);
++		sysfs_create_link(&class_dev->dev->kobj, &class_dev->kobj,
++				  new_class_name);
++		sysfs_remove_link(&class_dev->dev->kobj, old_class_name);
++	}
+ 	class_device_put(class_dev);
++	
++	kfree(old_class_name);
++	kfree(new_class_name);
+ 
+ 	return error;
+ }
 
-It seems that waiting to do the fd_install()s until we're just about
-to return to userspace anyway would be good enough.
-
- > May I ask who had come up with that insanity?  Aside of inherent ugliness
- > and abuse of fs syscalls, it simply doesn't work.  E.g. leaks on failed
- > open() are going to be fun to fix...
-
-I'm the insane one.  I'm happy to fix it up, but do you have a
-preference for what the interface should look like?  I don't think we
-want 30+ new system calls for InfiniBand and I don't think we want a
-single horrible multiplexed system call.  I don't think ioctl() is any
-better or worse than write(), so I could go either way.  Anyway, what
-do you suggest?
-
-Not to be peevish, but I actually described exactlyl this scheme in
-email to lkml, cc'ed to Al, in Message-ID: <52k6qn229h.fsf@topspin.com>
-back in January.  For some reason, this email doesn't seem to have
-been archived on the web (I'm happy to resend if anyone wants), but Al
-certainly replied to part of it (saying that yes, get_sb_pseudo()
-should be exported).
-
-Thanks,
-  Roland
+--X1bOJ3K7DJ5YkBrT--

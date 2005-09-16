@@ -1,126 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161249AbVIPSlK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161256AbVIPSnV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161249AbVIPSlK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 14:41:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161257AbVIPSlJ
+	id S1161256AbVIPSnV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 14:43:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161257AbVIPSnV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 14:41:09 -0400
-Received: from zproxy.gmail.com ([64.233.162.200]:44411 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161249AbVIPSlH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 14:41:07 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=fZVtUjX47i6u431Tezzt0MlqLrjCyoUZ3+LecEaBRiqgCGySK8B6HmC7zJZh8v2aRe8Fq1xCEj9Gi2i0ETH5A7j7k0OeXsLBr+iARNIJNRYTW3TPkWk7YaEec7wDkxo1kGycWGtz+AvDhdLPKk2K21pK37d23EI1MJv9seyCqXY=
-Date: Fri, 16 Sep 2005 22:51:20 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Ram <linuxram@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, akpm@osdl.org,
-       viro@ftp.linux.org.uk, miklos@szeredi.hu, mike@waychison.com,
-       bfields@fieldses.org, serue@us.ibm.com
-Subject: Re: [RFC PATCH 1/10] vfs: Lindentified namespace.c
-Message-ID: <20050916185120.GA4461@mipter.zuzino.mipt.ru>
-References: <20050916182619.GA28428@RAM>
-Mime-Version: 1.0
+	Fri, 16 Sep 2005 14:43:21 -0400
+Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:1224 "EHLO
+	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP
+	id S1161256AbVIPSnU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 14:43:20 -0400
+X-ORBL: [69.107.75.50]
+DomainKey-Signature: a=rsa-sha1; s=sbc01; d=pacbell.net; c=nofws; q=dns;
+	h=received:date:from:to:subject:cc:references:in-reply-to:
+	mime-version:content-type:content-transfer-encoding:message-id;
+	b=PKuo2HcDFZest/N4L8yTYUdmAERkSWXzaGv8Xsmcjnjp28cyuD7naUqO0tKc1jU+4
+	FB8s5HRCzFfLCl9VKni7Q==
+Date: Fri, 16 Sep 2005 11:43:02 -0700
+From: David Brownell <david-b@pacbell.net>
+To: linux-kernel@vger.kernel.org, basicmark@yahoo.com
+Subject: Re: [RFC][PATCH] SPI subsystem
+Cc: dpervushin@ru.mvista.com
+References: <20050916175536.87846.qmail@web30315.mail.mud.yahoo.com>
+In-Reply-To: <20050916175536.87846.qmail@web30315.mail.mud.yahoo.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050916182619.GA28428@RAM>
-User-Agent: Mutt/1.5.8i
+Content-Transfer-Encoding: 7bit
+Message-Id: <20050916184302.4C6B985EB8@adsl-69-107-32-110.dsl.pltn13.pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 16, 2005 at 11:26:19AM -0700, Ram wrote:
-> Lindentified fs/namespace.c
-> 
-> Signed by Ram Pai (linuxram@us.ibm.com)
+> Thinking about it, for blocking transfers the core
+> could call the adapters transfer routine and then
+> start a wait on completeion. When the message has been
+> sent the adapter would finish the completeion and the
+> call to the core would then return (I think this is
+> how the mmc core layer does it). How do you feel about
+> that sugguestion? 
 
-Signed-off-by: ... <...>
+It resembles some code in my patch, which you included in your reply.
+I've deleted the other parts; see at the end of this message.
 
-> --- 2.6.13.sharedsubtree.orig/fs/namespace.c
-> +++ 2.6.13.sharedsubtree/fs/namespace.c
+(By the way, you should trim down your email replies and stop re-wrapping
+things to 56-character borders... it breaks attribution prefixes as well
+as patches, and makes your posts hard to read.)
 
-> -	unsigned long tmp = ((unsigned long) mnt / L1_CACHE_BYTES);
-> -	tmp += ((unsigned long) dentry / L1_CACHE_BYTES);
-> +	unsigned long tmp = ((unsigned long)mnt / L1_CACHE_BYTES);
-> +	tmp += ((unsigned long)dentry / L1_CACHE_BYTES);
 
-Could you do it by hand? In the folllowing case indent made code look
-worse. In particular, all labels are moved to column 7.
+> How would you feel about having a list head for
+> messages in the adapter structure? I think every
+> adapter driver would at least need this.
 
-> -static void *m_start(struct seq_file *m, loff_t *pos)
-> +static void *m_start(struct seq_file *m, loff_t * pos)
+It's just as simple to use:
 
-*pos
+	struct my_spi_controller {
+		struct spi_master	master;
+		struct list_head	queue;
+		... register pointers
+		... and other controller-private state
+	};
 
->  	list_for_each(p, &n->list)
-> -		if (!l--)
-> -			return list_entry(p, struct vfsmount, mnt_list);
-> +	    if (!l--)
-> +		return list_entry(p, struct vfsmount, mnt_list);
+I prefer the information hiding approach.  In this case, no code
+outside the controller driver ever has any business looking at that
+queue; they shouldn't even be able to see it.  That way there will
+be no temptation to change it and break anything.
 
-> -static void *m_next(struct seq_file *m, void *v, loff_t *pos)
-> +static void *m_next(struct seq_file *m, void *v, loff_t * pos)
 
->  struct seq_operations mounts_op = {
-> -	.start	= m_start,
-> -	.next	= m_next,
-> -	.stop	= m_stop,
-> -	.show	= show_vfsmnt
-> +	.start = m_start,
-> +	.next = m_next,
-> +	.stop = m_stop,
-> +	.show = show_vfsmnt
+> > As for MMC ... it'll be interesting to watch that
+> > play out; won't the mmc_block code need to change?
+>
+> I don't know, I would hope not. If the mmc core is
+> completely generic then I think I should only have to
+> write a driver like mmci and not have to change the
+> mmc_block or mmc core layers.
 
-> -repeat:
-> +      repeat:
->  	next = this_parent->mnt_mounts.next;
+I seem to recall MMC/SD card specs showing different commands are
+used in SPI mode than MMC/SD mode.  I'd be (pleasantly) surprised if
+current mmc_block code already understood them.  (As I recall, the
+specs from SanDisk were pretty informative.)
 
-> -	while(d_mountpoint(nd->dentry) && follow_down(&nd->mnt, &nd->dentry))
-> -		;
-> +	while (d_mountpoint(nd->dentry) && follow_down(&nd->mnt, &nd->dentry)) ;
+- Dave
 
-> -	while(d_mountpoint(nd->dentry) && follow_down(&nd->mnt, &nd->dentry))
-> -		;
-> +	while (d_mountpoint(nd->dentry) && follow_down(&nd->mnt, &nd->dentry)) ;
 
-> -exact_copy_from_user(void *to, const void __user *from, unsigned long n)
-> +exact_copy_from_user(void *to, const void __user * from, unsigned long n)
-
-> -int copy_mount_options(const void __user *data, unsigned long *where)
-> +int copy_mount_options(const void __user * data, unsigned long *where)
-
-> -	
-> +
-
-> -	} while_each_thread(g, p);
-> +	}
-> +	while_each_thread(g, p);
-
-> -		goto out2; /* loop, on the same file system  */
-> +		goto out2;	/* loop, on the same file system  */
-
-> -		goto out2; /* not a mountpoint */
-> +		goto out2;	/* not a mountpoint */
-
-> -		goto out2; /* not a mountpoint */
-> -	tmp = old_nd.mnt; /* make sure we can reach put_old from new_root */
-> +		goto out2;	/* not a mountpoint */
-> +	tmp = old_nd.mnt;	/* make sure we can reach put_old from new_root */
-
-> -				goto out3; /* already mounted on put_old */
-> +				goto out3;	/* already mounted on put_old */
-
-> -	attach_mnt(user_nd.mnt, &old_nd);     /* mount old root on put_old */
-> -	attach_mnt(new_nd.mnt, &root_parent); /* mount new_root on / */
-> +	attach_mnt(user_nd.mnt, &old_nd);	/* mount old root on put_old */
-> +	attach_mnt(new_nd.mnt, &root_parent);	/* mount new_root on / */
-
-> -	} while_each_thread(g, p);
-> +	}
-> +	while_each_thread(g, p);
-
->  	mount_hashtable = (struct list_head *)
-> -		__get_free_page(GFP_ATOMIC);
-> +	    __get_free_page(GFP_ATOMIC);
-
+> > +int spi_sync(struct spi_device *spi, struct spi_message *message)
+> > +{
+> > +	DECLARE_COMPLETION(done);
+> > +	int status;
+> > +
+> > +	message->complete = spi_sync_complete;
+> > +	message->context = &done;
+> > +	status = spi_async(spi, message);
+> > +	if (status == 0)
+> > +		wait_for_completion(&done);
+> > +	message->context = NULL;
+> > +	return status;
+> > +}
+> > +EXPORT_SYMBOL(spi_sync);

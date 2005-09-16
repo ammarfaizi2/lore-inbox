@@ -1,70 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161117AbVIPHqS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161121AbVIPICn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161117AbVIPHqS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 03:46:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161118AbVIPHqR
+	id S1161121AbVIPICn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 04:02:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161122AbVIPICm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 03:46:17 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:32658 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1161117AbVIPHqR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 03:46:17 -0400
-Date: Fri, 16 Sep 2005 08:46:06 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Sripathi Kodi <sripathik@in.ibm.com>
-Cc: Al Viro <viro@ZenIV.linux.org.uk>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       patrics@interia.pl, Ingo Molnar <mingo@elte.hu>,
-       Roland McGrath <roland@redhat.com>
-Subject: Re: [PATCH 2.6.13.1] Patch for invisible threads
-Message-ID: <20050916074606.GE19626@ftp.linux.org.uk>
-References: <Pine.LNX.4.58.0509130744070.3351@g5.osdl.org> <20050913165102.GR25261@ZenIV.linux.org.uk> <Pine.LNX.4.58.0509131000040.3351@g5.osdl.org> <20050913171215.GS25261@ZenIV.linux.org.uk> <43274503.7090303@in.ibm.com> <Pine.LNX.4.58.0509131601400.26803@g5.osdl.org> <20050914015003.GW25261@ZenIV.linux.org.uk> <4328C0D0.6000909@in.ibm.com> <20050915011850.GZ25261@ZenIV.linux.org.uk> <432A17E0.3060302@in.ibm.com>
+	Fri, 16 Sep 2005 04:02:42 -0400
+Received: from styx.suse.cz ([82.119.242.94]:14312 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S1161121AbVIPICl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 04:02:41 -0400
+Date: Fri, 16 Sep 2005 10:02:37 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Kay Sievers <kay.sievers@vrfy.org>, Greg KH <gregkh@suse.de>,
+       linux-kernel@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
+       Patrick Mochel <mochel@digitalimplant.org>, airlied@linux.ie
+Subject: Re: [RFC] subclasses in sysfs to solve world peace
+Message-ID: <20050916080237.GD10007@midnight.suse.cz>
+References: <20050916002036.GA6149@suse.de> <20050916010438.GA12759@vrfy.org> <200509152023.44003.dtor_core@ameritech.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <432A17E0.3060302@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200509152023.44003.dtor_core@ameritech.net>
+X-Bounce-Cookie: It's a lemmon tree, dear Watson!
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 15, 2005 at 07:54:56PM -0500, Sripathi Kodi wrote:
-> proc_root_link and proc_task_root_link still have some duplicated code. I 
-> could have split these functions further to avoid duplication completely, 
-> but that would move incrementing and decrementing fs->lock to two different 
-> functions, which I think will be confusing.
+On Thu, Sep 15, 2005 at 08:23:43PM -0500, Dmitry Torokhov wrote:
+> On Thursday 15 September 2005 20:04, Kay Sievers wrote:
+> > I like that the child devices are actually below the parent device
+> > and represent the logical structure. I prefer that compared to the
+> > symlink-representation between the classes at the same directory
+> > level which the input patches propose.
 > 
-> The other way of implementing this that I could think of was to have a flag 
-> to indicate that the call is from ->permission path and pass it all along. 
-> This will avoid having to change many existing functions, but it will 
-> defeat the purpose of limiting this kludge code to ->permission path.
-> 
-> Please let me know how it is looking now.
+> Why don't we take it a step further and abandon classes altogether?
+> This way everything will grow from their respective hardware devices.
 
-Ugh...  Considering that all of that is _only_ for /proc/<pid>/task and
-that proc_permission() is a couple of function calls, why bother with
-proc_task_check_root() instead of just adding proc_task_permission() with
+That'd seem like a quite a good idea to me. ;)
 
-{
-	struct dentry *root;
-	struct vfsmount *vfsmnt;
+> Class represent a set of objects with similar characteristics. In
+> this regard event0 is no "lesser" than input0.
 
-	if (generic_permission(inode, mask, NULL) != 0)
-		return -EACCES;
+Well, input0 itself can't be accessed from userspace, so it's different.
 
-	/* or just open-code it here, for that matter */
-	if (proc_task_root_link(inode, &root, &vfsmnt))
-		return -ENOENT;
+> Although they are
+> linked they are objects of the same importance. I do want to see
+> all input interfaces without scanning bunch of directories.
 
-	return proc_check_chroot(root, vfsmnt);
-}
+A directory with symlinks to all the interfaces of the class might make
+sense.
 
-for a body and leaving proc_permission() without any changes at all?
- 
-> Further, about actual permission checks that we are doing, can we say: "A 
-> process should be able to see /proc/<pid>/task/* of another process only if 
-> they both belong to same uid or reader is root"? But any such change will 
-> change the behavior of commands like 'ps', right?
-
-Right.  The real question is whether the current behaviour makes any sense.
-I've no objections to your patch + modification above, but I really wonder
-if we should keep current rules in that area.
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161272AbVIPTGu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161273AbVIPTIe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161272AbVIPTGu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 15:06:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161273AbVIPTGu
+	id S1161273AbVIPTIe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 15:08:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161269AbVIPTIe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 15:06:50 -0400
-Received: from smtp007.mail.ukl.yahoo.com ([217.12.11.96]:63670 "HELO
-	smtp007.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1161272AbVIPTGt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 15:06:49 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=589bqg/fnZtbo2LOVm9/G1BCy6KlcBdViAdc42VJCaeviCliwy5gLm8OLMOdF8XKLDtGR7K8jcmF/3E4DLKjoM/qBqSZZaSp6c8nr/Qk98nVkUGxjP80+DtlTHZ5hmNyIssAP9vcthtMVBTT1zRcCNsg4uKy0T5i6hTastwA5dk=  ;
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] Re: [PATCH 1/10] UML - _switch_to code consolidation
-Date: Fri, 16 Sep 2005 20:55:08 +0200
-User-Agent: KMail/1.8.1
-Cc: Pavel Machek <pavel@suse.cz>, Jeff Dike <jdike@addtoit.com>, akpm@osdl.org,
+	Fri, 16 Sep 2005 15:08:34 -0400
+Received: from albireo.ucw.cz ([84.242.65.108]:427 "EHLO albireo.ucw.cz")
+	by vger.kernel.org with ESMTP id S1161273AbVIPTId (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 15:08:33 -0400
+Date: Fri, 16 Sep 2005 21:08:31 +0200
+From: Martin Mares <mj@ucw.cz>
+To: Bodo Eggert <7eggert@gmx.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>,
+       =?iso-8859-2?B?Ik1hcnRpbiB2LiBM9ndpcyI=?= <martin@v.loewis.de>,
        linux-kernel@vger.kernel.org
-References: <200509142155.j8ELtm5c012124@ccure.user-mode-linux.org> <20050915095828.GE7880@elf.ucw.cz>
-In-Reply-To: <20050915095828.GE7880@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Subject: Re: [Patch] Support UTF-8 scripts
+Message-ID: <20050916190831.GA3265@ucw.cz>
+References: <4N6EL-4Hq-3@gated-at.bofh.it> <4N6EL-4Hq-5@gated-at.bofh.it> <4N6EK-4Hq-1@gated-at.bofh.it> <4N6EX-4Hq-27@gated-at.bofh.it> <4N6Ox-4Ts-33@gated-at.bofh.it> <4N7AS-67L-3@gated-at.bofh.it> <E1EGKXl-0001Sn-GA@be1.lrz> <432B0A47.7060909@zytor.com> <Pine.LNX.4.58.0509162029470.5708@be1.lrz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200509162055.08876.blaisorblade@yahoo.it>
+In-Reply-To: <Pine.LNX.4.58.0509162029470.5708@be1.lrz>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 15 September 2005 11:58, Pavel Machek wrote:
-> Hi!
->
+Hello!
 
-> I sense a whitespace damage here.
-Yes, it seems definitely that getting Jeff to use tabs consistently is a 
-daunting task, since when he started removing the Emacs annotations from the 
-files.
+> It should, but as long as old programs are still around, we'll have both 
+> and need a marker to distinguish them.
 
-Apart for parentheses excess in return and missing spaces with if and such...
+I doubt that. For ages people were using several different encodings on
+a single system (at least here in .cz) without any markers and although
+there were some rough edges, almost everything worked. Now we do the same
+with ISO-8859-2 and UTF-8, again with no need for a marker.
 
-Jeff, have you moved that to your emacs settings or not yet?
+				Have a nice fortnight
 -- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
-http://www.user-mode-linux.org/~blaisorblade
-
-
-	
-
-	
-		
-___________________________________ 
-Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
-http://mail.yahoo.it
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+Linux vs. Windows is a no-WIN situation.

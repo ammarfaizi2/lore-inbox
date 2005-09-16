@@ -1,57 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161134AbVIPIjI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161135AbVIPImQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161134AbVIPIjI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 04:39:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161135AbVIPIjI
+	id S1161135AbVIPImQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 04:42:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161136AbVIPImQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 04:39:08 -0400
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:24805 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1161134AbVIPIjH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 04:39:07 -0400
-Subject: Re: [patch 6/7] s390: ipl device.
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Greg KH <greg@kroah.com>, akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20050916071444.GA11851@osiris.boeblingen.de.ibm.com>
-References: <20050914155509.GE11478@skybase.boeblingen.de.ibm.com>
-	 <20050915171718.GA9833@kroah.com>
-	 <20050916071444.GA11851@osiris.boeblingen.de.ibm.com>
-Content-Type: text/plain
-Date: Fri, 16 Sep 2005 10:39:09 +0200
-Message-Id: <1126859949.4923.21.camel@localhost.localdomain>
+	Fri, 16 Sep 2005 04:42:16 -0400
+Received: from aml46.internetdsl.tpnet.pl ([83.17.67.46]:59129 "HELO
+	aml46.internetdsl.tpnet.pl") by vger.kernel.org with SMTP
+	id S1161135AbVIPImP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 04:42:15 -0400
+Date: Fri, 16 Sep 2005 10:42:07 +0200
+From: Lukasz Stelmach <stlman@poczta.fm>
+To: linux-kernel@vger.kernel.org
+Subject: resource limits does not work?
+Message-ID: <20050916084206.GA19606@vlana.p.telmark.waw.pl>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4.2.1i
+X-Mail-Editor: Vim version 5.8.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-09-16 at 09:14 +0200, Heiko Carstens wrote:
-> > > Export the ipl device settings to userspace via the sysfs:
-> > >  * /sys/kernel/ipl_device
-> > What?  Why that location?  Why not in the proper location for your
-> > device, on your bus?
-> 
-> This interface tells from where the kernel was booted from. I don't
-> think a device should have an attribute where the meaning would be
-> "the current running kernel came via this device into memory".
-> IMHO this should be an attribute of the kernel and therefore I
-> thought /sys/kernel would be a good idea.
+Greetings All.
 
-If the additional ipl information is bound to the ipl device then we'd
-have to search for the device if we'd want to get the ipl information.
-And if we ever want to make /sys/kernel/ipl_device writable to be able
-to change the ipl_device for a reboot then what? Have the ipl related
-sysfs files for ALL devices you can ipl from to be able to move to
-another device? I think we need a central place for this information.
+Is there anything you think I should know about setrlimit that is not
+mentioned in setrlimit(2) manual that makes the malloc(3) succeed 
+in the code below? It fails when r.rlim_cur is less than 137840.
 
+#include <sys/time.h>
+#include <sys/resource.h>
+#include <unistd.h>
+
+int main(int ac, char* av[]) {
+        struct rlimit r;
+        r.rlim_cur = 137840;
+        r.rlim_max = RLIM_INFINITY;
+        setrlimit(RLIMIT_DATA, &r);
+
+        char* a=malloc(6000000);
+        perror("malloc");
+        return 0;
+}
+
+What is more interesting is that dnscache from djbdnspackage succeeds to start
+up with rlim_cur to be 0.
+
+$ uname -a
+Linux vlana 2.6.11 #1 SMP Fri Mar 4 17:35:07 CET 2005 i686 unknown unknown GNU/Linux
+
+cheers.
+PS. please CC, not a subscriber.
 -- 
-blue skies,
-   Martin
-
-Martin Schwidefsky
-Linux for zSeries Development & Services
-IBM Deutschland Entwicklung GmbH
-
-
+Miłego dnia
+>Łukasz<

@@ -1,122 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161219AbVIPSCt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161212AbVIPSFq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161219AbVIPSCt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 14:02:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161217AbVIPSCt
+	id S1161212AbVIPSFq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 14:05:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161220AbVIPSFq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 14:02:49 -0400
-Received: from mail-in-07.arcor-online.net ([151.189.21.47]:54668 "EHLO
-	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1161219AbVIPSCs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 14:02:48 -0400
-From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
-Subject: Re: [Patch] Support UTF-8 scripts
-To: "H. Peter Anvin" <hpa@zytor.com>,
-       Martin =?ISO-8859-1?Q?v=2E_L=F6wis?= <martin@v.loewis.de>,
-       linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Fri, 16 Sep 2005 20:02:36 +0200
-References: <4N6EL-4Hq-3@gated-at.bofh.it> <4N6EL-4Hq-5@gated-at.bofh.it> <4N6EK-4Hq-1@gated-at.bofh.it> <4N6EX-4Hq-27@gated-at.bofh.it> <4N6Ox-4Ts-33@gated-at.bofh.it> <4N7AS-67L-3@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1EGKXl-0001Sn-GA@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
+	Fri, 16 Sep 2005 14:05:46 -0400
+Received: from nevyn.them.org ([66.93.172.17]:10988 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S1161212AbVIPSFp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 14:05:45 -0400
+Date: Fri, 16 Sep 2005 14:05:35 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Sripathi Kodi <sripathik@in.ibm.com>, Al Viro <viro@ZenIV.linux.org.uk>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, patrics@interia.pl,
+       Ingo Molnar <mingo@elte.hu>, Roland McGrath <roland@redhat.com>
+Subject: Re: [PATCH 2.6.13.1] Patch for invisible threads
+Message-ID: <20050916180535.GA10430@nevyn.them.org>
+Mail-Followup-To: Al Viro <viro@ftp.linux.org.uk>,
+	Sripathi Kodi <sripathik@in.ibm.com>,
+	Al Viro <viro@ZenIV.linux.org.uk>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, patrics@interia.pl,
+	Ingo Molnar <mingo@elte.hu>, Roland McGrath <roland@redhat.com>
+References: <20050913165102.GR25261@ZenIV.linux.org.uk> <Pine.LNX.4.58.0509131000040.3351@g5.osdl.org> <20050913171215.GS25261@ZenIV.linux.org.uk> <43274503.7090303@in.ibm.com> <Pine.LNX.4.58.0509131601400.26803@g5.osdl.org> <20050914015003.GW25261@ZenIV.linux.org.uk> <4328C0D0.6000909@in.ibm.com> <20050915011850.GZ25261@ZenIV.linux.org.uk> <432A17E0.3060302@in.ibm.com> <20050916074606.GE19626@ftp.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050916074606.GE19626@ftp.linux.org.uk>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernd Petrovitsch <bernd@firmix.at> wrote:
-> On Thu, 2005-09-15 at 20:39 +0200, "Martin v. Löwis" wrote:
->> H. Peter Anvin wrote:
-
->> > In Unix, it's a hideously bad idea.  The reason is that Unix inherently
->> > assumes that text streams can be merged, split, and modified.  In other
->> > words, unless you can guarantee that EVERY program can handle BOM
->> > EVERYWHERE, it's broken.
-
-You can't sort /bin/ls into /tmp/ls and expect /tmp/ls to be meaningfull,
-but /bin/ls works as expected. You can't usurally concat perl scripts and
-shell scripts either, but both kinds of script run quite well.
-
-And if you do "cat /bin/cat /bin/cp > /bin/catcp", what's "catcp foo bar"
-supposed to do? First output foo and bar to stdout, then copy foo to bar?
-Is execve() broken if it doesn't do what I described? Is the ELF header
-broken because it's not recogmized EVERYWHERE? I don't think so.
-
->> This argument is bogus. We are talking about scripts here, which cannot
->> be merged, split, and modified. You don't cat(1) or sort(1) them - it's
+On Fri, Sep 16, 2005 at 08:46:06AM +0100, Al Viro wrote:
+> > Further, about actual permission checks that we are doing, can we say: "A 
+> > process should be able to see /proc/<pid>/task/* of another process only if 
+> > they both belong to same uid or reader is root"? But any such change will 
+> > change the behavior of commands like 'ps', right?
 > 
-> Sure they can since they are plain text files.
-> How do you think one merges scripts?
-> Just `cat`ing them all into one new file and edit that new file is much
-> faster and simpler than to open an empty new file with your editor, then
-> you open all the other scripts in your editor and copy them by hand.
+> Right.  The real question is whether the current behaviour makes any sense.
+> I've no objections to your patch + modification above, but I really wonder
+> if we should keep current rules in that area.
 
-What's supposed to happen if you concatenate a script from your french
-user and from your russian user, both using localized text, into one file?
-Unless you can guarantee every editor to correctly handle this case, all
-usage of 8-bit-characters should be disabled - NOT!
-
-If you concatenate two plain text files, you will use cat.
-If you concatenate two pnm image files, you will use pnmcat.
-If you concatenate two utf-8 files, you will use utf8cat.
-If you concatenate two binaries, you will shoot your feet.
-That's easy, isn't it?
-
-BTW: I think decent utf-8 capable programs SHOULD ignore extra BOM markers.
-
-> And you (or at least I) do `grep`/`egrep`/`fgrep`, `wc` them.
-
-You can *grep utf-8 scripts, but you can't *grep binaries. Shouldn't
-this be fixed by implementing an in-kernel ASCII assembler and convert
-all binaries to assembler text?
-
-> And
-> probably with several other tools too - think of `find <dir> -type f
-> -print0 | xargs -0r <cmd>`.
-
-utf-8 filenames will work correctly (unless used as an extended BASIC
-script with non-ASCII variable names, but that would be insane).
-
->> just pointless to do that. You create them with text editors, and those
->> can handle the UTF-8 signature.
-> 
-> It is not uncommon to create scripts and the like with other programs,
-> other scripts, what-else.
-
-It's not uncommon to create binaries using other programs. So what?
-
-> Apart from the fact the a "script" is merely a plain text file with the
-> eXecutable bit set.
-
-And an utf-8 script is a utf-8 encoded text file with it's executable bit
-set.
-
-> And that is the only difference, so you have to at
-> least (all instances of) `chmod` to insert and remove the BOM.
-[...]
-
-In order to make it harder for the interpreter to correctly detect utf-8?
-You can have DOS executables run in dosboxes, windows applications run
-in windows, java archives run in java, but utf-8 scripts should be
-mangled in order to work "correctly", and mangled back in order to be
-editable? *That*'s insane!
-
-Just make execve ignore the BOM marker before "#!" as the patch does, and
-you're done. The rest is somebody else's not-a-problem.
-
-
-
-BTW2: However, I don't like the patch.
-
-I'd first check for a utf-8 signature, and if it's found, adjust the
-buffer offset by 3. Then I'd run the old code checking for the sh_bang.
-OTOH, I just read the patch and not the .c file, maybe (unlikely) my idea
-wouldn't work correctly.
+Why should there be any more restrictions on /proc/<pid>/task than
+there are in /proc?  Threads are not listed in the latter, but that's
+strictly for performance/usability; you can enumerate threads in /proc
+by just trying all the valid PIDs.
 
 -- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+Daniel Jacobowitz
+CodeSourcery, LLC

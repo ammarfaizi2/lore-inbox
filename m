@@ -1,60 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbVIPWpT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbVIPWsF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750735AbVIPWpT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 18:45:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbVIPWpT
+	id S1750742AbVIPWsF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 18:48:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbVIPWsF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 18:45:19 -0400
-Received: from qproxy.gmail.com ([72.14.204.205]:57324 "EHLO qproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750735AbVIPWpS convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 18:45:18 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=GsZ3DruISiOUnLPoM1ceuXsba6qnH+CXsg0iHuspPvuNv4UCyMn/VvteIcSq5KQArCSTIxOqq0kQQvTHyW/6znLul61eP+ncWvTv+IWP/CQi/fd5Rc79xfM/Nnk8tuptdeZsrFx4ItGwaAqQHjkUvc4wwOToUQKcD+PPAd6WsQM=
-Message-ID: <d120d50005091615455e6c1181@mail.gmail.com>
-Date: Fri, 16 Sep 2005 17:45:16 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Greg KH <gregkh@suse.de>
-Subject: Re: [RFC] subclasses in sysfs to solve world peace
-Cc: Kay Sievers <kay.sievers@vrfy.org>, linux-kernel@vger.kernel.org,
-       Vojtech Pavlik <vojtech@suse.cz>, Hannes Reinecke <hare@suse.de>,
-       Patrick Mochel <mochel@digitalimplant.org>, airlied@linux.ie
-In-Reply-To: <20050916215557.GE13920@suse.de>
+	Fri, 16 Sep 2005 18:48:05 -0400
+Received: from ns.firmix.at ([62.141.48.66]:35203 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S1750742AbVIPWsE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 18:48:04 -0400
+Subject: Re: [Patch] Support UTF-8 scripts
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: "\"Martin v." =?ISO-8859-1?Q?L=F6wis=22?= <martin@v.loewis.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <432B2E09.9010407@v.loewis.de>
+References: <4NsP0-3YF-11@gated-at.bofh.it> <4NsP0-3YF-13@gated-at.bofh.it>
+	 <4NsP0-3YF-15@gated-at.bofh.it> <4NsP0-3YF-17@gated-at.bofh.it>
+	 <4NsP1-3YF-19@gated-at.bofh.it> <4NsP1-3YF-21@gated-at.bofh.it>
+	 <4NsOZ-3YF-9@gated-at.bofh.it> <4NsYH-4bv-27@gated-at.bofh.it>
+	 <4NtBr-4WU-3@gated-at.bofh.it> <4Nu4p-5Js-3@gated-at.bofh.it>
+	 <432B2E09.9010407@v.loewis.de>
+Content-Type: text/plain; charset=UTF-8
+Organization: http://www.firmix.at/
+Date: Sat, 17 Sep 2005 00:45:29 +0200
+Message-Id: <1126910730.3520.7.camel@gimli.at.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050916002036.GA6149@suse.de> <20050916010438.GA12759@vrfy.org>
-	 <20050916215557.GE13920@suse.de>
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/16/05, Greg KH <gregkh@suse.de> wrote:
-> On Fri, Sep 16, 2005 at 03:04:38AM +0200, Kay Sievers wrote:
-> > How will the SUBSYSTEM (kset name) value look like for a "subclass"?
-> 
-> It would be the CLASS value, to make it easier for userspace.
-> 
-> > Will it have it's own value or will all class devices and subclass
-> > devices share the same SUBSYSTEM?
-> 
-> Yes, they will all share the same.
-> 
-> > What are the "subclass drivers"? Similar to the current "bus drivers"?
-> 
-> No, kinda like what the mouse driver is today.  It's a type of driver
-> that creates subclass devices for class devices.
-> 
-> > Will it be possible to have subclasses of subclasses? :)
-> 
-> Heh, no, the tree stops here :)
-> 
+On Fri, 2005-09-16 at 22:41 +0200, "Martin v. Löwis" wrote:
+[ Language-specific examples ]
 
-I think you are potentially shooting yourself in the foot. There is no
-technical reasons for limiting depth of the tree.
+And that's the only working way - the programming languages can actually
+do it because it defines the syntax and semantics of the contents
+anyways.
+With this marker you are interferign with (at least) *all* text files.
+And thus with *all* tools which "handle" those text files.
 
+> So you *must* use encoding declarations in some languages; the UTF-8
+
+... if you absolutely want to use Non-ASCII characters in the source
+code. In most (if not all) of them exist a native gettext()
+interface ...
+
+> signature is a particularly convenient way of doing so, since it allows
+> for uniformity across languages, with no need for the text editors to
+> parse all the different programming languages.
+
+And there are always tools out there which simply do not understand the
+generic marker and can not ignore it since these bytes are part of the
+file. And thus tools (and people) will kill those markers (for whatever
+reason and if it's simple ignorance) anyway.
+
+Or another example: (Try to) start a perl/shell/... script (without
+paranmeter on the first line) which was edited on Win* and binary copied
+to a Unix system. Or at least guess what will happen ....
+
+	Bernd
 -- 
-Dmitry
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
+
+
+

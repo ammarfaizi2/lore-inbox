@@ -1,313 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161234AbVIPS02@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161229AbVIPSbQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161234AbVIPS02 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 14:26:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161233AbVIPS01
+	id S1161229AbVIPSbQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 14:31:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161249AbVIPSbP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 14:26:27 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:51133 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1161229AbVIPS0Y (ORCPT
+	Fri, 16 Sep 2005 14:31:15 -0400
+Received: from smtpout.mac.com ([17.250.248.89]:52443 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1161228AbVIPSbN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 14:26:24 -0400
-Date: Fri, 16 Sep 2005 11:26:20 -0700
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Cc: linuxram@us.ibm.com, akpm@osdl.org, viro@ftp.linux.org.uk,
-       miklos@szeredi.hu, mike@waychison.com, bfields@fieldses.org,
-       serue@us.ibm.com
-Subject: [RFC PATCH 7/10] vfs: shared subtree aware unmounts 
-Message-ID: <20050916182620.GA28518@RAM>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
-From: linuxram@us.ibm.com (Ram)
+	Fri, 16 Sep 2005 14:31:13 -0400
+In-Reply-To: <Pine.LNX.4.61.0509161133410.2041@chaos.analogic.com>
+References: <a5986103050915004846d05841@mail.gmail.com> <1e62d137050915010361d10139@mail.gmail.com> <a598610305091505184a8aa8fd@mail.gmail.com> <1e62d13705091508391832f897@mail.gmail.com> <87mzmduq1h.fsf@amaterasu.srvr.nix> <1126879660.3103.6.camel@localhost.localdomain> <87irx1ujc0.fsf@amaterasu.srvr.nix> <Pine.LNX.4.61.0509161133410.2041@chaos.analogic.com>
+Mime-Version: 1.0 (Apple Message framework v734)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <5162CC44-37D0-4FEB-ADC6-887F6FC3C3BA@mac.com>
+Cc: Nix <nix@esperi.org.uk>, arjanv@redhat.com, linux-kernel@vger.kernel.org,
+       ivan.korzakow@gmail.com, fawadlateef@gmail.com
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: best way to access device driver functions
+Date: Fri, 16 Sep 2005 14:30:39 -0400
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch that help umount a mount. The mount can either be shared,slave,private or
-unclonable.
+On Sep 16, 2005, at 12:02:59, linux-os (Dick Johnson) wrote:
+> Somebody reported to me that there was some special "optimization"  
+> in Linux that interpreted ioctl() function calls without regard to  
+> the specific device that was open (gawd I hope not), and that if  
+> you used "already-used" function numbers for your device-specific  
+> ioctl(), then strange things would occur.
 
-An unmount of a mount creates a umount event on the parent. If the parent is
-a shared mount, it gets propagated to all mounts down the propagation tree.
+IIRC, that used to be the case, but isn't anymore.
 
-Signed by Ram Pai (linuxram@us.ibm.com)
+> However, the kernel is now LOCKED during an ioctl() call. Older  
+> Linux versions didn't lock the kernel. The upshotof this is that if  
+> you have some ioctl() function that takes some time, like testing  
+> the memory in your board, you will find the system unresponsive  
+> during that test! You can unlock the kernel in your ioctl() if this  
+> is a problem.
 
- fs/namespace.c         |   68 ++++++++++++++++++++++++++++++-----------
- fs/pnode.c             |   80 +++++++++++++++++++++++++++++++++++++++++++++++++
- include/linux/dcache.h |    1 
- include/linux/fs.h     |    1 
- include/linux/pnode.h  |    2 +
- 5 files changed, 134 insertions(+), 18 deletions(-)
+This is *completely* wrong.  The kernel used to lock_kernel() for  
+*every* ioctl.  Recent changes added locked and unlocked ioctls, such  
+that ioctls that do not need the BKL can ignore it completely.  You  
+claimed to have read the code, given this typical Wrongbot statement,  
+I guess I can say for sure that you didn't.
 
-Index: 2.6.13.sharedsubtree/fs/namespace.c
-===================================================================
---- 2.6.13.sharedsubtree.orig/fs/namespace.c
-+++ 2.6.13.sharedsubtree/fs/namespace.c
-@@ -84,35 +84,48 @@ void free_vfsmnt(struct vfsmount *mnt)
- 	kfree(mnt->mnt_devname);
- 	kmem_cache_free(mnt_cache, mnt);
- }
- 
- /*
-- * Now, lookup_mnt increments the ref count before returning
-- * the vfsmount struct.
-+ * find the first or last mount at @dentry on vfsmount @mnt depending on
-+ * @dir. If @dir is set return the first mount else return the last mount.
-  */
--struct vfsmount *lookup_mnt(struct vfsmount *mnt, struct dentry *dentry)
-+struct vfsmount *__lookup_mnt(struct vfsmount *mnt, struct dentry *dentry,
-+			      int dir)
- {
- 	struct list_head *head = mount_hashtable + hash(mnt, dentry);
- 	struct list_head *tmp = head;
- 	struct vfsmount *p, *found = NULL;
- 
--	spin_lock(&vfsmount_lock);
- 	for (;;) {
--		tmp = tmp->next;
-+		tmp = dir ? tmp->next : tmp->prev;
- 		p = NULL;
- 		if (tmp == head)
- 			break;
- 		p = list_entry(tmp, struct vfsmount, mnt_hash);
- 		if (p->mnt_parent == mnt && p->mnt_mountpoint == dentry) {
--			found = mntget(p);
-+			found = p;
- 			break;
- 		}
- 	}
--	spin_unlock(&vfsmount_lock);
- 	return found;
- }
- 
-+/*
-+ * lookup_mnt increments the ref count before returning
-+ * the vfsmount struct.
-+ */
-+struct vfsmount *lookup_mnt(struct vfsmount *mnt, struct dentry *dentry)
-+{
-+	struct vfsmount *child_mnt;
-+	spin_lock(&vfsmount_lock);
-+	if ((child_mnt = __lookup_mnt(mnt, dentry, 1)))
-+		mntget(child_mnt);
-+	spin_unlock(&vfsmount_lock);
-+	return child_mnt;
-+}
-+
- static inline int check_mnt(struct vfsmount *mnt)
- {
- 	return mnt->mnt_namespace == current->namespace;
- }
- 
-@@ -369,10 +382,29 @@ int may_umount_tree(struct vfsmount *mnt
- 	return 0;
- }
- 
- EXPORT_SYMBOL(may_umount_tree);
- 
-+int mount_busy(struct vfsmount *mnt)
-+{
-+	return propagate_mount_busy(mnt, 2);
-+}
-+
-+void do_detach_mount(struct vfsmount *mnt)
-+{
-+	struct nameidata old_nd;
-+	if (mnt != mnt->mnt_parent) {
-+		detach_mnt(mnt, &old_nd);
-+		path_release(&old_nd);
-+	}
-+	list_del_init(&mnt->mnt_list);
-+	list_del_init(&mnt->mnt_expire);
-+	spin_unlock(&vfsmount_lock);
-+	mntput(mnt);
-+	spin_lock(&vfsmount_lock);
-+}
-+
- /**
-  * may_umount - check if a mount point is busy
-  * @mnt: root of mount
-  *
-  * This is called to check if a mount point has any
-@@ -406,23 +438,23 @@ static void umount_tree(struct vfsmount 
- 
- 	while (!list_empty(&kill)) {
- 		mnt = list_entry(kill.next, struct vfsmount, mnt_list);
- 		list_del_init(&mnt->mnt_list);
- 		list_del_init(&mnt->mnt_expire);
--		if (mnt->mnt_parent == mnt) {
--			spin_unlock(&vfsmount_lock);
--		} else {
--			struct nameidata old_nd;
--			detach_mnt(mnt, &old_nd);
--			spin_unlock(&vfsmount_lock);
--			path_release(&old_nd);
--		}
--		mntput(mnt);
--		spin_lock(&vfsmount_lock);
-+		propagate_umount(mnt);
- 	}
- }
- 
-+/*
-+ * return true if the refcount is greater than count
-+ */
-+int do_refcount_check(struct vfsmount *mnt, int count)
-+{
-+	int mycount = atomic_read(&mnt->mnt_count);
-+	return (mycount > count);
-+}
-+
- static int do_umount(struct vfsmount *mnt, int flags)
- {
- 	struct super_block *sb = mnt->mnt_sb;
- 	int retval;
- 
-@@ -500,11 +532,11 @@ static int do_umount(struct vfsmount *mn
- 		unlock_kernel();
- 		security_sb_umount_close(mnt);
- 		spin_lock(&vfsmount_lock);
- 	}
- 	retval = -EBUSY;
--	if (atomic_read(&mnt->mnt_count) == 2 || flags & MNT_DETACH) {
-+	if (flags & MNT_DETACH || !propagate_mount_busy(mnt, 2)) {
- 		if (!list_empty(&mnt->mnt_list))
- 			umount_tree(mnt);
- 		retval = 0;
- 	}
- 	spin_unlock(&vfsmount_lock);
-Index: 2.6.13.sharedsubtree/fs/pnode.c
-===================================================================
---- 2.6.13.sharedsubtree.orig/fs/pnode.c
-+++ 2.6.13.sharedsubtree/fs/pnode.c
-@@ -573,5 +573,85 @@ int propagate_prepare_mount(struct vfsmo
- 	create_child_list(source_mnt, &tmp_list);
- 	propagate_abort_mount(source_mnt);
- 	spin_unlock(&vfspnode_lock);
- 	return -ENOMEM;
- }
-+
-+/*
-+ * check if the mount 'mnt' can be unmounted successfully.
-+ * @mnt: the mount to be checked for unmount
-+ * NOTE: unmounting 'mnt' would naturally propagate to all
-+ * other mounts its parent propagates to. Hence those mounts
-+ * are also to be checked for unmount.
-+ */
-+int propagate_mount_busy(struct vfsmount *mnt, int refcnt)
-+{
-+	struct vfsmount *m, *child;
-+	struct vfsmount *parent = mnt->mnt_parent;
-+	int ret = 0;
-+
-+	if (mnt == parent)
-+		return do_refcount_check(mnt, refcnt);
-+
-+	/*
-+	 * quickly check if the current mount can be unmounted.
-+	 * If not, we don't have to go checking for all other
-+	 * mounts
-+	 */
-+	if (!list_empty(&mnt->mnt_mounts) || do_refcount_check(mnt, refcnt))
-+		return 1;
-+
-+	spin_lock(&vfspnode_lock);
-+	for (m = propagation_next(parent, parent); m;
-+	     m = propagation_next(m, parent)) {
-+		child = __lookup_mnt(m, mnt->mnt_mountpoint, 0);
-+		if (child && list_empty(&child->mnt_mounts) &&
-+		    (ret = do_refcount_check(child, 1)))
-+			break;
-+	}
-+	spin_unlock(&vfspnode_lock);
-+	return ret;
-+}
-+
-+/*
-+ * umount 'mnt' and also umount any mounts that gets the propagation.
-+ * @mnt: the mount to be unmounted.
-+ * NOTE: unmounting 'mnt' would naturally propagate to all
-+ * other mounts its parent propagates to.
-+ */
-+int propagate_umount(struct vfsmount *mnt)
-+{
-+	struct vfsmount *m, *child;
-+	struct vfsmount *parent = mnt->mnt_parent;
-+	LIST_HEAD(mnt_list_head);
-+
-+	if (mnt == parent) {
-+		do_detach_mount(mnt);
-+		return 0;
-+	}
-+
-+	list_del(&mnt->mnt_list);
-+	list_add(&mnt->mnt_list, &mnt_list_head);
-+
-+	spin_lock(&vfspnode_lock);
-+	for (m = propagation_next(parent, parent); m;
-+	     m = propagation_next(m, parent)) {
-+		child = __lookup_mnt(m, mnt->mnt_mountpoint, 0);
-+		/*
-+		 * unmount the child only if the child has no
-+		 * other children
-+		 */
-+		if (child && list_empty(&child->mnt_mounts)) {
-+			list_del(&child->mnt_list);
-+			list_add(&child->mnt_list, &mnt_list_head);
-+		}
-+	}
-+	spin_unlock(&vfspnode_lock);
-+
-+	while (!list_empty(&mnt_list_head)) {
-+		m = list_entry(mnt_list_head.next, struct vfsmount, mnt_list);
-+		list_del_init(&m->mnt_list);
-+		do_make_private(m);
-+		do_detach_mount(m);
-+	}
-+	return 0;
-+}
-Index: 2.6.13.sharedsubtree/include/linux/pnode.h
-===================================================================
---- 2.6.13.sharedsubtree.orig/include/linux/pnode.h
-+++ 2.6.13.sharedsubtree/include/linux/pnode.h
-@@ -60,6 +60,8 @@ void pnode_merge_mount(struct vfsmount *
- void pnode_slave_mount(struct vfsmount *, struct vfsmount *);
- int propagate_commit_mount(struct vfsmount *);
- int propagate_abort_mount(struct vfsmount *);
- int propagate_prepare_mount(struct vfsmount *, struct dentry *,
- 			    struct vfsmount *);
-+int propagate_umount(struct vfsmount *);
-+int propagate_mount_busy(struct vfsmount *, int);
- #endif				/* _LINUX_PNODE_H */
-Index: 2.6.13.sharedsubtree/include/linux/fs.h
-===================================================================
---- 2.6.13.sharedsubtree.orig/include/linux/fs.h
-+++ 2.6.13.sharedsubtree/include/linux/fs.h
-@@ -1250,10 +1250,11 @@ extern struct vfsmount *clone_mnt(struct
- extern void do_attach_prepare_mnt(struct vfsmount *, struct dentry *,
- 				  struct vfsmount *);
- extern void do_attach_commit_mnt(struct vfsmount *);
- extern void do_detach_prepare_mnt(struct vfsmount *);
- extern void do_detach_mount(struct vfsmount *);
-+extern int do_refcount_check(struct vfsmount *, int);
- 
- extern int vfs_statfs(struct super_block *, struct kstatfs *);
- 
- #define FLOCK_VERIFY_READ  1
- #define FLOCK_VERIFY_WRITE 2
-Index: 2.6.13.sharedsubtree/include/linux/dcache.h
-===================================================================
---- 2.6.13.sharedsubtree.orig/include/linux/dcache.h
-+++ 2.6.13.sharedsubtree/include/linux/dcache.h
-@@ -327,10 +327,11 @@ static inline int d_mountpoint(struct de
- {
- 	return dentry->d_mounted;
- }
- 
- extern struct vfsmount *lookup_mnt(struct vfsmount *, struct dentry *);
-+extern struct vfsmount *__lookup_mnt(struct vfsmount *, struct dentry *, int);
- extern struct dentry *lookup_create(struct nameidata *nd, int is_dir);
- 
- extern int sysctl_vfs_cache_pressure;
- 
- #endif /* __KERNEL__ */
+Cheers,
+Kyle Moffett
+
+--
+Premature optimization is the root of all evil in programming
+   -- C.A.R. Hoare
+
+PS:  Use a different email service!  Your "I tried to kill it with  
+the above dot" and bullshit apology is worth zilch.  A quick  
+calculation shows that over the last month and a half, you have
+sent 76 or so emails to the list, all of which have contained your  
+useless 663-byte corporate message, meaning you have sent 50K of spam  
+to the list over that time period, which has been distributed to  
+several thousand accounts by vger, resulting in probably over 100MB  
+of spam over that time period.  Fix it or use a different email account!
+
+I am not the intended recipient for the following email text.  I will  
+destroy all copies of this information, including further copies of  
+it, because I am not the intended recipient of those either.  Plonk!
+> .
+> I apologize for the following. I tried to kill it with the above dot :
+>
+> ****************************************************************
+> The information transmitted in this message is confidential and may  
+> be privileged.  Any review, retransmission, dissemination, or other  
+> use of this information by persons or entities other than the  
+> intended recipient is prohibited.  If you are not the intended  
+> recipient, please notify Analogic Corporation immediately - by  
+> replying to this message or by sending an email to  
+> DeliveryErrors@analogic.com - and destroy all copies of this  
+> information, including any attachments, without reading or  
+> disclosing them.
+>
+> Thank you.
+

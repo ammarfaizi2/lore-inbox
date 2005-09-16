@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161233AbVIPS1t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161251AbVIPS2i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161233AbVIPS1t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 14:27:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161246AbVIPS1s
+	id S1161251AbVIPS2i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 14:28:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161247AbVIPS2h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 14:27:48 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:64173 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1161233AbVIPS1l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 14:27:41 -0400
+	Fri, 16 Sep 2005 14:28:37 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:33472 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161241AbVIPS2U
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 14:28:20 -0400
 Date: Fri, 16 Sep 2005 11:26:19 -0700
 To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
 Cc: linuxram@us.ibm.com, akpm@osdl.org, viro@ftp.linux.org.uk,
        miklos@szeredi.hu, mike@waychison.com, bfields@fieldses.org,
        serue@us.ibm.com
-Subject: [RFC PATCH 4/10] vfs: global namespace semaphore 
-Message-ID: <20050916182619.GA28474@RAM>
+Subject: [RFC PATCH 3/10] vfs: make mounts unclonable 
+Message-ID: <20050916182619.GA28459@RAM>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,292 +24,143 @@ From: linuxram@us.ibm.com (Ram)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes the per-namespace semaphore in favor of a global
-semaphore.  This can have an effect on namespace scalability.
+Patch that help create mounts that cannot be bind mounted.
+
+A mount that is unclonable, cannot be bind mounted. Its a private mount
+with this additional unclonable feature
+
+Eg: 	mount --make-unclonable /mnt
+	mount --bind /mnt /tmp
+	The bind should fail
 
 
-Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
+Signed by Ram Pai (linuxram@us.ibm.com)
+ fs/namespace.c        |    6 +++++-
+ fs/pnode.c            |   19 +++++++++++++++++++
+ include/linux/fs.h    |    1 +
+ include/linux/mount.h |    1 +
+ include/linux/pnode.h |    7 +++++++
+ 5 files changed, 33 insertions(+), 1 deletion(-)
 
- fs/namespace.c            |   44 ++++++++++++++++++++++----------------------
- include/linux/namespace.h |    1 -
- 2 files changed, 22 insertions(+), 23 deletions(-)
-
-Index: 2.6.13.sharedsubtree/include/linux/namespace.h
-===================================================================
---- 2.6.13.sharedsubtree.orig/include/linux/namespace.h
-+++ 2.6.13.sharedsubtree/include/linux/namespace.h
-@@ -7,11 +7,10 @@
- 
- struct namespace {
- 	atomic_t		count;
- 	struct vfsmount *	root;
- 	struct list_head	list;
--	struct rw_semaphore	sem;
- };
- 
- extern int copy_namespace(int, struct task_struct *);
- extern void __put_namespace(struct namespace *namespace);
- 
 Index: 2.6.13.sharedsubtree/fs/namespace.c
 ===================================================================
 --- 2.6.13.sharedsubtree.orig/fs/namespace.c
 +++ 2.6.13.sharedsubtree/fs/namespace.c
-@@ -41,10 +41,11 @@ static inline int sysfs_init(void)
- __cacheline_aligned_in_smp DEFINE_SPINLOCK(vfsmount_lock);
- 
- static struct list_head *mount_hashtable;
- static int hash_mask, hash_bits;
- static kmem_cache_t *mnt_cache;
-+static struct rw_semaphore namespace_sem;
- 
- static inline unsigned long hash(struct vfsmount *mnt, struct dentry *dentry)
- {
- 	unsigned long tmp = ((unsigned long)mnt / L1_CACHE_BYTES);
- 	tmp += ((unsigned long)dentry / L1_CACHE_BYTES);
-@@ -190,11 +191,11 @@ static void *m_start(struct seq_file *m,
- {
- 	struct namespace *n = m->private;
- 	struct list_head *p;
- 	loff_t l = *pos;
- 
--	down_read(&n->sem);
-+	down_read(&namespace_sem);
- 	list_for_each(p, &n->list)
- 	    if (!l--)
- 		return list_entry(p, struct vfsmount, mnt_list);
- 	return NULL;
- }
-@@ -207,12 +208,11 @@ static void *m_next(struct seq_file *m, 
- 	return p == &n->list ? NULL : list_entry(p, struct vfsmount, mnt_list);
- }
- 
- static void m_stop(struct seq_file *m, void *v)
- {
--	struct namespace *n = m->private;
--	up_read(&n->sem);
-+	up_read(&namespace_sem);
- }
- 
- static inline void mangle(struct seq_file *m, const char *s)
- {
- 	seq_escape(m, s, " \t\n\\");
-@@ -434,11 +434,11 @@ static int do_umount(struct vfsmount *mn
- 		}
- 		up_write(&sb->s_umount);
- 		return retval;
+@@ -654,10 +654,14 @@ static int do_change_type(struct nameida
+ 		break;
+ 	case MS_PRIVATE:
+ 		for (m = mnt; m; m = (recurse ? next_mnt(m, mnt) : NULL))
+ 			do_make_private(m);
+ 		break;
++	case MS_UNCLONABLE:
++		for (m = mnt; m; m = (recurse ? next_mnt(m, mnt) : NULL))
++			do_make_unclonable(m);
++		break;
  	}
- 
--	down_write(&current->namespace->sem);
-+	down_write(&namespace_sem);
- 	spin_lock(&vfsmount_lock);
- 
- 	if (atomic_read(&sb->s_active) == 1) {
- 		/* last instance - try to be smart */
- 		spin_unlock(&vfsmount_lock);
-@@ -456,11 +456,11 @@ static int do_umount(struct vfsmount *mn
- 		retval = 0;
- 	}
- 	spin_unlock(&vfsmount_lock);
- 	if (retval)
- 		security_sb_umount_busy(mnt);
--	up_write(&current->namespace->sem);
-+	up_write(&namespace_sem);
- 	return retval;
- }
- 
- /*
-  * Now umount can handle mount points as well as block devices.
-@@ -681,11 +681,11 @@ static int do_loopback(struct nameidata 
- 		return -EINVAL;
- 	err = path_lookup(old_name, LOOKUP_FOLLOW, &old_nd);
- 	if (err)
- 		return err;
- 
--	down_write(&current->namespace->sem);
-+	down_write(&namespace_sem);
- 	err = -EINVAL;
- 	if (check_mnt(nd->mnt) && (!recurse || check_mnt(old_nd.mnt))) {
- 		err = -ENOMEM;
- 		if (recurse)
- 			mnt = copy_tree(old_nd.mnt, old_nd.dentry);
-@@ -706,11 +706,11 @@ static int do_loopback(struct nameidata 
- 			spin_unlock(&vfsmount_lock);
- 		} else
- 			mntput(mnt);
- 	}
- 
--	up_write(&current->namespace->sem);
-+	up_write(&namespace_sem);
- 	path_release(&old_nd);
- 	return err;
- }
- 
- /*
-@@ -754,11 +754,11 @@ static int do_move_mount(struct nameidat
- 		return -EINVAL;
- 	err = path_lookup(old_name, LOOKUP_FOLLOW, &old_nd);
- 	if (err)
- 		return err;
- 
--	down_write(&current->namespace->sem);
-+	down_write(&namespace_sem);
- 	while (d_mountpoint(nd->dentry) && follow_down(&nd->mnt, &nd->dentry)) ;
- 	err = -EINVAL;
- 	if (!check_mnt(nd->mnt) || !check_mnt(old_nd.mnt))
- 		goto out;
- 
-@@ -797,11 +797,11 @@ static int do_move_mount(struct nameidat
-       out2:
- 	spin_unlock(&vfsmount_lock);
-       out1:
- 	up(&nd->dentry->d_inode->i_sem);
        out:
--	up_write(&current->namespace->sem);
-+	up_write(&namespace_sem);
- 	if (!err)
- 		path_release(&parent_nd);
- 	path_release(&old_nd);
+ 	spin_unlock(&vfsmount_lock);
+ 	up_write(&namespace_sem);
  	return err;
+@@ -1099,11 +1103,11 @@ long do_mount(char *dev_name, char *dir_
+ 	if (flags & MS_REMOUNT)
+ 		retval = do_remount(&nd, flags & ~MS_REMOUNT, mnt_flags,
+ 				    data_page);
+ 	else if (flags & MS_BIND)
+ 		retval = do_loopback(&nd, dev_name, flags & MS_REC);
+-	else if (flags & (MS_SHARED | MS_PRIVATE | MS_SLAVE))
++	else if (flags & (MS_SHARED | MS_PRIVATE | MS_SLAVE | MS_UNCLONABLE))
+ 		retval = do_change_type(&nd, flags);
+ 	else if (flags & MS_MOVE)
+ 		retval = do_move_mount(&nd, dev_name);
+ 	else
+ 		retval = do_new_mount(&nd, type_page, flags, mnt_flags,
+Index: 2.6.13.sharedsubtree/fs/pnode.c
+===================================================================
+--- 2.6.13.sharedsubtree.orig/fs/pnode.c
++++ 2.6.13.sharedsubtree/fs/pnode.c
+@@ -112,5 +112,24 @@ int do_make_private(struct vfsmount *mnt
+ 	spin_unlock(&vfspnode_lock);
+ 	mnt->mnt_master = NULL;
+ 	set_mnt_private(mnt);
+ 	return 0;
  }
-@@ -836,11 +836,11 @@ static int do_new_mount(struct nameidata
- int do_add_mount(struct vfsmount *newmnt, struct nameidata *nd,
- 		 int mnt_flags, struct list_head *fslist)
- {
- 	int err;
- 
--	down_write(&current->namespace->sem);
-+	down_write(&namespace_sem);
- 	/* Something was mounted here while we slept */
- 	while (d_mountpoint(nd->dentry) && follow_down(&nd->mnt, &nd->dentry)) ;
- 	err = -EINVAL;
- 	if (!check_mnt(nd->mnt))
- 		goto unlock;
-@@ -865,11 +865,11 @@ int do_add_mount(struct vfsmount *newmnt
- 		list_add_tail(&newmnt->mnt_expire, fslist);
- 		spin_unlock(&vfsmount_lock);
- 	}
- 
-       unlock:
--	up_write(&current->namespace->sem);
-+	up_write(&namespace_sem);
- 	mntput(newmnt);
- 	return err;
- }
- 
- EXPORT_SYMBOL_GPL(do_add_mount);
-@@ -969,13 +969,13 @@ void mark_mounts_for_expiry(struct list_
- 		if (!namespace || !namespace->root)
- 			continue;
- 		get_namespace(namespace);
- 
- 		spin_unlock(&vfsmount_lock);
--		down_write(&namespace->sem);
-+		down_write(&namespace_sem);
- 		expire_mount(mnt, mounts);
--		up_write(&namespace->sem);
-+		up_write(&namespace_sem);
- 
- 		mntput(mnt);
- 		put_namespace(namespace);
- 
- 		spin_lock(&vfsmount_lock);
-@@ -1141,18 +1141,17 @@ int copy_namespace(int flags, struct tas
- 	new_ns = kmalloc(sizeof(struct namespace), GFP_KERNEL);
- 	if (!new_ns)
- 		goto out;
- 
- 	atomic_set(&new_ns->count, 1);
--	init_rwsem(&new_ns->sem);
- 	INIT_LIST_HEAD(&new_ns->list);
- 
--	down_write(&tsk->namespace->sem);
-+	down_write(&namespace_sem);
- 	/* First pass: copy the tree topology */
- 	new_ns->root = copy_tree(namespace->root, namespace->root->mnt_root);
- 	if (!new_ns->root) {
--		up_write(&tsk->namespace->sem);
-+		up_write(&namespace_sem);
- 		kfree(new_ns);
- 		goto out;
- 	}
- 	spin_lock(&vfsmount_lock);
- 	list_add_tail(&new_ns->list, &new_ns->root->mnt_list);
-@@ -1182,11 +1181,11 @@ int copy_namespace(int flags, struct tas
- 			}
- 		}
- 		p = next_mnt(p, namespace->root);
- 		q = next_mnt(q, new_ns->root);
- 	}
--	up_write(&tsk->namespace->sem);
-+	up_write(&namespace_sem);
- 
- 	tsk->namespace = new_ns;
- 
- 	if (rootmnt)
- 		mntput(rootmnt);
-@@ -1368,11 +1367,11 @@ asmlinkage long sys_pivot_root(const cha
- 
- 	read_lock(&current->fs->lock);
- 	user_nd.mnt = mntget(current->fs->rootmnt);
- 	user_nd.dentry = dget(current->fs->root);
- 	read_unlock(&current->fs->lock);
--	down_write(&current->namespace->sem);
-+	down_write(&namespace_sem);
- 	down(&old_nd.dentry->d_inode->i_sem);
- 	error = -EINVAL;
- 	if (!check_mnt(user_nd.mnt))
- 		goto out2;
- 	error = -ENOENT;
-@@ -1414,11 +1413,11 @@ asmlinkage long sys_pivot_root(const cha
- 	error = 0;
- 	path_release(&root_parent);
- 	path_release(&parent_nd);
-       out2:
- 	up(&old_nd.dentry->d_inode->i_sem);
--	up_write(&current->namespace->sem);
-+	up_write(&namespace_sem);
- 	path_release(&user_nd);
- 	path_release(&old_nd);
-       out1:
- 	path_release(&new_nd);
-       out0:
-@@ -1441,11 +1440,10 @@ static void __init init_mount_tree(void)
- 	namespace = kmalloc(sizeof(*namespace), GFP_KERNEL);
- 	if (!namespace)
- 		panic("Can't allocate initial namespace");
- 	atomic_set(&namespace->count, 1);
- 	INIT_LIST_HEAD(&namespace->list);
--	init_rwsem(&namespace->sem);
- 	list_add(&mnt->mnt_list, &namespace->list);
- 	namespace->root = mnt;
- 	mnt->mnt_namespace = namespace;
- 
- 	init_task.namespace = namespace;
-@@ -1465,10 +1463,12 @@ void __init mnt_init(unsigned long mempa
- {
- 	struct list_head *d;
- 	unsigned int nr_hash;
- 	int i;
- 
-+	init_rwsem(&namespace_sem);
 +
- 	mnt_cache = kmem_cache_create("mnt_cache", sizeof(struct vfsmount),
- 				      0, SLAB_HWCACHE_ALIGN | SLAB_PANIC, NULL,
- 				      NULL);
++/*
++ * a unclonable mount does not receive and forward
++ * propagations and cannot be cloned(bind mounted).
++ */
++int do_make_unclonable(struct vfsmount *mnt)
++{
++	/*
++	 * a unclonable mount is nothing but a
++	 * private mount which is unclonnable.
++	 */
++	spin_lock(&vfspnode_lock);
++	__do_make_slave(mnt);
++	list_del_init(&mnt->mnt_slave);
++	spin_unlock(&vfspnode_lock);
++	mnt->mnt_master = NULL;
++	set_mnt_unclonable(mnt);
++	return 0;
++}
+Index: 2.6.13.sharedsubtree/include/linux/mount.h
+===================================================================
+--- 2.6.13.sharedsubtree.orig/include/linux/mount.h
++++ 2.6.13.sharedsubtree/include/linux/mount.h
+@@ -19,10 +19,11 @@
  
- 	mount_hashtable = (struct list_head *)
-@@ -1514,12 +1514,12 @@ void __init mnt_init(unsigned long mempa
- void __put_namespace(struct namespace *namespace)
+ #define MNT_NOSUID	0x01
+ #define MNT_NODEV	0x02
+ #define MNT_NOEXEC	0x04
+ #define MNT_SHARED	0x10	/* if the vfsmount is a shared mount */
++#define MNT_UNCLONABLE	0x20	/* if the vfsmount is a unclonable mount */
+ #define MNT_PNODE_MASK	0x30	/* propogation flag mask */
+ 
+ #define IS_MNT_SHARED(mnt) (mnt->mnt_flags & MNT_SHARED)
+ #define IS_MNT_SLAVE(mnt) (!list_empty(&mnt->mnt_slave))
+ #define IS_MNT_PRIVATE(mnt) (!IS_MNT_SLAVE(mnt) && \
+Index: 2.6.13.sharedsubtree/include/linux/pnode.h
+===================================================================
+--- 2.6.13.sharedsubtree.orig/include/linux/pnode.h
++++ 2.6.13.sharedsubtree/include/linux/pnode.h
+@@ -24,10 +24,16 @@ static inline void set_mnt_shared(struct
+ static inline void set_mnt_private(struct vfsmount *mnt)
  {
- 	struct vfsmount *root = namespace->root;
- 	namespace->root = NULL;
- 	spin_unlock(&vfsmount_lock);
--	down_write(&namespace->sem);
-+	down_write(&namespace_sem);
- 	spin_lock(&vfsmount_lock);
- 	umount_tree(root);
- 	spin_unlock(&vfsmount_lock);
--	up_write(&namespace->sem);
-+	up_write(&namespace_sem);
- 	kfree(namespace);
+ 	mnt->mnt_flags &= ~MNT_PNODE_MASK;
  }
+ 
++static inline void set_mnt_unclonable(struct vfsmount *mnt)
++{
++	mnt->mnt_flags &= ~MNT_PNODE_MASK;
++	mnt->mnt_flags |= MNT_PNODE_MASK & MNT_UNCLONABLE;
++}
++
+ static inline struct vfsmount *next_shared(struct vfsmount *p)
+ {
+ 	return list_entry(p->mnt_share.next, struct vfsmount, mnt_share);
+ }
+ 
+@@ -42,6 +48,7 @@ static inline struct vfsmount *next_slav
+ }
+ 
+ int do_make_slave(struct vfsmount *);
+ int do_make_shared(struct vfsmount *);
+ int do_make_private(struct vfsmount *);
++int do_make_unclonable(struct vfsmount *);
+ #endif				/* _LINUX_PNODE_H */
+Index: 2.6.13.sharedsubtree/include/linux/fs.h
+===================================================================
+--- 2.6.13.sharedsubtree.orig/include/linux/fs.h
++++ 2.6.13.sharedsubtree/include/linux/fs.h
+@@ -100,10 +100,11 @@ extern int dir_notify_enable;
+ #define MS_NODIRATIME	2048	/* Do not update directory access times */
+ #define MS_BIND		4096
+ #define MS_MOVE		8192
+ #define MS_REC		16384
+ #define MS_VERBOSE	32768
++#define MS_UNCLONABLE	(1<<17)	/* recursively change to unclonnable */
+ #define MS_PRIVATE	(1<<18)	/* recursively change to private */
+ #define MS_SLAVE	(1<<19)	/* recursively change to slave */
+ #define MS_SHARED	(1<<20)	/* recursively change to shared */
+ #define MS_POSIXACL	(1<<16)	/* VFS does not apply the umask */
+ #define MS_ACTIVE	(1<<30)

@@ -1,117 +1,238 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750760AbVIPXD5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbVIPXRh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750760AbVIPXD5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 19:03:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750761AbVIPXD5
+	id S1750731AbVIPXRh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 19:17:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbVIPXRh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 19:03:57 -0400
-Received: from iotaanl.aps.anl.gov ([164.54.56.3]:53458 "EHLO zeta.aps.anl.gov")
-	by vger.kernel.org with ESMTP id S1750760AbVIPXD4 (ORCPT
+	Fri, 16 Sep 2005 19:17:37 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:18848 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750731AbVIPXRg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 19:03:56 -0400
-Message-ID: <432B4F56.6070404@aps.anl.gov>
-Date: Fri, 16 Sep 2005 18:03:50 -0500
-From: Shifu Xu <xusf@aps.anl.gov>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050719 Red Hat/1.7.10-1.1.3.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: patch-2.6.13-rt12 problem on Powerpc board
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 16 Sep 2005 19:17:36 -0400
+Date: Fri, 16 Sep 2005 16:17:01 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Abhay Salunke <Abhay_Salunke@dell.com>
+Cc: linux-kernel@vger.kernel.org, abhay_salunke@dell.com
+Subject: Re: [patch 2.6.14-rc1] Enhancements and fixes for dell_rbu driver
+Message-Id: <20050916161701.0a9beffd.akpm@osdl.org>
+In-Reply-To: <20050916221000.GA3454@abhays.us.dell.com>
+References: <20050916221000.GA3454@abhays.us.dell.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Abhay Salunke <Abhay_Salunke@dell.com> wrote:
+>
+> -static __exit void dcdrbu_exit(void)
+>  +static __exit void
+>  +dcdrbu_exit(void)
 
-I tried the patch-2.6.13-rt12 on mvme2100 board, I made the following 
-changes to get it pass compiling:
-(no CONFIG_HIGH_RES_TIMER)
+hm, all these extraneous whitespace changes actually take the driver
+further away from preferred coding style.
 
-1) mv include/asm-ppc/hrtime.h include/asm-ppc/hrtimer.h
-2) in arch/ppc/syslib/todc_time.c,  add :
-     unsigned long cpu_khz;
-3)in  include/linux/time.h, add :
-+#ifndef div_long_long_rem
-+#define div_long_long_rem(dividend,divisor,remainder) \
-+({                                                      \
-+        u64 result = dividend;                          \
-+        *remainder = do_div(result,divisor);            \
-+        result;                                         \
-+})
-+#endif
-+
+How about we do this?
 
-When booting, it stoped after displaying:
-...
-openpic :enter
 
-I remove two printk statement after the output "openpic :enter" in 
-arch/ppc/syslib/open_pic.c.
-and then boot and display the following:
-....
-....
-Linux version 2.6.13-rt12 () (gcc version 3.4.2) #2 Thu Sep 15 16:34:48 
-CDT 2005
-Platform: Motorola MVME2100
-Real-Time Preemption Support (C) 2004-2005 Ingo Molnar
-Built 1 zonelists
-Kernel command line: console=ttyS0,9600 ip=dhcp
-WARNING: experimental RCU implementation.
-PID hash table entries: 256 (order: 8, 4096 bytes)
-Registered KTimer base Monotonic
-Registered KTimer base Realtime
-time_init: decrementer frequency = 16.666734 MHz
-Dentry cache hash table entries: 8192 (order: 3, 32768 bytes)
-Inode-cache hash table entries: 4096 (order: 2, 16384 bytes)
-Memory: 30316k available (1412k kernel code, 392k data, 328k init, 0k 
-highmem)
-Mount-cache hash table entries: 512
-NET: Registered protocol family 16
-                                                                                                                  
-
-PCI: Probing PCI hardware
-lpptest: irq 7 in use. Unload parport module!
-Generic RTC Driver v1.07
-Serial: 8250/16550 driver $Revision: 1.90 $ 4 ports, IRQ sharing disabled
-ttyS0 at MMIO 0x0 (irq = 29) is a 16550A
-io scheduler noop registered
-io scheduler anticipatory registered
-io scheduler deadline registered
-io scheduler cfq registered
-Linux Tulip driver version 1.1.13 (May 11, 2002)
-tulip0:  EEPROM default media type Autosense.
-tulip0:  Index #0 - Media MII (#11) described by a 21142 MII PHY (3) block.
-tulip0:  MII transceiver #8 config 1000 status 7809 advertising 01e1.
-eth0: Digital DS21143 Tulip rev 65 at febfef80, 00:01:AF:09:0D:EA, IRQ 17.
-NET: Registered protocol family 2
-IP route cache hash table entries: 512 (order: -1, 2048 bytes)
-TCP established hash table entries: 2048 (order: 4, 81920 bytes)
-TCP bind hash table entries: 2048 (order: 4, 65536 bytes)
-TCP: Hash tables configured (established 2048 bind 2048)
-TCP reno registered
-TCP bic registered
-NET: Registered protocol family 1
-NET: Registered protocol family 17
-Sending DHCP requests .<6>eth0: Setting half-duplex based on MII#8 link 
-partner capability of 0021.
-..... timed out!
-IP-Config: Retrying forever (NFS root)...
-Sending DHCP requests .<6>eth0: Setting half-duplex based on MII#8 link 
-partner capability of 0021.
-..... timed out!
-IP-Config: Retrying forever (NFS root)...
-Sending DHCP requests .<6>eth0: Setting half-duplex based on MII#8 link 
-partner capability of 0021.
-...
-
-What else have to be changed to make it booting? By the way, Linux2.6.13 
-can boot when not applying the
-patch-2.6.13-rt12.
-
-please cc any answer/comments to my email.
-thanks in advance for any help.
-
-Shifu
-
+diff -puN drivers/firmware/dell_rbu.c~dell_rbu-tidy drivers/firmware/dell_rbu.c
+--- devel/drivers/firmware/dell_rbu.c~dell_rbu-tidy	2005-09-16 16:15:27.000000000 -0700
++++ devel-akpm/drivers/firmware/dell_rbu.c	2005-09-16 16:15:27.000000000 -0700
+@@ -85,8 +85,7 @@ static struct platform_device *rbu_devic
+ static int context;
+ static dma_addr_t dell_rbu_dmaaddr;
+ 
+-static void
+-init_packet_head(void)
++static void init_packet_head(void)
+ {
+ 	INIT_LIST_HEAD(&packet_data_head.list);
+ 	rbu_data.packet_write_count = 0;
+@@ -95,8 +94,7 @@ init_packet_head(void)
+ 	rbu_data.packetsize = 0;
+ }
+ 
+-static int
+-fill_last_packet(void *data, size_t length)
++static int fill_last_packet(void *data, size_t length)
+ {
+ 	struct list_head *ptemp_list;
+ 	struct packet_data *packet = NULL;
+@@ -138,8 +136,7 @@ fill_last_packet(void *data, size_t leng
+ 	return 0;
+ }
+ 
+-static int
+-create_packet(size_t length)
++static int create_packet(size_t length)
+ {
+ 	struct packet_data *newpacket;
+ 	int ordernum = 0;
+@@ -198,8 +195,7 @@ create_packet(size_t length)
+ 	return 0;
+ }
+ 
+-static int
+-packetize_data(void *data, size_t length)
++static int packetize_data(void *data, size_t length)
+ {
+ 	int rc = 0;
+ 
+@@ -213,8 +209,7 @@ packetize_data(void *data, size_t length
+ 	return rc;
+ }
+ 
+-static int
+-do_packet_read(char *data, struct list_head *ptemp_list,
++static int do_packet_read(char *data, struct list_head *ptemp_list,
+ 	int length, int bytes_read, int *list_read_count)
+ {
+ 	void *ptemp_buf;
+@@ -248,8 +243,7 @@ do_packet_read(char *data, struct list_h
+ 	return bytes_copied;
+ }
+ 
+-static int
+-packet_read_list(char *data, size_t * pread_length)
++static int packet_read_list(char *data, size_t *pread_length)
+ {
+ 	struct list_head *ptemp_list;
+ 	int temp_count = 0;
+@@ -287,8 +281,7 @@ packet_read_list(char *data, size_t * pr
+ 	return 0;
+ }
+ 
+-static void
+-packet_empty_list(void)
++static void packet_empty_list(void)
+ {
+ 	struct list_head *ptemp_list;
+ 	struct list_head *pnext_list;
+@@ -320,8 +313,7 @@ packet_empty_list(void)
+  * img_update_free: Frees the buffer allocated for storing BIOS image
+  * Always called with lock held and returned with lock held
+  */
+-static void
+-img_update_free(void)
++static void img_update_free(void)
+ {
+ 	if (!rbu_data.image_update_buffer)
+ 		return;
+@@ -358,8 +350,7 @@ img_update_free(void)
+  * already allocated size, then that memory is reused. This function is
+  * called with lock held and returns with lock held.
+  */
+-static int
+-img_update_realloc(unsigned long size)
++static int img_update_realloc(unsigned long size)
+ {
+ 	unsigned char *image_update_buffer = NULL;
+ 	unsigned long rc;
+@@ -428,8 +419,7 @@ img_update_realloc(unsigned long size)
+ 	return rc;
+ }
+ 
+-static ssize_t
+-read_packet_data(char *buffer, loff_t pos, size_t count)
++static ssize_t read_packet_data(char *buffer, loff_t pos, size_t count)
+ {
+ 	int retval;
+ 	size_t bytes_left;
+@@ -470,8 +460,7 @@ read_packet_data(char *buffer, loff_t po
+ 	return retval;
+ }
+ 
+-static ssize_t
+-read_rbu_mono_data(char *buffer, loff_t pos, size_t count)
++static ssize_t read_rbu_mono_data(char *buffer, loff_t pos, size_t count)
+ {
+ 	unsigned char *ptemp = NULL;
+ 	size_t bytes_left = 0;
+@@ -509,8 +498,8 @@ read_rbu_mono_data(char *buffer, loff_t 
+ 	return ret_count;
+ }
+ 
+-static ssize_t
+-read_rbu_data(struct kobject *kobj, char *buffer, loff_t pos, size_t count)
++static ssize_t read_rbu_data(struct kobject *kobj, char *buffer,
++			loff_t pos, size_t count)
+ {
+ 	ssize_t ret_count = 0;
+ 
+@@ -527,8 +516,7 @@ read_rbu_data(struct kobject *kobj, char
+ 	return ret_count;
+ }
+ 
+-static void
+-callbackfn_rbu(const struct firmware *fw, void *context)
++static void callbackfn_rbu(const struct firmware *fw, void *context)
+ {
+ 	int rc = 0;
+ 
+@@ -564,9 +552,8 @@ callbackfn_rbu(const struct firmware *fw
+ 		rbu_data.entry_created = 1;
+ }
+ 
+-static ssize_t
+-read_rbu_image_type(struct kobject *kobj, char *buffer, loff_t pos,
+-	size_t count)
++static ssize_t read_rbu_image_type(struct kobject *kobj, char *buffer,
++			loff_t pos, size_t count)
+ {
+ 	int size = 0;
+ 	if (!pos)
+@@ -574,9 +561,8 @@ read_rbu_image_type(struct kobject *kobj
+ 	return size;
+ }
+ 
+-static ssize_t
+-write_rbu_image_type(struct kobject *kobj, char *buffer, loff_t pos,
+-	size_t count)
++static ssize_t write_rbu_image_type(struct kobject *kobj, char *buffer,
++			loff_t pos, size_t count)
+ {
+ 	int rc = count;
+ 	int req_firm_rc = 0;
+@@ -636,18 +622,25 @@ write_rbu_image_type(struct kobject *kob
+ }
+ 
+ static struct bin_attribute rbu_data_attr = {
+-	.attr = {.name = "data",.owner = THIS_MODULE,.mode = 0444},
++	.attr = {
++		.name = "data",
++		.owner = THIS_MODULE,
++		.mode = 0444,
++	},
+ 	.read = read_rbu_data,
+ };
+ 
+ static struct bin_attribute rbu_image_type_attr = {
+-	.attr = {.name = "image_type",.owner = THIS_MODULE,.mode = 0644},
++	.attr = {
++		.name = "image_type",
++		.owner = THIS_MODULE,
++		.mode = 0644,
++	},
+ 	.read = read_rbu_image_type,
+ 	.write = write_rbu_image_type,
+ };
+ 
+-static int __init
+-dcdrbu_init(void)
++static int __init dcdrbu_init(void)
+ {
+ 	int rc = 0;
+ 	spin_lock_init(&rbu_data.lock);
+@@ -677,8 +670,7 @@ dcdrbu_init(void)
+ 
+ }
+ 
+-static __exit void
+-dcdrbu_exit(void)
++static __exit void dcdrbu_exit(void)
+ {
+ 	spin_lock(&rbu_data.lock);
+ 	packet_empty_list();
+_
 

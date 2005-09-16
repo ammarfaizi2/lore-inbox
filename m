@@ -1,75 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161120AbVIPH7M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161122AbVIPIGe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161120AbVIPH7M (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 03:59:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161121AbVIPH7M
+	id S1161122AbVIPIGe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 04:06:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161123AbVIPIGd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 03:59:12 -0400
-Received: from styx.suse.cz ([82.119.242.94]:8424 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S1161120AbVIPH7M (ORCPT
+	Fri, 16 Sep 2005 04:06:33 -0400
+Received: from mail2.sasken.com ([203.200.200.72]:56319 "EHLO mail2.sasken.com")
+	by vger.kernel.org with ESMTP id S1161122AbVIPIGc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 03:59:12 -0400
-Date: Fri, 16 Sep 2005 09:59:08 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Kay Sievers <kay.sievers@vrfy.org>
-Cc: Greg KH <gregkh@suse.de>, Dmitry Torokhov <dtor_core@ameritech.net>,
-       linux-kernel@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
-       Patrick Mochel <mochel@digitalimplant.org>, airlied@linux.ie
-Subject: Re: [RFC] subclasses in sysfs to solve world peace
-Message-ID: <20050916075908.GC10007@midnight.suse.cz>
-References: <20050916002036.GA6149@suse.de> <20050916010438.GA12759@vrfy.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050916010438.GA12759@vrfy.org>
-X-Bounce-Cookie: It's a lemmon tree, dear Watson!
-User-Agent: Mutt/1.5.10i
+	Fri, 16 Sep 2005 04:06:32 -0400
+From: "Chikkali" <chikkali@sasken.com>
+Subject: Re: kernel
+Date: Fri, 16 Sep 2005 13:36:02 +0530
+Message-ID: <dgdudl$e22$1@ncc-t.sasken.com>
+References: <ddi2qu$74p$1@ncc-nt.nt.sasken.com> 
+	<dejie7$m6i$1@ncc-w.sasken.com>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Newsreader: Microsoft Outlook Express 6.00.2900.2180
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+X-RFC2646: Format=Flowed; Response
+To: linux-kernel@vger.kernel.org
+X-News-Gateway: ncc-z.sasken.com
+X-imss-version: 2.030
+X-imss-result: Passed
+X-imss-scores: Clean:30.26860 C:2 M:3 S:5 R:5
+X-imss-settings: Baseline:3 C:3 M:3 S:3 R:3 (0.5000 0.5000)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 16, 2005 at 03:04:38AM +0200, Kay Sievers wrote:
-> On Thu, Sep 15, 2005 at 05:20:37PM -0700, Greg KH wrote:
-> > The problem:  We need a way to show complex class and class device
-> > structures properly in sysfs.  Examples of these "complex" views are the
-> > input layer's use of different input drivers for devices (usually the
-> > same device), the video subsystem view of frame buffer devices and
-> > monitors, and even the block layer with it's disks and partitions.
-> > 
-> > Proposed solutions in the past have been either add the ability to nest
-> > classes themselves (as shown in Dmitry's recent proposal for fixing the
-> > input layer), or add the ability to nest class_device structures (I
-> > think others have tried to do this in the past, sorry for not
-> > remembering the specifics.)  Both of these proposals don't really solve
-> > the real problem, that of the fact that we need to come up with a
-> > solution that all of the different subsystems can use properly.
-> > 
-> > So, here's my take on it.  Feel free to tell me what I messed up :)
-> > 
-> > I would like to add something called "subclasses" for lack of a better
-> > term.  These subclasses would have both drivers, and devices associated
-> > with them.  This would show up as the following tree of directories:
-> > 
-> > 	/sys/class/input/
-> > 	|-- input0
-> > 	|   |-- event0
-> > 	|   `-- mouse0
-> > 	|-- input1
-> > 	|   |-- event1
-> > 	|   `-- ts0
-> > 	|-- mice
-> > 	`-- drivers
-> > 	    |-- event
-> > 	    |-- mouse
-> > 	    `-- ts
+
+For beginners  "Understanding the Linux Kernel, 2nd Edition by Marco Cesati, 
+Daniel P. Bovet"  book is very good.
+
+Basavaraj C
+Ext 5769
+
+"Shwetha V" <shwethav@sasken.com> wrote in message 
+news:dejie7$m6i$1@ncc-w.sasken.com...
+> Could anyone inform which will be a good guide to start learning the linux 
+> kernel programming.
+>
+> -- 
+> Shwetha V
+> Software Engineer - Networks Business Unit
+> Sasken Communication Technologies Ltd.
+> Gold Hill Square, Hosur Road, Bangalore.
+> Ph: +91-80-25355501 Ext: 5799
+> Web: www.sasken.com
+>
+>
+> "Srinivas K" <srinuk@sasken.com> wrote in message 
+> news:ddi2qu$74p$1@ncc-nt.nt.sasken.com...
+>> hi friends,
+>>
+>> post concepts regarding linux kernel which will be useful
+>>
+>>
+>> -- 
+>> Srinivasa Rao K
+>> Systems Engineer
+>> Nortel Business Unit
+>> Sasken Communication Technologies Ltd
+>> 139/25, Ring Road, Domlur
+>> Bangalore - 560 071
+>> Ph: 2535 5501 Extn.:4804
+>> mail : srinuk@sasken.com
+>>
+>> "SASKEN RATED THE BEST EMPLOYER IN THE COUNTRY by the BUSINESS TODAY 
+>> Mercer
+>> Survey 2004"
+>>
+>>
+>> SASKEN BUSINESS DISCLAIMER
+>> This message may contain confidential, proprietary or legally Privileged
+>> information. In case you are not the original intended Recipient of the
+>> message, you must not, directly or indirectly, use, Disclose, distribute,
+>> print, or copy any part of this message and you are requested to delete 
+>> it
+>> and inform the sender. Any views expressed in this message are those of 
+>> the
+>> individual sender unless otherwise stated. Nothing contained in this 
+>> message
+>> shall be construed as an offer or acceptance of any offer by Sasken
+>> Communication Technologies Limited ("Sasken") unless sent with that 
+>> express
+>> intent and with due authority of Sasken. Sasken has taken enough 
+>> precautions
+>> to prevent the spread of viruses. However the company accepts no 
+>> liability
+>> for any damage caused by any virus transmitted by this email
+>>
+>>
+>
 > 
-> I like that the child devices are actually below the parent device
-> and represent the logical structure. I prefer that compared to the
-> symlink-representation between the classes at the same directory
-> level which the input patches propose.
 
-I like this one better, too. It's much simpler, and does the job just as
-well.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+
+"SASKEN RATED THE BEST EMPLOYER IN THE COUNTRY by the BUSINESS TODAY Mercer Survey 2004"
+
+
+                           SASKEN BUSINESS DISCLAIMER
+This message may contain confidential, proprietary or legally Privileged information. In case you are not the original intended Recipient of the message, you must not, directly or indirectly, use, Disclose, distribute, print, or copy any part of this message and you are requested to delete it and inform the sender. Any views expressed in this message are those of the individual sender unless otherwise stated. Nothing contained in this message shall be construed as an offer or acceptance of any offer by Sasken Communication Technologies Limited ("Sasken") unless sent with that express intent and with due authority of Sasken. Sasken has taken enough precautions to prevent the spread of viruses. However the company accepts no liability for any damage caused by any virus transmitted by this email

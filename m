@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161174AbVIPRPU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161196AbVIPRVV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161174AbVIPRPU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 13:15:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161181AbVIPRPU
+	id S1161196AbVIPRVV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 13:21:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161197AbVIPRVV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 13:15:20 -0400
-Received: from [139.30.44.2] ([139.30.44.2]:12864 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S1161174AbVIPRPT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 13:15:19 -0400
-Date: Fri, 16 Sep 2005 19:15:17 +0200 (CEST)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Tim Bird <tim.bird@am.sony.com>
-cc: jesper.juhl@gmail.com, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: early printk timings way off
-In-Reply-To: <432AFB01.3050809@am.sony.com>
-Message-ID: <Pine.LNX.4.61.0509161909500.31820@gans.physik3.uni-rostock.de>
-References: <9a87484905091515495f435db7@mail.gmail.com> <432AFB01.3050809@am.sony.com>
+	Fri, 16 Sep 2005 13:21:21 -0400
+Received: from ns1.lanforge.com ([66.165.47.210]:8684 "EHLO www.lanforge.com")
+	by vger.kernel.org with ESMTP id S1161196AbVIPRVU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 13:21:20 -0400
+Message-ID: <432AFF0E.8090904@candelatech.com>
+Date: Fri, 16 Sep 2005 10:21:18 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.10) Gecko/20050719 Fedora/1.7.10-1.3.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: kallsyms error when compiling 2.6.13 + patch 
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Sep 2005, Tim Bird wrote:
+After applying this patch:
 
-> UPDATE:
-> [Based on Tim Schmielau's analysis, maybe it's not the raw TSC
-> value, but an unititialized jiffy value coming back from sched_clock().
-> In this case, the value is worthless until after time_init().
+http://www.candelatech.com/oss/candela_2.6.13.patch
 
-Well, it's not uninitialized, but initialized to a very high value. So 
-the differences between the large values still contain useful information.
+and using this config:
 
-> This may be why you're seeing a jump in the first "real" value
-> returned.
+http://www.candelatech.com/oss/kernel26_p2.cfg
 
-Yep.
+I had to set the CONFIG_KALLSYMS_EXTRA_PASS option
+to get the compile to work.
 
-> Previously on x86, the pre-time_init() value was useful (wrong as an absolute
-> number, but right in relatives values.)
+Compile machine is up-to-date FC2 system (dual Xeon).
 
-This should still be the case.
+Is this a known issue?
 
+Thanks,
+Ben
 
-So, one jump (probably the first) happens when time_init sets use_tsc.
-Do we understand the other jump as well?
+-- 
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
 
-Tim

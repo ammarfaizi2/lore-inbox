@@ -1,52 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751296AbVIPVRT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751298AbVIPVT4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751296AbVIPVRT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 17:17:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbVIPVRT
+	id S1751298AbVIPVT4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 17:19:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751301AbVIPVTz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 17:17:19 -0400
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:3537
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S1751296AbVIPVRT (ORCPT
+	Fri, 16 Sep 2005 17:19:55 -0400
+Received: from [212.76.85.247] ([212.76.85.247]:35332 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S1751298AbVIPVTy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 17:17:19 -0400
-Subject: Re: R52 hdaps support?
-From: Alejandro Bonilla Beeche <abonilla@linuxwireless.org>
-Reply-To: abonilla@linuxwireless.org
-To: Keenan Pepper <keenanpepper@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <432B34D6.6010904@gmail.com>
-References: <432B34D6.6010904@gmail.com>
-Content-Type: text/plain
-Date: Fri, 16 Sep 2005 15:17:28 -0600
-Message-Id: <1126905449.5609.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Fri, 16 Sep 2005 17:19:54 -0400
+From: Al Boldi <a1426z@gawab.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [git patches] net driver fixes
+Date: Sat, 17 Sep 2005 00:16:55 +0300
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+References: <20050916073818.GA15990@havoc.gtf.org>
+In-Reply-To: <20050916073818.GA15990@havoc.gtf.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200509162258.44675.a1426z@gawab.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-09-16 at 17:10 -0400, Keenan Pepper wrote:
-> I recently splurged on a new ThinkPad R52 (because it was one of the few laptops 
-> in the store with /all/ linux-supported hardware), but the 2.6.14-rc1 kernel I 
-> just compiled says "hdaps: supported laptop not found".
-> 
-> Looking at the source I notice there's a whitelist of models that goes up to 
-> R51... How badly could it break if I just went ahead and added R52? Should it be 
-> "NORMAL" or "INVERT"?
-> 
-> Keenan Pepper
+Jeff Garzik wrote:
+> Please pull from 'upstream-fixes' branch of
+> rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git
 
-Hi Keenan,
+Does it fix the tulip mii-link detection problem on wire-disconnect?
 
-	We don't have the X42 nor the R52 in the list of supported laptops.
-Please send an email to hdaps-devel@lists.sf.net so that we can do
-something about adding your laptop to the dmi list.
-
-Additionally, the X41 should be in the list of supported laptops
-(Kconfig)
-
-Thanks,
-
-.Alejandro
+--
+Al
 

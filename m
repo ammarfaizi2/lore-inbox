@@ -1,386 +1,239 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161104AbVIPHWP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161103AbVIPHWt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161104AbVIPHWP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 03:22:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161103AbVIPHWP
+	id S1161103AbVIPHWt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 03:22:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161102AbVIPHWt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 03:22:15 -0400
-Received: from smtp103.sbc.mail.re2.yahoo.com ([68.142.229.102]:40373 "HELO
-	smtp103.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1161102AbVIPHWO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 03:22:14 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Kay Sievers <kay.sievers@vrfy.org>
-Subject: Re: [RFC] subclasses in sysfs to solve world peace
-Date: Fri, 16 Sep 2005 02:21:53 -0500
-User-Agent: KMail/1.8.2
-Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org,
-       Vojtech Pavlik <vojtech@suse.cz>, Hannes Reinecke <hare@suse.de>,
-       Patrick Mochel <mochel@digitalimplant.org>, airlied@linux.ie
-References: <20050916002036.GA6149@suse.de> <200509152136.08951.dtor_core@ameritech.net> <20050916024351.GC13486@vrfy.org>
-In-Reply-To: <20050916024351.GC13486@vrfy.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+	Fri, 16 Sep 2005 03:22:49 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:23994 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1161103AbVIPHWr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 03:22:47 -0400
+Date: Fri, 16 Sep 2005 00:22:37 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: greg@kroah.com
+Cc: zaitcev@redhat.com, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: ub: burn CDs
+Message-Id: <20050916002237.31b67f92.zaitcev@redhat.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.0.0 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509160221.54587.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 
-> > No, like your first picture, except 'interfaces/mice' will be a directory,
-> > not a symlink, since it does not have class_device parent. I should have
-> > said "Otherwise it gets added into _its_ class directory". 
-> 
+This patch fixes a few problems with ub and cleans up a couple of things:
 
-Ok, this is _very_ raw and I am creating double symlinks somehow, but still
-it shows it can be done:
+ - Bump UB_MAX_REQ_SG, this allows to burn CDs
+ - Drop initialization of urb.transfer_flags,
+   now that URB_UNLINK_ASYNC is gone
+ - Add forgotten processing of stalls at GetMaxLUN
+ - Remove a few more P3-tagged printks whose time has come
+ - Correct comment about ZIP-100
 
-[dtor@core ~]$ tree /sys/class/input/
-/sys/class/input/
-|-- devices
-|   |-- input0
-|   |   |-- capabilities
-|   |   |   |-- abs
-|   |   |   |-- ev
-|   |   |   |-- ff
-|   |   |   |-- key
-|   |   |   |-- led
-|   |   |   |-- msc
-|   |   |   |-- rel
-|   |   |   |-- snd
-|   |   |   `-- sw
-|   |   |-- device -> ../../../../devices/platform/i8042/serio1
-|   |   |-- event0
-|   |   |   |-- dev
-|   |   |   `-- device -> ../../../../../class/input/devices/input0
-|   |   |-- event0
-|   |   |   |-- dev
-|   |   |   `-- device -> ../../../../../class/input/devices/input0
-|   |   |-- id
-|   |   |   |-- bustype
-|   |   |   |-- product
-|   |   |   |-- vendor
-|   |   |   `-- version
-|   |   |-- name
-|   |   |-- phys
-|   |   `-- uniq
-|   |-- input1
-|   |   |-- capabilities
-|   |   |   |-- abs
-|   |   |   |-- ev
-|   |   |   |-- ff
-|   |   |   |-- key
-|   |   |   |-- led
-|   |   |   |-- msc
-|   |   |   |-- rel
-|   |   |   |-- snd
-|   |   |   `-- sw
-|   |   |-- device -> ../../../../devices/platform/i8042/serio0
-|   |   |-- event1
-|   |   |   |-- dev
-|   |   |   `-- device -> ../../../../../class/input/devices/input1
-|   |   |-- event1
-|   |   |   |-- dev
-|   |   |   `-- device -> ../../../../../class/input/devices/input1
-|   |   |-- id
-|   |   |   |-- bustype
-|   |   |   |-- product
-|   |   |   |-- vendor
-|   |   |   `-- version
-|   |   |-- mouse0
-|   |   |   |-- dev
-|   |   |   `-- device -> ../../../../../class/input/devices/input1
-|   |   |-- mouse0
-|   |   |   |-- dev
-|   |   |   `-- device -> ../../../../../class/input/devices/input1
-|   |   |-- name
-|   |   |-- phys
-|   |   |-- ts0
-|   |   |   |-- dev
-|   |   |   `-- device -> ../../../../../class/input/devices/input1
-|   |   |-- ts0
-|   |   |   |-- dev
-|   |   |   `-- device -> ../../../../../class/input/devices/input1
-|   |   `-- uniq
-|   `-- input2
-|       |-- capabilities
-|       |   |-- abs
-|       |   |-- ev
-|       |   |-- ff
-|       |   |-- key
-|       |   |-- led
-|       |   |-- msc
-|       |   |-- rel
-|       |   |-- snd
-|       |   `-- sw
-|       |-- device -> ../../../../devices/platform/i8042/serio0/serio2
-|       |-- event2
-|       |   |-- dev
-|       |   `-- device -> ../../../../../class/input/devices/input2
-|       |-- event2
-|       |   |-- dev
-|       |   `-- device -> ../../../../../class/input/devices/input2
-|       |-- id
-|       |   |-- bustype
-|       |   |-- product
-|       |   |-- vendor
-|       |   `-- version
-|       |-- mouse1
-|       |   |-- dev
-|       |   `-- device -> ../../../../../class/input/devices/input2
-|       |-- mouse1
-|       |   |-- dev
-|       |   `-- device -> ../../../../../class/input/devices/input2
-|       |-- name
-|       |-- phys
-|       |-- ts1
-|       |   |-- dev
-|       |   `-- device -> ../../../../../class/input/devices/input2
-|       |-- ts1
-|       |   |-- dev
-|       |   `-- device -> ../../../../../class/input/devices/input2
-|       `-- uniq
-`-- interfaces
-    |-- event0 -> ../../../class/input/devices/input0/event0
-    |-- event1 -> ../../../class/input/devices/input1/event1
-    |-- event2 -> ../../../class/input/devices/input2/event2
-    |-- mice
-    |   `-- dev
-    |-- mouse0 -> ../../../class/input/devices/input1/mouse0
-    |-- mouse1 -> ../../../class/input/devices/input2/mouse1
-    |-- ts0 -> ../../../class/input/devices/input1/ts0
-    `-- ts1 -> ../../../class/input/devices/input2/ts1
+Signed-off-by: Pete Zaitcev <zaitcev@yahoo.com>
 
--- 
-Dmitry
-
-Subject: XXX
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
-
- drivers/base/class.c   |   81 +++++++++++++++++++++++++++++++++++--------------
- drivers/input/input.c  |    6 +++
- include/linux/device.h |    5 ++-
- 3 files changed, 67 insertions(+), 25 deletions(-)
-
-Index: work/drivers/base/class.c
-===================================================================
---- work.orig/drivers/base/class.c
-+++ work/drivers/base/class.c
-@@ -485,7 +485,7 @@ static char *make_class_name(struct clas
+--- linux-2.6.14-rc1/drivers/block/ub.c	2005-09-13 10:44:11.000000000 -0700
++++ linux-2.6.14-rc1-lem/drivers/block/ub.c	2005-09-16 00:16:33.000000000 -0700
+@@ -172,7 +172,7 @@ struct bulk_cs_wrap {
+  */
+ struct ub_dev;
  
- int class_device_add(struct class_device *class_dev)
- {
--	struct class * parent = NULL;
-+	struct class * class = NULL;
- 	struct class_interface * class_intf;
- 	char *class_name = NULL;
- 	int error;
-@@ -499,15 +499,18 @@ int class_device_add(struct class_device
- 		goto register_done;
+-#define UB_MAX_REQ_SG	4
++#define UB_MAX_REQ_SG	9	/* cdrecord requires 32KB and maybe a header */
+ #define UB_MAX_SECTORS 64
+ 
+ /*
+@@ -387,7 +387,7 @@ struct ub_dev {
+ 	struct bulk_cs_wrap work_bcs;
+ 	struct usb_ctrlrequest work_cr;
+ 
+-	int sg_stat[UB_MAX_REQ_SG+1];
++	int sg_stat[6];
+ 	struct ub_scsi_trace tr;
+ };
+ 
+@@ -525,12 +525,13 @@ static ssize_t ub_diag_show(struct devic
+ 	    "qlen %d qmax %d\n",
+ 	    sc->cmd_queue.qlen, sc->cmd_queue.qmax);
+ 	cnt += sprintf(page + cnt,
+-	    "sg %d %d %d %d %d\n",
++	    "sg %d %d %d %d %d .. %d\n",
+ 	    sc->sg_stat[0],
+ 	    sc->sg_stat[1],
+ 	    sc->sg_stat[2],
+ 	    sc->sg_stat[3],
+-	    sc->sg_stat[4]);
++	    sc->sg_stat[4],
++	    sc->sg_stat[5]);
+ 
+ 	list_for_each (p, &sc->luns) {
+ 		lun = list_entry(p, struct ub_lun, link);
+@@ -835,7 +836,7 @@ static int ub_cmd_build_block(struct ub_
+ 		return -1;
  	}
+ 	cmd->nsg = n_elem;
+-	sc->sg_stat[n_elem]++;
++	sc->sg_stat[n_elem < 5 ? n_elem : 5]++;
  
--	parent = class_get(class_dev->class);
-+	class = class_get(class_dev->class);
- 
- 	pr_debug("CLASS: registering class device: ID = '%s'\n",
- 		 class_dev->class_id);
- 
- 	/* first, register with generic layer. */
- 	kobject_set_name(&class_dev->kobj, "%s", class_dev->class_id);
--	if (parent)
--		class_dev->kobj.parent = &parent->subsys.kset.kobj;
-+
-+	if (is_a_class_device(class_dev->parent))
-+		class_dev->kobj.parent = class_dev->parent;
-+	else if (class)
-+		class_dev->kobj.parent = &class->subsys.kset.kobj;
- 
- 	if ((error = kobject_add(&class_dev->kobj)))
- 		goto register_done;
-@@ -524,7 +527,7 @@ int class_device_add(struct class_device
- 
- 		attr->attr.name = "dev";
- 		attr->attr.mode = S_IRUGO;
--		attr->attr.owner = parent->owner;
-+		attr->attr.owner = class ? class->owner : NULL;
- 		attr->show = show_dev;
- 		attr->store = NULL;
- 		class_device_create_file(class_dev, attr);
-@@ -532,31 +535,45 @@ int class_device_add(struct class_device
+ 	/*
+ 	 * build the command
+@@ -891,7 +892,7 @@ static int ub_cmd_build_packet(struct ub
+ 		return -1;
  	}
+ 	cmd->nsg = n_elem;
+-	sc->sg_stat[n_elem]++;
++	sc->sg_stat[n_elem < 5 ? n_elem : 5]++;
  
- 	class_device_add_attrs(class_dev);
-+
-+	/* this will go away */
- 	if (class_dev->dev) {
- 		class_name = make_class_name(class_dev);
--		sysfs_create_link(&class_dev->kobj,
--				  &class_dev->dev->kobj, "device");
-+		sysfs_create_link(&class_dev->kobj, &class_dev->dev->kobj,
-+				  "device");
- 		sysfs_create_link(&class_dev->dev->kobj, &class_dev->kobj,
- 				  class_name);
-+		kfree(class_name);
-+	} else if (class_dev->parent) {
-+		class_name = make_class_name(class_dev);
-+		sysfs_create_link(&class_dev->kobj, class_dev->parent,
-+				  "device");
-+		sysfs_create_link(class_dev->parent, &class_dev->kobj,
-+				  is_a_class_device(class_dev->parent) ?
-+				  class_dev->class_id : class_name);
-+		kfree(class_name);
+ 	memcpy(&cmd->cdb, rq->cmd, rq->cmd_len);
+ 	cmd->cdb_len = rq->cmd_len;
+@@ -1010,7 +1011,6 @@ static int ub_scsi_cmd_start(struct ub_d
+ 	sc->last_pipe = sc->send_bulk_pipe;
+ 	usb_fill_bulk_urb(&sc->work_urb, sc->dev, sc->send_bulk_pipe,
+ 	    bcb, US_BULK_CB_WRAP_LEN, ub_urb_complete, sc);
+-	sc->work_urb.transfer_flags = 0;
+ 
+ 	/* Fill what we shouldn't be filling, because usb-storage did so. */
+ 	sc->work_urb.actual_length = 0;
+@@ -1019,7 +1019,6 @@ static int ub_scsi_cmd_start(struct ub_d
+ 
+ 	if ((rc = usb_submit_urb(&sc->work_urb, GFP_ATOMIC)) != 0) {
+ 		/* XXX Clear stalls */
+-		printk("ub: cmd #%d start failed (%d)\n", cmd->tag, rc); /* P3 */
+ 		ub_complete(&sc->work_done);
+ 		return rc;
  	}
+@@ -1190,11 +1189,9 @@ static void ub_scsi_urb_compl(struct ub_
+ 			return;
+ 		}
+ 		if (urb->status != 0) {
+-			printk("ub: cmd #%d cmd status (%d)\n", cmd->tag, urb->status); /* P3 */
+ 			goto Bad_End;
+ 		}
+ 		if (urb->actual_length != US_BULK_CB_WRAP_LEN) {
+-			printk("ub: cmd #%d xferred %d\n", cmd->tag, urb->actual_length); /* P3 */
+ 			/* XXX Must do reset here to unconfuse the device */
+ 			goto Bad_End;
+ 		}
+@@ -1395,14 +1392,12 @@ static void ub_data_start(struct ub_dev 
+ 	usb_fill_bulk_urb(&sc->work_urb, sc->dev, pipe,
+ 	    page_address(sg->page) + sg->offset, sg->length,
+ 	    ub_urb_complete, sc);
+-	sc->work_urb.transfer_flags = 0;
+ 	sc->work_urb.actual_length = 0;
+ 	sc->work_urb.error_count = 0;
+ 	sc->work_urb.status = 0;
  
-+	if (class && is_a_class_device(class_dev->parent))
-+		sysfs_create_link(&class->subsys.kset.kobj, &class_dev->kobj,
-+				  class_dev->class_id);
-+
- 	kobject_hotplug(&class_dev->kobj, KOBJ_ADD);
+ 	if ((rc = usb_submit_urb(&sc->work_urb, GFP_ATOMIC)) != 0) {
+ 		/* XXX Clear stalls */
+-		printk("ub: data #%d submit failed (%d)\n", cmd->tag, rc); /* P3 */
+ 		ub_complete(&sc->work_done);
+ 		ub_state_done(sc, cmd, rc);
+ 		return;
+@@ -1442,7 +1437,6 @@ static int __ub_state_stat(struct ub_dev
+ 	sc->last_pipe = sc->recv_bulk_pipe;
+ 	usb_fill_bulk_urb(&sc->work_urb, sc->dev, sc->recv_bulk_pipe,
+ 	    &sc->work_bcs, US_BULK_CS_WRAP_LEN, ub_urb_complete, sc);
+-	sc->work_urb.transfer_flags = 0;
+ 	sc->work_urb.actual_length = 0;
+ 	sc->work_urb.error_count = 0;
+ 	sc->work_urb.status = 0;
+@@ -1563,7 +1557,6 @@ static int ub_submit_clear_stall(struct 
  
- 	/* notify any interfaces this device is now here */
--	if (parent) {
--		down(&parent->sem);
--		list_add_tail(&class_dev->node, &parent->children);
--		list_for_each_entry(class_intf, &parent->interfaces, node)
-+	if (class) {
-+		down(&class->sem);
-+		list_add_tail(&class_dev->node, &class->children);
-+		list_for_each_entry(class_intf, &class->interfaces, node)
- 			if (class_intf->add)
- 				class_intf->add(class_dev, class_intf);
--		up(&parent->sem);
-+		up(&class->sem);
- 	}
+ 	usb_fill_control_urb(&sc->work_urb, sc->dev, sc->send_ctrl_pipe,
+ 	    (unsigned char*) cr, NULL, 0, ub_urb_complete, sc);
+-	sc->work_urb.transfer_flags = 0;
+ 	sc->work_urb.actual_length = 0;
+ 	sc->work_urb.error_count = 0;
+ 	sc->work_urb.status = 0;
+@@ -2000,17 +1993,16 @@ static int ub_sync_getmaxlun(struct ub_d
  
-  register_done:
--	if (error && parent)
--		class_put(parent);
-+	if (error && class)
-+		class_put(class);
- 	class_device_put(class_dev);
--	kfree(class_name);
- 	return error;
- }
+ 	usb_fill_control_urb(&sc->work_urb, sc->dev, sc->recv_ctrl_pipe,
+ 	    (unsigned char*) cr, p, 1, ub_probe_urb_complete, &compl);
+-	sc->work_urb.transfer_flags = 0;
+ 	sc->work_urb.actual_length = 0;
+ 	sc->work_urb.error_count = 0;
+ 	sc->work_urb.status = 0;
  
-@@ -619,34 +636,48 @@ error:
+ 	if ((rc = usb_submit_urb(&sc->work_urb, GFP_KERNEL)) != 0) {
+ 		if (rc == -EPIPE) {
+-			printk("%s: Stall at GetMaxLUN, using 1 LUN\n",
++			printk("%s: Stall submitting GetMaxLUN, using 1 LUN\n",
+ 			     sc->name); /* P3 */
+ 		} else {
+-			printk(KERN_WARNING
++			printk(KERN_NOTICE
+ 			     "%s: Unable to submit GetMaxLUN (%d)\n",
+ 			     sc->name, rc);
+ 		}
+@@ -2028,6 +2020,18 @@ static int ub_sync_getmaxlun(struct ub_d
+ 	del_timer_sync(&timer);
+ 	usb_kill_urb(&sc->work_urb);
  
- void class_device_del(struct class_device *class_dev)
- {
--	struct class * parent = class_dev->class;
-+	struct class * class = class_dev->class;
- 	struct class_interface * class_intf;
- 	char *class_name = NULL;
- 
--	if (parent) {
--		down(&parent->sem);
-+	if (class) {
-+		down(&class->sem);
- 		list_del_init(&class_dev->node);
--		list_for_each_entry(class_intf, &parent->interfaces, node)
-+		list_for_each_entry(class_intf, &class->interfaces, node)
- 			if (class_intf->remove)
- 				class_intf->remove(class_dev, class_intf);
--		up(&parent->sem);
-+		up(&class->sem);
++	if ((rc = sc->work_urb.status) < 0) {
++		if (rc == -EPIPE) {
++			printk("%s: Stall at GetMaxLUN, using 1 LUN\n",
++			     sc->name); /* P3 */
++		} else {
++			printk(KERN_NOTICE
++			     "%s: Error at GetMaxLUN (%d)\n",
++			     sc->name, rc);
++		}
++		goto err_io;
 +	}
 +
-+	if (class && is_a_class_device(class_dev->parent))
-+		sysfs_remove_link(&class->subsys.kset.kobj, class_dev->class_id);
-+
-+	if (class_dev->parent) {
-+		class_name = make_class_name(class_dev);
-+		sysfs_remove_link(&class_dev->kobj, "device");
-+		sysfs_remove_link(class_dev->parent,
-+				  is_a_class_device(class_dev->parent) ?
-+				  class_dev->class_id : class_name);
-+		kfree(class_name);
- 	}
+ 	if (sc->work_urb.actual_length != 1) {
+ 		printk("%s: GetMaxLUN returned %d bytes\n", sc->name,
+ 		    sc->work_urb.actual_length); /* P3 */
+@@ -2048,6 +2052,7 @@ static int ub_sync_getmaxlun(struct ub_d
+ 	kfree(p);
+ 	return nluns;
  
- 	if (class_dev->dev) {
- 		class_name = make_class_name(class_dev);
- 		sysfs_remove_link(&class_dev->kobj, "device");
- 		sysfs_remove_link(&class_dev->dev->kobj, class_name);
-+		kfree(class_name);
- 	}
-+
- 	if (class_dev->devt_attr)
- 		class_device_remove_file(class_dev, class_dev->devt_attr);
-+
- 	class_device_remove_attrs(class_dev);
++err_io:
+ err_submit:
+ 	kfree(p);
+ err_alloc:
+@@ -2080,7 +2085,6 @@ static int ub_probe_clear_stall(struct u
  
- 	kobject_hotplug(&class_dev->kobj, KOBJ_REMOVE);
- 	kobject_del(&class_dev->kobj);
+ 	usb_fill_control_urb(&sc->work_urb, sc->dev, sc->send_ctrl_pipe,
+ 	    (unsigned char*) cr, NULL, 0, ub_probe_urb_complete, &compl);
+-	sc->work_urb.transfer_flags = 0;
+ 	sc->work_urb.actual_length = 0;
+ 	sc->work_urb.error_count = 0;
+ 	sc->work_urb.status = 0;
+@@ -2241,10 +2245,10 @@ static int ub_probe(struct usb_interface
+ 	for (i = 0; i < 3; i++) {
+ 		if ((rc = ub_sync_getmaxlun(sc)) < 0) {
+ 			/* 
+-			 * Some devices (i.e. Iomega Zip100) need this --
+-			 * apparently the bulk pipes get STALLed when the
+-			 * GetMaxLUN request is processed.
+-			 * XXX I have a ZIP-100, verify it does this.
++			 * This segment is taken from usb-storage. They say
++			 * that ZIP-100 needs this, but my own ZIP-100 works
++			 * fine without this.
++			 * Still, it does not seem to hurt anything.
+ 			 */
+ 			if (rc == -EPIPE) {
+ 				ub_probe_clear_stall(sc, sc->recv_bulk_pipe);
+@@ -2313,7 +2317,7 @@ static int ub_probe_lun(struct ub_dev *s
+ 	disk->first_minor = lun->id * UB_MINORS_PER_MAJOR;
+ 	disk->fops = &ub_bd_fops;
+ 	disk->private_data = lun;
+-	disk->driverfs_dev = &sc->intf->dev;	/* XXX Many to one ok? */
++	disk->driverfs_dev = &sc->intf->dev;
  
--	if (parent)
--		class_put(parent);
--	kfree(class_name);
-+	if (class)
-+		class_put(class);
- }
- 
- void class_device_unregister(struct class_device *class_dev)
-@@ -715,6 +746,10 @@ void class_device_put(struct class_devic
- 	kobject_put(&class_dev->kobj);
- }
- 
-+int is_a_class_device(struct kobject *kobj)
-+{
-+	return kobj && get_ktype(kobj) == &ktype_class_device;
-+}
- 
- int class_interface_register(struct class_interface *class_intf)
+ 	rc = -ENOMEM;
+ 	if ((q = blk_init_queue(ub_request_fn, &sc->lock)) == NULL)
+@@ -2466,9 +2470,6 @@ static int __init ub_init(void)
  {
-Index: work/include/linux/device.h
-===================================================================
---- work.orig/include/linux/device.h
-+++ work/include/linux/device.h
-@@ -199,7 +199,8 @@ struct class_device {
- 	struct class		* class;	/* required */
- 	dev_t			devt;		/* dev_t, creates the sysfs "dev" */
- 	struct class_device_attribute *devt_attr;
--	struct device		* dev;		/* not necessary, but nice to have */
-+	struct device		* dev;		/* not necessary, but nice to have (going away) */
-+	struct kobject		* parent;	/* either device or class_device */
- 	void			* class_data;	/* class-specific data */
+ 	int rc;
  
- 	char	class_id[BUS_ID_SIZE];	/* unique to this class */
-@@ -229,6 +230,8 @@ extern int class_device_rename(struct cl
- extern struct class_device * class_device_get(struct class_device *);
- extern void class_device_put(struct class_device *);
- 
-+extern int is_a_class_device(struct kobject *);
-+
- struct class_device_attribute {
- 	struct attribute	attr;
- 	ssize_t (*show)(struct class_device *, char * buf);
-Index: work/drivers/input/input.c
-===================================================================
---- work.orig/drivers/input/input.c
-+++ work/drivers/input/input.c
-@@ -948,18 +948,22 @@ int input_create_interface_device(struct
- 
- 	dev->devt = devt;
- 	dev->class = &input_interface_class;
-+	if (handle->dev)
-+		dev->parent = &handle->dev->cdev.kobj;
- 	strlcpy(dev->class_id, handle->name, BUS_ID_SIZE);
- 
-+
- 	error = class_device_register(dev);
- 	if (error)
- 		return error;
- 
-+/*
- 	if (handle->dev) {
- 		sysfs_create_link(&dev->kobj, &handle->dev->cdev.kobj, "device");
- 		sysfs_create_link(&handle->dev->cdev.kobj, &dev->kobj,
- 				  kobject_name(&dev->kobj));
- 	}
+-	/* P3 */ printk("ub: sizeof ub_scsi_cmd %zu ub_dev %zu ub_lun %zu\n",
+-			sizeof(struct ub_scsi_cmd), sizeof(struct ub_dev), sizeof(struct ub_lun));
 -
-+*/
- 	handle->intf_dev = dev;
- 
- 	__module_get(THIS_MODULE);
+ 	if ((rc = register_blkdev(UB_MAJOR, DRV_NAME)) != 0)
+ 		goto err_regblkdev;
+ 	devfs_mk_dir(DEVFS_NAME);

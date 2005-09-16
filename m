@@ -1,56 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751290AbVIPVL2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751288AbVIPVL0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751290AbVIPVL2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 17:11:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751293AbVIPVL2
+	id S1751288AbVIPVL0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 17:11:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbVIPVL0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 17:11:28 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:54501 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1751290AbVIPVL2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 17:11:28 -0400
-Message-Id: <200509162111.j8GLBM6e020186@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Trilight <trilight@ns666.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Dell laptops crashing / 2.6.13+ ? 
-In-Reply-To: Your message of "Fri, 16 Sep 2005 22:23:39 +0200."
-             <432B29CB.5090407@ns666.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <20050916221000.GA3454@abhays.us.dell.com>
-            <432B29CB.5090407@ns666.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1126905082_3550P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Fri, 16 Sep 2005 17:11:26 -0400
+Received: from zproxy.gmail.com ([64.233.162.198]:41357 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751288AbVIPVL0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 17:11:26 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:content-type:content-transfer-encoding;
+        b=Aehurzs3X3oI9yTNEWkfzElzWGAurywu77C1fuqoBaPyILRaoEeyATavVDT94WJ+7D7rjotRZnYTxRjBqw/Fu0X0wgdYTgi/Ou3bODFABLo/mlWM+9plgNDZ/F1wJnOqYXhmwWhT3Bu2BrJnVGXHwBuVsP0nvDwLNiPkEDiYnWQ=
+Message-ID: <432B34D6.6010904@gmail.com>
+Date: Fri, 16 Sep 2005 17:10:46 -0400
+From: Keenan Pepper <keenanpepper@gmail.com>
+User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: R52 hdaps support?
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Fri, 16 Sep 2005 17:11:22 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1126905082_3550P
-Content-Type: text/plain; charset=us-ascii
+I recently splurged on a new ThinkPad R52 (because it was one of the few laptops 
+in the store with /all/ linux-supported hardware), but the 2.6.14-rc1 kernel I 
+just compiled says "hdaps: supported laptop not found".
 
-On Fri, 16 Sep 2005 22:23:39 +0200, Trilight said:
+Looking at the source I notice there's a whitelist of models that goes up to 
+R51... How badly could it break if I just went ahead and added R52? Should it be 
+"NORMAL" or "INVERT"?
 
-> I was wondering if any one else has a dell laptop which crashes during
-> boot or locks up with 2.6.13 and higher ? Especially Oopses
-
-Hmm... I'm on 2.6.13-mm1 on a Dell Latitude C840 here, and it seems relatively
-stable modulo the occasional lockup due to the NVidia card/driver (but of course,
-that's my problem, not lkml's).
-
-What model laptop *exactly*, and do you have the text of an oops?
-
---==_Exmh_1126905082_3550P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFDKzT6cC3lWbTT17ARAmtbAKDQZsW69kDvwg6kZTDXgJl+g1VKuwCfQhYV
-xX+nXoUluIqP3A2vUpnaBYk=
-=QAQi
------END PGP SIGNATURE-----
-
---==_Exmh_1126905082_3550P--
+Keenan Pepper

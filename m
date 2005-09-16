@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750758AbVIPXv2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbVIPXwV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750758AbVIPXv2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 19:51:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbVIPXv2
+	id S1750744AbVIPXwV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 19:52:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbVIPXwV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 19:51:28 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:60325 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750758AbVIPXv2 (ORCPT
+	Fri, 16 Sep 2005 19:52:21 -0400
+Received: from mail.kroah.org ([69.55.234.183]:24252 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750744AbVIPXwV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 19:51:28 -0400
-Date: Fri, 16 Sep 2005 16:50:53 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Fix epoll delayed initialization bug ...
-Message-Id: <20050916165053.2dec0a6b.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.63.0509161621050.6125@localhost.localdomain>
-References: <Pine.LNX.4.63.0509161621050.6125@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 16 Sep 2005 19:52:21 -0400
+Date: Fri, 16 Sep 2005 16:20:54 -0700
+From: Greg KH <greg@kroah.com>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Christoph Hellwig <hch@infradead.org>, akpm@osdl.org, rbh00@utsglobal.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 2/7] s390: 3270 fullscreen view.
+Message-ID: <20050916232054.GA15387@kroah.com>
+References: <20050914155345.GA11478@skybase.boeblingen.de.ibm.com> <20050914161022.GA4230@infradead.org> <1126719107.4908.29.camel@localhost.localdomain> <20050915172432.GA9980@kroah.com> <1126858028.4923.11.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1126858028.4923.11.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi <davidel@xmailserver.org> wrote:
->
-> diff -Nru linux-2.6.13.vanilla/fs/eventpoll.c linux-2.6.13/fs/eventpoll.c
->  --- linux-2.6.13.vanilla/fs/eventpoll.c	2005-09-16 15:20:46.000000000 -0700
->  +++ linux-2.6.13/fs/eventpoll.c	2005-09-16 15:21:08.000000000 -0700
->  @@ -231,8 +231,9 @@
+On Fri, Sep 16, 2005 at 10:07:08AM +0200, Martin Schwidefsky wrote:
 > 
->    static void ep_poll_safewake_init(struct poll_safewake *psw);
->    static void ep_poll_safewake(struct poll_safewake *psw, wait_queue_head_t *wq);
->  -static int ep_getfd(int *efd, struct inode **einode, struct file **efile);
->  -static int ep_file_init(struct file *file);
->  +static int ep_getfd(int *efd, struct inode **einode, struct file **efile,
->  +		    struct eventpoll *ep);
->  +static int ep_alloc(struct eventpoll **pep);
+> To cut the long story short, there is more to a 3270 device then the tty
+> view. In fact you can compile the 3270 driver without the tty view and
+> only with the fullscreen view. We still should have a class for the
+> devices, do we not ?
 
-Sigh.  Space-stuffing strikes again.  Please resend as an attachment.
+For that, yes, I don't have a problem.  Just wanted to make sure you
+weren't creating new tty devices in the /sys/class tree, as those should
+remain under the /sys/class/tty/ tree.
 
-The number of whitespace-buggered patches which are coming in is just
-getting out of control lately.
+thanks,
 
-Even `patch -l' tossed four rejects, so there may be something else wrong
-in this one.
-
+greg k-h

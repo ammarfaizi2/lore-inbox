@@ -1,22 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161166AbVIPRMg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161180AbVIPRMG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161166AbVIPRMg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 13:12:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161174AbVIPRMg
+	id S1161180AbVIPRMG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 13:12:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161193AbVIPRMG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 13:12:36 -0400
-Received: from ausc60ps301.us.dell.com ([143.166.148.206]:179 "EHLO
+	Fri, 16 Sep 2005 13:12:06 -0400
+Received: from ausc60ps301.us.dell.com ([143.166.148.206]:20570 "EHLO
 	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
-	id S1161166AbVIPRMf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 13:12:35 -0400
+	id S1161180AbVIPRME (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 13:12:04 -0400
 X-IronPort-AV: i="3.97,117,1125896400"; 
-   d="scan'208"; a="295149797:sNHT33632688"
-Date: Fri, 16 Sep 2005 17:10:00 -0500
+   d="scan'208"; a="295149595:sNHT217439178"
+Date: Fri, 16 Sep 2005 17:09:25 -0500
 From: Abhay Salunke <Abhay_Salunke@dell.com>
-To: linux-kernel@vger.kernel.org, akpm@osdl.org
-Cc: abhay_salunke@dell.com
+To: linux-kernel@vger.kernel.org
 Subject: [patch 2.6.14-rc1] Enhancements and fixes for dell_rbu driver
-Message-ID: <20050916221000.GA3454@abhays.us.dell.com>
+Message-ID: <20050916220925.GA3442@abhays.us.dell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline

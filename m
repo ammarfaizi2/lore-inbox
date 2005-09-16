@@ -1,53 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161212AbVIPSFq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161221AbVIPSJd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161212AbVIPSFq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 14:05:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161220AbVIPSFq
+	id S1161221AbVIPSJd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 14:09:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161222AbVIPSJd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 14:05:46 -0400
-Received: from nevyn.them.org ([66.93.172.17]:10988 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S1161212AbVIPSFp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 14:05:45 -0400
-Date: Fri, 16 Sep 2005 14:05:35 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: Sripathi Kodi <sripathik@in.ibm.com>, Al Viro <viro@ZenIV.linux.org.uk>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, patrics@interia.pl,
-       Ingo Molnar <mingo@elte.hu>, Roland McGrath <roland@redhat.com>
-Subject: Re: [PATCH 2.6.13.1] Patch for invisible threads
-Message-ID: <20050916180535.GA10430@nevyn.them.org>
-Mail-Followup-To: Al Viro <viro@ftp.linux.org.uk>,
-	Sripathi Kodi <sripathik@in.ibm.com>,
-	Al Viro <viro@ZenIV.linux.org.uk>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, patrics@interia.pl,
-	Ingo Molnar <mingo@elte.hu>, Roland McGrath <roland@redhat.com>
-References: <20050913165102.GR25261@ZenIV.linux.org.uk> <Pine.LNX.4.58.0509131000040.3351@g5.osdl.org> <20050913171215.GS25261@ZenIV.linux.org.uk> <43274503.7090303@in.ibm.com> <Pine.LNX.4.58.0509131601400.26803@g5.osdl.org> <20050914015003.GW25261@ZenIV.linux.org.uk> <4328C0D0.6000909@in.ibm.com> <20050915011850.GZ25261@ZenIV.linux.org.uk> <432A17E0.3060302@in.ibm.com> <20050916074606.GE19626@ftp.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050916074606.GE19626@ftp.linux.org.uk>
-User-Agent: Mutt/1.5.8i
+	Fri, 16 Sep 2005 14:09:33 -0400
+Received: from terminus.zytor.com ([209.128.68.124]:12995 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1161221AbVIPSJd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 14:09:33 -0400
+Message-ID: <432B0A47.7060909@zytor.com>
+Date: Fri, 16 Sep 2005 11:09:11 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: 7eggert@gmx.de
+CC: =?ISO-8859-1?Q?=22Martin_v=2E_L=F6wis=22?= <martin@v.loewis.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Patch] Support UTF-8 scripts
+References: <4N6EL-4Hq-3@gated-at.bofh.it> <4N6EL-4Hq-5@gated-at.bofh.it> <4N6EK-4Hq-1@gated-at.bofh.it> <4N6EX-4Hq-27@gated-at.bofh.it> <4N6Ox-4Ts-33@gated-at.bofh.it> <4N7AS-67L-3@gated-at.bofh.it> <E1EGKXl-0001Sn-GA@be1.lrz>
+In-Reply-To: <E1EGKXl-0001Sn-GA@be1.lrz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 16, 2005 at 08:46:06AM +0100, Al Viro wrote:
-> > Further, about actual permission checks that we are doing, can we say: "A 
-> > process should be able to see /proc/<pid>/task/* of another process only if 
-> > they both belong to same uid or reader is root"? But any such change will 
-> > change the behavior of commands like 'ps', right?
+Bodo Eggert wrote:
 > 
-> Right.  The real question is whether the current behaviour makes any sense.
-> I've no objections to your patch + modification above, but I really wonder
-> if we should keep current rules in that area.
+> What's supposed to happen if you concatenate a script from your french
+> user and from your russian user, both using localized text, into one file?
+> Unless you can guarantee every editor to correctly handle this case, all
+> usage of 8-bit-characters should be disabled - NOT!
+> 
 
-Why should there be any more restrictions on /proc/<pid>/task than
-there are in /proc?  Threads are not listed in the latter, but that's
-strictly for performance/usability; you can enumerate threads in /proc
-by just trying all the valid PIDs.
+Actually, it's quite easy to avoid problems by using UTF-8 consistently. 
+   The 8-bit characters are oddballs and need to be treated specially, 
+but look, guys, it's 2005 - UTF-8 should be the norm, not the exception.
 
--- 
-Daniel Jacobowitz
-CodeSourcery, LLC
+	-hpa

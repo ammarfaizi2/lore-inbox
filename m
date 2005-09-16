@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750859AbVIPU7p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751285AbVIPVDv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750859AbVIPU7p (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 16:59:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbVIPU7p
+	id S1751285AbVIPVDv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 17:03:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751293AbVIPVDv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 16:59:45 -0400
-Received: from 66-23-228-155.clients.speedfactory.net ([66.23.228.155]:38090
-	"EHLO kevlar.burdell.org") by vger.kernel.org with ESMTP
-	id S1750859AbVIPU7o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 16:59:44 -0400
-Date: Fri, 16 Sep 2005 16:55:17 -0400
-From: Sonny Rao <sonny@burdell.org>
-To: Anton Blanchard <anton@samba.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-rc1-mm1
-Message-ID: <20050916205517.GA8638@kevlar.burdell.org>
-References: <20050916022319.12bf53f3.akpm@osdl.org> <20050916101700.GB14962@krispykreme>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050916101700.GB14962@krispykreme>
-User-Agent: Mutt/1.4.2.1i
+	Fri, 16 Sep 2005 17:03:51 -0400
+Received: from imap.gmx.net ([213.165.64.20]:404 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751285AbVIPVDt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 17:03:49 -0400
+X-Authenticated: #20450766
+Date: Fri, 16 Sep 2005 22:11:47 +0200 (CEST)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: Wim Vinckier <wimpunk@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Trouble hotplugging on embedded system
+In-Reply-To: <5c43128e050916024110467f02@mail.gmail.com>
+Message-ID: <Pine.LNX.4.60.0509162210100.12505@poirot.grange>
+References: <5c43128e050916024110467f02@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 16, 2005 at 08:17:00PM +1000, Anton Blanchard wrote:
-> On Fri, Sep 16, 2005 at 02:23:19AM -0700, Andrew Morton wrote:
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14-rc1/2.6.14-rc1-mm1/
-> 
-> Builds and boots on ppc64 (POWER5) with the following patch, I forgot to
-> include siginfo.h when I added data breakpoint support. We must include
-> it in a round-a-bout way in mainline.
+On Fri, 16 Sep 2005, Wim Vinckier wrote:
 
-Excellent, now I'm about to start up perf testing on 2.6.14-rc1-mm1 
+> I'm trying to get usb hotplugging working on a embedded system but it
+> doesn't (seem to) work.  As far as i understand all the documents I've
+> read, /sbin/hotplug (depending on /proc/sys/kernel/hotplug) should be
+> called whenever plugging in a device.  I guess I've forgot to enable
+> something in my kernel configuration but I can't find what went wrong.
+>  I've tried 2.6.8 and 2.6.12 with busybox 1.01.
 
-with and without the following patches:
+I think, there are some modifications needed to the hotplug to work with 
+busybox. Either in shell script syntax, or something else - can't say 
+exactly. Try to google for "hotplug busybox". I think, there was even a 
+special version of hotplug for busybox somewhere...
 
-mm-try-to-allocate-higher-order-pages-in-rmqueue_bulk.patch
-  mm: try to allocate higher order pages in rmqueue_bulk
-
-mm-try-to-allocate-higher-order-pages-in-rmqueue_bulk-fix.patch
-  mm-try-to-allocate-higher-order-pages-in-rmqueue_bulk fix
-
-mm-page_alloc-increase-size-of-per-cpu-pages.patch
-  mm: page_alloc: increase size of per-cpu-pages
-
-mm-set-per-cpu-pages-lower-threshold-to-zero.patch
-  mm: set per-cpu-pages lower threshold to zero
-
-
-
-Sonny
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski

@@ -1,52 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965303AbVIPNgK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161089AbVIPNls@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965303AbVIPNgK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 09:36:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965302AbVIPNgK
+	id S1161089AbVIPNls (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 09:41:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161093AbVIPNls
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 09:36:10 -0400
-Received: from bay106-f27.bay106.hotmail.com ([65.54.161.37]:58136 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S965298AbVIPNgI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 09:36:08 -0400
-Message-ID: <BAY106-F27CF4B237502C97B89C9B3AB910@phx.gbl>
-X-Originating-IP: [65.54.161.206]
-X-Originating-Email: [alaadalghan@hotmail.com]
-From: "Alaa Dalghan" <alaadalghan@hotmail.com>
-To: users@openswan.org, linux-crypto@nl.linux.org,
-       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-       linux-security-module@mail.wirex.com, netdev@vger.kernel.org
-Subject: Double Encryption
-Date: Fri, 16 Sep 2005 13:36:04 +0000
+	Fri, 16 Sep 2005 09:41:48 -0400
+Received: from main.gmane.org ([80.91.229.2]:36811 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1161089AbVIPNls (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 09:41:48 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Ed L Cashin <ecashin@coraid.com>
+Subject: Re: aoe fails on sparc64
+Date: Fri, 16 Sep 2005 09:36:51 -0400
+Message-ID: <87u0glxhfw.fsf@coraid.com>
+References: <3afbacad0508310630797f397d@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 16 Sep 2005 13:36:04.0361 (UTC) FILETIME=[95BE8F90:01C5BAC3]
+Content-Type: multipart/mixed; boundary="=-=-="
+X-Complaints-To: usenet@sea.gmane.org
+Cc: Jim MacBaine <jmacbaine@gmail.com>,
+       "David S. Miller" <davem@davemloft.net>
+X-Gmane-NNTP-Posting-Host: adsl-19-26-13.asm.bellsouth.net
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+Cancel-Lock: sha1:eT+9K5ntGz5eCG0SVT9fjgt0Gok=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone,
+--=-=-=
 
-I have an OpenSWAN (2.3.1) box accepting ipsec tunnels from wireless 
-(802.11) clients equipped with Linux and Windows XP.
-Wireless clients are using the openswan gateway to exchange data securely 
-between each other, so there are no direct tunnels between client 
-themselves.
-The gateway is doing the routing job fine but there is a security gap when 
-it has to decrypt data sent by a given client and then reencrypt it before 
-sending it to the ultimate destination. It may be better not to expose the 
-data in the clear at the gateway.
+Jim MacBaine <jmacbaine@gmail.com> writes:
 
-I know this can be solved by using double encryption (tunnel inside a  
-tunnel), but, I wonder if  there is a better alternative?
-I was thinking of using L2TP/IPSec tunnels instead of pure IPSec tunnels, 
-and then, maybe I can use L2TP encryption to encrypt end-to-end and IPSec 
-encryption to encrypt end-to-gateway. Would this work?
+> Hello,
+>
+> Using aoe on a sparc64 system gives strange results:
+>
+> sunny:/dev/etherd# echo >discover
+> sunny:/dev/etherd# mke2fs e0.0
+> mke2fs 1.37 (21-Mar-2005)
+> mke2fs: File too large while trying to determine filesystem size
+> sunny:/dev/etherd# blockdev --getsz e0.0
+> -4503599627370496
+>
+> The log says:
+>
+> Aug 31 15:18:49 sunny kernel: devfs_mk_dir: invalid argument.<6>
+> etherd/e0.0: unknown partition table
+> Aug 31 15:18:49 sunny kernel: aoe: 0011d8xxxxxx e0.0 v4000 has
+> 67553994410557440
+> sectors
+>
+> The system is an Sun Ultra 5, running 2.6.12.5/sparc64 compiled with
+> gcc-3.4.2.  e0.0 is exported on a x86 system using vblade-5, and has a
+> size of 30 MB.
 
-I appreciate any help and advices.
+I've been working with Jim MacBaine, and he reports that the patch
+below gets rid of the problem.  I don't know why.  When I test
+le64_to_cpup by itself, it works as expected.
 
-Alaadin
 
-_________________________________________________________________
-Don’t just search. Find. Check out the new MSN Search! 
-http://search.msn.click-url.com/go/onm00200636ave/direct/01/
+--=-=-=
+Content-Disposition: inline; filename=diff
+
+Index: linux-2.6.13/drivers/block/aoe/aoecmd.c
+===================================================================
+--- linux-2.6.13.orig/drivers/block/aoe/aoecmd.c	2005-08-31 17:03:52.000000000 -0400
++++ linux-2.6.13/drivers/block/aoe/aoecmd.c	2005-09-15 15:44:41.000000000 -0400
+@@ -320,7 +320,8 @@
+ 		d->flags |= DEVFL_EXT;
+ 
+ 		/* word 100: number lba48 sectors */
+-		ssize = le64_to_cpup((__le64 *) &id[100<<1]);
++		ssize = *((u64 *) &id[100<<1]);
++		ssize = le64_to_cpu(ssize);
+ 
+ 		/* set as in ide-disk.c:init_idedisk_capacity */
+ 		d->geo.cylinders = ssize;
+
+--=-=-=
+
+
+
+-- 
+  Ed L Cashin <ecashin@coraid.com>
+
+--=-=-=--
 

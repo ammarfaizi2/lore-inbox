@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161196AbVIPRVV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030472AbVIPRZF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161196AbVIPRVV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 13:21:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161197AbVIPRVV
+	id S1030472AbVIPRZF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 13:25:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030590AbVIPRZF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 13:21:21 -0400
-Received: from ns1.lanforge.com ([66.165.47.210]:8684 "EHLO www.lanforge.com")
-	by vger.kernel.org with ESMTP id S1161196AbVIPRVU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 13:21:20 -0400
-Message-ID: <432AFF0E.8090904@candelatech.com>
-Date: Fri, 16 Sep 2005 10:21:18 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.10) Gecko/20050719 Fedora/1.7.10-1.3.1
-X-Accept-Language: en-us, en
+	Fri, 16 Sep 2005 13:25:05 -0400
+Received: from [139.30.44.2] ([139.30.44.2]:18180 "EHLO
+	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id S1030472AbVIPRZC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 13:25:02 -0400
+Date: Fri, 16 Sep 2005 19:25:00 +0200 (CEST)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Tim Bird <tim.bird@am.sony.com>
+cc: jesper.juhl@gmail.com, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: early printk timings way off
+In-Reply-To: <Pine.LNX.4.61.0509161909500.31820@gans.physik3.uni-rostock.de>
+Message-ID: <Pine.LNX.4.61.0509161920370.31820@gans.physik3.uni-rostock.de>
+References: <9a87484905091515495f435db7@mail.gmail.com> <432AFB01.3050809@am.sony.com>
+ <Pine.LNX.4.61.0509161909500.31820@gans.physik3.uni-rostock.de>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: kallsyms error when compiling 2.6.13 + patch 
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After applying this patch:
+On Fri, 16 Sep 2005, Tim Schmielau wrote:
 
-http://www.candelatech.com/oss/candela_2.6.13.patch
+> So, one jump (probably the first) happens when time_init sets use_tsc.
+> Do we understand the other jump as well?
 
-and using this config:
+OK, looking at the numbers we have just one time-jump:
 
-http://www.candelatech.com/oss/kernel26_p2.cfg
+> [4294667.296000] CPU 0 irqstacks, hard=c03d2000 soft=c03d1000
+> [4294667.296000] PID hash table entries: 2048 (order: 11, 32768 bytes)
+> [    0.000000] Detected 1400.279 MHz processor.
+> [   27.121583] Using tsc for high-res timesource
+> [   27.121620] Console: colour dummy device 80x25
+> [   27.122909] Dentry cache hash table entries: 131072 (order: 7, 524288
 
-I had to set the CONFIG_KALLSYMS_EXTRA_PASS option
-to get the compile to work.
+The "Detected 1400.279 MHz processor." line just happens to be written
+_during_ time_init, when use_tsc is already set, but cycles_2_ns is not
+yet initialized.
 
-Compile machine is up-to-date FC2 system (dual Xeon).
+So I think everything is well-understood. It's just a matter of whether 
+it's worth fixing.
 
-Is this a known issue?
-
-Thanks,
-Ben
-
--- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
-
+Tim

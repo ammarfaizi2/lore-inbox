@@ -1,62 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161106AbVIPPPi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932443AbVIPPRE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161106AbVIPPPi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 11:15:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932701AbVIPPPi
+	id S932443AbVIPPRE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 11:17:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932663AbVIPPRE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 11:15:38 -0400
-Received: from imap.gmx.net ([213.165.64.20]:19612 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932663AbVIPPPh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 11:15:37 -0400
-Date: Fri, 16 Sep 2005 17:15:36 +0200 (MEST)
-From: "Michael Kerrisk" <mtk-lkml@gmx.net>
-To: akpm@osdl.org
-Cc: alan@redhat.com, michael.kerrisk@gmx.net, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Subject: [patch 2.6.14-rc1] PR_GET_DUMPABLE returns incorrect info
-X-Priority: 3 (Normal)
-X-Authenticated: #23581172
-Message-ID: <18739.1126883736@www47.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Fri, 16 Sep 2005 11:17:04 -0400
+Received: from qproxy.gmail.com ([72.14.204.194]:7449 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932443AbVIPPRD convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 11:17:03 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=N6GGh6l3RkeEiDbtWNwFfsW6FYJVQDvQcege+8sZSk3GOZYRB8x7/fKUdsAC9G0TtJel8mJnb3YEE+ktng/2hCQ/qYssF3cPvi3PV7Z0PXh0Zcrh494+ilAN4rcx5gN3S0m/xe0RqV9LM3HWk7IgWPtizFGhBYHWRRkivyFnbik=
+Message-ID: <d120d50005091608171e06233@mail.gmail.com>
+Date: Fri, 16 Sep 2005 10:17:00 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: "abuisse@ens-lyon.fr" <abuisse@ens-lyon.fr>
+Subject: Re: [patch] hdaps driver update, updated.
+Cc: rml@novell.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20050916155514.gtc8dd99kdi4gk4c@mouette.ens-lyon.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050916155514.gtc8dd99kdi4gk4c@mouette.ens-lyon.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+On 9/16/05, abuisse@ens-lyon.fr <abuisse@ens-lyon.fr> wrote:
+> On 9/14/05, Robert Love <rml@novell.com> wrote:
+> 
+>    On Wed, 2005-09-14 at 11:57 -0400, Robert Love wrote:
+> 
+>    Mr Morton,
+> 
+> > The hdaps driver landed in 2.6.14-rc1.
+> >
+> > The attached patch updates the driver:
+> >
+> >       - Remove the relative input device
+> >       - Add an absolute input device
+> >       - Misc. cleanup and bug fixing
+> 
+> 
+> Hi,
+> 
+> I understand that the "echo 1 > mousedev" has changed and that we are now
+> supposed to use joydev, but I can't find any joydev related thing in /sys.
+> Could you please explain how using hdaps as an input device is now supposed to
+> work ?
+> 
 
-2.6.13 incorporated Alan Cox's patch for /proc/sys/fs/suid_dumpable
-(one version of this patch can be found here
-http://marc.theaimsgroup.com/?l=linux-kernel&m=109647550421014&w=2 ).
-This patch also made corresponding changes in kernel/sys.c to
-change the prctl() PR_SET_DUMPABLE operation so that the 
-permitted range of 'arg2' was modified from 0..1 to 0..2.
-
-However, a corresponding change was not made for 
-PR_GET_DUMPABLE: if the dumpable flag is non-zero, then
-PR_GET_DUMPABLE always returns 1, so that the caller can't
-determine the true setting of this flag.
-
-I suggest the following small patch.  Perhaps Alan has comments.
-
-Cheers,
-
-Michael
-
-
---- linux-2.6.14-rc1/kernel/sys.c       2005-09-15 08:21:30.000000000 +0200
-+++ linux-2.6.14-rc1-mod/kernel/sys.c   2005-09-16 16:55:29.000000000 +0200
-@@ -1729,6 +1729,5 @@
-                        break;
-                case PR_GET_DUMPABLE:
--                       if (current->mm->dumpable)
--                               error = 1;
-+                       error = current->mm->dumpable;
-                        break;
-                case PR_SET_DUMPABLE:
+I understand that it is now always activated. So just compile and load
+joydev module and use /dev/input/jsX as your input device (joystick
+type).
 
 -- 
-5 GB Mailbox, 50 FreeSMS http://www.gmx.net/de/go/promail
-+++ GMX - die erste Adresse für Mail, Message, More +++
+Dmitry

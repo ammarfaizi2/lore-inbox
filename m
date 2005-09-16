@@ -1,39 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932274AbVIPA64@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161013AbVIPBEl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932274AbVIPA64 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 20:58:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932605AbVIPA64
+	id S1161013AbVIPBEl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 21:04:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161018AbVIPBEk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 20:58:56 -0400
-Received: from smtp113.sbc.mail.re2.yahoo.com ([68.142.229.92]:3207 "HELO
-	smtp113.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S932274AbVIPA6z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 20:58:55 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
+	Thu, 15 Sep 2005 21:04:40 -0400
+Received: from soundwarez.org ([217.160.171.123]:15849 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S1161013AbVIPBEj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Sep 2005 21:04:39 -0400
+Date: Fri, 16 Sep 2005 03:04:38 +0200
+From: Kay Sievers <kay.sievers@vrfy.org>
 To: Greg KH <gregkh@suse.de>
-Subject: Re: [RFC] subclasses in sysfs to solve world peace
-Date: Thu, 15 Sep 2005 19:58:44 -0500
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org, Kay Sievers <kay.sievers@vrfy.org>,
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
        Vojtech Pavlik <vojtech@suse.cz>, Hannes Reinecke <hare@suse.de>,
        Patrick Mochel <mochel@digitalimplant.org>, airlied@linux.ie
+Subject: Re: [RFC] subclasses in sysfs to solve world peace
+Message-ID: <20050916010438.GA12759@vrfy.org>
 References: <20050916002036.GA6149@suse.de>
-In-Reply-To: <20050916002036.GA6149@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200509151958.45573.dtor_core@ameritech.net>
+In-Reply-To: <20050916002036.GA6149@suse.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 15 September 2005 19:20, Greg KH wrote:
-> Ok, first off, I hate talking about architecture changes without showing
-> the code for what I am talking about first, but as this is an issue that
-> needs to be agreed upon by a wide range of developers, I'll just write
-> up what I am thinking about doing before actually doing it...
-> 
+On Thu, Sep 15, 2005 at 05:20:37PM -0700, Greg KH wrote:
 > The problem:  We need a way to show complex class and class device
 > structures properly in sysfs.  Examples of these "complex" views are the
 > input layer's use of different input drivers for devices (usually the
@@ -66,66 +59,18 @@ On Thursday 15 September 2005 19:20, Greg KH wrote:
 > 	    |-- event
 > 	    |-- mouse
 > 	    `-- ts
-> 
+
+I like that the child devices are actually below the parent device
+and represent the logical structure. I prefer that compared to the
+symlink-representation between the classes at the same directory
+level which the input patches propose.
+
 > Here we have 3 struct class_devices like today, input0, input1, and
 > mice.  We also have struct subclass_drivers of event, mouse, and ts.
 > These will create the struct subclass_devices event0, mouse0, event1,
 > and ts0.  The "dev" node files will show up in the directories mice,
 > event0, mouse0, event1, and ts0, like you would expect them too.
->
-
-This proposed scheme does not answer the question: "what input interfaces
-present in my system?". Input interfaces are objects in their own right
-and deserve their own spot. Compare your picture with the one below:
-
-[dtor@core ~]$ tree /sys/class/input/
-/sys/class/input/
-|-- devices
-|   |-- input0
-|   |   |-- device -> ../../../../devices/platform/i8042/serio1
-|   |   `-- event0 -> ../../../../class/input/interfaces/event0
-|   |-- input1
-|   |   |-- device -> ../../../../devices/platform/i8042/serio0
-|   |   |-- event1 -> ../../../../class/input/interfaces/event1
-|   |   |-- mouse0 -> ../../../../class/input/interfaces/mouse0
-|   |   `-- ts0 -> ../../../../class/input/interfaces/ts0
-|   `-- input2
-|       |-- device -> ../../../../devices/platform/i8042/serio0/serio2
-|       |-- event2 -> ../../../../class/input/interfaces/event2
-|       |-- mouse1 -> ../../../../class/input/interfaces/mouse1
-|       `-- ts1 -> ../../../../class/input/interfaces/ts1
-`-- interfaces
-    |-- event0
-    |   |-- dev
-    |   `-- device -> ../../../../class/input/devices/input0
-    |-- event1
-    |   |-- dev
-    |   `-- device -> ../../../../class/input/devices/input1
-    |-- event2
-    |   |-- dev
-    |   `-- device -> ../../../../class/input/devices/input2
-    |-- mice
-    |   `-- dev
-    |-- mouse0
-    |   |-- dev
-    |   `-- device -> ../../../../class/input/devices/input1
-    |-- mouse1
-    |   |-- dev
-    |   `-- device -> ../../../../class/input/devices/input2
-    |-- ts0
-    |   |-- dev
-    |   `-- device -> ../../../../class/input/devices/input1
-    `-- ts1
-        |-- dev
-        `-- device -> ../../../../class/input/devices/input2
-
-Here you have exactly the same information as in your picture plus you can
-see the other class (input interfaces) as well.
-
-The only issue is that links between those class devices are created in
-input core but we can solve it. We just need to allow class devices be
-children of other class devices.
-
+> 
 > So, this lets us create a solution for the input subsystem, but will it
 > also work for block and video?
 > 
@@ -139,10 +84,18 @@ children of other class devices.
 > 	    |-- sda2
 > 	    `-- sda3
 > 
+> "block" would represent the struct class.
+> "sda" would represent the struct class_device.
+> "sda1", "sda2", and "sda3" would represent the different subclass
+> devices that are bound to the class device "sda".
 
-Here is a different puzzle. Instead of adding interfaces to a device you
-partition it. I don't think we need to mix those 2 tasks together.
+How will the SUBSYSTEM (kset name) value look like for a "subclass"?
+Will it have it's own value or will all class devices and subclass
+devices share the same SUBSYSTEM?
 
+What are the "subclass drivers"? Similar to the current "bus drivers"?
 
--- 
-Dmitry
+Will it be possible to have subclasses of subclasses? :)
+
+Thanks,
+Kay

@@ -1,105 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965277AbVIPCny@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030476AbVIPCyt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965277AbVIPCny (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Sep 2005 22:43:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751229AbVIPCny
+	id S1030476AbVIPCyt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Sep 2005 22:54:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030479AbVIPCyt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Sep 2005 22:43:54 -0400
-Received: from soundwarez.org ([217.160.171.123]:55685 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S1751227AbVIPCnx (ORCPT
+	Thu, 15 Sep 2005 22:54:49 -0400
+Received: from mail.kroah.org ([69.55.234.183]:39639 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1030476AbVIPCyt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Sep 2005 22:43:53 -0400
-Date: Fri, 16 Sep 2005 04:43:51 +0200
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org,
-       Vojtech Pavlik <vojtech@suse.cz>, Hannes Reinecke <hare@suse.de>,
-       Patrick Mochel <mochel@digitalimplant.org>, airlied@linux.ie
-Subject: Re: [RFC] subclasses in sysfs to solve world peace
-Message-ID: <20050916024351.GC13486@vrfy.org>
-References: <20050916002036.GA6149@suse.de> <200509152103.42313.dtor_core@ameritech.net> <20050916021415.GB13486@vrfy.org> <200509152136.08951.dtor_core@ameritech.net>
+	Thu, 15 Sep 2005 22:54:49 -0400
+Date: Thu, 15 Sep 2005 19:54:17 -0700
+From: Greg KH <greg@kroah.com>
+To: Ilia Mirkin <imirkin@MIT.EDU>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: pci detection on alpha fails to assign irq to on-board usb device
+Message-ID: <20050916025416.GA31585@kroah.com>
+References: <1126830006.7002.12.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200509152136.08951.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <1126830006.7002.12.camel@localhost>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 15, 2005 at 09:36:08PM -0500, Dmitry Torokhov wrote:
-> On Thursday 15 September 2005 21:14, Kay Sievers wrote:
-> > On Thu, Sep 15, 2005 at 09:03:41PM -0500, Dmitry Torokhov wrote:
-> > > On Thursday 15 September 2005 20:54, Kay Sievers wrote:
-> > > > On Thu, Sep 15, 2005 at 08:23:43PM -0500, Dmitry Torokhov wrote:
-> > > > > On Thursday 15 September 2005 20:04, Kay Sievers wrote:
-> > > > > > I like that the child devices are actually below the parent device
-> > > > > > and represent the logical structure. I prefer that compared to the
-> > > > > > symlink-representation between the classes at the same directory
-> > > > > > level which the input patches propose.
-> > > > > 
-> > > > > Why don't we take it a step further and abandon classes altogether?
-> > > > > This way everything will grow from their respective hardware devices.
-> > > > 
-> > > > Not everything is hardware. :)
-> > > > 
-> > > > > Class represent a set of objects with similar characteristics. In
-> > > > > this regard event0 is no "lesser" than input0. Although they are
-> > > > > linked they are objects of the same importance. I do want to see
-> > > > > all input interfaces without scanning bunch of directories.
-> > > > 
-> > > > No problem, how about this:
-> > > >   /sys/class/input/
-> > > >   |-- input0
-> > > >   |   |-- event0
-> > > >   |   |   `-- dev
-> > > >   |   `-- mouse0
-> > > >   |   |   `-- dev
-> > > >   |-- input1
-> > > >   |   |-- event1
-> > > >   |   |   `-- dev
-> > > >   |   `-- ts0
-> > > >   |   |   `-- dev
-> > > >   |-- mice
-> > > >   |   `-- dev
-> > > >   `-- interfaces
-> > > >       |-- event0 ->·../input0/event0
-> > > >       |-- event1 ->·../input1/event1
-> > > >       |-- mouse0 ->·../input0/mouse0
-> > > >       |-- mice -> ../mice
-> > > >       `-- ts0 -> ../input1/ts0
-> > > > 
-> > > 
-> > > I am thinking... the rule would be - when adding a class device if it
-> > > has a class_device parent then it gets added to parent's directory and
-> > > symlinked into class. Otherwise it gets added into class directory.
-> > 
-> > Like this?
-> > 
-> >   /sys/class/input/
-> >   |-- input0
-> >   |   |-- event0
-> >   |   |   `-- dev
-> >   |   `-- mouse0
-> >   |   |   `-- dev
-> >   |-- input1
-> >   |   |-- event1
-> >   |   |   `-- dev
-> >   |   `-- ts0
-> >   |   |   `-- dev
-> >   |-- mice
-> >   |   `-- dev
-> >   |-- event0 ->·input0/event0
-> >   |-- event1 ->·input1/event1
-> >   |-- mouse0 ->·input0/mouse0
-> >   `-- ts0 -> input1/ts0
-> > 
+On Thu, Sep 15, 2005 at 08:20:06PM -0400, Ilia Mirkin wrote:
+> This is on a Compaq Professional Workstation XP1000, which is a Tsunami
+> system, compiled with the DP264 system setting in the kernel:
 > 
-> No, like your first picture, except 'interfaces/mice' will be a directory,
-> not a symlink, since it does not have class_device parent. I should have
-> said "Otherwise it gets added into _its_ class directory". 
+> ohci_hcd: 2004 Nov 08 USB 1.1 'Open' Host Controller (OHCI) Driver (PCI)
+> ohci_hcd 0000:00:07.3: Found HC with no IRQ.  Check BIOS/PCI
+> 0000:00:07.3 setup!
+> ohci_hcd 0000:00:07.3: init 0000:00:07.3 fail, -19
+> 
+> lspci -vvvx -s 00:07.3
+> 0000:00:07.3 USB Controller: Contaq Microsystems 82c693 (prog-if 10
+> [OHCI])
+>         Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop-
+> ParErr- Stepping- SERR- FastB2B-
+>         Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+> <TAbort- <MAbort- >SERR- <PERR-
+>         Interrupt: pin A routed to IRQ 0
+>         Region 0: Memory at 0000000009018000 (32-bit, non-prefetchable)
+> 00: 80 10 93 c6 03 00 80 02 00 10 03 0c 08 f8 80 00
+> 10: 00 80 01 09 00 00 00 00 00 00 00 00 00 00 00 00
+> 20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 30: 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00
+> 
+> There was a fix that went into the miata system type a while back:
+> http://www.uwsg.iu.edu/hypermail/linux/kernel/0110.3/0849.html
+> 
+> I am using kernel 2.6.12.5, though the same problem occured with
+> 2.6.11.8.
 
-Ah, I see. But the second model would work without any changes to
-existing software. :)
+Can you try 2.6.13.1 or 2.6.14-rc1?
 
-Kay
+thanks,
+
+greg k-h

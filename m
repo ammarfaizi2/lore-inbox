@@ -1,60 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbVIPWwl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750748AbVIPWzn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750745AbVIPWwl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 18:52:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbVIPWwk
+	id S1750748AbVIPWzn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 18:55:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbVIPWzm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 18:52:40 -0400
-Received: from iris-63.mc.com ([63.96.239.141]:57289 "EHLO mc.com")
-	by vger.kernel.org with ESMTP id S1750745AbVIPWwk convert rfc822-to-8bit
+	Fri, 16 Sep 2005 18:55:42 -0400
+Received: from qproxy.gmail.com ([72.14.204.198]:18214 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750748AbVIPWzm convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 18:52:40 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: inconsistent mmap and get_user_pages with hugetlbfs on ppc64
-Date: Fri, 16 Sep 2005 18:52:35 -0400
-Message-ID: <92CB67C83EE773499A7F2F6EA7E3FC940F0E99@ad-email1.ad.mc.com>
-Thread-Topic: inconsistent mmap and get_user_pages with hugetlbfs on ppc64
-Thread-Index: AcW7EVQISNtAnHF6Sru2TN5ezHcsjQ==
-From: "Sexton, Matt" <sexton@mc.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Sexton, Matt" <sexton@mc.com>
+	Fri, 16 Sep 2005 18:55:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=RfsZlsV3YJr3kohaD3Yb9dm/lcS656i97DLbqj5jHMVRrEj232UcUVucrCVeFsVa6fj/GhgOVvfek1/oePANPz/r50Aq4DddVVHWK8HxK5/0/45nIlLYoUpmRKA5AaiCIiZs9Th5IpDgYAGQrFBZ3bSz9VRzICcOGpFTKxW/PzI=
+Message-ID: <d120d5000509161555b021a3d@mail.gmail.com>
+Date: Fri, 16 Sep 2005 17:55:35 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Greg KH <gregkh@suse.de>
+Subject: Re: [RFC] subclasses in sysfs to solve world peace
+Cc: Kay Sievers <kay.sievers@vrfy.org>, linux-kernel@vger.kernel.org,
+       Vojtech Pavlik <vojtech@suse.cz>, Hannes Reinecke <hare@suse.de>,
+       Patrick Mochel <mochel@digitalimplant.org>, airlied@linux.ie
+In-Reply-To: <20050916214841.GA13920@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050916002036.GA6149@suse.de>
+	 <200509152136.08951.dtor_core@ameritech.net>
+	 <20050916024351.GC13486@vrfy.org>
+	 <200509160221.54587.dtor_core@ameritech.net>
+	 <20050916214841.GA13920@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On a ppc64 platform running 2.6.13-1, the virtual to physical mapping
-established by mmap'ing a hugetlbfs file does not seem to match the
-mapping described by get_user_pages().
+On 9/16/05, Greg KH <gregkh@suse.de> wrote:
+> On Fri, Sep 16, 2005 at 02:21:53AM -0500, Dmitry Torokhov wrote:
+> > > >
+> > > > No, like your first picture, except 'interfaces/mice' will be a directory,
+> > > > not a symlink, since it does not have class_device parent. I should have
+> > > > said "Otherwise it gets added into _its_ class directory".
+> > >
+> >
+> > Ok, this is _very_ raw and I am creating double symlinks somehow, but still
+> > it shows it can be done:
+> >
+> > [dtor@core ~]$ tree /sys/class/input/
+> > /sys/class/input/
+> > |-- devices
+> > |   |-- input0
+> 
+> Close, just drop the "devices" subdir, and you have my proposal, I'm
+> glad we agree :)
+> 
 
-Specifically, I have written a driver for a PCI device that writes data
-into a user-allocated memory buffer.  The user passes the virtual
-address of the buffer to the driver, which calls get_user_pages() to
-lock the pages and to get the page information in order to be able to
-build a scatter list of contiguous physical blocks to pass to the DMA
-engine on the device. The device then writes a known pattern to the
-buffer, which the user space program can verify.
+No, not entirely agree. I _want_ devices subdir to separate objects of
+different [sub]classes. We don;'t mix SCSI class_devices with USB, why
+messing it here?
 
-This process works fine on ia32 and ppc64 using malloc'ed memory.  This
-process also works fine on ia32 when obtaining the memory by mmap'ing a
-file on a hugetlbfs filesystem.  The 2MB pages are used to reduce the
-number of entries in the scatter list.
+> > `-- interfaces
+> >     |-- event0 -> ../../../class/input/devices/input0/event0
+> 
+> I don't see why we need the interfaces subdir at all.
+> 
 
-The process doesn't work so well on ppc64 with hugetlbfs (and 16MB
-pages).  Often, the data is written to the wrong 16MB pages, from the
-perspective of the user space program.  The data is correct within a
-16MB page, it's just written to the wrong page. It seems that the
-information returned by  get_user_pages() doesn't match the virtual to
-physical mapping used by the user process.
+For the same reasons you have hwmon stuff - one shoudl not hunt
+through maze of subdirectories and filter unwanted data to get list of
+objects of given class.
 
-Any suggestions on what I could be doing wrong in this specific case?
-Any known problems with the kernel in this case?
-
-Please CC me on any replies.
-
-Thanks,
-Matt
-
+-- 
+Dmitry

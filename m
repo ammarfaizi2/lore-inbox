@@ -1,78 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751079AbVIQLlb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751099AbVIQMnA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751079AbVIQLlb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Sep 2005 07:41:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751080AbVIQLlb
+	id S1751099AbVIQMnA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Sep 2005 08:43:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbVIQMnA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Sep 2005 07:41:31 -0400
-Received: from smtp8.wanadoo.fr ([193.252.22.23]:772 "EHLO smtp8.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S1751079AbVIQLlb (ORCPT
+	Sat, 17 Sep 2005 08:43:00 -0400
+Received: from pil.idi.ntnu.no ([129.241.107.93]:47258 "EHLO pil.idi.ntnu.no")
+	by vger.kernel.org with ESMTP id S1751099AbVIQMnA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Sep 2005 07:41:31 -0400
-X-ME-UUID: 20050917114123631.9A35D1C001CB@mwinf0809.wanadoo.fr
-Message-ID: <432C00C6.20305@zarb.org>
-Date: Sat, 17 Sep 2005 13:40:54 +0200
-From: trem <trem@zarb.org>
-User-Agent: Mozilla Thunderbird 1.0.6-5mdk (X11/20050322)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
+	Sat, 17 Sep 2005 08:43:00 -0400
+From: =?ISO-8859-1?Q?=20H=E5vard?= Bjerke <Havard.Bjerke@idi.ntnu.no>
+Date: Sat, 17 Sep 2005 14:42:54 +0200
 To: linux-kernel@vger.kernel.org
-Subject: dependance loop on 2.6.14-rc1-mm1
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: "Failed to acquire semaphore" with ACPI since 2.6.10-rc2
+Message-ID: <20050917124254.GV5384@idi.ntnu.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Virus-Scanned-By: mimedefang.idi.ntnu.no, using CLAMD
+X-SMTP-From: Sender=<havarbj@furu.idi.ntnu.no>, Relay/Client=furu.idi.ntnu.no [129.241.107.64], EHLO=furu.idi.ntnu.no
+X-Filter-Time: 0 seconds
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+I've been sticking with 2.6.9 for a while. Since 2.6.10-rc2, when ACPI is
+enabled, I spontaneously (I don't know how to provoke them) get lots of these
+messages:
 
-I've tried to compile a 2.6.14-rc1-mm1 on my amd64. When I do the make 
-modules_install,
-I have this warning:
+osl-0940 [1279] os_wait_semaphore     : Failed to acquire
+semaphore[00000100018befa0|1|0], AE_TIME
+osl-0940 [1292] os_wait_semaphore     : Failed to acquire
+semaphore[00000100018befa0|1|0], AE_TIME
+...
 
-if [ -r System.map -a -x /sbin/depmod ]; then /sbin/depmod -ae -F 
-System.map  2.6.14-rc1-mm1; fi
-WARNING: Module 
-/lib/modules/2.6.14-rc1-mm1/kernel/drivers/serial/serial_cs.ko ignored, 
-due to loop
-WARNING: Module 
-/lib/modules/2.6.14-rc1-mm1/kernel/drivers/serial/serial_core.ko 
-ignored, due to loop
-WARNING: Module 
-/lib/modules/2.6.14-rc1-mm1/kernel/drivers/serial/8250_pnp.ko ignored, 
-due to loop
-WARNING: Module 
-/lib/modules/2.6.14-rc1-mm1/kernel/drivers/serial/8250_pci.ko ignored, 
-due to loop
-WARNING: Module 
-/lib/modules/2.6.14-rc1-mm1/kernel/drivers/serial/8250_acpi.ko ignored, 
-due to loop
-WARNING: Loop detected: 
-/lib/modules/2.6.14-rc1-mm1/kernel/drivers/serial/8250.ko needs 
-serial_core.ko which needs 8250.ko again!
-WARNING: Module 
-/lib/modules/2.6.14-rc1-mm1/kernel/drivers/serial/8250.ko ignored, due 
-to loop
-WARNING: Module 
-/lib/modules/2.6.14-rc1-mm1/kernel/drivers/parport/parport_serial.ko 
-ignored, due to loop
-WARNING: Module 
-/lib/modules/2.6.14-rc1-mm1/kernel/drivers/char/mwave/mwave.ko ignored, 
-due to loop
+Same problem in 2.6.14-rc1. With acpi=off, there's no problem. In
+2.6.10-r1, with or without ACPI, no problem.
 
+I have an nForce 3 mainboard in an Asus laptop, arch is x86_64, and all
+kernels are vanilla and without proprietary nvidia in the tests.
 
+Please CC my personal address.
 
-You can found the .config I've used here : 
-http://www.zarb.org/~trem/config_loop.txt
-
-It's a allmodconfig config with  all ISDN and "Digi International NEO 
-PCI Support" set to OFF.
-I've "removed" both option because they generate error when compiling.
-
-I don't understand why I have this warning.
-
-Thanks for any help,
-trem
-
-
-
-
+Thanks,
+Havard

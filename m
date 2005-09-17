@@ -1,117 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750981AbVIQG55@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750977AbVIQGxf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750981AbVIQG55 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Sep 2005 02:57:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750982AbVIQG55
+	id S1750977AbVIQGxf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Sep 2005 02:53:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750980AbVIQGxe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Sep 2005 02:57:57 -0400
-Received: from moutng.kundenserver.de ([212.227.126.186]:29639 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1750980AbVIQG54 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Sep 2005 02:57:56 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: linuxppc64-dev@ozlabs.org
-Subject: Re: [patch 08/11] spufs: make mem files mmappable
-Date: Sat, 17 Sep 2005 08:58:41 +0200
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org, Paul Mackerras <paulus@samba.org>,
-       Hiroyuki Machida <machida@sm.sony.co.jp>
-References: <20050916121646.387617000@localhost> <20050916123314.366475000@localhost>
-In-Reply-To: <20050916123314.366475000@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 17 Sep 2005 02:53:34 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:385 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750972AbVIQGxe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Sep 2005 02:53:34 -0400
+Date: Fri, 16 Sep 2005 23:52:59 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Unusually long delay in the kernel
+Message-Id: <20050916235259.61b87069.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.44L0.0509161236440.4523-100000@iolanthe.rowland.org>
+References: <Pine.LNX.4.44L0.0509161236440.4523-100000@iolanthe.rowland.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509170858.41724.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Freedag 16 September 2005 14:16, Arnd Bergmann wrote:
-> This should get better as soon as extreme sparsemem gets merged.
+Alan Stern <stern@rowland.harvard.edu> wrote:
+>
+> This code excerpt is taken from the start of the control thread for the 
+>  usb-storage driver in 2.6.14-rc1:
 > 
-Actually, it first got worse.
+> 
+>  static int usb_stor_control_thread(void * __us)
+>  {
+>  	struct us_data *us = (struct us_data *)__us;
+>  	struct Scsi_Host *host = us_to_host(us);
+> 
+>  printk(KERN_INFO "Before thread start\n");
+>  	lock_kernel();
+> 
+>  	/*
+>  	 * This thread doesn't need any user-level access,
+>  	 * so get rid of all our resources.
+>  	 */
+>  	daemonize("usb-storage");
+>  	current->flags |= PF_NOFREEZE;
+>  	unlock_kernel();
+>  printk(KERN_INFO "After thread start\n");
+> 
+> 
+>  The code between the two printk's takes a long time to run.  I don't have 
+>  precise numbers, but it feels like more than 1 second.
+> 
+>  (1) Can anyone explain why, or indicate how to speed it up?
 
-The initialization for the SPU page structures broke
-with the inclusion of extreme sparsemem in current
-kernels. This patch works around that problem by further
-moving code around.
+What's it doing at the time?  (kgdb is great for this sort of thing: hit
+^C, go for a wander through the thread callchains).
 
-I still need to find a way to do this in a cleaner way,
-but for now, it restores the basic functionality.
+Presumably it's spinning on the bkl.  Is this actually an SMP machine?  If
+so, perhaps some other process is holding the bkl for a long time.  Perhaps
+a netdevice spending a long time diddling hardware in an ioctl, something
+like that.
 
-Signed-off-by: Arnd Bergmann <arndb@de.ibm.com>
+>  (2) Are the {un}lock_kernel calls really needed?
 
-Index: linux-cg/include/asm-ppc64/spu.h
-===================================================================
---- linux-cg.orig/include/asm-ppc64/spu.h
-+++ linux-cg/include/asm-ppc64/spu.h
-@@ -167,6 +167,13 @@ static inline void unregister_spu_syscal
- }
- #endif /* MODULE */
- 
-+#if defined(CONFIG_SPARSEMEM) && defined(CONFIG_PPC_BPA)
-+void __init bpa_spumem_init(int early);
-+#else
-+static inline void bpa_spumem_init(int early)
-+{
-+}
-+#endif
- 
- /*
-  * This defines the Local Store, Problem Area and Privlege Area of an SPU.
-Index: linux-cg/arch/ppc64/kernel/bpa_setup.c
-===================================================================
---- linux-cg.orig/arch/ppc64/kernel/bpa_setup.c
-+++ linux-cg/arch/ppc64/kernel/bpa_setup.c
-@@ -122,7 +122,7 @@ static void __init bpa_spuprop_present(s
- 	}
- }
- 
--static void __init bpa_spumem_init(int early)
-+void __init bpa_spumem_init(int early)
- {
- 	struct device_node *node;
- 	for (node = of_find_node_by_type(NULL, "spe");
-@@ -133,10 +133,6 @@ static void __init bpa_spumem_init(int e
- 		bpa_spuprop_present(node, "priv2", early);
- 	}
- }
--#else
--static void __init bpa_spumem_init(int early)
--{
--}
- #endif
- 
- static void bpa_progress(char *s, unsigned short hex)
-@@ -187,8 +183,6 @@ static void __init bpa_init_early(void)
- 
- 	ppc64_interrupt_controller = IC_BPA_IIC;
- 
--	bpa_spumem_init(1);
--
- 	DBG(" <- bpa_init_early()\n");
- }
- 
-Index: linux-cg/arch/ppc64/kernel/setup.c
-===================================================================
---- linux-cg.orig/arch/ppc64/kernel/setup.c
-+++ linux-cg/arch/ppc64/kernel/setup.c
-@@ -58,6 +58,7 @@
- #include <asm/mmu.h>
- #include <asm/lmb.h>
- #include <asm/iSeries/ItLpNaca.h>
-+#include <asm/spu.h>
- 
- #ifdef DEBUG
- #define DBG(fmt...) udbg_printf(fmt)
-@@ -1042,6 +1043,8 @@ void __init setup_arch(char **cmdline_p)
- 
- 	/* set up the bootmem stuff with available memory */
- 	do_init_bootmem();
-+	bpa_spumem_init(1);
-+
- 	sparse_init();
- 
- 	/* initialize the syscall map in systemcfg */
+Definitely not.
+
+That code could be converted to the kthread API btw.

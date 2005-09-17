@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751203AbVIQUyF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751195AbVIQU7z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751203AbVIQUyF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Sep 2005 16:54:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbVIQUyF
+	id S1751195AbVIQU7z (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Sep 2005 16:59:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbVIQU7z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Sep 2005 16:54:05 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:25266 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751203AbVIQUyE (ORCPT
+	Sat, 17 Sep 2005 16:59:55 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:40418 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751195AbVIQU7y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Sep 2005 16:54:04 -0400
-Subject: Re: mmap (2) vs read (2)
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Linh Dang <linhd@nortel.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <wn58xxvhdz8.fsf@linhd-2.ca.nortel.com>
-References: <wn58xxvhdz8.fsf@linhd-2.ca.nortel.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-x1k5kpWfz8zl0a5MVQLh"
-Organization: Red Hat, Inc.
-Date: Sat, 17 Sep 2005 14:26:35 -0400
-Message-Id: <1126981595.3010.1.camel@localhost.localdomain>
+	Sat, 17 Sep 2005 16:59:54 -0400
+Date: Sat, 17 Sep 2005 13:58:32 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: lserinol@gmail.com
+Cc: jlan@engr.sgi.com, pavel@ucw.cz, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net, guillaume.thouvenin@bull.net,
+       kaigai@ak.jp.nec.com, elsa-devel@lists.sourceforge.net,
+       erikj@subway.americas.sgi.com, jh@sgi.com
+Subject: Re: [PATCH] per process I/O statistics for userspace
+Message-Id: <20050917135832.501f2cfd.akpm@osdl.org>
+In-Reply-To: <2c1942a705091710363f463b18@mail.gmail.com>
+References: <2c1942a7050912052759c7f730@mail.gmail.com>
+	<20050914092338.GA2260@elf.ucw.cz>
+	<2c1942a705091413171e63bf55@mail.gmail.com>
+	<20050914132437.7c32b739.akpm@osdl.org>
+	<432890BA.5090907@engr.sgi.com>
+	<2c1942a705091710363f463b18@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Levent Serinol <lserinol@gmail.com> wrote:
+>
+> Hi Andrew,
+> 
 
---=-x1k5kpWfz8zl0a5MVQLh
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+You inspired me.  Please see
+http://www.zip.com.au/~akpm/linux/patches/stuff/top-posting.txt
 
-On Sat, 2005-09-17 at 12:10 -0400, Linh Dang wrote:
-> Hi, how come reading memory from /dev/mem using pread(2) or mmap(2)
-> will give diffent results?
+>  What's your last decision about the patch ?
 
-because you're being evil ;)
-
-mmap of /dev/mem for *ram* is special. To avoid cache aliases and other
-evils, you can only mmap non-ram realistically on /dev/mem.
-
-Why are you using /dev/mem in the first place, it's a sure sign that
-you're doing something really wrong in your design...
-
-
---=-x1k5kpWfz8zl0a5MVQLh
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDLF/apv2rCoFn+CIRAs4jAJsFzGUMn8LX0rUzk9zXVYf5rfrjPQCeLUiH
-D0yFXEeMcNQaCmBHtb5dZG0=
-=RE/6
------END PGP SIGNATURE-----
-
---=-x1k5kpWfz8zl0a5MVQLh--
+To wait and see what the system accounting guys come up with.  If we export
+this info in /proc then it'll need to remain exported for ever.  So if/when
+the system accounting people export it by other means, the info will be
+duplicated.
 

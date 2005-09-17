@@ -1,77 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751039AbVIQPDb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750959AbVIQOuG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751039AbVIQPDb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Sep 2005 11:03:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751115AbVIQPDb
+	id S1750959AbVIQOuG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Sep 2005 10:50:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750962AbVIQOuF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Sep 2005 11:03:31 -0400
-Received: from xproxy.gmail.com ([66.249.82.193]:44394 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751039AbVIQPDb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Sep 2005 11:03:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:organization:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=Vn7eT2bJXU3aGokD2YrBk8kI6jXeyz9eQDs7bRkeoJjKdD0CCcsAcp7ehslMPlPXqHUaabjVpDR8MFsWpwSnTElyzhNihYzYHNSjkdhWooM6RfSjrVgcz2IWs54yaZjsyeoldUicUVifbR3LoccFw3SbXPRxzakTw9VKtklaHsk=
-Message-ID: <432C303B.7040804@gmail.com>
-Date: Sat, 17 Sep 2005 17:03:23 +0200
-From: Patrizio Bassi <patrizio.bassi@gmail.com>
-Reply-To: patrizio.bassi@gmail.com
-Organization: patrizio.bassi@gmail.com
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050810)
-X-Accept-Language: it, it-it, en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-rc1 Critical bug: machine complete freeze
-References: <432BE118.5090008@gmail.com> <20050917024116.6e16529b.akpm@osdl.org>
-In-Reply-To: <20050917024116.6e16529b.akpm@osdl.org>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 17 Sep 2005 10:50:05 -0400
+Received: from wavehammer.waldi.eu.org ([82.139.196.55]:56734 "EHLO
+	wavehammer.waldi.eu.org") by vger.kernel.org with ESMTP
+	id S1750959AbVIQOuE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Sep 2005 10:50:04 -0400
+Date: Sat, 17 Sep 2005 16:49:54 +0200
+From: Bastian Blank <bastian@waldi.eu.org>
+To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] Move flags for preprocessing linker scripts to rule
+Message-ID: <20050917144954.GA9800@wavehammer.waldi.eu.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="gKMricLos+KVdGMg"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton ha scritto:
 
->Patrizio Bassi <patrizio.bassi@gmail.com> wrote:
->  
->
->>Hi.
->>
->>i'm using 2.6.14-rc1.
->>
->>1 second after starting samba (3.0.20) machine freezes completly.
->>no way to resume it, just hardware reset.
->>
->>I can't provide backtraces or logs, there isn't a logged kernel panic, 
->>nor other log.
->>Immedially freezed.
->>
->>2.6.13 works.
->>
->>Of course same smb.conf and same .config.
->>
->>    
->>
->
->Please enable CONFIG_DEBUG_SLAB, CONFIG_DEBUG_PAGE_ALLOC,
->CONFIG_X86_LOCAL_APIC and add `nmi_watchdog=1' to the kernel boot command
->line.
->
->
->  
->
-ok... done..
+--gKMricLos+KVdGMg
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-here the backtrace:
-http://blight.altervista.org/1.jpg
-http://blight.altervista.org/2.jpg
+Move CPPFLAGS_vmlinux.lds settings into the .lds.S -> .lds rule. Any of
+the remaining CPPFLAGS definitions for .lds.S preprocessing sets this
+options.
 
-however i found the problem:
+Add -undef to avoid definition of any system-specific macros. This makes
+the explicit undefines unnecessary.
 
-the new ipfilter netbios module.
-not compiling it fixed the panic.
-net team please fix that :)
+Signed-off-by: Bastian Blank <waldi@debian.org>
 
+---
 
+ Makefile               |    5 -----
+ scripts/Makefile.build |    2 +-
+ 2 files changed, 1 insertions(+), 6 deletions(-)
+
+diff --git a/Makefile b/Makefile
+--- a/Makefile
++++ b/Makefile
+@@ -827,11 +827,6 @@ prepare0: archprepare FORCE
+ # All the preparing..
+ prepare prepare-all: prepare0
+=20
+-#	Leave this as default for preprocessing vmlinux.lds.S, which is now
+-#	done in arch/$(ARCH)/kernel/Makefile
+-
+-export CPPFLAGS_vmlinux.lds +=3D -P -C -U$(ARCH)
+-
+ # Single targets
+ # ------------------------------------------------------------------------=
+---
+=20
+diff --git a/scripts/Makefile.build b/scripts/Makefile.build
+--- a/scripts/Makefile.build
++++ b/scripts/Makefile.build
+@@ -234,7 +234,7 @@ targets +=3D $(extra-y) $(MAKECMDGOALS) $(
+ # Linker scripts preprocessor (.lds.S -> .lds)
+ # ------------------------------------------------------------------------=
+---
+ quiet_cmd_cpp_lds_S =3D LDS     $@
+-      cmd_cpp_lds_S =3D $(CPP) $(cpp_flags) -D__ASSEMBLY__ -o $@ $<
++      cmd_cpp_lds_S =3D $(CPP) -P -C -undef $(cpp_flags) -D__ASSEMBLY__ -o=
+ $@ $<
+=20
+ %.lds: %.lds.S FORCE
+ 	$(call if_changed_dep,cpp_lds_S)
+
+--=20
+You!  What PLANET is this!
+		-- McCoy, "The City on the Edge of Forever", stardate 3134.0
+
+--gKMricLos+KVdGMg
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iEYEARECAAYFAkMsLRIACgkQnw66O/MvCNGtTACfeh+5EK5MX5wJpMSeSZ2XcQkt
+H4MAoIYGk9Jqm4EaFKbLA1uddf6Phiro
+=A2aT
+-----END PGP SIGNATURE-----
+
+--gKMricLos+KVdGMg--

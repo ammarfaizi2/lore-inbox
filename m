@@ -1,44 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750934AbVIQF1W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750939AbVIQFrp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750934AbVIQF1W (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Sep 2005 01:27:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750936AbVIQF1W
+	id S1750939AbVIQFrp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Sep 2005 01:47:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750942AbVIQFrp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Sep 2005 01:27:22 -0400
-Received: from mo01.iij4u.or.jp ([210.130.0.20]:14798 "EHLO mo01.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id S1750934AbVIQF1V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Sep 2005 01:27:21 -0400
-Date: Sat, 17 Sep 2005 14:27:08 +0900
-From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-To: Andrew Morton <akpm@osdl.org>
-Cc: yuasa@hh.iij4u.or.jp, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mips: Fixed build error
-Message-Id: <20050917142708.16e29c4c.yuasa@hh.iij4u.or.jp>
-In-Reply-To: <20050916213323.0a6499ba.akpm@osdl.org>
-References: <20050916022319.12bf53f3.akpm@osdl.org>
-	<20050917132521.1d157d50.yuasa@hh.iij4u.or.jp>
-	<20050916213323.0a6499ba.akpm@osdl.org>
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i486-pc-linux-gnu)
+	Sat, 17 Sep 2005 01:47:45 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:23972 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750939AbVIQFrp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Sep 2005 01:47:45 -0400
+Date: Sat, 17 Sep 2005 06:47:42 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Roland Dreier <rolandd@cisco.com>
+Cc: Davide Libenzi <davidel@xmailserver.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] Fix epoll delayed initialization bug ...
+Message-ID: <20050917054742.GI19626@ftp.linux.org.uk>
+References: <Pine.LNX.4.63.0509161621050.6125@localhost.localdomain> <52hdckk1ix.fsf@cisco.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <52hdckk1ix.fsf@cisco.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Sep 2005 21:33:23 -0700
-Andrew Morton <akpm@osdl.org> wrote:
-
-> Yoichi Yuasa <yuasa@hh.iij4u.or.jp> wrote:
-> >
-> >  This patch has fixed the following build error on MIPS.
-> >
+On Fri, Sep 16, 2005 at 04:59:02PM -0700, Roland Dreier wrote:
+>     Davide> Al found a potential problem in epoll_create(), where the
+>     Davide> file->private_data member was set after fd_install(). This is
+>     Davide> obviously wrong since another thread might do a close() on
+>     Davide> that fd# before we set the file->private_data member. This
+>     Davide> goes over 2.6.13 and passes a few basic tests I've done here.
 > 
-> Great, thaks for that.
-> 
-> Do you actually run-time test -mm kernels on MIPS or do you only compile-test?
-> 
+> Actually, I found the problem after Al pointed out a similar bug in my code ;)
 
-I always actually run-time test it on MIPS.
-
-Yoichi
+Yup.

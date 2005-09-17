@@ -1,42 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbVIQC2I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750779AbVIQC07@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750827AbVIQC2I (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 22:28:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750831AbVIQC2H
+	id S1750779AbVIQC07 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 22:26:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbVIQC07
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 22:28:07 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:48267 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1750827AbVIQC2G (ORCPT
+	Fri, 16 Sep 2005 22:26:59 -0400
+Received: from zproxy.gmail.com ([64.233.162.195]:65495 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750779AbVIQC06 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 22:28:06 -0400
-Date: Sat, 17 Sep 2005 04:27:48 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Paul Jackson <pj@sgi.com>
-cc: akpm@osdl.org, torvalds@osdl.org, Simon.Derr@bull.net,
-       linux-kernel@vger.kernel.org, nikita@clusterfs.com
-Subject: Re: [PATCH] cpuset semaphore depth check optimize
-In-Reply-To: <Pine.LNX.4.61.0509170350200.3728@scrub.home>
-Message-ID: <Pine.LNX.4.61.0509170423570.3743@scrub.home>
-References: <20050912113030.15934.9433.sendpatchset@jackhammer.engr.sgi.com>
- <20050912043943.5795d8f8.akpm@osdl.org> <20050912075155.3854b6e3.pj@sgi.com>
- <Pine.LNX.4.61.0509121821270.3743@scrub.home> <20050912153135.3812d8e2.pj@sgi.com>
- <Pine.LNX.4.61.0509131120020.3728@scrub.home> <20050913103724.19ac5efa.pj@sgi.com>
- <Pine.LNX.4.61.0509141446590.3728@scrub.home> <20050914124642.1b19dd73.pj@sgi.com>
- <Pine.LNX.4.61.0509150116150.3728@scrub.home> <20050915104535.6058bbda.pj@sgi.com>
- <Pine.LNX.4.61.0509170350200.3728@scrub.home>
+	Fri, 16 Sep 2005 22:26:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=ZXxXulACI8h1y3hP3MJBwMqP9ZrCOo4YaUrWp6HEDgVHNJT3qQwwymcKqCAMV2KQhY7oz+Zze1M9qncF8Nc2CSPa5NIoWmUDl9aVG/sIec2wlqba0z18jikuPTZhkNI7cZAJ+Ld+sHAJ+bQnZxmTknf5im60rrWeSIl/+7l62Is=
+Message-ID: <432B7EE6.1040905@gmail.com>
+Date: Fri, 16 Sep 2005 22:26:46 -0400
+From: Keenan Pepper <keenanpepper@gmail.com>
+User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Robert Love <rml@novell.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: R52 hdaps support?
+References: <432B34D6.6010904@gmail.com> <1126911860.24266.1.camel@phantasy>
+In-Reply-To: <1126911860.24266.1.camel@phantasy>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Robert Love wrote:
+> The R52 should work and nothing should break.  If it works, I'll add it.
+> 
+> As for normal versus inverted: You probably want NORMAL, but you will
+> have to verify it and let me know.  You'll know you have the wrong one
+> when the readings are, well, inverted.
+> 
+> 	Robert Love
 
-On Sat, 17 Sep 2005, Roman Zippel wrote:
+OK, it's compiled and running, but how do I tell if it's inverted? The laptop is 
+on a horizontal surface and /sys/devices/platform/hdaps/position reads 
+(482,508). What does that mean?
 
-> Define "using", as long as the count is different from the cpuset is 
-> active and the possible actions on it are limited.
-
-Oops, add a "zero," after "from" to make this an understandable sentence. :)
-
-bye, Roman
+Keenan Pepper

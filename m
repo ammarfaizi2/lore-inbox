@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750802AbVIQBGQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750803AbVIQBPj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750802AbVIQBGQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 21:06:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbVIQBGQ
+	id S1750803AbVIQBPj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 21:15:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbVIQBPj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 21:06:16 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:58616 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S1750802AbVIQBGP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 21:06:15 -0400
-Message-ID: <432B6BDF.2010607@mvista.com>
-Date: Fri, 16 Sep 2005 18:05:35 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en-us, en
+	Fri, 16 Sep 2005 21:15:39 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:31626 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1750803AbVIQBPj (ORCPT
+	<rfc822;Linux-Kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 21:15:39 -0400
+Date: Sat, 17 Sep 2005 03:15:29 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>,
+       Dipankar Sarma <dipankar@in.ibm.com>
+Subject: Re: [PATCH 2/5] atomic: introduce atomic_inc_not_zero
+In-Reply-To: <4328D39C.2040500@yahoo.com.au>
+Message-ID: <Pine.LNX.4.61.0509170300030.3743@scrub.home>
+References: <43283825.7070309@yahoo.com.au> <4328387E.6050701@yahoo.com.au>
+ <Pine.LNX.4.61.0509141814220.3743@scrub.home> <43285374.3020806@yahoo.com.au>
+ <Pine.LNX.4.61.0509141906040.3728@scrub.home> <20050914230049.F30746@flint.arm.linux.org.uk>
+ <Pine.LNX.4.61.0509150010100.3728@scrub.home> <20050914232106.H30746@flint.arm.linux.org.uk>
+ <4328D39C.2040500@yahoo.com.au>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux@horizon.com, linux-kernel@vger.kernel.org, johnstul@us.ibm.com
-Subject: Re: NTP leap second question
-References: <20050914222003.23790.qmail@science.horizon.com>	 <432B3FEB.1070303@mvista.com> <1126920192.22339.7.camel@localhost.localdomain>
-In-Reply-To: <1126920192.22339.7.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Gwe, 2005-09-16 at 14:58 -0700, George Anzinger wrote:
-> 
->>What I am asking is when is the flag sent to the kernel.  My reading of 
->>the kernel code says that it will insert the second on the second roll 
->>immeadiatly after the flag is set.
-> 
-> 
-> Kernel clock ticks are not adjusted or slewed or anything else for a
-> leap second when correctly configured. UTC leap second adjustment is
-> performed by glibc for locales that expect it (which I think is all of
-> them)
+Hi,
 
-Eh??  Then what is one to make of the code in timer.c that add 
-leapseconds?  It seems to be controlled by the adjtime() system call.
+On Thu, 15 Sep 2005, Nick Piggin wrote:
 
-Sure looks like it sets the system clock (xtime) ahead or back by a 
-second at midnight if the flag is set to do so.
+> Roman: any ideas about what you would prefer? You'll notice
+> atomic_inc_not_zero replaces rcuref_inc_lf, which is used several times
+> in the VFS.
 
--- 
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
+In the larger picture I'm not completely happy with these scalibilty 
+patches, as they add extra overhead at the lower end. On a UP system in 
+general nothing beats:
+
+	spin_lock();
+	if (*ptr)
+		ptr += 1;
+	spin_unlock();
+
+The main problem is here that the atomic functions are used in two basic 
+situation:
+
+1) interrupt synchronization
+2) multiprocessor synchronization
+
+The atomic functions have to assume both, but on UP systems it often is 
+a lot cheaper if they don't have to synchronize with interrupts. So 
+replacing a spinlock with a few atomic operations can hurt UP performance.
+
+bye, Roman

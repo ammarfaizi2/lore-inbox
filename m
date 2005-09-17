@@ -1,47 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751090AbVIQM22@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751093AbVIQM3f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751090AbVIQM22 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Sep 2005 08:28:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751093AbVIQM22
+	id S1751093AbVIQM3f (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Sep 2005 08:29:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbVIQM3f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Sep 2005 08:28:28 -0400
-Received: from albireo.ucw.cz ([84.242.65.108]:25014 "EHLO albireo.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751090AbVIQM22 (ORCPT
+	Sat, 17 Sep 2005 08:29:35 -0400
+Received: from smtp9.wanadoo.fr ([193.252.22.22]:29301 "EHLO smtp9.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S1751093AbVIQM3e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Sep 2005 08:28:28 -0400
-Date: Sat, 17 Sep 2005 14:28:28 +0200
-From: Martin Mares <mj@ucw.cz>
-To: =?iso-8859-2?B?Ik1hcnRpbiB2LiBM9ndpcyI=?= <martin@v.loewis.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Patch] Support UTF-8 scripts
-Message-ID: <20050917122828.GA4103@ucw.cz>
-References: <4NsP0-3YF-17@gated-at.bofh.it> <4NsP1-3YF-19@gated-at.bofh.it> <4NsP1-3YF-21@gated-at.bofh.it> <4NsOZ-3YF-9@gated-at.bofh.it> <4NsYH-4bv-27@gated-at.bofh.it> <4NtBr-4WU-3@gated-at.bofh.it> <4NtL0-5lQ-13@gated-at.bofh.it> <432B2C49.8080008@v.loewis.de> <20050917120123.GA3095@ucw.cz> <432C0B51.704@v.loewis.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <432C0B51.704@v.loewis.de>
-User-Agent: Mutt/1.3.28i
+	Sat, 17 Sep 2005 08:29:34 -0400
+X-ME-UUID: 20050917122902108.1A9031C0012E@mwinf0908.wanadoo.fr
+Message-ID: <432C0BF2.6020406@zarb.org>
+Date: Sat, 17 Sep 2005 14:28:34 +0200
+From: trem <trem@zarb.org>
+User-Agent: Mozilla Thunderbird 1.0.6-5mdk (X11/20050322)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, Tom Rini <trini@kernel.crashing.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: dependance loop on 2.6.14-rc1-mm1
+References: <432C00C6.20305@zarb.org> <20050917115138.GA17589@flint.arm.linux.org.uk>
+In-Reply-To: <20050917115138.GA17589@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hi
 
-> I'm not (only) talking about /bin/sh. I'm primarily talking about
-> /usr/bin/python, /usr/bin/perl, and /usr/bin/wish. In all these
-> languages, the interpreter *does* care about the encoding.
+I've done a little test, I've remove this line from serial_core.c
 
-Agreed. On the other hand, in all these languages you can pass the encoding
-as a parameter to the interpreter, cannot you?
++#ifdef CONFIG_KGDB
++       {
++               extern int kgdb_irq;
++
++               if (port->irq == kgdb_irq)
++                       return;
++       }
++#endif
 
-> In the future, the signature *will* carry no information. But the future
-> is, well, in the future.
-> 
-> I just can't understand why (some) people are so opposed to this patch.
 
-Occam's razor?
+and now the make modules_install works fine.
 
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-"In accord to UNIX philosophy, PERL gives you enough rope to hang yourself." -- Larry Wall
+thanks for the help,
+trem
+
+
+
+Russell King a écrit :
+
+>On Sat, Sep 17, 2005 at 01:40:54PM +0200, trem wrote:
+>  
+>
+>>I've tried to compile a 2.6.14-rc1-mm1 on my amd64. When I do the make 
+>>modules_install,
+>>I have this warning:
+>>
+>>WARNING: Loop detected:
+>>/lib/modules/2.6.14-rc1-mm1/kernel/drivers/serial/8250.ko needs 
+>>serial_core.ko which needs 8250.ko again!
+>>    
+>>
+>
+>This looks suspicious.  8250 should need serial_core, but there's no
+>way in hell serial_core should require 8250. 
+>
+>Seems to be caused by the kgdb patches, which add the following to
+>serial_core:
+>
+>+#ifdef CONFIG_KGDB
+>+       {
+>+               extern int kgdb_irq;
+>+
+>+               if (port->irq == kgdb_irq)
+>+                       return;
+>+       }
+>+#endif
+>+
+>
+>and kgdb_irq comes from the 8250 module.
+>
+>Tom, can this dependency be solved before kgdb goes near mainline
+>please?
+>
+>  
+>
+
+

@@ -1,63 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751080AbVIQLvs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbVIQL6z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751080AbVIQLvs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Sep 2005 07:51:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751082AbVIQLvs
+	id S1750741AbVIQL6z (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Sep 2005 07:58:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751083AbVIQL6z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Sep 2005 07:51:48 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:27660 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751080AbVIQLvs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Sep 2005 07:51:48 -0400
-Date: Sat, 17 Sep 2005 12:51:38 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: trem <trem@zarb.org>, Andrew Morton <akpm@osdl.org>,
-       Tom Rini <trini@kernel.crashing.org>
+	Sat, 17 Sep 2005 07:58:55 -0400
+Received: from nproxy.gmail.com ([64.233.182.199]:16916 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750741AbVIQL6z convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Sep 2005 07:58:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=avpwXckbGHz64NtH5YhFZXL8/wQPU9FzAnUjU7hBKVrprbyZC5WNC/2+0NBJKqVSgmn2E0vTsBew4fVwsVn+0aIalPCG5QTljxdj5X3xqhumDKVJrd5yFHbaolxgkg7Ri6kJUjKPmmBdN37oJSAc3Qu5ZvRDfi3XTkb207LafHA=
+Message-ID: <5c43128e0509170458398828fd@mail.gmail.com>
+Date: Sat, 17 Sep 2005 13:58:51 +0200
+From: Wim Vinckier <wimpunk@gmail.com>
+Reply-To: wimpunk@gmail.com
+To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Subject: Re: Trouble hotplugging on embedded system (solved)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: dependance loop on 2.6.14-rc1-mm1
-Message-ID: <20050917115138.GA17589@flint.arm.linux.org.uk>
-Mail-Followup-To: trem <trem@zarb.org>, Andrew Morton <akpm@osdl.org>,
-	Tom Rini <trini@kernel.crashing.org>, linux-kernel@vger.kernel.org
-References: <432C00C6.20305@zarb.org>
+In-Reply-To: <Pine.LNX.4.60.0509162210100.12505@poirot.grange>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <432C00C6.20305@zarb.org>
-User-Agent: Mutt/1.4.1i
+References: <5c43128e050916024110467f02@mail.gmail.com>
+	 <Pine.LNX.4.60.0509162210100.12505@poirot.grange>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 17, 2005 at 01:40:54PM +0200, trem wrote:
-> I've tried to compile a 2.6.14-rc1-mm1 on my amd64. When I do the make 
-> modules_install,
-> I have this warning:
+The solution was pretty easy.  I didn't loaded all the usb drivers I
+needed.  After loading uhci_hcd, I got the result I wanted, my devices
+were made by devfsd.
+
+wim.
+
+On 9/16/05, Guennadi Liakhovetski <g.liakhovetski@gmx.de> wrote:
+> On Fri, 16 Sep 2005, Wim Vinckier wrote:
 > 
-> WARNING: Loop detected:
-> /lib/modules/2.6.14-rc1-mm1/kernel/drivers/serial/8250.ko needs 
-> serial_core.ko which needs 8250.ko again!
-
-This looks suspicious.  8250 should need serial_core, but there's no
-way in hell serial_core should require 8250. 
-
-Seems to be caused by the kgdb patches, which add the following to
-serial_core:
-
-+#ifdef CONFIG_KGDB
-+       {
-+               extern int kgdb_irq;
-+
-+               if (port->irq == kgdb_irq)
-+                       return;
-+       }
-+#endif
-+
-
-and kgdb_irq comes from the 8250 module.
-
-Tom, can this dependency be solved before kgdb goes near mainline
-please?
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+> > I'm trying to get usb hotplugging working on a embedded system but it
+> > doesn't (seem to) work.  As far as i understand all the documents I've
+> > read, /sbin/hotplug (depending on /proc/sys/kernel/hotplug) should be
+> > called whenever plugging in a device.  I guess I've forgot to enable
+> > something in my kernel configuration but I can't find what went wrong.
+> >  I've tried 2.6.8 and 2.6.12 with busybox 1.01.
+> 
+> I think, there are some modifications needed to the hotplug to work with
+> busybox. Either in shell script syntax, or something else - can't say
+> exactly. Try to google for "hotplug busybox". I think, there was even a
+> special version of hotplug for busybox somewhere...
+> 
+> Thanks
+> Guennadi
+> ---
+> Guennadi Liakhovetski
+>

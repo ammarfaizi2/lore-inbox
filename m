@@ -1,38 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750939AbVIQFrp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750948AbVIQFuX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750939AbVIQFrp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Sep 2005 01:47:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750942AbVIQFrp
+	id S1750948AbVIQFuX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Sep 2005 01:50:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750952AbVIQFuW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Sep 2005 01:47:45 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:23972 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750939AbVIQFrp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Sep 2005 01:47:45 -0400
-Date: Sat, 17 Sep 2005 06:47:42 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Roland Dreier <rolandd@cisco.com>
-Cc: Davide Libenzi <davidel@xmailserver.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] Fix epoll delayed initialization bug ...
-Message-ID: <20050917054742.GI19626@ftp.linux.org.uk>
-References: <Pine.LNX.4.63.0509161621050.6125@localhost.localdomain> <52hdckk1ix.fsf@cisco.com>
+	Sat, 17 Sep 2005 01:50:22 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:1796 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1750947AbVIQFuW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Sep 2005 01:50:22 -0400
+Date: Sat, 17 Sep 2005 07:50:10 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Al Boldi <a1426z@gawab.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Eradic disk access during reads
+Message-ID: <20050917055010.GG30279@alpha.home.local>
+References: <200509170717.03439.a1426z@gawab.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <52hdckk1ix.fsf@cisco.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200509170717.03439.a1426z@gawab.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 16, 2005 at 04:59:02PM -0700, Roland Dreier wrote:
->     Davide> Al found a potential problem in epoll_create(), where the
->     Davide> file->private_data member was set after fd_install(). This is
->     Davide> obviously wrong since another thread might do a close() on
->     Davide> that fd# before we set the file->private_data member. This
->     Davide> goes over 2.6.13 and passes a few basic tests I've done here.
+On Sat, Sep 17, 2005 at 07:26:11AM +0300, Al Boldi wrote:
+> Monitoring disk access using gkrellm, I noticed that a command like
 > 
-> Actually, I found the problem after Al pointed out a similar bug in my code ;)
+> cat /dev/hda > /dev/null
+> 
+> shows eradic disk reads ranging from 0 to 80MB/s on an otherwise idle system.
+> 
+> 1. Is this a hardware or software problem?
 
-Yup.
+Difficult to tell without more info. Can be a broken IDE disk or defective
+ribbon.
+
+> 2. Is there a lightweight perf-mon tool (cmd-line) that would log this 
+> behaviour graphically?
+
+You can do " readspeed </dev/hda | tr '\r' '\n' > log " with the readspeed
+tool from there :
+   http://w.ods.org/tools/readspeed
+
+Then you just have to graph $6 (kB/s) versus $1 (bytes read). There may
+be other tools which do all this automatically though.
+
+Regards,
+Willy
+

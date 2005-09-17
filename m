@@ -1,116 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751076AbVIQL37@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751080AbVIQLvs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751076AbVIQL37 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Sep 2005 07:29:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751074AbVIQL36
+	id S1751080AbVIQLvs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Sep 2005 07:51:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751082AbVIQLvs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Sep 2005 07:29:58 -0400
-Received: from ganesha.gnumonks.org ([213.95.27.120]:46465 "EHLO
-	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
-	id S1750733AbVIQL36 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Sep 2005 07:29:58 -0400
-Date: Sat, 17 Sep 2005 13:29:49 +0200
-From: Harald Welte <laforge@netfilter.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Arnaldo Carvalho de Melo <acme@ghostprotocols.net>,
-       Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>,
-       Linux Netdev List <netdev@vger.kernel.org>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: [HELP] netfilter Kconfig dependency nightmare
-Message-ID: <20050917112949.GZ8413@sunbeam.de.gnumonks.org>
-Mail-Followup-To: Harald Welte <laforge@netfilter.org>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	Arnaldo Carvalho de Melo <acme@ghostprotocols.net>,
-	Netfilter Development Mailinglist <netfilter-devel@lists.netfilter.org>,
-	Linux Netdev List <netdev@vger.kernel.org>,
-	Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-References: <20050916021451.3012196c.akpm@osdl.org> <20050916191959.GN8413@sunbeam.de.gnumonks.org> <39e6f6c705091617514457eded@mail.gmail.com> <20050917012315.GA29841@mandriva.com> <20050917080714.GV8413@sunbeam.de.gnumonks.org> <Pine.LNX.4.61.0509171306290.3743@scrub.home>
+	Sat, 17 Sep 2005 07:51:48 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:27660 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751080AbVIQLvs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Sep 2005 07:51:48 -0400
+Date: Sat, 17 Sep 2005 12:51:38 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: trem <trem@zarb.org>, Andrew Morton <akpm@osdl.org>,
+       Tom Rini <trini@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: dependance loop on 2.6.14-rc1-mm1
+Message-ID: <20050917115138.GA17589@flint.arm.linux.org.uk>
+Mail-Followup-To: trem <trem@zarb.org>, Andrew Morton <akpm@osdl.org>,
+	Tom Rini <trini@kernel.crashing.org>, linux-kernel@vger.kernel.org
+References: <432C00C6.20305@zarb.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="/0ZNML3L+nUf91nU"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0509171306290.3743@scrub.home>
-User-Agent: mutt-ng devel-20050619 (Debian)
-X-Spam-Score: 0.0 (/)
+In-Reply-To: <432C00C6.20305@zarb.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Sep 17, 2005 at 01:40:54PM +0200, trem wrote:
+> I've tried to compile a 2.6.14-rc1-mm1 on my amd64. When I do the make 
+> modules_install,
+> I have this warning:
+> 
+> WARNING: Loop detected:
+> /lib/modules/2.6.14-rc1-mm1/kernel/drivers/serial/8250.ko needs 
+> serial_core.ko which needs 8250.ko again!
 
---/0ZNML3L+nUf91nU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This looks suspicious.  8250 should need serial_core, but there's no
+way in hell serial_core should require 8250. 
 
-On Sat, Sep 17, 2005 at 01:08:58PM +0200, Roman Zippel wrote:
-> Hi,
+Seems to be caused by the kgdb patches, which add the following to
+serial_core:
 
-Hi Roman, thanks for your reply.
++#ifdef CONFIG_KGDB
++       {
++               extern int kgdb_irq;
++
++               if (port->irq == kgdb_irq)
++                       return;
++       }
++#endif
++
 
-> On Sat, 17 Sep 2005, Harald Welte wrote:
->=20
-> > ip_conntrack =3D=3D CONFIG_IP_NF_CONNTRACK
-> > nfnetlink =3D=3D CONFIG_NETFILTER_NETLINK
-> > ip_conntrack_netlink =3D=3D CONFIG_IP_NF_CONNTRACK_NETLINK
-> >=20
-> > If nfnetlink =3D=3D N, ip_conntrack can be N or M or Y
-> > If nfnetlink =3D=3D M, ip_conntrack can be N or M
-> > If nfnetlink =3D=3D Y, ip_conntrack can be Y or M
->=20
-> Where is the requirement for the last one coming from?
+and kgdb_irq comes from the 8250 module.
 
-sorry.  The last one should be N,M or Y.
+Tom, can this dependency be solved before kgdb goes near mainline
+please?
 
-The fundamental underlying problem is:
-
-If CONFIG_IP_NF_CONNTRACK_NETLINK is selected (M or Y), then
-CONFIG_IP_NF_CONNTRACK conditionally adds some code that references
-symbols from nfnetlink.ko (CONFIG_NETFILTER_NETLINK)
-
-So basically, enabling CONFIG_IP_NF_CONNTRACK_NETLINK creates a dependency
-=66rom CONFIG_IP_NF_CONNTRACK to CONFIG_NETFILTER_NETLINK.  AFAIK, the synt=
-ax
-doesn't allow somthing like=20
-
-tristate IP_NF_CONNTRACK
-	depends on NETFILTER_NETLINK if IP_NF_CONNTRACK_NETLINK!=3Dn
-
-So, if ip_conntrack_netlink =3D=3D M (or Y), and ip_conntrack =3D=3D Y, then
-nfnetlink has to be set to Y (but cannot be a module).
-
-Is there something that resembles=20
-
-And no, I do not see any chance to solve the problem in the code,
-without either
-1) adding yet another new module that only contains some 1kB of code and
-   that requires additional EXPORT_SYMBOLS() on private data from
-   ip_conntrack
-or
-2) adding dead code to ip_conntrack.ko that isn't used in many common
-   configurations
-
-:(
-
---=20
-- Harald Welte <laforge@netfilter.org>                 http://netfilter.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-  "Fragmentation is like classful addressing -- an interesting early
-   architectural error that shows how much experimentation was going
-   on while IP was being designed."                    -- Paul Vixie
-
---/0ZNML3L+nUf91nU
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFDK/4tXaXGVTD0i/8RAlKwAJ0aIi1YXZxxiEmFNYT0A+iVoTuu7QCgsyKJ
-VgF9YhdXvqk+WH2ydr8qNIo=
-=x6fY
------END PGP SIGNATURE-----
-
---/0ZNML3L+nUf91nU--
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

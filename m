@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750771AbVIQAF4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbVIQAIP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750771AbVIQAF4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 20:05:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750807AbVIQAF4
+	id S1750776AbVIQAIP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 20:08:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbVIQAIP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 20:05:56 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:49064 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750771AbVIQAFz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 20:05:55 -0400
-Date: Fri, 16 Sep 2005 17:05:22 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Fix epoll delayed initialization bug ...
-Message-Id: <20050916170522.7d374e69.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.63.0509161655240.6125@localhost.localdomain>
-References: <Pine.LNX.4.63.0509161621050.6125@localhost.localdomain>
-	<20050916165053.2dec0a6b.akpm@osdl.org>
-	<Pine.LNX.4.63.0509161655240.6125@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 16 Sep 2005 20:08:15 -0400
+Received: from ams-iport-1.cisco.com ([144.254.224.140]:31923 "EHLO
+	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S1750776AbVIQAIP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 20:08:15 -0400
+To: "David S. Miller" <davem@davemloft.net>
+Cc: rolandd@cisco.com, viro@ftp.linux.org.uk, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] utterly bogus userland API in infinibad
+X-Message-Flag: Warning: May contain useful information
+References: <52fys4lsh9.fsf@cisco.com>
+	<20050916203724.GH19626@ftp.linux.org.uk> <52psr8k1qg.fsf@cisco.com>
+	<20050916.170349.72543699.davem@davemloft.net>
+From: Roland Dreier <rolandd@cisco.com>
+Date: Fri, 16 Sep 2005 17:08:06 -0700
+In-Reply-To: <20050916.170349.72543699.davem@davemloft.net> (David S.
+ Miller's message of "Fri, 16 Sep 2005 17:03:49 -0700 (PDT)")
+Message-ID: <52d5n8k13t.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+X-OriginalArrivalTime: 17 Sep 2005 00:08:08.0027 (UTC) FILETIME=[E202C2B0:01C5BB1B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi <davidel@xmailserver.org> wrote:
->
->  > Sigh.  Space-stuffing strikes again.  Please resend as an attachment.
->  >
->  > The number of whitespace-buggered patches which are coming in is just
->  > getting out of control lately.
->  >
->  > Even `patch -l' tossed four rejects, so there may be something else wrong
->  > in this one.
-> 
->  My side or your side?
+    David> Read the unix(7) man page, section ANCILLARY MESSAGES,
+    David> sub-section SCM_RIGHTS, to see how userspace can use this
+    David> stuff between processes.
 
-Not mine, pal ;)
+Yeah, I know about using SCM_RIGHTS between processes in userspace...
 
-Although sylpheed could perhaps do a better job of decrypting some of the
-oddities which arrive.
+    David> Yes, you could open up an AF_UNIX socket with userspace and
+    David> pass the FDs over via SCM_RIGHTS.
 
-> Anyway, see if the one attached merges cleanly ...
+...but how does the kernel open an AF_UNIX socket with userspace?
 
-It does.
+ - R.

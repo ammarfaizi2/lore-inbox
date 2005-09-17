@@ -1,54 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751049AbVIQKhS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751056AbVIQKrr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751049AbVIQKhS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Sep 2005 06:37:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751052AbVIQKhR
+	id S1751056AbVIQKrr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Sep 2005 06:47:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751057AbVIQKrq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Sep 2005 06:37:17 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:8140 "EHLO
-	grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S1751049AbVIQKhQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Sep 2005 06:37:16 -0400
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: [PATCH] Fix bd_claim() error code.
-Date: Sat, 17 Sep 2005 05:37:04 -0500
-User-Agent: KMail/1.8
+	Sat, 17 Sep 2005 06:47:46 -0400
+Received: from webmail.woosh.co.nz ([202.74.207.2]:13068 "EHLO
+	mail2.woosh.co.nz") by vger.kernel.org with ESMTP id S1751055AbVIQKrq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Sep 2005 06:47:46 -0400
+Date: Sat, 17 Sep 2005 22:44:41 +1200 (NZST)
+From: Bart Oldeman <bartoldeman@users.sourceforge.net>
+X-X-Sender: enbeo@enm-bo-lt.localnet
+To: mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: [patch] bug fix: tss->io_bitmap_owner is never set to non-NULL.
+Message-ID: <Pine.LNX.4.62.0509172239570.3423@enm-bo-lt.localnet>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509170537.04473.rob@landley.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Rob Landley <rob@landley.net>
+Hi,
 
-Problem: In some circumstances, bd_claim() is returning the wrong error code.
+it appears that there is exists a field io_bitmap_owner in the TSS that is 
+only checked, but never set to anything else but NULL.
 
-If we try to swapon an unused block device that isn't swap formatted, we get
--EINVAL.  But if that same block device is already mounted, we instead get
--EBUSY, even though it still isn't a valid swap device.
+The below patch corrects this.
 
-This issue came up on the busybox list trying to get the error message
-from "swapon -a" right.  If a swap device is already enabled, we get -EBUSY,
-and we shouldn't report this as an error.  But we can't distinguish the two
--EBUSY conditions, which are very different errors.
+Signed-off-by: Bart Oldeman <bartoldeman@users.sourceforge.net>
 
-In the code, bd_claim() returns either 0 or -EBUSY, but in this case busy
-means "somebody other than sys_swapon has already claimed this", and
-_that_ means this block device can't be a valid swap device.  So return
--EINVAL there.
-
---- linux-2.6.13.1/mm/swapfile.c 2005-09-09 21:42:58.000000000 -0500
-+++ linux-2.6.13.1-new/mm/swapfile.c 2005-09-17 02:42:45.000000000 -0500
-@@ -1358,6 +1358,7 @@
-   error = bd_claim(bdev, sys_swapon);
-   if (error < 0) {
-    bdev = NULL;
-+   error = -EINVAL;
-    goto bad_swap;
-   }
-   p->old_block_size = block_size(bdev);
+--- arch/i386/kernel/traps.c.org	2005-09-17 17:20:19.000000000 +1200
++++ arch/i386/kernel/traps.c	2005-09-17 22:33:00.000000000 +1200
+@@ -489,6 +489,7 @@ fastcall void __kprobes do_general_prote
+  				tss->io_bitmap_max - thread->io_bitmap_max);
+  		tss->io_bitmap_max = thread->io_bitmap_max;
+  		tss->io_bitmap_base = IO_BITMAP_OFFSET;
++		tss->io_bitmap_owner = thread;
+  		put_cpu();
+  		return;
+  	}

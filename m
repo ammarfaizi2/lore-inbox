@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750856AbVIQEKH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750873AbVIQER4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750856AbVIQEKH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Sep 2005 00:10:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750865AbVIQEKH
+	id S1750873AbVIQER4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Sep 2005 00:17:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750874AbVIQER4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Sep 2005 00:10:07 -0400
-Received: from h80ad257c.async.vt.edu ([128.173.37.124]:59272 "EHLO
-	h80ad257c.async.vt.edu") by vger.kernel.org with ESMTP
-	id S1750856AbVIQEKF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Sep 2005 00:10:05 -0400
-Message-Id: <200509170409.j8H499mq003691@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Andrew Morton <akpm@osdl.org>
-Cc: greg@kroah.com, kay.sievers@vrfy.org, jirislaby@gmail.com,
-       dominik.karall@gmx.net, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-rc1-mm1 
-In-Reply-To: Your message of "Fri, 16 Sep 2005 17:15:53 PDT."
-             <20050916171553.35b30af2.akpm@osdl.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <20050916022319.12bf53f3.akpm@osdl.org> <200509162042.07376.dominik.karall@gmx.net> <432B2101.9080806@gmail.com> <20050916195903.GE22221@vrfy.org> <20050916213003.GB13604@kroah.com> <200509162353.j8GNrX2B007036@turing-police.cc.vt.edu>
-            <20050916171553.35b30af2.akpm@osdl.org>
+	Sat, 17 Sep 2005 00:17:56 -0400
+Received: from rwcrmhc11.comcast.net ([216.148.227.117]:26336 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S1750870AbVIQERz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Sep 2005 00:17:55 -0400
+Subject: Re: 2.6.13-mm2
+From: Parag Warudkar <kernel-stuff@comcast.net>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: Andrew Morton <akpm@osdl.org>, Roland McGrath <roland@redhat.com>,
+       Andi Kleen <ak@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200509162038_MC3-1-AA6D-60D9@compuserve.com>
+References: <200509162038_MC3-1-AA6D-60D9@compuserve.com>
+Content-Type: text/plain
+Date: Sat, 17 Sep 2005 00:17:37 -0400
+Message-Id: <1126930657.7927.5.camel@localhost>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1126930143_2814P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
-Date: Sat, 17 Sep 2005 00:09:04 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1126930143_2814P
-Content-Type: text/plain; charset=us-ascii
+On Fri, 2005-09-16 at 20:36 -0400, Chuck Ebbert wrote:
+> It looks to me like that patch corrupts ebp.
+> 
+>  This one works for me, though ebp still appears wrong to a 32-bit
+> debugger on syscall exit trace.  Maybe that doesn't matter so much. 
 
-On Fri, 16 Sep 2005 17:15:53 PDT, Andrew Morton said:
+Did you compile the program under a x86_64 kernel, distro? I ask because
+it doesn't compile for me. On my machine asm-i386/user.h and
+asm-x86_64/user.h both do not contain a user_regs_struct definition with
+x86 registers.
 
-> Or you can take your chances with
-> http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.14-rc1-mm1.5.gz which
-> is kinda rc1-mm1 without those 28 patches.
+Another thing I noticed was that with the patch %eax was zero for the
+failing program although I didn't see how the patch affects %eax.
 
-Builds and boots on my laptop.  Everything seems functional except for
-ethernet and wireless, which I can't test till next I make it to the office.
-Whatever problem Martin Bligh hit with networking doesn't seem to affect
-PPP dialup on my machine. Udev, mice, and X are all (expectedly) happy....
+Parag
 
---==_Exmh_1126930143_2814P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFDK5bfcC3lWbTT17ARAnbIAKCbXBNmhf/yKFWWLx3F8XXA0wnmiwCglgm2
-IK9UhEVMw1Gvbr8rPxDDhMI=
-=0X7l
------END PGP SIGNATURE-----
-
---==_Exmh_1126930143_2814P--

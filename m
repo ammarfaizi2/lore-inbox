@@ -1,92 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750958AbVIQGUQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750967AbVIQGjc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750958AbVIQGUQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Sep 2005 02:20:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750961AbVIQGUQ
+	id S1750967AbVIQGjc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Sep 2005 02:39:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750968AbVIQGjc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Sep 2005 02:20:16 -0400
-Received: from smtprelay04.ispgateway.de ([80.67.18.16]:34499 "EHLO
-	smtprelay04.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1750958AbVIQGUP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Sep 2005 02:20:15 -0400
-Message-ID: <432BB59C.8060108@v.loewis.de>
-Date: Sat, 17 Sep 2005 08:20:12 +0200
-From: =?UTF-8?B?Ik1hcnRpbiB2LiBMw7Z3aXMi?= <martin@v.loewis.de>
-User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
-X-Accept-Language: en-us, en
+	Sat, 17 Sep 2005 02:39:32 -0400
+Received: from web8505.mail.in.yahoo.com ([202.43.219.167]:10407 "HELO
+	web8505.mail.in.yahoo.com") by vger.kernel.org with SMTP
+	id S1750966AbVIQGjc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Sep 2005 02:39:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.co.in;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=BYC7Ua+qk5lNYx9Zy0R57eHBz98qkl0p9Tw6Mp06ZrmR4RW4SixgnoSB15bHlYMCEPq78evvVuB6Z/tAvgTXARpp66RlSZP6kM181fw4DQZbzmCH0NGT2zQmew+0FKhd8jBI4NhX10dC+8vvQvlmfA4+uFaZy4eeAtIbhT5rqxM=  ;
+Message-ID: <20050917063910.36222.qmail@web8505.mail.in.yahoo.com>
+Date: Sat, 17 Sep 2005 07:39:09 +0100 (BST)
+From: manomugdha biswas <manomugdhab@yahoo.co.in>
+Subject: kernel 2.6 hangs 
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Bernd Petrovitsch <bernd@firmix.at>
-CC: =?UTF-8?B?Ik1hcnRpbiB2LiBMw7Z3aXMi?= <martin@v.loewis.de>,
-       "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch] Support UTF-8 scripts
-References: <4NsP0-3YF-11@gated-at.bofh.it> <4NsP0-3YF-13@gated-at.bofh.it>	 <4NsP0-3YF-15@gated-at.bofh.it> <4NsP0-3YF-17@gated-at.bofh.it>	 <4NsP1-3YF-19@gated-at.bofh.it> <4NsP1-3YF-21@gated-at.bofh.it>	 <4NsOZ-3YF-9@gated-at.bofh.it> <4NsYH-4bv-27@gated-at.bofh.it>	 <4NtBr-4WU-3@gated-at.bofh.it> <4Nu4p-5Js-3@gated-at.bofh.it>	 <432B2E09.9010407@v.loewis.de> <1126910730.3520.7.camel@gimli.at.home>
-In-Reply-To: <1126910730.3520.7.camel@gimli.at.home>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernd Petrovitsch wrote:
-> On Fri, 2005-09-16 at 22:41 +0200, "Martin v. Löwis" wrote:
-> [ Language-specific examples ]
-> 
-> And that's the only working way - the programming languages can actually
-> do it because it defines the syntax and semantics of the contents
-> anyways.
+Hi,
+I have a driver module in kernel 2.6. I use ioctl to
+drive my module from user application. My driver
+module does the following:
 
-It works from the programming language point of view, but it is a mess
-from the text editor point of view.
+When it is called (via ioctl from user application) it
+loops in a for loop at most 50 times. After each
+iteration i have used delay as below:
 
-Even for the programming language, it is a pain to implement: what
-if you have non-ASCII characters before the pragma that declares the
-encoding? and so on.
+wait_queue_head_t wq;
+init_waitqueue_head (&wq);
 
-> With this marker you are interferign with (at least) *all* text files.
+for (/* at most 50 times */) {
+   wait_event_timeout(wq, 0, HZ * 2);
+/* wait_event_interruptible_timeout(wq, 0, HZ * 2); */
+}
 
-Hmm. What does that have to do with the patch I'm proposing? This
-patch does *not* interfere with all text files. It is only relevant
-for executable files starting with the #! magic.
+But this wait_event_timeout() causes my module to get
+hanged when this function is executed! I am saying
+that this function causes to get hanged because if I
+comment out this function then 'for' loop can iterate
+50 times. When this function is being used after first
+iteration my module (and as well as well computer)
+gets hanged. 
 
-> And thus with *all* tools which "handle" those text files.
-
-This is simply not true. My patch does not interfere with any such
-tools. They continue to work just fine.
-
->>So you *must* use encoding declarations in some languages; the UTF-8
-> 
-> 
-> ... if you absolutely want to use Non-ASCII characters in the source
-> code. In most (if not all) of them exist a native gettext()
-> interface ...
-
-True. However, this is more tedious to use. Also, it doesn't apply to
-all cases: e.g. if you have comments, documentation etc. in the source
-code, gettext is no option.
-
-Likewise, people often want to use non-ASCII in identifiers (e.g. class
-Lösung); this can also only work if you know what the source encoding
-is. You may argue that people just shouldn't do that, because it does
-not work well, but this is not convincing: it doesn't work well because
-language developers are to lazy to implement it. In fact, some languages
-(C, C++, Java, C#) do support non-ASCII identifiers (atleast in their
-specifications); there really isn't a good reason not to support it
-in scripting languages as well.
-
-> And there are always tools out there which simply do not understand the
-> generic marker and can not ignore it since these bytes are part of the
-> file.
-
-This conclusion is false. Many tools that don't understand the file
-structure still can do their job on the files. So the fact that a tool
-does not understand the structure does not necessarily imply that
-the tool breaks when the structure changes.
-
-> Or another example: (Try to) start a perl/shell/... script (without
-> paranmeter on the first line) which was edited on Win* and binary copied
-> to a Unix system. Or at least guess what will happen ....
-
-For a Python script, I don't need to guess: It will just work.
+Could you please tell me what is wrong here or what I
+need to do?
 
 Regards,
-Martin
+Mano
+
+
+
+
+Manomugdha Biswas
+
+
+		
+__________________________________________________________ 
+Yahoo! India Matrimony: Find your partner now. Go to http://yahoo.shaadi.com

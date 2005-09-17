@@ -1,58 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751032AbVIQKLI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751036AbVIQKZv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751032AbVIQKLI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Sep 2005 06:11:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751035AbVIQKLI
+	id S1751036AbVIQKZv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Sep 2005 06:25:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751037AbVIQKZv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Sep 2005 06:11:08 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.59]:42425 "EHLO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S1751032AbVIQKLH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Sep 2005 06:11:07 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Andrew Morton <akpm@osdl.org>
-Date: Sat, 17 Sep 2005 20:10:51 +1000
-MIME-Version: 1.0
+	Sat, 17 Sep 2005 06:25:51 -0400
+Received: from zproxy.gmail.com ([64.233.162.203]:36649 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751035AbVIQKZu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Sep 2005 06:25:50 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=A3ryG+Vo57uWBKcSmJgTT4Khn19SMCyk8JncMuJ3bWuKRFuOc7CzmLHQtLDXfzDL9/zKjPmLfCd5wDgqgNP5Zjkq3fWZHnI+EhpLQVUJW+LrCJmnKgE/GNNhSOMPm/4AVEIGqS3hRcdgZXucaXd79aO7SNQfuEhVBrOvRNOFuuY=
+Date: Sat, 17 Sep 2005 14:36:14 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Meelis Roos <mroos@linux.ee>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: snd-usb-audio modpost warnings
+Message-ID: <20050917103614.GA6956@mipter.zuzino.mipt.ru>
+References: <Pine.SOC.4.61.0509161002560.22187@math.ut.ee>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17195.60331.386347.965053@cse.unsw.edu.au>
-Cc: avuton@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-rc1-mm1
-In-Reply-To: message from Andrew Morton on Friday September 16
-References: <20050916022319.12bf53f3.akpm@osdl.org>
-	<3aa654a4050916182250999557@mail.gmail.com>
-	<20050916214155.29f56f30.akpm@osdl.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+In-Reply-To: <Pine.SOC.4.61.0509161002560.22187@math.ut.ee>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday September 16, akpm@osdl.org wrote:
-> Avuton Olrich <avuton@gmail.com> wrote:
-> >
-> >  On 9/16/05, Andrew Morton <akpm@osdl.org> wrote:
-> >  > 
-> >  > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14-rc1/2.6.14-rc1-mm1/
-> >  > (temp copy at http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.14-rc1-mm1.gz)
-> > 
-> >  NFS (server) is not working for me with 2.6.14-rc1-mm1, this doesn't
-> >  appear to be an NFS4 specific issue, I tried without NFS4 compiled in.
-> > 
-> >  Going back to 2.6.13-mm1 works.
-> > 
-> >  When trying to start NFS I get:
-> >  nfssvc: Permission Denied
-> 
-> It all works for me.  Would it be possible for you to generate an strace of
-> the failure?
+On Fri, Sep 16, 2005 at 10:04:51AM +0300, Meelis Roos wrote:
+> FYI: todays git snapshot gives these warnings:
 
-The portmap client in the kernel has changed to not used a privileged
-port, and some 'portmap' servers (/usr/sbin/portmap) don't like that,
-so nfsd gets an error when it tries to register with portmap, and
-returns that through nfssvc.
+-git3?
 
-I believe Chuck is looking into it.
+>   MODPOST
+> *** Warning: "__compound_literal.200" [sound/usb/snd-usb-audio.ko] 
+> undefined!
 
-NeilBrown
+Please, send .config
+

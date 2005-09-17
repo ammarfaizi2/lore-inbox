@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750982AbVIQHk1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750993AbVIQHnI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750982AbVIQHk1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Sep 2005 03:40:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750844AbVIQHk1
+	id S1750993AbVIQHnI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Sep 2005 03:43:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750995AbVIQHnI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Sep 2005 03:40:27 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:48520 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750736AbVIQHk1 (ORCPT
-	<rfc822;Linux-Kernel@vger.kernel.org>);
-	Sat, 17 Sep 2005 03:40:27 -0400
-Date: Sat, 17 Sep 2005 13:04:39 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
-Subject: Re: [PATCH 2/5] atomic: introduce atomic_inc_not_zero
-Message-ID: <20050917073439.GG5569@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <43283825.7070309@yahoo.com.au> <4328387E.6050701@yahoo.com.au> <Pine.LNX.4.61.0509141814220.3743@scrub.home> <43285374.3020806@yahoo.com.au> <Pine.LNX.4.61.0509141906040.3728@scrub.home> <20050914230049.F30746@flint.arm.linux.org.uk> <Pine.LNX.4.61.0509150010100.3728@scrub.home> <20050914232106.H30746@flint.arm.linux.org.uk> <4328D39C.2040500@yahoo.com.au> <Pine.LNX.4.61.0509170300030.3743@scrub.home>
+	Sat, 17 Sep 2005 03:43:08 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:60889 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750993AbVIQHnG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Sep 2005 03:43:06 -0400
+Subject: Re: [linux-usb-devel] Re: Lost keyboard on Inspiron 8200 at 2.6.13
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, Greg KH <greg@kroah.com>,
+       dtor_core@ameritech.net, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       caphrim007@gmail.com, david-b@pacbell.net,
+       linux-usb-devel@lists.sourceforge.net
+In-Reply-To: <Pine.LNX.4.44L0.0509170005450.689-100000@netrider.rowland.org>
+References: <Pine.LNX.4.44L0.0509170005450.689-100000@netrider.rowland.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Sat, 17 Sep 2005 09:08:23 +0100
+Message-Id: <1126944503.26447.5.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0509170300030.3743@scrub.home>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 17, 2005 at 03:15:29AM +0200, Roman Zippel wrote:
-> Hi,
-> 
-> On Thu, 15 Sep 2005, Nick Piggin wrote:
-> 
-> > Roman: any ideas about what you would prefer? You'll notice
-> > atomic_inc_not_zero replaces rcuref_inc_lf, which is used several times
-> > in the VFS.
-> 
-> In the larger picture I'm not completely happy with these scalibilty 
-> patches, as they add extra overhead at the lower end. On a UP system in 
-> general nothing beats:
-> 
-> 	spin_lock();
-> 	if (*ptr)
-> 		ptr += 1;
-> 	spin_unlock();
-> 
-> The main problem is here that the atomic functions are used in two basic 
-> situation:
+On Sad, 2005-09-17 at 00:12 -0400, Alan Stern wrote:
+> Where does early handoff install a fake interrupt handler for UHCI?  I 
+> don't see any in drivers/pci/quirks.c.
 
-Are you talking about the lock-free fdtable patches ? They don't replace
-non-atomic locked critical sections by atomic operations. Reference counting
-is already there to extend the life of objects beyond locked critical
-setions.
+Fedora patches for 2.6.9 rather than the current code.
 
-Thanks
-Dipankar
+> > You need them because an IRQ could be pending on the channel at the
+> > point you switch over or triggered on the switch and a few people saw
+> > this behaviour.
+> 
+> Yes, that would be needed if you have edge-triggered interrupts.  But 
+> isn't PCI supposed to be level-triggered?
+
+Yes and at the time several people saw hangs on the changeover unless we
+cleared pending IRQ bits in the IRQ handler. That may have been related
+to various ACPI problems from back then. I don't know for sure.
+
+> > I'd like to see it shared but that means handoff belongs in the input
+> > layer code and the USB layer needs to call into it if appropriate.
+> 
+> Why does it mean that?  And why the input layer as opposed to the PCI 
+> layer, where it is now?
+
+PCI layer makes even more sense yes
+

@@ -1,43 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbVIQAIP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750778AbVIQAQl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750776AbVIQAIP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 20:08:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbVIQAIP
+	id S1750778AbVIQAQl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 20:16:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbVIQAQl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 20:08:15 -0400
-Received: from ams-iport-1.cisco.com ([144.254.224.140]:31923 "EHLO
-	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S1750776AbVIQAIP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 20:08:15 -0400
-To: "David S. Miller" <davem@davemloft.net>
-Cc: rolandd@cisco.com, viro@ftp.linux.org.uk, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] utterly bogus userland API in infinibad
-X-Message-Flag: Warning: May contain useful information
-References: <52fys4lsh9.fsf@cisco.com>
-	<20050916203724.GH19626@ftp.linux.org.uk> <52psr8k1qg.fsf@cisco.com>
-	<20050916.170349.72543699.davem@davemloft.net>
-From: Roland Dreier <rolandd@cisco.com>
-Date: Fri, 16 Sep 2005 17:08:06 -0700
-In-Reply-To: <20050916.170349.72543699.davem@davemloft.net> (David S.
- Miller's message of "Fri, 16 Sep 2005 17:03:49 -0700 (PDT)")
-Message-ID: <52d5n8k13t.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-X-OriginalArrivalTime: 17 Sep 2005 00:08:08.0027 (UTC) FILETIME=[E202C2B0:01C5BB1B]
+	Fri, 16 Sep 2005 20:16:41 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:10155 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750778AbVIQAQk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 20:16:40 -0400
+Date: Fri, 16 Sep 2005 17:15:53 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Valdis.Kletnieks@vt.edu
+Cc: greg@kroah.com, kay.sievers@vrfy.org, jirislaby@gmail.com,
+       dominik.karall@gmx.net, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-rc1-mm1
+Message-Id: <20050916171553.35b30af2.akpm@osdl.org>
+In-Reply-To: <200509162353.j8GNrX2B007036@turing-police.cc.vt.edu>
+References: <20050916022319.12bf53f3.akpm@osdl.org>
+	<200509162042.07376.dominik.karall@gmx.net>
+	<432B2101.9080806@gmail.com>
+	<20050916195903.GE22221@vrfy.org>
+	<20050916213003.GB13604@kroah.com>
+	<200509162353.j8GNrX2B007036@turing-police.cc.vt.edu>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    David> Read the unix(7) man page, section ANCILLARY MESSAGES,
-    David> sub-section SCM_RIGHTS, to see how userspace can use this
-    David> stuff between processes.
+Valdis.Kletnieks@vt.edu wrote:
+>
+> On Fri, 16 Sep 2005 14:30:04 PDT, Greg KH said:
+> > > > >On Friday 16 September 2005 11:23, Andrew Morton wrote:
+> > > > >>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14-rc1/2.6.14-rc1-mm1/
+> 
+> > Yes, Andrew, can you please drop these patches, they will cause lots of
+> > problems with users due to the above mentioned issues.
+> 
+> For those of us playing along at home -
+> 
+> Would doing a 'patch -R' of all 30 patches listed in "Big input/sysfs changes"
+> be needed? Or just the 'input-prepare-to-sysfs-integration.patch' and following?
+> 
 
-Yeah, I know about using SCM_RIGHTS between processes in userspace...
+These need to go, I believe:
 
-    David> Yes, you could open up an AF_UNIX socket with userspace and
-    David> pass the FDs over via SCM_RIGHTS.
+input-core-implement-class-hierachy.patch
+input-core-implement-class-hierachy-hdaps-fixes.patch
+input-core-remove-custom-made-hotplug-handler.patch
+input-convert-input-handlers-to-class-interfaces.patch
+input-convert-to-seq_file.patch
 
-...but how does the kernel open an AF_UNIX socket with userspace?
+Or you can take your chances with
+http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.14-rc1-mm1.5.gz which
+is kinda rc1-mm1 without those 28 patches.
 
- - R.

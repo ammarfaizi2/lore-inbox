@@ -1,77 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751112AbVIQNdN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbVIQNdc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751112AbVIQNdN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Sep 2005 09:33:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751111AbVIQNdN
+	id S1750808AbVIQNdc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Sep 2005 09:33:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751106AbVIQNdc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Sep 2005 09:33:13 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:18315 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S1751105AbVIQNdM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Sep 2005 09:33:12 -0400
-Date: Sat, 17 Sep 2005 15:33:00 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: Ram Pai <linuxram@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       Miklos Szeredi <miklos@szeredi.hu>, mike@waychison.com,
-       bfields@fieldses.org, serue@us.ibm.com
-Subject: Re: [RFC PATCH 1/10] vfs: Lindentified namespace.c
-Message-ID: <20050917133300.GA12369@wohnheim.fh-wedel.de>
-References: <20050916182619.GA28428@RAM> <20050916142557.691b055e.akpm@osdl.org> <1126906755.4693.25.camel@localhost> <20050917121848.GA9106@wohnheim.fh-wedel.de> <20050917123457.GJ19626@ftp.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050917123457.GJ19626@ftp.linux.org.uk>
-User-Agent: Mutt/1.3.28i
+	Sat, 17 Sep 2005 09:33:32 -0400
+Received: from smtprelay01.ispgateway.de ([80.67.18.13]:56454 "EHLO
+	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1750808AbVIQNdb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Sep 2005 09:33:31 -0400
+Message-ID: <432C1B23.9090507@v.loewis.de>
+Date: Sat, 17 Sep 2005 15:33:23 +0200
+From: =?ISO-8859-1?Q?=22Martin_v=2E_L=F6wis=22?= <martin@v.loewis.de>
+User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Martin Mares <mj@ucw.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [Patch] Support UTF-8 scripts
+References: <4NsP1-3YF-21@gated-at.bofh.it> <4NsOZ-3YF-9@gated-at.bofh.it> <4NsYH-4bv-27@gated-at.bofh.it> <4NtBr-4WU-3@gated-at.bofh.it> <4NtL0-5lQ-13@gated-at.bofh.it> <432B2C49.8080008@v.loewis.de> <20050917120123.GA3095@ucw.cz> <432C0B51.704@v.loewis.de> <20050917122828.GA4103@ucw.cz> <432C11B3.8080302@v.loewis.de> <20050917130529.GA4398@ucw.cz>
+In-Reply-To: <20050917130529.GA4398@ucw.cz>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 17 September 2005 13:34:57 +0100, Al Viro wrote:
-> On Sat, Sep 17, 2005 at 02:18:48PM +0200, J?rn Engel wrote:
-> > 
-> > It is an approximation.  In my personal experience, the "-l80"
-> > parameter is doing a lot of harm.  It causes things like
-> > 
-> > 	if (...)
-> > 		for (...)
-> > 			while (...)
-> > 				if (...)
-> > 					for (...)
-> > 						while (...)
-> > 							some_function(argument,
-> > 									very_long_argument,
-> > 									another_argument,
-> > 									0,
-> > 									1,
-> > 									NULL
-> > 									);
-> 
-> ... show up as unreadable crap they are.  I fail to see a problem...
-> Fix them and run Lindent again, that's it.
+Martin Mares wrote:
+> I still think that this does solve only a completely insignificant part
+> of the problem. Given the zillion existing encodings, you are able to identify
+> UTF-8, leaving you with zillion-1 other encodings you are unable to deal with.
 
-Without -l80, this crap takes up fewer lines.  Such things usually
-occur in 500+ line functions, not counting Lindent expansion.  Getting
-a fair amount of those lines on the screen helps when fixing things
-up.
+Correct. This is a special case only. The more general problem is
+already solved: both Python and Perl support source encodings in
+the entire zillion encodings. As I explained, this general solution,
+while being general, is also not very user-friendly.
 
-But that's just my personal approach.  As long as the results are
-sane, it doesn't really matter.
+Now, why does UTF-8 deserve to be a special case? One reason is that it
+has the potential to replace the entire zillion of encodings over time.
+However, this can only happen if tool support for this encoding is
+really good. The patch contributes a (minor) fragment to the support -
+it is a small patch only.
 
-> Lindent behaviour wrt labels is far more annoying, ditto for the mess it
-> often makes out of prototypes (demonstrated in the patch in question).
-> 
-> IME the best way to use Lindent is to do vi -c 's/[[:space:]]*$//|x' foo.c
-> first, then run Lindent, then walk through prototypes and fix them,
-> diff with pre-Lindent version and see if it looks sane...
+The other reason is that UTF-8 defines its own encoding declaration,
+unlike most of the other zillion-1 encodings. So naturally, an
+implementation that supports UTF-8 in this way cannot extend to other
+encodings. hpa suggested that ISO-2022 would be a more general
+mechanism, but pointed out that it hasn't implemented widely in the
+last 30 years, so it is unlikely that it will get much better support
+in the next thirty years.
 
-You're lucky.  I've had to deal with code where the diff with
-pre-Lindent version was completely pointless.  Original was so broken,
-there was no room for regressions.
+> I see a need for a feature which would help identify the charset of the script,
+> but the patch in question obviously doesn't offer that -- it solves only a single
+> special case of the problem in a completely non-systematic way. This does not
+> sound right.
 
-Jörn
+It's not a complete solution, but it *is* part of a general solution.
+People have tried in the past to solve the general problem of "identify
+the encoding of a text file", both in really general ways (iso-2022)
+and in format-specific ways (perl, python). All these solutions are
+tedious to use.
 
--- 
-"Error protection by error detection and correction."
--- from a university class
+There is another general solution: gradually replace the zillion
+encodings with a single one, namely Unicode (or, specifically, UTF-8).
+This solution will only work when done gradually. Clearly, this
+patch doesn't implement this solution entirely, but it contributes
+to it, by making usage of UTF-8 in script files more simple. Many
+more changes to other software (i.e. non-kernel changes) will be
+necessary to implement this solution, as well as (obviously) changes
+to existing files.
+
+Regards,
+Martin

@@ -1,48 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750954AbVIQGFd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750963AbVIQG2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750954AbVIQGFd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Sep 2005 02:05:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750956AbVIQGFc
+	id S1750963AbVIQG2R (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Sep 2005 02:28:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750964AbVIQG2R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Sep 2005 02:05:32 -0400
-Received: from smtprelay02.ispgateway.de ([80.67.18.14]:34953 "EHLO
-	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1750954AbVIQGFc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Sep 2005 02:05:32 -0400
-Message-ID: <432BB225.8050605@v.loewis.de>
-Date: Sat, 17 Sep 2005 08:05:25 +0200
+	Sat, 17 Sep 2005 02:28:17 -0400
+Received: from smtprelay04.ispgateway.de ([80.67.18.16]:48836 "EHLO
+	smtprelay04.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1750961AbVIQG2R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Sep 2005 02:28:17 -0400
+Message-ID: <432BB77E.3050501@v.loewis.de>
+Date: Sat, 17 Sep 2005 08:28:14 +0200
 From: =?ISO-8859-1?Q?=22Martin_v=2E_L=F6wis=22?= <martin@v.loewis.de>
 User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-CC: linux-kernel@vger.kernel.org
+To: "D. Hazelton" <dhazelton@enter.net>
+CC: 7eggert@gmx.de, "H. Peter Anvin" <hpa@zytor.com>,
+       linux-kernel@vger.kernel.org
 Subject: Re: [Patch] Support UTF-8 scripts
-References: <4NsP0-3YF-11@gated-at.bofh.it> <4NsP0-3YF-13@gated-at.bofh.it> <4NsP0-3YF-15@gated-at.bofh.it> <4NsP0-3YF-17@gated-at.bofh.it> <4NsP1-3YF-19@gated-at.bofh.it> <4NsP1-3YF-21@gated-at.bofh.it> <4NsOZ-3YF-9@gated-at.bofh.it> <4NsYH-4bv-27@gated-at.bofh.it> <4NtBr-4WU-3@gated-at.bofh.it> <4Nu4p-5Js-3@gated-at.bofh.it> <432B2E09.9010407@v.loewis.de> <432B424A.4020508@zytor.com>
-In-Reply-To: <432B424A.4020508@zytor.com>
+References: <4N6EL-4Hq-3@gated-at.bofh.it> <4N7AS-67L-3@gated-at.bofh.it> <E1EGKXl-0001Sn-GA@be1.lrz> <200509170028.59973.dhazelton@enter.net>
+In-Reply-To: <200509170028.59973.dhazelton@enter.net>
 X-Enigmail-Version: 0.92.0.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-> Did you miss the point?  There has been a standard for marking for *30
-> years*, and virtually NOONE (outside Japan) uses it.
+D. Hazelton wrote:
+> This is a bogus argument. You're comparing the way a _binary_ 
+> executable works to the way an interpreted _text_ script works. 
+> execve(), at least on my system, isn't capable of running a script - 
+> if I want to do that from a program I have to tell execve() that it's 
+> running /bin/sh and the script file is in the parameter list. 
 
-I understood that fact - but I fail to see the point. If you mean to
-imply "people did not use ISO-2022, therefore, they will never use
-encoding declarations", I think this implication is false. People
-do use encoding declarations.
+This being the linux-kernel list, I assume your system is Linux, no?
+Well, on Linux, execve *does* support script files. This is the whole
+point of my patch - I would not propose a kernel patch to improve
+this support if it weren't there in the first place.
 
-If you mean to imply "people did not use ISO-2022, therefore, they
-will never use the UTF-8 signature", I think this implications is
-also false. People do use the UTF-8 signature, even outside Japan.
-The primary reason is that the UTF-8 signature is much easier to
-implement than ISO-2022: if you support UTF-8 in your tool (say,
-a text editor), anyway, adding support for the UTF-8 signature
-is almost trivial. Therefore, many more editors support the UTF-8
-signature today than ever supported ISO-2022.
+> While I appreciate that the kernel is capable of performing complex 
+> actions when execve runs into a file that is not an a.out or elf 
+> binary I have yet to see a "binfmt script" option in the kernel 
+> config files ever.
+
+It's not a config option because it is always enabled. See
+fs/binfmt_script.c for details. It wasn't integrated into the binfmt
+system until I made it so some ten years ago, though.
+
+> On the other hand, there is the "binfmt_misc" option, which does the 
+> work that you seem to be looking for and can, AFAIK, be set to handle 
+> both ASCII and UTF-8 scripts. Why add the complexity to the kernel 
+> when it's not needed?
+
+One shouldn't add complexity if its not needed. However, this patch
+does not add complexity. It is fairly trivial.
 
 Regards,
 Martin

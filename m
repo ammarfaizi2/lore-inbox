@@ -1,49 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751195AbVIQU7z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751198AbVIQVFI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751195AbVIQU7z (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Sep 2005 16:59:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbVIQU7z
+	id S1751198AbVIQVFI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Sep 2005 17:05:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751199AbVIQVFI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Sep 2005 16:59:55 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:40418 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751195AbVIQU7y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Sep 2005 16:59:54 -0400
-Date: Sat, 17 Sep 2005 13:58:32 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: lserinol@gmail.com
-Cc: jlan@engr.sgi.com, pavel@ucw.cz, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net, guillaume.thouvenin@bull.net,
-       kaigai@ak.jp.nec.com, elsa-devel@lists.sourceforge.net,
-       erikj@subway.americas.sgi.com, jh@sgi.com
-Subject: Re: [PATCH] per process I/O statistics for userspace
-Message-Id: <20050917135832.501f2cfd.akpm@osdl.org>
-In-Reply-To: <2c1942a705091710363f463b18@mail.gmail.com>
-References: <2c1942a7050912052759c7f730@mail.gmail.com>
-	<20050914092338.GA2260@elf.ucw.cz>
-	<2c1942a705091413171e63bf55@mail.gmail.com>
-	<20050914132437.7c32b739.akpm@osdl.org>
-	<432890BA.5090907@engr.sgi.com>
-	<2c1942a705091710363f463b18@mail.gmail.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 17 Sep 2005 17:05:08 -0400
+Received: from daimi.au.dk ([130.225.16.1]:23973 "EHLO daimi.au.dk")
+	by vger.kernel.org with ESMTP id S1751198AbVIQVFG convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Sep 2005 17:05:06 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Announce:  Sysprof 1.0 -- a sampling, systemwide Linux profiler
+From: Soeren Sandmann <sandmann@daimi.au.dk>
+Date: 17 Sep 2005 23:05:04 +0200
+Message-ID: <ye8br2r9zi7.fsf@horse06.daimi.au.dk>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Levent Serinol <lserinol@gmail.com> wrote:
->
-> Hi Andrew,
-> 
+* What is it?
+--------------------------
 
-You inspired me.  Please see
-http://www.zip.com.au/~akpm/linux/patches/stuff/top-posting.txt
+Sysprof is a sampling system-wide CPU profiler for Linux.
 
->  What's your last decision about the patch ?
+Sysprof uses a Linux kernel module to profile the entire system, not
+just an individual application. 
 
-To wait and see what the system accounting guys come up with.  If we export
-this info in /proc then it'll need to remain exported for ever.  So if/when
-the system accounting people export it by other means, the info will be
-duplicated.
+Of course, sysprof handles threads and shared libraries, and
+applications do not have to be recompiled or instrumented. In fact
+they don't even have to be restarted. 
 
+Just insert the kernel module and start sysprof.
+
+
+* Features:
+----------------------
+
+    - Profiles all running processes, not just a single application
+
+    - Call graph support showing time spent in each branch of the call tree
+
+    - Has a simple graphical interface
+
+    - Profiles can be loaded and saved
+
+    - Easy to use: Just insert the kernel module and start sysprof
+
+    - Supports Fedora debuginfo packages
+
+
+* Sysprof 1.0
+--------------------------
+
+This is the first release of sysprof with a 1.x version number. I am
+very excited about that.
+
+New features since Sysprof 0.91:
+
+- support for x86-64, thanks to Mike Frysinger
+- better reporting of time spent in the kernel
+
+Please report bugs as well as success or failure stories to 
+
+    sandmann@daimi au dk
+
+
+* Where can I get it?
+--------------------------------------------
+
+Home page:
+
+       http://www.daimi.au.dk/~sandmann/sysprof/
+
+Source code:
+
+       http://www.daimi.au.dk/~sandmann/sysprof/sysprof-1.0.tar.gz
+
+Sysprof requires
+
+        - Linux 2.6.11 or later, compiled with profiling support
+        - GTK+ 2.6
+	- libglade 2.5
+
+It is known to work out the box on Fedora Core 4.
+
+
+Søren

@@ -1,54 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751021AbVIQKBX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751031AbVIQKKU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751021AbVIQKBX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Sep 2005 06:01:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751023AbVIQKBX
+	id S1751031AbVIQKKU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Sep 2005 06:10:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751025AbVIQKKU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Sep 2005 06:01:23 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:59789 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1751020AbVIQKBW (ORCPT
-	<rfc822;Linux-Kernel@vger.kernel.org>);
-	Sat, 17 Sep 2005 06:01:22 -0400
-Date: Sat, 17 Sep 2005 12:01:08 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Andrew Morton <akpm@osdl.org>
-cc: nickpiggin@yahoo.com.au, rmk+lkml@arm.linux.org.uk,
-       Linux-Kernel@vger.kernel.org, dipankar@in.ibm.com
-Subject: Re: [PATCH 2/5] atomic: introduce atomic_inc_not_zero
-In-Reply-To: <20050916233628.0fd948f0.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0509171150350.3743@scrub.home>
-References: <43283825.7070309@yahoo.com.au> <4328387E.6050701@yahoo.com.au>
- <Pine.LNX.4.61.0509141814220.3743@scrub.home> <43285374.3020806@yahoo.com.au>
- <Pine.LNX.4.61.0509141906040.3728@scrub.home> <20050914230049.F30746@flint.arm.linux.org.uk>
- <Pine.LNX.4.61.0509150010100.3728@scrub.home> <20050914232106.H30746@flint.arm.linux.org.uk>
- <4328D39C.2040500@yahoo.com.au> <Pine.LNX.4.61.0509170300030.3743@scrub.home>
- <20050916233628.0fd948f0.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 17 Sep 2005 06:10:20 -0400
+Received: from zproxy.gmail.com ([64.233.162.201]:14438 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751035AbVIQKKT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Sep 2005 06:10:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=d2UKzQKNc9/+GD8rBLjgnUpRQ4gJvUI0iFemITJe0iLutoK2S5alG0ss0Ur4wlv3l2aLg1Z4MT/MUaMu/0R+HNVreL2RGu23kP3MnMeLrIzbq6K28CHaS/N4dTpeu56OMGO69Y08dsEOUIwzJ7lcIKR/jAgpGNVPQ8T7nJ5Mooc=
+Message-ID: <3afbacad05091703103928bd33@mail.gmail.com>
+Date: Sat, 17 Sep 2005 12:10:17 +0200
+From: Jim MacBaine <jmacbaine@gmail.com>
+Reply-To: jmacbaine@gmail.com
+To: "David S. Miller" <davem@davemloft.net>
+Subject: Re: aoe fails on sparc64
+Cc: ecashin@coraid.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20050916.163554.79765706.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <3afbacad0508310630797f397d@mail.gmail.com>
+	 <87u0glxhfw.fsf@coraid.com>
+	 <20050916.163554.79765706.davem@davemloft.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 9/17/05, David S. Miller <davem@davemloft.net> wrote:
 
-On Fri, 16 Sep 2005, Andrew Morton wrote:
-
-> Nope.  On uniprocessor systems, atomic_foo() doesn't actually do the
-> buslocked atomic thing.
+> This patch should fix the bug.
 > 
-> #ifdef CONFIG_SMP
-> #define LOCK "lock ; "
-> #else
-> #define LOCK ""
-> #endif
-> 
-> On x86, at least.  Other architectures can do the same thing if they have
-> an atomic-wrt-IRQs add and sub.
+> diff --git a/arch/sparc64/kernel/una_asm.S b/arch/sparc64/kernel/una_asm.S
+[..]
+> diff --git a/arch/sparc64/kernel/unaligned.c b/arch/sparc64/kernel/unaligned.c
+[..]
 
-That's true on x86, but if these functions have to be emulated using 
-spinlocks, they always have to disable interrupts, whether the caller 
-needs it or not. Also x86 has the lock attribute, which helps a lot, but 
-on other archs a cmpxchg instruction can be quite expensive, so it could 
-be cheaper by just using {disable,enable}_preempt.
+Was this patch meant to be applied to a fresh 2.6.13 kernel without
+any of Ed's patches? If so, I cannot confirm that this patch works.
+The aoe driver still reports a wrong size:
 
-bye, Roman
+sunny:~# modprobe aoe
+aoe: aoe_init: AoE v2.6-10 initialised.
+ etherd/e0.0: unknown partition table
+aoe: 0011xxxxxxxx e0.0 v4000 has 7441392446501552128 sectors
+
+The exported file has got a size of 19088743 sectors.
+
+Regards,
+Jim

@@ -1,103 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750837AbVIQDGt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750836AbVIQDBb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750837AbVIQDGt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Sep 2005 23:06:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750838AbVIQDGt
+	id S1750836AbVIQDBb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Sep 2005 23:01:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750837AbVIQDBb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Sep 2005 23:06:49 -0400
-Received: from mail08.syd.optusnet.com.au ([211.29.132.189]:51864 "EHLO
-	mail08.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1750837AbVIQDGs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Sep 2005 23:06:48 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: 2.6.13-ck5
-Date: Sat, 17 Sep 2005 13:06:42 +1000
-User-Agent: KMail/1.8.2
-Cc: ck list <ck@vds.kolivas.org>
+	Fri, 16 Sep 2005 23:01:31 -0400
+Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:37321 "HELO
+	develer.com") by vger.kernel.org with SMTP id S1750836AbVIQDBa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Sep 2005 23:01:30 -0400
+Message-ID: <432B8702.3060801@develer.com>
+Date: Sat, 17 Sep 2005 05:01:22 +0200
+From: Bernardo Innocenti <bernie@develer.com>
+User-Agent: Mozilla Thunderbird 1.0.6-5 (X11/20050818)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3067336.5MgLaX2Rba";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: lkml <linux-kernel@vger.kernel.org>
+CC: netfilter-devel@lists.netfilter.org
+Subject: Intermittent NAT failure when multiple hosts send UDP packets
+X-Enigmail-Version: 0.91.0.0
+OpenPGP: id=FC6A66CA;
+	url=https://www.develer.com/~bernie/gpgkey.txt
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Message-Id: <200509171306.44248.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3067336.5MgLaX2Rba
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+This smells like a bug in UDP ip_nat_proto_udp.c or nearby.
+I'm seeing this on 2.6.12-1.1447_FC4, but code in 2.6.13 is
+still the same.
 
-These are patches designed to improve system responsiveness and interactivi=
-ty.=20
-It is configurable to any workload but the default ck* patch is aimed at th=
-e=20
-desktop and ck*-server is available with more emphasis on serverspace.
+I've setup SNAT the usual way:
 
+ iptables -A POSTROUTING -t nat -o ppp0 -j SNAT --to-source 151.38.19.110
 
-THIS INCLUDES ALL THE PATCHES IN 2.6.13.2 SO YOU SHOULD START WITH 2.6.13 T=
-O=20
-USE THESE PATCHES
+When multiple clients in the LAN send UDP packets to the same port of
+the same remote host, I see something like this in my /proc/net/ip_conntrack:
 
-Apply to 2.6.13
-http://ck.kolivas.org/patches/2.6/2.6.13/2.6.13-ck5/patch-2.6.13-ck5.bz2
+ udp      17 170 src=10.3.3.2 dst=194.185.88.60 sport=5060 dport=5060 src=194.185.88.60 dst=151.38.19.110 sport=5060 dport=5060 [ASSURED] use=1
+ udp      17 29 src=10.3.3.2 dst=212.97.59.76 sport=5060 dport=5060 [UNREPLIED] src=212.97.59.76 dst=151.38.19.110 sport=5060 dport=5060 use=1
+ udp      17 177 src=10.3.3.250 dst=194.185.88.60 sport=5060 dport=5060 src=194.185.88.60 dst=151.38.19.110 sport=5060 dport=1024 [ASSURED] use=1
 
-or server version
-http://ck.kolivas.org/patches/2.6/2.6.13/2.6.13-ck5/patch-2.6.13-ck5-server=
-=2Ebz2
+In the last line, the destination port has been properly remapped from
+5060 to 1024 to distingish between incoming packets.
 
-*prefetching should still be considered experimental*
-I appreciate the extensive testing it is receiving!
+However, I see packets going out over ppp0 without the source
+address properly rewritten to 151.38.19.110:
 
-web:
-http://kernel.kolivas.org
-all patches:
-http://ck.kolivas.org/patches/
-Split patches available.
+ 04:38:28.739514 IP 10.3.3.2.5060 > 194.185.88.60.5060: UDP, length 536
+
+This doesn't happen when there's just a single host sending to port 5060.
+Sometimes I must restart the interface to trigger this bug.  
 
 
-Changes:
 
-Added:
-+vm-sp6_sp7.2.patch
-Swap prefetching update. Locking problems caused bizarre slowdowns on smp, =
-smt=20
-or preempt configurations. Locking has been extensively revised and hopeful=
-ly=20
-all fixed. Very frequent testing of free memory is now also done as=20
-kprefetchd runs at low priority (nice 19) and it may be a while between eac=
-h=20
-page prefetched.
+-- 
+  // Bernardo Innocenti - Develer S.r.l., R&D dept.
+\X/  http://www.develer.com/
 
-+per-task-predictive-write-throttling-1.patch
-Andrea's write throttling patch
-
-
-Updated:
-=2Dpatch-2.6.13.1.bz2
-+patch-2.6.13.2.bz2
-Latest stable patch
-
-=2D2613ck4-version.diff
-+2613ck5-version.diff
-Version
-
-
-Cheers,
-Con
-
---nextPart3067336.5MgLaX2Rba
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDK4hEZUg7+tp6mRURAuYHAJ45QOXXKSEbYIzTq5NJ8YGLUSGacQCffHTN
-AJyy2zjNeWw5aT0SXGiV9aQ=
-=BlGD
------END PGP SIGNATURE-----
-
---nextPart3067336.5MgLaX2Rba--

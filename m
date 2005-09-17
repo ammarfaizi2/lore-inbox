@@ -1,58 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751092AbVIQMSh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751095AbVIQMTJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751092AbVIQMSh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Sep 2005 08:18:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751090AbVIQMSh
+	id S1751095AbVIQMTJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Sep 2005 08:19:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751090AbVIQMTJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Sep 2005 08:18:37 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:32654 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1751087AbVIQMSg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Sep 2005 08:18:36 -0400
-Date: Sat, 17 Sep 2005 14:18:28 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Harald Welte <laforge@netfilter.org>
-cc: Arnaldo Carvalho de Melo <acme@ghostprotocols.net>,
-       Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>,
-       Linux Netdev List <netdev@vger.kernel.org>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: [HELP] netfilter Kconfig dependency nightmare
-In-Reply-To: <20050917112949.GZ8413@sunbeam.de.gnumonks.org>
-Message-ID: <Pine.LNX.4.61.0509171407460.3743@scrub.home>
-References: <20050916021451.3012196c.akpm@osdl.org>
- <20050916191959.GN8413@sunbeam.de.gnumonks.org> <39e6f6c705091617514457eded@mail.gmail.com>
- <20050917012315.GA29841@mandriva.com> <20050917080714.GV8413@sunbeam.de.gnumonks.org>
- <Pine.LNX.4.61.0509171306290.3743@scrub.home> <20050917112949.GZ8413@sunbeam.de.gnumonks.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 17 Sep 2005 08:19:09 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:8839 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S1751088AbVIQMTI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Sep 2005 08:19:08 -0400
+Date: Sat, 17 Sep 2005 14:18:48 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Ram Pai <linuxram@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, viro@ftp.linux.org.uk,
+       Miklos Szeredi <miklos@szeredi.hu>, mike@waychison.com,
+       bfields@fieldses.org, serue@us.ibm.com
+Subject: Re: [RFC PATCH 1/10] vfs: Lindentified namespace.c
+Message-ID: <20050917121848.GA9106@wohnheim.fh-wedel.de>
+References: <20050916182619.GA28428@RAM> <20050916142557.691b055e.akpm@osdl.org> <1126906755.4693.25.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1126906755.4693.25.camel@localhost>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Sat, 17 Sep 2005, Harald Welte wrote:
-
-> If CONFIG_IP_NF_CONNTRACK_NETLINK is selected (M or Y), then
-> CONFIG_IP_NF_CONNTRACK conditionally adds some code that references
-> symbols from nfnetlink.ko (CONFIG_NETFILTER_NETLINK)
+On Fri, 16 September 2005 14:39:15 -0700, Ram Pai wrote:
+> On Fri, 2005-09-16 at 14:25, Andrew Morton wrote:
+> > linuxram@us.ibm.com (Ram) wrote:
+> > >
+> > > Lindentified fs/namespace.c
+> > 
+> > For something which is as already-close to CodingStyle as namespace.c it's
+> > probably better to tidy it up by hand.  Lindent breaks almost as much stuff
+> > as it fixes.
 > 
-> So basically, enabling CONFIG_IP_NF_CONNTRACK_NETLINK creates a dependency
-> from CONFIG_IP_NF_CONNTRACK to CONFIG_NETFILTER_NETLINK.  AFAIK, the syntax
-> doesn't allow somthing like 
-> 
-> tristate IP_NF_CONNTRACK
-> 	depends on NETFILTER_NETLINK if IP_NF_CONNTRACK_NETLINK!=n
+> I thought Lindent was the gospel for codying style. Looks like its not.
+> Will fix all of them.
 
-Since IP_NF_CONNTRACK_NETLINK is the one creating the dependency, 
-something like this should work:
+It is an approximation.  In my personal experience, the "-l80"
+parameter is doing a lot of harm.  It causes things like
 
-config IP_NF_CONNTRACK_NETLINK
-	depends on IP_NF_CONNTRACK && NETFILTER_NETLINK
-	depends on IP_NF_CONNTRACK!=y || NETFILTER_NETLINK!=m
+	if (...)
+		for (...)
+			while (...)
+				if (...)
+					for (...)
+						while (...)
+							some_function(argument,
+									very_long_argument,
+									another_argument,
+									0,
+									1,
+									NULL
+									);
 
-IOW ct_nl depends on (ct && nl) unless (ct=y && nl=m).
+Code with many indentation levels is pressed hard against the 80
+column limit.  Such code needs manual cleanup anyway and the 80 column
+thing makes manual cleanup harder instead of easier.  Without that,
+Lindent is a big initial improvement.
 
-bye, Roman
+It is not the final word. :)
 
+Jörn
+
+-- 
+If you're willing to restrict the flexibility of your approach,
+you can almost always do something better.
+-- John Carmack

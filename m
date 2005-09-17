@@ -1,66 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750967AbVIQGjc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750965AbVIQGhZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750967AbVIQGjc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Sep 2005 02:39:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750968AbVIQGjc
+	id S1750965AbVIQGhZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Sep 2005 02:37:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750966AbVIQGhZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Sep 2005 02:39:32 -0400
-Received: from web8505.mail.in.yahoo.com ([202.43.219.167]:10407 "HELO
-	web8505.mail.in.yahoo.com") by vger.kernel.org with SMTP
-	id S1750966AbVIQGjc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Sep 2005 02:39:32 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.co.in;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=BYC7Ua+qk5lNYx9Zy0R57eHBz98qkl0p9Tw6Mp06ZrmR4RW4SixgnoSB15bHlYMCEPq78evvVuB6Z/tAvgTXARpp66RlSZP6kM181fw4DQZbzmCH0NGT2zQmew+0FKhd8jBI4NhX10dC+8vvQvlmfA4+uFaZy4eeAtIbhT5rqxM=  ;
-Message-ID: <20050917063910.36222.qmail@web8505.mail.in.yahoo.com>
-Date: Sat, 17 Sep 2005 07:39:09 +0100 (BST)
-From: manomugdha biswas <manomugdhab@yahoo.co.in>
-Subject: kernel 2.6 hangs 
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Sat, 17 Sep 2005 02:37:25 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:47596 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750964AbVIQGhY (ORCPT
+	<rfc822;Linux-Kernel@vger.kernel.org>);
+	Sat, 17 Sep 2005 02:37:24 -0400
+Date: Fri, 16 Sep 2005 23:36:28 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: nickpiggin@yahoo.com.au, rmk+lkml@arm.linux.org.uk,
+       Linux-Kernel@vger.kernel.org, dipankar@in.ibm.com
+Subject: Re: [PATCH 2/5] atomic: introduce atomic_inc_not_zero
+Message-Id: <20050916233628.0fd948f0.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0509170300030.3743@scrub.home>
+References: <43283825.7070309@yahoo.com.au>
+	<4328387E.6050701@yahoo.com.au>
+	<Pine.LNX.4.61.0509141814220.3743@scrub.home>
+	<43285374.3020806@yahoo.com.au>
+	<Pine.LNX.4.61.0509141906040.3728@scrub.home>
+	<20050914230049.F30746@flint.arm.linux.org.uk>
+	<Pine.LNX.4.61.0509150010100.3728@scrub.home>
+	<20050914232106.H30746@flint.arm.linux.org.uk>
+	<4328D39C.2040500@yahoo.com.au>
+	<Pine.LNX.4.61.0509170300030.3743@scrub.home>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I have a driver module in kernel 2.6. I use ioctl to
-drive my module from user application. My driver
-module does the following:
+Roman Zippel <zippel@linux-m68k.org> wrote:
+>
+> Hi,
+> 
+> On Thu, 15 Sep 2005, Nick Piggin wrote:
+> 
+> > Roman: any ideas about what you would prefer? You'll notice
+> > atomic_inc_not_zero replaces rcuref_inc_lf, which is used several times
+> > in the VFS.
+> 
+> In the larger picture I'm not completely happy with these scalibilty 
+> patches, as they add extra overhead at the lower end. On a UP system in 
+> general nothing beats:
+> 
+> 	spin_lock();
+> 	if (*ptr)
+> 		ptr += 1;
+> 	spin_unlock();
+> 
+> The main problem is here that the atomic functions are used in two basic 
+> situation:
+> 
+> 1) interrupt synchronization
+> 2) multiprocessor synchronization
+> 
+> The atomic functions have to assume both, but on UP systems it often is 
+> a lot cheaper if they don't have to synchronize with interrupts. So 
+> replacing a spinlock with a few atomic operations can hurt UP performance.
+> 
 
-When it is called (via ioctl from user application) it
-loops in a for loop at most 50 times. After each
-iteration i have used delay as below:
+Nope.  On uniprocessor systems, atomic_foo() doesn't actually do the
+buslocked atomic thing.
 
-wait_queue_head_t wq;
-init_waitqueue_head (&wq);
+#ifdef CONFIG_SMP
+#define LOCK "lock ; "
+#else
+#define LOCK ""
+#endif
 
-for (/* at most 50 times */) {
-   wait_event_timeout(wq, 0, HZ * 2);
-/* wait_event_interruptible_timeout(wq, 0, HZ * 2); */
-}
+On x86, at least.  Other architectures can do the same thing if they have
+an atomic-wrt-IRQs add and sub.
 
-But this wait_event_timeout() causes my module to get
-hanged when this function is executed! I am saying
-that this function causes to get hanged because if I
-comment out this function then 'for' loop can iterate
-50 times. When this function is being used after first
-iteration my module (and as well as well computer)
-gets hanged. 
-
-Could you please tell me what is wrong here or what I
-need to do?
-
-Regards,
-Mano
-
-
-
-
-Manomugdha Biswas
-
-
-		
-__________________________________________________________ 
-Yahoo! India Matrimony: Find your partner now. Go to http://yahoo.shaadi.com

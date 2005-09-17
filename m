@@ -1,27 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751177AbVIQTkK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750895AbVIQTgG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751177AbVIQTkK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Sep 2005 15:40:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751187AbVIQTkK
+	id S1750895AbVIQTgG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Sep 2005 15:36:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751187AbVIQTgG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Sep 2005 15:40:10 -0400
-Received: from penta.pentaserver.com ([216.74.97.66]:6044 "EHLO
+	Sat, 17 Sep 2005 15:36:06 -0400
+Received: from penta.pentaserver.com ([216.74.97.66]:2221 "EHLO
 	penta.pentaserver.com") by vger.kernel.org with ESMTP
-	id S1751177AbVIQTkI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Sep 2005 15:40:08 -0400
-Message-ID: <432C6E67.7030602@linuxtv.org>
-Date: Sat, 17 Sep 2005 23:28:39 +0400
+	id S1750895AbVIQTgF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Sep 2005 15:36:05 -0400
+Message-ID: <432C6D76.4020208@linuxtv.org>
+Date: Sat, 17 Sep 2005 23:24:38 +0400
 From: Manu Abraham <manu@linuxtv.org>
 User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Sergey Vlasov <vsu@altlinux.ru>
+To: Jiri Slaby <jirislaby@gmail.com>
 CC: linux-kernel@vger.kernel.org
 Subject: Re: free free irq and Oops on cat /proc/interrupts (2)
-References: <432C344D.1030604@linuxtv.org> <20050917215646.78a05044.vsu@altlinux.ru> <432C5F93.80506@linuxtv.org> <20050917191058.GJ11302@procyon.home>
-In-Reply-To: <20050917191058.GJ11302@procyon.home>
+References: <432C344D.1030604@linuxtv.org> <432C62D5.9080703@gmail.com>
+In-Reply-To: <432C62D5.9080703@gmail.com>
 Content-Type: multipart/mixed;
- boundary="------------050703010807090401060309"
+ boundary="------------050003070609060404060306"
 X-Antivirus-Scanner: Clean mail though you should still use an Antivirus
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - penta.pentaserver.com
@@ -35,97 +35,59 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------050703010807090401060309
+--------------050003070609060404060306
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Sergey Vlasov wrote:
+Jiri Slaby wrote:
 
->On Sat, Sep 17, 2005 at 10:25:23PM +0400, Manu Abraham wrote:
->[skip]
->  
+> Manu Abraham napsal(a):
 >
->>static int __devinit mantis_pci_probe(struct pci_dev *pdev,
->>				const struct pci_device_id *mantis_pci_table)
->>{
->>	u8 revision, latency;
->>	struct mantis_pci *mantis;
+>> Can somebody give me a pointer as to what i am possibly doing wrong.
 >>
->>	mantis = (struct mantis_pci *)
->>				kmalloc(sizeof (struct mantis_pci), GFP_KERNEL);
->>	if (mantis == NULL) {
->>		dprintk(verbose, MANTIS_ERROR, 1, "Out of memory");
->>		return -ENOMEM;
->>	}
->>	if (pci_enable_device(pdev)) {
->>		dprintk(verbose, MANTIS_ERROR, 1, "Mantis PCI enable failed");
->>		goto err;
->>	}
->>	dprintk(verbose, MANTIS_ERROR, 1, "<2:>IRQ=%d", pdev->irq);
->>
->>	dprintk(verbose, MANTIS_ERROR, 1, "Got a device");
->>	if (request_irq(pdev->irq, mantis_pci_irq, SA_SHIRQ | SA_INTERRUPT, 
->>						DRIVER_NAME, mantis) < 0) {
->>    
->>
+>> The module loads fine..
+>> The module unloads fine.. But i get a "free free IRQ" on free_irq()..
+>> I do a cat /proc/interrupts .. I get an Oops.. Attached dmesg [1]
+>> I did an Oops trace down to vsprintf.c, using make EXTRA_CFLAGS="-g 
+>> -Wa,-a,-ad" lib/vsprintf.o > lib/vsprintf.asm, but still couldn't 
+>> find what the real bug is.
 >
->Some code is obviously missing here...
 >
->  
->
->>	dprintk(verbose, MANTIS_DEBUG, 1, "We got an IRQ");
->>	return 0;
->>
->>err:
->>	dprintk(verbose, MANTIS_DEBUG, 1, "<freak out>");
->>	kfree(mantis);
->>	return -ENODEV;
->>}
->>
->>
->>
->>static void __devexit mantis_pci_remove(struct pci_dev *pdev)
->>{
->>	free_irq(pdev->irq, pdev);
->>    
->>
->
->Here is the next problem - you must give free_irq() the same pointer
->that you have passed to request_irq().  So you need a way to get from
->a struct pci_dev for your device to the corresponding struct
->mantis_pci.  This is done as follows:
->
->1) In your mantis_pci_probe(), when you have initialized the device
->successfully, put the pointer to you data structure into the PCI
->device structure:
->
->	pci_set_drvdata(pdev, mantis);
->
->2) In mantis_pci_remove() (and later in other PCI driver functions,
->like suspend/resume) get this pointer back:
->
->	struct mantis_pci *mantis = pci_get_drvdata(pdev);
->  
->
-I had already done this ..
+> Please, stop spamming list with your (almost all stupid) questions.
+> At the first read some material. ldd3 is the book, which will help you 
+> (the 3rd time I tell you that). There is explained how to write pci 
+> devices.
+> Then read some code, as Rolf Eike Beer wrote. Almost everything what 
+> will you ever need was written at least once.
+> Then think, if you didn't see the thing you want somewhere and take a 
+> look there.
 
->Then use that pointer where you need it (e.g., in free_irq()).
+
+> And after all tries ask list, why the driver is not working.
 >
->3) mantis_pci_remove() should also clear out the pointer to the driver
->data:
+> At least Rolf and me wrote you, that you need to call 
+> pci_enable_device and you do NOT do that again. So?
 >
->	pci_set_drvdata(pdev, NULL);
->
->  
->
-This too.. But the same error persists ..
-Attached is that very same code ..
+
+This was what Rolf wrote.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=112680448728918&w=2
+
+The code what i posted later on was to find out why even with that it 
+happens ..
+
+I had attached the code, which calls in pci_enable_device(). Haven't you 
+seen that ?
+If not, please do take a look at it. This was in the same lines as Rolf 
+wrote, hence my post.
+
+
 
 
 Manu
 
 
---------------050703010807090401060309
+
+--------------050003070609060404060306
 Content-Type: text/plain;
  name="mantis_pci.c"
 Content-Transfer-Encoding: 7bit
@@ -335,4 +297,4 @@ MODULE_DESCRIPTION("Mantis PCI DTV bridge driver");
 MODULE_AUTHOR("Manu Abraham");
 MODULE_LICENSE("GPL");
 
---------------050703010807090401060309--
+--------------050003070609060404060306--

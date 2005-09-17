@@ -1,39 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750887AbVIQEar@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750899AbVIQEd7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750887AbVIQEar (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Sep 2005 00:30:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750890AbVIQEar
+	id S1750899AbVIQEd7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Sep 2005 00:33:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750902AbVIQEd7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Sep 2005 00:30:47 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:52104 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S1750881AbVIQEar (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Sep 2005 00:30:47 -0400
-Subject: Re: 2.6.13-mm2
-From: Parag Warudkar <kernel-stuff@comcast.net>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: Andrew Morton <akpm@osdl.org>, Roland McGrath <roland@redhat.com>,
-       Andi Kleen <ak@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1126930657.7927.5.camel@localhost>
-References: <200509162038_MC3-1-AA6D-60D9@compuserve.com>
-	 <1126930657.7927.5.camel@localhost>
-Content-Type: text/plain
-Date: Sat, 17 Sep 2005 00:30:34 -0400
-Message-Id: <1126931434.8239.1.camel@localhost>
+	Sat, 17 Sep 2005 00:33:59 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:52440 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750901AbVIQEd6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Sep 2005 00:33:58 -0400
+Date: Fri, 16 Sep 2005 21:33:23 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+Cc: yuasa@hh.iij4u.or.jp, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] mips: Fixed build error
+Message-Id: <20050916213323.0a6499ba.akpm@osdl.org>
+In-Reply-To: <20050917132521.1d157d50.yuasa@hh.iij4u.or.jp>
+References: <20050916022319.12bf53f3.akpm@osdl.org>
+	<20050917132521.1d157d50.yuasa@hh.iij4u.or.jp>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-09-17 at 00:17 -0400, Parag Warudkar wrote:
-> On my machine asm-i386/user.h and
-> asm-x86_64/user.h both do not contain a user_regs_struct definition
-> with
-> x86 registers. 
+Yoichi Yuasa <yuasa@hh.iij4u.or.jp> wrote:
+>
+>  This patch has fixed the following build error on MIPS.
+>
 
-Never mind - Ubuntu seems to have broken compat headers. (Kernel version
-of asm-i386/user.h is appropriate.)
+Great, thaks for that.
 
-P
-
+Do you actually run-time test -mm kernels on MIPS or do you only compile-test?

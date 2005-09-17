@@ -1,70 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751097AbVIQMfJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751045AbVIQKgD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751097AbVIQMfJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Sep 2005 08:35:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751099AbVIQMfJ
+	id S1751045AbVIQKgD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Sep 2005 06:36:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751048AbVIQKgD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Sep 2005 08:35:09 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:6887 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751097AbVIQMfH
+	Sat, 17 Sep 2005 06:36:03 -0400
+Received: from dial170-161.awalnet.net ([213.184.170.161]:37380 "EHLO
+	raad.intranet") by vger.kernel.org with ESMTP id S1751045AbVIQKgC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Sep 2005 08:35:07 -0400
-Date: Sat, 17 Sep 2005 13:34:57 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: J?rn Engel <joern@wohnheim.fh-wedel.de>
-Cc: Ram Pai <linuxram@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       Miklos Szeredi <miklos@szeredi.hu>, mike@waychison.com,
-       bfields@fieldses.org, serue@us.ibm.com
-Subject: Re: [RFC PATCH 1/10] vfs: Lindentified namespace.c
-Message-ID: <20050917123457.GJ19626@ftp.linux.org.uk>
-References: <20050916182619.GA28428@RAM> <20050916142557.691b055e.akpm@osdl.org> <1126906755.4693.25.camel@localhost> <20050917121848.GA9106@wohnheim.fh-wedel.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 17 Sep 2005 06:36:02 -0400
+From: Al Boldi <a1426z@gawab.com>
+To: Willy Tarreau <willy@w.ods.org>
+Subject: Re: Eradic disk access during reads
+Date: Sat, 17 Sep 2005 13:32:53 +0300
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <200509170717.03439.a1426z@gawab.com> <20050917055010.GG30279@alpha.home.local>
+In-Reply-To: <20050917055010.GG30279@alpha.home.local>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20050917121848.GA9106@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200509171323.53054.a1426z@gawab.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 17, 2005 at 02:18:48PM +0200, J?rn Engel wrote:
-> On Fri, 16 September 2005 14:39:15 -0700, Ram Pai wrote:
-> > On Fri, 2005-09-16 at 14:25, Andrew Morton wrote:
-> > > linuxram@us.ibm.com (Ram) wrote:
-> > > >
-> > > > Lindentified fs/namespace.c
-> > > 
-> > > For something which is as already-close to CodingStyle as namespace.c it's
-> > > probably better to tidy it up by hand.  Lindent breaks almost as much stuff
-> > > as it fixes.
-> > 
-> > I thought Lindent was the gospel for codying style. Looks like its not.
-> > Will fix all of them.
-> 
-> It is an approximation.  In my personal experience, the "-l80"
-> parameter is doing a lot of harm.  It causes things like
-> 
-> 	if (...)
-> 		for (...)
-> 			while (...)
-> 				if (...)
-> 					for (...)
-> 						while (...)
-> 							some_function(argument,
-> 									very_long_argument,
-> 									another_argument,
-> 									0,
-> 									1,
-> 									NULL
-> 									);
-> 
+Willy Tarreau wrote:
+> On Sat, Sep 17, 2005 at 07:26:11AM +0300, Al Boldi wrote:
+> > Monitoring disk access using gkrellm, I noticed that a command like
+> >
+> > cat /dev/hda > /dev/null
+> >
+> > shows eradic disk reads ranging from 0 to 80MB/s on an otherwise idle
+> > system.
+> >
+> > 1. Is this a hardware or software problem?
+>
+> Difficult to tell without more info. Can be a broken IDE disk or defective
+> ribbon.
 
-... show up as unreadable crap they are.  I fail to see a problem...
-Fix them and run Lindent again, that's it.
+Tried the same with 2.4.31 which shows steady behaviour with occasional dips 
+and pops in the msec range.
 
-Lindent behaviour wrt labels is far more annoying, ditto for the mess it
-often makes out of prototypes (demonstrated in the patch in question).
+>
+> > 2. Is there a lightweight perf-mon tool (cmd-line) that would log this
+> > behaviour graphically?
+>
+> You can do " readspeed </dev/hda | tr '\r' '\n' > log " with the readspeed
+> tool from there :
+>    http://w.ods.org/tools/readspeed
 
-IME the best way to use Lindent is to do vi -c 's/[[:space:]]*$//|x' foo.c
-first, then run Lindent, then walk through prototypes and fix them,
-diff with pre-Lindent version and see if it looks sane...
+Does it have msec resolution?
+
+Thanks!
+
+--
+Al

@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751178AbVIQSkM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750999AbVIQJWx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751178AbVIQSkM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Sep 2005 14:40:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751177AbVIQSkM
+	id S1750999AbVIQJWx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Sep 2005 05:22:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750998AbVIQJWx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Sep 2005 14:40:12 -0400
-Received: from wscnet.wsc.cz ([212.80.64.118]:23682 "EHLO wscnet.wsc.cz")
-	by vger.kernel.org with ESMTP id S1751178AbVIQSkK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Sep 2005 14:40:10 -0400
-Message-ID: <432C62D5.9080703@gmail.com>
-Date: Sat, 17 Sep 2005 20:39:17 +0200
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: cs, en-us, en
-MIME-Version: 1.0
-To: Manu Abraham <manu@linuxtv.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: free free irq and Oops on cat /proc/interrupts (2)
-References: <432C344D.1030604@linuxtv.org>
-In-Reply-To: <432C344D.1030604@linuxtv.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 17 Sep 2005 05:22:53 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:43987 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750989AbVIQJWw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Sep 2005 05:22:52 -0400
+Date: Sat, 17 Sep 2005 10:22:47 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: I request inclusion of reiser4 in the mainline kernel
+Message-ID: <20050917092247.GA13992@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Hans Reiser <reiser@namesys.com>, Andrew Morton <akpm@osdl.org>,
+	Linus Torvalds <torvalds@osdl.org>,
+	LKML <linux-kernel@vger.kernel.org>,
+	ReiserFS List <reiserfs-list@namesys.com>
+References: <432AFB44.9060707@namesys.com> <20050916174028.GA32745@infradead.org> <432B1F84.3000902@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <432B1F84.3000902@namesys.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manu Abraham napsal(a):
+On Fri, Sep 16, 2005 at 12:39:48PM -0700, Hans Reiser wrote:
+> Christoph Hellwig wrote:
+> 
+> >additinoal comment is that the code is very messy, very different
+> >from normal kernel style, full of indirections and thus hard to read.
+> >
+> 
+> Most of my customers remark that Namesys code is head and shoulders
+> above the rest of the kernel code.  So yes, it is different.  In
+> particular, they cite the XFS code as being so incredibly hard to read
+> that its unreadability is worth hundreds of thousands of dollars in
+> license fees for me.  That's cash received, from persons who read it
+> all, not commentary made idly.
 
-> Can somebody give me a pointer as to what i am possibly doing wrong.
->
-> The module loads fine..
-> The module unloads fine.. But i get a "free free IRQ" on free_irq()..
-> I do a cat /proc/interrupts .. I get an Oops.. Attached dmesg [1]
-> I did an Oops trace down to vsprintf.c, using make EXTRA_CFLAGS="-g 
-> -Wa,-a,-ad" lib/vsprintf.o > lib/vsprintf.asm, but still couldn't find 
-> what the real bug is.
-
-Please, stop spamming list with your (almost all stupid) questions.
-At the first read some material. ldd3 is the book, which will help you 
-(the 3rd time I tell you that). There is explained how to write pci devices.
-Then read some code, as Rolf Eike Beer wrote. Almost everything what 
-will you ever need was written at least once.
-Then think, if you didn't see the thing you want somewhere and take a 
-look there.
-And after all tries ask list, why the driver is not working.
-
-At least Rolf and me wrote you, that you need to call pci_enable_device 
-and you do NOT do that again. So?
-
-thanks,
-
--- 
-Jiri Slaby         www.fi.muni.cz/~xslaby
-~\-/~      jirislaby@gmail.com      ~\-/~
-241B347EC88228DE51EE A49C4A73A25004CB2A10
+It's very different from kernel style, and it's hard to read for us kernel
+developers.  And yes, I don't think XFS is the most easy to read code either,
+quite contrary.  But it's at least half a magnitude less bad than reiser4
+code..
 

@@ -1,57 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbVIQWVG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbVIQW1S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751212AbVIQWVG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Sep 2005 18:21:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751214AbVIQWVF
+	id S1751140AbVIQW1S (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Sep 2005 18:27:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751151AbVIQW1S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Sep 2005 18:21:05 -0400
-Received: from penta.pentaserver.com ([216.74.97.66]:32465 "EHLO
-	penta.pentaserver.com") by vger.kernel.org with ESMTP
-	id S1751212AbVIQWVE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Sep 2005 18:21:04 -0400
-Message-ID: <432C941F.10501@linuxtv.org>
-Date: Sun, 18 Sep 2005 02:09:35 +0400
-From: Manu Abraham <manu@linuxtv.org>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Sergey Vlasov <vsu@altlinux.ru>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: free free irq and Oops on cat /proc/interrupts (2)
-References: <432C344D.1030604@linuxtv.org> <20050917215646.78a05044.vsu@altlinux.ru> <432C5F93.80506@linuxtv.org> <20050917191058.GJ11302@procyon.home> <432C6E67.7030602@linuxtv.org> <20050917194940.GK11302@procyon.home>
-In-Reply-To: <20050917194940.GK11302@procyon.home>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-PopBeforeSMTPSenders: manu@kromtek.com
-X-Antivirus-Scanner: Clean mail though you should still use an Antivirus
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - penta.pentaserver.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - linuxtv.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Sat, 17 Sep 2005 18:27:18 -0400
+Received: from mail.kroah.org ([69.55.234.183]:9093 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751140AbVIQW1S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Sep 2005 18:27:18 -0400
+Date: Sat, 17 Sep 2005 15:26:40 -0700
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix ST 5481 USB driver
+Message-ID: <20050917222640.GA27785@kroah.com>
+References: <20050917215242.GA27813@pingi3.kke.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050917215242.GA27813@pingi3.kke.suse.de>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sergey Vlasov wrote:
+On Sat, Sep 17, 2005 at 11:52:42PM +0200, Karsten Keil wrote:
+>  	// Cancel all USB transfers on this B channel
+> +	b_out->urb[0]->transfer_flags |= URB_ASYNC_UNLINK;
+>  	usb_unlink_urb(b_out->urb[0]);
+> +	b_out->urb[1]->transfer_flags |= URB_ASYNC_UNLINK;
 
->>
->>	free_irq(pdev->irq, pdev);
->>    
->>
->
->This should be
->
->	free_irq(pdev->irq, mantis);
->
->  
->
-Ah, thanks a lot. That solves it.
-Thanks for your time.
+URB_ASYNC_UNLINK is now gone in 2.6.14-rc1, so this change will break
+the build :(
 
+thanks,
 
-Regards,
-Manu
-
+greg k-h

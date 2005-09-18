@@ -1,52 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932114AbVIRQfE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932115AbVIRQqD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932114AbVIRQfE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 12:35:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932115AbVIRQfE
+	id S932115AbVIRQqD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 12:46:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932117AbVIRQqD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 12:35:04 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:13828 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S932114AbVIRQfD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 12:35:03 -0400
-Date: Sun, 18 Sep 2005 18:34:50 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Denis Vlasenko <vda@ilport.com.ua>
-Cc: Al Boldi <a1426z@gawab.com>, linux-kernel@vger.kernel.org
-Subject: Re: Eradic disk access during reads
-Message-ID: <20050918163450.GA1516@alpha.home.local>
-References: <200509170717.03439.a1426z@gawab.com> <200509181400.27004.vda@ilport.com.ua> <200509181640.19984.a1426z@gawab.com> <200509181902.17633.vda@ilport.com.ua>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200509181902.17633.vda@ilport.com.ua>
-User-Agent: Mutt/1.5.10i
+	Sun, 18 Sep 2005 12:46:03 -0400
+Received: from 69.50.231.10.ip.nectartech.com ([69.50.231.10]:59776 "EHLO
+	newton.ctyme.com") by vger.kernel.org with ESMTP id S932115AbVIRQqC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Sep 2005 12:46:02 -0400
+Message-ID: <432D99C4.5020000@perkel.com>
+Date: Sun, 18 Sep 2005 09:45:56 -0700
+From: Marc Perkel <marc@perkel.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.10) Gecko/20050716
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Wanted - Recommendation of good motherboard for AMD Athlon 64 X2
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-filter-host: newton.ctyme.com - http://www.junkemailfilter.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 18, 2005 at 07:02:17PM +0300, Denis Vlasenko wrote:
-> > > My CPU is not that new:
-> > 
-> > PII - 400Mhz here.
-> 
-> I meant that kernel seem to eat too much CPU here. This
-> is not expected. I expected CPU bar to be all D.
+I'm leaning towards scrappung my Ass motherboard for having a LOT of 
+Linux problems. Looking for a recommendation of what to replace it with.
 
-This is often caused by disks running in PIO instead of DMA.
+I want something that is highly Linux frendly and "just works".
 
-> > Also, great meter!  Best of all does not hog the CPU!
-> > Could you add a top3 procs display?
-> 
-> What is a "top3 procs display"?
+Running Athlon 64 X2 4400+
+Needs 4 SATA ports - prefer SATA II
+VGA on MB would be nice but not required.
+MUST run with 4 gigs of ram. I have Kingston HyperX which should be 
+plenty fast.
+I'm running Fedora Core 4 on it.
+I'm Running Maxtor drives that support NCQ even though the SATA 
+interface is 1.5gb
 
-probably something which will turn your tool into sort of a complex and
-unusable one when another session running 'top' could do the trick.
+I don't need raid.
 
-Oh, BTW, the first reason I wrote my tool was to avoid copying into
-/dev/null which consumes a small amount of CPU. Thus, I made it a pure
-data eater. It might be interesting to run it instead of 'dd' while your
-tool is running, to see if system usage decreases a bit.
+What out there actually works.
 
-Regards,
-Willy
+-- 
+Marc Perkel - marc@perkel.com
+
+Spam Filter: http://www.junkemailfilter.com
+    My Blog: http://marc.perkel.com
 

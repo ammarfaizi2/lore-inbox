@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932210AbVIRV1X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932212AbVIRVaw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932210AbVIRV1X (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 17:27:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbVIRV1X
+	id S932212AbVIRVaw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 17:30:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932213AbVIRVaw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 17:27:23 -0400
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:8865 "EHLO
-	ogre.sisk.pl") by vger.kernel.org with ESMTP id S932210AbVIRV1X
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 17:27:23 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Grzegorz Piotr Jaskiewicz <gj@kdemail.net>
-Subject: Re: dell's latitude cdburner problem
-Date: Sun, 18 Sep 2005 23:27:23 +0200
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org
-References: <200509182257.23363@gj-laptop>
-In-Reply-To: <200509182257.23363@gj-laptop>
+	Sun, 18 Sep 2005 17:30:52 -0400
+Received: from mx1.rowland.org ([192.131.102.7]:58385 "HELO mx1.rowland.org")
+	by vger.kernel.org with SMTP id S932212AbVIRVav (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Sep 2005 17:30:51 -0400
+Date: Sun, 18 Sep 2005 17:30:50 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: Alexey Dobriyan <adobriyan@gmail.com>
+cc: linux-usb-devel@lists.sourceforge.net, <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] URB_ASYNC_UNLINK b0rkage
+In-Reply-To: <20050918190526.GB787@mipter.zuzino.mipt.ru>
+Message-ID: <Pine.LNX.4.44L0.0509181718360.2126-100000@netrider.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509182327.24290.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, 18 Sep 2005, Alexey Dobriyan wrote:
 
-On Sunday, 18 of September 2005 22:57, Grzegorz Piotr Jaskiewicz wrote:
-> Hi folks
-> 
-> I don't know whether this is linuxes cdrecord issue, or kernel issue.
-> I have dell latitude c640 laptop with their's dvd/cd-rw combo drive that 
-> appears as:
-> hdc: ATAPI 24X DVD-ROM CD-R/RW drive, 2048kB Cache
-> 
-> Trouble is, that this drive suppose to write CDs at 24x, and does so under 
-> windows. But under Linux it works only 8x. Anyone with the same problem 
-> please?
+> Perhaps, another press release to explain breakage of allmodconfig is
+> needed.
+> ------------------------------------------------------------------------
+> drivers/usb/host/hc_crisv10.c:	if (urb->transfer_flags & URB_ASYNC_UNLINK) {
+> drivers/usb/host/hc_crisv10.c:		/* If URB_ASYNC_UNLINK is set:
+> drivers/usb/host/hc_crisv10.c:		warn("URB_ASYNC_UNLINK set, ignoring.");
+> drivers/usb/misc/uss720.c:	/* rq->urb->transfer_flags |= URB_ASYNC_UNLINK; */
+> drivers/isdn/hisax/st5481_b.c:	b_out->urb[0]->transfer_flags |= URB_ASYNC_UNLINK;
+> drivers/isdn/hisax/st5481_b.c:	b_out->urb[1]->transfer_flags |= URB_ASYNC_UNLINK;
+> drivers/isdn/hisax/st5481_usb.c:	in->urb[0]->transfer_flags |= URB_ASYNC_UNLINK;
+> drivers/isdn/hisax/st5481_usb.c:	in->urb[1]->transfer_flags |= URB_ASYNC_UNLINK;
+> Documentation/usb/URB.txt:the URB_ASYNC_UNLINK flag in urb->transfer flags before calling
 
-Same on Asus L5D x86-64 with Toshiba SD-R2512, and k3b and I have seen it
-for a couple of times on different notebooks.  I don't consider it as a big issue,
-though.
+hc_crisv10 is long out-of-date and doesn't even build, as you saw.  Is 
+anyone still using it?  It probably should be removed from the Makefile.
 
-Greetings,
-Rafael
+The line in drivers/usb/misc/uss720.c is just a comment.  Presumably it 
+can be taken out with no harm done.
 
+In my kernel tree, the st5481 source files don't include the lines you 
+show.  What source version are you using?
 
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+Finally, the URB.txt documentation file clearly states at the beginning 
+that it is out of date.  However it wouldn't hurt to fix it up a little.  
+I'll send in a patch to do so.
+
+Alan Stern
+

@@ -1,119 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbVIRTcI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbVIRTwi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932176AbVIRTcI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 15:32:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932177AbVIRTcI
+	id S932181AbVIRTwi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 15:52:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932182AbVIRTwi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 15:32:08 -0400
-Received: from pop.gmx.net ([213.165.64.20]:16520 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932176AbVIRTcH (ORCPT
+	Sun, 18 Sep 2005 15:52:38 -0400
+Received: from xenotime.net ([66.160.160.81]:27280 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932181AbVIRTwi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 15:32:07 -0400
-X-Authenticated: #815883
-Date: Sun, 18 Sep 2005 21:32:18 +0200
-From: Christian Aichinger <Greek0@gmx.net>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@osdl.org
-Subject: [PATCH] ext[23]: fix missing DQUOT_DROP in error paths
-Message-ID: <20050918193218.GQ22403@orest.greek0.net>
+	Sun, 18 Sep 2005 15:52:38 -0400
+Date: Sun, 18 Sep 2005 12:52:32 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Christian Fischer <Christian.Fischer@fischundfischer.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: x86: mounting scsi-cdrom: kernel panic with vanilla and others,
+ works with ac
+Message-Id: <20050918125232.3e53ced9.rdunlap@xenotime.net>
+In-Reply-To: <200509181557.37934.Christian.Fischer@fischundfischer.com>
+References: <200509181557.37934.Christian.Fischer@fischundfischer.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The "Enable atomic inode security labeling" patches
-(ac50960afa31877493add6d941d8402fa879c452 and
-10f47e6a1b8b276323b652053945c87a63a5812d) missed to call
-DQUOT_DROP() in ext[23]_new_inode() in their error path.
+On Sun, 18 Sep 2005 15:57:37 +0200 Christian Fischer wrote:
 
-This patch unifies the error exits that need quota cleanup, and
-fixes that problem along the way.
+> Hi all.
+> 
+> Some days ago I've tried 2.6.12-cko3 and got "Kernel panic - not syncing: 
+> Fatal exception in interrupt" by mounting the cdrom (scsi). Known problem I 
+> thought, I had this if I tried to switch from 2.6.11-ac7 to 2.6.11-gentoo. 
 
-Signed-off-by: Christian Aichinger <Greek0@gmx.net>
+Need kernel message log, please.
+
+> To point out if this is a problem of gentoo-base patches or cko-patches i 
+> tried 2.6.12-vanilla and got Kernel panic.
+
+How about 2.6.14-rc1 ?
+
+> Mainboard: SuperMicro MBD-P4SCT-0
+> Chipset: Intel 875
+> CPU: Intel P4 2,4 
+> Memory: ECC
+> SCSI: Tekram TRM-S1040
+> 
+> CONFIG_X86_GOOD_APIC=y
+> # CONFIG_X86_UP_APIC is not set
+> 
+> CONFIG_SCSI=y
+> CONFIG_SCSI_PROC_FS=y
+> CONFIG_SCSI_MULTI_LUN=y
+> CONFIG_SCSI_CONSTANTS=y
+> CONFIG_SCSI_SPI_ATTRS=m
+> CONFIG_SCSI_SATA=y
+> CONFIG_SCSI_ATA_PIIX=y
+> CONFIG_SCSI_SYM53C8XX_2=m
+> CONFIG_SCSI_SYM53C8XX_DMA_ADDRESSING_MODE=1
+> CONFIG_SCSI_SYM53C8XX_DEFAULT_TAGS=16
+> CONFIG_SCSI_SYM53C8XX_MAX_TAGS=64
+> CONFIG_SCSI_QLA2XXX=y
+> CONFIG_SCSI_DC395x=y
+> CONFIG_SCSI_DC390T=y
+
+
 ---
-
- fs/ext2/ialloc.c |   18 +++++++++---------
- fs/ext3/ialloc.c |   22 ++++++++++------------
- 2 files changed, 19 insertions(+), 21 deletions(-)
-
-bae38e9a68f6b15350ea99a763f0d8d6c8f0ee0a
-diff --git a/fs/ext2/ialloc.c b/fs/ext2/ialloc.c
---- a/fs/ext2/ialloc.c
-+++ b/fs/ext2/ialloc.c
-@@ -610,21 +610,21 @@ got:
- 		goto fail2;
- 	}
- 	err = ext2_init_acl(inode, dir);
--	if (err) {
--		DQUOT_FREE_INODE(inode);
--		DQUOT_DROP(inode);
--		goto fail2;
--	}
-+	if (err)
-+		goto fail2_free;
-+
- 	err = ext2_init_security(inode,dir);
--	if (err) {
--		DQUOT_FREE_INODE(inode);
--		goto fail2;
--	}
-+	if (err)
-+		goto fail2_free;
-+
- 	mark_inode_dirty(inode);
- 	ext2_debug("allocating inode %lu\n", inode->i_ino);
- 	ext2_preread_inode(inode);
- 	return inode;
- 
-+fail2_free:
-+	DQUOT_FREE_INODE(inode);
-+	DQUOT_DROP(inode);
- fail2:
- 	inode->i_flags |= S_NOQUOTA;
- 	inode->i_nlink = 0;
-diff --git a/fs/ext3/ialloc.c b/fs/ext3/ialloc.c
---- a/fs/ext3/ialloc.c
-+++ b/fs/ext3/ialloc.c
-@@ -602,22 +602,17 @@ got:
- 		goto fail2;
- 	}
- 	err = ext3_init_acl(handle, inode, dir);
--	if (err) {
--		DQUOT_FREE_INODE(inode);
--		DQUOT_DROP(inode);
--		goto fail2;
--  	}
-+	if (err)
-+		goto fail2_free;
-+
- 	err = ext3_init_security(handle,inode, dir);
--	if (err) {
--		DQUOT_FREE_INODE(inode);
--		goto fail2;
--	}
-+	if (err)
-+		goto fail2_free;
-+
- 	err = ext3_mark_inode_dirty(handle, inode);
- 	if (err) {
- 		ext3_std_error(sb, err);
--		DQUOT_FREE_INODE(inode);
--		DQUOT_DROP(inode);
--		goto fail2;
-+		goto fail2_free;
- 	}
- 
- 	ext3_debug("allocating inode %lu\n", inode->i_ino);
-@@ -631,6 +626,9 @@ really_out:
- 	brelse(bitmap_bh);
- 	return ret;
- 
-+fail2_free:
-+	DQUOT_FREE_INODE(inode);
-+	DQUOT_DROP(inode);
- fail2:
- 	inode->i_flags |= S_NOQUOTA;
- 	inode->i_nlink = 0;
+~Randy
+You can't do anything without having to do something else first.
+-- Belefant's Law

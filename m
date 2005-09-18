@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbVIROcV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbVIROjL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932092AbVIROcV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 10:32:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932091AbVIROcV
+	id S932079AbVIROjL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 10:39:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932082AbVIROjL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 10:32:21 -0400
-Received: from noname.neutralserver.com ([70.84.186.210]:40153 "EHLO
-	noname.neutralserver.com") by vger.kernel.org with ESMTP
-	id S932089AbVIROcT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 10:32:19 -0400
-Date: Sun, 18 Sep 2005 17:35:26 +0300
-From: Dan Aloni <da-x@monatomic.org>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: workaround large MTU and N-order allocation failures
-Message-ID: <20050918143526.GA24181@localdomain>
+	Sun, 18 Sep 2005 10:39:11 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:57547 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932079AbVIROjK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Sep 2005 10:39:10 -0400
+Date: Sun, 18 Sep 2005 15:39:07 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: p = kmalloc(sizeof(*p), )
+Message-ID: <20050918143907.GK19626@ftp.linux.org.uk>
+References: <20050918100627.GA16007@flint.arm.linux.org.uk> <1127041474.8932.4.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.10i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - noname.neutralserver.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - monatomic.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+In-Reply-To: <1127041474.8932.4.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sun, Sep 18, 2005 at 12:04:34PM +0100, Alan Cox wrote:
+ 
+> Other good practice in many cases is a single routine which allocates
+> and initialises the structure and is used by all allocators of that
+> object. That removes duplicate initialisers, stops people forgetting to
+> update all cases, allows better debug and far more.
 
-Is there currently a workaround available for handling large MTU 
-(larger than 1 page, even 2-order) in the Linux network stack?
+Indeed.  IMO, argument for sizeof(*p) is bullshit - "I've changed a pointer
+type and forgot to update the allocation and initialization, but this will
+magically save my arse" is missing "except that initialization will remain
+bogus" part.
 
-The problem with large MTU is external memory fragmentation in
-the buddy system following high workload, causing alloc_skb() to 
-fail.
-
-I'm interested in patches for both 2.4 and 2.6 kernels.
-
-Thanks,
-
--- 
-Dan Aloni
-da-x@monatomic.org, da-x@colinux.org, da-x@gmx.net
+I've seen a lot of bugs around bogus kmalloc+initialization, but I can't
+recall a single case when such bug would be prevented by using that form.
+If somebody has a different experience, please post pointers to changesets
+in question.

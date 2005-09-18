@@ -1,82 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbVIRRzj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932145AbVIRSAu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932144AbVIRRzj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 13:55:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932145AbVIRRzj
+	id S932145AbVIRSAu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 14:00:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbVIRSAu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 13:55:39 -0400
-Received: from ns1.osuosl.org ([140.211.166.130]:1232 "EHLO ns1.osuosl.org")
-	by vger.kernel.org with ESMTP id S932144AbVIRRzi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 13:55:38 -0400
-Message-ID: <432DAA0A.10509@engr.orst.edu>
-Date: Sun, 18 Sep 2005 10:55:22 -0700
-From: Michael Marineau <marineam@engr.orst.edu>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050728)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Gene Heskett <gene.heskett@verizon.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [KORG] REMINDER: master.kernel.org extended downtime
-References: <432B1D4E.4060301@zytor.com> <432B26AA.8070901@zytor.com> <432D17EA.8090303@osuosl.org> <200509181105.20460.gene.heskett@verizon.net>
-In-Reply-To: <200509181105.20460.gene.heskett@verizon.net>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig1CF2B91D514A9D53DD103CFF"
+	Sun, 18 Sep 2005 14:00:50 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:16644 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S932145AbVIRSAu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Sep 2005 14:00:50 -0400
+Date: Sun, 18 Sep 2005 20:00:27 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Denis Vlasenko <vda@ilport.com.ua>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: p = kmalloc(sizeof(*p), )
+Message-ID: <20050918180027.GB595@alpha.home.local>
+References: <20050918100627.GA16007@flint.arm.linux.org.uk> <1127041474.8932.4.camel@localhost.localdomain> <20050918143907.GK19626@ftp.linux.org.uk> <200509181925.25112.vda@ilport.com.ua> <20050918173058.GM19626@ftp.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050918173058.GM19626@ftp.linux.org.uk>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig1CF2B91D514A9D53DD103CFF
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-Gene Heskett wrote:
-> On Sunday 18 September 2005 03:31, Michael Marineau wrote:
+On Sun, Sep 18, 2005 at 06:30:58PM +0100, Al Viro wrote:
+> On Sun, Sep 18, 2005 at 07:25:24PM +0300, Denis Vlasenko wrote:
+> > Do these qualify?
+> > 
+> > http://www.uwsg.iu.edu/hypermail/linux/kernel/0105.1/0579.html
+> > o Fix wrong kmalloc sizes in ixj/emu10k1 (David Chan) 
 > 
->>H. Peter Anvin wrote:
->>
->>>H. Peter Anvin wrote:
->>>
->>>>master.kernel.org will be offline starting shortly after 15:00
->>>>PDT/22:00 UTC today, September 19, 2005; for a move to the University
->>>>of Oregon Open Source Lab.  This should give much better bandwidth
->>>>and a more reliable backup solution, in addition to access to a real,
->>>>staffed NOC.
->>>
->>>That should have been Oregon State University Open Source Lab.  Mea
->>>culpa.
->>>
->>>    -hpa
->>
->>Btw, to any one interested Scott Kveton posted photos of the welcoming
->>party here this morning. :-)
->>
->>http://osuosl.org/photos/kernel/view
-> 
-> 
-> Neat!  But where was the obligatory 6 pack?
-> 
-Those were at OSU's anual "Geeks and Steaks" bbq afterwards. ;-)
+> ixj does, emu10k does not (sizeof(p) instead of sizeof(*p) would be
+> exact same bug).
 
--- 
-Michael Marineau
-marineam@engr.orst.edu
-Oregon State University
+Funny, a few days ago, I found such a bug in a coworker's code. I agree
+that finding this at 3am would be close to impossible. OK, you converted
+me :-)
 
---------------enig1CF2B91D514A9D53DD103CFF
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+Regards,
+Willy
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFDLaoKiP+LossGzjARAgQpAKCkfqsYmHpqhipMIJMgZ2lXa15fPQCeMuUA
-JzY6a5r6r/qSrdYN9T4wPLE=
-=x4fw
------END PGP SIGNATURE-----
-
---------------enig1CF2B91D514A9D53DD103CFF--

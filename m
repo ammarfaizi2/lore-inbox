@@ -1,68 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbVIRH33@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751316AbVIRHcV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751315AbVIRH33 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 03:29:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbVIRH33
+	id S1751316AbVIRHcV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 03:32:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751318AbVIRHcV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 03:29:29 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:2928 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S1751315AbVIRH32
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 03:29:28 -0400
-Date: Sun, 18 Sep 2005 09:30:16 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Martin Fouts <Martin.Fouts@palmsource.com>
-Cc: jesper.juhl@gmail.com, Krzysztof Halasa <khc@pm.waw.pl>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Why don't we separate menuconfig from the kernel?
-Message-ID: <20050918073016.GB11257@mars.ravnborg.org>
-References: <DE88BDF02F4319469812588C7950A97E93121E@ussunex1.palmsource.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <DE88BDF02F4319469812588C7950A97E93121E@ussunex1.palmsource.com>
-User-Agent: Mutt/1.5.8i
+	Sun, 18 Sep 2005 03:32:21 -0400
+Received: from ns2.osuosl.org ([140.211.166.131]:42709 "EHLO ns2.osuosl.org")
+	by vger.kernel.org with ESMTP id S1751316AbVIRHcU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Sep 2005 03:32:20 -0400
+Message-ID: <432D17EA.8090303@osuosl.org>
+Date: Sun, 18 Sep 2005 00:31:54 -0700
+From: Michael Marineau <marineam@osuosl.org>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050728)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: "H. Peter Anvin" <hpa@zytor.com>, users@kernel.org
+Subject: Re: [KORG] REMINDER: master.kernel.org extended downtime
+References: <432B1D4E.4060301@zytor.com> <432B26AA.8070901@zytor.com>
+In-Reply-To: <432B26AA.8070901@zytor.com>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigC7EFC7387428A6B91949D311"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 17, 2005 at 06:53:55PM -0700, Martin Fouts wrote:
-> I don't have a patch yet, but I've just spent a bit of time looking at
-> how kbuild works, and I believe there is a fairly straightforward way to
-> keep kbuild in the kernel tree but make it easy to split it out so that
-> someone could use it as a separate tool.
-> 
-> If this idea, appropriately modified, makes sense, I'll spend a bit of
-> time to do a patch and set it up.
-> 
-> The basic idea is that kbuild stays in the kernel source tree, but a
-> simple script is used to grab a copy of it out of the tree.  That copy
-> is maintained as a separate "build/configuration" package, and the
-> maintainer (yes, I'm volunteering) would keep the two versions in (near)
-> sync.
-> 
-> After a quick glance, it looks like one would want to copy
-> 
-> Documentation/kbuild/*
-> Scripts/kconfig/*
-> Makefile
-> 
-> To this new copy.  The only real work to get started, it appears, and
-> the reason why I'd rather have a discussion before I start, would be to
-> split the toplevel Makefile up a bit, so that the 'pure kbuild' bits
-> were moved into an include file. It's really that include file, not the
-> toplevel Makefile that would need to be copied.
-> 
-> I suggest doing this because most of the make-related knowledge about
-> kbuild itself is in that Makefile, but non-kernel users would not want
-> the kernel specific targets.
-> 
-> I know of two other packages (busybox and ptxdist) that use kconfig now,
-> and have been contemplating it for some of my projects, as well, so I'm
-> interested enough to take the project on.
-I'm a bit confused.
-Do you want to take a copy of kbuild or kconfig?
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigC7EFC7387428A6B91949D311
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-kbuild is much more intiminate than kconfig althougth the latter has a
-few kernel only issues too.
+H. Peter Anvin wrote:
+> H. Peter Anvin wrote:
+> 
+>> master.kernel.org will be offline starting shortly after 15:00
+>> PDT/22:00 UTC today, September 19, 2005; for a move to the University
+>> of Oregon Open Source Lab.  This should give much better bandwidth and
+>> a more reliable backup solution, in addition to access to a real,
+>> staffed NOC.
+> 
+> 
+> That should have been Oregon State University Open Source Lab.  Mea culpa.
+> 
+>     -hpa
 
-	Sam
+Btw, to any one interested Scott Kveton posted photos of the welcoming
+party here this morning. :-)
+
+http://osuosl.org/photos/kernel/view
+
+-- 
+Michael Marineau
+marineam@osuosl.org
+Open Source Lab
+Oregon State University
+
+--------------enigC7EFC7387428A6B91949D311
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFDLRfziP+LossGzjARAjmvAKDHHWgLc5sbATorM629XMfjaRFtkQCfVskx
+7oxN4nQF3eYMAbL+QU9i9BE=
+=XCtb
+-----END PGP SIGNATURE-----
+
+--------------enigC7EFC7387428A6B91949D311--

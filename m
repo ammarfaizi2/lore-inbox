@@ -1,83 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbVIRKGd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750871AbVIRKV5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750756AbVIRKGd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 06:06:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750829AbVIRKGd
+	id S1750871AbVIRKV5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 06:21:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750876AbVIRKV5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 06:06:33 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:57103 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1750756AbVIRKGd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 06:06:33 -0400
-Date: Sun, 18 Sep 2005 11:06:27 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Al Viro <viro@ftp.linux.org.uk>
-Subject: p = kmalloc(sizeof(*p), )
-Message-ID: <20050918100627.GA16007@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@osdl.org>, Al Viro <viro@ftp.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 18 Sep 2005 06:21:57 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:65187 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S1750871AbVIRKV5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Sep 2005 06:21:57 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: chriswhite@gentoo.org
+Subject: Re: I request inclusion of reiser4 in the mainline kernel
+Date: Sun, 18 Sep 2005 13:21:23 +0300
+User-Agent: KMail/1.8.2
+Cc: Christoph Hellwig <hch@infradead.org>, Hans Reiser <reiser@namesys.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+References: <432AFB44.9060707@namesys.com> <200509171415.50454.vda@ilport.com.ua> <200509180934.50789.chriswhite@gentoo.org>
+In-Reply-To: <200509180934.50789.chriswhite@gentoo.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Message-Id: <200509181321.23211.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sunday 18 September 2005 03:34, Chris White wrote:
+> CC-List trimmed
+> 
+> On Saturday 17 September 2005 20:15, Denis Vlasenko wrote:
+> > > At least reiser4 is smaller. IIRC xfs is older than reiser4 and had more
+> > > time to optimize code size, but:
+> > >
+> > > reiser4        2557872 bytes
+> > > xfs            3306782 bytes
+> >
+> > And modules sizes:
+> >
+> > reiser4.ko        442012 bytes
+> > xfs.ko            494337 bytes
+> 
+> All this is fine and dandy, but saying "My code is better than yours!!" still 
+> doesn't solve the issue this thread hopes to achieve, that being "I'd like to 
+> get reiser4 into the kernel".  There seems to be a lot of (historical?) 
+> tension present here, but all that seems to be doing is making things worse.  
+> PLEASE keep this thing a tad on par.  Keeping this up is hurting everyone 
+> more than helping.  I wish I could say something as simple as "let's just be 
+> friends", but that's saying a lot.  I can say this though: this is open 
+> source, and that means that our source is open, and we should be too.
 
-In todays git update, the following text has been added to the coding
-style document:
+I am trying to say that I think that Hans is being treated a bit unfairly.
+His fs is new and has fairly complex on-disk structure and complex journalling
+machinery, yet his source and object code is smaller than xfs which already
+is accepted. This is no easy feat I guess.
 
-+The preferred form for passing a size of a struct is the following:
-+
-+       p = kmalloc(sizeof(*p), ...);
-+
-+The alternative form where struct name is spelled out hurts readability and
-+introduces an opportunity for a bug when the pointer variable type is changed
-+but the corresponding sizeof that is passed to a memory allocator is not.
+Maybe xfs shouldn't be accepted too, this may be an answer.
 
-I completely disagree with the above assertion for the following
-reasons:
+Let's look at the code. Hans' code is not _that_ awful. Yet people
+(not all of them, but some) do not point to specific things which they
+want to be fixed/improved. I see blanket arguments like "your code is hard
+to read". Well. Maybe spend a minute on what exactly is hard to read,
+or do we require Hans to be able to read minds from the distance?
 
-1. The above implies that the common case is that we are changing the
-   names of structures more frequently than we change the contents of
-   structures.  Reality is that we change the contents of structures
-   more often than the names of those structures.
-
-   Why is this relevant?  If you change the contents of structures,
-   they need checking for initialisation.  How do you find all the
-   locations that need initialisation checked?  Via grep.  The problem
-   is that:
-
-	p = kmalloc(sizeof(*p), ...)
-
-   is not grep-friendly, and can not be used to identify potential
-   initialisation sites.  However:
-
-	p = kmalloc(sizeof(struct foo), ...)
-
-   is grep-friendly, and will lead you to inspect each place where
-   such a structure is allocated for correct initialisation.
-
-2. in the rare case that you're changing the name of a structure, you're
-   grepping the source for all instances for struct old_name, or doing
-   a search and replace for struct old_name.  You will find all instances
-   of struct old_name by this method and the bug alluded to will not
-   happen.
-
-3. if you are changing the name of a structure, in order to ensure that
-   everyone gets fixed up correctly, you do not want to keep an old
-   declaration of the structure around, unless you have a very very good
-   reason to do so.  This will ensure that any missed old structure
-   names (eg, because of merging of independent concurrent threads of
-   development) get caught.  As a result, any sizeof(struct) also gets
-   caught.
-
-So the assertion above that kmalloc(sizeof(*p) is somehow superiour is
-rather flawed, and as such should not be in the Coding Style document.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+This is it. I do not say "accept reiser4 NOW", I am saying "give Hans
+good code review".
+--
+vda

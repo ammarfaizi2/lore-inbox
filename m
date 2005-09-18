@@ -1,87 +1,204 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932067AbVIRN5q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932084AbVIROXf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932067AbVIRN5q (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 09:57:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932069AbVIRN5q
+	id S932084AbVIROXf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 10:23:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbVIROX3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 09:57:46 -0400
-Received: from sero.dbtech.de ([195.4.70.70]:50697 "HELO mx0.dbtech.de")
-	by vger.kernel.org with SMTP id S932067AbVIRN5p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 09:57:45 -0400
-From: Christian Fischer <Christian.Fischer@fischundfischer.com>
-Organization: Fisch+Fischer Veranstaltungstechnik
-To: linux-kernel@vger.kernel.org
-Subject: x86: mounting scsi-cdrom: kernel panic with vanilla and others, works with ac
-Date: Sun, 18 Sep 2005 15:57:37 +0200
-User-Agent: KMail/1.8.1
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart8419541.yv7yg6G5B1";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200509181557.37934.Christian.Fischer@fischundfischer.com>
-X-Spam-HITS: -4.5
+	Sun, 18 Sep 2005 10:23:29 -0400
+Received: from ppp-62-11-75-109.dialup.tiscali.it ([62.11.75.109]:32947 "EHLO
+	zion.home.lan") by vger.kernel.org with ESMTP id S932075AbVIROXR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Sep 2005 10:23:17 -0400
+From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
+Subject: [PATCH 12/12] HPPFS: fix nameidata handling
+Date: Sun, 18 Sep 2005 16:10:09 +0200
+To: Antoine Martin <antoine@nagafix.co.uk>, Al Viro <viro@zeniv.linux.org.uk>
+Cc: Jeff Dike <jdike@addtoit.com>
+Cc: user-mode-linux-devel@lists.sourceforge.net
+Cc: LKML <linux-kernel@vger.kernel.org>
+Message-Id: <20050918141009.31461.43507.stgit@zion.home.lan>
+In-Reply-To: 200509181400.39120.blaisorblade@yahoo.it
+References: 200509181400.39120.blaisorblade@yahoo.it
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart8419541.yv7yg6G5B1
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-Hi all.
+In follow_link, we call the underlying method with the same nameidata we got -
+it will then call path_release() and then dput()/mntput() on hppfs dentries /
+vfsmount rather than his own, which could be problematic (I'm not really sure,
+however).
 
-Some days ago I've tried 2.6.12-cko3 and got "Kernel panic - not syncing:=20
-=46atal exception in interrupt" by mounting the cdrom (scsi). Known problem=
- I=20
-thought, I had this if I tried to switch from 2.6.11-ac7 to 2.6.11-gentoo.=
-=20
+This issue exists potentially also for other methods getting nameidata. Fix
+this.
 
-To point out if this is a problem of gentoo-base patches or cko-patches i=20
-tried 2.6.12-vanilla and got Kernel panic.
+However, I couldn't make a lot of sense of the reference counting used in
+namei.c. So I'm uncertain whether this patch makes sense. Al, please have a
+critical eye toward this one. Especially, proc_pid_follow_link calls
+path_release itself. Which makes me wonder a lot.
 
-Mainboard: SuperMicro MBD-P4SCT-0
-Chipset: Intel 875
-CPU: Intel P4 2,4=20
-Memory: ECC
-SCSI: Tekram TRM-S1040
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
 
-CONFIG_X86_GOOD_APIC=3Dy
-# CONFIG_X86_UP_APIC is not set
+ fs/hppfs/hppfs_kern.c |   76 ++++++++++++++++++++++++++++++++++++++++++++++---
+ 1 files changed, 71 insertions(+), 5 deletions(-)
 
-CONFIG_SCSI=3Dy
-CONFIG_SCSI_PROC_FS=3Dy
-CONFIG_SCSI_MULTI_LUN=3Dy
-CONFIG_SCSI_CONSTANTS=3Dy
-CONFIG_SCSI_SPI_ATTRS=3Dm
-CONFIG_SCSI_SATA=3Dy
-CONFIG_SCSI_ATA_PIIX=3Dy
-CONFIG_SCSI_SYM53C8XX_2=3Dm
-CONFIG_SCSI_SYM53C8XX_DMA_ADDRESSING_MODE=3D1
-CONFIG_SCSI_SYM53C8XX_DEFAULT_TAGS=3D16
-CONFIG_SCSI_SYM53C8XX_MAX_TAGS=3D64
-CONFIG_SCSI_QLA2XXX=3Dy
-CONFIG_SCSI_DC395x=3Dy
-CONFIG_SCSI_DC390T=3Dy
-
-
-Regards
-Christian
-=2D-=20
-
---nextPart8419541.yv7yg6G5B1
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDLXJRszmQKstIgt4RAgjTAKDBWtlOr+X6eOdBFMlTYzEDxFMIJACeIXTZ
-Sl9ea0g1KpMVmuD95290X6I=
-=Gusf
------END PGP SIGNATURE-----
-
---nextPart8419541.yv7yg6G5B1--
+diff --git a/fs/hppfs/hppfs_kern.c b/fs/hppfs/hppfs_kern.c
+--- a/fs/hppfs/hppfs_kern.c
++++ b/fs/hppfs/hppfs_kern.c
+@@ -15,6 +15,7 @@
+ #include <linux/dcache.h>
+ #include <linux/statfs.h>
+ #include <linux/mount.h>
++#include <linux/namei.h>
+ #include <asm/uaccess.h>
+ #include <asm/fcntl.h>
+ #include "os.h"
+@@ -106,8 +107,12 @@ static char *dentry_name(struct dentry *
+ 
+ static int hppfs_d_revalidate(struct dentry * dentry, struct nameidata * nd)
+ {
++	struct dentry *sav_dentry;
++	struct vfsmount *sav_mnt;
++
+ 	int (*d_revalidate)(struct dentry *, struct nameidata *);
+ 	struct dentry *proc_dentry;
++	int ret;
+ 
+ 	proc_dentry = HPPFS_I(dentry->d_inode)->proc_dentry;
+ 	if (proc_dentry->d_op && proc_dentry->d_op->d_revalidate)
+@@ -115,7 +120,17 @@ static int hppfs_d_revalidate(struct den
+ 	else
+ 		return 1; /* "Still valid" code */
+ 
+-	return (*d_revalidate)(proc_dentry, nd);
++	sav_dentry = nd->dentry;
++	sav_mnt = nd->mnt;
++
++	nd->dentry = dget(proc_dentry);
++	nd->mnt = mntget(proc_submnt);
++	ret = (*d_revalidate)(proc_dentry, nd);
++	path_release(nd);
++
++	nd->dentry = sav_dentry;
++	nd->mnt = sav_mnt;
++	return ret;
+ }
+ 
+ static struct dentry_operations hppfs_dentry_ops = {
+@@ -175,6 +190,9 @@ static void hppfs_read_inode(struct inod
+ static struct dentry *hppfs_lookup(struct inode *parent_ino, struct dentry *dentry,
+                                   struct nameidata *nd)
+ {
++	struct dentry *sav_dentry;
++	struct vfsmount *sav_mnt;
++
+ 	struct dentry *proc_dentry, *new, *parent;
+ 	struct inode *inode;
+ 	int err, deleted;
+@@ -203,8 +221,17 @@ static struct dentry *hppfs_lookup(struc
+ 			up(&parent->d_inode->i_sem);
+ 			goto out;
+ 		}
++		sav_dentry = nd->dentry;
++		sav_mnt = nd->mnt;
++
++		nd->dentry = dget(proc_dentry);
++		nd->mnt = mntget(proc_submnt);
+ 		new = (*parent->d_inode->i_op->lookup)(parent->d_inode,
+-						       proc_dentry, NULL);
++						       proc_dentry, nd);
++		path_release(nd);
++
++		nd->dentry = sav_dentry;
++		nd->mnt = sav_mnt;
+ 		if(new){
+ 			dput(proc_dentry);
+ 			proc_dentry = new;
+@@ -213,11 +240,20 @@ static struct dentry *hppfs_lookup(struc
+ 	} else {
+ 		up(&parent->d_inode->i_sem);
+ 		if (proc_dentry->d_op && proc_dentry->d_op->d_revalidate) {
+-			if (!proc_dentry->d_op->d_revalidate(proc_dentry, NULL) &&
++			sav_dentry = nd->dentry;
++			sav_mnt = nd->mnt;
++
++			nd->dentry = dget(proc_dentry);
++			nd->mnt = mntget(proc_submnt);
++			if (!proc_dentry->d_op->d_revalidate(proc_dentry, nd) &&
+ 					!d_invalidate(proc_dentry)) {
+ 				dput(proc_dentry);
+ 				proc_dentry = ERR_PTR(-ENOENT);
+ 			}
++			path_release(nd);
++
++			nd->dentry = sav_dentry;
++			nd->mnt = sav_mnt;
+ 		}
+ 	}
+ 
+@@ -248,16 +284,32 @@ static struct dentry *hppfs_lookup(struc
+ 
+ static int hppfs_permission(struct inode *inode, int mask, struct nameidata *nd)
+ {
++	struct dentry *sav_dentry;
++	struct vfsmount *sav_mnt;
++
+ 	struct inode *proc_inode;
++	struct dentry *proc_dentry;
+ 	int (*permission) (struct inode *, int, struct nameidata *);
++	int ret;
+ 
+-	proc_inode = HPPFS_I(inode)->proc_dentry->d_inode;
++	proc_dentry = HPPFS_I(inode)->proc_dentry;
++	proc_inode = proc_dentry->d_inode;
+ 	permission = proc_inode->i_op->permission;
+ 
+ 	if (permission == NULL)
+ 		return generic_permission(inode, mask, NULL);
+ 
+-	return (*permission)(proc_inode, mask, nd);
++	sav_dentry = nd->dentry;
++	sav_mnt = nd->mnt;
++
++	nd->dentry = dget(proc_dentry);
++	nd->mnt = mntget(proc_submnt);
++	ret = (*permission)(proc_inode, mask, nd);
++	path_release(nd);
++
++	nd->dentry = sav_dentry;
++	nd->mnt = sav_mnt;
++	return ret;
+ }
+ 
+ static struct inode_operations hppfs_file_iops = {
+@@ -794,6 +846,9 @@ static int hppfs_readlink(struct dentry 
+ 
+ static void* hppfs_follow_link(struct dentry *dentry, struct nameidata *nd)
+ {
++	struct dentry *sav_dentry;
++	struct vfsmount *sav_mnt;
++
+ 	struct dentry *proc_dentry;
+ 	void * (*follow_link)(struct dentry *, struct nameidata *);
+ 	void *ret;
+@@ -808,7 +863,18 @@ static void* hppfs_follow_link(struct de
+ 	if (follow_link == NULL)
+ 		return ERR_PTR(-EOPNOTSUPP);
+ 
++	/* We have a reference on this already - so it won't go.*/
++	sav_dentry = nd->dentry;
++	sav_mnt = nd->mnt;
++
++	nd->dentry = dget(proc_dentry);
++	nd->mnt = mntget(proc_submnt);
+ 	ret = follow_link(proc_dentry, nd);
++	/* XXX: would this be done normally when calling follow_link or not? */
++	path_release(nd);
++
++	nd->dentry = sav_dentry;
++	nd->mnt = sav_mnt;
+ 
+ 	return ret;
+ }
 

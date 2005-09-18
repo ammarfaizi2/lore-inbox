@@ -1,57 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932065AbVIRNuy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932067AbVIRN5q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932065AbVIRNuy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 09:50:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932067AbVIRNuy
+	id S932067AbVIRN5q (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 09:57:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932069AbVIRN5q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 09:50:54 -0400
-Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:16655 "EHLO
-	mta07-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S932065AbVIRNuy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 09:50:54 -0400
-Date: Sun, 18 Sep 2005 14:50:51 +0100
-From: R Kimber <rkimber@ntlworld.com>
+	Sun, 18 Sep 2005 09:57:46 -0400
+Received: from sero.dbtech.de ([195.4.70.70]:50697 "HELO mx0.dbtech.de")
+	by vger.kernel.org with SMTP id S932067AbVIRN5p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Sep 2005 09:57:45 -0400
+From: Christian Fischer <Christian.Fischer@fischundfischer.com>
+Organization: Fisch+Fischer Veranstaltungstechnik
 To: linux-kernel@vger.kernel.org
-Subject: kswapd0 uses 98% of cpu with 2.6.11
-Message-Id: <20050918145051.4b244894.rkimber@ntlworld.com>
-X-Mailer: Sylpheed version 2.0.0 (GTK+ 2.6.4; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Subject: x86: mounting scsi-cdrom: kernel panic with vanilla and others, works with ac
+Date: Sun, 18 Sep 2005 15:57:37 +0200
+User-Agent: KMail/1.8.1
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart8419541.yv7yg6G5B1";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200509181557.37934.Christian.Fischer@fischundfischer.com>
+X-Spam-HITS: -4.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a 2GB dual opteron workstation running Ubuntu 5.04 with
-2.6.11-1-amd64-k8-smp on MSI K8T Master2-FAR
+--nextPart8419541.yv7yg6G5B1
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-I am experiencing kswapd using 98% of cpu.  My Googling implied that
-this had been fixed in 2.6.11 - is there still a known problem?  I
-wasn't very clear about this after searching the archives, and I'd be
-grateful for information - I'm not an expert I'm afraid, and I'd like
-to be sure it isn't a hardware problem. If there is a problem, is there
-a workaround (e.g. a boot parameter that I might supply?) or is it OK
-simply to allow the cpu usage to continue (temperatures are only a
-couple of degrees higher).
+Hi all.
 
-I don't know if it's relevent but I notice that dmesg reports:-
+Some days ago I've tried 2.6.12-cko3 and got "Kernel panic - not syncing:=20
+=46atal exception in interrupt" by mounting the cdrom (scsi). Known problem=
+ I=20
+thought, I had this if I tried to switch from 2.6.11-ac7 to 2.6.11-gentoo.=
+=20
 
-Restarting tasks...<6> Strange, khubd not stopped
- Strange, kswapd0 not stopped
- Strange, kseriod not stopped
- done
+To point out if this is a problem of gentoo-base patches or cko-patches i=20
+tried 2.6.12-vanilla and got Kernel panic.
 
-Swap is not actually used:-
+Mainboard: SuperMicro MBD-P4SCT-0
+Chipset: Intel 875
+CPU: Intel P4 2,4=20
+Memory: ECC
+SCSI: Tekram TRM-S1040
 
-             total       used     free     shared    buffers
-cached Mem:   2055816   438068    1617748   0
-49528  164808
- -/+ buffers/cache:     223732    1832084
-Swap:      2104464          0    2104464
+CONFIG_X86_GOOD_APIC=3Dy
+# CONFIG_X86_UP_APIC is not set
 
-I'd appreciate a Cc, as I'm not subscribed.
-Thanks,
-- Richard.
--- 
-Richard Kimber
-http://www.psr.keele.ac.uk/
-rkimber@ntlworld.com
+CONFIG_SCSI=3Dy
+CONFIG_SCSI_PROC_FS=3Dy
+CONFIG_SCSI_MULTI_LUN=3Dy
+CONFIG_SCSI_CONSTANTS=3Dy
+CONFIG_SCSI_SPI_ATTRS=3Dm
+CONFIG_SCSI_SATA=3Dy
+CONFIG_SCSI_ATA_PIIX=3Dy
+CONFIG_SCSI_SYM53C8XX_2=3Dm
+CONFIG_SCSI_SYM53C8XX_DMA_ADDRESSING_MODE=3D1
+CONFIG_SCSI_SYM53C8XX_DEFAULT_TAGS=3D16
+CONFIG_SCSI_SYM53C8XX_MAX_TAGS=3D64
+CONFIG_SCSI_QLA2XXX=3Dy
+CONFIG_SCSI_DC395x=3Dy
+CONFIG_SCSI_DC390T=3Dy
+
+
+Regards
+Christian
+=2D-=20
+
+--nextPart8419541.yv7yg6G5B1
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDLXJRszmQKstIgt4RAgjTAKDBWtlOr+X6eOdBFMlTYzEDxFMIJACeIXTZ
+Sl9ea0g1KpMVmuD95290X6I=
+=Gusf
+-----END PGP SIGNATURE-----
+
+--nextPart8419541.yv7yg6G5B1--
+

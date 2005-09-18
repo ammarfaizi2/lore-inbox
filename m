@@ -1,63 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbVIRWlf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbVIRWpV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932241AbVIRWlf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 18:41:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932243AbVIRWlf
+	id S932231AbVIRWpV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 18:45:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbVIRWpV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 18:41:35 -0400
-Received: from h80ad24e0.async.vt.edu ([128.173.36.224]:40581 "EHLO
-	h80ad24e0.async.vt.edu") by vger.kernel.org with ESMTP
-	id S932241AbVIRWlf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 18:41:35 -0400
-Message-Id: <200509182241.j8IMfPMf007285@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Grzegorz Piotr Jaskiewicz <gj@kdemail.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: dell's latitude cdburner problem 
-In-Reply-To: Your message of "Sun, 18 Sep 2005 22:57:21 +0200."
-             <200509182257.23363@gj-laptop> 
-From: Valdis.Kletnieks@vt.edu
-References: <200509182257.23363@gj-laptop>
+	Sun, 18 Sep 2005 18:45:21 -0400
+Received: from main.gmane.org ([80.91.229.2]:49807 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932231AbVIRWpT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Sep 2005 18:45:19 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: sean <seandarcy2@gmail.com>
+Subject: Re: git3 build dies at net/built-in.o: undefined __nfa_fill
+Date: Sun, 18 Sep 2005 18:43:07 -0400
+Message-ID: <dgkqhs$qt0$1@sea.gmane.org>
+References: <dgfp9f$7i8$1@sea.gmane.org> <432C132A.8020301@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1127083284_2682P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Sun, 18 Sep 2005 18:41:24 -0400
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ool-4577675c.dyn.optonline.net
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.11) Gecko/20050914 Fedora/1.7.11-5
+X-Accept-Language: en-us, en
+In-Reply-To: <432C132A.8020301@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1127083284_2682P
-Content-Type: text/plain; charset=us-ascii
-
-On Sun, 18 Sep 2005 22:57:21 +0200, Grzegorz Piotr Jaskiewicz said:
-> Hi folks
+Jiri Slaby wrote:
+> sean napsal(a):
 > 
-> I don't know whether this is linuxes cdrecord issue, or kernel issue.
-> I have dell latitude c640 laptop with their's dvd/cd-rw combo drive that 
-> appears as:
-> hdc: ATAPI 24X DVD-ROM CD-R/RW drive, 2048kB Cache
+>> On amd64, gcc-4.0.1:
+>>
+>> .....
+>>   GEN     .version
+>>   CHK     include/linux/compile.h
+>>   UPD     include/linux/compile.h
+>>   CC      init/version.o
+>>   LD      init/built-in.o
+>>   LD      .tmp_vmlinux1
+>> net/built-in.o: In function `ip_ct_port_tuple_to_nfattr':
+>> : undefined reference to `__nfa_fill'
+.............
+> 
+> .config needed
+> NETFILTER_NETLINK is not selected, maybe.
+> 
 
-For what it's worth, my Dell Latitude C840 reports this:
+Nope.
 
- hdb: TOSHIBA CD-RW/DVD-ROM SD-R2102, ATAPI CD/DVD-ROM drive
- hdb: ATAPI 24X DVD-ROM CD-R/RW drive, 2048kB Cache, UDMA(33)
+  grep NETFILTER .config
+CONFIG_NETFILTER=y
+# CONFIG_NETFILTER_DEBUG is not set
+CONFIG_NETFILTER_NETLINK=m
+CONFIG_NETFILTER_NETLINK_QUEUE=m
+CONFIG_NETFILTER_NETLINK_LOG=m
 
-So it's quite likely the same part.  Careful reading of the specs shows
-that it's rated for 24x *reading*, but only 8X *writing*.  Are you *sure*
-that it *actually* manages 24X writing under Windows? (Does burning a 72-minute
-or 700M image take about 9 minutes (8X), or does it finish in about 3 minutes
-(24X))?
+sean
 
---==_Exmh_1127083284_2682P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFDLe0UcC3lWbTT17ARAgYMAKCCxEdmgyd31VqJyhG/ufAZoAz0sgCfTn1g
-IAZTlDkTBRsJICyqVQpboGo=
-=9X0v
------END PGP SIGNATURE-----
-
---==_Exmh_1127083284_2682P--

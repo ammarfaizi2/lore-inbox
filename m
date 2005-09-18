@@ -1,54 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932212AbVIRVaw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbVIRVnd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932212AbVIRVaw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 17:30:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932213AbVIRVaw
+	id S932214AbVIRVnd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 17:43:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbVIRVnd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 17:30:52 -0400
-Received: from mx1.rowland.org ([192.131.102.7]:58385 "HELO mx1.rowland.org")
-	by vger.kernel.org with SMTP id S932212AbVIRVav (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 17:30:51 -0400
-Date: Sun, 18 Sep 2005 17:30:50 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: Alexey Dobriyan <adobriyan@gmail.com>
-cc: linux-usb-devel@lists.sourceforge.net, <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-usb-devel] URB_ASYNC_UNLINK b0rkage
-In-Reply-To: <20050918190526.GB787@mipter.zuzino.mipt.ru>
-Message-ID: <Pine.LNX.4.44L0.0509181718360.2126-100000@netrider.rowland.org>
+	Sun, 18 Sep 2005 17:43:33 -0400
+Received: from sccimhc91.asp.att.net ([63.240.76.165]:39568 "EHLO
+	sccimhc91.asp.att.net") by vger.kernel.org with ESMTP
+	id S932214AbVIRVnc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Sep 2005 17:43:32 -0400
+Message-ID: <432DDF7A.3050704@teleformix.com>
+Date: Sun, 18 Sep 2005 16:43:22 -0500
+From: Dan Oglesby <doglesby@teleformix.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: David Masover <ninja@slaphack.com>
+CC: Horst von Brand <vonbrand@inf.utfsm.cl>, thenewme91@gmail.com,
+       Christoph Hellwig <hch@infradead.org>,
+       Denis Vlasenko <vda@ilport.com.ua>, chriswhite@gentoo.org,
+       Hans Reiser <reiser@namesys.com>, LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: I request inclusion of reiser4 in the mainline kernel
+References: <200509182004.j8IK4JNx012764@inti.inf.utfsm.cl> <432DCE2A.5070705@slaphack.com>
+In-Reply-To: <432DCE2A.5070705@slaphack.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 18 Sep 2005, Alexey Dobriyan wrote:
+David Masover wrote:
 
-> Perhaps, another press release to explain breakage of allmodconfig is
-> needed.
-> ------------------------------------------------------------------------
-> drivers/usb/host/hc_crisv10.c:	if (urb->transfer_flags & URB_ASYNC_UNLINK) {
-> drivers/usb/host/hc_crisv10.c:		/* If URB_ASYNC_UNLINK is set:
-> drivers/usb/host/hc_crisv10.c:		warn("URB_ASYNC_UNLINK set, ignoring.");
-> drivers/usb/misc/uss720.c:	/* rq->urb->transfer_flags |= URB_ASYNC_UNLINK; */
-> drivers/isdn/hisax/st5481_b.c:	b_out->urb[0]->transfer_flags |= URB_ASYNC_UNLINK;
-> drivers/isdn/hisax/st5481_b.c:	b_out->urb[1]->transfer_flags |= URB_ASYNC_UNLINK;
-> drivers/isdn/hisax/st5481_usb.c:	in->urb[0]->transfer_flags |= URB_ASYNC_UNLINK;
-> drivers/isdn/hisax/st5481_usb.c:	in->urb[1]->transfer_flags |= URB_ASYNC_UNLINK;
-> Documentation/usb/URB.txt:the URB_ASYNC_UNLINK flag in urb->transfer flags before calling
+> Horst von Brand wrote:
+>
+>> There are lots of reports of ReiserFS 3
+>> filesystems completely destroyed by minor hardware flakiness.
+>
+>
+> Honestly, this is one of the things I like about Linux.  If I have 
+> memory errors, Windows will just keep running, occasionally something 
+> will crash, you restart it, never suspecting just how corrupt things 
+> are getting under the hood.  On Linux, I generally get kernel panics 
+> pretty quickly, so I run memtest86 and replace the RAM.
+>
+> If my hardware is flaky, I consider it my job to replace it, not the 
+> job of all my software to magically compensate for it.  If I lose 
+> data, oh well, I have backups.  If I didn't, I was asking for trouble 
+> anyway.
 
-hc_crisv10 is long out-of-date and doesn't even build, as you saw.  Is 
-anyone still using it?  It probably should be removed from the Makefile.
+I'm of the same opinion.  If I have hardware that has a problem, and 
+causes downtime, it gets replaced or repaired.  I don't switch to a 
+different piece of software to compensate for broken hardware.
 
-The line in drivers/usb/misc/uss720.c is just a comment.  Presumably it 
-can be taken out with no harm done.
+With that said, I have seen ReiserFS expose hardware that had problems.  
+Hardware was repaired, and ReiserFS rides again.
 
-In my kernel tree, the st5481 source files don't include the lines you 
-show.  What source version are you using?
-
-Finally, the URB.txt documentation file clearly states at the beginning 
-that it is out of date.  However it wouldn't hurt to fix it up a little.  
-I'll send in a patch to do so.
-
-Alan Stern
-
+--Dan

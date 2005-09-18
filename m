@@ -1,74 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751173AbVIRLh7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751179AbVIRLpN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751173AbVIRLh7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 07:37:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbVIRLh7
+	id S1751179AbVIRLpN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 07:45:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbVIRLpN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 07:37:59 -0400
-Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:48613 "HELO
-	develer.com") by vger.kernel.org with SMTP id S1751173AbVIRLh7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 07:37:59 -0400
-Message-ID: <432D517F.2000604@develer.com>
-Date: Sun, 18 Sep 2005 13:37:35 +0200
-From: Bernardo Innocenti <bernie@develer.com>
-User-Agent: Mozilla Thunderbird 1.0.6-5 (X11/20050818)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjanv@redhat.com>
-CC: Development discussions related to Fedora Core 
-	<fedora-devel-list@redhat.com>,
-       Nalin Dahyabhai <nalin@redhat.com>, lkml <linux-kernel@vger.kernel.org>,
-       Arjan van de Ven <arjanv@redhat.com>
-Subject: RFA: Changing scheduler quantum (Was: REQUEST: OpenLDAP 2.3.7)
-References: <432B9F4A.6070805@develer.com> <1126982265.3010.12.camel@localhost.localdomain> <432CBABC.8090906@develer.com> <20050918013247.GA31974@devserv.devel.redhat.com> <432CD09A.2060201@develer.com> <20050918110524.GA23910@devserv.devel.redhat.com>
-In-Reply-To: <20050918110524.GA23910@devserv.devel.redhat.com>
-X-Enigmail-Version: 0.91.0.0
-OpenPGP: id=FC6A66CA;
-	url=https://www.develer.com/~bernie/gpgkey.txt
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sun, 18 Sep 2005 07:45:13 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:62901 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751179AbVIRLpL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Sep 2005 07:45:11 -0400
+Date: Sun, 18 Sep 2005 06:44:49 -0500
+From: Jack Steiner <steiner@sgi.com>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: linville@tuxdriver.com, tony.luck@gmail.com, kaos@sgi.com, greg@kroah.com,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: 2.6.14-rc1 breaks tg3 on ia64
+Message-ID: <20050918114449.GA6733@sgi.com>
+References: <25288.1126596450@kao2.melbourne.sgi.com> <12c511ca05091708476aa136cd@mail.gmail.com> <20050917155911.GB19854@tuxdriver.com> <20050917.232304.31192760.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050917.232304.31192760.davem@davemloft.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-
-> On Sun, Sep 18, 2005 at 04:27:38AM +0200, Bernardo Innocenti wrote:
+On Sat, Sep 17, 2005 at 11:23:04PM -0700, David S. Miller wrote:
+> From: "John W. Linville" <linville@tuxdriver.com>
+> Date: Sat, 17 Sep 2005 11:59:14 -0400
 > 
->>It's more meaningful to interpret sched_yield() as "give up the processor,
->>as if the scheduler quantum had expired".
+> > I posted a patch on Wednesday:
+> > 
+> > 	http://www.ussg.iu.edu/hypermail/linux/kernel/0509.1/2193.html
+> > 
+> > The original reporter (Keith Owens <kaos@sgi.com>) confirmed this
+> > patch to fix the problem.
 > 
-> afaik this is *exactly* what the new sched_yield() does ;)
+> It fixes the problem, but it's a hack, and I, perhaps like Tony,
+> personally would like to know why the these IA64 systems break for
+> such a simple operation such as writing some base registers with
+> values we've probed already.
 
-Oops :-)
+Here is the mail from Mike Habeck (sgi) - he understands the problem
+muck better than I do:
 
+(from Mike....)
+The problem is we (sgi) don't support the ACPI pci_window stuff that
+is setup via ACPI (see: add_window() code).  And as a result when
+pci_restore_bars() is called to restore the BARs, instead of the BARs
+getting "restored" they get wiped out.  (pci_restore_bars() calls
+pci_update_resource() which calls pcibios_resource_to_bus()... it
+is that routine that is expecting the pci_window stuff being set up
+from the ACPI path... I think... (I don't know much about how the ACPI
+stuff works, John or Aaron could probably prove me right or wrong)...
+So John (or Aaron) is it ACPI that is suppose to setup this pci_window
+stuff?
 
->>The scheduler wouldn't normally allow a lower priority process to
->>preempt a high-priority ready process for 30+ ms.  Unless I'm
->>mistaken about Linux's scheduling policy...
-> 
-> if your quantum is up... all other tasks get theirs of course
+I still question why this code path is taken... I don't know anything
+about the PCI Power Management stuff, but we shouldn't be in any power
+state that results in us needing our BARs restored.  But I guess that
+really isn't the issue since sooner or later something else will end
+up using this pci_window stuff and we'll get burned them.
 
-I assumed dynamic priorities affected the length of the
-quantum, but maybe it just changes the number of times
-the process is scheduled wrt other processes, with the
-quantum being fixed at 20-30ms.
+I suppose for a quick fix (to workaround this power management patch)
+could be to set the PCI_PM_CTRL_NO_SOFT_RESET in the cards PM capability
+down in PROM thus bypassing this "need_restore" code.
 
-(...a few seconds later...)
+I suppose for a quick fix (to workaround this power management patch)
+could be to set the PCI_PM_CTRL_NO_SOFT_RESET in the cards PM capability
+down in PROM thus bypassing this "need_restore" code.
 
-Skimming through sched.c, it seems my first guess was
-right: the quantum varies with the priority from 5ms
-to 800ms.
+        /* If we're in D3, force entire word to 0.
+         * This doesn't affect PME_Status, disables PME_En, and
+         * sets PowerState to 0.
+         */
+        if (dev->current_state >= PCI_D3hot) {
+                if (!(pmcsr & PCI_PM_CTRL_NO_SOFT_RESET))
+                        need_restore = 1;
+                pmcsr = 0;
+        } else {
+                pmcsr &= ~PCI_PM_CTRL_STATE_MASK;
+                pmcsr |= state;
+        }
 
-The DEF_TIMESLICE of 400ms looks a bit too gross for
-most applications and the maximum 800ms is just
-ridicolously high.
+Or in the kernel sgi device fixup code change the current_state to D0?
+It looks like it get's init'd to PCI_UNKNOWN (which is > PCI_D3hot)
+I don't know... will investigate more tomorrow
 
-IIRC, the 7.14MHz 68000 in the Amiga 500 did task-switching
-at 20ms intervals, with a negligible performance hit.
-Couldn't do much better on today's CPUs?
+-mike
 
 -- 
-  // Bernardo Innocenti - Develer S.r.l., R&D dept.
-\X/  http://www.develer.com/
+Thanks
+
+Jack Steiner (steiner@sgi.com)          651-683-5302
+Principal Engineer                      SGI - Silicon Graphics, Inc.
+
 

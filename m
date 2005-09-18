@@ -1,61 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932189AbVIRUfE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932192AbVIRUgV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932189AbVIRUfE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 16:35:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932190AbVIRUfE
+	id S932192AbVIRUgV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 16:36:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932195AbVIRUgV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 16:35:04 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:34455 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932189AbVIRUfB (ORCPT
+	Sun, 18 Sep 2005 16:36:21 -0400
+Received: from iabervon.org ([66.92.72.58]:47877 "EHLO iabervon.org")
+	by vger.kernel.org with ESMTP id S932192AbVIRUgU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 16:35:01 -0400
-Date: Sun, 18 Sep 2005 22:34:16 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Al Viro <viro@ftp.linux.org.uk>
-cc: Linus Torvalds <torvalds@osdl.org>, Willy Tarreau <willy@w.ods.org>,
-       Robert Love <rml@novell.com>, Russell King <rmk+lkml@arm.linux.org.uk>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: p = kmalloc(sizeof(*p), )
-In-Reply-To: <20050918174549.GN19626@ftp.linux.org.uk>
-Message-ID: <Pine.LNX.4.61.0509182222030.3743@scrub.home>
-References: <20050918100627.GA16007@flint.arm.linux.org.uk>
- <1127061146.6939.6.camel@phantasy> <20050918165219.GA595@alpha.home.local>
- <20050918171845.GL19626@ftp.linux.org.uk> <Pine.LNX.4.58.0509181028140.26803@g5.osdl.org>
- <20050918174549.GN19626@ftp.linux.org.uk>
+	Sun, 18 Sep 2005 16:36:20 -0400
+Date: Sun, 18 Sep 2005 16:40:35 -0400 (EDT)
+From: Daniel Barkalow <barkalow@iabervon.org>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+cc: Krzysztof Halasa <khc@pm.waw.pl>, linux-kernel@vger.kernel.org
+Subject: Re: Why don't we separate menuconfig from the kernel?
+In-Reply-To: <9a87484905091718163bb72e58@mail.gmail.com>
+Message-ID: <Pine.LNX.4.63.0509181604460.23242@iabervon.org>
+References: <m364szk426.fsf@defiant.localdomain>  <9a874849050917174635768d04@mail.gmail.com>
+  <m3d5n7kwwz.fsf@defiant.localdomain> <9a87484905091718163bb72e58@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, 18 Sep 2005, Jesper Juhl wrote:
 
-On Sun, 18 Sep 2005, Al Viro wrote:
-
-> > On Sun, 18 Sep 2005, Al Viro wrote:
-> > > 
-> > > That's why you do
-> > > 	*p = (struct foo){....};
-> > > instead of
-> > > 	memset(p, 0, sizeof...);
-> > > 	p->... =...;
+> On 18 Sep 2005 03:05:32 +0200, Krzysztof Halasa <khc@pm.waw.pl> wrote:
+> > Jesper Juhl <jesper.juhl@gmail.com> writes:
 > > 
-> > Actually, some day that migth be a good idea, but at least historically, 
-> > gcc has really really messed that kind of code up.
+> > > What exactely is it you want to make a sepperate package?
 > > 
-> > Last I looked, depending on what the initializer was, gcc would create a 
-> > temporary struct on the stack first, and then do a "memcpy()" of the 
-> > result. Not only does that obviously generate a lot of extra code, it also 
-> > blows your kernel stack to kingdom come.
+> > Just the menuconfig (mconf) at first. OTOH it might make sense to
+> > move them all.
+> > 
 > 
-> Ewwwww...  I'd say that it qualifies as one hell of a bug (and yes, at least
-> 3.3 and 4.0.1 are still doing that).  What a mess...
+> And if you do that, then you'd be shipping a kernel source that it
+> would be impossible for users to configure without installing
+> sepperate tools - and tools (unlike for example gcc) that very few
+> people would have a need for outside configuring their kernel.
+> Not a good idea in my oppinion.
 
-It's not a bug, it's exactly what you're asking for, e.g. "*p1 = *p2" 
-translates to memcpy. gcc also can't simply initialize that structure in 
-place, e.g. you could do something like this (not necessarily useful but 
-still valid): "*p = (struct foo){...,  bar(p),...};".
-In the end it all depends on how good gcc can optimize away the memcpy, 
-but initially there is always a memcpy.
+There are, in my opinion, two issues: where is kconfig maintained, and is 
+it shipped with the kernel. I think each kernel tarball should contain the 
+version of kconfig it expects to be configured with, because there isn't a 
+commitment to having kconfig be compatible between versions. On the other 
+hand, I don't see any reason that it has to be maintained in the kernel's 
+git repositories.
 
-bye, Roman
+Git actually supports this. Sam could have a repository with only the 
+kbuild files, and people could pull it normally, and it would all work 
+trivially (so long as people didn't try to modify kbuild by sending 
+patches to Linus). The only tricky thing is that this repository can't 
+have the linux-with-kbuild repository as an ancestor, because then it 
+would remove stuff; so, if people want kbuild history, it would need to be 
+recreated separately.
+
+The advantage would be that people who wanted the latest version of kbuild 
+could always get it without the kernel; the disadvantage is that kernel 
+developers who want to change kbuild would have to remember not to send 
+this changes into the kernel tree. I don't know if it would be more or 
+less convenient for Sam not to have the rest of the kernel tree around 
+kbuild.
+
+	-Daniel
+*This .sig left intentionally blank*

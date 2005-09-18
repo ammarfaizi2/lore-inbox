@@ -1,40 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750860AbVIRUBU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751322AbVIRUHJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750860AbVIRUBU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 16:01:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751210AbVIRUBU
+	id S1751322AbVIRUHJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 16:07:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751327AbVIRUHJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 16:01:20 -0400
-Received: from mail.ctyme.com ([69.50.231.10]:62351 "EHLO newton.ctyme.com")
-	by vger.kernel.org with ESMTP id S1750860AbVIRUBT (ORCPT
+	Sun, 18 Sep 2005 16:07:09 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:55730 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751322AbVIRUHH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 16:01:19 -0400
-Message-ID: <432DC78F.7040901@perkel.com>
-Date: Sun, 18 Sep 2005 13:01:19 -0700
-From: Marc Perkel <marc@perkel.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.10) Gecko/20050716
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Spam Filtering for Kernel mailing list
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 18 Sep 2005 16:07:07 -0400
+Date: Sun, 18 Sep 2005 13:06:13 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: arjanv@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] introduce setup_timer() helper
+Message-Id: <20050918130613.5bbe9344.akpm@osdl.org>
+In-Reply-To: <432D9432.5C5B64D6@tv-sign.ru>
+References: <432D70C8.EF7B0438@tv-sign.ru>
+	<1127056369.30256.4.camel@localhost.localdomain>
+	<432D8CF8.C14C48A0@tv-sign.ru>
+	<20050918154301.GA9088@devserv.devel.redhat.com>
+	<432D9432.5C5B64D6@tv-sign.ru>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-filter-host: newton.ctyme.com - http://www.junkemailfilter.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anyone interested in having a spam filter for this list? I'll donate the 
-service free. I can give you all good references on how accurate it is
+Oleg Nesterov <oleg@tv-sign.ru> wrote:
+>
+> I think this can save a couple of cpu cycles. The init_timer()
+>  is not inline, gcc can't reorder exprx() and init_timer() calls.
+> 
+>  Ok, I do not want to persist very much, I can resend this patch.
+> 
+>  Andrew, should I?
 
-Here's what John Dvorak says about it on This Week in Twchnology.
-
-http://www.junkemailfilter.com/dvorak.mp3
-
-I'm serious here..
-
--- 
-Marc Perkel - marc@perkel.com
-
-Spam Filter: http://www.junkemailfilter.com
-    My Blog: http://marc.perkel.com
-
+Try both, see which one generates the shorter code?

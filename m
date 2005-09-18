@@ -1,85 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751108AbVIRPAQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932098AbVIRPFj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751108AbVIRPAQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 11:00:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751230AbVIRPAP
+	id S932098AbVIRPFj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 11:05:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932099AbVIRPFj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 11:00:15 -0400
-Received: from vms042pub.verizon.net ([206.46.252.42]:32904 "EHLO
-	vms042pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1751108AbVIRPAO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 11:00:14 -0400
-Date: Sun, 18 Sep 2005 10:59:58 -0400
+	Sun, 18 Sep 2005 11:05:39 -0400
+Received: from vms046pub.verizon.net ([206.46.252.46]:52442 "EHLO
+	vms046pub.verizon.net") by vger.kernel.org with ESMTP
+	id S932098AbVIRPFj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Sep 2005 11:05:39 -0400
+Date: Sun, 18 Sep 2005 11:05:20 -0400
 From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: later kernels vs ntpd
-In-reply-to: <200509181046.46637.gene.heskett@verizon.net>
+Subject: Re: [KORG] REMINDER: master.kernel.org extended downtime
+In-reply-to: <432D17EA.8090303@osuosl.org>
 To: linux-kernel@vger.kernel.org
-Message-id: <200509181100.02762.gene.heskett@verizon.net>
+Message-id: <200509181105.20460.gene.heskett@verizon.net>
 Organization: None, usuallly detectable by casual observers
 MIME-version: 1.0
 Content-type: text/plain; charset=us-ascii
 Content-transfer-encoding: 7bit
 Content-disposition: inline
-References: <200509181046.46637.gene.heskett@verizon.net>
+References: <432B1D4E.4060301@zytor.com> <432B26AA.8070901@zytor.com>
+ <432D17EA.8090303@osuosl.org>
 User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 18 September 2005 10:46, Gene Heskett wrote:
->Greetings;
+On Sunday 18 September 2005 03:31, Michael Marineau wrote:
+>H. Peter Anvin wrote:
+>> H. Peter Anvin wrote:
+>>> master.kernel.org will be offline starting shortly after 15:00
+>>> PDT/22:00 UTC today, September 19, 2005; for a move to the University
+>>> of Oregon Open Source Lab.  This should give much better bandwidth
+>>> and a more reliable backup solution, in addition to access to a real,
+>>> staffed NOC.
+>>
+>> That should have been Oregon State University Open Source Lab.  Mea
+>> culpa.
+>>
+>>     -hpa
 >
->I'm observing that the last time ntpd logged that it was synchronized
->with a time src, was:
+>Btw, to any one interested Scott Kveton posted photos of the welcoming
+>party here this morning. :-)
 >
->6 Aug 17:44:36 ntpd[1886]: synchronized to 140.221.8.88, stratum=1
->
->This was about a week before I left for month long trip, and I left it
->running 2.6.13-rc6 which had been stable for several days prior to my
->leaving.  In early September, I had to lead the missus thru a reboot
->because the system time had jumped to some other time zone and the
->heyu based lighting automation was afu.  That seemed to fix it till I
->got back on the 14th.  At that time I noted that my watch appeared to be
->off
->by several minutes.  The next day I did a 'service ntpd restart',
->which backed the system time up about 4 minutes, bringing my watch a
->lot closer.
->
->Then I noticed that yesterday, before I built and installed 2.6.13.1,
->that ntpd was apparently not synching.  A restart, which runs ntpdate
->to crash set the clocks, does work, but ntpd is not.  I haven't
->changed anything in the configs for ntpd in several months.
->
->Historicly, this box has lost track of what time zone its on on
->several occasions, but I believe this is a seperate problem.
->
->Is anyone else having ntpd synch problems?  Take a look at
->your /var/log/ntpd.log just for grins.  All I'm getting is the
->restart messages, like these:
->
->18 Sep 10:41:44 ntpd[17787]: ntpd exiting on signal 15
->18 Sep 10:37:07 ntpd[29714]: running as uid(38)/gid(38)
->euid(38)/egid(38).
->
->>From the restart I just did, note the time reset of over 4 minutes.
->
->>From the dates on my /boot/vmlinuz* files, it worked for 2.6.13-rc5,
->but not for rc6 & (apparently) later.
->
->Comments anybody?
->
->I'm going to reboot to an older kernel (2.6.13-rc5) as a check, if
->ntpd starts working, I'll advise here.
+>http://osuosl.org/photos/kernel/view
 
-Ok, on rebooting to 2.6.13-rc5, time synch was achieved in
-approximately 5 minutes after the reboot.  So apparently -rc6 and
-13.1 are broken for ntpd.
-
-Sorry your coal mine canary was asleep on the job, to let this go on
-for over a month without a chirp.  But I've been out of state, trying
-to make a junkyard tv station work, in a market that cannot support a
-real tv station.
-
-Does anyone have a hint?
+Neat!  But where was the obligatory 6 pack?
 
 -- 
 Cheers, Gene

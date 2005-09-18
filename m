@@ -1,44 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751074AbVIRKlE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751089AbVIRKzG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751074AbVIRKlE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 06:41:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751083AbVIRKlE
+	id S1751089AbVIRKzG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 06:55:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751091AbVIRKzF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 06:41:04 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:59342 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S1751074AbVIRKlD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 06:41:03 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Willy Tarreau <willy@w.ods.org>
-Subject: Re: Eradic disk access during reads
-Date: Sun, 18 Sep 2005 13:40:28 +0300
-User-Agent: KMail/1.8.2
-Cc: Al Boldi <a1426z@gawab.com>, linux-kernel@vger.kernel.org
-References: <200509170717.03439.a1426z@gawab.com> <200509171323.53054.a1426z@gawab.com> <20050917184643.GA1313@alpha.home.local>
-In-Reply-To: <20050917184643.GA1313@alpha.home.local>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 18 Sep 2005 06:55:05 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:2243 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751089AbVIRKzE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Sep 2005 06:55:04 -0400
+Subject: Re: [PATCH] hwmon Kconfig for hdaps.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Alejandro Bonilla Beeche <abonilla@linuxwireless.org>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050917154402.68d16b43.khali@linux-fr.org>
+References: <1126940675.5461.10.camel@localhost.localdomain>
+	 <20050917154402.68d16b43.khali@linux-fr.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509181340.28683.vda@ilport.com.ua>
+Date: Sun, 18 Sep 2005 12:18:43 +0100
+Message-Id: <1127042323.8932.8.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > You can do " readspeed </dev/hda | tr '\r' '\n' > log " with the readspeed
-> > > tool from there :
-> > >    http://w.ods.org/tools/readspeed
-> > 
-> > Does it have msec resolution?
-> 
-> no, it does not. It will only show you the average transfer rate during
-> the past second each second. It often helps me tune network, nfs, raid, ...
-> 
-> Denis' tool seems clearly more suited to analyse your problem.
+On Sad, 2005-09-17 at 15:44 +0200, Jean Delvare wrote:
+> Please educate your mail client not to wrap long lines. If you can't,
+> attachement as text/plain will be fine with me.
 
-Denis' tool just got a homepage :)
 
-http://195.66.192.167/linux/vdautil-0.5/src/
---
-vda
+(In evolution just select preformat in the editor window)
+

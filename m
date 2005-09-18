@@ -1,58 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbVIRNLR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751224AbVIRNjH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751191AbVIRNLR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 09:11:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbVIRNLR
+	id S1751224AbVIRNjH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 09:39:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751229AbVIRNjH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 09:11:17 -0400
-Received: from 69.50.231.10.ip.nectartech.com ([69.50.231.10]:44959 "EHLO
-	newton.ctyme.com") by vger.kernel.org with ESMTP id S1751191AbVIRNLQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 09:11:16 -0400
-Message-ID: <432D676F.2040208@perkel.com>
-Date: Sun, 18 Sep 2005 06:11:11 -0700
-From: Marc Perkel <marc@perkel.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.10) Gecko/20050716
-X-Accept-Language: en-us, en
+	Sun, 18 Sep 2005 09:39:07 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:43405 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1751224AbVIRNjF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Sep 2005 09:39:05 -0400
+Message-ID: <432D70C8.EF7B0438@tv-sign.ru>
+Date: Sun, 18 Sep 2005 17:51:04 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Serious time drift - clock running fast
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] introduce setup_timer() helper
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Spam-filter-host: newton.ctyme.com - http://www.junkemailfilter.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Not sure what the problem is but it seem kernel related. If it's not - 
-please forgive me.
+Every user of init_timer() also needs to initialize ->function and
+->data fields. This patch adds a simple setup_timer() helper for that.
 
-I'm running and AMD Athlon 64 X2 on an Asus board with NVidia chipset. 
-The software clock gains several seconds every minute. I'm running the 
-2.6.13 kernel. NTPD doesn't help. It sets the time when it starts but I 
-suspect the drift is too great for it to lock on. How can setting the 
-clock be so hard?
+The schedule_timeout() is patched as an example of usage.
 
-Using these settings:
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
-CONFIG_X86_64=y
-CONFIG_64BIT=y
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_RWSEM_GENERIC_SPINLOCK=y
-CONFIG_GENERIC_CALIBRATE_DELAY=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_EARLY_PRINTK=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_GENERIC_IOMAP=y
-
-Falling asleep .... ZZZzzzzzZZZZzzzzzz
-
-Help!
-
-
--- 
-Marc Perkel - marc@perkel.com
-
-Spam Filter: http://www.junkemailfilter.com
-    My Blog: http://marc.perkel.com
-
+--- 2.6.14-rc1/include/linux/timer.h~4_SETUP	2005-09-17 18:57:30.000000000 +0400
++++ 2.6.14-rc1/include/linux/timer.h	2005-09-18 20:55:15.000000000 +0400
+@@ -38,6 +38,15 @@ extern struct timer_base_s __init_timer_
+ 
+ void fastcall init_timer(struct timer_list * timer);
+ 
++static inline void setup_timer(struct timer_list * timer,
++				void (*function)(unsigned long),
++				unsigned long data)
++{
++	timer->function = function;
++	timer->data = data;
++	init_timer(timer);
++}
++
+ /***
+  * timer_pending - is a timer pending?
+  * @timer: the timer in question
+--- 2.6.14-rc1/kernel/timer.c~4_SETUP	2005-09-17 18:57:30.000000000 +0400
++++ 2.6.14-rc1/kernel/timer.c	2005-09-18 20:59:43.000000000 +0400
+@@ -1137,12 +1137,8 @@ fastcall signed long __sched schedule_ti
+ 
+ 	expire = timeout + jiffies;
+ 
+-	init_timer(&timer);
+-	timer.expires = expire;
+-	timer.data = (unsigned long) current;
+-	timer.function = process_timeout;
+-
+-	add_timer(&timer);
++	setup_timer(&timer, process_timeout, (unsigned long)current);
++	__mod_timer(&timer, expire);
+ 	schedule();
+ 	del_singleshot_timer_sync(&timer);

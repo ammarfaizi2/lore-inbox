@@ -1,110 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932086AbVIROXg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932070AbVIROWy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932086AbVIROXg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 10:23:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932077AbVIROX0
+	id S932070AbVIROWy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 10:22:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932073AbVIROWx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 10:23:26 -0400
-Received: from ppp-62-11-75-109.dialup.tiscali.it ([62.11.75.109]:31667 "EHLO
-	zion.home.lan") by vger.kernel.org with ESMTP id S932076AbVIROXL
+	Sun, 18 Sep 2005 10:22:53 -0400
+Received: from ppp-62-11-75-109.dialup.tiscali.it ([62.11.75.109]:26547 "EHLO
+	zion.home.lan") by vger.kernel.org with ESMTP id S932070AbVIROWx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 10:23:11 -0400
+	Sun, 18 Sep 2005 10:22:53 -0400
 From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH 04/12] HPPFS: fix access to ppos and file->f_pos
-Date: Sun, 18 Sep 2005 16:09:51 +0200
+Subject: [PATCH 11/12] HPPFS: add dentry_ops->d_revalidate
+Date: Sun, 18 Sep 2005 16:10:07 +0200
 To: Antoine Martin <antoine@nagafix.co.uk>, Al Viro <viro@zeniv.linux.org.uk>
 Cc: Jeff Dike <jdike@addtoit.com>
 Cc: user-mode-linux-devel@lists.sourceforge.net
 Cc: LKML <linux-kernel@vger.kernel.org>
-Message-Id: <20050918140951.31461.78736.stgit@zion.home.lan>
+Message-Id: <20050918141006.31461.23599.stgit@zion.home.lan>
 In-Reply-To: 200509181400.39120.blaisorblade@yahoo.it
 References: 200509181400.39120.blaisorblade@yahoo.it
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>, Al Viro
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-Access to ->f_pos is racy, and it's not the fs task to update it.
+We might need to revalidate a dentry (for instance when a process dies), so
+call the underlying d_revalidate if it is defined, on the underlying
+dentry.
 
-Also, this code is still in the pre-2.6.8 world, when ppos was compared
-against &file->f_pos to distinguish between normal reads and pread()s for
-unseekable files, and so it performs dirty stuff to follow this rule for
-the underlying procfs. (see http://lwn.net/Articles/96662/ - safe seeks).
+Also, when we find a dentry in the dcache, we must call d_revalidate
+ourselves.
 
-For inner "struct file"s opened with dentry_open(), we can access safely
-their ->f_pos field inside dentry_open(), when we are called by
-hppfs_open() - in fact, there's one of them per file descriptor, and
-there's no race as the fd has not yet been returned to userspace. See new
-read_proc() comment.
-
-Instead, we use the VFS readdir locking on inode->i_sem in hppfs_readdir.
+BUT: for now, this is done with a NULL nameidata (which is only safe by
+chance, given the current code). While looking into this, I realized that
+the nameidata handling in calls to the underlying FS are bogus. I'm going
+to fix this in next patch.
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- fs/hppfs/hppfs_kern.c |   22 +++++++++++++++++-----
- 1 files changed, 17 insertions(+), 5 deletions(-)
+ fs/hppfs/hppfs_kern.c |   42 +++++++++++++++++++++++++++++++++++++-----
+ 1 files changed, 37 insertions(+), 5 deletions(-)
 
 diff --git a/fs/hppfs/hppfs_kern.c b/fs/hppfs/hppfs_kern.c
 --- a/fs/hppfs/hppfs_kern.c
 +++ b/fs/hppfs/hppfs_kern.c
-@@ -216,6 +216,15 @@ static struct dentry *hppfs_lookup(struc
- static struct inode_operations hppfs_file_iops = {
+@@ -104,7 +104,22 @@ static char *dentry_name(struct dentry *
+ 	return(name);
+ }
+ 
++static int hppfs_d_revalidate(struct dentry * dentry, struct nameidata * nd)
++{
++	int (*d_revalidate)(struct dentry *, struct nameidata *);
++	struct dentry *proc_dentry;
++
++	proc_dentry = HPPFS_I(dentry->d_inode)->proc_dentry;
++	if (proc_dentry->d_op && proc_dentry->d_op->d_revalidate)
++		d_revalidate = proc_dentry->d_op->d_revalidate;
++	else
++		return 1; /* "Still valid" code */
++
++	return (*d_revalidate)(proc_dentry, nd);
++}
++
+ static struct dentry_operations hppfs_dentry_ops = {
++	.d_revalidate = hppfs_d_revalidate,
  };
  
-+/* Pass down ppos when you're being called from userspace.
-+ *
-+ * Otherwise, if you pass NULL, we'll store the file position in file->f_pos,
-+ * and you must have a lock on it. Since we're called only by hppfs_open ->
-+ * hppfs_get_data, and open is serialized by the VFS, we're safe.
-+ *
-+ * We also know if we're called from userspace from is_user, which is used for
-+ * set_fs(). I'm leaving this redundancy to bite any wrong caller.
-+ */
- static ssize_t read_proc(struct file *file, char *buf, ssize_t count,
- 			 loff_t *ppos, int is_user)
+ static int file_removed(struct dentry *dentry, const char *file)
+@@ -157,7 +172,7 @@ static void hppfs_read_inode(struct inod
+ 	ino->i_blocks = proc_ino->i_blocks;
+ }
+ 
+-static struct dentry *hppfs_lookup(struct inode *ino, struct dentry *dentry,
++static struct dentry *hppfs_lookup(struct inode *parent_ino, struct dentry *dentry,
+                                   struct nameidata *nd)
  {
-@@ -228,17 +237,21 @@ static ssize_t read_proc(struct file *fi
- 	if (read == NULL)
- 		return -EINVAL;
+ 	struct dentry *proc_dentry, *new, *parent;
+@@ -171,10 +186,18 @@ static struct dentry *hppfs_lookup(struc
+ 		return(ERR_PTR(-ENOENT));
  
-+	WARN_ON(is_user != (ppos != NULL));
+ 	err = -ENOMEM;
+-	parent = HPPFS_I(ino)->proc_dentry;
++	parent = HPPFS_I(parent_ino)->proc_dentry;
++	
++	/* This more or less matches fs/namei.c:real_lookup() - we don't have
++	 * the fast path which looks up the dentry without the directory
++	 * semaphore. Please keep in sync. */
 +
- 	if (!is_user) {
- 		old_fs = get_fs();
- 		set_fs(KERNEL_DS);
++	/* XXX: The only difference is nameidata: we pass NULL instead of nd.
++	 * Not normally allowed, would Oops if proc ever uses nd, and can Oops /
++	 * leak entries if we pass the same nd we got. */
+ 	down(&parent->d_inode->i_sem);
+ 	proc_dentry = d_lookup(parent, &dentry->d_name);
+-	if(proc_dentry == NULL){
++	if (!proc_dentry) {
+ 		proc_dentry = d_alloc(parent, &dentry->d_name);
+ 		if(proc_dentry == NULL){
+ 			up(&parent->d_inode->i_sem);
+@@ -186,13 +209,22 @@ static struct dentry *hppfs_lookup(struc
+ 			dput(proc_dentry);
+ 			proc_dentry = new;
+ 		}
++		up(&parent->d_inode->i_sem);
++	} else {
++		up(&parent->d_inode->i_sem);
++		if (proc_dentry->d_op && proc_dentry->d_op->d_revalidate) {
++			if (!proc_dentry->d_op->d_revalidate(proc_dentry, NULL) &&
++					!d_invalidate(proc_dentry)) {
++				dput(proc_dentry);
++				proc_dentry = ERR_PTR(-ENOENT);
++			}
++		}
  	}
+-	up(&parent->d_inode->i_sem);
  
--	n = (*read)(file, buf, count, &file->f_pos);
-+	if (!ppos)
-+		ppos = &file->f_pos;
-+
-+	n = (*read)(file, buf, count, ppos);
+ 	if(IS_ERR(proc_dentry))
+ 		return(proc_dentry);
  
- 	if (!is_user)
- 		set_fs(old_fs);
+-	inode = iget(ino->i_sb, 0);
++	inode = iget(parent_ino->i_sb, 0);
+ 	if(inode == NULL)
+ 		goto out_dput;
  
--	if(ppos) *ppos = file->f_pos;
- 	return n;
- }
- 
-@@ -330,9 +343,7 @@ static ssize_t hppfs_write(struct file *
- 	if (write == NULL)
- 		return -EINVAL;
- 
--	proc_file->f_pos = file->f_pos;
--	err = (*write)(proc_file, buf, len, &proc_file->f_pos);
--	file->f_pos = proc_file->f_pos;
-+	err = (*write)(proc_file, buf, len, ppos);
- 
- 	return(err);
- }
-@@ -613,6 +624,7 @@ static int hppfs_readdir(struct file *fi
- 	if (readdir == NULL)
- 		return -ENOTDIR;
- 
-+	/* XXX: race on f_pos? Should be safe because we hold inode->i_sem. */
- 	proc_file->f_pos = file->f_pos;
- 	err = (*readdir)(proc_file, &dirent, hppfs_filldir);
- 	file->f_pos = proc_file->f_pos;
 

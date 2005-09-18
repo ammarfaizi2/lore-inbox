@@ -1,26 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751322AbVIRUHJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbVIRUJn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751322AbVIRUHJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 16:07:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751327AbVIRUHJ
+	id S932073AbVIRUJn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 16:09:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932113AbVIRUJn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 16:07:09 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:55730 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751322AbVIRUHH (ORCPT
+	Sun, 18 Sep 2005 16:09:43 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:11187 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932073AbVIRUJm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 16:07:07 -0400
-Date: Sun, 18 Sep 2005 13:06:13 -0700
+	Sun, 18 Sep 2005 16:09:42 -0400
+Date: Sun, 18 Sep 2005 13:09:02 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: arjanv@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] introduce setup_timer() helper
-Message-Id: <20050918130613.5bbe9344.akpm@osdl.org>
-In-Reply-To: <432D9432.5C5B64D6@tv-sign.ru>
-References: <432D70C8.EF7B0438@tv-sign.ru>
-	<1127056369.30256.4.camel@localhost.localdomain>
-	<432D8CF8.C14C48A0@tv-sign.ru>
-	<20050918154301.GA9088@devserv.devel.redhat.com>
-	<432D9432.5C5B64D6@tv-sign.ru>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
+Subject: Re: Unusually long delay in the kernel
+Message-Id: <20050918130902.23a824e0.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.44L0.0509181057570.27009-100000@netrider.rowland.org>
+References: <20050917164117.1eee31c2.akpm@osdl.org>
+	<Pine.LNX.4.44L0.0509181057570.27009-100000@netrider.rowland.org>
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -28,13 +25,41 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Nesterov <oleg@tv-sign.ru> wrote:
+Alan Stern <stern@rowland.harvard.edu> wrote:
 >
-> I think this can save a couple of cpu cycles. The init_timer()
->  is not inline, gcc can't reorder exprx() and init_timer() calls.
+> On Sat, 17 Sep 2005, Andrew Morton wrote:
 > 
->  Ok, I do not want to persist very much, I can resend this patch.
+>  > > > That code could be converted to the kthread API btw.
+>  > > 
+>  > > Hmph.  Near as I can tell, the only changes that would involve are:
+>  > > 
+>  > > 	Converting the thread creation call from kernel_thread to
+>  > > 	kthread_run.
+>  > > 
+>  > > 	Adding another call to wake the thread up once it has been
+>  > > 	created.
+>  > > 
+>  > > 	Removing the call to daemonize.
+>  > > 
+>  > > There wouldn't be any need to call kthread_stop -- and in fact it wouldn't 
+>  > > work, as the thread waits on a semaphore while it is idle (kthread_stop 
+>  > > can't cope with things like that).
+>  > 
+>  > Well I was assuming that the semaphore would go away as well.  Kernel
+>  > threads normally use waitqueues to await more work.
 > 
->  Andrew, should I?
+>  Some kernel threads have a producer-consumer relationship with their
+>  clients, and it's important that they wake exactly once each time they are
+>  invoked.  A semaphore is the natural way to manage such a thread, but the
+>  kthread API isn't set up to handle such things.  It's possible to make
+>  this work, by using a manual poor-man's semaphore implementation, but that
+>  seems ridiculous.
 
-Try both, see which one generates the shorter code?
+OK.
+
+>  Would this patch be acceptable?
+
+Well it makes all kthread_stop() callers pass an additional (unused)
+argument.  I'd make kthread_stop() and kthread_stop_sem() real C functions,
+hide the code sharing within kthread.c.
+

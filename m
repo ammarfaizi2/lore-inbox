@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbVIRRbD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932131AbVIRRbx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932083AbVIRRbD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 13:31:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932130AbVIRRbD
+	id S932131AbVIRRbx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 13:31:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932133AbVIRRbx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 13:31:03 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:19661 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932083AbVIRRbB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 13:31:01 -0400
-Date: Sun, 18 Sep 2005 18:30:58 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Denis Vlasenko <vda@ilport.com.ua>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Sun, 18 Sep 2005 13:31:53 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:20126 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932131AbVIRRbw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Sep 2005 13:31:52 -0400
+Date: Sun, 18 Sep 2005 10:31:36 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Al Viro <viro@ftp.linux.org.uk>
+cc: Willy Tarreau <willy@w.ods.org>, Robert Love <rml@novell.com>,
        Russell King <rmk+lkml@arm.linux.org.uk>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
+       Linux Kernel List <linux-kernel@vger.kernel.org>
 Subject: Re: p = kmalloc(sizeof(*p), )
-Message-ID: <20050918173058.GM19626@ftp.linux.org.uk>
-References: <20050918100627.GA16007@flint.arm.linux.org.uk> <1127041474.8932.4.camel@localhost.localdomain> <20050918143907.GK19626@ftp.linux.org.uk> <200509181925.25112.vda@ilport.com.ua>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200509181925.25112.vda@ilport.com.ua>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20050918171845.GL19626@ftp.linux.org.uk>
+Message-ID: <Pine.LNX.4.58.0509181028140.26803@g5.osdl.org>
+References: <20050918100627.GA16007@flint.arm.linux.org.uk>
+ <1127061146.6939.6.camel@phantasy> <20050918165219.GA595@alpha.home.local>
+ <20050918171845.GL19626@ftp.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 18, 2005 at 07:25:24PM +0300, Denis Vlasenko wrote:
-> Do these qualify?
-> 
-> http://www.uwsg.iu.edu/hypermail/linux/kernel/0105.1/0579.html
-> o Fix wrong kmalloc sizes in ixj/emu10k1 (David Chan) 
 
-ixj does, emu10k does not (sizeof(p) instead of sizeof(*p) would be
-exact same bug).
- 
-> http://www.mail-archive.com/alsa-cvslog@lists.sourceforge.net/msg02483.html
-> Update of /cvsroot/alsa/alsa-kernel/isa
-> In directory sc8-pr-cvs1:/tmp/cvs-serv4034
-> 
-> Modified Files:
->         es18xx.c cmi8330.c 
-> Log Message:
-> Fixed wrong kmalloc
 
-Nope.  Wrong order of arguments in kmalloc; nothing to do with what we
-intend to pass as size.
+On Sun, 18 Sep 2005, Al Viro wrote:
+> 
+> That's why you do
+> 	*p = (struct foo){....};
+> instead of
+> 	memset(p, 0, sizeof...);
+> 	p->... =...;
+
+Actually, some day that migth be a good idea, but at least historically, 
+gcc has really really messed that kind of code up.
+
+Last I looked, depending on what the initializer was, gcc would create a 
+temporary struct on the stack first, and then do a "memcpy()" of the 
+result. Not only does that obviously generate a lot of extra code, it also 
+blows your kernel stack to kingdom come.
+
+So be careful out there, and check what code it generates first. With at 
+least a few versions of gcc.
+
+(For _small_ structures it's wonderful. As far as I can tell, gcc does a
+pretty good job on structs that are just a single long-word in size).
+
+		Linus

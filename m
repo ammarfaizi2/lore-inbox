@@ -1,39 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932242AbVIRXFg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbVIRXLK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932242AbVIRXFg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 19:05:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932243AbVIRXFg
+	id S932248AbVIRXLK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 19:11:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932252AbVIRXLK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 19:05:36 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:30568 "EHLO
-	pd5mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S932242AbVIRXFf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 19:05:35 -0400
-Date: Sun, 18 Sep 2005 17:05:29 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Wanted - Recommendation of good motherboard for AMD Athlon 64  X2
-In-reply-to: <4OaGw-87q-21@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <432DF2B9.9080403@shaw.ca>
+	Sun, 18 Sep 2005 19:11:10 -0400
+Received: from vms040pub.verizon.net ([206.46.252.40]:46308 "EHLO
+	vms040pub.verizon.net") by vger.kernel.org with ESMTP
+	id S932248AbVIRXLJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Sep 2005 19:11:09 -0400
+Date: Sun, 18 Sep 2005 19:11:02 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: [KORG] REMINDER: master.kernel.org extended downtime
+In-reply-to: <432DAA0A.10509@engr.orst.edu>
+To: linux-kernel@vger.kernel.org
+Message-id: <200509181911.02747.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
 MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-type: text/plain; charset=us-ascii
 Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-References: <4OawE-7Vh-3@gated-at.bofh.it> <4OaGw-87q-21@gated-at.bofh.it>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+Content-disposition: inline
+References: <432B1D4E.4060301@zytor.com>
+ <200509181105.20460.gene.heskett@verizon.net> <432DAA0A.10509@engr.orst.edu>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Perkel wrote:
-> oh - and - I forgot to mention this  NO NVidia chips. That's what I'm 
-> trying to get away from because of lack of Linux support.
+On Sunday 18 September 2005 13:55, Michael Marineau wrote:
+>Gene Heskett wrote:
+>> On Sunday 18 September 2005 03:31, Michael Marineau wrote:
+>>>H. Peter Anvin wrote:
+>>>>H. Peter Anvin wrote:
+>>>>>master.kernel.org will be offline starting shortly after 15:00
+>>>>>PDT/22:00 UTC today, September 19, 2005; for a move to the
+>>>>> University of Oregon Open Source Lab.  This should give much better
+>>>>> bandwidth and a more reliable backup solution, in addition to
+>>>>> access to a real, staffed NOC.
+>>>>
+>>>>That should have been Oregon State University Open Source Lab.  Mea
+>>>>culpa.
+>>>>
+>>>>    -hpa
+>>>
+>>>Btw, to any one interested Scott Kveton posted photos of the welcoming
+>>>party here this morning. :-)
+>>>
+>>>http://osuosl.org/photos/kernel/view
+>>
+>> Neat!  But where was the obligatory 6 pack?
+>
+>Those were at OSU's anual "Geeks and Steaks" bbq afterwards. ;-)
 
-Where is the lack of Linux support? The only feature I know of that's 
-not supported under Linux is the NCQ support on the nForce4 SATA 
-controller..
+Which, being in WV at the time, I missed.  Darn...
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.35% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
 

@@ -1,61 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751276AbVIRCli@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751273AbVIRCkK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751276AbVIRCli (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Sep 2005 22:41:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751279AbVIRClh
+	id S1751273AbVIRCkK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Sep 2005 22:40:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbVIRCkK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Sep 2005 22:41:37 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:15314 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751276AbVIRClh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Sep 2005 22:41:37 -0400
-Date: Sat, 17 Sep 2005 22:41:27 -0400
-From: Dave Jones <davej@redhat.com>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Bernardo Innocenti <bernie@develer.com>,
-       Matheus Izvekov <izvekov@lps.ele.puc-rio.br>,
-       Development discussions related to Fedora Core 
-	<fedora-devel-list@redhat.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Assertion failed in libata-core.c:ata_qc_complete(3051)
-Message-ID: <20050918024127.GA23405@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Jesper Juhl <jesper.juhl@gmail.com>,
-	Bernardo Innocenti <bernie@develer.com>,
-	Matheus Izvekov <izvekov@lps.ele.puc-rio.br>,
-	Development discussions related to Fedora Core <fedora-devel-list@redhat.com>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <432BA524.40301@develer.com> <60030.200.141.101.221.1126969752.squirrel@correio.lps.ele.puc-rio.br> <432CB177.5070001@develer.com> <9a87484905091717524adfc854@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9a87484905091717524adfc854@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
+	Sat, 17 Sep 2005 22:40:10 -0400
+Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:16519 "HELO
+	develer.com") by vger.kernel.org with SMTP id S1751273AbVIRCkJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Sep 2005 22:40:09 -0400
+Message-ID: <432CD386.201@develer.com>
+Date: Sun, 18 Sep 2005 04:40:06 +0200
+From: Bernardo Innocenti <bernie@develer.com>
+User-Agent: Mozilla Thunderbird 1.0.6-5 (X11/20050818)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bernardo Innocenti <bernie@develer.com>
+CC: lkml <linux-kernel@vger.kernel.org>, netfilter-devel@lists.netfilter.org
+Subject: Re: Intermittent NAT failure when multiple hosts send UDP packets
+References: <432B8702.3060801@develer.com>
+In-Reply-To: <432B8702.3060801@develer.com>
+X-Enigmail-Version: 0.91.0.0
+OpenPGP: id=FC6A66CA;
+	url=https://www.develer.com/~bernie/gpgkey.txt
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 18, 2005 at 02:52:55AM +0200, Jesper Juhl wrote:
- > On 9/18/05, Bernardo Innocenti <bernie@develer.com> wrote:
- > > Matheus Izvekov wrote:
- > > 
- > > >>I have a Promise TX4 controller with 4 SATA drivers
- > > >>formatted with a RAID1 and a RAID5 md.  LVM on top of this.
- > > >
- > > > Can you reproduce this with a stock kernel?
- > > 
- > > I've just opened the case to install some more RAM and
- > > noticed that the SATA controller card wasn't completely
- > > fitted into the PCI slot.  Could it be just a hardware
- > > problem?  I don't know what that assartion is about.
- > > 
- > > Nowadays, Fedora kernels don't differ much from stock
- > > kernels plus the usual bugfixes.  I've now upgraded to
- > 
- > They still do differ though. When asked to retest with a stock kernel,
- > indulging the person who asks is usually a good idea if you want your
- > problem solved :)
+Never mind, it was fixed in 2.6.13, probably by this patch:
 
-libata / scsi layer in that kernel should be 1:1 to mainline
-as of 2.6.12
+  https://lists.netfilter.org/pipermail/netfilter-devel/2004-March/014412.html
 
-		Dave
+
+Bernardo Innocenti wrote:
+> This smells like a bug in UDP ip_nat_proto_udp.c or nearby.
+> I'm seeing this on 2.6.12-1.1447_FC4, but code in 2.6.13 is
+> still the same.
+> 
+> I've setup SNAT the usual way:
+> 
+>  iptables -A POSTROUTING -t nat -o ppp0 -j SNAT --to-source 151.38.19.110
+> 
+> When multiple clients in the LAN send UDP packets to the same port of
+> the same remote host, I see something like this in my /proc/net/ip_conntrack:
+> 
+>  udp      17 170 src=10.3.3.2 dst=194.185.88.60 sport=5060 dport=5060 src=194.185.88.60 dst=151.38.19.110 sport=5060 dport=5060 [ASSURED] use=1
+>  udp      17 29 src=10.3.3.2 dst=212.97.59.76 sport=5060 dport=5060 [UNREPLIED] src=212.97.59.76 dst=151.38.19.110 sport=5060 dport=5060 use=1
+>  udp      17 177 src=10.3.3.250 dst=194.185.88.60 sport=5060 dport=5060 src=194.185.88.60 dst=151.38.19.110 sport=5060 dport=1024 [ASSURED] use=1
+> 
+> In the last line, the destination port has been properly remapped from
+> 5060 to 1024 to distingish between incoming packets.
+> 
+> However, I see packets going out over ppp0 without the source
+> address properly rewritten to 151.38.19.110:
+> 
+>  04:38:28.739514 IP 10.3.3.2.5060 > 194.185.88.60.5060: UDP, length 536
+> 
+> This doesn't happen when there's just a single host sending to port 5060.
+> Sometimes I must restart the interface to trigger this bug.
+
+-- 
+  // Bernardo Innocenti - Develer S.r.l., R&D dept.
+\X/  http://www.develer.com/
+

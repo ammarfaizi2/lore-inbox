@@ -1,80 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932204AbVIRVNE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932203AbVIRVM3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932204AbVIRVNE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 17:13:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932206AbVIRVNE
+	id S932203AbVIRVM3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 17:12:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932204AbVIRVM3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 17:13:04 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:48534 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932204AbVIRVNB
+	Sun, 18 Sep 2005 17:12:29 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:39622 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932203AbVIRVM3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 17:13:01 -0400
-Subject: Re: I request inclusion of reiser4 in the mainline kernel
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: thenewme91@gmail.com
-Cc: Christoph Hellwig <hch@infradead.org>, Denis Vlasenko <vda@ilport.com.ua>,
-       chriswhite@gentoo.org, Hans Reiser <reiser@namesys.com>,
-       LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-In-Reply-To: <b14e81f0050918102254146224@mail.gmail.com>
-References: <432AFB44.9060707@namesys.com>
-	 <200509171415.50454.vda@ilport.com.ua>
-	 <200509180934.50789.chriswhite@gentoo.org>
-	 <200509181321.23211.vda@ilport.com.ua>
-	 <20050918102658.GB22210@infradead.org>
-	 <b14e81f0050918102254146224@mail.gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Sun, 18 Sep 2005 22:38:44 +0100
-Message-Id: <1127079524.8932.21.camel@localhost.localdomain>
+	Sun, 18 Sep 2005 17:12:29 -0400
+Date: Sun, 18 Sep 2005 22:12:25 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Willy Tarreau <willy@w.ods.org>,
+       Robert Love <rml@novell.com>, Russell King <rmk+lkml@arm.linux.org.uk>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: p = kmalloc(sizeof(*p), )
+Message-ID: <20050918211225.GP19626@ftp.linux.org.uk>
+References: <20050918100627.GA16007@flint.arm.linux.org.uk> <1127061146.6939.6.camel@phantasy> <20050918165219.GA595@alpha.home.local> <20050918171845.GL19626@ftp.linux.org.uk> <Pine.LNX.4.58.0509181028140.26803@g5.osdl.org> <20050918174549.GN19626@ftp.linux.org.uk> <Pine.LNX.4.61.0509182222030.3743@scrub.home>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0509182222030.3743@scrub.home>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2005-09-18 at 13:22 -0400, michael chang wrote:
-> This is exciting to... whom?  The only thing that appears remotely
-> interesting about it is that it's made by Oracle and apparently is
-> supposed to be geared toward parallel server whatsits.
+On Sun, Sep 18, 2005 at 10:34:16PM +0200, Roman Zippel wrote:
+> > Ewwwww...  I'd say that it qualifies as one hell of a bug (and yes, at least
+> > 3.3 and 4.0.1 are still doing that).  What a mess...
+> 
+> It's not a bug, it's exactly what you're asking for, e.g. "*p1 = *p2" 
+> translates to memcpy. gcc also can't simply initialize that structure in 
+> place, e.g. you could do something like this (not necessarily useful but 
+> still valid): "*p = (struct foo){...,  bar(p),...};".
+> In the end it all depends on how good gcc can optimize away the memcpy, 
+> but initially there is always a memcpy.
 
-Which no current included fs supports. And parallel file systems btw get
-exciting for everyone once you have virtualisation.
+No.  Assignment is _not_ defined via memcpy(); it's a primitive that could
+be implemented that way.  Choosing such (pretty much worst-case) implementation
+in every case is a major bug in code generator.
 
-> Is that Hans' fault, or the fault of your lot?  Why can't we all just get along?
+You _can_ introduce a new local variable for each arithmetic operation in
+your function and store result of operation in the corresponding variable.
+As the matter of fact, this is a fairly common intermediate form.  However,
+if compiler ends up leaving all these suckers intact in the final code,
+it has a serious problem.
 
-Insufficient drugs ;) ?
-
-> work with.  Discriminate him because he's not a developer you can talk
-> with, and I believe that's like discriminating a guy in a wheelchair
-> because he can't run with you when you jog in the morning.
-
-Hans can learn to work with people, most folks in wheelchairs cannot
-take lessons and walk. Many of them have tried months of physiotherapy.
-to learn to walk again. I think your comparison is insulting to a lot of
-the disabled.
-
-> Also, let's say that Reiser4 doesn't get into the kernel, as maybe XFS
-> or ext2 or ext3 had never gotten into the kernel.  How would their
-
-Linus refused ext3 initially. It went in because it had a userbase,
-vendors shipping it and reliable clean code. Saying "no" a lot is really
-rather important to keeping the kernel maintainable. I regularly meet
-cases we should have said "no" a lot louder 8)
-
-> I'm willing to go compare Reiser4 to ext2/3 as like H.264 to Mpeg-2. 
-> Indeed, H.264 crashes some computers, similar to Reiser4 might crash
-> some machines, but this is merely because Reiser4 explores new
-
-It doesn't matter if reiser4 causes crashes. It matters that people can
-fix them, that they are actively fixed and the code is maintainable. It
-will have bugs, all complex code has bugs. Hans team have demonstrated
-the ability to fix some of those bugs fast, but we also all remember
-what happened with reiser3 later on despite early fast fixing.
-
-One big reason we jump up and down so much about the coding style is
-that its the one thing that ensures someone else can maintain and fix
-code that the author has abandoned, doesn't have time to fix or that
-needs access to specific hardware the authors may not have.
-
-Alan
-
+Compound literal _is_ an object, all right.  However, decision to allocate
+storage for given object is up to compiler and it's hardly something unusual.
+"Value of right-hand side is not needed to finish calculating left-hand side,
+so its storage is fair game from that point on" is absolutely normal.

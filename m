@@ -1,57 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbVIQP7c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751130AbVIQQGT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751133AbVIQP7c (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Sep 2005 11:59:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751132AbVIQP7b
+	id S1751130AbVIQQGT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Sep 2005 12:06:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbVIQQGT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Sep 2005 11:59:31 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:51721 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1751130AbVIQP7a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Sep 2005 11:59:30 -0400
-Date: Sat, 17 Sep 2005 11:59:14 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: Tony Luck <tony.luck@gmail.com>
-Cc: Keith Owens <kaos@sgi.com>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: 2.6.14-rc1 breaks tg3 on ia64
-Message-ID: <20050917155911.GB19854@tuxdriver.com>
-Mail-Followup-To: Tony Luck <tony.luck@gmail.com>,
-	Keith Owens <kaos@sgi.com>, Greg KH <greg@kroah.com>,
-	linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-References: <20050913065937.GA7849@kroah.com> <25288.1126596450@kao2.melbourne.sgi.com> <12c511ca05091708476aa136cd@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <12c511ca05091708476aa136cd@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+	Sat, 17 Sep 2005 12:06:19 -0400
+Received: from sls-ce5p321.hostitnow.com ([72.9.236.50]:61080 "EHLO
+	sls-ce5p321.hostitnow.com") by vger.kernel.org with ESMTP
+	id S1751130AbVIQQGS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Sep 2005 12:06:18 -0400
+From: Chris White <chriswhite@gentoo.org>
+Reply-To: chriswhite@gentoo.org
+Organization: Gentoo
+To: Denis Vlasenko <vda@ilport.com.ua>
+Subject: Re: I request inclusion of reiser4 in the mainline kernel
+Date: Sun, 18 Sep 2005 09:34:45 +0900
+User-Agent: KMail/1.8.2
+Cc: Christoph Hellwig <hch@infradead.org>, Hans Reiser <reiser@namesys.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+References: <432AFB44.9060707@namesys.com> <200509171356.14497.vda@ilport.com.ua> <200509171415.50454.vda@ilport.com.ua>
+In-Reply-To: <200509171415.50454.vda@ilport.com.ua>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart8365185.0ZjyuWgaIn";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200509180934.50789.chriswhite@gentoo.org>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - sls-ce5p321.hostitnow.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - gentoo.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 17, 2005 at 08:47:03AM -0700, Tony Luck wrote:
-> > >So does reverting this patch solve the problem?
-> > 
-> > I reversing
-> > http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=064b53dbcc977dbf2753a67c2b8fc1c061d74f21,
-> > which appears to be the latest version of this patch.  There was a
-> > patch reject in sparc64, but the common code was reverted.  IA64 (SGI
-> > Altix) with that patch reverted now boots 2.6.14-rc1.
-> 
-> Anyone know anything more about this problem?  I'm not seeing it
-> on any of my systems ... so perhaps it only affects cards with a
-> PCI bridge on them, or cards that haven't already been initialized
-> by EFI.
+--nextPart8365185.0ZjyuWgaIn
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-I posted a patch on Wednesday:
+CC-List trimmed
 
-	http://www.ussg.iu.edu/hypermail/linux/kernel/0509.1/2193.html
+On Saturday 17 September 2005 20:15, Denis Vlasenko wrote:
+> > At least reiser4 is smaller. IIRC xfs is older than reiser4 and had more
+> > time to optimize code size, but:
+> >
+> > reiser4        2557872 bytes
+> > xfs            3306782 bytes
+>
+> And modules sizes:
+>
+> reiser4.ko        442012 bytes
+> xfs.ko            494337 bytes
 
-The original reporter (Keith Owens <kaos@sgi.com>) confirmed this
-patch to fix the problem.
+All this is fine and dandy, but saying "My code is better than yours!!" sti=
+ll=20
+doesn't solve the issue this thread hopes to achieve, that being "I'd like =
+to=20
+get reiser4 into the kernel".  There seems to be a lot of (historical?)=20
+tension present here, but all that seems to be doing is making things worse=
+=2E =20
+PLEASE keep this thing a tad on par.  Keeping this up is hurting everyone=20
+more than helping.  I wish I could say something as simple as "let's just b=
+e=20
+friends", but that's saying a lot.  I can say this though: this is open=20
+source, and that means that our source is open, and we should be too.
 
-Thanks,
+Chris White
 
-John
--- 
-John W. Linville
-linville@tuxdriver.com
+--nextPart8365185.0ZjyuWgaIn
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBDLLYqFdQwWVoAgN4RAqLiAJ45bbLt80lAjBr7n60OzhWS6Lw4XwCcCM9S
+wAcGa8G84ZhHCCkL4iJHRFw=
+=RlIP
+-----END PGP SIGNATURE-----
+
+--nextPart8365185.0ZjyuWgaIn--

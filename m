@@ -1,148 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932087AbVIROxb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751108AbVIRPAQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932087AbVIROxb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 10:53:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751233AbVIROxb
+	id S1751108AbVIRPAQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 11:00:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751230AbVIRPAP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 10:53:31 -0400
-Received: from ns.firmix.at ([62.141.48.66]:28037 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S1751108AbVIROxa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 10:53:30 -0400
-Subject: Re: [Patch] Support UTF-8 scripts
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: "\"Martin v." =?ISO-8859-1?Q?L=F6wis=22?= <martin@v.loewis.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <432D15FA.8030100@v.loewis.de>
-References: <4NsP0-3YF-11@gated-at.bofh.it> <4NsP0-3YF-13@gated-at.bofh.it>
-	 <4NsP0-3YF-15@gated-at.bofh.it> <4NsP0-3YF-17@gated-at.bofh.it>
-	 <4NsP1-3YF-19@gated-at.bofh.it> <4NsP1-3YF-21@gated-at.bofh.it>
-	 <4NsOZ-3YF-9@gated-at.bofh.it> <4NsYH-4bv-27@gated-at.bofh.it>
-	 <4NtBr-4WU-3@gated-at.bofh.it> <4Nu4p-5Js-3@gated-at.bofh.it>
-	 <432B2E09.9010407@v.loewis.de> <1126910730.3520.7.camel@gimli.at.home>
-	 <432BB59C.8060108@v.loewis.de> <1126996093.3373.21.camel@gimli.at.home>
-	 <432D15FA.8030100@v.loewis.de>
-Content-Type: text/plain; charset=UTF-8
-Organization: http://www.firmix.at/
-Date: Sun, 18 Sep 2005 16:50:55 +0200
-Message-Id: <1127055055.8395.14.camel@gimli.at.home>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 8bit
+	Sun, 18 Sep 2005 11:00:15 -0400
+Received: from vms042pub.verizon.net ([206.46.252.42]:32904 "EHLO
+	vms042pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1751108AbVIRPAO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Sep 2005 11:00:14 -0400
+Date: Sun, 18 Sep 2005 10:59:58 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: later kernels vs ntpd
+In-reply-to: <200509181046.46637.gene.heskett@verizon.net>
+To: linux-kernel@vger.kernel.org
+Message-id: <200509181100.02762.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <200509181046.46637.gene.heskett@verizon.net>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-09-18 at 09:23 +0200, "Martin v. Löwis" wrote:
-[...]
-> >>Hmm. What does that have to do with the patch I'm proposing? This
-> >>patch does *not* interfere with all text files. It is only relevant
-> >>for executable files starting with the #! magic.
-> > 
-> > It *does* interfere since scripts are also text files in every aspect.
-> > So every feature you want for "scripts" you also get for text files (and
-> > vice versa BTW).
-> 
-> The specific feature I get is that when I pass a file starting
-> with <utf8sig>#! to execve, Linux will execute the file following
-> the #!. In what way do I get this feature for text in general?
-> And if I do, why is that a problem?
+On Sunday 18 September 2005 10:46, Gene Heskett wrote:
+>Greetings;
+>
+>I'm observing that the last time ntpd logged that it was synchronized
+>with a time src, was:
+>
+>6 Aug 17:44:36 ntpd[1886]: synchronized to 140.221.8.88, stratum=1
+>
+>This was about a week before I left for month long trip, and I left it
+>running 2.6.13-rc6 which had been stable for several days prior to my
+>leaving.  In early September, I had to lead the missus thru a reboot
+>because the system time had jumped to some other time zone and the
+>heyu based lighting automation was afu.  That seemed to fix it till I
+>got back on the 14th.  At that time I noted that my watch appeared to be
+>off
+>by several minutes.  The next day I did a 'service ntpd restart',
+>which backed the system time up about 4 minutes, bringing my watch a
+>lot closer.
+>
+>Then I noticed that yesterday, before I built and installed 2.6.13.1,
+>that ntpd was apparently not synching.  A restart, which runs ntpdate
+>to crash set the clocks, does work, but ntpd is not.  I haven't
+>changed anything in the configs for ntpd in several months.
+>
+>Historicly, this box has lost track of what time zone its on on
+>several occasions, but I believe this is a seperate problem.
+>
+>Is anyone else having ntpd synch problems?  Take a look at
+>your /var/log/ntpd.log just for grins.  All I'm getting is the
+>restart messages, like these:
+>
+>18 Sep 10:41:44 ntpd[17787]: ntpd exiting on signal 15
+>18 Sep 10:37:07 ntpd[29714]: running as uid(38)/gid(38)
+>euid(38)/egid(38).
+>
+>>From the restart I just did, note the time reset of over 4 minutes.
+>
+>>From the dates on my /boot/vmlinuz* files, it worked for 2.6.13-rc5,
+>but not for rc6 & (apparently) later.
+>
+>Comments anybody?
+>
+>I'm going to reboot to an older kernel (2.6.13-rc5) as a check, if
+>ntpd starts working, I'll advise here.
 
-After applying this patch it seems that "Linux" is supporting this
-marker officially in general - especially if the kernel supports it. I
-suppose the next kernel patch is to support Win-like CR-LF sequences
-(which is not the case AFAIK).
-BTW even some standards body thinks that this is the way to go, it
-raises more problems and questions than resolves anything.
+Ok, on rebooting to 2.6.13-rc5, time synch was achieved in
+approximately 5 minutes after the reboot.  So apparently -rc6 and
+13.1 are broken for ntpd.
 
-> > If you think "script" and "text file" are different, define both of
-> > them, please, otherwise a discussion is pointless.
-> 
-> A script file (in the context of this discussion) is a text file
-> that is executable (i.e. has the appropriate subset of
-> S_IXUSR|S_IXGRP|S_IXOTH set), starts with #!, and has the path
-> name of an executable file after the #!.
-> 
-> More generally, a script file is a text file written in a scripting
-> language. A scripting language is a programming language which
-> supports "direct" execution of source code. So in the more
-> general definition, a script file does not need to start with
-> #!; for the context of this discussion, we should restrict
-> attention to files actually affected by the patch.
+Sorry your coal mine canary was asleep on the job, to let this go on
+for over a month without a chirp.  But I've been out of state, trying
+to make a junkyard tv station work, in a market that cannot support a
+real tv station.
 
-And though scripts are usually edited/changed/"parsed"/... with an text
-editor, it is not always the case. Therefore the automatic extension to
-*all text files* (especially as the marker basically applies to all text
-files, not only scripts).
-You want to focus just on your patch and ignore the directly implied
-potential problems arising ...
+Does anyone have a hint?
 
-[...]
-> > It *may* break just because of some to-be-ignored inline marking due to
-> > some questionable feature.
-> 
-> Be more specific. For what specific kind of file will cat(1) break?
-
-`cat` as such will not break (as such).
-
-> Unless cat(1) has a 2GB limitation, I very much doubt it will break
-> (i.e. fail to do its job, "concatenate files and print on the standard
-> output") for any kind of input - whether this is text files, binary
-> files, images, sound files, HTML files. cat always does what it is
-> designed to do.
-
-Apparently I have to repeat: If you do `cat a.txt b.txt >c.txt` where
-a.txt and b.txt have this marker, then c.txt have the marker of b.txt
-somewhere in the middle. Does this make sense in anyway?
-How do I get rid of the marker in the middle transparently?
-
-> > Let alone the confusion why the size of a file with `ls -l` is different
-> > from the size in the editor or a marker-aware `wc -c`.
-> 
-> This is true for any UTF-8 file, or any multibyte encoding. For any
-> multibyte encoding, the number of bytes in the file is different from
-> the number of characters. That doesn't (and shouldn't) stop people from
-> using multi-byte encodings.
-
-It is different even if a pure ASCII file is marked as UTF-8.
-And sure, the problem exists in general with multi-byte encodings.
-
-> What the editor displays as the number of "things" is up to its own.
-> The output of wc -c will always be the same as the one of ls -l,
-> as wc -c does *not* give you characters:
-> 
->        -c, --bytes
->               print the byte counts
-> 
-> You might have been thinking of 'wc -m'.
-
-It depends on the definition of "character". There are other standards
-which define "character" as "byte".
-
-[...]
-> > Then write a short python script (with a "#!/usr/bin/python" line at the
-> > start [without parameters]) natively on a Win*-system, copy it binary
-> > over to an arbitrary Linux system and see what's happening.
-> 
-> It depends on the editor I use, of course: the kernel will consider any
-
-No, more on the OS the editor runs on.
-
-> CR after the n as part of the interpreter name. Not sure what this has
-
-ACK.
-
-> to do with the specific patch, though.
-
-It is not supported by the kernel. So either you remove it or you make
-some compatibility hack (like an appropriate sym-link, etc.). Since the
-kernel can start java classes directly, you can probably make a similar
-thing for the UTF-8 stuff.
-
-	Bernd
 -- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
-
-
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.35% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
 

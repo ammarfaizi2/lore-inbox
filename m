@@ -1,44 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932205AbVIRVOe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbVIRVWW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932205AbVIRVOe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 17:14:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932206AbVIRVOd
+	id S932207AbVIRVWW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 17:22:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932208AbVIRVWW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 17:14:33 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:41414 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932205AbVIRVOd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 17:14:33 -0400
-Date: Sun, 18 Sep 2005 22:14:29 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@osdl.org>, Willy Tarreau <willy@w.ods.org>,
-       Robert Love <rml@novell.com>, Russell King <rmk+lkml@arm.linux.org.uk>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: p = kmalloc(sizeof(*p), )
-Message-ID: <20050918211429.GQ19626@ftp.linux.org.uk>
-References: <20050918100627.GA16007@flint.arm.linux.org.uk> <1127061146.6939.6.camel@phantasy> <20050918165219.GA595@alpha.home.local> <20050918171845.GL19626@ftp.linux.org.uk> <Pine.LNX.4.58.0509181028140.26803@g5.osdl.org> <20050918190714.GO19626@ftp.linux.org.uk> <1127079026.8932.13.camel@localhost.localdomain>
+	Sun, 18 Sep 2005 17:22:22 -0400
+Received: from ganesha.gnumonks.org ([213.95.27.120]:17134 "EHLO
+	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
+	id S932207AbVIRVWV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Sep 2005 17:22:21 -0400
+Date: Sun, 18 Sep 2005 23:22:18 +0200
+From: Harald Welte <laforge@gnumonks.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Omnikey CardMan 4000 update
+Message-ID: <20050918212217.GA18339@sunbeam.de.gnumonks.org>
+References: <20050913155333.GZ29695@sunbeam.de.gnumonks.org> <20050914022314.35eab48d.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="sm4nu43k4a2Rpi4c"
 Content-Disposition: inline
-In-Reply-To: <1127079026.8932.13.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20050914022314.35eab48d.akpm@osdl.org>
+User-Agent: mutt-ng devel-20050619 (Debian)
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 18, 2005 at 10:30:26PM +0100, Alan Cox wrote:
-> > It would be very useful when e.g. tracking down improper uses of
-> > struct file, struct dentry, etc. - stuff that should always be
-> > allocated by one helper function.  Same goes for e.g. net_device -
-> 
-> Another useful trick here btw is to make such objects contain (when
-> debugging)
-> 
-> 	void *magic_ptr;
-> 
-> which is initialised as foo->magic_ptr = foo;
-> 
-> That catches anyone copying them and tells you what got copied
 
-At runtime, _if_ we do not forget to initialize it.  Which is what
-we are trying to catch...
+--sm4nu43k4a2Rpi4c
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, Sep 14, 2005 at 02:23:14AM -0700, Andrew Morton wrote:
+> Harald Welte <laforge@gnumonks.org> wrote:
+> >
+> > Add new Omnikey Cardman 4000 smartcard reader driver
+>=20
+> - All the open-coded mdelays() are wrong:
+>=20
+>   #define	T_10MSEC	msecs_to_jiffies(10)
+>   ...
+> 		mdelay(T_10MSEC);
+>=20
+>   mdelay() already takes a jiffies argument.
+>=20
+> - terminate_monitor() should use del_timer_sync().
+>=20
+
+Plaease see the patch below (against -rc1-mm1):
+
+[CM4000] CardMan 4000 Driver Update
+
+* use milliseconds as parameter for mdelay, not jiffies
+* clarify that dev->mdelay parameter is in jiffies
+* use del_timer_sync() instead of del_timer()
+
+Signed-off-by: Harald Welte <laforge@gnumonks.org>
+
+--- a/drivers/char/pcmcia/cm4000_cs.c	2005-09-18 18:56:29.000000000 +0200
++++ b/drivers/char/pcmcia/cm4000_cs.c	2005-09-18 21:39:31.000000000 +0200
+@@ -131,7 +131,7 @@
+ 	unsigned char cwarn;	/* slow down warning */
+ 	unsigned char flags0;	/* cardman IO-flags 0 */
+ 	unsigned char flags1;	/* cardman IO-flags 1 */
+-	unsigned int mdelay;	/* variable monitor speeds */
++	unsigned int mdelay;	/* variable monitor speeds, in jiffies */
+=20
+ 	unsigned int baudv;	/* baud value for speed */
+ 	unsigned char ta1;
+@@ -564,7 +564,7 @@
+ 			DEBUGP(5, dev, "NumRecBytes is valid\n");
+ 			break;
+ 		}
+-		mdelay(T_10MSEC);
++		mdelay(10);
+ 	}
+ 	if (i =3D=3D 100) {
+ 		DEBUGP(5, dev, "Timeout waiting for NumRecBytes getting "
+@@ -580,7 +580,7 @@
+ 			DEBUGP(2, dev, "NumRecBytes =3D %i\n", num_bytes_read);
+ 			break;
+ 		}
+-		mdelay(T_10MSEC);
++		mdelay(10);
+ 	}
+=20
+ 	/* check whether it is a short PTS reply? */
+@@ -678,7 +678,7 @@
+ 		msleep(25);
+=20
+ 	DEBUGP(5, dev, "Delete timer\n");
+-	del_timer(&dev->timer);
++	del_timer_sync(&dev->timer);
+ #ifdef PCMCIA_DEBUG
+ 	dev->monitor_running =3D 0;
+ #endif
+--=20
+- Harald Welte <laforge@gnumonks.org>          	        http://gnumonks.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+"Privacy in residential applications is a desirable marketing option."
+                                                  (ETSI EN 300 175-7 Ch. A6)
+
+--sm4nu43k4a2Rpi4c
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFDLdqJXaXGVTD0i/8RArSoAJ4tH6RbXDjf7C3b5wv3OT/deP7sFgCfRuJ4
+W0TzXTjgsKAGffhrPHjUIyc=
+=JLt/
+-----END PGP SIGNATURE-----
+
+--sm4nu43k4a2Rpi4c--

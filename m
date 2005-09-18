@@ -1,73 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbVIRQDA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932109AbVIRQKK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932107AbVIRQDA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 12:03:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932108AbVIRQDA
+	id S932109AbVIRQKK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 12:10:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932110AbVIRQKK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 12:03:00 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:22154 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S932107AbVIRQC7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 12:02:59 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Al Boldi <a1426z@gawab.com>
-Subject: Re: Eradic disk access during reads
-Date: Sun, 18 Sep 2005 19:02:17 +0300
-User-Agent: KMail/1.8.2
-Cc: Willy Tarreau <willy@w.ods.org>, linux-kernel@vger.kernel.org
-References: <200509170717.03439.a1426z@gawab.com> <200509181400.27004.vda@ilport.com.ua> <200509181640.19984.a1426z@gawab.com>
-In-Reply-To: <200509181640.19984.a1426z@gawab.com>
+	Sun, 18 Sep 2005 12:10:10 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:33948 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S932109AbVIRQKJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Sep 2005 12:10:09 -0400
+Message-ID: <432D9432.5C5B64D6@tv-sign.ru>
+Date: Sun, 18 Sep 2005 20:22:10 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] introduce setup_timer() helper
+References: <432D70C8.EF7B0438@tv-sign.ru> <1127056369.30256.4.camel@localhost.localdomain> <432D8CF8.C14C48A0@tv-sign.ru> <20050918154301.GA9088@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509181902.17633.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > > # dd if=/dev/hda of=/dev/null bs=16M
-> > > 2.4.31 # nmeter t6 c x i b d100
-> > > 18:56:36.009981 cpu [SSSSSSSS..] ctx  145 int   86 bio 4.7M    0
-> > > 18:56:36.110327 cpu [SSSSSSSS..] ctx  145 int   87 bio 4.8M    0
-> > > 18:56:36.210735 cpu [SSSSSSSS..] ctx  139 int   88 bio 4.7M    0
-> > > 18:56:36.310315 cpu [SSSSSSSS..] ctx  142 int   85 bio 4.7M    0
-> > >
-> > > 2.6.13 # nmeter t6 c x i b d100
-> > > 18:09:22.117959 cpu [SSSSSSSSSD] ctx   80 int   47 bio 4.7M    0
-> > > 18:09:22.217932 cpu [SSSSSSDDDD] ctx   83 int   48 bio 4.8M    0
-> > > 18:09:22.319200 cpu [SSSSDDDDDI] ctx   81 int   56 bio 4.7M  28k
-> > > 18:09:22.407979 cpu [SSSSSSSSSD] ctx   60 int   38 bio 3.8M    0
-> > > 18:09:22.517960 cpu [SSSSSSSSDI] ctx   95 int   61 bio 5.2M  52k
+Arjan van de Ven wrote:
+> 
+> On Sun, Sep 18, 2005 at 07:51:20PM +0400, Oleg Nesterov wrote:
 > >
-> > Well, I do not see any bursts you mention...
+> > I think it does not matter from correctness point of view.
 > 
-> Can you try 2.4.31?
+> right now.. it probably doesn't.
+> However I think conceptually, touching a timer before init_timer() is just
+> wrong.
 
-Not easy. I guess I have quite a few 2.6-only things here...
+It is indeed wrong outside timer.{h,c}, but setup_timer() is a
+part of timers subsystem, so I hope it's ok.
 
-> same here.
-> 
-> > My CPU is not that new:
-> 
-> PII - 400Mhz here.
+> For one... it would prevent init_timer() from being able to use
+> memset() on the timer. Which it doesn't today but it's the kind of thing
+> that you don't want to prevent happening in the future.
 
-I meant that kernel seem to eat too much CPU here. This
-is not expected. I expected CPU bar to be all D.
- 
-> > hdc (an old disk):
-> > 13:52:40.201718 cpu [SSSDDDDDDD] ctx   26 int  112 bio 1.2M    0
-> > 13:52:40.301569 cpu [SSDDDDDDDD] ctx   28 int  109 bio 1.2M    0
-> > 13:52:40.402552 cpu [SSDDDDDDDI] ctx   23 int  111 bio 1.2M    0
-> > 13:52:40.502535 cpu [SSDDDDDDDD] ctx   22 int  110 bio 1.2M    0
-> > 13:52:40.601507 cpu [SSDDDDDDDI] ctx   26 int  111 bio 1.2M    0
-> > 13:52:40.701493 cpu [SSDDDDDDDD] ctx   23 int  110 bio 1.2M    0
-> 
-> Looks smooth.
-> 
-> Also, great meter!  Best of all does not hog the CPU!
-> Could you add a top3 procs display?
+Yes, in that case we will have to change setup_timer(). But I
+doubt this will happen. init_timer() only needs to set timer's
+->base, and to ensure the timer is not pending.
 
-What is a "top3 procs display"?
---
-vda
+> 
+> >       setup_timer(timer, expr1(), expr2())
+> >
+> > it is better to initialize ->func and ->data first, otherwise
+> > the compiler should save the results from expr{1,2}, then call
+> > init_timer(), then copy these results to *timer.
+> 
+> I don't see how that is different....
+
+I think this can save a couple of cpu cycles. The init_timer()
+is not inline, gcc can't reorder exprx() and init_timer() calls.
+
+Ok, I do not want to persist very much, I can resend this patch.
+
+Andrew, should I?
+
+Oleg.

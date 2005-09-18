@@ -1,52 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbVIRRpx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbVIRRzj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932139AbVIRRpx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 13:45:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932140AbVIRRpx
+	id S932144AbVIRRzj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 13:55:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932145AbVIRRzj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 13:45:53 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:30917 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932139AbVIRRpw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 13:45:52 -0400
-Date: Sun, 18 Sep 2005 18:45:49 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Willy Tarreau <willy@w.ods.org>, Robert Love <rml@novell.com>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: p = kmalloc(sizeof(*p), )
-Message-ID: <20050918174549.GN19626@ftp.linux.org.uk>
-References: <20050918100627.GA16007@flint.arm.linux.org.uk> <1127061146.6939.6.camel@phantasy> <20050918165219.GA595@alpha.home.local> <20050918171845.GL19626@ftp.linux.org.uk> <Pine.LNX.4.58.0509181028140.26803@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0509181028140.26803@g5.osdl.org>
-User-Agent: Mutt/1.4.1i
+	Sun, 18 Sep 2005 13:55:39 -0400
+Received: from ns1.osuosl.org ([140.211.166.130]:1232 "EHLO ns1.osuosl.org")
+	by vger.kernel.org with ESMTP id S932144AbVIRRzi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Sep 2005 13:55:38 -0400
+Message-ID: <432DAA0A.10509@engr.orst.edu>
+Date: Sun, 18 Sep 2005 10:55:22 -0700
+From: Michael Marineau <marineam@engr.orst.edu>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050728)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Gene Heskett <gene.heskett@verizon.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [KORG] REMINDER: master.kernel.org extended downtime
+References: <432B1D4E.4060301@zytor.com> <432B26AA.8070901@zytor.com> <432D17EA.8090303@osuosl.org> <200509181105.20460.gene.heskett@verizon.net>
+In-Reply-To: <200509181105.20460.gene.heskett@verizon.net>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig1CF2B91D514A9D53DD103CFF"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 18, 2005 at 10:31:36AM -0700, Linus Torvalds wrote:
-> 
-> 
-> On Sun, 18 Sep 2005, Al Viro wrote:
-> > 
-> > That's why you do
-> > 	*p = (struct foo){....};
-> > instead of
-> > 	memset(p, 0, sizeof...);
-> > 	p->... =...;
-> 
-> Actually, some day that migth be a good idea, but at least historically, 
-> gcc has really really messed that kind of code up.
-> 
-> Last I looked, depending on what the initializer was, gcc would create a 
-> temporary struct on the stack first, and then do a "memcpy()" of the 
-> result. Not only does that obviously generate a lot of extra code, it also 
-> blows your kernel stack to kingdom come.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig1CF2B91D514A9D53DD103CFF
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Ewwwww...  I'd say that it qualifies as one hell of a bug (and yes, at least
-3.3 and 4.0.1 are still doing that).  What a mess...
- 
-> (For _small_ structures it's wonderful. As far as I can tell, gcc does a
-> pretty good job on structs that are just a single long-word in size).
+Gene Heskett wrote:
+> On Sunday 18 September 2005 03:31, Michael Marineau wrote:
+> 
+>>H. Peter Anvin wrote:
+>>
+>>>H. Peter Anvin wrote:
+>>>
+>>>>master.kernel.org will be offline starting shortly after 15:00
+>>>>PDT/22:00 UTC today, September 19, 2005; for a move to the University
+>>>>of Oregon Open Source Lab.  This should give much better bandwidth
+>>>>and a more reliable backup solution, in addition to access to a real,
+>>>>staffed NOC.
+>>>
+>>>That should have been Oregon State University Open Source Lab.  Mea
+>>>culpa.
+>>>
+>>>    -hpa
+>>
+>>Btw, to any one interested Scott Kveton posted photos of the welcoming
+>>party here this morning. :-)
+>>
+>>http://osuosl.org/photos/kernel/view
+> 
+> 
+> Neat!  But where was the obligatory 6 pack?
+> 
+Those were at OSU's anual "Geeks and Steaks" bbq afterwards. ;-)
+
+-- 
+Michael Marineau
+marineam@engr.orst.edu
+Oregon State University
+
+--------------enig1CF2B91D514A9D53DD103CFF
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFDLaoKiP+LossGzjARAgQpAKCkfqsYmHpqhipMIJMgZ2lXa15fPQCeMuUA
+JzY6a5r6r/qSrdYN9T4wPLE=
+=x4fw
+-----END PGP SIGNATURE-----
+
+--------------enig1CF2B91D514A9D53DD103CFF--

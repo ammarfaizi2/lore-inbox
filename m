@@ -1,64 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932109AbVIRQKK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932110AbVIRQ0e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932109AbVIRQKK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 12:10:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932110AbVIRQKK
+	id S932110AbVIRQ0e (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 12:26:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932112AbVIRQ0e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 12:10:10 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:33948 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S932109AbVIRQKJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 12:10:09 -0400
-Message-ID: <432D9432.5C5B64D6@tv-sign.ru>
-Date: Sun, 18 Sep 2005 20:22:10 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Sun, 18 Sep 2005 12:26:34 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:14266 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S932110AbVIRQ0d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Sep 2005 12:26:33 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Al Viro <viro@ftp.linux.org.uk>
+Subject: Re: p = kmalloc(sizeof(*p), )
+Date: Sun, 18 Sep 2005 19:25:24 +0300
+User-Agent: KMail/1.8.2
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+References: <20050918100627.GA16007@flint.arm.linux.org.uk> <1127041474.8932.4.camel@localhost.localdomain> <20050918143907.GK19626@ftp.linux.org.uk>
+In-Reply-To: <20050918143907.GK19626@ftp.linux.org.uk>
 MIME-Version: 1.0
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] introduce setup_timer() helper
-References: <432D70C8.EF7B0438@tv-sign.ru> <1127056369.30256.4.camel@localhost.localdomain> <432D8CF8.C14C48A0@tv-sign.ru> <20050918154301.GA9088@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509181925.25112.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
+On Sunday 18 September 2005 17:39, Al Viro wrote:
+> On Sun, Sep 18, 2005 at 12:04:34PM +0100, Alan Cox wrote:
+>  
+> > Other good practice in many cases is a single routine which allocates
+> > and initialises the structure and is used by all allocators of that
+> > object. That removes duplicate initialisers, stops people forgetting to
+> > update all cases, allows better debug and far more.
 > 
-> On Sun, Sep 18, 2005 at 07:51:20PM +0400, Oleg Nesterov wrote:
-> >
-> > I think it does not matter from correctness point of view.
+> Indeed.  IMO, argument for sizeof(*p) is bullshit - "I've changed a pointer
+> type and forgot to update the allocation and initialization, but this will
+> magically save my arse" is missing "except that initialization will remain
+> bogus" part.
 > 
-> right now.. it probably doesn't.
-> However I think conceptually, touching a timer before init_timer() is just
-> wrong.
+> I've seen a lot of bugs around bogus kmalloc+initialization, but I can't
+> recall a single case when such bug would be prevented by using that form.
+> If somebody has a different experience, please post pointers to changesets
+> in question.
 
-It is indeed wrong outside timer.{h,c}, but setup_timer() is a
-part of timers subsystem, so I hope it's ok.
+Do these qualify?
 
-> For one... it would prevent init_timer() from being able to use
-> memset() on the timer. Which it doesn't today but it's the kind of thing
-> that you don't want to prevent happening in the future.
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0105.1/0579.html
+o Fix wrong kmalloc sizes in ixj/emu10k1 (David Chan) 
 
-Yes, in that case we will have to change setup_timer(). But I
-doubt this will happen. init_timer() only needs to set timer's
-->base, and to ensure the timer is not pending.
+http://www.mail-archive.com/alsa-cvslog@lists.sourceforge.net/msg02483.html
+Update of /cvsroot/alsa/alsa-kernel/isa
+In directory sc8-pr-cvs1:/tmp/cvs-serv4034
 
+Modified Files:
+        es18xx.c cmi8330.c 
+Log Message:
+Fixed wrong kmalloc
+
+
+After looking at output of grep -r -C10 'malloc.*sizeof' .
+(epic picture) I think that maybe Alan's typechecking kmalloc
+would be useful:
+
+On Sunday 18 September 2005 14:04, Alan Cox wrote:
+> If it bugs people add a kmalloc_object macro that is
 > 
-> >       setup_timer(timer, expr1(), expr2())
-> >
-> > it is better to initialize ->func and ->data first, otherwise
-> > the compiler should save the results from expr{1,2}, then call
-> > init_timer(), then copy these results to *timer.
+> #define new_object(foo, gfp) (foo *)kmalloc(sizeof(foo), (gfp))
 > 
-> I don't see how that is different....
+> then you can
+> 
+> 	x = new_object(struct frob, GFP_KERNEL)
 
-I think this can save a couple of cpu cycles. The init_timer()
-is not inline, gcc can't reorder exprx() and init_timer() calls.
-
-Ok, I do not want to persist very much, I can resend this patch.
-
-Andrew, should I?
-
-Oleg.
+This will emit a warning if x is not a struct frob*,
+which plain kmalloc doesn't do.
+--
+vda

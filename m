@@ -1,66 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbVIRWZz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932235AbVIRW1q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932233AbVIRWZz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 18:25:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbVIRWZz
+	id S932235AbVIRW1q (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 18:27:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbVIRW1q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 18:25:55 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:52682 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932233AbVIRWZz (ORCPT
+	Sun, 18 Sep 2005 18:27:46 -0400
+Received: from zproxy.gmail.com ([64.233.162.195]:18588 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932235AbVIRW1p (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 18:25:55 -0400
-Date: Sun, 18 Sep 2005 15:25:39 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Al Viro <viro@ftp.linux.org.uk>
-cc: Roman Zippel <zippel@linux-m68k.org>, Willy Tarreau <willy@w.ods.org>,
-       Robert Love <rml@novell.com>, Russell King <rmk+lkml@arm.linux.org.uk>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: p = kmalloc(sizeof(*p), )
-In-Reply-To: <20050918215257.GA29417@ftp.linux.org.uk>
-Message-ID: <Pine.LNX.4.58.0509181513440.9106@g5.osdl.org>
-References: <20050918100627.GA16007@flint.arm.linux.org.uk>
- <1127061146.6939.6.camel@phantasy> <20050918165219.GA595@alpha.home.local>
- <20050918171845.GL19626@ftp.linux.org.uk> <Pine.LNX.4.58.0509181028140.26803@g5.osdl.org>
- <20050918174549.GN19626@ftp.linux.org.uk> <Pine.LNX.4.61.0509182222030.3743@scrub.home>
- <20050918211225.GP19626@ftp.linux.org.uk> <20050918215257.GA29417@ftp.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 18 Sep 2005 18:27:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=QqG8mfzOaTXucFTLDuH+eHol3CjB+ZOWAZ4oM7xVpiYFRay0KLBkMsd/HXk3IDR7FwxLcDBvU1yG9a2l2edx1pbvKWqwVsVLqxhUmibxeowzp6LIoTDEiw0G6rLi95vi7atToUrYSlwktthKj5AL1SeluKagfWMPF7SIwu50fO8=
+Date: Mon, 19 Sep 2005 02:38:12 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Karsten Keil <kkeil@suse.de>
+Subject: Re: [linux-usb-devel] URB_ASYNC_UNLINK b0rkage
+Message-ID: <20050918223811.GA24046@mipter.zuzino.mipt.ru>
+References: <20050918190526.GB787@mipter.zuzino.mipt.ru> <Pine.LNX.4.44L0.0509181718360.2126-100000@netrider.rowland.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L0.0509181718360.2126-100000@netrider.rowland.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sun, 18 Sep 2005, Al Viro wrote:
+On Sun, Sep 18, 2005 at 05:30:50PM -0400, Alan Stern wrote:
+> On Sun, 18 Sep 2005, Alexey Dobriyan wrote:
+> > drivers/usb/host/hc_crisv10.c:	if (urb->transfer_flags & URB_ASYNC_UNLINK) {
+> > drivers/usb/host/hc_crisv10.c:		/* If URB_ASYNC_UNLINK is set:
+> > drivers/usb/host/hc_crisv10.c:		warn("URB_ASYNC_UNLINK set, ignoring.");
+> > drivers/usb/misc/uss720.c:	/* rq->urb->transfer_flags |= URB_ASYNC_UNLINK; */
+> > drivers/isdn/hisax/st5481_b.c:	b_out->urb[0]->transfer_flags |= URB_ASYNC_UNLINK;
+> > drivers/isdn/hisax/st5481_b.c:	b_out->urb[1]->transfer_flags |= URB_ASYNC_UNLINK;
+> > drivers/isdn/hisax/st5481_usb.c:	in->urb[0]->transfer_flags |= URB_ASYNC_UNLINK;
+> > drivers/isdn/hisax/st5481_usb.c:	in->urb[1]->transfer_flags |= URB_ASYNC_UNLINK;
+> > Documentation/usb/URB.txt:the URB_ASYNC_UNLINK flag in urb->transfer flags before calling
 > 
-> BTW, for some idea of how hard does it actually blow
+> hc_crisv10 is long out-of-date and doesn't even build, as you saw.
 
-Well, to be slightly more positive: it's not a very easy feature to do 
-properly.
+Just grepped.
 
-The thing about "(cast) { .. }" initializers is that they aren't just 
-initializers: they really are local objects that can be used any way you 
-want to. So in the _generic_ case, gcc does exactly the right thing: it 
-introduces a local object that is filled in with the initializer.
+> Is anyone still using it?  It probably should be removed from the
+> Makefile.
 
-So in the generic case, you could have
+> In my kernel tree, the st5481 source files don't include the lines you 
+> show.  What source version are you using?
 
-	x = (cast) { ... }.member + 2;
+23 hours ago:
 
-instead of just a straight assignment.
+commit 61ffcafafb3d985e1ab8463be0187b421614775c
+Author: Karsten Keil <kkeil@suse.de>
+Date:   Sat Sep 17 23:52:42 2005 +0200
 
-The problem is just that the generic case is semantically pretty damn far 
-away from the case we actually want to use, ie the special case of an 
-assignment. So some generic top-level code has created the generic code, 
-and now the lower levels of the compiler need to "undo" that generic code, 
-and see what it actually boils down to. And that's quite hard.
+    [PATCH] Fix ST 5481 USB driver
 
-The sane thing to do for good code generation would be to special-case the 
-assignment of this kind of thing, and just make it very obvious that an 
-assignment of a (cast) {...} is very different from the generic use of 
-same. But that would introduce two totally different cases for the thing.
+    The old driver was not fully adapted to new USB ABI and does not
+    work.
 
-So considering that almost nobody does this (certainly not SpecInt), and 
-it would probably require re-organizations at many levels, I'm not 
-surprised it hasn't gotten a lot of attention.
++	in->urb[0]->transfer_flags |= URB_ASYNC_UNLINK;
+ 	usb_unlink_urb(in->urb[0]);
++	in->urb[1]->transfer_flags |= URB_ASYNC_UNLINK;
+ 	usb_unlink_urb(in->urb[1]);
 
-		Linus

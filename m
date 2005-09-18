@@ -1,43 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932187AbVIRU3h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932189AbVIRUfE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932187AbVIRU3h (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 16:29:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbVIRU3h
+	id S932189AbVIRUfE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 16:35:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932190AbVIRUfE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 16:29:37 -0400
-Received: from 69-18-3-179.lisco.net ([69.18.3.179]:19635 "EHLO
-	ninja.slaphack.com") by vger.kernel.org with ESMTP id S932187AbVIRU3g
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 16:29:36 -0400
-Message-ID: <432DCE2A.5070705@slaphack.com>
-Date: Sun, 18 Sep 2005 15:29:30 -0500
-From: David Masover <ninja@slaphack.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (Macintosh/20050716)
-X-Accept-Language: en-us, en
+	Sun, 18 Sep 2005 16:35:04 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:34455 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932189AbVIRUfB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Sep 2005 16:35:01 -0400
+Date: Sun, 18 Sep 2005 22:34:16 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Al Viro <viro@ftp.linux.org.uk>
+cc: Linus Torvalds <torvalds@osdl.org>, Willy Tarreau <willy@w.ods.org>,
+       Robert Love <rml@novell.com>, Russell King <rmk+lkml@arm.linux.org.uk>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: p = kmalloc(sizeof(*p), )
+In-Reply-To: <20050918174549.GN19626@ftp.linux.org.uk>
+Message-ID: <Pine.LNX.4.61.0509182222030.3743@scrub.home>
+References: <20050918100627.GA16007@flint.arm.linux.org.uk>
+ <1127061146.6939.6.camel@phantasy> <20050918165219.GA595@alpha.home.local>
+ <20050918171845.GL19626@ftp.linux.org.uk> <Pine.LNX.4.58.0509181028140.26803@g5.osdl.org>
+ <20050918174549.GN19626@ftp.linux.org.uk>
 MIME-Version: 1.0
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-CC: thenewme91@gmail.com, Christoph Hellwig <hch@infradead.org>,
-       Denis Vlasenko <vda@ilport.com.ua>, chriswhite@gentoo.org,
-       Hans Reiser <reiser@namesys.com>, LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: I request inclusion of reiser4 in the mainline kernel
-References: <200509182004.j8IK4JNx012764@inti.inf.utfsm.cl>
-In-Reply-To: <200509182004.j8IK4JNx012764@inti.inf.utfsm.cl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand wrote:
-> There are lots of reports of ReiserFS 3
-> filesystems completely destroyed by minor hardware flakiness.
+Hi,
 
-Honestly, this is one of the things I like about Linux.  If I have 
-memory errors, Windows will just keep running, occasionally something 
-will crash, you restart it, never suspecting just how corrupt things are 
-getting under the hood.  On Linux, I generally get kernel panics pretty 
-quickly, so I run memtest86 and replace the RAM.
+On Sun, 18 Sep 2005, Al Viro wrote:
 
-If my hardware is flaky, I consider it my job to replace it, not the job 
-of all my software to magically compensate for it.  If I lose data, oh 
-well, I have backups.  If I didn't, I was asking for trouble anyway.
+> > On Sun, 18 Sep 2005, Al Viro wrote:
+> > > 
+> > > That's why you do
+> > > 	*p = (struct foo){....};
+> > > instead of
+> > > 	memset(p, 0, sizeof...);
+> > > 	p->... =...;
+> > 
+> > Actually, some day that migth be a good idea, but at least historically, 
+> > gcc has really really messed that kind of code up.
+> > 
+> > Last I looked, depending on what the initializer was, gcc would create a 
+> > temporary struct on the stack first, and then do a "memcpy()" of the 
+> > result. Not only does that obviously generate a lot of extra code, it also 
+> > blows your kernel stack to kingdom come.
+> 
+> Ewwwww...  I'd say that it qualifies as one hell of a bug (and yes, at least
+> 3.3 and 4.0.1 are still doing that).  What a mess...
+
+It's not a bug, it's exactly what you're asking for, e.g. "*p1 = *p2" 
+translates to memcpy. gcc also can't simply initialize that structure in 
+place, e.g. you could do something like this (not necessarily useful but 
+still valid): "*p = (struct foo){...,  bar(p),...};".
+In the end it all depends on how good gcc can optimize away the memcpy, 
+but initially there is always a memcpy.
+
+bye, Roman

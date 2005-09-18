@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932112AbVIRQc2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932114AbVIRQfE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932112AbVIRQc2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 12:32:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932113AbVIRQc2
+	id S932114AbVIRQfE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 12:35:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932115AbVIRQfE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 12:32:28 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:40582 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S932112AbVIRQc1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 12:32:27 -0400
-Subject: Re: p = kmalloc(sizeof(*p), )
-From: Robert Love <rml@novell.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Al Viro <viro@ftp.linux.org.uk>
-In-Reply-To: <20050918100627.GA16007@flint.arm.linux.org.uk>
-References: <20050918100627.GA16007@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Date: Sun, 18 Sep 2005 12:32:26 -0400
-Message-Id: <1127061146.6939.6.camel@phantasy>
+	Sun, 18 Sep 2005 12:35:04 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:13828 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S932114AbVIRQfD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Sep 2005 12:35:03 -0400
+Date: Sun, 18 Sep 2005 18:34:50 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Denis Vlasenko <vda@ilport.com.ua>
+Cc: Al Boldi <a1426z@gawab.com>, linux-kernel@vger.kernel.org
+Subject: Re: Eradic disk access during reads
+Message-ID: <20050918163450.GA1516@alpha.home.local>
+References: <200509170717.03439.a1426z@gawab.com> <200509181400.27004.vda@ilport.com.ua> <200509181640.19984.a1426z@gawab.com> <200509181902.17633.vda@ilport.com.ua>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200509181902.17633.vda@ilport.com.ua>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-09-18 at 11:06 +0100, Russell King wrote:
+On Sun, Sep 18, 2005 at 07:02:17PM +0300, Denis Vlasenko wrote:
+> > > My CPU is not that new:
+> > 
+> > PII - 400Mhz here.
+> 
+> I meant that kernel seem to eat too much CPU here. This
+> is not expected. I expected CPU bar to be all D.
 
-> +The preferred form for passing a size of a struct is the following:
-> +
-> +       p = kmalloc(sizeof(*p), ...);
-> +
-> +The alternative form where struct name is spelled out hurts readability and
-> +introduces an opportunity for a bug when the pointer variable type is changed
-> +but the corresponding sizeof that is passed to a memory allocator is not.
+This is often caused by disks running in PIO instead of DMA.
 
-Agreed.
+> > Also, great meter!  Best of all does not hog the CPU!
+> > Could you add a top3 procs display?
+> 
+> What is a "top3 procs display"?
 
-Also, after Alan's #4:
+probably something which will turn your tool into sort of a complex and
+unusable one when another session running 'top' could do the trick.
 
-5.  Contrary to the above statement, such coding style does not help,
-    but in fact hurts, readability.  How on Earth is sizeof(*p) more
-    readable and information-rich than sizeof(struct foo)?  It looks
-    like the remains of a 5,000 year old wolverine's spleen and
-    conveys no information about the type of the object that is being
-    created.
+Oh, BTW, the first reason I wrote my tool was to avoid copying into
+/dev/null which consumes a small amount of CPU. Thus, I made it a pure
+data eater. It might be interesting to run it instead of 'dd' while your
+tool is running, to see if system usage decreases a bit.
 
-	Robert Love
-
+Regards,
+Willy
 

@@ -1,49 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932115AbVIRQqD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750953AbVIRQsY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932115AbVIRQqD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 12:46:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932117AbVIRQqD
+	id S1750953AbVIRQsY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 12:48:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751181AbVIRQsY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 12:46:03 -0400
-Received: from 69.50.231.10.ip.nectartech.com ([69.50.231.10]:59776 "EHLO
-	newton.ctyme.com") by vger.kernel.org with ESMTP id S932115AbVIRQqC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 12:46:02 -0400
-Message-ID: <432D99C4.5020000@perkel.com>
-Date: Sun, 18 Sep 2005 09:45:56 -0700
-From: Marc Perkel <marc@perkel.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.10) Gecko/20050716
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Sun, 18 Sep 2005 12:48:24 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:40104 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S1750953AbVIRQsY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Sep 2005 12:48:24 -0400
 To: linux-kernel@vger.kernel.org
-Subject: Wanted - Recommendation of good motherboard for AMD Athlon 64 X2
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-filter-host: newton.ctyme.com - http://www.junkemailfilter.com
+Subject: Re: mmap (2) vs read (2)
+References: <wn58xxvhdz8.fsf@linhd-2.ca.nortel.com>
+	<1126981595.3010.1.camel@localhost.localdomain>
+From: "Linh Dang" <linhd@nortel.com>
+Organization: Null
+Date: Sun, 18 Sep 2005 12:47:48 -0400
+In-Reply-To: <1126981595.3010.1.camel@localhost.localdomain> (Arjan van de
+ Ven's message of "Sat, 17 Sep 2005 14:26:35 -0400")
+Message-ID: <wn5oe6q9vbf.fsf@linhd-2.ca.nortel.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm leaning towards scrappung my Ass motherboard for having a LOT of 
-Linux problems. Looking for a recommendation of what to replace it with.
 
-I want something that is highly Linux frendly and "just works".
+Arjan van de Ven <arjanv@redhat.com> wrote:
 
-Running Athlon 64 X2 4400+
-Needs 4 SATA ports - prefer SATA II
-VGA on MB would be nice but not required.
-MUST run with 4 gigs of ram. I have Kingston HyperX which should be 
-plenty fast.
-I'm running Fedora Core 4 on it.
-I'm Running Maxtor drives that support NCQ even though the SATA 
-interface is 1.5gb
+> On Sat, 2005-09-17 at 12:10 -0400, Linh Dang wrote:
+>> Hi, how come reading memory from /dev/mem using pread(2) or mmap(2)
+>> will give diffent results?
+>
+> because you're being evil ;)
+>
+> mmap of /dev/mem for *ram* is special. To avoid cache aliases and
+> other evils, you can only mmap non-ram realistically on /dev/mem.
+>
+> Why are you using /dev/mem in the first place, it's a sure sign that
+> you're doing something really wrong in your design...
 
-I don't need raid.
+Thanx for the reply, what I'm doing is writing a driver (based on
+mem.c) to export a block of ram to (other masters on) the PCI bus. The
+driver does:
 
-What out there actually works.
+        1. get a contiguous block of ram using alloc_pages()
+        2. export (via host-bridge hw setting) the block to the pci
+           bus
+        3. provide the .mmap() method in the driver to let userspace
+           to mmap the device
+
+In doing so, I encountered the inconsistencies of mmap(2) vs
+read(2)/write(2). The work around I found is to SetPageReserved() on
+all the pages got from alloc_pages(). But unfortunately I have no
+clues why it's so. The vm code is not the easiest one to read
+(compared to let's say the network code.)
 
 -- 
-Marc Perkel - marc@perkel.com
-
-Spam Filter: http://www.junkemailfilter.com
-    My Blog: http://marc.perkel.com
-
+Linh Dang

@@ -1,89 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751199AbVIRG7I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbVIRHXn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751199AbVIRG7I (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 02:59:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751312AbVIRG7I
+	id S1751161AbVIRHXn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 03:23:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbVIRHXn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 02:59:08 -0400
-Received: from smtprelay03.ispgateway.de ([80.67.18.15]:40839 "EHLO
-	smtprelay03.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1751199AbVIRG7H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 02:59:07 -0400
-Message-ID: <432D1033.6040801@v.loewis.de>
-Date: Sun, 18 Sep 2005 08:58:59 +0200
-From: =?ISO-8859-1?Q?=22Martin_v=2E_L=F6wis=22?= <martin@v.loewis.de>
+	Sun, 18 Sep 2005 03:23:43 -0400
+Received: from smtprelay02.ispgateway.de ([80.67.18.14]:6304 "EHLO
+	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1751161AbVIRHXm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Sep 2005 03:23:42 -0400
+Message-ID: <432D15FA.8030100@v.loewis.de>
+Date: Sun, 18 Sep 2005 09:23:38 +0200
+From: =?UTF-8?B?Ik1hcnRpbiB2LiBMw7Z3aXMi?= <martin@v.loewis.de>
 User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "D. Hazelton" <dhazelton@enter.net>
-CC: 7eggert@gmx.de, "H. Peter Anvin" <hpa@zytor.com>,
-       linux-kernel@vger.kernel.org
+To: Bernd Petrovitsch <bernd@firmix.at>
+CC: =?UTF-8?B?Ik1hcnRpbiB2LiBMw7Z3aXMi?= <martin@v.loewis.de>,
+       "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
 Subject: Re: [Patch] Support UTF-8 scripts
-References: <4N6EL-4Hq-3@gated-at.bofh.it> <200509170028.59973.dhazelton@enter.net> <432BB77E.3050501@v.loewis.de> <200509172231.33872.dhazelton@enter.net>
-In-Reply-To: <200509172231.33872.dhazelton@enter.net>
+References: <4NsP0-3YF-11@gated-at.bofh.it> <4NsP0-3YF-13@gated-at.bofh.it>	 <4NsP0-3YF-15@gated-at.bofh.it> <4NsP0-3YF-17@gated-at.bofh.it>	 <4NsP1-3YF-19@gated-at.bofh.it> <4NsP1-3YF-21@gated-at.bofh.it>	 <4NsOZ-3YF-9@gated-at.bofh.it> <4NsYH-4bv-27@gated-at.bofh.it>	 <4NtBr-4WU-3@gated-at.bofh.it> <4Nu4p-5Js-3@gated-at.bofh.it>	 <432B2E09.9010407@v.loewis.de> <1126910730.3520.7.camel@gimli.at.home>	 <432BB59C.8060108@v.loewis.de> <1126996093.3373.21.camel@gimli.at.home>
+In-Reply-To: <1126996093.3373.21.camel@gimli.at.home>
 X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-D. Hazelton wrote:
-> This is news to me. The last time I handed execve() a script as a 
-> paramter I had errors returned from execve() -- I must admit that 
-> this was not on my current system and I had assumed that the behavior 
-> would be consistent.
+Bernd Petrovitsch wrote:
+> Most of the text editors have ways to markup the source files. Not even
+> the various editors are able to agreen on one method for all, so why
+> could the (Linux) world agree on one for all text files?
 
-The kernel checks for #!<path>, and that <path> is an existing
-executable. If not, execve fails.
+You are ignoring the role of standardization. People invent their own
+mechanism if a standard is missing (or virtually unimplementable). For
+declaring encodings, there is no standard (except of iso-2022, which
+is really hard to implement correctly). Therefore, editor authors
+create their own standards.
 
-> You are correct. It is fairly trivial. However my point still is valid 
-> that the Kernel has the whole binfmt_misc system -- I will admit that 
-> I have recently been shown numbers that show a noticeable difference 
-> in the speed of a binary executed using the binfmt_misc system and 
-> the binfmt_script system, but the fact remains that offering handling 
-> for UTF8 and ASCII scripts directly in the kernel will likely lead to 
-> at least one more patch in which the the full Unicode standard is 
-> implemented.
+Atleast Python abstained from creating yet another standard, and instead
+supports both the declarations from Emacs and vim. To some degree, it
+also supports notepad (namely through the UTF-8 signature).
 
-The problem with the binfmt_misc approach is that you need *another*
-execve call: with binfmt_misc, you register <utf8sig>#!, and a
-generic binary. Then, this generic binary will interpret the #!
-signature *again*, and invoke the proper interpreter. This will
-intepret the first line *yet again* (finding that it is a comment),
-and continue processing the file.
+However, people are much more likely to agree on a technology when it
+is defined by a recognized standards body. This is the case for the
+UTF-8 signature, which is defined by the Unicode consortium, for
+precisely this purpose. Therefore, editors *will* agree on that
+mechanism, while keeping their own mechanism for the more general
+problem.
 
-However, this is not the real problem. The real problem is that
-the specific binfmt_misc "backend" would not be universally
-available, and then the same script would start on some systems,
-and break on others. This may be acceptable for large or specific
-applications (e.g. you have to setup the ibcs2 module to run
-SCO applications); it is not for scripts.
+>>Even for the programming language, it is a pain to implement: what
+>>if you have non-ASCII characters before the pragma that declares the
+>>encoding? and so on.
+> 
+> 
+> That's the problem of the language definers who absolutely want such
+> (IMHO absolutely superflous) features.
 
-Now, the "universally available" part would not apply right now,
-as only the most recent kernels would provide the feature. However,
-within a few years, the feature would be part of "Linux" - then
-people can start using it extensively.
+It's not the language designers who absolutely want this feature. It's
+the language users. Of course, you'ld have to be a language designer to
+know that fact - language users go to the language designers asking for
+the feature, not to the kernel developers.
 
-> That, and my point remains that the kernel should know absolutely 
-> nothing about how to execute a text file - the kernel should return 
-> an error to the extent of "I don't know what to do with this file" to 
-> the shell that tries to execute it, and the shell can then check for 
-> the sh_bang. I do admit that this change would break a lot of 
-> existing code, so I'll leave the argument to the experts.
+>>Hmm. What does that have to do with the patch I'm proposing? This
+>>patch does *not* interfere with all text files. It is only relevant
+>>for executable files starting with the #! magic.
+> 
+> 
+> It *does* interfere since scripts are also text files in every aspect.
+> So every feature you want for "scripts" you also get for text files (and
+> vice versa BTW).
 
-The point is that it is not necessarily the shell which starts
-programs - the shell is but one creator of new processes. It is
-very common today that, say, httpd starts new programs - this
-mechanism is called CGI. Your approach was in use until 1985 or
-so, when Unix implementations started to support #! natively.
-This was done both for convenience and for performance: if
-programs would always use system(3) to start new processes,
-there would always be a shell that execs the eventual
-interpreter.
+The specific feature I get is that when I pass a file starting
+with <utf8sig>#! to execve, Linux will execute the file following
+the #!. In what way do I get this feature for text in general?
+And if I do, why is that a problem?
 
-I'm not sure, but I believe that most current shells have "forgotten"
-how to do the #! magic, since, by now, "traditionally" this is
-a kernel responsibility.
+> If you think "script" and "text file" are different, define both of
+> them, please, otherwise a discussion is pointless.
+
+A script file (in the context of this discussion) is a text file
+that is executable (i.e. has the appropriate subset of
+S_IXUSR|S_IXGRP|S_IXOTH set), starts with #!, and has the path
+name of an executable file after the #!.
+
+More generally, a script file is a text file written in a scripting
+language. A scripting language is a programming language which
+supports "direct" execution of source code. So in the more
+general definition, a script file does not need to start with
+#!; for the context of this discussion, we should restrict
+attention to files actually affected by the patch.
+
+>>This conclusion is false. Many tools that don't understand the file
+>>structure still can do their job on the files. So the fact that a tool
+>>does not understand the structure does not necessarily imply that
+>>the tool breaks when the structure changes.
+> 
+> 
+> It *may* break just because of some to-be-ignored inline marking due to
+> some questionable feature.
+
+Be more specific. For what specific kind of file will cat(1) break?
+Unless cat(1) has a 2GB limitation, I very much doubt it will break
+(i.e. fail to do its job, "concatenate files and print on the standard
+output") for any kind of input - whether this is text files, binary
+files, images, sound files, HTML files. cat always does what it is
+designed to do.
+
+> Let alone the confusion why the size of a file with `ls -l` is different
+> from the size in the editor or a marker-aware `wc -c`.
+
+This is true for any UTF-8 file, or any multibyte encoding. For any
+multibyte encoding, the number of bytes in the file is different from
+the number of characters. That doesn't (and shouldn't) stop people from
+using multi-byte encodings.
+
+What the editor displays as the number of "things" is up to its own.
+The output of wc -c will always be the same as the one of ls -l,
+as wc -c does *not* give you characters:
+
+       -c, --bytes
+              print the byte counts
+
+You might have been thinking of 'wc -m'.
+
+>>For a Python script, I don't need to guess: It will just work.
+> 
+> 
+> Then write a short python script (with a "#!/usr/bin/python" line at the
+> start [without parameters]) natively on a Win*-system, copy it binary
+> over to an arbitrary Linux system and see what's happening.
+
+It depends on the editor I use, of course: the kernel will consider any
+CR after the n as part of the interpreter name. Not sure what this has
+to do with the specific patch, though.
 
 Regards,
 Martin
+

@@ -1,74 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751146AbVIRMde@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbVIRNLR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751146AbVIRMde (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 08:33:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbVIRMde
+	id S1751191AbVIRNLR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 09:11:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbVIRNLR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 08:33:34 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:40117 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S1751146AbVIRMdd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 08:33:33 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Christian Iversen <chrivers@iversen-net.dk>
-Subject: Re: I request inclusion of reiser4 in the mainline kernel
-Date: Sun, 18 Sep 2005 15:32:57 +0300
-User-Agent: KMail/1.8.2
-Cc: Christoph Hellwig <hch@infradead.org>, chriswhite@gentoo.org,
-       Hans Reiser <reiser@namesys.com>, LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-References: <432AFB44.9060707@namesys.com> <20050918102658.GB22210@infradead.org> <200509181406.25922.chrivers@iversen-net.dk>
-In-Reply-To: <200509181406.25922.chrivers@iversen-net.dk>
+	Sun, 18 Sep 2005 09:11:17 -0400
+Received: from 69.50.231.10.ip.nectartech.com ([69.50.231.10]:44959 "EHLO
+	newton.ctyme.com") by vger.kernel.org with ESMTP id S1751191AbVIRNLQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Sep 2005 09:11:16 -0400
+Message-ID: <432D676F.2040208@perkel.com>
+Date: Sun, 18 Sep 2005 06:11:11 -0700
+From: Marc Perkel <marc@perkel.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.10) Gecko/20050716
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Serious time drift - clock running fast
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509181532.57908.vda@ilport.com.ua>
+X-Spam-filter-host: newton.ctyme.com - http://www.junkemailfilter.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 18 September 2005 15:06, Christian Iversen wrote:
-> On Sunday 18 September 2005 12:26, Christoph Hellwig wrote:
-> > On Sun, Sep 18, 2005 at 01:21:23PM +0300, Denis Vlasenko wrote:
-> > > This is it. I do not say "accept reiser4 NOW", I am saying "give Hans
-> > > good code review".
-> >
-> > After he did his basic homework.  Note that reviewing hans code is probably
-> > at the very end of everyones todo list because every critizm of his code
-> > starts a huge flamewar where hans tries to attack everyone not on his
-> > party line personally.
-> >
-> > I've said I'm gonna do a proper review after he has done the basic
-> > homework, which he seems to have half-done now at least.  Right now he
-> > hasn't finished that and there's much more exciting filesystems like ocfs2
-> > around [...]
-> 
-> Now _what_ good does that sentence do us? I've been following this this since 
-> the primary reiser filesystem was number 3, and the kernel everybody was 
-> using was 2.4.10. You've probably been following this list for far longer, 
-> but is that really an excuse for rudeness?
-> 
-> reiser4 has many, many extremely interesting features. I'm sure anybody is 
-> more than willing to go into detail with them, but saying that "ocfs2 is much 
-> more exiting" is just plain bashing, and it's not fair to Hans, to Namesys, 
-> or to every one of us who can't wait for reiser4 in mainline. 
+Not sure what the problem is but it seem kernel related. If it's not - 
+please forgive me.
 
-"every one of us who can't wait" do not count, because they do nothing.
+I'm running and AMD Athlon 64 X2 on an Asus board with NVidia chipset. 
+The software clock gains several seconds every minute. I'm running the 
+2.6.13 kernel. NTPD doesn't help. It sets the time when it starts but I 
+suspect the drift is too great for it to lock on. How can setting the 
+clock be so hard?
 
-If you want reiser4 included into mainline, do something. Like download
-a patch and try to use it.
+Using these settings:
 
-Last time I tried, it didn't work. Kernel locked up. Namesys was quick
-with fix for the lockup, but then "ls ." failed to work. I sent all
-the data (kernel version, fs image, etc) to Namesys but after several
-email iterations it died out with no resolution.
+CONFIG_X86_64=y
+CONFIG_64BIT=y
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_RWSEM_GENERIC_SPINLOCK=y
+CONFIG_GENERIC_CALIBRATE_DELAY=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_EARLY_PRINTK=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_GENERIC_IOMAP=y
 
-I will try again sometime. Maybe it got better.
+Falling asleep .... ZZZzzzzzZZZZzzzzzz
 
-> Could you please keep your personal idea of which filesystem is more 
-> interesting to yourself? It doesn't help anybody accomplish anything. 
+Help!
 
-Your reply wasn't polite/useful either.
---
-vda
+
+-- 
+Marc Perkel - marc@perkel.com
+
+Spam Filter: http://www.junkemailfilter.com
+    My Blog: http://marc.perkel.com
+

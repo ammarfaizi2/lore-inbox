@@ -1,62 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751244AbVIRAPe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751240AbVIRATO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751244AbVIRAPe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Sep 2005 20:15:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751240AbVIRAPe
+	id S1751240AbVIRATO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Sep 2005 20:19:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbVIRATO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Sep 2005 20:15:34 -0400
-Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:62414 "HELO
-	develer.com") by vger.kernel.org with SMTP id S1751244AbVIRAPe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Sep 2005 20:15:34 -0400
-Message-ID: <432CB177.5070001@develer.com>
-Date: Sun, 18 Sep 2005 02:14:47 +0200
-From: Bernardo Innocenti <bernie@develer.com>
-User-Agent: Mozilla Thunderbird 1.0.6-5 (X11/20050818)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matheus Izvekov <izvekov@lps.ele.puc-rio.br>
-CC: Development discussions related to Fedora Core 
-	<fedora-devel-list@redhat.com>,
-       lkml <linux-kernel@vger.kernel.org>, Dave Jones <davej@redhat.com>
-Subject: Re: Assertion failed in libata-core.c:ata_qc_complete(3051)
-References: <432BA524.40301@develer.com> <60030.200.141.101.221.1126969752.squirrel@correio.lps.ele.puc-rio.br>
-In-Reply-To: <60030.200.141.101.221.1126969752.squirrel@correio.lps.ele.puc-rio.br>
-X-Enigmail-Version: 0.91.0.0
-OpenPGP: id=FC6A66CA;
-	url=https://www.develer.com/~bernie/gpgkey.txt
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sat, 17 Sep 2005 20:19:14 -0400
+Received: from mailgw.aecom.yu.edu ([129.98.1.16]:16058 "EHLO
+	mailgw.aecom.yu.edu") by vger.kernel.org with ESMTP
+	id S1751240AbVIRATN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Sep 2005 20:19:13 -0400
+Mime-Version: 1.0
+Message-Id: <a0623096fbf5261b770eb@[129.98.90.227]>
+In-Reply-To: <mailman.3.1123153201.10574.linux-kernel-daily-digest@lists.us.dell.com>
+References: <mailman.3.1123153201.10574.linux-kernel-daily-digest@lists.us.dell.com>
+Date: Sat, 17 Sep 2005 20:20:40 -0400
+To: linux-kernel@vger.kernel.org
+From: Maurice Volaski <mvolaski@aecom.yu.edu>
+Subject: Re: Segfaults in mkdir under high load. Software or hardware?
+Cc: colding@omesc.com, bert.hubert@netherlabs.nl
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matheus Izvekov wrote:
+>  > I am experiencing segfaults in mkdir, and mkdir alone, under high load.
+>
+>I've seen errors like these happen, and they were kernel bugs.
+>
+>>  [    0.000000] Bootdata ok (command line is root=/dev/sda4 
+>>vga=0x31B video=vesafb:mtrr,ywrap)
+>  > [    0.000000] Linux version 2.6.12-gentoo-r6 (root@omc-2) (gcc 
+>version 3.4.3 20041125 (Gentoo 3.4.3-r1, ssp-3.4.3-0, pie-8.7.7)) #6 
+>SMP Mon Jul 25 13:50:58 CEST 2005
+>
+>If you reproduce with an unpatched kernel and an unpatched compiler, you are
+>much more likely to get attention. Your problem might also just go away.
 
->>I have a Promise TX4 controller with 4 SATA drivers
->>formatted with a RAID1 and a RAID5 md.  LVM on top of this.
-> 
-> Can you reproduce this with a stock kernel?
+I have been seeing a similar thing:
 
-I've just opened the case to install some more RAM and
-noticed that the SATA controller card wasn't completely
-fitted into the PCI slot.  Could it be just a hardware
-problem?  I don't know what that assartion is about.
+./current:Sep 17 18:00:01 [kernel] mkdir[7696]: segfault at 
+0000000000000000 rip 000000000040184d rsp 00007fffff826350 error 4
 
-Nowadays, Fedora kernels don't differ much from stock
-kernels plus the usual bugfixes.  I've now upgraded to
-2.6.13-1.1555-FC5 because it fixes an iptables bug.
-I'll report if I see this bug again.
-
-
-> Also, i think it would be
-> better if instead of sending a screenshot, get a serial cable and boot
-> with console=ttyS*
-
-This is happening on our production server, and there are no
-other computers next to it, so I can't easily hook in a
-serial cable.
-
+I'm using the plain 2.6.13 (from gentoo vanilla sources), though it 
+was compiled with
+gcc version 3.4.4 (Gentoo 3.4.4-r1, ssp-3.4.4-1.0, pie-8.7.8)
 -- 
-  // Bernardo Innocenti - Develer S.r.l., R&D dept.
-\X/  http://www.develer.com/
 
+Maurice Volaski, mvolaski@aecom.yu.edu
+Computing Support, Rose F. Kennedy Center
+Albert Einstein College of Medicine of Yeshiva University

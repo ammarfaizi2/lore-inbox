@@ -1,59 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbVIRRci@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbVIRRpx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932136AbVIRRci (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 13:32:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932133AbVIRRch
+	id S932139AbVIRRpx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 13:45:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932140AbVIRRpx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 13:32:37 -0400
-Received: from xenotime.net ([66.160.160.81]:42420 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932132AbVIRRch (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 13:32:37 -0400
-Date: Sun, 18 Sep 2005 10:32:34 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Robert Love <rml@novell.com>
-Cc: rmk+lkml@arm.linux.org.uk, linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       viro@ftp.linux.org.uk
+	Sun, 18 Sep 2005 13:45:53 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:30917 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932139AbVIRRpw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Sep 2005 13:45:52 -0400
+Date: Sun, 18 Sep 2005 18:45:49 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Willy Tarreau <willy@w.ods.org>, Robert Love <rml@novell.com>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
 Subject: Re: p = kmalloc(sizeof(*p), )
-Message-Id: <20050918103234.0b923c73.rdunlap@xenotime.net>
-In-Reply-To: <1127061146.6939.6.camel@phantasy>
-References: <20050918100627.GA16007@flint.arm.linux.org.uk>
-	<1127061146.6939.6.camel@phantasy>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Message-ID: <20050918174549.GN19626@ftp.linux.org.uk>
+References: <20050918100627.GA16007@flint.arm.linux.org.uk> <1127061146.6939.6.camel@phantasy> <20050918165219.GA595@alpha.home.local> <20050918171845.GL19626@ftp.linux.org.uk> <Pine.LNX.4.58.0509181028140.26803@g5.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0509181028140.26803@g5.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 18 Sep 2005 12:32:26 -0400 Robert Love wrote:
-
-> On Sun, 2005-09-18 at 11:06 +0100, Russell King wrote:
+On Sun, Sep 18, 2005 at 10:31:36AM -0700, Linus Torvalds wrote:
 > 
-> > +The preferred form for passing a size of a struct is the following:
-> > +
-> > +       p = kmalloc(sizeof(*p), ...);
-> > +
-> > +The alternative form where struct name is spelled out hurts readability and
-> > +introduces an opportunity for a bug when the pointer variable type is changed
-> > +but the corresponding sizeof that is passed to a memory allocator is not.
 > 
-> Agreed.
+> On Sun, 18 Sep 2005, Al Viro wrote:
+> > 
+> > That's why you do
+> > 	*p = (struct foo){....};
+> > instead of
+> > 	memset(p, 0, sizeof...);
+> > 	p->... =...;
 > 
-> Also, after Alan's #4:
+> Actually, some day that migth be a good idea, but at least historically, 
+> gcc has really really messed that kind of code up.
 > 
-> 5.  Contrary to the above statement, such coding style does not help,
->     but in fact hurts, readability.  How on Earth is sizeof(*p) more
->     readable and information-rich than sizeof(struct foo)?  It looks
->     like the remains of a 5,000 year old wolverine's spleen and
->     conveys no information about the type of the object that is being
->     created.
+> Last I looked, depending on what the initializer was, gcc would create a 
+> temporary struct on the stack first, and then do a "memcpy()" of the 
+> result. Not only does that obviously generate a lot of extra code, it also 
+> blows your kernel stack to kingdom come.
 
-I also dislike & disagree with the CodingStyle addition....
-
-
----
-~Randy
-You can't do anything without having to do something else first.
--- Belefant's Law
+Ewwwww...  I'd say that it qualifies as one hell of a bug (and yes, at least
+3.3 and 4.0.1 are still doing that).  What a mess...
+ 
+> (For _small_ structures it's wonderful. As far as I can tell, gcc does a
+> pretty good job on structs that are just a single long-word in size).

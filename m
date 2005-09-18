@@ -1,124 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbVIROYk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbVIRO0X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932076AbVIROYk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 10:24:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932074AbVIROYH
+	id S932078AbVIRO0X (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 10:26:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932073AbVIROZz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 10:24:07 -0400
-Received: from ppp-62-11-75-109.dialup.tiscali.it ([62.11.75.109]:37811 "EHLO
-	zion.home.lan") by vger.kernel.org with ESMTP id S932076AbVIROXj
+	Sun, 18 Sep 2005 10:25:55 -0400
+Received: from ppp-62-11-75-109.dialup.tiscali.it ([62.11.75.109]:34227 "EHLO
+	zion.home.lan") by vger.kernel.org with ESMTP id S932079AbVIROXW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 10:23:39 -0400
+	Sun, 18 Sep 2005 10:23:22 -0400
 From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH 07/12] HPPFS: fix broken read method
-Date: Sun, 18 Sep 2005 16:09:57 +0200
+Subject: [PATCH 09/12] HPPFS: add special permission checking from procfs
+Date: Sun, 18 Sep 2005 16:10:02 +0200
 To: Antoine Martin <antoine@nagafix.co.uk>, Al Viro <viro@zeniv.linux.org.uk>
 Cc: Jeff Dike <jdike@addtoit.com>
 Cc: user-mode-linux-devel@lists.sourceforge.net
 Cc: LKML <linux-kernel@vger.kernel.org>
-Message-Id: <20050918140957.31461.8463.stgit@zion.home.lan>
+Message-Id: <20050918141002.31461.43928.stgit@zion.home.lan>
 In-Reply-To: 200509181400.39120.blaisorblade@yahoo.it
 References: 200509181400.39120.blaisorblade@yahoo.it
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>, Al Viro
 
-When data to be read has been loaded in memory (sadly kmalloc'ed() memory,
-not buffer cache, but I hope it doesn't really matter), we alloc memory one
-page at a time, and chain the pages. On a read, we properly walk the page
-list, but we fail to handle reads which cross a page boundary.
+Procfs uses a special permission method in some cases, so we can't use the
+generic one, and must call instead the inode's one if it's not null (only
+some inodes use a custom method).
 
-This patch should fix that. But please, cross check this with
-drivers/char/mem.c as I did or use a paper sheet to check it
-(as I've done) - it's absolutely nontrivial to get right.
+It seems that this method is used to avoid a chroot'ed process to escape
+its chroot by accessing another process's root/cwd through procfs (both by
+a quick read of the code and by testing on the host), like in "cd
+/proc/1/root".
+
+I've not added a ->permission operation on symlink, as there is no procfs
+symlink using it, and I wonder if symlink can have permissions set at all
+(guess not).
+
+If you disagree, just add it (hppfs_permission() handles null pointers
+gracefully).
+
+Note: I've cared to use the proc inode (I missed that in the beginning) -
+since the dentry is always created by the underlying ->lookup this should be
+safe - or not? I've gone to do some checking, and since we pass to it a
+procfs inode, referring to the procfs superblock, it seems that yes, we're
+fine.
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- fs/hppfs/hppfs_kern.c |   61 +++++++++++++++++++++++++++++++------------------
- 1 files changed, 38 insertions(+), 23 deletions(-)
+ fs/hppfs/hppfs_kern.c |   16 ++++++++++++++++
+ 1 files changed, 16 insertions(+), 0 deletions(-)
 
 diff --git a/fs/hppfs/hppfs_kern.c b/fs/hppfs/hppfs_kern.c
 --- a/fs/hppfs/hppfs_kern.c
 +++ b/fs/hppfs/hppfs_kern.c
-@@ -302,40 +302,55 @@ static ssize_t hppfs_read(struct file *f
- 	struct hppfs_private *hppfs = file->private_data;
- 	struct hppfs_data *data;
- 	loff_t off;
--	int err;
-+	int err, written = 0;
- 
- 	if (hppfs->contents != NULL) {
--		if(*ppos >= hppfs->len) return(0);
--
--		data = hppfs->contents;
- 		off = *ppos;
--		while(off >= sizeof(data->contents)){
--			data = list_entry(data->list.next, struct hppfs_data,
--					  list);
--			off -= sizeof(data->contents);
--		}
- 
--		if(off + count > hppfs->len)
-+		if (off >= hppfs->len)
-+			return 0;
-+
-+		if (off + count > hppfs->len)
- 			count = hppfs->len - off;
--		/*XXX: we should walk the list of remaining buffers! */
--		err = copy_to_user(buf, &data->contents[off], count);
--		count -= err;
--		if (!count)
--			return -EFAULT;
--		*ppos += count;
--	} else if(hppfs->host_fd != -1) {
-+
-+		data = hppfs->contents;
-+		while (count) {
-+			int chunk;
-+			while (off >= sizeof(data->contents)) {
-+				data = list_entry(data->list.next,
-+						struct hppfs_data, list);
-+				off -= sizeof(data->contents);
-+			}
-+
-+			chunk = min_t(size_t, sizeof(data->contents) - off, count);
-+			err = copy_to_user(buf, &data->contents[off], chunk);
-+			if (err) {
-+				*ppos += chunk - err;
-+				written += chunk - err;
-+				if (written == 0)
-+					written = -EFAULT;
-+				break;
-+			}
-+			off += chunk;
-+			buf += chunk;
-+			count -= chunk;
-+			written += chunk;
-+		}
-+		*ppos += written;
-+	} else if (hppfs->host_fd != -1) {
- 		err = os_seek_file(hppfs->host_fd, *ppos);
- 		if (err < 0){
- 			printk("hppfs_read : seek failed, errno = %d\n", err);
- 			return(err);
- 		}
--		count = hppfs_read_file(hppfs->host_fd, buf, count);
--		if(count > 0)
--			*ppos += count;
--	} else
--		count = read_proc(hppfs->proc_file, buf, count, ppos, 1);
-+		written = hppfs_read_file(hppfs->host_fd, buf, count);
-+		*ppos += written;
-+	} else {
-+		/* It handles ppos on its own */
-+		written = read_proc(hppfs->proc_file, buf, count, ppos, 1);
-+	}
- 
--	return(count);
-+	return written;
+@@ -214,7 +214,22 @@ static struct dentry *hppfs_lookup(struc
+ 	return(ERR_PTR(err));
  }
  
- static ssize_t hppfs_write(struct file *file, const char *buf, size_t len,
++static int hppfs_permission(struct inode *inode, int mask, struct nameidata *nd)
++{
++	struct inode *proc_inode;
++	int (*permission) (struct inode *, int, struct nameidata *);
++
++	proc_inode = HPPFS_I(inode)->proc_dentry->d_inode;
++	permission = proc_inode->i_op->permission;
++
++	if (permission == NULL)
++		return generic_permission(inode, mask, NULL);
++
++	return (*permission)(proc_inode, mask, nd);
++}
++
+ static struct inode_operations hppfs_file_iops = {
++	.permission	= hppfs_permission,
+ };
+ 
+ /* Pass down ppos when you're being called from userspace.
+@@ -779,6 +794,7 @@ static void* hppfs_follow_link(struct de
+ }
+ 
+ static struct inode_operations hppfs_dir_iops = {
++	.permission	= hppfs_permission,
+ 	.lookup		= hppfs_lookup,
+ };
+ 
 

@@ -1,67 +1,168 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751321AbVIRTRz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932175AbVIRTYF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751321AbVIRTRz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 15:17:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751322AbVIRTRz
+	id S932175AbVIRTYF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 15:24:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932176AbVIRTYF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 15:17:55 -0400
-Received: from h80ad2443.async.vt.edu ([128.173.36.67]:58255 "EHLO
-	h80ad2443.async.vt.edu") by vger.kernel.org with ESMTP
-	id S1751321AbVIRTRz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 15:17:55 -0400
-Message-Id: <200509181916.j8IJGowJ007769@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: thenewme91@gmail.com
-Cc: Christoph Hellwig <hch@infradead.org>, Denis Vlasenko <vda@ilport.com.ua>,
-       chriswhite@gentoo.org, Hans Reiser <reiser@namesys.com>,
-       LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: I request inclusion of reiser4 in the mainline kernel 
-In-Reply-To: Your message of "Sun, 18 Sep 2005 13:22:27 EDT."
-             <b14e81f0050918102254146224@mail.gmail.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <432AFB44.9060707@namesys.com> <200509171415.50454.vda@ilport.com.ua> <200509180934.50789.chriswhite@gentoo.org> <200509181321.23211.vda@ilport.com.ua> <20050918102658.GB22210@infradead.org>
-            <b14e81f0050918102254146224@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1127071009_9673P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sun, 18 Sep 2005 15:16:49 -0400
+	Sun, 18 Sep 2005 15:24:05 -0400
+Received: from mail-in-07.arcor-online.net ([151.189.21.47]:14732 "EHLO
+	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
+	id S932175AbVIRTYE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Sep 2005 15:24:04 -0400
+From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
+Subject: Re: [Patch] Support UTF-8 scripts
+To: Bernd Petrovitsch <bernd@firmix.at>,
+       Martin =?ISO-8859-1?Q?v=2E_L=F6wis?= <martin@v.loewis.de>,
+       "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Sun, 18 Sep 2005 21:23:42 +0200
+References: <4Nvab-7o5-11@gated-at.bofh.it> <4Nvab-7o5-13@gated-at.bofh.it> <4Nvab-7o5-15@gated-at.bofh.it> <4Nvab-7o5-17@gated-at.bofh.it> <4Nvab-7o5-19@gated-at.bofh.it> <4Nvab-7o5-21@gated-at.bofh.it> <4Nvab-7o5-23@gated-at.bofh.it> <4Nvab-7o5-25@gated-at.bofh.it> <4Nvab-7o5-27@gated-at.bofh.it> <4NvjM-7CU-7@gated-at.bofh.it> <4NvjM-7CU-5@gated-at.bofh.it> <4NxbR-20S-1@gated-at.bofh.it> <4NEn7-3M5-7@gated-at.bofh.it> <4NTvO-yJ-13@gated-at.bofh.it> <4O1MJ-3Hf-5@gated-at.bofh.it> <4O8Oh-5jp-7@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1EH4lL-0001Iz-Lx@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1127071009_9673P
-Content-Type: text/plain; charset=us-ascii
+Bernd Petrovitsch <bernd@firmix.at> wrote:
+> On Sun, 2005-09-18 at 09:23 +0200, "Martin v. Löwis" wrote:
+> [...]
+>> >>Hmm. What does that have to do with the patch I'm proposing? This
+>> >>patch does *not* interfere with all text files. It is only relevant
+>> >>for executable files starting with the #! magic.
+>> > 
+>> > It *does* interfere since scripts are also text files in every aspect.
+>> > So every feature you want for "scripts" you also get for text files (and
+>> > vice versa BTW).
+>> 
+>> The specific feature I get is that when I pass a file starting
+>> with <utf8sig>#! to execve, Linux will execute the file following
+>> the #!. In what way do I get this feature for text in general?
+>> And if I do, why is that a problem?
+> 
+> After applying this patch it seems that "Linux" is supporting this
+> marker officially in general - especially if the kernel supports it.
 
-On Sun, 18 Sep 2005 13:22:27 EDT, michael chang said:
+It will be the first POSIX kernel to correctly support utf-8 scripts.
+It's 2005, and according to other(?) posters, this should be standard.
 
-> Give Hans a chance; and please try to understand, even if he's hard to
-> work with.  Discriminate him because he's not a developer you can talk
-> with, and I believe that's like discriminating a guy in a wheelchair
-> because he can't run with you when you jog in the morning.
+> I
+> suppose the next kernel patch is to support Win-like CR-LF sequences
+> (which is not the case AFAIK).
 
-There's nothing wrong with discriminating against the guy in the wheelchair
-under some circumstances - for instance, when your track team needs a new
-high jumper.
+Maybe it should, maybe it shouldn't. If I used MAC or DOS, I'd be sure it
+should.-)
 
-Similarly, when the goal is to build a set of developers that can actually
-get work accomplished, poor interpersonal communication skills can be a
-major problem.
+> BTW even some standards body thinks that this is the way to go,
 
-If the problem is that Hans and the rest of the kernel developers don't get
-along, perhaps the most expedient thing would be for Hans to step out of the
-way and have somebody else from Namesys (or elsewhere even) act as the interface.
+Not surprisingly the Unicode Consortium is one of them.
 
---==_Exmh_1127071009_9673P
-Content-Type: application/pgp-signature
+> it
+> raises more problems and questions than resolves anything.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+The problem of ow to handle BOM is solved by reading the standard.
 
-iD8DBQFDLb0hcC3lWbTT17ARAh78AKCUBibrT7caXvhfNVC1teNqbcugnwCgkgWX
-uJb21oCrWCsYfP9lo6/zlWA=
-=onP7
------END PGP SIGNATURE-----
+> And though scripts are usually edited/changed/"parsed"/... with an text
+> editor, it is not always the case. Therefore the automatic extension to
+> *all text files* (especially as the marker basically applies to all text
+> files, not only scripts).
+> You want to focus just on your patch and ignore the directly implied
+> potential problems arising ...
 
---==_Exmh_1127071009_9673P--
+There is no problem arising from the patch, it solves one.
+To solve the rest, use recode.
+
+[...]
+> Apparently I have to repeat: If you do `cat a.txt b.txt >c.txt` where
+> a.txt and b.txt have this marker, then c.txt have the marker of b.txt
+> somewhere in the middle. Does this make sense in anyway?
+> How do I get rid of the marker in the middle transparently?
+
+The unicode standard defines how to handle them.
+
+>> > Let alone the confusion why the size of a file with `ls -l` is different
+>> > from the size in the editor or a marker-aware `wc -c`.
+>> 
+>> This is true for any UTF-8 file, or any multibyte encoding. For any
+>> multibyte encoding, the number of bytes in the file is different from
+>> the number of characters. That doesn't (and shouldn't) stop people from
+>> using multi-byte encodings.
+> 
+> It is different even if a pure ASCII file is marked as UTF-8.
+
+No pure ASCII file will be marked, since a marked file will be no
+ASCII file.
+
+> And sure, the problem exists in general with multi-byte encodings.
+
+ACK, but that's not a kernel problem nor a specific unicode problem.
+Fix it by making China, Greece an Japan convert to ASCII and by making
+all mathematicans stop using strange characters. All other users will
+follow.
+
+>> What the editor displays as the number of "things" is up to its own.
+>> The output of wc -c will always be the same as the one of ls -l,
+>> as wc -c does *not* give you characters:
+>> 
+>>        -c, --bytes
+>>               print the byte counts
+>> 
+>> You might have been thinking of 'wc -m'.
+> 
+> It depends on the definition of "character". There are other standards
+> which define "character" as "byte".
+
+There are architectures defining a byte to be 32 bit.
+They are irrelevant, too.
+
+[...]
+>> Not sure what this has
+>> to do with the specific patch, though.
+> 
+> It is not supported by the kernel. So either you remove it or you make
+> some compatibility hack (like an appropriate sym-link
+
+-EDOESNOTWORK
+
+#!/usr/bin/perl -T -s -w
+
+>, etc.). Since the
+> kernel can start java classes directly, you can probably make a similar
+> thing for the UTF-8 stuff.
+
+If MSDOS text files are text files are legal scripts, the kernel
+should recognize [\x0D\x0A] as valid line breaks.
+
+(The real reason would be unicode allowing NEL to be encoded as 0x0D
+ or 0x0A.)
+
+This compile-tested patch adds 32 bytes to binfmt_script:
+
+--- ./fs/binfmt_script.c.old    2005-09-18 20:28:32.000000000 +0200
++++ ./fs/binfmt_script.c        2005-09-18 20:29:44.000000000 +0200
+@@ -18,7 +18,7 @@
+
+ static int load_script(struct linux_binprm *bprm,struct pt_regs *regs)
+ {
+-       char *cp, *i_name, *i_arg;
++       char *cp, *cp2, *i_name, *i_arg;
+        struct file *file;
+        char interp[BINPRM_BUF_SIZE];
+        int retval;
+@@ -47,6 +47,9 @@ static int load_script(struct linux_binp
+        bprm->buf[BINPRM_BUF_SIZE - 1] = '\0';
+        if ((cp = strchr(bprm->buf, '\n')) == NULL)
+                cp = bprm->buf+BINPRM_BUF_SIZE-1;
++       if ((cp2 = strchr(bprm->buf, '\x0D')) != NULL
++       &&  cp2 < cp)
++               cp = cp2;
+        *cp = '\0';
+        while (cp > bprm->buf) {
+                cp--;
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

@@ -1,92 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbVISFQR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932310AbVISFXM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932307AbVISFQR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 01:16:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbVISFQQ
+	id S932310AbVISFXM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 01:23:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932312AbVISFXM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 01:16:16 -0400
-Received: from rwcrmhc14.comcast.net ([204.127.198.54]:11150 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S932307AbVISFQQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 01:16:16 -0400
-Message-ID: <432E499B.7000003@namesys.com>
-Date: Sun, 18 Sep 2005 22:16:11 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: Christian Iversen <chrivers@iversen-net.dk>, chriswhite@gentoo.org,
-       LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: I request inclusion of reiser4 in the mainline kernel
-References: <432AFB44.9060707@namesys.com> <200509181321.23211.vda@ilport.com.ua> <20050918102658.GB22210@infradead.org> <200509181406.25922.chrivers@iversen-net.dk>
-In-Reply-To: <200509181406.25922.chrivers@iversen-net.dk>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 19 Sep 2005 01:23:12 -0400
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:63940 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S932310AbVISFXL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 01:23:11 -0400
+Subject: RE: PATCH: Fix race in cpu_down (hotplug cpu)
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Li Shaohua <shaohua.li@intel.com>
+Cc: vatsa@in.ibm.com, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+In-Reply-To: <59D45D057E9702469E5775CBB56411F171F7E0@pdsmsx406>
+References: <59D45D057E9702469E5775CBB56411F171F7E0@pdsmsx406>
+Content-Type: text/plain
+Organization: Cyclades
+Message-Id: <1127107381.9696.85.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Mon, 19 Sep 2005 15:23:01 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Iversen wrote:
+Hi.
 
->On Sunday 18 September 2005 12:26, Christoph Hellwig wrote:
->  
->
->>On Sun, Sep 18, 2005 at 01:21:23PM +0300, Denis Vlasenko wrote:
->>    
->>
->>>This is it. I do not say "accept reiser4 NOW", I am saying "give Hans
->>>good code review".
->>>      
->>>
->>After he did his basic homework.  Note that reviewing hans code is probably
->>at the very end of everyones todo list because every critizm of his code
->>starts a huge flamewar where hans tries to attack everyone not on his
->>party line personally.
->>
->>I've said I'm gonna do a proper review after he has done the basic
->>homework, which he seems to have half-done now at least.  Right now he
->>hasn't finished that and there's much more exciting filesystems like ocfs2
->>around [...]
->>    
->>
->
->Now _what_ good does that sentence do us? I've been following this this since 
->the primary reiser filesystem was number 3, and the kernel everybody was 
->using was 2.4.10. You've probably been following this list for far longer, 
->but is that really an excuse for rudeness?
->
->reiser4 has many, many extremely interesting features. I'm sure anybody is 
->more than willing to go into detail with them, but saying that "ocfs2 is much 
->more exiting" is just plain bashing, and it's not fair to Hans, to Namesys, 
->or to every one of us who can't wait for reiser4 in mainline. 
->
->Could you please keep your personal idea of which filesystem is more 
->interesting to yourself? It doesn't help anybody accomplish anything. 
->
->  
->
-Hellwig, people who write slow file systems should not lecture their
-measurably superiors on how to code.  Oh, and I should mention that
-other people besides me have measured reiser4, and concluded it is twice
-the speed of the other Linux filesystems, so don't go claiming it is
-just my benchmarks.   What you are doing is keeping me from doing a real
-code review myself by keeping my guys so busy that they don't have time
-to review the fixmes I inserted and would insert more of if I thought
-they had time for them.   If you were as well suited to doing code
-reviews as I am, you would have written a faster file system yourself.  
-Anybody can find things to fix in someone else's code, and it can go on
-for years if they want it to.  I could get what you do from hiring a
-college junior, and if it was a good university I'd probably learn more
-from that junior in college than from you.  We are doing work, and you
-are getting in the way.  Nobody who wants reiser4 views your
-contributions as the least bit positive.  I fear you will delay us until
-ext3 can catch up.
+On Mon, 2005-09-19 at 14:48, Li, Shaohua wrote:
+> Hi,
+> >
+> >On Mon, Sep 19, 2005 at 01:28:38PM +1000, Nigel Cunningham wrote:
+> >> There is a race condition in taking down a cpu
+> (kernel/cpu.c::cpu_down).
+> >> A cpu can already be idling when we clear its online flag, and we do
+> not
+> >> force the idle task to reschedule. This results in __cpu_die timing
+> out.
+> >
+> >"when we clear its online flag" - This happens in take_cpu_down in the
+> >context of stopmachine thread. take_cpu_down also ensures that idle
+> >thread runs when it returns (sched_idle_next). So when idle thread
+> runs,
+> >it should notice that it is offline and invoke play_dead.  So I don't
+> >understand why __cpu_die should time out.
+> I guess Nigel's point is cpu_idle is preempted before take_cpu_down. If
+> the preempt occurs after the cpu_is_offline check, when the cpu (after
+> sched_idle_next) goes into idle again, nobody can wake it up. Nigel,
+> isn't it?
 
-What you are is someone who substitutes social connections for technical
-ability.  You measurably can't code as well as we can, so once it
-conforms to VFS interface requirements, please go away.
+Maybe I'm just an ignoramus, but I was thinking (without being a
+scheduler expert at all) that if the idle thread was already running,
+trying to set it up to run next might possibly have zero effect. I've
+added a bit of debugging code to try and see in better detail what's
+happening.
+
+Regards,
+
+Nigel
+
+> Thanks,
+> Shaohua
+-- 
 
 

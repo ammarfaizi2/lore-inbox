@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932304AbVISDPj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932141AbVISD2s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932304AbVISDPj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 23:15:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932306AbVISDPi
+	id S932141AbVISD2s (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 23:28:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbVISD2s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 23:15:38 -0400
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:1230 "EHLO
+	Sun, 18 Sep 2005 23:28:48 -0400
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:19686 "EHLO
 	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S932304AbVISDPi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 23:15:38 -0400
+	id S932141AbVISD2r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Sep 2005 23:28:47 -0400
 Subject: PATCH: Fix race in cpu_down (hotplug cpu)
 From: Nigel Cunningham <ncunningham@cyclades.com>
 Reply-To: ncunningham@cyclades.com
@@ -17,20 +17,25 @@ To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
 Organization: Cyclades
-Message-Id: <1127099735.9696.54.camel@localhost>
+Message-Id: <1127100518.9696.62.camel@localhost>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Mon, 19 Sep 2005 13:15:36 +1000
+Date: Mon, 19 Sep 2005 13:28:38 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+Hmm... managed to miss a word at the end of the first para and thus not
+make sense. Let's try again.
+
+----------
 
 Hi.
 
 There is a race condition in taking down a cpu (kernel/cpu.c::cpu_down).
 A cpu can already be idling when we clear its online flag, and we do not
 force the idle task to reschedule. This results in __cpu_die timing out.
-A simple fix is to force the idle task on the cpu going to reschedule.
+A simple fix is to force the idle task on the cpu going down to reschedule.
 
 Without the patch below, Suspend2 get into a deadlock at resume time
 when this issue occurs. I could not complete 20 cycles without seeing

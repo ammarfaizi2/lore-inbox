@@ -1,39 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932649AbVISVrc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932645AbVISVzU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932649AbVISVrc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 17:47:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932655AbVISVrc
+	id S932645AbVISVzU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 17:55:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932659AbVISVzU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 17:47:32 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:16853
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S932649AbVISVrb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 17:47:31 -0400
-Subject: Re: [ANNOUNCE] ktimers subsystem
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: linux-kernel@vger.kernel.org
-Cc: mingo@elte.hu, akpm@osdl.org, george@mvista.com, johnstul@us.ibm.com,
-       paulmck@us.ibm.com
-In-Reply-To: <20050919184834.1.patchmail@tglx.tec.linutronix.de>
-References: <20050919184834.1.patchmail@tglx.tec.linutronix.de>
-Content-Type: text/plain
-Organization: linutronix
-Date: Mon, 19 Sep 2005 23:47:35 +0200
-Message-Id: <1127166455.24044.253.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Mon, 19 Sep 2005 17:55:20 -0400
+Received: from rwcrmhc13.comcast.net ([216.148.227.118]:42682 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S932645AbVISVzT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 17:55:19 -0400
+Message-ID: <432F33C8.90908@namesys.com>
+Date: Mon, 19 Sep 2005 14:55:20 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bill Davidsen <davidsen@tmr.com>
+CC: Denis Vlasenko <vda@ilport.com.ua>, Christoph Hellwig <hch@infradead.org>,
+       LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: I request inclusion of reiser4 in the mainline kernel
+References: <432AFB44.9060707@namesys.com> <200509171415.50454.vda@ilport.com.ua> <200509180934.50789.chriswhite@gentoo.org> <200509181321.23211.vda@ilport.com.ua> <432F18DF.6020903@tmr.com>
+In-Reply-To: <432F18DF.6020903@tmr.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-09-19 at 23:04 +0200, tglx@linutronix.de wrote:
-> ktimers seperate the "timer API" from the "timeout API". ktimers are 
+Bill Davidsen wrote:
 
-Sorry for double posting. 
+> Denis Vlasenko wrote:
+>
+>>
+>> Maybe xfs shouldn't be accepted too, this may be an answer.
+>
+>
+> That argument is specious, and raises the chance that someone will
+> suggest that we learn from our mistakes.
 
-mailer / operator madness
-
-tglx
-
+It wasn't a mistake to accept xfs, xfs is a great piece of technology. 
+I haven't monitored their progress, but I am sure that they are
+diligently fixing bugs as they are reported.  Guys, making a filesystem
+stable is hard, and once every known test passes without crashing, there
+is no substitute for masses of users finding bugs not hit by the tests,
+and getting them fixed.  My point is merely that Hellwig could go and
+find flaws in the filesystem he worked on, XFS, if he chose to.  I think
+he should.
 

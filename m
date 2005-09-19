@@ -1,62 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932490AbVISQUK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932493AbVISQYh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932490AbVISQUK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 12:20:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932492AbVISQUJ
+	id S932493AbVISQYh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 12:24:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932496AbVISQYh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 12:20:09 -0400
-Received: from smtpout.mac.com ([17.250.248.73]:34032 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S932490AbVISQUH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 12:20:07 -0400
-In-Reply-To: <Pine.LNX.4.58.0509190855160.27719@shark.he.net>
-References: <432EDD17.3080107@perkel.com> <Pine.LNX.4.58.0509190855160.27719@shark.he.net>
-Mime-Version: 1.0 (Apple Message framework v734)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <100071B4-0789-47C9-B3EF-F8E842F367B2@mac.com>
-Cc: Marc Perkel <marc@perkel.com>, LKML Kernel <linux-kernel@vger.kernel.org>,
-       Hans Reiser <reiser@namesys.com>
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Reiser 4 - the BIG picture - (think BIG picture)
-Date: Mon, 19 Sep 2005 12:19:23 -0400
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-Mailer: Apple Mail (2.734)
+	Mon, 19 Sep 2005 12:24:37 -0400
+Received: from motgate4.mot.com ([144.189.100.102]:60098 "EHLO
+	motgate4.mot.com") by vger.kernel.org with ESMTP id S932493AbVISQYg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 12:24:36 -0400
+Message-ID: <A752C16E6296D711942200065BFCB6942521C43A@il02exm10>
+From: Smarduch Mario-CMS063 <CMS063@motorola.com>
+To: linux-kernel@vger.kernel.org
+Subject: Multi-Threaded fork() correctness on Linux 2.4 & 2.6
+Date: Mon, 19 Sep 2005 11:24:24 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 19, 2005, at 12:00:41, Randy.Dunlap wrote:
-> On Mon, 19 Sep 2005, Marc Perkel wrote:
->> If Reiser 4 isn't ready then what specifically needs to be done to  
->> get it ready? Let's post a list.
->>
->> How ready is Reiser 4 compared to other file systems at the point  
->> of inclusion? Is it ripe yet?
->
-> Review is the biggest thing that is needed now, and there aren't a  
-> huge number of qualified reviewers, so it's largely a resourcing  
-> issue.
->
-> How do we get the qualified reviewers to review it & post their  
-> comments?  They also have other things to do, so we can't expect  
-> them to drop their current activities and review it this week.
+MMU/Kernel experts,
+    
+    recently I've been involved in debugging MT forks on IA-64 the issues
+found were related to the way IA64 does its TLB invalidation. But there
+is still one  issue that appears to be Linux in general related, and it
+has to do with MT forks. 
+ 
+For example a process has 3 threads T1, T2, T3.
+ 
+1 - T1 issues a fork()
+    - under page_table_lock write bit is reset in src and dest pte's
+2 - T2 may have a TLB mis, the new write protected pte is inserted
+    (hw walker or sw tlb hdlr)
+3 - T2 winds up in do_wp_page() the page is copied to a new one
+4 - In the mean time T3 may be working off the same page, the
+    TLB invalidation (flush_tlb_mm()) has no occurred yet.
+5 - Eventually TLB is globally flushed so threads will see the new pte.
+6 - As a result the MT task may experience inconsisitent state.
+    - During 3 & 4. For example locks may be acquired by both
+      threads depending on the timing of the copy.
 
-Especially since Hans has been providing strong disincentive to  
-review of his code.  Personal attacks are not exactly productive  
-along those lines.  Perhaps it might be best if the code reviewers  
-were to work directly with Vladimir Saveliev, Alexander Zarochentcev,  
-etc to get the issues resolved directly with minimal political  
-posturing.  Hans, no offense, but you've been trying really hard to  
-get everybody qualified to review your code to reconsider such  
-action.  Maybe you should step back and let the programmers work out  
-issues on their own.
+The TLB refill (hw/sw) work independently of the page_table_lock,
+it seems all threads should be forced to see the new pte
+before the new page is copied over by forcing the pte to 0 
+and allowing page_table_lock to synchronize the threads.
 
-Cheers,
-Kyle Moffett
+I come from an SVR4 background and relatively new to
+Linux, any insights or corrections would be greatly appreciated.
+Please copy my email id as its to miss email on this list.
 
---
-Simple things should be simple and complex things should be possible
-   -- Alan Kay
-
-
-
+	- mario.
+  

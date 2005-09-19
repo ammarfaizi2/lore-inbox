@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932608AbVISThf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932609AbVISTks@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932608AbVISThf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 15:37:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932609AbVISThf
+	id S932609AbVISTks (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 15:40:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932614AbVISTks
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 15:37:35 -0400
-Received: from mail-in-02.arcor-online.net ([151.189.21.42]:34029 "EHLO
-	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
-	id S932608AbVISThe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 15:37:34 -0400
-Date: Mon, 19 Sep 2005 21:37:26 +0200 (CEST)
-From: Bodo Eggert <7eggert@gmx.de>
-To: Bernd Petrovitsch <bernd@firmix.at>
-cc: 7eggert@gmx.de, "Martin v. =?ISO-8859-1?Q?L=F6wis?=" <martin@v.loewis.de>,
-       "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch] Support UTF-8 scripts
-In-Reply-To: <1127077419.8395.35.camel@gimli.at.home>
-Message-ID: <Pine.LNX.4.58.0509192132250.2825@be1.lrz>
-References: <4Nvab-7o5-11@gated-at.bofh.it> <4Nvab-7o5-13@gated-at.bofh.it>
-  <4Nvab-7o5-15@gated-at.bofh.it> <4Nvab-7o5-17@gated-at.bofh.it> 
- <4Nvab-7o5-19@gated-at.bofh.it> <4Nvab-7o5-21@gated-at.bofh.it> 
- <4Nvab-7o5-23@gated-at.bofh.it> <4Nvab-7o5-25@gated-at.bofh.it> 
- <4Nvab-7o5-27@gated-at.bofh.it> <4NvjM-7CU-7@gated-at.bofh.it> 
- <4NvjM-7CU-5@gated-at.bofh.it> <4NxbR-20S-1@gated-at.bofh.it> 
- <4NEn7-3M5-7@gated-at.bofh.it> <4NTvO-yJ-13@gated-at.bofh.it> 
- <4O1MJ-3Hf-5@gated-at.bofh.it> <4O8Oh-5jp-7@gated-at.bofh.it> 
- <E1EH4lL-0001Iz-Lx@be1.lrz> <1127077419.8395.35.camel@gimli.at.home>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
+	Mon, 19 Sep 2005 15:40:48 -0400
+Received: from mx2.suse.de ([195.135.220.15]:25992 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932609AbVISTkr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 15:40:47 -0400
+Date: Mon, 19 Sep 2005 21:40:45 +0200
+From: Andi Kleen <ak@suse.de>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: NUMA mempolicy /proc code in mainline shouldn't have been merged
+Message-ID: <20050919194038.GB12810@verdi.suse.de>
+References: <200509101120.19236.ak@suse.de> <Pine.LNX.4.62.0509101904070.20145@schroedinger.engr.sgi.com> <20050910235139.4a8865c2.akpm@osdl.org> <200509110911.22212.ak@suse.de> <Pine.LNX.4.62.0509190958470.25549@schroedinger.engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0509190958470.25549@schroedinger.engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 18 Sep 2005, Bernd Petrovitsch wrote:
-> On Sun, 2005-09-18 at 21:23 +0200, Bodo Eggert wrote:
+On Mon, Sep 19, 2005 at 10:11:20AM -0700, Christoph Lameter wrote:
+> However, one still does not know which memory section (vma) is allocated 
+> on which nodes. And this may be important since critical data may need to 
 
-> > >, etc.). Since the
-> > > kernel can start java classes directly, you can probably make a similar
-> > > thing for the UTF-8 stuff.
-> > 
-> > If MSDOS text files are text files are legal scripts, the kernel
-> > should recognize [\x0D\x0A] as valid line breaks.
-> 
-> The Unix worls does recognize the line breaks.
+Maybe. Well sure of things could be maybe important. Or maybe not.
+Doesn't seem like a particularly strong case to add a lot of ugly
+code though.
 
-Create a valid text file with macintosh line breaks (as allowed in unicode 
-files) and try it.
--- 
-If enough data is collected, a board of inquiry can prove ANYTHING. 
+> External memory policy management is a necessary feature for system 
+> administration, batch process scheduling as well as for testing and 
+> debugging a system.
+
+I'm not convinced of this at all. Most of these things proposed so far
+can be done much simpler with 90% of the functionality (e.g. just swapoff
+per process for migration) , and I haven't seen a clear rationale except
+for lots of maybes that the missing 10% are worth all the complexity
+you seem to plan to add.
+
+-Andi

@@ -1,58 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932584AbVISTEg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932545AbVISTJA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932584AbVISTEg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 15:04:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932586AbVISTEg
+	id S932545AbVISTJA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 15:09:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932552AbVISTJA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 15:04:36 -0400
-Received: from ns1.coraid.com ([65.14.39.133]:27114 "EHLO coraid.com")
-	by vger.kernel.org with ESMTP id S932584AbVISTEf (ORCPT
+	Mon, 19 Sep 2005 15:09:00 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:13244 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S932545AbVISTI7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 15:04:35 -0400
-To: "David S. Miller" <davem@davemloft.net>
-Cc: linux-kernel@vger.kernel.org, jmacbaine@gmail.com
-Subject: Re: aoe fails on sparc64
-References: <87u0glxhfw.fsf@coraid.com>
-	<20050916.163554.79765706.davem@davemloft.net>
-	<87slw1b0fz.fsf@coraid.com>
-	<20050919.112159.55767801.davem@davemloft.net>
-From: Ed L Cashin <ecashin@coraid.com>
-Date: Mon, 19 Sep 2005 14:38:26 -0400
-In-Reply-To: <20050919.112159.55767801.davem@davemloft.net> (David S.
- Miller's message of "Mon, 19 Sep 2005 11:21:59 -0700 (PDT)")
-Message-ID: <877jdc2999.fsf@coraid.com>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+	Mon, 19 Sep 2005 15:08:59 -0400
+Date: Mon, 19 Sep 2005 12:08:48 -0700 (PDT)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       alokk@calsoftinc.com
+Subject: Re: 2.6.14-rc1-git-now still dying in mm/slab - this time line 1849
+In-Reply-To: <432F09DA.7050408@vc.cvut.cz>
+Message-ID: <Pine.LNX.4.62.0509191206280.26247@schroedinger.engr.sgi.com>
+References: <4329A6A3.7080506@vc.cvut.cz> <20050916023005.4146e499.akpm@osdl.org>
+ <432AA00D.4030706@vc.cvut.cz> <20050916230809.789d6b0b.akpm@osdl.org>
+ <432EE103.5020105@vc.cvut.cz> <20050919112912.18daf2eb.akpm@osdl.org>
+ <432F09DA.7050408@vc.cvut.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@davemloft.net> writes:
+On Mon, 19 Sep 2005, Petr Vandrovec wrote:
 
-> From: Ed L Cashin <ecashin@coraid.com>
-> Date: Mon, 19 Sep 2005 10:24:00 -0400
->
->>   1) Passing le64_to_cpup an unaligned pointer is "OK" and within the
->>      intended use of the function.  I'm having trouble finding whether
->>      this is documented somewhere.
->> 
->>   2) These new changes to the sparc64 unaligned access fault handling
->>      will make it OK to leave the aoe driver the way it is in the
->>      mainline kernel.
->
-> Both #1 and #2 are true.
+> I've thought that this is problem, but as far as I can tell while this is
+> problem it does not happen here.  Just free_block() finds that pointer it
+> got from caller belongs to the slab that belongs to the CPU#1/node#1
+> while caller obtained lock on CPU#0/node#0 structures.  Which suggests
+> that drain_array_locked() was issued with node #0 while array_cache->entry
+> it got contains blocks which belong to node #1.  Which I cannot explain.
 
-That's interesting.  I think I'll send a patch documenting #1.
+That can happen if node 0 runs out of memory and the page_allocator falls 
+back to take memory from node 1 for node 0 requests.
 
-> Although it's very much discouraged to dereference unaligned pointers,
-> especially in performance critical code (which this AOE case is not,
-> thankfully), because performance will be really bad as the trap
-> handler has to fix up the access on RISC platforms.
-
-Yes, this only happens when per AoE device when the AoE device is
-discovered.  Still, I might submit a patch that reverts the aoe driver
-to getting the ATA identify values byte by byte as it used to do.
-
--- 
-  Ed L Cashin <ecashin@coraid.com>
+Maybe we have a problem here.
 

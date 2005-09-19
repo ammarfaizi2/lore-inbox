@@ -1,78 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932286AbVISFLH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbVISFQR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932286AbVISFLH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 01:11:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932306AbVISFLG
+	id S932307AbVISFQR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 01:16:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbVISFQQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 01:11:06 -0400
-Received: from smtprelay01.ispgateway.de ([80.67.18.13]:6610 "EHLO
-	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
-	id S932286AbVISFLF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 01:11:05 -0400
-Message-ID: <432E4865.3000109@v.loewis.de>
-Date: Mon, 19 Sep 2005 07:11:01 +0200
-From: =?ISO-8859-1?Q?=22Martin_v=2E_L=F6wis=22?= <martin@v.loewis.de>
-User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
+	Mon, 19 Sep 2005 01:16:16 -0400
+Received: from rwcrmhc14.comcast.net ([204.127.198.54]:11150 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S932307AbVISFQQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 01:16:16 -0400
+Message-ID: <432E499B.7000003@namesys.com>
+Date: Sun, 18 Sep 2005 22:16:11 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
-Subject: Re: [Patch] Support UTF-8 scripts 
-References: <4NVHm-3yE-13@gated-at.bofh.it> <4NVHm-3yE-15@gated-at.bofh.it> <4NVHm-3yE-17@gated-at.bofh.it> <4NVHm-3yE-19@gated-at.bofh.it> <4NVHm-3yE-21@gated-at.bofh.it> <4NVHm-3yE-23@gated-at.bofh.it> <4NVHm-3yE-25@gated-at.bofh.it> <4NVHm-3yE-27@gated-at.bofh.it> <4NVHm-3yE-29@gated-at.bofh.it> <4NVHm-3yE-31@gated-at.bofh.it> <4NVHn-3yE-33@gated-at.bofh.it> <4NVHn-3yE-35@gated-at.bofh.it> <4NVHn-3yE-37@gated-at.bofh.it> <4NVHn-3yE-39@gated-at.bofh.it> <4Od1x-3e3-5@gated-at.bofh.it> <4Od1x-3e3-7@gated-at.bofh.it> <4Od1w-3e3-3@gated-at.bofh.it> <4OfZo-7AG-21@gated-at.bofh.it>
-In-Reply-To: <4OfZo-7AG-21@gated-at.bofh.it>
+To: Christoph Hellwig <hch@infradead.org>
+CC: Christian Iversen <chrivers@iversen-net.dk>, chriswhite@gentoo.org,
+       LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: I request inclusion of reiser4 in the mainline kernel
+References: <432AFB44.9060707@namesys.com> <200509181321.23211.vda@ilport.com.ua> <20050918102658.GB22210@infradead.org> <200509181406.25922.chrivers@iversen-net.dk>
+In-Reply-To: <200509181406.25922.chrivers@iversen-net.dk>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
-> For the benefit of those of us who are interested in the problem, but aren't
-> in the mood to wade through a long standard looking for the answer to a
-> specific question, can you elaborate?
+Christian Iversen wrote:
 
-See
+>On Sunday 18 September 2005 12:26, Christoph Hellwig wrote:
+>  
+>
+>>On Sun, Sep 18, 2005 at 01:21:23PM +0300, Denis Vlasenko wrote:
+>>    
+>>
+>>>This is it. I do not say "accept reiser4 NOW", I am saying "give Hans
+>>>good code review".
+>>>      
+>>>
+>>After he did his basic homework.  Note that reviewing hans code is probably
+>>at the very end of everyones todo list because every critizm of his code
+>>starts a huge flamewar where hans tries to attack everyone not on his
+>>party line personally.
+>>
+>>I've said I'm gonna do a proper review after he has done the basic
+>>homework, which he seems to have half-done now at least.  Right now he
+>>hasn't finished that and there's much more exciting filesystems like ocfs2
+>>around [...]
+>>    
+>>
+>
+>Now _what_ good does that sentence do us? I've been following this this since 
+>the primary reiser filesystem was number 3, and the kernel everybody was 
+>using was 2.4.10. You've probably been following this list for far longer, 
+>but is that really an excuse for rudeness?
+>
+>reiser4 has many, many extremely interesting features. I'm sure anybody is 
+>more than willing to go into detail with them, but saying that "ocfs2 is much 
+>more exiting" is just plain bashing, and it's not fair to Hans, to Namesys, 
+>or to every one of us who can't wait for reiser4 in mainline. 
+>
+>Could you please keep your personal idea of which filesystem is more 
+>interesting to yourself? It doesn't help anybody accomplish anything. 
+>
+>  
+>
+Hellwig, people who write slow file systems should not lecture their
+measurably superiors on how to code.  Oh, and I should mention that
+other people besides me have measured reiser4, and concluded it is twice
+the speed of the other Linux filesystems, so don't go claiming it is
+just my benchmarks.   What you are doing is keeping me from doing a real
+code review myself by keeping my guys so busy that they don't have time
+to review the fixmes I inserted and would insert more of if I thought
+they had time for them.   If you were as well suited to doing code
+reviews as I am, you would have written a faster file system yourself.  
+Anybody can find things to fix in someone else's code, and it can go on
+for years if they want it to.  I could get what you do from hiring a
+college junior, and if it was a good university I'd probably learn more
+from that junior in college than from you.  We are doing work, and you
+are getting in the way.  Nobody who wants reiser4 views your
+contributions as the least bit positive.  I fear you will delay us until
+ext3 can catch up.
 
-http://www.unicode.org/faq/utf_bom.html#38
+What you are is someone who substitutes social connections for technical
+ability.  You measurably can't code as well as we can, so once it
+conforms to VFS interface requirements, please go away.
 
-> It isn't as obvious as all that, because of all the nasty corner cases...
 
-It really depends on the specific structure of the text file. For Python
-scripts, the Python interpreter will reject a U+FEFF in the middle of
-the file as a syntax error (*). This is, IMO, a reasonable reaction: you
-just shouldn't concatenate Python scripts blindly. They may have
-different source encodings, so any concatenation of Python scripts
-needs to convert them both into a common encoding. The first script
-may also fail to terminate with a newline, so concatenating Python
-scripts also needs to insert a line break. In edition, you would
-also typically want to remove the docstring in the second file.
-
-The same holds for many other formats: for example, you cannot blindly
-concatenate XML files, either (the result often won't be an XML file).
-So that the BOM is treated as an error would give no problem.
-
-> Given a file "a.txt" that's pure ASCII, and a file "b.txt" that has the BOM
-> marker on it, what happens when you do "cat a.txt b.txt > c.txt"?
-
-You answer the question yourself correctly:
-
-> 'cat' doesn't know, and has no way of knowing, that c.txt needs a BOM at the
-> *front* of the file until it's already written past the point in c.txt where
-> the BOM has to go.
-> 
-> What does the Unicode standard say to do in this case?
-
-The point is that the BOM *also* is a regular character, U+FEFF. It used
-to have a specific function, too, but now U+2060 (WORD JOINER) should
-be used for that function. So U+FEFF is exclusively used for the BOM
-now. If you see it in the middle of a file, you know it doesn't belong
-there (*). In processing the file, you can complain, you can ignore it,
-and you can chose to strip it off. Which of these you do depends on
-the application; if you don't know better, treating it as ZERO WIDTH
-NON-BREAKING SPACE is the recommended reaction.
-
-Regards,
-Martin
-
-(*) unless it occurs in a string literal, in which case it becomes
-part of the string. In the case of concatenating two Python files,
-it won't be part of a string literal, though, but instead occur
-at the beginning of a line.

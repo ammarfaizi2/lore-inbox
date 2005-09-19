@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932493AbVISQYh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932458AbVISQYN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932493AbVISQYh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 12:24:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932496AbVISQYh
+	id S932458AbVISQYN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 12:24:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932493AbVISQYN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 12:24:37 -0400
-Received: from motgate4.mot.com ([144.189.100.102]:60098 "EHLO
-	motgate4.mot.com") by vger.kernel.org with ESMTP id S932493AbVISQYg
+	Mon, 19 Sep 2005 12:24:13 -0400
+Received: from dns.toxicfilms.tv ([150.254.220.184]:11919 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S932458AbVISQYN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 12:24:36 -0400
-Message-ID: <A752C16E6296D711942200065BFCB6942521C43A@il02exm10>
-From: Smarduch Mario-CMS063 <CMS063@motorola.com>
+	Mon, 19 Sep 2005 12:24:13 -0400
+X-QSS-TOXIC-Mail-From: solt2@dns.toxicfilms.tv via dns
+X-QSS-TOXIC: 1.25st (Clear:RC:1(213.238.97.75):. Processed in 0.0908 secs Process 20795)
+Date: Mon, 19 Sep 2005 18:24:17 +0200
+From: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+Reply-To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+X-Priority: 3 (Normal)
+Message-ID: <1668698797.20050919182417@dns.toxicfilms.tv>
 To: linux-kernel@vger.kernel.org
-Subject: Multi-Threaded fork() correctness on Linux 2.4 & 2.6
-Date: Mon, 19 Sep 2005 11:24:24 -0500
+Subject: Re: Reiser 4 - the BIG picture - (think BIG picture)
+In-Reply-To: <Pine.LNX.4.58.0509190914440.27719@shark.he.net>
+References: <432EDD17.3080107@perkel.com>
+ <Pine.LNX.4.58.0509190855160.27719@shark.he.net>
+ <1065685641.20050919181127@dns.toxicfilms.tv>
+ <Pine.LNX.4.58.0509190914440.27719@shark.he.net>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-MMU/Kernel experts,
-    
-    recently I've been involved in debugging MT forks on IA-64 the issues
-found were related to the way IA64 does its TLB invalidation. But there
-is still one  issue that appears to be Linux in general related, and it
-has to do with MT forks. 
- 
-For example a process has 3 threads T1, T2, T3.
- 
-1 - T1 issues a fork()
-    - under page_table_lock write bit is reset in src and dest pte's
-2 - T2 may have a TLB mis, the new write protected pte is inserted
-    (hw walker or sw tlb hdlr)
-3 - T2 winds up in do_wp_page() the page is copied to a new one
-4 - In the mean time T3 may be working off the same page, the
-    TLB invalidation (flush_tlb_mm()) has no occurred yet.
-5 - Eventually TLB is globally flushed so threads will see the new pte.
-6 - As a result the MT task may experience inconsisitent state.
-    - During 3 & 4. For example locks may be acquired by both
-      threads depending on the timing of the copy.
+Hello Randy.Dunlap,
 
-The TLB refill (hw/sw) work independently of the page_table_lock,
-it seems all threads should be forced to see the new pte
-before the new page is copied over by forcing the pte to 0 
-and allowing page_table_lock to synchronize the threads.
+Monday, September 19, 2005, 6:16:37 PM, you wrote:
+> "officially" may be too strong a word for it, but I wouldn't
+> merge it unreviewed.  It seems to have had some partial reviews.
+Yes, sorry, I just could not find a better word at the moment of writing,
+but I meant that the review should be an item on some agenda somewhere
+not just vapour-lkml-ping-pong-talk.
 
-I come from an SVR4 background and relatively new to
-Linux, any insights or corrections would be greatly appreciated.
-Please copy my email id as its to miss email on this list.
+--
+Maciej
 
-	- mario.
-  
+

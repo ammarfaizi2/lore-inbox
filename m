@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932341AbVISGzr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932342AbVISHB2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932341AbVISGzr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 02:55:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932343AbVISGzq
+	id S932342AbVISHB2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 03:01:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932344AbVISHB2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 02:55:46 -0400
-Received: from nproxy.gmail.com ([64.233.182.198]:30903 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932341AbVISGzp convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 02:55:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ePrw4Fjr62mgJL4HX6s7pDyJcX/iCXIm3ZyHctk0FY40SotktqAROnHMroicCSIbLn3FchiYXSUZFUa4yPXPs+EzgBUHMiVxP0Hv40DjRf05yMocsvP5QdR1L3RXQY+aybuTgeAyzDBRLxgJCkKeqn8HU8X7hLbeOrNpWVYWLLY=
-Message-ID: <2cd57c9005091823551e49bc23@mail.gmail.com>
-Date: Mon, 19 Sep 2005 14:55:44 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-Reply-To: coywolf@gmail.com
-To: Al Boldi <a1426z@gawab.com>
-Subject: Re: Fork capture
-Cc: linux-assembly@vger.kernel.org, linux-kernel@vger.kernel.org,
-       linux-smp@vger.kernel.org
-In-Reply-To: <200509181748.40029.a1426z@gawab.com>
+	Mon, 19 Sep 2005 03:01:28 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:10672 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932342AbVISHB1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 03:01:27 -0400
+Date: Mon, 19 Sep 2005 12:30:45 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Nigel Cunningham <ncunningham@cyclades.com>,
+       Li Shaohua <shaohua.li@intel.com>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: PATCH: Fix race in cpu_down (hotplug cpu)
+Message-ID: <20050919070045.GB9466@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <59D45D057E9702469E5775CBB56411F171F7E0@pdsmsx406> <20050919051024.GA8653@in.ibm.com> <1127107887.3958.9.camel@linux-hp.sh.intel.com> <20050919055715.GE8653@in.ibm.com> <1127110271.9696.97.camel@localhost> <20050919062336.GA9466@in.ibm.com> <1127111379.5272.5.camel@npiggin-nld.site>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200509181748.40029.a1426z@gawab.com>
+In-Reply-To: <1127111379.5272.5.camel@npiggin-nld.site>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/18/05, Al Boldi <a1426z@gawab.com> wrote:
-> 
-> Is there a way to capture a process-fork?
-> 
-> Something like:
-> process/kModule A monitors procs for forking, captures it and manages further
-> processing.
+On Mon, Sep 19, 2005 at 04:29:39PM +1000, Nick Piggin wrote:
+> It seems to me that it would be much nicer to just go with Nigel's
+> first fix. That is, rather than clutter up all idle routines with
+> this.
 
-Look at the fork_connector patch.
+I felt it to be more of a hack to get things working (do we really
+want the idle thread to be rescheduled at that point?). Plus the fact
+that it can cause the idle thread to call schedule() before the cpu_is_offline 
+check made me uncomfortable (maybe it is just fine).
+
 -- 
-Coywolf Qi Hunt
-http://sosdg.org/~coywolf/
+
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

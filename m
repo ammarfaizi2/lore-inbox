@@ -1,52 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932447AbVISOqg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932449AbVISPAL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932447AbVISOqg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 10:46:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932448AbVISOqg
+	id S932449AbVISPAL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 11:00:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932450AbVISPAK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 10:46:36 -0400
-Received: from zproxy.gmail.com ([64.233.162.202]:27305 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932447AbVISOqg convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 10:46:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=m4466Q3RWYwoW7dzwgSLEbdS23C7Dv3DSG0Nf2fHjn4uwynAfl6cCsH+J94TR2Eu0QQHWrL+L0RBGujebwEw/JQIdZva4eUPaY9JyfMqYHMOTqngrJiaZnBnlHwe1yYb7WSKoSFF9/ZISl9YaA+iVuyWIjoMhYu51zZSGBOLcFI=
-Message-ID: <f8fda533050919074628ff140e@mail.gmail.com>
-Date: Mon, 19 Sep 2005 22:46:33 +0800
-From: Wenfeng Liu <wenfeng.liu@gmail.com>
-Reply-To: wenfeng.liu@gmail.com
-To: linux-kernel@vger.kernel.org
-Subject: [Questions] About experience of using kgdb for 2.6.10 kernel
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Mon, 19 Sep 2005 11:00:10 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:4784 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S932449AbVISPAJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 11:00:09 -0400
+Message-ID: <432ED53F.EE8DEC5E@tv-sign.ru>
+Date: Mon, 19 Sep 2005 19:11:59 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: arjanv@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] introduce setup_timer() helper
+References: <432D70C8.EF7B0438@tv-sign.ru>
+		<1127056369.30256.4.camel@localhost.localdomain>
+		<432D8CF8.C14C48A0@tv-sign.ru>
+		<20050918154301.GA9088@devserv.devel.redhat.com>
+		<432D9432.5C5B64D6@tv-sign.ru> <20050918130613.5bbe9344.akpm@osdl.org>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, All
+Andrew Morton wrote:
+> 
+> Oleg Nesterov <oleg@tv-sign.ru> wrote:
+> >
+> > I think this can save a couple of cpu cycles. The init_timer()
+> >  is not inline, gcc can't reorder exprx() and init_timer() calls.
+> >
+> >  Ok, I do not want to persist very much, I can resend this patch.
+> >
+> >  Andrew, should I?
+> 
+> Try both, see which one generates the shorter code?
 
-Recently I use kgdb for 2.6.10 kernel to debug driver modules. I got
-the kgdb patch from kgdb CVS server. Here I have some experience of
-using it with questions.
+The code:
 
-1. I use gdbmod-2.2 which is claimed to support automatically load
-module symbol to correct address, but it don't do as that. I have to
-manually add .text/.data/.bss sections address as add-symbol-file
-parameters in gdb commands. Does anybody meet this?
-2. I can't add one breakpiont for codes in symbol unless I stop in
-sys_init_module and use "step" into module_init routine. It's not
-convenient for module debugging, because every time I has to add
-breakpoints in module_init, even I don't want to debug it. :(
-3. The connection often hangs with printing "error packet" message
-especially adding breakpoints or strike "n" quickly for multiple
-times. And then the debug can't continue without restart.
+	void *expr(void);
 
-Anyway, kgdb is a very good tool for kernel debugging. But from my
-experience, it's not stable -- or my usage faults? Is anybody willing
-to share with me his experience/knowledge?
+	void tst(struct timer_list *timer)
+	{
+		setup_timer(timer, expr(), 0);
+	}
 
-Thanks much,
-Kent
+Asm output:
+
+     1  tst:
+     2          pushl   %ebp
+     3          movl    %esp, %ebp
+     4          pushl   %ebx
+     5          movl    8(%ebp), %ebx
+     6          call    expr
+     7          movl    %eax, 16(%ebx)
+     8          movl    %ebx, %eax
+     9          movl    $0, 20(%ebx)
+    10          call    init_timer
+    11          popl    %ebx
+    12          popl    %ebp
+    13          ret
+
+After the Arjan proposed change:
+
+     1  tst:
+     2          pushl   %ebp
+     3          movl    %esp, %ebp
+     4          subl    $8, %esp
+     5          movl    %ebx, (%esp)
+     6          movl    8(%ebp), %ebx
+     7          movl    %esi, 4(%esp)
+     8          call    expr
+     9          movl    %eax, %esi
+    10          movl    %ebx, %eax
+    11          call    init_timer
+    12          movl    %esi, 16(%ebx)
+    13          movl    $0, 20(%ebx)
+    14          movl    (%esp), %ebx
+    15          movl    4(%esp), %esi
+    16          movl    %ebp, %esp
+    17          popl    %ebp
+    18          ret
+
+I don't think we'll see any difference in practice, but still...
+
+Oleg.

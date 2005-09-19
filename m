@@ -1,71 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932170AbVISEhl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932193AbVISEl0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932170AbVISEhl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 00:37:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbVISEhl
+	id S932193AbVISEl0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 00:41:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbVISEl0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 00:37:41 -0400
-Received: from mail.ctyme.com ([69.50.231.10]:18350 "EHLO newton.ctyme.com")
-	by vger.kernel.org with ESMTP id S932170AbVISEhl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 00:37:41 -0400
-Message-ID: <432E4093.4060609@perkel.com>
-Date: Sun, 18 Sep 2005 21:37:39 -0700
-From: Marc Perkel <marc@perkel.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.10) Gecko/20050716
+	Mon, 19 Sep 2005 00:41:26 -0400
+Received: from smtprelay03.ispgateway.de ([80.67.18.15]:33253 "EHLO
+	smtprelay03.ispgateway.de") by vger.kernel.org with ESMTP
+	id S932193AbVISElZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 00:41:25 -0400
+Message-ID: <432E416E.6090207@v.loewis.de>
+Date: Mon, 19 Sep 2005 06:41:18 +0200
+From: =?ISO-8859-1?Q?=22Martin_v=2E_L=F6wis=22?= <martin@v.loewis.de>
+User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-CC: LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: I request inclusion of reiser4 in the mainline kernel
-References: <200509182004.j8IK4JNx012764@inti.inf.utfsm.cl> <432DCE2A.5070705@slaphack.com> <432DDF7A.3050704@teleformix.com> <op.sxbtg9lzth1vuj@localhost>
-In-Reply-To: <op.sxbtg9lzth1vuj@localhost>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: "D. Hazelton" <dhazelton@enter.net>, linux-kernel@vger.kernel.org
+Subject: Re: [Patch] Support UTF-8 scripts
+References: <4NsP0-3YF-11@gated-at.bofh.it> <4NXfZ-5P0-1@gated-at.bofh.it> <4NYlM-7i0-5@gated-at.bofh.it> <4Olip-6HH-13@gated-at.bofh.it>
+In-Reply-To: <4Olip-6HH-13@gated-at.bofh.it>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Maindomain: perkel.com
-X-Spam-filter-host: newton.ctyme.com - http://www.junkemailfilter.com
-To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+D. Hazelton wrote:
+>>I would need to write a compiled C program to do all
+>>sorts of fragile hackish things like calling a script
+>>/sbin/init.sh.
+> 
+> 
+> Problem is, the program 
+> would not be fragile or hackish - it'd be almost as simple as a 
+> "hello world" program.
+> 
+> #include <unistd.h>
+> 
+> int main() {
+>   /* if this fails the system is busted anyway */
+>   return execve( "/bin/sh", "/sbin/init.sh", 0 );
+> };
 
+This attempt nicely illustrates Kyle's point. This program *is*
+fragile and hackish. It is fragile because, even though it is only
+five lines, contains two major bugs:
+1. execve takes an argv array, not a null-terminated list of
+   strings. So this compiles with a warning about incompatible
+   pointer types; you meant to use execl(3).
+2. In the exec family, the path to the program is different from
+   argv[0]. So the correct line would be
 
-PFC wrote:
+     return execl("/bin/sh", "sh", /sbin/init.sh", 0);
 
->
->
->> I'm of the same opinion.  If I have hardware that has a problem, and  
->> causes downtime, it gets replaced or repaired.  I don't switch to a  
->> different piece of software to compensate for broken hardware.
->>
->> With that said, I have seen ReiserFS expose hardware that had 
->> problems.   Hardware was repaired, and ReiserFS rides again.
->
->
->
+It is hackisch, because it also lacks a feature commonly
+found in such wrappers:
+3. arguments passed to the wrapper are not forwarded to the
+   executable. In particular, init takes several arguments
+   (e.g. the runlevel), which should be forwarded to the
+   final executable.
 
-Agreed - if the hardware has problem and anything is readable I'm happy. 
-When I was sysadmin at EFF we got a bunch of IBM Deathstar drives - and 
-for those who experiences this - every one of them fails. But they 
-usually fail slowly. What amazed me was I would stat to see seek errors 
-- sector not found and I would copy off everything I could onto a new 
-drive before I lost anything. And - I thought it was amazing that I 
-usually managed to get all the important stuff. So - I give reiser 
-credit for being somewhat resiliant.
+Just try completing the wrapper on your own.
 
-here's the way I see it. This isn't like Hans Reiser is some unknown guy 
-who has some wild idea that we all don't know. ReiserFS is a majoy 
-player in the Linux world and many people like it the best. Several 
-distros use Reiser as their default install. So to me this gives him 
-more than average standing and the way I see it - there has to be a good 
-reason to NOT merge it rather than a reason TO merge it.
-
-So - is Reiser4 going to break anything? If not - what is the reason to 
-not do it?
-
--- 
-Marc Perkel - marc@perkel.com
-
-Spam Filter: http://www.junkemailfilter.com
-    My Blog: http://marc.perkel.com
-
+Regards,
+Martin

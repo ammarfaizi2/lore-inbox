@@ -1,51 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932721AbVISWj1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964777AbVISWoI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932721AbVISWj1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 18:39:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932723AbVISWj1
+	id S964777AbVISWoI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 18:44:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964776AbVISWoI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 18:39:27 -0400
-Received: from zctfs063.nortelnetworks.com ([47.164.128.120]:461 "EHLO
-	zctfs063.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S932721AbVISWj0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 18:39:26 -0400
-Message-ID: <432F3E0F.1010002@nortel.com>
-Date: Mon, 19 Sep 2005 16:39:11 -0600
-From: "Christopher Friesen" <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: tglx@linutronix.de
-CC: Christoph Lameter <clameter@engr.sgi.com>, linux-kernel@vger.kernel.org,
-       mingo@elte.hu, akpm@osdl.org, george@mvista.com, johnstul@us.ibm.com,
-       paulmck@us.ibm.com
+	Mon, 19 Sep 2005 18:44:08 -0400
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:51669
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S964775AbVISWoG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 18:44:06 -0400
 Subject: Re: [ANNOUNCE] ktimers subsystem
-References: <20050919184834.1.patchmail@tglx.tec.linutronix.de>	 <Pine.LNX.4.62.0509191500040.27238@schroedinger.engr.sgi.com> <1127168232.24044.265.camel@tglx.tec.linutronix.de>
-In-Reply-To: <1127168232.24044.265.camel@tglx.tec.linutronix.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, akpm@osdl.org,
+       george@mvista.com, johnstul@us.ibm.com, paulmck@us.ibm.com
+In-Reply-To: <Pine.LNX.4.62.0509191521400.27238@schroedinger.engr.sgi.com>
+References: <20050919184834.1.patchmail@tglx.tec.linutronix.de>
+	 <Pine.LNX.4.62.0509191500040.27238@schroedinger.engr.sgi.com>
+	 <1127168232.24044.265.camel@tglx.tec.linutronix.de>
+	 <Pine.LNX.4.62.0509191521400.27238@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Organization: linutronix
+Date: Tue, 20 Sep 2005 00:44:09 +0200
+Message-Id: <1127169849.24044.279.camel@tglx.tec.linutronix.de>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 19 Sep 2005 22:39:15.0128 (UTC) FILETIME=[F6983380:01C5BD6A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Gleixner wrote:
+On Mon, 2005-09-19 at 15:24 -0700, Christoph Lameter wrote:
 
-> We should rather ask glibc people why gettimeofday() / clock_getttime()
-> is called inside the library code all over the place for non obvious
-> reasons.
+> > We should rather ask glibc people why gettimeofday() / clock_getttime()
+> > is called inside the library code all over the place for non obvious
+> > reasons.
+> 
+> You can ask lots of application vendors the same question because its all 
+> over lots of user space code. The fact is that gettimeofday() / 
+> clock_gettime() efficiency is very critical to the performance of many 
+> applications on Linux. That is why the addtion of one add instruction may 
+> better be carefully considered. 
 
- From an app point of view, there are any number of reasons to check the 
-time frequently.
+Hmm. I don't understand the argument line completely. 
 
---debugging
---flight-recorder style logs
---if you've got timers in your application, you may want to check to 
-make sure that you didn't get woken up early (the linux behaviour of 
-returning unused time in select is not portable)
---the app might be tracking it's own behaviour, measuring how long code 
-paths take for its own accounting purposes
---emulators (vmware, UML, etc.) often want to check the time quite 
-frequently
+1. The kernel has to provide ugly mechanisms because a lot of
+applications implementations are doing the Wrong Thing ?
+
+2. All gettimeofday implementations I have looked at do a lot of math
+anyway, so its definitely more interesting to look at those oddities
+rather than discussing a single add. John Stulz timeofday rework have a
+clean solution for this - please do not argue about the div64 in his
+original patches which he is reworking at the moment.
+
+> Many platforms can execute gettimeofday 
+> without having to enter the kernel.
+
+Which ones ? How is this achieved with respect to all the time adjust,
+correction... code ?
+
+tglx
 
 
-Chris

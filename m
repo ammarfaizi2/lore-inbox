@@ -1,60 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932390AbVISU4b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932452AbVISU6y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932390AbVISU4b (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 16:56:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932452AbVISU4b
+	id S932452AbVISU6y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 16:58:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932462AbVISU6x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 16:56:31 -0400
-Received: from mail.tmr.com ([64.65.253.246]:65426 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S932390AbVISU4a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 16:56:30 -0400
-Message-ID: <432F2602.1020200@tmr.com>
-Date: Mon, 19 Sep 2005 16:56:34 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates Inc, Schenectady NY
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Pierre Ossman <drzeus-list@drzeus.cx>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ipw2200 using old wireless extensions
-References: <4329E09B.9020807@drzeus.cx> <432F0BC6.3040100@tmr.com> <432F1280.3040209@pobox.com>
-In-Reply-To: <432F1280.3040209@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 19 Sep 2005 16:58:53 -0400
+Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:14552 "EHLO
+	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S932452AbVISU6x
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 16:58:53 -0400
+X-ORBL: [67.124.117.85]
+Date: Mon, 19 Sep 2005 13:58:36 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Pantelis Antoniou <pantelis@embeddedalley.com>
+Cc: Christoph Hellwig <hch@infradead.org>, rmk+serial@arm.linux.org.uk,
+       linux-kernel@vger.kernel.org, Pete Popov <ppopov@embeddedalley.com>,
+       Matt Porter <mporter@embeddedalley.com>
+Subject: Re: [PATCH] Au1x00 8250 uart support.
+Message-ID: <20050919205836.GA16212@taniwha.stupidest.org>
+References: <200509192340.10450.pantelis@embeddedalley.com> <20050919204454.GA30041@infradead.org> <200509192353.35427.pantelis@embeddedalley.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200509192353.35427.pantelis@embeddedalley.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+On Mon, Sep 19, 2005 at 11:53:34PM +0300, Pantelis Antoniou wrote:
 
-> Bill Davidsen wrote:
+> Sure, I can do that.
 >
->> Pierre Ossman wrote:
->>
->>> With the inclusion of the ipw2200 driver and the update of the wireless
->>> extensions I get my dmesg flooded with these:
->>>
->>> eth0 (WE) : Driver using old /proc/net/wireless support, please fix 
->>> driver !
->>>
->>> Somebody please make the hurting go away :)
->>
->>
->>
->> Is this related to using the old 1.0.0 driver instead of current? I 
->> asked why and never got an answer, so ???
->
->
-> Because we're waiting on Intel, or someone, to update the driver 
-> properly. 
+> But the check for the map existence will take a couple of
+> instructions then, for all architectures. If you're fine with that,
+> it'd be no problem.
 
-
-Okay, I'll continue to do the upgrade manually.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO TMR Associates, Inc
-  Doing interesting things with small computers since 1979
-
+Or you an define an accessor #define foo_map(x,y) which would contain
+*one* ifdef there and default to a NOP for all but au uart inflicted
+platforms.

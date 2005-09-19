@@ -1,92 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932449AbVISPAL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932454AbVISPHR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932449AbVISPAL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 11:00:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932450AbVISPAK
+	id S932454AbVISPHR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 11:07:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbVISPHR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 11:00:10 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:4784 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S932449AbVISPAJ (ORCPT
+	Mon, 19 Sep 2005 11:07:17 -0400
+Received: from verein.lst.de ([213.95.11.210]:6575 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S932454AbVISPHQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 11:00:09 -0400
-Message-ID: <432ED53F.EE8DEC5E@tv-sign.ru>
-Date: Mon, 19 Sep 2005 19:11:59 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: arjanv@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] introduce setup_timer() helper
-References: <432D70C8.EF7B0438@tv-sign.ru>
-		<1127056369.30256.4.camel@localhost.localdomain>
-		<432D8CF8.C14C48A0@tv-sign.ru>
-		<20050918154301.GA9088@devserv.devel.redhat.com>
-		<432D9432.5C5B64D6@tv-sign.ru> <20050918130613.5bbe9344.akpm@osdl.org>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+	Mon, 19 Sep 2005 11:07:16 -0400
+Date: Mon, 19 Sep 2005 17:07:09 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: axboe@suse.de, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] remov blkdev_scsi_issue_flush_fn again
+Message-ID: <20050919150709.GA13478@lst.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> 
-> Oleg Nesterov <oleg@tv-sign.ru> wrote:
-> >
-> > I think this can save a couple of cpu cycles. The init_timer()
-> >  is not inline, gcc can't reorder exprx() and init_timer() calls.
-> >
-> >  Ok, I do not want to persist very much, I can resend this patch.
-> >
-> >  Andrew, should I?
-> 
-> Try both, see which one generates the shorter code?
+This function was removed a while ago, but crept in again via a recent
+scsi merge.
 
-The code:
 
-	void *expr(void);
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-	void tst(struct timer_list *timer)
-	{
-		setup_timer(timer, expr(), 0);
-	}
-
-Asm output:
-
-     1  tst:
-     2          pushl   %ebp
-     3          movl    %esp, %ebp
-     4          pushl   %ebx
-     5          movl    8(%ebp), %ebx
-     6          call    expr
-     7          movl    %eax, 16(%ebx)
-     8          movl    %ebx, %eax
-     9          movl    $0, 20(%ebx)
-    10          call    init_timer
-    11          popl    %ebx
-    12          popl    %ebp
-    13          ret
-
-After the Arjan proposed change:
-
-     1  tst:
-     2          pushl   %ebp
-     3          movl    %esp, %ebp
-     4          subl    $8, %esp
-     5          movl    %ebx, (%esp)
-     6          movl    8(%ebp), %ebx
-     7          movl    %esi, 4(%esp)
-     8          call    expr
-     9          movl    %eax, %esi
-    10          movl    %ebx, %eax
-    11          call    init_timer
-    12          movl    %esi, 16(%ebx)
-    13          movl    $0, 20(%ebx)
-    14          movl    (%esp), %ebx
-    15          movl    4(%esp), %esi
-    16          movl    %ebp, %esp
-    17          popl    %ebp
-    18          ret
-
-I don't think we'll see any difference in practice, but still...
-
-Oleg.
+Index: linux-2.6/drivers/block/ll_rw_blk.c
+===================================================================
+--- linux-2.6.orig/drivers/block/ll_rw_blk.c	2005-09-18 13:47:02.000000000 +0200
++++ linux-2.6/drivers/block/ll_rw_blk.c	2005-09-19 15:11:23.000000000 +0200
+@@ -2373,44 +2373,6 @@
+ 
+ EXPORT_SYMBOL(blkdev_issue_flush);
+ 
+-/**
+- * blkdev_scsi_issue_flush_fn - issue flush for SCSI devices
+- * @q:		device queue
+- * @disk:	gendisk
+- * @error_sector:	error offset
+- *
+- * Description:
+- *    Devices understanding the SCSI command set, can use this function as
+- *    a helper for issuing a cache flush. Note: driver is required to store
+- *    the error offset (in case of error flushing) in ->sector of struct
+- *    request.
+- */
+-int blkdev_scsi_issue_flush_fn(request_queue_t *q, struct gendisk *disk,
+-			       sector_t *error_sector)
+-{
+-	struct request *rq = blk_get_request(q, WRITE, __GFP_WAIT);
+-	int ret;
+-
+-	rq->flags |= REQ_BLOCK_PC | REQ_SOFTBARRIER;
+-	rq->sector = 0;
+-	memset(rq->cmd, 0, sizeof(rq->cmd));
+-	rq->cmd[0] = 0x35;
+-	rq->cmd_len = 12;
+-	rq->data = NULL;
+-	rq->data_len = 0;
+-	rq->timeout = 60 * HZ;
+-
+-	ret = blk_execute_rq(q, disk, rq, 0);
+-
+-	if (ret && error_sector)
+-		*error_sector = rq->sector;
+-
+-	blk_put_request(rq);
+-	return ret;
+-}
+-
+-EXPORT_SYMBOL(blkdev_scsi_issue_flush_fn);
+-
+ static void drive_stat_acct(struct request *rq, int nr_sectors, int new_io)
+ {
+ 	int rw = rq_data_dir(rq);

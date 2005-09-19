@@ -1,157 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932353AbVISNVm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932378AbVISNfX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932353AbVISNVm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 09:21:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbVISNVm
+	id S932378AbVISNfX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 09:35:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932379AbVISNfX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 09:21:42 -0400
-Received: from nproxy.gmail.com ([64.233.182.196]:48159 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932353AbVISNVl convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 09:21:41 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=J9dpyGVECaA86hCeC+3T+FVNQ2oT7gQIoyD+h0XS2HZM7HozPpm9mcMahlLVB4hknFKu91UFVd0k4nbOeKCzq/kDMh5ChpX1Q5sLYpKzp35UpqywETJ7Or6P8sexxNjVQM+iixKTqmitonpy4OVZaIUJsqYfri1nH9VsjGfvpoU=
-Message-ID: <2cd57c90050919062144d133c9@mail.gmail.com>
-Date: Mon, 19 Sep 2005 21:21:38 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-Reply-To: coywolf@gmail.com
-To: Ustyugov Roman <dr_unique@ymg.ru>
-Subject: Re: [BUG] module-init-tools
-Cc: linux-kernel@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>
-In-Reply-To: <200509191432.58736.dr_unique@ymg.ru>
+	Mon, 19 Sep 2005 09:35:23 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:16135 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932378AbVISNfX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 09:35:23 -0400
+Date: Mon, 19 Sep 2005 15:35:35 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Christoph Hellwig <hch@lst.de>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] move tasklist walk from cfq-iosched to elevator.c
+Message-ID: <20050919133534.GN10845@suse.de>
+References: <20050826114924.GA28166@lst.de> <20050826134509.GF4018@suse.de> <20050919131600.GA11806@lst.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200509191432.58736.dr_unique@ymg.ru>
+In-Reply-To: <20050919131600.GA11806@lst.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/19/05, Ustyugov Roman <dr_unique@ymg.ru> wrote:
-> Hello!
+On Mon, Sep 19 2005, Christoph Hellwig wrote:
+> On Fri, Aug 26, 2005 at 03:45:10PM +0200, Jens Axboe wrote:
+> > On Fri, Aug 26 2005, Christoph Hellwig wrote:
+> > > We're trying to get rid of as much as possible tasklist walks, or at
+> > > least moving them to core code.  This patch falls into the second
+> > > category.
+> > > 
+> > > Instead of walking the tasklist in cfq-iosched move that into
+> > > elv_unregister.  The added benefit is that with this change the as
+> > > ioscheduler might be might unloadable more easily aswell.
+> > > 
+> > > The new code uses read_lock instead of read_lock_irq because the
+> > > tasklist_lock only needs irq disabling for writers.
+> > 
+> > Looks innocent enough, fine with me. 'as' will need additional work to
+> > be unloadable, but it wont break anything since it's running with an
+> > elevated module count right now anyways.
 > 
-> I found a bug in module-init-tools.
-> 
-> 'lsmod' shows a wrong module name, when module name complied with some
-> "define" at one of kernel header files.
-> 
-> For example,
-> 
-> File "current.c"
-> =======================
-> #include <linux/kernel.h>
-> #include <linux/module.h>
-> 
-> int init_module(void) {
-> 
->   return 0;
-> }
-> 
-> void cleanup_module() {
-> }
-> 
-> MODULE_LICENSE("GPL");
-> =======================
-> 
-> Makefile:
-> 
-> =======================
-> obj-m += current.o
-> =======================
-> 
-> Make this module and type commands:
-> 
-> insmod current.ko
-> lsmod
-> 
-> And we can see:
-> 
-> Module Size Used by
-> get_current() 1152 0 <---- Oops, must be 'current'
-> smbfs 61432 2
-> hfsplus 56708 0
-> nls_cp866 5120 1
-> nls_iso8859_1 4096 0
-> nls_cp437 5760 0
-> vfat 12800 0
-> fat 37916 1 vfat
-> nls_utf8 2048 1
->   .....
-> 
-> File <asm/current.h>:
-> 
-> ===================
->   ...
-> #define current get_current()
->   ...
-> ===================
-> 
-> Try to remove module:
-> 
-> romanu:/current # rmmod current
-> ERROR: Module current does not exist in /proc/modules
-> romanu:/current # rmmod -v "get_current()"
-> rmmod get_current(), wait=no
-> romanu:/current #
-> 
-> I can't remove module with 'rmmod current',
-> but can with
-> rmmod "get_current()"
-> 
-> Is it a bug?
-> 
-> Then, next example.
-> 
-> File 'init_stack.c'
-> =================
-> #include <linux/kernel.h>
-> #include <linux/module.h>
-> 
-> int init_module(void) {
-> 
->   return 0;
-> }
-> 
-> void cleanup_module() {
-> }
-> 
-> MODULE_LICENSE("GPL");
-> =================
-> 
-> Make and insert module 'init_stack.ko':
-> 
-> lsmod:
-> 
-> Module Size Used by
-> get_current() 1152 0
-> (init_thread_union.stack) 1152 0 <---- Oops, must be 'init_stack'
-> smbfs 61432 2
-> hfsplus 56708 0
-> nls_cp866 5120 1
-> nls_iso8859_1 4096 0
-> 
-> Now I can't to remove it at all ! :(:(
-> 
-> From <asm/thread_info.h>
-> 
-> ====================
-> ...
-> #define init_stack (init_thread_union.stack)
-> ...
-> ====================
-> 
-> Some information about software:
-> 
-> OS: SuSE Pro 9.3
-> kernel version: 2.6.11.4-21.8-default
-> module-init-tools version: 3.2_pre1-7
+> any chance to send this on to akpm?
 
-Actually, this is a kbuild bug, not module-init-tools' fault. 
+Sure, already ack'ed it and I thought akpm was cc'ed on the mail.
+Anyways, andrew can you add this? Thanks!
 
-(cc Sam)
+Signed-off-by: Jens Axboe <axboe@suse.de>
+
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> 
+> Index: linux-2.6/drivers/block/as-iosched.c
+> ===================================================================
+> --- linux-2.6.orig/drivers/block/as-iosched.c	2005-08-11 16:45:55.000000000 +0200
+> +++ linux-2.6/drivers/block/as-iosched.c	2005-08-14 12:13:08.000000000 +0200
+> @@ -2119,8 +2119,8 @@
+>  
+>  static void __exit as_exit(void)
+>  {
+> -	kmem_cache_destroy(arq_pool);
+>  	elv_unregister(&iosched_as);
+> +	kmem_cache_destroy(arq_pool);
+>  }
+>  
+>  module_init(as_init);
+> Index: linux-2.6/drivers/block/cfq-iosched.c
+> ===================================================================
+> --- linux-2.6.orig/drivers/block/cfq-iosched.c	2005-08-11 16:45:55.000000000 +0200
+> +++ linux-2.6/drivers/block/cfq-iosched.c	2005-08-14 12:09:17.000000000 +0200
+> @@ -2609,28 +2609,8 @@
+>  
+>  static void __exit cfq_exit(void)
+>  {
+> -	struct task_struct *g, *p;
+> -	unsigned long flags;
+> -
+> -	read_lock_irqsave(&tasklist_lock, flags);
+> -
+> -	/*
+> -	 * iterate each process in the system, removing our io_context
+> -	 */
+> -	do_each_thread(g, p) {
+> -		struct io_context *ioc = p->io_context;
+> -
+> -		if (ioc && ioc->cic) {
+> -			ioc->cic->exit(ioc->cic);
+> -			cfq_free_io_context(ioc->cic);
+> -			ioc->cic = NULL;
+> -		}
+> -	} while_each_thread(g, p);
+> -
+> -	read_unlock_irqrestore(&tasklist_lock, flags);
+> -
+> -	cfq_slab_kill();
+>  	elv_unregister(&iosched_cfq);
+> +	cfq_slab_kill();
+>  }
+>  
+>  module_init(cfq_init);
+> Index: linux-2.6/drivers/block/elevator.c
+> ===================================================================
+> --- linux-2.6.orig/drivers/block/elevator.c	2005-08-11 16:45:55.000000000 +0200
+> +++ linux-2.6/drivers/block/elevator.c	2005-08-14 12:12:35.000000000 +0200
+> @@ -572,6 +572,27 @@
+>  
+>  void elv_unregister(struct elevator_type *e)
+>  {
+> +	struct task_struct *g, *p;
+> +
+> +	/*
+> +	 * Iterate every thread in the process to remove the io contexts.
+> +	 */
+> +	read_lock(&tasklist_lock);
+> +	do_each_thread(g, p) {
+> +		struct io_context *ioc = p->io_context;
+> +		if (ioc && ioc->cic) {
+> +			ioc->cic->exit(ioc->cic);
+> +			ioc->cic->dtor(ioc->cic);
+> +			ioc->cic = NULL;
+> +		}
+> +		if (ioc && ioc->aic) {
+> +			ioc->aic->exit(ioc->aic);
+> +			ioc->aic->dtor(ioc->aic);
+> +			ioc->aic = NULL;
+> +		}
+> +	} while_each_thread(g, p);
+> +	read_unlock(&tasklist_lock);
+> +
+>  	spin_lock_irq(&elv_list_lock);
+>  	list_del_init(&e->list);
+>  	spin_unlock_irq(&elv_list_lock);
+> 
 
 -- 
-Coywolf Qi Hunt
-http://sosdg.org/~coywolf/
+Jens Axboe
+

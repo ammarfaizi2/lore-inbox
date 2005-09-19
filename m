@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbVISEXo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbVISEX1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932220AbVISEXo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 00:23:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbVISEXo
+	id S932202AbVISEX1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 00:23:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932220AbVISEX1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 00:23:44 -0400
-Received: from mail.ctyme.com ([69.50.231.10]:19373 "EHLO newton.ctyme.com")
-	by vger.kernel.org with ESMTP id S932220AbVISEXn (ORCPT
+	Mon, 19 Sep 2005 00:23:27 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:36041 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932202AbVISEX0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 00:23:43 -0400
-Message-ID: <432E3D4C.4070508@perkel.com>
-Date: Sun, 18 Sep 2005 21:23:40 -0700
-From: Marc Perkel <marc@perkel.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.10) Gecko/20050716
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Lost Ticks
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Maindomain: perkel.com
-X-Spam-filter-host: newton.ctyme.com - http://www.junkemailfilter.com
+	Mon, 19 Sep 2005 00:23:26 -0400
+Date: Mon, 19 Sep 2005 09:52:40 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: PATCH: Fix race in cpu_down (hotplug cpu)
+Message-ID: <20050919042240.GA7506@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <1127100518.9696.62.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1127100518.9696.62.camel@localhost>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Got a dual core Athlon 64 X2 on an Asus board using NVidia chipset and 
-getting lost ticks. The software clock of course is totally messed up. 
-I've scanned google for a solution and see others complaining about bad 
-code in the SMM BIOS. I have the latest bios and whatever they need to 
-fix - isn't.
+On Mon, Sep 19, 2005 at 01:28:38PM +1000, Nigel Cunningham wrote:
+> There is a race condition in taking down a cpu (kernel/cpu.c::cpu_down).
+> A cpu can already be idling when we clear its online flag, and we do not
+> force the idle task to reschedule. This results in __cpu_die timing out.
 
-So - what do I do to make it work?
+"when we clear its online flag" - This happens in take_cpu_down in the
+context of stopmachine thread. take_cpu_down also ensures that idle 
+thread runs when it returns (sched_idle_next). So when idle thread runs,
+it should notice that it is offline and invoke play_dead.  So I don't 
+understand why __cpu_die should time out.
 
-Yes - I compiled the kernel 2.6.13.1 and used a speed of 100 - the 
-lowest setting - and that did help some. But - the problem needs to go away.
-
-If I compile a kermel without any of the power management at all - will 
-that fix the problem? I need a work around.
-
-Thanks in advance.
 
 -- 
-Marc Perkel - marc@perkel.com
 
-Spam Filter: http://www.junkemailfilter.com
-    My Blog: http://marc.perkel.com
 
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

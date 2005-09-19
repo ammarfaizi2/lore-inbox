@@ -1,103 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932619AbVISTzO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932615AbVISUGR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932619AbVISTzO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 15:55:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932611AbVISTzO
+	id S932615AbVISUGR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 16:06:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932617AbVISUGR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 15:55:14 -0400
-Received: from ns1.coraid.com ([65.14.39.133]:52970 "EHLO coraid.com")
-	by vger.kernel.org with ESMTP id S932619AbVISTzM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 15:55:12 -0400
-To: trivial@rustcorp.com.au
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "David S. Miller" <davem@davemloft.net>,
-       Roland Dreier <rolandd@cisco.com>
-Subject: [patch 2.6.13] document alignment and byteorder macros
-From: Ed L Cashin <ecashin@coraid.com>
-Date: Mon, 19 Sep 2005 15:22:01 -0400
-Message-ID: <87ll1suali.fsf@coraid.com>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+	Mon, 19 Sep 2005 16:06:17 -0400
+Received: from 66-23-228-155.clients.speedfactory.net ([66.23.228.155]:45972
+	"EHLO kevlar.burdell.org") by vger.kernel.org with ESMTP
+	id S932615AbVISUGR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 16:06:17 -0400
+Date: Mon, 19 Sep 2005 16:01:36 -0400
+From: Sonny Rao <sonny@burdell.org>
+To: Anton Blanchard <anton@samba.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-rc1-mm1
+Message-ID: <20050919200136.GA22144@kevlar.burdell.org>
+References: <20050916022319.12bf53f3.akpm@osdl.org> <20050916101700.GB14962@krispykreme> <20050916205517.GA8638@kevlar.burdell.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050916205517.GA8638@kevlar.burdell.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+On Fri, Sep 16, 2005 at 04:55:17PM -0400, Sonny Rao wrote:
+> On Fri, Sep 16, 2005 at 08:17:00PM +1000, Anton Blanchard wrote:
+> > On Fri, Sep 16, 2005 at 02:23:19AM -0700, Andrew Morton wrote:
+> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14-rc1/2.6.14-rc1-mm1/
+> > 
+> > Builds and boots on ppc64 (POWER5) with the following patch, I forgot to
+> > include siginfo.h when I added data breakpoint support. We must include
+> > it in a round-a-bout way in mainline.
+> 
+> Excellent, now I'm about to start up perf testing on 2.6.14-rc1-mm1 
+> 
+> with and without the following patches:
+> 
+> mm-try-to-allocate-higher-order-pages-in-rmqueue_bulk.patch
+>   mm: try to allocate higher order pages in rmqueue_bulk
+> 
+> mm-try-to-allocate-higher-order-pages-in-rmqueue_bulk-fix.patch
+>   mm-try-to-allocate-higher-order-pages-in-rmqueue_bulk fix
+> 
+> mm-page_alloc-increase-size-of-per-cpu-pages.patch
+>   mm: page_alloc: increase size of per-cpu-pages
+> 
+> mm-set-per-cpu-pages-lower-threshold-to-zero.patch
+>   mm: set per-cpu-pages lower threshold to zero
+> 
 
-"David S. Miller" <davem@davemloft.net> writes:
-
-> From: Ed L Cashin <ecashin@coraid.com>
-> Date: Mon, 19 Sep 2005 10:24:00 -0400
->
->>   1) Passing le64_to_cpup an unaligned pointer is "OK" and within the
->>      intended use of the function.  I'm having trouble finding whether
->>      this is documented somewhere.
->> 
->>   2) These new changes to the sparc64 unaligned access fault handling
->>      will make it OK to leave the aoe driver the way it is in the
->>      mainline kernel.
->
-> Both #1 and #2 are true.
->
-> Although it's very much discouraged to dereference unaligned pointers,
-> especially in performance critical code (which this AOE case is not,
-> thankfully), because performance will be really bad as the trap
-> handler has to fix up the access on RISC platforms.
-
-Roland Dreier <rolandd@cisco.com> writes:
-
->     David> Although it's very much discouraged to dereference
->     David> unaligned pointers, especially in performance critical code
->     David> (which this AOE case is not, thankfully), because
->     David> performance will be really bad as the trap handler has to
->     David> fix up the access on RISC platforms. 
->
-> Also, ia64 has a tendency to print an ugly message in the kernel log
-> for unaligned accesses.  Has anyone tried AoE on ia64?
->
-> It might be better to change the AoE code to use get_unaligned(), just
-> to document what's going on.  Although clearly the sparc64 patch is
-> correct as well -- we should never silently return the wrong data.
-
-This patch comments the fact that although passing le64_to_cpup et
-al. is within the intended use of the byteorder macros, using
-get_unaligned is the recommended way to go.
-
-Please speak up if there's a better place for this documentation to go
-or a better way to say it.
+Here are the results:
 
 
-document alignment and byteorder macros
+bench		2.6.14-rc1-mm1		2.6.14-rc1-mm1-revert
+--		--			--
+kernbench	438.88 sec		439.49 sec	0.1 % slower
+dbench3 (16)	1089.14 MB/sec		1062.89 MB/sec	2.5 % slower	
 
-Signed-off-by: Ed L. Cashin <ecashin@coraid.com>
+dbench3 was run on a tmpfs
 
+To avoid certain issues, SDET is given in relative terms.
 
---=-=-=
-Content-Disposition: inline; filename=diff
+sdet (64)	100 %			100.2 % 
 
-Index: linux-2.6.13/include/linux/byteorder/generic.h
-===================================================================
---- linux-2.6.13.orig/include/linux/byteorder/generic.h	2005-08-31 17:00:15.000000000 -0400
-+++ linux-2.6.13/include/linux/byteorder/generic.h	2005-09-19 15:15:37.000000000 -0400
-@@ -5,6 +5,10 @@
-  * linux/byteorder_generic.h
-  * Generic Byte-reordering support
-  *
-+ * The "... p" macros, like le64_to_cpup, can be used with pointers
-+ * to unaligned data, but there will be a performance penalty on 
-+ * some architectures.  Use get_unaligned for unaligned data.
-+ *
-  * Francois-Rene Rideau <fare@tunes.org> 19970707
-  *    gathered all the good ideas from all asm-foo/byteorder.h into one file,
-  *    cleaned them up.
-
---=-=-=
-
-
-
--- 
-  Ed L Cashin <ecashin@coraid.com>
-
---=-=-=--
 

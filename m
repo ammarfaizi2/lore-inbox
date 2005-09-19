@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932464AbVISUyF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932390AbVISU4b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932464AbVISUyF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 16:54:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932465AbVISUyE
+	id S932390AbVISU4b (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 16:56:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932452AbVISU4b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 16:54:04 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:52436
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S932464AbVISUyA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 16:54:00 -0400
-Subject: Re: 2.6.13-rt13 SMP crashes on boot
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: John Rigg <lk@sound-man.co.uk>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1127162955.5097.25.camel@localhost.localdomain>
-References: <E1EHQmY-0001MS-8L@localhost.localdomain>
-	 <1127162955.5097.25.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: linutronix
-Date: Mon, 19 Sep 2005 22:54:04 +0200
-Message-Id: <1127163244.24044.237.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Mon, 19 Sep 2005 16:56:31 -0400
+Received: from mail.tmr.com ([64.65.253.246]:65426 "EHLO gaimboi.tmr.com")
+	by vger.kernel.org with ESMTP id S932390AbVISU4a (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 16:56:30 -0400
+Message-ID: <432F2602.1020200@tmr.com>
+Date: Mon, 19 Sep 2005 16:56:34 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+Organization: TMR Associates Inc, Schenectady NY
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Pierre Ossman <drzeus-list@drzeus.cx>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ipw2200 using old wireless extensions
+References: <4329E09B.9020807@drzeus.cx> <432F0BC6.3040100@tmr.com> <432F1280.3040209@pobox.com>
+In-Reply-To: <432F1280.3040209@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-09-19 at 16:49 -0400, Steven Rostedt wrote:
-> Hi John,
-> 
-> First, always CC Ingo on all issues related to the -rt patch.  Although
-> I think he's on vacation now, but even so, he will probably miss this
-> email.
-> 
-> On Mon, 2005-09-19 at 19:54 +0100, John Rigg wrote:
-> > I've been trying to get 2.6.13 with RT-preempt patch to run on my
-> > dual Opteron with debugging code (with CONFIG_PREEMPT_RT=y).
-> > It crashes on boot if I enable latency tracing in .config. This happens 
-> > with -rt13, -rt12, and -rt4 versions of the patch. Unfortunately it
+Jeff Garzik wrote:
 
-Do you have high resolution timers turned on ?
+> Bill Davidsen wrote:
+>
+>> Pierre Ossman wrote:
+>>
+>>> With the inclusion of the ipw2200 driver and the update of the wireless
+>>> extensions I get my dmesg flooded with these:
+>>>
+>>> eth0 (WE) : Driver using old /proc/net/wireless support, please fix 
+>>> driver !
+>>>
+>>> Somebody please make the hurting go away :)
+>>
+>>
+>>
+>> Is this related to using the old 1.0.0 driver instead of current? I 
+>> asked why and never got an answer, so ???
+>
+>
+> Because we're waiting on Intel, or someone, to update the driver 
+> properly. 
 
-If yes, there is a SMP bug in -rt13. -rt14 has fixed this
 
-tglx
+Okay, I'll continue to do the upgrade manually.
 
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO TMR Associates, Inc
+  Doing interesting things with small computers since 1979
 

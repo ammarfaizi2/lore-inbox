@@ -1,72 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932322AbVISF6t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932259AbVISF5l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932322AbVISF6t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 01:58:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932321AbVISF6t
+	id S932259AbVISF5l (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 01:57:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932321AbVISF5l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 01:58:49 -0400
-Received: from h80ad253d.async.vt.edu ([128.173.37.61]:25483 "EHLO
-	h80ad253d.async.vt.edu") by vger.kernel.org with ESMTP
-	id S932322AbVISF6s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 01:58:48 -0400
-Message-Id: <200509190556.j8J5utH0024042@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Hans Reiser <reiser@namesys.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Christian Iversen <chrivers@iversen-net.dk>, chriswhite@gentoo.org,
-       LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: I request inclusion of reiser4 in the mainline kernel 
-In-Reply-To: Your message of "Sun, 18 Sep 2005 22:16:11 PDT."
-             <432E499B.7000003@namesys.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <432AFB44.9060707@namesys.com> <200509181321.23211.vda@ilport.com.ua> <20050918102658.GB22210@infradead.org> <200509181406.25922.chrivers@iversen-net.dk>
-            <432E499B.7000003@namesys.com>
+	Mon, 19 Sep 2005 01:57:41 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:20983 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932259AbVISF5k
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 01:57:40 -0400
+Date: Mon, 19 Sep 2005 11:27:15 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Shaohua Li <shaohua.li@intel.com>
+Cc: Nigel Cunningham <ncunningham@cyclades.com>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: PATCH: Fix race in cpu_down (hotplug cpu)
+Message-ID: <20050919055715.GE8653@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <59D45D057E9702469E5775CBB56411F171F7E0@pdsmsx406> <20050919051024.GA8653@in.ibm.com> <1127107887.3958.9.camel@linux-hp.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1127109414_2682P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 19 Sep 2005 01:56:54 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1127107887.3958.9.camel@linux-hp.sh.intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1127109414_2682P
-Content-Type: text/plain; charset=us-ascii
+On Mon, Sep 19, 2005 at 01:31:27PM +0800, Shaohua Li wrote:
+> A CPU is idle and then is preempted and starting offline CPU. After
+> calling stop_machine_run, the CPU goes into idle and it will resume last
+> idle loop. If the CPU is broken at specific point, then the CPU will
+> continue executing previous idle and have no chance to call play_dead.
 
-On Sun, 18 Sep 2005 22:16:11 PDT, Hans Reiser said:
+Ok, that makes sense. Nigel, could you confirm which idle routine you are 
+using?
 
-> Hellwig, people who write slow file systems should not lecture their
-> measurably superiors on how to code.  Oh, and I should mention that
-> other people besides me have measured reiser4, and concluded it is twice
-> the speed of the other Linux filesystems, so don't go claiming it is
-> just my benchmarks.   What you are doing is keeping me from doing a real
-> code review myself by keeping my guys so busy that they don't have time
-> to review the fixmes I inserted and would insert more of if I thought
-> they had time for them.
+> Am I missing anything? Nigel's patch seems can fix the situation for
+> mwait_idle and poll_idle but can't fix for default_idle in i386 to me.
 
-Hans, unfortunately the most obvious reading of the above is "Reiser4 is so
-damned fast because it doesn't bother doing sanity-checking".  If there's still
-more "fixmes" to be inserted that *you* know of, and there are so many that
-there's no time to fix them, why is this being submitted for inclusion?
+I would say the right fix here is for poll_idle and mwait_idle (& similar
+other idle routines) to monitor 'cpu_offline' flag in addition to need_resched 
+flag, rather than what Nigel has suggested. 
 
-On Sun, 18 Sep 2005 22:09:08 PDT, Hans Reiser said:
-> Of course, the reiser4 code is not as stable as it was before the
-> changes Christoph asked for.
+-- 
 
-This sort of claim requires proof - can you point at *specific* things that
-were less stable after you fixed the code, including explaining why they're
-less stable?
 
---==_Exmh_1127109414_2682P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFDLlMmcC3lWbTT17ARAoI+AKCmzQSVJpcH0t+/LF7ihegfixcmJACePBRc
-4x5F5HgNI/8rOcCnYmn9E7g=
-=wtgW
------END PGP SIGNATURE-----
-
---==_Exmh_1127109414_2682P--
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

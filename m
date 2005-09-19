@@ -1,132 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932690AbVISVGy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932694AbVISVJl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932690AbVISVGy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 17:06:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932691AbVISVGy
+	id S932694AbVISVJl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 17:09:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932692AbVISVJl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 17:06:54 -0400
-Received: from host-84-9-200-79.bulldogdsl.com ([84.9.200.79]:2439 "EHLO
-	aeryn.fluff.org.uk") by vger.kernel.org with ESMTP id S932690AbVISVGx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 17:06:53 -0400
-Date: Mon, 19 Sep 2005 22:06:45 +0100
-From: Ben Dooks <ben-linux@fluff.org>
+	Mon, 19 Sep 2005 17:09:41 -0400
+Received: from uucp.cistron.nl ([62.216.30.38]:52883 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S932694AbVISVJk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 17:09:40 -0400
+From: dth@cistron.nl (Danny ter Haar)
+Subject: progress report ons doomes-day machine (usenet gateway): 2.6.14-rc1-git1 over 3 days!
+Date: Mon, 19 Sep 2005 21:09:39 +0000 (UTC)
+Organization: Cistron
+Message-ID: <dgn9ej$n9j$1@news.cistron.nl>
+X-Trace: ncc1701.cistron.net 1127164179 23859 62.216.30.70 (19 Sep 2005 21:09:39 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: dth@cistron.nl (Danny ter Haar)
 To: linux-kernel@vger.kernel.org
-Cc: patch-out@fluff.rog
-Subject: [PATCH] scripts - use $OBJDUMP to get correct objdump (cross compile)
-Message-ID: <20050919210645.GA20669@home.fluff.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="jI8keyz6grp/JLjh"
-Content-Disposition: inline
-X-Disclaimer: I speak for me, myself, and the other one of me.
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linux 2.6.14-rc1-git1 (root@newsgate) (gcc [can't parse]) #???  1CPU
+[newsgate.(none)]
 
---jI8keyz6grp/JLjh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Memory:      Total        Used        Free      Shared     Buffers
+Mem:       4062048     4038020       24028           0        3016
+Swap:            0           0           0
 
-The scripts for `make buildcheck` are executing
-objdump straight, which is wrong if the system
-is using `make CROSS_COMPILE=....`. 
+Bootup: Fri Sep 16 09:04:23 2005    Load average: 7.09 5.18 4.46 10/80
+29403
 
-Change the scripts to use $OBJDUMP passed from
-the Makefile's environment, so that the correct
-objdump is used, and the symbols are printed
-correctly
+user  :      10:06:40.29  11.8%  page in :        0
+nice  :       1:23:05.12   1.6%  page out:        0
+system:   1d  4:57:29.89  33.7%  swap in :        0
+idle  :       0:10:47.82   0.2%  swap out:        0
+uptime:   3d 13:56:05.26         context :1007169643
 
-Signed-off-by: Ben Dooks <ben-linux@fluff.org>
+irq  0:  77327243 timer                 irq 12:         3
+irq  1:         8 i8042                 irq 16:  82013319 aic79xx
+irq  4:       337 serial                irq 17: 858271905 aic79xx, eth3
+irq  9:         0 acpi                  irq 18:1672823586 acenic
 
-diff -urN -X ../dontdiff linux-2.6.13-simtec1/scripts/reference_discarded.pl linux-2.6.13-simtec2/scripts/reference_discarded.pl
---- linux-2.6.13-simtec1/scripts/reference_discarded.pl	2005-09-06 12:28:18.000000000 +0100
-+++ linux-2.6.13-simtec2/scripts/reference_discarded.pl	2005-09-19 22:02:07.000000000 +0100
-@@ -18,7 +18,7 @@
- $| = 1;
- 
- # printf("Finding objects, ");
--open(OBJDUMP_LIST, "find . -name '*.o' | xargs objdump -h |") || die "getting objdump list failed";
-+open(OBJDUMP_LIST, "find . -name '*.o' | xargs \$OBJDUMP -h |") || die "getting objdump list failed";
- while (defined($line = <OBJDUMP_LIST>)) {
- 	chomp($line);
- 	if ($line =~ /:\s+file format/) {
-@@ -74,7 +74,7 @@
- $errorcount = 0;
- foreach $object (keys(%object)) {
- 	my $from;
--	open(OBJDUMP, "objdump -r $object|") || die "cannot objdump -r $object";
-+	open(OBJDUMP, "\$OBJDUMP -r $object|") || die "cannot objdump -r $object";
- 	while (defined($line = <OBJDUMP>)) {
- 		chomp($line);
- 		if ($line =~ /RELOCATION RECORDS FOR /) {
-diff -urN -X ../dontdiff linux-2.6.13-simtec1/scripts/reference_init.pl linux-2.6.13-simtec2/scripts/reference_init.pl
---- linux-2.6.13-simtec1/scripts/reference_init.pl	2005-09-06 12:28:18.000000000 +0100
-+++ linux-2.6.13-simtec2/scripts/reference_init.pl	2005-09-19 22:00:52.000000000 +0100
-@@ -26,7 +26,7 @@
- $| = 1;
- 
- printf("Finding objects, ");
--open(OBJDUMP_LIST, "find . -name '*.o' | xargs objdump -h |") || die "getting objdump list failed";
-+open(OBJDUMP_LIST, "find . -name '*.o' | xargs \$OBJDUMP -h |") || die "getting objdump list failed";
- while (defined($line = <OBJDUMP_LIST>)) {
- 	chomp($line);
- 	if ($line =~ /:\s+file format/) {
-@@ -81,7 +81,7 @@
- printf("Scanning objects\n");
- foreach $object (sort(keys(%object))) {
- 	my $from;
--	open(OBJDUMP, "objdump -r $object|") || die "cannot objdump -r $object";
-+	open(OBJDUMP, "\$OBJDUMP -r $object|") || die "cannot objdump -r $object";
- 	while (defined($line = <OBJDUMP>)) {
- 		chomp($line);
- 		if ($line =~ /RELOCATION RECORDS FOR /) {
+It's doing fine so far (none of the 2.6.13-xx kernels made it this
+far)
 
---jI8keyz6grp/JLjh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="scripts-buildcheck-pass-objdump.patch"
 
-diff -urN -X ../dontdiff linux-2.6.13-simtec1/scripts/reference_discarded.pl linux-2.6.13-simtec2/scripts/reference_discarded.pl
---- linux-2.6.13-simtec1/scripts/reference_discarded.pl	2005-09-06 12:28:18.000000000 +0100
-+++ linux-2.6.13-simtec2/scripts/reference_discarded.pl	2005-09-19 22:02:07.000000000 +0100
-@@ -18,7 +18,7 @@
- $| = 1;
- 
- # printf("Finding objects, ");
--open(OBJDUMP_LIST, "find . -name '*.o' | xargs objdump -h |") || die "getting objdump list failed";
-+open(OBJDUMP_LIST, "find . -name '*.o' | xargs \$OBJDUMP -h |") || die "getting objdump list failed";
- while (defined($line = <OBJDUMP_LIST>)) {
- 	chomp($line);
- 	if ($line =~ /:\s+file format/) {
-@@ -74,7 +74,7 @@
- $errorcount = 0;
- foreach $object (keys(%object)) {
- 	my $from;
--	open(OBJDUMP, "objdump -r $object|") || die "cannot objdump -r $object";
-+	open(OBJDUMP, "\$OBJDUMP -r $object|") || die "cannot objdump -r $object";
- 	while (defined($line = <OBJDUMP>)) {
- 		chomp($line);
- 		if ($line =~ /RELOCATION RECORDS FOR /) {
-diff -urN -X ../dontdiff linux-2.6.13-simtec1/scripts/reference_init.pl linux-2.6.13-simtec2/scripts/reference_init.pl
---- linux-2.6.13-simtec1/scripts/reference_init.pl	2005-09-06 12:28:18.000000000 +0100
-+++ linux-2.6.13-simtec2/scripts/reference_init.pl	2005-09-19 22:00:52.000000000 +0100
-@@ -26,7 +26,7 @@
- $| = 1;
- 
- printf("Finding objects, ");
--open(OBJDUMP_LIST, "find . -name '*.o' | xargs objdump -h |") || die "getting objdump list failed";
-+open(OBJDUMP_LIST, "find . -name '*.o' | xargs \$OBJDUMP -h |") || die "getting objdump list failed";
- while (defined($line = <OBJDUMP_LIST>)) {
- 	chomp($line);
- 	if ($line =~ /:\s+file format/) {
-@@ -81,7 +81,7 @@
- printf("Scanning objects\n");
- foreach $object (sort(keys(%object))) {
- 	my $from;
--	open(OBJDUMP, "objdump -r $object|") || die "cannot objdump -r $object";
-+	open(OBJDUMP, "\$OBJDUMP -r $object|") || die "cannot objdump -r $object";
- 	while (defined($line = <OBJDUMP>)) {
- 		chomp($line);
- 		if ($line =~ /RELOCATION RECORDS FOR /) {
+Only thing not working so far is the SMP setup although i some progress
+mentioned in git4. Will try soon!
 
---jI8keyz6grp/JLjh--
+Danny
+

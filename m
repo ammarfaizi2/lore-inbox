@@ -1,46 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932335AbVISUxN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932464AbVISUyF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932335AbVISUxN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 16:53:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932390AbVISUxN
+	id S932464AbVISUyF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 16:54:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932465AbVISUyE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 16:53:13 -0400
-Received: from mail.gmx.net ([213.165.64.20]:20609 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932335AbVISUxM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 16:53:12 -0400
-X-Authenticated: #271361
-Date: Mon, 19 Sep 2005 22:53:05 +0200
-From: Edgar Toernig <froese@gmx.de>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.14-rc1 wait()/SIG_CHILD bevahiour
-Message-Id: <20050919225305.797b5e9d.froese@gmx.de>
-In-Reply-To: <1127151573.1586.14.camel@dyn9047017102.beaverton.ibm.com>
-References: <1127151573.1586.14.camel@dyn9047017102.beaverton.ibm.com>
+	Mon, 19 Sep 2005 16:54:04 -0400
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:52436
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S932464AbVISUyA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 16:54:00 -0400
+Subject: Re: 2.6.13-rt13 SMP crashes on boot
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: John Rigg <lk@sound-man.co.uk>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <1127162955.5097.25.camel@localhost.localdomain>
+References: <E1EHQmY-0001MS-8L@localhost.localdomain>
+	 <1127162955.5097.25.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: linutronix
+Date: Mon, 19 Sep 2005 22:54:04 +0200
+Message-Id: <1127163244.24044.237.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty wrote:
->
-> I am looking at a problem where the parent process doesn't seem 
-> to cleanup the exited children (with a webserver). We narrowed it
-> down to a simple testcase. Seems more like a lost SIG_CHILD.
+On Mon, 2005-09-19 at 16:49 -0400, Steven Rostedt wrote:
+> Hi John,
+> 
+> First, always CC Ingo on all issues related to the -rt patch.  Although
+> I think he's on vacation now, but even so, he will probably miss this
+> email.
+> 
+> On Mon, 2005-09-19 at 19:54 +0100, John Rigg wrote:
+> > I've been trying to get 2.6.13 with RT-preempt patch to run on my
+> > dual Opteron with debugging code (with CONFIG_PREEMPT_RT=y).
+> > It crashes on boot if I enable latency tracing in .config. This happens 
+> > with -rt13, -rt12, and -rt4 versions of the patch. Unfortunately it
 
-You are aware that the defunct processes are all grandchildren
-and the sigchild handler of the children is the one inherited from
-the main process?  That sighandler is pretty bogus for the children,
-i.e. pid_exited never does anything useful.  Further, the children
-terminate unconditionally after some time - all still present grand-
-children are inherited by init (pid 1) who does the clean up.
+Do you have high resolution timers turned on ?
 
-But I think the major problem is that the main-loop of the children
-and the signal handler both call usleep(rand()) - I wouldn't be
-surprised if this combo isn't reentrant, especially from signal
-handlers ...
+If yes, there is a SMP bug in -rt13. -rt14 has fixed this
 
-Ciao, ET.
+tglx
+
+

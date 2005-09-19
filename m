@@ -1,69 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964776AbVISWsN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932641AbVISWu5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964776AbVISWsN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 18:48:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964778AbVISWsN
+	id S932641AbVISWu5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 18:50:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932647AbVISWu5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 18:48:13 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:55976 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964776AbVISWsM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 18:48:12 -0400
-Date: Mon, 19 Sep 2005 15:48:13 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: clameter@engr.sgi.com, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: NUMA mempolicy /proc code in mainline shouldn't have been
- merged
-Message-Id: <20050919154813.52f5b706.akpm@osdl.org>
-In-Reply-To: <200509192356.56300.ak@suse.de>
-References: <200509101120.19236.ak@suse.de>
-	<20050919194038.GB12810@verdi.suse.de>
-	<Pine.LNX.4.62.0509191426250.26388@schroedinger.engr.sgi.com>
-	<200509192356.56300.ak@suse.de>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Mon, 19 Sep 2005 18:50:57 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:51105 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932641AbVISWu4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 18:50:56 -0400
+Subject: Re: [ANNOUNCE] ktimers subsystem
+From: john stultz <johnstul@us.ibm.com>
+To: tglx@linutronix.de
+Cc: Christoph Lameter <clameter@engr.sgi.com>, linux-kernel@vger.kernel.org,
+       mingo@elte.hu, akpm@osdl.org, george@mvista.com, paulmck@us.ibm.com
+In-Reply-To: <1127169849.24044.279.camel@tglx.tec.linutronix.de>
+References: <20050919184834.1.patchmail@tglx.tec.linutronix.de>
+	 <Pine.LNX.4.62.0509191500040.27238@schroedinger.engr.sgi.com>
+	 <1127168232.24044.265.camel@tglx.tec.linutronix.de>
+	 <Pine.LNX.4.62.0509191521400.27238@schroedinger.engr.sgi.com>
+	 <1127169849.24044.279.camel@tglx.tec.linutronix.de>
+Content-Type: text/plain
+Date: Mon, 19 Sep 2005 15:50:52 -0700
+Message-Id: <1127170253.3455.236.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> wrote:
->
-> On Monday 19 September 2005 23:32, Christoph Lameter wrote:
-> > On Mon, 19 Sep 2005, Andi Kleen wrote:
-> > > On Mon, Sep 19, 2005 at 10:11:20AM -0700, Christoph Lameter wrote:
-> > > > However, one still does not know which memory section (vma) is
-> > > > allocated on which nodes. And this may be important since critical data
-> > > > may need to
-> > >
-> > > Maybe. Well sure of things could be maybe important. Or maybe not.
-> > > Doesn't seem like a particularly strong case to add a lot of ugly
-> > > code though.
-> >
-> > We gradually need to fix the deficiencies of the policy layer. Calling
-> > fixes "ugly code" and refusing to discuss solutions does not help anyone.
+On Tue, 2005-09-20 at 00:44 +0200, Thomas Gleixner wrote:
+> On Mon, 2005-09-19 at 15:24 -0700, Christoph Lameter wrote:
 > 
-> I'm happy to discuss solutions given a clear use case what you want
-> to do, why you want to do it etc. 
-
-Yes.  A clear explanation of the requirements and usecases based on
-real-world experience from real-world users and/or application developers. 
-I asked Christoph for that last week.  The answers were, iirc, a bit
-half-baked, but believeable.
-
-> > Have you ever had the challenge to work with large HPC applications on a
-> > large NUMA system? 
+> > > We should rather ask glibc people why gettimeofday() / clock_getttime()
+> > > is called inside the library code all over the place for non obvious
+> > > reasons.
+> > 
+> > You can ask lots of application vendors the same question because its all 
+> > over lots of user space code. The fact is that gettimeofday() / 
+> > clock_gettime() efficiency is very critical to the performance of many 
+> > applications on Linux. That is why the addtion of one add instruction may 
+> > better be carefully considered. 
 > 
-> Ah - my code is better because my credentials are better.
+> Hmm. I don't understand the argument line completely. 
+> 
+> 1. The kernel has to provide ugly mechanisms because a lot of
+> applications implementations are doing the Wrong Thing ?
+> 
+> 2. All gettimeofday implementations I have looked at do a lot of math
+> anyway, so its definitely more interesting to look at those oddities
+> rather than discussing a single add. John Stulz timeofday rework have a
+> clean solution for this - please do not argue about the div64 in his
+> original patches which he is reworking at the moment.
 
-No fair.  I've never worked on big HPC systems and any feedback from the
-field which Christoph can provide is really important in helping us
-understand what features the kernel needs to offer.  I would expect that
-SGI engineering have a better understanding of HPC users' needs than pretty
-much anyone else in the world.
+The simplest solution is to keep wall-time maintained in a timespec as
+well as the nsec_t based system_time/wall_time_offset combo. This avoids
+the extra add in the hotpath, and only costs an extra add at interrupt
+time.
 
-It's a shame that SGI engineering aren't better at communicating those
-needs to wee little kernel developers.  And we need to get better at this
-because, as you say, external policy control is going to be a ton harder to
-swallow than /proc/pid/numa_maps.
+I'll have an updated patch that includes some of Roman's suggestions
+from earlier soon.
+
+> > Many platforms can execute gettimeofday 
+> > without having to enter the kernel.
+> 
+> Which ones ? How is this achieved with respect to all the time adjust,
+> correction... code ?
+
+Many arches have userspace gtod implementations (x86-64, ppc64, and ia64
+as well). Although my timeofday code allows for this as well (I had it
+working for x86-64 awhile back). 
+
+thanks
+-john
+
+

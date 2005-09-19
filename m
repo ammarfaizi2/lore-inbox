@@ -1,169 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932652AbVISX0Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932648AbVISXbN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932652AbVISX0Z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 19:26:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932654AbVISX0Z
+	id S932648AbVISXbN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 19:31:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932654AbVISXbN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 19:26:25 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:4782 "EHLO e36.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932652AbVISX0Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 19:26:25 -0400
-Message-ID: <432F4914.3080905@in.ibm.com>
-Date: Mon, 19 Sep 2005 18:26:12 -0500
-From: Sripathi Kodi <sripathik@in.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc3 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Al Viro <viro@ZenIV.linux.org.uk>
-CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, Roland McGrath <roland@redhat.com>,
+	Mon, 19 Sep 2005 19:31:13 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:43398 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932648AbVISXbN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 19:31:13 -0400
+Date: Tue, 20 Sep 2005 00:31:04 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: linux-fbdev-devel@lists.sourceforge.net
+cc: Jan Dittmer <jdittmer@ppp0.net>, Jurriaan <thunder7@xs4all.nl>,
        linux-kernel@vger.kernel.org
-Subject: [Fwd: Re: [PATCH 2.6.13.1] Patch for invisible threads]
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [Linux-fbdev-devel] Re: no cursor on nvidiafb console in
+ 2.6.14-rc1-mm1
+In-Reply-To: <432F36B4.8030209@gmail.com>
+Message-ID: <Pine.LNX.4.56.0509200030280.611@pentafluge.infradead.org>
+References: <20050919175116.GA8172@amd64.of.nowhere> <432F08C1.8010705@ppp0.net>
+ <432F36B4.8030209@gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al,
 
- >>Al,
- >>Done. Please find the patch below. I retained proc_task_root_link, because
- >>it has significant amount of code in it.
+the hwcur module parameter is set to off by default. Should it be removed?
 
+On Tue, 20 Sep 2005, Antonino A. Daplas wrote:
 
-What do you feel about this patch now? Is it good enough to go into the kernel?
-
-Thanks and regards,
-Sripathi.
-
-
-Signed-off-by: Sripathi Kodi <sripathik@in.ibm.com>
-
---- linux-2.6.13.1-orig/fs/proc/base.c	2005-09-16 17:22:44.000000000 -0500
-+++ linux-2.6.13.1/fs/proc/base.c	2005-09-16 17:08:18.000000000 -0500
-@@ -291,6 +291,52 @@ static int proc_root_link(struct inode *
-  	return result;
-  }
-
-+
-+/* Same as proc_root_link, but this addionally tries to get fs from other
-+ * threads in the group */
-+static int proc_task_root_link(struct inode *inode, struct dentry **dentry,
-struct vfsmount **mnt)
-+{
-+	struct fs_struct *fs;
-+	int result = -ENOENT;
-+	struct task_struct *leader = proc_task(inode);
-+
-+	task_lock(leader);
-+	fs = leader->fs;
-+	if (fs) {
-+		atomic_inc(&fs->count);
-+		task_unlock(leader);
-+	} else {
-+		/* Try to get fs from other threads */
-+		task_unlock(leader);
-+		struct task_struct *task = leader;
-+		read_lock(&tasklist_lock);
-+		if (pid_alive(task)) {
-+			while ((task = next_thread(task)) != leader) {
-+				task_lock(task);
-+				fs = task->fs;
-+				if (fs) {
-+					atomic_inc(&fs->count);
-+					task_unlock(task);
-+					break;
-+				}
-+				task_unlock(task);
-+			}
-+		}
-+		read_unlock(&tasklist_lock);
-+	}
-+
-+	if (fs) {
-+		read_lock(&fs->lock);
-+		*mnt = mntget(fs->rootmnt);
-+		*dentry = dget(fs->root);
-+		read_unlock(&fs->lock);
-+		result = 0;
-+		put_fs_struct(fs);
-+	}
-+	return result;
-+}
-+
-+
-  #define MAY_PTRACE(task) \
-  	(task == current || \
-  	(task->parent == current && \
-@@ -449,14 +495,14 @@ static int proc_oom_score(struct task_st
-
-  /* permission checks */
-
--static int proc_check_root(struct inode *inode)
-+/* If the process being read is separated by chroot from the reading process,
-+ * don't let the reader access the threads.
-+ */
-+static int proc_check_chroot(struct dentry *root, struct vfsmount *vfsmnt)
-  {
--	struct dentry *de, *base, *root;
--	struct vfsmount *our_vfsmnt, *vfsmnt, *mnt;
-+	struct dentry *de, *base;
-+	struct vfsmount *our_vfsmnt, *mnt;
-  	int res = 0;
--
--	if (proc_root_link(inode, &root, &vfsmnt)) /* Ewww... */
--		return -ENOENT;
-  	read_lock(&current->fs->lock);
-  	our_vfsmnt = mntget(current->fs->rootmnt);
-  	base = dget(current->fs->root);
-@@ -489,6 +535,16 @@ out:
-  	goto exit;
-  }
-
-+static int proc_check_root(struct inode *inode)
-+{
-+	struct dentry *root;
-+	struct vfsmount *vfsmnt;
-+
-+	if (proc_root_link(inode, &root, &vfsmnt)) /* Ewww... */
-+		return -ENOENT;
-+	return proc_check_chroot(root, vfsmnt);
-+}
-+
-  static int proc_permission(struct inode *inode, int mask, struct nameidata
-*nd)
-  {
-  	if (generic_permission(inode, mask, NULL) != 0)
-@@ -496,6 +552,20 @@ static int proc_permission(struct inode
-  	return proc_check_root(inode);
-  }
-
-+static int proc_task_permission(struct inode *inode, int mask, struct
-nameidata *nd)
-+{
-+	struct dentry *root;
-+	struct vfsmount *vfsmnt;
-+
-+	if (generic_permission(inode, mask, NULL) != 0)
-+		return -EACCES;
-+
-+	if (proc_task_root_link(inode, &root, &vfsmnt))
-+		return -ENOENT;
-+
-+	return proc_check_chroot(root, vfsmnt);
-+}
-+
-  extern struct seq_operations proc_pid_maps_op;
-  static int maps_open(struct inode *inode, struct file *file)
-  {
-@@ -1355,7 +1425,7 @@ static struct inode_operations proc_fd_i
-
-  static struct inode_operations proc_task_inode_operations = {
-  	.lookup		= proc_task_lookup,
--	.permission	= proc_permission,
-+	.permission	= proc_task_permission,
-  };
-
-  #ifdef CONFIG_SECURITY
-
+> Jan Dittmer wrote:
+> > jurriaan wrote:
+> >> After updating from 2.6.13-rc4-mm1 to 2.6.14-rc1-mm1 I see no cursor on
+> >> my console.
+> > 
+> > Me too, 2.6.14-rc1-git4. Didn't try any kernel before with framebuffer,
+> > sorry. No fb options on the kernel command line.
+> > 
+> 
+> Can you try reversing this particular diff?
+> 
+> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blobdiff_plain;h=af99ea96012ec72ef57fd36655a6d8aaa22e809e;hp=30f80c23f934bb0a76719232f492153fc7cca00a
+> 
+> Tony
+> 
+> 
+> 
+> 
+> -------------------------------------------------------
+> SF.Net email is sponsored by:
+> Tame your development challenges with Apache's Geronimo App Server. Download
+> it for free - -and be entered to win a 42" plasma tv or your very own
+> Sony(tm)PSP.  Click here to play: http://sourceforge.net/geronimo.php
+> _______________________________________________
+> Linux-fbdev-devel mailing list
+> Linux-fbdev-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/linux-fbdev-devel
+> 

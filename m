@@ -1,81 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932359AbVISHhS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932362AbVISHoE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932359AbVISHhS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 03:37:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932360AbVISHhS
+	id S932362AbVISHoE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 03:44:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbVISHoE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 03:37:18 -0400
-Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:49291 "HELO
-	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932359AbVISHhQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 03:37:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Subject:From:To:Cc:In-Reply-To:References:Content-Type:Date:Message-Id:Mime-Version:X-Mailer:Content-Transfer-Encoding;
-  b=oaUoM0R7nkmprJL3BcSpleeABs880AO653khDife9zyVv2TChet/LNEiDqbLfROho7b2IOigWnj/2K9FifltoyJEARUki11rsA/LoPYLcH9HavfGsJG0bwF8QTsfep3EbJiJcR9G6ZnCKW5xuVd708dyb3unl/Erwu0xRgzosOo=  ;
-Subject: Re: PATCH: Fix race in cpu_down (hotplug cpu)
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Shaohua Li <shaohua.li@intel.com>, vatsa@in.ibm.com,
-       Nigel Cunningham <ncunningham@cyclades.com>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>
-In-Reply-To: <20050919072842.GA11293@elte.hu>
-References: <59D45D057E9702469E5775CBB56411F171F7E0@pdsmsx406>
-	 <20050919051024.GA8653@in.ibm.com>
-	 <1127107887.3958.9.camel@linux-hp.sh.intel.com>
-	 <20050919055715.GE8653@in.ibm.com> <1127110271.9696.97.camel@localhost>
-	 <20050919062336.GA9466@in.ibm.com>
-	 <1127111830.4087.3.camel@linux-hp.sh.intel.com>
-	 <1127111784.5272.10.camel@npiggin-nld.site>
-	 <1127113930.4087.6.camel@linux-hp.sh.intel.com>
-	 <1127114538.5272.16.camel@npiggin-nld.site>
-	 <20050919072842.GA11293@elte.hu>
-Content-Type: text/plain
-Date: Mon, 19 Sep 2005 17:37:05 +1000
-Message-Id: <1127115425.5272.21.camel@npiggin-nld.site>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 19 Sep 2005 03:44:04 -0400
+Received: from [202.168.200.132] ([202.168.200.132]:14925 "EHLO
+	Dynaexch.corp.dynacolor.com.tw") by vger.kernel.org with ESMTP
+	id S932362AbVISHoB convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 03:44:01 -0400
+Reply-To: <responder@dynacolor.com.tw>
+From: "Wei-Che, Hsu" <responder@dynacolor.com.tw>
+To: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: Re: Where do packets sent to 255.255.255.255 go?
+Date: Mon, 19 Sep 2005 15:43:35 +0800
+Organization: DynaColor
+Message-ID: <001c01c5bced$db6d94b0$88fea8c0@acer3201>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+In-Reply-To: <1127108122.9696.90.camel@localhost>
+X-OriginalArrivalTime: 19 Sep 2005 07:41:47.0673 (UTC) FILETIME=[9702A090:01C5BCED]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-09-19 at 09:28 +0200, Ingo Molnar wrote:
-> * Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+Dear sir,
 
-> > Oh really? I think yes, the latency should be taken care of because we 
-> > want to be able to provide good latency even for !preempt kernels. If 
-> > a solution can be found for acpi_processor_idle, that would be ideal.
-> 
-> the ACPI idle code runs with irqs disabled anyway, so there's no issue 
-> here. If something takes long there, we can do little about it. (but in 
-> practice ACPI sleep latencies are pretty ok - the only latencies i found 
-> in the past were due to need_resched bugs in the ACPI idle routine)
-> 
+I have the same question recently & found a solution on the following url.
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0508.3/0397.html
+& trace to this mailing list.
 
-Ah, in that case I agree: we have nothing to worry about by merging
-such a patch then.
+I had added a 255.255.255.255 route to a specific interface(eth0).
+But seems no luck.
+The broadcast package still go out via default gateway(eth1).
+(detail "route -n" will be attached on the tail of this mail.)
 
-> > IMO it always felt kind of hackish to run the idle threads with 
-> > preempt on.
-> 
-> Yes, idle threads can have preemption disabled. There's not any big 
-> difference in terms of latencies, the execution paths are all very 
-> short.
-> 
+Does anyone have any idea about it?
+Should I enable something on my kernel?
 
-Thanks for the confirmation Ingo. This is part of my "cleanup resched
-and cpu_idle" patch FYI. It should already be in -mm, but has some
-trivial EM64T bug in it that Andrew hits but I can't reproduce.
+ThanX in advance.
 
-I'll dust it off and send it out, hopefully someone will be able to
-reproduce the problem!
+=== Original Post ===
+>>> 3. Can I set the default broadcast interface explicitly?
+>>> For example, say I wanted broadcasts to go out over
+>>> eth1 by default, instead of over eth0. What if I
+>>> wanted them to get sent through tap0?
+>>
+>> Again, I'm not sure, but I think that you can force the
+>> interface by adding a special route for IP 255.255.255.255
+>> and with mask 255.255.255.255 to the interface you want.
 
--- 
-SUSE Labs, Novell Inc.
+> Yes, this works! It's so simple --- I can't believe I
+> didn't try it before. I did mess around with iptables,
+> trying to add some weird PREROUTEing DNAT that would
+> redirect the packets, but I didn't know what I was doing.
+=== Original Post ===
+
+=== Detail route output ===
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use
+Iface
+255.255.255.255 0.0.0.0         255.255.255.255 UH    0      0        0 eth0
+192.168.7.0     192.168.6.254   255.255.255.0   UG    0      0        0 eth0
+192.168.6.0     0.0.0.0         255.255.255.0   U     0      0        0 eth0
+192.168.5.0     192.168.6.254   255.255.255.0   UG    0      0        0 eth0
+192.168.4.0     192.168.6.254   255.255.255.0   UG    0      0        0 eth0
+172.30.1.0      0.0.0.0         255.255.255.0   U     0      0        0 eth1
+192.168.3.0     192.168.6.254   255.255.255.0   UG    0      0        0 eth0
+192.168.2.0     192.168.6.254   255.255.255.0   UG    0      0        0 eth0
+192.168.12.0    192.168.6.254   255.255.255.0   UG    0      0        0 eth0
+192.168.11.0    192.168.6.254   255.255.255.0   UG    0      0        0 eth0
+192.168.10.0    192.168.6.254   255.255.255.0   UG    0      0        0 eth0
+192.168.9.0     192.168.6.254   255.255.255.0   UG    0      0        0 eth0
+192.168.254.0   0.0.0.0         255.255.255.0   U     0      0        0 eth2
+192.168.8.0     192.168.6.254   255.255.255.0   UG    0      0        0 eth0
+127.0.0.0       0.0.0.0         255.0.0.0       U     0      0        0 lo
+0.0.0.0         172.30.1.254    0.0.0.0         UG    0      0        0 eth1
+=== Detail route output ===
+
+Good day.
+ 
+Sincerely yours,
+      responder
 
 
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 

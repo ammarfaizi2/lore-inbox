@@ -1,67 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932675AbVISWyl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbVISW4D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932675AbVISWyl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 18:54:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932723AbVISWyk
+	id S1750746AbVISW4D (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 18:56:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750716AbVISW4D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 18:54:40 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:62421
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S932675AbVISWyk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 18:54:40 -0400
-Subject: Re: [ANNOUNCE] ktimers subsystem
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Christopher Friesen <cfriesen@nortel.com>
-Cc: Christoph Lameter <clameter@engr.sgi.com>, linux-kernel@vger.kernel.org,
-       mingo@elte.hu, akpm@osdl.org, george@mvista.com, johnstul@us.ibm.com,
-       paulmck@us.ibm.com
-In-Reply-To: <432F3E0F.1010002@nortel.com>
-References: <20050919184834.1.patchmail@tglx.tec.linutronix.de>
-	 <Pine.LNX.4.62.0509191500040.27238@schroedinger.engr.sgi.com>
-	 <1127168232.24044.265.camel@tglx.tec.linutronix.de>
-	 <432F3E0F.1010002@nortel.com>
+	Mon, 19 Sep 2005 18:56:03 -0400
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:51943 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S932680AbVISW4C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 18:56:02 -0400
+Subject: Re: PATCH: Fix race in cpu_down (hotplug cpu)
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Ingo Molnar <mingo@elte.hu>, Li Shaohua <shaohua.li@intel.com>,
+       vatsa@in.ibm.com, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+In-Reply-To: <1127115425.5272.21.camel@npiggin-nld.site>
+References: <59D45D057E9702469E5775CBB56411F171F7E0@pdsmsx406>
+	 <20050919051024.GA8653@in.ibm.com>
+	 <1127107887.3958.9.camel@linux-hp.sh.intel.com>
+	 <20050919055715.GE8653@in.ibm.com> <1127110271.9696.97.camel@localhost>
+	 <20050919062336.GA9466@in.ibm.com>
+	 <1127111830.4087.3.camel@linux-hp.sh.intel.com>
+	 <1127111784.5272.10.camel@npiggin-nld.site>
+	 <1127113930.4087.6.camel@linux-hp.sh.intel.com>
+	 <1127114538.5272.16.camel@npiggin-nld.site>
+	 <20050919072842.GA11293@elte.hu>
+	 <1127115425.5272.21.camel@npiggin-nld.site>
 Content-Type: text/plain
-Organization: linutronix
-Date: Tue, 20 Sep 2005 00:54:48 +0200
-Message-Id: <1127170488.24044.291.camel@tglx.tec.linutronix.de>
+Organization: Cyclades
+Message-Id: <1127170547.18737.3.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Tue, 20 Sep 2005 08:55:47 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-09-19 at 16:39 -0600, Christopher Friesen wrote:
-> Thomas Gleixner wrote:
+Hi.
+
+On Mon, 2005-09-19 at 17:37, Nick Piggin wrote:
+> Thanks for the confirmation Ingo. This is part of my "cleanup resched
+> and cpu_idle" patch FYI. It should already be in -mm, but has some
+> trivial EM64T bug in it that Andrew hits but I can't reproduce.
 > 
-> > We should rather ask glibc people why gettimeofday() / clock_getttime()
-> > is called inside the library code all over the place for non obvious
-> > reasons.
-> 
->  From an app point of view, there are any number of reasons to check the 
-> time frequently.
-> 
-> --debugging
+> I'll dust it off and send it out, hopefully someone will be able to
+> reproduce the problem!
 
-Non standard case.
+I got on the same page eventually :). When you have it ready, I'll be
+happy to try it. Apart from trying another 75 suspends (which I'm happy
+to do), I'm not really sure how we can be totally sure that the patch
+fixes it. Do you have any thoughts in this regard?
 
-> --flight-recorder style logs
+Regards,
 
-If you want to implement such stuff efficiently you rely on rdtscll() on
-x86 or other monotonic easy accessible time souces and not on a
-permanent call to gettimeofday.
-
-> --if you've got timers in your application, you may want to check to 
-> make sure that you didn't get woken up early (the linux behaviour of 
-> returning unused time in select is not portable)
-
-#ifdef is portable
-
-
-Please beware me of red herrings. If application developers code with
-respect to random OS worst case behaviour then they should not complain
-that OS N is having an additional add instruction in one of the pathes.
-
-tglx
+Nigel
 
 

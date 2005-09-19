@@ -1,54 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932702AbVISV2m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932704AbVISVaV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932702AbVISV2m (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 17:28:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932703AbVISV2m
+	id S932704AbVISVaV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 17:30:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932703AbVISVaV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 17:28:42 -0400
-Received: from pat.uio.no ([129.240.130.16]:22713 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S932701AbVISV2l convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 17:28:41 -0400
-Subject: Re: ctime set by truncate even if NOCMTIME requested
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Steve French <smfrench@austin.rr.com>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <432F2684.4040300@austin.rr.com>
-References: <432EFAB1.4080406@austin.rr.com>
-	 <1127156303.8519.29.camel@lade.trondhjem.org>
-	 <432F2684.4040300@austin.rr.com>
-Content-Type: text/plain; charset=utf-8
-Date: Mon, 19 Sep 2005 17:28:31 -0400
-Message-Id: <1127165311.8519.39.camel@lade.trondhjem.org>
+	Mon, 19 Sep 2005 17:30:21 -0400
+Received: from main.gmane.org ([80.91.229.2]:37317 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932704AbVISVaU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 17:30:20 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Matthias Urlichs <smurf@smurf.noris.de>
+Subject: Re: p = kmalloc(sizeof(*p), )
+Date: Mon, 19 Sep 2005 23:28:17 +0200
+Organization: {M:U} IT Consulting
+Message-ID: <pan.2005.09.19.21.28.17.265606@smurf.noris.de>
+References: <20050918100627.GA16007@flint.arm.linux.org.uk> <1127061146.6939.6.camel@phantasy> <20050918165219.GA595@alpha.home.local> <20050918171845.GL19626@ftp.linux.org.uk> <Pine.LNX.4.58.0509181028140.26803@g5.osdl.org> <20050918174549.GN19626@ftp.linux.org.uk> <Pine.LNX.4.61.0509182222030.3743@scrub.home> <20050918211225.GP19626@ftp.linux.org.uk> <20050918215257.GA29417@ftp.linux.org.uk> <Pine.LNX.4.58.0509181513440.9106@g5.osdl.org> <pan.2005.09.19.21.19.59.501960@smurf.noris.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 8BIT
-X-UiO-Spam-info: not spam, SpamAssassin (score=-4.091, required 12,
-	autolearn=disabled, AWL 0.91, UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: run.smurf.noris.de
+X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-må den 19.09.2005 Klokka 15:58 (-0500) skreiv Steve French:
-> Trond Myklebust wrote:
-> 
-> >It is quite correct for the kernel to request that the filesystem set
-> >ctime/mtime on successful calls to open(O_TRUNC).
-> >  http://www.opengroup.org/onlinepubs/009695399/toc.htm
-> >  
-> >
-> I agree that it is correct to set ctime/mtime here, just not convinced 
-> it it worth setting it twice which is what will happen for non-local fs.
-> 
-> client truncate -> client setattr(for both size and ctime) -> server 
-> setattr (which will have a sideffect of ctime to be set on the server, 
-> not just the change to file size) and then another call to the server to 
-> set the ctime (which will end up setting ctime twice - one to the 
-> (correct) server's time and once to the less correct client's time.
+Umm...
 
-If the VFS sets ATTR_[ACM]TIME, you should always assume that you are
-being requested to set the [acm]time to server time. Doesn't CIFS allow
-you that option?
+> It's apparently an easy feature to do decidedly suboptimally.
 
-Cheers,
-  Trond
+Bah. Ignore me while I beat the "read the thread before replying" idea
+into my head.  :-/
+
+-- 
+Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
+Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
+ - -
+Button: Punned-it
+
 

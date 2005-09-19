@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932265AbVIRX44@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932273AbVISAK3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932265AbVIRX44 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 19:56:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932270AbVIRX44
+	id S932273AbVISAK3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 20:10:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbVISAK3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 19:56:56 -0400
-Received: from h80ad24e0.async.vt.edu ([128.173.36.224]:29140 "EHLO
-	h80ad24e0.async.vt.edu") by vger.kernel.org with ESMTP
-	id S932265AbVIRX4z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 19:56:55 -0400
-Message-Id: <200509182356.j8INuVdt009829@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Marc Perkel <marc@perkel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Spam Filtering for Kernel mailing list 
-In-Reply-To: Your message of "Sun, 18 Sep 2005 16:31:37 PDT."
-             <432DF8D9.703@perkel.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <432DC78F.7040901@perkel.com> <BFE37657-EF94-41E6-9A93-71101DBFC997@mac.com>
-            <432DF8D9.703@perkel.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1127087789_2682P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Sun, 18 Sep 2005 20:10:29 -0400
+Received: from 69.50.231.10.ip.nectartech.com ([69.50.231.10]:61338 "EHLO
+	newton.ctyme.com") by vger.kernel.org with ESMTP id S932273AbVISAK3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Sep 2005 20:10:29 -0400
+Message-ID: <432E01F0.50909@perkel.com>
+Date: Sun, 18 Sep 2005 17:10:24 -0700
+From: Marc Perkel <marc@perkel.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.10) Gecko/20050716
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Robert Hancock <hancockr@shaw.ca>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Wanted - Recommendation of good motherboard for AMD Athlon 64
+  X2
+References: <4OawE-7Vh-3@gated-at.bofh.it> <4OaGw-87q-21@gated-at.bofh.it> <432DF2B9.9080403@shaw.ca>
+In-Reply-To: <432DF2B9.9080403@shaw.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Sun, 18 Sep 2005 19:56:30 -0400
+X-Spam-filter-host: newton.ctyme.com - http://www.junkemailfilter.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1127087789_2682P
-Content-Type: text/plain; charset=us-ascii
 
-On Sun, 18 Sep 2005 16:31:37 PDT, Marc Perkel said:
-> spam. I have the most advanced spam filter on the planet and I can fix 
-> the problem.
 
-Which is why you're now independently wealthy after having sold said
-filter to AOL, Yahoo, Goggle, and MSN, right?
+Robert Hancock wrote:
 
---==_Exmh_1127087789_2682P
-Content-Type: application/pgp-signature
+> Marc Perkel wrote:
+>
+>> oh - and - I forgot to mention this  NO NVidia chips. That's what I'm 
+>> trying to get away from because of lack of Linux support.
+>
+>
+> Where is the lack of Linux support? The only feature I know of that's 
+> not supported under Linux is the NCQ support on the nForce4 SATA 
+> controller..
+>
+And lack of an ethernet driver. I had to install an Intel card to get 
+Ethernet to work.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+-- 
+Marc Perkel - marc@perkel.com
 
-iD8DBQFDLf6tcC3lWbTT17ARApK3AKDG456QyMpaz66bQtmdpVccnbNxUwCgq61J
-JhTf3G0Pna65Eb4EBkBfWW8=
-=Au06
------END PGP SIGNATURE-----
+Spam Filter: http://www.junkemailfilter.com
+    My Blog: http://marc.perkel.com
 
---==_Exmh_1127087789_2682P--

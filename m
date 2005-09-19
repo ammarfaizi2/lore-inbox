@@ -1,65 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbVISGrw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932332AbVISGxe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932113AbVISGrw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 02:47:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750863AbVISGrw
+	id S932332AbVISGxe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 02:53:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750863AbVISGxe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 02:47:52 -0400
-Received: from nproxy.gmail.com ([64.233.182.200]:27301 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750730AbVISGrv convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 02:47:51 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=CnzI37Gp6/prk4O48bYJ4FZrmpbzgLV6Xj2fzCt8b+6FRledEukX6gyEeC9pFfmMOVqT3Y4gCAfke7f5lyp4qTxCj6Y1ky8kjHzJ7Ffv56MXDh1d7ffm6BsDWwm/2bsgPvGWa/Zq9xQpa0oPb28fwabLqJCPgpw3P93V7cLN/Ds=
-Message-ID: <2cd57c9005091823472e535eb1@mail.gmail.com>
-Date: Mon, 19 Sep 2005 14:47:48 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-Reply-To: coywolf@gmail.com
-To: Robert Love <rml@novell.com>
-Subject: Re: p = kmalloc(sizeof(*p), )
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Al Viro <viro@ftp.linux.org.uk>
-In-Reply-To: <1127061146.6939.6.camel@phantasy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050918100627.GA16007@flint.arm.linux.org.uk>
-	 <1127061146.6939.6.camel@phantasy>
+	Mon, 19 Sep 2005 02:53:34 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:36480 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S1750730AbVISGxd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 02:53:33 -0400
+Message-ID: <432E606D.9020009@namesys.com>
+Date: Sun, 18 Sep 2005 23:53:33 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Valdis.Kletnieks@vt.edu
+CC: Christoph Hellwig <hch@infradead.org>,
+       Christian Iversen <chrivers@iversen-net.dk>, chriswhite@gentoo.org,
+       LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: I request inclusion of reiser4 in the mainline kernel
+References: <432AFB44.9060707@namesys.com> <200509181321.23211.vda@ilport.com.ua> <20050918102658.GB22210@infradead.org> <200509181406.25922.chrivers@iversen-net.dk>            <432E499B.7000003@namesys.com> <200509190556.j8J5utH0024042@turing-police.cc.vt.edu>
+In-Reply-To: <200509190556.j8J5utH0024042@turing-police.cc.vt.edu>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/19/05, Robert Love <rml@novell.com> wrote:
-> On Sun, 2005-09-18 at 11:06 +0100, Russell King wrote:
-> 
-> > +The preferred form for passing a size of a struct is the following:
-> > +
-> > +       p = kmalloc(sizeof(*p), ...);
-> > +
-> > +The alternative form where struct name is spelled out hurts readability and
-> > +introduces an opportunity for a bug when the pointer variable type is changed
-> > +but the corresponding sizeof that is passed to a memory allocator is not.
-> 
-> Agreed.
-> 
-> Also, after Alan's #4:
-> 
-> 5.  Contrary to the above statement, such coding style does not help,
->     but in fact hurts, readability.  How on Earth is sizeof(*p) more
->     readable and information-rich than sizeof(struct foo)?  It looks
->     like the remains of a 5,000 year old wolverine's spleen and
->     conveys no information about the type of the object that is being
->     created.
- 
-6. The attribute size is _firstly_ an attribute of the data type, not
-of the variable. So sizeof(type) is a bit saner than sizeof(var).
-While allocating, we are allocating an instance of the type and we
-don't care which instance it would be but we care what data type it
-is.
+Valdis.Kletnieks@vt.edu wrote:
 
--- 
-Coywolf Qi Hunt
-http://sosdg.org/~coywolf/
+>
+>
+> Hans, unfortunately the most obvious reading of the above is
+> "Reiser4 is so damned fast because it doesn't bother doing
+> sanity-checking".
+
+Hmm, you seem to have forgotten the Hellwig complaints about too many
+assertions..... ;-)
+
+Algorithms make a difference Valdis, they make a big difference.
+> If there's still more "fixmes" to be inserted that *you* know of,
+> and there are so many that there's no time to fix them, why is this
+> being submitted for inclusion?
+
+The fixmes are not bugs, those got fixed, they are "this code would be
+cleaner if written another way", or, most commonly, "where is the
+comment that ought to be here?"
+
+> On Sun, 18 Sep 2005 22:09:08 PDT, Hans Reiser said:
+>
+>> Of course, the reiser4 code is not as stable as it was before the
+>> changes Christoph asked for.
+>
+>
+> This sort of claim requires proof - can you point at *specific*
+> things that were less stable after you fixed the code, including
+> explaining why they're less stable?
+
+The 4k stacks got a bug report or two.   Generally speaking, I don't
+trust any large number of lines of code of changes to be bug free, and
+the VFS stuff was a large number of lines.
+

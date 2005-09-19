@@ -1,93 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932362AbVISHoE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932363AbVISHqP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932362AbVISHoE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 03:44:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbVISHoE
+	id S932363AbVISHqP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 03:46:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932365AbVISHqP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 03:44:04 -0400
-Received: from [202.168.200.132] ([202.168.200.132]:14925 "EHLO
-	Dynaexch.corp.dynacolor.com.tw") by vger.kernel.org with ESMTP
-	id S932362AbVISHoB convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 03:44:01 -0400
-Reply-To: <responder@dynacolor.com.tw>
-From: "Wei-Che, Hsu" <responder@dynacolor.com.tw>
-To: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: Re: Where do packets sent to 255.255.255.255 go?
-Date: Mon, 19 Sep 2005 15:43:35 +0800
-Organization: DynaColor
-Message-ID: <001c01c5bced$db6d94b0$88fea8c0@acer3201>
+	Mon, 19 Sep 2005 03:46:15 -0400
+Received: from smtprelay03.ispgateway.de ([80.67.18.15]:2494 "EHLO
+	smtprelay03.ispgateway.de") by vger.kernel.org with ESMTP
+	id S932363AbVISHqO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 03:46:14 -0400
+Message-ID: <432E6CC3.8000109@v.loewis.de>
+Date: Mon, 19 Sep 2005 09:46:11 +0200
+From: =?ISO-8859-1?Q?=22Martin_v=2E_L=F6wis=22?= <martin@v.loewis.de>
+User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-In-Reply-To: <1127108122.9696.90.camel@localhost>
-X-OriginalArrivalTime: 19 Sep 2005 07:41:47.0673 (UTC) FILETIME=[9702A090:01C5BCED]
+To: Pavel Machek <pavel@suse.cz>
+CC: Martin Mares <mj@ucw.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [Patch] Support UTF-8 scripts
+References: <4NsP1-3YF-21@gated-at.bofh.it> <4NsOZ-3YF-9@gated-at.bofh.it> <4NsYH-4bv-27@gated-at.bofh.it> <4NtBr-4WU-3@gated-at.bofh.it> <4NtL0-5lQ-13@gated-at.bofh.it> <432B2C49.8080008@v.loewis.de> <20050917120123.GA3095@ucw.cz> <432C0B51.704@v.loewis.de> <20050919070820.GA2382@elf.ucw.cz> <432E6649.1070408@v.loewis.de> <20050919072446.GF1893@elf.ucw.cz>
+In-Reply-To: <20050919072446.GF1893@elf.ucw.cz>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear sir,
+Pavel Machek wrote:
+> If UTF-8 compatibility is important, distros will get it right. If it
+> is not, you loose, but at least kernel is not messed up.
 
-I have the same question recently & found a solution on the following url.
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0508.3/0397.html
-& trace to this mailing list.
+The patch doesn't mess up the kernel.
 
-I had added a 255.255.255.255 route to a specific interface(eth0).
-But seems no luck.
-The broadcast package still go out via default gateway(eth1).
-(detail "route -n" will be attached on the tail of this mail.)
-
-Does anyone have any idea about it?
-Should I enable something on my kernel?
-
-ThanX in advance.
-
-=== Original Post ===
->>> 3. Can I set the default broadcast interface explicitly?
->>> For example, say I wanted broadcasts to go out over
->>> eth1 by default, instead of over eth0. What if I
->>> wanted them to get sent through tap0?
->>
->> Again, I'm not sure, but I think that you can force the
->> interface by adding a special route for IP 255.255.255.255
->> and with mask 255.255.255.255 to the interface you want.
-
-> Yes, this works! It's so simple --- I can't believe I
-> didn't try it before. I did mess around with iptables,
-> trying to add some weird PREROUTEing DNAT that would
-> redirect the packets, but I didn't know what I was doing.
-=== Original Post ===
-
-=== Detail route output ===
-Kernel IP routing table
-Destination     Gateway         Genmask         Flags Metric Ref    Use
-Iface
-255.255.255.255 0.0.0.0         255.255.255.255 UH    0      0        0 eth0
-192.168.7.0     192.168.6.254   255.255.255.0   UG    0      0        0 eth0
-192.168.6.0     0.0.0.0         255.255.255.0   U     0      0        0 eth0
-192.168.5.0     192.168.6.254   255.255.255.0   UG    0      0        0 eth0
-192.168.4.0     192.168.6.254   255.255.255.0   UG    0      0        0 eth0
-172.30.1.0      0.0.0.0         255.255.255.0   U     0      0        0 eth1
-192.168.3.0     192.168.6.254   255.255.255.0   UG    0      0        0 eth0
-192.168.2.0     192.168.6.254   255.255.255.0   UG    0      0        0 eth0
-192.168.12.0    192.168.6.254   255.255.255.0   UG    0      0        0 eth0
-192.168.11.0    192.168.6.254   255.255.255.0   UG    0      0        0 eth0
-192.168.10.0    192.168.6.254   255.255.255.0   UG    0      0        0 eth0
-192.168.9.0     192.168.6.254   255.255.255.0   UG    0      0        0 eth0
-192.168.254.0   0.0.0.0         255.255.255.0   U     0      0        0 eth2
-192.168.8.0     192.168.6.254   255.255.255.0   UG    0      0        0 eth0
-127.0.0.0       0.0.0.0         255.0.0.0       U     0      0        0 lo
-0.0.0.0         172.30.1.254    0.0.0.0         UG    0      0        0 eth1
-=== Detail route output ===
-
-Good day.
- 
-Sincerely yours,
-      responder
-
-
+Regards,
+Martin

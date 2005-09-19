@@ -1,39 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932566AbVISShx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932564AbVISSnU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932566AbVISShx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 14:37:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932564AbVISShw
+	id S932564AbVISSnU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 14:43:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932565AbVISSnU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 14:37:52 -0400
-Received: from [218.18.42.37] ([218.18.42.37]:36369 "HELO 202.96.154.15")
-	by vger.kernel.org with SMTP id S932562AbVISShw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 14:37:52 -0400
-Message-ID: <I0MQ@mx.seed.net.tw>
-From: s6tyReF@mail.sysnet.net.tw
-To: 8I7INR@ksts.seed.net.tw
-Subject: =?ISO-8859-1?Q?=20=B7=BF=B5=D8=B2=FA=D3=AA=CF=FA=B9=DC=C0=ED=CF=B5?=
-	=?ISO-8859-1?Q?=CD=B3=D7=EE=D0=C2=CD=C6=B3=F6......?=
-Content-Type: text/plain;
-X-Priority: 3
-X-MSMail-Priority: Normal
-Date: Mon, 19 Sep 2005 14:37:52 -0400
+	Mon, 19 Sep 2005 14:43:20 -0400
+Received: from silver.veritas.com ([143.127.12.111]:31001 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S932564AbVISSnU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 14:43:20 -0400
+Date: Mon, 19 Sep 2005 19:42:51 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Smarduch Mario-CMS063 <CMS063@motorola.com>
+cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: Multi-Threaded fork() correctness on Linux 2.4 & 2.6
+In-Reply-To: <A752C16E6296D711942200065BFCB6942521C43A@il02exm10>
+Message-ID: <Pine.LNX.4.61.0509191928080.23718@goblin.wat.veritas.com>
+References: <A752C16E6296D711942200065BFCB6942521C43A@il02exm10>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 19 Sep 2005 18:43:18.0569 (UTC) FILETIME=[00A0B990:01C5BD4A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 8bit
-X-MIME-Autoconverted: from Quoted-Printable to 8bit by alpha.home.local id j8JIcmU5005508
 
-在线测试地址:  http://ltsoft.88ip.cn/dc.htm
+On Mon, 19 Sep 2005, Smarduch Mario-CMS063 wrote:
 
-随着计算机技术的发展和其在商业上的广泛应用，利用技术手段实现房产企业营销业务管理的信息化、规范化和现代化已经逐渐为各发展商认识和重视.
+> MMU/Kernel experts,
+>     
+>     recently I've been involved in debugging MT forks on IA-64 the issues
+> found were related to the way IA64 does its TLB invalidation. But there
+> is still one  issue that appears to be Linux in general related, and it
+> has to do with MT forks. 
+>  
+> For example a process has 3 threads T1, T2, T3.
+>  
+> 1 - T1 issues a fork()
+>     - under page_table_lock write bit is reset in src and dest pte's
+> 2 - T2 may have a TLB mis, the new write protected pte is inserted
+>     (hw walker or sw tlb hdlr)
+> 3 - T2 winds up in do_wp_page() the page is copied to a new one
+> 4 - In the mean time T3 may be working off the same page, the
+>     TLB invalidation (flush_tlb_mm()) has no occurred yet.
+> 5 - Eventually TLB is globally flushed so threads will see the new pte.
+> 6 - As a result the MT task may experience inconsisitent state.
+>     - During 3 & 4. For example locks may be acquired by both
+>       threads depending on the timing of the copy.
 
-力天软件凭借其在房地产行业多项解决方案的提供和实施经验，针对目前我国房地产行业营销管理的现状，结合各个房地产公司现有的软硬件投资水平，经过与各大房地产业知名单位的密切合作，在国内率先推出了完全基于浏览器的第三代售楼管理软件--力天房产营销管理系统，目前该系统已经在十余个楼盘项目的销售管理之中成功应用并得到了广泛好评。 
+I do think you've hit upon something interesting here.  Though it's
+not quite as you describe.  We don't have to wait for the flush_tlb_mm
+to sort it out: the flush_tlb_page in ptep_establish in break_cow in
+do_wp_page resolves the discrepancy much sooner.  But your point is,
+that's already too late: T2 inserts a "smudged" copy of the page which
+T3 was working on, it does not contain all the data T3 had written there.
 
-该系统采用了跨地域的B/S（浏览器/服务器）结构设计，全面支持移动办公及异地远程办公，符合房产公司总部与售楼处分离的实际情况。系统包括项目管理、决策管理、销售管理、财务管理、客户关系管理、广告营销管理、办公管理、售后服务管理、统计报表等九大功能模块，基本涵盖了房产企业的各个职能部门的主要工作。
+> The TLB refill (hw/sw) work independently of the page_table_lock,
+> it seems all threads should be forced to see the new pte
+> before the new page is copied over by forcing the pte to 0 
+> and allowing page_table_lock to synchronize the threads.
 
-该系统的全面推广和实施，必将使房产企业的营销管理水平提高到一个全新的层次。
+I don't get your pte to 0 suggestion.  What we seem to need is to
+flush the TLB sooner (as well as in ptep_establish).  A first guess
+is that do_wp_page needs (in these circumstances) to flush_tlb_page
+before copying the page.
 
+But this stuff is subtle, and TLB flushes shouldn't be added lightly.
+I'm certainly not going to rush to propose the fix (and I could easily
+be wrong in seeing the problem).  But perhaps others will be surer.
 
-联系：0 8 6 - 7 5 5 - 6 1 3 2 5 2 1 5   李先生 litao@ltsoft.org   QQ在线:17133845
+> I come from an SVR4 background and relatively new to
+> Linux, any insights or corrections would be greatly appreciated.
+> Please copy my email id as its to miss email on this list.
 
+Welcome!
 
+Hugh

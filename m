@@ -1,41 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932576AbVISS5t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932574AbVISS6l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932576AbVISS5t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 14:57:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932574AbVISS5t
+	id S932574AbVISS6l (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 14:58:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932577AbVISS6l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 14:57:49 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:39954 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S932576AbVISS5s
+	Mon, 19 Sep 2005 14:58:41 -0400
+Received: from pat.uio.no ([129.240.130.16]:12449 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S932574AbVISS6k convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 14:57:48 -0400
-Message-ID: <432F0BC6.3040100@tmr.com>
-Date: Mon, 19 Sep 2005 15:04:38 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pierre Ossman <drzeus-list@drzeus.cx>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ipw2200 using old wireless extensions
-References: <4329E09B.9020807@drzeus.cx>
-In-Reply-To: <4329E09B.9020807@drzeus.cx>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 19 Sep 2005 14:58:40 -0400
+Subject: Re: ctime set by truncate even if NOCMTIME requested
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Steve French <smfrench@austin.rr.com>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <432EFAB1.4080406@austin.rr.com>
+References: <432EFAB1.4080406@austin.rr.com>
+Content-Type: text/plain; charset=utf-8
+Date: Mon, 19 Sep 2005 14:58:23 -0400
+Message-Id: <1127156303.8519.29.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 8BIT
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.948, required 12,
+	autolearn=disabled, AWL 1.05, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pierre Ossman wrote:
-> With the inclusion of the ipw2200 driver and the update of the wireless
-> extensions I get my dmesg flooded with these:
+må den 19.09.2005 Klokka 12:51 (-0500) skreiv Steve French:
+> I am seeing requests to set ctime on truncate which does not make any 
+> sense to me as I was testing with the flag that should have turned that 
+> off.  ie my inodes having S_NOCMTIME set, as NFS does.
 > 
-> eth0 (WE) : Driver using old /proc/net/wireless support, please fix driver !
+> do_truncate (line 206 of open.c) sets
+>       newattrs.ia_valid = ATTR_SIZE | ATTR_CTIME
+> instead of
+>        newattrs.ia_valid = ATTR_SIZE;
+>       if(!IS_NOCMTIME(inode))
+>            newattrs.ia_valid |= ATTR_CTIME;
 > 
-> Somebody please make the hurting go away :)
+> I thought that the correct way to handle this for network filesystems, 
+> is to let the server set the mtime and ctime unless the application 
+> explicitly sets the attributes (in the case of the sys call truncate or 
+> ftruncate the application is not explicitly setting the ctime/mtime as 
+> it would on a backup/restore so they should be ignored for the network 
+> fs so the server will set it correctl to its time, reducing traffic and 
+> more accurately representing the time it got updated).
+> 
+> Shouldn't there be a IS_NOCMTIME check in the truncate path in fs/open.c?
 
-Is this related to using the old 1.0.0 driver instead of current? I 
-asked why and never got an answer, so ???
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+See the discussion on this a couple of weeks back.
+
+It is quite correct for the kernel to request that the filesystem set
+ctime/mtime on successful calls to open(O_TRUNC).
+  http://www.opengroup.org/onlinepubs/009695399/toc.htm
+
+It is _incorrect_ for it to request that ctime/mtime be set (or that the
+suid/sgid mode bit be cleared) if a truncate()/ftruncate() call results
+in no size change.
+  http://www.opengroup.org/onlinepubs/009695399/toc.htm
+
+So the current do_truncate() does have to be changed. Adding a check for
+IS_NOCMTIME would be wrong, though.
+
+Cheers,
+  Trond
+

@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932179AbVISLqq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932275AbVISLrg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932179AbVISLqq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 07:46:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932194AbVISLqq
+	id S932275AbVISLrg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 07:47:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932194AbVISLrg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 07:46:46 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:2494 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932179AbVISLqp (ORCPT
+	Mon, 19 Sep 2005 07:47:36 -0400
+Received: from zeus2.kernel.org ([204.152.191.36]:21722 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S932237AbVISLre (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 07:46:45 -0400
-Date: Mon, 19 Sep 2005 07:46:33 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@cuia.boston.redhat.com
-To: liyu <liyu@ccoss.com.cn>
-cc: LKML <linux-kernel@vger.kernel.org>, Linux-MM <linux-mm@kvack.org>
-Subject: Re: [Question] Clock-pro patches questions
-In-Reply-To: <432E683E.7090002@ccoss.com.cn>
-Message-ID: <Pine.LNX.4.63.0509190744140.19512@cuia.boston.redhat.com>
-References: <432E683E.7090002@ccoss.com.cn>
+	Mon, 19 Sep 2005 07:47:34 -0400
+Message-Id: <200509191147.j8JBlUL5023410@zeus2.kernel.org>
+From: Aydesign Internet ve Reklam Hizmetleri <aydizayn@yahoo.com>
+Reply-To: info@hitrehberi.com
+Subject: =?windows-1254?q?Arama_Motorlar=FD_Optimizasyonu?=
+Date: Mon, 19 Sep 2005 14:47:43 +0300
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; FORMAT=flowed
-Content-ID: <Pine.LNX.4.63.0509190744142.19512@cuia.boston.redhat.com>
+Content-Type: multipart/mixed; boundary="8a34dc1c-a0d6-41a9-a7a5-17d49622eb65"
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Sep 2005, liyu wrote:
 
->      When boot with this new kernel, kernel often pop oops message. the Oops
-> like this:   
->    BUG: using smp_processor_id() in preemptible [00000001] code: ifup/1983
-> caller is recently_evicted+0x9c/0xb8
+This is a multi-part message in MIME format
+--8a34dc1c-a0d6-41a9-a7a5-17d49622eb65
+Content-Type: text/plain; charset=windows-1254
+Content-Transfer-Encoding: quoted-printable
 
-Ohhhh fun, so code like the following is now illegal ?
- 
-	__get_cpu_var(refault_histogram)[distance]++;
+Arama motorlar=FDnda =DCst s=FDralarda =C7=FDkmak m=FD istiyorsunuz ?
 
-I'll figure out how to fix this and will try to release
-new clock-pro patches this week.
+=DDste size =E7=F6z=FCm 
 
--- 
-All Rights Reversed
+http://www.hitrehberi.com
+
+En =DDyi Arama Motoru Optimizasyonu
+
+Refranslar : 
+
+www.aybak.org
+www.aydesign.net
+www.bilmak.com.tr
+www.buyukyapi.com
+www.barisdekorasyon.com
+www.atasehirevdenevenakliyat.com
+www.sim-ge.com  
+--8a34dc1c-a0d6-41a9-a7a5-17d49622eb65--
+

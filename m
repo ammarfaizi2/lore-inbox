@@ -1,67 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932638AbVISVkp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932677AbVISVlD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932638AbVISVkp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 17:40:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932658AbVISVkp
+	id S932677AbVISVlD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 17:41:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932659AbVISVlB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 17:40:45 -0400
-Received: from smtprelay01.ispgateway.de ([80.67.18.13]:54944 "EHLO
-	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
-	id S932638AbVISVko (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 17:40:44 -0400
-Message-ID: <432F3054.70401@v.loewis.de>
-Date: Mon, 19 Sep 2005 23:40:36 +0200
-From: =?UTF-8?B?Ik1hcnRpbiB2LiBMw7Z3aXMi?= <martin@v.loewis.de>
-User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
+	Mon, 19 Sep 2005 17:41:01 -0400
+Received: from smtp-out2.blueyonder.co.uk ([195.188.213.5]:1193 "EHLO
+	smtp-out2.blueyonder.co.uk") by vger.kernel.org with ESMTP
+	id S932677AbVISVk7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 17:40:59 -0400
+Message-ID: <432F306B.40503@blueyonder.co.uk>
+Date: Mon, 19 Sep 2005 22:40:59 +0100
+From: Sid Boyce <sboyce@blueyonder.co.uk>
+Reply-To: sboyce@blueyonder.co.uk
+Organization: blueyonder.co.uk
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Bernd Petrovitsch <bernd@firmix.at>
-CC: =?UTF-8?B?Ik1hcnRpbiB2LiBMw7Z3aXMi?= <martin@v.loewis.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Patch] Support UTF-8 scripts
-References: <4Nvab-7o5-11@gated-at.bofh.it> <4Nvab-7o5-13@gated-at.bofh.it>	 <4Nvab-7o5-15@gated-at.bofh.it> <4Nvab-7o5-17@gated-at.bofh.it>	 <4Nvab-7o5-19@gated-at.bofh.it> <4Nvab-7o5-21@gated-at.bofh.it>	 <4Nvab-7o5-23@gated-at.bofh.it> <4Nvab-7o5-25@gated-at.bofh.it>	 <4Nvab-7o5-27@gated-at.bofh.it> <4NvjM-7CU-7@gated-at.bofh.it>	 <4NvjM-7CU-5@gated-at.bofh.it> <4NxbR-20S-1@gated-at.bofh.it>	 <4NEn7-3M5-7@gated-at.bofh.it> <4NTvO-yJ-13@gated-at.bofh.it>	 <4O1MJ-3Hf-5@gated-at.bofh.it> <4O8Oh-5jp-7@gated-at.bofh.it>	 <432E448D.2080402@v.loewis.de> <1127118382.1080.19.camel@tara.firmix.at>
-In-Reply-To: <1127118382.1080.19.camel@tara.firmix.at>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=UTF-8
+To: linux-kernel@vger.kernel.org
+Subject: Re: later kernels vs ntpd
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 19 Sep 2005 21:41:48.0335 (UTC) FILETIME=[F02553F0:01C5BD62]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernd Petrovitsch wrote:
->>>It depends on the definition of "character". There are other standards
->>>which define "character" as "byte".
->>
->>Certainly. However, you specifically talked about 'wc -c', and, in
->>wc(1), atleast in the implementation commonly used on Linux, characters
->>and bytes are not the same.
-> 
-> 
-> Yes, now since multi-byte character sets gets more commonly used.
-> However, I don't think you get this into the C standard. But we are now
-> far off the discussion ....
+Gene Heskett wrote:
+ > Someone suggested that I needed the ipv6 stuff, so I built a 2.6.13.1
+ > with all that turned on, but an overnight run of it also failed to
+ > synch, so I'm back on 2.6.13-rc5, which works well.
+ >
+ > But this is preventing me from playing the coal mine canary. Does
+ > anyone else have a suggestion?
 
-It does indeed, so just one final clarification. wc(1) is not part
-of the C standard - ISO 9899 does not talk about command line utilities
-at all. The relevant standard is POSIX; IEEE Std 1003.1, 2004 Edition
-says, in
+Right up to 2.6.13-rc6-git12 I've used 
+linux-2.6.13-rc6_timeofday-all.patch with no drift at all. With 
+unpatched kernels (won't apply) up to 2.6.14-rc1-git5 on SuSE 9.3, I'm 
+seeing -3 secs drift since reboot 1 hour ago, I think that's the max 
+I've seen over several hours, I have a heat/hardware problem that causes 
+a solid lockup at random times.
+On the other box with the same hardware and Mandriva LE2005, no drift.
+bumble:/root # ptktime&
+[1] 27567
+bumble:/root # localhost                       0 Mon Sep 19 22:35:58 2005
+128.118.25.3                    0 Mon Sep 19 22:35:58 2005
 
-http://www.opengroup.org/onlinepubs/009695399/utilities/wc.html
+bumble:/root # uptime
+  22:36:15 up 22:35,  3 users,  load average: 0.00, 0.00, 0.00
+bumble:/root # uname -r
+2.6.14-rc1-git4
 
--c
-    Write to the standard output the number of bytes in each input file.
-[...]
--m
-    Write to the standard output the number of characters in each input
-file.
-
-[...]
-RATIONALE
-[...]
-The -c option stands for "character" count, even though it counts bytes.
-This stems from the sometimes erroneous historical view that bytes and
-characters are the same size. Due to international requirements, the -m
-option (reminiscent of "multi-byte") was added to obtain actual
-character counts.
-
-Regards,
-Martin
+Regards
+Sid.
+-- 
+Sid Boyce ... Hamradio License G3VBV, licensed Private Pilot
+Retired IBM/Amdahl Mainframes and Sun/Fujitsu Servers Tech Support 
+Specialist
+Microsoft Windows Free Zone - Linux used for all Computing Tasks

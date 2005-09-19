@@ -1,99 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932700AbVISV2j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932702AbVISV2m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932700AbVISV2j (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 17:28:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932701AbVISV2j
+	id S932702AbVISV2m (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 17:28:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932703AbVISV2m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 17:28:39 -0400
-Received: from ns.suse.de ([195.135.220.2]:64442 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932700AbVISV2j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 17:28:39 -0400
-Date: Mon, 19 Sep 2005 23:28:36 +0200
-From: Karsten Keil <kkeil@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Karsten Keil <kkeil@suse.de>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 2/2] Remove URB_ASYNC_UNLINK from last patch
-Message-ID: <20050919212836.GA24376@pingi3.kke.suse.de>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Karsten Keil <kkeil@suse.de>, linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@osdl.org>
-References: <20050919141037.GB13054@pingi3.kke.suse.de> <20050919142409.GB2959@pingi3.kke.suse.de> <Pine.LNX.4.58.0509191002530.9106@g5.osdl.org>
+	Mon, 19 Sep 2005 17:28:42 -0400
+Received: from pat.uio.no ([129.240.130.16]:22713 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S932701AbVISV2l convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 17:28:41 -0400
+Subject: Re: ctime set by truncate even if NOCMTIME requested
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Steve French <smfrench@austin.rr.com>
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <432F2684.4040300@austin.rr.com>
+References: <432EFAB1.4080406@austin.rr.com>
+	 <1127156303.8519.29.camel@lade.trondhjem.org>
+	 <432F2684.4040300@austin.rr.com>
+Content-Type: text/plain; charset=utf-8
+Date: Mon, 19 Sep 2005 17:28:31 -0400
+Message-Id: <1127165311.8519.39.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0509191002530.9106@g5.osdl.org>
-Organization: SuSE Linux AG
-X-Operating-System: Linux 2.6.13-15-default i686
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 8BIT
+X-UiO-Spam-info: not spam, SpamAssassin (score=-4.091, required 12,
+	autolearn=disabled, AWL 0.91, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 19, 2005 at 10:12:38AM -0700, Linus Torvalds wrote:
+må den 19.09.2005 Klokka 15:58 (-0500) skreiv Steve French:
+> Trond Myklebust wrote:
 > 
+> >It is quite correct for the kernel to request that the filesystem set
+> >ctime/mtime on successful calls to open(O_TRUNC).
+> >  http://www.opengroup.org/onlinepubs/009695399/toc.htm
+> >  
+> >
+> I agree that it is correct to set ctime/mtime here, just not convinced 
+> it it worth setting it twice which is what will happen for non-local fs.
 > 
-> On Mon, 19 Sep 2005, Karsten Keil wrote:
-> > 
-> > Is here a way in git to "merge" these two patches ?
-> 
-> Just do "git diff a..b" to generate the diff over both of them (where "a" 
-> is the commit before the two, and "b" is the last one, of course).
+> client truncate -> client setattr(for both size and ctime) -> server 
+> setattr (which will have a sideffect of ctime to be set on the server, 
+> not just the change to file size) and then another call to the server to 
+> set the ctime (which will end up setting ctime twice - one to the 
+> (correct) server's time and once to the less correct client's time.
 
-Thank you.
+If the VFS sets ATTR_[ACM]TIME, you should always assume that you are
+being requested to set the [acm]time to server time. Doesn't CIFS allow
+you that option?
 
-> 
-> Btw, the patch doesn't apply any more. I already applied your earlier one.
-> 
+Cheers,
+  Trond
 
-You should only need the second part then, which removes the not longer
-needed URB_ASYNC_UNLINK settings, this is this one
-
-Subject: [PATCH 2/2] Remove URB_ASYNC_UNLINK from last patch
-
-Sorry, tested the wrong HEAD for compile.
-
-- usb_unlink_urb is always async now, so URB_ASYNC_UNLINK was removed from
-  core USB and we must do as well.
-
-Signed-off-by: Karsten Keil <kkeil@suse.de>
-
----
-
- drivers/isdn/hisax/st5481_b.c   |    2 --
- drivers/isdn/hisax/st5481_usb.c |    2 --
- 2 files changed, 0 insertions(+), 4 deletions(-)
-
-7c3b2c6e0875808314829f11d8a317af2b1b549c
-diff --git a/drivers/isdn/hisax/st5481_b.c b/drivers/isdn/hisax/st5481_b.c
---- a/drivers/isdn/hisax/st5481_b.c
-+++ b/drivers/isdn/hisax/st5481_b.c
-@@ -209,9 +209,7 @@ static void st5481B_mode(struct st5481_b
- 	bcs->mode = mode;
- 
- 	// Cancel all USB transfers on this B channel
--	b_out->urb[0]->transfer_flags |= URB_ASYNC_UNLINK;
- 	usb_unlink_urb(b_out->urb[0]);
--	b_out->urb[1]->transfer_flags |= URB_ASYNC_UNLINK;
- 	usb_unlink_urb(b_out->urb[1]);
- 	b_out->busy = 0;
- 
-diff --git a/drivers/isdn/hisax/st5481_usb.c b/drivers/isdn/hisax/st5481_usb.c
---- a/drivers/isdn/hisax/st5481_usb.c
-+++ b/drivers/isdn/hisax/st5481_usb.c
-@@ -645,9 +645,7 @@ void st5481_in_mode(struct st5481_in *in
- 
- 	in->mode = mode;
- 
--	in->urb[0]->transfer_flags |= URB_ASYNC_UNLINK;
- 	usb_unlink_urb(in->urb[0]);
--	in->urb[1]->transfer_flags |= URB_ASYNC_UNLINK;
- 	usb_unlink_urb(in->urb[1]);
- 
- 	if (in->mode != L1_MODE_NULL) {
-
-
--- 
-Karsten Keil
-SuSE Labs
-ISDN development

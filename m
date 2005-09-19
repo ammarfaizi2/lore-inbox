@@ -1,56 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932287AbVISByI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932292AbVISCNL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932287AbVISByI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 21:54:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbVISByI
+	id S932292AbVISCNL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 22:13:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbVISCNK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 21:54:08 -0400
-Received: from smtpout.mac.com ([17.250.248.47]:723 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S932287AbVISByH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 21:54:07 -0400
-In-Reply-To: <op.sxbtg9lzth1vuj@localhost>
-References: <200509182004.j8IK4JNx012764@inti.inf.utfsm.cl> <432DCE2A.5070705@slaphack.com> <432DDF7A.3050704@teleformix.com> <op.sxbtg9lzth1vuj@localhost>
-Mime-Version: 1.0 (Apple Message framework v734)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <25065367-E1E5-4C1E-8B94-8986D17BA224@mac.com>
-Cc: Dan Oglesby <doglesby@teleformix.com>, David Masover <ninja@slaphack.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, thenewme91@gmail.com,
-       Christoph Hellwig <hch@infradead.org>,
-       Denis Vlasenko <vda@ilport.com.ua>, chriswhite@gentoo.org,
-       Hans Reiser <reiser@namesys.com>, LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: I request inclusion of reiser4 in the mainline kernel
-Date: Sun, 18 Sep 2005 21:53:34 -0400
-To: PFC <lists@boutiquenumerique.com>
-X-Mailer: Apple Mail (2.734)
+	Sun, 18 Sep 2005 22:13:10 -0400
+Received: from nproxy.gmail.com ([64.233.182.202]:18653 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932292AbVISCNJ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Sep 2005 22:13:09 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=XIXveo1P3vAFyLwepxR0Km1keM2h6LWm0eOdTxTH7B+5Ha+EqmPTck1bwArL4D4NGY6WSj6o/vA+mR2rQeLssKTJwoiS+HzL2K5IErXU58Xt8LrgE+H/5b8KZZNVvKI0gaXOXZMB1PfvEpUk6HzreNRdCH+sbdJ93iTSVZa87UA=
+Message-ID: <2cd57c90050918191328ce3888@mail.gmail.com>
+Date: Mon, 19 Sep 2005 10:13:05 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+Reply-To: coywolf@gmail.com
+To: Giuseppe Bilotta <bilotta78@hotpop.com>
+Subject: Re: [i386 BOOT CODE] kernel bootable again
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <hhumctao447z.1cmhqs2q8ab2s.dlg@40tude.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <33542.85.68.36.53.1126619176.squirrel@212.11.36.192>
+	 <432722A1.8030302@tuxrocks.com> <43272B9D.1030301@zytor.com>
+	 <33296.85.68.36.53.1126690932.squirrel@212.11.36.192>
+	 <1rhnij9opqgby$.4jlz2jfqsmkc$.dlg@40tude.net>
+	 <9a8748490509170856a1b9428@mail.gmail.com>
+	 <hhumctao447z.1cmhqs2q8ab2s.dlg@40tude.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Enough with the "It works for me" arguments!!!  Seriously!!!  Yes, we  
-know, it works for some people, but not for others.  There are a  
-billion factors.  If you have a technical argument, technical point,  
-useful detailed bug report, patch, etc to make, do so, but otherwise  
-SHUT UP!!!
+On 9/18/05, Giuseppe Bilotta <bilotta78@hotpop.com> wrote:
+> On Sat, 17 Sep 2005 17:56:08 +0200, Jesper Juhl wrote:
+> 
+> >> This is probably a stupid suggestion, but here it goes anyway: the
+> >> kernel has to be written on disk by something, right?
+> >>
+> >> So if the "something" knows (or can get to know) the sector/tracks
+> >> layout of the disk it's writing the kernel onto, it could store this
+> >> information in the bootblock (is there space for that?). The bootblock
+> >> code would then just read this info and use it.
+> >>
+> >> Of course, this would mean that making a kernel-bootable floppy
+> >> wouldn't be as simple as cp'ing the kernel image to /dev/fdwhatever,
+> >> but if a script/program designed to do this was included with the
+> >> kernel source (it wouldn't be too big ...) ...
+> >>
+> > I may be missing something here, but if you are going to do something
+> > like that, then why not just use a real bootloader instead?
+> 
+> I'm not too much into this stuff, I don't even know the technical
+> differences betwen booting from kernel-on-floppy or from a bootloader.
+> My proposal was just to work around the "what's the track layout"
+> issue in the kernel-on-floppy direct boot. Maybe you could see it like
 
-I'm interested in doing productive code-review so we can get the  
-sucker into the kernel at some point (yes, it will almost certainly  
-happen eventually), but with all the bitching and non-technical  
-rhetoric going on, some of you people are really wasting a lot of our  
-time when we're trying to converse usefully with Hans about code- 
-related issues.  If you don't have something _productive_ to say on  
-the thread, don't post!
+Actually, DOS/Windows works that way. FAT filesystem stores the number
+of sectors per track in its boot sector.
 
-Can we keep the Reiser4 S/N ratio at a manageable level, please?
+> a delayed bootloader process ... don't know.
+> 
+> But as I mentioned, it was probably just a stupid suggestion :)
 
-Cheers,
-Kyle Moffett
-
---
-I lost interest in "blade servers" when I found they didn't throw  
-knives at people who weren't supposed to be in your machine room.
-   -- Anthony de Boer
-
-
+You are too humble. It's not you, but linux bootsect.S stupid IMHO. ;)
+-- 
+Coywolf Qi Hunt
+http://sosdg.org/~coywolf/

@@ -1,68 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbVISJBJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932391AbVISJBv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932388AbVISJBJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 05:01:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932391AbVISJBI
+	id S932391AbVISJBv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 05:01:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbVISJBv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 05:01:08 -0400
-Received: from h80ad253d.async.vt.edu ([128.173.37.61]:51343 "EHLO
-	h80ad253d.async.vt.edu") by vger.kernel.org with ESMTP
-	id S932388AbVISJBH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 05:01:07 -0400
-Message-Id: <200509190900.j8J90lXx001654@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Bernd Petrovitsch <bernd@firmix.at>
-Cc: "\"Martin v. =?ISO-8859-1?Q?L=F6wis=22?=" <martin@v.loewis.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Patch] Support UTF-8 scripts 
-In-Reply-To: Your message of "Mon, 19 Sep 2005 10:26:22 +0200."
-             <1127118382.1080.19.camel@tara.firmix.at> 
-From: Valdis.Kletnieks@vt.edu
-References: <4Nvab-7o5-11@gated-at.bofh.it> <4Nvab-7o5-13@gated-at.bofh.it> <4Nvab-7o5-15@gated-at.bofh.it> <4Nvab-7o5-17@gated-at.bofh.it> <4Nvab-7o5-19@gated-at.bofh.it> <4Nvab-7o5-21@gated-at.bofh.it> <4Nvab-7o5-23@gated-at.bofh.it> <4Nvab-7o5-25@gated-at.bofh.it> <4Nvab-7o5-27@gated-at.bofh.it> <4NvjM-7CU-7@gated-at.bofh.it> <4NvjM-7CU-5@gated-at.bofh.it> <4NxbR-20S-1@gated-at.bofh.it> <4NEn7-3M5-7@gated-at.bofh.it> <4NTvO-yJ-13@gated-at.bofh.it> <4O1MJ-3Hf-5@gated-at.bofh.it> <4O8Oh-5jp-7@gated-at.bofh.it> <432E448D.2080402@v.loewis.de>
-            <1127118382.1080.19.camel@tara.firmix.at>
+	Mon, 19 Sep 2005 05:01:51 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:60132 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932391AbVISJBu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 05:01:50 -0400
+Date: Mon, 19 Sep 2005 10:01:45 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Hans Reiser <reiser@namesys.com>
+Cc: alan@lxorguk.ukuu.org.uk, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: I request inclusion of reiser4 in the mainline kernel
+Message-ID: <20050919090145.GA15607@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Hans Reiser <reiser@namesys.com>, alan@lxorguk.ukuu.org.uk,
+	akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <432AFB44.9060707@namesys.com> <200509171415.50454.vda@ilport.com.ua> <200509180934.50789.chriswhite@gentoo.org> <200509181321.23211.vda@ilport.com.ua> <20050918102658.GB22210@infradead.org> <b14e81f0050918102254146224@mail.gmail.com> <1127079524.8932.21.camel@localhost.localdomain> <432E4786.7010001@namesys.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1127120446_2682P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 19 Sep 2005 05:00:46 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <432E4786.7010001@namesys.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1127120446_2682P
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+Thanks a lot for the roundless attacks, but I'm done.
 
-On Mon, 19 Sep 2005 10:26:22 +0200, Bernd Petrovitsch said:
+I'll stop helping you to review stuff because it's just totally pointless,
+you ignore most of the review anyway and start personal attacks.
 
-> We will see how it develops. Actually the marker could be used to detec=
-t
-> endianness of the file if I read below URL correctly ....
+Please find someone else to review your code for inclusion, that can stand
+beeing attacked everytime they write an email.  Before you should probably
+fix up various bits I wrote up and especialy make sure to get rid of
+all duplication of generic I/O code or explain in detail why you need it
+and fix your own implementations.
 
-Text files have endianness????
-
-> ----  snip  ----
-> Q: How I should deal with BOMs?
-> =5B...=5D
-> 3. Some byte oriented protocols expect ASCII characters at the beginnin=
-g
-> of a file. If UTF-8 is used with these protocols, use of the BOM as
-> encoding form signature should be avoided.
-> ----  snip  ----
-> Voila. Avoid the BOM in your scripts and be done.
-
-At which point the proposed kernel patch becomes pointless.. ;)
-
-
---==_Exmh_1127120446_2682P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFDLn4+cC3lWbTT17ARAipDAKC8beFmI9fu56qfDWpkS94Y9Ep76QCfczV3
-Q33F+r8zh2Ic7QVOwtNu2SY=
-=xHuh
------END PGP SIGNATURE-----
-
---==_Exmh_1127120446_2682P--
+And next time you request review request and inclusion please use nicer
+words than 'I request inclusion'.  There's no right to get code included
+in the kernel tree, it's a honor.

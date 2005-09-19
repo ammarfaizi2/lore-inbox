@@ -1,108 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932439AbVISOkb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932447AbVISOqg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932439AbVISOkb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 10:40:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932440AbVISOkb
+	id S932447AbVISOqg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 10:46:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932448AbVISOqg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 10:40:31 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:42917 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932439AbVISOka
+	Mon, 19 Sep 2005 10:46:36 -0400
+Received: from zproxy.gmail.com ([64.233.162.202]:27305 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932447AbVISOqg convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 10:40:30 -0400
-Date: Mon, 19 Sep 2005 10:40:27 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Andrew Morton <akpm@osdl.org>
-cc: rusty@rustcorp.com.au, <linux-kernel@vger.kernel.org>
-Subject: [Proposed PATCH] Add kthread_stop_sem
-In-Reply-To: <20050918130902.23a824e0.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.44L0.0509191033470.5306-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 19 Sep 2005 10:46:36 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=m4466Q3RWYwoW7dzwgSLEbdS23C7Dv3DSG0Nf2fHjn4uwynAfl6cCsH+J94TR2Eu0QQHWrL+L0RBGujebwEw/JQIdZva4eUPaY9JyfMqYHMOTqngrJiaZnBnlHwe1yYb7WSKoSFF9/ZISl9YaA+iVuyWIjoMhYu51zZSGBOLcFI=
+Message-ID: <f8fda533050919074628ff140e@mail.gmail.com>
+Date: Mon, 19 Sep 2005 22:46:33 +0800
+From: Wenfeng Liu <wenfeng.liu@gmail.com>
+Reply-To: wenfeng.liu@gmail.com
+To: linux-kernel@vger.kernel.org
+Subject: [Questions] About experience of using kgdb for 2.6.10 kernel
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 18 Sep 2005, Andrew Morton wrote:
+Hello, All
 
-> >  Would this patch be acceptable?
-> 
-> Well it makes all kthread_stop() callers pass an additional (unused)
-> argument.  I'd make kthread_stop() and kthread_stop_sem() real C functions,
-> hide the code sharing within kthread.c.
+Recently I use kgdb for 2.6.10 kernel to debug driver modules. I got
+the kgdb patch from kgdb CVS server. Here I have some experience of
+using it with questions.
 
-This may not be needed anywhere, since James Bottomley has said that the
-SCSI error handler thread doesn't need a strict one-invocation <->
-one-iteration relation.  I'll post it anyway just in case someone thinks
-it may come in handy later.  At the moment the new routine has no callers.
+1. I use gdbmod-2.2 which is claimed to support automatically load
+module symbol to correct address, but it don't do as that. I have to
+manually add .text/.data/.bss sections address as add-symbol-file
+parameters in gdb commands. Does anybody meet this?
+2. I can't add one breakpiont for codes in symbol unless I stop in
+sys_init_module and use "step" into module_init routine. It's not
+convenient for module debugging, because every time I has to add
+breakpoints in module_init, even I don't want to debug it. :(
+3. The connection often hangs with printing "error packet" message
+especially adding breakpoints or strike "n" quickly for multiple
+times. And then the debug can't continue without restart.
 
-Alan Stern
+Anyway, kgdb is a very good tool for kernel debugging. But from my
+experience, it's not stable -- or my usage faults? Is anybody willing
+to share with me his experience/knowledge?
 
-
-
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-
-Enlarge the kthread API by adding kthread_stop_sem, for use in stopping 
-threads that spend their idle time waiting on a semaphore.
-
-Index: usb-2.6/include/linux/kthread.h
-===================================================================
---- usb-2.6.orig/include/linux/kthread.h
-+++ usb-2.6/include/linux/kthread.h
-@@ -70,6 +70,18 @@ void kthread_bind(struct task_struct *k,
- int kthread_stop(struct task_struct *k);
- 
- /**
-+ * kthread_stop_sem: stop a thread created by kthread_create().
-+ * @k: thread created by kthread_create().
-+ * @s: semaphore that @k waits on while idle.
-+ *
-+ * Does essentially the same thing as kthread_stop() above, but wakes
-+ * @k by calling up(@s).
-+ *
-+ * Returns the result of threadfn(), or -EINTR if wake_up_process()
-+ * was never called. */
-+int kthread_stop_sem(struct task_struct *k, struct semaphore *s);
-+
-+/**
-  * kthread_should_stop: should this kthread return now?
-  *
-  * When someone calls kthread_stop on your kthread, it will be woken
-Index: usb-2.6/kernel/kthread.c
-===================================================================
---- usb-2.6.orig/kernel/kthread.c
-+++ usb-2.6/kernel/kthread.c
-@@ -165,6 +165,12 @@ EXPORT_SYMBOL(kthread_bind);
- 
- int kthread_stop(struct task_struct *k)
- {
-+	return kthread_stop_sem(k, NULL);
-+}
-+EXPORT_SYMBOL(kthread_stop);
-+
-+int kthread_stop_sem(struct task_struct *k, struct semaphore *s)
-+{
- 	int ret;
- 
- 	down(&kthread_stop_lock);
-@@ -178,7 +184,10 @@ int kthread_stop(struct task_struct *k)
- 
- 	/* Now set kthread_should_stop() to true, and wake it up. */
- 	kthread_stop_info.k = k;
--	wake_up_process(k);
-+	if (s)
-+		up(s);
-+	else
-+		wake_up_process(k);
- 	put_task_struct(k);
- 
- 	/* Once it dies, reset stop ptr, gather result and we're done. */
-@@ -189,7 +198,7 @@ int kthread_stop(struct task_struct *k)
- 
- 	return ret;
- }
--EXPORT_SYMBOL(kthread_stop);
-+EXPORT_SYMBOL(kthread_stop_sem);
- 
- static __init int helper_init(void)
- {
-
+Thanks much,
+Kent

@@ -1,59 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932533AbVISR7v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932531AbVISSBl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932533AbVISR7v (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 13:59:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932532AbVISR7v
+	id S932531AbVISSBl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 14:01:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932535AbVISSBk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 13:59:51 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2432 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S932527AbVISR7u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 13:59:50 -0400
-Date: Tue, 30 Aug 2005 12:18:30 +0100
-From: Matthew Wilcox <matthew@wil.cx>
-To: Rusty Lynch <rusty@linux.intel.com>
-Cc: Andi Kleen <ak@suse.de>, Christoph Lameter <clameter@engr.sgi.com>,
-       Rusty Lynch <rusty.lynch@intel.com>, linux-mm@kvack.org,
-       prasanna@in.ibm.com, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, anil.s.keshavamurthy@intel.com
-Subject: Re: [PATCH] Only process_die notifier in ia64_do_page_fault if KPROBES is configured.
-Message-ID: <20050830111830.GI26314@parcelfarce.linux.theplanet.co.uk>
-References: <200508262246.j7QMkEoT013490@linux.jf.intel.com> <Pine.LNX.4.62.0508261559450.17433@schroedinger.engr.sgi.com> <200508270224.26423.ak@suse.de> <20050830001905.GA18279@linux.jf.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050830001905.GA18279@linux.jf.intel.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 19 Sep 2005 14:01:40 -0400
+Received: from smtpout.mac.com ([17.250.248.70]:28353 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S932534AbVISSBk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 14:01:40 -0400
+In-Reply-To: <1127151573.1586.14.camel@dyn9047017102.beaverton.ibm.com>
+References: <1127151573.1586.14.camel@dyn9047017102.beaverton.ibm.com>
+Mime-Version: 1.0 (Apple Message framework v734)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <CEA22AE9-C1D1-4621-B01A-F7D1F6F25110@mac.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: 2.6.14-rc1 wait()/SIG_CHILD bevahiour
+Date: Mon, 19 Sep 2005 14:01:07 -0400
+To: Badari Pulavarty <pbadari@us.ibm.com>
+X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 29, 2005 at 05:19:05PM -0700, Rusty Lynch wrote:
-> So, assuming inlining the notifier_call_chain would address Christoph's
-> conserns, is the following patch something like what you are sugesting?  
-> This would make all the kdebug.h::notify_die() calls use the inline version. 
+On Sep 19, 2005, at 13:39:33, Badari Pulavarty wrote:
+> Hi,
+>
+> I am looking at a problem where the parent process doesn't seem to  
+> cleanup the exited children (with a webserver). We narrowed it down  
+> to a simple testcase. Seems more like a lost SIG_CHILD.
 
-I think we need something more like this ...
+You don't get one SIG_CHLD per child that quits.  The kernel may and  
+probably will merge SIG_CHLD signals together if it has several  
+queued before it gets a chance to deliver them to your process.  This  
+is true of _all_ signals.  If you "kill -STOP 1234", then "kill -QUIT  
+1234", "kill -QUIT 1234", "kill -QUIT 1234", "kill -CONT 1234", the  
+PID 1234 will have 3 signals delivered:  The original untrappable  
+SIGSTOP, the SIGCONT that causes it to resume, and a single SIGQUIT  
+immediately following it.  The correct and portable way to handle  
+this is to put a loop in your SIGCHLD signal handler:
 
-include/linux/notifier.h:
-+static inline int notifier_call_chain(struct notifier_block **n,
-+					unsigned long val, void *v)
-+{
-+	if (n)
-+		return __notifier_call_chain(n, val, v);
-+	return NOTIFY_DONE;
-+}
-kernel/sys.c:
--int notifier_call_chain(struct notifier_block **n, unsigned long val, void *v)
-+int __notifier_call_chain(struct notifier_block **n, unsigned long val, void *v)
--EXPORT_SYMBOL(notifier_call_chain);
-+EXPORT_SYMBOL(__notifier_call_chain);
+#include <sys/types.h>
+#include <sys/wait.h>
 
-That way everyone gets both the quick test and the global size reduction.
+void sigchld_handler(int signal) {
+     pid_t pid;
+     int status;
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+     while( -1 != (child = waitpid(-1, &status, WNOHANG)) ) {
+         /*
+          * Now "status" is the exit status of the child and
+          * "pid" is its pid.  See the waitpid() manpage for
+          * macros you can use to get information from the
+          * status variable.
+          */
+         do_some_processing_of_exited_child(pid,status);
+     }
+}
+
+Cheers,
+Kyle Moffett
+
+--
+There is no way to make Linux robust with unreliable memory  
+subsystems, sorry.  It would be like trying to make a human more  
+robust with an unreliable O2 supply. Memory just has to work.
+   -- Andi Kleen
+
+

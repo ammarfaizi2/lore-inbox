@@ -1,110 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932389AbVISJjR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932383AbVISJlm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932389AbVISJjR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 05:39:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932404AbVISJjR
+	id S932383AbVISJlm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 05:41:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932404AbVISJlm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 05:39:17 -0400
-Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:37589 "EHLO
-	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S932389AbVISJjQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 05:39:16 -0400
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Subject: Re: 2.6.14-rc1 - kernel BUG at fs/ntfs/aops.c:403
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: kronos@kronoz.cjb.net
-Cc: linux-kernel@vger.kernel.org, Jean Delvare <khali@linux-fr.org>,
-       Bas Vermeulen <bvermeul@blackstar.nl>
-In-Reply-To: <20050917145150.GA5481@dreamland.darkstar.lan>
-References: <20050917145150.GA5481@dreamland.darkstar.lan>
+	Mon, 19 Sep 2005 05:41:42 -0400
+Received: from ns.firmix.at ([62.141.48.66]:17798 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S932383AbVISJll (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 05:41:41 -0400
+Subject: Re: [Patch] Support UTF-8 scripts
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Valdis.Kletnieks@vt.edu
+Cc: "\"Martin v." =?ISO-8859-1?Q?L=F6wis=22?= <martin@v.loewis.de>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200509190900.j8J90lXx001654@turing-police.cc.vt.edu>
+References: <4Nvab-7o5-11@gated-at.bofh.it> <4Nvab-7o5-13@gated-at.bofh.it>
+	 <4Nvab-7o5-15@gated-at.bofh.it> <4Nvab-7o5-17@gated-at.bofh.it>
+	 <4Nvab-7o5-19@gated-at.bofh.it> <4Nvab-7o5-21@gated-at.bofh.it>
+	 <4Nvab-7o5-23@gated-at.bofh.it> <4Nvab-7o5-25@gated-at.bofh.it>
+	 <4Nvab-7o5-27@gated-at.bofh.it> <4NvjM-7CU-7@gated-at.bofh.it>
+	 <4NvjM-7CU-5@gated-at.bofh.it> <4NxbR-20S-1@gated-at.bofh.it>
+	 <4NEn7-3M5-7@gated-at.bofh.it> <4NTvO-yJ-13@gated-at.bofh.it>
+	 <4O1MJ-3Hf-5@gated-at.bofh.it> <4O8Oh-5jp-7@gated-at.bofh.it>
+	 <432E448D.2080402@v.loewis.de> <1127118382.1080.19.camel@tara.firmix.at>
+	 <200509190900.j8J90lXx001654@turing-police.cc.vt.edu>
 Content-Type: text/plain
-Organization: Computing Service, University of Cambridge, UK
-Date: Mon, 19 Sep 2005 10:39:07 +0100
-Message-Id: <1127122747.493.5.camel@imp.csi.cam.ac.uk>
+Organization: Firmix Software GmbH
+Date: Mon, 19 Sep 2005 11:41:30 +0200
+Message-Id: <1127122891.1080.32.camel@tara.firmix.at>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Sat, 2005-09-17 at 16:51 +0200, Luca wrote:
-> Jean Delvare <khali@linux-fr.org> ha scritto:
-> > Hi Anton, Bas, all,
-> > 
-> > [Bas Vermeulen]
-> >> > I get a kernel BUG when mounting my (dirty) NTFS volume.
-> >> > 
-> >> > Sep 12 18:54:47 laptop kernel: [4294708.961000] NTFS volume version
-> >> > 3.1. Sep 12 18:54:47 laptop kernel: [4294708.961000] NTFS-fs error
-> >> > (device sda2): load_system_files(): Volume is dirty.  Mounting
-> >> > read-only.  Run chkdsk and mount in Windows.
-> >> > Sep 12 18:54:47 laptop kernel: [4294709.063000] ------------[ cut
-> >> > here ]------------
-> >> > Sep 12 18:54:47 laptop kernel: [4294709.063000] kernel BUG at
-> >> > fs/ntfs/aops.c:403!
-> >
-> > I just hit the same BUG in different conditions. My NTFS volume is not
-> > dirty, not compressed and the BUG triggered on use (updatedb), not
-> > mount.
+On Mon, 2005-09-19 at 05:00 -0400, Valdis.Kletnieks@vt.edu wrote:
+> On Mon, 19 Sep 2005 10:26:22 +0200, Bernd Petrovitsch said:
 > 
-> Same here, but it only triggers accessing a compressed directory. I can
-> reproduce at will just by using 'ls' inside a compressed dir.
+> > We will see how it develops. Actually the marker could be used to detect
+> > endianness of the file if I read below URL correctly ....
+> 
+> Text files have endianness????
 
-Below is the fix I just sent off to Linus.
+Unicode-16 ones with 16 bit per character (as in Win NT), yes.
+UTF-8 ones not AFAIK.
 
-Best regards,
-
-        Anton
+	Bernd
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
-
-Subject: [PATCH 2/3] NTFS: Fix handling of compressed directories that I broke in earlier changeset.
-
-Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
-
----
-
- fs/ntfs/aops.c |   12 ++++++++----
- 1 files changed, 8 insertions(+), 4 deletions(-)
-
-4e64c88693fde1b1cbaa4cfecad43a0c3fad354e
-diff --git a/fs/ntfs/aops.c b/fs/ntfs/aops.c
---- a/fs/ntfs/aops.c
-+++ b/fs/ntfs/aops.c
-@@ -389,9 +389,11 @@ retry_readpage:
- 	 * Only $DATA attributes can be encrypted and only unnamed $DATA
- 	 * attributes can be compressed.  Index root can have the flags set but
- 	 * this means to create compressed/encrypted files, not that the
--	 * attribute is compressed/encrypted.
-+	 * attribute is compressed/encrypted.  Note we need to check for
-+	 * AT_INDEX_ALLOCATION since this is the type of both directory and
-+	 * index inodes.
- 	 */
--	if (ni->type != AT_INDEX_ROOT) {
-+	if (ni->type != AT_INDEX_ALLOCATION) {
- 		/* If attribute is encrypted, deny access, just like NT4. */
- 		if (NInoEncrypted(ni)) {
- 			BUG_ON(ni->type != AT_DATA);
-@@ -1341,9 +1343,11 @@ retry_writepage:
- 	 * Only $DATA attributes can be encrypted and only unnamed $DATA
- 	 * attributes can be compressed.  Index root can have the flags set but
- 	 * this means to create compressed/encrypted files, not that the
--	 * attribute is compressed/encrypted.
-+	 * attribute is compressed/encrypted.  Note we need to check for
-+	 * AT_INDEX_ALLOCATION since this is the type of both directory and
-+	 * index inodes.
- 	 */
--	if (ni->type != AT_INDEX_ROOT) {
-+	if (ni->type != AT_INDEX_ALLOCATION) {
- 		/* If file is encrypted, deny access, just like NT4. */
- 		if (NInoEncrypted(ni)) {
- 			unlock_page(page);
-
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 

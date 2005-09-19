@@ -1,46 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932593AbVISTPX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932591AbVISTRE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932593AbVISTPX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 15:15:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932591AbVISTPX
+	id S932591AbVISTRE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 15:17:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932594AbVISTRE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 15:15:23 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:57572 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932593AbVISTPW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 15:15:22 -0400
-Date: Mon, 19 Sep 2005 12:14:54 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Badari Pulavarty <pbadari@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
-       Roland McGrath <roland@redhat.com>, Andrew Morton <akpm@osdl.org>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.14-rc1 wait()/SIG_CHILD bevahiour
-In-Reply-To: <1127151573.1586.14.camel@dyn9047017102.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.58.0509191206040.2553@g5.osdl.org>
-References: <1127151573.1586.14.camel@dyn9047017102.beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 19 Sep 2005 15:17:04 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:22667 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932591AbVISTRD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 15:17:03 -0400
+Subject: [PATCH] x86-64: Fix bad assumption that dualcore cpus have synced
+	TSCs
+From: john stultz <johnstul@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>
+Content-Type: text/plain
+Date: Mon, 19 Sep 2005 12:16:43 -0700
+Message-Id: <1127157404.3455.209.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew,
+	This patch should resolve the issue seen in bugme bug #5105, where it
+is assumed that dualcore x86_64 systems have synced TSCs. This is not
+the case, and alternate timesources should be used instead.
+
+For more details, see:
+http://bugzilla.kernel.org/show_bug.cgi?id=5105
 
 
-On Mon, 19 Sep 2005, Badari Pulavarty wrote:
-> 
-> I can easily reproduce the problem on my AMD64 machine. 
-> Any thoughts on why this is happening ? Any known issues/fixes ?
+Please consider for inclusion in your tree.
 
-Interesting.
+thanks
+-john
 
-I don't think it is SIGCHLD, because you can "strace" the waiter in one 
-window, and send it a SIGCHLD _by_hand_ in the other window, and it will 
-do a new "wait4()", but still not pick up its zombie children.
+diff --git a/arch/x86_64/kernel/time.c b/arch/x86_64/kernel/time.c
+--- a/arch/x86_64/kernel/time.c
++++ b/arch/x86_64/kernel/time.c
+@@ -959,9 +959,6 @@ static __init int unsynchronized_tsc(voi
+  	   are handled in the OEM check above. */
+  	if (boot_cpu_data.x86_vendor == X86_VENDOR_INTEL)
+  		return 0;
+- 	/* All in a single socket - should be synchronized */
+- 	if (cpus_weight(cpu_core_map[0]) == num_online_cpus())
+- 		return 0;
+ #endif
+  	/* Assume multi socket systems are not synchronized */
+  	return num_online_cpus() > 1;
 
-So it looks like wait() itself is broken, and doesn't pick up the children 
-for some reason. It just returns 0.
 
-Ingo, Roland - Badari included a test-program in his post on lkml, and I
-can trigger the behaviour on ppc64, even if I can't see what's wrong yet.  
-Mind taking a look?
-
-			Linus

@@ -1,78 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932601AbVISTYi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932610AbVIST33@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932601AbVISTYi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 15:24:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932603AbVISTYi
+	id S932610AbVIST33 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 15:29:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932613AbVIST33
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 15:24:38 -0400
-Received: from urchin.mweb.co.za ([196.2.24.26]:55723 "EHLO urchin.mweb.co.za")
-	by vger.kernel.org with ESMTP id S932601AbVISTYh (ORCPT
+	Mon, 19 Sep 2005 15:29:29 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:53224 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932610AbVIST33 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 15:24:37 -0400
-From: Bongani Hlope <bonganilinux@mweb.co.za>
-To: Maurice Volaski <mvolaski@aecom.yu.edu>
-Subject: Re: Segfaults in mkdir under high load. Software or hardware?
-Date: Mon, 19 Sep 2005 21:27:33 +0200
-User-Agent: KMail/1.8.91
-Cc: linux-kernel@vger.kernel.org, andrew@walrond.org,
-       bert.hubert@netherlabs.nl
-References: <mailman.3.1127041200.14075.linux-kernel-daily-digest@lists.us.dell.com> <a06230970bf53b4a0dfad@[129.98.90.227]>
-In-Reply-To: <a06230970bf53b4a0dfad@[129.98.90.227]>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 19 Sep 2005 15:29:29 -0400
+Date: Mon, 19 Sep 2005 12:28:47 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: vandrove@vc.cvut.cz, alokk@calsoftinc.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-rc1-git-now still dying in mm/slab - this time line 1849
+Message-Id: <20050919122847.4322df95.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.62.0509191141380.26105@schroedinger.engr.sgi.com>
+References: <4329A6A3.7080506@vc.cvut.cz>
+	<20050916023005.4146e499.akpm@osdl.org>
+	<432AA00D.4030706@vc.cvut.cz>
+	<20050916230809.789d6b0b.akpm@osdl.org>
+	<432EE103.5020105@vc.cvut.cz>
+	<20050919112912.18daf2eb.akpm@osdl.org>
+	<Pine.LNX.4.62.0509191141380.26105@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509192127.33611.bonganilinux@mweb.co.za>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 19 September 2005 03:03, Maurice Volaski wrote:
-> At 6:00 AM -0500 9/18/05,
+Christoph Lameter <clameter@engr.sgi.com> wrote:
 >
-> linux-kernel-daily-digest-request@lists.us.dell.com wrote:
-> >>  I have been seeing a similar thing:
-> >>
-> >>  ./current:Sep 17 18:00:01 [kernel] mkdir[7696]: segfault at
-> >>  0000000000000000 rip 000000000040184d rsp 00007fffff826350 error 4
-> >>
-> >>  I'm using the plain 2.6.13 (from gentoo vanilla sources), though it
-> >>  was compiled with
-> >>  gcc version 3.4.4 (Gentoo 3.4.4-r1, ssp-3.4.4-1.0, pie-8.7.8)
-> >
-> >x86_64 ? If so see http://bugzilla.kernel.org/show_bug.cgi?id=4851
->
-> Dual Opteron, and this looks like my issue. It recommends echo 0 >
-> /proc/sys/kernel/randomize_va_space but that has not stopped it from
-> happening, so I'll probably wait for the patch to get merged.
+> On Mon, 19 Sep 2005, Andrew Morton wrote:
+> 
+> > Well.  The CPU_UP_CANCELED locking in cpuup_callback() looks borked to me -
+> > it takes cachep->nodelists[node]->list_lock and then calls
+> > drain_alien_cache() which appears to take the same lock.  But that's not
+> > the problem here.
+> > 
+> > The code in cache_reap() recalculates numa_node_id() multiple times, so if
+> > the caller changes CPUs then this assertion will trigger.  However it's
+> > running under keventd here, which is pinned to a single CPU.  Still, it
+> > would be useful if you could try putting preempt_disable()s in
+> > cache_reap(), or change cache_reap() to evaluate numa_node_id() just the
+> > once, and cache that in a local variable.
+> 
+> drain_array_cache_locked calls check_spinlock_acquired_node which is in 
+> turn insuring that interrupts are off. So no move to a different processor 
+> should be possible.
 
-Linus has a patch for that, which you might try. Look at 
-http://bugzilla.kernel.org/show_bug.cgi?id=4851 for more details on this bug.
+	list_for_each(walk, &cache_chain) {
+		kmem_cache_t *searchp;
+		struct list_head* p;
+		int tofree;
+		struct slab *slabp;
 
---- arch/x86_64/kernel/setup.c.orig     2005-09-18 07:34:36.000000000 +0200
-+++ arch/x86_64/kernel/setup.c  2005-09-18 07:37:25.000000000 +0200
-@@ -793,10 +793,23 @@ static void __init amd_detect_cmp(struct
- #endif
- }
+		searchp = list_entry(walk, kmem_cache_t, next);
 
-+#define HWCR 0xc0010015
-+
- static int __init init_amd(struct cpuinfo_x86 *c)
- {
-        int r;
-        int level;
-+#if CONFIG_SMP
-+       unsigned long value;
-+       // Disable TLB flush filter by setting HWCR.FFDIS:
-+       // bit 6 of msr C001_0015
-+       //
-+       // Errata 63 for SH-B3 steppings
-+       // Errata 122 for all(?) steppings
-+       rdmsrl(HWCR, value);
-+       value |= 1 << 6;
-+       wrmsrl(HWCR, value);
-+#endif
+		if (searchp->flags & SLAB_NO_REAP)
+			goto next;
 
-        /* Bit 31 in normal CPUID used for nonstandard 3DNow ID;
-           3DNow is IDd by bit 31 in extended CPUID (1*32+31) anyway */
+		check_irq_on();
+
+		l3 = searchp->nodelists[numa_node_id()];
+		if (l3->alien)
+			drain_alien_cache(searchp, l3);
+->preempt here
+		spin_lock_irq(&l3->list_lock);
+
+		drain_array_locked(searchp, ac_data(searchp), 0,
+				numa_node_id());
+->oops, wrong node.
+
+
+Still, this should all be pinned to one CPU, by happenstance.
+
+> However, that is contradicted by __wake_up calling 
+> drain_array_cache_locked. The process just woke up?
+
+Not sure what you mean here.
+
+> > I wonder why numa_node_id() uses raw_smp_processor_id()?  That's just
+> > asking for preempt non-atomicity bugs.
+> 
+> Accessing arrays indexed by node number even works if the process 
+> continues to be executed on another node.
+
+That's a special case and the callers should be changed to use a new
+raw_numa_node_id() in that case.
+
+Code which calls numa_node_id() and then continues to use the result of
+that in preemptible code is often buggy.  Code which reevaluates
+numa_node_id() in preemptible code and assumes that it returned the same
+thing is even buggier (unless it happens to be CPU pinned).
+
+numa_node_id() is doing a bad thing and should be converted to use
+smp_processor_id() so we can identify all the possibly-buggy callsites.
+
 

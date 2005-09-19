@@ -1,67 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932615AbVISUGR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932617AbVISUOt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932615AbVISUGR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 16:06:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932617AbVISUGR
+	id S932617AbVISUOt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 16:14:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932620AbVISUOs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 16:06:17 -0400
-Received: from 66-23-228-155.clients.speedfactory.net ([66.23.228.155]:45972
-	"EHLO kevlar.burdell.org") by vger.kernel.org with ESMTP
-	id S932615AbVISUGR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 16:06:17 -0400
-Date: Mon, 19 Sep 2005 16:01:36 -0400
-From: Sonny Rao <sonny@burdell.org>
-To: Anton Blanchard <anton@samba.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-rc1-mm1
-Message-ID: <20050919200136.GA22144@kevlar.burdell.org>
-References: <20050916022319.12bf53f3.akpm@osdl.org> <20050916101700.GB14962@krispykreme> <20050916205517.GA8638@kevlar.burdell.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050916205517.GA8638@kevlar.burdell.org>
-User-Agent: Mutt/1.4.2.1i
+	Mon, 19 Sep 2005 16:14:48 -0400
+Received: from gold.veritas.com ([143.127.12.110]:43168 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S932617AbVISUOs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 16:14:48 -0400
+Date: Mon, 19 Sep 2005 21:14:10 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Smarduch Mario-CMS063 <CMS063@motorola.com>, linux-kernel@vger.kernel.org
+Subject: Re: Multi-Threaded fork() correctness on Linux 2.4 & 2.6
+In-Reply-To: <Pine.LNX.4.58.0509191216050.2553@g5.osdl.org>
+Message-ID: <Pine.LNX.4.61.0509192106460.25004@goblin.wat.veritas.com>
+References: <A752C16E6296D711942200065BFCB6942521C43A@il02exm10>
+ <Pine.LNX.4.61.0509191928080.23718@goblin.wat.veritas.com>
+ <Pine.LNX.4.58.0509191216050.2553@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 19 Sep 2005 20:14:41.0907 (UTC) FILETIME=[C4F3B430:01C5BD56]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 16, 2005 at 04:55:17PM -0400, Sonny Rao wrote:
-> On Fri, Sep 16, 2005 at 08:17:00PM +1000, Anton Blanchard wrote:
-> > On Fri, Sep 16, 2005 at 02:23:19AM -0700, Andrew Morton wrote:
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14-rc1/2.6.14-rc1-mm1/
-> > 
-> > Builds and boots on ppc64 (POWER5) with the following patch, I forgot to
-> > include siginfo.h when I added data breakpoint support. We must include
-> > it in a round-a-bout way in mainline.
+On Mon, 19 Sep 2005, Linus Torvalds wrote:
 > 
-> Excellent, now I'm about to start up perf testing on 2.6.14-rc1-mm1 
-> 
-> with and without the following patches:
-> 
-> mm-try-to-allocate-higher-order-pages-in-rmqueue_bulk.patch
->   mm: try to allocate higher order pages in rmqueue_bulk
-> 
-> mm-try-to-allocate-higher-order-pages-in-rmqueue_bulk-fix.patch
->   mm-try-to-allocate-higher-order-pages-in-rmqueue_bulk fix
-> 
-> mm-page_alloc-increase-size-of-per-cpu-pages.patch
->   mm: page_alloc: increase size of per-cpu-pages
-> 
-> mm-set-per-cpu-pages-lower-threshold-to-zero.patch
->   mm: set per-cpu-pages lower threshold to zero
-> 
+> We hold the page_table_lock when doing the fork(), so T2 can't actually be 
+> copying the page until we've done the TLB flush, no? And once the TLB 
+> flush is done, all the writes by T3 should be in the page, so we copy the 
+> right thing at that point, and there is no consistency problems?
 
-Here are the results:
+I was totally overlooking the page_table_lock during the fork.
 
+But no matter, it's not good enough: src_mm->page_table_lock is acquired
+and dropped at the inner level, in copy_pte_range (looking at latest 2.6):
+it cannot be held across allocating page tables for dst_mm.
 
-bench		2.6.14-rc1-mm1		2.6.14-rc1-mm1-revert
---		--			--
-kernbench	438.88 sec		439.49 sec	0.1 % slower
-dbench3 (16)	1089.14 MB/sec		1062.89 MB/sec	2.5 % slower	
+So each time T1 drops it, there's a window for the T2 vs. T3 problem.
+Yet we don't much want to flush TLB each time we leave copy_pte_range.
 
-dbench3 was run on a tmpfs
-
-To avoid certain issues, SDET is given in relative terms.
-
-sdet (64)	100 %			100.2 % 
-
-
+Hugh

@@ -1,56 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932432AbVISO3w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932435AbVISOdz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932432AbVISO3w (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 10:29:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932433AbVISO3w
+	id S932435AbVISOdz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 10:33:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932436AbVISOdz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 10:29:52 -0400
-Received: from cantor.suse.de ([195.135.220.2]:1153 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932432AbVISO3w (ORCPT
+	Mon, 19 Sep 2005 10:33:55 -0400
+Received: from ns1.coraid.com ([65.14.39.133]:1768 "EHLO coraid.com")
+	by vger.kernel.org with ESMTP id S932435AbVISOdy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 10:29:52 -0400
-Date: Mon, 19 Sep 2005 16:29:50 +0200
-From: Karsten Keil <kkeil@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix ST 5481 USB driver
-Message-ID: <20050919142950.GA13757@pingi3.kke.suse.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20050917215242.GA27813@pingi3.kke.suse.de> <20050917222640.GA27785@kroah.com> <20050919142121.GA2959@pingi3.kke.suse.de>
-Mime-Version: 1.0
+	Mon, 19 Sep 2005 10:33:54 -0400
+To: "David S. Miller" <davem@davemloft.net>
+Cc: linux-kernel@vger.kernel.org, jmacbaine@gmail.com
+Subject: Re: aoe fails on sparc64
+References: <3afbacad0508310630797f397d@mail.gmail.com>
+	<87u0glxhfw.fsf@coraid.com>
+	<20050916.163554.79765706.davem@davemloft.net>
+From: Ed L Cashin <ecashin@coraid.com>
+Date: Mon, 19 Sep 2005 10:24:00 -0400
+In-Reply-To: <20050916.163554.79765706.davem@davemloft.net> (David S.
+ Miller's message of "Fri, 16 Sep 2005 16:35:54 -0700 (PDT)")
+Message-ID: <87slw1b0fz.fsf@coraid.com>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050919142121.GA2959@pingi3.kke.suse.de>
-Organization: SuSE Linux AG
-X-Operating-System: Linux 2.6.13-15-default i686
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 19, 2005 at 04:21:21PM +0200, Karsten Keil wrote:
-> Hi Greg,
-> 
-> On Sat, Sep 17, 2005 at 03:26:40PM -0700, Greg KH wrote:
-> > On Sat, Sep 17, 2005 at 11:52:42PM +0200, Karsten Keil wrote:
-> > >  	// Cancel all USB transfers on this B channel
-> > > +	b_out->urb[0]->transfer_flags |= URB_ASYNC_UNLINK;
-> > >  	usb_unlink_urb(b_out->urb[0]);
-> > > +	b_out->urb[1]->transfer_flags |= URB_ASYNC_UNLINK;
-> > 
-> > URB_ASYNC_UNLINK is now gone in 2.6.14-rc1, so this change will break
-> > the build :(
-> > 
-> 
-> OK, what would be the correct fix ?
+"David S. Miller" <davem@davemloft.net> writes:
 
-Found out myself, that usb_unlink_urb is always async now, so URB_ASYNC_UNLINK is
-really obsolete and removing the lines should be enough.
+> From: Ed L Cashin <ecashin@coraid.com>
+> Date: Fri, 16 Sep 2005 09:36:51 -0400
+>
+>> I've been working with Jim MacBaine, and he reports that the patch
+>> below gets rid of the problem.  I don't know why.  When I test
+>> le64_to_cpup by itself, it works as expected.
+>
+> This patch should fix the bug.
+>
+> diff --git a/arch/sparc64/kernel/una_asm.S b/arch/sparc64/kernel/una_asm.S
+> --- a/arch/sparc64/kernel/una_asm.S
+> +++ b/arch/sparc64/kernel/una_asm.S
 
-> Documentation/usb/URB.txt still point to URB_ASYNC_UNLINK for such cases.
-> 
+So it's OK to use the "...._to_cpup" macros with unaligned pointers?
+I'm asking whether ...
 
-Should be adapted too.
+  1) Passing le64_to_cpup an unaligned pointer is "OK" and within the
+     intended use of the function.  I'm having trouble finding whether
+     this is documented somewhere.
+
+  2) These new changes to the sparc64 unaligned access fault handling
+     will make it OK to leave the aoe driver the way it is in the
+     mainline kernel.
+
+...
+> diff --git a/arch/sparc64/kernel/unaligned.c b/arch/sparc64/kernel/unaligned.c
+
 
 -- 
-Karsten Keil
-SuSE Labs
-ISDN development
+  Ed L Cashin <ecashin@coraid.com>
+

@@ -1,68 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932351AbVISHWe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932354AbVISHY7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932351AbVISHWe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 03:22:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932354AbVISHWe
+	id S932354AbVISHY7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 03:24:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932357AbVISHY7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 03:22:34 -0400
-Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:11156 "HELO
-	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932351AbVISHWd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 03:22:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Subject:From:To:Cc:In-Reply-To:References:Content-Type:Date:Message-Id:Mime-Version:X-Mailer:Content-Transfer-Encoding;
-  b=fpu91WjUWvzN4xRKswq/C1KMNhsVdxeJMe9utJe2HKam+HFNzT+FwuHAj+BP0/Y31rDEuV9n5IKzFO29qWbiL5ukUfAWhFphZLfneI4fxwTyexo8EbKy2AA4ouqWI2dr42isbCIapjUURz4MXENYOb5W6NlWSDsnhfnUQMprG2w=  ;
-Subject: Re: PATCH: Fix race in cpu_down (hotplug cpu)
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-To: Shaohua Li <shaohua.li@intel.com>
-Cc: vatsa@in.ibm.com, Nigel Cunningham <ncunningham@cyclades.com>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1127113930.4087.6.camel@linux-hp.sh.intel.com>
-References: <59D45D057E9702469E5775CBB56411F171F7E0@pdsmsx406>
-	 <20050919051024.GA8653@in.ibm.com>
-	 <1127107887.3958.9.camel@linux-hp.sh.intel.com>
-	 <20050919055715.GE8653@in.ibm.com> <1127110271.9696.97.camel@localhost>
-	 <20050919062336.GA9466@in.ibm.com>
-	 <1127111830.4087.3.camel@linux-hp.sh.intel.com>
-	 <1127111784.5272.10.camel@npiggin-nld.site>
-	 <1127113930.4087.6.camel@linux-hp.sh.intel.com>
-Content-Type: text/plain
-Date: Mon, 19 Sep 2005 17:22:18 +1000
-Message-Id: <1127114538.5272.16.camel@npiggin-nld.site>
+	Mon, 19 Sep 2005 03:24:59 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:3273 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932354AbVISHY6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 03:24:58 -0400
+Date: Mon, 19 Sep 2005 09:24:46 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Martin =?iso-8859-1?Q?v=2E_L=F6wis?= <martin@v.loewis.de>
+Cc: Martin Mares <mj@ucw.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [Patch] Support UTF-8 scripts
+Message-ID: <20050919072446.GF1893@elf.ucw.cz>
+References: <4NsP1-3YF-21@gated-at.bofh.it> <4NsOZ-3YF-9@gated-at.bofh.it> <4NsYH-4bv-27@gated-at.bofh.it> <4NtBr-4WU-3@gated-at.bofh.it> <4NtL0-5lQ-13@gated-at.bofh.it> <432B2C49.8080008@v.loewis.de> <20050917120123.GA3095@ucw.cz> <432C0B51.704@v.loewis.de> <20050919070820.GA2382@elf.ucw.cz> <432E6649.1070408@v.loewis.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <432E6649.1070408@v.loewis.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-09-19 at 15:12 +0800, Shaohua Li wrote:
-> On Mon, 2005-09-19 at 16:36 +1000, Nick Piggin wrote:
-
-> > Ah, actually I have a patch which makes all CPU idle threads
-> > run with preempt disabled and only enable preempt when scheduling.
-> > Would that help?
-> It should solve the issue to me. Should we take care of the latency?
-> acpi_processor_idle might execute for a long time.
+On Po 19-09-05 09:18:33, "Martin v. Löwis" wrote:
+> Pavel Machek wrote:
+> > Why is binfmt_misc not enough for you?
 > 
+> For two reasons: for one, it has the overhead of yet another
+> exec call. This is different from usages for, say, Java byte
+> code or Python byte code, where the registered interpreter already
+> is the eventual binary which has to be invoked anyway; for
+> a binfmt_misc application, you need an additional wrapper
+> which reinterprets the first line, and then invokes the eventual
+> interpreter.
 
-Oh really? I think yes, the latency should be taken care of because
-we want to be able to provide good latency even for !preempt kernels.
-If a solution can be found for acpi_processor_idle, that would be
-ideal.
+Who cares? exec is fast.
 
-IMO it always felt kind of hackish to run the idle threads with
-preempt on.
+> The other reason is availability: as an author of an UTF-8
+> script, you would have to communicate to your users that they
+> need the right binfmt_misc wrapper installed (which they may
+> have to build first). While installing additional stuff to
+> run a single program is acceptable for large applications,
+> it is likely not for script files. To make the feature useful
+> in practice, it must be builtin.
 
-Thanks,
-Nick
+This is distribution problem, not kernel problem. "/bin/ls should be
+built into kernel, because otherwise you can't call /bin/ls from
+script" is not an argument.
 
+If UTF-8 compatibility is important, distros will get it right. If it
+is not, you loose, but at least kernel is not messed up.
+
+								Pavel
 -- 
-SUSE Labs, Novell Inc.
-
-
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+if you have sharp zaurus hardware you don't need... you know my address

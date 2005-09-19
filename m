@@ -1,40 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932323AbVISGDe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932324AbVISGJK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932323AbVISGDe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 02:03:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbVISGDe
+	id S932324AbVISGJK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 02:09:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932327AbVISGJJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 02:03:34 -0400
-Received: from paleosilicon.orionmulti.com ([209.128.68.66]:37263 "EHLO
-	paleosilicon.orionmulti.com") by vger.kernel.org with ESMTP
-	id S932323AbVISGDe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 02:03:34 -0400
-X-Envelope-From: hpa@zytor.com
-Message-ID: <432E5498.9000805@zytor.com>
-Date: Sun, 18 Sep 2005 23:03:04 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: 7eggert@gmx.de
-CC: Bernd Petrovitsch <bernd@firmix.at>,
-       =?ISO-8859-1?Q?=22Martin_v=2E_?= =?ISO-8859-1?Q?L=F6wis=22?= 
-	<martin@v.loewis.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Patch] Support UTF-8 scripts
-References: <4Nvab-7o5-11@gated-at.bofh.it> <4Nvab-7o5-13@gated-at.bofh.it> <4Nvab-7o5-15@gated-at.bofh.it> <4Nvab-7o5-17@gated-at.bofh.it> <4Nvab-7o5-19@gated-at.bofh.it> <4Nvab-7o5-21@gated-at.bofh.it> <4Nvab-7o5-23@gated-at.bofh.it> <4Nvab-7o5-25@gated-at.bofh.it> <4Nvab-7o5-27@gated-at.bofh.it> <4NvjM-7CU-7@gated-at.bofh.it> <4NvjM-7CU-5@gated-at.bofh.it> <4NxbR-20S-1@gated-at.bofh.it> <4NEn7-3M5-7@gated-at.bofh.it> <4NTvO-yJ-13@gated-at.bofh.it> <4O1MJ-3Hf-5@gated-at.bofh.it> <4O8Oh-5jp-7@gated-at.bofh.it> <E1EH4lL-0001Iz-Lx@be1.lrz>
-In-Reply-To: <E1EH4lL-0001Iz-Lx@be1.lrz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 19 Sep 2005 02:09:09 -0400
+Received: from nproxy.gmail.com ([64.233.182.203]:38675 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932324AbVISGJI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 02:09:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=nEyWeDrMx0LVpeNnBkIw0CPMWaM1ukbkvJtbySxV0VPoWyXrPeDYM8W08KAh7toSc4GSoqklDIFHaG6yT3FKhrH9SMJzd8J1+oQunuVDnbOAAE7G6QXQikFftyTO3UUjzyXIx4crehJeAuDuuFISuFYFHl4kA2UzornzAfVo8tM=
+Message-ID: <2cd57c9005091823093cf90217@mail.gmail.com>
+Date: Mon, 19 Sep 2005 14:09:04 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+Reply-To: coywolf@gmail.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: p = kmalloc(sizeof(*p), )
+Cc: Al Viro <viro@ftp.linux.org.uk>, Linus Torvalds <torvalds@osdl.org>,
+       Willy Tarreau <willy@w.ods.org>, Robert Love <rml@novell.com>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1127079026.8932.13.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050918100627.GA16007@flint.arm.linux.org.uk>
+	 <1127061146.6939.6.camel@phantasy>
+	 <20050918165219.GA595@alpha.home.local>
+	 <20050918171845.GL19626@ftp.linux.org.uk>
+	 <Pine.LNX.4.58.0509181028140.26803@g5.osdl.org>
+	 <20050918190714.GO19626@ftp.linux.org.uk>
+	 <1127079026.8932.13.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bodo Eggert wrote:
+On 9/19/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> > It would be very useful when e.g. tracking down improper uses of
+> > struct file, struct dentry, etc. - stuff that should always be
+> > allocated by one helper function.  Same goes for e.g. net_device -
 > 
-> It will be the first POSIX kernel to correctly support utf-8 scripts.
-> It's 2005, and according to other(?) posters, this should be standard.
+> Another useful trick here btw is to make such objects contain (when
+> debugging)
 > 
+>         void *magic_ptr;
+> 
+> which is initialised as foo->magic_ptr = foo;
+> 
+> That catches anyone copying them and tells you what got copied
 
-UTF-8, yes.  BOM bullshit, no.
-
-	-hpa
+seems like C++ RTTI
+-- 
+Coywolf Qi Hunt
+http://sosdg.org/~coywolf/

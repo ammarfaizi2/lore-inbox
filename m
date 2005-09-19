@@ -1,48 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932476AbVISQAb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932484AbVISQAo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932476AbVISQAb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 12:00:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932481AbVISQAb
+	id S932484AbVISQAo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 12:00:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932481AbVISQAo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 12:00:31 -0400
-Received: from [212.76.80.60] ([212.76.80.60]:15365 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S932476AbVISQA3 (ORCPT
+	Mon, 19 Sep 2005 12:00:44 -0400
+Received: from xenotime.net ([66.160.160.81]:34272 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932484AbVISQAn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 12:00:29 -0400
-From: Al Boldi <a1426z@gawab.com>
-To: coywolf@gmail.com
-Subject: Re: Fork capture
-Date: Mon, 19 Sep 2005 18:01:47 +0300
-User-Agent: KMail/1.5
-Cc: linux-assembly@vger.kernel.org, linux-kernel@vger.kernel.org,
-       linux-smp@vger.kernel.org
-References: <200509181748.40029.a1426z@gawab.com> <2cd57c9005091823551e49bc23@mail.gmail.com>
-In-Reply-To: <2cd57c9005091823551e49bc23@mail.gmail.com>
+	Mon, 19 Sep 2005 12:00:43 -0400
+Date: Mon, 19 Sep 2005 09:00:41 -0700 (PDT)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Marc Perkel <marc@perkel.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Reiser 4 - the BIG picture - (think BIG picture)
+In-Reply-To: <432EDD17.3080107@perkel.com>
+Message-ID: <Pine.LNX.4.58.0509190855160.27719@shark.he.net>
+References: <432EDD17.3080107@perkel.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509191801.47546.a1426z@gawab.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Coywolf Qi Hunt wrote:
-> On 9/18/05, Al Boldi <a1426z@gawab.com> wrote:
-> > Is there a way to capture a process-fork?
-> >
-> > Something like:
-> > process/kModule A monitors procs for forking, captures it and manages
-> > further processing.
+On Mon, 19 Sep 2005, Marc Perkel wrote:
+
+> OK - lets reset on the personal attacks stuff. I know there are people
+> who like to goat people into fighting about this but STOP IT.
 >
-> Look at the fork_connector patch.
+> The question that should be answered is - is Reiser4 ready yet - and
+> that should be answered only by people who actually know what they are
+> talking about. Someone saying "I had Reiser 3 in 2001 and it crashed my
+> drive man" has nothing to do with this decision.
+>
+> So - may I ask ....
+>
+> Does Reiser 4 break anything? What is the down side of including it?
 
-Nice, but how could this be used to _manage_ further process-execution?
+That needed changes won't be made since it has been included.
 
-Also, would a user-space solution be possible?
+> Does Reiser 4 lack anything that is required? Has it met the criteria
+> for inclusion?
 
-Thanks!
+I can't answer that.
 
---
-Al
+> If Reiser 4 isn't ready then what specifically needs to be done to get
+> it ready? Let's post a list.
+>
+> How ready is Reiser 4 compared to other file systems at the point of
+> inclusion? Is it ripe yet?
 
+Review is the biggest thing that is needed now, and there aren't
+a huge number of qualified reviewers, so it's largely a resourcing
+issue.
+
+How do we get the qualified reviewers to review it & post their
+comments?  They also have other things to do, so we can't expect
+them to drop their current activities and review it this week.
+
+-- 
+~Randy

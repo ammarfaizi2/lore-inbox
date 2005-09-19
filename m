@@ -1,49 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932300AbVISCxn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932299AbVISDBL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932300AbVISCxn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 22:53:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbVISCxn
+	id S932299AbVISDBL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 23:01:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbVISDBL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 22:53:43 -0400
-Received: from nproxy.gmail.com ([64.233.182.199]:64117 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932300AbVISCxm convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 22:53:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=fLGNiZwwD3NCpeU0MEvFUrVvXCpehbrHQ9Te52caFaTYHPqlcXrlAlDRHZJIcJIU/2pjbtvu9MkXGHfyS1GGH1LMy6ShygY63SCNOa/33UEpa51h9mIOVww2c0cmr+4AcUXNUfvnKJ8vo3ohu8TyDioO0hRHH+VSPT56wcxSmFg=
-Message-ID: <2cd57c90050918195350d2b15e@mail.gmail.com>
-Date: Mon, 19 Sep 2005 10:53:41 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-Reply-To: coywolf@gmail.com
-To: "Valdis.Kletnieks@vt.edu" <Valdis.Kletnieks@vt.edu>
-Subject: Re: Spam Filtering for Kernel mailing list
-Cc: Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200509182356.j8INuVdt009829@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <432DC78F.7040901@perkel.com>
-	 <BFE37657-EF94-41E6-9A93-71101DBFC997@mac.com>
-	 <432DF8D9.703@perkel.com>
-	 <200509182356.j8INuVdt009829@turing-police.cc.vt.edu>
+	Sun, 18 Sep 2005 23:01:11 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:45229 "EHLO
+	pd4mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S932299AbVISDBK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Sep 2005 23:01:10 -0400
+Date: Sun, 18 Sep 2005 20:59:30 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Wanted - Recommendation of good motherboard for AMD Athlon 64   X2
+In-reply-to: <4Ohy6-1rF-3@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <432E2992.9080403@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <4Ogsp-8lG-11@gated-at.bofh.it> <4Ogsp-8lG-13@gated-at.bofh.it>
+ <4Ogso-8lG-9@gated-at.bofh.it> <4Ohy6-1rF-3@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/19/05, Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> wrote:
-> On Sun, 18 Sep 2005 16:31:37 PDT, Marc Perkel said:
-> > spam. I have the most advanced spam filter on the planet and I can fix
-> > the problem.
-> 
-> Which is why you're now independently wealthy after having sold said
-> filter to AOL, Yahoo, Goggle, and MSN, right?
-> 
+Marc Perkel wrote:
+> And lack of an ethernet driver. I had to install an Intel card to get 
+> Ethernet to work.
 
+How so? forcedeth should work fine..
 
-Try to offer something unsolicited, plus exaggerating.
-OK, I consider it a spam. The first spam got replies on this list. ;) 
 -- 
-Coywolf Qi Hunt
-http://sosdg.org/~coywolf/
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
+

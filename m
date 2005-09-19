@@ -1,66 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932648AbVISXbN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932654AbVISXew@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932648AbVISXbN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 19:31:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932654AbVISXbN
+	id S932654AbVISXew (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 19:34:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932656AbVISXew
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 19:31:13 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:43398 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932648AbVISXbN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 19:31:13 -0400
-Date: Tue, 20 Sep 2005 00:31:04 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: linux-fbdev-devel@lists.sourceforge.net
-cc: Jan Dittmer <jdittmer@ppp0.net>, Jurriaan <thunder7@xs4all.nl>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Linux-fbdev-devel] Re: no cursor on nvidiafb console in
- 2.6.14-rc1-mm1
-In-Reply-To: <432F36B4.8030209@gmail.com>
-Message-ID: <Pine.LNX.4.56.0509200030280.611@pentafluge.infradead.org>
-References: <20050919175116.GA8172@amd64.of.nowhere> <432F08C1.8010705@ppp0.net>
- <432F36B4.8030209@gmail.com>
+	Mon, 19 Sep 2005 19:34:52 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:61365 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932654AbVISXew (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 19:34:52 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>
+X-Fcc: ~/Mail/linus
+Cc: Badari Pulavarty <pbadari@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.14-rc1 wait()/SIG_CHILD bevahiour
+In-Reply-To: Linus Torvalds's message of  Monday, 19 September 2005 12:14:54 -0700 <Pine.LNX.4.58.0509191206040.2553@g5.osdl.org>
+X-Fcc: ~/Mail/linus
+X-Shopping-List: (1) Mendacious eruption lips
+   (2) Lousy brunch money
+   (3) Static dissident sodium excitements
+Message-Id: <20050919233440.AC5D8180E1D@magilla.sf.frob.com>
+Date: Mon, 19 Sep 2005 16:34:40 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The test program is buggy.  Here is one clue:
 
-the hwcur module parameter is set to off by default. Should it be removed?
+	elm3b29:~ # strace -p 30023
+	Process 30023 attached - interrupt to quit
+	futex(0x2aaaaaddf118, FUTEX_WAIT, 2, NULL
 
-On Tue, 20 Sep 2005, Antonino A. Daplas wrote:
+It's not anywhere near wait4.  It's deadlocked in the rand() call inside
+rand_delay, called from sigchld_handler.  You cannot safely call rand
+inside a signal handler, for exactly this reason.  The signal came during
+another rand call and attempted to reenter.  If this sort of deadlock is
+the failure mode of your real-world case, then it is probably an
+application bug.  If this deadlock is just a mistake in your test program
+here, then you'll need to give us a corrected test program to pursue
+whatever real kernel issue you may have.
 
-> Jan Dittmer wrote:
-> > jurriaan wrote:
-> >> After updating from 2.6.13-rc4-mm1 to 2.6.14-rc1-mm1 I see no cursor on
-> >> my console.
-> > 
-> > Me too, 2.6.14-rc1-git4. Didn't try any kernel before with framebuffer,
-> > sorry. No fb options on the kernel command line.
-> > 
-> 
-> Can you try reversing this particular diff?
-> 
-> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blobdiff_plain;h=af99ea96012ec72ef57fd36655a6d8aaa22e809e;hp=30f80c23f934bb0a76719232f492153fc7cca00a
-> 
-> Tony
-> 
-> 
-> 
-> 
-> -------------------------------------------------------
-> SF.Net email is sponsored by:
-> Tame your development challenges with Apache's Geronimo App Server. Download
-> it for free - -and be entered to win a 42" plasma tv or your very own
-> Sony(tm)PSP.  Click here to play: http://sourceforge.net/geronimo.php
-> _______________________________________________
-> Linux-fbdev-devel mailing list
-> Linux-fbdev-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/linux-fbdev-devel
-> 
+
+Thanks,
+Roland

@@ -1,146 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932413AbVISK3d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932410AbVISK2v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932413AbVISK3d (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 06:29:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932414AbVISK3d
+	id S932410AbVISK2v (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 06:28:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbVISK2u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 06:29:33 -0400
-Received: from [213.132.87.177] ([213.132.87.177]:26315 "EHLO gserver.ymgeo.ru")
-	by vger.kernel.org with ESMTP id S932413AbVISK3c convert rfc822-to-8bit
+	Mon, 19 Sep 2005 06:28:50 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:60644 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932410AbVISK2u
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 06:29:32 -0400
-From: Ustyugov Roman <dr_unique@ymg.ru>
-To: linux-kernel@vger.kernel.org
-Subject: [BUG] module-init-tools
-Date: Mon, 19 Sep 2005 14:32:58 +0400
-User-Agent: KMail/1.8
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200509191432.58736.dr_unique@ymg.ru>
-X-OriginalArrivalTime: 19 Sep 2005 10:36:45.0454 (UTC) FILETIME=[082CE2E0:01C5BD06]
+	Mon, 19 Sep 2005 06:28:50 -0400
+Subject: Re: I request inclusion of reiser4 in the mainline kernel
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, thenewme91@gmail.com,
+       Christoph Hellwig <hch@infradead.org>,
+       Denis Vlasenko <vda@ilport.com.ua>, chriswhite@gentoo.org,
+       LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+In-Reply-To: <432E5024.20709@namesys.com>
+References: <200509182004.j8IK4JNx012764@inti.inf.utfsm.cl>
+	 <432E5024.20709@namesys.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 19 Sep 2005 11:51:21 +0100
+Message-Id: <1127127081.22124.12.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Sul, 2005-09-18 at 22:44 -0700, Hans Reiser wrote:
+> We are supposed to write a filesystem so that overheating CPUs do not
+> make it crash?
 
-I found a bug in module-init-tools.
+The reverse - and before you lose data.
 
-'lsmod' shows a wrong module name, when module name complied with some 
-"define" at one of kernel header files.
+> I think Alan Cox is the only poster who has no intention of using
+> Reiser4 but said at one point that he thinks it should go in.
 
-For example,
+If its clean enough then yes, like any other fs. Until then no.
 
-File "current.c"
-=======================
-#include <linux/kernel.h>
-#include <linux/module.h>
-
-int init_module(void) {
-
-    return 0;
-}
-
-void cleanup_module() {
-}
-
-MODULE_LICENSE("GPL");
-=======================
-
-Makefile:
-
-=======================
-obj-m   += current.o
-=======================
-
-Make this module and type commands:
-
-insmod current.ko
-lsmod
-
-And we can see:
-
-Module                  Size  Used by
-get_current()           1152  0             <---- Oops,  must be 'current'
-smbfs                  61432  2
-hfsplus                56708  0
-nls_cp866               5120  1
-nls_iso8859_1           4096  0
-nls_cp437               5760  0
-vfat                   12800  0
-fat                    37916  1 vfat
-nls_utf8                2048  1
-           .....
-
-File <asm/current.h>: 
-
-===================
-          ...
-#define    current    get_current()
-          ...
-===================
-
-Try to remove module:
-
-romanu:/current # rmmod current
-ERROR: Module current does not exist in /proc/modules
-romanu:/current # rmmod -v "get_current()"
-rmmod get_current(), wait=no
-romanu:/current # 
-
-I can't remove module with 'rmmod current', 
-but can with 
-        rmmod "get_current()"
-
-Is it a bug?
-
-Then, next example.
-
-File 'init_stack.c'
-=================
-#include <linux/kernel.h>
-#include <linux/module.h>
-
-int init_module(void) {
-
-    return 0;
-}
-
-void cleanup_module() {
-}
-
-MODULE_LICENSE("GPL");
-=================
-
-Make and insert module 'init_stack.ko':
-
-lsmod:
-
-Module                  Size  Used by
-get_current()           1152  0
-(init_thread_union.stack)     1152  0    <---- Oops,  must be 'init_stack'
-smbfs                  61432  2
-hfsplus                56708  0
-nls_cp866               5120  1
-nls_iso8859_1           4096  0
-
-Now I can't to remove it at all ! :(:(
-
->From <asm/thread_info.h>
-
-====================
-        ...
-#define init_stack              (init_thread_union.stack)
-        ...
-====================
-
-Some information about software:
-
-OS: SuSE Pro 9.3
-kernel version:  2.6.11.4-21.8-default
-module-init-tools version: 3.2_pre1-7
-
---
-WBR, Roman.

@@ -1,48 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932715AbVISW0V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932712AbVISWaW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932715AbVISW0V (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 18:26:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932714AbVISW0V
+	id S932712AbVISWaW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 18:30:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932713AbVISWaW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 18:26:21 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:39092
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932713AbVISW0U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 18:26:20 -0400
-Date: Mon, 19 Sep 2005 15:26:28 -0700 (PDT)
-Message-Id: <20050919.152628.125729992.davem@davemloft.net>
-To: ecashin@coraid.com
-Cc: trivial@rustcorp.com.au, linux-kernel@vger.kernel.org, rolandd@cisco.com
-Subject: Re: [patch 2.6.13] document alignment and byteorder macros
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <87ll1suali.fsf@coraid.com>
-References: <87ll1suali.fsf@coraid.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Mon, 19 Sep 2005 18:30:22 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:17833 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S932712AbVISWaV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 18:30:21 -0400
+Subject: Re: PWC 10.x driver in the kernel?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Joshua Kwan <joshk@triplehelix.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <dgn8vo$oli$1@sea.gmane.org>
+References: <dgn8vo$oli$1@sea.gmane.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Mon, 19 Sep 2005 23:56:27 +0100
+Message-Id: <1127170587.22124.33.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ed L Cashin <ecashin@coraid.com>
-Date: Mon, 19 Sep 2005 15:22:01 -0400
-
-> This patch comments the fact that although passing le64_to_cpup et
-> al. is within the intended use of the byteorder macros, using
-> get_unaligned is the recommended way to go.
+On Llu, 2005-09-19 at 14:01 -0700, Joshua Kwan wrote:
+> Hi,
 > 
-> Please speak up if there's a better place for this documentation to go
-> or a better way to say it.
-> 
-> 
-> document alignment and byteorder macros
-> 
-> Signed-off-by: Ed L. Cashin <ecashin@coraid.com>
+> I've just acquired a Logitech webcam and I couldn't get it to work with
+> the version of the PWC driver currently in the kernel. Given all the
+> contention about PWCX etc., are there plans to merge in the new 10.x
+> version of the driver available at http://www.saillard.org/linux/pwc/?
+> (This version does work with my webcam.) Just like the one in the kernel
+> tree right now, this version does not require pwcx at all (the binary
+> blob was reverse-engineered), so I think it's a big improvement.
 
-I think this is fine, I'll merge this in with my sparc64
-fix when I send that upstream.
+Its waiting Luc submitting it
 
-Please merge the AOE change to use get_unaligned() when
-you get a chance.
-
-Thanks a lot.

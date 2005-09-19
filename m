@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932567AbVISSuP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932569AbVISSv3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932567AbVISSuP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 14:50:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932568AbVISSuP
+	id S932569AbVISSv3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 14:51:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932571AbVISSv3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 14:50:15 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:8721 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S932567AbVISSuO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 14:50:14 -0400
-Message-ID: <432F09E8.6040703@tmr.com>
-Date: Mon, 19 Sep 2005 14:56:40 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+	Mon, 19 Sep 2005 14:51:29 -0400
+Received: from rwcrmhc14.comcast.net ([216.148.227.89]:17133 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S932569AbVISSv2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 14:51:28 -0400
+Message-ID: <432F08AC.1040305@namesys.com>
+Date: Mon, 19 Sep 2005 11:51:24 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Alan Stern <stern@rowland.harvard.edu>
-CC: Pavel Machek <pavel@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] Re: 2.6.14-rc1 load average calculation broken?
-References: <432AE79B.80208@ppp0.net> <Pine.LNX.4.44L0.0509161214490.4972-100000@iolanthe.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0509161214490.4972-100000@iolanthe.rowland.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: thenewme91@gmail.com, Christoph Hellwig <hch@infradead.org>,
+       Denis Vlasenko <vda@ilport.com.ua>, chriswhite@gentoo.org,
+       LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: I request inclusion of reiser4 in the mainline kernel
+References: <432AFB44.9060707@namesys.com>	 <200509171415.50454.vda@ilport.com.ua>	 <200509180934.50789.chriswhite@gentoo.org>	 <200509181321.23211.vda@ilport.com.ua>	 <20050918102658.GB22210@infradead.org>	 <b14e81f0050918102254146224@mail.gmail.com>	 <1127079524.8932.21.camel@localhost.localdomain>	 <432E4786.7010001@namesys.com> <1127126616.22124.7.camel@localhost.localdomain>
+In-Reply-To: <1127126616.22124.7.camel@localhost.localdomain>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Stern wrote:
-> On Fri, 16 Sep 2005, Jan Dittmer wrote:
+Alan Cox wrote:
 
+>
+>Perhaps you do. The kernel follows a coding style. It isn't my coding
+>style but like everyone else except you I try and follow it.
+>  
+>
+I also don't care enough about coding style issues to resist them.;-) 
+We have conformed to the coding style issues that were pointed out, and
+as more are pointed out we will conform to them.
 
-> I recognize the problem.  This experimental patch should fix it:
-> 
-> http://marc.theaimsgroup.com/?l=linux-scsi&m=112681273931290&w=2
-> 
-> Alan Stern
-> 
-Hum, I wonder if this could be related to my problem of the USB mass 
-storage becoming unreachable after a while. I have no problems with 
-2.6.13-rc5-git1, but 2.6.14-rc1 and 2.6.13 show the problem. If I see 
-the problem again I'll look for the hung processes, but I can't run 
-those kernels on the production system any more, if it dies on the 
-weekend I have a 260 miles round trip to reboot it.
+Hans
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me

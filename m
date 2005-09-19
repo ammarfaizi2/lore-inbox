@@ -1,70 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932553AbVISTgS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932608AbVISThf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932553AbVISTgS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 15:36:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932608AbVISTgS
+	id S932608AbVISThf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 15:37:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932609AbVISThf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 15:36:18 -0400
-Received: from zproxy.gmail.com ([64.233.162.206]:35077 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932553AbVISTgQ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 15:36:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=YXmMys1MMJh7rUctef7qNZABkY4bA7LYPA7J6yJD4Naqvx1F9objl58m9nyrbGKsaSz8J7Z5qFzHRvLg74YLIqdk0HebiRfZyrsT3X9tNZKO6lU/KwMlpSGZOPgyGARAkJd2mD0eFFeJlyWTE1w9SskTWMruajP7L9xZ0xCb3is=
-Message-ID: <feed8cdd05091912362ac13f3e@mail.gmail.com>
-Date: Mon, 19 Sep 2005 12:36:15 -0700
-From: Stephen Pollei <stephen.pollei@gmail.com>
-Reply-To: stephen.pollei@gmail.com
-To: Nikita Danilov <nikita@clusterfs.com>,
-       Alexander Zarochentcev <zam@namesys.com>
-Subject: Re: I request inclusion of reiser4 in the mainline kernel
-Cc: Denis Vlasenko <vda@ilport.com.ua>, LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>,
-       Hans Reiser <reiser@namesys.com>
-In-Reply-To: <17197.15183.235861.655720@gargle.gargle.HOWL>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <432AFB44.9060707@namesys.com>
-	 <200509171416.21047.vda@ilport.com.ua>
-	 <17197.15183.235861.655720@gargle.gargle.HOWL>
+	Mon, 19 Sep 2005 15:37:35 -0400
+Received: from mail-in-02.arcor-online.net ([151.189.21.42]:34029 "EHLO
+	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
+	id S932608AbVISThe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 15:37:34 -0400
+Date: Mon, 19 Sep 2005 21:37:26 +0200 (CEST)
+From: Bodo Eggert <7eggert@gmx.de>
+To: Bernd Petrovitsch <bernd@firmix.at>
+cc: 7eggert@gmx.de, "Martin v. =?ISO-8859-1?Q?L=F6wis?=" <martin@v.loewis.de>,
+       "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: [Patch] Support UTF-8 scripts
+In-Reply-To: <1127077419.8395.35.camel@gimli.at.home>
+Message-ID: <Pine.LNX.4.58.0509192132250.2825@be1.lrz>
+References: <4Nvab-7o5-11@gated-at.bofh.it> <4Nvab-7o5-13@gated-at.bofh.it>
+  <4Nvab-7o5-15@gated-at.bofh.it> <4Nvab-7o5-17@gated-at.bofh.it> 
+ <4Nvab-7o5-19@gated-at.bofh.it> <4Nvab-7o5-21@gated-at.bofh.it> 
+ <4Nvab-7o5-23@gated-at.bofh.it> <4Nvab-7o5-25@gated-at.bofh.it> 
+ <4Nvab-7o5-27@gated-at.bofh.it> <4NvjM-7CU-7@gated-at.bofh.it> 
+ <4NvjM-7CU-5@gated-at.bofh.it> <4NxbR-20S-1@gated-at.bofh.it> 
+ <4NEn7-3M5-7@gated-at.bofh.it> <4NTvO-yJ-13@gated-at.bofh.it> 
+ <4O1MJ-3Hf-5@gated-at.bofh.it> <4O8Oh-5jp-7@gated-at.bofh.it> 
+ <E1EH4lL-0001Iz-Lx@be1.lrz> <1127077419.8395.35.camel@gimli.at.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/18/05, Nikita Danilov <nikita@clusterfs.com> wrote:
-> Denis Vlasenko writes:
->  > On Friday 16 September 2005 20:05, Hans Reiser wrote:
->  > You can declare functions even if you never use them.
->  > Thus here you can avoid using #if/#endif:
-> It's other way around: declaration is guarded by the preprocessor
-> conditional so that nobody accidentally use znode_is_loaded() outside of
-> the debugging mode.
-Except it doesn't disallow someone from using znode_is_loaded, if you
-wanted to do that you would have done this....
-#if defined(REISER4_DEBUG) || defined(WHATEVER_ELSE)
-int znode_is_loaded(const znode * node /* znode to query */ );
-#else
-#define znode_is_loaded(I_dont_care_you_are_going_to_) \
-   } )die(]0now[>anyway<}}}}}}*bye*}
-#endif
-That way instead of silently(or -Wmissing-prototypes gving a warning)
-quessing at a prototype and *maybe* geting a link time error, you get
-a nice compile-time bomb-out.
+On Sun, 18 Sep 2005, Bernd Petrovitsch wrote:
+> On Sun, 2005-09-18 at 21:23 +0200, Bodo Eggert wrote:
 
-So unless you have -Wmissing-prototypes and -Werror set then your
-#if/#endif does very little indeed, especially with the size of kernel
-it's easy to ignore yet another warning even if the missing-prototype
-warning was set.
-And if you would have gotten a link error then that is what you were
-really depending on to save your bacon.
+> > >, etc.). Since the
+> > > kernel can start java classes directly, you can probably make a similar
+> > > thing for the UTF-8 stuff.
+> > 
+> > If MSDOS text files are text files are legal scripts, the kernel
+> > should recognize [\x0D\x0A] as valid line breaks.
+> 
+> The Unix worls does recognize the line breaks.
 
-P.S. I'd make the define one line if gmail didn't word wrap too much.
-
+Create a valid text file with macintosh line breaks (as allowed in unicode 
+files) and try it.
 -- 
-http://dmoz.org/profiles/pollei.html
-http://sourceforge.net/users/stephen_pollei/
-http://www.orkut.com/Profile.aspx?uid=2455954990164098214
-http://stephen_pollei.home.comcast.net/
+If enough data is collected, a board of inquiry can prove ANYTHING. 

@@ -1,62 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932668AbVISWB0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932466AbVISWA6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932668AbVISWB0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 18:01:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932470AbVISWB0
+	id S932466AbVISWA6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 18:00:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932668AbVISWA6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 18:01:26 -0400
-Received: from web51008.mail.yahoo.com ([206.190.38.139]:6801 "HELO
-	web51008.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S932668AbVISWBZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 18:01:25 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=kV/wrrDUizDwjNgEu6B6WBYQGGwKtPppv3fKjXI8okLiZgYCbS8VrwD2mb60KFk8tCQ521SdeoTlUv7XtmYy6ScXR8LTu/U6v1CDvTk4xBQ/1+dxF+HvOrUcs+zIOZ7PQbmtosgiI2u9okRCXbGRLVj9Uv2zXyZ58P5g31wwksw=  ;
-Message-ID: <20050919220120.41245.qmail@web51008.mail.yahoo.com>
-Date: Mon, 19 Sep 2005 15:01:20 -0700 (PDT)
-From: Ahmad Reza Cheraghi <a_r_cheraghi@yahoo.com>
-Subject: Re: Help by KConfig expansion
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050919170620.GA7720@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 19 Sep 2005 18:00:58 -0400
+Received: from ausc60pc101.us.dell.com ([143.166.85.206]:35418 "EHLO
+	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
+	id S932466AbVISWA5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 18:00:57 -0400
+X-IronPort-AV: i="3.97,123,1125896400"; 
+   d="scan'208"; a="314743776:sNHT36731472"
+Date: Mon, 19 Sep 2005 17:00:56 -0500
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Michael Wu <flamingice@sourmilk.net>,
+       Christoph Hellwig <hch@infradead.org>,
+       James Ketrenos <jketreno@linux.intel.com>,
+       NetDev <netdev@vger.kernel.org>, ieee80211-devel@lists.sourceforge.net,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ieee80211 updates
+Message-ID: <20050919220056.GB3916@lists.us.dell.com>
+References: <4327625D.10808@linux.intel.com> <20050914105409.GB30645@infradead.org> <43285ADF.5030506@linux.intel.com> <20050917092846.GA14083@infradead.org> <432E1069.8010102@pobox.com> <20050919004450.16m2d1hn7les0o00@www.sourmilk.net> <432E4F7A.9040605@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <432E4F7A.9040605@pobox.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
---- Sam Ravnborg <sam@ravnborg.org> wrote:
-
-> > I tryed to do this. I saw how the attribute
-> "comment"
-> > is definded in the zconf.l and zconf.y, and
-> definded
-> > the the attribute "autorule" exactly the same way.
-> But
-> > it still don't work. Even though I changed the
-> > zconf.tab.c_shipped as well but it still dont
-> work.
+On Mon, Sep 19, 2005 at 01:41:14AM -0400, Jeff Garzik wrote:
+> Michael Wu wrote:
+> >If it has a version, then only the maintainer can submit patches - 
 > 
-> You need to generate the source using bison.
-> You must understand that zconf.l is an input file
-> for flex.
-> Likewise zconf.y is input for bison.
+> False.  Presence of an optional label in source code files does not 
+> change the fundamental rules of open source, or the processes 
+> surrounding patch merging in the Linux kernel.  Anybody who feels the 
+> version number should be changed is welcome to submit a patch.  And a 
+> reviewer along the line is welcome to reject such a patch, if they think 
+> it is unwarranted.
 > 
-> See scripts/kconfig/Makefile for how to generate the
-> files.
+> >otherwise the
+> >version is useless for identifying what code you're running. (unless other
 > 
-
-It works. Thanks you very much. 
-
-Regards
-
-A.R.Cheraghi
+> False.  We have plenty of examples of slower-moving drivers where 
+> community consensus often dictates a version number change.
 
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+This is also the reason for the 'srcversion' field available in
+modinfo.  This is a CRC across the source code for a given module (not
+counting #include<*>, but counting #include "*").  The version field
+may not change, but if anything really cares about a particular source
+code copy, and that it hasn't been patched, but the version field not
+updated, they can see that.
+
+Thanks to Rusty for implementing this.
+
+Thanks,
+Matt
+
+-- 
+Matt Domsch
+Software Architect
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

@@ -1,46 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932270AbVISBBX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbVISBOb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932270AbVISBBX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 21:01:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbVISBBX
+	id S932284AbVISBOb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 21:14:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932286AbVISBOb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 21:01:23 -0400
-Received: from mailgw.aecom.yu.edu ([129.98.1.16]:8118 "EHLO
-	mailgw.aecom.yu.edu") by vger.kernel.org with ESMTP id S932270AbVISBBW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 21:01:22 -0400
+	Sun, 18 Sep 2005 21:14:31 -0400
+Received: from w241.dkm.cz ([62.24.88.241]:29588 "EHLO machine.or.cz")
+	by vger.kernel.org with ESMTP id S932283AbVISBOa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Sep 2005 21:14:30 -0400
+Date: Mon, 19 Sep 2005 03:14:28 +0200
+From: Petr Baudis <pasky@suse.cz>
+To: Junio C Hamano <junkio@cox.net>
+Cc: git@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] Cogito-0.15
+Message-ID: <20050919011428.GF22391@pasky.or.cz>
+References: <7vr7c02zgg.fsf@assigned-by-dhcp.cox.net> <7vwtleyml5.fsf@assigned-by-dhcp.cox.net>
 Mime-Version: 1.0
-Message-Id: <a06230970bf53b4a0dfad@[129.98.90.227]>
-In-Reply-To: <mailman.3.1127041200.14075.linux-kernel-daily-digest@lists.us.dell.com>
-References: <mailman.3.1127041200.14075.linux-kernel-daily-digest@lists.us.dell.com>
-Date: Sun, 18 Sep 2005 21:03:00 -0400
-To: linux-kernel@vger.kernel.org
-From: Maurice Volaski <mvolaski@aecom.yu.edu>
-Subject: Re: Segfaults in mkdir under high load. Software or hardware?
-Cc: andrew@walrond.org, bert.hubert@netherlabs.nl
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7vwtleyml5.fsf@assigned-by-dhcp.cox.net>
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 6:00 AM -0500 9/18/05, 
-linux-kernel-daily-digest-request@lists.us.dell.com wrote:
->  >
->>  I have been seeing a similar thing:
->>
->>  ./current:Sep 17 18:00:01 [kernel] mkdir[7696]: segfault at
->>  0000000000000000 rip 000000000040184d rsp 00007fffff826350 error 4
->>
->>  I'm using the plain 2.6.13 (from gentoo vanilla sources), though it
->>  was compiled with
->>  gcc version 3.4.4 (Gentoo 3.4.4-r1, ssp-3.4.4-1.0, pie-8.7.8)
->
->x86_64 ? If so see http://bugzilla.kernel.org/show_bug.cgi?id=4851
+  Hello,
 
-Dual Opteron, and this looks like my issue. It recommends echo 0 > 
-/proc/sys/kernel/randomize_va_space but that has not stopped it from 
-happening, so I'll probably wait for the patch to get merged.
+  this is the release of Cogito-0.15. It fixes several minor bugs, and
+adds a feature or two. The most important thing though is that this
+depends on Git-core-0.99.7 and uses the new command names. Everyone is
+encouraged to upgrade at least to this Cogito version in the next few
+days, since the older Cogito versions likely won't work with the future
+Git-core releases.
+
+  To stay in sync with the Git terminology, Cogito also renames its
+cg-pull to cg-fetch. Since this is a major naming change (I'm not too
+happy about it, personally), cg-pull will stay aliased to cg-fetch for
+at least one (likely two) next major Cogito releases (it also produces a
+warning when invoked as cg-pull). In the more distant future, cg-pull
+will slowly become the new name of cg-update, to make it confusing.
+
+  While at it, we also renamed the *-id scriptlets to cg-*-id. Other
+notable stuff is cg-init respecting the ignore rules, and better UI for
+cg-add wrt. directories (including cg-add -r support).
+
+  Now let's see what the usual bug-right-after-release (major release,
+so a major bug?) will be this time.
+
+  Happy hacking,
+
 -- 
-
-Maurice Volaski, mvolaski@aecom.yu.edu
-Computing Support, Rose F. Kennedy Center
-Albert Einstein College of Medicine of Yeshiva University
+				Petr "Pasky" Baudis
+Stuff: http://pasky.or.cz/
+If you want the holes in your knowledge showing up try teaching
+someone.  -- Alan Cox

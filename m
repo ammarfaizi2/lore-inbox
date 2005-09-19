@@ -1,50 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932560AbVISSa7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932566AbVISShx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932560AbVISSa7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 14:30:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932558AbVISSa7
+	id S932566AbVISShx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 14:37:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932564AbVISShw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 14:30:59 -0400
-Received: from dsl081-059-088.sfo1.dsl.speakeasy.net ([64.81.59.88]:50878 "EHLO
-	piratehaven.org") by vger.kernel.org with ESMTP id S932560AbVISSa7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 14:30:59 -0400
-Date: Mon, 19 Sep 2005 11:30:58 -0700
-From: Brian Pomerantz <bapper@piratehaven.org>
-To: rishikeshsn <rishikeshsn@indiatimes.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: to see 802.11 frames thru kernel code
-Message-ID: <20050919183058.GA477@skull.piratehaven.org>
-References: <200509191711.WAA28816@WS0005.indiatimes.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200509191711.WAA28816@WS0005.indiatimes.com>
-User-Agent: Mutt/1.4.2.1i
-X-homepage: http://www.piratehaven.org/~bapper/
+	Mon, 19 Sep 2005 14:37:52 -0400
+Received: from [218.18.42.37] ([218.18.42.37]:36369 "HELO 202.96.154.15")
+	by vger.kernel.org with SMTP id S932562AbVISShw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 14:37:52 -0400
+Message-ID: <I0MQ@mx.seed.net.tw>
+From: s6tyReF@mail.sysnet.net.tw
+To: 8I7INR@ksts.seed.net.tw
+Subject: =?ISO-8859-1?Q?=20=B7=BF=B5=D8=B2=FA=D3=AA=CF=FA=B9=DC=C0=ED=CF=B5?=
+	=?ISO-8859-1?Q?=CD=B3=D7=EE=D0=C2=CD=C6=B3=F6......?=
+Content-Type: text/plain;
+X-Priority: 3
+X-MSMail-Priority: Normal
+Date: Mon, 19 Sep 2005 14:37:52 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+X-MIME-Autoconverted: from Quoted-Printable to 8bit by alpha.home.local id j8JIcmU5005508
 
-On Mon, Sep 19, 2005 at 10:53:22PM -0400, rishikeshsn wrote:
-> hello,
-> 
-> i want to know:
-> 
-> can i see 802.11 frames in skbuff structure?
-> I get only ethernet II frame format.
-> 
-> thanks already for help.
-> 
+在线测试地址:  http://ltsoft.88ip.cn/dc.htm
 
-This is hardware and driver specific.  Most of the time, the driver
-will have access to the 802.11 header, however, it will reformat the
-packet into a standard ethernet frame before passing it up to the
-network layer.
+随着计算机技术的发展和其在商业上的广泛应用，利用技术手段实现房产企业营销业务管理的信息化、规范化和现代化已经逐渐为各发展商认识和重视.
 
-So, no you cannot see the 802.11 header in a sk_buff because it is
-already stripped off.  If you look in the driver before it hits the
-network layer (in the rx routine) then you may be able to get access
-to it there.
+力天软件凭借其在房地产行业多项解决方案的提供和实施经验，针对目前我国房地产行业营销管理的现状，结合各个房地产公司现有的软硬件投资水平，经过与各大房地产业知名单位的密切合作，在国内率先推出了完全基于浏览器的第三代售楼管理软件--力天房产营销管理系统，目前该系统已经在十余个楼盘项目的销售管理之中成功应用并得到了广泛好评。 
+
+该系统采用了跨地域的B/S（浏览器/服务器）结构设计，全面支持移动办公及异地远程办公，符合房产公司总部与售楼处分离的实际情况。系统包括项目管理、决策管理、销售管理、财务管理、客户关系管理、广告营销管理、办公管理、售后服务管理、统计报表等九大功能模块，基本涵盖了房产企业的各个职能部门的主要工作。
+
+该系统的全面推广和实施，必将使房产企业的营销管理水平提高到一个全新的层次。
 
 
-BAPper
+联系：0 8 6 - 7 5 5 - 6 1 3 2 5 2 1 5   李先生 litao@ltsoft.org   QQ在线:17133845
+
+

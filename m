@@ -1,50 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbVISEX1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932170AbVISEhl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932202AbVISEX1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 00:23:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932220AbVISEX1
+	id S932170AbVISEhl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 00:37:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbVISEhl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 00:23:27 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:36041 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932202AbVISEX0 (ORCPT
+	Mon, 19 Sep 2005 00:37:41 -0400
+Received: from mail.ctyme.com ([69.50.231.10]:18350 "EHLO newton.ctyme.com")
+	by vger.kernel.org with ESMTP id S932170AbVISEhl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 00:23:26 -0400
-Date: Mon, 19 Sep 2005 09:52:40 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: PATCH: Fix race in cpu_down (hotplug cpu)
-Message-ID: <20050919042240.GA7506@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <1127100518.9696.62.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1127100518.9696.62.camel@localhost>
-User-Agent: Mutt/1.4.1i
+	Mon, 19 Sep 2005 00:37:41 -0400
+Message-ID: <432E4093.4060609@perkel.com>
+Date: Sun, 18 Sep 2005 21:37:39 -0700
+From: Marc Perkel <marc@perkel.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.10) Gecko/20050716
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+CC: LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: I request inclusion of reiser4 in the mainline kernel
+References: <200509182004.j8IK4JNx012764@inti.inf.utfsm.cl> <432DCE2A.5070705@slaphack.com> <432DDF7A.3050704@teleformix.com> <op.sxbtg9lzth1vuj@localhost>
+In-Reply-To: <op.sxbtg9lzth1vuj@localhost>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Maindomain: perkel.com
+X-Spam-filter-host: newton.ctyme.com - http://www.junkemailfilter.com
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 19, 2005 at 01:28:38PM +1000, Nigel Cunningham wrote:
-> There is a race condition in taking down a cpu (kernel/cpu.c::cpu_down).
-> A cpu can already be idling when we clear its online flag, and we do not
-> force the idle task to reschedule. This results in __cpu_die timing out.
 
-"when we clear its online flag" - This happens in take_cpu_down in the
-context of stopmachine thread. take_cpu_down also ensures that idle 
-thread runs when it returns (sched_idle_next). So when idle thread runs,
-it should notice that it is offline and invoke play_dead.  So I don't 
-understand why __cpu_die should time out.
 
+PFC wrote:
+
+>
+>
+>> I'm of the same opinion.  If I have hardware that has a problem, and  
+>> causes downtime, it gets replaced or repaired.  I don't switch to a  
+>> different piece of software to compensate for broken hardware.
+>>
+>> With that said, I have seen ReiserFS expose hardware that had 
+>> problems.   Hardware was repaired, and ReiserFS rides again.
+>
+>
+>
+
+Agreed - if the hardware has problem and anything is readable I'm happy. 
+When I was sysadmin at EFF we got a bunch of IBM Deathstar drives - and 
+for those who experiences this - every one of them fails. But they 
+usually fail slowly. What amazed me was I would stat to see seek errors 
+- sector not found and I would copy off everything I could onto a new 
+drive before I lost anything. And - I thought it was amazing that I 
+usually managed to get all the important stuff. So - I give reiser 
+credit for being somewhat resiliant.
+
+here's the way I see it. This isn't like Hans Reiser is some unknown guy 
+who has some wild idea that we all don't know. ReiserFS is a majoy 
+player in the Linux world and many people like it the best. Several 
+distros use Reiser as their default install. So to me this gives him 
+more than average standing and the way I see it - there has to be a good 
+reason to NOT merge it rather than a reason TO merge it.
+
+So - is Reiser4 going to break anything? If not - what is the reason to 
+not do it?
 
 -- 
+Marc Perkel - marc@perkel.com
 
+Spam Filter: http://www.junkemailfilter.com
+    My Blog: http://marc.perkel.com
 
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560017

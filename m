@@ -1,64 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932141AbVISD2s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbVISDbJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932141AbVISD2s (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 23:28:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbVISD2s
+	id S932147AbVISDbJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 23:31:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932153AbVISDbJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 23:28:48 -0400
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:19686 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S932141AbVISD2r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 23:28:47 -0400
-Subject: PATCH: Fix race in cpu_down (hotplug cpu)
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: Cyclades
-Message-Id: <1127100518.9696.62.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Mon, 19 Sep 2005 13:28:38 +1000
-Content-Transfer-Encoding: 7bit
+	Sun, 18 Sep 2005 23:31:09 -0400
+Received: from vms042pub.verizon.net ([206.46.252.42]:9622 "EHLO
+	vms042pub.verizon.net") by vger.kernel.org with ESMTP
+	id S932147AbVISDbI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Sep 2005 23:31:08 -0400
+Date: Sun, 18 Sep 2005 23:31:06 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: Wanted - Recommendation of good motherboard for AMD Athlon 64   X2
+In-reply-to: <432E2992.9080403@shaw.ca>
+To: linux-kernel@vger.kernel.org
+Message-id: <200509182331.07031.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <4Ogsp-8lG-11@gated-at.bofh.it> <4Ohy6-1rF-3@gated-at.bofh.it>
+ <432E2992.9080403@shaw.ca>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmm... managed to miss a word at the end of the first para and thus not
-make sense. Let's try again.
+On Sunday 18 September 2005 22:59, Robert Hancock wrote:
+>Marc Perkel wrote:
+>> And lack of an ethernet driver. I had to install an Intel card to get
+>> Ethernet to work.
+>
+>How so? forcedeth should work fine..
 
-----------
+It certainly does here.
 
-Hi.
-
-There is a race condition in taking down a cpu (kernel/cpu.c::cpu_down).
-A cpu can already be idling when we clear its online flag, and we do not
-force the idle task to reschedule. This results in __cpu_die timing out.
-A simple fix is to force the idle task on the cpu going down to reschedule.
-
-Without the patch below, Suspend2 get into a deadlock at resume time
-when this issue occurs. I could not complete 20 cycles without seeing
-the issue. With the patch below, I have completed 75 cycles on the trot
-without problems.
-
-Please apply.
-
-Signed-off-by: Nigel Cunningham <ncunningham@cyclades.com>
-
-diff -ruNp 9910-hotplug-cpu-race.patch-old/kernel/cpu.c 9910-hotplug-cpu-race.patch-new/kernel/cpu.c
---- 9910-hotplug-cpu-race.patch-old/kernel/cpu.c	2005-08-29 10:29:58.000000000 +1000
-+++ 9910-hotplug-cpu-race.patch-new/kernel/cpu.c	2005-09-19 12:15:08.000000000 +1000
-@@ -126,6 +126,9 @@ int cpu_down(unsigned int cpu)
- 	while (!idle_cpu(cpu))
- 		yield();
- 
-+	/* CPU may have idled before we set its offline flag. */
-+	set_tsk_need_resched(idle_task(cpu));
-+
- 	/* This actually kills the CPU. */
- 	__cpu_die(cpu);
- 
-
-
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.35% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
 

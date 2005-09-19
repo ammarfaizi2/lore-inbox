@@ -1,66 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932604AbVISTZG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932601AbVISTYi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932604AbVISTZG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 15:25:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932603AbVISTZF
+	id S932601AbVISTYi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 15:24:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932603AbVISTYi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 15:25:05 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:10472 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932604AbVISTZB (ORCPT
+	Mon, 19 Sep 2005 15:24:38 -0400
+Received: from urchin.mweb.co.za ([196.2.24.26]:55723 "EHLO urchin.mweb.co.za")
+	by vger.kernel.org with ESMTP id S932601AbVISTYh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 15:25:01 -0400
-Date: Mon, 19 Sep 2005 12:24:51 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Hugh Dickins <hugh@veritas.com>
-cc: Smarduch Mario-CMS063 <CMS063@motorola.com>, linux-kernel@vger.kernel.org
-Subject: Re: Multi-Threaded fork() correctness on Linux 2.4 & 2.6
-In-Reply-To: <Pine.LNX.4.61.0509191928080.23718@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.58.0509191216050.2553@g5.osdl.org>
-References: <A752C16E6296D711942200065BFCB6942521C43A@il02exm10>
- <Pine.LNX.4.61.0509191928080.23718@goblin.wat.veritas.com>
+	Mon, 19 Sep 2005 15:24:37 -0400
+From: Bongani Hlope <bonganilinux@mweb.co.za>
+To: Maurice Volaski <mvolaski@aecom.yu.edu>
+Subject: Re: Segfaults in mkdir under high load. Software or hardware?
+Date: Mon, 19 Sep 2005 21:27:33 +0200
+User-Agent: KMail/1.8.91
+Cc: linux-kernel@vger.kernel.org, andrew@walrond.org,
+       bert.hubert@netherlabs.nl
+References: <mailman.3.1127041200.14075.linux-kernel-daily-digest@lists.us.dell.com> <a06230970bf53b4a0dfad@[129.98.90.227]>
+In-Reply-To: <a06230970bf53b4a0dfad@[129.98.90.227]>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509192127.33611.bonganilinux@mweb.co.za>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 19 September 2005 03:03, Maurice Volaski wrote:
+> At 6:00 AM -0500 9/18/05,
+>
+> linux-kernel-daily-digest-request@lists.us.dell.com wrote:
+> >>  I have been seeing a similar thing:
+> >>
+> >>  ./current:Sep 17 18:00:01 [kernel] mkdir[7696]: segfault at
+> >>  0000000000000000 rip 000000000040184d rsp 00007fffff826350 error 4
+> >>
+> >>  I'm using the plain 2.6.13 (from gentoo vanilla sources), though it
+> >>  was compiled with
+> >>  gcc version 3.4.4 (Gentoo 3.4.4-r1, ssp-3.4.4-1.0, pie-8.7.8)
+> >
+> >x86_64 ? If so see http://bugzilla.kernel.org/show_bug.cgi?id=4851
+>
+> Dual Opteron, and this looks like my issue. It recommends echo 0 >
+> /proc/sys/kernel/randomize_va_space but that has not stopped it from
+> happening, so I'll probably wait for the patch to get merged.
 
+Linus has a patch for that, which you might try. Look at 
+http://bugzilla.kernel.org/show_bug.cgi?id=4851 for more details on this bug.
 
-On Mon, 19 Sep 2005, Hugh Dickins wrote:
-> On Mon, 19 Sep 2005, Smarduch Mario-CMS063 wrote:
-> >     
-> >     recently I've been involved in debugging MT forks on IA-64 the issues
-> > found were related to the way IA64 does its TLB invalidation. But there
-> > is still one  issue that appears to be Linux in general related, and it
-> > has to do with MT forks. 
-> >  
-> > For example a process has 3 threads T1, T2, T3.
-> >  
-> > 1 - T1 issues a fork()
-> >     - under page_table_lock write bit is reset in src and dest pte's
-> > 2 - T2 may have a TLB mis, the new write protected pte is inserted
-> >     (hw walker or sw tlb hdlr)
-> > 3 - T2 winds up in do_wp_page() the page is copied to a new one
-> > 4 - In the mean time T3 may be working off the same page, the
-> >     TLB invalidation (flush_tlb_mm()) has no occurred yet.
-> > 5 - Eventually TLB is globally flushed so threads will see the new pte.
-> > 6 - As a result the MT task may experience inconsisitent state.
-> >     - During 3 & 4. For example locks may be acquired by both
-> >       threads depending on the timing of the copy.
-> 
-> I do think you've hit upon something interesting here.  Though it's
-> not quite as you describe.  We don't have to wait for the flush_tlb_mm
-> to sort it out: the flush_tlb_page in ptep_establish in break_cow in
-> do_wp_page resolves the discrepancy much sooner.  But your point is,
-> that's already too late: T2 inserts a "smudged" copy of the page which
-> T3 was working on, it does not contain all the data T3 had written there.
+--- arch/x86_64/kernel/setup.c.orig     2005-09-18 07:34:36.000000000 +0200
++++ arch/x86_64/kernel/setup.c  2005-09-18 07:37:25.000000000 +0200
+@@ -793,10 +793,23 @@ static void __init amd_detect_cmp(struct
+ #endif
+ }
 
-Hmm. 
++#define HWCR 0xc0010015
++
+ static int __init init_amd(struct cpuinfo_x86 *c)
+ {
+        int r;
+        int level;
++#if CONFIG_SMP
++       unsigned long value;
++       // Disable TLB flush filter by setting HWCR.FFDIS:
++       // bit 6 of msr C001_0015
++       //
++       // Errata 63 for SH-B3 steppings
++       // Errata 122 for all(?) steppings
++       rdmsrl(HWCR, value);
++       value |= 1 << 6;
++       wrmsrl(HWCR, value);
++#endif
 
-We hold the page_table_lock when doing the fork(), so T2 can't actually be 
-copying the page until we've done the TLB flush, no? And once the TLB 
-flush is done, all the writes by T3 should be in the page, so we copy the 
-right thing at that point, and there is no consistency problems?
+        /* Bit 31 in normal CPUID used for nonstandard 3DNow ID;
+           3DNow is IDd by bit 31 in extended CPUID (1*32+31) anyway */
 
-No? What am I missing?
-
-		Linus

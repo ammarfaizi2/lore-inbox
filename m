@@ -1,65 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932193AbVISEl0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbVISEtR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932193AbVISEl0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 00:41:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbVISEl0
+	id S932182AbVISEtR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 00:49:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbVISEtR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 00:41:26 -0400
-Received: from smtprelay03.ispgateway.de ([80.67.18.15]:33253 "EHLO
-	smtprelay03.ispgateway.de") by vger.kernel.org with ESMTP
-	id S932193AbVISElZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 00:41:25 -0400
-Message-ID: <432E416E.6090207@v.loewis.de>
-Date: Mon, 19 Sep 2005 06:41:18 +0200
-From: =?ISO-8859-1?Q?=22Martin_v=2E_L=F6wis=22?= <martin@v.loewis.de>
-User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
-X-Accept-Language: en-us, en
+	Mon, 19 Sep 2005 00:49:17 -0400
+Received: from fmr19.intel.com ([134.134.136.18]:9418 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S932182AbVISEtQ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 00:49:16 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: "D. Hazelton" <dhazelton@enter.net>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch] Support UTF-8 scripts
-References: <4NsP0-3YF-11@gated-at.bofh.it> <4NXfZ-5P0-1@gated-at.bofh.it> <4NYlM-7i0-5@gated-at.bofh.it> <4Olip-6HH-13@gated-at.bofh.it>
-In-Reply-To: <4Olip-6HH-13@gated-at.bofh.it>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: PATCH: Fix race in cpu_down (hotplug cpu)
+Date: Mon, 19 Sep 2005 12:48:38 +0800
+Message-ID: <59D45D057E9702469E5775CBB56411F171F7E0@pdsmsx406>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: PATCH: Fix race in cpu_down (hotplug cpu)
+Thread-Index: AcW80k/meYPHAvTNTpGHj1m/CqGKoAAAe8MA
+From: "Li, Shaohua" <shaohua.li@intel.com>
+To: <vatsa@in.ibm.com>, "Nigel Cunningham" <ncunningham@cyclades.com>
+Cc: "Andrew Morton" <akpm@osdl.org>, "Linus Torvalds" <torvalds@osdl.org>,
+       "Zwane Mwaikambo" <zwane@arm.linux.org.uk>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Rusty Russell" <rusty@rustcorp.com.au>
+X-OriginalArrivalTime: 19 Sep 2005 04:48:36.0642 (UTC) FILETIME=[65792020:01C5BCD5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-D. Hazelton wrote:
->>I would need to write a compiled C program to do all
->>sorts of fragile hackish things like calling a script
->>/sbin/init.sh.
-> 
-> 
-> Problem is, the program 
-> would not be fragile or hackish - it'd be almost as simple as a 
-> "hello world" program.
-> 
-> #include <unistd.h>
-> 
-> int main() {
->   /* if this fails the system is busted anyway */
->   return execve( "/bin/sh", "/sbin/init.sh", 0 );
-> };
+Hi,
+>
+>On Mon, Sep 19, 2005 at 01:28:38PM +1000, Nigel Cunningham wrote:
+>> There is a race condition in taking down a cpu
+(kernel/cpu.c::cpu_down).
+>> A cpu can already be idling when we clear its online flag, and we do
+not
+>> force the idle task to reschedule. This results in __cpu_die timing
+out.
+>
+>"when we clear its online flag" - This happens in take_cpu_down in the
+>context of stopmachine thread. take_cpu_down also ensures that idle
+>thread runs when it returns (sched_idle_next). So when idle thread
+runs,
+>it should notice that it is offline and invoke play_dead.  So I don't
+>understand why __cpu_die should time out.
+I guess Nigel's point is cpu_idle is preempted before take_cpu_down. If
+the preempt occurs after the cpu_is_offline check, when the cpu (after
+sched_idle_next) goes into idle again, nobody can wake it up. Nigel,
+isn't it?
 
-This attempt nicely illustrates Kyle's point. This program *is*
-fragile and hackish. It is fragile because, even though it is only
-five lines, contains two major bugs:
-1. execve takes an argv array, not a null-terminated list of
-   strings. So this compiles with a warning about incompatible
-   pointer types; you meant to use execl(3).
-2. In the exec family, the path to the program is different from
-   argv[0]. So the correct line would be
-
-     return execl("/bin/sh", "sh", /sbin/init.sh", 0);
-
-It is hackisch, because it also lacks a feature commonly
-found in such wrappers:
-3. arguments passed to the wrapper are not forwarded to the
-   executable. In particular, init takes several arguments
-   (e.g. the runlevel), which should be forwarded to the
-   final executable.
-
-Just try completing the wrapper on your own.
-
-Regards,
-Martin
+Thanks,
+Shaohua

@@ -1,57 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbVISBOb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932285AbVISBh5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932284AbVISBOb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 21:14:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932286AbVISBOb
+	id S932285AbVISBh5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 21:37:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932286AbVISBh5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 21:14:31 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:29588 "EHLO machine.or.cz")
-	by vger.kernel.org with ESMTP id S932283AbVISBOa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 21:14:30 -0400
-Date: Mon, 19 Sep 2005 03:14:28 +0200
-From: Petr Baudis <pasky@suse.cz>
-To: Junio C Hamano <junkio@cox.net>
-Cc: git@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] Cogito-0.15
-Message-ID: <20050919011428.GF22391@pasky.or.cz>
-References: <7vr7c02zgg.fsf@assigned-by-dhcp.cox.net> <7vwtleyml5.fsf@assigned-by-dhcp.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7vwtleyml5.fsf@assigned-by-dhcp.cox.net>
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
-User-Agent: Mutt/1.5.10i
+	Sun, 18 Sep 2005 21:37:57 -0400
+Received: from boutiquenumerique.com ([82.67.9.10]:49129 "EHLO
+	boutiquenumerique.com") by vger.kernel.org with ESMTP
+	id S932285AbVISBh4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Sep 2005 21:37:56 -0400
+To: "Dan Oglesby" <doglesby@teleformix.com>,
+       "David Masover" <ninja@slaphack.com>
+Cc: "Horst von Brand" <vonbrand@inf.utfsm.cl>, thenewme91@gmail.com,
+       "Christoph Hellwig" <hch@infradead.org>,
+       "Denis Vlasenko" <vda@ilport.com.ua>, chriswhite@gentoo.org,
+       "Hans Reiser" <reiser@namesys.com>, LKML <linux-kernel@vger.kernel.org>,
+       "ReiserFS List" <reiserfs-list@namesys.com>
+Subject: Re: I request inclusion of reiser4 in the mainline kernel
+References: <200509182004.j8IK4JNx012764@inti.inf.utfsm.cl> <432DCE2A.5070705@slaphack.com> <432DDF7A.3050704@teleformix.com>
+Message-ID: <op.sxbtg9lzth1vuj@localhost>
+Date: Mon, 19 Sep 2005 03:37:47 +0200
+From: PFC <lists@boutiquenumerique.com>
+Organization: =?iso-8859-15?Q?La_Boutique_Num=E9rique?=
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed	delsp=yes
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <432DDF7A.3050704@teleformix.com>
+User-Agent: Opera M2/8.0 (Linux, build 1095)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
 
-  this is the release of Cogito-0.15. It fixes several minor bugs, and
-adds a feature or two. The most important thing though is that this
-depends on Git-core-0.99.7 and uses the new command names. Everyone is
-encouraged to upgrade at least to this Cogito version in the next few
-days, since the older Cogito versions likely won't work with the future
-Git-core releases.
 
-  To stay in sync with the Git terminology, Cogito also renames its
-cg-pull to cg-fetch. Since this is a major naming change (I'm not too
-happy about it, personally), cg-pull will stay aliased to cg-fetch for
-at least one (likely two) next major Cogito releases (it also produces a
-warning when invoked as cg-pull). In the more distant future, cg-pull
-will slowly become the new name of cg-update, to make it confusing.
+> I'm of the same opinion.  If I have hardware that has a problem, and  
+> causes downtime, it gets replaced or repaired.  I don't switch to a  
+> different piece of software to compensate for broken hardware.
+>
+> With that said, I have seen ReiserFS expose hardware that had problems.   
+> Hardware was repaired, and ReiserFS rides again.
 
-  While at it, we also renamed the *-id scriptlets to cg-*-id. Other
-notable stuff is cg-init respecting the ignore rules, and better UI for
-cg-add wrt. directories (including cg-add -r support).
+	This summer :
 
-  Now let's see what the usual bug-right-after-release (major release,
-so a major bug?) will be this time.
+	Coming back from vacation, looking at the logs, I saw that the cupboard  
+router-server had kernel-panicked almost daily and rebooted itself  
+automatically. I also had a lot of corrupted BitTorrent downloads. I could  
+have blamed reiserfs, or bittorrent. But instead, I opened the case and  
+found the CPU was overheating due to the fan being clogged by an  
+unbelievable amount of accumulated dust and crap.
 
-  Happy hacking,
+	reiserfs was still happy, I ran a fsck just to be sure, no errors. fhew.  
+I wonder how it's possible. Given the state of the CPU fan, everything  
+should have been wiped out.
 
--- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-If you want the holes in your knowledge showing up try teaching
-someone.  -- Alan Cox
+	I have an all-reiser4 laptop (except /boot) and it's great. No problems  
+whatsoever, it flies. Pentium-M kicks ass.
+	My jukebox PC is half reiser3 and (since a few months) half reiser4,  
+running fine, on the cheapest possible motherboard, and the no-name RAM,  
+with an underclocked Duron. The hardware is so bad I had to underclock the  
+PC133 to PC100. It has never crashed in 4 years, or got any data  
+corruption. Crap hardware is actually sometimes pretty good if you  
+underclock it (just have to get lucky). With windows, it used to  
+bluescreen just by plugging a cable in the ethernet port.
+	My server is all reiser3 too.
+
+	I could have used other filesystems but reiserfs Just Works. No horror  
+stories to tell, sorry. I  like reiserfs.
+	I don't care it there were very old versions that crashed. I don't care  
+about Linux 2.0 or 1 either. Or Netscape 2. That's the past now.
+

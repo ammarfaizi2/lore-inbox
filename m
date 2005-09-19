@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932383AbVISJlm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932405AbVISJ7K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932383AbVISJlm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 05:41:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932404AbVISJlm
+	id S932405AbVISJ7K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 05:59:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932406AbVISJ7K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 05:41:42 -0400
-Received: from ns.firmix.at ([62.141.48.66]:17798 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S932383AbVISJll (ORCPT
+	Mon, 19 Sep 2005 05:59:10 -0400
+Received: from corp.easydns.com ([205.210.42.42]:20705 "EHLO c3po.easydns.com")
+	by vger.kernel.org with ESMTP id S932405AbVISJ7J (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 05:41:41 -0400
-Subject: Re: [Patch] Support UTF-8 scripts
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Valdis.Kletnieks@vt.edu
-Cc: "\"Martin v." =?ISO-8859-1?Q?L=F6wis=22?= <martin@v.loewis.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200509190900.j8J90lXx001654@turing-police.cc.vt.edu>
-References: <4Nvab-7o5-11@gated-at.bofh.it> <4Nvab-7o5-13@gated-at.bofh.it>
-	 <4Nvab-7o5-15@gated-at.bofh.it> <4Nvab-7o5-17@gated-at.bofh.it>
-	 <4Nvab-7o5-19@gated-at.bofh.it> <4Nvab-7o5-21@gated-at.bofh.it>
-	 <4Nvab-7o5-23@gated-at.bofh.it> <4Nvab-7o5-25@gated-at.bofh.it>
-	 <4Nvab-7o5-27@gated-at.bofh.it> <4NvjM-7CU-7@gated-at.bofh.it>
-	 <4NvjM-7CU-5@gated-at.bofh.it> <4NxbR-20S-1@gated-at.bofh.it>
-	 <4NEn7-3M5-7@gated-at.bofh.it> <4NTvO-yJ-13@gated-at.bofh.it>
-	 <4O1MJ-3Hf-5@gated-at.bofh.it> <4O8Oh-5jp-7@gated-at.bofh.it>
-	 <432E448D.2080402@v.loewis.de> <1127118382.1080.19.camel@tara.firmix.at>
-	 <200509190900.j8J90lXx001654@turing-police.cc.vt.edu>
-Content-Type: text/plain
-Organization: Firmix Software GmbH
-Date: Mon, 19 Sep 2005 11:41:30 +0200
-Message-Id: <1127122891.1080.32.camel@tara.firmix.at>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Mon, 19 Sep 2005 05:59:09 -0400
+To: linux-kernel@vger.kernel.org
+From: "Colin Viebrock" <colin@easydns.com>
+Subject: [AUTO-REPLY] Re: notification
+Reply-To: "No Reply Address" <null@easydns.com>
+Message-Id: <20050919095908.C97228B756@c3po.easydns.com>
+Date: Mon, 19 Sep 2005 05:59:08 -0400 (EDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-09-19 at 05:00 -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Mon, 19 Sep 2005 10:26:22 +0200, Bernd Petrovitsch said:
-> 
-> > We will see how it develops. Actually the marker could be used to detect
-> > endianness of the file if I read below URL correctly ....
-> 
-> Text files have endianness????
+Since August 31, 2004, I have not been an employee of easyDNS 
+Technologies Inc..
 
-Unicode-16 ones with 16 bit per character (as in Win NT), yes.
-UTF-8 ones not AFAIK.
+However, since that time, I have continued to receive and respond to
+email at this address, since many of my acquaintances and business 
+contacts only know of this email account as the way to get in touch.
 
-	Bernd
+It's now May 2005, almost everyone I know has my new address (see below),
+and this account is becoming nothing more than a magnet for spam and 
+other junk, I have stopped checking it, and all messages are being
+deleted immediately upon receipt.
+
+So ...
+
+If you need to talk to someone regarding easyDNS, please visit the 
+website at http://www.easydns.com/ or email support@easydns.com, or 
+contact the office by phone (1.416.535.8672 or toll-free in North America
+at 1.888.677.4741).
+
+If you need talk to me (and you aren't trying to sell me discount 
+prescription pills, a low-rate renewal on my mortgage, or an enlarger of 
+any kind), then please resend your email to:
+
+    (my_first_name) @ (my_last_name)  .ca
+
+Thanks!
+
+
 -- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
-
+Colin Viebrock
+Co-Founder, easyDNS Technologies Inc.

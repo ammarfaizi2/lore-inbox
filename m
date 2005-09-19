@@ -1,54 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932694AbVISVJl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932692AbVISVKK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932694AbVISVJl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 17:09:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932692AbVISVJl
+	id S932692AbVISVKK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 17:10:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932696AbVISVKJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 17:09:41 -0400
-Received: from uucp.cistron.nl ([62.216.30.38]:52883 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S932694AbVISVJk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 17:09:40 -0400
-From: dth@cistron.nl (Danny ter Haar)
-Subject: progress report ons doomes-day machine (usenet gateway): 2.6.14-rc1-git1 over 3 days!
-Date: Mon, 19 Sep 2005 21:09:39 +0000 (UTC)
-Organization: Cistron
-Message-ID: <dgn9ej$n9j$1@news.cistron.nl>
-X-Trace: ncc1701.cistron.net 1127164179 23859 62.216.30.70 (19 Sep 2005 21:09:39 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: dth@cistron.nl (Danny ter Haar)
-To: linux-kernel@vger.kernel.org
+	Mon, 19 Sep 2005 17:10:09 -0400
+Received: from H190.C26.B96.tor.eicat.ca ([66.96.26.190]:57576 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S932692AbVISVKH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 17:10:07 -0400
+From: Nikita Danilov <nikita@clusterfs.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17199.10558.939696.765980@gargle.gargle.HOWL>
+Date: Tue, 20 Sep 2005 01:10:22 +0400
+To: stephen.pollei@gmail.com
+Cc: Alexander Zarochentcev <zam@namesys.com>,
+       Denis Vlasenko <vda@ilport.com.ua>, LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>,
+       Hans Reiser <reiser@namesys.com>
+Subject: Re: I request inclusion of reiser4 in the mainline kernel
+In-Reply-To: <feed8cdd05091912362ac13f3e@mail.gmail.com>
+References: <432AFB44.9060707@namesys.com>
+	<200509171416.21047.vda@ilport.com.ua>
+	<17197.15183.235861.655720@gargle.gargle.HOWL>
+	<feed8cdd05091912362ac13f3e@mail.gmail.com>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux 2.6.14-rc1-git1 (root@newsgate) (gcc [can't parse]) #???  1CPU
-[newsgate.(none)]
+Stephen Pollei writes:
+ > On 9/18/05, Nikita Danilov <nikita@clusterfs.com> wrote:
+ > > Denis Vlasenko writes:
+ > >  > On Friday 16 September 2005 20:05, Hans Reiser wrote:
+ > >  > You can declare functions even if you never use them.
+ > >  > Thus here you can avoid using #if/#endif:
+ > > It's other way around: declaration is guarded by the preprocessor
+ > > conditional so that nobody accidentally use znode_is_loaded() outside of
+ > > the debugging mode.
+ > Except it doesn't disallow someone from using znode_is_loaded, if you
+ > wanted to do that you would have done
 
-Memory:      Total        Used        Free      Shared     Buffers
-Mem:       4062048     4038020       24028           0        3016
-Swap:            0           0           0
+I just described why conditionals are used here. You can trust me: I
+wrote that code. :-)
 
-Bootup: Fri Sep 16 09:04:23 2005    Load average: 7.09 5.18 4.46 10/80
-29403
+ > #if defined(REISER4_DEBUG) || defined(WHATEVER_ELSE)
+ > int znode_is_loaded(const znode * node /* znode to query */ );
+ > #else
+ > #define znode_is_loaded(I_dont_care_you_are_going_to_) \
+ >    } )die(]0now[>anyway<}}}}}}*bye*}
+ > #endif
+ > That way instead of silently(or -Wmissing-prototypes gving a warning)
+ > quessing at a prototype and *maybe* geting a link time error, you get
+ > a nice compile-time bomb-out.
 
-user  :      10:06:40.29  11.8%  page in :        0
-nice  :       1:23:05.12   1.6%  page out:        0
-system:   1d  4:57:29.89  33.7%  swap in :        0
-idle  :       0:10:47.82   0.2%  swap out:        0
-uptime:   3d 13:56:05.26         context :1007169643
+Maybe, but kernel developers are supposed to watch for compiler
+messages. People who use that technique definitely do.
 
-irq  0:  77327243 timer                 irq 12:         3
-irq  1:         8 i8042                 irq 16:  82013319 aic79xx
-irq  4:       337 serial                irq 17: 858271905 aic79xx, eth3
-irq  9:         0 acpi                  irq 18:1672823586 acenic
+ > 
+ > So unless you have -Wmissing-prototypes and -Werror set then your
+ > #if/#endif does very little indeed, especially with the size of kernel
+ > it's easy to ignore yet another warning even if the missing-prototype
+ > warning was set.
 
-It's doing fine so far (none of the 2.6.13-xx kernels made it this
-far)
+It's enough to monitor your own code, rather than the whole kernel.
 
-
-Only thing not working so far is the SMP setup although i some progress
-mentioned in git4. Will try soon!
-
-Danny
-
+Nikita.

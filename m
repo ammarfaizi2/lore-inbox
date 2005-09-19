@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932344AbVISHKN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932347AbVISHP3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932344AbVISHKN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 03:10:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932346AbVISHKM
+	id S932347AbVISHP3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 03:15:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932348AbVISHP3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 03:10:12 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:40072 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932344AbVISHKK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 03:10:10 -0400
-Date: Mon, 19 Sep 2005 12:39:35 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: Li Shaohua <shaohua.li@intel.com>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: PATCH: Fix race in cpu_down (hotplug cpu)
-Message-ID: <20050919070935.GA9994@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <59D45D057E9702469E5775CBB56411F171F7E0@pdsmsx406> <20050919051024.GA8653@in.ibm.com> <1127107887.3958.9.camel@linux-hp.sh.intel.com> <20050919055715.GE8653@in.ibm.com> <1127110271.9696.97.camel@localhost> <20050919062336.GA9466@in.ibm.com> <1127111495.9696.102.camel@localhost>
+	Mon, 19 Sep 2005 03:15:29 -0400
+Received: from krusty.dt.E-Technik.uni-dortmund.de ([129.217.163.1]:47291 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S932347AbVISHP2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 03:15:28 -0400
+Date: Mon, 19 Sep 2005 09:15:21 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Why don't we separate menuconfig from the kernel?
+Message-ID: <20050919071521.GB14601@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <m364szk426.fsf@defiant.localdomain> <9a874849050917174635768d04@mail.gmail.com> <m3d5n7kwwz.fsf@defiant.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1127111495.9696.102.camel@localhost>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <m3d5n7kwwz.fsf@defiant.localdomain>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 19, 2005 at 04:31:36PM +1000, Nigel Cunningham wrote:
-> > -		} while (!need_resched());
-> > +		} while (!need_resched() || !cpu_is_offline(cpu));
+On Sun, 18 Sep 2005, Krzysztof Halasa wrote:
+
+> > menuconfig is just a little bit of the kbuild system which also
+> > includes xconfig, config, gconfig, oldconfig, etc.  menuconfig is just
+> > a dialog based frontend to the kbuild system which consists of
+> > configuration options, help texts, dependency info etc.
 > 
-> Shouldn't this be !need_resched() && !cpu_is_offline(cpu)?
+> Sure, that's what I mean. It's used for configuring the kernel, but
+> other packages use it (well, some version) too. Example: busybox.
 
-Yes!
+One of Linux's main problems is that all daemons that drive kernel core
+functionality are cluttered over various separate projects. While this
+allows for independent development, it's annoying if you need to hunt
+down the various daemons (udev, autofs, hotplug, iproute, to name the
+first that come to mind) only to find out the new version doesn't suit
+your distro. I'd rather wish there was a standard kernel "daemons"
+package.
 
+> There is no much point in keeping more than one copy. They are
+
+Why should other projects that recycle kernel code impact how the kernel
+itself is made.
 
 -- 
-
-
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560017
+Matthias Andree

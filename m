@@ -1,52 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932273AbVISAK3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932281AbVISAbq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932273AbVISAK3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Sep 2005 20:10:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbVISAK3
+	id S932281AbVISAbq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Sep 2005 20:31:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbVISAbp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Sep 2005 20:10:29 -0400
-Received: from 69.50.231.10.ip.nectartech.com ([69.50.231.10]:61338 "EHLO
-	newton.ctyme.com") by vger.kernel.org with ESMTP id S932273AbVISAK3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Sep 2005 20:10:29 -0400
-Message-ID: <432E01F0.50909@perkel.com>
-Date: Sun, 18 Sep 2005 17:10:24 -0700
-From: Marc Perkel <marc@perkel.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.10) Gecko/20050716
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Robert Hancock <hancockr@shaw.ca>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Wanted - Recommendation of good motherboard for AMD Athlon 64
-  X2
-References: <4OawE-7Vh-3@gated-at.bofh.it> <4OaGw-87q-21@gated-at.bofh.it> <432DF2B9.9080403@shaw.ca>
-In-Reply-To: <432DF2B9.9080403@shaw.ca>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 18 Sep 2005 20:31:45 -0400
+Received: from main.gmane.org ([80.91.229.2]:23481 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932281AbVISAbp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Sep 2005 20:31:45 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: sean <seandarcy2@gmail.com>
+Subject: Re: git3 build dies at net/built-in.o: undefined __nfa_fill
+Date: Sun, 18 Sep 2005 20:29:30 -0400
+Message-ID: <dgl0pa$75d$1@sea.gmane.org>
+References: <dgfp9f$7i8$1@sea.gmane.org> <432C132A.8020301@gmail.com> <dgkqhs$qt0$1@sea.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-filter-host: newton.ctyme.com - http://www.junkemailfilter.com
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ool-4577675c.dyn.optonline.net
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.11) Gecko/20050914 Fedora/1.7.11-5
+X-Accept-Language: en-us, en
+In-Reply-To: <dgkqhs$qt0$1@sea.gmane.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+sean wrote:
+> Jiri Slaby wrote:
+> 
+>> sean napsal(a):
+>>
+>>> On amd64, gcc-4.0.1:
+>>>
+>>> .....
+>>>   GEN     .version
+>>>   CHK     include/linux/compile.h
+>>>   UPD     include/linux/compile.h
+>>>   CC      init/version.o
+>>>   LD      init/built-in.o
+>>>   LD      .tmp_vmlinux1
+>>> net/built-in.o: In function `ip_ct_port_tuple_to_nfattr':
+>>> : undefined reference to `__nfa_fill'
+> 
+> .............
+> 
+>>
+>> .config needed
+>> NETFILTER_NETLINK is not selected, maybe.
+>>
+> 
+> Nope.
+> 
+>  grep NETFILTER .config
+> CONFIG_NETFILTER=y
+> # CONFIG_NETFILTER_DEBUG is not set
+> CONFIG_NETFILTER_NETLINK=m
+> CONFIG_NETFILTER_NETLINK_QUEUE=m
+> CONFIG_NETFILTER_NETLINK_LOG=m
+> 
+> sean
+> 
+  But this built -n rc1-git4:
 
+grep NETLINK .config
+# CONFIG_IP_NF_CONNTRACK_NETLINK is not set
+CONFIG_NETFILTER_NETLINK=m
+CONFIG_NETFILTER_NETLINK_QUEUE=m
+# CONFIG_NETFILTER_NETLINK_LOG is not set
 
-Robert Hancock wrote:
+???
 
-> Marc Perkel wrote:
->
->> oh - and - I forgot to mention this  NO NVidia chips. That's what I'm 
->> trying to get away from because of lack of Linux support.
->
->
-> Where is the lack of Linux support? The only feature I know of that's 
-> not supported under Linux is the NCQ support on the nForce4 SATA 
-> controller..
->
-And lack of an ethernet driver. I had to install an Intel card to get 
-Ethernet to work.
-
--- 
-Marc Perkel - marc@perkel.com
-
-Spam Filter: http://www.junkemailfilter.com
-    My Blog: http://marc.perkel.com
+ean
 

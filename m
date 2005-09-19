@@ -1,57 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932408AbVISKSb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932257AbVISKXA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932408AbVISKSb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 06:18:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932409AbVISKSb
+	id S932257AbVISKXA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 06:23:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932264AbVISKXA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 06:18:31 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:40672 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932408AbVISKSa
+	Mon, 19 Sep 2005 06:23:00 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:11908 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932257AbVISKW7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 06:18:30 -0400
-Subject: Re: I request inclusion of reiser4 in the mainline kernel
+	Mon, 19 Sep 2005 06:22:59 -0400
+Subject: Re: [Patch] Support UTF-8 scripts
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Hans Reiser <reiser@namesys.com>
-Cc: thenewme91@gmail.com, Christoph Hellwig <hch@infradead.org>,
-       Denis Vlasenko <vda@ilport.com.ua>, chriswhite@gentoo.org,
-       LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-In-Reply-To: <432E4786.7010001@namesys.com>
-References: <432AFB44.9060707@namesys.com>
-	 <200509171415.50454.vda@ilport.com.ua>
-	 <200509180934.50789.chriswhite@gentoo.org>
-	 <200509181321.23211.vda@ilport.com.ua>
-	 <20050918102658.GB22210@infradead.org>
-	 <b14e81f0050918102254146224@mail.gmail.com>
-	 <1127079524.8932.21.camel@localhost.localdomain>
-	 <432E4786.7010001@namesys.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: "Martin v." =?ISO-8859-1?Q?L=F6wis?= <martin@v.loewis.de>,
+       Martin Mares <mj@ucw.cz>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050919072446.GF1893@elf.ucw.cz>
+References: <4NsP1-3YF-21@gated-at.bofh.it> <4NsOZ-3YF-9@gated-at.bofh.it>
+	 <4NsYH-4bv-27@gated-at.bofh.it> <4NtBr-4WU-3@gated-at.bofh.it>
+	 <4NtL0-5lQ-13@gated-at.bofh.it> <432B2C49.8080008@v.loewis.de>
+	 <20050917120123.GA3095@ucw.cz> <432C0B51.704@v.loewis.de>
+	 <20050919070820.GA2382@elf.ucw.cz> <432E6649.1070408@v.loewis.de>
+	 <20050919072446.GF1893@elf.ucw.cz>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Mon, 19 Sep 2005 11:43:36 +0100
-Message-Id: <1127126616.22124.7.camel@localhost.localdomain>
+Date: Mon, 19 Sep 2005 11:48:51 +0100
+Message-Id: <1127126931.22124.9.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2005-09-18 at 22:07 -0700, Hans Reiser wrote:
-> >the ability to fix some of those bugs fast, but we also all remember
-> >what happened with reiser3 later on despite early fast fixing.
-> >  
-> >
-> What was that?
+On Llu, 2005-09-19 at 09:24 +0200, Pavel Machek wrote:
+> > which reinterprets the first line, and then invokes the eventual
+> > interpreter.
+> 
+> Who cares? exec is fast.
 
-Jeff Mahoney added file attributes to reiserfs3, you whined and pointed
-people at the yet to be released reiserfs4. Someone fixed the 4K stack
-on reiserfs3, you whined. Chris Mason added other fixes like
-data=journal support to get some kind of journal feature parity with
-ext3, you complained and ask it not to be added.
+It would be nice if it was but exec + user space overhead of startup is
+merely "faster than many equivalent systems". It's still slow
 
-> That is why I just say "make it easy to read and I don't care how you do
-> that so long as it works."
-
-Perhaps you do. The kernel follows a coding style. It isn't my coding
-style but like everyone else except you I try and follow it.
-
-Alan
 

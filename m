@@ -1,81 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932635AbVISXIE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932636AbVISXMP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932635AbVISXIE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 19:08:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932680AbVISXIE
+	id S932636AbVISXMP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 19:12:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932646AbVISXMP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 19:08:04 -0400
-Received: from mxout1.netvision.net.il ([194.90.9.20]:12277 "EHLO
-	mxout1.netvision.net.il") by vger.kernel.org with ESMTP
-	id S932635AbVISXIC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 19:08:02 -0400
-Date: Tue, 20 Sep 2005 02:07:22 +0300
-From: Maxim Kozover <maximkoz@netvision.net.il>
-Subject: SATA drive recognized as hdc in 2.6.13.2
-To: linux-kernel@vger.kernel.org
-Reply-to: Maxim Kozover <maximkoz@netvision.net.il>
-Message-id: <513537850.20050920020722@netvision.net.il>
-MIME-version: 1.0
-X-Mailer: The Bat! (v3.5.30) Professional
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-X-Priority: 3 (Normal)
+	Mon, 19 Sep 2005 19:12:15 -0400
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:10966
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S932636AbVISXMP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 19:12:15 -0400
+Subject: Re: [ANNOUNCE] ktimers subsystem
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, akpm@osdl.org,
+       george@mvista.com, johnstul@us.ibm.com, paulmck@us.ibm.com
+In-Reply-To: <Pine.LNX.4.62.0509191601490.27528@schroedinger.engr.sgi.com>
+References: <20050919184834.1.patchmail@tglx.tec.linutronix.de>
+	 <Pine.LNX.4.62.0509191500040.27238@schroedinger.engr.sgi.com>
+	 <1127168232.24044.265.camel@tglx.tec.linutronix.de>
+	 <Pine.LNX.4.62.0509191521400.27238@schroedinger.engr.sgi.com>
+	 <1127169849.24044.279.camel@tglx.tec.linutronix.de>
+	 <Pine.LNX.4.62.0509191601490.27528@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Organization: linutronix
+Date: Tue, 20 Sep 2005 01:12:22 +0200
+Message-Id: <1127171542.24044.301.camel@tglx.tec.linutronix.de>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-I have a Supermicro dual Xeon board and boot from Hitachi SATA drive
-connected to an Intel (?) onboard controller.
-Using 2.6.12.5 the SATA drive was recognized correctly as sda via ata_piix.
-Now I tried 2.6.13.2 and it's recognized as hdc and works very slow.
-It's really disappointing to see SATA drive as hdc in a new kernel.
-Actually, I think the bug existed earlier and an another bug made it
-non-exposed until now. I mean that skipping probe at 2.6.12.5 output.
+On Mon, 2005-09-19 at 16:04 -0700, Christoph Lameter wrote:
+> On Tue, 20 Sep 2005, Thomas Gleixner wrote:
+> 
+> > Hmm. I don't understand the argument line completely. 
+> > 
+> > 1. The kernel has to provide ugly mechanisms because a lot of
+> > applications implementations are doing the Wrong Thing ?
+> 
+> Lets skip the "wrong thing"... Or are you saying that glibc and all the 
+> apps are all wrong? 
+> 
+> Applications call gettimeofday for a variety of reasons. One is because it 
+> is widely available over different platformsn and application want to 
+> schedule things, need timestamps etc etc.
 
-By the way, hdx naming had some advantages as you're not limited to 16
-partitions like in sdx (it's important if you have solaris slices
-recognized by Linux and have 20 partitions).
-
-Thanks,
-
-Maxim.
-
-2.6.13.2:
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-hdb: HL-DT-STCD-RW/DVD DRIVE GCC-4240N, ATAPI CD/DVD-ROM drive
-hdc: HDS724040KLSA80, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hdc: max request size: 1024KiB
-hdc: 781422768 sectors (400088 MB) w/7919KiB Cache, CHS=48641/255/63
-hdc: cache flushes supported
- hdc: hdc1 hdc2 hdc3 hdc4 < hdc5 hdc6 hdc7 hdc8 hdc9 hdc10 hdc11 hdc12 hdc13 hdc14 hdc15 >
-hdb: ATAPI 24X DVD-ROM CD-R/RW drive, 2048kB Cache
+Accepted. But I still doubt that the number of calls to gettimeofday is
+in anyway justified. The question I'm asking if it is really worth a
+long and epic discussion about a single add instruction ?
 
 
-2.6.12.5:
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-hdb: HL-DT-STCD-RW/DVD DRIVE GCC-4240N, ATAPI CD/DVD-ROM drive
-ide1: I/O resource 0x170-0x177 not free.
-ide1: ports already in use, skipping probe
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hdb: ATAPI 24X DVD-ROM CD-R/RW drive, 2048kB Cache
-Uniform CD-ROM driver Revision: 3.20
-............
-Loading ata_piix.ko module
-ata_piix: combined mode detected
-ACPI: PCI Interrupt 0000:00:1f.2[A] -> GSI 18 (level, low) -> IRQ 169
-ata: 0x1f0 IDE port busy
-ata1: SATA max UDMA/133 cmd 0x170 ctl 0x376 bmdma 0x14B8 irq 15
-ata1: dev 0 ATA, max UDMA/133, 781422768 sectors: lba48
-ata1: dev 0 configured for UDMA/133
-scsi0 : ata_piix
-  Vendor: ATA       Model: HDS724040KLSA80   Rev: KFAO
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-SCSI device sda: 781422768 512-byte hdwr sectors (400088 MB)
-SCSI device sda: drive cache: write back
-SCSI device sda: 781422768 512-byte hdwr sectors (400088 MB)
-SCSI device sda: drive cache: write back
+> > > Many platforms can execute gettimeofday 
+> > > without having to enter the kernel.
+> > 
+> > Which ones ? How is this achieved with respect to all the time adjust,
+> > correction... code ?
+> 
+> IA64 f.e. has a special instruction that allows access to kernel user 
+> space without having to do a context switch.
+
+Ok, was not aware of that and John kindly clarified this already. 
+
+tglx
+
 

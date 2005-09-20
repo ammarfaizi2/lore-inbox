@@ -1,73 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964952AbVITPOU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964955AbVITPOl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964952AbVITPOU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 11:14:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964955AbVITPOU
+	id S964955AbVITPOl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 11:14:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965029AbVITPOk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 11:14:20 -0400
-Received: from xenotime.net ([66.160.160.81]:33178 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S964952AbVITPOT (ORCPT
+	Tue, 20 Sep 2005 11:14:40 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:52662 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S964955AbVITPOj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 11:14:19 -0400
-Date: Tue, 20 Sep 2005 08:14:18 -0700 (PDT)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Pekka J Enberg <penberg@cs.Helsinki.FI>
-cc: Al Viro <viro@ftp.linux.org.uk>, Robert Love <rml@novell.com>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: p = kmalloc(sizeof(*p), )
-In-Reply-To: <Pine.LNX.4.58.0509201245340.32086@sbz-30.cs.Helsinki.FI>
-Message-ID: <Pine.LNX.4.58.0509200809430.22777@shark.he.net>
-References: <20050918100627.GA16007@flint.arm.linux.org.uk>
- <1127061146.6939.6.camel@phantasy> <84144f020509200153f0becf2@mail.gmail.com>
- <20050920093953.GM7992@ftp.linux.org.uk> <Pine.LNX.4.58.0509201245340.32086@sbz-30.cs.Helsinki.FI>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 20 Sep 2005 11:14:39 -0400
+Date: Tue, 20 Sep 2005 08:14:28 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Robin Holt <holt@sgi.com>
+Cc: holt@sgi.com, zippel@linux-m68k.org, akpm@osdl.org, torvalds@osdl.org,
+       Simon.Derr@bull.net, linux-kernel@vger.kernel.org, nikita@clusterfs.com
+Subject: Re: [PATCH] cpuset semaphore depth check optimize
+Message-Id: <20050920081428.6fb2c711.pj@sgi.com>
+In-Reply-To: <20050920145449.GA31461@lnx-holt.americas.sgi.com>
+References: <20050912153135.3812d8e2.pj@sgi.com>
+	<Pine.LNX.4.61.0509131120020.3728@scrub.home>
+	<20050913103724.19ac5efa.pj@sgi.com>
+	<Pine.LNX.4.61.0509141446590.3728@scrub.home>
+	<20050914124642.1b19dd73.pj@sgi.com>
+	<Pine.LNX.4.61.0509150116150.3728@scrub.home>
+	<20050915104535.6058bbda.pj@sgi.com>
+	<20050920005743.4ea5f224.pj@sgi.com>
+	<20050920120523.GC21435@lnx-holt.americas.sgi.com>
+	<20050920072255.0096f1bb.pj@sgi.com>
+	<20050920145449.GA31461@lnx-holt.americas.sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Sep 2005, Pekka J Enberg wrote:
+Robin wrote:
+> This makes things even easier!!!
 
-> On Tue, 20 Sep 2005, Al Viro wrote:
->
-> > On Tue, Sep 20, 2005 at 11:53:42AM +0300, Pekka Enberg wrote:
-> > > On 9/18/05, Robert Love <rml@novell.com> wrote:
-> > > > 5.  Contrary to the above statement, such coding style does not help,
-> > > >     but in fact hurts, readability.  How on Earth is sizeof(*p) more
-> > > >     readable and information-rich than sizeof(struct foo)?  It looks
-> > > >     like the remains of a 5,000 year old wolverine's spleen and
-> > > >     conveys no information about the type of the object that is being
-> > > >     created.
-> > >
-> > > Yes it does. The semantics are clearly "I want enough memory to hold
-> > > the type this pointer points to." While sizeof(struct foo) might seem
-> > > more readable, it is in fact not as you have no way of knowing whether
-> > > the allocation is correct or not by looking at the line. So for
-> > > spotting allocation errors with grep, the shorter form is better (and
-> > > arguably less error-prone).
-> >
-> > Huh???   How do you use grep to find something of that sort?
->
-> To find candidates, something like:
->
-> grep "kmalloc(sizeof([^*]" -r drivers/ | grep -v "sizeof(struct"
->
-> And then use my eyes to find real bugs.
+Easy is good.
 
-ugh.
 
-I guess I'm old-fashioned:  I think that the real answer is
-to do the due diligence when making a patch.  Don't assume
-that you/I/we can make a one-line change without checking
-around/above/below it, where it's declared, allocated, etc.
+> When the vfs code is traversing the list, you need to ensure
+> that it does not iterate unless the child list lock is held.
+> I have not looked at how you implemented the vfs stuff, but
+> that should be easily accomplished.
+> 
+> Where are the holes?
 
-I once worked with someone whose attitude was to "let the
-compiler find all of the problems," so he threw quite the
-garbage at it and iterated until the compiler no longer
-complained.  I think that's the wrong way to do it, but
-maybe it was his version of release early, release often.
+The hole is my understanding of vfs.
+
+My gut instinct is to recoil in horror from this suggestion, because it
+seems to involve walking the cpuset tree from bottom up, setting locks,
+while some other task might be doing a normal file system open on one
+of these cpusets, walking the tree top-down, setting locks.
+
+That smells like deadlock city to me.
 
 -- 
-~Randy
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

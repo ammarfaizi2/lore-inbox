@@ -1,56 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964979AbVITLnJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964980AbVITL5K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964979AbVITLnJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 07:43:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964980AbVITLnI
+	id S964980AbVITL5K (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 07:57:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964982AbVITL5K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 07:43:08 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:35399 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S964979AbVITLnH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 07:43:07 -0400
-Date: Tue, 20 Sep 2005 13:42:54 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       thenewme91@gmail.com, Christoph Hellwig <hch@infradead.org>,
-       Denis Vlasenko <vda@ilport.com.ua>, chriswhite@gentoo.org,
-       lkml <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>,
-       Nate Diller <ndiller@namesys.com>
-Subject: Re: I request inclusion of reiser4 in the mainline kernel
-Message-ID: <20050920114253.GL10845@suse.de>
-References: <200509180934.50789.chriswhite@gentoo.org> <200509181321.23211.vda@ilport.com.ua> <20050918102658.GB22210@infradead.org> <b14e81f0050918102254146224@mail.gmail.com> <1127079524.8932.21.camel@localhost.localdomain> <432E4786.7010001@namesys.com> <432F8D1E.7060300@yahoo.com.au> <432FABFA.9010406@namesys.com> <1127200590.9436.15.camel@npiggin-nld.site> <432FC150.9020807@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 20 Sep 2005 07:57:10 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:20132 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S964980AbVITL5J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 07:57:09 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: p = kmalloc(sizeof(*p), )
+Date: Tue, 20 Sep 2005 14:56:04 +0300
+User-Agent: KMail/1.8.2
+Cc: Pekka Enberg <penberg@cs.helsinki.fi>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Al Viro <viro@ftp.linux.org.uk>,
+       Andrew Morton <akpm@osdl.org>
+References: <20050918100627.GA16007@flint.arm.linux.org.uk> <84144f0205092004187f86840c@mail.gmail.com> <20050920114003.GA31025@flint.arm.linux.org.uk>
+In-Reply-To: <20050920114003.GA31025@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <432FC150.9020807@namesys.com>
+Message-Id: <200509201456.04851.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 20 2005, Hans Reiser wrote:
-> >>The name for one.  There is no elevator algorithm anywhere in it.  There
-> >>is a least block number first algorithm that was called an elevator, but
-> >>    
-> >>
-> >
-> >Well the terminology changed to "io scheduler" now, however the
-> >residual "elevator" name found in places doesn't cause anyone
-> >any problems and there isn't much reason to change it other than
-> >the desire to break things.
-> >  
-> >
-> Did you really say that?    I mean, come on, can't you at least manage a
-> "well, it ought to get changed but I am busy with something more
-> exciting to me".
+> > >         p = kmalloc(sizeof(*p), ...)
+> > > 
+> > >    is not grep-friendly, and can not be used to identify potential
+> > >    initialisation sites.  However:
+> > > 
+> > >         p = kmalloc(sizeof(struct foo), ...)
+> > > 
+> > >    is grep-friendly, and will lead you to inspect each place where
+> > >    such a structure is allocated for correct initialisation.
+> > 
+> > I would disagree on this one. You can still grep all the places where
+> > the local variable is declared in. Furthermore, structs are not always
+> > initialized where they're kmalloc'd so you need to manually inspect
+> > anyway.
+> 
+> Think about it some more.  You've added a new member to struct foo.
+> You want to fix up all the places which allocate struct foo to
+> initialise this new member.  Grepping for 'struct foo' returns 100
+> files.  Grepping for kmalloc in those 100 files returns 100 files.
+> 
+> Do you open all 100 in an editor and manually try and locate the five
+> kmalloc instances of this structure, and end up missing some.
+> 
+> Or do you do the sane thing and use kmalloc(sizeof(struct foo), ...)
+> and grep for "kmalloc[[:space:]]*(sizeof[[:space:]]*(struct foo)"
+> which returns only the five files and fix those up with knowledge
+> that you've found all the instances?
 
-Seeing as you are the one that is apparently bothered by the misnomer,
-it follows that you would be the one submitting a patch for this. Not
-that it would be accepted though, I don't see much point in renaming
-functions and breaking drivers just because of a slightly bad name. The
-io schedulers are all called foo-iosched.c, it's only the simple core
-api that uses the 'elevator' description.
+Both are inferior to Alans macro
 
--- 
-Jens Axboe
+p = typed_kmalloc(struct foo, ...);
 
+which has greppable struct name, saves typing sizeof() and also
+gives you typechecking (fails with "pointers to different types"
+if p is not struct foo*).
+--
+vda

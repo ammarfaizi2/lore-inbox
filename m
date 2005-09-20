@@ -1,56 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965025AbVITPBv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964797AbVITPFy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965025AbVITPBv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 11:01:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965033AbVITPBv
+	id S964797AbVITPFy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 11:05:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964822AbVITPFy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 11:01:51 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:32144 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S965025AbVITPBu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 11:01:50 -0400
-Date: Fri, 16 Sep 2005 18:28:34 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Patrizio Bassi <patrizio.bassi@gmail.com>
-Cc: "Kernel, " <linux-kernel@vger.kernel.org>
-Subject: Re: (BUG?) ACPI fails to suspend
-Message-ID: <20050916162834.GA2307@openzaurus.ucw.cz>
-References: <432A8377.4050209@gmail.com>
+	Tue, 20 Sep 2005 11:05:54 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:16286 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S964797AbVITPFy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 11:05:54 -0400
+Subject: Re: kernel error in system call accept() under kernel 2.6.8
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Peter Duellings <Peter.Duellings@wincor-nixdorf.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <43301BC4.9080305@wincor-nixdorf.com>
+References: <43301BC4.9080305@wincor-nixdorf.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 20 Sep 2005 16:32:07 +0100
+Message-Id: <1127230327.6276.1.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <432A8377.4050209@gmail.com>
-User-Agent: Mutt/1.3.27i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Maw, 2005-09-20 at 16:25 +0200, Peter Duellings wrote:
+> Obviously there are some cases where the accept() system call does
+> not set the errno variable if the accept() system call returns
+> with a value less than zero:
 
-> after:
-> 
-> echo shutdown > /sys/power/disk
-> echo disk > /sys/power/state
-> 
-> i get:
-> 
-> Could not suspend device 0000:00:0a.2: error -22
-> 
-> 0000:00:0a.0 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI 
-> USB 1.1 Controller (rev 50)
-> 0000:00:0a.1 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI 
-> USB 1.1 Controller (rev 50)
-> 0000:00:0a.2 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 51)
-> 
-> it's a pci usb 2.0 card. no active device plugged there.
-> 
-> the bad thing is that i can't suspend.
-> the good thing is that kernel is safe, i can still work with it, 
-> without panic or other troubles.
+Not actually possible. The kernel returns a positive value, zero or a
+negative value which is the errno code negated. It has no mechanism to
+return a negative value and not error.
 
-What happens if you try without usb2 support?
-If it works, complain on usb list.
-
-				Pavel
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+What does strace show for the failing case ?
 

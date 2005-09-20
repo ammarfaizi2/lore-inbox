@@ -1,123 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750722AbVITW5e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbVITW6n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750722AbVITW5e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 18:57:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750725AbVITW5e
+	id S1750735AbVITW6n (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 18:58:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbVITW6n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 18:57:34 -0400
-Received: from zproxy.gmail.com ([64.233.162.195]:33462 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750722AbVITW5d convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 18:57:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=MoJ6t8j5O0s/SOM0JZGF0HWKwMeXPvleTv+TeEIJAB6YSzuuNGA8rtbE3nnDZ8szCKlLE9cHK+cF3eu0AglIPNeDdLZS8mTl4AdzcPg6QbOnI98WMpgl7qdrFX3l0TZo+DB3drRkmAWwVYifaGJwWo7ImpMc1pGPD7wp2SQt2xU=
-Message-ID: <feed8cdd050920155714510453@mail.gmail.com>
-Date: Tue, 20 Sep 2005 15:57:31 -0700
-From: Stephen Pollei <stephen.pollei@gmail.com>
-Reply-To: stephen.pollei@gmail.com
-To: Alexandre Oliva <aoliva@redhat.com>
-Subject: Re: I request inclusion of reiser4 in the mainline kernel
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Nikita Danilov <nikita@clusterfs.com>,
-       Denis Vlasenko <vda@ilport.com.ua>, LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-In-Reply-To: <or4q8fvd6r.fsf@livre.oliva.athome.lsd.ic.unicamp.br>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <nikita@clusterfs.com>
-	 <17197.15183.235861.655720@gargle.gargle.HOWL>
-	 <200509192316.j8JNFxY8030819@inti.inf.utfsm.cl>
-	 <feed8cdd0509192057e1aa9e3@mail.gmail.com>
-	 <or4q8fvd6r.fsf@livre.oliva.athome.lsd.ic.unicamp.br>
+	Tue, 20 Sep 2005 18:58:43 -0400
+Received: from rwcrmhc12.comcast.net ([204.127.198.43]:28102 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1750735AbVITW6m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 18:58:42 -0400
+Message-ID: <433093F5.4060808@comcast.net>
+Date: Tue, 20 Sep 2005 18:57:57 -0400
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050912)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: jesper.juhl@gmail.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Hot-patching
+References: <43308815.1000200@comcast.net> <9a87484905092015471c2dc329@mail.gmail.com>
+In-Reply-To: <9a87484905092015471c2dc329@mail.gmail.com>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/20/05, Alexandre Oliva <aoliva@redhat.com> wrote:
-> On Sep 20, 2005, Stephen Pollei <stephen.pollei@gmail.com> wrote:
-> > On 9/19/05, Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
-> >> Since when has a missing declaration prevented anyone calling a function in
-> >> C?!
-> > Never AFAIK... K&R, ANSI,ISO C89,  c99, whatever version that I know of...
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+
+
+Jesper Juhl wrote:
+> On 9/21/05, John Richard Moser <nigelenki@comcast.net> wrote:
+> [snip]
 > 
-> Actually...  C99 requires a declaration (not necessarily with a
-> prototype) before a function can be called.  A prior declaration is
-> required for all identifiers.
+>>Besides getting rid of a pet peeve of mine (more rebooting than
+>>absolutely necessary) and giving a way to continuously increase the size
+>>of the running kernel with each bugfix, this has implications on servers
+>>that don't want to reboot for whatever reason.  For enterprise
+>>applications, it would be possible to fix a kernel bug or security hole
+>>that hasn't been triggered by loading a module with the bugfixes,
+>>effectively hot-patching the kernel.
+>>
+> 
+> [snip]
+> 
+> If you have uptime demands like that I think a much better approach
+> would be to make sure the box is heavily firewalled so importance of
+> the security of the host itself drops. If there's no way to get to a
+> box in a way that enables you to actually exploit a security hole,
+> then it doesn't matter much that the hole is there at all.
 
-OK thank you for your correction.
+Yeah.  Not always feasible though; let's say the bug manifests in
+something Apache tells the kernel to do (there's quite a lot of
+syscalls) based on stuff passed to CGI scripts.  Firewalls and
+everything, but slide in a "legitimate" port 80 or port 443 access and BLAM.
 
-> I'm not sure whether this is new in C99
-> or carried over from ISO C90 (AKA ANSI C89).  The fact that so many
-> compilers accept calls without prior declarations is a common
-> extension to the language, mainly for backward compatibility.
+Shell servers like compile farms are also interesting, if you want to
+talk about firewalling not being all that great.  That's of course if
+you care about local attacks; personally if I have 10000 employees or
+clients using a machine I don't want to trust them all to be nice.
 
-yep I just tested a small program with different flags...
-int main(void) {
-  int ret;
-  ret=my_func(3);
-  return 0; }
+> 
+> Another option would be a clustered setup where you normally run the
+> app(s) on nodeA, nodeB ... nodeN, then when you need to upgrade you
+> move all running applications off of nodeA and upgrade it, move
+> everything off of nodeB and then upgrade that, repeat for nr of nodes,
+> finally redistribute the load properly again.
+> 
+> 
 
-float my_func(double x) {
-  return x+2.0;}
+Beautiful setup that, and surprisingly cost effective if 1) you can do
+it yourself, and 2) you're using just 2 nodes.  I'd prefer 3 nodes for a
+minimal set-up of course, so if I upgrade one and the other goes down I
+still have a third; I'm obsessive about perfectly stable environments,
+it has to be able to stand up to a bomb blast or the ending scene from
+Hackers with all the blackhats in the world tearing ass at the system.
 
-gcc -Wall test_proto.c --std=c99
-and even gcc -Wall test_proto.c --std=c99 -pedantic
-give me this:
-test_proto.c: In function `main':
-test_proto.c:6: warning: implicit declaration of function `my_func'
-test_proto.c: At top level:
-test_proto.c:9: warning: type mismatch with previous implicit declaration
-test_proto.c:6: warning: previous implicit declaration of `my_func'
-test_proto.c:9: warning: `my_func' was previously implicitly declared
-to return `int'
 
-it takes gcc -Wall test_proto.c --std=c99 -pedantic-errors to cause it
-not to create the a.out .
-So gcc should have caused an error as I didn't set --std=gnu99 .. bad compiler.
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
 
-So I don't know howto get gcc to follow the standards in this area,
-that sounds like a good thing to require.
+    Creative brains are a valuable, limited resource. They shouldn't be
+    wasted on re-inventing the wheel when there are so many fascinating
+    new problems waiting out there.
+                                                 -- Eric Steven Raymond
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-> > It's really over silly anyway, as it will fail at link time if they
-> > had matching preprocessor stuff around the function definition.
-
-> Not really.  A compiler might optimize away the reference to the
-> symbol if it's say guarded by a condition whose value can be
-> determined to be false at compile time.  If you rely on that, moving
-> to a different compiler that is unable to compute the condition value,
-> or simply is pickier as to standard compliance, will get you errors.
-
-True again, especially since the kernel code itself relies on that
-kind of behavior in some of it's inline functions or macros for
-example to cause link errors only when specific conditions arise.
-so the construct:
-
-#if conditions
-/* function prototype(s) */
-#else
-#define whatever(a,b,c) /* something to crash the compile */
-#endif
-is truely the best solution, if the namesys people want to be
-absolutely sure to catch all
-calls to znode_is_loaded when debuging is not set....
-
-#define znode_is_loaded(I_dont_care_you_are_going_to_) \
- } )die(]0now[>anyway<}}}}}}*bye*}
-#define znode_is_loaded(z) ><<<>
-
-Either one of the above defines should be sufficiently crappy to cause
-gcc to bomb out.
-I'm so sure(some say full) of it that I'm too lazy to test it out for myself.
-Of course a _Pragma("error") would`a been nice.
-
-Simply not providing a prototype to generate a warning was just
-BAD(B0rken As Designed).
-
--- 
-http://dmoz.org/profiles/pollei.html
-http://sourceforge.net/users/stephen_pollei/
-http://www.orkut.com/Profile.aspx?uid=2455954990164098214
-http://stephen_pollei.home.comcast.net/
+iD8DBQFDMJPzhDd4aOud5P8RAhMNAJ9zQXu8qBenrVOpUhobqNoaht/svACgji8P
+klO1Shq2h9o/dWb4iza1adw=
+=OL8+
+-----END PGP SIGNATURE-----

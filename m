@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965046AbVITPgu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965048AbVITPkF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965046AbVITPgu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 11:36:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965048AbVITPgu
+	id S965048AbVITPkF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 11:40:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965049AbVITPkF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 11:36:50 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:59269 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S965046AbVITPgt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 11:36:49 -0400
-Message-Id: <200509201536.j8KFa6wn011651@laptop11.inf.utfsm.cl>
-To: Nikita Danilov <nikita@clusterfs.com>
-cc: stephen.pollei@gmail.com, Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Denis Vlasenko <vda@ilport.com.ua>, LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: I request inclusion of reiser4 in the mainline kernel 
-In-Reply-To: Message from Nikita Danilov <nikita@clusterfs.com> 
-   of "Tue, 20 Sep 2005 13:30:46 +0400." <17199.54982.637650.772991@gargle.gargle.HOWL> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Tue, 20 Sep 2005 11:36:06 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.19.1]); Tue, 20 Sep 2005 11:36:06 -0400 (CLT)
+	Tue, 20 Sep 2005 11:40:05 -0400
+Received: from bayc1-pasmtp03.bayc1.hotmail.com ([65.54.191.163]:63975 "EHLO
+	BAYC1-PASMTP03.bayc1.hotmail.com") by vger.kernel.org with ESMTP
+	id S965048AbVITPkC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 11:40:02 -0400
+Message-ID: <BAYC1-PASMTP030BBDF3F9B2552DA9CF26AE950@cez.ice>
+X-Originating-IP: [67.71.125.52]
+X-Originating-Email: [seanlkml@sympatico.ca]
+Message-ID: <54562.10.10.10.28.1127230800.squirrel@linux1>
+In-Reply-To: <20050920153231.GA2958@localhost.localdomain>
+References: <Pine.LNX.4.58.0509192003410.2553@g5.osdl.org>
+    <200509201005.49294.gene.heskett@verizon.net>
+    <20050920141008.GA493@flint.arm.linux.org.uk>
+    <200509201025.36998.gene.heskett@verizon.net>
+    <56402.10.10.10.28.1127229646.squirrel@linux1>
+    <20050920153231.GA2958@localhost.localdomain>
+Date: Tue, 20 Sep 2005 11:40:00 -0400 (EDT)
+Subject: Re: Arrr! Linux v2.6.14-rc2
+From: "Sean" <seanlkml@sympatico.ca>
+To: "Alexander Nyberg" <alexn@telia.com>
+Cc: "Gene Heskett" <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.4-2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
+X-OriginalArrivalTime: 20 Sep 2005 15:39:34.0706 (UTC) FILETIME=[804E7920:01C5BDF9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nikita Danilov <nikita@clusterfs.com> wrote:
-> Stephen Pollei writes:
->  > On 9/19/05, Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
->  > > Nikita Danilov <nikita@clusterfs.com> wrote:
->  > > > It's other way around: declaration is guarded by the preprocessor
->  > > > conditional so that nobody accidentally use znode_is_loaded()
->  > > > outside of the debugging mode.
+On Tue, September 20, 2005 11:32 am, Alexander Nyberg said:
 
->  > > Since when has a missing declaration prevented anyone calling a
->  > > function in C?!
+> ketchup <version>
 
-> It issues a warning, which is enough, given that reiser4 code was
-> warning-free most of the time.
+"git pull" is actually simpler in that you don't need to specify a
+version.  And it will keep you current with HEAD even between official
+releases.
 
-It is supposed to go into the kernel, which is not exactly warning-free.
-Besides, you don't know what idiotic new warnings the gcc people might
-dream up the next round, so just relying on no warnings is extremely
-unwise.
-
-As was said before: It it is /really/ wrong, arrange for it not to compile
-or not to link. If it isn't, well... then it wasn't that wrong anyway.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Sean
 

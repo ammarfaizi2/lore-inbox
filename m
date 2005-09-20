@@ -1,55 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964984AbVITMQ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964985AbVITMUY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964984AbVITMQ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 08:16:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964985AbVITMQ6
+	id S964985AbVITMUY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 08:20:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964987AbVITMUX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 08:16:58 -0400
-Received: from H190.C26.B96.tor.eicat.ca ([66.96.26.190]:26830 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S964984AbVITMQ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 08:16:57 -0400
-Date: Tue, 20 Sep 2005 06:11:57 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Steve French <smfrench@austin.rr.com>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       samba-technical@lists.samba.org
-Subject: Re: ctime set by truncate even if NOCMTIME requested
-Message-ID: <20050920121157.GG12946@schatzie.adilger.int>
-Mail-Followup-To: Steve French <smfrench@austin.rr.com>,
-	Trond Myklebust <trond.myklebust@fys.uio.no>,
-	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-	samba-technical@lists.samba.org
-References: <432EFAB1.4080406@austin.rr.com> <1127156303.8519.29.camel@lade.trondhjem.org> <432F2684.4040300@austin.rr.com> <1127165311.8519.39.camel@lade.trondhjem.org> <432F5968.1020106@austin.rr.com> <1127180199.26459.17.camel@lade.trondhjem.org> <432F70EF.9010100@austin.rr.com>
+	Tue, 20 Sep 2005 08:20:23 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:16582 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S964985AbVITMUX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 08:20:23 -0400
+Date: Tue, 20 Sep 2005 15:20:18 +0300 (EEST)
+From: Pekka J Enberg <penberg@cs.Helsinki.FI>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Al Viro <viro@ftp.linux.org.uk>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: p = kmalloc(sizeof(*p), )
+In-Reply-To: <20050920114003.GA31025@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.58.0509201501440.9304@sbz-30.cs.Helsinki.FI>
+References: <20050918100627.GA16007@flint.arm.linux.org.uk>
+ <84144f0205092004187f86840c@mail.gmail.com> <20050920114003.GA31025@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <432F70EF.9010100@austin.rr.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 19, 2005  21:16 -0500, Steve French wrote:
-> It does seem like
->    utime(filename, timeval)
-> may be the only time we want to send time changes to the server but I am 
-> not certain how risky such an approach  is even after scanning fs/open.c 
-> to ignore time changes except when both ATIME/MTIME/CTIME are set at the 
-> same time (as they are in sys_utime and do_utimes).   Most people 
-> probably don't care if the server and client clocks are not too far off, 
-> but it does affect performance (presumably even noticeable on something 
-> like fsx test)
+Hi Russell,
 
-For Lustre (since we are patching the VFS anyways) we have added an
-ATTR_CTIME_SET flag to distinguish whether the client has explicitly
-set the ia_ctime field, or if it is an implicit update.
+On Tue, 20 Sep 2005, Russell King wrote:
+> Think about it some more.  You've added a new member to struct foo.
+> You want to fix up all the places which allocate struct foo to
+> initialise this new member.  Grepping for 'struct foo' returns 100
+> files.  Grepping for kmalloc in those 100 files returns 100 files.
+> 
+> Do you open all 100 in an editor and manually try and locate the five
+> kmalloc instances of this structure, and end up missing some.
 
-Cheers, Andreas
---
-Andreas Dilger
-Principal Software Engineer
-Cluster File Systems, Inc.
+Nope. I grep for assignments to other members of that struct.
 
+On Tue, 20 Sep 2005, Russell King wrote:
+> Or do you do the sane thing and use kmalloc(sizeof(struct foo), ...)
+> and grep for "kmalloc[[:space:]]*(sizeof[[:space:]]*(struct foo)"
+> which returns only the five files and fix those up with knowledge
+> that you've found all the instances?
+
+There are still statically allocated structs left. So neither heuristic 
+for figuring out initialization points is perfect.
+
+On 9/18/05, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> Such shuffling around should be done in easy to review stages so that
+> bugs can be found, and not a mega patch.  This inherently means that
+> for a structure name change, you don't end up with a new structure
+> named the same as an old structure.  And if you compile-test the
+> stages, you find out if you missed the problem.
+
+No disagreement here.
+
+On 9/18/05, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> Your solution is better if the only thing you're concerned about is
+> "are we allocating enough memory for this fixed size structure".
+> It completely breaks if you are also concerned about "are we doing
+> correct initialisation" or "are we allocating enough memory for this
+> variable sized structure" both of which are far more important
+> questions.
+> 
+> *especially* when you consider that kmalloc is redzoned and therefore
+> will catch the kinds of bugs you're suggesting.
+
+Well, yes, but for initialization, I would prefer something like what Al 
+Viro suggested. To me, initialization is a separate issue from kmalloc. I 
+do get your point but I just don't think sizeof(struct foo) is the answer.
+
+In all completeness, I would personally prefer the following form for 
+allocation and initialization which is readable, easy to get right, and 
+highly greppable:
+
+	struct foo *p = kmalloc(sizeof *p, ...);
+
+	*p = (struct foo) {
+		.bar = ...;
+	};
+
+Unfortunately it doesn't seem like gcc is doing such a good job with it.
+
+			Pekka

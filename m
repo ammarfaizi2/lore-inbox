@@ -1,76 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932513AbVITEv0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932512AbVITEwK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932513AbVITEv0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 00:51:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932512AbVITEv0
+	id S932512AbVITEwK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 00:52:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932522AbVITEwK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 00:51:26 -0400
-Received: from smtp104.rog.mail.re2.yahoo.com ([206.190.36.82]:23948 "HELO
-	smtp104.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S932517AbVITEvZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 00:51:25 -0400
-Subject: Re: [patch] stop inotify from sending random DELETE_SELF event
-	under load
-From: John McCutchan <ttb@tentacle.dhs.org>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	Tue, 20 Sep 2005 00:52:10 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:12010 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932512AbVITEwJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 00:52:09 -0400
+Date: Mon, 19 Sep 2005 21:52:01 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: John McCutchan <ttb@tentacle.dhs.org>
+cc: Al Viro <viro@ftp.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
        Linux Kernel <linux-kernel@vger.kernel.org>,
        Robert Love <rml@novell.com>, Al Viro <viro@ZenIV.linux.org.uk>
-In-Reply-To: <20050920044623.GD7992@ftp.linux.org.uk>
-References: <1127177337.15262.6.camel@vertex>
-	 <Pine.LNX.4.58.0509191821220.2553@g5.osdl.org>
-	 <1127181641.16372.10.camel@vertex>
-	 <Pine.LNX.4.58.0509191909220.2553@g5.osdl.org>
-	 <1127188015.17794.6.camel@vertex>
-	 <Pine.LNX.4.58.0509192054060.2553@g5.osdl.org>
-	 <20050920042456.GC7992@ftp.linux.org.uk> <1127190971.18595.5.camel@vertex>
-	 <20050920044623.GD7992@ftp.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 20 Sep 2005 00:53:12 -0400
-Message-Id: <1127191992.19093.3.camel@vertex>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+Subject: Re: [patch] stop inotify from sending random DELETE_SELF event under
+ load
+In-Reply-To: <1127190971.18595.5.camel@vertex>
+Message-ID: <Pine.LNX.4.58.0509192144150.2553@g5.osdl.org>
+References: <1127177337.15262.6.camel@vertex>  <Pine.LNX.4.58.0509191821220.2553@g5.osdl.org>
+  <1127181641.16372.10.camel@vertex>  <Pine.LNX.4.58.0509191909220.2553@g5.osdl.org>
+  <1127188015.17794.6.camel@vertex>  <Pine.LNX.4.58.0509192054060.2553@g5.osdl.org>
+  <20050920042456.GC7992@ftp.linux.org.uk> <1127190971.18595.5.camel@vertex>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-09-20 at 05:46 +0100, Al Viro wrote:
-> On Tue, Sep 20, 2005 at 12:36:11AM -0400, John McCutchan wrote:
-> > On Tue, 2005-09-20 at 05:24 +0100, Al Viro wrote:
-> > > On Mon, Sep 19, 2005 at 09:03:36PM -0700, Linus Torvalds wrote:
-> > > > One possibility is to mark the dentry deleted in d_flags. That would mean 
-> > > > something like this (against the just-pushed-put v2.6.14-rc2, which has 
-> > > > my previous hack).
-> > > > 
-> > > > Untested. Al?
-> > >  
-> > > Uhh...  I still don't understand which behaviour do you want.
-> > 
-> > 
-> > > 	* removal of this link, at the moment when it stops being accessible
-> > > [ none of the above, better done from vfs_...() ]
-> > 
-> > That is the behaviour we want, how does Linus's second patch not
-> > accomplish this? 
+
+
+On Tue, 20 Sep 2005, John McCutchan wrote:
 > 
-> fd = open("foo", 0);
-> unlink("foo");
-> sleep for ten days
-> close(fd);
+> > 	* removal of this link, at the moment when it stops being accessible
+> > [ none of the above, better done from vfs_...() ]
 > 
-> 	Linus' patch will send event on close().  Ten days since the moment
-> when any lookups on foo would bring you -ENOENT.
-> 
+> That is the behaviour we want, how does Linus's second patch not
+> accomplish this? 
 
+My latest patch will still wait for any other process that has that _path_ 
+open to release it.
 
-Ahh, got it.
+The reason? It looks "easy" to do it from d_delete(), but the thing is, at
+the point where we've released the d_lock spinlock, the "struct inode" is
+gone, gone, gone. And we don't want to do the notification _while_ we hold
+the spinlocks either.
 
-> 	Could you please describe the semantics of your events?
+So we can either do it the easy way - _before_ we get any spinlocks (but
+that means that processes will be notified before the name is actually
+gone), or we have to wait until _after_ we've unhashed the dentry and
+released the spinlocks.
 
-DELETE_SELF WD=X
+But waiting until after that automatically means that the inode isn't 
+stable any more: it might be gone.
 
-The path you requested a watch on (inotify_add_watch(path,mask) returned
-X) has been deleted.
+The "fsnotify_nameremove()" thing doesn't have this problem, because it 
+simply doesn't even care about the inode - it only cares about the dentry, 
+which is stable.
 
--- 
-John McCutchan <ttb@tentacle.dhs.org>
+This is why movign the release to "dentry_iput()" helps us - it's the
+point where we release the dentry spinlocks, and it's also where the inode
+actually goes away. In other words, it's the _one_ point where we can
+insert the notification outside of the dcache locks but before the inode
+is gone.
+
+It's a sligtly inconvenient place, though. And it does mean that if the
+dentry was in use by something else when the delete happened, the "inode
+is gone"  notification will be delayed until the dentry is really free'd.
+However, at least at that point it's really a per-path thing, and it won't 
+have any other global issues (ie hardlinks etc do not come into play with
+my last patch).
+
+If you want immediate notification when the name disappears, you'd better 
+listen to the "nameremove" thing. 
+
+I don't think we can reasonably do better than the last patch, but maybe 
+Al sees something I've missed.
+
+		Linus

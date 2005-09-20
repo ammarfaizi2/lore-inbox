@@ -1,95 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965007AbVITNIr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965011AbVITNcu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965007AbVITNIr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 09:08:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965008AbVITNIr
+	id S965011AbVITNcu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 09:32:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965012AbVITNcu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 09:08:47 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:17542 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S965007AbVITNIr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 09:08:47 -0400
-Date: Tue, 20 Sep 2005 15:08:46 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: rpurdie@rpsys.net, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6 zaurus: pcmcia now works
-Message-ID: <20050920130846.GB14548@atrey.karlin.mff.cuni.cz>
-References: <20050920100823.GA16186@elf.ucw.cz> <20050920111851.GA26353@flint.arm.linux.org.uk>
+	Tue, 20 Sep 2005 09:32:50 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:3202 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S965011AbVITNcu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 09:32:50 -0400
+Date: Tue, 20 Sep 2005 15:32:44 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: "Artem B. Bityutskiy" <dedekind@yandex.ru>
+Cc: Peter Menzebach <pm-mtd@mw-itcon.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: data  loss on jffs2 filesystem on dataflash
+Message-ID: <20050920133244.GC4634@wohnheim.fh-wedel.de>
+References: <432812E8.2030807@mw-itcon.de> <432817FF.10307@yandex.ru> <4329251C.7050102@mw-itcon.de> <4329288B.8050909@yandex.ru> <43292AC6.40809@mw-itcon.de> <43292E16.70401@yandex.ru> <43292F91.9010302@mw-itcon.de> <432FE1EF.9000807@yandex.ru> <432FEF55.5090700@mw-itcon.de> <433006D8.4010502@yandex.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20050920111851.GA26353@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <433006D8.4010502@yandex.ru>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, 20 September 2005 16:55:52 +0400, Artem B. Bityutskiy wrote:
+> Peter Menzebach wrote:
+> >No, not at then moment. If I have some time, I can try to rewrite the 
+> >chipset driver, that it reports a sector size of 1024.
 
-> > FYI, my hacks now look like (attached). I'll push changes to linux-z
-> > in few hours.
-> 
-> Some questions:
-> 
-> @@ -57,8 +57,6 @@ void dump_backtrace_entry(unsigned long
->  #ifdef CONFIG_KALLSYMS
->         printk("[<%08lx>] ", where);
->         print_symbol("(%s) ", where);
-> -       printk("from [<%08lx>] ", from);
-> -       print_symbol("(%s)\n", from);
-> 
-> The "from" address provides good hints about the exact path we got to
-> the called function.  You don't really want to get rid of that because
-> it makes following backtraces harder.  I'm not sure why you've made
-> the other changes in that file either.
+Don't.  I'm actually glad about some flash with sizes not exactly
+matching a power of two.  It causes you some pain, but generally helps
+to find bugs.
 
-Well, zaurus console is something like 40x20 characters. Normal
-backtrace does not fit there, and it has most important info at the
-top.
+> I glanced at the manual. Uhh, DataFlash is very specific beast. It 
+> suppoers page program with built-in erase command... So DataFlash 
+> effectively may be considered as a block device. Then you may use any FS 
+> on it providing you have wrote proper driver? Why do you need JFFS2 then 
+> :-) ?
 
+Still can't.  Block devices have the attribute that writing AAA... to
+a block containing BBB... gives you one of three possible results in
+case of power failure:
 
-> +/* those must never be empty
-> +   unfortunately they cause problems with older binutils
->  ASSERT((__proc_info_end - __proc_info_begin), "missing CPU support")
->  ASSERT((__arch_info_end - __arch_info_begin), "no machine record defined")
-> +*/
-> 
-> Get a better binutils. 8)
+1. BBB...BBB all written
+2. AAA...AAA nothing written
+3. AAA...BBB partially written.
 
-Yep :-). Those can wait.
+Flash doesn't have 3, but two more cases:
+4. FFF...FFF erased, nothing written
+5. AAA...FFF erased, partially written
 
-> diff --git a/drivers/mfd/mcp-core.c b/drivers/mfd/mcp-core.c
-> --- a/drivers/mfd/mcp-core.c
-> +++ b/drivers/mfd/mcp-core.c
-> @@ -19,6 +19,7 @@
->  #include <asm/dma.h>
->  #include <asm/system.h>
-> 
-> +#include <asm/arch/mcp.h>
->  #include "mcp.h"
-> 
->  #define to_mcp(d)              container_of(d, struct mcp, attached_device)
-> 
-> This looks bogus - why is this needed?
+Plus the really obnoxious
+6. FFF...FFF partially erased.  Looks fine but some bits may flip
+   randomly, writes may not stick, etc.
 
-Can go, fixed. (Remainings of previous patches).
+Now try finding a filesystem that is robust if 4-6 happens. ;)
 
-> @@ -186,7 +192,12 @@ static int mcp_sa11x0_probe(struct devic
->          */
->         Ser4MCSR = -1;
->         Ser4MCCR1 = data->mccr1;
-> -       Ser4MCCR0 = data->mccr0 | 0x7f7f;
-> +#if 1
-> +       if (machine_is_collie())
-> +               Ser4MCCR0 = MCCR0_ADM | MCCR0_ExtClk;
-> +       else
-> +#endif
-> +               Ser4MCCR0 = data->mccr0 | 0x7f7f;
-> 
-> Ditto.
+> JFFS2 orients to "classical" flashes. They have no "write page with 
+> built-in erase" operation.
 
-I tried to kill that one before, and it broke boot. I have little idea
-how to debug that one...
-								Pavel
+What does this thing do?
+
+> BTW, having 8*1056 write buffer is not perfect ides, better make it as 
+> small as possible, i.e., 1056 bytes.
+
+Definitely.
+
+Jörn
+
 -- 
-Boycott Kodak -- for their patent abuse against Java.
+You can't tell where a program is going to spend its time. Bottlenecks
+occur in surprising places, so don't try to second guess and put in a
+speed hack until you've proven that's where the bottleneck is.
+-- Rob Pike

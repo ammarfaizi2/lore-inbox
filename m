@@ -1,60 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750796AbVITX3u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbVITXqY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750796AbVITX3u (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 19:29:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750815AbVITX3u
+	id S1750706AbVITXqY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 19:46:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750718AbVITXqY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 19:29:50 -0400
-Received: from zproxy.gmail.com ([64.233.162.206]:57322 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750796AbVITX3t convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 19:29:49 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=Ku6t35FV1mU7caapUVLDVbTIMtGTPcwgj272nWLFZERQ03ygUIhU6Fv9JX0mifi9L+1SQ0PluQLPcKyKyikCi52ALC9sjPnvYDGmfDliXJEkPs8SadHrD5DYmOHO8FgDRm8Ge8960Xq0VG9FeuC9U5/KqFhaYv3g0VmCJy3g6AM=
-Message-ID: <6bffcb0e05092016291f14c6e2@mail.gmail.com>
-Date: Wed, 21 Sep 2005 01:29:48 +0200
-From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Reply-To: michal.k.k.piotrowski@gmail.com
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: 2.6.14-rc2 compilation warnings (gcc-4.1-20050917)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Tue, 20 Sep 2005 19:46:24 -0400
+Received: from mail27.sea5.speakeasy.net ([69.17.117.29]:24288 "EHLO
+	mail27.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1750706AbVITXqY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 19:46:24 -0400
+Date: Tue, 20 Sep 2005 16:46:23 -0700 (PDT)
+From: Vadim Lobanov <vlobanov@speakeasy.net>
+To: James Lamanna <jlamanna@gmail.com>
+cc: stephen.pollei@gmail.com, vonbrand@inf.utfsm.cl, nikita@clusterfs.com,
+       vda@ilport.com.ua, linux-kernel@vger.kernel.org,
+       reiserfs-list@namesys.com
+Subject: Re: I request inclusion of reiser4 in the mainline kernel
+In-Reply-To: <aa4c40ff05092015405a23f33a@mail.gmail.com>
+Message-ID: <Pine.LNX.4.58.0509201644300.14402@shell3.speakeasy.net>
+References: <aa4c40ff05092015405a23f33a@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-It maybe a bit off topic, but I just tried to compile latest
-2.6.14-rc2 with new gcc-4.1 (stage 3:
-http://gcc.gnu.org/develop.html#stage3). I have noticed some warnings
-(in example):
+On Tue, 20 Sep 2005, James Lamanna wrote:
 
-usr/initramfs_data.S: Assembler messages:
-usr/initramfs_data.S:1: Warning: line numbers must be positive; line
-number 0 rejected
+> On 9/20/05, Stephen Pollei <stephen.pollei@gmai.com> wrote:
+> >On 9/20/05, Hans Reiser <reiser@namesys.com> wrote:
+> > > Horst von Brand wrote:
+> > > >Nikita Danilov <nikita@clusterfs.com> wrote:
+> > > >It is supposed to go into the kernel, which is not exactly warning-free.
+>
+> > > Is that what this thread boils down to, that you guys think the compile
+> > > should fail not warn?
+>
+> > > I don't care if it fails or warns at compile time, but you shouldn't
+> > > misuse/abuse a warning by potentialily introducing an unrelated bug.
+> >
+> > So if you had
+> >#if defined(DEBUG_THIS) || defined(DEBUG_THAT)
+> >int znode_is_loaded(const struct znode *z);
+> > #else
+> > int znode_is_loaded(const struct znode *z)
+> >  __attribute__((__warn_broken__("unavailible when not debuging")));
+> > #endif
+> > That would be great with me.. except __warn_broken__ or the like
+> > doesn't exist AFAIK :-<
+> > Closest thing is __attribute((__deprecated__)) but thats not quite right.
+> > > > As was said before: It it is /really/ wrong, arrange for it not to compile
+> > > > or not to link. If it isn't, well... then it wasn't that wrong anyway.
+>
+> What about #warning / #error in this case?
+>
+> #if defined(DEBUG_THIS) || defined(DEBUG_THAT)
+>     int znode_is_loaded(const struct znode *z);
+> #else
+>     #error znode_is_loaded is unavailable when not debugging
+> #endif
+>
+> That would certainly break the compile.
 
-This maybe a gcc issue.
+Except that breaks the compile unconditionally, not just when someone
+tries to use the function when they shouldn't. I don't think a flat
+error will work here, but instead something along the lines of a
+__attribute__((error)) on the function is needed.
 
----
+> -- James Lamanna
+> -
 
-kernel/sched.c: In function 'yield':
-kernel/sched.c:4069: warning: value computed is not used
-
-void __sched yield(void)
-{
-	set_current_state(TASK_RUNNING);
-	sys_sched_yield();
-}
-
-I found this while googling: http://gcc.gnu.org/ml/gcc/1998-04/msg00810.html
-
-What's wrong? TASK_RUNNING is definition from include/linux/sched.h
-
-Full compilation log:
-http://stud.wsi.edu.pl/~piotrowskim/research/linux/gcc-4.1-20050917/compilation_log.txt
-
-Regards,
-Michal Piotrowski
+-VadimL

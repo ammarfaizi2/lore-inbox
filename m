@@ -1,52 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965167AbVITWS7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965165AbVITWVr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965167AbVITWS7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 18:18:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965165AbVITWS6
+	id S965165AbVITWVr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 18:21:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932616AbVITWVr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 18:18:58 -0400
-Received: from zproxy.gmail.com ([64.233.162.200]:37438 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965175AbVITWS6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 18:18:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=XCezJNZSwD7x+7bqfmvERm2he38ocMWI4BnvVQpiMHxqhyWBFNzrW9Y/dn3kC3HJvwTbZtq0td5z1bMbyB1lFnH3OZ5+/SgYqjnYfS686b3Mh5TAhnq27B44QIs8uLEXNLxcy8mae7fvwUWrlYdXfczI3UHnmnHPBqkslmCpu9Y=
-Message-ID: <9a8748490509201518248b66d1@mail.gmail.com>
-Date: Wed, 21 Sep 2005 00:18:50 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Reply-To: jesper.juhl@gmail.com
+	Tue, 20 Sep 2005 18:21:47 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:39647 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S932441AbVITWVq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 18:21:46 -0400
+Message-Id: <200509202221.j8KMLhcr032238@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
 To: John Richard Moser <nigelenki@comcast.net>
-Subject: Re: Hot-patching
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <43308815.1000200@comcast.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Subject: Re: Hot-patching 
+In-Reply-To: Your message of "Tue, 20 Sep 2005 18:07:17 EDT."
+             <43308815.1000200@comcast.net> 
+From: Valdis.Kletnieks@vt.edu
 References: <43308815.1000200@comcast.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1127254903_3303P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 20 Sep 2005 18:21:43 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/21/05, John Richard Moser <nigelenki@comcast.net> wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Oftentimes distributions spin on a stable kernel, but occasionally
-> update it for security bugs.  This then demands a reboot, or you sit on
-> a buggy kernel for however long.
-> 
+--==_Exmh_1127254903_3303P
+Content-Type: text/plain; charset=us-ascii
 
-This has been discussed time and time again on this list and elsewhere
-over the years. The most recent discussion I recall is the "[PATCH
-x86_64] Live Patching Function on 2.6.11.7" thread which drew over 50
-comments and got into a lot of corners - I'd suggest you go read it in
-the archives.
-Spend a little time searching and you'll find several other threads
-about this in lkml archives.
+On Tue, 20 Sep 2005 18:07:17 EDT, John Richard Moser said:
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+> These bugfixes don't typically change the exported binary interface of
+> the existing functions being corrected, and so it would be feasible to
+> halt all processors and execute an atomic codepath to switch the symbols
+> in the running kernel to point to the replacement functions from the old
+> ones.  If big functions are split up into smaller ones, as long as the
+> interface is the same for all existing functions, it shouldn't matter as
+> well.
+
+I believe telco switch software has been doing patch-on-the-fly for quite
+a long time.  It's a royal pain in the butt, especially if you have any
+dynamic 'struct foo_ops' lurking.
+
+And you can't just plop the code in either - let's say the fix includes "add
+a state bit to the 'struct foo_ctl' to track XYZ".  Now you need to think about
+the fact that there's likely kmalloc'ed struct foo_ctl's already out there
+that don't know about this bit.  Hilarity ensues....
+
+--==_Exmh_1127254903_3303P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFDMIt3cC3lWbTT17ARAvFxAJwNL6fuA2ggJ3Vu32OenuuFPZ8uXACePbTx
+r40h7nidG2qTbtvOfXJyvEs=
+=nEQB
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1127254903_3303P--

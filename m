@@ -1,53 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932760AbVITOk6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932767AbVITOlm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932760AbVITOk6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 10:40:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932766AbVITOk6
+	id S932767AbVITOlm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 10:41:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932769AbVITOll
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 10:40:58 -0400
-Received: from host-84-9-200-79.bulldogdsl.com ([84.9.200.79]:14215 "EHLO
-	aeryn.fluff.org.uk") by vger.kernel.org with ESMTP id S932760AbVITOk6
+	Tue, 20 Sep 2005 10:41:41 -0400
+Received: from 69-18-3-179.lisco.net ([69.18.3.179]:2249 "EHLO
+	ninja.slaphack.com") by vger.kernel.org with ESMTP id S932767AbVITOll
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 10:40:58 -0400
-Date: Tue, 20 Sep 2005 15:39:58 +0100
-From: Ben Dooks <ben-linux@fluff.org>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Ben Dooks <ben-linux@fluff.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] scripts - use $OBJDUMP to get correct objdump (cross compile)
-Message-ID: <20050920143958.GA3500@home.fluff.org>
-References: <20050919210645.GA20669@home.fluff.org> <12002.1127204929@kao2.melbourne.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <12002.1127204929@kao2.melbourne.sgi.com>
-X-Disclaimer: I speak for me, myself, and the other one of me.
-User-Agent: Mutt/1.5.9i
+	Tue, 20 Sep 2005 10:41:41 -0400
+Message-ID: <43301FA0.7030906@slaphack.com>
+Date: Tue, 20 Sep 2005 09:41:36 -0500
+From: David Masover <ninja@slaphack.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (Macintosh/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+CC: Hans Reiser <reiser@namesys.com>, Horst von Brand <vonbrand@inf.utfsm.cl>,
+       thenewme91@gmail.com, Christoph Hellwig <hch@infradead.org>,
+       Denis Vlasenko <vda@ilport.com.ua>, chriswhite@gentoo.org,
+       LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: I request inclusion of reiser4 in the mainline kernel
+References: <200509182004.j8IK4JNx012764@inti.inf.utfsm.cl> <432E5024.20709@namesys.com> <20050920075133.GB4074@elf.ucw.cz>
+In-Reply-To: <20050920075133.GB4074@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 20, 2005 at 06:28:49PM +1000, Keith Owens wrote:
-> On Mon, 19 Sep 2005 22:06:45 +0100, 
-> Ben Dooks <ben-linux@fluff.org> wrote:
-> >The scripts for `make buildcheck` are executing
-> >objdump straight, which is wrong if the system
-> >is using `make CROSS_COMPILE=....`. 
-> >
-> >Change the scripts to use $OBJDUMP passed from
-> >the Makefile's environment, so that the correct
-> >objdump is used, and the symbols are printed
-> >correctly
+Pavel Machek wrote:
+> Hi!
 > 
-> Those scripts are meant to work even when they are invoked by hand,
-> without OBJDUMP being defined in the environment.  This is the correct
-> fix.
 > 
-> Signed-off-by: Keith Owens <kaos@ocs.com.au>
+>>V3 is obsoleted by V4 in every way.  V3 is old code that should be
+>>marked as deprecated as soon as V4 has passed mass testing.   V4 is far
+>>superior in its coding style also.  Having V3 in and V4 out is at this
+>>point just stupid. 
+> 
+> 
+> Really? Last time I checked, even V3's fsck was not too great. [In
+> fact I never could make it run stable enough to even _test_ it
+> properly].
+> 
+> Do you have working fsck for V4?
 
-Ok, that seems to have fixed the problems, thanks.
+Already saved me once.  But then, I should have had backups.
 
-Acked-by: Ben Dooks <ben-linux@fluff.org>
-
--- 
-Ben (ben@fluff.org, http://www.fluff.org/)
-
-  'a smiley only costs 4 bytes'
+And personally, if it was my FS, I'd stop working on fsck after it was 
+able to "check".  That's what it's for.  To fix an FS, you wipe it and 
+restore from backups.

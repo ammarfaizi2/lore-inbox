@@ -1,72 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965066AbVITShc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965064AbVITSkA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965066AbVITShc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 14:37:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965065AbVITShc
+	id S965064AbVITSkA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 14:40:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965065AbVITSkA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 14:37:32 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:57517 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S965064AbVITShb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 14:37:31 -0400
-Message-Id: <200509201836.j8KIajK0001419@laptop11.inf.utfsm.cl>
-To: Hans Reiser <reiser@namesys.com>
-cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Nikita Danilov <nikita@clusterfs.com>, stephen.pollei@gmail.com,
-       Denis Vlasenko <vda@ilport.com.ua>, LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: I request inclusion of reiser4 in the mainline kernel 
-In-Reply-To: Message from Hans Reiser <reiser@namesys.com> 
-   of "Tue, 20 Sep 2005 10:43:29 MST." <43304A41.7080206@namesys.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Tue, 20 Sep 2005 14:36:45 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Tue, 20 Sep 2005 14:36:46 -0400 (CLT)
+	Tue, 20 Sep 2005 14:40:00 -0400
+Received: from enterprise.francisscott.net ([64.235.237.105]:16139 "EHLO
+	enterprise.francisscott.net") by vger.kernel.org with ESMTP
+	id S965064AbVITSkA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 14:40:00 -0400
+Message-ID: <4330577F.5000602@lampert.org>
+Date: Tue, 20 Sep 2005 11:39:59 -0700
+From: Scott Lampert <scott@lampert.org>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050812)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Marc Perkel <marc@perkel.com>
+CC: Frank van Maarseveen <frankvm@frankvm.com>, linux-kernel@vger.kernel.org
+Subject: Re: Lost Ticks
+References: <432E3D4C.4070508@perkel.com> <20050920070214.GA4208@janus> <43304F96.6000805@lampert.org> <433053ED.7080209@perkel.com>
+In-Reply-To: <433053ED.7080209@perkel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser <reiser@namesys.com> wrote:
-> Horst von Brand wrote:
+Yeah I tried that patch.  It simply emulates adding notsc to the command 
+line.  However there was a thread on LKML between Andi Kleen and the 
+provider of this patch and Andi indicated he wasn't convinced that this 
+fixes the bug, but simply masks the real bug.  For now I'm sticking with 
+the notsc option until they figure out more details.
+    -Scott
 
-[...]
+Marc Perkel wrote:
 
-> >It is supposed to go into the kernel, which is not exactly warning-free.
-
-> While I have no passionate feelings about Nikita's ifdef, I must note
-> that Reiser4 will always be warning free within 3 days of my finding out
-> that somebody left a warning in.;-)
-
-> I hate messy code.;-)
-
-Me too. And I hate warnings. But what I hate most is code that has been
-messed up to get an idiotic compiler to shut up. And it has been several
-times that I've seen modifications to shut up the compiler, after which
-modifications introduced bugs. The compiler then kept quiet due to the
-"warning fix", when it would have screamed otherwise. Or where the compiler
-was right in complaining, and the fix just did shut it up and did not fix
-the real problem. Examples include gratuitous casts, "just initialize to
-anything" so it doesn't warn about possible use without initialization.
-
-> The rest of the kernel should be fixed to be warning free.
-
-Unrealistic. Would be nice, but there are more pressing needs. And,as I
-said above, just brute-forcing it warning-free without really understanding
-what the warning is all about is /much/ worse than keeping an useless
-warning.
-
-> >Besides, you don't know what idiotic new warnings the gcc people might
-> >dream up the next round, so just relying on no warnings is extremely
-> >unwise.
-
-> I find the above unconvincing.
-
-That means you haven't used very many gcc versions. I've been around since
-1.72 (or even earlier), and each single new gcc version (even minor
-revisions) would complain about things the earlier ones thought were
-A-OK. Even worse, to get correct code out of some versions you have to
-write stuff that later versions find objectionable.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+> Yeah - there's a patch for that here:
+>
+> http://bugzilla.kernel.org/show_bug.cgi?id=5105
+>
+> I haven't tried it yet but will later when I go to the data center. 
+> You might want to try it and let me know if it actually fixed the 
+> problem.
+>
+> diff --git a/arch/x86_64/kernel/time.c b/arch/x86_64/kernel/time.c
+> --- a/arch/x86_64/kernel/time.c
+> +++ b/arch/x86_64/kernel/time.c
+> @@ -959,9 +959,6 @@ static __init int unsynchronized_tsc(voi
+>         are handled in the OEM check above. */
+>      if (boot_cpu_data.x86_vendor == X86_VENDOR_INTEL)
+>          return 0;
+> -     /* All in a single socket - should be synchronized */
+> -     if (cpus_weight(cpu_core_map[0]) == num_online_cpus())
+> -         return 0;
+> #endif
+>      /* Assume multi socket systems are not synchronized */
+>      return num_online_cpus() > 1;
+>
+>
+> Mizery loves company. I'm glad I'm not the only one with this problem.
+>
+>
+> Scott Lampert wrote:
+>
+>> I have the exact same problem on a ASUS A8N-SLI Premium board and 
+>> Athlon64 4800+ X2 with every BIOS up to 1008-01.  Running with notsc 
+>> is the only way to get it to work.
+>>
+>> As an aside BIOS version 1008-003 is available for this board however 
+>> this one seems to be WAY worse as the board won't even boot.  It gets 
+>> panics before the boot messages unless you boot with noapic and after 
+>> that it gets checksum errors on the RSDP.  I'm afraid to see what the 
+>> next official BIOS version does. :/
+>>    -Scott
+>>
+>> Frank van Maarseveen wrote:
+>>
+>>> On Sun, Sep 18, 2005 at 09:23:40PM -0700, Marc Perkel wrote:
+>>>  
+>>>
+>>>> Got a dual core Athlon 64 X2 on an Asus board using NVidia chipset 
+>>>> and getting lost ticks. The software clock of course is totally 
+>>>> messed up. I've scanned google for a solution and see others 
+>>>> complaining about bad code in the SMM BIOS. I have the latest bios 
+>>>> and whatever they need to fix - isn't.
+>>>>
+>>>> So - what do I do to make it work?
+>>>>   
+>>>
+>>>
+>>>
+>>> See http://bugzilla.kernel.org/show_bug.cgi?id=5105
+>>>
+>>> On the kernel command-line:
+>>>
+>>> x86_64:    try "notsc"
+>>> i386:    try "clock=pit"
+>>>
+>>> "nosmp" works but isn't fun.
+>>>
+>>>  
+>>>
+>> -
+>> To unsubscribe from this list: send the line "unsubscribe 
+>> linux-kernel" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>

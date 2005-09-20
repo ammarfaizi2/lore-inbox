@@ -1,44 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932773AbVITRhF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932778AbVITRng@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932773AbVITRhF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 13:37:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932777AbVITRhF
+	id S932778AbVITRng (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 13:43:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932779AbVITRng
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 13:37:05 -0400
-Received: from [81.2.110.250] ([81.2.110.250]:48620 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S932773AbVITRhE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 13:37:04 -0400
-Subject: Re: p = kmalloc(sizeof(*p), )
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>, penberg@cs.Helsinki.FI,
-       viro@ftp.linux.org.uk, linux-kernel@vger.kernel.org, torvalds@osdl.org
-In-Reply-To: <20050920101128.70fec697.akpm@osdl.org>
-References: <20050918100627.GA16007@flint.arm.linux.org.uk>
-	 <84144f0205092004187f86840c@mail.gmail.com>
-	 <20050920114003.GA31025@flint.arm.linux.org.uk>
-	 <Pine.LNX.4.58.0509201501440.9304@sbz-30.cs.Helsinki.FI>
-	 <20050920123149.GA29112@flint.arm.linux.org.uk>
-	 <20050920101128.70fec697.akpm@osdl.org>
-Content-Type: text/plain
+	Tue, 20 Sep 2005 13:43:36 -0400
+Received: from rwcrmhc14.comcast.net ([216.148.227.89]:45803 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S932778AbVITRnf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 13:43:35 -0400
+Message-ID: <43304A41.7080206@namesys.com>
+Date: Tue, 20 Sep 2005 10:43:29 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+CC: Nikita Danilov <nikita@clusterfs.com>, stephen.pollei@gmail.com,
+       Denis Vlasenko <vda@ilport.com.ua>, LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: I request inclusion of reiser4 in the mainline kernel
+References: <200509201536.j8KFa6wn011651@laptop11.inf.utfsm.cl>
+In-Reply-To: <200509201536.j8KFa6wn011651@laptop11.inf.utfsm.cl>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Date: Tue, 20 Sep 2005 19:02:41 +0100
-Message-Id: <1127239361.7763.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2005-09-20 at 10:11 -0700, Andrew Morton wrote:
-> Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> >
-> >  Since some of the other major contributors to the kernel appear to
-> >  also disagree with the statement, I think that the entry in
-> >  CodingStyle must be removed.
-> 
-> Nobody has put forward a decent reason for doing so.  
+Horst von Brand wrote:
 
-I've seen five decent reasons so far. Which of the reasons on the thread
-do you disagree with and why ?
+>Nikita Danilov <nikita@clusterfs.com> wrote:
+>  
+>
+>
+>It is supposed to go into the kernel, which is not exactly warning-free.
+>  
+>
+While I have no passionate feelings about Nikita's ifdef, I must note
+that Reiser4 will always be warning free within 3 days of my finding out
+that somebody left a warning in.;-)
+
+I hate messy code.;-)
+
+The rest of the kernel should be fixed to be warning free.
+
+>Besides, you don't know what idiotic new warnings the gcc people might
+>dream up the next round, so just relying on no warnings is extremely
+>unwise.
+>  
+>
+I find the above unconvincing.
+
+Is that what this thread boils down to, that you guys think the compile
+should fail not warn? 
+
+>As was said before: It it is /really/ wrong, arrange for it not to compile
+>or not to link. If it isn't, well... then it wasn't that wrong anyway.
+>  
+>
 

@@ -1,56 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932727AbVITFQp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932728AbVITFRL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932727AbVITFQp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 01:16:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932728AbVITFQp
+	id S932728AbVITFRL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 01:17:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932729AbVITFRL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 01:16:45 -0400
-Received: from mailwasher.lanl.gov ([192.65.95.54]:15780 "EHLO
-	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
-	id S932727AbVITFQp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 01:16:45 -0400
-Subject: Re: [Question] How to understand Clock-Pro algorithm?
-From: Song Jiang <sjiang@lanl.gov>
-To: liyu <liyu@ccoss.com.cn>
-Cc: LKML <linux-kernel@vger.kernel.org>, Linux-MM <linux-mm@kvack.org>
-In-Reply-To: <432F97E1.4080805@ccoss.com.cn>
-References: <432F7DD5.6050204@ccoss.com.cn>
-	 <1127188898.3130.52.camel@moon.c3.lanl.gov> <432F97E1.4080805@ccoss.com.cn>
-Content-Type: text/plain
-Message-Id: <1127193398.3130.131.camel@moon.c3.lanl.gov>
+	Tue, 20 Sep 2005 01:17:11 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:50157 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932728AbVITFRJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 01:17:09 -0400
+Date: Mon, 19 Sep 2005 22:16:14 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: vandrove@vc.cvut.cz, alokk@calsoftinc.com, linux-kernel@vger.kernel.org,
+       manfred@colorfullife.com
+Subject: Re: 2.6.14-rc1-git-now still dying in mm/slab - this time line 1849
+Message-Id: <20050919221614.6c01c2d1.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.62.0509191351440.26388@schroedinger.engr.sgi.com>
+References: <4329A6A3.7080506@vc.cvut.cz>
+	<20050916023005.4146e499.akpm@osdl.org>
+	<432AA00D.4030706@vc.cvut.cz>
+	<20050916230809.789d6b0b.akpm@osdl.org>
+	<432EE103.5020105@vc.cvut.cz>
+	<20050919112912.18daf2eb.akpm@osdl.org>
+	<Pine.LNX.4.62.0509191141380.26105@schroedinger.engr.sgi.com>
+	<20050919122847.4322df95.akpm@osdl.org>
+	<Pine.LNX.4.62.0509191351440.26388@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-16) 
-Date: Mon, 19 Sep 2005 23:16:38 -0600
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-PMX-Version: 4.7.1.128075
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-09-19 at 23:02, liyu wrote:
+Christoph Lameter <clameter@engr.sgi.com> wrote:
+>
+> On Mon, 19 Sep 2005, Andrew Morton wrote:
+> 
+> > 	list_for_each(walk, &cache_chain) {
+> > 		kmem_cache_t *searchp;
+> > 		struct list_head* p;
+> > 		int tofree;
+> > 		struct slab *slabp;
+> > 
+> > 		searchp = list_entry(walk, kmem_cache_t, next);
+> > 
+> > 		if (searchp->flags & SLAB_NO_REAP)
+> > 			goto next;
+> > 
+> > 		check_irq_on();
+> > 
+> > 		l3 = searchp->nodelists[numa_node_id()];
+> > 		if (l3->alien)
+> > 			drain_alien_cache(searchp, l3);
+> > ->preempt here
+> > 		spin_lock_irq(&l3->list_lock);
+> > 
+> > 		drain_array_locked(searchp, ac_data(searchp), 0,
+> > 				numa_node_id());
+> > ->oops, wrong node.
+> 
+> This is called from keventd which exists per processor. Hmmm... This looks 
+> as if it can change processors after all
 
-> 
->     Let's assume Mn is the total number of non-resident pages in follow 
-> words.
-> 
->     Nod, 'M=Mh+Mc' and 'Mc+Mn' < 2M are always true.
-> 
->     Have this implied that Mn is alway less than M? I think so.
-    Yes.
+Well no, it would be a big bug if a keventd thread were to change CPUs.
 
-> 
->     but if "Once the number exceeds M the memory size in number of pages,
-> we terminted the test period of the cold page pointed to by HAND-test."
-> 
->     If Mn is alway less than M, when we move to HAND-test?
+It's OK to rely upon the pinnedness of keventd I guess - a comment would be
+nice.
 
-The algorithm tries to ensure that Mn <= M holds. 
-Once Mn == M+1 is detected, run HAND-test to bring it
-back to Mn == M. That is, only during the transition period, 
-Mn <= M might not hold, and we make a correction quickly.
+> but the slab allocator depends on 
+> it running on the right processor. So does the page allocator. sigh. What 
+> is the point of having per processor workqueues if they do not stay on 
+> the assigned processor?
 
-So there is no contradiction here.
-   Song
+They do.  I don't believe that preemption is the source of this BUG. 
+(Petr, does CONFIG_PREEMPT=n fix it?)
 
-> 
+> The fast fix for this case is to get the node number once and then use it 
+> consistently.
+
+If one is writing preempt-safe code then one should disable preemption
+before copying the current CPU number into a local variable.
+
+> But we really need to audit the slab and page allocator for 
+> additional cases like this or disable preempt and check for the right 
+> processor in cache_reap().
+
+numa_node_id() must use smp_processor_id(), not raw_smp_processor_id(). 
+Then all the runtime squawks need to be audited and fixed, or switched to
+(new) raw_numa_node_id() if is is verified that a CPU/node switch at any
+time is OK.
 
 

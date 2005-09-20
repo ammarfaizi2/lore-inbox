@@ -1,62 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964890AbVITFLL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932727AbVITFQp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964890AbVITFLL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 01:11:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932728AbVITFLL
+	id S932727AbVITFQp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 01:16:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932728AbVITFQp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 01:11:11 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:32728
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S932727AbVITFLJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 01:11:09 -0400
-Subject: Re: [ANNOUNCE] ktimers subsystem
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Christopher Friesen <cfriesen@nortel.com>
-Cc: Christoph Lameter <clameter@engr.sgi.com>, linux-kernel@vger.kernel.org,
-       mingo@elte.hu, akpm@osdl.org, george@mvista.com, johnstul@us.ibm.com,
-       paulmck@us.ibm.com
-In-Reply-To: <432F96C1.70303@nortel.com>
-References: <20050919184834.1.patchmail@tglx.tec.linutronix.de>
-	 <Pine.LNX.4.62.0509191500040.27238@schroedinger.engr.sgi.com>
-	 <1127168232.24044.265.camel@tglx.tec.linutronix.de>
-	 <432F3E0F.1010002@nortel.com>
-	 <1127170488.24044.291.camel@tglx.tec.linutronix.de>
-	 <432F96C1.70303@nortel.com>
+	Tue, 20 Sep 2005 01:16:45 -0400
+Received: from mailwasher.lanl.gov ([192.65.95.54]:15780 "EHLO
+	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
+	id S932727AbVITFQp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 01:16:45 -0400
+Subject: Re: [Question] How to understand Clock-Pro algorithm?
+From: Song Jiang <sjiang@lanl.gov>
+To: liyu <liyu@ccoss.com.cn>
+Cc: LKML <linux-kernel@vger.kernel.org>, Linux-MM <linux-mm@kvack.org>
+In-Reply-To: <432F97E1.4080805@ccoss.com.cn>
+References: <432F7DD5.6050204@ccoss.com.cn>
+	 <1127188898.3130.52.camel@moon.c3.lanl.gov> <432F97E1.4080805@ccoss.com.cn>
 Content-Type: text/plain
-Organization: linutronix
-Date: Tue, 20 Sep 2005 07:11:17 +0200
-Message-Id: <1127193078.24044.303.camel@tglx.tec.linutronix.de>
+Message-Id: <1127193398.3130.131.camel@moon.c3.lanl.gov>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-16) 
+Date: Mon, 19 Sep 2005 23:16:38 -0600
 Content-Transfer-Encoding: 7bit
+X-PMX-Version: 4.7.1.128075
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-09-19 at 22:57 -0600, Christopher Friesen wrote:
-> >>--flight-recorder style logs
+On Mon, 2005-09-19 at 23:02, liyu wrote:
+
 > 
-> > If you want to implement such stuff efficiently you rely on rdtscll() on
-> > x86 or other monotonic easy accessible time souces and not on a
-> > permanent call to gettimeofday.
+>     Let's assume Mn is the total number of non-resident pages in follow 
+> words.
 > 
-> Not portable across architectures, and doesn't work across all smp/numa 
-> environments.  Also not easy to compare with other nodes on the network, 
-> whereas with ntp-synch'd nodes you can use gettimeofday() for quite 
-> accurate correlations.
-
-Sorry was a stupid argument. Withdrawn herby 
-
-> > Please beware me of red herrings. If application developers code with
-> > respect to random OS worst case behaviour then they should not complain
-> > that OS N is having an additional add instruction in one of the pathes.
+>     Nod, 'M=Mh+Mc' and 'Mc+Mn' < 2M are always true.
 > 
-> Actually I'm not complaining about additional add instructions.  I was 
-> just suggesting some reasons why apps might reasonably want to know the 
-> time frequently.
+>     Have this implied that Mn is alway less than M? I think so.
+    Yes.
 
-ok
+> 
+>     but if "Once the number exceeds M the memory size in number of pages,
+> we terminted the test period of the cold page pointed to by HAND-test."
+> 
+>     If Mn is alway less than M, when we move to HAND-test?
 
-tglx
+The algorithm tries to ensure that Mn <= M holds. 
+Once Mn == M+1 is detected, run HAND-test to bring it
+back to Mn == M. That is, only during the transition period, 
+Mn <= M might not hold, and we make a correction quickly.
+
+So there is no contradiction here.
+   Song
+
+> 
 
 

@@ -1,76 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965027AbVITPRl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965031AbVITPT2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965027AbVITPRl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 11:17:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965029AbVITPRl
+	id S965031AbVITPT2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 11:19:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965032AbVITPT2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 11:17:41 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:22230 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S965027AbVITPRk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 11:17:40 -0400
-Date: Tue, 20 Sep 2005 17:17:26 +0200 (CEST)
-From: Simon Derr <Simon.Derr@bull.net>
-X-X-Sender: derrs@openx3.frec.bull.fr
-To: Robin Holt <holt@sgi.com>
-Cc: Paul Jackson <pj@sgi.com>, zippel@linux-m68k.org, akpm@osdl.org,
-       torvalds@osdl.org, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
-       nikita@clusterfs.com
-Subject: Re: [PATCH] cpuset semaphore depth check optimize
-In-Reply-To: <20050920145449.GA31461@lnx-holt.americas.sgi.com>
-Message-ID: <Pine.LNX.4.61.0509201707410.21394@openx3.frec.bull.fr>
-References: <20050912153135.3812d8e2.pj@sgi.com> <Pine.LNX.4.61.0509131120020.3728@scrub.home>
- <20050913103724.19ac5efa.pj@sgi.com> <Pine.LNX.4.61.0509141446590.3728@scrub.home>
- <20050914124642.1b19dd73.pj@sgi.com> <Pine.LNX.4.61.0509150116150.3728@scrub.home>
- <20050915104535.6058bbda.pj@sgi.com> <20050920005743.4ea5f224.pj@sgi.com>
- <20050920120523.GC21435@lnx-holt.americas.sgi.com> <20050920072255.0096f1bb.pj@sgi.com>
- <20050920145449.GA31461@lnx-holt.americas.sgi.com>
-MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 20/09/2005 17:30:48,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 20/09/2005 17:30:50,
-	Serialize complete at 20/09/2005 17:30:50
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 20 Sep 2005 11:19:28 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:64994 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965031AbVITPT1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 11:19:27 -0400
+Date: Tue, 20 Sep 2005 17:20:22 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: yangyi <yang.yi@bmrtech.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: Another latency histogram cleanup
+Message-ID: <20050920152022.GA15434@elte.hu>
+References: <1126870970.22039.332.camel@montavista2>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1126870970.22039.332.camel@montavista2>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Sep 2005, Robin Holt wrote:
 
-> This makes things even easier!!!
+* yangyi <yang.yi@bmrtech.com> wrote:
+
+> Hi, Ingo
 > 
-> When you create a cpuset, set the refcount to 0.  The root
-> cpuset is the exception and has a refcount of 1.
+> This is another latency histogram cleanup, changes include:
 > 
-> When tasks are added to the cpuset, increment the refcount.
-> 
-> When child cpusets are created, increment the refcount.  Each
-> cpuset has a list of children that is protected by a single
-> lock.
-> 
-> Whenever you are decrementing the cpuset's refcount, use
-> atomic_dec_and_lock on the parents child list lock.  If the
-> notify_on_release property is set, you remove the child from
-> the list.
-> 
-> When the vfs code is traversing the list, you need to ensure
-> that it does not iterate unless the child list lock is held.
-> I have not looked at how you implemented the vfs stuff, but
-> that should be easily accomplished.
+> - Remove some definitons to include/linux/latency_hist.h from kenerl/latency.c and kernel/latency_hist.c
+> - Eliminate most #ifedf from check_critical_timing() and check_wakup_timing()
 
-IIRC, that's the key. 
-There was never a real issue about notify_on_release on the internal 
-locking of the cpusets. But with the VFS...
+thanks, applied.
 
-The problem lies in how the VFS takes the semaphores on the inodes
-when doing a rmdir(). It locks the parent's inode, and then the child's 
-inode. And because of the cascading cpuset removal with the previous 
-'autoclean' feature, the cpuset code tried to do the same thing, but in 
-the reverse order. There was once a version of the code that seemed to 
-work, but with inodes semaphores released and re-taken in the good order. 
-Ugly, and unsafe.
-
-(All this from memory, I don't guarantee its accuracy).
-
-	Simon.
-
+	Ingo

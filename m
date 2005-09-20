@@ -1,93 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932751AbVITOMt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932757AbVITOVA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932751AbVITOMt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 10:12:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932759AbVITOMt
+	id S932757AbVITOVA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 10:21:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932758AbVITOVA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 10:12:49 -0400
-Received: from web33306.mail.mud.yahoo.com ([68.142.206.121]:30805 "HELO
-	web33306.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932751AbVITOMt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 10:12:49 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Reply-To:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=sioAg0WH6cSx8QkWWtW++n9p9Mrdvcu67WcBw+lqc1iFqTGfviB9LjKNlKsrE9ytoyJskDQX3WxxPYoVFcnqO9OnGMGslKWge1k3dV+BjxXe3I4lms/P4JnU9oA5FdvxJkHf6j/4kmK7BqbMAvEXzJOOkDT5tAeyJoO5Vdyuey8=  ;
-Message-ID: <20050920141248.55369.qmail@web33306.mail.mud.yahoo.com>
-Date: Tue, 20 Sep 2005 07:12:48 -0700 (PDT)
-From: Danial Thom <danial_thom@yahoo.com>
-Reply-To: danial_thom@yahoo.com
-Subject: Re: Quick update on latest Linux kernel performance
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200509132132.j8DLWJg04553@unix-os.sc.intel.com>
+	Tue, 20 Sep 2005 10:21:00 -0400
+Received: from mout1.freenet.de ([194.97.50.132]:12933 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id S932757AbVITOU7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 10:20:59 -0400
+Message-ID: <43301A98.5010607@zaphods.net>
+Date: Tue, 20 Sep 2005 16:20:08 +0200
+From: Stefan Schmidt <zaphodb@zaphods.net>
+User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: 2.6.14-rc1-mm1 unable to mount root on HP Smart6i cciss was: Re:
+ 2.6.14-rc1-mm1
+References: <4NkHQ-cw-13@gated-at.bofh.it>
+In-Reply-To: <4NkHQ-cw-13@gated-at.bofh.it>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
+> Changes since 2.6.13-mm3:
+...
+> -cciss-new-controller-pci-subsystem-ids.patch
+> -cciss-busy_initializing-flag.patch
+> -cciss-new-disk-register-deregister-routines.patch
+> -cciss-direct-lookup-for-command-completions.patch
+> -cciss-bug-fix-in-cciss_remove_one.patch
+> -cciss-fix-for-dma-brokeness.patch
+> -cciss-one-button-disaster-recovery-support.patch
+> -cciss-scsi-tape-info-for-proc.patch
 
+On a HP Proliant DL385 with Smart6i Controller 2.6.14-rc1-mm1 was unable 
+to mount root although the device file existed and had the correct 
+major/minor numbers. 2.6.13-vanilla was able to find and mount the very 
+same root-device using the same config.
+Root-device was the first partition the first SCSI disk exported as JBOD 
+which in smart-controller terms means it is a raid0. /dev/cciss/c0d0p1
+I was able to see the devices flying by during the booting of 
+2.6.14-rc1-mm1 so the controller, its disks and partitions were 
+recognized correctly, it was just unable to map the major/minor number 
+to a device or partition.
 
---- "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-wrote:
+best regards,
 
-> New performance result are posted on
-> http://kernel-perf.sourceforge.net
-> with latest data collected on kernel
-> 2.6.13-git9.
-> 
-> Kernel-build bench are fairly stable over the
-> last 14 kernel versions
-> or so.  It was consistently 3-5% better on
-> x86_64 over baseline 2.6.9
-> kernel.  It showed a lot smaller gain on ia64
-> though.
-> 
-> Java business benchmark showed very little
-> change in performance on all
-> kernel versions.
-> 
-> Volanomark took some heavy performance hit
-> during 2.6.12-rc* period, but
-> come back in 2.6.13 on x86_64 configuration. 
-> Though latest 2.6.13-git9
-> showed a little bit perf. regression.
-> 
-> Netperf is showing wildly result, especially
-> the 1-byte request/response
-> component.  Overall, UDP portion Of the netperf
-> are showing nice improvement
-> over baseline 2.6.9 kernel.
-> 
-> Industry standard transaction processing
-> database workload still suffering
-> 13% performance regression with 2.6.13. (data
-> will be posted in a separate mail)
-> 
-> Take a look at the performance data.  Comments
-> and suggestions are always
-> welcome and please post them to LKML.
-
-Does it still drop packets when only running at
-15% utilization?
-
-Did you run data streams through the box while
-doing these tests? There's a difference between
-gaining performance in a benchmark and just
-shifting performance from one activity to
-another. If the latter is the case, then there's
-been no progress at all. I keep seeing all these
-great benchmark results, and linux keeps dropping
-more and more packets as the versions increase.
-Its become practically unusable as a specialized
-networking appliance.
-
-Danial
-
-
-
-
-		
-__________________________________ 
-Yahoo! Mail - PC Magazine Editors' Choice 2005 
-http://mail.yahoo.com
+  Stefan Schmidt

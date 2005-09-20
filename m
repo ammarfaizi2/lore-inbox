@@ -1,40 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965160AbVITWOG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965060AbVITWPI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965160AbVITWOG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 18:14:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965165AbVITWOF
+	id S965060AbVITWPI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 18:15:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965165AbVITWPI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 18:14:05 -0400
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:25361 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S965060AbVITWOB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 18:14:01 -0400
-To: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/7] Add dm-snapshot tutorial in Documentation
-References: <20050920184513.14557.8152.stgit@zion.home.lan>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: don't cry -- it won't help.
-Date: Tue, 20 Sep 2005 23:13:50 +0100
-In-Reply-To: <20050920184513.14557.8152.stgit@zion.home.lan> (Paolo
- Giarrusso's message of "20 Sep 2005 19:51:22 +0100")
-Message-ID: <874q8f5qw1.fsf@amaterasu.srvr.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
+	Tue, 20 Sep 2005 18:15:08 -0400
+Received: from pimout3-ext.prodigy.net ([207.115.63.102]:13527 "EHLO
+	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S965167AbVITWPG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 18:15:06 -0400
+X-ORBL: [67.124.117.85]
+Date: Tue, 20 Sep 2005 12:44:46 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Charles McCreary <mccreary@crmeng.com>, linux-kernel@vger.kernel.org
+Subject: Re: x86-64 bad pmds in 2.6.11.6
+Message-ID: <20050920194446.GA15606@taniwha.stupidest.org>
+References: <200509201212.55676.mccreary@crmeng.com> <Pine.LNX.4.58.0509201028050.2553@g5.osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0509201028050.2553@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 20 Sep 2005, Paolo Giarrusso docced:
-> +When you create a LVM* snapshot of a volume, four dm devices are used:
-[...]
-> +* I've verified this with LVM 2.01.09, however I assume this is the LVM2 way
-> +  of doing this.
+On Tue, Sep 20, 2005 at 10:30:48AM -0700, Linus Torvalds wrote:
 
-Yes; LVM1 doesn't use device-mapper at all, so these docs don't apply to
-it.
+> This is quite possibly the result of an Opteron errata (tlb flush
+> filtering is broken on SMP) that we worked around as of 2.6.14-rc4.
 
--- 
-`One cannot, after all, be expected to read every single word
- of a book whose author one wishes to insult.' --- Richard Dawkins
+It would be really interesting to know if this does help.  I was told
+em64t also have the 'bad pmd' problem but I can't make it happen here
+on opteron on em64t.

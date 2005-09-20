@@ -1,84 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbVITXxy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbVITXyF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750726AbVITXxy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 19:53:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750727AbVITXxw
+	id S1750727AbVITXyF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 19:54:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750729AbVITXyF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 19:53:52 -0400
-Received: from xenotime.net ([66.160.160.81]:55014 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750726AbVITXxv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 19:53:51 -0400
-Date: Tue, 20 Sep 2005 16:53:51 -0700 (PDT)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 4/7] README update from the stone age
-In-Reply-To: <20050920184544.14557.15273.stgit@zion.home.lan>
-Message-ID: <Pine.LNX.4.58.0509201644040.19786@shark.he.net>
-References: <20050920184513.14557.8152.stgit@zion.home.lan>
- <20050920184544.14557.15273.stgit@zion.home.lan>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 20 Sep 2005 19:54:05 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:19321 "EHLO
+	pd5mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1750727AbVITXyE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 19:54:04 -0400
+Date: Tue, 20 Sep 2005 17:53:58 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: help interpreting oom-killer output
+In-reply-to: <4OY0C-5kE-59@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <4330A116.1040107@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <4OY0C-5kE-59@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Sep 2005, Paolo 'Blaisorblade' Giarrusso wrote:
+Christopher Friesen wrote:
+> 
+> I'm running a modified 2.6.10 on an x86 uniprocessor system.  I keep 
+> having processes killed by the oom killer at the same place while 
+> running LTP.  The system has gigs of memory, so I find this kind of odd.
+> 
+> Could someone help me interpret the oom-killer output?  The first log 
+> looks like this.
 
-> We have no options which the user can set in the Makefile. Only the
-> EXTRAVERSION, which is also useful in place of the "backup modules"
-> suggestion.
->
-> Hey! Can anybody tell me when we last had configuration options in the top
-> Makefile? Please?
->
-> Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-> ---
->
->  README |    9 ++++++---
->  1 files changed, 6 insertions(+), 3 deletions(-)
->
-> diff --git a/README b/README
-> --- a/README
-> +++ b/README
-> @@ -149,6 +149,9 @@ CONFIGURING the kernel:
->  	"make gconfig"     X windows (Gtk) based configuration tool.
->  	"make oldconfig"   Default all questions based on the contents of
->  			   your existing ./.config file.
-> +	"make silentoldconfig"
-> +			   Like above, but avoids cluttering the screen
-> +			   with question already answered.
-                                questions
+Looks like you were running out of ZONE_NORMAL memory (below 896MB). 
+There is lots of high memory available but the allocation could not be 
+satisfied from there.
 
->
->  	NOTES on "make config":
->  	- having unnecessary drivers will make the kernel bigger, and can
-> @@ -169,9 +172,6 @@ CONFIGURING the kernel:
->  	  should probably answer 'n' to the questions for
->            "development", "experimental", or "debugging" features.
->
-> - - Check the top Makefile for further site-dependent configuration
-> -   (default SVGA mode etc).
-> -
->  COMPILING the kernel:
->
->   - Make sure you have gcc 2.95.3 available.
-> @@ -199,6 +199,9 @@ COMPILING the kernel:
->     are installing a new kernel with the same version number as your
->     working kernel, make a backup of your modules directory before you
->     do a "make modules_install".
-> +   In alternative, before compiling, edit your Makefile and change the
-      Alternatively,
-
-> +   "EXTRAVERSION" line - its content is appended to the regular kernel
-> +   version.
-      Or consider using CONFIG_LOCALVERSION, which can be set by
-      using the "make *config" tools in the "General Setup" menu.
-
->
->   - In order to boot your new kernel, you'll need to copy the kernel
->     image (e.g. .../linux/arch/i386/boot/bzImage after compilation)
+I would try a newer kernel..
 
 -- 
-~Randy
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
+

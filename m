@@ -1,59 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932509AbVITEuT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932513AbVITEv0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932509AbVITEuT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 00:50:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932512AbVITEuS
+	id S932513AbVITEv0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 00:51:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932512AbVITEv0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 00:50:18 -0400
-Received: from vms042pub.verizon.net ([206.46.252.42]:37156 "EHLO
-	vms042pub.verizon.net") by vger.kernel.org with ESMTP
-	id S932509AbVITEuR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 00:50:17 -0400
-Date: Tue, 20 Sep 2005 00:50:15 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: Arrr! Linux v2.6.14-rc2
-In-reply-to: <Pine.LNX.4.58.0509192003410.2553@g5.osdl.org>
-To: linux-kernel@vger.kernel.org
-Message-id: <200509200050.15347.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <Pine.LNX.4.58.0509192003410.2553@g5.osdl.org>
-User-Agent: KMail/1.7
+	Tue, 20 Sep 2005 00:51:26 -0400
+Received: from smtp104.rog.mail.re2.yahoo.com ([206.190.36.82]:23948 "HELO
+	smtp104.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S932517AbVITEvZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 00:51:25 -0400
+Subject: Re: [patch] stop inotify from sending random DELETE_SELF event
+	under load
+From: John McCutchan <ttb@tentacle.dhs.org>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Robert Love <rml@novell.com>, Al Viro <viro@ZenIV.linux.org.uk>
+In-Reply-To: <20050920044623.GD7992@ftp.linux.org.uk>
+References: <1127177337.15262.6.camel@vertex>
+	 <Pine.LNX.4.58.0509191821220.2553@g5.osdl.org>
+	 <1127181641.16372.10.camel@vertex>
+	 <Pine.LNX.4.58.0509191909220.2553@g5.osdl.org>
+	 <1127188015.17794.6.camel@vertex>
+	 <Pine.LNX.4.58.0509192054060.2553@g5.osdl.org>
+	 <20050920042456.GC7992@ftp.linux.org.uk> <1127190971.18595.5.camel@vertex>
+	 <20050920044623.GD7992@ftp.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 20 Sep 2005 00:53:12 -0400
+Message-Id: <1127191992.19093.3.camel@vertex>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 19 September 2005 23:22, Linus Torvalds wrote:
->Ahoy landlubbers!
->
->Here be t' Linux-2.6.14-rc2 release.
->
->Not a whole lot o' excitement, ye scurvy dogs, but it has t' ALSA, LSM,
->audit and watchdog merges that be missed from -rc1, and a merge series
->with Andrew. But on t' whole pretty reasonable - you can see t' details
-> in the shortlog (appended).
->
->Arrr!
+On Tue, 2005-09-20 at 05:46 +0100, Al Viro wrote:
+> On Tue, Sep 20, 2005 at 12:36:11AM -0400, John McCutchan wrote:
+> > On Tue, 2005-09-20 at 05:24 +0100, Al Viro wrote:
+> > > On Mon, Sep 19, 2005 at 09:03:36PM -0700, Linus Torvalds wrote:
+> > > > One possibility is to mark the dentry deleted in d_flags. That would mean 
+> > > > something like this (against the just-pushed-put v2.6.14-rc2, which has 
+> > > > my previous hack).
+> > > > 
+> > > > Untested. Al?
+> > >  
+> > > Uhh...  I still don't understand which behaviour do you want.
+> > 
+> > 
+> > > 	* removal of this link, at the moment when it stops being accessible
+> > > [ none of the above, better done from vfs_...() ]
+> > 
+> > That is the behaviour we want, how does Linus's second patch not
+> > accomplish this? 
+> 
+> fd = open("foo", 0);
+> unlink("foo");
+> sleep for ten days
+> close(fd);
+> 
+> 	Linus' patch will send event on close().  Ten days since the moment
+> when any lookups on foo would bring you -ENOENT.
+> 
 
-:-)
-You've been watching entirely too much tv Linus.  That commercial
-is one of the better examples of the "vast wasteland" that is todays
-tv.
 
-Also, where can this wondrous new patch be found as its not made its
-way to kernel.org as of 00:45 EDT?
+Ahh, got it.
 
-[...]
+> 	Could you please describe the semantics of your events?
+
+DELETE_SELF WD=X
+
+The path you requested a watch on (inotify_add_watch(path,mask) returned
+X) has been deleted.
 
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.35% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
-
+John McCutchan <ttb@tentacle.dhs.org>

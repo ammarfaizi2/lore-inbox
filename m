@@ -1,105 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964918AbVITH6A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964917AbVITH71@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964918AbVITH6A (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 03:58:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964920AbVITH6A
+	id S964917AbVITH71 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 03:59:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964919AbVITH70
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 03:58:00 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:38105 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S964918AbVITH57 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 03:57:59 -0400
-Date: Tue, 20 Sep 2005 00:57:43 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: zippel@linux-m68k.org, akpm@osdl.org, torvalds@osdl.org,
-       Simon.Derr@bull.net, linux-kernel@vger.kernel.org, nikita@clusterfs.com
-Subject: Re: [PATCH] cpuset semaphore depth check optimize
-Message-Id: <20050920005743.4ea5f224.pj@sgi.com>
-In-Reply-To: <20050915104535.6058bbda.pj@sgi.com>
-References: <20050912113030.15934.9433.sendpatchset@jackhammer.engr.sgi.com>
-	<20050912043943.5795d8f8.akpm@osdl.org>
-	<20050912075155.3854b6e3.pj@sgi.com>
-	<Pine.LNX.4.61.0509121821270.3743@scrub.home>
-	<20050912153135.3812d8e2.pj@sgi.com>
-	<Pine.LNX.4.61.0509131120020.3728@scrub.home>
-	<20050913103724.19ac5efa.pj@sgi.com>
-	<Pine.LNX.4.61.0509141446590.3728@scrub.home>
-	<20050914124642.1b19dd73.pj@sgi.com>
-	<Pine.LNX.4.61.0509150116150.3728@scrub.home>
-	<20050915104535.6058bbda.pj@sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 20 Sep 2005 03:59:26 -0400
+Received: from rwcrmhc13.comcast.net ([216.148.227.118]:54975 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S964917AbVITH70 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 03:59:26 -0400
+Message-ID: <432FC150.9020807@namesys.com>
+Date: Tue, 20 Sep 2005 00:59:12 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, thenewme91@gmail.com,
+       Christoph Hellwig <hch@infradead.org>,
+       Denis Vlasenko <vda@ilport.com.ua>, chriswhite@gentoo.org,
+       lkml <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>,
+       Nate Diller <ndiller@namesys.com>
+Subject: Re: I request inclusion of reiser4 in the mainline kernel
+References: <432AFB44.9060707@namesys.com>	 <200509171415.50454.vda@ilport.com.ua>	 <200509180934.50789.chriswhite@gentoo.org>	 <200509181321.23211.vda@ilport.com.ua>	 <20050918102658.GB22210@infradead.org>	 <b14e81f0050918102254146224@mail.gmail.com>	 <1127079524.8932.21.camel@localhost.localdomain>	 <432E4786.7010001@namesys.com> <432F8D1E.7060300@yahoo.com.au>	 <432FABFA.9010406@namesys.com> <1127200590.9436.15.camel@npiggin-nld.site>
+In-Reply-To: <1127200590.9436.15.camel@npiggin-nld.site>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Either I'm as dense as a petrified log, or we are still talking past
-each other on this topic of what locking is needed in cpuset_exit()
-when clearing tsk->cpuset, checking the cs->count and checking for
-notify_on_release.
+Nick Piggin wrote:
 
-You're saying I don't need the spinlock when clearing tsk->cpuset in
-cpuset_exit(), and I am saying that I do need cpuset_sem when handing
-the count field if notify_on_release is enabled.
+>On Mon, 2005-09-19 at 23:28 -0700, Hans Reiser wrote:
+>  
+>
+>>Nick Piggin wrote:
+>>    
+>>
+>
+>  
+>
+>>>What's wrong with the elevator code?
+>>>
+>>>      
+>>>
+>>The name for one.  There is no elevator algorithm anywhere in it.  There
+>>is a least block number first algorithm that was called an elevator, but
+>>    
+>>
+>
+>Well the terminology changed to "io scheduler" now, however the
+>residual "elevator" name found in places doesn't cause anyone
+>any problems and there isn't much reason to change it other than
+>the desire to break things.
+>  
+>
+Did you really say that?    I mean, come on, can't you at least manage a
+"well, it ought to get changed but I am busy with something more
+exciting to me".
 
-    You keep saying I don't need the spinlock, and showing code that
-    has -neither- lock around the section that checks or decrements
-    the count and conditionally does the notify_on_release stuff.
+>  
+>
+>>it does not have the properties described by Ousterhout and sundry CS
+>>textbooks describing elevator algorithms.  The textbook algorithms are
+>>better than least block number first, and it is interesting how nobody
+>>fixed the mislabeling of the algorithm once Linux had gotten to the
+>>point that it was striving for more than making gcc be able to run on it. 
+>>
+>>    
+>>
+>
+>There is no least block number first io scheduler now. And the
+>deadline scheduler is basically an elevator algorithm with
+>deadlines.
+>  
+>
+Ask Nate about this after he gets an ok from the customer to disclose
+his work.  It is not so simple as you claim.
 
-    I keep protesting that the portion of your code that handles the
-    count and notify_on_release stuff is unsafe, which I believe it
-    is, for lack of holding cpuset_sem.
+>  
+>
+>>cfq is good code though for many usage patterns. 
+>>
+>>    
+>>
+>
+>But that is not a true elevator algorithm either... so what are
+>you trying to say?
+>  
+>
+I am trying to be balanced.  2.6 was a dramatic improvement over 2.4,
+and cfq seems to work well.
 
-    You keep pointing out that the clearing tsk->cpuset doesn't need
-    the spinlock to be safe.
+>But if you really need to , I instead suggest badmouthing devfs.
+>That is sure to get you on the good side of the VFS guys! :)
+>  
+>
+Devfs was a good idea in its essence.  http://kerneltrap.org/node/5665
+suggests pretty clearly that the hostility of the VFS guys caused no one
+to want to invest enough into devfs to make it viable compared to udev.
 
-I agree that I don't need the spinlock when clearing tsk->cpuset in the
-cpuset_exit code:
-
-> > 	tsk->cpuset = NULL;
-> > 	if (atomic_read(&cs->count) == 1 && notify_on_release(cs)) {
-
-But I do need to hold cpuset_sem around the portion that deals with
-count, if the cpuset is marked notify_on_release, to avoid missing a
-notify_on_release due to confusions from a second task in cpuset_attach
-or cpuset_exit at the same time.
-
-If I don't hold cpuset_sem while doing that atomic_read(&cs->count),
-then that atomic_read() is utterly totally bleeping useless, for
-attach_task can bump the count right back up on the next memory
-cycle, from some other task on another cpu.  Worse than totally
-useless, because I might have read a count of 2, just as the other
-task executing the same cpuset_exit code at the same time also read a
-count of 2.  Then we both decrement the count, and abandon the cpuset,
-failing to handle the notify_on_release.
-
-Similarly, the atomic_dec(&cs->count) a few lines later, also
-unguarded by cpuset_sem, is not safe, if I have a cpuset marked
-notify_on_release.  If I am not holding cpuset_sem, then regardless of
-any checks I might have made in previous lines of code, the cs->count
-could be one (1) when I get here, and the atomic_dec() could send it to
-zero without my realizing it, resulting in a missed notify on release.
-
-Unless I hold cpuset_sem, modifying cs->count is only safe if I don't
-care to look at the result, as happens in fork when I blindly increment
-it, or happens in exit if notify_on_release is false and I can blindly
-decrement the count.  Reading cs->count when not holding cpuset_sem is
-never of any use for reference counting purposes, for what you read
-means nothing one cycle later.
-
-We were talking past each other.  I'm sure of it.
-
-And I'm pretty sure I understand enough of this to code it now.
-
-So I plan to put it aside for a few days, while I tend to more
-pressing matters.
-
-Thank-you, Roman.  I owe you one.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+They were inappropriately nasty to Mr. Gooch, who was kind enough to
+contribute an idea that Linux needed.  They could have been helpful and
+assisting, and instead they were the opposite.  As they are with everyone.

@@ -1,60 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965017AbVITOZj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932762AbVITOZx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965017AbVITOZj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 10:25:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932763AbVITOZj
+	id S932762AbVITOZx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 10:25:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932764AbVITOZx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 10:25:39 -0400
-Received: from vms044pub.verizon.net ([206.46.252.44]:45110 "EHLO
-	vms044pub.verizon.net") by vger.kernel.org with ESMTP
-	id S932762AbVITOZi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 10:25:38 -0400
-Date: Tue, 20 Sep 2005 10:25:36 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: Arrr! Linux v2.6.14-rc2
-In-reply-to: <20050920141008.GA493@flint.arm.linux.org.uk>
+	Tue, 20 Sep 2005 10:25:53 -0400
+Received: from trixi.wincor-nixdorf.com ([217.115.67.77]:3752 "EHLO
+	trixi.wincor-nixdorf.com") by vger.kernel.org with ESMTP
+	id S932762AbVITOZv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 10:25:51 -0400
+Message-ID: <43301BC4.9080305@wincor-nixdorf.com>
+Date: Tue, 20 Sep 2005 16:25:08 +0200
+From: Peter Duellings <Peter.Duellings@wincor-nixdorf.com>
+Organization: Wincor Nixdorf
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.1) Gecko/20040707
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Message-id: <200509201025.36998.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <Pine.LNX.4.58.0509192003410.2553@g5.osdl.org>
- <200509201005.49294.gene.heskett@verizon.net>
- <20050920141008.GA493@flint.arm.linux.org.uk>
-User-Agent: KMail/1.7
+Subject: kernel error in system call accept() under kernel 2.6.8
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 20 September 2005 10:10, Russell King wrote:
->On Tue, Sep 20, 2005 at 10:05:49AM -0400, Gene Heskett wrote:
->> On Tuesday 20 September 2005 09:31, Patrick McFarland wrote:
->> >On Tuesday 20 September 2005 12:50 am, Gene Heskett wrote:
->> >> You've been watching entirely too much tv Linus.  That commercial
->> >> is one of the better examples of the "vast wasteland" that is
->> >> todays tv.
->> >
->> >D'arr, the 19th of Septembarrr tis International Talk Like A Pirate
->> > Day. ( http://talklikeapirate.com/ ).
->>
->> Yeah :-), but where is this new patch-2.6.14-rc2.gz to be
->> found. Its still not made it to kernel.org as of 10:05 EDT.
->
->The mutinous bots have deserted master.kernel.org and aren't doing
->what they're supposed to be doing.
+----------------------------------------------------------------------
+One line summary of the problem:
+linux accept() system call does not set always errno if the
+returnvalue is negative.
 
-Humm, what are they holding out for, more ram or more cpu?:-)
+----------------------------------------------------------------------
+Full description of the problem/report:
+Obviously there are some cases where the accept() system call does
+not set the errno variable if the accept() system call returns
+with a value less than zero:
 
-FWIW, http://master.kernel.org doesn't show it either just now.
+Distribution : Linux Fedora Core 2 - but with kernel 2.6.8
+Sample code:
+--snip----------
+....
+//accept may return with a protocol error, simply try again
+while( (n = accept(m_ListenFd, (struct sockaddr *) cliaddr, &len)) < 0)
+{
+   Log.Log("Error accept, fd=%d, addrlen=%d, len=%d, errno=%d, %s",
+m_ListenFd,
+m_AddrLen, len, errno, strerror_r(errno, l_strebuf, sizeof(l_strebuf)));
+   if (errno == EPROTO || errno == ECONNABORTED)   //connection already
+aborted
+   {
+     Log.Log("connection aborted, wait for next");
+     continue;   //next try
+   } else if (errno == EINTR) {    //signal
+     if (CnThread::TestCancel(m_Log)) {
+       Log.Log("thread is cancelled");
+       delete[] cliaddr;
+       return -1;
+     } else {
+       Log.Log("EINTR, try again");
+       continue;   //next try
+     }
+   }
+   else
+   {
+     throw CnException(__FILE__, __LINE__, "accept error errno=%d, %s",
+errno,
+strerror_r(errno, l_strebuf, sizeof(l_strebuf)));
+   }
+}
+...
+--snip-----
+output:
+CnTcpServer::WaitClient   Error accept, fd=19, addrlen=16, len=16,
+errno=0, Success
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.35% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+
+----------------------------------------------------------------------
+Keywords (i.e., modules, networking, kernel):
+network accept errno error return value
+----------------------------------------------------------------------
+Kernel version (from /proc/version):
+cat /proc/version
+Linux version 2.6.8-1.521 (root@wsa92_D2_FEDTest) (gcc version 3.3.3
+20040412 (Red Hat Linux 3.3.3-7)) #3 Fri Jul 8 11:08:56 CEST
+2005
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Question:
+Is there any update/information/explanation about this behaviour available??
+
 

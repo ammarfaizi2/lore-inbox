@@ -1,42 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965093AbVITTdI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965090AbVITTbp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965093AbVITTdI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 15:33:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965094AbVITTdI
+	id S965090AbVITTbp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 15:31:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965093AbVITTbp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 15:33:08 -0400
-Received: from zproxy.gmail.com ([64.233.162.196]:12489 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965093AbVITTdH (ORCPT
+	Tue, 20 Sep 2005 15:31:45 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:6276 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965090AbVITTbp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 15:33:07 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=LO3UgYoCw35eryCfx2mb1Sh7nm5xIx6DH52hGgQ4axQZaDKfqdwnjR4nYK8CLCVez0Wjgn8FINUqZ4co0HpaBAyb+s1ZZ/p9X2uRkiAX0bJyjpMLnRl2JuuLFuolxE0tT/RngBv0pivjE0Zf7ocRWlKiILyAwBmaoVLQ9wrbKNM=
-Date: Tue, 20 Sep 2005 23:43:36 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Frank van Maarseveen <frankvm@frankvm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13.1 Slab corruption during boot
-Message-ID: <20050920194336.GB3858@mipter.zuzino.mipt.ru>
-References: <20050916141445.GA32693@janus>
+	Tue, 20 Sep 2005 15:31:45 -0400
+Subject: Re: [discuss] Re: [PATCH] x86-64: Fix bad assumption that dualcore
+	cpus have synced TSCs
+From: john stultz <johnstul@us.ibm.com>
+To: Scott Lampert <scott@lampert.org>
+Cc: "Langsdorf, Mark" <mark.langsdorf@amd.com>, Andi Kleen <ak@suse.de>,
+       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       discuss@x86-64.org
+In-Reply-To: <433061E4.20903@lampert.org>
+References: <84EA05E2CA77634C82730353CBE3A843032187C4@SAUSEXMB1.amd.com>
+	 <433061E4.20903@lampert.org>
+Content-Type: text/plain
+Date: Tue, 20 Sep 2005 12:30:56 -0700
+Message-Id: <1127244656.11080.24.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050916141445.GA32693@janus>
-User-Agent: Mutt/1.5.8i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 16, 2005 at 04:14:45PM +0200, Frank van Maarseveen wrote:
-> stock 2.6.13.1 on a P4 with HT:
+On Tue, 2005-09-20 at 12:24 -0700, Scott Lampert wrote:
+> Langsdorf, Mark wrote:
+> >>Personally I suspect that the powernow driver is putting the 
+> >>cores independently into low power sleep and the TSCs are 
+> >>being independently halted, causing them to become unsynchronized.
+> >
+> >The powernow-k8 driver doesn't know what a low power sleep state
+> >is, so I strongly doubt it is involved here.  It only handles
+> >pstates.
+> > 
+> Just to add some end-user input here, I see the same issues regardless 
+> of whether I'm running with the powernow-k8 or not.  The clock problems 
+> seem to be unrelated to that, at least on my system.
 
-> Sep 16 16:02:01 espoo kernel: Slab corruption: start=f7f31000, len=4096
-> Sep 16 16:02:01 espoo kernel: 0b0: 6b 6b 6b 6b 6b 6b 6b 6b ff ff ff ff 00 00 00 00
+Hmmm. Ok, I don't know the cpufreq/power management code well enough. 
 
-I've filed a bug at kernel bugzilla so your report won't be lost. See
-http://bugme.osdl.org/show_bug.cgi?id=5278
+I know some Intel cpus halt the TSC in C3. Could the ACPI code be
+causing this? 
 
-Please, register at http://bugme.osdl.org/createaccount.cgi and add
-yourself to CC list.
+Could anyone with better knowledge speak to why it looks like the TSCs
+are unsynced? Is my test flawed?
+
+thanks
+-john
+
 

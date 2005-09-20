@@ -1,58 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965065AbVITSoO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965080AbVITStQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965065AbVITSoO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 14:44:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965068AbVITSoO
+	id S965080AbVITStQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 14:49:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965075AbVITSsl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 14:44:14 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:63912 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S965065AbVITSoO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 14:44:14 -0400
-Message-Id: <200509201843.j8KIhadu020970@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: 7eggert@gmx.de
-Cc: Keith Owens <kaos@ocs.com.au>, Ben Dooks <ben-linux@fluff.org>,
-       linux-kernel@vger.kernel.org, patch-out@fluff.rog
-Subject: Re: [PATCH] scripts - use $OBJDUMP to get correct objdump (cross compile) 
-In-Reply-To: Your message of "Tue, 20 Sep 2005 18:55:22 +0200."
-             <E1EHlOt-00012f-Au@be1.lrz> 
-From: Valdis.Kletnieks@vt.edu
-References: <4OB3R-5gu-13@gated-at.bofh.it> <4OLPC-3NQ-19@gated-at.bofh.it>
-            <E1EHlOt-00012f-Au@be1.lrz>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1127241816_3303P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 20 Sep 2005 14:43:36 -0400
+	Tue, 20 Sep 2005 14:48:41 -0400
+Received: from ppp-62-11-78-183.dialup.tiscali.it ([62.11.78.183]:14272 "EHLO
+	zion.home.lan") by vger.kernel.org with ESMTP id S965073AbVITSsU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 14:48:20 -0400
+From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
+Subject: [PATCH 2/7] i386: little pgtable.h consolidation vs 2/3level
+Date: Tue, 20 Sep 2005 20:45:32 +0200
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <20050920184531.14557.8668.stgit@zion.home.lan>
+In-Reply-To: <20050920184513.14557.8152.stgit@zion.home.lan>
+References: <20050920184513.14557.8152.stgit@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1127241816_3303P
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+Join together some common functions (pmd_page{,_kernel}) over 2level and
+3level pages.
 
-On Tue, 20 Sep 2005 18:55:22 +0200, Bodo Eggert said:
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
 
-> Having a space as the option delimiter will break if the path to objdum=
-p
-> contains a space. Therefore you'll need to use an array.
+ include/asm-i386/pgtable-2level.h |    5 -----
+ include/asm-i386/pgtable-3level.h |    5 -----
+ include/asm-i386/pgtable.h        |    5 +++++
+ 3 files changed, 5 insertions(+), 10 deletions(-)
 
-No. You need to draw the line somewhere.  You let them have a space in th=
-e
-path, the next thing you know the'll be back asking why a UTF-8 encoded
-non-breaking-white-space in the path doesn't work. :)
+diff --git a/include/asm-i386/pgtable-2level.h b/include/asm-i386/pgtable-2level.h
+--- a/include/asm-i386/pgtable-2level.h
++++ b/include/asm-i386/pgtable-2level.h
+@@ -26,11 +26,6 @@
+ #define pfn_pte(pfn, prot)	__pte(((pfn) << PAGE_SHIFT) | pgprot_val(prot))
+ #define pfn_pmd(pfn, prot)	__pmd(((pfn) << PAGE_SHIFT) | pgprot_val(prot))
+ 
+-#define pmd_page(pmd) (pfn_to_page(pmd_val(pmd) >> PAGE_SHIFT))
+-
+-#define pmd_page_kernel(pmd) \
+-((unsigned long) __va(pmd_val(pmd) & PAGE_MASK))
+-
+ /*
+  * All present user pages are user-executable:
+  */
+diff --git a/include/asm-i386/pgtable-3level.h b/include/asm-i386/pgtable-3level.h
+--- a/include/asm-i386/pgtable-3level.h
++++ b/include/asm-i386/pgtable-3level.h
+@@ -74,11 +74,6 @@ static inline void set_pte(pte_t *ptep, 
+  */
+ static inline void pud_clear (pud_t * pud) { }
+ 
+-#define pmd_page(pmd) (pfn_to_page(pmd_val(pmd) >> PAGE_SHIFT))
+-
+-#define pmd_page_kernel(pmd) \
+-((unsigned long) __va(pmd_val(pmd) & PAGE_MASK))
+-
+ #define pud_page(pud) \
+ ((struct page *) __va(pud_val(pud) & PAGE_MASK))
+ 
+diff --git a/include/asm-i386/pgtable.h b/include/asm-i386/pgtable.h
+--- a/include/asm-i386/pgtable.h
++++ b/include/asm-i386/pgtable.h
+@@ -368,6 +368,11 @@ static inline pte_t pte_modify(pte_t pte
+ #define pte_offset_kernel(dir, address) \
+ 	((pte_t *) pmd_page_kernel(*(dir)) +  pte_index(address))
+ 
++#define pmd_page(pmd) (pfn_to_page(pmd_val(pmd) >> PAGE_SHIFT))
++
++#define pmd_page_kernel(pmd) \
++((unsigned long) __va(pmd_val(pmd) & PAGE_MASK))
++
+ /*
+  * Helper function that returns the kernel pagetable entry controlling
+  * the virtual address 'address'. NULL means no pagetable entry present.
 
---==_Exmh_1127241816_3303P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFDMFhYcC3lWbTT17ARAppVAKCIQGLBcA/y1GScDQguy8bCR0dSTgCfd4oJ
-BrGfhxsbS2t6qkm0/77PC98=
-=+CFk
------END PGP SIGNATURE-----
-
---==_Exmh_1127241816_3303P--

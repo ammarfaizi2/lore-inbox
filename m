@@ -1,53 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965061AbVITSfN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965066AbVITShc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965061AbVITSfN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 14:35:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965062AbVITSfN
+	id S965066AbVITShc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 14:37:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965065AbVITShc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 14:35:13 -0400
-Received: from bayc1-pasmtp02.bayc1.hotmail.com ([65.54.191.162]:63768 "EHLO
-	BAYC1-PASMTP02.CEZ.ICE") by vger.kernel.org with ESMTP
-	id S965061AbVITSfL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 14:35:11 -0400
-Message-ID: <BAYC1-PASMTP026836E1C3EF2589FFE007AE950@CEZ.ICE>
-X-Originating-IP: [67.71.125.52]
-X-Originating-Email: [seanlkml@sympatico.ca]
-Message-ID: <59258.10.10.10.28.1127241246.squirrel@linux1>
-In-Reply-To: <200509201759.j8KHxkbj000577@laptop11.inf.utfsm.cl>
-References: Message from "Sean" <seanlkml@sympatico.ca>    of "Tue, 20 Sep
-    2005 11:20:46 -0400." <BAYC1-PASMTP04AB35B0A82E89B341AB0BAE950@cez.ice>
-    <56402.10.10.10.28.1127229646.squirrel@linux1>
-    <200509201759.j8KHxkbj000577@laptop11.inf.utfsm.cl>
-Date: Tue, 20 Sep 2005 14:34:06 -0400 (EDT)
-Subject: Re: Arrr! Linux v2.6.14-rc2
-From: "Sean" <seanlkml@sympatico.ca>
-To: "Horst von Brand" <vonbrand@inf.utfsm.cl>
-Cc: "Gene Heskett" <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.4-2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-X-OriginalArrivalTime: 20 Sep 2005 18:33:41.0090 (UTC) FILETIME=[D2D62C20:01C5BE11]
+	Tue, 20 Sep 2005 14:37:32 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:57517 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S965064AbVITShb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 14:37:31 -0400
+Message-Id: <200509201836.j8KIajK0001419@laptop11.inf.utfsm.cl>
+To: Hans Reiser <reiser@namesys.com>
+cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Nikita Danilov <nikita@clusterfs.com>, stephen.pollei@gmail.com,
+       Denis Vlasenko <vda@ilport.com.ua>, LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: I request inclusion of reiser4 in the mainline kernel 
+In-Reply-To: Message from Hans Reiser <reiser@namesys.com> 
+   of "Tue, 20 Sep 2005 10:43:29 MST." <43304A41.7080206@namesys.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
+Date: Tue, 20 Sep 2005 14:36:45 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Tue, 20 Sep 2005 14:36:46 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, September 20, 2005 1:59 pm, Horst von Brand said:
+Hans Reiser <reiser@namesys.com> wrote:
+> Horst von Brand wrote:
 
-> Only that it doesn't work either today. Kernel stays at 2.6.14-rc1 as of
-> yesterday (latest were a few NTFS patches), everything up to date.
+[...]
 
-Yeah, Russell pointed the same thing out a bit earlier.  There are 13
-commits MIA.
+> >It is supposed to go into the kernel, which is not exactly warning-free.
 
-> BTW, the cogito repository is hosed, cg-update can't get needed object
-> 69ba00668be16e44cae699098694286f703ec61d. Fetching the contents by rsync
-> gives the same mess.
+> While I have no passionate feelings about Nikita's ifdef, I must note
+> that Reiser4 will always be warning free within 3 days of my finding out
+> that somebody left a warning in.;-)
 
-For simply tracking the kernel there isn't much reason to use cogito. 
-Using native git means fewer problems right now since both cogito and git
-are developing quickly with inevitable version skew etc..
+> I hate messy code.;-)
 
-Sean
+Me too. And I hate warnings. But what I hate most is code that has been
+messed up to get an idiotic compiler to shut up. And it has been several
+times that I've seen modifications to shut up the compiler, after which
+modifications introduced bugs. The compiler then kept quiet due to the
+"warning fix", when it would have screamed otherwise. Or where the compiler
+was right in complaining, and the fix just did shut it up and did not fix
+the real problem. Examples include gratuitous casts, "just initialize to
+anything" so it doesn't warn about possible use without initialization.
 
+> The rest of the kernel should be fixed to be warning free.
+
+Unrealistic. Would be nice, but there are more pressing needs. And,as I
+said above, just brute-forcing it warning-free without really understanding
+what the warning is all about is /much/ worse than keeping an useless
+warning.
+
+> >Besides, you don't know what idiotic new warnings the gcc people might
+> >dream up the next round, so just relying on no warnings is extremely
+> >unwise.
+
+> I find the above unconvincing.
+
+That means you haven't used very many gcc versions. I've been around since
+1.72 (or even earlier), and each single new gcc version (even minor
+revisions) would complain about things the earlier ones thought were
+A-OK. Even worse, to get correct code out of some versions you have to
+write stuff that later versions find objectionable.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964924AbVITIJ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964926AbVITINI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964924AbVITIJ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 04:09:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964927AbVITIJ5
+	id S964926AbVITINI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 04:13:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964927AbVITINI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 04:09:57 -0400
-Received: from [213.132.87.177] ([213.132.87.177]:37807 "EHLO gserver.ymgeo.ru")
-	by vger.kernel.org with ESMTP id S964924AbVITIJ4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 04:09:56 -0400
-From: Ustyugov Roman <dr_unique@ymg.ru>
-To: thayumk@gmail.com, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] kbuild
-Date: Tue, 20 Sep 2005 12:13:44 +0400
-User-Agent: KMail/1.8
-References: <200509191432.58736.dr_unique@ymg.ru> <3b8510d805092000346c27270f@mail.gmail.com> <3b8510d80509200043e09eae9@mail.gmail.com>
-In-Reply-To: <3b8510d80509200043e09eae9@mail.gmail.com>
+	Tue, 20 Sep 2005 04:13:08 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:8625 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S964926AbVITINH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 04:13:07 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: fawadlateef@gmail.com
+Subject: Re: regarding kernel compilation
+Date: Tue, 20 Sep 2005 11:12:27 +0300
+User-Agent: KMail/1.8.2
+Cc: Gireesh Kumar <gireesh.kumar@einfochips.com>, linux-kernel@vger.kernel.org
+References: <32854.192.168.9.246.1127197320.squirrel@192.168.9.246> <1e62d13705092000112a49cb6c@mail.gmail.com>
+In-Reply-To: <1e62d13705092000112a49cb6c@mail.gmail.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200509201213.44638.dr_unique@ymg.ru>
 Content-Type: text/plain;
-  charset="utf-8"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 20 Sep 2005 08:17:24.0498 (UTC) FILETIME=[BB11FF20:01C5BDBB]
+Content-Disposition: inline
+Message-Id: <200509201112.28091.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thayumanavar Sachithanantham wrote:
-> Let me know your results.Take care of the quotes while you change.
+On Tuesday 20 September 2005 10:11, Fawad Lateef wrote:
+> On 9/20/05, Gireesh Kumar <gireesh.kumar@einfochips.com> wrote:
+> > Hi,
+> > I'd like to compile 2.4.20-6 kernel while running in 2.6 kernel. I tried
+> > to do so but there are redeclaration errors with /kernel/sched.c and
+> > /include/linux/sched.h. One it is FASTCALL and the other it is not.
+> > Can anyone help me to fix this?
 
-make -C ../../../linux-2.6.11.4-21.8
- O=../linux-2.6.11.4-21.8-obj/i386/default /bin/sh: -c: line 0: syntax error
- near unexpected token `('
-/bin/sh: -c: line 0: `set -e;
-.....
+Kernel conpile should never use system includes, let alone
+includes from _another_ kernel tree. (Using stdarg.h from gcc is ok)
 
-What symbol must be between
--D'DUM(a)=\#a'
-and
--D'KBUILD_MODNAME=DUM($(subst $(comma),_,$(subst -,_,$(modname))))')
+> I don't think you will be able to compile 2.4 kernel on to the 2.6
+> kernel based distro .... as in 2.6 based distro, mod-utils and other
 
-?
+2.6 modutils (module-init-tools to be exact) fall back to <toolname>.old
+(by just exec'ing it) if those exist.
 
-I tried a space, comma and no spaces, also with quotes and without any, but
-got an error above.
+> packages are updated and will only support 2.6 based kernel .... So
 
-Here is my line:
-modname_flags  = $(if $(filter 1,$(words $(modname))),-D'DUM(a)=\#a'
--D'KBUILD_MODNAME=DUM($(subst $(comma),_,$(subst -,_,$(modname))))')
+Not true. I compiled 2.4 kernels on 2.6 machine without any problems.
 
--- 
-RomanU
+> its better to get 2.4 kernel based distribution .... (and can keep/run
+> both 2.6 and 2.4 based distributions simultanously on the same system,
+> so that you can boot in any of them as per your requirement of 2.4 or
+> 2.6 kernel)
+--
+vda

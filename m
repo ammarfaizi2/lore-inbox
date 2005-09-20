@@ -1,100 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964998AbVITMb5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965000AbVITMee@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964998AbVITMb5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 08:31:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964999AbVITMb5
+	id S965000AbVITMee (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 08:34:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965001AbVITMee
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 08:31:57 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:62992 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S964998AbVITMb4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 08:31:56 -0400
-Date: Tue, 20 Sep 2005 13:31:49 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pekka J Enberg <penberg@cs.Helsinki.FI>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Al Viro <viro@ftp.linux.org.uk>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: p = kmalloc(sizeof(*p), )
-Message-ID: <20050920123149.GA29112@flint.arm.linux.org.uk>
-Mail-Followup-To: Pekka J Enberg <penberg@cs.Helsinki.FI>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Al Viro <viro@ftp.linux.org.uk>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-References: <20050918100627.GA16007@flint.arm.linux.org.uk> <84144f0205092004187f86840c@mail.gmail.com> <20050920114003.GA31025@flint.arm.linux.org.uk> <Pine.LNX.4.58.0509201501440.9304@sbz-30.cs.Helsinki.FI>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0509201501440.9304@sbz-30.cs.Helsinki.FI>
-User-Agent: Mutt/1.4.1i
+	Tue, 20 Sep 2005 08:34:34 -0400
+Received: from sigma957.CIS.McMaster.CA ([130.113.64.83]:65438 "EHLO
+	sigma957.cis.mcmaster.ca") by vger.kernel.org with ESMTP
+	id S965000AbVITMed (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 08:34:33 -0400
+In-Reply-To: <20050920051729.GF7992@ftp.linux.org.uk>
+References: <1127181641.16372.10.camel@vertex> <Pine.LNX.4.58.0509191909220.2553@g5.osdl.org> <1127188015.17794.6.camel@vertex> <Pine.LNX.4.58.0509192054060.2553@g5.osdl.org> <20050920042456.GC7992@ftp.linux.org.uk> <1127190971.18595.5.camel@vertex> <20050920044623.GD7992@ftp.linux.org.uk> <1127191992.19093.3.camel@vertex> <20050920045835.GE7992@ftp.linux.org.uk> <1127192784.19093.7.camel@vertex> <20050920051729.GF7992@ftp.linux.org.uk>
+Mime-Version: 1.0 (Apple Message framework v734)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <76677C3D-D5E0-4B5A-800F-9503DA09F1C3@tentacle.dhs.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Robert Love <rml@novell.com>, Al Viro <viro@ZenIV.linux.org.uk>
+Content-Transfer-Encoding: 7bit
+From: John McCutchan <ttb@tentacle.dhs.org>
+Subject: Re: [patch] stop inotify from sending random DELETE_SELF event under load
+Date: Tue, 20 Sep 2005 08:34:20 -0400
+To: Al Viro <viro@ftp.linux.org.uk>
+X-Mailer: Apple Mail (2.734)
+X-PMX-Version-Mac: 4.7.1.128075, Antispam-Engine: 2.0.3.2, Antispam-Data: 2005.9.20.8
+X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='__CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __HAS_X_MAILER 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0'
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 20, 2005 at 03:20:18PM +0300, Pekka J Enberg wrote:
-> Well, yes, but for initialization, I would prefer something like what Al 
-> Viro suggested. To me, initialization is a separate issue from kmalloc. I 
-> do get your point but I just don't think sizeof(struct foo) is the answer.
 
-No matter, and no matter what CodingStyle says, I won't be changing
-my style of kmalloc for something which I disagree with.
+On 20-Sep-05, at 1:17 AM, Al Viro wrote:
 
-Since some of the other major contributors to the kernel appear to
-also disagree with the statement, I think that the entry in
-CodingStyle must be removed.
+> On Tue, Sep 20, 2005 at 01:06:23AM -0400, John McCutchan wrote:
+>
+>> On Tue, 2005-09-20 at 05:58 +0100, Al Viro wrote:
+>>
+>>> On Tue, Sep 20, 2005 at 12:53:12AM -0400, John McCutchan wrote:
+>>>
+>>>> DELETE_SELF WD=X
+>>>>
+>>>> The path you requested a watch on (inotify_add_watch(path,mask)  
+>>>> returned
+>>>> X) has been deleted.
+>>>>
+>>>
+>>> Then why the devil do we have IN_DELETE and IN_DELETE_SELF generated
+>>> in different places?  The only difference is in who receives the
+>>> event - you send IN_DELETE to watchers on parent and IN_DELETE_SELF
+>>> on watchers on victim.  Event itself is the same, judging by your
+>>> description...
+>>>
+>>
+>> No, because in the case of IN_DELETE, the path represented by the WD
+>> hasn't been deleted, it is "PATH(WD)/event->name" that has been.
+>>
+>
+> That's OK - same thing described for different recepients, thus two
+> events with different contents and type being sent.
+>
+>
+>> Also,
+>> IN_DELETE_SELF marks the death of the WD, no further events will  
+>> be sent
+>> with the same WD [Except for the IN_IGNORE].
+>>
+>
+> Uh-oh...  Now, _that_ is rather interesting - you are giving self- 
+> contradictory
+> descriptions of the semantics.
+>
 
-Plus, this means that kernel janitors should _not_ fix up code to
-follow the sizeof(*p) style.
+Where is the contradiction?
 
----
+> fd = open("foo", 0);
+> unlink("foo");
+> sleep for a day
+> fchmod(fd, 0400);
+> sleep for a day
+> close(fd);
+>
+> Which events do we have here?  Removal of path happens at unlink();  
+> change
+> of attributes - a day later.
+>
 
-It isn't clear that the use of p = kmalloc(sizeof(*p), ...) is
-preferred over p = kmalloc(sizeof(struct foo), ...) - in fact,
-there are some good reasons to use the latter form.
+[I'm assuming that fchmod continues to work even if the path has been  
+deleted.]
 
-Therefore, the choice of which to use should be left up to the
-developer concerned, and not written in to the coding style.
+With Linus's latest patch:
 
-For discussion, please see the thread:
-      http://lkml.org/lkml/2005/9/18/29
+IN_ATTRIB
+IN_DELETE_SELF
+IN_IGNORE
 
-Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+If we were able to get inoderemove called when the path removal happens,
 
-diff --git a/Documentation/CodingStyle b/Documentation/CodingStyle
---- a/Documentation/CodingStyle
-+++ b/Documentation/CodingStyle
-@@ -410,26 +410,7 @@ Kernel messages do not have to be termin
- Printing numbers in parentheses (%d) adds no value and should be avoided.
- 
- 
--		Chapter 13: Allocating memory
--
--The kernel provides the following general purpose memory allocators:
--kmalloc(), kzalloc(), kcalloc(), and vmalloc().  Please refer to the API
--documentation for further information about them.
--
--The preferred form for passing a size of a struct is the following:
--
--	p = kmalloc(sizeof(*p), ...);
--
--The alternative form where struct name is spelled out hurts readability and
--introduces an opportunity for a bug when the pointer variable type is changed
--but the corresponding sizeof that is passed to a memory allocator is not.
--
--Casting the return value which is a void pointer is redundant. The conversion
--from void pointer to any other pointer type is guaranteed by the C programming
--language.
--
--
--		Chapter 14: References
-+		Chapter 13: References
- 
- The C Programming Language, Second Edition
- by Brian W. Kernighan and Dennis M. Ritchie.
+IN_DELETE_SELF
+IN_IGNORE
+
+At this point, inotify would stop monitoring the inode, and we would  
+never see the fchmod.
+
+John McCutchan
+ttb@tentacle.dhs.org
 
 
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core

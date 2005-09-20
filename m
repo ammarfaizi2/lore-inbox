@@ -1,34 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965060AbVITWPI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965167AbVITWS7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965060AbVITWPI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 18:15:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965165AbVITWPI
+	id S965167AbVITWS7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 18:18:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965165AbVITWS6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 18:15:08 -0400
-Received: from pimout3-ext.prodigy.net ([207.115.63.102]:13527 "EHLO
-	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S965167AbVITWPG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 18:15:06 -0400
-X-ORBL: [67.124.117.85]
-Date: Tue, 20 Sep 2005 12:44:46 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Charles McCreary <mccreary@crmeng.com>, linux-kernel@vger.kernel.org
-Subject: Re: x86-64 bad pmds in 2.6.11.6
-Message-ID: <20050920194446.GA15606@taniwha.stupidest.org>
-References: <200509201212.55676.mccreary@crmeng.com> <Pine.LNX.4.58.0509201028050.2553@g5.osdl.org>
+	Tue, 20 Sep 2005 18:18:58 -0400
+Received: from zproxy.gmail.com ([64.233.162.200]:37438 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965175AbVITWS6 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 18:18:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=XCezJNZSwD7x+7bqfmvERm2he38ocMWI4BnvVQpiMHxqhyWBFNzrW9Y/dn3kC3HJvwTbZtq0td5z1bMbyB1lFnH3OZ5+/SgYqjnYfS686b3Mh5TAhnq27B44QIs8uLEXNLxcy8mae7fvwUWrlYdXfczI3UHnmnHPBqkslmCpu9Y=
+Message-ID: <9a8748490509201518248b66d1@mail.gmail.com>
+Date: Wed, 21 Sep 2005 00:18:50 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: jesper.juhl@gmail.com
+To: John Richard Moser <nigelenki@comcast.net>
+Subject: Re: Hot-patching
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <43308815.1000200@comcast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0509201028050.2553@g5.osdl.org>
+References: <43308815.1000200@comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 20, 2005 at 10:30:48AM -0700, Linus Torvalds wrote:
+On 9/21/05, John Richard Moser <nigelenki@comcast.net> wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Oftentimes distributions spin on a stable kernel, but occasionally
+> update it for security bugs.  This then demands a reboot, or you sit on
+> a buggy kernel for however long.
+> 
 
-> This is quite possibly the result of an Opteron errata (tlb flush
-> filtering is broken on SMP) that we worked around as of 2.6.14-rc4.
+This has been discussed time and time again on this list and elsewhere
+over the years. The most recent discussion I recall is the "[PATCH
+x86_64] Live Patching Function on 2.6.11.7" thread which drew over 50
+comments and got into a lot of corners - I'd suggest you go read it in
+the archives.
+Spend a little time searching and you'll find several other threads
+about this in lkml archives.
 
-It would be really interesting to know if this does help.  I was told
-em64t also have the 'bad pmd' problem but I can't make it happen here
-on opteron on em64t.
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

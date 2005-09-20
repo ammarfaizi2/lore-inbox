@@ -1,68 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbVITXvE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbVITXxy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750718AbVITXvE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 19:51:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750720AbVITXvE
+	id S1750726AbVITXxy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 19:53:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750727AbVITXxw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 19:51:04 -0400
-Received: from rproxy.gmail.com ([64.233.170.203]:58080 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750718AbVITXvD convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 19:51:03 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=slg+xRXCpQieXR2p1ai56WDe++rNWHlXtpMiRaf32l1Qd6b/8PARIJAD3YMl0If3xWe68rObyoxCHv81BFniGQ0uDSOBiO4RcSSbazbaKiwYHS7DOOLBJA/BQeRfvVw+YqvxdQOXvnpDGxIWaYG0coBDcoYyo6QZiEqktspdKr4=
-Message-ID: <aa4c40ff0509201651723bc624@mail.gmail.com>
-Date: Tue, 20 Sep 2005 16:51:00 -0700
-From: James Lamanna <jlamanna@gmail.com>
-Reply-To: James Lamanna <jlamanna@gmail.com>
-To: Vadim Lobanov <vlobanov@speakeasy.net>
-Subject: Re: I request inclusion of reiser4 in the mainline kernel
-Cc: stephen.pollei@gmail.com, vonbrand@inf.utfsm.cl, nikita@clusterfs.com,
-       vda@ilport.com.ua, linux-kernel@vger.kernel.org,
-       reiserfs-list@namesys.com
-In-Reply-To: <Pine.LNX.4.58.0509201644300.14402@shell3.speakeasy.net>
+	Tue, 20 Sep 2005 19:53:52 -0400
+Received: from xenotime.net ([66.160.160.81]:55014 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1750726AbVITXxv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 19:53:51 -0400
+Date: Tue, 20 Sep 2005 16:53:51 -0700 (PDT)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
+cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4/7] README update from the stone age
+In-Reply-To: <20050920184544.14557.15273.stgit@zion.home.lan>
+Message-ID: <Pine.LNX.4.58.0509201644040.19786@shark.he.net>
+References: <20050920184513.14557.8152.stgit@zion.home.lan>
+ <20050920184544.14557.15273.stgit@zion.home.lan>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <aa4c40ff05092015405a23f33a@mail.gmail.com>
-	 <Pine.LNX.4.58.0509201644300.14402@shell3.speakeasy.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/20/05, Vadim Lobanov <vlobanov@speakeasy.net> wrote:
-> On Tue, 20 Sep 2005, James Lamanna wrote:
->
-> > On 9/20/05, Stephen Pollei <stephen.pollei@gmai.com> wrote:
-> > >On 9/20/05, Hans Reiser <reiser@namesys.com> wrote:
-> > > > Horst von Brand wrote:
-> > > > >Nikita Danilov <nikita@clusterfs.com> wrote:
+On Tue, 20 Sep 2005, Paolo 'Blaisorblade' Giarrusso wrote:
 
-> > What about #warning / #error in this case?
-> >
-> > #if defined(DEBUG_THIS) || defined(DEBUG_THAT)
-> >     int znode_is_loaded(const struct znode *z);
-> > #else
-> >     #error znode_is_loaded is unavailable when not debugging
-> > #endif
-> >
-> > That would certainly break the compile.
+> We have no options which the user can set in the Makefile. Only the
+> EXTRAVERSION, which is also useful in place of the "backup modules"
+> suggestion.
 >
-> Except that breaks the compile unconditionally, not just when someone
-> tries to use the function when they shouldn't. I don't think a flat
-> error will work here, but instead something along the lines of a
-> __attribute__((error)) on the function is needed.
+> Hey! Can anybody tell me when we last had configuration options in the top
+> Makefile? Please?
+>
+> Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+> ---
+>
+>  README |    9 ++++++---
+>  1 files changed, 6 insertions(+), 3 deletions(-)
+>
+> diff --git a/README b/README
+> --- a/README
+> +++ b/README
+> @@ -149,6 +149,9 @@ CONFIGURING the kernel:
+>  	"make gconfig"     X windows (Gtk) based configuration tool.
+>  	"make oldconfig"   Default all questions based on the contents of
+>  			   your existing ./.config file.
+> +	"make silentoldconfig"
+> +			   Like above, but avoids cluttering the screen
+> +			   with question already answered.
+                                questions
 
-Oh duh. It would wouldn't it :)
-Too much on my mind today.
+>
+>  	NOTES on "make config":
+>  	- having unnecessary drivers will make the kernel bigger, and can
+> @@ -169,9 +172,6 @@ CONFIGURING the kernel:
+>  	  should probably answer 'n' to the questions for
+>            "development", "experimental", or "debugging" features.
+>
+> - - Check the top Makefile for further site-dependent configuration
+> -   (default SVGA mode etc).
+> -
+>  COMPILING the kernel:
+>
+>   - Make sure you have gcc 2.95.3 available.
+> @@ -199,6 +199,9 @@ COMPILING the kernel:
+>     are installing a new kernel with the same version number as your
+>     working kernel, make a backup of your modules directory before you
+>     do a "make modules_install".
+> +   In alternative, before compiling, edit your Makefile and change the
+      Alternatively,
+
+> +   "EXTRAVERSION" line - its content is appended to the regular kernel
+> +   version.
+      Or consider using CONFIG_LOCALVERSION, which can be set by
+      using the "make *config" tools in the "General Setup" menu.
 
 >
-> > -- James Lamanna
-> > -
->
-> -VadimL
->
+>   - In order to boot your new kernel, you'll need to copy the kernel
+>     image (e.g. .../linux/arch/i386/boot/bzImage after compilation)
 
--- James Lamanna
+-- 
+~Randy

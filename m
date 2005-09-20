@@ -1,156 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964938AbVITIzG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964939AbVITI5t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964938AbVITIzG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 04:55:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964939AbVITIzF
+	id S964939AbVITI5t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 04:57:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964940AbVITI5s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 04:55:05 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:15519 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964938AbVITIzE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 04:55:04 -0400
-Date: Tue, 20 Sep 2005 10:55:32 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Serge Noiraud <serge.noiraud@bull.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RT bug with 2.6.13-rt4 and 3c905c tornado
-Message-ID: <20050920085532.GA19807@elte.hu>
-References: <200509201046.17818.Serge.Noiraud@bull.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 20 Sep 2005 04:57:48 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:32198 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S964939AbVITI5s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 04:57:48 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: fawadlateef@gmail.com
+Subject: Re: regarding kernel compilation
+Date: Tue, 20 Sep 2005 11:56:41 +0300
+User-Agent: KMail/1.8.2
+Cc: Gireesh Kumar <gireesh.kumar@einfochips.com>, linux-kernel@vger.kernel.org
+References: <32854.192.168.9.246.1127197320.squirrel@192.168.9.246> <200509201112.28091.vda@ilport.com.ua> <1e62d137050920013752bf31d7@mail.gmail.com>
+In-Reply-To: <1e62d137050920013752bf31d7@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200509201046.17818.Serge.Noiraud@bull.net>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-VirusStatus: clean
+Message-Id: <200509201156.42084.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> you are right, but if they exists .... but what IIRC I havn't found
+> them on FC4/RH EL4 distributions .....
 
-* Serge Noiraud <serge.noiraud@bull.net> wrote:
+Then build them from source. Big deal.
+ 
+> > > packages are updated and will only support 2.6 based kernel .... So
+> > 
+> > Not true. I compiled 2.4 kernels on 2.6 machine without any problems.
+> > 
+> On which distribution 2.6 based you compiled and succesfully run 2.4
+> kernel ??? b/c its not working on FC3/FC4/AS4 .........
 
-> Hi
-> 
-> 	This driver works perfectly if you insert the physical card on a 
-> PCI slot. If you insert this same card on a PCI-X slot, we got the 
-> following problem : When you type "modprobe 3c59x", the system freeze.
-> 
-> Has someone already test this ?
-> 
-> This card works perfectly on the same PCI-X slot with a non RT kernel. 
-> Do you need some more info ?
-
-use serial logging and the NMI watchdog to debug hard lockups (see the 
-info below). Use CONFIG_DETECT_SOFTLOCKUP=y to detect soft lockups. 
-Generally the use of debugging options can help as well. Here's a 'full' 
-debugging kernel:
-
- CONFIG_DEBUG_SLAB=y
- CONFIG_DEBUG_PREEMPT=y
- CONFIG_DEBUG_IRQ_FLAGS=y
- CONFIG_WAKEUP_TIMING=y
- CONFIG_WAKEUP_LATENCY_HIST=y
- CONFIG_PREEMPT_TRACE=y
- CONFIG_CRITICAL_PREEMPT_TIMING=y
- CONFIG_PREEMPT_OFF_HIST=y
- CONFIG_CRITICAL_IRQSOFF_TIMING=y
- CONFIG_INTERRUPT_OFF_HIST=y
- CONFIG_CRITICAL_TIMING=y
- CONFIG_LATENCY_TIMING=y
- CONFIG_CRITICAL_LATENCY_HIST=y
- CONFIG_LATENCY_HIST=y
- CONFIG_LATENCY_TRACE=y
- CONFIG_MCOUNT=y
- CONFIG_RT_DEADLOCK_DETECT=y
- CONFIG_DEBUG_RT_LOCKING_MODE=y
- # CONFIG_DEBUG_KOBJECT is not set
- CONFIG_DEBUG_BUGVERBOSE=y
- CONFIG_DEBUG_INFO=y
- CONFIG_DEBUG_FS=y
- CONFIG_FRAME_POINTER=y
- CONFIG_EARLY_PRINTK=y
- CONFIG_EARLY_PRINTK=y
- CONFIG_DEBUG_STACKOVERFLOW=y
- # CONFIG_KPROBES is not set
- CONFIG_DEBUG_STACK_USAGE=y
- CONFIG_DEBUG_PAGEALLOC=y
- CONFIG_4KSTACKS=y
-
-	Ingo
-
-to set up serial logging:
--------------------------
-
-install a null modem cable (== serial cable) to one of the serial ports
-of the server, connect the cable to another box, run a terminal program
-on that other box (e.g. "minicom -m" - do Alt-L to switch on logging
-after starting it up) and set up the server's kernel to do serial
-logging: enable CONFIG_SERIAL_8250_CONSOLE and
-CONFIG_SERIAL_CORE_CONSOLE, recompile & reinstall the kernel, add
-"console=ttyS0,38400 console=tty0" to your /etc/grub.conf or
-/etc/lilo.conf kernel boot line, reboot the server with the new kernel
-command line - and configure minicom to run with that speed (Alt-S).
-
-e.g. my /etc/grub.conf has:
-
-title test-2.6 (test-2.6)
-        root (hd0,0)
-        kernel /boot/bzImage root=/dev/sda1 console=ttyS0,38400 console=tty0 nmi_watchdog=1 kernel_preempt=1
-
-if everything is set up correctly then you should see kernel messages
-showing up in the minicom session when you boot up.
-
-When the messages do not show up then typical errors are mismatch
-between the serial port (or speed) and the device names used - if it's
-COM2 then use ttyS1, and dont forget to set up the serial speed option
-of minicom, etc. You can test the serial connection by doing:
-
-	echo x > /dev/ttyS0
-
-and that should show up in the minicom session on the other box.
-
-to set up early-printk:
------------------------
-
-occasionally lockups/crashes happen so early in the bootup that nothing
-makes it even to the serial log. In that case the 'earlyprintk' feature
-is most useful. It is default-enabled on all 2.6 kernels, you only need
-to add one more boot parameter to activate it over the serial console:
-
-   earlyprintk=serial,ttyS0,38400
-
-to set up the NMI watchdog:
----------------------------
-
-add nmi_watchdog=1 to your boot parameters and reboot - that should be
-all to get it active. If all CPU's NMI count increases in
-/proc/interrupts then it's working fine. If the counts do not increase
-(or only one CPU increases it) then try nmi_watchdog=2 - this is another
-type of NMI that might work better. (Very rarely there are boxes that
-dont have reliable NMI counts with 1 and 2 either - but i dont think
-your box is one of those.)
-
-once the NMI watchdog is up and running it should catch all hard lockups
-and print backtraces to the serial console - even if you are within X
-while the lockup happens. You can test hard lockups by running the
-attached 'lockupcli' userspace code as root - it turns off interrupts
-and goes into an infinite loop => instant lockup. The NMI watchdog
-should notice this condition after a couple of seconds and should abort
-the task, printing a kernel trace as well. Your box should be back in
-working order after that point.
-
-now for the real lockup your box wont be 'fixed' by the NMI watchdog, it
-will likely stay locked up, but you should get messages on the serial
-console, giving us an idea where the kernel locked up and why. (Very
-rarely it happens that not even the NMI watchdog prints anything for a
-hard lockup - this is often the sign of hardware problems.)
-
-	Ingo
-
---- lockupcli.c
-
-main ()
-{
-        iopl(3);
-        for (;;) asm("cli");
-}
-
+I used distro for installing my Linux box exactly once in my life when
+I installed Slackware (IIRC it was Slack 7). It got heavily modified
+over time...
+--
+vda

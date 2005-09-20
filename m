@@ -1,118 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965096AbVITTYV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965093AbVITTdI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965096AbVITTYV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 15:24:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965097AbVITTYV
+	id S965093AbVITTdI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 15:33:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965094AbVITTdI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 15:24:21 -0400
-Received: from enterprise.francisscott.net ([64.235.237.105]:20747 "EHLO
-	enterprise.francisscott.net") by vger.kernel.org with ESMTP
-	id S965096AbVITTYV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 15:24:21 -0400
-Message-ID: <433061E4.20903@lampert.org>
-Date: Tue, 20 Sep 2005 12:24:20 -0700
-From: Scott Lampert <scott@lampert.org>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050812)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Langsdorf, Mark" <mark.langsdorf@amd.com>
-CC: john stultz <johnstul@us.ibm.com>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       discuss@x86-64.org
-Subject: Re: [discuss] Re: [PATCH] x86-64: Fix bad assumption that dualcore
- cpus have synced TSCs
-References: <84EA05E2CA77634C82730353CBE3A843032187C4@SAUSEXMB1.amd.com>
-In-Reply-To: <84EA05E2CA77634C82730353CBE3A843032187C4@SAUSEXMB1.amd.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Sep 2005 15:33:08 -0400
+Received: from zproxy.gmail.com ([64.233.162.196]:12489 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965093AbVITTdH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 15:33:07 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=LO3UgYoCw35eryCfx2mb1Sh7nm5xIx6DH52hGgQ4axQZaDKfqdwnjR4nYK8CLCVez0Wjgn8FINUqZ4co0HpaBAyb+s1ZZ/p9X2uRkiAX0bJyjpMLnRl2JuuLFuolxE0tT/RngBv0pivjE0Zf7ocRWlKiILyAwBmaoVLQ9wrbKNM=
+Date: Tue, 20 Sep 2005 23:43:36 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Frank van Maarseveen <frankvm@frankvm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13.1 Slab corruption during boot
+Message-ID: <20050920194336.GB3858@mipter.zuzino.mipt.ru>
+References: <20050916141445.GA32693@janus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050916141445.GA32693@janus>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Langsdorf, Mark wrote:
+On Fri, Sep 16, 2005 at 04:14:45PM +0200, Frank van Maarseveen wrote:
+> stock 2.6.13.1 on a P4 with HT:
 
->>On Mon, 2005-09-19 at 21:49 +0200, Andi Kleen wrote:
->>    
->>
->>>On Mon, Sep 19, 2005 at 12:42:16PM -0700, john stultz wrote:
->>>      
->>>
->>>>On Mon, 2005-09-19 at 21:31 +0200, Andi Kleen wrote:
->>>>        
->>>>
->>>>>On Mon, Sep 19, 2005 at 12:16:43PM -0700, john stultz wrote:
->>>>>          
->>>>>
->>>>>>	This patch should resolve the issue seen in 
->>>>>>            
->>>>>>
->>bugme bug #5105, 
->>    
->>
->>>>>>where it is assumed that dualcore x86_64 systems have synced 
->>>>>>TSCs. This is not the case, and alternate timesources 
->>>>>>            
->>>>>>
->>should be 
->>    
->>
->>>>>>used instead.
->>>>>>            
->>>>>>
->>>>>I asked AMD some time ago and they told me it was synchronized. 
->>>>>The TSC on K8 is C state invariant, but not P state 
->>>>>          
->>>>>
->>invariant, but 
->>    
->>
->>>>>P states always happen synchronized on dual cores.
->>>>>
->>>>>So I'm not quite convinced of your explanation yet.
->>>>>          
->>>>>
->>>>Would a litter userspace test checking the TSC 
->>>>        
->>>>
->>synchronization maybe 
->>    
->>
->>>>shed additional light on the issue?
->>>>        
->>>>
->>>Sure you can try it.
->>>      
->>>
->>So, bugzilla.kernel.org has (temporarily at least) lost the 
->>reports from yesterday, but from the email i got, folks using 
->>my TSC consistency check that I posted were seeing what 
->>appears to be unsynched TSCs on dualcore AMD systems.
->>    
->>
->
->My understanding was that each TSC on a dual-core processor
->will advance individually and atomically.  They will not 
->always be in synchronization.
->
->  
->
->>Personally I suspect that the powernow driver is putting the 
->>cores independently into low power sleep and the TSCs are 
->>being independently halted, causing them to become unsynchronized.
->>    
->>
->
->The powernow-k8 driver doesn't know what a low power sleep state
->is, so I strongly doubt it is involved here.  It only handles
->pstates.
-> 
->-Mark Langsdorf
->K8 PowerNow! Maintainer
->AMD, Inc.
->
->  
->
+> Sep 16 16:02:01 espoo kernel: Slab corruption: start=f7f31000, len=4096
+> Sep 16 16:02:01 espoo kernel: 0b0: 6b 6b 6b 6b 6b 6b 6b 6b ff ff ff ff 00 00 00 00
 
-Just to add some end-user input here, I see the same issues regardless 
-of whether I'm running with the powernow-k8 or not.  The clock problems 
-seem to be unrelated to that, at least on my system.
-    -Scott
+I've filed a bug at kernel bugzilla so your report won't be lost. See
+http://bugme.osdl.org/show_bug.cgi?id=5278
+
+Please, register at http://bugme.osdl.org/createaccount.cgi and add
+yourself to CC list.
+

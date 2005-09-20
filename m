@@ -1,64 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964787AbVITSAc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964785AbVITSFh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964787AbVITSAc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 14:00:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964786AbVITSAc
+	id S964785AbVITSFh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 14:05:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964788AbVITSFh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 14:00:32 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:4000 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964785AbVITSAb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 14:00:31 -0400
-Date: Tue, 20 Sep 2005 10:59:39 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: rmk+lkml@arm.linux.org.uk, penberg@cs.Helsinki.FI, viro@ftp.linux.org.uk,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: p = kmalloc(sizeof(*p), )
-Message-Id: <20050920105939.3c9c5e39.akpm@osdl.org>
-In-Reply-To: <1127239361.7763.3.camel@localhost.localdomain>
-References: <20050918100627.GA16007@flint.arm.linux.org.uk>
-	<84144f0205092004187f86840c@mail.gmail.com>
-	<20050920114003.GA31025@flint.arm.linux.org.uk>
-	<Pine.LNX.4.58.0509201501440.9304@sbz-30.cs.Helsinki.FI>
-	<20050920123149.GA29112@flint.arm.linux.org.uk>
-	<20050920101128.70fec697.akpm@osdl.org>
-	<1127239361.7763.3.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 20 Sep 2005 14:05:37 -0400
+Received: from smtp004.mail.ukl.yahoo.com ([217.12.11.35]:25937 "HELO
+	smtp004.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S964785AbVITSFg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 14:05:36 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=QhIvXqfY6yGRrLXDuZpVs00njsp+A76SBni9c0+MjxnpEjrQH8ye7rpQXmxdWPqEfs7ynoUACBOf/GN0X4LW1OpZiMKQYjwyiMbkvP/U65ivl8NN3DOyH3NyxkyEmAfXsQEsh32DC7OXq7/FRlDCNufJiJQt/G/3xAGjS5eXSyc=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: Hugh Dickins <hugh@veritas.com>, Rik van Riel <riel@redhat.com>
+Subject: Remap_file_pages, RSS limits, security implications (was: Re: [uml-devel] Re: [RFC] [patch 0/18] remap_file_pages protection support (for UML), try 3)
+Date: Tue, 20 Sep 2005 17:06:05 +0200
+User-Agent: KMail/1.8.1
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+References: <200508262023.29170.blaisorblade@yahoo.it> <200509042110.01968.blaisorblade@yahoo.it> <Pine.LNX.4.61.0509071259380.17612@goblin.wat.veritas.com>
+In-Reply-To: <Pine.LNX.4.61.0509071259380.17612@goblin.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200509201706.06852.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
->
-> On Maw, 2005-09-20 at 10:11 -0700, Andrew Morton wrote:
-> > Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> > >
-> > >  Since some of the other major contributors to the kernel appear to
-> > >  also disagree with the statement, I think that the entry in
-> > >  CodingStyle must be removed.
-> > 
-> > Nobody has put forward a decent reason for doing so.  
-> 
-> I've seen five decent reasons so far. Which of the reasons on the thread
-> do you disagree with and why ?
-> 
+On Wednesday 07 September 2005 14:00, Hugh Dickins wrote:
+> On Sun, 4 Sep 2005, Blaisorblade wrote:
+> > On Friday 02 September 2005 23:02, Hugh Dickins wrote:
+> > > On Fri, 26 Aug 2005, Blaisorblade wrote:
+> > > > Subject: [patch 06/18] remap_file_pages protection support: support
+> > > > private vma for MAP_POPULATE
 
-umm, the three reasons which you deleted from the mail to which you're
-replying?
+> > > [...]
+> > > you're just letting private maps
+> > > be populated linearly, that's fine.
 
-> "I want to grep for
-> initialisations" is pretty pointless because a) it won't catch everything
-> anyway and b) most structures are allocated and initialised at a single
-> place and many of those which aren't should probably be converted to do
-> that anyway.
->
-> The broader point is that you're trying to optimise for the wrong thing. 
-> We should optimise for those who read code, not for those who write it.
->
+> > Would that be a real problem, when limited to readonly mappings?
 
-If you look back, your five reasons tend to address modifiability, not
-readability.
+> Regarding nonlinear readonly.  I never asked Ingo why he excluded it -
+> suspect he didn't intend to, but missed the peculiar treatment of VM_SHARED
+> versus VM_MAYSHARE - my apologies, Ingo, if I'm underestimating you!
+Ahh, ok... VM_MAYSHARE is the recorded MAP_SHARED, while VM_SHARED says 
+whether the pages are actually shared and writable.
+> But 
+> I was glad he had because it demands write access to the file being mapped
+> nonlinear.  Therefore the ordinary user cannot map libc.so nonlinear, and
+> condemn all users to the sledgehammer fashion of try_to_unmap_cluster.
 
+> Though thinking through that again now, the user of the nonlinear vma
+> is penalized,
+
+Where? Not in the page fault path.... it's as penalized as the rest of the 
+system. Or will direct reclaim have a preference for pages of the calling 
+process?
+> and the whole system is penalized by the difficulty in 
+> reclaiming efficiently, but I don't see the other users of the library
+> particularly penalized (they might be unfairly advantaged by having its
+> pages stay unnaturally long in memory).
+Those pages would be either needed (and wouldn't be swapped anyway) or 
+unneeded (and thus they'd waste memory).
+
+But the waste is possible even currently. If not having rmap were a local DoS, 
+well, an unprivileged user may well mmap and remap nonlinearly some really 
+big files.
+
+So, it would really be better to actually enforce the RSS rlimit when mapping 
+in pages in *nonlinear* areas (and fallback on setting file PTE's like on 
+NONBLOCK & page not in cache), rather than the "current" Rik's idea of 
+marking pages as inactive on memory-hog processes.
+
+But oh, right in mm/trash.c, the code which should do part of this is fully 
+commented out - and it was in the very first version of the code (looking 
+through bkcvs-git repository).
+
+And the RLIMIT_RSS is totally unused - I bet Rik's patch didn't manage to go 
+in, or it's me missing something?
+> Either I was wrong before, or 
+> I'm missing another aspect of it now: I don't know which.
+
+-- 
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
+http://www.user-mode-linux.org/~blaisorblade
+
+
+	
+
+	
+		
+___________________________________ 
+Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
+http://mail.yahoo.it

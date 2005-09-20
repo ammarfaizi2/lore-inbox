@@ -1,79 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965094AbVITTfu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965098AbVITThc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965094AbVITTfu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 15:35:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965098AbVITTfu
+	id S965098AbVITThc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 15:37:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965099AbVITThc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 15:35:50 -0400
-Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:46796 "HELO
-	develer.com") by vger.kernel.org with SMTP id S965094AbVITTft (ORCPT
+	Tue, 20 Sep 2005 15:37:32 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:24762 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965098AbVITThc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 15:35:49 -0400
-Message-ID: <43306484.2060103@develer.com>
-Date: Tue, 20 Sep 2005 21:35:32 +0200
-From: Bernardo Innocenti <bernie@develer.com>
-User-Agent: Mozilla Thunderbird 1.0.6-5 (X11/20050818)
-X-Accept-Language: en-us, en
+	Tue, 20 Sep 2005 15:37:32 -0400
+Date: Tue, 20 Sep 2005 12:37:02 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Al Viro <viro@ftp.linux.org.uk>
+cc: Ray Lee <ray@madrabbit.org>, John McCutchan <ttb@tentacle.dhs.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Robert Love <rml@novell.com>, Al Viro <viro@ZenIV.linux.org.uk>
+Subject: Re: [patch] stop inotify from sending random DELETE_SELF event under
+ load
+In-Reply-To: <20050920182249.GP7992@ftp.linux.org.uk>
+Message-ID: <Pine.LNX.4.58.0509201234560.2553@g5.osdl.org>
+References: <1127190971.18595.5.camel@vertex> <20050920044623.GD7992@ftp.linux.org.uk>
+ <1127191992.19093.3.camel@vertex> <20050920045835.GE7992@ftp.linux.org.uk>
+ <1127192784.19093.7.camel@vertex> <20050920051729.GF7992@ftp.linux.org.uk>
+ <76677C3D-D5E0-4B5A-800F-9503DA09F1C3@tentacle.dhs.org>
+ <20050920163848.GO7992@ftp.linux.org.uk> <1127238257.9940.14.camel@localhost>
+ <Pine.LNX.4.58.0509201108120.2553@g5.osdl.org> <20050920182249.GP7992@ftp.linux.org.uk>
 MIME-Version: 1.0
-To: Bernardo Innocenti <bernie@develer.com>
-CC: lkml <linux-kernel@vger.kernel.org>, netfilter-devel@lists.netfilter.org
-Subject: Re: Intermittent NAT failure when multiple hosts send UDP packets
-References: <432B8702.3060801@develer.com> <432CD386.201@develer.com>
-In-Reply-To: <432CD386.201@develer.com>
-X-Enigmail-Version: 0.91.0.0
-OpenPGP: id=FC6A66CA;
-	url=https://www.develer.com/~bernie/gpgkey.txt
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I'm sorry to say that this bug has shown up again on
-2.6.13 too, so it's not fixed at all.
 
-It's quite hard to trigger, but after it does, packets
-are consistently routed with the source IP untranslated.
+On Tue, 20 Sep 2005, Al Viro wrote:
+> > 
+> > I really think that the patch I sent out yesterday is as good as it gets.  
+> > If you want immediate notification, you should ask for notification about
+> > name changes in a particular directory. IN_DELETE_SELF notification on a
+> > file simple is _not_ going to be immediate.
+> 
+> But then it's too early.  Note that with your patch we still get removal
+> of _any_ link to our inode (even though it's alive and well and we'd never
+> heard about the sodding link in the first place) terminating all events
+> on it.
 
+Yes. What is in the current 2.6.14-rc2 tree doesn't do that. It considers 
+inodes "global". But it won't work reliably on networked filesystems, I 
+think.
 
-Bernardo Innocenti wrote:
+Anyway, I do believe that IN_DELETE_SELF is stupid, but that you migth 
+re-arm it if you get it. 
 
-> Never mind, it was fixed in 2.6.13, probably by this patch:
-> 
->   https://lists.netfilter.org/pipermail/netfilter-devel/2004-March/014412.html
-> 
-> 
-> Bernardo Innocenti wrote:
-> 
->>This smells like a bug in UDP ip_nat_proto_udp.c or nearby.
->>I'm seeing this on 2.6.12-1.1447_FC4, but code in 2.6.13 is
->>still the same.
->>
->>I've setup SNAT the usual way:
->>
->> iptables -A POSTROUTING -t nat -o ppp0 -j SNAT --to-source 151.38.19.110
->>
->>When multiple clients in the LAN send UDP packets to the same port of
->>the same remote host, I see something like this in my /proc/net/ip_conntrack:
->>
->> udp      17 170 src=10.3.3.2 dst=194.185.88.60 sport=5060 dport=5060 src=194.185.88.60 dst=151.38.19.110 sport=5060 dport=5060 [ASSURED] use=1
->> udp      17 29 src=10.3.3.2 dst=212.97.59.76 sport=5060 dport=5060 [UNREPLIED] src=212.97.59.76 dst=151.38.19.110 sport=5060 dport=5060 use=1
->> udp      17 177 src=10.3.3.250 dst=194.185.88.60 sport=5060 dport=5060 src=194.185.88.60 dst=151.38.19.110 sport=5060 dport=1024 [ASSURED] use=1
->>
->>In the last line, the destination port has been properly remapped from
->>5060 to 1024 to distingish between incoming packets.
->>
->>However, I see packets going out over ppp0 without the source
->>address properly rewritten to 151.38.19.110:
->>
->> 04:38:28.739514 IP 10.3.3.2.5060 > 194.185.88.60.5060: UDP, length 536
->>
->>This doesn't happen when there's just a single host sending to port 5060.
->>Sometimes I must restart the interface to trigger this bug.
-> 
-> 
-
--- 
-  // Bernardo Innocenti - Develer S.r.l., R&D dept.
-\X/  http://www.develer.com/
-
+		Linus

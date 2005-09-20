@@ -1,150 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964914AbVITH4T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964918AbVITH6A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964914AbVITH4T (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 03:56:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964918AbVITH4S
+	id S964918AbVITH6A (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 03:58:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964920AbVITH6A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 03:56:18 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:48780 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S964914AbVITH4R
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 03:56:17 -0400
-Subject: Re: [RFC PATCH 5/10] vfs: shared subtree aware bind mounts
-From: Ram Pai <linuxram@us.ibm.com>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Miklos Szeredi <miklos@szeredi.hu>,
-       mike@waychison.com, bfields@fieldses.org, serue@us.ibm.com
-In-Reply-To: <20050920071741.GI7992@ftp.linux.org.uk>
-References: <20050916182619.GA28489@RAM>
-	 <20050920071741.GI7992@ftp.linux.org.uk>
-Content-Type: text/plain
-Organization: IBM 
-Message-Id: <1127202974.10061.27.camel@localhost>
+	Tue, 20 Sep 2005 03:58:00 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:38105 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S964918AbVITH57 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 03:57:59 -0400
+Date: Tue, 20 Sep 2005 00:57:43 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: zippel@linux-m68k.org, akpm@osdl.org, torvalds@osdl.org,
+       Simon.Derr@bull.net, linux-kernel@vger.kernel.org, nikita@clusterfs.com
+Subject: Re: [PATCH] cpuset semaphore depth check optimize
+Message-Id: <20050920005743.4ea5f224.pj@sgi.com>
+In-Reply-To: <20050915104535.6058bbda.pj@sgi.com>
+References: <20050912113030.15934.9433.sendpatchset@jackhammer.engr.sgi.com>
+	<20050912043943.5795d8f8.akpm@osdl.org>
+	<20050912075155.3854b6e3.pj@sgi.com>
+	<Pine.LNX.4.61.0509121821270.3743@scrub.home>
+	<20050912153135.3812d8e2.pj@sgi.com>
+	<Pine.LNX.4.61.0509131120020.3728@scrub.home>
+	<20050913103724.19ac5efa.pj@sgi.com>
+	<Pine.LNX.4.61.0509141446590.3728@scrub.home>
+	<20050914124642.1b19dd73.pj@sgi.com>
+	<Pine.LNX.4.61.0509150116150.3728@scrub.home>
+	<20050915104535.6058bbda.pj@sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 20 Sep 2005 00:56:14 -0700
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-09-20 at 00:17, Al Viro wrote:
-> On Fri, Sep 16, 2005 at 11:26:19AM -0700, Ram wrote:
-> 
-> This patch needs to be split *AND* accompanied by locking rules.  It's
-> pretty much the core of the entire thing; if it's possible to offload
-> chunks elsewhere, life would become easier.  Locking rules are badly
-> needed, along with the comments re "why can't that mntput()/dput()
-> block under a spinlock", etc.
+Either I'm as dense as a petrified log, or we are still talking past
+each other on this topic of what locking is needed in cpuset_exit()
+when clearing tsk->cpuset, checking the cs->count and checking for
+notify_on_release.
 
-Yes will do.
+You're saying I don't need the spinlock when clearing tsk->cpuset in
+cpuset_exit(), and I am saying that I do need cpuset_sem when handing
+the count field if notify_on_release is enabled.
 
-Also I realized that vfspnode_lock just added more complexity because
-all it protected was already protected by vfsmount_lock. So I am
-cleaning up that lock.
+    You keep saying I don't need the spinlock, and showing code that
+    has -neither- lock around the section that checks or decrements
+    the count and conditionally does the notify_on_release stuff.
 
+    I keep protesting that the portion of your code that handles the
+    count and notify_on_release stuff is unsafe, which I believe it
+    is, for lack of holding cpuset_sem.
 
+    You keep pointing out that the clearing tsk->cpuset doesn't need
+    the spinlock to be safe.
 
-> 
-> BTW, how are you dealing with MS_MOVE?
-In the patch #6 MS_MOVE and pivot_root are handled.
-> 
-> > +void do_detach_prepare_mnt(struct vfsmount *mnt)
-> > +{
-> > +	mnt->mnt_mountpoint->d_mounted--;
-> > +	mntput(mnt->mnt_parent);
-> > +	dput(mnt->mnt_mountpoint);
-> > +	mnt->mnt_parent = mnt;
-> > +}
-> 
-> General note: mntput() should go _after_ dput() when we deal with pairs.
-> Doesn't cost anything, trivially safe.
+I agree that I don't need the spinlock when clearing tsk->cpuset in the
+cpuset_exit code:
 
-ok
+> > 	tsk->cpuset = NULL;
+> > 	if (atomic_read(&cs->count) == 1 && notify_on_release(cs)) {
 
-> 
-> >  	if (res) {
-> >  		spin_lock(&vfsmount_lock);
-> > +		clean_propagation_reference(res);
-> 
-> Uh-oh...  What makes that safe?  We do mntput() here; are we guaranteed
-> that these pointers won't be the last references?
+But I do need to hold cpuset_sem around the portion that deals with
+count, if the cpuset is marked notify_on_release, to avoid missing a
+notify_on_release due to confusions from a second task in cpuset_attach
+or cpuset_exit at the same time.
 
-Yes it is safe and it is not releasing the last reference to the mount.
-Will put in a comment there.
+If I don't hold cpuset_sem while doing that atomic_read(&cs->count),
+then that atomic_read() is utterly totally bleeping useless, for
+attach_task can bump the count right back up on the next memory
+cycle, from some other task on another cpu.  Worse than totally
+useless, because I might have read a count of 2, just as the other
+task executing the same cpuset_exit code at the same time also read a
+count of 2.  Then we both decrement the count, and abandon the cpuset,
+failing to handle the notify_on_release.
 
-It is releasing a reference to source mount of the bind operation.
+Similarly, the atomic_dec(&cs->count) a few lines later, also
+unguarded by cpuset_sem, is not safe, if I have a cpuset marked
+notify_on_release.  If I am not holding cpuset_sem, then regardless of
+any checks I might have made in previous lines of code, the cs->count
+could be one (1) when I get here, and the atomic_dec() could send it to
+zero without my realizing it, resulting in a missed notify on release.
 
-static void inline clean_propagation_reference(struct vfsmount *mnt)
-+{
-+	struct vfsmount *p;
-+	for (p = mnt; p; p = next_mnt(p, mnt))
-+		if (p->mnt_master)
-+			mntput(p->mnt_master);
-+}
-+
- 
+Unless I hold cpuset_sem, modifying cs->count is only safe if I don't
+care to look at the result, as happens in fork when I blindly increment
+it, or happens in exit if notify_on_release is false and I can blindly
+decrement the count.  Reading cs->count when not holding cpuset_sem is
+never of any use for reference counting purposes, for what you read
+means nothing one cycle later.
 
-> > +		spin_lock(&vfspnode_lock);
-> > +		propagate_abort_mount(m);
-> 
-> Calls do_detach_prepare() -> dput(), mntput().  At the very least such
-> cases need comments...
-> 
+We were talking past each other.  I'm sure of it.
 
-ok will add a comment. 
-but propagate_abort_mount() is not holding vfsmount_lock,  
-it is holding vfspnode_lock. So there should be a problem. But as
-mentioned earlier, even the need for vfspnode_lock is not needed.
+And I'm pretty sure I understand enough of this to code it now.
 
+So I plan to put it aside for a few days, while I tend to more
+pressing matters.
 
+Thank-you, Roman.  I owe you one.
 
-> > +static void __do_make_private(struct vfsmount *mnt)
-> > +{
-> > +	__do_make_slave(mnt);
-> > +	list_del_init(&mnt->mnt_slave);
-> > +	mnt->mnt_master = NULL;
-> > +	set_mnt_private(mnt);
-> > +}
-> > +
-> >  int do_make_private(struct vfsmount *mnt)
-> >  {
-> >  	/*
-> >  	 * a private mount is nothing but a
-> >  	 * slave mount with no incoming
-> >  	 * propagations.
-> >  	 */
-> >  	spin_lock(&vfspnode_lock);
-> > -	__do_make_slave(mnt);
-> > -	list_del_init(&mnt->mnt_slave);
-> > +	__do_make_private(mnt);
-> >  	spin_unlock(&vfspnode_lock);
-> > -	mnt->mnt_master = NULL;
-> > -	set_mnt_private(mnt);
-> >  	return 0;
-> >  }
-> 
-> Why not do that from the very beginning, BTW?
-
-can be done. will do.
-
-> 
-> >  	/*
-> > -	 * a unclonable mount is nothing but a
-> > +	 * a unclonable mount is a
-> >  	 * private mount which is unclonnable.
-> >  	 */
-> >  	spin_lock(&vfspnode_lock);
-> > -	__do_make_slave(mnt);
-> > -	list_del_init(&mnt->mnt_slave);
-> > +	__do_make_private(mnt);
-> >  	spin_unlock(&vfspnode_lock);
-> > -	mnt->mnt_master = NULL;
-> >  	set_mnt_unclonable(mnt);
-> >  	return 0;
-> >  }
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

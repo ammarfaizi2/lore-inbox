@@ -1,66 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932514AbVISRZd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932508AbVISRgg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932514AbVISRZd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 13:25:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932515AbVISRZd
+	id S932508AbVISRgg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 13:36:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932518AbVISRgg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 13:25:33 -0400
-Received: from xproxy.gmail.com ([66.249.82.202]:56459 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932513AbVISRZc convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 13:25:32 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=a63VDC2t/XyJgM+UVwTl9aCP3erzSPwnP3GMQZmk5SclO4TyoNYpHutjIvIlQDfqJ3UFz8xS6bYOchAJa6HlmW9L5XvfDBsIq/eWeSobXPFMQqnILkZAYhOgEiLcSD9yWdEuxzkBReBTJ4dXb8CCWI5HQYLmhPJOHgNaZPXfaaU=
-Message-ID: <5fc59ff305091910252447d363@mail.gmail.com>
-Date: Mon, 19 Sep 2005 10:25:29 -0700
-From: Ganesh Venkatesan <ganesh.venkatesan@gmail.com>
-Reply-To: ganesh.venkatesan@gmail.com
-To: Dan Aloni <da-x@monatomic.org>
-Subject: Re: workaround large MTU and N-order allocation failures
-Cc: Francois Romieu <romieu@fr.zoreil.com>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>,
-       netdev@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>
-In-Reply-To: <20050919071358.GA7107@localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050918143526.GA24181@localdomain>
-	 <20050918230822.GA5440@electric-eye.fr.zoreil.com>
-	 <20050919071358.GA7107@localdomain>
+	Mon, 19 Sep 2005 13:36:36 -0400
+Received: from smtp5.indiatimes.com ([203.199.93.15]:9490 "EHLO
+	WS0005.indiatimes.com") by vger.kernel.org with ESMTP
+	id S932508AbVISRgf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 13:36:35 -0400
+From: "rishikeshsn" <rishikeshsn@indiatimes.com>
+Message-Id: <200509191711.WAA28816@WS0005.indiatimes.com>
+To: <linux-kernel@vger.kernel.org>
+Reply-To: "rishikeshsn" <rishikeshsn@indiatimes.com>
+Subject: to see 802.11 frames thru kernel code
+Date: Mon, 19 Sep 2005 22:53:22 -0400
+X-URL: http://indiatimes.com
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-82546GB supports an incoming Rx packet to be received in multiple rx
-buffers. A driver that enables this feature is under test currently.
-What version of the e1000 are you using?
+hello,
 
-ganesh.
+i want to know:
 
-On 9/19/05, Dan Aloni <da-x@monatomic.org> wrote:
-> On Mon, Sep 19, 2005 at 01:08:22AM +0200, Francois Romieu wrote:
-> > Dan Aloni <da-x@monatomic.org> :
-> > [...]
-> > > The problem with large MTU is external memory fragmentation in
-> > > the buddy system following high workload, causing alloc_skb() to
-> > > fail.
-> >
-> > If the issue hits the Rx path, it is probably the responsibility of
-> > the device driver. Which kind of hardware do you use ?
-> 
-> We are using a SuperMicro board and the network driver is e1000. The
-> revision of the chipset is 82546GB-copper (maps to e1000_82546_rev_3).
-> 
-> This particular chipset does not support packet splitting, so we
-> are looking for a hack on the skb layer.
-> 
-> --
-> Dan Aloni
-> da-x@monatomic.org, da-x@colinux.org, da-x@gmx.net
-> -
-> To unsubscribe from this list: send the line "unsubscribe netdev" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
+can i see 802.11 frames in skbuff structure?
+I get only ethernet II frame format.
+
+thanks already for help.
+
+
+-Rishikesh. 
+ 
+
+Get Your Private, Free E-mail from Indiatimes at http://email.indiatimes.com
+
+ Buy The Best In BOOKS at http://www.bestsellers.indiatimes.com
+
+Bid for for Air Tickets @ Re.1 on Air Sahara Flights. Just log on to http://airsahara.indiatimes.com and Bid Now!
+

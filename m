@@ -1,53 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965100AbVITTkL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965101AbVITTmy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965100AbVITTkL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 15:40:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965101AbVITTkL
+	id S965101AbVITTmy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 15:42:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965102AbVITTmy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 15:40:11 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:60090 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965100AbVITTkJ (ORCPT
+	Tue, 20 Sep 2005 15:42:54 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:31126 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S965101AbVITTmx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 15:40:09 -0400
-Date: Tue, 20 Sep 2005 12:39:52 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: John McCutchan <ttb@tentacle.dhs.org>
-cc: Al Viro <viro@ftp.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Robert Love <rml@novell.com>, Al Viro <viro@ZenIV.linux.org.uk>
-Subject: Re: [patch] stop inotify from sending random DELETE_SELF event under
- load
-In-Reply-To: <C6EA1BFF-119D-440D-81C0-3E1BC977A4B0@tentacle.dhs.org>
-Message-ID: <Pine.LNX.4.58.0509201237550.2553@g5.osdl.org>
-References: <1127188015.17794.6.camel@vertex> <Pine.LNX.4.58.0509192054060.2553@g5.osdl.org>
- <20050920042456.GC7992@ftp.linux.org.uk> <1127190971.18595.5.camel@vertex>
- <20050920044623.GD7992@ftp.linux.org.uk> <1127191992.19093.3.camel@vertex>
- <20050920045835.GE7992@ftp.linux.org.uk> <1127192784.19093.7.camel@vertex>
- <20050920051729.GF7992@ftp.linux.org.uk> <76677C3D-D5E0-4B5A-800F-9503DA09F1C3@tentacle.dhs.org>
- <20050920163848.GO7992@ftp.linux.org.uk> <C6EA1BFF-119D-440D-81C0-3E1BC977A4B0@tentacle.dhs.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 20 Sep 2005 15:42:53 -0400
+Message-Id: <200509201941.j8KJf6hO002742@laptop11.inf.utfsm.cl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Andrew Morton <akpm@osdl.org>, Russell King <rmk+lkml@arm.linux.org.uk>,
+       penberg@cs.Helsinki.FI, viro@ftp.linux.org.uk,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: p = kmalloc(sizeof(*p), ) 
+In-Reply-To: Message from Alan Cox <alan@lxorguk.ukuu.org.uk> 
+   of "Tue, 20 Sep 2005 19:02:41 +0100." <1127239361.7763.3.camel@localhost.localdomain> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
+Date: Tue, 20 Sep 2005 15:41:06 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.19.1]); Tue, 20 Sep 2005 15:41:06 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> On Maw, 2005-09-20 at 10:11 -0700, Andrew Morton wrote:
+> > Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> > >  Since some of the other major contributors to the kernel appear to
+> > >  also disagree with the statement, I think that the entry in
+> > >  CodingStyle must be removed.
 
+> > Nobody has put forward a decent reason for doing so.  
 
-On Tue, 20 Sep 2005, John McCutchan wrote:
-> 
-> Okay here are some cases to help you get a better idea,
+> I've seen five decent reasons so far. Which of the reasons on the thread
+> do you disagree with and why ?
 
-The case that is _interesting_ is this one:
+Not sure that I'm following the logic here, so...
 
- ln /tmp/foo /tmp/bar
+For one, I leaned towards "p = malloc(sizeof(*p))" before, but the reasons
+given for "p = malloc(sizeof struct foo))" (or even "p = (struct foo *)
+malloc(sizeof(struct foo))", wrapped in a macro) did convince me.
 
- p1: watch /tmp/foo
+The gains for a reader/maintainer/code auditor I see:
 
-and then one or both of (different orders - four cases):
+- It is easier to find it later
+- Initialization of *p should be nearby, finding it by type name is useful
+  for checking/updating
+- It forces you to think a bit before typing it in, this should make making
+  mistakes somewhat harder
 
- p2: rm /tmp/bar
- p2: rm /tmp/foo
+The loss for a code writer are:
 
-(along with "fd = open(/tmp/foo) + rm /tmp/foo + sleep + close(fd)" of 
-course, which Al already pointed out).
+- (Marginally) more typing
+- Have to know the type of *p [but if you don't, better don't touch it...]
 
-		Linus
+If the writer has got the type wrong, she will initialize wrongly (and the
+compile will blow up), so I don't see any advantage. The only other case
+would be something like:
+
+   p = malloc(sizeof(...));
+   memset(p, v, sizeof(...));
+
+As v is more often than not 0, this should really be:
+
+   p = calloc(1, sizeof(...));
+
+and perhaps in this case (with /no/ further initialization) it could be
+called a tie. For uniformity's sake I'd prefer "sizeof(struct foo)"
+everywhere.
+
+In any case, give me help in finding bugs and updating code over (minor)
+initial coding convenience everyday.
+
+In any case, as the parallel flamewars conclusively demonstrate, writing it
+down in CodingStyle won't make everybody agree on using it anyway, so I'd
+vote for including the "sizeof(struct foo)" version there as recommended
+practice.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

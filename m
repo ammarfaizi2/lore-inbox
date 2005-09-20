@@ -1,63 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932778AbVITRng@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932752AbVITRoZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932778AbVITRng (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 13:43:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932779AbVITRng
+	id S932752AbVITRoZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 13:44:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932779AbVITRoZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 13:43:36 -0400
-Received: from rwcrmhc14.comcast.net ([216.148.227.89]:45803 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S932778AbVITRnf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 13:43:35 -0400
-Message-ID: <43304A41.7080206@namesys.com>
-Date: Tue, 20 Sep 2005 10:43:29 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-CC: Nikita Danilov <nikita@clusterfs.com>, stephen.pollei@gmail.com,
-       Denis Vlasenko <vda@ilport.com.ua>, LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: I request inclusion of reiser4 in the mainline kernel
-References: <200509201536.j8KFa6wn011651@laptop11.inf.utfsm.cl>
-In-Reply-To: <200509201536.j8KFa6wn011651@laptop11.inf.utfsm.cl>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 20 Sep 2005 13:44:25 -0400
+Received: from sb0-cf9a48a7.dsl.impulse.net ([207.154.72.167]:57351 "EHLO
+	madrabbit.org") by vger.kernel.org with ESMTP id S932752AbVITRoY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 13:44:24 -0400
+Subject: Re: [patch] stop inotify from sending random DELETE_SELF event
+	under load
+From: Ray Lee <ray@madrabbit.org>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: John McCutchan <ttb@tentacle.dhs.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Robert Love <rml@novell.com>, Al Viro <viro@ZenIV.linux.org.uk>
+In-Reply-To: <20050920163848.GO7992@ftp.linux.org.uk>
+References: <1127188015.17794.6.camel@vertex>
+	 <Pine.LNX.4.58.0509192054060.2553@g5.osdl.org>
+	 <20050920042456.GC7992@ftp.linux.org.uk> <1127190971.18595.5.camel@vertex>
+	 <20050920044623.GD7992@ftp.linux.org.uk> <1127191992.19093.3.camel@vertex>
+	 <20050920045835.GE7992@ftp.linux.org.uk> <1127192784.19093.7.camel@vertex>
+	 <20050920051729.GF7992@ftp.linux.org.uk>
+	 <76677C3D-D5E0-4B5A-800F-9503DA09F1C3@tentacle.dhs.org>
+	 <20050920163848.GO7992@ftp.linux.org.uk>
+Content-Type: text/plain
+Date: Tue, 20 Sep 2005 10:44:17 -0700
+Message-Id: <1127238257.9940.14.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.3.5.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand wrote:
+On Tue, 2005-09-20 at 17:38 +0100, Al Viro wrote:
+> I don't get it.  Could you please describe what your code is _supposed_
+> to do?  I'm not even talking about implementation - it's on the level
+> of "what do we want the watchers to see after the following operations".
 
->Nikita Danilov <nikita@clusterfs.com> wrote:
->  
->
->
->It is supposed to go into the kernel, which is not exactly warning-free.
->  
->
-While I have no passionate feelings about Nikita's ifdef, I must note
-that Reiser4 will always be warning free within 3 days of my finding out
-that somebody left a warning in.;-)
+I can't even talk to that level, but perhaps it'd help to know that some
+(I think) are pinning their hopes on inotify as the foundation of a
+userspace negative dentry cache (i.e., samba trying to prove a set of
+filenames (case-insensitively) doesn't exist).
 
-I hate messy code.;-)
+By that point of view:
 
-The rest of the kernel should be fixed to be warning free.
+> ln a b
+> start watching b
+> rm a
+> chmod 400 b
 
->Besides, you don't know what idiotic new warnings the gcc people might
->dream up the next round, so just relying on no warnings is extremely
->unwise.
->  
->
-I find the above unconvincing.
+...it's quite clearly important to continue to get b's events.
 
-Is that what this thread boils down to, that you guys think the compile
-should fail not warn? 
+Continuing:
+ 
+> >fd = open("foo", 0);
+> >unlink("foo");
+> >sleep for a day
+> >fchmod(fd, 0400);
+> >sleep for a day
+> >close(fd);
 
->As was said before: It it is /really/ wrong, arrange for it not to compile
->or not to link. If it isn't, well... then it wasn't that wrong anyway.
->  
->
+...I'd say that providing the fchmod to userspace would be a good thing.
+That fd may be available to multiple processes, and so those processes
+could still be validly interested in events upon it. However, this is an
+obscure case that could be handled by polling with fstat, so if it's
+unreasonable for other reasons, toss the idea.
+
+Ray
 

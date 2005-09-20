@@ -1,66 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964802AbVITAfT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964806AbVITAo3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964802AbVITAfT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Sep 2005 20:35:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964804AbVITAfS
+	id S964806AbVITAo3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Sep 2005 20:44:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964807AbVITAo3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Sep 2005 20:35:18 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:58323 "EHLO machine.or.cz")
-	by vger.kernel.org with ESMTP id S964803AbVITAfR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Sep 2005 20:35:17 -0400
-Date: Tue, 20 Sep 2005 02:35:15 +0200
-From: Petr Baudis <pasky@suse.cz>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Junio C Hamano <junkio@cox.net>, git@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Cogito-0.15
-Message-ID: <20050920003515.GC13537@pasky.or.cz>
-References: <7vr7c02zgg.fsf@assigned-by-dhcp.cox.net> <7vwtleyml5.fsf@assigned-by-dhcp.cox.net> <20050919011428.GF22391@pasky.or.cz> <20050919231538.GA4074@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050919231538.GA4074@elf.ucw.cz>
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
-User-Agent: Mutt/1.5.10i
+	Mon, 19 Sep 2005 20:44:29 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:31737 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S964806AbVITAo2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Sep 2005 20:44:28 -0400
+Message-ID: <432F5B19.4050105@mvista.com>
+Date: Mon, 19 Sep 2005 17:43:05 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Lameter <clameter@engr.sgi.com>
+CC: tglx@linutronix.de, linux-kernel@vger.kernel.org, mingo@elte.hu,
+       akpm@osdl.org, johnstul@us.ibm.com, paulmck@us.ibm.com
+Subject: Re: [ANNOUNCE] ktimers subsystem
+References: <20050919184834.1.patchmail@tglx.tec.linutronix.de> <Pine.LNX.4.62.0509191500040.27238@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.62.0509191500040.27238@schroedinger.engr.sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Tue, Sep 20, 2005 at 01:15:38AM CEST, I got a letter
-where Pavel Machek <pavel@suse.cz> told me that...
-> Hi!
-
-Hi,
-
-> >   this is the release of Cogito-0.15. It fixes several minor bugs, and
-> > adds a feature or two. The most important thing though is that this
-> > depends on Git-core-0.99.7 and uses the new command names. Everyone is
-> > encouraged to upgrade at least to this Cogito version in the next few
-> > days, since the older Cogito versions likely won't work with the future
-> > Git-core releases.
-> > 
-> >   To stay in sync with the Git terminology, Cogito also renames its
-> > cg-pull to cg-fetch. Since this is a major naming change (I'm not too
-> > happy about it, personally), cg-pull will stay aliased to cg-fetch for
-> > at least one (likely two) next major Cogito releases (it also produces a
-> > warning when invoked as cg-pull). In the more distant future, cg-pull
-> > will slowly become the new name of cg-update, to make it confusing.
+Christoph Lameter wrote:
+> On Mon, 19 Sep 2005 tglx@linutronix.de wrote:
 > 
-> Could we keep at least the cg-update name?
+> 
+>>sources. Another astonishing implementation detail of the current time 
+>>keeping is the fact that we get the monotonic clock (defined by POSIX as 
+>>a continuous clock source which can not be set) by subtracting a variable 
+>>offset from the real time clock, which can be set by the user and 
+>>corrected by NTP or other mechanisms.
 
-yes, I want to retain it. I'm not 100% decided yet whether to actually
-use the pull term for anything in Cogito. Previous usage reportedly
-confused some, the new usage actually confuses me and apparently some
-other people. So I might just avoid the 'pull' term in the future
-altogether. Not decided yet, though, and opinions obviously welcomed.
+Why is this astonishing?  What it really indicates is the nature of 
+Linux where in we have just (with 2.6) introduced the concept of 
+monotonic time.  As such, and with few users, it made a LOT of sense to 
+not upset too much code by making it the primary clock.  In the end, the 
+difference between the two clocks is a constant offset and it is only an 
+add in one path or the other.
 
-> It is certainly not a *pull* because it does update local repository
-> (and tree, too).
+An argument from the other side is that ntp works with CLOCK_REALTIME 
+and so that is where and what it corrects.
 
-AIUI, that's what makes it a pull for *cough* some people. ;-)
+Agreed, this can be turned around, however, one needs folks like John 
+Stultz who take the time to understand ntp as well as all the other 
+clock issues to turn things like this around.  Still, we should consider 
+carefully IF we want to turn it around.
 
+A far more astonishing thing, IMHO, is the cascade in the timers code...
+> 
+> 
+> The benefit or drawback of that implementation depends which time is more 
+> important: realtime or monotonic time. I think the most used time value is 
+> realtime and not monotonic time. Having the real time value in xtime 
+> saves one addition when retrieving realtime. 
+> -
+Both sides of this argument have merit.  Much as we would like to, we 
+can not change user usage.  AND, in the end, they are, and will continue 
+to make far more calls to get the time than the kernel does.  So, in raw 
+cpu power (or time) consumed, the user get time will win over kernel 
+usage.  Also, the time to do a gettimeofday is easily computed with the 
+most simple program...
 -- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-VI has two modes: the one in which it beeps and the one in which
-it doesn't.
+George Anzinger   george@mvista.com
+HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/

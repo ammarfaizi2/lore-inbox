@@ -1,127 +1,385 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932786AbVITRqT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932783AbVITRr7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932786AbVITRqT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 13:46:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932783AbVITRqT
+	id S932783AbVITRr7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 13:47:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932788AbVITRr7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 13:46:19 -0400
-Received: from rwcrmhc11.comcast.net ([216.148.227.117]:21199 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S932781AbVITRqR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 13:46:17 -0400
-Message-ID: <43304AE4.9050209@namesys.com>
-Date: Tue, 20 Sep 2005 10:46:12 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
+	Tue, 20 Sep 2005 13:47:59 -0400
+Received: from smtp101.biz.mail.re2.yahoo.com ([68.142.229.215]:32914 "HELO
+	smtp101.biz.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S932787AbVITRr5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 13:47:57 -0400
+From: Pantelis Antoniou <pantelis@embeddedalley.com>
+Reply-To: pantelis@embeddedalley.com
+Organization: EASI
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: [PATCH] Au1x00 8250 uart support (Updated).
+Date: Tue, 20 Sep 2005 20:50:03 +0300
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org, cw@f00f.org,
+       Pete Popov <ppopov@embeddedalley.com>,
+       Matt Porter <mporter@embeddedalley.com>, ralf@linux-mips.org
+References: <200509192340.10450.pantelis@embeddedalley.com> <20050920163748.GA6680@flint.arm.linux.org.uk>
+In-Reply-To: <20050920163748.GA6680@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: Horst von Brand <vonbrand@inf.utfsm.cl>, thenewme91@gmail.com,
-       Christoph Hellwig <hch@infradead.org>,
-       Denis Vlasenko <vda@ilport.com.ua>, chriswhite@gentoo.org,
-       LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>, vitaly@thebsh.namesys.com,
-       "E. Gryaznova" <grev@namesys.com>
-Subject: Re: I request inclusion of reiser4 in the mainline kernel
-References: <200509182004.j8IK4JNx012764@inti.inf.utfsm.cl> <432E5024.20709@namesys.com> <20050920075133.GB4074@elf.ucw.cz>
-In-Reply-To: <20050920075133.GB4074@elf.ucw.cz>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_LvEMDrZOk/c1f/E"
+Message-Id: <200509202050.03979.pantelis@embeddedalley.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks much for this test script, Vitaly, please give it a try and tell
-me how it goes.
+--Boundary-00=_LvEMDrZOk/c1f/E
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Hans
+New patch implementing requested changes.
 
-Pavel Machek wrote:
+Regards
 
->Hi!
->
->  
->
->>V3 is obsoleted by V4 in every way.  V3 is old code that should be
->>marked as deprecated as soon as V4 has passed mass testing.   V4 is far
->>superior in its coding style also.  Having V3 in and V4 out is at this
->>point just stupid. 
->>    
->>
->
->Really? Last time I checked, even V3's fsck was not too great. [In
->fact I never could make it run stable enough to even _test_ it
->properly].
->
->Do you have working fsck for V4? Until then, you should not claim that
->users should switch. Journalling does not help you, if you have
->unexpected kernel problem or hardware trouble, fsck _is_ mandatory.
->
->Can V4 survive few hours of test below?
->								Pavel
->
->#!/bin/bash
->#
-># fscktest
->#
-># Usage: 
->#	 Make sure output is logged somewhere
->#        First, run fscktest -p as root
->#	 Then you can run fscktest as normal user...
->#
->
->prepare() {
->	SIZE=100000
->	echo "Creating file..."
->	cat /dev/zero | head -c $[$SIZE*1024] > test
->	echo "Making filesystem..."
->	mkfs.$FS test
->	echo "Mounting..."
->	mount test -o loop /mnt || exit "Cant mount"
->	echo "Copying files..."
->	cp -a /bin /mnt
->	cp -a /usr/bin /mnt
->	cp -a /usr/src/linux /mnt
->	echo "Syncing..."
->	sync
->	echo "Unmounting..."
->	umount /mnt
->	echo "Moving..."
->	mv test fsck.okay
->	echo "All done."
->}
->
->FS=ext2
->if [ .$1 == .-p ]; then
->	prepare
->	exit
->	fi
->RUN=0
->while true; do
->	RUN=$[$RUN+1]
->	echo "Run #$RUN"
->	echo Preparing...
->	cat fsck.okay > fsck.damaged
->	echo Damaging...
->	dd if=/dev/urandom of=fsck.damaged count=10240 seek=7 conv=notrunc
->	cp fsck.damaged fsck.test
->	echo First check...
->	fsck.$FS -fy fsck.damaged
->	RESULT=$?
->	if [ $RESULT != 1 -a $RESULT != 2 -a $RESULT != 0 ]; then
->		echo "Fsck failed in bad way (result = $RESULT)"
->		exit
->		fi
->	echo Second check...
->	fsck.$FS -fy fsck.damaged
->	RESULT=$?
->	if [ $RESULT != 0 ]; then
->		echo "Fsck lied about its success (result = $RESULT)"
->		exit
->		fi
->	done
->
->  
->
+Pantelis
 
+--Boundary-00=_LvEMDrZOk/c1f/E
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="8250au-new.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+	filename="8250au-new.patch"
+
+diff --git a/drivers/serial/8250.c b/drivers/serial/8250.c
+--- a/drivers/serial/8250.c
++++ b/drivers/serial/8250.c
+@@ -251,9 +251,60 @@ static const struct serial8250_config ua
+ 	},
+ };
+ 
++#ifdef CONFIG_SERIAL_8250_AU1X00
++
++/* Au1x00 UART hardware has a weird register layout */
++static const u8 au_io_in_map[] = {
++	[UART_RX]  = 0,
++	[UART_IER] = 2,
++	[UART_IIR] = 3,
++	[UART_LCR] = 5,
++	[UART_MCR] = 6,
++	[UART_LSR] = 7,
++	[UART_MSR] = 8,
++};
++
++static const u8 au_io_out_map[] = {
++	[UART_TX]  = 1,
++	[UART_IER] = 2,
++	[UART_FCR] = 4,
++	[UART_LCR] = 5,
++	[UART_MCR] = 6,
++};
++
++/* sane hardware needs no mapping */
++static inline int map_8250_in_reg(struct uart_8250_port *up, int offset)
++{
++	if (up->port.iotype != UPIO_AU)
++		return offset;
++	return au_io_in_map[offset];
++}
++
++static inline int map_8250_out_reg(struct uart_8250_port *up, int offset)
++{
++	if (up->port.iotype != UPIO_AU)
++		return offset;
++	return au_io_out_map[offset];
++}
++
++#else
++
++/* sane hardware needs no mapping */
++static inline int map_8250_in_reg(struct uart_8250_port *up, int offset)
++{
++	return offset;
++}
++
++static inline int map_8250_out_reg(struct uart_8250_port *up, int offset)
++{
++	return offset;
++}
++
++#endif
++
+ static _INLINE_ unsigned int serial_in(struct uart_8250_port *up, int offset)
+ {
+-	offset <<= up->port.regshift;
++	offset = map_8250_in_reg(up, offset) << up->port.regshift;
+ 
+ 	switch (up->port.iotype) {
+ 	case UPIO_HUB6:
+@@ -266,6 +317,11 @@ static _INLINE_ unsigned int serial_in(s
+ 	case UPIO_MEM32:
+ 		return readl(up->port.membase + offset);
+ 
++#ifdef CONFIG_SERIAL_8250_AU1X00
++	case UPIO_AU:
++		return __raw_readl(up->port.membase + offset);
++#endif
++
+ 	default:
+ 		return inb(up->port.iobase + offset);
+ 	}
+@@ -274,7 +330,7 @@ static _INLINE_ unsigned int serial_in(s
+ static _INLINE_ void
+ serial_out(struct uart_8250_port *up, int offset, int value)
+ {
+-	offset <<= up->port.regshift;
++	offset = map_8250_out_reg(up, offset) << up->port.regshift;
+ 
+ 	switch (up->port.iotype) {
+ 	case UPIO_HUB6:
+@@ -290,6 +346,12 @@ serial_out(struct uart_8250_port *up, in
+ 		writel(value, up->port.membase + offset);
+ 		break;
+ 
++#ifdef CONFIG_SERIAL_8250_AU1X00
++	case UPIO_AU:
++		__raw_writel(value, up->port.membase + offset);
++		break;
++#endif
++
+ 	default:
+ 		outb(value, up->port.iobase + offset);
+ 	}
+@@ -910,6 +972,13 @@ static void autoconfig(struct uart_8250_
+ 		}
+ 	}
+ #endif
++
++#ifdef CONFIG_SERIAL_8250_AU1X00
++	/* if access method is AU, it is a 16550 with a quirk */
++	if (up->port.type == PORT_16550A && up->port.iotype == UPIO_AU)
++		up->bugs |= UART_BUG_NOMSR;
++#endif
++
+ 	serial_outp(up, UART_LCR, save_lcr);
+ 
+ 	if (up->capabilities != uart_config[up->port.type].flags) {
+@@ -1057,6 +1126,10 @@ static void serial8250_enable_ms(struct 
+ {
+ 	struct uart_8250_port *up = (struct uart_8250_port *)port;
+ 
++	/* no MSR capabilities */
++	if (up->bugs & UART_BUG_NOMSR)
++		return;
++
+ 	up->ier |= UART_IER_MSI;
+ 	serial_out(up, UART_IER, up->ier);
+ }
+@@ -1774,7 +1847,7 @@ serial8250_set_termios(struct uart_port 
+ 	 * CTS flow control flag and modem status interrupts
+ 	 */
+ 	up->ier &= ~UART_IER_MSI;
+-	if (UART_ENABLE_MS(&up->port, termios->c_cflag))
++	if (!(up->bugs & UART_BUG_NOMSR) && UART_ENABLE_MS(&up->port, termios->c_cflag))
+ 		up->ier |= UART_IER_MSI;
+ 	if (up->capabilities & UART_CAP_UUE)
+ 		up->ier |= UART_IER_UUE | UART_IER_RTOIE;
+diff --git a/drivers/serial/8250.h b/drivers/serial/8250.h
+--- a/drivers/serial/8250.h
++++ b/drivers/serial/8250.h
+@@ -49,6 +49,7 @@ struct serial8250_config {
+ 
+ #define UART_BUG_QUOT	(1 << 0)	/* UART has buggy quot LSB */
+ #define UART_BUG_TXEN	(1 << 1)	/* UART has buggy TX IIR status */
++#define UART_BUG_NOMSR	(1 << 2)	/* UART has buggy MSR status bits (Au1x00) */
+ 
+ #if defined(__i386__) && (defined(CONFIG_M386) || defined(CONFIG_M486))
+ #define _INLINE_ inline
+diff --git a/drivers/serial/8250_au1x00.c b/drivers/serial/8250_au1x00.c
+new file mode 100644
+--- /dev/null
++++ b/drivers/serial/8250_au1x00.c
+@@ -0,0 +1,101 @@
++/*
++ * Serial Device Initialisation for Au1x00
++ *
++ * (C) Copyright Embedded Alley Solutions, Inc 2005
++ * Author: Pantelis Antoniou <pantelis@embeddedalley.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ */
++
++#include <linux/errno.h>
++#include <linux/init.h>
++#include <linux/interrupt.h>
++#include <linux/ioport.h>
++#include <linux/module.h>
++#include <linux/serial_core.h>
++#include <linux/signal.h>
++#include <linux/slab.h>
++#include <linux/types.h>
++
++#include <linux/serial_8250.h>
++
++#include <asm/mach-au1x00/au1000.h>
++
++#include "8250.h"
++
++#define PORT(_base, _irq)				\
++	{						\
++		.iobase		= _base,		\
++		.membase	= (void __iomem *)_base,\
++		.mapbase	= _base,		\
++		.irq		= _irq,			\
++		.uartclk	= 0,	/* filled */	\
++		.regshift	= 2,			\
++		.iotype		= UPIO_AU,		\
++		.flags		= UPF_SKIP_TEST | 	\
++				  UPF_IOREMAP,		\
++	}
++
++static struct plat_serial8250_port au1x00_data[] = {
++#if defined(CONFIG_SOC_AU1000)
++	PORT(UART0_ADDR, AU1000_UART0_INT),
++	PORT(UART1_ADDR, AU1000_UART1_INT),
++	PORT(UART2_ADDR, AU1000_UART2_INT),
++	PORT(UART3_ADDR, AU1000_UART3_INT),
++#elif defined(CONFIG_SOC_AU1500)
++	PORT(UART0_ADDR, AU1500_UART0_INT),
++	PORT(UART3_ADDR, AU1500_UART3_INT),
++#elif defined(CONFIG_SOC_AU1100)
++	PORT(UART0_ADDR, AU1100_UART0_INT),
++	PORT(UART1_ADDR, AU1100_UART1_INT),
++	PORT(UART2_ADDR, AU1100_UART2_INT),
++	PORT(UART3_ADDR, AU1100_UART3_INT),
++#elif defined(CONFIG_SOC_AU1550)
++	PORT(UART0_ADDR, AU1550_UART0_INT),
++	PORT(UART1_ADDR, AU1550_UART1_INT),
++	PORT(UART2_ADDR, AU1550_UART2_INT),
++	PORT(UART3_ADDR, AU1550_UART3_INT),
++#elif defined(CONFIG_SOC_AU1200)
++	PORT(UART0_ADDR, AU1200_UART0_INT),
++	PORT(UART1_ADDR, AU1200_UART1_INT),
++#endif
++	{ },
++};
++
++static struct platform_device au1x00_device = {
++	.name			= "serial8250",
++	.id			= PLAT8250_DEV_AU1X00,
++	.dev			= {
++		.platform_data	= au1x00_data,
++	},
++};
++
++static int __init au1x00_init(void)
++{
++	int i;
++	unsigned int uartclk;
++
++	/* get uart clock */
++	uartclk = get_au1x00_uart_baud_base() * 16;
++
++	/* fill up uartclk */
++	for (i = 0; au1x00_data[i].flags ; i++)
++		au1x00_data[i].uartclk = uartclk;
++
++	return platform_device_register(&au1x00_device);
++}
++
++static void __exit au1x00_exit(void)
++{
++	platform_device_unregister(&au1x00_device);
++}
++
++module_init(au1x00_init);
++module_exit(au1x00_exit);
++
++MODULE_AUTHOR("Pantelis Antoniou <pantelis@embeddedalley.com>");
++MODULE_DESCRIPTION("8250 serial probe module for Au1x000 cards");
++MODULE_LICENSE("GPL");
+diff --git a/drivers/serial/Kconfig b/drivers/serial/Kconfig
+--- a/drivers/serial/Kconfig
++++ b/drivers/serial/Kconfig
+@@ -207,6 +207,14 @@ config SERIAL_8250_ACORN
+ 	  system, say Y to this option.  The driver can handle 1, 2, or 3 port
+ 	  cards.  If unsure, say N.
+ 
++config SERIAL_8250_AU1X00
++	tristate "AU1X00 serial port support"
++	depends on SOC_AU1X00 && SERIAL_8250
++	help
++	  If you have an Au1x00 board and want to use the serial port, say Y
++	  to this option.  The driver can handle 1 or 2 serial ports.
++	  If unsure, say N.
++
+ comment "Non-8250 serial port support"
+ 
+ config SERIAL_AMBA_PL010
+diff --git a/drivers/serial/Makefile b/drivers/serial/Makefile
+--- a/drivers/serial/Makefile
++++ b/drivers/serial/Makefile
+@@ -22,6 +22,7 @@ obj-$(CONFIG_SERIAL_8250_ACCENT) += 8250
+ obj-$(CONFIG_SERIAL_8250_BOCA) += 8250_boca.o
+ obj-$(CONFIG_SERIAL_8250_HUB6) += 8250_hub6.o
+ obj-$(CONFIG_SERIAL_8250_MCA) += 8250_mca.o
++obj-$(CONFIG_SERIAL_8250_AU1X00) += 8250_au1x00.o
+ obj-$(CONFIG_SERIAL_AMBA_PL010) += amba-pl010.o
+ obj-$(CONFIG_SERIAL_AMBA_PL011) += amba-pl011.o
+ obj-$(CONFIG_SERIAL_CLPS711X) += clps711x.o
+diff --git a/drivers/serial/serial_core.c b/drivers/serial/serial_core.c
+--- a/drivers/serial/serial_core.c
++++ b/drivers/serial/serial_core.c
+@@ -1960,6 +1960,7 @@ uart_report_port(struct uart_driver *drv
+ 		break;
+ 	case UPIO_MEM:
+ 	case UPIO_MEM32:
++	case UPIO_AU:
+ 		snprintf(address, sizeof(address),
+ 			 "MMIO 0x%lx", port->mapbase);
+ 		break;
+diff --git a/include/asm-mips/mach-au1x00/au1000.h b/include/asm-mips/mach-au1x00/au1000.h
+--- a/include/asm-mips/mach-au1x00/au1000.h
++++ b/include/asm-mips/mach-au1x00/au1000.h
+@@ -906,6 +906,8 @@ extern au1xxx_irq_map_t au1xxx_irq_map[]
+ #define UART_BASE                 UART0_ADDR
+ #define UART_DEBUG_BASE           UART3_ADDR
+ 
++#ifdef CONFIG_SERIAL_AU1X00
++
+ #define UART_RX		0	/* Receive buffer */
+ #define UART_TX		4	/* Transmit buffer */
+ #define UART_IER	8	/* Interrupt Enable Register */
+@@ -996,6 +998,8 @@ extern au1xxx_irq_map_t au1xxx_irq_map[]
+ #define UART_MSR_DCTS	0x01	/* Delta CTS */
+ #define UART_MSR_ANY_DELTA 0x0F	/* Any of the delta bits! */
+ 
++#endif
++
+ 
+ 
+ /* SSIO */
+diff --git a/include/linux/serial_8250.h b/include/linux/serial_8250.h
+--- a/include/linux/serial_8250.h
++++ b/include/linux/serial_8250.h
+@@ -42,6 +42,7 @@ enum {
+ 	PLAT8250_DEV_BOCA,
+ 	PLAT8250_DEV_HUB6,
+ 	PLAT8250_DEV_MCA,
++	PLAT8250_DEV_AU1X00,
+ };
+ 
+ /*
+diff --git a/include/linux/serial_core.h b/include/linux/serial_core.h
+--- a/include/linux/serial_core.h
++++ b/include/linux/serial_core.h
+@@ -209,6 +209,7 @@ struct uart_port {
+ #define UPIO_HUB6		(1)
+ #define UPIO_MEM		(2)
+ #define UPIO_MEM32		(3)
++#define UPIO_AU			(4)			/* Au1x00 type IO */
+ 
+ 	unsigned int		read_status_mask;	/* driver specific */
+ 	unsigned int		ignore_status_mask;	/* driver specific */
+
+--Boundary-00=_LvEMDrZOk/c1f/E--

@@ -1,41 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932735AbVITFU5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932733AbVITF2h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932735AbVITFU5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 01:20:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932734AbVITFU4
+	id S932733AbVITF2h (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 01:28:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932734AbVITF2g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 01:20:56 -0400
-Received: from web35912.mail.mud.yahoo.com ([66.163.179.196]:53637 "HELO
-	web35912.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932733AbVITFU4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 01:20:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=QQZBEzn8hAmwC0kF3Wldf6PSs7rICACq7gY2QYlZF3vxCA5ATiSxcUWNNJPv7VK3V6veiX8qd2C98XXbRFVrQ88OiiPvfZBqHCAGw/wlLg3IqOae0uwwDQFWNv4C01Ujkm7BBFq7/9OKAyLOxz8zMo7bvowbU0cJEMidU6jw5IM=  ;
-Message-ID: <20050920052055.87136.qmail@web35912.mail.mud.yahoo.com>
-Date: Mon, 19 Sep 2005 22:20:55 -0700 (PDT)
-From: umesh chandak <chandak_pict@yahoo.com>
-Subject: about ioctl call for network device drivers.
-To: linux-kernel@vger.kernel.org
+	Tue, 20 Sep 2005 01:28:36 -0400
+Received: from [210.76.114.20] ([210.76.114.20]:18119 "EHLO ccoss.com.cn")
+	by vger.kernel.org with ESMTP id S932733AbVITF2g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 01:28:36 -0400
+Message-ID: <432F9DFC.9000702@ccoss.com.cn>
+Date: Tue, 20 Sep 2005 13:28:28 +0800
+From: liyu <liyu@ccoss.com.cn>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: zh-cn,zh
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Song Jiang <sjiang@lanl.gov>
+CC: LKML <linux-kernel@vger.kernel.org>, Linux-MM <linux-mm@kvack.org>
+Subject: Re: [Question] How to understand Clock-Pro algorithm?
+References: <432F7DD5.6050204@ccoss.com.cn>	 <1127188898.3130.52.camel@moon.c3.lanl.gov> <432F97E1.4080805@ccoss.com.cn> <1127193398.3130.131.camel@moon.c3.lanl.gov>
+In-Reply-To: <1127193398.3130.131.camel@moon.c3.lanl.gov>
+Content-Type: text/plain; charset=gb18030; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a atheros wireless driver.it's monitor mode
-interface is ath0raw.I want to pass a some value to
-this 
-interface in kernel module.so i want to use ioctl
-calls.
-But i have  not found the any char device with name
-ath0raw or something like that.
-           What should i do? How should i use ioctl
-calls for network devices. 
+Hi, All.
+   
+    In my words, pages in memory is either resident or non-resident.
+In linux internal, mapped or unmapped.
+   
+    So number of non-resident pages is alway less than total number
+of pages in memory.
+
+    Is your pages physics pages? or, it is Logical pages?   However,
+I think both is same here.
+
+    Waitting for your answer.
+   
+    Thanks.
 
 
-		
-__________________________________ 
-Yahoo! Mail - PC Magazine Editors' Choice 2005 
-http://mail.yahoo.com
+                                                 liyu
+
+
+Song Jiang Wrote:
+
+>On Mon, 2005-09-19 at 23:02, liyu wrote:
+>
+>  
+>
+>>    Let's assume Mn is the total number of non-resident pages in follow 
+>>words.
+>>
+>>    Nod, 'M=Mh+Mc' and 'Mc+Mn' < 2M are always true.
+>>
+>>    Have this implied that Mn is alway less than M? I think so.
+>>    
+>>
+>    Yes.
+>
+>  
+>
+>>    but if "Once the number exceeds M the memory size in number of pages,
+>>we terminted the test period of the cold page pointed to by HAND-test."
+>>
+>>    If Mn is alway less than M, when we move to HAND-test?
+>>    
+>>
+>
+>The algorithm tries to ensure that Mn <= M holds. 
+>Once Mn == M+1 is detected, run HAND-test to bring it
+>back to Mn == M. That is, only during the transition period, 
+>Mn <= M might not hold, and we make a correction quickly.
+>
+>So there is no contradiction here.
+>   Song
+>
+>  
+>
+>
+>
+>
+>
+>  
+>
+

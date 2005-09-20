@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964878AbVITEaL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964882AbVITEe3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964878AbVITEaL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 00:30:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964881AbVITEaK
+	id S964882AbVITEe3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 00:34:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964883AbVITEe3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 00:30:10 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:50150 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964878AbVITEaI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 00:30:08 -0400
-Date: Mon, 19 Sep 2005 21:30:01 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
+	Tue, 20 Sep 2005 00:34:29 -0400
+Received: from smtp100.rog.mail.re2.yahoo.com ([206.190.36.78]:57788 "HELO
+	smtp100.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S964882AbVITEe2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 00:34:28 -0400
+Subject: Re: [patch] stop inotify from sending random DELETE_SELF event
+	under load
+From: John McCutchan <ttb@tentacle.dhs.org>
 To: Al Viro <viro@ftp.linux.org.uk>
-cc: John McCutchan <ttb@tentacle.dhs.org>, Andrew Morton <akpm@osdl.org>,
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
        Linux Kernel <linux-kernel@vger.kernel.org>,
        Robert Love <rml@novell.com>, Al Viro <viro@ZenIV.linux.org.uk>
-Subject: Re: [patch] stop inotify from sending random DELETE_SELF event under
- load
 In-Reply-To: <20050920042456.GC7992@ftp.linux.org.uk>
-Message-ID: <Pine.LNX.4.58.0509192128070.2553@g5.osdl.org>
-References: <1127177337.15262.6.camel@vertex> <Pine.LNX.4.58.0509191821220.2553@g5.osdl.org>
- <1127181641.16372.10.camel@vertex> <Pine.LNX.4.58.0509191909220.2553@g5.osdl.org>
- <1127188015.17794.6.camel@vertex> <Pine.LNX.4.58.0509192054060.2553@g5.osdl.org>
- <20050920042456.GC7992@ftp.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+References: <1127177337.15262.6.camel@vertex>
+	 <Pine.LNX.4.58.0509191821220.2553@g5.osdl.org>
+	 <1127181641.16372.10.camel@vertex>
+	 <Pine.LNX.4.58.0509191909220.2553@g5.osdl.org>
+	 <1127188015.17794.6.camel@vertex>
+	 <Pine.LNX.4.58.0509192054060.2553@g5.osdl.org>
+	 <20050920042456.GC7992@ftp.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 20 Sep 2005 00:36:11 -0400
+Message-Id: <1127190971.18595.5.camel@vertex>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 20 Sep 2005, Al Viro wrote:
+On Tue, 2005-09-20 at 05:24 +0100, Al Viro wrote:
+> On Mon, Sep 19, 2005 at 09:03:36PM -0700, Linus Torvalds wrote:
+> > One possibility is to mark the dentry deleted in d_flags. That would mean 
+> > something like this (against the just-pushed-put v2.6.14-rc2, which has 
+> > my previous hack).
+> > 
+> > Untested. Al?
 >  
 > Uhh...  I still don't understand which behaviour do you want.
-> 
-> 	* removal of this link, postponed to indefinite future (until we
-> do not have any users of that dentry) [ new behaviour ]
-> 	* moment when the last link is gone _and_ nobody uses any dentries
-> pointing to object, with information taken from the last one still in use
-> [ old behaviour ]
 
-Old behaviour (well, "old" is relative) is apparently the expected one.
 
-But the old behaviour had a bug: we _also_ call dentry_iput() for
-non-deletes. 
+> 	* removal of this link, at the moment when it stops being accessible
+> [ none of the above, better done from vfs_...() ]
 
-		Linus
+That is the behaviour we want, how does Linus's second patch not
+accomplish this? 
+
+-- 
+John McCutchan <ttb@tentacle.dhs.org>

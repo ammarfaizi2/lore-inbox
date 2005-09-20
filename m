@@ -1,85 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964970AbVITLSr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964977AbVITLTK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964970AbVITLSr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 07:18:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964974AbVITLSp
+	id S964977AbVITLTK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 07:19:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964974AbVITLTK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 07:18:45 -0400
-Received: from nproxy.gmail.com ([64.233.182.207]:37477 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964970AbVITLSo convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 07:18:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:sender:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=HTKHuNDh9i9PZosM834LZnODJSDrq/jXMt9YyVRhBmzRE/irOs7JkgZNijyamAnBat741GMd9wgJK5yuKz5nJuw1cLw+3AJwxxhEw6r0heZS5xl2qYp1f2WEXy6nzK+HwVtDQ6X5hEuSLuNVNF3jA5KS+PsFNmhG+EiCrVwTj0I=
-Message-ID: <84144f0205092004187f86840c@mail.gmail.com>
-Date: Tue, 20 Sep 2005 14:18:42 +0300
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-Reply-To: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Al Viro <viro@ftp.linux.org.uk>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: p = kmalloc(sizeof(*p), )
-In-Reply-To: <20050918100627.GA16007@flint.arm.linux.org.uk>
+	Tue, 20 Sep 2005 07:19:10 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:54033 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S964977AbVITLTJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 07:19:09 -0400
+Date: Tue, 20 Sep 2005 12:18:51 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: rpurdie@rpsys.net, lenz@cs.wisc.edu,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6 zaurus: pcmcia now works
+Message-ID: <20050920111851.GA26353@flint.arm.linux.org.uk>
+Mail-Followup-To: Pavel Machek <pavel@ucw.cz>, rpurdie@rpsys.net,
+	lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>
+References: <20050920100823.GA16186@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20050918100627.GA16007@flint.arm.linux.org.uk>
+In-Reply-To: <20050920100823.GA16186@elf.ucw.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Sep 20, 2005 at 12:08:23PM +0200, Pavel Machek wrote:
+> FYI, my hacks now look like (attached). I'll push changes to linux-z
+> in few hours.
 
-On 9/18/05, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> 1. The above implies that the common case is that we are changing the
->    names of structures more frequently than we change the contents of
->    structures.  Reality is that we change the contents of structures
->    more often than the names of those structures.
-> 
->    Why is this relevant?  If you change the contents of structures,
->    they need checking for initialisation.  How do you find all the
->    locations that need initialisation checked?  Via grep.  The problem
->    is that:
-> 
->         p = kmalloc(sizeof(*p), ...)
-> 
->    is not grep-friendly, and can not be used to identify potential
->    initialisation sites.  However:
-> 
->         p = kmalloc(sizeof(struct foo), ...)
-> 
->    is grep-friendly, and will lead you to inspect each place where
->    such a structure is allocated for correct initialisation.
+Some questions:
 
-I would disagree on this one. You can still grep all the places where
-the local variable is declared in. Furthermore, structs are not always
-initialized where they're kmalloc'd so you need to manually inspect
-anyway.
+@@ -57,8 +57,6 @@ void dump_backtrace_entry(unsigned long
+ #ifdef CONFIG_KALLSYMS
+        printk("[<%08lx>] ", where);
+        print_symbol("(%s) ", where);
+-       printk("from [<%08lx>] ", from);
+-       print_symbol("(%s)\n", from);
 
-On 9/18/05, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> 2. in the rare case that you're changing the name of a structure, you're
->    grepping the source for all instances for struct old_name, or doing
->    a search and replace for struct old_name.  You will find all instances
->    of struct old_name by this method and the bug alluded to will not
->    happen.
+The "from" address provides good hints about the exact path we got to
+the called function.  You don't really want to get rid of that because
+it makes following backtraces harder.  I'm not sure why you've made
+the other changes in that file either.
 
-Perhaps it has poor wording but I was more thinking about a case where
-you shuffle code around and forget that you changed a struct to
-something else (not necessarily removing the old one).
++/* those must never be empty
++   unfortunately they cause problems with older binutils
+ ASSERT((__proc_info_end - __proc_info_begin), "missing CPU support")
+ ASSERT((__arch_info_end - __arch_info_begin), "no machine record defined")
++*/
 
-On 9/18/05, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> So the assertion above that kmalloc(sizeof(*p) is somehow superiour is
-> rather flawed, and as such should not be in the Coding Style document.
+Get a better binutils. 8)
 
-I think it is better because:
+diff --git a/drivers/mfd/mcp-core.c b/drivers/mfd/mcp-core.c
+--- a/drivers/mfd/mcp-core.c
++++ b/drivers/mfd/mcp-core.c
+@@ -19,6 +19,7 @@
+ #include <asm/dma.h>
+ #include <asm/system.h>
 
-  - It is easier to get right.
-  - It is easier to audit with a script.
-  - It is shorter.
++#include <asm/arch/mcp.h>
+ #include "mcp.h"
 
-I am not saying you can use sizeof(*p) everywhere but it is the common
-case and as such the preferred form.
+ #define to_mcp(d)              container_of(d, struct mcp, attached_device)
 
-                            Pekka
+This looks bogus - why is this needed?
+
+@@ -186,7 +192,12 @@ static int mcp_sa11x0_probe(struct devic
+         */
+        Ser4MCSR = -1;
+        Ser4MCCR1 = data->mccr1;
+-       Ser4MCCR0 = data->mccr0 | 0x7f7f;
++#if 1
++       if (machine_is_collie())
++               Ser4MCCR0 = MCCR0_ADM | MCCR0_ExtClk;
++       else
++#endif
++               Ser4MCCR0 = data->mccr0 | 0x7f7f;
+
+Ditto.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

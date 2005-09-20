@@ -1,56 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965071AbVITStD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965075AbVITSti@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965071AbVITStD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 14:49:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965073AbVITSsn
+	id S965075AbVITSti (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 14:49:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965072AbVITSsk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 14:48:43 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:65292 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S965071AbVITSsR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 14:48:17 -0400
-Date: Tue, 20 Sep 2005 19:48:02 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Sean <seanlkml@sympatico.ca>
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org
-Subject: Re: Arrr! Linux v2.6.14-rc2
-Message-ID: <20050920184802.GE493@flint.arm.linux.org.uk>
-Mail-Followup-To: Sean <seanlkml@sympatico.ca>,
-	Horst von Brand <vonbrand@inf.utfsm.cl>,
-	Gene Heskett <gene.heskett@verizon.net>,
-	linux-kernel@vger.kernel.org
-References: <seanlkml@sympatico.ca> <BAYC1-PASMTP04AB35B0A82E89B341AB0BAE950@cez.ice> <56402.10.10.10.28.1127229646.squirrel@linux1> <200509201759.j8KHxkbj000577@laptop11.inf.utfsm.cl> <59258.10.10.10.28.1127241246.squirrel@linux1>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <59258.10.10.10.28.1127241246.squirrel@linux1>
-User-Agent: Mutt/1.4.1i
+	Tue, 20 Sep 2005 14:48:40 -0400
+Received: from ppp-62-11-78-183.dialup.tiscali.it ([62.11.78.183]:14784 "EHLO
+	zion.home.lan") by vger.kernel.org with ESMTP id S965075AbVITSsV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 14:48:21 -0400
+From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
+Subject: [PATCH 4/7] README update from the stone age
+Date: Tue, 20 Sep 2005 20:45:44 +0200
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <20050920184544.14557.15273.stgit@zion.home.lan>
+In-Reply-To: <20050920184513.14557.8152.stgit@zion.home.lan>
+References: <20050920184513.14557.8152.stgit@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 20, 2005 at 02:34:06PM -0400, Sean wrote:
-> On Tue, September 20, 2005 1:59 pm, Horst von Brand said:
-> 
-> > Only that it doesn't work either today. Kernel stays at 2.6.14-rc1 as of
-> > yesterday (latest were a few NTFS patches), everything up to date.
-> 
-> Yeah, Russell pointed the same thing out a bit earlier.  There are 13
-> commits MIA.
-> 
-> > BTW, the cogito repository is hosed, cg-update can't get needed object
-> > 69ba00668be16e44cae699098694286f703ec61d. Fetching the contents by rsync
-> > gives the same mess.
-> 
-> For simply tracking the kernel there isn't much reason to use cogito. 
-> Using native git means fewer problems right now since both cogito and git
-> are developing quickly with inevitable version skew etc..
+We have no options which the user can set in the Makefile. Only the
+EXTRAVERSION, which is also useful in place of the "backup modules"
+suggestion.
 
-Also note that the public git repository is probably suffering from
-the same problem as the lack of -rc2.  I wonder whether anyone's
-reported it to the ftp admins yet (if it hasn't been fixed)?
+Hey! Can anybody tell me when we last had configuration options in the top
+Makefile? Please?
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
+
+ README |    9 ++++++---
+ 1 files changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/README b/README
+--- a/README
++++ b/README
+@@ -149,6 +149,9 @@ CONFIGURING the kernel:
+ 	"make gconfig"     X windows (Gtk) based configuration tool.
+ 	"make oldconfig"   Default all questions based on the contents of
+ 			   your existing ./.config file.
++	"make silentoldconfig"
++			   Like above, but avoids cluttering the screen
++			   with question already answered.
+    
+ 	NOTES on "make config":
+ 	- having unnecessary drivers will make the kernel bigger, and can
+@@ -169,9 +172,6 @@ CONFIGURING the kernel:
+ 	  should probably answer 'n' to the questions for
+           "development", "experimental", or "debugging" features.
+ 
+- - Check the top Makefile for further site-dependent configuration
+-   (default SVGA mode etc). 
+-
+ COMPILING the kernel:
+ 
+  - Make sure you have gcc 2.95.3 available.
+@@ -199,6 +199,9 @@ COMPILING the kernel:
+    are installing a new kernel with the same version number as your
+    working kernel, make a backup of your modules directory before you
+    do a "make modules_install".
++   In alternative, before compiling, edit your Makefile and change the
++   "EXTRAVERSION" line - its content is appended to the regular kernel
++   version.
+ 
+  - In order to boot your new kernel, you'll need to copy the kernel
+    image (e.g. .../linux/arch/i386/boot/bzImage after compilation)
+

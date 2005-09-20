@@ -1,71 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964922AbVITIEY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964924AbVITIJ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964922AbVITIEY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 04:04:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964920AbVITIEX
+	id S964924AbVITIJ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 04:09:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964927AbVITIJ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 04:04:23 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:24798 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964924AbVITIEV (ORCPT
+	Tue, 20 Sep 2005 04:09:57 -0400
+Received: from [213.132.87.177] ([213.132.87.177]:37807 "EHLO gserver.ymgeo.ru")
+	by vger.kernel.org with ESMTP id S964924AbVITIJ4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 04:04:21 -0400
-Date: Tue, 20 Sep 2005 01:03:05 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Vadim Lobanov <vlobanov@speakeasy.net>
-Cc: pazke@donpac.ru, colin@realtek.com.tw, linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_PRINTK doesn't makes size smaller
-Message-Id: <20050920010305.745d5ccf.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0509200047120.3173@shell2.speakeasy.net>
-References: <01bf01c5bdaa$9e8b81c0$106215ac@realtek.com.tw>
-	<20050920063805.GB20363@pazke>
-	<Pine.LNX.4.58.0509200047120.3173@shell2.speakeasy.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 20 Sep 2005 04:09:56 -0400
+From: Ustyugov Roman <dr_unique@ymg.ru>
+To: thayumk@gmail.com, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] kbuild
+Date: Tue, 20 Sep 2005 12:13:44 +0400
+User-Agent: KMail/1.8
+References: <200509191432.58736.dr_unique@ymg.ru> <3b8510d805092000346c27270f@mail.gmail.com> <3b8510d80509200043e09eae9@mail.gmail.com>
+In-Reply-To: <3b8510d80509200043e09eae9@mail.gmail.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200509201213.44638.dr_unique@ymg.ru>
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 20 Sep 2005 08:17:24.0498 (UTC) FILETIME=[BB11FF20:01C5BDBB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vadim Lobanov <vlobanov@speakeasy.net> wrote:
->
-> On Tue, 20 Sep 2005, Andrey Panin wrote:
-> 
-> > On 263, 09 20, 2005 at 02:14:55PM +0800, colin wrote:
-> > >
-> > > Hi there,
-> > > I tried to make kernel with CONFIG_PRINTK off. I considered it should become
-> > > smaller, but it didn't because it actually isn't an empty function, and
-> > > there are many copies of it in vmlinux, not just one. Here is its
-> > > definition:
-> > >     static inline int printk(const char *s, ...) { return 0; }
-> > >
-> > > I change the definition to this and it can greatly reduce the size by about
-> > > 5%:
-> > >     #define printk(...) do {} while (0)
-> > > However, this definition would lead to error in some situations. For
-> > > example:
-> > >     1. (printk)
-> > >     2. ret = printk
-> > >
-> > > I hope someone could suggest a better definition of printk that can both
-> > > make printk smaller and eliminate errors.
-> >
-> > What about the macro below ?
-> >
-> > #define printk(...) ({ do { } while(0); 0; })
-> 
-> So what does the do-while loop give us in the above case? In other
-> words, why not just do the following...?
-> 
-> #define printk(...) ({ 0; })
-> 
+Thayumanavar Sachithanantham wrote:
+> Let me know your results.Take care of the quotes while you change.
 
-You may find that when printk() is a static inline there are still copies
-of the control string in the generated kernel image:
+make -C ../../../linux-2.6.11.4-21.8
+ O=../linux-2.6.11.4-21.8-obj/i386/default /bin/sh: -c: line 0: syntax error
+ near unexpected token `('
+/bin/sh: -c: line 0: `set -e;
+.....
 
-	printk("foo %d\n", bar());
+What symbol must be between
+-D'DUM(a)=\#a'
+and
+-D'KBUILD_MODNAME=DUM($(subst $(comma),_,$(subst -,_,$(modname))))')
 
-must still evaluate bar() and may cause "foo %d\n" to turn up in vmlinux. 
-IIRC later versions of gcc do remove the unreferenced string.
+?
 
-If printk is a macro, it all of course disappears.
+I tried a space, comma and no spaces, also with quotes and without any, but
+got an error above.
+
+Here is my line:
+modname_flags  = $(if $(filter 1,$(words $(modname))),-D'DUM(a)=\#a'
+-D'KBUILD_MODNAME=DUM($(subst $(comma),_,$(subst -,_,$(modname))))')
+
+-- 
+RomanU

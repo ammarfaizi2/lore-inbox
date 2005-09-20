@@ -1,51 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965092AbVITTWJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965096AbVITTYV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965092AbVITTWJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 15:22:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965093AbVITTWJ
+	id S965096AbVITTYV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 15:24:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965097AbVITTYV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 15:22:09 -0400
-Received: from zproxy.gmail.com ([64.233.162.193]:64909 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965092AbVITTWI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 15:22:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=LFDYbzViqus3bizFDU8W6ZA5ibNxysMSqc3vDUpGl+Ygb6/fD7FHRYqcu3ttyB7Ez1CBc1GXa1VTT6ExazC3PwajFb8zDxFHnSaytzIlVu2UUXfAWgX+DT3EVNr02LYeuakQHJsO0acVKbdBiWEp4GVR6iQPyPd8MXaANHaHzDU=
-Date: Tue, 20 Sep 2005 23:32:35 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Nicolo Chiellini <nchiellini@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops on 2.6.12.3
-Message-ID: <20050920193235.GA3858@mipter.zuzino.mipt.ru>
-References: <BAY106-F33D70574CC7F3E44739F20C8910@phx.gbl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <BAY106-F33D70574CC7F3E44739F20C8910@phx.gbl>
-User-Agent: Mutt/1.5.8i
+	Tue, 20 Sep 2005 15:24:21 -0400
+Received: from enterprise.francisscott.net ([64.235.237.105]:20747 "EHLO
+	enterprise.francisscott.net") by vger.kernel.org with ESMTP
+	id S965096AbVITTYV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 15:24:21 -0400
+Message-ID: <433061E4.20903@lampert.org>
+Date: Tue, 20 Sep 2005 12:24:20 -0700
+From: Scott Lampert <scott@lampert.org>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050812)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Langsdorf, Mark" <mark.langsdorf@amd.com>
+CC: john stultz <johnstul@us.ibm.com>, Andi Kleen <ak@suse.de>,
+       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       discuss@x86-64.org
+Subject: Re: [discuss] Re: [PATCH] x86-64: Fix bad assumption that dualcore
+ cpus have synced TSCs
+References: <84EA05E2CA77634C82730353CBE3A843032187C4@SAUSEXMB1.amd.com>
+In-Reply-To: <84EA05E2CA77634C82730353CBE3A843032187C4@SAUSEXMB1.amd.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 16, 2005 at 01:49:08PM +0200, Nicolo Chiellini wrote:
-> i've got an oops, but i don't know why, i report the infos in my possession:
+Langsdorf, Mark wrote:
+
+>>On Mon, 2005-09-19 at 21:49 +0200, Andi Kleen wrote:
+>>    
+>>
+>>>On Mon, Sep 19, 2005 at 12:42:16PM -0700, john stultz wrote:
+>>>      
+>>>
+>>>>On Mon, 2005-09-19 at 21:31 +0200, Andi Kleen wrote:
+>>>>        
+>>>>
+>>>>>On Mon, Sep 19, 2005 at 12:16:43PM -0700, john stultz wrote:
+>>>>>          
+>>>>>
+>>>>>>	This patch should resolve the issue seen in 
+>>>>>>            
+>>>>>>
+>>bugme bug #5105, 
+>>    
+>>
+>>>>>>where it is assumed that dualcore x86_64 systems have synced 
+>>>>>>TSCs. This is not the case, and alternate timesources 
+>>>>>>            
+>>>>>>
+>>should be 
+>>    
+>>
+>>>>>>used instead.
+>>>>>>            
+>>>>>>
+>>>>>I asked AMD some time ago and they told me it was synchronized. 
+>>>>>The TSC on K8 is C state invariant, but not P state 
+>>>>>          
+>>>>>
+>>invariant, but 
+>>    
+>>
+>>>>>P states always happen synchronized on dual cores.
+>>>>>
+>>>>>So I'm not quite convinced of your explanation yet.
+>>>>>          
+>>>>>
+>>>>Would a litter userspace test checking the TSC 
+>>>>        
+>>>>
+>>synchronization maybe 
+>>    
+>>
+>>>>shed additional light on the issue?
+>>>>        
+>>>>
+>>>Sure you can try it.
+>>>      
+>>>
+>>So, bugzilla.kernel.org has (temporarily at least) lost the 
+>>reports from yesterday, but from the email i got, folks using 
+>>my TSC consistency check that I posted were seeing what 
+>>appears to be unsynched TSCs on dualcore AMD systems.
+>>    
+>>
+>
+>My understanding was that each TSC on a dual-core processor
+>will advance individually and atomically.  They will not 
+>always be in synchronization.
+>
+>  
+>
+>>Personally I suspect that the powernow driver is putting the 
+>>cores independently into low power sleep and the TSCs are 
+>>being independently halted, causing them to become unsynchronized.
+>>    
+>>
+>
+>The powernow-k8 driver doesn't know what a low power sleep state
+>is, so I strongly doubt it is involved here.  It only handles
+>pstates.
 > 
-> Unable to handle kernel NULL pointer dereference at virtual address 00000007
-> printing eip:
-> c01c114b
-> *pde = 00000000
-> Oops: 0002 [#1]
-> PREEMPT
-> Modules linked in: ohci_hcd ide_scsi rtc
-> CPU:    0
-> EIP:    0060:[<c01c114b>]    Not tainted VLI
-> EFLAGS: 00010287   (2.6.12.3)
-> EIP is at cleanup_bitmap_list+0x5b/0xe0
+>-Mark Langsdorf
+>K8 PowerNow! Maintainer
+>AMD, Inc.
+>
+>  
+>
 
-I've filed a bug at kernel bugzilla so your report won't be lost. See
-http://bugme.osdl.org/show_bug.cgi?id=5277
-
-Please, register at http://bugme.osdl.org/createaccount.cgi and add
-yourself to CC list.
-
+Just to add some end-user input here, I see the same issues regardless 
+of whether I'm running with the powernow-k8 or not.  The clock problems 
+seem to be unrelated to that, at least on my system.
+    -Scott

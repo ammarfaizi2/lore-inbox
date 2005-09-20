@@ -1,48 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932628AbVITOKR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932745AbVITOLG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932628AbVITOKR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 10:10:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932745AbVITOKR
+	id S932745AbVITOLG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 10:11:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932752AbVITOLG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 10:10:17 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:2578 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932628AbVITOKP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 10:10:15 -0400
-Date: Tue, 20 Sep 2005 15:10:08 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Arrr! Linux v2.6.14-rc2
-Message-ID: <20050920141008.GA493@flint.arm.linux.org.uk>
-Mail-Followup-To: Gene Heskett <gene.heskett@verizon.net>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58.0509192003410.2553@g5.osdl.org> <200509200050.15347.gene.heskett@verizon.net> <200509200931.58371.pmcfarland@downeast.net> <200509201005.49294.gene.heskett@verizon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200509201005.49294.gene.heskett@verizon.net>
-User-Agent: Mutt/1.4.1i
+	Tue, 20 Sep 2005 10:11:06 -0400
+Received: from [195.209.228.254] ([195.209.228.254]:49876 "EHLO
+	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S932745AbVITOLE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 10:11:04 -0400
+Message-ID: <43301877.3040306@yandex.ru>
+Date: Tue, 20 Sep 2005 18:11:03 +0400
+From: "Artem B. Bityutskiy" <dedekind@yandex.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-1.3.1
+X-Accept-Language: en, ru, en-us
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
+Cc: Peter Menzebach <pm-mtd@mw-itcon.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: data  loss on jffs2 filesystem on dataflash
+References: <432812E8.2030807@mw-itcon.de> <432817FF.10307@yandex.ru> <4329251C.7050102@mw-itcon.de> <4329288B.8050909@yandex.ru> <43292AC6.40809@mw-itcon.de> <43292E16.70401@yandex.ru> <43292F91.9010302@mw-itcon.de> <432FE1EF.9000807@yandex.ru> <432FEF55.5090700@mw-itcon.de> <433006D8.4010502@yandex.ru> <20050920133244.GC4634@wohnheim.fh-wedel.de>
+In-Reply-To: <20050920133244.GC4634@wohnheim.fh-wedel.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 20, 2005 at 10:05:49AM -0400, Gene Heskett wrote:
-> On Tuesday 20 September 2005 09:31, Patrick McFarland wrote:
-> >On Tuesday 20 September 2005 12:50 am, Gene Heskett wrote:
-> >> You've been watching entirely too much tv Linus.  That commercial
-> >> is one of the better examples of the "vast wasteland" that is todays
-> >> tv.
-> >
-> >D'arr, the 19th of Septembarrr tis International Talk Like A Pirate Day.
-> >( http://talklikeapirate.com/ ).
+Jörn Engel wrote:
+> Still can't.  Block devices have the attribute that writing AAA... to
+> a block containing BBB... gives you one of three possible results in
+> case of power failure:
 > 
-> Yeah :-), but where is this new patch-2.6.14-rc2.gz to be
-> found. Its still not made it to kernel.org as of 10:05 EDT.
+> 1. BBB...BBB all written
+> 2. AAA...AAA nothing written
+> 3. AAA...BBB partially written.
+> 
+> Flash doesn't have 3, but two more cases:
+> 4. FFF...FFF erased, nothing written
+> 5. AAA...FFF erased, partially written
+> 
+> Plus the really obnoxious
+> 6. FFF...FFF partially erased.  Looks fine but some bits may flip
+>    randomly, writes may not stick, etc.
+> 
+> Now try finding a filesystem that is robust if 4-6 happens. ;)
+Don't underastand this. If you mean the atomicity, CRC may help here. 
+And no problems. Or may be you missed the the fact that we have 
+eraseblock size = writeblock size?
 
-The mutinous bots have deserted master.kernel.org and aren't doing
-what they're supposed to be doing.
+>>JFFS2 orients to "classical" flashes. They have no "write page with 
+>>built-in erase" operation.
+> What does this thing do?
+It erases individual page, then writes there. To put it differently, in 
+your terminology, eraseblock size = writeblock size.
+
+P.S. I actually missed the mailing list, this should have gone to the 
+MTD ML. So let's move there please.
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Best Regards,
+Artem B. Bityuckiy,
+St.-Petersburg, Russia.
+

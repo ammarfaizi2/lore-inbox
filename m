@@ -1,62 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932663AbVITQo7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932664AbVITQtJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932663AbVITQo7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 12:44:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932667AbVITQo7
+	id S932664AbVITQtJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 12:49:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932669AbVITQtJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 12:44:59 -0400
-Received: from mail.portrix.net ([212.202.157.208]:39816 "EHLO
-	zoidberg.portrix.net") by vger.kernel.org with ESMTP
-	id S932663AbVITQo7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 12:44:59 -0400
-Message-ID: <43303C85.1020301@ppp0.net>
-Date: Tue, 20 Sep 2005 18:44:53 +0200
-From: Jan Dittmer <jdittmer@ppp0.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Thunderbird/1.0.6 Mnenhy/0.6.0.104
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Sean <seanlkml@sympatico.ca>
-CC: Alexander Nyberg <alexn@telia.com>,
-       Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org
-Subject: Re: Arrr! Linux v2.6.14-rc2
-References: <Pine.LNX.4.58.0509192003410.2553@g5.osdl.org>       <200509201005.49294.gene.heskett@verizon.net>       <20050920141008.GA493@flint.arm.linux.org.uk>       <200509201025.36998.gene.heskett@verizon.net>       <56402.10.10.10.28.1127229646.squirrel@linux1>       <20050920153231.GA2958@localhost.localdomain>    <BAYC1-PASMTP030BBDF3F9B2552DA9CF26AE950@cez.ice>    <43303650.5030202@sfhq.hn.org> <BAYC1-PASMTP033EBAB483DBE4397549B2AE950@cez.ice>
-In-Reply-To: <BAYC1-PASMTP033EBAB483DBE4397549B2AE950@cez.ice>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Sep 2005 12:49:09 -0400
+Received: from 82-68-65-126.dsl.in-addr.zen.co.uk ([82.68.65.126]:59782 "EHLO
+	www.drunkenpirates.co.uk") by vger.kernel.org with ESMTP
+	id S932664AbVITQtI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 12:49:08 -0400
+Message-ID: <002b01c5be03$4bf25840$6401a8c0@CMR>
+From: "Chris Rutherford" <chris1@hackinghardware.com>
+To: "Linux Kernel" <linux-kernel@vger.kernel.org>
+Subject: pci bridge 0000:00:1c.1 compaq nc8230 laptop
+Date: Tue, 20 Sep 2005 17:49:41 +0100
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2180
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sean wrote:
-> On Tue, September 20, 2005 12:18 pm, Jan Dittmer said:
-> 
->>Sean wrote:
->>
->>>On Tue, September 20, 2005 11:32 am, Alexander Nyberg said:
->>>
->>>
->>>>ketchup <version>
->>>
->>>"git pull" is actually simpler in that you don't need to specify a
->>>version.  And it will keep you current with HEAD even between official
->>>releases.
->>
->>$ ketchup 2.6-git
->>
->>and you've the plus of very well defined checkpoints.
-> 
-> 
-> Huh?  Have you ever used git?  Not only do you get very well defined
-> checkpoints you can instantiate a tree down to any specific commit.  And
-> you get the plus of a complete detailed changelog etc.. "git log".  
-> Really, ketchup doesn't come close to git.
+Hi All,
 
-I know, but for multiple people testing daily releases it's much easier to
-say -git1 worked -git2 didn't. Sure, for searching the patch `git bisect`
-is priceless but for regular testing the -gitx thing comes very handy.
-Otherwise you can get a arbitrary intermediate state of linus tree if
-you're pulling at the wrong moment. It's actually also faster I suppose
-to get one patch than running `git pull` - at least with a cold cache
-(it used to be in the 0.1 days of git).
-Just my .02,
+This is my first email to the lkml so kindly forgive me if I appear 
+naive.
 
-Jan
+I have a compaq nc8230 laptop with a TPM which I am 'playing with'.
+
+I have successfully compiled and patched previous kernel versions 
+2.6.6 to 2.6.12 and as of patching 2.6.12 with the TPM libraries I was 
+able to access the tpm using an Intel motherboard but not the Compaq 
+machine.
+
+Unfortunately the tpm libries in the 2.6.12 kernel were not combatable 
+with the Compaq tpm implementation and I was not able to locate the 
+TPM address or device and the kernel module could not find the TPM IC.
+
+As of 2.6.13 the TPM code has been properly integrated with the kernel 
+and I was hoping to get the TPM working on my laptop.  Although I 
+could successfully get the 2.6.12, to compile and run on the nc8230, 
+as of 2.6.13 I have been getting the following crash when I start the 
+kernel :-
+
+PCI: Cannot allocate resource region 7 of bridge 0000:00:1c.1
+PCI: Cannot allocate resource region 8 of bridge 0000:00:1c.1
+PCI: Cannot allocate resource region 9 of bridge 0000:00:1c.1
+
+ I have seen the 00:1c.1 device problem in the lkml archive, however 
+im not sure exactly what the problem is.  I thought I'd let you all 
+know that something has happened to the new kernel that stops it 
+working on the compaq nc8230 laptop.  I would very much like to know 
+if this problem is known and if it is going to be fixed in the 2.6.14 
+release.
+
+Thanks
+
+Chris R
+
+
+
+

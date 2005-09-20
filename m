@@ -1,149 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964789AbVITRNS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932730AbVITRNf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964789AbVITRNS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 13:13:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964786AbVITRNS
+	id S932730AbVITRNf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 13:13:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932722AbVITRNf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 13:13:18 -0400
-Received: from smtp.texramp.net ([209.144.20.28]:38928 "EHLO smtp.texramp.net")
-	by vger.kernel.org with ESMTP id S964783AbVITRNR (ORCPT
+	Tue, 20 Sep 2005 13:13:35 -0400
+Received: from smtp3-g19.free.fr ([212.27.42.29]:7130 "EHLO smtp3-g19.free.fr")
+	by vger.kernel.org with ESMTP id S932752AbVITRNe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 13:13:17 -0400
-From: Charles McCreary <mccreary@crmeng.com>
+	Tue, 20 Sep 2005 13:13:34 -0400
+Message-ID: <1847.192.168.201.6.1127236405.squirrel@pc300>
+Date: Tue, 20 Sep 2005 18:13:25 +0100 (BST)
+From: "Etienne Lorrain" <etienne.lorrain@masroudeau.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: x86-64 bad pmds in 2.6.11.6
-Date: Tue, 20 Sep 2005 12:12:55 -0500
-User-Agent: KMail/1.8
+Reply-To: etienne.lorrain@masroudeau.com
+User-Agent: SquirrelMail/1.4.5
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200509201212.55676.mccreary@crmeng.com>
+X-Priority: 3 (Normal)
+Importance: Normal
+X-SA-Exim-Connect-IP: 192.168.2.240
+X-SA-Exim-Mail-From: etienne.lorrain@masroudeau.com
+Subject: Re: [i386 BOOT CODE] kernel bootable again
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
+X-SA-Exim-Scanned: Yes (on cygne.masroudeau.com)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Another datapoint for this thread. The box spewing the bad pmds messages is a 
-dual opteron 246 on a TYAN S2885 Thunder K8W motherboard. Kernel is 
-2.6.11.4-20a-smp.
+>>>> So if the "something" knows (or can get to know) the sector/tracks
+>>>> layout of the disk it's writing the kernel onto, it could store this
+>>>> information in the bootblock (is there space for that?). The bootblock
+>>>> code would then just read this info and use it.
+>
+> Actually, DOS/Windows works that way. FAT filesystem stores the number
+> of sectors per track in its boot sector.
 
-Approximately one hour after the bad pmd's, the box was completely 
-unresponsive. This machine is either idle or heavily loaded, many threads, 
-lots of io and nfs network traffic. Never see this when idle. When heavily 
-loaded, it will invariably become unresponsive within 24 hrs. Looks 
-reproducible. I'm willing to provide more information and test patches.
+  Gujin installer creates the filesystem (and the partition table if
+ needed), the MBR with the disk geometry, and chain a simple bootloader
+ or a menu based bootloader on the created FAT filesystem when told to
+ do so.
 
-Output:
-Sep 15 06:42:46 lakeport -- MARK --
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680bc8
-(00002aaaaaaaba98).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680bd0
-(0000000000000002).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680bd8
-(00007ffffffffdcc).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680be0
-(00007ffffffffdcd).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680bf0
-(00007ffffffffdce).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680bf8
-(00007ffffffffdcf).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680c00
-(00007ffffffffdd0).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680c08
-(00007ffffffffdd1).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680c10
-(00007ffffffffdd2).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680c18
-(00007ffffffffdd3).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680c20
-(00007ffffffffdd4).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680c28
-(00007ffffffffdd5).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680c30
-(00007ffffffffdd6).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680c38
-(00007ffffffffdd7).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680c40
-(00007ffffffffdd8).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680c48
-(00007ffffffffdd9).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680c50
-(00007ffffffffdda).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680c58
-(00007ffffffffddb).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680c60
-(00007ffffffffddc).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680c68
-(00007ffffffffddd).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680c70
-(00007ffffffffdde).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680c78
-(00007ffffffffddf).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680c80
-(00007ffffffffde0).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680c88
-(00007ffffffffde1).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680c90
-(00007ffffffffde2).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680c98
-(00007ffffffffde3).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680ca0
-(00007ffffffffde4).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680ca8
-(00007ffffffffde5).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680cb0
-(00007ffffffffde6).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680cc0
-(0000000000000010).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680cc8
-(00000000078bfbff).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680cd0
-(0000000000000006).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680cd8
-(0000000000001000).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680ce0
-(0000000000000011).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680ce8
-(0000000000000064).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680cf0
-(0000000000000003).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680cf8
-(0000000000400040).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680d00
-(0000000000000004).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680d08
-(0000000000000038).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680d10
-(0000000000000005).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680d18
-(0000000000000009).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680d20
-(0000000000000007).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680d28
-(00002aaaaaaab000).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680d30
-(0000000000000008).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680d40
-(0000000000000009).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680d48
-(00000000004010f0).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680d50
-(000000000000000b).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680d60
-(000000000000000c).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680d70
-(000000000000000d).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680d80
-(000000000000000e).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680d90
-(0000000000000017).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680da0
-(000000000000000f).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680da8
-(00007ffffffffdc5).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680dc0
-(3638780000000000).
-Sep 15 06:58:44 lakeport kernel: mm/memory.c:97: bad pmd ffff81013c680dc8
-(000000000034365f).
-Sep 15 07:22:47 lakeport -- MARK --
+  So if you just want to put a kernel and initrd on a floppy, and the
+ floppy is big enough, you just do:
+$ mkdir tmp
+$ cd tmp
+$ wget http://heanet.dl.sourceforge.net/sourceforge/gujin/install-1.2.tar.gz
+$ tar xvzf install-1.2.tar.gz
+$ ./instboot tiny.bin /dev/fd0
+$ mcopy /boot/vmlinuz-2.6.13 a:
+$ mcopy /boot/initrd-2.6.13 a:
+  And you reboot with the floppy still inside the drive.
+
+  If you want to put them on your USB thumb drive, and your PC can
+ boot USB flash drives as a floppy (lot of BIOS bugs there), you
+ just change the line (double check that your USB key is /dev/sda):
+$ ./instboot tiny.bin /dev/fd0
+  by:
+$ ./instboot tiny.bin /dev/sda --disk=BIOS:0x00 --geometry=/dev/sda
+
+  I personnally better like a partition table on my USB drives, so
+ I am more used to erase manually the partition table:
+$ dd if=/dev/null of=/dev/sda bs=512 count=64 # blank the head of the disk
+ and then type:
+$ ./instboot boot.bin /dev/sda --disk=BIOS:0x00 --geometry=/dev/sda \
+     --mbr-device=/dev/sda --partition_index=1
+
+  When booted from this key, the PC will boot the kernel named vmlinuz*
+ and load the initrd/initramfs named initrd* (tiny.bin does not contain
+ the graphic menu management).
+
+  I will not say that I tested it lately, but you may also want to put
+ your kernel and initrd on a bootable CDROM - without having the usual
+ Gujin menu - then you just do:
+$ mkdir tmpdir
+$ cp /boot/vmlinuz-2.6.13 tmpdir
+$ cp /boot/initrd-2.6.13 tmpdir
+$ ./instboot tiny.bin tmpdir/tiny.bcd
+$ mkisofs -untranslated-filenames -no-emul-boot -boot-load-size 4 \
+    -b tiny.bcd tmpdir -o boot.iso
+$ cdrecord boot.iso
+
+  It is usually better (and will work for all those configuration)
+ to put the kernel and its initrd inside a directory named "/boot",
+ but I am highjicking a thread so want to keep it simple...
+
+  Etienne.
 

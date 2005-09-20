@@ -1,66 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965050AbVITPnt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965055AbVITQJn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965050AbVITPnt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 11:43:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965051AbVITPns
+	id S965055AbVITQJn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 12:09:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965057AbVITQJn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 11:43:48 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:18398 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S965050AbVITPns (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 11:43:48 -0400
-Message-Id: <200509201542.j8KFgh2q011730@laptop11.inf.utfsm.cl>
-To: Hans Reiser <reiser@namesys.com>
-cc: Nick Piggin <nickpiggin@yahoo.com.au>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       thenewme91@gmail.com, Christoph Hellwig <hch@infradead.org>,
-       Denis Vlasenko <vda@ilport.com.ua>, chriswhite@gentoo.org,
-       LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>,
-       Nate Diller <ndiller@namesys.com>
-Subject: Re: I request inclusion of reiser4 in the mainline kernel 
-In-Reply-To: Message from Hans Reiser <reiser@namesys.com> 
-   of "Mon, 19 Sep 2005 23:28:10 MST." <432FABFA.9010406@namesys.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Tue, 20 Sep 2005 11:42:42 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.19.1]); Tue, 20 Sep 2005 11:42:43 -0400 (CLT)
+	Tue, 20 Sep 2005 12:09:43 -0400
+Received: from mail.portrix.net ([212.202.157.208]:41709 "EHLO
+	zoidberg.portrix.net") by vger.kernel.org with ESMTP
+	id S965055AbVITQJm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 12:09:42 -0400
+Message-ID: <43303436.4080007@ppp0.net>
+Date: Tue, 20 Sep 2005 18:09:26 +0200
+From: Jan Dittmer <jdittmer@ppp0.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050802 Thunderbird/1.0.6 Mnenhy/0.6.0.104
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+CC: Jurriaan <thunder7@xs4all.nl>, linux-kernel@vger.kernel.org,
+       linux-fbdev-devel@lists.sourceforge.net
+Subject: Re: no cursor on nvidiafb console in 2.6.14-rc1-mm1
+References: <20050919175116.GA8172@amd64.of.nowhere> <432F08C1.8010705@ppp0.net> <432F36B4.8030209@gmail.com> <432FBC93.4040007@ppp0.net> <432FE3E0.3020405@gmail.com>
+In-Reply-To: <432FE3E0.3020405@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser <reiser@namesys.com> wrote:
-> Nick Piggin wrote:
-> > Hans Reiser wrote:
-> >> So why is the code in the kernel so hard to read then?
-> >>
-> >> Linux kernel code is getting better, and Andrew Morton's code is
-> >> especially good, but for the most part it's unnecessarily hard to
-> >> read. Look at the elevator code for instance.  Ugh.
+Antonino A. Daplas wrote:
+> Jan Dittmer wrote:
+> 
+>>Antonino A. Daplas wrote:
+>>
+>>>Jan Dittmer wrote:
+>>>
+>>>
+>>>>jurriaan wrote:
+>>>>
+>>>>
+>>>>>After updating from 2.6.13-rc4-mm1 to 2.6.14-rc1-mm1 I see no cursor on
+>>>>>my console.
+>>>>
+>>>>Me too, 2.6.14-rc1-git4. Didn't try any kernel before with framebuffer,
+>>>>sorry. No fb options on the kernel command line.
+>>>>
+>>>
+>>>Can you try reversing this particular diff?
+>>>
+>>>http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blobdiff_plain;h=af99ea96012ec72ef57fd36655a6d8aaa22e809e;hp=30f80c23f934bb0a76719232f492153fc7cca00a
+>>>
+>>>Tony
+>>>
+>>
+>>--- 30f80c23f934bb0a76719232f492153fc7cca00a
+>>+++ af99ea96012ec72ef57fd36655a6d8aaa22e809e
+>>
+>>^^^ Which file??
+>>
+> 
+> 
+> Heh, didn't realize that. drivers/video/nvidia/nvidia.c, actually.
+> But just apply this patch instead, as a Kconfig change is also
+> needed.
+> 
 
-> > What's wrong with the elevator code?
+This fixes it,
 
-> The name for one.  There is no elevator algorithm anywhere in it.
+Thanks,
 
-IO schedulers are commonly called "elevators", even though most of them
-aren't. Standard operating system terminology.
-
->                                                                    There
-> is a least block number first algorithm that was called an elevator, but
-> it does not have the properties described by Ousterhout and sundry CS
-> textbooks describing elevator algorithms.  The textbook algorithms are
-> better than least block number first,
-
-Funny that the "texbook algorithms" aren't used in real life. Wonder why...
-
->                                       and it is interesting how nobody
-> fixed the mislabeling of the algorithm once Linux had gotten to the
-> point that it was striving for more than making gcc be able to run on it. 
-
-Could you /please/ stop your snide remarks on the code and its authors? If
-for nothing else, the very people you are insulting in public are the exact
-ones that will decide if they take on the work of auditing and integrating
-your code.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Jan

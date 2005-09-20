@@ -1,96 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964971AbVITK20@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964972AbVITLH3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964971AbVITK20 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 06:28:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964967AbVITK20
+	id S964972AbVITLH3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 07:07:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964974AbVITLH3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 06:28:26 -0400
-Received: from zproxy.gmail.com ([64.233.162.203]:48777 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964968AbVITK2Z (ORCPT
+	Tue, 20 Sep 2005 07:07:29 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:61621 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964972AbVITLH2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 06:28:25 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=lzKtMBPwjmoCJdplK5R1MqKM24OdrZymnWKo+m+CnRRVpWlJSYz9TLcgTH49CzLP7mxGkbisjI6ffBOPsC6EfGKWf9Dju9Lu6x4BVHPrPpINsE27gJi4vqHMJajvVzBNn6+Uy4FOU9ttKQE6RAsnxubWDOM4Sy6A/sEZqmSGhgg=
-Message-ID: <432FE3E0.3020405@gmail.com>
-Date: Tue, 20 Sep 2005 18:26:40 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jan Dittmer <jdittmer@ppp0.net>
-CC: Jurriaan <thunder7@xs4all.nl>, linux-kernel@vger.kernel.org,
-       linux-fbdev-devel@lists.sourceforge.net
-Subject: Re: no cursor on nvidiafb console in 2.6.14-rc1-mm1
-References: <20050919175116.GA8172@amd64.of.nowhere> <432F08C1.8010705@ppp0.net> <432F36B4.8030209@gmail.com> <432FBC93.4040007@ppp0.net>
-In-Reply-To: <432FBC93.4040007@ppp0.net>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Sep 2005 07:07:28 -0400
+Date: Tue, 20 Sep 2005 16:36:54 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Nishanth Aravamudan <nacc@us.ibm.com>
+Cc: Tony Lindgren <tony@atomide.com>, Con Kolivas <kernel@kolivas.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, ck list <ck@vds.kolivas.org>, schwidefsky@de.ibm.com
+Subject: Re: [PATCH 1/3] dynticks - implement no idle hz for x86
+Message-ID: <20050920110654.GA373@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <200509031814.49666.kernel@kolivas.org> <20050904201054.GA4495@us.ibm.com> <20050905070053.GA7329@in.ibm.com> <20050905072704.GB5734@atomide.com> <20050905170202.GJ25856@us.ibm.com> <20050907073743.GB5804@atomide.com> <20050907150517.GC4590@us.ibm.com> <20050908100035.GD25847@atomide.com> <20050908212213.GB2997@us.ibm.com> <20050908220854.GE2997@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050908220854.GE2997@us.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Dittmer wrote:
-> Antonino A. Daplas wrote:
->> Jan Dittmer wrote:
->>
->>> jurriaan wrote:
->>>
->>>> After updating from 2.6.13-rc4-mm1 to 2.6.14-rc1-mm1 I see no cursor on
->>>> my console.
->>> Me too, 2.6.14-rc1-git4. Didn't try any kernel before with framebuffer,
->>> sorry. No fb options on the kernel command line.
->>>
->>
->> Can you try reversing this particular diff?
->>
->> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blobdiff_plain;h=af99ea96012ec72ef57fd36655a6d8aaa22e809e;hp=30f80c23f934bb0a76719232f492153fc7cca00a
->>
->> Tony
->>
-> 
-> --- 30f80c23f934bb0a76719232f492153fc7cca00a
-> +++ af99ea96012ec72ef57fd36655a6d8aaa22e809e
-> 
-> ^^^ Which file??
-> 
+Nish,
+	I did some study of how s390 and ARM are architected and have
+some comments as a result of that.
 
-Heh, didn't realize that. drivers/video/nvidia/nvidia.c, actually.
-But just apply this patch instead, as a Kconfig change is also
-needed.
+On Thu, Sep 08, 2005 at 03:08:54PM -0700, Nishanth Aravamudan wrote:
+> struct dyntick_timer {
+> 	unsigned int state;
+> 	unsigned long max_skip;
+> 	unsigned long min_skip;
+> 	int (*init) (void);
+> 	void (*enable_dyn_tick) (void);
+> 	void (*disable_dyn_tick) (void);
+> 	unsigned long (*reprogram) (unsigned long); /* return number of ticks skipped */
+> 	unsigned long (*recover_time) (int, void *, struct pt_regs *); /* handler in arm */
+> 	/* following empty in UP */
+> 	void (*enter_all_cpus_idle) (int);
+> 	void (*exit_all_cpus_idle) (int);
+> 	spinlock_t lock;
+> };
 
-Signed-off-by: Antonino Daplas <adaplas@pol.net>
+The usage of 'lock' probably needs to be made clear. I intended it to be used 
+for mainly serializing enter/exit_all_cpus_idle routines.
 
-diff --git a/drivers/video/Kconfig b/drivers/video/Kconfig
---- a/drivers/video/Kconfig
-+++ b/drivers/video/Kconfig
-@@ -650,6 +650,7 @@ config FB_NVIDIA
- 	select FB_CFB_FILLRECT
- 	select FB_CFB_COPYAREA
- 	select FB_CFB_IMAGEBLIT
-+	select FB_SOFT_CURSOR
- 	help
- 	  This driver supports graphics boards with the nVidia chips, TNT
- 	  and newer. For very old chipsets, such as the RIVA128, then use
-diff --git a/drivers/video/nvidia/nvidia.c b/drivers/video/nvidia/nvidia.c
---- a/drivers/video/nvidia/nvidia.c
-+++ b/drivers/video/nvidia/nvidia.c
-@@ -893,7 +893,7 @@ static int nvidiafb_cursor(struct fb_inf
- 	int i, set = cursor->set;
- 	u16 fg, bg;
- 
--	if (!hwcur || cursor->image.width > MAX_CURS || cursor->image.height > MAX_CURS)
-+	if (cursor->image.width > MAX_CURS || cursor->image.height > MAX_CURS)
- 		return -ENXIO;
- 
- 	NVShowHideCursor(par, 0);
-@@ -1356,6 +1356,9 @@ static int __devinit nvidia_set_fbinfo(s
- 	info->pixmap.size = 8 * 1024;
- 	info->pixmap.flags = FB_PIXMAP_SYSTEM;
- 
-+	if (!hwcur)
-+	    info->fbops->fb_cursor = soft_cursor;
-+
- 	info->var.accel_flags = (!noaccel);
- 
- 	switch (par->Architecture) {
+Considering that not all architectures have such routines, then the use
+of spinlock can be entirely within the arch code. Maybe the 'enter' routine
+is invoked as part of 'reprogram' routine (when the last CPU goes down)
+and 'exit' routine is invoked as part of dyn_tick_interrupt() (when
+coming out of all_idle_state), both being serialized using the spinlock?
+
+Another interesting point is that I expected recover_time to be
+invoked only as part of 'exit_all_cpus_idle', but s390 seems to 
+have unconditional call to account_ticks (for recovering time) on
+any CPU that wakes up. I guess it will be a no-op if other CPUs
+were active.
+
+We probably also need to document how 'reprogram' will be invoked 
+- with xtime_lock held or not. Again s390 does not seem to require it
+while ARM is using one. I think we should let the arch code take
+xtime_lock if they deem it necessary.
+
+> extern void dyntick_timer_register(struct dyntick_timer *new_dyntick_timer);
+>  /* so do we need this?
+>  	Maybe it can just be static to dyntick.c and all the callable
+> 	functions will call-down to the structure members? */
+> extern struct dyntick_timer *current_dyntick_timer;
+
+I don't think this can be static - since the low-level arch-code
+will need access to, for example, 'recover_time'/'handler' 
+and 'enter/exit_all_cpus_idle' routines?
+
+
+> extern struct tick_source * __init arch_select_tick_source(void);
+> /* calls select_tick_source(), then calls tick_source_register() */
+> extern void __init dyn_tick_init(void);
+
+Hmm ..I think just tick_source_register is sufficient ..we can do 
+let the arch-code select what tick source it wants and call
+register with the selected source ..
+
+>From a point of getting this reviewed by arch-maintainers, I think it will 
+help if a new version of this interface is posted and point out how the 
+existing s390/ARM interfaces will be affected. I could help out if you are busy.
+
+-- 
+
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

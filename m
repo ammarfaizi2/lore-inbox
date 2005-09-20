@@ -1,92 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750863AbVITWIY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965170AbVITWIv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750863AbVITWIY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 18:08:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750866AbVITWIY
+	id S965170AbVITWIv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 18:08:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965160AbVITWI1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 18:08:24 -0400
-Received: from zproxy.gmail.com ([64.233.162.200]:11484 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750863AbVITWIX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 18:08:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=MkMQy/BXD7lhPG2nCh0nrRURsWb2mdTF1Ap76E+MSZgTg/PeCeel8IwEzLlCDL3AR5mgR2nFdqcI1rm8Qdu4rnwbzNmxYc/ZQxVX1dDbSk8u6lmFYYwlJhc6SB2TJK9LeF5k4JNDvqcpt9E8jTq9y2MXfTfHwamW9lK150Zd5ws=
-Message-ID: <feed8cdd050920150866e7925d@mail.gmail.com>
-Date: Tue, 20 Sep 2005 15:08:21 -0700
-From: Stephen Pollei <stephen.pollei@gmail.com>
-Reply-To: stephen.pollei@gmail.com
-To: Hans Reiser <reiser@namesys.com>
-Subject: Re: I request inclusion of reiser4 in the mainline kernel
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Nikita Danilov <nikita@clusterfs.com>,
-       Denis Vlasenko <vda@ilport.com.ua>, LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-In-Reply-To: <43304A41.7080206@namesys.com>
+	Tue, 20 Sep 2005 18:08:27 -0400
+Received: from ams-iport-1.cisco.com ([144.254.224.140]:48177 "EHLO
+	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S965060AbVITWIZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 18:08:25 -0400
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: [git pull] InfiniBand fixes
+In-Reply-To: 
+X-Mailer: Roland's Patchbomber
+Date: Tue, 20 Sep 2005 15:08:10 -0700
+Message-Id: <2005920158.2ndgBgW8RwzzVaAk@cisco.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
+To: torvalds@osdl.org
 Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200509201536.j8KFa6wn011651@laptop11.inf.utfsm.cl>
-	 <43304A41.7080206@namesys.com>
+From: Roland Dreier <rolandd@cisco.com>
+X-OriginalArrivalTime: 20 Sep 2005 22:08:11.0837 (UTC) FILETIME=[CA664ED0:01C5BE2F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/20/05, Hans Reiser <reiser@namesys.com> wrote:
-> Horst von Brand wrote:
-> >Nikita Danilov <nikita@clusterfs.com> wrote:
-> >It is supposed to go into the kernel, which is not exactly warning-free.
+Linus, please pull from
 
-> Is that what this thread boils down to, that you guys think the compile
-> should fail not warn?
+    master.kernel.org:/pub/scm/linux/kernel/git/roland/infiniband.git
 
-I don't care if it fails or warns at compile time, but you shouldn't
-misuse/abuse a warning by potentialily introducing an unrelated bug.
+This tree is also available from kernel.org mirrors at:
 
-So if you had
-#if defined(DEBUG_THIS) || defined(DEBUG_THAT) 
-int znode_is_loaded(const struct znode *z);
-#else
-int znode_is_loaded(const struct znode *z)
-  __attribute__((__warn_broken__("unavailible when not debuging")));
-#endif
-That would be great with me.. except __warn_broken__ or the like
-doesn't exist AFAIK :-<
-Closest thing is __attribute((__deprecated__)) but thats not quite right.
+    rsync://rsync.kernel.org/pub/scm/linux/kernel/git/roland/infiniband.git
 
-> >As was said before: It it is /really/ wrong, arrange for it not to compile
-> >or not to link. If it isn't, well... then it wasn't that wrong anyway.
+This will pull the following changes (patches also sent as replies to this email):
 
-That is really true, if it is really wrong then make it so that trying
-to do it simply breaks.
-And if you are impatient then use a define to substitute crap into the
-compile that will give you something you can't ignore as well. Make it
-throw off sparks, get bonus points if you can make gcc segfault;->
+Hal Rosenstock:
+  IPoIB: Fix SA client retransmission strategy
+  IB: Fix data length for RMPP SA sends
 
-#define znode_is_loaded(I_dont_care_you_are_going_to_) \
-  } )die(]0now[>anyway<}}}}}}*bye*}
+Michael S. Tsirkin:
+  IPoIB: fix module removal race
+  IB/mthca: Fix device removal memory leak
 
-should stop a compile, but I don't think it's evil enough to cause gcc
-to segfault.
-If you didn't like my humor I'm sure you could code something more
-concise that is as sick and twisted to crash a compile...
-Hmmm. 
-#if yadda yadda
-int znode_is_loaded_yet_again(....)
-#else
-#define znode_is_loaded(z) ><<<>
-/* break the compile if someone tries using it while not debuging */
-#endif
+Roland Dreier:
+  IB/mthca: assign ACK timeout field correctly
+  IB/mthca: fix posting of first work request
+  IB/mthca: Initialize eq->nent before we use it
+  IB/mthca: Fix posting work requests to shared receive queues
+  IB/mthca: Don't try to set srq->last for userspace SRQs
+  IPoIB: Don't flush workqueue from within workqueue
 
-That should break the parser as well. too bad there isn't a
-_Pragma("error") or something... oh well.
+ drivers/infiniband/core/user_mad.c             |    5 +-
+ drivers/infiniband/hw/mthca/mthca_eq.c         |   16 ++------
+ drivers/infiniband/hw/mthca/mthca_qp.c         |   51 +++++++++++-------------
+ drivers/infiniband/hw/mthca/mthca_srq.c        |   25 +++++-------
+ drivers/infiniband/ulp/ipoib/ipoib.h           |    2 -
+ drivers/infiniband/ulp/ipoib/ipoib_ib.c        |    4 +-
+ drivers/infiniband/ulp/ipoib/ipoib_main.c      |    2 +
+ drivers/infiniband/ulp/ipoib/ipoib_multicast.c |   13 +++---
+ 8 files changed, 55 insertions(+), 63 deletions(-)
 
-Also note my opinion, doesn't really count if you grep the kernel
-sources for pollei, you won't find anything.
-
--- 
-http://dmoz.org/profiles/pollei.html
-http://sourceforge.net/users/stephen_pollei/
-http://www.orkut.com/Profile.aspx?uid=2455954990164098214
-http://stephen_pollei.home.comcast.net/

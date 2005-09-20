@@ -1,68 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932737AbVITG2Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932739AbVITGdJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932737AbVITG2Q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 02:28:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932739AbVITG2Q
+	id S932739AbVITGdJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 02:33:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932743AbVITGdI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 02:28:16 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:49300 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S932737AbVITG2P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 02:28:15 -0400
-Message-ID: <432FABFA.9010406@namesys.com>
-Date: Mon, 19 Sep 2005 23:28:10 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, thenewme91@gmail.com,
-       Christoph Hellwig <hch@infradead.org>,
-       Denis Vlasenko <vda@ilport.com.ua>, chriswhite@gentoo.org,
-       LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>,
-       Nate Diller <ndiller@namesys.com>
-Subject: Re: I request inclusion of reiser4 in the mainline kernel
-References: <432AFB44.9060707@namesys.com>	 <200509171415.50454.vda@ilport.com.ua>	 <200509180934.50789.chriswhite@gentoo.org>	 <200509181321.23211.vda@ilport.com.ua>	 <20050918102658.GB22210@infradead.org>	 <b14e81f0050918102254146224@mail.gmail.com> <1127079524.8932.21.camel@localhost.localdomain> <432E4786.7010001@namesys.com> <432F8D1E.7060300@yahoo.com.au>
-In-Reply-To: <432F8D1E.7060300@yahoo.com.au>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Sep 2005 02:33:08 -0400
+Received: from qproxy.gmail.com ([72.14.204.194]:53101 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932741AbVITGdH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 02:33:07 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=OXMpozCK1oYM+JfajuBABGbPMUfmEIiilkEs8BTLj5fUVKu0hfMsS2/y2tmKRma53sdSWpzZLa+vZiLEZnddP4CL74hFJiKa+spho+oui4irlTsfo8r63dTd1amUarhncXRo6A2mfXA7e5sMMw4aVVGvS3rSloQj1haM2B+DK6E=
+Message-ID: <489ecd0c05091923336b48555@mail.gmail.com>
+Date: Tue, 20 Sep 2005 14:33:05 +0800
+From: Luke Yang <luke.adi@gmail.com>
+Reply-To: luke.adi@gmail.com
+To: linux-kernel@vger.kernel.org
+Subject: ADI Blackfin porting for kernel-2.6.13
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
+Hi,
 
-> Hans Reiser wrote:
->
->> So why is the code in the kernel so hard to read then?
->>
->> Linux kernel code is getting better, and Andrew Morton's code is
->> especially good, but for the most part it's unnecessarily hard to
->> read. Look at the elevator code for instance.  Ugh.
->>
->>
->
-> What's wrong with the elevator code?
->
-The name for one.  There is no elevator algorithm anywhere in it.  There
-is a least block number first algorithm that was called an elevator, but
-it does not have the properties described by Ousterhout and sundry CS
-textbooks describing elevator algorithms.  The textbook algorithms are
-better than least block number first, and it is interesting how nobody
-fixed the mislabeling of the algorithm once Linux had gotten to the
-point that it was striving for more than making gcc be able to run on it. 
+   I am Luke Yang, an engineer from Analog Devices Inc. We ported
+uclinux to our Blackfin cpu. Now we updated our architecture code for
+kernel-2.6.13. I will send out a patch to this list.
 
-cfq is good code though for many usage patterns. 
+   I know kernel-2.6.14 is coming. Will the linux kernel accept our
+patch for 2.6.13?
 
-I would say more, but I need to talk a customer into ok'ing releasing
-some code first, so I can only say what I knew before doing the work for
-that customer at this time.
-
-If you would like many more details of coding/commenting inelegance, ask
-Nate Diller after the customer oks his talking about it, which will
-happen more easily if we say nothing that we did not know before the
-work for them until we first get their ok.....
-
-Hans
+Regards,
+Luke Yang

@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932746AbVITHCQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932536AbVITHLR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932746AbVITHCQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 03:02:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932747AbVITHCQ
+	id S932536AbVITHLR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 03:11:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932749AbVITHLR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 03:02:16 -0400
-Received: from frankvm.xs4all.nl ([80.126.170.174]:27810 "EHLO
-	janus.localdomain") by vger.kernel.org with ESMTP id S932746AbVITHCP
+	Tue, 20 Sep 2005 03:11:17 -0400
+Received: from zproxy.gmail.com ([64.233.162.204]:39274 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932536AbVITHLQ convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 03:02:15 -0400
-Date: Tue, 20 Sep 2005 09:02:14 +0200
-From: Frank van Maarseveen <frankvm@frankvm.com>
-To: Marc Perkel <marc@perkel.com>
+	Tue, 20 Sep 2005 03:11:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=KFGprvVndVOY1/fOhY/8HVyuJQQjkC5Tg87nrYUoWaXRsGL418aoqZ9LS690eA/OBFOk0FrTlFyOvjiubYKVO9k6c5zPfzn/CqbOXEUETggEk8tMgxnKePhdljV4pjuV6M2wTKVpnCMHXyL6/6WVcHROrgz8fyAlFFecB8+qpks=
+Message-ID: <1e62d13705092000112a49cb6c@mail.gmail.com>
+Date: Tue, 20 Sep 2005 12:11:15 +0500
+From: Fawad Lateef <fawadlateef@gmail.com>
+Reply-To: fawadlateef@gmail.com
+To: Gireesh Kumar <gireesh.kumar@einfochips.com>
+Subject: Re: regarding kernel compilation
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Lost Ticks
-Message-ID: <20050920070214.GA4208@janus>
-References: <432E3D4C.4070508@perkel.com>
+In-Reply-To: <32854.192.168.9.246.1127197320.squirrel@192.168.9.246>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <432E3D4C.4070508@perkel.com>
-User-Agent: Mutt/1.4.1i
-X-Subliminal-Message: Use Linux!
+References: <32854.192.168.9.246.1127197320.squirrel@192.168.9.246>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 18, 2005 at 09:23:40PM -0700, Marc Perkel wrote:
-> Got a dual core Athlon 64 X2 on an Asus board using NVidia chipset and 
-> getting lost ticks. The software clock of course is totally messed up. 
-> I've scanned google for a solution and see others complaining about bad 
-> code in the SMM BIOS. I have the latest bios and whatever they need to 
-> fix - isn't.
-> 
-> So - what do I do to make it work?
+On 9/20/05, Gireesh Kumar <gireesh.kumar@einfochips.com> wrote:
+> Hi,
+> I'd like to compile 2.4.20-6 kernel while running in 2.6 kernel. I tried
+> to do so but there are redeclaration errors with /kernel/sched.c and
+> /include/linux/sched.h. One it is FASTCALL and the other it is not.
+> Can anyone help me to fix this?
 
-See http://bugzilla.kernel.org/show_bug.cgi?id=5105
-
-On the kernel command-line:
-
-x86_64:	try "notsc"
-i386:	try "clock=pit"
-
-"nosmp" works but isn't fun.
+I don't think you will be able to compile 2.4 kernel on to the 2.6
+kernel based distro .... as in 2.6 based distro, mod-utils and other
+packages are updated and will only support 2.6 based kernel .... So
+its better to get 2.4 kernel based distribution .... (and can keep/run
+both 2.6 and 2.4 based distributions simultanously on the same system,
+so that you can boot in any of them as per your requirement of 2.4 or
+2.6 kernel)
 
 -- 
-Frank
+Fawad Lateef

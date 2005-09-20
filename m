@@ -1,94 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750713AbVITWxH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750722AbVITW5e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750713AbVITWxH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 18:53:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750718AbVITWxH
+	id S1750722AbVITW5e (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 18:57:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750725AbVITW5e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 18:53:07 -0400
-Received: from smtp103.rog.mail.re2.yahoo.com ([206.190.36.81]:15550 "HELO
-	smtp103.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1750713AbVITWxF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 18:53:05 -0400
-Subject: Re: [patch] stop inotify from sending random DELETE_SELF event
-	under load
-From: John McCutchan <ttb@tentacle.dhs.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Al Viro <viro@ftp.linux.org.uk>, Ray Lee <ray@madrabbit.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Robert Love <rml@novell.com>, Al Viro <viro@ZenIV.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.58.0509201234560.2553@g5.osdl.org>
-References: <1127190971.18595.5.camel@vertex>
-	 <20050920044623.GD7992@ftp.linux.org.uk> <1127191992.19093.3.camel@vertex>
-	 <20050920045835.GE7992@ftp.linux.org.uk> <1127192784.19093.7.camel@vertex>
-	 <20050920051729.GF7992@ftp.linux.org.uk>
-	 <76677C3D-D5E0-4B5A-800F-9503DA09F1C3@tentacle.dhs.org>
-	 <20050920163848.GO7992@ftp.linux.org.uk>
-	 <1127238257.9940.14.camel@localhost>
-	 <Pine.LNX.4.58.0509201108120.2553@g5.osdl.org>
-	 <20050920182249.GP7992@ftp.linux.org.uk>
-	 <Pine.LNX.4.58.0509201234560.2553@g5.osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 20 Sep 2005 18:53:34 -0400
-Message-Id: <1127256814.749.5.camel@vertex>
+	Tue, 20 Sep 2005 18:57:34 -0400
+Received: from zproxy.gmail.com ([64.233.162.195]:33462 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750722AbVITW5d convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 18:57:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=MoJ6t8j5O0s/SOM0JZGF0HWKwMeXPvleTv+TeEIJAB6YSzuuNGA8rtbE3nnDZ8szCKlLE9cHK+cF3eu0AglIPNeDdLZS8mTl4AdzcPg6QbOnI98WMpgl7qdrFX3l0TZo+DB3drRkmAWwVYifaGJwWo7ImpMc1pGPD7wp2SQt2xU=
+Message-ID: <feed8cdd050920155714510453@mail.gmail.com>
+Date: Tue, 20 Sep 2005 15:57:31 -0700
+From: Stephen Pollei <stephen.pollei@gmail.com>
+Reply-To: stephen.pollei@gmail.com
+To: Alexandre Oliva <aoliva@redhat.com>
+Subject: Re: I request inclusion of reiser4 in the mainline kernel
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Nikita Danilov <nikita@clusterfs.com>,
+       Denis Vlasenko <vda@ilport.com.ua>, LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+In-Reply-To: <or4q8fvd6r.fsf@livre.oliva.athome.lsd.ic.unicamp.br>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <nikita@clusterfs.com>
+	 <17197.15183.235861.655720@gargle.gargle.HOWL>
+	 <200509192316.j8JNFxY8030819@inti.inf.utfsm.cl>
+	 <feed8cdd0509192057e1aa9e3@mail.gmail.com>
+	 <or4q8fvd6r.fsf@livre.oliva.athome.lsd.ic.unicamp.br>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-09-20 at 12:37 -0700, Linus Torvalds wrote:
+On 9/20/05, Alexandre Oliva <aoliva@redhat.com> wrote:
+> On Sep 20, 2005, Stephen Pollei <stephen.pollei@gmail.com> wrote:
+> > On 9/19/05, Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
+> >> Since when has a missing declaration prevented anyone calling a function in
+> >> C?!
+> > Never AFAIK... K&R, ANSI,ISO C89,  c99, whatever version that I know of...
 > 
-> On Tue, 20 Sep 2005, Al Viro wrote:
-> > > 
-> > > I really think that the patch I sent out yesterday is as good as it gets.  
-> > > If you want immediate notification, you should ask for notification about
-> > > name changes in a particular directory. IN_DELETE_SELF notification on a
-> > > file simple is _not_ going to be immediate.
-> > 
-> > But then it's too early.  Note that with your patch we still get removal
-> > of _any_ link to our inode (even though it's alive and well and we'd never
-> > heard about the sodding link in the first place) terminating all events
-> > on it.
-> 
-> Yes. What is in the current 2.6.14-rc2 tree doesn't do that. It considers 
-> inodes "global". But it won't work reliably on networked filesystems, I 
-> think.
-> 
-> Anyway, I do believe that IN_DELETE_SELF is stupid, but that you migth 
-> re-arm it if you get it. 
+> Actually...  C99 requires a declaration (not necessarily with a
+> prototype) before a function can be called.  A prior declaration is
+> required for all identifiers.
 
-Is there some reason we can't just do this from vfs_unlink
+OK thank you for your correction.
 
-inode = dentry->inode;
-iget (inode);
-d_delete (dentry);
-fsnotify_inoderemove (inode);
-iput (inode);
+> I'm not sure whether this is new in C99
+> or carried over from ISO C90 (AKA ANSI C89).  The fact that so many
+> compilers accept calls without prior declarations is a common
+> extension to the language, mainly for backward compatibility.
 
-This would allow us to have immediate event notification, and avoid a
-race with the inode going away, right?
+yep I just tested a small program with different flags...
+int main(void) {
+  int ret;
+  ret=my_func(3);
+  return 0; }
 
-I think the path below will make link handling as good as it can get, by
-sending IN_DELETE_SELF every time inode->i_nlink goes down, and when
-inode->i_nlink == 0, send the IN_IGNORE event. Also, it stuffs
-inode->i_nlink into the cookie giving user space a clue about the status
-of the inode.
+float my_func(double x) {
+  return x+2.0;}
 
-Index: linux/include/linux/fsnotify.h
-===================================================================
---- linux.orig/include/linux/fsnotify.h	2005-08-28 19:41:01.000000000 -0400
-+++ linux/include/linux/fsnotify.h	2005-09-20 18:46:15.000000000 -0400
-@@ -63,8 +63,9 @@
-  */
- static inline void fsnotify_inoderemove(struct inode *inode)
- {
--	inotify_inode_queue_event(inode, IN_DELETE_SELF, 0, NULL);
--	inotify_inode_is_dead(inode);
-+	inotify_inode_queue_event(inode, IN_DELETE_SELF, inode->i_nlink, NULL);
-+	if (inode->i_nlink == 0)
-+		inotify_inode_is_dead(inode);
- }
- 
- /*
+gcc -Wall test_proto.c --std=c99
+and even gcc -Wall test_proto.c --std=c99 -pedantic
+give me this:
+test_proto.c: In function `main':
+test_proto.c:6: warning: implicit declaration of function `my_func'
+test_proto.c: At top level:
+test_proto.c:9: warning: type mismatch with previous implicit declaration
+test_proto.c:6: warning: previous implicit declaration of `my_func'
+test_proto.c:9: warning: `my_func' was previously implicitly declared
+to return `int'
 
+it takes gcc -Wall test_proto.c --std=c99 -pedantic-errors to cause it
+not to create the a.out .
+So gcc should have caused an error as I didn't set --std=gnu99 .. bad compiler.
+
+So I don't know howto get gcc to follow the standards in this area,
+that sounds like a good thing to require.
+
+> > It's really over silly anyway, as it will fail at link time if they
+> > had matching preprocessor stuff around the function definition.
+
+> Not really.  A compiler might optimize away the reference to the
+> symbol if it's say guarded by a condition whose value can be
+> determined to be false at compile time.  If you rely on that, moving
+> to a different compiler that is unable to compute the condition value,
+> or simply is pickier as to standard compliance, will get you errors.
+
+True again, especially since the kernel code itself relies on that
+kind of behavior in some of it's inline functions or macros for
+example to cause link errors only when specific conditions arise.
+so the construct:
+
+#if conditions
+/* function prototype(s) */
+#else
+#define whatever(a,b,c) /* something to crash the compile */
+#endif
+is truely the best solution, if the namesys people want to be
+absolutely sure to catch all
+calls to znode_is_loaded when debuging is not set....
+
+#define znode_is_loaded(I_dont_care_you_are_going_to_) \
+ } )die(]0now[>anyway<}}}}}}*bye*}
+#define znode_is_loaded(z) ><<<>
+
+Either one of the above defines should be sufficiently crappy to cause
+gcc to bomb out.
+I'm so sure(some say full) of it that I'm too lazy to test it out for myself.
+Of course a _Pragma("error") would`a been nice.
+
+Simply not providing a prototype to generate a warning was just
+BAD(B0rken As Designed).
+
+-- 
+http://dmoz.org/profiles/pollei.html
+http://sourceforge.net/users/stephen_pollei/
+http://www.orkut.com/Profile.aspx?uid=2455954990164098214
+http://stephen_pollei.home.comcast.net/

@@ -1,60 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965038AbVITP0V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965037AbVITP3R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965038AbVITP0V (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 11:26:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965037AbVITP0V
+	id S965037AbVITP3R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 11:29:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965039AbVITP3R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 11:26:21 -0400
-Received: from trixi.wincor-nixdorf.com ([217.115.67.77]:18869 "EHLO
-	trixi.wincor-nixdorf.com") by vger.kernel.org with ESMTP
-	id S965039AbVITP0U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 11:26:20 -0400
-Message-ID: <433028A3.9090503@wincor-nixdorf.com>
-Date: Tue, 20 Sep 2005 17:20:03 +0200
-From: Peter Duellings <Peter.Duellings@wincor-nixdorf.com>
-Organization: Wincor Nixdorf
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.1) Gecko/20040707
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Benjamin LaHaise <bcrl@kvack.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kernel error in system call accept() under kernel 2.6.8
-References: <43301BC4.9080305@wincor-nixdorf.com> <20050920150755.GH32751@kvack.org>
-In-Reply-To: <20050920150755.GH32751@kvack.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Sep 2005 11:29:17 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:18953 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S965037AbVITP3R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 11:29:17 -0400
+Date: Tue, 20 Sep 2005 16:29:04 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Sean <seanlkml@sympatico.ca>
+Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org
+Subject: Re: Arrr! Linux v2.6.14-rc2
+Message-ID: <20050920152904.GB493@flint.arm.linux.org.uk>
+Mail-Followup-To: Sean <seanlkml@sympatico.ca>,
+	Gene Heskett <gene.heskett@verizon.net>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0509192003410.2553@g5.osdl.org> <200509201005.49294.gene.heskett@verizon.net> <20050920141008.GA493@flint.arm.linux.org.uk> <200509201025.36998.gene.heskett@verizon.net> <56402.10.10.10.28.1127229646.squirrel@linux1>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <56402.10.10.10.28.1127229646.squirrel@linux1>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ben,
-
-if Log.Log would modify errno the Log.Log debug output should
-not be affected since the value of errno - from my understanding -
-is copied on the stack *before* Log.Log is called.
-Or did I forget something?
-
-
-
-Thanx,
-
-
-Peter
-
-
-Benjamin LaHaise wrote:
-> On Tue, Sep 20, 2005 at 04:25:08PM +0200, Peter Duellings wrote:
+On Tue, Sep 20, 2005 at 11:20:46AM -0400, Sean wrote:
+> On Tue, September 20, 2005 10:25 am, Gene Heskett said:
 > 
->>//accept may return with a protocol error, simply try again
->>while( (n = accept(m_ListenFd, (struct sockaddr *) cliaddr, &len)) < 0)
->>{
->>  Log.Log("Error accept, fd=%d, addrlen=%d, len=%d, errno=%d, %s",
->>m_ListenFd,
->>m_AddrLen, len, errno, strerror_r(errno, l_strebuf, sizeof(l_strebuf)));
->>  if (errno == EPROTO || errno == ECONNABORTED)   //connection already
+> > Humm, what are they holding out for, more ram or more cpu?:-)
+> >
+> > FWIW, http://master.kernel.org doesn't show it either just now.
 > 
+> Gene,
 > 
-> Let's see here: what happens if Log.Log() performs a syscall to, say, 
-> write out the log message to a buffer?
-> 
-> 		-ben
+> While kernel.org snapshots will no doubt be working again shortly, you
+> might want to consider using git.  It reduces the amount you have to
+> download for each release a lot.
 
+This doesn't help when the bots get stuck - neither the git repository
+nor the ftp space get updated when this happens.  I believe both use
+the same lock and are probably the same script.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,63 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964981AbVITMGO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964986AbVITMMr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964981AbVITMGO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 08:06:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964982AbVITMGO
+	id S964986AbVITMMr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 08:12:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964985AbVITMMq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 08:06:14 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:467 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S964981AbVITMGO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 08:06:14 -0400
-Date: Tue, 20 Sep 2005 07:05:23 -0500
-From: Robin Holt <holt@sgi.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: zippel@linux-m68k.org, akpm@osdl.org, torvalds@osdl.org,
-       Simon.Derr@bull.net, linux-kernel@vger.kernel.org, nikita@clusterfs.com
-Subject: Re: [PATCH] cpuset semaphore depth check optimize
-Message-ID: <20050920120523.GC21435@lnx-holt.americas.sgi.com>
-References: <20050912075155.3854b6e3.pj@sgi.com> <Pine.LNX.4.61.0509121821270.3743@scrub.home> <20050912153135.3812d8e2.pj@sgi.com> <Pine.LNX.4.61.0509131120020.3728@scrub.home> <20050913103724.19ac5efa.pj@sgi.com> <Pine.LNX.4.61.0509141446590.3728@scrub.home> <20050914124642.1b19dd73.pj@sgi.com> <Pine.LNX.4.61.0509150116150.3728@scrub.home> <20050915104535.6058bbda.pj@sgi.com> <20050920005743.4ea5f224.pj@sgi.com>
+	Tue, 20 Sep 2005 08:12:46 -0400
+Received: from pat.uio.no ([129.240.130.16]:27067 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S964982AbVITMMp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 08:12:45 -0400
+Subject: Re: ctime set by truncate even if NOCMTIME requested
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: smfrench@austin.rr.com, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <E1EHf0E-000197-00@dorka.pomaz.szeredi.hu>
+References: <432EFAB1.4080406@austin.rr.com>
+	 <1127156303.8519.29.camel@lade.trondhjem.org>
+	 <432F2684.4040300@austin.rr.com>
+	 <1127165311.8519.39.camel@lade.trondhjem.org>
+	 <432F5968.1020106@austin.rr.com>
+	 <1127180199.26459.17.camel@lade.trondhjem.org>
+	 <E1EHdrk-00014N-00@dorka.pomaz.szeredi.hu>
+	 <E1EHf0E-000197-00@dorka.pomaz.szeredi.hu>
+Content-Type: text/plain
+Date: Tue, 20 Sep 2005 08:12:25 -0400
+Message-Id: <1127218345.8413.32.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050920005743.4ea5f224.pj@sgi.com>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-2.625, required 12,
+	autolearn=disabled, AWL 2.19, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul,
+ty den 20.09.2005 Klokka 12:05 (+0200) skreiv Miklos Szeredi:
+> These are othogonal problems.
+> 
+> IS_NOCMTIME is the filesystem's way of saying that it doesn't need
+> ->setattr on truncate(), write(), etc.  Why?  Because it can do the
+> [cm]time change implicitly _within_ the operation.
 
-Can you give a _short_ explanation of why notify_on_release is
-essential?  Could the intent be accomplished with something
-like destroy on exit which then goes through and does the
-remove of shildren and finally removes the cpuset?
+No. IS_NOCMTIME is the filesystem's way of telling the VFS never to
+screw around with the values of inode->i_mtime and inode->i_ctime. 
 
-If we can agree on that, then the exit path becomes
-	if (atomic_dec_and_lock(&current->cpuset.refcount)) {
-		/* Code to remove children. */
-	}
-which no longer needs to call a usermode helper and is _FAR_
-better in my personal biased opinion.
+The reason is that crap like inode_update_time() explicitly sets these
+values to the local current time instead of using server timestamps.
 
+OTOH, ->setattr with an ATTR_MTIME or ATTR_CTIME argument is telling the
+filesystem to update the timestamp. The filesystem then has a choice of
+whether or not to use current time, server time, or to just ignore it if
+the timestamp is going to be be updated by the other ->setattr arguments
+anyway.
 
-Thanks,
-Robin
+> ATTR_MTIME is _only_ set in utime[s], which all filesystems want to
+> honor.
 
+ATTR_MTIME is set in both utimes and truncate. In the latter case, CIFS
+could optimise it away by noting that ATTR_SIZE will set mtime anyway.
+As for ATTR_CTIME, that is also set in chown(), chmod(). It too can be
+optimised away for those operations, assuming that CIFS servers
+automatically update ctime.
 
-PS:  For reference, here is what /sbin/cpuset_release_agent
-looks like:
-
-[holt@attica:sbin] cat cpuset_release_agent 
-#!/bin/sh
-
-# Do not modify this file /sbin/cpuset_release_agent.
-#
-# It is invoked directly from the kernel's call_usermodehelper()
-# routine, whenever the last user of cpuset goes away, if that
-# cpuset had its 'notify_on_release' option set to '1'.  This
-# cpuset_release_agent script is responsible for removing the
-# abandoned cpuset, whose cpuset file system path is passed
-# in argv[1].
-
-rmdir /dev/cpuset/$1
+Cheers,
+  Trond
 

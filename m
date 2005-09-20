@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932757AbVITOVA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965020AbVITOVz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932757AbVITOVA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 10:21:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932758AbVITOVA
+	id S965020AbVITOVz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 10:21:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965017AbVITOVy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 10:21:00 -0400
-Received: from mout1.freenet.de ([194.97.50.132]:12933 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id S932757AbVITOU7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 10:20:59 -0400
-Message-ID: <43301A98.5010607@zaphods.net>
-Date: Tue, 20 Sep 2005 16:20:08 +0200
-From: Stefan Schmidt <zaphodb@zaphods.net>
-User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: 2.6.14-rc1-mm1 unable to mount root on HP Smart6i cciss was: Re:
- 2.6.14-rc1-mm1
-References: <4NkHQ-cw-13@gated-at.bofh.it>
-In-Reply-To: <4NkHQ-cw-13@gated-at.bofh.it>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Sep 2005 10:21:54 -0400
+Received: from noname.neutralserver.com ([70.84.186.210]:59761 "EHLO
+	noname.neutralserver.com") by vger.kernel.org with ESMTP
+	id S932758AbVITOVx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 10:21:53 -0400
+Date: Tue, 20 Sep 2005 17:25:09 +0300
+From: Dan Aloni <da-x@monatomic.org>
+To: Ganesh Venkatesan <ganesh.venkatesan@gmail.com>
+Cc: Francois Romieu <romieu@fr.zoreil.com>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       netdev@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: workaround large MTU and N-order allocation failures
+Message-ID: <20050920142509.GA26617@localdomain>
+References: <20050918143526.GA24181@localdomain> <20050918230822.GA5440@electric-eye.fr.zoreil.com> <20050919071358.GA7107@localdomain> <5fc59ff305091910252447d363@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5fc59ff305091910252447d363@mail.gmail.com>
+User-Agent: Mutt/1.5.10i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - noname.neutralserver.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - monatomic.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Changes since 2.6.13-mm3:
-...
-> -cciss-new-controller-pci-subsystem-ids.patch
-> -cciss-busy_initializing-flag.patch
-> -cciss-new-disk-register-deregister-routines.patch
-> -cciss-direct-lookup-for-command-completions.patch
-> -cciss-bug-fix-in-cciss_remove_one.patch
-> -cciss-fix-for-dma-brokeness.patch
-> -cciss-one-button-disaster-recovery-support.patch
-> -cciss-scsi-tape-info-for-proc.patch
+On Mon, Sep 19, 2005 at 10:25:29AM -0700, Ganesh Venkatesan wrote:
+> 82546GB supports an incoming Rx packet to be received in multiple rx
+> buffers. A driver that enables this feature is under test currently.
+> What version of the e1000 are you using?
 
-On a HP Proliant DL385 with Smart6i Controller 2.6.14-rc1-mm1 was unable 
-to mount root although the device file existed and had the correct 
-major/minor numbers. 2.6.13-vanilla was able to find and mount the very 
-same root-device using the same config.
-Root-device was the first partition the first SCSI disk exported as JBOD 
-which in smart-controller terms means it is a raid0. /dev/cciss/c0d0p1
-I was able to see the devices flying by during the booting of 
-2.6.14-rc1-mm1 so the controller, its disks and partitions were 
-recognized correctly, it was just unable to map the major/minor number 
-to a device or partition.
+We are currently using the lastest version of the driver from the 2.6 
+tree backported to the 2.4 tree. I wasn't aware that 82546GB supports 
+this - I inferred differently from the comments in the driver's source.
 
-best regards,
+Is the version of the driver you mention available from CVS somewhere?
 
-  Stefan Schmidt
+-- 
+Dan Aloni
+da-x@monatomic.org, da-x@colinux.org, da-x@gmx.net

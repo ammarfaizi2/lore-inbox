@@ -1,65 +1,150 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964915AbVITHyw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964914AbVITH4T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964915AbVITHyw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 03:54:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964914AbVITHyv
+	id S964914AbVITH4T (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 03:56:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964918AbVITH4S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 03:54:51 -0400
-Received: from zorg.st.net.au ([203.16.233.9]:20611 "EHLO borg.st.net.au")
-	by vger.kernel.org with ESMTP id S964911AbVITHyv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 03:54:51 -0400
-Message-ID: <432FC066.8030806@torque.net>
-Date: Tue, 20 Sep 2005 17:55:18 +1000
-From: Douglas Gilbert <dougg@torque.net>
-Reply-To: dougg@torque.net
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-scsi@vger.kernel.org
-CC: linux-kernel@vger.kernel.org, tomfa@debian.org, kumba@gentoo.org
-Subject: [ANNOUNCE] sdparm 0.95
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 20 Sep 2005 03:56:18 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:48780 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S964914AbVITH4R
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 03:56:17 -0400
+Subject: Re: [RFC PATCH 5/10] vfs: shared subtree aware bind mounts
+From: Ram Pai <linuxram@us.ibm.com>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Miklos Szeredi <miklos@szeredi.hu>,
+       mike@waychison.com, bfields@fieldses.org, serue@us.ibm.com
+In-Reply-To: <20050920071741.GI7992@ftp.linux.org.uk>
+References: <20050916182619.GA28489@RAM>
+	 <20050920071741.GI7992@ftp.linux.org.uk>
+Content-Type: text/plain
+Organization: IBM 
+Message-Id: <1127202974.10061.27.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 20 Sep 2005 00:56:14 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sdparm is a command line utility designed to get and set
-SCSI device parameters (cf hdparm for ATA disks). Apart
-from SCSI devices (e.g. disks, tapes and enclosures) sdparm
-can be used on any device that uses a SCSI command set.
-Virtually all CD/DVD drives use the SCSI MMC set irrespective
-of the transport. sdparm also can decode VPD pages including
-the device identification page. Commands to start and stop
-the media; and load and unload removable media are supported.
-sdparm can be used in both the lk 2.4 and 2.6 series.
+On Tue, 2005-09-20 at 00:17, Al Viro wrote:
+> On Fri, Sep 16, 2005 at 11:26:19AM -0700, Ram wrote:
+> 
+> This patch needs to be split *AND* accompanied by locking rules.  It's
+> pretty much the core of the entire thing; if it's possible to offload
+> chunks elsewhere, life would become easier.  Locking rules are badly
+> needed, along with the comments re "why can't that mntput()/dput()
+> block under a spinlock", etc.
 
-This release adds the decoding of 5 more Vital Product Data
-(VPD) pages. Most of the rest of the changes are bug fixes.
+Yes will do.
 
-For more information and downloads see:
-http://www.torque.net/sg/sdparm.html
+Also I realized that vfspnode_lock just added more complexity because
+all it protected was already protected by vfsmount_lock. So I am
+cleaning up that lock.
 
-ChangeLog for sdparm-0.95 [20050920]
-  - add debian directory (for builds)
-  - add decode for extended inquiry data VPD page
-  - add decode for management network addresses VPD page
-  - add decode for mode page policy VPD page
-  - add decode for ATA information VPD page
-  - add decode for Block limits VPD page
-  - fix DRA and LBCSS bits in caching mode page
-  - sync with SPC-4 rev 02
-  - add EBACKERR in Informational exceptions mode page
-  - add some defensive code into SCSI INQUIRY response processing
-  - about 10 fixes to mode page items as a result of chk_sdparm_data
-    <see notes.txt file for more information>
-  - when changing mode pages, check modification position does not
-    exceed actual page length
-  - process '-p' option last since it depends on '-t' and '-i'
-    - output available arguments when '-p' or '-t' arguments
-      don't match
-  - fix command line problem with '--dbd', '--defaults' and
-    '--dummy'
 
-Doug Gilbert
+
+> 
+> BTW, how are you dealing with MS_MOVE?
+In the patch #6 MS_MOVE and pivot_root are handled.
+> 
+> > +void do_detach_prepare_mnt(struct vfsmount *mnt)
+> > +{
+> > +	mnt->mnt_mountpoint->d_mounted--;
+> > +	mntput(mnt->mnt_parent);
+> > +	dput(mnt->mnt_mountpoint);
+> > +	mnt->mnt_parent = mnt;
+> > +}
+> 
+> General note: mntput() should go _after_ dput() when we deal with pairs.
+> Doesn't cost anything, trivially safe.
+
+ok
+
+> 
+> >  	if (res) {
+> >  		spin_lock(&vfsmount_lock);
+> > +		clean_propagation_reference(res);
+> 
+> Uh-oh...  What makes that safe?  We do mntput() here; are we guaranteed
+> that these pointers won't be the last references?
+
+Yes it is safe and it is not releasing the last reference to the mount.
+Will put in a comment there.
+
+It is releasing a reference to source mount of the bind operation.
+
+static void inline clean_propagation_reference(struct vfsmount *mnt)
++{
++	struct vfsmount *p;
++	for (p = mnt; p; p = next_mnt(p, mnt))
++		if (p->mnt_master)
++			mntput(p->mnt_master);
++}
++
+ 
+
+> > +		spin_lock(&vfspnode_lock);
+> > +		propagate_abort_mount(m);
+> 
+> Calls do_detach_prepare() -> dput(), mntput().  At the very least such
+> cases need comments...
+> 
+
+ok will add a comment. 
+but propagate_abort_mount() is not holding vfsmount_lock,  
+it is holding vfspnode_lock. So there should be a problem. But as
+mentioned earlier, even the need for vfspnode_lock is not needed.
+
+
+
+> > +static void __do_make_private(struct vfsmount *mnt)
+> > +{
+> > +	__do_make_slave(mnt);
+> > +	list_del_init(&mnt->mnt_slave);
+> > +	mnt->mnt_master = NULL;
+> > +	set_mnt_private(mnt);
+> > +}
+> > +
+> >  int do_make_private(struct vfsmount *mnt)
+> >  {
+> >  	/*
+> >  	 * a private mount is nothing but a
+> >  	 * slave mount with no incoming
+> >  	 * propagations.
+> >  	 */
+> >  	spin_lock(&vfspnode_lock);
+> > -	__do_make_slave(mnt);
+> > -	list_del_init(&mnt->mnt_slave);
+> > +	__do_make_private(mnt);
+> >  	spin_unlock(&vfspnode_lock);
+> > -	mnt->mnt_master = NULL;
+> > -	set_mnt_private(mnt);
+> >  	return 0;
+> >  }
+> 
+> Why not do that from the very beginning, BTW?
+
+can be done. will do.
+
+> 
+> >  	/*
+> > -	 * a unclonable mount is nothing but a
+> > +	 * a unclonable mount is a
+> >  	 * private mount which is unclonnable.
+> >  	 */
+> >  	spin_lock(&vfspnode_lock);
+> > -	__do_make_slave(mnt);
+> > -	list_del_init(&mnt->mnt_slave);
+> > +	__do_make_private(mnt);
+> >  	spin_unlock(&vfspnode_lock);
+> > -	mnt->mnt_master = NULL;
+> >  	set_mnt_unclonable(mnt);
+> >  	return 0;
+> >  }
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+

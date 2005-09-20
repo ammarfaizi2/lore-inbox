@@ -1,95 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932711AbVITRvj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932734AbVITRxt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932711AbVITRvj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 13:51:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932734AbVITRvj
+	id S932734AbVITRxt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 13:53:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932793AbVITRxt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 13:51:39 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:32134 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932711AbVITRvi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 13:51:38 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: <len.brown@intel.com>, Pierre Ossman <drzeus-list@drzeus.cx>,
-       acpi-devel@lists.sourceforge.net, ncunningham@cyclades.com,
-       Pavel Machek <pavel@ucw.cz>, Masoud Sharbiani <masouds@masoud.ir>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2/2] suspend: Cleanup calling of power off methods.
-References: <F7DC2337C7631D4386A2DF6E8FB22B30047B8DAF@hdsmsx401.amr.corp.intel.com>
-	<m1d5ngk4xa.fsf@ebiederm.dsl.xmission.com>
-	<Pine.SOC.4.61.0509111140550.9218@math.ut.ee>
-	<m14q8fhc02.fsf_-_@ebiederm.dsl.xmission.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Tue, 20 Sep 2005 11:49:24 -0600
-In-Reply-To: <m14q8fhc02.fsf_-_@ebiederm.dsl.xmission.com> (Eric W.
- Biederman's message of "Tue, 20 Sep 2005 11:42:21 -0600")
-Message-ID: <m1zmq7fx3v.fsf_-_@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Tue, 20 Sep 2005 13:53:49 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:53168 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932734AbVITRxr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 13:53:47 -0400
+To: stephen.pollei@gmail.com
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Nikita Danilov <nikita@clusterfs.com>,
+       Denis Vlasenko <vda@ilport.com.ua>, LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: I request inclusion of reiser4 in the mainline kernel
+References: <nikita@clusterfs.com>
+	<17197.15183.235861.655720@gargle.gargle.HOWL>
+	<200509192316.j8JNFxY8030819@inti.inf.utfsm.cl>
+	<feed8cdd0509192057e1aa9e3@mail.gmail.com>
+From: Alexandre Oliva <aoliva@redhat.com>
+Organization: Red Hat Global Engineering Services Compiler Team
+Date: Tue, 20 Sep 2005 14:53:00 -0300
+In-Reply-To: <feed8cdd0509192057e1aa9e3@mail.gmail.com> (Stephen Pollei's
+ message of "Mon, 19 Sep 2005 20:57:20 -0700")
+Message-ID: <or4q8fvd6r.fsf@livre.oliva.athome.lsd.ic.unicamp.br>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sep 20, 2005, Stephen Pollei <stephen.pollei@gmail.com> wrote:
 
-In the lead up to 2.6.13 I fixed a large number of reboot
-problems by making the calling conventions consistent.  Despite
-checking and double checking my work it appears I missed an
-obvious one.
+> On 9/19/05, Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
+>> Nikita Danilov <nikita@clusterfs.com> wrote:
+>> > It's other way around: declaration is guarded by the preprocessor
+>> > conditional so that nobody accidentally use znode_is_loaded() outside of
+>> > the debugging mode.
+>> 
+>> Since when has a missing declaration prevented anyone calling a function in
+>> C?!
+> Never AFAIK... K&R, ANSI,ISO C89,  c99, whatever version that I know of...
 
-The S4 suspend code for PM_DISK_PLATFORM was also calling
-device_shutdown without setting system_state, and was
-not calling the appropriate reboot_notifier.
+Actually...  C99 requires a declaration (not necessarily with a
+prototype) before a function can be called.  A prior declaration is
+required for all identifiers.  I'm not sure whether this is new in C99
+or carried over from ISO C90 (AKA ANSI C89).  The fact that so many
+compilers accept calls without prior declarations is a common
+extension to the language, mainly for backward compatibility.
 
-This patch fixes the bug by replacing the call of device_suspend with
-kernel_poweroff_prepare.  
+> It's really over silly anyway, as it will fail at link time if they
+> had matching preprocessor stuff around the function definition.
 
-Various forms of this failure have been fixed and tracked for a while.
+Not really.  A compiler might optimize away the reference to the
+symbol if it's say guarded by a condition whose value can be
+determined to be false at compile time.  If you rely on that, moving
+to a different compiler that is unable to compute the condition value,
+or simply is pickier as to standard compliance, will get you errors.
 
-Thanks for tracking this down go to: Alexey Starikovskiy,
-Meelis Roos <mroos@linux.ee>, Nigel Cunningham <ncunningham@cyclades.com>,
-Pierre Ossman <drzeus-list@drzeus.cx>
-
-History of this bug is at:
-http://bugme.osdl.org/show_bug.cgi?id=4320
-
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
-
-
----
-
- kernel/power/disk.c |    6 ++----
- 1 files changed, 2 insertions(+), 4 deletions(-)
-
-2c72ba7b1126a7ccf3e8fc032f041a223e39aa97
-diff --git a/kernel/power/disk.c b/kernel/power/disk.c
---- a/kernel/power/disk.c
-+++ b/kernel/power/disk.c
-@@ -17,12 +17,12 @@
- #include <linux/delay.h>
- #include <linux/fs.h>
- #include <linux/mount.h>
-+#include <linux/pm.h>
- 
- #include "power.h"
- 
- 
- extern suspend_disk_method_t pm_disk_mode;
--extern struct pm_ops * pm_ops;
- 
- extern int swsusp_suspend(void);
- extern int swsusp_write(void);
-@@ -49,13 +49,11 @@ dev_t swsusp_resume_device;
- 
- static void power_down(suspend_disk_method_t mode)
- {
--	unsigned long flags;
- 	int error = 0;
- 
--	local_irq_save(flags);
- 	switch(mode) {
- 	case PM_DISK_PLATFORM:
-- 		device_shutdown();
-+		kernel_power_off_prepare();
- 		error = pm_ops->enter(PM_SUSPEND_DISK);
- 		break;
- 	case PM_DISK_SHUTDOWN:
+-- 
+Alexandre Oliva         http://www.lsd.ic.unicamp.br/~oliva/
+Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
+Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}

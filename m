@@ -1,94 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932728AbVITFRL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932729AbVITFRc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932728AbVITFRL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 01:17:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932729AbVITFRL
+	id S932729AbVITFRc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 01:17:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932730AbVITFRc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 01:17:11 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:50157 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932728AbVITFRJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 01:17:09 -0400
-Date: Mon, 19 Sep 2005 22:16:14 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: vandrove@vc.cvut.cz, alokk@calsoftinc.com, linux-kernel@vger.kernel.org,
-       manfred@colorfullife.com
-Subject: Re: 2.6.14-rc1-git-now still dying in mm/slab - this time line 1849
-Message-Id: <20050919221614.6c01c2d1.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.62.0509191351440.26388@schroedinger.engr.sgi.com>
-References: <4329A6A3.7080506@vc.cvut.cz>
-	<20050916023005.4146e499.akpm@osdl.org>
-	<432AA00D.4030706@vc.cvut.cz>
-	<20050916230809.789d6b0b.akpm@osdl.org>
-	<432EE103.5020105@vc.cvut.cz>
-	<20050919112912.18daf2eb.akpm@osdl.org>
-	<Pine.LNX.4.62.0509191141380.26105@schroedinger.engr.sgi.com>
-	<20050919122847.4322df95.akpm@osdl.org>
-	<Pine.LNX.4.62.0509191351440.26388@schroedinger.engr.sgi.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 20 Sep 2005 01:17:32 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:15247 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932729AbVITFRb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 01:17:31 -0400
+Date: Tue, 20 Sep 2005 06:17:29 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: John McCutchan <ttb@tentacle.dhs.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Robert Love <rml@novell.com>, Al Viro <viro@ZenIV.linux.org.uk>
+Subject: Re: [patch] stop inotify from sending random DELETE_SELF event under load
+Message-ID: <20050920051729.GF7992@ftp.linux.org.uk>
+References: <1127181641.16372.10.camel@vertex> <Pine.LNX.4.58.0509191909220.2553@g5.osdl.org> <1127188015.17794.6.camel@vertex> <Pine.LNX.4.58.0509192054060.2553@g5.osdl.org> <20050920042456.GC7992@ftp.linux.org.uk> <1127190971.18595.5.camel@vertex> <20050920044623.GD7992@ftp.linux.org.uk> <1127191992.19093.3.camel@vertex> <20050920045835.GE7992@ftp.linux.org.uk> <1127192784.19093.7.camel@vertex>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1127192784.19093.7.camel@vertex>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter <clameter@engr.sgi.com> wrote:
->
-> On Mon, 19 Sep 2005, Andrew Morton wrote:
+On Tue, Sep 20, 2005 at 01:06:23AM -0400, John McCutchan wrote:
+> On Tue, 2005-09-20 at 05:58 +0100, Al Viro wrote:
+> > On Tue, Sep 20, 2005 at 12:53:12AM -0400, John McCutchan wrote:
+> > > DELETE_SELF WD=X
+> > > 
+> > > The path you requested a watch on (inotify_add_watch(path,mask) returned
+> > > X) has been deleted.
+> > 
+> > Then why the devil do we have IN_DELETE and IN_DELETE_SELF generated
+> > in different places?  The only difference is in who receives the
+> > event - you send IN_DELETE to watchers on parent and IN_DELETE_SELF
+> > on watchers on victim.  Event itself is the same, judging by your
+> > description...
 > 
-> > 	list_for_each(walk, &cache_chain) {
-> > 		kmem_cache_t *searchp;
-> > 		struct list_head* p;
-> > 		int tofree;
-> > 		struct slab *slabp;
-> > 
-> > 		searchp = list_entry(walk, kmem_cache_t, next);
-> > 
-> > 		if (searchp->flags & SLAB_NO_REAP)
-> > 			goto next;
-> > 
-> > 		check_irq_on();
-> > 
-> > 		l3 = searchp->nodelists[numa_node_id()];
-> > 		if (l3->alien)
-> > 			drain_alien_cache(searchp, l3);
-> > ->preempt here
-> > 		spin_lock_irq(&l3->list_lock);
-> > 
-> > 		drain_array_locked(searchp, ac_data(searchp), 0,
-> > 				numa_node_id());
-> > ->oops, wrong node.
-> 
-> This is called from keventd which exists per processor. Hmmm... This looks 
-> as if it can change processors after all
+> No, because in the case of IN_DELETE, the path represented by the WD
+> hasn't been deleted, it is "PATH(WD)/event->name" that has been.
 
-Well no, it would be a big bug if a keventd thread were to change CPUs.
+That's OK - same thing described for different recepients, thus two
+events with different contents and type being sent.
 
-It's OK to rely upon the pinnedness of keventd I guess - a comment would be
-nice.
+> Also,
+> IN_DELETE_SELF marks the death of the WD, no further events will be sent
+> with the same WD [Except for the IN_IGNORE]. 
 
-> but the slab allocator depends on 
-> it running on the right processor. So does the page allocator. sigh. What 
-> is the point of having per processor workqueues if they do not stay on 
-> the assigned processor?
+Uh-oh...  Now, _that_ is rather interesting - you are giving self-contradictory
+descriptions of the semantics.
 
-They do.  I don't believe that preemption is the source of this BUG. 
-(Petr, does CONFIG_PREEMPT=n fix it?)
+fd = open("foo", 0);
+unlink("foo");
+sleep for a day
+fchmod(fd, 0400);
+sleep for a day
+close(fd);
 
-> The fast fix for this case is to get the node number once and then use it 
-> consistently.
-
-If one is writing preempt-safe code then one should disable preemption
-before copying the current CPU number into a local variable.
-
-> But we really need to audit the slab and page allocator for 
-> additional cases like this or disable preempt and check for the right 
-> processor in cache_reap().
-
-numa_node_id() must use smp_processor_id(), not raw_smp_processor_id(). 
-Then all the runtime squawks need to be audited and fixed, or switched to
-(new) raw_numa_node_id() if is is verified that a CPU/node switch at any
-time is OK.
-
-
+Which events do we have here?  Removal of path happens at unlink(); change
+of attributes - a day later.

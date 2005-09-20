@@ -1,45 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965118AbVITUs1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965119AbVITU6E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965118AbVITUs1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 16:48:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965119AbVITUs1
+	id S965119AbVITU6E (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 16:58:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965120AbVITU6D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 16:48:27 -0400
-Received: from verein.lst.de ([213.95.11.210]:3284 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S965118AbVITUs0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 16:48:26 -0400
-Date: Tue, 20 Sep 2005 22:48:07 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] fixup Documentation/DocBook/kernel-hacking.tmpl
-Message-ID: <20050920204807.GA8538@lst.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+	Tue, 20 Sep 2005 16:58:03 -0400
+Received: from vms040pub.verizon.net ([206.46.252.40]:53144 "EHLO
+	vms040pub.verizon.net") by vger.kernel.org with ESMTP
+	id S965119AbVITU6D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 16:58:03 -0400
+Date: Tue, 20 Sep 2005 16:57:59 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: Arrr! Linux v2.6.14-rc2
+In-reply-to: <BAYC1-PASMTP04AB35B0A82E89B341AB0BAE950@cez.ice>
+To: linux-kernel@vger.kernel.org
+Message-id: <200509201657.59407.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <Pine.LNX.4.58.0509192003410.2553@g5.osdl.org>
+ <200509201025.36998.gene.heskett@verizon.net>
+ <BAYC1-PASMTP04AB35B0A82E89B341AB0BAE950@cez.ice>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-__FUNCTION__ is the prefered kernel idiom, __func__ is not supported by
-gcc 2.95 (we actually map __FUNCTION__ to __func__ for more recent
-compilers, but it should never be used directly)
+On Tuesday 20 September 2005 11:20, Sean wrote:
+>On Tue, September 20, 2005 10:25 am, Gene Heskett said:
+>> Humm, what are they holding out for, more ram or more cpu?:-)
+>>
+>> FWIW, http://master.kernel.org doesn't show it either just now.
+>
+>Gene,
+>
+>While kernel.org snapshots will no doubt be working again shortly, you
+>might want to consider using git.  It reduces the amount you have to
+>download for each release a lot.
+>
+>It's really easy to grab a copy of git and use it to grab the kernel:
+>
+>mkdir kernel
+check
+>cd kernel
+check
+>wget http://kernel.org/pub/software/scm/git/git-core-0.99.7.tar.bz2
+check
+>tar -xvjf git-core-0.99.7.tar.bz2
+check
+>cd git-core-0.99.7
+check
+>make install
+check
+>cd ..
+>
+>git clone \
+>rsync://www.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git \
+>linux
 
+Well, things marched right along till I got to the line for git clone
+etc.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+[root@coyote kernel]# git clone
+rsync://www.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
+linux
+bash: git: command not found
 
-Index: linux-2.6/Documentation/DocBook/kernel-hacking.tmpl
-===================================================================
---- linux-2.6.orig/Documentation/DocBook/kernel-hacking.tmpl	2005-09-11 15:19:18.000000000 +0200
-+++ linux-2.6/Documentation/DocBook/kernel-hacking.tmpl	2005-09-15 13:38:06.000000000 +0200
-@@ -1105,7 +1105,7 @@
-     </listitem>
-     <listitem>
-      <para>
--      Function names as strings (__func__).
-+      Function names as strings (__FUNCTION__).
-      </para>
-     </listitem>
-     <listitem>
+Humm, back up & find it put git stuff in /root/bin  ?????
+
+[root@coyote kernel]# /root/bin/git clone \
+rsync://www.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
+ linux
+/root/bin/git-clone: line 2: git-init-db: command not found
+* git clone [-l [-s]] [-q] [-u <upload-pack>] <repo> <dir>
+
+So why did it put it in /root/bin?  It's there, but not in my $PATH.
+And theres no "make uninstall" to clean up the install so I might be
+able to cleanly fix the miss-fire...  Murphy rides again..
+
+[...]
+
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.35% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+

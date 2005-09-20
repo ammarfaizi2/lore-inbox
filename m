@@ -1,60 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932522AbVITE5s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932552AbVITE6j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932522AbVITE5s (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Sep 2005 00:57:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932538AbVITE5s
+	id S932552AbVITE6j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Sep 2005 00:58:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932725AbVITE6j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Sep 2005 00:57:48 -0400
-Received: from zctfs063.nortelnetworks.com ([47.164.128.120]:48891 "EHLO
-	zctfs063.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S932522AbVITE5r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Sep 2005 00:57:47 -0400
-Message-ID: <432F96C1.70303@nortel.com>
-Date: Mon, 19 Sep 2005 22:57:37 -0600
-From: "Christopher Friesen" <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: tglx@linutronix.de
-CC: Christoph Lameter <clameter@engr.sgi.com>, linux-kernel@vger.kernel.org,
-       mingo@elte.hu, akpm@osdl.org, george@mvista.com, johnstul@us.ibm.com,
-       paulmck@us.ibm.com
-Subject: Re: [ANNOUNCE] ktimers subsystem
-References: <20050919184834.1.patchmail@tglx.tec.linutronix.de>	 <Pine.LNX.4.62.0509191500040.27238@schroedinger.engr.sgi.com>	 <1127168232.24044.265.camel@tglx.tec.linutronix.de>	 <432F3E0F.1010002@nortel.com> <1127170488.24044.291.camel@tglx.tec.linutronix.de>
-In-Reply-To: <1127170488.24044.291.camel@tglx.tec.linutronix.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 20 Sep 2005 04:57:39.0295 (UTC) FILETIME=[D35526F0:01C5BD9F]
+	Tue, 20 Sep 2005 00:58:39 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:32143 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932538AbVITE6i
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Sep 2005 00:58:38 -0400
+Date: Tue, 20 Sep 2005 05:58:35 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: John McCutchan <ttb@tentacle.dhs.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Robert Love <rml@novell.com>, Al Viro <viro@ZenIV.linux.org.uk>
+Subject: Re: [patch] stop inotify from sending random DELETE_SELF event under load
+Message-ID: <20050920045835.GE7992@ftp.linux.org.uk>
+References: <1127177337.15262.6.camel@vertex> <Pine.LNX.4.58.0509191821220.2553@g5.osdl.org> <1127181641.16372.10.camel@vertex> <Pine.LNX.4.58.0509191909220.2553@g5.osdl.org> <1127188015.17794.6.camel@vertex> <Pine.LNX.4.58.0509192054060.2553@g5.osdl.org> <20050920042456.GC7992@ftp.linux.org.uk> <1127190971.18595.5.camel@vertex> <20050920044623.GD7992@ftp.linux.org.uk> <1127191992.19093.3.camel@vertex>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1127191992.19093.3.camel@vertex>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Gleixner wrote:
-> On Mon, 2005-09-19 at 16:39 -0600, Christopher Friesen wrote:
+On Tue, Sep 20, 2005 at 12:53:12AM -0400, John McCutchan wrote:
+> DELETE_SELF WD=X
 > 
->>Thomas Gleixner wrote:
+> The path you requested a watch on (inotify_add_watch(path,mask) returned
+> X) has been deleted.
 
->>>We should rather ask glibc people why gettimeofday() / clock_getttime()
->>>is called inside the library code all over the place for non obvious
->>>reasons.
-
->>--flight-recorder style logs
-
-> If you want to implement such stuff efficiently you rely on rdtscll() on
-> x86 or other monotonic easy accessible time souces and not on a
-> permanent call to gettimeofday.
-
-Not portable across architectures, and doesn't work across all smp/numa 
-environments.  Also not easy to compare with other nodes on the network, 
-whereas with ntp-synch'd nodes you can use gettimeofday() for quite 
-accurate correlations.
-
-> Please beware me of red herrings. If application developers code with
-> respect to random OS worst case behaviour then they should not complain
-> that OS N is having an additional add instruction in one of the pathes.
-
-Actually I'm not complaining about additional add instructions.  I was 
-just suggesting some reasons why apps might reasonably want to know the 
-time frequently.
-
-Chris
-
+Then why the devil do we have IN_DELETE and IN_DELETE_SELF generated
+in different places?  The only difference is in who receives the
+event - you send IN_DELETE to watchers on parent and IN_DELETE_SELF
+on watchers on victim.  Event itself is the same, judging by your
+description...
